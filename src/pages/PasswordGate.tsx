@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Wordmark } from '../components/ui'
+import { Wordmark, DesignCredit } from '../components/ui'
 import { setStoredRole, EXTERNAL_PASSWORD } from '../lib/role'
 
 const CORRECT = '7Evenhaavn!!!'
@@ -148,9 +148,10 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
       </div>
 
       {/* Bottom brand */}
-      <p style={{ position: 'absolute', bottom: 28, color: '#282828', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+      <p style={{ position: 'absolute', bottom: 34, color: '#282828', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
         7EVEN Capital · Private Access
       </p>
+      <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0, color: 'rgba(255,255,255,0.12)' }} />
 
       <style>{`
         @keyframes shake {

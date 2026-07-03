@@ -29,6 +29,20 @@ export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | '
   )
 }
 
+// ── Design credit ─────────────────────────────────────────────────────────────
+
+export function DesignCredit({ style }: { style?: React.CSSProperties }) {
+  return (
+    <p style={{
+      color: 'rgba(255,255,255,0.18)', fontSize: 7, letterSpacing: '0.30em',
+      textTransform: 'uppercase', fontWeight: 400, textAlign: 'center',
+      whiteSpace: 'nowrap', margin: 0, ...style,
+    }}>
+      Design &amp; Interface © {new Date().getFullYear()} JB Design × Studio · All Rights Reserved
+    </p>
+  )
+}
+
 // ── Panel / Card ──────────────────────────────────────────────────────────────
 
 export function Panel({ children, className = '' }: { children: React.ReactNode; className?: string }) {

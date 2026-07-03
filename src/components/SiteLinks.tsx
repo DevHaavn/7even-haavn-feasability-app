@@ -1,12 +1,12 @@
 import React from 'react'
+import { DesignCredit } from './ui'
 
 export default function SiteLinks() {
   return (
+    <div style={{ background: '#0A0A0A', borderTop: '1px solid #1A1A1A', flexShrink: 0, paddingBottom: 12 }}>
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      gap: 16, padding: '18px 24px',
-      background: '#0A0A0A', borderTop: '1px solid #1A1A1A',
-      flexShrink: 0,
+      gap: 16, padding: '18px 24px 10px',
     }}>
       <span style={{ color: '#fff', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600 }}>Visit Us</span>
       <div style={{ width: 1, height: 14, background: '#333' }} />
@@ -60,6 +60,8 @@ export default function SiteLinks() {
       >
         HAAVN.AU ↗
       </a>
+    </div>
+    <DesignCredit />
     </div>
   )
 }
