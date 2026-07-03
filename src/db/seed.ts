@@ -6,8 +6,14 @@ export function seedProjectsIfEmpty() {
   const existing = db.getProjects()
   const ids = new Set(existing.map(p => p.id))
 
-  if (existing.length === 0) {
+  // Ensure Werribee + Geelong exist (idempotent, keyed by id).
+  // Previously these only seeded on a fully-empty browser; after cloud sync
+  // overwrote localStorage with the 2 cloud projects they vanished. Re-create
+  // them if missing so they get restored + pushed back to the cloud.
+  if (!ids.has('seed-werribee-001')) {
     seedWerribee()
+  }
+  if (!ids.has('seed-geelong-001')) {
     seedGeelong()
   }
 
