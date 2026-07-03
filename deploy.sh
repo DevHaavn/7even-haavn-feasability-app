@@ -6,6 +6,6 @@ echo "→ Pushing to GitHub..."
 git push origin main
 
 echo "→ Deploying to Vercel..."
-vercel deploy --prod --yes
+npx vercel deploy --prod --yes
 
 echo "✓ Done — live in ~60 seconds"
