@@ -167,6 +167,12 @@ input[type="checkbox"] {
 /* ── Utility: text number ── */
 .num { font-variant-numeric: tabular-nums; }
 
+/* ── Workspace tab bar — wrap to extra rows on desktop so every tab stays visible;
+     mobile keeps the horizontal swipe bar below ── */
+@media (min-width: 769px) {
+  .tab-bar-scroll { flex-wrap: wrap; }
+}
+
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
   /* Tab bar: scrollable, no wrap */
