@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { Wordmark } from '../components/ui'
 import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
+import PortalComingSoon from '../components/PortalComingSoon'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -44,6 +45,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const role = useRole()
   const isNarrow = useIsNarrow()
   const [showNew, setShowNew] = useState(false)
+  const [portalOpen, setPortalOpen] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -91,7 +93,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         {/* Winged device — future investor portal entry */}
         <button
           className="no-drag"
-          title="Investor Portal — coming soon"
+          title="Director Portal — coming soon"
+          onClick={() => setPortalOpen(true)}
           style={{ position: 'absolute', top: 22, left: 40, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
@@ -229,6 +232,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       </div>
 
       <SiteLinks />
+
+      {/* Director portal teaser — shown until the portal is built */}
+      {portalOpen && <PortalComingSoon onClose={() => setPortalOpen(false)} />}
 
       {/* ── New project modal ── */}
       {showNew && (
