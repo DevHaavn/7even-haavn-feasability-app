@@ -198,7 +198,7 @@ function SummaryTabInner({ projectId }: Props) {
     setBestRow(rows.find(r => r.isBest) ?? rows[0] ?? null)
   }, [projectId])
 
-  const landCost = land.landCost ?? 0
+  const landCost = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
 
   return (
     <div className="flex flex-col">
@@ -255,7 +255,7 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Land & Terms ── */}
         <Section title="Land & Terms" sub="Acquisition cost and structure">
-          <Row label="Land Cost" value={fmt(landCost)} gold />
+          <Row label={costData.gstEnabled ? 'Land Cost (ex GST)' : 'Land Cost'} value={fmt(landCost)} gold />
           {land.isInKind && land.inKindGFA > 0 && <Row label="In-Kind Delivery GFA" value={`${land.inKindGFA.toLocaleString()} sqm`} />}
           {land.isInKind && land.inKindGFA > 0 && <Row label={`In-Kind (${land.inKindLabel})`} value={`${land.inKindGFA.toLocaleString()} sqm`} />}
         </Section>

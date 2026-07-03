@@ -259,7 +259,7 @@ export default function FinanceTab({ projectId }: Props) {
     : undefined
   const costResult = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem: inKind }), [costData, site])
   const tdc = costResult.totalDevelopmentCost
-  const landCost = land.landCost ?? 0
+  const landCost = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
 
   // Get best GAV from scenarios
   const gav = useMemo(() => {

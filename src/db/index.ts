@@ -1,5 +1,6 @@
 import type { Project, SiteDesign, LandTerms, MixScenario, UnitType, CostStack, BTRAssumptions, BTSAssumptions, HotelAssumptions, CostPreset, BenchmarkSet, FinanceAssumptions, DebtTranche } from './schema'
 import * as cloud from './cloud'
+import { exGst } from '../engine/gst'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -76,6 +77,14 @@ export function saveLandTerms(data: LandTerms) {
   save(`land:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'land', data)
   touchProject(data.projectId)
+}
+
+/** Land cost used in calculations. Entered GST-inclusive; when the project
+ *  applies GST the 1/11 input credit comes back, so the ex-GST cost is what
+ *  the deal actually carries (debt sizing, carry, totals). */
+export function getEffectiveLandCost(projectId: string): number {
+  const cost = getLandTerms(projectId).landCost ?? 0
+  return getCostStack(projectId).gstEnabled ? exGst(cost) : cost
 }
 
 // ── Mix Scenarios ─────────────────────────────────────────────────────────────

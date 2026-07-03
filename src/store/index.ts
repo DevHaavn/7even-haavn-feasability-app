@@ -22,6 +22,7 @@ interface AppState {
   saveSiteDesign: (data: SiteDesign) => void
   getLandTerms: (projectId: string) => LandTerms
   saveLandTerms: (data: LandTerms) => void
+  getEffectiveLandCost: (projectId: string) => number
   getMixScenarios: (projectId: string) => MixScenario[]
   createMixScenario: (projectId: string, name: string) => MixScenario
   getUnitTypes: (scenarioId: string) => UnitType[]
@@ -86,6 +87,7 @@ export const useStore = create<AppState>((set, get) => ({
   saveSiteDesign: (data) => { db.saveSiteDesign(data); get().loadProjects() },
 
   getLandTerms: (projectId) => db.getLandTerms(projectId),
+  getEffectiveLandCost: (projectId) => db.getEffectiveLandCost(projectId),
   saveLandTerms: (data) => { db.saveLandTerms(data); get().loadProjects() },
 
   getMixScenarios: (projectId) => db.getMixScenarios(projectId),

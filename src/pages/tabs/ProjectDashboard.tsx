@@ -76,6 +76,7 @@ export default function ProjectDashboard({ projectId }: Props) {
   const project = store.projects.find(p => p.id === projectId)
   const site     = store.getSiteDesign(projectId)
   const land     = store.getLandTerms(projectId)
+  const landCostEff = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
   const costData = store.getCostStack(projectId)
   const accentColor = TYPE_COLOR[project?.type ?? ''] ?? '#C4973A'
 
@@ -124,7 +125,7 @@ export default function ProjectDashboard({ projectId }: Props) {
   const rlv    = bestScenario?.rlv ?? 0
   const margin = tdc > 0 ? ((gav - tdc) / tdc) : 0
 
-  const costMax = Math.max(costStack.hardCosts, costStack.professionalFees, costStack.finance, costStack.otherSoftCosts, land.landCost, 1)
+  const costMax = Math.max(costStack.hardCosts, costStack.professionalFees, costStack.finance, costStack.otherSoftCosts, landCostEff, 1)
 
   // Area breakdown for donut — distinct colour per sector
   const AREA_COLORS = { nsa: '#22C55E', balcony: '#C4973A', basement: '#3B82F6', other: '#A855F7' }
@@ -199,7 +200,7 @@ export default function ProjectDashboard({ projectId }: Props) {
         {/* Cost stack bars */}
         <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1 }}>
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 18 }}>Development Cost Stack — {fmt(tdc)} TDC</p>
-          <HBar label="Land & Acquisition"     value={land.landCost}                  max={tdc} color="#C4973A" />
+          <HBar label="Land & Acquisition"     value={landCostEff}                  max={tdc} color="#C4973A" />
           <HBar label="Hard Costs (Build)"      value={costStack.hardCosts}             max={tdc} color="#E8E6E1" />
           <HBar label="Professional Fees"       value={costStack.professionalFees}      max={tdc} color="#A855F7" />
           <HBar label="Statutory & Finance"     value={costStack.finance}               max={tdc} color="#3B82F6" />
@@ -258,9 +259,9 @@ export default function ProjectDashboard({ projectId }: Props) {
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>Value Creation Summary</p>
           <div style={{ display: 'flex', gap: 0 }}>
             {[
-              { label: 'Land', value: land.landCost, color: '#C4973A' },
-              { label: 'Build + Soft', value: tdc - land.landCost, color: '#444' },
-              { label: 'Value Created (RLV − Land)', value: Math.max(0, rlv - land.landCost), color: '#22C55E' },
+              { label: 'Land', value: landCostEff, color: '#C4973A' },
+              { label: 'Build + Soft', value: tdc - landCostEff, color: '#444' },
+              { label: 'Value Created (RLV − Land)', value: Math.max(0, rlv - landCostEff), color: '#22C55E' },
             ].map((seg, i) => {
               const pct = tdc > 0 ? (seg.value / Math.max(tdc, rlv)) * 100 : 0
               return (
@@ -278,7 +279,7 @@ export default function ProjectDashboard({ projectId }: Props) {
       <div style={{ padding: '16px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C' }}>
         <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 12 }}>Land & Acquisition</p>
         <div style={{ display: 'flex', gap: 32 }}>
-          <div><p style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>Land Cost</p><p style={{ fontSize: 14, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700, marginTop: 3 }}>{fmt(land.landCost, 2)}</p></div>
+          <div><p style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>Land Cost</p><p style={{ fontSize: 14, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700, marginTop: 3 }}>{fmt(landCostEff, 2)}</p></div>
           {land.isInKind && <div><p style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>In-Kind Vendor</p><p style={{ fontSize: 14, fontFamily: 'monospace', color: '#EAB308', fontWeight: 700, marginTop: 3 }}>{land.inKindGFA.toLocaleString()} sqm</p></div>}
           <div style={{ flex: 1, color: '#333', fontSize: 9, letterSpacing: '0.04em', lineHeight: 1.6 }}>{land.inKindNote || project?.address}</div>
         </div>
@@ -350,7 +351,8 @@ function DashboardSCurve({ projectId, tdc, gav }: { projectId: string; tdc: numb
   const tasks = useMemo(() => db.getTimelineTasks(projectId), [projectId])
   const fa    = useMemo(() => db.getFinanceAssumptions(projectId), [projectId])
   const land  = db.getLandTerms(projectId)
-  const result = useMemo(() => calculateFinance(fa, tdc, land.landCost ?? 0, gav), [fa, tdc, land.landCost, gav])
+  const landCostEff = db.getEffectiveLandCost(projectId)  // ex GST when project applies GST
+  const result = useMemo(() => calculateFinance(fa, tdc, landCostEff, gav), [fa, tdc, landCostEff, gav])
   const health = useMemo(() => getTimelineHealth(tasks), [tasks])
   const { setActiveTab } = useStore()
 

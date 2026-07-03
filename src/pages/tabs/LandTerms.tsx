@@ -7,7 +7,8 @@ import type { LandTerms } from '../../db/schema'
 interface Props { projectId: string }
 
 export default function LandTermsTab({ projectId }: Props) {
-  const { getLandTerms, saveLandTerms } = useStore()
+  const { getLandTerms, saveLandTerms, getCostStack } = useStore()
+  const gstEnabled = getCostStack(projectId).gstEnabled
   const [data, setData] = useState<LandTerms>(getLandTerms(projectId))
   const [dirty, setDirty] = useState(false)
   const undoRef = useRef<LandTerms | null>(null)
@@ -38,9 +39,14 @@ export default function LandTermsTab({ projectId }: Props) {
 
       <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
         <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Land Acquisition</h3>
-        <FieldRow label="Land cost">
+        <FieldRow label="Land cost" note={gstEnabled ? 'Inclusive of GST' : undefined}>
           <NumberInput value={data.landCost} onChange={v => update('landCost', v)} prefix="$" step={10000} />
         </FieldRow>
+        {gstEnabled && data.landCost > 0 && (
+          <p className="text-[10px] text-[#888] mt-1 leading-relaxed">
+            GST input credit (1/11): <span className="font-mono font-semibold text-[#2A7A4F]">${Math.round(data.landCost / 11).toLocaleString()}</span> — the deal carries <span className="font-mono font-semibold text-[#1A1A1A]">${Math.round(data.landCost - data.landCost / 11).toLocaleString()}</span> ex GST.
+          </p>
+        )}
         <div className="flex items-center gap-2 py-2.5">
           <input
             type="checkbox"
