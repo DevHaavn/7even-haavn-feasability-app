@@ -44,6 +44,9 @@ export interface LandTerms {
   foreignBuyer: boolean
   applyStampDuty: boolean
   settlementDate: string   // YYYY-MM-DD — duty due at settlement
+  // GST on the land deal itself — not every purchase carries GST
+  // (established residential is input-taxed; going-concern sales are GST-free)
+  landGst: 'inc' | 'none'
 }
 
 export interface UnitType {

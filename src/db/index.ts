@@ -71,7 +71,7 @@ const LAND_DEFAULTS: Omit<LandTerms, 'projectId'> = {
   landCost: 0, isInKind: false, inKindLabel: '',
   inKindGFA: 0, inKindRatePerSqm: 3800, inKindNote: 'no debt, no finance, no holding cost',
   state: 'VIC', propertyType: 'vacant_land', foreignBuyer: false,
-  applyStampDuty: true, settlementDate: '',
+  applyStampDuty: true, settlementDate: '', landGst: 'inc',
 }
 
 export function getLandTerms(projectId: string): LandTerms {
@@ -98,13 +98,15 @@ export interface LandAcquisition {
   notes: string[]
 }
 
-/** Full land acquisition breakdown. Duty is assessed on the GST-inclusive
- *  contract price; the GST credit comes back, so the deal carries the
- *  ex-GST price plus duty. */
+/** Full land acquisition breakdown. Duty is assessed on the contract price;
+ *  when the deal carries GST ('inc') the 1/11 credit comes back, so the deal
+ *  carries the ex-GST price plus duty. Deals without GST (input-taxed
+ *  residential, going concern) get no credit. */
 export function getLandAcquisition(projectId: string): LandAcquisition {
   const land = getLandTerms(projectId)
   const purchasePrice = land.landCost ?? 0
-  const gstCredit = getCostStack(projectId).gstEnabled ? purchasePrice - exGst(purchasePrice) : 0
+  const landHasGst = getCostStack(projectId).gstEnabled && land.landGst === 'inc'
+  const gstCredit = landHasGst ? purchasePrice - exGst(purchasePrice) : 0
   const exGstPrice = purchasePrice - gstCredit
   const dutyResult = land.applyStampDuty && purchasePrice > 0
     ? calculateStampDuty(land.state, purchasePrice, land.propertyType, { foreignBuyer: land.foreignBuyer })

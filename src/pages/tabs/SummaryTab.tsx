@@ -256,7 +256,7 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Land & Terms ── */}
         <Section title="Land & Terms" sub="Acquisition cost and structure">
-          {landAcq.purchasePrice > 0 && <Row label={costData.gstEnabled ? 'Purchase Price (inc GST)' : 'Purchase Price'} value={fmt(landAcq.purchasePrice)} />}
+          {landAcq.purchasePrice > 0 && <Row label={landAcq.gstCredit > 0 ? 'Purchase Price (inc GST)' : 'Purchase Price'} value={fmt(landAcq.purchasePrice)} />}
           {landAcq.gstCredit > 0 && <Row label="GST Input Credit (1/11)" value={`−${fmt(landAcq.gstCredit)}`} />}
           {landAcq.stampDuty > 0 && <Row label={`Stamp Duty (${land.state})`} value={fmt(landAcq.stampDuty + landAcq.foreignSurcharge)} />}
           {landAcq.settlementDate && <Row label="Settlement (duty due)" value={new Date(landAcq.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })} />}

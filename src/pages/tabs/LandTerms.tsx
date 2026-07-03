@@ -43,7 +43,8 @@ export default function LandTermsTab({ projectId }: Props) {
   const duty = data.applyStampDuty && data.landCost > 0
     ? calculateStampDuty(data.state, data.landCost, data.propertyType, { foreignBuyer: data.foreignBuyer })
     : null
-  const gstCredit = gstEnabled ? data.landCost / 11 : 0
+  const landHasGst = gstEnabled && data.landGst === 'inc'
+  const gstCredit = landHasGst ? data.landCost / 11 : 0
   const acquisitionTotal = data.landCost - gstCredit + (duty?.total ?? 0)
 
   return (
@@ -58,8 +59,14 @@ export default function LandTermsTab({ projectId }: Props) {
 
       <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
         <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Land Acquisition</h3>
-        <FieldRow label="Purchase price" note={gstEnabled ? 'Contract price, inclusive of GST' : 'Contract price'}>
+        <FieldRow label="Purchase price" note={landHasGst ? 'Contract price, inclusive of GST' : 'Contract price'}>
           <NumberInput value={data.landCost} onChange={v => update('landCost', v)} prefix="$" step={10000} />
+        </FieldRow>
+        <FieldRow label="GST on land" note="Not every land deal carries GST — e.g. going concern or input-taxed residential">
+          <select value={data.landGst} onChange={e => update('landGst', e.target.value as 'inc' | 'none')}>
+            <option value="inc">GST in price — claim 1/11 credit</option>
+            <option value="none">No GST — going concern / input-taxed</option>
+          </select>
         </FieldRow>
         <FieldRow label="State / territory" note="Where the land is located">
           <select value={data.state} onChange={e => update('state', e.target.value as AuState)}>
@@ -123,7 +130,7 @@ export default function LandTermsTab({ projectId }: Props) {
           </h3>
           <div className="text-xs space-y-2">
             <div className="flex justify-between">
-              <span className="text-[#888]">Purchase price{gstEnabled ? ' (inc GST)' : ''}</span>
+              <span className="text-[#888]">Purchase price{landHasGst ? ' (inc GST)' : ' (no GST)'}</span>
               <span className="font-mono text-[#1A1A1A]">${Math.round(data.landCost).toLocaleString()}</span>
             </div>
             {gstCredit > 0 && (
