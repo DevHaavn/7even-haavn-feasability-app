@@ -5,7 +5,7 @@
  * Real-time subscriptions push remote changes to all connected browsers.
  */
 
-import { supabase } from '../lib/supabase'
+import { supabase, cloudEnabled } from '../lib/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // ── Push helpers (fire-and-forget from save functions) ────────────────────────
@@ -75,6 +75,7 @@ export function deleteCloudScenario(scenarioId: string) {
 // ── Pull all data from Supabase into localStorage ─────────────────────────────
 
 export async function pullFromCloud(): Promise<boolean> {
+  if (!cloudEnabled) return true // local-only mode
   try {
     const [
       { data: projects, error: pe },
@@ -186,6 +187,7 @@ export async function pullFromCloud(): Promise<boolean> {
 let channel: RealtimeChannel | null = null
 
 export function subscribeRealtime(onUpdate: () => void) {
+  if (!cloudEnabled) return () => {} // local-only mode
   if (channel) channel.unsubscribe()
 
   channel = supabase
