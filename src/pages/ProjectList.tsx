@@ -27,9 +27,22 @@ function useAddressSearch(query: string) {
   return { results, loading }
 }
 
+// Below this width the 7EVEN/HAAVN columns stack vertically instead of sitting side by side
+function useIsNarrow(query = '(max-width: 1024px)') {
+  const [narrow, setNarrow] = useState(() => window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const onChange = (e: MediaQueryListEvent) => setNarrow(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [query])
+  return narrow
+}
+
 export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject } = useStore()
   const role = useRole()
+  const isNarrow = useIsNarrow()
   const [showNew, setShowNew] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
   const [name, setName] = useState('')
@@ -109,7 +122,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: '#383838', fontWeight: 600 }}>Projects</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TypeLegend color="#A855F7" label="Hotel" />
           <TypeLegend color="#22C55E" label="BTR" />
           <TypeLegend color="#3B82F6" label="BTS" />
@@ -118,11 +131,11 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </div>
       </div>
 
-      {/* ── Split columns ── */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+      {/* ── Split columns — stacked below 1024px, side by side above ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
         {/* LEFT — 7EVEN */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRight: '1px solid #111' }}>
+        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderRight: isNarrow ? 'none' : '1px solid #111', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header */}
           <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: '#060606', borderBottom: '1px solid #0E0E0E', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -152,7 +165,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           </div>
 
           {/* 7EVEN project list */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
             {sevenProjects.length === 0 ? (
               <EmptyState brand="7even" onNew={() => openNew('7even')} />
             ) : (
@@ -164,7 +177,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </div>
 
         {/* RIGHT — HAAVN */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden' }}>
           {/* Column header */}
           <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: '#050505', borderBottom: '1px solid #0E0E0E', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -194,7 +207,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           </div>
 
           {/* HAAVN project list */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
             {haavnProjects.length === 0 ? (
               <EmptyState brand="haavn" onNew={() => openNew('haavn')} />
             ) : (
