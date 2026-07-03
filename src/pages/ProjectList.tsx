@@ -85,15 +85,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
 
-        {/* Top bar */}
-        <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '28px 40px 0' }}>
-          <div>
-            <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 500 }}>
-              {projects.length} {projects.length !== 1 ? 'Projects' : 'Project'}
-            </p>
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.20)', marginTop: 7, width: 60 }} />
-          </div>
-        </div>
+        {/* Top bar — kept as a drag region for the frameless window */}
+        <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10 }} />
         <button onClick={() => onLogout?.()}
           style={{ position: 'absolute', top: 24, right: 40, zIndex: 20, background: 'transparent', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(6px)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#9B2335'; (e.currentTarget as HTMLElement).style.color = '#9B2335' }}
@@ -120,7 +113,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Sub-header ── */}
       <div style={{ flexShrink: 0, padding: '10px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #111' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: '#383838', fontWeight: 600 }}>Projects</span>
+          <span style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: '#383838', fontWeight: 600 }}>
+            {projects.length} {projects.length !== 1 ? 'Projects' : 'Project'}
+          </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TypeLegend color="#A855F7" label="Hotel" />
