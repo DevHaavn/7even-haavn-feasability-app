@@ -18,6 +18,19 @@ export default function App() {
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
 
+  // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
+  // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.
+  useEffect(() => {
+    function applyZoom() {
+      const w = window.innerWidth
+      const z = Math.min(1.4, Math.max(1, 1 + 0.4 * (w - 1280) / 640))
+      document.documentElement.style.setProperty('--ws-zoom', String(Math.round(z * 100) / 100))
+    }
+    applyZoom()
+    window.addEventListener('resize', applyZoom)
+    return () => window.removeEventListener('resize', applyZoom)
+  }, [])
+
   // On mount: pull cloud data then subscribe to live changes
   useEffect(() => {
     setSyncing(true)

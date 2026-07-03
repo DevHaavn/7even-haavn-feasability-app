@@ -71,7 +71,8 @@ h1, h2, h3, .heading { font-family: var(--font-heading); }
   color: #1A1A1A;
   position: relative;
   font-size: 16px;
-  zoom: 1.4;
+  /* Set per window size by the resize handler in App.tsx; 1.4 suits large monitors */
+  zoom: var(--ws-zoom, 1.4);
 }
 
 @media (max-width: 768px) {
