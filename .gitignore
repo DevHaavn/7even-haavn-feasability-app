@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-electron/
+*.local
+.DS_Store
+.env
+.env.*
+node_modules/
+dist/
+.vercel

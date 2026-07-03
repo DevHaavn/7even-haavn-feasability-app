@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Core surfaces ── */
+  --color-charcoal: #000000;
+  --color-charcoal-md: #0C0C0C;
+  --color-charcoal-lt: #1C1C1C;
+
+  /* ── Silver/white scale ── */
+  --color-white: #FFFFFF;
+  --color-silver: #C8C8C8;
+  --color-silver-dim: #888888;
+  --color-off-white: #F0EFED;
+  --color-light-grey: #D8D6D2;
+  --color-mid-grey: #A0A0A0;
+  --color-text-grey: #787878;
+
+  /* ── Gold — reserved for money/key metrics only ── */
+  --color-gold: #C4973A;
+  --color-gold-light: #D8B060;
+  --color-gold-pale: #F5EDD6;
+
+  /* ── Status ── */
+  --color-red: #9B2335;
+  --color-red-light: #1A0608;
+  --color-green: #1E5C38;
+  --color-green-light: #061209;
+  --color-amber: #8A6A10;
+  --color-amber-light: #1A1400;
+  --color-blue: #1A3A5C;
+  --color-blue-light: #040C14;
+  --color-teal: #0D5548;
+  --color-purple: #3A1845;
+
+  /* ── Typography ── */
+  --font-heading: 'Optima', 'Gill Sans', Cambria, Georgia, serif;
+  --font-body: 'Helvetica Neue', Helvetica, Calibri, system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, .heading { font-family: var(--font-heading); }
+
+/* ── Premium scrollbar ── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C8C8C8; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #999; }
+
+/* ── Workspace content — white/black ── */
+.workspace-content {
+  background: #ECEAE7;
+  color: #1A1A1A;
+  position: relative;
+  font-size: 16px;
+  zoom: 1.4;
+}
+
+@media (max-width: 768px) {
+  .workspace-content {
+    zoom: 1;
+    font-size: 15px;
+  }
+}
+.workspace-content input,
+.workspace-content select,
+.workspace-content textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #D0CEC9;
+  color: #1A1A1A;
+  border-radius: 0;
+  padding: 8px 6px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.workspace-content input:focus,
+.workspace-content select:focus,
+.workspace-content textarea:focus {
+  border-bottom-color: #1A1A1A;
+}
+.workspace-content input[type="number"] { text-align: right; }
+.workspace-content input::placeholder,
+.workspace-content textarea::placeholder { color: #B0ADA8; }
+.workspace-content select {
+  background: #F0EEE9;
+  border: 1px solid #D8D5D0;
+  border-radius: 0;
+  padding: 5px 8px;
+  cursor: pointer;
+  color: #1A1A1A;
+}
+.workspace-content select option { background: #F0EEE9; color: #1A1A1A; }
+.workspace-content input[type="checkbox"] {
+  width: auto;
+  border: none;
+  background: none;
+  accent-color: #1A1A1A;
+  cursor: pointer;
+}
+
+/* ── Input base (dark, for home screen etc) ── */
+input, select, textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #2A2A2A;
+  color: #fff;
+  border-radius: 0;
+  padding: 6px 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-bottom-color: #888; }
+input[type="number"] { text-align: right; }
+input::placeholder, textarea::placeholder { color: #444; }
+select {
+  background: #0C0C0C;
+  border: 1px solid #1C1C1C;
+  border-radius: 0;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+select option { background: #0C0C0C; }
+input[type="checkbox"] {
+  width: auto; border: none; background: none;
+  accent-color: #fff; cursor: pointer;
+}
+
+/* ── Toggle switch styling ── */
+input[type="checkbox"] {
+  width: auto;
+  border: none;
+  background: none;
+  accent-color: #fff;
+  cursor: pointer;
+}
+
+/* ── Drag region for frameless Electron window ── */
+.drag-region { -webkit-app-region: drag; }
+.no-drag { -webkit-app-region: no-drag; }
+
+/* ── Utility: text number ── */
+.num { font-variant-numeric: tabular-nums; }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  /* Tab bar: scrollable, no wrap */
+  .tab-bar-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tab-bar-scroll::-webkit-scrollbar { display: none; }
+
+  /* Field rows: stack on mobile */
+  .field-row-mobile {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    padding: 10px 0 !important;
+  }
+  .field-row-mobile > label {
+    width: auto !important;
+  }
+
+  /* Render backgrounds: position:fixed doesn't work in iOS Safari scrollable containers.
+     Switch to position:absolute so the bg scrolls with content (acceptable on mobile). */
+  .render-bg-fixed {
+    position: absolute !important;
+    background-attachment: scroll !important;
+  }
+
+  /* Tighten inner padding for mobile */
+  .tab-inner-pad {
+    padding: 12px !important;
+    max-width: 100% !important;
+  }
+}
