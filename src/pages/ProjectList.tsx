@@ -97,6 +97,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
         >
           <img src="/winged-device-white.png" alt="7EVEN" draggable={false} style={{ width: 88, height: 'auto', display: 'block' }} />
+          <span style={{ display: 'block', textAlign: 'center', marginTop: 5, color: 'rgba(255,255,255,0.85)', fontSize: 8, letterSpacing: '0.42em', textTransform: 'uppercase', fontWeight: 400, paddingLeft: '0.42em' }}>
+            Capital
+          </span>
         </button>
         <button onClick={() => onLogout?.()}
           style={{ position: 'absolute', top: 24, right: 40, zIndex: 20, background: 'transparent', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(6px)' }}
