@@ -110,7 +110,7 @@ export default function ProjectDashboard({ projectId }: Props) {
         const v2 = calculateBTRValuation(i2.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
         if (!best || v2.rlv > best.rlv) best = { ...v2, noi: i2.noi, tdc, strategy: 'BTR', name: s.name, cs }
         const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-        const v3 = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct)
+        const v3 = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         if (!best || v3.rlv > best.rlv) best = { gav: v3.grossRevenue, rlv: v3.rlv, tdc, noi: null, strategy: 'BTS', name: s.name, cs }
       }
     }

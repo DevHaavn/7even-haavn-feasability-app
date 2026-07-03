@@ -55,9 +55,9 @@ export default function ScenarioComparison({ projectId }: Props) {
         // BTS
         const btsLines = { cons: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceConservative })), mid: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceMid })), agg: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceAggressive })) }
         const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
-        const btsCons = calculateBTSValuation(btsLines.cons, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct)
-        const btsMid = calculateBTSValuation(btsLines.mid, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct)
-        const btsAgg = calculateBTSValuation(btsLines.agg, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct)
+        const btsCons = calculateBTSValuation(btsLines.cons, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
+        const btsMid = calculateBTSValuation(btsLines.mid, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
+        const btsAgg = calculateBTSValuation(btsLines.agg, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc, rlv: btsCons.rlv })
         computed.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc, rlv: btsMid.rlv })
         computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc, rlv: btsAgg.rlv })

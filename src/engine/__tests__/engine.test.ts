@@ -5,6 +5,7 @@ import { calculateBTRIncome, calculateBTRValuation } from '../btr'
 import { calculateBTSValuation } from '../bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../hotel'
 import { calculatePortfolioPoolValuation } from '../portfolio'
+import { gstIncluded, exGst } from '../gst'
 import { WERRIBEE_FIXTURE as W, GEELONG_FIXTURE as G } from '../__fixtures__/realProjects'
 
 const pct = (actual: number, expected: number) => Math.abs(actual - expected) / Math.abs(expected)
@@ -304,6 +305,62 @@ describe('Hotel income engine — formula validation', () => {
   it('NOI = GOP - mgmt fee - FFE reserve', () => {
     const expected = result.gop - result.managementFee - result.ffeReserve
     expect(result.noi).toBeCloseTo(expected, 0)
+  })
+})
+
+// ─── GST ─────────────────────────────────────────────────────────────────────
+
+describe('GST — 10% on sales, input credits on commercial costs', () => {
+  const baseCosts = {
+    gba: 1000,
+    buildRatePerSqm: 1000,        // construction 1,000,000
+    contingencyPct: 0.05,          // 50,000
+    prelimsPct: 0.08,              // 80,000
+    professionalFeesPct: 0.07,     // 70,000
+    statutoryFixed: 100_000,       // GST-free
+    financePct: 0.09,              // 90,000 — input-taxed
+    projectManagementFixed: 200_000,
+    marketingFixed: 100_000,
+    amenityFitoutFixed: 50_000,
+  }
+
+  it('gstIncluded is 1/11 of a GST-inclusive amount', () => {
+    expect(gstIncluded(110)).toBeCloseTo(10, 6)
+    expect(exGst(1_100_000)).toBeCloseTo(1_000_000, 2)
+  })
+
+  it('cost stack without GST is unchanged (legacy behaviour)', () => {
+    const r = calculateCostStack(baseCosts)
+    expect(r.gstCredits).toBe(0)
+    expect(r.totalDevelopmentCost).toBe(1_740_000)
+  })
+
+  it('cost stack credits = 1/11 of commercial costs; statutory & finance excluded', () => {
+    const r = calculateCostStack({ ...baseCosts, gstEnabled: true })
+    // GST-able: construction 1M + contingency 50k + prelims 80k + prof fees 70k + PM 200k + marketing 100k + amenity 50k = 1,550,000
+    expect(r.gstCredits).toBeCloseTo(1_550_000 / 11, 2)
+    expect(r.totalDevelopmentCost).toBeCloseTo(1_740_000 - 1_550_000 / 11, 2)
+  })
+
+  it('BTS GST on sales = 1/11 of gross, deducted from net revenue', () => {
+    const lines = [{ typeName: '2 Bed', unitCount: 10, pricePerUnit: 1_100_000 }]
+    const withGst = calculateBTSValuation(lines, [], 0.02, 5_000_000, 0, true)
+    expect(withGst.grossRevenue).toBe(11_000_000)
+    expect(withGst.gstOnSales).toBeCloseTo(1_000_000, 2)
+    expect(withGst.netRevenue).toBeCloseTo(11_000_000 * 0.98 - 1_000_000, 2)
+
+    const withoutGst = calculateBTSValuation(lines, [], 0.02, 5_000_000, 0)
+    expect(withoutGst.gstOnSales).toBe(0)
+    expect(withoutGst.netRevenue).toBeCloseTo(11_000_000 * 0.98, 2)
+  })
+
+  it('GST lowers BTS RLV (sales GST outweighs cost credits on a viable deal)', () => {
+    const costs = calculateCostStack({ ...baseCosts, gstEnabled: true })
+    const costsNoGst = calculateCostStack(baseCosts)
+    const lines = [{ typeName: '2 Bed', unitCount: 10, pricePerUnit: 1_100_000 }]
+    const gst = calculateBTSValuation(lines, [], 0.02, costs.totalDevelopmentCost, 0.18, true)
+    const noGst = calculateBTSValuation(lines, [], 0.02, costsNoGst.totalDevelopmentCost, 0.18)
+    expect(gst.rlv).toBeLessThan(noGst.rlv)
   })
 })
 

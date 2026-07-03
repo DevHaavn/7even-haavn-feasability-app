@@ -107,7 +107,7 @@ function aggregatePortfolio(brand?: '7even' | 'haavn'): ProjectSummary[] {
 
         // BTS (mid)
         const btsLines = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-        const btsMid = calculateBTSValuation(btsLines, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct)
+        const btsMid = calculateBTSValuation(btsLines, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         if (btsMid.rlv > bestRLV) { bestRLV = btsMid.rlv; bestGAV = btsMid.grossRevenue; bestStrategy = 'BTS'; bestTDC = tdc }
       }
     }

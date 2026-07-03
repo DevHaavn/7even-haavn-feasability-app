@@ -291,6 +291,18 @@ export default function CostStackTab({ projectId }: Props) {
               <FieldRow label="BTR amenity fitout"><NumberInput value={data.amenityFitoutFixed} onChange={v => update('amenityFitoutFixed', v)} prefix="$" step={50000} /></FieldRow>
             </InnerSection>
 
+            <InnerSection label="GST — 10%">
+              <FieldRow label="Apply GST" note="Costs entered GST-inclusive; credits claimed on commercial costs & consultants. Sales GST deducted in BTS.">
+                <input type="checkbox" checked={data.gstEnabled} onChange={e => update('gstEnabled', e.target.checked)} />
+              </FieldRow>
+              {data.gstEnabled && (
+                <p className="text-[#888] text-[10px] mt-2 leading-relaxed">
+                  Input credits recovered: <span className="font-mono font-semibold text-[#2A7A4F]">${Math.round(result.gstCredits).toLocaleString()}</span>.
+                  Statutory charges (GST-free), finance (input-taxed) and in-kind/land carry no GST.
+                </p>
+              )}
+            </InnerSection>
+
             {land.isInKind && land.inKindGFA > 0 && (
               <div className="mt-4 border border-[#C8C0D8] bg-[#F8F5FC] p-4">
                 <p className="text-[9px] tracking-[0.18em] uppercase text-[#7A4AAA] mb-2">In-Kind — {land.inKindLabel}</p>
@@ -319,8 +331,14 @@ export default function CostStackTab({ projectId }: Props) {
                   <span className="text-sm font-mono font-semibold text-[#7A4AAA]">${result.inKindCost.toLocaleString()}</span>
                 </div>
               )}
+              {result.gstCredits > 0 && (
+                <div className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8] bg-[#F2F7F3]">
+                  <span className="text-[10px] text-[#2A7A4F] tracking-wide">Less GST input credits (1/11)</span>
+                  <span className="text-sm font-mono font-semibold text-[#2A7A4F]">−${Math.round(result.gstCredits).toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center px-4 py-4 border-t border-[#D0CEC9] bg-[#F5F3F0]">
-                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#1A1A1A]">Total Dev Cost</span>
+                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#1A1A1A]">Total Dev Cost{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
                 <span className="font-mono font-bold text-2xl text-[#B8963C]">${(result.totalDevelopmentCost / 1_000_000).toFixed(1)}M</span>
               </div>
             </div>

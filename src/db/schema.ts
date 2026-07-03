@@ -73,6 +73,9 @@ export interface CostStack {
   projectManagementFixed: number
   marketingFixed: number
   amenityFitoutFixed: number
+  // GST 10% — sales GST deducted from revenue, input credits claimed on
+  // commercial costs/consultants. Defaults on; costs are entered GST-inclusive.
+  gstEnabled: boolean
 }
 
 export interface CostLineItem {

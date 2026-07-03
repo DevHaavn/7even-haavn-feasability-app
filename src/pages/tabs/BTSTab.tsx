@@ -52,7 +52,7 @@ export default function BTSTab({ projectId }: Props) {
   function calcBTS(priceFn: (u: any) => number) {
     const lines = units.map((u, i) => ({ typeName: u.name, unitCount: solverResult?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: priceFn(u) }))
     const otherRevenue = site.childcareGFA > 0 ? [{ label: 'Childcare (commercial)', amount: site.childcareGFA * data!.childcareValuePerSqm }] : []
-    return calculateBTSValuation(lines, otherRevenue, data!.sellingCostsPct, tdc, data!.devMarginPct)
+    return calculateBTSValuation(lines, otherRevenue, data!.sellingCostsPct, tdc, data!.devMarginPct, costData.gstEnabled)
   }
 
   const cons = calcBTS(u => u.salePriceConservative)
@@ -141,6 +141,9 @@ export default function BTSTab({ projectId }: Props) {
               <div className={`text-[10px] tracking-[0.1em] uppercase font-semibold mb-3 ${color === 'text-green' ? 'text-[#2A7A4F]' : color === 'text-amber' ? 'text-[#B8963C]' : 'text-[#666]'}`}>{label}</div>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between"><span className="text-[#888]">Gross revenue</span><span className="text-[#1A1A1A] font-mono">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span></div>
+                {result.gstOnSales > 0 && (
+                  <div className="flex justify-between"><span className="text-[#888]">Less GST on sales (1/11)</span><span className="text-[#9B2335] font-mono">−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span></div>
+                )}
                 <div className="flex justify-between"><span className="text-[#888]">Net revenue</span><span className="text-[#1A1A1A] font-mono">${(result.netRevenue / 1_000_000).toFixed(1)}M</span></div>
                 <div className="flex justify-between items-center pt-2 border-t border-[#E8E5E0]">
                   <span className="font-semibold text-[#1A1A1A] text-[10px] tracking-widest uppercase">RLV</span>

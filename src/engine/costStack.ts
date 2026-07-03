@@ -1,3 +1,5 @@
+import { gstIncluded } from './gst'
+
 export interface InKindLineItem {
   label: string
   gfa: number
@@ -17,6 +19,11 @@ export interface CostStackInputs {
   marketingFixed: number
   amenityFitoutFixed: number
   inKindLineItem?: InKindLineItem
+  // Costs are entered GST-inclusive; when enabled, GST on the commercial/
+  // consultant lines is claimed back as input tax credits and TDC is net of
+  // those credits. Statutory (GST-free), finance (input-taxed) and in-kind
+  // (land consideration) carry no GST.
+  gstEnabled?: boolean
 }
 
 export interface CostStackResult {
@@ -27,6 +34,8 @@ export interface CostStackResult {
   finance: number
   subtotal: number
   inKindCost: number
+  /** Input tax credits claimed back on GST-able cost lines (0 when GST off) */
+  gstCredits: number
   totalDevelopmentCost: number
 }
 
@@ -49,6 +58,15 @@ export function calculateCostStack(inputs: CostStackInputs): CostStackResult {
   const inKindCost = inputs.inKindLineItem
     ? inputs.inKindLineItem.gfa * inputs.inKindLineItem.ratePerSqm
     : 0
-  const totalDevelopmentCost = subtotal + inKindCost
-  return { construction, contingency, prelims, professionalFees, finance, subtotal, inKindCost, totalDevelopmentCost }
+  const gstableCosts =
+    construction +
+    contingency +
+    prelims +
+    professionalFees +
+    inputs.projectManagementFixed +
+    inputs.marketingFixed +
+    inputs.amenityFitoutFixed
+  const gstCredits = inputs.gstEnabled ? gstIncluded(gstableCosts) : 0
+  const totalDevelopmentCost = subtotal + inKindCost - gstCredits
+  return { construction, contingency, prelims, professionalFees, finance, subtotal, inKindCost, gstCredits, totalDevelopmentCost }
 }

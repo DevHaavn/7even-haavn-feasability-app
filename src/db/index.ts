@@ -116,7 +116,7 @@ export function saveUnitTypes(scenarioId: string, units: UnitType[]) {
 // ── Cost Stack ────────────────────────────────────────────────────────────────
 
 export function getCostStack(projectId: string): CostStack {
-  return load<CostStack>(`coststack:${projectId}`, {
+  const cs = load<CostStack>(`coststack:${projectId}`, {
     projectId,
     buildRatePerSqm: 3500,
     contingencyPct: 0.05,
@@ -127,7 +127,10 @@ export function getCostStack(projectId: string): CostStack {
     projectManagementFixed: 2_800_000,
     marketingFixed: 2_000_000,
     amenityFitoutFixed: 600_000,
+    gstEnabled: true,
   })
+  // Rows saved before the GST field existed default to GST on
+  return { ...cs, gstEnabled: cs.gstEnabled !== false }
 }
 
 export function saveCostStack(data: CostStack) {
