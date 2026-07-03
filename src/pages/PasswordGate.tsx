@@ -5,8 +5,29 @@ import { setStoredRole, EXTERNAL_PASSWORD } from '../lib/role'
 const CORRECT = '7Evenhaavn!!!'
 const STORAGE_KEY = '7even_auth'
 
+// Sessions expire after this long, forcing re-entry of the access code.
+// Protects shared/public computers where the login flag would otherwise persist forever.
+const SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000 // 12 hours
+
 export function isAuthenticated(): boolean {
-  return localStorage.getItem(STORAGE_KEY) === 'true'
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) return false
+  // New format: timestamp of last successful login. Expire after SESSION_MAX_AGE_MS.
+  const ts = Number(raw)
+  if (!Number.isFinite(ts) || ts <= 0) {
+    // Legacy value (e.g. old 'true') — treat as expired so the gate reappears.
+    localStorage.removeItem(STORAGE_KEY)
+    return false
+  }
+  if (Date.now() - ts > SESSION_MAX_AGE_MS) {
+    localStorage.removeItem(STORAGE_KEY)
+    return false
+  }
+  return true
+}
+
+function markAuthenticated() {
+  localStorage.setItem(STORAGE_KEY, String(Date.now()))
 }
 
 export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
@@ -17,11 +38,11 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
 
   function attempt() {
     if (value === CORRECT) {
-      localStorage.setItem(STORAGE_KEY, 'true')
+      markAuthenticated()
       setStoredRole('admin')
       onAuth()
     } else if (value === EXTERNAL_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, 'true')
+      markAuthenticated()
       setStoredRole('external')
       onAuth()
     } else {
