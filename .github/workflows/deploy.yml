@@ -7,7 +7,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: team_sb1YnWp1sQtoU43kHYsIbFxy
+      VERCEL_PROJECT_ID: prj_1JTkvVsOoRnoRn5HHM32ebhtLye4
     steps:
-      - name: Trigger Vercel deploy
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Deploy to Vercel (production)
         run: |
-          curl -s -X POST "https://api.vercel.com/v1/integrations/deploy/prj_1JTkvVsOoRnoRn5HHM32ebhtLye4/4X9YHUsHN7"
+          npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          npx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
