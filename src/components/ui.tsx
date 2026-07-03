@@ -3,15 +3,28 @@ import React from 'react'
 // ── Brand mark ───────────────────────────────────────────────────────────────
 
 export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero' }) {
-  const widths = { sm: 83, md: 117, lg: 156, xl: 208, hero: 546 }
-  const w = widths[size]
+  const widths = { sm: 83, md: 117, lg: 156, xl: 208 }
+  // Hero uses the tight-cropped asset: the full PNG is ~60% transparent padding,
+  // which pushed the content below far away from the visible logos. Width is
+  // scaled so the visible art renders the same size as before.
+  if (size === 'hero') {
+    return (
+      <img
+        src="/brand-logo-white-tight.png"
+        alt="7EVEN · HAAVN"
+        draggable={false}
+        className="select-none"
+        style={{ width: 'min(229px, 36vw)', height: 'auto', objectFit: 'contain' }}
+      />
+    )
+  }
   return (
     <img
       src="/brand-logo-white.png"
       alt="7EVEN · HAAVN"
       draggable={false}
       className="select-none"
-      style={{ width: size === 'hero' ? 'min(546px, 85vw)' : w, height: 'auto', objectFit: 'contain' }}
+      style={{ width: widths[size], height: 'auto', objectFit: 'contain' }}
     />
   )
 }
