@@ -1,8 +1,5 @@
-// Browser-compatible in-memory store (SQLite runs in Electron main process)
-// For the web preview we use localStorage; in Electron we'd use IPC to main process.
-// This layer abstracts both so UI code doesn't care.
-
 import type { Project, SiteDesign, LandTerms, MixScenario, UnitType, CostStack, BTRAssumptions, BTSAssumptions, HotelAssumptions, CostPreset, BenchmarkSet, FinanceAssumptions, DebtTranche } from './schema'
+import * as cloud from './cloud'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -26,13 +23,15 @@ export function getProject(id: string): Project | undefined {
 }
 
 export function saveProject(project: Project) {
+  const updated = { ...project, updatedAt: new Date().toISOString() }
   const all = getProjects().filter(p => p.id !== project.id)
-  save('projects', [...all, { ...project, updatedAt: new Date().toISOString() }])
+  save('projects', [...all, updated])
+  cloud.pushProject(updated as unknown as Record<string, unknown>)
 }
 
 export function deleteProject(id: string) {
   save('projects', getProjects().filter(p => p.id !== id))
-  // cascade
+  cloud.deleteCloudProject(id)
   resetProjectData(id)
 }
 
@@ -60,6 +59,7 @@ export function getSiteDesign(projectId: string): SiteDesign {
 
 export function saveSiteDesign(data: SiteDesign) {
   save(`site:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'site', data)
   touchProject(data.projectId)
 }
 
@@ -74,6 +74,7 @@ export function getLandTerms(projectId: string): LandTerms {
 
 export function saveLandTerms(data: LandTerms) {
   save(`land:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'land', data)
   touchProject(data.projectId)
 }
 
@@ -86,6 +87,7 @@ export function getMixScenarios(projectId: string): MixScenario[] {
 export function saveMixScenario(scenario: MixScenario) {
   const all = getMixScenarios(scenario.projectId).filter(s => s.id !== scenario.id)
   save(`scenarios:${scenario.projectId}`, [...all, scenario])
+  cloud.pushScenario(scenario as unknown as Record<string, unknown>)
   touchProject(scenario.projectId)
 }
 
@@ -93,6 +95,7 @@ export function deleteMixScenario(id: string, projectId: string) {
   const scenarios = getMixScenarios(projectId)
   const updated = scenarios.filter(s => s.id !== id)
   save(`scenarios:${projectId}`, updated)
+  cloud.deleteCloudScenario(id)
   localStorage.removeItem(`units:${id}`)
   localStorage.removeItem(`btr:${id}`)
   localStorage.removeItem(`bts:${id}`)
@@ -107,6 +110,7 @@ export function getUnitTypes(scenarioId: string): UnitType[] {
 
 export function saveUnitTypes(scenarioId: string, units: UnitType[]) {
   save(`units:${scenarioId}`, units)
+  cloud.pushScenarioField(scenarioId, 'unit_types', units)
 }
 
 // ── Cost Stack ────────────────────────────────────────────────────────────────
@@ -128,6 +132,7 @@ export function getCostStack(projectId: string): CostStack {
 
 export function saveCostStack(data: CostStack) {
   save(`coststack:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'cost_stack', data)
   touchProject(data.projectId)
 }
 
@@ -150,6 +155,7 @@ export function getBTRAssumptions(scenarioId: string): BTRAssumptions {
 
 export function saveBTRAssumptions(data: BTRAssumptions) {
   save(`btr:${data.scenarioId}`, data)
+  cloud.pushScenarioField(data.scenarioId, 'btr', data)
 }
 
 // ── BTS Assumptions ───────────────────────────────────────────────────────────
@@ -165,6 +171,7 @@ export function getBTSAssumptions(scenarioId: string): BTSAssumptions {
 
 export function saveBTSAssumptions(data: BTSAssumptions) {
   save(`bts:${data.scenarioId}`, data)
+  cloud.pushScenarioField(data.scenarioId, 'bts', data)
 }
 
 // ── Hotel Assumptions ─────────────────────────────────────────────────────────
@@ -186,6 +193,7 @@ export function getHotelAssumptions(scenarioId: string): HotelAssumptions {
 
 export function saveHotelAssumptions(data: HotelAssumptions) {
   save(`hotel:${data.scenarioId}`, data)
+  cloud.pushScenarioField(data.scenarioId, 'hotel', data)
 }
 
 // ── Timeline ──────────────────────────────────────────────────────────────────
@@ -196,6 +204,7 @@ export function getTimelineTasks(projectId: string): import('./schema').Timeline
 
 export function saveTimelineTasks(projectId: string, tasks: import('./schema').TimelineTask[]) {
   save(`timeline:${projectId}`, tasks)
+  cloud.pushProjectField(projectId, 'timeline', tasks)
 }
 
 // ── Cost Presets ──────────────────────────────────────────────────────────────
@@ -334,6 +343,7 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {
   save(`detailed-costs:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'detailed_costs', data)
   touchProject(data.projectId)
 }
 
@@ -374,6 +384,7 @@ export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
 
 export function saveFinanceAssumptions(data: FinanceAssumptions) {
   save(`finance:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'finance', data)
   touchProject(data.projectId)
 }
 

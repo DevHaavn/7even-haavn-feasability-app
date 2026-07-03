@@ -1,4 +1,5 @@
 import * as db from './index'
+import { pushSnapshot, deleteCloudSnapshot } from './cloud'
 
 export interface ProjectSnapshot {
   id: string
@@ -68,6 +69,7 @@ export function captureSnapshot(projectId: string, label?: string): ProjectSnaps
   const existing = loadSnapshots(projectId)
   const updated = [snapshot, ...existing].slice(0, MAX_SNAPSHOTS)
   saveSnapshots(projectId, updated)
+  pushSnapshot(snapshot as unknown as Record<string, unknown>)
   return snapshot
 }
 
@@ -78,6 +80,7 @@ export function getSnapshots(projectId: string): ProjectSnapshot[] {
 export function deleteSnapshot(projectId: string, snapshotId: string) {
   const updated = loadSnapshots(projectId).filter(s => s.id !== snapshotId)
   saveSnapshots(projectId, updated)
+  deleteCloudSnapshot(projectId, snapshotId)
 }
 
 export function restoreSnapshot(snapshot: ProjectSnapshot) {

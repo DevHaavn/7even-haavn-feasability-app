@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
+import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
@@ -9,12 +10,26 @@ import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 
 export default function App() {
-  const { activeProjectId, projects } = useStore()
+  const { activeProjectId, projects, loadProjects } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
   const [role, setRole] = useState<Role>(getStoredRole())
   const [showIntro, setShowIntro] = useState(false)
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+
+  // On mount: pull cloud data then subscribe to live changes
+  useEffect(() => {
+    setSyncing(true)
+    pullFromCloud().then(() => {
+      loadProjects()
+      setSyncing(false)
+    })
+    const unsub = subscribeRealtime(() => {
+      loadProjects()
+    })
+    return unsub
+  }, [])
 
   const activeProject = projects.find(p => p.id === activeProjectId)
 
@@ -39,6 +54,11 @@ export default function App() {
         </div>
       ) : (
         <div className="h-screen flex flex-col bg-charcoal overflow-hidden">
+          {syncing && (
+            <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9000, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(196,151,58,0.3)', padding: '5px 10px', backdropFilter: 'blur(6px)' }}>
+              ⟳ Syncing…
+            </div>
+          )}
           {activeProjectId && (
             <>
               {/* Manage button — admin only, sits left of Log Out at same z-level */}
