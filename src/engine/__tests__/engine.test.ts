@@ -6,6 +6,7 @@ import { calculateBTSValuation } from '../bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../hotel'
 import { calculatePortfolioPoolValuation } from '../portfolio'
 import { gstIncluded, exGst } from '../gst'
+import { calculateStampDuty } from '../stampDuty'
 import { WERRIBEE_FIXTURE as W, GEELONG_FIXTURE as G } from '../__fixtures__/realProjects'
 
 const pct = (actual: number, expected: number) => Math.abs(actual - expected) / Math.abs(expected)
@@ -361,6 +362,43 @@ describe('GST — 10% on sales, input credits on commercial costs', () => {
     const gst = calculateBTSValuation(lines, [], 0.02, costs.totalDevelopmentCost, 0.18, true)
     const noGst = calculateBTSValuation(lines, [], 0.02, costsNoGst.totalDevelopmentCost, 0.18)
     expect(gst.rlv).toBeLessThan(noGst.rlv)
+  })
+})
+
+// ─── STAMP DUTY ──────────────────────────────────────────────────────────────
+
+describe('Stamp duty — general/entity rate per state', () => {
+  it('VIC $800k vacant land = $43,070', () => {
+    expect(calculateStampDuty('VIC', 800_000, 'vacant_land').duty).toBeCloseTo(43_070, 0)
+  })
+
+  it('VIC $2.5M = $142,500 (top bracket)', () => {
+    expect(calculateStampDuty('VIC', 2_500_000, 'vacant_land').duty).toBeCloseTo(142_500, 0)
+  })
+
+  it('QLD $1M = $38,025 and $2M = $95,525', () => {
+    expect(calculateStampDuty('QLD', 1_000_000, 'vacant_land').duty).toBeCloseTo(38_025, 0)
+    expect(calculateStampDuty('QLD', 2_000_000, 'vacant_land').duty).toBeCloseTo(95_525, 0)
+  })
+
+  it('SA commercial land is duty-free', () => {
+    expect(calculateStampDuty('SA', 5_000_000, 'commercial').duty).toBe(0)
+  })
+
+  it('ACT commercial: nil to $2.1M, then flat 5% of total', () => {
+    expect(calculateStampDuty('ACT', 2_000_000, 'commercial').duty).toBe(0)
+    expect(calculateStampDuty('ACT', 2_200_000, 'commercial').duty).toBeCloseTo(110_000, 0)
+  })
+
+  it('NSW $5M residential uses premium duty; commercial stays general', () => {
+    expect(calculateStampDuty('NSW', 5_000_000, 'house_and_land').duty).toBeCloseTo(273_237, 0)
+    expect(calculateStampDuty('NSW', 5_000_000, 'commercial').duty).toBeCloseTo(256_287, 0)
+  })
+
+  it('foreign surcharge: 8% in VIC residential, none in NT, none on commercial', () => {
+    expect(calculateStampDuty('VIC', 1_000_000, 'house_and_land', { foreignBuyer: true }).foreignSurcharge).toBeCloseTo(80_000, 0)
+    expect(calculateStampDuty('NT', 1_000_000, 'house_and_land', { foreignBuyer: true }).foreignSurcharge).toBe(0)
+    expect(calculateStampDuty('VIC', 1_000_000, 'commercial', { foreignBuyer: true }).foreignSurcharge).toBe(0)
   })
 })
 

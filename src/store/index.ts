@@ -23,6 +23,7 @@ interface AppState {
   getLandTerms: (projectId: string) => LandTerms
   saveLandTerms: (data: LandTerms) => void
   getEffectiveLandCost: (projectId: string) => number
+  getLandAcquisition: (projectId: string) => import('../db').LandAcquisition
   getMixScenarios: (projectId: string) => MixScenario[]
   createMixScenario: (projectId: string, name: string) => MixScenario
   getUnitTypes: (scenarioId: string) => UnitType[]
@@ -88,6 +89,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   getLandTerms: (projectId) => db.getLandTerms(projectId),
   getEffectiveLandCost: (projectId) => db.getEffectiveLandCost(projectId),
+  getLandAcquisition: (projectId) => db.getLandAcquisition(projectId),
   saveLandTerms: (data) => { db.saveLandTerms(data); get().loadProjects() },
 
   getMixScenarios: (projectId) => db.getMixScenarios(projectId),

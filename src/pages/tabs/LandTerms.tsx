@@ -3,6 +3,18 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import type { LandTerms } from '../../db/schema'
+import { ALL_STATES, calculateStampDuty, type AuState, type PropertyType } from '../../engine/stampDuty'
+
+const STATE_LABELS: Record<AuState, string> = {
+  VIC: 'Victoria', NSW: 'New South Wales', QLD: 'Queensland', WA: 'Western Australia',
+  SA: 'South Australia', TAS: 'Tasmania', ACT: 'Australian Capital Territory', NT: 'Northern Territory',
+}
+
+const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
+  vacant_land: 'Vacant land',
+  house_and_land: 'House and land (residential)',
+  commercial: 'Commercial / industrial',
+}
 
 interface Props { projectId: string }
 
@@ -27,6 +39,13 @@ export default function LandTermsTab({ projectId }: Props) {
 
   const inKindCost = data.inKindGFA * data.inKindRatePerSqm
 
+  // Live duty estimate on the entered (unsaved) values
+  const duty = data.applyStampDuty && data.landCost > 0
+    ? calculateStampDuty(data.state, data.landCost, data.propertyType, { foreignBuyer: data.foreignBuyer })
+    : null
+  const gstCredit = gstEnabled ? data.landCost / 11 : 0
+  const acquisitionTotal = data.landCost - gstCredit + (duty?.total ?? 0)
+
   return (
     <div className="flex flex-col">
 
@@ -39,14 +58,48 @@ export default function LandTermsTab({ projectId }: Props) {
 
       <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
         <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Land Acquisition</h3>
-        <FieldRow label="Land cost" note={gstEnabled ? 'Inclusive of GST' : undefined}>
+        <FieldRow label="Purchase price" note={gstEnabled ? 'Contract price, inclusive of GST' : 'Contract price'}>
           <NumberInput value={data.landCost} onChange={v => update('landCost', v)} prefix="$" step={10000} />
         </FieldRow>
-        {gstEnabled && data.landCost > 0 && (
-          <p className="text-[10px] text-[#888] mt-1 leading-relaxed">
-            GST input credit (1/11): <span className="font-mono font-semibold text-[#2A7A4F]">${Math.round(data.landCost / 11).toLocaleString()}</span> — the deal carries <span className="font-mono font-semibold text-[#1A1A1A]">${Math.round(data.landCost - data.landCost / 11).toLocaleString()}</span> ex GST.
-          </p>
-        )}
+        <FieldRow label="State / territory" note="Where the land is located">
+          <select value={data.state} onChange={e => update('state', e.target.value as AuState)}>
+            {ALL_STATES.map(s => <option key={s} value={s}>{s} — {STATE_LABELS[s]}</option>)}
+          </select>
+        </FieldRow>
+        <FieldRow label="Property type">
+          <select value={data.propertyType} onChange={e => update('propertyType', e.target.value as PropertyType)}>
+            {(Object.keys(PROPERTY_TYPE_LABELS) as PropertyType[]).map(pt => (
+              <option key={pt} value={pt}>{PROPERTY_TYPE_LABELS[pt]}</option>
+            ))}
+          </select>
+        </FieldRow>
+        <FieldRow label="Settlement date" note="Stamp duty is due at settlement">
+          <input type="date" value={data.settlementDate} onChange={e => update('settlementDate', e.target.value)} />
+        </FieldRow>
+        <div className="flex items-center gap-2 py-2.5">
+          <input
+            type="checkbox"
+            id="foreign-buyer"
+            checked={data.foreignBuyer}
+            onChange={e => update('foreignBuyer', e.target.checked)}
+            style={{ width: 'auto', accentColor: '#1A1A1A' }}
+          />
+          <label htmlFor="foreign-buyer" className="text-[11px] text-[#555] tracking-wide cursor-pointer">
+            Foreign purchaser surcharge applies (foreign-owned entity/trust)
+          </label>
+        </div>
+        <div className="flex items-center gap-2 py-2.5">
+          <input
+            type="checkbox"
+            id="apply-duty"
+            checked={data.applyStampDuty}
+            onChange={e => update('applyStampDuty', e.target.checked)}
+            style={{ width: 'auto', accentColor: '#1A1A1A' }}
+          />
+          <label htmlFor="apply-duty" className="text-[11px] text-[#555] tracking-wide cursor-pointer">
+            Add stamp duty to the land cost in feasibility
+          </label>
+        </div>
         <div className="flex items-center gap-2 py-2.5">
           <input
             type="checkbox"
@@ -61,6 +114,55 @@ export default function LandTermsTab({ projectId }: Props) {
           </label>
         </div>
       </div>
+
+      {/* ── Acquisition breakdown — duty + GST on the contract price ── */}
+      {data.landCost > 0 && (
+        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">
+            Land Acquisition Breakdown{duty ? ` — ${data.state} ${PROPERTY_TYPE_LABELS[data.propertyType]}` : ''}
+          </h3>
+          <div className="text-xs space-y-2">
+            <div className="flex justify-between">
+              <span className="text-[#888]">Purchase price{gstEnabled ? ' (inc GST)' : ''}</span>
+              <span className="font-mono text-[#1A1A1A]">${Math.round(data.landCost).toLocaleString()}</span>
+            </div>
+            {gstCredit > 0 && (
+              <div className="flex justify-between">
+                <span className="text-[#888]">Less GST input credit (1/11)</span>
+                <span className="font-mono text-[#2A7A4F]">−${Math.round(gstCredit).toLocaleString()}</span>
+              </div>
+            )}
+            {duty && (
+              <div className="flex justify-between">
+                <span className="text-[#888]">Stamp duty ({data.state}, general rate)</span>
+                <span className="font-mono text-[#9B2335]">+${Math.round(duty.duty).toLocaleString()}</span>
+              </div>
+            )}
+            {duty && duty.foreignSurcharge > 0 && (
+              <div className="flex justify-between">
+                <span className="text-[#888]">Foreign purchaser surcharge</span>
+                <span className="font-mono text-[#9B2335]">+${Math.round(duty.foreignSurcharge).toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-2 border-t border-[#E8E5E0]">
+              <span className="font-semibold text-[#1A1A1A] text-[10px] tracking-widest uppercase">Land cost in feasibility</span>
+              <span className="font-mono font-bold text-[#B8963C]">${Math.round(acquisitionTotal).toLocaleString()}</span>
+            </div>
+            {duty && data.settlementDate && (
+              <p className="text-[10px] text-[#888] pt-1">
+                Duty of <span className="font-mono font-semibold text-[#9B2335]">${Math.round(duty.total).toLocaleString()}</span> is due at settlement on <span className="font-semibold text-[#1A1A1A]">{new Date(data.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>.
+              </p>
+            )}
+            {duty && duty.notes.length > 0 && (
+              <ul className="pt-1 space-y-1">
+                {duty.notes.map((n, i) => (
+                  <li key={i} className="text-[10px] text-[#AAA] leading-relaxed">• {n}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {data.isInKind && (
         <div className="border border-[#C8C0D8] bg-[#F8F5FC] p-4 mb-4">

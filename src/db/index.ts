@@ -1,6 +1,7 @@
 import type { Project, SiteDesign, LandTerms, MixScenario, UnitType, CostStack, BTRAssumptions, BTSAssumptions, HotelAssumptions, CostPreset, BenchmarkSet, FinanceAssumptions, DebtTranche } from './schema'
 import * as cloud from './cloud'
 import { exGst } from '../engine/gst'
+import { calculateStampDuty } from '../engine/stampDuty'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -66,11 +67,18 @@ export function saveSiteDesign(data: SiteDesign) {
 
 // ── Land Terms ────────────────────────────────────────────────────────────────
 
+const LAND_DEFAULTS: Omit<LandTerms, 'projectId'> = {
+  landCost: 0, isInKind: false, inKindLabel: '',
+  inKindGFA: 0, inKindRatePerSqm: 3800, inKindNote: 'no debt, no finance, no holding cost',
+  state: 'VIC', propertyType: 'vacant_land', foreignBuyer: false,
+  applyStampDuty: true, settlementDate: '',
+}
+
 export function getLandTerms(projectId: string): LandTerms {
-  return load<LandTerms>(`land:${projectId}`, {
-    projectId, landCost: 0, isInKind: false, inKindLabel: '',
-    inKindGFA: 0, inKindRatePerSqm: 3800, inKindNote: 'no debt, no finance, no holding cost',
-  })
+  // Merge defaults under stored data so rows saved before the stamp duty
+  // fields existed pick up sensible values
+  const stored = load<Partial<LandTerms>>(`land:${projectId}`, {})
+  return { ...LAND_DEFAULTS, projectId, ...stored }
 }
 
 export function saveLandTerms(data: LandTerms) {
@@ -79,12 +87,44 @@ export function saveLandTerms(data: LandTerms) {
   touchProject(data.projectId)
 }
 
-/** Land cost used in calculations. Entered GST-inclusive; when the project
- *  applies GST the 1/11 input credit comes back, so the ex-GST cost is what
- *  the deal actually carries (debt sizing, carry, totals). */
+export interface LandAcquisition {
+  purchasePrice: number     // contract price as entered (GST-inclusive)
+  gstCredit: number         // 1/11 input credit when the project applies GST
+  exGstPrice: number        // price net of the GST credit
+  stampDuty: number         // duty on the contract price (general/entity rate)
+  foreignSurcharge: number  // foreign purchaser surcharge, if flagged
+  total: number             // ex-GST price + duty + surcharge — what the deal carries
+  settlementDate: string    // duty due at settlement
+  notes: string[]
+}
+
+/** Full land acquisition breakdown. Duty is assessed on the GST-inclusive
+ *  contract price; the GST credit comes back, so the deal carries the
+ *  ex-GST price plus duty. */
+export function getLandAcquisition(projectId: string): LandAcquisition {
+  const land = getLandTerms(projectId)
+  const purchasePrice = land.landCost ?? 0
+  const gstCredit = getCostStack(projectId).gstEnabled ? purchasePrice - exGst(purchasePrice) : 0
+  const exGstPrice = purchasePrice - gstCredit
+  const dutyResult = land.applyStampDuty && purchasePrice > 0
+    ? calculateStampDuty(land.state, purchasePrice, land.propertyType, { foreignBuyer: land.foreignBuyer })
+    : null
+  return {
+    purchasePrice,
+    gstCredit,
+    exGstPrice,
+    stampDuty: dutyResult?.duty ?? 0,
+    foreignSurcharge: dutyResult?.foreignSurcharge ?? 0,
+    total: exGstPrice + (dutyResult?.total ?? 0),
+    settlementDate: land.settlementDate,
+    notes: dutyResult?.notes ?? [],
+  }
+}
+
+/** Land cost used in calculations — ex-GST contract price plus stamp duty
+ *  (debt sizing, carry, totals all carry the full acquisition cost). */
 export function getEffectiveLandCost(projectId: string): number {
-  const cost = getLandTerms(projectId).landCost ?? 0
-  return getCostStack(projectId).gstEnabled ? exGst(cost) : cost
+  return getLandAcquisition(projectId).total
 }
 
 // ── Mix Scenarios ─────────────────────────────────────────────────────────────

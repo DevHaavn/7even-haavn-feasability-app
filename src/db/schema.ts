@@ -38,6 +38,12 @@ export interface LandTerms {
   inKindGFA: number
   inKindRatePerSqm: number
   inKindNote: string
+  // Stamp duty — general/entity rate calculated on the contract price
+  state: import('../engine/stampDuty').AuState
+  propertyType: import('../engine/stampDuty').PropertyType
+  foreignBuyer: boolean
+  applyStampDuty: boolean
+  settlementDate: string   // YYYY-MM-DD — duty due at settlement
 }
 
 export interface UnitType {

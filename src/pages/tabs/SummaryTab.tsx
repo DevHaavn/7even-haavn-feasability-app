@@ -198,7 +198,8 @@ function SummaryTabInner({ projectId }: Props) {
     setBestRow(rows.find(r => r.isBest) ?? rows[0] ?? null)
   }, [projectId])
 
-  const landCost = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
+  const landAcq = store.getLandAcquisition(projectId)
+  const landCost = landAcq.total  // ex-GST contract price + stamp duty
 
   return (
     <div className="flex flex-col">
@@ -255,7 +256,11 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Land & Terms ── */}
         <Section title="Land & Terms" sub="Acquisition cost and structure">
-          <Row label={costData.gstEnabled ? 'Land Cost (ex GST)' : 'Land Cost'} value={fmt(landCost)} gold />
+          {landAcq.purchasePrice > 0 && <Row label={costData.gstEnabled ? 'Purchase Price (inc GST)' : 'Purchase Price'} value={fmt(landAcq.purchasePrice)} />}
+          {landAcq.gstCredit > 0 && <Row label="GST Input Credit (1/11)" value={`−${fmt(landAcq.gstCredit)}`} />}
+          {landAcq.stampDuty > 0 && <Row label={`Stamp Duty (${land.state})`} value={fmt(landAcq.stampDuty + landAcq.foreignSurcharge)} />}
+          {landAcq.settlementDate && <Row label="Settlement (duty due)" value={new Date(landAcq.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })} />}
+          <Row label="Land Cost in Feasibility" value={fmt(landCost)} gold />
           {land.isInKind && land.inKindGFA > 0 && <Row label="In-Kind Delivery GFA" value={`${land.inKindGFA.toLocaleString()} sqm`} />}
           {land.isInKind && land.inKindGFA > 0 && <Row label={`In-Kind (${land.inKindLabel})`} value={`${land.inKindGFA.toLocaleString()} sqm`} />}
         </Section>
