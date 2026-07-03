@@ -90,7 +90,7 @@ export default function PortalComingSoon({ onClose }: { onClose: () => void }) {
       <p style={{ position: 'absolute', bottom: 34, color: '#3A3A3A', fontSize: 8, letterSpacing: '0.3em', textTransform: 'uppercase', animation: 'portal-rise 0.9s 1.4s ease both' }}>
         7EVEN Capital · Private Access
       </p>
-      <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0, color: 'rgba(255,255,255,0.10)', animation: 'portal-rise 0.9s 1.5s ease both' }} />
+      <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0, animation: 'portal-rise 0.9s 1.5s ease both' }} />
     </div>
   )
 }

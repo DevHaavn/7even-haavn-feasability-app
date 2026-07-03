@@ -271,7 +271,7 @@ export default function IntroScreen({ onDone }: Props) {
         <div style={{ position: 'absolute', bottom: 24, right: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.14)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
           7even.au
         </div>
-        <DesignCredit style={{ position: 'absolute', bottom: 24, left: 0, right: 0, color: 'rgba(255,255,255,0.10)' }} />
+        <DesignCredit style={{ position: 'absolute', bottom: 24, left: 0, right: 0 }} />
       </div>
     </>
   )

@@ -387,7 +387,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
           <img src="/brand-logo-white.png" alt="7EVEN" draggable={false} style={{ width: 80, height: 'auto', objectFit: 'contain', opacity: 0.15 }} />
           <p style={{ fontSize: 8, letterSpacing: '0.22em', color: '#222', textTransform: 'uppercase' }}>Portfolio Intelligence Dashboard · {brandLabel}</p>
         </div>
-        <DesignCredit style={{ marginTop: 14, color: 'rgba(255,255,255,0.10)' }} />
+        <DesignCredit style={{ marginTop: 14 }} />
       </div>
     </div>
   )

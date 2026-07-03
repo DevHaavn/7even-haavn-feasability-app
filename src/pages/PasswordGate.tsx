@@ -151,7 +151,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
       <p style={{ position: 'absolute', bottom: 34, color: '#282828', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
         7EVEN Capital · Private Access
       </p>
-      <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0, color: 'rgba(255,255,255,0.12)' }} />
+      <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0 }} />
 
       <style>{`
         @keyframes shake {
