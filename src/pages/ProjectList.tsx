@@ -112,21 +112,21 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* Title — high in the treeline on desktop; dropped clear of the wings on mobile */}
-        <div style={{ position: 'absolute', top: isMobile ? '30%' : '5%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
+        {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
+        <div style={{ position: 'absolute', top: isMobile ? '30%' : '3%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
           <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
         </div>
 
-        {/* Wordmark — centred so the V lands on the house central column */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+        {/* Wordmark — centred so the V lands on the house central column (nudged up 2mm) */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, transform: 'translateY(-8px)' }}>
           <Wordmark size="hero" />
         </div>
 
         {/* + New Project — low, between the house base and the gold divider */}
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '8%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
           <button onClick={() => openNew('7even')} className="no-drag glass-btn"
-            style={{ padding: '14px 48px' }}>
-            <span style={{ color: 'rgba(255,255,255,0.90)', fontSize: 11, letterSpacing: '0.30em', textTransform: 'uppercase', fontWeight: 500 }}>+ New Project</span>
+            style={{ padding: '10px 30px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.90)', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 500 }}>+ New Project</span>
           </button>
         </div>
       </div>

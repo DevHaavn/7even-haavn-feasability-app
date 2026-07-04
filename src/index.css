@@ -265,6 +265,8 @@ input[type="checkbox"] {
   .hero-legend { display: none !important; }
   .pcard-date, .pcard-arrow { display: none; }
   .p7-mark { width: 40px !important; opacity: 0.75; }
+  /* Brand ~30% smaller on mobile so it doesn't sprawl over sky + house */
+  .hero-wm { width: min(160px, 25vw) !important; }
   /* Clear band at the footer bottom for the fixed Log Out + P7 mark */
   .site-footer { padding-bottom: 46px !important; }
   /* Project page: Manage/Log Out sit in a slim strip above the black header */

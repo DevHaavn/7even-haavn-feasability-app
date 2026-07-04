@@ -13,7 +13,7 @@ export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | '
         src="/brand-logo-white-tight.png"
         alt="7EVEN · HAAVN"
         draggable={false}
-        className="select-none"
+        className="select-none hero-wm"
         style={{ width: 'min(229px, 36vw)', height: 'auto', objectFit: 'contain' }}
       />
     )
