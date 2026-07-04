@@ -238,14 +238,17 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── New project modal ── */}
       {showNew && (
         <div onClick={() => setShowNew(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.90)', backdropFilter: 'blur(12px)' }}>
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(rgba(3,3,3,0.66), rgba(3,3,3,0.74)), url(/home-bg.jpg) center / cover no-repeat, #030303',
+          }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
               width: 480, padding: '40px',
-              background: 'linear-gradient(rgba(6,6,6,0.78), rgba(6,6,6,0.84)), url(/home-bg.jpg) center / cover no-repeat, #060606',
-              border: '1px solid rgba(255,255,255,0.14)', borderRadius: 18, overflow: 'hidden',
-              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 24px 60px rgba(0,0,0,0.55)',
+              background: 'rgba(8,8,8,0.40)',
+              border: '1px solid rgba(255,255,255,0.16)', borderRadius: 18, overflow: 'hidden',
+              backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 24px 60px rgba(0,0,0,0.55)',
             }}>
 
             {/* Coloured top bar — gold for 7EVEN, white for HAAVN */}
