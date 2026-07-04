@@ -50,8 +50,12 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
       {/* Full-screen overlay — z-index 9999 puts it above everything including Leaflet */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: '#050505' }}>
 
+        {/* Particle wave background — blurred up from source, dark overlay keeps content legible */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/manage-bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(3px)', opacity: 0.55, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.82), rgba(3,3,3,0.62) 40%, rgba(3,3,3,0.88))', pointerEvents: 'none' }} />
+
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #111', flexShrink: 0 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', flex: 1 }}>
             {([{ id: 'history', label: '⏱ Version History' }, { id: 'export', label: '⬇ Export' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
@@ -59,7 +63,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
                 style={{
                   padding: '18px 28px',
                   fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
-                  color: tab === t.id ? (t.id === 'reset' ? '#EF4444' : '#C4973A') : '#333',
+                  color: tab === t.id ? (t.id === 'reset' ? '#EF4444' : '#C4973A') : '#A8A8A8',
                   background: 'transparent', border: 'none',
                   borderBottom: tab === t.id ? `2px solid ${t.id === 'reset' ? '#EF4444' : '#C4973A'}` : '2px solid transparent',
                   cursor: 'pointer', transition: 'all 0.2s', fontWeight: tab === t.id ? 700 : 400,
@@ -69,20 +73,20 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
             ))}
           </div>
           {/* Project name */}
-          <div style={{ padding: '0 28px', color: '#222', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+          <div style={{ padding: '0 28px', color: '#B8B8B8', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
             {projectName}
           </div>
           {/* Close */}
           <button onClick={onClose}
-            style={{ padding: '0 24px', height: '100%', color: '#333', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', transition: 'color 0.2s', lineHeight: 1 }}
+            style={{ padding: '0 24px', height: '100%', color: '#A8A8A8', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', transition: 'color 0.2s', lineHeight: 1 }}
             onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#333')}>
+            onMouseLeave={e => (e.currentTarget.style.color = '#A8A8A8')}>
             ✕
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'relative', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
           {/* ── EXPORT TAB ── */}
           {tab === 'export' && (

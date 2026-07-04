@@ -13,7 +13,8 @@ import { solveUnitMix } from '../engine/unitMix'
 export interface KVBlock { type: 'kv'; title?: string; rows: [string, string][] }
 export interface TableBlock { type: 'table'; title?: string; headers: string[]; rows: (string | number)[][] }
 export interface NoteBlock { type: 'note'; text: string }
-export type Block = KVBlock | TableBlock | NoteBlock
+export interface BarsBlock { type: 'bars'; title?: string; items: { label: string; value: number }[] }
+export type Block = KVBlock | TableBlock | NoteBlock | BarsBlock
 export interface Section { id: string; title: string; blocks: Block[] }
 
 export interface ExportNode {
@@ -42,6 +43,7 @@ export const EXPORT_TREE: ExportNode[] = [
   { id: 'bts', label: 'BTS — Build to Sell' },
   { id: 'hotel', label: 'Hotel' },
   { id: 'compare', label: 'Scenario Comparison' },
+  { id: 'dashboard', label: 'Project Dashboard' },
   { id: 'summary', label: 'Executive Summary' },
 ]
 
@@ -211,7 +213,21 @@ function costSummarySection(projectId: string): Section {
   if (land.isInKind && r.inKindCost > 0) rows.push([`In-kind (${land.inKindLabel})`, $(r.inKindCost)])
   if (r.gstCredits > 0) rows.push(['Less GST input credits (1/11)', '−' + $(r.gstCredits)])
   rows.push([`Total Development Cost${r.gstCredits > 0 ? ' (ex GST)' : ''}`, $(r.totalDevelopmentCost)])
-  return { id: 'cost-summary', title: 'Cost Stack — Summary', blocks: [{ type: 'kv', rows }] }
+  const bars: Block = {
+    type: 'bars', title: 'Cost Composition', items: [
+      { label: 'Construction', value: r.construction },
+      { label: 'Contingency', value: r.contingency },
+      { label: 'Prelims', value: r.prelims },
+      { label: 'Professional fees', value: r.professionalFees },
+      { label: 'Statutory & council', value: costData.statutoryFixed },
+      { label: 'Finance', value: r.finance },
+      { label: 'Project management', value: costData.projectManagementFixed },
+      { label: 'Marketing', value: costData.marketingFixed },
+      { label: 'Amenity fitout', value: costData.amenityFitoutFixed },
+      ...(r.inKindCost > 0 ? [{ label: 'In-kind', value: r.inKindCost }] : []),
+    ].filter(i => i.value > 0),
+  }
+  return { id: 'cost-summary', title: 'Cost Stack — Summary', blocks: [{ type: 'kv', rows }, bars] }
 }
 
 function costDetailSection(projectId: string, key: 'hardCosts' | 'consultants' | 'statutory' | 'marketing', id: string, title: string): Section {
@@ -407,8 +423,51 @@ function compareSection(projectId: string): Section {
         r.scenario, r.type, r.noi != null ? $(r.noi) : '—', $(r.gav), $(r.tdc), $(r.rlv),
         r.rlv === best && best > 0 ? '★ BEST' : '',
       ]),
+    }, {
+      type: 'bars', title: 'Residual Land Value by Strategy',
+      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv })),
     }],
   }
+}
+
+function dashboardSection(projectId: string): Section {
+  const cost = projectTdc(projectId)
+  const landCost = db.getEffectiveLandCost(projectId)
+  const rows = comparisonRows(projectId)
+  const best = rows.length > 0 ? rows.reduce((a, b) => (b.rlv > a.rlv ? b : a)) : null
+  const softCosts = cost.contingency + cost.prelims + cost.professionalFees
+  const fixedCosts = cost.subtotal - cost.construction - cost.contingency - cost.prelims - cost.professionalFees - cost.finance
+  const blocks: Block[] = [
+    {
+      type: 'kv', title: 'Key Metrics', rows: [
+        ['Total development cost' + (cost.gstCredits > 0 ? ' (ex GST)' : ''), $(cost.totalDevelopmentCost)],
+        ['Land & acquisition (ex GST + duty)', $(landCost)],
+        ...(best ? [
+          ['Best strategy', `${best.type} — ${best.scenario}`] as [string, string],
+          ['Best GAV / revenue', $(best.gav)] as [string, string],
+          ['Best RLV', $(best.rlv)] as [string, string],
+          ['Value created (RLV − land)', $(Math.max(0, best.rlv - landCost))] as [string, string],
+        ] : []),
+      ],
+    },
+    {
+      type: 'bars', title: 'Capital Deployment', items: [
+        { label: 'Land & acquisition', value: landCost },
+        { label: 'Construction', value: cost.construction },
+        { label: 'Soft costs', value: softCosts },
+        { label: 'Fixed & statutory', value: fixedCosts },
+        { label: 'Finance', value: cost.finance },
+        ...(cost.inKindCost > 0 ? [{ label: 'In-kind', value: cost.inKindCost }] : []),
+      ].filter(i => i.value > 0),
+    },
+  ]
+  if (rows.length > 0) {
+    blocks.push({
+      type: 'bars', title: 'Strategy Outcomes — RLV',
+      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv })),
+    })
+  }
+  return { id: 'dashboard', title: 'Project Dashboard', blocks }
 }
 
 function summarySection(projectId: string): Section {
@@ -458,5 +517,6 @@ export function buildExportSections(projectId: string, selectedIds: string[]): S
   if (has('bts')) sections.push(btsSection(projectId))
   if (has('hotel')) sections.push(hotelSection(projectId))
   if (has('compare')) sections.push(compareSection(projectId))
+  if (has('dashboard')) sections.push(dashboardSection(projectId))
   return sections
 }

@@ -6,7 +6,7 @@ import { useStore } from '../store'
 export default function ProjectExportPanel({ projectId, projectName }: { projectId: string; projectName: string }) {
   const { projects } = useStore()
   const project = projects.find(p => p.id === projectId)
-  const [selected, setSelected] = useState<Set<string>>(new Set(ALL_EXPORT_IDS))
+  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState<'pdf' | 'excel' | null>(null)
   const [done, setDone] = useState<string | null>(null)
 
@@ -44,7 +44,7 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
       // Exporter libs are heavy — loaded on demand so the app bundle stays lean
       const { exportPdf, exportExcel } = await import('../lib/exporters')
       const sections = buildExportSections(projectId, Array.from(selected))
-      if (format === 'pdf') exportPdf(projectName, project?.address ?? '', sections)
+      if (format === 'pdf') await exportPdf(projectName, project?.address ?? '', sections)
       else exportExcel(projectName, project?.address ?? '', sections)
       setDone(format === 'pdf' ? 'PDF downloaded' : 'Excel downloaded')
     } finally {
@@ -61,7 +61,7 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
     if (node.children) {
       const onCount = node.children.filter(c => selected.has(c.id)).length
       return (
-        <div key={node.id} style={{ border: '1px solid #141414', background: '#0A0A0A', padding: '14px 18px' }}>
+        <div key={node.id} style={{ border: '1px solid #141414', background: 'rgba(8,8,8,0.78)', padding: '14px 18px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -85,7 +85,7 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
       )
     }
     return (
-      <label key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', border: '1px solid #141414', background: '#0A0A0A', padding: '14px 18px' }}>
+      <label key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', border: '1px solid #141414', background: 'rgba(8,8,8,0.78)', padding: '14px 18px' }}>
         <input type="checkbox" checked={selected.has(node.id)} onChange={() => toggle(node.id)} style={checkboxStyle} />
         <span style={{ color: selected.has(node.id) ? '#D8D6D2' : '#555', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{node.label}</span>
       </label>
