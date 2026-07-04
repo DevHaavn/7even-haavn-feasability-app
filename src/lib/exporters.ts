@@ -45,32 +45,44 @@ function goldRuleV(doc: jsPDF, x: number, y1: number, y2: number, bg: [number, n
   }
 }
 
+/** Crisp vector particle-wave texture — flowing rows of tiny dots on black,
+ *  echoing the app's shimmer backdrop. Pure vector, sharp at any zoom.
+ *  `intensity` scales dot brightness (0–1). */
+function drawWaveTexture(doc: jsPDF, x: number, y: number, w: number, h: number, intensity: number) {
+  // Deterministic pseudo-random so every export looks identical
+  const rand = (n: number) => {
+    const s = Math.sin(n * 127.1 + 311.7) * 43758.5453
+    return s - Math.floor(s)
+  }
+  const rows = Math.max(6, Math.round(h / 22))
+  const cols = Math.max(28, Math.round(w / 16))
+  let k = 0
+  for (let iy = 0; iy <= rows; iy++) {
+    const tv = iy / rows
+    const baseY = y + tv * h
+    const amp = h * 0.10 * (0.5 + 0.5 * Math.sin(tv * Math.PI))
+    for (let ix = 0; ix <= cols; ix++) {
+      k++
+      const u = ix / cols
+      const wave = Math.sin(u * Math.PI * 4 + tv * 5.2) * (0.45 + 0.55 * Math.sin(u * Math.PI * 2 + tv * 2.6))
+      const dy = baseY + amp * wave
+      if (dy < y + 1.5 || dy > y + h - 1.5) continue
+      // Brightness follows the wave crest with organic sparkle
+      const crest = Math.pow(Math.max(0, Math.sin(u * Math.PI * 4 + tv * 5.2 + Math.PI / 2)), 2)
+      const sparkle = rand(k) > 0.965 ? 1 : 0
+      const b = Math.min(255, Math.round((40 + 165 * crest + 120 * sparkle) * intensity + 18))
+      if (b < 32) continue
+      doc.setFillColor(b, b, Math.min(255, b + 4))
+      const r = 0.32 + 0.55 * crest + (sparkle ? 0.35 : 0) + 0.12 * rand(k * 3.7)
+      doc.circle(x + u * w + (rand(k * 1.3) - 0.5) * 3.5, dy + (rand(k * 2.1) - 0.5) * 2.5, r, 'F')
+    }
+  }
+}
+
 function fileStamp(projectName: string) {
   const date = new Date().toISOString().slice(0, 10)
   const safe = projectName.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-')
   return `${safe}-Export-${date}`
-}
-
-/** Load any public image as a data URL (with intrinsic size) for jsPDF. */
-async function loadImage(path: string): Promise<{ dataUrl: string; w: number; h: number } | null> {
-  try {
-    const res = await fetch(path)
-    const blob = await res.blob()
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const fr = new FileReader()
-      fr.onload = () => resolve(fr.result as string)
-      fr.onerror = reject
-      fr.readAsDataURL(blob)
-    })
-    const dims = await new Promise<{ w: number; h: number }>(resolve => {
-      const img = new Image()
-      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
-      img.src = dataUrl
-    })
-    return { dataUrl, ...dims }
-  } catch {
-    return null
-  }
 }
 
 /** Load the brand PNG used across the app as a data URL for jsPDF. */
@@ -103,21 +115,11 @@ export async function exportPdf(projectName: string, address: string, sections: 
   const pageH = doc.internal.pageSize.getHeight()
   const margin = 48
   const logo = await loadBrandLogo()
-  const wave = await loadImage('/home-bg.jpg')
 
-  // Cover header — black band with the particle wave showing through
+  // Cover header — black band with a crisp vector particle wave
   doc.setFillColor(0, 0, 0)
   doc.rect(0, 0, pageW, 128, 'F')
-  if (wave) {
-    doc.saveGraphicsState()
-    doc.rect(0, 0, pageW, 128)
-    doc.clip()
-    doc.discardPath()
-    doc.setGState(new (doc as any).GState({ opacity: 0.5 }))
-    const bandImgH = pageW * (wave.h / wave.w)
-    doc.addImage(wave.dataUrl, 'JPEG', 0, (128 - bandImgH) / 2, pageW, bandImgH)
-    doc.restoreGraphicsState()
-  }
+  drawWaveTexture(doc, 0, 0, pageW, 128, 0.55)
   if (logo) {
     const logoW = 96
     const logoH = logoW * (logo.h / logo.w)
@@ -398,17 +400,11 @@ export async function exportPdf(projectName: string, address: string, sections: 
     doc.text(`Design & Interface © ${new Date().getFullYear()} JB Design × Studio · All Rights Reserved`, pageW / 2, pageH - 16, { align: 'center' })
   }
 
-  // ── Closing page — full-bleed particle wave, wings, confidentiality ──
+  // ── Closing page — full-bleed vector particle wave behind the content ──
   doc.addPage()
   doc.setFillColor(0, 0, 0)
   doc.rect(0, 0, pageW, pageH, 'F')
-  if (wave) {
-    doc.saveGraphicsState()
-    doc.setGState(new (doc as any).GState({ opacity: 0.55 }))
-    const coverW = pageH * (wave.w / wave.h)
-    doc.addImage(wave.dataUrl, 'JPEG', (pageW - coverW) / 2, 0, coverW, pageH)
-    doc.restoreGraphicsState()
-  }
+  drawWaveTexture(doc, 0, 0, pageW, pageH, 0.42)
   const cx = pageW / 2
   if (logo) {
     const wingsW = 190
