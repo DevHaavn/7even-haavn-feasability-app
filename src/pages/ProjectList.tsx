@@ -452,12 +452,13 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       {/* Type badge + dropdown */}
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 9px', border: `1px solid ${color}33`, background: dropOpen ? `${color}18` : `${color}0D`, cursor: 'pointer', transition: 'background 0.15s' }}>
+          className={`glass-chip ${dropOpen ? 'glass-chip-open' : ''}`}
+          style={{ '--chip': color, display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px' } as React.CSSProperties}>
           <span style={{ fontSize: 8, letterSpacing: '0.20em', textTransform: 'uppercase', color, fontWeight: 700 }}>{label}</span>
           <span style={{ fontSize: 8, color, opacity: 0.6 }}>▾</span>
         </button>
         {dropOpen && (
-          <div style={{ position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 200, background: '#0C0C0C', border: '1px solid #1A1A1A', minWidth: 120, boxShadow: '0 8px 24px rgba(0,0,0,0.6)' }}>
+          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
             <div style={{ padding: '6px 10px 4px', borderBottom: '1px solid #1A1A1A' }}>
               <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#444' }}>Set Status</span>
             </div>
