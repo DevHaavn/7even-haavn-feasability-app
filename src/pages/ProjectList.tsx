@@ -240,7 +240,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div onClick={() => setShowNew(false)}
           style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.90)', backdropFilter: 'blur(12px)' }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
-            style={{ width: 480, background: '#060606', padding: '40px', border: '1px solid #1E1E1E' }}>
+            style={{
+              width: 480, padding: '40px',
+              background: 'linear-gradient(rgba(6,6,6,0.78), rgba(6,6,6,0.84)), url(/home-bg.jpg) center / cover no-repeat, #060606',
+              border: '1px solid rgba(255,255,255,0.14)', borderRadius: 18, overflow: 'hidden',
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 24px 60px rgba(0,0,0,0.55)',
+            }}>
 
             {/* Coloured top bar — gold for 7EVEN, white for HAAVN */}
             <div style={{ height: 2, background: newBrand === '7even' ? 'linear-gradient(to right, #C4973A, #E8B84B)' : 'linear-gradient(to right, rgba(255,255,255,0.50), rgba(255,255,255,0.80))', marginBottom: 32 }} />
