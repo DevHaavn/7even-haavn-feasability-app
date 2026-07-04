@@ -127,8 +127,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Gold divider ── */}
       <div style={{ height: 1, background: 'linear-gradient(to right, transparent, #C4973A 30%, #C4973A 70%, transparent)', flexShrink: 0 }} />
 
+      {/* ── Lower half — shimmering particle backdrop behind the project panels ── */}
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/home-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.6, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(8,8,8,0.92), rgba(8,8,8,0.42) 38%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.85))', pointerEvents: 'none' }} />
+
       {/* ── Sub-header ── */}
-      <div style={{ flexShrink: 0, padding: '10px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #111' }}>
+      <div style={{ position: 'relative', flexShrink: 0, padding: '10px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: '#383838', fontWeight: 600 }}>
             {projects.length} {projects.length !== 1 ? 'Projects' : 'Project'}
@@ -144,12 +149,12 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       </div>
 
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
         {/* LEFT — 7EVEN */}
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderRight: isNarrow ? 'none' : '1px solid #111', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header */}
-          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: '#060606', borderBottom: '1px solid #0E0E0E', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(6,6,6,0.55)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 2, height: 18, background: '#C4973A', flexShrink: 0 }} />
               <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.12em', color: '#C4973A' }}>7EVEN</span>
@@ -191,7 +196,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         {/* RIGHT — HAAVN */}
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden' }}>
           {/* Column header */}
-          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: '#050505', borderBottom: '1px solid #0E0E0E', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(5,5,5,0.5)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 2, height: 18, background: 'rgba(255,255,255,0.55)', flexShrink: 0 }} />
               <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.75)' }}>HAAVN</span>
@@ -229,6 +234,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             )}
           </div>
         </div>
+      </div>
       </div>
 
       <SiteLinks />
