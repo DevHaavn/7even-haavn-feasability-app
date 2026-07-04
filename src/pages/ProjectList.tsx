@@ -109,12 +109,16 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* Hero centre */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, zIndex: 10 }}>
+        {/* Hero brand — centred on the house (divider sits on the central pillar) */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 26, zIndex: 10 }}>
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Development Feasibility Studio</p>
           <Wordmark size="hero" />
+        </div>
+
+        {/* + New Project — low, between the house base and the gold divider */}
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '8%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
           <button onClick={() => openNew('7even')} className="no-drag glass-btn"
-            style={{ marginTop: 10, padding: '14px 48px' }}>
+            style={{ padding: '14px 48px' }}>
             <span style={{ color: 'rgba(255,255,255,0.90)', fontSize: 11, letterSpacing: '0.30em', textTransform: 'uppercase', fontWeight: 500 }}>+ New Project</span>
           </button>
         </div>

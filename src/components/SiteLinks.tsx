@@ -3,7 +3,7 @@ import { DesignCredit } from './ui'
 
 export default function SiteLinks() {
   return (
-    <div style={{ background: '#0A0A0A', borderTop: '1px solid #1A1A1A', flexShrink: 0, paddingBottom: 12 }}>
+    <div style={{ background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A', borderTop: '1px solid #1A1A1A', flexShrink: 0, paddingBottom: 12 }}>
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       gap: 12, padding: '13px 24px 8px',
