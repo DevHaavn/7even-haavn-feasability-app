@@ -269,7 +269,16 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
           background: 'transparent',
         }}
       >
-        {gold ? `▦ ${t.label}` : t.label}
+        {gold ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            <svg width="11" height="9" viewBox="0 0 11 9" aria-hidden="true" style={{ flexShrink: 0 }}>
+              <rect x="0" y="0" width="11" height="1.4" rx="0.7" fill="currentColor" />
+              <rect x="0" y="3.8" width="11" height="1.4" rx="0.7" fill="currentColor" />
+              <rect x="0" y="7.6" width="11" height="1.4" rx="0.7" fill="currentColor" />
+            </svg>
+            {t.label}
+          </span>
+        ) : t.label}
       </button>
     )
   }

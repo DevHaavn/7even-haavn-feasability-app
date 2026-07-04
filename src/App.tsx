@@ -80,9 +80,9 @@ export default function App() {
                   className="no-drag glass-btn glass-btn-gold"
                   onClick={() => setManageOpen(true)}
                   style={{
-                    position: 'fixed', top: 14, right: 110, zIndex: 200,
-                    fontSize: 9, letterSpacing: '0.22em',
-                    textTransform: 'uppercase', padding: '7px 15px',
+                    position: 'fixed', top: 15, right: 92, zIndex: 200,
+                    fontSize: 6.5, letterSpacing: '0.20em',
+                    textTransform: 'uppercase', padding: '5px 11px',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -95,9 +95,9 @@ export default function App() {
                 className="no-drag glass-btn glass-btn-red"
                 onClick={handleLogout}
                 style={{
-                  position: 'fixed', top: 14, right: 20, zIndex: 200,
-                  fontSize: 9, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', padding: '7px 15px',
+                  position: 'fixed', top: 15, right: 18, zIndex: 200,
+                  fontSize: 6.5, letterSpacing: '0.20em',
+                  textTransform: 'uppercase', padding: '5px 11px',
                 }}
               >
                 Log Out
