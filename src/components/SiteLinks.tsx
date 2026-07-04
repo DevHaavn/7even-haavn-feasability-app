@@ -6,19 +6,19 @@ export default function SiteLinks() {
     <div style={{ background: '#0A0A0A', borderTop: '1px solid #1A1A1A', flexShrink: 0, paddingBottom: 12 }}>
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      gap: 16, padding: '18px 24px 10px',
+      gap: 12, padding: '13px 24px 8px',
     }}>
-      <span style={{ color: '#fff', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600 }}>Visit Us</span>
-      <div style={{ width: 1, height: 14, background: '#333' }} />
+      <span style={{ color: '#fff', fontSize: 7.5, letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600 }}>Visit Us</span>
+      <div style={{ width: 1, height: 10, background: '#333' }} />
       <a
         href="https://7even.au"
         target="_blank"
         rel="noopener noreferrer"
         className="glass-btn glass-btn-gold"
         style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '9px 22px',
-          fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase',
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          padding: '5px 13px',
+          fontSize: 7.5, letterSpacing: '0.22em', textTransform: 'uppercase',
           fontWeight: 700, textDecoration: 'none',
         }}
       >
@@ -30,9 +30,9 @@ export default function SiteLinks() {
         rel="noopener noreferrer"
         className="glass-btn"
         style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '9px 22px',
-          fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase',
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          padding: '5px 13px',
+          fontSize: 7.5, letterSpacing: '0.22em', textTransform: 'uppercase',
           fontWeight: 700, textDecoration: 'none', color: 'rgba(255,255,255,0.9)',
         }}
       >

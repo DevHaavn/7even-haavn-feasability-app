@@ -454,7 +454,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
           className={`glass-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': color, display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px' } as React.CSSProperties}>
+          style={{ '--chip': color, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: 96, padding: '6px 0' } as React.CSSProperties}>
           <span style={{ fontSize: 8, letterSpacing: '0.20em', textTransform: 'uppercase', color, fontWeight: 700 }}>{label}</span>
           <span style={{ fontSize: 8, color, opacity: 0.6 }}>▾</span>
         </button>

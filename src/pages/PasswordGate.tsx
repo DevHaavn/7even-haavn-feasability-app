@@ -65,7 +65,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
         position: 'absolute', inset: 0,
         backgroundImage: 'url(/renders/haavn-hero.png)',
         backgroundSize: 'cover', backgroundPosition: 'center',
-        opacity: 0.18,
+        opacity: 0.45,
         pointerEvents: 'none',
       }} />
 
@@ -81,9 +81,13 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
         position: 'relative',
         width: '100%', maxWidth: 420,
         padding: '56px 48px 48px',
-        border: '1px solid #1A1A1A',
-        background: 'rgba(6,6,6,0.92)',
-        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.14)',
+        borderRadius: 18,
+        overflow: 'hidden',
+        background: 'rgba(8,8,8,0.52)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 24px 60px rgba(0,0,0,0.55)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
       }}>
         {/* Gold top bar */}
