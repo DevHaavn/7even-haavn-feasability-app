@@ -344,10 +344,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 function EmptyState({ brand, onNew }: { brand: '7even' | 'haavn'; onNew: () => void }) {
   const is7even = brand === '7even'
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 16, padding: '48px 24px' }}>
-      <div style={{ width: 32, height: 32, border: `1px solid ${is7even ? '#C4973A33' : '#ffffff18'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: is7even ? '#C4973A44' : '#ffffff22', fontSize: 18, lineHeight: 1 }}>+</span>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', gap: 16, padding: '48px 24px', textAlign: 'center' }}>
       <p style={{ color: '#222', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center' }}>
         No {is7even ? '7EVEN' : 'HAAVN'} projects yet
       </p>
@@ -429,15 +426,15 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
 
   return (
     <div onClick={onClick} className="group cursor-pointer"
-      style={{ borderBottom: '1px solid #0D0D0D', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
+      style={{ borderBottom: '1px solid #0D0D0D', padding: '16px 28px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#0C0C0C'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
 
+      {/* Accent bar first — lines up with the 7EVEN/HAAVN header bar */}
+      <div style={{ width: 2, height: 30, background: color, flexShrink: 0, opacity: 0.75 }} />
       <span style={{ color: '#222', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
         {String(index).padStart(2, '0')}
       </span>
-
-      <div style={{ width: 2, height: 30, background: color, flexShrink: 0, opacity: 0.75 }} />
       <StatusDot type={project.type} status={project.status} size={7} />
 
       <div style={{ flex: 1, minWidth: 0 }}>

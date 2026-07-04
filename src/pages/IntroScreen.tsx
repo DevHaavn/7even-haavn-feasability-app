@@ -5,8 +5,9 @@ interface Props {
   onDone: () => void
 }
 
-const BG = 'https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1920&q=80'
-
+/** Welcome interstitial — same treatment as the 7EVEN Capital portal page:
+ *  shimmering particle backdrop, gold radial glow, and the winged device
+ *  floating gently in place of the wordmark. */
 export default function IntroScreen({ onDone }: Props) {
   const [phase, setPhase] = useState(0)
   const [exiting, setExiting] = useState(false)
@@ -18,129 +19,43 @@ export default function IntroScreen({ onDone }: Props) {
   }, [exiting, onDone])
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 400)
-    const t2 = setTimeout(() => setPhase(2), 1200)
+    const t1 = setTimeout(() => setPhase(1), 350)
+    const t2 = setTimeout(() => setPhase(2), 1400)
     const t3 = setTimeout(() => setPhase(3), 2200)
-    const t4 = setTimeout(() => setPhase(4), 3200)
-    return () => [t1, t2, t3, t4].forEach(clearTimeout)
+    return () => [t1, t2, t3].forEach(clearTimeout)
   }, [])
 
   return (
     <>
       <style>{`
-        @keyframes intro-kb {
-          from { transform: scale(1.04); }
-          to   { transform: scale(1.10); }
-        }
-        @keyframes intro-screen-out {
-          from { opacity: 1; }
-          to   { opacity: 0; }
-        }
-        @keyframes intro-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes intro-screen-out { from { opacity: 1 } to { opacity: 0 } }
         @keyframes intro-welcome {
           0%   { opacity: 0; letter-spacing: 0.42em; }
           100% { opacity: 0.82; letter-spacing: 0.58em; }
         }
+        @keyframes intro-wings-in { 0% { opacity: 0; transform: translateY(34px) scale(0.82) } 100% { opacity: 1; transform: translateY(0) scale(1) } }
+        @keyframes intro-float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-11px) } }
+        @keyframes intro-glow { 0%, 100% { filter: drop-shadow(0 0 18px rgba(196,151,58,0.25)) } 50% { filter: drop-shadow(0 0 44px rgba(216,176,96,0.55)) } }
+        @keyframes intro-divider { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
         @keyframes intro-tagline {
           from { opacity: 0; letter-spacing: 0.28em; }
-          to   { opacity: 0.52; letter-spacing: 0.36em; }
+          to   { opacity: 0.62; letter-spacing: 0.36em; }
         }
-        @keyframes intro-divider {
-          from { transform: scaleX(0); opacity: 0; }
-          to   { transform: scaleX(1); opacity: 1; }
-        }
-        @keyframes intro-btn-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes city-pulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.82; }
-        }
+        @keyframes intro-btn-in { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
 
-        /* Gold shimmer sweep across the logo */
-        @keyframes logo-shimmer {
-          0%   { background-position: -250% center; }
-          100% { background-position:  250% center; }
-        }
-        /* Soft gold glow pulse on the logo wrapper */
-        @keyframes logo-glow {
-          0%, 100% { filter: drop-shadow(0 0 10px rgba(196,151,58,0.20)) brightness(1.0); }
-          50%       { filter: drop-shadow(0 0 36px rgba(196,151,58,0.60)) drop-shadow(0 0 72px rgba(196,151,58,0.20)) brightness(1.18); }
-        }
-        /* Sparkle twinkle on individual stars */
-        @keyframes sparkle {
-          0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
-          40%, 60% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-        }
-
-        /* Glass button hover */
         .intro-btn:hover {
           background: rgba(196,151,58,0.12) !important;
           border-color: rgba(196,151,58,0.75) !important;
           color: #C4973A !important;
-          letter-spacing: 0.34em !important;
-          box-shadow: 0 0 32px rgba(196,151,58,0.18), inset 0 0 20px rgba(196,151,58,0.06) !important;
-        }
-
-        /* Shimmer overlay on logo */
-        .intro-logo-wrap {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .intro-logo-wrap::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            108deg,
-            transparent 28%,
-            transparent 38%,
-            rgba(255,255,255,0.55) 50%,
-            rgba(196,151,58,0.42) 56%,
-            transparent 66%,
-            transparent 100%
-          );
-          background-size: 300% 100%;
-          background-position: -250% center;
-          animation: logo-shimmer 9.5s ease-in-out 1.4s infinite;
-          pointer-events: none;
         }
       `}</style>
 
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
-        overflow: 'hidden', background: '#000',
+        overflow: 'hidden',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 42%, rgba(196,151,58,0.12) 0%, rgba(10,8,4,0.82) 55%, rgba(3,3,3,0.90) 100%), url(/home-bg.jpg) center / cover no-repeat, #030303',
         animation: exiting ? 'intro-screen-out 0.9s ease forwards' : undefined,
       }}>
-
-        {/* ── Background — 30% less blur, city lights more visible ── */}
-        <div style={{
-          position: 'absolute', inset: '-20px',
-          backgroundImage: `url("${BG}")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center 30%',
-          filter: 'blur(3.5px)',
-          animation: 'intro-kb 12s ease-out forwards, city-pulse 5s ease-in-out 2s infinite',
-          willChange: 'transform',
-        }} />
-
-        {/* Dark veil — lighter so city lights show through more */}
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.54)' }} />
-
-        {/* Bottom gradient */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.38) 100%)' }} />
-
-        {/* Vignette — softened edges */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 28%, rgba(0,0,0,0.60) 100%)' }} />
-
-        {/* Warm gold centre glow */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 55% 45% at center 50%, rgba(196,151,58,0.08) 0%, transparent 70%)' }} />
 
         {/* ── Content ── */}
         <div style={{
@@ -153,63 +68,23 @@ export default function IntroScreen({ onDone }: Props) {
           <p style={{
             fontSize: 10, textTransform: 'uppercase', color: '#fff',
             fontWeight: 300, fontFamily: "'Optima','Gill Sans',sans-serif",
-            marginBottom: 44, opacity: 0,
+            marginBottom: 48, opacity: 0,
             animation: phase >= 1 ? 'intro-welcome 1.1s ease forwards' : undefined,
           }}>
             Welcome
           </p>
 
-          {/* Brand PNG — 30% larger + shimmer wrap + glow */}
-          <div
-            className="intro-logo-wrap"
-            style={{
-              marginBottom: 36,
-              opacity: 0,
-              animation: phase >= 2
-                ? 'intro-up 1.0s ease forwards, logo-glow 3.0s ease-in-out 1.2s infinite'
-                : undefined,
-            }}
-          >
+          {/* Wings — floating gently, gold glow */}
+          <div style={{ opacity: 0, animation: phase >= 1 ? 'intro-wings-in 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both' : undefined }}>
             <img
-              src="/brand-logo-white.png"
-              alt="7EVEN · HAAVN"
+              src="/winged-device-white.png"
+              alt="7EVEN"
               draggable={false}
               style={{
-                width: 'min(468px, 88vw)',
-                height: 'auto',
-                objectFit: 'contain',
-                userSelect: 'none',
-                display: 'block',
+                width: 'min(300px, 55vw)', height: 'auto', display: 'block', userSelect: 'none',
+                animation: phase >= 1 ? 'intro-float 4.5s 1.4s ease-in-out infinite, intro-glow 4s 1.4s ease-in-out infinite' : undefined,
               }}
             />
-
-            {/* Sparkle stars scattered around the logo */}
-            {phase >= 2 && ([
-              { top: '-10%', left: '6%',  delay: '1.6s', size: 18 },
-              { top: '-6%',  left: '83%', delay: '2.1s', size: 13 },
-              { top: '48%',  left: '-5%', delay: '2.8s', size: 15 },
-              { top: '110%', left: '16%', delay: '1.9s', size: 12 },
-              { top: '107%', left: '75%', delay: '2.5s', size: 14 },
-              { top: '18%',  left: '97%', delay: '3.0s', size: 10 },
-            ] as const).map((s, i) => (
-              <svg
-                key={i}
-                viewBox="0 0 20 20"
-                style={{
-                  position: 'absolute',
-                  top: s.top, left: s.left,
-                  width: s.size, height: s.size,
-                  opacity: 0,
-                  animation: `sparkle 3.2s ease-in-out ${s.delay} infinite`,
-                  pointerEvents: 'none',
-                  overflow: 'visible',
-                }}
-              >
-                {/* 4-point star */}
-                <path d="M10 0 L11.5 8.5 L20 10 L11.5 11.5 L10 20 L8.5 11.5 L0 10 L8.5 8.5 Z"
-                  fill="#C4973A" />
-              </svg>
-            ))}
           </div>
 
           {/* Gold hairline divider */}
@@ -218,20 +93,20 @@ export default function IntroScreen({ onDone }: Props) {
             background: 'linear-gradient(to right, transparent, rgba(196,151,58,0.65), transparent)',
             transformOrigin: 'center',
             transform: 'scaleX(0)', opacity: 0,
-            marginBottom: 20,
-            animation: phase >= 3 ? 'intro-divider 0.9s ease forwards' : undefined,
+            margin: '44px 0 20px',
+            animation: phase >= 2 ? 'intro-divider 0.9s ease forwards' : undefined,
           }} />
 
           {/* Tagline */}
           <p style={{
             fontSize: 8.5, textTransform: 'uppercase', color: '#C4973A',
-            fontFamily: 'monospace', fontWeight: 500, marginBottom: 60, opacity: 0,
-            animation: phase >= 3 ? 'intro-tagline 0.9s ease 0.2s forwards' : undefined,
+            fontFamily: 'monospace', fontWeight: 500, marginBottom: 56, opacity: 0,
+            animation: phase >= 2 ? 'intro-tagline 0.9s ease 0.2s forwards' : undefined,
           }}>
             Development Feasibility Studio
           </p>
 
-          {/* Glass "Enter Studio" button */}
+          {/* Enter Studio */}
           <button
             className="intro-btn glass-btn"
             onClick={exit}
@@ -243,7 +118,7 @@ export default function IntroScreen({ onDone }: Props) {
               color: 'rgba(255,255,255,0.85)',
               fontFamily: 'monospace',
               opacity: 0,
-              animation: phase >= 4 ? 'intro-btn-in 0.8s ease forwards' : undefined,
+              animation: phase >= 3 ? 'intro-btn-in 0.8s ease forwards' : undefined,
             }}
           >
             Enter Studio
