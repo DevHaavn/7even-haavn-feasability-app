@@ -241,30 +241,10 @@ input[type="checkbox"] {
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--chip) 60%, rgba(255,255,255,0.25)), 0 0 14px color-mix(in srgb, var(--chip) 30%, transparent);
 }
 
-/* ── Hero day-cycle — sunrise → midday → golden → dusk, interior lights glow up ── */
-@keyframes hero-daycycle {
-  0%   { filter: brightness(0.90) saturate(1.12) hue-rotate(-8deg); }
-  22%  { filter: brightness(1.08) saturate(1.00) hue-rotate(0deg); }
-  46%  { filter: brightness(0.98) saturate(1.18) hue-rotate(-6deg); }
-  68%  { filter: brightness(0.62) saturate(0.96) hue-rotate(12deg); }
-  84%  { filter: brightness(0.46) saturate(0.90) hue-rotate(20deg); }
-  100% { filter: brightness(0.90) saturate(1.12) hue-rotate(-8deg); }
-}
-@keyframes hero-sky {
-  0%   { background-color: rgba(255,140,60,0.24); }
-  22%  { background-color: rgba(255,210,160,0.00); }
-  46%  { background-color: rgba(255,168,82,0.22); }
-  68%  { background-color: rgba(46,66,132,0.36); }
-  84%  { background-color: rgba(22,30,76,0.48); }
-  100% { background-color: rgba(255,140,60,0.24); }
-}
-@keyframes hero-windows {
-  0%   { opacity: 0.05; }
-  40%  { opacity: 0.00; }
-  56%  { opacity: 0.30; }
-  72%  { opacity: 0.72; }
-  86%  { opacity: 0.92; }
-  100% { opacity: 0.05; }
+/* ── Hero reveal — 5s fade from dark into full-bleed colour on entry ── */
+@keyframes hero-reveal {
+  0%   { filter: brightness(0.18) saturate(0.45) contrast(1.05); transform: scale(1.04); }
+  100% { filter: brightness(1) saturate(1) contrast(1); transform: scale(1); }
 }
 
 /* ── Drag region for frameless Electron window ── */

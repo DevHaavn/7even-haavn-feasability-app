@@ -44,6 +44,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const { projects, loadProjects, createProject, setActiveProject, updateProject } = useStore()
   const role = useRole()
   const isNarrow = useIsNarrow()
+  const isMobile = useIsNarrow('(max-width: 640px)')
   const [showNew, setShowNew] = useState(false)
   const [portalOpen, setPortalOpen] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
@@ -83,12 +84,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', height: 'clamp(260px, 52vh, 62vh)', flexShrink: 0 }}>
-        {/* Render zoomed + panned so the house central column sits under the page-centred V — alignment locked */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-daycycle 60s ease-in-out infinite' }} />
-        {/* Sky colour wash — grades warm at dawn/dusk, cool at night */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'soft-light', animation: 'hero-sky 60s ease-in-out infinite' }} />
-        {/* Interior lights — warm glow over the house band that swells as it darkens */}
-        <div style={{ position: 'absolute', left: 0, right: 0, top: '14%', height: '42%', pointerEvents: 'none', mixBlendMode: 'screen', filter: 'blur(8px)', background: 'radial-gradient(ellipse 82% 120% at 50% 46%, rgba(255,188,118,0.5), rgba(255,170,90,0.12) 62%, transparent 80%)', animation: 'hero-windows 60s ease-in-out infinite' }} />
+        {/* Render zoomed + panned so the house central column sits under the page-centred V — alignment locked.
+            5s reveal fades it up from dark into full-bleed colour on entry, then holds. */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 5s ease-out both' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
 
@@ -114,9 +112,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* Title — sits high in the treeline above the house */}
-        <div style={{ position: 'absolute', top: '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10 }}>
-          <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Development Feasibility Studio</p>
+        {/* Title — high in the treeline on desktop; dropped clear of the wings on mobile */}
+        <div style={{ position: 'absolute', top: isMobile ? '32%' : '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
+          <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
         </div>
 
         {/* Wordmark — centred so the V lands on the house central column */}
