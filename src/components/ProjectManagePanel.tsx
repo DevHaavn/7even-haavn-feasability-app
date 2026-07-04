@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { getSnapshots, deleteSnapshot, restoreSnapshot, captureSnapshot, type ProjectSnapshot } from '../db/snapshots'
 import { resetProjectData } from '../db'
 import { useStore } from '../store'
+import ProjectExportPanel from './ProjectExportPanel'
 
 interface Props {
   projectId: string
@@ -11,7 +12,7 @@ interface Props {
 
 export default function ProjectManagePanel({ projectId, projectName, onClose }: Props) {
   const { loadProjects, setActiveTab } = useStore()
-  const [tab, setTab] = useState<'history' | 'reset'>('history')
+  const [tab, setTab] = useState<'history' | 'export' | 'reset'>('history')
   const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([])
   const [confirmRestore, setConfirmRestore] = useState<ProjectSnapshot | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<ProjectSnapshot | null>(null)
@@ -53,7 +54,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #111', flexShrink: 0 }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', flex: 1 }}>
-            {([{ id: 'history', label: '⏱ Version History' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
+            {([{ id: 'history', label: '⏱ Version History' }, { id: 'export', label: '⬇ Export' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 style={{
                   padding: '18px 28px',
@@ -81,7 +82,12 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+
+          {/* ── EXPORT TAB ── */}
+          {tab === 'export' && (
+            <ProjectExportPanel projectId={projectId} projectName={projectName} />
+          )}
 
           {/* ── HISTORY TAB ── */}
           {tab === 'history' && (
