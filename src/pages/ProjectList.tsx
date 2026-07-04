@@ -108,9 +108,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           </span>
         </button>
         <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-red"
-          style={isMobile
-            ? { position: 'fixed', top: 12, right: 12, zIndex: 30, fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '5px 12px' }
-            : { position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
+          style={{ position: 'fixed', bottom: isMobile ? 12 : 18, left: isMobile ? 14 : 20, zIndex: 30, fontSize: isMobile ? 8 : 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: isMobile ? '5px 12px' : '7px 16px' }}>
           Log Out
         </button>
 

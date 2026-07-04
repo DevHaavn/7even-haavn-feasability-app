@@ -265,6 +265,8 @@ input[type="checkbox"] {
   .hero-legend { display: none !important; }
   .pcard-date, .pcard-arrow { display: none; }
   .p7-mark { width: 40px !important; opacity: 0.75; }
+  /* Clear band at the footer bottom for the fixed Log Out + P7 mark */
+  .site-footer { padding-bottom: 46px !important; }
 }
 
 /* ── Mobile responsive ── */
