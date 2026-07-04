@@ -243,9 +243,8 @@ input[type="checkbox"] {
 
 /* ── Hero reveal — 5s fade from dark into full-bleed colour on entry ── */
 @keyframes hero-reveal {
-  0%   { filter: brightness(0.04) saturate(0.25) contrast(1.08); transform: scale(1.04); }
-  35%  { filter: brightness(0.10) saturate(0.35) contrast(1.06); transform: scale(1.03); }
-  100% { filter: brightness(1) saturate(1) contrast(1); transform: scale(1); }
+  0%   { filter: brightness(0.05) saturate(0.3); transform: scale(1.035); }
+  100% { filter: brightness(1) saturate(1); transform: scale(1); }
 }
 
 /* ── Drag region for frameless Electron window ── */

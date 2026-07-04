@@ -86,7 +86,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       <div style={{ position: 'relative', height: 'clamp(260px, 52vh, 62vh)', flexShrink: 0 }}>
         {/* Render zoomed + panned so the house central column sits under the page-centred V — alignment locked.
             5s reveal fades it up from dark into full-bleed colour on entry, then holds. */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 5s ease-out both' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 6s cubic-bezier(0.4, 0, 0.2, 1) both' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
 
