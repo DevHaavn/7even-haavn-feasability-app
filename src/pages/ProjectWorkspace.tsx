@@ -1,6 +1,6 @@
 import React, { type CSSProperties, useState, useEffect } from 'react'
 import { useStore } from '../store'
-import { Wordmark, TabBar } from '../components/ui'
+import { Wordmark, TabBar, Project7Mark } from '../components/ui'
 import { useRole, EXTERNAL_TABS } from '../lib/role'
 import SiteDesignTab from './tabs/SiteDesign'
 import LandTermsTab from './tabs/LandTerms'
@@ -130,6 +130,8 @@ export default function ProjectWorkspace() {
         {activeTab === 'insights' && <ProjectDashboard projectId={project.id} />}
         {activeTab === 'timeline' && <ProjectTimeline projectId={project.id} />}
       </div>
+
+      <Project7Mark size={58} bottom={12} right={16} />
     </div>
   )
 }

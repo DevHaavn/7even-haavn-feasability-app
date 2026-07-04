@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { DesignCredit } from './ui'
+import { DesignCredit, Project7Mark } from './ui'
 
 /** Full-screen teaser for the 7EVEN Capital Director Portal.
  *  Shown from the winged device on the home screen until the portal is live. */
@@ -15,7 +15,7 @@ export default function PortalComingSoon({ onClose }: { onClose: () => void }) {
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 400,
-        background: 'radial-gradient(ellipse 80% 60% at 50% 42%, rgba(196,151,58,0.14) 0%, rgba(10,8,4,0.97) 55%, #030303 100%), #030303',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 42%, rgba(196,151,58,0.12) 0%, rgba(10,8,4,0.82) 55%, rgba(3,3,3,0.90) 100%), url(/home-bg.jpg) center / cover no-repeat, #030303',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden', cursor: 'pointer', animation: 'portal-fade-in 0.5s ease both',
       }}
@@ -75,7 +75,7 @@ export default function PortalComingSoon({ onClose }: { onClose: () => void }) {
       {/* Coming soon badge */}
       <div style={{ marginTop: 44, animation: 'portal-rise 0.9s 1.15s ease both' }}>
         <span style={{
-          display: 'inline-block', padding: '12px 34px',
+          display: 'inline-block', padding: '12px 34px', borderRadius: 12,
           border: '1px solid rgba(196,151,58,0.35)',
           color: '#D8B060', fontSize: 11, letterSpacing: '0.48em', textTransform: 'uppercase', paddingLeft: 'calc(34px + 0.48em)',
           background: 'linear-gradient(100deg, rgba(196,151,58,0) 40%, rgba(216,176,96,0.16) 50%, rgba(196,151,58,0) 60%) no-repeat, rgba(196,151,58,0.05)',
@@ -90,6 +90,7 @@ export default function PortalComingSoon({ onClose }: { onClose: () => void }) {
         7EVEN Capital · Private Access
       </p>
       <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0, animation: 'portal-rise 0.9s 1.5s ease both' }} />
+      <Project7Mark position="absolute" bottom={20} right={26} size={72} zIndex={2} />
     </div>
   )
 }

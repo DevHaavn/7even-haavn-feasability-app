@@ -43,6 +43,23 @@ export function DesignCredit({ style }: { style?: React.CSSProperties }) {
   )
 }
 
+// ── Project 7 — not-for-profit mark, sits quietly in the bottom-right corner ──
+
+export function Project7Mark({ position = 'fixed', bottom = 14, right = 20, size = 66, zIndex = 300 }: {
+  position?: 'fixed' | 'absolute'; bottom?: number; right?: number; size?: number; zIndex?: number
+}) {
+  return (
+    <img
+      src="/p7-device-chrome.png"
+      alt="Project 7"
+      title="Project 7 — 7EVEN not-for-profit"
+      draggable={false}
+      className="select-none"
+      style={{ position, bottom, right, width: size, height: 'auto', zIndex, opacity: 0.9, pointerEvents: 'none' }}
+    />
+  )
+}
+
 // ── Panel / Card ──────────────────────────────────────────────────────────────
 
 export function Panel({ children, className = '' }: { children: React.ReactNode; className?: string }) {

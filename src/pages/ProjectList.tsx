@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useStore } from '../store'
-import { Wordmark } from '../components/ui'
+import { Wordmark, Project7Mark } from '../components/ui'
 import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
 import PortalComingSoon from '../components/PortalComingSoon'
@@ -230,6 +230,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       </div>
 
       <SiteLinks />
+      <Project7Mark />
 
       {/* Director portal teaser — shown until the portal is built */}
       {portalOpen && <PortalComingSoon onClose={() => setPortalOpen(false)} />}
