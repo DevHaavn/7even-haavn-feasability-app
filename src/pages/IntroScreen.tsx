@@ -52,6 +52,14 @@ export default function IntroScreen({ onDone }: Props) {
           from { opacity: 0; letter-spacing: 0.7em; }
           to   { opacity: 1; letter-spacing: 0.34em; }
         }
+        @keyframes intro-sparkle {
+          0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+          40%, 60% { opacity: 1; transform: scale(1.15) rotate(180deg); }
+        }
+        @keyframes intro-dust {
+          0%, 100% { opacity: 0; transform: translateY(0) scale(0.6); }
+          50%      { opacity: 0.85; transform: translateY(-6px) scale(1); }
+        }
       `}</style>
 
       <div style={{
@@ -68,33 +76,64 @@ export default function IntroScreen({ onDone }: Props) {
           alignItems: 'center', justifyContent: 'center',
         }}>
 
-          {/* Wings — clean float with a soft glow */}
-          <div style={{ opacity: 0, animation: phase >= 1 ? 'intro-wings-in 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both' : undefined }}>
-            <img
-              src="/winged-device-white.png"
-              alt="7EVEN"
-              draggable={false}
-              style={{
-                width: 'min(320px, 58vw)', height: 'auto', display: 'block', userSelect: 'none',
-                animation: phase >= 1 ? 'intro-float 4.5s 1.4s ease-in-out infinite, intro-glow 4s 1.4s ease-in-out infinite' : undefined,
-              }}
-            />
-          </div>
-
-          {/* WELCOME — big, fine and bold */}
+          {/* WELCOME — fine, above the wings */}
           <h1 style={{
-            margin: '46px 0 0', color: '#FFFFFF',
-            fontSize: 'clamp(26px, 4vw, 42px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
+            margin: '0 0 44px', color: '#FFFFFF',
+            fontSize: 'clamp(13px, 2vw, 21px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
-            animation: phase >= 1 ? 'intro-title 1.4s ease 0.7s both' : undefined,
+            animation: phase >= 1 ? 'intro-title 1.4s ease 0.3s both' : undefined,
           }}>
             Welcome
           </h1>
 
+          {/* Wings — float + glow, ringed with silver stars and dust */}
+          <div style={{ opacity: 0, animation: phase >= 1 ? 'intro-wings-in 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both' : undefined }}>
+            <div style={{ position: 'relative', display: 'inline-flex', animation: phase >= 1 ? 'intro-float 4.5s 1.4s ease-in-out infinite, intro-glow 4s 1.4s ease-in-out infinite' : undefined }}>
+              <img
+                src="/winged-device-white.png"
+                alt="7EVEN"
+                draggable={false}
+                style={{ width: 'min(320px, 58vw)', height: 'auto', display: 'block', userSelect: 'none' }}
+              />
+              {/* Silver stars */}
+              {phase >= 1 && ([
+                { top: '-16%', left: '10%', delay: '1.9s', size: 13 },
+                { top: '-10%', left: '84%', delay: '2.6s', size: 10 },
+                { top: '42%',  left: '-7%', delay: '3.2s', size: 12 },
+                { top: '102%', left: '22%', delay: '2.2s', size: 9 },
+                { top: '96%',  left: '74%', delay: '2.9s', size: 11 },
+                { top: '8%',   left: '100%', delay: '3.6s', size: 8 },
+              ] as const).map((s, i) => (
+                <svg key={`star-${i}`} viewBox="0 0 20 20"
+                  style={{ position: 'absolute', top: s.top, left: s.left, width: s.size, height: s.size, opacity: 0, animation: `intro-sparkle 3.4s ease-in-out ${s.delay} infinite`, pointerEvents: 'none', overflow: 'visible' }}>
+                  <path d="M10 0 L11.5 8.5 L20 10 L11.5 11.5 L10 20 L8.5 11.5 L0 10 L8.5 8.5 Z" fill="#E4E4E8" />
+                </svg>
+              ))}
+              {/* Silver dust */}
+              {phase >= 1 && ([
+                { top: '-6%',  left: '30%', delay: '2.0s', size: 3 },
+                { top: '-12%', left: '58%', delay: '2.8s', size: 2.5 },
+                { top: '30%',  left: '104%', delay: '2.4s', size: 3 },
+                { top: '70%',  left: '-4%', delay: '3.1s', size: 2.5 },
+                { top: '108%', left: '48%', delay: '2.6s', size: 3 },
+                { top: '20%',  left: '-8%', delay: '3.5s', size: 2 },
+                { top: '60%',  left: '102%', delay: '3.8s', size: 2 },
+                { top: '-14%', left: '44%', delay: '3.3s', size: 2 },
+              ] as const).map((d, i) => (
+                <span key={`dust-${i}`} style={{
+                  position: 'absolute', top: d.top, left: d.left, width: d.size, height: d.size,
+                  borderRadius: '50%', background: '#D8D8DE', opacity: 0,
+                  boxShadow: '0 0 6px rgba(228,228,232,0.9)',
+                  animation: `intro-dust 4.2s ease-in-out ${d.delay} infinite`, pointerEvents: 'none',
+                }} />
+              ))}
+            </div>
+          </div>
+
           {/* Precision deployed — portal-page scale, full brightness */}
           <p style={{
-            margin: '16px 0 0', color: '#F0EFED',
+            margin: '46px 0 0', color: '#F0EFED',
             fontSize: 'clamp(20px, 3.4vw, 34px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             letterSpacing: '0.34em', textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
