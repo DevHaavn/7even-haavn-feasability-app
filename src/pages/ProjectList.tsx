@@ -113,7 +113,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </button>
 
         {/* Title — high in the treeline on desktop; dropped clear of the wings on mobile */}
-        <div style={{ position: 'absolute', top: isMobile ? '32%' : '12%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: isMobile ? '30%' : '5%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
           <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
         </div>
 

@@ -218,20 +218,22 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#060606', color: '#fff', overflow: 'hidden' }}>
 
       {/* ── Top bar ── */}
-      <div className="drag-region" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '16px 40px', borderBottom: '1px solid #111', flexShrink: 0, background: '#0A0A0A' }}>
-        <button className="no-drag" onClick={onBack} style={{ color: '#666', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+      <div className="drag-region dash-topbar" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '16px 40px', borderBottom: '1px solid #111', flexShrink: 0, background: '#0A0A0A' }}>
+        <button className="no-drag" onClick={onBack} style={{ color: '#666', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', flexShrink: 0 }}
           onMouseEnter={e => (e.currentTarget.style.color = '#C4973A')}
           onMouseLeave={e => (e.currentTarget.style.color = '#666')}>
           ← Menu
         </button>
-        <div style={{ width: 1, height: 20, background: '#1C1C1C' }} />
-        <Wordmark size="sm" />
-        <div style={{ width: 1, height: 20, background: '#1C1C1C' }} />
-        <div>
+        <span className="dash-brand" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <span style={{ width: 1, height: 20, background: '#1C1C1C' }} />
+          <Wordmark size="sm" />
+          <span style={{ width: 1, height: 20, background: '#1C1C1C' }} />
+        </span>
+        <div style={{ minWidth: 0 }}>
           <p style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: accentColor, lineHeight: 1 }}>{brandLabel} · Portfolio</p>
           <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#fff', fontWeight: 600, marginTop: 2 }}>Intelligence Dashboard</p>
         </div>
-        <div style={{ marginLeft: 'auto' }}>
+        <div className="dash-date" style={{ marginLeft: 'auto' }}>
           <p style={{ fontSize: 8, letterSpacing: '0.22em', color: '#333', textTransform: 'uppercase', textAlign: 'right' }}>
             {new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
@@ -242,7 +244,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
       <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px 48px' }}>
 
         {/* ── KPI row ── */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 28 }}>
+        <div className="dash-kpis" style={{ display: 'flex', gap: 12, marginBottom: 28 }}>
           <KPI label="Total Projects" value={String(portfolio.length)} sub={`${totalGBA.toLocaleString()} sqm GBA`} color="#fff" />
           <KPI label="Portfolio TDC" value={fmt(totalTDC)} sub="Total development cost" color={accentColor} />
           <KPI label="Portfolio GAV" value={fmt(totalGAV)} sub="Gross asset value" color="#A855F7" />
