@@ -35,14 +35,13 @@ export default function PortalComingSoon({ onClose }: { onClose: () => void }) {
       {/* Close */}
       <button
         onClick={onClose}
+        className="glass-btn"
         style={{
           position: 'absolute', top: 24, right: 32, zIndex: 2,
-          background: 'transparent', border: '1px solid rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.7)',
-          fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '6px 14px',
-          cursor: 'pointer', transition: 'all 0.2s', animation: 'portal-rise 0.7s 0.9s ease both',
+          color: 'rgba(255,255,255,0.85)',
+          fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px',
+          animation: 'portal-rise 0.7s 0.9s ease both',
         }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C4973A'; (e.currentTarget as HTMLElement).style.color = '#C4973A' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.25)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)' }}
       >
         ✕ Return to Studio
       </button>

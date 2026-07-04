@@ -77,18 +77,14 @@ export default function App() {
               {/* Manage button — admin only, sits left of Log Out at same z-level */}
               {role === 'admin' && (
                 <button
-                  className="no-drag"
+                  className="no-drag glass-btn glass-btn-gold"
                   onClick={() => setManageOpen(true)}
                   style={{
                     position: 'fixed', top: 14, right: 110, zIndex: 200,
-                    background: 'rgba(196,151,58,0.10)', border: '1px solid rgba(196,151,58,0.35)',
-                    color: '#C4973A', fontSize: 9, letterSpacing: '0.22em',
-                    textTransform: 'uppercase', padding: '5px 12px',
-                    cursor: 'pointer', transition: 'all 0.2s',
-                    backdropFilter: 'blur(6px)', whiteSpace: 'nowrap',
+                    fontSize: 9, letterSpacing: '0.22em',
+                    textTransform: 'uppercase', padding: '7px 15px',
+                    whiteSpace: 'nowrap',
                   }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.22)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.10)' }}
                 >
                   ⊞ Manage
                 </button>
@@ -96,23 +92,12 @@ export default function App() {
 
               {/* Log Out button */}
               <button
-                className="no-drag"
+                className="no-drag glass-btn glass-btn-red"
                 onClick={handleLogout}
                 style={{
                   position: 'fixed', top: 14, right: 20, zIndex: 200,
-                  background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.5)',
-                  color: '#fff', fontSize: 9, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', padding: '5px 12px',
-                  cursor: 'pointer', transition: 'all 0.2s',
-                  backdropFilter: 'blur(6px)',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#9B2335'
-                  ;(e.currentTarget as HTMLElement).style.color = '#9B2335'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.5)'
-                  ;(e.currentTarget as HTMLElement).style.color = '#fff'
+                  fontSize: 9, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', padding: '7px 15px',
                 }}
               >
                 Log Out

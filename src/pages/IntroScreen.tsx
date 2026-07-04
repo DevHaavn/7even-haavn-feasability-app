@@ -233,23 +233,15 @@ export default function IntroScreen({ onDone }: Props) {
 
           {/* Glass "Enter Studio" button */}
           <button
-            className="intro-btn"
+            className="intro-btn glass-btn"
             onClick={exit}
             style={{
               padding: '14px 52px',
               fontSize: 10,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.75)',
-              /* Glass effect — see-through to background */
-              background: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255,255,255,0.22)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10)',
-              cursor: 'pointer',
+              color: 'rgba(255,255,255,0.85)',
               fontFamily: 'monospace',
-              transition: 'all 0.40s ease',
               opacity: 0,
               animation: phase >= 4 ? 'intro-btn-in 0.8s ease forwards' : undefined,
             }}

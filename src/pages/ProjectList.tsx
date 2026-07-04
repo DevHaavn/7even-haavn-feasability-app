@@ -104,10 +104,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             Capital
           </span>
         </button>
-        <button onClick={() => onLogout?.()}
-          style={{ position: 'absolute', top: 24, right: 40, zIndex: 20, background: 'transparent', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '5px 12px', cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(6px)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#9B2335'; (e.currentTarget as HTMLElement).style.color = '#9B2335' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.35)'; (e.currentTarget as HTMLElement).style.color = '#fff' }}>
+        <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-red"
+          style={{ position: 'absolute', top: 24, right: 40, zIndex: 20, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
           Log Out
         </button>
 
@@ -115,10 +113,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, zIndex: 10 }}>
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Development Feasibility Studio</p>
           <Wordmark size="hero" />
-          <button onClick={() => openNew('7even')} className="no-drag"
-            style={{ marginTop: 10, border: '1px solid rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)', padding: '14px 48px', cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.14)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.55)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.25)' }}>
+          <button onClick={() => openNew('7even')} className="no-drag glass-btn"
+            style={{ marginTop: 10, padding: '14px 48px' }}>
             <span style={{ color: 'rgba(255,255,255,0.90)', fontSize: 11, letterSpacing: '0.30em', textTransform: 'uppercase', fontWeight: 500 }}>+ New Project</span>
           </button>
         </div>
@@ -172,10 +168,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 </button>
                 <div style={{ width: 1, height: 10, background: '#1C1C1C' }} />
               </>}
-              <button onClick={() => openNew('7even')}
-                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A', background: 'rgba(196,151,58,0.06)', border: '1px solid rgba(196,151,58,0.22)', padding: '5px 14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.14)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.06)' }}>
+              <button onClick={() => openNew('7even')} className="glass-btn glass-btn-gold"
+                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '6px 16px' }}>
                 + New
               </button>
             </div>
@@ -214,10 +208,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 </button>
                 <div style={{ width: 1, height: 10, background: '#1C1C1C' }} />
               </>}
-              <button onClick={() => openNew('haavn')}
-                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', padding: '5px 14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.10)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)' }}>
+              <button onClick={() => openNew('haavn')} className="glass-btn"
+                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '6px 16px', color: 'rgba(255,255,255,0.8)' }}>
                 + New
               </button>
             </div>
@@ -328,14 +320,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid #111' }}>
-                <button onClick={() => setShowNew(false)}
-                  style={{ padding: '10px 24px', border: '1px solid #222', background: 'transparent', color: '#666', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                <button onClick={() => setShowNew(false)} className="glass-btn"
+                  style={{ padding: '10px 24px', color: '#999', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                   Cancel
                 </button>
                 <button onClick={handleCreate} disabled={!name.trim()}
-                  style={{ padding: '10px 32px', border: 'none', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: name.trim() ? 'pointer' : 'default', transition: 'all 0.2s',
-                    background: !name.trim() ? '#222' : newBrand === '7even' ? '#C4973A' : 'rgba(255,255,255,0.85)',
-                    color: !name.trim() ? '#444' : '#000' }}>
+                  className={`glass-btn ${!name.trim() ? 'glass-btn-disabled' : newBrand === '7even' ? 'glass-btn-gold' : ''}`}
+                  style={{ padding: '10px 32px', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                   Create Project
                 </button>
               </div>
@@ -359,10 +350,8 @@ function EmptyState({ brand, onNew }: { brand: '7even' | 'haavn'; onNew: () => v
       <p style={{ color: '#222', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center' }}>
         No {is7even ? '7EVEN' : 'HAAVN'} projects yet
       </p>
-      <button onClick={onNew}
-        style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: is7even ? '#C4973A88' : 'rgba(255,255,255,0.25)', background: 'transparent', border: `1px solid ${is7even ? '#C4973A22' : '#ffffff0D'}`, padding: '7px 18px', cursor: 'pointer', transition: 'all 0.2s' }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.borderColor = is7even ? '#C4973A55' : '#ffffff30' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.7'; (e.currentTarget as HTMLElement).style.borderColor = is7even ? '#C4973A22' : '#ffffff0D' }}>
+      <button onClick={onNew} className={`glass-btn ${is7even ? 'glass-btn-gold' : ''}`}
+        style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 20px', ...(is7even ? {} : { color: 'rgba(255,255,255,0.7)' }) }}>
         Create First Project
       </button>
     </div>

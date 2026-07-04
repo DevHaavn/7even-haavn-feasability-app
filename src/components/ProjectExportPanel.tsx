@@ -108,9 +108,8 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
           </div>
           <button
             onClick={toggleAll}
-            style={{ background: 'transparent', border: '1px solid #2A2A2A', color: '#888', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0 }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C4973A'; (e.currentTarget as HTMLElement).style.color = '#C4973A' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2A2A2A'; (e.currentTarget as HTMLElement).style.color = '#888' }}
+            className="glass-btn"
+            style={{ color: '#AAA', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 18px', flexShrink: 0 }}
           >
             {allSelected ? 'Clear all' : 'Select all'}
           </button>
@@ -131,24 +130,16 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
           <button
             onClick={() => run('pdf')}
             disabled={count === 0 || busy !== null}
-            style={{
-              background: count > 0 ? '#C4973A' : '#141414', border: 'none',
-              color: count > 0 ? '#000' : '#333', fontSize: 10, letterSpacing: '0.22em',
-              textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px',
-              cursor: count > 0 ? 'pointer' : 'default', transition: 'all 0.2s',
-            }}
+            className={`glass-btn ${count > 0 ? 'glass-btn-gold' : 'glass-btn-disabled'}`}
+            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px' }}
           >
             {busy === 'pdf' ? 'Generating…' : '⬇ Export PDF'}
           </button>
           <button
             onClick={() => run('excel')}
             disabled={count === 0 || busy !== null}
-            style={{
-              background: 'transparent', border: `1px solid ${count > 0 ? '#2A7A4F' : '#141414'}`,
-              color: count > 0 ? '#3DAA6A' : '#333', fontSize: 10, letterSpacing: '0.22em',
-              textTransform: 'uppercase', fontWeight: 700, padding: '12px 30px',
-              cursor: count > 0 ? 'pointer' : 'default', transition: 'all 0.2s',
-            }}
+            className={`glass-btn ${count > 0 ? 'glass-btn-green' : 'glass-btn-disabled'}`}
+            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px' }}
           >
             {busy === 'excel' ? 'Generating…' : '⬇ Export Excel'}
           </button>

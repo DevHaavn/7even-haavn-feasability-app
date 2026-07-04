@@ -14,23 +14,12 @@ export default function SiteLinks() {
         href="https://7even.au"
         target="_blank"
         rel="noopener noreferrer"
+        className="glass-btn glass-btn-gold"
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '7px 20px',
-          border: '1px solid #fff',
-          color: '#fff',
+          padding: '9px 22px',
           fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase',
           fontWeight: 700, textDecoration: 'none',
-          transition: 'all 0.2s',
-          background: 'transparent',
-        }}
-        onMouseEnter={e => {
-          (e.currentTarget as HTMLElement).style.background = '#fff'
-          ;(e.currentTarget as HTMLElement).style.color = '#000'
-        }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLElement).style.background = 'transparent'
-          ;(e.currentTarget as HTMLElement).style.color = '#fff'
         }}
       >
         7EVEN.AU ↗
@@ -39,23 +28,12 @@ export default function SiteLinks() {
         href="https://www.haavn.au"
         target="_blank"
         rel="noopener noreferrer"
+        className="glass-btn"
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '7px 20px',
-          border: '1px solid #C4973A',
-          color: '#C4973A',
+          padding: '9px 22px',
           fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase',
-          fontWeight: 700, textDecoration: 'none',
-          transition: 'all 0.2s',
-          background: 'transparent',
-        }}
-        onMouseEnter={e => {
-          (e.currentTarget as HTMLElement).style.background = '#C4973A'
-          ;(e.currentTarget as HTMLElement).style.color = '#000'
-        }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLElement).style.background = 'transparent'
-          ;(e.currentTarget as HTMLElement).style.color = '#C4973A'
+          fontWeight: 700, textDecoration: 'none', color: 'rgba(255,255,255,0.9)',
         }}
       >
         HAAVN.AU ↗

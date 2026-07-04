@@ -159,16 +159,12 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
                         </div>
 
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => setConfirmRestore(snap)}
-                            style={{ flex: 1, padding: '9px 0', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A', background: 'rgba(196,151,58,0.06)', border: '1px solid rgba(196,151,58,0.20)', cursor: 'pointer', transition: 'all 0.2s' }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.15)' }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,151,58,0.06)' }}>
+                          <button onClick={() => setConfirmRestore(snap)} className="glass-btn glass-btn-gold"
+                            style={{ flex: 1, padding: '9px 0', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                             ↩ Restore
                           </button>
-                          <button onClick={() => setConfirmDelete(snap)}
-                            style={{ padding: '9px 18px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#333', background: 'transparent', border: '1px solid #1A1A1A', cursor: 'pointer', transition: 'all 0.2s' }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#EF4444'; (e.currentTarget as HTMLElement).style.borderColor = '#EF444433' }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#333'; (e.currentTarget as HTMLElement).style.borderColor = '#1A1A1A' }}>
+                          <button onClick={() => setConfirmDelete(snap)} className="glass-btn glass-btn-red"
+                            style={{ padding: '9px 18px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#888' }}>
                             Delete
                           </button>
                         </div>
@@ -197,10 +193,8 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
                 <p style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#333', marginBottom: 20 }}>
                   This action cannot be undone except via Version History restore.
                 </p>
-                <button onClick={() => setConfirmReset(true)}
-                  style={{ width: '100%', padding: '14px 0', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#EF4444', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.30)', cursor: 'pointer', fontWeight: 700, transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.14)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.06)' }}>
+                <button onClick={() => setConfirmReset(true)} className="glass-btn glass-btn-red"
+                  style={{ width: '100%', padding: '14px 0', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#EF4444', fontWeight: 700 }}>
                   ↺ Reset & Snapshot
                 </button>
               </div>
@@ -284,12 +278,12 @@ function ConfirmDialog({ title, body, confirmLabel, confirmColor, onConfirm, onC
         <h3 style={{ fontSize: 15, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 12 }}>{title}</h3>
         <p style={{ fontSize: 11, color: '#555', lineHeight: 1.6, letterSpacing: '0.04em', marginBottom: 28 }}>{body}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={onCancel}
-            style={{ padding: '9px 22px', border: '1px solid #222', background: 'transparent', color: '#666', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+          <button onClick={onCancel} className="glass-btn"
+            style={{ padding: '9px 22px', color: '#999', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
             Cancel
           </button>
-          <button onClick={onConfirm}
-            style={{ padding: '9px 22px', border: 'none', background: confirmColor, color: '#000', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={onConfirm} className={`glass-btn ${confirmColor === '#EF4444' ? 'glass-btn-red' : 'glass-btn-gold'}`}
+            style={{ padding: '9px 22px', color: confirmColor, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>
             {confirmLabel}
           </button>
         </div>

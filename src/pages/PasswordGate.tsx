@@ -132,15 +132,11 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
 
         <button
           onClick={attempt}
+          className={`glass-btn ${value ? 'glass-btn-gold' : 'glass-btn-disabled'}`}
           style={{
             marginTop: 40, width: '100%',
             padding: '14px 0',
-            background: value ? '#C4973A' : '#111',
-            border: 'none',
-            color: value ? '#000' : '#333',
             fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700,
-            cursor: value ? 'pointer' : 'default',
-            transition: 'all 0.2s',
           }}
         >
           Enter
