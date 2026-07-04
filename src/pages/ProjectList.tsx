@@ -84,7 +84,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Hero ── */}
       <div style={{ position: 'relative', height: 'clamp(260px, 52vh, 62vh)', flexShrink: 0 }}>
         {/* Render zoomed + panned so the house central column sits under the page-centred V */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '51% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.5% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
 
@@ -106,7 +106,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           </span>
         </button>
         <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-red"
-          style={{ position: 'absolute', top: 24, right: 40, zIndex: 20, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
+          style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
           Log Out
         </button>
 
