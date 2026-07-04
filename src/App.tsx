@@ -74,34 +74,19 @@ export default function App() {
           )}
           {activeProjectId && (
             <>
-              {/* Manage button — admin only, sits left of Log Out at same z-level */}
-              {role === 'admin' && (
-                <button
-                  className="no-drag glass-btn glass-btn-gold"
-                  onClick={() => setManageOpen(true)}
-                  style={{
-                    position: 'fixed', top: 15, right: 92, zIndex: 200,
-                    fontSize: 6.5, letterSpacing: '0.20em',
-                    textTransform: 'uppercase', padding: '5px 11px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  ⊞ Manage
+              {/* Manage + Log Out — top-right on desktop; a slim strip above the header on mobile */}
+              <div className="ws-actions no-drag" style={{ position: 'fixed', top: 15, right: 18, zIndex: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
+                {role === 'admin' && (
+                  <button className="glass-btn glass-btn-gold" onClick={() => setManageOpen(true)}
+                    style={{ fontSize: 6.5, letterSpacing: '0.20em', textTransform: 'uppercase', padding: '5px 11px', whiteSpace: 'nowrap' }}>
+                    ⊞ Manage
+                  </button>
+                )}
+                <button className="glass-btn glass-btn-red" onClick={handleLogout}
+                  style={{ fontSize: 6.5, letterSpacing: '0.20em', textTransform: 'uppercase', padding: '5px 11px', whiteSpace: 'nowrap' }}>
+                  Log Out
                 </button>
-              )}
-
-              {/* Log Out button */}
-              <button
-                className="no-drag glass-btn glass-btn-red"
-                onClick={handleLogout}
-                style={{
-                  position: 'fixed', top: 15, right: 18, zIndex: 200,
-                  fontSize: 6.5, letterSpacing: '0.20em',
-                  textTransform: 'uppercase', padding: '5px 11px',
-                }}
-              >
-                Log Out
-              </button>
+              </div>
 
               {/* Full-screen manage panel */}
               {manageOpen && activeProject && (
