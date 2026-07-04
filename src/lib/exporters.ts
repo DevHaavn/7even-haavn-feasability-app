@@ -51,6 +51,28 @@ function fileStamp(projectName: string) {
   return `${safe}-Export-${date}`
 }
 
+/** Load any public image as a data URL (with intrinsic size) for jsPDF. */
+async function loadImage(path: string): Promise<{ dataUrl: string; w: number; h: number } | null> {
+  try {
+    const res = await fetch(path)
+    const blob = await res.blob()
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader()
+      fr.onload = () => resolve(fr.result as string)
+      fr.onerror = reject
+      fr.readAsDataURL(blob)
+    })
+    const dims = await new Promise<{ w: number; h: number }>(resolve => {
+      const img = new Image()
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
+      img.src = dataUrl
+    })
+    return { dataUrl, ...dims }
+  } catch {
+    return null
+  }
+}
+
 /** Load the brand PNG used across the app as a data URL for jsPDF. */
 async function loadBrandLogo(): Promise<{ dataUrl: string; w: number; h: number } | null> {
   try {
@@ -81,10 +103,21 @@ export async function exportPdf(projectName: string, address: string, sections: 
   const pageH = doc.internal.pageSize.getHeight()
   const margin = 48
   const logo = await loadBrandLogo()
+  const wave = await loadImage('/home-bg.jpg')
 
-  // Cover header — black band with the brand mark
+  // Cover header — black band with the particle wave showing through
   doc.setFillColor(0, 0, 0)
   doc.rect(0, 0, pageW, 128, 'F')
+  if (wave) {
+    doc.saveGraphicsState()
+    doc.rect(0, 0, pageW, 128)
+    doc.clip()
+    doc.discardPath()
+    doc.setGState(new (doc as any).GState({ opacity: 0.5 }))
+    const bandImgH = pageW * (wave.h / wave.w)
+    doc.addImage(wave.dataUrl, 'JPEG', 0, (128 - bandImgH) / 2, pageW, bandImgH)
+    doc.restoreGraphicsState()
+  }
   if (logo) {
     const logoW = 96
     const logoH = logoW * (logo.h / logo.w)
@@ -365,10 +398,17 @@ export async function exportPdf(projectName: string, address: string, sections: 
     doc.text(`Design & Interface © ${new Date().getFullYear()} JB Design × Studio · All Rights Reserved`, pageW / 2, pageH - 16, { align: 'center' })
   }
 
-  // ── Closing page — wings, confidentiality, office details ──
+  // ── Closing page — full-bleed particle wave, wings, confidentiality ──
   doc.addPage()
   doc.setFillColor(0, 0, 0)
   doc.rect(0, 0, pageW, pageH, 'F')
+  if (wave) {
+    doc.saveGraphicsState()
+    doc.setGState(new (doc as any).GState({ opacity: 0.55 }))
+    const coverW = pageH * (wave.w / wave.h)
+    doc.addImage(wave.dataUrl, 'JPEG', (pageW - coverW) / 2, 0, coverW, pageH)
+    doc.restoreGraphicsState()
+  }
   const cx = pageW / 2
   if (logo) {
     const wingsW = 190

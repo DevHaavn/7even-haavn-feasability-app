@@ -71,7 +71,8 @@ export default function ProjectWorkspace() {
   return (
     <div className="flex flex-col h-full">
       {/* Topbar — z-50 keeps it above fixed tab backgrounds */}
-      <div className="drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 bg-[#0A0A0A] border-b border-[#1C1C1C]">
+      <div className="drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 border-b border-[#1C1C1C]"
+        style={{ background: 'linear-gradient(rgba(8,8,8,0.78), rgba(8,8,8,0.84)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
         <div className="flex items-center justify-center flex-shrink-0" style={{ minWidth: 80 }}>
           <button
             onClick={() => setActiveProject(null)}
