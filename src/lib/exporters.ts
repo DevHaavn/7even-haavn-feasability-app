@@ -17,7 +17,7 @@ function fileStamp(projectName: string) {
 /** Load the brand PNG used across the app as a data URL for jsPDF. */
 async function loadBrandLogo(): Promise<{ dataUrl: string; w: number; h: number } | null> {
   try {
-    const res = await fetch('/brand-logo-white-tight.png')
+    const res = await fetch('/winged-device-white.png')
     const blob = await res.blob()
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const fr = new FileReader()
@@ -49,9 +49,13 @@ export async function exportPdf(projectName: string, address: string, sections: 
   doc.setFillColor(0, 0, 0)
   doc.rect(0, 0, pageW, 128, 'F')
   if (logo) {
-    const logoW = 92
+    const logoW = 96
     const logoH = logoW * (logo.h / logo.w)
-    doc.addImage(logo.dataUrl, 'PNG', margin, 26, logoW, logoH)
+    doc.addImage(logo.dataUrl, 'PNG', margin, 24, logoW, logoH)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(6.5)
+    doc.setTextColor(255, 255, 255)
+    doc.text('C  A  P  I  T  A  L', margin + logoW / 2, 24 + logoH + 10, { align: 'center' })
   } else {
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
@@ -78,6 +82,11 @@ export async function exportPdf(projectName: string, address: string, sections: 
       doc.addPage()
       y = 56
     }
+  }
+
+  const hexRgb = (hex: string): [number, number, number] => {
+    const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex)
+    return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [26, 26, 26]
   }
 
   const drawBars = (block: BarsBlock) => {
@@ -107,15 +116,10 @@ export async function exportPdf(projectName: string, address: string, sections: 
       doc.setTextColor(90, 90, 90)
       const label = item.label.length > 42 ? item.label.slice(0, 41) + '…' : item.label
       doc.text(label, margin, y + 12)
-      // Bar — solid black for positive, outlined for negative
-      if (neg) {
-        doc.setDrawColor(26, 26, 26)
-        doc.setLineWidth(0.75)
-        doc.rect(margin + labelW, y + 4, barLen, 11)
-      } else {
-        doc.setFillColor(26, 26, 26)
-        doc.rect(margin + labelW, y + 4, barLen, 11, 'F')
-      }
+      // Bar — data keeps its colour; negative values render red
+      const [cr, cg, cb] = neg ? [155, 35, 53] : hexRgb(item.color ?? '#1A1A1A')
+      doc.setFillColor(cr, cg, cb)
+      doc.rect(margin + labelW, y + 4, barLen, 11, 'F')
       // Value
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(26, 26, 26)

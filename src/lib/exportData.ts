@@ -13,7 +13,7 @@ import { solveUnitMix } from '../engine/unitMix'
 export interface KVBlock { type: 'kv'; title?: string; rows: [string, string][] }
 export interface TableBlock { type: 'table'; title?: string; headers: string[]; rows: (string | number)[][] }
 export interface NoteBlock { type: 'note'; text: string }
-export interface BarsBlock { type: 'bars'; title?: string; items: { label: string; value: number }[] }
+export interface BarsBlock { type: 'bars'; title?: string; items: { label: string; value: number; color?: string }[] }
 export type Block = KVBlock | TableBlock | NoteBlock | BarsBlock
 export interface Section { id: string; title: string; blocks: Block[] }
 
@@ -73,6 +73,14 @@ function projectTdc(projectId: string, overrides?: { buildRate?: number; finance
 }
 
 interface CompareRow { scenario: string; type: string; noi: number | null; gav: number; tdc: number; rlv: number }
+
+// Strategy colours — match the app's data palette (writing stays B/W, data keeps colour)
+function strategyColor(type: string): string {
+  if (type.startsWith('BTR')) return '#22C55E'
+  if (type.startsWith('BTS')) return '#3B82F6'
+  if (type.startsWith('Hotel')) return '#A855F7'
+  return '#C4973A'
+}
 
 function comparisonRows(projectId: string): CompareRow[] {
   const site = db.getSiteDesign(projectId)
@@ -214,7 +222,7 @@ function costSummarySection(projectId: string): Section {
   if (r.gstCredits > 0) rows.push(['Less GST input credits (1/11)', '−' + $(r.gstCredits)])
   rows.push([`Total Development Cost${r.gstCredits > 0 ? ' (ex GST)' : ''}`, $(r.totalDevelopmentCost)])
   const bars: Block = {
-    type: 'bars', title: 'Cost Composition', items: [
+    type: 'bars', title: 'Cost Composition', items: ([
       { label: 'Construction', value: r.construction },
       { label: 'Contingency', value: r.contingency },
       { label: 'Prelims', value: r.prelims },
@@ -225,7 +233,7 @@ function costSummarySection(projectId: string): Section {
       { label: 'Marketing', value: costData.marketingFixed },
       { label: 'Amenity fitout', value: costData.amenityFitoutFixed },
       ...(r.inKindCost > 0 ? [{ label: 'In-kind', value: r.inKindCost }] : []),
-    ].filter(i => i.value > 0),
+    ] as { label: string; value: number }[]).filter(i => i.value > 0).map(i => ({ ...i, color: '#C4973A' })),
   }
   return { id: 'cost-summary', title: 'Cost Stack — Summary', blocks: [{ type: 'kv', rows }, bars] }
 }
@@ -425,7 +433,7 @@ function compareSection(projectId: string): Section {
       ]),
     }, {
       type: 'bars', title: 'Residual Land Value by Strategy',
-      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv })),
+      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv, color: strategyColor(r.type) })),
     }],
   }
 }
@@ -452,19 +460,19 @@ function dashboardSection(projectId: string): Section {
     },
     {
       type: 'bars', title: 'Capital Deployment', items: [
-        { label: 'Land & acquisition', value: landCost },
-        { label: 'Construction', value: cost.construction },
-        { label: 'Soft costs', value: softCosts },
-        { label: 'Fixed & statutory', value: fixedCosts },
-        { label: 'Finance', value: cost.finance },
-        ...(cost.inKindCost > 0 ? [{ label: 'In-kind', value: cost.inKindCost }] : []),
+        { label: 'Land & acquisition', value: landCost, color: '#C4973A' },
+        { label: 'Construction', value: cost.construction, color: '#1A1A1A' },
+        { label: 'Soft costs', value: softCosts, color: '#666666' },
+        { label: 'Fixed & statutory', value: fixedCosts, color: '#999999' },
+        { label: 'Finance', value: cost.finance, color: '#8A6A10' },
+        ...(cost.inKindCost > 0 ? [{ label: 'In-kind', value: cost.inKindCost, color: '#7A4AAA' }] : []),
       ].filter(i => i.value > 0),
     },
   ]
   if (rows.length > 0) {
     blocks.push({
       type: 'bars', title: 'Strategy Outcomes — RLV',
-      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv })),
+      items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv, color: strategyColor(r.type) })),
     })
   }
   return { id: 'dashboard', title: 'Project Dashboard', blocks }
