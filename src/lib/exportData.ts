@@ -9,12 +9,21 @@ import { calculateBTSValuation } from '../engine/bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
 import { calculateFinance } from '../engine/finance'
 import { solveUnitMix } from '../engine/unitMix'
+import { getTimelineHealth } from '../components/FinanceSCurve'
 
 export interface KVBlock { type: 'kv'; title?: string; rows: [string, string][] }
 export interface TableBlock { type: 'table'; title?: string; headers: string[]; rows: (string | number)[][] }
 export interface NoteBlock { type: 'note'; text: string }
 export interface BarsBlock { type: 'bars'; title?: string; items: { label: string; value: number; color?: string }[] }
-export type Block = KVBlock | TableBlock | NoteBlock | BarsBlock
+export interface CurveSeries { label: string; color: string; dash?: boolean; points: { x: number; y: number }[] }
+export interface CurveBlock {
+  type: 'curve'; title?: string
+  xMax: number; yMax: number
+  dividerX?: number; dividerLabels?: [string, string]
+  completionX?: number
+  series: CurveSeries[]
+}
+export type Block = KVBlock | TableBlock | NoteBlock | BarsBlock | CurveBlock
 export interface Section { id: string; title: string; blocks: Block[] }
 
 export interface ExportNode {
@@ -126,6 +135,60 @@ function comparisonRows(projectId: string): CompareRow[] {
     }
   }
   return rows
+}
+
+// Logistic S-curve normalised to [0,1] for t ∈ [0,1] — same maths as FinanceSCurve
+function scurve(tt: number): number {
+  const k = 10
+  const s0 = 1 / (1 + Math.exp(k * 0.5))
+  const s1 = 1 / (1 + Math.exp(-k * 0.5))
+  const sv = 1 / (1 + Math.exp(-k * (tt - 0.5)))
+  return (sv - s0) / (s1 - s0)
+}
+
+function curvePoints(durationMonths: number, totalCost: number): { x: number; y: number }[] {
+  const steps = Math.max(durationMonths, 1)
+  return Array.from({ length: steps + 1 }, (_, i) => ({ x: i, y: scurve(i / steps) * totalCost }))
+}
+
+/** Drawdown S-curve block + timeline health note — used by Finance and Dashboard exports. */
+function financeCurveBlocks(projectId: string): Block[] {
+  const fa = db.getFinanceAssumptions(projectId)
+  const tdc = projectTdc(projectId).totalDevelopmentCost
+  const landCost = db.getEffectiveLandCost(projectId)
+  const compRows = comparisonRows(projectId)
+  const gav = compRows.length > 0 ? Math.max(...compRows.map(r => r.gav)) : 0
+  const result = calculateFinance(fa, tdc, landCost, gav)
+  const tasks = db.getTimelineTasks(projectId)
+  const health = getTimelineHealth(tasks)
+
+  const baseDuration = fa.landCarryMonths + fa.constructionMonths
+  const xMax = baseDuration + 16
+  const extra3 = result.blowout3m.totalFinanceCost - result.base.totalFinanceCost
+  const extra6 = result.blowout6m.totalFinanceCost - result.base.totalFinanceCost
+  const extra12 = result.blowout12m.totalFinanceCost - result.base.totalFinanceCost
+
+  const series: CurveSeries[] = [
+    { label: 'Baseline Plan', color: '#C4973A', points: curvePoints(baseDuration, tdc) },
+    ...(fa.blowout3mActive ? [{ label: '+3m Blowout', color: '#EAB308', dash: true, points: curvePoints(baseDuration + 3, tdc + extra3) }] : []),
+    ...(fa.blowout6mActive ? [{ label: '+6m Blowout', color: '#F97316', dash: true, points: curvePoints(baseDuration + 6, tdc + extra6) }] : []),
+    ...(fa.blowout12mActive ? [{ label: '+12m Blowout', color: '#EF4444', dash: true, points: curvePoints(baseDuration + 12, tdc + extra12) }] : []),
+  ]
+  const curve: Block = {
+    type: 'curve', title: 'Capital Drawdown S-Curve',
+    xMax, yMax: tdc > 0 ? tdc * 1.12 : 1,
+    dividerX: fa.landCarryMonths > 0 ? fa.landCarryMonths : undefined,
+    dividerLabels: ['LAND CARRY', 'CONSTRUCTION'],
+    completionX: baseDuration,
+    series,
+  }
+  const note: Block = {
+    type: 'note',
+    text: `Timeline health: ${health.label}` + (health.atRiskCount > 0
+      ? ` — ${health.atRiskCount} task${health.atRiskCount !== 1 ? 's' : ''} at risk (${Math.round(health.atRiskPct * 100)}%), est. +${health.delayMonths}m delay.`
+      : ' — all tasks on track, no additional finance cost projected.'),
+  }
+  return [note, curve]
 }
 
 // ── Section builders ──────────────────────────────────────────────────────────
@@ -302,6 +365,7 @@ function financeSection(projectId: string): Section {
           sc.label, $(sc.extraInterest), $(sc.totalFinanceCost), $(sc.profitImpact),
         ]),
       },
+      ...financeCurveBlocks(projectId),
     ],
   }
 }
@@ -475,6 +539,7 @@ function dashboardSection(projectId: string): Section {
       items: rows.map(r => ({ label: `${r.scenario} — ${r.type}`, value: r.rlv, color: strategyColor(r.type) })),
     })
   }
+  blocks.push(...financeCurveBlocks(projectId))
   return { id: 'dashboard', title: 'Project Dashboard', blocks }
 }
 

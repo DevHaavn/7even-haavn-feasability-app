@@ -4,7 +4,7 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
-import type { Section, Block, BarsBlock } from './exportData'
+import type { Section, Block, BarsBlock, CurveBlock } from './exportData'
 
 const INK = '#1A1A1A'
 
@@ -129,6 +129,109 @@ export async function exportPdf(projectName: string, address: string, sections: 
     y += 14
   }
 
+  const drawCurve = (block: CurveBlock) => {
+    const chartH = 170
+    const labelW = 46
+    const chartW = pageW - margin * 2 - labelW - 8
+    ensureRoom(chartH + 78)
+    if (block.title) {
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(26, 26, 26)
+      doc.text(block.title.toUpperCase(), margin, y + 10)
+      y += 18
+    }
+    const x0 = margin + labelW
+    const y0 = y + 4
+    const fmtM = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(0)}M` : n >= 1e3 ? `$${(n / 1e3).toFixed(0)}K` : `$${Math.round(n)}`
+    const px = (m: number) => x0 + (m / block.xMax) * chartW
+    const py = (c: number) => y0 + chartH - Math.max(0, Math.min(1, c / block.yMax)) * chartH
+
+    // Background + grid
+    doc.setFillColor(249, 247, 244)
+    doc.rect(x0, y0, chartW, chartH, 'F')
+    doc.setDrawColor(230, 228, 224)
+    doc.setLineWidth(0.5)
+    const tdcVal = block.yMax / 1.12
+    for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+      const gy = py(f * tdcVal)
+      doc.line(x0, gy, x0 + chartW, gy)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(6)
+      doc.setTextColor(150, 150, 150)
+      doc.text(fmtM(f * tdcVal), x0 - 4, gy + 2, { align: 'right' })
+    }
+    for (let m = 0; m <= block.xMax; m += 6) {
+      doc.setDrawColor(236, 234, 230)
+      doc.line(px(m), y0, px(m), y0 + chartH)
+      doc.setFontSize(6)
+      doc.setTextColor(150, 150, 150)
+      doc.text(`m${m}`, px(m), y0 + chartH + 10, { align: 'center' })
+    }
+    // Phase divider
+    if (block.dividerX) {
+      doc.setDrawColor(200, 196, 174)
+      doc.setLineDashPattern([3, 3], 0)
+      doc.line(px(block.dividerX), y0, px(block.dividerX), y0 + chartH)
+      doc.setLineDashPattern([], 0)
+      if (block.dividerLabels) {
+        doc.setFontSize(5.5)
+        doc.setTextColor(170, 166, 150)
+        doc.text(block.dividerLabels[0], x0 + 4, y0 + 10)
+        doc.text(block.dividerLabels[1], px(block.dividerX) + 4, y0 + 10)
+      }
+    }
+    // Completion marker
+    if (block.completionX) {
+      doc.setDrawColor(216, 208, 180)
+      doc.setLineDashPattern([2, 3], 0)
+      doc.line(px(block.completionX), y0, px(block.completionX), y0 + chartH)
+      doc.setLineDashPattern([], 0)
+    }
+    // Series — data keeps colour
+    for (const s of block.series) {
+      const [cr, cg, cb] = hexRgb(s.color)
+      doc.setDrawColor(cr, cg, cb)
+      doc.setLineWidth(s.dash ? 1 : 1.6)
+      doc.setLineDashPattern(s.dash ? [4, 3] : [], 0)
+      for (let i = 1; i < s.points.length; i++) {
+        doc.line(px(s.points[i - 1].x), py(s.points[i - 1].y), px(s.points[i].x), py(s.points[i].y))
+      }
+      doc.setLineDashPattern([], 0)
+      const last = s.points[s.points.length - 1]
+      if (!s.dash) {
+        doc.setFillColor(cr, cg, cb)
+        doc.circle(px(last.x), py(last.y), 2.2, 'F')
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.5)
+        doc.setTextColor(cr, cg, cb)
+        doc.text(fmtM(last.y), px(last.x) - 4, py(last.y) - 6, { align: 'right' })
+      }
+    }
+    // Axes
+    doc.setDrawColor(190, 188, 184)
+    doc.setLineWidth(0.75)
+    doc.line(x0, y0, x0, y0 + chartH)
+    doc.line(x0, y0 + chartH, x0 + chartW, y0 + chartH)
+    // Legend
+    let lx = x0
+    const ly = y0 + chartH + 24
+    for (const s of block.series) {
+      const [cr, cg, cb] = hexRgb(s.color)
+      doc.setDrawColor(cr, cg, cb)
+      doc.setLineWidth(s.dash ? 1 : 1.8)
+      doc.setLineDashPattern(s.dash ? [3, 2] : [], 0)
+      doc.line(lx, ly - 2, lx + 16, ly - 2)
+      doc.setLineDashPattern([], 0)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(6.5)
+      doc.setTextColor(90, 90, 90)
+      doc.text(s.label, lx + 20, ly)
+      lx += 24 + doc.getTextWidth(s.label) + 18
+    }
+    y = ly + 18
+  }
+
   for (const section of sections) {
     ensureRoom(60)
     // Section heading — black accent bar
@@ -153,6 +256,10 @@ export async function exportPdf(projectName: string, address: string, sections: 
       }
       if (block.type === 'bars') {
         drawBars(block)
+        continue
+      }
+      if (block.type === 'curve') {
+        drawCurve(block)
         continue
       }
 
@@ -205,6 +312,57 @@ export async function exportPdf(projectName: string, address: string, sections: 
     doc.text(`Design & Interface © ${new Date().getFullYear()} JB Design × Studio · All Rights Reserved`, pageW / 2, pageH - 16, { align: 'center' })
   }
 
+  // ── Closing page — wings, confidentiality, office details ──
+  doc.addPage()
+  doc.setFillColor(0, 0, 0)
+  doc.rect(0, 0, pageW, pageH, 'F')
+  const cx = pageW / 2
+  if (logo) {
+    const wingsW = 190
+    const wingsH = wingsW * (logo.h / logo.w)
+    doc.addImage(logo.dataUrl, 'PNG', cx - wingsW / 2, pageH * 0.30 - wingsH / 2, wingsW, wingsH)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.setTextColor(255, 255, 255)
+    doc.text('C  A  P  I  T  A  L', cx, pageH * 0.30 + wingsH / 2 + 16, { align: 'center' })
+  }
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(15)
+  doc.setTextColor(240, 239, 237)
+  doc.text('P R E C I S I O N   C A P I T A L   D E P L O Y E D', cx, pageH * 0.46, { align: 'center' })
+  doc.setFontSize(11)
+  doc.setTextColor(200, 200, 200)
+  doc.text('Thank you.', cx, pageH * 0.46 + 26, { align: 'center' })
+
+  // Divider
+  doc.setDrawColor(90, 90, 90)
+  doc.setLineWidth(0.5)
+  doc.line(cx - 90, pageH * 0.54, cx + 90, pageH * 0.54)
+
+  // Confidentiality / privacy statement
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(7)
+  doc.setTextColor(150, 150, 150)
+  const conf = 'CONFIDENTIAL — This document and the information contained within it are strictly private and confidential, prepared solely for the intended recipient. It must not be reproduced, distributed or disclosed, in whole or in part, without the prior written consent of 7EVEN Capital. Figures are estimates prepared for feasibility purposes only and do not constitute financial advice or an offer of securities.'
+  const confLines = doc.splitTextToSize(conf, pageW - 160)
+  doc.text(confLines, cx, pageH * 0.58, { align: 'center' })
+
+  // Office details
+  doc.setFontSize(8)
+  doc.setTextColor(220, 220, 220)
+  doc.text('7EVEN CAPITAL', cx, pageH - 128, { align: 'center' })
+  doc.setFontSize(7.5)
+  doc.setTextColor(170, 170, 170)
+  doc.text('Level 1, Suite 2, 20-30 Mollison Street, Abbotsford, VIC 3067', cx, pageH - 114, { align: 'center' })
+  doc.text('Office  03 9962 2877  ·  7even.au', cx, pageH - 101, { align: 'center' })
+
+  // Copyright + design credit
+  doc.setFontSize(6.5)
+  doc.setTextColor(120, 120, 120)
+  doc.text(`© ${new Date().getFullYear()} 7EVEN Capital. All rights reserved.`, cx, pageH - 66, { align: 'center' })
+  doc.setTextColor(110, 110, 110)
+  doc.text(`Design & Interface © ${new Date().getFullYear()} JB Design × Studio · All Rights Reserved`, cx, pageH - 54, { align: 'center' })
+
   doc.save(`${fileStamp(projectName)}.pdf`)
 }
 
@@ -214,6 +372,15 @@ function blockToRows(block: Block): (string | number)[][] {
   if (block.type === 'note') return [[block.text]]
   if (block.type === 'kv') return block.rows.map(([k, v]) => [k, v])
   if (block.type === 'bars') return block.items.map(i => [i.label, Math.round(i.value)])
+  if (block.type === 'curve') {
+    const maxLen = Math.max(...block.series.map(s => s.points.length))
+    const header = ['Month', ...block.series.map(s => s.label)]
+    const rows: (string | number)[][] = [header]
+    for (let i = 0; i < maxLen; i++) {
+      rows.push([i, ...block.series.map(s => s.points[i] ? Math.round(s.points[i].y) : '')])
+    }
+    return rows
+  }
   return [block.headers, ...block.rows]
 }
 
