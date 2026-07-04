@@ -7,6 +7,43 @@ import * as XLSX from 'xlsx'
 import type { Section, Block, BarsBlock, CurveBlock } from './exportData'
 
 const INK = '#1A1A1A'
+const GOLD: [number, number, number] = [196, 151, 58]
+
+/** Fine faded gold rule — the app's signature divider, simulated with
+ *  colour-blended segments (transparent → gold 30–70% → transparent). */
+function goldRuleH(doc: jsPDF, x1: number, x2: number, y: number, bg: [number, number, number] = [255, 255, 255], weight = 0.8) {
+  const segs = 48
+  for (let i = 0; i < segs; i++) {
+    const t0 = i / segs
+    const t1 = (i + 1) / segs
+    const mid = (t0 + t1) / 2
+    const a = mid < 0.3 ? mid / 0.3 : mid > 0.7 ? (1 - mid) / 0.3 : 1
+    doc.setDrawColor(
+      Math.round(GOLD[0] * a + bg[0] * (1 - a)),
+      Math.round(GOLD[1] * a + bg[1] * (1 - a)),
+      Math.round(GOLD[2] * a + bg[2] * (1 - a)),
+    )
+    doc.setLineWidth(weight)
+    doc.line(x1 + (x2 - x1) * t0, y, x1 + (x2 - x1) * t1, y)
+  }
+}
+
+function goldRuleV(doc: jsPDF, x: number, y1: number, y2: number, bg: [number, number, number] = [255, 255, 255], weight = 1.4) {
+  const segs = 18
+  for (let i = 0; i < segs; i++) {
+    const t0 = i / segs
+    const t1 = (i + 1) / segs
+    const mid = (t0 + t1) / 2
+    const a = mid < 0.25 ? mid / 0.25 : mid > 0.75 ? (1 - mid) / 0.25 : 1
+    doc.setDrawColor(
+      Math.round(GOLD[0] * a + bg[0] * (1 - a)),
+      Math.round(GOLD[1] * a + bg[1] * (1 - a)),
+      Math.round(GOLD[2] * a + bg[2] * (1 - a)),
+    )
+    doc.setLineWidth(weight)
+    doc.line(x, y1 + (y2 - y1) * t0, x, y1 + (y2 - y1) * t1)
+  }
+}
 
 function fileStamp(projectName: string) {
   const date = new Date().toISOString().slice(0, 10)
@@ -74,6 +111,9 @@ export async function exportPdf(projectName: string, address: string, sections: 
   doc.setTextColor(190, 190, 190)
   const dateStr = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
   doc.text(`${address ? address + '  ·  ' : ''}Exported ${dateStr}  ·  Confidential`, margin, 115)
+
+  // Signature gold rule under the cover band — mirrors the app's hero divider
+  goldRuleH(doc, 0, pageW, 129.5, [255, 255, 255], 1.2)
 
   let y = 158
 
@@ -232,11 +272,17 @@ export async function exportPdf(projectName: string, address: string, sections: 
     y = ly + 18
   }
 
+  let firstSection = true
   for (const section of sections) {
-    ensureRoom(60)
-    // Section heading — black accent bar
-    doc.setFillColor(0, 0, 0)
-    doc.rect(margin, y - 11, 3, 14, 'F')
+    ensureRoom(84)
+    // Editorial break between sections — the fine faded gold rule
+    if (!firstSection) {
+      goldRuleH(doc, margin - 8, pageW - margin + 8, y, [255, 255, 255], 0.8)
+      y += 26
+    }
+    firstSection = false
+    // Section heading — vertical faded gold accent
+    goldRuleV(doc, margin + 1, y - 14, y + 5)
     doc.setTextColor(0, 0, 0)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(12)
@@ -296,13 +342,20 @@ export async function exportPdf(projectName: string, address: string, sections: 
     y += 8
   }
 
-  // Footer on every page — monochrome
+  // Footer on every page — faded gold rule, editorial running heads
   const pages = doc.getNumberOfPages()
   for (let i = 1; i <= pages; i++) {
     doc.setPage(i)
-    doc.setDrawColor(220, 220, 220)
-    doc.setLineWidth(0.5)
-    doc.line(margin, pageH - 40, pageW - margin, pageH - 40)
+    // Running head on continuation pages
+    if (i > 1) {
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(6.5)
+      doc.setTextColor(140, 140, 140)
+      doc.text(projectName.toUpperCase(), margin, 30)
+      doc.text('7EVEN | HAAVN — DEVELOPMENT FEASIBILITY STUDIO', pageW - margin, 30, { align: 'right' })
+      goldRuleH(doc, margin - 8, pageW - margin + 8, 38, [255, 255, 255], 0.7)
+    }
+    goldRuleH(doc, margin - 8, pageW - margin + 8, pageH - 40, [255, 255, 255], 0.7)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(6.5)
     doc.setTextColor(120, 120, 120)
@@ -334,10 +387,8 @@ export async function exportPdf(projectName: string, address: string, sections: 
   doc.setTextColor(200, 200, 200)
   doc.text('Thank you.', cx, pageH * 0.46 + 26, { align: 'center' })
 
-  // Divider
-  doc.setDrawColor(90, 90, 90)
-  doc.setLineWidth(0.5)
-  doc.line(cx - 90, pageH * 0.54, cx + 90, pageH * 0.54)
+  // Divider — faded gold on black
+  goldRuleH(doc, cx - 130, cx + 130, pageH * 0.54, [0, 0, 0], 1)
 
   // Confidentiality / privacy statement
   doc.setFont('helvetica', 'normal')
