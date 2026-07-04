@@ -74,13 +74,13 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
         position: 'relative',
         width: '100%', maxWidth: 400,
         padding: '40px 40px 36px',
-        border: '1px solid rgba(255,255,255,0.16)',
+        border: '1px solid rgba(255,255,255,0.18)',
         borderRadius: 18,
         overflow: 'hidden',
-        background: 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(22px)',
-        WebkitBackdropFilter: 'blur(22px)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 24px 60px rgba(0,0,0,0.5)',
+        background: 'rgba(255,255,255,0.02)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), 0 24px 60px rgba(0,0,0,0.45)',
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0,
         animation: shake ? 'shake 0.4s ease' : 'none',
       }}>
@@ -133,7 +133,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
             color: 'rgba(255,255,255,0.9)',
           }}
         >
-          Enter
+          Deploy
         </button>
       </div>
 

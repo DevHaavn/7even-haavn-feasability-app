@@ -176,7 +176,7 @@ export default function IntroScreen({ onDone }: Props) {
               animation: phase >= 3 ? 'intro-btn-in 0.8s ease forwards' : undefined,
             }}
           >
-            Enter Studio
+            Deploy Studio
           </button>
         </div>
 
