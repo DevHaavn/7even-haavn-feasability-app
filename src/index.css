@@ -260,6 +260,13 @@ input[type="checkbox"] {
   .tab-bar-scroll { flex-wrap: wrap; }
 }
 
+/* ── Main-page mobile declutter ── */
+@media (max-width: 640px) {
+  .hero-legend { display: none !important; }
+  .pcard-date, .pcard-arrow { display: none; }
+  .p7-mark { width: 40px !important; opacity: 0.75; }
+}
+
 /* ── Mobile responsive ── */
 @media (max-width: 768px) {
   /* Tab bar: scrollable, no wrap */

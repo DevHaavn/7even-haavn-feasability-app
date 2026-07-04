@@ -93,22 +93,24 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         {/* Top bar — drag region for the frameless window */}
         <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10 }} />
 
-        {/* Winged device — future investor portal entry */}
+        {/* Winged device — future investor portal entry (compact on mobile) */}
         <button
           className="no-drag"
           title="Director Portal — coming soon"
           onClick={() => setPortalOpen(true)}
-          style={{ position: 'absolute', top: 22, left: 40, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s' }}
+          style={{ position: 'absolute', top: isMobile ? 12 : 22, left: isMobile ? 14 : 40, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
         >
-          <img src="/winged-device-white.png" alt="7EVEN" draggable={false} style={{ width: 88, height: 'auto', display: 'block' }} />
-          <span style={{ display: 'block', textAlign: 'center', marginTop: 5, color: 'rgba(255,255,255,0.85)', fontSize: 8, letterSpacing: '0.42em', textTransform: 'uppercase', fontWeight: 400, paddingLeft: '0.42em' }}>
+          <img src="/winged-device-white.png" alt="7EVEN" draggable={false} style={{ width: isMobile ? 48 : 88, height: 'auto', display: 'block' }} />
+          <span style={{ display: 'block', textAlign: 'center', marginTop: isMobile ? 2 : 5, color: 'rgba(255,255,255,0.85)', fontSize: isMobile ? 6 : 8, letterSpacing: '0.42em', textTransform: 'uppercase', fontWeight: 400, paddingLeft: '0.42em' }}>
             Capital
           </span>
         </button>
         <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-red"
-          style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
+          style={isMobile
+            ? { position: 'fixed', top: 12, right: 12, zIndex: 30, fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '5px 12px' }
+            : { position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '7px 16px' }}>
           Log Out
         </button>
 
@@ -146,7 +148,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             {projects.length} {projects.length !== 1 ? 'Projects' : 'Project'}
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div className="hero-legend" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TypeLegend color="#A855F7" label="Hotel" />
           <TypeLegend color="#22C55E" label="BTR" />
           <TypeLegend color="#3B82F6" label="BTS" />
@@ -502,8 +504,8 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
         )}
       </div>
 
-      <span style={{ color: '#222', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0 }}>{updated}</span>
-      <span style={{ color: '#222', fontSize: 14, flexShrink: 0, transition: 'color 0.18s' }} className="group-hover:text-[#C4973A]">→</span>
+      <span className="pcard-date" style={{ color: '#222', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0 }}>{updated}</span>
+      <span className="pcard-arrow group-hover:text-[#C4973A]" style={{ color: '#222', fontSize: 14, flexShrink: 0, transition: 'color 0.18s' }}>→</span>
     </div>
   )
 }

@@ -54,7 +54,7 @@ export function Project7Mark({ position = 'fixed', bottom = 14, right = 20, size
       alt="Project 7"
       title="Project 7 — 7EVEN not-for-profit"
       draggable={false}
-      className="select-none"
+      className="select-none p7-mark"
       style={{ position, bottom, right, width: size, height: 'auto', zIndex, opacity: 0.9, pointerEvents: 'none' }}
     />
   )
