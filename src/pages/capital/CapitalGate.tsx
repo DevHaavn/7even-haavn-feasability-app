@@ -1,7 +1,13 @@
 import React, { useState } from 'react'
 import { DesignCredit } from '../../components/ui'
 
-const CAPITAL_PASSWORD = '7EvenCapital!!!'
+// SHA-256 of the access code — the code itself never ships in the bundle.
+const CAPITAL_PASSWORD_HASH = 'bee39521d0639865b9e7023499b25d281d31df07a3fa21533c53d8c3139459d1'
+
+async function sha256Hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 /** Access gate for the 7EVEN Capital back-of-house. Same glass aesthetic as the
  *  app login, titled CAPITAL BASE. */
@@ -11,8 +17,8 @@ export default function CapitalGate({ onAuth, onClose }: { onAuth: () => void; o
   const [shake, setShake] = useState(false)
   const [show, setShow] = useState(false)
 
-  function attempt() {
-    if (value === CAPITAL_PASSWORD) {
+  async function attempt() {
+    if (await sha256Hex(value) === CAPITAL_PASSWORD_HASH) {
       onAuth()
     } else {
       setError(true)

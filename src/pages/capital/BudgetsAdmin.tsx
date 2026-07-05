@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useStore } from '../../store'
 import { FY27_SEED, FY27_MONTHS, CompanyBudget } from './fy27BudgetSeed'
 
@@ -106,6 +106,50 @@ const panelTitle: React.CSSProperties = {
 }
 
 type View = 'overview' | 'budget' | 'transactions' | 'projects'
+
+type XeroState =
+  | { kind: 'unconfigured' }
+  | { kind: 'disconnected' }
+  | { kind: 'connected'; tenants: { id: string; name: string }[] }
+
+/** Live Xero connection chip. Talks to the serverless OAuth endpoints; falls
+ *  back to "ready to connect" when the backend isn't configured yet. */
+function XeroChip() {
+  const [state, setState] = useState<XeroState>({ kind: 'unconfigured' })
+
+  useEffect(() => {
+    fetch('/api/xero/status')
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(s => {
+        if (s.connected) setState({ kind: 'connected', tenants: s.tenants || [] })
+        else if (s.configured) setState({ kind: 'disconnected' })
+        else setState({ kind: 'unconfigured' })
+      })
+      .catch(() => setState({ kind: 'unconfigured' }))
+  }, [])
+
+  const label = state.kind === 'connected'
+    ? `Connected · ${state.tenants.length} org${state.tenants.length !== 1 ? 's' : ''}`
+    : state.kind === 'disconnected' ? 'Connect to Xero' : 'Push / pull · ready to connect'
+  const clickable = state.kind === 'disconnected'
+
+  return (
+    <button
+      onClick={() => { if (clickable) window.location.href = '/api/xero/connect' }}
+      title={state.kind === 'connected' ? state.tenants.map(t => t.name).join(' · ') : undefined}
+      style={{
+        marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10,
+        border: `1px solid ${XERO_BLUE}${state.kind === 'connected' ? '88' : '44'}`, borderRadius: 12, padding: '7px 14px',
+        background: `${XERO_BLUE}0D`, cursor: clickable ? 'pointer' : 'default',
+      }}>
+      <img src="/xero-logo.png" alt="Xero" draggable={false} style={{ width: 42, height: 'auto' }} />
+      <span className="xero-pulse" style={{ width: 7, height: 7, borderRadius: '50%', background: state.kind === 'connected' ? '#3DAA6A' : XERO_BLUE }} />
+      <span style={{ color: XERO_BLUE, fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>
+        {label}
+      </span>
+    </button>
+  )
+}
 
 export default function BudgetsAdmin() {
   const { projects } = useStore()
@@ -233,17 +277,7 @@ export default function BudgetsAdmin() {
             {c.name}
           </button>
         ))}
-        <div style={{
-          marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10,
-          border: `1px solid ${XERO_BLUE}44`, borderRadius: 12, padding: '7px 14px',
-          background: `${XERO_BLUE}0D`,
-        }}>
-          <img src="/xero-logo.png" alt="Xero" draggable={false} style={{ width: 42, height: 'auto' }} />
-          <span className="xero-pulse" style={{ width: 7, height: 7, borderRadius: '50%', background: XERO_BLUE }} />
-          <span style={{ color: XERO_BLUE, fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>
-            Push / pull · ready to connect
-          </span>
-        </div>
+        <XeroChip />
       </div>
 
       {/* View tabs */}
