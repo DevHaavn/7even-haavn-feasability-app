@@ -2,10 +2,11 @@
 const crypto = require('crypto')
 const { appUrl } = require('../_utils/session')
 
+// Core scopes only — budgets.read / reports.read are gated behind Xero's
+// paid developer tiers and trigger invalid_scope on a standard app.
 const SCOPES = [
   'openid', 'profile', 'email', 'offline_access',
-  'accounting.transactions', 'accounting.contacts.read',
-  'accounting.settings.read', 'accounting.budgets.read', 'accounting.reports.read',
+  'accounting.transactions', 'accounting.contacts.read', 'accounting.settings.read',
 ].join(' ')
 
 module.exports = (req, res) => {
