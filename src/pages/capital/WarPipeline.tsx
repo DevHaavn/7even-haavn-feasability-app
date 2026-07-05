@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { availableUnits, setUnitStatus, UnitStatus } from './WarStock'
 
 // ── WAR ROOM · PIPELINE — division-specific workflows ────────────────────────
 // Modelled on the best of each industry:
@@ -52,6 +53,15 @@ interface PipeItem {
   value: number
   stageIdx: number
   updated: number
+  unitId?: string      // 7ED sales: linked stock-ledger unit
+}
+
+// 7ED sales stage → stock-unit status
+function unitStatusFor(stageIdx: number): UnitStatus {
+  if (stageIdx >= 6) return 'Settled'
+  if (stageIdx >= 4) return 'Exchanged'
+  if (stageIdx >= 3) return 'Reserved'
+  return 'Hold'
 }
 
 const JOB_STATUSES = ['Brief', 'In Progress', 'Review', 'Delivered'] as const
@@ -73,7 +83,7 @@ const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? 
 const FIELD = '#E8E8EA', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
 const RED = '#FF2F00', GREEN_DEEP = '#0F9E52'
 const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
-const fieldPanel: React.CSSProperties = { background: FIELD, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px' }
+const fieldPanel: React.CSSProperties = { background: '#F6F6F7', border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px' }
 const fieldTitle: React.CSSProperties = { ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.26em', fontWeight: 700, marginBottom: 4 }
 const fieldSub: React.CSSProperties = { color: INK_SOFT, fontSize: 10, marginBottom: 16, opacity: 0.8 }
 const fieldInput: React.CSSProperties = {
@@ -91,6 +101,7 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
   const [fName, setFName] = useState('')
   const [fDetail, setFDetail] = useState('')
   const [fValue, setFValue] = useState('')
+  const [fUnit, setFUnit] = useState('')
   const [jTitle, setJTitle] = useState('')
   const [jFrom, setJFrom] = useState('')
   const [jDue, setJDue] = useState('')
@@ -111,19 +122,33 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
     const value = parseFloat(fValue) || 0
     if (!fName.trim()) return
     const seq = data.seq + 1
+    const unit = division === '7even-dev' && fUnit ? availableUnits().find(u => u.id === fUnit) : undefined
     update({
       ...data, seq,
-      items: [{ id: `${def.prefix}-${String(seq).padStart(4, '0')}`, division, name: fName.trim(), detail: fDetail.trim(), value, stageIdx: 0, updated: Date.now() }, ...data.items],
+      items: [{
+        id: `${def.prefix}-${String(seq).padStart(4, '0')}`, division, name: fName.trim(),
+        detail: unit ? `${unit.project} · ${unit.unit}` : fDetail.trim(),
+        value: value || (unit ? unit.price : 0), stageIdx: 0, updated: Date.now(), unitId: unit?.id,
+      }, ...data.items],
     })
-    setFName(''); setFDetail(''); setFValue(''); setShowAdd(false)
+    if (unit) setUnitStatus(unit.id, 'Hold', fName.trim())
+    setFName(''); setFDetail(''); setFValue(''); setFUnit(''); setShowAdd(false)
   }
-  const move = (id: string, dir: 1 | -1) =>
+  const move = (id: string, dir: 1 | -1) => {
+    const target = data.items.find(i => i.id === id)
+    if (!target) return
+    const nextIdx = Math.max(0, Math.min(doneIdx, target.stageIdx + dir))
+    if (target.division === '7even-dev' && target.unitId) setUnitStatus(target.unitId, unitStatusFor(nextIdx), target.name)
     update({
       ...data,
-      items: data.items.map(i => i.id === id
-        ? { ...i, stageIdx: Math.max(0, Math.min(doneIdx, i.stageIdx + dir)), updated: Date.now() }
-        : i),
+      items: data.items.map(i => i.id === id ? { ...i, stageIdx: nextIdx, updated: Date.now() } : i),
     })
+  }
+  const removeItem = (id: string) => {
+    const target = data.items.find(i => i.id === id)
+    if (target?.unitId) setUnitStatus(target.unitId, 'Available')
+    update({ ...data, items: data.items.filter(x => x.id !== id) })
+  }
 
   function addJob() {
     if (!jTitle.trim()) return
@@ -168,7 +193,18 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
           <div style={{ border: `1px solid ${RED}55`, borderRadius: 8, padding: 16, marginTop: 14, background: '#fff' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
               <div><label style={fieldLabel}>{def.itemLabel}</label><input value={fName} onChange={e => setFName(e.target.value)} style={fieldInput} /></div>
-              <div><label style={fieldLabel}>{def.detailLabel}</label><input value={fDetail} onChange={e => setFDetail(e.target.value)} style={fieldInput} /></div>
+              {division === '7even-dev' && (
+                <div>
+                  <label style={fieldLabel}>Stock Unit (locks on add)</label>
+                  <select value={fUnit} onChange={e => setFUnit(e.target.value)} style={fieldInput}>
+                    <option value="">— No unit link —</option>
+                    {availableUnits().map(u => <option key={u.id} value={u.id}>{u.project} · {u.unit} ({u.type})</option>)}
+                  </select>
+                </div>
+              )}
+              {(division !== '7even-dev' || !fUnit) && (
+                <div><label style={fieldLabel}>{def.detailLabel}</label><input value={fDetail} onChange={e => setFDetail(e.target.value)} style={fieldInput} /></div>
+              )}
               <div><label style={fieldLabel}>{def.valueLabel} (AUD)</label><input type="number" value={fValue} onChange={e => setFValue(e.target.value)} style={fieldInput} /></div>
             </div>
             <button onClick={addItem} className="wr-btn wr-solid wr-hot"
@@ -214,7 +250,7 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
                       <button onClick={() => move(i.id, 1)} disabled={done} title="Advance"
                         style={{ cursor: 'pointer', border: 'none', background: done ? GREEN_DEEP : INK, borderRadius: 5, color: '#fff', fontSize: 11, padding: '3px 7px', opacity: done ? 0.5 : 1 }}>▶</button>
                     </div>
-                    <button onClick={() => update({ ...data, items: data.items.filter(x => x.id !== i.id) })}
+                    <button onClick={() => removeItem(i.id)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
                   </div>
                 )

@@ -58,7 +58,7 @@ const save = (d: LogisticsData) => localStorage.setItem(STORE_KEY, JSON.stringif
 const FIELD = '#E8E8EA', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
 const GREEN_DEEP = '#0F9E52'
 const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
-const fieldPanelS: React.CSSProperties = { background: FIELD, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px' }
+const fieldPanelS: React.CSSProperties = { background: '#F6F6F7', border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px' }
 const fieldTitle: React.CSSProperties = { ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.26em', fontWeight: 700, marginBottom: 4 }
 const fieldSub: React.CSSProperties = { color: INK_SOFT, fontSize: 10, marginBottom: 16, opacity: 0.8 }
 const textCell: React.CSSProperties = {

@@ -3,6 +3,7 @@ import { useStore } from '../../store'
 import WarMark, { Reticle, WAR_RED } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
+import WarStock from './WarStock'
 
 // ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Stealth command environment: obsidian surfaces, black-chrome mark, one red
@@ -61,10 +62,9 @@ const save = (d: WarData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
 
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 
-// ── Surfaces — the brand's two environments ──
-// Command · Dark: obsidian, for the briefing. Field · Light: soft grey ground,
-// crisp near-black text, for the eight hours of real work.
-const OBSIDIAN = '#0C0D0E', GRAPHITE = '#16171A', STEEL = '#24262B', SMOKE = '#9A9CA3', SMOKE_DIM = '#63656C'
+// ── Surfaces — the CRM runs entirely on Field · Light: soft grey ground,
+// crisp near-black text, red only where it matters. Easy to read all day.
+const OBSIDIAN = '#E8E8EA', GRAPHITE = '#F6F6F7', STEEL = '#D3D4D8', SMOKE = '#4A4B50', SMOKE_DIM = '#63656C'
 const FIELD = '#E8E8EA', FIELD_PANEL = '#F6F6F7', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
 const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
 
@@ -72,11 +72,11 @@ const panel: React.CSSProperties = {
   background: GRAPHITE, border: `1px solid ${STEEL}`, borderRadius: 10, padding: '20px 22px',
 }
 const fieldPanel: React.CSSProperties = {
-  background: FIELD, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px',
+  background: FIELD_PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px',
 }
 const inputStyle: React.CSSProperties = {
-  background: OBSIDIAN, border: `1px solid ${STEEL}`, borderRadius: 6,
-  color: '#E6E7E9', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
+  background: '#fff', border: `1px solid ${STEEL}`, borderRadius: 6,
+  color: INK, fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
 }
 const fieldInput: React.CSSProperties = {
   background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6,
@@ -108,7 +108,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
   )
 }
 
-type View = 'command' | 'pipeline' | 'range' | 'contacts' | 'logistics'
+type View = 'command' | 'pipeline' | 'stock' | 'range' | 'contacts' | 'logistics'
 
 export default function WarRoom() {
   const { projects } = useStore()
@@ -199,17 +199,16 @@ export default function WarRoom() {
   return (
     <div className="cap-module" style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 20, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
 
-      {/* Masthead */}
+      {/* Masthead — tagline + commands; the mark signs off at the bottom */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', paddingTop: 6 }}>
-        <WarMark width={230} />
         <p style={{ ...HUD, color: SMOKE_DIM, fontSize: 9, letterSpacing: '0.3em', margin: 0 }}>
-          Every deal <span style={{ color: '#fff' }}>in your sights.</span>
+          Every deal <span style={{ color: INK }}>in your sights.</span>
         </p>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           {DIVISIONS.map(d => (
-            <button key={d.id} onClick={() => { setDivision(d.id); if (view === 'logistics' && d.id !== 'haavn-homes') setView('command') }}
+            <button key={d.id} onClick={() => { setDivision(d.id); if ((view === 'logistics' && d.id !== 'haavn-homes') || (view === 'stock' && d.id !== '7even-dev')) setView('command') }}
               className={division === d.id ? 'wr-btn wr-solid wr-hot' : 'wr-btn'}
-              style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : SMOKE }}>
+              style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : INK_SOFT }}>
               {d.short}
             </button>
           ))}
@@ -220,6 +219,7 @@ export default function WarRoom() {
       <div style={{ display: 'flex', gap: 26, borderBottom: `1px solid ${STEEL}` }}>
         {hudTab('command', 'Command')}
         {hudTab('pipeline', 'Pipeline')}
+        {division === '7even-dev' && hudTab('stock', 'Stock')}
         {hudTab('range', 'The Range')}
         {division === 'haavn-homes' && hudTab('logistics', 'Logistics')}
         {hudTab('contacts', 'Contacts')}
@@ -230,11 +230,11 @@ export default function WarRoom() {
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
             {[
-              { label: 'Total Pipeline', value: fmt$(total), color: '#E6E7E9' },
+              { label: 'Total Pipeline', value: fmt$(total), color: INK },
               { label: 'Weighted', value: fmt$(weighted), color: SMOKE },
               { label: 'Locked', value: fmt$(lockedValue), color: WAR_RED },
-              { label: 'Secured', value: fmt$(securedValue), color: '#fff' },
-              { label: 'Targets', value: String(targets.length), color: '#E6E7E9' },
+              { label: 'Secured', value: fmt$(securedValue), color: INK },
+              { label: 'Targets', value: String(targets.length), color: INK },
             ].map(k => (
               <div key={k.label} style={{ ...panel, padding: '14px 16px' }}>
                 <p style={{ ...labelStyle, marginBottom: 8 }}>{k.label}</p>
@@ -252,7 +252,7 @@ export default function WarRoom() {
               ) : signals.map(t => (
                 <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: t.stage === 'locked' ? WAR_RED : SMOKE_DIM }} />
-                  <span style={{ color: '#E6E7E9', fontSize: 12 }}>{t.name}</span>
+                  <span style={{ color: INK, fontSize: 12 }}>{t.name}</span>
                   <span style={{ color: SMOKE_DIM, fontSize: 10, fontFamily: 'var(--font-mono)' }}>{t.id}</span>
                   <span style={{ marginLeft: 'auto' }}><StageChip stage={t.stage} /></span>
                 </div>
@@ -265,7 +265,7 @@ export default function WarRoom() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <Reticle size={54} />
                 <div>
-                  <p style={{ color: '#fff', fontSize: 22, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{projects.length}</p>
+                  <p style={{ color: INK, fontSize: 22, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{projects.length}</p>
                   <p style={{ ...labelStyle, marginBottom: 0 }}>Live projects in the studio</p>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export default function WarRoom() {
               {(data.feed ?? []).map((sig, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: WAR_RED, marginTop: 5, flexShrink: 0 }} />
-                  <p style={{ color: '#E6E7E9', fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
+                  <p style={{ color: INK, fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
                   <span style={{ ...HUD, marginLeft: 'auto', color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.16em', whiteSpace: 'nowrap', paddingTop: 3 }}>{sig.tag} · {sig.when}</span>
                   <button onClick={() => update({ ...data, feed: (data.feed ?? []).filter((_, idx) => idx !== i) })}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 12 }}>×</button>
@@ -410,8 +410,16 @@ export default function WarRoom() {
       {/* ── PIPELINE — division-specific workflow ── */}
       {view === 'pipeline' && <WarPipeline division={division} />}
 
+      {/* ── STOCK LEDGER (7EVEN Developments) ── */}
+      {view === 'stock' && <WarStock />}
+
       {/* ── HAAVN LOGISTICS ── */}
       {view === 'logistics' && <HaavnLogistics />}
+
+      {/* Brand sign-off */}
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '26px 0 6px' }}>
+        <WarMark width={210} />
+      </div>
     </div>
   )
 }
