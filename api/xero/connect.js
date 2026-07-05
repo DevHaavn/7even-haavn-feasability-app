@@ -2,11 +2,13 @@
 const crypto = require('crypto')
 const { appUrl } = require('../_utils/session')
 
-// Core scopes only — budgets.read / reports.read are gated behind Xero's
-// paid developer tiers and trigger invalid_scope on a standard app.
+// Apps created after March 2026 must use granular scopes — the broad
+// accounting.transactions scope is rejected with invalid_scope. Read-only:
+// invoices covers bills too (ACCPAY invoices in the Xero API).
 const SCOPES = [
   'openid', 'profile', 'email', 'offline_access',
-  'accounting.transactions', 'accounting.contacts.read', 'accounting.settings.read',
+  'accounting.invoices.read', 'accounting.payments.read', 'accounting.banktransactions.read',
+  'accounting.contacts.read', 'accounting.settings.read',
 ].join(' ')
 
 module.exports = (req, res) => {
