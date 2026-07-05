@@ -4,6 +4,7 @@ import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
+import WarMark from './WarMark'
 
 export type PillarId = 'budgets' | 'deployment' | 'crm'
 
@@ -30,16 +31,16 @@ export const PILLARS: Pillar[] = [
     color: '#3DAA6A',
   },
   {
-    id: 'crm', num: '03', title: 'Partner CRM Portal',
-    sub: 'Investors · Partners · Relationships',
-    blurb: 'Investor and partner relationships, contacts, commitments, communications and deal-flow.',
-    color: '#7C6FE0',
+    id: 'crm', num: '03', title: 'War Room',
+    sub: 'Partner CRM · Targets · Range · Signals',
+    blurb: 'The tactical CRM. Three commands — 7EVEN Developments, HAAVN Homes, HAAVN Management — every deal in your sights.',
+    color: '#FF2F00',
   },
 ]
 
-export default function CapitalBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
+export default function CapitalBase({ onClose, onLogout, initialPillar }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId }) {
   const { projects } = useStore()
-  const [pillar, setPillar] = useState<PillarId | null>(null)
+  const [pillar, setPillar] = useState<PillarId | null>(initialPillar ?? null)
 
   if (pillar) {
     const p = PILLARS.find(x => x.id === pillar)!
@@ -108,7 +109,9 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
                   style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, boxShadow: `0 0 10px ${p.color}` }} />
               </div>
               <div>
-                <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
+                {p.id === 'crm'
+                  ? <div style={{ margin: '2px 0 10px' }}><WarMark width={190} /></div>
+                  : <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>}
                 <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
               <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />

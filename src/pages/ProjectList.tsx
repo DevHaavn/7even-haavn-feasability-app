@@ -4,6 +4,8 @@ import { Wordmark, Project7Mark } from '../components/ui'
 import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
+import type { PillarId } from './capital/CapitalBase'
+import { Reticle } from './capital/WarMark'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -47,6 +49,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const isMobile = useIsNarrow('(max-width: 640px)')
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
+  const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -110,6 +113,27 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-grey"
           style={{ position: 'fixed', bottom: isMobile ? 12 : 18, left: isMobile ? 14 : 20, zIndex: 30, fontSize: isMobile ? 8 : 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: isMobile ? '5px 12px' : '7px 16px' }}>
           Log Out
+        </button>
+
+        {/* War Room — staff entry to the Partner CRM, top right */}
+        <button
+          className="no-drag"
+          title="War Room — Partner CRM"
+          onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
+          style={{
+            position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20,
+            display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+            background: 'rgba(12,13,14,0.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255,255,255,0.16)', borderRadius: 10,
+            padding: isMobile ? '6px 10px' : '8px 14px', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { const t = e.currentTarget as HTMLElement; t.style.borderColor = 'rgba(255,47,0,0.6)'; t.style.boxShadow = '0 0 18px rgba(255,47,0,0.18)' }}
+          onMouseLeave={e => { const t = e.currentTarget as HTMLElement; t.style.borderColor = 'rgba(255,255,255,0.16)'; t.style.boxShadow = 'none' }}
+        >
+          <Reticle size={isMobile ? 15 : 19} />
+          <span style={{ fontFamily: "'Chakra Petch', sans-serif", color: 'rgba(255,255,255,0.9)', fontSize: isMobile ? 7 : 8.5, letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, paddingLeft: '0.3em' }}>
+            War Room
+          </span>
         </button>
 
         {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
@@ -244,7 +268,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       <Project7Mark />
 
       {/* Director portal teaser — shown until the portal is built */}
-      {capitalOpen && <CapitalPortal onClose={() => setCapitalOpen(false)} />}
+      {capitalOpen && <CapitalPortal initialPillar={capitalStart} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
 
       {/* ── New project modal ── */}
       {showNew && (
