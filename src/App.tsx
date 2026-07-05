@@ -82,7 +82,7 @@ export default function App() {
                     ⊞ Manage
                   </button>
                 )}
-                <button className="glass-btn glass-btn-red" onClick={handleLogout}
+                <button className="glass-btn glass-btn-grey" onClick={handleLogout}
                   style={{ fontSize: 6.5, letterSpacing: '0.20em', textTransform: 'uppercase', padding: '5px 11px', whiteSpace: 'nowrap' }}>
                   Log Out
                 </button>

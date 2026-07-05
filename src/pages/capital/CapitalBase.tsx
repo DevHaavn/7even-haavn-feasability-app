@@ -58,8 +58,8 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
       background: 'linear-gradient(rgba(3,3,3,0.30), rgba(3,3,3,0.55) 70%, rgba(3,3,3,0.78)), url(/capital-bg.png) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+      {/* Header — same treatment as the site footer */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
         <img src="/winged-device-white.png" alt="7EVEN Capital" draggable={false} style={{ width: 44, height: 'auto' }} />
         <div>
           <p style={{ color: '#C4973A', fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>7EVEN Capital</p>
@@ -67,7 +67,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
         </div>
         <button onClick={onClose} className="glass-btn"
           style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
-          ✕ Return to Studio
+          Deploy Studio
         </button>
       </div>
 
@@ -104,7 +104,8 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ color: p.color, fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, boxShadow: `0 0 10px ${p.color}` }} />
+                <span className={p.id === 'budgets' ? 'xero-pulse' : undefined}
+                  style={{ width: 8, height: 8, borderRadius: '50%', background: p.id === 'budgets' ? '#13B5EA' : p.color, boxShadow: `0 0 10px ${p.id === 'budgets' ? '#13B5EA' : p.color}` }} />
               </div>
               <div>
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>

@@ -31,7 +31,7 @@ export default function CapitalGate({ onAuth, onClose }: { onAuth: () => void; o
       {/* Return to studio */}
       <button onClick={onClose} className="glass-btn"
         style={{ position: 'absolute', top: 24, right: 32, zIndex: 2, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
-        ✕ Return to Studio
+        Deploy Studio
       </button>
 
       {/* Wings */}
