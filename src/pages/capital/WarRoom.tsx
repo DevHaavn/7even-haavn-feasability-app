@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useStore } from '../../store'
 import WarMark, { Reticle, WAR_RED } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
+import WarPipeline from './WarPipeline'
 
 // ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Stealth command environment: obsidian surfaces, black-chrome mark, one red
@@ -107,7 +108,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
   )
 }
 
-type View = 'command' | 'range' | 'contacts' | 'logistics'
+type View = 'command' | 'pipeline' | 'range' | 'contacts' | 'logistics'
 
 export default function WarRoom() {
   const { projects } = useStore()
@@ -206,7 +207,7 @@ export default function WarRoom() {
         </p>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           {DIVISIONS.map(d => (
-            <button key={d.id} onClick={() => setDivision(d.id)}
+            <button key={d.id} onClick={() => { setDivision(d.id); if (view === 'logistics' && d.id !== 'haavn-homes') setView('command') }}
               className={division === d.id ? 'wr-btn wr-solid wr-hot' : 'wr-btn'}
               style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : SMOKE }}>
               {d.short}
@@ -218,8 +219,9 @@ export default function WarRoom() {
       {/* View tabs */}
       <div style={{ display: 'flex', gap: 26, borderBottom: `1px solid ${STEEL}` }}>
         {hudTab('command', 'Command')}
+        {hudTab('pipeline', 'Pipeline')}
         {hudTab('range', 'The Range')}
-        {hudTab('logistics', 'HAAVN Logistics')}
+        {division === 'haavn-homes' && hudTab('logistics', 'Logistics')}
         {hudTab('contacts', 'Contacts')}
       </div>
 
@@ -404,6 +406,9 @@ export default function WarRoom() {
           ))}
         </div>
       )}
+
+      {/* ── PIPELINE — division-specific workflow ── */}
+      {view === 'pipeline' && <WarPipeline division={division} />}
 
       {/* ── HAAVN LOGISTICS ── */}
       {view === 'logistics' && <HaavnLogistics />}

@@ -121,7 +121,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           className="no-drag glass-btn"
           title="War Room — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 104 : 140, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px', display: 'inline-flex', alignItems: 'center' }}
+          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 104 : 140, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px', display: 'inline-flex', alignItems: 'center', border: 'none', boxShadow: '0 6px 18px rgba(0,0,0,0.35)' }}
         >
           <WarMark width={isMobile ? 74 : 96} />
         </button>
