@@ -3,7 +3,7 @@ import { useStore } from '../store'
 import { Wordmark, Project7Mark } from '../components/ui'
 import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
-import PortalComingSoon from '../components/PortalComingSoon'
+import CapitalPortal from './capital/CapitalPortal'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -46,7 +46,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const isNarrow = useIsNarrow()
   const isMobile = useIsNarrow('(max-width: 640px)')
   const [showNew, setShowNew] = useState(false)
-  const [portalOpen, setPortalOpen] = useState(false)
+  const [capitalOpen, setCapitalOpen] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -96,8 +96,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         {/* Winged device — future investor portal entry (compact on mobile) */}
         <button
           className="no-drag"
-          title="Director Portal — coming soon"
-          onClick={() => setPortalOpen(true)}
+          title="7EVEN Capital — Capital Base"
+          onClick={() => setCapitalOpen(true)}
           style={{ position: 'absolute', top: isMobile ? 12 : 22, left: isMobile ? 14 : 40, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
@@ -244,7 +244,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       <Project7Mark />
 
       {/* Director portal teaser — shown until the portal is built */}
-      {portalOpen && <PortalComingSoon onClose={() => setPortalOpen(false)} />}
+      {capitalOpen && <CapitalPortal onClose={() => setCapitalOpen(false)} />}
 
       {/* ── New project modal ── */}
       {showNew && (
