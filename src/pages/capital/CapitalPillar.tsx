@@ -1,6 +1,7 @@
 import React from 'react'
 import { DesignCredit } from '../../components/ui'
 import type { Pillar } from './CapitalBase'
+import BudgetsAdmin from './BudgetsAdmin'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
  *  opens here. This is the shell we'll build each module into. */
@@ -27,7 +28,8 @@ export default function CapitalPillar({ pillar, onBack, onClose }: { pillar: Pil
         </button>
       </div>
 
-      {/* Body — scaffold */}
+      {/* Body — live module, or scaffold for pillars not yet built */}
+      {pillar.id === 'budgets' ? <BudgetsAdmin /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>
@@ -43,6 +45,7 @@ export default function CapitalPillar({ pillar, onBack, onClose }: { pillar: Pil
           This pillar is the foundation of the Capital back-of-house. We'll build its screens, data and links to the feasibility projects here, step by step.
         </p>
       </div>
+      )}
 
       <DesignCredit style={{ padding: '20px 0 24px', color: 'rgba(255,255,255,0.22)' }} />
     </div>
