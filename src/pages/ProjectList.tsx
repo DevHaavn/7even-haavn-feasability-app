@@ -5,7 +5,6 @@ import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
-import WarMark from './capital/WarMark'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -115,15 +114,15 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* War Room — staff entry to the Partner CRM. Clear glass plate in the
-            footer, between the site links and the Project 7 mark. */}
+        {/* HAAVN Management — staff entry to the Partner CRM (War Room).
+            Glass login button, top-right of the main app page. */}
         <button
           className="no-drag glass-btn"
-          title="War Room — Partner CRM"
+          title="HAAVN Management — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 104 : 140, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px', display: 'inline-flex', alignItems: 'center', border: 'none', boxShadow: '0 6px 18px rgba(0,0,0,0.35)' }}
+          style={{ position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20, padding: isMobile ? '7px 12px' : '10px 16px', display: 'inline-flex', alignItems: 'center' }}
         >
-          <WarMark width={isMobile ? 74 : 96} />
+          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: isMobile ? 15 : 19, width: 'auto', display: 'block' }} />
         </button>
 
         {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
