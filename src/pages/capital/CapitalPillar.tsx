@@ -36,6 +36,9 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
             ? <WarMark width={110} />
             : <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>}
         </div>
+        {pillar.id === 'crm' && (
+          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', marginLeft: 'auto', opacity: 0.9 }} />
+        )}
       </div>
 
       {/* Body — live module, or scaffold for pillars not yet built */}

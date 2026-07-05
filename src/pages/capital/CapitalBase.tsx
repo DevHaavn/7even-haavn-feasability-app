@@ -108,6 +108,9 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
               </div>
               <div>
+                {p.id === 'crm' && (
+                  <img src="/hm-device-white.png" alt="HAAVN Management CRM" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />
+                )}
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.id === 'crm' ? 'rgba(255,255,255,0.88)' : p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
