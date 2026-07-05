@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { DesignCredit } from '../../components/ui'
+import { Project7Mark } from '../../components/ui'
+import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
@@ -54,7 +55,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
-      background: 'radial-gradient(ellipse 90% 60% at 50% 30%, rgba(196,151,58,0.10) 0%, rgba(8,7,4,0.86) 55%, rgba(3,3,3,0.94) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303',
+      background: 'linear-gradient(rgba(3,3,3,0.30), rgba(3,3,3,0.55) 70%, rgba(3,3,3,0.78)), url(/capital-bg.png) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Header */}
@@ -86,36 +87,49 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
         {/* Gold divider */}
         <div style={{ height: 1, background: 'linear-gradient(to right, transparent, #C4973A 30%, #C4973A 70%, transparent)', maxWidth: 320, margin: '0 auto 44px' }} />
 
-        {/* Pillars */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        {/* Pillars — portrait columns falling down the screen */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, alignItems: 'stretch' }}>
           {PILLARS.map(p => (
             <button key={p.id} onClick={() => setPillar(p.id)}
               className="cap-pillar"
               style={{
-                textAlign: 'left', cursor: 'pointer',
-                border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16,
-                background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                padding: '28px 26px', display: 'flex', flexDirection: 'column', gap: 14,
-                transition: 'all 0.2s', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+                textAlign: 'left', cursor: 'pointer', minHeight: '52vh',
+                border: '1px solid rgba(255,255,255,0.10)', borderRadius: 18,
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.25))',
+                backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 16,
+                transition: 'all 0.2s', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)',
               }}
-              onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.background = 'rgba(255,255,255,0.06)'; t.style.transform = 'translateY(-3px)' }}
-              onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.background = 'rgba(255,255,255,0.03)'; t.style.transform = 'translateY(0)' }}>
+              onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${p.color}22` }}
+              onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ color: p.color, fontFamily: 'monospace', fontSize: 22, fontWeight: 700 }}>{p.num}</span>
+                <span style={{ color: p.color, fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, boxShadow: `0 0 10px ${p.color}` }} />
               </div>
               <div>
-                <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 18, letterSpacing: '0.04em', margin: '0 0 6px' }}>{p.title}</h2>
+                <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
-              <p style={{ color: '#888', fontSize: 12, lineHeight: 1.6, margin: 0 }}>{p.blurb}</p>
-              <span style={{ marginTop: 'auto', color: p.color, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />
+              <p style={{ color: '#999', fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{p.blurb}</p>
+
+              {p.id === 'budgets' && (
+                // Xero — the accounts backbone of the Budgets pillar
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
+                  <img src="/xero-logo.png" alt="Xero" draggable={false}
+                    style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
+                </div>
+              )}
+
+              <span style={{ marginTop: p.id === 'budgets' ? 0 : 'auto', color: p.color, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
             </button>
           ))}
         </div>
       </div>
 
-      <DesignCredit style={{ padding: '20px 0 24px', color: 'rgba(255,255,255,0.22)' }} />
+      <SiteLinks />
+      <Project7Mark />
 
       {/* Log out of Capital — bottom left, matches the studio's button but glows soft grey */}
       <button onClick={onLogout} className="glass-btn glass-btn-grey"
