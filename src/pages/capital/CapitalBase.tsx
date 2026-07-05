@@ -21,7 +21,7 @@ export const PILLARS: Pillar[] = [
     id: 'budgets', num: '01', title: 'Budgets / Administration',
     sub: 'Accounts · Budgets · Invoices · Approvals',
     blurb: 'Project budgets, cost tracking against feasibility, invoice register, approvals and the accounts backbone.',
-    color: '#C4973A',
+    color: '#13B5EA', // Xero brand blue
   },
   {
     id: 'deployment', num: '02', title: 'Capital Deployment',
@@ -105,7 +105,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
                 <span className={p.id === 'budgets' ? 'xero-pulse' : undefined}
-                  style={{ width: 8, height: 8, borderRadius: '50%', background: p.id === 'budgets' ? '#13B5EA' : p.color, boxShadow: `0 0 10px ${p.id === 'budgets' ? '#13B5EA' : p.color}` }} />
+                  style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, boxShadow: `0 0 10px ${p.color}` }} />
               </div>
               <div>
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
@@ -123,7 +123,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
                 </div>
               )}
 
-              <span style={{ marginTop: p.id === 'budgets' ? 0 : 'auto', color: p.color, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <span className="chrome-black-text" style={{ marginTop: p.id === 'budgets' ? 0 : 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
             </button>
           ))}
         </div>
