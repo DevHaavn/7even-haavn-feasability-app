@@ -33,8 +33,10 @@ module.exports = async (req, res) => {
     return
   }
 
-  const clientId = process.env.XERO_CLIENT_ID
-  const clientSecret = process.env.XERO_CLIENT_SECRET
+  // trim() guards against stray whitespace/newlines picked up when the
+  // values were pasted into the env-var prompts
+  const clientId = (process.env.XERO_CLIENT_ID || '').trim()
+  const clientSecret = (process.env.XERO_CLIENT_SECRET || '').trim()
   if (!clientId || !clientSecret) {
     res.status(503).send('Xero credentials are not configured.')
     return
