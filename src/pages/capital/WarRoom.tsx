@@ -184,12 +184,8 @@ export default function WarRoom() {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           {DIVISIONS.map(d => (
             <button key={d.id} onClick={() => setDivision(d.id)}
-              style={{
-                ...HUD, cursor: 'pointer', borderRadius: 6, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700,
-                background: division === d.id ? '#1B1C1F' : 'transparent',
-                border: `1px solid ${division === d.id ? WAR_RED : STEEL}`,
-                color: division === d.id ? '#fff' : SMOKE,
-              }}>
+              className={division === d.id ? 'wr-btn wr-solid wr-hot' : 'wr-btn'}
+              style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : SMOKE }}>
               {d.short}
             </button>
           ))}
@@ -261,7 +257,8 @@ export default function WarRoom() {
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
             <p style={{ ...labelStyle, fontSize: 9, marginBottom: 0 }}>{DIVISIONS.find(d => d.id === division)!.name} · The Range</p>
             <button onClick={() => setShowAdd(s => !s)}
-              style={{ ...HUD, marginLeft: 'auto', cursor: 'pointer', borderRadius: 6, padding: '8px 16px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, background: showAdd ? 'transparent' : WAR_RED, color: '#fff', border: showAdd ? `1px solid ${STEEL}` : 'none' }}>
+              className={showAdd ? 'wr-btn' : 'wr-btn wr-solid wr-hot'}
+              style={{ ...HUD, marginLeft: 'auto', padding: '8px 16px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
               {showAdd ? 'Close' : '+ Paint Target'}
             </button>
           </div>
@@ -281,8 +278,8 @@ export default function WarRoom() {
                 </div>
                 <div><label style={labelStyle}>Notes</label><input value={fNotes} onChange={e => setFNotes(e.target.value)} placeholder="Intel" style={inputStyle} /></div>
               </div>
-              <button onClick={addTarget}
-                style={{ ...HUD, marginTop: 14, cursor: 'pointer', borderRadius: 6, padding: '9px 22px', fontSize: 9, letterSpacing: '0.22em', fontWeight: 700, background: WAR_RED, color: '#fff', border: 'none' }}>
+              <button onClick={addTarget} className="wr-btn wr-solid wr-hot"
+                style={{ ...HUD, marginTop: 14, padding: '9px 22px', fontSize: 9, letterSpacing: '0.22em', fontWeight: 700, color: '#fff' }}>
                 Paint It
               </button>
             </div>
@@ -335,8 +332,8 @@ export default function WarRoom() {
             <input value={cRole} onChange={e => setCRole(e.target.value)} placeholder="Role" style={inputStyle} />
             <input value={cPhone} onChange={e => setCPhone(e.target.value)} placeholder="Phone" style={inputStyle} />
             <input value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="Email" style={inputStyle} />
-            <button onClick={addContact}
-              style={{ ...HUD, cursor: 'pointer', borderRadius: 6, padding: '8px 0', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, background: '#1B1C1F', color: '#fff', border: `1px solid ${STEEL}` }}>
+            <button onClick={addContact} className="wr-btn wr-solid"
+              style={{ ...HUD, padding: '8px 0', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
               + Add
             </button>
           </div>

@@ -25,10 +25,11 @@ function Reticle({ size = 90 }: { size?: number }) {
 export default function WarMark({ width = 320, icon = false }: { width?: number; icon?: boolean }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   if (icon) return <Reticle size={width} />
-  // Real Archivo Black metrics at 124px: WAR ≈ 311 wide, ROOM ≈ 409 wide.
-  // Aperture sits between the two R's at cx=321; both words fully in frame.
+  // Geometry from the v2 brand doc (viewBox 0 22 686 104, aperture cx 288).
+  // textLength pins WAR/ROOM to the doc's design widths so the lockup renders
+  // identically before, during and after the webfont loads — no clipped M.
   return (
-    <svg viewBox="0 0 740 150" width={width} height={width * 150 / 740} role="img" aria-label="War Room" style={{ overflow: 'visible' }}>
+    <svg viewBox="0 22 686 104" width={width} height={width * 104 / 686} role="img" aria-label="War Room" style={{ overflow: 'visible' }}>
       <defs>
         <linearGradient id={`chrome_${uid}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#cfd2d6" /><stop offset=".15" stopColor="#83878e" />
@@ -37,15 +38,15 @@ export default function WarMark({ width = 320, icon = false }: { width?: number;
           <stop offset="1" stopColor="#9a9ea5" />
         </linearGradient>
         <mask id={`cut_${uid}`}>
-          <rect x="0" y="0" width="740" height="150" fill="white" />
-          <circle cx="321" cy="74" r="45" fill="black" />
+          <rect x="-20" y="-20" width="726" height="200" fill="white" />
+          <circle cx="288" cy="74" r="45" fill="black" />
         </mask>
       </defs>
       <g mask={`url(#cut_${uid})`} fontFamily="'Archivo Black',sans-serif" fontSize="124" letterSpacing="-3">
-        <text x="319" y="116" textAnchor="end" fill={`url(#chrome_${uid})`}>WAR</text>
-        <text x="323" y="116" textAnchor="start" fill={`url(#chrome_${uid})`}>ROOM</text>
+        <text x="286" y="116" textAnchor="end" textLength="260" lengthAdjust="spacingAndGlyphs" fill={`url(#chrome_${uid})`}>WAR</text>
+        <text x="290" y="116" textAnchor="start" textLength="344" lengthAdjust="spacingAndGlyphs" fill={`url(#chrome_${uid})`}>ROOM</text>
       </g>
-      <g transform="translate(321,74)">
+      <g transform="translate(288,74)">
         <g fill="none" strokeLinecap="round">
           <circle r="40" stroke="#2E2F33" strokeWidth="1.2" />
           <circle r="31" stroke={RED} strokeWidth="1.6" strokeDasharray="3 4" opacity="0.6" />

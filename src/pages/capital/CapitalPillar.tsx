@@ -4,6 +4,7 @@ import type { Pillar } from './CapitalBase'
 import BudgetsAdmin from './BudgetsAdmin'
 import WarRoom from './WarRoom'
 import WarMark from './WarMark'
+import CapitalDeployment from './CapitalDeployment'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
  *  opens here. This is the shell we'll build each module into. */
@@ -29,7 +30,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout }: { pillar: Pi
       </div>
 
       {/* Body — live module, or scaffold for pillars not yet built */}
-      {pillar.id === 'budgets' ? <BudgetsAdmin /> : pillar.id === 'crm' ? <WarRoom /> : (
+      {pillar.id === 'budgets' ? <BudgetsAdmin /> : pillar.id === 'crm' ? <WarRoom /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>

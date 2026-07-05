@@ -26,9 +26,9 @@ export const PILLARS: Pillar[] = [
   },
   {
     id: 'deployment', num: '02', title: 'Capital Deployment',
-    sub: 'Funding · Drawdowns · Equity & Debt',
-    blurb: 'Capital allocation across projects, funding rounds, drawdown schedules, equity and debt tracking.',
-    color: '#3DAA6A',
+    sub: 'Capital Command Centre · Raise · Deploy',
+    blurb: 'The capital command centre. Requirement, committed and deployed across every stage of every project — with partners and upcoming calls.',
+    color: '#1FE87A',
   },
   {
     id: 'crm', num: '03', title: 'War Room',

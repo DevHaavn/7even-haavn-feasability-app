@@ -216,6 +216,21 @@ input[type="checkbox"] {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 26px rgba(0,0,0,0.45), 0 0 20px rgba(200,200,200,0.20);
 }
 
+/* ── War Room brand buttons (from the WAR ROOM design doc) ── */
+.wr-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1px solid #303238; border-radius: 6px;
+  background: linear-gradient(180deg, #1a1b1f, #0f1012);
+  padding: 10px 18px; cursor: pointer;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+}
+.wr-btn:hover { border-color: #43464d; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+.wr-btn.wr-solid { background: linear-gradient(180deg, #232428, #141518); }
+.wr-btn.wr-hot { border-color: rgba(255,47,0,0.5); }
+.wr-btn.wr-hot:hover { border-color: #FF2F00; box-shadow: 0 8px 20px rgba(0,0,0,.4), 0 0 16px rgba(255,47,0,0.25); }
+.wr-btn.wr-green { border-color: rgba(31,232,122,0.35); }
+.wr-btn.wr-green:hover { border-color: #1FE87A; box-shadow: 0 8px 20px rgba(0,0,0,.4), 0 0 16px rgba(31,232,122,0.2); }
+
 /* Black-chrome metallic text — stealth numerals on the Capital pillars */
 .chrome-black-text {
   background: linear-gradient(180deg, #E2E2E2 0%, #8F8F8F 24%, #2B2B2B 48%, #757575 60%, #0C0C0C 100%);
