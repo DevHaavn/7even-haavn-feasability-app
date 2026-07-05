@@ -178,6 +178,7 @@ type View = 'dashboard' | 'entry' | 'transactions' | 'projects'
 
 export default function BudgetsAdmin() {
   const { projects } = useStore()
+  const [hadStored] = useState(() => !!localStorage.getItem(STORE_KEY))
   const [data, setData] = useState<AdminData>(loadData)
   const [sel, setSel] = useState<string>('group')        // 'group' or entity id
   const [view, setView] = useState<View>('dashboard')
@@ -203,6 +204,18 @@ export default function BudgetsAdmin() {
   const c = useMemo(() => (isGroup ? calcGroup(entities, through) : entity ? calcEntity(entity, through) : calcGroup(entities, through)), [entities, sel, through])
 
   function update(next: AdminData) { setData(next); saveData(next) }
+
+  // First-ever open with no shared copy: push the imported baseline so the whole
+  // team (and Daniel) start from the same live dataset.
+  useEffect(() => { if (!hadStored) saveData(data) }, [])
+
+  // Live: when a teammate saves, the portal refreshes localStorage and fires this
+  // event — re-read so open dashboards reflect their edits without a reload.
+  useEffect(() => {
+    const onRemote = () => setData(loadData())
+    window.addEventListener('capital-cloud-updated', onRemote)
+    return () => window.removeEventListener('capital-cloud-updated', onRemote)
+  }, [])
 
   // Group can only show the dashboard
   useEffect(() => { if (isGroup && view !== 'dashboard') setView('dashboard') }, [isGroup, view])

@@ -18,7 +18,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // The blob keys owned by the Capital Base. Only these are hydrated on pull.
 export const CAPITAL_KEYS = [
-  'capital_admin_v2',    // Budgets / Administration
+  'capital_admin_v3',    // Budgets / Administration (CFO model — live shared)
+  'capital_admin_v2',    // Budgets / Administration (legacy)
   'capital_deploy_v2',   // Capital Command Centre
   'war_room_v1',         // War Room — targets, contacts, signal feed
   'war_pipeline_v1',     // Division pipelines + workflow jobs
