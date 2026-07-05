@@ -74,18 +74,18 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
       {/* Body */}
       <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
         <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 8, textAlign: 'center' }}>Precision Capital Deployed</p>
-        <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(24px, 4vw, 38px)', letterSpacing: '0.06em', textAlign: 'center', margin: '0 0 6px' }}>
-          Administration &amp; Capital Command
+        <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(24px, 4vw, 38px)', letterSpacing: '0.10em', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 6px' }}>
+          Administration Base
         </h1>
-        <p style={{ color: '#777', fontSize: 12, textAlign: 'center', margin: '0 0 8px' }}>
+        <p style={{ color: '#A7A7A7', fontSize: 12, textAlign: 'center', margin: '0 0 8px' }}>
           Three pillars for the accounts, capital and partner teams — linked to the feasibility studio.
         </p>
-        <p style={{ color: '#555', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 44 }}>
+        <p style={{ color: '#777', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 44 }}>
           {projects.length} live project{projects.length !== 1 ? 's' : ''} · {fmtM(totalTDC)} land committed
         </p>
 
-        {/* Gold divider */}
-        <div style={{ height: 1, background: 'linear-gradient(to right, transparent, #C4973A 30%, #C4973A 70%, transparent)', maxWidth: 320, margin: '0 auto 44px' }} />
+        {/* Black-chrome divider */}
+        <div style={{ height: 2, borderRadius: 2, background: 'linear-gradient(to right, transparent, #3A3A3A 16%, #D9D9D9 50%, #3A3A3A 84%, transparent)', boxShadow: '0 1px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.05)', maxWidth: 320, margin: '0 auto 44px' }} />
 
         {/* Pillars — portrait columns falling down the screen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, alignItems: 'stretch' }}>
@@ -103,7 +103,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${p.color}22` }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ color: p.color, fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
+                <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
                 <span className={p.id === 'budgets' ? 'xero-pulse' : undefined}
                   style={{ width: 8, height: 8, borderRadius: '50%', background: p.id === 'budgets' ? '#13B5EA' : p.color, boxShadow: `0 0 10px ${p.id === 'budgets' ? '#13B5EA' : p.color}` }} />
               </div>

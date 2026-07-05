@@ -215,6 +215,16 @@ input[type="checkbox"] {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 26px rgba(0,0,0,0.45), 0 0 20px rgba(200,200,200,0.20);
 }
 
+/* Black-chrome metallic text — stealth numerals on the Capital pillars */
+.chrome-black-text {
+  background: linear-gradient(180deg, #E2E2E2 0%, #8F8F8F 24%, #2B2B2B 48%, #757575 60%, #0C0C0C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(255,255,255,0.06));
+}
+
 /* Soft Xero-blue breathing light — Budgets pillar status dot */
 @keyframes xero-pulse {
   0%, 100% { box-shadow: 0 0 6px rgba(19,181,234,0.30); opacity: 0.55; }
