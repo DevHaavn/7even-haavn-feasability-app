@@ -115,14 +115,17 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </button>
 
         {/* HAAVN Management — staff entry to the Partner CRM (War Room).
-            Glass login button, top-right of the main app page. */}
+            The device IS the button, clean to its edges, mirroring the wings
+            top-left — no plate. */}
         <button
-          className="no-drag glass-btn"
+          className="no-drag"
           title="HAAVN Management — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20, padding: isMobile ? '7px 12px' : '10px 16px', display: 'inline-flex', alignItems: 'center' }}
+          style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s', lineHeight: 0 }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
         >
-          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: isMobile ? 15 : 19, width: 'auto', display: 'block' }} />
+          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: isMobile ? 16 : 22, width: 'auto', display: 'block' }} />
         </button>
 
         {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
