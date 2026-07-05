@@ -43,7 +43,7 @@ export default function CapitalBase({ onClose, onLogout }: { onClose: () => void
 
   if (pillar) {
     const p = PILLARS.find(x => x.id === pillar)!
-    return <CapitalPillar pillar={p} onBack={() => setPillar(null)} onClose={onClose} />
+    return <CapitalPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} />
   }
 
   // A small live figure from the projects to show the Capital ↔ Projects link

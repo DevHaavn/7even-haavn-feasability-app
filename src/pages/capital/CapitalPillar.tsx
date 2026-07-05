@@ -5,7 +5,7 @@ import BudgetsAdmin from './BudgetsAdmin'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
  *  opens here. This is the shell we'll build each module into. */
-export default function CapitalPillar({ pillar, onBack, onClose }: { pillar: Pillar; onBack: () => void; onClose: () => void }) {
+export default function CapitalPillar({ pillar, onBack, onLogout }: { pillar: Pillar; onBack: () => void; onLogout: () => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
@@ -22,10 +22,6 @@ export default function CapitalPillar({ pillar, onBack, onClose }: { pillar: Pil
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
           <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>
         </div>
-        <button onClick={onClose} className="glass-btn"
-          style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
-          ✕ Studio
-        </button>
       </div>
 
       {/* Body — live module, or scaffold for pillars not yet built */}
@@ -48,6 +44,12 @@ export default function CapitalPillar({ pillar, onBack, onClose }: { pillar: Pil
       )}
 
       <DesignCredit style={{ padding: '20px 0 24px', color: 'rgba(255,255,255,0.22)' }} />
+
+      {/* Quick secure exit — matches the hub's grey-glow logout */}
+      <button onClick={onLogout} className="glass-btn glass-btn-grey"
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
+        Log Out
+      </button>
     </div>
   )
 }
