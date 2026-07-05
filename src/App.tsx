@@ -61,7 +61,7 @@ export default function App() {
 
   return (
     <RoleContext.Provider value={role}>
-      {dashboardBrand ? (
+      {dashboardBrand && (dashboardBrand === 'haavn' || role === 'admin') ? (
         <div className="h-screen flex flex-col bg-charcoal overflow-hidden">
           <Dashboard onBack={() => setDashboardBrand(null)} brand={dashboardBrand} />
         </div>
@@ -101,7 +101,11 @@ export default function App() {
 
           {activeProjectId
             ? <ProjectWorkspace />
-            : <ProjectList onLogout={handleLogout} onDashboard={role === 'admin' ? (brand) => setDashboardBrand(brand) : undefined} />
+            : <ProjectList onLogout={handleLogout} onDashboard={(brand) => {
+                // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
+                if (brand === '7even' && role !== 'admin') return
+                setDashboardBrand(brand)
+              }} />
           }
         </div>
       )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { DesignCredit } from '../components/ui'
+import InstallButton from '../components/InstallButton'
 import { setStoredRole, EXTERNAL_PASSWORD } from '../lib/role'
 
 const CORRECT = '7Evenhaavn!!!'
@@ -135,6 +136,11 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
         >
           Deploy
         </button>
+      </div>
+
+      {/* Add to Desktop */}
+      <div style={{ marginTop: 30 }}>
+        <InstallButton />
       </div>
 
       {/* Bottom brand */}

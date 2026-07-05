@@ -226,7 +226,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {role === 'admin' && <>
+              {/* HAAVN dashboard is available to consultants too (not just admin) */}
+              <>
                 <button onClick={() => onDashboard?.('haavn')}
                   style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.20)', background: 'transparent', border: 'none', padding: '5px 4px', cursor: 'pointer', transition: 'all 0.2s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
@@ -234,7 +235,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                   ▦ Dashboard
                 </button>
                 <div style={{ width: 1, height: 10, background: '#1C1C1C' }} />
-              </>}
+              </>
               <button onClick={() => openNew('haavn')} className="glass-btn"
                 style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '6px 16px', color: 'rgba(255,255,255,0.8)' }}>
                 + New
