@@ -115,13 +115,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* War Room — staff entry to the Partner CRM. Sits quietly in the
-            footer between the site links and the Project 7 mark. */}
+        {/* War Room — staff entry to the Partner CRM. Clear glass plate in the
+            footer, between the site links and the Project 7 mark. */}
         <button
-          className="no-drag wr-btn"
+          className="no-drag glass-btn"
           title="War Room — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 68 : 100, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px' }}
+          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 104 : 140, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px', display: 'inline-flex', alignItems: 'center' }}
         >
           <WarMark width={isMobile ? 74 : 96} />
         </button>

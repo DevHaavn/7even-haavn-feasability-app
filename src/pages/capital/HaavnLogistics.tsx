@@ -89,6 +89,7 @@ export default function HaavnLogistics() {
             + New Order
           </button>
         </div>
+        <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 900 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '96px minmax(110px,1fr) 68px minmax(150px,1.4fr) 94px minmax(130px,1.1fr) 80px 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
           {['Order', 'Homes', 'Qty', 'Vessel · Route', 'Containers', 'Stage', 'ETA', ''].map((h, i) => (
             <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700 }}>{h}</span>
@@ -109,6 +110,7 @@ export default function HaavnLogistics() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
           </div>
         ))}
+        </div></div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>

@@ -1,5 +1,6 @@
 import React from 'react'
-import { DesignCredit } from '../../components/ui'
+import { Project7Mark } from '../../components/ui'
+import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdmin from './BudgetsAdmin'
 import WarRoom from './WarRoom'
@@ -16,8 +17,8 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       background: 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(196,151,58,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+      {/* Header — same treatment as the main-page footer */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
         {pillar.id === 'crm' ? (
           <button onClick={onExit} className="glass-btn"
             style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
@@ -56,7 +57,8 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       </div>
       )}
 
-      <DesignCredit style={{ padding: '20px 0 24px', color: 'rgba(255,255,255,0.22)' }} />
+      <SiteLinks />
+      <Project7Mark />
 
       {/* Quick secure exit — matches the hub's grey-glow logout */}
       <button onClick={onLogout} className="glass-btn glass-btn-grey"

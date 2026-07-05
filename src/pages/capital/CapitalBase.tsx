@@ -109,7 +109,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
               </div>
               <div>
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
-                <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
+                <p style={{ color: p.id === 'crm' ? 'rgba(255,255,255,0.88)' : p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
               <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />
               <p style={{ color: '#999', fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{p.blurb}</p>

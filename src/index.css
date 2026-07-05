@@ -241,6 +241,16 @@ input[type="checkbox"] {
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(255,255,255,0.06));
 }
 
+/* Capital modules — tighter frame on phones */
+@media (max-width: 640px) {
+  .cap-module {
+    padding: 20px 12px 56px !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
+
 /* Soft Xero-blue breathing light — Budgets pillar status dot */
 @keyframes xero-pulse {
   0%, 100% { box-shadow: 0 0 6px rgba(19,181,234,0.30); opacity: 0.55; }

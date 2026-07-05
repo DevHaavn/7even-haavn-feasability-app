@@ -48,7 +48,8 @@ interface Contact {
   email: string
 }
 
-interface WarData { targets: Target[]; contacts: Contact[]; seq: number }
+interface FeedSignal { text: string; tag: string; when: string }
+interface WarData { targets: Target[]; contacts: Contact[]; seq: number; feed?: FeedSignal[] }
 
 const STORE_KEY = 'war_room_v1'
 const load = (): WarData => {
@@ -121,6 +122,9 @@ export default function WarRoom() {
   const [fValue, setFValue] = useState('')
   const [fProject, setFProject] = useState('')
   const [fNotes, setFNotes] = useState('')
+  // signal feed form
+  const [fSignal, setFSignal] = useState('')
+  const [fSignalTag, setFSignalTag] = useState('CAPITAL')
   // new-contact form
   const [cName, setCName] = useState(''); const [cCompany, setCCompany] = useState('')
   const [cRole, setCRole] = useState(''); const [cPhone, setCPhone] = useState(''); const [cEmail, setCEmail] = useState('')
@@ -173,6 +177,11 @@ export default function WarRoom() {
     setCName(''); setCCompany(''); setCRole(''); setCPhone(''); setCEmail('')
   }
   function removeContact(id: string) { update({ ...data, contacts: data.contacts.filter(c => c.id !== id) }) }
+  function logSignal() {
+    if (!fSignal.trim()) return
+    update({ ...data, feed: [{ text: fSignal.trim(), tag: fSignalTag, when: 'now' }, ...(data.feed ?? [])] })
+    setFSignal('')
+  }
 
   const hudTab = (v: View, label: string) => (
     <button key={v} onClick={() => setView(v)}
@@ -187,7 +196,7 @@ export default function WarRoom() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 20, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
+    <div className="cap-module" style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 20, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
 
       {/* Masthead */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', paddingTop: 6 }}>
@@ -262,6 +271,35 @@ export default function WarRoom() {
                 Targets can be linked to any live project — deal-flow lands where the feasibility already lives.
               </p>
             </div>
+
+            {/* Signals & Approvals — the group feed, logged by the team */}
+            <div style={panel}>
+              <p style={{ ...labelStyle, fontSize: 9, marginBottom: 14 }}>◐ Signals &amp; Approvals</p>
+              {(data.feed ?? []).map((sig, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: WAR_RED, marginTop: 5, flexShrink: 0 }} />
+                  <p style={{ color: '#E6E7E9', fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
+                  <span style={{ ...HUD, marginLeft: 'auto', color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.16em', whiteSpace: 'nowrap', paddingTop: 3 }}>{sig.tag} · {sig.when}</span>
+                  <button onClick={() => update({ ...data, feed: (data.feed ?? []).filter((_, idx) => idx !== i) })}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 12 }}>×</button>
+                </div>
+              ))}
+              {(data.feed ?? []).length === 0 && (
+                <p style={{ color: SMOKE_DIM, fontSize: 12 }}>Nothing logged — approvals, slips and wins land here.</p>
+              )}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 104px 64px', gap: 8, marginTop: 12 }}>
+                <input value={fSignal} onChange={e => setFSignal(e.target.value)} placeholder="Log a signal…"
+                  onKeyDown={e => { if (e.key === 'Enter') logSignal() }}
+                  style={inputStyle} />
+                <select value={fSignalTag} onChange={e => setFSignalTag(e.target.value)} style={{ ...inputStyle, fontSize: 10 }}>
+                  {['CAPITAL', 'LOGISTICS', 'PLANNING', 'FEASIBILITY', 'DELIVERY'].map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <button onClick={logSignal} className="wr-btn wr-solid wr-hot"
+                  style={{ ...HUD, color: '#fff', fontSize: 9, letterSpacing: '0.18em', fontWeight: 700, padding: '7px 0' }}>
+                  Log
+                </button>
+              </div>
+            </div>
           </div>
         </>
       )}
@@ -303,7 +341,7 @@ export default function WarRoom() {
           {targets.length === 0 ? (
             <p style={{ color: INK_SOFT, fontSize: 12 }}>The range is clear. Paint the first target.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 560, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {targets.map(t => {
                 const proj = t.projectId ? projects.find(p => p.id === t.projectId) : undefined
                 const hot = t.stage === 'locked'
@@ -329,7 +367,7 @@ export default function WarRoom() {
                   </div>
                 )
               })}
-            </div>
+            </div></div>
           )}
           <p style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', marginTop: 14 }}>
             Painted → Engaged → Locked → Secured · click a status to advance

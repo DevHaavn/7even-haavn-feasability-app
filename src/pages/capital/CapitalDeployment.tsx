@@ -18,7 +18,6 @@ interface CallLine { month: string; amountM: number }
 
 interface Objective { title: string; owner: string; pct: number }
 interface TeamMember { initials: string; name: string; role: string; note: string; status: 'On track' | 'Ahead' | 'Watch' | 'Behind' }
-interface Signal { text: string; tag: string; when: string }
 
 interface DeployData {
   stages: StageLine[]
@@ -29,7 +28,6 @@ interface DeployData {
   velocity: number[]
   objectives: Objective[]
   team: TeamMember[]
-  signals: Signal[]
 }
 
 const SEED: DeployData = {
@@ -69,10 +67,6 @@ const SEED: DeployData = {
     { initials: 'JB', name: 'Jamie B.', role: 'Director', note: 'Capital · Strategy', status: 'On track' },
     { initials: 'DS', name: 'Daniel Sette', role: 'Director · Delivery', note: 'Projects · Site', status: 'On track' },
     { initials: 'LJ', name: 'Lewis Jin', role: 'Director · Capital', note: 'Raise · Partners', status: 'Ahead' },
-  ],
-  signals: [
-    { text: 'Shipment HV-2214 ETA slipped 6 days — crane window needs rebooking.', tag: 'LOGISTICS', when: '2h ago' },
-    { text: 'Next capital call AUG $14M — Construction Equity, Saint Village Preston.', tag: 'CAPITAL', when: '5h ago' },
   ],
 }
 
@@ -164,7 +158,7 @@ export default function CapitalDeployment() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 18, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
+    <div className="cap-module" style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 18, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
 
       {/* Masthead */}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, flexWrap: 'wrap', paddingTop: 8 }}>
@@ -279,23 +273,8 @@ export default function CapitalDeployment() {
             </div>
           </div>
 
-          {/* Signals & objectives roll-up */}
+          {/* Objectives roll-up */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-            <div style={panel}>
-              <p style={panelTitle}>◐ Signals &amp; Approvals</p>
-              <p style={panelSub}>latest movement across the group</p>
-              {data.signals.map((sig, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 0', borderBottom: `1px solid ${STEEL}` }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, marginTop: 5, flexShrink: 0 }} />
-                  <p style={{ color: '#E6E7E9', fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
-                  <span style={{ ...HUD, marginLeft: 'auto', color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.16em', whiteSpace: 'nowrap', paddingTop: 3 }}>{sig.tag} · {sig.when}</span>
-                  <button onClick={() => update({ ...data, signals: data.signals.filter((_, idx) => idx !== i) })}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 12 }}>×</button>
-                </div>
-              ))}
-              <SignalComposer onAdd={(text, tag) => update({ ...data, signals: [{ text, tag, when: 'now' }, ...data.signals] })} />
-            </div>
-
             <div style={panel}>
               <p style={panelTitle}>◎ Director Objectives — Alignment</p>
               <p style={panelSub}>edit under Objectives</p>
@@ -327,6 +306,7 @@ export default function CapitalDeployment() {
               + Add Project
             </button>
           </div>
+          <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 820 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.6fr) minmax(120px,1fr) 118px 118px 118px minmax(110px,1fr) 26px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
             {['Project', 'Type', 'Req $M', 'Raised $M', 'Deployed $M', 'Progress', ''].map((h, i) => (
               <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 2 && i <= 4 ? 'right' : 'left' }}>{h}</span>
@@ -347,6 +327,7 @@ export default function CapitalDeployment() {
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
             </div>
           ))}
+          </div></div>
         </div>
       )}
 
@@ -355,6 +336,7 @@ export default function CapitalDeployment() {
         <div style={fieldPanelS}>
           <p style={fieldTitle}>Capital by Stage</p>
           <p style={fieldSub}>required · raised · deployed per capital stage · $M ex-GST</p>
+          <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 760 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,1.5fr) 118px 118px 118px minmax(140px,1fr)', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
             {['Stage', 'Req $M', 'Raised $M', 'Deployed $M', 'Progress'].map((h, i) => (
               <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 1 && i <= 3 ? 'right' : 'left' }}>{h}</span>
@@ -372,6 +354,7 @@ export default function CapitalDeployment() {
               ]} />
             </div>
           ))}
+          </div></div>
         </div>
       )}
 
@@ -388,6 +371,7 @@ export default function CapitalDeployment() {
               + Add Partner
             </button>
           </div>
+          <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 780 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.4fr) minmax(140px,1.2fr) 118px 118px minmax(130px,1fr) 26px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
             {['Partner', 'Role', 'Committed $M', 'Funded $M', 'Deployment', ''].map((h, i) => (
               <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i === 2 || i === 3 ? 'right' : 'left' }}>{h}</span>
@@ -404,6 +388,7 @@ export default function CapitalDeployment() {
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
             </div>
           ))}
+          </div></div>
         </div>
       )}
 
@@ -506,27 +491,6 @@ export default function CapitalDeployment() {
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-// Small inline composer for the Command signals feed
-function SignalComposer({ onAdd }: { onAdd: (text: string, tag: string) => void }) {
-  const [text, setText] = useState('')
-  const [tag, setTag] = useState('CAPITAL')
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 70px', gap: 8, marginTop: 12 }}>
-      <input value={text} onChange={e => setText(e.target.value)} placeholder="Log a signal…"
-        onKeyDown={e => { if (e.key === 'Enter' && text.trim()) { onAdd(text.trim(), tag); setText('') } }}
-        style={{ background: '#0C0D0E', border: '1px solid #23262A', borderRadius: 6, color: '#E6E7E9', fontSize: 11, padding: '7px 10px', outline: 'none' }} />
-      <select value={tag} onChange={e => setTag(e.target.value)}
-        style={{ background: '#0C0D0E', border: '1px solid #23262A', borderRadius: 6, color: '#9A9CA3', fontSize: 10, padding: '7px 8px', outline: 'none' }}>
-        {['CAPITAL', 'LOGISTICS', 'PLANNING', 'FEASIBILITY', 'DELIVERY'].map(t => <option key={t} value={t}>{t}</option>)}
-      </select>
-      <button className="wr-btn wr-solid wr-green" onClick={() => { if (text.trim()) { onAdd(text.trim(), tag); setText('') } }}
-        style={{ fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase', color: '#fff', fontSize: 9, letterSpacing: '0.18em', fontWeight: 700, padding: '7px 0' }}>
-        Log
-      </button>
     </div>
   )
 }
