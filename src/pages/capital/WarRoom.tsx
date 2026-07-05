@@ -4,6 +4,7 @@ import WarMark, { Reticle, WAR_RED } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
 import WarStock from './WarStock'
+import WarTenders from './WarTenders'
 
 // ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Stealth command environment: obsidian surfaces, black-chrome mark, one red
@@ -108,7 +109,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
   )
 }
 
-type View = 'command' | 'pipeline' | 'stock' | 'range' | 'contacts' | 'logistics'
+type View = 'command' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics'
 
 export default function WarRoom() {
   const { projects } = useStore()
@@ -206,7 +207,7 @@ export default function WarRoom() {
         </p>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           {DIVISIONS.map(d => (
-            <button key={d.id} onClick={() => { setDivision(d.id); if ((view === 'logistics' && d.id !== 'haavn-homes') || (view === 'stock' && d.id !== '7even-dev')) setView('command') }}
+            <button key={d.id} onClick={() => { setDivision(d.id); if ((view === 'logistics' && d.id !== 'haavn-homes') || (view === 'stock' && d.id !== '7even-dev') || (view === 'tenders' && d.id !== 'haavn-mgmt')) setView('command') }}
               className={division === d.id ? 'wr-btn wr-solid wr-hot' : 'wr-btn'}
               style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : INK_SOFT }}>
               {d.short}
@@ -220,6 +221,7 @@ export default function WarRoom() {
         {hudTab('command', 'Command')}
         {hudTab('pipeline', 'Pipeline')}
         {division === '7even-dev' && hudTab('stock', 'Stock')}
+        {division === 'haavn-mgmt' && hudTab('tenders', 'Tenders')}
         {hudTab('range', 'The Range')}
         {division === 'haavn-homes' && hudTab('logistics', 'Logistics')}
         {hudTab('contacts', 'Contacts')}
@@ -412,6 +414,9 @@ export default function WarRoom() {
 
       {/* ── STOCK LEDGER (7EVEN Developments) ── */}
       {view === 'stock' && <WarStock />}
+
+      {/* ── TENDERS (HAAVN Management) ── */}
+      {view === 'tenders' && <WarTenders />}
 
       {/* ── HAAVN LOGISTICS ── */}
       {view === 'logistics' && <HaavnLogistics />}
