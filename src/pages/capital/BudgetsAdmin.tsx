@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
 import { FY27_SEED, FY27_MONTHS, CompanyBudget } from './fy27BudgetSeed'
 
@@ -77,7 +78,7 @@ function loadData(): AdminData {
   return { budgets: seedBudgets(), txns }
 }
 
-function saveData(d: AdminData) { localStorage.setItem(STORE_KEY, JSON.stringify(d)) }
+function saveData(d: AdminData) { saveKV(STORE_KEY, d) }
 
 const fmt$ = (n: number) =>
   n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })

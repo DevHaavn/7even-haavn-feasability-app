@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
 import WarMark, { Reticle, WAR_RED } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
@@ -59,7 +60,7 @@ const load = (): WarData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
   return { targets: [], contacts: [], seq: 446 } // TGT ids start where the briefing left off
 }
-const save = (d: WarData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+const save = (d: WarData) => saveKV(STORE_KEY, d)
 
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 

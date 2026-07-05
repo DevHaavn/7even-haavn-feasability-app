@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 
 // ── CAPITAL DEPLOYMENT — Capital Command Centre (Capital pillar 02) ─────────
 // Two surfaces per the brand system: Command · Dark for the briefing, and
@@ -81,7 +82,7 @@ const load = (): DeployData => {
   } catch { /* seed */ }
   return JSON.parse(JSON.stringify(SEED))
 }
-const save = (d: DeployData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+const save = (d: DeployData) => saveKV(STORE_KEY, d)
 
 const fmtM = (n: number) => `$${Math.round(n)}M`
 

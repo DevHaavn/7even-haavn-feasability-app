@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 
 // ── 7EVEN DEVELOPMENTS · STOCK LEDGER ────────────────────────────────────────
 // The industry-standard core of a developer sales CRM: every apartment, home
@@ -25,7 +26,7 @@ export const loadStock = (): StockData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
   return { units: [], seq: 0 }
 }
-export const saveStock = (d: StockData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+export const saveStock = (d: StockData) => saveKV(STORE_KEY, d)
 
 /** Called by the sales pipeline when a linked sale moves stage or is removed. */
 export function setUnitStatus(unitId: string, status: UnitStatus, buyer?: string) {

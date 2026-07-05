@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 import { availableUnits, setUnitStatus, UnitStatus } from './WarStock'
 
 // ── WAR ROOM · PIPELINE — division-specific workflows ────────────────────────
@@ -75,7 +76,7 @@ const load = (): PipeData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
   return { items: [], jobs: [], seq: 100 }
 }
-const save = (d: PipeData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+const save = (d: PipeData) => saveKV(STORE_KEY, d)
 
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 

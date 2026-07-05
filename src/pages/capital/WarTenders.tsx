@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 
 // ── HAAVN MANAGEMENT · TENDERS ───────────────────────────────────────────────
 // The owner's-rep procurement core (Mastt / Owner Insite pattern): for each
@@ -27,7 +28,7 @@ const load = (): TenderData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
   return { packages: [], seq: 0 }
 }
-const save = (d: TenderData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+const save = (d: TenderData) => saveKV(STORE_KEY, d)
 
 const fmtK = (n: number) => n >= 1000 ? `$${(n / 1000).toFixed(2)}M` : `$${Math.round(n)}K`
 const uid = () => Math.random().toString(36).slice(2, 9)

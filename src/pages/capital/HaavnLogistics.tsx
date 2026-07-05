@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { saveKV } from '../../lib/cloudStore'
 
 // ── HAAVN LOGISTICS — every home tracked from purchase to lift ──────────────
 // Lives inside the War Room CRM. Field · Light working surface. Shipment
@@ -52,7 +53,7 @@ const load = (): LogisticsData => {
   } catch { /* seed */ }
   return JSON.parse(JSON.stringify(SEED))
 }
-const save = (d: LogisticsData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
+const save = (d: LogisticsData) => saveKV(STORE_KEY, d)
 
 // Field · Light tokens
 const FIELD = '#E8E8EA', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
