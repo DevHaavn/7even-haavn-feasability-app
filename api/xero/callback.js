@@ -1,6 +1,21 @@
 // Step 2 of the Xero OAuth flow: exchange the code for tokens, remember the
 // organisations, and store everything in an encrypted httpOnly cookie.
-const { encrypt, parseCookies, sessionCookie, appUrl } = require('../_utils/session')
+const crypto = require('crypto')
+const { encrypt, sessionCookie, appUrl } = require('../_utils/session')
+
+const STATE_MAX_AGE_MS = 30 * 60 * 1000
+
+// State format: `${timestamp}.${nonce}.${hmac}` — verify signature and age.
+function stateValid(state) {
+  if (!state) return false
+  const parts = String(state).split('.')
+  if (parts.length !== 3) return false
+  const [ts, nonce, sig] = parts
+  const expected = crypto.createHmac('sha256', process.env.SESSION_SECRET)
+    .update(`${ts}.${nonce}`).digest('hex').slice(0, 32)
+  if (sig.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false
+  return Date.now() - Number(ts) < STATE_MAX_AGE_MS
+}
 
 module.exports = async (req, res) => {
   const { code, state, error } = req.query
@@ -13,8 +28,7 @@ module.exports = async (req, res) => {
     return
   }
 
-  const cookies = parseCookies(req)
-  if (!state || cookies.xero_state !== state) {
+  if (!stateValid(state)) {
     res.status(400).send('Invalid OAuth state — please try connecting again.')
     return
   }

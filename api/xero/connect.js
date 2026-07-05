@@ -1,4 +1,6 @@
 // Step 1 of the Xero OAuth flow: send the user to Xero's consent screen.
+// CSRF protection: the state is HMAC-signed with SESSION_SECRET and
+// timestamped, so the callback can verify it without relying on cookies.
 const crypto = require('crypto')
 const { appUrl } = require('../_utils/session')
 
@@ -11,9 +13,15 @@ const SCOPES = [
   'accounting.contacts.read', 'accounting.settings.read',
 ].join(' ')
 
+function signedState() {
+  const payload = `${Date.now()}.${crypto.randomBytes(8).toString('hex')}`
+  const sig = crypto.createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('hex').slice(0, 32)
+  return `${payload}.${sig}`
+}
+
 module.exports = (req, res) => {
   const clientId = process.env.XERO_CLIENT_ID
-  if (!clientId) {
+  if (!clientId || !process.env.SESSION_SECRET) {
     res.status(503).json({
       error: 'Xero is not configured yet',
       setup: 'Add XERO_CLIENT_ID, XERO_CLIENT_SECRET and SESSION_SECRET in the Vercel project settings. See docs/XERO_SETUP.md.',
@@ -21,17 +29,15 @@ module.exports = (req, res) => {
     return
   }
 
-  const state = crypto.randomBytes(16).toString('hex')
   const redirectUri = `${appUrl(req)}/api/xero/callback`
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
     scope: SCOPES,
-    state,
+    state: signedState(),
   })
 
-  res.setHeader('Set-Cookie', `xero_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`)
   res.statusCode = 302
   res.setHeader('Location', `https://login.xero.com/identity/connect/authorize?${params}`)
   res.end()
