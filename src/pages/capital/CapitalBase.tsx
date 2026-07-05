@@ -31,8 +31,8 @@ export const PILLARS: Pillar[] = [
     color: '#1FE87A',
   },
   {
-    id: 'crm', num: '03', title: 'War Room',
-    sub: 'Partner CRM · Targets · Range · Signals',
+    id: 'crm', num: '03', title: 'Partner CRM Portal',
+    sub: 'Targets · Range · Signals · Contacts',
     blurb: 'The tactical CRM. Three commands — 7EVEN Developments, HAAVN Homes, HAAVN Management — every deal in your sights.',
     color: '#FF2F00',
   },
@@ -103,15 +103,11 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
               }}
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${p.color}22` }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
-                <span className={p.id === 'budgets' ? 'xero-pulse' : undefined}
-                  style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, boxShadow: `0 0 10px ${p.color}` }} />
               </div>
               <div>
-                {p.id === 'crm'
-                  ? <div style={{ margin: '2px 0 10px' }}><WarMark width={190} /></div>
-                  : <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>}
+                <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
               <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />
@@ -125,8 +121,15 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
                     style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
                 </div>
               )}
+              {p.id === 'crm' && (
+                // War Room — the engine of the Partner CRM pillar
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
+                  <WarMark width={150} />
+                </div>
+              )}
 
-              <span className="chrome-black-text" style={{ marginTop: p.id === 'budgets' ? 0 : 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <span className="chrome-black-text" style={{ marginTop: (p.id === 'budgets' || p.id === 'crm') ? 0 : 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
             </button>
           ))}
         </div>

@@ -1,18 +1,30 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 
 // ── CAPITAL DEPLOYMENT — Capital Command Centre (Capital pillar 02) ─────────
-// Real-time visibility for directors and equity partners: what we need to
-// raise, what's committed, and what's deployed — across every stage of every
-// 7EVEN Development project. Green command accent on the obsidian system.
-// Exclusive to the Capital Base. Data from the capital raising dashboard.
+// Two surfaces per the brand system: Command · Dark for the briefing, and
+// Field · Light (soft grey ground, crisp ink text) for the working screens
+// where directors edit the raise. All figures editable, held locally, seeded
+// from the capital raising dashboard. Exclusive to the Capital Base.
 
 const OBSIDIAN = '#0C0D0E', PANEL = '#16181B', STEEL = '#23262A', SMOKE = '#9A9CA3', SMOKE_DIM = '#63656C'
+const FIELD = '#E8E8EA', FIELD_PANEL = '#F6F6F7', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
 const GREEN = '#1FE87A', GREEN_DEEP = '#0F9E52'
 const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
 
-// ── The raise, as it stands ──────────────────────────────────────────────────
-const RAISE = {
-  requiredM: 312, raisedM: 198, deployedM: 124,
+interface StageLine { name: string; reqM: number; raisedM: number; depM: number }
+interface ProjectLine { name: string; type: string; reqM: number; raisedM: number; depM: number }
+interface PartnerLine { name: string; role: string; committedM: number; fundedM: number }
+interface CallLine { month: string; amountM: number }
+interface DeployData {
+  stages: StageLine[]
+  projects: ProjectLine[]
+  partners: PartnerLine[]
+  calls: CallLine[]
+  nextCall: string
+  velocity: number[]
+}
+
+const SEED: DeployData = {
   stages: [
     { name: 'Soft Costs & Permits', reqM: 28, raisedM: 24, depM: 19 },
     { name: 'Land Acquisition', reqM: 86, raisedM: 71, depM: 58 },
@@ -38,39 +50,87 @@ const RAISE = {
     { month: 'NOV', amountM: 26 }, { month: 'DEC', amountM: 19 }, { month: 'JAN', amountM: 15 },
   ],
   nextCall: 'AUG · $14M — Construction Equity, Saint Village Preston.',
-  velocity: [4, 9, 16, 24, 33, 44, 56, 69, 82, 96, 110, 124], // cumulative deployed, 12 mo
+  velocity: [4, 9, 16, 24, 33, 44, 56, 69, 82, 96, 110, 124],
 }
 
-const fmtM = (n: number) => `$${n}M`
+const STORE_KEY = 'capital_deploy_v1'
+const load = (): DeployData => {
+  try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* seed */ }
+  return JSON.parse(JSON.stringify(SEED))
+}
+const save = (d: DeployData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
 
-const panel: React.CSSProperties = {
-  background: PANEL, border: `1px solid ${STEEL}`, borderRadius: 10, padding: '20px 22px',
+const fmtM = (n: number) => `$${Math.round(n)}M`
+
+const panel: React.CSSProperties = { background: PANEL, border: `1px solid ${STEEL}`, borderRadius: 10, padding: '20px 22px' }
+const fieldPanelS: React.CSSProperties = { background: FIELD, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px' }
+const panelTitle: React.CSSProperties = { ...HUD, color: SMOKE_DIM, fontSize: 9, letterSpacing: '0.26em', fontWeight: 700, marginBottom: 4 }
+const fieldTitle: React.CSSProperties = { ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.26em', fontWeight: 700, marginBottom: 4 }
+const panelSub: React.CSSProperties = { color: SMOKE_DIM, fontSize: 10, marginBottom: 16 }
+const fieldSub: React.CSSProperties = { color: INK_SOFT, fontSize: 10, marginBottom: 16, opacity: 0.8 }
+const numCell: React.CSSProperties = {
+  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6, color: INK,
+  fontSize: 12, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '6px 8px', outline: 'none', width: 74,
 }
-const panelTitle: React.CSSProperties = {
-  ...HUD, color: SMOKE_DIM, fontSize: 9, letterSpacing: '0.26em', fontWeight: 700, marginBottom: 4,
-}
-const panelSub: React.CSSProperties = {
-  color: SMOKE_DIM, fontSize: 10, marginBottom: 16,
+const textCell: React.CSSProperties = {
+  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6, color: INK,
+  fontSize: 12, padding: '6px 9px', outline: 'none', width: '100%',
 }
 
-function Bar({ segments, height = 8 }: { segments: { widthPct: number; color: string }[]; height?: number }) {
+function Bar({ segments, height = 8, track = '#0A0B0C', border = STEEL }: { segments: { widthPct: number; color: string }[]; height?: number; track?: string; border?: string }) {
   return (
-    <div style={{ height, borderRadius: height / 2, background: '#0A0B0C', border: `1px solid ${STEEL}`, overflow: 'hidden', display: 'flex' }}>
-      {segments.map((s, i) => (
-        <div key={i} style={{ width: `${s.widthPct}%`, background: s.color, transition: 'width 0.4s' }} />
-      ))}
+    <div style={{ height, borderRadius: height / 2, background: track, border: `1px solid ${border}`, overflow: 'hidden', display: 'flex' }}>
+      {segments.map((s, i) => <div key={i} style={{ width: `${Math.max(0, Math.min(100, s.widthPct))}%`, background: s.color, transition: 'width 0.4s' }} />)}
     </div>
   )
 }
 
-export default function CapitalDeployment() {
-  const { requiredM, raisedM, deployedM } = RAISE
-  const toRaiseM = requiredM - raisedM
-  const committedNotDeployedM = raisedM - deployedM
+type View = 'command' | 'projects' | 'stages' | 'partners' | 'calls'
 
-  // Velocity sparkline geometry
-  const vmax = Math.max(...RAISE.velocity)
-  const vpts = RAISE.velocity.map((v, i) => `${(i / (RAISE.velocity.length - 1)) * 100},${40 - (v / vmax) * 36}`).join(' ')
+export default function CapitalDeployment() {
+  const [view, setView] = useState<View>('command')
+  const [data, setData] = useState<DeployData>(load)
+  const update = (next: DeployData) => { setData(next); save(next) }
+
+  // Portfolio totals derive from the projects
+  const requiredM = useMemo(() => data.projects.reduce((s, p) => s + p.reqM, 0), [data])
+  const raisedM = useMemo(() => data.projects.reduce((s, p) => s + p.raisedM, 0), [data])
+  const deployedM = useMemo(() => data.projects.reduce((s, p) => s + p.depM, 0), [data])
+  const toRaiseM = requiredM - raisedM
+
+  const vmax = Math.max(...data.velocity, 1)
+  const vpts = data.velocity.map((v, i) => `${(i / (data.velocity.length - 1)) * 100},${40 - (v / vmax) * 36}`).join(' ')
+
+  // Generic editors
+  const editStage = (i: number, k: keyof StageLine, v: string | number) =>
+    update({ ...data, stages: data.stages.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+  const editProject = (i: number, k: keyof ProjectLine, v: string | number) =>
+    update({ ...data, projects: data.projects.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+  const editPartner = (i: number, k: keyof PartnerLine, v: string | number) =>
+    update({ ...data, partners: data.partners.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+  const editCall = (i: number, k: keyof CallLine, v: string | number) =>
+    update({ ...data, calls: data.calls.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+
+  const num = (v: string) => parseFloat(v) || 0
+
+  const tab = (v: View, label: string) => (
+    <button key={v} onClick={() => setView(v)}
+      style={{
+        ...HUD, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 2px',
+        color: view === v ? GREEN : SMOKE_DIM,
+        borderBottom: `2px solid ${view === v ? GREEN : 'transparent'}`,
+        fontSize: 10, letterSpacing: '0.26em', fontWeight: 700,
+      }}>
+      {label}
+    </button>
+  )
+
+  // Money edit cell (commits on blur)
+  const M = ({ value, onCommit }: { value: number; onCommit: (n: number) => void }) => (
+    <input key={value} type="number" defaultValue={value}
+      onBlur={e => { const n = num(e.target.value); if (n !== value) onCommit(n) }}
+      style={numCell} />
+  )
 
   return (
     <div style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 18, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
@@ -91,161 +151,236 @@ export default function CapitalDeployment() {
         </p>
       </div>
 
-      {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-        {[
-          { label: 'Total Capital Required', value: fmtM(requiredM), sub: 'portfolio · all stages', color: '#E6E7E9' },
-          { label: 'Committed / Raised', value: fmtM(raisedM), sub: `${Math.round(raisedM / requiredM * 100)}% of requirement`, color: GREEN },
-          { label: 'Deployed', value: fmtM(deployedM), sub: `${Math.round(deployedM / requiredM * 100)}% drawn & working`, color: GREEN_DEEP },
-          { label: 'Remaining to Raise', value: fmtM(toRaiseM), sub: 'open equity requirement', color: '#fff' },
-        ].map(k => (
-          <div key={k.label} style={{ ...panel, padding: '16px 18px' }}>
-            <p style={{ ...HUD, color: SMOKE_DIM, fontSize: 8, letterSpacing: '0.22em', margin: '0 0 8px', fontWeight: 600 }}>{k.label}</p>
-            <p style={{ color: k.color, fontSize: 24, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{k.value}</p>
-            <p style={{ color: SMOKE_DIM, fontSize: 9.5, margin: '6px 0 0' }}>{k.sub}</p>
-          </div>
-        ))}
+      {/* Nav */}
+      <div style={{ display: 'flex', gap: 24, borderBottom: `1px solid ${STEEL}`, flexWrap: 'wrap' }}>
+        {tab('command', 'Command')}
+        {tab('projects', 'Projects')}
+        {tab('stages', 'Stages')}
+        {tab('partners', 'Partners')}
+        {tab('calls', 'Calls')}
       </div>
 
-      {/* Portfolio raise bar */}
-      <div style={panel}>
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <p style={panelTitle}>Portfolio Raise</p>
-          <p style={{ ...HUD, marginLeft: 'auto', color: GREEN, fontSize: 11, fontWeight: 700 }}>{Math.round(raisedM / requiredM * 100)}% raised</p>
-        </div>
-        <p style={panelSub}>committed vs deployed</p>
-        <Bar height={12} segments={[
-          { widthPct: deployedM / requiredM * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN})` as string },
-          { widthPct: committedNotDeployedM / requiredM * 100, color: `${GREEN}44` },
-        ]} />
-        <div style={{ display: 'flex', gap: 18, marginTop: 12, flexWrap: 'wrap' }}>
-          {[
-            { label: `Deployed ${fmtM(deployedM)}`, color: GREEN },
-            { label: `Committed ${fmtM(committedNotDeployedM)}`, color: `${GREEN}66` },
-            { label: `To raise ${fmtM(toRaiseM)}`, color: STEEL },
-          ].map(l => (
-            <span key={l.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: SMOKE, fontSize: 10.5 }}>
-              <span style={{ width: 9, height: 9, borderRadius: 2, background: l.color }} />{l.label}
-            </span>
+      {/* ── COMMAND (dark briefing, derived live from the working data) ── */}
+      {view === 'command' && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            {[
+              { label: 'Total Capital Required', value: fmtM(requiredM), sub: 'portfolio · all stages', color: '#E6E7E9' },
+              { label: 'Committed / Raised', value: fmtM(raisedM), sub: `${Math.round(raisedM / (requiredM || 1) * 100)}% of requirement`, color: GREEN },
+              { label: 'Deployed', value: fmtM(deployedM), sub: `${Math.round(deployedM / (requiredM || 1) * 100)}% drawn & working`, color: GREEN_DEEP },
+              { label: 'Remaining to Raise', value: fmtM(toRaiseM), sub: 'open equity requirement', color: '#fff' },
+            ].map(k => (
+              <div key={k.label} style={{ ...panel, padding: '16px 18px' }}>
+                <p style={{ ...HUD, color: SMOKE_DIM, fontSize: 8, letterSpacing: '0.22em', margin: '0 0 8px', fontWeight: 600 }}>{k.label}</p>
+                <p style={{ color: k.color, fontSize: 24, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{k.value}</p>
+                <p style={{ color: SMOKE_DIM, fontSize: 9.5, margin: '6px 0 0' }}>{k.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={panel}>
+            <div style={{ display: 'flex', alignItems: 'baseline' }}>
+              <p style={panelTitle}>Portfolio Raise</p>
+              <p style={{ ...HUD, marginLeft: 'auto', color: GREEN, fontSize: 11, fontWeight: 700 }}>{Math.round(raisedM / (requiredM || 1) * 100)}% raised</p>
+            </div>
+            <p style={panelSub}>committed vs deployed</p>
+            <Bar height={12} segments={[
+              { widthPct: deployedM / (requiredM || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN})` },
+              { widthPct: (raisedM - deployedM) / (requiredM || 1) * 100, color: `${GREEN}44` },
+            ]} />
+            <div style={{ display: 'flex', gap: 18, marginTop: 12, flexWrap: 'wrap' }}>
+              {[
+                { label: `Deployed ${fmtM(deployedM)}`, color: GREEN },
+                { label: `Committed ${fmtM(raisedM - deployedM)}`, color: `${GREEN}66` },
+                { label: `To raise ${fmtM(toRaiseM)}`, color: STEEL },
+              ].map(l => (
+                <span key={l.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: SMOKE, fontSize: 10.5 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: 2, background: l.color }} />{l.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+            <div style={panel}>
+              <p style={panelTitle}>Capital by Stage</p>
+              <p style={panelSub}>required · raised · deployed — edit under Stages</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {data.stages.map(s => (
+                  <div key={s.name}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 6 }}>
+                      <span style={{ color: '#E6E7E9', fontSize: 12 }}>{s.name}</span>
+                      <span style={{ marginLeft: 'auto', color: SMOKE_DIM, fontSize: 10, fontFamily: 'var(--font-mono)' }}>
+                        <b style={{ color: GREEN_DEEP }}>{fmtM(s.depM)}</b> dep · <b style={{ color: GREEN }}>{fmtM(s.raisedM)}</b> raised · {fmtM(s.reqM)} req
+                      </span>
+                    </div>
+                    <Bar segments={[
+                      { widthPct: s.depM / (s.reqM || 1) * 100, color: GREEN_DEEP },
+                      { widthPct: (s.raisedM - s.depM) / (s.reqM || 1) * 100, color: `${GREEN}55` },
+                    ]} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={panel}>
+              <p style={panelTitle}>Deployment Velocity</p>
+              <p style={panelSub}>cumulative deployed · 12 mo</p>
+              <svg viewBox="0 0 100 44" style={{ width: '100%', height: 130 }} preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="velfill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={GREEN} stopOpacity="0.25" />
+                    <stop offset="1" stopColor={GREEN} stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <polygon points={`0,44 ${vpts} 100,44`} fill="url(#velfill)" />
+                <polyline points={vpts} fill="none" stroke={GREEN} strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
+              </svg>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                {['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'].map((m, i) => (
+                  <span key={i} style={{ ...HUD, color: SMOKE_DIM, fontSize: 7.5 }}>{m}</span>
+                ))}
+              </div>
+              <p style={{ color: SMOKE, fontSize: 11, marginTop: 10, borderTop: `1px solid ${STEEL}`, paddingTop: 10 }}>
+                <b style={{ ...HUD, color: GREEN, fontSize: 9, letterSpacing: '0.2em' }}>Next call</b>&nbsp;&nbsp;{data.nextCall}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── PROJECTS (field-light, editable) ── */}
+      {view === 'projects' && (
+        <div style={fieldPanelS}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div>
+              <p style={fieldTitle}>Projects · Capital Requirement</p>
+              <p style={fieldSub}>edit any figure — the Command briefing recalculates live · $M ex-GST</p>
+            </div>
+            <button className="wr-btn wr-solid wr-green" onClick={() => update({ ...data, projects: [...data.projects, { name: 'New Project', type: 'Type', reqM: 0, raisedM: 0, depM: 0 }] })}
+              style={{ ...HUD, marginLeft: 'auto', color: '#fff', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, padding: '8px 16px' }}>
+              + Add Project
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.6fr) minmax(110px,1fr) 82px 82px 82px minmax(110px,1fr) 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
+            {['Project', 'Type', 'Req', 'Raised', 'Deployed', 'Progress', ''].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 2 && i <= 4 ? 'right' : 'left' }}>{h}</span>
+            ))}
+          </div>
+          {data.projects.map((p, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.6fr) minmax(110px,1fr) 82px 82px 82px minmax(110px,1fr) 24px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+              <input key={`n${i}${p.name}`} defaultValue={p.name} onBlur={e => e.target.value !== p.name && editProject(i, 'name', e.target.value)} style={textCell} />
+              <input key={`t${i}${p.type}`} defaultValue={p.type} onBlur={e => e.target.value !== p.type && editProject(i, 'type', e.target.value)} style={textCell} />
+              <M value={p.reqM} onCommit={n => editProject(i, 'reqM', n)} />
+              <M value={p.raisedM} onCommit={n => editProject(i, 'raisedM', n)} />
+              <M value={p.depM} onCommit={n => editProject(i, 'depM', n)} />
+              <Bar track="#fff" border={LINE} segments={[
+                { widthPct: p.depM / (p.reqM || 1) * 100, color: GREEN_DEEP },
+                { widthPct: (p.raisedM - p.depM) / (p.reqM || 1) * 100, color: `${GREEN}66` },
+              ]} />
+              <button onClick={() => update({ ...data, projects: data.projects.filter((_, idx) => idx !== i) })}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
+            </div>
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Stage + velocity row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-        <div style={panel}>
-          <p style={panelTitle}>Capital by Stage</p>
-          <p style={panelSub}>required · raised · deployed</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {RAISE.stages.map(s => (
-              <div key={s.name}>
-                <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 6 }}>
-                  <span style={{ color: '#E6E7E9', fontSize: 12 }}>{s.name}</span>
-                  <span style={{ marginLeft: 'auto', color: SMOKE_DIM, fontSize: 10, fontFamily: 'var(--font-mono)' }}>
-                    <b style={{ color: GREEN_DEEP }}>{fmtM(s.depM)}</b> dep · <b style={{ color: GREEN }}>{fmtM(s.raisedM)}</b> raised · {fmtM(s.reqM)} req
-                  </span>
-                </div>
-                <Bar segments={[
-                  { widthPct: s.depM / s.reqM * 100, color: GREEN_DEEP },
-                  { widthPct: (s.raisedM - s.depM) / s.reqM * 100, color: `${GREEN}55` },
-                ]} />
-              </div>
+      {/* ── STAGES (field-light, editable) ── */}
+      {view === 'stages' && (
+        <div style={fieldPanelS}>
+          <p style={fieldTitle}>Capital by Stage</p>
+          <p style={fieldSub}>required · raised · deployed per capital stage · $M ex-GST</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.5fr) 82px 82px 82px minmax(130px,1fr)', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
+            {['Stage', 'Req', 'Raised', 'Deployed', 'Progress'].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 1 && i <= 3 ? 'right' : 'left' }}>{h}</span>
             ))}
           </div>
+          {data.stages.map((s, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.5fr) 82px 82px 82px minmax(130px,1fr)', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+              <input key={`s${i}${s.name}`} defaultValue={s.name} onBlur={e => e.target.value !== s.name && editStage(i, 'name', e.target.value)} style={textCell} />
+              <M value={s.reqM} onCommit={n => editStage(i, 'reqM', n)} />
+              <M value={s.raisedM} onCommit={n => editStage(i, 'raisedM', n)} />
+              <M value={s.depM} onCommit={n => editStage(i, 'depM', n)} />
+              <Bar track="#fff" border={LINE} segments={[
+                { widthPct: s.depM / (s.reqM || 1) * 100, color: GREEN_DEEP },
+                { widthPct: (s.raisedM - s.depM) / (s.reqM || 1) * 100, color: `${GREEN}66` },
+              ]} />
+            </div>
+          ))}
         </div>
+      )}
 
-        <div style={panel}>
-          <p style={panelTitle}>Deployment Velocity</p>
-          <p style={panelSub}>cumulative deployed · 12 mo</p>
-          <svg viewBox="0 0 100 44" style={{ width: '100%', height: 130 }} preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="velfill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor={GREEN} stopOpacity="0.25" />
-                <stop offset="1" stopColor={GREEN} stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <polygon points={`0,44 ${vpts} 100,44`} fill="url(#velfill)" />
-            <polyline points={vpts} fill="none" stroke={GREEN} strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
-          </svg>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'].map((m, i) => (
-              <span key={i} style={{ ...HUD, color: SMOKE_DIM, fontSize: 7.5 }}>{m}</span>
+      {/* ── PARTNERS (field-light, editable) ── */}
+      {view === 'partners' && (
+        <div style={fieldPanelS}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div>
+              <p style={fieldTitle}>Equity Partners &amp; Directors</p>
+              <p style={fieldSub}>committed vs funded · $M</p>
+            </div>
+            <button className="wr-btn wr-solid wr-green" onClick={() => update({ ...data, partners: [...data.partners, { name: 'New Partner', role: 'Equity Partner', committedM: 0, fundedM: 0 }] })}
+              style={{ ...HUD, marginLeft: 'auto', color: '#fff', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, padding: '8px 16px' }}>
+              + Add Partner
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(150px,1.4fr) minmax(130px,1.2fr) 82px 82px minmax(120px,1fr) 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
+            {['Partner', 'Role', 'Committed', 'Funded', 'Deployment', ''].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i === 2 || i === 3 ? 'right' : 'left' }}>{h}</span>
             ))}
           </div>
+          {data.partners.map((pt, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(150px,1.4fr) minmax(130px,1.2fr) 82px 82px minmax(120px,1fr) 24px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+              <input key={`p${i}${pt.name}`} defaultValue={pt.name} onBlur={e => e.target.value !== pt.name && editPartner(i, 'name', e.target.value)} style={textCell} />
+              <input key={`r${i}${pt.role}`} defaultValue={pt.role} onBlur={e => e.target.value !== pt.role && editPartner(i, 'role', e.target.value)} style={textCell} />
+              <M value={pt.committedM} onCommit={n => editPartner(i, 'committedM', n)} />
+              <M value={pt.fundedM} onCommit={n => editPartner(i, 'fundedM', n)} />
+              <Bar track="#fff" border={LINE} height={6} segments={[{ widthPct: pt.fundedM / (pt.committedM || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN})` }]} />
+              <button onClick={() => update({ ...data, partners: data.partners.filter((_, idx) => idx !== i) })}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
 
-      {/* Projects */}
-      <div style={panel}>
-        <p style={panelTitle}>Projects · Capital Requirement</p>
-        <p style={panelSub}>4 active · pipeline expanding</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {RAISE.projects.map(p => {
-            const pct = Math.round(p.raisedM / p.reqM * 100)
-            return (
-              <div key={p.name} style={{
-                display: 'grid', gridTemplateColumns: 'minmax(150px,1.4fr) 70px 110px 70px minmax(120px,1fr)',
-                gap: 12, alignItems: 'center', padding: '10px 12px', borderRadius: 8,
-                background: OBSIDIAN, border: `1px solid ${STEEL}`,
-              }}>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
-                  <p style={{ color: SMOKE_DIM, fontSize: 9.5, margin: 0 }}>{p.type}</p>
-                </div>
-                <span style={{ color: SMOKE, fontSize: 11.5, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmtM(p.reqM)}</span>
-                <span style={{ color: GREEN, fontSize: 11.5, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmtM(p.raisedM)} · {pct}%</span>
-                <span style={{ color: GREEN_DEEP, fontSize: 11.5, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmtM(p.depM)}</span>
-                <Bar segments={[
-                  { widthPct: p.depM / p.reqM * 100, color: GREEN_DEEP },
-                  { widthPct: (p.raisedM - p.depM) / p.reqM * 100, color: `${GREEN}55` },
-                ]} />
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Partners + calls */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-        <div style={panel}>
-          <p style={panelTitle}>Equity Partners &amp; Directors</p>
-          <p style={panelSub}>committed vs funded</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {RAISE.partners.map(pt => (
-              <div key={pt.name}>
-                <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 5 }}>
-                  <span style={{ color: '#E6E7E9', fontSize: 12 }}>{pt.name}</span>
-                  <span style={{ color: SMOKE_DIM, fontSize: 9.5, marginLeft: 8 }}>{pt.role}</span>
-                  <span style={{ marginLeft: 'auto', color: SMOKE, fontSize: 10.5, fontFamily: 'var(--font-mono)' }}>
-                    <b style={{ color: GREEN }}>{fmtM(pt.fundedM)}</b> / {fmtM(pt.committedM)}
-                  </span>
-                </div>
-                <Bar height={6} segments={[{ widthPct: pt.fundedM / pt.committedM * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN})` as string }]} />
+      {/* ── CALLS (field-light, editable) ── */}
+      {view === 'calls' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+          <div style={fieldPanelS}>
+            <p style={fieldTitle}>Upcoming Capital Calls</p>
+            <p style={fieldSub}>next six months · $M</p>
+            {data.calls.map((c, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 90px 1fr', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
+                <input key={`m${i}${c.month}`} defaultValue={c.month} onBlur={e => e.target.value !== c.month && editCall(i, 'month', e.target.value.toUpperCase())} style={{ ...textCell, ...HUD, fontSize: 10, letterSpacing: '0.14em', fontWeight: 700 }} />
+                <M value={c.amountM} onCommit={n => editCall(i, 'amountM', n)} />
+                <Bar track="#fff" border={LINE} segments={[{ widthPct: c.amountM / (Math.max(...data.calls.map(x => x.amountM)) || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN}88)` }]} />
               </div>
             ))}
+            <div style={{ marginTop: 14 }}>
+              <p style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, marginBottom: 5 }}>Next call note</p>
+              <input key={data.nextCall} defaultValue={data.nextCall} onBlur={e => e.target.value !== data.nextCall && update({ ...data, nextCall: e.target.value })} style={textCell} />
+            </div>
+          </div>
+          <div style={fieldPanelS}>
+            <p style={fieldTitle}>Call Profile</p>
+            <p style={fieldSub}>as it stands</p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 130 }}>
+              {data.calls.map(c => {
+                const max = Math.max(...data.calls.map(x => x.amountM), 1)
+                return (
+                  <div key={c.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                    <span style={{ color: INK, fontSize: 10, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmtM(c.amountM)}</span>
+                    <div style={{ width: '100%', maxWidth: 40, height: (c.amountM / max) * 84, borderRadius: 4, background: `linear-gradient(to top, ${GREEN_DEEP}, ${GREEN})` }} />
+                    <span style={{ ...HUD, color: INK_SOFT, fontSize: 7.5, letterSpacing: '0.12em' }}>{c.month}</span>
+                  </div>
+                )
+              })}
+            </div>
+            <p style={{ color: INK_SOFT, fontSize: 11, marginTop: 14, borderTop: `1px solid ${LINE}`, paddingTop: 12 }}>
+              Total next 6 months: <b style={{ fontFamily: 'var(--font-mono)', color: INK }}>{fmtM(data.calls.reduce((s, c) => s + c.amountM, 0))}</b>
+            </p>
           </div>
         </div>
-
-        <div style={panel}>
-          <p style={panelTitle}>Upcoming Capital Calls</p>
-          <p style={panelSub}>next 6 months</p>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 110 }}>
-            {RAISE.calls.map(c => {
-              const max = Math.max(...RAISE.calls.map(x => x.amountM))
-              return (
-                <div key={c.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                  <span style={{ color: '#E6E7E9', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{fmtM(c.amountM)}</span>
-                  <div style={{ width: '100%', maxWidth: 40, height: (c.amountM / max) * 70, borderRadius: 4, background: `linear-gradient(to top, ${GREEN_DEEP}, ${GREEN}88)` }} />
-                  <span style={{ ...HUD, color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.12em' }}>{c.month}</span>
-                </div>
-              )
-            })}
-          </div>
-          <p style={{ color: SMOKE, fontSize: 11, marginTop: 14, borderTop: `1px solid ${STEEL}`, paddingTop: 12 }}>
-            <b style={{ ...HUD, color: GREEN, fontSize: 9, letterSpacing: '0.2em' }}>Next call</b>&nbsp;&nbsp;{RAISE.nextCall}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

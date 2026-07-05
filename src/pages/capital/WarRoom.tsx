@@ -58,27 +58,40 @@ const save = (d: WarData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
 
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 
-// ── Surfaces ──
+// ── Surfaces — the brand's two environments ──
+// Command · Dark: obsidian, for the briefing. Field · Light: soft grey ground,
+// crisp near-black text, for the eight hours of real work.
 const OBSIDIAN = '#0C0D0E', GRAPHITE = '#16171A', STEEL = '#24262B', SMOKE = '#9A9CA3', SMOKE_DIM = '#63656C'
+const FIELD = '#E8E8EA', FIELD_PANEL = '#F6F6F7', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
 const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
 
 const panel: React.CSSProperties = {
   background: GRAPHITE, border: `1px solid ${STEEL}`, borderRadius: 10, padding: '20px 22px',
 }
+const fieldPanel: React.CSSProperties = {
+  background: FIELD, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px',
+}
 const inputStyle: React.CSSProperties = {
   background: OBSIDIAN, border: `1px solid ${STEEL}`, borderRadius: 6,
   color: '#E6E7E9', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
 }
+const fieldInput: React.CSSProperties = {
+  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6,
+  color: INK, fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
+}
 const labelStyle: React.CSSProperties = {
   ...HUD, color: SMOKE_DIM, fontSize: 8, letterSpacing: '0.22em', display: 'block', marginBottom: 5, fontWeight: 600,
+}
+const fieldLabel: React.CSSProperties = {
+  ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.22em', display: 'block', marginBottom: 5, fontWeight: 600,
 }
 
 function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => void; title?: string }) {
   const styles: Record<Stage, React.CSSProperties> = {
-    painted: { background: '#3A3C42', color: '#C9CBD1' },
-    engaged: { background: '#1B1C1F', color: '#fff', border: `1px solid ${STEEL}` },
+    painted: { background: '#E4E4E7', color: '#4A4B50' },
+    engaged: { background: '#1B1C1F', color: '#fff' },
     locked: { background: WAR_RED, color: '#fff' },
-    secured: { background: 'transparent', color: '#E6E7E9', border: '1.5px solid #E6E7E9' },
+    secured: { background: 'transparent', color: '#0D0D0F', border: '1.5px solid #0D0D0F' },
   }
   return (
     <button onClick={onClick} title={title}
@@ -253,9 +266,9 @@ export default function WarRoom() {
 
       {/* ── THE RANGE ── */}
       {view === 'range' && (
-        <div style={panel}>
+        <div style={fieldPanel}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-            <p style={{ ...labelStyle, fontSize: 9, marginBottom: 0 }}>{DIVISIONS.find(d => d.id === division)!.name} · The Range</p>
+            <p style={{ ...fieldLabel, fontSize: 9, marginBottom: 0 }}>{DIVISIONS.find(d => d.id === division)!.name} · The Range</p>
             <button onClick={() => setShowAdd(s => !s)}
               className={showAdd ? 'wr-btn' : 'wr-btn wr-solid wr-hot'}
               style={{ ...HUD, marginLeft: 'auto', padding: '8px 16px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
@@ -264,19 +277,19 @@ export default function WarRoom() {
           </div>
 
           {showAdd && (
-            <div style={{ border: `1px solid ${WAR_RED}44`, borderRadius: 8, padding: 16, marginBottom: 16, background: 'rgba(255,47,0,0.04)' }}>
+            <div style={{ border: `1px solid ${WAR_RED}55`, borderRadius: 8, padding: 16, marginBottom: 16, background: '#fff' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-                <div><label style={labelStyle}>Target</label><input value={fName} onChange={e => setFName(e.target.value)} placeholder="Who" style={inputStyle} /></div>
-                <div><label style={labelStyle}>Company</label><input value={fCompany} onChange={e => setFCompany(e.target.value)} placeholder="Their outfit" style={inputStyle} /></div>
-                <div><label style={labelStyle}>Deal Value (AUD)</label><input type="number" value={fValue} onChange={e => setFValue(e.target.value)} placeholder="0" style={inputStyle} /></div>
+                <div><label style={fieldLabel}>Target</label><input value={fName} onChange={e => setFName(e.target.value)} placeholder="Who" style={fieldInput} /></div>
+                <div><label style={fieldLabel}>Company</label><input value={fCompany} onChange={e => setFCompany(e.target.value)} placeholder="Their outfit" style={fieldInput} /></div>
+                <div><label style={fieldLabel}>Deal Value (AUD)</label><input type="number" value={fValue} onChange={e => setFValue(e.target.value)} placeholder="0" style={fieldInput} /></div>
                 <div>
-                  <label style={labelStyle}>Project (optional)</label>
-                  <select value={fProject} onChange={e => setFProject(e.target.value)} style={inputStyle}>
+                  <label style={fieldLabel}>Project (optional)</label>
+                  <select value={fProject} onChange={e => setFProject(e.target.value)} style={fieldInput}>
                     <option value="">— No project link —</option>
                     {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
-                <div><label style={labelStyle}>Notes</label><input value={fNotes} onChange={e => setFNotes(e.target.value)} placeholder="Intel" style={inputStyle} /></div>
+                <div><label style={fieldLabel}>Notes</label><input value={fNotes} onChange={e => setFNotes(e.target.value)} placeholder="Intel" style={fieldInput} /></div>
               </div>
               <button onClick={addTarget} className="wr-btn wr-solid wr-hot"
                 style={{ ...HUD, marginTop: 14, padding: '9px 22px', fontSize: 9, letterSpacing: '0.22em', fontWeight: 700, color: '#fff' }}>
@@ -286,7 +299,7 @@ export default function WarRoom() {
           )}
 
           {targets.length === 0 ? (
-            <p style={{ color: SMOKE_DIM, fontSize: 12 }}>The range is clear. Paint the first target.</p>
+            <p style={{ color: INK_SOFT, fontSize: 12 }}>The range is clear. Paint the first target.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {targets.map(t => {
@@ -296,27 +309,27 @@ export default function WarRoom() {
                   <div key={t.id} style={{
                     display: 'grid', gridTemplateColumns: '4px minmax(110px,1.1fr) minmax(110px,1.3fr) 96px 92px 24px',
                     gap: 12, alignItems: 'center', padding: '10px 12px', borderRadius: 8,
-                    background: OBSIDIAN, border: `1px solid ${hot ? `${WAR_RED}55` : STEEL}`,
+                    background: hot ? '#FFF6F4' : FIELD_PANEL, border: `1px solid ${hot ? `${WAR_RED}66` : LINE}`,
                   }}>
-                    <span style={{ width: 4, height: 26, borderRadius: 2, background: hot ? WAR_RED : STEEL }} />
+                    <span style={{ width: 4, height: 26, borderRadius: 2, background: hot ? WAR_RED : LINE }} />
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ color: '#fff', fontSize: 12.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</p>
-                      <p style={{ color: SMOKE_DIM, fontSize: 9.5, fontFamily: 'var(--font-mono)', margin: 0 }}>{t.id}</p>
+                      <p style={{ color: INK, fontSize: 12.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</p>
+                      <p style={{ color: INK_SOFT, fontSize: 9.5, fontFamily: 'var(--font-mono)', margin: 0 }}>{t.id}</p>
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ color: SMOKE, fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.company}</p>
-                      {(proj || t.notes) && <p style={{ color: SMOKE_DIM, fontSize: 10, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{proj ? `◎ ${proj.name}` : t.notes}</p>}
+                      <p style={{ color: INK_SOFT, fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.company}</p>
+                      {(proj || t.notes) && <p style={{ color: INK_SOFT, fontSize: 10, margin: 0, opacity: 0.75, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{proj ? `◎ ${proj.name}` : t.notes}</p>}
                     </div>
-                    <span style={{ color: '#E6E7E9', fontSize: 12.5, fontFamily: 'var(--font-mono)', textAlign: 'right', fontWeight: 700 }}>{fmt$(t.value)}</span>
+                    <span style={{ color: INK, fontSize: 12.5, fontFamily: 'var(--font-mono)', textAlign: 'right', fontWeight: 700 }}>{fmt$(t.value)}</span>
                     <StageChip stage={t.stage} onClick={() => advance(t.id)} title="Advance stage" />
                     <button onClick={() => removeTarget(t.id)} title="Stand down"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 13 }}>×</button>
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
                   </div>
                 )
               })}
             </div>
           )}
-          <p style={{ ...HUD, color: SMOKE_DIM, fontSize: 8, letterSpacing: '0.2em', marginTop: 14 }}>
+          <p style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', marginTop: 14 }}>
             Painted → Engaged → Locked → Secured · click a status to advance
           </p>
         </div>
@@ -324,29 +337,29 @@ export default function WarRoom() {
 
       {/* ── CONTACTS ── */}
       {view === 'contacts' && (
-        <div style={panel}>
-          <p style={{ ...labelStyle, fontSize: 9, marginBottom: 14 }}>{DIVISIONS.find(d => d.id === division)!.name} · Ecosystem</p>
+        <div style={fieldPanel}>
+          <p style={{ ...fieldLabel, fontSize: 9, marginBottom: 14 }}>{DIVISIONS.find(d => d.id === division)!.name} · Ecosystem</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginBottom: 8 }}>
-            <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Name" style={inputStyle} />
-            <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="Company" style={inputStyle} />
-            <input value={cRole} onChange={e => setCRole(e.target.value)} placeholder="Role" style={inputStyle} />
-            <input value={cPhone} onChange={e => setCPhone(e.target.value)} placeholder="Phone" style={inputStyle} />
-            <input value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="Email" style={inputStyle} />
+            <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Name" style={fieldInput} />
+            <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="Company" style={fieldInput} />
+            <input value={cRole} onChange={e => setCRole(e.target.value)} placeholder="Role" style={fieldInput} />
+            <input value={cPhone} onChange={e => setCPhone(e.target.value)} placeholder="Phone" style={fieldInput} />
+            <input value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="Email" style={fieldInput} />
             <button onClick={addContact} className="wr-btn wr-solid"
               style={{ ...HUD, padding: '8px 0', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
               + Add
             </button>
           </div>
           {contacts.length === 0 ? (
-            <p style={{ color: SMOKE_DIM, fontSize: 12, marginTop: 10 }}>No contacts logged for this command yet.</p>
+            <p style={{ color: INK_SOFT, fontSize: 12, marginTop: 10 }}>No contacts logged for this command yet.</p>
           ) : contacts.map(c => (
-            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(100px,1fr) minmax(100px,1fr) minmax(80px,0.8fr) minmax(90px,0.9fr) minmax(120px,1.2fr) 24px', gap: 12, alignItems: 'center', padding: '9px 4px', borderBottom: `1px solid ${STEEL}` }}>
-              <span style={{ color: '#fff', fontSize: 12 }}>{c.name}</span>
-              <span style={{ color: SMOKE, fontSize: 11.5 }}>{c.company}</span>
-              <span style={{ color: SMOKE_DIM, fontSize: 11 }}>{c.role}</span>
-              <span style={{ color: SMOKE, fontSize: 11, fontFamily: 'var(--font-mono)' }}>{c.phone}</span>
-              <span style={{ color: SMOKE, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.email}</span>
-              <button onClick={() => removeContact(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 13 }}>×</button>
+            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(100px,1fr) minmax(100px,1fr) minmax(80px,0.8fr) minmax(90px,0.9fr) minmax(120px,1.2fr) 24px', gap: 12, alignItems: 'center', padding: '9px 4px', borderBottom: `1px solid ${LINE}` }}>
+              <span style={{ color: INK, fontSize: 12, fontWeight: 600 }}>{c.name}</span>
+              <span style={{ color: INK_SOFT, fontSize: 11.5 }}>{c.company}</span>
+              <span style={{ color: INK_SOFT, fontSize: 11 }}>{c.role}</span>
+              <span style={{ color: INK_SOFT, fontSize: 11, fontFamily: 'var(--font-mono)' }}>{c.phone}</span>
+              <span style={{ color: INK_SOFT, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.email}</span>
+              <button onClick={() => removeContact(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
             </div>
           ))}
         </div>

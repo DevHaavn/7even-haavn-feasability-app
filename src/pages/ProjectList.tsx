@@ -5,7 +5,7 @@ import { seedProjectsIfEmpty } from '../db/seed'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
-import { Reticle } from './capital/WarMark'
+import WarMark from './capital/WarMark'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -115,25 +115,15 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* War Room — staff entry to the Partner CRM, top right */}
+        {/* War Room — staff entry to the Partner CRM, top right. Brand-doc
+            ghost button: the full WAR ◎ ROOM lockup on an outline plate. */}
         <button
-          className="no-drag"
+          className="no-drag wr-btn"
           title="War Room — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{
-            position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20,
-            display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
-            background: 'rgba(12,13,14,0.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
-            border: '1px solid rgba(255,255,255,0.16)', borderRadius: 10,
-            padding: isMobile ? '6px 10px' : '8px 14px', transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => { const t = e.currentTarget as HTMLElement; t.style.borderColor = 'rgba(255,47,0,0.6)'; t.style.boxShadow = '0 0 18px rgba(255,47,0,0.18)' }}
-          onMouseLeave={e => { const t = e.currentTarget as HTMLElement; t.style.borderColor = 'rgba(255,255,255,0.16)'; t.style.boxShadow = 'none' }}
+          style={{ position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20, padding: isMobile ? '8px 12px' : '11px 18px' }}
         >
-          <Reticle size={isMobile ? 15 : 19} />
-          <span style={{ fontFamily: "'Chakra Petch', sans-serif", color: 'rgba(255,255,255,0.9)', fontSize: isMobile ? 7 : 8.5, letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, paddingLeft: '0.3em' }}>
-            War Room
-          </span>
+          <WarMark width={isMobile ? 96 : 132} />
         </button>
 
         {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
