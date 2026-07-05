@@ -53,7 +53,10 @@ module.exports = async (req, res) => {
         redirect_uri: `${base}/api/xero/callback`,
       }),
     })
-    if (!tokenRes.ok) throw new Error(`Token exchange failed: ${tokenRes.status} ${await tokenRes.text()}`)
+    if (!tokenRes.ok) {
+      const body = await tokenRes.text()
+      throw new Error(`token_exchange_${tokenRes.status}_${body.slice(0, 120)}`)
+    }
     const tokens = await tokenRes.json()
 
     // Which Xero organisations did the user authorise?
@@ -78,8 +81,10 @@ module.exports = async (req, res) => {
     res.end()
   } catch (e) {
     console.error('Xero callback error:', e)
+    // Surface a sanitised reason in the URL so it can be diagnosed without log access
+    const reason = encodeURIComponent(String(e.message || e).replace(/[^\w .:{}"-]/g, '').slice(0, 160))
     res.statusCode = 302
-    res.setHeader('Location', `${base}/?xero=error`)
+    res.setHeader('Location', `${base}/?xero=error&reason=${reason}`)
     res.end()
   }
 }
