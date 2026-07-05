@@ -187,6 +187,8 @@ export default function BudgetsAdmin() {
   const [fDate, setFDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [fProject, setFProject] = useState('')
   const [fOrg, setFOrg] = useState<string>('7even-capital')
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState('')
 
   const co = COMPANIES.find(c => c.id === company)!
   const budget = data.budgets[company]
@@ -248,6 +250,38 @@ export default function BudgetsAdmin() {
     })
     return map
   }, [data])
+
+  // Pull live invoices & bills from Xero, merging non-duplicates into the register.
+  async function syncFromXero() {
+    setSyncing(true); setSyncMsg('')
+    try {
+      const res = await fetch('/api/xero/invoices')
+      const body = await res.json()
+      if (!body.connected) {
+        setSyncMsg(body.reason === 'not_connected'
+          ? 'Not connected — click "Connect to Xero" above first.'
+          : 'Xero is not configured yet — see docs/XERO_SETUP.md.')
+        return
+      }
+      const existing = new Set(data.txns.map(t => t.sourceId).filter(Boolean))
+      const fresh: Txn[] = (body.invoices as Array<Record<string, unknown>>)
+        .filter(inv => !existing.has(inv.sourceId as string))
+        .map(inv => ({
+          id: uid(), company, type: inv.type as 'invoice' | 'bill',
+          contact: inv.contact as string, desc: inv.desc as string,
+          category: inv.type === 'invoice' ? 'Revenue' : 'Other',
+          amount: inv.amount as number, date: (inv.date as string) || new Date().toISOString().slice(0, 10),
+          status: inv.status as 'awaiting' | 'paid', sourceId: inv.sourceId as string,
+        }))
+      if (fresh.length === 0) { setSyncMsg('Up to date — no new Xero invoices or bills.'); return }
+      update({ ...data, txns: [...fresh, ...data.txns] })
+      setSyncMsg(`Pulled ${fresh.length} new item${fresh.length !== 1 ? 's' : ''} from Xero (${(body.tenants || []).join(', ')}).`)
+    } catch {
+      setSyncMsg('Could not reach Xero — try again in a moment.')
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   function addTxn() {
     const amount = parseFloat(fAmount)
@@ -475,13 +509,19 @@ export default function BudgetsAdmin() {
       {/* ── TRANSACTIONS ── */}
       {view === 'transactions' && (
         <div style={panel}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, gap: 10 }}>
             <p style={{ ...panelTitle, marginBottom: 0 }}>{co.name} · Invoices &amp; Bills</p>
+            <button onClick={syncFromXero} disabled={syncing} className="glass-btn"
+              title="Pull live invoices & bills from Xero into the register"
+              style={{ marginLeft: 'auto', color: XERO_BLUE, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px', fontWeight: 700, opacity: syncing ? 0.6 : 1 }}>
+              {syncing ? 'Syncing…' : '⟲ Sync from Xero'}
+            </button>
             <button onClick={() => setShowAdd(s => !s)} className="glass-btn"
-              style={{ marginLeft: 'auto', color: XERO_BLUE, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px', fontWeight: 700 }}>
+              style={{ color: XERO_BLUE, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px', fontWeight: 700 }}>
               {showAdd ? 'Close' : '+ New Transaction'}
             </button>
           </div>
+          {syncMsg && <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10, margin: '-6px 0 12px', letterSpacing: '0.04em' }}>{syncMsg}</p>}
 
           {showAdd && (
             <div style={{ border: `1px solid ${XERO_BLUE}33`, borderRadius: 12, padding: 18, marginBottom: 18, background: `${XERO_BLUE}08` }}>
