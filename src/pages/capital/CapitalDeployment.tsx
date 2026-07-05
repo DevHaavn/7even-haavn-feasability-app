@@ -15,6 +15,25 @@ interface StageLine { name: string; reqM: number; raisedM: number; depM: number 
 interface ProjectLine { name: string; type: string; reqM: number; raisedM: number; depM: number }
 interface PartnerLine { name: string; role: string; committedM: number; fundedM: number }
 interface CallLine { month: string; amountM: number }
+
+// HAAVN logistics — every home tracked from purchase to lift
+export const LIFECYCLE = ['Purchase', 'Land + Civils', 'Manufacture', 'Sea Freight', 'Transport', 'Crane Install'] as const
+interface Shipment {
+  id: string          // HV-2214
+  label: string       // Ripley Estate — Homes 21–32
+  homes: number
+  vessel: string      // MV Pacific · Ningbo→BNE
+  route: string       // 8 × 40HC
+  stageIdx: number    // index into LIFECYCLE
+  eta: string
+  note?: string       // e.g. delayed 6d
+}
+interface Readiness { status: 'ok' | 'warn'; title: string; detail: string }
+interface CostItem { name: string; amountK: number; note: string }
+interface Objective { title: string; owner: string; pct: number }
+interface TeamMember { initials: string; name: string; role: string; note: string; status: 'On track' | 'Ahead' | 'Watch' | 'Behind' }
+interface Signal { text: string; tag: string; when: string }
+
 interface DeployData {
   stages: StageLine[]
   projects: ProjectLine[]
@@ -22,6 +41,12 @@ interface DeployData {
   calls: CallLine[]
   nextCall: string
   velocity: number[]
+  shipments: Shipment[]
+  readiness: Readiness[]
+  costPerHome: CostItem[]
+  objectives: Objective[]
+  team: TeamMember[]
+  signals: Signal[]
 }
 
 const SEED: DeployData = {
@@ -51,11 +76,52 @@ const SEED: DeployData = {
   ],
   nextCall: 'AUG · $14M — Construction Equity, Saint Village Preston.',
   velocity: [4, 9, 16, 24, 33, 44, 56, 69, 82, 96, 110, 124],
+  // ── HAAVN logistics (sample records from the Command Center build — replace with live orders) ──
+  shipments: [
+    { id: 'HV-2211', label: 'Homes 9–18', homes: 10, vessel: 'MV Orient · Ningbo→BNE', route: '6 × 40HC', stageIdx: 4, eta: '08 Jul' },
+    { id: 'HV-2214', label: 'Homes 21–32', homes: 12, vessel: 'MV Pacific · Ningbo→BNE', route: '8 × 40HC', stageIdx: 3, eta: '22 Jul', note: 'delayed 6d — crane window needs rebooking' },
+    { id: 'HV-2216', label: 'Homes 33–44', homes: 12, vessel: 'MV Coral · Shanghai→BNE', route: '8 × 40HC', stageIdx: 2, eta: '11 Aug' },
+    { id: 'HV-2219', label: 'Homes 45–52', homes: 8, vessel: 'TBA · Shanghai→MEL', route: '5 × 40HC', stageIdx: 0, eta: 'Sep' },
+    { id: 'HV-2221', label: 'Homes 53–58', homes: 6, vessel: 'TBA · Ningbo→BNE', route: '4 × 40HC', stageIdx: 0, eta: 'Sep' },
+  ],
+  readiness: [
+    { status: 'ok', title: 'Land settled', detail: 'All sites titled' },
+    { status: 'warn', title: 'Civils / services', detail: 'Pads 4 days behind — earthworks variance' },
+    { status: 'warn', title: 'Crane windows', detail: 'HV-2214 crane needs rebooking (ETA slip)' },
+    { status: 'ok', title: 'Transport / escorts', detail: 'Oversize permits approved' },
+  ],
+  costPerHome: [
+    { name: 'Manufacture (CN)', amountK: 118, note: 'FOB Ningbo' },
+    { name: 'Freight + Duty', amountK: 26, note: 'Sea · 40HC × 0.66' },
+    { name: 'Land + Civils', amountK: 164, note: 'Per lot allocation' },
+    { name: 'Transport + Crane', amountK: 31, note: 'Escort + lift' },
+  ],
+  objectives: [
+    { title: '$300M portfolio GDV', owner: 'Capital + Development', pct: 82 },
+    { title: '120 HAAVN homes installed', owner: 'Manufacturing + Logistics', pct: 58 },
+    { title: 'Blended margin ≥ 22%', owner: 'Feasibility + Finance', pct: 91 },
+    { title: 'Zero install clashes', owner: 'Site Delivery', pct: 74 },
+  ],
+  team: [
+    { initials: 'JB', name: 'Jamie B.', role: 'Director', note: 'Capital · Strategy', status: 'On track' },
+    { initials: 'DS', name: 'Daniel Sette', role: 'Director · Delivery', note: 'Projects · Site', status: 'On track' },
+    { initials: 'LJ', name: 'Lewis Jin', role: 'Director · Capital', note: 'Raise · Partners', status: 'Ahead' },
+  ],
+  signals: [
+    { text: 'Shipment HV-2214 ETA slipped 6 days — crane window needs rebooking.', tag: 'LOGISTICS', when: '2h ago' },
+    { text: 'Next capital call AUG $14M — Construction Equity, Saint Village Preston.', tag: 'CAPITAL', when: '5h ago' },
+  ],
 }
 
-const STORE_KEY = 'capital_deploy_v1'
+const STORE_KEY = 'capital_deploy_v2'
 const load = (): DeployData => {
-  try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* seed */ }
+  try {
+    const raw = localStorage.getItem(STORE_KEY)
+    if (raw) return { ...JSON.parse(JSON.stringify(SEED)), ...JSON.parse(raw) }
+    // carry forward any edits made in the v1 store
+    const v1 = localStorage.getItem('capital_deploy_v1')
+    if (v1) return { ...JSON.parse(JSON.stringify(SEED)), ...JSON.parse(v1) }
+  } catch { /* seed */ }
   return JSON.parse(JSON.stringify(SEED))
 }
 const save = (d: DeployData) => localStorage.setItem(STORE_KEY, JSON.stringify(d))
@@ -85,7 +151,7 @@ function Bar({ segments, height = 8, track = '#0A0B0C', border = STEEL }: { segm
   )
 }
 
-type View = 'command' | 'projects' | 'stages' | 'partners' | 'calls'
+type View = 'command' | 'projects' | 'stages' | 'partners' | 'calls' | 'logistics' | 'objectives'
 
 export default function CapitalDeployment() {
   const [view, setView] = useState<View>('command')
@@ -110,6 +176,10 @@ export default function CapitalDeployment() {
     update({ ...data, partners: data.partners.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
   const editCall = (i: number, k: keyof CallLine, v: string | number) =>
     update({ ...data, calls: data.calls.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+  const editShipment = (i: number, k: keyof Shipment, v: string | number) =>
+    update({ ...data, shipments: data.shipments.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
+  const editObjective = (i: number, k: keyof Objective, v: string | number) =>
+    update({ ...data, objectives: data.objectives.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
 
   const num = (v: string) => parseFloat(v) || 0
 
@@ -158,6 +228,8 @@ export default function CapitalDeployment() {
         {tab('stages', 'Stages')}
         {tab('partners', 'Partners')}
         {tab('calls', 'Calls')}
+        {tab('logistics', 'HAAVN Logistics')}
+        {tab('objectives', 'Objectives')}
       </div>
 
       {/* ── COMMAND (dark briefing, derived live from the working data) ── */}
@@ -244,6 +316,39 @@ export default function CapitalDeployment() {
               <p style={{ color: SMOKE, fontSize: 11, marginTop: 10, borderTop: `1px solid ${STEEL}`, paddingTop: 10 }}>
                 <b style={{ ...HUD, color: GREEN, fontSize: 9, letterSpacing: '0.2em' }}>Next call</b>&nbsp;&nbsp;{data.nextCall}
               </p>
+            </div>
+          </div>
+
+          {/* Signals & objectives roll-up */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+            <div style={panel}>
+              <p style={panelTitle}>◐ Signals &amp; Approvals</p>
+              <p style={panelSub}>latest movement across the group</p>
+              {data.signals.map((sig, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 0', borderBottom: `1px solid ${STEEL}` }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, marginTop: 5, flexShrink: 0 }} />
+                  <p style={{ color: '#E6E7E9', fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
+                  <span style={{ ...HUD, marginLeft: 'auto', color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.16em', whiteSpace: 'nowrap', paddingTop: 3 }}>{sig.tag} · {sig.when}</span>
+                  <button onClick={() => update({ ...data, signals: data.signals.filter((_, idx) => idx !== i) })}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 12 }}>×</button>
+                </div>
+              ))}
+              <SignalComposer onAdd={(text, tag) => update({ ...data, signals: [{ text, tag, when: 'now' }, ...data.signals] })} />
+            </div>
+
+            <div style={panel}>
+              <p style={panelTitle}>◎ Director Objectives — Alignment</p>
+              <p style={panelSub}>edit under Objectives</p>
+              {data.objectives.map((o, i) => (
+                <div key={i} style={{ padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 6 }}>
+                    <span style={{ color: '#E6E7E9', fontSize: 12 }}>{o.title}</span>
+                    <span style={{ marginLeft: 'auto', color: o.pct >= 75 ? GREEN : o.pct >= 50 ? '#E6C34A' : '#E0808C', fontSize: 12, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{o.pct}%</span>
+                  </div>
+                  <Bar height={5} segments={[{ widthPct: o.pct, color: o.pct >= 75 ? GREEN : o.pct >= 50 ? '#E6C34A' : '#E0808C' }]} />
+                  <p style={{ color: SMOKE_DIM, fontSize: 9.5, margin: '5px 0 0' }}>Owner · {o.owner}</p>
+                </div>
+              ))}
             </div>
           </div>
         </>
@@ -381,6 +486,193 @@ export default function CapitalDeployment() {
           </div>
         </div>
       )}
+
+      {/* ── HAAVN LOGISTICS (field-light, editable) ── */}
+      {view === 'logistics' && (
+        <>
+          <div style={fieldPanelS}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div>
+                <p style={fieldTitle}>HAAVN Logistics — Shipment Board</p>
+                <p style={fieldSub}>{data.shipments.length} orders live · {data.shipments.filter(sh => sh.stageIdx === 3).reduce((t, sh) => t + sh.homes, 0)} homes on the water · purchase → land+civils → manufacture → sea freight → transport → crane install</p>
+              </div>
+              <button className="wr-btn wr-solid wr-green" onClick={() => update({ ...data, shipments: [...data.shipments, { id: 'HV-NEW', label: 'Homes —', homes: 0, vessel: 'TBA', route: '—', stageIdx: 0, eta: 'TBA' }] })}
+                style={{ ...HUD, marginLeft: 'auto', color: '#fff', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, padding: '8px 16px' }}>
+                + New Order
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '92px minmax(110px,1fr) 64px minmax(150px,1.4fr) 90px minmax(130px,1.1fr) 76px 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
+              {['Order', 'Homes', 'Qty', 'Vessel · Route', 'Containers', 'Stage', 'ETA', ''].map((h, i) => (
+                <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700 }}>{h}</span>
+              ))}
+            </div>
+            {data.shipments.map((sh, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '92px minmax(110px,1fr) 64px minmax(150px,1.4fr) 90px minmax(130px,1.1fr) 76px 24px', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
+                <input key={`i${i}${sh.id}`} defaultValue={sh.id} onBlur={e => e.target.value !== sh.id && editShipment(i, 'id', e.target.value)} style={{ ...textCell, fontFamily: 'var(--font-mono)', fontSize: 11 }} />
+                <input key={`l${i}${sh.label}`} defaultValue={sh.label} onBlur={e => e.target.value !== sh.label && editShipment(i, 'label', e.target.value)} style={textCell} />
+                <input key={`h${i}${sh.homes}`} type="number" defaultValue={sh.homes} onBlur={e => { const n = num(e.target.value); n !== sh.homes && editShipment(i, 'homes', n) }} style={{ ...numCell, width: 56 }} />
+                <input key={`v${i}${sh.vessel}`} defaultValue={sh.vessel} onBlur={e => e.target.value !== sh.vessel && editShipment(i, 'vessel', e.target.value)} style={textCell} />
+                <input key={`r${i}${sh.route}`} defaultValue={sh.route} onBlur={e => e.target.value !== sh.route && editShipment(i, 'route', e.target.value)} style={textCell} />
+                <select key={`s${i}${sh.stageIdx}`} value={sh.stageIdx} onChange={e => editShipment(i, 'stageIdx', parseInt(e.target.value))} style={textCell}>
+                  {LIFECYCLE.map((st, idx) => <option key={idx} value={idx}>{st}</option>)}
+                </select>
+                <input key={`e${i}${sh.eta}`} defaultValue={sh.eta} onBlur={e => e.target.value !== sh.eta && editShipment(i, 'eta', e.target.value)} style={{ ...textCell, fontFamily: 'var(--font-mono)', fontSize: 11 }} />
+                <button onClick={() => update({ ...data, shipments: data.shipments.filter((_, idx) => idx !== i) })}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+            {/* Lifecycle tracker for the furthest-along in-flight order */}
+            <div style={fieldPanelS}>
+              <p style={fieldTitle}>Order Lifecycle</p>
+              {(() => {
+                const active = [...data.shipments].filter(sh => sh.stageIdx < LIFECYCLE.length - 1).sort((a, b) => b.stageIdx - a.stageIdx)[0]
+                if (!active) return <p style={{ color: INK_SOFT, fontSize: 12 }}>No orders in flight.</p>
+                return (
+                  <>
+                    <p style={fieldSub}>{active.id} · {active.label}{active.note ? ` · ${active.note}` : ''}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                      {LIFECYCLE.map((st, idx) => {
+                        const done = idx < active.stageIdx
+                        const current = idx === active.stageIdx
+                        return (
+                          <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 0', borderBottom: `1px solid ${LINE}` }}>
+                            <span style={{
+                              width: 20, height: 20, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              background: done ? GREEN_DEEP : current ? '#0D0D0F' : '#fff',
+                              border: `1.5px solid ${done ? GREEN_DEEP : current ? '#0D0D0F' : LINE}`,
+                              color: done || current ? '#fff' : INK_SOFT, fontSize: 10, fontWeight: 700,
+                            }}>{done ? '✓' : idx + 1}</span>
+                            <span style={{ color: done || current ? INK : INK_SOFT, fontSize: 12, fontWeight: current ? 700 : 400 }}>{st}</span>
+                            {current && <span style={{ ...HUD, marginLeft: 'auto', color: GREEN_DEEP, fontSize: 8, letterSpacing: '0.18em', fontWeight: 700 }}>ETA {active.eta}</span>}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+
+            {/* Site readiness + cost per home */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={fieldPanelS}>
+                <p style={fieldTitle}>Site Readiness</p>
+                <p style={fieldSub}>{data.readiness.filter(r => r.status === 'warn').length} flags</p>
+                {data.readiness.map((r, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0' }}>
+                    <span onClick={() => update({ ...data, readiness: data.readiness.map((x, idx) => idx === i ? { ...x, status: x.status === 'ok' ? 'warn' : 'ok' } : x) })}
+                      title="Toggle status"
+                      style={{ cursor: 'pointer', width: 9, height: 9, borderRadius: '50%', marginTop: 4, flexShrink: 0, background: r.status === 'ok' ? GREEN_DEEP : '#E08A2E' }} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ color: INK, fontSize: 11.5, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                      <input key={`rd${i}${r.detail}`} defaultValue={r.detail}
+                        onBlur={e => e.target.value !== r.detail && update({ ...data, readiness: data.readiness.map((x, idx) => idx === i ? { ...x, detail: e.target.value } : x) })}
+                        style={{ background: 'transparent', border: 'none', outline: 'none', color: INK_SOFT, fontSize: 10.5, width: '100%', padding: 0 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={fieldPanelS}>
+                <p style={fieldTitle}>End-to-End Cost per Home</p>
+                <p style={fieldSub}>total ${data.costPerHome.reduce((t, c) => t + c.amountK, 0)}K · edit any line</p>
+                {data.costPerHome.map((c, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px,1.2fr) 76px minmax(100px,1fr)', gap: 10, alignItems: 'center', padding: '4px 0' }}>
+                    <span style={{ color: INK, fontSize: 11.5 }}>{c.name}</span>
+                    <input key={`c${i}${c.amountK}`} type="number" defaultValue={c.amountK}
+                      onBlur={e => { const n = num(e.target.value); n !== c.amountK && update({ ...data, costPerHome: data.costPerHome.map((x, idx) => idx === i ? { ...x, amountK: n } : x) }) }}
+                      style={{ ...numCell, width: 70 }} />
+                    <span style={{ color: INK_SOFT, fontSize: 10 }}>{c.note}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── OBJECTIVES (field-light, editable) ── */}
+      {view === 'objectives' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
+          <div style={fieldPanelS}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div>
+                <p style={fieldTitle}>Company Objectives</p>
+                <p style={fieldSub}>{data.objectives.length} objectives · {Math.round(data.objectives.reduce((t, o) => t + o.pct, 0) / (data.objectives.length || 1))}% average</p>
+              </div>
+              <button className="wr-btn wr-solid wr-green" onClick={() => update({ ...data, objectives: [...data.objectives, { title: 'New objective', owner: 'Owner', pct: 0 }] })}
+                style={{ ...HUD, marginLeft: 'auto', color: '#fff', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, padding: '8px 16px' }}>
+                + Add
+              </button>
+            </div>
+            {data.objectives.map((o, i) => (
+              <div key={i} style={{ padding: '10px 0', borderBottom: `1px solid ${LINE}` }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 64px 24px', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+                  <input key={`ot${i}${o.title}`} defaultValue={o.title} onBlur={e => e.target.value !== o.title && editObjective(i, 'title', e.target.value)} style={{ ...textCell, fontWeight: 600 }} />
+                  <input key={`op${i}${o.pct}`} type="number" min={0} max={100} defaultValue={o.pct}
+                    onBlur={e => { const n = Math.max(0, Math.min(100, num(e.target.value))); n !== o.pct && editObjective(i, 'pct', n) }}
+                    style={{ ...numCell, width: 58 }} />
+                  <button onClick={() => update({ ...data, objectives: data.objectives.filter((_, idx) => idx !== i) })}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
+                </div>
+                <Bar height={6} track="#fff" border={LINE} segments={[{ widthPct: o.pct, color: o.pct >= 75 ? GREEN_DEEP : o.pct >= 50 ? '#C9A227' : '#C25454' }]} />
+                <input key={`oo${i}${o.owner}`} defaultValue={o.owner} onBlur={e => e.target.value !== o.owner && editObjective(i, 'owner', e.target.value)}
+                  style={{ background: 'transparent', border: 'none', outline: 'none', color: INK_SOFT, fontSize: 10.5, width: '100%', padding: 0, marginTop: 5 }} />
+              </div>
+            ))}
+          </div>
+
+          <div style={fieldPanelS}>
+            <p style={fieldTitle}>Directors &amp; Teams</p>
+            <p style={fieldSub}>who owns what</p>
+            {data.team.map((m, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: `1px solid ${LINE}` }}>
+                <span style={{ width: 34, height: 34, borderRadius: '50%', background: '#0D0D0F', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, fontFamily: "'Chakra Petch', sans-serif" }}>{m.initials}</span>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{ color: INK, fontSize: 12, fontWeight: 600, margin: 0 }}>{m.name} <span style={{ color: INK_SOFT, fontWeight: 400 }}>— {m.role}</span></p>
+                  <p style={{ color: INK_SOFT, fontSize: 10.5, margin: 0 }}>{m.note}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const order: TeamMember['status'][] = ['On track', 'Ahead', 'Watch', 'Behind']
+                    const nextStatus = order[(order.indexOf(m.status) + 1) % order.length]
+                    update({ ...data, team: data.team.map((x, idx) => idx === i ? { ...x, status: nextStatus } : x) })
+                  }}
+                  style={{
+                    ...HUD, cursor: 'pointer', borderRadius: 4, padding: '4px 10px', fontSize: 8, letterSpacing: '0.16em', fontWeight: 700, border: 'none',
+                    background: m.status === 'Ahead' ? GREEN_DEEP : m.status === 'On track' ? '#0D0D0F' : m.status === 'Watch' ? '#E08A2E' : '#C25454',
+                    color: '#fff',
+                  }}>
+                  {m.status}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Small inline composer for the Command signals feed
+function SignalComposer({ onAdd }: { onAdd: (text: string, tag: string) => void }) {
+  const [text, setText] = useState('')
+  const [tag, setTag] = useState('CAPITAL')
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 70px', gap: 8, marginTop: 12 }}>
+      <input value={text} onChange={e => setText(e.target.value)} placeholder="Log a signal…"
+        onKeyDown={e => { if (e.key === 'Enter' && text.trim()) { onAdd(text.trim(), tag); setText('') } }}
+        style={{ background: '#0C0D0E', border: '1px solid #23262A', borderRadius: 6, color: '#E6E7E9', fontSize: 11, padding: '7px 10px', outline: 'none' }} />
+      <select value={tag} onChange={e => setTag(e.target.value)}
+        style={{ background: '#0C0D0E', border: '1px solid #23262A', borderRadius: 6, color: '#9A9CA3', fontSize: 10, padding: '7px 8px', outline: 'none' }}>
+        {['CAPITAL', 'LOGISTICS', 'PLANNING', 'FEASIBILITY', 'DELIVERY'].map(t => <option key={t} value={t}>{t}</option>)}
+      </select>
+      <button className="wr-btn wr-solid wr-green" onClick={() => { if (text.trim()) { onAdd(text.trim(), tag); setText('') } }}
+        style={{ fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase', color: '#fff', fontSize: 9, letterSpacing: '0.18em', fontWeight: 700, padding: '7px 0' }}>
+        Log
+      </button>
     </div>
   )
 }
