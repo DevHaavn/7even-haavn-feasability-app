@@ -46,6 +46,7 @@ interface Txn {
   status: 'awaiting' | 'paid'
   projectId?: string             // link to a feasibility project
   xeroOrg?: string               // XERO_ORGS id
+  sourceId?: string              // cross-link origin, e.g. sale:UNIT-0001
 }
 
 interface AdminData {
@@ -79,6 +80,23 @@ function loadData(): AdminData {
 }
 
 function saveData(d: AdminData) { saveKV(STORE_KEY, d) }
+
+// ── Cross-link: a settled 7EVEN sale posts here as revenue ───────────────────
+export function hasSaleRevenue(saleId: string): boolean {
+  return loadData().txns.some(t => t.sourceId === `sale:${saleId}`)
+}
+export function postSaleRevenue(sale: { id: string; buyer: string; project: string; unit: string; price: number }): boolean {
+  const d = loadData()
+  const sourceId = `sale:${sale.id}`
+  if (d.txns.some(t => t.sourceId === sourceId)) return false
+  const txn: Txn = {
+    id: uid(), company: '7even', type: 'invoice', contact: sale.buyer || 'Buyer',
+    desc: `${sale.project} · ${sale.unit} — settlement`, category: 'Revenue',
+    amount: sale.price, date: new Date().toISOString().slice(0, 10), status: 'awaiting', sourceId,
+  }
+  saveData({ ...d, txns: [txn, ...d.txns] })
+  return true
+}
 
 const fmt$ = (n: number) =>
   n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
@@ -545,6 +563,7 @@ export default function BudgetsAdmin() {
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: t.type === 'invoice' ? XERO_BLUE : '#C4973A' }} />
                     <span style={{ color: '#fff', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.contact}</span>
                     <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {t.sourceId?.startsWith('sale:') && <span style={{ color: '#FF6A45', fontSize: 8, letterSpacing: '0.1em', marginRight: 6 }}>↔ SALES</span>}
                       {t.desc || t.category}{proj ? ` · ${proj.name}` : ''}
                     </span>
                     <span style={{ color: `${XERO_BLUE}CC`, fontSize: 9, letterSpacing: '0.08em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{org?.short || '—'}</span>

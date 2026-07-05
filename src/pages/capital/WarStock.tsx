@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { saveKV } from '../../lib/cloudStore'
+import { postSaleRevenue, hasSaleRevenue } from './BudgetsAdmin'
 
 // ── 7EVEN DEVELOPMENTS · STOCK LEDGER ────────────────────────────────────────
 // The industry-standard core of a developer sales CRM: every apartment, home
@@ -64,6 +65,7 @@ export default function WarStock() {
   const [fType, setFType] = useState('2B')
   const [fPrice, setFPrice] = useState('')
   const [filter, setFilter] = useState<'all' | UnitStatus>('all')
+  const [posted, setPosted] = useState(0)   // bump to re-read hasSaleRevenue after posting
 
   const update = (next: StockData) => { setData(next); saveStock(next) }
 
@@ -151,13 +153,13 @@ export default function WarStock() {
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <div style={{ minWidth: 700 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '92px minmax(140px,1.4fr) 90px 70px 110px minmax(110px,1fr) 104px 24px', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
-              {['Ref', 'Project', 'Unit', 'Type', 'Price', 'Buyer', 'Status', ''].map((h, i) => (
+            <div style={{ display: 'grid', gridTemplateColumns: '92px minmax(140px,1.4fr) 90px 70px 110px minmax(110px,1fr) 104px 104px 24px', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
+              {['Ref', 'Project', 'Unit', 'Type', 'Price', 'Buyer', 'Status', 'Revenue', ''].map((h, i) => (
                 <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700 }}>{h}</span>
               ))}
             </div>
             {shown.map(u => (
-              <div key={u.id} style={{ display: 'grid', gridTemplateColumns: '92px minmax(140px,1.4fr) 90px 70px 110px minmax(110px,1fr) 104px 24px', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
+              <div key={`${u.id}:${posted}`} style={{ display: 'grid', gridTemplateColumns: '92px minmax(140px,1.4fr) 90px 70px 110px minmax(110px,1fr) 104px 104px 24px', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
                 <span style={{ color: INK_SOFT, fontSize: 10.5, fontFamily: 'var(--font-mono)' }}>{u.id}</span>
                 <input key={`p${u.id}${u.project}`} defaultValue={u.project} onBlur={e => e.target.value !== u.project && editUnit(u.id, 'project', e.target.value)} style={cell} />
                 <input key={`u${u.id}${u.unit}`} defaultValue={u.unit} onBlur={e => e.target.value !== u.unit && editUnit(u.id, 'unit', e.target.value)} style={cell} />
@@ -168,6 +170,18 @@ export default function WarStock() {
                   style={{ ...HUD, cursor: 'pointer', borderRadius: 4, padding: '5px 0', fontSize: 8, letterSpacing: '0.12em', fontWeight: 700, border: 'none', background: STATUS_COLOR[u.status].bg, color: STATUS_COLOR[u.status].fg }}>
                   {u.status}
                 </button>
+                {/* Cross-link: post settled sale to Budgets as revenue */}
+                {u.status === 'Settled' ? (
+                  hasSaleRevenue(u.id) ? (
+                    <span style={{ ...HUD, color: GREEN_DEEP, fontSize: 8, letterSpacing: '0.1em', fontWeight: 700, textAlign: 'center' }}>✓ Invoiced</span>
+                  ) : (
+                    <button onClick={() => { postSaleRevenue({ id: u.id, buyer: u.buyer || '', project: u.project, unit: u.unit, price: u.price }); setPosted(n => n + 1) }}
+                      title="Post as revenue in Budgets / Administration"
+                      style={{ ...HUD, cursor: 'pointer', borderRadius: 4, padding: '5px 0', fontSize: 8, letterSpacing: '0.1em', fontWeight: 700, border: `1px solid ${GREEN_DEEP}`, background: '#fff', color: GREEN_DEEP }}>
+                      Invoice →
+                    </button>
+                  )
+                ) : <span />}
                 <button onClick={() => update({ ...data, units: data.units.filter(x => x.id !== u.id) })}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
               </div>

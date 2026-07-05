@@ -15,7 +15,7 @@ const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", tex
 interface StageLine { name: string; reqM: number; raisedM: number; depM: number }
 interface ProjectLine { name: string; type: string; reqM: number; raisedM: number; depM: number }
 interface PartnerLine { name: string; role: string; committedM: number; fundedM: number }
-interface CallLine { month: string; amountM: number }
+interface CallLine { month: string; amountM: number; label?: string; sourceId?: string }
 
 interface Objective { title: string; owner: string; pct: number }
 interface TeamMember { initials: string; name: string; role: string; note: string; status: 'On track' | 'Ahead' | 'Watch' | 'Behind' }
@@ -83,6 +83,20 @@ const load = (): DeployData => {
   return JSON.parse(JSON.stringify(SEED))
 }
 const save = (d: DeployData) => saveKV(STORE_KEY, d)
+
+// ── Cross-link: a HAAVN Homes order raises a capital call here ───────────────
+const MONTHS3 = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+export function hasOrderCall(orderId: string): boolean {
+  return load().calls.some(c => c.sourceId === `order:${orderId}`)
+}
+export function postOrderCall(order: { id: string; label: string; amountM: number }): boolean {
+  const d = load()
+  const sourceId = `order:${order.id}`
+  if (d.calls.some(c => c.sourceId === sourceId)) return false
+  const call: CallLine = { month: MONTHS3[new Date().getMonth()], amountM: Math.max(0, Math.round(order.amountM)), label: order.label, sourceId }
+  save({ ...d, calls: [...d.calls, call] })
+  return true
+}
 
 const fmtM = (n: number) => `$${Math.round(n)}M`
 
@@ -403,7 +417,10 @@ export default function CapitalDeployment() {
               <div key={i} style={{ display: 'grid', gridTemplateColumns: '110px 118px 1fr', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
                 <input key={`m${i}${c.month}`} defaultValue={c.month} onBlur={e => e.target.value !== c.month && editCall(i, 'month', e.target.value.toUpperCase())} style={{ ...textCell, ...HUD, fontSize: 10, letterSpacing: '0.14em', fontWeight: 700 }} />
                 <M value={c.amountM} onCommit={n => editCall(i, 'amountM', n)} />
-                <Bar track="#fff" border={LINE} segments={[{ widthPct: c.amountM / (Math.max(...data.calls.map(x => x.amountM)) || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN}88)` }]} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Bar track="#fff" border={LINE} segments={[{ widthPct: c.amountM / (Math.max(...data.calls.map(x => x.amountM)) || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN}88)` }]} />
+                  {c.label && <span style={{ ...HUD, color: GREEN_DEEP, fontSize: 7.5, letterSpacing: '0.08em', fontWeight: 700, whiteSpace: 'nowrap' }} title={`HAAVN order · ${c.label}`}>⚡ {c.label}</span>}
+                </div>
               </div>
             ))}
             <div style={{ marginTop: 14 }}>

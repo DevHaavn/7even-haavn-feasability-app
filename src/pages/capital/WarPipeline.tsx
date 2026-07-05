@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { saveKV } from '../../lib/cloudStore'
 import { availableUnits, setUnitStatus, UnitStatus } from './WarStock'
+import { postOrderCall, hasOrderCall } from './CapitalDeployment'
 
 // ── WAR ROOM · PIPELINE — division-specific workflows ────────────────────────
 // Modelled on the best of each industry:
@@ -106,6 +107,7 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
   const [jTitle, setJTitle] = useState('')
   const [jFrom, setJFrom] = useState('')
   const [jDue, setJDue] = useState('')
+  const [called, setCalled] = useState(0)   // re-read hasOrderCall after posting
 
   const update = (next: PipeData) => { setData(next); save(next) }
 
@@ -224,7 +226,7 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
               {items.map(i => {
                 const done = i.stageIdx === doneIdx
                 return (
-                  <div key={i.id} style={{
+                  <div key={`${i.id}:${called}`} style={{
                     display: 'grid', gridTemplateColumns: 'minmax(120px,1.2fr) minmax(110px,1.1fr) 90px minmax(150px,1.4fr) 118px 24px',
                     gap: 12, alignItems: 'center', padding: '10px 12px', borderRadius: 8,
                     background: done ? '#EDF7F0' : '#fff', border: `1px solid ${done ? `${GREEN_DEEP}55` : LINE}`,
@@ -233,7 +235,21 @@ export default function WarPipeline({ division }: { division: DivisionId }) {
                       <p style={{ color: INK, fontSize: 12.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.name}</p>
                       <p style={{ color: INK_SOFT, fontSize: 9.5, fontFamily: 'var(--font-mono)', margin: 0 }}>{i.id}</p>
                     </div>
-                    <p style={{ color: INK_SOFT, fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.detail}</p>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ color: INK_SOFT, fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.detail}</p>
+                      {/* Cross-link: a HAAVN Homes order raises a capital call in Command */}
+                      {division === 'haavn-homes' && i.value > 0 && (
+                        hasOrderCall(i.id) ? (
+                          <span style={{ ...HUD, color: GREEN_DEEP, fontSize: 7.5, letterSpacing: '0.1em', fontWeight: 700 }}>✓ Capital call raised</span>
+                        ) : (
+                          <button onClick={() => { postOrderCall({ id: i.id, label: i.name, amountM: i.value / 1e6 }); setCalled(n => n + 1) }}
+                            title="Raise a capital call in Capital Command for this order"
+                            style={{ ...HUD, cursor: 'pointer', background: 'none', border: 'none', padding: 0, color: '#0F9E52', fontSize: 7.5, letterSpacing: '0.1em', fontWeight: 700 }}>
+                            ⚡ Raise capital call →
+                          </button>
+                        )
+                      )}
+                    </div>
                     <span style={{ color: INK, fontSize: 12.5, fontFamily: 'var(--font-mono)', fontWeight: 700, textAlign: 'right' }}>{i.value ? fmt$(i.value) : '—'}</span>
                     {/* Stage dots */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 3 }} title={def.stages[i.stageIdx]}>
