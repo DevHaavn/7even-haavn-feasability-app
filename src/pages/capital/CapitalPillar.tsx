@@ -7,8 +7,9 @@ import WarMark from './WarMark'
 import CapitalDeployment from './CapitalDeployment'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
- *  opens here. This is the shell we'll build each module into. */
-export default function CapitalPillar({ pillar, onBack, onLogout }: { pillar: Pillar; onBack: () => void; onLogout: () => void }) {
+ *  opens here. The War Room exits straight to the studio (never back through
+ *  Capital admin) so staff stay sealed off from the other pillars. */
+export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pillar: Pillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
@@ -17,10 +18,17 @@ export default function CapitalPillar({ pillar, onBack, onLogout }: { pillar: Pi
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <button onClick={onBack} className="glass-btn"
-          style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
-          ← Capital Base
-        </button>
+        {pillar.id === 'crm' ? (
+          <button onClick={onExit} className="glass-btn"
+            style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
+            Deploy Studio
+          </button>
+        ) : (
+          <button onClick={onBack} className="glass-btn"
+            style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
+            ← Capital Base
+          </button>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
           {pillar.id === 'crm'

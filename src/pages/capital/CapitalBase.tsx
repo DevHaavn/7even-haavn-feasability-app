@@ -5,6 +5,7 @@ import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
 import WarMark from './WarMark'
+import CapitalCommandMark from './CapitalCommandMark'
 
 export type PillarId = 'budgets' | 'deployment' | 'crm'
 
@@ -44,7 +45,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
 
   if (pillar) {
     const p = PILLARS.find(x => x.id === pillar)!
-    return <CapitalPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} />
+    return <CapitalPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose} />
   }
 
   // A small live figure from the projects to show the Capital ↔ Projects link
@@ -121,6 +122,13 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
                     style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
                 </div>
               )}
+              {p.id === 'deployment' && (
+                // Capital Command — the engine of the Capital Deployment pillar
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
+                  <CapitalCommandMark width={165} />
+                </div>
+              )}
               {p.id === 'crm' && (
                 // War Room — the engine of the Partner CRM pillar
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -129,7 +137,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar }: { onCl
                 </div>
               )}
 
-              <span className="chrome-black-text" style={{ marginTop: (p.id === 'budgets' || p.id === 'crm') ? 0 : 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <span className="chrome-black-text" style={{ marginTop: 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
             </button>
           ))}
         </div>

@@ -16,20 +16,6 @@ interface ProjectLine { name: string; type: string; reqM: number; raisedM: numbe
 interface PartnerLine { name: string; role: string; committedM: number; fundedM: number }
 interface CallLine { month: string; amountM: number }
 
-// HAAVN logistics — every home tracked from purchase to lift
-export const LIFECYCLE = ['Purchase', 'Land + Civils', 'Manufacture', 'Sea Freight', 'Transport', 'Crane Install'] as const
-interface Shipment {
-  id: string          // HV-2214
-  label: string       // Ripley Estate — Homes 21–32
-  homes: number
-  vessel: string      // MV Pacific · Ningbo→BNE
-  route: string       // 8 × 40HC
-  stageIdx: number    // index into LIFECYCLE
-  eta: string
-  note?: string       // e.g. delayed 6d
-}
-interface Readiness { status: 'ok' | 'warn'; title: string; detail: string }
-interface CostItem { name: string; amountK: number; note: string }
 interface Objective { title: string; owner: string; pct: number }
 interface TeamMember { initials: string; name: string; role: string; note: string; status: 'On track' | 'Ahead' | 'Watch' | 'Behind' }
 interface Signal { text: string; tag: string; when: string }
@@ -41,9 +27,6 @@ interface DeployData {
   calls: CallLine[]
   nextCall: string
   velocity: number[]
-  shipments: Shipment[]
-  readiness: Readiness[]
-  costPerHome: CostItem[]
   objectives: Objective[]
   team: TeamMember[]
   signals: Signal[]
@@ -76,26 +59,6 @@ const SEED: DeployData = {
   ],
   nextCall: 'AUG · $14M — Construction Equity, Saint Village Preston.',
   velocity: [4, 9, 16, 24, 33, 44, 56, 69, 82, 96, 110, 124],
-  // ── HAAVN logistics (sample records from the Command Center build — replace with live orders) ──
-  shipments: [
-    { id: 'HV-2211', label: 'Homes 9–18', homes: 10, vessel: 'MV Orient · Ningbo→BNE', route: '6 × 40HC', stageIdx: 4, eta: '08 Jul' },
-    { id: 'HV-2214', label: 'Homes 21–32', homes: 12, vessel: 'MV Pacific · Ningbo→BNE', route: '8 × 40HC', stageIdx: 3, eta: '22 Jul', note: 'delayed 6d — crane window needs rebooking' },
-    { id: 'HV-2216', label: 'Homes 33–44', homes: 12, vessel: 'MV Coral · Shanghai→BNE', route: '8 × 40HC', stageIdx: 2, eta: '11 Aug' },
-    { id: 'HV-2219', label: 'Homes 45–52', homes: 8, vessel: 'TBA · Shanghai→MEL', route: '5 × 40HC', stageIdx: 0, eta: 'Sep' },
-    { id: 'HV-2221', label: 'Homes 53–58', homes: 6, vessel: 'TBA · Ningbo→BNE', route: '4 × 40HC', stageIdx: 0, eta: 'Sep' },
-  ],
-  readiness: [
-    { status: 'ok', title: 'Land settled', detail: 'All sites titled' },
-    { status: 'warn', title: 'Civils / services', detail: 'Pads 4 days behind — earthworks variance' },
-    { status: 'warn', title: 'Crane windows', detail: 'HV-2214 crane needs rebooking (ETA slip)' },
-    { status: 'ok', title: 'Transport / escorts', detail: 'Oversize permits approved' },
-  ],
-  costPerHome: [
-    { name: 'Manufacture (CN)', amountK: 118, note: 'FOB Ningbo' },
-    { name: 'Freight + Duty', amountK: 26, note: 'Sea · 40HC × 0.66' },
-    { name: 'Land + Civils', amountK: 164, note: 'Per lot allocation' },
-    { name: 'Transport + Crane', amountK: 31, note: 'Escort + lift' },
-  ],
   objectives: [
     { title: '$300M portfolio GDV', owner: 'Capital + Development', pct: 82 },
     { title: '120 HAAVN homes installed', owner: 'Manufacturing + Logistics', pct: 58 },
@@ -135,12 +98,12 @@ const fieldTitle: React.CSSProperties = { ...HUD, color: INK_SOFT, fontSize: 9, 
 const panelSub: React.CSSProperties = { color: SMOKE_DIM, fontSize: 10, marginBottom: 16 }
 const fieldSub: React.CSSProperties = { color: INK_SOFT, fontSize: 10, marginBottom: 16, opacity: 0.8 }
 const numCell: React.CSSProperties = {
-  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6, color: INK,
-  fontSize: 12, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '6px 8px', outline: 'none', width: 74,
+  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 8, color: INK,
+  fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '10px 12px', outline: 'none', width: 112,
 }
 const textCell: React.CSSProperties = {
-  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6, color: INK,
-  fontSize: 12, padding: '6px 9px', outline: 'none', width: '100%',
+  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 8, color: INK,
+  fontSize: 14, padding: '10px 12px', outline: 'none', width: '100%',
 }
 
 function Bar({ segments, height = 8, track = '#0A0B0C', border = STEEL }: { segments: { widthPct: number; color: string }[]; height?: number; track?: string; border?: string }) {
@@ -151,7 +114,7 @@ function Bar({ segments, height = 8, track = '#0A0B0C', border = STEEL }: { segm
   )
 }
 
-type View = 'command' | 'projects' | 'stages' | 'partners' | 'calls' | 'logistics' | 'objectives'
+type View = 'command' | 'projects' | 'stages' | 'partners' | 'calls' | 'objectives'
 
 export default function CapitalDeployment() {
   const [view, setView] = useState<View>('command')
@@ -176,8 +139,6 @@ export default function CapitalDeployment() {
     update({ ...data, partners: data.partners.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
   const editCall = (i: number, k: keyof CallLine, v: string | number) =>
     update({ ...data, calls: data.calls.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
-  const editShipment = (i: number, k: keyof Shipment, v: string | number) =>
-    update({ ...data, shipments: data.shipments.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
   const editObjective = (i: number, k: keyof Objective, v: string | number) =>
     update({ ...data, objectives: data.objectives.map((s, idx) => idx === i ? { ...s, [k]: v } : s) })
 
@@ -228,7 +189,6 @@ export default function CapitalDeployment() {
         {tab('stages', 'Stages')}
         {tab('partners', 'Partners')}
         {tab('calls', 'Calls')}
-        {tab('logistics', 'HAAVN Logistics')}
         {tab('objectives', 'Objectives')}
       </div>
 
@@ -367,13 +327,13 @@ export default function CapitalDeployment() {
               + Add Project
             </button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.6fr) minmax(110px,1fr) 82px 82px 82px minmax(110px,1fr) 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
-            {['Project', 'Type', 'Req', 'Raised', 'Deployed', 'Progress', ''].map((h, i) => (
-              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 2 && i <= 4 ? 'right' : 'left' }}>{h}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.6fr) minmax(120px,1fr) 118px 118px 118px minmax(110px,1fr) 26px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
+            {['Project', 'Type', 'Req $M', 'Raised $M', 'Deployed $M', 'Progress', ''].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 2 && i <= 4 ? 'right' : 'left' }}>{h}</span>
             ))}
           </div>
           {data.projects.map((p, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.6fr) minmax(110px,1fr) 82px 82px 82px minmax(110px,1fr) 24px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.6fr) minmax(120px,1fr) 118px 118px 118px minmax(110px,1fr) 26px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
               <input key={`n${i}${p.name}`} defaultValue={p.name} onBlur={e => e.target.value !== p.name && editProject(i, 'name', e.target.value)} style={textCell} />
               <input key={`t${i}${p.type}`} defaultValue={p.type} onBlur={e => e.target.value !== p.type && editProject(i, 'type', e.target.value)} style={textCell} />
               <M value={p.reqM} onCommit={n => editProject(i, 'reqM', n)} />
@@ -395,13 +355,13 @@ export default function CapitalDeployment() {
         <div style={fieldPanelS}>
           <p style={fieldTitle}>Capital by Stage</p>
           <p style={fieldSub}>required · raised · deployed per capital stage · $M ex-GST</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.5fr) 82px 82px 82px minmax(130px,1fr)', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
-            {['Stage', 'Req', 'Raised', 'Deployed', 'Progress'].map((h, i) => (
-              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 1 && i <= 3 ? 'right' : 'left' }}>{h}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,1.5fr) 118px 118px 118px minmax(140px,1fr)', gap: 10, alignItems: 'center', padding: '4px 2px' }}>
+            {['Stage', 'Req $M', 'Raised $M', 'Deployed $M', 'Progress'].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i >= 1 && i <= 3 ? 'right' : 'left' }}>{h}</span>
             ))}
           </div>
           {data.stages.map((s, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(170px,1.5fr) 82px 82px 82px minmax(130px,1fr)', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,1.5fr) 118px 118px 118px minmax(140px,1fr)', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
               <input key={`s${i}${s.name}`} defaultValue={s.name} onBlur={e => e.target.value !== s.name && editStage(i, 'name', e.target.value)} style={textCell} />
               <M value={s.reqM} onCommit={n => editStage(i, 'reqM', n)} />
               <M value={s.raisedM} onCommit={n => editStage(i, 'raisedM', n)} />
@@ -428,13 +388,13 @@ export default function CapitalDeployment() {
               + Add Partner
             </button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(150px,1.4fr) minmax(130px,1.2fr) 82px 82px minmax(120px,1fr) 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
-            {['Partner', 'Role', 'Committed', 'Funded', 'Deployment', ''].map((h, i) => (
-              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700, textAlign: i === 2 || i === 3 ? 'right' : 'left' }}>{h}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.4fr) minmax(140px,1.2fr) 118px 118px minmax(130px,1fr) 26px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
+            {['Partner', 'Role', 'Committed $M', 'Funded $M', 'Deployment', ''].map((h, i) => (
+              <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, textAlign: i === 2 || i === 3 ? 'right' : 'left' }}>{h}</span>
             ))}
           </div>
           {data.partners.map((pt, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(150px,1.4fr) minmax(130px,1.2fr) 82px 82px minmax(120px,1fr) 24px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(160px,1.4fr) minmax(140px,1.2fr) 118px 118px minmax(130px,1fr) 26px', gap: 10, alignItems: 'center', padding: '6px 2px' }}>
               <input key={`p${i}${pt.name}`} defaultValue={pt.name} onBlur={e => e.target.value !== pt.name && editPartner(i, 'name', e.target.value)} style={textCell} />
               <input key={`r${i}${pt.role}`} defaultValue={pt.role} onBlur={e => e.target.value !== pt.role && editPartner(i, 'role', e.target.value)} style={textCell} />
               <M value={pt.committedM} onCommit={n => editPartner(i, 'committedM', n)} />
@@ -454,7 +414,7 @@ export default function CapitalDeployment() {
             <p style={fieldTitle}>Upcoming Capital Calls</p>
             <p style={fieldSub}>next six months · $M</p>
             {data.calls.map((c, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 90px 1fr', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '110px 118px 1fr', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
                 <input key={`m${i}${c.month}`} defaultValue={c.month} onBlur={e => e.target.value !== c.month && editCall(i, 'month', e.target.value.toUpperCase())} style={{ ...textCell, ...HUD, fontSize: 10, letterSpacing: '0.14em', fontWeight: 700 }} />
                 <M value={c.amountM} onCommit={n => editCall(i, 'amountM', n)} />
                 <Bar track="#fff" border={LINE} segments={[{ widthPct: c.amountM / (Math.max(...data.calls.map(x => x.amountM)) || 1) * 100, color: `linear-gradient(to right, ${GREEN_DEEP}, ${GREEN}88)` }]} />
@@ -485,112 +445,6 @@ export default function CapitalDeployment() {
             </p>
           </div>
         </div>
-      )}
-
-      {/* ── HAAVN LOGISTICS (field-light, editable) ── */}
-      {view === 'logistics' && (
-        <>
-          <div style={fieldPanelS}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div>
-                <p style={fieldTitle}>HAAVN Logistics — Shipment Board</p>
-                <p style={fieldSub}>{data.shipments.length} orders live · {data.shipments.filter(sh => sh.stageIdx === 3).reduce((t, sh) => t + sh.homes, 0)} homes on the water · purchase → land+civils → manufacture → sea freight → transport → crane install</p>
-              </div>
-              <button className="wr-btn wr-solid wr-green" onClick={() => update({ ...data, shipments: [...data.shipments, { id: 'HV-NEW', label: 'Homes —', homes: 0, vessel: 'TBA', route: '—', stageIdx: 0, eta: 'TBA' }] })}
-                style={{ ...HUD, marginLeft: 'auto', color: '#fff', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, padding: '8px 16px' }}>
-                + New Order
-              </button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '92px minmax(110px,1fr) 64px minmax(150px,1.4fr) 90px minmax(130px,1.1fr) 76px 24px', gap: 10, alignItems: 'center', padding: '4px 2px', marginTop: 8 }}>
-              {['Order', 'Homes', 'Qty', 'Vessel · Route', 'Containers', 'Stage', 'ETA', ''].map((h, i) => (
-                <span key={i} style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', fontWeight: 700 }}>{h}</span>
-              ))}
-            </div>
-            {data.shipments.map((sh, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '92px minmax(110px,1fr) 64px minmax(150px,1.4fr) 90px minmax(130px,1.1fr) 76px 24px', gap: 10, alignItems: 'center', padding: '5px 2px' }}>
-                <input key={`i${i}${sh.id}`} defaultValue={sh.id} onBlur={e => e.target.value !== sh.id && editShipment(i, 'id', e.target.value)} style={{ ...textCell, fontFamily: 'var(--font-mono)', fontSize: 11 }} />
-                <input key={`l${i}${sh.label}`} defaultValue={sh.label} onBlur={e => e.target.value !== sh.label && editShipment(i, 'label', e.target.value)} style={textCell} />
-                <input key={`h${i}${sh.homes}`} type="number" defaultValue={sh.homes} onBlur={e => { const n = num(e.target.value); n !== sh.homes && editShipment(i, 'homes', n) }} style={{ ...numCell, width: 56 }} />
-                <input key={`v${i}${sh.vessel}`} defaultValue={sh.vessel} onBlur={e => e.target.value !== sh.vessel && editShipment(i, 'vessel', e.target.value)} style={textCell} />
-                <input key={`r${i}${sh.route}`} defaultValue={sh.route} onBlur={e => e.target.value !== sh.route && editShipment(i, 'route', e.target.value)} style={textCell} />
-                <select key={`s${i}${sh.stageIdx}`} value={sh.stageIdx} onChange={e => editShipment(i, 'stageIdx', parseInt(e.target.value))} style={textCell}>
-                  {LIFECYCLE.map((st, idx) => <option key={idx} value={idx}>{st}</option>)}
-                </select>
-                <input key={`e${i}${sh.eta}`} defaultValue={sh.eta} onBlur={e => e.target.value !== sh.eta && editShipment(i, 'eta', e.target.value)} style={{ ...textCell, fontFamily: 'var(--font-mono)', fontSize: 11 }} />
-                <button onClick={() => update({ ...data, shipments: data.shipments.filter((_, idx) => idx !== i) })}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-            {/* Lifecycle tracker for the furthest-along in-flight order */}
-            <div style={fieldPanelS}>
-              <p style={fieldTitle}>Order Lifecycle</p>
-              {(() => {
-                const active = [...data.shipments].filter(sh => sh.stageIdx < LIFECYCLE.length - 1).sort((a, b) => b.stageIdx - a.stageIdx)[0]
-                if (!active) return <p style={{ color: INK_SOFT, fontSize: 12 }}>No orders in flight.</p>
-                return (
-                  <>
-                    <p style={fieldSub}>{active.id} · {active.label}{active.note ? ` · ${active.note}` : ''}</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                      {LIFECYCLE.map((st, idx) => {
-                        const done = idx < active.stageIdx
-                        const current = idx === active.stageIdx
-                        return (
-                          <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 0', borderBottom: `1px solid ${LINE}` }}>
-                            <span style={{
-                              width: 20, height: 20, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                              background: done ? GREEN_DEEP : current ? '#0D0D0F' : '#fff',
-                              border: `1.5px solid ${done ? GREEN_DEEP : current ? '#0D0D0F' : LINE}`,
-                              color: done || current ? '#fff' : INK_SOFT, fontSize: 10, fontWeight: 700,
-                            }}>{done ? '✓' : idx + 1}</span>
-                            <span style={{ color: done || current ? INK : INK_SOFT, fontSize: 12, fontWeight: current ? 700 : 400 }}>{st}</span>
-                            {current && <span style={{ ...HUD, marginLeft: 'auto', color: GREEN_DEEP, fontSize: 8, letterSpacing: '0.18em', fontWeight: 700 }}>ETA {active.eta}</span>}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </>
-                )
-              })()}
-            </div>
-
-            {/* Site readiness + cost per home */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={fieldPanelS}>
-                <p style={fieldTitle}>Site Readiness</p>
-                <p style={fieldSub}>{data.readiness.filter(r => r.status === 'warn').length} flags</p>
-                {data.readiness.map((r, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0' }}>
-                    <span onClick={() => update({ ...data, readiness: data.readiness.map((x, idx) => idx === i ? { ...x, status: x.status === 'ok' ? 'warn' : 'ok' } : x) })}
-                      title="Toggle status"
-                      style={{ cursor: 'pointer', width: 9, height: 9, borderRadius: '50%', marginTop: 4, flexShrink: 0, background: r.status === 'ok' ? GREEN_DEEP : '#E08A2E' }} />
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <p style={{ color: INK, fontSize: 11.5, fontWeight: 600, margin: 0 }}>{r.title}</p>
-                      <input key={`rd${i}${r.detail}`} defaultValue={r.detail}
-                        onBlur={e => e.target.value !== r.detail && update({ ...data, readiness: data.readiness.map((x, idx) => idx === i ? { ...x, detail: e.target.value } : x) })}
-                        style={{ background: 'transparent', border: 'none', outline: 'none', color: INK_SOFT, fontSize: 10.5, width: '100%', padding: 0 }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={fieldPanelS}>
-                <p style={fieldTitle}>End-to-End Cost per Home</p>
-                <p style={fieldSub}>total ${data.costPerHome.reduce((t, c) => t + c.amountK, 0)}K · edit any line</p>
-                {data.costPerHome.map((c, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px,1.2fr) 76px minmax(100px,1fr)', gap: 10, alignItems: 'center', padding: '4px 0' }}>
-                    <span style={{ color: INK, fontSize: 11.5 }}>{c.name}</span>
-                    <input key={`c${i}${c.amountK}`} type="number" defaultValue={c.amountK}
-                      onBlur={e => { const n = num(e.target.value); n !== c.amountK && update({ ...data, costPerHome: data.costPerHome.map((x, idx) => idx === i ? { ...x, amountK: n } : x) }) }}
-                      style={{ ...numCell, width: 70 }} />
-                    <span style={{ color: INK_SOFT, fontSize: 10 }}>{c.note}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </>
       )}
 
       {/* ── OBJECTIVES (field-light, editable) ── */}

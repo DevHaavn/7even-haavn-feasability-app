@@ -115,15 +115,15 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* War Room — staff entry to the Partner CRM, top right. Brand-doc
-            ghost button: the full WAR ◎ ROOM lockup on an outline plate. */}
+        {/* War Room — staff entry to the Partner CRM. Sits quietly in the
+            footer between the site links and the Project 7 mark. */}
         <button
           className="no-drag wr-btn"
           title="War Room — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'absolute', top: isMobile ? 12 : 24, right: isMobile ? 14 : 36, zIndex: 20, padding: isMobile ? '8px 12px' : '11px 18px' }}
+          style={{ position: 'fixed', bottom: isMobile ? 12 : 16, right: isMobile ? 68 : 100, zIndex: 30, padding: isMobile ? '6px 10px' : '8px 14px' }}
         >
-          <WarMark width={isMobile ? 96 : 132} />
+          <WarMark width={isMobile ? 74 : 96} />
         </button>
 
         {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}

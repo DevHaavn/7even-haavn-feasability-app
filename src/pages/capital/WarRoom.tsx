@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../../store'
 import WarMark, { Reticle, WAR_RED } from './WarMark'
+import HaavnLogistics from './HaavnLogistics'
 
 // ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Stealth command environment: obsidian surfaces, black-chrome mark, one red
@@ -105,7 +106,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
   )
 }
 
-type View = 'command' | 'range' | 'contacts'
+type View = 'command' | 'range' | 'contacts' | 'logistics'
 
 export default function WarRoom() {
   const { projects } = useStore()
@@ -209,6 +210,7 @@ export default function WarRoom() {
       <div style={{ display: 'flex', gap: 26, borderBottom: `1px solid ${STEEL}` }}>
         {hudTab('command', 'Command')}
         {hudTab('range', 'The Range')}
+        {hudTab('logistics', 'HAAVN Logistics')}
         {hudTab('contacts', 'Contacts')}
       </div>
 
@@ -364,6 +366,9 @@ export default function WarRoom() {
           ))}
         </div>
       )}
+
+      {/* ── HAAVN LOGISTICS ── */}
+      {view === 'logistics' && <HaavnLogistics />}
     </div>
   )
 }
