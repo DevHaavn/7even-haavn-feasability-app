@@ -36,7 +36,7 @@ export const PILLARS: Pillar[] = [
   },
 ]
 
-export default function CapitalBase({ onClose }: { onClose: () => void }) {
+export default function CapitalBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
   const { projects } = useStore()
   const [pillar, setPillar] = useState<PillarId | null>(null)
 
@@ -116,6 +116,12 @@ export default function CapitalBase({ onClose }: { onClose: () => void }) {
       </div>
 
       <DesignCredit style={{ padding: '20px 0 24px', color: 'rgba(255,255,255,0.22)' }} />
+
+      {/* Log out of Capital — bottom left, matches the studio's button but glows soft grey */}
+      <button onClick={onLogout} className="glass-btn glass-btn-grey"
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
+        Log Out
+      </button>
     </div>
   )
 }

@@ -12,5 +12,5 @@ export default function CapitalPortal({ onClose }: { onClose: () => void }) {
   if (!authed) {
     return <CapitalGate onAuth={() => { sessionStorage.setItem(CAPITAL_AUTH_KEY, '1'); setAuthed(true) }} onClose={onClose} />
   }
-  return <CapitalBase onClose={onClose} />
+  return <CapitalBase onClose={onClose} onLogout={() => { sessionStorage.removeItem(CAPITAL_AUTH_KEY); setAuthed(false) }} />
 }
