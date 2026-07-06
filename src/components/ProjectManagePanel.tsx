@@ -76,14 +76,28 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
           <div style={{ padding: '0 28px', color: '#B8B8B8', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
             {projectName}
           </div>
-          {/* Close */}
-          <button onClick={onClose}
-            style={{ padding: '0 24px', height: '100%', color: '#A8A8A8', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', transition: 'color 0.2s', lineHeight: 1 }}
+          {/* Close (header) — larger tap target */}
+          <button onClick={onClose} aria-label="Close"
+            style={{ flexShrink: 0, padding: '0 22px', minWidth: 56, height: '100%', color: '#D8D8D8', background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', transition: 'color 0.2s', lineHeight: 1 }}
             onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#A8A8A8')}>
+            onMouseLeave={e => (e.currentTarget.style.color = '#D8D8D8')}>
             ✕
           </button>
         </div>
+
+        {/* Mobile-friendly close — large, thumb-reachable at the bottom */}
+        <button onClick={onClose} aria-label="Close manage panel"
+          style={{
+            position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 18px)', zIndex: 20,
+            padding: '15px 40px', borderRadius: 999,
+            background: 'rgba(18,18,18,0.94)', border: '1px solid rgba(255,255,255,0.32)',
+            color: '#fff', fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', fontWeight: 700,
+            backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.55)', cursor: 'pointer', whiteSpace: 'nowrap',
+          }}>
+          ✕ Close
+        </button>
 
         {/* Body */}
         <div style={{ position: 'relative', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
