@@ -1,9 +1,9 @@
 // Pull invoices & bills from Xero for every connected organisation.
 // Read-only. Normalises Xero's Accounting API into the shape the Budgets
 // register uses, tagged with a xero: source id so re-syncs never duplicate.
-const { encrypt, readSession, sessionCookie } = require('../_utils/session')
+const { encrypt, readSession, sessionCookie, groupFromReq } = require('../_utils/session')
 
-async function ensureToken(session, res) {
+async function ensureToken(session, res, group) {
   if (Date.now() < session.expires_at) return session
   const tokenRes = await fetch('https://identity.xero.com/connect/token', {
     method: 'POST',
@@ -16,7 +16,7 @@ async function ensureToken(session, res) {
   if (!tokenRes.ok) throw new Error(`refresh ${tokenRes.status}`)
   const t = await tokenRes.json()
   const next = { ...session, refresh_token: t.refresh_token, access_token: t.access_token, expires_at: Date.now() + (t.expires_in - 60) * 1000 }
-  res.setHeader('Set-Cookie', sessionCookie(encrypt(next), 60 * 60 * 24 * 60))
+  res.setHeader('Set-Cookie', sessionCookie(encrypt(next), 60 * 60 * 24 * 60, group))
   return next
 }
 
@@ -39,12 +39,13 @@ module.exports = async (req, res) => {
   if (!process.env.XERO_CLIENT_ID || !process.env.SESSION_SECRET) {
     return res.status(200).json({ connected: false, reason: 'unconfigured', invoices: [] })
   }
+  const group = groupFromReq(req)
   let session
-  try { session = readSession(req) } catch { session = null }
+  try { session = readSession(req, group) } catch { session = null }
   if (!session) return res.status(200).json({ connected: false, reason: 'not_connected', invoices: [] })
 
   try {
-    session = await ensureToken(session, res)
+    session = await ensureToken(session, res, group)
     const out = []
     for (const tenant of session.tenants || []) {
       // AUTHORISED + PAID only (skip drafts); most recent first.

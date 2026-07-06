@@ -5,6 +5,15 @@ const crypto = require('crypto')
 
 const COOKIE_NAME = 'xero_session'
 
+// Two independent Xero connections: '7even' (Jamie's Xero — 7even Capital &
+// projects) keeps the original cookie name for backward compatibility; 'haavn'
+// (the other team's Xero — Haavn Management / Precision / Technologies) uses its
+// own cookie so the two accounts never collide.
+const VALID_GROUPS = ['7even', 'haavn']
+function normGroup(g) { return VALID_GROUPS.includes(g) ? g : '7even' }
+function groupFromReq(req) { return normGroup((req.query && req.query.group) || '7even') }
+function cookieNameFor(group) { return normGroup(group) === 'haavn' ? 'xero_session_haavn' : COOKIE_NAME }
+
 function key() {
   const secret = process.env.SESSION_SECRET
   if (!secret || secret.length < 16) throw new Error('SESSION_SECRET env var missing or too short (need 16+ chars)')
@@ -40,9 +49,9 @@ function parseCookies(req) {
   return out
 }
 
-function sessionCookie(value, maxAgeSeconds) {
+function sessionCookie(value, maxAgeSeconds, group) {
   const attrs = [
-    `${COOKIE_NAME}=${value}`,
+    `${cookieNameFor(group)}=${value}`,
     'Path=/',
     'HttpOnly',
     'Secure',
@@ -52,10 +61,11 @@ function sessionCookie(value, maxAgeSeconds) {
   return attrs.join('; ')
 }
 
-function readSession(req) {
+function readSession(req, group) {
   const cookies = parseCookies(req)
-  if (!cookies[COOKIE_NAME]) return null
-  return decrypt(cookies[COOKIE_NAME])
+  const name = cookieNameFor(group)
+  if (!cookies[name]) return null
+  return decrypt(cookies[name])
 }
 
 function appUrl(req) {
@@ -64,4 +74,4 @@ function appUrl(req) {
   return `https://${host}`
 }
 
-module.exports = { COOKIE_NAME, encrypt, decrypt, parseCookies, sessionCookie, readSession, appUrl }
+module.exports = { COOKIE_NAME, encrypt, decrypt, parseCookies, sessionCookie, readSession, appUrl, groupFromReq, cookieNameFor, normGroup }

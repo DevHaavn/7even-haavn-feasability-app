@@ -2,7 +2,7 @@
 // CSRF protection: the state is HMAC-signed with SESSION_SECRET and
 // timestamped, so the callback can verify it without relying on cookies.
 const crypto = require('crypto')
-const { appUrl } = require('../_utils/session')
+const { appUrl, groupFromReq } = require('../_utils/session')
 
 // Apps created after March 2026 must use granular scopes — the broad
 // accounting.transactions scope is rejected with invalid_scope. Read-only:
@@ -13,8 +13,10 @@ const SCOPES = [
   'accounting.contacts.read', 'accounting.settings.read',
 ].join(' ')
 
-function signedState() {
-  const payload = `${Date.now()}.${crypto.randomBytes(8).toString('hex')}`
+// State carries the connection group ('7even' | 'haavn') so the callback knows
+// which Xero account this is, signed so it can't be tampered with.
+function signedState(group) {
+  const payload = `${Date.now()}.${crypto.randomBytes(8).toString('hex')}.${group}`
   const sig = crypto.createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('hex').slice(0, 32)
   return `${payload}.${sig}`
 }
@@ -35,7 +37,7 @@ module.exports = (req, res) => {
     client_id: clientId,
     redirect_uri: redirectUri,
     scope: SCOPES,
-    state: signedState(),
+    state: signedState(groupFromReq(req)),
   })
 
   res.statusCode = 302

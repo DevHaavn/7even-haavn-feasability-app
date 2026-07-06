@@ -175,22 +175,24 @@ function Spark({ arr, color }: { arr: number[]; color: string }) {
 }
 
 type XeroState = { kind: 'unconfigured' } | { kind: 'disconnected' } | { kind: 'connected'; tenants: { id: string; name: string }[] }
-function XeroChip() {
+// group '7even' = Jamie's Xero (7even Capital & projects); 'haavn' = the other
+// team's separate Xero login (Haavn Management / Precision / Technologies).
+function XeroChip({ group, orgName }: { group: '7even' | 'haavn'; orgName: string }) {
   const [state, setState] = useState<XeroState>({ kind: 'unconfigured' })
   useEffect(() => {
-    fetch('/api/xero/status').then(r => (r.ok ? r.json() : Promise.reject())).then(s => {
+    fetch(`/api/xero/status?group=${group}`).then(r => (r.ok ? r.json() : Promise.reject())).then(s => {
       if (s.connected) setState({ kind: 'connected', tenants: s.tenants || [] })
       else if (s.configured) setState({ kind: 'disconnected' })
       else setState({ kind: 'unconfigured' })
     }).catch(() => setState({ kind: 'unconfigured' }))
-  }, [])
+  }, [group])
   const label = state.kind === 'connected'
     ? `Connected · ${state.tenants.length} org${state.tenants.length !== 1 ? 's' : ''}`
-    : state.kind === 'disconnected' ? 'Connect to Xero' : 'Push / pull · ready to connect'
+    : state.kind === 'disconnected' ? `Connect ${orgName} to Xero` : 'Push / pull · ready to connect'
   const clickable = state.kind === 'disconnected'
   return (
-    <button onClick={() => { if (clickable) window.location.href = '/api/xero/connect' }}
-      title={state.kind === 'connected' ? state.tenants.map(t => t.name).join(' · ') : undefined}
+    <button onClick={() => { if (clickable) window.location.href = `/api/xero/connect?group=${group}` }}
+      title={state.kind === 'connected' ? state.tenants.map(t => t.name).join(' · ') : `${orgName} — separate Xero login`}
       style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10,
         border: `1px solid ${XERO_BLUE}${state.kind === 'connected' ? '88' : '44'}`, borderRadius: 12, padding: '7px 14px',
         background: `${XERO_BLUE}0D`, cursor: clickable ? 'pointer' : 'default' }}>
@@ -199,6 +201,11 @@ function XeroChip() {
       <span style={{ color: XERO_BLUE, fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>{label}</span>
     </button>
   )
+}
+
+// Which Xero account an entity belongs to.
+function xeroGroupFor(entityId: string): '7even' | 'haavn' {
+  return (entityId === 'hm' || entityId === 'hprec' || entityId === 'htec') ? 'haavn' : '7even'
 }
 
 type View = 'dashboard' | 'entry' | 'transactions' | 'projects' | 'tracking'
@@ -271,7 +278,7 @@ export default function BudgetsAdmin() {
   async function syncFromXero() {
     setSyncing(true); setSyncMsg('')
     try {
-      const res = await fetch('/api/xero/invoices'); const body = await res.json()
+      const res = await fetch(`/api/xero/invoices?group=${xeroGroupFor(sel)}`); const body = await res.json()
       if (!body.connected) { setSyncMsg(body.reason === 'not_connected' ? 'Not connected — click "Connect to Xero" above first.' : 'Xero is not configured yet.'); return }
       const existing = new Set(data.txns.map(t => t.sourceId).filter(Boolean))
       const fresh: Txn[] = (body.invoices as Array<Record<string, unknown>>).filter(inv => !existing.has(inv.sourceId as string)).map(inv => ({
@@ -331,7 +338,10 @@ export default function BudgetsAdmin() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {navBtn('group', 'Group')}
         {entities.map(e => navBtn(e.id, e.name.replace('Haavn ', 'H. ')))}
-        <XeroChip />
+        <XeroChip
+          group={isGroup ? '7even' : xeroGroupFor(sel)}
+          orgName={isGroup ? '7even' : xeroGroupFor(sel) === 'haavn' ? 'Haavn' : '7even'}
+        />
       </div>
 
       {/* project chips — appear for entities linked to feasibility projects (7even Capital) */}
