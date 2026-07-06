@@ -12,7 +12,7 @@ export interface Project {
   updatedAt: string
   mapPin?: string   // custom pin label (default '7')
   type?: 'hotel' | 'btr' | 'bts' | 'mixed'  // project concept type for colour coding
-  brand?: '7even' | 'haavn'                  // which entity owns this project
+  brand?: '7even' | 'haavn' | 'both'         // which entity owns this project ('both' = joint HAAVN/7EVEN, shows in both columns)
 }
 
 export interface SiteDesign {

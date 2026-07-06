@@ -78,8 +78,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
     setShowNew(true)
   }
 
-  const sevenProjects = projects.filter(p => !p.brand || p.brand === '7even')
-  const haavnProjects = projects.filter(p => p.brand === 'haavn')
+  // 'both' = joint HAAVN/7EVEN project — appears in both columns.
+  const sevenProjects = projects.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
+  const haavnProjects = projects.filter(p => p.brand === 'haavn' || p.brand === 'both')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#080808', overflow: 'hidden' }}>
