@@ -6,11 +6,38 @@ import { calculateCostStack } from '../../engine/costStack'
 import { getCostPresets } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack } from '../../db/schema'
 import { useRole } from '../../lib/role'
+import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
 
 interface Props { projectId: string }
 
 const fmt = (n: number) =>
   n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `$${(n / 1_000).toFixed(0)}K` : `$${n.toLocaleString()}`
+
+// Live spend the admin / Xero register has tracked against this project.
+// Only shows for projects linked to a budget entity (Preston, Caloundra, …).
+function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }) {
+  if (!projectLinkFor(projectId)) return null
+  const { spend, awaiting, count } = getProjectAdminSpend(projectId)
+  if (count === 0 && spend === 0) return null
+  const pct = tdc > 0 ? spend / tdc : 0
+  const over = tdc > 0 && spend > tdc
+  const warn = pct > 0.85
+  const col = over ? '#9B2335' : warn ? '#B8860B' : '#2A7A4F'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '10px 16px', background: '#F5F3F0', borderBottom: '2px solid #E0DDD8' }}>
+      <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Admin · Xero tracked spend</span>
+      <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>${spend.toLocaleString()}</span>
+      <span style={{ fontSize: 11, color: '#999' }}>of {fmt(tdc)} TDC · {(pct * 100).toFixed(0)}%</span>
+      {awaiting > 0 && <span style={{ fontSize: 10, color: '#B8860B' }}>${awaiting.toLocaleString()} awaiting</span>}
+      <span style={{ marginLeft: 'auto', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: col }}>
+        {over ? '⚠ Over budget' : warn ? '● Approaching budget' : '● On budget'}
+      </span>
+      <div style={{ flexBasis: '100%', height: 5, borderRadius: 3, background: '#E0DDD8', overflow: 'hidden' }}>
+        <div style={{ width: `${Math.max(2, Math.min(100, pct * 100))}%`, height: '100%', background: col }} />
+      </div>
+    </div>
+  )
+}
 
 // ── Inner sub-tab bar ─────────────────────────────────────────────────────────
 const INNER_TABS = [
@@ -242,6 +269,8 @@ export default function CostStackTab({ projectId }: Props) {
     <div className="flex flex-col" style={{ minHeight: 0 }}>
 
       <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
+
+      <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
       {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} />}
 

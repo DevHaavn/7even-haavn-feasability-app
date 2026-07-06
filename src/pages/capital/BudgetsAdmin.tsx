@@ -64,6 +64,22 @@ interface AdminData {
 const STORE_KEY = 'capital_admin_v3'
 const LEGACY_KEY = 'capital_admin_v2'
 
+// ── Budget entity ↔ feasibility project links ────────────────────────────────
+// Ties a revenue group in the budget to a live project in the feasibility
+// studio, so fees, cost budgets and actual spend flow between them.
+export interface ProjectLink { group: string; projectId: string; label: string }
+export const PROJECT_LINKS: Record<string, ProjectLink[]> = {
+  sev: [
+    { group: 'Preston', projectId: 'seed-preston-001', label: 'St Village Preston' },
+    { group: 'Caloundra', projectId: 'seed-caloundra-001', label: '5IVE Hotels Caloundra' },
+    { group: 'Waurn Ponds', projectId: 'seed-geelong-001', label: 'Waurnvale Drive Geelong' },
+  ],
+}
+export function projectLinkFor(projectId: string): ProjectLink | undefined {
+  for (const links of Object.values(PROJECT_LINKS)) { const l = links.find(x => x.projectId === projectId); if (l) return l }
+  return undefined
+}
+
 function seedEntities(): Entity[] {
   return JSON.parse(JSON.stringify(CFO_SEED))
 }
@@ -102,6 +118,17 @@ export function postSaleRevenue(sale: { id: string; buyer: string; project: stri
   }
   saveData({ ...d, txns: [txn, ...d.txns] })
   return true
+}
+
+// Live actual spend the admin team has tracked against a project (tagged bills).
+// Read by the project Cost Stack tab so PMs see admin/Xero spend against budget.
+export function getProjectAdminSpend(projectId: string): { spend: number; awaiting: number; count: number } {
+  const txns = loadData().txns.filter(t => t.type === 'bill' && t.projectId === projectId)
+  return {
+    spend: txns.reduce((s, t) => s + t.amount, 0),
+    awaiting: txns.filter(t => t.status === 'awaiting').reduce((s, t) => s + t.amount, 0),
+    count: txns.length,
+  }
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10)
@@ -174,10 +201,10 @@ function XeroChip() {
   )
 }
 
-type View = 'dashboard' | 'entry' | 'transactions' | 'projects'
+type View = 'dashboard' | 'entry' | 'transactions' | 'projects' | 'tracking'
 
 export default function BudgetsAdmin() {
-  const { projects } = useStore()
+  const { projects, getDetailedCostStack } = useStore()
   const [hadStored] = useState(() => !!localStorage.getItem(STORE_KEY))
   const [data, setData] = useState<AdminData>(loadData)
   const [sel, setSel] = useState<string>('group')        // 'group' or entity id
@@ -307,6 +334,20 @@ export default function BudgetsAdmin() {
         <XeroChip />
       </div>
 
+      {/* project chips — appear for entities linked to feasibility projects (7even Capital) */}
+      {!isGroup && PROJECT_LINKS[sel] && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: -6 }}>
+          <span style={{ ...labelStyle, marginBottom: 0 }}>Projects</span>
+          {PROJECT_LINKS[sel].map(link => (
+            <button key={link.projectId} onClick={() => setView('tracking')}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, color: 'rgba(255,255,255,0.7)', fontSize: 9, letterSpacing: '0.08em', padding: '5px 12px', cursor: 'pointer' }}
+              title={`${link.label} — live from the feasibility studio`}>
+              {link.group} <span style={{ color: 'rgba(255,255,255,0.35)' }}>· {link.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* header + through selector */}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
         <div>
@@ -328,6 +369,7 @@ export default function BudgetsAdmin() {
       {/* view tabs */}
       <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {viewTab('dashboard', 'Dashboard')}
+        {!isGroup && PROJECT_LINKS[sel] && viewTab('tracking', 'Project tracking')}
         {!isGroup && viewTab('entry', 'Budget entry')}
         {!isGroup && viewTab('transactions', 'Invoices & Bills')}
         {!isGroup && viewTab('projects', 'Project spend')}
@@ -404,6 +446,12 @@ export default function BudgetsAdmin() {
           {/* fee-earner analysis (entity only) */}
           {!isGroup && entity && <FeeEarnerPanel entity={entity} through={through} calc={c} />}
         </>
+      )}
+
+      {/* ── PROJECT TRACKING (entity ↔ feasibility projects, live) ── */}
+      {view === 'tracking' && entity && PROJECT_LINKS[sel] && (
+        <ProjectTracking entity={entity} links={PROJECT_LINKS[sel]} through={through}
+          projects={projects} getDetailedCostStack={getDetailedCostStack} adminSpend={getProjectAdminSpend} accent={accent} />
       )}
 
       {/* ── ENTRY GRID ── */}
@@ -595,6 +643,78 @@ function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: nu
         Cost base = wage + super. Target: each fee-earner bills 3× their salary + super (the consulting rule of thirds). Green ≥3× · amber 1.5–3× · red &lt;1.5×.
         {balance > 0 && <> If every fee-earner hit 3×, gross revenue would rise by {fmt$(balance)} to {fmt$(calc.tRev + balance)}.</>}
       </p>
+    </div>
+  )
+}
+
+// ── Project tracking — budget ↔ feasibility studio, live ───────────────────────
+function ProjectTracking({ entity, links, through, projects, getDetailedCostStack, adminSpend, accent }: {
+  entity: Entity; links: ProjectLink[]; through: number
+  projects: { id: string; name: string }[]
+  getDetailedCostStack: (id: string) => { hardCosts: { amount: number }[]; consultants: { amount: number }[]; statutory: { amount: number }[]; marketing: { amount: number }[] }
+  adminSpend: (id: string) => { spend: number; awaiting: number; count: number }
+  accent: string
+}) {
+  const fyThrough = (l: BudgetLine) => l.m.reduce((a, v, i) => a + (i <= through ? +v || 0 : 0), 0)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ ...panel, padding: '16px 20px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11.5, lineHeight: 1.6, margin: 0 }}>
+          Live link to the feasibility studio. Each project's <strong>total development cost</strong> is read straight from its cost stack, the <strong>3% DM fee</strong> is recomputed from it, and <strong>actual spend</strong> is every bill tagged to the project. When a cost blows out, it flags here and in the project's cost stack — for both the admin and PM teams.
+        </p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+        {links.map(link => {
+          const proj = projects.find(p => p.id === link.projectId)
+          const dcs = getDetailedCostStack(link.projectId)
+          const tdc = [...dcs.hardCosts, ...dcs.consultants, ...dcs.statutory, ...dcs.marketing].reduce((s, x) => s + (x.amount || 0), 0)
+          const groupLines = entity.lines.filter(l => l.grp === link.group && l.s === 'revenue' && !l.fin && !l.pipeline)
+          const budgetedRev = groupLines.reduce((s, l) => s + fyThrough(l), 0)
+          const dmLine = groupLines.find(l => /DM fee/i.test(l.name))
+          const budgetedDm = dmLine ? dmLine.m.reduce((a, v) => a + (+v || 0), 0) : 0   // full-year budgeted DM fee
+          const liveDm = tdc * 0.03                                                       // 3% of live TDC
+          const feeDrift = budgetedDm > 0 ? (liveDm - budgetedDm) / budgetedDm : 0
+          const { spend, awaiting, count } = adminSpend(link.projectId)
+          const spendPct = tdc > 0 ? spend / tdc : 0
+          const blowout = tdc > 0 && spend > tdc
+          return (
+            <div key={link.projectId} style={{ ...panel, padding: '18px 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{link.group}</span>
+                <span style={{ color: blowout ? NEG : POS, fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>{blowout ? '⚠ Cost blowout' : '● On budget'}</span>
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, margin: '0 0 14px' }}>{proj ? proj.name : link.label} · feasibility studio</p>
+
+              <Row label="Total development cost" value={fmt$(tdc)} sub="live from cost stack" />
+              <Row label="3% DM fee — live" value={`${fmt$(liveDm)}/yr`} sub={Math.abs(feeDrift) > 0.02 ? `budgeted ${fmt$(budgetedDm)} · ${feeDrift > 0 ? '+' : ''}${(feeDrift * 100).toFixed(0)}%` : 'matches budget'} subColor={Math.abs(feeDrift) > 0.02 ? '#E8B84B' : POS} />
+              <Row label="Budgeted fee revenue" value={fmt$(budgetedRev)} sub={`FY · ${entity.name}`} />
+              <Row label="Actual spend tracked" value={fmt$(spend)} sub={`${count} bill${count !== 1 ? 's' : ''}${awaiting ? ` · ${fmt$(awaiting)} awaiting` : ''}`} />
+
+              {/* spend vs TDC bar */}
+              <div style={{ marginTop: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Spend vs TDC</span>
+                  <span style={{ color: blowout ? NEG : 'rgba(255,255,255,0.7)', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{(spendPct * 100).toFixed(0)}%</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.max(2, Math.min(100, spendPct * 100))}%`, height: '100%', background: blowout ? NEG : spendPct > 0.85 ? '#E8B84B' : accent }} />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+function Row({ label, value, sub, subColor }: { label: string; value: string; sub?: string; subColor?: string }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11 }}>{label}</span>
+      <span style={{ textAlign: 'right' }}>
+        <span style={{ color: '#fff', fontSize: 12.5, fontFamily: 'var(--font-mono)' }}>{value}</span>
+        {sub && <span style={{ display: 'block', color: subColor || 'rgba(255,255,255,0.35)', fontSize: 8.5, marginTop: 1 }}>{sub}</span>}
+      </span>
     </div>
   )
 }
