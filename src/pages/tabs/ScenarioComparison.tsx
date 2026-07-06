@@ -28,6 +28,7 @@ export default function ScenarioComparison({ projectId }: Props) {
       const btrA = store.getBTRAssumptions(s.id)
       const btsA = store.getBTSAssumptions(s.id)
       const hotelA = store.getHotelAssumptions(s.id)
+      let btsAggRevenue = 0   // resi BTS aggressive, for the blended (sell resi + hold hotel) strategy
 
       // Respect scenario-level cost overrides (e.g. modular build rate)
       const effectiveBuildRate = hotelA.buildRateOverride ?? costData.buildRatePerSqm
@@ -61,6 +62,7 @@ export default function ScenarioComparison({ projectId }: Props) {
         computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc, rlv: btsCons.rlv })
         computed.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc, rlv: btsMid.rlv })
         computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc, rlv: btsAgg.rlv })
+        btsAggRevenue = btsAgg.grossRevenue
       }
 
       // Hotel — only show if keys are configured
@@ -71,6 +73,17 @@ export default function ScenarioComparison({ projectId }: Props) {
           ? `Modular build $${hotelA.buildRateOverride.toLocaleString()}/sqm — cost savings flow to RLV`
           : undefined
         computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc, rlv: hotelV.rlv, note })
+
+        // Blended (recommended) — sell the resi (aggressive BTS) AND hold the hotel as an
+        // income asset. The hotel GAV that the pure-BTS row ignores is credited here.
+        if (btsAggRevenue > 0) {
+          const blendedGav = btsAggRevenue + hotelV.gav
+          computed.push({
+            scenario: s.name, type: 'Blended — Resi BTS + Hotel hold', noi: hotelI.noi,
+            gav: blendedGav, tdc, rlv: blendedGav - tdc,
+            note: 'Sell resi (aggressive) + hold hotel. Medical B2 sale (~$90M) is additional upside on top.',
+          })
+        }
       }
     }
 
