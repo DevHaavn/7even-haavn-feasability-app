@@ -739,59 +739,79 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
 }
 // ── Project cost editor — full-screen; edits write straight to the feasibility
 // studio's shared store (land, cost stack, finance), so admin + PM see one truth.
+type DetailTab = 'summary' | 'land' | 'consultants' | 'statutory' | 'hardCosts' | 'marketing' | 'finance'
+const DETAIL_TABS: { id: DetailTab; label: string; accent: string }[] = [
+  { id: 'summary', label: 'Summary', accent: '#C4973A' },
+  { id: 'land', label: 'Land Terms', accent: '#C4973A' },
+  { id: 'consultants', label: 'Consultants', accent: '#6E9BE6' },
+  { id: 'statutory', label: 'Statutory & Finance', accent: '#E8B84B' },
+  { id: 'hardCosts', label: 'Hard Costs', accent: '#8FA8BF' },
+  { id: 'marketing', label: 'Marketing', accent: '#B48CD9' },
+  { id: 'finance', label: 'Finance', accent: '#6FD39A' },
+]
+
 function ProjectDetail({ projectId, projectName, onClose }: { projectId: string; projectName: string; onClose: () => void }) {
   const [land, setLand] = useState<LandTerms>(() => getLandTerms(projectId))
   const [dcs, setDcs] = useState<DetailedCostStack>(() => dbGetDetailedCostStack(projectId))
   const [fin, setFin] = useState<FinanceAssumptions>(() => getFinanceAssumptions(projectId))
+  const [tab, setTab] = useState<DetailTab>('summary')
 
   const saveL = (next: LandTerms) => { setLand(next); saveLandTerms(next) }
   const saveD = (next: DetailedCostStack) => { setDcs(next); saveDetailedCostStack(next) }
   const saveF = (next: FinanceAssumptions) => { setFin(next); saveFinanceAssumptions(next) }
 
   const lineTotal = (arr: CostLineItem[]) => arr.reduce((s, l) => s + (l.amount || 0), 0)
-  const stackTotal = lineTotal(dcs.hardCosts) + lineTotal(dcs.consultants) + lineTotal(dcs.statutory) + lineTotal(dcs.marketing)
-  const tdc = stackTotal + (land.landCost || 0)
+  const catTotals = {
+    consultants: lineTotal(dcs.consultants), statutory: lineTotal(dcs.statutory),
+    hardCosts: lineTotal(dcs.hardCosts), marketing: lineTotal(dcs.marketing), land: land.landCost || 0,
+  }
+  const tdc = catTotals.consultants + catTotals.statutory + catTotals.hardCosts + catTotals.marketing + catTotals.land
 
   type Cat = 'hardCosts' | 'consultants' | 'statutory' | 'marketing'
   const editLine = (cat: Cat, id: string, patch: Partial<CostLineItem>) => saveD({ ...dcs, [cat]: dcs[cat].map(l => l.id === id ? { ...l, ...patch } : l) })
   const addLine = (cat: Cat) => saveD({ ...dcs, [cat]: [...dcs[cat], { id: generateId(), label: 'New item', amount: 0, notes: '' }] })
   const delLine = (cat: Cat, id: string) => saveD({ ...dcs, [cat]: dcs[cat].filter(l => l.id !== id) })
 
-  const section = (title: string, cat: Cat, accent = '#C4973A') => (
-    <div style={{ ...panel, padding: '18px 20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-        <span style={{ color: accent, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>{title}</span>
-        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontFamily: 'var(--font-mono)' }}>{fmt$(lineTotal(dcs[cat]))}</span>
-      </div>
-      {dcs[cat].map(l => (
-        <div key={l.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '3px 0' }}>
-          <input defaultValue={l.label} onBlur={e => e.target.value !== l.label && editLine(cat, l.id, { label: e.target.value })}
-            style={{ flex: 1, background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.75)', fontSize: 11.5, padding: '4px 0', outline: 'none' }} />
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>$</span>
-          <input type="number" defaultValue={l.amount || ''} onBlur={e => { const v = parseFloat(e.target.value) || 0; if (v !== l.amount) editLine(cat, l.id, { amount: v }) }}
-            style={{ width: 110, textAlign: 'right', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 5, color: '#fff', fontSize: 11.5, fontFamily: 'var(--font-mono)', padding: '4px 7px', outline: 'none' }} />
-          <button onClick={() => delLine(cat, l.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', cursor: 'pointer', fontSize: 13 }}>×</button>
-        </div>
-      ))}
-      <button onClick={() => addLine(cat)} style={{ background: 'none', border: 'none', color: `${accent}AA`, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer', marginTop: 6 }}>+ Add line</button>
-    </div>
-  )
-
   const finNum = (label: string, value: number, onSave: (v: number) => void, pct = false, suffix = '') => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-      <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11.5 }}>{label}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{label}</span>
       <span>
         <input type="number" defaultValue={pct ? +(value * 100).toFixed(3) : value} onBlur={e => { const raw = parseFloat(e.target.value) || 0; onSave(pct ? raw / 100 : raw) }}
-          style={{ width: 84, textAlign: 'right', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 5, color: '#fff', fontSize: 11.5, fontFamily: 'var(--font-mono)', padding: '4px 7px', outline: 'none' }} />
-        <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, marginLeft: 5 }}>{pct ? '%' : suffix}</span>
+          style={{ width: 120, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 9px', outline: 'none' }} />
+        <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginLeft: 6 }}>{pct ? '%' : suffix}</span>
       </span>
     </div>
   )
 
+  // Full-width editable line list for a cost category
+  const catEditor = (cat: Cat, accent: string) => (
+    <div style={panel}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
+        <span style={{ color: accent, fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>{DETAIL_TABS.find(t => t.id === cat)?.label}</span>
+        <span style={{ color: '#fff', fontSize: 16, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{fmt$(lineTotal(dcs[cat]))}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {dcs[cat].length === 0 && <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>No line items yet — add the first below.</p>}
+        {dcs[cat].map(l => (
+          <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <input defaultValue={l.label} onBlur={e => e.target.value !== l.label && editLine(cat, l.id, { label: e.target.value })}
+              style={{ flex: 1, background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.8)', fontSize: 13, padding: '6px 0', outline: 'none' }} />
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>$</span>
+            <input type="number" defaultValue={l.amount || ''} onBlur={e => { const v = parseFloat(e.target.value) || 0; if (v !== l.amount) editLine(cat, l.id, { amount: v }) }}
+              style={{ width: 140, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 10px', outline: 'none' }} />
+            <button onClick={() => delLine(cat, l.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', cursor: 'pointer', fontSize: 15 }}>×</button>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => addLine(cat)} className="glass-btn" style={{ marginTop: 14, color: accent, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, padding: '9px 18px' }}>+ Add line</button>
+    </div>
+  )
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'linear-gradient(rgba(3,3,3,0.55), rgba(3,3,3,0.78)), #060606', overflowY: 'auto' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '26px 24px 60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'linear-gradient(rgba(3,3,3,0.55), rgba(3,3,3,0.80)), #060606', overflowY: 'auto' }}>
+      <div style={{ maxWidth: 980, margin: '0 auto', padding: '24px 24px 60px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
           <button onClick={onClose} className="glass-btn" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 16px' }}>← Back</button>
           <div>
             <h1 style={{ color: '#fff', fontSize: 20, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>{projectName}</h1>
@@ -803,52 +823,84 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginTop: 14 }}>
-          {/* Land */}
-          <div style={{ ...panel, padding: '18px 20px' }}>
-            <span style={{ color: '#C4973A', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>Land terms</span>
-            <div style={{ marginTop: 10 }}>
-              {finNum('Land cost', land.landCost || 0, v => saveL({ ...land, landCost: v }))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0' }}>
-                <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11.5 }}>In-kind consideration</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11.5, fontFamily: 'var(--font-mono)' }}>{land.isInKind ? fmt$((land.inKindGFA || 0) * (land.inKindRatePerSqm || 0)) : '—'}</span>
-              </div>
-            </div>
-          </div>
-          {section('Consultants', 'consultants', '#6E9BE6')}
-          {section('Statutory & finance costs', 'statutory', '#E8B84B')}
-          {section('Hard costs', 'hardCosts', '#8FA8BF')}
-          {section('Marketing & other', 'marketing', '#B48CD9')}
+        {/* Tab bar — same headers as the feasibility studio */}
+        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 18, overflowX: 'auto' }}>
+          {DETAIL_TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 14px', whiteSpace: 'nowrap',
+                color: tab === t.id ? t.accent : 'rgba(255,255,255,0.4)', borderBottom: `2px solid ${tab === t.id ? t.accent : 'transparent'}`,
+                fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, transition: 'all 0.2s' }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Finance */}
-          <div style={{ ...panel, padding: '18px 20px' }}>
-            <span style={{ color: '#6FD39A', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>Finance</span>
-            <div style={{ marginTop: 10 }}>
-              {finNum('Base rate (BBSY)', fin.bbsyRate || 0, v => saveF({ ...fin, bbsyRate: v }), true)}
-              {finNum('Land LVR', fin.landLvr || 0, v => saveF({ ...fin, landLvr: v }), true)}
-              {finNum('Land interest rate', fin.landInterestRate || 0, v => saveF({ ...fin, landInterestRate: v }), true)}
-              {finNum('Land carry (months)', fin.landCarryMonths || 0, v => saveF({ ...fin, landCarryMonths: v }))}
-              {finNum('Construction (months)', fin.constructionMonths || 0, v => saveF({ ...fin, constructionMonths: v }))}
+        {/* Active tab — full screen */}
+        {tab === 'summary' && (
+          <div style={panel}>
+            <p style={panelTitle}>Cost breakdown</p>
+            {([['Land', catTotals.land], ['Consultants', catTotals.consultants], ['Statutory & finance', catTotals.statutory], ['Hard costs', catTotals.hardCosts], ['Marketing & other', catTotals.marketing]] as [string, number][]).map(([label, v]) => (
+              <div key={label} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12.5 }}>{label}</span>
+                <div style={{ height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ width: `${tdc ? Math.max(1, v / tdc * 100) : 0}%`, height: '100%', background: '#C4973A' }} />
+                </div>
+                <span style={{ color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(v)}</span>
+              </div>
+            ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14, marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.14)' }}>
+              <span style={{ color: '#fff', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>Total development cost</span>
+              <span style={{ color: '#C4973A', fontSize: 18, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmt$(tdc)}</span>
             </div>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11.5, lineHeight: 1.6, marginTop: 16 }}>
+              Live 3% DM fee from this TDC: <strong style={{ color: '#6FD39A' }}>{fmt$(tdc * 0.03)}/yr</strong>. Tap any tab above to edit that part of the budget — every change writes straight to the project's cost stack, land and finance tabs in the feasibility studio, and back.
+            </p>
+          </div>
+        )}
+
+        {tab === 'land' && (
+          <div style={panel}>
+            <p style={panelTitle}>Land Terms</p>
+            {finNum('Land cost', land.landCost || 0, v => saveL({ ...land, landCost: v }))}
+            {finNum('In-kind GFA (sqm)', land.inKindGFA || 0, v => saveL({ ...land, inKindGFA: v }))}
+            {finNum('In-kind rate ($/sqm)', land.inKindRatePerSqm || 0, v => saveL({ ...land, inKindRatePerSqm: v }))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.10)', marginTop: 6 }}>
+              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>In-kind consideration value</span>
+              <span style={{ color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)' }}>{fmt$((land.inKindGFA || 0) * (land.inKindRatePerSqm || 0))}</span>
+            </div>
+            {land.inKindNote && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11.5, marginTop: 10 }}>{land.inKindNote}</p>}
+          </div>
+        )}
+
+        {tab === 'consultants' && catEditor('consultants', '#6E9BE6')}
+        {tab === 'statutory' && catEditor('statutory', '#E8B84B')}
+        {tab === 'hardCosts' && catEditor('hardCosts', '#8FA8BF')}
+        {tab === 'marketing' && catEditor('marketing', '#B48CD9')}
+
+        {tab === 'finance' && (
+          <div style={panel}>
+            <p style={panelTitle}>Finance</p>
+            {finNum('Base rate (BBSY)', fin.bbsyRate || 0, v => saveF({ ...fin, bbsyRate: v }), true)}
+            {finNum('Land LVR', fin.landLvr || 0, v => saveF({ ...fin, landLvr: v }), true)}
+            {finNum('Land interest rate', fin.landInterestRate || 0, v => saveF({ ...fin, landInterestRate: v }), true)}
+            {finNum('Land carry (months)', fin.landCarryMonths || 0, v => saveF({ ...fin, landCarryMonths: v }))}
+            {finNum('Construction (months)', fin.constructionMonths || 0, v => saveF({ ...fin, constructionMonths: v }))}
             {fin.tranches && fin.tranches.length > 0 && (
-              <div style={{ marginTop: 12 }}>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 8.5, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 6px' }}>Debt tranches</p>
+              <div style={{ marginTop: 18 }}>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 8px' }}>Debt tranches</p>
                 {fin.tranches.map(t => (
-                  <div key={t.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '3px 0' }}>
-                    <span style={{ flex: 1, color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>{t.label}</span>
+                  <div key={t.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ flex: 1, color: 'rgba(255,255,255,0.75)', fontSize: 12.5 }}>{t.label}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t.type}</span>
                     <input type="number" defaultValue={+(t.interestRate * 100).toFixed(2)} onBlur={e => { const v = (parseFloat(e.target.value) || 0) / 100; saveF({ ...fin, tranches: fin.tranches.map(x => x.id === t.id ? { ...x, interestRate: v } : x) }) }}
-                      style={{ width: 60, textAlign: 'right', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 5, color: '#fff', fontSize: 11, fontFamily: 'var(--font-mono)', padding: '3px 6px', outline: 'none' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10 }}>%</span>
+                      style={{ width: 76, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 12.5, fontFamily: 'var(--font-mono)', padding: '6px 9px', outline: 'none' }} />
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11 }}>%</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
-
-        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10.5, lineHeight: 1.6, marginTop: 16 }}>
-          Every figure here is the same record the feasibility studio uses. Edit it from the admin side and it updates the project's cost stack, land and finance tabs live — and vice-versa. The project's 3% DM fee and cost-blowout flags recalculate from this TDC automatically.
-        </p>
+        )}
       </div>
     </div>
   )
