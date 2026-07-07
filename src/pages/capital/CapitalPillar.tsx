@@ -41,8 +41,9 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
         )}
       </div>
 
-      {/* Body — live module, or scaffold for pillars not yet built */}
-      {pillar.id === 'budgets' ? <BudgetsAdmin /> : pillar.id === 'crm' ? <WarRoom /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
+      {/* Body — live module, or scaffold for pillars not yet built.
+          Budgets runs on the Field·Light soft-grey ground, full-bleed. */}
+      {pillar.id === 'budgets' ? <div style={{ flex: 1, background: '#E8E8EA' }}><BudgetsAdmin /></div> : pillar.id === 'crm' ? <WarRoom /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>

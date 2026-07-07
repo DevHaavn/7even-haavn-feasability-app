@@ -27,12 +27,12 @@ const ENTITY_COLOR: Record<string, string> = {
   hm: '#8FA8BF',        // Haavn Management — steel blue
   hprec: '#B48CD9',     // Haavn Precision — violet
   htec: '#5C6B7A',      // Haavn Technologies — slate (dormant)
-  group: '#E8E8E8',
+  group: '#0D0D0F',
 }
 
 const XERO_BLUE = '#13B5EA'
-const POS = '#6FD39A'
-const NEG = '#E0808C'
+const POS = '#12A65A'
+const NEG = '#CE3B2E'
 const OPEXC = '#B8935A'
 
 const XERO_ORGS = [
@@ -145,23 +145,22 @@ const comma = (n: number) => Math.round(n).toLocaleString()
 
 // ── shared styles ────────────────────────────────────────────────────────────
 const panel: React.CSSProperties = {
-  border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16,
-  background: 'linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(0,0,0,0.25))',
-  backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 14px 36px rgba(0,0,0,0.35)',
+  border: '1px solid #D3D4D8', borderRadius: 16,
+  background: '#F6F6F7',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   padding: '22px 24px',
 }
 const panelTitle: React.CSSProperties = {
-  color: 'rgba(255,255,255,0.55)', fontSize: 9, letterSpacing: '0.28em',
+  color: '#4A4B50', fontSize: 9, letterSpacing: '0.28em',
   textTransform: 'uppercase', marginBottom: 16, fontWeight: 700,
 }
 const labelStyle: React.CSSProperties = {
-  color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: '0.22em',
+  color: '#63656C', fontSize: 8, letterSpacing: '0.22em',
   textTransform: 'uppercase', display: 'block', marginBottom: 5,
 }
 const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)',
-  borderRadius: 8, color: '#fff', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
+  background: '#fff', border: '1px solid #D3D4D8',
+  borderRadius: 8, color: '#0D0D0F', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
 }
 
 // ── sparkline ────────────────────────────────────────────────────────────────
@@ -242,7 +241,7 @@ export default function BudgetsAdmin() {
   const entities = data.entities
   const isGroup = sel === 'group'
   const entity = entities.find(e => e.id === sel)
-  const accent = ENTITY_COLOR[sel] || '#E8E8E8'
+  const accent = ENTITY_COLOR[sel] || '#0D0D0F'
   const c = useMemo(() => (isGroup ? calcGroup(entities, through) : entity ? calcEntity(entity, through) : calcGroup(entities, through)), [entities, sel, through])
 
   function update(next: AdminData) { setData(next); saveData(next) }
@@ -328,14 +327,14 @@ export default function BudgetsAdmin() {
   const navBtn = (id: string, label: string) => (
     <button key={id} onClick={() => setSel(id)} className="glass-btn"
       style={{ padding: '8px 16px', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700,
-        color: sel === id ? (ENTITY_COLOR[id] || '#fff') : 'rgba(255,255,255,0.45)',
+        color: sel === id ? (ENTITY_COLOR[id] || '#fff') : '#63656C',
         borderColor: sel === id ? `${ENTITY_COLOR[id] || '#fff'}88` : undefined }}>
       {label}
     </button>
   )
   const viewTab = (v: View, label: string) => (
     <button key={v} onClick={() => setView(v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 2px',
-      color: view === v ? accent : 'rgba(255,255,255,0.40)', borderBottom: `2px solid ${view === v ? accent : 'transparent'}`,
+      color: view === v ? accent : '#63656C', borderBottom: `2px solid ${view === v ? accent : 'transparent'}`,
       fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, transition: 'all 0.2s' }}>{label}</button>
   )
 
@@ -358,9 +357,9 @@ export default function BudgetsAdmin() {
           <span style={{ ...labelStyle, marginBottom: 0 }}>Projects</span>
           {PROJECT_LINKS[sel].map(link => (
             <button key={link.projectId} onClick={() => setView('tracking')}
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 999, color: 'rgba(255,255,255,0.7)', fontSize: 9, letterSpacing: '0.08em', padding: '5px 12px', cursor: 'pointer' }}
+              style={{ background: '#F0F0F2', border: '1px solid #D3D4D8', borderRadius: 999, color: '#2A2B2E', fontSize: 9, letterSpacing: '0.08em', padding: '5px 12px', cursor: 'pointer' }}
               title={`${link.label} — live from the feasibility studio`}>
-              {link.group} <span style={{ color: 'rgba(255,255,255,0.35)' }}>· {link.label}</span>
+              {link.group} <span style={{ color: '#8A8C92' }}>· {link.label}</span>
             </button>
           ))}
         </div>
@@ -369,23 +368,23 @@ export default function BudgetsAdmin() {
       {/* header + through selector */}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>
+          <h1 style={{ color: '#0D0D0F', fontSize: 22, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>
             {isGroup ? 'Group — consolidated' : entity?.name}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, letterSpacing: '0.06em', margin: '4px 0 0' }}>
+          <p style={{ color: '#63656C', fontSize: 10, letterSpacing: '0.06em', margin: '4px 0 0' }}>
             {isGroup ? `${entities.length} entities · FY27 budget · ex-GST · AUD` : entity?.type}
           </p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ ...labelStyle, marginBottom: 0 }}>Through</span>
           <select value={through} onChange={e => setThrough(+e.target.value)} style={{ ...inputStyle, width: 'auto', padding: '6px 10px' }}>
-            {CFO_MONTHS.map((m, i) => <option key={i} value={i} style={{ background: '#111' }}>{m}-{CFO_YEARS[i]}</option>)}
+            {CFO_MONTHS.map((m, i) => <option key={i} value={i} style={{ background: '#fff' }}>{m}-{CFO_YEARS[i]}</option>)}
           </select>
         </div>
       </div>
 
       {/* view tabs */}
-      <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid #DEDEE1' }}>
         {viewTab('dashboard', 'Dashboard')}
         {!isGroup && PROJECT_LINKS[sel] && viewTab('tracking', 'Project tracking')}
         {!isGroup && viewTab('entry', 'Budget entry')}
@@ -415,7 +414,7 @@ export default function BudgetsAdmin() {
               {insights.map(([cl, t], i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotc[cl], marginTop: 5, flexShrink: 0 }} />
-                  <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12.5, lineHeight: 1.55, margin: 0 }}>{t}</p>
+                  <p style={{ color: '#1A1B1E', fontSize: 12.5, lineHeight: 1.55, margin: 0 }}>{t}</p>
                 </div>
               ))}
             </div>
@@ -500,7 +499,7 @@ export default function BudgetsAdmin() {
               {showAdd ? 'Close' : '+ New Transaction'}
             </button>
           </div>
-          {syncMsg && <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10, margin: '-6px 0 12px' }}>{syncMsg}</p>}
+          {syncMsg && <p style={{ color: '#4A4B50', fontSize: 10, margin: '-6px 0 12px' }}>{syncMsg}</p>}
           {showAdd && (
             <div style={{ border: `1px solid ${XERO_BLUE}33`, borderRadius: 12, padding: 18, marginBottom: 18, background: `${XERO_BLUE}08` }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
@@ -525,26 +524,26 @@ export default function BudgetsAdmin() {
             </div>
           )}
           {txns.length === 0 ? (
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>No transactions yet — add the first, or connect Xero to pull them in automatically.</p>
+            <p style={{ color: '#8A8C92', fontSize: 12 }}>No transactions yet — add the first, or connect Xero to pull them in automatically.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {txns.map(t => {
                 const proj = t.projectId ? projects.find(p => p.id === t.projectId) : undefined
                 const org = XERO_ORGS.find(o => o.id === t.xeroOrg)
                 return (
-                  <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '10px minmax(100px,1fr) minmax(120px,1.7fr) minmax(86px,0.9fr) 104px 92px 80px 22px', gap: 10, alignItems: 'center', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div key={t.id} style={{ display: 'grid', gridTemplateColumns: '10px minmax(100px,1fr) minmax(120px,1.7fr) minmax(86px,0.9fr) 104px 92px 80px 22px', gap: 10, alignItems: 'center', padding: '10px 12px', borderRadius: 10, background: '#F6F6F7', border: '1px solid #E4E4E7' }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: t.type === 'invoice' ? XERO_BLUE : '#C4973A' }} />
-                    <span style={{ color: '#fff', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.contact}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ color: '#0D0D0F', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.contact}</span>
+                    <span style={{ color: '#4A4B50', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {t.sourceId?.startsWith('sale:') && <span style={{ color: '#FF6A45', fontSize: 8, letterSpacing: '0.1em', marginRight: 6 }}>↔ SALES</span>}
                       {t.desc || t.category}{proj ? ` · ${proj.name}` : ''}
                     </span>
                     <span style={{ color: `${XERO_BLUE}CC`, fontSize: 9, letterSpacing: '0.08em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{org?.short || '—'}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(t.amount)}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{t.date}</span>
+                    <span style={{ color: '#0D0D0F', fontSize: 12, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(t.amount)}</span>
+                    <span style={{ color: '#8A8C92', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{t.date}</span>
                     <button onClick={() => update({ ...data, txns: data.txns.map(x => x.id === t.id ? { ...x, status: x.status === 'paid' ? 'awaiting' : 'paid' } : x) })}
-                      style={{ background: 'none', cursor: 'pointer', borderRadius: 8, padding: '4px 8px', border: `1px solid ${t.status === 'paid' ? '#3DAA6A55' : 'rgba(255,255,255,0.18)'}`, color: t.status === 'paid' ? POS : 'rgba(255,255,255,0.5)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>{t.status}</button>
-                    <button onClick={() => update({ ...data, txns: data.txns.filter(x => x.id !== t.id) })} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.25)', fontSize: 13 }}>×</button>
+                      style={{ background: 'none', cursor: 'pointer', borderRadius: 8, padding: '4px 8px', border: `1px solid ${t.status === 'paid' ? '#3DAA6A55' : '#D3D4D8'}`, color: t.status === 'paid' ? POS : '#4A4B50', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>{t.status}</button>
+                    <button onClick={() => update({ ...data, txns: data.txns.filter(x => x.id !== t.id) })} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9A9CA3', fontSize: 13 }}>×</button>
                   </div>
                 )
               })}
@@ -558,16 +557,16 @@ export default function BudgetsAdmin() {
         <div style={panel}>
           <p style={panelTitle}>Project Spend — pushed &amp; pulled with the feasibility studio</p>
           {projectSpend.size === 0 ? (
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>Tag bills to a project and live spend totals appear here and against each project.</p>
+            <p style={{ color: '#8A8C92', fontSize: 12 }}>Tag bills to a project and live spend totals appear here and against each project.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               {[...projectSpend.entries()].map(([pid, spend]) => {
                 const proj = projects.find(p => p.id === pid); if (!proj) return null
                 return (
-                  <div key={pid} style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.02)' }}>
-                    <p style={{ color: '#fff', fontSize: 12, fontWeight: 600, margin: '0 0 6px' }}>{proj.name}</p>
+                  <div key={pid} style={{ border: '1px solid #DEDEE1', borderRadius: 12, padding: '14px 16px', background: '#F6F6F7' }}>
+                    <p style={{ color: '#0D0D0F', fontSize: 12, fontWeight: 600, margin: '0 0 6px' }}>{proj.name}</p>
                     <p style={{ color: XERO_BLUE, fontSize: 16, fontFamily: 'var(--font-mono)', margin: 0 }}>{fmt$(spend)}</p>
-                    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '6px 0 0' }}>Live spend to date</p>
+                    <p style={{ color: '#8A8C92', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '6px 0 0' }}>Live spend to date</p>
                   </div>
                 )
               })}
@@ -583,11 +582,11 @@ export default function BudgetsAdmin() {
 function Kpi({ label, value, meta, spark, color, valColor, bar, barColor }: { label: string; value: string; meta: string; spark?: number[]; color?: string; valColor?: string; bar?: number; barColor?: string }) {
   return (
     <div style={{ ...panel, padding: '16px 18px' }}>
-      <p style={{ color: 'rgba(255,255,255,0.40)', fontSize: 7.5, letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 8px' }}>{label}</p>
-      <p style={{ color: valColor || '#fff', fontSize: 20, fontWeight: 600, margin: 0, fontFamily: 'var(--font-mono)' }}>{value}</p>
-      <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 9, margin: '5px 0 0' }}>{meta}</p>
+      <p style={{ color: '#63656C', fontSize: 7.5, letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 8px' }}>{label}</p>
+      <p style={{ color: valColor || '#0D0D0F', fontSize: 20, fontWeight: 600, margin: 0, fontFamily: 'var(--font-mono)' }}>{value}</p>
+      <p style={{ color: '#8A8C92', fontSize: 9, margin: '5px 0 0' }}>{meta}</p>
       {spark && color && <Spark arr={spark} color={color} />}
-      {bar != null && <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.08)', marginTop: 10, overflow: 'hidden' }}><div style={{ width: `${Math.max(4, Math.min(100, bar * 100))}%`, height: '100%', background: barColor || '#888' }} /></div>}
+      {bar != null && <div style={{ height: 5, borderRadius: 3, background: '#DEDEE1', marginTop: 10, overflow: 'hidden' }}><div style={{ width: `${Math.max(4, Math.min(100, bar * 100))}%`, height: '100%', background: barColor || '#888' }} /></div>}
     </div>
   )
 }
@@ -598,11 +597,11 @@ function BarsH({ items, color }: { items: { label: string; v: number }[]; color?
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {items.map((it, i) => (
         <div key={i} style={{ display: 'grid', gridTemplateColumns: '128px 1fr 62px', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.label}</span>
-          <div style={{ height: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 3, position: 'relative' }}>
+          <span style={{ color: '#4A4B50', fontSize: 10.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.label}</span>
+          <div style={{ height: 12, background: '#EDEDEF', borderRadius: 3, position: 'relative' }}>
             <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${Math.abs(it.v) / max * 100}%`, background: it.v < 0 ? NEG : (color || '#6E9BE6'), borderRadius: 3 }} />
           </div>
-          <span style={{ color: it.v < 0 ? NEG : 'rgba(255,255,255,0.8)', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{(it.v < 0 ? '-$' : '$') + Math.abs(Math.round(it.v)) + 'k'}</span>
+          <span style={{ color: it.v < 0 ? NEG : '#0D0D0F', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{(it.v < 0 ? '-$' : '$') + Math.abs(Math.round(it.v)) + 'k'}</span>
         </div>
       ))}
     </div>
@@ -618,7 +617,7 @@ function BarsV({ labels, values }: { labels: string[]; values: number[] }) {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', width: '100%', alignItems: 'center' }}>
             <div style={{ width: '78%', maxWidth: 26, height: `${Math.abs(v) / max * 100}%`, minHeight: 2, borderRadius: 3, background: v < 0 ? NEG : 'linear-gradient(to top, #6E9BE644, #6E9BE6)' }} />
           </div>
-          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 7.5, marginTop: 5 }}>{labels[i]}</span>
+          <span style={{ color: '#8A8C92', fontSize: 7.5, marginTop: 5 }}>{labels[i]}</span>
         </div>
       ))}
     </div>
@@ -627,14 +626,14 @@ function BarsV({ labels, values }: { labels: string[]; values: number[] }) {
 
 function Pl({ l, v, tot, ind, net }: { l: string; v: number; tot?: boolean; ind?: boolean; net?: boolean }) {
   return (
-    <tr style={{ borderTop: tot ? '1px solid rgba(255,255,255,0.14)' : undefined }}>
-      <td style={{ padding: net ? '9px 10px' : '7px 0', paddingLeft: ind ? 26 : net ? 10 : 0, color: net ? '#E8B84B' : tot ? '#fff' : 'rgba(255,255,255,0.7)', fontSize: 12.5, fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{l}</td>
-      <td style={{ padding: net ? '9px 10px' : '7px 0', textAlign: 'right', color: v < 0 ? NEG : tot ? '#fff' : 'rgba(255,255,255,0.85)', fontSize: 12.5, fontFamily: 'var(--font-mono)', fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{fmt$(v)}</td>
+    <tr style={{ borderTop: tot ? '1px solid #D3D4D8' : undefined }}>
+      <td style={{ padding: net ? '9px 10px' : '7px 0', paddingLeft: ind ? 26 : net ? 10 : 0, color: net ? '#E8B84B' : tot ? '#0D0D0F' : '#2A2B2E', fontSize: 12.5, fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{l}</td>
+      <td style={{ padding: net ? '9px 10px' : '7px 0', textAlign: 'right', color: v < 0 ? NEG : tot ? '#0D0D0F' : '#0D0D0F', fontSize: 12.5, fontFamily: 'var(--font-mono)', fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{fmt$(v)}</td>
     </tr>
   )
 }
 function PlSec({ t, col }: { t: string; col?: string }) {
-  return <tr><td colSpan={2} style={{ padding: '10px 0 3px', borderTop: '1px solid rgba(255,255,255,0.12)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: col || '#E8B84B', fontWeight: 700 }}>{t}</td></tr>
+  return <tr><td colSpan={2} style={{ padding: '10px 0 3px', borderTop: '1px solid #D3D4D8', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: col || '#E8B84B', fontWeight: 700 }}>{t}</td></tr>
 }
 
 function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: number; calc: ReturnType<typeof calcEntity> }) {
@@ -649,23 +648,23 @@ function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: nu
           const col = r.mult >= 3 ? POS : r.mult >= 1.5 ? '#E8B84B' : NEG
           const over = r.gr >= r.targetRev
           return (
-            <div key={r.name} style={{ border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '14px 16px' }}>
-              <div style={{ color: '#fff', fontSize: 13.5, fontWeight: 600 }}>{r.name}</div>
+            <div key={r.name} style={{ border: '1px solid #D3D4D8', borderRadius: 10, padding: '14px 16px' }}>
+              <div style={{ color: '#0D0D0F', fontSize: 13.5, fontWeight: 600 }}>{r.name}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '8px 0' }}>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 24, fontWeight: 600, color: col }}>{r.mult.toFixed(2)}×</span>
-                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10 }}>/ target 3.0×</span>
+                <span style={{ color: '#63656C', fontSize: 10 }}>/ target 3.0×</span>
               </div>
-              <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 10 }}><div style={{ width: `${Math.max(2, Math.min(100, r.mult / 3 * 100))}%`, height: '100%', background: col }} /></div>
-              <table style={{ width: '100%', fontSize: 11.5, color: 'rgba(255,255,255,0.6)', borderCollapse: 'collapse' }}><tbody>
-                <tr><td>Gross revenue</td><td style={{ textAlign: 'right', color: '#fff', fontFamily: 'var(--font-mono)' }}>{fmt$(r.gr)}</td></tr>
-                <tr><td>Salary + super</td><td style={{ textAlign: 'right', color: '#fff', fontFamily: 'var(--font-mono)' }}>{fmt$(r.cost)}</td></tr>
+              <div style={{ height: 5, borderRadius: 3, background: '#DEDEE1', overflow: 'hidden', marginBottom: 10 }}><div style={{ width: `${Math.max(2, Math.min(100, r.mult / 3 * 100))}%`, height: '100%', background: col }} /></div>
+              <table style={{ width: '100%', fontSize: 11.5, color: '#4A4B50', borderCollapse: 'collapse' }}><tbody>
+                <tr><td>Gross revenue</td><td style={{ textAlign: 'right', color: '#0D0D0F', fontFamily: 'var(--font-mono)' }}>{fmt$(r.gr)}</td></tr>
+                <tr><td>Salary + super</td><td style={{ textAlign: 'right', color: '#0D0D0F', fontFamily: 'var(--font-mono)' }}>{fmt$(r.cost)}</td></tr>
                 <tr><td>{over ? 'Above 3×' : 'Gap to 3×'}</td><td style={{ textAlign: 'right', color: over ? POS : NEG, fontFamily: 'var(--font-mono)' }}>{over ? '+' : ''}{fmt$(Math.abs(r.gr - r.targetRev))}</td></tr>
               </tbody></table>
             </div>
           )
         })}
       </div>
-      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10.5, lineHeight: 1.6, margin: '14px 0 0' }}>
+      <p style={{ color: '#63656C', fontSize: 10.5, lineHeight: 1.6, margin: '14px 0 0' }}>
         Cost base = wage + super. Target: each fee-earner bills 3× their salary + super (the consulting rule of thirds). Green ≥3× · amber 1.5–3× · red &lt;1.5×.
         {balance > 0 && <> If every fee-earner hit 3×, gross revenue would rise by {fmt$(balance)} to {fmt$(calc.tRev + balance)}.</>}
       </p>
@@ -686,7 +685,7 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ ...panel, padding: '16px 20px' }}>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11.5, lineHeight: 1.6, margin: 0 }}>
+        <p style={{ color: '#4A4B50', fontSize: 11.5, lineHeight: 1.6, margin: 0 }}>
           Live link to the feasibility studio. Each project's <strong>total development cost</strong> is read straight from its cost stack, the <strong>3% DM fee</strong> is recomputed from it, and <strong>actual spend</strong> is every bill tagged to the project. When a cost blows out, it flags here and in the project's cost stack — for both the admin and PM teams.
         </p>
       </div>
@@ -715,10 +714,10 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
           return (
             <div key={link.projectId} style={{ ...panel, padding: '18px 20px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{link.group}</span>
+                <span style={{ color: '#0D0D0F', fontSize: 14, fontWeight: 600 }}>{link.group}</span>
                 <span style={{ color: blowout ? NEG : POS, fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>{blowout ? '⚠ Cost blowout' : '● On budget'}</span>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, margin: '0 0 14px' }}>{proj ? proj.name : link.label} · feasibility studio</p>
+              <p style={{ color: '#63656C', fontSize: 10, margin: '0 0 14px' }}>{proj ? proj.name : link.label} · feasibility studio</p>
 
               <Row label="Total development cost" value={fmt$(tdc)} sub="live from cost stack" />
               <Row label="3% DM fee — live" value={`${fmt$(liveDm)}/yr`} sub={Math.abs(feeDrift) > 0.02 ? `budgeted ${fmt$(budgetedDm)} · ${feeDrift > 0 ? '+' : ''}${(feeDrift * 100).toFixed(0)}%` : 'matches budget'} subColor={Math.abs(feeDrift) > 0.02 ? '#E8B84B' : POS} />
@@ -730,10 +729,10 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
               {/* spend vs TDC bar */}
               <div style={{ marginTop: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Spend vs TDC</span>
-                  <span style={{ color: blowout ? NEG : 'rgba(255,255,255,0.7)', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{(spendPct * 100).toFixed(0)}%</span>
+                  <span style={{ color: '#63656C', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Spend vs TDC</span>
+                  <span style={{ color: blowout ? NEG : '#2A2B2E', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{(spendPct * 100).toFixed(0)}%</span>
                 </div>
-                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                <div style={{ height: 6, borderRadius: 3, background: '#DEDEE1', overflow: 'hidden' }}>
                   <div style={{ width: `${Math.max(2, Math.min(100, spendPct * 100))}%`, height: '100%', background: blowout ? NEG : spendPct > 0.85 ? '#E8B84B' : accent }} />
                 </div>
               </div>
@@ -785,12 +784,12 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
   const delLine = (cat: Cat, id: string) => saveD({ ...dcs, [cat]: dcs[cat].filter(l => l.id !== id) })
 
   const finNum = (label: string, value: number, onSave: (v: number) => void, pct = false, suffix = '') => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{label}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #E4E4E7' }}>
+      <span style={{ color: '#4A4B50', fontSize: 13 }}>{label}</span>
       <span>
         <input type="number" defaultValue={pct ? +(value * 100).toFixed(3) : value} onBlur={e => { const raw = parseFloat(e.target.value) || 0; onSave(pct ? raw / 100 : raw) }}
-          style={{ width: 120, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 9px', outline: 'none' }} />
-        <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginLeft: 6 }}>{pct ? '%' : suffix}</span>
+          style={{ width: 120, textAlign: 'right', background: '#F4F4F5', border: '1px solid #D3D4D8', borderRadius: 6, color: '#0D0D0F', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 9px', outline: 'none' }} />
+        <span style={{ color: '#8A8C92', fontSize: 11, marginLeft: 6 }}>{pct ? '%' : suffix}</span>
       </span>
     </div>
   )
@@ -800,18 +799,18 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
     <div style={panel}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
         <span style={{ color: accent, fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>{DETAIL_TABS.find(t => t.id === cat)?.label}</span>
-        <span style={{ color: '#fff', fontSize: 16, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{fmt$(lineTotal(dcs[cat]))}</span>
+        <span style={{ color: '#0D0D0F', fontSize: 16, fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{fmt$(lineTotal(dcs[cat]))}</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {dcs[cat].length === 0 && <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>No line items yet — add the first below.</p>}
+        {dcs[cat].length === 0 && <p style={{ color: '#8A8C92', fontSize: 12 }}>No line items yet — add the first below.</p>}
         {dcs[cat].map(l => (
-          <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0', borderBottom: '1px solid #F0F0F2' }}>
             <input defaultValue={l.label} onBlur={e => e.target.value !== l.label && editLine(cat, l.id, { label: e.target.value })}
-              style={{ flex: 1, background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.8)', fontSize: 13, padding: '6px 0', outline: 'none' }} />
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>$</span>
+              style={{ flex: 1, background: 'transparent', border: 'none', color: '#0D0D0F', fontSize: 13, padding: '6px 0', outline: 'none' }} />
+            <span style={{ color: '#8A8C92', fontSize: 12 }}>$</span>
             <input type="number" defaultValue={l.amount || ''} onBlur={e => { const v = parseFloat(e.target.value) || 0; if (v !== l.amount) editLine(cat, l.id, { amount: v }) }}
-              style={{ width: 140, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 10px', outline: 'none' }} />
-            <button onClick={() => delLine(cat, l.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', cursor: 'pointer', fontSize: 15 }}>×</button>
+              style={{ width: 140, textAlign: 'right', background: '#F4F4F5', border: '1px solid #D3D4D8', borderRadius: 6, color: '#0D0D0F', fontSize: 13, fontFamily: 'var(--font-mono)', padding: '7px 10px', outline: 'none' }} />
+            <button onClick={() => delLine(cat, l.id)} style={{ background: 'none', border: 'none', color: '#9A9CA3', cursor: 'pointer', fontSize: 15 }}>×</button>
           </div>
         ))}
       </div>
@@ -824,23 +823,23 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '24px 24px 60px' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-          <button onClick={onClose} className="glass-btn" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 16px' }}>← Back</button>
+          <button onClick={onClose} className="glass-btn" style={{ color: '#0D0D0F', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 16px' }}>← Back</button>
           <div>
-            <h1 style={{ color: '#fff', fontSize: 20, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>{projectName}</h1>
+            <h1 style={{ color: '#0D0D0F', fontSize: 20, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>{projectName}</h1>
             <p style={{ color: '#6FD39A', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '3px 0 0' }}>● Live · edits sync with the feasibility studio</p>
           </div>
           <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Total development cost</p>
+            <p style={{ color: '#63656C', fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Total development cost</p>
             <p style={{ color: '#C4973A', fontSize: 20, fontFamily: 'var(--font-mono)', fontWeight: 600, margin: '2px 0 0' }}>{fmt$(tdc)}</p>
           </div>
         </div>
 
         {/* Tab bar — same headers as the feasibility studio */}
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 18, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #DEDEE1', marginBottom: 18, overflowX: 'auto' }}>
           {DETAIL_TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 14px', whiteSpace: 'nowrap',
-                color: tab === t.id ? t.accent : 'rgba(255,255,255,0.4)', borderBottom: `2px solid ${tab === t.id ? t.accent : 'transparent'}`,
+                color: tab === t.id ? t.accent : '#63656C', borderBottom: `2px solid ${tab === t.id ? t.accent : 'transparent'}`,
                 fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, transition: 'all 0.2s' }}>
               {t.label}
             </button>
@@ -852,19 +851,19 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
           <div style={panel}>
             <p style={panelTitle}>Cost breakdown</p>
             {([['Land', catTotals.land], ['Consultants', catTotals.consultants], ['Statutory & finance', catTotals.statutory], ['Hard costs', catTotals.hardCosts], ['Marketing & other', catTotals.marketing]] as [string, number][]).map(([label, v]) => (
-              <div key={label} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12.5 }}>{label}</span>
-                <div style={{ height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden' }}>
+              <div key={label} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #EDEDEF' }}>
+                <span style={{ color: '#3A3B40', fontSize: 12.5 }}>{label}</span>
+                <div style={{ height: 8, background: '#EDEDEF', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ width: `${tdc ? Math.max(1, v / tdc * 100) : 0}%`, height: '100%', background: '#C4973A' }} />
                 </div>
-                <span style={{ color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(v)}</span>
+                <span style={{ color: '#0D0D0F', fontSize: 13, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(v)}</span>
               </div>
             ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14, marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.14)' }}>
-              <span style={{ color: '#fff', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>Total development cost</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14, marginTop: 6, borderTop: '1px solid #D3D4D8' }}>
+              <span style={{ color: '#0D0D0F', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>Total development cost</span>
               <span style={{ color: '#C4973A', fontSize: 18, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmt$(tdc)}</span>
             </div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11.5, lineHeight: 1.6, marginTop: 16 }}>
+            <p style={{ color: '#63656C', fontSize: 11.5, lineHeight: 1.6, marginTop: 16 }}>
               Live 3% DM fee from this TDC: <strong style={{ color: '#6FD39A' }}>{fmt$(tdc * 0.03)}/yr</strong>. Tap any tab above to edit that part of the budget — every change writes straight to the project's cost stack, land and finance tabs in the feasibility studio, and back.
             </p>
           </div>
@@ -876,11 +875,11 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
             {finNum('Land cost', land.landCost || 0, v => saveL({ ...land, landCost: v }))}
             {finNum('In-kind GFA (sqm)', land.inKindGFA || 0, v => saveL({ ...land, inKindGFA: v }))}
             {finNum('In-kind rate ($/sqm)', land.inKindRatePerSqm || 0, v => saveL({ ...land, inKindRatePerSqm: v }))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.10)', marginTop: 6 }}>
-              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>In-kind consideration value</span>
-              <span style={{ color: '#fff', fontSize: 13, fontFamily: 'var(--font-mono)' }}>{fmt$((land.inKindGFA || 0) * (land.inKindRatePerSqm || 0))}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid #D3D4D8', marginTop: 6 }}>
+              <span style={{ color: '#4A4B50', fontSize: 13 }}>In-kind consideration value</span>
+              <span style={{ color: '#0D0D0F', fontSize: 13, fontFamily: 'var(--font-mono)' }}>{fmt$((land.inKindGFA || 0) * (land.inKindRatePerSqm || 0))}</span>
             </div>
-            {land.inKindNote && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11.5, marginTop: 10 }}>{land.inKindNote}</p>}
+            {land.inKindNote && <p style={{ color: '#63656C', fontSize: 11.5, marginTop: 10 }}>{land.inKindNote}</p>}
           </div>
         )}
 
@@ -899,14 +898,14 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
             {finNum('Construction (months)', fin.constructionMonths || 0, v => saveF({ ...fin, constructionMonths: v }))}
             {fin.tranches && fin.tranches.length > 0 && (
               <div style={{ marginTop: 18 }}>
-                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 8px' }}>Debt tranches</p>
+                <p style={{ color: '#63656C', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 8px' }}>Debt tranches</p>
                 {fin.tranches.map(t => (
-                  <div key={t.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <span style={{ flex: 1, color: 'rgba(255,255,255,0.75)', fontSize: 12.5 }}>{t.label}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t.type}</span>
+                  <div key={t.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #EDEDEF' }}>
+                    <span style={{ flex: 1, color: '#1A1B1E', fontSize: 12.5 }}>{t.label}</span>
+                    <span style={{ color: '#8A8C92', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t.type}</span>
                     <input type="number" defaultValue={+(t.interestRate * 100).toFixed(2)} onBlur={e => { const v = (parseFloat(e.target.value) || 0) / 100; saveF({ ...fin, tranches: fin.tranches.map(x => x.id === t.id ? { ...x, interestRate: v } : x) }) }}
-                      style={{ width: 76, textAlign: 'right', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 6, color: '#fff', fontSize: 12.5, fontFamily: 'var(--font-mono)', padding: '6px 9px', outline: 'none' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11 }}>%</span>
+                      style={{ width: 76, textAlign: 'right', background: '#F4F4F5', border: '1px solid #D3D4D8', borderRadius: 6, color: '#0D0D0F', fontSize: 12.5, fontFamily: 'var(--font-mono)', padding: '6px 9px', outline: 'none' }} />
+                    <span style={{ color: '#8A8C92', fontSize: 11 }}>%</span>
                   </div>
                 ))}
               </div>
@@ -920,11 +919,11 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
 
 function Row({ label, value, sub, subColor }: { label: string; value: string; sub?: string; subColor?: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-      <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11 }}>{label}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '5px 0', borderBottom: '1px solid #EDEDEF' }}>
+      <span style={{ color: '#4A4B50', fontSize: 11 }}>{label}</span>
       <span style={{ textAlign: 'right' }}>
-        <span style={{ color: '#fff', fontSize: 12.5, fontFamily: 'var(--font-mono)' }}>{value}</span>
-        {sub && <span style={{ display: 'block', color: subColor || 'rgba(255,255,255,0.35)', fontSize: 8.5, marginTop: 1 }}>{sub}</span>}
+        <span style={{ color: '#0D0D0F', fontSize: 12.5, fontFamily: 'var(--font-mono)' }}>{value}</span>
+        {sub && <span style={{ display: 'block', color: subColor || '#8A8C92', fontSize: 8.5, marginTop: 1 }}>{sub}</span>}
       </span>
     </div>
   )
@@ -957,16 +956,16 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
   const hasTax = entity.lines.some(l => l.fin && l.tax)
   const hasPipe = entity.lines.some(l => l.s === 'revenue' && l.pipeline)
 
-  const cellStyle: React.CSSProperties = { width: 60, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 5, color: 'rgba(255,255,255,0.85)', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '4px 5px', outline: 'none' }
-  const th: React.CSSProperties = { color: 'rgba(255,255,255,0.4)', fontSize: 8, letterSpacing: '0.06em', padding: '8px 5px', textAlign: 'right', minWidth: 62 }
-  const stick: React.CSSProperties = { position: 'sticky', left: 0, background: '#0B0B0B', zIndex: 2 }
+  const cellStyle: React.CSSProperties = { width: 60, background: '#F6F6F7', border: '1px solid #E4E4E7', borderRadius: 5, color: '#0D0D0F', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '4px 5px', outline: 'none' }
+  const th: React.CSSProperties = { color: '#63656C', fontSize: 8, letterSpacing: '0.06em', padding: '8px 5px', textAlign: 'right', minWidth: 62 }
+  const stick: React.CSSProperties = { position: 'sticky', left: 0, background: '#F6F6F7', zIndex: 2 }
 
   const renderLines = (arr: BudgetLine[]) => {
     // group by grp with a sub-header
     let last: string | null = null
     const out: React.ReactNode[] = []
     arr.forEach(l => {
-      if (l.grp && l.grp !== last) { out.push(<tr key={`h-${l.grp}-${l.id}`}><td style={{ ...stick, padding: '9px 12px 3px', color: 'rgba(255,255,255,0.5)', fontSize: 10, letterSpacing: '0.08em' }}>{l.grp}</td>{CFO_MONTHS.map((_, i) => <td key={i} />)}<td /><td /></tr>); last = l.grp }
+      if (l.grp && l.grp !== last) { out.push(<tr key={`h-${l.grp}-${l.id}`}><td style={{ ...stick, padding: '9px 12px 3px', color: '#4A4B50', fontSize: 10, letterSpacing: '0.08em' }}>{l.grp}</td>{CFO_MONTHS.map((_, i) => <td key={i} />)}<td /><td /></tr>); last = l.grp }
       else if (!l.grp) last = null
       const tot = sum(l.m.map(x => +x || 0))
       out.push(
@@ -974,7 +973,7 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
           <td style={{ ...stick, padding: '2px 12px 2px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <input defaultValue={l.name} onBlur={e => e.target.value !== l.name && onName(l.id, e.target.value)}
-                style={{ background: 'transparent', border: 'none', outline: 'none', color: 'rgba(255,255,255,0.72)', fontSize: 11, width: 150 }} />
+                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#1A1B1E', fontSize: 11, width: 150 }} />
               {l.fin && <Tag t={l.tax ? 'tax' : 'financing'} />}
               {l.pipeline && <Tag t="pipeline" col="#8FA8BF" />}
               {l.splitGroup && <Tag t={`split ${l.pct}%`} col="#6E9BE6" />}
@@ -987,8 +986,8 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
               <input type="number" defaultValue={v || ''} onBlur={e => { const nv = parseFloat(e.target.value) || 0; if (nv !== v) onCell(l.id, mi, nv) }} style={{ ...cellStyle, color: v < 0 ? NEG : cellStyle.color }} />
             </td>
           ))}
-          <td style={{ color: tot < 0 ? NEG : 'rgba(255,255,255,0.55)', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '2px 10px' }}>{tot ? comma(tot) : '—'}</td>
-          <td style={{ textAlign: 'center' }}><button onClick={() => onDel(l.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>×</button></td>
+          <td style={{ color: tot < 0 ? NEG : '#4A4B50', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '2px 10px' }}>{tot ? comma(tot) : '—'}</td>
+          <td style={{ textAlign: 'center' }}><button onClick={() => onDel(l.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0B2B8', fontSize: 12 }}>×</button></td>
         </tr>
       )
     })
@@ -996,9 +995,9 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
   }
   const totalRow = (label: string, arr: number[], strong?: boolean) => (
     <tr>
-      <td style={{ ...stick, padding: '8px 12px', color: strong ? accent : 'rgba(255,255,255,0.8)', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.02em' }}>{label}</td>
-      {arr.map((v, i) => <td key={i} style={{ color: v < 0 ? NEG : 'rgba(255,255,255,0.7)', fontSize: 9.5, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '8px 5px' }}>{v ? comma(v) : '—'}</td>)}
-      <td style={{ color: sum(arr) < 0 ? NEG : (strong ? accent : 'rgba(255,255,255,0.85)'), fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '8px 10px', fontWeight: 700 }}>{comma(sum(arr))}</td>
+      <td style={{ ...stick, padding: '8px 12px', color: strong ? accent : '#0D0D0F', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.02em' }}>{label}</td>
+      {arr.map((v, i) => <td key={i} style={{ color: v < 0 ? NEG : '#2A2B2E', fontSize: 9.5, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '8px 5px' }}>{v ? comma(v) : '—'}</td>)}
+      <td style={{ color: sum(arr) < 0 ? NEG : (strong ? accent : '#0D0D0F'), fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '8px 10px', fontWeight: 700 }}>{comma(sum(arr))}</td>
       <td />
     </tr>
   )
@@ -1013,8 +1012,8 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
           <thead>
             <tr>
               <th style={{ ...stick, ...th, textAlign: 'left', minWidth: 200 }}>Line item</th>
-              {CFO_MONTHS.map((m, i) => <th key={i} style={th}>{m} <span style={{ color: 'rgba(255,255,255,0.25)' }}>{CFO_YEARS[i]}</span></th>)}
-              <th style={{ ...th, color: 'rgba(255,255,255,0.55)' }}>FY total</th>
+              {CFO_MONTHS.map((m, i) => <th key={i} style={th}>{m} <span style={{ color: '#9A9CA3' }}>{CFO_YEARS[i]}</span></th>)}
+              <th style={{ ...th, color: '#4A4B50' }}>FY total</th>
               <th style={{ width: 24 }} />
             </tr>
           </thead>
@@ -1056,5 +1055,5 @@ function Tag({ t, col }: { t: string; col?: string }) {
   return <span style={{ fontSize: 7.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: col || '#E8B84B', border: `1px solid ${(col || '#E8B84B')}55`, borderRadius: 4, padding: '1px 5px', fontWeight: 700 }}>{t}</span>
 }
 function MiniBtn({ label, title, onClick }: { label: string; title?: string; onClick: () => void }) {
-  return <button onClick={onClick} title={title} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, color: 'rgba(255,255,255,0.6)', fontSize: 8.5, padding: '2px 6px', cursor: 'pointer' }}>{label}</button>
+  return <button onClick={onClick} title={title} style={{ background: '#EDEDEF', border: '1px solid #D3D4D8', borderRadius: 5, color: '#4A4B50', fontSize: 8.5, padding: '2px 6px', cursor: 'pointer' }}>{label}</button>
 }
