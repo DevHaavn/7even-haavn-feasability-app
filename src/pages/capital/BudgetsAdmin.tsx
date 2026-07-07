@@ -340,9 +340,7 @@ export default function BudgetsAdmin() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', padding: '26px 24px 40px', display: 'flex', flexDirection: 'column', gap: 18,
-      background: '#E4E4E7', borderRadius: 20, border: '1px solid rgba(255,255,255,0.5)',
-      boxShadow: '0 28px 70px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.7)' }}>
+    <div className="premium-card" style={{ width: '100%', maxWidth: 1240, padding: '26px 24px 40px', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
       {/* entity nav + Xero */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

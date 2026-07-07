@@ -187,11 +187,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
           <div className="ws-col-header" style={{ flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-              {/* 7EVEN / HAAVN MANAGEMENT — black-chrome brand · acts as a view dropdown */}
+              {/* 7EVEN / HAAVN MANAGEMENT — the real silver brand mark · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <span className="chrome-silver-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: is7 ? '0.14em' : '0.14em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>▾</span>
+                {is7
+                  ? <img src="/seven-mark-white.png" alt="7EVEN" draggable={false} style={{ height: 21, width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
+                  : <span className="chrome-silver-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>HAAVN MANAGEMENT</span>}
+                <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>
               </button>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
@@ -214,7 +216,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               <button onClick={() => setArchiveMenu(v => !v)} title="Menu — Dashboard & Archive"
                 style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
                 {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
-                <span className="chrome-silver-text" style={{ fontSize: 24, fontWeight: 800, lineHeight: 1 }}>▾</span>
+                <span className="chrome-silver-text" style={{ fontSize: 44, fontWeight: 800, lineHeight: 0.6 }}>▾</span>
               </button>
               {archiveMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
