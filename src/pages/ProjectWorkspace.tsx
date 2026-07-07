@@ -56,6 +56,9 @@ const TABS = [
   { id: 'insights', label: 'Dashboard' },
 ]
 
+// Tabs that float in a centred premium card hovering over the dark texture.
+const PREMIUM_TABS = ['site', 'land', 'mix', 'btr', 'bts', 'hotel']
+
 export default function ProjectWorkspace() {
   const { activeProjectId, activeTab, setActiveTab, setActiveProject, projects } = useStore()
   const role = useRole()
@@ -119,20 +122,28 @@ export default function ProjectWorkspace() {
       </div>
 
       {/* Tab content — relative so absolute render-bg-fixed divs work on iOS */}
-      <div className="flex-1 overflow-auto workspace-content relative" style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
-        {activeTab === 'site' && <SiteDesignTab projectId={project.id} />}
-        {activeTab === 'land' && <LandTermsTab projectId={project.id} />}
-        {activeTab === 'mix' && <ProductMixTab projectId={project.id} />}
-        {activeTab === 'cost' && <CostStackTab projectId={project.id} />}
-        {activeTab === 'cashflow' && <CashflowTab projectId={project.id} />}
-        {activeTab === 'finance' && <FinanceTab projectId={project.id} />}
-        {activeTab === 'btr' && <BTRTab projectId={project.id} />}
-        {activeTab === 'bts' && <BTSTab projectId={project.id} />}
-        {activeTab === 'hotel' && <HotelTab projectId={project.id} />}
-        {activeTab === 'compare' && <ScenarioComparison projectId={project.id} />}
-        {activeTab === 'summary' && <SummaryTab projectId={project.id} />}
-        {activeTab === 'insights' && <ProjectDashboard projectId={project.id} />}
-        {activeTab === 'timeline' && <ProjectTimeline projectId={project.id} />}
+      <div className={`flex-1 overflow-auto workspace-content relative ${PREMIUM_TABS.includes(safeTab) ? 'premium-stage' : ''}`} style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+        {(() => {
+          const content = (
+            <>
+              {activeTab === 'site' && <SiteDesignTab projectId={project.id} />}
+              {activeTab === 'land' && <LandTermsTab projectId={project.id} />}
+              {activeTab === 'mix' && <ProductMixTab projectId={project.id} />}
+              {activeTab === 'cost' && <CostStackTab projectId={project.id} />}
+              {activeTab === 'cashflow' && <CashflowTab projectId={project.id} />}
+              {activeTab === 'finance' && <FinanceTab projectId={project.id} />}
+              {activeTab === 'btr' && <BTRTab projectId={project.id} />}
+              {activeTab === 'bts' && <BTSTab projectId={project.id} />}
+              {activeTab === 'hotel' && <HotelTab projectId={project.id} />}
+              {activeTab === 'compare' && <ScenarioComparison projectId={project.id} />}
+              {activeTab === 'summary' && <SummaryTab projectId={project.id} />}
+              {activeTab === 'insights' && <ProjectDashboard projectId={project.id} />}
+              {activeTab === 'timeline' && <ProjectTimeline projectId={project.id} />}
+            </>
+          )
+          // Premium tabs float in a centred card hovering over the dark texture.
+          return PREMIUM_TABS.includes(safeTab) ? <div key={safeTab} className="premium-card">{content}</div> : content
+        })()}
       </div>
 
       <Project7Mark size={58} bottom={12} right={16} />

@@ -366,3 +366,45 @@ input[type="checkbox"] {
     max-width: 100% !important;
   }
 }
+
+/* ── Premium floating stage — content pages hover over the dark texture ── */
+.premium-stage {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 36%, rgba(196,151,58,0.055), transparent 62%),
+    linear-gradient(rgba(4,4,4,0.50), rgba(3,3,3,0.74)),
+    url(/premium-bg.jpg) center / cover fixed,
+    #060606;
+  padding: clamp(14px, 3vh, 40px) clamp(10px, 3vw, 56px) clamp(32px, 6vh, 72px);
+}
+.premium-card {
+  max-width: 1180px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #F4F2EF;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 2px 0 rgba(255,255,255,0.10),
+    0 30px 60px -18px rgba(0,0,0,0.72),
+    0 70px 130px -34px rgba(0,0,0,0.60);
+  transform-origin: center top;
+  animation: premium-rise 0.55s cubic-bezier(0.22,0.9,0.24,1) both;
+}
+/* subtle gold rim on the top edge for the floating/3D read */
+.premium-card::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(to right, transparent, rgba(196,151,58,0.55) 30%, rgba(196,151,58,0.55) 70%, transparent);
+  z-index: 5; pointer-events: none;
+}
+.premium-card { position: relative; }
+@keyframes premium-rise {
+  from { opacity: 0; transform: translateY(22px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 700px) {
+  .premium-stage { padding: 8px 6px 20px; }
+  .premium-card { border-radius: 14px; }
+}
