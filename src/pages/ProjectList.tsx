@@ -166,8 +166,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </div>
       </div>
 
-      {/* ── Gold divider ── */}
-      <div style={{ height: 1, background: 'linear-gradient(to right, transparent, #C4973A 30%, #C4973A 70%, transparent)', flexShrink: 0 }} />
+      {/* ── Black-chrome shining divider ── */}
+      <div className="chrome-line" style={{ height: 2, flexShrink: 0 }} />
 
       {/* ── Lower half — shimmering particle backdrop behind the project panels ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
@@ -518,12 +518,13 @@ function CountdownClock({ projectId }: { projectId: string }) {
   }, [projectId])
 
   const W = 150
-  if (!target) return <div style={{ width: W, flexShrink: 0 }} />
+  const ML = 38   // ~1cm further right of the Live button
+  if (!target) return <div style={{ width: W, marginLeft: ML, flexShrink: 0 }} />
 
   const diff = target - now
   if (diff <= 0) {
     return (
-      <div style={{ width: W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+      <div style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
         <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.16em', color: '#3DAA6A', fontWeight: 700 }}>COMPLETE</span>
       </div>
@@ -539,16 +540,16 @@ function CountdownClock({ projectId }: { projectId: string }) {
   const near = months < 3
   return (
     <div title="Live countdown to feasibility completion"
-      style={{ width: W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+      style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
       <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0 }}>
-        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#E0A94A' : '#8A8F96', animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.5 }} />
-        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#E0A94A' : '#9BA1A8' }} />
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#F0B860' : '#FFFFFF', animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.55 }} />
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#F0B860' : '#FFFFFF' }} />
       </span>
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.05 }}>
-        <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: near ? '#E8C48A' : 'rgba(213,216,220,0.92)' }}>
-          {months}<span style={{ fontSize: 8, opacity: 0.6 }}>M</span> {days}<span style={{ fontSize: 8, opacity: 0.6 }}>D</span>
+        <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', color: near ? '#FFD9A0' : '#FFFFFF' }}>
+          {months}<span style={{ fontSize: 8, opacity: 0.75 }}>M</span> {days}<span style={{ fontSize: 8, opacity: 0.75 }}>D</span>
         </span>
-        <span style={{ fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.10em', color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+        <span style={{ fontFamily: 'monospace', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.10em', color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>
           {hh}:{mm}:{ss}
         </span>
       </div>

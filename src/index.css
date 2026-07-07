@@ -216,6 +216,15 @@ input[type="checkbox"] {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 26px rgba(0,0,0,0.45), 0 0 20px rgba(200,200,200,0.20);
 }
 
+/* Shining black-chrome divider — a bright band sweeps along the line on repeat */
+.chrome-line {
+  background: linear-gradient(to right, transparent 0%, #2A2A2A 18%, #9A9A9A 38%, #FFFFFF 50%, #9A9A9A 62%, #2A2A2A 82%, transparent 100%);
+  background-size: 220% 100%;
+  box-shadow: 0 0 8px rgba(255,255,255,0.10);
+  animation: chrome-line-move 4.2s linear infinite;
+}
+@keyframes chrome-line-move { 0% { background-position: 200% 0; } 100% { background-position: -60% 0; } }
+
 /* Shining black-chrome text — a bright band sweeps through the metal on repeat */
 .chrome-shine {
   background: linear-gradient(110deg, #8F8F8F 0%, #2B2B2B 26%, #FFFFFF 46%, #EDEDED 50%, #2B2B2B 70%, #8F8F8F 100%);
