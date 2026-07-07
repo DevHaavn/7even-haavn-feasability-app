@@ -216,6 +216,16 @@ input[type="checkbox"] {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 8px 26px rgba(0,0,0,0.45), 0 0 20px rgba(200,200,200,0.20);
 }
 
+/* Shining black-chrome text — a bright band sweeps through the metal on repeat */
+.chrome-shine {
+  background: linear-gradient(110deg, #8F8F8F 0%, #2B2B2B 26%, #FFFFFF 46%, #EDEDED 50%, #2B2B2B 70%, #8F8F8F 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: chrome-shine-move 3.4s linear infinite;
+}
+@keyframes chrome-shine-move { 0% { background-position: 210% 0; } 100% { background-position: -70% 0; } }
+
 /* Soft-orange button — warm glass, bright writing (home Dashboard) */
 .glass-btn-orange {
   border-color: rgba(232, 150, 80, 0.5);

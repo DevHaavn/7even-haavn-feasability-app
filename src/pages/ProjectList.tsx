@@ -57,6 +57,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   )
   const chooseBrand = (b: '7even' | 'haavn') => { setAdminBrand(b); localStorage.setItem('7even_admin_brand', b) }
   const [brandMenu, setBrandMenu] = useState(false)
+  const [archiveMenu, setArchiveMenu] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -85,11 +86,18 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
     setShowNew(true)
   }
 
+  // Archived projects drop off the live board (restored via the Archive dropdown).
+  // We use the persisted `status` field ('archived') so it survives cloud sync.
+  const live = projects.filter(p => p.status !== 'archived')
+  const archivedProjects = projects.filter(p => p.status === 'archived')
   // 7EVEN side = 7even + joint projects (what the master/admin manages).
-  const sevenProjects = projects.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
+  const sevenProjects = live.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
   // HAAVN Management manages EVERYTHING — every 7even project is mirrored here
   // for the management company plus any HAAVN-only projects.
-  const haavnProjects = projects
+  const haavnProjects = live
+  function setArchived(p: any, archived: boolean) {
+    updateProject({ ...p, status: archived ? 'archived' : 'active', updatedAt: new Date().toISOString() })
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#080808', overflow: 'hidden' }}>
@@ -191,36 +199,65 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           const accent = is7 ? '#C4973A' : 'rgba(255,255,255,0.75)'
           return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
-          {/* Column header */}
-          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(6,6,6,0.55)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
+          <div style={{ flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-              <div style={{ width: 2, height: 18, background: accent, flexShrink: 0 }} />
-              {/* 7EVEN / HAAVN MANAGEMENT logo — acts as a view dropdown for the director */}
+              {/* 7EVEN / HAAVN MANAGEMENT — black-chrome brand · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
                 style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: is7 ? '0.12em' : '0.16em', color: accent, whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
-                <span style={{ fontSize: 9, color: accent, opacity: 0.6 }}>▾</span>
+                <span className="chrome-black-text" style={{ fontSize: 14, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: is7 ? '0.14em' : '0.16em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)' }}>▾</span>
               </button>
-              <span style={{ fontSize: 8, color: '#333', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4 }}>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
               </span>
               {brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
-                  {([['7even', '7EVEN', '#C4973A'], ['haavn', 'HAAVN MANAGEMENT', 'rgba(255,255,255,0.85)']] as const).map(([id, lbl, col]) => (
+                  {([['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']] as const).map(([id, lbl]) => (
                     <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.05)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                      <span style={{ width: 2, height: 13, background: col, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', color: col, whiteSpace: 'nowrap' }}>{lbl}</span>
-                      {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: col }}>✓</span>}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
+                      <span className="chrome-black-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
+                      {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>}
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-orange"
-              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, padding: '9px 0', width: 150, textAlign: 'center' }}>
-              ▦ Dashboard
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+              {/* Archive dropdown — parked projects, restore to Live */}
+              <div style={{ position: 'relative' }}>
+                <button onClick={() => setArchiveMenu(v => !v)} className="glass-btn glass-btn-grey"
+                  style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '9px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  ▤ Archive{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''} <span style={{ opacity: 0.6 }}>▾</span>
+                </button>
+                {archiveMenu && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
+                    <div style={{ padding: '9px 14px 7px', borderBottom: '1px solid #1A1A1A' }}>
+                      <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#777' }}>Archived Projects</span>
+                    </div>
+                    {archivedProjects.length === 0 ? (
+                      <div style={{ padding: '14px', fontSize: 11, color: '#666' }}>No archived projects.</div>
+                    ) : archivedProjects.map(p => (
+                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid #141414' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 11, color: '#D0CCC6', margin: 0 }} className="truncate">{p.name}</p>
+                          <p style={{ fontSize: 8, color: '#555', margin: 0, letterSpacing: '0.06em' }} className="truncate">{p.address || '—'}</p>
+                        </div>
+                        <button onClick={() => { setArchived(p, false); setArchiveMenu(false) }} className="glass-btn glass-btn-green"
+                          style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0 }}>
+                          ↺ Live
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Dashboard — clear glass, black-chrome shining word */}
+              <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn"
+                style={{ padding: '9px 0', width: 150, textAlign: 'center' }}>
+                <span className="chrome-black-text chrome-shine" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800 }}>▦ Dashboard</span>
+              </button>
+            </div>
           </div>
 
           {/* Project list — follows the selected brand */}
@@ -467,7 +504,9 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
   project: any; index: number; onClick: () => void; onUpdate: (p: any) => void; accentColor: string
 }) {
   const [dropOpen, setDropOpen] = useState(false)
+  const [lifeOpen, setLifeOpen] = useState(false)
   const dropRef = useRef<HTMLDivElement>(null)
+  const lifeRef = useRef<HTMLDivElement>(null)
   const updated = new Date(project.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
   const { color, label } = typeColor(project.type, project.status)
 
@@ -479,6 +518,15 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
   }, [dropOpen])
+
+  useEffect(() => {
+    if (!lifeOpen) return
+    function handle(e: MouseEvent) {
+      if (lifeRef.current && !lifeRef.current.contains(e.target as Node)) setLifeOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [lifeOpen])
 
   function handleStatusChange(opt: typeof STATUS_OPTIONS[0], e: React.MouseEvent) {
     e.stopPropagation()
@@ -492,25 +540,52 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#0C0C0C'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
 
-      {/* Accent bar first — lines up with the 7EVEN/HAAVN header bar */}
-      <div style={{ width: 2, height: 30, background: color, flexShrink: 0, opacity: 0.75 }} />
-      <span style={{ color: '#222', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
+      <span style={{ color: '#555', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
         {String(index).padStart(2, '0')}
       </span>
       <StatusDot type={project.type} status={project.status} size={7} />
 
-      <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Live / Archive lifecycle dropdown — sits right after the project name */}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ minWidth: 0 }}>
         <p style={{ color: '#D0CCC6', fontSize: 12, fontWeight: 300, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s' }}
           className="group-hover:text-white truncate">
           {project.name}
         </p>
-        <p style={{ color: '#252525', fontSize: 9, letterSpacing: '0.08em' }} className="truncate">
+        <p style={{ color: '#5A5A5A', fontSize: 9, letterSpacing: '0.08em' }} className="truncate">
           {project.address || '—'}
         </p>
       </div>
 
-      {/* Updated date — sits to the left so the status chip lines up under Dashboard */}
-      <span className="pcard-date" style={{ color: '#333', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0 }}>{updated}</span>
+      {/* Live / Archive — parks the project off the board or keeps it live */}
+      <div ref={lifeRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+        <button onClick={e => { e.stopPropagation(); setLifeOpen(v => !v) }}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 6, padding: '4px 9px', cursor: 'pointer' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
+          <span style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>Live</span>
+          <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)' }}>▾</span>
+        </button>
+        {lifeOpen && (
+          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 200, background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 30px rgba(0,0,0,0.65)' }}>
+            <button onClick={e => { e.stopPropagation(); setLifeOpen(false) }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'rgba(61,170,106,0.10)', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A' }} />
+              <span style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', fontWeight: 700 }}>Live</span>
+            </button>
+            <button onClick={e => { e.stopPropagation(); onUpdate({ ...project, status: 'archived', updatedAt: new Date().toISOString() }); setLifeOpen(false) }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+              <span style={{ fontSize: 9, color: '#999' }}>▤</span>
+              <span style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#AAA', fontWeight: 700 }}>Archive</span>
+            </button>
+          </div>
+        )}
+      </div>
+      </div>
+
+      {/* Updated date — crisp white so it's clearly legible */}
+      <span className="pcard-date" style={{ color: 'rgba(255,255,255,0.9)', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0, fontWeight: 600 }}>{updated}</span>
 
       {/* Type / status chip — clear glass, flush right under the Dashboard button */}
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
