@@ -28,6 +28,11 @@ export function seedProjectsIfEmpty() {
     db.saveSiteDesign({ ...db.getSiteDesign(pid), notes: CORIO_NOTES })
     localStorage.setItem('corio-patch-v1', 'true')
   }
+  // One-time: add Scenario A (studio-led mix) to already-seeded copies
+  if (ids.has('geelong-35-corio') && !localStorage.getItem('corio-scenario-a-v1')) {
+    seedCorioScenarioA('geelong-35-corio')
+    localStorage.setItem('corio-scenario-a-v1', 'true')
+  }
 
   // Always ensure named featured projects exist (idempotent)
   if (!ids.has('seed-preston-001')) {
@@ -1169,4 +1174,71 @@ function seedCorio() {
 
   // Programme — powers the live countdown clock on the board (36-month build)
   db.saveCashflow({ ...defaultCashflowState(pid), startDate: '2026-09', months: 36 })
+
+  seedCorioScenarioA(pid)
+}
+
+// Scenario A — studio-led mix (35/25/30/10) across both towers, hotel converted
+// to residential (keys 0). Studio sized like Preston (38 sqm). Same residential
+// envelope (21,815 NSA) so it can be compared against the WMK yield scenario.
+function seedCorioScenarioA(pid: string) {
+  const scenarioId = 'geelong-35-corio-mix-A'
+  db.saveMixScenario({ id: scenarioId, projectId: pid, name: 'Scenario A — Studio-led 35/25/30/10', createdAt: '2025-02-01T00:00:00.000Z' })
+
+  db.saveUnitTypes(scenarioId, [
+    {
+      id: 'corioA-u1', scenarioId, name: 'Studio', nsaPerUnit: 38, targetPct: 0.35, solvedCount: 123,
+      weeklyRentConservative: 460, weeklyRentAggressive: 560,
+      salePriceConservative: 480000, salePriceMid: 540000, salePriceAggressive: 620000,
+      opexPerUnitPerYear: 3000,
+    },
+    {
+      id: 'corioA-u2', scenarioId, name: '1 Bedroom', nsaPerUnit: 58, targetPct: 0.25, solvedCount: 88,
+      weeklyRentConservative: 515, weeklyRentAggressive: 630,
+      salePriceConservative: 580000, salePriceMid: 660000, salePriceAggressive: 750000,
+      opexPerUnitPerYear: 3500,
+    },
+    {
+      id: 'corioA-u3', scenarioId, name: '2 Bedroom', nsaPerUnit: 79, targetPct: 0.30, solvedCount: 105,
+      weeklyRentConservative: 600, weeklyRentAggressive: 750,
+      salePriceConservative: 750000, salePriceMid: 870000, salePriceAggressive: 1000000,
+      opexPerUnitPerYear: 4200,
+    },
+    {
+      id: 'corioA-u4', scenarioId, name: '3 Bedroom', nsaPerUnit: 108, targetPct: 0.10, solvedCount: 35,
+      weeklyRentConservative: 740, weeklyRentAggressive: 915,
+      salePriceConservative: 1100000, salePriceMid: 1250000, salePriceAggressive: 1450000,
+      opexPerUnitPerYear: 5500,
+    },
+  ])
+
+  db.saveBTRAssumptions({
+    scenarioId,
+    vacancyPct: 0.05,
+    leaseUpMonths: 12,
+    managementFeePct: 0.07,
+    carParkIncomeAnnual: 963900,
+    buildingAdminFixed: 250000,
+    childcareAnnualNet: 0,
+    commercialAnnualNet: 572230,
+    capRateConservative: 0.05,
+    capRateAggressive: 0.05,
+    devMarginPct: 0.18,
+  })
+
+  db.saveBTSAssumptions({
+    scenarioId,
+    sellingCostsPct: 0.025,
+    childcareValuePerSqm: 10000,
+    devMarginPct: 0.18,
+  })
+
+  // Scenario A converts the hotel to residential — no hotel keys in this scheme
+  db.saveHotelAssumptions({
+    scenarioId,
+    keys: 0,
+    adr: 260, occupancyPct: 0.72, otherRevenuePerKeyPerYear: 12000,
+    gopMarginPct: 0.36, managementFeePct: 0.05, ffeReservePct: 0.04,
+    hotelCapRate: 0.055, devMarginPct: 0.18,
+  })
 }
