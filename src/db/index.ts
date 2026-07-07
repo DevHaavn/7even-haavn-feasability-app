@@ -1,6 +1,7 @@
 import type { Project, SiteDesign, LandTerms, MixScenario, UnitType, CostStack, BTRAssumptions, BTSAssumptions, HotelAssumptions, CostPreset, BenchmarkSet, FinanceAssumptions, DebtTranche } from './schema'
 import * as cloud from './cloud'
 import { exGst } from '../engine/gst'
+import { defaultCashflowState } from '../engine/cashflow'
 import { calculateStampDuty } from '../engine/stampDuty'
 
 function load<T>(key: string, fallback: T): T {
@@ -398,6 +399,18 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {
   save(`detailed-costs:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'detailed_costs', data)
+  touchProject(data.projectId)
+}
+
+// ── Development cashflow ───────────────────────────────────────────────────────
+export function getCashflow(projectId: string): import('./schema').CashflowState {
+  const def = defaultCashflowState(projectId)
+  const s = load<import('./schema').CashflowState>(`cashflow:${projectId}`, def)
+  return { ...def, ...s, phases: { ...def.phases, ...(s.phases || {}) }, manual: s.manual || [] }
+}
+export function saveCashflow(data: import('./schema').CashflowState) {
+  save(`cashflow:${data.projectId}`, data)
+  cloud.pushProjectField(data.projectId, 'cashflow', data)
   touchProject(data.projectId)
 }
 

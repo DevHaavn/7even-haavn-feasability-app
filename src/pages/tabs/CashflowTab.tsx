@@ -1,0 +1,175 @@
+import React, { useMemo, useState } from 'react'
+import { SectionHeading } from '../../components/ui'
+import { getCashflow, saveCashflow, getDetailedCostStack, getLandTerms, getCostStack, generateId } from '../../db'
+import { buildCashflow } from '../../engine/cashflow'
+import { COST_PHASES, type CashflowState, type CostPhase, type SCurveProfile, type FundingSource } from '../../db/schema'
+
+interface Props { projectId: string }
+
+const fmtK = (n: number) => (n === 0 ? '—' : (n < 0 ? '-$' : '$') + Math.round(Math.abs(n) / 1000).toLocaleString() + 'k')
+const fmtM = (n: number) => (n < 0 ? '-$' : '$') + (Math.abs(n) / 1e6).toFixed(1) + 'M'
+
+const SCURVES: SCurveProfile[] = ['scurve', 'linear', 'upfront', 'backloaded']
+const FUNDING: FundingSource[] = ['equity', 'debt', 'blend']
+
+const inp: React.CSSProperties = { background: '#fff', border: '1px solid #D0CEC9', borderRadius: 6, padding: '5px 8px', fontSize: 12, color: '#1A1A1A', outline: 'none' }
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: 8.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600, textAlign: 'right', minWidth: 58 }
+const sticky: React.CSSProperties = { position: 'sticky', left: 0, background: '#fff', zIndex: 2, textAlign: 'left', minWidth: 180 }
+
+export default function CashflowTab({ projectId }: Props) {
+  const [state, setState] = useState<CashflowState>(() => getCashflow(projectId))
+
+  // Cost per phase, from the detailed cost stack + land (mapped to delivery phases)
+  const phaseCosts = useMemo(() => {
+    const d = getDetailedCostStack(projectId)
+    const land = getLandTerms(projectId)
+    const sum = (a: { amount: number }[]) => a.reduce((s, x) => s + (x.amount || 0), 0)
+    const detailedTotal = sum(d.hardCosts) + sum(d.consultants) + sum(d.statutory) + sum(d.marketing)
+    // If no detailed lines yet, fall back to the summary cost stack build cost as construction.
+    let hard = sum(d.hardCosts)
+    if (detailedTotal === 0) { const cs = getCostStack(projectId); hard = 0 /* summary handled below */; void cs }
+    return {
+      'pre-acquisition': land.landCost || 0,
+      'acquisition-planning': sum(d.statutory),
+      'pre-construction': sum(d.consultants),
+      'construction': hard,
+      'close-out': sum(d.marketing),
+    } as Record<CostPhase, number>
+  }, [projectId])
+
+  const cf = useMemo(() => buildCashflow(state, phaseCosts), [state, phaseCosts])
+
+  function update(next: Partial<CashflowState>) { const s = { ...state, ...next }; setState(s); saveCashflow(s) }
+  function setPhase(id: CostPhase, patch: Partial<CashflowState['phases'][CostPhase]>) {
+    update({ phases: { ...state.phases, [id]: { ...state.phases[id], ...patch } } })
+  }
+
+  // manual entry form
+  const [mLabel, setMLabel] = useState(''); const [mPhase, setMPhase] = useState<CostPhase>('construction')
+  const [mMonth, setMMonth] = useState('1'); const [mAmount, setMAmount] = useState(''); const [mFund, setMFund] = useState<FundingSource>('blend')
+  function addManual() {
+    const amount = parseFloat(mAmount); const month = parseInt(mMonth, 10) - 1
+    if (!mLabel.trim() || !amount) return
+    update({ manual: [...state.manual, { id: generateId(), label: mLabel.trim(), phase: mPhase, month: Math.max(0, month), amount, fundedBy: mFund }] })
+    setMLabel(''); setMAmount('')
+  }
+  const delManual = (id: string) => update({ manual: state.manual.filter(m => m.id !== id) })
+
+  const cell = (v: number, color = '#555'): React.CSSProperties => ({ padding: '6px', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', color: v < 0 ? '#9B2335' : color, whiteSpace: 'nowrap' })
+
+  return (
+    <div className="relative p-4 md:p-6 overflow-auto" style={{ minHeight: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+        <SectionHeading sub="Month-by-month spend by phase, funded equity-first then debt. Phase timing drives the S-curve; add manual costs to any month.">Development Cashflow</SectionHeading>
+        <div style={{ display: 'flex', gap: 20 }}>
+          {[['Total cost', fmtM(cf.total)], ['Peak equity', fmtM(cf.peakEquity)], ['Peak debt', fmtM(cf.peakDebt)]].map(([l, v]) => (
+            <div key={l} style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999' }}>{l}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: '#B8963C' }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Config */}
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16, padding: '12px 14px', background: '#F7F5F2', border: '1px solid #E8E5E0', borderRadius: 8 }}>
+        <label style={{ fontSize: 10, color: '#666' }}>Programme start<br /><input type="month" value={state.startDate} onChange={e => update({ startDate: e.target.value })} style={{ ...inp, marginTop: 4 }} /></label>
+        <label style={{ fontSize: 10, color: '#666' }}>Programme (months)<br /><input type="number" value={state.months} onChange={e => update({ months: Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 36)) })} style={{ ...inp, marginTop: 4, width: 80 }} /></label>
+        <label style={{ fontSize: 10, color: '#666' }}>Equity-first ($)<br /><input type="number" value={state.equityFirst} onChange={e => update({ equityFirst: Math.max(0, parseFloat(e.target.value) || 0) })} style={{ ...inp, marginTop: 4, width: 130 }} /><span style={{ fontSize: 9, color: '#999', marginLeft: 6 }}>equity in before debt draws</span></label>
+      </div>
+
+      {/* Phase timing editor */}
+      <div style={{ border: '1px solid #E0DDD8', borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr style={{ background: '#F7F5F2' }}>
+            {['Phase', 'Cost', 'Start month', 'Duration', 'S-curve', 'Funded by'].map(h => (
+              <th key={h} style={{ ...th, textAlign: h === 'Phase' ? 'left' : 'left', padding: '9px 12px' }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {COST_PHASES.map(p => {
+              const t = state.phases[p.id]
+              return (
+                <tr key={p.id} style={{ borderTop: '1px solid #F0EDE8' }}>
+                  <td style={{ padding: '8px 12px', fontSize: 12, color: '#1A1A1A', fontWeight: 600 }}>{p.label}</td>
+                  <td style={{ padding: '8px 12px', fontFamily: 'var(--font-mono)', fontSize: 12, color: '#B8963C' }}>{fmtM(phaseCosts[p.id] || 0)}</td>
+                  <td style={{ padding: '6px 12px' }}><input type="number" value={t.startMonth + 1} onChange={e => setPhase(p.id, { startMonth: Math.max(0, (parseInt(e.target.value, 10) || 1) - 1) })} style={{ ...inp, width: 64 }} /></td>
+                  <td style={{ padding: '6px 12px' }}><input type="number" value={t.durationMonths} onChange={e => setPhase(p.id, { durationMonths: Math.max(1, parseInt(e.target.value, 10) || 1) })} style={{ ...inp, width: 64 }} /></td>
+                  <td style={{ padding: '6px 12px' }}><select value={t.sCurve} onChange={e => setPhase(p.id, { sCurve: e.target.value as SCurveProfile })} style={inp}>{SCURVES.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
+                  <td style={{ padding: '6px 12px' }}><select value={t.fundedBy} onChange={e => setPhase(p.id, { fundedBy: e.target.value as FundingSource })} style={inp}>{FUNDING.map(f => <option key={f} value={f}>{f}</option>)}</select></td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Month-by-month grid */}
+      <p style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C4973A', fontWeight: 700, marginBottom: 8 }}>Monthly Cashflow ($000s)</p>
+      <div style={{ overflowX: 'auto', border: '1px solid #E0DDD8', borderRadius: 8 }}>
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead>
+            <tr style={{ background: '#F7F5F2' }}>
+              <th style={{ ...th, ...sticky, padding: '8px 12px' }}>Phase</th>
+              {cf.monthLabels.map(m => (
+                <th key={m.n} style={th}><div>M{m.n}</div><div style={{ color: '#B0ADA8', fontSize: 7.5, fontWeight: 400 }}>{m.date}</div></th>
+              ))}
+              <th style={{ ...th, color: '#B8963C' }}>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cf.phaseRows.map(r => r.total > 0 && (
+              <tr key={r.phase} style={{ borderTop: '1px solid #F0EDE8' }}>
+                <td style={{ ...sticky, padding: '6px 12px', fontSize: 11, color: '#333' }}>{r.label}</td>
+                {r.monthly.map((v, i) => <td key={i} style={cell(v)}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}
+                <td style={cell(r.total, '#B8963C')}>{Math.round(r.total / 1000).toLocaleString()}</td>
+              </tr>
+            ))}
+            {/* Total spend */}
+            <tr style={{ borderTop: '2px solid #D0CEC9', background: '#FAF9F7' }}>
+              <td style={{ ...sticky, background: '#FAF9F7', padding: '8px 12px', fontSize: 11, fontWeight: 700, color: '#1A1A1A' }}>Total spend</td>
+              {cf.totalByMonth.map((v, i) => <td key={i} style={{ ...cell(v, '#1A1A1A'), fontWeight: 700 }}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}
+              <td style={{ ...cell(cf.total, '#1A1A1A'), fontWeight: 700 }}>{Math.round(cf.total / 1000).toLocaleString()}</td>
+            </tr>
+            {/* Funding */}
+            <tr style={{ background: '#F3F6F3' }}><td style={{ ...sticky, background: '#F3F6F3', padding: '6px 12px', fontSize: 10.5, color: '#2A7A4F' }}>Equity draw</td>{cf.equityByMonth.map((v, i) => <td key={i} style={cell(v, '#2A7A4F')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.equityByMonth.reduce((a, b) => a + b, 0), '#2A7A4F')}>{Math.round(cf.equityByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: '#F0F3F7' }}><td style={{ ...sticky, background: '#F0F3F7', padding: '6px 12px', fontSize: 10.5, color: '#2E4A8B' }}>Debt draw</td>{cf.debtByMonth.map((v, i) => <td key={i} style={cell(v, '#2E4A8B')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.debtByMonth.reduce((a, b) => a + b, 0), '#2E4A8B')}>{Math.round(cf.debtByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: '#888' }}>Cumulative equity</td>{cf.cumEquity.map((v, i) => <td key={i} style={cell(v, '#6B9E7E')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakEquity, '#6B9E7E')}>{Math.round(cf.peakEquity / 1000).toLocaleString()}</td></tr>
+            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: '#888' }}>Cumulative debt (peak = facility)</td>{cf.cumDebt.map((v, i) => <td key={i} style={cell(v, '#7E93B8')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakDebt, '#7E93B8')}>{Math.round(cf.peakDebt / 1000).toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Manual entries */}
+      <div style={{ marginTop: 20 }}>
+        <p style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C4973A', fontWeight: 700, marginBottom: 8 }}>Manual entries — add / move a cost to a specific month</p>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 10 }}>
+          <input placeholder="Cost description" value={mLabel} onChange={e => setMLabel(e.target.value)} style={{ ...inp, minWidth: 200 }} />
+          <select value={mPhase} onChange={e => setMPhase(e.target.value as CostPhase)} style={inp}>{COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}</select>
+          <input type="number" placeholder="Month #" value={mMonth} onChange={e => setMMonth(e.target.value)} style={{ ...inp, width: 80 }} />
+          <input type="number" placeholder="Amount $" value={mAmount} onChange={e => setMAmount(e.target.value)} style={{ ...inp, width: 120 }} />
+          <select value={mFund} onChange={e => setMFund(e.target.value as FundingSource)} style={inp}>{FUNDING.map(f => <option key={f} value={f}>{f}</option>)}</select>
+          <button onClick={addManual} style={{ background: '#1A1A1A', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 16px', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', fontWeight: 700 }}>+ Add</button>
+        </div>
+        {state.manual.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {state.manual.map(m => (
+              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11.5, color: '#555', padding: '4px 0', borderBottom: '1px solid #F0EDE8' }}>
+                <span style={{ flex: 1 }}>{m.label}</span>
+                <span style={{ color: '#999' }}>{COST_PHASES.find(p => p.id === m.phase)?.label}</span>
+                <span style={{ color: '#999' }}>M{m.month + 1}</span>
+                <span style={{ color: '#999', textTransform: 'uppercase', fontSize: 9 }}>{m.fundedBy}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: '#1A1A1A' }}>{fmtK(m.amount)}</span>
+                <button onClick={() => delManual(m.id)} style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14 }}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <p style={{ fontSize: 10.5, color: '#999', marginTop: 16, lineHeight: 1.6 }}>
+        Costs are drawn from the project's Cost Stack (Land → Pre-Acquisition, Statutory → Acquisition/Planning, Consultants → Pre-Construction, Hard Costs → Construction, Marketing → Close-out) and spread by each phase's S-curve. Funding is equity-first up to your equity-first figure, then debt. This cashflow feeds the Capital Base budget/admin.
+      </p>
+    </div>
+  )
+}

@@ -6,6 +6,7 @@ import SiteDesignTab from './tabs/SiteDesign'
 import LandTermsTab from './tabs/LandTerms'
 import ProductMixTab from './tabs/ProductMix'
 import CostStackTab from './tabs/CostStackTab'
+import CashflowTab from './tabs/CashflowTab'
 import FinanceTab from './tabs/FinanceTab'
 import BTRTab from './tabs/BTRTab'
 import BTSTab from './tabs/BTSTab'
@@ -44,6 +45,7 @@ const TABS = [
   { id: 'land', label: 'Land & Terms' },
   { id: 'mix', label: 'Product Mix' },
   { id: 'cost', label: 'Cost Stack' },
+  { id: 'cashflow', label: 'Cashflow' },
   { id: 'finance', label: 'Finance' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'btr', label: 'BTR' },
@@ -122,6 +124,7 @@ export default function ProjectWorkspace() {
         {activeTab === 'land' && <LandTermsTab projectId={project.id} />}
         {activeTab === 'mix' && <ProductMixTab projectId={project.id} />}
         {activeTab === 'cost' && <CostStackTab projectId={project.id} />}
+        {activeTab === 'cashflow' && <CashflowTab projectId={project.id} />}
         {activeTab === 'finance' && <FinanceTab projectId={project.id} />}
         {activeTab === 'btr' && <BTRTab projectId={project.id} />}
         {activeTab === 'bts' && <BTSTab projectId={project.id} />}

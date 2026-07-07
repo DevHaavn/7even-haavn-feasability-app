@@ -24,7 +24,7 @@ export function pushProject(project: Record<string, unknown>) {
   }).then(({ error }) => { if (error) console.warn('[cloud] pushProject', error.message) })
 }
 
-export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline', data: unknown) {
+export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline' | 'cashflow', data: unknown) {
   supabase.from('project_data').upsert({
     project_id: projectId,
     [field]: data,
@@ -132,6 +132,8 @@ export async function pullFromCloud(): Promise<boolean> {
         localStorage.setItem(`finance:${pid}`, JSON.stringify(pd.finance))
       if (Array.isArray(pd.timeline) && pd.timeline.length > 0)
         localStorage.setItem(`timeline:${pid}`, JSON.stringify(pd.timeline))
+      if (pd.cashflow && Object.keys(pd.cashflow as object).length > 0)
+        localStorage.setItem(`cashflow:${pid}`, JSON.stringify(pd.cashflow))
     }
 
     // Hydrate scenarios

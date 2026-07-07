@@ -108,6 +108,45 @@ export interface DetailedCostStack {
   marketing: CostLineItem[]
 }
 
+// ── Development cashflow (Daniel/CFO) ─────────────────────────────────────────
+// Costs spread month-by-month across delivery phases, funded equity-first then
+// debt. Phase timing pre-fills each cost group's spread; manual entries let the
+// team add/move a cost in any month.
+export type CostPhase = 'pre-acquisition' | 'acquisition-planning' | 'pre-construction' | 'construction' | 'close-out'
+export type SCurveProfile = 'scurve' | 'linear' | 'upfront' | 'backloaded'
+export type FundingSource = 'equity' | 'debt' | 'blend'
+
+export const COST_PHASES: { id: CostPhase; label: string }[] = [
+  { id: 'pre-acquisition',      label: 'Pre-Acquisition' },
+  { id: 'acquisition-planning', label: 'Acquisition / Planning' },
+  { id: 'pre-construction',     label: 'Pre-Construction' },
+  { id: 'construction',         label: 'Construction' },
+  { id: 'close-out',            label: 'Close-out' },
+]
+
+export interface PhaseTiming {
+  startMonth: number        // 0-based offset from programme start
+  durationMonths: number
+  sCurve: SCurveProfile
+  fundedBy: FundingSource
+}
+export interface CashflowManualEntry {
+  id: string
+  label: string
+  phase: CostPhase
+  month: number             // 0-based month index
+  amount: number
+  fundedBy: FundingSource
+}
+export interface CashflowState {
+  projectId: string
+  startDate: string         // 'YYYY-MM' — programme start
+  months: number            // programme length
+  equityFirst: number       // $ equity injected before debt draws (equity-first)
+  phases: Record<CostPhase, PhaseTiming>
+  manual: CashflowManualEntry[]
+}
+
 export interface BTRAssumptions {
   scenarioId: string
   vacancyPct: number
