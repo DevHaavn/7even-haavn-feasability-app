@@ -14,9 +14,10 @@ const CAPITAL_AUTH_KEY = 'capital_auth'
  *  local cache warm in the background — a teammate's edit shows the next time
  *  you switch view, without yanking you out of what you're doing. */
 export default function CapitalPortal({ onClose, initialPillar, role }: { onClose: () => void; initialPillar?: PillarId; role?: 'admin' | 'external' }) {
-  // Consultants / project team run their CRM (War Room) with no gate — they land
-  // straight in and are locked to the CRM only (financial pillars stay hidden).
-  const crmOnly = role === 'external'
+  // Consultants / project team run their CRM (War Room) with no gate — but ONLY
+  // when entering via the HM logo (initialPillar 'crm'). The winged device always
+  // opens the gated Capital Base login, for every role.
+  const crmOnly = role === 'external' && initialPillar === 'crm'
   const [authed, setAuthed] = useState(() => crmOnly || sessionStorage.getItem(CAPITAL_AUTH_KEY) === '1')
   const [ready, setReady] = useState(false)
 
