@@ -50,8 +50,12 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
-  // Director view — the 7EVEN logo flips the admin column between 7EVEN and HAAVN Management.
-  const [adminBrand, setAdminBrand] = useState<'7even' | 'haavn'>('7even')
+  // Director view — the 7EVEN logo flips the admin column between 7EVEN and HAAVN
+  // Management. Persisted so it survives a trip into the Dashboard and back.
+  const [adminBrand, setAdminBrand] = useState<'7even' | 'haavn'>(
+    () => (localStorage.getItem('7even_admin_brand') as '7even' | 'haavn') || '7even',
+  )
+  const chooseBrand = (b: '7even' | 'haavn') => { setAdminBrand(b); localStorage.setItem('7even_admin_brand', b) }
   const [brandMenu, setBrandMenu] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -124,10 +128,10 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             The device IS the button, clean to its edges, mirroring the wings
             top-left — no plate. */}
         <button
-          className="no-drag"
+          className="no-drag hm-shimmer"
           title="HAAVN Management — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
-          style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s', lineHeight: 0 }}
+          style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: isMobile ? '4px 6px' : '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
         >
@@ -203,7 +207,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               {brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
                   {([['7even', '7EVEN', '#C4973A'], ['haavn', 'HAAVN MANAGEMENT', 'rgba(255,255,255,0.85)']] as const).map(([id, lbl, col]) => (
-                    <button key={id} onClick={() => { setAdminBrand(id); setBrandMenu(false) }}
+                    <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.05)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
                       <span style={{ width: 2, height: 13, background: col, flexShrink: 0 }} />
                       <span style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', color: col, whiteSpace: 'nowrap' }}>{lbl}</span>
@@ -213,8 +217,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 </div>
               )}
             </div>
-            <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-grey"
-              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, padding: '9px 20px' }}>
+            <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-orange"
+              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, padding: '9px 0', width: 150, textAlign: 'center' }}>
               ▦ Dashboard
             </button>
           </div>
@@ -505,13 +509,16 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
         </p>
       </div>
 
-      {/* Type badge + dropdown */}
+      {/* Updated date — sits to the left so the status chip lines up under Dashboard */}
+      <span className="pcard-date" style={{ color: '#333', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0 }}>{updated}</span>
+
+      {/* Type / status chip — clear glass, flush right under the Dashboard button */}
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
           className={`glass-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: 96, padding: '6px 0' } as React.CSSProperties}>
-          <span style={{ fontSize: 8, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.78)', opacity: 0.7 }}>▾</span>
+          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: 150, padding: '9px 0' } as React.CSSProperties}>
+          <span style={{ fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700 }}>{label}</span>
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.95)', opacity: 0.8 }}>▾</span>
         </button>
         {dropOpen && (
           <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
@@ -539,9 +546,6 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
           </div>
         )}
       </div>
-
-      <span className="pcard-date" style={{ color: '#222', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0 }}>{updated}</span>
-      <span className="pcard-arrow group-hover:text-[#C4973A]" style={{ color: '#222', fontSize: 14, flexShrink: 0, transition: 'color 0.18s' }}>→</span>
     </div>
   )
 }

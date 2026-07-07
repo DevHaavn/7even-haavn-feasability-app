@@ -168,7 +168,7 @@ function HBar({ value, max, color, label }: { value: number; max: number; color:
         <span style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#555' }}>{label}</span>
         <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>{fmt(value)}</span>
       </div>
-      <div style={{ height: 4, background: '#111', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ height: 4, background: '#E0DDD8', borderRadius: 2, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${pct * 100}%`, background: color, borderRadius: 2, transition: 'width 0.8s ease' }} />
       </div>
     </div>
@@ -179,7 +179,7 @@ function HBar({ value, max, color, label }: { value: number; max: number; color:
 
 function KPI({ label, value, sub, color = '#C4973A' }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1, minWidth: 0 }}>
+    <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1, minWidth: 0 }}>
       <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 8 }}>{label}</p>
       <p style={{ fontSize: 26, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color, letterSpacing: '-0.01em', lineHeight: 1 }}>{value}</p>
       {sub && <p style={{ fontSize: 9, color: '#333', marginTop: 6, letterSpacing: '0.06em' }}>{sub}</p>}
@@ -215,23 +215,23 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
   const totalKeys = portfolio.reduce((s, p) => s + p.keys, 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#060606', color: '#fff', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F4F2EF', color: '#E4E1DC', overflow: 'hidden' }}>
 
       {/* ── Top bar ── */}
-      <div className="drag-region dash-topbar" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '16px 40px', borderBottom: '1px solid #111', flexShrink: 0, background: '#0A0A0A' }}>
+      <div className="drag-region dash-topbar" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '16px 40px', borderBottom: '1px solid #E0DDD8', flexShrink: 0, background: '#F0EEEA' }}>
         <button className="no-drag" onClick={onBack} style={{ color: '#666', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', flexShrink: 0 }}
           onMouseEnter={e => (e.currentTarget.style.color = '#C4973A')}
           onMouseLeave={e => (e.currentTarget.style.color = '#666')}>
           ← Menu
         </button>
         <span className="dash-brand" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <span style={{ width: 1, height: 20, background: '#1C1C1C' }} />
-          <Wordmark size="sm" />
-          <span style={{ width: 1, height: 20, background: '#1C1C1C' }} />
+          <span style={{ width: 1, height: 20, background: '#E0DDD8' }} />
+          <Wordmark size="sm" tone="black" />
+          <span style={{ width: 1, height: 20, background: '#E0DDD8' }} />
         </span>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: accentColor, lineHeight: 1 }}>{brandLabel} · Portfolio</p>
-          <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#fff', fontWeight: 600, marginTop: 2 }}>Intelligence Dashboard</p>
+          <p style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#E4E1DC', fontWeight: 600, marginTop: 2 }}>Intelligence Dashboard</p>
         </div>
         <div className="dash-date" style={{ marginLeft: 'auto' }}>
           <p style={{ fontSize: 8, letterSpacing: '0.22em', color: '#333', textTransform: 'uppercase', textAlign: 'right' }}>
@@ -256,7 +256,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
         <div style={{ display: 'flex', gap: 12, marginBottom: 28 }}>
 
           {/* Donut */}
-          <div style={{ padding: '24px 28px', border: '1px solid #1A1A1A', background: '#0C0C0C', display: 'flex', alignItems: 'center', gap: 32 }}>
+          <div style={{ padding: '24px 28px', border: '1px solid #E4E1DC', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 32 }}>
             <DonutChart data={donutData} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 2 }}>By Concept</p>
@@ -264,22 +264,22 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
                 <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 10, letterSpacing: '0.12em', color: '#888', textTransform: 'uppercase' }}>{d.label}</span>
-                  <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#fff', marginLeft: 'auto', paddingLeft: 16, fontWeight: 700 }}>{d.value}</span>
+                  <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#E4E1DC', marginLeft: 'auto', paddingLeft: 16, fontWeight: 700 }}>{d.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Status breakdown */}
-          <div style={{ padding: '24px 28px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1 }}>
+          <div style={{ padding: '24px 28px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1 }}>
             <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 20 }}>Project Status</p>
             {Object.entries(statusCounts).map(([status, count]) => (
               <div key={status} style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <span style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'capitalize', color: STATUS_COLOR[status] ?? '#888' }}>{status}</span>
-                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#fff' }}>{count} / {portfolio.length}</span>
+                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#E4E1DC' }}>{count} / {portfolio.length}</span>
                 </div>
-                <div style={{ height: 3, background: '#111', borderRadius: 2 }}>
+                <div style={{ height: 3, background: '#E0DDD8', borderRadius: 2 }}>
                   <div style={{ height: '100%', width: `${(count / portfolio.length) * 100}%`, background: STATUS_COLOR[status] ?? '#888', borderRadius: 2 }} />
                 </div>
               </div>
@@ -287,13 +287,13 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
           </div>
 
           {/* Portfolio value split */}
-          <div style={{ padding: '24px 28px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1 }}>
+          <div style={{ padding: '24px 28px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1 }}>
             <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 20 }}>Portfolio Value Split</p>
             {totalTDC > 0 && <HBar value={totalTDC} max={totalGAV || totalTDC} color="#C4973A" label="Total Dev Cost" />}
             {totalGAV > 0 && <HBar value={totalGAV} max={totalGAV} color="#A855F7" label="Gross Asset Value" />}
             {totalRLV > 0 && <HBar value={totalRLV} max={totalGAV} color="#22C55E" label="Residual Land Value" />}
             {totalTDC > 0 && totalGAV > 0 && (
-              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #111' }}>
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #E0DDD8' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 9, color: '#444', letterSpacing: '0.10em' }}>GAV / TDC Multiple</span>
                   <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>{(totalGAV / totalTDC).toFixed(2)}×</span>
@@ -308,7 +308,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
         </div>
 
         {/* ── Row 3: Per-project value comparison ── */}
-        <div style={{ padding: '24px 28px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 28 }}>
+        <div style={{ padding: '24px 28px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 28 }}>
           <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 24 }}>Project Value Comparison</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {portfolio.map(p => {
@@ -333,13 +333,13 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
         </div>
 
         {/* ── Row 4: Project summary table ── */}
-        <div style={{ border: '1px solid #1A1A1A', background: '#0C0C0C', overflow: 'hidden', marginBottom: 28 }}>
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid #111' }}>
+        <div style={{ border: '1px solid #E4E1DC', background: '#FFFFFF', overflow: 'hidden', marginBottom: 28 }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0DDD8' }}>
             <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444' }}>Project Feasibility Matrix</p>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #111' }}>
+              <tr style={{ borderBottom: '1px solid #E0DDD8' }}>
                 {['Project', 'Type', 'Status', 'GBA sqm', 'TDC', 'GAV', 'RLV', 'Multiple', 'Strategy', 'Verdict'].map(h => (
                   <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#333', fontWeight: 600 }}>{h}</th>
                 ))}
@@ -352,7 +352,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
                 const verdict  = p.bestRLV > 10_000_000 ? 'POSITIVE' : p.bestRLV > 0 ? 'MARGINAL' : p.bestRLV === 0 ? 'NO DATA' : 'NEGATIVE'
                 const vColor   = verdict === 'POSITIVE' ? '#22C55E' : verdict === 'MARGINAL' ? '#EAB308' : verdict === 'NO DATA' ? '#444' : '#EF4444'
                 return (
-                  <tr key={p.id} style={{ borderBottom: '1px solid #0E0E0E', background: i % 2 === 0 ? 'transparent' : '#080808' }}>
+                  <tr key={p.id} style={{ borderBottom: '1px solid #FBFAF8', background: i % 2 === 0 ? 'transparent' : '#F4F2EF' }}>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 2, height: 24, background: color, flexShrink: 0 }} />
@@ -385,7 +385,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
         <WaterfallChart portfolio={portfolio} />
 
         {/* Brand footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, paddingTop: 40, borderTop: '1px solid #0E0E0E', marginTop: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, paddingTop: 40, borderTop: '1px solid #FBFAF8', marginTop: 12 }}>
           <img src="/brand-logo-white.png" alt="7EVEN" draggable={false} style={{ width: 80, height: 'auto', objectFit: 'contain', opacity: 0.15 }} />
           <p style={{ fontSize: 8, letterSpacing: '0.22em', color: '#222', textTransform: 'uppercase' }}>Portfolio Intelligence Dashboard · {brandLabel}</p>
         </div>
@@ -409,7 +409,7 @@ function WaterfallChart({ portfolio }: { portfolio: ProjectSummary[] }) {
   const svgH = validProjects.length * rowH + 60
 
   return (
-    <div style={{ padding: '24px 28px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 28 }}>
+    <div style={{ padding: '24px 28px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 28 }}>
       <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#444', marginBottom: 20 }}>TDC vs GAV — Visual Waterfall</p>
 
       {/* Legend */}
@@ -426,7 +426,7 @@ function WaterfallChart({ portfolio }: { portfolio: ProjectSummary[] }) {
         {/* X-axis grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map(t => (
           <g key={t}>
-            <line x1={labelW + t * chartW} y1={0} x2={labelW + t * chartW} y2={svgH - 40} stroke="#111" strokeWidth={1} />
+            <line x1={labelW + t * chartW} y1={0} x2={labelW + t * chartW} y2={svgH - 40} stroke="#E0DDD8" strokeWidth={1} />
             <text x={labelW + t * chartW} y={svgH - 24} textAnchor="middle" fill="#333" fontSize={8}>{fmt(maxVal * t, 0)}</text>
           </g>
         ))}
