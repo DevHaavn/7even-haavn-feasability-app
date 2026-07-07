@@ -190,7 +190,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               {/* 7EVEN / HAAVN MANAGEMENT — black-chrome brand · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <span className="chrome-black-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: is7 ? '0.14em' : '0.14em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
+                <span className="chrome-silver-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: is7 ? '0.14em' : '0.14em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>▾</span>
               </button>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
@@ -201,7 +201,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                   {([['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']] as const).map(([id, lbl]) => (
                     <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                      <span className="chrome-black-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
+                      <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
                       {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>}
                     </button>
                   ))}
@@ -211,7 +211,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
               {/* Archive dropdown — parked projects, restore to Live */}
               <div style={{ position: 'relative' }}>
-                <button onClick={() => setArchiveMenu(v => !v)} className="glass-btn glass-btn-grey"
+                <button onClick={() => setArchiveMenu(v => !v)} className="glass-btn glass-btn-clear"
                   style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '9px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                   ▤ Archive{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''} <span style={{ opacity: 0.6 }}>▾</span>
                 </button>
@@ -238,7 +238,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 )}
               </div>
               {/* Dashboard — clear glass, crisp white writing */}
-              <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn"
+              <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-clear"
                 style={{ padding: '10px 0', width: 156, textAlign: 'center', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>
                 ▦ Dashboard
               </button>
@@ -634,14 +634,14 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
           className={`glass-chip pcard-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, width: 150, padding: '9px 0' } as React.CSSProperties}>
-          {/* Status light — now sits on the button, to the left of the type label */}
+          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 8, width: 150, padding: '9px 14px' } as React.CSSProperties}>
+          {/* Status light — fixed at the left of the chip so it lines up down the board */}
           <span style={{ position: 'relative', width: 7, height: 7, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
             {pulse && <span style={{ position: 'absolute', width: 12, height: 12, borderRadius: '50%', background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'block' }} />
           </span>
           <span style={{ fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.95)', opacity: 0.8 }}>▾</span>
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.95)', opacity: 0.8, marginLeft: 'auto' }}>▾</span>
         </button>
         {dropOpen && (
           <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
