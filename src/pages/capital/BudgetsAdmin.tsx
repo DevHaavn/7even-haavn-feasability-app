@@ -224,6 +224,7 @@ export default function BudgetsAdmin() {
   const [view, setView] = useState<View>('dashboard')
   const [through, setThrough] = useState(11)
   const [detailProject, setDetailProject] = useState<string | null>(null)  // open project cost editor
+  const [editLineId, setEditLineId] = useState<string | null>(null)        // open the line editor modal
 
   // transaction form
   const [showAdd, setShowAdd] = useState(false)
@@ -268,12 +269,11 @@ export default function BudgetsAdmin() {
     if (e) { fn(e); update(next) }
   }
   const setCell = (lineId: string, mi: number, v: number) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.m[mi] = v })
-  const setName = (lineId: string, name: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.name = name })
   const delLine = (lineId: string) => mutateEntity(sel, e => { e.lines = e.lines.filter(l => l.id !== lineId) })
   const clearLine = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.m = new Array(12).fill(0) })
   const addLine = (s: Section) => mutateEntity(sel, e => { e.lines.push({ id: uid(), name: '', s, m: new Array(12).fill(0) }) })
-  const toCommitted = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) { delete l.pipeline; if (!l.grp) l.grp = 'Committed' } })
-  const toPipeline = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.pipeline = true })
+  const patchLine = (lineId: string, patch: Partial<BudgetLine>) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) Object.assign(l, patch) })
+  const setMonths = (lineId: string, m: number[]) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.m = m.slice(0, 12) })
 
   // ── transactions ──────────────────────────────────────────────────────────
   const txns = useMemo(() => data.txns.filter(t => t.company === sel), [data, sel])
@@ -485,7 +485,7 @@ export default function BudgetsAdmin() {
       {/* ── ENTRY GRID ── */}
       {view === 'entry' && entity && (
         <EntryGrid entity={entity} accent={accent}
-          onCell={setCell} onName={setName} onDel={delLine} onClear={clearLine} onAdd={addLine} onCommit={toCommitted} onPipeline={toPipeline} />
+          onCell={setCell} onDel={delLine} onClear={clearLine} onAdd={addLine} onOpenLine={setEditLineId} />
       )}
 
       {/* ── TRANSACTIONS ── */}
@@ -577,6 +577,108 @@ export default function BudgetsAdmin() {
           )}
         </div>
       )}
+
+      {/* ── LINE EDITOR — click a line name to open ── */}
+      {editLineId && entity && (() => {
+        const l = entity.lines.find(x => x.id === editLineId)
+        if (!l) return null
+        return (
+          <LineEditor line={l} accent={accent}
+            onClose={() => setEditLineId(null)}
+            onDelete={() => { delLine(l.id); setEditLineId(null) }}
+            onSave={patch => {
+              mutateEntity(sel, e => {
+                const t = e.lines.find(x => x.id === l.id)
+                if (!t) return
+                t.name = patch.name; t.s = patch.s; t.grp = patch.grp || undefined; t.m = patch.m.slice(0, 12)
+                if (patch.pipeline) t.pipeline = true; else delete t.pipeline
+              })
+              setEditLineId(null)
+            }} />
+        )
+      })()}
+    </div>
+  )
+}
+
+// ── Line editor modal — full control over a single budget line ────────────────
+function LineEditor({ line, accent, onClose, onDelete, onSave }: {
+  line: BudgetLine; accent: string
+  onClose: () => void; onDelete: () => void
+  onSave: (patch: { name: string; s: Section; grp: string; m: number[]; pipeline: boolean }) => void
+}) {
+  const [name, setNm] = useState(line.name)
+  const [s, setS] = useState<Section>(line.s)
+  const [grp, setGrp] = useState(line.grp || '')
+  const [m, setM] = useState<number[]>(line.m.slice())
+  const [pipeline, setPipeline] = useState(!!line.pipeline)
+  const total = m.reduce((a, b) => a + (+b || 0), 0)
+  const setMonth = (i: number, v: number) => setM(prev => prev.map((x, j) => j === i ? v : x))
+  const fillAll = (v: number) => setM(new Array(12).fill(v))
+  const spreadAnnual = (annual: number) => setM(new Array(12).fill(Math.round(annual / 12)))
+
+  const cell: React.CSSProperties = { width: '100%', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 6, color: '#0D0D0F', fontSize: 12, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '7px 8px', outline: 'none' }
+  const fld: React.CSSProperties = { width: '100%', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 8, color: '#0D0D0F', fontSize: 13, padding: '9px 11px', outline: 'none' }
+  const lbl: React.CSSProperties = { fontFamily: "'Chakra Petch',sans-serif", color: '#4A4B50', fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: 6 }
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 600, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#E4E4E7', borderRadius: 18, width: '100%', maxWidth: 580, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 90px rgba(0,0,0,0.6)', padding: '22px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+          <p style={{ fontFamily: "'Chakra Petch',sans-serif", color: '#0D0D0F', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, margin: 0 }}>Edit line</p>
+          <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#4A4B50', fontSize: 20, lineHeight: 1 }}>×</button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 12, marginBottom: 14 }}>
+          <div><label style={lbl}>Name / function</label><input value={name} autoFocus onChange={e => setNm(e.target.value)} placeholder="e.g. DM fee (3% TDC)" style={fld} /></div>
+          <div><label style={lbl}>Section</label>
+            <select value={s} onChange={e => setS(e.target.value as Section)} style={fld}>
+              <option value="revenue">Revenue</option>
+              <option value="cogs">Cost of Sales</option>
+              <option value="opex">Operating Expense</option>
+            </select>
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={lbl}>Group / location (optional sub-heading, e.g. Preston)</label>
+          <input value={grp} onChange={e => setGrp(e.target.value)} placeholder="—" style={fld} />
+        </div>
+
+        <label style={lbl}>Month-by-month (MTD) · Jul-26 → Jun-27</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6, marginBottom: 10 }}>
+          {m.map((v, i) => (
+            <div key={i}>
+              <span style={{ fontFamily: "'Chakra Petch',sans-serif", color: '#8A8C92', fontSize: 7, letterSpacing: '0.06em', display: 'block', textAlign: 'center', marginBottom: 2 }}>{CFO_MONTHS[i]}-{CFO_YEARS[i]}</span>
+              <input type="number" value={v || ''} onChange={e => setMonth(i, parseFloat(e.target.value) || 0)} style={cell} />
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          <button onClick={() => { const v = parseFloat(prompt('Set every month to:') || '') || 0; fillAll(v) }} style={{ background: '#fff', border: '1px solid #D3D4D8', borderRadius: 6, cursor: 'pointer', color: '#4A4B50', fontSize: 9, letterSpacing: '0.08em', padding: '6px 10px', fontWeight: 700 }}>Fill all months…</button>
+          <button onClick={() => { const a = parseFloat(prompt('Annual amount to spread evenly across 12 months:') || '') || 0; spreadAnnual(a) }} style={{ background: '#fff', border: '1px solid #D3D4D8', borderRadius: 6, cursor: 'pointer', color: '#4A4B50', fontSize: 9, letterSpacing: '0.08em', padding: '6px 10px', fontWeight: 700 }}>Spread annual ÷12…</button>
+          <button onClick={() => fillAll(0)} style={{ background: '#fff', border: '1px solid #D3D4D8', borderRadius: 6, cursor: 'pointer', color: '#C25454', fontSize: 9, letterSpacing: '0.08em', padding: '6px 10px', fontWeight: 700 }}>Clear all</button>
+          <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', color: '#0D0D0F', fontSize: 14, fontWeight: 700 }}>YTD {total < 0 ? '-$' : '$'}{Math.abs(total).toLocaleString()}</span>
+        </div>
+
+        {s === 'revenue' && (
+          <div style={{ background: '#EFF3F7', border: '1px solid #C9D6E2', borderRadius: 8, padding: '11px 13px', marginBottom: 16 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }}>
+              <input type="checkbox" checked={pipeline} onChange={e => setPipeline(e.target.checked)} />
+              <span style={{ color: '#0D0D0F', fontSize: 12, fontWeight: 600 }}>Pipeline only (not yet committed)</span>
+            </label>
+            <p style={{ color: '#4A4B50', fontSize: 10.5, lineHeight: 1.5, margin: '7px 0 0' }}>
+              Tick this for revenue that isn't locked in yet. Pipeline lines sit separately and are left out of the committed budget totals, but counted in the "if converted" figure. Leave unticked for confirmed income. <b>(This is what the old ↩ button did.)</b>
+            </p>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={onDelete} style={{ background: '#fff', border: '1px solid #E0A0A0', borderRadius: 8, cursor: 'pointer', color: '#C25454', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '10px 16px' }}>Delete line</button>
+          <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: '1px solid #D3D4D8', borderRadius: 8, cursor: 'pointer', color: '#4A4B50', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '10px 16px' }}>Cancel</button>
+          <button onClick={() => onSave({ name, s, grp, m, pipeline })} style={{ background: accent, border: 'none', borderRadius: 8, cursor: 'pointer', color: '#fff', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '10px 22px' }}>Save line</button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -933,15 +1035,13 @@ function Row({ label, value, sub, subColor }: { label: string; value: string; su
 }
 
 // ── Fathom-style entry grid ────────────────────────────────────────────────────
-function EntryGrid({ entity, accent, onCell, onName, onDel, onClear, onAdd, onCommit, onPipeline }: {
+function EntryGrid({ entity, accent, onCell, onDel, onClear, onAdd, onOpenLine }: {
   entity: Entity; accent: string
   onCell: (id: string, mi: number, v: number) => void
-  onName: (id: string, name: string) => void
   onDel: (id: string) => void
   onClear: (id: string) => void
   onAdd: (s: Section) => void
-  onCommit: (id: string) => void
-  onPipeline: (id: string) => void
+  onOpenLine: (id: string) => void
 }) {
   const monthly = (pred: (l: BudgetLine) => boolean) => CFO_MONTHS.map((_, mi) => entity.lines.filter(pred).reduce((a, l) => a + (+l.m[mi] || 0), 0))
   const sum = (a: number[]) => a.reduce((x, y) => x + y, 0)
@@ -976,18 +1076,20 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onClear, onAdd, onCo
         <tr key={l.id}>
           <td style={{ ...stick, padding: '2px 12px 2px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <input defaultValue={l.name} placeholder="Name this line…" autoFocus={!l.name} onBlur={e => e.target.value !== l.name && onName(l.id, e.target.value)}
-                style={{ background: l.name ? 'transparent' : '#FFF7E6', border: l.name ? 'none' : '1px solid #E8B84B66', borderRadius: 5, outline: 'none', color: '#1A1B1E', fontSize: 11, width: 154, padding: l.name ? 0 : '3px 6px' }} />
+              <button onClick={() => onOpenLine(l.id)} title="Edit this line — name, section, months & more"
+                style={{ background: l.name ? 'transparent' : '#FFF7E6', border: l.name ? 'none' : '1px solid #E8B84B66', borderRadius: 5, cursor: 'pointer', textAlign: 'left', color: l.name ? '#1A1B1E' : '#B8935A', fontSize: 11, fontWeight: l.name ? 400 : 700, width: 156, padding: l.name ? 0 : '4px 6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {l.name || '＋ name this line'}
+              </button>
               {l.fin && <Tag t={l.tax ? 'tax' : 'financing'} />}
               {l.pipeline && <Tag t="pipeline" col="#8FA8BF" />}
               {l.splitGroup && <Tag t={`split ${l.pct}%`} col="#6E9BE6" />}
-              {l.s === 'revenue' && l.pipeline && <MiniBtn label="⤴ commit" onClick={() => onCommit(l.id)} />}
-              {l.s === 'revenue' && !l.pipeline && !l.fin && !l.splitGroup && <MiniBtn label="↩" title="Move to pipeline" onClick={() => onPipeline(l.id)} />}
             </div>
           </td>
           {l.m.map((v, mi) => (
             <td key={mi} style={{ padding: '2px 2px' }}>
-              <input type="number" defaultValue={v || ''} onBlur={e => { const nv = parseFloat(e.target.value) || 0; if (nv !== v) onCell(l.id, mi, nv) }} style={{ ...cellStyle, color: v < 0 ? NEG : cellStyle.color }} />
+              <input type="number" defaultValue={v || ''}
+                onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                onBlur={e => { const nv = parseFloat(e.target.value) || 0; if (nv !== v) onCell(l.id, mi, nv) }} style={{ ...cellStyle, color: v < 0 ? NEG : cellStyle.color }} />
             </td>
           ))}
           <td style={{ color: tot < 0 ? NEG : '#4A4B50', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '2px 10px' }}>{tot ? comma(tot) : '—'}</td>

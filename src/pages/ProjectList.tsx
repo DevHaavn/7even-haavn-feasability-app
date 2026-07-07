@@ -211,11 +211,10 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
               {/* Menu — one chrome-silver dropdown (like the 7EVEN mark) holding
                   Dashboard + Archive, for a cleaner header on desktop & mobile */}
-              <button onClick={() => setArchiveMenu(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px' }}>
-                <span className="chrome-silver-text" style={{ fontSize: 15, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: '0.16em', whiteSpace: 'nowrap' }}>MENU</span>
+              <button onClick={() => setArchiveMenu(v => !v)} title="Menu — Dashboard & Archive"
+                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
                 {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>▾</span>
+                <span className="chrome-silver-text" style={{ fontSize: 24, fontWeight: 800, lineHeight: 1 }}>▾</span>
               </button>
               {archiveMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
