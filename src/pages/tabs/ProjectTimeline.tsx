@@ -46,7 +46,7 @@ const CAT_COLORS: Record<TimelineCategory, string> = {
   planning:      '#A855F7',
   approvals:     '#3B82F6',
   site:          '#EAB308',
-  construction:  '#E8E6E1',
+  construction:  '#6B6B6B',
   fitout:        '#22C55E',
   commissioning: '#EF4444',
 }
@@ -152,7 +152,7 @@ export default function ProjectTimeline({ projectId }: Props) {
   const ganttW = dayPx(totalDays)
 
   return (
-    <div style={{ background: '#080808', color: '#fff', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#F4F2EF', color: '#1A1A1A', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* ─── Flashing keyframe style ─────────────────────────────────────────── */}
       <style>{`
@@ -163,7 +163,7 @@ export default function ProjectTimeline({ projectId }: Props) {
       `}</style>
 
       {/* ─── Header bar ──────────────────────────────────────────────────────── */}
-      <div style={{ padding: '12px 20px', borderBottom: '1px solid #1E1E1E', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, flexWrap: 'wrap' }}>
+      <div style={{ padding: '12px 20px', borderBottom: '1px solid #E4E1DC', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, flexWrap: 'wrap' }}>
 
         {/* Traffic light counts */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -171,10 +171,10 @@ export default function ProjectTimeline({ projectId }: Props) {
           <TrafficLight color="#EAB308" count={atRisk}   label="Delayed" />
           <TrafficLight color="#22C55E" count={onTrack}  label="On Track" />
           <TrafficLight color="#A855F7" count={complete} label="Complete" />
-          <div style={{ width: 1, height: 24, background: '#1E1E1E' }} />
+          <div style={{ width: 1, height: 24, background: '#E4E1DC' }} />
           <span style={{ fontSize: 9, color: '#555', letterSpacing: '0.10em' }}>{total} tasks</span>
           <span style={{ fontSize: 11, color: '#C4973A', fontWeight: 700 }}>{overallPct}%</span>
-          <div style={{ width: 80, height: 3, background: '#111', borderRadius: 2 }}>
+          <div style={{ width: 80, height: 3, background: '#E8E5E0', borderRadius: 2 }}>
             <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? '#C4973A' : '#3B82F6', borderRadius: 2 }} />
           </div>
         </div>
@@ -200,11 +200,11 @@ export default function ProjectTimeline({ projectId }: Props) {
           <div style={{ minWidth: LABEL_W + ganttW + 40 }}>
 
             {/* Month header — sticky top */}
-            <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#080808', display: 'flex', height: HEADER_H, borderBottom: '1px solid #2A2A2A' }}>
+            <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#F4F2EF', display: 'flex', height: HEADER_H, borderBottom: '1px solid #D8D5D0' }}>
 
               {/* Label column spacer */}
-              <div style={{ width: LABEL_W, flexShrink: 0, background: '#080808', borderRight: '1px solid #2A2A2A', display: 'flex', alignItems: 'flex-end', padding: '0 12px 8px' }}>
-                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: '#444', textTransform: 'uppercase' }}>Task</span>
+              <div style={{ width: LABEL_W, flexShrink: 0, background: '#F4F2EF', borderRight: '1px solid #D8D5D0', display: 'flex', alignItems: 'flex-end', padding: '0 12px 8px' }}>
+                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: '#9A968F', textTransform: 'uppercase' }}>Task</span>
               </div>
 
               {/* Month labels + vertical grid lines */}
@@ -215,7 +215,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                     <div style={{
                       position: 'absolute', left: m.px, top: 0, bottom: 0,
                       width: m.isYear ? 1 : 1,
-                      background: m.isYear ? '#3A3A3A' : '#222',
+                      background: m.isYear ? '#BEBAB3' : '#E0DDD8',
                       zIndex: 1,
                     }} />
                     {/* Month label */}
@@ -244,14 +244,14 @@ export default function ProjectTimeline({ projectId }: Props) {
 
                 {/* Category header row */}
                 <div style={{ display: 'flex', height: 30, alignItems: 'center', background: `${CAT_COLORS[cat]}08`, borderBottom: `1px solid ${CAT_COLORS[cat]}22` }}>
-                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', borderRight: '1px solid #2A2A2A', position: 'sticky', left: 0, zIndex: 8, background: `${CAT_COLORS[cat]}10` }}>
+                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', borderRight: '1px solid #D8D5D0', position: 'sticky', left: 0, zIndex: 8, background: `${CAT_COLORS[cat]}10` }}>
                     <span style={{ width: 3, height: 12, background: CAT_COLORS[cat], flexShrink: 0 }} />
                     <span style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: CAT_COLORS[cat], fontWeight: 700 }}>{CAT_LABELS[cat]}</span>
                     <span style={{ fontSize: 7, color: `${CAT_COLORS[cat]}77`, marginLeft: 'auto' }}>{catTasks.length}</span>
                   </div>
                   {/* Category grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
-                    {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#2A2A2A' : '#181818' }} />)}
+                    {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#D8D5D0' : '#EDEBE7' }} />)}
                     <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A33' }} />
                   </div>
                 </div>
@@ -266,12 +266,12 @@ export default function ProjectTimeline({ projectId }: Props) {
 
                   return (
                     <div key={task.id}
-                      style={{ display: 'flex', height: ROW_H, alignItems: 'center', borderBottom: '1px solid #111' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#0F0F0F')}
+                      style={{ display: 'flex', height: ROW_H, alignItems: 'center', borderBottom: '1px solid #E8E5E0' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#ECEAE6')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
                       {/* Task label — sticky left */}
-                      <div style={{ width: LABEL_W, flexShrink: 0, position: 'sticky', left: 0, zIndex: 6, background: 'inherit', borderRight: '1px solid #1E1E1E', display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px', height: '100%', cursor: 'pointer' }}
+                      <div style={{ width: LABEL_W, flexShrink: 0, position: 'sticky', left: 0, zIndex: 6, background: 'inherit', borderRight: '1px solid #E4E1DC', display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px', height: '100%', cursor: 'pointer' }}
                         onClick={() => openEdit(task)}>
 
                         {/* Traffic light dot */}
@@ -282,17 +282,17 @@ export default function ProjectTimeline({ projectId }: Props) {
                         </span>
 
                         {/* Task name */}
-                        <span style={{ fontSize: 10, color: task.status === 'complete' ? '#666' : '#C8C8C8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
+                        <span style={{ fontSize: 10, color: task.status === 'complete' ? '#AAA' : '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
 
                         {/* Assignee initial */}
-                        {task.assignee && <span style={{ fontSize: 7, color: '#444', flexShrink: 0, maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.assignee.split(' ')[0]}</span>}
+                        {task.assignee && <span style={{ fontSize: 7, color: '#9A968F', flexShrink: 0, maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.assignee.split(' ')[0]}</span>}
                       </div>
 
                       {/* Gantt bar area */}
                       <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
 
                         {/* Vertical month grid lines */}
-                        {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#222' : '#141414' }} />)}
+                        {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#E0DDD8' : '#EEECE8' }} />)}
 
                         {/* Today line */}
                         <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A55', zIndex: 3 }} />
@@ -324,7 +324,7 @@ export default function ProjectTimeline({ projectId }: Props) {
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 11, color: '#2A2A2A', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
+          <p style={{ fontSize: 11, color: '#888', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
           <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid #C4973A44', background: 'transparent', color: '#C4973A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
         </div>
       )}
@@ -333,11 +333,11 @@ export default function ProjectTimeline({ projectId }: Props) {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setEditing(null) }}>
-          <div style={{ width: 540, background: '#0C0C0C', border: '1px solid #222', padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ width: 540, background: '#0C0C0C', border: '1px solid #E0DDD8', padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-              <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#444' }}>{isNew ? 'Add Task' : 'Edit Task'}</p>
-              <button onClick={() => setEditing(null)} style={{ background: 'none', border: 'none', color: '#444', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>✕</button>
+              <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#9A968F' }}>{isNew ? 'Add Task' : 'Edit Task'}</p>
+              <button onClick={() => setEditing(null)} style={{ background: 'none', border: 'none', color: '#9A968F', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>✕</button>
             </div>
 
             <Field label="Task Name">
@@ -397,12 +397,12 @@ export default function ProjectTimeline({ projectId }: Props) {
               <span style={{ fontSize: 10, color: '#555', letterSpacing: '0.08em' }}>Milestone (diamond marker)</span>
             </label>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 14, borderTop: '1px solid #111' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 14, borderTop: '1px solid #E8E5E0' }}>
               {!isNew
                 ? <button onClick={() => { remove(editing.id); setEditing(null) }} style={{ background: 'none', border: '1px solid #EF444430', color: '#EF4444', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Delete</button>
                 : <span />}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid #222', color: '#444', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid #E0DDD8', color: '#9A968F', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={save} disabled={!editing.name.trim()} style={{ background: '#C4973A', border: 'none', color: '#000', padding: '8px 20px', fontSize: 9, letterSpacing: '0.14em', fontWeight: 700, cursor: 'pointer', opacity: editing.name.trim() ? 1 : 0.4 }}>
                   {isNew ? 'Add Task' : 'Save'}
                 </button>
@@ -433,14 +433,14 @@ function TrafficLight({ color, count, label, flash }: { color: string; count: nu
 }
 
 const INPUT: React.CSSProperties = {
-  width: '100%', background: '#0A0A0A', border: '1px solid #222', color: '#ccc',
+  width: '100%', background: '#0A0A0A', border: '1px solid #E0DDD8', color: '#ccc',
   padding: '8px 10px', fontSize: 11, outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit',
 }
 
 function Field({ label, children, flex }: { label: string; children: React.ReactNode; flex?: number }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: flex ?? undefined }}>
-      <label style={{ fontSize: 7, letterSpacing: '0.20em', textTransform: 'uppercase', color: '#444' }}>{label}</label>
+      <label style={{ fontSize: 7, letterSpacing: '0.20em', textTransform: 'uppercase', color: '#9A968F' }}>{label}</label>
       {children}
     </div>
   )

@@ -81,30 +81,30 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
       {/* Topbar */}
       <div className="ws-topbar drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 border-b border-[#1C1C1C]"
         style={{ background: PREMIUM_TABS.includes(safeTab)
-          ? 'linear-gradient(rgba(16,16,18,0.56), rgba(10,10,12,0.70)), url(/header-bg.jpg) center / cover no-repeat, #101012'
+          ? 'linear-gradient(rgba(238,236,232,0.74), rgba(224,221,216,0.80)), url(/header-bg.jpg) center / cover no-repeat, #ECEAE6'
           : 'linear-gradient(rgba(8,8,8,0.78), rgba(8,8,8,0.84)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
         <div className="flex items-center justify-center flex-shrink-0" style={{ minWidth: 80 }}>
           <button
             onClick={() => setActiveProject(null)}
-            className="no-drag text-white hover:text-[#C4973A] transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
+            className="no-drag text-[#1A1A1A] hover:text-[#8A6A28] transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
           >
             MENU
           </button>
         </div>
-        <div className="w-[1px] h-7 bg-[#2A2A2A] flex-shrink-0 hidden sm:block" />
-        <span className="hidden sm:block"><Wordmark size="sm" /></span>
-        <div className="w-[1px] h-7 bg-[#2A2A2A] flex-shrink-0 hidden sm:block" />
+        <div className="w-[1px] h-7 bg-[#C4C0B8] flex-shrink-0 hidden sm:block" />
+        <span className="hidden sm:block"><Wordmark size="md" tone="black" /></span>
+        <div className="w-[1px] h-7 bg-[#C4C0B8] flex-shrink-0 hidden sm:block" />
         <div className="flex-1 min-w-0 hidden sm:block">
           <div className="flex items-center gap-2">
             <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-white text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
+            <h1 className="font-heading font-semibold text-[#1A1A1A] text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
           </div>
           {project.address && <p className="text-[#606060] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium">{project.address}</p>}
         </div>
         <div className="flex-1 min-w-0 sm:hidden">
           <div className="flex items-center gap-2">
             <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-white text-[13px] tracking-[0.06em] truncate">{project.name}</h1>
+            <h1 className="font-heading font-semibold text-[#1A1A1A] text-[13px] tracking-[0.06em] truncate">{project.name}</h1>
           </div>
         </div>
         {role === 'external' && (
@@ -114,19 +114,18 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
         )}
         {/* Dashboard + Manage + Log Out — inside the header; held ~5mm off the edge */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          <button className="glass-btn glass-btn-grey" onClick={() => setActiveTab('insights')}
-            style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700,
-              ...(safeTab === 'insights' ? { color: '#C4973A', borderColor: '#C4973A66' } : {}) }}>
+          <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
+            style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
             ☰ Dashboard
           </button>
           {onManage && (
-            <button className="glass-btn glass-btn-gold" onClick={onManage}
+            <button className="glass-btn glass-btn-light" onClick={onManage}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
               ⊞ Manage
             </button>
           )}
           {onLogout && (
-            <button className="glass-btn glass-btn-grey" onClick={onLogout}
+            <button className="glass-btn glass-btn-light" onClick={onLogout}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
               Log Out
             </button>

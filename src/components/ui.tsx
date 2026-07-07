@@ -2,8 +2,10 @@ import React from 'react'
 
 // ── Brand mark ───────────────────────────────────────────────────────────────
 
-export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero' }) {
+export function Wordmark({ size = 'md', tone = 'white' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | 'hero'; tone?: 'white' | 'black' }) {
   const widths = { sm: 83, md: 117, lg: 156, xl: 208 }
+  // tone='black' blackens the white logo art while preserving its alpha edges.
+  const toneFilter = tone === 'black' ? 'brightness(0)' : undefined
   // Hero uses the tight-cropped asset: the full PNG is ~60% transparent padding,
   // which pushed the content below far away from the visible logos. Width is
   // scaled so the visible art renders the same size as before.
@@ -24,7 +26,7 @@ export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' | 'xl' | '
       alt="7EVEN · HAAVN"
       draggable={false}
       className="select-none"
-      style={{ width: widths[size], height: 'auto', objectFit: 'contain' }}
+      style={{ width: widths[size], height: 'auto', objectFit: 'contain', filter: toneFilter }}
     />
   )
 }
@@ -83,10 +85,10 @@ export function Card({ children, className = '', dark = false }: { children: Rea
 export function SectionHeading({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="mb-5 cursor-default">
-      <div className="flex items-center mb-1.5" style={{ display: 'inline-flex' }}>
-        <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase" style={{ color: '#1A1A1A' }}>{children}</h2>
-      </div>
-      {sub && <p className="text-[#666] text-[12px] tracking-wide font-medium">{sub}</p>}
+      <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase mb-1.5" style={{ color: '#141414' }}>{children}</h2>
+      {/* Black-chrome underline — premium stealth accent (replaces the old gold bar) */}
+      <div style={{ height: 2, borderRadius: 2, width: 54, background: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A)', boxShadow: '0 1px 2px rgba(0,0,0,0.35)' }} />
+      {sub && <p className="text-[#666] text-[12px] tracking-wide font-medium mt-1.5">{sub}</p>}
     </div>
   )
 }
