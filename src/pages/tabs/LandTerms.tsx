@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
@@ -209,7 +208,6 @@ export default function LandTermsTab({ projectId }: Props) {
         </div>
       )}
       </div>
-      <SiteLinks />
     </div>
   )
 }

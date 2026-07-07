@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, Button, Card } from '../../components/ui'
@@ -205,7 +204,6 @@ export default function SiteDesignTab({ projectId }: Props) {
       <div className="md:hidden" style={{ height: 300 }}>
         <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
       </div>
-      <SiteLinks />
     </div>
   )
 }

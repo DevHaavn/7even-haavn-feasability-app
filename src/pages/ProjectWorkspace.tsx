@@ -15,6 +15,7 @@ import ScenarioComparison from './tabs/ScenarioComparison'
 import SummaryTab from './tabs/SummaryTab'
 import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
+import SiteLinks from '../components/SiteLinks'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
@@ -56,10 +57,10 @@ const TABS = [
   { id: 'insights', label: 'Dashboard' },
 ]
 
-// Tabs that float in a centred premium card hovering over the dark texture.
-const PREMIUM_TABS = ['site', 'land', 'mix', 'btr', 'bts', 'hotel']
+// Every project tab floats in a card hovering over the dark texture.
+const PREMIUM_TABS = ['site', 'land', 'mix', 'cost', 'cashflow', 'finance', 'timeline', 'btr', 'bts', 'hotel', 'compare', 'summary', 'insights']
 
-export default function ProjectWorkspace() {
+export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: () => void; onLogout?: () => void }) {
   const { activeProjectId, activeTab, setActiveTab, setActiveProject, projects } = useStore()
   const role = useRole()
   const project = projects.find(p => p.id === activeProjectId)
@@ -111,6 +112,21 @@ export default function ProjectWorkspace() {
             Consultant
           </span>
         )}
+        {/* Manage + Log Out — now sit inside the header, larger & clearer */}
+        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 'auto' }}>
+          {onManage && (
+            <button className="glass-btn glass-btn-gold" onClick={onManage}
+              style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '9px 18px', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              ⊞ Manage
+            </button>
+          )}
+          {onLogout && (
+            <button className="glass-btn glass-btn-grey" onClick={onLogout}
+              style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '9px 18px', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              Log Out
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs — z-40 keeps it above fixed tab backgrounds */}
@@ -146,9 +162,11 @@ export default function ProjectWorkspace() {
               {activeTab === 'timeline' && <ProjectTimeline projectId={project.id} />}
             </>
           )
-          // Premium tabs float in a centred card hovering over the dark texture.
+          // Premium tabs float in a card hovering over the dark texture.
           return PREMIUM_TABS.includes(safeTab) ? <div key={safeTab} className="premium-card">{content}</div> : content
         })()}
+        {/* Footer — the site links float on the texture below the card */}
+        {PREMIUM_TABS.includes(safeTab) && <div className="premium-footer"><SiteLinks /></div>}
       </div>
 
       <Project7Mark size={58} bottom={12} right={16} />

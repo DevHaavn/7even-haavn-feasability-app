@@ -74,20 +74,6 @@ export default function App() {
           )}
           {activeProjectId && (
             <>
-              {/* Manage + Log Out — top-right on desktop; a slim strip above the header on mobile */}
-              <div className="ws-actions no-drag" style={{ position: 'fixed', top: 15, right: 18, zIndex: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
-                {role === 'admin' && (
-                  <button className="glass-btn glass-btn-gold" onClick={() => setManageOpen(true)}
-                    style={{ fontSize: 6.5, letterSpacing: '0.20em', textTransform: 'uppercase', padding: '5px 11px', whiteSpace: 'nowrap' }}>
-                    ⊞ Manage
-                  </button>
-                )}
-                <button className="glass-btn glass-btn-grey" onClick={handleLogout}
-                  style={{ fontSize: 6.5, letterSpacing: '0.20em', textTransform: 'uppercase', padding: '5px 11px', whiteSpace: 'nowrap' }}>
-                  Log Out
-                </button>
-              </div>
-
               {/* Full-screen manage panel */}
               {manageOpen && activeProject && (
                 <ProjectManagePanel
@@ -100,7 +86,7 @@ export default function App() {
           )}
 
           {activeProjectId
-            ? <ProjectWorkspace />
+            ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} />
             : <ProjectList onLogout={handleLogout} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return

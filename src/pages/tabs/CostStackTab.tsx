@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
@@ -438,7 +437,6 @@ export default function CostStackTab({ projectId }: Props) {
 
       {/* Render strip */}
       <div style={{ height: 280, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
-      <SiteLinks />
     </div>
   )
 }

@@ -369,28 +369,33 @@ input[type="checkbox"] {
 
 /* ── Premium floating stage — content pages hover over the dark texture ── */
 .premium-stage {
-  /* light overlay only — let the texture read; no flat-black wash */
+  /* barely-there veil so the crumpled texture reads clearly */
   background:
-    linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.28)),
+    linear-gradient(rgba(0,0,0,0.03), rgba(0,0,0,0.12)),
     url(/premium-bg.jpg) center / cover fixed,
-    #0a0a0a;
-  padding: clamp(14px, 3vh, 40px) clamp(10px, 3vw, 56px) clamp(32px, 6vh, 72px);
+    #101010;
+  /* side padding matches the floating header margin so the card lines up with it */
+  padding: clamp(10px, 1.5vh, 18px) clamp(8px, 2.4vw, 40px) clamp(20px, 4vh, 48px);
 }
 .premium-card {
   position: relative;
-  max-width: 1180px;
-  margin: 0 auto;
+  margin: 0 auto;                 /* fills the stage width -> aligns with the header */
   border-radius: 20px;
   overflow: hidden;
   background: #F4F2EF;
-  /* clean floating slab — deep drop shadow only, no white halo */
-  border: 1px solid rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.14);
+  /* edge glow + deep drop shadow -> reads as a lit tablet floating over the texture */
   box-shadow:
-    0 26px 55px -16px rgba(0,0,0,0.85),
-    0 55px 110px -34px rgba(0,0,0,0.7);
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 0 30px -2px rgba(216,176,96,0.18),
+    0 0 70px -6px rgba(255,255,255,0.06),
+    0 26px 55px -16px rgba(0,0,0,0.85);
   transform-origin: center top;
   animation: premium-rise 0.5s cubic-bezier(0.22,0.9,0.24,1) both;
 }
+/* the site-links footer floats on the texture (no solid panel behind it) */
+.premium-footer { margin-top: clamp(16px, 3vh, 30px); }
+.premium-footer .site-footer { background: transparent !important; border-top: none !important; }
 @keyframes premium-rise {
   from { opacity: 0; transform: translateY(20px) scale(0.99); }
   to   { opacity: 1; transform: translateY(0) scale(1); }

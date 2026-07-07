@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button, Money, VerdictBadge, MetricCard } from '../../components/ui'
@@ -170,7 +169,6 @@ export default function BTRTab({ projectId }: Props) {
         )}
       </div>
       </div>
-      <SiteLinks />
     </div>
   )
 }

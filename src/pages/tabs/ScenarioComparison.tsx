@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useEffect, useState } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, Money, VerdictBadge, Wordmark } from '../../components/ui'
@@ -111,8 +110,6 @@ export default function ScenarioComparison({ projectId }: Props) {
           <span style={{ fontFamily: 'var(--font-heading)', fontSize: 36, fontStyle: 'italic', fontWeight: 300, color: '#1A1A1A', letterSpacing: '0.01em' }}>small.</span>
         </div>
       </div>
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
-      <SiteLinks />
     </div>
   )
 
@@ -172,8 +169,6 @@ export default function ScenarioComparison({ projectId }: Props) {
       </div>
 
       {/* Render strip */}
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
-      <SiteLinks />
     </div>
   )
 }

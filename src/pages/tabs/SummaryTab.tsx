@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useEffect, useState, Component } from 'react'
 
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: string | null }> {
@@ -423,7 +422,6 @@ function SummaryTabInner({ projectId }: Props) {
 
       {/* Render strip */}
       <div style={{ height: 280, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
-      <SiteLinks />
     </div>
   )
 }

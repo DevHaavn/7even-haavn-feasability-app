@@ -1,4 +1,3 @@
-import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, Button } from '../../components/ui'
@@ -381,7 +380,6 @@ export default function ProductMixTab({ projectId }: Props) {
           </div>
         ) : null}
       </div>
-      <SiteLinks />
     </div>
   )
 }
