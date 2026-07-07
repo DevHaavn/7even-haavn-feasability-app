@@ -270,7 +270,8 @@ export default function BudgetsAdmin() {
   const setCell = (lineId: string, mi: number, v: number) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.m[mi] = v })
   const setName = (lineId: string, name: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.name = name })
   const delLine = (lineId: string) => mutateEntity(sel, e => { e.lines = e.lines.filter(l => l.id !== lineId) })
-  const addLine = (s: Section) => mutateEntity(sel, e => { e.lines.push({ id: uid(), name: 'New line', s, m: new Array(12).fill(0) }) })
+  const clearLine = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.m = new Array(12).fill(0) })
+  const addLine = (s: Section) => mutateEntity(sel, e => { e.lines.push({ id: uid(), name: '', s, m: new Array(12).fill(0) }) })
   const toCommitted = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) { delete l.pipeline; if (!l.grp) l.grp = 'Committed' } })
   const toPipeline = (lineId: string) => mutateEntity(sel, e => { const l = e.lines.find(x => x.id === lineId); if (l) l.pipeline = true })
 
@@ -339,7 +340,9 @@ export default function BudgetsAdmin() {
   )
 
   return (
-    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', padding: '26px 24px 60px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', padding: '26px 24px 40px', display: 'flex', flexDirection: 'column', gap: 18,
+      background: '#E4E4E7', borderRadius: 20, border: '1px solid rgba(255,255,255,0.5)',
+      boxShadow: '0 28px 70px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.7)' }}>
 
       {/* entity nav + Xero */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -482,7 +485,7 @@ export default function BudgetsAdmin() {
       {/* ── ENTRY GRID ── */}
       {view === 'entry' && entity && (
         <EntryGrid entity={entity} accent={accent}
-          onCell={setCell} onName={setName} onDel={delLine} onAdd={addLine} onCommit={toCommitted} onPipeline={toPipeline} />
+          onCell={setCell} onName={setName} onDel={delLine} onClear={clearLine} onAdd={addLine} onCommit={toCommitted} onPipeline={toPipeline} />
       )}
 
       {/* ── TRANSACTIONS ── */}
@@ -930,11 +933,12 @@ function Row({ label, value, sub, subColor }: { label: string; value: string; su
 }
 
 // ── Fathom-style entry grid ────────────────────────────────────────────────────
-function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onPipeline }: {
+function EntryGrid({ entity, accent, onCell, onName, onDel, onClear, onAdd, onCommit, onPipeline }: {
   entity: Entity; accent: string
   onCell: (id: string, mi: number, v: number) => void
   onName: (id: string, name: string) => void
   onDel: (id: string) => void
+  onClear: (id: string) => void
   onAdd: (s: Section) => void
   onCommit: (id: string) => void
   onPipeline: (id: string) => void
@@ -972,8 +976,8 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
         <tr key={l.id}>
           <td style={{ ...stick, padding: '2px 12px 2px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <input defaultValue={l.name} onBlur={e => e.target.value !== l.name && onName(l.id, e.target.value)}
-                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#1A1B1E', fontSize: 11, width: 150 }} />
+              <input defaultValue={l.name} placeholder="Name this line…" autoFocus={!l.name} onBlur={e => e.target.value !== l.name && onName(l.id, e.target.value)}
+                style={{ background: l.name ? 'transparent' : '#FFF7E6', border: l.name ? 'none' : '1px solid #E8B84B66', borderRadius: 5, outline: 'none', color: '#1A1B1E', fontSize: 11, width: 154, padding: l.name ? 0 : '3px 6px' }} />
               {l.fin && <Tag t={l.tax ? 'tax' : 'financing'} />}
               {l.pipeline && <Tag t="pipeline" col="#8FA8BF" />}
               {l.splitGroup && <Tag t={`split ${l.pct}%`} col="#6E9BE6" />}
@@ -987,7 +991,12 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
             </td>
           ))}
           <td style={{ color: tot < 0 ? NEG : '#4A4B50', fontSize: 10, fontFamily: 'var(--font-mono)', textAlign: 'right', padding: '2px 10px' }}>{tot ? comma(tot) : '—'}</td>
-          <td style={{ textAlign: 'center' }}><button onClick={() => onDel(l.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B0B2B8', fontSize: 12 }}>×</button></td>
+          <td style={{ textAlign: 'right', whiteSpace: 'nowrap', paddingRight: 8 }}>
+            <button onClick={() => onClear(l.id)} title="Clear all months to zero"
+              style={{ background: 'none', border: '1px solid #D3D4D8', borderRadius: 5, cursor: 'pointer', color: '#63656C', fontSize: 9, letterSpacing: '0.06em', padding: '2px 6px', marginRight: 4 }}>clear</button>
+            <button onClick={() => onDel(l.id)} title="Delete line"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#C25454', fontSize: 14, fontWeight: 700 }}>×</button>
+          </td>
         </tr>
       )
     })
@@ -1002,7 +1011,8 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
     </tr>
   )
   const sectionHead = (t: string) => (<tr><td style={{ ...stick, color: accent, fontSize: 9.5, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, padding: '16px 12px 6px' }}>{t}</td>{CFO_MONTHS.map((_, i) => <td key={i} />)}<td /><td /></tr>)
-  const addRow = (s: Section) => (<tr><td colSpan={15} style={{ ...stick, padding: '3px 12px 8px 22px' }}><button onClick={() => onAdd(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: `${accent}AA`, fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>+ Add line</button></td></tr>)
+  const addRow = (s: Section, label: string) => (<tr><td colSpan={15} style={{ ...stick, padding: '6px 12px 12px 22px' }}><button onClick={() => onAdd(s)} title="Add a new budget line — name it, then enter month-by-month"
+    style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', border: `1px dashed ${accent}88`, borderRadius: 8, cursor: 'pointer', color: accent, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, padding: '8px 16px' }}>+ Add {label} line</button></td></tr>)
 
   return (
     <div style={{ ...panel, padding: '18px 0 12px' }}>
@@ -1020,16 +1030,16 @@ function EntryGrid({ entity, accent, onCell, onName, onDel, onAdd, onCommit, onP
           <tbody>
             {sectionHead('Revenue')}
             {renderLines(entity.lines.filter(l => l.s === 'revenue' && !l.pipeline && !l.fin))}
-            {addRow('revenue')}
+            {addRow('revenue', 'revenue')}
             {totalRow('Total revenue', revT)}
             {sectionHead('Cost of sales')}
             {renderLines(entity.lines.filter(l => l.s === 'cogs' && !l.fin))}
-            {addRow('cogs')}
+            {addRow('cogs', 'cost')}
             {totalRow('Total cost of sales', cogT)}
             {totalRow('Gross profit', gpT)}
             {sectionHead('Operating expenses')}
             {renderLines(entity.lines.filter(l => l.s === 'opex'))}
-            {addRow('opex')}
+            {addRow('opex', 'expense')}
             {totalRow('Total operating expenses', ox)}
             {totalRow('EBITDA · trading basis', ebT, true)}
             {hasFin && <>
