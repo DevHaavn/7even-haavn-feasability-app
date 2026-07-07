@@ -29,9 +29,9 @@ export function seedProjectsIfEmpty() {
     localStorage.setItem('corio-patch-v1', 'true')
   }
   // One-time: add Scenario A (studio-led mix) to already-seeded copies
-  if (ids.has('geelong-35-corio') && !localStorage.getItem('corio-scenario-a-v1')) {
+  if (ids.has('geelong-35-corio') && !localStorage.getItem('corio-scenario-a-v2')) {
     seedCorioScenarioA('geelong-35-corio')
-    localStorage.setItem('corio-scenario-a-v1', 'true')
+    localStorage.setItem('corio-scenario-a-v2', 'true')
   }
 
   // Always ensure named featured projects exist (idempotent)
@@ -1178,34 +1178,34 @@ function seedCorio() {
   seedCorioScenarioA(pid)
 }
 
-// Scenario A — studio-led mix (35/25/30/10) across both towers, hotel converted
-// to residential (keys 0). Studio sized like Preston (38 sqm). Same residential
+// Scenario A — Preston mix (25/50/19/6) across both towers, hotel converted to
+// residential (keys 0). Preston unit sizes (38/52/75/100 sqm). Same residential
 // envelope (21,815 NSA) so it can be compared against the WMK yield scenario.
 function seedCorioScenarioA(pid: string) {
   const scenarioId = 'geelong-35-corio-mix-A'
-  db.saveMixScenario({ id: scenarioId, projectId: pid, name: 'Scenario A — Studio-led 35/25/30/10', createdAt: '2025-02-01T00:00:00.000Z' })
+  db.saveMixScenario({ id: scenarioId, projectId: pid, name: 'Scenario A — Preston mix 25/50/19/6', createdAt: '2025-02-01T00:00:00.000Z' })
 
   db.saveUnitTypes(scenarioId, [
     {
-      id: 'corioA-u1', scenarioId, name: 'Studio', nsaPerUnit: 38, targetPct: 0.35, solvedCount: 123,
+      id: 'corioA-u1', scenarioId, name: 'Studio', nsaPerUnit: 38, targetPct: 0.25, solvedCount: 98,
       weeklyRentConservative: 460, weeklyRentAggressive: 560,
       salePriceConservative: 480000, salePriceMid: 540000, salePriceAggressive: 620000,
       opexPerUnitPerYear: 3000,
     },
     {
-      id: 'corioA-u2', scenarioId, name: '1 Bedroom', nsaPerUnit: 58, targetPct: 0.25, solvedCount: 88,
+      id: 'corioA-u2', scenarioId, name: '1 Bedroom', nsaPerUnit: 52, targetPct: 0.50, solvedCount: 195,
       weeklyRentConservative: 515, weeklyRentAggressive: 630,
       salePriceConservative: 580000, salePriceMid: 660000, salePriceAggressive: 750000,
       opexPerUnitPerYear: 3500,
     },
     {
-      id: 'corioA-u3', scenarioId, name: '2 Bedroom', nsaPerUnit: 79, targetPct: 0.30, solvedCount: 105,
+      id: 'corioA-u3', scenarioId, name: '2 Bedroom', nsaPerUnit: 75, targetPct: 0.19, solvedCount: 74,
       weeklyRentConservative: 600, weeklyRentAggressive: 750,
       salePriceConservative: 750000, salePriceMid: 870000, salePriceAggressive: 1000000,
       opexPerUnitPerYear: 4200,
     },
     {
-      id: 'corioA-u4', scenarioId, name: '3 Bedroom', nsaPerUnit: 108, targetPct: 0.10, solvedCount: 35,
+      id: 'corioA-u4', scenarioId, name: '3 Bedroom', nsaPerUnit: 100, targetPct: 0.06, solvedCount: 24,
       weeklyRentConservative: 740, weeklyRentAggressive: 915,
       salePriceConservative: 1100000, salePriceMid: 1250000, salePriceAggressive: 1450000,
       opexPerUnitPerYear: 5500,
