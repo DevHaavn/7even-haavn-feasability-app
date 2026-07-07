@@ -192,7 +192,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                 {is7
                   ? <img src="/seven-mark-white.png" alt="7EVEN" draggable={false} style={{ height: 21, width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
-                  : <span className="chrome-silver-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>HAAVN MANAGEMENT</span>}
+                  : <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />}
                 <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>
               </button>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
