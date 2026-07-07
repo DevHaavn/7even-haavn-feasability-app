@@ -50,6 +50,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
+  // Director view — the 7EVEN logo flips the admin column between 7EVEN and HAAVN Management.
+  const [adminBrand, setAdminBrand] = useState<'7even' | 'haavn'>('7even')
+  const [brandMenu, setBrandMenu] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -177,47 +180,58 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
-        {/* LEFT — 7EVEN · master/admin only */}
-        {role === 'admin' && (
+        {/* LEFT — director column · 7EVEN logo flips between 7EVEN and HAAVN Management */}
+        {role === 'admin' && (() => {
+          const is7 = adminBrand === '7even'
+          const list = is7 ? sevenProjects : haavnProjects
+          const accent = is7 ? '#C4973A' : 'rgba(255,255,255,0.75)'
+          return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header */}
           <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(6,6,6,0.55)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 2, height: 18, background: '#C4973A', flexShrink: 0 }} />
-              <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.12em', color: '#C4973A' }}>7EVEN</span>
-              <span style={{ fontSize: 8, color: '#333', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4 }}>
-                {sevenProjects.length} project{sevenProjects.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {role === 'admin' && <>
-                <button onClick={() => onDashboard?.('7even')}
-                  style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A66', background: 'transparent', border: 'none', padding: '5px 4px', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#C4973A' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#C4973A66' }}>
-                  ▦ Dashboard
-                </button>
-                <div style={{ width: 1, height: 10, background: '#1C1C1C' }} />
-              </>}
-              <button onClick={() => openNew('7even')} className="glass-btn glass-btn-gold"
-                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '6px 16px' }}>
-                + New
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
+              <div style={{ width: 2, height: 18, background: accent, flexShrink: 0 }} />
+              {/* 7EVEN / HAAVN MANAGEMENT logo — acts as a view dropdown for the director */}
+              <button onClick={() => setBrandMenu(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: is7 ? '0.12em' : '0.16em', color: accent, whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
+                <span style={{ fontSize: 9, color: accent, opacity: 0.6 }}>▾</span>
               </button>
+              <span style={{ fontSize: 8, color: '#333', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4 }}>
+                {list.length} project{list.length !== 1 ? 's' : ''}
+              </span>
+              {brandMenu && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
+                  {([['7even', '7EVEN', '#C4973A'], ['haavn', 'HAAVN MANAGEMENT', 'rgba(255,255,255,0.85)']] as const).map(([id, lbl, col]) => (
+                    <button key={id} onClick={() => { setAdminBrand(id); setBrandMenu(false) }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.05)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
+                      <span style={{ width: 2, height: 13, background: col, flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', color: col, whiteSpace: 'nowrap' }}>{lbl}</span>
+                      {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: col }}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-grey"
+              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, padding: '9px 20px' }}>
+              ▦ Dashboard
+            </button>
           </div>
 
-          {/* 7EVEN project list */}
+          {/* Project list — follows the selected brand */}
           <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
-            {sevenProjects.length === 0 ? (
-              <EmptyState brand="7even" onNew={() => openNew('7even')} />
+            {list.length === 0 ? (
+              <EmptyState brand={adminBrand} onNew={() => openNew(adminBrand)} />
             ) : (
-              sevenProjects.map((p, i) => (
-                <ProjectCard key={p.id} project={p} index={i + 1} onClick={() => setActiveProject(p.id)} onUpdate={updateProject} accentColor="#C4973A" />
+              list.map((p, i) => (
+                <ProjectCard key={p.id} project={p} index={i + 1} onClick={() => setActiveProject(p.id)} onUpdate={updateProject} accentColor={accent} />
               ))
             )}
           </div>
         </div>
-        )}
+          )
+        })()}
 
         {/* RIGHT — HAAVN MANAGEMENT · consultants / PMs (and admin sees 7EVEN side) */}
         {role === 'external' && (
@@ -495,9 +509,9 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
           className={`glass-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': color, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: 96, padding: '6px 0' } as React.CSSProperties}>
-          <span style={{ fontSize: 8, letterSpacing: '0.20em', textTransform: 'uppercase', color, fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 8, color, opacity: 0.6 }}>▾</span>
+          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: 96, padding: '6px 0' } as React.CSSProperties}>
+          <span style={{ fontSize: 8, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.78)', fontWeight: 700 }}>{label}</span>
+          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.78)', opacity: 0.7 }}>▾</span>
         </button>
         {dropOpen && (
           <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
