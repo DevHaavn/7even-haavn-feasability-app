@@ -17,9 +17,16 @@ export function seedProjectsIfEmpty() {
   if (!ids.has('seed-geelong-001')) {
     seedGeelong()
   }
-  // 35 Corio Street, Geelong — Cunningham Place (WMK yield analysis, Feb 2025)
+  // 35 Corio Street, Geelong — Cunningham Place (Fraser & Partners yield analysis)
   if (!ids.has('geelong-35-corio')) {
     seedCorio()
+  } else if (!localStorage.getItem('corio-patch-v1')) {
+    // One-time patch for already-seeded copies: Fraser & Partners architect +
+    // $25M in-kind church land (no interest).
+    const pid = 'geelong-35-corio'
+    db.saveLandTerms(corioLand(pid))
+    db.saveSiteDesign({ ...db.getSiteDesign(pid), notes: CORIO_NOTES })
+    localStorage.setItem('corio-patch-v1', 'true')
   }
 
   // Always ensure named featured projects exist (idempotent)
@@ -999,9 +1006,31 @@ function seedCaloundraHistoricalSnapshot() {
 }
 
 // ── 35 CORIO STREET, GEELONG — CUNNINGHAM PLACE ──────────────────────────────
-// Source: WMK Architecture Yield Analysis, Feb 2025 (SharePoint). Market data:
-// CoreLogic / YIP / Domain / CBRE, June 2026. 2 towers (17 + 12 lvls), 274 apts,
-// 1,550 sqm retail, 357 car spaces + a hypothetical 150-key 5-star hotel.
+// Architect: Fraser & Partners (concept design & yield analysis, Feb 2025).
+// Market data: CoreLogic / YIP / Domain / CBRE, June 2026. 2 towers (17 + 12
+// lvls), 274 apts, 1,550 sqm retail, 357 car spaces + a hypothetical 150-key hotel.
+const CORIO_NOTES = 'Fraser & Partners — concept design & yield analysis (Feb 2025). Tower A: 17 lvls / 154 apts / 12,260 NSA. Tower B: 12 lvls / 120 apts / 9,555 NSA. Retail GF 1,550 sqm NSA. 357 car spaces (356 required — VPP 52.06 compliant). NSA/GFA efficiency 96.2%. Build rate $4,000/sqm on 25,439 sqm resi+retail GBA; 11,350 sqm parking costed separately ($18M allowance).'
+
+// Land: acquired from the church for $25M on vendor terms — carried as an in-kind
+// project cost with NO debt, finance or holding interest (as Werribee/Geelong).
+function corioLand(pid: string) {
+  return {
+    projectId: pid,
+    landCost: 0,
+    isInKind: true,
+    inKindLabel: 'Church land acquisition',
+    inKindGFA: 6250,
+    inKindRatePerSqm: 4000,     // 6,250 × $4,000 = $25,000,000 church land consideration
+    inKindNote: 'Land acquired from the church for $25M on vendor terms — treated as a project cost with no debt, finance or holding interest.',
+    state: 'VIC' as const,
+    propertyType: 'commercial' as const,
+    foreignBuyer: false,
+    applyStampDuty: false,
+    settlementDate: '',
+    landGst: 'none' as const,
+  }
+}
+
 function seedCorio() {
   const pid = 'geelong-35-corio'
 
@@ -1037,24 +1066,10 @@ function seedCorio() {
     commercialNSA: 0,
     communalGFA: 0,
     otherGFA: 0,
-    notes: 'WMK Architecture yield analysis (Feb 2025). Tower A: 17 lvls / 154 apts / 12,260 NSA. Tower B: 12 lvls / 120 apts / 9,555 NSA. Retail GF 1,550 sqm NSA. 357 car spaces (356 required — VPP 52.06 compliant). NSA/GFA efficiency 96.2%. Build rate $4,000/sqm applied to 25,439 sqm resi+retail GBA; 11,350 sqm parking costed separately ($18M allowance). 7EVEN architect of record: Fraser & Partners — WMK produced the source yield study.',
+    notes: CORIO_NOTES,
   })
 
-  db.saveLandTerms({
-    projectId: pid,
-    landCost: 0,               // RLV solves for affordable land; vendor ask is $20M (conservative)–$35M (aggressive)
-    isInKind: false,
-    inKindLabel: '',
-    inKindGFA: 0,
-    inKindRatePerSqm: 4000,
-    inKindNote: 'Commercial CBD site — formal valuation outstanding. Indicative asking range $20M–$35M depending on approved GBA. Compare against the RLV below.',
-    state: 'VIC',
-    propertyType: 'commercial',
-    foreignBuyer: false,
-    applyStampDuty: false,
-    settlementDate: '',
-    landGst: 'none',
-  })
+  db.saveLandTerms(corioLand(pid))
 
   db.saveCostStack({
     projectId: pid,
