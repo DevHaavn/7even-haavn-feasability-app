@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useStore } from '../store'
 import { Wordmark, Project7Mark } from '../components/ui'
 import { seedProjectsIfEmpty } from '../db/seed'
+import { getCashflow } from '../db'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
@@ -204,9 +205,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
               {/* 7EVEN / HAAVN MANAGEMENT — black-chrome brand · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <span className="chrome-black-text" style={{ fontSize: 14, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: is7 ? '0.14em' : '0.16em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)' }}>▾</span>
+                style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <span className="chrome-black-text" style={{ fontSize: 21, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: is7 ? '0.14em' : '0.14em', whiteSpace: 'nowrap' }}>{is7 ? '7EVEN' : 'HAAVN MANAGEMENT'}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>▾</span>
               </button>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
@@ -252,10 +253,10 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                   </div>
                 )}
               </div>
-              {/* Dashboard — clear glass, black-chrome shining word */}
+              {/* Dashboard — clear glass, crisp white writing */}
               <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn"
-                style={{ padding: '9px 0', width: 150, textAlign: 'center' }}>
-                <span className="chrome-black-text chrome-shine" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800 }}>▦ Dashboard</span>
+                style={{ padding: '10px 0', width: 156, textAlign: 'center', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>
+                ▦ Dashboard
               </button>
             </div>
           </div>
@@ -500,6 +501,61 @@ const STATUS_OPTIONS = [
   { type: undefined, status: 'on-hold', label: 'On Hold', color: '#EF4444', pulse: true  },
 ]
 
+// Mini stealth countdown — ticks down to the project's feasibility completion
+// (programme start + duration months, from the cashflow model).
+function CountdownClock({ projectId }: { projectId: string }) {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id) }, [])
+  const target = useMemo(() => {
+    try {
+      const cf = getCashflow(projectId)
+      if (cf?.startDate && cf?.months) {
+        const [y, m] = cf.startDate.split('-').map(Number)
+        if (y && m) return new Date(y, (m - 1) + cf.months, 1).getTime()
+      }
+    } catch { /* no cashflow yet */ }
+    return null
+  }, [projectId])
+
+  const W = 150
+  if (!target) return <div style={{ width: W, flexShrink: 0 }} />
+
+  const diff = target - now
+  if (diff <= 0) {
+    return (
+      <div style={{ width: W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
+        <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.16em', color: '#3DAA6A', fontWeight: 700 }}>COMPLETE</span>
+      </div>
+    )
+  }
+  const d = Math.floor(diff / 86400000)
+  const months = Math.floor(d / 30.44)
+  const days = d - Math.round(months * 30.44)
+  const hh = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0')
+  const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0')
+  const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
+  // Amber when inside the final 3 months, otherwise a cool stealth silver.
+  const near = months < 3
+  return (
+    <div title="Live countdown to feasibility completion"
+      style={{ width: W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0 }}>
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#E0A94A' : '#8A8F96', animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.5 }} />
+        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#E0A94A' : '#9BA1A8' }} />
+      </span>
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.05 }}>
+        <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: near ? '#E8C48A' : 'rgba(213,216,220,0.92)' }}>
+          {months}<span style={{ fontSize: 8, opacity: 0.6 }}>M</span> {days}<span style={{ fontSize: 8, opacity: 0.6 }}>D</span>
+        </span>
+        <span style={{ fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.10em', color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+          {hh}:{mm}:{ss}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
   project: any; index: number; onClick: () => void; onUpdate: (p: any) => void; accentColor: string
 }) {
@@ -545,9 +601,8 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       </span>
       <StatusDot type={project.type} status={project.status} size={7} />
 
-      {/* Live / Archive lifecycle dropdown — sits right after the project name */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
-      <div style={{ minWidth: 0 }}>
+      {/* Fixed-width name column so every Live button lines up down the board */}
+      <div style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
         <p style={{ color: '#D0CCC6', fontSize: 12, fontWeight: 300, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s' }}
           className="group-hover:text-white truncate">
           {project.name}
@@ -582,7 +637,11 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
           </div>
         )}
       </div>
-      </div>
+
+      {/* Live stealth countdown to feasibility completion */}
+      <CountdownClock projectId={project.id} />
+
+      <div style={{ flex: 1 }} />
 
       {/* Updated date — crisp white so it's clearly legible */}
       <span className="pcard-date" style={{ color: 'rgba(255,255,255,0.9)', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0, fontWeight: 600 }}>{updated}</span>

@@ -240,8 +240,9 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
         </div>
       </div>
 
-      {/* ── Scrollable body ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px 48px' }}>
+      {/* ── Scrollable body — floats the data sheet over the dark premium texture ── */}
+      <div className="premium-stage" style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="premium-card" style={{ padding: '30px 34px 42px' }}>
 
         {/* ── KPI row ── */}
         <div className="dash-kpis" style={{ display: 'flex', gap: 12, marginBottom: 28 }}>
@@ -390,6 +391,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
           <p style={{ fontSize: 8, letterSpacing: '0.22em', color: '#222', textTransform: 'uppercase' }}>Portfolio Intelligence Dashboard · {brandLabel}</p>
         </div>
         <DesignCredit style={{ marginTop: 14 }} />
+      </div>
       </div>
     </div>
   )
