@@ -26,6 +26,12 @@ export interface SiteDesign {
   childcareGFA: number
   churchGFA: number
   churchNSA: number
+  // Broken-out ancillary uses (all optional — default 0 for older projects)
+  commercialGFA?: number
+  commercialNSA?: number
+  retailGFA?: number
+  retailNSA?: number
+  communalGFA?: number
   otherGFA: number
   notes: string
 }

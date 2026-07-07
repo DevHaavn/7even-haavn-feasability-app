@@ -37,7 +37,8 @@ export default function SiteDesignTab({ projectId }: Props) {
   // Reconciliation checks
   const nsaGFAEff = data.resiGFA > 0 ? data.resiNSA / data.resiGFA : 0
   const nsaGFAFlag = nsaGFAEff > 0 && (nsaGFAEff < 0.78 || nsaGFAEff > 0.87)
-  const totalGBA = data.resiGBA + data.childcareGFA + data.churchGFA + data.otherGFA
+  const totalGBA = data.resiGBA + data.childcareGFA + data.churchGFA
+    + (data.commercialGFA || 0) + (data.retailGFA || 0) + (data.communalGFA || 0) + data.otherGFA
 
   // PDF text parser
   function parsePaste() {
@@ -129,6 +130,21 @@ export default function SiteDesignTab({ projectId }: Props) {
         </FieldRow>
         <FieldRow label="Church / Vendor NSA (sqm)">
           <NumberInput value={data.churchNSA} onChange={v => update('churchNSA', v)} />
+        </FieldRow>
+        <FieldRow label="Commercial GFA (sqm)">
+          <NumberInput value={data.commercialGFA || 0} onChange={v => update('commercialGFA', v)} />
+        </FieldRow>
+        <FieldRow label="Commercial NSA (sqm)">
+          <NumberInput value={data.commercialNSA || 0} onChange={v => update('commercialNSA', v)} />
+        </FieldRow>
+        <FieldRow label="Retail GFA (sqm)">
+          <NumberInput value={data.retailGFA || 0} onChange={v => update('retailGFA', v)} />
+        </FieldRow>
+        <FieldRow label="Retail NSA (sqm)">
+          <NumberInput value={data.retailNSA || 0} onChange={v => update('retailNSA', v)} />
+        </FieldRow>
+        <FieldRow label="Communal areas GFA (sqm)">
+          <NumberInput value={data.communalGFA || 0} onChange={v => update('communalGFA', v)} />
         </FieldRow>
         <FieldRow label="Other GFA (sqm)">
           <NumberInput value={data.otherGFA} onChange={v => update('otherGFA', v)} />

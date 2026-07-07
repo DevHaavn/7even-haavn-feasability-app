@@ -152,7 +152,19 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
 }
 
 // ── Grand total bar ───────────────────────────────────────────────────────────
-function GrandTotalBar({ detailed }: { detailed: DetailedCostStack }) {
+function GstBadge({ gstEnabled }: { gstEnabled: boolean }) {
+  // James/CFO: every cost table must state whether amounts are incl/excl GST.
+  const label = gstEnabled ? 'AMOUNTS GST-INCLUSIVE · input tax credits claimed' : 'AMOUNTS EX-GST'
+  const col = gstEnabled ? '#C4973A' : '#3DAA6A'
+  return (
+    <span title={gstEnabled ? 'Line amounts are entered GST-inclusive; the ex-GST cost carries into TDC (ITCs reclaimed).' : 'Line amounts exclude GST.'}
+      style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: col, border: `1px solid ${col}55`, borderRadius: 4, padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>
+      {label}
+    </span>
+  )
+}
+
+function GrandTotalBar({ detailed, gstEnabled }: { detailed: DetailedCostStack; gstEnabled: boolean }) {
   const sections = [
     { label: 'Hard Costs', items: detailed.hardCosts },
     { label: 'Consultants', items: detailed.consultants },
@@ -166,6 +178,7 @@ function GrandTotalBar({ detailed }: { detailed: DetailedCostStack }) {
     <div style={{ background: '#0A0A0A', padding: '14px 24px', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#555', flexShrink: 0 }}>Detailed Total</span>
+        <GstBadge gstEnabled={gstEnabled} />
         {totals.map(t => (
           <div key={t.label} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ fontSize: 9, color: '#555', letterSpacing: '0.08em' }}>{t.label}</span>
@@ -272,7 +285,7 @@ export default function CostStackTab({ projectId }: Props) {
 
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
-      {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} />}
+      {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} gstEnabled={data.gstEnabled} />}
 
       {/* ── SUMMARY TAB ── */}
       {innerTab === 'summary' && (
