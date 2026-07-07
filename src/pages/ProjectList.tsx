@@ -209,39 +209,42 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-              {/* Archive dropdown — parked projects, restore to Live */}
-              <div style={{ position: 'relative' }}>
-                <button onClick={() => setArchiveMenu(v => !v)} className="glass-btn glass-btn-clear"
-                  style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '9px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  ▤ Archive{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''} <span style={{ opacity: 0.6 }}>▾</span>
-                </button>
-                {archiveMenu && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
-                    <div style={{ padding: '9px 14px 7px', borderBottom: '1px solid #1A1A1A' }}>
-                      <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#777' }}>Archived Projects</span>
-                    </div>
-                    {archivedProjects.length === 0 ? (
-                      <div style={{ padding: '14px', fontSize: 11, color: '#666' }}>No archived projects.</div>
-                    ) : archivedProjects.map(p => (
-                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid #141414' }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 11, color: '#D0CCC6', margin: 0 }} className="truncate">{p.name}</p>
-                          <p style={{ fontSize: 8, color: '#555', margin: 0, letterSpacing: '0.06em' }} className="truncate">{p.address || '—'}</p>
-                        </div>
-                        <button onClick={() => { setArchived(p, false); setArchiveMenu(false) }} className="glass-btn glass-btn-green"
-                          style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0 }}>
-                          ↺ Live
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {/* Dashboard — clear glass, crisp white writing */}
-              <button onClick={() => onDashboard?.(adminBrand)} className="glass-btn glass-btn-clear"
-                style={{ padding: '10px 0', width: 156, textAlign: 'center', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>
-                ▦ Dashboard
+              {/* Menu — one chrome-silver dropdown (like the 7EVEN mark) holding
+                  Dashboard + Archive, for a cleaner header on desktop & mobile */}
+              <button onClick={() => setArchiveMenu(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px' }}>
+                <span className="chrome-silver-text" style={{ fontSize: 15, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, letterSpacing: '0.16em', whiteSpace: 'nowrap' }}>MENU</span>
+                {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>▾</span>
               </button>
+              {archiveMenu && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
+                  {/* Dashboard */}
+                  <button onClick={() => { onDashboard?.(adminBrand); setArchiveMenu(false) }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '13px 16px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A1A1A', cursor: 'pointer' }}>
+                    <span style={{ fontSize: 13 }}>▦</span>
+                    <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>Dashboard</span>
+                  </button>
+                  {/* Archive */}
+                  <div style={{ padding: '10px 16px 7px' }}>
+                    <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#777' }}>▤ Archived Projects{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''}</span>
+                  </div>
+                  {archivedProjects.length === 0 ? (
+                    <div style={{ padding: '2px 16px 14px', fontSize: 11, color: '#666' }}>No archived projects.</div>
+                  ) : archivedProjects.map(p => (
+                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderTop: '1px solid #141414' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 11, color: '#D0CCC6', margin: 0 }} className="truncate">{p.name}</p>
+                        <p style={{ fontSize: 8, color: '#555', margin: 0, letterSpacing: '0.06em' }} className="truncate">{p.address || '—'}</p>
+                      </div>
+                      <button onClick={() => { setArchived(p, false); setArchiveMenu(false) }} className="glass-btn glass-btn-green"
+                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0 }}>
+                        ↺ Live
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
