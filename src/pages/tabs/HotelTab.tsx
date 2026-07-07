@@ -51,8 +51,8 @@ export default function HotelTab({ projectId }: Props) {
   return (
     <div className="flex flex-col">
 
-      <div className="relative p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
-      <div className="flex-1 max-w-xl">
+      <div className="relative p-4 md:p-6 flex flex-col gap-6">
+      <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Hotel operating model — RevPAR, GOP, NOI, and RLV">Hotel Income & Valuation</SectionHeading>
           {undoRef.current && <Button size="sm" variant="ghost" onClick={() => { if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) } }}>Undo</Button>}
@@ -83,7 +83,8 @@ export default function HotelTab({ projectId }: Props) {
           </div>
         )}
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Operating Assumptions</h3>
           <FieldRow label="Hotel keys"><NumberInput value={data.keys} onChange={v => update('keys', v)} /></FieldRow>
           <FieldRow label="ADR (avg daily rate)"><NumberInput value={data.adr} onChange={v => update('adr', v)} prefix="$" step={10} /></FieldRow>
@@ -91,14 +92,14 @@ export default function HotelTab({ projectId }: Props) {
           <FieldRow label="Other revenue / key / yr"><NumberInput value={data.otherRevenuePerKeyPerYear} onChange={v => update('otherRevenuePerKeyPerYear', v)} prefix="$" step={500} /></FieldRow>
         </div>
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Margins & Fees</h3>
           <FieldRow label="GOP margin"><PctInput value={data.gopMarginPct} onChange={v => update('gopMarginPct', v)} /></FieldRow>
           <FieldRow label="Management fee"><PctInput value={data.managementFeePct} onChange={v => update('managementFeePct', v)} /></FieldRow>
           <FieldRow label="FF&E reserve"><PctInput value={data.ffeReservePct} onChange={v => update('ffeReservePct', v)} /></FieldRow>
         </div>
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Valuation</h3>
           <FieldRow label="Hotel cap rate"><PctInput value={data.hotelCapRate} onChange={v => update('hotelCapRate', v)} /></FieldRow>
           <FieldRow label="Developer margin"><PctInput value={data.devMarginPct} onChange={v => update('devMarginPct', v)} /></FieldRow>
@@ -111,18 +112,22 @@ export default function HotelTab({ projectId }: Props) {
             <FieldRow label="Hold debt rate (p.a.)"><PctInput value={data.holdDebtRate ?? 0.065} onChange={v => update('holdDebtRate', v)} /></FieldRow>
           </div>
         )}
+        </div>
       </div>
 
-      {/* Results */}
-      <div className="w-72 flex-shrink-0">
-        <SectionHeading>Hotel Outcome</SectionHeading>
-        <div className="text-[#888] text-xs mb-1">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+      {/* Results — full width below the inputs */}
+      <div className="w-full pt-2 border-t border-[#E8E5E0]">
+        <div className="flex items-center gap-4 mb-1">
+          <SectionHeading>Hotel Outcome</SectionHeading>
+          <div className="text-[#888] text-sm">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+        </div>
         {data.buildRateOverride !== undefined && (
-          <div className="text-[10px] text-[#C4973A] mb-3">Modular @ ${data.buildRateOverride.toLocaleString()}/sqm · ${(costStack.construction / 1_000_000).toFixed(1)}M build cost</div>
+          <div className="text-[11px] text-[#C4973A] mb-3">Modular @ ${data.buildRateOverride.toLocaleString()}/sqm · ${(costStack.construction / 1_000_000).toFixed(1)}M build cost</div>
         )}
 
-        <div className="border border-[#E8E5E0] bg-white p-4">
-          <div className="space-y-2.5 text-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="border border-[#E8E5E0] bg-white p-6">
+          <div className="space-y-3 text-sm">
             <Row label="RevPAR" value={`$${income.revpar.toFixed(0)}`} bold />
             <Row label="Room revenue (p.a.)" value={`$${(income.roomRevenue / 1_000_000).toFixed(2)}M`} />
             <Row label="Other revenue (p.a.)" value={`$${(income.otherRevenue / 1000).toFixed(0)}K`} />
@@ -134,16 +139,16 @@ export default function HotelTab({ projectId }: Props) {
             <Row label="FF&E reserve" value={`-$${(income.ffeReserve / 1000).toFixed(0)}K`} dim />
             <div style={{ borderTop: '1px solid #D8D5D0', paddingTop: 8, marginTop: 4 }}>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] uppercase tracking-widest text-[#888]">NOI</span>
-                <span className="font-mono font-bold text-base text-[#B8963C]">${(income.noi / 1_000_000).toFixed(2)}M</span>
+                <span className="text-[12px] uppercase tracking-widest text-[#888]">NOI</span>
+                <span className="font-mono font-bold text-2xl text-[#B8963C]">${(income.noi / 1_000_000).toFixed(2)}M</span>
               </div>
             </div>
             <Row label={`GAV @ ${(data.hotelCapRate * 100).toFixed(2)}%`} value={`$${(val.gav / 1_000_000).toFixed(1)}M`} bold />
             <div style={{ borderTop: '1px solid #D8D5D0', paddingTop: 8 }}>
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-[#1A1A1A] text-[10px] tracking-widest uppercase">RLV</span>
+                <span className="font-semibold text-[#1A1A1A] text-[12px] tracking-widest uppercase">RLV</span>
                 <div className="flex items-center gap-2">
-                  <Money value={val.rlv} size="md" />
+                  <Money value={val.rlv} size="xl" />
                   <VerdictBadge rlv={val.rlv} />
                 </div>
               </div>
@@ -161,9 +166,9 @@ export default function HotelTab({ projectId }: Props) {
           const equity = val.gav * (1 - lvr)
           const coc = equity > 0 ? cashAfterDebt / equity : 0
           return (
-            <div className="mt-4">
-              <div className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-2">Stabilised Hold @ {(rate * 100).toFixed(1)}% Debt</div>
-              <div className="border border-[#E8E5E0] bg-white p-4 space-y-2.5 text-xs">
+            <div>
+              <div className="text-[11px] tracking-[0.2em] uppercase text-[#888] mb-2">Stabilised Hold @ {(rate * 100).toFixed(1)}% Debt</div>
+              <div className="border border-[#E8E5E0] bg-white p-6 space-y-3 text-sm">
                 <Row label={`Hold debt (${(lvr * 100).toFixed(0)}% LVR)`} value={`$${(debtAmount / 1_000_000).toFixed(1)}M`} />
                 <Row label="Annual interest" value={`-$${(annualInterest / 1000).toFixed(0)}K`} dim />
                 <div style={{ borderTop: '1px solid #E8E5E0', paddingTop: 8 }}>
@@ -180,6 +185,7 @@ export default function HotelTab({ projectId }: Props) {
             </div>
           )
         })()}
+        </div>{/* /results grid */}
       </div>
       </div>
     </div>
@@ -189,8 +195,8 @@ export default function HotelTab({ projectId }: Props) {
 function Row({ label, value, bold, dim }: { label: string; value: string; bold?: boolean; dim?: boolean }) {
   return (
     <div className="flex justify-between items-center">
-      <span style={{ color: dim ? '#BBB' : '#888', fontSize: 11 }}>{label}</span>
-      <span style={{ fontFamily: 'monospace', fontWeight: bold ? 700 : 400, color: dim ? '#CCC' : '#1A1A1A', fontSize: 12 }}>{value}</span>
+      <span style={{ color: dim ? '#BBB' : '#888', fontSize: 13 }}>{label}</span>
+      <span style={{ fontFamily: 'monospace', fontWeight: bold ? 700 : 400, color: dim ? '#CCC' : '#1A1A1A', fontSize: 14 }}>{value}</span>
     </div>
   )
 }

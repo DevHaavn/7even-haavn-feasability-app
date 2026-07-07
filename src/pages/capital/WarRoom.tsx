@@ -6,6 +6,7 @@ import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
 import WarStock from './WarStock'
 import WarTenders from './WarTenders'
+import WarMinutes from './WarMinutes'
 
 // ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Stealth command environment: obsidian surfaces, black-chrome mark, one red
@@ -110,7 +111,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
   )
 }
 
-type View = 'command' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics'
+type View = 'command' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'minutes'
 
 export default function WarRoom() {
   const { projects } = useStore()
@@ -225,6 +226,7 @@ export default function WarRoom() {
         {division === 'haavn-mgmt' && hudTab('tenders', 'Tenders')}
         {hudTab('range', 'The Range')}
         {division === 'haavn-homes' && hudTab('logistics', 'Logistics')}
+        {hudTab('minutes', 'Minutes')}
         {hudTab('contacts', 'Contacts')}
       </div>
 
@@ -421,6 +423,8 @@ export default function WarRoom() {
 
       {/* ── HAAVN LOGISTICS ── */}
       {view === 'logistics' && <HaavnLogistics />}
+
+      {view === 'minutes' && <WarMinutes projects={projects} />}
 
       {/* Brand sign-off */}
       <div style={{ display: 'flex', justifyContent: 'center', padding: '26px 0 6px' }}>

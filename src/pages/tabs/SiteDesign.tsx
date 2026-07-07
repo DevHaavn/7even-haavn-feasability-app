@@ -62,8 +62,8 @@ export default function SiteDesignTab({ projectId }: Props) {
   return (
     <div className="flex flex-col">
       <style>{`
-        .sd-panel label { color: #B8903A !important; }
-        .sd-panel .field-row-mobile label { color: #B8903A !important; }
+        .sd-panel label { color: #3A3A3A !important; }
+        .sd-panel .field-row-mobile label { color: #3A3A3A !important; }
         .sd-panel input[type=number] { color: #1A1A1A !important; font-weight: 700; }
       `}</style>
 
@@ -82,7 +82,7 @@ export default function SiteDesignTab({ projectId }: Props) {
 
       {showParser && (
         <div className="mb-6 bg-white border border-[#D0CEC9] p-4">
-          <p style={{ color: '#B8903A', fontSize: 11, marginBottom: 8, letterSpacing: '0.04em' }}>Paste extracted text from an architect's area schedule PDF. The parser will auto-detect NSA, GFA, GBA, and balcony totals.</p>
+          <p style={{ color: '#555', fontSize: 11, marginBottom: 8, letterSpacing: '0.04em' }}>Paste extracted text from an architect's area schedule PDF. The parser will auto-detect NSA, GFA, GBA, and balcony totals.</p>
           <textarea
             className="w-full h-32 text-xs font-mono text-[#1A1A1A]"
             style={{ background: '#F5F3F0', border: '1px solid #D0CEC9', borderRadius: 0, padding: '8px' }}
@@ -98,7 +98,7 @@ export default function SiteDesignTab({ projectId }: Props) {
       )}
 
       <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 12, fontWeight: 700 }}>Residential Areas</h3>
+        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Residential Areas</h3>
         <FieldRow label="Resi NSA (sqm)">
           <NumberInput value={data.resiNSA} onChange={v => update('resiNSA', v)} />
         </FieldRow>
@@ -120,7 +120,7 @@ export default function SiteDesignTab({ projectId }: Props) {
       </div>
 
       <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 12, fontWeight: 700 }}>Ancillary Areas</h3>
+        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Ancillary Areas</h3>
         <FieldRow label="Childcare GFA (sqm)">
           <NumberInput value={data.childcareGFA} onChange={v => update('childcareGFA', v)} />
         </FieldRow>
@@ -153,7 +153,7 @@ export default function SiteDesignTab({ projectId }: Props) {
       {/* Reconciliation panel */}
       {data.resiNSA > 0 && (
         <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-          <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 12, fontWeight: 700 }}>Reconciliation Check</h3>
+          <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Reconciliation Check</h3>
           <ReconciliationRow
             label="NSA/GFA Efficiency"
             value={`${(nsaGFAEff * 100).toFixed(1)}%`}
@@ -170,9 +170,9 @@ export default function SiteDesignTab({ projectId }: Props) {
       )}
 
       {/* Notes */}
-      <div style={{ borderTop: '2px solid #C4973A', background: '#fff', padding: '20px 20px 20px', marginBottom: 4 }}>
+      <div style={{ borderTop: '2px solid transparent', borderImage: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A) 1', background: '#fff', padding: '20px 20px 20px', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#C4973A', fontWeight: 700 }}>Notes</span>
+          <span style={{ fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#2E2E2E', fontWeight: 700 }}>Notes</span>
           <div style={{ flex: 1, height: 1, background: '#E8E5E0' }} />
         </div>
         <textarea
@@ -191,7 +191,7 @@ export default function SiteDesignTab({ projectId }: Props) {
       </div>
 
       {/* Gold divider */}
-      <div className="hidden md:block flex-shrink-0" style={{ width: 1, background: 'linear-gradient(to bottom, transparent, #C4973A 20%, #C4973A 80%, transparent)', margin: '24px 0' }} />
+      <div className="hidden md:block flex-shrink-0" style={{ width: 1, background: 'linear-gradient(to bottom, transparent, #2A2A2A 18%, #B8B8B8 50%, #2A2A2A 82%, transparent)', margin: '24px 0' }} />
 
       {/* ── Right: map ── */}
       <div className="hidden md:block md:w-1/2" style={{ minHeight: 500, position: 'relative' }}>

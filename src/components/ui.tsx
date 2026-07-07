@@ -84,7 +84,7 @@ export function Card({ children, className = '', dark = false }: { children: Rea
 
 export function SectionHeading({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
-    <div className="mb-5 cursor-default">
+    <div className="mb-5 cursor-default" style={{ paddingLeft: 4 }}>
       <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase mb-1.5" style={{ color: '#141414' }}>{children}</h2>
       {/* Black-chrome underline — premium stealth accent (replaces the old gold bar) */}
       <div style={{ height: 2, borderRadius: 2, width: 54, background: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A)', boxShadow: '0 1px 2px rgba(0,0,0,0.35)' }} />

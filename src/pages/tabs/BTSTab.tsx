@@ -138,18 +138,18 @@ export default function BTSTab({ projectId }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {scenarios3.map(({ label, result, color }) => (
-            <div key={label} className="border border-[#E8E5E0] bg-white p-4">
-              <div className={`text-[10px] tracking-[0.1em] uppercase font-semibold mb-3 ${color === 'text-green' ? 'text-[#2A7A4F]' : color === 'text-amber' ? 'text-[#B8963C]' : 'text-[#666]'}`}>{label}</div>
-              <div className="space-y-2 text-xs">
+            <div key={label} className="border border-[#E8E5E0] bg-white p-6">
+              <div className={`text-[12px] tracking-[0.12em] uppercase font-semibold mb-5 ${color === 'text-green' ? 'text-[#2A7A4F]' : color === 'text-amber' ? 'text-[#B8963C]' : 'text-[#666]'}`}>{label}</div>
+              <div className="space-y-3 text-sm">
                 <div className="flex justify-between"><span className="text-[#888]">Gross revenue</span><span className="text-[#1A1A1A] font-mono">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span></div>
                 {result.gstOnSales > 0 && (
                   <div className="flex justify-between"><span className="text-[#888]">Less GST on sales (1/11)</span><span className="text-[#9B2335] font-mono">−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span></div>
                 )}
                 <div className="flex justify-between"><span className="text-[#888]">Net revenue</span><span className="text-[#1A1A1A] font-mono">${(result.netRevenue / 1_000_000).toFixed(1)}M</span></div>
-                <div className="flex justify-between items-center pt-2 border-t border-[#E8E5E0]">
-                  <span className="font-semibold text-[#1A1A1A] text-[10px] tracking-widest uppercase">RLV</span>
+                <div className="flex justify-between items-center pt-3 border-t border-[#E8E5E0]">
+                  <span className="font-semibold text-[#1A1A1A] text-[12px] tracking-widest uppercase">RLV</span>
                   <div className="flex items-center gap-2">
-                    <Money value={result.rlv} size="md" />
+                    <Money value={result.rlv} size="lg" />
                     <VerdictBadge rlv={result.rlv} />
                   </div>
                 </div>

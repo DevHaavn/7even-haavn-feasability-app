@@ -179,27 +179,27 @@ export default function BTRTab({ projectId }: Props) {
 
 function OutcomeCard({ label, income, val, capRate, highlight }: any) {
   return (
-    <div className={`border p-5 ${highlight ? 'border-[#C8C5C0] bg-[#F5F3F0]' : 'border-[#E8E5E0] bg-white'}`} style={{ borderRadius: 0 }}>
-      <p className="text-[9px] tracking-[0.22em] uppercase text-[#888] mb-4">{label}</p>
-      <div className="space-y-2">
+    <div className={`border p-8 ${highlight ? 'border-[#C8C5C0] bg-[#F5F3F0]' : 'border-[#E8E5E0] bg-white'}`} style={{ borderRadius: 0 }}>
+      <p className="text-[11px] tracking-[0.24em] uppercase text-[#888] mb-6 font-semibold">{label}</p>
+      <div className="space-y-3">
         <Line label="Gross annual rent" value={`$${(income.grossAnnualRent / 1_000_000).toFixed(2)}M`} />
         <Line label="Vacancy loss" value={`−$${(income.vacancyLoss / 1000).toFixed(0)}K`} dim />
         <Line label="Management fee" value={`−$${(income.managementFee / 1000).toFixed(0)}K`} dim />
         {income.commercialIncome > 0 && <Line label="Other income" value={`+$${(income.commercialIncome / 1000).toFixed(0)}K`} />}
         <Line label="Total opex" value={`−$${(income.opex / 1000).toFixed(0)}K`} dim />
       </div>
-      <div className="mt-3 pt-3 border-t border-[#E8E5E0] flex justify-between items-center">
-        <span className="text-[10px] tracking-[0.1em] uppercase text-[#888]">NOI</span>
-        <span className="font-mono font-bold text-lg text-[#B8963C]">${(income.noi / 1_000_000).toFixed(2)}M</span>
+      <div className="mt-5 pt-4 border-t border-[#E8E5E0] flex justify-between items-center">
+        <span className="text-[12px] tracking-[0.12em] uppercase text-[#888]">NOI</span>
+        <span className="font-mono font-bold text-2xl text-[#B8963C]">${(income.noi / 1_000_000).toFixed(2)}M</span>
       </div>
-      <div className="mt-2 pt-2 border-t border-[#F0EDE8] flex justify-between items-center">
-        <span className="text-[10px] tracking-[0.1em] uppercase text-[#888]">GAV @ {(capRate * 100).toFixed(2)}%</span>
-        <span className="font-mono font-bold text-sm text-[#1A1A1A]">${(val.gav / 1_000_000).toFixed(1)}M</span>
+      <div className="mt-3 pt-3 border-t border-[#F0EDE8] flex justify-between items-center">
+        <span className="text-[12px] tracking-[0.12em] uppercase text-[#888]">GAV @ {(capRate * 100).toFixed(2)}%</span>
+        <span className="font-mono font-bold text-lg text-[#1A1A1A]">${(val.gav / 1_000_000).toFixed(1)}M</span>
       </div>
-      <div className="mt-3 pt-3 border-t border-[#D8D5D0] flex justify-between items-center">
-        <span className="text-[10px] tracking-[0.1em] uppercase text-[#666]">RLV</span>
+      <div className="mt-4 pt-4 border-t border-[#D8D5D0] flex justify-between items-center">
+        <span className="text-[12px] tracking-[0.12em] uppercase text-[#666]">RLV</span>
         <div className="flex items-center gap-3">
-          <Money value={val.rlv} size="lg" />
+          <Money value={val.rlv} size="xl" />
           <VerdictBadge rlv={val.rlv} />
         </div>
       </div>
@@ -210,8 +210,8 @@ function OutcomeCard({ label, income, val, capRate, highlight }: any) {
 function Line({ label, value, dim }: { label: string; value: string; dim?: boolean }) {
   return (
     <div className="flex justify-between items-center">
-      <span className={`text-[10px] tracking-wide ${dim ? 'text-[#AAA]' : 'text-[#555]'}`}>{label}</span>
-      <span className={`font-mono text-xs ${dim ? 'text-[#BBB]' : 'text-[#1A1A1A]'}`}>{value}</span>
+      <span className={`text-[13px] tracking-wide ${dim ? 'text-[#AAA]' : 'text-[#555]'}`}>{label}</span>
+      <span className={`font-mono text-base ${dim ? 'text-[#BBB]' : 'text-[#1A1A1A]'}`}>{value}</span>
     </div>
   )
 }
