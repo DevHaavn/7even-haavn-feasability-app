@@ -22,7 +22,7 @@ function fmt(n: number, d = 1) {
 
 function KPI({ label, value, sub, color = '#C4973A' }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div style={{ padding: '18px 22px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1, minWidth: 0 }}>
+    <div style={{ padding: '18px 22px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1, minWidth: 0 }}>
       <p style={{ fontSize: 7, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#666', marginBottom: 8 }}>{label}</p>
       <p style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color, lineHeight: 1, letterSpacing: '-0.01em' }}>{value}</p>
       {sub && <p style={{ fontSize: 9, color: '#555', marginTop: 5, letterSpacing: '0.06em' }}>{sub}</p>}
@@ -38,7 +38,7 @@ function HBar({ label, value, max, color }: { label: string; value: number; max:
         <span style={{ fontSize: 9, letterSpacing: '0.10em', color: '#555', textTransform: 'uppercase' }}>{label}</span>
         <span style={{ fontSize: 10, fontFamily: 'monospace', color, fontWeight: 700 }}>{fmt(value)}</span>
       </div>
-      <div style={{ height: 4, background: '#111', borderRadius: 2 }}>
+      <div style={{ height: 4, background: '#E4E1DC', borderRadius: 2 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2, transition: 'width 0.6s ease' }} />
       </div>
     </div>
@@ -137,14 +137,14 @@ export default function ProjectDashboard({ projectId }: Props) {
   ].filter(s => s.value > 0)
 
   return (
-    <div style={{ background: '#080808', color: '#fff', minHeight: '100%', padding: '28px 32px 48px' }}>
+    <div style={{ background: '#F4F2EF', color: '#E4E1DC', minHeight: '100%', padding: '28px 32px 48px' }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <span style={{ width: 3, height: 28, background: accentColor, flexShrink: 0 }} />
-            <h1 style={{ fontSize: 20, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.04em', color: '#fff' }}>{project?.name}</h1>
+            <h1 style={{ fontSize: 20, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.04em', color: '#E4E1DC' }}>{project?.name}</h1>
             {project?.type && (
               <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: accentColor, fontWeight: 700, padding: '2px 8px', border: `1px solid ${accentColor}44`, background: `${accentColor}0E`, marginLeft: 4 }}>{project.type}</span>
             )}
@@ -172,7 +172,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
         {/* Area donut */}
         {site.resiGBA > 0 && (
-          <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', display: 'flex', alignItems: 'center', gap: 24 }}>
             <Donut segments={areaSegs} label={site.resiGBA.toLocaleString()} sub="SQM GBA" />
             <div>
               <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 14 }}>Area Breakdown</p>
@@ -189,7 +189,7 @@ export default function ProjectDashboard({ projectId }: Props) {
                 </div>
               ))}
               {site.carSpaces > 0 && (
-                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #111', fontSize: 9, color: '#444' }}>
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #E4E1DC', fontSize: 9, color: '#444' }}>
                   {site.carSpaces} car spaces
                 </div>
               )}
@@ -198,7 +198,7 @@ export default function ProjectDashboard({ projectId }: Props) {
         )}
 
         {/* Cost stack bars */}
-        <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', flex: 1 }}>
+        <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1 }}>
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 18 }}>Development Cost Stack — {fmt(tdc)} TDC</p>
           <HBar label="Land & Acquisition"     value={landCostEff}                  max={tdc} color="#C4973A" />
           <HBar label="Hard Costs (Build)"      value={costStack.hardCosts}             max={tdc} color="#E8E6E1" />
@@ -206,7 +206,7 @@ export default function ProjectDashboard({ projectId }: Props) {
           <HBar label="Statutory & Finance"     value={costStack.finance}               max={tdc} color="#3B82F6" />
           <HBar label="Project Mgmt & Marketing" value={costStack.otherSoftCosts}       max={tdc} color="#22C55E" />
           {land.inKindGFA > 0 && <HBar label="In-Kind Delivery"  value={land.inKindGFA * land.inKindRatePerSqm} max={tdc} color="#EAB308" />}
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #111', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #E4E1DC', display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 8, color: '#888', letterSpacing: '0.10em' }}>$/sqm GBA</span>
             <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>{site.resiGBA > 0 ? `$${Math.round(tdc/site.resiGBA).toLocaleString()}` : '—'}</span>
           </div>
@@ -215,7 +215,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
       {/* ── Row 3: Hotel income waterfall (if hotel project) ── */}
       {bestScenario?.inc && (
-        <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 20 }}>
+        <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 18 }}>Hotel Income Waterfall — Best Scenario</p>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 0, height: 120 }}>
             {(() => {
@@ -239,7 +239,7 @@ export default function ProjectDashboard({ projectId }: Props) {
               ))
             })()}
           </div>
-          <div style={{ display: 'flex', gap: 24, marginTop: 14, paddingTop: 12, borderTop: '1px solid #111' }}>
+          <div style={{ display: 'flex', gap: 24, marginTop: 14, paddingTop: 12, borderTop: '1px solid #E4E1DC' }}>
             <div><span style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>RevPAR</span><br /><span style={{ fontSize: 13, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>${Math.round(bestScenario.inc.revpar)}</span></div>
             <div><span style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>NOI Yield on Cost</span><br /><span style={{ fontSize: 13, fontFamily: 'monospace', color: '#22C55E', fontWeight: 700 }}>{tdc > 0 ? `${(bestScenario.noi / tdc * 100).toFixed(2)}%` : '—'}</span></div>
             <div><span style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>Cap Rate</span><br /><span style={{ fontSize: 13, fontFamily: 'monospace', color: accentColor, fontWeight: 700 }}>{(bestScenario.hotelA.hotelCapRate * 100).toFixed(1)}%</span></div>
@@ -255,7 +255,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
       {/* ── Row 5: Value creation summary ── */}
       {tdc > 0 && (
-        <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 20 }}>
+        <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>Value Creation Summary</p>
           <div style={{ display: 'flex', gap: 0 }}>
             {[
@@ -267,7 +267,7 @@ export default function ProjectDashboard({ projectId }: Props) {
               return (
                 <div key={i} style={{ flex: pct, background: `${seg.color}18`, borderTop: `3px solid ${seg.color}`, padding: '10px 12px', minWidth: 0 }}>
                   <p style={{ fontSize: 8, color: seg.color, letterSpacing: '0.10em', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{seg.label}</p>
-                  <p style={{ fontSize: 12, fontFamily: 'monospace', color: '#fff', fontWeight: 700, marginTop: 4 }}>{fmt(seg.value)}</p>
+                  <p style={{ fontSize: 12, fontFamily: 'monospace', color: '#E4E1DC', fontWeight: 700, marginTop: 4 }}>{fmt(seg.value)}</p>
                 </div>
               )
             })}
@@ -276,7 +276,7 @@ export default function ProjectDashboard({ projectId }: Props) {
       )}
 
       {/* ── Land terms ── */}
-      <div style={{ padding: '16px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C' }}>
+      <div style={{ padding: '16px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF' }}>
         <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 12 }}>Land & Acquisition</p>
         <div style={{ display: 'flex', gap: 32 }}>
           <div><p style={{ fontSize: 7, color: '#888', letterSpacing: '0.10em' }}>Land Cost</p><p style={{ fontSize: 14, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700, marginTop: 3 }}>{fmt(landCostEff, 2)}</p></div>
@@ -292,9 +292,9 @@ export default function ProjectDashboard({ projectId }: Props) {
       <ProjectHealthPanel projectId={projectId} />
 
       {/* Brand footer */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, marginTop: 32, paddingTop: 24, borderTop: '1px solid #0E0E0E' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, marginTop: 32, paddingTop: 24, borderTop: '1px solid #FBFAF8' }}>
         <img src="/brand-logo-white.png" alt="7EVEN" draggable={false} style={{ width: 60, opacity: 0.12 }} />
-        <p style={{ fontSize: 7, color: '#1E1E1E', letterSpacing: '0.22em', textTransform: 'uppercase' }}>Confidential · {project?.name} · 7EVEN Capital</p>
+        <p style={{ fontSize: 7, color: '#E0DDD8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>Confidential · {project?.name} · 7EVEN Capital</p>
       </div>
     </div>
   )
@@ -331,7 +331,7 @@ function ScenarioComparisonChart({ projectId, accentColor }: { projectId: string
   const maxVal = Math.max(...rows.flatMap(r => [r.tdc, r.gav]), 1)
 
   return (
-    <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 20 }}>
+    <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
       <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>Scenario Comparison — {rows.length} scenarios</p>
       {rows.map((r, i) => (
         <div key={i} style={{ marginBottom: 16 }}>
@@ -359,7 +359,7 @@ function DashboardSCurve({ projectId, tdc, gav }: { projectId: string; tdc: numb
   if (tdc <= 0) return null
 
   return (
-    <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 20 }}>
+    <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
       {/* Header with click-through to Finance tab */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888' }}>
@@ -388,7 +388,7 @@ function DashboardSCurve({ projectId, tdc, gav }: { projectId: string; tdc: numb
           { label: '+6m Blowout',     value: fmt(result.blowout6m.totalFinanceCost - result.base.totalFinanceCost), color: '#F97316' },
           { label: '+12m Blowout',    value: fmt(result.blowout12m.totalFinanceCost - result.base.totalFinanceCost), color: '#EF4444' },
         ].map(({ label, value, color }, i) => (
-          <div key={i} style={{ flex: 1, padding: '10px 12px', borderRight: i < 5 ? '1px solid #111' : 'none', minWidth: 0 }}>
+          <div key={i} style={{ flex: 1, padding: '10px 12px', borderRight: i < 5 ? '1px solid #E4E1DC' : 'none', minWidth: 0 }}>
             <p style={{ fontSize: 7, color: '#444', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</p>
             <p style={{ fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color, margin: 0 }}>{value}</p>
           </div>
@@ -438,7 +438,7 @@ function ProjectHealthPanel({ projectId }: { projectId: string }) {
         .ph-ring { animation: ph-ring 1.2s ease-out infinite; }
       `}</style>
 
-      <div style={{ padding: '20px 24px', border: '1px solid #1A1A1A', background: '#0C0C0C', marginBottom: 20 }}>
+      <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
         <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 18 }}>Project Health — Timeline Tracker</p>
 
         {/* Traffic light row */}
@@ -453,14 +453,14 @@ function ProjectHealthPanel({ projectId }: { projectId: string }) {
             const n = counts[key]
             const pct = tasks.length > 0 ? (n / tasks.length) * 100 : 0
             return (
-              <button key={key} onClick={goToTimeline} style={{ flex: 1, padding: '14px 12px', borderTopWidth: 0, borderLeftWidth: 0, borderRightWidth: 1, borderRightStyle: 'solid', borderRightColor: '#111', borderBottomWidth: 3, borderBottomStyle: 'solid', borderBottomColor: n > 0 ? color : '#111', background: n > 0 ? `${color}0A` : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = n > 0 ? `${color}18` : '#0D0D0D')}
+              <button key={key} onClick={goToTimeline} style={{ flex: 1, padding: '14px 12px', borderTopWidth: 0, borderLeftWidth: 0, borderRightWidth: 1, borderRightStyle: 'solid', borderRightColor: '#E4E1DC', borderBottomWidth: 3, borderBottomStyle: 'solid', borderBottomColor: n > 0 ? color : '#E4E1DC', background: n > 0 ? `${color}0A` : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = n > 0 ? `${color}18` : '#FBFAF8')}
                 onMouseLeave={e => (e.currentTarget.style.background = n > 0 ? `${color}0A` : 'transparent')}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <span style={{ position: 'relative', width: 12, height: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {flash && n > 0 && <span className="ph-ring" style={{ position: 'absolute', width: 12, height: 12, borderRadius: '50%', background: color } as CSSProperties} />}
-                    <span className={flash && n > 0 ? 'ph-crit' : ''} style={{ width: 12, height: 12, borderRadius: '50%', background: n > 0 ? color : '#1A1A1A', border: n === 0 ? `1px solid ${color}33` : 'none', display: 'block' }} />
+                    <span className={flash && n > 0 ? 'ph-crit' : ''} style={{ width: 12, height: 12, borderRadius: '50%', background: n > 0 ? color : '#E4E1DC', border: n === 0 ? `1px solid ${color}33` : 'none', display: 'block' }} />
                   </span>
                   <span style={{ fontSize: 7, letterSpacing: '0.14em', textTransform: 'uppercase', color: n > 0 ? color : '#333' }}>{STATUS_SHORT[key]}</span>
                 </div>
@@ -470,10 +470,10 @@ function ProjectHealthPanel({ projectId }: { projectId: string }) {
             )
           })}
           {/* Overall progress */}
-          <div style={{ flex: 1, padding: '14px 12px', background: '#060606' }}>
+          <div style={{ flex: 1, padding: '14px 12px', background: '#F7F5F2' }}>
             <p style={{ fontSize: 7, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#888', marginBottom: 8 }}>Overall Progress</p>
             <p style={{ fontSize: 22, fontFamily: "'Optima',serif", fontWeight: 700, color: '#C4973A', lineHeight: 1 }}>{overallPct}%</p>
-            <div style={{ marginTop: 8, height: 3, background: '#111', borderRadius: 2 }}>
+            <div style={{ marginTop: 8, height: 3, background: '#E4E1DC', borderRadius: 2 }}>
               <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? '#C4973A' : '#3B82F6', borderRadius: 2 }} />
             </div>
           </div>
@@ -500,7 +500,7 @@ function ProjectHealthPanel({ projectId }: { projectId: string }) {
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 7, letterSpacing: '0.20em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 10 }}>◆ Upcoming Milestones</p>
               {upcoming.map(t => (
-                <button key={t.id} onClick={goToTimeline} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7, padding: '6px 10px', background: '#0A0A0A', width: '100%', cursor: 'pointer', textAlign: 'left', border: 'none', borderLeft: '2px solid #C4973A44' }}>
+                <button key={t.id} onClick={goToTimeline} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7, padding: '6px 10px', background: '#FAFAF8', width: '100%', cursor: 'pointer', textAlign: 'left', border: 'none', borderLeft: '2px solid #C4973A44' }}>
                   <span style={{ width: 7, height: 7, transform: 'rotate(45deg)', background: '#C4973A', flexShrink: 0, display: 'block' }} />
                   <span style={{ fontSize: 10, color: '#aaa', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</span>
                   <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#666', flexShrink: 0 }}>{new Date(t.startDate + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })}</span>

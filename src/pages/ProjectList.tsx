@@ -78,9 +78,11 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
     setShowNew(true)
   }
 
-  // 'both' = joint HAAVN/7EVEN project — appears in both columns.
+  // 7EVEN side = 7even + joint projects (what the master/admin manages).
   const sevenProjects = projects.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
-  const haavnProjects = projects.filter(p => p.brand === 'haavn' || p.brand === 'both')
+  // HAAVN Management manages EVERYTHING — every 7even project is mirrored here
+  // for the management company plus any HAAVN-only projects.
+  const haavnProjects = projects
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#080808', overflow: 'hidden' }}>
@@ -175,8 +177,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
-        {/* LEFT — 7EVEN */}
-        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderRight: isNarrow ? 'none' : '1px solid #111', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
+        {/* LEFT — 7EVEN · master/admin only */}
+        {role === 'admin' && (
+        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header */}
           <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(6,6,6,0.55)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -214,14 +217,16 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             )}
           </div>
         </div>
+        )}
 
-        {/* RIGHT — HAAVN */}
+        {/* RIGHT — HAAVN MANAGEMENT · consultants / PMs (and admin sees 7EVEN side) */}
+        {role === 'external' && (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden' }}>
           {/* Column header */}
           <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(5,5,5,0.5)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 2, height: 18, background: 'rgba(255,255,255,0.55)', flexShrink: 0 }} />
-              <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.75)' }}>HAAVN</span>
+              <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap' }}>HAAVN MANAGEMENT</span>
               <span style={{ fontSize: 8, color: '#2A2A2A', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4 }}>
                 {haavnProjects.length} project{haavnProjects.length !== 1 ? 's' : ''}
               </span>
@@ -255,6 +260,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             )}
           </div>
         </div>
+        )}
       </div>
       </div>
 

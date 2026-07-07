@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { getTimelineTasks, saveTimelineTasks, generateId } from '../../db'
 import type { TimelineTask, TimelineCategory, TimelineStatus } from '../../db/schema'
@@ -76,6 +76,10 @@ function daysBetween(a: string, b: string) {
   return Math.round((parseDate(b).getTime() - parseDate(a).getTime()) / 86400_000)
 }
 function dayPx(days: number) { return days * PX_PER_DAY }
+function addDays(iso: string, days: number) {
+  const d = parseDate(iso); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10)
+}
+function yearOf(iso: string) { return parseInt(iso.slice(0, 4), 10) }
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -84,6 +88,12 @@ export default function ProjectTimeline({ projectId }: Props) {
   const [editing, setEditing] = useState<TimelineTask | null>(null)
   const [isNew, setIsNew]     = useState(false)
   const [filterCat, setFilterCat] = useState<TimelineCategory | 'all'>('all')
+  // Screen real-estate: show one year at a time (default the current year).
+  const [viewYear, setViewYear] = useState<number>(new Date().getFullYear())
+  // Drag-to-move: grab a bar and slide it; commits new start/end on release.
+  const dragRef = useRef<{ id: string; startX: number; origStart: string; origEnd: string; moved: boolean } | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragDays, setDragDays] = useState(0)
 
   function persist(next: TimelineTask[]) { setTasks(next); saveTimelineTasks(projectId, next) }
   function openNew()  { setEditing({ id: generateId(), projectId, ...BLANK_TASK }); setIsNew(true) }
@@ -95,18 +105,47 @@ export default function ProjectTimeline({ projectId }: Props) {
     setEditing(null)
   }
 
-  const visible = filterCat === 'all' ? tasks : tasks.filter(t => t.category === filterCat)
-
-  // Date range
-  const { minDate, maxDate, totalDays } = useMemo(() => {
-    if (tasks.length === 0) {
-      const now = new Date().toISOString().slice(0, 10)
-      return { minDate: now, maxDate: now, totalDays: 365 }
-    }
-    const minDate = [...tasks.map(t => t.startDate)].sort()[0]
-    const maxDate = [...tasks.map(t => t.endDate)].sort().reverse()[0]
-    return { minDate, maxDate, totalDays: Math.max(365, daysBetween(minDate, maxDate) + 60) }
+  // Years that have any task activity, so the dropdown only offers real years.
+  const years = useMemo(() => {
+    const set = new Set<number>([new Date().getFullYear()])
+    tasks.forEach(t => { for (let y = yearOf(t.startDate); y <= yearOf(t.endDate); y++) set.add(y) })
+    return [...set].sort((a, b) => a - b)
   }, [tasks])
+
+  // Window = the selected year only (screen real-estate).
+  const minDate = `${viewYear}-01-01`
+  const maxDate = `${viewYear}-12-31`
+  const totalDays = daysBetween(minDate, maxDate) + 1
+
+  // Only tasks whose span overlaps the visible year.
+  const visible = tasks.filter(t =>
+    (filterCat === 'all' || t.category === filterCat) &&
+    yearOf(t.startDate) <= viewYear && yearOf(t.endDate) >= viewYear,
+  )
+
+  // Drag-to-move listeners — translate horizontal mouse movement into whole days.
+  useEffect(() => {
+    function mm(e: MouseEvent) {
+      if (!dragRef.current) return
+      const dd = Math.round((e.clientX - dragRef.current.startX) / (PX_PER_DAY * (Number(getComputedStyle(document.documentElement).getPropertyValue('--ws-zoom')) || 1)))
+      if (dd !== 0) dragRef.current.moved = true
+      setDragDays(dd)
+    }
+    function mu() {
+      const d = dragRef.current
+      if (d && d.moved && dragDaysRef.current !== 0) {
+        const dd = dragDaysRef.current
+        persist(tasks.map(t => t.id === d.id ? { ...t, startDate: addDays(d.origStart, dd), endDate: addDays(d.origEnd, dd) } : t))
+        clickGuard.current = true   // suppress the click that follows a drag
+      }
+      dragRef.current = null; setDragId(null); setDragDays(0)
+    }
+    window.addEventListener('mousemove', mm); window.addEventListener('mouseup', mu)
+    return () => { window.removeEventListener('mousemove', mm); window.removeEventListener('mouseup', mu) }
+  }, [tasks])
+  const dragDaysRef = useRef(0)
+  dragDaysRef.current = dragDays
+  const clickGuard = useRef(false)
 
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayPx  = dayPx(Math.max(0, daysBetween(minDate, todayStr)))
@@ -189,7 +228,15 @@ export default function ProjectTimeline({ projectId }: Props) {
           ))}
         </div>
 
-        <button onClick={openNew} style={{ padding: '7px 16px', background: '#C4973A18', border: '1px solid #C4973A55', color: '#C4973A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <button onClick={() => setViewYear(y => y - 1)} style={yrNav} aria-label="Previous year">‹</button>
+          <select value={viewYear} onChange={e => setViewYear(Number(e.target.value))}
+            style={{ background: '#fff', border: '1px solid #D8D5D0', borderRadius: 4, color: '#1A1A1A', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: 'pointer' }}>
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <button onClick={() => setViewYear(y => y + 1)} style={yrNav} aria-label="Next year">›</button>
+        </div>
+        <button onClick={openNew} style={{ padding: '7px 16px', background: '#F5F3F0', border: '1px solid #D0CEC9', color: '#2A2A2A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700 }}>
           + Add Task
         </button>
       </div>
@@ -297,12 +344,24 @@ export default function ProjectTimeline({ projectId }: Props) {
                         {/* Today line */}
                         <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A55', zIndex: 3 }} />
 
-                        {isMile ? (
-                          <div style={{ position: 'absolute', left: startPx, top: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: 10, height: 10, background: sColor, zIndex: 4, boxShadow: `0 0 6px ${sColor}88` }} />
+                        {(() => {
+                          const dragOffset = dragId === task.id ? dragDays * PX_PER_DAY : 0
+                          const startDrag = (e: React.MouseEvent) => {
+                            e.stopPropagation()
+                            dragRef.current = { id: task.id, startX: e.clientX, origStart: task.startDate, origEnd: task.endDate, moved: false }
+                            setDragId(task.id)
+                          }
+                          const guardedEdit = () => { if (clickGuard.current) { clickGuard.current = false; return } openEdit(task) }
+                          return isMile ? (
+                          <div onMouseDown={startDrag} onClick={guardedEdit}
+                            title="Drag to move"
+                            style={{ position: 'absolute', left: startPx + dragOffset, top: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: 10, height: 10, background: sColor, zIndex: dragId === task.id ? 6 : 4, boxShadow: `0 0 6px ${sColor}88`, cursor: dragId === task.id ? 'grabbing' : 'grab' }} />
                         ) : (
                           <div
-                            onClick={() => openEdit(task)}
-                            style={{ position: 'absolute', left: startPx, width: widthPx, top: '50%', transform: 'translateY(-50%)', height: 20, background: `${sColor}25`, border: `1px solid ${sColor}80`, borderRadius: 3, zIndex: 4, overflow: 'hidden', cursor: 'pointer', boxShadow: isCrit ? `0 0 8px ${sColor}66` : undefined }}>
+                            onMouseDown={startDrag}
+                            onClick={guardedEdit}
+                            title="Drag to move · click to edit"
+                            style={{ position: 'absolute', left: startPx + dragOffset, width: widthPx, top: '50%', transform: 'translateY(-50%)', height: 20, background: `${sColor}25`, border: `1px solid ${sColor}80`, borderRadius: 3, zIndex: dragId === task.id ? 6 : 4, overflow: 'hidden', cursor: dragId === task.id ? 'grabbing' : 'grab', boxShadow: isCrit || dragId === task.id ? `0 0 8px ${sColor}66` : undefined }}>
                             {/* Progress fill */}
                             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${task.progress}%`, background: `${sColor}50` }} />
                             {/* Progress label */}
@@ -310,7 +369,8 @@ export default function ProjectTimeline({ projectId }: Props) {
                               <span style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)', fontSize: 8, color: sColor, fontWeight: 700, whiteSpace: 'nowrap' }}>{task.progress}%</span>
                             )}
                           </div>
-                        )}
+                        )
+                        })()}
                       </div>
                     </div>
                   )
@@ -333,7 +393,7 @@ export default function ProjectTimeline({ projectId }: Props) {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setEditing(null) }}>
-          <div style={{ width: 540, background: '#0C0C0C', border: '1px solid #E0DDD8', padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ width: 540, background: '#F5F3F0', border: '1px solid #D8D5D0', borderRadius: 10, padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
               <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#9A968F' }}>{isNew ? 'Add Task' : 'Edit Task'}</p>
@@ -358,12 +418,12 @@ export default function ProjectTimeline({ projectId }: Props) {
             </div>
 
             {/* Traffic light preview */}
-            <div style={{ display: 'flex', gap: 10, padding: '8px 12px', background: '#060606', border: '1px solid #1A1A1A', borderRadius: 3, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, padding: '8px 12px', background: '#FFFFFF', border: '1px solid #E4E1DC', borderRadius: 3, alignItems: 'center' }}>
               {STATUSES.map(s => (
                 <button key={s} onClick={() => setEditing({ ...editing, status: s as TimelineStatus })}
-                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px', border: `1px solid ${editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#1A1A1A'}`, background: editing.status === s ? `${STATUS_COLORS[s as TimelineStatus]}18` : 'transparent', cursor: 'pointer', borderRadius: 2 }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px', border: `1px solid ${editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#D8D5D0'}`, background: editing.status === s ? `${STATUS_COLORS[s as TimelineStatus]}18` : 'transparent', cursor: 'pointer', borderRadius: 2 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_COLORS[s as TimelineStatus], display: 'block', flexShrink: 0 }} />
-                  <span style={{ fontSize: 7, color: editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#333', letterSpacing: '0.10em', whiteSpace: 'nowrap' }}>{STATUS_SHORT[s as TimelineStatus]}</span>
+                  <span style={{ fontSize: 7, color: editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#999', letterSpacing: '0.10em', whiteSpace: 'nowrap' }}>{STATUS_SHORT[s as TimelineStatus]}</span>
                 </button>
               ))}
             </div>
@@ -403,7 +463,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                 : <span />}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid #E0DDD8', color: '#9A968F', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={save} disabled={!editing.name.trim()} style={{ background: '#C4973A', border: 'none', color: '#000', padding: '8px 20px', fontSize: 9, letterSpacing: '0.14em', fontWeight: 700, cursor: 'pointer', opacity: editing.name.trim() ? 1 : 0.4 }}>
+                <button onClick={save} disabled={!editing.name.trim()} style={{ background: '#1A1A1A', border: 'none', color: '#fff', padding: '8px 20px', fontSize: 9, letterSpacing: '0.14em', fontWeight: 700, cursor: 'pointer', opacity: editing.name.trim() ? 1 : 0.4 }}>
                   {isNew ? 'Add Task' : 'Save'}
                 </button>
               </div>
@@ -432,8 +492,13 @@ function TrafficLight({ color, count, label, flash }: { color: string; count: nu
   )
 }
 
+const yrNav: React.CSSProperties = {
+  background: '#F5F3F0', border: '1px solid #D8D5D0', borderRadius: 4, color: '#555',
+  width: 24, height: 28, fontSize: 14, lineHeight: 1, cursor: 'pointer', flexShrink: 0,
+}
+
 const INPUT: React.CSSProperties = {
-  width: '100%', background: '#0A0A0A', border: '1px solid #E0DDD8', color: '#ccc',
+  width: '100%', background: '#FFFFFF', border: '1px solid #D8D5D0', color: '#1A1A1A',
   padding: '8px 10px', fontSize: 11, outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit',
 }
 
@@ -451,7 +516,7 @@ function FilterChip({ label, active, color, onClick }: { label: string; active: 
     <button onClick={onClick} style={{
       padding: '4px 10px', fontSize: 7, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 2,
       background: active ? `${color}25` : 'transparent',
-      border: `1px solid ${active ? color : '#282828'}`,
+      border: `1px solid ${active ? color : '#D0CEC9'}`,
       color: active ? color : '#555',
       transition: 'all 0.15s',
     }}>{label}</button>

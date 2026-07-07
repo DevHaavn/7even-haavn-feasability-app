@@ -230,6 +230,69 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
   )
 }
 
+// ── Cashflow schedule matrix — Daniel wants the time-duration view per section ─
+// Read-only spread of each line item across the months of a selected year, with
+// month totals along the bottom (mirrors the cashflow model slide).
+function ScheduleMatrix({ items }: { items: CostLineItem[] }) {
+  const scheduledYears = React.useMemo(() => {
+    const ys = new Set<number>()
+    items.forEach(it => Object.keys(it.monthly ?? {}).forEach(k => { const y = parseInt(k.slice(0, 4), 10); if (y) ys.add(y) }))
+    return [...ys].sort((a, b) => a - b)
+  }, [items])
+  const [year, setYear] = useState<number>(() => scheduledYears[0] ?? new Date().getFullYear())
+  const activeYear = scheduledYears.includes(year) ? year : (scheduledYears[0] ?? year)
+  const months = Array.from({ length: 12 }, (_, i) => `${activeYear}-${String(i + 1).padStart(2, '0')}`)
+  const rows = items.filter(it => months.some(mo => (it.monthly?.[mo] || 0) > 0))
+
+  if (scheduledYears.length === 0) return null
+
+  const colTotals = months.map(mo => rows.reduce((s, it) => s + (it.monthly?.[mo] || 0), 0))
+  const grand = colTotals.reduce((s, v) => s + v, 0)
+
+  return (
+    <div style={{ maxWidth: 960, marginTop: 20, border: '1px solid #E8E5E0', background: '#fff' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8' }}>
+        <span style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Cashflow Schedule · Time Duration</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#AAA' }}>Year</span>
+          <select value={activeYear} onChange={e => setYear(Number(e.target.value))} style={{ ...cellInput, width: 90, fontWeight: 700 }}>
+            {scheduledYears.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ borderCollapse: 'collapse', minWidth: 900, fontSize: 11 }}>
+          <thead>
+            <tr style={{ background: '#FBFAF8' }}>
+              <th style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: '#FBFAF8', minWidth: 180 }}>Line Item</th>
+              {months.map(mo => <th key={mo} style={{ ...mCell, color: '#999' }}>{fmtMonth(mo)}</th>)}
+              <th style={{ ...mCell, color: '#555', fontWeight: 700 }}>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((it, i) => {
+              const rowTotal = months.reduce((s, mo) => s + (it.monthly?.[mo] || 0), 0)
+              return (
+                <tr key={it.id} style={{ background: i % 2 ? '#FDFCFB' : '#fff' }}>
+                  <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: i % 2 ? '#FDFCFB' : '#fff', color: '#1A1A1A' }}>{it.label || 'Untitled'}</td>
+                  {months.map(mo => <td key={mo} style={{ ...mCell, fontFamily: 'monospace', color: (it.monthly?.[mo] || 0) > 0 ? '#1A1A1A' : '#DDD' }}>{(it.monthly?.[mo] || 0) > 0 ? fmt(it.monthly![mo]) : '·'}</td>)}
+                  <td style={{ ...mCell, fontFamily: 'monospace', color: '#1A1A1A', fontWeight: 700 }}>{fmt(rowTotal)}</td>
+                </tr>
+              )
+            })}
+            <tr style={{ background: '#0A0A0A' }}>
+              <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: '#0A0A0A', color: '#888', letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: 9 }}>Monthly Total</td>
+              {colTotals.map((v, i) => <td key={i} style={{ ...mCell, fontFamily: 'monospace', color: v > 0 ? '#E8C87A' : '#444' }}>{v > 0 ? fmt(v) : '·'}</td>)}
+              <td style={{ ...mCell, fontFamily: 'monospace', color: '#E8C87A', fontWeight: 800 }}>{fmt(grand)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+const mCell: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #F0EDE8', textAlign: 'right', whiteSpace: 'nowrap' }
+
 // ── Grand total bar ───────────────────────────────────────────────────────────
 function GstBadge({ gstEnabled }: { gstEnabled: boolean }) {
   // James/CFO: every cost table must state whether amounts are incl/excl GST.
@@ -512,6 +575,9 @@ export default function CostStackTab({ projectId }: Props) {
               onChange={items => updateSection(meta.key, items)}
             />
           </div>
+
+          {/* Cashflow schedule — appears once any line has monthly cashflow set */}
+          <ScheduleMatrix items={detailed[meta.key]} />
         </div>
       )}
 
