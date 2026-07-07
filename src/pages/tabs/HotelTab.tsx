@@ -183,8 +183,6 @@ export default function HotelTab({ projectId }: Props) {
         })()}
       </div>
       </div>
-      {/* Render strip */}
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-render-hotel.jpg)', backgroundSize: 'cover', backgroundPosition: 'center 50%', width: '100%', flexShrink: 0 }} />
       <SiteLinks />
     </div>
   )

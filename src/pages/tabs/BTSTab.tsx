@@ -158,8 +158,6 @@ export default function BTSTab({ projectId }: Props) {
         </div>
       </div>
       </div>
-      {/* Render strip */}
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-render6.png)', backgroundSize: 'cover', backgroundPosition: 'center 60%', width: '100%', flexShrink: 0 }} />
       <SiteLinks />
     </div>
   )

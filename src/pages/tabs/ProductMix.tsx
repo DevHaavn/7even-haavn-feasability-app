@@ -381,8 +381,6 @@ export default function ProductMixTab({ projectId }: Props) {
           </div>
         ) : null}
       </div>
-      {/* Render strip */}
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-render4.png)', backgroundSize: 'cover', backgroundPosition: 'center 50%', width: '100%', flexShrink: 0 }} />
       <SiteLinks />
     </div>
   )

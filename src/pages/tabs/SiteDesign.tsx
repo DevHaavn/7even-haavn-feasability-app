@@ -205,9 +205,6 @@ export default function SiteDesignTab({ projectId }: Props) {
       <div className="md:hidden" style={{ height: 300 }}>
         <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
       </div>
-
-      {/* Render strip */}
-      <div style={{ height: 220, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
       <SiteLinks />
     </div>
   )

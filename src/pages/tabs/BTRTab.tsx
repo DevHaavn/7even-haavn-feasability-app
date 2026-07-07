@@ -170,8 +170,6 @@ export default function BTRTab({ projectId }: Props) {
         )}
       </div>
       </div>
-      {/* Render strip */}
-      <div style={{ height: 320, backgroundImage: 'url(/renders/haavn-render5.png)', backgroundSize: 'cover', backgroundPosition: 'center 85%', width: '100%', flexShrink: 0 }} />
       <SiteLinks />
     </div>
   )
