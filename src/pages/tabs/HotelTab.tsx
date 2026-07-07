@@ -24,7 +24,7 @@ export default function HotelTab({ projectId }: Props) {
   // Scenario-level overrides for build rate and construction finance
   const effectiveBuildRate = data?.buildRateOverride ?? costData.buildRatePerSqm
   const effectiveFinancePct = data?.constructionFinancePct ?? costData.financePct
-  const costStack = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem })
+  const costStack = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
   const tdc = costStack.totalDevelopmentCost
 
   useEffect(() => {

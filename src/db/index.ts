@@ -264,11 +264,16 @@ export function saveTimelineTasks(projectId: string, tasks: import('./schema').T
 
 // ── Cost Presets ──────────────────────────────────────────────────────────────
 
+// JW: build-rate presets by building type — indicative $/sqm on GFA. Regional
+// loading is layered on top separately (kept as standard constant rates here).
 export function getCostPresets(): CostPreset[] {
-  return load<CostPreset[]>('costpresets', [
-    { id: 'standard', name: '$3,500/sqm — Standard', buildRatePerSqm: 3500, description: 'Traditional construction' },
-    { id: 'hybrid', name: '$3,000/sqm — HAAVN Hybrid', buildRatePerSqm: 3000, description: 'HAAVN precision hybrid method' },
-    { id: 'bespoke', name: '$3,800/sqm — Bespoke/Church', buildRatePerSqm: 3800, description: 'High-spec or church build' },
+  return load<CostPreset[]>('costpresets_v2', [
+    { id: 'resi', name: 'Residential $4,000', buildRatePerSqm: 4000, description: 'Apartments / mixed-use residential (GFA)' },
+    { id: 'commercial', name: 'Commercial $3,500', buildRatePerSqm: 3500, description: 'Office / commercial (GFA)' },
+    { id: 'retail', name: 'Retail $2,800', buildRatePerSqm: 2800, description: 'Ground-floor retail / F&B (GFA)' },
+    { id: 'pbsa', name: 'PBSA $3,600', buildRatePerSqm: 3600, description: 'Purpose-built student accommodation (GFA)' },
+    { id: 'hotel', name: 'Hotel 5★ $6,000', buildRatePerSqm: 6000, description: 'Full-service 5-star hotel (GFA)' },
+    { id: 'hybrid', name: 'HAAVN Hybrid $3,000', buildRatePerSqm: 3000, description: 'HAAVN precision hybrid method' },
   ])
 }
 

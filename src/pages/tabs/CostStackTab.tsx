@@ -4,6 +4,7 @@ import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../c
 import { calculateCostStack } from '../../engine/costStack'
 import { getCostPresets } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
+import { COST_PHASES } from '../../db/schema'
 import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
@@ -169,6 +170,14 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
             {isOpen && (
               <div style={{ padding: '4px 14px 16px 14px', background: '#FAF8F5', borderTop: '1px dashed #E4E1DC' }}>
                 <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', margin: '10px 0 12px' }}>
+                  {/* Phase — which delivery phase this fee/cost relates to (links to cashflow & programme) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Phase</span>
+                    <select style={{ ...cellInput, width: 168 }} value={item.phase ?? ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as any })}>
+                      <option value="">—</option>
+                      {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                    </select>
+                  </div>
                   {item.fundedBy === 'blend' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Equity</span>
@@ -403,7 +412,7 @@ export default function CostStackTab({ projectId }: Props) {
     gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote,
   } : undefined
 
-  const result = calculateCostStack({ ...data, gba: site.resiGBA, inKindLineItem })
+  const result = calculateCostStack({ ...data, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
 
   const summaryRows = [
     { label: 'Construction', value: result.construction },
@@ -411,6 +420,7 @@ export default function CostStackTab({ projectId }: Props) {
     { label: `Prelims (${(data.prelimsPct * 100).toFixed(0)}%)`, value: result.prelims },
     { label: `Professional fees (${(data.professionalFeesPct * 100).toFixed(0)}%)`, value: result.professionalFees },
     { label: 'Statutory & council', value: data.statutoryFixed },
+    ...(result.posContribution > 0 ? [{ label: `Public Open Space (${((data.posContributionPct ?? 0) * 100).toFixed(1)}%)`, value: result.posContribution }] : []),
     { label: `Finance (${(data.financePct * 100).toFixed(0)}%)`, value: result.finance },
     { label: 'Project management', value: data.projectManagementFixed },
     { label: 'Marketing', value: data.marketingFixed },
@@ -456,9 +466,17 @@ export default function CostStackTab({ projectId }: Props) {
               <FieldRow label="GBA (sqm)" note="From Site & Design">
                 <span className="text-[#1A1A1A] font-mono text-sm">{site.resiGBA.toLocaleString()}</span>
               </FieldRow>
-              <FieldRow label="Build rate ($/sqm)">
+              <FieldRow label="Build rate ($/sqm)" note="Standard rate for the building type">
                 <NumberInput value={data.buildRatePerSqm} onChange={v => update('buildRatePerSqm', v)} prefix="$" step={50} />
               </FieldRow>
+              <FieldRow label="Regional loading" note="Locational impact layered on the standard rate (e.g. +8%)">
+                <PctInput value={data.regionalLoadingPct ?? 0} onChange={v => update('regionalLoadingPct', v)} />
+              </FieldRow>
+              {(data.regionalLoadingPct ?? 0) !== 0 && (
+                <p className="text-[#888] text-[10px] mt-1">
+                  Loaded rate <span className="font-mono text-[#1A1A1A] font-semibold">${Math.round(data.buildRatePerSqm * (1 + (data.regionalLoadingPct ?? 0))).toLocaleString()}/sqm</span> → construction <span className="font-mono text-[#1A1A1A] font-semibold">{fmt(result.construction)}</span>
+                </p>
+              )}
             </InnerSection>
 
             <InnerSection label="Soft Costs — % of construction">
@@ -470,6 +488,12 @@ export default function CostStackTab({ projectId }: Props) {
 
             <InnerSection label="Fixed Costs">
               <FieldRow label="Statutory & council"><NumberInput value={data.statutoryFixed} onChange={v => update('statutoryFixed', v)} prefix="$" step={50000} /></FieldRow>
+              <FieldRow label="Public Open Space (% land value)" note="Vic standard ~5% — adjust per project">
+                <PctInput value={data.posContributionPct ?? 0} onChange={v => update('posContributionPct', v)} />
+              </FieldRow>
+              {result.posContribution > 0 && (
+                <p className="text-[#888] text-[10px] mt-1 mb-1">POS contribution: <span className="font-mono text-[#1A1A1A] font-semibold">{fmt(result.posContribution)}</span> ({((data.posContributionPct ?? 0) * 100).toFixed(1)}% of land value)</p>
+              )}
               <FieldRow label="Project management"><NumberInput value={data.projectManagementFixed} onChange={v => update('projectManagementFixed', v)} prefix="$" step={50000} /></FieldRow>
               <FieldRow label="Marketing"><NumberInput value={data.marketingFixed} onChange={v => update('marketingFixed', v)} prefix="$" step={50000} /></FieldRow>
               <FieldRow label="BTR amenity fitout"><NumberInput value={data.amenityFitoutFixed} onChange={v => update('amenityFitoutFixed', v)} prefix="$" step={50000} /></FieldRow>

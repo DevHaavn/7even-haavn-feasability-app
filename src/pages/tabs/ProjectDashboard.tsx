@@ -96,7 +96,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
       const effectiveBuildRate  = hotelA.buildRateOverride ?? costData.buildRatePerSqm
       const effectiveFinancePct = hotelA.constructionFinancePct ?? costData.financePct
-      const cs = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem })
+      const cs = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
       const tdc = cs.totalDevelopmentCost
 
       if (hotelA.keys > 0) {
@@ -118,7 +118,7 @@ export default function ProjectDashboard({ projectId }: Props) {
     return { scenarios, bestScenario: best }
   }, [projectId, costData, site])
 
-  const costStack = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem }), [costData, site])
+  const costStack = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }), [costData, site])
 
   // Grouped cost buckets for the breakdown bars (the engine returns line-level
   // figures + the fixed inputs live on costData).
@@ -323,7 +323,7 @@ function ScenarioComparisonChart({ projectId, accentColor }: { projectId: string
       const hotelA = store.getHotelAssumptions(s.id)
       const bldRate = hotelA.buildRateOverride ?? costData.buildRatePerSqm
       const finPct  = hotelA.constructionFinancePct ?? costData.financePct
-      const tdc = calculateCostStack({ ...costData, buildRatePerSqm: bldRate, financePct: finPct, gba: site.resiGBA, inKindLineItem }).totalDevelopmentCost
+      const tdc = calculateCostStack({ ...costData, buildRatePerSqm: bldRate, financePct: finPct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
       let gav = 0, rlv = 0
       if (hotelA.keys > 0) {
         const inc = calculateHotelIncome(hotelA)

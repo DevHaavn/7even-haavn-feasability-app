@@ -36,8 +36,11 @@ async function geocode(address: string): Promise<[number, number] | null> {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`
     const res = await fetch(url, { headers: { 'Accept-Language': 'en-AU' } })
     const data = await res.json()
-    if (data.length === 0) return null
-    return [parseFloat(data[0].lat), parseFloat(data[0].lon)]
+    if (!Array.isArray(data) || data.length === 0) return null
+    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon)
+    // Guard against partial / rate-limited responses that yield NaN — feeding
+    // NaN into Leaflet throws "Invalid LatLng" and (with no boundary) blanks the app.
+    return Number.isFinite(lat) && Number.isFinite(lng) ? [lat, lng] : null
   } catch {
     return null
   }
@@ -82,23 +85,31 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
     const timer = setTimeout(async () => {
       setStatus('loading')
       const coords = await geocode(address)
-      if (!coords) { setStatus('notfound'); return }
+      if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) { setStatus('notfound'); return }
 
-      // Remove old marker
-      if (markerRef.current) markerRef.current.remove()
+      // Wrap the Leaflet calls so any map error can never blank the whole app.
+      try {
+        if (markerRef.current) markerRef.current.remove()
 
-      const marker = L.marker(coords, { icon: makePinIcon(pinLabel) })
-        .addTo(map)
-        .bindPopup(`
-          <div style="font-family:sans-serif;font-size:11px;color:#1A1A1A;padding:4px 2px;min-width:140px">
-            <div style="color:#C4973A;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px">7EVEN · HAAVN</div>
-            <div style="font-weight:600">${address.split(',').slice(0, 2).join(',')}</div>
-          </div>
-        `, { className: 'haavn-popup' })
+        const marker = L.marker(coords, { icon: makePinIcon(pinLabel) })
+          .addTo(map)
+          .bindPopup(`
+            <div style="font-family:sans-serif;font-size:11px;color:#1A1A1A;padding:4px 2px;min-width:140px">
+              <div style="color:#C4973A;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px">7EVEN · HAAVN</div>
+              <div style="font-weight:600">${address.split(',').slice(0, 2).join(',')}</div>
+            </div>
+          `, { className: 'haavn-popup' })
 
-      markerRef.current = marker
-      map.flyTo(coords, 15, { duration: 1.4 })
-      setStatus('found')
+        markerRef.current = marker
+        // setView (instant) instead of flyTo — the flyTo animation runs across
+        // rAF frames and, if the container isn't sized yet or unmounts mid-flight,
+        // projects to NaN and throws outside any try/catch, blanking the app.
+        map.invalidateSize(false)
+        map.setView(coords, 15, { animate: false })
+        setStatus('found')
+      } catch {
+        setStatus('notfound')
+      }
     }, 600)
 
     return () => clearTimeout(timer)

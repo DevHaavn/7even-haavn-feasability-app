@@ -22,7 +22,7 @@ export default function BTSTab({ projectId }: Props) {
   const land = store.getLandTerms(projectId)
   const costData = store.getCostStack(projectId)
   const inKindLineItem = land.isInKind && land.inKindGFA > 0 ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote } : undefined
-  const costResult = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem })
+  const costResult = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
   const tdc = costResult.totalDevelopmentCost
 
   useEffect(() => {

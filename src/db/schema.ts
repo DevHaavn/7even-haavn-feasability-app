@@ -34,6 +34,7 @@ export interface SiteDesign {
   communalGFA?: number
   otherGFA: number
   notes: string
+  architectPdfUrl?: string   // link to the architect's development-summary PDF (latest version)
 }
 
 export interface LandTerms {
@@ -52,7 +53,7 @@ export interface LandTerms {
   settlementDate: string   // YYYY-MM-DD — duty due at settlement
   // GST on the land deal itself — not every purchase carries GST
   // (established residential is input-taxed; going-concern sales are GST-free)
-  landGst: 'inc' | 'none'
+  landGst: 'inc' | 'none' | 'full'   // inc = GST in price (1/11 credit); none = no GST; full = GST added at 10% (reclaimed)
 }
 
 export interface UnitType {
@@ -88,6 +89,12 @@ export interface CostStack {
   projectManagementFixed: number
   marketingFixed: number
   amenityFitoutFixed: number
+  // JW: regional loading holds standard build rates constant and layers the
+  // locational impact on top (e.g. +8% regional). POS = Public Open Space
+  // contribution as a % of land value (Vic standard ~5%, adjustable per project).
+  regionalLoadingPct?: number
+  posContributionPct?: number
+  buildRateType?: string   // which building-type preset the rate came from (resi/commercial/pbsa/hotel…)
   // GST 10% — sales GST deducted from revenue, input credits claimed on
   // commercial costs/consultants. Defaults on; costs are entered GST-inclusive.
   gstEnabled: boolean
@@ -105,6 +112,7 @@ export interface CostLineItem {
   fundedBy?: FundingSource           // equity | debt | blend
   equityPct?: number                 // for 'blend' — equity share 0..1 (debt = 1 − equity)
   monthly?: Record<string, number>   // 'YYYY-MM' -> amount drawn that month
+  phase?: CostPhase                  // which delivery phase the fee/cost relates to (links to cashflow/programme)
 }
 
 export interface DetailedCostStack {

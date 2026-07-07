@@ -32,7 +32,7 @@ export default function ScenarioComparison({ projectId }: Props) {
       // Respect scenario-level cost overrides (e.g. modular build rate)
       const effectiveBuildRate = hotelA.buildRateOverride ?? costData.buildRatePerSqm
       const effectiveFinancePct = hotelA.constructionFinancePct ?? costData.financePct
-      const tdc = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem }).totalDevelopmentCost
+      const tdc = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
 
       // Solve inline for always-current counts
       const sr = site.resiNSA > 0 && units.length > 0

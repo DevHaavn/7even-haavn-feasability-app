@@ -169,6 +169,27 @@ export default function SiteDesignTab({ projectId }: Props) {
         </div>
       )}
 
+      {/* Architect development-summary PDF — paste the link to the latest version */}
+      <div style={{ borderTop: '2px solid transparent', borderImage: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A) 1', background: '#fff', padding: '20px 20px 18px', marginBottom: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#2E2E2E', fontWeight: 700 }}>Architect Development Summary (PDF)</span>
+          <div style={{ flex: 1, height: 1, background: '#E8E5E0' }} />
+          {data.architectPdfUrl && (
+            <a href={data.architectPdfUrl} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#1A1A1A', fontWeight: 700, border: '1px solid #C8C4BE', borderRadius: 6, padding: '6px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              ↗ Open PDF
+            </a>
+          )}
+        </div>
+        <input
+          style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #E0DDD8', borderRadius: 0, padding: '4px 0 8px', color: '#1A1A1A', fontSize: 12, outline: 'none' }}
+          placeholder="Paste link to the architect's development summary PDF (SharePoint / Dropbox / URL)…"
+          value={data.architectPdfUrl ?? ''}
+          onChange={e => update('architectPdfUrl' as any, e.target.value)}
+        />
+        <p style={{ fontSize: 10, color: '#999', marginTop: 6 }}>Keep this pointed at the latest version so numbers can be double-checked against source.</p>
+      </div>
+
       {/* Notes */}
       <div style={{ borderTop: '2px solid transparent', borderImage: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A) 1', background: '#fff', padding: '20px 20px 20px', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>

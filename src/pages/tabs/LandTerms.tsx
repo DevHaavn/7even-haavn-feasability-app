@@ -42,9 +42,12 @@ export default function LandTermsTab({ projectId }: Props) {
   const duty = data.applyStampDuty && data.landCost > 0
     ? calculateStampDuty(data.state, data.landCost, data.propertyType, { foreignBuyer: data.foreignBuyer })
     : null
-  const landHasGst = gstEnabled && data.landGst === 'inc'
-  const gstCredit = landHasGst ? data.landCost / 11 : 0
-  const acquisitionTotal = data.landCost - gstCredit + (duty?.total ?? 0)
+  const landHasGst = gstEnabled && (data.landGst === 'inc' || data.landGst === 'full')
+  // 'inc' — GST embedded in the price (claim 1/11). 'full' — GST added at 10% on
+  // top of the price and reclaimed (net neutral, shown gross then credited).
+  const grossLand = data.landGst === 'full' ? data.landCost * 1.10 : data.landCost
+  const gstCredit = !gstEnabled ? 0 : data.landGst === 'inc' ? data.landCost / 11 : data.landGst === 'full' ? data.landCost * 0.10 : 0
+  const acquisitionTotal = grossLand - gstCredit + (duty?.total ?? 0)
 
   return (
     <div className="flex flex-col">
@@ -63,8 +66,9 @@ export default function LandTermsTab({ projectId }: Props) {
           <NumberInput value={data.landCost} onChange={v => update('landCost', v)} prefix="$" step={10000} />
         </FieldRow>
         <FieldRow label="GST on land" note="Not every land deal carries GST — e.g. going concern or input-taxed residential">
-          <select value={data.landGst} onChange={e => update('landGst', e.target.value as 'inc' | 'none')}>
+          <select value={data.landGst} onChange={e => update('landGst', e.target.value as 'inc' | 'none' | 'full')}>
             <option value="inc">GST in price — claim 1/11 credit</option>
+            <option value="full">Full GST applicable — +10% on price, reclaimed</option>
             <option value="none">No GST — going concern / input-taxed</option>
           </select>
         </FieldRow>
