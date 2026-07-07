@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
 import {
@@ -209,6 +210,13 @@ export function XeroChip({ group, orgName }: { group: '7even' | 'haavn'; orgName
   )
 }
 
+// Renders children into the pillar header's top-right slot (falls back inline).
+function HeaderSlot({ children }: { children: React.ReactNode }) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null)
+  useEffect(() => { setSlot(document.getElementById('budgets-header-slot')) }, [])
+  return slot ? createPortal(children, slot) : <>{children}</>
+}
+
 // Which Xero account an entity belongs to.
 function xeroGroupFor(entityId: string): '7even' | 'haavn' {
   return (entityId === 'hm' || entityId === 'hprec' || entityId === 'htec') ? 'haavn' : '7even'
@@ -346,10 +354,12 @@ export default function BudgetsAdmin() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {navBtn('group', 'Group')}
         {entities.map(e => navBtn(e.id, e.name.replace('Haavn ', 'H. ')))}
-        <XeroChip
-          group={isGroup ? '7even' : xeroGroupFor(sel)}
-          orgName={isGroup ? '7even' : xeroGroupFor(sel) === 'haavn' ? 'Haavn' : '7even'}
-        />
+        <HeaderSlot>
+          <XeroChip
+            group={isGroup ? '7even' : xeroGroupFor(sel)}
+            orgName={isGroup ? '7even' : xeroGroupFor(sel) === 'haavn' ? 'Haavn' : '7even'}
+          />
+        </HeaderSlot>
       </div>
 
       {/* project chips — appear for entities linked to feasibility projects (7even Capital) */}

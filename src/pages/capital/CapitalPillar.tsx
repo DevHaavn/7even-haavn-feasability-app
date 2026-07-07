@@ -31,6 +31,8 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
             <span style={{ color: '#13B5EA', fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
             <span style={{ color: '#1A1A1A', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>{pillar.title}</span>
           </div>
+          {/* Slot: BudgetsAdmin portals its context-aware Xero chip here */}
+          <div id="budgets-header-slot" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }} />
         </div>
       ) : (
         /* Header — same treatment as the main-page footer */
