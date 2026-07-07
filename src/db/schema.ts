@@ -98,6 +98,13 @@ export interface CostLineItem {
   label: string
   amount: number
   notes: string
+  // ── CFO amendment — scheduling, funding & month-by-month cashflow ──
+  startDate?: string                 // 'YYYY-MM' start of spend
+  endDate?: string                   // 'YYYY-MM' end of spend
+  sCurve?: SCurveProfile             // spread shape across the window
+  fundedBy?: FundingSource           // equity | debt | blend
+  equityPct?: number                 // for 'blend' — equity share 0..1 (debt = 1 − equity)
+  monthly?: Record<string, number>   // 'YYYY-MM' -> amount drawn that month
 }
 
 export interface DetailedCostStack {

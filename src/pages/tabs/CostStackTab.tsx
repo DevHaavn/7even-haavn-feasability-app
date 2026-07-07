@@ -3,7 +3,8 @@ import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
 import { getCostPresets } from '../../db'
-import type { CostStack, CostLineItem, DetailedCostStack } from '../../db/schema'
+import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
+import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
 
@@ -70,80 +71,159 @@ function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; 
 }
 
 // ── Line-item table ───────────────────────────────────────────────────────────
+// ── CFO cost-schedule helpers ─────────────────────────────────────────────────
+const S_CURVE_OPTS: { id: SCurveProfile; label: string }[] = [
+  { id: 'scurve', label: 'S-Curve' },
+  { id: 'linear', label: 'Linear' },
+  { id: 'upfront', label: 'Front-loaded' },
+  { id: 'backloaded', label: 'Back-loaded' },
+]
+const FUNDING_OPTS: { id: FundingSource; label: string }[] = [
+  { id: 'equity', label: 'Equity' },
+  { id: 'debt', label: 'Debt' },
+  { id: 'blend', label: 'Blend' },
+]
+function monthsBetween(start?: string, end?: string): string[] {
+  if (!start || !end) return []
+  const [sy, sm] = start.slice(0, 7).split('-').map(Number)
+  const [ey, em] = end.slice(0, 7).split('-').map(Number)
+  if (!sy || !sm || !ey || !em) return []
+  const out: string[] = []
+  let y = sy, m = sm, guard = 0
+  while ((y < ey || (y === ey && m <= em)) && guard < 360) {
+    out.push(`${y}-${String(m).padStart(2, '0')}`); m++; if (m > 12) { m = 1; y++ }; guard++
+  }
+  return out
+}
+function fmtMonth(ym: string) {
+  const [y, m] = ym.split('-').map(Number)
+  return new Date(y, (m || 1) - 1, 1).toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })
+}
+const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }
+
 function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void }) {
-  function update(id: string, field: keyof CostLineItem, value: string | number) {
-    onChange(items.map(item => item.id === id ? { ...item, [field]: value } : item))
+  const [openId, setOpenId] = useState<string | null>(null)
+  function update(id: string, patch: Partial<CostLineItem>) {
+    onChange(items.map(item => item.id === id ? { ...item, ...patch } : item))
   }
   function remove(id: string) { onChange(items.filter(item => item.id !== id)) }
   function add() {
-    onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '' }])
+    onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
+  }
+  function autoSpread(item: CostLineItem) {
+    const months = monthsBetween(item.startDate, item.endDate)
+    if (months.length === 0) return
+    const w = spreadWeights(item.sCurve ?? 'scurve', months.length)
+    const monthly: Record<string, number> = {}
+    months.forEach((mo, i) => { monthly[mo] = Math.round((item.amount || 0) * w[i]) })
+    update(item.id, { monthly })
   }
   const total = items.reduce((s, i) => s + (i.amount || 0), 0)
+  const GRID = '1fr 128px 104px 104px 118px 132px 30px 26px'
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #E8E5E0' }}>
+    <div style={{ background: '#fff', border: '1px solid #E8E5E0', overflowX: 'auto' }}>
       {/* Header */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 200px 32px', padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8' }}>
-        {['Item Description', 'Budget ($)', 'Notes / Consultant', ''].map((h, i) => (
-          <span key={i} style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>{h}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: 880 }}>
+        {['Item Description', 'Budget ($)', 'Start', 'End', 'S-Curve', 'Funded By', '', ''].map((h, i) => (
+          <span key={i} style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>{h}</span>
         ))}
       </div>
 
       {/* Rows */}
-      {items.map((item, idx) => (
-        <div key={item.id} style={{
-          display: 'grid', gridTemplateColumns: '1fr 160px 200px 32px',
-          padding: '7px 14px', borderBottom: '1px solid #F5F3F0',
-          background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center',
-        }}>
-          <input
-            style={{ background: 'transparent', border: 'none', borderBottom: '1px solid transparent', padding: '3px 8px 3px 0', fontSize: 12, color: '#1A1A1A', outline: 'none', width: '100%' }}
-            value={item.label}
-            placeholder="Item description"
-            onChange={e => update(item.id, 'label', e.target.value)}
-            onFocus={e => (e.currentTarget.style.borderBottomColor = '#C4973A')}
-            onBlur={e => (e.currentTarget.style.borderBottomColor = 'transparent')}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', paddingRight: 16 }}>
-            <span style={{ color: '#BBB', fontSize: 11, marginRight: 3, flexShrink: 0 }}>$</span>
-            <input
-              type="number" min={0}
-              style={{ background: 'transparent', border: 'none', borderBottom: '1px solid transparent', padding: '3px 0', fontSize: 12, fontFamily: 'monospace', color: '#1A1A1A', outline: 'none', width: '100%' }}
-              value={item.amount || ''}
-              placeholder="0"
-              onChange={e => update(item.id, 'amount', parseFloat(e.target.value) || 0)}
-              onFocus={e => (e.currentTarget.style.borderBottomColor = '#C4973A')}
-              onBlur={e => (e.currentTarget.style.borderBottomColor = 'transparent')}
-            />
+      {items.map((item, idx) => {
+        const months = monthsBetween(item.startDate, item.endDate)
+        const scheduled = months.reduce((s, mo) => s + (item.monthly?.[mo] || 0), 0)
+        const isOpen = openId === item.id
+        const eqPct = item.equityPct ?? 0.5
+        return (
+          <div key={item.id} style={{ borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', minWidth: 880 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '7px 14px', alignItems: 'center' }}>
+              <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
+                value={item.label} placeholder="Item description"
+                onChange={e => update(item.id, { label: e.target.value })} />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
+                <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
+                  value={item.amount || ''} placeholder="0"
+                  onChange={e => update(item.id, { amount: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <input type="month" style={cellInput} value={item.startDate ?? ''} onChange={e => update(item.id, { startDate: e.target.value })} />
+              <input type="month" style={cellInput} value={item.endDate ?? ''} onChange={e => update(item.id, { endDate: e.target.value })} />
+              <select style={cellInput} value={item.sCurve ?? 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as SCurveProfile })}>
+                {S_CURVE_OPTS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <select style={cellInput} value={item.fundedBy ?? 'equity'} onChange={e => update(item.id, { fundedBy: e.target.value as FundingSource })}>
+                {FUNDING_OPTS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+              <button onClick={() => setOpenId(isOpen ? null : item.id)} title="Monthly cashflow & notes"
+                style={{ background: 'none', border: 'none', color: isOpen ? '#1A1A1A' : '#BBB', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
+                {isOpen ? '▾' : '▸'}
+              </button>
+              <button onClick={() => remove(item.id)}
+                style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
+            </div>
+
+            {/* Expandable detail — funding split, notes & month-by-month cashflow */}
+            {isOpen && (
+              <div style={{ padding: '4px 14px 16px 14px', background: '#FAF8F5', borderTop: '1px dashed #E4E1DC' }}>
+                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', margin: '10px 0 12px' }}>
+                  {item.fundedBy === 'blend' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Equity</span>
+                      <input type="number" min={0} max={100} style={{ ...cellInput, width: 62 }}
+                        value={Math.round(eqPct * 100)} onChange={e => update(item.id, { equityPct: Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)) / 100 })} />
+                      <span style={{ fontSize: 11, color: '#888' }}>% · Debt {Math.round((1 - eqPct) * 100)}%</span>
+                    </div>
+                  )}
+                  <input style={{ ...cellInput, flex: 1, minWidth: 200 }} value={item.notes} placeholder="Notes / consultant / ref"
+                    onChange={e => update(item.id, { notes: e.target.value })} />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Monthly Cashflow</span>
+                  <button onClick={() => autoSpread(item)} disabled={months.length === 0}
+                    style={{ background: 'none', border: '1px solid #D0CEC9', color: months.length ? '#555' : '#CCC', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '4px 10px', cursor: months.length ? 'pointer' : 'default', borderRadius: 4 }}>
+                    ⟲ Auto-spread by {S_CURVE_OPTS.find(o => o.id === (item.sCurve ?? 'scurve'))!.label}
+                  </button>
+                  {months.length > 0 && (
+                    <span style={{ fontSize: 10, color: Math.abs(scheduled - (item.amount || 0)) < 1 ? '#2A7A4F' : '#B8860B', fontFamily: 'monospace' }}>
+                      Scheduled {fmt(scheduled)} / {fmt(item.amount || 0)}
+                    </span>
+                  )}
+                </div>
+                {months.length === 0 ? (
+                  <p style={{ fontSize: 11, color: '#AAA' }}>Set a Start and End month above to schedule this line month-by-month.</p>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+                    {months.map(mo => (
+                      <div key={mo} style={{ flexShrink: 0, width: 78 }}>
+                        <div style={{ fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#999', marginBottom: 3, textAlign: 'center' }}>{fmtMonth(mo)}</div>
+                        <input type="number" min={0} style={{ ...cellInput, textAlign: 'right', fontFamily: 'monospace' }}
+                          value={item.monthly?.[mo] || ''} placeholder="0"
+                          onChange={e => update(item.id, { monthly: { ...(item.monthly ?? {}), [mo]: parseFloat(e.target.value) || 0 } })} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <input
-            style={{ background: 'transparent', border: 'none', borderBottom: '1px solid transparent', padding: '3px 8px 3px 0', fontSize: 11, color: '#888', outline: 'none', width: '100%' }}
-            value={item.notes}
-            placeholder="Notes / firm name / ref"
-            onChange={e => update(item.id, 'notes', e.target.value)}
-            onFocus={e => (e.currentTarget.style.borderBottomColor = '#C4973A')}
-            onBlur={e => (e.currentTarget.style.borderBottomColor = 'transparent')}
-          />
-          <button
-            onClick={() => remove(item.id)}
-            style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}
-          >×</button>
-        </div>
-      ))}
+        )
+      })}
 
       {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F7F5F2', borderTop: '1px solid #E0DDD8' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F7F5F2', borderTop: '1px solid #E0DDD8', minWidth: 880 }}>
         <button
           onClick={add}
           style={{ background: 'none', border: '1px solid #D0CEC9', color: '#888', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '6px 16px', cursor: 'pointer' }}
-          onMouseEnter={e => { (e.currentTarget.style.borderColor = '#C4973A'); (e.currentTarget.style.color = '#C4973A') }}
+          onMouseEnter={e => { (e.currentTarget.style.borderColor = '#2A2A2A'); (e.currentTarget.style.color = '#2A2A2A') }}
           onMouseLeave={e => { (e.currentTarget.style.borderColor = '#D0CEC9'); (e.currentTarget.style.color = '#888') }}
         >+ Add Row</button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: '#C4973A' }}>{fmt(total)}</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: '#1A1A1A' }}>{fmt(total)}</span>
         </div>
       </div>
     </div>
