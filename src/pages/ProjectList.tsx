@@ -185,14 +185,22 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
-          <div className="ws-col-header" style={{ flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+          <div className="ws-col-header" style={{ position: 'relative', flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+            {/* PC (Practical Completion) clock column header — above the row countdowns */}
+            <div style={{ position: 'absolute', right: 124, top: '50%', transform: 'translateY(-50%)', textAlign: 'center', pointerEvents: 'none', lineHeight: 1 }}>
+              <div className="chrome-silver-text" style={{ fontSize: 17, fontWeight: 800, letterSpacing: '0.04em' }}>PC</div>
+              <div className="chrome-silver-text" style={{ fontSize: 6, fontWeight: 700, letterSpacing: '0.12em', marginTop: 2 }}>CLOCK</div>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
               {/* 7EVEN / HAAVN MANAGEMENT — the real silver brand mark · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                {is7
-                  ? <img src="/seven-mark-white.png" alt="7EVEN" draggable={false} style={{ height: 21, width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
-                  : <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />}
+                {/* Real brand mark, filled with a space-grey chrome sheen via mask */}
+                <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
+                  WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
+                  WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
+                  background: 'linear-gradient(180deg, #F2F2F4 0%, #C2C4C9 26%, #74767C 50%, #5A5C62 56%, #A6A8AE 74%, #E8E8EA 100%)',
+                  filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.55))' }} />
                 <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>
               </button>
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
@@ -216,7 +224,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               <button onClick={() => setArchiveMenu(v => !v)} title="Menu — Dashboard & Archive"
                 style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
                 {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
-                <span className="chrome-silver-text" style={{ fontSize: 44, fontWeight: 800, lineHeight: 0.6 }}>▾</span>
+                <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6 }}>▾</span>
               </button>
               {archiveMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
@@ -638,14 +646,14 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
           className={`glass-chip pcard-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 8, width: 150, padding: '9px 14px' } as React.CSSProperties}>
+          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 6, width: 90, padding: '8px 10px' } as React.CSSProperties}>
           {/* Status light — fixed at the left of the chip so it lines up down the board */}
-          <span style={{ position: 'relative', width: 7, height: 7, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            {pulse && <span style={{ position: 'absolute', width: 12, height: 12, borderRadius: '50%', background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'block' }} />
+          <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            {pulse && <span style={{ position: 'absolute', width: 11, height: 11, borderRadius: '50%', background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'block' }} />
           </span>
-          <span style={{ fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700 }}>{label}</span>
-          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.95)', opacity: 0.8, marginLeft: 'auto' }}>▾</span>
+          <span style={{ fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+          <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.95)', opacity: 0.8, marginLeft: 'auto' }}>▾</span>
         </button>
         {dropOpen && (
           <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
