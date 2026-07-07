@@ -120,12 +120,18 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   const costStack = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem }), [costData, site])
 
+  // Grouped cost buckets for the breakdown bars (the engine returns line-level
+  // figures + the fixed inputs live on costData).
+  const hardCostsBuild = costStack.construction + costStack.contingency + costStack.prelims
+  const statFinance    = costStack.finance + (costData.statutoryFixed || 0)
+  const otherSoftCosts = (costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0)
+
   const tdc    = bestScenario?.tdc ?? costStack.totalDevelopmentCost
   const gav    = bestScenario?.gav ?? 0
   const rlv    = bestScenario?.rlv ?? 0
   const margin = tdc > 0 ? ((gav - tdc) / tdc) : 0
 
-  const costMax = Math.max(costStack.hardCosts, costStack.professionalFees, costStack.finance, costStack.otherSoftCosts, landCostEff, 1)
+  const costMax = Math.max(hardCostsBuild, costStack.professionalFees, statFinance, otherSoftCosts, landCostEff, 1)
 
   // Area breakdown for donut — distinct colour per sector
   const AREA_COLORS = { nsa: '#22C55E', balcony: '#C4973A', basement: '#3B82F6', other: '#A855F7' }
@@ -201,10 +207,10 @@ export default function ProjectDashboard({ projectId }: Props) {
         <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', flex: 1 }}>
           <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 18 }}>Development Cost Stack — {fmt(tdc)} TDC</p>
           <HBar label="Land & Acquisition"     value={landCostEff}                  max={tdc} color="#C4973A" />
-          <HBar label="Hard Costs (Build)"      value={costStack.hardCosts}             max={tdc} color="#E8E6E1" />
+          <HBar label="Hard Costs (Build)"      value={hardCostsBuild}                  max={tdc} color="#E8E6E1" />
           <HBar label="Professional Fees"       value={costStack.professionalFees}      max={tdc} color="#A855F7" />
-          <HBar label="Statutory & Finance"     value={costStack.finance}               max={tdc} color="#3B82F6" />
-          <HBar label="Project Mgmt & Marketing" value={costStack.otherSoftCosts}       max={tdc} color="#22C55E" />
+          <HBar label="Statutory & Finance"     value={statFinance}                     max={tdc} color="#3B82F6" />
+          <HBar label="Project Mgmt & Marketing" value={otherSoftCosts}                 max={tdc} color="#22C55E" />
           {land.inKindGFA > 0 && <HBar label="In-Kind Delivery"  value={land.inKindGFA * land.inKindRatePerSqm} max={tdc} color="#EAB308" />}
           <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #E4E1DC', display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 8, color: '#888', letterSpacing: '0.10em' }}>$/sqm GBA</span>

@@ -1,6 +1,7 @@
 import * as db from './index'
 import { captureSnapshot } from './snapshots'
 import { WERRIBEE_FIXTURE, GEELONG_FIXTURE } from '../engine/__fixtures__/realProjects'
+import { defaultCashflowState } from '../engine/cashflow'
 
 export function seedProjectsIfEmpty() {
   const existing = db.getProjects()
@@ -15,6 +16,10 @@ export function seedProjectsIfEmpty() {
   }
   if (!ids.has('seed-geelong-001')) {
     seedGeelong()
+  }
+  // 35 Corio Street, Geelong — Cunningham Place (WMK yield analysis, Feb 2025)
+  if (!ids.has('geelong-35-corio')) {
+    seedCorio()
   }
 
   // Always ensure named featured projects exist (idempotent)
@@ -991,4 +996,162 @@ function seedCaloundraHistoricalSnapshot() {
   // Now wipe again so the project remains blank for manual entry
   db.resetProjectData(pid)
   db.saveProject({ ...project, type: 'hotel', brand: '7even', updatedAt: new Date().toISOString() })
+}
+
+// ── 35 CORIO STREET, GEELONG — CUNNINGHAM PLACE ──────────────────────────────
+// Source: WMK Architecture Yield Analysis, Feb 2025 (SharePoint). Market data:
+// CoreLogic / YIP / Domain / CBRE, June 2026. 2 towers (17 + 12 lvls), 274 apts,
+// 1,550 sqm retail, 357 car spaces + a hypothetical 150-key 5-star hotel.
+function seedCorio() {
+  const pid = 'geelong-35-corio'
+
+  db.saveProject({
+    id: pid,
+    name: 'Cunningham Place',
+    address: '35 Corio Street, Geelong VIC 3220',
+    suburb: 'Geelong',
+    state: 'VIC',
+    zone: 'Capital City Zone (CCZ) — Geelong CBD',
+    responsibleAuthority: 'City of Greater Geelong',
+    status: 'active',
+    type: 'mixed',
+    brand: '7even',
+    createdAt: '2025-02-01T00:00:00.000Z',
+    updatedAt: new Date().toISOString(),
+  })
+
+  db.saveSiteDesign({
+    projectId: pid,
+    resiNSA: 21815,
+    resiGFA: 22685,
+    resiGBA: 25439,
+    balcony: 2754,
+    basementTotal: 0,          // 11,350 sqm structured parking sits in the detailed cost stack, not the GBA basis
+    carSpaces: 357,
+    childcareGFA: 0,
+    churchGFA: 0,
+    churchNSA: 0,
+    retailGFA: 1540,
+    retailNSA: 1550,
+    commercialGFA: 0,
+    commercialNSA: 0,
+    communalGFA: 0,
+    otherGFA: 0,
+    notes: 'WMK Architecture yield analysis (Feb 2025). Tower A: 17 lvls / 154 apts / 12,260 NSA. Tower B: 12 lvls / 120 apts / 9,555 NSA. Retail GF 1,550 sqm NSA. 357 car spaces (356 required — VPP 52.06 compliant). NSA/GFA efficiency 96.2%. Build rate $4,000/sqm applied to 25,439 sqm resi+retail GBA; 11,350 sqm parking costed separately ($18M allowance). 7EVEN architect of record: Fraser & Partners — WMK produced the source yield study.',
+  })
+
+  db.saveLandTerms({
+    projectId: pid,
+    landCost: 0,               // RLV solves for affordable land; vendor ask is $20M (conservative)–$35M (aggressive)
+    isInKind: false,
+    inKindLabel: '',
+    inKindGFA: 0,
+    inKindRatePerSqm: 4000,
+    inKindNote: 'Commercial CBD site — formal valuation outstanding. Indicative asking range $20M–$35M depending on approved GBA. Compare against the RLV below.',
+    state: 'VIC',
+    propertyType: 'commercial',
+    foreignBuyer: false,
+    applyStampDuty: false,
+    settlementDate: '',
+    landGst: 'none',
+  })
+
+  db.saveCostStack({
+    projectId: pid,
+    buildRatePerSqm: 4000,     // CBD Geelong mixed-use ($3,800 low / $4,300 high)
+    contingencyPct: 0.05,
+    prelimsPct: 0.08,
+    professionalFeesPct: 0.07,
+    statutoryFixed: 2200000,
+    financePct: 0.09,
+    projectManagementFixed: 4500000,
+    marketingFixed: 3500000,
+    amenityFitoutFixed: 800000,
+    gstEnabled: true,
+  })
+
+  // Detailed itemisation (CFO view) — includes the $18M underground parking allowance
+  db.saveDetailedCostStack({
+    projectId: pid,
+    hardCosts: [
+      { id: 'corio-hc-1', label: 'Construction — residential + retail (25,439 sqm @ $4,000)', amount: 101756000, notes: 'WMK GBA basis, CBD build rate', sCurve: 'scurve', fundedBy: 'blend', equityPct: 0.3 },
+      { id: 'corio-hc-2', label: 'Underground parking — 357 spaces (11,350 sqm)', amount: 18000000, notes: 'VPP 52.06 compliant; separate allowance', sCurve: 'scurve', fundedBy: 'debt' },
+      { id: 'corio-hc-3', label: 'Contingency (5%)', amount: 5087800, notes: '', sCurve: 'linear', fundedBy: 'equity' },
+      { id: 'corio-hc-4', label: 'Preliminaries (8%)', amount: 8140480, notes: '', sCurve: 'scurve', fundedBy: 'blend', equityPct: 0.3 },
+    ],
+    consultants: [
+      { id: 'corio-cn-1', label: 'Professional fees (7%) — WMK + engineering + advisory', amount: 7122920, notes: 'Concept → DD → documentation → CA', sCurve: 'upfront', fundedBy: 'equity' },
+    ],
+    statutory: [
+      { id: 'corio-st-1', label: 'Statutory, planning & council levies', amount: 2200000, notes: 'City of Greater Geelong — CCZ', sCurve: 'upfront', fundedBy: 'equity' },
+      { id: 'corio-st-2', label: 'Construction finance (9%)', amount: 9157920, notes: 'Interest on debt during build', sCurve: 'backloaded', fundedBy: 'debt' },
+    ],
+    marketing: [
+      { id: 'corio-mk-1', label: 'Project management', amount: 4500000, notes: '', sCurve: 'linear', fundedBy: 'equity' },
+      { id: 'corio-mk-2', label: 'Marketing & sales', amount: 3500000, notes: '', sCurve: 'backloaded', fundedBy: 'equity' },
+      { id: 'corio-mk-3', label: 'Amenity fit-out', amount: 800000, notes: 'Resi amenity + lobby', sCurve: 'backloaded', fundedBy: 'equity' },
+    ],
+  })
+
+  const scenarioId = 'geelong-35-corio-mix-001'
+  db.saveMixScenario({ id: scenarioId, projectId: pid, name: 'WMK Yield — 8/82/10', createdAt: '2025-02-01T00:00:00.000Z' })
+
+  db.saveUnitTypes(scenarioId, [
+    {
+      id: 'corio-u1', scenarioId, name: '1 Bedroom', nsaPerUnit: 58, targetPct: 0.077, solvedCount: 21,
+      weeklyRentConservative: 515, weeklyRentAggressive: 630,
+      salePriceConservative: 580000, salePriceMid: 660000, salePriceAggressive: 750000,
+      opexPerUnitPerYear: 3500,
+    },
+    {
+      id: 'corio-u2', scenarioId, name: '2 Bedroom', nsaPerUnit: 79, targetPct: 0.821, solvedCount: 225,
+      weeklyRentConservative: 600, weeklyRentAggressive: 750,
+      salePriceConservative: 750000, salePriceMid: 870000, salePriceAggressive: 1000000,
+      opexPerUnitPerYear: 4200,
+    },
+    {
+      id: 'corio-u3', scenarioId, name: '3 Bedroom', nsaPerUnit: 108, targetPct: 0.102, solvedCount: 28,
+      weeklyRentConservative: 740, weeklyRentAggressive: 915,
+      salePriceConservative: 1100000, salePriceMid: 1250000, salePriceAggressive: 1450000,
+      opexPerUnitPerYear: 5500,
+    },
+  ])
+
+  db.saveBTRAssumptions({
+    scenarioId,
+    vacancyPct: 0.05,
+    leaseUpMonths: 12,
+    managementFeePct: 0.07,
+    carParkIncomeAnnual: 963900,   // 357 spaces × $250/mth × 90% occ
+    buildingAdminFixed: 250000,
+    childcareAnnualNet: 0,
+    commercialAnnualNet: 572230,   // retail GF: $380/sqm net × 1,550 sqm × 97% occ
+    capRateConservative: 0.05,     // CBD Geelong — tighter than 5.5% outer suburban
+    capRateAggressive: 0.05,
+    devMarginPct: 0.18,
+  })
+
+  db.saveBTSAssumptions({
+    scenarioId,
+    sellingCostsPct: 0.025,
+    childcareValuePerSqm: 10000,   // retail GF value $/sqm (mid)
+    devMarginPct: 0.18,
+  })
+
+  // Hotel is hypothetical (requires design variation) — base case: 150 keys, ADR $260, 72% occ
+  db.saveHotelAssumptions({
+    scenarioId,
+    keys: 150,
+    adr: 260,
+    occupancyPct: 0.72,
+    otherRevenuePerKeyPerYear: 12000,
+    gopMarginPct: 0.36,
+    managementFeePct: 0.05,
+    ffeReservePct: 0.04,
+    hotelCapRate: 0.055,
+    devMarginPct: 0.18,
+  })
+
+  // Programme — powers the live countdown clock on the board (36-month build)
+  db.saveCashflow({ ...defaultCashflowState(pid), startDate: '2026-09', months: 36 })
 }
