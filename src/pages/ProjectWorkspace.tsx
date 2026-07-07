@@ -114,10 +114,12 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
         )}
         {/* Dashboard + Manage + Log Out — inside the header; held ~5mm off the edge */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
-            style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-            ☰ Dashboard
-          </button>
+          {role !== 'external' && (
+            <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
+              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              ☰ Dashboard
+            </button>
+          )}
           {onManage && (
             <button className="glass-btn glass-btn-light" onClick={onManage}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>

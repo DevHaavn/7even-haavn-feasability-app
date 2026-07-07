@@ -13,8 +13,11 @@ const CAPITAL_AUTH_KEY = 'capital_auth'
  *  initial read already sees the team's live data. Realtime then keeps the
  *  local cache warm in the background — a teammate's edit shows the next time
  *  you switch view, without yanking you out of what you're doing. */
-export default function CapitalPortal({ onClose, initialPillar }: { onClose: () => void; initialPillar?: PillarId }) {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(CAPITAL_AUTH_KEY) === '1')
+export default function CapitalPortal({ onClose, initialPillar, role }: { onClose: () => void; initialPillar?: PillarId; role?: 'admin' | 'external' }) {
+  // Consultants / project team run their CRM (War Room) with no gate — they land
+  // straight in and are locked to the CRM only (financial pillars stay hidden).
+  const crmOnly = role === 'external'
+  const [authed, setAuthed] = useState(() => crmOnly || sessionStorage.getItem(CAPITAL_AUTH_KEY) === '1')
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -46,8 +49,9 @@ export default function CapitalPortal({ onClose, initialPillar }: { onClose: () 
   return (
     <CapitalBase
       onClose={onClose}
-      initialPillar={initialPillar}
-      onLogout={() => { sessionStorage.removeItem(CAPITAL_AUTH_KEY); setAuthed(false) }}
+      initialPillar={crmOnly ? 'crm' : initialPillar}
+      crmOnly={crmOnly}
+      onLogout={crmOnly ? onClose : () => { sessionStorage.removeItem(CAPITAL_AUTH_KEY); setAuthed(false) }}
     />
   )
 }

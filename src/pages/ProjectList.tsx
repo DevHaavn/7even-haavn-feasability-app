@@ -178,31 +178,36 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
-        {/* LEFT — director column · 7EVEN logo flips between 7EVEN and HAAVN Management */}
-        {role === 'admin' && (() => {
-          const is7 = adminBrand === '7even'
+        {/* Project column — one branded board for everyone. Director flips
+            7EVEN / HAAVN Management; consultants are locked to HAAVN Management
+            (financial Dashboard hidden). Same look + buttons for both roles. */}
+        {(() => {
+          const isAdmin = role === 'admin'
+          const is7 = isAdmin && adminBrand === '7even'
           const list = is7 ? sevenProjects : haavnProjects
           const accent = is7 ? '#C4973A' : 'rgba(255,255,255,0.75)'
+          const brand: '7even' | 'haavn' = is7 ? '7even' : 'haavn'
           return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
           <div className="ws-col-header" style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-              {/* 7EVEN / HAAVN MANAGEMENT — the real silver brand mark · acts as a view dropdown */}
-              <button onClick={() => setBrandMenu(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
+              <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
+                style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
                 {/* Real brand mark, filled with a space-grey chrome sheen via mask */}
                 <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
                   WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
                   WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
                   background: 'linear-gradient(180deg, #F2F2F4 0%, #C2C4C9 26%, #74767C 50%, #5A5C62 56%, #A6A8AE 74%, #E8E8EA 100%)',
                   filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.55))' }} />
-                <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>
+                {isAdmin && <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
               </button>
+              {!is7 && <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
               </span>
-              {brandMenu && (
+              {isAdmin && brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: '#0C0C0C', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
                   {([['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']] as const).map(([id, lbl]) => (
                     <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
@@ -215,21 +220,22 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-              {/* Menu — one chrome-silver dropdown (like the 7EVEN mark) holding
-                  Dashboard + Archive, for a cleaner header on desktop & mobile */}
-              <button onClick={() => setArchiveMenu(v => !v)} title="Menu — Dashboard & Archive"
+              {/* Menu — one chrome-silver dropdown holding Dashboard (admin only) + Archive */}
+              <button onClick={() => setArchiveMenu(v => !v)} title="Menu"
                 style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
                 {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
                 <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6, marginTop: -11 }}>▾</span>
               </button>
               {archiveMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: '#0C0C0C', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
-                  {/* Dashboard */}
+                  {/* Dashboard — financial portfolio view, admin/director only */}
+                  {isAdmin && (
                   <button onClick={() => { onDashboard?.(adminBrand); setArchiveMenu(false) }}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '13px 16px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A1A1A', cursor: 'pointer' }}>
                     <span style={{ fontSize: 13 }}>▦</span>
                     <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>Dashboard</span>
                   </button>
+                  )}
                   {/* Archive */}
                   <div style={{ padding: '10px 16px 7px' }}>
                     <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#777' }}>▤ Archived Projects{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''}</span>
@@ -253,10 +259,10 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             </div>
           </div>
 
-          {/* Project list — follows the selected brand */}
+          {/* Project list */}
           <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
             {list.length === 0 ? (
-              <EmptyState brand={adminBrand} onNew={() => openNew(adminBrand)} />
+              <EmptyState brand={brand} onNew={() => openNew(brand)} />
             ) : (
               list.map((p, i) => (
                 <ProjectCard key={p.id} project={p} index={i + 1} onClick={() => setActiveProject(p.id)} onUpdate={updateProject} accentColor={accent} />
@@ -266,49 +272,6 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         </div>
           )
         })()}
-
-        {/* RIGHT — HAAVN MANAGEMENT · consultants / PMs (and admin sees 7EVEN side) */}
-        {role === 'external' && (
-        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden' }}>
-          {/* Column header */}
-          <div style={{ flexShrink: 0, padding: '14px 28px 12px', background: 'rgba(5,5,5,0.5)', backdropFilter: 'blur(2px)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 2, height: 18, background: 'rgba(255,255,255,0.55)', flexShrink: 0 }} />
-              <span style={{ fontSize: 13, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap' }}>HAAVN MANAGEMENT</span>
-              <span style={{ fontSize: 8, color: '#2A2A2A', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4 }}>
-                {haavnProjects.length} project{haavnProjects.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {/* HAAVN dashboard is available to consultants too (not just admin) */}
-              <>
-                <button onClick={() => onDashboard?.('haavn')}
-                  style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.20)', background: 'transparent', border: 'none', padding: '5px 4px', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.20)' }}>
-                  ▦ Dashboard
-                </button>
-                <div style={{ width: 1, height: 10, background: '#1C1C1C' }} />
-              </>
-              <button onClick={() => openNew('haavn')} className="glass-btn"
-                style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '6px 16px', color: 'rgba(255,255,255,0.8)' }}>
-                + New
-              </button>
-            </div>
-          </div>
-
-          {/* HAAVN project list */}
-          <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
-            {haavnProjects.length === 0 ? (
-              <EmptyState brand="haavn" onNew={() => openNew('haavn')} />
-            ) : (
-              haavnProjects.map((p, i) => (
-                <ProjectCard key={p.id} project={p} index={i + 1} onClick={() => setActiveProject(p.id)} onUpdate={updateProject} accentColor="rgba(255,255,255,0.55)" />
-              ))
-            )}
-          </div>
-        </div>
-        )}
       </div>
       </div>
 
@@ -316,7 +279,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       <Project7Mark />
 
       {/* Director portal teaser — shown until the portal is built */}
-      {capitalOpen && <CapitalPortal initialPillar={capitalStart} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
+      {capitalOpen && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
 
       {/* ── New project modal ── */}
       {showNew && (

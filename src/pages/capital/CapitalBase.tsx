@@ -39,13 +39,14 @@ export const PILLARS: Pillar[] = [
   },
 ]
 
-export default function CapitalBase({ onClose, onLogout, initialPillar }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId }) {
+export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId; crmOnly?: boolean }) {
   const { projects } = useStore()
   const [pillar, setPillar] = useState<PillarId | null>(initialPillar ?? null)
 
   if (pillar) {
     const p = PILLARS.find(x => x.id === pillar)!
-    return <CapitalPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose} />
+    // Consultants are locked to the CRM — Back exits to the app, not the hub (which holds financial pillars)
+    return <CapitalPillar pillar={p} onBack={crmOnly ? onClose : () => setPillar(null)} onLogout={onLogout} onExit={onClose} />
   }
 
   // A small live figure from the projects to show the Capital ↔ Projects link
