@@ -75,6 +75,27 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
   useEffect(() => { seedProjectsIfEmpty(); loadProjects() }, [])
 
+  // Keep the "PC" header centred over the countdown-clock column at any width
+  // (the clock is flex-positioned, so a static offset can't track it).
+  useEffect(() => {
+    const align = () => {
+      document.querySelectorAll('.ws-col-header').forEach(hdr => {
+        const col = hdr.parentElement
+        const clock = col?.querySelector('.pcard-clock') as HTMLElement | null
+        const pc = hdr.querySelector('.pc-label') as HTMLElement | null
+        if (clock && pc) {
+          const hr = hdr.getBoundingClientRect(), cr = clock.getBoundingClientRect()
+          pc.style.left = `${Math.round(cr.left + cr.width / 2 - hr.left)}px`
+          pc.style.opacity = '1'
+        }
+      })
+    }
+    align()
+    const ts = [80, 250, 600, 1200].map(d => setTimeout(align, d))
+    window.addEventListener('resize', align)
+    return () => { ts.forEach(clearTimeout); window.removeEventListener('resize', align) }
+  })
+
   function handleCreate() {
     if (!name.trim()) return
     const p = createProject(name.trim(), address.trim(), newBrand)
@@ -107,7 +128,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       <div style={{ position: 'relative', height: 'clamp(260px, 52vh, 62vh)', flexShrink: 0 }}>
         {/* Render zoomed + panned so the house central column sits under the page-centred V — alignment locked.
             5s reveal fades it up from dark into full-bleed colour on entry, then holds. */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: '122%', backgroundPosition: '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 6s cubic-bezier(0.4, 0, 0.2, 1) both' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: isMobile ? 'cover' : '122%', backgroundPosition: isMobile ? 'center 46%' : '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 6s cubic-bezier(0.4, 0, 0.2, 1) both' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
 
@@ -186,11 +207,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
           <div className="ws-col-header" style={{ position: 'relative', flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            {/* PC (Practical Completion) clock column header — above the row countdowns */}
-            <div style={{ position: 'absolute', right: 124, top: '50%', transform: 'translateY(-50%)', textAlign: 'center', pointerEvents: 'none', lineHeight: 1 }}>
-              <div className="chrome-silver-text" style={{ fontSize: 17, fontWeight: 800, letterSpacing: '0.04em' }}>PC</div>
-              <div className="chrome-silver-text" style={{ fontSize: 6, fontWeight: 700, letterSpacing: '0.12em', marginTop: 2 }}>CLOCK</div>
-            </div>
+            {/* PC (Practical Completion) header — directly above the row countdowns (desktop only) */}
+            {!isMobile && <div className="pc-label chrome-silver-text" style={{ position: 'absolute', left: 0, top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none', lineHeight: 1, fontSize: 17, fontWeight: 800, letterSpacing: '0.04em', opacity: 0 }}>PC</div>}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
               {/* 7EVEN / HAAVN MANAGEMENT — the real silver brand mark · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
@@ -224,7 +242,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               <button onClick={() => setArchiveMenu(v => !v)} title="Menu — Dashboard & Archive"
                 style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
                 {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
-                <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6 }}>▾</span>
+                <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6, marginTop: -11 }}>▾</span>
               </button>
               {archiveMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(10,10,10,0.93)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
