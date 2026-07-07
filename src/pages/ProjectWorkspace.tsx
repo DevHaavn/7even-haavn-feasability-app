@@ -112,17 +112,17 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
             Consultant
           </span>
         )}
-        {/* Manage + Log Out — now sit inside the header, larger & clearer */}
-        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 'auto' }}>
+        {/* Manage + Log Out — inside the header; 20% smaller, held ~5mm off the edge */}
+        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
           {onManage && (
             <button className="glass-btn glass-btn-gold" onClick={onManage}
-              style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '9px 18px', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
               ⊞ Manage
             </button>
           )}
           {onLogout && (
             <button className="glass-btn glass-btn-grey" onClick={onLogout}
-              style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '9px 18px', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
               Log Out
             </button>
           )}
