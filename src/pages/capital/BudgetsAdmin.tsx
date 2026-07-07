@@ -183,7 +183,7 @@ function Spark({ arr, color }: { arr: number[]; color: string }) {
 type XeroState = { kind: 'unconfigured' } | { kind: 'disconnected' } | { kind: 'connected'; tenants: { id: string; name: string }[] }
 // group '7even' = Jamie's Xero (7even Capital & projects); 'haavn' = the other
 // team's separate Xero login (Haavn Management / Precision / Technologies).
-function XeroChip({ group, orgName }: { group: '7even' | 'haavn'; orgName: string }) {
+export function XeroChip({ group, orgName }: { group: '7even' | 'haavn'; orgName: string }) {
   const [state, setState] = useState<XeroState>({ kind: 'unconfigured' })
   useEffect(() => {
     fetch(`/api/xero/status?group=${group}`).then(r => (r.ok ? r.json() : Promise.reject())).then(s => {

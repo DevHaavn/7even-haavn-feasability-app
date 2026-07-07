@@ -75,26 +75,6 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
   useEffect(() => { seedProjectsIfEmpty(); loadProjects() }, [])
 
-  // Keep the "PC" header centred over the countdown-clock column at any width
-  // (the clock is flex-positioned, so a static offset can't track it).
-  useEffect(() => {
-    const align = () => {
-      document.querySelectorAll('.ws-col-header').forEach(hdr => {
-        const col = hdr.parentElement
-        const clock = col?.querySelector('.pcard-clock') as HTMLElement | null
-        const pc = hdr.querySelector('.pc-label') as HTMLElement | null
-        if (clock && pc) {
-          const hr = hdr.getBoundingClientRect(), cr = clock.getBoundingClientRect()
-          pc.style.left = `${Math.round(cr.left + cr.width / 2 - hr.left)}px`
-          pc.style.opacity = '1'
-        }
-      })
-    }
-    align()
-    const ts = [80, 250, 600, 1200].map(d => setTimeout(align, d))
-    window.addEventListener('resize', align)
-    return () => { ts.forEach(clearTimeout); window.removeEventListener('resize', align) }
-  })
 
   function handleCreate() {
     if (!name.trim()) return
@@ -207,8 +187,6 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
           <div className="ws-col-header" style={{ position: 'relative', flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            {/* PC (Practical Completion) header — directly above the row countdowns (desktop only) */}
-            {!isMobile && <div className="pc-label chrome-silver-text" style={{ position: 'absolute', left: 0, top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none', lineHeight: 1, fontSize: 17, fontWeight: 800, letterSpacing: '0.04em', opacity: 0 }}>PC</div>}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
               {/* 7EVEN / HAAVN MANAGEMENT — the real silver brand mark · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
@@ -350,57 +328,57 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
               width: 480, padding: '40px',
-              background: 'rgba(8,8,8,0.40)',
-              border: '1px solid rgba(255,255,255,0.16)', borderRadius: 18, overflow: 'hidden',
-              backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 24px 60px rgba(0,0,0,0.55)',
+              background: '#F4F2EF',
+              border: '1px solid rgba(255,255,255,0.5)', borderRadius: 20, overflow: 'hidden',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 30px -2px rgba(216,176,96,0.14), 0 26px 55px -16px rgba(0,0,0,0.85)',
             }}>
 
-            {/* Coloured top bar — gold for 7EVEN, white for HAAVN */}
-            <div style={{ height: 2, background: newBrand === '7even' ? 'linear-gradient(to right, #C4973A, #E8B84B)' : 'linear-gradient(to right, rgba(255,255,255,0.50), rgba(255,255,255,0.80))', marginBottom: 32 }} />
+            {/* Black stealth chrome top line — shines and moves like the main page */}
+            <div className="chrome-line" style={{ height: 2, borderRadius: 2, marginBottom: 32 }} />
 
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
               <div>
-                <p style={{ color: newBrand === '7even' ? '#C4973A' : 'rgba(255,255,255,0.45)', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8 }}>
+                <p style={{ color: '#8A6A28', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
                   New Development
                 </p>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, color: '#fff', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, color: '#0D0D0F', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
               </div>
-              <button onClick={() => setShowNew(false)} style={{ color: '#444', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, transition: 'color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#444')}>✕</button>
+              <button onClick={() => setShowNew(false)} style={{ color: '#9A9CA3', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#0D0D0F')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#9A9CA3')}>✕</button>
             </div>
 
-            {/* Brand toggle */}
+            {/* Brand toggle — the real marks: 7EVEN and HM */}
             <div style={{ marginBottom: 28 }}>
-              <p style={{ color: '#444', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>Brand</p>
-              <div style={{ display: 'flex', gap: 0, border: '1px solid #1E1E1E' }}>
-                {(['7even', 'haavn'] as const).map(b => (
-                  <button key={b} onClick={() => setNewBrand(b)}
-                    style={{
-                      flex: 1, padding: '11px 0', fontSize: 11, letterSpacing: '0.20em',
-                      textTransform: 'uppercase', fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700,
-                      border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                      background: newBrand === b
-                        ? (b === '7even' ? 'rgba(196,151,58,0.14)' : 'rgba(255,255,255,0.10)')
-                        : 'transparent',
-                      color: newBrand === b
-                        ? (b === '7even' ? '#C4973A' : 'rgba(255,255,255,0.80)')
-                        : '#333',
-                      borderRight: b === '7even' ? '1px solid #1E1E1E' : 'none',
-                    }}>
-                    {b === '7even' ? '7EVEN' : 'HAAVN'}
-                  </button>
-                ))}
+              <p style={{ color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Brand</p>
+              <div style={{ display: 'flex', gap: 0, border: '1px solid #D3D4D8', borderRadius: 10, overflow: 'hidden' }}>
+                {(['7even', 'haavn'] as const).map(b => {
+                  const active = newBrand === b
+                  return (
+                    <button key={b} onClick={() => setNewBrand(b)}
+                      style={{
+                        flex: 1, padding: '13px 0', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: active ? '#141414' : '#fff',
+                        borderRight: b === '7even' ? '1px solid #D3D4D8' : 'none',
+                      }}>
+                      <img
+                        src={b === '7even' ? '/seven-mark-white.png' : '/hm-device-white.png'}
+                        alt={b === '7even' ? '7EVEN' : 'HAAVN Management'}
+                        draggable={false}
+                        style={{ height: b === '7even' ? 15 : 16, width: 'auto', display: 'block', filter: active ? 'none' : 'brightness(0) opacity(0.55)', transition: 'filter 0.2s' }} />
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Project name */}
               <div>
-                <label style={{ display: 'block', color: '#555', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>Project Name *</label>
+                <label style={{ display: 'block', color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Project Name *</label>
                 <input autoFocus
-                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #2A2A2A', padding: '10px 0', color: '#fff', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
+                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #C9C7C2', padding: '10px 0', color: '#0D0D0F', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                   placeholder="e.g. 225 Heaths Road Werribee"
                   value={name} onChange={e => setName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCreate()} />
@@ -408,25 +386,25 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
               {/* Address */}
               <div ref={addressRef} style={{ position: 'relative' }}>
-                <label style={{ display: 'block', color: '#555', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>Address</label>
-                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #2A2A2A' }}>
+                <label style={{ display: 'block', color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Address</label>
+                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #C9C7C2' }}>
                   <input
-                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '10px 0', color: '#fff', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
+                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '10px 0', color: '#0D0D0F', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                     placeholder="Start typing an address…"
                     value={address} onChange={e => { setAddress(e.target.value); setShowSuggestions(true) }}
                     onFocus={() => results.length > 0 && setShowSuggestions(true)}
                     autoComplete="off" />
-                  {loading && <span style={{ color: '#444', fontSize: 10, flexShrink: 0 }}>···</span>}
+                  {loading && <span style={{ color: '#9A9CA3', fontSize: 10, flexShrink: 0 }}>···</span>}
                 </div>
                 {showSuggestions && results.length > 0 && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#0E0E0E', border: '1px solid #1E1E1E', maxHeight: 200, overflowY: 'auto' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#fff', border: '1px solid #D3D4D8', borderRadius: 10, maxHeight: 200, overflowY: 'auto', boxShadow: '0 14px 34px rgba(0,0,0,0.18)' }}>
                     {results.map((r, i) => (
                       <button key={i} onMouseDown={e => { e.preventDefault(); setAddress(r.split(', ').slice(0, 4).join(', ')); setShowSuggestions(false) }}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #161616', color: '#C0BDB8', fontSize: 12, cursor: 'pointer', transition: 'background 0.15s' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#1A1A1A')}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #EDEDEF', color: '#1A1B1E', fontSize: 12, cursor: 'pointer', transition: 'background 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#F4F4F5')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         {r.split(', ').slice(0, 4).join(', ')}
-                        <span style={{ color: '#444', fontSize: 10, display: 'block', marginTop: 2 }}>{r.split(', ').slice(4, 7).join(', ')}</span>
+                        <span style={{ color: '#9A9CA3', fontSize: 10, display: 'block', marginTop: 2 }}>{r.split(', ').slice(4, 7).join(', ')}</span>
                       </button>
                     ))}
                   </div>
@@ -434,14 +412,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid #111' }}>
-                <button onClick={() => setShowNew(false)} className="glass-btn"
-                  style={{ padding: '10px 24px', color: '#999', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid #E4E2DE' }}>
+                <button onClick={() => setShowNew(false)}
+                  style={{ padding: '10px 24px', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 10, color: '#4A4B50', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
                   Cancel
                 </button>
                 <button onClick={handleCreate} disabled={!name.trim()}
-                  className={`glass-btn ${!name.trim() ? 'glass-btn-disabled' : newBrand === '7even' ? 'glass-btn-gold' : ''}`}
-                  style={{ padding: '10px 32px', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                  style={{ padding: '10px 32px', background: !name.trim() ? '#C9C7C2' : '#141414', border: 'none', borderRadius: 10, color: '#fff', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: !name.trim() ? 'default' : 'pointer' }}>
                   Create Project
                 </button>
               </div>
