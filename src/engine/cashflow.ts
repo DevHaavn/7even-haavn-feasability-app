@@ -62,7 +62,14 @@ export interface CashflowResult {
   peakEquity: number
   peakDebt: number
   total: number
+  gstPaid: number[]         // GST paid on GST-able costs (1/11 of inclusive spend)
+  gstReclaimed: number[]    // input tax credits received (1 BAS period later)
+  netGst: number[]          // monthly net GST cash position
 }
+
+// Phases whose costs carry GST (commercial/consultants/build/marketing). Land is
+// outside (margin scheme) and statutory charges are GST-free.
+const GSTABLE_PHASES: CostPhase[] = ['pre-construction', 'construction', 'close-out']
 
 function monthLabel(startDate: string, offset: number): string {
   const [y, m] = startDate.split('-').map(Number)
@@ -121,6 +128,17 @@ export function buildCashflow(state: CashflowState, phaseCosts: Record<CostPhase
     ce += eq; cd += dt; cumEquity[m] = ce; cumDebt[m] = cd
   }
 
+  // 4) GST — 1/11 of GST-able spend paid each month, reclaimed as ITC one BAS
+  //    period (≈1 month) later. Net GST is the cash-timing line for the CFO.
+  const gstPaid = zero(), gstReclaimed = zero(), netGst = zero()
+  const gstableByMonth = zero()
+  for (const r of phaseRows) if (GSTABLE_PHASES.includes(r.phase)) r.monthly.forEach((v, m) => { gstableByMonth[m] += v })
+  for (let m = 0; m < months; m++) {
+    gstPaid[m] = gstableByMonth[m] / 11
+    if (m + 1 < months) gstReclaimed[m + 1] = gstPaid[m]
+  }
+  for (let m = 0; m < months; m++) netGst[m] = gstPaid[m] - gstReclaimed[m]
+
   return {
     months,
     monthLabels: Array.from({ length: months }, (_, i) => ({ n: i + 1, date: monthLabel(state.startDate, i) })),
@@ -129,5 +147,6 @@ export function buildCashflow(state: CashflowState, phaseCosts: Record<CostPhase
     peakEquity: Math.max(0, ...cumEquity),
     peakDebt: Math.max(0, ...cumDebt),
     total: totalByMonth.reduce((a, b) => a + b, 0),
+    gstPaid, gstReclaimed, netGst,
   }
 }

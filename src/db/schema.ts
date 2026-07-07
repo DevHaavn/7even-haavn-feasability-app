@@ -149,7 +149,8 @@ export interface CashflowState {
 
 export interface BTRAssumptions {
   scenarioId: string
-  vacancyPct: number
+  vacancyPct: number            // stabilised vacancy
+  leaseUpMonths?: number        // months from PC to stabilised occupancy
   managementFeePct: number
   carParkIncomeAnnual: number
   buildingAdminFixed: number

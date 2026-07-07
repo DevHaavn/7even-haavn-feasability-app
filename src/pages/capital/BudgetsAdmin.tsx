@@ -3,8 +3,10 @@ import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
 import {
   getLandTerms, saveLandTerms, getDetailedCostStack as dbGetDetailedCostStack,
-  saveDetailedCostStack, getFinanceAssumptions, saveFinanceAssumptions, generateId,
+  saveDetailedCostStack, getFinanceAssumptions, saveFinanceAssumptions, generateId, getCashflow,
 } from '../../db'
+import { buildCashflow } from '../../engine/cashflow'
+import type { CostPhase } from '../../db/schema'
 import type { CostLineItem, DetailedCostStack, LandTerms, FinanceAssumptions } from '../../db/schema'
 import {
   CFO_SEED, CFO_MONTHS, CFO_YEARS,
@@ -702,6 +704,14 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
           const { spend, awaiting, count } = adminSpend(link.projectId)
           const spendPct = tdc > 0 ? spend / tdc : 0
           const blowout = tdc > 0 && spend > tdc
+          // Funding requirement — live from the project's cashflow (equity-first, then debt)
+          const land = getLandTerms(link.projectId)
+          const s = (a: { amount: number }[]) => a.reduce((t, x) => t + (x.amount || 0), 0)
+          const phaseCosts = {
+            'pre-acquisition': land.landCost || 0, 'acquisition-planning': s(dcs.statutory),
+            'pre-construction': s(dcs.consultants), 'construction': s(dcs.hardCosts), 'close-out': s(dcs.marketing),
+          } as Record<CostPhase, number>
+          const cf = buildCashflow(getCashflow(link.projectId), phaseCosts)
           return (
             <div key={link.projectId} style={{ ...panel, padding: '18px 20px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -714,6 +724,8 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
               <Row label="3% DM fee — live" value={`${fmt$(liveDm)}/yr`} sub={Math.abs(feeDrift) > 0.02 ? `budgeted ${fmt$(budgetedDm)} · ${feeDrift > 0 ? '+' : ''}${(feeDrift * 100).toFixed(0)}%` : 'matches budget'} subColor={Math.abs(feeDrift) > 0.02 ? '#E8B84B' : POS} />
               <Row label="Budgeted fee revenue" value={fmt$(budgetedRev)} sub={`FY · ${entity.name}`} />
               <Row label="Actual spend tracked" value={fmt$(spend)} sub={`${count} bill${count !== 1 ? 's' : ''}${awaiting ? ` · ${fmt$(awaiting)} awaiting` : ''}`} />
+              <Row label="Funding — peak equity" value={fmt$(cf.peakEquity)} sub="live from cashflow · equity-first" subColor="#6FD39A" />
+              <Row label="Funding — peak debt (facility)" value={fmt$(cf.peakDebt)} sub="live from cashflow" subColor="#6E9BE6" />
 
               {/* spend vs TDC bar */}
               <div style={{ marginTop: 12 }}>

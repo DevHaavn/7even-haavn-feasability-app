@@ -85,6 +85,12 @@ export default function BTRTab({ projectId }: Props) {
   const cons = hasUnits ? calculateBTRIncome(btrInputs, 'conservative') : null
   const agg = hasUnits ? calculateBTRIncome(btrInputs, 'aggressive') : null
   const tdc = costResult.totalDevelopmentCost
+  // Lease-up: income foregone as occupancy ramps from 0 to stabilised over the lease-up period
+  // (average ~50% of net stabilised rent across the ramp). Informational — excluded from cap value.
+  const fmt = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : `$${Math.round(n / 1000).toLocaleString()}K`
+  const leaseUpForegone = (data.leaseUpMonths ?? 0) > 0 && agg
+    ? agg.netApartmentIncome * ((data.leaseUpMonths ?? 0) / 12) * 0.5
+    : 0
 
   const consVal = cons ? calculateBTRValuation(cons.noi, data.capRateConservative, tdc, data.devMarginPct) : null
   const aggVal = agg ? calculateBTRValuation(agg.noi, data.capRateAggressive, tdc, data.devMarginPct) : null
@@ -123,9 +129,15 @@ export default function BTRTab({ projectId }: Props) {
         <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Rent & Vacancy</h3>
           <p className="text-[#AAA] text-xs mb-3">Rent per unit type is set in Product Mix. Set vacancy and fees here.</p>
-          <FieldRow label="Vacancy"><PctInput value={data.vacancyPct} onChange={v => update('vacancyPct', v)} /></FieldRow>
+          <FieldRow label="Stabilised vacancy"><PctInput value={data.vacancyPct} onChange={v => update('vacancyPct', v)} /></FieldRow>
+          <FieldRow label="Lease-up to stabilisation (months)"><NumberInput value={data.leaseUpMonths ?? 0} onChange={v => update('leaseUpMonths', v)} step={1} /></FieldRow>
           <FieldRow label="Management fee"><PctInput value={data.managementFeePct} onChange={v => update('managementFeePct', v)} /></FieldRow>
           <FieldRow label="Building admin (p.a.)"><NumberInput value={data.buildingAdminFixed} onChange={v => update('buildingAdminFixed', v)} prefix="$" step={10000} /></FieldRow>
+          {(data.leaseUpMonths ?? 0) > 0 && (
+            <p className="text-[#B8860B] text-[11px] mt-2 leading-relaxed">
+              Lease-up rent foregone ≈ <strong>{fmt(leaseUpForegone)}</strong> — ~{data.leaseUpMonths} months ramping to stabilised occupancy (excluded from the stabilised NOI the value is capped on; sits in the cashflow).
+            </p>
+          )}
         </div>
 
         <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
