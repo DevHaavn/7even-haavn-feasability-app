@@ -37,6 +37,9 @@ export default function LandTermsTab({ projectId }: Props) {
   }
 
   const inKindCost = data.inKindGFA * data.inKindRatePerSqm
+  const schedule = data.paymentSchedule ?? []
+  const scheduledTotal = schedule.reduce((s, p) => s + (p.amount || 0), 0)
+  const pid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8)}`
 
   // Live duty estimate on the entered (unsaved) values
   const duty = data.applyStampDuty && data.landCost > 0
@@ -124,6 +127,56 @@ export default function LandTermsTab({ projectId }: Props) {
             Land is provided in-kind (e.g. church land swap — $0 cash cost)
           </label>
         </div>
+      </div>
+
+      {/* ── Payment schedule — deposits, stage payments, settlement (feeds programme + cashflow) ── */}
+      <div className="border border-[#E8E5E0] bg-white p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888]">Payment Schedule</h3>
+          <button onClick={() => update('paymentSchedule', [...schedule,
+            ...(schedule.length === 0
+              ? [{ id: pid('pay'), label: 'Deposit', date: '', amount: 0 }, { id: pid('pay'), label: 'Balance / Settlement', date: data.settlementDate || '', amount: 0 }]
+              : [{ id: pid('pay'), label: '', date: '', amount: 0 }])])}
+            className="text-[9px] tracking-[0.14em] uppercase text-[#555] border border-[#D0CEC9] rounded px-3 py-1.5 hover:border-[#2A2A2A] hover:text-[#1A1A1A]">
+            + Add payment
+          </button>
+        </div>
+        {schedule.length === 0 ? (
+          <p className="text-[#AAA] text-xs">Add the deposit(s), any stage payments and settlement — with dates and amounts. These flow into the programme &amp; cashflow.</p>
+        ) : (
+          <>
+            <div className="grid gap-2" style={{ gridTemplateColumns: '1fr 150px 130px 26px' }}>
+              {['Milestone', 'Date', 'Amount ($)', ''].map((h, i) => (
+                <span key={i} className="text-[8px] tracking-[0.18em] uppercase text-[#999] font-semibold">{h}</span>
+              ))}
+              {schedule.map(p => (
+                <React.Fragment key={p.id}>
+                  <input value={p.label} placeholder="e.g. 2nd stage deposit"
+                    onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, label: e.target.value } : x))}
+                    style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #E0DDD8', padding: '5px 0', fontSize: 12, color: '#1A1A1A', outline: 'none' }} />
+                  <input type="date" value={p.date}
+                    onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, date: e.target.value } : x))}
+                    style={{ background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <span style={{ color: '#BBB', fontSize: 11 }}>$</span>
+                    <input type="number" value={p.amount || ''} placeholder="0"
+                      onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, amount: parseFloat(e.target.value) || 0 } : x))}
+                      style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #E0DDD8', padding: '5px 0', fontSize: 12, fontFamily: 'monospace', color: '#1A1A1A', textAlign: 'right', width: '100%', outline: 'none' }} />
+                  </div>
+                  <button onClick={() => update('paymentSchedule', schedule.filter(x => x.id !== p.id))}
+                    style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 15 }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
+                </React.Fragment>
+              ))}
+            </div>
+            <div className="flex justify-between items-center pt-3 mt-2 border-t border-[#E8E5E0]">
+              <span className="text-[10px] tracking-widest uppercase text-[#888]">Scheduled total</span>
+              <span className={`font-mono font-bold text-sm ${Math.abs(scheduledTotal - data.landCost) < 1 || data.landCost === 0 ? 'text-[#1A1A1A]' : 'text-[#B8860B]'}`}>
+                ${scheduledTotal.toLocaleString()}{data.landCost > 0 && Math.abs(scheduledTotal - data.landCost) >= 1 ? ` / $${data.landCost.toLocaleString()} price` : ''}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Acquisition breakdown — duty + GST on the contract price ── */}

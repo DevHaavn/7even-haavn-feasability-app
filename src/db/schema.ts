@@ -54,6 +54,16 @@ export interface LandTerms {
   // GST on the land deal itself — not every purchase carries GST
   // (established residential is input-taxed; going-concern sales are GST-free)
   landGst: 'inc' | 'none' | 'full'   // inc = GST in price (1/11 credit); none = no GST; full = GST added at 10% (reclaimed)
+  // JW: payment schedule — deposit(s) → stage payments → settlement, each with a
+  // date and amount (feeds the programme and cashflow).
+  paymentSchedule?: LandPayment[]
+}
+
+export interface LandPayment {
+  id: string
+  label: string     // e.g. 'Deposit', '2nd stage deposit', 'Settlement'
+  date: string      // YYYY-MM-DD
+  amount: number
 }
 
 export interface UnitType {
@@ -69,6 +79,10 @@ export interface UnitType {
   salePriceMid: number
   salePriceAggressive: number
   opexPerUnitPerYear: number
+  // JW: parking & storage requirements per unit — drive the knock-on space/cost
+  // as the mix changes (more small units = more parking + storage demand).
+  carSpacesPerUnit?: number    // planning ratio, spaces per unit of this type
+  storageSqmPerUnit?: number   // storage cage area per unit
 }
 
 export interface MixScenario {
@@ -95,6 +109,11 @@ export interface CostStack {
   regionalLoadingPct?: number
   posContributionPct?: number
   buildRateType?: string   // which building-type preset the rate came from (resi/commercial/pbsa/hotel…)
+  // JW: current delivery phase the project is IN — surfaced on the Timeline &
+  // Dashboard so everyone can see where each project sits.
+  currentPhase?: CostPhase
+  parkingCostPerSpace?: number   // $ per structured car space (space + cost knock-on)
+  storageCostPerSqm?: number     // $ per sqm of storage
   // GST 10% — sales GST deducted from revenue, input credits claimed on
   // commercial costs/consultants. Defaults on; costs are entered GST-inclusive.
   gstEnabled: boolean

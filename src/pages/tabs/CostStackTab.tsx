@@ -435,6 +435,18 @@ export default function CostStackTab({ projectId }: Props) {
 
       <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
 
+      {/* Project phase — where the project currently sits; shown on Timeline & Dashboard */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', background: '#F5F3F0', borderBottom: '1px solid #E0DDD8', flexShrink: 0, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Project Phase</span>
+        <select value={data.currentPhase ?? ''}
+          onChange={e => { const next = { ...data, currentPhase: (e.target.value || undefined) as CostStack['currentPhase'] }; setData(next); store.saveCostStack(next) }}
+          style={{ background: '#fff', border: '1px solid #D0CEC9', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: '#1A1A1A', fontWeight: 700, outline: 'none' }}>
+          <option value="">— not set —</option>
+          {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+        </select>
+        <span style={{ fontSize: 10, color: '#AAA' }}>Surfaces on the project Timeline &amp; Dashboard.</span>
+      </div>
+
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
       {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} gstEnabled={data.gstEnabled} />}

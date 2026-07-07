@@ -8,6 +8,7 @@ import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateBTSValuation } from '../../engine/bts'
 import { STATUS_COLORS, STATUS_SHORT } from './ProjectTimeline'
 import { calculateFinance } from '../../engine/finance'
+import { COST_PHASES } from '../../db/schema'
 import FinanceSCurve, { getTimelineHealth } from '../../components/FinanceSCurve'
 
 interface Props { projectId: string }
@@ -78,6 +79,7 @@ export default function ProjectDashboard({ projectId }: Props) {
   const land     = store.getLandTerms(projectId)
   const landCostEff = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
   const costData = store.getCostStack(projectId)
+  const phaseLabel = COST_PHASES.find(p => p.id === costData.currentPhase)?.label
   const accentColor = TYPE_COLOR[project?.type ?? ''] ?? '#C4973A'
 
   const inKindLineItem = land.isInKind && land.inKindGFA > 0
@@ -153,6 +155,11 @@ export default function ProjectDashboard({ projectId }: Props) {
             <h1 style={{ fontSize: 20, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.04em', color: '#E4E1DC' }}>{project?.name}</h1>
             {project?.type && (
               <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: accentColor, fontWeight: 700, padding: '2px 8px', border: `1px solid ${accentColor}44`, background: `${accentColor}0E`, marginLeft: 4 }}>{project.type}</span>
+            )}
+            {phaseLabel && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 7, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#2A2A2A', fontWeight: 700, padding: '3px 9px', background: '#E8E6E1', borderRadius: 4 }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#3DAA6A' }} /> {phaseLabel}
+              </span>
             )}
           </div>
           <p style={{ fontSize: 10, color: '#888', letterSpacing: '0.12em', paddingLeft: 13 }}>{project?.address}</p>

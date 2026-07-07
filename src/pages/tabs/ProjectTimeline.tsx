@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
-import { getTimelineTasks, saveTimelineTasks, generateId } from '../../db'
+import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack } from '../../db'
+import { COST_PHASES } from '../../db/schema'
 import type { TimelineTask, TimelineCategory, TimelineStatus } from '../../db/schema'
 
 interface Props { projectId: string }
@@ -187,6 +188,8 @@ export default function ProjectTimeline({ projectId }: Props) {
   const atRisk   = tasks.filter(t => t.status === 'delayed').length
   const critical = tasks.filter(t => t.status === 'critical').length
   const overallPct = total > 0 ? Math.round(tasks.reduce((s, t) => s + t.progress, 0) / total) : 0
+  // Current delivery phase (set on the Cost Stack tab)
+  const phaseLabel = COST_PHASES.find(p => p.id === getCostStack(projectId).currentPhase)?.label
 
   const ganttW = dayPx(totalDays)
 
@@ -216,6 +219,14 @@ export default function ProjectTimeline({ projectId }: Props) {
           <div style={{ width: 80, height: 3, background: '#E8E5E0', borderRadius: 2 }}>
             <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? '#C4973A' : '#3B82F6', borderRadius: 2 }} />
           </div>
+          {phaseLabel && (
+            <>
+              <div style={{ width: 1, height: 24, background: '#E4E1DC' }} />
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#1A1A1A', color: '#fff', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A' }} /> Phase · {phaseLabel}
+              </span>
+            </>
+          )}
         </div>
 
         <div style={{ flex: 1 }} />

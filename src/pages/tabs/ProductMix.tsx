@@ -141,6 +141,27 @@ export default function ProductMixTab({ projectId }: Props) {
   const totalUnits = solverResult?.solvedUnits ?? 0
   const nsaUsed = solverResult ? solverResult.mix.reduce((s, m) => s + m.nsaUsed, 0) : 0
 
+  // ── Parking & storage knock-on (JW): required spaces/storage flex with the mix ──
+  const cost = store.getCostStack(projectId)
+  const PARK_AREA_PER_SPACE = 32           // sqm GBA per structured space
+  const parkCostPerSpace = cost.parkingCostPerSpace ?? 50000
+  const storageCostPerSqm = cost.storageCostPerSqm ?? 1500
+  const defSpaces = (name: string) => { const n = name.toLowerCase(); if (n.includes('studio')) return 0.6; if (n.includes('3')) return 2; if (n.includes('2')) return 1.3; if (n.includes('1')) return 1; return 1 }
+  const defStorage = (name: string) => { const n = name.toLowerCase(); if (n.includes('studio')) return 3; if (n.includes('3')) return 6; if (n.includes('2')) return 5; if (n.includes('1')) return 4; return 4 }
+  const parkRows = units.map((u, i) => {
+    const count = solverResult?.mix[i]?.count ?? u.solvedCount ?? 0
+    const spu = u.carSpacesPerUnit ?? defSpaces(u.name)
+    const stpu = u.storageSqmPerUnit ?? defStorage(u.name)
+    return { u, count, spu, stpu, reqSpaces: count * spu, reqStorage: count * stpu }
+  })
+  const reqSpaces = Math.ceil(parkRows.reduce((s, r) => s + r.reqSpaces, 0))
+  const reqStorage = Math.round(parkRows.reduce((s, r) => s + r.reqStorage, 0))
+  const provided = site.carSpaces
+  const shortfall = provided - reqSpaces                 // negative = short
+  const parkArea = reqSpaces * PARK_AREA_PER_SPACE
+  const LEVEL_SPACES = 120                                // ~spaces per basement level
+  const extraLevels = shortfall < 0 ? Math.ceil(-shortfall / LEVEL_SPACES) : 0
+
   return (
     <div className="relative min-h-full">
       {/* Render background */}
@@ -371,6 +392,64 @@ export default function ProductMixTab({ projectId }: Props) {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Parking & storage — knock-on space + cost as the mix changes */}
+            {solverResult && (
+              <div className="border border-[#E0DDD8] bg-white p-5 mt-4">
+                <p className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-4">Parking &amp; Storage — Knock-on Requirements</p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 560 }}>
+                    <thead>
+                      <tr style={{ background: '#F7F5F2' }}>
+                        {['Unit Type', 'Units', 'Spaces / unit', 'Storage sqm / unit', 'Req. spaces', 'Req. storage'].map(h => (
+                          <th key={h} style={{ textAlign: 'left', padding: '7px 10px', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parkRows.map(r => (
+                        <tr key={r.u.id} style={{ borderBottom: '1px solid #F0EDE8' }}>
+                          <td style={{ padding: '7px 10px', color: '#555' }}>{r.u.name}</td>
+                          <td style={{ padding: '7px 10px', fontFamily: 'monospace', color: '#1A1A1A' }}>{r.count}</td>
+                          <td style={{ padding: '7px 10px' }}>
+                            <input type="number" step={0.1} value={r.spu}
+                              onChange={e => updateUnit(r.u.id, 'carSpacesPerUnit', parseFloat(e.target.value) || 0)}
+                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: '#1A1A1A', outline: 'none' }} />
+                          </td>
+                          <td style={{ padding: '7px 10px' }}>
+                            <input type="number" step={0.5} value={r.stpu}
+                              onChange={e => updateUnit(r.u.id, 'storageSqmPerUnit', parseFloat(e.target.value) || 0)}
+                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: '#1A1A1A', outline: 'none' }} />
+                          </td>
+                          <td style={{ padding: '7px 10px', fontFamily: 'monospace', color: '#1A1A1A' }}>{r.reqSpaces.toFixed(1)}</td>
+                          <td style={{ padding: '7px 10px', fontFamily: 'monospace', color: '#1A1A1A' }}>{Math.round(r.reqStorage)} sqm</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  <SolverStat label="Spaces required" value={`${reqSpaces}`} />
+                  <SolverStat label="Spaces provided" value={`${provided}`} warn={shortfall < 0} />
+                  <SolverStat label="Storage required" value={`${reqStorage} sqm`} />
+                  <SolverStat label="Parking area" value={`${parkArea.toLocaleString()} sqm`} />
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-[#F0EDE8]">
+                  <SolverStat label={`Parking cost (@ $${(parkCostPerSpace/1000).toFixed(0)}k/space)`} value={`$${(reqSpaces * parkCostPerSpace / 1_000_000).toFixed(2)}M`} />
+                  <SolverStat label={`Storage cost (@ $${storageCostPerSqm}/sqm)`} value={`$${(reqStorage * storageCostPerSqm / 1_000_000).toFixed(2)}M`} />
+                  <SolverStat label="Ratio (spaces/unit)" value={totalUnits > 0 ? (reqSpaces / totalUnits).toFixed(2) : '—'} />
+                </div>
+                {shortfall < 0 ? (
+                  <div className="mt-4 p-3 text-xs" style={{ background: '#FCF3F3', border: '1px solid #E6B8B8', color: '#9B2335' }}>
+                    ⚠ <strong>Parking shortfall of {Math.abs(shortfall)} spaces</strong> vs {provided} provided — planning non-compliance risk. Needs ~{extraLevels} more basement level{extraLevels !== 1 ? 's' : ''} (≈{LEVEL_SPACES}/level) or a mix re-cut. Update car spaces in Site &amp; Design once resolved.
+                  </div>
+                ) : (
+                  <div className="mt-4 p-3 text-xs" style={{ background: '#F1F8F3', border: '1px solid #BEDCC7', color: '#2A7A4F' }}>
+                    ✓ Compliant — {provided} provided vs {reqSpaces} required ({shortfall} spare).
+                  </div>
+                )}
               </div>
             )}
 
