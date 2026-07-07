@@ -49,14 +49,15 @@ export default function LandTermsTab({ projectId }: Props) {
   return (
     <div className="flex flex-col">
 
-      <div className="relative p-4 md:p-6 max-w-2xl">
+      <div className="relative p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
         <SectionHeading sub="Land acquisition cost and any in-kind vendor consideration">Land & Vendor Terms</SectionHeading>
         {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
         {dirty && <Button size="sm" onClick={() => { saveLandTerms(data); undoRef.current = null; setDirty(false) }}>Save</Button>}
       </div>
 
-      <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <div className="border border-[#E8E5E0] bg-white p-4">
         <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Land Acquisition</h3>
         <FieldRow label="Purchase price" note={landHasGst ? 'Contract price, inclusive of GST' : 'Contract price'}>
           <NumberInput value={data.landCost} onChange={v => update('landCost', v)} prefix="$" step={10000} />
@@ -123,7 +124,7 @@ export default function LandTermsTab({ projectId }: Props) {
 
       {/* ── Acquisition breakdown — duty + GST on the contract price ── */}
       {data.landCost > 0 && (
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">
             Land Acquisition Breakdown{duty ? ` — ${data.state} ${PROPERTY_TYPE_LABELS[data.propertyType]}` : ''}
           </h3>
@@ -171,7 +172,7 @@ export default function LandTermsTab({ projectId }: Props) {
       )}
 
       {data.isInKind && (
-        <div className="border border-[#C8C0D8] bg-[#F8F5FC] p-4 mb-4">
+        <div className="border border-[#C8C0D8] bg-[#F8F5FC] p-4">
           <h3 className="text-[#7A4AAA] text-[9px] tracking-[0.18em] uppercase font-semibold mb-3">In-Kind Vendor Consideration</h3>
           <p className="text-[#888] text-xs mb-3">
             Treated as a construction cost with no debt, finance, or holding cost — as modelled in Werribee and Geelong.
@@ -207,6 +208,7 @@ export default function LandTermsTab({ projectId }: Props) {
           )}
         </div>
       )}
+      </div>{/* /grid */}
       </div>
     </div>
   )

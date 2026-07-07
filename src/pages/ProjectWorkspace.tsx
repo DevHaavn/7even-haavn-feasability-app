@@ -112,8 +112,13 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
             Consultant
           </span>
         )}
-        {/* Manage + Log Out — inside the header; 20% smaller, held ~5mm off the edge */}
+        {/* Dashboard + Manage + Log Out — inside the header; held ~5mm off the edge */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
+          <button className="glass-btn glass-btn-grey" onClick={() => setActiveTab('insights')}
+            style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700,
+              ...(safeTab === 'insights' ? { color: '#C4973A', borderColor: '#C4973A66' } : {}) }}>
+            ☰ Dashboard
+          </button>
           {onManage && (
             <button className="glass-btn glass-btn-gold" onClick={onManage}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
@@ -132,12 +137,11 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
       {/* Tabs — z-40 keeps it above fixed tab backgrounds */}
       <div className="relative z-40">
         <TabBar
-          tabs={visibleTabs}
+          tabs={visibleTabs.filter(t => t.id !== 'insights')}
           active={safeTab}
           onChange={setActiveTab}
           accentTabId={project.type === 'hotel' ? 'hotel' : project.type === 'btr' ? 'btr' : project.type === 'bts' ? 'bts' : undefined}
           accentColor={project.type === 'hotel' ? '#A855F7' : project.type === 'btr' ? '#22C55E' : project.type === 'bts' ? '#3B82F6' : undefined}
-          goldTabId="insights"
         />
       </div>
       </div>{/* /header float */}

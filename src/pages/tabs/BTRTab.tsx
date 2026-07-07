@@ -97,9 +97,9 @@ export default function BTRTab({ projectId }: Props) {
   return (
     <div className="flex flex-col">
 
-      <div className="relative p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
+      <div className="relative p-4 md:p-6 flex flex-col gap-6">
       {/* Inputs */}
-      <div className="flex-1 max-w-xl">
+      <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="BTR hold scenario — income, NOI and residual land value">BTR Income & Valuation</SectionHeading>
           {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
@@ -125,7 +125,8 @@ export default function BTRTab({ projectId }: Props) {
           </div>
         )}
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Rent & Vacancy</h3>
           <p className="text-[#AAA] text-xs mb-3">Rent per unit type is set in Product Mix. Set vacancy and fees here.</p>
           <FieldRow label="Stabilised vacancy"><PctInput value={data.vacancyPct} onChange={v => update('vacancyPct', v)} /></FieldRow>
@@ -139,7 +140,7 @@ export default function BTRTab({ projectId }: Props) {
           )}
         </div>
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
+        <div className="border border-[#E8E5E0] bg-white p-4">
           <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Other Income</h3>
           <FieldRow label="Childcare (net p.a.)"><NumberInput value={data.childcareAnnualNet} onChange={v => update('childcareAnnualNet', v)} prefix="$" step={10000} /></FieldRow>
           <FieldRow label="Commercial (net p.a.)"><NumberInput value={data.commercialAnnualNet} onChange={v => update('commercialAnnualNet', v)} prefix="$" step={10000} /></FieldRow>
@@ -152,18 +153,21 @@ export default function BTRTab({ projectId }: Props) {
           <FieldRow label="Cap rate (aggressive)"><PctInput value={data.capRateAggressive} onChange={v => update('capRateAggressive', v)} /></FieldRow>
           <FieldRow label="Developer margin"><PctInput value={data.devMarginPct} onChange={v => update('devMarginPct', v)} /></FieldRow>
         </div>
+        </div>
       </div>
 
-      {/* Results */}
-      <div className="w-72 flex-shrink-0 flex flex-col gap-4">
-        <SectionHeading>BTR Outcome</SectionHeading>
-        <div className="text-[#888] text-xs">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+      {/* Results — full width below the inputs */}
+      <div className="w-full flex flex-col gap-4 pt-2 border-t border-[#E8E5E0]">
+        <div className="flex items-center gap-4">
+          <SectionHeading>BTR Outcome</SectionHeading>
+          <div className="text-[#888] text-xs">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+        </div>
 
         {cons && agg && consVal && aggVal ? (
-          <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <OutcomeCard label="Conservative" income={cons} val={consVal} capRate={data.capRateConservative} />
             <OutcomeCard label="Aggressive" income={agg} val={aggVal} capRate={data.capRateAggressive} highlight />
-          </>
+          </div>
         ) : (
           <div className="text-[#AAA] text-xs">Results appear once unit counts are set.</div>
         )}

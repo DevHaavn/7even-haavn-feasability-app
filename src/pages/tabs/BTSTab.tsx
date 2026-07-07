@@ -66,8 +66,8 @@ export default function BTSTab({ projectId }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div className="relative p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6">
-      <div className="flex-1 max-w-xl">
+      <div className="relative p-4 md:p-6 flex flex-col gap-6">
+      <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Build-to-sell — gross revenue, selling costs, RLV">BTS Income & Valuation</SectionHeading>
           {undoRef.current && <Button size="sm" variant="ghost" onClick={() => { if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) } }}>Undo</Button>}
@@ -129,12 +129,14 @@ export default function BTSTab({ projectId }: Props) {
         </div>
       </div>
 
-      {/* Results */}
-      <div className="w-72 flex-shrink-0">
-        <SectionHeading>BTS Outcomes</SectionHeading>
-        <div className="text-[#888] text-xs mb-3">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+      {/* Results — full width below the inputs */}
+      <div className="w-full pt-2 border-t border-[#E8E5E0]">
+        <div className="flex items-center gap-4 mb-3">
+          <SectionHeading>BTS Outcomes</SectionHeading>
+          <div className="text-[#888] text-xs">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+        </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {scenarios3.map(({ label, result, color }) => (
             <div key={label} className="border border-[#E8E5E0] bg-white p-4">
               <div className={`text-[10px] tracking-[0.1em] uppercase font-semibold mb-3 ${color === 'text-green' ? 'text-[#2A7A4F]' : color === 'text-amber' ? 'text-[#B8963C]' : 'text-[#666]'}`}>{label}</div>

@@ -83,11 +83,10 @@ export function Card({ children, className = '', dark = false }: { children: Rea
 export function SectionHeading({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="mb-5 cursor-default">
-      <div className="flex items-center gap-3 mb-1.5" style={{ display: 'inline-flex' }}>
-        <div className="w-[3px] h-6 flex-shrink-0" style={{ background: '#C4973A' }} />
+      <div className="flex items-center mb-1.5" style={{ display: 'inline-flex' }}>
         <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase" style={{ color: '#1A1A1A' }}>{children}</h2>
       </div>
-      {sub && <p className="text-[#666] text-[12px] tracking-wide ml-5 font-medium">{sub}</p>}
+      {sub && <p className="text-[#666] text-[12px] tracking-wide font-medium">{sub}</p>}
     </div>
   )
 }
@@ -249,9 +248,9 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
         key={t.id}
         onClick={() => onChange(t.id)}
         style={{
-          padding: '12px 16px',
-          fontSize: gold ? 9 : 11,
-          letterSpacing: gold ? '0.22em' : '0.12em',
+          padding: '10px 10px',
+          fontSize: gold ? 9 : 10,
+          letterSpacing: gold ? '0.22em' : '0.07em',
           textTransform: 'uppercase' as const,
           cursor: 'pointer',
           transition: 'color 0.15s',
@@ -284,7 +283,7 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
   }
 
   return (
-    <div className="tab-bar-scroll border-b-2 border-[#E0DDD8] bg-white no-drag" style={{ display: 'flex', gap: 0, paddingLeft: 16, paddingRight: 16 }}>
+    <div className="tab-bar-scroll border-b-2 border-[#E0DDD8] bg-white no-drag" style={{ display: 'flex', gap: 0, paddingLeft: 8, paddingRight: 8 }}>
       {mainTabs.map(t => renderTab(t))}
       {goldTab && (
         <>
