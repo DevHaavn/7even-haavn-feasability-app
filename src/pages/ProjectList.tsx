@@ -137,7 +137,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             The device IS the button, clean to its edges, mirroring the wings
             top-left — no plate. */}
         <button
-          className="no-drag hm-shimmer"
+          className="no-drag"
           title="HAAVN Management — Partner CRM"
           onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
           style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: isMobile ? '4px 6px' : '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
@@ -174,22 +174,6 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/home-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.6, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(8,8,8,0.92), rgba(8,8,8,0.42) 38%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.85))', pointerEvents: 'none' }} />
 
-      {/* ── Sub-header ── */}
-      <div style={{ position: 'relative', flexShrink: 0, padding: '10px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', color: '#383838', fontWeight: 600 }}>
-            {projects.length} {projects.length !== 1 ? 'Projects' : 'Project'}
-          </span>
-        </div>
-        <div className="hero-legend" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <TypeLegend color="#A855F7" label="Hotel" />
-          <TypeLegend color="#22C55E" label="BTR" />
-          <TypeLegend color="#3B82F6" label="BTS" />
-          <TypeLegend color="#EAB308" label="Pending" pulse />
-          <TypeLegend color="#EF4444" label="On Hold" pulse />
-        </div>
-      </div>
-
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
 
@@ -201,7 +185,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
-          <div style={{ flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="ws-col-header" style={{ flexShrink: 0, padding: '15px 28px 13px', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
               {/* 7EVEN / HAAVN MANAGEMENT — black-chrome brand · acts as a view dropdown */}
               <button onClick={() => setBrandMenu(v => !v)}
@@ -519,12 +503,12 @@ function CountdownClock({ projectId }: { projectId: string }) {
 
   const W = 150
   const ML = 38   // ~1cm further right of the Live button
-  if (!target) return <div style={{ width: W, marginLeft: ML, flexShrink: 0 }} />
+  if (!target) return <div className="pcard-clock" style={{ width: W, marginLeft: ML, flexShrink: 0 }} />
 
   const diff = target - now
   if (diff <= 0) {
     return (
-      <div style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+      <div className="pcard-clock" style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
         <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.16em', color: '#3DAA6A', fontWeight: 700 }}>COMPLETE</span>
       </div>
@@ -539,7 +523,7 @@ function CountdownClock({ projectId }: { projectId: string }) {
   // Amber when inside the final 3 months, otherwise a cool stealth silver.
   const near = months < 3
   return (
-    <div title="Live countdown to feasibility completion"
+    <div title="Live countdown to feasibility completion" className="pcard-clock"
       style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
       <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0 }}>
         <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#F0B860' : '#FFFFFF', animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.55 }} />
@@ -565,7 +549,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
   const dropRef = useRef<HTMLDivElement>(null)
   const lifeRef = useRef<HTMLDivElement>(null)
   const updated = new Date(project.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
-  const { color, label } = typeColor(project.type, project.status)
+  const { color, label, pulse } = typeColor(project.type, project.status)
 
   useEffect(() => {
     if (!dropOpen) return
@@ -592,7 +576,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
   }
 
   return (
-    <div onClick={onClick} className="group cursor-pointer"
+    <div onClick={onClick} className="group cursor-pointer pcard-row"
       style={{ borderBottom: '1px solid #0D0D0D', padding: '16px 28px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#0C0C0C'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
@@ -600,10 +584,9 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       <span style={{ color: '#555', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
         {String(index).padStart(2, '0')}
       </span>
-      <StatusDot type={project.type} status={project.status} size={7} />
 
       {/* Fixed-width name column so every Live button lines up down the board */}
-      <div style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
+      <div className="pcard-name" style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
         <p style={{ color: '#D0CCC6', fontSize: 12, fontWeight: 300, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s' }}
           className="group-hover:text-white truncate">
           {project.name}
@@ -642,7 +625,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       {/* Live stealth countdown to feasibility completion */}
       <CountdownClock projectId={project.id} />
 
-      <div style={{ flex: 1 }} />
+      <div className="pcard-spacer" style={{ flex: 1 }} />
 
       {/* Updated date — crisp white so it's clearly legible */}
       <span className="pcard-date" style={{ color: 'rgba(255,255,255,0.9)', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0, fontWeight: 600 }}>{updated}</span>
@@ -650,8 +633,13 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
       {/* Type / status chip — clear glass, flush right under the Dashboard button */}
       <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
         <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
-          className={`glass-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: 150, padding: '9px 0' } as React.CSSProperties}>
+          className={`glass-chip pcard-chip ${dropOpen ? 'glass-chip-open' : ''}`}
+          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, width: 150, padding: '9px 0' } as React.CSSProperties}>
+          {/* Status light — now sits on the button, to the left of the type label */}
+          <span style={{ position: 'relative', width: 7, height: 7, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            {pulse && <span style={{ position: 'absolute', width: 12, height: 12, borderRadius: '50%', background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'block' }} />
+          </span>
           <span style={{ fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700 }}>{label}</span>
           <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.95)', opacity: 0.8 }}>▾</span>
         </button>
