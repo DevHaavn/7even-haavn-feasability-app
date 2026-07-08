@@ -327,126 +327,27 @@ const DEFAULT_HARD_COSTS = [
   li('Construction Contingency'),
 ]
 
-// Master consultant schedule (7EVEN, 2026). Order is authoritative — the migration
-// below rewrites every existing project's consultant list to match this exactly.
-export const CONSULTANT_LABELS = [
-  'Acoustic Engineer | Planning',
-  'Acoustic Engineer | Schematic',
-  'Acoustic Engineer | Construction',
-  'Arborist | Planning',
-  'Arborist | Project Arobrist',
-  'Architect | Feasibility DPO',
-  'Architect | Master Planning DPO',
-  'Architect | Feasibility Permit',
-  'Architect | Master Planning Permit',
-  'Architect | 50% Sketch Design - Planning Lodgment',
-  'Architect | 100% Sketch Design – Balance',
-  'Architect | 50% Design Development - Marketing/GMP',
-  'Architect | 100% Design Development - Tender',
-  'Architect | Construction Documentation',
-  'Architect | Construction Services',
-  'Audio Visual | Schematic',
-  'Audio Visual | Construction drawings',
-  'BIM | Management | Design Stage',
-  'BIM | Management | Construction Stage',
-  'Building Surveyor | BCA Review',
-  'Building Surveyor | Construction',
-  'Services and Infrastructure Report | Town Planning',
-  'Flooding and Stormwater Management Plan | Town Planning',
-  'Civil Eng | Design Development',
-  'Civil Eng | Construction Drawings',
-  'Cultural Heritage | CHMP',
-  'Cultural Heritage | Project CH Review',
-  'DDA | Town Plannng',
-  'DDA | Design Development',
-  'Demolition | Permit and Documents',
-  'Enviromental',
-  'End of Trip | Scope',
-  'End of Trip | Documentation',
-  'ESD | Town Planning',
-  'ESD | JV3 Green Star',
-  'Facade Eng | Town Planning',
-  'Facade Eng| Design Development',
-  'Facade Eng | Construction Drawings',
-  'Fire Engineering | Schematic',
-  'Fire Engineering | FEB',
-  'Fire Engineering | FER',
-  'Fire Engineering | Construction',
-  'Geotechnical Engineer | Report',
-  'Geotechnical Engineer | Acid Sulphate',
-  'Heritage | Town Planning',
-  'Heritage | Design Development',
-  'Heritage | Construction Services',
-  'Housing Diversity Report',
-  'Hotel Management | Feasability',
-  'Hotel Management | Operator Selection',
-  'Intergrated Comms | Schematic',
-  'Intergrated Comms | Design development',
-  'Intergrated Comms | Construction',
-  'Interior Design | Schematic',
-  'Interior Design | Marketing',
-  'Interior Design | Design Development',
-  'Interior Design | Construction',
-  'Investigations | HAZMAT testing',
-  'Land Surveyor | Feature & Level Survey',
-  'Land Surveyor | Title Re-establishment Survey',
-  'Land Surveyor | Plan of Subdivision',
-  'Land Surveyor | Subdivision Certification Process',
-  'Landscape | DPO',
-  'Landscape | Town Planning Submissiom',
-  'Landscape | Design Development',
-  'Landscape | Contract Documentation',
-  'Landscape | Construction Services',
-  'Landscape | Defect Liability Period',
-  'Legal | Head Contracts',
-  'Legal | Sales Contract',
-  'Project Management | Design Stage',
-  'Project Management | Construction',
-  'Quanitiy Surveyor | initial Report',
-  'Quanitiy Surveyor | Monthly Claims',
-  'Security | Scope',
-  'Security | Documentation',
-  'Specialist Lighting | Schematic',
-  'Specialist Lighting | Design Development',
-  'Specialist Engineer | FP 1.4',
-  'Specialist Engineer | Zero Fall',
-  'Specialist Engineer | Threshold',
-  'Seismic | Report',
-  'Service Diversion | Design',
-  'Service Diversion | Construction Services',
-  'Services | Schematic',
-  'Services | Design Development',
-  'Services | Construction Drawings',
-  'Services | Construction Services',
-  'Structural Eng | Schematic',
-  'Structural Eng | Design Development',
-  'Structural Eng | Construction Drawings',
-  'Structural Eng | Construction Services',
-  'Superintendent | Monthly Reporting',
-  'Technology | Program Writing',
-  'Temporary Works Engineering',
-  'Town Planner | Strategy & Approval Process',
-  'Town Planner | Project Team Appointment & Design Inputs',
-  'Town Planner | DFP Engagement',
-  'Town Planner | Lodgement DPO / TP',
-  'Town Planner | RFI DPO / TPO',
-  'Traffic Management | Town Planning',
-  'Traffic Management | CMP',
-  'Urban Design | Concept & Development Plan Scoping',
-  'Urban Design | Development Plan Preparation',
-  'Urban Design | TP Application Support *Refer to Fee Proposal',
-  'VCAT | Expert Witness',
-  'VCAT | Legal',
-  'VCAT | Town Planner',
-  'Waste Management | Town Planning',
-  'Way Finding and Signage | Scope',
-  'Way Finding and Signage | Documents',
-  'Wind | Town Planing',
-  'Wind | Design Development',
-  'Contingency',
+const DEFAULT_CONSULTANTS = [
+  li('Architect — Concept & Schematic Design'),
+  li('Architect — Design Development & Documentation'),
+  li('Architect — Contract Administration'),
+  li('Town Planner'),
+  li('Civil Engineer'),
+  li('Structural Engineer'),
+  li('Mechanical & Electrical Services Engineer'),
+  li('Hydraulic Engineer'),
+  li('Fire Engineer'),
+  li('Acoustic Consultant'),
+  li('Traffic Engineer'),
+  li('Landscape Architect'),
+  li('Interior Designer'),
+  li('ESD / Sustainability Consultant'),
+  li('Geotechnical Engineer'),
+  li('Land Surveyor & Feature Survey'),
+  li('Quantity Surveyor (QS)'),
+  li('Building Surveyor / Certifier'),
+  li("Project Manager (Developer's Representative)"),
 ]
-
-const DEFAULT_CONSULTANTS = CONSULTANT_LABELS.map(li)
 
 const DEFAULT_STATUTORY = [
   li('Planning Permit Application Fee'),
@@ -501,24 +402,6 @@ export function saveDetailedCostStack(data: import('./schema').DetailedCostStack
   save(`detailed-costs:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'detailed_costs', data)
   touchProject(data.projectId)
-}
-
-// One-time migration: rewrite every project's consultant list to the 2026 master
-// schedule (CONSULTANT_LABELS). Names are replaced; any budget/notes/scheduling
-// already entered is preserved positionally (row 1 keeps row 1's amount, etc.).
-// Hard costs, statutory and marketing sections are left untouched. Runs once per
-// browser after the cloud pull, then pushes the rewritten lists back to the cloud.
-export function migrateConsultantSchedule() {
-  const FLAG = 'consultants_schedule_v2026'
-  if (localStorage.getItem(FLAG)) return
-  for (const p of getProjects()) {
-    const dcs = getDetailedCostStack(p.id)
-    const old = dcs.consultants ?? []
-    const consultants = CONSULTANT_LABELS.map((label, i) =>
-      old[i] ? { ...old[i], label } : { id: generateId(), label, amount: 0, notes: '' })
-    saveDetailedCostStack({ ...dcs, consultants })
-  }
-  localStorage.setItem(FLAG, '1')
 }
 
 // ── Development cashflow ───────────────────────────────────────────────────────
