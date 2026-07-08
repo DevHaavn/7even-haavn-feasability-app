@@ -1,4 +1,4 @@
-import React, { type CSSProperties, useState, useEffect } from 'react'
+import React, { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { Wordmark, TabBar, Project7Mark } from '../components/ui'
 import { useRole, EXTERNAL_TABS } from '../lib/role'
@@ -67,6 +67,15 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
   // JB Light (default) / JB BLK (dark-gold) — persisted per browser.
   const [theme, setTheme] = useState<'light' | 'blk'>(() => (localStorage.getItem('jb_theme') as 'light' | 'blk') || 'light')
   const pickTheme = (t: 'light' | 'blk') => { setTheme(t); localStorage.setItem('jb_theme', t) }
+  // Manage dropdown — holds Manage Project, theme switch and Log Out (declutters the header)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!menuOpen) return
+    function handle(e: MouseEvent) { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false) }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [menuOpen])
 
   if (!project) return null
 
@@ -115,30 +124,43 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
             Consultant
           </span>
         )}
-        {/* Theme switch + Dashboard + Manage + Log Out — inside the header */}
+        {/* Dashboard + Manage menu (Manage Project · theme · Log Out) — decluttered header */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          <div className="jb-switch" title="Colour theme">
-            <button className={theme === 'light' ? 'on' : ''} onClick={() => pickTheme('light')}>JB Light</button>
-            <button className={theme === 'blk' ? 'on' : ''} onClick={() => pickTheme('blk')}>JB Blk</button>
-          </div>
           {role !== 'external' && (
             <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
               ☰ Dashboard
             </button>
           )}
-          {onManage && (
-            <button className="glass-btn glass-btn-light" onClick={onManage}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              ⊞ Manage
+          <div ref={menuRef} style={{ position: 'relative' }}>
+            <button className="glass-btn glass-btn-light" onClick={() => setMenuOpen(v => !v)}
+              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
+              ⊞ Manage <span style={{ opacity: 0.6 }}>▾</span>
             </button>
-          )}
-          {onLogout && (
-            <button className="glass-btn glass-btn-light" onClick={onLogout}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              Log Out
-            </button>
-          )}
+            {menuOpen && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: '#0C0C0C', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.6)' }}>
+                {onManage && (
+                  <button onClick={() => { onManage(); setMenuOpen(false) }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A1A1A', color: '#E4E1DC', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
+                    ⊞ Manage Project
+                  </button>
+                )}
+                <div style={{ padding: '11px 14px 8px' }}>
+                  <p style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#666', marginBottom: 8 }}>Colour theme</p>
+                  <div className="jb-switch jb-switch-dark">
+                    <button className={theme === 'light' ? 'on' : ''} onClick={() => pickTheme('light')}>JB Light</button>
+                    <button className={theme === 'blk' ? 'on' : ''} onClick={() => pickTheme('blk')}>JB Blk</button>
+                  </div>
+                </div>
+                {onLogout && (
+                  <button onClick={() => { onLogout(); setMenuOpen(false) }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '12px 14px', background: 'transparent', border: 'none', borderTop: '1px solid #1A1A1A', color: '#D08A8A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
+                    Log Out
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

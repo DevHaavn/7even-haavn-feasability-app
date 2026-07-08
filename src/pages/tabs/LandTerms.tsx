@@ -23,17 +23,21 @@ const DEAL_ICON: Record<LandDealType, string> = { standard: '▣', deferred: '�
 const fmt = (n: number) => '$' + Math.round(n).toLocaleString('en-AU')
 const fmtShort = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `$${(n / 1_000).toFixed(0)}K` : `$${Math.round(n).toLocaleString()}`
 
-// ── shared card look (gold header + hint), light data-page palette ──
+// ── shared card look — black-chrome stealth headers, light data-page palette.
+// GOLD stays only for the headline money figures (so JB BLK reads black + gold). ──
 const GOLD = '#B8963C'
+const CHROME = '#2A2A2A'
+const CHROME_LINE = '#C8C4BE'
 function Card({ title, hint, isNew, accent, children }: { title: string; hint?: string; isNew?: boolean; accent?: 'gold' | 'violet'; children: React.ReactNode }) {
-  const border = accent === 'gold' ? '#D8C88A' : accent === 'violet' ? '#C8C0D8' : '#E8E5E0'
-  const bg = accent === 'gold' ? 'linear-gradient(160deg,#FBF7EE,#FFFFFF)' : accent === 'violet' ? '#F8F5FC' : '#fff'
-  const hColor = accent === 'violet' ? '#7A4AAA' : GOLD
+  const border = accent === 'gold' ? CHROME_LINE : accent === 'violet' ? '#C8C0D8' : '#E8E5E0'
+  // 'gold' accent card = a soft black-chrome glass sheet
+  const bg = accent === 'gold' ? 'linear-gradient(160deg,#F6F4F1,#FFFFFF)' : accent === 'violet' ? '#F8F5FC' : '#fff'
+  const isViolet = accent === 'violet'
   return (
-    <div style={{ border: `1px solid ${border}`, borderRadius: 14, overflow: 'hidden', background: bg }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 18px', borderBottom: `1px solid ${accent === 'violet' ? '#E7DEF2' : '#EFE9DC'}` }}>
-        <h2 style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: hColor, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-          {title}{isNew && <span style={{ fontSize: 8, letterSpacing: '0.12em', color: GOLD, border: `1px solid ${GOLD}66`, borderRadius: 20, padding: '2px 7px' }}>NEW</span>}
+    <div style={{ border: `1px solid ${border}`, borderRadius: 14, overflow: 'hidden', background: bg, boxShadow: accent === 'gold' ? '0 1px 3px rgba(0,0,0,0.05)' : undefined }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 18px', borderBottom: `1px solid ${isViolet ? '#E7DEF2' : '#EDEAE5'}` }}>
+        <h2 className={isViolet ? undefined : 'chrome-black-text'} style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: isViolet ? '#7A4AAA' : undefined, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {title}{isNew && <span style={{ fontSize: 8, letterSpacing: '0.12em', color: CHROME, border: `1px solid ${CHROME}55`, borderRadius: 20, padding: '2px 7px' }}>NEW</span>}
         </h2>
         {hint && <span style={{ fontSize: 10, color: '#B0ADA6' }}>{hint}</span>}
       </div>
@@ -44,7 +48,7 @@ function Card({ title, hint, isNew, accent, children }: { title: string; hint?: 
 function Flag({ children, info }: { children: React.ReactNode; info?: boolean }) {
   return (
     <div style={{ fontSize: 10.5, letterSpacing: '0.02em', display: 'flex', gap: 8, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 8, margin: '10px 0 2px',
-      color: info ? '#8A6A2A' : '#9B6A2A', background: info ? 'rgba(200,164,92,0.08)' : 'rgba(217,164,65,0.1)', border: `1px solid ${info ? 'rgba(200,164,92,0.3)' : 'rgba(217,164,65,0.35)'}` }}>
+      color: info ? '#555' : '#9B6A2A', background: info ? 'rgba(0,0,0,0.035)' : 'rgba(217,164,65,0.1)', border: `1px solid ${info ? 'rgba(0,0,0,0.1)' : 'rgba(217,164,65,0.35)'}` }}>
       <span>{info ? 'ⓘ' : '⚠'}</span><span style={{ lineHeight: 1.5 }}>{children}</span>
     </div>
   )
@@ -93,13 +97,13 @@ export default function LandTermsTab({ projectId }: Props) {
         {/* ── HERO ── */}
         <div className="flex items-end justify-between flex-wrap gap-3" style={{ paddingBottom: 22, borderBottom: '1px solid #EDE9E1' }}>
           <div>
-            <h1 style={{ fontWeight: 300, fontSize: 30, letterSpacing: '0.02em', color: '#1A1A1A' }}>Land <b style={{ fontWeight: 700, color: GOLD }}>&amp; Vendor Terms</b></h1>
+            <h1 style={{ fontWeight: 300, fontSize: 30, letterSpacing: '0.02em', color: '#1A1A1A' }}>Land <b className="chrome-black-text" style={{ fontWeight: 800 }}>&amp; Vendor Terms</b></h1>
             <div style={{ color: '#999', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 8 }}>Acquisition · Deal Structure · Settlement · Cashflow inputs</div>
           </div>
           <div className="flex items-center gap-3">
             {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
             {dirty && <Button size="sm" onClick={() => { saveLandTerms(data); undoRef.current = null; setDirty(false) }}>Save</Button>}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${GOLD}77`, color: GOLD, padding: '8px 16px', borderRadius: 30, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
+            <span className="chrome-black-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '8px 16px', borderRadius: 30, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: 'rgba(255,255,255,0.5)' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
           </div>
         </div>
 
@@ -158,8 +162,8 @@ export default function LandTermsTab({ projectId }: Props) {
                   const on = dealType === d.id
                   return (
                     <button key={d.id} onClick={() => setDeal(d.id)} style={{ textAlign: 'left', padding: 13, borderRadius: 10, cursor: 'pointer',
-                      border: `1px solid ${on ? GOLD : '#E0DDD8'}`, background: on ? '#FBF5E6' : '#fff', boxShadow: on ? `inset 0 0 0 1px ${GOLD}55` : 'none' }}>
-                      <div style={{ color: GOLD, fontSize: 13, marginBottom: 7 }}>{DEAL_ICON[d.id]}</div>
+                      border: `1px solid ${on ? CHROME : '#E0DDD8'}`, background: on ? '#F1EFEB' : '#fff', boxShadow: on ? `inset 0 0 0 1px ${CHROME}33` : 'none' }}>
+                      <div style={{ color: on ? '#1A1A1A' : '#888', fontSize: 13, marginBottom: 7 }}>{DEAL_ICON[d.id]}</div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#1A1A1A', marginBottom: 4 }}>{d.label}</div>
                       <div style={{ fontSize: 10, color: '#999', lineHeight: 1.45 }}>{d.blurb}</div>
                     </button>
@@ -217,7 +221,7 @@ export default function LandTermsTab({ projectId }: Props) {
               <SLine lbl="Finance on terms" val={fmt(cost.financeOnTerms)} />
               <SLine lbl="Settlement adjustments" val={fmt(cost.adjustments)} />
               <SLine lbl="Vendor rebate" val={'−' + fmt(cost.rebate)} neg />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 16, marginTop: 4, borderTop: `1px solid ${GOLD}77` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 16, marginTop: 4, borderTop: `1px solid ${CHROME_LINE}` }}>
                 <span style={{ color: '#1A1A1A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: 12 }}>Total land cost</span>
                 <span style={{ color: GOLD, fontSize: 24, fontWeight: 300, fontFamily: 'var(--font-mono)' }}>{fmt(cost.total)}</span>
               </div>
@@ -228,7 +232,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 </div>
               )}
               <p style={{ color: '#B0ADA6', fontSize: 10.5, lineHeight: 1.6, marginTop: 14 }}>This single number is what the Cost Stack, Finance and Summary tabs consume. Every term above is transparent and auditable — no hidden loadings.</p>
-              {cost.flags.map((f, i) => <div key={i} style={{ fontSize: 10, color: '#8A6A2A', marginTop: 8, display: 'flex', gap: 6 }}><span>◆</span><span style={{ lineHeight: 1.5 }}>{f}</span></div>)}
+              {cost.flags.map((f, i) => <div key={i} style={{ fontSize: 10, color: '#555', marginTop: 8, display: 'flex', gap: 6 }}><span>◆</span><span style={{ lineHeight: 1.5 }}>{f}</span></div>)}
             </Card>
 
             {/* Payment schedule */}
@@ -258,7 +262,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 ...(schedule.length === 0
                   ? [{ id: pid('pay'), label: 'Deposit', date: '', amount: 0 }, { id: pid('pay'), label: 'Settlement balance', date: data.settlementDate || '', amount: 0 }]
                   : [{ id: pid('pay'), label: '', date: '', amount: 0 }])])}
-                style={{ background: 'none', border: '1px dashed #D0CEC9', color: GOLD, padding: 9, borderRadius: 8, width: '100%', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 12 }}>
+                style={{ background: 'none', border: '1px dashed #D0CEC9', color: '#555', padding: 9, borderRadius: 8, width: '100%', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 12 }}>
                 + Add payment
               </button>
               {schedule.length > 0 && (
@@ -301,9 +305,9 @@ const cell: React.CSSProperties = { background: 'transparent', border: 'none', b
 
 function Metric({ k, v, foot, gold }: { k: string; v: string; foot?: string; gold?: boolean }) {
   return (
-    <div style={{ background: gold ? '#FBF7EE' : '#fff', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+    <div style={{ background: '#fff', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 5, boxShadow: gold ? `inset 0 0 0 1px ${CHROME}18` : undefined }}>
       <div style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#AAA', fontWeight: 600 }}>{k}</div>
-      <div style={{ fontSize: 21, fontWeight: 300, fontFamily: 'var(--font-mono)', color: gold ? GOLD : '#1A1A1A' }}>{v}</div>
+      <div style={{ fontSize: 21, fontWeight: gold ? 500 : 300, fontFamily: 'var(--font-mono)', color: gold ? GOLD : '#1A1A1A' }}>{v}</div>
       {foot && <div style={{ fontSize: 10, color: '#B0ADA6' }}>{foot}</div>}
     </div>
   )
@@ -324,7 +328,7 @@ function Check({ checked, onChange, children }: { checked: boolean; onChange: (v
 
 function SLine({ lbl, sub, val, neg }: { lbl: string; sub?: string; val: string; neg?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #EFE9DC', fontSize: 13 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #EEEBE6', fontSize: 13 }}>
       <span style={{ color: '#888' }}>{lbl} {sub && <span style={{ fontSize: 10, color: '#B0ADA6' }}>{sub}</span>}</span>
       <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-mono)', color: neg ? '#2A7A4F' : '#1A1A1A' }}>{val}</span>
     </div>
