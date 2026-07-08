@@ -120,13 +120,14 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
     update(item.id, { monthly })
   }
   const total = items.reduce((s, i) => s + (i.amount || 0), 0)
-  const GRID = '1fr 128px 104px 104px 118px 132px 30px 26px'
+  const GRID = '1fr 120px 100px 100px 108px 118px 150px 30px 26px'
+  const MINW = 1000
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', overflowX: 'auto' }}>
       {/* Header */}
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: 880 }}>
-        {['Item Description', 'Budget ($)', 'Start', 'End', 'S-Curve', 'Funded By', '', ''].map((h, i) => (
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: MINW }}>
+        {['Item Description', 'Budget ($)', 'Start', 'End', 'S-Curve', 'Funded By', 'Phase', '', ''].map((h, i) => (
           <span key={i} style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>{h}</span>
         ))}
       </div>
@@ -138,7 +139,7 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
         const isOpen = openId === item.id
         const eqPct = item.equityPct ?? 0.5
         return (
-          <div key={item.id} style={{ borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', minWidth: 880 }}>
+          <div key={item.id} style={{ borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', minWidth: MINW }}>
             <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '7px 14px', alignItems: 'center' }}>
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
                 value={item.label} placeholder="Item description"
@@ -157,6 +158,11 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
               <select style={cellInput} value={item.fundedBy ?? 'equity'} onChange={e => update(item.id, { fundedBy: e.target.value as FundingSource })}>
                 {FUNDING_OPTS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
               </select>
+              {/* Phase — which delivery phase this line relates to (links to cashflow & programme) */}
+              <select style={cellInput} value={item.phase ?? ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}>
+                <option value="">—</option>
+                {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
               <button onClick={() => setOpenId(isOpen ? null : item.id)} title="Monthly cashflow & notes"
                 style={{ background: 'none', border: 'none', color: isOpen ? '#1A1A1A' : '#BBB', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
                 {isOpen ? '▾' : '▸'}
@@ -170,14 +176,6 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
             {isOpen && (
               <div style={{ padding: '4px 14px 16px 14px', background: '#FAF8F5', borderTop: '1px dashed #E4E1DC' }}>
                 <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', margin: '10px 0 12px' }}>
-                  {/* Phase — which delivery phase this fee/cost relates to (links to cashflow & programme) */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Phase</span>
-                    <select style={{ ...cellInput, width: 168 }} value={item.phase ?? ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as any })}>
-                      <option value="">—</option>
-                      {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-                    </select>
-                  </div>
                   {item.fundedBy === 'blend' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Equity</span>
@@ -223,7 +221,7 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
       })}
 
       {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F7F5F2', borderTop: '1px solid #E0DDD8', minWidth: 880 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F7F5F2', borderTop: '1px solid #E0DDD8', minWidth: MINW }}>
         <button
           onClick={add}
           style={{ background: 'none', border: '1px solid #D0CEC9', color: '#888', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '6px 16px', cursor: 'pointer' }}
