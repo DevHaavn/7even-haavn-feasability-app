@@ -270,8 +270,11 @@ function mixSection(projectId: string): Section {
 function costSummarySection(projectId: string): Section {
   const costData = db.getCostStack(projectId)
   const land = db.getLandTerms(projectId)
+  const landEff = db.getEffectiveLandCost(projectId)   // land is part of TDC
   const r = projectTdc(projectId)
+  const tdcIncl = r.totalDevelopmentCost + landEff       // land-inclusive TDC
   const rows: [string, string][] = [
+    ['Land (incl. duty & acquisition)', $(landEff)],
     ['Construction', $(r.construction)],
     [`Contingency (${pct(costData.contingencyPct, 0)})`, $(r.contingency)],
     [`Prelims (${pct(costData.prelimsPct, 0)})`, $(r.prelims)],
@@ -284,9 +287,10 @@ function costSummarySection(projectId: string): Section {
   ]
   if (land.isInKind && r.inKindCost > 0) rows.push([`In-kind (${land.inKindLabel})`, $(r.inKindCost)])
   if (r.gstCredits > 0) rows.push(['Less GST input credits (1/11)', '−' + $(r.gstCredits)])
-  rows.push([`Total Development Cost${r.gstCredits > 0 ? ' (ex GST)' : ''}`, $(r.totalDevelopmentCost)])
+  rows.push([`TOTAL DEVELOPMENT COST (incl. land${r.gstCredits > 0 ? ', ex GST' : ''})`, $(tdcIncl)])
   const bars: Block = {
     type: 'bars', title: 'Cost Composition', items: ([
+      { label: 'Land', value: landEff },
       { label: 'Construction', value: r.construction },
       { label: 'Contingency', value: r.contingency },
       { label: 'Prelims', value: r.prelims },
@@ -347,8 +351,8 @@ function financeSection(projectId: string): Section {
       },
       {
         type: 'kv', title: 'Capital Stack & Cost', rows: [
-          ['Total development cost', $(tdc)],
-          ['Land cost (ex GST + duty)', $(landCost)],
+          ['Total development cost (incl. land)', $(tdc + landCost)],
+          ['  of which land (ex GST + duty)', $(landCost)],
           ['Total debt', $(result.totalDebt)],
           ['Common equity required', $(result.totalEquity)],
           ['Equity % of TDC', pct(result.equityPct, 1)],
@@ -397,6 +401,7 @@ function btrSection(projectId: string): Section {
     const unitLines = units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
     const inputs = { unitLines, vacancyPct: a.vacancyPct, managementFeePct: a.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: a.carParkIncomeAnnual, buildingAdminFixed: a.buildingAdminFixed }
     const tdc = projectTdc(projectId).totalDevelopmentCost
+    const landEff = db.getEffectiveLandCost(projectId)
     const consI = calculateBTRIncome(inputs, 'conservative')
     const aggI = calculateBTRIncome(inputs, 'aggressive')
     const consV = calculateBTRValuation(consI.noi, a.capRateConservative, tdc, a.devMarginPct)
@@ -413,7 +418,9 @@ function btrSection(projectId: string): Section {
         ['NOI', $(consI.noi), $(aggI.noi)],
         ['Cap rate', pct(a.capRateConservative, 2), pct(a.capRateAggressive, 2)],
         ['GAV', $(consV.gav), $(aggV.gav)],
-        ['RLV', $(consV.rlv), $(aggV.rlv)],
+        ['TDC (incl. land)', $(tdc + landEff), $(tdc + landEff)],
+        ['Dev profit (GAV − TDC)', $(consV.gav - tdc - landEff), $(aggV.gav - tdc - landEff)],
+        ['RLV (benchmark)', $(consV.rlv), $(aggV.rlv)],
       ],
     })
   }
@@ -431,6 +438,7 @@ function btsSection(projectId: string): Section {
     if (units.length === 0) continue
     const sr = site.resiNSA > 0 ? solveUnitMix(site.resiNSA, units.map(u => ({ name: u.name, nsaPerUnit: u.nsaPerUnit, targetPct: u.targetPct }))) : null
     const tdc = projectTdc(projectId).totalDevelopmentCost
+    const landEff = db.getEffectiveLandCost(projectId)
     const mkLines = (f: (u: typeof units[number]) => number) => units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: f(u) }))
     const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare (commercial)', amount: site.childcareGFA * a.childcareValuePerSqm }] : []
     const cons = calculateBTSValuation(mkLines(u => u.salePriceConservative), otherRev, a.sellingCostsPct, tdc, a.devMarginPct, costData.gstEnabled)
@@ -443,8 +451,9 @@ function btsSection(projectId: string): Section {
         ['Gross revenue', $(cons.grossRevenue), $(mid.grossRevenue), $(agg.grossRevenue)],
         ...(costData.gstEnabled ? [['Less GST on sales (1/11)', '−' + $(cons.gstOnSales), '−' + $(mid.gstOnSales), '−' + $(agg.gstOnSales)] as (string | number)[]] : []),
         ['Net revenue', $(cons.netRevenue), $(mid.netRevenue), $(agg.netRevenue)],
-        ['TDC', $(tdc), $(tdc), $(tdc)],
-        ['RLV', $(cons.rlv), $(mid.rlv), $(agg.rlv)],
+        ['TDC (incl. land)', $(tdc + landEff), $(tdc + landEff), $(tdc + landEff)],
+        ['Dev profit (net rev − TDC)', $(cons.netRevenue - tdc - landEff), $(mid.netRevenue - tdc - landEff), $(agg.netRevenue - tdc - landEff)],
+        ['RLV (benchmark)', $(cons.rlv), $(mid.rlv), $(agg.rlv)],
       ] as (string | number)[][],
     })
   }
@@ -458,6 +467,7 @@ function hotelSection(projectId: string): Section {
     const a = db.getHotelAssumptions(s.id)
     if (a.keys <= 0) continue
     const tdc = projectTdc(projectId, { buildRate: a.buildRateOverride, financePct: a.constructionFinancePct }).totalDevelopmentCost
+    const landEff = db.getEffectiveLandCost(projectId)
     const inc = calculateHotelIncome(a)
     const val = calculateHotelValuation(inc.noi, a.hotelCapRate, tdc, a.devMarginPct)
     blocks.push({
@@ -475,8 +485,9 @@ function hotelSection(projectId: string): Section {
         ['NOI', $(inc.noi)],
         ['Cap rate', pct(a.hotelCapRate, 2)],
         ['GAV', $(val.gav)],
-        ['TDC' + (a.buildRateOverride != null ? ` (modular $${a.buildRateOverride.toLocaleString()}/sqm)` : ''), $(tdc)],
-        ['RLV', $(val.rlv)],
+        ['TDC (incl. land)' + (a.buildRateOverride != null ? ` — modular $${a.buildRateOverride.toLocaleString()}/sqm` : ''), $(tdc + landEff)],
+        ['Dev profit (GAV − TDC)', $(val.gav - tdc - landEff)],
+        ['RLV (benchmark)', $(val.rlv)],
       ],
     })
   }
@@ -513,12 +524,14 @@ function dashboardSection(projectId: string): Section {
   const blocks: Block[] = [
     {
       type: 'kv', title: 'Key Metrics', rows: [
-        ['Total development cost' + (cost.gstCredits > 0 ? ' (ex GST)' : ''), $(cost.totalDevelopmentCost)],
-        ['Land & acquisition (ex GST + duty)', $(landCost)],
+        [`Total development cost (incl. land${cost.gstCredits > 0 ? ', ex GST' : ''})`, $(cost.totalDevelopmentCost + landCost)],
+        ['  of which land & acquisition', $(landCost)],
         ...(best ? [
           ['Best strategy', `${best.type} — ${best.scenario}`] as [string, string],
           ['Best GAV / revenue', $(best.gav)] as [string, string],
-          ['Best RLV', $(best.rlv)] as [string, string],
+          ['Dev profit (GAV − TDC)', $(best.gav - best.tdc)] as [string, string],
+          ['Dev margin (on total cost)', best.tdc > 0 ? pct((best.gav - best.tdc) / best.tdc) : '—'] as [string, string],
+          ['Residual land value (benchmark)', $(best.rlv)] as [string, string],
           ['Value created (RLV − land)', $(Math.max(0, best.rlv - landCost))] as [string, string],
         ] : []),
       ],
@@ -558,12 +571,14 @@ function summarySection(projectId: string): Section {
         ['Status', project?.status ?? ''],
         ['Land cost in feasibility', $(acq.total)],
         ...(acq.stampDuty > 0 ? [['— incl. stamp duty', $(acq.stampDuty + acq.foreignSurcharge)] as [string, string]] : []),
-        ['Total development cost', $(cost.totalDevelopmentCost)],
+        [`Total development cost (incl. land${cost.gstCredits > 0 ? ', ex GST' : ''})`, $(cost.totalDevelopmentCost + acq.total)],
         ...(cost.gstCredits > 0 ? [['— GST credits recovered', $(cost.gstCredits)] as [string, string]] : []),
         ...(best ? [
           ['Best outcome', `${best.type} — ${best.scenario}`] as [string, string],
           ['Best GAV / revenue', $(best.gav)] as [string, string],
-          ['Best RLV', $(best.rlv)] as [string, string],
+          ['Dev profit (GAV − TDC)', $(best.gav - best.tdc)] as [string, string],
+          ['Dev margin (on total cost)', best.tdc > 0 ? pct((best.gav - best.tdc) / best.tdc) : '—'] as [string, string],
+          ['Residual land value (benchmark)', $(best.rlv)] as [string, string],
         ] : []),
       ],
     },
