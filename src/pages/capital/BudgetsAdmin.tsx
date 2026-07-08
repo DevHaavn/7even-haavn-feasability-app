@@ -6,6 +6,7 @@ import {
   getLandTerms, saveLandTerms, getDetailedCostStack as dbGetDetailedCostStack,
   saveDetailedCostStack, getFinanceAssumptions, saveFinanceAssumptions, generateId, getCashflow,
 } from '../../db'
+import { DateField } from '../../components/ui'
 import { buildCashflow } from '../../engine/cashflow'
 import type { CostPhase } from '../../db/schema'
 import type { CostLineItem, DetailedCostStack, LandTerms, FinanceAssumptions } from '../../db/schema'
@@ -525,7 +526,7 @@ export default function BudgetsAdmin() {
                 {fType === 'bill' && <div><label style={labelStyle}>Category</label>
                   <select value={fCategory} onChange={e => setFCategory(e.target.value)} style={inputStyle}>{TXN_CATEGORIES.filter(x => x !== 'Revenue').map(x => <option key={x} value={x}>{x}</option>)}</select></div>}
                 <div><label style={labelStyle}>Amount ex GST</label><input type="number" value={fAmount} onChange={e => setFAmount(e.target.value)} placeholder="0.00" style={inputStyle} /></div>
-                <div><label style={labelStyle}>Date</label><input type="date" value={fDate} onChange={e => setFDate(e.target.value)} style={inputStyle} /></div>
+                <div><label style={labelStyle}>Date</label><DateField value={fDate} onChange={v => setFDate(v)} style={inputStyle} dark /></div>
                 {fType === 'bill' && <div><label style={labelStyle}>Project (optional)</label>
                   <select value={fProject} onChange={e => setFProject(e.target.value)} style={inputStyle}><option value="">— Business overhead —</option>{projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>}
               </div>

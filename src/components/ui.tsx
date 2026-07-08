@@ -141,6 +141,32 @@ export function FieldRow({ label, children, note }: { label: string; children: R
   )
 }
 
+// Australian date format — day / month / year (e.g. "1 Mar 2027"). Single source of truth.
+export function fmtAuDate(iso?: string): string {
+  if (!iso) return ''
+  const d = new Date(iso.length === 10 ? iso + 'T00:00:00' : iso)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+// Native date input + an unambiguous AU (DD/MM/YYYY) readout beneath it. The native
+// picker's displayed format follows the browser locale (which can be US) and cannot be
+// overridden, so we always show the Australian reading so dates are never misread.
+export function DateField({ value, onChange, style, dark = false }: {
+  value: string; onChange: (v: string) => void; style?: React.CSSProperties; dark?: boolean
+}) {
+  return (
+    <span style={{ display: 'inline-flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+      <input type="date" lang="en-AU" value={value || ''} onChange={e => onChange(e.target.value)} style={style} />
+      {value && (
+        <span style={{ fontSize: 9, letterSpacing: '0.08em', color: dark ? '#8A8A8A' : '#A5A29C', whiteSpace: 'nowrap' }}>
+          {fmtAuDate(value)} <span style={{ opacity: 0.6 }}>· DD/MM/YYYY</span>
+        </span>
+      )}
+    </span>
+  )
+}
+
 export function NumberInput({ value, onChange, prefix, suffix, step, min }: {
   value: number; onChange: (v: number) => void; prefix?: string; suffix?: string; step?: number; min?: number
 }) {

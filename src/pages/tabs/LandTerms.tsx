@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
-import { FieldRow, NumberInput, PctInput, Button, SectionHeading } from '../../components/ui'
+import { FieldRow, NumberInput, PctInput, Button, SectionHeading, DateField } from '../../components/ui'
 import type { LandTerms, LandDealType } from '../../db/schema'
 import { LAND_DEAL_TYPES } from '../../db/schema'
 import { ALL_STATES, type AuState, type PropertyType } from '../../engine/stampDuty'
@@ -146,7 +146,7 @@ export default function LandTermsTab({ projectId }: Props) {
                   {(Object.keys(PROPERTY_TYPE_LABELS) as PropertyType[]).map(pt => <option key={pt} value={pt}>{PROPERTY_TYPE_LABELS[pt]}</option>)}
                 </select>
               </FieldRow>
-              <FieldRow label="Settlement date" note="Duty & balance due at settlement"><input type="date" value={data.settlementDate} onChange={e => update('settlementDate', e.target.value)} /></FieldRow>
+              <FieldRow label="Settlement date" note="Duty & balance due at settlement"><DateField value={data.settlementDate} onChange={v => update('settlementDate', v)} /></FieldRow>
               <Check checked={data.foreignBuyer} onChange={v => update('foreignBuyer', v)}>Foreign purchaser surcharge applies (residential only — FPAD)</Check>
               <Check checked={data.applyStampDuty} onChange={v => update('applyStampDuty', v)}>Add stamp duty to land cost in feasibility</Check>
               {data.state === 'VIC' && data.propertyType === 'commercial' && (
@@ -182,7 +182,7 @@ export default function LandTermsTab({ projectId }: Props) {
               {dealType === 'option' && (<>
                 <FieldRow label="Option fee" note="Typically 1–5% of price"><NumberInput value={data.optionFee ?? 0} onChange={v => update('optionFee', v)} prefix="$" step={50000} /></FieldRow>
                 <FieldRow label="Option period (months)" note="Time to secure DA"><NumberInput value={data.optionMonths ?? 12} onChange={v => update('optionMonths', v)} step={1} /></FieldRow>
-                <FieldRow label="Exercise / expiry date"><input type="date" value={data.optionExpiry ?? ''} onChange={e => update('optionExpiry', e.target.value)} /></FieldRow>
+                <FieldRow label="Exercise / expiry date"><DateField value={data.optionExpiry ?? ''} onChange={v => update('optionExpiry', v)} /></FieldRow>
                 <Check checked={!!data.optionFeeCredited} onChange={v => update('optionFeeCredited', v)}>Option fee credited to purchase price on exercise</Check>
                 <Check checked={!!data.optionDaConditional} onChange={v => update('optionDaConditional', v)}>Settlement conditional on Development Approval (DA)</Check>
                 <Check checked={!!data.optionCallOnly} onChange={v => update('optionCallOnly', v)}>Call only (no put) — developer can walk away</Check>
@@ -245,7 +245,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 return (
                   <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr 1fr 24px', gap: 8, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F2EFEA' }}>
                     <input value={p.label} placeholder="Milestone" onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, label: e.target.value } : x))} style={cell} />
-                    <input type="date" value={p.date} onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, date: e.target.value } : x))} style={cell} />
+                    <DateField value={p.date} onChange={v => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, date: v } : x))} style={cell} />
                     <span style={{ fontSize: 11, color: '#999', fontFamily: 'monospace', textAlign: 'right' }}>{pct}%</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <span style={{ color: '#BBB', fontSize: 11 }}>$</span>

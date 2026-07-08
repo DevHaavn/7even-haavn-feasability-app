@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack } from '../../db'
 import { COST_PHASES } from '../../db/schema'
 import type { TimelineTask, TimelineCategory, TimelineStatus } from '../../db/schema'
+import { DateField } from '../../components/ui'
 
 interface Props { projectId: string }
 
@@ -441,10 +442,10 @@ export default function ProjectTimeline({ projectId }: Props) {
 
             <div style={{ display: 'flex', gap: 12 }}>
               <Field label="Start Date" flex={1}>
-                <input type="date" value={editing.startDate} onChange={e => setEditing({ ...editing, startDate: e.target.value })} style={INPUT} />
+                <DateField value={editing.startDate} onChange={v => setEditing({ ...editing, startDate: v })} style={INPUT} dark />
               </Field>
               <Field label="End Date" flex={1}>
-                <input type="date" value={editing.endDate} onChange={e => setEditing({ ...editing, endDate: e.target.value })} style={INPUT} />
+                <DateField value={editing.endDate} onChange={v => setEditing({ ...editing, endDate: v })} style={INPUT} dark />
               </Field>
             </div>
 

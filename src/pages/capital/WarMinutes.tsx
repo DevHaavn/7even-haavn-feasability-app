@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { loadKV, saveKV } from '../../lib/cloudStore'
 import { WAR_RED } from './WarMark'
+import { DateField } from '../../components/ui'
 
 // ── WAR ROOM · MINUTES — per-project meeting minutes & action register ───────
 // An industry-standard project meeting-minutes sheet (pre-lodgement, design,
@@ -182,7 +183,7 @@ export default function WarMinutes({ projects }: Props) {
                     {MEETING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </Meta>
-                <Meta label="Date"><input type="date" value={active.date} onChange={e => patch(active.id, m => ({ ...m, date: e.target.value }))} style={field()} /></Meta>
+                <Meta label="Date"><DateField value={active.date} onChange={v => patch(active.id, m => ({ ...m, date: v }))} style={field()} dark /></Meta>
                 <Meta label="Time"><input value={active.time} placeholder="10:30am" onChange={e => patch(active.id, m => ({ ...m, time: e.target.value }))} style={field()} /></Meta>
                 <Meta label="Location"><input value={active.location} placeholder="Site address" onChange={e => patch(active.id, m => ({ ...m, location: e.target.value }))} style={field()} /></Meta>
               </div>
@@ -231,7 +232,7 @@ export default function WarMinutes({ projects }: Props) {
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: DIM }}>{rf[idx]}</span>
                     <input value={it.description} placeholder="Discussion / action…" onChange={e => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, description: e.target.value } : x) }))} style={{ ...field(), textDecoration: it.status === 'done' ? 'line-through' : undefined, color: it.status === 'done' ? DIM : INK }} />
                     <input value={it.owner} placeholder="—" onChange={e => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, owner: e.target.value } : x) }))} style={field()} />
-                    <input type="date" value={it.due} onChange={e => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, due: e.target.value } : x) }))} style={field()} />
+                    <DateField value={it.due} onChange={v => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, due: v } : x) }))} style={field()} dark />
                     <button onClick={() => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, status: x.status === 'open' ? 'done' : 'open' } : x) }))}
                       style={{ ...HUD, fontSize: 8, letterSpacing: '0.12em', fontWeight: 700, padding: '5px 0', borderRadius: 4, cursor: 'pointer',
                         border: `1px solid ${it.status === 'done' ? '#2A7A4F' : LINE}`, background: it.status === 'done' ? '#2A7A4F' : PANEL, color: it.status === 'done' ? '#fff' : DIM }}>
