@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
-import { getCostPresets } from '../../db'
+import { getCostPresets, getProjectGDV } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
 import { COST_PHASES } from '../../db/schema'
 import { spreadWeights } from '../../engine/cashflow'
@@ -107,7 +107,8 @@ function fmtMonth(ym: string) {
 }
 const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }
 
-function LineItemTable({ items, onChange, constructionValue = 0 }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number }) {
+function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number; gdvValue?: number }) {
+  const basisValue = (fb?: 'construction' | 'gdv') => (fb === 'gdv' ? gdvValue : constructionValue)
   const [openId, setOpenId] = useState<string | null>(null)
   function update(id: string, patch: Partial<CostLineItem>) {
     onChange(items.map(item => item.id === id ? { ...item, ...patch } : item))
@@ -125,7 +126,7 @@ function LineItemTable({ items, onChange, constructionValue = 0 }: { items: Cost
     update(item.id, { monthly })
   }
   const total = items.reduce((s, i) => s + (i.amount || 0), 0)
-  const GRID = '1fr 120px 100px 100px 108px 118px 150px 30px 26px'
+  const GRID = '1fr 168px 96px 96px 104px 112px 122px 28px 26px'
   const MINW = 1000
 
   return (
@@ -149,14 +150,20 @@ function LineItemTable({ items, onChange, constructionValue = 0 }: { items: Cost
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
                 value={item.label} placeholder="Item description"
                 onChange={e => update(item.id, { label: e.target.value })} />
-              {item.pctBasis === 'construction' ? (
-                // Fee derived as a % of the summary construction value (live).
-                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }} title="Percentage of the summary Construction value">
-                  <input type="number" min={0} step={0.25} style={{ ...cellInput, width: 44, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
+              {item.feeBasis ? (
+                // Fee derived as a % of Construction or GDV — basis chosen per line.
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }} title="Percentage of the chosen basis (Construction or GDV)">
+                  <select value={item.feeBasis} title="Fee basis"
+                    style={{ ...cellInput, width: 50, padding: '2px 2px', fontSize: 10 }}
+                    onChange={e => { const fb = e.target.value as 'construction' | 'gdv'; update(item.id, { feeBasis: fb, amount: Math.round((item.pct ?? 0) * basisValue(fb)) }) }}>
+                    <option value="construction">Constr</option>
+                    <option value="gdv">GDV</option>
+                  </select>
+                  <input type="number" min={0} step={0.25} style={{ ...cellInput, width: 38, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
                     value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
-                    onChange={e => { const pct = (parseFloat(e.target.value) || 0) / 100; update(item.id, { pct, amount: Math.round(pct * constructionValue) }) }} />
+                    onChange={e => { const pct = (parseFloat(e.target.value) || 0) / 100; update(item.id, { pct, amount: Math.round(pct * basisValue(item.feeBasis)) }) }} />
                   <span style={{ color: '#BBB', fontSize: 10 }}>%</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#9A7B2E', marginLeft: 2 }}>{fmt(Math.round((item.pct ?? 0) * constructionValue))}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#9A7B2E', marginLeft: 2 }}>{fmt(Math.round((item.pct ?? 0) * basisValue(item.feeBasis)))}</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -440,24 +447,33 @@ export default function CostStackTab({ projectId }: Props) {
     gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote,
   } : undefined
 
-  const result = calculateCostStack({ ...data, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+  // Itemised Management Fees total — drives the summary Project Management field
+  // (and therefore TDC/RLV) once the CFO has entered fees.
+  const mgmtTotal = detailed.management.reduce((s, x) => s + (x.amount || 0), 0)
 
-  // Keep %-of-construction fee lines (Development / PM Fee) live as the summary
-  // construction value changes in-session. Persistence-side derivation lives in
-  // getDetailedCostStack, so this only re-syncs the on-screen numbers.
+  const result = calculateCostStack({ ...data, projectManagementFixed: mgmtTotal > 0 ? mgmtTotal : data.projectManagementFixed, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+
+  // Project GDV (best scenario gross realisation) — the alternate fee basis.
+  const gdv = useMemo(() => getProjectGDV(projectId), [projectId, detailedDirty])
+
+  // Keep %-based fee lines (Development / Marketing / Administration Management)
+  // live as the Construction value or GDV changes in-session. Construction-based
+  // lines are also derived persistence-side in getDetailedCostStack; this re-syncs
+  // the on-screen numbers (and GDV-based lines, which are derived here).
   useEffect(() => {
     setDetailed(prev => {
       let changed = false
       const management = prev.management.map(it => {
-        if (it.pctBasis === 'construction') {
-          const amt = Math.round((it.pct ?? 0) * result.construction)
+        if (it.feeBasis) {
+          const base = it.feeBasis === 'gdv' ? gdv : result.construction
+          const amt = Math.round((it.pct ?? 0) * base)
           if (amt !== it.amount) { changed = true; return { ...it, amount: amt } }
         }
         return it
       })
       return changed ? { ...prev, management } : prev
     })
-  }, [result.construction])
+  }, [result.construction, gdv])
 
   const summaryRows = [
     { label: 'Construction', value: result.construction },
@@ -551,7 +567,14 @@ export default function CostStackTab({ projectId }: Props) {
               {result.posContribution > 0 && (
                 <p className="text-[#888] text-[10px] mt-1 mb-1">POS contribution: <span className="font-mono text-[#1A1A1A] font-semibold">{fmt(result.posContribution)}</span> ({((data.posContributionPct ?? 0) * 100).toFixed(1)}% of land value)</p>
               )}
-              <FieldRow label="Project management"><NumberInput value={data.projectManagementFixed} onChange={v => update('projectManagementFixed', v)} prefix="$" step={50000} /></FieldRow>
+              {mgmtTotal > 0 ? (
+                <FieldRow label="Project management" note="From Management tab">
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(mgmtTotal)}</span>
+                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised Management Fees</span>
+                </FieldRow>
+              ) : (
+                <FieldRow label="Project management"><NumberInput value={data.projectManagementFixed} onChange={v => update('projectManagementFixed', v)} prefix="$" step={50000} /></FieldRow>
+              )}
               <FieldRow label="Marketing"><NumberInput value={data.marketingFixed} onChange={v => update('marketingFixed', v)} prefix="$" step={50000} /></FieldRow>
               <FieldRow label="BTR amenity fitout"><NumberInput value={data.amenityFitoutFixed} onChange={v => update('amenityFitoutFixed', v)} prefix="$" step={50000} /></FieldRow>
             </InnerSection>
@@ -655,6 +678,7 @@ export default function CostStackTab({ projectId }: Props) {
               items={detailed[meta.key]}
               onChange={items => updateSection(meta.key, items)}
               constructionValue={result.construction}
+              gdvValue={gdv}
             />
           </div>
 

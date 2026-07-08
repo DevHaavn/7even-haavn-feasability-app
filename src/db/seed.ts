@@ -100,28 +100,16 @@ export function seedProjectsIfEmpty() {
     seedPrestonTimeline()
   }
 
-  // Patch: seed Preston detailed cost stack from signed fee proposals (250819-M2.Preston - Cost Tracking.xlsx)
-  const prestonDetailed = db.getDetailedCostStack('seed-preston-001')
-  const hasRealFees = prestonDetailed.consultants.some(c => c.amount > 0)
-  if (!hasRealFees) {
-    seedPrestonDetailedCosts()
-  }
+  // NOTE: Preston detailed cost stack is no longer seeded here. The CFO's 2026
+  // master schedule (COST_STACK_LABELS + migrateCostStackLabels) now owns every
+  // project's cost line items. The old "reseed when fees are zero" patch would
+  // clobber that clean slate on every load, so it has been removed.
 
   // Patch: rename assignee M2 → HM across all Preston timeline tasks
   const prestonTasks = db.getTimelineTasks('seed-preston-001')
   const hasM2 = prestonTasks.some(t => t.assignee === 'M2')
   if (hasM2) {
     db.saveTimelineTasks('seed-preston-001', prestonTasks.map(t => t.assignee === 'M2' ? { ...t, assignee: 'HM' } : t))
-  }
-
-  // Patch: rename M2 → HM in Preston consultant labels
-  const latestDetailed = db.getDetailedCostStack('seed-preston-001')
-  const hasM2Label = latestDetailed.consultants.some(c => c.label?.includes('M2'))
-  if (hasM2Label) {
-    db.saveDetailedCostStack({
-      ...latestDetailed,
-      consultants: latestDetailed.consultants.map(c => ({ ...c, label: c.label?.replace(/— M2/g, '— HM').replace(/\| M2/g, '| HM') })),
-    })
   }
 }
 

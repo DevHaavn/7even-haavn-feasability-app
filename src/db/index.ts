@@ -4,6 +4,9 @@ import { exGst } from '../engine/gst'
 import { defaultCashflowState } from '../engine/cashflow'
 import { calculateStampDuty } from '../engine/stampDuty'
 import { computeLandCost } from '../engine/landCost'
+import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
+import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
+import { calculateBTSValuation } from '../engine/bts'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -164,7 +167,9 @@ export function saveUnitTypes(scenarioId: string, units: UnitType[]) {
 
 // ── Cost Stack ────────────────────────────────────────────────────────────────
 
-export function getCostStack(projectId: string): CostStack {
+// Raw summary cost stack — no cross-links. Used internally to break the cycle
+// with getDetailedCostStack (which needs the build rate to derive % fees).
+function costStackRaw(projectId: string): CostStack {
   const cs = load<CostStack>(`coststack:${projectId}`, {
     projectId,
     buildRatePerSqm: 3500,
@@ -180,6 +185,15 @@ export function getCostStack(projectId: string): CostStack {
   })
   // Rows saved before the GST field existed default to GST on
   return { ...cs, gstEnabled: cs.gstEnabled !== false }
+}
+
+export function getCostStack(projectId: string): CostStack {
+  const cs = costStackRaw(projectId)
+  // The itemised Management Fees section is the source of truth for project
+  // management cost once the CFO has entered fees — feed its total into the
+  // summary field so it flows through calculateCostStack → TDC → RLV everywhere.
+  const mgmt = getDetailedCostStack(projectId).management.reduce((s, x) => s + (x.amount || 0), 0)
+  return mgmt > 0 ? { ...cs, projectManagementFixed: mgmt } : cs
 }
 
 export function saveCostStack(data: CostStack) {
@@ -514,6 +528,21 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
   // before those sections existed, so existing projects pick them up.
   if (!stack.headworks) stack.headworks = DEFAULT_HEADWORKS.map(x => ({ ...x, id: generateId() }))
   if (!stack.management) stack.management = DEFAULT_MANAGEMENT.map(x => ({ ...x, id: generateId() }))
+
+  // Development / Marketing / Administration Management are percentage-based
+  // fees (default basis = construction; the CFO can switch to GDV in the tab).
+  // Tag them and DERIVE the construction-based amount live from the build cost.
+  // (GDV-based amounts are derived in the Cost Stack tab where revenue is known.)
+  const csr = costStackRaw(projectId)
+  const construction = getSiteDesign(projectId).resiGBA * csr.buildRatePerSqm * (1 + (csr.regionalLoadingPct ?? 0))
+  stack.management = stack.management.map(it => {
+    let line = it
+    if (line.feeBasis == null && /development management|marketing management|adminstration management|administration management/i.test(line.label)) {
+      line = { ...line, feeBasis: 'construction', pct: line.pct ?? 0 }
+    }
+    if (line.feeBasis === 'construction') line = { ...line, amount: Math.round((line.pct ?? 0) * construction) }
+    return line
+  })
   return stack
 }
 
@@ -522,7 +551,7 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
 // and DM build budgets from a clean slate. Runs once per browser after the cloud
 // pull, then pushes the rewritten stacks back to the cloud.
 export function migrateCostStackLabels() {
-  const FLAG = 'coststack_labels_cfo_2026'
+  const FLAG = 'coststack_labels_cfo_2026_v2'
   if (localStorage.getItem(FLAG)) return
   const fresh = (labels: string[]) => labels.map(l => ({ id: generateId(), label: l, amount: 0, notes: '' }))
   for (const p of getProjects()) {
@@ -537,6 +566,35 @@ export function migrateCostStackLabels() {
     })
   }
   localStorage.setItem(FLAG, '1')
+}
+
+/** Project Gross Development Value — the best scenario's gross realisation
+ *  (BTS gross revenue / BTR-Hotel gross asset value). Revenue is independent of
+ *  development cost, so this is safe to use as a fee basis without circularity. */
+export function getProjectGDV(projectId: string): number {
+  const gst = costStackRaw(projectId).gstEnabled !== false
+  let best = 0
+  for (const s of getMixScenarios(projectId)) {
+    const units = getUnitTypes(s.id)
+    const hotelA = getHotelAssumptions(s.id)
+    const btrA = getBTRAssumptions(s.id)
+    const btsA = getBTSAssumptions(s.id)
+    if (hotelA.keys > 0) {
+      const inc = calculateHotelIncome(hotelA)
+      best = Math.max(best, calculateHotelValuation(inc.noi, hotelA.hotelCapRate, 0, hotelA.devMarginPct).gav)
+    }
+    if (units.some(u => u.weeklyRentConservative > 0)) {
+      const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
+      const btrInputs = { unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
+      const incC = calculateBTRIncome(btrInputs, 'conservative')
+      best = Math.max(best, calculateBTRValuation(incC.noi, btrA.capRateConservative, 0, btrA.devMarginPct).gav)
+      const incA = calculateBTRIncome(btrInputs, 'aggressive')
+      best = Math.max(best, calculateBTRValuation(incA.noi, btrA.capRateAggressive, 0, btrA.devMarginPct).gav)
+      const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
+      best = Math.max(best, calculateBTSValuation(bl, [], btsA.sellingCostsPct, 0, btsA.devMarginPct, gst).grossRevenue)
+    }
+  }
+  return best
 }
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {

@@ -172,12 +172,14 @@ export interface CostLineItem {
   equityPct?: number                 // for 'blend' — equity share 0..1 (debt = 1 − equity)
   monthly?: Record<string, number>   // 'YYYY-MM' -> amount drawn that month
   phase?: CostPhase                  // which delivery phase the fee/cost relates to (links to cashflow/programme)
-  // ── Percentage-based fee lines (e.g. Development Fee / PM Fee) ──
-  // When pctBasis is set the line's `amount` is DERIVED = pct × basis value
-  // (currently only 'construction' — the summary construction cost). The
-  // derivation is applied on read in getDetailedCostStack so the fee stays live
-  // everywhere the itemised stack is consumed.
-  pctBasis?: 'construction'
+  // ── Percentage-based fee lines (e.g. Development / Management fees) ──
+  // When feeBasis is set the line's `amount` is DERIVED = pct × basis value:
+  //   'construction' → the summary construction cost
+  //   'gdv'          → the project's Gross Development Value (best scenario)
+  // Construction-based lines are derived on read in getDetailedCostStack; GDV
+  // lines are derived in the Cost Stack tab (where revenue is available) and the
+  // derived amount persists so it feeds TDC/RLV everywhere.
+  feeBasis?: 'construction' | 'gdv'
   pct?: number                       // 0..1 share of the basis
 }
 
