@@ -42,31 +42,34 @@ function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }
 
 // ── Inner sub-tab bar ─────────────────────────────────────────────────────────
 const INNER_TABS = [
-  { id: 'summary',     label: 'Summary' },
-  { id: 'hard',        label: 'Construction Costs' },
-  { id: 'consultants', label: 'Consultant & Professional Fees' },
-  { id: 'statutory',   label: 'Statutory Fees' },
-  { id: 'headworks',   label: 'Headworks & Enviro' },
-  { id: 'management',  label: 'Management Fees' },
-  { id: 'marketing',   label: 'Marketing & Advertising' },
+  { id: 'summary',     label: 'Summary',                        short: 'Summary' },
+  { id: 'hard',        label: 'Construction Costs',             short: 'Construction' },
+  { id: 'consultants', label: 'Consultant & Professional Fees', short: 'Consultants' },
+  { id: 'statutory',   label: 'Statutory Fees',                 short: 'Statutory' },
+  { id: 'headworks',   label: 'Headworks & Enviro',            short: 'Headworks & Env.' },
+  { id: 'management',  label: 'Management Fees',                 short: 'Management' },
+  { id: 'marketing',   label: 'Marketing & Advertising',        short: 'Marketing' },
 ]
 
 function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; onChange: (id: string) => void; tabs?: typeof INNER_TABS }) {
   return (
-    <div style={{ display: 'flex', borderBottom: '2px solid #E0DDD8', background: '#F5F3F0', flexShrink: 0, overflowX: 'auto' }}>
+    <div style={{ display: 'flex', borderBottom: '2px solid #E0DDD8', background: '#F5F3F0', flexShrink: 0 }}>
       {tabs.map(t => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
+          title={t.label}
           style={{
-            padding: '10px 20px', border: 'none', background: 'none', cursor: 'pointer',
-            fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600,
+            flex: 1, minWidth: 0, textAlign: 'center',
+            padding: '10px 6px', border: 'none', background: 'none', cursor: 'pointer',
+            fontSize: 9.5, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600,
             color: active === t.id ? '#1A1A1A' : '#999',
             borderBottom: active === t.id ? '2px solid #C4973A' : '2px solid transparent',
-            marginBottom: -2, whiteSpace: 'nowrap', transition: 'color 0.15s',
+            marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            transition: 'color 0.15s',
           }}
         >
-          {t.label}
+          {t.short ?? t.label}
         </button>
       ))}
     </div>
