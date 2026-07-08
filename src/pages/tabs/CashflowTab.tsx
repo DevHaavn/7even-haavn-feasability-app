@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { SectionHeading } from '../../components/ui'
-import { getCashflow, saveCashflow, getDetailedCostStack, getLandTerms, getCostStack, generateId } from '../../db'
+import { getCashflow, saveCashflow, getDetailedCostStack, getEffectiveLandCost, getLandTerms, getCostStack, generateId } from '../../db'
 import { buildCashflow } from '../../engine/cashflow'
 import { COST_PHASES, type CashflowState, type CostPhase, type SCurveProfile, type FundingSource } from '../../db/schema'
 
@@ -22,14 +22,14 @@ export default function CashflowTab({ projectId }: Props) {
   // Cost per phase, from the detailed cost stack + land (mapped to delivery phases)
   const phaseCosts = useMemo(() => {
     const d = getDetailedCostStack(projectId)
-    const land = getLandTerms(projectId)
     const sum = (a: { amount: number }[]) => a.reduce((s, x) => s + (x.amount || 0), 0)
     const detailedTotal = sum(d.hardCosts) + sum(d.consultants) + sum(d.statutory) + sum(d.headworks) + sum(d.management) + sum(d.marketing)
     // If no detailed lines yet, fall back to the summary cost stack build cost as construction.
     let hard = sum(d.hardCosts) + sum(d.headworks)   // headworks/enviro spent through construction
     if (detailedTotal === 0) { const cs = getCostStack(projectId); hard = 0 /* summary handled below */; void cs }
     return {
-      'pre-acquisition': land.landCost || 0,
+      // Effective land cost (price + duty + acquisition costs + terms) — matches TDC.
+      'pre-acquisition': getEffectiveLandCost(projectId),
       'acquisition-planning': sum(d.statutory),
       'pre-construction': sum(d.consultants) + sum(d.management),   // consultant & management fees run pre/through delivery
       'construction': hard,
@@ -37,7 +37,23 @@ export default function CashflowTab({ projectId }: Props) {
     } as Record<CostPhase, number>
   }, [projectId])
 
-  const cf = useMemo(() => buildCashflow(state, phaseCosts), [state, phaseCosts])
+  // Settlement date (Land & Terms) drives WHEN land hits the cashflow — land is
+  // paid as a lump at settlement, so the pre-acquisition phase is timed to it.
+  const settleMonth = useMemo(() => {
+    const land = getLandTerms(projectId)
+    if (!land.settlementDate) return null
+    const [py, pm] = state.startDate.split('-').map(Number)
+    const [sy, sm] = land.settlementDate.split('-').map(Number)
+    if (!py || !pm || !sy || !sm) return null
+    return Math.max(0, (sy - py) * 12 + (sm - pm))
+  }, [projectId, state.startDate])
+
+  const effectiveState = useMemo(() => {
+    if (settleMonth == null) return state
+    return { ...state, phases: { ...state.phases, 'pre-acquisition': { ...state.phases['pre-acquisition'], startMonth: settleMonth, durationMonths: 1, sCurve: 'upfront' as const } } }
+  }, [state, settleMonth])
+
+  const cf = useMemo(() => buildCashflow(effectiveState, phaseCosts), [effectiveState, phaseCosts])
 
   function update(next: Partial<CashflowState>) { const s = { ...state, ...next }; setState(s); saveCashflow(s) }
   function setPhase(id: CostPhase, patch: Partial<CashflowState['phases'][CostPhase]>) {
@@ -89,13 +105,22 @@ export default function CashflowTab({ projectId }: Props) {
           <tbody>
             {COST_PHASES.map(p => {
               const t = state.phases[p.id]
+              // Land timing follows the Land & Terms settlement date (paid as a lump then).
+              const landDriven = p.id === 'pre-acquisition' && settleMonth != null
               return (
                 <tr key={p.id} style={{ borderTop: '1px solid #F0EDE8' }}>
                   <td style={{ padding: '8px 12px', fontSize: 12, color: '#1A1A1A', fontWeight: 600 }}>{p.label}</td>
                   <td style={{ padding: '8px 12px', fontFamily: 'var(--font-mono)', fontSize: 12, color: '#B8963C' }}>{fmtM(phaseCosts[p.id] || 0)}</td>
-                  <td style={{ padding: '6px 12px' }}><input type="number" value={t.startMonth + 1} onChange={e => setPhase(p.id, { startMonth: Math.max(0, (parseInt(e.target.value, 10) || 1) - 1) })} style={{ ...inp, width: 64 }} /></td>
-                  <td style={{ padding: '6px 12px' }}><input type="number" value={t.durationMonths} onChange={e => setPhase(p.id, { durationMonths: Math.max(1, parseInt(e.target.value, 10) || 1) })} style={{ ...inp, width: 64 }} /></td>
-                  <td style={{ padding: '6px 12px' }}><select value={t.sCurve} onChange={e => setPhase(p.id, { sCurve: e.target.value as SCurveProfile })} style={inp}>{SCURVES.map(s => <option key={s} value={s}>{s}</option>)}</select></td>
+                  {landDriven ? (
+                    <td style={{ padding: '6px 12px' }} title="Timed to the Land & Terms settlement date">
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#1A1A1A' }}>M{(settleMonth ?? 0) + 1}</span>
+                      <span style={{ fontSize: 9, color: '#9A7B2E', marginLeft: 6 }}>⇠ settlement</span>
+                    </td>
+                  ) : (
+                    <td style={{ padding: '6px 12px' }}><input type="number" value={t.startMonth + 1} onChange={e => setPhase(p.id, { startMonth: Math.max(0, (parseInt(e.target.value, 10) || 1) - 1) })} style={{ ...inp, width: 64 }} /></td>
+                  )}
+                  <td style={{ padding: '6px 12px' }}>{landDriven ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#888' }}>1</span> : <input type="number" value={t.durationMonths} onChange={e => setPhase(p.id, { durationMonths: Math.max(1, parseInt(e.target.value, 10) || 1) })} style={{ ...inp, width: 64 }} />}</td>
+                  <td style={{ padding: '6px 12px' }}>{landDriven ? <span style={{ fontSize: 11, color: '#888' }}>upfront</span> : <select value={t.sCurve} onChange={e => setPhase(p.id, { sCurve: e.target.value as SCurveProfile })} style={inp}>{SCURVES.map(s => <option key={s} value={s}>{s}</option>)}</select>}</td>
                   <td style={{ padding: '6px 12px' }}><select value={t.fundedBy} onChange={e => setPhase(p.id, { fundedBy: e.target.value as FundingSource })} style={inp}>{FUNDING.map(f => <option key={f} value={f}>{f}</option>)}</select></td>
                 </tr>
               )
