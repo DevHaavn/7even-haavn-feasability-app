@@ -790,7 +790,7 @@ function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: nu
 function ProjectTracking({ entity, links, through, projects, getDetailedCostStack, adminSpend, accent, onOpen }: {
   entity: Entity; links: ProjectLink[]; through: number
   projects: { id: string; name: string }[]
-  getDetailedCostStack: (id: string) => { hardCosts: { amount: number }[]; consultants: { amount: number }[]; statutory: { amount: number }[]; marketing: { amount: number }[] }
+  getDetailedCostStack: (id: string) => { hardCosts: { amount: number }[]; consultants: { amount: number }[]; statutory: { amount: number }[]; headworks: { amount: number }[]; management: { amount: number }[]; marketing: { amount: number }[] }
   adminSpend: (id: string) => { spend: number; awaiting: number; count: number }
   accent: string
   onOpen: (projectId: string) => void
@@ -807,7 +807,7 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
         {links.map(link => {
           const proj = projects.find(p => p.id === link.projectId)
           const dcs = getDetailedCostStack(link.projectId)
-          const tdc = [...dcs.hardCosts, ...dcs.consultants, ...dcs.statutory, ...dcs.marketing].reduce((s, x) => s + (x.amount || 0), 0)
+          const tdc = [...dcs.hardCosts, ...dcs.consultants, ...dcs.statutory, ...dcs.headworks, ...dcs.management, ...dcs.marketing].reduce((s, x) => s + (x.amount || 0), 0)
           const groupLines = entity.lines.filter(l => l.grp === link.group && l.s === 'revenue' && !l.fin && !l.pipeline)
           const budgetedRev = groupLines.reduce((s, l) => s + fyThrough(l), 0)
           const dmLine = groupLines.find(l => /DM fee/i.test(l.name))
@@ -822,7 +822,7 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
           const s = (a: { amount: number }[]) => a.reduce((t, x) => t + (x.amount || 0), 0)
           const phaseCosts = {
             'pre-acquisition': land.landCost || 0, 'acquisition-planning': s(dcs.statutory),
-            'pre-construction': s(dcs.consultants), 'construction': s(dcs.hardCosts), 'close-out': s(dcs.marketing),
+            'pre-construction': s(dcs.consultants) + s(dcs.management), 'construction': s(dcs.hardCosts) + s(dcs.headworks), 'close-out': s(dcs.marketing),
           } as Record<CostPhase, number>
           const cf = buildCashflow(getCashflow(link.projectId), phaseCosts)
           return (
@@ -888,9 +888,10 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
   const lineTotal = (arr: CostLineItem[]) => arr.reduce((s, l) => s + (l.amount || 0), 0)
   const catTotals = {
     consultants: lineTotal(dcs.consultants), statutory: lineTotal(dcs.statutory),
-    hardCosts: lineTotal(dcs.hardCosts), marketing: lineTotal(dcs.marketing), land: land.landCost || 0,
+    hardCosts: lineTotal(dcs.hardCosts), headworks: lineTotal(dcs.headworks),
+    management: lineTotal(dcs.management), marketing: lineTotal(dcs.marketing), land: land.landCost || 0,
   }
-  const tdc = catTotals.consultants + catTotals.statutory + catTotals.hardCosts + catTotals.marketing + catTotals.land
+  const tdc = catTotals.consultants + catTotals.statutory + catTotals.hardCosts + catTotals.headworks + catTotals.management + catTotals.marketing + catTotals.land
 
   type Cat = 'hardCosts' | 'consultants' | 'statutory' | 'marketing'
   const editLine = (cat: Cat, id: string, patch: Partial<CostLineItem>) => saveD({ ...dcs, [cat]: dcs[cat].map(l => l.id === id ? { ...l, ...patch } : l) })
@@ -964,7 +965,7 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
         {tab === 'summary' && (
           <div style={panel}>
             <p style={panelTitle}>Cost breakdown</p>
-            {([['Land', catTotals.land], ['Consultants', catTotals.consultants], ['Statutory & finance', catTotals.statutory], ['Hard costs', catTotals.hardCosts], ['Marketing & other', catTotals.marketing]] as [string, number][]).map(([label, v]) => (
+            {([['Land', catTotals.land], ['Consultant & professional fees', catTotals.consultants], ['Statutory fees', catTotals.statutory], ['Construction costs', catTotals.hardCosts], ['Headworks & enviro', catTotals.headworks], ['Management fees', catTotals.management], ['Marketing & advertising', catTotals.marketing]] as [string, number][]).map(([label, v]) => (
               <div key={label} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #EDEDEF' }}>
                 <span style={{ color: '#3A3B40', fontSize: 12.5 }}>{label}</span>
                 <div style={{ height: 8, background: '#EDEDEF', borderRadius: 4, overflow: 'hidden' }}>

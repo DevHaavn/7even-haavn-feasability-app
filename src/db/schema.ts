@@ -179,6 +179,8 @@ export interface DetailedCostStack {
   hardCosts: CostLineItem[]
   consultants: CostLineItem[]
   statutory: CostLineItem[]
+  headworks: CostLineItem[]
+  management: CostLineItem[]
   marketing: CostLineItem[]
 }
 

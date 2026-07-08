@@ -373,6 +373,26 @@ const DEFAULT_STATUTORY = [
   li('Owners Corporation Setup'),
 ]
 
+const DEFAULT_HEADWORKS = [
+  li('Water Headworks & Connection'),
+  li('Sewer Headworks & Connection'),
+  li('Electrical Connection & Substation'),
+  li('Gas Connection'),
+  li('NBN / Communications Connection'),
+  li('Stormwater & Drainage Headworks'),
+  li('Environmental Assessment & Remediation'),
+  li('Contamination / Acid Sulfate Management'),
+]
+
+const DEFAULT_MANAGEMENT = [
+  li('Developer Management Fee'),
+  li('Project Management'),
+  li('Superintendent'),
+  li('Financier Monitoring / QS Reporting'),
+  li('Legal & Accounting'),
+  li('Owners Corporation Setup & Management'),
+]
+
 const DEFAULT_MARKETING = [
   li('Sales Agent Commission'),
   li('Marketing Collateral & Sales Kit'),
@@ -389,13 +409,20 @@ const DEFAULT_MARKETING = [
 ]
 
 export function getDetailedCostStack(projectId: string): import('./schema').DetailedCostStack {
-  return load<import('./schema').DetailedCostStack>(`detailed-costs:${projectId}`, {
+  const stack = load<import('./schema').DetailedCostStack>(`detailed-costs:${projectId}`, {
     projectId,
     hardCosts: DEFAULT_HARD_COSTS.map(x => ({ ...x, id: generateId() })),
     consultants: DEFAULT_CONSULTANTS.map(x => ({ ...x, id: generateId() })),
     statutory: DEFAULT_STATUTORY.map(x => ({ ...x, id: generateId() })),
+    headworks: DEFAULT_HEADWORKS.map(x => ({ ...x, id: generateId() })),
+    management: DEFAULT_MANAGEMENT.map(x => ({ ...x, id: generateId() })),
     marketing: DEFAULT_MARKETING.map(x => ({ ...x, id: generateId() })),
   })
+  // Backfill the Headworks & Enviro / Management Fees sections for stacks saved
+  // before those sections existed, so existing projects pick them up.
+  if (!stack.headworks) stack.headworks = DEFAULT_HEADWORKS.map(x => ({ ...x, id: generateId() }))
+  if (!stack.management) stack.management = DEFAULT_MANAGEMENT.map(x => ({ ...x, id: generateId() }))
+  return stack
 }
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {

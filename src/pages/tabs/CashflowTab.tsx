@@ -24,14 +24,14 @@ export default function CashflowTab({ projectId }: Props) {
     const d = getDetailedCostStack(projectId)
     const land = getLandTerms(projectId)
     const sum = (a: { amount: number }[]) => a.reduce((s, x) => s + (x.amount || 0), 0)
-    const detailedTotal = sum(d.hardCosts) + sum(d.consultants) + sum(d.statutory) + sum(d.marketing)
+    const detailedTotal = sum(d.hardCosts) + sum(d.consultants) + sum(d.statutory) + sum(d.headworks) + sum(d.management) + sum(d.marketing)
     // If no detailed lines yet, fall back to the summary cost stack build cost as construction.
-    let hard = sum(d.hardCosts)
+    let hard = sum(d.hardCosts) + sum(d.headworks)   // headworks/enviro spent through construction
     if (detailedTotal === 0) { const cs = getCostStack(projectId); hard = 0 /* summary handled below */; void cs }
     return {
       'pre-acquisition': land.landCost || 0,
       'acquisition-planning': sum(d.statutory),
-      'pre-construction': sum(d.consultants),
+      'pre-construction': sum(d.consultants) + sum(d.management),   // consultant & management fees run pre/through delivery
       'construction': hard,
       'close-out': sum(d.marketing),
     } as Record<CostPhase, number>

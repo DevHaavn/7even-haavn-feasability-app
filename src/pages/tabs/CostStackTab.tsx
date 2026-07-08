@@ -43,10 +43,12 @@ function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }
 // ── Inner sub-tab bar ─────────────────────────────────────────────────────────
 const INNER_TABS = [
   { id: 'summary',     label: 'Summary' },
-  { id: 'hard',        label: 'Hard Costs' },
-  { id: 'consultants', label: 'Consultants' },
-  { id: 'statutory',   label: 'Statutory & Finance' },
-  { id: 'marketing',   label: 'Marketing & Other' },
+  { id: 'hard',        label: 'Construction Costs' },
+  { id: 'consultants', label: 'Consultant & Professional Fees' },
+  { id: 'statutory',   label: 'Statutory Fees' },
+  { id: 'headworks',   label: 'Headworks & Enviro' },
+  { id: 'management',  label: 'Management Fees' },
+  { id: 'marketing',   label: 'Marketing & Advertising' },
 ]
 
 function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; onChange: (id: string) => void; tabs?: typeof INNER_TABS }) {
@@ -315,10 +317,12 @@ function GstBadge({ gstEnabled }: { gstEnabled: boolean }) {
 
 function GrandTotalBar({ detailed, gstEnabled }: { detailed: DetailedCostStack; gstEnabled: boolean }) {
   const sections = [
-    { label: 'Hard Costs', items: detailed.hardCosts },
-    { label: 'Consultants', items: detailed.consultants },
-    { label: 'Statutory & Finance', items: detailed.statutory },
-    { label: 'Marketing & Other', items: detailed.marketing },
+    { label: 'Construction Costs', items: detailed.hardCosts },
+    { label: 'Consultant & Professional Fees', items: detailed.consultants },
+    { label: 'Statutory Fees', items: detailed.statutory },
+    { label: 'Headworks & Enviro', items: detailed.headworks },
+    { label: 'Management Fees', items: detailed.management },
+    { label: 'Marketing & Advertising', items: detailed.marketing },
   ]
   const totals = sections.map(s => ({ ...s, total: s.items.reduce((sum, i) => sum + (i.amount || 0), 0) }))
   const grand = totals.reduce((s, t) => s + t.total, 0)
@@ -346,7 +350,7 @@ function GrandTotalBar({ detailed, gstEnabled }: { detailed: DetailedCostStack; 
 // ── Detail tab layout ─────────────────────────────────────────────────────────
 const DETAIL_META: Record<string, { title: string; sub: string; key: keyof Omit<DetailedCostStack, 'projectId'>; hint: string }> = {
   hard: {
-    title: 'Hard Costs — Construction',
+    title: 'Construction Costs',
     sub: 'Trade-by-trade construction budget. Enter actual quoted or estimated amounts per line item.',
     key: 'hardCosts',
     hint: 'Typical range: 60–70% of total development cost. Includes structure, services, fitout, prelims and contingency.',
@@ -358,14 +362,26 @@ const DETAIL_META: Record<string, { title: string; sub: string; key: keyof Omit<
     hint: 'Typical range: 3–8% of construction cost. Include all stages — concept, DD, documentation and CA.',
   },
   statutory: {
-    title: 'Statutory, Government & Finance Costs',
-    sub: 'Planning and building fees, government levies, headworks contributions and all finance costs.',
+    title: 'Statutory Fees',
+    sub: 'Planning and building fees, government levies and statutory contributions.',
     key: 'statutory',
-    hint: 'Statutory levies vary by council. Finance costs typically 6–10% of construction cost depending on loan term.',
+    hint: 'Statutory levies vary by council. Includes planning/building permits, CIL, VPA and affordable housing contributions.',
+  },
+  headworks: {
+    title: 'Headworks & Enviro',
+    sub: 'Service authority headworks/connections and environmental assessment & remediation.',
+    key: 'headworks',
+    hint: 'Water, sewer, power, gas and comms headworks plus any contamination, acid sulfate or environmental works.',
+  },
+  management: {
+    title: 'Management Fees',
+    sub: 'Developer, project and construction management fees and monitoring costs.',
+    key: 'management',
+    hint: 'Developer management fee, project management, superintendent, financier monitoring and legal/accounting.',
   },
   marketing: {
-    title: 'Marketing, Sales & Other Costs',
-    sub: 'Sales agent fees, marketing spend, legal, insurance, developer management and defects reserve.',
+    title: 'Marketing & Advertising',
+    sub: 'Sales agent fees, marketing spend, legal, insurance and defects reserve.',
     key: 'marketing',
     hint: 'BTS projects: 2–4% of gross revenue for sales/marketing. BTR projects: lower spend, no agent commission.',
   },
