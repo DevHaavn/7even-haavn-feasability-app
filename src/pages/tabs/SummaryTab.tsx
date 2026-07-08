@@ -20,6 +20,8 @@ import { calculateBTSValuation } from '../../engine/bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import { calculateCostStack } from '../../engine/costStack'
 import { solveUnitMix } from '../../engine/unitMix'
+import { getPhaseCosts, getTimelineTasks } from '../../db'
+import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 
 interface Props { projectId: string }
 
@@ -154,6 +156,20 @@ function SummaryTabInner({ projectId }: Props) {
   const costResult = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
   const tdc = costResult.totalDevelopmentCost
 
+  // Cost of works + programme span + progress, by delivery phase
+  const phaseRows = (() => {
+    const costs = getPhaseCosts(projectId)
+    const tasks = getTimelineTasks(projectId)
+    return COST_PHASES.map(p => {
+      const inPhase = tasks.filter(t => (t.phase ?? CATEGORY_TO_PHASE[t.category]) === p.id)
+      const starts = inPhase.map(t => t.startDate).filter(Boolean).sort()
+      const ends = inPhase.map(t => t.endDate).filter(Boolean).sort()
+      const s = starts[0], e = ends[ends.length - 1]
+      const span = s && e ? `${new Date(s + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })} → ${new Date(e + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })}` : ''
+      return { id: p.id, label: p.label, cost: costs[p.id] || 0, tasks: inPhase.length, done: inPhase.filter(t => t.status === 'complete').length, span }
+    })
+  })()
+
   useEffect(() => {
     const scenarios = store.getMixScenarios(projectId)
     const computed: any[] = []
@@ -274,6 +290,14 @@ function SummaryTabInner({ projectId }: Props) {
           {costResult.inKindCost > 0 && <Row label="In-Kind Delivery Cost" value={fmt(costResult.inKindCost)} />}
           <Row label="TOTAL DEVELOPMENT COST" value={fmt(tdc)} highlight large gold />
           {site.resiGBA > 0 && tdc > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(tdc / site.resiGBA).toLocaleString()}/sqm`} />}
+        </Section>
+
+        {/* ── Cost & Time by Phase ── */}
+        <Section title="Cost & Time by Phase" sub="Cost of works, programme span and progress by delivery phase">
+          {phaseRows.map(p => (
+            <Row key={p.id} label={`${p.label}${p.span ? `  ·  ${p.span}` : ''}${p.tasks > 0 ? `  ·  ${p.done}/${p.tasks} tasks` : ''}`} value={fmt(p.cost)} />
+          ))}
+          <Row label="TOTAL COST OF WORKS" value={fmt(phaseRows.reduce((s, p) => s + p.cost, 0))} highlight gold />
         </Section>
 
         {/* ── All Scenarios ── */}

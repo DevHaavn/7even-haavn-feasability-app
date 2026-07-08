@@ -123,11 +123,15 @@ export default function ProjectTimeline({ projectId }: Props) {
     setEditing(null)
   }
 
-  // Years that have any task activity, so the dropdown only offers real years.
+  // Year range — the studio's projects start from 2024, so offer every year from
+  // 2024 through at least two years past today (and any year a task spans).
   const years = useMemo(() => {
-    const set = new Set<number>([new Date().getFullYear()])
-    tasks.forEach(t => { for (let y = yearOf(t.startDate); y <= yearOf(t.endDate); y++) set.add(y) })
-    return [...set].sort((a, b) => a - b)
+    const nowY = new Date().getFullYear()
+    let max = nowY + 2
+    tasks.forEach(t => { max = Math.max(max, yearOf(t.endDate), yearOf(t.startDate)) })
+    const out: number[] = []
+    for (let y = 2024; y <= max; y++) out.push(y)
+    return out
   }, [tasks])
 
   // Window = the selected year only (screen real-estate).
@@ -221,8 +225,14 @@ export default function ProjectTimeline({ projectId }: Props) {
         .tl-critical-ring { animation: tl-ping 1.2s ease-out infinite; }
       `}</style>
 
-      {/* ─── Header bar ──────────────────────────────────────────────────────── */}
-      <div style={{ padding: '12px 20px', borderBottom: '1px solid #E4E1DC', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, flexWrap: 'wrap' }}>
+      {/* ─── Header bar — stealth black-grey glass ───────────────────────────── */}
+      <div style={{
+        padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, flexWrap: 'wrap',
+        background: 'linear-gradient(180deg, rgba(22,22,24,0.96), rgba(12,12,13,0.97))',
+        borderBottom: '1px solid rgba(255,255,255,0.10)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.05) inset, 0 6px 20px rgba(0,0,0,0.35)',
+        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+      }}>
 
         {/* Traffic light counts */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -230,17 +240,17 @@ export default function ProjectTimeline({ projectId }: Props) {
           <TrafficLight color="#EAB308" count={atRisk}   label="Delayed" />
           <TrafficLight color="#22C55E" count={onTrack}  label="On Track" />
           <TrafficLight color="#A855F7" count={complete} label="Complete" />
-          <div style={{ width: 1, height: 24, background: '#E4E1DC' }} />
-          <span style={{ fontSize: 9, color: '#555', letterSpacing: '0.10em' }}>{total} tasks</span>
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
+          <span style={{ fontSize: 9, color: '#9A9A9A', letterSpacing: '0.10em' }}>{total} tasks</span>
           <span style={{ fontSize: 11, color: '#C4973A', fontWeight: 700 }}>{overallPct}%</span>
-          <div style={{ width: 80, height: 3, background: '#E8E5E0', borderRadius: 2 }}>
+          <div style={{ width: 80, height: 3, background: 'rgba(255,255,255,0.12)', borderRadius: 2 }}>
             <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? '#C4973A' : '#3B82F6', borderRadius: 2 }} />
           </div>
           {phaseLabel && (
             <>
-              <div style={{ width: 1, height: 24, background: '#E4E1DC' }} />
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#1A1A1A', color: '#fff', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A' }} /> Phase · {phaseLabel}
+              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: '#EDEBE7', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', boxShadow: '0 0 6px #3DAA6AAA' }} /> Phase · {phaseLabel}
               </span>
             </>
           )}
@@ -250,21 +260,21 @@ export default function ProjectTimeline({ projectId }: Props) {
 
         {/* Phase filters — the same delivery phases used across every tab */}
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          <FilterChip label="All Phases" active={filterPhase === 'all'} color="#777" onClick={() => setFilterPhase('all')} />
+          <FilterChip label="All Phases" active={filterPhase === 'all'} color="#9A9A9A" onClick={() => setFilterPhase('all')} dark />
           {PHASES.map(p => (
-            <FilterChip key={p} label={PHASE_LABEL[p]} active={filterPhase === p} color={PHASE_COLORS[p]} onClick={() => setFilterPhase(p)} />
+            <FilterChip key={p} label={PHASE_LABEL[p]} active={filterPhase === p} color={PHASE_COLORS[p]} onClick={() => setFilterPhase(p)} dark />
           ))}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <button onClick={() => setViewYear(y => y - 1)} style={yrNav} aria-label="Previous year">‹</button>
           <select value={viewYear} onChange={e => setViewYear(Number(e.target.value))}
-            style={{ background: '#fff', border: '1px solid #D8D5D0', borderRadius: 4, color: '#1A1A1A', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: 'pointer' }}>
-            {years.map(y => <option key={y} value={y}>{y}</option>)}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: '#EDEBE7', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: 'pointer' }}>
+            {years.map(y => <option key={y} value={y} style={{ background: '#1A1A1A' }}>{y}</option>)}
           </select>
           <button onClick={() => setViewYear(y => y + 1)} style={yrNav} aria-label="Next year">›</button>
         </div>
-        <button onClick={openNew} style={{ padding: '7px 16px', background: '#F5F3F0', border: '1px solid #D0CEC9', color: '#2A2A2A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700 }}>
+        <button onClick={openNew} style={{ padding: '7px 16px', background: 'linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))', border: '1px solid rgba(255,255,255,0.18)', color: '#EDEBE7', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
           + Add Task
         </button>
       </div>
@@ -317,13 +327,13 @@ export default function ProjectTimeline({ projectId }: Props) {
             {grouped.map(([cat, catTasks]) => (
               <div key={cat}>
 
-                {/* Phase header row — label + task count + cost of works for the phase */}
-                <div style={{ display: 'flex', height: 30, alignItems: 'center', background: `${PHASE_COLORS[cat]}08`, borderBottom: `1px solid ${PHASE_COLORS[cat]}22` }}>
-                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', borderRight: '1px solid #D8D5D0', position: 'sticky', left: 0, zIndex: 8, background: `${PHASE_COLORS[cat]}10` }}>
-                    <span style={{ width: 3, height: 12, background: PHASE_COLORS[cat], flexShrink: 0 }} />
-                    <span style={{ fontSize: 7, letterSpacing: '0.2em', textTransform: 'uppercase', color: PHASE_COLORS[cat], fontWeight: 700 }}>{PHASE_LABEL[cat]}</span>
-                    <span style={{ fontSize: 8, color: PHASE_COLORS[cat], fontWeight: 700, marginLeft: 'auto', fontFamily: 'var(--font-mono)' }} title="Cost of works in this phase">{phaseFmt(phaseCosts[cat] || 0)}</span>
-                    <span style={{ fontSize: 7, color: `${PHASE_COLORS[cat]}77` }}>· {catTasks.length}</span>
+                {/* Phase header row — label + task count + cost of works for the phase (30% larger) */}
+                <div style={{ display: 'flex', height: 39, alignItems: 'center', background: `linear-gradient(90deg, ${PHASE_COLORS[cat]}14, ${PHASE_COLORS[cat]}07)`, borderBottom: `1px solid ${PHASE_COLORS[cat]}2E`, borderTop: `1px solid ${PHASE_COLORS[cat]}18` }}>
+                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 9, padding: '0 13px', borderRight: '1px solid #D8D5D0', position: 'sticky', left: 0, zIndex: 8, background: `${PHASE_COLORS[cat]}12` }}>
+                    <span style={{ width: 4, height: 16, borderRadius: 1, background: PHASE_COLORS[cat], flexShrink: 0 }} />
+                    <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PHASE_COLORS[cat], fontWeight: 700 }}>{PHASE_LABEL[cat]}</span>
+                    <span style={{ fontSize: 10.5, color: PHASE_COLORS[cat], fontWeight: 700, marginLeft: 'auto', fontFamily: 'var(--font-mono)' }} title="Cost of works in this phase">{phaseFmt(phaseCosts[cat] || 0)}</span>
+                    <span style={{ fontSize: 9, color: `${PHASE_COLORS[cat]}88` }}>· {catTasks.length}</span>
                   </div>
                   {/* Phase grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
@@ -509,12 +519,13 @@ export default function ProjectTimeline({ projectId }: Props) {
 function TrafficLight({ color, count, label, flash }: { color: string; count: number; label: string; flash?: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ position: 'relative', width: 10, height: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        {flash && count > 0 && <span className="tl-critical-ring" style={{ position: 'absolute', width: 10, height: 10, borderRadius: '50%', background: color } as CSSProperties} />}
-        <span className={flash && count > 0 ? 'tl-critical-dot' : ''} style={{ width: 10, height: 10, borderRadius: '50%', background: count > 0 ? color : '#1A1A1A', border: count === 0 ? `1px solid ${color}33` : 'none', display: 'block' }} />
+      <span style={{ position: 'relative', width: 11, height: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        {flash && count > 0 && <span className="tl-critical-ring" style={{ position: 'absolute', width: 11, height: 11, borderRadius: '50%', background: color } as CSSProperties} />}
+        {/* Traffic-light lens — always its colour; dimmed + hollow when the count is 0, lit when active */}
+        <span className={flash && count > 0 ? 'tl-critical-dot' : ''} style={{ width: 11, height: 11, borderRadius: '50%', background: color, opacity: count > 0 ? 1 : 0.28, boxShadow: count > 0 ? `0 0 6px ${color}AA` : 'none', display: 'block' } as CSSProperties} />
       </span>
-      <span style={{ fontSize: 9, color: count > 0 ? '#888' : '#333', letterSpacing: '0.08em' }}>
-        <span style={{ color: count > 0 ? color : '#333', fontWeight: 700, marginRight: 3 }}>{count}</span>
+      <span style={{ fontSize: 9, color: count > 0 ? '#C8C8C8' : '#888', letterSpacing: '0.08em' }}>
+        <span style={{ color, opacity: count > 0 ? 1 : 0.55, fontWeight: 700, marginRight: 3 }}>{count}</span>
         {label}
       </span>
     </div>
@@ -522,7 +533,7 @@ function TrafficLight({ color, count, label, flash }: { color: string; count: nu
 }
 
 const yrNav: React.CSSProperties = {
-  background: '#F5F3F0', border: '1px solid #D8D5D0', borderRadius: 4, color: '#555',
+  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: '#C8C8C8',
   width: 24, height: 28, fontSize: 14, lineHeight: 1, cursor: 'pointer', flexShrink: 0,
 }
 
@@ -540,13 +551,14 @@ function Field({ label, children, flex }: { label: string; children: React.React
   )
 }
 
-function FilterChip({ label, active, color, onClick }: { label: string; active: boolean; color: string; onClick: () => void }) {
+function FilterChip({ label, active, color, onClick, dark }: { label: string; active: boolean; color: string; onClick: () => void; dark?: boolean }) {
   return (
     <button onClick={onClick} style={{
-      padding: '4px 10px', fontSize: 7, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 2,
-      background: active ? `${color}25` : 'transparent',
-      border: `1px solid ${active ? color : '#D0CEC9'}`,
-      color: active ? color : '#555',
+      padding: '5px 11px', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4,
+      background: active ? `${color}2E` : (dark ? 'rgba(255,255,255,0.04)' : 'transparent'),
+      border: `1px solid ${active ? color : (dark ? 'rgba(255,255,255,0.14)' : '#D0CEC9')}`,
+      color: active ? (dark ? '#fff' : color) : (dark ? '#B8B8B8' : '#555'),
+      fontWeight: active ? 700 : 500,
       transition: 'all 0.15s',
     }}>{label}</button>
   )
