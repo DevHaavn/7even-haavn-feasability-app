@@ -24,5 +24,7 @@ export function useRole(): Role {
   return React.useContext(RoleContext)
 }
 
-// What external users can access
-export const EXTERNAL_TABS = ['site', 'mix', 'cost', 'timeline']
+// What external users can access. Financial-summary tabs (Land & Terms, Finance,
+// BTR/BTS/Hotel valuations, Compare, Summary, Dashboard) stay hidden. Product Mix
+// and Cashflow are shared with the consultant / project team.
+export const EXTERNAL_TABS = ['site', 'mix', 'cost', 'cashflow', 'timeline']
