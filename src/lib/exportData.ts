@@ -94,6 +94,7 @@ function strategyColor(type: string): string {
 function comparisonRows(projectId: string): CompareRow[] {
   const site = db.getSiteDesign(projectId)
   const costData = db.getCostStack(projectId)
+  const landEff = db.getEffectiveLandCost(projectId)   // land into TDC; RLV engine keeps land-excluded cost
   const rows: CompareRow[] = []
   for (const s of db.getMixScenarios(projectId)) {
     const units = db.getUnitTypes(s.id)
@@ -115,23 +116,23 @@ function comparisonRows(projectId: string): CompareRow[] {
       const aggI = calculateBTRIncome(btrInputs, 'aggressive')
       const consV = calculateBTRValuation(consI.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
       const aggV = calculateBTRValuation(aggI.noi, btrA.capRateAggressive, tdc, btrA.devMarginPct)
-      rows.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc, rlv: consV.rlv })
-      rows.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc, rlv: aggV.rlv })
+      rows.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc: tdc + landEff, rlv: consV.rlv })
+      rows.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc: tdc + landEff, rlv: aggV.rlv })
 
       const mkLines = (f: (u: typeof units[number]) => number) => units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: f(u) }))
       const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
       const btsCons = calculateBTSValuation(mkLines(u => u.salePriceConservative), otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
       const btsMid = calculateBTSValuation(mkLines(u => u.salePriceMid), otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
       const btsAgg = calculateBTSValuation(mkLines(u => u.salePriceAggressive), otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-      rows.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc, rlv: btsCons.rlv })
-      rows.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc, rlv: btsMid.rlv })
-      rows.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc, rlv: btsAgg.rlv })
+      rows.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc: tdc + landEff, rlv: btsCons.rlv })
+      rows.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc: tdc + landEff, rlv: btsMid.rlv })
+      rows.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc: tdc + landEff, rlv: btsAgg.rlv })
     }
 
     if (hotelA.keys > 0) {
       const hotelI = calculateHotelIncome(hotelA)
       const hotelV = calculateHotelValuation(hotelI.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-      rows.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc, rlv: hotelV.rlv })
+      rows.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc: tdc + landEff, rlv: hotelV.rlv })
     }
   }
   return rows

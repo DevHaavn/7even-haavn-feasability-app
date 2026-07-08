@@ -93,6 +93,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   const { scenarios, bestScenario } = useMemo(() => {
     const scenarios = store.getMixScenarios(projectId)
+    const landEff = store.getEffectiveLandCost(projectId)   // effective land cost (duty, acq costs, terms)
     let best: any = null
 
     for (const s of scenarios) {
@@ -104,22 +105,25 @@ export default function ProjectDashboard({ projectId }: Props) {
       const effectiveBuildRate  = hotelA.buildRateOverride ?? costData.buildRatePerSqm
       const effectiveFinancePct = hotelA.constructionFinancePct ?? costData.financePct
       const cs = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
-      const tdc = cs.totalDevelopmentCost
+      // Land-EXCLUDED build/soft cost feeds the RLV engine (RLV = affordable land);
+      // the stored `tdc` is land-INCLUSIVE (build/soft + land) for the headline.
+      const tdcBuild = cs.totalDevelopmentCost
+      const tdc = tdcBuild + landEff
 
       if (hotelA.keys > 0) {
         const inc = calculateHotelIncome(hotelA)
-        const val = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-        if (!best || val.rlv > best.rlv) best = { ...val, noi: inc.noi, tdc, strategy: 'Hotel', name: s.name, hotelA, inc, cs }
+        const val = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdcBuild, hotelA.devMarginPct)
+        if (!best || val.rlv > best.rlv) best = { ...val, noi: inc.noi, tdc, landEff, strategy: 'Hotel', name: s.name, hotelA, inc, cs }
       }
       const hasRent = units.some(u => u.weeklyRentConservative > 0)
       if (hasRent) {
         const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
         const i2 = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
-        const v2 = calculateBTRValuation(i2.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
-        if (!best || v2.rlv > best.rlv) best = { ...v2, noi: i2.noi, tdc, strategy: 'BTR', name: s.name, cs }
+        const v2 = calculateBTRValuation(i2.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
+        if (!best || v2.rlv > best.rlv) best = { ...v2, noi: i2.noi, tdc, landEff, strategy: 'BTR', name: s.name, cs }
         const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-        const v3 = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        if (!best || v3.rlv > best.rlv) best = { gav: v3.grossRevenue, rlv: v3.rlv, tdc, noi: null, strategy: 'BTS', name: s.name, cs }
+        const v3 = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, costData.gstEnabled)
+        if (!best || v3.rlv > best.rlv) best = { gav: v3.grossRevenue, rlv: v3.rlv, tdc, landEff, noi: null, strategy: 'BTS', name: s.name, cs }
       }
     }
     return { scenarios, bestScenario: best }
@@ -133,9 +137,10 @@ export default function ProjectDashboard({ projectId }: Props) {
   const statFinance    = costStack.finance + (costData.statutoryFixed || 0)
   const otherSoftCosts = (costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0)
 
-  const tdc    = bestScenario?.tdc ?? costStack.totalDevelopmentCost
+  const tdc    = bestScenario?.tdc ?? (costStack.totalDevelopmentCost + landCostEff)   // land-inclusive TDC
   const gav    = bestScenario?.gav ?? 0
   const rlv    = bestScenario?.rlv ?? 0
+  const devProfit = gav - tdc                                                          // GAV − land-inclusive TDC
   const margin = tdc > 0 ? ((gav - tdc) / tdc) : 0
 
   const costMax = Math.max(hardCostsBuild, costStack.professionalFees, statFinance, otherSoftCosts, landCostEff, 1)
@@ -195,11 +200,12 @@ export default function ProjectDashboard({ projectId }: Props) {
       </div>
 
       {/* ── KPI row ── */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-        <KPI label="Total Dev Cost" value={fmt(tdc)} sub={site.resiGBA > 0 ? `$${Math.round(tdc/site.resiGBA).toLocaleString()}/sqm GBA` : undefined} color="#C4973A" />
+      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+        <KPI label="Total Dev Cost" value={fmt(tdc)} sub="incl. land + all costs" color="#C4973A" />
         <KPI label="Gross Asset Value" value={gav > 0 ? fmt(gav) : '—'} sub={bestScenario?.strategy ?? 'No scenario'} color={accentColor} />
-        <KPI label="Residual Land Value" value={rlv > 0 ? fmt(rlv) : '—'} sub={rlv > 0 ? (rlv > 10_000_000 ? 'Positive' : 'Marginal') : undefined} color={rlv > 10_000_000 ? '#22C55E' : rlv > 0 ? '#EAB308' : '#444'} />
-        <KPI label="Dev Margin" value={margin > 0 ? `${(margin * 100).toFixed(1)}%` : '—'} sub="on cost" color={margin > 0.15 ? '#22C55E' : margin > 0 ? '#EAB308' : '#444'} />
+        <KPI label="Dev Profit" value={gav > 0 ? fmt(devProfit) : '—'} sub="GAV − TDC" color={devProfit > 0 ? '#22C55E' : devProfit < 0 ? '#EF4444' : '#444'} />
+        <KPI label="Dev Margin" value={gav > 0 ? `${(margin * 100).toFixed(1)}%` : '—'} sub="on total cost (incl land)" color={margin > 0.15 ? '#22C55E' : margin > 0 ? '#EAB308' : '#444'} />
+        <KPI label="Residual Land Value" value={rlv > 0 ? fmt(rlv) : '—'} sub={rlv > 0 ? `benchmark · vs ${fmt(landCostEff)} paid` : undefined} color={rlv > landCostEff ? '#22C55E' : rlv > 0 ? '#EAB308' : '#444'} />
         {site.resiGBA > 0 && <KPI label="GBA" value={`${site.resiGBA.toLocaleString()}`} sub={`NSA ${site.resiNSA.toLocaleString()} sqm`} color="#fff" />}
         {bestScenario?.hotelA?.keys > 0 && <KPI label="Hotel Keys" value={String(bestScenario.hotelA.keys)} sub={`ADR $${bestScenario.hotelA.adr} · ${(bestScenario.hotelA.occupancyPct*100).toFixed(0)}% occ`} color="#C4973A" />}
       </div>

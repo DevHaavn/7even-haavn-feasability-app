@@ -172,6 +172,7 @@ function SummaryTabInner({ projectId }: Props) {
 
   useEffect(() => {
     const scenarios = store.getMixScenarios(projectId)
+    const landEff = store.getEffectiveLandCost(projectId)   // land into TDC; engines still get land-excluded cost for RLV
     const computed: any[] = []
     for (const s of scenarios) {
       const units = store.getUnitTypes(s.id)
@@ -189,8 +190,8 @@ function SummaryTabInner({ projectId }: Props) {
         const aggI = calculateBTRIncome(btrInputs, 'aggressive')
         const consV = calculateBTRValuation(consI.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
         const aggV = calculateBTRValuation(aggI.noi, btrA.capRateAggressive, tdc, btrA.devMarginPct)
-        computed.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc, rlv: consV.rlv })
-        computed.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc, rlv: aggV.rlv })
+        computed.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc: tdc + landEff, rlv: consV.rlv })
+        computed.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc: tdc + landEff, rlv: aggV.rlv })
         const btsLines = {
           cons: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceConservative })),
           agg: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceAggressive })),
@@ -198,13 +199,13 @@ function SummaryTabInner({ projectId }: Props) {
         const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
         const btsCons = calculateBTSValuation(btsLines.cons, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         const btsAgg = calculateBTSValuation(btsLines.agg, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc, rlv: btsCons.rlv })
-        computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc, rlv: btsAgg.rlv })
+        computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc: tdc + landEff, rlv: btsCons.rlv })
+        computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc: tdc + landEff, rlv: btsAgg.rlv })
       }
       if (store.getHotelAssumptions(s.id).keys > 0) {
         const hotelI = calculateHotelIncome(hotelA)
         const hotelV = calculateHotelValuation(hotelI.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-        computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc, rlv: hotelV.rlv })
+        computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc: tdc + landEff, rlv: hotelV.rlv })
       }
     }
     const maxRLV = Math.max(...computed.map(r => r.rlv))
@@ -214,7 +215,8 @@ function SummaryTabInner({ projectId }: Props) {
   }, [projectId])
 
   const landAcq = store.getLandAcquisition(projectId)
-  const landCost = landAcq.total  // ex-GST contract price + stamp duty
+  const landCost = landAcq.total  // ex-GST contract price + stamp duty + acquisition costs
+  const tdcIncl = tdc + landCost  // land-INCLUSIVE Total Development Cost (headline)
 
   return (
     <div className="flex flex-col">
@@ -244,7 +246,9 @@ function SummaryTabInner({ projectId }: Props) {
             {[
               { label: bestRow.noi != null ? 'Net Operating Income' : 'Gross Revenue', value: fmt(bestRow.noi ?? bestRow.gav) },
               { label: 'Gross Asset Value', value: fmt(bestRow.gav) },
-              { label: 'Total Dev Cost', value: fmt(bestRow.tdc) },
+              { label: 'Total Dev Cost (incl land)', value: fmt(bestRow.tdc) },
+              { label: 'Dev Profit', value: fmt(bestRow.gav - bestRow.tdc) },
+              { label: 'Dev Margin', value: bestRow.tdc > 0 ? pct((bestRow.gav - bestRow.tdc) / bestRow.tdc) : '—' },
               { label: 'Residual Land Value', value: fmt(bestRow.rlv) },
             ].map(({ label, value }) => (
               <div key={label}>
@@ -281,15 +285,16 @@ function SummaryTabInner({ projectId }: Props) {
         </Section>
 
         {/* ── Cost Stack ── */}
-        <Section title="Total Development Cost" sub="Construction and associated costs">
+        <Section title="Total Development Cost" sub="Land + construction + all associated costs">
+          <Row label="Land (incl. duty & acquisition)" value={fmt(landCost)} />
           <Row label="Construction" value={fmt(costResult.construction)} />
           <Row label="Contingency" value={fmt(costResult.contingency)} />
           <Row label="Prelims" value={fmt(costResult.prelims)} />
           <Row label="Professional Fees" value={fmt(costResult.professionalFees)} />
           <Row label="Finance" value={fmt(costResult.finance)} />
           {costResult.inKindCost > 0 && <Row label="In-Kind Delivery Cost" value={fmt(costResult.inKindCost)} />}
-          <Row label="TOTAL DEVELOPMENT COST" value={fmt(tdc)} highlight large gold />
-          {site.resiGBA > 0 && tdc > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(tdc / site.resiGBA).toLocaleString()}/sqm`} />}
+          <Row label="TOTAL DEVELOPMENT COST" value={fmt(tdcIncl)} highlight large gold />
+          {site.resiGBA > 0 && tdcIncl > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(tdcIncl / site.resiGBA).toLocaleString()}/sqm`} />}
         </Section>
 
         {/* ── Cost & Time by Phase ── */}

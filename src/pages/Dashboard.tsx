@@ -67,6 +67,7 @@ function aggregatePortfolio(brand?: '7even' | 'haavn'): ProjectSummary[] {
       ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
       : undefined
 
+    const landEff = db.getEffectiveLandCost(p.id)   // land into TDC; RLV engine keeps land-excluded cost
     const scenarios = db.getMixScenarios(p.id)
     let bestRLV = -Infinity
     let bestGAV = 0
@@ -93,7 +94,7 @@ function aggregatePortfolio(brand?: '7even' | 'haavn'): ProjectSummary[] {
       if (hotelA.keys > 0) {
         const inc = calculateHotelIncome(hotelA)
         const val = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-        if (val.rlv > bestRLV) { bestRLV = val.rlv; bestGAV = val.gav; bestStrategy = 'Hotel'; bestTDC = tdc }
+        if (val.rlv > bestRLV) { bestRLV = val.rlv; bestGAV = val.gav; bestStrategy = 'Hotel'; bestTDC = tdc + landEff }
       }
 
       // BTR (conservative)
@@ -103,16 +104,16 @@ function aggregatePortfolio(brand?: '7even' | 'haavn'): ProjectSummary[] {
         const btrInputs = { unitLines, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
         const consI = calculateBTRIncome(btrInputs, 'conservative')
         const consV = calculateBTRValuation(consI.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
-        if (consV.rlv > bestRLV) { bestRLV = consV.rlv; bestGAV = consV.gav; bestStrategy = 'BTR'; bestTDC = tdc }
+        if (consV.rlv > bestRLV) { bestRLV = consV.rlv; bestGAV = consV.gav; bestStrategy = 'BTR'; bestTDC = tdc + landEff }
 
         // BTS (mid)
         const btsLines = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
         const btsMid = calculateBTSValuation(btsLines, [], btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        if (btsMid.rlv > bestRLV) { bestRLV = btsMid.rlv; bestGAV = btsMid.grossRevenue; bestStrategy = 'BTS'; bestTDC = tdc }
+        if (btsMid.rlv > bestRLV) { bestRLV = btsMid.rlv; bestGAV = btsMid.grossRevenue; bestStrategy = 'BTS'; bestTDC = tdc + landEff }
       }
     }
 
-    const defaultTDC = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem }).totalDevelopmentCost
+    const defaultTDC = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem }).totalDevelopmentCost + landEff
     results.push({
       id: p.id, name: p.name, suburb: p.suburb, type: p.type, status: p.status,
       tdc: bestTDC || defaultTDC,

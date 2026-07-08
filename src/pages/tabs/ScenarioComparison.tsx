@@ -20,6 +20,7 @@ export default function ScenarioComparison({ projectId }: Props) {
 
   useEffect(() => {
     const scenarios = store.getMixScenarios(projectId)
+    const landEff = store.getEffectiveLandCost(projectId)   // land into TDC; RLV engine still gets land-excluded cost
     const computed: any[] = []
 
     for (const s of scenarios) {
@@ -49,8 +50,8 @@ export default function ScenarioComparison({ projectId }: Props) {
         const aggI = calculateBTRIncome(btrInputs, 'aggressive')
         const consV = calculateBTRValuation(consI.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
         const aggV = calculateBTRValuation(aggI.noi, btrA.capRateAggressive, tdc, btrA.devMarginPct)
-        computed.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc, rlv: consV.rlv })
-        computed.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc, rlv: aggV.rlv })
+        computed.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc: tdc + landEff, rlv: consV.rlv })
+        computed.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc: tdc + landEff, rlv: aggV.rlv })
 
         // BTS
         const btsLines = { cons: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceConservative })), mid: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceMid })), agg: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceAggressive })) }
@@ -58,9 +59,9 @@ export default function ScenarioComparison({ projectId }: Props) {
         const btsCons = calculateBTSValuation(btsLines.cons, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         const btsMid = calculateBTSValuation(btsLines.mid, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
         const btsAgg = calculateBTSValuation(btsLines.agg, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc, rlv: btsCons.rlv })
-        computed.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc, rlv: btsMid.rlv })
-        computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc, rlv: btsAgg.rlv })
+        computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc: tdc + landEff, rlv: btsCons.rlv })
+        computed.push({ scenario: s.name, type: 'BTS (Mid)', noi: null, gav: btsMid.grossRevenue, tdc: tdc + landEff, rlv: btsMid.rlv })
+        computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc: tdc + landEff, rlv: btsAgg.rlv })
         btsAggRevenue = btsAgg.grossRevenue
       }
 
@@ -71,7 +72,7 @@ export default function ScenarioComparison({ projectId }: Props) {
         const note = hotelA.buildRateOverride != null
           ? `Modular build $${hotelA.buildRateOverride.toLocaleString()}/sqm — cost savings flow to RLV`
           : undefined
-        computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc, rlv: hotelV.rlv, note })
+        computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc: tdc + landEff, rlv: hotelV.rlv, note })
 
         // Blended (recommended) — sell the resi (aggressive BTS) AND hold the hotel as an
         // income asset. The hotel GAV that the pure-BTS row ignores is credited here.
@@ -79,7 +80,7 @@ export default function ScenarioComparison({ projectId }: Props) {
           const blendedGav = btsAggRevenue + hotelV.gav
           computed.push({
             scenario: s.name, type: 'Blended — Resi BTS + Hotel hold', noi: hotelI.noi,
-            gav: blendedGav, tdc, rlv: blendedGav - tdc,
+            gav: blendedGav, tdc: tdc + landEff, rlv: blendedGav - tdc,
             note: 'Sell resi (aggressive) + hold hotel. Medical B2 sale (~$90M) is additional upside on top.',
           })
         }
