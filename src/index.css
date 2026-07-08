@@ -106,14 +106,20 @@ h1, h2, h3, .heading { font-family: var(--font-heading); }
 .workspace-content input::placeholder,
 .workspace-content textarea::placeholder { color: #B0ADA8; }
 .workspace-content select {
-  background: #F0EEE9;
-  border: 1px solid #D8D5D0;
-  border-radius: 0;
-  padding: 5px 8px;
+  background: #FAF9F7;
+  border: 1px solid #E4E1DC;
+  border-radius: 9px;
+  padding: 7px 12px;
   cursor: pointer;
-  color: #1A1A1A;
+  color: #2A2A2A;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
-.workspace-content select option { background: #F0EEE9; color: #1A1A1A; }
+.workspace-content select:hover { border-color: #CDC8C1; }
+.workspace-content select:focus { border-bottom-color: #E4E1DC; border-color: #C4973A; box-shadow: 0 0 0 2px rgba(196,151,58,0.12); }
+.workspace-content select option { background: #FFFFFF; color: #2A2A2A; font-size: 13px; font-weight: 500; }
 .workspace-content input[type="checkbox"] {
   width: auto;
   border: none;
@@ -531,6 +537,29 @@ input[type="checkbox"] {
   .premium-stage { padding: 8px 6px 20px; }
   .premium-card { border-radius: 14px; }
 }
+
+/* ── JB BLK — dark-gold theme for the project workspace ──────────────────────
+   The tabs are heavily inline-styled, so we flip them with a colour-preserving
+   invert (whites→black, black text→light) and counter-invert media so images,
+   maps and logos read correctly. JB Light (default) leaves everything untouched. */
+.theme-blk .premium-stage { background: #08080a !important; }
+.theme-blk .premium-card {
+  filter: invert(1) hue-rotate(180deg);
+  background: #ECEAE7 !important;
+}
+/* Counter-invert media so maps, renders and logos read correctly on dark */
+.theme-blk .premium-card img,
+.theme-blk .premium-card svg,
+.theme-blk .premium-card canvas,
+.theme-blk .premium-card .leaflet-container {
+  filter: invert(1) hue-rotate(180deg);
+}
+/* Warm the card so the invert lands on a black-gold rather than pure grey */
+.theme-blk .premium-card { box-shadow: 0 0 0 1px rgba(196,151,58,0.25), 0 26px 55px -16px rgba(0,0,0,0.9); }
+/* Theme switch */
+.jb-switch { display: inline-flex; align-items: center; border: 1px solid rgba(0,0,0,0.14); border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.4); }
+.jb-switch button { border: none; cursor: pointer; padding: 5px 11px; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; background: transparent; color: #8A8A8A; transition: all 0.15s; }
+.jb-switch button.on { background: #1A1A1A; color: #F0D9A8; }
 
 /* Floating rounded project header on premium tabs */
 .ws-header-float {

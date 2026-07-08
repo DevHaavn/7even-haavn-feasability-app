@@ -64,6 +64,9 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
   const { activeProjectId, activeTab, setActiveTab, setActiveProject, projects } = useStore()
   const role = useRole()
   const project = projects.find(p => p.id === activeProjectId)
+  // JB Light (default) / JB BLK (dark-gold) — persisted per browser.
+  const [theme, setTheme] = useState<'light' | 'blk'>(() => (localStorage.getItem('jb_theme') as 'light' | 'blk') || 'light')
+  const pickTheme = (t: 'light' | 'blk') => { setTheme(t); localStorage.setItem('jb_theme', t) }
 
   if (!project) return null
 
@@ -75,7 +78,7 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
   const safeTab = visibleTabs.find(t => t.id === activeTab) ? activeTab : visibleTabs[0]?.id ?? 'site'
 
   return (
-    <div className="ws-root flex flex-col h-full">
+    <div className={`ws-root flex flex-col h-full ${theme === 'blk' ? 'theme-blk' : ''}`}>
       {/* Header — floats as a rounded panel over the texture on premium tabs */}
       <div className={PREMIUM_TABS.includes(safeTab) ? 'ws-header-float relative z-50' : 'contents'}>
       {/* Topbar */}
@@ -112,8 +115,12 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
             Consultant
           </span>
         )}
-        {/* Dashboard + Manage + Log Out — inside the header; held ~5mm off the edge */}
+        {/* Theme switch + Dashboard + Manage + Log Out — inside the header */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
+          <div className="jb-switch" title="Colour theme">
+            <button className={theme === 'light' ? 'on' : ''} onClick={() => pickTheme('light')}>JB Light</button>
+            <button className={theme === 'blk' ? 'on' : ''} onClick={() => pickTheme('blk')}>JB Blk</button>
+          </div>
           {role !== 'external' && (
             <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
               style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
