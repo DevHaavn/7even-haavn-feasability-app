@@ -8,12 +8,17 @@ import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateBTSValuation } from '../../engine/bts'
 import { STATUS_COLORS, STATUS_SHORT } from './ProjectTimeline'
 import { calculateFinance } from '../../engine/finance'
-import { COST_PHASES } from '../../db/schema'
+import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import FinanceSCurve, { getTimelineHealth } from '../../components/FinanceSCurve'
 
 interface Props { projectId: string }
 
 const TYPE_COLOR: Record<string, string> = { hotel: '#A855F7', btr: '#22C55E', bts: '#3B82F6', mixed: '#E8E6E1' }
+
+const PHASE_COLOR: Record<string, string> = {
+  'pre-acquisition': '#C4973A', 'acquisition-planning': '#A855F7',
+  'pre-construction': '#3B82F6', 'construction': '#6B6B6B', 'close-out': '#22C55E',
+}
 
 function fmt(n: number, d = 1) {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(d)}M`
@@ -135,6 +140,25 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   const costMax = Math.max(hardCostsBuild, costStack.professionalFees, statFinance, otherSoftCosts, landCostEff, 1)
 
+  // ── Cost & time tracked by delivery phase (from all models) ──
+  const phaseTracking = useMemo(() => {
+    const costs = db.getPhaseCosts(projectId)
+    const tasks = db.getTimelineTasks(projectId)
+    return COST_PHASES.map(p => {
+      const inPhase = tasks.filter(t => (t.phase ?? CATEGORY_TO_PHASE[t.category]) === p.id)
+      const starts = inPhase.map(t => t.startDate).filter(Boolean).sort()
+      const ends   = inPhase.map(t => t.endDate).filter(Boolean).sort()
+      const done   = inPhase.filter(t => t.status === 'complete').length
+      return {
+        id: p.id, label: p.label, cost: costs[p.id] || 0,
+        tasks: inPhase.length, done,
+        start: starts[0], end: ends[ends.length - 1],
+        current: costData.currentPhase === p.id,
+      }
+    })
+  }, [projectId, costData, tdc])
+  const phaseTotal = phaseTracking.reduce((s, p) => s + p.cost, 0) || 1
+
   // Area breakdown for donut — distinct colour per sector
   const AREA_COLORS = { nsa: '#22C55E', balcony: '#C4973A', basement: '#3B82F6', other: '#A855F7' }
   const areaSegs = [
@@ -223,6 +247,38 @@ export default function ProjectDashboard({ projectId }: Props) {
             <span style={{ fontSize: 8, color: '#888', letterSpacing: '0.10em' }}>$/sqm GBA</span>
             <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>{site.resiGBA > 0 ? `$${Math.round(tdc/site.resiGBA).toLocaleString()}` : '—'}</span>
           </div>
+        </div>
+      </div>
+
+      {/* ── Cost & Time by Phase — tracked across every model ── */}
+      <div style={{ padding: '20px 24px', border: '1px solid #E4E1DC', background: '#FFFFFF', marginBottom: 20 }}>
+        <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>Cost &amp; Time by Phase — cost of works, programme span &amp; progress</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr 96px 120px 78px', gap: 12, alignItems: 'center', fontSize: 7, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#AAA', paddingBottom: 8, borderBottom: '1px solid #EDEBE7', marginBottom: 6 }}>
+          <span>Phase</span><span>Cost of works</span><span style={{ textAlign: 'right' }}>Amount</span><span>Programme</span><span style={{ textAlign: 'right' }}>Progress</span>
+        </div>
+        {phaseTracking.map(p => {
+          const col = PHASE_COLOR[p.id]
+          const span = p.start && p.end
+            ? `${new Date(p.start + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })} → ${new Date(p.end + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })}`
+            : '—'
+          const pct = p.tasks > 0 ? Math.round((p.done / p.tasks) * 100) : 0
+          return (
+            <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '150px 1fr 96px 120px 78px', gap: 12, alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F4F2EE' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 10, color: '#2A2A2A', fontWeight: p.current ? 700 : 500 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: col, flexShrink: 0 }} />{p.label}{p.current && <span style={{ fontSize: 6, letterSpacing: '0.16em', color: col, border: `1px solid ${col}66`, padding: '1px 4px', borderRadius: 3 }}>NOW</span>}
+              </span>
+              <span style={{ height: 8, background: '#F0EEEA', borderRadius: 4, overflow: 'hidden', display: 'block' }}>
+                <span style={{ display: 'block', height: '100%', width: `${Math.min(100, (p.cost / phaseTotal) * 100)}%`, background: col }} />
+              </span>
+              <span style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: 11, color: '#1A1A1A', fontWeight: 700 }}>{fmt(p.cost)}</span>
+              <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#666' }}>{span}</span>
+              <span style={{ textAlign: 'right', fontSize: 9, color: p.tasks > 0 ? (pct === 100 ? '#22C55E' : '#888') : '#CCC' }}>{p.tasks > 0 ? `${p.done}/${p.tasks} · ${pct}%` : '—'}</span>
+            </div>
+          )
+        })}
+        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 12, marginTop: 4, borderTop: '1px solid #E4E1DC' }}>
+          <span style={{ fontSize: 8, color: '#888', letterSpacing: '0.10em', textTransform: 'uppercase' }}>Total cost of works</span>
+          <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#C4973A', fontWeight: 700 }}>{fmt(phaseTracking.reduce((s, p) => s + p.cost, 0))}</span>
         </div>
       </div>
 
