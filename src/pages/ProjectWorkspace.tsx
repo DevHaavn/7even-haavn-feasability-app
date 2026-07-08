@@ -127,9 +127,17 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
         {/* Dashboard + Manage menu (Manage Project · theme · Log Out) — decluttered header */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
           {role !== 'external' && (
-            <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              ☰ Dashboard
+            <button onClick={() => setActiveTab('insights')} title="Dashboard" aria-label="Dashboard"
+              style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 12, background: activeTab === 'insights' ? '#000' : '#161616', border: '1px solid rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: activeTab === 'insights' ? '0 2px 10px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.25)', transition: 'background 0.18s, transform 0.15s, box-shadow 0.18s' }}
+              onMouseEnter={e => { const t = e.currentTarget as HTMLElement; t.style.transform = 'translateY(-1px)'; t.style.background = '#000' }}
+              onMouseLeave={e => { const t = e.currentTarget as HTMLElement; t.style.transform = 'translateY(0)'; t.style.background = activeTab === 'insights' ? '#000' : '#161616' }}>
+              {/* Bento dashboard glyph — matches the icon device */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+                <rect x="4" y="4" width="7" height="9" rx="1.6" />
+                <rect x="4" y="15" width="7" height="5" rx="1.6" />
+                <rect x="13" y="4" width="7" height="5" rx="1.6" />
+                <rect x="13" y="11" width="7" height="9" rx="1.6" />
+              </svg>
             </button>
           )}
           <div ref={menuRef} style={{ position: 'relative' }}>
