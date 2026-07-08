@@ -116,8 +116,15 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
           {role !== 'external' && (
             <button className="glass-btn glass-btn-chrome" onClick={() => setActiveTab('insights')}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              ☰ Dashboard
+              title="Dashboard" aria-label="Dashboard"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0, width: 32, height: 30, flexShrink: 0 }}>
+              {/* Minimalist masonry-grid dashboard glyph */}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="3"  y="3"  width="8" height="11" rx="1.6" />
+                <rect x="3"  y="16" width="8" height="5"  rx="1.6" />
+                <rect x="13" y="3"  width="8" height="5"  rx="1.6" />
+                <rect x="13" y="10" width="8" height="11" rx="1.6" />
+              </svg>
             </button>
           )}
           {onManage && (
