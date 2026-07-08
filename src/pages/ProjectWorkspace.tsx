@@ -129,8 +129,16 @@ export default function ProjectWorkspace({ onManage, onLogout }: { onManage?: ()
           {role !== 'external' && (
             <button onClick={() => setActiveTab('insights')} title="Dashboard" aria-label="Dashboard"
               className={activeTab === 'insights' ? 'ws-bento-btn ws-bento-btn-on' : 'ws-bento-btn'}>
-              {/* Bento dashboard glyph — matches the icon device */}
+              {/* Bento dashboard glyph — chrome shiny-black stealth tiles */}
               <svg width="15" height="15" viewBox="0 0 24 24">
+                <defs>
+                  <linearGradient id="bentoChrome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6A6A6E" />
+                    <stop offset="16%" stopColor="#2C2C30" />
+                    <stop offset="52%" stopColor="#0A0A0C" />
+                    <stop offset="100%" stopColor="#000000" />
+                  </linearGradient>
+                </defs>
                 <rect x="4" y="4" width="7" height="9" rx="1.6" />
                 <rect x="4" y="15" width="7" height="5" rx="1.6" />
                 <rect x="13" y="4" width="7" height="5" rx="1.6" />
