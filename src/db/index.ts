@@ -300,113 +300,205 @@ function li(label: string): import('./schema').CostLineItem {
   return { id: Math.random().toString(36).slice(2), label, amount: 0, notes: '' }
 }
 
-const DEFAULT_HARD_COSTS = [
-  li('Demolition & Site Clearance'),
-  li('Bulk Earthworks & Excavation'),
-  li('Retaining Walls & Shoring'),
-  li('Basement & Substructure'),
-  li('Concrete Structure & Post-Tension Slabs'),
-  li('External Envelope — Facade & Cladding'),
-  li('Roofing & Waterproofing'),
-  li('Windows, Glazing & Curtain Wall'),
-  li('Mechanical — HVAC'),
-  li('Electrical & Data'),
-  li('Hydraulic & Plumbing'),
-  li('Fire Protection & Detection'),
-  li('Lifts & Vertical Transport'),
-  li('Apartment Internal Fitout'),
-  li('Common Area Fitout & Finishes'),
-  li('Joinery, Cabinetry & Wardrobes'),
-  li('Flooring (Tiles, Carpet, Timber)'),
-  li('Landscaping & External Works'),
-  li('Car Parking (Line Marking, Bollards, Equipment)'),
-  li('Signage & Wayfinding'),
-  li('FF&E — Amenity, Lobby & Gym'),
-  li('Preliminaries & Site Establishment'),
-  li("Builder's Overhead & Profit Margin"),
-  li('Construction Contingency'),
-]
+// ── CFO master cost schedule (2026) ───────────────────────────────────────────
+// Authoritative line-item labels per Cost Stack section. The migration below
+// rewrites every project's sections to match these, zeroed, so the CFO/DM build
+// budgets from a clean slate.
+export const COST_STACK_LABELS: Record<'hardCosts' | 'consultants' | 'statutory' | 'headworks' | 'management' | 'marketing', string[]> = {
+  hardCosts: [
+    'Construction Costs | Basement (s)',
+    'Construction Costs | Apartment',
+    'Construction Costs | Cold Shell',
+    'Construction Costs | Common Area',
+    'Construction Costs | Ammenities',
+    'Construction Costs | Balconies',
+    'Construction Costs | External Works',
+    'Construction Costs | Commercial Fit Out',
+    'Demolition | Temporary Works',
+    'Demolition | Hard Works',
+    'Contingency',
+  ],
+  consultants: [
+    'Acoustic Engineer | Planning',
+    'Acoustic Engineer | Schematic',
+    'Acoustic Engineer | Construction',
+    'Arborist | Planning',
+    'Arborist | Project Arobrist',
+    'Architect | Feasibility DPO',
+    'Architect | Master Planning DPO',
+    'Architect | Feasibility Permit',
+    'Architect | Master Planning Permit',
+    'Architect | 50% Sketch Design - Planning Lodgment',
+    'Architect | 100% Sketch Design – Balance',
+    'Architect | 50% Design Development - Marketing/GMP',
+    'Architect | 100% Design Development - Tender',
+    'Architect | Construction Documentation',
+    'Architect | Construction Services',
+    'Audio Visual | Schematic',
+    'Audio Visual | Construction drawings',
+    'BIM | Management | Design Stage',
+    'BIM | Management | Construction Stage',
+    'Building Surveyor | BCA Review',
+    'Building Surveyor | Construction',
+    'Services and Infrastructure Report | Town Planning',
+    'Flooding and Stormwater Management Plan | Town Planning',
+    'Civil Eng | Design Development',
+    'Civil Eng | Construction Drawings',
+    'Cultural Heritage | CHMP',
+    'Cultural Heritage | Project CH Review',
+    'DDA | Town Plannng',
+    'DDA | Design Development',
+    'Demolition | Permit and Documents',
+    'Enviromental',
+    'End of Trip | Scope',
+    'End of Trip | Documentation',
+    'ESD | Town Planning',
+    'ESD | JV3 Green Star',
+    'Facade Eng | Town Planning',
+    'Facade Eng| Design Development',
+    'Facade Eng | Construction Drawings',
+    'Fire Engineering | Schematic',
+    'Fire Engineering | FEB',
+    'Fire Engineering | FER',
+    'Fire Engineering | Construction',
+    'Geotechnical Engineer | Report',
+    'Geotechnical Engineer | Acid Sulphate',
+    'Heritage | Town Planning',
+    'Heritage | Design Development',
+    'Heritage | Construction Services',
+    'Housing Diversity Report',
+    'Hotel Management | Feasability',
+    'Hotel Management | Operator Selection',
+    'Intergrated Comms | Schematic',
+    'Intergrated Comms | Design development',
+    'Intergrated Comms | Construction',
+    'Interior Design | Schematic',
+    'Interior Design | Marketing',
+    'Interior Design | Design Development',
+    'Interior Design | Construction',
+    'Investigations | HAZMAT testing',
+    'Land Surveyor | Feature & Level Survey',
+    'Land Surveyor | Title Re-establishment Survey',
+    'Land Surveyor | Plan of Subdivision',
+    'Land Surveyor | Subdivision Certification Process',
+    'Landscape | DPO',
+    'Landscape | Town Planning Submissiom',
+    'Landscape | Design Development',
+    'Landscape | Contract Documentation',
+    'Landscape | Construction Services',
+    'Landscape | Defect Liability Period',
+    'Legal | Head Contracts',
+    'Legal | Sales Contract',
+    'Project Management | Design Stage',
+    'Project Management | Construction',
+    'Quanitiy Surveyor | initial Report',
+    'Quanitiy Surveyor | Monthly Claims',
+    'Security | Scope',
+    'Security | Documentation',
+    'Specialist Lighting | Schematic',
+    'Specialist Lighting | Design Development',
+    'Specialist Engineer | FP 1.4',
+    'Specialist Engineer | Zero Fall',
+    'Specialist Engineer | Threshold',
+    'Seismic | Report',
+    'Service Diversion | Design',
+    'Service Diversion | Construction Services',
+    'Services | Schematic',
+    'Services | Design Development',
+    'Services | Construction Drawings',
+    'Services | Construction Services',
+    'Structural Eng | Schematic',
+    'Structural Eng | Design Development',
+    'Structural Eng | Construction Drawings',
+    'Structural Eng | Construction Services',
+    'Superintendent | Monthly Reporting',
+    'Technology | Program Writing',
+    'Temporary Works Engineering',
+    'Town Planner | Strategy & Approval Process',
+    'Town Planner | Project Team Appointment & Design Inputs',
+    'Town Planner | DFP Engagement',
+    'Town Planner | Lodgement DPO / TP',
+    'Town Planner | RFI DPO / TPO',
+    'Traffic Management | Town Planning',
+    'Traffic Management | CMP',
+    'Urban Design | Concept & Development Plan Scoping',
+    'Urban Design | Development Plan Preparation',
+    'Urban Design | TP Application Support *Refer to Fee Proposal',
+    'VCAT | Expert Witness',
+    'VCAT | Legal',
+    'VCAT | Town Planner',
+    'Waste Management | Town Planning',
+    'Way Finding and Signage | Scope',
+    'Way Finding and Signage | Documents',
+    'Wind | Town Planing',
+    'Wind | Design Development',
+    'Contingency',
+  ],
+  statutory: [
+    'Asset Protection Bond | Demo',
+    'Asset Protection Bond | Construction',
+    'Building Application Fee',
+    'Metropolitan Planning Levy',
+    'Open Space Contribution',
+    'Planning Application Fee',
+    'Subdivision Costs',
+    'Development Contribution | Residential',
+    'Development Contribution | Commercial',
+    'Tenant Relocation',
+  ],
+  headworks: [
+    'Asset Relocation | Headworks',
+    'Enviro Consultant | Soil Classification',
+    'Enviro Consultant | PSI and Sampling',
+    'Enviro Consultant | Assess and monitoring',
+    'Enviro Consultant | Site Remediation',
+    'Enviro Consultant | Assessment',
+    'Enviromental Auditor | Assessment',
+    'Enviromental Auditor | Site Review',
+    'Enviromental Auditor | Final Assessment',
+    'Gas | Application',
+    'NBN / Comms | Application',
+    'Power Application | Site Power',
+    'Power Application | Powerline Change',
+    'Sewer and Water | Application',
+    'Sewer and Water | PIC',
+    'Sewer Manhole | CMP and Permits',
+    'Sewer Manhole | Site works',
+    'Storm Water | Connection',
+    'Storm Water | Diversion',
+    'Substation | Design',
+    'Substation | Works',
+  ],
+  management: [
+    'Adminstration Management',
+    'Accounting Management',
+    'Legal Management',
+    'Marketing Management',
+    'Development Management',
+  ],
+  marketing: [
+    'Advertising | One Off',
+    'Advertising | Ongoing Management',
+    'Display Suite | Design Documentation',
+    'Display Suite | Construction',
+    'Display Suite | Holding Costs',
+    'Display Suite | Loose Furniture',
+    'Marketing | Collateral',
+    'Marketing | Print Media',
+    'Marketing | Renders Drafts',
+    'Marketing | Renders Final',
+    'Marketing | Website',
+    'Marketing | Website Hosting',
+    'Marketing | Special use',
+  ],
+}
 
-const DEFAULT_CONSULTANTS = [
-  li('Architect — Concept & Schematic Design'),
-  li('Architect — Design Development & Documentation'),
-  li('Architect — Contract Administration'),
-  li('Town Planner'),
-  li('Civil Engineer'),
-  li('Structural Engineer'),
-  li('Mechanical & Electrical Services Engineer'),
-  li('Hydraulic Engineer'),
-  li('Fire Engineer'),
-  li('Acoustic Consultant'),
-  li('Traffic Engineer'),
-  li('Landscape Architect'),
-  li('Interior Designer'),
-  li('ESD / Sustainability Consultant'),
-  li('Geotechnical Engineer'),
-  li('Land Surveyor & Feature Survey'),
-  li('Quantity Surveyor (QS)'),
-  li('Building Surveyor / Certifier'),
-  li("Project Manager (Developer's Representative)"),
-]
-
-const DEFAULT_STATUTORY = [
-  li('Planning Permit Application Fee'),
-  li('Building Permit Fee'),
-  li('Council Infrastructure Levy (CIL)'),
-  li('VPA / Government Authority Levy'),
-  li('Affordable Housing Contribution'),
-  li('Water / Sewer Headworks'),
-  li('Electrical Connection & Substation'),
-  li('Gas Connection Fee'),
-  li('NBN / Communications Connection'),
-  li('VicRoads / DTP Contributions'),
-  li('Stamp Duty'),
-  li('Other Government Fees & Bonds'),
-  li('Senior Construction Debt Interest'),
-  li('Loan Establishment & Line Fees'),
-  li('Mezzanine / Junior Debt Interest'),
-  li('Bank Valuation & Legal Fees'),
-  li('PEXA & Conveyancing Costs'),
-  li('Council Rates (Holding Period)'),
-  li('Land Tax (Holding Period)'),
-  li('Strata / OC Title Registration'),
-  li('Owners Corporation Setup'),
-]
-
-const DEFAULT_HEADWORKS = [
-  li('Water Headworks & Connection'),
-  li('Sewer Headworks & Connection'),
-  li('Electrical Connection & Substation'),
-  li('Gas Connection'),
-  li('NBN / Communications Connection'),
-  li('Stormwater & Drainage Headworks'),
-  li('Environmental Assessment & Remediation'),
-  li('Contamination / Acid Sulfate Management'),
-]
-
-const DEFAULT_MANAGEMENT = [
-  { ...li('Development Fee'), pctBasis: 'construction' as const, pct: 0.03 },
-  { ...li('Project Management Fee'), pctBasis: 'construction' as const, pct: 0.02 },
-  li('Superintendent'),
-  li('Financier Monitoring / QS Reporting'),
-  li('Legal & Accounting'),
-  li('Owners Corporation Setup & Management'),
-]
-
-const DEFAULT_MARKETING = [
-  li('Sales Agent Commission'),
-  li('Marketing Collateral & Sales Kit'),
-  li('CGI Renders & 3D Visualisations'),
-  li('Display Suite Construction'),
-  li('Photography & Videography'),
-  li('Digital, Social Media & SEO'),
-  li('Launch Event & PR'),
-  li('Legal — Contract of Sale & Purchaser Contracts'),
-  li('Project Insurance (OCIP / Contract Works)'),
-  li('Public Liability Insurance'),
-  li('Developer Management Fee'),
-  li('Defects Rectification Reserve'),
-]
+const DEFAULT_HARD_COSTS = COST_STACK_LABELS.hardCosts.map(li)
+const DEFAULT_CONSULTANTS = COST_STACK_LABELS.consultants.map(li)
+const DEFAULT_STATUTORY = COST_STACK_LABELS.statutory.map(li)
+const DEFAULT_HEADWORKS = COST_STACK_LABELS.headworks.map(li)
+const DEFAULT_MANAGEMENT = COST_STACK_LABELS.management.map(li)
+const DEFAULT_MARKETING = COST_STACK_LABELS.marketing.map(li)
 
 export function getDetailedCostStack(projectId: string): import('./schema').DetailedCostStack {
   const stack = load<import('./schema').DetailedCostStack>(`detailed-costs:${projectId}`, {
@@ -422,23 +514,29 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
   // before those sections existed, so existing projects pick them up.
   if (!stack.headworks) stack.headworks = DEFAULT_HEADWORKS.map(x => ({ ...x, id: generateId() }))
   if (!stack.management) stack.management = DEFAULT_MANAGEMENT.map(x => ({ ...x, id: generateId() }))
-
-  // Development Fee & Project Management Fee are a % of the summary construction
-  // value. Tag legacy lines (saved before pctBasis existed) and DERIVE their
-  // amount live from construction so the fee flows everywhere the stack is read.
-  const cs = getCostStack(projectId)
-  const gba = getSiteDesign(projectId).resiGBA
-  const construction = gba * cs.buildRatePerSqm * (1 + (cs.regionalLoadingPct ?? 0))
-  stack.management = stack.management.map(it => {
-    let line = it
-    if (!line.pctBasis) {
-      if (/development fee|developer management/i.test(line.label)) line = { ...line, label: 'Development Fee', pctBasis: 'construction', pct: line.pct ?? 0.03 }
-      else if (/project management/i.test(line.label)) line = { ...line, label: 'Project Management Fee', pctBasis: 'construction', pct: line.pct ?? 0.02 }
-    }
-    if (line.pctBasis === 'construction') line = { ...line, amount: Math.round((line.pct ?? 0) * construction) }
-    return line
-  })
   return stack
+}
+
+// One-time migration: rewrite every project's Cost Stack sections to the CFO's
+// 2026 master schedule (COST_STACK_LABELS) with all amounts zeroed, so the CFO
+// and DM build budgets from a clean slate. Runs once per browser after the cloud
+// pull, then pushes the rewritten stacks back to the cloud.
+export function migrateCostStackLabels() {
+  const FLAG = 'coststack_labels_cfo_2026'
+  if (localStorage.getItem(FLAG)) return
+  const fresh = (labels: string[]) => labels.map(l => ({ id: generateId(), label: l, amount: 0, notes: '' }))
+  for (const p of getProjects()) {
+    saveDetailedCostStack({
+      projectId: p.id,
+      hardCosts: fresh(COST_STACK_LABELS.hardCosts),
+      consultants: fresh(COST_STACK_LABELS.consultants),
+      statutory: fresh(COST_STACK_LABELS.statutory),
+      headworks: fresh(COST_STACK_LABELS.headworks),
+      management: fresh(COST_STACK_LABELS.management),
+      marketing: fresh(COST_STACK_LABELS.marketing),
+    })
+  }
+  localStorage.setItem(FLAG, '1')
 }
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {
