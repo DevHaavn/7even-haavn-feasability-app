@@ -12,9 +12,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 )
 
-// Register service worker so the app is installable to the desktop (PWA).
+// The service worker was caching stale builds and pinning browsers to old
+// deploys. We no longer register it; the self-destroying /sw.js (below) removes
+// any previously-installed worker + caches so every visit is always the latest
+// deploy. Belt-and-braces: if an old worker is still controlling this page,
+// unregister it now.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
-  })
+  navigator.serviceWorker.getRegistrations?.().then(regs => regs.forEach(r => r.unregister())).catch(() => {})
+  if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {})
 }

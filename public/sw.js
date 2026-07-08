@@ -1,26 +1,23 @@
-// Minimal service worker — required for PWA installability.
-// Network-first so the app always fetches the latest deploy; falls back to
-// cache only when offline.
-const CACHE = '7even-haavn-v1'
+// SELF-DESTRUCTING SERVICE WORKER.
+// A previous version cached the app shell and pinned browsers to old deploys.
+// This replacement unregisters itself, deletes every cache, and reloads any
+// controlled tabs ONCE so they pick up the latest deploy fresh from the network.
+// The app no longer registers a service worker, so this runs a single time.
+self.addEventListener('install', () => self.skipWaiting())
 
-self.addEventListener('install', () => { self.skipWaiting() })
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-  )
-  self.clients.claim()
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const keys = await caches.keys()
+      await Promise.all(keys.map((k) => caches.delete(k)))
+      await self.registration.unregister()
+      const clients = await self.clients.matchAll({ type: 'window' })
+      clients.forEach((c) => c.navigate(c.url))
+    } catch (_) { /* no-op */ }
+  })())
 })
 
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const copy = res.clone()
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {})
-        return res
-      })
-      .catch(() => caches.match(e.request))
-  )
+// Always go straight to the network — never serve a cached build.
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request))
 })
