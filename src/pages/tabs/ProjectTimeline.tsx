@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack } from '../../db'
-import { COST_PHASES } from '../../db/schema'
-import type { TimelineTask, TimelineCategory, TimelineStatus } from '../../db/schema'
+import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
+import type { TimelineTask, TimelineCategory, TimelineStatus, CostPhase } from '../../db/schema'
 import { DateField } from '../../components/ui'
+import { getPhaseCosts } from '../../db'
 
 interface Props { projectId: string }
 
@@ -64,6 +65,20 @@ const CAT_LABELS: Record<TimelineCategory, string> = {
 const CATS      = Object.keys(CAT_COLORS) as TimelineCategory[]
 const STATUSES  = Object.keys(STATUS_COLORS) as TimelineStatus[]
 
+// ── Delivery phases — the Timeline is organised by the same five phases used
+// across every project tab (Cost Stack, Cashflow, Land & Terms). ──
+const PHASE_COLORS: Record<CostPhase, string> = {
+  'pre-acquisition':      '#C4973A',
+  'acquisition-planning': '#A855F7',
+  'pre-construction':     '#3B82F6',
+  'construction':         '#6B6B6B',
+  'close-out':            '#22C55E',
+}
+const PHASES = COST_PHASES.map(p => p.id)
+const PHASE_LABEL: Record<CostPhase, string> = Object.fromEntries(COST_PHASES.map(p => [p.id, p.label])) as Record<CostPhase, string>
+const taskPhase = (t: TimelineTask): CostPhase => t.phase ?? CATEGORY_TO_PHASE[t.category]
+const phaseFmt = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${Math.round(n)}`
+
 const BLANK_TASK: Omit<TimelineTask, 'id' | 'projectId'> = {
   name: '', category: 'planning', assignee: '',
   startDate: new Date().toISOString().slice(0, 10),
@@ -89,7 +104,8 @@ export default function ProjectTimeline({ projectId }: Props) {
   const [tasks, setTasks]     = useState<TimelineTask[]>(() => getTimelineTasks(projectId))
   const [editing, setEditing] = useState<TimelineTask | null>(null)
   const [isNew, setIsNew]     = useState(false)
-  const [filterCat, setFilterCat] = useState<TimelineCategory | 'all'>('all')
+  const [filterPhase, setFilterPhase] = useState<CostPhase | 'all'>('all')
+  const phaseCosts = useMemo(() => getPhaseCosts(projectId), [projectId, tasks])
   // Screen real-estate: show one year at a time (default the current year).
   const [viewYear, setViewYear] = useState<number>(new Date().getFullYear())
   // Drag-to-move: grab a bar and slide it; commits new start/end on release.
@@ -121,7 +137,7 @@ export default function ProjectTimeline({ projectId }: Props) {
 
   // Only tasks whose span overlaps the visible year.
   const visible = tasks.filter(t =>
-    (filterCat === 'all' || t.category === filterCat) &&
+    (filterPhase === 'all' || taskPhase(t) === filterPhase) &&
     yearOf(t.startDate) <= viewYear && yearOf(t.endDate) >= viewYear,
   )
 
@@ -174,11 +190,11 @@ export default function ProjectTimeline({ projectId }: Props) {
     return marks
   }, [minDate, maxDate, totalDays])
 
-  // Group visible tasks by category
+  // Group visible tasks by delivery phase (COST_PHASES order)
   const grouped = useMemo(() => {
-    const map = new Map<TimelineCategory, TimelineTask[]>()
-    for (const c of CATS) map.set(c, [])
-    for (const t of visible) map.get(t.category)?.push(t)
+    const map = new Map<CostPhase, TimelineTask[]>()
+    for (const p of PHASES) map.set(p, [])
+    for (const t of visible) map.get(taskPhase(t))?.push(t)
     return Array.from(map.entries()).filter(([, arr]) => arr.length > 0)
   }, [visible])
 
@@ -232,11 +248,11 @@ export default function ProjectTimeline({ projectId }: Props) {
 
         <div style={{ flex: 1 }} />
 
-        {/* Category filters */}
+        {/* Phase filters — the same delivery phases used across every tab */}
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          <FilterChip label="All" active={filterCat === 'all'} color="#777" onClick={() => setFilterCat('all')} />
-          {CATS.filter(c => tasks.some(t => t.category === c)).map(c => (
-            <FilterChip key={c} label={CAT_LABELS[c]} active={filterCat === c} color={CAT_COLORS[c]} onClick={() => setFilterCat(c)} />
+          <FilterChip label="All Phases" active={filterPhase === 'all'} color="#777" onClick={() => setFilterPhase('all')} />
+          {PHASES.map(p => (
+            <FilterChip key={p} label={PHASE_LABEL[p]} active={filterPhase === p} color={PHASE_COLORS[p]} onClick={() => setFilterPhase(p)} />
           ))}
         </div>
 
@@ -297,18 +313,19 @@ export default function ProjectTimeline({ projectId }: Props) {
               </div>
             </div>
 
-            {/* Task rows grouped by category */}
+            {/* Task rows grouped by delivery phase */}
             {grouped.map(([cat, catTasks]) => (
               <div key={cat}>
 
-                {/* Category header row */}
-                <div style={{ display: 'flex', height: 30, alignItems: 'center', background: `${CAT_COLORS[cat]}08`, borderBottom: `1px solid ${CAT_COLORS[cat]}22` }}>
-                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', borderRight: '1px solid #D8D5D0', position: 'sticky', left: 0, zIndex: 8, background: `${CAT_COLORS[cat]}10` }}>
-                    <span style={{ width: 3, height: 12, background: CAT_COLORS[cat], flexShrink: 0 }} />
-                    <span style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: CAT_COLORS[cat], fontWeight: 700 }}>{CAT_LABELS[cat]}</span>
-                    <span style={{ fontSize: 7, color: `${CAT_COLORS[cat]}77`, marginLeft: 'auto' }}>{catTasks.length}</span>
+                {/* Phase header row — label + task count + cost of works for the phase */}
+                <div style={{ display: 'flex', height: 30, alignItems: 'center', background: `${PHASE_COLORS[cat]}08`, borderBottom: `1px solid ${PHASE_COLORS[cat]}22` }}>
+                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', borderRight: '1px solid #D8D5D0', position: 'sticky', left: 0, zIndex: 8, background: `${PHASE_COLORS[cat]}10` }}>
+                    <span style={{ width: 3, height: 12, background: PHASE_COLORS[cat], flexShrink: 0 }} />
+                    <span style={{ fontSize: 7, letterSpacing: '0.2em', textTransform: 'uppercase', color: PHASE_COLORS[cat], fontWeight: 700 }}>{PHASE_LABEL[cat]}</span>
+                    <span style={{ fontSize: 8, color: PHASE_COLORS[cat], fontWeight: 700, marginLeft: 'auto', fontFamily: 'var(--font-mono)' }} title="Cost of works in this phase">{phaseFmt(phaseCosts[cat] || 0)}</span>
+                    <span style={{ fontSize: 7, color: `${PHASE_COLORS[cat]}77` }}>· {catTasks.length}</span>
                   </div>
-                  {/* Category grid underlay */}
+                  {/* Phase grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
                     {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#D8D5D0' : '#EDEBE7' }} />)}
                     <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A33' }} />
@@ -417,9 +434,9 @@ export default function ProjectTimeline({ projectId }: Props) {
             </Field>
 
             <div style={{ display: 'flex', gap: 12 }}>
-              <Field label="Category" flex={1}>
-                <select value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value as TimelineCategory })} style={INPUT}>
-                  {CATS.map(c => <option key={c} value={c}>{CAT_LABELS[c]}</option>)}
+              <Field label="Phase" flex={1}>
+                <select value={taskPhase(editing)} onChange={e => setEditing({ ...editing, phase: e.target.value as CostPhase })} style={INPUT}>
+                  {PHASES.map(p => <option key={p} value={p}>{PHASE_LABEL[p]}</option>)}
                 </select>
               </Field>
               <Field label="Status / Traffic Light" flex={1}>

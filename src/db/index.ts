@@ -7,6 +7,7 @@ import { computeLandCost } from '../engine/landCost'
 import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
 import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
+import { calculateCostStack } from '../engine/costStack'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -622,6 +623,26 @@ export function getProjectGDV(projectId: string): number {
     }
   }
   return best
+}
+
+/** Cost of works by delivery phase — the same hybrid figures the feasibility uses
+ *  (itemised where entered, else top-down), distributed across the five phases.
+ *  Powers the Timeline phase lanes and the dashboard cost-vs-time tracking. */
+export function getPhaseCosts(projectId: string): Record<import('./schema').CostPhase, number> {
+  const site = getSiteDesign(projectId)
+  const land = getLandTerms(projectId)
+  const cs = getCostStack(projectId)
+  const inKindLineItem = land.isInKind && land.inKindGFA > 0
+    ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
+    : undefined
+  const r = calculateCostStack({ ...cs, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+  return {
+    'pre-acquisition':      getEffectiveLandCost(projectId),
+    'acquisition-planning': cs.statutoryFixed + r.posContribution,
+    'pre-construction':     r.professionalFees + cs.projectManagementFixed,
+    'construction':         r.construction + r.contingency + r.prelims + r.finance + cs.amenityFitoutFixed,
+    'close-out':            cs.marketingFixed,
+  }
 }
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {

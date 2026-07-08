@@ -295,11 +295,24 @@ export interface HotelAssumptions {
 export type TimelineCategory = 'acquisition' | 'planning' | 'approvals' | 'site' | 'construction' | 'fitout' | 'commissioning'
 export type TimelineStatus   = 'not-started' | 'in-progress' | 'complete' | 'delayed' | 'critical'
 
+// Map the legacy task categories onto the five delivery phases so the Timeline
+// can be organised by the same phases used across every project tab.
+export const CATEGORY_TO_PHASE: Record<TimelineCategory, CostPhase> = {
+  acquisition:   'pre-acquisition',
+  planning:      'acquisition-planning',
+  approvals:     'acquisition-planning',
+  site:          'pre-construction',
+  construction:  'construction',
+  fitout:        'construction',
+  commissioning: 'close-out',
+}
+
 export interface TimelineTask {
   id: string
   projectId: string
   name: string
   category: TimelineCategory
+  phase?: CostPhase          // delivery phase (defaults from category if unset)
   assignee: string
   startDate: string   // YYYY-MM-DD
   endDate: string     // YYYY-MM-DD
