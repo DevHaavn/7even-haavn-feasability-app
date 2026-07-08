@@ -17,6 +17,9 @@ export default function App() {
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  // JB Light (default) / JB BLK (dark-gold) — lifted here so the Manage screen can toggle it.
+  const [theme, setThemeState] = useState<'light' | 'blk'>(() => (localStorage.getItem('jb_theme') as 'light' | 'blk') || 'light')
+  const setTheme = (t: 'light' | 'blk') => { setThemeState(t); localStorage.setItem('jb_theme', t) }
 
   // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
   // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.
@@ -80,13 +83,16 @@ export default function App() {
                   projectId={activeProject.id}
                   projectName={activeProject.name}
                   onClose={() => setManageOpen(false)}
+                  theme={theme}
+                  onPickTheme={setTheme}
+                  onLogout={handleLogout}
                 />
               )}
             </>
           )}
 
           {activeProjectId
-            ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} />
+            ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
             : <ProjectList onLogout={handleLogout} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return

@@ -8,11 +8,14 @@ interface Props {
   projectId: string
   projectName: string
   onClose: () => void
+  theme: 'light' | 'blk'
+  onPickTheme: (t: 'light' | 'blk') => void
+  onLogout: () => void
 }
 
-export default function ProjectManagePanel({ projectId, projectName, onClose }: Props) {
+export default function ProjectManagePanel({ projectId, projectName, onClose, theme, onPickTheme, onLogout }: Props) {
   const { loadProjects, setActiveTab } = useStore()
-  const [tab, setTab] = useState<'history' | 'export' | 'reset'>('history')
+  const [tab, setTab] = useState<'history' | 'export' | 'display' | 'reset'>('history')
   const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([])
   const [confirmRestore, setConfirmRestore] = useState<ProjectSnapshot | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<ProjectSnapshot | null>(null)
@@ -58,7 +61,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', flex: 1 }}>
-            {([{ id: 'history', label: '⏱ Version History' }, { id: 'export', label: '⬇ Export' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
+            {([{ id: 'history', label: '⏱ Version History' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 style={{
                   padding: '18px 28px',
@@ -187,6 +190,30 @@ export default function ProjectManagePanel({ projectId, projectName, onClose }: 
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ── DISPLAY TAB — theme switch + session ── */}
+          {tab === 'display' && (
+            <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 28px', width: '100%' }}>
+              <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 6 }}>Appearance</p>
+              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 8 }}>Colour Theme</h2>
+              <p style={{ fontSize: 10, color: '#8A8A8A', letterSpacing: '0.06em', lineHeight: 1.6, marginBottom: 24 }}>
+                Choose the workspace palette. JB Light is the default natural scheme; JB Blk is the dark black-chrome &amp; gold scheme.
+              </p>
+
+              <div className="jb-switch jb-switch-dark" style={{ maxWidth: 280, marginBottom: 40 }}>
+                <button className={theme === 'light' ? 'on' : ''} onClick={() => onPickTheme('light')}>JB Light</button>
+                <button className={theme === 'blk' ? 'on' : ''} onClick={() => onPickTheme('blk')}>JB Blk</button>
+              </div>
+
+              <div style={{ borderTop: '1px solid #1A1A1A', paddingTop: 28 }}>
+                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#666', marginBottom: 14 }}>Session</p>
+                <button onClick={onLogout} className="glass-btn glass-btn-red"
+                  style={{ padding: '11px 26px', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>
+                  ⎋ Log Out
+                </button>
+              </div>
             </div>
           )}
 

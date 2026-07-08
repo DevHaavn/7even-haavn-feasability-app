@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
-import { FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
+import { FieldRow, NumberInput, PctInput, Button, SectionHeading } from '../../components/ui'
 import type { LandTerms, LandDealType } from '../../db/schema'
 import { LAND_DEAL_TYPES } from '../../db/schema'
 import { ALL_STATES, type AuState, type PropertyType } from '../../engine/stampDuty'
@@ -94,16 +94,14 @@ export default function LandTermsTab({ projectId }: Props) {
     <div className="flex flex-col">
       <div className="relative p-4 md:p-6" style={{ color: '#1A1A1A' }}>
 
-        {/* ── HERO ── */}
-        <div className="flex items-end justify-between flex-wrap gap-3" style={{ paddingBottom: 22, borderBottom: '1px solid #EDE9E1' }}>
-          <div>
-            <h1 style={{ fontWeight: 300, fontSize: 30, letterSpacing: '0.02em', color: '#1A1A1A' }}>Land <b className="chrome-black-text" style={{ fontWeight: 800 }}>&amp; Vendor Terms</b></h1>
-            <div style={{ color: '#999', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 8 }}>Acquisition · Deal Structure · Settlement · Cashflow inputs</div>
-          </div>
-          <div className="flex items-center gap-3">
+        {/* ── HERO — header styled to match every other tab (SectionHeading) ── */}
+        <div className="flex items-end justify-between flex-wrap gap-3 mb-1">
+          <SectionHeading sub="Acquisition · Deal Structure · Settlement · Cashflow inputs">Land &amp; Vendor Terms</SectionHeading>
+          <div className="flex items-center gap-3" style={{ paddingBottom: 4 }}>
             {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
             {dirty && <Button size="sm" onClick={() => { saveLandTerms(data); undoRef.current = null; setDirty(false) }}>Save</Button>}
-            <span className="chrome-black-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '8px 16px', borderRadius: 30, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: 'rgba(255,255,255,0.5)' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
+            {/* Current deal-structure badge — readable solid label (was an invisible chrome pill) */}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '7px 15px', borderRadius: 30, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: '#F5F3F0', color: '#2A2A2A' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
           </div>
         </div>
 
