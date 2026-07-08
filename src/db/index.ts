@@ -8,6 +8,8 @@ import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
 import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
 import { calculateCostStack } from '../engine/costStack'
+import { buildCashflow } from '../engine/cashflow'
+import { developmentIRR, type ProfitMetrics } from '../engine/returns'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -643,6 +645,58 @@ export function getPhaseCosts(projectId: string): Record<import('./schema').Cost
     'construction':         r.construction + r.contingency + r.prelims + r.finance + cs.amenityFitoutFixed,
     'close-out':            cs.marketingFixed,
   }
+}
+
+/** Multi-lens profit metrics for a project — the different ways banks, developers
+ *  and builders judge a deal: profit, margin on cost, margin on GDV, and IRR.
+ *  GDV/TDC use the SAME best-by-RLV scenario shown on the dashboards. */
+export function getProfitMetrics(projectId: string): ProfitMetrics {
+  const site = getSiteDesign(projectId)
+  const land = getLandTerms(projectId)
+  const cs = getCostStack(projectId)
+  const landEff = getEffectiveLandCost(projectId)
+  const inKindLineItem = land.isInKind && land.inKindGFA > 0
+    ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
+    : undefined
+
+  // Best scenario by RLV — mirrors the dashboard so the numbers reconcile.
+  let best: { gav: number; rlv: number; tdcBuild: number } | null = null
+  for (const s of getMixScenarios(projectId)) {
+    const units = getUnitTypes(s.id)
+    const hotelA = getHotelAssumptions(s.id)
+    const btrA = getBTRAssumptions(s.id)
+    const btsA = getBTSAssumptions(s.id)
+    const buildRate = hotelA.buildRateOverride ?? cs.buildRatePerSqm
+    const finPct = hotelA.constructionFinancePct ?? cs.financePct
+    const tdcBuild = calculateCostStack({ ...cs, buildRatePerSqm: buildRate, financePct: finPct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
+    if (hotelA.keys > 0) {
+      const inc = calculateHotelIncome(hotelA)
+      const v = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdcBuild, hotelA.devMarginPct)
+      if (!best || v.rlv > best.rlv) best = { gav: v.gav, rlv: v.rlv, tdcBuild }
+    }
+    if (units.some(u => u.weeklyRentConservative > 0)) {
+      const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
+      const inc = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
+      const v = calculateBTRValuation(inc.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
+      if (!best || v.rlv > best.rlv) best = { gav: v.gav, rlv: v.rlv, tdcBuild }
+      const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
+      const vb = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
+      if (!best || vb.rlv > best.rlv) best = { gav: vb.grossRevenue, rlv: vb.rlv, tdcBuild }
+    }
+  }
+  const tdcBuild = best?.tdcBuild ?? calculateCostStack({ ...cs, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
+  const gdv = best?.gav ?? 0
+  const tdc = tdcBuild + landEff   // land-inclusive TDC
+  const profit = gdv - tdc
+  const marginOnCost = tdc > 0 ? profit / tdc : 0
+  const marginOnGdv = gdv > 0 ? profit / gdv : 0
+  // IRR from the equity cashflow — equity drawn through delivery, then equity +
+  // profit realised at PROJECT COMPLETION (last month with any spend / sale).
+  const cf = buildCashflow(getCashflow(projectId), getPhaseCosts(projectId))
+  let exitMonth = 0
+  for (let m = cf.totalByMonth.length - 1; m >= 0; m--) { if ((cf.totalByMonth[m] || 0) > 0) { exitMonth = m; break } }
+  const { irr, equityMultiple } = developmentIRR(cf.equityByMonth, profit, exitMonth)
+  return { gdv, tdc, profit, marginOnCost, marginOnGdv, irr, equityMultiple, peakEquity: cf.peakEquity }
 }
 
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {

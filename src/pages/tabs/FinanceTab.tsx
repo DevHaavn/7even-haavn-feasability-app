@@ -3,6 +3,7 @@ import { useStore } from '../../store'
 import * as db from '../../db'
 import { calculateCostStack } from '../../engine/costStack'
 import { calculateFinance } from '../../engine/finance'
+import ProfitLens from '../../components/ProfitLens'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
@@ -338,6 +339,9 @@ export default function FinanceTab({ projectId }: Props) {
           )}
         </div>
       </div>
+
+      {/* Profit — every lens (developer · bank · investor) */}
+      <ProfitLens projectId={projectId} title="Profit — every lens (developer · bank · investor)" />
 
       {/* KPI strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 10, marginBottom: 32 }}>

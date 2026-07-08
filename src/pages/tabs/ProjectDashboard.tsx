@@ -10,6 +10,7 @@ import { STATUS_COLORS, STATUS_SHORT } from './ProjectTimeline'
 import { calculateFinance } from '../../engine/finance'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import FinanceSCurve, { getTimelineHealth } from '../../components/FinanceSCurve'
+import ProfitLens from '../../components/ProfitLens'
 
 interface Props { projectId: string }
 
@@ -209,6 +210,9 @@ export default function ProjectDashboard({ projectId }: Props) {
         {site.resiGBA > 0 && <KPI label="GBA" value={`${site.resiGBA.toLocaleString()}`} sub={`NSA ${site.resiNSA.toLocaleString()} sqm`} color="#fff" />}
         {bestScenario?.hotelA?.keys > 0 && <KPI label="Hotel Keys" value={String(bestScenario.hotelA.keys)} sub={`ADR $${bestScenario.hotelA.adr} · ${(bestScenario.hotelA.occupancyPct*100).toFixed(0)}% occ`} color="#C4973A" />}
       </div>
+
+      {/* ── Profit — every lens (developer, bank, investor) ── */}
+      <ProfitLens projectId={projectId} />
 
       {/* ── Row 2: Area breakdown + Cost stack ── */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>

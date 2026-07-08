@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
+import { computeLandCost } from '../../engine/landCost'
 import { getCostPresets, getProjectGDV } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
 import { COST_PHASES } from '../../db/schema'
@@ -501,6 +502,18 @@ export default function CostStackTab({ projectId }: Props) {
     { label: 'BTR amenity fitout', value: data.amenityFitoutFixed },
   ]
 
+  // Land & acquisition — itemised from Land & Terms (shows in the Cost Summary).
+  const landB = computeLandCost(land, data.gstEnabled)
+  const landRows = [
+    { label: 'Land — purchase price', value: Math.max(0, landB.price - landB.gstCredit) },
+    ...(landB.stampDuty + landB.foreignSurcharge > 0 ? [{ label: 'Stamp duty + surcharge', value: landB.stampDuty + landB.foreignSurcharge }] : []),
+    ...(landB.acquisitionCosts > 0 ? [{ label: 'Acquisition costs (fees · legals · DD)', value: landB.acquisitionCosts }] : []),
+    ...(landB.adjustments > 0 ? [{ label: 'Settlement adjustments', value: landB.adjustments }] : []),
+    ...(landB.financeOnTerms > 0 ? [{ label: 'Finance on terms', value: landB.financeOnTerms }] : []),
+    ...(landB.rebate > 0 ? [{ label: 'Less vendor rebate', value: -landB.rebate }] : []),
+  ]
+  const tdcInclLand = result.totalDevelopmentCost + landB.total
+
   // Active detail section
   const meta = innerTab !== 'summary' ? DETAIL_META[innerTab] : null
 
@@ -646,6 +659,23 @@ export default function CostStackTab({ projectId }: Props) {
           <div className="w-72 flex-shrink-0">
             <SectionHeading>Cost Summary</SectionHeading>
             <div className="border border-[#E0DDD8] bg-white">
+              {/* Land & acquisition — from Land & Terms, part of TDC */}
+              {landB.total > 0 && (
+                <div className="px-4 pt-2.5 pb-1 bg-[#FBFAF7] border-b border-[#F0EDE8]">
+                  <span className="text-[8px] tracking-[0.18em] uppercase text-[#B8963C] font-semibold">Land &amp; Acquisition</span>
+                </div>
+              )}
+              {landRows.map((r, i) => (
+                <div key={`land-${i}`} className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8] bg-[#FBFAF7]">
+                  <span className="text-[10px] text-[#8A6A28] tracking-wide">{r.label}</span>
+                  <span className="text-sm font-mono font-semibold text-[#8A6A28]">${r.value.toLocaleString()}</span>
+                </div>
+              ))}
+              {landB.total > 0 && (
+                <div className="px-4 pt-2.5 pb-1 bg-white border-b border-[#F0EDE8]">
+                  <span className="text-[8px] tracking-[0.18em] uppercase text-[#999] font-semibold">Development Costs</span>
+                </div>
+              )}
               {summaryRows.map((r, i) => (
                 <div key={i} className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8]">
                   <span className="text-[10px] text-[#888] tracking-wide">{r.label}</span>
@@ -665,13 +695,13 @@ export default function CostStackTab({ projectId }: Props) {
                 </div>
               )}
               <div className="flex justify-between items-center px-4 py-4 border-t border-[#D0CEC9] bg-[#F5F3F0]">
-                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#1A1A1A]">Total Dev Cost{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
-                <span className="font-mono font-bold text-2xl text-[#B8963C]">${(result.totalDevelopmentCost / 1_000_000).toFixed(1)}M</span>
+                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#1A1A1A]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
+                <span className="font-mono font-bold text-2xl text-[#B8963C]">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
               </div>
             </div>
             {site.resiGBA > 0 && (
               <p className="mt-2 text-[#AAA] text-[10px] text-right tracking-wide">
-                ${Math.round(result.totalDevelopmentCost / site.resiGBA).toLocaleString()}/sqm GBA all-in
+                ${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in
               </p>
             )}
           </div>

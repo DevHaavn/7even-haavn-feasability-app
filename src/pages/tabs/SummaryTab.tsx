@@ -22,6 +22,7 @@ import { calculateCostStack } from '../../engine/costStack'
 import { solveUnitMix } from '../../engine/unitMix'
 import { getPhaseCosts, getTimelineTasks } from '../../db'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
+import ProfitLens from '../../components/ProfitLens'
 
 interface Props { projectId: string }
 
@@ -258,6 +259,9 @@ function SummaryTabInner({ projectId }: Props) {
             ))}
           </div>
         )}
+
+        {/* ── Profit — every lens ── */}
+        <ProfitLens projectId={projectId} title="Profit — every lens (developer · bank · investor)" />
 
         {/* ── Site Areas ── */}
         <Section title="Site & Design" sub="Gross and net floor areas">
