@@ -3,6 +3,7 @@ import * as cloud from './cloud'
 import { exGst } from '../engine/gst'
 import { defaultCashflowState } from '../engine/cashflow'
 import { calculateStampDuty } from '../engine/stampDuty'
+import { computeLandCost } from '../engine/landCost'
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -105,22 +106,18 @@ export interface LandAcquisition {
  *  residential, going concern) get no credit. */
 export function getLandAcquisition(projectId: string): LandAcquisition {
   const land = getLandTerms(projectId)
-  const purchasePrice = land.landCost ?? 0
-  const landHasGst = getCostStack(projectId).gstEnabled && land.landGst === 'inc'
-  const gstCredit = landHasGst ? purchasePrice - exGst(purchasePrice) : 0
-  const exGstPrice = purchasePrice - gstCredit
-  const dutyResult = land.applyStampDuty && purchasePrice > 0
-    ? calculateStampDuty(land.state, purchasePrice, land.propertyType, { foreignBuyer: land.foreignBuyer })
-    : null
+  // Compose via the effective-land-cost engine so the deal STRUCTURE (deferred
+  // interest / option holding / adjustments / rebate) flows into the one number.
+  const b = computeLandCost(land, getCostStack(projectId).gstEnabled)
   return {
-    purchasePrice,
-    gstCredit,
-    exGstPrice,
-    stampDuty: dutyResult?.duty ?? 0,
-    foreignSurcharge: dutyResult?.foreignSurcharge ?? 0,
-    total: exGstPrice + (dutyResult?.total ?? 0),
-    settlementDate: land.settlementDate,
-    notes: dutyResult?.notes ?? [],
+    purchasePrice: b.price,
+    gstCredit: b.gstCredit,
+    exGstPrice: b.price - b.gstCredit,
+    stampDuty: b.stampDuty,
+    foreignSurcharge: b.foreignSurcharge,
+    total: b.total,
+    settlementDate: b.settlementDate,
+    notes: [...b.dutyNotes, ...b.flags],
   }
 }
 

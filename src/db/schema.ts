@@ -53,11 +53,51 @@ export interface LandTerms {
   settlementDate: string   // YYYY-MM-DD — duty due at settlement
   // GST on the land deal itself — not every purchase carries GST
   // (established residential is input-taxed; going-concern sales are GST-free)
-  landGst: 'inc' | 'none' | 'full'   // inc = GST in price (1/11 credit); none = no GST; full = GST added at 10% (reclaimed)
+  landGst: 'inc' | 'none' | 'full' | 'margin'   // inc = GST in price (1/11 credit); none = no GST; full = +10% reclaimed; margin = margin scheme (affects end-sale GST, not acquisition)
   // JW: payment schedule — deposit(s) → stage payments → settlement, each with a
   // date and amount (feeds the programme and cashflow).
   paymentSchedule?: LandPayment[]
+
+  // ── Deal structure & terms (rebuild) — the STRUCTURE of the acquisition, whose
+  // cost (deferred interest / option holding / rebates) the feasibility must see ──
+  dealType?: LandDealType
+  priceBasis?: 'lump' | 'sqm-site' | 'sqm-gfa' | 'per-lot'
+  siteAreaSqm?: number              // for $/sqm-site basis + effective $/sqm
+  // Deferred / staged settlement (vendor finance)
+  deferredDepositPct?: number       // 0..1
+  deferredAmount?: number           // deferred balance $
+  deferredMonths?: number
+  deferredRate?: number             // annual interest on the deferred balance (0..1)
+  // Put & call option
+  optionFee?: number
+  optionMonths?: number
+  optionExpiry?: string             // YYYY-MM-DD
+  optionFeeCredited?: boolean       // fee credited to price on exercise
+  optionDaConditional?: boolean
+  optionCallOnly?: boolean
+  // Rebate / adjustment
+  rebateAmount?: number             // vendor rebate / price reduction $
+  // JV / profit share
+  jvSharePct?: number               // vendor's share of profit (0..1)
+  jvPreferredReturn?: number        // preferred return (0..1)
+  jvLandValue?: number              // land value credited to the JV (cost basis)
+  // Settlement adjustments — added into the land line
+  adjRates?: number
+  adjWater?: number
+  adjLegal?: number
 }
+
+// Deal structures — each reveals only the fields it needs.
+export type LandDealType = 'standard' | 'deferred' | 'option' | 'rebate' | 'inkind' | 'jv'
+
+export const LAND_DEAL_TYPES: { id: LandDealType; label: string; blurb: string }[] = [
+  { id: 'standard', label: 'Standard settlement', blurb: 'Deposit + balance on a fixed date.' },
+  { id: 'deferred', label: 'Deferred / staged', blurb: 'Vendor finance — settle progressively; interest on the deferred balance.' },
+  { id: 'option',   label: 'Put & call option', blurb: 'Option fee ties up the site; duty assessed at exercise.' },
+  { id: 'rebate',   label: 'Rebate / adjustment', blurb: 'Vendor rebate reduces the effective land cost.' },
+  { id: 'inkind',   label: 'In-kind / land swap', blurb: 'Land exchanged for delivered product (no cash price).' },
+  { id: 'jv',       label: 'JV / profit share', blurb: 'Vendor takes a share of profit in lieu of price.' },
+]
 
 export interface LandPayment {
   id: string
