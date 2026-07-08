@@ -25,6 +25,14 @@ export interface CostStackInputs {
   regionalLoadingPct?: number
   posContributionPct?: number
   landCost?: number
+  // ── Itemised Cost Stack overrides (hybrid feasibility) ──
+  // When the CFO itemises a section, its total overrides the top-down figure:
+  //   constructionOverride     → all-in hard build cost (contingency & prelims
+  //                              are treated as included, so not re-added)
+  //   professionalFeesOverride → itemised Consultant & Professional fees
+  // Statutory / management / marketing flow through the existing fixed fields.
+  constructionOverride?: number
+  professionalFeesOverride?: number
   // Costs are entered GST-inclusive; when enabled, GST on the commercial/
   // consultant lines is claimed back as input tax credits and TDC is net of
   // those credits. Statutory (GST-free), finance (input-taxed) and in-kind
@@ -48,11 +56,18 @@ export interface CostStackResult {
 }
 
 export function calculateCostStack(inputs: CostStackInputs): CostStackResult {
-  // Standard build rate held constant; regional loading layered on top.
-  const construction = inputs.gba * inputs.buildRatePerSqm * (1 + (inputs.regionalLoadingPct ?? 0))
-  const contingency = construction * inputs.contingencyPct
-  const prelims = construction * inputs.prelimsPct
-  const professionalFees = construction * inputs.professionalFeesPct
+  // Standard build rate held constant; regional loading layered on top. When the
+  // CFO itemises Construction, that all-in total overrides the top-down build and
+  // already carries its own contingency/prelims lines (so those are not re-added).
+  const itemisedBuild = inputs.constructionOverride != null && inputs.constructionOverride > 0
+  const construction = itemisedBuild
+    ? inputs.constructionOverride!
+    : inputs.gba * inputs.buildRatePerSqm * (1 + (inputs.regionalLoadingPct ?? 0))
+  const contingency = itemisedBuild ? 0 : construction * inputs.contingencyPct
+  const prelims = itemisedBuild ? 0 : construction * inputs.prelimsPct
+  const professionalFees = inputs.professionalFeesOverride != null && inputs.professionalFeesOverride > 0
+    ? inputs.professionalFeesOverride
+    : construction * inputs.professionalFeesPct
   const finance = construction * inputs.financePct
   const inKindCost = inputs.inKindLineItem
     ? inputs.inKindLineItem.gfa * inputs.inKindLineItem.ratePerSqm

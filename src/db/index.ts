@@ -201,16 +201,31 @@ function costStackRaw(projectId: string): CostStack {
 
 export function getCostStack(projectId: string): CostStack {
   const cs = costStackRaw(projectId)
-  // The itemised Management Fees section is the source of truth for project
-  // management cost once the CFO has entered fees — feed its total into the
-  // summary field so it flows through calculateCostStack → TDC → RLV everywhere.
-  const mgmt = getDetailedCostStack(projectId).management.reduce((s, x) => s + (x.amount || 0), 0)
-  return mgmt > 0 ? { ...cs, projectManagementFixed: mgmt } : cs
+  // Hybrid feasibility — when the CFO itemises a Cost Stack section, its total is
+  // the source of truth and overrides the top-down figure; otherwise the summary
+  // value holds. This flows through calculateCostStack → TDC → RLV everywhere.
+  const d = getDetailedCostStack(projectId)
+  const sum = (arr: { amount: number }[]) => arr.reduce((s, x) => s + (x.amount || 0), 0)
+  const hard = sum(d.hardCosts)
+  const cons = sum(d.consultants)
+  const statHead = sum(d.statutory) + sum(d.headworks)
+  const mgmt = sum(d.management)
+  const mkt = sum(d.marketing)
+  return {
+    ...cs,
+    constructionOverride: hard > 0 ? hard : undefined,
+    professionalFeesOverride: cons > 0 ? cons : undefined,
+    statutoryFixed: statHead > 0 ? statHead : cs.statutoryFixed,
+    projectManagementFixed: mgmt > 0 ? mgmt : cs.projectManagementFixed,
+    marketingFixed: mkt > 0 ? mkt : cs.marketingFixed,
+  }
 }
 
 export function saveCostStack(data: CostStack) {
-  save(`coststack:${data.projectId}`, data)
-  cloud.pushProjectField(data.projectId, 'cost_stack', data)
+  // Strip the read-time itemised overrides so only the top-down summary persists.
+  const { constructionOverride: _c, professionalFeesOverride: _p, ...raw } = data
+  save(`coststack:${data.projectId}`, raw)
+  cloud.pushProjectField(data.projectId, 'cost_stack', raw)
   touchProject(data.projectId)
 }
 

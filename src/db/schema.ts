@@ -172,6 +172,11 @@ export interface CostStack {
   // GST 10% — sales GST deducted from revenue, input credits claimed on
   // commercial costs/consultants. Defaults on; costs are entered GST-inclusive.
   gstEnabled: boolean
+  // ── Derived at read-time by getCostStack from the itemised Cost Stack (NOT
+  // persisted — saveCostStack strips them). Present so the feasibility engine
+  // sees the itemised totals as construction / professional fee overrides. ──
+  constructionOverride?: number
+  professionalFeesOverride?: number
 }
 
 export interface CostLineItem {

@@ -447,11 +447,24 @@ export default function CostStackTab({ projectId }: Props) {
     gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote,
   } : undefined
 
-  // Itemised Management Fees total — drives the summary Project Management field
-  // (and therefore TDC/RLV) once the CFO has entered fees.
-  const mgmtTotal = detailed.management.reduce((s, x) => s + (x.amount || 0), 0)
+  // Itemised section totals — each overrides its top-down summary figure once the
+  // CFO enters line items (hybrid feasibility, live in-tab as they type).
+  const sumSec = (arr: CostLineItem[]) => arr.reduce((s, x) => s + (x.amount || 0), 0)
+  const hardTotal = sumSec(detailed.hardCosts)
+  const consTotal = sumSec(detailed.consultants)
+  const statTotal = sumSec(detailed.statutory) + sumSec(detailed.headworks)
+  const mgmtTotal = sumSec(detailed.management)
+  const mktTotal = sumSec(detailed.marketing)
 
-  const result = calculateCostStack({ ...data, projectManagementFixed: mgmtTotal > 0 ? mgmtTotal : data.projectManagementFixed, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+  const result = calculateCostStack({
+    ...data,
+    constructionOverride: hardTotal > 0 ? hardTotal : undefined,
+    professionalFeesOverride: consTotal > 0 ? consTotal : undefined,
+    statutoryFixed: statTotal > 0 ? statTotal : data.statutoryFixed,
+    projectManagementFixed: mgmtTotal > 0 ? mgmtTotal : data.projectManagementFixed,
+    marketingFixed: mktTotal > 0 ? mktTotal : data.marketingFixed,
+    gba: site.resiGBA, inKindLineItem, landCost: land.landCost,
+  })
 
   // Project GDV (best scenario gross realisation) — the alternate fee basis.
   const gdv = useMemo(() => getProjectGDV(projectId), [projectId, detailedDirty])
@@ -542,6 +555,11 @@ export default function CostStackTab({ projectId }: Props) {
               <FieldRow label="Build rate ($/sqm)" note="Standard rate for the building type">
                 <NumberInput value={data.buildRatePerSqm} onChange={v => update('buildRatePerSqm', v)} prefix="$" step={50} />
               </FieldRow>
+              {hardTotal > 0 && (
+                <p className="text-[10px] mt-1" style={{ color: '#9A7B2E' }}>
+                  Construction is itemised — feasibility uses the <b>Construction tab</b> total <span className="font-mono font-semibold">{fmt(hardTotal)}</span> (contingency & prelims included there); the rate above is ignored.
+                </p>
+              )}
               <FieldRow label="Regional loading" note="Locational impact layered on the standard rate (e.g. +8%)">
                 <PctInput value={data.regionalLoadingPct ?? 0} onChange={v => update('regionalLoadingPct', v)} />
               </FieldRow>
@@ -555,12 +573,26 @@ export default function CostStackTab({ projectId }: Props) {
             <InnerSection label="Soft Costs — % of construction">
               <FieldRow label="Contingency"><PctInput value={data.contingencyPct} onChange={v => update('contingencyPct', v)} /></FieldRow>
               <FieldRow label="Prelims"><PctInput value={data.prelimsPct} onChange={v => update('prelimsPct', v)} /></FieldRow>
-              <FieldRow label="Professional fees"><PctInput value={data.professionalFeesPct} onChange={v => update('professionalFeesPct', v)} /></FieldRow>
+              {consTotal > 0 ? (
+                <FieldRow label="Professional fees" note="From Consultants tab">
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(consTotal)}</span>
+                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                </FieldRow>
+              ) : (
+                <FieldRow label="Professional fees"><PctInput value={data.professionalFeesPct} onChange={v => update('professionalFeesPct', v)} /></FieldRow>
+              )}
               <FieldRow label="Finance cost"><PctInput value={data.financePct} onChange={v => update('financePct', v)} /></FieldRow>
             </InnerSection>
 
             <InnerSection label="Fixed Costs">
-              <FieldRow label="Statutory & council"><NumberInput value={data.statutoryFixed} onChange={v => update('statutoryFixed', v)} prefix="$" step={50000} /></FieldRow>
+              {statTotal > 0 ? (
+                <FieldRow label="Statutory & council" note="From Statutory + Headworks tabs">
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(statTotal)}</span>
+                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                </FieldRow>
+              ) : (
+                <FieldRow label="Statutory & council"><NumberInput value={data.statutoryFixed} onChange={v => update('statutoryFixed', v)} prefix="$" step={50000} /></FieldRow>
+              )}
               <FieldRow label="Public Open Space (% land value)" note="Vic standard ~5% — adjust per project">
                 <PctInput value={data.posContributionPct ?? 0} onChange={v => update('posContributionPct', v)} />
               </FieldRow>
@@ -575,7 +607,14 @@ export default function CostStackTab({ projectId }: Props) {
               ) : (
                 <FieldRow label="Project management"><NumberInput value={data.projectManagementFixed} onChange={v => update('projectManagementFixed', v)} prefix="$" step={50000} /></FieldRow>
               )}
-              <FieldRow label="Marketing"><NumberInput value={data.marketingFixed} onChange={v => update('marketingFixed', v)} prefix="$" step={50000} /></FieldRow>
+              {mktTotal > 0 ? (
+                <FieldRow label="Marketing" note="From Marketing tab">
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(mktTotal)}</span>
+                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                </FieldRow>
+              ) : (
+                <FieldRow label="Marketing"><NumberInput value={data.marketingFixed} onChange={v => update('marketingFixed', v)} prefix="$" step={50000} /></FieldRow>
+              )}
               <FieldRow label="BTR amenity fitout"><NumberInput value={data.amenityFitoutFixed} onChange={v => update('amenityFitoutFixed', v)} prefix="$" step={50000} /></FieldRow>
             </InnerSection>
 
