@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
+import { migrateConsultantSchedule } from './db'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
@@ -38,6 +39,7 @@ export default function App() {
   useEffect(() => {
     setSyncing(true)
     pullFromCloud().then(() => {
+      migrateConsultantSchedule()
       loadProjects()
       setSyncing(false)
     })
