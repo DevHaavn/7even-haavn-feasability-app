@@ -385,8 +385,8 @@ const DEFAULT_HEADWORKS = [
 ]
 
 const DEFAULT_MANAGEMENT = [
-  li('Developer Management Fee'),
-  li('Project Management'),
+  { ...li('Development Fee'), pctBasis: 'construction' as const, pct: 0.03 },
+  { ...li('Project Management Fee'), pctBasis: 'construction' as const, pct: 0.02 },
   li('Superintendent'),
   li('Financier Monitoring / QS Reporting'),
   li('Legal & Accounting'),
@@ -422,6 +422,22 @@ export function getDetailedCostStack(projectId: string): import('./schema').Deta
   // before those sections existed, so existing projects pick them up.
   if (!stack.headworks) stack.headworks = DEFAULT_HEADWORKS.map(x => ({ ...x, id: generateId() }))
   if (!stack.management) stack.management = DEFAULT_MANAGEMENT.map(x => ({ ...x, id: generateId() }))
+
+  // Development Fee & Project Management Fee are a % of the summary construction
+  // value. Tag legacy lines (saved before pctBasis existed) and DERIVE their
+  // amount live from construction so the fee flows everywhere the stack is read.
+  const cs = getCostStack(projectId)
+  const gba = getSiteDesign(projectId).resiGBA
+  const construction = gba * cs.buildRatePerSqm * (1 + (cs.regionalLoadingPct ?? 0))
+  stack.management = stack.management.map(it => {
+    let line = it
+    if (!line.pctBasis) {
+      if (/development fee|developer management/i.test(line.label)) line = { ...line, label: 'Development Fee', pctBasis: 'construction', pct: line.pct ?? 0.03 }
+      else if (/project management/i.test(line.label)) line = { ...line, label: 'Project Management Fee', pctBasis: 'construction', pct: line.pct ?? 0.02 }
+    }
+    if (line.pctBasis === 'construction') line = { ...line, amount: Math.round((line.pct ?? 0) * construction) }
+    return line
+  })
   return stack
 }
 

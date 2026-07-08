@@ -107,7 +107,7 @@ function fmtMonth(ym: string) {
 }
 const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }
 
-function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void }) {
+function LineItemTable({ items, onChange, constructionValue = 0 }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number }) {
   const [openId, setOpenId] = useState<string | null>(null)
   function update(id: string, patch: Partial<CostLineItem>) {
     onChange(items.map(item => item.id === id ? { ...item, ...patch } : item))
@@ -149,12 +149,23 @@ function LineItemTable({ items, onChange }: { items: CostLineItem[]; onChange: (
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
                 value={item.label} placeholder="Item description"
                 onChange={e => update(item.id, { label: e.target.value })} />
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
-                <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
-                  value={item.amount || ''} placeholder="0"
-                  onChange={e => update(item.id, { amount: parseFloat(e.target.value) || 0 })} />
-              </div>
+              {item.pctBasis === 'construction' ? (
+                // Fee derived as a % of the summary construction value (live).
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }} title="Percentage of the summary Construction value">
+                  <input type="number" min={0} step={0.25} style={{ ...cellInput, width: 44, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
+                    value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
+                    onChange={e => { const pct = (parseFloat(e.target.value) || 0) / 100; update(item.id, { pct, amount: Math.round(pct * constructionValue) }) }} />
+                  <span style={{ color: '#BBB', fontSize: 10 }}>%</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#9A7B2E', marginLeft: 2 }}>{fmt(Math.round((item.pct ?? 0) * constructionValue))}</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
+                  <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
+                    value={item.amount || ''} placeholder="0"
+                    onChange={e => update(item.id, { amount: parseFloat(e.target.value) || 0 })} />
+                </div>
+              )}
               <input type="month" style={cellInput} value={item.startDate ?? ''} onChange={e => update(item.id, { startDate: e.target.value })} />
               <input type="month" style={cellInput} value={item.endDate ?? ''} onChange={e => update(item.id, { endDate: e.target.value })} />
               <select style={cellInput} value={item.sCurve ?? 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as SCurveProfile })}>
@@ -331,19 +342,19 @@ function GrandTotalBar({ detailed, gstEnabled }: { detailed: DetailedCostStack; 
   const grand = totals.reduce((s, t) => s + t.total, 0)
 
   return (
-    <div style={{ background: '#0A0A0A', padding: '14px 24px', flexShrink: 0 }}>
+    <div style={{ background: '#F5F3F0', borderBottom: '1px solid #E0DDD8', padding: '14px 24px', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#555', flexShrink: 0 }}>Detailed Total</span>
+        <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#888', fontWeight: 700, flexShrink: 0 }}>Detailed Total</span>
         <GstBadge gstEnabled={gstEnabled} />
         {totals.map(t => (
           <div key={t.label} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#555', letterSpacing: '0.08em' }}>{t.label}</span>
-            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: t.total > 0 ? '#C4973A' : '#333' }}>{fmt(t.total)}</span>
+            <span style={{ fontSize: 9, color: '#777', letterSpacing: '0.08em' }}>{t.label}</span>
+            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: t.total > 0 ? '#9A7B2E' : '#BBB' }}>{fmt(t.total)}</span>
           </div>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#888' }}>Grand Total</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: grand > 0 ? '#C4973A' : '#444' }}>{fmt(grand)}</span>
+          <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Grand Total</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: grand > 0 ? '#9A7B2E' : '#BBB' }}>{fmt(grand)}</span>
         </div>
       </div>
     </div>
@@ -430,6 +441,23 @@ export default function CostStackTab({ projectId }: Props) {
   } : undefined
 
   const result = calculateCostStack({ ...data, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+
+  // Keep %-of-construction fee lines (Development / PM Fee) live as the summary
+  // construction value changes in-session. Persistence-side derivation lives in
+  // getDetailedCostStack, so this only re-syncs the on-screen numbers.
+  useEffect(() => {
+    setDetailed(prev => {
+      let changed = false
+      const management = prev.management.map(it => {
+        if (it.pctBasis === 'construction') {
+          const amt = Math.round((it.pct ?? 0) * result.construction)
+          if (amt !== it.amount) { changed = true; return { ...it, amount: amt } }
+        }
+        return it
+      })
+      return changed ? { ...prev, management } : prev
+    })
+  }, [result.construction])
 
   const summaryRows = [
     { label: 'Construction', value: result.construction },
@@ -626,6 +654,7 @@ export default function CostStackTab({ projectId }: Props) {
             <LineItemTable
               items={detailed[meta.key]}
               onChange={items => updateSection(meta.key, items)}
+              constructionValue={result.construction}
             />
           </div>
 
