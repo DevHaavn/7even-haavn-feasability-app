@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { FieldRow, NumberInput, PctInput, Button, SectionHeading, DateField } from '../../components/ui'
-import type { LandTerms, LandDealType } from '../../db/schema'
-import { LAND_DEAL_TYPES } from '../../db/schema'
+import type { LandTerms, LandDealType, AcquisitionCost } from '../../db/schema'
+import { LAND_DEAL_TYPES, COST_PHASES } from '../../db/schema'
 import { ALL_STATES, type AuState, type PropertyType } from '../../engine/stampDuty'
 import { computeLandCost } from '../../engine/landCost'
 
@@ -79,6 +79,7 @@ export default function LandTermsTab({ projectId }: Props) {
   const dealType = data.dealType ?? (data.isInKind ? 'inkind' : 'standard')
   const cost = computeLandCost({ ...data, dealType }, gstEnabled)
   const schedule = data.paymentSchedule ?? []
+  const acqCosts = data.acquisitionCosts ?? []
   const scheduledTotal = schedule.reduce((s, p) => s + (p.amount || 0), 0)
   const balanced = data.landCost === 0 || Math.abs(scheduledTotal - data.landCost) < 1
   const pid = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8)}`
@@ -206,6 +207,57 @@ export default function LandTermsTab({ projectId }: Props) {
               <FieldRow label="Water / owners corp adj."><NumberInput value={data.adjWater ?? 0} onChange={v => update('adjWater', v)} prefix="$" step={1000} /></FieldRow>
               <FieldRow label="Legal & due diligence" note="Excluded from margin scheme base"><NumberInput value={data.adjLegal ?? 0} onChange={v => update('adjLegal', v)} prefix="$" step={1000} /></FieldRow>
             </Card>
+
+            {/* Acquisition costs — agent fee/commission, legals, accounting, DD.
+                Each fixed $ or % of purchase price, with a delivery phase. */}
+            <Card title="Acquisition Costs" hint="% of purchase price or fixed · into feasibility" isNew>
+              {acqCosts.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#AAA', paddingBottom: 8, borderBottom: '1px solid #E8E5E0' }}>
+                  <span>Item</span><span>Basis</span><span>Rate / $</span><span>Phase</span><span />
+                </div>
+              )}
+              {acqCosts.map(c => {
+                const derived = c.mode === 'pct' ? (c.pct ?? 0) * cost.price : (c.amount ?? 0)
+                const setC = (patch: Partial<AcquisitionCost>) => update('acquisitionCosts', acqCosts.map(x => x.id === c.id ? { ...x, ...patch } : x))
+                return (
+                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F2EFEA' }}>
+                    <input value={c.label} placeholder="Cost item" onChange={e => setC({ label: e.target.value })} style={cell} />
+                    <select value={c.mode} onChange={e => setC({ mode: e.target.value as AcquisitionCost['mode'] })} style={{ ...cell, fontSize: 11 }}>
+                      <option value="pct">% price</option>
+                      <option value="fixed">$ fixed</option>
+                    </select>
+                    {c.mode === 'pct' ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <input type="number" step={0.1} value={c.pct != null ? +(c.pct * 100).toFixed(2) : ''} placeholder="0" onChange={e => setC({ pct: (parseFloat(e.target.value) || 0) / 100 })} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
+                        <span style={{ color: '#BBB', fontSize: 11 }}>%</span>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <span style={{ color: '#BBB', fontSize: 11 }}>$</span>
+                        <input type="number" value={c.amount || ''} placeholder="0" onChange={e => setC({ amount: parseFloat(e.target.value) || 0 })} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
+                      </div>
+                    )}
+                    <select value={c.phase ?? ''} onChange={e => setC({ phase: (e.target.value || undefined) as AcquisitionCost['phase'] })} style={{ ...cell, fontSize: 11 }}>
+                      <option value="">— phase —</option>
+                      {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                    </select>
+                    <button onClick={() => update('acquisitionCosts', acqCosts.filter(x => x.id !== c.id))} title="Remove"
+                      style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14 }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
+                    {c.mode === 'pct' && derived > 0 && (
+                      <div style={{ gridColumn: '3 / 5', fontSize: 10, color: '#9A7B2E', fontFamily: 'monospace', marginTop: -2 }}>= {fmt(derived)}</div>
+                    )}
+                  </div>
+                )
+              })}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12 }}>
+                <button onClick={() => update('acquisitionCosts', [...acqCosts, { id: pid('acq'), label: '', mode: 'pct', pct: 0, phase: 'pre-acquisition' }])}
+                  style={{ background: 'none', border: '1px dashed #D0CEC9', color: '#555', padding: '7px 12px', borderRadius: 8, fontSize: 10.5, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  + Add acquisition cost
+                </button>
+                <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: '#1A1A1A' }}>{fmt(cost.acquisitionCosts)}</span>
+              </div>
+            </Card>
           </div>
 
           {/* RIGHT */}
@@ -218,6 +270,7 @@ export default function LandTermsTab({ projectId }: Props) {
               <SLine lbl="Foreign surcharge (FPAD)" val={fmt(cost.foreignSurcharge)} />
               <SLine lbl="Finance on terms" val={fmt(cost.financeOnTerms)} />
               <SLine lbl="Settlement adjustments" val={fmt(cost.adjustments)} />
+              <SLine lbl="Acquisition costs" sub="fees · legals · DD" val={fmt(cost.acquisitionCosts)} />
               <SLine lbl="Vendor rebate" val={'−' + fmt(cost.rebate)} neg />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 16, marginTop: 4, borderTop: `1px solid ${CHROME_LINE}` }}>
                 <span style={{ color: '#1A1A1A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: 12 }}>Total land cost</span>

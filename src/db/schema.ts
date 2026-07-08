@@ -85,6 +85,9 @@ export interface LandTerms {
   adjRates?: number
   adjWater?: number
   adjLegal?: number
+  // Acquisition costs — agent/acquisition fee, legals, accounting, due diligence
+  // (fixed $ or % of purchase price). Added into the effective land cost.
+  acquisitionCosts?: AcquisitionCost[]
 }
 
 // Deal structures — each reveals only the fields it needs.
@@ -104,6 +107,18 @@ export interface LandPayment {
   label: string     // e.g. 'Deposit', '2nd stage deposit', 'Settlement'
   date: string      // YYYY-MM-DD
   amount: number
+}
+
+// Acquisition-side costs (agent/acquisition fee, legals, accounting, due
+// diligence). Each can be a fixed $ or a % of the purchase price, and carries a
+// delivery phase for timing. These flow into the effective land cost → feasibility.
+export interface AcquisitionCost {
+  id: string
+  label: string
+  mode: 'fixed' | 'pct'   // 'pct' = % of purchase price
+  pct?: number            // 0..1 (when mode = 'pct')
+  amount?: number         // $ (when mode = 'fixed')
+  phase?: CostPhase
 }
 
 export interface UnitType {

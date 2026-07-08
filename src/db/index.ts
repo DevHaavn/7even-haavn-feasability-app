@@ -79,11 +79,23 @@ const LAND_DEFAULTS: Omit<LandTerms, 'projectId'> = {
   applyStampDuty: true, settlementDate: '', landGst: 'inc',
 }
 
+function defaultAcquisitionCosts(): import('./schema').AcquisitionCost[] {
+  return [
+    { id: generateId(), label: 'Acquisition Fee / Commission', mode: 'pct', pct: 0, phase: 'pre-acquisition' },
+    { id: generateId(), label: 'Legals', mode: 'fixed', amount: 0, phase: 'pre-acquisition' },
+    { id: generateId(), label: 'Accounting', mode: 'fixed', amount: 0, phase: 'pre-acquisition' },
+    { id: generateId(), label: 'Due Diligence Costs', mode: 'pct', pct: 0, phase: 'pre-acquisition' },
+  ]
+}
+
 export function getLandTerms(projectId: string): LandTerms {
   // Merge defaults under stored data so rows saved before the stamp duty
   // fields existed pick up sensible values
   const stored = load<Partial<LandTerms>>(`land:${projectId}`, {})
-  return { ...LAND_DEFAULTS, projectId, ...stored }
+  const lt = { ...LAND_DEFAULTS, projectId, ...stored }
+  // Backfill acquisition costs for projects saved before they existed.
+  if (!lt.acquisitionCosts) lt.acquisitionCosts = defaultAcquisitionCosts()
+  return lt
 }
 
 export function saveLandTerms(data: LandTerms) {

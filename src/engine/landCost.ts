@@ -10,6 +10,7 @@ export interface LandCostBreakdown {
   foreignSurcharge: number   // FPAD — residential only (commercial = 0)
   financeOnTerms: number     // deferred-balance interest / non-credited option fee
   adjustments: number        // rates + water + legal apportioned at settlement
+  acquisitionCosts: number   // agent/acquisition fee, legals, accounting, DD
   rebate: number             // vendor rebate (reduces the effective cost)
   total: number              // EFFECTIVE LAND COST — the one downstream number
   effectivePerSqm?: number
@@ -60,9 +61,15 @@ export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostB
   }
 
   const adjustments = (land.adjRates ?? 0) + (land.adjWater ?? 0) + (land.adjLegal ?? 0)
+
+  // Acquisition costs — agent/acquisition fee, legals, accounting, DD. Each is a
+  // fixed $ or a % of the purchase price (the cash price, before GST credit).
+  const acquisitionCosts = (land.acquisitionCosts ?? []).reduce((sum, c) =>
+    sum + (c.mode === 'pct' ? (c.pct ?? 0) * price : (c.amount ?? 0)), 0)
+
   const rebate = dealType === 'rebate' ? (land.rebateAmount ?? 0) : 0
 
-  const total = exGstPrice + stampDuty + foreignSurcharge + financeOnTerms + adjustments - rebate
+  const total = exGstPrice + stampDuty + foreignSurcharge + financeOnTerms + adjustments + acquisitionCosts - rebate
 
   const siteArea = land.siteAreaSqm ?? 0
   const effectivePerSqm = siteArea > 0 ? total / siteArea : undefined
@@ -80,7 +87,7 @@ export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostB
 
   return {
     dealType, price, dutiableValue, gstCredit, stampDuty, foreignSurcharge,
-    financeOnTerms, adjustments, rebate, total, effectivePerSqm,
+    financeOnTerms, adjustments, acquisitionCosts, rebate, total, effectivePerSqm,
     settlementDate: land.settlementDate,
     dutyNotes: duty?.notes ?? [],
     flags,

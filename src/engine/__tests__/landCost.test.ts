@@ -51,4 +51,13 @@ describe('Effective land cost — VIC worked examples', () => {
     const b = computeLandCost({ ...base, applyStampDuty: false, dealType: 'inkind', inKindGFA: 6250, inKindRatePerSqm: 4000 }, false)
     expect(b.price).toBe(0)
   })
+
+  it('Acquisition costs — % of purchase price and fixed $ both add to the effective land cost', () => {
+    const b = computeLandCost({ ...base, applyStampDuty: false, acquisitionCosts: [
+      { id: 'a', label: 'Acquisition Fee', mode: 'pct', pct: 0.02 },   // 2% × $25M = $500k
+      { id: 'b', label: 'Legals', mode: 'fixed', amount: 40_000 },
+    ] }, false)
+    expect(b.acquisitionCosts).toBeCloseTo(540_000, -2)
+    expect(b.total).toBeCloseTo(25_540_000, -2)                        // price + acquisition costs
+  })
 })
