@@ -119,19 +119,19 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           {onManage && (
             <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
               {/* Chrome stealth bento grid — manage portal */}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <svg width="15" height="15" viewBox="0 0 24 24">
                 <defs>
-                  <linearGradient id="bentoChromeManage" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8A8A8E" />
-                    <stop offset="20%" stopColor="#4A4A50" />
-                    <stop offset="60%" stopColor="#1A1A20" />
+                  <linearGradient id="bentoChromeManageFinal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#A8AAAE" />
+                    <stop offset="16%" stopColor="#5A5C62" />
+                    <stop offset="52%" stopColor="#1A1C22" />
                     <stop offset="100%" stopColor="#000000" />
                   </linearGradient>
                 </defs>
-                <rect x="4" y="4" width="7" height="9" rx="1.5" fill="url(#bentoChromeManage)" />
-                <rect x="4" y="15" width="7" height="5" rx="1.5" fill="url(#bentoChromeManage)" />
-                <rect x="13" y="4" width="7" height="5" rx="1.5" fill="url(#bentoChromeManage)" />
-                <rect x="13" y="11" width="7" height="9" rx="1.5" fill="url(#bentoChromeManage)" />
+                <rect x="4" y="4" width="7" height="9" rx="1.5" fill="url(#bentoChromeManageFinal)" />
+                <rect x="4" y="15" width="7" height="5" rx="1.5" fill="url(#bentoChromeManageFinal)" />
+                <rect x="13" y="4" width="7" height="5" rx="1.5" fill="url(#bentoChromeManageFinal)" />
+                <rect x="13" y="11" width="7" height="9" rx="1.5" fill="url(#bentoChromeManageFinal)" />
               </svg>
             </button>
           )}
