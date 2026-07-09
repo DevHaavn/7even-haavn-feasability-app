@@ -9,6 +9,7 @@ import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
 import { calculateCostStack } from '../engine/costStack'
 import { buildCashflow } from '../engine/cashflow'
+import { calculateFinance } from '../engine/finance'
 import { developmentIRR, type ProfitMetrics } from '../engine/returns'
 
 function load<T>(key: string, fallback: T): T {
@@ -650,7 +651,19 @@ export function getPhaseCosts(projectId: string): Record<import('./schema').Cost
 /** Multi-lens profit metrics for a project — the different ways banks, developers
  *  and builders judge a deal: profit, margin on cost, margin on GDV, and IRR.
  *  GDV/TDC use the SAME best-by-RLV scenario shown on the dashboards. */
-export function getProfitMetrics(projectId: string): ProfitMetrics {
+export interface ProjectTDC {
+  gdv: number          // best-scenario gross development value
+  land: number         // effective land cost
+  costExFinance: number// all cost-stack costs (build + soft), EXCLUDING the rough finance %, land-excluded
+  financeCost: number  // REAL all-in finance cost (tranches + land carry) from the finance model
+  tdc: number          // REAL total development cost = costExFinance + land + real finance
+  tdcBuild: number     // best-scenario cost-stack TDC (incl its rough finance %) — for debt sizing
+}
+
+/** The single authoritative "real" project cost: every cost-stack cost + land +
+ *  the REAL finance cost from the finance model (replacing the rough finance %).
+ *  This is what profit, margin and IRR are measured against everywhere. */
+export function getProjectTDC(projectId: string): ProjectTDC {
   const site = getSiteDesign(projectId)
   const land = getLandTerms(projectId)
   const cs = getCostStack(projectId)
@@ -660,7 +673,10 @@ export function getProfitMetrics(projectId: string): ProfitMetrics {
     : undefined
 
   // Best scenario by RLV — mirrors the dashboard so the numbers reconcile.
-  let best: { gav: number; rlv: number; tdcBuild: number } | null = null
+  let best: { gav: number; rlv: number; tdcBuild: number; roughFinance: number } | null = null
+  const consider = (gav: number, rlv: number, tdcBuild: number, roughFinance: number) => {
+    if (!best || rlv > best.rlv) best = { gav, rlv, tdcBuild, roughFinance }
+  }
   for (const s of getMixScenarios(projectId)) {
     const units = getUnitTypes(s.id)
     const hotelA = getHotelAssumptions(s.id)
@@ -668,25 +684,37 @@ export function getProfitMetrics(projectId: string): ProfitMetrics {
     const btsA = getBTSAssumptions(s.id)
     const buildRate = hotelA.buildRateOverride ?? cs.buildRatePerSqm
     const finPct = hotelA.constructionFinancePct ?? cs.financePct
-    const tdcBuild = calculateCostStack({ ...cs, buildRatePerSqm: buildRate, financePct: finPct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
+    const r = calculateCostStack({ ...cs, buildRatePerSqm: buildRate, financePct: finPct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+    const tdcBuild = r.totalDevelopmentCost
     if (hotelA.keys > 0) {
       const inc = calculateHotelIncome(hotelA)
       const v = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdcBuild, hotelA.devMarginPct)
-      if (!best || v.rlv > best.rlv) best = { gav: v.gav, rlv: v.rlv, tdcBuild }
+      consider(v.gav, v.rlv, tdcBuild, r.finance)
     }
     if (units.some(u => u.weeklyRentConservative > 0)) {
       const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
       const inc = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
       const v = calculateBTRValuation(inc.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
-      if (!best || v.rlv > best.rlv) best = { gav: v.gav, rlv: v.rlv, tdcBuild }
+      consider(v.gav, v.rlv, tdcBuild, r.finance)
       const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
       const vb = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
-      if (!best || vb.rlv > best.rlv) best = { gav: vb.grossRevenue, rlv: vb.rlv, tdcBuild }
+      consider(vb.grossRevenue, vb.rlv, tdcBuild, r.finance)
     }
   }
-  const tdcBuild = best?.tdcBuild ?? calculateCostStack({ ...cs, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }).totalDevelopmentCost
+  const fallback = calculateCostStack({ ...cs, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+  const tdcBuild = best?.tdcBuild ?? fallback.totalDevelopmentCost
+  const roughFinance = best?.roughFinance ?? fallback.finance
   const gdv = best?.gav ?? 0
-  const tdc = tdcBuild + landEff   // land-inclusive TDC
+  const costExFinance = tdcBuild - roughFinance                        // all cost-stack costs except the placeholder finance %
+  const financeCost = calculateFinance(getFinanceAssumptions(projectId), tdcBuild, landEff, gdv).totalFinanceCost
+  const tdc = costExFinance + landEff + financeCost                    // REAL total project cost (incl land + real finance)
+  return { gdv, land: landEff, costExFinance, financeCost, tdc, tdcBuild }
+}
+
+export function getProfitMetrics(projectId: string): ProfitMetrics {
+  const t = getProjectTDC(projectId)
+  const gdv = t.gdv
+  const tdc = t.tdc            // land + all costs + REAL finance
   const profit = gdv - tdc
   const marginOnCost = tdc > 0 ? profit / tdc : 0
   const marginOnGdv = gdv > 0 ? profit / gdv : 0
@@ -771,7 +799,7 @@ const DEFAULT_TRANCHES: DebtTranche[] = [
 ]
 
 export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
-  return load<FinanceAssumptions>(`finance:${projectId}`, {
+  const def: FinanceAssumptions = {
     projectId,
     bbsyRate: 0.044,
     landInterestRate: 0.08,
@@ -785,7 +813,11 @@ export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
     equityHurdleRate: 0.18,
     preferredReturnRate: 0.12,
     investorEquity: 20_000_000,
-  })
+  }
+  const stored = load<Partial<FinanceAssumptions>>(`finance:${projectId}`, {})
+  // Merge defaults under stored so fields added later (e.g. investorEquity) are
+  // populated for projects saved before they existed.
+  return { ...def, ...stored, investorEquity: stored.investorEquity || def.investorEquity }
 }
 
 export function saveFinanceAssumptions(data: FinanceAssumptions) {

@@ -133,16 +133,18 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   const costStack = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }), [costData, site])
 
-  // Grouped cost buckets for the breakdown bars (the engine returns line-level
-  // figures + the fixed inputs live on costData).
+  // REAL project cost — every cost-stack cost + land + the REAL finance cost.
+  const proj = useMemo(() => db.getProjectTDC(projectId), [projectId, costData, site])
+
+  // Grouped cost buckets for the breakdown bars (real finance replaces the rough %).
   const hardCostsBuild = costStack.construction + costStack.contingency + costStack.prelims
-  const statFinance    = costStack.finance + (costData.statutoryFixed || 0)
+  const statFinance    = proj.financeCost + (costData.statutoryFixed || 0)
   const otherSoftCosts = (costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0)
 
-  const tdc    = bestScenario?.tdc ?? (costStack.totalDevelopmentCost + landCostEff)   // land-inclusive TDC
-  const gav    = bestScenario?.gav ?? 0
+  const tdc    = proj.tdc                                    // real TDC: land + all costs + real finance
+  const gav    = bestScenario?.gav ?? proj.gdv
   const rlv    = bestScenario?.rlv ?? 0
-  const devProfit = gav - tdc                                                          // GAV − land-inclusive TDC
+  const devProfit = gav - tdc                                // GAV − real TDC
   const margin = tdc > 0 ? ((gav - tdc) / tdc) : 0
 
   const costMax = Math.max(hardCostsBuild, costStack.professionalFees, statFinance, otherSoftCosts, landCostEff, 1)

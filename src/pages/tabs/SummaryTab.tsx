@@ -20,7 +20,7 @@ import { calculateBTSValuation } from '../../engine/bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import { calculateCostStack } from '../../engine/costStack'
 import { solveUnitMix } from '../../engine/unitMix'
-import { getPhaseCosts, getTimelineTasks } from '../../db'
+import { getPhaseCosts, getTimelineTasks, getProjectTDC } from '../../db'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import ProfitLens from '../../components/ProfitLens'
 import InvestorReturn from '../../components/InvestorReturn'
@@ -157,6 +157,8 @@ function SummaryTabInner({ projectId }: Props) {
     : undefined
   const costResult = calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
   const tdc = costResult.totalDevelopmentCost
+  // Real project cost — all cost-stack costs + land + the REAL finance cost.
+  const proj = getProjectTDC(projectId)
 
   // Cost of works + programme span + progress, by delivery phase
   const phaseRows = (() => {
@@ -248,9 +250,9 @@ function SummaryTabInner({ projectId }: Props) {
             {[
               { label: bestRow.noi != null ? 'Net Operating Income' : 'Gross Revenue', value: fmt(bestRow.noi ?? bestRow.gav) },
               { label: 'Gross Asset Value', value: fmt(bestRow.gav) },
-              { label: 'Total Dev Cost (incl land)', value: fmt(bestRow.tdc) },
-              { label: 'Dev Profit', value: fmt(bestRow.gav - bestRow.tdc) },
-              { label: 'Dev Margin', value: bestRow.tdc > 0 ? pct((bestRow.gav - bestRow.tdc) / bestRow.tdc) : '—' },
+              { label: 'Total Dev Cost (incl land + finance)', value: fmt(proj.tdc) },
+              { label: 'Dev Profit', value: fmt(bestRow.gav - proj.tdc) },
+              { label: 'Dev Margin', value: proj.tdc > 0 ? pct((bestRow.gav - proj.tdc) / proj.tdc) : '—' },
               { label: 'Residual Land Value', value: fmt(bestRow.rlv) },
             ].map(({ label, value }) => (
               <div key={label}>
@@ -293,16 +295,18 @@ function SummaryTabInner({ projectId }: Props) {
         </Section>
 
         {/* ── Cost Stack ── */}
-        <Section title="Total Development Cost" sub="Land + construction + all associated costs">
+        <Section title="Total Development Cost" sub="Land + construction + all costs + real finance">
           <Row label="Land (incl. duty & acquisition)" value={fmt(landCost)} />
           <Row label="Construction" value={fmt(costResult.construction)} />
           <Row label="Contingency" value={fmt(costResult.contingency)} />
           <Row label="Prelims" value={fmt(costResult.prelims)} />
           <Row label="Professional Fees" value={fmt(costResult.professionalFees)} />
-          <Row label="Finance" value={fmt(costResult.finance)} />
+          <Row label="Statutory & council" value={fmt(costData.statutoryFixed)} />
+          <Row label="Project management + marketing" value={fmt((costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0))} />
+          <Row label="Finance (real — tranches + land carry)" value={fmt(proj.financeCost)} gold />
           {costResult.inKindCost > 0 && <Row label="In-Kind Delivery Cost" value={fmt(costResult.inKindCost)} />}
-          <Row label="TOTAL DEVELOPMENT COST" value={fmt(tdcIncl)} highlight large gold />
-          {site.resiGBA > 0 && tdcIncl > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(tdcIncl / site.resiGBA).toLocaleString()}/sqm`} />}
+          <Row label="TOTAL DEVELOPMENT COST" value={fmt(proj.tdc)} highlight large gold />
+          {site.resiGBA > 0 && proj.tdc > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(proj.tdc / site.resiGBA).toLocaleString()}/sqm`} />}
         </Section>
 
         {/* ── Cost & Time by Phase ── */}

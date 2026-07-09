@@ -263,6 +263,7 @@ export default function FinanceTab({ projectId }: Props) {
   const costResult = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem: inKind }), [costData, site])
   const tdc = costResult.totalDevelopmentCost
   const landCost = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
+  const proj = db.getProjectTDC(projectId)                // real project cost = all costs + land + real finance
 
   // Get best GAV from scenarios
   const gav = useMemo(() => {
@@ -352,7 +353,7 @@ export default function FinanceTab({ projectId }: Props) {
       {/* KPI strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 10, marginBottom: 32 }}>
         {[
-          { label: 'Total Dev Cost', value: fmt(tdc + landCost), color: GOLD },
+          { label: 'Total Dev Cost', value: fmt(proj.tdc), color: GOLD },
           { label: 'Total Debt', value: fmt(result.totalDebt), color: BLUE },
           { label: 'Equity Required', value: fmt(result.totalEquity), color: GREEN },
           { label: 'All-in Finance Cost', value: fmt(result.totalFinanceCost), color: '#1A1A1A' },
