@@ -50,7 +50,7 @@ export default function BTSTab({ projectId }: Props) {
     : null
 
   function calcBTS(priceFn: (u: any) => number) {
-    const lines = units.map((u, i) => ({ typeName: u.name, unitCount: solverResult?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: priceFn(u) }))
+    const lines = units.map((u, i) => ({ typeName: u.name, unitCount: u.solvedCount || solverResult?.mix[i]?.count || 0, pricePerUnit: priceFn(u) }))
     const otherRevenue = site.childcareGFA > 0 ? [{ label: 'Childcare (commercial)', amount: site.childcareGFA * data!.childcareValuePerSqm }] : []
     return calculateBTSValuation(lines, otherRevenue, data!.sellingCostsPct, tdc, data!.devMarginPct, costData.gstEnabled)
   }

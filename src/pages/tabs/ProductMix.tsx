@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { SectionHeading, Button } from '../../components/ui'
@@ -63,6 +63,30 @@ export default function ProductMixTab({ projectId }: Props) {
 
   function updateUnit(id: string, field: keyof UnitType, value: number | string) {
     saveUnits(units.map(u => u.id === id ? { ...u, [field]: value } : u))
+  }
+
+  // Re-solve integer counts from the (auto-normalised) % mix and NSA.
+  function countsFromPct(list: UnitType[]): UnitType[] {
+    const total = list.reduce((s, u) => s + (u.targetPct || 0), 0)
+    if (!(site.resiNSA > 0 && total > 0)) return list
+    const norm = list.map(u => ({ name: u.name, nsaPerUnit: u.nsaPerUnit, targetPct: (u.targetPct || 0) / total }))
+    const r = solveUnitMix(site.resiNSA, norm)
+    return list.map((u, i) => ({ ...u, solvedCount: r.mix[i]?.count ?? 0 }))
+  }
+
+  // A single mix edit. Editing NSA or % re-solves the counts; editing a Count
+  // directly is honoured verbatim (fully manual) and back-derives the % split.
+  // Either way the authoritative `solvedCount` is persisted so BTR/BTS pick it
+  // up live.
+  function editMix(id: string, field: 'nsaPerUnit' | 'targetPct' | 'solvedCount', value: number) {
+    let next = units.map(u => u.id === id ? { ...u, [field]: value } : u)
+    if (field === 'solvedCount') {
+      const total = next.reduce((s, u) => s + (u.solvedCount || 0), 0)
+      next = next.map(u => ({ ...u, targetPct: total > 0 ? Math.round(((u.solvedCount || 0) / total) * 1000) / 1000 : 0 }))
+    } else {
+      next = countsFromPct(next)
+    }
+    saveUnits(next)
   }
 
   function addUnitType() {
@@ -136,22 +160,36 @@ export default function ProductMixTab({ projectId }: Props) {
     targetPct: totalPct > 0 ? (u.targetPct || 0) / totalPct : 0,
   }))
   const solverReady = site.resiNSA > 0 && units.length > 0 && totalPct > 0
+  // Solver is a live *suggestion* engine (NSA fit) for the discrepancy readout;
+  // the authoritative counts are the persisted `solvedCount` (manual or solved),
+  // which is what drives the gold numbers and every downstream tab.
   const solverResult = solverReady ? solveUnitMix(site.resiNSA, normTargets) : null
 
-  // Persist the solved counts (and the normalised split) so downstream tabs —
-  // GDV, cashflow, cost — pick up the current mix. Keyed on a stable signature
-  // of the inputs so it only re-saves when the mix genuinely changes.
-  const solveSig = `${site.resiNSA}|${units.map(u => `${u.nsaPerUnit}:${u.targetPct}`).join(',')}`
-  useEffect(() => {
-    if (!solverResult || !activeId) return
-    const updated = units.map((u, i) => ({ ...u, solvedCount: solverResult.mix[i]?.count ?? 0 }))
-    const changed = updated.some((u, i) => u.solvedCount !== units[i].solvedCount)
-    if (changed) store.saveUnitTypes(activeId, updated)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [solveSig, activeId])
+  // Headline numbers come straight from the persisted counts — fully manual.
+  const totalUnits = units.reduce((s, u) => s + (u.solvedCount || 0), 0)
+  const nsaUsed = units.reduce((s, u) => s + (u.solvedCount || 0) * u.nsaPerUnit, 0)
 
-  const totalUnits = solverResult?.solvedUnits ?? 0
-  const nsaUsed = solverResult ? solverResult.mix.reduce((s, m) => s + m.nsaUsed, 0) : 0
+  // One-click: fill the counts from the NSA-optimal solver.
+  function solveToNSA() {
+    if (!solverReady) return
+    saveUnits(countsFromPct(units))
+  }
+
+  // First time a scenario is opened with a % mix but no counts yet, seed the
+  // counts from the solver so the gold numbers (and downstream tabs) aren't 0.
+  // Never overrides once any count exists — manual counts are preserved.
+  const autoSeeded = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    if (!activeId || units.length === 0 || autoSeeded.current.has(activeId)) return
+    const anyCount = units.some(u => (u.solvedCount || 0) > 0)
+    if (!anyCount && solverReady) {
+      autoSeeded.current.add(activeId)
+      const next = countsFromPct(units)
+      store.saveUnitTypes(activeId, next)
+      setUnits(next)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, units, solverReady])
 
   // ── Parking & storage knock-on (JW): required spaces/storage flex with the mix ──
   const cost = store.getCostStack(projectId)
@@ -160,8 +198,8 @@ export default function ProductMixTab({ projectId }: Props) {
   const storageCostPerSqm = cost.storageCostPerSqm ?? 1500
   const defSpaces = (name: string) => { const n = name.toLowerCase(); if (n.includes('studio')) return 0.6; if (n.includes('3')) return 2; if (n.includes('2')) return 1.3; if (n.includes('1')) return 1; return 1 }
   const defStorage = (name: string) => { const n = name.toLowerCase(); if (n.includes('studio')) return 3; if (n.includes('3')) return 6; if (n.includes('2')) return 5; if (n.includes('1')) return 4; return 4 }
-  const parkRows = units.map((u, i) => {
-    const count = solverResult?.mix[i]?.count ?? u.solvedCount ?? 0
+  const parkRows = units.map((u) => {
+    const count = u.solvedCount ?? 0
     const spu = u.carSpacesPerUnit ?? defSpaces(u.name)
     const stpu = u.storageSqmPerUnit ?? defStorage(u.name)
     return { u, count, spu, stpu, reqSpaces: count * spu, reqStorage: count * stpu }
@@ -280,14 +318,13 @@ export default function ProductMixTab({ projectId }: Props) {
               <table className="w-full" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #E8E5E0', background: '#F7F5F2' }}>
-                    {['Unit Type', 'NSA / unit (sqm)', '% Mix', 'Rent — Cons. /wk', 'Rent — Agg. /wk', 'Sale Price — Mid', 'Solved Count', ''].map(h => (
+                    {['Unit Type', 'NSA / unit (sqm)', '% Mix', 'Rent — Cons. /wk', 'Rent — Agg. /wk', 'Sale Price — Mid', 'Units (Count)', ''].map(h => (
                       <th key={h} style={{ textAlign: 'left', padding: '10px 12px', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', fontWeight: 500 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {units.map((u, i) => {
-                    const solved = solverResult?.mix[i]
                     return (
                       <tr key={u.id} style={{ borderBottom: '1px solid #F0EDE8' }}>
                         <td style={{ padding: '8px 12px' }}>
@@ -301,7 +338,7 @@ export default function ProductMixTab({ projectId }: Props) {
                           <input
                             type="number"
                             value={u.nsaPerUnit}
-                            onChange={e => updateUnit(u.id, 'nsaPerUnit', parseFloat(e.target.value) || 0)}
+                            onChange={e => editMix(u.id, 'nsaPerUnit', parseFloat(e.target.value) || 0)}
                             style={{ width: 64, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: '#1A1A1A', fontFamily: 'monospace', outline: 'none' }}
                           />
                         </td>
@@ -311,7 +348,7 @@ export default function ProductMixTab({ projectId }: Props) {
                               type="number"
                               value={Math.round(u.targetPct * 1000) / 10}
                               step={1} min={0} max={100}
-                              onChange={e => updateUnit(u.id, 'targetPct', (parseFloat(e.target.value) || 0) / 100)}
+                              onChange={e => editMix(u.id, 'targetPct', (parseFloat(e.target.value) || 0) / 100)}
                               style={{ width: 50, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: '#1A1A1A', fontFamily: 'monospace', outline: 'none' }}
                             />
                             <span style={{ color: '#AAA', fontSize: 12 }}>%</span>
@@ -358,11 +395,14 @@ export default function ProductMixTab({ projectId }: Props) {
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                          {solved ? (
-                            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 15, color: '#B8963C' }}>{solved.count}</span>
-                          ) : (
-                            <span style={{ color: '#CCC' }}>—</span>
-                          )}
+                          {/* Gold count — fully manual: type it directly, the % back-derives */}
+                          <input
+                            type="number" min={0} step={1}
+                            value={u.solvedCount || 0}
+                            onChange={e => editMix(u.id, 'solvedCount', Math.max(0, Math.round(parseFloat(e.target.value) || 0)))}
+                            title="Type the unit count directly — the % mix re-derives automatically"
+                            style={{ width: 62, textAlign: 'center', background: 'transparent', border: 'none', borderBottom: '1px solid #E4D9BE', padding: '3px 0', fontSize: 15, fontFamily: 'monospace', fontWeight: 700, color: '#B8963C', outline: 'none' }}
+                          />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           <button onClick={() => removeUnit(u.id)} style={{ color: '#CCC', cursor: 'pointer', background: 'none', border: 'none', fontSize: 12 }} onMouseEnter={e => (e.target as HTMLElement).style.color = '#9B2335'} onMouseLeave={e => (e.target as HTMLElement).style.color = '#CCC'}>✕</button>
@@ -398,10 +438,19 @@ export default function ProductMixTab({ projectId }: Props) {
               )}
             </div>
 
-            {/* Solver results */}
-            {solverResult && (
+            {/* Mix result — live from the (manual or solved) counts */}
+            {units.length > 0 && (
               <div className="border border-[#E0DDD8] bg-white p-5">
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-4">Solver Result</p>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[#888]">Mix Result — live</p>
+                  {solverReady && (
+                    <button onClick={solveToNSA}
+                      className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[#C8C5C0] text-[#666] hover:border-[#1A1A1A] hover:text-[#1A1A1A] cursor-pointer transition-colors"
+                      style={{ borderRadius: 0 }} title="Fill the counts from the NSA-optimal solver">
+                      ⟲ Solve to NSA
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-4 gap-4 mb-4">
                   <SolverStat label="Total units" value={totalUnits.toString()} />
                   <SolverStat label="NSA used" value={`${nsaUsed.toLocaleString()} sqm`} />
@@ -412,20 +461,23 @@ export default function ProductMixTab({ projectId }: Props) {
                     warn={Math.abs(site.resiNSA - nsaUsed) > 200}
                   />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(solverResult.mix.length, 6)}, 1fr)`, gap: 8 }}>
-                  {solverResult.mix.map(m => (
-                    <div key={m.name} style={{ background: '#F7F5F2', border: '1px solid #E8E5E0', padding: '12px', textAlign: 'center' }}>
-                      <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 22, color: '#B8963C' }}>{m.count}</div>
-                      <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{m.name}</div>
-                      <div style={{ fontSize: 10, color: '#AAA', marginTop: 1 }}>{(m.actualPct * 100).toFixed(0)}%</div>
-                    </div>
-                  ))}
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(units.length, 6)}, 1fr)`, gap: 8 }}>
+                  {units.map(u => {
+                    const count = u.solvedCount || 0
+                    return (
+                      <div key={u.id} style={{ background: '#F7F5F2', border: '1px solid #E8E5E0', padding: '12px', textAlign: 'center' }}>
+                        <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 22, color: '#B8963C' }}>{count}</div>
+                        <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{u.name}</div>
+                        <div style={{ fontSize: 10, color: '#AAA', marginTop: 1 }}>{totalUnits > 0 ? Math.round((count / totalUnits) * 100) : 0}%</div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
 
             {/* Parking & storage — knock-on space + cost as the mix changes */}
-            {solverResult && (
+            {units.length > 0 && (
               <div className="border border-[#E0DDD8] bg-white p-5 mt-4">
                 <p className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-4">Parking &amp; Storage — Knock-on Requirements</p>
                 <div style={{ overflowX: 'auto' }}>

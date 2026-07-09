@@ -55,7 +55,7 @@ export default function BTRTab({ projectId }: Props) {
     : null
   const unitLines = units.map((u, i) => ({
     typeName: u.name,
-    unitCount: solverResult?.mix[i]?.count ?? u.solvedCount ?? 0,
+    unitCount: u.solvedCount || solverResult?.mix[i]?.count || 0,
     weeklyRentConservative: u.weeklyRentConservative,
     weeklyRentAggressive: u.weeklyRentAggressive,
     opexPerUnitPerYear: u.opexPerUnitPerYear,
