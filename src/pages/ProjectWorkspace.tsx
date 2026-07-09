@@ -121,17 +121,17 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
               {/* Chrome stealth bento grid — manage portal */}
               <svg width="15" height="15" viewBox="0 0 24 24">
                 <defs>
-                  <linearGradient id="bentoChromeManageFinal" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="bentoChrome" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#A8AAAE" />
                     <stop offset="16%" stopColor="#5A5C62" />
                     <stop offset="52%" stopColor="#1A1C22" />
                     <stop offset="100%" stopColor="#000000" />
                   </linearGradient>
                 </defs>
-                <rect x="4" y="4" width="7" height="9" rx="1.5" fill="url(#bentoChromeManageFinal)" />
-                <rect x="4" y="15" width="7" height="5" rx="1.5" fill="url(#bentoChromeManageFinal)" />
-                <rect x="13" y="4" width="7" height="5" rx="1.5" fill="url(#bentoChromeManageFinal)" />
-                <rect x="13" y="11" width="7" height="9" rx="1.5" fill="url(#bentoChromeManageFinal)" />
+                <rect x="4" y="4" width="7" height="9" rx="1.5" />
+                <rect x="4" y="15" width="7" height="5" rx="1.5" />
+                <rect x="13" y="4" width="7" height="5" rx="1.5" />
+                <rect x="13" y="11" width="7" height="9" rx="1.5" />
               </svg>
             </button>
           )}
