@@ -8,9 +8,20 @@
 import { supabase, cloudEnabled } from '../lib/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
+// ── Echo suppression ──────────────────────────────────────────────────────────
+// The realtime channel fires on EVERY change, including this client's own
+// writes. Without this, saving a mix triggers a re-pull that can clobber the
+// just-saved edit with an eventual-consistency echo. After any local write we
+// ignore realtime re-pulls for a short window so local edits always win.
+let lastLocalWriteAt = 0
+const SELF_ECHO_MS = 8000
+function noteLocalWrite() { lastLocalWriteAt = Date.now() }
+export function suppressingRemote() { return Date.now() - lastLocalWriteAt < SELF_ECHO_MS }
+
 // ── Push helpers (fire-and-forget from save functions) ────────────────────────
 
 export function pushProject(project: Record<string, unknown>) {
+  noteLocalWrite()
   supabase.from('projects').upsert({
     id: project.id,
     name: project.name,
@@ -25,6 +36,7 @@ export function pushProject(project: Record<string, unknown>) {
 }
 
 export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline' | 'cashflow', data: unknown) {
+  noteLocalWrite()
   supabase.from('project_data').upsert({
     project_id: projectId,
     [field]: data,
@@ -33,6 +45,7 @@ export function pushProjectField(projectId: string, field: 'site' | 'land' | 'co
 }
 
 export function pushScenario(scenario: Record<string, unknown>) {
+  noteLocalWrite()
   supabase.from('mix_scenarios').upsert({
     id: scenario.id,
     project_id: scenario.projectId,
@@ -41,6 +54,7 @@ export function pushScenario(scenario: Record<string, unknown>) {
 }
 
 export function pushScenarioField(scenarioId: string, field: 'unit_types' | 'btr' | 'bts' | 'hotel', data: unknown) {
+  noteLocalWrite()
   supabase.from('scenario_data').upsert({
     scenario_id: scenarioId,
     [field]: data,
@@ -48,6 +62,7 @@ export function pushScenarioField(scenarioId: string, field: 'unit_types' | 'btr
 }
 
 export function pushSnapshot(snapshot: Record<string, unknown>) {
+  noteLocalWrite()
   supabase.from('snapshots').upsert({
     id: snapshot.id,
     project_id: snapshot.projectId,
@@ -192,24 +207,20 @@ export function subscribeRealtime(onUpdate: () => void) {
   if (!cloudEnabled) return () => {} // local-only mode
   if (channel) channel.unsubscribe()
 
+  // A remote change lands: re-pull — UNLESS we just wrote locally, in which case
+  // this is the echo of our own save and re-pulling would clobber the fresh edit.
+  const handleRemote = async () => {
+    if (suppressingRemote()) return
+    await pullFromCloud()
+    onUpdate()
+  }
+
   channel = supabase
     .channel('feasibility-sync')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => {
-      await pullFromCloud()
-      onUpdate()
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_data' }, async () => {
-      await pullFromCloud()
-      onUpdate()
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'mix_scenarios' }, async () => {
-      await pullFromCloud()
-      onUpdate()
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'scenario_data' }, async () => {
-      await pullFromCloud()
-      onUpdate()
-    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, handleRemote)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_data' }, handleRemote)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'mix_scenarios' }, handleRemote)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'scenario_data' }, handleRemote)
     .subscribe()
 
   return () => { channel?.unsubscribe(); channel = null }
