@@ -72,6 +72,7 @@ export function seedProjectsIfEmpty() {
       brand: '7even',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      createdBy: 'Daniel Sette',
     })
   } else {
     // One-time reset: wipe all previously seeded data so user starts fresh
@@ -646,6 +647,7 @@ function seedPreston() {
     type: 'btr',
     createdAt: '2025-09-01T00:00:00.000Z',
     updatedAt: new Date().toISOString(),
+    createdBy: 'Daniel Sette',
   })
 
   // Site areas — 400 BTR + 2,000 sqm commercial

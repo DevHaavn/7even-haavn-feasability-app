@@ -285,7 +285,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {showNew && (
         <div onClick={() => setShowNew(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'linear-gradient(rgba(3,3,3,0.66), rgba(3,3,3,0.74)), url(/home-bg.jpg) center / cover no-repeat, #030303',
           }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"

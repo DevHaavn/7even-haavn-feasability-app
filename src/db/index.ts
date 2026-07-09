@@ -833,6 +833,39 @@ function touchProject(id: string) {
   if (p) saveProject(p)
 }
 
+// ── Version History ──────────────────────────────────────────────────────────
+
+export function getProjectVersions(projectId: string): import('./schema').ProjectVersion[] {
+  return load<import('./schema').ProjectVersion[]>(`versions:${projectId}`, [])
+}
+
+export function saveProjectVersion(version: import('./schema').ProjectVersion) {
+  const existing = getProjectVersions(version.projectId)
+  const updated = existing.filter(v => v.id !== version.id)
+  save(`versions:${version.projectId}`, [...updated, version])
+}
+
+export function createProjectVersion(projectId: string, versionName: string, createdBy: string): import('./schema').ProjectVersion {
+  const version: import('./schema').ProjectVersion = {
+    id: generateId(),
+    projectId,
+    versionName,
+    createdAt: new Date().toISOString(),
+    createdBy,
+    lastUpdatedAt: new Date().toISOString(),
+  }
+  saveProjectVersion(version)
+  return version
+}
+
+export function updateVersionTimestamp(projectId: string, versionId: string) {
+  const versions = getProjectVersions(projectId)
+  const version = versions.find(v => v.id === versionId)
+  if (version) {
+    saveProjectVersion({ ...version, lastUpdatedAt: new Date().toISOString() })
+  }
+}
+
 export function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }

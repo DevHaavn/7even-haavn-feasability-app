@@ -13,6 +13,18 @@ export interface Project {
   mapPin?: string   // custom pin label (default '7')
   type?: 'hotel' | 'btr' | 'bts' | 'mixed'  // project concept type for colour coding
   brand?: '7even' | 'haavn' | 'both'         // which entity owns this project ('both' = joint HAAVN/7EVEN, shows in both columns)
+  createdBy?: string  // user/creator name
+}
+
+// Version history — tracks feasibility saves for each project
+export interface ProjectVersion {
+  id: string
+  projectId: string
+  versionName: string  // e.g. "v1", "Phase 1 Concept", user-defined
+  createdAt: string
+  createdBy: string  // creator/user name
+  lastUpdatedAt: string  // when feasibility was last auto-saved
+  notes?: string
 }
 
 export interface SiteDesign {
