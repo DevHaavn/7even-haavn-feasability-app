@@ -16,7 +16,7 @@ import SummaryTab from './tabs/SummaryTab'
 import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
 import SiteLinks from '../components/SiteLinks'
-import AutoSaveButton from '../components/AutoSaveButton'
+import AutoSaveCloud from '../components/AutoSaveButton'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
@@ -89,7 +89,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             onClick={() => setActiveProject(null)}
             className="no-drag text-[#1A1A1A] hover:text-[#8A6A28] transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
           >
-            MENU
+            HOME
           </button>
         </div>
         <div className="w-[1px] h-7 bg-[#C4C0B8] flex-shrink-0 hidden sm:block" />
@@ -100,7 +100,11 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             <WorkspaceStatusDot type={project.type} status={project.status} />
             <h1 className="font-heading font-semibold text-[#1A1A1A] text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
           </div>
-          {project.address && <p className="text-[#606060] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium">{project.address}</p>}
+          {project.address && (
+            <p className="text-[#606060] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium flex items-center gap-1.5">
+              <AutoSaveCloud />{project.address}
+            </p>
+          )}
         </div>
         <div className="flex-1 min-w-0 sm:hidden">
           <div className="flex items-center gap-2">
@@ -113,9 +117,8 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             Consultant
           </span>
         )}
-        {/* Auto-save · Dashboard · Manage — compact glass icon buttons */}
+        {/* Dashboard · Manage — compact glass icon buttons */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          <AutoSaveButton />
           {role !== 'external' && (
             <button onClick={() => setActiveTab('insights')} title="Dashboard" aria-label="Dashboard"
               className={activeTab === 'insights' ? 'ws-bento-btn ws-bento-btn-on' : 'ws-bento-btn'}>

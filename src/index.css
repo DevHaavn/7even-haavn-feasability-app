@@ -340,42 +340,30 @@ input[type="checkbox"] {
 }
 .ws-bento-btn svg rect { fill: url(#bentoChrome); stroke: rgba(0,0,0,0.35); stroke-width: 0.4; }
 .ws-bento-btn:hover {
-  border-color: rgba(190,120,210,0.55);
-  background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(246,240,248,0.85) 52%, rgba(238,230,242,0.8));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 5px 16px rgba(0,0,0,0.18), 0 0 16px rgba(200,120,220,0.45), 0 0 26px rgba(255,140,200,0.30);
+  border-color: rgba(255,255,255,0.9);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(248,248,250,0.9) 52%, rgba(242,242,246,0.85));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 5px 16px rgba(0,0,0,0.16), 0 0 16px rgba(255,255,255,0.9), 0 0 26px rgba(255,255,255,0.6);
   transform: translateY(-1px);
 }
 .ws-bento-btn:active { transform: scale(0.96); }
-/* Active (Dashboard view open) — carry the purple/pink glow so it reads as selected */
+/* Active (Dashboard view open) — soft white glow so it reads as selected */
 .ws-bento-btn-on {
-  border-color: rgba(190,120,210,0.6);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 3px 12px rgba(0,0,0,0.18), 0 0 14px rgba(200,120,220,0.40), 0 0 22px rgba(255,140,200,0.26);
+  border-color: rgba(255,255,255,0.85);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 3px 12px rgba(0,0,0,0.16), 0 0 14px rgba(255,255,255,0.85), 0 0 22px rgba(255,255,255,0.5);
 }
-/* ── Auto-save indicator — electric glass-blue, flashes green on save ── */
-.ws-autosave-btn {
-  width: 30px; height: 30px; flex-shrink: 0; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 9px; cursor: default;
-  border: 1px solid rgba(56,140,220,0.45);
-  background: linear-gradient(to bottom, rgba(228,245,255,0.85), rgba(201,231,252,0.7) 52%, rgba(188,222,250,0.68));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 3px 10px rgba(0,0,0,0.14), 0 0 12px rgba(56,168,255,0.35);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-}
-.ws-autosave-btn svg { stroke: #2FA4F5; filter: drop-shadow(0 0 2px rgba(56,168,255,0.75)); transition: stroke 0.35s ease, filter 0.35s ease; }
-.ws-autosave-btn.saving {
-  border-color: rgba(34,197,94,0.6);
-  background: linear-gradient(to bottom, rgba(224,255,236,0.9), rgba(198,248,214,0.76) 52%, rgba(186,244,204,0.72));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 3px 12px rgba(0,0,0,0.16), 0 0 18px rgba(34,197,94,0.6);
+/* ── Auto-save cloud — no button, just a cloud that flashes green on save ── */
+.ws-autosave-cloud { display: inline-flex; align-items: center; flex-shrink: 0; line-height: 0; }
+.ws-autosave-cloud svg { stroke: #96A2B2; transition: stroke 0.4s ease, filter 0.4s ease; }
+.ws-autosave-cloud.saving svg {
+  stroke: #16B34A;
+  filter: drop-shadow(0 0 4px rgba(34,197,94,0.85));
   animation: ws-as-pulse 0.95s ease;
 }
-.ws-autosave-btn.saving svg { stroke: #16B34A; filter: drop-shadow(0 0 3px rgba(34,197,94,0.9)); }
-@keyframes ws-as-pulse { 0%,100% { transform: scale(1); } 45% { transform: scale(1.1); } }
+@keyframes ws-as-pulse { 0%,100% { transform: scale(1); } 45% { transform: scale(1.16); } }
 
 /* Slightly larger touch target on desktop */
 @media (min-width: 768px) {
   .ws-bento-btn { width: 32px; height: 32px; border-radius: 10px; }
-  .ws-autosave-btn { width: 32px; height: 32px; border-radius: 10px; }
 }
 
 /* ── War Room brand buttons (from the WAR ROOM design doc) ── */
