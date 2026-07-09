@@ -11,6 +11,7 @@ import { calculateFinance } from '../../engine/finance'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import FinanceSCurve, { getTimelineHealth } from '../../components/FinanceSCurve'
 import ProfitLens from '../../components/ProfitLens'
+import InvestorReturn from '../../components/InvestorReturn'
 
 interface Props { projectId: string }
 
@@ -213,6 +214,9 @@ export default function ProjectDashboard({ projectId }: Props) {
 
       {/* ── Profit — every lens (developer, bank, investor) ── */}
       <ProfitLens projectId={projectId} />
+
+      {/* ── Investor equity return ── */}
+      <InvestorReturn projectId={projectId} />
 
       {/* ── Row 2: Area breakdown + Cost stack ── */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>

@@ -4,6 +4,7 @@ import * as db from '../../db'
 import { calculateCostStack } from '../../engine/costStack'
 import { calculateFinance } from '../../engine/finance'
 import ProfitLens from '../../components/ProfitLens'
+import InvestorReturn from '../../components/InvestorReturn'
 import { useAutosave } from '../../lib/useAutosave'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
@@ -344,6 +345,9 @@ export default function FinanceTab({ projectId }: Props) {
 
       {/* Profit — every lens (developer · bank · investor) */}
       <ProfitLens projectId={projectId} title="Profit — every lens (developer · bank · investor)" />
+
+      {/* Investor equity return — editable equity cheque here on Finance */}
+      <InvestorReturn projectId={projectId} editable />
 
       {/* KPI strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 10, marginBottom: 32 }}>

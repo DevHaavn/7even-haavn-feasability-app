@@ -359,6 +359,8 @@ export interface FinanceAssumptions {
   // Equity hurdle
   equityHurdleRate: number     // target IRR for equity (e.g. 0.18)
   preferredReturnRate: number  // preferred equity return (e.g. 0.12)
+  // Investor lens — "if an investor puts in $X equity, what do they make?"
+  investorEquity?: number      // committed investor equity (default $20M)
 }
 
 export interface CostPreset {

@@ -699,6 +699,41 @@ export function getProfitMetrics(projectId: string): ProfitMetrics {
   return { gdv, tdc, profit, marginOnCost, marginOnGdv, irr, equityMultiple, peakEquity: cf.peakEquity }
 }
 
+export interface InvestorReturn {
+  equity: number        // investor's committed equity
+  profit: number        // development profit they earn on it
+  irr: number | null    // IRR on their equity (drawn through delivery, returned + profit at exit)
+  multiple: number      // (equity + profit) / equity
+  roe: number           // profit / equity (simple return on equity)
+  months: number        // hold to realisation
+  projectEquity: number // equity the project actually needs (for context)
+}
+
+/** "If an investor puts in $X equity, what do they make?" — profit, IRR, multiple
+ *  and return on equity for a stated equity cheque, using the project's equity
+ *  draw timeline (scaled to $X) and the development profit realised at exit. */
+export function getInvestorReturn(projectId: string, investorEquity?: number): InvestorReturn {
+  const equity = investorEquity ?? getFinanceAssumptions(projectId).investorEquity ?? 20_000_000
+  const m = getProfitMetrics(projectId)   // land-inclusive TDC, best-scenario GDV, dev profit
+  const cf = buildCashflow(getCashflow(projectId), getPhaseCosts(projectId))
+  const projectEquity = cf.equityByMonth.reduce((s, v) => s + (v || 0), 0) || cf.peakEquity
+  // Scale the equity draw pattern to the investor's cheque (IRR is scale-invariant
+  // on the pattern; the profit/equity ratio drives the level).
+  const scale = projectEquity > 0 ? equity / projectEquity : 0
+  const scaledDraws = cf.equityByMonth.map(v => (v || 0) * scale)
+  let exit = 0
+  for (let i = cf.totalByMonth.length - 1; i >= 0; i--) { if ((cf.totalByMonth[i] || 0) > 0) { exit = i; break } }
+  const { irr } = developmentIRR(scaledDraws, m.profit, exit)
+  const profit = m.profit
+  return {
+    equity, profit, irr,
+    multiple: equity > 0 ? (equity + profit) / equity : 0,
+    roe: equity > 0 ? profit / equity : 0,
+    months: exit + 1,
+    projectEquity,
+  }
+}
+
 export function saveDetailedCostStack(data: import('./schema').DetailedCostStack) {
   save(`detailed-costs:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'detailed_costs', data)
@@ -749,6 +784,7 @@ export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
     blowout12mActive: true,
     equityHurdleRate: 0.18,
     preferredReturnRate: 0.12,
+    investorEquity: 20_000_000,
   })
 }
 
