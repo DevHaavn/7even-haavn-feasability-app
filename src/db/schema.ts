@@ -268,6 +268,13 @@ export interface BTRAssumptions {
   buildingAdminFixed: number
   childcareAnnualNet: number
   commercialAnnualNet: number
+  // Custom "Other Income" sources (name + amount, user-editable)
+  otherIncomeLabel1?: string
+  otherIncomeAmount1?: number
+  otherIncomeLabel2?: string
+  otherIncomeAmount2?: number
+  otherIncomeLabel3?: string
+  otherIncomeAmount3?: number
   capRateConservative: number
   capRateAggressive: number
   devMarginPct: number

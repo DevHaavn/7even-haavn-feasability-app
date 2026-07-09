@@ -114,28 +114,8 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             Consultant
           </span>
         )}
-        {/* Dashboard · Manage — compact glass icon buttons */}
+        {/* Manage — compact glass icon button (Dashboard now in tabs bar) */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          {role !== 'external' && (
-            <button onClick={() => setActiveTab('insights')} title="Dashboard" aria-label="Dashboard"
-              className={activeTab === 'insights' ? 'ws-bento-btn ws-bento-btn-on' : 'ws-bento-btn'}>
-              {/* Bento dashboard glyph — chrome shiny-black stealth tiles (latest design) */}
-              <svg width="15" height="15" viewBox="0 0 24 24">
-                <defs>
-                  <linearGradient id="bentoChrome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6A6A6E" />
-                    <stop offset="16%" stopColor="#2C2C30" />
-                    <stop offset="52%" stopColor="#0A0A0C" />
-                    <stop offset="100%" stopColor="#000000" />
-                  </linearGradient>
-                </defs>
-                <rect x="4" y="4" width="7" height="9" rx="1.6" />
-                <rect x="4" y="15" width="7" height="5" rx="1.6" />
-                <rect x="13" y="4" width="7" height="5" rx="1.6" />
-                <rect x="13" y="11" width="7" height="9" rx="1.6" />
-              </svg>
-            </button>
-          )}
           {onManage && (
             <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
               {/* Black-gloss "M" inside the soft grey glass square */}
@@ -165,7 +145,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
       {/* Tabs — z-40 keeps it above fixed tab backgrounds */}
       <div className="relative z-40">
         <TabBar
-          tabs={visibleTabs.filter(t => t.id !== 'insights')}
+          tabs={visibleTabs}
           active={safeTab}
           onChange={setActiveTab}
           accentTabId={project.type === 'hotel' ? 'hotel' : project.type === 'btr' ? 'btr' : project.type === 'bts' ? 'bts' : undefined}

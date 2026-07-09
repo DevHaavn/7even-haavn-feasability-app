@@ -68,6 +68,10 @@ export default function BTRTab({ projectId }: Props) {
     commercialIncomeLines: [
       ...(data.childcareAnnualNet > 0 ? [{ label: 'Childcare', annualNet: data.childcareAnnualNet }] : []),
       ...(data.commercialAnnualNet > 0 ? [{ label: 'Commercial', annualNet: data.commercialAnnualNet }] : []),
+      // Custom other income sources
+      ...(data.otherIncomeLabel1 && data.otherIncomeAmount1 ? [{ label: data.otherIncomeLabel1, annualNet: data.otherIncomeAmount1 }] : []),
+      ...(data.otherIncomeLabel2 && data.otherIncomeAmount2 ? [{ label: data.otherIncomeLabel2, annualNet: data.otherIncomeAmount2 }] : []),
+      ...(data.otherIncomeLabel3 && data.otherIncomeAmount3 ? [{ label: data.otherIncomeLabel3, annualNet: data.otherIncomeAmount3 }] : []),
     ],
     carParkIncomeAnnual: data.carParkIncomeAnnual,
     buildingAdminFixed: data.buildingAdminFixed,
@@ -138,6 +142,32 @@ export default function BTRTab({ projectId }: Props) {
           <FieldRow label="Childcare (net p.a.)"><NumberInput value={data.childcareAnnualNet} onChange={v => update('childcareAnnualNet', v)} prefix="$" step={10000} /></FieldRow>
           <FieldRow label="Commercial (net p.a.)"><NumberInput value={data.commercialAnnualNet} onChange={v => update('commercialAnnualNet', v)} prefix="$" step={10000} /></FieldRow>
           <FieldRow label="Car park income (p.a.)"><NumberInput value={data.carParkIncomeAnnual} onChange={v => update('carParkIncomeAnnual', v)} prefix="$" step={10000} /></FieldRow>
+
+          {/* 3 custom editable other income sources */}
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #E8E5E0' }}>
+            <p style={{ fontSize: 8, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Custom Income</p>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < 3 ? 8 : 0, alignItems: 'flex-end' }}>
+                <input
+                  type="text"
+                  placeholder={`Income source ${i}`}
+                  value={data[`otherIncomeLabel${i}` as keyof BTRAssumptions] || ''}
+                  onChange={e => update(`otherIncomeLabel${i}` as keyof BTRAssumptions, e.target.value as any)}
+                  style={{ flex: 1, padding: '6px 8px', border: '1px solid #D0CEC9', borderRadius: 3, fontSize: 11, fontFamily: 'monospace' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 0.8 }}>
+                  <span style={{ fontSize: 8, color: '#999' }}>$</span>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    value={data[`otherIncomeAmount${i}` as keyof BTRAssumptions] || 0}
+                    onChange={e => update(`otherIncomeAmount${i}` as keyof BTRAssumptions, parseInt(e.target.value) || 0)}
+                    style={{ flex: 1, padding: '6px 8px', border: '1px solid #D0CEC9', borderRadius: 3, fontSize: 11, fontFamily: 'monospace', textAlign: 'right' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="border border-[#E8E5E0] bg-white p-4">
