@@ -112,6 +112,31 @@ const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid 
 function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number; gdvValue?: number }) {
   const basisValue = (fb?: 'construction' | 'gdv') => (fb === 'gdv' ? gdvValue : constructionValue)
   const [openId, setOpenId] = useState<string | null>(null)
+  // Drag-resizable "Item Description" column so long consultant/trade names can
+  // be read in full. Persisted per browser so a user's preferred width sticks.
+  const [descW, setDescW] = useState<number>(() => {
+    const s = typeof localStorage !== 'undefined' ? parseInt(localStorage.getItem('cs.descW') || '', 10) : NaN
+    return Number.isFinite(s) ? Math.max(200, Math.min(760, s)) : 320
+  })
+  const drag = useRef<{ startX: number; startW: number } | null>(null)
+  useEffect(() => {
+    function move(e: PointerEvent) {
+      if (!drag.current) return
+      const w = Math.max(200, Math.min(760, drag.current.startW + (e.clientX - drag.current.startX)))
+      descWRef.current = w
+      setDescW(w)
+    }
+    function up() {
+      if (!drag.current) return
+      drag.current = null
+      document.body.style.cursor = ''
+      try { localStorage.setItem('cs.descW', String(Math.round(descWRef.current))) } catch { /* no-op */ }
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+  }, [])
+  const descWRef = useRef(descW); descWRef.current = descW
   function update(id: string, patch: Partial<CostLineItem>) {
     onChange(items.map(item => item.id === id ? { ...item, ...patch } : item))
   }
@@ -128,15 +153,26 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
     update(item.id, { monthly })
   }
   const total = items.reduce((s, i) => s + (i.amount || 0), 0)
-  const GRID = '1fr 168px 96px 96px 104px 112px 122px 28px 26px'
-  const MINW = 1000
+  const GRID = `${descW}px 168px 96px 96px 104px 112px 122px 28px 26px`
+  const MINW = descW + 720
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', overflowX: 'auto' }}>
       {/* Header */}
       <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: MINW }}>
         {['Item Description', 'Budget ($)', 'Start', 'End', 'S-Curve', 'Funded By', 'Phase', '', ''].map((h, i) => (
-          <span key={i} style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>{h}</span>
+          <span key={i} style={{ position: 'relative', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>
+            {h}
+            {i === 0 && (
+              <span
+                title="Drag to widen — read full item names"
+                onPointerDown={e => { drag.current = { startX: e.clientX, startW: descW }; document.body.style.cursor = 'col-resize'; e.preventDefault() }}
+                style={{ position: 'absolute', top: -8, right: -8, width: 14, height: 26, cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <span style={{ width: 2, height: 14, background: '#C9C4BC', borderRadius: 2, boxShadow: '3px 0 0 #E4DFD8' }} />
+              </span>
+            )}
+          </span>
         ))}
       </div>
 
@@ -150,7 +186,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
           <div key={item.id} style={{ borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', minWidth: MINW }}>
             <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '7px 14px', alignItems: 'center' }}>
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
-                value={item.label} placeholder="Item description"
+                value={item.label} placeholder="Item description" title={item.label || undefined}
                 onChange={e => update(item.id, { label: e.target.value })} />
               {item.feeBasis ? (
                 // Fee derived as a % of Construction or GDV — basis chosen per line.
@@ -537,8 +573,9 @@ export default function CostStackTab({ projectId }: Props) {
 
       {/* ── SUMMARY TAB ── */}
       {innerTab === 'summary' && (
-        <div className="relative p-4 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 overflow-auto flex-1">
-          <div className="flex-1 max-w-xl">
+        <div className="relative p-5 md:p-8 lg:p-10 flex flex-col gap-10 md:gap-12 overflow-auto flex-1">
+          {/* ── Cost Stack — inputs sit at the top, roomy full-width column ── */}
+          <div className="w-full max-w-3xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <SectionHeading sub="Construction rate applied to GBA plus all soft costs">Cost Stack</SectionHeading>
               <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
@@ -652,10 +689,10 @@ export default function CostStackTab({ projectId }: Props) {
             )}
           </div>
 
-          {/* Cost Summary waterfall */}
-          <div className="w-72 flex-shrink-0">
-            <SectionHeading>Cost Summary</SectionHeading>
-            <div className="border border-[#E0DDD8] bg-white">
+          {/* ── Cost Summary — sits in its own half at the bottom of the page ── */}
+          <div className="w-full max-w-md mx-auto pt-2 border-t border-[#EBE8E3]">
+            <div className="mb-4"><SectionHeading sub="Rolled-up total development cost incl. land">Cost Summary</SectionHeading></div>
+            <div className="border border-[#E0DDD8] rounded-xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               {/* Land & acquisition — from Land & Terms, part of TDC */}
               {landB.total > 0 && (
                 <div className="px-4 pt-2.5 pb-1 bg-[#FBFAF7] border-b border-[#F0EDE8]">
@@ -747,9 +784,6 @@ export default function CostStackTab({ projectId }: Props) {
           <ScheduleMatrix items={detailed[meta.key]} />
         </div>
       )}
-
-      {/* Render strip */}
-      <div style={{ height: 280, backgroundImage: 'url(/renders/haavn-hero.png)', backgroundSize: 'cover', backgroundPosition: 'center 55%', width: '100%', flexShrink: 0 }} />
     </div>
   )
 }
