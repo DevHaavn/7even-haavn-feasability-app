@@ -47,11 +47,11 @@ const TABS = [
   { id: 'land', label: 'Land & Terms' },
   { id: 'mix', label: 'Product Mix' },
   { id: 'cost', label: 'Cost Stack' },
-  { id: 'cashflow', label: 'Cashflow' },
   { id: 'finance', label: 'Finance' },
+  { id: 'cashflow', label: 'Cash Flow' },
   { id: 'timeline', label: 'Timeline' },
   // BTR / BTS / Hotel / Compare now live as pull-down sub-tabs inside Product Mix
-  { id: 'summary', label: 'Summary' },
+  { id: 'summary', label: 'Overview' },
   { id: 'insights', label: 'Dashboard' },
 ]
 

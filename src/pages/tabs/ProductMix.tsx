@@ -289,8 +289,8 @@ export default function ProductMixTab({ projectId }: Props) {
           </div>
         )}
 
-        {/* Scenario selector */}
-        {scenarios.length > 0 && (
+        {/* Scenario selector — only shown when there's more than one to switch between */}
+        {scenarios.length > 1 && (
           <div className="flex mb-5" style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>
             {scenarios.map((s, i) => (
               <button
@@ -583,14 +583,24 @@ function SolverStat({ label, value, warn }: { label: string; value: string; warn
   )
 }
 
+// Each model tab lights up in the colour of the use-type it represents.
+const MODEL_TAB_COLOR: Record<ModelTab, { line: string; tint: string; glow: string }> = {
+  none:    { line: '#C4973A', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Mix — gold
+  btr:     { line: '#22C55E', tint: 'rgba(34,197,94,0.12)',  glow: 'rgba(34,197,94,0.45)' },    // BTR — green
+  bts:     { line: '#3B82F6', tint: 'rgba(59,130,246,0.12)', glow: 'rgba(59,130,246,0.45)' },   // BTS — blue
+  hotel:   { line: '#A855F7', tint: 'rgba(168,85,247,0.12)', glow: 'rgba(168,85,247,0.45)' },   // Hotel — purple
+  compare: { line: '#C4973A', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Compare — gold
+}
+
 // ── Model sub-tab bar — premium "folder" tabs (matches the Cost Stack look):
-//    evenly spaced across the width, uppercase, gold underline on the active. ──
+//    evenly spaced, uppercase; the active tab lights up in its use-type colour. ──
 function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: ModelTab) => void }) {
   const tabs: { id: ModelTab; label: string }[] = [{ id: 'none', label: 'Mix Builder' }, ...MODEL_TABS]
   return (
     <div style={{ display: 'flex', borderBottom: '2px solid #E0DDD8', background: '#F5F3F0', borderTopLeftRadius: 8, borderTopRightRadius: 8, marginBottom: 18, overflow: 'hidden' }}>
       {tabs.map((t, i) => {
         const on = active === t.id
+        const c = MODEL_TAB_COLOR[t.id]
         return (
           <button
             key={t.id}
@@ -599,15 +609,16 @@ function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: Mod
             style={{
               flex: 1, minWidth: 0, textAlign: 'center',
               padding: '13px 8px', border: 'none', cursor: 'pointer',
-              background: on ? 'linear-gradient(180deg,#FFFFFF, #FAF8F5)' : 'transparent',
+              background: on ? `linear-gradient(180deg,#FFFFFF, ${c.tint})` : 'transparent',
               borderLeft: i > 0 ? '1px solid #E7E3DD' : 'none',
               fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: on ? 800 : 600,
               color: on ? '#1A1A1A' : '#9A968F',
-              borderBottom: on ? '2px solid #C4973A' : '2px solid transparent',
+              borderBottom: on ? `3px solid ${c.line}` : '2px solid transparent',
+              boxShadow: on ? `inset 0 -1px 10px -2px ${c.glow}, 0 6px 14px -10px ${c.glow}` : 'none',
               marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              transition: 'color 0.18s ease, background 0.18s ease',
+              transition: 'color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease',
             }}
-            onMouseEnter={e => { if (!on) e.currentTarget.style.color = '#1A1A1A' }}
+            onMouseEnter={e => { if (!on) e.currentTarget.style.color = c.line }}
             onMouseLeave={e => { if (!on) e.currentTarget.style.color = '#9A968F' }}
           >
             {t.label}

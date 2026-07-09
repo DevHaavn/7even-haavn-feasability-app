@@ -99,8 +99,8 @@ export default function BTRTab({ projectId }: Props) {
           {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
 
-        {/* Scenario picker */}
-        {scenarios.length > 0 && (
+        {/* Scenario picker — only when there's more than one to switch between */}
+        {scenarios.length > 1 && (
           <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>
             {scenarios.map((s, i) => (
               <button key={s.id} onClick={() => setActiveId(s.id)}

@@ -75,7 +75,7 @@ export default function BTSTab({ projectId }: Props) {
           {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
 
-        {scenarios.length > 0 && (
+        {scenarios.length > 1 && (
           <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>
             {scenarios.map((s, i) => (
               <button key={s.id} onClick={() => setActiveId(s.id)}
