@@ -557,11 +557,11 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
 
       {/* Fixed-width name column so every Live button lines up down the board */}
       <div className="pcard-name" style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
-        <p style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 300, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s' }}
+        <p style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 500, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s', textShadow: '0 0 8px rgba(255,255,255,0.3)' }}
           className="group-hover:text-white truncate">
           {project.name}
         </p>
-        <p style={{ color: '#FFFFFF', fontSize: 9, letterSpacing: '0.08em' }} className="truncate">
+        <p style={{ color: '#FFFFFF', fontSize: 9, letterSpacing: '0.08em', textShadow: '0 0 6px rgba(255,255,255,0.25)' }} className="truncate">
           {project.address || '—'}
         </p>
       </div>

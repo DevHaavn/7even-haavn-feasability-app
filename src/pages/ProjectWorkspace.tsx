@@ -118,17 +118,20 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
           {onManage && (
             <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
-              {/* Black-gloss "M" inside the soft grey glass square */}
-              <svg width="17" height="17" viewBox="0 0 24 24">
+              {/* Chrome stealth bento grid — manage portal */}
+              <svg width="15" height="15" viewBox="0 0 24 24">
                 <defs>
-                  <linearGradient id="bentoChromeM" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="bentoChromeGear" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#6A6A6E" />
                     <stop offset="16%" stopColor="#2C2C30" />
                     <stop offset="52%" stopColor="#0A0A0C" />
                     <stop offset="100%" stopColor="#000000" />
                   </linearGradient>
                 </defs>
-                <text x="12" y="18.5" textAnchor="middle" fontFamily="'Optima','Gill Sans',serif" fontSize="20" fontWeight="800" fill="url(#bentoChromeM)">M</text>
+                <rect x="4" y="4" width="7" height="9" rx="1.6" fill="url(#bentoChromeGear)" />
+                <rect x="4" y="15" width="7" height="5" rx="1.6" fill="url(#bentoChromeGear)" />
+                <rect x="13" y="4" width="7" height="5" rx="1.6" fill="url(#bentoChromeGear)" />
+                <rect x="13" y="11" width="7" height="9" rx="1.6" fill="url(#bentoChromeGear)" />
               </svg>
             </button>
           )}
