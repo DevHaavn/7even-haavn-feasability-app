@@ -620,7 +620,7 @@ input[type="checkbox"] {
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 14px 30px -18px rgba(0,0,0,0.35);
-  animation: pm-slide-down 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: pm-slide-down 0.55s cubic-bezier(0.16, 0.84, 0.32, 1);
 }
 .pm-drawer-inner {
   display: flex;

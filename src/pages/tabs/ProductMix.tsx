@@ -583,28 +583,37 @@ function SolverStat({ label, value, warn }: { label: string; value: string; warn
   )
 }
 
-// ── Model sub-tab bar — Mix Builder + the pull-down revenue models ─────────────
+// ── Model sub-tab bar — premium "folder" tabs (matches the Cost Stack look):
+//    evenly spaced across the width, uppercase, gold underline on the active. ──
 function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: ModelTab) => void }) {
-  const tab = (id: ModelTab, label: string) => {
-    const on = active === id
-    return (
-      <button key={id} onClick={() => onChange(id)}
-        className="px-4 py-2 text-[10px] tracking-[0.14em] uppercase cursor-pointer transition-colors"
-        style={{
-          borderRadius: 0,
-          background: on ? '#1A1A1A' : 'transparent',
-          color: on ? '#fff' : '#888',
-          fontWeight: on ? 700 : 500,
-          borderRight: '1px solid #D0CEC9',
-        }}>
-        {label}
-      </button>
-    )
-  }
+  const tabs: { id: ModelTab; label: string }[] = [{ id: 'none', label: 'Mix Builder' }, ...MODEL_TABS]
   return (
-    <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9', borderRight: 'none' }}>
-      {tab('none', 'Mix Builder')}
-      {MODEL_TABS.map(t => tab(t.id, t.label))}
+    <div style={{ display: 'flex', borderBottom: '2px solid #E0DDD8', background: '#F5F3F0', borderTopLeftRadius: 8, borderTopRightRadius: 8, marginBottom: 18, overflow: 'hidden' }}>
+      {tabs.map((t, i) => {
+        const on = active === t.id
+        return (
+          <button
+            key={t.id}
+            onClick={() => onChange(t.id)}
+            title={t.label}
+            style={{
+              flex: 1, minWidth: 0, textAlign: 'center',
+              padding: '13px 8px', border: 'none', cursor: 'pointer',
+              background: on ? 'linear-gradient(180deg,#FFFFFF, #FAF8F5)' : 'transparent',
+              borderLeft: i > 0 ? '1px solid #E7E3DD' : 'none',
+              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: on ? 800 : 600,
+              color: on ? '#1A1A1A' : '#9A968F',
+              borderBottom: on ? '2px solid #C4973A' : '2px solid transparent',
+              marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              transition: 'color 0.18s ease, background 0.18s ease',
+            }}
+            onMouseEnter={e => { if (!on) e.currentTarget.style.color = '#1A1A1A' }}
+            onMouseLeave={e => { if (!on) e.currentTarget.style.color = '#9A968F' }}
+          >
+            {t.label}
+          </button>
+        )
+      })}
     </div>
   )
 }
