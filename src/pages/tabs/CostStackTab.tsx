@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
@@ -417,10 +418,9 @@ export default function CostStackTab({ projectId }: Props) {
   const [innerTab, setInnerTab] = useState(role === 'external' ? 'hard' : 'summary')
   const [data, setData] = useState<CostStack>(store.getCostStack(projectId))
   const [detailed, setDetailed] = useState<DetailedCostStack>(store.getDetailedCostStack(projectId))
-  const [dirty, setDirty] = useState(false)
   const [detailedDirty, setDetailedDirty] = useState(false)
-  const undoRef = useRef<CostStack | null>(null)
-  const undoDetailedRef = useRef<DetailedCostStack | null>(null)
+  const cs = useAutosave<CostStack>(store.saveCostStack, [projectId])
+  const dc = useAutosave<DetailedCostStack>(store.saveDetailedCostStack, [projectId])
   const presets = getCostPresets()
 
   const land = store.getLandTerms(projectId)
@@ -429,19 +429,16 @@ export default function CostStackTab({ projectId }: Props) {
   useEffect(() => {
     setData(store.getCostStack(projectId))
     setDetailed(store.getDetailedCostStack(projectId))
-    setDirty(false); setDetailedDirty(false)
-    undoRef.current = null; undoDetailedRef.current = null
+    setDetailedDirty(false)
   }, [projectId])
 
   function update<K extends keyof CostStack>(field: K, value: CostStack[K]) {
-    if (!undoRef.current) undoRef.current = structuredClone(data)
-    setData(d => ({ ...d, [field]: value })); setDirty(true)
+    const next = { ...data, [field]: value }; cs.commit(data, next); setData(next)
   }
   function updateSection(key: keyof Omit<DetailedCostStack, 'projectId'>, items: CostLineItem[]) {
-    if (!undoDetailedRef.current) undoDetailedRef.current = structuredClone(detailed)
-    setDetailed(d => ({ ...d, [key]: items })); setDetailedDirty(true)
+    const next = { ...detailed, [key]: items }; dc.commit(detailed, next); setDetailed(next); setDetailedDirty(true)
   }
-  function saveDetailed() { store.saveDetailedCostStack(detailed); setDetailedDirty(false); undoDetailedRef.current = null }
+  function saveDetailed() { dc.flush(); store.saveDetailedCostStack(detailed); setDetailedDirty(false) }
 
   const inKindLineItem = land.isInKind && land.inKindGFA > 0 ? {
     label: land.inKindLabel || 'In-kind delivery',
@@ -544,8 +541,8 @@ export default function CostStackTab({ projectId }: Props) {
           <div className="flex-1 max-w-xl">
             <div className="flex items-center justify-between mb-6">
               <SectionHeading sub="Construction rate applied to GBA plus all soft costs">Cost Stack</SectionHeading>
-              {undoRef.current && <Button size="sm" variant="ghost" onClick={() => { if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) } }}>Undo</Button>}
-              {dirty && <Button size="sm" onClick={() => { store.saveCostStack(data); undoRef.current = null; setDirty(false) }}>Save</Button>}
+              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+              {cs.canUndo && <Button size="sm" variant="ghost" onClick={() => cs.undo(setData)}>Undo</Button>}
             </div>
 
             <div className="mb-5">
@@ -718,17 +715,12 @@ export default function CostStackTab({ projectId }: Props) {
               <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 20, letterSpacing: '0.06em', color: '#1A1A1A', margin: '0 0 6px' }}>{meta.title}</h2>
               <p style={{ color: '#AAA', fontSize: 11, margin: 0 }}>{meta.sub}</p>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 24 }}>
-              {undoDetailedRef.current && (
-                <button onClick={() => { if (undoDetailedRef.current) { setDetailed(undoDetailedRef.current); undoDetailedRef.current = null; setDetailedDirty(false) } }}
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 24, alignItems: 'center' }}>
+              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+              {dc.canUndo && (
+                <button onClick={() => dc.undo(setDetailed)}
                   style={{ background: 'transparent', border: '1px solid #D0CEC9', color: '#888', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, padding: '8px 16px', cursor: 'pointer' }}>
                   Undo
-                </button>
-              )}
-              {detailedDirty && (
-                <button onClick={saveDetailed}
-                  style={{ background: '#C4973A', border: 'none', color: '#000', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, padding: '8px 20px', cursor: 'pointer' }}>
-                  Save
                 </button>
               )}
             </div>

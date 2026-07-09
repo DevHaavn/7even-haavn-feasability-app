@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button, Money, VerdictBadge } from '../../components/ui'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
@@ -12,9 +13,8 @@ export default function HotelTab({ projectId }: Props) {
   const [scenarios, setScenarios] = useState<any[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [data, setData] = useState<HotelAssumptions | null>(null)
-  const [dirty, setDirty] = useState(false)
   const [operatorType, setOperatorType] = useState<'management' | 'lease'>('management')
-  const undoRef = useRef<HotelAssumptions | null>(null)
+  const { commit, undo, canUndo } = useAutosave<HotelAssumptions>(store.saveHotelAssumptions, [activeId])
 
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)
@@ -34,13 +34,14 @@ export default function HotelTab({ projectId }: Props) {
   }, [projectId])
 
   useEffect(() => {
-    if (activeId) { setData(store.getHotelAssumptions(activeId)); setDirty(false); undoRef.current = null }
+    if (activeId) setData(store.getHotelAssumptions(activeId))
   }, [activeId])
 
   function update<K extends keyof HotelAssumptions>(field: K, value: HotelAssumptions[K]) {
-    if (!undoRef.current && data) undoRef.current = structuredClone(data)
-    setData(d => d ? { ...d, [field]: value } : d)
-    setDirty(true)
+    if (!data) return
+    const next = { ...data, [field]: value }
+    commit(data, next)
+    setData(next)
   }
 
   if (!data) return <div className="p-6 text-text-grey text-sm">Create a mix scenario first.</div>
@@ -55,8 +56,8 @@ export default function HotelTab({ projectId }: Props) {
       <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Hotel operating model — RevPAR, GOP, NOI, and RLV">Hotel Income & Valuation</SectionHeading>
-          {undoRef.current && <Button size="sm" variant="ghost" onClick={() => { if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) } }}>Undo</Button>}
-          {dirty && <Button size="sm" onClick={() => { if (data) { store.saveHotelAssumptions(data); undoRef.current = null; setDirty(false) } }}>Save</Button>}
+          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+          {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
 
         <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useStore } from '../../store'
+import { useAutosave } from '../../lib/useAutosave'
 import { SectionHeading, FieldRow, NumberInput, Button, Card } from '../../components/ui'
 import ProjectMap from '../../components/ProjectMap'
 import type { SiteDesign } from '../../db/schema'
@@ -12,25 +13,14 @@ export default function SiteDesignTab({ projectId }: Props) {
   const [data, setData] = useState<SiteDesign>(getSiteDesign(projectId))
   const [pasteText, setPasteText] = useState('')
   const [showParser, setShowParser] = useState(false)
-  const [dirty, setDirty] = useState(false)
-  const undoRef = useRef<SiteDesign | null>(null)
+  const { commit, undo, canUndo } = useAutosave(saveSiteDesign, [projectId])
 
-  useEffect(() => { setData(getSiteDesign(projectId)); setDirty(false); undoRef.current = null }, [projectId])
+  useEffect(() => { setData(getSiteDesign(projectId)) }, [projectId])
 
   function update(field: keyof SiteDesign, value: number | string) {
-    if (!undoRef.current) undoRef.current = structuredClone(data)
-    setData(d => ({ ...d, [field]: value }))
-    setDirty(true)
-  }
-
-  function handleSave() {
-    saveSiteDesign(data)
-    setDirty(false)
-    undoRef.current = null
-  }
-
-  function handleUndo() {
-    if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) }
+    const next = { ...data, [field]: value }
+    commit(data, next)
+    setData(next)
   }
 
   // Reconciliation checks
@@ -52,8 +42,9 @@ export default function SiteDesignTab({ projectId }: Props) {
       if (lower.includes('balcony') || lower.includes('terrace')) balcony = nums[0] ?? balcony
     })
     if (resiNSA || resiGFA || resiGBA) {
-      setData(d => ({ ...d, resiNSA: resiNSA || d.resiNSA, resiGFA: resiGFA || d.resiGFA, resiGBA: resiGBA || d.resiGBA, balcony: balcony || d.balcony }))
-      setDirty(true)
+      const next = { ...data, resiNSA: resiNSA || data.resiNSA, resiGFA: resiGFA || data.resiGFA, resiGBA: resiGBA || data.resiGBA, balcony: balcony || data.balcony }
+      commit(data, next)
+      setData(next)
       setShowParser(false)
       setPasteText('')
     }
@@ -75,8 +66,8 @@ export default function SiteDesignTab({ projectId }: Props) {
         <SectionHeading sub="GBA, GFA, NSA and ancillary areas from architect's schedule">Site &amp; Design</SectionHeading>
         <div className="flex gap-2">
           <Button variant="primary" size="sm" onClick={() => setShowParser(!showParser)}>Paste Schedule</Button>
-          {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
-          {dirty && <Button size="sm" onClick={handleSave}>Save</Button>}
+          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+          {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
       </div>
 

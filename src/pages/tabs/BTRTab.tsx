@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button, Money, VerdictBadge, MetricCard } from '../../components/ui'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
@@ -13,8 +14,7 @@ export default function BTRTab({ projectId }: Props) {
   const [scenarios, setScenarios] = useState<MixScenario[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [data, setData] = useState<BTRAssumptions | null>(null)
-  const [dirty, setDirty] = useState(false)
-  const undoRef = useRef<BTRAssumptions | null>(null)
+  const { commit, undo, canUndo } = useAutosave<BTRAssumptions>(store.saveBTRAssumptions, [activeId])
 
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)
@@ -34,21 +34,14 @@ export default function BTRTab({ projectId }: Props) {
   }, [projectId])
 
   useEffect(() => {
-    if (activeId) { setData(store.getBTRAssumptions(activeId)); setDirty(false); undoRef.current = null }
+    if (activeId) setData(store.getBTRAssumptions(activeId))
   }, [activeId])
 
   function update<K extends keyof BTRAssumptions>(field: K, value: BTRAssumptions[K]) {
-    if (!undoRef.current && data) undoRef.current = structuredClone(data)
-    setData(d => d ? { ...d, [field]: value } : d)
-    setDirty(true)
-  }
-
-  function save() {
-    if (data) { store.saveBTRAssumptions(data); setDirty(false); undoRef.current = null }
-  }
-
-  function handleUndo() {
-    if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) }
+    if (!data) return
+    const next = { ...data, [field]: value }
+    commit(data, next)
+    setData(next)
   }
 
   if (!data || !activeId) return (
@@ -102,8 +95,8 @@ export default function BTRTab({ projectId }: Props) {
       <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="BTR hold scenario — income, NOI and residual land value">BTR Income & Valuation</SectionHeading>
-          {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
-          {dirty && <Button size="sm" onClick={save}>Save</Button>}
+          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+          {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
 
         {/* Scenario picker */}

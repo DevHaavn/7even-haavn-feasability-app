@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { SectionHeading } from '../../components/ui'
 import { getCashflow, saveCashflow, getDetailedCostStack, getEffectiveLandCost, getLandTerms, getCostStack, generateId } from '../../db'
 import { buildCashflow } from '../../engine/cashflow'
@@ -55,7 +56,8 @@ export default function CashflowTab({ projectId }: Props) {
 
   const cf = useMemo(() => buildCashflow(effectiveState, phaseCosts), [effectiveState, phaseCosts])
 
-  function update(next: Partial<CashflowState>) { const s = { ...state, ...next }; setState(s); saveCashflow(s) }
+  const { commit, undo, canUndo } = useAutosave<CashflowState>(saveCashflow, [projectId])
+  function update(next: Partial<CashflowState>) { const s = { ...state, ...next }; commit(state, s); setState(s) }
   function setPhase(id: CostPhase, patch: Partial<CashflowState['phases'][CostPhase]>) {
     update({ phases: { ...state.phases, [id]: { ...state.phases[id], ...patch } } })
   }
@@ -77,7 +79,11 @@ export default function CashflowTab({ projectId }: Props) {
     <div className="relative p-4 md:p-6 overflow-auto" style={{ minHeight: 0 }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
         <SectionHeading sub="Month-by-month spend by phase, funded equity-first then debt. Phase timing drives the S-curve; add manual costs to any month.">Development Cashflow</SectionHeading>
-        <div style={{ display: 'flex', gap: 20 }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+            {canUndo && <button onClick={() => undo(setState)} style={{ background: 'transparent', border: '1px solid #D0CEC9', color: '#555', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '6px 14px', cursor: 'pointer', fontWeight: 600 }}>Undo</button>}
+          </div>
           {[['Total cost', fmtM(cf.total)], ['Peak equity', fmtM(cf.peakEquity)], ['Peak debt', fmtM(cf.peakDebt)]].map(([l, v]) => (
             <div key={l} style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999' }}>{l}</div>

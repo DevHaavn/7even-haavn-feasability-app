@@ -4,6 +4,7 @@ import * as db from '../../db'
 import { calculateCostStack } from '../../engine/costStack'
 import { calculateFinance } from '../../engine/finance'
 import ProfitLens from '../../components/ProfitLens'
+import { useAutosave } from '../../lib/useAutosave'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
@@ -285,13 +286,13 @@ export default function FinanceTab({ projectId }: Props) {
   }, [projectId, tdc])
 
   const [fa, setFa] = useState<FinanceAssumptions>(() => db.getFinanceAssumptions(projectId))
-  const [dirty, setDirty] = useState(false)
+  const { commit, undo, canUndo } = useAutosave<FinanceAssumptions>(db.saveFinanceAssumptions, [projectId])
 
   function update(patch: Partial<FinanceAssumptions>) {
-    setFa(f => ({ ...f, ...patch }))
-    setDirty(true)
+    const next = { ...fa, ...patch }
+    commit(fa, next)
+    setFa(next)
   }
-  function save() { db.saveFinanceAssumptions(fa); setDirty(false) }
 
   function updateTranche(id: string, updated: DebtTranche) {
     update({ tranches: fa.tranches.map(t => t.id === id ? updated : t) })
@@ -331,10 +332,11 @@ export default function FinanceTab({ projectId }: Props) {
           <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 26, letterSpacing: '0.06em', color: '#1A1A1A', margin: 0 }}>Finance</h1>
           <p style={{ color: '#AAA', fontSize: 11, marginTop: 6, letterSpacing: '0.06em' }}>Capital stack · interest modelling · critical path sensitivity</p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {dirty && (
-            <button onClick={save} style={{ background: '#1A1A1A', color: '#fff', border: 'none', padding: '8px 20px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', fontWeight: 600 }}>
-              Save
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+          {canUndo && (
+            <button onClick={() => undo(setFa)} style={{ background: 'transparent', color: '#555', border: '1px solid #D0CEC9', padding: '8px 18px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', fontWeight: 600 }}>
+              Undo
             </button>
           )}
         </div>

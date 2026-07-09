@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack } from '../../db'
+import { useAutosave } from '../../lib/useAutosave'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import type { TimelineTask, TimelineCategory, TimelineStatus, CostPhase } from '../../db/schema'
 import { DateField } from '../../components/ui'
@@ -113,7 +114,8 @@ export default function ProjectTimeline({ projectId }: Props) {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragDays, setDragDays] = useState(0)
 
-  function persist(next: TimelineTask[]) { setTasks(next); saveTimelineTasks(projectId, next) }
+  const { commit, undo, canUndo } = useAutosave<TimelineTask[]>(t => saveTimelineTasks(projectId, t), [projectId])
+  function persist(next: TimelineTask[]) { commit(tasks, next); setTasks(next) }
   function openNew()  { setEditing({ id: generateId(), projectId, ...BLANK_TASK }); setIsNew(true) }
   function openEdit(t: TimelineTask) { setEditing({ ...t }); setIsNew(false) }
   function remove(id: string) { persist(tasks.filter(t => t.id !== id)); if (editing?.id === id) setEditing(null) }
@@ -274,6 +276,11 @@ export default function ProjectTimeline({ projectId }: Props) {
           </select>
           <button onClick={() => setViewYear(y => y + 1)} style={yrNav} aria-label="Next year">›</button>
         </div>
+        {canUndo && (
+          <button onClick={() => undo(setTasks)} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', color: '#C8C8C8', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
+            ↩ Undo
+          </button>
+        )}
         <button onClick={openNew} style={{ padding: '7px 16px', background: 'linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))', border: '1px solid rgba(255,255,255,0.18)', color: '#EDEBE7', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
           + Add Task
         </button>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { FieldRow, NumberInput, PctInput, Button, SectionHeading, DateField } from '../../components/ui'
 import type { LandTerms, LandDealType, AcquisitionCost } from '../../db/schema'
@@ -60,21 +61,17 @@ export default function LandTermsTab({ projectId }: Props) {
   const { getLandTerms, saveLandTerms, getCostStack } = useStore()
   const gstEnabled = getCostStack(projectId).gstEnabled
   const [data, setData] = useState<LandTerms>(getLandTerms(projectId))
-  const [dirty, setDirty] = useState(false)
-  const undoRef = useRef<LandTerms | null>(null)
+  const { commit, undo, canUndo } = useAutosave(saveLandTerms, [projectId])
 
-  useEffect(() => { setData(getLandTerms(projectId)); setDirty(false); undoRef.current = null }, [projectId])
+  useEffect(() => { setData(getLandTerms(projectId)) }, [projectId])
 
   function update<K extends keyof LandTerms>(field: K, value: LandTerms[K]) {
-    if (!undoRef.current) undoRef.current = structuredClone(data)
-    setData(d => ({ ...d, [field]: value })); setDirty(true)
+    const next = { ...data, [field]: value }; commit(data, next); setData(next)
   }
   function patch(next: Partial<LandTerms>) {
-    if (!undoRef.current) undoRef.current = structuredClone(data)
-    setData(d => ({ ...d, ...next })); setDirty(true)
+    const merged = { ...data, ...next }; commit(data, merged); setData(merged)
   }
   function setDeal(t: LandDealType) { patch({ dealType: t, isInKind: t === 'inkind' }) }
-  function handleUndo() { if (undoRef.current) { setData(undoRef.current); undoRef.current = null; setDirty(false) } }
 
   const dealType = data.dealType ?? (data.isInKind ? 'inkind' : 'standard')
   const cost = computeLandCost({ ...data, dealType }, gstEnabled)
@@ -99,8 +96,8 @@ export default function LandTermsTab({ projectId }: Props) {
         <div className="flex items-end justify-between flex-wrap gap-3 mb-1">
           <SectionHeading sub="Acquisition · Deal Structure · Settlement · Cashflow inputs">Land &amp; Vendor Terms</SectionHeading>
           <div className="flex items-center gap-3" style={{ paddingBottom: 4 }}>
-            {undoRef.current && <Button size="sm" variant="ghost" onClick={handleUndo}>Undo</Button>}
-            {dirty && <Button size="sm" onClick={() => { saveLandTerms(data); undoRef.current = null; setDirty(false) }}>Save</Button>}
+            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+            {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
             {/* Current deal-structure badge — readable solid label (was an invisible chrome pill) */}
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '7px 15px', borderRadius: 30, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: '#F5F3F0', color: '#2A2A2A' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
           </div>

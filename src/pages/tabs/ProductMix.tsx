@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
 import { SectionHeading, Button } from '../../components/ui'
 import { solveUnitMix } from '../../engine/unitMix'
@@ -23,6 +24,7 @@ export default function ProductMixTab({ projectId }: Props) {
   const [showNew, setShowNew] = useState(false)
   const [showArchImport, setShowArchImport] = useState(false)
   const [archPasteText, setArchPasteText] = useState('')
+  const { commit, undo, canUndo } = useAutosave<UnitType[]>(u => { if (activeId) store.saveUnitTypes(activeId, u) }, [activeId])
 
   const site = store.getSiteDesign(projectId)
 
@@ -55,7 +57,7 @@ export default function ProductMixTab({ projectId }: Props) {
 
   function saveUnits(updated: UnitType[]) {
     if (!activeId) return
-    store.saveUnitTypes(activeId, updated)
+    commit(units, updated)
     setUnits(updated)
   }
 
@@ -169,7 +171,9 @@ export default function ProductMixTab({ projectId }: Props) {
       <div className="relative p-4 md:p-6">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Define unit types, NSA and % mix — solver calculates integer counts">Product Mix Builder</SectionHeading>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+            {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setUnits)}>Undo</Button>}
             {activeId && (
               <button
                 onClick={() => setShowArchImport(v => !v)}
