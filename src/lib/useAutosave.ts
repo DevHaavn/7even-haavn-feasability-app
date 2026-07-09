@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { pingSave } from './saveSignal'
 
 /**
  * Auto-save with a grouped undo history for a single piece of tab state.
@@ -28,7 +29,7 @@ export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { d
 
   const flush = useCallback(() => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null }
-    if (pending.current) { saveRef.current(pending.current.v); pending.current = null }
+    if (pending.current) { saveRef.current(pending.current.v); pending.current = null; pingSave() }
   }, [])
 
   // Reset undo history when identity changes; flush any pending save on the way out.
@@ -50,7 +51,7 @@ export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { d
     lastAt.current = now
     pending.current = { v: next }
     if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(() => { saveRef.current(next); pending.current = null; timer.current = null }, debounceMs)
+    timer.current = setTimeout(() => { saveRef.current(next); pending.current = null; timer.current = null; pingSave() }, debounceMs)
   }, [debounceMs, groupMs])
 
   const undo = useCallback((restore: (v: T) => void) => {
@@ -60,6 +61,7 @@ export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { d
     pending.current = null
     restore(prev)
     saveRef.current(prev)
+    pingSave()
     lastAt.current = 0
     setCanUndo(stack.current.length > 0)
   }, [])

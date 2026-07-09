@@ -16,6 +16,7 @@ import SummaryTab from './tabs/SummaryTab'
 import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
 import SiteLinks from '../components/SiteLinks'
+import AutoSaveButton from '../components/AutoSaveButton'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
@@ -112,8 +113,9 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             Consultant
           </span>
         )}
-        {/* Dashboard + Manage — Manage opens the full Manage screen (theme + Log Out live in there) */}
+        {/* Auto-save · Dashboard · Manage — compact glass icon buttons */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
+          <AutoSaveButton />
           {role !== 'external' && (
             <button onClick={() => setActiveTab('insights')} title="Dashboard" aria-label="Dashboard"
               className={activeTab === 'insights' ? 'ws-bento-btn ws-bento-btn-on' : 'ws-bento-btn'}>
@@ -135,9 +137,19 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             </button>
           )}
           {onManage && (
-            <button className="glass-btn glass-btn-light" onClick={onManage}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              ⊞ Manage
+            <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
+              {/* Black-gloss "M" inside the soft grey glass square */}
+              <svg width="17" height="17" viewBox="0 0 24 24">
+                <defs>
+                  <linearGradient id="bentoChromeM" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6A6A6E" />
+                    <stop offset="16%" stopColor="#2C2C30" />
+                    <stop offset="52%" stopColor="#0A0A0C" />
+                    <stop offset="100%" stopColor="#000000" />
+                  </linearGradient>
+                </defs>
+                <text x="12" y="18.5" textAnchor="middle" fontFamily="'Optima','Gill Sans',serif" fontSize="20" fontWeight="800" fill="url(#bentoChromeM)">M</text>
+              </svg>
             </button>
           )}
           {/* Consultants have no Manage screen — keep a direct Log Out for them */}
