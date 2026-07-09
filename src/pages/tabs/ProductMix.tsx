@@ -126,19 +126,29 @@ export default function ProductMixTab({ projectId }: Props) {
     setArchPasteText('')
   }
 
-  // Run solver
-  const totalPct = units.reduce((s, u) => s + u.targetPct, 0)
-  const solverReady = site.resiNSA > 0 && units.length > 0 && Math.abs(totalPct - 1) < 0.001
-  const solverResult = solverReady
-    ? solveUnitMix(site.resiNSA, units.map(u => ({ name: u.name, nsaPerUnit: u.nsaPerUnit, targetPct: u.targetPct })))
-    : null
+  // Run solver — the % mix is auto-normalised so the effective split always sums
+  // to 100%; the solver (and everything below it) therefore always reflects the
+  // inputs live, no matter what the raw entries add up to.
+  const totalPct = units.reduce((s, u) => s + (u.targetPct || 0), 0)
+  const normTargets = units.map(u => ({
+    name: u.name,
+    nsaPerUnit: u.nsaPerUnit,
+    targetPct: totalPct > 0 ? (u.targetPct || 0) / totalPct : 0,
+  }))
+  const solverReady = site.resiNSA > 0 && units.length > 0 && totalPct > 0
+  const solverResult = solverReady ? solveUnitMix(site.resiNSA, normTargets) : null
 
+  // Persist the solved counts (and the normalised split) so downstream tabs —
+  // GDV, cashflow, cost — pick up the current mix. Keyed on a stable signature
+  // of the inputs so it only re-saves when the mix genuinely changes.
+  const solveSig = `${site.resiNSA}|${units.map(u => `${u.nsaPerUnit}:${u.targetPct}`).join(',')}`
   useEffect(() => {
     if (!solverResult || !activeId) return
     const updated = units.map((u, i) => ({ ...u, solvedCount: solverResult.mix[i]?.count ?? 0 }))
     const changed = updated.some((u, i) => u.solvedCount !== units[i].solvedCount)
     if (changed) store.saveUnitTypes(activeId, updated)
-  }, [solverResult?.solvedUnits, activeId, units.map(u => `${u.nsaPerUnit}:${u.targetPct}`).join(',')])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solveSig, activeId])
 
   const totalUnits = solverResult?.solvedUnits ?? 0
   const nsaUsed = solverResult ? solverResult.mix.reduce((s, m) => s + m.nsaUsed, 0) : 0
@@ -305,6 +315,12 @@ export default function ProductMixTab({ projectId }: Props) {
                               style={{ width: 50, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: '#1A1A1A', fontFamily: 'monospace', outline: 'none' }}
                             />
                             <span style={{ color: '#AAA', fontSize: 12 }}>%</span>
+                            {/* Auto-normalised share of 100% actually used by the solver */}
+                            {totalPct > 0 && Math.abs(totalPct - 1) > 0.001 && (
+                              <span title="Auto-normalised share of 100%" style={{ color: '#B8963C', fontSize: 10, fontFamily: 'monospace', marginLeft: 2 }}>
+                                →{(normTargets[i].targetPct * 100).toFixed(0)}%
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px' }}>
@@ -369,8 +385,17 @@ export default function ProductMixTab({ projectId }: Props) {
               </button>
               <span style={{ fontSize: 11, color: Math.abs(totalPct - 1) < 0.001 ? '#2A7A4F' : '#B8963C' }}>
                 Mix total: {(totalPct * 100).toFixed(0)}%&nbsp;
-                {Math.abs(totalPct - 1) < 0.001 ? '✓ Ready' : '— must equal 100%'}
+                {Math.abs(totalPct - 1) < 0.001 ? '✓ Sums to 100%' : '— auto-normalised to 100% for the solver'}
               </span>
+              {totalPct > 0 && Math.abs(totalPct - 1) > 0.001 && (
+                <button
+                  onClick={() => saveUnits(units.map(u => ({ ...u, targetPct: Math.round((u.targetPct / totalPct) * 1000) / 1000 })))}
+                  className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[#C8C5C0] text-[#666] hover:border-[#1A1A1A] hover:text-[#1A1A1A] cursor-pointer transition-colors"
+                  style={{ borderRadius: 0 }}
+                >
+                  Normalise to 100%
+                </button>
+              )}
             </div>
 
             {/* Solver results */}
