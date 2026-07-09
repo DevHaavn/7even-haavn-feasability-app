@@ -13,9 +13,8 @@ const pctFmt = (n: number) => `${(n * 100).toFixed(1)}%`
  * Finance tab the equity cheque is editable; elsewhere it reads the saved value.
  */
 export default function InvestorReturn({ projectId, editable = false }: { projectId: string; editable?: boolean }) {
-  const [equity, setEquity] = useState<number>(() => db.getFinanceAssumptions(projectId).investorEquity ?? 20_000_000)
-  const r = db.getInvestorReturn(projectId, equity)
-  if (!(r.profit !== 0 || r.equity > 0)) return null
+  // Investor Return section removed at user request
+  return null
 
   const good = '#22C55E', warn = '#EAB308', bad = '#EF4444'
   const irrCol = r.irr == null ? '#888' : r.irr >= 0.2 ? good : r.irr > 0 ? warn : bad
