@@ -178,7 +178,7 @@ function OutcomeCard({ label, income, val, capRate, highlight }: any) {
         <Line label="Gross annual rent" value={`$${(income.grossAnnualRent / 1_000_000).toFixed(2)}M`} />
         <Line label="Vacancy loss" value={`−$${(income.vacancyLoss / 1000).toFixed(0)}K`} dim />
         <Line label="Management fee" value={`−$${(income.managementFee / 1000).toFixed(0)}K`} dim />
-        {income.commercialIncome > 0 && <Line label="Other income" value={`+$${(income.commercialIncome / 1000).toFixed(0)}K`} />}
+        {income.otherIncome > 0 && <Line label="Other income (incl. car park)" value={`+$${(income.otherIncome / 1000).toFixed(0)}K`} />}
         <Line label="Total opex" value={`−$${(income.opex / 1000).toFixed(0)}K`} dim />
       </div>
       <div className="mt-5 pt-4 border-t border-[#E8E5E0] flex justify-between items-center">

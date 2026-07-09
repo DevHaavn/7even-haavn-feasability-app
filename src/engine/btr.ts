@@ -21,6 +21,7 @@ export interface BTRIncomeResult {
   managementFee: number
   netApartmentIncome: number
   commercialIncome: number
+  otherIncome: number
   totalGrossIncome: number
   opex: number
   noi: number
@@ -47,12 +48,15 @@ export function calculateBTRIncome(
   const managementFee = (grossAnnualRent - vacancyLoss) * inputs.managementFeePct
   const netApartmentIncome = grossAnnualRent - vacancyLoss - managementFee
   const commercialIncome = inputs.commercialIncomeLines.reduce((s, l) => s + l.annualNet, 0)
-  const totalGrossIncome = netApartmentIncome + commercialIncome + inputs.carParkIncomeAnnual
+  // All non-apartment income (childcare + commercial + car park) — this is what
+  // flows into NOI and must be shown in full on the outcome breakdown.
+  const otherIncome = commercialIncome + inputs.carParkIncomeAnnual
+  const totalGrossIncome = netApartmentIncome + otherIncome
   const opex =
     inputs.unitLines.reduce((sum, l) => sum + l.unitCount * l.opexPerUnitPerYear, 0) +
     inputs.buildingAdminFixed
   const noi = totalGrossIncome - opex
-  return { grossAnnualRent, vacancyLoss, managementFee, netApartmentIncome, commercialIncome, totalGrossIncome, opex, noi }
+  return { grossAnnualRent, vacancyLoss, managementFee, netApartmentIncome, commercialIncome, otherIncome, totalGrossIncome, opex, noi }
 }
 
 export function calculateBTRValuation(
