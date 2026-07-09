@@ -50,10 +50,7 @@ const TABS = [
   { id: 'cashflow', label: 'Cashflow' },
   { id: 'finance', label: 'Finance' },
   { id: 'timeline', label: 'Timeline' },
-  { id: 'btr', label: 'BTR' },
-  { id: 'bts', label: 'BTS' },
-  { id: 'hotel', label: 'Hotel' },
-  { id: 'compare', label: 'Compare' },
+  // BTR / BTS / Hotel / Compare now live as pull-down sub-tabs inside Product Mix
   { id: 'summary', label: 'Summary' },
   { id: 'insights', label: 'Dashboard' },
 ]

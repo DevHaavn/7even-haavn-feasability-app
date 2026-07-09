@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import { migrateCostStackLabels } from './db'
+import { seedProjectsIfEmpty } from './db/seed'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
@@ -39,6 +40,9 @@ export default function App() {
   useEffect(() => {
     setSyncing(true)
     pullFromCloud().then(() => {
+      // Run seeds/repairs AFTER the pull so one-time data repairs win over (and
+      // heal) any corrupt cloud state, then push the corrected data back up.
+      seedProjectsIfEmpty()
       migrateCostStackLabels()
       loadProjects()
       setSyncing(false)

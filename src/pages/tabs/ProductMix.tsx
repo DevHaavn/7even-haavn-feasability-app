@@ -4,7 +4,21 @@ import { useStore } from '../../store'
 import { SectionHeading, Button } from '../../components/ui'
 import { solveUnitMix } from '../../engine/unitMix'
 import { generateId } from '../../db'
+import { useRole } from '../../lib/role'
 import type { UnitType, MixScenario } from '../../db/schema'
+import BTRTab from './BTRTab'
+import BTSTab from './BTSTab'
+import HotelTab from './HotelTab'
+import ScenarioComparison from './ScenarioComparison'
+
+// Revenue/analysis models that live inside Product Mix as pull-down tabs.
+type ModelTab = 'none' | 'btr' | 'bts' | 'hotel' | 'compare'
+const MODEL_TABS: { id: Exclude<ModelTab, 'none'>; label: string }[] = [
+  { id: 'btr', label: 'BTR' },
+  { id: 'bts', label: 'BTS' },
+  { id: 'hotel', label: 'Hotel' },
+  { id: 'compare', label: 'Compare' },
+]
 
 interface Props { projectId: string }
 
@@ -17,9 +31,11 @@ const DEFAULT_UNIT_TYPES = [
 
 export default function ProductMixTab({ projectId }: Props) {
   const store = useStore()
+  const role = useRole()
   const [scenarios, setScenarios] = useState<MixScenario[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [units, setUnits] = useState<UnitType[]>([])
+  const [modelTab, setModelTab] = useState<ModelTab>('none')
   const [newScenName, setNewScenName] = useState('')
   const [showNew, setShowNew] = useState(false)
   const [showArchImport, setShowArchImport] = useState(false)
@@ -313,6 +329,16 @@ export default function ProductMixTab({ projectId }: Props) {
           </div>
         ) : activeId ? (
           <div>
+            {/* Revenue-model sub-tabs — pull down over the builder, keeping the
+                Mix Result / Parking sections visible at the bottom of the page */}
+            {role !== 'external' && (
+              <ModelTabBar active={modelTab} onChange={setModelTab} />
+            )}
+
+            {/* TOP ZONE — the unit-mix builder, replaced by the pulled-down model
+                panel when a model tab is selected */}
+            {modelTab === 'none' ? (
+            <>
             {/* Unit type table */}
             <div className="border border-[#E0DDD8] bg-white overflow-x-auto mb-4">
               <table className="w-full" style={{ borderCollapse: 'collapse' }}>
@@ -437,6 +463,10 @@ export default function ProductMixTab({ projectId }: Props) {
                 </button>
               )}
             </div>
+            </>
+            ) : (
+              <ModelDrawer key={modelTab} tab={modelTab} projectId={projectId} onClose={() => setModelTab('none')} />
+            )}
 
             {/* Mix result — live from the (manual or solved) counts */}
             {units.length > 0 && (
@@ -549,6 +579,60 @@ function SolverStat({ label, value, warn }: { label: string; value: string; warn
     <div>
       <div style={{ fontSize: 10, color: '#888', marginBottom: 2 }}>{label}</div>
       <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 15, color: warn ? '#B8963C' : '#1A1A1A' }}>{value}</div>
+    </div>
+  )
+}
+
+// ── Model sub-tab bar — Mix Builder + the pull-down revenue models ─────────────
+function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: ModelTab) => void }) {
+  const tab = (id: ModelTab, label: string) => {
+    const on = active === id
+    return (
+      <button key={id} onClick={() => onChange(id)}
+        className="px-4 py-2 text-[10px] tracking-[0.14em] uppercase cursor-pointer transition-colors"
+        style={{
+          borderRadius: 0,
+          background: on ? '#1A1A1A' : 'transparent',
+          color: on ? '#fff' : '#888',
+          fontWeight: on ? 700 : 500,
+          borderRight: '1px solid #D0CEC9',
+        }}>
+        {label}
+      </button>
+    )
+  }
+  return (
+    <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9', borderRight: 'none' }}>
+      {tab('none', 'Mix Builder')}
+      {MODEL_TABS.map(t => tab(t.id, t.label))}
+    </div>
+  )
+}
+
+// ── Pull-down drawer holding a revenue model, capped so the Mix Result / Parking
+//    sections stay visible at the bottom of the page. ──────────────────────────
+function ModelDrawer({ tab, projectId, onClose }: { tab: ModelTab; projectId: string; onClose: () => void }) {
+  const title = MODEL_TABS.find(t => t.id === tab)?.label ?? ''
+  return (
+    <div className="pm-drawer-wrap mb-4">
+      <div className="pm-drawer-inner">
+        <div className="pm-drawer-head">
+          <span style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>
+            {title} · slides over the mix builder
+          </span>
+          <button onClick={onClose}
+            className="px-3 py-1.5 text-[9px] tracking-[0.16em] uppercase border border-[#C8C5C0] text-[#666] hover:border-[#1A1A1A] hover:text-[#1A1A1A] cursor-pointer transition-colors"
+            style={{ borderRadius: 0 }}>
+            ▲ Back to Mix
+          </button>
+        </div>
+        <div className="pm-drawer-body">
+          {tab === 'btr' && <BTRTab projectId={projectId} />}
+          {tab === 'bts' && <BTSTab projectId={projectId} />}
+          {tab === 'hotel' && <HotelTab projectId={projectId} />}
+          {tab === 'compare' && <ScenarioComparison projectId={projectId} />}
+        </div>
+      </div>
     </div>
   )
 }

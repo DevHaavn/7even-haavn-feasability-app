@@ -43,6 +43,18 @@ export function seedProjectsIfEmpty() {
     if (p && p.address !== '20-30 Newman Street, Preston VIC 3072') {
       db.saveProject({ ...p, address: '20-30 Newman Street, Preston VIC 3072', updatedAt: new Date().toISOString() })
     }
+    // One-time repair: an earlier build corrupted Preston's unit mix (NSA/unit
+    // per unit was overwritten with the counts, giving a huge NSA discrepancy).
+    // Restore the correct IVO v7.60 figures once — 400 units, 22,300 sqm NSA.
+    if (!localStorage.getItem('preston-mix-repair-v1')) {
+      db.saveUnitTypes('seed-preston-mix-001', [
+        { id: 'seed-p-u1', scenarioId: 'seed-preston-mix-001', name: 'Studio', nsaPerUnit: 38, targetPct: 0.25, solvedCount: 100, weeklyRentConservative: 582, weeklyRentAggressive: 612, salePriceConservative: 390_000, salePriceMid: 420_000, salePriceAggressive: 460_000, opexPerUnitPerYear: 9_500 },
+        { id: 'seed-p-u2', scenarioId: 'seed-preston-mix-001', name: '1 Bedroom', nsaPerUnit: 52, targetPct: 0.50, solvedCount: 200, weeklyRentConservative: 712, weeklyRentAggressive: 748, salePriceConservative: 530_000, salePriceMid: 580_000, salePriceAggressive: 640_000, opexPerUnitPerYear: 9_500 },
+        { id: 'seed-p-u3', scenarioId: 'seed-preston-mix-001', name: '2 Bedroom', nsaPerUnit: 75, targetPct: 0.19, solvedCount: 76, weeklyRentConservative: 884, weeklyRentAggressive: 928, salePriceConservative: 760_000, salePriceMid: 820_000, salePriceAggressive: 890_000, opexPerUnitPerYear: 9_500 },
+        { id: 'seed-p-u4', scenarioId: 'seed-preston-mix-001', name: '3 Bedroom', nsaPerUnit: 100, targetPct: 0.06, solvedCount: 24, weeklyRentConservative: 1_361, weeklyRentAggressive: 1_429, salePriceConservative: 1_100_000, salePriceMid: 1_180_000, salePriceAggressive: 1_280_000, opexPerUnitPerYear: 9_500 },
+      ])
+      localStorage.setItem('preston-mix-repair-v1', 'true')
+    }
   }
 
   if (!ids.has('seed-caloundra-001')) {

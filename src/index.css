@@ -610,3 +610,38 @@ input[type="checkbox"] {
   border: 1px solid rgba(255,255,255,0.5);
   box-shadow: 0 18px 42px -18px rgba(0,0,0,0.55);
 }
+
+/* ── Product Mix pull-down model drawer (BTR/BTS/Hotel/Compare) ─────────────
+   Slides down over the mix builder and is capped to ~58vh so the Mix Result
+   and Parking sections stay visible in the bottom of the page. */
+.pm-drawer-wrap {
+  overflow: hidden;
+  border: 1px solid #E0DDD8;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 14px 30px -18px rgba(0,0,0,0.35);
+  animation: pm-slide-down 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.pm-drawer-inner {
+  display: flex;
+  flex-direction: column;
+  max-height: 58vh;
+}
+.pm-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #F7F5F2;
+  border-bottom: 1px solid #E0DDD8;
+  flex-shrink: 0;
+}
+.pm-drawer-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@keyframes pm-slide-down {
+  from { max-height: 0; opacity: 0; transform: translateY(-14px); }
+  to   { max-height: 58vh; opacity: 1; transform: none; }
+}
