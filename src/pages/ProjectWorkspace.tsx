@@ -102,7 +102,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           </div>
           {project.address && (
             <p className="text-[#606060] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium flex items-center gap-1.5">
-              <AutoSaveCloud />{project.address}
+              {project.address}<AutoSaveCloud />
             </p>
           )}
         </div>
