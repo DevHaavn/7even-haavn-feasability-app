@@ -109,9 +109,18 @@ function fmtMonth(ym: string) {
 }
 const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }
 
-function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number; gdvValue?: number }) {
+function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, showBasis = false, gstEnabled = false }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number; gdvValue?: number; showBasis?: boolean; gstEnabled?: boolean }) {
   const basisValue = (fb?: 'construction' | 'gdv') => (fb === 'gdv' ? gdvValue : constructionValue)
   const [openId, setOpenId] = useState<string | null>(null)
+  // Derive the budget from the CFO's build-up: % of a basis, or Units × Base Rate.
+  function derive(it: CostLineItem): number {
+    if (it.feeBasis === 'construction') return Math.round((it.pct ?? 0) * constructionValue)
+    if (it.feeBasis === 'gdv') return Math.round((it.pct ?? 0) * gdvValue)
+    if ((it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0) return Math.round((it.units ?? 0) * (it.baseRate ?? 0))
+    return it.amount || 0
+  }
+  const isDerived = (it: CostLineItem) => !!it.feeBasis || ((it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0)
+  const gstOf = (it: CostLineItem) => it.gstFree ? 0 : (gstEnabled ? (it.amount || 0) / 11 : (it.amount || 0) * 0.1)
   // Drag-resizable "Item Description" column so long consultant/trade names can
   // be read in full. Persisted per browser so a user's preferred width sticks.
   const [descW, setDescW] = useState<number>(() => {
@@ -140,6 +149,11 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
   function update(id: string, patch: Partial<CostLineItem>) {
     onChange(items.map(item => item.id === id ? { ...item, ...patch } : item))
   }
+  // Apply a patch to the build-up inputs and re-derive the budget in one step.
+  function updateCalc(item: CostLineItem, patch: Partial<CostLineItem>) {
+    const merged = { ...item, ...patch }
+    update(item.id, { ...patch, amount: derive(merged) })
+  }
   function remove(id: string) { onChange(items.filter(item => item.id !== id)) }
   function add() {
     onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
@@ -153,16 +167,33 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
     update(item.id, { monthly })
   }
   const total = items.reduce((s, i) => s + (i.amount || 0), 0)
-  const GRID = `${descW}px 168px 96px 96px 104px 112px 122px 28px 26px`
-  const MINW = descW + 720
+  const gstTotal = items.reduce((s, i) => s + gstOf(i), 0)
+  // Column build-up — Basis dropdown only shows on the fee tabs (consultants etc).
+  const cols: { w: number; h: string }[] = [
+    { w: descW, h: 'Item Description' },
+    ...(showBasis ? [{ w: 116, h: 'Basis' }] : []),
+    { w: 66, h: 'Units' },
+    { w: 100, h: 'Base Rate' },
+    { w: 130, h: 'Budget ($)' },
+    { w: 100, h: 'GST' },
+    { w: 96, h: 'Start' },
+    { w: 96, h: 'End' },
+    { w: 104, h: 'S-Curve' },
+    { w: 112, h: 'Funded By' },
+    { w: 118, h: 'Phase' },
+    { w: 28, h: '' },
+    { w: 26, h: '' },
+  ]
+  const GRID = cols.map(c => `${c.w}px`).join(' ')
+  const MINW = cols.reduce((s, c) => s + c.w, 0) + (cols.length - 1) * 8 + 28
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', overflowX: 'auto' }}>
       {/* Header */}
       <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: MINW }}>
-        {['Item Description', 'Budget ($)', 'Start', 'End', 'S-Curve', 'Funded By', 'Phase', '', ''].map((h, i) => (
+        {cols.map((c, i) => (
           <span key={i} style={{ position: 'relative', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>
-            {h}
+            {c.h}
             {i === 0 && (
               <span
                 title="Drag to widen — read full item names"
@@ -188,20 +219,44 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
                 value={item.label} placeholder="Item description" title={item.label || undefined}
                 onChange={e => update(item.id, { label: e.target.value })} />
+
+              {/* Basis — fee tabs only: $ / Unit, % of Construction, or % of GRV */}
+              {showBasis && (
+                <select style={{ ...cellInput, fontSize: 10, padding: '5px 3px' }} value={item.feeBasis ?? ''} title="How this line is built up"
+                  onChange={e => { const v = e.target.value; updateCalc(item, { feeBasis: (v || undefined) as CostLineItem['feeBasis'] }) }}>
+                  <option value="">$ / Unit</option>
+                  <option value="construction">% of Constr.</option>
+                  <option value="gdv">% of GRV</option>
+                </select>
+              )}
+
+              {/* Units — quantity (n/a on % basis lines) */}
+              <input type="number" min={0} title={item.feeBasis ? 'Not used for % basis lines' : 'Quantity'}
+                style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right', color: item.feeBasis ? '#CCC' : '#1A1A1A' }}
+                value={item.feeBasis ? '' : (item.units || '')} placeholder={item.feeBasis ? '—' : '0'} disabled={!!item.feeBasis}
+                onChange={e => updateCalc(item, { units: parseFloat(e.target.value) || 0 })} />
+
+              {/* Base Rate — $ per unit, or the percentage when a % basis is chosen */}
               {item.feeBasis ? (
-                // Fee derived as a % of Construction or GDV — basis chosen per line.
-                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }} title="Percentage of the chosen basis (Construction or GDV)">
-                  <select value={item.feeBasis} title="Fee basis"
-                    style={{ ...cellInput, width: 50, padding: '2px 2px', fontSize: 10 }}
-                    onChange={e => { const fb = e.target.value as 'construction' | 'gdv'; update(item.id, { feeBasis: fb, amount: Math.round((item.pct ?? 0) * basisValue(fb)) }) }}>
-                    <option value="construction">Constr</option>
-                    <option value="gdv">GDV</option>
-                  </select>
-                  <input type="number" min={0} step={0.25} style={{ ...cellInput, width: 38, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
+                <div style={{ display: 'flex', alignItems: 'center' }} title="Percentage of the chosen basis">
+                  <input type="number" min={0} step={0.25} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
                     value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
-                    onChange={e => { const pct = (parseFloat(e.target.value) || 0) / 100; update(item.id, { pct, amount: Math.round(pct * basisValue(item.feeBasis)) }) }} />
-                  <span style={{ color: '#BBB', fontSize: 10 }}>%</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#9A7B2E', marginLeft: 2 }}>{fmt(Math.round((item.pct ?? 0) * basisValue(item.feeBasis)))}</span>
+                    onChange={e => updateCalc(item, { pct: (parseFloat(e.target.value) || 0) / 100 })} />
+                  <span style={{ color: '#BBB', fontSize: 10, marginLeft: 2 }}>%</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center' }} title="$ per unit">
+                  <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
+                  <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
+                    value={item.baseRate || ''} placeholder="0"
+                    onChange={e => updateCalc(item, { baseRate: parseFloat(e.target.value) || 0 })} />
+                </div>
+              )}
+
+              {/* Budget — auto-derived when built up; editable otherwise */}
+              {isDerived(item) ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3 }} title="Auto-calculated budget">
+                  <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1A1A1A' }}>${(item.amount || 0).toLocaleString()}</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -211,6 +266,15 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
                     onChange={e => update(item.id, { amount: parseFloat(e.target.value) || 0 })} />
                 </div>
               )}
+
+              {/* GST component — click to toggle this line GST-free */}
+              <button onClick={() => update(item.id, { gstFree: !item.gstFree })}
+                title={item.gstFree ? 'GST-free — click to include GST' : 'Click to mark GST-free'}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'right', fontFamily: 'monospace', fontSize: 11,
+                  color: item.gstFree ? '#C9C4BC' : '#2A7A4F', textDecoration: item.gstFree ? 'line-through' : 'none', padding: 0 }}>
+                {item.gstFree ? 'excl' : `$${Math.round(gstOf(item)).toLocaleString()}`}
+              </button>
+
               <input type="month" style={cellInput} value={item.startDate ?? ''} onChange={e => update(item.id, { startDate: e.target.value })} />
               <input type="month" style={cellInput} value={item.endDate ?? ''} onChange={e => update(item.id, { endDate: e.target.value })} />
               <select style={cellInput} value={item.sCurve ?? 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as SCurveProfile })}>
@@ -289,9 +353,15 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0 }:
           onMouseEnter={e => { (e.currentTarget.style.borderColor = '#2A2A2A'); (e.currentTarget.style.color = '#2A2A2A') }}
           onMouseLeave={e => { (e.currentTarget.style.borderColor = '#D0CEC9'); (e.currentTarget.style.color = '#888') }}
         >+ Add Row</button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: '#1A1A1A' }}>{fmt(total)}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>GST incl.</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 12, color: '#2A7A4F' }}>{fmt(Math.round(gstTotal))}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: '#1A1A1A' }}>{fmt(total)}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -763,6 +833,8 @@ export default function CostStackTab({ projectId }: Props) {
               onChange={items => updateSection(meta.key, items)}
               constructionValue={result.construction}
               gdvValue={gdv}
+              showBasis={innerTab !== 'hard'}
+              gstEnabled={data.gstEnabled}
             />
           </div>
 

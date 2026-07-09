@@ -201,6 +201,13 @@ export interface CostLineItem {
   // derived amount persists so it feeds TDC/RLV everywhere.
   feeBasis?: 'construction' | 'gdv'
   pct?: number                       // 0..1 share of the basis
+  // ── CFO build-up — Units × Base Rate drives the budget ──
+  // When feeBasis is unset (i.e. '$ / Unit' basis) and both are > 0 the line's
+  // `amount` is DERIVED = units × baseRate. For % basis lines baseRate is unused
+  // (the percentage lives in `pct`).
+  units?: number
+  baseRate?: number                  // $ per unit ('unit' basis)
+  gstFree?: boolean                  // line carries no GST (e.g. statutory) — excluded from the GST component
 }
 
 export interface DetailedCostStack {
