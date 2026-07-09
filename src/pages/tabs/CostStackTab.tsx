@@ -689,55 +689,41 @@ export default function CostStackTab({ projectId }: Props) {
             )}
           </div>
 
-          {/* ── Cost Summary — sits in its own half at the bottom of the page ── */}
-          <div className="w-full max-w-md mx-auto pt-2 border-t border-[#EBE8E3]">
-            <div className="mb-4"><SectionHeading sub="Rolled-up total development cost incl. land">Cost Summary</SectionHeading></div>
-            <div className="border border-[#E0DDD8] rounded-xl overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              {/* Land & acquisition — from Land & Terms, part of TDC */}
-              {landB.total > 0 && (
-                <div className="px-4 pt-2.5 pb-1 bg-[#FBFAF7] border-b border-[#F0EDE8]">
-                  <span className="text-[8px] tracking-[0.18em] uppercase text-[#B8963C] font-semibold">Land &amp; Acquisition</span>
+          {/* ── Cost Summary — breathes across the full width at the bottom ── */}
+          <div className="w-full max-w-5xl mx-auto pt-6 border-t border-[#EBE8E3]">
+            <div className="mb-6"><SectionHeading sub="Rolled-up total development cost incl. land">Cost Summary</SectionHeading></div>
+            <div className="border border-[#E0DDD8] rounded-2xl overflow-hidden bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+              {/* Line items flow across two roomy columns so nothing feels cramped */}
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-14 px-4 md:px-10 py-4">
+                {(() => {
+                  const rows: { label: string; value: number; tone: 'land' | 'dev' | 'inkind' | 'gst' }[] = [
+                    ...landRows.map(r => ({ ...r, tone: 'land' as const })),
+                    ...summaryRows.map(r => ({ ...r, tone: 'dev' as const })),
+                    ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
+                    ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
+                  ]
+                  const col = { land: '#8A6A28', dev: '#1A1A1A', inkind: '#7A4AAA', gst: '#2A7A4F' }
+                  return rows.map((r, i) => (
+                    <div key={i} className="flex justify-between items-baseline gap-4 py-3.5 border-b border-[#F1EEE9]">
+                      <span className="text-[13px] tracking-wide" style={{ color: r.tone === 'dev' ? '#666' : col[r.tone] }}>{r.label}</span>
+                      <span className="text-[17px] font-mono font-semibold whitespace-nowrap" style={{ color: col[r.tone] }}>
+                        {r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                })()}
+              </div>
+              {/* Total — full-width banner across the bottom */}
+              <div className="flex flex-wrap justify-between items-center gap-4 px-6 md:px-10 py-7 border-t border-[#D0CEC9] bg-[#F5F3F0]">
+                <span className="text-[14px] font-semibold tracking-[0.14em] uppercase text-[#1A1A1A]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
+                <div className="flex items-baseline gap-5">
+                  {site.resiGBA > 0 && (
+                    <span className="text-[#AAA] text-[12px] tracking-wide">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</span>
+                  )}
+                  <span className="font-mono font-bold text-4xl md:text-[40px] text-[#B8963C] leading-none">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
                 </div>
-              )}
-              {landRows.map((r, i) => (
-                <div key={`land-${i}`} className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8] bg-[#FBFAF7]">
-                  <span className="text-[10px] text-[#8A6A28] tracking-wide">{r.label}</span>
-                  <span className="text-sm font-mono font-semibold text-[#8A6A28]">${r.value.toLocaleString()}</span>
-                </div>
-              ))}
-              {landB.total > 0 && (
-                <div className="px-4 pt-2.5 pb-1 bg-white border-b border-[#F0EDE8]">
-                  <span className="text-[8px] tracking-[0.18em] uppercase text-[#999] font-semibold">Development Costs</span>
-                </div>
-              )}
-              {summaryRows.map((r, i) => (
-                <div key={i} className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8]">
-                  <span className="text-[10px] text-[#888] tracking-wide">{r.label}</span>
-                  <span className="text-sm font-mono font-semibold text-[#1A1A1A]">${r.value.toLocaleString()}</span>
-                </div>
-              ))}
-              {land.isInKind && result.inKindCost > 0 && (
-                <div className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8] bg-[#F8F5FC]">
-                  <span className="text-[10px] text-[#7A4AAA] tracking-wide">{land.inKindLabel || 'In-kind'}</span>
-                  <span className="text-sm font-mono font-semibold text-[#7A4AAA]">${result.inKindCost.toLocaleString()}</span>
-                </div>
-              )}
-              {result.gstCredits > 0 && (
-                <div className="flex justify-between items-center px-4 py-3 border-b border-[#F0EDE8] bg-[#F2F7F3]">
-                  <span className="text-[10px] text-[#2A7A4F] tracking-wide">Less GST input credits (1/11)</span>
-                  <span className="text-sm font-mono font-semibold text-[#2A7A4F]">−${Math.round(result.gstCredits).toLocaleString()}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center px-4 py-4 border-t border-[#D0CEC9] bg-[#F5F3F0]">
-                <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#1A1A1A]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
-                <span className="font-mono font-bold text-2xl text-[#B8963C]">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
               </div>
             </div>
-            {site.resiGBA > 0 && (
-              <p className="mt-2 text-[#AAA] text-[10px] text-right tracking-wide">
-                ${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in
-              </p>
-            )}
           </div>
         </div>
       )}
