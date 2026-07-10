@@ -37,6 +37,11 @@ export default function FeasibilityFilesSelector({ projectId, projectName, proje
     onSwitchFile?.(fileId)
   }
 
+  function handleDeleteFile(fileId: string) {
+    db.deleteFeasibilityFile(projectId, fileId)
+    setFiles(db.getFeasibilityFiles(projectId))
+  }
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
@@ -113,6 +118,14 @@ export default function FeasibilityFilesSelector({ projectId, projectName, proje
                       </p>
                     )}
                   </div>
+                  {files.length > 1 && !isLegacy && (
+                    <button onClick={() => handleDeleteFile(f.id)}
+                      style={{ padding: '4px 8px', background: 'rgba(239,68,68,0.2)', color: '#EF4444', border: 'none', borderRadius: 3, fontSize: 9, cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.3)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.2)')}>
+                      Delete
+                    </button>
+                  )}
                 </div>
                 <p style={{ fontSize: 9, color: f.isLive ? 'rgba(255,255,255,0.8)' : '#999', margin: 0 }}>
                   Last autosaved: {formatDate(f.lastAutosavedAt)}

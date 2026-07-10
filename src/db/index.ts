@@ -911,6 +911,19 @@ export function updateFeasibilityAutosave(projectId: string, fileId?: string) {
   }
 }
 
+export function deleteFeasibilityFile(projectId: string, fileId: string) {
+  const files = getFeasibilityFiles(projectId)
+  // Prevent deletion if it's the only file
+  if (files.length <= 1) return
+  // Remove the file
+  const filtered = files.filter(f => f.id !== fileId)
+  // Ensure the first remaining file is live if no live file exists
+  if (!filtered.some(f => f.isLive) && filtered.length > 0) {
+    filtered[0].isLive = true
+  }
+  saveFeasibilityFiles(filtered, projectId)
+}
+
 export function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
