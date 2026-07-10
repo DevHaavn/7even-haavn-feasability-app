@@ -43,7 +43,7 @@ function useIsNarrow(query = '(max-width: 1024px)') {
 }
 
 export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void }) {
-  const { projects, loadProjects, createProject, setActiveProject, updateProject } = useStore()
+  const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const isNarrow = useIsNarrow()
   const isMobile = useIsNarrow('(max-width: 640px)')
@@ -251,6 +251,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                       <button onClick={() => { setArchived(p, false); setArchiveMenu(false) }} className="glass-btn glass-btn-green"
                         style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0 }}>
                         ↺ Live
+                      </button>
+                      <button onClick={() => { if (confirm(`Delete "${p.name}" permanently? This cannot be undone.`)) { deleteProject(p.id); setArchiveMenu(false) } }}
+                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0, background: 'none', border: '1px solid #9B2335', color: '#9B2335', borderRadius: 4, cursor: 'pointer' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#9B2335'; e.currentTarget.style.color = '#fff' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9B2335' }}
+                        title="Delete this project permanently">
+                        🗑 Delete
                       </button>
                     </div>
                   ))}
