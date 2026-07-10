@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
-import WarMark, { Reticle, WAR_RED } from './WarMark'
+import { Button } from '../../components/ui/Button'
+import { Panel } from '../../components/ui/Panel'
+import { Sidebar } from '../../components/layout/Sidebar'
+import { PageHeader } from '../../components/layout/PageHeader'
+import WarMark, { Reticle } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
 import WarStock from './WarStock'
@@ -21,7 +25,6 @@ const DIVISIONS: { id: DivisionId; name: string; short: string }[] = [
   { id: 'haavn-mgmt', name: 'HAAVN Management', short: 'HAAVN MGMT' },
 ]
 
-// The range ladder — every target walks it
 const STAGES = ['painted', 'engaged', 'locked', 'secured'] as const
 type Stage = typeof STAGES[number]
 const STAGE_META: Record<Stage, { label: string; weight: number }> = {
@@ -32,19 +35,19 @@ const STAGE_META: Record<Stage, { label: string; weight: number }> = {
 }
 
 interface Target {
-  id: string          // TGT-0001
+  id: string
   division: DivisionId
-  name: string        // person
+  name: string
   company: string
-  value: number       // deal value AUD
+  value: number
   stage: Stage
-  projectId?: string  // link to a feasibility project
+  projectId?: string
   notes?: string
   updated: number
 }
 
 interface Contact {
-  id: string          // CON-0001
+  id: string
   division: DivisionId
   name: string
   company: string
@@ -54,86 +57,39 @@ interface Contact {
 }
 
 interface FeedSignal { text: string; tag: string; when: string }
-interface WarData { targets: Target[]; contacts: Contact[]; seq: number; feed?: FeedSignal[] }
+interface AtriumData { targets: Target[]; contacts: Contact[]; seq: number; feed?: FeedSignal[] }
 
 const STORE_KEY = 'atrium_v1'
-const load = (): WarData => {
+const load = (): AtriumData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
-  return { targets: [], contacts: [], seq: 446 } // TGT ids start where the briefing left off
+  return { targets: [], contacts: [], seq: 446 }
 }
-const save = (d: WarData) => saveKV(STORE_KEY, d)
-
+const save = (d: AtriumData) => saveKV(STORE_KEY, d)
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 
-// ── Surfaces — the CRM runs entirely on Field · Light: soft grey ground,
-// crisp near-black text, red only where it matters. Easy to read all day.
-const OBSIDIAN = '#E8E8EA', GRAPHITE = '#F6F6F7', STEEL = '#D3D4D8', SMOKE = '#4A4B50', SMOKE_DIM = '#63656C'
-const FIELD = '#E8E8EA', FIELD_PANEL = '#F6F6F7', LINE = '#D3D4D8', INK = '#0D0D0F', INK_SOFT = '#4A4B50'
-const HUD: React.CSSProperties = { fontFamily: "'Chakra Petch', sans-serif", textTransform: 'uppercase' }
-
-const panel: React.CSSProperties = {
-  background: GRAPHITE, border: `1px solid ${STEEL}`, borderRadius: 10, padding: '20px 22px',
-}
-const fieldPanel: React.CSSProperties = {
-  background: FIELD_PANEL, border: `1px solid ${LINE}`, borderRadius: 10, padding: '20px 22px',
-}
-const inputStyle: React.CSSProperties = {
-  background: '#fff', border: `1px solid ${STEEL}`, borderRadius: 6,
-  color: INK, fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
-}
-const fieldInput: React.CSSProperties = {
-  background: '#fff', border: `1px solid ${LINE}`, borderRadius: 6,
-  color: INK, fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
-}
-const labelStyle: React.CSSProperties = {
-  ...HUD, color: SMOKE_DIM, fontSize: 8, letterSpacing: '0.22em', display: 'block', marginBottom: 5, fontWeight: 600,
-}
-const fieldLabel: React.CSSProperties = {
-  ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.22em', display: 'block', marginBottom: 5, fontWeight: 600,
-}
-
-function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => void; title?: string }) {
-  const styles: Record<Stage, React.CSSProperties> = {
-    painted: { background: '#E4E4E7', color: '#4A4B50' },
-    engaged: { background: '#1B1C1F', color: '#fff' },
-    locked: { background: WAR_RED, color: '#fff' },
-    secured: { background: 'transparent', color: '#0D0D0F', border: '1.5px solid #0D0D0F' },
-  }
-  return (
-    <button onClick={onClick} title={title}
-      style={{
-        ...HUD, ...styles[stage], borderRadius: 4, padding: '4px 12px', fontSize: 9,
-        letterSpacing: '0.18em', fontWeight: 700, cursor: onClick ? 'pointer' : 'default',
-        border: styles[stage].border || 'none',
-      }}>
-      {STAGE_META[stage].label}
-    </button>
-  )
-}
-
-type View = 'command' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'minutes'
+type View = 'dashboard' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'minutes'
 
 export default function Atrium() {
   const { projects } = useStore()
   const [division, setDivision] = useState<DivisionId>('7even-dev')
-  const [view, setView] = useState<View>('command')
-  const [data, setData] = useState<WarData>(load)
+  const [view, setView] = useState<View>('dashboard')
+  const [data, setData] = useState<AtriumData>(load)
   const [showAdd, setShowAdd] = useState(false)
 
-  // new-target form
   const [fName, setFName] = useState('')
   const [fCompany, setFCompany] = useState('')
   const [fValue, setFValue] = useState('')
   const [fProject, setFProject] = useState('')
   const [fNotes, setFNotes] = useState('')
-  // signal feed form
   const [fSignal, setFSignal] = useState('')
   const [fSignalTag, setFSignalTag] = useState('CAPITAL')
-  // new-contact form
-  const [cName, setCName] = useState(''); const [cCompany, setCCompany] = useState('')
-  const [cRole, setCRole] = useState(''); const [cPhone, setCPhone] = useState(''); const [cEmail, setCEmail] = useState('')
+  const [cName, setCName] = useState('')
+  const [cCompany, setCCompany] = useState('')
+  const [cRole, setCRole] = useState('')
+  const [cPhone, setCPhone] = useState('')
+  const [cEmail, setCEmail] = useState('')
 
-  const update = (next: WarData) => { setData(next); save(next) }
+  const update = (next: AtriumData) => { setData(next); save(next) }
 
   const targets = useMemo(
     () => data.targets.filter(t => t.division === division).sort((a, b) => STAGES.indexOf(b.stage) - STAGES.indexOf(a.stage) || b.value - a.value),
@@ -161,6 +117,7 @@ export default function Atrium() {
     update({ ...data, targets: [t, ...data.targets], seq })
     setFName(''); setFCompany(''); setFValue(''); setFProject(''); setFNotes(''); setShowAdd(false)
   }
+
   function advance(id: string) {
     update({
       ...data,
@@ -169,6 +126,7 @@ export default function Atrium() {
         : t),
     })
   }
+
   function removeTarget(id: string) { update({ ...data, targets: data.targets.filter(t => t.id !== id) }) }
 
   function addContact() {
@@ -180,255 +138,260 @@ export default function Atrium() {
     })
     setCName(''); setCCompany(''); setCRole(''); setCPhone(''); setCEmail('')
   }
+
   function removeContact(id: string) { update({ ...data, contacts: data.contacts.filter(c => c.id !== id) }) }
+
   function logSignal() {
     if (!fSignal.trim()) return
     update({ ...data, feed: [{ text: fSignal.trim(), tag: fSignalTag, when: 'now' }, ...(data.feed ?? [])] })
     setFSignal('')
   }
 
-  const hudTab = (v: View, label: string) => (
-    <button key={v} onClick={() => setView(v)}
-      style={{
-        ...HUD, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 2px',
-        color: view === v ? WAR_RED : SMOKE_DIM,
-        borderBottom: `2px solid ${view === v ? WAR_RED : 'transparent'}`,
-        fontSize: 10, letterSpacing: '0.26em', fontWeight: 700,
-      }}>
-      {label}
-    </button>
-  )
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'pipeline', label: 'Pipeline' },
+    ...(division === '7even-dev' ? [{ id: 'stock', label: 'Stock' }] : []),
+    ...(division === 'haavn-mgmt' ? [{ id: 'tenders', label: 'Tenders' }] : []),
+    { id: 'range', label: 'The Range' },
+    ...(division === 'haavn-homes' ? [{ id: 'logistics', label: 'Logistics' }] : []),
+    { id: 'minutes', label: 'Minutes' },
+    { id: 'contacts', label: 'Contacts' },
+  ]
 
   return (
-    <div className="cap-module" style={{ width: '100%', maxWidth: 1180, margin: '0 auto', padding: '30px 24px 70px', display: 'flex', flexDirection: 'column', gap: 20, background: OBSIDIAN, borderRadius: 16, border: `1px solid ${STEEL}`, marginTop: 8, marginBottom: 40 }}>
-
-      {/* Masthead — tagline + commands; the mark signs off at the bottom */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', paddingTop: 6 }}>
-        <p style={{ ...HUD, color: SMOKE_DIM, fontSize: 9, letterSpacing: '0.3em', margin: 0 }}>
-          Every deal <span style={{ color: INK }}>in your sights.</span>
-        </p>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-          {DIVISIONS.map(d => (
-            <button key={d.id} onClick={() => { setDivision(d.id); if ((view === 'logistics' && d.id !== 'haavn-homes') || (view === 'stock' && d.id !== '7even-dev') || (view === 'tenders' && d.id !== 'haavn-mgmt')) setView('command') }}
-              className={division === d.id ? 'wr-btn wr-solid wr-hot' : 'wr-btn'}
-              style={{ ...HUD, padding: '8px 14px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: division === d.id ? '#fff' : INK_SOFT }}>
-              {d.short}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* View tabs */}
-      <div style={{ display: 'flex', gap: 26, borderBottom: `1px solid ${STEEL}` }}>
-        {hudTab('command', 'Command')}
-        {hudTab('pipeline', 'Pipeline')}
-        {division === '7even-dev' && hudTab('stock', 'Stock')}
-        {division === 'haavn-mgmt' && hudTab('tenders', 'Tenders')}
-        {hudTab('range', 'The Range')}
-        {division === 'haavn-homes' && hudTab('logistics', 'Logistics')}
-        {hudTab('minutes', 'Minutes')}
-        {hudTab('contacts', 'Contacts')}
-      </div>
-
-      {/* ── COMMAND ── */}
-      {view === 'command' && (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
-            {[
-              { label: 'Total Pipeline', value: fmt$(total), color: INK },
-              { label: 'Weighted', value: fmt$(weighted), color: SMOKE },
-              { label: 'Locked', value: fmt$(lockedValue), color: WAR_RED },
-              { label: 'Secured', value: fmt$(securedValue), color: INK },
-              { label: 'Targets', value: String(targets.length), color: INK },
-            ].map(k => (
-              <div key={k.label} style={{ ...panel, padding: '14px 16px' }}>
-                <p style={{ ...labelStyle, marginBottom: 8 }}>{k.label}</p>
-                <p style={{ color: k.color, fontSize: 19, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{k.value}</p>
-              </div>
-            ))}
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--grey-100)' }}>
+      {/* Sidebar */}
+      <Sidebar
+        items={navItems as any}
+        active={view}
+        onSelect={(id) => {
+          if (view === 'dashboard' && id !== 'dashboard') setView(id as View)
+          else if (view !== 'dashboard') setView(id as View)
+          if ((id === 'logistics' && division !== 'haavn-homes') ||
+              (id === 'stock' && division !== '7even-dev') ||
+              (id === 'tenders' && division !== 'haavn-mgmt')) {
+            setDivision(id === 'logistics' ? 'haavn-homes' : id === 'stock' ? '7even-dev' : 'haavn-mgmt')
+          }
+        }}
+        brand={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>ATRIUM</span>
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
-            {/* Signals */}
-            <div style={panel}>
-              <p style={{ ...labelStyle, fontSize: 9, marginBottom: 14 }}>◐ Signals — latest movement</p>
-              {signals.length === 0 ? (
-                <p style={{ color: SMOKE_DIM, fontSize: 12 }}>No movement yet — paint your first target on The Range.</p>
-              ) : signals.map(t => (
-                <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: t.stage === 'locked' ? WAR_RED : SMOKE_DIM }} />
-                  <span style={{ color: INK, fontSize: 12 }}>{t.name}</span>
-                  <span style={{ color: SMOKE_DIM, fontSize: 10, fontFamily: 'var(--font-mono)' }}>{t.id}</span>
-                  <span style={{ marginLeft: 'auto' }}><StageChip stage={t.stage} /></span>
-                </div>
-              ))}
-            </div>
-
-            {/* Studio link */}
-            <div style={panel}>
-              <p style={{ ...labelStyle, fontSize: 9, marginBottom: 14 }}>◎ Live theatre — feasibility studio</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <Reticle size={54} />
-                <div>
-                  <p style={{ color: INK, fontSize: 22, fontWeight: 700, margin: 0, fontFamily: 'var(--font-mono)' }}>{projects.length}</p>
-                  <p style={{ ...labelStyle, marginBottom: 0 }}>Live projects in the studio</p>
-                </div>
-              </div>
-              <p style={{ color: SMOKE_DIM, fontSize: 11, lineHeight: 1.6, marginTop: 12 }}>
-                Targets can be linked to any live project — deal-flow lands where the feasibility already lives.
-              </p>
-            </div>
-
-            {/* Signals & Approvals — the group feed, logged by the team */}
-            <div style={panel}>
-              <p style={{ ...labelStyle, fontSize: 9, marginBottom: 14 }}>◐ Signals &amp; Approvals</p>
-              {(data.feed ?? []).map((sig, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderBottom: `1px solid ${STEEL}` }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: WAR_RED, marginTop: 5, flexShrink: 0 }} />
-                  <p style={{ color: INK, fontSize: 11.5, margin: 0, lineHeight: 1.5 }}>{sig.text}</p>
-                  <span style={{ ...HUD, marginLeft: 'auto', color: SMOKE_DIM, fontSize: 7.5, letterSpacing: '0.16em', whiteSpace: 'nowrap', paddingTop: 3 }}>{sig.tag} · {sig.when}</span>
-                  <button onClick={() => update({ ...data, feed: (data.feed ?? []).filter((_, idx) => idx !== i) })}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: SMOKE_DIM, fontSize: 12 }}>×</button>
-                </div>
-              ))}
-              {(data.feed ?? []).length === 0 && (
-                <p style={{ color: SMOKE_DIM, fontSize: 12 }}>Nothing logged — approvals, slips and wins land here.</p>
-              )}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 104px 64px', gap: 8, marginTop: 12 }}>
-                <input value={fSignal} onChange={e => setFSignal(e.target.value)} placeholder="Log a signal…"
-                  onKeyDown={e => { if (e.key === 'Enter') logSignal() }}
-                  style={inputStyle} />
-                <select value={fSignalTag} onChange={e => setFSignalTag(e.target.value)} style={{ ...inputStyle, fontSize: 10 }}>
-                  {['CAPITAL', 'LOGISTICS', 'PLANNING', 'FEASIBILITY', 'DELIVERY'].map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <button onClick={logSignal} className="wr-btn wr-solid wr-hot"
-                  style={{ ...HUD, color: '#fff', fontSize: 9, letterSpacing: '0.18em', fontWeight: 700, padding: '7px 0' }}>
-                  Log
+        }
+        footer={
+          <div>
+            <div className="font-mono" style={{ fontSize: 8, color: 'rgba(255,255,255,.4)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Division</div>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {DIVISIONS.map(d => (
+                <button key={d.id} onClick={() => setDivision(d.id)} className={division === d.id ? 'atr-btn atr-btn--mint atr-btn--sq' : 'atr-btn atr-btn--glassDark atr-btn--sq'}
+                  style={{ fontSize: 9, fontWeight: 600, padding: 0, height: 32, width: '100%' }} title={d.name}>
+                  {d.short.split(' ')[0]}
                 </button>
-              </div>
+              ))}
             </div>
           </div>
-        </>
-      )}
+        }
+      />
 
-      {/* ── THE RANGE ── */}
-      {view === 'range' && (
-        <div style={fieldPanel}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-            <p style={{ ...fieldLabel, fontSize: 9, marginBottom: 0 }}>{DIVISIONS.find(d => d.id === division)!.name} · The Range</p>
-            <button onClick={() => setShowAdd(s => !s)}
-              className={showAdd ? 'wr-btn' : 'wr-btn wr-solid wr-hot'}
-              style={{ ...HUD, marginLeft: 'auto', padding: '8px 16px', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
-              {showAdd ? 'Close' : '+ Paint Target'}
-            </button>
-          </div>
+      {/* Main content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <PageHeader
+          title="ATRIUM"
+          subtitle={DIVISIONS.find(d => d.id === division)?.name}
+          actions={
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button variant="primary">+ New deal</Button>
+            </div>
+          }
+        />
 
-          {showAdd && (
-            <div style={{ border: `1px solid ${WAR_RED}55`, borderRadius: 8, padding: 16, marginBottom: 16, background: '#fff' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-                <div><label style={fieldLabel}>Target</label><input value={fName} onChange={e => setFName(e.target.value)} placeholder="Who" style={fieldInput} /></div>
-                <div><label style={fieldLabel}>Company</label><input value={fCompany} onChange={e => setFCompany(e.target.value)} placeholder="Their outfit" style={fieldInput} /></div>
-                <div><label style={fieldLabel}>Deal Value (AUD)</label><input type="number" value={fValue} onChange={e => setFValue(e.target.value)} placeholder="0" style={fieldInput} /></div>
-                <div>
-                  <label style={fieldLabel}>Project (optional)</label>
-                  <select value={fProject} onChange={e => setFProject(e.target.value)} style={fieldInput}>
-                    <option value="">— No project link —</option>
-                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', background: 'var(--grey-100)' }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto', padding: '24px' }}>
+            {/* Dashboard View */}
+            {view === 'dashboard' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {/* KPI Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+                  <Panel title="Pipeline Value" subtitle={fmt$(total)}>
+                    <p style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--f-600)', fontFamily: 'var(--font-mono)' }}>{fmt$(total)}</p>
+                  </Panel>
+                  <Panel title="Weighted" subtitle={fmt$(weighted)}>
+                    <p style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--f-600)', fontFamily: 'var(--font-mono)' }}>{fmt$(weighted)}</p>
+                  </Panel>
+                  <Panel title="Locked" subtitle={fmt$(lockedValue)}>
+                    <p style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--f-600)', fontFamily: 'var(--font-mono)' }}>{fmt$(lockedValue)}</p>
+                  </Panel>
+                  <Panel title="Secured" subtitle={fmt$(securedValue)}>
+                    <p style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--f-600)', fontFamily: 'var(--font-mono)' }}>{fmt$(securedValue)}</p>
+                  </Panel>
                 </div>
-                <div><label style={fieldLabel}>Notes</label><input value={fNotes} onChange={e => setFNotes(e.target.value)} placeholder="Intel" style={fieldInput} /></div>
-              </div>
-              <button onClick={addTarget} className="wr-btn wr-solid wr-hot"
-                style={{ ...HUD, marginTop: 14, padding: '9px 22px', fontSize: 9, letterSpacing: '0.22em', fontWeight: 700, color: '#fff' }}>
-                Paint It
-              </button>
-            </div>
-          )}
 
-          {targets.length === 0 ? (
-            <p style={{ color: INK_SOFT, fontSize: 12 }}>The range is clear. Paint the first target.</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}><div style={{ minWidth: 560, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {targets.map(t => {
-                const proj = t.projectId ? projects.find(p => p.id === t.projectId) : undefined
-                const hot = t.stage === 'locked'
-                return (
-                  <div key={t.id} style={{
-                    display: 'grid', gridTemplateColumns: '4px minmax(110px,1.1fr) minmax(110px,1.3fr) 96px 92px 24px',
-                    gap: 12, alignItems: 'center', padding: '10px 12px', borderRadius: 8,
-                    background: hot ? '#FFF6F4' : FIELD_PANEL, border: `1px solid ${hot ? `${WAR_RED}66` : LINE}`,
-                  }}>
-                    <span style={{ width: 4, height: 26, borderRadius: 2, background: hot ? WAR_RED : LINE }} />
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ color: INK, fontSize: 12.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</p>
-                      <p style={{ color: INK_SOFT, fontSize: 9.5, fontFamily: 'var(--font-mono)', margin: 0 }}>{t.id}</p>
+                {/* Latest Signals & Studio Link */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+                  <Panel title="Latest Movement" subtitle="Recent target activity">
+                    {signals.length === 0 ? (
+                      <p style={{ color: 'var(--mute)', fontSize: 13, margin: 0, padding: '0 18px 18px' }}>No movement yet — paint your first target on The Range.</p>
+                    ) : (
+                      <div style={{ padding: '0 18px 18px' }}>
+                        {signals.slice(0, 3).map(t => (
+                          <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--line-2)', fontSize: 13 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: t.stage === 'locked' ? 'var(--f-600)' : 'var(--mute)', flexShrink: 0 }} />
+                            <span style={{ color: 'var(--ink)', flex: 1 }}>{t.name}</span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--faint)' }}>{STAGE_META[t.stage].label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Panel>
+
+                  <Panel title="Live Projects" subtitle="In the studio">
+                    <div style={{ padding: '0 18px 18px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                      <Reticle size={48} />
+                      <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--f-600)', fontFamily: 'var(--font-mono)' }}>{projects.length}</p>
+                      <p style={{ margin: 0, fontSize: 11, color: 'var(--mute)' }}>Feasibility projects</p>
                     </div>
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ color: INK_SOFT, fontSize: 11.5, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.company}</p>
-                      {(proj || t.notes) && <p style={{ color: INK_SOFT, fontSize: 10, margin: 0, opacity: 0.75, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{proj ? `◎ ${proj.name}` : t.notes}</p>}
-                    </div>
-                    <span style={{ color: INK, fontSize: 12.5, fontFamily: 'var(--font-mono)', textAlign: 'right', fontWeight: 700 }}>{fmt$(t.value)}</span>
-                    <StageChip stage={t.stage} onClick={() => advance(t.id)} title="Advance stage" />
-                    <button onClick={() => removeTarget(t.id)} title="Stand down"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
+                  </Panel>
+                </div>
+
+                {/* Team Feed */}
+                <Panel title="Signals &amp; Approvals" subtitle="Team activity log">
+                  <div style={{ padding: '0 18px 18px' }}>
+                    {(data.feed ?? []).length === 0 ? (
+                      <p style={{ color: 'var(--mute)', fontSize: 13, margin: 0 }}>Nothing logged yet — approvals, slips and wins land here.</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {(data.feed ?? []).slice(0, 3).map((sig, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, paddingBottom: 8, borderBottom: i < Math.min(2, (data.feed ?? []).length - 1) ? '1px solid var(--line-2)' : 'none' }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--f-600)', marginTop: 4, flexShrink: 0 }} />
+                            <div style={{ flex: 1 }}>
+                              <p style={{ margin: 0, fontSize: 13, color: 'var(--ink)', lineHeight: 1.4 }}>{sig.text}</p>
+                              <div className="font-mono" style={{ fontSize: 10, color: 'var(--faint)', marginTop: 3 }}>{sig.tag}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )
-              })}
-            </div></div>
-          )}
-          <p style={{ ...HUD, color: INK_SOFT, fontSize: 8, letterSpacing: '0.2em', marginTop: 14 }}>
-            Painted → Engaged → Locked → Secured · click a status to advance
-          </p>
-        </div>
-      )}
+                  <div style={{ padding: '14px 18px', borderTop: '1px solid var(--line)', background: 'var(--grey-50)', borderRadius: '0 0 var(--r-m) var(--r-m)', display: 'flex', gap: 8 }}>
+                    <input value={fSignal} onChange={e => setFSignal(e.target.value)} placeholder="Log a signal…"
+                      onKeyDown={e => { if (e.key === 'Enter') logSignal() }}
+                      style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 13, fontFamily: 'var(--font-body)' }} />
+                    <select value={fSignalTag} onChange={e => setFSignalTag(e.target.value)} style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 11, fontFamily: 'var(--font-mono)' }}>
+                      {['CAPITAL', 'LOGISTICS', 'PLANNING', 'FEASIBILITY', 'DELIVERY'].map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <Button variant="primary" onClick={logSignal}>Log</Button>
+                  </div>
+                </Panel>
+              </div>
+            )}
 
-      {/* ── CONTACTS ── */}
-      {view === 'contacts' && (
-        <div style={fieldPanel}>
-          <p style={{ ...fieldLabel, fontSize: 9, marginBottom: 14 }}>{DIVISIONS.find(d => d.id === division)!.name} · Ecosystem</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginBottom: 8 }}>
-            <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Name" style={fieldInput} />
-            <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="Company" style={fieldInput} />
-            <input value={cRole} onChange={e => setCRole(e.target.value)} placeholder="Role" style={fieldInput} />
-            <input value={cPhone} onChange={e => setCPhone(e.target.value)} placeholder="Phone" style={fieldInput} />
-            <input value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="Email" style={fieldInput} />
-            <button onClick={addContact} className="wr-btn wr-solid"
-              style={{ ...HUD, padding: '8px 0', fontSize: 9, letterSpacing: '0.2em', fontWeight: 700, color: '#fff' }}>
-              + Add
-            </button>
+            {/* The Range View */}
+            {view === 'range' && (
+              <Panel title="The Range" subtitle={`${DIVISIONS.find(d => d.id === division)?.name} targets`}>
+                <div style={{ padding: '18px' }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                    <Button variant={showAdd ? 'primary' : 'glass'} onClick={() => setShowAdd(!showAdd)}>
+                      {showAdd ? 'Close' : '+ Paint Target'}
+                    </Button>
+                  </div>
+
+                  {showAdd && (
+                    <div style={{ background: 'var(--grey-50)', border: '1px solid var(--line)', borderRadius: 'var(--r-m)', padding: 16, marginBottom: 16 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--mute)', fontWeight: 600, display: 'block', marginBottom: 4 }}>Target</label>
+                          <input value={fName} onChange={e => setFName(e.target.value)} placeholder="Who" style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--mute)', fontWeight: 600, display: 'block', marginBottom: 4 }}>Company</label>
+                          <input value={fCompany} onChange={e => setFCompany(e.target.value)} placeholder="Their outfit" style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--mute)', fontWeight: 600, display: 'block', marginBottom: 4 }}>Deal Value (AUD)</label>
+                          <input type="number" value={fValue} onChange={e => setFValue(e.target.value)} placeholder="0" style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--mute)', fontWeight: 600, display: 'block', marginBottom: 4 }}>Project</label>
+                          <select value={fProject} onChange={e => setFProject(e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }}>
+                            <option value="">— No project —</option>
+                            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: 'var(--mute)', fontWeight: 600, display: 'block', marginBottom: 4 }}>Notes</label>
+                          <input value={fNotes} onChange={e => setFNotes(e.target.value)} placeholder="Intel" style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                        </div>
+                      </div>
+                      <Button variant="primary" onClick={addTarget}>Paint It</Button>
+                    </div>
+                  )}
+
+                  {targets.length === 0 ? (
+                    <p style={{ color: 'var(--mute)', fontSize: 13 }}>The range is clear. Paint the first target.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {targets.map(t => {
+                        const proj = t.projectId ? projects.find(p => p.id === t.projectId) : undefined
+                        return (
+                          <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: 'var(--grey-50)', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', borderLeft: `3px solid var(--f-600)` }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ margin: 0, fontWeight: 600, color: 'var(--ink)', fontSize: 13 }}>{t.name}</p>
+                              <p style={{ margin: 0, color: 'var(--mute)', fontSize: 11 }}>{t.company}</p>
+                            </div>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--f-600)', fontSize: 13 }}>{fmt$(t.value)}</span>
+                            <Button variant="quiet" shape="square" onClick={() => advance(t.id)} title="Advance stage" style={{ width: 32, height: 32, padding: 0 }}>{STAGE_META[t.stage].label[0]}</Button>
+                            <Button variant="quiet" shape="square" onClick={() => removeTarget(t.id)} title="Stand down" style={{ width: 32, height: 32, padding: 0, color: 'var(--mute)' }}>×</Button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            {/* Contacts View */}
+            {view === 'contacts' && (
+              <Panel title="Contacts" subtitle={`${DIVISIONS.find(d => d.id === division)?.name} ecosystem`}>
+                <div style={{ padding: '18px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8, marginBottom: 16 }}>
+                    <input value={cName} onChange={e => setCName(e.target.value)} placeholder="Name" style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                    <input value={cCompany} onChange={e => setCCompany(e.target.value)} placeholder="Company" style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                    <input value={cRole} onChange={e => setCRole(e.target.value)} placeholder="Role" style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                    <input value={cPhone} onChange={e => setCPhone(e.target.value)} placeholder="Phone" style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                    <input value={cEmail} onChange={e => setCEmail(e.target.value)} placeholder="Email" style={{ padding: '8px 10px', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontSize: 12 }} />
+                    <Button variant="primary" onClick={addContact}>+ Add</Button>
+                  </div>
+
+                  {contacts.length === 0 ? (
+                    <p style={{ color: 'var(--mute)', fontSize: 13 }}>No contacts logged yet.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {contacts.map(c => (
+                        <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 120px auto 32px', gap: 12, alignItems: 'center', padding: '10px', background: 'var(--grey-50)', borderRadius: 'var(--r-s)', borderBottom: '1px solid var(--line)' }}>
+                          <span style={{ color: 'var(--ink)', fontWeight: 600, fontSize: 12 }}>{c.name}</span>
+                          <span style={{ color: 'var(--mute)', fontSize: 11 }}>{c.company}</span>
+                          <span style={{ color: 'var(--mute)', fontSize: 11 }}>{c.role}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--faint)', fontSize: 10 }}>{c.phone}</span>
+                          <span style={{ color: 'var(--mute)', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.email}</span>
+                          <Button variant="quiet" shape="square" onClick={() => removeContact(c.id)} style={{ width: 32, height: 32, padding: 0, color: 'var(--mute)' }}>×</Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            {/* Other Views */}
+            {view === 'pipeline' && <WarPipeline division={division} />}
+            {view === 'stock' && <WarStock />}
+            {view === 'tenders' && <WarTenders />}
+            {view === 'logistics' && <HaavnLogistics />}
+            {view === 'minutes' && <WarMinutes projects={projects} />}
           </div>
-          {contacts.length === 0 ? (
-            <p style={{ color: INK_SOFT, fontSize: 12, marginTop: 10 }}>No contacts logged for this command yet.</p>
-          ) : contacts.map(c => (
-            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(100px,1fr) minmax(100px,1fr) minmax(80px,0.8fr) minmax(90px,0.9fr) minmax(120px,1.2fr) 24px', gap: 12, alignItems: 'center', padding: '9px 4px', borderBottom: `1px solid ${LINE}` }}>
-              <span style={{ color: INK, fontSize: 12, fontWeight: 600 }}>{c.name}</span>
-              <span style={{ color: INK_SOFT, fontSize: 11.5 }}>{c.company}</span>
-              <span style={{ color: INK_SOFT, fontSize: 11 }}>{c.role}</span>
-              <span style={{ color: INK_SOFT, fontSize: 11, fontFamily: 'var(--font-mono)' }}>{c.phone}</span>
-              <span style={{ color: INK_SOFT, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.email}</span>
-              <button onClick={() => removeContact(c.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: INK_SOFT, fontSize: 13 }}>×</button>
-            </div>
-          ))}
         </div>
-      )}
-
-      {/* ── PIPELINE — division-specific workflow ── */}
-      {view === 'pipeline' && <WarPipeline division={division} />}
-
-      {/* ── STOCK LEDGER (7EVEN Developments) ── */}
-      {view === 'stock' && <WarStock />}
-
-      {/* ── TENDERS (HAAVN Management) ── */}
-      {view === 'tenders' && <WarTenders />}
-
-      {/* ── HAAVN LOGISTICS ── */}
-      {view === 'logistics' && <HaavnLogistics />}
-
-      {view === 'minutes' && <WarMinutes projects={projects} />}
-
-      {/* Brand sign-off */}
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '26px 0 6px' }}>
-        <WarMark width={210} />
       </div>
     </div>
   )
