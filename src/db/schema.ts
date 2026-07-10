@@ -16,15 +16,15 @@ export interface Project {
   createdBy?: string  // user/creator name
 }
 
-// Version history — tracks feasibility saves for each project
-export interface ProjectVersion {
+// Feasibility working files — selectable variants per project, one is live for autosaving
+export interface FeasibilityFile {
   id: string
   projectId: string
-  versionName: string  // e.g. "v1", "Phase 1 Concept", user-defined
+  fileName: string  // e.g. "v1", "Phase 1 Concept", user-defined
   createdAt: string
-  createdBy: string  // creator/user name
-  lastUpdatedAt: string  // when feasibility was last auto-saved
-  notes?: string
+  createdBy?: string  // creator/user name
+  lastAutosavedAt: string  // when feasibility was last auto-saved (updates on each autosave)
+  isLive: boolean  // currently selected for autosaving
 }
 
 export interface SiteDesign {

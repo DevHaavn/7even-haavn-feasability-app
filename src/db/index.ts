@@ -302,6 +302,7 @@ export function getTimelineTasks(projectId: string): import('./schema').Timeline
 export function saveTimelineTasks(projectId: string, tasks: import('./schema').TimelineTask[]) {
   save(`timeline:${projectId}`, tasks)
   cloud.pushProjectField(projectId, 'timeline', tasks)
+  updateFeasibilityAutosave(projectId)
 }
 
 // ── Cost Presets ──────────────────────────────────────────────────────────────
@@ -778,6 +779,7 @@ export function saveCashflow(data: import('./schema').CashflowState) {
   save(`cashflow:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'cashflow', data)
   touchProject(data.projectId)
+  updateFeasibilityAutosave(data.projectId)
 }
 
 // ── Finance Assumptions ───────────────────────────────────────────────────────
@@ -824,6 +826,7 @@ export function saveFinanceAssumptions(data: FinanceAssumptions) {
   save(`finance:${data.projectId}`, data)
   cloud.pushProjectField(data.projectId, 'finance', data)
   touchProject(data.projectId)
+  updateFeasibilityAutosave(data.projectId)
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -833,36 +836,78 @@ function touchProject(id: string) {
   if (p) saveProject(p)
 }
 
-// ── Version History ──────────────────────────────────────────────────────────
+// ── Feasibility Files (selectable working variants per project) ─────────────────
 
-export function getProjectVersions(projectId: string): import('./schema').ProjectVersion[] {
-  return load<import('./schema').ProjectVersion[]>(`versions:${projectId}`, [])
+export function getFeasibilityFiles(projectId: string): import('./schema').FeasibilityFile[] {
+  const files = load<import('./schema').FeasibilityFile[]>(`feasibility-files:${projectId}`, [])
+  // Ensure at least one file exists and is marked live
+  if (files.length === 0) {
+    const defaultFile: import('./schema').FeasibilityFile = {
+      id: generateId(),
+      projectId,
+      fileName: 'Working File - Legacy',
+      createdAt: new Date().toISOString(),
+      lastAutosavedAt: new Date().toISOString(),
+      isLive: true,
+    }
+    saveFeasibilityFiles([defaultFile], projectId)
+    return [defaultFile]
+  }
+  // Ensure exactly one is marked live
+  const liveCount = files.filter(f => f.isLive).length
+  if (liveCount === 0) {
+    files[0].isLive = true
+    saveFeasibilityFiles(files, projectId)
+  } else if (liveCount > 1) {
+    files.forEach((f, i) => { f.isLive = i === 0 })
+    saveFeasibilityFiles(files, projectId)
+  }
+  return files
 }
 
-export function saveProjectVersion(version: import('./schema').ProjectVersion) {
-  const existing = getProjectVersions(version.projectId)
-  const updated = existing.filter(v => v.id !== version.id)
-  save(`versions:${version.projectId}`, [...updated, version])
+export function getActiveFeasibility(projectId: string): import('./schema').FeasibilityFile | undefined {
+  const files = getFeasibilityFiles(projectId)
+  return files.find(f => f.isLive)
 }
 
-export function createProjectVersion(projectId: string, versionName: string, createdBy: string): import('./schema').ProjectVersion {
-  const version: import('./schema').ProjectVersion = {
+function saveFeasibilityFiles(files: import('./schema').FeasibilityFile[], projectId: string) {
+  save(`feasibility-files:${projectId}`, files)
+}
+
+export function createFeasibilityFile(projectId: string, fileName: string, createdBy?: string): import('./schema').FeasibilityFile {
+  const files = getFeasibilityFiles(projectId)
+  // Deactivate current live file
+  files.forEach(f => { f.isLive = false })
+  // Create new file and make it live
+  const newFile: import('./schema').FeasibilityFile = {
     id: generateId(),
     projectId,
-    versionName,
+    fileName,
     createdAt: new Date().toISOString(),
     createdBy,
-    lastUpdatedAt: new Date().toISOString(),
+    lastAutosavedAt: new Date().toISOString(),
+    isLive: true,
   }
-  saveProjectVersion(version)
-  return version
+  saveFeasibilityFiles([...files, newFile], projectId)
+  return newFile
 }
 
-export function updateVersionTimestamp(projectId: string, versionId: string) {
-  const versions = getProjectVersions(projectId)
-  const version = versions.find(v => v.id === versionId)
-  if (version) {
-    saveProjectVersion({ ...version, lastUpdatedAt: new Date().toISOString() })
+export function setActiveFeasibility(projectId: string, fileId: string) {
+  const files = getFeasibilityFiles(projectId)
+  files.forEach(f => { f.isLive = f.id === fileId })
+  saveFeasibilityFiles(files, projectId)
+}
+
+export function updateFeasibilityAutosave(projectId: string, fileId?: string) {
+  const files = getFeasibilityFiles(projectId)
+  // If no fileId specified, update the live one
+  const targetId = fileId || files.find(f => f.isLive)?.id
+  if (targetId) {
+    const file = files.find(f => f.id === targetId)
+    if (file) {
+      file.lastAutosavedAt = new Date().toISOString()
+      saveFeasibilityFiles(files, projectId)
+    }
   }
 }
 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { getSnapshots, deleteSnapshot, restoreSnapshot, captureSnapshot, type ProjectSnapshot } from '../db/snapshots'
-import { resetProjectData } from '../db'
+import { resetProjectData, getProject } from '../db'
 import { useStore } from '../store'
 import ProjectExportPanel from './ProjectExportPanel'
+import FeasibilityFilesSelector from './FeasibilityFilesSelector'
 
 interface Props {
   projectId: string
@@ -111,16 +112,28 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
           )}
 
           {/* ── HISTORY TAB ── */}
-          {tab === 'history' && (
-            <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px' }}>
+          {tab === 'history' && (() => {
+            const project = getProject(projectId)
+            return (
+            <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px', width: '100%' }}>
               <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 6 }}>Project Data</p>
-              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 8 }}>Version History</h2>
-              <p style={{ fontSize: 10, color: '#333', letterSpacing: '0.06em', lineHeight: 1.6, marginBottom: 6 }}>
-                Snapshots are captured automatically before each reset. Restore any version at any time.
-              </p>
-              <p style={{ fontSize: 9, color: '#222', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 28 }}>
-                {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} stored · max 20
-              </p>
+              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 28 }}>Version History</h2>
+
+              {/* Feasibility Files Selector */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #222', borderRadius: 8, marginBottom: 28 }}>
+                <FeasibilityFilesSelector
+                  projectId={projectId}
+                  projectName={projectName}
+                  projectAddress={project?.address || ''}
+                />
+              </div>
+
+              {/* Legacy Snapshots Section */}
+              <div style={{ marginTop: 40, paddingTop: 28, borderTop: '1px solid #222' }}>
+                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#888', marginBottom: 12 }}>Auto-Snapshots (Legacy)</p>
+                <p style={{ fontSize: 9, color: '#666', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} stored · max 20
+                </p>
 
               {snapshots.length === 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 40px', gap: 16 }}>
@@ -190,8 +203,10 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                   })}
                 </div>
               )}
+              </div>
             </div>
-          )}
+            )
+          })()}
 
           {/* ── DISPLAY TAB — theme switch + session ── */}
           {tab === 'display' && (

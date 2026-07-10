@@ -55,8 +55,9 @@ export const useStore = create<AppState>((set, get) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
 
   createProject: (name, address, brand = '7even') => {
+    const projectId = db.generateId()
     const project: Project = {
-      id: db.generateId(),
+      id: projectId,
       name,
       address,
       suburb: '',
@@ -69,6 +70,8 @@ export const useStore = create<AppState>((set, get) => ({
       updatedAt: new Date().toISOString(),
     }
     db.saveProject(project)
+    // Initialize default feasibility file for this project
+    db.getFeasibilityFiles(projectId)
     get().loadProjects()
     return project
   },
@@ -85,12 +88,12 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   getSiteDesign: (projectId) => db.getSiteDesign(projectId),
-  saveSiteDesign: (data) => { db.saveSiteDesign(data); get().loadProjects() },
+  saveSiteDesign: (data) => { db.saveSiteDesign(data); db.updateFeasibilityAutosave(data.projectId); get().loadProjects() },
 
   getLandTerms: (projectId) => db.getLandTerms(projectId),
   getEffectiveLandCost: (projectId) => db.getEffectiveLandCost(projectId),
   getLandAcquisition: (projectId) => db.getLandAcquisition(projectId),
-  saveLandTerms: (data) => { db.saveLandTerms(data); get().loadProjects() },
+  saveLandTerms: (data) => { db.saveLandTerms(data); db.updateFeasibilityAutosave(data.projectId); get().loadProjects() },
 
   getMixScenarios: (projectId) => db.getMixScenarios(projectId),
 
@@ -109,9 +112,9 @@ export const useStore = create<AppState>((set, get) => ({
   saveUnitTypes: (scenarioId, units) => db.saveUnitTypes(scenarioId, units),
 
   getCostStack: (projectId) => db.getCostStack(projectId),
-  saveCostStack: (data) => { db.saveCostStack(data); get().loadProjects() },
+  saveCostStack: (data) => { db.saveCostStack(data); db.updateFeasibilityAutosave(data.projectId); get().loadProjects() },
   getDetailedCostStack: (projectId) => db.getDetailedCostStack(projectId),
-  saveDetailedCostStack: (data) => { db.saveDetailedCostStack(data) },
+  saveDetailedCostStack: (data) => { db.saveDetailedCostStack(data); db.updateFeasibilityAutosave(data.projectId) },
 
   getBTRAssumptions: (scenarioId) => db.getBTRAssumptions(scenarioId),
   saveBTRAssumptions: (data) => db.saveBTRAssumptions(data),
