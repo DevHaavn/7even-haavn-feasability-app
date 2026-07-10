@@ -120,7 +120,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
     return it.amount || 0
   }
   const isDerived = (it: CostLineItem) => !!it.feeBasis || ((it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0)
-  const gstOf = (it: CostLineItem) => it.gstFree ? 0 : (gstEnabled ? (it.amount || 0) / 11 : (it.amount || 0) * 0.1)
+  const gstOf = (it: CostLineItem) => (it.gstFree || !gstEnabled) ? 0 : (it.amount || 0) / 11
   // Drag-resizable "Item Description" column so long consultant/trade names can
   // be read in full. Persisted per browser so a user's preferred width sticks.
   const [descW, setDescW] = useState<number>(() => {
