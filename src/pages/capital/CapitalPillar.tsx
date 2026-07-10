@@ -1,5 +1,6 @@
 import React from 'react'
 import { Project7Mark } from '../../components/ui'
+import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdmin from './BudgetsAdmin'
@@ -22,10 +23,9 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       {isBudgets ? (
         /* Floating rounded light header — matches the project pages */
         <div className="ws-header-float" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 22px', flexShrink: 0, background: 'linear-gradient(rgba(238,236,232,0.80), rgba(224,221,216,0.86)), url(/header-bg.jpg) center / cover no-repeat, #ECEAE6' }}>
-          <button onClick={onBack}
-            style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(0,0,0,0.14)', borderRadius: 8, color: '#1A1A1A', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, padding: '8px 14px', cursor: 'pointer' }}>
+          <Button variant="glass" onClick={onBack} style={{ fontSize: 11 }}>
             ← Capital Base
-          </button>
+          </Button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
             <span style={{ color: '#13B5EA', fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
             <span style={{ color: '#1A1A1A', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>{pillar.title}</span>
@@ -37,15 +37,13 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
         /* Header — same treatment as the main-page footer */
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
           {pillar.id === 'crm' ? (
-            <button onClick={onExit} className="glass-btn"
-              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
+            <Button variant="glassDark" onClick={onExit} style={{ fontSize: 11 }}>
               Deploy Studio
-            </button>
+            </Button>
           ) : (
-            <button onClick={onBack} className="glass-btn"
-              style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
+            <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
               ← Capital Base
-            </button>
+            </Button>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
             <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
@@ -84,10 +82,10 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       <Project7Mark />
 
       {/* Quick secure exit — matches the hub's grey-glow logout */}
-      <button onClick={onLogout} className="glass-btn glass-btn-grey"
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
+      <Button variant="glassDark" onClick={onLogout}
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
         Log Out
-      </button>
+      </Button>
     </div>
   )
 }

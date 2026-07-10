@@ -1,5 +1,6 @@
 import React from 'react'
 import { Project7Mark } from '../../components/ui'
+import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { HMPillar } from './HaavnManagementBase'
 import Atrium from './Atrium'
@@ -17,10 +18,9 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
-        <button onClick={onBack} className="glass-btn"
-          style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px' }}>
+        <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
           ← Management Hub
-        </button>
+        </Button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
           <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>
@@ -53,10 +53,10 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       <Project7Mark />
 
       {/* Quick exit */}
-      <button onClick={onLogout} className="glass-btn glass-btn-grey"
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
+      <Button variant="glassDark" onClick={onLogout}
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
         Log Out
-      </button>
+      </Button>
     </div>
   )
 }
