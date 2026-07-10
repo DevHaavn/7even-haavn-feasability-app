@@ -62,7 +62,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', flex: 1 }}>
-            {([{ id: 'history', label: '⏱ Version History' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
+            {([{ id: 'history', label: '⏱ Feasibility' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 style={{
                   padding: '18px 28px',
