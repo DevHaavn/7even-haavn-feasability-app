@@ -8,3 +8,5 @@ export { Slider } from './Slider';
 export type { SliderProps } from './Slider';
 export { Panel } from './Panel';
 export type { PanelProps } from './Panel';
+export { StatCard } from './StatCard';
+export type { StatCardProps } from './StatCard';
