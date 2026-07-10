@@ -200,7 +200,7 @@ export default function Atrium() {
           subtitle={DIVISIONS.find(d => d.id === division)?.name}
           actions={
             <div style={{ display: 'flex', gap: 8 }}>
-              <Button variant="primary">+ New deal</Button>
+              <Button variant="primary" onClick={() => { setView('range'); setShowAdd(true) }}>+ New deal</Button>
             </div>
           }
         />
