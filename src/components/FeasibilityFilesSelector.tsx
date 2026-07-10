@@ -69,8 +69,8 @@ export default function FeasibilityFilesSelector({ projectId, projectName, proje
         <div style={{ fontSize: 11, color: '#999', padding: '12px', textAlign: 'center' }}>No files found</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {files.map(f => {
-            const isLegacy = f.fileName.includes('Legacy')
+          {files.map((f, idx) => {
+            const isLegacy = f.fileName.includes('Legacy') || idx === 0
             return (
               <div
                 key={f.id}
