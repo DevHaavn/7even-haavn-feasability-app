@@ -654,14 +654,40 @@ export default function CostStackTab({ projectId }: Props) {
 
             <div className="mb-5">
               <p className="text-[#888] text-[9px] tracking-[0.18em] uppercase mb-2">Build Rate Preset</p>
-              <div style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>
-                {presets.map((p, i) => (
-                  <button key={p.id}
-                    onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)}
-                    className={`px-4 py-2 text-[10px] tracking-[0.1em] uppercase cursor-pointer transition-colors ${data.buildRatePerSqm === p.buildRatePerSqm ? 'bg-[#1A1A1A] text-white font-semibold' : 'text-[#888] hover:text-[#1A1A1A]'} ${i > 0 ? 'border-l border-[#D0CEC9]' : ''}`}
-                    style={{ borderRadius: 0 }}
-                  >{p.name}</button>
-                ))}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                {presets.map((p) => {
+                  const isActive = data.buildRatePerSqm === p.buildRatePerSqm
+                  return (
+                    <button key={p.id}
+                      onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: 9,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        fontWeight: isActive ? 600 : 500,
+                        cursor: 'pointer',
+                        border: '1px solid #D0CEC9',
+                        borderRadius: 4,
+                        background: isActive ? '#F0F0F0' : '#FFFFFF',
+                        color: isActive ? '#1A1A1A' : '#999',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isActive) {
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#1A1A1A'
+                          (e.currentTarget as HTMLButtonElement).style.color = '#1A1A1A'
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!isActive) {
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#D0CEC9'
+                          (e.currentTarget as HTMLButtonElement).style.color = '#999'
+                        }
+                      }}
+                    >{p.name}</button>
+                  )
+                })}
               </div>
             </div>
 
