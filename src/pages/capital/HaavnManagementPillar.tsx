@@ -11,7 +11,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
       background: isCRM
-        ? 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(255,47,0,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303'
+        ? 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(35,122,82,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303'
         : 'linear-gradient(rgba(3,3,3,0.30), rgba(3,3,3,0.55) 70%, rgba(3,3,3,0.78)), url(/capital-bg.png) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>

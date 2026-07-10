@@ -4,11 +4,10 @@ import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdmin from './BudgetsAdmin'
 import Atrium from './Atrium'
-import WarMark from './WarMark'
 import CapitalDeployment from './CapitalDeployment'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
- *  opens here. The War Room exits straight to the studio (never back through
+ *  opens here. ATRIUM (Partner CRM) exits straight to the studio (never back through
  *  Capital admin) so staff stay sealed off from the other pillars. */
 export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pillar: Pillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isBudgets = pillar.id === 'budgets'
@@ -17,7 +16,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
       background: isBudgets
         ? 'linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.18)), url(/premium-bg.jpg) center / cover fixed, #101010'
-        : 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(196,151,58,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303',
+        : 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(35,122,82,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>
       {isBudgets ? (
@@ -51,7 +50,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
             <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
             {pillar.id === 'crm'
-              ? <WarMark width={110} />
+              ? <span style={{ color: '#fff', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>ATRIUM</span>
               : <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>}
           </div>
           {pillar.id === 'crm' && (
