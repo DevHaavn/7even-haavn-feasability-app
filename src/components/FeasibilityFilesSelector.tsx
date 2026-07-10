@@ -10,7 +10,15 @@ interface Props {
 }
 
 export default function FeasibilityFilesSelector({ projectId, projectName, projectAddress, onSwitchFile }: Props) {
-  const [files, setFiles] = useState<FeasibilityFile[]>(() => db.getFeasibilityFiles(projectId))
+  const [files, setFiles] = useState<FeasibilityFile[]>(() => {
+    try {
+      const f = db.getFeasibilityFiles(projectId)
+      return f
+    } catch (e) {
+      console.error('Error loading feasibility files:', e)
+      return []
+    }
+  })
   const [showNew, setShowNew] = useState(false)
   const [newName, setNewName] = useState('')
 
@@ -88,12 +96,19 @@ export default function FeasibilityFilesSelector({ projectId, projectName, proje
                 onMouseLeave={e => !f.isLive && (e.currentTarget.style.background = '#FFFFFF')}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 6 }}>
-                  <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: f.isLive ? '#fff' : '#1A1A1A', margin: '0 0 2px' }}>
-                      {f.fileName}
-                    </p>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: f.isLive ? '#fff' : '#1A1A1A', margin: 0 }}>
+                        {f.fileName}
+                      </p>
+                      {isLegacy && (
+                        <span style={{ fontSize: 8, fontWeight: 700, color: f.isLive ? '#fff' : '#C4973A', background: f.isLive ? 'rgba(196,151,58,0.3)' : 'rgba(196,151,58,0.1)', padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                          LEGACY
+                        </span>
+                      )}
+                    </div>
                     {f.isLive && (
-                      <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', margin: 0, fontWeight: 600 }}>
+                      <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', margin: '4px 0 0', fontWeight: 600 }}>
                         🔴 LIVE (autosaving)
                       </p>
                     )}
