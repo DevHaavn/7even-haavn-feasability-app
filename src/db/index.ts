@@ -872,6 +872,7 @@ export function getActiveFeasibility(projectId: string): import('./schema').Feas
 
 function saveFeasibilityFiles(files: import('./schema').FeasibilityFile[], projectId: string) {
   save(`feasibility-files:${projectId}`, files)
+  cloud.pushFeasibilityFiles(projectId, files as unknown as Record<string, unknown>[])
 }
 
 export function createFeasibilityFile(projectId: string, fileName: string, createdBy?: string): import('./schema').FeasibilityFile {
@@ -922,6 +923,7 @@ export function deleteFeasibilityFile(projectId: string, fileId: string) {
     filtered[0].isLive = true
   }
   saveFeasibilityFiles(filtered, projectId)
+  cloud.deleteFeasibilityFileCloud(projectId, fileId)
 }
 
 export function generateId(): string {

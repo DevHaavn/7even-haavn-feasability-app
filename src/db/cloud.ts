@@ -98,16 +98,18 @@ export async function pullFromCloud(): Promise<boolean> {
       { data: scenarios, error: se },
       { data: scenarioData, error: sde },
       { data: snapshots, error: snape },
+      { data: feasibilityFiles, error: ffe },
     ] = await Promise.all([
       supabase.from('projects').select('*'),
       supabase.from('project_data').select('*'),
       supabase.from('mix_scenarios').select('*'),
       supabase.from('scenario_data').select('*'),
       supabase.from('snapshots').select('*'),
+      supabase.from('feasibility_files').select('*'),
     ])
 
-    if (pe || pde || se || sde || snape) {
-      console.warn('[cloud] pull error', pe || pde || se || sde || snape)
+    if (pe || pde || se || sde || snape || ffe) {
+      console.warn('[cloud] pull error', pe || pde || se || sde || snape || ffe)
       return false
     }
 
@@ -192,11 +194,53 @@ export async function pullFromCloud(): Promise<boolean> {
       localStorage.setItem(`snapshots:${pid}`, JSON.stringify(snaps))
     }
 
+    // Hydrate feasibility files
+    const filesByProject: Record<string, unknown[]> = {}
+    for (const file of (feasibilityFiles ?? [])) {
+      const pid = file.project_id as string
+      if (!filesByProject[pid]) filesByProject[pid] = []
+      filesByProject[pid].push({
+        id: file.id,
+        projectId: pid,
+        fileName: file.file_name,
+        createdAt: file.created_at,
+        createdBy: file.created_by,
+        lastAutosavedAt: file.last_autosaved_at,
+        isLive: file.is_live,
+      })
+    }
+    for (const [pid, files] of Object.entries(filesByProject)) {
+      localStorage.setItem(`feasibility-files:${pid}`, JSON.stringify(files))
+    }
+
     return true
   } catch (err) {
     console.warn('[cloud] pullFromCloud failed', err)
     return false
   }
+}
+
+// ── Feasibility Files ─────────────────────────────────────────────────────────
+
+export function pushFeasibilityFiles(projectId: string, files: Record<string, unknown>[]) {
+  noteLocalWrite()
+  const fileData = files.map(f => ({
+    id: f.id,
+    project_id: projectId,
+    file_name: f.fileName,
+    created_at: f.createdAt,
+    created_by: f.createdBy ?? null,
+    last_autosaved_at: f.lastAutosavedAt,
+    is_live: f.isLive,
+  }))
+  fileData.forEach(file => {
+    supabase.from('feasibility_files').upsert(file).then(({ error }) => { if (error) console.warn('[cloud] pushFeasibilityFiles', error.message) })
+  })
+}
+
+export function deleteFeasibilityFileCloud(projectId: string, fileId: string) {
+  supabase.from('feasibility_files').delete().eq('id', fileId).eq('project_id', projectId)
+    .then(({ error }) => { if (error) console.warn('[cloud] deleteFeasibilityFile', error.message) })
 }
 
 // ── Real-time subscription ────────────────────────────────────────────────────
@@ -221,6 +265,7 @@ export function subscribeRealtime(onUpdate: () => void) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'project_data' }, handleRemote)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'mix_scenarios' }, handleRemote)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'scenario_data' }, handleRemote)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'feasibility_files' }, handleRemote)
     .subscribe()
 
   return () => { channel?.unsubscribe(); channel = null }
