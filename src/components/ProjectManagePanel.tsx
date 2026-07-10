@@ -16,7 +16,7 @@ interface Props {
 
 export default function ProjectManagePanel({ projectId, projectName, onClose, theme, onPickTheme, onLogout }: Props) {
   const { loadProjects, setActiveTab } = useStore()
-  const [tab, setTab] = useState<'history' | 'export' | 'display' | 'reset'>('history')
+  const [tab, setTab] = useState<'feasibility' | 'history' | 'export' | 'display' | 'reset'>('feasibility')
   const [snapshots, setSnapshots] = useState<ProjectSnapshot[]>([])
   const [confirmRestore, setConfirmRestore] = useState<ProjectSnapshot | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<ProjectSnapshot | null>(null)
@@ -62,7 +62,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', flex: 1 }}>
-            {([{ id: 'history', label: '⏱ Feasibility' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
+            {([{ id: 'feasibility', label: '📋 Feasibility' }, { id: 'history', label: '⏱ History' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 style={{
                   padding: '18px 28px',
@@ -106,13 +106,8 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
         {/* Body */}
         <div style={{ position: 'relative', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-          {/* ── EXPORT TAB ── */}
-          {tab === 'export' && (
-            <ProjectExportPanel projectId={projectId} projectName={projectName} />
-          )}
-
-          {/* ── HISTORY TAB ── */}
-          {tab === 'history' && (() => {
+          {/* ── FEASIBILITY TAB ── */}
+          {tab === 'feasibility' && (() => {
             const project = getProject(projectId)
             return (
             <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px', width: '100%' }}>
@@ -127,10 +122,25 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                   projectAddress={project?.address || ''}
                 />
               </div>
+            </div>
+            )
+          })()}
 
-              {/* Legacy Snapshots Section */}
-              <div style={{ marginTop: 40, paddingTop: 28, borderTop: '1px solid #222' }}>
-                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#888', marginBottom: 12 }}>Auto-Snapshots (Legacy)</p>
+          {/* ── EXPORT TAB ── */}
+          {tab === 'export' && (
+            <ProjectExportPanel projectId={projectId} projectName={projectName} />
+          )}
+
+          {/* ── HISTORY TAB ── */}
+          {tab === 'history' && (() => {
+            return (
+            <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px', width: '100%' }}>
+              <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#888', marginBottom: 6 }}>Project Data</p>
+              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 28 }}>Snapshot History</h2>
+
+              {/* Snapshots Section */}
+              <div>
+                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#888', marginBottom: 12 }}>Auto-Snapshots</p>
                 <p style={{ fontSize: 9, color: '#666', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
                   {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} stored · max 20
                 </p>
