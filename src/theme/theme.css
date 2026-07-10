@@ -1,0 +1,307 @@
+/* ============================================================
+   ATRIUM — design tokens + glass material
+   The whole visual system lives in this file.
+   Import once in main.tsx:  import './theme/theme.css'
+   ============================================================ */
+:root {
+  /* ---- forest: the ONLY hue in the system ---- */
+  --f-900: #0B2318;
+  --f-800: #0F3123;
+  --f-700: #14452F;
+  --f-600: #1B5E3F;
+  --f-500: #237A52;
+  --f-400: #38996B;
+  --f-300: #6FBE96;
+  --f-100: #DCEDE4;
+  --f-50:  #F1F8F4;
+  /* ---- neutrals ---- */
+  --black:    #0A0C0B;
+  --ink:      #12150F;
+  --ink-2:    #3A3F3C;
+  --mute:     #636966;
+  --faint:    #7C8380;
+  --line:     #E1E4E3;
+  --line-2:   #EDEFEE;
+  --grey-50:  #F7F8F8;
+  --grey-100: #F1F3F2;
+  --grey-200: #E7EAE9;
+  --grey-300: #D6DAD9;
+  --white:    #FFFFFF;
+  /* ---- glass ---- */
+  --glass:        rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.80);
+  --glass-dark:   rgba(12, 16, 14, 0.58);
+  --spec:         rgba(255, 255, 255, 0.90); /* specular top rim */
+  /* ---- elevation ---- */
+  --shadow-s: 0 1px 2px rgba(10,12,11,.05), 0 2px 8px rgba(10,12,11,.04);
+  --shadow-m: 0 2px 6px rgba(10,12,11,.06), 0 12px 28px -8px rgba(10,12,11,.14);
+  --shadow-l: 0 8px 24px -6px rgba(10,12,11,.14), 0 30px 60px -20px rgba(10,12,11,.22);
+  --shadow-green: 0 6px 18px -4px rgba(27,94,63,.42);
+  /* ---- radii ---- */
+  --r-s: 8px;
+  --r:   12px;
+  --r-m: 16px;
+  --r-l: 22px;
+  /* ---- type ---- */
+  --font-display: 'Inter Tight', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  /* ---- motion: the iOS spring. Use it for every press. ---- */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--grey-100);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--f-600); color: #fff; }
+:focus-visible {
+  outline: 2px solid var(--f-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.font-display { font-family: var(--font-display); letter-spacing: -0.025em; }
+.font-mono    { font-family: var(--font-mono); }
+
+/* ============================================================
+   GLASS MATERIAL
+   PERFORMANCE: backdrop-filter is GPU-expensive.
+   Use on CHROME only — sidebar, headers, floating strips, buttons.
+   NEVER on repeated rows in a long list or table.
+   ============================================================ */
+.atr-glass {
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: inset 0 1px 0 var(--spec), var(--shadow-s);
+}
+.atr-glass-dark {
+  background: var(--glass-dark);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Solid panel — the default surface for content. No blur, no cost. */
+.atr-panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  box-shadow: var(--shadow-s);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.atr-btn {
+  position: relative;
+  overflow: hidden;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 550;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: transform 0.12s var(--ease-ios), box-shadow 0.2s, background 0.2s;
+}
+
+/* the specular sweep across the top half — this is what makes it read as glass */
+.atr-btn::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.28), transparent);
+  pointer-events: none;
+}
+
+.atr-btn:active:not(:disabled) { transform: scale(0.965); }
+.atr-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.atr-btn--primary {
+  background: linear-gradient(180deg, var(--f-500), var(--f-700));
+  color: #fff;
+  border-color: rgba(0,0,0,.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), var(--shadow-green);
+}
+.atr-btn--primary:hover:not(:disabled) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 8px 22px -4px rgba(27,94,63,.55);
+}
+
+.atr-btn--glass {
+  background: var(--glass-strong);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  color: var(--ink);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 0 var(--spec), var(--shadow-s);
+}
+.atr-btn--glass:hover:not(:disabled) { background: rgba(255,255,255,.94); }
+
+.atr-btn--outline {
+  background: rgba(255,255,255,.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--f-700);
+  border-color: var(--f-100);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+.atr-btn--outline:hover:not(:disabled) { background: var(--f-50); border-color: var(--f-300); }
+
+.atr-btn--quiet {
+  background: transparent;
+  color: var(--mute);
+  border-color: transparent;
+}
+.atr-btn--quiet:hover:not(:disabled) { background: var(--grey-200); color: var(--ink); }
+
+/* --- on forest / dark surfaces only --- */
+.atr-btn--glassDark {
+  background: rgba(255,255,255,.13);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  color: #fff;
+  border-color: rgba(255,255,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+.atr-btn--glassDark:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+
+.atr-btn--mint {
+  background: linear-gradient(180deg, var(--f-300), var(--f-500));
+  color: var(--f-900);
+  font-weight: 600;
+  border-color: rgba(0,0,0,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+
+/* --- shapes --- */
+.atr-btn--sq, .atr-btn--ci { width: 40px; height: 40px; padding: 0; }
+.atr-btn--sq { border-radius: 11px; }
+.atr-btn--ci { border-radius: 50%; }
+.atr-btn--fab {
+  width: 52px; height: 52px; padding: 0; border-radius: 50%;
+  background: linear-gradient(180deg, var(--f-500), var(--f-700));
+  color: #fff;
+  border-color: rgba(0,0,0,.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 10px 26px -4px rgba(27,94,63,.5);
+}
+
+/* ============================================================
+   SEGMENTED CONTROL
+   ============================================================ */
+.atr-seg {
+  position: relative;
+  display: inline-flex;
+  background: var(--grey-200);
+  border-radius: 9px;
+  padding: 3px;
+  border: 1px solid rgba(0,0,0,.03);
+}
+.atr-seg__thumb {
+  position: absolute;
+  top: 3px; bottom: 3px; left: 3px;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(10,12,11,.14), 0 0 0 .5px rgba(10,12,11,.05);
+  transition: transform 0.34s var(--ease-ios), width 0.34s var(--ease-ios);
+  pointer-events: none;
+}
+.atr-seg__btn {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mute);
+  padding: 6px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.atr-seg__btn[aria-selected="true"] { color: var(--f-700); font-weight: 600; }
+
+/* ============================================================
+   TOGGLE
+   ============================================================ */
+.atr-tgl {
+  position: relative;
+  width: 44px; height: 26px;
+  border: none;
+  border-radius: 100px;
+  background: var(--grey-300);
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background 0.28s var(--ease-ios);
+}
+.atr-tgl::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(10,12,11,.25);
+  transition: transform 0.28s var(--ease-ios);
+}
+.atr-tgl[aria-checked="true"] { background: var(--f-500); }
+.atr-tgl[aria-checked="true"]::after { transform: translateX(18px); }
+
+/* ============================================================
+   SLIDER
+   ============================================================ */
+.atr-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--grey-200);
+  outline: none;
+}
+.atr-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: grab;
+  box-shadow: 0 1px 4px rgba(10,12,11,.28), 0 0 0 .5px rgba(10,12,11,.06);
+}
+.atr-slider::-webkit-slider-thumb:active { cursor: grabbing; }
+.atr-slider::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(10,12,11,.28);
+}
+
+/* ============================================================
+   ACCESSIBILITY FLOOR — do not remove
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
