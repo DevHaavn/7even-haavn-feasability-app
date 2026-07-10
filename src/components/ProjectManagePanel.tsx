@@ -117,7 +117,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             return (
             <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 28px', width: '100%' }}>
               <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#C4973A', marginBottom: 6 }}>Project Data</p>
-              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 28 }}>Version History</h2>
+              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 28 }}>Feasibility Working Files</h2>
 
               {/* Feasibility Files Selector */}
               <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #222', borderRadius: 8, marginBottom: 28 }}>
