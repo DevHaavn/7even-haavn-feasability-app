@@ -6,6 +6,7 @@ import { getCashflow } from '../db'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
+import HaavnManagementBase from './capital/HaavnManagementBase'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -50,6 +51,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
+  const [hmOpen, setHmOpen] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
   // Director view — the 7EVEN logo flips the admin column between 7EVEN and HAAVN
   // Management. Persisted so it survives a trip into the Dashboard and back.
@@ -134,13 +136,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           Log Out
         </button>
 
-        {/* HAAVN Management — staff entry to the Partner CRM (War Room).
+        {/* HAAVN Management — staff entry to the Management Hub (CRM + Meetings + Social).
             The device IS the button, clean to its edges, mirroring the wings
             top-left — no plate. */}
         <button
           className="no-drag"
-          title="HAAVN Management — Partner CRM"
-          onClick={() => { setCapitalStart('crm'); setCapitalOpen(true) }}
+          title="HAAVN Management — Management Hub"
+          onClick={() => setHmOpen(true)}
           style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: isMobile ? '4px 6px' : '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
@@ -284,6 +286,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
       <SiteLinks />
       <Project7Mark />
+
+      {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
+      {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
       {/* Director portal teaser — shown until the portal is built */}
       {capitalOpen && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
