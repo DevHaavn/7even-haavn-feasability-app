@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Project7Mark } from '../../components/ui'
+import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
 
@@ -19,7 +20,7 @@ export const HM_PILLARS: HMPillar[] = [
     id: 'crm', num: '01', title: 'Partner CRM',
     sub: 'Targets · Range · Signals · Contacts',
     blurb: 'Strategic partner relationships, deal pipeline, contact management and partnership signals across 7EVEN and HAAVN brands.',
-    color: '#FF2F00', // Red-orange
+    color: '#237A52', // Forest green (ATRIUM)
   },
   {
     id: 'meetings', num: '02', title: 'Meetings & Digital Workflow',
@@ -51,10 +52,9 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
-        <button onClick={onClose} className="glass-btn"
-          style={{ color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
+        <Button variant="glassDark" onClick={onClose} style={{ fontSize: 11 }}>
           Deploy Studio
-        </button>
+        </Button>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ textAlign: 'right' }}>
             <p style={{ color: '#1FE87A', fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>HAAVN Management</p>
@@ -116,10 +116,10 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       <Project7Mark />
 
       {/* Log out — bottom left */}
-      <button onClick={onLogout} className="glass-btn glass-btn-grey"
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
+      <Button variant="glassDark" onClick={onLogout}
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
         Log Out
-      </button>
+      </Button>
     </div>
   )
 }
