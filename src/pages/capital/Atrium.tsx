@@ -8,10 +8,10 @@ import WarStock from './WarStock'
 import WarTenders from './WarTenders'
 import WarMinutes from './WarMinutes'
 
-// ── WAR ROOM — Partner CRM Portal (Capital pillar 03) ────────────────────────
-// Stealth command environment: obsidian surfaces, black-chrome mark, one red
-// line. Three commands, one lens: 7EVEN Developments, HAAVN Homes and HAAVN
-// Management each run their own target board, unified here.
+// ── ATRIUM — Partner CRM Portal (Capital pillar 03) ────────────────────────
+// Glass and forest interface: calm, composed command environment for 7EVEN
+// Developments, HAAVN Homes and HAAVN Management. Each runs their own
+// target board, unified here under one lens.
 
 type DivisionId = '7even-dev' | 'haavn-homes' | 'haavn-mgmt'
 
@@ -56,7 +56,7 @@ interface Contact {
 interface FeedSignal { text: string; tag: string; when: string }
 interface WarData { targets: Target[]; contacts: Contact[]; seq: number; feed?: FeedSignal[] }
 
-const STORE_KEY = 'war_room_v1'
+const STORE_KEY = 'atrium_v1'
 const load = (): WarData => {
   try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw) } catch { /* fresh */ }
   return { targets: [], contacts: [], seq: 446 } // TGT ids start where the briefing left off
@@ -113,7 +113,7 @@ function StageChip({ stage, onClick, title }: { stage: Stage; onClick?: () => vo
 
 type View = 'command' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'minutes'
 
-export default function WarRoom() {
+export default function Atrium() {
   const { projects } = useStore()
   const [division, setDivision] = useState<DivisionId>('7even-dev')
   const [view, setView] = useState<View>('command')

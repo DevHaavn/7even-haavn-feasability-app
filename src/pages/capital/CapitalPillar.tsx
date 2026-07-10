@@ -3,7 +3,7 @@ import { Project7Mark } from '../../components/ui'
 import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdmin from './BudgetsAdmin'
-import WarRoom from './WarRoom'
+import Atrium from './Atrium'
 import WarMark from './WarMark'
 import CapitalDeployment from './CapitalDeployment'
 
@@ -63,7 +63,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       {/* Body — live module, or scaffold for pillars not yet built.
           Budgets floats as a soft-grey sheet over the stealth-black texture,
           like the project pages. */}
-      {pillar.id === 'budgets' ? <div className="premium-stage" style={{ flex: 1, overflowY: 'auto' }}><BudgetsAdmin /></div> : pillar.id === 'crm' ? <WarRoom /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
+      {pillar.id === 'budgets' ? <div className="premium-stage" style={{ flex: 1, overflowY: 'auto' }}><BudgetsAdmin /></div> : pillar.id === 'crm' ? <Atrium /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>

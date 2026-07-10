@@ -2,7 +2,7 @@ import React from 'react'
 import { Project7Mark } from '../../components/ui'
 import SiteLinks from '../../components/SiteLinks'
 import type { HMPillar } from './HaavnManagementBase'
-import WarRoom from './WarRoom'
+import Atrium from './Atrium'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
@@ -30,7 +30,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
 
       {/* Body — live CRM or placeholder for future pillars */}
       {pillar.id === 'crm' ? (
-        <WarRoom />
+        <Atrium />
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
