@@ -4,7 +4,6 @@ import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
-import WarMark from './WarMark'
 import CapitalCommandMark from './CapitalCommandMark'
 
 export type PillarId = 'budgets' | 'deployment' | 'crm'
@@ -112,7 +111,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
               </div>
               <div>
                 {p.id === 'crm' && (
-                  <img src="/hm-device-white.png" alt="HAAVN Management CRM" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />
+                  <span style={{ color: '#237A52', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 18, letterSpacing: '0.10em', display: 'block', margin: '0 0 12px' }}>ATRIUM</span>
                 )}
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.id === 'crm' ? 'rgba(255,255,255,0.88)' : p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
@@ -136,10 +135,10 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                 </div>
               )}
               {p.id === 'crm' && (
-                // War Room — the engine of the Partner CRM pillar
+                // ATRIUM — the CRM platform for the Partner CRM pillar
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-                  <WarMark width={150} />
+                  <span style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 16, letterSpacing: '0.08em' }}>ATRIUM</span>
                 </div>
               )}
 

@@ -52,7 +52,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
               : <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>}
           </div>
           {pillar.id === 'crm' && (
-            <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', marginLeft: 'auto', opacity: 0.9 }} />
+            <span style={{ color: '#237A52', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 16, letterSpacing: '0.08em', marginLeft: 'auto' }}>ATRIUM</span>
           )}
         </div>
       )}
