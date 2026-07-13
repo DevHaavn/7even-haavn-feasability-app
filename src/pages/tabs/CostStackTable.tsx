@@ -62,8 +62,8 @@ function basisLabel(it: CostLineItem): string {
 const GST_RATE = 0.1
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 
-// Grid: Item | Basis/Units | Rate/BaseRate | Budget $ | GST | Incl. GST | Funded By | Phase | S-Curve | Start | End
-const GRID = 'minmax(150px, 1.4fr) 58px 62px 92px 62px 90px 92px 108px 88px 116px 116px'
+// Grid: Item | Basis | Units | Rate | Budget $ | GST | Incl. GST | Funded By | Phase | S-Curve | Start | End
+const GRID = 'minmax(140px, 1.3fr) 76px 56px 60px 92px 58px 86px 88px 104px 74px 106px 106px'
 const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
 
 // Editable-cell styling — borderless so the grid stays clean but every field is live.
@@ -95,9 +95,13 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
 
-  // A %-basis line's budget derives from its basis; otherwise it's the entered amount.
+  // Budget build-up: % of a basis, else Units × Rate, else the directly entered amount.
   const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
-  const effAmt = (it: CostLineItem) => (it.feeBasis ? Math.round((it.pct ?? 0) * basisVal(it)) : (it.amount || 0))
+  const hasUnitRate = (it: CostLineItem) => (it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0
+  const effAmt = (it: CostLineItem) =>
+    it.feeBasis ? Math.round((it.pct ?? 0) * basisVal(it))
+    : hasUnitRate(it) ? Math.round((it.units || 0) * (it.baseRate || 0))
+    : (it.amount || 0)
   // Picking a basis sets the derived budget; clearing it keeps the entered amount.
   const changeBasis = (it: CostLineItem, v: string) => {
     const fb = (v || undefined) as CostLineItem['feeBasis']
@@ -108,6 +112,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const p = pctPercent / 100
     update(it.id, { pct: p, amount: Math.round(p * basisVal(it)) })
   }
+  // Units × Rate drives the budget when both are present.
+  const changeUnits = (it: CostLineItem, u: number) =>
+    update(it.id, { units: u, amount: (u > 0 && (it.baseRate ?? 0) > 0) ? Math.round(u * (it.baseRate || 0)) : (it.amount || 0) })
+  const changeRate = (it: CostLineItem, r: number) =>
+    update(it.id, { baseRate: r, amount: ((it.units ?? 0) > 0 && r > 0) ? Math.round((it.units || 0) * r) : (it.amount || 0) })
 
   // GST is shown straight off the budget figure (10%), except lines flagged GST-free.
   const gstOf = (it: CostLineItem) => (it.gstFree ? 0 : effAmt(it) * GST_RATE)
@@ -127,26 +136,30 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Item name — editable */}
         <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
           style={{ ...editInput, fontSize: 11 }} />
-        {/* Basis — dropdown on fee tabs ($ / Unit · % of Constr. · % of GRV); unit label on construction */}
-        {basisMode === 'units' ? (
-          <span style={{ fontSize: 10, color: '#B4B2AD' }}>{isPct ? '%' : 'sqm'}</span>
+        {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
+        <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
+          {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+        {/* Units — editable (n/a for % basis) */}
+        {isPct ? (
+          <span style={{ fontSize: 10, color: '#CBC9C4', ...cellR }}>—</span>
         ) : (
-          <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
-            {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+          <input type="text" inputMode="decimal" value={item.units ? item.units.toLocaleString() : ''} placeholder="—"
+            onChange={e => changeUnits(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
+            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         )}
-        {/* Rate — pct % for a %-basis line, otherwise the base rate */}
+        {/* Rate — pct % for a %-basis line, otherwise the per-unit rate */}
         {isPct ? (
           <input type="text" inputMode="decimal" value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
             onChange={e => changePct(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
             style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         ) : (
           <input type="text" inputMode="decimal" value={item.baseRate ? item.baseRate.toLocaleString() : ''} placeholder="—"
-            onChange={e => update(item.id, { baseRate: parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0 })}
+            onChange={e => changeRate(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
             style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         )}
-        {/* Budget $ — derived (read-only) for %-basis lines, else editable */}
-        {isPct ? (
+        {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
+        {isPct || hasUnitRate(item) ? (
           <span style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', ...cellR }}>{money(effAmt(item))}</span>
         ) : (
           <input type="text" inputMode="numeric" value={(item.amount || 0).toLocaleString()}
@@ -185,18 +198,18 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     return (
       <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid #E8E5E0', background: '#F5F3F0', fontWeight: 600, fontSize: 11 }}>
         <span style={{ color: '#1A1A1A', paddingLeft: 16 }}>{label} subtotal</span>
-        <span /><span />
+        <span /><span /><span />
         <span style={{ color: '#2A7A4F', ...cellR }}>{money(b)}</span>
         <span style={{ color: '#999', ...cellR }}>{money(g)}</span>
         <span style={{ color: '#2A7A4F', ...cellR }}>{money(b + g)}</span>
-        <span style={{ gridColumn: '7 / -1' }} />
+        <span style={{ gridColumn: '8 / -1' }} />
       </div>
     )
   }
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
-      <div style={{ minWidth: 1010 }}>
+      <div style={{ minWidth: 1090 }}>
         {/* + add row at the top */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
           <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
@@ -205,8 +218,9 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Header */}
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', padding: '10px 16px' }}>
           <span style={th}>Item</span>
-          <span style={th}>{basisMode === 'units' ? 'Units' : 'Basis'}</span>
-          <span style={{ ...th, ...cellR }}>{basisMode === 'units' ? 'Base rate' : 'Rate'}</span>
+          <span style={th}>Basis</span>
+          <span style={{ ...th, ...cellR }}>Units</span>
+          <span style={{ ...th, ...cellR }}>Rate</span>
           <span style={{ ...th, ...cellR }}>Budget $</span>
           <span style={{ ...th, ...cellR }}>GST</span>
           <span style={{ ...th, ...cellR }}>Incl. GST</span>
@@ -238,11 +252,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Section total */}
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: '#F5F3F0', borderTop: '1px solid #E0DDD8', fontWeight: 700, fontSize: 12 }}>
           <span style={{ color: '#1A1A1A', letterSpacing: '0.04em' }}>Section total</span>
-          <span /><span />
+          <span /><span /><span />
           <span style={{ color: '#1A1A1A', ...cellR }}>{money(grandBudget)}</span>
           <span style={{ color: '#999', ...cellR }}>{money(grandGst)}</span>
           <span style={{ color: '#1A1A1A', ...cellR }}>{money(grandBudget + grandGst)}</span>
-          <span style={{ gridColumn: '7 / -1' }} />
+          <span style={{ gridColumn: '8 / -1' }} />
         </div>
       </div>
     </div>
