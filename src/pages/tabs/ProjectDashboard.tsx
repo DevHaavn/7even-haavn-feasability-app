@@ -5,7 +5,7 @@ import { calculateCostStack } from '../../engine/costStack'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateBTSValuation } from '../../engine/bts'
-import { calculateFinance } from '../../engine/finance'
+import { calculateFinanceWaterfall } from '../../engine/financeWaterfall'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 
 interface Props { projectId: string }
@@ -112,9 +112,17 @@ export default function ProjectDashboard({ projectId }: Props) {
   }, [projectId, costData, tdc])
   const phaseTotal = phaseTracking.reduce((s, p) => s + p.cost, 0) || 1
 
-  // Finance sensitivity + capital stack
+  // Finance — one source of truth: the monthly debt waterfall (same as Finance tab).
   const fa = useMemo(() => db.getFinanceAssumptions(projectId), [projectId])
-  const finance = useMemo(() => calculateFinance(fa, tdc, landCostEff, gav), [fa, tdc, landCostEff, gav])
+  const wf = useMemo(() => calculateFinanceWaterfall(db.getDetailedCostStack(projectId), land, fa), [projectId, costData, land, fa])
+  const totalDebt = wf.tranches.reduce((s, t) => s + t.facility, 0)
+  const totalEquity = Math.max(0, wf.baseTDC - totalDebt)
+  // Critical-path sensitivity: extra interest = peak debt × blended rate × delay.
+  const blendedRate = totalDebt > 0 ? wf.tranches.reduce((s, t) => s + t.rate * t.facility, 0) / totalDebt : 0.08
+  const sens = [0, 3, 6, 12].map(mo => {
+    const extra = wf.peakDebt * blendedRate * (mo / 12)
+    return { mo, financeCost: wf.totalFinanceCost + extra, marginImpact: tdc > 0 ? -extra / tdc : 0 }
+  })
 
   // Timeline health
   const tasks = db.getTimelineTasks(projectId)
@@ -252,13 +260,13 @@ export default function ProjectDashboard({ projectId }: Props) {
             <tbody>
               <tr>
                 <td style={{ padding: '6px', color: '#444' }}>Finance cost</td>
-                {[finance.base, finance.blowout3m, finance.blowout6m, finance.blowout12m].map((s, i) => (
-                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? '#F0FDF4' : i === 3 ? '#FEF2F2' : '#FFFBEB', borderRadius: 4 }}>{fmt(s.totalFinanceCost, 0)}</td>
+                {sens.map((s, i) => (
+                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? '#F0FDF4' : i === 3 ? '#FEF2F2' : '#FFFBEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
                 ))}
               </tr>
               <tr>
                 <td style={{ padding: '6px', color: '#444' }}>Margin Δ</td>
-                {[finance.base, finance.blowout3m, finance.blowout6m, finance.blowout12m].map((s, i) => (
+                {sens.map((s, i) => (
                   <td key={i} style={{ textAlign: 'center', padding: '6px', color: i === 0 ? MUTE : RED }}>{i === 0 ? '—' : pctS(s.marginImpact, 1)}</td>
                 ))}
               </tr>
@@ -283,12 +291,12 @@ export default function ProjectDashboard({ projectId }: Props) {
           </div>
           <div style={{ fontSize: 10, color: MUTE, margin: '14px 0 6px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Capital stack</div>
           <div style={{ display: 'flex', height: 12, borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ width: `${(finance.totalDebt / Math.max(tdc, 1)) * 100}%`, background: '#3B82F6' }} />
-            <div style={{ width: `${(finance.totalEquity / Math.max(tdc, 1)) * 100}%`, background: '#16A34A' }} />
+            <div style={{ width: `${(totalDebt / Math.max(wf.baseTDC, 1)) * 100}%`, background: '#3B82F6' }} />
+            <div style={{ width: `${(totalEquity / Math.max(wf.baseTDC, 1)) * 100}%`, background: '#16A34A' }} />
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: MUTE }}>
-            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#3B82F6', marginRight: 4, borderRadius: 2 }} />Debt {fmt(finance.totalDebt, 1)}</span>
-            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#16A34A', marginRight: 4, borderRadius: 2 }} />Equity {fmt(finance.totalEquity, 1)}</span>
+            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#3B82F6', marginRight: 4, borderRadius: 2 }} />Debt {fmt(totalDebt, 1)}</span>
+            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#16A34A', marginRight: 4, borderRadius: 2 }} />Equity {fmt(totalEquity, 1)}</span>
           </div>
         </Card>
 

@@ -9,7 +9,7 @@ import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
 import { calculateCostStack } from '../engine/costStack'
 import { buildCashflow } from '../engine/cashflow'
-import { calculateFinance } from '../engine/finance'
+import { calculateFinanceWaterfall } from '../engine/financeWaterfall'
 import { developmentIRR, type ProfitMetrics } from '../engine/returns'
 
 function load<T>(key: string, fallback: T): T {
@@ -761,7 +761,9 @@ export function getProjectTDC(projectId: string): ProjectTDC {
   const roughFinance = best?.roughFinance ?? fallback.finance
   const gdv = best?.gav ?? 0
   const costExFinance = tdcBuild - roughFinance                        // all cost-stack costs except the placeholder finance %
-  const financeCost = calculateFinance(getFinanceAssumptions(projectId), tdcBuild, landEff, gdv).totalFinanceCost
+  // Single source of truth for finance cost: the monthly debt waterfall (same
+  // engine the Finance tab uses), so every screen shows one consistent number.
+  const financeCost = calculateFinanceWaterfall(getDetailedCostStack(projectId), getLandTerms(projectId), getFinanceAssumptions(projectId)).totalFinanceCost
   const tdc = costExFinance + landEff + financeCost                    // REAL total project cost (incl land + real finance)
   return { gdv, land: landEff, costExFinance, financeCost, tdc, tdcBuild }
 }
