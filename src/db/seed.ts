@@ -157,12 +157,12 @@ export function consolidatePreston() {
   if (consTotal === 0) {
     db.saveDetailedCostStack({
       projectId: SURV,
-      hardCosts: HAAVN_CONSTRUCTION,
-      consultants: HAAVN_CONSULTANTS,
-      statutory: HAAVN_STATUTORY,
-      headworks: HAAVN_HEADWORKS,
-      management: HAAVN_MANAGEMENT,
-      marketing: HAAVN_MARKETING,
+      hardCosts: cloneStack(HAAVN_CONSTRUCTION, SURV),
+      consultants: cloneStack(HAAVN_CONSULTANTS, SURV),
+      statutory: cloneStack(HAAVN_STATUTORY, SURV),
+      headworks: cloneStack(HAAVN_HEADWORKS, SURV),
+      management: cloneStack(HAAVN_MANAGEMENT, SURV),
+      marketing: cloneStack(HAAVN_MARKETING, SURV),
     })
   }
 
@@ -184,7 +184,6 @@ export function consolidatePreston() {
 // never clobbers a project the team has already customised. Idempotent; runs each
 // load after the cloud pull. Items are shallow-cloned so projects don't share objects.
 export function seedBaseCostStackForAll() {
-  const clone = (arr: import('./schema').CostLineItem[]) => arr.map(it => ({ ...it }))
   for (const p of db.getProjects()) {
     const dc = db.getDetailedCostStack(p.id)
     const total = [...dc.hardCosts, ...dc.consultants, ...dc.statutory, ...dc.headworks, ...dc.management, ...dc.marketing]
@@ -192,14 +191,21 @@ export function seedBaseCostStackForAll() {
     if (total > 0) continue // already has costs — leave it alone
     db.saveDetailedCostStack({
       projectId: p.id,
-      hardCosts: clone(HAAVN_CONSTRUCTION),
-      consultants: clone(HAAVN_CONSULTANTS),
-      statutory: clone(HAAVN_STATUTORY),
-      headworks: clone(HAAVN_HEADWORKS),
-      management: clone(HAAVN_MANAGEMENT),
-      marketing: clone(HAAVN_MARKETING),
+      hardCosts: cloneStack(HAAVN_CONSTRUCTION, p.id),
+      consultants: cloneStack(HAAVN_CONSULTANTS, p.id),
+      statutory: cloneStack(HAAVN_STATUTORY, p.id),
+      headworks: cloneStack(HAAVN_HEADWORKS, p.id),
+      management: cloneStack(HAAVN_MANAGEMENT, p.id),
+      marketing: cloneStack(HAAVN_MARKETING, p.id),
     })
   }
+}
+
+// Deep-clone base cost-stack rows and give each project its own item IDs, so no two
+// projects (or the bundled template) ever share the same object or line-item id —
+// edits on one project can never touch another.
+function cloneStack(arr: import('./schema').CostLineItem[], projectId: string): import('./schema').CostLineItem[] {
+  return arr.map(it => ({ ...JSON.parse(JSON.stringify(it)), id: `${projectId}:${it.id}` }))
 }
 
 function seedWerribee() {

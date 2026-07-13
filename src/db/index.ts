@@ -883,12 +883,15 @@ export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
 // Idempotent: once a project is on the new model, user edits are left untouched.
 export function seedBaseFinanceForAll() {
   for (const p of getProjects()) {
+    const hasStored = !!localStorage.getItem(`finance:${p.id}`)
     const fa = getFinanceAssumptions(p.id)
     const legacy = fa.tranches.length === 0
       || fa.tranches.some(t => !t.interestModel)
       || fa.tranches.some(t => /new debt/i.test(t.label))
-    if (legacy) {
-      saveFinanceAssumptions({ ...fa, tranches: DEFAULT_TRANCHES.map(t => ({ ...t })) })
+    // Persist the base finance model onto every project that has no saved record yet
+    // (so the base is genuinely saved per project), and migrate any legacy tranches.
+    if (!hasStored || legacy) {
+      saveFinanceAssumptions({ ...fa, projectId: p.id, tranches: DEFAULT_TRANCHES.map(t => ({ ...t })) })
     }
   }
 }
