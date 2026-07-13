@@ -1278,7 +1278,7 @@ function seedHAAVN() {
     createdBy: 'HAAVN Dev',
   })
 
-  // Site design (from Design Review 2: 46,237 sqm GBA, 22,390 sqm residential)
+  // Site design (from HTML design: 46,237 sqm GBA, 22,390 sqm residential)
   db.saveSiteDesign({
     projectId: pid,
     resiNSA: 21_000,
@@ -1294,7 +1294,7 @@ function seedHAAVN() {
     notes: 'Mixed-use development: 120 residential apartments, ground-floor retail & commercial, basement car parking.',
   })
 
-  // Land terms (from Design Review: $15M purchase, $955K stamp duty)
+  // Land terms (from HTML design: $15M purchase, $955K stamp duty)
   db.saveLandTerms({
     projectId: pid,
     landCost: 17_870_500,
@@ -1309,7 +1309,7 @@ function seedHAAVN() {
   // Cost stack setup
   db.saveCostStack({
     projectId: pid,
-    buildRatePerSqm: 3000,
+    buildRatePerSqm: 3000, // HAAVN hybrid preset
     contingencyPct: 0.05,
     prelimsPct: 0.08,
     professionalFeesPct: 0.05,
@@ -1322,7 +1322,7 @@ function seedHAAVN() {
     currentPhase: 'acqplan',
   })
 
-  // Detailed cost stack — all 6 sections with line items from design
+  // Detailed cost stack — populate all 6 sections with line items from design
   db.saveDetailedCostStack({
     projectId: pid,
     hardCosts: HAAVN_CONSTRUCTION,
@@ -1365,13 +1365,13 @@ function seedHAAVN() {
     },
   ])
 
-  // BTR assumptions
+  // BTR assumptions (12% cap rate assumption, 7% management, 5% vacancy)
   db.saveBTRAssumptions({
     scenarioId,
     vacancyPct: 0.05,
     leaseUpMonths: 9,
     managementFeePct: 0.07,
-    carParkIncomeAnnual: 640_000,
+    carParkIncomeAnnual: 640_000, // 280 spaces @ ~$2,286/year
     buildingAdminFixed: 400_000,
     childcareAnnualNet: 180_000,
     commercialAnnualNet: 420_000,
@@ -1380,6 +1380,6 @@ function seedHAAVN() {
     devMarginPct: 0.15,
   })
 
-  // Snapshot — preserve Design Review 2 state
+  // Snapshot — preserve initial design review state
   captureSnapshot(pid, 'Design Review 2 · Complete Cost Stack Seed', now)
 }
