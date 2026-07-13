@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import { migrateCostStackLabels, seedBaseFinanceForAll } from './db'
-import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll, migrateConsultantCatalogue } from './db/seed'
+import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll, migrateCatalogues } from './db/seed'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
@@ -47,7 +47,7 @@ export default function App() {
       seedBaseCostStackForAll()
       seedBaseFinanceForAll()
       consolidatePreston()
-      migrateConsultantCatalogue()
+      migrateCatalogues()
       loadProjects()
       setSyncing(false)
     })
@@ -57,7 +57,7 @@ export default function App() {
       // base seed + consolidation before re-rendering so data doesn't vanish.
       seedBaseCostStackForAll()
       consolidatePreston()
-      migrateConsultantCatalogue()
+      migrateCatalogues()
       loadProjects()
     })
     return unsub

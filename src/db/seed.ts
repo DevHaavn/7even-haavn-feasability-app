@@ -212,20 +212,30 @@ function cloneStack(arr: import('./schema').CostLineItem[], projectId: string): 
   return arr.map(it => ({ ...JSON.parse(JSON.stringify(it)), id: `${projectId}:${it.id}` }))
 }
 
-// Roll the CFO's full consultant catalogue (Cost_Stack_Grouped.xlsx — categories +
-// item descriptions, amounts blank) onto every project's Consultants section.
-// Content-based: re-applies while the OLD 5-group structure is still present (so it
-// survives cloud pulls that restore stale data), then stops — leaving the new
-// catalogue and any user edits within it alone.
+// Roll the CFO's catalogues (Cost_Stack_Grouped.xlsx — item descriptions, amounts
+// blank) onto every project's cost-stack sections. Content-based per section: each
+// re-applies while the OLD structure is still present (so it survives cloud pulls
+// that restore stale data), then stops — leaving the new catalogue and user edits
+// within it alone. Add sections here as each CFO tab is signed off.
 const OLD_CONSULTANT_CATS = new Set(['Architecture', 'Civil & structural', 'Acoustic', 'Environmental', 'Other'])
-export function migrateConsultantCatalogue() {
+export function migrateCatalogues() {
   for (const p of db.getProjects()) {
     const dc = db.getDetailedCostStack(p.id)
+    const next = { ...dc, projectId: p.id }
+    let changed = false
+
+    // Consultants — legacy = empty or still using the old 5-group categories.
     const cons = dc.consultants || []
-    const isLegacy = cons.length === 0 || cons.some(i => OLD_CONSULTANT_CATS.has((i.notes || '').trim()))
-    if (isLegacy) {
-      db.saveDetailedCostStack({ ...dc, projectId: p.id, consultants: cloneStack(HAAVN_CONSULTANTS, p.id) })
+    if (cons.length === 0 || cons.some(i => OLD_CONSULTANT_CATS.has((i.notes || '').trim()))) {
+      next.consultants = cloneStack(HAAVN_CONSULTANTS, p.id); changed = true
     }
+    // Statutory — legacy = empty or missing the new CFO line names.
+    const stat = dc.statutory || []
+    if (stat.length === 0 || !stat.some(i => i.label === 'Asset Protection Bond | Demo')) {
+      next.statutory = cloneStack(HAAVN_STATUTORY, p.id); changed = true
+    }
+
+    if (changed) db.saveDetailedCostStack(next)
   }
 }
 
