@@ -155,13 +155,15 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const th: React.CSSProperties = { fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
   const banded = buildGroups(items, groups)
 
-  const Row = ({ item, idx }: { item: CostLineItem; idx: number }) => {
+  // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
+  // defining a component inside render remounts every row on each keystroke.
+  const renderRow = (item: CostLineItem, idx: number) => {
     const gst = gstOf(item)
     const fund = fundingDisplay(item.fundedBy)
     const badge = item.phase ? PHASE_BADGE[item.phase] : undefined
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
+      <div key={item.id} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
         {/* Item name — editable */}
         <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
           style={{ ...editInput, fontSize: 11 }} />
@@ -221,7 +223,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     )
   }
 
-  const Subtotal = ({ label, rows }: { label: string; rows: CostLineItem[] }) => {
+  const renderSubtotal = (label: string, rows: CostLineItem[]) => {
     const b = rows.reduce((s, i) => s + effAmt(i), 0)
     const g = rows.reduce((s, i) => s + gstOf(i), 0)
     return (
@@ -279,11 +281,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
                 </div>
                 <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: '#999', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
               </div>
-              {open && rows.map((item, idx) => <Row key={item.id} item={item} idx={idx} />)}
-              <Subtotal label={def.label} rows={rows} />
+              {open && rows.map((item, idx) => renderRow(item, idx))}
+              {renderSubtotal(def.label, rows)}
             </div>
           )
-        }) : items.map((item, idx) => <Row key={item.id} item={item} idx={idx} />)}
+        }) : items.map((item, idx) => renderRow(item, idx))}
 
         {/* Section total */}
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: '#F5F3F0', borderTop: '1px solid #E0DDD8', fontWeight: 700, fontSize: 12 }}>
