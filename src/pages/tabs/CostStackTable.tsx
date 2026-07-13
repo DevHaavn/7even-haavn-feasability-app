@@ -57,8 +57,16 @@ const GST_RATE = 0.1
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 
 // Grid: Item | Basis/Units | Rate/BaseRate | Budget $ | GST | Incl. GST | Funded By | Phase | S-Curve | Start | End
-const GRID = 'minmax(150px, 1.5fr) 60px 60px 84px 66px 88px 82px 92px 62px 52px 52px'
+const GRID = 'minmax(150px, 1.4fr) 58px 62px 92px 62px 90px 92px 108px 88px 116px 116px'
 const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
+
+// Editable-cell styling — borderless so the grid stays clean but every field is live.
+const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: '#1A1A1A', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
+const editSelect: React.CSSProperties = { ...editInput, cursor: 'pointer', appearance: 'none' as const }
+
+const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
+const FUND_OPTS: [string, string][] = [['equity', 'Equity'], ['senior', 'Senior'], ['debt', 'Debt'], ['blend', 'Blend'], ['both', 'Both']]
+const SCURVE_OPTS: [string, string][] = [['scurve', 'S-curve'], ['linear', 'Linear'], ['upfront', 'Upfront'], ['backloaded', 'Back']]
 
 // Assign each item to the first matching group; unmatched fall into an "Other" band.
 function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
@@ -94,35 +102,41 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const badge = item.phase ? PHASE_BADGE[item.phase] : undefined
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '8px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
+        {/* Item name — editable */}
         <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
-          style={{ border: 'none', background: 'transparent', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }} />
-        {basisMode === 'units' ? (
-          <>
-            <span style={{ fontSize: 10, color: '#B4B2AD' }}>{isPct ? '%' : 'sqm'}</span>
-            <span style={{ fontSize: 10, color: '#B4B2AD', ...cellR }}>{item.baseRate ? item.baseRate.toLocaleString() : (isPct ? '%' : '—')}</span>
-          </>
-        ) : (
-          <>
-            <span style={{ fontSize: 10, color: '#B4B2AD' }}>{basisLabel(item)}</span>
-            <span style={{ fontSize: 10, color: '#B4B2AD', ...cellR }}>{item.pct ? `${(item.pct * 100).toFixed(1)}%` : (item.baseRate ? item.baseRate.toLocaleString() : '—')}</span>
-          </>
-        )}
+          style={{ ...editInput, fontSize: 11 }} />
+        {/* Basis (derived label) + editable rate / base rate */}
+        <span style={{ fontSize: 10, color: '#B4B2AD' }}>{basisMode === 'units' ? (isPct ? '%' : 'sqm') : basisLabel(item)}</span>
+        <input type="text" inputMode="decimal" value={item.baseRate ? item.baseRate.toLocaleString() : ''} placeholder="—"
+          onChange={e => update(item.id, { baseRate: parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0 })}
+          style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+        {/* Budget $ — editable */}
         <input type="text" inputMode="numeric" value={(item.amount || 0).toLocaleString()}
           onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
-          style={{ border: 'none', background: 'transparent', fontSize: 11, fontWeight: 700, color: '#1A1A1A', outline: 'none', width: '100%', ...cellR }} />
+          style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
+        {/* GST + Incl. GST — computed outputs */}
         <span style={{ fontSize: 10, color: '#999', ...cellR }}>{item.gstFree || !gstEnabled ? '—' : money(gst)}</span>
         <span style={{ fontSize: 11, fontWeight: 500, color: '#1A1A1A', ...cellR }}>{money((item.amount || 0) + gst)}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ display: 'inline-flex', gap: 2 }}>{fund.dots.map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c }} />)}</span>
-          <span style={{ fontSize: 10, color: '#1A1A1A' }}>{fund.label}</span>
+        {/* Funded by — editable dropdown */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ display: 'inline-flex', gap: 2, flexShrink: 0 }}>{fund.dots.map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c }} />)}</span>
+          <select value={item.fundedBy || 'equity'} onChange={e => update(item.id, { fundedBy: e.target.value as CostLineItem['fundedBy'] })} style={editSelect}>
+            {FUND_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
         </div>
-        {badge
-          ? <span style={{ display: 'inline-flex', alignSelf: 'center', padding: '2px 7px', borderRadius: 3, fontSize: 9, fontWeight: 600, background: badge.bg, color: badge.text, whiteSpace: 'nowrap' }}>{badge.label}</span>
-          : <span style={{ fontSize: 9, color: '#BBB' }}>—</span>}
-        <span style={{ fontSize: 10, color: '#7A7975' }}>{item.sCurve ? (S_CURVE_LABEL[item.sCurve] || item.sCurve) : '—'}</span>
-        <span style={{ fontSize: 10, color: '#999' }}>{fmtMonth(item.startDate)}</span>
-        <span style={{ fontSize: 10, color: '#999' }}>{fmtMonth(item.endDate)}</span>
+        {/* Phase — editable dropdown */}
+        <select value={item.phase || ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}
+          style={{ ...editSelect, color: badge ? badge.text : '#BBB', background: badge ? badge.bg : 'transparent', borderRadius: 3 }}>
+          {PHASE_OPTS.map(([v, l]) => <option key={v} value={v} style={{ color: '#1A1A1A', background: '#fff' }}>{l}</option>)}
+        </select>
+        {/* S-curve — editable dropdown */}
+        <select value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })} style={{ ...editSelect, color: '#7A7975' }}>
+          {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+        {/* Start / End — editable month pickers */}
+        <input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: '#666' }} />
+        <input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: '#666' }} />
       </div>
     )
   }
@@ -144,7 +158,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
-      <div style={{ minWidth: 900 }}>
+      <div style={{ minWidth: 1010 }}>
         {/* + add row at the top */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
           <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
