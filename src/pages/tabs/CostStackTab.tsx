@@ -17,15 +17,15 @@ import CostStackTable, { type GroupConfig } from './CostStackTable'
 // Every other section renders flat.
 const COST_GROUPS: Record<string, GroupConfig[] | undefined> = {
   consultants: [
-    { id: 'arch',     label: 'Architecture',                   color: '#AFA9EC', match: it => /architect/i.test(it.notes || '') },
-    { id: 'civil',    label: 'Civil & structural engineering', color: '#85B7EB', match: it => /civil|structural/i.test(it.notes || '') },
-    { id: 'acoustic', label: 'Acoustic engineering',           color: '#9FE1CB', match: it => /acoustic/i.test(it.notes || '') },
-    { id: 'env',      label: 'Environmental & planning',       color: '#C0DD97', match: it => /environ/i.test(it.notes || '') },
-    { id: 'other',    label: 'Other consultants',              color: '#FAC775', match: () => true },
+    { id: 'arch',     label: 'Architecture',                   color: '#AFA9EC', notes: 'Architecture',        match: it => /architect/i.test(it.notes || '') },
+    { id: 'civil',    label: 'Civil & structural engineering', color: '#85B7EB', notes: 'Civil & structural',  match: it => /civil|structural/i.test(it.notes || '') },
+    { id: 'acoustic', label: 'Acoustic engineering',           color: '#9FE1CB', notes: 'Acoustic',            match: it => /acoustic/i.test(it.notes || '') },
+    { id: 'env',      label: 'Environmental & planning',       color: '#C0DD97', notes: 'Environmental',       match: it => /environ/i.test(it.notes || '') },
+    { id: 'other',    label: 'Other consultants',              color: '#FAC775', notes: 'Other',               match: () => true },
   ],
   headworks: [
-    { id: 'util', label: 'Utility connections',       color: '#85B7EB', match: it => /utilit/i.test(it.notes || '') },
-    { id: 'env',  label: 'Environmental consultants', color: '#9FE1CB', match: it => /environ/i.test(it.notes || '') },
+    { id: 'util', label: 'Utility connections',       color: '#85B7EB', notes: 'Utility',       match: it => /utilit/i.test(it.notes || '') },
+    { id: 'env',  label: 'Environmental consultants', color: '#9FE1CB', notes: 'Environmental', match: it => /environ/i.test(it.notes || '') },
   ],
 }
 

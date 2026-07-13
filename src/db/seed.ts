@@ -151,15 +151,13 @@ export function consolidatePreston() {
   const survivor = db.getProjects().find(p => p.id === SURV)
   if (!survivor) return // nothing to graft onto yet
 
-  // 1) Graft the clean HAAVN base cost stack if the survivor is empty OR has been
-  //    corrupted (e.g. a base construction line zeroed by an errant edit). The clean
-  //    construction total is ~$143.95M, so a materially lower total signals damage.
-  //    Content-based (no flag) so it self-heals after each cloud pull, then leaves a
-  //    correct, user-edited stack alone.
+  // 1) Graft the clean HAAVN base when the stack is empty (fresh browser) OR on a
+  //    one-time heal that restores the base after earlier stray test edits. Once the
+  //    heal has run, normal edits to Preston persist (it won't fight the user).
   const dc = db.getDetailedCostStack(SURV)
   const consTotal = (dc.consultants || []).reduce((s, i) => s + (i.amount || 0), 0)
-  const hardTotal = (dc.hardCosts || []).reduce((s, i) => s + (i.amount || 0), 0)
-  if (consTotal === 0 || hardTotal < 140_000_000) {
+  const HEAL = 'preston-base-heal-v2'
+  if (consTotal === 0 || !localStorage.getItem(HEAL)) {
     db.saveDetailedCostStack({
       projectId: SURV,
       hardCosts: cloneStack(HAAVN_CONSTRUCTION, SURV),
@@ -169,6 +167,7 @@ export function consolidatePreston() {
       management: cloneStack(HAAVN_MANAGEMENT, SURV),
       marketing: cloneStack(HAAVN_MARKETING, SURV),
     })
+    localStorage.setItem(HEAL, '1')
   }
 
   // 2) One "St Village Preston", 7EVEN-owned but shown live in BOTH boards.

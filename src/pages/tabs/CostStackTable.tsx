@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react'
 import type { CostLineItem } from '../../db/schema'
 
 // A grouping rule: items whose notes match are gathered under this labelled band.
-export type GroupConfig = { id: string; label: string; color: string; match: (item: CostLineItem) => boolean }
+// `notes` is the value written to a line when it is added to / moved into this group.
+export type GroupConfig = { id: string; label: string; color: string; notes: string; match: (item: CostLineItem) => boolean }
 
 interface Props {
   items: CostLineItem[]
@@ -134,6 +135,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     ;[next[i], next[j]] = [next[j], next[i]]
     onChange(next)
   }
+  const newRow = (notes: string): CostLineItem => ({ id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes, sCurve: 'scurve', fundedBy: 'equity' })
+  // Add a blank line into a specific group, and move an existing line to another group.
+  const addToGroup = (def: GroupConfig) => onChange([...items, newRow(def.notes)])
+  const moveToGroup = (id: string, def: GroupConfig) => update(id, { notes: def.notes })
+  const groupOf = (it: CostLineItem) => (groups || []).find(g => g.match(it))
 
   // Budget build-up: % of a basis, else Units × Rate, else the directly entered amount.
   const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
@@ -177,10 +183,17 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
       <div key={item.id} className="cs-row" style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
         {/* Item description — editable, with move/delete controls (reveal on hover) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
-          <span className="cs-act" style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+          <span className="cs-act" style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
             <button onClick={() => moveRow(item.id, -1)} title="Move up" style={actBtn}>↑</button>
             <button onClick={() => moveRow(item.id, 1)} title="Move down" style={actBtn}>↓</button>
             <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: '#C0392B', fontSize: 12 }}>×</button>
+            {groups && groups.length > 1 && (
+              <select value={groupOf(item)?.id || ''} title="Move to category"
+                onChange={e => { const g = groups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: '#9B8ACB', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
+                {groups.map(g => <option key={g.id} value={g.id} style={{ color: '#1A1A1A' }}>{g.label}</option>)}
+              </select>
+            )}
           </span>
           <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
             style={{ ...editInput, fontSize: 11, minWidth: 0 }} />
@@ -211,7 +224,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {isPct || hasUnitRate(item) ? (
           <span style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', ...cellR }}>{money(effAmt(item))}</span>
         ) : (
-          <input type="text" inputMode="numeric" value={(item.amount || 0).toLocaleString()}
+          <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
             onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
             style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
         )}
@@ -260,8 +273,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
       <style>{`.cs-row .cs-act{opacity:0;transition:opacity .12s}.cs-row:hover .cs-act{opacity:1}`}</style>
       <div style={{ minWidth: MINW }}>
-        {/* + add row at the top */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
+        {/* + add row — sits at top-left, above the Item description column */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
           <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
         </div>
 
@@ -294,9 +307,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           return (
             <div key={def.id}>
               <div onClick={() => toggle(def.id)} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '10px 16px', background: '#F5F3F0', borderBottom: '1px solid #E8E5E0', cursor: 'pointer', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: def.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1A1A' }}>{def.label} <span style={{ fontSize: 9, color: '#999', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: '#999', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
+                  <button onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}
+                    style={{ fontSize: 10, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
                 </div>
                 <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: '#999', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
               </div>
