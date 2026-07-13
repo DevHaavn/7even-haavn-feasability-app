@@ -109,6 +109,8 @@ export default function ProjectTimeline({ projectId }: Props) {
   const phaseCosts = useMemo(() => getPhaseCosts(projectId), [projectId, tasks])
   // Screen real-estate: show one year at a time (default the current year).
   const [viewYear, setViewYear] = useState<number>(new Date().getFullYear())
+  // "All dates" — span every year on one scrollable timeline (no year switching).
+  const [allDates, setAllDates] = useState(false)
   // Drag-to-move: grab a bar and slide it; commits new start/end on release.
   const dragRef = useRef<{ id: string; startX: number; origStart: string; origEnd: string; moved: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
@@ -136,15 +138,17 @@ export default function ProjectTimeline({ projectId }: Props) {
     return out
   }, [tasks])
 
-  // Window = the selected year only (screen real-estate).
-  const minDate = `${viewYear}-01-01`
-  const maxDate = `${viewYear}-12-31`
+  // Window = the selected year, or every year when "All dates" is on.
+  const spanFirst = years[0] ?? viewYear
+  const spanLast = years[years.length - 1] ?? viewYear
+  const minDate = allDates ? `${spanFirst}-01-01` : `${viewYear}-01-01`
+  const maxDate = allDates ? `${spanLast}-12-31` : `${viewYear}-12-31`
   const totalDays = daysBetween(minDate, maxDate) + 1
 
-  // Only tasks whose span overlaps the visible year.
+  // Tasks whose span overlaps the window (all tasks when "All dates" is on).
   const visible = tasks.filter(t =>
     (filterPhase === 'all' || taskPhase(t) === filterPhase) &&
-    yearOf(t.startDate) <= viewYear && yearOf(t.endDate) >= viewYear,
+    (allDates || (yearOf(t.startDate) <= viewYear && yearOf(t.endDate) >= viewYear)),
   )
 
   // Drag-to-move listeners — translate horizontal mouse movement into whole days.
@@ -269,12 +273,17 @@ export default function ProjectTimeline({ projectId }: Props) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <button onClick={() => setViewYear(y => y - 1)} style={yrNav} aria-label="Previous year">‹</button>
-          <select value={viewYear} onChange={e => setViewYear(Number(e.target.value))}
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: '#EDEBE7', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: 'pointer' }}>
+          {/* All dates — show every year on one timeline */}
+          <button onClick={() => setAllDates(v => !v)} aria-pressed={allDates}
+            style={{ padding: '6px 12px', borderRadius: 5, border: `1px solid ${allDates ? '#C4973A' : 'rgba(255,255,255,0.16)'}`, background: allDates ? '#C4973A' : 'rgba(255,255,255,0.06)', color: allDates ? '#1A1A1A' : '#EDEBE7', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            All dates
+          </button>
+          <button onClick={() => { setAllDates(false); setViewYear(y => y - 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Previous year">‹</button>
+          <select value={viewYear} disabled={allDates} onChange={e => { setAllDates(false); setViewYear(Number(e.target.value)) }}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: '#EDEBE7', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: allDates ? 'default' : 'pointer', opacity: allDates ? 0.35 : 1 }}>
             {years.map(y => <option key={y} value={y} style={{ background: '#1A1A1A' }}>{y}</option>)}
           </select>
-          <button onClick={() => setViewYear(y => y + 1)} style={yrNav} aria-label="Next year">›</button>
+          <button onClick={() => { setAllDates(false); setViewYear(y => y + 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Next year">›</button>
         </div>
         {canUndo && (
           <button onClick={() => undo(setTasks)} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', color: '#C8C8C8', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
