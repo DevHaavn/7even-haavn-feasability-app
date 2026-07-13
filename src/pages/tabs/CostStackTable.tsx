@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import type { CostLineItem } from '../../db/schema'
 
 // A grouping rule: items whose notes match are gathered under this labelled band.
@@ -62,9 +62,11 @@ function basisLabel(it: CostLineItem): string {
 const GST_RATE = 0.1
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 
-// Grid: Item | Basis | Units | Rate | Budget $ | GST | Incl. GST | Funded By | Phase | S-Curve | Start | End
-const GRID = 'minmax(140px, 1.3fr) 76px 56px 60px 92px 58px 86px 88px 104px 74px 106px 106px'
-const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
+// Fixed widths (px) for every column after the draggable Item column. Wide enough
+// that large dollar figures never collide. Item width is user-resizable (descW).
+const COLS_AFTER_ITEM = [78, 66, 72, 116, 96, 118, 100, 108, 80, 112, 112] // Basis…End
+const COLS_SUM = COLS_AFTER_ITEM.reduce((s, w) => s + w, 0)
+const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
 
 // Editable-cell styling — borderless so the grid stays clean but every field is live.
 const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: '#1A1A1A', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
@@ -91,6 +93,31 @@ function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
 export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0 }: Props) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const toggle = (id: string) => { const n = new Set(collapsed); n.has(id) ? n.delete(id) : n.add(id); setCollapsed(n) }
+
+  // Draggable Item ("description") column width — grab the divider to resize; persisted.
+  const [descW, setDescW] = useState<number>(() => {
+    const s = typeof localStorage !== 'undefined' ? parseInt(localStorage.getItem('cs.descW') || '', 10) : NaN
+    return Number.isFinite(s) ? Math.max(160, Math.min(760, s)) : 300
+  })
+  const dragRef = useRef<{ startX: number; startW: number } | null>(null)
+  const startResize = (e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    dragRef.current = { startX: e.clientX, startW: descW }
+    const move = (ev: PointerEvent) => {
+      if (!dragRef.current) return
+      setDescW(Math.max(160, Math.min(760, dragRef.current.startW + (ev.clientX - dragRef.current.startX))))
+    }
+    const up = () => {
+      dragRef.current = null
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      setDescW(w => { try { localStorage.setItem('cs.descW', String(w)) } catch {} ; return w })
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+  const GRID = `${descW}px ${COLS_AFTER_ITEM.map(w => `${w}px`).join(' ')}`
+  const MINW = descW + COLS_SUM + 32
 
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
@@ -209,7 +236,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
-      <div style={{ minWidth: 1090 }}>
+      <div style={{ minWidth: MINW }}>
         {/* + add row at the top */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
           <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
@@ -217,7 +244,14 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
         {/* Header */}
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', padding: '10px 16px' }}>
-          <span style={th}>Item</span>
+          <span style={{ ...th, position: 'relative', paddingRight: 12 }}>
+            Item
+            {/* drag divider — resize the Item column */}
+            <span onPointerDown={startResize} title="Drag to resize"
+              style={{ position: 'absolute', right: -8, top: -10, bottom: -10, width: 14, cursor: 'col-resize', display: 'flex', justifyContent: 'center' }}>
+              <span style={{ width: 2, background: '#D8D5CF', height: '100%' }} />
+            </span>
+          </span>
           <span style={th}>Basis</span>
           <span style={{ ...th, ...cellR }}>Units</span>
           <span style={{ ...th, ...cellR }}>Rate</span>
