@@ -219,6 +219,13 @@ function cloneStack(arr: import('./schema').CostLineItem[], projectId: string): 
 // within it alone. Add sections here as each CFO tab is signed off.
 const OLD_CONSULTANT_CATS = new Set(['Architecture', 'Civil & structural', 'Acoustic', 'Environmental', 'Other'])
 export function migrateCatalogues() {
+  // Runs at most ONCE per browser. This rolls the CFO catalogue names onto each
+  // project a single time; after the flag is set it never runs again, so a user
+  // who renames or deletes a cost-stack line can never have their whole section
+  // clobbered back to the seed by a later load or realtime event. Bump the flag
+  // version only when deliberately rolling out a new CFO catalogue revision.
+  const FLAG = 'catalogues_cfo_v1'
+  if (localStorage.getItem(FLAG)) return
   for (const p of db.getProjects()) {
     const dc = db.getDetailedCostStack(p.id)
     const next = { ...dc, projectId: p.id }
@@ -257,6 +264,7 @@ export function migrateCatalogues() {
 
     if (changed) db.saveDetailedCostStack(next)
   }
+  localStorage.setItem(FLAG, '1')
 }
 
 function seedWerribee() {

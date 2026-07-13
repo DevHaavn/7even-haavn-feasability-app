@@ -39,9 +39,13 @@ export default function App() {
   // On mount: pull cloud data then subscribe to live changes
   useEffect(() => {
     setSyncing(true)
-    pullFromCloud().then(() => {
-      // Run seeds/repairs AFTER the pull so one-time data repairs win over (and
-      // heal) any corrupt cloud state, then push the corrected data back up.
+    // Run the seed/repair pipeline exactly once, whether the cloud pull succeeds,
+    // fails, or is slow. A hung network must never strand the app in "syncing" or
+    // skip the local seeds — the app stays usable off localStorage regardless.
+    let ran = false
+    const runSeeds = () => {
+      if (ran) return
+      ran = true
       seedProjectsIfEmpty()
       migrateCostStackLabels()
       seedBaseCostStackForAll()
@@ -50,14 +54,17 @@ export default function App() {
       migrateCatalogues()
       loadProjects()
       setSyncing(false)
-    })
+    }
+    // Whichever finishes first — the pull or a 6s safety timeout — runs the seeds.
+    const timer = setTimeout(runSeeds, 6000)
+    pullFromCloud().catch(() => false).then(() => { clearTimeout(timer); runSeeds() })
     const unsub = subscribeRealtime(() => {
-      // A realtime event re-pulls the cloud, which can restore stale/empty state
-      // (cloud writes are currently rejected by RLS). Re-apply the idempotent
-      // base seed + consolidation before re-rendering so data doesn't vanish.
-      seedBaseCostStackForAll()
+      // A realtime event means another client persisted a change; the pull inside
+      // subscribeRealtime already hydrated it into localStorage. Only keep the
+      // single-Preston invariant (idempotent, content-guarded) and re-render.
+      // NEVER re-run the cost-stack seed or catalogue migration here — those would
+      // fight a user's live edits (e.g. re-seed a section they just customised).
       consolidatePreston()
-      migrateCatalogues()
       loadProjects()
     })
     return unsub
