@@ -151,10 +151,15 @@ export function consolidatePreston() {
   const survivor = db.getProjects().find(p => p.id === SURV)
   if (!survivor) return // nothing to graft onto yet
 
-  // 1) Graft the real HAAVN cost stack if the survivor doesn't already carry it.
+  // 1) Graft the clean HAAVN base cost stack if the survivor is empty OR has been
+  //    corrupted (e.g. a base construction line zeroed by an errant edit). The clean
+  //    construction total is ~$143.95M, so a materially lower total signals damage.
+  //    Content-based (no flag) so it self-heals after each cloud pull, then leaves a
+  //    correct, user-edited stack alone.
   const dc = db.getDetailedCostStack(SURV)
   const consTotal = (dc.consultants || []).reduce((s, i) => s + (i.amount || 0), 0)
-  if (consTotal === 0) {
+  const hardTotal = (dc.hardCosts || []).reduce((s, i) => s + (i.amount || 0), 0)
+  if (consTotal === 0 || hardTotal < 140_000_000) {
     db.saveDetailedCostStack({
       projectId: SURV,
       hardCosts: cloneStack(HAAVN_CONSTRUCTION, SURV),

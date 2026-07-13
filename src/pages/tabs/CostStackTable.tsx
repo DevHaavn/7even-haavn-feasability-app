@@ -71,6 +71,7 @@ const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'ta
 // Editable-cell styling — borderless so the grid stays clean but every field is live.
 const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: '#1A1A1A', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
 const editSelect: React.CSSProperties = { ...editInput, cursor: 'pointer', appearance: 'none' as const }
+const actBtn: React.CSSProperties = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 11, lineHeight: 1, color: '#B4B2AD', padding: '0 1px' }
 
 const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
 const FUND_OPTS: [string, string][] = [['equity', 'Equity'], ['senior', 'Senior'], ['debt', 'Debt'], ['blend', 'Blend'], ['both', 'Both']]
@@ -123,6 +124,16 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
+  // Delete a line, and move it up/down within the section.
+  const removeRow = (id: string) => onChange(items.filter(i => i.id !== id))
+  const moveRow = (id: string, dir: -1 | 1) => {
+    const i = items.findIndex(x => x.id === id)
+    const j = i + dir
+    if (i < 0 || j < 0 || j >= items.length) return
+    const next = items.slice()
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
 
   // Budget build-up: % of a basis, else Units × Rate, else the directly entered amount.
   const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
@@ -163,10 +174,17 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const badge = item.phase ? PHASE_BADGE[item.phase] : undefined
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
     return (
-      <div key={item.id} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
-        {/* Item name — editable */}
-        <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
-          style={{ ...editInput, fontSize: 11 }} />
+      <div key={item.id} className="cs-row" style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
+        {/* Item description — editable, with move/delete controls (reveal on hover) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+          <span className="cs-act" style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+            <button onClick={() => moveRow(item.id, -1)} title="Move up" style={actBtn}>↑</button>
+            <button onClick={() => moveRow(item.id, 1)} title="Move down" style={actBtn}>↓</button>
+            <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: '#C0392B', fontSize: 12 }}>×</button>
+          </span>
+          <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
+            style={{ ...editInput, fontSize: 11, minWidth: 0 }} />
+        </div>
         {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
         <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
           {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -240,6 +258,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   return (
     <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
+      <style>{`.cs-row .cs-act{opacity:0;transition:opacity .12s}.cs-row:hover .cs-act{opacity:1}`}</style>
       <div style={{ minWidth: MINW }}>
         {/* + add row at the top */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
@@ -249,7 +268,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Header */}
         <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', padding: '10px 16px' }}>
           <span style={{ ...th, position: 'relative', paddingRight: 12 }}>
-            Item
+            Item description
             {/* drag divider — resize the Item column */}
             <span onPointerDown={startResize} title="Drag to resize"
               style={{ position: 'absolute', right: 2, top: -10, bottom: -10, width: 12, cursor: 'col-resize', display: 'flex', justifyContent: 'center', zIndex: 2 }}>
