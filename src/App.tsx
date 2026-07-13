@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import { migrateCostStackLabels } from './db'
-import { seedProjectsIfEmpty, consolidatePreston } from './db/seed'
+import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll } from './db/seed'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
@@ -44,6 +44,7 @@ export default function App() {
       // heal) any corrupt cloud state, then push the corrected data back up.
       seedProjectsIfEmpty()
       migrateCostStackLabels()
+      seedBaseCostStackForAll()
       consolidatePreston()
       loadProjects()
       setSyncing(false)
@@ -51,7 +52,8 @@ export default function App() {
     const unsub = subscribeRealtime(() => {
       // A realtime event re-pulls the cloud, which can restore stale/empty state
       // (cloud writes are currently rejected by RLS). Re-apply the idempotent
-      // consolidation before re-rendering so the corrected data doesn't vanish.
+      // base seed + consolidation before re-rendering so data doesn't vanish.
+      seedBaseCostStackForAll()
       consolidatePreston()
       loadProjects()
     })

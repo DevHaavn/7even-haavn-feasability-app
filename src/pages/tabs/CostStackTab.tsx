@@ -11,7 +11,24 @@ import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
 import CostStackSummary from './CostStackSummary'
-import ConsultantsLineItemTable from './ConsultantsLineItemTable'
+import CostStackTable, { type GroupConfig } from './CostStackTable'
+
+// Which sections band their rows into labelled groups (matching the design).
+// Consultants → 5 discipline groups; Headworks → utilities vs environmental.
+// Every other section renders flat.
+const COST_GROUPS: Record<string, GroupConfig[] | undefined> = {
+  consultants: [
+    { id: 'arch',     label: 'Architecture',                   color: '#AFA9EC', match: it => /architect/i.test(it.notes || '') },
+    { id: 'civil',    label: 'Civil & structural engineering', color: '#85B7EB', match: it => /civil|structural/i.test(it.notes || '') },
+    { id: 'acoustic', label: 'Acoustic engineering',           color: '#9FE1CB', match: it => /acoustic/i.test(it.notes || '') },
+    { id: 'env',      label: 'Environmental & planning',       color: '#C0DD97', match: it => /environ/i.test(it.notes || '') },
+    { id: 'other',    label: 'Other consultants',              color: '#FAC775', match: () => true },
+  ],
+  headworks: [
+    { id: 'util', label: 'Utility connections',       color: '#85B7EB', match: it => /utilit/i.test(it.notes || '') },
+    { id: 'env',  label: 'Environmental consultants', color: '#9FE1CB', match: it => /environ/i.test(it.notes || '') },
+  ],
+}
 
 interface Props { projectId: string }
 
@@ -862,24 +879,15 @@ export default function CostStackTab({ projectId }: Props) {
             </p>
           </div>
 
-          {/* Line item table */}
+          {/* Line item table — unified design across every cost-stack section */}
           <div style={{ maxWidth: '100%' }}>
-            {innerTab === 'consultants' ? (
-              <ConsultantsLineItemTable
-                items={detailed[meta.key]}
-                onChange={items => updateSection(meta.key, items)}
-                gstEnabled={data.gstEnabled}
-              />
-            ) : (
-              <LineItemTable
-                items={detailed[meta.key]}
-                onChange={items => updateSection(meta.key, items)}
-                constructionValue={result.construction}
-                gdvValue={gdv}
-                showBasis={innerTab !== 'hard'}
-                gstEnabled={data.gstEnabled}
-              />
-            )}
+            <CostStackTable
+              items={detailed[meta.key]}
+              onChange={items => updateSection(meta.key, items)}
+              gstEnabled={data.gstEnabled}
+              basisMode={innerTab === 'hard' ? 'units' : 'basis'}
+              groups={COST_GROUPS[innerTab]}
+            />
           </div>
 
           {/* Cashflow schedule — appears once any line has monthly cashflow set */}

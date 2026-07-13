@@ -178,6 +178,30 @@ export function consolidatePreston() {
   }
 }
 
+// Base feasibility starting point: every project begins from the same itemised
+// cost stack (the HAAVN base) so all six sub-tabs are populated and their phases
+// flow to the Timeline. Only fills projects whose cost stack is still empty, so it
+// never clobbers a project the team has already customised. Idempotent; runs each
+// load after the cloud pull. Items are shallow-cloned so projects don't share objects.
+export function seedBaseCostStackForAll() {
+  const clone = (arr: import('./schema').CostLineItem[]) => arr.map(it => ({ ...it }))
+  for (const p of db.getProjects()) {
+    const dc = db.getDetailedCostStack(p.id)
+    const total = [...dc.hardCosts, ...dc.consultants, ...dc.statutory, ...dc.headworks, ...dc.management, ...dc.marketing]
+      .reduce((s, i) => s + (i.amount || 0), 0)
+    if (total > 0) continue // already has costs — leave it alone
+    db.saveDetailedCostStack({
+      projectId: p.id,
+      hardCosts: clone(HAAVN_CONSTRUCTION),
+      consultants: clone(HAAVN_CONSULTANTS),
+      statutory: clone(HAAVN_STATUTORY),
+      headworks: clone(HAAVN_HEADWORKS),
+      management: clone(HAAVN_MANAGEMENT),
+      marketing: clone(HAAVN_MARKETING),
+    })
+  }
+}
+
 function seedWerribee() {
   const f = WERRIBEE_FIXTURE
   const pid = 'seed-werribee-001'
