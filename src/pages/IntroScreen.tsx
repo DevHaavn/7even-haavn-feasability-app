@@ -65,7 +65,7 @@ export default function IntroScreen({ onDone }: Props) {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse 80% 60% at 50% 42%, rgba(196,151,58,0.12) 0%, rgba(10,8,4,0.82) 55%, rgba(3,3,3,0.90) 100%), url(/home-bg.jpg) center / cover no-repeat, #030303',
+        background: 'url(/home-bg.jpg) center / cover no-repeat, #030303',
         animation: exiting ? 'intro-screen-out 0.9s ease forwards' : undefined,
       }}>
 
