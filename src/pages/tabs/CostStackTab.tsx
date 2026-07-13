@@ -10,7 +10,6 @@ import { COST_PHASES } from '../../db/schema'
 import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
-import CostStackSummary from './CostStackSummary'
 import CostStackTable, { type GroupConfig } from './CostStackTable'
 
 // Which sections band their rows into labelled groups (matching the design).
@@ -63,8 +62,7 @@ function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }
 
 // ── Inner sub-tab bar ─────────────────────────────────────────────────────────
 const INNER_TABS = [
-  { id: 'dashboard',   label: 'Dashboard',                      short: 'Dashboard' },
-  { id: 'summary',     label: 'Cost Stack Setup',               short: 'Setup' },
+  { id: 'summary',     label: 'Summary',                        short: 'Summary' },
   { id: 'hard',        label: 'Construction Costs',             short: 'Construction' },
   { id: 'consultants', label: 'Consultant & Professional Fees', short: 'Consultants' },
   { id: 'statutory',   label: 'Statutory Fees',                 short: 'Statutory' },
@@ -541,7 +539,7 @@ export default function CostStackTab({ projectId }: Props) {
   const store = useStore()
   const role = useRole()
   const visibleInnerTabs = role === 'external' ? INNER_TABS.filter(t => t.id !== 'summary') : INNER_TABS
-  const [innerTab, setInnerTab] = useState(role === 'external' ? 'hard' : 'dashboard')
+  const [innerTab, setInnerTab] = useState(role === 'external' ? 'hard' : 'summary')
   const [data, setData] = useState<CostStack>(store.getCostStack(projectId))
   const [detailed, setDetailed] = useState<DetailedCostStack>(store.getDetailedCostStack(projectId))
   const [detailedDirty, setDetailedDirty] = useState(false)
@@ -659,14 +657,7 @@ export default function CostStackTab({ projectId }: Props) {
 
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
-      {innerTab !== 'summary' && innerTab !== 'dashboard' && <GrandTotalBar detailed={detailed} gstEnabled={data.gstEnabled} />}
-
-      {/* ── DASHBOARD TAB ── */}
-      {innerTab === 'dashboard' && (
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          <CostStackSummary projectId={projectId} />
-        </div>
-      )}
+      {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} gstEnabled={data.gstEnabled} />}
 
       {/* ── SUMMARY TAB ── */}
       {innerTab === 'summary' && (
