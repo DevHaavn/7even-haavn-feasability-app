@@ -249,6 +249,11 @@ export function migrateCatalogues() {
     if (mgmt.length === 0 || !mgmt.some(i => i.label === 'Administration Management')) {
       next.management = cloneStack(HAAVN_MANAGEMENT, p.id); changed = true
     }
+    // Marketing — legacy = missing the new "Advertising | One Off" line.
+    const mkt = dc.marketing || []
+    if (mkt.length === 0 || !mkt.some(i => i.label === 'Advertising | One Off')) {
+      next.marketing = cloneStack(HAAVN_MARKETING, p.id); changed = true
+    }
 
     if (changed) db.saveDetailedCostStack(next)
   }

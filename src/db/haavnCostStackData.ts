@@ -132,58 +132,19 @@ export const HAAVN_MANAGEMENT: CostLineItem[] = [
   'Marketing Management',
   'Development Management',
 ].map((label, i): CostLineItem => ({ id: `management-${i}`, label, amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity', gstFree: false }))
-// ── MARKETING (3 groups, $166.4K) ─────────────────────────────────────
+// ── MARKETING — CFO catalogue. Flat, amounts blank.
 export const HAAVN_MARKETING: CostLineItem[] = [
-  // Marketing collateral (4 items)
-  {
-    id: 'mkt-renders-draft',
-    label: 'Marketing — renders drafts',
-    amount: 45_000,
-    notes: 'Collateral',
-    sCurve: 'upfront',
-    fundedBy: 'equity',
-    phase: 'acqplan',
-    startDate: '2026-03',
-    endDate: '2026-06',
-    gstFree: false,
-  },
-  {
-    id: 'mkt-renders-final',
-    label: 'Marketing — renders final',
-    amount: 85_000,
-    notes: 'Collateral',
-    sCurve: 'upfront',
-    fundedBy: 'equity',
-    phase: 'preconst',
-    startDate: '2026-10',
-    endDate: '2027-01',
-    gstFree: false,
-  },
-  {
-    id: 'mkt-website',
-    label: 'Marketing — website',
-    amount: 28_000,
-    notes: 'Collateral',
-    sCurve: 'upfront',
-    fundedBy: 'equity',
-    phase: 'preconst',
-    startDate: '2026-10',
-    endDate: '2026-11',
-    gstFree: false,
-  },
-  {
-    id: 'mkt-website-hosting',
-    label: 'Marketing — website hosting',
-    amount: 8_400,
-    notes: 'Collateral',
-    sCurve: 'linear',
-    fundedBy: 'equity',
-    phase: 'allphases',
-    startDate: '2026-10',
-    endDate: '2029-03',
-    gstFree: false,
-  },
-
-  // Display suite (optional — not yet costed)
-  // Advertising (optional — not yet costed)
-]
+  'Advertising | One Off',
+  'Advertising | Ongoing Management',
+  'Display Suite | Design Documentation',
+  'Display Suite | Construction',
+  'Display Suite | Holding Costs',
+  'Display Suite | Loose Furniture',
+  'Marketing | Collateral',
+  'Marketing | Print Media',
+  'Marketing | Renders Drafts',
+  'Marketing | Renders Final',
+  'Marketing | Website',
+  'Marketing | Website Hosting',
+  'Marketing | Special use',
+].map((label, i): CostLineItem => ({ id: `marketing-${i}`, label, amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity', gstFree: false }))
