@@ -1,5 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import type { CostLineItem } from '../../db/schema'
+
+// Colour palette for data-driven (by-category) groups.
+const GROUP_PALETTE = ['#AFA9EC', '#85B7EB', '#9FE1CB', '#C0DD97', '#FAC775', '#F4A9C1', '#9FC7F2', '#D4B5F0', '#F0C69A', '#AEDDCB', '#E8C4A0', '#B7CDEE', '#CBE0A6', '#EFB8D0', '#A9E0D6']
 
 // A grouping rule: items whose notes match are gathered under this labelled band.
 // `notes` is the value written to a line when it is added to / moved into this group.
@@ -16,6 +19,9 @@ interface Props {
   // Basis values so %-of-Construction / %-of-GRV lines can derive their budget live.
   constructionValue?: number
   gdvValue?: number
+  // When true, band rows into groups by each line's category (its `notes`), so any
+  // number of categories render without a predefined config.
+  groupByNotes?: boolean
 }
 
 // Basis dropdown (fee tabs): direct $ / unit, or a % of a basis that derives the budget.
@@ -92,7 +98,7 @@ function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
   return res
 }
 
-export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0 }: Props) {
+export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0, groupByNotes = false }: Props) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const toggle = (id: string) => { const n = new Set(collapsed); n.has(id) ? n.delete(id) : n.add(id); setCollapsed(n) }
 
@@ -139,7 +145,21 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   // Add a blank line into a specific group, and move an existing line to another group.
   const addToGroup = (def: GroupConfig) => onChange([...items, newRow(def.notes)])
   const moveToGroup = (id: string, def: GroupConfig) => update(id, { notes: def.notes })
-  const groupOf = (it: CostLineItem) => (groups || []).find(g => g.match(it))
+
+  // Effective groups: explicit configs if given, else one group per distinct category
+  // (item.notes) in order of first appearance — data-driven so any catalogue works.
+  const effGroups = useMemo<GroupConfig[] | undefined>(() => {
+    if (groups && groups.length) return groups
+    if (!groupByNotes) return undefined
+    const order: string[] = []
+    const seen = new Set<string>()
+    for (const it of items) {
+      const k = (it.notes || '').trim() || 'Uncategorised'
+      if (!seen.has(k)) { seen.add(k); order.push(k) }
+    }
+    return order.map((k, i) => ({ id: k, label: k, color: GROUP_PALETTE[i % GROUP_PALETTE.length], notes: k, match: (it: CostLineItem) => (((it.notes || '').trim()) || 'Uncategorised') === k }))
+  }, [groups, groupByNotes, items])
+  const groupOf = (it: CostLineItem) => (effGroups || []).find(g => g.match(it))
 
   // Budget build-up: % of a basis, else Units × Rate, else the directly entered amount.
   const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
@@ -170,7 +190,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const grandGst = items.reduce((s, i) => s + gstOf(i), 0)
 
   const th: React.CSSProperties = { fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
-  const banded = buildGroups(items, groups)
+  const banded = buildGroups(items, effGroups)
 
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
   // defining a component inside render remounts every row on each keystroke.
@@ -187,11 +207,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             <button onClick={() => moveRow(item.id, -1)} title="Move up" style={actBtn}>↑</button>
             <button onClick={() => moveRow(item.id, 1)} title="Move down" style={actBtn}>↓</button>
             <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: '#C0392B', fontSize: 12 }}>×</button>
-            {groups && groups.length > 1 && (
+            {effGroups && effGroups.length > 1 && (
               <select value={groupOf(item)?.id || ''} title="Move to category"
-                onChange={e => { const g = groups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
+                onChange={e => { const g = effGroups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: '#9B8ACB', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
-                {groups.map(g => <option key={g.id} value={g.id} style={{ color: '#1A1A1A' }}>{g.label}</option>)}
+                {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: '#1A1A1A' }}>{g.label}</option>)}
               </select>
             )}
           </span>

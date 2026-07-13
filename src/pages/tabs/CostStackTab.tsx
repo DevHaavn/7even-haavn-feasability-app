@@ -877,7 +877,8 @@ export default function CostStackTab({ projectId }: Props) {
               onChange={items => updateSection(meta.key, items)}
               gstEnabled={data.gstEnabled}
               basisMode={innerTab === 'hard' ? 'units' : 'basis'}
-              groups={COST_GROUPS[innerTab]}
+              groups={innerTab === 'consultants' ? undefined : COST_GROUPS[innerTab]}
+              groupByNotes={innerTab === 'consultants'}
               constructionValue={result.construction}
               gdvValue={gdv}
             />
