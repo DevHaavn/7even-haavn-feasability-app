@@ -11,7 +11,7 @@ export const HAAVN_CONSTRUCTION: CostLineItem[] = [
   {
     id: 'const-basement',
     label: 'Basement (s)',
-    units: 5,750,
+    units: 5750,
     baseRate: 3200,
     amount: 18_400_000,
     notes: 'Structure only',

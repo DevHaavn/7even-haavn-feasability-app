@@ -2,6 +2,7 @@ import * as db from './index'
 import { captureSnapshot } from './snapshots'
 import { WERRIBEE_FIXTURE, GEELONG_FIXTURE } from '../engine/__fixtures__/realProjects'
 import { defaultCashflowState } from '../engine/cashflow'
+import { HAAVN_CONSTRUCTION, HAAVN_CONSULTANTS, HAAVN_STATUTORY, HAAVN_HEADWORKS, HAAVN_MANAGEMENT, HAAVN_MARKETING } from './haavnCostStackData'
 
 export function seedProjectsIfEmpty() {
   const existing = db.getProjects()
@@ -102,10 +103,10 @@ export function seedProjectsIfEmpty() {
   const preston = existing.find(x => x.id === 'seed-preston-001')
   if (preston && !preston.type) db.saveProject({ ...preston, type: 'btr' })
 
-  // HAAVN St Village Preston · BTR
-  if (!ids.has('haavn-preston-001')) {
-    seedHAAVN()
-  }
+  // Preston is a SINGLE project — "St Village Preston" — shown in both the 7EVEN
+  // and HAAVN boards (brand 'both'). The detailed HAAVN cost stack is grafted onto
+  // seed-preston-001 by consolidatePreston() (called from App after the label
+  // migration, so it isn't clobbered by the clean-slate reset).
 
   // Patch: ensure all seeded projects have brand: '7even' or 'haavn'
   const allNow = db.getProjects()
@@ -128,6 +129,52 @@ export function seedProjectsIfEmpty() {
   const hasM2 = prestonTasks.some(t => t.assignee === 'M2')
   if (hasM2) {
     db.saveTimelineTasks('seed-preston-001', prestonTasks.map(t => t.assignee === 'M2' ? { ...t, assignee: 'HM' } : t))
+  }
+}
+
+// ── Preston consolidation ─────────────────────────────────────────────────────
+// Historically there were TWO Preston projects: seed-preston-001 (7EVEN, empty
+// cost stack) and haavn-preston-001 (HAAVN, real cost stack). Business rule: there
+// is ONE "St Village Preston" that lives in BOTH boards with the real numbers.
+//
+// This grafts the real HAAVN cost stack (from the bundled source arrays, so it is
+// independent of cloud/localStorage timing) onto the surviving seed-preston-001,
+// marks it brand 'both', and deletes the haavn-preston-001 duplicate. All writes
+// go through the db layer, which pushes to the cloud, so the change persists.
+// Must run AFTER migrateCostStackLabels() (the clean-slate reset) or it is wiped.
+// Idempotent, content-based (no run-once flag). Runs every load AFTER the cloud
+// pull + label reset, so the surviving Preston always shows the real numbers in the
+// UI even when cloud writes are rejected (RLS) and the pull keeps restoring the old
+// empty/duplicate state. Cheap: only writes when something is actually out of shape.
+export function consolidatePreston() {
+  const SURV = 'seed-preston-001'
+  const survivor = db.getProjects().find(p => p.id === SURV)
+  if (!survivor) return // nothing to graft onto yet
+
+  // 1) Graft the real HAAVN cost stack if the survivor doesn't already carry it.
+  const dc = db.getDetailedCostStack(SURV)
+  const consTotal = (dc.consultants || []).reduce((s, i) => s + (i.amount || 0), 0)
+  if (consTotal === 0) {
+    db.saveDetailedCostStack({
+      projectId: SURV,
+      hardCosts: HAAVN_CONSTRUCTION,
+      consultants: HAAVN_CONSULTANTS,
+      statutory: HAAVN_STATUTORY,
+      headworks: HAAVN_HEADWORKS,
+      management: HAAVN_MANAGEMENT,
+      marketing: HAAVN_MARKETING,
+    })
+  }
+
+  // 2) One "St Village Preston", 7EVEN-owned but shown live in BOTH boards.
+  if (survivor.name !== 'St Village Preston' || survivor.brand !== 'both' || survivor.type !== 'btr') {
+    db.saveProject({ ...survivor, name: 'St Village Preston', brand: 'both', type: 'btr' })
+  }
+
+  // 3) Remove the duplicate HAAVN project every load (cloud delete may fail under
+  //    RLS, but the local delete keeps the boards showing a single Preston).
+  if (db.getProjects().some(p => p.id === 'haavn-preston-001')) {
+    db.deleteProject('haavn-preston-001')
   }
 }
 
@@ -1256,8 +1303,6 @@ function seedCorioScenarioA(pid: string) {
  * Populated with detailed cost stack line items across all 6 categories
  */
 function seedHAAVN() {
-  const { HAAVN_CONSTRUCTION, HAAVN_CONSULTANTS, HAAVN_STATUTORY, HAAVN_HEADWORKS, HAAVN_MANAGEMENT, HAAVN_MARKETING } = require('./haavnCostStackData')
-
   const pid = 'haavn-preston-001'
   const now = new Date().toISOString()
 

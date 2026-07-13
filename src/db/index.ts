@@ -629,10 +629,64 @@ export function getProjectGDV(projectId: string): number {
   return best
 }
 
-/** Cost of works by delivery phase — the same hybrid figures the feasibility uses
- *  (itemised where entered, else top-down), distributed across the five phases.
+// Normalise a cost line item's phase (which may use the short seed form) to the
+// canonical CostPhase used by the Timeline / dashboard. Unknown/blank returns null.
+const PHASE_ALIAS: Record<string, import('./schema').CostPhase> = {
+  'preacq': 'pre-acquisition',
+  'acqplan': 'acquisition-planning',
+  'preconst': 'pre-construction',
+  'construction': 'construction',
+  'closeout': 'close-out',
+  'pre-acquisition': 'pre-acquisition',
+  'acquisition-planning': 'acquisition-planning',
+  'pre-construction': 'pre-construction',
+  'close-out': 'close-out',
+}
+
+const EMPTY_PHASES = (): Record<import('./schema').CostPhase, number> => ({
+  'pre-acquisition': 0, 'acquisition-planning': 0, 'pre-construction': 0, 'construction': 0, 'close-out': 0,
+})
+
+/** Sum every detailed cost-stack line item (across ALL sub-tabs) by its assigned
+ *  delivery phase. 'allphases' items are spread evenly across the five phases.
+ *  Returns zeros when the project has no itemised phases entered. */
+function itemisedPhaseCosts(projectId: string): Record<import('./schema').CostPhase, number> {
+  const dc = getDetailedCostStack(projectId)
+  const all = [
+    ...dc.hardCosts, ...dc.consultants, ...dc.statutory,
+    ...dc.headworks, ...dc.management, ...dc.marketing,
+  ]
+  const out = EMPTY_PHASES()
+  for (const it of all) {
+    const amt = it.amount || 0
+    if (!amt) continue
+    const raw = (it.phase || '').toString()
+    if (raw === 'allphases') {
+      const each = amt / 5
+      for (const k of Object.keys(out) as import('./schema').CostPhase[]) out[k] += each
+    } else {
+      const canon = PHASE_ALIAS[raw]
+      if (canon) out[canon] += amt
+    }
+  }
+  return out
+}
+
+/** Cost of works by delivery phase. Prefers the ITEMISED cost stack — every line
+ *  item's `phase` (across all sub-tabs) flows through to the Timeline — and falls
+ *  back to the top-down calculation for projects with no itemised phases entered.
  *  Powers the Timeline phase lanes and the dashboard cost-vs-time tracking. */
 export function getPhaseCosts(projectId: string): Record<import('./schema').CostPhase, number> {
+  // Itemised first — the phases the CFO set on each cost line drive the Timeline.
+  const itemised = itemisedPhaseCosts(projectId)
+  const itemisedTotal = Object.values(itemised).reduce((a, b) => a + b, 0)
+  if (itemisedTotal > 0) {
+    // Land always sits in pre-acquisition, on top of any itemised lines there.
+    itemised['pre-acquisition'] += getEffectiveLandCost(projectId)
+    return itemised
+  }
+
+  // Fallback: top-down distribution for projects without itemised phases.
   const site = getSiteDesign(projectId)
   const land = getLandTerms(projectId)
   const cs = getCostStack(projectId)

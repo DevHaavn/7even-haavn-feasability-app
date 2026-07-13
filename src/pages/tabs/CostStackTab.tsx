@@ -11,6 +11,7 @@ import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
 import CostStackSummary from './CostStackSummary'
+import ConsultantsLineItemTable from './ConsultantsLineItemTable'
 
 interface Props { projectId: string }
 
@@ -862,15 +863,23 @@ export default function CostStackTab({ projectId }: Props) {
           </div>
 
           {/* Line item table */}
-          <div style={{ maxWidth: 960 }}>
-            <LineItemTable
-              items={detailed[meta.key]}
-              onChange={items => updateSection(meta.key, items)}
-              constructionValue={result.construction}
-              gdvValue={gdv}
-              showBasis={innerTab !== 'hard'}
-              gstEnabled={data.gstEnabled}
-            />
+          <div style={{ maxWidth: '100%' }}>
+            {innerTab === 'consultants' ? (
+              <ConsultantsLineItemTable
+                items={detailed[meta.key]}
+                onChange={items => updateSection(meta.key, items)}
+                gstEnabled={data.gstEnabled}
+              />
+            ) : (
+              <LineItemTable
+                items={detailed[meta.key]}
+                onChange={items => updateSection(meta.key, items)}
+                constructionValue={result.construction}
+                gdvValue={gdv}
+                showBasis={innerTab !== 'hard'}
+                gstEnabled={data.gstEnabled}
+              />
+            )}
           </div>
 
           {/* Cashflow schedule — appears once any line has monthly cashflow set */}
