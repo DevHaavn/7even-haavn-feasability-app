@@ -60,11 +60,11 @@ export default function App() {
     pullFromCloud().catch(() => false).then(() => { clearTimeout(timer); runSeeds() })
     const unsub = subscribeRealtime(() => {
       // A realtime event means another client persisted a change; the pull inside
-      // subscribeRealtime already hydrated it into localStorage. Only keep the
-      // single-Preston invariant (idempotent, content-guarded) and re-render.
-      // NEVER re-run the cost-stack seed or catalogue migration here — those would
-      // fight a user's live edits (e.g. re-seed a section they just customised).
-      consolidatePreston()
+      // subscribeRealtime already hydrated it into localStorage (respecting the
+      // per-key edit guard, so it can't clobber this user's in-progress edits).
+      // Just re-render. Do NOT run seeds/migrations or consolidatePreston here —
+      // consolidatePreston saves→pushes on every event, which creates a realtime
+      // feedback loop that re-pulls and fights live edits.
       loadProjects()
     })
     return unsub

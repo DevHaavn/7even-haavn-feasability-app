@@ -18,6 +18,27 @@ const SELF_ECHO_MS = 8000
 function noteLocalWrite() { lastLocalWriteAt = Date.now() }
 export function suppressingRemote() { return Date.now() - lastLocalWriteAt < SELF_ECHO_MS }
 
+// ── Per-key edit guard ────────────────────────────────────────────────────────
+// A background pull (startup or realtime) must NEVER overwrite a localStorage key
+// that this user just edited — otherwise a fresh edit gets clobbered by older
+// cloud data before the user's own push has round-tripped. We record the moment
+// each key is written locally and refuse to overwrite it from the cloud for a
+// grace window. Cross-device sync still works: once the window lapses (no active
+// editing), the pushed value is in the cloud and pulls apply normally.
+const EDIT_GUARD_MS = 20000
+const lastKeyWriteAt = new Map<string, number>()
+export function noteKeyWrite(key: string) { lastKeyWriteAt.set(key, Date.now()) }
+function editedRecently(key: string) {
+  const t = lastKeyWriteAt.get(key)
+  return t != null && Date.now() - t < EDIT_GUARD_MS
+}
+// Map a project_data column to the localStorage key the pull would overwrite.
+const FIELD_KEY: Record<string, (pid: string) => string> = {
+  site: p => `site:${p}`, land: p => `land:${p}`, cost_stack: p => `coststack:${p}`,
+  detailed_costs: p => `detailed-costs:${p}`, finance: p => `finance:${p}`,
+  timeline: p => `timeline:${p}`, cashflow: p => `cashflow:${p}`,
+}
+
 // ── Push helpers (fire-and-forget from save functions) ────────────────────────
 
 export function pushProject(project: Record<string, unknown>) {
@@ -37,6 +58,7 @@ export function pushProject(project: Record<string, unknown>) {
 
 export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline' | 'cashflow', data: unknown) {
   noteLocalWrite()
+  noteKeyWrite(FIELD_KEY[field](projectId))
   supabase.from('project_data').upsert({
     project_id: projectId,
     [field]: data,
@@ -134,23 +156,29 @@ export async function pullFromCloud(): Promise<boolean> {
     }))
     localStorage.setItem('projects', JSON.stringify(mapped))
 
-    // Hydrate project data
+    // Hydrate project data. `setKey` refuses to overwrite a field the user just
+    // edited locally, so a background pull can never clobber a fresh in-progress
+    // edit before the user's own push has round-tripped through the cloud.
+    const setKey = (key: string, value: string) => {
+      if (editedRecently(key)) return
+      localStorage.setItem(key, value)
+    }
     for (const pd of (projectData ?? [])) {
       const pid = pd.project_id as string
       if (pd.site && Object.keys(pd.site as object).length > 0)
-        localStorage.setItem(`site:${pid}`, JSON.stringify(pd.site))
+        setKey(`site:${pid}`, JSON.stringify(pd.site))
       if (pd.land && Object.keys(pd.land as object).length > 0)
-        localStorage.setItem(`land:${pid}`, JSON.stringify(pd.land))
+        setKey(`land:${pid}`, JSON.stringify(pd.land))
       if (pd.cost_stack && Object.keys(pd.cost_stack as object).length > 0)
-        localStorage.setItem(`coststack:${pid}`, JSON.stringify(pd.cost_stack))
+        setKey(`coststack:${pid}`, JSON.stringify(pd.cost_stack))
       if (pd.detailed_costs && Object.keys(pd.detailed_costs as object).length > 0)
-        localStorage.setItem(`detailed-costs:${pid}`, JSON.stringify(pd.detailed_costs))
+        setKey(`detailed-costs:${pid}`, JSON.stringify(pd.detailed_costs))
       if (pd.finance && Object.keys(pd.finance as object).length > 0)
-        localStorage.setItem(`finance:${pid}`, JSON.stringify(pd.finance))
+        setKey(`finance:${pid}`, JSON.stringify(pd.finance))
       if (Array.isArray(pd.timeline) && pd.timeline.length > 0)
-        localStorage.setItem(`timeline:${pid}`, JSON.stringify(pd.timeline))
+        setKey(`timeline:${pid}`, JSON.stringify(pd.timeline))
       if (pd.cashflow && Object.keys(pd.cashflow as object).length > 0)
-        localStorage.setItem(`cashflow:${pid}`, JSON.stringify(pd.cashflow))
+        setKey(`cashflow:${pid}`, JSON.stringify(pd.cashflow))
     }
 
     // Hydrate scenarios
