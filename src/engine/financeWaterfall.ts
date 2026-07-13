@@ -117,6 +117,16 @@ export function calculateFinanceWaterfall(
   const endMonth = ends.sort()[ends.length - 1]
   const timeline = monthList(startMonth, endMonth)
 
+  // Debt is repaid at practical completion (end of the construction phase); interest
+  // accrues only until then — after PC the facilities clear from sales/refinance, and
+  // any remaining close-out/defects draws are funded by equity/retention.
+  const constructionEnds = allItems
+    .filter(x => (x.it.phase || '') === 'construction')
+    .map(x => (x.it.endDate || x.it.startDate || '').slice(0, 7))
+    .filter(Boolean)
+    .sort()
+  const repaymentMonth = constructionEnds.length ? constructionEnds[constructionEnds.length - 1] : endMonth
+
   // 2) Per-month cost draws (total + per category) and category timing.
   const costByMonth: Record<string, number> = {}
   const catDraw: Record<string, Record<string, number>> = {} // category -> month -> draw
@@ -168,53 +178,61 @@ export function calculateFinanceWaterfall(
 
   let equityDrawnCum = 0
   const months: WaterfallMonth[] = []
+  const repayIdx = timeline.indexOf(repaymentMonth)
 
-  for (const mo of timeline) {
+  timeline.forEach((mo, i) => {
+    const repaid = repayIdx >= 0 && i > repayIdx
+    if (repaid) activeTranches.forEach(x => { balance[x.t.id] = 0 }) // facilities cleared at PC
+
     const need = costByMonth[mo] || 0
     let remaining = need
     let equityDraw = 0
     let debtDraw = 0
 
-    // Equity first, up to the equity requirement.
-    if (equityDrawnCum < equityRequirement && remaining > 0) {
-      const e = Math.min(remaining, equityRequirement - equityDrawnCum)
-      equityDraw += e; equityDrawnCum += e; remaining -= e
+    if (!repaid) {
+      // Equity first, up to the equity requirement.
+      if (equityDrawnCum < equityRequirement && remaining > 0) {
+        const e = Math.min(remaining, equityRequirement - equityDrawnCum)
+        equityDraw += e; equityDrawnCum += e; remaining -= e
+      }
+      // Then debt tranches in priority, capped at facility.
+      for (const x of activeTranches) {
+        if (remaining <= 0) break
+        const room = x.facility - drawn[x.t.id]
+        if (room <= 0) continue
+        const d = Math.min(remaining, room)
+        drawn[x.t.id] += d; balance[x.t.id] += d; debtDraw += d; remaining -= d
+      }
     }
-    // Then debt tranches in priority, capped at facility.
-    for (const x of activeTranches) {
-      if (remaining <= 0) break
-      const room = x.facility - drawn[x.t.id]
-      if (room <= 0) continue
-      const d = Math.min(remaining, room)
-      drawn[x.t.id] += d; balance[x.t.id] += d; debtDraw += d; remaining -= d
-    }
-    // Anything left over (facilities exhausted) is topped up by equity.
+    // Overflow (facilities exhausted) and all post-PC draws are funded by equity.
     if (remaining > 0) { equityDraw += remaining; equityDrawnCum += remaining; remaining = 0 }
 
-    // Interest accrual this month on the drawn balance.
+    // Interest accrues only while debt is outstanding (up to practical completion).
     const interestByTranche: Record<string, number> = {}
     let interestTotal = 0
-    for (const x of activeTranches) {
-      const t = x.t
-      const dc = (t.dayCount === 'act360' ? 360 : 365)
-      const dcf = DAYS_IN_MONTH / dc
-      const rate = t.interestRate || 0
-      const bal = balance[t.id]
-      if (bal <= 0) { interestByTranche[t.id] = 0; continue }
-      const model = t.interestModel || (t.type === 'mezz' ? 'pik' : 'compound')
-      const capitalised = t.capitalised ?? (t.type !== 'preferred-equity')
-      const interest = bal * rate * dcf
-      interestByTranche[t.id] = interest
-      interestTotal += interest
-      intTotal[t.id] += interest
-      if (model === 'pik' || capitalised) { balance[t.id] += interest; capInt[t.id] += interest }
-      else { cashInt[t.id] += interest }
-      peakDrawn[t.id] = Math.max(peakDrawn[t.id], balance[t.id])
+    if (!repaid) {
+      for (const x of activeTranches) {
+        const t = x.t
+        const dc = (t.dayCount === 'act360' ? 360 : 365)
+        const dcf = DAYS_IN_MONTH / dc
+        const rate = t.interestRate || 0
+        const bal = balance[t.id]
+        if (bal <= 0) { interestByTranche[t.id] = 0; continue }
+        const model = t.interestModel || (t.type === 'mezz' ? 'pik' : 'compound')
+        const capitalised = t.capitalised ?? (t.type !== 'preferred-equity')
+        const interest = bal * rate * dcf
+        interestByTranche[t.id] = interest
+        interestTotal += interest
+        intTotal[t.id] += interest
+        if (model === 'pik' || capitalised) { balance[t.id] += interest; capInt[t.id] += interest }
+        else { cashInt[t.id] += interest }
+        peakDrawn[t.id] = Math.max(peakDrawn[t.id], balance[t.id])
+      }
     }
 
     const debtBalanceEOP = activeTranches.reduce((s, x) => s + balance[x.t.id], 0)
     months.push({ month: mo, costDraw: need, equityDraw, debtDraw, interestByTranche, interestTotal, debtBalanceEOP })
-  }
+  })
 
   // 5) Quarter aggregation.
   const qMap = new Map<string, QuarterPoint>()
@@ -257,7 +275,7 @@ export function calculateFinanceWaterfall(
     const debtDrawn = base * debtFundedFraction
     // avg hold = weighted months from each draw to project end
     let wsum = 0, w = 0
-    for (const mo in draws) { const hold = Math.max(0, monthDiff(mo, endMonth)); wsum += draws[mo] * hold; w += draws[mo] }
+    for (const mo in draws) { const hold = Math.max(0, monthDiff(mo, repaymentMonth)); wsum += draws[mo] * hold; w += draws[mo] }
     const avgHold = w > 0 ? wsum / w : 0
     return { cat, base, debtDrawn, avgHold, weight: debtDrawn * avgHold }
   })
