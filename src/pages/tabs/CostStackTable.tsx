@@ -116,8 +116,10 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
-  const GRID = `${descW}px ${COLS_AFTER_ITEM.map(w => `${w}px`).join(' ')}`
-  const MINW = descW + COLS_SUM + 32
+  // Item width honours the user's drag on desktop but is capped to the viewport on
+  // small screens so the other columns stay reachable (the table scrolls sideways).
+  const GRID = `clamp(150px, ${descW}px, 62vw) ${COLS_AFTER_ITEM.map(w => `${w}px`).join(' ')}`
+  const MINW = Math.min(descW, 240) + COLS_SUM + 32
 
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
@@ -248,7 +250,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             Item
             {/* drag divider — resize the Item column */}
             <span onPointerDown={startResize} title="Drag to resize"
-              style={{ position: 'absolute', right: -8, top: -10, bottom: -10, width: 14, cursor: 'col-resize', display: 'flex', justifyContent: 'center' }}>
+              style={{ position: 'absolute', right: 2, top: -10, bottom: -10, width: 12, cursor: 'col-resize', display: 'flex', justifyContent: 'center', zIndex: 2 }}>
               <span style={{ width: 2, background: '#D8D5CF', height: '100%' }} />
             </span>
           </span>
