@@ -102,10 +102,15 @@ export function seedProjectsIfEmpty() {
   const preston = existing.find(x => x.id === 'seed-preston-001')
   if (preston && !preston.type) db.saveProject({ ...preston, type: 'btr' })
 
-  // Patch: ensure all seeded projects have brand: '7even'
+  // HAAVN St Village Preston · BTR
+  if (!ids.has('haavn-preston-001')) {
+    seedHAAVN()
+  }
+
+  // Patch: ensure all seeded projects have brand: '7even' or 'haavn'
   const allNow = db.getProjects()
   allNow.forEach(p => {
-    if (!p.brand) db.saveProject({ ...p, brand: '7even' })
+    if (!p.brand) db.saveProject({ ...p, brand: p.id === 'haavn-preston-001' ? 'haavn' : '7even' })
   })
 
   // Patch: seed Preston timeline from project programme (260317-7.Preston Programme.xlsx)
@@ -1243,4 +1248,138 @@ function seedCorioScenarioA(pid: string) {
     gopMarginPct: 0.36, managementFeePct: 0.05, ffeReservePct: 0.04,
     hotelCapRate: 0.055, devMarginPct: 0.18,
   })
+}
+
+// ── HAAVN St Village Preston BTR ────────────────────────────────────────
+/**
+ * Complete HAAVN project seed from Design Review 2 (2026)
+ * Populated with detailed cost stack line items across all 6 categories
+ */
+function seedHAAVN() {
+  const { HAAVN_CONSTRUCTION, HAAVN_CONSULTANTS, HAAVN_STATUTORY, HAAVN_HEADWORKS, HAAVN_MANAGEMENT, HAAVN_MARKETING } = require('./haavnCostStackData')
+
+  const pid = 'haavn-preston-001'
+  const now = new Date().toISOString()
+
+  // Project
+  db.saveProject({
+    id: pid,
+    name: 'St Village Preston · BTR',
+    address: '20-30 Newman Street, Preston VIC 3072',
+    suburb: 'Preston',
+    state: 'VIC',
+    zone: 'Mixed Use',
+    responsibleAuthority: 'Darebin City Council',
+    status: 'active',
+    type: 'btr',
+    brand: 'haavn',
+    createdAt: now,
+    updatedAt: now,
+    createdBy: 'HAAVN Dev',
+  })
+
+  // Site design (from HTML design: 46,237 sqm GBA, 22,390 sqm residential)
+  db.saveSiteDesign({
+    projectId: pid,
+    resiNSA: 21_000,
+    resiGFA: 22_390,
+    resiGBA: 46_237,
+    balcony: 3_850,
+    basement: 12_500,
+    carSpaces: 280,
+    childcareGFA: 1_200,
+    churchGFA: 0,
+    churchNSA: 0,
+    otherGFA: 850,
+    notes: 'Mixed-use development: 120 residential apartments, ground-floor retail & commercial, basement car parking.',
+  })
+
+  // Land terms (from HTML design: $15M purchase, $955K stamp duty)
+  db.saveLandTerms({
+    projectId: pid,
+    landCost: 17_870_500,
+    contractPrice: 15_000_000,
+    stampDuty: 955_000,
+    settlementDate: '2027-03',
+    legalFees: 16_500,
+    otherAcquisitionCosts: 398_500,
+    isInKind: false,
+  })
+
+  // Cost stack setup
+  db.saveCostStack({
+    projectId: pid,
+    buildRatePerSqm: 3000, // HAAVN hybrid preset
+    contingencyPct: 0.05,
+    prelimsPct: 0.08,
+    professionalFeesPct: 0.05,
+    statutoryFixed: 6_800_000,
+    financePct: 0.44,
+    projectManagementFixed: 5_000_000,
+    marketingFixed: 200_000,
+    amenityFitoutFixed: 0,
+    gstEnabled: true,
+    currentPhase: 'acqplan',
+  })
+
+  // Detailed cost stack — populate all 6 sections with line items from design
+  db.saveDetailedCostStack({
+    projectId: pid,
+    hardCosts: HAAVN_CONSTRUCTION,
+    consultants: HAAVN_CONSULTANTS,
+    statutory: HAAVN_STATUTORY,
+    headworks: HAAVN_HEADWORKS,
+    management: HAAVN_MANAGEMENT,
+    marketing: HAAVN_MARKETING,
+  })
+
+  // Mix scenario
+  const scenarioId = 'haavn-preston-mix-001'
+  db.saveMixScenario({ id: scenarioId, projectId: pid, name: 'Primary Mix', createdAt: now })
+
+  // Unit types — 120 units total
+  db.saveUnitTypes(scenarioId, [
+    {
+      id: 'haavn-u1', scenarioId, name: 'Studio', nsaPerUnit: 38, targetPct: 0.25, solvedCount: 30,
+      weeklyRentConservative: 470, weeklyRentAggressive: 520,
+      salePriceConservative: 380_000, salePriceMid: 420_000, salePriceAggressive: 470_000,
+      opexPerUnitPerYear: 5_200,
+    },
+    {
+      id: 'haavn-u2', scenarioId, name: '1 Bedroom', nsaPerUnit: 56, targetPct: 0.50, solvedCount: 60,
+      weeklyRentConservative: 620, weeklyRentAggressive: 680,
+      salePriceConservative: 520_000, salePriceMid: 580_000, salePriceAggressive: 650_000,
+      opexPerUnitPerYear: 5_200,
+    },
+    {
+      id: 'haavn-u3', scenarioId, name: '2 Bedroom', nsaPerUnit: 75, targetPct: 0.19, solvedCount: 23,
+      weeklyRentConservative: 800, weeklyRentAggressive: 880,
+      salePriceConservative: 720_000, salePriceMid: 800_000, salePriceAggressive: 900_000,
+      opexPerUnitPerYear: 5_200,
+    },
+    {
+      id: 'haavn-u4', scenarioId, name: '3 Bedroom', nsaPerUnit: 100, targetPct: 0.06, solvedCount: 7,
+      weeklyRentConservative: 1_100, weeklyRentAggressive: 1_200,
+      salePriceConservative: 1_000_000, salePriceMid: 1_100_000, salePriceAggressive: 1_250_000,
+      opexPerUnitPerYear: 5_200,
+    },
+  ])
+
+  // BTR assumptions (12% cap rate assumption, 7% management, 5% vacancy)
+  db.saveBTRAssumptions({
+    scenarioId,
+    vacancyPct: 0.05,
+    leaseUpMonths: 9,
+    managementFeePct: 0.07,
+    carParkIncomeAnnual: 640_000, // 280 spaces @ ~$2,286/year
+    buildingAdminFixed: 400_000,
+    childcareAnnualNet: 180_000,
+    commercialAnnualNet: 420_000,
+    capRateConservative: 0.05,
+    capRateAggressive: 0.06,
+    devMarginPct: 0.15,
+  })
+
+  // Snapshot — preserve initial design review state
+  captureSnapshot(pid, 'Design Review 2 · Complete Cost Stack Seed', now)
 }
