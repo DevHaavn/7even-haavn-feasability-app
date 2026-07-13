@@ -59,11 +59,16 @@ export function pushProject(project: Record<string, unknown>) {
 export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline' | 'cashflow', data: unknown) {
   noteLocalWrite()
   noteKeyWrite(FIELD_KEY[field](projectId))
+  if (!cloudEnabled) { console.warn(`[cloud] ⚠ SKIPPED ${field} for ${projectId} — cloud disabled (missing Supabase env at build)`); return }
   supabase.from('project_data').upsert({
     project_id: projectId,
     [field]: data,
     updated_at: new Date().toISOString(),
-  }, { onConflict: 'project_id' }).then(({ error }) => { if (error) console.warn(`[cloud] pushProjectField ${field}`, error.message) })
+  }, { onConflict: 'project_id' })
+    .then(({ error }) => {
+      if (error) console.error(`[cloud] ✗ push FAILED ${field} for ${projectId}:`, error.message, error)
+      else console.info(`[cloud] ✓ pushed ${field} for ${projectId}`)
+    }, (err) => console.error(`[cloud] ✗ push THREW ${field} for ${projectId}:`, err?.message || err))
 }
 
 export function pushScenario(scenario: Record<string, unknown>) {

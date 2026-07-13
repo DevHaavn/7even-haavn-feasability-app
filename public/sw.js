@@ -17,7 +17,10 @@ self.addEventListener('activate', (event) => {
   })())
 })
 
-// Always go straight to the network — never serve a cached build.
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request))
-})
+// NO fetch handler on purpose. A self-destructing worker must never intercept
+// network requests: re-issuing POSTs via respondWith(fetch(event.request))
+// can fail cross-origin uploads with "Failed to fetch", which silently breaks
+// the Supabase save/push (edits then only live in localStorage and never sync).
+// Without a fetch listener the browser goes straight to the network for
+// everything, so this worker can only clean up and unregister — never break a
+// request.
