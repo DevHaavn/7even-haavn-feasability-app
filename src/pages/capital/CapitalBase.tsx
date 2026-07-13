@@ -34,7 +34,7 @@ export const PILLARS: Pillar[] = [
     id: 'crm', num: '03', title: 'Partner CRM Portal',
     sub: 'Targets · Range · Signals · Contacts',
     blurb: 'The tactical CRM. Three commands — 7EVEN Developments, HAAVN Homes, HAAVN Management — every deal in your sights.',
-    color: '#FF2F00',
+    color: '#237A52',
   },
 ]
 
