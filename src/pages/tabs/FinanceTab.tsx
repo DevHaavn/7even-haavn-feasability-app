@@ -11,6 +11,7 @@ import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hote
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
 import type { ScenarioResult } from '../../engine/finance'
 import FinanceSCurve from '../../components/FinanceSCurve'
+import type { Project } from '../../db'
 
 interface Props { projectId: string }
 
