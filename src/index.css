@@ -566,6 +566,18 @@ input[type="checkbox"] {
   transform-origin: center top;
   animation: premium-rise 0.5s cubic-bezier(0.22,0.9,0.24,1) both;
 }
+/* Fill mode (timeline): the stage doesn't scroll — the card fills its height so
+   the timeline's own internal scroller + sticky date header work correctly. */
+.premium-stage.stage-fill { display: flex; }
+.premium-card.card-fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: none;   /* no rise transform — it would break sticky positioning */
+}
+.premium-card.card-fill > * { flex: 1; min-height: 0; }
+
 /* the site-links footer floats on the texture (no solid panel behind it) */
 .premium-footer { margin-top: clamp(16px, 3vh, 30px); }
 .premium-footer .site-footer { background: transparent !important; border-top: none !important; }
