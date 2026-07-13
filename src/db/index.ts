@@ -848,10 +848,10 @@ function defaultTranche(overrides: Partial<DebtTranche> & { id: string; label: s
 }
 
 const DEFAULT_TRANCHES: DebtTranche[] = [
-  defaultTranche({ id: 'land-debt', label: 'Land / Acquisition Facility', type: 'land', lvr: 0.60, interestRate: 0.08, termMonths: 18, drawdownProfile: 'upfront', notes: 'Interest only from settlement. Repaid at construction loan close.' }),
-  defaultTranche({ id: 'senior-debt', label: 'Senior Construction Debt', type: 'senior', lvr: 0.65, interestRate: 0.085, termMonths: 30, drawdownProfile: 'scurve', notes: 'BBSY + 2.5% margin. Interest capitalised during construction.' }),
-  defaultTranche({ id: 'mezz-debt', label: 'Mezzanine Finance', type: 'mezz', lvr: 0.80, useAutoLvr: false, amount: 0, interestRate: 0.155, establishmentFeePct: 0.02, exitFeePct: 0.01, termMonths: 30, drawdownProfile: 'linear', notes: 'Junior debt sitting between senior and equity. Activate if required.' }),
-  defaultTranche({ id: 'pref-equity', label: 'Preferred Equity', type: 'preferred-equity', lvr: 0.90, useAutoLvr: false, amount: 0, interestRate: 0.13, establishmentFeePct: 0.015, lineFeePct: 0, exitFeePct: 0, termMonths: 36, drawdownProfile: 'upfront', notes: 'Preferred return before common equity participates. Activate if required.' }),
+  defaultTranche({ id: 'land-debt', label: 'Senior — land facility', type: 'land', lvr: 0.12, useAutoLvr: true, interestRate: 0.08, termMonths: 18, drawdownProfile: 'upfront', interestModel: 'compound', capitalised: true, dayCount: 'act360', fundsPhase: 'land', notes: 'Interest only from settlement, capitalised. Repaid at construction loan close.' }),
+  defaultTranche({ id: 'senior-debt', label: 'Senior — construction', type: 'senior', lvr: 0.55, useAutoLvr: true, interestRate: 0.075, termMonths: 30, drawdownProfile: 'scurve', interestModel: 'compound', capitalised: true, dayCount: 'act365', fundsPhase: 'construction', notes: 'BBSY + margin. Interest capitalised during construction.' }),
+  defaultTranche({ id: 'mezz-debt', label: 'Mezzanine', type: 'mezz', lvr: 0.06, useAutoLvr: true, interestRate: 0.125, establishmentFeePct: 0.02, exitFeePct: 0.01, termMonths: 30, drawdownProfile: 'linear', interestModel: 'pik', capitalised: true, dayCount: 'act360', fundsPhase: 'any', notes: 'Junior debt between senior and equity — PIK, capitalised.' }),
+  defaultTranche({ id: 'pref-equity', label: 'Preferred equity', type: 'preferred-equity', lvr: 0.05, useAutoLvr: true, interestRate: 0.13, establishmentFeePct: 0.015, lineFeePct: 0, exitFeePct: 0, termMonths: 36, drawdownProfile: 'upfront', interestModel: 'simple', capitalised: false, dayCount: 'act365', fundsPhase: 'any', notes: 'Preferred return before common equity — simple, cash pay.' }),
 ]
 
 export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
@@ -874,6 +874,21 @@ export function getFinanceAssumptions(projectId: string): FinanceAssumptions {
   // Merge defaults under stored so fields added later (e.g. investorEquity) are
   // populated for projects saved before they existed.
   return { ...def, ...stored, investorEquity: stored.investorEquity || def.investorEquity }
+}
+
+// Roll the new 4-facility base finance model onto every project whose tranches are
+// still legacy (missing the interest-model fields or carrying stray facilities).
+// Idempotent: once a project is on the new model, user edits are left untouched.
+export function seedBaseFinanceForAll() {
+  for (const p of getProjects()) {
+    const fa = getFinanceAssumptions(p.id)
+    const legacy = fa.tranches.length === 0
+      || fa.tranches.some(t => !t.interestModel)
+      || fa.tranches.some(t => /new debt/i.test(t.label))
+    if (legacy) {
+      saveFinanceAssumptions({ ...fa, tranches: DEFAULT_TRANCHES.map(t => ({ ...t })) })
+    }
+  }
 }
 
 export function saveFinanceAssumptions(data: FinanceAssumptions) {

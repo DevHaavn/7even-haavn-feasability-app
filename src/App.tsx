@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
-import { migrateCostStackLabels } from './db'
+import { migrateCostStackLabels, seedBaseFinanceForAll } from './db'
 import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll } from './db/seed'
 import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
@@ -45,6 +45,7 @@ export default function App() {
       seedProjectsIfEmpty()
       migrateCostStackLabels()
       seedBaseCostStackForAll()
+      seedBaseFinanceForAll()
       consolidatePreston()
       loadProjects()
       setSyncing(false)

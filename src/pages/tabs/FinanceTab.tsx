@@ -1,529 +1,326 @@
-import React, { useState, useMemo } from 'react'
-import { useStore } from '../../store'
+import React, { useMemo, useState } from 'react'
 import * as db from '../../db'
-import { calculateCostStack } from '../../engine/costStack'
-import { calculateFinance } from '../../engine/finance'
-import ProfitLens from '../../components/ProfitLens'
-import InvestorReturn from '../../components/InvestorReturn'
-import { useAutosave } from '../../lib/useAutosave'
-import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
-import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
-import type { ScenarioResult } from '../../engine/finance'
-import FinanceSCurve from '../../components/FinanceSCurve'
-import type { Project } from '../../db'
+import { calculateFinanceWaterfall } from '../../engine/financeWaterfall'
+import type { WaterfallResult, WaterfallMonth, TrancheWaterfall } from '../../engine/financeWaterfall'
 
 interface Props { projectId: string }
 
 // ── Formatting ────────────────────────────────────────────────────────────────
-const fmt  = (n: number) => n >= 1_000_000 ? `$${(n/1_000_000).toFixed(2)}M` : n >= 1_000 ? `$${(n/1_000).toFixed(0)}K` : `$${Math.round(n).toLocaleString()}`
-const fmtM = (n: number) => n >= 1_000_000 ? `$${(n/1_000_000).toFixed(3)}M` : fmt(n)
-const pct  = (n: number, dp = 2) => `${(n*100).toFixed(dp)}%`
-const sign = (n: number) => n >= 0 ? `+${fmt(n)}` : `−${fmt(Math.abs(n))}`
+const fmtM = (n: number) => `$${(n / 1_000_000).toFixed(2)}M`
+const fmtK = (n: number) => Math.abs(n) >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : Math.abs(n) >= 1000 ? `$${Math.round(n / 1000)}k` : `$${Math.round(n)}`
+const pct = (n: number, dp = 1) => `${(n * 100).toFixed(dp)}%`
 
-const GOLD  = '#C4973A'
-const GREEN = '#22C55E'
-const RED   = '#EF4444'
-const AMBER = '#EAB308'
-const PURPLE = '#A855F7'
-const BLUE  = '#3B82F6'
+const BLUE = '#3B82F6', PURPLE = '#6366F1', GOLD = '#F59E0B', RED = '#EF4444', GREEN = '#16A34A', INK = '#1A1A1A', MUTE = '#8A8A8A'
+const trancheColor = (t: TrancheWaterfall) => t.type === 'mezz' ? PURPLE : t.type === 'preferred-equity' ? GOLD : BLUE
 
-const TRANCHE_COLORS: Record<DebtTranche['type'], string> = {
-  land:              '#C4973A',
-  senior:            '#3B82F6',
-  mezz:              '#A855F7',
-  'preferred-equity':'#EAB308',
-  equity:            '#22C55E',
-}
+const MODEL_LABEL: Record<string, string> = { compound: 'Compound monthly', pik: 'PIK', simple: 'Simple' }
 
-const TRANCHE_LABELS: Record<DebtTranche['type'], string> = {
-  land:              'Land Facility',
-  senior:            'Senior Debt',
-  mezz:              'Mezzanine',
-  'preferred-equity':'Pref. Equity',
-  equity:            'Common Equity',
-}
-
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function SectionHead({ title, sub }: { title: string; sub?: string }) {
+// ── Charts ────────────────────────────────────────────────────────────────────
+function DebtBalanceChart({ months }: { months: WaterfallMonth[] }) {
+  const W = 1000, H = 300, PL = 56, PR = 56, PT = 16, PB = 34
+  if (months.length === 0) return null
+  const maxBal = Math.max(1, ...months.map(m => m.debtBalanceEOP))
+  const maxDraw = Math.max(1, ...months.map(m => m.costDraw))
+  const x = (i: number) => PL + (i / Math.max(1, months.length - 1)) * (W - PL - PR)
+  const yBal = (v: number) => PT + (1 - v / maxBal) * (H - PT - PB)
+  const bw = Math.max(1, (W - PL - PR) / months.length * 0.6)
+  const line = months.map((m, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${yBal(m.debtBalanceEOP).toFixed(1)}`).join(' ')
+  const tick = (v: number) => `$${Math.round(v / 1_000_000)}M`
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
-        <div style={{ width: 3, height: 20, background: GOLD, flexShrink: 0 }} />
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A1A1A', margin: 0 }}>{title}</h2>
-      </div>
-      {sub && <p style={{ color: '#999', fontSize: 10, letterSpacing: '0.06em', marginLeft: 13 }}>{sub}</p>}
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
+      {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
+        <g key={i}>
+          <line x1={PL} x2={W - PR} y1={yBal(maxBal * f)} y2={yBal(maxBal * f)} stroke="#EEE" />
+          <text x={PL - 8} y={yBal(maxBal * f) + 3} textAnchor="end" fontSize="9" fill={MUTE}>{tick(maxBal * f)}</text>
+        </g>
+      ))}
+      {months.map((m, i) => {
+        const h = (m.costDraw / maxDraw) * (H - PT - PB)
+        return <rect key={i} x={x(i) - bw / 2} y={H - PB - h} width={bw} height={h} fill={GOLD} opacity={0.5} rx={1} />
+      })}
+      <path d={line} fill="none" stroke={BLUE} strokeWidth={2.5} />
+      {months.filter((_, i) => i % Math.ceil(months.length / 8) === 0).map((m, i, arr) => {
+        const idx = months.indexOf(m)
+        return <text key={i} x={x(idx)} y={H - 12} textAnchor="middle" fontSize="9" fill={MUTE}>{m.month.replace('-', ' ').slice(2)}</text>
+      })}
+    </svg>
+  )
+}
+
+function InterestByTrancheChart({ result }: { result: WaterfallResult }) {
+  const W = 1000, H = 300, PL = 56, PR = 16, PT = 16, PB = 34
+  const qs = result.quarters
+  if (qs.length === 0) return null
+  const totals = qs.map(q => Object.values(q.interestByTranche).reduce((s, v) => s + v, 0))
+  const maxT = Math.max(1, ...totals)
+  const bw = Math.max(6, (W - PL - PR) / qs.length * 0.62)
+  const x = (i: number) => PL + (i + 0.5) / qs.length * (W - PL - PR)
+  const y = (v: number) => PT + (1 - v / maxT) * (H - PT - PB)
+  const order = result.tranches
+  const tick = (v: number) => `$${(v / 1_000_000).toFixed(2)}M`
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
+      {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
+        <g key={i}>
+          <line x1={PL} x2={W - PR} y1={y(maxT * f)} y2={y(maxT * f)} stroke="#EEE" />
+          <text x={PL - 8} y={y(maxT * f) + 3} textAnchor="end" fontSize="9" fill={MUTE}>{tick(maxT * f)}</text>
+        </g>
+      ))}
+      {qs.map((q, i) => {
+        let acc = 0
+        return (
+          <g key={i}>
+            {order.map(t => {
+              const v = q.interestByTranche[t.id] || 0
+              if (v <= 0) return null
+              const yTop = y(acc + v), hgt = y(acc) - y(acc + v)
+              acc += v
+              return <rect key={t.id} x={x(i) - bw / 2} y={yTop} width={bw} height={Math.max(0, hgt)} fill={trancheColor(t)} />
+            })}
+            <text x={x(i)} y={H - 12} textAnchor="middle" fontSize="8.5" fill={MUTE}>{q.quarter}</text>
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+// ── KPI card ──────────────────────────────────────────────────────────────────
+function Kpi({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+  return (
+    <div style={{ flex: 1, padding: '16px 20px', borderRight: '1px solid #ECEAE5' }}>
+      <div style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 600, color: color || INK, letterSpacing: '-0.01em' }}>{value}</div>
+      {sub && <div style={{ fontSize: 10, color: MUTE, marginTop: 3 }}>{sub}</div>}
     </div>
   )
 }
 
-function Row({ label, value, sub, bold, gold, red, indent }: { label: string; value: string; sub?: string; bold?: boolean; gold?: boolean; red?: boolean; indent?: boolean }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 16px', borderBottom: '1px solid #F0EDE8' }}>
-      <div style={{ paddingLeft: indent ? 16 : 0 }}>
-        <span style={{ color: '#666', fontSize: 11, letterSpacing: '0.04em' }}>{label}</span>
-        {sub && <span style={{ color: '#BBB', fontSize: 9, marginLeft: 8 }}>{sub}</span>}
-      </div>
-      <span style={{ fontFamily: 'monospace', fontWeight: bold ? 700 : 500, fontSize: bold ? 14 : 12, color: gold ? GOLD : red ? RED : '#1A1A1A' }}>{value}</span>
-    </div>
-  )
-}
+const SUB_TABS = [['capital', 'Capital stack'], ['cashflow', 'Cashflow'], ['sensitivity', 'Sensitivity'], ['drawdown', 'Drawdown']] as const
+const LENSES = [['developer', 'Developer'], ['bank', 'Bank / lender'], ['mezz', 'Mezz investor'], ['equity', 'Equity partner']] as const
 
-function InputRow({ label, value, onChange, suffix, prefix, step, sub, note }: {
-  label: string; value: number; onChange: (v: number) => void
-  suffix?: string; prefix?: string; step?: number; sub?: string; note?: string
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 16px', borderBottom: '1px solid #F0EDE8' }}>
-      <div style={{ flex: 1 }}>
-        <span style={{ color: GOLD, fontSize: 11, letterSpacing: '0.04em' }}>{label}</span>
-        {sub && <span style={{ color: '#BBB', fontSize: 9, display: 'block', marginTop: 1 }}>{sub}</span>}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        {prefix && <span style={{ color: '#AAA', fontSize: 11 }}>{prefix}</span>}
-        <input
-          type="number"
-          value={value || ''}
-          step={step ?? 0.1}
-          onChange={e => onChange(parseFloat(e.target.value) || 0)}
-          style={{ width: 90, textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, fontSize: 13, color: '#1A1A1A', background: 'transparent', border: 'none', borderBottom: '1px solid #D0CEC9', borderRadius: 0, padding: '2px 0', outline: 'none' }}
-        />
-        {suffix && <span style={{ color: '#AAA', fontSize: 11, width: 24 }}>{suffix}</span>}
-      </div>
-      {note && <span style={{ color: '#CCC', fontSize: 9, width: 120, textAlign: 'right', flexShrink: 0 }}>{note}</span>}
-    </div>
-  )
-}
-
-function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button onClick={() => onChange(!value)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 16px', borderBottom: '1px solid #F0EDE8', width: '100%', background: 'none', border: 'none', borderBottom: '1px solid #F0EDE8', cursor: 'pointer', textAlign: 'left' }}>
-      <div style={{ width: 32, height: 18, borderRadius: 9, background: value ? GOLD : '#D0CEC9', position: 'relative', flexShrink: 0, transition: 'background 0.2s' }}>
-        <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: value ? 16 : 2, transition: 'left 0.2s' }} />
-      </div>
-      <span style={{ color: GOLD, fontSize: 11, letterSpacing: '0.04em' }}>{label}</span>
-    </button>
-  )
-}
-
-// Capital stack bar visual
-function StackBar({ segments }: { segments: { label: string; value: number; color: string }[] }) {
-  const total = segments.reduce((s, x) => s + x.value, 0)
-  if (total <= 0) return null
-  return (
-    <div>
-      <div style={{ display: 'flex', height: 28, borderRadius: 2, overflow: 'hidden', gap: 1 }}>
-        {segments.filter(s => s.value > 0).map((s, i) => (
-          <div key={i} style={{ flex: s.value / total, background: s.color, minWidth: 2, position: 'relative' }}
-            title={`${s.label}: ${fmt(s.value)}`}
-          />
-        ))}
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px', marginTop: 10 }}>
-        {segments.filter(s => s.value > 0).map((s, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0, display: 'block' }} />
-            <span style={{ fontSize: 9, color: '#888' }}>{s.label}</span>
-            <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#555', fontWeight: 700 }}>{fmt(s.value)}</span>
-            <span style={{ fontSize: 9, color: '#BBB' }}>({pct(s.value / total, 0)})</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// Blowout scenario card
-function BlowoutCard({ s, base, tdc }: { s: ScenarioResult; base: ScenarioResult; tdc: number }) {
-  const isBase = s.extraMonths === 0
-  const extraCost = s.totalFinanceCost - base.totalFinanceCost
-  const color = isBase ? GOLD : s.extraMonths <= 3 ? AMBER : s.extraMonths <= 6 ? '#F97316' : RED
-  return (
-    <div style={{ border: `1px solid ${color}33`, background: isBase ? '#FDFBF4' : `${color}08`, padding: '16px 18px', flex: 1, minWidth: 160 }}>
-      <p style={{ color, fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 12px', fontWeight: 700 }}>{s.label}</p>
-      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: isBase ? '#1A1A1A' : color, margin: '0 0 4px' }}>{fmt(s.totalFinanceCost)}</p>
-      <p style={{ fontSize: 9, color: '#999', margin: '0 0 10px' }}>total finance cost</p>
-      {!isBase && (
-        <>
-          <div style={{ borderTop: `1px solid ${color}22`, paddingTop: 10, marginTop: 4 }}>
-            <p style={{ fontSize: 10, color: RED, fontFamily: 'monospace', fontWeight: 700, margin: '0 0 2px' }}>{sign(s.profitImpact)}</p>
-            <p style={{ fontSize: 9, color: '#BBB', margin: 0 }}>profit impact</p>
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <p style={{ fontSize: 10, color: RED, fontFamily: 'monospace', fontWeight: 700, margin: '0 0 2px' }}>{pct(s.marginImpact, 2)} pts</p>
-            <p style={{ fontSize: 9, color: '#BBB', margin: 0 }}>margin change</p>
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
-
-// ── Tranche editor card ───────────────────────────────────────────────────────
-function TrancheCard({ t, tdc, onChange, onRemove, isDefault }: {
-  t: DebtTranche; tdc: number; onChange: (u: DebtTranche) => void; onRemove: () => void; isDefault: boolean
-}) {
-  const [open, setOpen] = useState(false)
-  const color = TRANCHE_COLORS[t.type]
-  const facility = t.useAutoLvr ? tdc * t.lvr : t.amount
-  const active = facility > 0
-
-  function upd<K extends keyof DebtTranche>(k: K, v: DebtTranche[K]) {
-    onChange({ ...t, [k]: v })
-  }
-
-  return (
-    <div style={{ border: `1px solid ${active ? color + '44' : '#E8E5E0'}`, background: active ? `${color}06` : '#FAFAF8', marginBottom: 8 }}>
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: active ? color : '#CCC', flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: active ? '#1A1A1A' : '#AAA', margin: 0 }}>{t.label}</p>
-          <p style={{ fontSize: 9, color: '#AAA', margin: 0, letterSpacing: '0.06em' }}>
-            {TRANCHE_LABELS[t.type]}
-            {active ? ` · ${fmt(facility)} @ ${pct(t.interestRate, 2)} p.a.` : ' · Inactive (set amount or LVR)'}
-          </p>
-        </div>
-        <span style={{ fontSize: 9, color: '#CCC', letterSpacing: '0.14em' }}>{open ? '▲ CLOSE' : '▼ EDIT'}</span>
-      </div>
-
-      {open && (
-        <div style={{ borderTop: `1px solid ${color}22` }}>
-          {/* Facility sizing */}
-          <div style={{ padding: '10px 16px 0', background: '#fff' }}>
-            <p style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#BBB', marginBottom: 6 }}>Facility</p>
-          </div>
-          <Toggle label="Auto-size from LVR (% of TDC)" value={t.useAutoLvr} onChange={v => upd('useAutoLvr', v)} />
-          {t.useAutoLvr
-            ? <InputRow label="LVR %" value={t.lvr * 100} onChange={v => upd('lvr', v / 100)} suffix="%" step={1}
-                sub={`Facility: ${fmt(facility)}`} note={tdc > 0 ? `${pct(t.lvr, 0)} of $${(tdc/1e6).toFixed(2)}M TDC` : ''} />
-            : <InputRow label="Facility Amount" value={t.amount} onChange={v => upd('amount', v)} prefix="$" step={100000}
-                note="Fixed $ amount" />
-          }
-          {/* Rates */}
-          <div style={{ padding: '10px 16px 0', background: '#fff', marginTop: 4 }}>
-            <p style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#BBB', marginBottom: 6 }}>Rates & Fees</p>
-          </div>
-          <InputRow label="Interest Rate" value={t.interestRate * 100} onChange={v => upd('interestRate', v / 100)} suffix="% p.a." step={0.05}
-            note="Annual rate on drawn balance" />
-          <InputRow label="Establishment Fee" value={t.establishmentFeePct * 100} onChange={v => upd('establishmentFeePct', v / 100)} suffix="% of facility" step={0.05} />
-          <InputRow label="Line / Commitment Fee" value={t.lineFeePct * 100} onChange={v => upd('lineFeePct', v / 100)} suffix="% p.a. undrawn" step={0.05} />
-          <InputRow label="Exit / Repayment Fee" value={t.exitFeePct * 100} onChange={v => upd('exitFeePct', v / 100)} suffix="% of facility" step={0.05} />
-          {/* Term & drawdown */}
-          <div style={{ padding: '10px 16px 0', background: '#fff', marginTop: 4 }}>
-            <p style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#BBB', marginBottom: 6 }}>Term & Drawdown</p>
-          </div>
-          <InputRow label="Term" value={t.termMonths} onChange={v => upd('termMonths', v)} suffix="months" step={1} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '9px 16px', borderBottom: '1px solid #F0EDE8' }}>
-            <span style={{ color: GOLD, fontSize: 11, flex: 1 }}>Drawdown Profile</span>
-            {(['scurve','linear','upfront','backloaded'] as const).map(p => (
-              <button key={p} onClick={() => upd('drawdownProfile', p)}
-                style={{ padding: '4px 10px', fontSize: 9, letterSpacing: '0.08em', cursor: 'pointer', marginLeft: 4,
-                  background: t.drawdownProfile === p ? '#1A1A1A' : 'transparent',
-                  color: t.drawdownProfile === p ? '#fff' : '#888',
-                  border: `1px solid ${t.drawdownProfile === p ? '#1A1A1A' : '#D0CEC9'}`,
-                  textTransform: 'uppercase' as const }}>
-                {p === 'scurve' ? 'S-Curve' : p === 'backloaded' ? 'Back' : p.charAt(0).toUpperCase() + p.slice(1)}
-              </button>
-            ))}
-          </div>
-          {/* Notes */}
-          <div style={{ padding: '10px 16px' }}>
-            <textarea
-              value={t.notes}
-              onChange={e => upd('notes', e.target.value)}
-              placeholder="Notes about this tranche…"
-              style={{ width: '100%', minHeight: 48, background: '#F7F5F2', border: '1px solid #E8E5E0', borderRadius: 0, padding: '6px 8px', fontSize: 11, color: '#1A1A1A', resize: 'vertical', fontFamily: 'inherit', outline: 'none' }}
-            />
-          </div>
-          {!isDefault && (
-            <div style={{ padding: '0 16px 12px', display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={onRemove} style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: RED, background: 'none', border: `1px solid ${RED}33`, padding: '4px 10px', cursor: 'pointer' }}>
-                Remove Tranche
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Main tab ──────────────────────────────────────────────────────────────────
+const inputCss: React.CSSProperties = { border: '1px solid #E0DDD8', borderRadius: 4, padding: '4px 6px', fontSize: 11, width: 90, outline: 'none', background: '#fff' }
+const selCss: React.CSSProperties = { ...inputCss, width: 132 }
 
 export default function FinanceTab({ projectId }: Props) {
-  const store = useStore()
-  const site  = store.getSiteDesign(projectId)
-  const land  = store.getLandTerms(projectId)
-  const costData = store.getCostStack(projectId)
-
-  const inKind = land.isInKind && land.inKindGFA > 0
-    ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
-    : undefined
-  const costResult = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem: inKind }), [costData, site])
-  const tdc = costResult.totalDevelopmentCost
-  const landCost = store.getEffectiveLandCost(projectId)  // ex GST when project applies GST
-  const proj = db.getProjectTDC(projectId)                // real project cost = all costs + land + real finance
-
-  // Get best GAV from scenarios
-  const gav = useMemo(() => {
-    let best = 0
-    for (const s of store.getMixScenarios(projectId)) {
-      const hotelA = store.getHotelAssumptions(s.id)
-      if (hotelA.keys > 0) {
-        const inc = calculateHotelIncome(hotelA)
-        const val = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-        if (val.gav > best) best = val.gav
-      }
-      const btrA = store.getBTRAssumptions(s.id)
-      const units = store.getUnitTypes(s.id)
-      if (units.some(u => u.weeklyRentConservative > 0)) {
-        const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-        const inc = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'aggressive')
-        const val = calculateBTRValuation(inc.noi, btrA.capRateAggressive, tdc, btrA.devMarginPct)
-        if (val.gav > best) best = val.gav
-      }
-    }
-    return best
-  }, [projectId, tdc])
-
   const [fa, setFa] = useState<FinanceAssumptions>(() => db.getFinanceAssumptions(projectId))
-  const { commit, undo, canUndo } = useAutosave<FinanceAssumptions>(db.saveFinanceAssumptions, [projectId])
+  const [tab, setTab] = useState<typeof SUB_TABS[number][0]>('capital')
+  const [lens, setLens] = useState<typeof LENSES[number][0]>('developer')
+  const [freq, setFreq] = useState<'quarterly' | 'monthly'>('quarterly')
 
-  function update(patch: Partial<FinanceAssumptions>) {
-    const next = { ...fa, ...patch }
-    commit(fa, next)
+  const detailed = db.getDetailedCostStack(projectId)
+  const land = db.getLandTerms(projectId)
+  const result = useMemo(() => calculateFinanceWaterfall(detailed, land, fa), [detailed, land, fa])
+
+  function patchTranche(id: string, patch: Partial<DebtTranche>) {
+    const next = { ...fa, tranches: fa.tranches.map(t => t.id === id ? { ...t, ...patch } : t) }
     setFa(next)
+    db.saveFinanceAssumptions(next)
   }
 
-  function updateTranche(id: string, updated: DebtTranche) {
-    update({ tranches: fa.tranches.map(t => t.id === id ? updated : t) })
-  }
-  function addTranche() {
-    const newT: DebtTranche = {
-      id: db.generateId(), label: 'New Debt Facility', type: 'senior',
-      amount: 0, lvr: 0, useAutoLvr: false, interestRate: 0.09,
-      establishmentFeePct: 0.01, lineFeePct: 0.005, exitFeePct: 0.005,
-      termMonths: 24, drawdownProfile: 'linear', notes: '',
-    }
-    update({ tranches: [...fa.tranches, newT] })
-  }
-  function removeTranche(id: string) {
-    update({ tranches: fa.tranches.filter(t => t.id !== id) })
-  }
+  const financePctBase = result.baseTDC > 0 ? result.totalFinanceCost / result.baseTDC : 0
 
-  const result = useMemo(() => calculateFinance(fa, tdc, landCost, gav), [fa, tdc, landCost, gav])
-  const timelineTasks = useMemo(() => db.getTimelineTasks(projectId), [projectId])
-
-  const stackSegments = [
-    { label: 'Senior Debt', value: result.tranches.filter(t => t.type === 'senior').reduce((s, t) => s + t.facilityAmount, 0), color: BLUE },
-    { label: 'Mezzanine', value: result.tranches.filter(t => t.type === 'mezz').reduce((s, t) => s + t.facilityAmount, 0), color: PURPLE },
-    { label: 'Pref. Equity', value: result.tranches.filter(t => t.type === 'preferred-equity').reduce((s, t) => s + t.facilityAmount, 0), color: AMBER },
-    { label: 'Common Equity', value: result.totalEquity, color: GREEN },
-  ]
-
-  const DEFAULT_IDS = ['land-debt','senior-debt','mezz-debt','pref-equity']
+  // Cashflow schedule buckets (quarterly or monthly)
+  const buckets = freq === 'quarterly'
+    ? result.quarters.map(q => ({ label: q.quarter, debtDraw: q.debtDraw, equityDraw: q.equityDraw, interestByTranche: q.interestByTranche, balance: q.debtBalanceEOP }))
+    : result.months.map(m => ({ label: m.month.slice(2), debtDraw: m.debtDraw, equityDraw: m.equityDraw, interestByTranche: m.interestByTranche, balance: m.debtBalanceEOP }))
+  const shown = buckets.length > 10 && freq === 'quarterly' ? buckets : buckets.slice(0, 12)
 
   return (
-    <div style={{ padding: '32px 40px', maxWidth: 1000, width: '100%', margin: '0 auto' }}>
-
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32, paddingBottom: 20, borderBottom: '1px solid #E8E5E0' }}>
-        <div>
-          <p style={{ color: GOLD, fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 4 }}>Debt & Equity Structuring</p>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 26, letterSpacing: '0.06em', color: '#1A1A1A', margin: 0 }}>Finance</h1>
-          <p style={{ color: '#AAA', fontSize: 11, marginTop: 6, letterSpacing: '0.06em' }}>Capital stack · interest modelling · critical path sensitivity</p>
-        </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
-          {canUndo && (
-            <button onClick={() => undo(setFa)} style={{ background: 'transparent', color: '#555', border: '1px solid #D0CEC9', padding: '8px 18px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', fontWeight: 600 }}>
-              Undo
-            </button>
-          )}
-        </div>
+    <div style={{ flex: 1, overflow: 'auto', background: '#FAF9F7' }}>
+      {/* Sub-tab bar */}
+      <div style={{ display: 'flex', gap: 22, padding: '10px 24px 0', borderBottom: '1px solid #ECEAE5', background: '#fff' }}>
+        {SUB_TABS.map(([id, label]) => (
+          <button key={id} onClick={() => setTab(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: tab === id ? 700 : 500, color: tab === id ? INK : MUTE, padding: '6px 0', borderBottom: tab === id ? `2px solid ${INK}` : '2px solid transparent', marginBottom: -1 }}>{label}</button>
+        ))}
       </div>
-
-      {/* Profit — every lens (developer · bank · investor) */}
-      <ProfitLens projectId={projectId} title="Profit — every lens (developer · bank · investor)" />
-
-      {/* Investor equity return — editable equity cheque here on Finance */}
-      <InvestorReturn projectId={projectId} editable />
 
       {/* KPI strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 10, marginBottom: 32 }}>
-        {[
-          { label: 'Total Dev Cost', value: fmt(proj.tdc), color: GOLD },
-          { label: 'Total Debt', value: fmt(result.totalDebt), color: BLUE },
-          { label: 'Equity Required', value: fmt(result.totalEquity), color: GREEN },
-          { label: 'All-in Finance Cost', value: fmt(result.totalFinanceCost), color: '#1A1A1A' },
-          { label: 'Finance % of TDC', value: pct(result.financePctOfTDC), color: result.financePctOfTDC > 0.12 ? AMBER : '#1A1A1A' },
-          { label: 'Equity Multiple', value: gav > 0 ? `${result.equityMultiple.toFixed(2)}×` : '—', color: result.equityMultiple >= 1.5 ? GREEN : AMBER },
-        ].map(({ label, value, color }) => (
-          <div key={label} style={{ padding: '16px 18px', border: '1px solid #E8E5E0', background: '#fff' }}>
-            <p style={{ color: '#999', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 8px' }}>{label}</p>
-            <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 18, color, margin: 0 }}>{value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Capital stack visual */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', padding: '20px 24px', marginBottom: 28 }}>
-        <SectionHead title="Capital Stack" sub="How the project is funded — debt layers and equity" />
-        <StackBar segments={stackSegments} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginTop: 20, border: '1px solid #F0EDE8' }}>
-          <Row label="Total Debt Facilities" value={fmt(result.totalDebt)} />
-          <Row label="Common Equity Required" value={fmt(result.totalEquity)} gold />
-          <Row label="Equity as % of TDC" value={pct(result.equityPct)} />
-          <Row label="Land Debt (separate)" value={fmt(result.landDebt)} />
-          <Row label="Land Interest Cost" value={fmt(result.landInterestCost)} />
-          <Row label="Construction Interest" value={fmt(result.constructionInterestCost)} />
+      <div style={{ display: 'flex', background: '#fff', borderBottom: '1px solid #ECEAE5' }}>
+        <Kpi label="Base TDC" value={fmtM(result.baseTDC)} sub="ex finance costs" />
+        <Kpi label="Total finance cost" value={fmtM(result.totalFinanceCost)} sub={`${pct(financePctBase)} of base TDC`} color={GOLD} />
+        <Kpi label="Peak debt balance" value={fmtM(result.peakDebt)} sub="max outstanding" />
+        <Kpi label="Senior capitalised" value={fmtM(result.seniorCapitalised)} sub="rolls into debt balance" />
+        <div style={{ flex: 1, padding: '16px 20px' }}>
+          <div style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 6 }}>All-in TDC</div>
+          <div style={{ fontSize: 22, fontWeight: 600, color: GREEN }}>{fmtM(result.allInTDC)}</div>
+          <div style={{ fontSize: 10, color: MUTE, marginTop: 3 }}>incl. all finance</div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
+      {/* View-as lenses */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px' }}>
+        <span style={{ fontSize: 11, color: MUTE }}>View as</span>
+        {LENSES.map(([id, label]) => (
+          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: '1px solid #E0DDD8', padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? INK : '#fff', color: lens === id ? '#fff' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
+        ))}
+      </div>
 
-        {/* Left: Base rate & land */}
-        <div>
-          <div style={{ border: '1px solid #E8E5E0', background: '#fff', marginBottom: 16 }}>
-            <div style={{ padding: '16px 20px 0' }}><SectionHead title="Base Rate & Land Carry" sub="BBSY benchmark + land facility" /></div>
-            <InputRow label="BBSY / Base Rate" value={fa.bbsyRate * 100} onChange={v => update({ bbsyRate: v / 100 })} suffix="% p.a." step={0.05} note="Current RBA cash rate benchmark" />
-            <InputRow label="Land Interest Rate" value={fa.landInterestRate * 100} onChange={v => update({ landInterestRate: v / 100 })} suffix="% p.a." step={0.05} note="Rate on land facility from settlement" />
-            <InputRow label="Land LVR" value={fa.landLvr * 100} onChange={v => update({ landLvr: v / 100 })} suffix="%" step={5} note="Land loan as % of land cost" />
-            <InputRow label="Land Carry Period" value={fa.landCarryMonths} onChange={v => update({ landCarryMonths: v })} suffix="months" step={1} note="Settlement → construction start" />
-            <InputRow label="Construction Period" value={fa.constructionMonths} onChange={v => update({ constructionMonths: v })} suffix="months" step={1} note="Build programme duration" />
+      <div style={{ padding: '0 24px 40px' }}>
+        {/* Charts */}
+        {(tab === 'capital' || tab === 'drawdown') && (
+          <div style={{ display: 'grid', gridTemplateColumns: tab === 'capital' ? '1fr 1fr' : '1fr', gap: 20, marginBottom: 28 }}>
+            <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, padding: 16 }}>
+              <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Debt balance — monthly drawdown curve</div>
+              <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
+                <span><span style={{ display: 'inline-block', width: 8, height: 8, background: BLUE, marginRight: 4 }} />Debt balance</span>
+                <span><span style={{ display: 'inline-block', width: 8, height: 8, background: GOLD, opacity: 0.5, marginRight: 4 }} />Monthly draws</span>
+              </div>
+              <DebtBalanceChart months={result.months} />
+            </div>
+            {tab === 'capital' && (
+              <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Interest accrual — by tranche per quarter</div>
+                <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
+                  {result.tranches.map(t => <span key={t.id}><span style={{ display: 'inline-block', width: 8, height: 8, background: trancheColor(t), marginRight: 4 }} />{t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : 'Senior interest'}</span>)}
+                </div>
+                <InterestByTrancheChart result={result} />
+              </div>
+            )}
           </div>
+        )}
 
-          <div style={{ border: '1px solid #E8E5E0', background: '#fff' }}>
-            <div style={{ padding: '16px 20px 0' }}><SectionHead title="Equity Hurdles" sub="Target returns for equity partners" /></div>
-            <InputRow label="Equity IRR Hurdle" value={fa.equityHurdleRate * 100} onChange={v => update({ equityHurdleRate: v / 100 })} suffix="% p.a." step={0.5} note="Minimum equity return target" />
-            <InputRow label="Preferred Return Rate" value={fa.preferredReturnRate * 100} onChange={v => update({ preferredReturnRate: v / 100 })} suffix="% p.a." step={0.5} note="Pref equity return before common" />
-            <div style={{ padding: '14px 16px', borderTop: '1px solid #F0EDE8', background: '#FAFAF8' }}>
-              <p style={{ fontSize: 9, color: '#BBB', letterSpacing: '0.06em', margin: 0 }}>
-                Equity multiple (GAV basis): <strong style={{ color: result.equityMultiple >= 1.5 ? GREEN : AMBER, fontFamily: 'monospace' }}>{gav > 0 ? `${result.equityMultiple.toFixed(2)}×` : '—'}</strong>
-                &nbsp;&nbsp;Equity: <strong style={{ color: GREEN, fontFamily: 'monospace' }}>{fmt(result.totalEquity)}</strong>
-              </p>
+        {/* Tranche configuration */}
+        {tab === 'capital' && (
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 10 }}>Tranche configuration — interest model per facility</div>
+            <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 720 }}>
+                <thead>
+                  <tr style={{ color: MUTE, textAlign: 'left' }}>
+                    {['Facility', 'Amount', 'Rate %', 'Interest model', 'Capitalised?', 'Day count'].map((h, i) => (
+                      <th key={h} style={{ padding: '10px 14px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600, textAlign: i === 1 || i === 2 ? 'right' : 'left' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {fa.tranches.map(t => {
+                    const wf = result.tranches.find(x => x.id === t.id)
+                    const facility = t.useAutoLvr ? result.baseTDC * (t.lvr || 0) : (t.amount || 0)
+                    return (
+                      <tr key={t.id} style={{ borderTop: '1px solid #F0EDE8' }}>
+                        <td style={{ padding: '10px 14px' }}><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: wf ? trancheColor(wf) : MUTE, marginRight: 8 }} />{t.label}</td>
+                        <td style={{ padding: '10px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtM(facility)}</td>
+                        <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                          <input type="number" step="0.1" value={((t.interestRate || 0) * 100).toFixed(1)} onChange={e => patchTranche(t.id, { interestRate: (parseFloat(e.target.value) || 0) / 100 })} style={{ ...inputCss, width: 56, textAlign: 'right' }} />
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <select value={t.interestModel || (t.type === 'mezz' ? 'pik' : 'compound')} onChange={e => patchTranche(t.id, { interestModel: e.target.value as DebtTranche['interestModel'] })} style={selCss}>
+                            <option value="compound">Compound monthly</option>
+                            <option value="pik">PIK</option>
+                            <option value="simple">Simple</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <select value={(t.capitalised ?? (t.type !== 'preferred-equity')) ? 'yes' : 'no'} onChange={e => patchTranche(t.id, { capitalised: e.target.value === 'yes' })} style={selCss}>
+                            <option value="yes">Yes — capitalised</option>
+                            <option value="no">No — cash pay</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <select value={t.dayCount || 'act365'} onChange={e => patchTranche(t.id, { dayCount: e.target.value as DebtTranche['dayCount'] })} style={{ ...selCss, width: 90 }}>
+                            <option value="act360">Act/360</option>
+                            <option value="act365">Act/365</option>
+                          </select>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Right: Finance cost breakdown */}
-        <div style={{ border: '1px solid #E8E5E0', background: '#fff' }}>
-          <div style={{ padding: '16px 20px 0' }}><SectionHead title="Finance Cost Breakdown" sub="All-in cost per tranche" /></div>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 360 }}>
-              <thead>
-                <tr style={{ background: '#F7F5F2', borderBottom: '1px solid #E8E5E0' }}>
-                  {['Tranche', 'Facility', 'Interest', 'Fees', 'Total'].map(h => (
-                    <th key={h} style={{ padding: '8px 12px', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#999', fontWeight: 600, textAlign: 'left' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {result.tranches.filter(t => t.facilityAmount > 0).map(t => (
-                  <tr key={t.id} style={{ borderBottom: '1px solid #F0EDE8' }}>
-                    <td style={{ padding: '8px 12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: TRANCHE_COLORS[t.type], flexShrink: 0, display: 'block' }} />
-                        <span style={{ fontSize: 10, color: '#555' }}>{t.label}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: '#777' }}>{fmt(t.facilityAmount)}</td>
-                    <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: '#777' }}>{fmt(t.interestCost)}</td>
-                    <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: '#777' }}>{fmt(t.establishmentFee + t.lineFee + t.exitFee)}</td>
-                    <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1A1A1A' }}>{fmt(t.totalCost)}</td>
-                  </tr>
+        {/* Cashflow schedule */}
+        {(tab === 'capital' || tab === 'cashflow') && (
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600 }}>Cashflow — draw schedule with interest accrual</div>
+              <div style={{ display: 'flex', gap: 2, background: '#F0EDE8', borderRadius: 6, padding: 2 }}>
+                {(['quarterly', 'monthly'] as const).map(f => (
+                  <button key={f} onClick={() => setFreq(f)} style={{ border: 'none', borderRadius: 5, padding: '4px 12px', fontSize: 10, cursor: 'pointer', textTransform: 'capitalize', background: freq === f ? INK : 'transparent', color: freq === f ? '#fff' : MUTE, fontWeight: freq === f ? 600 : 400 }}>{f}</button>
                 ))}
-                <tr style={{ borderTop: '2px solid #E8E5E0', background: '#FDFBF4' }}>
-                  <td colSpan={4} style={{ padding: '10px 12px', fontSize: 11, color: '#888', fontWeight: 600 }}>Land Carry Interest</td>
-                  <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: GOLD }}>{fmt(result.landInterestCost)}</td>
-                </tr>
-                <tr style={{ background: '#F5EDD6', borderTop: '1px solid #E8D9A0' }}>
-                  <td colSpan={4} style={{ padding: '10px 12px', fontSize: 11, color: '#8A6A10', fontWeight: 700, letterSpacing: '0.06em' }}>TOTAL FINANCE COST</td>
-                  <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 14, fontWeight: 900, color: GOLD }}>{fmt(result.totalFinanceCost)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* Debt Tranches */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', padding: '20px 24px', marginBottom: 28 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-          <SectionHead title="Debt Tranches" sub="Configure each funding layer — rates, LVR, fees and drawdown" />
-          <button onClick={addTranche} style={{ background: '#1A1A1A', color: '#fff', border: 'none', padding: '7px 16px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', flexShrink: 0 }}>
-            + Add Tranche
-          </button>
-        </div>
-        {fa.tranches.map(t => (
-          <TrancheCard
-            key={t.id} t={t} tdc={tdc}
-            onChange={u => updateTranche(t.id, u)}
-            onRemove={() => removeTranche(t.id)}
-            isDefault={DEFAULT_IDS.includes(t.id)}
-          />
-        ))}
-        <div style={{ marginTop: 14, padding: '10px 14px', background: '#F7F5F2', border: '1px solid #E8E5E0', fontSize: 9, color: '#AAA', letterSpacing: '0.06em' }}>
-          Drawdown profiles: <strong>S-Curve</strong> = gradual construction draw (avg 50% drawn) · <strong>Upfront</strong> = land/purchase facility (avg 90%) · <strong>Linear</strong> = equal monthly (avg 50%) · <strong>Back</strong> = late stage (avg 35%)
-        </div>
-      </div>
-
-      {/* Critical Path Sensitivity */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', padding: '20px 24px', marginBottom: 28 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-          <SectionHead title="Critical Path Sensitivity" sub="Impact of construction delays on finance cost and profit" />
-          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            {[
-              { label: '+3m', key: 'blowout3mActive' as const },
-              { label: '+6m', key: 'blowout6mActive' as const },
-              { label: '+12m', key: 'blowout12mActive' as const },
-            ].map(({ label, key }) => (
-              <button key={key} onClick={() => update({ [key]: !fa[key] })}
-                style={{ padding: '5px 12px', fontSize: 9, letterSpacing: '0.1em', cursor: 'pointer', border: '1px solid #D0CEC9', background: fa[key] ? '#1A1A1A' : 'transparent', color: fa[key] ? '#fff' : '#888', textTransform: 'uppercase' as const }}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <BlowoutCard s={result.base} base={result.base} tdc={tdc} />
-          {fa.blowout3mActive  && <BlowoutCard s={result.blowout3m}  base={result.base} tdc={tdc} />}
-          {fa.blowout6mActive  && <BlowoutCard s={result.blowout6m}  base={result.base} tdc={tdc} />}
-          {fa.blowout12mActive && <BlowoutCard s={result.blowout12m} base={result.base} tdc={tdc} />}
-        </div>
-        <div style={{ marginTop: 16, padding: '12px 16px', background: '#FEF9EC', border: '1px solid #E8D9A0' }}>
-          <p style={{ fontSize: 9, color: '#8A6A10', letterSpacing: '0.08em', margin: 0 }}>
-            ⚠ Sensitivity uses the weighted average debt rate across active tranches applied to total debt for each additional month. Delays beyond programme duration compound interest on all drawn facilities simultaneously.
-          </p>
-        </div>
-      </div>
-
-      {/* Drawdown S-Curve */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', padding: '20px 24px', marginBottom: 28 }}>
-        <SectionHead title="Drawdown S-Curve" sub="Cumulative cost trajectory · live sensitivity against critical path delays · traffic light health from Timeline" />
-        <FinanceSCurve fa={fa} result={result} tdc={tdc} tasks={timelineTasks} dark={false} compact={false} />
-      </div>
-
-      {/* Effective rates summary */}
-      {result.tranches.some(t => t.facilityAmount > 0) && (
-        <div style={{ border: '1px solid #E8E5E0', background: '#fff', padding: '20px 24px' }}>
-          <SectionHead title="Effective Rate Summary" sub="All-in cost of each tranche including fees, annualised over term" />
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {result.tranches.filter(t => t.facilityAmount > 0).map(t => (
-              <div key={t.id} style={{ flex: 1, minWidth: 140, padding: '14px 16px', border: `1px solid ${TRANCHE_COLORS[t.type]}33`, background: `${TRANCHE_COLORS[t.type]}06` }}>
-                <p style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: TRANCHE_COLORS[t.type], margin: '0 0 8px', fontWeight: 700 }}>{t.label}</p>
-                <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 22, color: '#1A1A1A', margin: '0 0 2px' }}>{pct(t.effectiveRate)}</p>
-                <p style={{ fontSize: 9, color: '#BBB', margin: '0 0 10px' }}>all-in p.a.</p>
-                <p style={{ fontSize: 9, color: '#888', margin: '0 0 2px' }}>Nominal: {pct(fa.tranches.find(x => x.id === t.id)?.interestRate ?? 0)}</p>
-                <p style={{ fontSize: 9, color: '#888', margin: 0 }}>Facility: {fmt(t.facilityAmount)}</p>
               </div>
-            ))}
+            </div>
+            <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10.5, minWidth: 720 }}>
+                <thead>
+                  <tr style={{ color: MUTE }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Item</th>
+                    {shown.map(b => <th key={b.label} style={{ padding: '8px 10px', textAlign: 'right', fontSize: 9, fontWeight: 600, whiteSpace: 'nowrap' }}>{b.label}</th>)}
+                    <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: 9, textTransform: 'uppercase' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: '#FAF9F7' }}>Cost drawdowns</td></tr>
+                  <ScheduleRow label="Debt draws" vals={shown.map(b => -b.debtDraw)} />
+                  <ScheduleRow label="Equity draws" vals={shown.map(b => -b.equityDraw)} />
+                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: '#FAF9F7' }}>Interest accrual — by tranche</td></tr>
+                  {result.tranches.map(t => (
+                    <ScheduleRow key={t.id} label={t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : t.label} vals={shown.map(b => -(b.interestByTranche[t.id] || 0))} />
+                  ))}
+                  <tr style={{ borderTop: '1px solid #E8E5E0' }}>
+                    <td style={{ padding: '8px 12px', fontWeight: 700 }}>Debt balance (EOP)</td>
+                    {shown.map((b, i) => <td key={i} style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{fmtM(b.balance)}</td>)}
+                    <td />
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
+        {/* Finance cost per TDC category */}
+        {tab === 'capital' && (
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 10 }}>Finance cost allocated to each TDC category</div>
+            <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 720 }}>
+                <thead>
+                  <tr style={{ color: MUTE }}>
+                    {['Category', 'Base cost', 'Debt drawn', 'Avg hold', 'Senior int.', 'Mezz int.', 'Pref int.', 'Total fin. cost'].map((h, i) => (
+                      <th key={h} style={{ padding: '9px 14px', textAlign: i === 0 ? 'left' : 'right', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.categories.map(c => (
+                    <tr key={c.category} style={{ borderTop: '1px solid #F0EDE8' }}>
+                      <td style={{ padding: '9px 14px' }}>{c.category}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmtM(c.baseCost)}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{c.debtDrawn > 0 ? fmtM(c.debtDrawn) : '$0'}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', color: MUTE }}>{c.avgHoldMonths} mo</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', color: BLUE, fontVariantNumeric: 'tabular-nums' }}>{c.seniorInt > 0 ? fmtK(c.seniorInt) : '—'}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', color: PURPLE, fontVariantNumeric: 'tabular-nums' }}>{c.mezzInt > 0 ? fmtK(c.mezzInt) : '—'}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', color: GOLD, fontVariantNumeric: 'tabular-nums' }}>{c.prefInt > 0 ? fmtK(c.prefInt) : '—'}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{c.total > 0 ? fmtK(c.total) : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {tab === 'sensitivity' && (
+          <div style={{ background: '#fff', border: '1px solid #ECEAE5', borderRadius: 8, padding: 20, color: MUTE, fontSize: 12 }}>
+            Peak debt {fmtM(result.peakDebt)} · total finance cost {fmtM(result.totalFinanceCost)} ({pct(financePctBase)} of TDC). Adjust tranche rates/models on Capital stack to stress the outcome.
+          </div>
+        )}
+      </div>
     </div>
+  )
+}
+
+function ScheduleRow({ label, vals }: { label: string; vals: number[] }) {
+  const total = vals.reduce((s, v) => s + v, 0)
+  return (
+    <tr style={{ borderTop: '1px solid #F6F4F0' }}>
+      <td style={{ padding: '7px 12px', color: '#444' }}>{label}</td>
+      {vals.map((v, i) => <td key={i} style={{ padding: '7px 10px', textAlign: 'right', color: v < 0 ? RED : '#999', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{v === 0 ? '—' : fmtK(v)}</td>)}
+      <td style={{ padding: '7px 12px', textAlign: 'right', fontWeight: 600, color: total < 0 ? RED : '#999', fontVariantNumeric: 'tabular-nums' }}>{total === 0 ? '—' : fmtK(total)}</td>
+    </tr>
   )
 }

@@ -364,6 +364,11 @@ export interface DebtTranche {
   termMonths: number           // facility term
   drawdownProfile: 'scurve' | 'linear' | 'upfront' | 'backloaded'
   notes: string
+  // ── Interest modelling (monthly waterfall) ──
+  interestModel?: 'compound' | 'pik' | 'simple'  // compound monthly | payment-in-kind | simple
+  capitalised?: boolean        // interest rolls into the balance (vs cash-pay)
+  dayCount?: 'act360' | 'act365'
+  fundsPhase?: 'land' | 'construction' | 'any'   // which cost draws this facility funds first
 }
 
 export interface FinanceAssumptions {
