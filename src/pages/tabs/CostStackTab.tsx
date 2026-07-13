@@ -878,6 +878,8 @@ export default function CostStackTab({ projectId }: Props) {
               gstEnabled={data.gstEnabled}
               basisMode={innerTab === 'hard' ? 'units' : 'basis'}
               groups={COST_GROUPS[innerTab]}
+              constructionValue={result.construction}
+              gdvValue={gdv}
             />
           </div>
 

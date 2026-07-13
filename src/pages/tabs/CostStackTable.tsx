@@ -12,7 +12,13 @@ interface Props {
   basisMode?: 'basis' | 'units'
   // When provided the rows are banded into labelled groups with subtotals; otherwise flat.
   groups?: GroupConfig[]
+  // Basis values so %-of-Construction / %-of-GRV lines can derive their budget live.
+  constructionValue?: number
+  gdvValue?: number
 }
+
+// Basis dropdown (fee tabs): direct $ / unit, or a % of a basis that derives the budget.
+const BASIS_OPTS: [string, string][] = [['', '$ / Unit'], ['construction', '% of Constr.'], ['gdv', '% of GRV']]
 
 // ── Phase badges ──────────────────────────────────────────────────────────────
 const PHASE_BADGE: Record<string, { bg: string; text: string; label: string }> = {
@@ -82,15 +88,30 @@ function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
   return res
 }
 
-export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups }: Props) {
+export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0 }: Props) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const toggle = (id: string) => { const n = new Set(collapsed); n.has(id) ? n.delete(id) : n.add(id); setCollapsed(n) }
 
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
 
-  const gstOf = (it: CostLineItem) => (it.gstFree || !gstEnabled ? 0 : (it.amount || 0) * GST_RATE)
-  const grandBudget = items.reduce((s, i) => s + (i.amount || 0), 0)
+  // A %-basis line's budget derives from its basis; otherwise it's the entered amount.
+  const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
+  const effAmt = (it: CostLineItem) => (it.feeBasis ? Math.round((it.pct ?? 0) * basisVal(it)) : (it.amount || 0))
+  // Picking a basis sets the derived budget; clearing it keeps the entered amount.
+  const changeBasis = (it: CostLineItem, v: string) => {
+    const fb = (v || undefined) as CostLineItem['feeBasis']
+    if (fb) update(it.id, { feeBasis: fb, pct: it.pct ?? 0, amount: Math.round((it.pct ?? 0) * (fb === 'gdv' ? gdvValue : constructionValue)) })
+    else update(it.id, { feeBasis: undefined })
+  }
+  const changePct = (it: CostLineItem, pctPercent: number) => {
+    const p = pctPercent / 100
+    update(it.id, { pct: p, amount: Math.round(p * basisVal(it)) })
+  }
+
+  // GST is shown straight off the budget figure (10%), except lines flagged GST-free.
+  const gstOf = (it: CostLineItem) => (it.gstFree ? 0 : effAmt(it) * GST_RATE)
+  const grandBudget = items.reduce((s, i) => s + effAmt(i), 0)
   const grandGst = items.reduce((s, i) => s + gstOf(i), 0)
 
   const th: React.CSSProperties = { fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
@@ -106,18 +127,35 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Item name — editable */}
         <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
           style={{ ...editInput, fontSize: 11 }} />
-        {/* Basis (derived label) + editable rate / base rate */}
-        <span style={{ fontSize: 10, color: '#B4B2AD' }}>{basisMode === 'units' ? (isPct ? '%' : 'sqm') : basisLabel(item)}</span>
-        <input type="text" inputMode="decimal" value={item.baseRate ? item.baseRate.toLocaleString() : ''} placeholder="—"
-          onChange={e => update(item.id, { baseRate: parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0 })}
-          style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
-        {/* Budget $ — editable */}
-        <input type="text" inputMode="numeric" value={(item.amount || 0).toLocaleString()}
-          onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
-          style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
-        {/* GST + Incl. GST — computed outputs */}
-        <span style={{ fontSize: 10, color: '#999', ...cellR }}>{item.gstFree || !gstEnabled ? '—' : money(gst)}</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#1A1A1A', ...cellR }}>{money((item.amount || 0) + gst)}</span>
+        {/* Basis — dropdown on fee tabs ($ / Unit · % of Constr. · % of GRV); unit label on construction */}
+        {basisMode === 'units' ? (
+          <span style={{ fontSize: 10, color: '#B4B2AD' }}>{isPct ? '%' : 'sqm'}</span>
+        ) : (
+          <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
+            {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        )}
+        {/* Rate — pct % for a %-basis line, otherwise the base rate */}
+        {isPct ? (
+          <input type="text" inputMode="decimal" value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
+            onChange={e => changePct(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
+            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+        ) : (
+          <input type="text" inputMode="decimal" value={item.baseRate ? item.baseRate.toLocaleString() : ''} placeholder="—"
+            onChange={e => update(item.id, { baseRate: parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0 })}
+            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+        )}
+        {/* Budget $ — derived (read-only) for %-basis lines, else editable */}
+        {isPct ? (
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', ...cellR }}>{money(effAmt(item))}</span>
+        ) : (
+          <input type="text" inputMode="numeric" value={(item.amount || 0).toLocaleString()}
+            onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
+            style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
+        )}
+        {/* GST from budget (10%) + Incl. GST */}
+        <span style={{ fontSize: 10, color: '#999', ...cellR }}>{item.gstFree ? '—' : money(gst)}</span>
+        <span style={{ fontSize: 11, fontWeight: 500, color: '#1A1A1A', ...cellR }}>{money(effAmt(item) + gst)}</span>
         {/* Funded by — editable dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ display: 'inline-flex', gap: 2, flexShrink: 0 }}>{fund.dots.map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c }} />)}</span>
@@ -142,7 +180,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   }
 
   const Subtotal = ({ label, rows }: { label: string; rows: CostLineItem[] }) => {
-    const b = rows.reduce((s, i) => s + (i.amount || 0), 0)
+    const b = rows.reduce((s, i) => s + effAmt(i), 0)
     const g = rows.reduce((s, i) => s + gstOf(i), 0)
     return (
       <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid #E8E5E0', background: '#F5F3F0', fontWeight: 600, fontSize: 11 }}>
