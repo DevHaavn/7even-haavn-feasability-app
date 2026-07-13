@@ -23,10 +23,6 @@ const COST_GROUPS: Record<string, GroupConfig[] | undefined> = {
     { id: 'env',      label: 'Environmental & planning',       color: '#C0DD97', notes: 'Environmental',       match: it => /environ/i.test(it.notes || '') },
     { id: 'other',    label: 'Other consultants',              color: '#FAC775', notes: 'Other',               match: () => true },
   ],
-  headworks: [
-    { id: 'util', label: 'Utility connections',       color: '#85B7EB', notes: 'Utility',       match: it => /utilit/i.test(it.notes || '') },
-    { id: 'env',  label: 'Environmental consultants', color: '#9FE1CB', notes: 'Environmental', match: it => /environ/i.test(it.notes || '') },
-  ],
 }
 
 interface Props { projectId: string }

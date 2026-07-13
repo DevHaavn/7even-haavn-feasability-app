@@ -234,6 +234,21 @@ export function migrateCatalogues() {
     if (stat.length === 0 || !stat.some(i => i.label === 'Asset Protection Bond | Demo')) {
       next.statutory = cloneStack(HAAVN_STATUTORY, p.id); changed = true
     }
+    // Construction — legacy = missing the new "Construction Costs | …" naming.
+    const hard = dc.hardCosts || []
+    if (hard.length === 0 || !hard.some(i => i.label === 'Construction Costs | Basement (s)')) {
+      next.hardCosts = cloneStack(HAAVN_CONSTRUCTION, p.id); changed = true
+    }
+    // Headworks — legacy = missing the new "Asset Relocation | Headworks" line.
+    const head = dc.headworks || []
+    if (head.length === 0 || !head.some(i => i.label === 'Asset Relocation | Headworks')) {
+      next.headworks = cloneStack(HAAVN_HEADWORKS, p.id); changed = true
+    }
+    // Management — legacy = missing the new "Administration Management" line.
+    const mgmt = dc.management || []
+    if (mgmt.length === 0 || !mgmt.some(i => i.label === 'Administration Management')) {
+      next.management = cloneStack(HAAVN_MANAGEMENT, p.id); changed = true
+    }
 
     if (changed) db.saveDetailedCostStack(next)
   }
