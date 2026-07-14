@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { loadMeetings, upsertBundle, newId } from './meetingsStore'
 import { crmSearch, type CrmLink } from './crm'
-import { startMockStream } from './mockStream'
+import { startTranscription, type EngineController } from './engine'
+import { emailHtml, transcriptPdfBase64 } from './exports'
 import { defaultSender, type Sender } from './senders'
 import SenderSelect from './SenderSelect'
 import type { MeetingBundle, Utterance, AgendaItem } from './types'
@@ -143,11 +144,13 @@ function Live({ bundle, persist, onEnd }: { bundle: MeetingBundle; persist: (b: 
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const ctrl = startMockStream(bundle.meeting.id, u => {
+    let ctrl: EngineController | null = null
+    let stopped = false
+    startTranscription(bundle.meeting.id, u => {
       setUtts(prev => { const i = prev.findIndex(x => x.id === u.id); if (i >= 0) { const n = [...prev]; n[i] = u; return n } return [...prev, u] })
-    }, { rate: 1 })
+    }).then(c => { if (stopped) c.stop(); else ctrl = c })
     const t = setInterval(() => setSecs(s => s + 1), 1000)
-    return () => { ctrl.stop(); clearInterval(t) }
+    return () => { stopped = true; ctrl?.stop(); clearInterval(t) }
   }, [bundle.meeting.id])
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [utts.length])
@@ -243,8 +246,8 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
   const [routeOpts] = useState<CrmLink[]>(() => crmSearch('').slice(0, 3))
   const [incSummary, setIncSummary] = useState(true)
   const [makeTasks, setMakeTasks] = useState(true)
-  const [recips, setRecips] = useState(() => bundle.attendees.filter(a => a.roleLabel !== 'Host').map(a => ({ name: a.displayName.split(/[\s·]/)[0], initials: initials(a.displayName) })))
-  const [sent, setSent] = useState(false)
+  const [recips, setRecips] = useState(() => bundle.attendees.filter(a => a.roleLabel !== 'Host').map(a => ({ name: a.displayName.split(/[\s·]/)[0], initials: initials(a.displayName), email: a.email })))
+  const [status, setStatus] = useState<string | null>(null)
 
   const actions = [
     { t: 'Send formal quotation for precast components', o: 'Due next week', who: 'Zheng Wei' },
@@ -252,14 +255,28 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
     { t: 'Update Saint Village programme in CRM', o: 'Today', who: 'Daniel Sette' },
   ]
 
-  const send = (alsoEmail: boolean) => {
+  const send = async (alsoEmail: boolean) => {
+    const content = { summary: SUMMARY, decisions: DECISIONS, actions: actions.map(a => ({ text: a.t, dueLabel: a.o, ownerId: a.who })) }
     persist({ ...bundle, meeting: { ...bundle.meeting, status: 'sent' }, record: {
-      id: newId('rec'), meetingId: bundle.meeting.id,
-      summary: SUMMARY, decisions: DECISIONS, actions: actions.map(a => ({ text: a.t, dueLabel: a.o })),
+      id: newId('rec'), meetingId: bundle.meeting.id, summary: content.summary, decisions: content.decisions, actions: content.actions,
       exports: {}, routedTo: route ? { type: route.type, id: route.id } : null,
       sentAt: alsoEmail ? new Date().toISOString() : undefined, sentFrom: alsoEmail ? from.email : undefined,
     } })
-    setSent(true)
+    if (!alsoEmail) { setStatus(`✓ Saved to CRM${route ? ` · ${route.label}` : ''}. Not emailed.`); return }
+    setStatus('Sending…')
+    try {
+      const attachments = [
+        { name: 'Transcript_EN.pdf', contentType: 'application/pdf', contentBytesBase64: transcriptPdfBase64(bundle, content, false) },
+        { name: 'Transcript_中英.pdf', contentType: 'application/pdf', contentBytesBase64: transcriptPdfBase64(bundle, content, true) },
+      ]
+      const r = await fetch('/api/send-mail', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: from.email, to: recips.map(x => x.email).filter(Boolean), subject: `Meeting record — ${bundle.meeting.title}`, html: incSummary ? emailHtml(bundle, content) : '<p>Meeting record attached.</p>', attachments }),
+      })
+      if (r.status === 200) setStatus(`✓ Saved to CRM & emailed from ${from.email}.`)
+      else if (r.status === 501) setStatus('✓ Saved to CRM. Email will send once Microsoft 365 is connected in Vercel.')
+      else { const e = await r.json().catch(() => ({})); setStatus(`✓ Saved to CRM. Email not sent — ${e.error || 'error ' + r.status}`) }
+    } catch (e: any) { setStatus(`✓ Saved to CRM. Email failed: ${String(e?.message || e)}`) }
   }
 
   const field: React.CSSProperties = { marginBottom: 15 }
@@ -339,7 +356,7 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
           <button style={{ ...btn('glass'), flex: 1 }} onClick={() => send(false)}>Save only</button>
           <button style={{ ...btn('primary'), flex: 1.4 }} onClick={() => send(true)}>Save to CRM &amp; send</button>
         </div>
-        {sent && <div style={{ padding: '10px 18px 16px', fontSize: 11.5, color: '#9FE1CB', ...mono }}>✓ Record saved to CRM{route ? ` · ${route.label}` : ''}. Email dispatch activates once the Microsoft 365 connection is wired (phase 8).</div>}
+        {status && <div style={{ padding: '10px 18px 16px', fontSize: 11.5, color: '#9FE1CB', ...mono }}>{status}</div>}
       </div>
     </div>
   )
