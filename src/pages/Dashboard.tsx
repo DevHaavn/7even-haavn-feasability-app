@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { useStore } from '../store'
 import * as db from '../db'
 import { calculateCostStack } from '../engine/costStack'
 import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
@@ -191,7 +192,10 @@ function KPI({ label, value, sub, color = '#C4973A' }: { label: string; value: s
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 
 export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => void; brand?: '7even' | 'haavn' }) {
-  const portfolio = useMemo(() => aggregatePortfolio(brand), [brand])
+  // Subscribe to syncTick so the portfolio roll-up recomputes live when any
+  // project's figures change on another device — no refresh needed.
+  const syncTick = useStore(s => s.syncTick)
+  const portfolio = useMemo(() => aggregatePortfolio(brand), [brand, syncTick])
   const is7even = brand === '7even'
   const accentColor = is7even ? '#C4973A' : 'rgba(255,255,255,0.70)'
   const brandLabel = is7even ? '7EVEN' : 'HAAVN'
