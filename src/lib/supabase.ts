@@ -7,14 +7,15 @@ import { createClient } from '@supabase/supabase-js'
 // as the built-in default so the app ALWAYS connects to the right database,
 // independent of how Vercel's build-time env vars happen to be configured.
 // Env vars still win if set, so a future backend swap needs no code change.
-const DEFAULT_SUPABASE_URL = 'https://vgvavmnqrdgcnledztyk.supabase.co'
-const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10'
+// Hardcoded UNCONDITIONALLY (not via `env || default`, which the build's
+// minifier dead-code-eliminates when the env var is a truthy constant — that's
+// exactly why earlier builds shipped without the key). These literals are always
+// present in the bundle, so the app always connects to the HAAVN database.
+const SUPABASE_URL = 'https://vgvavmnqrdgcnledztyk.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10'
 
-const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string) || DEFAULT_SUPABASE_URL
-const SUPABASE_ANON_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || DEFAULT_SUPABASE_ANON_KEY
-
-// Cloud is always available now — credentials are guaranteed by the defaults above.
-export const cloudEnabled = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
+// Cloud is always available — credentials are compiled into the bundle above.
+export const cloudEnabled = true
 
 // createClient throws on empty URL/key, which would black-screen the whole app.
 // Fall back to harmless placeholders so the app still loads; network calls just
