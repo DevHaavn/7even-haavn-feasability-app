@@ -12,7 +12,7 @@ import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 
 export default function App() {
-  const { activeProjectId, projects, loadProjects } = useStore()
+  const { activeProjectId, projects, loadProjects, bumpSync } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
   const [role, setRole] = useState<Role>(getStoredRole())
   const [showIntro, setShowIntro] = useState(false)
@@ -74,8 +74,10 @@ export default function App() {
     const unsub = subscribeRealtime(() => {
       // Another client saved a change; the pull inside subscribeRealtime already
       // hydrated it (respecting the per-key edit guard so it can't clobber an
-      // in-progress local edit). Just re-render — never seed/migrate here.
+      // in-progress local edit). Re-render the project list AND bump syncTick so
+      // open tabs re-read their figures and repaint live — no refresh needed.
       loadProjects()
+      bumpSync()
     })
     return unsub
   }, [])

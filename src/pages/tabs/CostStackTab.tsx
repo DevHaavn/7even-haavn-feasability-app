@@ -552,6 +552,17 @@ export default function CostStackTab({ projectId }: Props) {
     setDetailedDirty(false)
   }, [projectId])
 
+  // Live update: another user changed a figure and it's been pulled into local
+  // storage. Repaint from the fresh data so the open screen updates without a
+  // refresh. Skip while THIS user has an unsaved edit in flight so we never yank
+  // a number out from under someone who's typing.
+  useEffect(() => {
+    if (detailedDirty) return
+    setData(store.getCostStack(projectId))
+    setDetailed(store.getDetailedCostStack(projectId))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.syncTick])
+
   function update<K extends keyof CostStack>(field: K, value: CostStack[K]) {
     const next = { ...data, [field]: value }; cs.commit(data, next); setData(next)
   }

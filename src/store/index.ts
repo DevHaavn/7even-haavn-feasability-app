@@ -7,9 +7,13 @@ interface AppState {
   activeProjectId: string | null
   activeScenarioId: string | null
   activeTab: string
+  // Bumped whenever a live (realtime) update from another client has been pulled
+  // into localStorage. Tabs watch this to re-read and repaint without a refresh.
+  syncTick: number
 
   // Actions
   loadProjects: () => void
+  bumpSync: () => void
   setActiveProject: (id: string | null) => void
   setActiveScenario: (id: string | null) => void
   setActiveTab: (tab: string) => void
@@ -45,10 +49,13 @@ export const useStore = create<AppState>((set, get) => ({
   activeProjectId: null,
   activeScenarioId: null,
   activeTab: 'site',
+  syncTick: 0,
 
   loadProjects: () => {
     set({ projects: db.getProjects().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) })
   },
+
+  bumpSync: () => set(s => ({ syncTick: s.syncTick + 1 })),
 
   setActiveProject: (id) => set({ activeProjectId: id, activeScenarioId: null, activeTab: 'site' }),
   setActiveScenario: (id) => set({ activeScenarioId: id }),
