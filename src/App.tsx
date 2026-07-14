@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
-import { pullFromCloud, subscribeRealtime, setSeeding } from './db/cloud'
+import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import { migrateCostStackLabels, seedBaseFinanceForAll } from './db'
 import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll, migrateCatalogues } from './db/seed'
 import ProjectList from './pages/ProjectList'
@@ -36,44 +36,45 @@ export default function App() {
     return () => window.removeEventListener('resize', applyZoom)
   }, [])
 
-  // On mount: pull cloud data then subscribe to live changes
+  // On mount: pull the cloud (the single source of truth), then subscribe to
+  // live changes. SEEDING RULE — the app seeds/migrates ONLY when the cloud is
+  // confirmed empty (a brand-new database). When the cloud already has projects,
+  // it is authoritative and the client never regenerates, migrates, or overwrites
+  // anything — it only reads, and pushes the specific numbers a user edits. This
+  // is what stops any one computer from resetting feasibility for everyone.
   useEffect(() => {
-    setSyncing(true)
-    // Run the seed/repair pipeline exactly once, whether the cloud pull succeeds,
-    // fails, or is slow. A hung network must never strand the app in "syncing" or
-    // skip the local seeds — the app stays usable off localStorage regardless.
-    let ran = false
-    const runSeeds = () => {
-      if (ran) return
-      ran = true
-      // Seeds/migrations write ONLY to localStorage — never to the shared cloud.
-      // setSeeding(true) suppresses every push while the baseline is rebuilt, so a
-      // client loading with blank templates can't overwrite another user's real
-      // cloud data. Only edits the user makes after this (seeding=false) push up.
-      setSeeding(true)
-      try {
+    let done = false
+    const finish = (status: 'has-data' | 'empty' | 'error') => {
+      if (done) return
+      done = true
+      if (status === 'empty') {
+        // Brand-new / empty database (or local-only mode): build the baseline once
+        // and let it push up to populate the cloud. This is the ONLY path allowed
+        // to write template data to the cloud, and it only runs on an empty cloud.
         seedProjectsIfEmpty()
         migrateCostStackLabels()
         seedBaseCostStackForAll()
         seedBaseFinanceForAll()
         consolidatePreston()
         migrateCatalogues()
-      } finally {
-        setSeeding(false)
       }
+      // 'has-data': cloud is authoritative — do NOT seed/migrate/overwrite.
+      // 'error': pull failed — render whatever local cache exists, but do NOT seed
+      //          (seeding over an unreachable-but-populated cloud would clobber it).
       loadProjects()
       setSyncing(false)
     }
-    // Whichever finishes first — the pull or a 6s safety timeout — runs the seeds.
-    const timer = setTimeout(runSeeds, 6000)
-    pullFromCloud().catch(() => false).then(() => { clearTimeout(timer); runSeeds() })
+    setSyncing(true)
+    // If the pull hangs, fall back to local cache WITHOUT seeding (treat as 'error').
+    const timer = setTimeout(() => finish('error'), 8000)
+    pullFromCloud().then(
+      (status) => { clearTimeout(timer); finish(status) },
+      () => { clearTimeout(timer); finish('error') },
+    )
     const unsub = subscribeRealtime(() => {
-      // A realtime event means another client persisted a change; the pull inside
-      // subscribeRealtime already hydrated it into localStorage (respecting the
-      // per-key edit guard, so it can't clobber this user's in-progress edits).
-      // Just re-render. Do NOT run seeds/migrations or consolidatePreston here —
-      // consolidatePreston saves→pushes on every event, which creates a realtime
-      // feedback loop that re-pulls and fights live edits.
+      // Another client saved a change; the pull inside subscribeRealtime already
+      // hydrated it (respecting the per-key edit guard so it can't clobber an
+      // in-progress local edit). Just re-render — never seed/migrate here.
       loadProjects()
     })
     return unsub

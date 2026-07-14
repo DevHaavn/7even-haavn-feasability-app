@@ -132,8 +132,16 @@ export function deleteCloudScenario(scenarioId: string) {
 
 // ── Pull all data from Supabase into localStorage ─────────────────────────────
 
-export async function pullFromCloud(): Promise<boolean> {
-  if (!cloudEnabled) return true // local-only mode
+// 'has-data'  cloud pull succeeded and the cloud already holds projects — this is
+//             the source of truth; the app must NOT seed/migrate/overwrite.
+// 'empty'     cloud pull succeeded but the cloud is empty (brand-new database) —
+//             OR cloud is disabled (local-only). Safe to run the one-time seed.
+// 'error'     pull failed (network/permissions). Do NOT seed — seeding now could
+//             create duplicate/blank data over a cloud that actually has data.
+export type PullResult = 'has-data' | 'empty' | 'error'
+
+export async function pullFromCloud(): Promise<PullResult> {
+  if (!cloudEnabled) return 'empty' // local-only mode — build the local baseline
   try {
     const [
       { data: projects, error: pe },
@@ -153,10 +161,10 @@ export async function pullFromCloud(): Promise<boolean> {
 
     if (pe || pde || se || sde || snape || ffe) {
       console.warn('[cloud] pull error', pe || pde || se || sde || snape || ffe)
-      return false
+      return 'error'
     }
 
-    if (!projects || projects.length === 0) return true // empty cloud, keep local
+    if (!projects || projects.length === 0) return 'empty' // brand-new database
 
     // Hydrate projects
     const mapped = projects.map((p: Record<string, unknown>) => ({
@@ -262,10 +270,10 @@ export async function pullFromCloud(): Promise<boolean> {
       localStorage.setItem(`feasibility-files:${pid}`, JSON.stringify(files))
     }
 
-    return true
+    return 'has-data'
   } catch (err) {
     console.warn('[cloud] pullFromCloud failed', err)
-    return false
+    return 'error'
   }
 }
 
