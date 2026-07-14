@@ -39,9 +39,21 @@ const FIELD_KEY: Record<string, (pid: string) => string> = {
   timeline: p => `timeline:${p}`, cashflow: p => `cashflow:${p}`,
 }
 
+// ── Seeding guard ─────────────────────────────────────────────────────────────
+// Bootstrapping/seeding/migration runs on EVERY app load and rebuilds a local
+// baseline (blank cost-stack templates, Preston consolidation, etc.). Those are
+// LOCAL-only concerns — they must never push to the shared cloud, or one client
+// loading with an empty/blank baseline would overwrite another user's real data
+// (exactly the "my figures won't hold / reset to $0" bug). While `seeding` is
+// true, every push is suppressed; only genuine user edits (made after seeding
+// completes) reach the cloud.
+let seeding = false
+export function setSeeding(v: boolean) { seeding = v }
+
 // ── Push helpers (fire-and-forget from save functions) ────────────────────────
 
 export function pushProject(project: Record<string, unknown>) {
+  if (seeding) return
   noteLocalWrite()
   supabase.from('projects').upsert({
     id: project.id,
@@ -59,6 +71,7 @@ export function pushProject(project: Record<string, unknown>) {
 export function pushProjectField(projectId: string, field: 'site' | 'land' | 'cost_stack' | 'detailed_costs' | 'finance' | 'timeline' | 'cashflow', data: unknown) {
   noteLocalWrite()
   noteKeyWrite(FIELD_KEY[field](projectId))
+  if (seeding) return // local-only seed write — never overwrite shared cloud data
   if (!cloudEnabled) { console.warn(`[cloud] ⚠ SKIPPED ${field} for ${projectId} — cloud disabled (missing Supabase env at build)`); return }
   supabase.from('project_data').upsert({
     project_id: projectId,
@@ -72,6 +85,7 @@ export function pushProjectField(projectId: string, field: 'site' | 'land' | 'co
 }
 
 export function pushScenario(scenario: Record<string, unknown>) {
+  if (seeding) return
   noteLocalWrite()
   supabase.from('mix_scenarios').upsert({
     id: scenario.id,
@@ -81,6 +95,7 @@ export function pushScenario(scenario: Record<string, unknown>) {
 }
 
 export function pushScenarioField(scenarioId: string, field: 'unit_types' | 'btr' | 'bts' | 'hotel', data: unknown) {
+  if (seeding) return
   noteLocalWrite()
   supabase.from('scenario_data').upsert({
     scenario_id: scenarioId,
@@ -89,6 +104,7 @@ export function pushScenarioField(scenarioId: string, field: 'unit_types' | 'btr
 }
 
 export function pushSnapshot(snapshot: Record<string, unknown>) {
+  if (seeding) return
   noteLocalWrite()
   supabase.from('snapshots').upsert({
     id: snapshot.id,
@@ -256,6 +272,7 @@ export async function pullFromCloud(): Promise<boolean> {
 // ── Feasibility Files ─────────────────────────────────────────────────────────
 
 export function pushFeasibilityFiles(projectId: string, files: Record<string, unknown>[]) {
+  if (seeding) return
   noteLocalWrite()
   const fileData = files.map(f => ({
     id: f.id,

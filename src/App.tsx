@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from './store'
-import { pullFromCloud, subscribeRealtime } from './db/cloud'
+import { pullFromCloud, subscribeRealtime, setSeeding } from './db/cloud'
 import { migrateCostStackLabels, seedBaseFinanceForAll } from './db'
 import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll, migrateCatalogues } from './db/seed'
 import ProjectList from './pages/ProjectList'
@@ -46,12 +46,21 @@ export default function App() {
     const runSeeds = () => {
       if (ran) return
       ran = true
-      seedProjectsIfEmpty()
-      migrateCostStackLabels()
-      seedBaseCostStackForAll()
-      seedBaseFinanceForAll()
-      consolidatePreston()
-      migrateCatalogues()
+      // Seeds/migrations write ONLY to localStorage — never to the shared cloud.
+      // setSeeding(true) suppresses every push while the baseline is rebuilt, so a
+      // client loading with blank templates can't overwrite another user's real
+      // cloud data. Only edits the user makes after this (seeding=false) push up.
+      setSeeding(true)
+      try {
+        seedProjectsIfEmpty()
+        migrateCostStackLabels()
+        seedBaseCostStackForAll()
+        seedBaseFinanceForAll()
+        consolidatePreston()
+        migrateCatalogues()
+      } finally {
+        setSeeding(false)
+      }
       loadProjects()
       setSyncing(false)
     }
