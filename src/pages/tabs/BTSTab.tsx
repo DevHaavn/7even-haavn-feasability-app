@@ -16,7 +16,7 @@ export default function BTSTab({ projectId }: Props) {
   const [scenarios, setScenarios] = useState<MixScenario[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [data, setData] = useState<BTSAssumptions | null>(null)
-  const { commit, undo, canUndo } = useAutosave<BTSAssumptions>(store.saveBTSAssumptions, [activeId])
+  const { commit, undo, canUndo } = useAutosave<BTSAssumptions>(store.saveBTSAssumptions, [activeId], { onLiveReload: () => { if (activeId) setData(store.getBTSAssumptions(activeId)) } })
 
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { pingSave } from './saveSignal'
+import { useStore } from '../store'
 
 /**
  * Auto-save with a grouped undo history for a single piece of tab state.
@@ -15,9 +16,10 @@ import { pingSave } from './saveSignal'
  * • A pending debounced save is FLUSHED when the deps change (e.g. project
  *   switch) or the component unmounts, so nothing is ever lost.
  */
-export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { debounceMs?: number; groupMs?: number }) {
+export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { debounceMs?: number; groupMs?: number; onLiveReload?: () => void; liveGuardMs?: number }) {
   const debounceMs = opts?.debounceMs ?? 600
   const groupMs = opts?.groupMs ?? 1000
+  const liveGuardMs = opts?.liveGuardMs ?? 4000
 
   const stack = useRef<T[]>([])
   const [canUndo, setCanUndo] = useState(false)
@@ -26,6 +28,23 @@ export function useAutosave<T>(save: (v: T) => void, deps: unknown[], opts?: { d
   const lastAt = useRef(0)
   const saveRef = useRef(save)
   saveRef.current = save
+
+  // Live update: when another client's change has been pulled in (store.syncTick
+  // bumps), re-read this tab's data so the open screen repaints without a refresh.
+  // Skip while an edit is in flight or was just made, so we never yank a value out
+  // from under someone who's typing.
+  const syncTick = useStore(s => s.syncTick)
+  const reloadRef = useRef(opts?.onLiveReload)
+  reloadRef.current = opts?.onLiveReload
+  const firstSync = useRef(true)
+  useEffect(() => {
+    if (firstSync.current) { firstSync.current = false; return }
+    if (!reloadRef.current) return
+    if (pending.current) return                              // unsaved edit queued
+    if (Date.now() - lastAt.current < liveGuardMs) return    // just edited
+    reloadRef.current()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncTick])
 
   const flush = useCallback(() => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null }

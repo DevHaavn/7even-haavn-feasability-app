@@ -13,7 +13,7 @@ export default function SiteDesignTab({ projectId }: Props) {
   const [data, setData] = useState<SiteDesign>(getSiteDesign(projectId))
   const [pasteText, setPasteText] = useState('')
   const [showParser, setShowParser] = useState(false)
-  const { commit, undo, canUndo } = useAutosave(saveSiteDesign, [projectId])
+  const { commit, undo, canUndo } = useAutosave(saveSiteDesign, [projectId], { onLiveReload: () => setData(getSiteDesign(projectId)) })
 
   useEffect(() => { setData(getSiteDesign(projectId)) }, [projectId])
 

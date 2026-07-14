@@ -14,7 +14,7 @@ export default function HotelTab({ projectId }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [data, setData] = useState<HotelAssumptions | null>(null)
   const [operatorType, setOperatorType] = useState<'management' | 'lease'>('management')
-  const { commit, undo, canUndo } = useAutosave<HotelAssumptions>(store.saveHotelAssumptions, [activeId])
+  const { commit, undo, canUndo } = useAutosave<HotelAssumptions>(store.saveHotelAssumptions, [activeId], { onLiveReload: () => { if (activeId) setData(store.getHotelAssumptions(activeId)) } })
 
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)

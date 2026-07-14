@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
+import { useStore } from '../../store'
 import * as db from '../../db'
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
 import { calculateFinanceWaterfall } from '../../engine/financeWaterfall'
@@ -109,11 +110,23 @@ export default function FinanceTab({ projectId }: Props) {
   const [lens, setLens] = useState<typeof LENSES[number][0]>('developer')
   const [freq, setFreq] = useState<'quarterly' | 'monthly'>('quarterly')
 
+  // Live update: repaint when another client's change is pulled in, unless this
+  // user just edited (guard) so we don't disturb active input.
+  const syncTick = useStore(s => s.syncTick)
+  const lastEdit = useRef(0)
+  useEffect(() => { setFa(db.getFinanceAssumptions(projectId)) }, [projectId])
+  useEffect(() => {
+    if (Date.now() - lastEdit.current < 4000) return
+    setFa(db.getFinanceAssumptions(projectId))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncTick])
+
   const detailed = db.getDetailedCostStack(projectId)
   const land = db.getLandTerms(projectId)
   const result = useMemo(() => calculateFinanceWaterfall(detailed, land, fa), [detailed, land, fa])
 
   function patchTranche(id: string, patch: Partial<DebtTranche>) {
+    lastEdit.current = Date.now()
     const next = { ...fa, tranches: fa.tranches.map(t => t.id === id ? { ...t, ...patch } : t) }
     setFa(next)
     db.saveFinanceAssumptions(next)

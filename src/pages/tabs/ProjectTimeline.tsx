@@ -116,7 +116,7 @@ export default function ProjectTimeline({ projectId }: Props) {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragDays, setDragDays] = useState(0)
 
-  const { commit, undo, canUndo } = useAutosave<TimelineTask[]>(t => saveTimelineTasks(projectId, t), [projectId])
+  const { commit, undo, canUndo } = useAutosave<TimelineTask[]>(t => saveTimelineTasks(projectId, t), [projectId], { onLiveReload: () => setTasks(getTimelineTasks(projectId)) })
   function persist(next: TimelineTask[]) { commit(tasks, next); setTasks(next) }
   function openNew()  { setEditing({ id: generateId(), projectId, ...BLANK_TASK }); setIsNew(true) }
   function openEdit(t: TimelineTask) { setEditing({ ...t }); setIsNew(false) }

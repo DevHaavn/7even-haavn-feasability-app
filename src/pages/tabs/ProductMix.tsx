@@ -40,7 +40,7 @@ export default function ProductMixTab({ projectId }: Props) {
   const [showNew, setShowNew] = useState(false)
   const [showArchImport, setShowArchImport] = useState(false)
   const [archPasteText, setArchPasteText] = useState('')
-  const { commit, undo, canUndo } = useAutosave<UnitType[]>(u => { if (activeId) store.saveUnitTypes(activeId, u) }, [activeId])
+  const { commit, undo, canUndo } = useAutosave<UnitType[]>(u => { if (activeId) store.saveUnitTypes(activeId, u) }, [activeId], { onLiveReload: () => { if (activeId) setUnits(store.getUnitTypes(activeId)) } })
 
   const site = store.getSiteDesign(projectId)
 

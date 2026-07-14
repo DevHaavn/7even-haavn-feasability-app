@@ -14,7 +14,7 @@ export default function BTRTab({ projectId }: Props) {
   const [scenarios, setScenarios] = useState<MixScenario[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [data, setData] = useState<BTRAssumptions | null>(null)
-  const { commit, undo, canUndo } = useAutosave<BTRAssumptions>(store.saveBTRAssumptions, [activeId])
+  const { commit, undo, canUndo } = useAutosave<BTRAssumptions>(store.saveBTRAssumptions, [activeId], { onLiveReload: () => { if (activeId) setData(store.getBTRAssumptions(activeId)) } })
 
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)

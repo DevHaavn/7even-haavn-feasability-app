@@ -61,7 +61,7 @@ export default function LandTermsTab({ projectId }: Props) {
   const { getLandTerms, saveLandTerms, getCostStack } = useStore()
   const gstEnabled = getCostStack(projectId).gstEnabled
   const [data, setData] = useState<LandTerms>(getLandTerms(projectId))
-  const { commit, undo, canUndo } = useAutosave(saveLandTerms, [projectId])
+  const { commit, undo, canUndo } = useAutosave(saveLandTerms, [projectId], { onLiveReload: () => setData(getLandTerms(projectId)) })
 
   useEffect(() => { setData(getLandTerms(projectId)) }, [projectId])
 
