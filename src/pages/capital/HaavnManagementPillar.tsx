@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { HMPillar } from './HaavnManagementBase'
 import Atrium from './Atrium'
+import MeetingsView from '../../features/meetings/MeetingsView'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
@@ -33,9 +34,11 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
         )}
       </div>
 
-      {/* Body — live CRM or placeholder for future pillars */}
+      {/* Body — live CRM, live Meetings, or placeholder for future pillars */}
       {pillar.id === 'crm' ? (
         <Atrium />
+      ) : pillar.id === 'meetings' ? (
+        <MeetingsView />
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
