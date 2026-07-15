@@ -182,7 +182,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         })()}
         {/* Footer — the site links float on the texture below the card (not on the
             fill-height timeline, which owns the full stage) */}
-        {PREMIUM_TABS.includes(safeTab) && safeTab !== 'timeline' && <div className="premium-footer"><SiteLinks /></div>}
+        {PREMIUM_TABS.includes(safeTab) && safeTab !== 'timeline' && <div className="premium-footer"><SiteLinks tone="light" /></div>}
       </div>
 
       <Project7Mark size={58} bottom={12} right={16} />
