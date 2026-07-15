@@ -3,6 +3,7 @@ import { Project7Mark } from '../../components/ui'
 import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
+import { AtriumApex } from '../../components/AtriumMark'
 
 export type HMPillarId = 'crm' | 'meetings' | 'social'
 
@@ -95,8 +96,9 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
               }}
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${p.color}22` }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
+                <AtriumApex size={22} />
               </div>
               <div>
                 <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />

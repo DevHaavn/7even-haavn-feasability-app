@@ -1,16 +1,6 @@
 import React from 'react'
 import { DesignCredit } from './ui'
-
-// The ATRIUM Apex — thin silver A, the platform brand mark (brief §3).
-function Apex({ size = 16 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
-      <defs><linearGradient id="sl_apex" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F4F5" /><stop offset=".5" stopColor="#C6CDCF" /><stop offset="1" stopColor="#9AA2A4" /></linearGradient></defs>
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke="url(#sl_apex)" strokeWidth={11} strokeLinejoin="miter" strokeLinecap="round" />
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" strokeWidth={3.2} strokeLinejoin="miter" strokeLinecap="round" opacity={0.85} />
-    </svg>
-  )
-}
+import { AtriumApex } from './AtriumMark'
 
 export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const light = tone === 'light'
@@ -39,7 +29,7 @@ export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' }
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '13px 24px 8px', flexWrap: 'wrap' }}>
         {/* ATRIUM brand device */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-          <Apex size={15} />
+          <AtriumApex size={16} />
           <span style={{ color: brandCol, fontFamily: "'Inter Tight', var(--font-heading), sans-serif", fontWeight: 600, fontSize: 11, letterSpacing: '0.28em' }}>ATRIUM</span>
         </span>
         <div style={{ width: 1, height: 12, background: dividerCol }} />

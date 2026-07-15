@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Panel } from '../../components/ui/Panel'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { AtriumApex } from '../../components/AtriumMark'
 import WarMark, { Reticle } from './WarMark'
 import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
@@ -174,8 +175,9 @@ export default function Atrium() {
           }
         }}
         brand={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>ATRIUM</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <AtriumApex size={22} />
+            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: '0.14em', color: '#fff' }}>ATRIUM</span>
           </div>
         }
         footer={

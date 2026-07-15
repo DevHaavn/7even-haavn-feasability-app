@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import BudgetsAdmin from './BudgetsAdmin'
+import { AtriumApex } from '../../components/AtriumMark'
 
 /** Accounts Pillar 01 landing. Splits Administration into two books:
  *  01 · 7EVEN Capital Administration (ATRIUM) — the 7even / 7even Capital entity,
@@ -25,24 +26,6 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
   },
 ]
 
-/** The ATRIUM Apex — a thin silver A, the platform mark. Both admin books are
- *  ATRIUM surfaces, so both buttons carry it (brief §3: silver default, keep it
- *  thin, the wordmark is type). */
-function Apex({ id, size = 18 }: { id: string; size?: number }) {
-  return (
-    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ flexShrink: 0, display: 'block' }}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F2F4F5" />
-          <stop offset=".5" stopColor="#C6CDCF" />
-          <stop offset="1" stopColor="#9AA2A4" />
-        </linearGradient>
-      </defs>
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke={`url(#${id})`} strokeWidth={11} strokeLinejoin="miter" strokeLinecap="round" />
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" strokeWidth={3.2} strokeLinejoin="miter" strokeLinecap="round" opacity={0.85} />
-    </svg>
-  )
-}
 
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
@@ -112,7 +95,7 @@ export default function BudgetsAdminBase() {
             <div>
               {/* ATRIUM platform brand — carried on both books' buttons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '0 0 12px' }}>
-                <Apex id={`apex-${b.id}`} size={18} />
+                <AtriumApex size={20} />
                 <span style={{ color: '#EEF1F2', fontFamily: "'Inter Tight', var(--font-heading), sans-serif", fontWeight: 600, fontSize: 15, letterSpacing: '0.30em', paddingLeft: '0.06em' }}>ATRIUM</span>
               </div>
               <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{b.title}</h2>

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { saveKV } from '../../lib/cloudStore'
+import { AtriumApex as Apex7 } from '../../components/AtriumMark'
 import { useStore } from '../../store'
 import {
   getLandTerms, saveLandTerms, getDetailedCostStack as dbGetDetailedCostStack,
@@ -227,17 +228,6 @@ const ATRIUM_CSS = `
 @media(max-width:1000px){.atr7-body{grid-template-columns:1fr}.atr7-rail{display:none}.atr7-modlbl{display:none}}
 `
 
-// The ATRIUM Apex — thin silver A, the platform mark (brief §3).
-function Apex7({ size = 18 }: { size?: number }) {
-  const gid = 'atr7apex' + size
-  return (
-    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
-      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F4F5" /><stop offset=".5" stopColor="#C6CDCF" /><stop offset="1" stopColor="#9AA2A4" /></linearGradient></defs>
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke={`url(#${gid})`} strokeWidth={11} strokeLinejoin="miter" strokeLinecap="round" />
-      <path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" strokeWidth={3.2} strokeLinejoin="miter" strokeLinecap="round" opacity={0.85} />
-    </svg>
-  )
-}
 
 // ── sparkline ────────────────────────────────────────────────────────────────
 function Spark({ arr, color }: { arr: number[]; color: string }) {
