@@ -542,27 +542,20 @@ input[type="checkbox"] {
 
 /* ── Premium floating stage — content pages hover over the dark texture ── */
 .premium-stage {
-  /* barely-there veil so the crumpled texture reads clearly */
-  background:
-    linear-gradient(rgba(0,0,0,0.03), rgba(0,0,0,0.12)),
-    url(/premium-bg.jpg) center / cover fixed,
-    #101010;
+  /* ATRIUM light work surface — flat grey; cards float as white sheets */
+  background: #EEF1F2;
   /* side padding matches the floating header margin so the card lines up with it */
   padding: clamp(10px, 1.5vh, 18px) clamp(8px, 2.4vw, 40px) clamp(20px, 4vh, 48px);
 }
 .premium-card {
   position: relative;
   margin: 0 auto;                 /* fills the stage width -> aligns with the header */
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #F4F2EF;
-  border: 1px solid rgba(255,255,255,0.14);
-  /* edge glow + deep drop shadow -> reads as a lit tablet floating over the texture */
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.05),
-    0 0 30px -2px rgba(216,176,96,0.18),
-    0 0 70px -6px rgba(255,255,255,0.06),
-    0 26px 55px -16px rgba(0,0,0,0.85);
+  background: #fff;
+  border: 1px solid #E1E4E3;
+  border-top: 3px solid #C6CDCF;  /* ATRIUM brushed-silver top edge */
+  box-shadow: 0 1px 3px rgba(18,21,15,0.05), 0 22px 48px -26px rgba(0,0,0,0.30);
   transform-origin: center top;
   animation: premium-rise 0.5s cubic-bezier(0.22,0.9,0.24,1) both;
 }
@@ -617,9 +610,9 @@ input[type="checkbox"] {
 /* Floating rounded project header on premium tabs */
 .ws-header-float {
   margin: clamp(8px, 1.6vh, 14px) clamp(8px, 2.4vw, 40px) 0;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.5);
+  border: 1px solid #000;
   box-shadow: 0 18px 42px -18px rgba(0,0,0,0.55);
 }
 

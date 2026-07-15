@@ -86,8 +86,8 @@ export function SectionHeading({ children, sub }: { children: React.ReactNode; s
   return (
     <div className="mb-5 cursor-default" style={{ paddingLeft: 4 }}>
       <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase mb-1.5" style={{ color: '#141414' }}>{children}</h2>
-      {/* Black-chrome underline — premium stealth accent (replaces the old gold bar) */}
-      <div style={{ height: 2, borderRadius: 2, width: 54, background: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A)', boxShadow: '0 1px 2px rgba(0,0,0,0.35)' }} />
+      {/* ATRIUM livery — green nib running into brushed silver */}
+      <div style={{ height: 2, borderRadius: 2, width: 54, background: 'linear-gradient(to right, #237A52, #9AA2A4 60%, transparent)' }} />
       {sub && <p className="text-[#666] text-[12px] tracking-wide font-medium mt-1.5">{sub}</p>}
     </div>
   )
@@ -217,7 +217,7 @@ export function Money({ value, size = 'md', sign = false }: { value: number; siz
     ? `$${(abs / 1_000).toFixed(0)}K`
     : `$${abs.toLocaleString()}`
   const sizes = { sm: 'text-xs', md: 'text-sm', lg: 'text-lg', xl: 'text-3xl' }
-  const color = neg ? 'text-[#9B2335]' : sign ? 'text-[#2A7A4F]' : 'text-[#C4973A]'
+  const color = neg ? 'text-[#B4553F]' : sign ? 'text-[#237A52]' : 'text-[#12150F]'
   return (
     <span className={`font-mono font-bold num ${sizes[size]} ${color}`}>
       {neg ? '−' : sign ? '+' : ''}{formatted}
@@ -264,13 +264,13 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
     const borderColor = gold
       ? (isActive ? '#C4973A' : 'transparent')
       : isActive
-        ? (isAccent ? accentColor! : '#1A1A1A')
+        ? (isAccent ? accentColor! : '#237A52')
         : isAccent ? `${accentColor}66` : 'transparent'
     const textColor = gold
       ? (isActive ? '#C4973A' : '#8A6A28')
       : isActive
-        ? (isAccent ? accentColor! : '#0A0A0A')
-        : isAccent ? accentColor! : '#888'
+        ? (isAccent ? accentColor! : '#EEF1F2')
+        : isAccent ? accentColor! : '#8A9296'
     return (
       <button
         key={t.id}
@@ -311,12 +311,12 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
   }
 
   return (
-    <div className="tab-bar-scroll border-b-2 border-[#E0DDD8] bg-white no-drag" style={{ display: 'flex', gap: 0, paddingLeft: 8, paddingRight: 8 }}>
+    <div className="tab-bar-scroll no-drag" style={{ display: 'flex', gap: 0, paddingLeft: 8, paddingRight: 8, borderBottom: '1px solid #000', background: 'linear-gradient(120deg,#0A0D0C,#12161A 60%,#0A0D0C)' }}>
       {mainTabs.map(t => renderTab(t))}
       {goldTab && (
         <>
           <div style={{ flex: 1 }} />
-          <div style={{ width: 1, background: '#E0DDD8', margin: '8px 4px', flexShrink: 0 }} />
+          <div style={{ width: 1, background: '#3A4146', margin: '8px 4px', flexShrink: 0 }} />
           {renderTab(goldTab, true)}
         </>
       )}

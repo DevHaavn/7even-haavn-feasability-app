@@ -77,28 +77,26 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
       {/* Header — floats as a rounded panel over the texture on premium tabs */}
       <div className={PREMIUM_TABS.includes(safeTab) ? 'ws-header-float relative z-50' : 'contents'}>
       {/* Topbar */}
-      <div className="ws-topbar drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 border-b border-[#1C1C1C]"
-        style={{ background: PREMIUM_TABS.includes(safeTab)
-          ? 'linear-gradient(rgba(238,236,232,0.74), rgba(224,221,216,0.80)), url(/header-bg.jpg) center / cover no-repeat, #ECEAE6'
-          : 'linear-gradient(rgba(8,8,8,0.78), rgba(8,8,8,0.84)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
+      <div className="ws-topbar drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 border-b border-[#000]"
+        style={{ background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 12px), repeating-linear-gradient(-45deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 12px), linear-gradient(120deg,#0A0D0C,#12161A 60%,#0A0D0C)' }}>
         <div className="flex items-center justify-center flex-shrink-0" style={{ minWidth: 80 }}>
           <button
             onClick={() => setActiveProject(null)}
-            className="no-drag text-[#1A1A1A] hover:text-[#8A6A28] transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
+            className="no-drag text-[#C6CDCF] hover:text-white transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
           >
             HOME
           </button>
         </div>
-        <div className="w-[1px] h-7 bg-[#C4C0B8] flex-shrink-0 hidden sm:block" />
-        <span className="hidden sm:block"><Wordmark size="md" tone="black" /></span>
-        <div className="w-[1px] h-7 bg-[#C4C0B8] flex-shrink-0 hidden sm:block" />
+        <div className="w-[1px] h-7 bg-[#3A4146] flex-shrink-0 hidden sm:block" />
+        <span className="hidden sm:block"><Wordmark size="md" tone="white" /></span>
+        <div className="w-[1px] h-7 bg-[#3A4146] flex-shrink-0 hidden sm:block" />
         <div className="flex-1 min-w-0 hidden sm:block">
           <div className="flex items-center gap-2">
             <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-[#1A1A1A] text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
+            <h1 className="font-heading font-semibold text-white text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
           </div>
           {project.address && (
-            <p className="text-[#606060] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium flex items-center gap-1.5">
+            <p className="text-[#9AA2A4] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium flex items-center gap-1.5">
               {project.address}<AutoSaveCloud />
             </p>
           )}
@@ -106,7 +104,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         <div className="flex-1 min-w-0 sm:hidden">
           <div className="flex items-center gap-2">
             <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-[#1A1A1A] text-[13px] tracking-[0.06em] truncate">{project.name}</h1>
+            <h1 className="font-heading font-semibold text-white text-[13px] tracking-[0.06em] truncate">{project.name}</h1>
           </div>
         </div>
         {role === 'external' && (
