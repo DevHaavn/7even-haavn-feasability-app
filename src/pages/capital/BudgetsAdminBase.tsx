@@ -47,9 +47,14 @@ function Apex({ id, size = 18 }: { id: string; size?: number }) {
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
 
-  // 7EVEN Capital — the entity budget system, filtered to the 7even book.
+  // 7EVEN Capital — the entity budget system, filtered to the 7even book, now on
+  // its own full-bleed ATRIUM surface (carbon topbar + forest rail), matching HAAVN.
   if (group === '7even') {
-    return <BudgetsAdmin key={group} group={group} onBackToGroups={() => setGroup(null)} />
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500 }}>
+        <BudgetsAdmin key={group} group={group} onBackToGroups={() => setGroup(null)} />
+      </div>
+    )
   }
 
   // HAAVN Administration — Dom's full ATRIUM Accounts & Settlement module

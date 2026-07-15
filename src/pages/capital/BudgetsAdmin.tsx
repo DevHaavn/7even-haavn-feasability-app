@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { saveKV } from '../../lib/cloudStore'
 import { useStore } from '../../store'
@@ -39,9 +39,9 @@ const ENTITY_COLOR: Record<string, string> = {
 const HAAVN_PTY_LTD: Entity = { id: 'hpl', name: 'HAAVN Pty Ltd', type: 'Group holding company', lines: [] }
 
 const XERO_BLUE = '#13B5EA'
-const POS = '#12A65A'
-const NEG = '#CE3B2E'
-const OPEXC = '#B8935A'
+const POS = '#237A52'   // ATRIUM racing green — positive / on-target
+const NEG = '#B4553F'   // ATRIUM loss red — negatives only (single-job hue)
+const OPEXC = '#8FA8BF'  // steel — opex / cost bars
 
 const XERO_ORGS = [
   { id: '7even-capital', name: '7even Capital Pty Ltd', short: '7even Capital' },
@@ -157,24 +157,86 @@ const fmt$ = (n: number) => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLoc
 const fmtk = (n: number) => { const x = n / 1000; return (x < 0 ? '-$' : '$') + Math.abs(Math.round(x)).toLocaleString() + 'k' }
 const comma = (n: number) => Math.round(n).toLocaleString()
 
-// ── shared styles ────────────────────────────────────────────────────────────
+// ── shared styles (ATRIUM light work surface — white cards, brushed silver top
+//    edge, green livery nib under each title, mono numbers) ─────────────────────
 const panel: React.CSSProperties = {
-  border: '1px solid #D3D4D8', borderRadius: 16,
-  background: '#F6F6F7',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-  padding: '22px 24px',
+  border: '1px solid var(--line)', borderTop: '3px solid #C6CDCF', borderRadius: 14,
+  background: '#fff',
+  boxShadow: '0 1px 3px rgba(18,21,15,0.05)',
+  padding: '20px 22px',
 }
 const panelTitle: React.CSSProperties = {
-  color: '#4A4B50', fontSize: 9, letterSpacing: '0.28em',
+  color: '#3A3F3C', fontSize: 9, letterSpacing: '0.24em',
   textTransform: 'uppercase', marginBottom: 16, fontWeight: 700,
+  borderLeft: '3px solid #237A52', paddingLeft: 10,
 }
 const labelStyle: React.CSSProperties = {
-  color: '#63656C', fontSize: 8, letterSpacing: '0.22em',
+  color: '#636966', fontSize: 8, letterSpacing: '0.22em',
   textTransform: 'uppercase', display: 'block', marginBottom: 5,
 }
 const inputStyle: React.CSSProperties = {
-  background: '#fff', border: '1px solid #D3D4D8',
-  borderRadius: 8, color: '#0D0D0F', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
+  background: '#fff', border: '1px solid var(--line)',
+  borderRadius: 8, color: '#12150F', fontSize: 12, padding: '8px 10px', outline: 'none', width: '100%',
+}
+
+// ── ATRIUM shell chrome (carbon topbar + forest rail) — scoped to .atr7-shell so
+//    it never collides with the app's global CSS. Same design language as the
+//    HAAVN ATRIUM Accounts module. ───────────────────────────────────────────────
+const ATRIUM_CSS = `
+.atr7-shell{--carbon:#0A0D0C;--graphite:#12161A;--steel-2:#3A4146;
+  --f-300:#6FBE96;--f-500:#237A52;--f-600:#1B5E3F;
+  --sil-2:#C6CDCF;--sil-3:#9AA2A4;--sil-4:#6E7779;
+  --ink:#12150F;--mute:#636966;--line:#E1E4E3;--grey-100:#F1F3F2;
+  position:absolute;inset:0;display:flex;flex-direction:column;background:var(--grey-100);color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;}
+.atr7-topbar{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid #000;flex-shrink:0;flex-wrap:wrap;}
+.atr7-carbon{background:
+  repeating-linear-gradient(45deg,rgba(255,255,255,.020) 0 1px,transparent 1px 12px),
+  repeating-linear-gradient(-45deg,rgba(255,255,255,.020) 0 1px,transparent 1px 12px),
+  linear-gradient(120deg,#0A0D0C,#12161A 60%,#0A0D0C);}
+.atr7-modlbl{font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-2);display:flex;align-items:center;gap:9px;padding-left:16px;border-left:1px solid var(--steel-2);}
+.atr7-modlbl .n{color:var(--f-300);}
+.atr7-back{background:rgba(255,255,255,.05);border:1px solid var(--steel-2);border-radius:999px;color:var(--sil-2);font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;padding:7px 14px;cursor:pointer;transition:color .15s;}
+.atr7-back:hover{color:#EEF1F2;}
+.atr7-entwrap{position:relative;display:flex;align-items:center;gap:8px;}
+.atr7-entwrap .el{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--sil-4);}
+.atr7-entsel{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.05) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' stroke='%239AA2A4' stroke-width='1.4' fill='none'/></svg>") no-repeat right 11px center;border:1px solid var(--steel-2);border-radius:8px;color:#EEF1F2;font-size:12px;font-weight:600;letter-spacing:.02em;padding:7px 30px 7px 12px;cursor:pointer;}
+.atr7-flash{display:inline-flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--sil-4);white-space:nowrap;}
+.atr7-flash .dot{width:7px;height:7px;border-radius:50%;background:var(--sil-4);transition:background .2s;}
+.atr7-flash.save{color:var(--f-300);}
+.atr7-flash.save .dot{background:var(--f-300);animation:atr7pulse 1.1s ease-out;}
+@keyframes atr7pulse{0%{box-shadow:0 0 0 0 rgba(111,190,150,.55)}100%{box-shadow:0 0 0 8px rgba(111,190,150,0)}}
+.atr7-partner{display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:10.5px;color:var(--sil-3);}
+.atr7-partner .sep{width:1px;height:11px;background:var(--steel-2);}
+.atr7-body{flex:1;display:grid;grid-template-columns:212px 1fr;min-height:0;}
+.atr7-rail{background:linear-gradient(180deg,#0A0D0C,#0B120E);border-right:1px solid #000;padding:14px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.atr7-brand{display:flex;align-items:center;gap:9px;padding:4px 8px 14px;}
+.atr7-brand .bw{font-weight:600;font-size:13px;letter-spacing:.28em;color:#EEF1F2;}
+.atr7-rgrp{color:var(--sil-4);font-size:8px;letter-spacing:.22em;text-transform:uppercase;margin:14px 8px 5px;}
+.atr7-rnav{display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;color:var(--sil-3);font-size:12px;font-weight:500;letter-spacing:.02em;padding:9px 12px;border-radius:8px;transition:all .15s;}
+.atr7-rnav:hover{background:rgba(255,255,255,.04);color:#EEF1F2;}
+.atr7-rnav.on{background:linear-gradient(90deg,rgba(35,122,82,.24),transparent);color:#EEF1F2;box-shadow:inset 2px 0 0 var(--f-500);}
+.atr7-railfoot{margin-top:auto;padding:16px 8px 4px;color:var(--sil-4);font-size:8.5px;letter-spacing:.14em;line-height:1.8;text-transform:uppercase;}
+.atr7-main{overflow-y:auto;padding:26px 30px 60px;display:flex;flex-direction:column;gap:18px;min-width:0;}
+.atr7-vhead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+.atr7-vhead h1{font-size:24px;font-weight:300;letter-spacing:.02em;margin:2px 0 0;color:var(--ink);}
+.atr7-vhead .vk{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--f-500);font-weight:700;}
+.atr7-livery{display:flex;height:3px;border-radius:2px;overflow:hidden;max-width:240px;margin-top:-8px;}
+.atr7-livery .g{width:36px;background:var(--f-500);}
+.atr7-livery .s{flex:1;background:linear-gradient(90deg,#C6CDCF,#9AA2A4);}
+@media(max-width:1000px){.atr7-body{grid-template-columns:1fr}.atr7-rail{display:none}.atr7-modlbl{display:none}}
+`
+
+// The ATRIUM Apex — thin silver A, the platform mark (brief §3).
+function Apex7({ size = 18 }: { size?: number }) {
+  const gid = 'atr7apex' + size
+  return (
+    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
+      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F4F5" /><stop offset=".5" stopColor="#C6CDCF" /><stop offset="1" stopColor="#9AA2A4" /></linearGradient></defs>
+      <path d="M51 196 L120 26 L189 196" fill="none" stroke={`url(#${gid})`} strokeWidth={11} strokeLinejoin="miter" strokeLinecap="round" />
+      <path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" strokeWidth={3.2} strokeLinejoin="miter" strokeLinecap="round" opacity={0.85} />
+    </svg>
+  )
 }
 
 // ── sparkline ────────────────────────────────────────────────────────────────
@@ -259,6 +321,8 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
   const [fOrg, setFOrg] = useState<string>('7even-capital')
   const [syncing, setSyncing] = useState(false)
   const [syncMsg, setSyncMsg] = useState('')
+  const [savedFlash, setSavedFlash] = useState(false)   // pulses the topbar "Saved" badge on every write
+  const flashTimer = useRef<number | undefined>(undefined)
 
   const entities = useMemo(() => group ? data.entities.filter(e => xeroGroupFor(e.id) === group) : data.entities, [data.entities, group])
   const isGroup = sel === 'group'
@@ -266,7 +330,12 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
   const accent = ENTITY_COLOR[sel] || '#0D0D0F'
   const c = useMemo(() => (isGroup ? calcGroup(entities, through) : entity ? calcEntity(entity, through) : calcGroup(entities, through)), [entities, sel, through])
 
-  function update(next: AdminData) { setData(next); saveData(next) }
+  function flashSaved() {
+    setSavedFlash(true)
+    clearTimeout(flashTimer.current)
+    flashTimer.current = window.setTimeout(() => setSavedFlash(false), 1200)
+  }
+  function update(next: AdminData) { setData(next); saveData(next); flashSaved() }
 
   // First-ever open with no shared copy: push the imported baseline so the whole
   // team (and Daniel) start from the same live dataset.
@@ -346,82 +415,85 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
   }, [c, isGroup, entities])
   const dotc: Record<string, string> = { pos: POS, neg: NEG, warn: '#E8B84B', acc: '#8FA8BF' }
 
-  const navBtn = (id: string, label: string) => (
-    <button key={id} onClick={() => setSel(id)} className="glass-btn"
-      style={{ padding: '8px 16px', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700,
-        color: sel === id ? (ENTITY_COLOR[id] || '#fff') : '#63656C',
-        borderColor: sel === id ? `${ENTITY_COLOR[id] || '#fff'}88` : undefined }}>
-      {label}
-    </button>
-  )
-  const viewTab = (v: View, label: string) => (
-    <button key={v} onClick={() => setView(v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 2px',
-      color: view === v ? accent : '#63656C', borderBottom: `2px solid ${view === v ? accent : 'transparent'}`,
-      fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, transition: 'all 0.2s' }}>{label}</button>
-  )
+  // ATRIUM forest rail — grouped view nav (replaces the old horizontal tabs).
+  const RAIL: { g: string; items: [View, string][] }[] = isGroup
+    ? [{ g: 'Overview', items: [['dashboard', 'Dashboard']] }]
+    : [
+        { g: 'Overview', items: [['dashboard', 'Dashboard']] },
+        ...(PROJECT_LINKS[sel] ? [{ g: 'Projects', items: [['tracking', 'Project tracking'] as [View, string]] }] : []),
+        { g: 'Budget', items: [['entry', 'Budget entry'] as [View, string]] },
+        { g: 'Ledger', items: [['transactions', 'Invoices & Bills'], ['projects', 'Project spend']] },
+      ]
 
   return (
-    <div className="premium-card" style={{ width: '100%', maxWidth: 1240, padding: '26px 24px 40px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div className="atr7-shell">
+      <style>{ATRIUM_CSS}</style>
 
-      {/* entity nav + Xero */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        {onBackToGroups && (
-          <button onClick={onBackToGroups}
-            style={{ padding: '8px 14px', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700,
-              color: '#63656C', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 999, cursor: 'pointer' }}>
-            ← Administration
-          </button>
-        )}
-        {navBtn('group', group === 'haavn' ? 'HAAVN Group' : group === '7even' ? '7EVEN Group' : 'Group')}
-        {entities.map(e => navBtn(e.id, e.name.replace('Haavn ', 'H. ')))}
-        <HeaderSlot>
-          <XeroChip
-            group={isGroup ? '7even' : xeroGroupFor(sel)}
-            orgName={isGroup ? '7even' : xeroGroupFor(sel) === 'haavn' ? 'Haavn' : '7even'}
-          />
-        </HeaderSlot>
-      </div>
-
-      {/* project chips — appear for entities linked to feasibility projects (7even Capital) */}
-      {!isGroup && PROJECT_LINKS[sel] && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: -6 }}>
-          <span style={{ ...labelStyle, marginBottom: 0 }}>Projects</span>
-          {PROJECT_LINKS[sel].map(link => (
-            <button key={link.projectId} onClick={() => setView('tracking')}
-              style={{ background: '#F0F0F2', border: '1px solid #D3D4D8', borderRadius: 999, color: '#2A2B2E', fontSize: 9, letterSpacing: '0.08em', padding: '5px 12px', cursor: 'pointer' }}
-              title={`${link.label} — live from the feasibility studio`}>
-              {link.group} <span style={{ color: '#8A8C92' }}>· {link.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* header + through selector */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ color: '#0D0D0F', fontSize: 22, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>
-            {isGroup ? 'Group — consolidated' : entity?.name}
-          </h1>
-          <p style={{ color: '#63656C', fontSize: 10, letterSpacing: '0.06em', margin: '4px 0 0' }}>
-            {isGroup ? `${entities.length} entities · FY27 budget · ex-GST · AUD` : entity?.type}
-          </p>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ ...labelStyle, marginBottom: 0 }}>Through</span>
-          <select value={through} onChange={e => setThrough(+e.target.value)} style={{ ...inputStyle, width: 'auto', padding: '6px 10px' }}>
-            {CFO_MONTHS.map((m, i) => <option key={i} value={i} style={{ background: '#fff' }}>{m}-{CFO_YEARS[i]}</option>)}
+      {/* Carbon topbar — Apex · module · entity switch (unmissable) · autosave · Xero · partner */}
+      <div className="atr7-topbar atr7-carbon">
+        <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Apex7 size={18} />
+          <span style={{ color: '#EEF1F2', fontWeight: 600, fontSize: 13, letterSpacing: '0.28em', paddingLeft: '0.06em' }}>ATRIUM</span>
+        </span>
+        <span className="atr7-modlbl"><span className="n">01</span> 7EVEN Capital · Administration</span>
+        {onBackToGroups && <button onClick={onBackToGroups} className="atr7-back">← Administration</button>}
+        <span style={{ marginLeft: 'auto' }} />
+        <span className="atr7-entwrap" title="Current entity — every screen is scoped to this">
+          <span className="el">Entity</span>
+          <select className="atr7-entsel" value={sel} onChange={e => setSel(e.target.value)}>
+            <option value="group">7EVEN Group — consolidated</option>
+            {entities.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
           </select>
-        </div>
+        </span>
+        <span className={`atr7-flash${savedFlash ? ' save' : ''}`}><span className="dot" />{savedFlash ? 'Saved' : 'Autosave on'}</span>
+        <XeroChip group={isGroup ? '7even' : xeroGroupFor(sel)} orgName={isGroup ? '7even' : xeroGroupFor(sel) === 'haavn' ? 'Haavn' : '7even'} />
+        <span className="atr7-partner">7EVEN<span className="sep" />HAAVN</span>
       </div>
 
-      {/* view tabs */}
-      <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid #DEDEE1' }}>
-        {viewTab('dashboard', 'Dashboard')}
-        {!isGroup && PROJECT_LINKS[sel] && viewTab('tracking', 'Project tracking')}
-        {!isGroup && viewTab('entry', 'Budget entry')}
-        {!isGroup && viewTab('transactions', 'Invoices & Bills')}
-        {!isGroup && viewTab('projects', 'Project spend')}
-      </div>
+      {/* Body — forest rail + light work surface */}
+      <div className="atr7-body">
+        <aside className="atr7-rail">
+          <div className="atr7-brand"><Apex7 size={20} /><span className="bw">ATRIUM</span></div>
+          {RAIL.map(sec => (
+            <React.Fragment key={sec.g}>
+              <div className="atr7-rgrp">{sec.g}</div>
+              {sec.items.map(([v, label]) => (
+                <button key={v} className={`atr7-rnav${view === v ? ' on' : ''}`} onClick={() => setView(v)}>{label}</button>
+              ))}
+            </React.Fragment>
+          ))}
+          <div className="atr7-railfoot">7EVEN Capital · Administration<br />FY27 · ex-GST · AUD</div>
+        </aside>
+
+        <main className="atr7-main">
+          {/* view header + through selector */}
+          <div className="atr7-vhead">
+            <div>
+              <div className="vk">{isGroup ? `Consolidated · ${entities.length} entities` : entity?.type}</div>
+              <h1>{isGroup ? '7EVEN Group — consolidated' : entity?.name}</h1>
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: '#636966', fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase' }}>Through</span>
+              <select value={through} onChange={e => setThrough(+e.target.value)} style={{ ...inputStyle, width: 'auto', padding: '6px 10px' }}>
+                {CFO_MONTHS.map((m, i) => <option key={i} value={i} style={{ background: '#fff' }}>{m}-{CFO_YEARS[i]}</option>)}
+              </select>
+            </div>
+          </div>
+          <span className="atr7-livery"><i className="g" /><i className="s" /></span>
+
+          {/* project chips — appear for entities linked to feasibility projects (7even Capital) */}
+          {!isGroup && PROJECT_LINKS[sel] && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ ...labelStyle, marginBottom: 0 }}>Projects</span>
+              {PROJECT_LINKS[sel].map(link => (
+                <button key={link.projectId} onClick={() => setView('tracking')}
+                  style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 999, color: 'var(--ink)', fontSize: 9, letterSpacing: '0.08em', padding: '5px 12px', cursor: 'pointer' }}
+                  title={`${link.label} — live from the feasibility studio`}>
+                  {link.group} <span style={{ color: 'var(--mute)' }}>· {link.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
       {/* ── DASHBOARD ── */}
       {view === 'dashboard' && (
@@ -625,6 +697,8 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
             }} />
         )
       })()}
+        </main>
+      </div>
     </div>
   )
 }
