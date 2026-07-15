@@ -68,7 +68,15 @@ export default function BudgetsAdminBase() {
             </div>
             <div style={{ height: 1, background: `linear-gradient(to right, ${b.color}55, transparent)` }} />
             <p style={{ color: '#999', fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{b.blurb}</p>
-            <span className="chrome-black-text" style={{ marginTop: 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Books →</span>
+
+            {/* Xero — the accounts backbone of both books */}
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
+              <img src="/xero-logo.png" alt="Xero" draggable={false}
+                style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
+            </div>
+
+            <span className="chrome-black-text" style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Books →</span>
           </button>
         ))}
       </div>
