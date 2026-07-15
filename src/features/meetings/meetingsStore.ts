@@ -21,7 +21,27 @@ export function upsertBundle(b: MeetingBundle) {
   saveMeetings(d)
 }
 
+export function deleteBundle(id: string) {
+  const d = loadMeetings()
+  saveMeetings({ ...d, bundles: d.bundles.filter(b => b.meeting.id !== id) })
+}
+
 export const newId = (p: string) => `${p}-${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-3)}`
+
+// A fresh empty meeting, optionally pre-linked to a CRM object.
+export function newBundle(link?: { type: 'project' | 'deal' | 'contact'; id: string; label: string }): MeetingBundle {
+  const id = newId('mtg')
+  const now = new Date()
+  const iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  return {
+    meeting: {
+      id, title: link ? `Meeting — ${link.label}` : 'New meeting', startsAt: iso, durationMin: 30,
+      locationLabel: '', linkedType: link?.type ?? null, linkedId: link?.id ?? null,
+      status: 'scheduled', language: { source: 'zh', target: 'en' }, createdBy: 'me',
+    },
+    agenda: [], attendees: [], utterances: [], record: null,
+  }
+}
 
 // A seeded demo meeting matching the design reference, so the module is populated
 // on first open. Real meetings are created by the user and overwrite this in place.
