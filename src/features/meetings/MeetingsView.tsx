@@ -122,8 +122,29 @@ function MeetingsList({ bundles, onNew, onOpen, onDelete }: { bundles: MeetingBu
 // ── ONE MEETING ────────────────────────────────────────────────────────────────
 function MeetingScreen({ bundle, persist, onBack }: { bundle: MeetingBundle; persist: (b: MeetingBundle) => void; onBack: () => void }) {
   const [view, setView] = useState<'agenda' | 'live' | 'wrap'>('agenda')
+  const [cal, setCal] = useState<string | null>(null)
+  const [calBusy, setCalBusy] = useState(false)
   const m = bundle.meeting
   const setMeeting = (patch: Partial<typeof m>) => persist({ ...bundle, meeting: { ...m, ...patch } })
+
+  const scheduleOutlook = async () => {
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`
+    const startDate = new Date(m.startsAt)
+    if (isNaN(startDate.getTime())) { setCal('Set a valid date/time first.'); return }
+    const start = fmt(startDate), end = fmt(new Date(startDate.getTime() + (m.durationMin || 30) * 60000))
+    const attendees = bundle.attendees.map(a => a.email).filter(Boolean)
+    const body = `<b>Agenda</b><ul>${bundle.agenda.map(a => `<li>${a.title || 'Item'}${a.ownerId ? ` — ${a.ownerId}` : ''}</li>`).join('')}</ul>`
+    setCalBusy(true); setCal('Scheduling…')
+    try {
+      const r = await fetch('/api/calendar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ organizer: m.organizer || 'boardroom@haavn.au', subject: m.title, start, end, attendees, body, location: m.locationLabel }) })
+      const j = await r.json().catch(() => ({}))
+      if (r.status === 200) { setMeeting({ calendarEventId: j.id, teamsJoinUrl: j.joinUrl || undefined, webLink: j.webLink || undefined }); setCal(`✓ In Outlook · boardroom@haavn.au${j.joinUrl ? ' · Teams link created' : ''}`) }
+      else if (r.status === 501) setCal('Calendar not connected yet (needs Calendars.ReadWrite on the app).')
+      else setCal(`Couldn't schedule — ${j.error || 'error ' + r.status}`)
+    } catch (e: any) { setCal(`Failed: ${String(e?.message || e)}`) }
+    setCalBusy(false)
+  }
 
   return (
     <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', color: '#EAEEEC' }}>
@@ -142,6 +163,12 @@ function MeetingScreen({ bundle, persist, onBack }: { bundle: MeetingBundle; per
               {v === 'wrap' ? 'Wrap-up' : v[0].toUpperCase() + v.slice(1)}
             </button>
           ))}
+        </div>
+        <div style={{ flexBasis: '100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <button style={btn('glass')} disabled={calBusy} onClick={scheduleOutlook}>📅 {m.calendarEventId ? 'Re-sync Outlook' : 'Schedule in Outlook'}</button>
+          {m.teamsJoinUrl && <a href={m.teamsJoinUrl} target="_blank" rel="noreferrer" style={{ ...btn('primary'), textDecoration: 'none' }}>Join Teams meeting →</a>}
+          {m.webLink && <a href={m.webLink} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: '#8B928E' }}>Open in Outlook</a>}
+          {cal && <span style={{ fontSize: 11.5, color: '#9FE1CB', ...mono }}>{cal}</span>}
         </div>
       </div>
       <div style={{ padding: 22, overflowY: 'auto', flex: 1 }}>
