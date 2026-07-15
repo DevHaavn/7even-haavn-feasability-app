@@ -11,8 +11,8 @@ create the table, sync switches on with no further code changes.
 
 ## Create the table (2 minutes, Jamie)
 
-1. Open the Supabase dashboard for the project **hkbvvbdernuyclzjtvnv**
-   → SQL Editor → New query.
+1. Open the Supabase dashboard for the **current** project **vgvavmnqrdgcnledztyk**
+   (the live redux stack) → SQL Editor → New query.
 2. Paste this and Run:
 
 ```sql
@@ -53,6 +53,8 @@ One row per module, keyed by its blob name:
 | `sales_stock_v1` | 7EVEN stock ledger |
 | `hm_tenders_v1` | HAAVN Management tenders |
 | `haavn_logistics_v1` | HAAVN Homes logistics |
+| `capital_admin_v3` | Budgets / Administration (current CFO model) |
+| `atrium-accounts-v1` | HAAVN Administration — ATRIUM Accounts & Settlement |
 
 ## Migrating existing data
 

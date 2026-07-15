@@ -354,7 +354,7 @@ let saveTimer=null;
 function save(){
  clearTimeout(saveTimer);
  setSaveState('Saving…');
- saveTimer=setTimeout(()=>{ const ok=Store.set(state); setSaveState(ok?'Saved automatically':'In-memory only — export a backup'); },300);
+ saveTimer=setTimeout(()=>{ const ok=Store.set(state); Cloud.push(state); setSaveState(!ok?'In-memory only — export a backup':(Cloud.ready?'Saved · synced to all staff':'Saved automatically')); },300);
 }
 function setSaveState(t){ const el=document.getElementById('saveState'); if(el){ el.textContent=t; el.style.color= storageOK?'var(--sil-4)':'var(--amber)'; } }
 
@@ -1019,7 +1019,7 @@ function openClientModal(client){ ui.editingClientId=client?client.id:null;
  $('cMonths').oninput=()=>{ if($('cFee').value==='custom')buildCustomGrid(); updateTotalPreview(); };
  $('cMonthlyAmt').oninput=updateTotalPreview; $('cFixedTotal').oninput=updateTotalPreview;
  syncTypeShare(); syncFeeFields(); $('clientOverlay').classList.add('open'); }
-function closeClientModal(){ $('clientOverlay').classList.remove('open'); }
+function closeClientModal(){ $('clientOverlay').classList.remove('open'); if(Cloud._pendingRemote){ const v=Cloud._pendingRemote; Cloud._pendingRemote=null; applyRemoteState(v); } }
 function syncTypeShare(){ const isM2=$('cType').value==='M2 legacy'; if(isM2)$('cShare').value=100; $('cShare').disabled=isM2; }
 function syncFeeFields(){ const f=$('cFee').value; $('rowMonthly').hidden=f!=='monthly'; $('rowFixed').hidden=f!=='fixed'; $('customBlock').hidden=f!=='custom'; if(f==='custom')buildCustomGrid(); updateTotalPreview(); }
 function buildCustomGrid(){ const start=$('cStart').value||currentYM(); const n=Math.min(60,Math.max(1,Number($('cMonths').value)||1)); const grid=$('customGrid'); grid.innerHTML='';
@@ -1083,6 +1083,73 @@ function exportExcel(){
  XLSX.writeFile(wb,'ATRIUM_Accounts_'+todayStr()+'.xlsx'); toast('Workbook exported'); }
 
 
+/* ---------- shared cloud sync (Supabase capital_kv → all staff, live) ---------- */
+/* Same backend the rest of Capital Base uses: one JSON blob per module in the
+   capital_kv table, cloud-wins-on-open, fire-and-forget push on save, realtime
+   fan-out to every browser. Non-blocking and fully optional — the app renders
+   from localStorage first and still runs offline; if the SDK can't load we just
+   stay local. */
+const CLOUD_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+const CLOUD_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+const Cloud={
+ sb:null, ready:false, _lastPush:'', _pushTimer:null, _pendingRemote:null, _emptyRemote:false,
+ async init(){
+  try{
+   const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+   this.sb = createClient(CLOUD_URL, CLOUD_ANON, { realtime:{ params:{ eventsPerSecond:5 } } });
+   const ok = await this.pull();            // cloud wins on open
+   if(!ok){ this.ready=false; return; }     // table not ready — stay fully local, no false "synced"
+   this.ready=true;
+   if(this._emptyRemote){ this._lastPush=''; this.push(state); }  // seed the shared dataset on first ever open
+   setSaveState(storageOK?'Saved · synced to all staff':'In-memory only — export a backup');
+   this.subscribe();
+  }catch(e){ this.ready=false; /* offline / blocked — run on localStorage */ }
+ },
+ async pull(){
+  try{
+   const { data, error } = await this.sb.from('capital_kv').select('value').eq('key',SKEY).maybeSingle();
+   if(error) return false;                  // e.g. table missing → not synced
+   if(!data || data.value==null){ this._emptyRemote=true; return true; }
+   this._lastPush = JSON.stringify(data.value);
+   applyRemoteState(data.value);
+   return true;
+  }catch(e){ return false; }
+ },
+ push(st){
+  if(!this.ready||!this.sb) return;
+  const json=JSON.stringify(st);
+  if(json===this._lastPush) return;
+  this._lastPush=json;
+  clearTimeout(this._pushTimer);
+  this._pushTimer=setTimeout(()=>{
+   this.sb.from('capital_kv').upsert({key:SKEY,value:st,updated_at:new Date().toISOString()},{onConflict:'key'})
+     .then(({error})=>{ if(error) console.warn('[atrium-accounts] push',error.message); });
+  },250);
+ },
+ subscribe(){
+  this.sb.channel('atrium-accounts-sync')
+   .on('postgres_changes',{event:'*',schema:'public',table:'capital_kv',filter:'key=eq.'+SKEY},payload=>{
+     const val=payload.new && payload.new.value; if(val==null) return;
+     const json=JSON.stringify(val);
+     if(json===this._lastPush) return;       // our own echo
+     this._lastPush=json;
+     applyRemoteState(val);
+   })
+   .subscribe();
+ }
+};
+/* Merge a remote snapshot into the running app without nuking an open form. */
+function applyRemoteState(val){
+ if(document.getElementById('clientOverlay')?.classList.contains('open')){ Cloud._pendingRemote=val; return; }
+ state = val;
+ ['clients','clientInvoices','expenses','loans','settlements','groupInvoices'].forEach(k=>{ if(!Array.isArray(state[k])) state[k]=defaultState()[k]||[]; });
+ if(!state.settings) state.settings=defaultState().settings;
+ if(!state.entity || !ENTITIES.includes(state.entity)) state.entity='Consolidated';
+ if(!state.nextId) state.nextId=1000;
+ try{ localStorage.setItem(SKEY, JSON.stringify(state)); }catch(e){}
+ buildEntitySelect(); render();
+}
+
 /* ---------- boot ---------- */
 function boot(){
  const saved = Store.get();
@@ -1098,6 +1165,7 @@ function boot(){
  buildRail();
  render();
  setSaveState(storageOK?'Saved automatically':'In-memory only — export a backup');
+ Cloud.init();   // non-blocking: pull + subscribe once the SDK loads
 }
 document.addEventListener('DOMContentLoaded', boot);
 </script>
