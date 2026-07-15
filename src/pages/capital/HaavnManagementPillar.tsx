@@ -5,6 +5,7 @@ import SiteLinks from '../../components/SiteLinks'
 import type { HMPillar } from './HaavnManagementBase'
 import Atrium from './Atrium'
 import MeetingsView from '../../features/meetings/MeetingsView'
+import { AtriumApex } from '../../components/AtriumMark'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
@@ -26,7 +27,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
           <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>
         </div>
-        <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', marginLeft: 'auto', opacity: 0.9 }} />
+        <AtriumApex size={28} style={{ marginLeft: 'auto' }} />
       </div>
 
       {/* Body — live CRM, live Meetings, or placeholder for future pillars */}

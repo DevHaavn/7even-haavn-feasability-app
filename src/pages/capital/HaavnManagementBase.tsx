@@ -61,7 +61,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
             <p style={{ color: '#1FE87A', fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>HAAVN Management</p>
             <p style={{ color: '#fff', fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Command Centre</p>
           </div>
-          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ width: 44, height: 'auto' }} />
+          <AtriumApex size={40} />
         </div>
       </div>
 
@@ -96,12 +96,11 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
               }}
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${p.color}22` }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
-                <AtriumApex size={22} />
               </div>
               <div>
-                <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />
+                <AtriumApex size={34} style={{ margin: '0 0 12px' }} />
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>

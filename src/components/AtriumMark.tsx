@@ -5,22 +5,39 @@ import React from 'react'
 // with a green light-well orb glowing at its base. Never redraw it by hand — use
 // this component everywhere the ATRIUM mark appears.
 //
+// Two builds per the brief:
+//   • detail  — 11 fine light-lines, for large / hero sizes (≥ ~80px)
+//   • compact — 4 bolder strokes, the 28–79px device that stays crisp when small
+// `variant="auto"` (default) picks compact at ≤ 80px, detail above.
+//
 // Each instance mints unique gradient ids so multiple marks on one page don't
 // collide. Pair with the "ATRIUM" wordmark (Inter Tight 600, .30em) via <AtriumLockup>.
 
 let _seq = 0
 
-// 11 nested silver strokes, faint+wide on the outside → bright+narrow inside,
-// generated from the brief's canonical geometry (M28 216 L120 24 L212 216 …).
-const STROKES = Array.from({ length: 11 }, (_, i) => ({
+// Detail: 11 nested silver strokes, faint+wide outside → bright+narrow inside.
+const DETAIL = Array.from({ length: 11 }, (_, i) => ({
   d: `M${(28 + i * 5.06).toFixed(1)} ${(216 - i * 3.19).toFixed(1)} L120 ${(24 + i * 7.56).toFixed(1)} L${(212 - i * 5.06).toFixed(1)} ${(216 - i * 3.19).toFixed(1)}`,
   w: (1 + i * 0.055).toFixed(2),
   o: (0.16 + i * 0.074).toFixed(2),
 }))
 
-export function AtriumApex({ size = 20, style }: { size?: number; style?: React.CSSProperties }) {
+// Compact: 4 bolder strokes (brief's 28–79px device).
+const COMPACT = Array.from({ length: 4 }, (_, i) => ({
+  d: `M${(28 + i * 16.87).toFixed(1)} ${(216 - i * 10.63).toFixed(1)} L120 ${(24 + i * 25.2).toFixed(1)} L${(212 - i * 16.87).toFixed(1)} ${(216 - i * 10.63).toFixed(1)}`,
+  w: (2.6 + i * 0.6).toFixed(2),
+  o: (0.16 + i * 0.247).toFixed(2),
+}))
+
+export function AtriumApex({ size = 20, variant = 'auto', style }: {
+  size?: number; variant?: 'auto' | 'compact' | 'detail'; style?: React.CSSProperties
+}) {
   const [id] = React.useState(() => `atx${++_seq}`)
   const c = `c_${id}`, k = `k_${id}`, h = `h_${id}`, s = `s_${id}`
+  const compact = variant === 'compact' || (variant === 'auto' && size <= 80)
+  const strokes = compact ? COMPACT : DETAIL
+  const halo = compact ? { rx: 50, ry: 58 } : { rx: 58, ry: 66 }
+  const well = compact ? 17 : 19
   return (
     <svg viewBox="0 0 240 240" width={size} height={size} aria-label="ATRIUM" style={{ display: 'block', flexShrink: 0, ...style }}>
       <defs>
@@ -38,11 +55,11 @@ export function AtriumApex({ size = 20, style }: { size?: number; style?: React.
         </radialGradient>
         <filter id={s}><feGaussianBlur stdDeviation="5" /></filter>
       </defs>
-      <ellipse cx="120" cy="150" rx="58" ry="66" fill={`url(#${h})`} filter={`url(#${s})`} />
-      {STROKES.map((st, i) => (
+      <ellipse cx="120" cy="150" rx={halo.rx} ry={halo.ry} fill={`url(#${h})`} filter={`url(#${s})`} />
+      {strokes.map((st, i) => (
         <path key={i} d={st.d} fill="none" stroke={`url(#${c})`} strokeWidth={st.w} strokeLinejoin="round" strokeLinecap="round" opacity={st.o} />
       ))}
-      <circle cx="120" cy="152" r="19" fill={`url(#${k})`} />
+      <circle cx="120" cy="152" r={well} fill={`url(#${k})`} />
       <circle cx="120" cy="152" r="5" fill="#EAFBF1" />
     </svg>
   )
