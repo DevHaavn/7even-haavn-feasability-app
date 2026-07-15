@@ -19,9 +19,9 @@ import CrmMeetingsList from '../../features/meetings/CrmMeetingsList'
 
 type DivisionId = '7even-dev' | 'haavn-homes' | 'haavn-mgmt'
 
+// HAAVN Management only — 7EVEN Developments and HAAVN Homes removed from this
+// pillar so it speaks solely to the HAAVN Management team.
 const DIVISIONS: { id: DivisionId; name: string; short: string }[] = [
-  { id: '7even-dev', name: '7EVEN Developments', short: '7EVEN DEV' },
-  { id: 'haavn-homes', name: 'HAAVN Homes', short: 'HAAVN HOMES' },
   { id: 'haavn-mgmt', name: 'HAAVN Management', short: 'HAAVN MGMT' },
 ]
 
@@ -71,7 +71,7 @@ type View = 'dashboard' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts
 
 export default function Atrium() {
   const { projects } = useStore()
-  const [division, setDivision] = useState<DivisionId>('7even-dev')
+  const [division, setDivision] = useState<DivisionId>('haavn-mgmt')
   const [view, setView] = useState<View>('dashboard')
   const [data, setData] = useState<AtriumData>(load)
   const [showAdd, setShowAdd] = useState(false)
@@ -181,13 +181,8 @@ export default function Atrium() {
         footer={
           <div>
             <div className="font-mono" style={{ fontSize: 8, color: 'rgba(255,255,255,.4)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>Division</div>
-            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-              {DIVISIONS.map(d => (
-                <button key={d.id} onClick={() => setDivision(d.id)} className={division === d.id ? 'atr-btn atr-btn--mint atr-btn--sq' : 'atr-btn atr-btn--glassDark atr-btn--sq'}
-                  style={{ fontSize: 9, fontWeight: 600, padding: 0, height: 32, width: '100%' }} title={d.name}>
-                  {d.short.split(' ')[0]}
-                </button>
-              ))}
+            <div className="atr-btn atr-btn--mint atr-btn--sq" style={{ fontSize: 9, fontWeight: 600, height: 32, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              HAAVN MGMT
             </div>
           </div>
         }
