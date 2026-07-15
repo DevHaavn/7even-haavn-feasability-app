@@ -42,3 +42,11 @@ export const GROUP_LABELS: Record<Sender['group'], string> = {
 export const GROUP_ORDER: Sender['group'][] = ['shared', 'haavn', '7even', 'external']
 
 export const defaultSender = (): Sender => SENDERS.find(s => s.master)!
+
+// The staff directory — the real people from the roster (HAAVN + 7EVEN), used to
+// quick-add attendees and email recipients across the Meetings module. Saved in
+// the app so the team is always one click away.
+export interface TeamMember { name: string; email: string; initials: string; org: 'HAAVN' | '7EVEN' }
+export const TEAM: TeamMember[] = SENDERS
+  .filter(s => s.group === 'haavn' || s.group === '7even')
+  .map(s => ({ name: s.name, email: s.email, initials: s.initials, org: s.group === '7even' ? '7EVEN' : 'HAAVN' }))

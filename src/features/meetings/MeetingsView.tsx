@@ -3,7 +3,7 @@ import { loadMeetings, upsertBundle, deleteBundle, newBundle, newId } from './me
 import { crmSearch, type CrmLink } from './crm'
 import { startTranscription, type EngineController } from './engine'
 import { emailHtml, transcriptPdfBase64 } from './exports'
-import { defaultSender, type Sender } from './senders'
+import { defaultSender, TEAM, type Sender } from './senders'
 import SenderSelect from './SenderSelect'
 import type { MeetingBundle, Utterance, AgendaItem, Attendee } from './types'
 
@@ -48,6 +48,23 @@ function CrmPicker({ onPick, onClose }: { onPick: (l: CrmLink) => void; onClose:
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ── Staff quick-pick — the team directory, one click to add ───────────────────
+function StaffMenu({ onPick, exclude = [] }: { onPick: (m: { name: string; email: string }) => void; exclude?: string[] }) {
+  const list = TEAM.filter(m => !exclude.includes(m.email))
+  return (
+    <div style={{ ...panel, padding: 6, marginTop: 8, maxHeight: 240, overflowY: 'auto' }}>
+      {list.length === 0 && <div style={{ padding: 8, fontSize: 12, color: '#6B726E' }}>Everyone's already added.</div>}
+      {list.map(m => (
+        <div key={m.email} onClick={() => onPick(m)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, cursor: 'pointer' }}>
+          <div style={av()}>{m.initials}</div>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: '#EDF1EF' }}>{m.name}</div><div style={{ fontSize: 11, color: '#8B928E', ...mono }}>{m.email}</div></div>
+          <span style={{ ...mono, fontSize: 9, color: '#6B726E' }}>{m.org}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -142,6 +159,7 @@ function Agenda({ bundle, persist, onStart }: { bundle: MeetingBundle; persist: 
   const [showPull, setShowPull] = useState(false)
   const [newAtt, setNewAtt] = useState({ name: '', email: '' })
   const [attPick, setAttPick] = useState(false)
+  const [staffPick, setStaffPick] = useState(false)
   const totalMin = bundle.agenda.reduce((s, a) => s + (a.minutes || 0), 0)
 
   const setAgenda = (agenda: AgendaItem[]) => persist({ ...bundle, agenda })
@@ -205,8 +223,12 @@ function Agenda({ bundle, persist, onStart }: { bundle: MeetingBundle; persist: 
 
         {/* Attendees */}
         <div style={panel}>
-          <div style={pHead}><div><div style={pTitle}>Attendees</div><div style={pSub}>{bundle.attendees.length} · team + CRM contacts</div></div>
-            <button style={btn('glass', { height: 30 })} onClick={() => setAttPick(p => !p)}>{attPick ? 'Close' : '+ From CRM'}</button></div>
+          <div style={pHead}><div><div style={pTitle}>Attendees</div><div style={pSub}>{bundle.attendees.length} · staff, team + CRM contacts</div></div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button style={btn('glass', { height: 30 })} onClick={() => { setStaffPick(p => !p); setAttPick(false) }}>{staffPick ? 'Close' : '+ Staff'}</button>
+              <button style={btn('glass', { height: 30 })} onClick={() => { setAttPick(p => !p); setStaffPick(false) }}>{attPick ? 'Close' : 'CRM'}</button>
+            </div></div>
+          {staffPick && <div style={{ padding: 12 }}><StaffMenu exclude={bundle.attendees.map(a => a.email)} onPick={m => addAttendee(m.name, m.email)} /></div>}
           {attPick && <div style={{ padding: 12 }}><CrmPicker onClose={() => setAttPick(false)} onPick={l => { if (l.type === 'contact') { addAttendee(l.label, '', l.sub.replace('Contact · ', '')) } else { addAttendee(l.label, '') } setAttPick(false) }} /></div>}
           <div style={{ padding: '6px 8px' }}>
             {bundle.attendees.map(at => (
@@ -331,6 +353,7 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
   const [makeTasks, setMakeTasks] = useState(true)
   const [recips, setRecips] = useState<{ name: string; email: string }[]>(() => bundle.attendees.filter(a => a.email).map(a => ({ name: a.displayName, email: a.email })))
   const [newRecip, setNewRecip] = useState('')
+  const [recStaff, setRecStaff] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -420,7 +443,9 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
             <div style={{ display: 'flex', gap: 6 }}>
               <input value={newRecip} onChange={e => setNewRecip(e.target.value)} placeholder="Add email…" style={{ ...inputCss, flex: 1 }} onKeyDown={e => { if (e.key === 'Enter' && newRecip.includes('@')) { setRecips([...recips, { name: newRecip.split('@')[0], email: newRecip.trim() }]); setNewRecip('') } }} />
               <button style={btn('glass')} onClick={() => { if (newRecip.includes('@')) { setRecips([...recips, { name: newRecip.split('@')[0], email: newRecip.trim() }]); setNewRecip('') } }}>Add</button>
+              <button style={btn('glass')} onClick={() => setRecStaff(s => !s)}>{recStaff ? 'Close' : '+ Staff'}</button>
             </div>
+            {recStaff && <StaffMenu exclude={recips.map(r => r.email)} onPick={m => setRecips([...recips, { name: m.name, email: m.email }])} />}
           </div>
 
           <div style={field}><label style={label}>Attachments</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{['Transcript_EN.pdf', 'Transcript_中英.pdf'].map(f => <span key={f} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '8px 11px', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 9, background: 'rgba(255,255,255,0.03)', color: '#B9C0BC' }}>📄 {f}</span>)}</div></div>

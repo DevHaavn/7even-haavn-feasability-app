@@ -10,7 +10,7 @@ import HaavnLogistics from './HaavnLogistics'
 import WarPipeline from './WarPipeline'
 import WarStock from './WarStock'
 import WarTenders from './WarTenders'
-import WarMinutes from './WarMinutes'
+import CrmMeetingsList from '../../features/meetings/CrmMeetingsList'
 
 // ── ATRIUM — Partner CRM Portal (Capital pillar 03) ────────────────────────
 // Glass and forest interface: calm, composed command environment for 7EVEN
@@ -67,7 +67,7 @@ const load = (): AtriumData => {
 const save = (d: AtriumData) => saveKV(STORE_KEY, d)
 const fmt$ = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `$${Math.round(n / 1e3)}K` : `$${Math.round(n)}`
 
-type View = 'dashboard' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'minutes'
+type View = 'dashboard' | 'pipeline' | 'stock' | 'tenders' | 'range' | 'contacts' | 'logistics' | 'meetings'
 
 export default function Atrium() {
   const { projects } = useStore()
@@ -154,7 +154,7 @@ export default function Atrium() {
     ...(division === 'haavn-mgmt' ? [{ id: 'tenders', label: 'Tenders' }] : []),
     { id: 'range', label: 'The Range' },
     ...(division === 'haavn-homes' ? [{ id: 'logistics', label: 'Logistics' }] : []),
-    { id: 'minutes', label: 'Minutes' },
+    { id: 'meetings', label: 'Meetings' },
     { id: 'contacts', label: 'Contacts' },
   ]
 
@@ -389,7 +389,7 @@ export default function Atrium() {
             {view === 'stock' && <WarStock />}
             {view === 'tenders' && <WarTenders />}
             {view === 'logistics' && <HaavnLogistics />}
-            {view === 'minutes' && <WarMinutes projects={projects} />}
+            {view === 'meetings' && <CrmMeetingsList />}
           </div>
         </div>
       </div>
