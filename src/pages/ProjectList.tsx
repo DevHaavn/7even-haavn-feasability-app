@@ -555,8 +555,8 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
 
   return (
     <div onClick={onClick} className="group cursor-pointer pcard-row"
-      style={{ borderBottom: '1px solid #0D0D0D', padding: '16px 28px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#0C0C0C'}
+      style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '16px 28px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
 
       <span style={{ color: '#555', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
