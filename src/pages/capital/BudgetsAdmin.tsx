@@ -25,12 +25,18 @@ import {
 export type CompanyId = string
 
 const ENTITY_COLOR: Record<string, string> = {
+  hpl: '#3DAA6A',       // HAAVN Pty Ltd — group parent (forest green)
   sev: '#C4973A',       // 7even — gold
   hm: '#8FA8BF',        // Haavn Management — steel blue
   hprec: '#B48CD9',     // Haavn Precision — violet
   htec: '#5C6B7A',      // Haavn Technologies — slate (dormant)
   group: '#0D0D0F',
 }
+
+// HAAVN Pty Ltd — the group parent/holding company. Starts as a clean shell
+// (no budget lines); the admin build populates it. Added to the seed AND
+// migrated onto already-saved admin data so it appears for existing users.
+const HAAVN_PTY_LTD: Entity = { id: 'hpl', name: 'HAAVN Pty Ltd', type: 'Group holding company', lines: [] }
 
 const XERO_BLUE = '#13B5EA'
 const POS = '#12A65A'
@@ -90,7 +96,9 @@ export function projectLinkFor(projectId: string): ProjectLink | undefined {
 }
 
 function seedEntities(): Entity[] {
-  return JSON.parse(JSON.stringify(CFO_SEED))
+  const base: Entity[] = JSON.parse(JSON.stringify(CFO_SEED))
+  if (!base.some(e => e.id === 'hpl')) base.push(JSON.parse(JSON.stringify(HAAVN_PTY_LTD)))
+  return base
 }
 
 function loadData(): AdminData {
@@ -98,7 +106,11 @@ function loadData(): AdminData {
     const raw = localStorage.getItem(STORE_KEY)
     if (raw) {
       const d = JSON.parse(raw)
-      if (d.entities && Array.isArray(d.entities)) return d
+      if (d.entities && Array.isArray(d.entities)) {
+        // Migration: ensure HAAVN Pty Ltd (group parent) exists on saved admin data.
+        if (!d.entities.some((e: Entity) => e.id === 'hpl')) { d.entities.push(JSON.parse(JSON.stringify(HAAVN_PTY_LTD))); saveData(d) }
+        return d
+      }
     }
   } catch { /* fall through */ }
   // migrate transactions from the previous shape
@@ -220,7 +232,7 @@ function HeaderSlot({ children }: { children: React.ReactNode }) {
 
 // Which Xero account an entity belongs to.
 function xeroGroupFor(entityId: string): '7even' | 'haavn' {
-  return (entityId === 'hm' || entityId === 'hprec' || entityId === 'htec') ? 'haavn' : '7even'
+  return (entityId === 'hpl' || entityId === 'hm' || entityId === 'hprec' || entityId === 'htec') ? 'haavn' : '7even'
 }
 
 type View = 'dashboard' | 'entry' | 'transactions' | 'projects' | 'tracking'
