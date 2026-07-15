@@ -225,7 +225,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6, marginTop: -11 }}>▾</span>
               </button>
               {archiveMenu && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: '#0C0C0C', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(120,142,166,0.20)', backdropFilter: 'blur(20px) saturate(1.2)', WebkitBackdropFilter: 'blur(20px) saturate(1.2)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
                   {/* Dashboard — financial portfolio view, admin/director only */}
                   {isAdmin && (
                   <button onClick={() => { onDashboard?.(adminBrand); setArchiveMenu(false) }}
