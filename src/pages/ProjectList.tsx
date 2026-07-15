@@ -206,7 +206,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                 {list.length} project{list.length !== 1 ? 's' : ''}
               </span>
               {isAdmin && brandMenu && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: '#0C0C0C', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.7)' }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(120,142,166,0.20)', backdropFilter: 'blur(20px) saturate(1.2)', WebkitBackdropFilter: 'blur(20px) saturate(1.2)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
                   {([['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']] as const).map(([id, lbl]) => (
                     <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
@@ -280,7 +280,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       </div>
       </div>
 
-      <SiteLinks />
+      <SiteLinks tone="glass" />
       <Project7Mark />
 
       {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
@@ -294,7 +294,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div onClick={() => setShowNew(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(rgba(3,3,3,0.66), rgba(3,3,3,0.74)), url(/home-bg.jpg) center / cover no-repeat, #030303',
+            background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center 30% / cover no-repeat, #05070a',
           }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
