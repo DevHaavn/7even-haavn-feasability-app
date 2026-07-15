@@ -10,20 +10,39 @@ import BudgetsAdmin from './BudgetsAdmin'
 
 type Group = '7even' | 'haavn'
 
-const BOOKS: { id: Group; num: string; brand: string; title: string; sub: string; blurb: string; color: string }[] = [
+const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string; color: string }[] = [
   {
-    id: '7even', num: '01', brand: 'ATRIUM', title: '7EVEN Capital Administration',
+    id: '7even', num: '01', title: '7EVEN Capital Administration',
     sub: 'Dashboards · Projects · Budgets',
     blurb: '7EVEN & 7EVEN Capital books — project-linked budgets tracked live against the feasibility studio, invoice register and dashboards.',
     color: '#C4973A',
   },
   {
-    id: 'haavn', num: '02', brand: 'HAAVN', title: 'HAAVN Administration',
+    id: 'haavn', num: '02', title: 'HAAVN Administration',
     sub: 'Accounts & Settlement · Client revenue · FY27',
     blurb: 'The full ATRIUM Accounts & Settlement surface — client revenue, manager splits, group settlement, inter-co loans and the FY27 budget across every HAAVN entity, consolidated.',
     color: '#3DAA6A',
   },
 ]
+
+/** The ATRIUM Apex — a thin silver A, the platform mark. Both admin books are
+ *  ATRIUM surfaces, so both buttons carry it (brief §3: silver default, keep it
+ *  thin, the wordmark is type). */
+function Apex({ id, size = 18 }: { id: string; size?: number }) {
+  return (
+    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ flexShrink: 0, display: 'block' }}>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#F2F4F5" />
+          <stop offset=".5" stopColor="#C6CDCF" />
+          <stop offset="1" stopColor="#9AA2A4" />
+        </linearGradient>
+      </defs>
+      <path d="M51 196 L120 26 L189 196" fill="none" stroke={`url(#${id})`} strokeWidth={11} strokeLinejoin="miter" strokeLinecap="round" />
+      <path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" strokeWidth={3.2} strokeLinejoin="miter" strokeLinecap="round" opacity={0.85} />
+    </svg>
+  )
+}
 
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
@@ -86,7 +105,11 @@ export default function BudgetsAdminBase() {
               <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{b.num}</span>
             </div>
             <div>
-              <span style={{ color: b.color, fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 18, letterSpacing: '0.10em', display: 'block', margin: '0 0 12px' }}>{b.brand}</span>
+              {/* ATRIUM platform brand — carried on both books' buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '0 0 12px' }}>
+                <Apex id={`apex-${b.id}`} size={18} />
+                <span style={{ color: '#EEF1F2', fontFamily: "'Inter Tight', var(--font-heading), sans-serif", fontWeight: 600, fontSize: 15, letterSpacing: '0.30em', paddingLeft: '0.06em' }}>ATRIUM</span>
+              </div>
               <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{b.title}</h2>
               <p style={{ color: b.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{b.sub}</p>
             </div>
