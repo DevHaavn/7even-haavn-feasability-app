@@ -41,7 +41,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
   }
 
   function handleReset() {
-    captureSnapshot(projectId, `Before reset — ${new Date().toLocaleString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`)
+    captureSnapshot(projectId, `Before reset — ${new Date().toLocaleString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}`)
     resetProjectData(projectId)
     loadProjects()
     setActiveTab('site')
@@ -179,7 +179,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                             <p style={{ fontSize: 9, color: '#2E2E2E', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
                               {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                               {' · '}
-                              {date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}
+                              {date.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true })}
                             </p>
                           </div>
                           {isRestored && (

@@ -100,7 +100,7 @@ export default function ProjectHistory({ projectId, open, onClose, onRestored }:
                       <p style={{ fontSize: 9, color: '#333', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
                         {date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                         {' · '}
-                        {date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}
+                        {date.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true })}
                       </p>
                     </div>
                     {isRestored && (
