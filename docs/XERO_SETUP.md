@@ -7,20 +7,32 @@ encrypted `httpOnly` cookie that page JavaScript cannot read.
 
 ## One-time setup (Jamie)
 
+**First: find your live URL.** Open Capital Base in the browser and copy the
+domain from the address bar — that's your `<LIVE_URL>` (the current deployment
+is the Vercel project `7even-haavn-feasability-app-redux`, i.e.
+`https://7even-haavn-feasability-app-redux.vercel.app`, unless you've attached a
+custom domain, in which case use that). Every URL below must use that exact
+domain or the OAuth redirect will fail.
+
 1. **Create the Xero app**
    - Go to https://developer.xero.com/app/manage and sign in with the Xero login.
    - "New app" → name it `7EVEN Capital Base`, choose **Web app**.
-   - Company or application URL: `https://feasibility-app-nu.vercel.app`
-   - Redirect URI (exact): `https://feasibility-app-nu.vercel.app/api/xero/callback`
+   - Company or application URL: `<LIVE_URL>`
+   - Redirect URI (exact, must match character-for-character):
+     `<LIVE_URL>/api/xero/callback`
    - Save, then copy the **Client ID** and generate a **Client Secret**.
+   - (HAAVN's separate Xero login is a *second* app/connection — repeat this
+     later for the `haavn` group; the app connects each group independently.)
 
 2. **Add the environment variables in Vercel**
-   - Vercel dashboard → feasibility-app project → Settings → Environment Variables:
+   - Vercel dashboard → **7even-haavn-feasability-app-redux** → Settings →
+     Environment Variables (Production):
      - `XERO_CLIENT_ID` — from step 1
      - `XERO_CLIENT_SECRET` — from step 1 (keep it only here, never in the repo)
      - `SESSION_SECRET` — any long random string, 32+ characters
        (generate one: `openssl rand -hex 32`)
-     - `APP_URL` — `https://feasibility-app-nu.vercel.app`
+     - `APP_URL` — `<LIVE_URL>` (pins the redirect URI so it always matches the
+       one you registered above)
    - Redeploy so the functions pick the variables up.
 
 3. **Connect**
@@ -41,9 +53,13 @@ encrypted `httpOnly` cookie that page JavaScript cannot read.
 | `GET /api/xero/status` | Tells the app whether Xero is configured/connected; silently refreshes expired tokens |
 | `GET /api/xero/disconnect` | Clears the session cookie |
 
-Scopes requested: transactions, contacts (read), settings (read), budgets
-(read), reports (read), plus `offline_access` for token refresh. Nothing is
-written to Xero until we explicitly build push flows.
+Scopes requested (granular, read-only — required for apps created after
+Mar 2026): `accounting.invoices.read`, `accounting.payments.read`,
+`accounting.banktransactions.read`, `accounting.contacts.read`,
+`accounting.settings.read`, plus `openid profile email offline_access` for
+sign-in and token refresh. Read-only: **nothing is ever written to Xero** until
+we explicitly build push flows. (`accounting.invoices.read` covers bills too —
+they're ACCPAY invoices in the Xero API.)
 
 ## Next build steps once connected
 
