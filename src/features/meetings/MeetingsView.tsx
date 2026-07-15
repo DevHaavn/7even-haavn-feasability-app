@@ -4,6 +4,7 @@ import { crmSearch, type CrmLink } from './crm'
 import { startTranscription, type EngineController } from './engine'
 import { emailHtml, transcriptPdfBase64 } from './exports'
 import { defaultSender, TEAM, type Sender } from './senders'
+import { fmtDateTime } from './format'
 import SenderSelect from './SenderSelect'
 import type { MeetingBundle, Utterance, AgendaItem, Attendee } from './types'
 
@@ -107,7 +108,7 @@ function MeetingsList({ bundles, onNew, onOpen, onDelete }: { bundles: MeetingBu
               <div style={av()}>▤</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 500, color: '#EDF1EF' }}>{b.meeting.title}</div>
-                <div style={{ fontSize: 11.5, color: '#8B928E', marginTop: 2 }}>{(b.meeting.startsAt || '').replace('T', ' ')} · {b.agenda.length} items · {b.attendees.length} attendees{b.meeting.locationLabel ? ` · ${b.meeting.locationLabel}` : ''}</div>
+                <div style={{ fontSize: 11.5, color: '#8B928E', marginTop: 2 }}>{fmtDateTime(b.meeting.startsAt)} · {b.agenda.length} items · {b.attendees.length} attendees{b.meeting.locationLabel ? ` · ${b.meeting.locationLabel}` : ''}</div>
               </div>
               <span style={{ ...mono, fontSize: 10, color: col, border: `1px solid ${col}55`, borderRadius: 100, padding: '3px 9px' }}>{lbl}</span>
               <button style={{ ...btn('quiet'), width: 32, height: 32, padding: 0 }} title="Delete" onClick={e => { e.stopPropagation(); if (confirm('Delete this meeting?')) onDelete(b.meeting.id) }}>×</button>

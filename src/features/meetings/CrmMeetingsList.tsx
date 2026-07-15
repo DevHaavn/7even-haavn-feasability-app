@@ -2,6 +2,7 @@ import React from 'react'
 import { Panel } from '../../components/ui/Panel'
 import { loadMeetings } from './meetingsStore'
 import { crmSearch } from './crm'
+import { fmtDateTime } from './format'
 
 // The CRM-side view of the Meetings pillar: every recorded meeting and the record
 // it produced, shown back inside ATRIUM so a meeting routed to a project / deal /
@@ -31,7 +32,7 @@ export default function CrmMeetingsList() {
                   <span style={{ fontWeight: 600, color: 'var(--ink)', fontSize: 14 }}>{b.meeting.title}</span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: col, border: `1px solid ${col}`, borderRadius: 100, padding: '2px 8px' }}>{lbl}</span>
                   {link && <span style={{ fontSize: 11, color: 'var(--f-700)', background: 'var(--f-50)', border: '1px solid var(--f-100)', borderRadius: 100, padding: '2px 8px' }}>↔ {link}</span>}
-                  <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--faint)' }}>{(b.meeting.startsAt || '').replace('T', ' ')}</span>
+                  <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--faint)' }}>{fmtDateTime(b.meeting.startsAt)}</span>
                 </div>
                 {b.record?.summary && <p style={{ margin: '6px 0', fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.5 }}>{b.record.summary}</p>}
                 {b.record?.actions?.length ? (
