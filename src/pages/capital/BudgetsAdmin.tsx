@@ -237,7 +237,7 @@ function xeroGroupFor(entityId: string): '7even' | 'haavn' {
 
 type View = 'dashboard' | 'entry' | 'transactions' | 'projects' | 'tracking'
 
-export default function BudgetsAdmin() {
+export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even' | 'haavn'; onBackToGroups?: () => void } = {}) {
   const { projects, getDetailedCostStack } = useStore()
   const [hadStored] = useState(() => !!localStorage.getItem(STORE_KEY))
   const [data, setData] = useState<AdminData>(loadData)
@@ -260,7 +260,7 @@ export default function BudgetsAdmin() {
   const [syncing, setSyncing] = useState(false)
   const [syncMsg, setSyncMsg] = useState('')
 
-  const entities = data.entities
+  const entities = useMemo(() => group ? data.entities.filter(e => xeroGroupFor(e.id) === group) : data.entities, [data.entities, group])
   const isGroup = sel === 'group'
   const entity = entities.find(e => e.id === sel)
   const accent = ENTITY_COLOR[sel] || '#0D0D0F'
@@ -365,7 +365,14 @@ export default function BudgetsAdmin() {
 
       {/* entity nav + Xero */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        {navBtn('group', 'Group')}
+        {onBackToGroups && (
+          <button onClick={onBackToGroups}
+            style={{ padding: '8px 14px', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700,
+              color: '#63656C', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 999, cursor: 'pointer' }}>
+            ← Administration
+          </button>
+        )}
+        {navBtn('group', group === 'haavn' ? 'HAAVN Group' : group === '7even' ? '7EVEN Group' : 'Group')}
         {entities.map(e => navBtn(e.id, e.name.replace('Haavn ', 'H. ')))}
         <HeaderSlot>
           <XeroChip
