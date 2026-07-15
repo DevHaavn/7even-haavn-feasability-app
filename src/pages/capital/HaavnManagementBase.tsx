@@ -17,9 +17,9 @@ export interface HMPillar {
 
 export const HM_PILLARS: HMPillar[] = [
   {
-    id: 'crm', num: '01', title: 'Partner CRM',
-    sub: 'Targets · Range · Signals · Contacts',
-    blurb: 'Strategic partner relationships, deal pipeline, contact management and partnership signals across 7EVEN and HAAVN brands.',
+    id: 'crm', num: '01', title: 'HAAVN Management',
+    sub: 'Projects · Files · Workflow · Contacts',
+    blurb: 'The HAAVN Management company tool — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job.',
     color: '#237A52', // Forest green (ATRIUM)
   },
   {
@@ -71,7 +71,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
           Management Hub
         </h1>
         <p style={{ color: '#A7A7A7', fontSize: 12, textAlign: 'center', margin: '0 0 8px' }}>
-          Three pillars for partner relations, team collaboration and brand strategy — unified command centre.
+          Three pillars for project delivery, team collaboration and brand strategy — unified command centre.
         </p>
         <p style={{ color: '#777', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 44 }}>
           Strategic partnerships · Operational efficiency · Market intelligence
@@ -99,12 +99,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
                 <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
               </div>
               <div>
-                {p.id === 'crm' && (
-                  <span style={{ color: p.color, fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 18, letterSpacing: '0.10em', display: 'block', margin: '0 0 12px' }}>ATRIUM</span>
-                )}
-                {p.id !== 'crm' && (
-                  <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />
-                )}
+                <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 20, width: 'auto', display: 'block', margin: '0 0 12px', opacity: 0.95 }} />
                 <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
                 <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
               </div>
