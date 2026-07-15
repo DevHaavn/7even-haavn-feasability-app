@@ -298,9 +298,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
-              width: 480, padding: '40px',
+              width: 'min(480px, calc(100vw - 28px))', maxHeight: 'calc(100vh - 32px)', padding: isMobile ? '30px 24px' : '40px',
               background: 'rgba(44,60,78,0.52)', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)',
-              border: '1px solid rgba(220,232,244,0.22)', borderRadius: 20, overflow: 'hidden',
+              border: '1px solid rgba(220,232,244,0.22)', borderRadius: 20, overflow: 'auto',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 30px 70px -20px rgba(0,0,0,0.7)',
             }}>
 
