@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useStore } from '../store'
-import { Wordmark, Project7Mark } from '../components/ui'
+import { Project7Mark } from '../components/ui'
+import { AtriumApex } from '../components/AtriumMark'
 import { seedProjectsIfEmpty } from '../db/seed'
 import { getCashflow } from '../db'
 import SiteLinks from '../components/SiteLinks'
@@ -104,15 +105,11 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#080808', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden',
+      background: 'linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center 30% / cover no-repeat, #05070a' }}>
 
-      {/* ── Hero ── */}
-      <div style={{ position: 'relative', height: 'clamp(260px, 52vh, 62vh)', flexShrink: 0 }}>
-        {/* Render zoomed + panned so the house central column sits under the page-centred V — alignment locked.
-            5s reveal fades it up from dark into full-bleed colour on entry, then holds. */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/renders/haavn-render2.png)', backgroundSize: isMobile ? 'cover' : '122%', backgroundPosition: isMobile ? 'center 46%' : '54.15% 56%', backgroundRepeat: 'no-repeat', pointerEvents: 'none', animation: 'hero-reveal 6s cubic-bezier(0.4, 0, 0.2, 1) both' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.28) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.28) 100%)', pointerEvents: 'none' }} />
+      {/* ── Hero — floats over the full-bleed tower ── */}
+      <div style={{ position: 'relative', height: 'clamp(300px, 58vh, 66vh)', flexShrink: 0 }}>
 
         {/* Top bar — drag region for the frameless window */}
         <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10 }} />
@@ -155,16 +152,17 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
         </div>
 
-        {/* Wordmark — centred so the V lands on the house central column (nudged up 2mm) */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, transform: 'translateY(-8px)' }}>
-          <Wordmark size="hero" />
+        {/* Brand — the flashing ATRIUM compact device (replaces the 7EVEN|HAAVN wordmark) */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 14, transform: 'translateY(-8px)' }}>
+          <AtriumApex size={isMobile ? 96 : 150} variant="compact" flash bright style={{ filter: 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) drop-shadow(0 8px 26px rgba(0,0,0,0.42))' }} />
+          <span style={{ color: '#fff', fontSize: isMobile ? 18 : 23, fontWeight: 600, letterSpacing: '0.42em', paddingLeft: '0.42em', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>ATRIUM</span>
         </div>
 
-        {/* + New Project — low, between the house base and the gold divider */}
+        {/* + New Project — blue/grey glass, centred low on the hero */}
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
-          <button onClick={() => openNew('7even')} className="no-drag glass-btn"
-            style={{ padding: '10px 30px' }}>
-            <span style={{ color: 'rgba(255,255,255,0.90)', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 500 }}>+ New Project</span>
+          <button onClick={() => openNew('7even')} className="no-drag"
+            style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
+            <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
           </button>
         </div>
       </div>
@@ -172,10 +170,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* ── Black-chrome shining divider ── */}
       <div className="chrome-line" style={{ height: 2, flexShrink: 0 }} />
 
-      {/* ── Lower half — shimmering particle backdrop behind the project panels ── */}
+      {/* ── Lower half — project board floats directly over the render (clear) ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/home-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.6, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(8,8,8,0.92), rgba(8,8,8,0.42) 38%, rgba(8,8,8,0.55) 70%, rgba(8,8,8,0.85))', pointerEvents: 'none' }} />
 
       {/* ── Split columns — stacked below 1024px, side by side above ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
@@ -192,7 +188,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           return (
         <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
           {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
-          <div className="ws-col-header" style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', background: 'linear-gradient(rgba(228,226,222,0.16), rgba(210,208,204,0.08))', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderTop: '1px solid rgba(255,255,255,0.10)', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+          <div className="ws-col-header" style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', background: 'transparent', borderTop: 'none', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', marginLeft: '7mm' }}>
               {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
               <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
@@ -269,7 +265,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           </div>
 
           {/* Project list */}
-          <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
+          <div className="hide-scrollbar" style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
             {list.length === 0 ? (
               <EmptyState brand={brand} onNew={() => openNew(brand)} />
             ) : (

@@ -29,8 +29,8 @@ const COMPACT = Array.from({ length: 4 }, (_, i) => ({
   o: (0.16 + i * 0.247).toFixed(2),
 }))
 
-export function AtriumApex({ size = 20, variant = 'auto', style }: {
-  size?: number; variant?: 'auto' | 'compact' | 'detail'; style?: React.CSSProperties
+export function AtriumApex({ size = 20, variant = 'auto', flash = false, bright = false, style }: {
+  size?: number; variant?: 'auto' | 'compact' | 'detail'; flash?: boolean; bright?: boolean; style?: React.CSSProperties
 }) {
   const [id] = React.useState(() => `atx${++_seq}`)
   const c = `c_${id}`, k = `k_${id}`, h = `h_${id}`, s = `s_${id}`
@@ -38,13 +38,17 @@ export function AtriumApex({ size = 20, variant = 'auto', style }: {
   const strokes = compact ? COMPACT : DETAIL
   const halo = compact ? { rx: 50, ry: 58 } : { rx: 58, ry: 66 }
   const well = compact ? 17 : 19
+  // `bright` lifts the chrome + stroke opacity so the mark reads over a bright sky.
+  const grad = bright
+    ? ['#FFFFFF', '#EAF0F2', '#C2CACC', '#FFFFFF', '#D6DDDF']
+    : ['#F4F7F8', '#AEB6B8', '#6E7779', '#D6DBDC', '#8A9395']
   return (
     <svg viewBox="0 0 240 240" width={size} height={size} aria-label="ATRIUM" style={{ display: 'block', flexShrink: 0, ...style }}>
       <defs>
         <linearGradient id={c} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F4F7F8" /><stop offset=".42" stopColor="#AEB6B8" />
-          <stop offset=".52" stopColor="#6E7779" /><stop offset=".66" stopColor="#D6DBDC" />
-          <stop offset="1" stopColor="#8A9395" />
+          <stop offset="0" stopColor={grad[0]} /><stop offset=".42" stopColor={grad[1]} />
+          <stop offset=".52" stopColor={grad[2]} /><stop offset=".66" stopColor={grad[3]} />
+          <stop offset="1" stopColor={grad[4]} />
         </linearGradient>
         <radialGradient id={k} cx="50%" cy="50%" r="50%">
           <stop offset="0" stopColor="#EAFBF1" /><stop offset=".3" stopColor="#6FBE96" />
@@ -55,12 +59,12 @@ export function AtriumApex({ size = 20, variant = 'auto', style }: {
         </radialGradient>
         <filter id={s}><feGaussianBlur stdDeviation="5" /></filter>
       </defs>
-      <ellipse cx="120" cy="150" rx={halo.rx} ry={halo.ry} fill={`url(#${h})`} filter={`url(#${s})`} />
+      <ellipse className={flash ? 'atx-halo-flash' : undefined} cx="120" cy="150" rx={halo.rx} ry={halo.ry} fill={`url(#${h})`} filter={`url(#${s})`} />
       {strokes.map((st, i) => (
-        <path key={i} d={st.d} fill="none" stroke={`url(#${c})`} strokeWidth={st.w} strokeLinejoin="round" strokeLinecap="round" opacity={st.o} />
+        <path key={i} d={st.d} fill="none" stroke={`url(#${c})`} strokeWidth={bright ? (+st.w + 0.3).toFixed(2) : st.w} strokeLinejoin="round" strokeLinecap="round" opacity={bright ? Math.min(1, +st.o + 0.28).toFixed(2) : st.o} />
       ))}
       <circle cx="120" cy="152" r={well} fill={`url(#${k})`} />
-      <circle cx="120" cy="152" r="5" fill="#EAFBF1" />
+      <circle className={flash ? 'atx-core-flash' : undefined} cx="120" cy="152" r="5" fill="#EAFBF1" />
     </svg>
   )
 }

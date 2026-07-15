@@ -655,6 +655,14 @@ input[type="checkbox"] {
   to   { max-height: 58vh; opacity: 1; transform: none; }
 }
 
+/* ── ATRIUM Apex — flashing light-well (home hero) ───────────────────────────── */
+@keyframes atx-breathe { 0%,100% { opacity:.4 } 50% { opacity:1 } }
+@keyframes atx-core { 0%,100% { opacity:.7; transform:scale(.85) } 50% { opacity:1; transform:scale(1.25) } }
+.atx-halo-flash { animation: atx-breathe 2.1s ease-in-out infinite; }
+.atx-core-flash { animation: atx-core 2.1s ease-in-out infinite; transform-origin:120px 152px; transform-box:fill-box; }
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
 /* ── ATRIUM Meetings module ───────────────────────────────────────────────── */
 @keyframes mtg-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(198,64,43,.5)} 55%{box-shadow:0 0 0 8px rgba(198,64,43,0)} }
 .mtg-recdot { animation: mtg-pulse 1.5s infinite; }
