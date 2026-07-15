@@ -303,7 +303,13 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
   const { projects, getDetailedCostStack } = useStore()
   const [hadStored] = useState(() => !!localStorage.getItem(STORE_KEY))
   const [data, setData] = useState<AdminData>(loadData)
-  const [sel, setSel] = useState<string>('group')        // 'group' or entity id
+  // Open straight on the book's own entity (7EVEN Capital) with all tools in the
+  // rail — not the consolidated Group view. Group is still one click away.
+  const [sel, setSel] = useState<string>(() => {
+    if (!group) return 'group'
+    const es = loadData().entities.filter(e => xeroGroupFor(e.id) === group)
+    return es[0]?.id || 'group'
+  })
   const [view, setView] = useState<View>('dashboard')
   const [through, setThrough] = useState(11)
   const [detailProject, setDetailProject] = useState<string | null>(null)  // open project cost editor
@@ -1027,27 +1033,27 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
   )
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'linear-gradient(rgba(3,3,3,0.55), rgba(3,3,3,0.80)), #060606', overflowY: 'auto' }}>
-      <div style={{ maxWidth: 980, margin: '0 auto', padding: '24px 24px 60px' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-          <button onClick={onClose} className="glass-btn" style={{ color: '#0D0D0F', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 16px' }}>← Back</button>
-          <div>
-            <h1 style={{ color: '#0D0D0F', fontSize: 20, fontWeight: 300, letterSpacing: '0.04em', margin: 0 }}>{projectName}</h1>
-            <p style={{ color: '#6FD39A', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '3px 0 0' }}>● Live · edits sync with the feasibility studio</p>
-          </div>
-          <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-            <p style={{ color: '#63656C', fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Total development cost</p>
-            <p style={{ color: '#C4973A', fontSize: 20, fontFamily: 'var(--font-mono)', fontWeight: 600, margin: '2px 0 0' }}>{fmt$(tdc)}</p>
-          </div>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#F1F3F2', overflowY: 'auto', color: '#12150F', fontFamily: "'Inter',system-ui,-apple-system,sans-serif" }}>
+      {/* Carbon topbar — matches the ATRIUM admin shell */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: '1px solid #000', background: 'linear-gradient(120deg,#0A0D0C,#12161A 60%,#0A0D0C)', flexWrap: 'wrap' }}>
+        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #3A4146', borderRadius: 999, color: '#C6CDCF', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, padding: '8px 16px', cursor: 'pointer' }}>← Back</button>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ color: '#EEF1F2', fontSize: 14, fontWeight: 600, letterSpacing: '0.02em' }}>{projectName}</span>
+          <span style={{ color: '#6FBE96', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>● Live · syncs with the feasibility studio</span>
         </div>
+        <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+          <p style={{ color: '#9AA2A4', fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Total development cost</p>
+          <p style={{ color: '#EEF1F2', fontSize: 19, fontFamily: 'var(--font-mono)', fontWeight: 600, margin: '2px 0 0' }}>{fmt$(tdc)}</p>
+        </div>
+      </div>
+      <div style={{ maxWidth: 980, margin: '0 auto', padding: '24px 24px 60px' }}>
 
         {/* Tab bar — same headers as the feasibility studio */}
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #DEDEE1', marginBottom: 18, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #E1E4E3', marginBottom: 18, overflowX: 'auto' }}>
           {DETAIL_TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px 14px', whiteSpace: 'nowrap',
-                color: tab === t.id ? t.accent : '#63656C', borderBottom: `2px solid ${tab === t.id ? t.accent : 'transparent'}`,
+                color: tab === t.id ? '#237A52' : '#636966', borderBottom: `2px solid ${tab === t.id ? '#237A52' : 'transparent'}`,
                 fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, transition: 'all 0.2s' }}>
               {t.label}
             </button>
@@ -1062,14 +1068,14 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
               <div key={label} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 120px', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #EDEDEF' }}>
                 <span style={{ color: '#3A3B40', fontSize: 12.5 }}>{label}</span>
                 <div style={{ height: 8, background: '#EDEDEF', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${tdc ? Math.max(1, v / tdc * 100) : 0}%`, height: '100%', background: '#C4973A' }} />
+                  <div style={{ width: `${tdc ? Math.max(1, v / tdc * 100) : 0}%`, height: '100%', background: '#237A52' }} />
                 </div>
-                <span style={{ color: '#0D0D0F', fontSize: 13, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(v)}</span>
+                <span style={{ color: '#12150F', fontSize: 13, fontFamily: 'var(--font-mono)', textAlign: 'right' }}>{fmt$(v)}</span>
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14, marginTop: 6, borderTop: '1px solid #D3D4D8' }}>
-              <span style={{ color: '#0D0D0F', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>Total development cost</span>
-              <span style={{ color: '#C4973A', fontSize: 18, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmt$(tdc)}</span>
+              <span style={{ color: '#12150F', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em' }}>Total development cost</span>
+              <span style={{ color: '#237A52', fontSize: 18, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{fmt$(tdc)}</span>
             </div>
             <p style={{ color: '#63656C', fontSize: 11.5, lineHeight: 1.6, marginTop: 16 }}>
               Live 3% DM fee from this TDC: <strong style={{ color: '#6FD39A' }}>{fmt$(tdc * 0.03)}/yr</strong>. Tap any tab above to edit that part of the budget — every change writes straight to the project's cost stack, land and finance tabs in the feasibility studio, and back.
@@ -1091,10 +1097,10 @@ function ProjectDetail({ projectId, projectName, onClose }: { projectId: string;
           </div>
         )}
 
-        {tab === 'consultants' && catEditor('consultants', '#6E9BE6')}
-        {tab === 'statutory' && catEditor('statutory', '#E8B84B')}
-        {tab === 'hardCosts' && catEditor('hardCosts', '#8FA8BF')}
-        {tab === 'marketing' && catEditor('marketing', '#B48CD9')}
+        {tab === 'consultants' && catEditor('consultants', '#237A52')}
+        {tab === 'statutory' && catEditor('statutory', '#237A52')}
+        {tab === 'hardCosts' && catEditor('hardCosts', '#237A52')}
+        {tab === 'marketing' && catEditor('marketing', '#237A52')}
 
         {tab === 'finance' && (
           <div style={panel}>

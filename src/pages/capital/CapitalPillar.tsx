@@ -16,51 +16,36 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
       background: isBudgets
-        ? 'linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.18)), url(/premium-bg.jpg) center / cover fixed, #101010'
+        ? 'linear-gradient(rgba(3,3,3,0.30), rgba(3,3,3,0.55) 70%, rgba(3,3,3,0.78)), url(/capital-bg.png) center / cover no-repeat fixed, #030303'
         : 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(35,122,82,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303',
       display: 'flex', flexDirection: 'column',
     }}>
-      {isBudgets ? (
-        /* Floating rounded light header — matches the project pages */
-        <div className="ws-header-float" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 22px', flexShrink: 0, background: 'linear-gradient(rgba(238,236,232,0.80), rgba(224,221,216,0.86)), url(/header-bg.jpg) center / cover no-repeat, #ECEAE6' }}>
-          <Button variant="glass" onClick={onBack} style={{ fontSize: 11 }}>
+      {/* Header — dark, same treatment as the Capital Base hub */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
+        {pillar.id === 'crm' ? (
+          <Button variant="glassDark" onClick={onExit} style={{ fontSize: 11 }}>
+            Deploy Studio
+          </Button>
+        ) : (
+          <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
             ← Capital Base
           </Button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
-            <span style={{ color: '#13B5EA', fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
-            <span style={{ color: '#1A1A1A', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>{pillar.title}</span>
-          </div>
-          {/* Slot: BudgetsAdmin portals its context-aware Xero chip here */}
-          <div id="budgets-header-slot" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }} />
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
+          <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
+          {pillar.id === 'crm'
+            ? <span style={{ color: '#fff', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>ATRIUM</span>
+            : <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>}
         </div>
-      ) : (
-        /* Header — same treatment as the main-page footer */
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: '1px solid #1A1A1A', flexShrink: 0, background: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' }}>
-          {pillar.id === 'crm' ? (
-            <Button variant="glassDark" onClick={onExit} style={{ fontSize: 11 }}>
-              Deploy Studio
-            </Button>
-          ) : (
-            <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
-              ← Capital Base
-            </Button>
-          )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
-            <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
-            {pillar.id === 'crm'
-              ? <span style={{ color: '#fff', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>ATRIUM</span>
-              : <span style={{ color: '#fff', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{pillar.title}</span>}
-          </div>
-          {pillar.id === 'crm' && (
-            <span style={{ color: '#237A52', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 16, letterSpacing: '0.08em', marginLeft: 'auto' }}>ATRIUM</span>
-          )}
-        </div>
-      )}
+        {pillar.id === 'crm' && (
+          <span style={{ color: '#237A52', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 16, letterSpacing: '0.08em', marginLeft: 'auto' }}>ATRIUM</span>
+        )}
+      </div>
 
       {/* Body — live module, or scaffold for pillars not yet built.
           Budgets floats as a soft-grey sheet over the stealth-black texture,
           like the project pages. */}
-      {pillar.id === 'budgets' ? <div className="premium-stage" style={{ flex: 1, overflowY: 'auto' }}><BudgetsAdminBase /></div> : pillar.id === 'crm' ? <Atrium /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
+      {pillar.id === 'budgets' ? <BudgetsAdminBase /> : pillar.id === 'crm' ? <Atrium /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>
