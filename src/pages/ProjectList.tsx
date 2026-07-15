@@ -299,30 +299,30 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
               width: 480, padding: '40px',
-              background: '#F4F2EF',
-              border: '1px solid rgba(255,255,255,0.5)', borderRadius: 20, overflow: 'hidden',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 30px -2px rgba(216,176,96,0.14), 0 26px 55px -16px rgba(0,0,0,0.85)',
+              background: 'rgba(44,60,78,0.52)', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)',
+              border: '1px solid rgba(220,232,244,0.22)', borderRadius: 20, overflow: 'hidden',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 30px 70px -20px rgba(0,0,0,0.7)',
             }}>
 
-            {/* Black stealth chrome top line — shines and moves like the main page */}
-            <div className="chrome-line" style={{ height: 2, borderRadius: 2, marginBottom: 32 }} />
+            {/* Brushed-silver top line */}
+            <div style={{ height: 2, borderRadius: 2, marginBottom: 32, background: 'linear-gradient(to right, transparent, #C6CDCF 30%, #EEF1F2 50%, #9AA2A4 72%, transparent)' }} />
 
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
               <div>
-                <p style={{ color: '#8A6A28', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
+                <p style={{ color: '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
                   New Development
                 </p>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, color: '#0D0D0F', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
               </div>
-              <button onClick={() => setShowNew(false)} style={{ color: '#9A9CA3', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, transition: 'color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#0D0D0F')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#9A9CA3')}>✕</button>
+              <button onClick={() => setShowNew(false)} style={{ color: '#C6CDCF', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#C6CDCF')}>✕</button>
             </div>
 
             {/* Brand toggle — the real marks: 7EVEN and HM */}
             <div style={{ marginBottom: 28 }}>
-              <p style={{ color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Brand</p>
-              <div style={{ display: 'flex', gap: 0, border: '1px solid #D3D4D8', borderRadius: 10, overflow: 'hidden' }}>
+              <p style={{ color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Brand</p>
+              <div style={{ display: 'flex', gap: 0, border: '1px solid rgba(220,232,244,0.22)', borderRadius: 10, overflow: 'hidden' }}>
                 {(['7even', 'haavn'] as const).map(b => {
                   const active = newBrand === b
                   return (
@@ -330,14 +330,14 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                       style={{
                         flex: 1, padding: '13px 0', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: active ? '#141414' : '#fff',
-                        borderRight: b === '7even' ? '1px solid #D3D4D8' : 'none',
+                        background: active ? 'rgba(255,255,255,0.16)' : 'transparent',
+                        borderRight: b === '7even' ? '1px solid rgba(220,232,244,0.18)' : 'none',
                       }}>
                       <img
                         src={b === '7even' ? '/seven-mark-white.png' : '/hm-device-white.png'}
                         alt={b === '7even' ? '7EVEN' : 'HAAVN Management'}
                         draggable={false}
-                        style={{ height: b === '7even' ? 15 : 16, width: 'auto', display: 'block', filter: active ? 'none' : 'brightness(0) opacity(0.55)', transition: 'filter 0.2s' }} />
+                        style={{ height: b === '7even' ? 15 : 16, width: 'auto', display: 'block', filter: active ? 'none' : 'opacity(0.45)', transition: 'filter 0.2s' }} />
                     </button>
                   )
                 })}
@@ -347,9 +347,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Project name */}
               <div>
-                <label style={{ display: 'block', color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Project Name *</label>
+                <label style={{ display: 'block', color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Project Name *</label>
                 <input autoFocus
-                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #C9C7C2', padding: '10px 0', color: '#0D0D0F', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
+                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(220,232,244,0.28)', padding: '10px 0', color: '#EEF1F2', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                   placeholder="e.g. 225 Heaths Road Werribee"
                   value={name} onChange={e => setName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCreate()} />
@@ -357,25 +357,25 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
               {/* Address */}
               <div ref={addressRef} style={{ position: 'relative' }}>
-                <label style={{ display: 'block', color: '#4A4B50', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Address</label>
-                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #C9C7C2' }}>
+                <label style={{ display: 'block', color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Address</label>
+                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(220,232,244,0.28)' }}>
                   <input
-                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '10px 0', color: '#0D0D0F', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
+                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '10px 0', color: '#EEF1F2', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                     placeholder="Start typing an address…"
                     value={address} onChange={e => { setAddress(e.target.value); setShowSuggestions(true) }}
                     onFocus={() => results.length > 0 && setShowSuggestions(true)}
                     autoComplete="off" />
-                  {loading && <span style={{ color: '#9A9CA3', fontSize: 10, flexShrink: 0 }}>···</span>}
+                  {loading && <span style={{ color: '#9AA2A4', fontSize: 10, flexShrink: 0 }}>···</span>}
                 </div>
                 {showSuggestions && results.length > 0 && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#fff', border: '1px solid #D3D4D8', borderRadius: 10, maxHeight: 200, overflowY: 'auto', boxShadow: '0 14px 34px rgba(0,0,0,0.18)' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'rgba(18,26,38,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(220,232,244,0.16)', borderRadius: 10, maxHeight: 200, overflowY: 'auto', boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
                     {results.map((r, i) => (
                       <button key={i} onMouseDown={e => { e.preventDefault(); setAddress(r.split(', ').slice(0, 4).join(', ')); setShowSuggestions(false) }}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #EDEDEF', color: '#1A1B1E', fontSize: 12, cursor: 'pointer', transition: 'background 0.15s' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = '#F4F4F5')}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#EEF1F2', fontSize: 12, cursor: 'pointer', transition: 'background 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         {r.split(', ').slice(0, 4).join(', ')}
-                        <span style={{ color: '#9A9CA3', fontSize: 10, display: 'block', marginTop: 2 }}>{r.split(', ').slice(4, 7).join(', ')}</span>
+                        <span style={{ color: '#9AA2A4', fontSize: 10, display: 'block', marginTop: 2 }}>{r.split(', ').slice(4, 7).join(', ')}</span>
                       </button>
                     ))}
                   </div>
@@ -383,13 +383,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid #E4E2DE' }}>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid rgba(220,232,244,0.16)' }}>
                 <button onClick={() => setShowNew(false)}
-                  style={{ padding: '10px 24px', background: '#fff', border: '1px solid #D3D4D8', borderRadius: 10, color: '#4A4B50', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(220,232,244,0.24)', borderRadius: 10, color: '#EEF1F2', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
                   Cancel
                 </button>
                 <button onClick={handleCreate} disabled={!name.trim()}
-                  style={{ padding: '10px 32px', background: !name.trim() ? '#C9C7C2' : '#141414', border: 'none', borderRadius: 10, color: '#fff', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: !name.trim() ? 'default' : 'pointer' }}>
+                  style={{ padding: '10px 32px', background: !name.trim() ? 'rgba(150,172,196,0.10)' : 'linear-gradient(180deg, rgba(150,172,196,0.32), rgba(120,146,172,0.14))', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(220,232,244,0.28)', borderRadius: 10, color: !name.trim() ? 'rgba(255,255,255,0.4)' : '#fff', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: !name.trim() ? 'default' : 'pointer' }}>
                   Create Project
                 </button>
               </div>
