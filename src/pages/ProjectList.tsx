@@ -583,7 +583,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
           <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)' }}>▾</span>
         </button>
         {lifeOpen && (
-          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 200, background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 30px rgba(0,0,0,0.65)' }}>
+          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 200, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
             <button onClick={e => { e.stopPropagation(); setLifeOpen(false) }}
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'rgba(61,170,106,0.10)', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A' }} />
@@ -622,9 +622,9 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
           <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.95)', opacity: 0.8, marginLeft: 'auto' }}>▾</span>
         </button>
         {dropOpen && (
-          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
+          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
             <div style={{ padding: '6px 10px 4px', borderBottom: '1px solid #1A1A1A' }}>
-              <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#444' }}>Set Status</span>
+              <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9AA2A4' }}>Set Status</span>
             </div>
             {STATUS_OPTIONS.map(opt => {
               const isActive = (opt.status === 'on-hold' || opt.status === 'pending')
@@ -639,7 +639,7 @@ function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
                     {opt.pulse && <span style={{ position: 'absolute', borderRadius: '50%', width: 14, height: 14, background: opt.color, opacity: 0.22, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: opt.color, display: 'block' }} />
                   </span>
-                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: isActive ? opt.color : '#888', fontWeight: isActive ? 700 : 400 }}>{opt.label}</span>
+                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: isActive ? opt.color : '#C6CDCF', fontWeight: isActive ? 700 : 400 }}>{opt.label}</span>
                   {isActive && <span style={{ marginLeft: 'auto', fontSize: 8, color: opt.color }}>✓</span>}
                 </button>
               )
