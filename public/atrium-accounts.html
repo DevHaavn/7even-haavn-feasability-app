@@ -1,0 +1,1104 @@
+<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Atrium Accounts",
+  "schemaVersion": 1,
+  "description": "ATRIUM Accounts & Settlement — working app merging Haavn client invoicing, group settlement (3-way expense split + inter-co loans/interest) and the FY27 budget books, in the ATRIUM design language.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATRIUM — Accounts &amp; Settlement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --void:#050706;--carbon:#0A0D0C;--graphite:#12161A;--spacegrey:#1B2024;--steel:#292F33;--steel-2:#3A4146;--steel-3:#4C5559;
+ --f-900:#0B2318;--f-800:#0F3123;--f-700:#14452F;--f-600:#1B5E3F;--f-500:#237A52;--f-400:#38996B;--f-300:#6FBE96;--f-100:#DCEDE4;--f-50:#F1F8F4;
+ --sil-1:#EEF1F2;--sil-2:#C6CDCF;--sil-3:#9AA2A4;--sil-4:#6E7779;
+ --amber:#C9A24B;--amber-bg:#F7EFD9;--amber-tx:#8A6D22;
+ --red:#B4553F;--red-tx:#9A3F2C;--red-bg:#F6E7E2;
+ --ink:#12150F;--ink-2:#3A3F3C;--mute:#636966;--faint:#7C8380;--line:#E1E4E3;--line-2:#EDEFEE;--grey-50:#F7F8F8;--grey-100:#F1F3F2;--grey-200:#E7EAE9;--grey-300:#D6DAD9;
+ --disp:'Inter Tight',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Cormorant Garamond',Georgia,serif;
+ --ease:cubic-bezier(.32,.72,0,1);--r:12px;--r-m:16px;--r-l:22px;
+ --sh-l:0 12px 34px -8px rgba(5,7,6,.45),0 46px 90px -26px rgba(5,7,6,.55);
+ --brushed:linear-gradient(100deg,#DCE1E2,#F4F6F7 16%,#BDC5C7 40%,#EEF1F2 56%,#A6AEB0 80%,#DCE1E2);
+ --sil-grad:linear-gradient(180deg,#F2F4F5,#C6CDCF 46%,#9AA2A4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.neg{color:var(--red-tx)}
+::selection{background:var(--f-500);color:#fff}
+:focus-visible{outline:2px solid var(--f-400);outline-offset:2px;border-radius:6px}
+.dev{display:inline-block;flex:0 0 auto}.dev svg{width:100%;display:block}
+.sil-txt{background:var(--sil-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.carbon{background-color:#0b0f0e;
+ background-image:linear-gradient(27deg,#1b2226 6px,transparent 6px) 0 6px,linear-gradient(207deg,#1b2226 6px,transparent 6px) 12px 0,
+ linear-gradient(27deg,#0d1211 6px,transparent 6px) 0 12px,linear-gradient(207deg,#0d1211 6px,transparent 6px) 12px 6px,
+ linear-gradient(90deg,#12181a 12px,transparent 12px),linear-gradient(#171e20 25%,#0e1413 25%,#0e1413 50%,transparent 50%,transparent 75%,#171e20 75%,#171e20);
+ background-size:24px 24px}
+.carbon-sheen{position:relative}
+.carbon-sheen::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,rgba(224,232,234,.10),transparent 34%,transparent 66%,rgba(224,232,234,.06));mix-blend-mode:screen}
+.livery{display:inline-flex;align-items:center;height:5px;width:140px;border-radius:3px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.livery .g{width:38px;height:100%;background:linear-gradient(180deg,var(--f-400),var(--f-700))}
+.livery .s{flex:1;height:100%;background:var(--brushed)}
+
+/* ============ APP FRAME ============ */
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
+.topbar{position:relative;display:flex;align-items:center;gap:16px;padding:12px 22px;overflow:hidden;z-index:20;border-bottom:1px solid #000}
+.topbar>*{position:relative;z-index:2}
+.topbar .mk{display:flex;align-items:center;gap:11px}
+.topbar .mk .bw{font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.28em;padding-left:.28em}
+.topbar .modlbl{font-family:var(--disp);font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-2);display:flex;align-items:center;gap:9px;padding-left:16px;margin-left:4px;border-left:1px solid var(--steel-2)}
+.topbar .modlbl .n{color:var(--f-300)}
+.topbar .partner{margin-left:auto;display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:10.5px;color:var(--sil-3)}
+.topbar .partner .sep{width:1px;height:11px;background:var(--steel-2)}
+/* entity switcher — unmissable */
+.ent-switch{display:flex;align-items:center;gap:0;border:1px solid rgba(111,190,150,.34);border-radius:11px;overflow:hidden;background:rgba(35,122,82,.14);height:38px}
+.ent-switch .el{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--f-300);padding:0 10px;align-self:center}
+.ent-switch .ec{position:relative;display:flex;align-items:center;height:100%}
+.ent-switch .ec i{width:7px;height:7px;border-radius:50%;background:var(--f-300);box-shadow:0 0 8px var(--f-400);margin:0 -2px 0 0;position:absolute;left:11px}
+.ent-switch select{appearance:none;background:transparent;border:none;color:#fff;font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.02em;padding:0 30px 0 26px;height:100%;cursor:pointer}
+.ent-switch select:focus{outline:none}
+.ent-switch .ec::after{content:"▾";position:absolute;right:11px;color:var(--sil-3);font-size:11px;pointer-events:none}
+.ent-switch select option{background:#0d1211;color:#fff}
+.savestate{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--sil-4);max-width:150px;line-height:1.3}
+
+/* body grid */
+.body{display:grid;grid-template-columns:236px 1fr;min-height:0;overflow:hidden}
+/* forest rail */
+.rail{position:relative;padding:20px 14px;display:flex;flex-direction:column;overflow-y:auto;background:linear-gradient(175deg,var(--f-800),var(--f-900) 74%,#050c08)}
+.rail .cf{position:absolute;inset:0;z-index:0;opacity:.4}
+.rail>*{position:relative;z-index:1}
+.rail .brand{display:flex;align-items:center;gap:10px;padding:2px 8px 6px}
+.rail .brand .bw{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.22em;color:#fff}
+.rail .rdiv{height:3px;border-radius:2px;background:var(--brushed);margin:12px 8px 16px;opacity:.8}
+.rgrp{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(198,205,207,.42);margin:16px 12px 7px}
+.rgrp:first-of-type{margin-top:4px}
+.rnav{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;color:rgba(225,238,231,.74);font-size:13.5px;cursor:pointer;transition:.14s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:var(--body)}
+.rnav:hover{background:rgba(255,255,255,.06);color:#fff}
+.rnav.on{background:rgba(255,255,255,.1);color:#fff;font-weight:500;box-shadow:inset 3px 0 0 0 #C6CDCF}
+.rnav .rc{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--f-300);opacity:.8}
+.railfoot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(198,205,207,.14);font-family:var(--mono);font-size:9.5px;color:rgba(198,205,207,.4);line-height:1.7}
+
+/* work surface */
+.main{background:var(--grey-100);overflow-y:auto;padding:26px 30px 60px}
+.vhead{display:flex;align-items:flex-end;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.vhead .vk{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--f-600)}
+.vhead h1{font-family:var(--serif);font-weight:500;font-size:34px;letter-spacing:.01em;color:var(--ink);line-height:1.05;margin-top:3px}
+.vhead .sp{margin-left:auto}
+.vsub{color:var(--mute);font-size:13.5px;margin:2px 0 20px;max-width:74ch}
+.livery.vl{margin:12px 0 22px}
+
+/* cards / kpis */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.scard{position:relative;background:#fff;border-radius:var(--r-m);padding:18px 20px 16px;box-shadow:0 1px 2px rgba(5,7,6,.05),0 8px 20px -14px rgba(5,7,6,.16);overflow:hidden;min-width:0}
+.scard .bz{position:absolute;top:0;left:0;right:0;height:3px;background:var(--brushed)}
+.scard.forest{background:linear-gradient(160deg,var(--f-600),var(--f-800))}
+.scard.forest .t,.scard.forest .v{color:#fff}
+.scard .t{font-size:11.5px;color:var(--mute);letter-spacing:.02em}
+.scard .v{font-family:var(--disp);font-weight:600;font-size:23px;letter-spacing:-.03em;color:var(--f-600);margin-top:7px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard .v.sm{font-size:17px}
+.scard .d{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:5px}
+.scard .v .neg{color:var(--red-tx)}
+
+.card{background:#fff;border-radius:var(--r-m);padding:20px;box-shadow:0 1px 2px rgba(5,7,6,.05),0 6px 18px -14px rgba(5,7,6,.14);margin-bottom:16px;min-width:0;position:relative;overflow:hidden}
+.card>.bz{position:absolute;top:0;left:0;right:0;height:3px;background:var(--brushed)}
+.card h2{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.01em;color:var(--ink-2);margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card h2 .tag{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.card .note{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.55}
+.card .note b{color:var(--f-600);font-weight:500}
+
+/* tables */
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:500;padding:8px 9px;border-bottom:2px solid var(--f-600);white-space:nowrap}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.r,th.r{text-align:right}
+td.mono,th.r{white-space:nowrap}
+tbody tr:hover{background:var(--grey-50)}
+tr.total td{border-top:2px solid var(--f-600);border-bottom:none;font-weight:600;background:var(--grey-50)}
+tr.total:hover td{background:var(--grey-50)}
+tr.sub td{background:var(--f-50);font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--f-700)}
+.empty{padding:26px;text-align:center;color:var(--faint);font-size:13px}
+
+/* forms */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:600;color:var(--mute);margin-bottom:4px;letter-spacing:.01em}
+input,select,textarea{width:100%;font-family:var(--body);font-size:13px;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+input[type=number]{font-family:var(--mono)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--f-400);outline-offset:0;border-color:var(--f-400)}
+.warn{color:var(--red-tx);font-size:12px;margin-left:8px}
+
+/* buttons */
+.btn{position:relative;height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:var(--body);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:transform .12s var(--ease),background .15s}
+.btn:hover{background:var(--grey-50)}
+.btn:active{transform:scale(.97)}
+.btn.green{background:linear-gradient(180deg,var(--f-500),var(--f-700));color:#fff;border-color:rgba(0,0,0,.15);font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 8px 20px -8px rgba(27,94,63,.5)}
+.btn.green:hover{background:linear-gradient(180deg,var(--f-500),var(--f-600))}
+.btn.sil{background:var(--brushed);color:#14181a;border:none;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--red-tx);border-color:var(--red-bg)}
+.btn.danger:hover{background:var(--red-bg)}
+.btn.mini{height:28px;padding:0 10px;font-size:12px;border-radius:8px}
+.btn.arm{background:var(--red);border-color:var(--red);color:#fff}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 11px;border-radius:100px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;border:1px solid;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%}
+.pill.live{border-color:rgba(35,122,82,.32);color:var(--f-600);background:var(--f-50)}
+.pill.live i{background:var(--f-400);box-shadow:0 0 6px var(--f-400)}
+.pill.hold{border-color:rgba(201,162,75,.4);color:var(--amber-tx);background:var(--amber-bg)}
+.pill.hold i{background:var(--amber)}
+.pill.loss{border-color:rgba(180,85,63,.36);color:var(--red-tx);background:var(--red-bg)}
+.pill.loss i{background:var(--red)}
+.pill.plain{border-color:var(--line);color:var(--mute);background:var(--grey-50)}
+.pill.plain i{display:none}
+.tagcls{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--sil-4)}
+
+/* matrix */
+.mx-wrap{overflow:auto;max-height:64vh;border:1px solid var(--line);border-radius:12px}
+.mx{border-collapse:separate;border-spacing:0;font-size:12px;min-width:520px}
+.mx th,.mx td{padding:6px 9px;border-bottom:1px solid var(--line);border-right:1px solid var(--line-2);white-space:nowrap}
+.mx thead th{position:sticky;top:0;background:var(--grey-100);z-index:3;border-bottom:2px solid var(--f-600)}
+.mx td:first-child,.mx th:first-child{position:sticky;left:0;background:#fff;z-index:2;font-weight:500;border-right:1px solid var(--line)}
+.mx thead th:first-child{z-index:4;background:var(--grey-100)}
+.mx td.amt{text-align:right;font-family:var(--mono)}
+.mx td.cur{background:var(--f-50)!important}
+.mx td.full{background:var(--f-50);color:var(--f-600);font-weight:600}
+.mx td.inv{background:#EDF3EF;color:var(--f-700);font-weight:600}
+.mx td.part{background:var(--amber-bg);color:var(--amber-tx);font-weight:600}
+.mx td.miss{background:var(--red-bg);color:var(--red-tx);font-weight:600}
+.mx tfoot td{position:sticky;background:var(--grey-100);font-weight:600;z-index:3}
+.mx tfoot tr:first-child td{bottom:28px;border-top:2px solid var(--f-600)}
+.mx tfoot tr:last-child td{bottom:0;color:var(--red-tx)}
+.mx tfoot td:first-child{z-index:4}
+.legend{display:flex;gap:15px;margin-top:11px;font-size:11.5px;color:var(--mute);flex-wrap:wrap}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--line)}
+.check{display:inline-flex;padding:2px 9px;border-radius:6px;font-family:var(--mono);font-size:10.5px;font-weight:500;white-space:nowrap}
+.check.ok{background:var(--f-50);color:var(--f-600)}
+.check.bad{background:var(--red-bg);color:var(--red-tx)}
+.check.over{background:#EDF3EF;color:var(--f-700)}
+.check.uns{background:var(--amber-bg);color:var(--amber-tx)}
+
+/* runway bar */
+.runway{position:relative;height:14px;background:var(--grey-200);border-radius:7px;overflow:visible;margin-top:8px}
+.runway .fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--f-500),var(--f-400));border-radius:7px}
+.runway .fill.over{background:linear-gradient(90deg,var(--f-700),var(--f-600))}
+.runway .marker{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55}
+.clientrow{padding:15px 0;border-bottom:1px solid var(--line)}
+.clientrow:last-child{border-bottom:none}
+.cr-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cr-top .nm{font-weight:600;font-size:14.5px;color:var(--ink)}
+.cr-top .mg{color:var(--faint);font-size:12px}
+.cr-fig{display:flex;gap:20px;flex-wrap:wrap;margin:7px 0 2px;font-size:12px;color:var(--mute)}
+.cr-fig b{color:var(--ink)}
+.ahead{color:var(--f-600);font-weight:600}.behind{color:var(--red-tx);font-weight:600}
+
+/* diagram */
+.diagram svg{width:100%;height:auto}
+.flow{stroke-dasharray:6 5;animation:flow 1.7s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-22}}
+@media(prefers-reduced-motion:reduce){.flow{animation:none}}
+
+/* toast + modal */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--carbon);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 10px 30px rgba(5,7,6,.4);opacity:0;pointer-events:none;transition:opacity .25s;z-index:200;max-width:88vw;text-align:center;border:1px solid var(--steel-2)}
+#toast.show{opacity:1}
+#toast .tk{color:var(--f-300);font-family:var(--mono);margin-right:8px}
+.overlay{position:fixed;inset:0;background:rgba(5,7,6,.6);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding:44px 16px;overflow:auto;z-index:150}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--r-l);max-width:720px;width:100%;padding:4px;background:var(--brushed);box-shadow:var(--sh-l)}
+.modal .inner{background:#fff;border-radius:19px;padding:24px}
+.modal h3{font-family:var(--serif);font-weight:500;font-size:24px;margin-bottom:16px;color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.warnbanner{background:var(--red-bg);color:var(--red-tx);border-radius:9px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+.custom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px;max-height:240px;overflow:auto;padding:2px}
+.custom-grid .cg label{font-family:var(--mono);font-size:10px;color:var(--faint)}
+.total-preview{margin-top:10px;font-size:13px;color:var(--mute)}
+.total-preview b{font-family:var(--disp);font-weight:600;font-size:18px;color:var(--f-600);letter-spacing:-.02em}
+
+@media(max-width:1080px){.body{grid-template-columns:1fr}.rail{display:none}.topbar .modlbl{display:none}}
+@media(max-width:600px){.main{padding:18px 15px 50px}.grid2{grid-template-columns:1fr}.topbar{flex-wrap:wrap;gap:10px}.topbar .partner{display:none}.vhead h1{font-size:26px}}
+.stat>*,.grid>*,.grid2>*{min-width:0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="app">
+ <div class="topbar carbon carbon-sheen">
+  <span class="mk"><span class="dev" style="width:22px" aria-label="ATRIUM Apex"><svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" aria-label="A"><defs><linearGradient id="lx_t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F4F5"/><stop offset=".5" stop-color="#C6CDCF"/><stop offset="1" stop-color="#9AA2A4"/></linearGradient></defs><path d="M51 196 L120 26 L189 196" fill="none" stroke="url(#lx_t)" stroke-width="9" stroke-linejoin="miter" stroke-linecap="round"/><path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" stroke-width="2.88" stroke-linejoin="miter" stroke-linecap="round" opacity=".85"/></svg></span><span class="bw sil-txt">ATRIUM</span></span>
+  <span class="modlbl"><span class="n">04</span> Accounts &amp; Settlement</span>
+  <span style="margin-left:auto"></span>
+  <span class="ent-switch" title="Current entity — shown on every screen">
+   <span class="el">Entity</span>
+   <span class="ec"><i></i><select id="entSel" aria-label="Current entity" onchange="setEntity(this.value)"></select></span>
+  </span>
+  <span class="savestate" id="saveState"></span>
+  <span class="partner">7EVEN<span class="sep"></span>HAAVN</span>
+ </div>
+ <div class="body">
+  <aside class="rail">
+   <div class="cf carbon"></div>
+   <div class="brand"><span class="dev" style="width:24px"><svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" aria-label="A"><defs><linearGradient id="lx_r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F4F5"/><stop offset=".5" stop-color="#C6CDCF"/><stop offset="1" stop-color="#9AA2A4"/></linearGradient></defs><path d="M51 196 L120 26 L189 196" fill="none" stroke="url(#lx_r)" stroke-width="10" stroke-linejoin="miter" stroke-linecap="round"/><path d="M51 196 L120 26 L189 196" fill="none" stroke="#FDFEFE" stroke-width="3.2" stroke-linejoin="miter" stroke-linecap="round" opacity=".85"/></svg></span><span class="bw">ATRIUM</span></div>
+   <div class="rdiv"></div>
+   <nav id="railNav"></nav>
+   <div class="railfoot">Accounts &amp; Settlement<br>7EVEN | HAAVN · FY27</div>
+  </aside>
+  <main class="main" id="view"></main>
+ </div>
+</div>
+<div class="overlay" id="clientOverlay"><div class="modal"><div class="inner">
+ <h3 id="cmTitle">Add client</h3>
+ <div class="warnbanner" id="cmWarn"></div>
+ <div class="grid2">
+  <div style="grid-column:1/-1"><label>Company / project</label><input id="cName"></div>
+  <div><label>Manager 1</label><input id="cM1" placeholder="e.g. James Maloney"></div>
+  <div><label>Manager 1 share %</label><input type="number" id="cM1p" min="0" max="100" step="0.1" value="100"></div>
+  <div><label>Manager 2 (optional)</label><input id="cM2"></div>
+  <div><label>Manager 2 share %</label><input type="number" id="cM2p" min="0" max="100" step="0.1" value="0"></div>
+  <div><label>Status</label><select id="cStatus"><option>Committed</option><option>Pipeline</option></select></div>
+  <div><label>Client type</label><select id="cType"><option>M2 legacy</option><option>New client</option></select></div>
+  <div><label>M2 profit share %</label><input type="number" id="cShare" min="0" max="100" step="0.1" value="100"></div>
+  <div><label>Fee structure</label><select id="cFee"><option value="monthly">Monthly — amount × N months</option><option value="fixed">Fixed fee — spread evenly</option><option value="custom">Custom — amount per month</option></select></div>
+  <div><label>Start month</label><input type="month" id="cStart"></div>
+  <div><label>Number of months (1–60)</label><input type="number" id="cMonths" min="1" max="60" value="12"></div>
+  <div id="rowMonthly"><label>Monthly amount (AUD)</label><input type="number" step="0.01" id="cMonthlyAmt" placeholder="0.00"></div>
+  <div id="rowFixed" hidden><label>Fixed fee total (AUD)</label><input type="number" step="0.01" id="cFixedTotal" placeholder="0.00"></div>
+ </div>
+ <div id="customBlock" hidden><div class="note" style="margin:6px 0">Amount to invoice each month (0 = no billing):</div><div class="custom-grid" id="customGrid"></div></div>
+ <div class="total-preview">Contract total: <b id="cTotalPreview">$0.00</b></div>
+ <div class="actions"><button class="btn ghost" onclick="closeClientModal()">Cancel</button><button class="btn green" onclick="saveClient()">Save client</button></div>
+</div></div></div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+"use strict";
+/* ============================================================ ATRIUM · ACCOUNTS & SETTLEMENT
+   One working surface merging three of Dom Ma's systems:
+     · Client revenue  (register, billing run, schedule, invoices, splits, Haavn/M2)
+     · Group settlement (3-way shared expenses, inter-company loans, inter-co invoicing)
+     · FY27 budget      (Haavn Book, M2 Book, Manager Analysis)
+   Design language: ATRIUM v3.0 — carbon chassis, brushed-silver trim, racing-green light.
+   Calculation logic is ported faithfully from the source apps; only the surface is new.
+   ============================================================ */
+
+/* ---------- entities ---------- */
+const CO = { HM:'Haavn Management', HT:'Haavn Technologies', HPI:'Haavn Precision Intelligence', SEV:'7even', PARENT:'Haavn (Parent)' };
+const PAYERS = [CO.HM, CO.HT, CO.SEV, CO.PARENT];
+const BORROWERS = [CO.HM, CO.HT, CO.HPI];
+const ENTITIES = ['Consolidated', CO.PARENT, CO.HM, CO.HT, CO.HPI, CO.SEV, 'M2 Management'];
+
+/* ---------- FY27 client seed (from Dom's M2 Budget workbook) ---------- */
+const FY27_SEED = [{"id":"fy27-heidelberg-childcare","name":"Heidelberg Childcare","m1":"James Maloney","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":3,"monthlyAmount":4500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-106-princess-street-kew","name":"106 Princess Street Kew","m1":"James Maloney","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":6,"monthlyAmount":3000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-raynor---glen-waverley","name":"Raynor — Glen Waverley","m1":"James Maloney","m1pct":50,"m2":"John Dimittina","m2pct":50,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":5000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-dekas-one---blackburn","name":"Dekas One — Blackburn","m1":"James Maloney","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":6000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-bfg-fitout","name":"BFG Fitout","m1":"James Maloney","m1pct":30,"m2":"John Dimittina","m2pct":70,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"fixed","startMonth":"2026-07","months":10,"monthlyAmount":0,"fixedTotal":50000,"customAmounts":{}},{"id":"fy27-lee-macro-project","name":"Lee Macro Project","m1":"James Maloney","m1pct":60,"m2":"John Dimittina","m2pct":40,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":5000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-a1-rec-project","name":"A1 Rec project","m1":"James Maloney","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":3000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-white-street-mordialloc","name":"White Street Mordialloc","m1":"John Dimittina","m1pct":75,"m2":"Domenic P","m2pct":25,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":4,"monthlyAmount":4500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-56---58-development-trust","name":"56 - 58 Development Trust","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":5,"monthlyAmount":4500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-hg-19---peel-street-kew","name":"HG-19 - Peel Street Kew","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":5,"monthlyAmount":5786,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-1542-hsgi---glen-iris","name":"1542 HSGI - Glen Iris","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":6,"monthlyAmount":4500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-propel-byron-bay","name":"Propel Byron Bay","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":6,"monthlyAmount":1100,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-midland---s-melbourne","name":"Midland — S.Melbourne","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":10,"monthlyAmount":3000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-hiland","name":"Hiland","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"custom","startMonth":"2026-07","months":12,"monthlyAmount":0,"fixedTotal":0,"customAmounts":{"2026-07":8800,"2026-08":8800,"2026-09":30000,"2026-10":8800,"2026-11":8800,"2026-12":30000,"2027-01":8800,"2027-02":8800,"2027-03":30000,"2027-04":8800,"2027-05":8800,"2027-06":30000}},{"id":"fy27-hg16-high-street-windsor","name":"HG16 High Street Windsor","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":5500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-young-brunswick","name":"Young Brunswick","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":5500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-jt-property---packington-kew","name":"JT Property - Packington Kew","m1":"John Dimittina","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":5500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-project-b","name":"Project B","m1":"Domenic P","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":0,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-molti-investments---armadale","name":"Molti Investments — Armadale","m1":"James W","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":7500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-molti-investments---toorak","name":"Molti Investments — Toorak","m1":"James W","m1pct":100,"m2":"","m2pct":0,"status":"Committed","type":"M2 legacy","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":3500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-town-planning--hr-","name":"Town planning (HR)","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-07","months":12,"monthlyAmount":1000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-mr-geng---nunawading","name":"Mr Geng — Nunawading","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":6000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-ray-li","name":"Ray Li","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":2000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-nolan-j---lilydale","name":"Nolan J — Lilydale","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":3500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-mra-development---camberwell","name":"MRA Development — Camberwell","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":3000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-csr-monash","name":"CSR Monash","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":11000,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-lee-macro-project--pipeline-","name":"Lee Macro Project (pipeline)","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-09","months":10,"monthlyAmount":5500,"fixedTotal":0,"customAmounts":{}},{"id":"fy27-virgate","name":"Virgate","m1":"","m1pct":0,"m2":"","m2pct":0,"status":"Pipeline","type":"New client","m2Share":100,"feeType":"monthly","startMonth":"2026-08","months":11,"monthlyAmount":7000,"fixedTotal":0,"customAmounts":{}}];
+
+/* ---------- FY27 budget (faithful figures from Dom's workbook — the annual plan) ---------- */
+const BMONTHS = ['Jul-26','Aug-26','Sep-26','Oct-26','Nov-26','Dec-26','Jan-27','Feb-27','Mar-27','Apr-27','May-27','Jun-27'];
+const BUDGET = {
+ haavnRevenue:[
+  {k:'James Maloney',v:[23500,23500,23500,19000,19000,19000,16000,16000,16000,16000,14500,14500]},
+  {k:'John Dimittina',v:[55561,55561,76761,55561,52186,63100,36300,36300,57500,36300,29800,51000]},
+  {k:'Domenic P',v:[1125,1125,1125,1125,0,0,0,0,0,0,0,0]},
+  {k:'James W',v:[11000,11000,11000,11000,11000,11000,11000,11000,11000,11000,11000,11000]},
+ ],
+ haavnCommitted:[91186,91186,112386,86686,82186,93100,63300,63300,84500,63300,55300,76500],
+ haavnPipeline:[1000,8000,39000,39000,39000,39000,39000,39000,39000,39000,39000,39000],
+ m2:[
+  {k:'Profit distribution from Haavn',kind:'rev',v:[11541.42,15063.78,25663.78,10563.78,6063.78,6377.78,-12822.22,-12822.22,-2222.22,-12822.22,-20822.22,-12722.22]},
+  {k:'Fixed costs',kind:'exp',v:[5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32,5396.32]},
+  {k:'Variable costs',kind:'exp',v:[11070,11070,11070,11070,11070,11070,11070,11070,11070,11070,11070,13570]},
+  {k:'Total M2 expenses',kind:'exptot',v:[16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,16466.32,18966.32]},
+  {k:'M2 net result',kind:'net',v:[-4924.90,-1402.54,9197.46,-5902.54,-10402.54,-10088.54,-29288.54,-29288.54,-18688.54,-29288.54,-37288.54,-31688.54]},
+ ],
+ m2fixed:[['Insurance',15318],['Motor vehicle insurance',15318],['Motor vehicles (finance)',45989.64],['Subscriptions & services',1648.20],['Telephone & internet',1800]],
+ m2variable:[['Motor vehicle running costs',4560],['Accounting & legal',122980],['ATO payment plan (within A&L)',120000],['Bank & finance',1200],['Fines & penalties',600],['Entertainment',6000]],
+ managers:[
+  {k:'James Maloney',rev:[23500,23500,23500,19000,19000,19000,16000,16000,16000,16000,14500,14500],wage:11200},
+  {k:'John Dimittina',rev:[55561,55561,76761,55561,52186,63100,36300,36300,57500,36300,29800,51000],wage:13066.14},
+  {k:'Domenic P',rev:[1125,1125,1125,1125,0,0,0,0,0,0,0,0],wage:9333.33},
+  {k:'James W',rev:[11000,11000,11000,11000,11000,11000,11000,11000,11000,11000,11000,11000],wage:20000},
+ ],
+};
+
+/* ---------- state ---------- */
+const SKEY = 'atrium-accounts-v1';
+let state = null;
+function defaultState(){
+ return {
+  entity:'Consolidated',
+  settings:{ rate:8.5, basis:365, cutoff:'', ratios:{hm:33.3333, ht:33.3333, sev:33.3334} },
+  clients: JSON.parse(JSON.stringify(FY27_SEED)),
+  clientInvoices: [],
+  expenses:[
+   {id:1,date:'2026-07-01',category:'Rent',desc:'July 2026 office rent (sample)',amount:9000,payer:CO.HM},
+   {id:2,date:'2026-07-05',category:'Outgoings',desc:'Electricity — June bill (sample)',amount:1260,payer:CO.SEV}
+  ],
+  loans:[
+   {id:1,date:'2026-07-01',company:CO.HM,type:'Drawdown',amount:50000},
+   {id:2,date:'2026-07-15',company:CO.HT,type:'Drawdown',amount:30000}
+  ],
+  settlements:[],
+  groupInvoices:[],
+  nextId: 1000
+ };
+}
+
+/* ---------- storage (localStorage → memory fallback) ---------- */
+let storageOK = true;
+const Store = {
+ get(){ try{ const v = localStorage.getItem(SKEY); return v?JSON.parse(v):null; }catch(e){ storageOK=false; return null; } },
+ set(o){ try{ localStorage.setItem(SKEY, JSON.stringify(o)); storageOK=true; return true; }catch(e){ storageOK=false; return false; } }
+};
+let saveTimer=null;
+function save(){
+ clearTimeout(saveTimer);
+ setSaveState('Saving…');
+ saveTimer=setTimeout(()=>{ const ok=Store.set(state); setSaveState(ok?'Saved automatically':'In-memory only — export a backup'); },300);
+}
+function setSaveState(t){ const el=document.getElementById('saveState'); if(el){ el.textContent=t; el.style.color= storageOK?'var(--sil-4)':'var(--amber)'; } }
+
+/* ---------- ui state ---------- */
+let ui = {
+ view:'overview',
+ // client dash
+ dashStatus:'', dashManager:'', dashType:'',
+ // billing
+ billMonth:null, billPipeline:false,
+ // schedule matrix
+ mxStatus:'Committed', mxManager:'',
+ // splits
+ spBasis:'contract', spStatus:'Committed',
+ pfBasis:'invoiced',
+ // invoices filter
+ invFilterClient:'',
+ // expenses
+ expMonth:'all', expStatus:'all',
+ // inter-co invoicing
+ icMonth:'all', icNet:true,
+ // editing / pending
+ editingExpenseId:null, editingClientId:null,
+ expandedInvoice:null, pendingDelC:null, pendingClearAll:false,
+ _customAmounts:{}, icLines:[]
+};
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => 'c'+(state.nextId++);
+const todayStr = () => new Date().toISOString().slice(0,10);
+const currentYM = () => new Date().toISOString().slice(0,7);
+const fmt = n => (n<0?'-':'')+'$'+Math.abs(n||0).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0 = n => (n<0?'-':'')+'$'+Math.abs(Math.round(n||0)).toLocaleString('en-AU');
+const money = (n,dp)=>`<span class="mono${n<-0.005?' neg':''}">${(dp===0?fmt0:fmt)(n)}</span>`;
+const num0 = n => n?Math.round(n).toLocaleString('en-AU'):'';
+function addMonths(ym,i){ const [y,m]=ym.split('-').map(Number); const d=new Date(y,m-1+i,1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(ym){ if(!ym) return '—'; const [y,m]=ym.split('-').map(Number); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+y; }
+const monthOf = d => (d||'').slice(0,7);
+function toast(msg,ms=3200){ const t=$('toast'); t.innerHTML='<span class="tk">✓</span>'+esc(msg); t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),ms); }
+function armConfirm(btn,fn){ if(btn.dataset.armed){ clearTimeout(Number(btn.dataset.t)); fn(); return; } btn.dataset.armed='1'; btn.dataset.o=btn.textContent; btn.textContent='Confirm?'; btn.classList.add('arm'); btn.dataset.t=setTimeout(()=>{ delete btn.dataset.armed; btn.textContent=btn.dataset.o; btn.classList.remove('arm'); },3500); }
+
+/* ============ CALCULATIONS ============ */
+/* -- shared expenses / settlement (from Group Settlement System) -- */
+function ratioOf(name){ const r=state.settings.ratios; if(name===CO.HM)return r.hm/100; if(name===CO.HT)return r.ht/100; if(name===CO.SEV)return r.sev/100; return 0; }
+const isGstFree = cat => /payroll/i.test(cat||'');
+function expenseMonths(){ return [...new Set(state.expenses.map(e=>monthOf(e.date)))].filter(Boolean).sort().reverse(); }
+function expenseSummary(list,setts){
+ list=list||state.expenses; setts=setts||state.settlements;
+ const cos=[CO.HM,CO.HT,CO.SEV,CO.PARENT]; const sum={}; cos.forEach(c=>sum[c]={share:0,paid:0,sOut:0,sIn:0}); let total=0;
+ list.forEach(e=>{ total+=e.amount; [CO.HM,CO.HT,CO.SEV].forEach(c=>sum[c].share+=e.amount*ratioOf(c)); if(sum[e.payer])sum[e.payer].paid+=e.amount; });
+ setts.forEach(s=>{ if(sum[s.from])sum[s.from].sOut+=s.amount; if(sum[s.to])sum[s.to].sIn+=s.amount; });
+ cos.forEach(c=>sum[c].net=sum[c].paid+sum[c].sOut-sum[c].share-sum[c].sIn);
+ return {sum,total,cos};
+}
+function rechargeMatrix(list){
+ const cos=[CO.HM,CO.HT,CO.SEV,CO.PARENT]; const m={}; cos.forEach(a=>{m[a]={};cos.forEach(b=>m[a][b]=0);});
+ list.forEach(e=>{ if(!m[e.payer])return; [CO.HM,CO.HT,CO.SEV].forEach(c=>{ if(c!==e.payer) m[e.payer][c]+=e.amount*ratioOf(c); }); });
+ return m;
+}
+function cutoffDate(){ return state.settings.cutoff||todayStr(); }
+function dayDiff(a,b){ return Math.max(0,Math.round((new Date(b)-new Date(a))/864e5)); }
+function loanCalc(){
+ const rate=state.settings.rate/100, basis=state.settings.basis||365, cut=cutoffDate();
+ const txns=[...state.loans].sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+ const bal={[CO.HM]:0,[CO.HT]:0,[CO.HPI]:0}; const int={[CO.HM]:0,[CO.HT]:0,[CO.HPI]:0}; const rows=[];
+ txns.forEach((t,i)=>{
+  bal[t.company]+=(t.type==='Drawdown'?1:-1)*t.amount;
+  const days=i+1<txns.length?dayDiff(t.date,txns[i+1].date):dayDiff(t.date,cut);
+  BORROWERS.forEach(c=>int[c]+=bal[c]*rate/basis*days);
+  rows.push({...t,balAfter:{...bal},days});
+ });
+ return {rows,bal,int,totalBal:BORROWERS.reduce((s,c)=>s+bal[c],0),totalInt:BORROWERS.reduce((s,c)=>s+int[c],0)};
+}
+function filteredSettlements(){
+ if(ui.expMonth==='all') return state.settlements;
+ return state.settlements.filter(s=>{ if(monthOf(s.date)===ui.expMonth) return true;
+  if(s.invoiceId){ const i=state.groupInvoices.find(x=>x.id===s.invoiceId); if(i&&i.month===ui.expMonth) return true; } return false; });
+}
+function statusOf(net){ return net>0.05?'To be reimbursed':net<-0.05?'Owes the pool':'Settled'; }
+function showInSettlement(c,sum){ if(c!==CO.PARENT) return true; const s=sum[c]; return Math.abs(s.paid)>0.005||Math.abs(s.sOut)>0.005||Math.abs(s.sIn)>0.005; }
+function invoiceCategoryLines(a,b,scope,useNet,targetAmount){
+ const list=state.expenses.filter(e=>scope==='all'||monthOf(e.date)===scope);
+ const cats=[...new Set(list.map(e=>e.category))]; let raw=[];
+ cats.forEach(cat=>{ const Mx=rechargeMatrix(list.filter(e=>e.category===cat)); const amt=useNet?(Mx[a][b]-Mx[b][a]):Mx[a][b]; if(Math.abs(amt)>0.005) raw.push({category:cat,amount:amt,bas:isGstFree(cat)}); });
+ const rawTotal=raw.reduce((t,l)=>t+l.amount,0); if(rawTotal<=0.005) return [];
+ const scale=targetAmount/rawTotal; raw=raw.map(l=>({...l,amount:+(l.amount*scale).toFixed(2)}));
+ const diff=+(targetAmount-raw.reduce((t,l)=>t+l.amount,0)).toFixed(2);
+ if(Math.abs(diff)>=0.01){ const big=raw.reduce((m,l)=>Math.abs(l.amount)>Math.abs(m.amount)?l:m,raw[0]); big.amount=+(big.amount+diff).toFixed(2); }
+ return raw;
+}
+
+/* -- client revenue (from Client Invoicing) -- */
+function scheduleFor(c){ const out=[]; if(!c.startMonth||!c.months) return out;
+ for(let i=0;i<c.months;i++){ const ym=addMonths(c.startMonth,i); let amt=0;
+  if(c.feeType==='monthly') amt=Number(c.monthlyAmount)||0;
+  else if(c.feeType==='fixed') amt=(Number(c.fixedTotal)||0)/c.months;
+  else amt=Number((c.customAmounts||{})[ym])||0;
+  out.push({month:ym,amount:amt}); } return out; }
+const contractTotal = c => scheduleFor(c).reduce((s,x)=>s+x.amount,0);
+const invoicedFor = id => state.clientInvoices.filter(i=>i.clientId===id).reduce((s,i)=>s+(Number(i.amount)||0),0);
+const scheduledToDate = c => scheduleFor(c).filter(x=>x.month<=currentYM()).reduce((s,x)=>s+x.amount,0);
+const m2Rate = c => (c.m2Share??100)/100;
+const haavnRate = c => 1-m2Rate(c);
+const feeLabel = c => c.feeType==='monthly'?`Monthly ${fmt(c.monthlyAmount)}`:c.feeType==='fixed'?`Fixed fee ${fmt(c.fixedTotal)}`:'Custom';
+const monthInvoices = (cid,ym) => state.clientInvoices.filter(i=>i.clientId===cid && i.date.slice(0,7)===ym);
+const scheduledInMonth = (c,ym)=>{ const h=scheduleFor(c).find(x=>x.month===ym); return h?h.amount:0; };
+const invoicedInMonth = (cid,ym)=> state.clientInvoices.filter(i=>i.clientId===cid&&i.date.slice(0,7)===ym).reduce((s,i)=>s+(Number(i.amount)||0),0);
+function managerList(){ const s=new Set(); state.clients.forEach(c=>{ if(c.m1)s.add(c.m1); if(c.m2)s.add(c.m2); }); return [...s].sort(); }
+function filteredClients(){ return state.clients.filter(c=>(!ui.dashStatus||c.status===ui.dashStatus)&&(!ui.dashType||c.type===ui.dashType)&&(!ui.dashManager||c.m1===ui.dashManager||c.m2===ui.dashManager)).sort((a,b)=>a.name.localeCompare(b.name)); }
+function splitBasisAmount(c){ if(ui.spBasis==='invoiced') return invoicedFor(c.id); if(ui.spBasis==='paid') return state.clientInvoices.filter(i=>i.clientId===c.id&&i.paidDate).reduce((s,i)=>s+i.amount,0); return contractTotal(c); }
+function splitData(){ return state.clients.filter(c=>!ui.spStatus||c.status===ui.spStatus).sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{ const gross=splitBasisAmount(c); const retained=gross*haavnRate(c); const dist=gross-retained; return {c,gross,retained,dist,m1amt:dist*(c.m1pct||0)/100,m2amt:c.m2?dist*(c.m2pct||0)/100:0}; }); }
+function revenueByClientMonth(){ const out={}; state.clientInvoices.forEach(i=>{ let ym; if(ui.pfBasis==='paid'){ if(!i.paidDate)return; ym=i.paidDate.slice(0,7); } else ym=i.date.slice(0,7); out[ym]=out[ym]||{}; out[ym][i.clientId]=(out[ym][i.clientId]||0)+(Number(i.amount)||0); }); return out; }
+function profitData(){ const revMap=revenueByClientMonth(); const byClient={};
+ const rows=Object.keys(revMap).sort().map(ym=>{ const rev=revMap[ym]; let totalRev=0,haavn=0;
+  Object.entries(rev).forEach(([cid,r])=>{ const cl=state.clients.find(x=>x.id===cid); const share=cl?haavnRate(cl):0; totalRev+=r; haavn+=r*share; const b=byClient[cid]=byClient[cid]||{rev:0,haavn:0}; b.rev+=r; b.haavn+=r*share; });
+  return {ym,totalRev,haavn,m2:totalRev-haavn}; });
+ return {rows,byClient}; }
+function billingData(){ const ym=ui.billMonth||currentYM();
+ return state.clients.filter(c=>ui.billPipeline||c.status==='Committed').map(c=>{ const sched=scheduledInMonth(c,ym); const inv=invoicedInMonth(c.id,ym); return {c,sched,inv,variance:inv-sched}; }).filter(r=>r.sched>0||r.inv>0).sort((a,b)=>a.c.name.localeCompare(b.c.name)); }
+function checkBadge(r){ const eps=0.005;
+ if(r.sched>0&&Math.abs(r.variance)<=eps) return '<span class="check ok">✓ Correct</span>';
+ if(r.sched>0&&r.inv===0) return '<span class="check bad">Not invoiced</span>';
+ if(r.variance<-eps) return `<span class="check bad">Short ${fmt(-r.variance)}</span>`;
+ if(r.sched===0&&r.inv>eps) return '<span class="check uns">Unscheduled</span>';
+ return `<span class="check over">Over ${fmt(r.variance)}</span>`; }
+function matrixClients(){ return state.clients.filter(c=>(!ui.mxStatus||c.status===ui.mxStatus)&&(!ui.mxManager||c.m1===ui.mxManager||c.m2===ui.mxManager)).sort((a,b)=>a.name.localeCompare(b.name)); }
+function matrixMonths(list){ let min=null,max=null; list.forEach(c=>{ if(!c.startMonth||!c.months)return; const e=addMonths(c.startMonth,c.months-1); if(!min||c.startMonth<min)min=c.startMonth; if(!max||e>max)max=e; }); if(!min)return []; const out=[]; let m=min; while(m<=max&&out.length<72){ out.push(m); m=addMonths(m,1); } return out; }
+
+/* -- budget helpers -- */
+const bsum = arr => arr.reduce((a,b)=>a+b,0);
+function statusPill(net){ const s=statusOf(net); return s==='Settled'?'<span class="pill live"><i></i>Settled</span>':s==='To be reimbursed'?'<span class="pill hold"><i></i>To reimburse</span>':'<span class="pill loss"><i></i>Owes pool</span>'; }
+
+/* ============ SHELL / NAV ============ */
+const NAV=[
+ {g:'Overview',items:[['overview','Command']]},
+ {g:'Client revenue',items:[['clients','Clients'],['billing','Billing run'],['schedule','Schedule'],['invoices','Invoices']]},
+ {g:'Splits',items:[['splits','Manager splits'],['profit','Haavn / M2']]},
+ {g:'Group settlement',items:[['expenses','Shared expenses'],['loans','Inter-co loans'],['interco','Inter-co invoicing']]},
+ {g:'FY27 budget',items:[['haavnbook','Haavn Book'],['m2book','M2 Book'],['mgranalysis','Manager analysis']]},
+ {g:'System',items:[['settings','Settings']]},
+];
+function buildRail(){
+ $('railNav').innerHTML = NAV.map(sec=>`<div class="rgrp">${sec.g}</div>`+sec.items.map(([k,l])=>`<button class="rnav" data-k="${k}" onclick="go('${k}')">${l}</button>`).join('')).join('');
+}
+function buildEntitySelect(){ $('entSel').innerHTML = ENTITIES.map(e=>`<option${e===state.entity?' selected':''}>${e}</option>`).join(''); }
+function setEntity(v){ state.entity=v; const s=$('entSel'); if(s&&s.value!==v)s.value=v; save(); render(); }
+function go(k){ ui.view=k; ui.editingExpenseId=null; ui.pendingDelC=null; render(); window.scrollTo?.(0,0); const m=$('view'); if(m)m.scrollTop=0; }
+const VIEWS={};
+function render(){
+ document.querySelectorAll('#railNav .rnav').forEach(b=>b.classList.toggle('on',b.dataset.k===ui.view));
+ $('view').innerHTML = (VIEWS[ui.view]||VIEWS.overview)();
+}
+const focusEnt = () => state.entity==='Consolidated'?null:state.entity;
+function entityLine(){ const e=focusEnt(); return e?`<span class="tagcls">Focused on ${esc(e)} — highlighted below</span>`:`<span class="tagcls">Consolidated — all entities</span>`; }
+function head(k,title,sub,right){ return `<div class="vhead"><div><div class="vk">${k}</div><h1>${title}</h1></div>${right?`<div class="sp">${right}</div>`:''}</div><span class="livery vl"><i class="g"></i><i class="s"></i></span>${sub?`<div class="vsub">${sub}</div>`:''}`; }
+
+/* ============ DIAGRAM ============ */
+function diagram(){
+ const L=loanCalc(), E=expenseSummary();
+ const co=(x,y,w,h,fill,tx,name,l1,l2)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}"/>
+  <text x="${x+w/2}" y="${y+21}" text-anchor="middle" fill="${tx}" font-size="12.5" font-weight="700" font-family="Inter Tight,sans-serif">${name}</text>
+  <text x="${x+w/2}" y="${y+38}" text-anchor="middle" fill="${tx}" font-size="10.5" opacity=".92" font-family="JetBrains Mono,monospace">${l1}</text>
+  <text x="${x+w/2}" y="${y+53}" text-anchor="middle" fill="${tx}" font-size="10.5" opacity=".92" font-family="JetBrains Mono,monospace">${l2}</text>`;
+ const arrow=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#9AA2A4" stroke-width="2" class="flow" marker-end="url(#ah)"/>`;
+ return `<div class="diagram"><svg viewBox="0 0 760 470" role="img" aria-label="Group funding structure diagram" style="width:100%;height:auto">
+  <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#9AA2A4"/></marker></defs>
+  ${co(250,14,260,66,'#0A423E','#fff','Haavn (Parent · internal bank)','Loans out '+fmt0(L.totalBal),'Interest income '+fmt0(L.totalInt))}
+  ${arrow(300,82,140,160)}${arrow(380,82,380,160)}${arrow(460,82,620,160)}
+  <text x="180" y="128" font-size="10.5" fill="#8A6D22" font-weight="600" font-family="JetBrains Mono,monospace">↓ drawdown  ↑ repay + interest</text>
+  ${co(30,164,220,66,'#14452F','#fff','Haavn Management','Loan '+fmt0(L.bal[CO.HM])+' · Int '+fmt0(L.int[CO.HM]),'Exp share '+fmt0(E.sum[CO.HM].share))}
+  ${co(270,164,220,66,'#14452F','#fff','Haavn Technologies','Loan '+fmt0(L.bal[CO.HT])+' · Int '+fmt0(L.int[CO.HT]),'Exp share '+fmt0(E.sum[CO.HT].share))}
+  ${co(510,164,220,66,'#C6CDCF','#12150F','Haavn Precision Intelligence','Not yet operating',L.bal[CO.HPI]?'Loan '+fmt0(L.bal[CO.HPI]):'—')}
+  <rect x="30" y="266" width="460" height="30" rx="6" fill="none" stroke="#C9A24B" stroke-dasharray="5 4"/>
+  <line x1="140" y1="230" x2="140" y2="266" stroke="#C9A24B" stroke-width="2" class="flow"/>
+  <line x1="380" y1="230" x2="380" y2="266" stroke="#C9A24B" stroke-width="2" class="flow"/>
+  <line x1="260" y1="296" x2="260" y2="336" stroke="#C9A24B" stroke-width="2" class="flow"/>
+  <text x="260" y="286" text-anchor="middle" font-size="11" fill="#8A6D22" font-weight="600" font-family="JetBrains Mono,monospace">Shared expense pool · ${fmt0(E.total)} (Rent · Outgoings · Office)</text>
+  ${co(150,340,220,66,'#237A52','#fff','7even (related external co.)','Exp share '+fmt0(E.sum[CO.SEV].share),'')}
+  <text x="560" y="360" font-size="10.5" fill="#636966" font-family="JetBrains Mono,monospace">Split HM ${state.settings.ratios.hm}%</text>
+  <text x="560" y="375" font-size="10.5" fill="#636966" font-family="JetBrains Mono,monospace">HT ${state.settings.ratios.ht}% · 7even ${state.settings.ratios.sev}%</text>
+  <text x="560" y="396" font-size="10.5" fill="#636966" font-family="JetBrains Mono,monospace">Rate ${state.settings.rate}% p.a. → ${cutoffDate()}</text>
+ </svg></div>`;
+}
+
+/* ============ OVERVIEW ============ */
+VIEWS.overview=function(){
+ const E=expenseSummary(), L=loanCalc();
+ const contract=state.clients.reduce((s,c)=>s+contractTotal(c),0);
+ const invoiced=state.clients.reduce((s,c)=>s+invoicedFor(c.id),0);
+ const commit=bsum(BUDGET.haavnCommitted), pipe=bsum(BUDGET.haavnPipeline);
+ const m2net=bsum(BUDGET.m2.find(r=>r.kind==='net').v);
+ const bill=billingData(); const bSched=bill.reduce((s,r)=>s+r.sched,0), bInv=bill.reduce((s,r)=>s+r.inv,0);
+ const expRows=E.cos.filter(c=>showInSettlement(c,E.sum)).map(c=>{ const s=E.sum[c]; const hl=focusEnt()===c?' style="background:var(--f-50)"':'';
+  return `<tr${hl}><td>${esc(c)}</td><td class="r">${money(s.share)}</td><td class="r">${money(s.paid)}</td><td class="r">${money(s.net)}</td><td>${statusPill(s.net)}</td></tr>`; }).join('');
+ return head('Command · FY27','Consolidated position',`Client revenue, group settlement and the FY27 budget in one view. ${entityLine()}`,
+   `<button class="btn sil" onclick="exportExcel()">Export workbook</button>`)+`
+ <div class="stat">
+  <div class="scard"><div class="bz"></div><div class="t">Client contract value</div><div class="v">${fmt0(contract)}</div><div class="d">${state.clients.length} clients</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Invoiced to date</div><div class="v">${fmt0(invoiced)}</div><div class="d">${contract>0?(invoiced/contract*100).toFixed(1):'0'}% of contract</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Remaining to invoice</div><div class="v">${fmt0(contract-invoiced)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">FY27 committed revenue</div><div class="v">${fmt0(commit)}</div><div class="d">+ ${fmt0(pipe)} pipeline</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Group loans outstanding</div><div class="v">${fmt0(L.totalBal)}</div><div class="d">interest ${fmt0(L.totalInt)} → ${cutoffDate()}</div></div>
+  <div class="scard forest"><div class="t">M2 net result · FY27 plan</div><div class="v"><span class="${m2net<0?'neg':''}">${fmt0(m2net)}</span></div><div class="d" style="color:rgba(220,237,228,.75)">wind-down in progress</div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>Group structure &amp; fund flows <span class="tag">live</span></h2>${diagram()}</div>
+ <div class="stat" style="grid-template-columns:1.3fr 1fr">
+  <div class="card"><div class="bz"></div><h2>Shared expense settlement</h2><div class="scroll"><table>
+    <tr><th>Entity</th><th class="r">Share due</th><th class="r">Paid</th><th class="r">Net</th><th>Status</th></tr>${expRows}
+    <tr class="total"><td>Pool total</td><td class="r">${money(E.total)}</td><td class="r">${money(E.total)}</td><td class="r">${money(0)}</td><td></td></tr>
+  </table></div></div>
+  <div class="card"><div class="bz"></div><h2>This month · billing <span class="tag">${monthLabel(ui.billMonth)}</span></h2><div class="scroll"><table>
+    <tr><th>Line</th><th class="r">Amount</th></tr>
+    <tr><td>Scheduled</td><td class="r">${money(bSched)}</td></tr>
+    <tr><td>Invoiced</td><td class="r">${money(bInv)}</td></tr>
+    <tr class="total"><td>Variance</td><td class="r">${money(bInv-bSched)}</td></tr>
+  </table></div><div class="note">Open <b>Billing run</b> to reconcile each client against Xero for the month.</div></div>
+ </div>`;
+};
+
+/* ============ CLIENTS ============ */
+VIEWS.clients=function(){
+ const list=filteredClients(); const mgrs=managerList();
+ let tContract=0,tInv=0;
+ const rows=list.map(c=>{ const total=contractTotal(c), inv=invoicedFor(c.id), due=scheduledToDate(c); tContract+=total; tInv+=inv;
+  const pct=total>0?inv/total*100:0, duePct=total>0?Math.min(100,due/total*100):0, gap=inv-due;
+  const gapTxt=Math.abs(gap)<0.005?'<span class="mg">on schedule</span>':gap<0?`<span class="behind">${fmt0(gap)} behind</span>`:`<span class="ahead">+${fmt0(gap).replace('$','$')} ahead</span>`;
+  return `<div class="clientrow">
+   <div class="cr-top"><span class="nm">${esc(c.name)}</span>
+    <span class="pill ${c.status==='Committed'?'live':'hold'}"><i></i>${c.status}</span>
+    <span class="tagcls">${c.type}</span>
+    <span class="mg">${c.m1?esc(c.m1)+' '+c.m1pct+'%':'—'}${c.m2?' · '+esc(c.m2)+' '+c.m2pct+'%':''}</span>
+    <span class="mg" style="margin-left:auto">${monthLabel(c.startMonth)} → ${monthLabel(addMonths(c.startMonth,c.months-1))}</span></div>
+   <div class="cr-fig"><span>Fee <b>${feeLabel(c)}</b></span><span>Contract <b>${fmt0(total)}</b></span><span>Invoiced <b>${fmt0(inv)}</b></span><span>Remaining <b>${fmt0(total-inv)}</b></span><span>M2 <b>${c.m2Share}%</b></span><span>${gapTxt}</span>
+    <span style="margin-left:auto"><button class="btn mini ghost" onclick="editClient('${c.id}')">Edit</button> <button class="btn mini danger" onclick="delClient('${c.id}',event)">Delete</button></span></div>
+   <div class="runway"><div class="fill ${pct>100?'over':''}" style="width:${Math.min(100,pct)}%"></div>${total>0&&duePct>0&&duePct<100?`<div class="marker" style="left:${duePct}%"></div>`:''}</div>
+  </div>`; }).join('');
+ return head('Client revenue','Client register',`Every engagement billed through Haavn Pty Ltd — contract, invoiced and delivery against schedule.`,
+   `<button class="btn" onclick="importFY27()">Import FY27 budget</button> <button class="btn green" onclick="addClient()">+ Add client</button>`)+`
+ <div class="stat">
+  <div class="scard"><div class="bz"></div><div class="t">Clients shown</div><div class="v">${list.length}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Contract value</div><div class="v">${fmt0(tContract)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Invoiced to date</div><div class="v">${fmt0(tInv)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Remaining</div><div class="v">${fmt0(tContract-tInv)}</div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>Filters</h2><div class="grid" style="max-width:640px">
+   <div><label>Status</label><select onchange="setUi('dashStatus',this.value)"><option value="">All</option>${['Committed','Pipeline'].map(o=>`<option${ui.dashStatus===o?' selected':''}>${o}</option>`).join('')}</select></div>
+   <div><label>Manager</label><select onchange="setUi('dashManager',this.value)"><option value="">All</option>${mgrs.map(m=>`<option${ui.dashManager===m?' selected':''}>${esc(m)}</option>`).join('')}</select></div>
+   <div><label>Type</label><select onchange="setUi('dashType',this.value)"><option value="">All</option>${['M2 legacy','New client'].map(o=>`<option${ui.dashType===o?' selected':''}>${o}</option>`).join('')}</select></div>
+ </div></div>
+ <div class="card"><div class="bz"></div><h2>Delivery vs schedule <span class="tag">${list.length} clients</span></h2>${rows||'<div class="empty">No clients match the current filters.</div>'}
+   <div class="note">The bar shows % invoiced; the dark marker is where you should be by ${monthLabel(currentYM())}. Behind-schedule clients are flagged in loss red.</div></div>`;
+};
+
+/* ============ BILLING RUN ============ */
+VIEWS.billing=function(){
+ const ym=ui.billMonth||currentYM(); const data=billingData(); const eps=0.005;
+ let tS=0,tI=0,ok=0,iss=0,tP=0;
+ const rows=data.map(r=>{ tS+=r.sched; tI+=r.inv; tP+=monthInvoices(r.c.id,ym).filter(i=>i.paidDate).reduce((s,i)=>s+i.amount,0);
+  if(r.sched>0&&Math.abs(r.variance)<=eps)ok++;else iss++;
+  return `<tr><td><b>${esc(r.c.name)}</b></td><td><span class="pill ${r.c.status==='Committed'?'live':'hold'}"><i></i>${r.c.status}</span></td>
+   <td class="mono" style="font-size:12px">${feeLabel(r.c)}</td>
+   <td class="r">${r.sched?money(r.sched):'—'}</td><td class="r">${r.inv?money(r.inv):'—'}</td>
+   <td class="r">${Math.abs(r.variance)>eps?money(r.variance):'—'}</td><td>${checkBadge(r)}</td>
+   <td>${billActionCell(r)}</td><td>${billPaidCell(r)}</td></tr>`; }).join('');
+ return head('Client revenue','Monthly billing run',`Reconcile each client's schedule against what was actually invoiced in Xero, then track payment.`,
+   `<button class="btn" onclick="exportBilling()">Export CSV</button>`)+`
+ <div class="card"><div class="bz"></div><h2>Period</h2><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+   <button class="btn mini" onclick="billStep(-1)" aria-label="Previous month">◀</button>
+   <input type="month" style="width:170px;font-weight:600" value="${ym}" onchange="setBillMonth(this.value)">
+   <button class="btn mini" onclick="billStep(1)" aria-label="Next month">▶</button>
+   <button class="btn mini" onclick="setBillMonth('${currentYM()}')">This month</button>
+   <label style="display:flex;align-items:center;gap:7px;margin:0 0 0 8px;cursor:pointer;font-weight:500;color:var(--ink)"><input type="checkbox" style="width:auto" ${ui.billPipeline?'checked':''} onchange="setUi('billPipeline',this.checked)"> Include pipeline</label>
+ </div></div>
+ <div class="stat">
+  <div class="scard"><div class="bz"></div><div class="t">Scheduled — ${monthLabel(ym)}</div><div class="v">${fmt0(tS)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Invoiced</div><div class="v">${fmt0(tI)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Variance</div><div class="v sm"><span class="${Math.abs(tI-tS)>eps?'neg':''}">${fmt0(tI-tS)}</span></div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Paid / outstanding</div><div class="v sm">${fmt0(tP)} / <span class="${tI-tP>eps?'neg':''}">${fmt0(tI-tP)}</span></div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Checks</div><div class="v sm">${ok} ✓ · <span class="${iss?'neg':''}">${iss} review</span></div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>Reconciliation <span class="tag">${monthLabel(ym)}</span></h2><div class="scroll">
+   ${data.length?`<table><tr><th>Client</th><th>Status</th><th>Fee</th><th class="r">Scheduled</th><th class="r">Invoiced</th><th class="r">Variance</th><th>Check</th><th>Mark invoiced</th><th>Paid</th></tr>${rows}</table>`:'<div class="empty">Nothing scheduled or invoiced this month.</div>'}
+ </div><div class="note">After sending in Xero, click <b>✓ Invoiced</b> (enter the Xero number or leave blank for an auto ref). When the payment lands, set the date and click <b>✓ Paid</b> — amounts over 30 days are flagged in loss red.</div></div>`;
+};
+function billActionCell(r){ const eps=0.005, ym=ui.billMonth||currentYM(); const short=r.sched-r.inv;
+ if(short>eps) return `<input id="xno-${r.c.id}" placeholder="Xero #" style="width:92px;height:30px;padding:0 8px;font-size:12px;display:inline-block"><button class="btn mini green" onclick="markInvoiced('${r.c.id}')">✓ ${fmt0(short)}</button>`;
+ const quick=state.clientInvoices.filter(i=>i.clientId===r.c.id&&i.quick&&i.date.slice(0,7)===ym);
+ if(quick.length) return `<button class="btn mini ghost" onclick="undoInvoiced('${r.c.id}')">Undo</button>`;
+ return '<span class="mg">—</span>'; }
+function billPaidCell(r){ const ym=ui.billMonth||currentYM(); const invs=monthInvoices(r.c.id,ym); if(!invs.length) return '<span class="mg">—</span>';
+ const unpaid=invs.filter(i=>!i.paidDate), today=todayStr();
+ if(!unpaid.length){ const d=invs.map(i=>i.paidDate).sort().slice(-1)[0]; return `<span class="pill live"><i></i>Paid ${d}</span> <button class="btn mini ghost" onclick="unpayMonth('${r.c.id}')">Undo</button>`; }
+ const days=Math.floor((new Date(today)-new Date(invs[0].date))/864e5), amt=unpaid.reduce((s,i)=>s+i.amount,0);
+ return `<span class="pill hold"><i></i>Outstanding${days>30?' '+days+'d':''}</span> <input type="date" id="pdm-${r.c.id}" value="${today}" style="width:130px;height:30px;padding:0 6px;font-size:12px;display:inline-block"><button class="btn mini green" onclick="payMonth('${r.c.id}')">✓ ${fmt0(amt)}</button>`; }
+
+/* ============ SCHEDULE MATRIX ============ */
+VIEWS.schedule=function(){
+ const list=matrixClients(), months=matrixMonths(list), cur=currentYM(), mgrs=managerList();
+ let table;
+ if(!list.length||!months.length){ table='<div class="empty">No clients match.</div>'; }
+ else{
+  const colT=months.map(()=>0), colU=months.map(()=>0);
+  let head2=`<thead><tr><th>Client</th>${months.map(m=>`<th class="amt ${m===cur?'cur':''}">${monthLabel(m).replace(' ','<br>')}</th>`).join('')}<th class="amt">Total</th></tr></thead>`;
+  let body='<tbody>';
+  list.forEach(c=>{ const sched={}; scheduleFor(c).forEach(x=>sched[x.month]=(sched[x.month]||0)+x.amount); let rt=0;
+   body+=`<tr><td>${esc(c.name)}</td>`;
+   months.forEach((m,idx)=>{ const s=sched[m]||0; rt+=s; colT[idx]+=s; let cls=m===cur?'cur ':'';
+    if(s>0.005){ const invs=monthInvoices(c.id,m); const inv=invs.reduce((t,i)=>t+(Number(i.amount)||0),0); const paid=invs.filter(i=>i.paidDate).reduce((t,i)=>t+(Number(i.amount)||0),0); colU[idx]+=Math.max(0,inv-paid);
+     if(inv>=s-0.005) cls+=(paid>=inv-0.005)?'full':'inv'; else if(inv>0.005) cls+='part'; else if(m<cur) cls+='miss'; }
+    body+=`<td class="amt ${cls}">${num0(s)}</td>`; });
+   body+=`<td class="amt"><b>${num0(rt)}</b></td></tr>`; });
+  body+='</tbody>';
+  const grand=bsum(colT), gu=bsum(colU);
+  const foot=`<tfoot><tr><td>Total scheduled</td>${colT.map((t,i)=>`<td class="amt ${months[i]===cur?'cur':''}">${num0(t)}</td>`).join('')}<td class="amt">${num0(grand)}</td></tr>
+   <tr><td>Unpaid (invoiced)</td>${colU.map((t,i)=>`<td class="amt ${months[i]===cur?'cur':''}">${num0(t)}</td>`).join('')}<td class="amt">${num0(gu)}</td></tr></tfoot>`;
+  table=`<div class="mx-wrap"><table class="mx">${head2}${body}${foot}</table></div>
+   <div class="legend"><span><span class="sw" style="background:var(--f-50)"></span>Invoiced &amp; paid</span><span><span class="sw" style="background:#EDF3EF"></span>Invoiced, awaiting</span><span><span class="sw" style="background:var(--amber-bg)"></span>Partial</span><span><span class="sw" style="background:var(--red-bg)"></span>Due &amp; not invoiced</span><span><span class="sw" style="background:var(--f-50)"></span>Current month</span></div>`;
+ }
+ return head('Client revenue','Billing schedule matrix',`Every client's contracted billing across the year, coloured by invoice and payment status.`,
+   `<button class="btn" onclick="exportMatrix()">Export CSV</button>`)+`
+ <div class="card"><div class="bz"></div><h2>Filters</h2><div class="grid" style="max-width:420px">
+   <div><label>Status</label><select onchange="setUi('mxStatus',this.value)"><option value=""${ui.mxStatus===''?' selected':''}>All</option>${['Committed','Pipeline'].map(o=>`<option${ui.mxStatus===o?' selected':''}>${o}</option>`).join('')}</select></div>
+   <div><label>Manager</label><select onchange="setUi('mxManager',this.value)"><option value="">All</option>${mgrs.map(m=>`<option${ui.mxManager===m?' selected':''}>${esc(m)}</option>`).join('')}</select></div>
+ </div></div>
+ <div class="card"><div class="bz"></div><h2>Matrix</h2>${table}</div>`;
+};
+
+/* ============ INVOICES ============ */
+VIEWS.invoices=function(){
+ const opts=state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+ const list=state.clientInvoices.filter(i=>!ui.invFilterClient||i.clientId===ui.invFilterClient).slice().sort((a,b)=>b.date.localeCompare(a.date));
+ const rows=list.map(i=>{ const c=state.clients.find(x=>x.id===i.clientId); return `<tr><td class="mono">${i.date}</td><td>${esc(c?c.name:'(deleted)')}</td><td class="mono">${esc(i.invNo)}</td><td class="r">${money(i.amount)}</td>
+  <td>${i.paidDate?'<span class="pill live"><i></i>Paid</span>':'<span class="pill hold"><i></i>Outstanding</span>'}</td><td class="mg" style="font-size:12px">${esc(i.notes||'')}</td>
+  <td><button class="btn mini danger" onclick="delInvoice('${i.id}',event)">Delete</button></td></tr>`; }).join('');
+ return head('Client revenue','Invoice log','Record every client invoice raised in Xero. Feeds the billing run, schedule matrix and profit split.')+`
+ <div class="card"><div class="bz"></div><h2>Record an invoice</h2><div class="grid">
+   <div><label>Date</label><input type="date" id="invDate" value="${todayStr()}"></div>
+   <div style="grid-column:span 2"><label>Client</label><select id="invClient"><option value="">— select client —</option>${opts}</select></div>
+   <div><label>Invoice #</label><input id="invNo" placeholder="INV-0001"></div>
+   <div><label>Amount (AUD, excl GST)</label><input type="number" step="0.01" id="invAmount" placeholder="0.00"></div>
+ </div><div><label>Notes</label><input id="invNotes" placeholder="Optional"></div>
+ <div style="margin-top:12px"><button class="btn green" onclick="addInvoice()">Add invoice</button><span class="warn" id="invMsg"></span></div></div>
+ <div class="card"><div class="bz"></div><h2>Log <span class="tag">${list.length} invoices</span></h2>
+   <div class="grid" style="max-width:280px"><div><label>Client</label><select onchange="setUi('invFilterClient',this.value)"><option value="">All clients</option>${opts.replace(/selected/g,'')}</select></div></div>
+   <div class="scroll">${list.length?`<table><tr><th>Date</th><th>Client</th><th>Invoice #</th><th class="r">Amount</th><th>Paid</th><th>Notes</th><th></th></tr>${rows}</table>`:'<div class="empty">No invoices recorded yet.</div>'}</div>
+   <div style="margin-top:12px"><button class="btn" onclick="exportInvoices()">Export invoice log CSV</button></div></div>`;
+};
+
+/* ============ MANAGER SPLITS ============ */
+VIEWS.splits=function(){
+ const data=splitData(); const byMgr={}; let tG=0,tR=0,tD=0;
+ data.forEach(r=>{ tG+=r.gross; tR+=r.retained; tD+=r.dist;
+  if(r.c.m1){ byMgr[r.c.m1]=byMgr[r.c.m1]||{n:0,amt:0}; byMgr[r.c.m1].n++; byMgr[r.c.m1].amt+=r.m1amt; }
+  if(r.c.m2){ byMgr[r.c.m2]=byMgr[r.c.m2]||{n:0,amt:0}; byMgr[r.c.m2].n++; byMgr[r.c.m2].amt+=r.m2amt; } });
+ const basisLbl={contract:'Contract total',invoiced:'Invoiced to date',paid:'Paid to date'}[ui.spBasis];
+ const sumRows=Object.entries(byMgr).sort((a,b)=>b[1].amt-a[1].amt).map(([m,v])=>`<tr><td><b>${esc(m)}</b></td><td class="r mono">${v.n}</td><td class="r">${money(v.amt)}</td><td class="r mono">${tD>0?(v.amt/tD*100).toFixed(1):'0.0'}%</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No managers assigned.</td></tr>';
+ const detRows=data.map(r=>`<tr><td><b>${esc(r.c.name)}</b></td><td class="r">${money(r.gross)}</td><td class="r mono">${r.c.m2Share}%</td><td class="r">${money(r.retained)}</td><td class="r">${money(r.dist)}</td><td style="font-size:12px">${esc(r.c.m1||'—')} ${r.c.m1?r.c.m1pct+'%':''}</td><td class="r">${money(r.m1amt)}</td><td style="font-size:12px">${esc(r.c.m2||'—')} ${r.c.m2?r.c.m2pct+'%':''}</td><td class="r">${r.c.m2?money(r.m2amt):'—'}</td></tr>`).join('');
+ return head('Splits','Manager split report','Distribute the M2 profit share to managers by their percentages. Haavn retains any non-M2 remainder.',
+   `<button class="btn" onclick="exportSplits()">Export CSV</button>`)+`
+ <div class="card"><div class="bz"></div><h2>Basis</h2><div class="grid" style="max-width:520px">
+   <div><label>Amount basis</label><select onchange="setUi('spBasis',this.value)">${[['contract','Contract total'],['invoiced','Invoiced to date'],['paid','Paid to date']].map(([v,l])=>`<option value="${v}"${ui.spBasis===v?' selected':''}>${l}</option>`).join('')}</select></div>
+   <div><label>Status</label><select onchange="setUi('spStatus',this.value)"><option value=""${ui.spStatus===''?' selected':''}>All</option>${['Committed','Pipeline'].map(o=>`<option${ui.spStatus===o?' selected':''}>${o}</option>`).join('')}</select></div>
+ </div></div>
+ <div class="stat" style="grid-template-columns:repeat(3,1fr)">
+  <div class="scard"><div class="bz"></div><div class="t">Gross (${basisLbl})</div><div class="v">${fmt0(tG)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Haavn retained</div><div class="v">${fmt0(tR)}</div></div>
+  <div class="scard forest"><div class="t">Distributable to managers</div><div class="v">${fmt0(tD)}</div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>By manager</h2><div class="scroll"><table><tr><th>Manager</th><th class="r">Clients</th><th class="r">Attributed</th><th class="r">% of pool</th></tr>${sumRows}</table></div></div>
+ <div class="card"><div class="bz"></div><h2>By client</h2><div class="scroll"><table><tr><th>Client</th><th class="r">Gross</th><th class="r">M2 share</th><th class="r">Haavn retained</th><th class="r">Distributable</th><th>Manager 1</th><th class="r">M1</th><th>Manager 2</th><th class="r">M2</th></tr>${detRows}</table></div></div>`;
+};
+
+/* ============ HAAVN / M2 PROFIT SPLIT ============ */
+VIEWS.profit=function(){
+ const {rows,byClient}=profitData(); let tRev=0,tH=0;
+ const monthRows=rows.map(r=>{ tRev+=r.totalRev; tH+=r.haavn; return `<tr><td class="mono"><b>${monthLabel(r.ym)}</b></td><td class="r">${money(r.totalRev)}</td><td class="r">${r.haavn>0.005?money(r.haavn):'—'}</td><td class="r">${money(r.m2)}</td><td class="r mono">${r.totalRev>0?(r.haavn/r.totalRev*100).toFixed(1)+'%':'—'}</td></tr>`; }).join('');
+ const clientRows=Object.entries(byClient).map(([cid,b])=>({c:state.clients.find(x=>x.id===cid),b})).filter(x=>x.c).sort((a,z)=>z.b.rev-a.b.rev)
+   .map(({c,b})=>`<tr><td><b>${esc(c.name)}</b></td><td class="tagcls">${c.type}</td><td class="r mono">${c.m2Share}%</td><td class="r">${money(b.rev)}</td><td class="r">${b.haavn>0.005?money(b.haavn):'—'}</td><td class="r">${money(b.rev-b.haavn)}</td></tr>`).join('');
+ const basisLbl=ui.pfBasis==='paid'?'Paid / cash received':'Invoiced (accrual)';
+ return head('Splits','Haavn / M2 split','Each client’s revenue splits by its M2 profit share. As M2 winds down, reduce each share toward 0% and the Haavn side grows.',
+   `<button class="btn" onclick="exportProfit()">Export CSV</button>`)+`
+ <div class="card"><div class="bz"></div><h2>Basis</h2><div class="grid" style="max-width:280px"><div><label>Revenue basis</label><select onchange="setUi('pfBasis',this.value)">${[['invoiced','Invoiced (accrual)'],['paid','Paid / cash received']].map(([v,l])=>`<option value="${v}"${ui.pfBasis===v?' selected':''}>${l}</option>`).join('')}</select></div></div></div>
+ <div class="stat" style="grid-template-columns:repeat(4,1fr)">
+  <div class="scard"><div class="bz"></div><div class="t">Revenue (${basisLbl})</div><div class="v sm">${fmt0(tRev)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Haavn retained</div><div class="v sm">${fmt0(tH)}</div></div>
+  <div class="scard forest"><div class="t">To M2</div><div class="v sm">${fmt0(tRev-tH)}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Haavn %</div><div class="v sm mono">${tRev>0?(tH/tRev*100).toFixed(1)+'%':'—'}</div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>By month</h2><div class="scroll">${rows.length?`<table><tr><th>Month</th><th class="r">Revenue</th><th class="r">Haavn retained</th><th class="r">To M2</th><th class="r">Haavn %</th></tr>${monthRows}</table>`:'<div class="empty">Nothing to split yet — amounts appear once invoices exist.</div>'}</div></div>
+ ${clientRows?`<div class="card"><div class="bz"></div><h2>By client — cumulative</h2><div class="scroll"><table><tr><th>Client</th><th>Type</th><th class="r">M2 share</th><th class="r">Revenue</th><th class="r">Haavn retained</th><th class="r">To M2</th></tr>${clientRows}</table></div></div>`:''}`;
+};
+
+/* ============ SHARED EXPENSES ============ */
+VIEWS.expenses=function(){
+ const months=expenseMonths(); const filterOn=ui.expMonth!=='all';
+ const list=state.expenses.filter(e=>ui.expMonth==='all'||monthOf(e.date)===ui.expMonth).sort((a,b)=>a.date.localeCompare(b.date));
+ const setts=filteredSettlements().sort((a,b)=>a.date.localeCompare(b.date));
+ const F=expenseSummary(list,setts);
+ const cats=[...new Set(state.expenses.map(e=>e.category))].filter(Boolean);
+ const rows=list.map(e=>{ if(e.id===ui.editingExpenseId) return `<tr style="background:var(--f-50)">
+   <td><input id="exDate" type="date" value="${e.date}"></td><td><input id="exCat" list="catList" value="${esc(e.category)}"></td><td><input id="exDesc" value="${esc(e.desc)}"></td>
+   <td><input id="exAmt" type="number" min="0" step="0.01" value="${e.amount}"></td><td><select id="exPayer">${PAYERS.map(p=>`<option${p===e.payer?' selected':''}>${p}</option>`).join('')}</select></td>
+   <td class="r">—</td><td class="r">—</td><td class="r">—</td>
+   <td><button class="btn mini green" onclick="saveEditExpense(${e.id})">Save</button> <button class="btn mini ghost" onclick="cancelEditExpense()">Cancel</button><span class="warn" id="exWarn"></span></td></tr>`;
+  return `<tr><td class="mono">${e.date}</td><td>${esc(e.category)}${isGstFree(e.category)?' <span class="pill plain">BAS Excl</span>':''}</td><td>${esc(e.desc)}</td>
+   <td class="r">${money(e.amount)}</td><td>${esc(e.payer)}</td>
+   <td class="r">${money(e.amount*ratioOf(CO.HM))}</td><td class="r">${money(e.amount*ratioOf(CO.HT))}</td><td class="r">${money(e.amount*ratioOf(CO.SEV))}</td>
+   <td style="white-space:nowrap"><button class="btn mini ghost" onclick="startEditExpense(${e.id})">Edit</button> <button class="btn mini danger" onclick="delExpense(${e.id})">Delete</button></td></tr>`; }).join('');
+ const totalRow=list.length?`<tr class="total"><td colspan="3">Total${filterOn?' (filtered)':''}</td><td class="r">${money(F.total)}</td><td></td><td class="r">${money(F.sum[CO.HM].share)}</td><td class="r">${money(F.sum[CO.HT].share)}</td><td class="r">${money(F.sum[CO.SEV].share)}</td><td></td></tr>`:'';
+ const settleRows=F.cos.filter(c=>showInSettlement(c,F.sum)).filter(c=>ui.expStatus==='all'||statusOf(F.sum[c].net)===ui.expStatus).map(c=>{ const s=F.sum[c]; const hl=focusEnt()===c?' style="background:var(--f-50)"':''; return `<tr${hl}><td>${esc(c)}</td><td class="r">${money(s.share)}</td><td class="r">${money(s.paid)}</td><td class="r">${money(s.sOut-s.sIn)}</td><td class="r">${money(s.net)}</td><td>${statusPill(s.net)}</td></tr>`; }).join('');
+ const settRows=setts.map(s=>`<tr><td class="mono">${s.date}</td><td>${esc(s.from)}</td><td>${esc(s.to)}</td><td class="r">${money(s.amount)}</td><td class="mono">${s.invoiceId?esc((state.groupInvoices.find(i=>i.id===s.invoiceId)||{}).number||''):'—'}</td><td><button class="btn mini danger" onclick="delSettlement(${s.id})">Delete</button></td></tr>`).join('');
+ const monthOpts=`<option value="all"${ui.expMonth==='all'?' selected':''}>All months</option>`+months.map(m=>`<option value="${m}"${ui.expMonth===m?' selected':''}>${monthLabel(m)}</option>`).join('');
+ return head('Group settlement','Shared expenses',`Costs paid by one entity, split three ways across HM / HT / 7even. ${entityLine()}`)+`
+ <datalist id="catList">${cats.map(c=>`<option>${esc(c)}</option>`).join('')}</datalist>
+ <div class="card"><div class="bz"></div><h2>Add shared expense</h2><div class="grid">
+   <div><label>Date</label><input id="eDate" type="date" value="${todayStr()}"></div>
+   <div><label>Account (Xero)</label><input id="eCat" list="catList" placeholder="e.g. Rent, Outgoings"></div>
+   <div><label>Description</label><input id="eDesc" placeholder="e.g. August rent"></div>
+   <div><label>Total amount ($)</label><input id="eAmt" type="number" min="0" step="0.01" placeholder="0.00"></div>
+   <div><label>Paid by</label><select id="ePayer">${PAYERS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+ </div><button class="btn green" onclick="addExpense()">Add expense</button><span class="warn" id="eWarn"></span>
+ <div class="note">Each cost splits HM / HT / 7even by the Settings ratios. Accounts containing "Payroll" are flagged <b>BAS Excluded</b> — no GST on recharge.</div></div>
+ <div class="card"><div class="bz"></div><h2>Expense register</h2>
+   <div class="grid" style="max-width:420px"><div><label>Month</label><select onchange="setUi('expMonth',this.value)">${monthOpts}</select></div>${filterOn?'<div style="align-self:end"><button class="btn ghost" onclick="setUi(\'expMonth\',\'all\')">Show all</button></div>':''}</div>
+   <div class="scroll">${list.length?`<table><tr><th>Date</th><th>Account</th><th>Description</th><th class="r">Total</th><th>Paid by</th><th class="r">HM</th><th class="r">HT</th><th class="r">7even</th><th></th></tr>${rows}${totalRow}</table>`:`<div class="empty">${state.expenses.length?'No expenses match the filter.':'No expenses yet.'}</div>`}</div></div>
+ <div class="card"><div class="bz"></div><h2>Settlement <span class="tag">${ui.expMonth==='all'?'all months':monthLabel(ui.expMonth)}</span></h2>
+   <div class="grid" style="max-width:240px"><div><label>Status</label><select onchange="setUi('expStatus',this.value)">${['all','To be reimbursed','Owes the pool','Settled'].map(o=>`<option value="${o}"${ui.expStatus===o?' selected':''}>${o==='all'?'All statuses':o}</option>`).join('')}</select></div></div>
+   <div class="scroll">${settleRows?`<table><tr><th>Entity</th><th class="r">Share due</th><th class="r">Paid</th><th class="r">Reimb net</th><th class="r">Net</th><th>Status</th></tr>${settleRows}</table>`:'<div class="empty">No entity has this status.</div>'}</div>
+   <div class="note">Record the reimbursement below; a payer moves to <b>Settled</b> once its net is within a few cents of zero.</div></div>
+ <div class="card"><div class="bz"></div><h2>Record settlement payment <span class="tag">inter-company reimbursement</span></h2><div class="grid">
+   <div><label>Date</label><input id="pDate" type="date" value="${todayStr()}"></div>
+   <div><label>From (payer)</label><select id="pFrom">${PAYERS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+   <div><label>To (receiver)</label><select id="pTo">${PAYERS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+   <div><label>Amount ($)</label><input id="pAmt" type="number" min="0" step="0.01" placeholder="0.00"></div>
+ </div><button class="btn green" onclick="addSettlement()">Record payment</button><span class="warn" id="pWarn"></span>
+ <div class="scroll" style="margin-top:12px">${setts.length?`<table><tr><th>Date</th><th>From</th><th>To</th><th class="r">Amount</th><th>Ref</th><th></th></tr>${settRows}</table>`:'<div class="empty">No settlement payments recorded.</div>'}</div></div>`;
+};
+
+/* ============ INTER-CO LOANS ============ */
+VIEWS.loans=function(){
+ const L=loanCalc();
+ const rows=L.rows.map(t=>{ const hl=focusEnt()===t.company?' style="background:var(--f-50)"':''; return `<tr${hl}><td class="mono">${t.date}</td><td>${esc(t.company)}</td><td>${t.type}</td><td class="r">${money(t.amount)}</td><td class="r">${money(t.balAfter[CO.HM])}</td><td class="r">${money(t.balAfter[CO.HT])}</td><td class="r">${money(t.balAfter[CO.HPI])}</td><td class="r mono">${t.days}</td><td><button class="btn mini danger" onclick="delLoan(${t.id})">Delete</button></td></tr>`; }).join('');
+ return head('Group settlement','Inter-company loans',`Haavn Parent funds the operating entities; daily simple interest accrues to ${cutoffDate()}.`)+`
+ <div class="stat" style="grid-template-columns:repeat(3,1fr)">
+  ${BORROWERS.map(c=>`<div class="scard"><div class="bz"></div><div class="t">${esc(c)}</div><div class="v sm">${fmt0(L.bal[c])}</div><div class="d">interest ${fmt0(L.int[c])}</div></div>`).join('')}
+ </div>
+ <div class="card"><div class="bz"></div><h2>Add drawdown / repayment</h2><div class="grid">
+   <div><label>Date</label><input id="lDate" type="date" value="${todayStr()}"></div>
+   <div><label>Company</label><select id="lCo">${BORROWERS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+   <div><label>Type</label><select id="lType"><option>Drawdown</option><option>Repayment</option></select></div>
+   <div><label>Amount ($)</label><input id="lAmt" type="number" min="0" step="0.01" placeholder="0.00"></div>
+ </div><button class="btn green" onclick="addLoan()">Add entry</button><span class="warn" id="lWarn"></span>
+ <div class="note">Daily simple interest: balance × ${state.settings.rate}% ÷ ${state.settings.basis} × days, accrued to ${cutoffDate()}.</div></div>
+ <div class="card"><div class="bz"></div><h2>Loan ledger <span class="tag">auto-sorted by date</span></h2><div class="scroll">
+   ${L.rows.length?`<table><tr><th>Date</th><th>Company</th><th>Type</th><th class="r">Amount</th><th class="r">HM bal</th><th class="r">HT bal</th><th class="r">HPI bal</th><th class="r">Days</th><th></th></tr>${rows}
+   <tr class="total"><td colspan="3">Accrued interest</td><td></td><td class="r">${money(L.int[CO.HM])}</td><td class="r">${money(L.int[CO.HT])}</td><td class="r">${money(L.int[CO.HPI])}</td><td colspan="2" class="r">Total ${fmt0(L.totalInt)}</td></tr></table>`:'<div class="empty">No loan entries yet.</div>'}</div></div>`;
+};
+
+/* ============ INTER-CO INVOICING ============ */
+VIEWS.interco=function(){
+ const months=expenseMonths();
+ const list=state.expenses.filter(e=>ui.icMonth==='all'||monthOf(e.date)===ui.icMonth);
+ const M=rechargeMatrix(list); const cos=[CO.HM,CO.HT,CO.SEV]; const short=c=>({[CO.HM]:'HM',[CO.HT]:'HT',[CO.SEV]:'7even'})[c];
+ const comb=(a,b)=>a===b?0:(ui.icNet?Math.max(0,M[a][b]-M[b][a]):M[a][b]);
+ const invoicedTotal=(a,b)=>state.groupInvoices.filter(i=>i.from===a&&i.to===b).reduce((t,i)=>t+(i.rechargeAmt!==undefined?i.rechargeAmt:i.amount),0);
+ const monthsAsc=[...new Set(state.expenses.map(e=>monthOf(e.date)))].filter(Boolean).sort(); const monthM={};
+ monthsAsc.forEach(mo=>monthM[mo]=rechargeMatrix(state.expenses.filter(e=>monthOf(e.date)===mo)));
+ const combOf=(Mx,a,b)=>a===b?0:(ui.icNet?Math.max(0,Mx[a][b]-Mx[b][a]):Mx[a][b]);
+ const remaining=(a,b)=>{ if(a===b)return 0; const I=invoicedTotal(a,b); if(ui.icMonth==='all') return Math.max(0,comb(a,b)-I); const prior=monthsAsc.filter(mo=>mo<ui.icMonth).reduce((t,mo)=>t+combOf(monthM[mo],a,b),0); const g=comb(a,b); const covered=Math.min(Math.max(I-prior,0),g); return g-covered; };
+ ui.icLines=[];
+ const cell=(a,b)=>{ const gross=comb(a,b); if(a===b||gross<=0.005) return '<td class="amt" style="vertical-align:top">—</td>'; const rem=remaining(a,b); const invd=gross-rem;
+  if(rem<=0.005) return `<td class="amt" style="vertical-align:top"><span class="pill live"><i></i>Invoiced</span><br><span class="mg" style="font-size:10px">${fmt0(gross)} covered</span></td>`;
+  const desc=(ui.icNet?'Net recharge of shared expenses ('+a+' paid, less '+b+')':'Recharge of shared expenses paid by '+a)+(ui.icMonth==='all'?'':' — '+monthLabel(ui.icMonth));
+  const idx=ui.icLines.push({from:a,to:b,amount:rem,rechargeAmt:rem,desc,scope:ui.icMonth,useNet:ui.icNet})-1;
+  return `<td class="amt" style="vertical-align:top">${money(rem)}${ui.icMonth==='all'&&invd>0.005?`<br><span class="mg" style="font-size:10px">of ${fmt0(gross)} — ${fmt0(invd)} invoiced</span>`:''}<br><button class="btn mini ghost" onclick="createGroupInvoice(${idx})">+ Invoice</button></td>`; };
+ const matrixRows=cos.map(a=>{ const rt=cos.reduce((t,b)=>t+remaining(a,b),0); return `<tr><td style="vertical-align:top"><b>${short(a)}</b> →</td>${cos.map(b=>cell(a,b)).join('')}<td class="amt" style="vertical-align:top"><b>${rt>0.005?fmt0(rt):'—'}</b></td></tr>`; }).join('');
+ const colT=cos.map(b=>cos.reduce((t,a)=>t+remaining(a,b),0));
+ const invRows=[...state.groupInvoices].sort((a,b)=>b.id-a.id).map(inv=>{ const linked=state.settlements.some(s=>s.invoiceId===inv.id);
+  const act=inv.status==='To send'?`<button class="btn mini green" onclick="markGroupSent(${inv.id})">Mark sent</button> `:inv.status==='Invoice sent'?`<button class="btn mini green" onclick="markGroupPaid(${inv.id})">Payment received</button> `:'';
+  const pill=inv.status==='To send'?'<span class="pill plain"><i></i>To send</span>':inv.status==='Invoice sent'?'<span class="pill hold"><i></i>Sent</span>':'<span class="pill live"><i></i>Settled</span>';
+  const main=`<tr><td class="mono">${esc(inv.number)}</td><td class="mono">${inv.created}</td><td>${esc(inv.from)}</td><td>${esc(inv.to)}</td><td class="r">${money(inv.amount)}</td><td style="font-size:12px">${esc(inv.desc)}</td><td>${pill}</td><td style="white-space:nowrap"><button class="btn mini ghost" onclick="toggleGroupLines(${inv.id})">${ui.expandedInvoice===inv.id?'Hide':'Lines'}</button> ${act}<button class="btn mini danger" onclick="delGroupInvoice(${inv.id})">Delete</button></td></tr>`;
+  if(ui.expandedInvoice!==inv.id) return main;
+  const lineRows=(inv.lines&&inv.lines.length)?inv.lines.map(li=>`<tr><td>${esc(li.category)}</td><td>${li.bas?'<span class="pill plain">BAS Excl</span>':'GST on Income'}</td><td class="r">${money(li.amount)}</td></tr>`).join('')+`<tr class="total"><td>Total</td><td></td><td class="r">${money(inv.lines.reduce((t,li)=>t+li.amount,0))}</td></tr>`:'<tr><td colspan="3" class="empty">No line breakdown.</td></tr>';
+  return main+`<tr><td colspan="8" style="background:var(--f-50);padding:10px 14px"><b style="font-size:12px;color:var(--f-700)">Invoice lines — by Xero account</b><table style="max-width:520px;margin-top:6px"><tr><th>Account</th><th>Tax code</th><th class="r">Amount</th></tr>${lineRows}</table></td></tr>`; }).join('');
+ const monthOpts=`<option value="all"${ui.icMonth==='all'?' selected':''}>All months</option>`+months.map(m=>`<option value="${m}"${ui.icMonth===m?' selected':''}>${monthLabel(m)}</option>`).join('');
+ return head('Group settlement','Inter-company invoicing','What each entity should bill the others for shared costs. Haavn Parent is excluded — loan interest runs through the loan account, not invoices.')+`
+ <div class="card"><div class="bz"></div><h2>Basis</h2><div class="grid" style="max-width:560px">
+   <div><label>Expense month</label><select onchange="setUi('icMonth',this.value)">${monthOpts}</select></div>
+   <div><label>Invoicing basis</label><select onchange="setIcNet(this.value)"><option value="net"${ui.icNet?' selected':''}>One net invoice per pair</option><option value="gross"${ui.icNet?'':' selected'}>Gross (each payer separately)</option></select></div>
+ </div></div>
+ <div class="card"><div class="bz"></div><h2>Invoice matrix <span class="tag">${ui.icNet?'netted':'gross'} · already-invoiced cleared</span></h2><div class="scroll"><table class="mx" style="min-width:0">
+   <tr><th></th>${cos.map(b=>`<th class="amt">to ${short(b)}</th>`).join('')}<th class="amt">To issue</th></tr>${matrixRows}
+   <tr class="total"><td>To receive</td>${colT.map(t=>`<td class="amt">${t>0.005?fmt0(t):'—'}</td>`).join('')}<td class="amt">${fmt0(bsum(colT))}</td></tr>
+ </table></div><div class="note">Cells show what is still left to invoice. Every invoice clears its amount from all views; oldest month is covered first.</div></div>
+ <div class="card"><div class="bz"></div><h2>Invoice register <span class="tag">To send → Sent → Settled</span></h2><div class="scroll">${state.groupInvoices.length?`<table><tr><th>No.</th><th>Created</th><th>From</th><th>To</th><th class="r">Amount</th><th>Description</th><th>Status</th><th></th></tr>${invRows}</table>`:'<div class="empty">No inter-co invoices yet — click "+ Invoice" above.</div>'}</div><div class="note">"Payment received" records a settlement automatically, so the entity’s status updates to Settled.</div></div>`;
+};
+
+/* ============ BUDGET — HAAVN BOOK ============ */
+function budgetTable(rowsHtml,footHtml){ return `<div class="scroll"><table class="mx" style="min-width:820px"><thead><tr><th>Line item</th>${BMONTHS.map(m=>`<th class="amt">${m}</th>`).join('')}<th class="amt">FY27</th></tr></thead><tbody>${rowsHtml}</tbody>${footHtml?`<tfoot>${footHtml}</tfoot>`:''}</table></div>`; }
+function budRow(label,vals,cls){ const tot=bsum(vals); return `<tr class="${cls||''}"><td>${label}</td>${vals.map(v=>`<td class="amt">${v?money(v,0):'<span class="mg">—</span>'}</td>`).join('')}<td class="amt"><b>${money(tot,0)}</b></td></tr>`; }
+VIEWS.haavnbook=function(){
+ const rev=BUDGET.haavnRevenue.map(r=>budRow(esc(r.k),r.v)).join('');
+ const commitFoot=budRow('Total committed revenue',BUDGET.haavnCommitted,'total');
+ const pipeRow=budRow('Pipeline / potential',BUDGET.haavnPipeline);
+ const totalPlusPipe=BMONTHS.map((_,i)=>BUDGET.haavnCommitted[i]+BUDGET.haavnPipeline[i]);
+ return head('FY27 budget','Haavn Book',`All client billing consolidates into Haavn Management. Committed revenue by manager, plus pipeline. Figures are Dom’s FY27 plan.`,
+   `<button class="btn sil" onclick="exportExcel()">Export workbook</button>`)+`
+ <div class="stat" style="grid-template-columns:repeat(3,1fr)">
+  <div class="scard"><div class="bz"></div><div class="t">Committed FY27</div><div class="v">${fmt0(bsum(BUDGET.haavnCommitted))}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Pipeline FY27</div><div class="v">${fmt0(bsum(BUDGET.haavnPipeline))}</div></div>
+  <div class="scard forest"><div class="t">Revenue + pipeline</div><div class="v">${fmt0(bsum(totalPlusPipe))}</div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>Revenue by manager <span class="tag">committed</span></h2>${budgetTable(rev,commitFoot+pipeRow+budRow('Total revenue + potential',totalPlusPipe,'total'))}
+   <div class="note">Revenue is weighted by each manager’s split % and flows from the live client register. This plan mirrors the FY27 budget workbook.</div></div>`;
+};
+
+/* ============ BUDGET — M2 BOOK ============ */
+VIEWS.m2book=function(){
+ const r=BUDGET.m2; const get=k=>r.find(x=>x.k===k);
+ const body=[
+  budRow('Profit distribution from Haavn',get('Profit distribution from Haavn').v,'sub'),
+  budRow('Fixed costs',get('Fixed costs').v),
+  budRow('Variable costs',get('Variable costs').v),
+  budRow('Total M2 expenses',get('Total M2 expenses').v,'total'),
+  budRow('M2 net result',get('M2 net result').v,'total'),
+ ].join('');
+ const fixedList=BUDGET.m2fixed.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${money(v,0)}</td></tr>`).join('');
+ const varList=BUDGET.m2variable.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${money(v,0)}</td></tr>`).join('');
+ const net=bsum(get('M2 net result').v);
+ return head('FY27 budget','M2 Book',`M2 receives a profit distribution from Haavn and carries its own fixed and variable costs. It is winding down through FY27.`)+`
+ <div class="stat" style="grid-template-columns:repeat(3,1fr)">
+  <div class="scard"><div class="bz"></div><div class="t">Profit distribution FY27</div><div class="v sm">${fmt0(bsum(get('Profit distribution from Haavn').v))}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">Total expenses FY27</div><div class="v sm">${fmt0(bsum(get('Total M2 expenses').v))}</div></div>
+  <div class="scard"><div class="bz"></div><div class="t">M2 net result FY27</div><div class="v sm"><span class="${net<0?'neg':''}">${fmt0(net)}</span></div></div>
+ </div>
+ <div class="card"><div class="bz"></div><h2>M2 profit &amp; loss <span class="tag">FY27 plan</span></h2>${budgetTable(body)}<div class="note">The negative net result is the planned cost of running M2 down while its client base transfers to Haavn.</div></div>
+ <div class="stat" style="grid-template-columns:1fr 1fr">
+  <div class="card"><div class="bz"></div><h2>Fixed cost lines <span class="tag">FY27 total</span></h2><div class="scroll"><table><tr><th>Line</th><th class="r">FY27</th></tr>${fixedList}<tr class="total"><td>Total fixed</td><td class="r">${money(bsum(BUDGET.m2fixed.map(x=>x[1])),0)}</td></tr></table></div></div>
+  <div class="card"><div class="bz"></div><h2>Variable cost lines <span class="tag">FY27 total</span></h2><div class="scroll"><table><tr><th>Line</th><th class="r">FY27</th></tr>${varList}</table></div><div class="note">The ATO payment plan (${fmt0(120000)}) sits inside Accounting &amp; Legal.</div></div>
+ </div>`;
+};
+
+/* ============ BUDGET — MANAGER ANALYSIS ============ */
+VIEWS.mgranalysis=function(){
+ const subhdr=lbl=>`<tr class="sub"><td colspan="${BMONTHS.length+2}">${lbl}</td></tr>`;
+ const blocks=BUDGET.managers.map(m=>{ const wages=BMONTHS.map(()=>m.wage); const net=m.rev.map((r,i)=>r-wages[i]); const tRev=bsum(m.rev), tW=bsum(wages);
+  return subhdr(esc(m.k))
+   + budRow('Revenue (committed)',m.rev)
+   + budRow('Wages + super',wages)
+   + budRow('Net contribution',net,'total')
+   + `<tr><td>Revenue ÷ cost</td>${m.rev.map((r,i)=>`<td class="amt mono">${wages[i]?(r/wages[i]).toFixed(2):'—'}</td>`).join('')}<td class="amt mono"><b>${tW?(tRev/tW).toFixed(2):'—'}</b></td></tr>`; }).join('');
+ const totRev=BMONTHS.map((_,i)=>bsum(BUDGET.managers.map(m=>m.rev[i])));
+ const totWage=BMONTHS.map((_,i)=>bsum(BUDGET.managers.map(m=>m.wage)));
+ const totNet=totRev.map((r,i)=>r-totWage[i]);
+ const totals=subhdr('All managers — total')+budRow('Total revenue (committed)',totRev)+budRow('Total wages + super',totWage)+budRow('Total net contribution',totNet,'total');
+ return head('FY27 budget','Manager analysis',`Committed revenue vs wages + super for each fee-earning manager. Shared staff (Admin, Accounts, Daniel Sette) are excluded.`)+`
+ <div class="stat" style="grid-template-columns:repeat(4,1fr)">
+  ${BUDGET.managers.map(m=>{ const net=bsum(m.rev)-m.wage*12; return `<div class="scard"><div class="bz"></div><div class="t">${esc(m.k)}</div><div class="v sm"><span class="${net<0?'neg':''}">${fmt0(net)}</span></div><div class="d">net · rev ÷ cost ${(bsum(m.rev)/(m.wage*12)).toFixed(2)}</div></div>`; }).join('')}
+ </div>
+ <div class="card"><div class="bz"></div><h2>By manager <span class="tag">FY27 plan</span></h2>${budgetTable(blocks+totals)}
+   <div class="note">Managers below a 1.0 revenue ÷ cost ratio are running at a net cost this year — visible in loss red.</div></div>`;
+};
+
+/* ============ SETTINGS ============ */
+VIEWS.settings=function(){
+ const r=state.settings.ratios; const sum=r.hm+r.ht+r.sev;
+ return head('System','Settings','Interest parameters, the three-way expense split, and data management.')+`
+ <div class="card"><div class="bz"></div><h2>Interest parameters</h2><div class="grid">
+   <div><label>Annual interest rate (%)</label><input id="sRate" type="number" step="0.01" value="${state.settings.rate}"></div>
+   <div><label>Day-count basis</label><input id="sBasis" type="number" value="${state.settings.basis}"></div>
+   <div><label>Interest cut-off date</label><input id="sCut" type="date" value="${state.settings.cutoff}"><div class="note">Blank = today</div></div>
+ </div></div>
+ <div class="card"><div class="bz"></div><h2>Expense split ratios (%)</h2><div class="grid">
+   <div><label>Haavn Management</label><input id="rHM" type="number" step="0.0001" value="${r.hm}"></div>
+   <div><label>Haavn Technologies</label><input id="rHT" type="number" step="0.0001" value="${r.ht}"></div>
+   <div><label>7even</label><input id="rSEV" type="number" step="0.0001" value="${r.sev}"></div>
+ </div><div class="note">Current total: <b style="color:${Math.abs(sum-100)<0.01?'var(--f-600)':'var(--red-tx)'}">${sum.toFixed(4)}%</b> (must equal 100%)</div>
+ <div style="margin-top:12px"><button class="btn green" onclick="saveSettings()">Save settings</button><span class="warn" id="sWarn"></span></div></div>
+ <div class="card"><div class="bz"></div><h2>Data</h2>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn sil" onclick="exportExcel()">Export full workbook</button>
+   ${ui.pendingClearAll?`<button class="btn danger" onclick="clearAll()">Yes, clear everything</button><button class="btn ghost" onclick="setUi('pendingClearAll',false)">Cancel</button>`:`<button class="btn danger" onclick="setUi('pendingClearAll',true)">Clear all data</button>`}</div>
+   <div class="note">Data is saved automatically in this browser only. Export a backup before clearing. ${ui.pendingClearAll?'<b style="color:var(--red-tx)">This wipes clients, invoices, expenses, loans and settlements. It cannot be undone.</b>':''}</div></div>`;
+};
+
+/* ============ ACTIONS ============ */
+function setUi(k,v){ ui[k]=v; render(); }
+function setBillMonth(v){ ui.billMonth=v; render(); }
+function billStep(d){ ui.billMonth=addMonths(ui.billMonth||currentYM(),d); render(); }
+function setIcNet(v){ ui.icNet=(v==='net'); render(); }
+
+/* -- shared expenses -- */
+function addExpense(){ const date=$('eDate').value, amount=parseFloat($('eAmt').value), w=$('eWarn');
+ if(!date||!(amount>0)){ w.textContent=' Enter a date and amount > 0'; return; }
+ state.expenses.push({id:state.nextId++,date,category:$('eCat').value.trim()||'Uncategorised',desc:$('eDesc').value.trim(),amount,payer:$('ePayer').value}); save(); render(); toast('Expense added'); }
+function delExpense(id){ state.expenses=state.expenses.filter(e=>e.id!==id); if(ui.editingExpenseId===id)ui.editingExpenseId=null; save(); render(); }
+function startEditExpense(id){ ui.editingExpenseId=id; render(); }
+function cancelEditExpense(){ ui.editingExpenseId=null; render(); }
+function saveEditExpense(id){ const e=state.expenses.find(x=>x.id===id); if(!e)return; const date=$('exDate').value, amount=parseFloat($('exAmt').value), w=$('exWarn');
+ if(!date||!(amount>0)){ w.textContent=' Date + amount > 0'; return; }
+ e.date=date; e.category=$('exCat').value.trim()||'Uncategorised'; e.desc=$('exDesc').value.trim(); e.amount=amount; e.payer=$('exPayer').value; ui.editingExpenseId=null; save(); render(); toast('Expense updated'); }
+function addSettlement(){ const date=$('pDate').value, from=$('pFrom').value, to=$('pTo').value, amount=parseFloat($('pAmt').value), w=$('pWarn');
+ if(!date||!(amount>0)){ w.textContent=' Enter a date and amount > 0'; return; }
+ if(from===to){ w.textContent=' Payer and receiver must differ'; return; }
+ state.settlements.push({id:state.nextId++,date,from,to,amount}); save(); render(); toast('Settlement recorded'); }
+function delSettlement(id){ const s=state.settlements.find(x=>x.id===id); state.settlements=state.settlements.filter(x=>x.id!==id);
+ if(s&&s.invoiceId){ const i=state.groupInvoices.find(x=>x.id===s.invoiceId); if(i&&i.status==='Settled')i.status='Invoice sent'; } save(); render(); }
+
+/* -- loans -- */
+function addLoan(){ const date=$('lDate').value, amount=parseFloat($('lAmt').value), w=$('lWarn');
+ if(!date||!(amount>0)){ w.textContent=' Enter a date and amount > 0'; return; }
+ state.loans.push({id:state.nextId++,date,company:$('lCo').value,type:$('lType').value,amount}); save(); render(); toast('Loan entry added'); }
+function delLoan(id){ state.loans=state.loans.filter(l=>l.id!==id); save(); render(); }
+
+/* -- inter-co invoices -- */
+function createGroupInvoice(idx){ const l=ui.icLines[idx]; if(!l)return; const nid=state.nextId++;
+ const lines=invoiceCategoryLines(l.from,l.to,l.scope,l.useNet,+l.amount.toFixed(2));
+ state.groupInvoices.push({id:nid,number:'GRP-'+String(nid).slice(-3).padStart(3,'0'),created:todayStr(),month:ui.icMonth,from:l.from,to:l.to,amount:+l.amount.toFixed(2),rechargeAmt:+l.amount.toFixed(2),desc:l.desc,lines,status:'To send'});
+ ui.expandedInvoice=nid; save(); render(); toast('Inter-co invoice created'); }
+function markGroupSent(id){ const i=state.groupInvoices.find(x=>x.id===id); if(i){ i.status='Invoice sent'; save(); render(); } }
+function markGroupPaid(id){ const i=state.groupInvoices.find(x=>x.id===id); if(!i)return; i.status='Settled'; i.paidDate=todayStr();
+ const rech=i.rechargeAmt!==undefined?i.rechargeAmt:i.amount; if(rech>0.005) state.settlements.push({id:state.nextId++,date:todayStr(),from:i.to,to:i.from,amount:rech,invoiceId:i.id}); save(); render(); toast('Payment recorded + settled'); }
+function toggleGroupLines(id){ ui.expandedInvoice=ui.expandedInvoice===id?null:id; render(); }
+function delGroupInvoice(id){ state.groupInvoices=state.groupInvoices.filter(x=>x.id!==id); state.settlements=state.settlements.filter(s=>s.invoiceId!==id); save(); render(); }
+
+/* -- client invoices -- */
+function addInvoice(){ const date=$('invDate').value, clientId=$('invClient').value, invNo=$('invNo').value.trim(), amount=Number($('invAmount').value)||0, notes=$('invNotes').value.trim(), msg=$('invMsg');
+ if(!date||!clientId||!invNo||!amount){ msg.textContent=' Date, client, invoice # and amount are required.'; return; }
+ const dup=state.clientInvoices.some(i=>i.invNo.toLowerCase()===invNo.toLowerCase());
+ if(dup&&ui._pendingDup!==invNo.toLowerCase()){ ui._pendingDup=invNo.toLowerCase(); msg.textContent=' That invoice # already exists. Click "Add invoice" again to record anyway.'; return; }
+ ui._pendingDup=null; state.clientInvoices.push({id:uid(),date,clientId,invNo,amount,notes}); save(); render(); toast('Invoice '+invNo+' added'); }
+function delInvoice(id,ev){ armConfirm(ev.target,()=>{ const inv=state.clientInvoices.find(i=>i.id===id); state.clientInvoices=state.clientInvoices.filter(i=>i.id!==id); save(); render(); toast('Invoice deleted'); }); }
+
+/* -- billing run -- */
+function markInvoiced(clientId){ const ym=ui.billMonth||currentYM(); const c=state.clients.find(x=>x.id===clientId);
+ const amount=Math.round((scheduledInMonth(c,ym)-invoicedInMonth(clientId,ym))*100)/100; if(amount<=0)return;
+ let invNo=($('xno-'+clientId)||{}).value; invNo=invNo&&invNo.trim();
+ if(!invNo){ const n=state.clientInvoices.filter(i=>i.invNo.startsWith('XERO-'+ym)).length+1; invNo=`XERO-${ym}-${String(n).padStart(2,'0')}`; }
+ const today=todayStr(); const date=today.slice(0,7)===ym?today:ym+'-01';
+ state.clientInvoices.push({id:uid(),date,clientId,invNo,amount,notes:'Issued in Xero (from billing run)',quick:true}); save(); render(); toast(c.name+': '+fmt0(amount)+' invoiced ('+invNo+')'); }
+function undoInvoiced(clientId){ const ym=ui.billMonth||currentYM(); state.clientInvoices=state.clientInvoices.filter(i=>!(i.clientId===clientId&&i.quick&&i.date.slice(0,7)===ym)); save(); render(); }
+function payMonth(clientId){ const ym=ui.billMonth||currentYM(); const c=state.clients.find(x=>x.id===clientId); const d=($('pdm-'+clientId)||{}).value||todayStr(); let amt=0;
+ monthInvoices(clientId,ym).forEach(i=>{ if(!i.paidDate){ i.paidDate=d; amt+=i.amount; } }); save(); render(); toast(c.name+': '+fmt0(amt)+' marked paid'); }
+function unpayMonth(clientId){ const ym=ui.billMonth||currentYM(); monthInvoices(clientId,ym).forEach(i=>{ delete i.paidDate; }); save(); render(); }
+
+/* -- client modal -- */
+function addClient(){ openClientModal(null); }
+function editClient(id){ openClientModal(state.clients.find(c=>c.id===id)); }
+function delClient(id,ev){ armConfirm(ev.target,()=>{ const c=state.clients.find(x=>x.id===id); const n=state.clientInvoices.filter(i=>i.clientId===id).length;
+  state.clients=state.clients.filter(x=>x.id!==id); state.clientInvoices=state.clientInvoices.filter(i=>i.clientId!==id); save(); render(); toast(`Deleted "${c.name}"${n?` + ${n} invoice(s)`:''}`); }); }
+function openClientModal(client){ ui.editingClientId=client?client.id:null;
+ $('cmTitle').textContent=client?'Edit client':'Add client'; $('cmWarn').style.display='none';
+ $('cName').value=client?.name||''; $('cM1').value=client?.m1||''; $('cM1p').value=client?.m1pct??100; $('cM2').value=client?.m2||''; $('cM2p').value=client?.m2pct??0;
+ $('cStatus').value=client?.status||'Committed'; $('cType').value=client?.type||'New client'; $('cShare').value=client?.m2Share??100;
+ $('cFee').value=client?.feeType||'monthly'; $('cStart').value=client?.startMonth||currentYM(); $('cMonths').value=client?.months||12;
+ $('cMonthlyAmt').value=client?.monthlyAmount??''; $('cFixedTotal').value=client?.fixedTotal??'';
+ ui._customAmounts=Object.assign({},client?.customAmounts||{});
+ $('cType').onchange=()=>{ syncTypeShare(); updateTotalPreview(); };
+ $('cFee').onchange=syncFeeFields;
+ $('cStart').onchange=()=>{ if($('cFee').value==='custom')buildCustomGrid(); updateTotalPreview(); };
+ $('cMonths').oninput=()=>{ if($('cFee').value==='custom')buildCustomGrid(); updateTotalPreview(); };
+ $('cMonthlyAmt').oninput=updateTotalPreview; $('cFixedTotal').oninput=updateTotalPreview;
+ syncTypeShare(); syncFeeFields(); $('clientOverlay').classList.add('open'); }
+function closeClientModal(){ $('clientOverlay').classList.remove('open'); }
+function syncTypeShare(){ const isM2=$('cType').value==='M2 legacy'; if(isM2)$('cShare').value=100; $('cShare').disabled=isM2; }
+function syncFeeFields(){ const f=$('cFee').value; $('rowMonthly').hidden=f!=='monthly'; $('rowFixed').hidden=f!=='fixed'; $('customBlock').hidden=f!=='custom'; if(f==='custom')buildCustomGrid(); updateTotalPreview(); }
+function buildCustomGrid(){ const start=$('cStart').value||currentYM(); const n=Math.min(60,Math.max(1,Number($('cMonths').value)||1)); const grid=$('customGrid'); grid.innerHTML='';
+ for(let i=0;i<n;i++){ const ym=addMonths(start,i); const wrap=document.createElement('div'); wrap.className='cg';
+  const lab=document.createElement('label'); lab.textContent=monthLabel(ym);
+  const inp=document.createElement('input'); inp.type='number'; inp.step='0.01'; inp.placeholder='0.00'; inp.value=ui._customAmounts[ym]??'';
+  inp.addEventListener('input',()=>{ ui._customAmounts[ym]=Number(inp.value)||0; updateTotalPreview(); }); wrap.append(lab,inp); grid.append(wrap); } }
+function draftClient(){ return { id:ui.editingClientId||uid(), name:$('cName').value.trim(), m1:$('cM1').value.trim(), m1pct:Number($('cM1p').value)||0, m2:$('cM2').value.trim(), m2pct:Number($('cM2p').value)||0,
+  status:$('cStatus').value, type:$('cType').value, m2Share:$('cShare').value===''?100:Math.min(100,Math.max(0,Number($('cShare').value)||0)),
+  feeType:$('cFee').value, startMonth:$('cStart').value, months:Math.min(60,Math.max(1,Number($('cMonths').value)||1)),
+  monthlyAmount:Number($('cMonthlyAmt').value)||0, fixedTotal:Number($('cFixedTotal').value)||0, customAmounts:Object.assign({},ui._customAmounts) }; }
+function updateTotalPreview(){ $('cTotalPreview').textContent=fmt(contractTotal(draftClient())); }
+function saveClient(){ const c=draftClient(), warn=$('cmWarn'), p=[];
+ if(!c.name)p.push('Company name is required.'); if(!c.startMonth)p.push('Start month is required.');
+ if(c.m2&&Math.abs(c.m1pct+c.m2pct-100)>0.01)p.push('Manager shares should sum to 100%.');
+ if(c.feeType==='monthly'&&!c.monthlyAmount)p.push('Monthly amount is required.'); if(c.feeType==='fixed'&&!c.fixedTotal)p.push('Fixed fee total is required.');
+ if(p.length){ warn.textContent=p.join(' '); warn.style.display='block'; return; }
+ const idx=state.clients.findIndex(x=>x.id===c.id); if(idx>=0)state.clients[idx]=c; else state.clients.push(c); save(); render(); closeClientModal(); toast('Client saved'); }
+function importFY27(){ const existing=new Set(state.clients.map(c=>c.name.toLowerCase())); const toAdd=FY27_SEED.filter(c=>!existing.has(c.name.toLowerCase()));
+ if(!toAdd.length){ toast('All FY27 budget clients already present'); return; }
+ toAdd.forEach(c=>state.clients.push(JSON.parse(JSON.stringify(c)))); save(); render(); toast(`Imported ${toAdd.length} clients`); }
+
+/* -- settings -- */
+function saveSettings(){ const g=id=>parseFloat($(id).value)||0; const hm=g('rHM'),ht=g('rHT'),sev=g('rSEV'), w=$('sWarn');
+ if(Math.abs(hm+ht+sev-100)>0.01){ w.textContent=' Split ratios must total 100%'; return; }
+ state.settings={rate:g('sRate'),basis:g('sBasis')||365,cutoff:$('sCut').value,ratios:{hm,ht,sev}}; save(); render(); toast('Settings saved'); }
+function clearAll(){ const ns=defaultState(); ns.clients=[]; ns.expenses=[]; ns.loans=[]; state.clients=[]; state.clientInvoices=[]; state.expenses=[]; state.loans=[]; state.settlements=[]; state.groupInvoices=[]; state.nextId=1000; ui.pendingClearAll=false; save(); render(); toast('All data cleared'); }
+
+/* -- exports -- */
+function csvCell(v){ v=String(v??''); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+function downloadCSV(name,rows){ const csv=rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
+function exportBilling(){ const ym=ui.billMonth||currentYM(); const rows=[['Month','Client','Status','Fee','Scheduled','Invoiced','Variance','Check']];
+ billingData().forEach(r=>{ const eps=0.005; const check=r.sched>0&&Math.abs(r.variance)<=eps?'Correct':r.sched>0&&r.inv===0?'Not invoiced':r.variance<-eps?'Short':r.sched===0?'Unscheduled':'Over';
+  rows.push([ym,r.c.name,r.c.status,feeLabel(r.c),r.sched.toFixed(2),r.inv.toFixed(2),r.variance.toFixed(2),check]); }); downloadCSV(`atrium-billing-${ym}.csv`,rows); }
+function exportMatrix(){ const list=matrixClients(), months=matrixMonths(list); const rows=[['Client',...months.map(monthLabel),'Total']]; const colT=months.map(()=>0);
+ list.forEach(c=>{ const sched={}; scheduleFor(c).forEach(x=>sched[x.month]=(sched[x.month]||0)+x.amount); let rt=0; const cells=months.map((m,i)=>{ const s=sched[m]||0; rt+=s; colT[i]+=s; return s?s.toFixed(2):''; }); rows.push([c.name,...cells,rt.toFixed(2)]); });
+ rows.push(['TOTAL',...colT.map(t=>t.toFixed(2)),bsum(colT).toFixed(2)]); downloadCSV('atrium-schedule-matrix.csv',rows); }
+function exportInvoices(){ const rows=[['Date','Client','Invoice #','Amount','Paid date','Notes']];
+ state.clientInvoices.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(i=>{ const c=state.clients.find(x=>x.id===i.clientId); rows.push([i.date,c?c.name:'(deleted)',i.invNo,i.amount.toFixed(2),i.paidDate||'',i.notes||'']); }); downloadCSV('atrium-invoice-log.csv',rows); }
+function exportSplits(){ const rows=[['Client','Status','Gross','M2 share %','Haavn retained','Distributable','Manager 1','M1 %','M1 amount','Manager 2','M2 %','M2 amount']];
+ splitData().forEach(r=>rows.push([r.c.name,r.c.status,r.gross.toFixed(2),r.c.m2Share,r.retained.toFixed(2),r.dist.toFixed(2),r.c.m1,r.c.m1pct,r.m1amt.toFixed(2),r.c.m2,r.c.m2?r.c.m2pct:'',r.c.m2?r.m2amt.toFixed(2):''])); downloadCSV('atrium-manager-splits.csv',rows); }
+function exportProfit(){ const {rows,byClient}=profitData(); const out=[['Section','Month/Client','Type','M2 share %','Revenue','Haavn retained','To M2']];
+ rows.forEach(r=>out.push(['By month',monthLabel(r.ym),'','',r.totalRev.toFixed(2),r.haavn.toFixed(2),r.m2.toFixed(2)]));
+ Object.entries(byClient).forEach(([cid,b])=>{ const c=state.clients.find(x=>x.id===cid); if(!c)return; out.push(['By client',c.name,c.type,c.m2Share,b.rev.toFixed(2),b.haavn.toFixed(2),(b.rev-b.haavn).toFixed(2)]); }); downloadCSV('atrium-haavn-m2-split.csv',out); }
+function exportExcel(){
+ if(typeof XLSX==='undefined'){ toast('Workbook library still loading — try again'); return; }
+ const wb=XLSX.utils.book_new(); const S=(n,aoa)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),n);
+ S('Clients',[['Client','Manager 1','M1 %','Manager 2','M2 %','Status','Type','M2 share %','Fee','Start','Months','Contract total','Invoiced','Remaining'],
+  ...state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{ const t=contractTotal(c),inv=invoicedFor(c.id); return [c.name,c.m1,c.m1pct,c.m2,c.m2pct,c.status,c.type,c.m2Share,feeLabel(c),c.startMonth,c.months,+t.toFixed(2),+inv.toFixed(2),+(t-inv).toFixed(2)]; })]);
+ S('Client Invoices',[['Date','Client','Invoice #','Amount','Paid date','Notes'],...state.clientInvoices.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(i=>{ const c=state.clients.find(x=>x.id===i.clientId); return [i.date,c?c.name:'(deleted)',i.invNo,i.amount,i.paidDate||'',i.notes||'']; })]);
+ const E=expenseSummary(),L=loanCalc();
+ S('Shared Expenses',[['Date','Account','Tax','Description','Total','Paid by','HM','HT','7even'],...state.expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[e.date,e.category,isGstFree(e.category)?'BAS Excluded':'',e.desc,e.amount,e.payer,+(e.amount*ratioOf(CO.HM)).toFixed(2),+(e.amount*ratioOf(CO.HT)).toFixed(2),+(e.amount*ratioOf(CO.SEV)).toFixed(2)])]);
+ S('Loans',[['Date','Company','Type','Amount','HM bal','HT bal','HPI bal','Days'],...L.rows.map(t=>[t.date,t.company,t.type,t.amount,t.balAfter[CO.HM],t.balAfter[CO.HT],t.balAfter[CO.HPI],t.days])]);
+ S('Settlements',[['Date','From','To','Amount','Invoice ref'],...state.settlements.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(s=>[s.date,s.from,s.to,s.amount,s.invoiceId?((state.groupInvoices.find(i=>i.id===s.invoiceId)||{}).number||''):''])]);
+ S('Group Invoices',[['No.','Created','From','To','Amount','Description','Status'],...state.groupInvoices.slice().sort((a,b)=>a.id-b.id).map(i=>[i.number,i.created,i.from,i.to,i.amount,i.desc,i.status])]);
+ S('Manager Splits',[['Client','Gross','M2 share %','Haavn retained','Distributable','M1','M1 amt','M2','M2 amt'],...splitData().map(r=>[r.c.name,+r.gross.toFixed(2),r.c.m2Share,+r.retained.toFixed(2),+r.dist.toFixed(2),r.c.m1,+r.m1amt.toFixed(2),r.c.m2,r.c.m2?+r.m2amt.toFixed(2):''])]);
+ const bh=[['Haavn Book — FY27 (committed revenue by manager)'],['Manager',...BMONTHS,'FY27'],...BUDGET.haavnRevenue.map(r=>[r.k,...r.v,bsum(r.v)]),['Total committed',...BUDGET.haavnCommitted,bsum(BUDGET.haavnCommitted)],['Pipeline',...BUDGET.haavnPipeline,bsum(BUDGET.haavnPipeline)]];
+ S('Haavn Book',bh);
+ const m=BUDGET.m2; const bm=[['M2 Book — FY27'],['Line',...BMONTHS,'FY27'],...m.map(r=>[r.k,...r.v,bsum(r.v)])]; S('M2 Book',bm);
+ const ma=[['Manager Analysis — FY27'],['Line',...BMONTHS,'FY27']]; BUDGET.managers.forEach(mm=>{ const w=BMONTHS.map(()=>mm.wage), net=mm.rev.map((r,i)=>r-w[i]); ma.push([mm.k]); ma.push(['  Revenue',...mm.rev,bsum(mm.rev)]); ma.push(['  Wages+super',...w,bsum(w)]); ma.push(['  Net',...net,bsum(net)]); }); S('Manager Analysis',ma);
+ XLSX.writeFile(wb,'ATRIUM_Accounts_'+todayStr()+'.xlsx'); toast('Workbook exported'); }
+
+
+/* ---------- boot ---------- */
+function boot(){
+ const saved = Store.get();
+ state = saved || defaultState();
+ // migrations / guards
+ ['clients','clientInvoices','expenses','loans','settlements','groupInvoices'].forEach(k=>{ if(!Array.isArray(state[k])) state[k]=defaultState()[k]||[]; });
+ if(!state.settings) state.settings=defaultState().settings;
+ if(!state.entity) state.entity='Consolidated';
+ if(!state.nextId) state.nextId=1000;
+ if(!ENTITIES.includes(state.entity)) state.entity='Consolidated';
+ ui.billMonth = currentYM();
+ buildEntitySelect();
+ buildRail();
+ render();
+ setSaveState(storageOK?'Saved automatically':'In-memory only — export a backup');
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body></html>

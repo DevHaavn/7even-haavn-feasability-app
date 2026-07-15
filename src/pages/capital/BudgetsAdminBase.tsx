@@ -19,8 +19,8 @@ const BOOKS: { id: Group; num: string; brand: string; title: string; sub: string
   },
   {
     id: 'haavn', num: '02', brand: 'HAAVN', title: 'HAAVN Administration',
-    sub: 'HAAVN Group entities · Consolidated',
-    blurb: 'HAAVN Pty Ltd and the HAAVN group — Management, Precision and Technologies — with their own consolidated books and dashboards, separate to 7EVEN.',
+    sub: 'Accounts & Settlement · Client revenue · FY27',
+    blurb: 'The full ATRIUM Accounts & Settlement surface — client revenue, manager splits, group settlement, inter-co loans and the FY27 budget across every HAAVN entity, consolidated.',
     color: '#3DAA6A',
   },
 ]
@@ -28,8 +28,32 @@ const BOOKS: { id: Group; num: string; brand: string; title: string; sub: string
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
 
-  if (group) {
+  // 7EVEN Capital — the entity budget system, filtered to the 7even book.
+  if (group === '7even') {
     return <BudgetsAdmin key={group} group={group} onBackToGroups={() => setGroup(null)} />
+  }
+
+  // HAAVN Administration — Dom's full ATRIUM Accounts & Settlement module
+  // (Client revenue · Group settlement · FY27 budget · Command overview),
+  // running as its own ATRIUM-native surface. Owns the screen; a discreet
+  // carbon pill returns to the two-book landing.
+  if (group === 'haavn') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        <iframe
+          title="ATRIUM — Accounts & Settlement"
+          src="/atrium-accounts.html"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
+        />
+        <button onClick={() => setGroup(null)}
+          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501,
+            padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700,
+            color: '#C6CDCF', background: 'rgba(10,13,12,0.92)', border: '1px solid #3A4146', borderRadius: 999,
+            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          ← Administration
+        </button>
+      </div>
+    )
   }
 
   return (
