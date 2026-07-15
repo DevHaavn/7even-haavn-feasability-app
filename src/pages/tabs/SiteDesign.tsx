@@ -224,7 +224,7 @@ function ReconciliationRow({ label, value, flag, note }: { label: string; value:
   return (
     <div className="flex items-center justify-between py-1.5 border-b border-[#F0EDE8] last:border-0">
       <span className="text-xs text-[#666]">{label}</span>
-      <span className={`text-sm font-heading font-bold ${flag ? 'text-[#B8963C]' : 'text-[#2A7A4F]'}`}>{value}</span>
+      <span className={`text-sm font-heading font-bold ${flag ? 'text-[#B8963C]' : 'text-[#237A52]'}`}>{value}</span>
       <span className={`text-xs ${flag ? 'text-[#B8963C]' : 'text-[#888]'}`}>{flag ? '⚠ ' : '✓ '}{note}</span>
     </div>
   )

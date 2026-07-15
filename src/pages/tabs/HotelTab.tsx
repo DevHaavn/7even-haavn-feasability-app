@@ -179,7 +179,7 @@ export default function HotelTab({ projectId }: Props) {
                 <div style={{ borderTop: '1px solid #D8D5D0', paddingTop: 8 }}>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] uppercase tracking-widest text-[#888]">Cash-on-Cash</span>
-                    <span className={`font-mono font-bold text-base ${coc >= 0.07 ? 'text-[#2D7A45]' : coc >= 0.04 ? 'text-[#B8963C]' : 'text-[#9B2335]'}`}>{(coc * 100).toFixed(2)}%</span>
+                    <span className={`font-mono font-bold text-base ${coc >= 0.07 ? 'text-[#2D7A45]' : coc >= 0.04 ? 'text-[#B8963C]' : 'text-[#B4553F]'}`}>{(coc * 100).toFixed(2)}%</span>
                   </div>
                 </div>
               </div>

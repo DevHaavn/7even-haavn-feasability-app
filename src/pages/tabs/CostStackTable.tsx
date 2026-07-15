@@ -281,9 +281,9 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
       <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid #E8E5E0', background: '#F5F3F0', fontWeight: 600, fontSize: 11 }}>
         <span style={{ color: '#1A1A1A', paddingLeft: 16 }}>{label} subtotal</span>
         <span /><span /><span />
-        <span style={{ color: '#2A7A4F', ...cellR }}>{money(b)}</span>
+        <span style={{ color: '#237A52', ...cellR }}>{money(b)}</span>
         <span style={{ color: '#999', ...cellR }}>{money(g)}</span>
-        <span style={{ color: '#2A7A4F', ...cellR }}>{money(b + g)}</span>
+        <span style={{ color: '#237A52', ...cellR }}>{money(b + g)}</span>
         <span style={{ gridColumn: '8 / -1' }} />
       </div>
     )
@@ -295,7 +295,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
       <div style={{ minWidth: MINW }}>
         {/* + add row — sits at top-left, above the Item description column */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
-          <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
+          <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#237A52', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
         </div>
 
         {/* Header */}
@@ -331,7 +331,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: def.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: '#999', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
                   <button onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}
-                    style={{ fontSize: 10, fontWeight: 500, color: '#2A7A4F', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
+                    style={{ fontSize: 10, fontWeight: 500, color: '#237A52', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
                 </div>
                 <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: '#999', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
               </div>

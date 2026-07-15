@@ -419,7 +419,7 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
     }
     return out.slice(0, 4)
   }, [c, isGroup, entities])
-  const dotc: Record<string, string> = { pos: POS, neg: NEG, warn: '#E8B84B', acc: '#8FA8BF' }
+  const dotc: Record<string, string> = { pos: POS, neg: NEG, warn: '#C9A24B', acc: '#8FA8BF' }
 
   // ATRIUM forest rail — grouped view nav (replaces the old horizontal tabs).
   const RAIL: { g: string; items: [View, string][] }[] = isGroup
@@ -840,13 +840,13 @@ function BarsV({ labels, values }: { labels: string[]; values: number[] }) {
 function Pl({ l, v, tot, ind, net }: { l: string; v: number; tot?: boolean; ind?: boolean; net?: boolean }) {
   return (
     <tr style={{ borderTop: tot ? '1px solid #D3D4D8' : undefined }}>
-      <td style={{ padding: net ? '9px 10px' : '7px 0', paddingLeft: ind ? 26 : net ? 10 : 0, color: net ? '#E8B84B' : tot ? '#0D0D0F' : '#2A2B2E', fontSize: 12.5, fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{l}</td>
+      <td style={{ padding: net ? '9px 10px' : '7px 0', paddingLeft: ind ? 26 : net ? 10 : 0, color: net ? '#C9A24B' : tot ? '#0D0D0F' : '#2A2B2E', fontSize: 12.5, fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{l}</td>
       <td style={{ padding: net ? '9px 10px' : '7px 0', textAlign: 'right', color: v < 0 ? NEG : tot ? '#0D0D0F' : '#0D0D0F', fontSize: 12.5, fontFamily: 'var(--font-mono)', fontWeight: tot || net ? 700 : 400, background: net ? 'rgba(232,184,75,0.08)' : undefined }}>{fmt$(v)}</td>
     </tr>
   )
 }
 function PlSec({ t, col }: { t: string; col?: string }) {
-  return <tr><td colSpan={2} style={{ padding: '10px 0 3px', borderTop: '1px solid #D3D4D8', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: col || '#E8B84B', fontWeight: 700 }}>{t}</td></tr>
+  return <tr><td colSpan={2} style={{ padding: '10px 0 3px', borderTop: '1px solid #D3D4D8', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: col || '#C9A24B', fontWeight: 700 }}>{t}</td></tr>
 }
 
 function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: number; calc: ReturnType<typeof calcEntity> }) {
@@ -858,7 +858,7 @@ function FeeEarnerPanel({ entity, through, calc }: { entity: Entity; through: nu
       <p style={panelTitle}>Revenue per fee-earner · target 3× (salary + super)</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
         {rows.map(r => {
-          const col = r.mult >= 3 ? POS : r.mult >= 1.5 ? '#E8B84B' : NEG
+          const col = r.mult >= 3 ? POS : r.mult >= 1.5 ? '#C9A24B' : NEG
           const over = r.gr >= r.targetRev
           return (
             <div key={r.name} style={{ border: '1px solid #D3D4D8', borderRadius: 10, padding: '14px 16px' }}>
@@ -933,7 +933,7 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
               <p style={{ color: '#63656C', fontSize: 10, margin: '0 0 14px' }}>{proj ? proj.name : link.label} · feasibility studio</p>
 
               <Row label="Total development cost" value={fmt$(tdc)} sub="live from cost stack" />
-              <Row label="3% DM fee — live" value={`${fmt$(liveDm)}/yr`} sub={Math.abs(feeDrift) > 0.02 ? `budgeted ${fmt$(budgetedDm)} · ${feeDrift > 0 ? '+' : ''}${(feeDrift * 100).toFixed(0)}%` : 'matches budget'} subColor={Math.abs(feeDrift) > 0.02 ? '#E8B84B' : POS} />
+              <Row label="3% DM fee — live" value={`${fmt$(liveDm)}/yr`} sub={Math.abs(feeDrift) > 0.02 ? `budgeted ${fmt$(budgetedDm)} · ${feeDrift > 0 ? '+' : ''}${(feeDrift * 100).toFixed(0)}%` : 'matches budget'} subColor={Math.abs(feeDrift) > 0.02 ? '#C9A24B' : POS} />
               <Row label="Budgeted fee revenue" value={fmt$(budgetedRev)} sub={`FY · ${entity.name}`} />
               <Row label="Actual spend tracked" value={fmt$(spend)} sub={`${count} bill${count !== 1 ? 's' : ''}${awaiting ? ` · ${fmt$(awaiting)} awaiting` : ''}`} />
               <Row label="Funding — peak equity" value={fmt$(cf.peakEquity)} sub="live from cashflow · equity-first" subColor="#6FD39A" />
@@ -946,7 +946,7 @@ function ProjectTracking({ entity, links, through, projects, getDetailedCostStac
                   <span style={{ color: blowout ? NEG : '#2A2B2E', fontSize: 10, fontFamily: 'var(--font-mono)' }}>{(spendPct * 100).toFixed(0)}%</span>
                 </div>
                 <div style={{ height: 6, borderRadius: 3, background: '#DEDEE1', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.max(2, Math.min(100, spendPct * 100))}%`, height: '100%', background: blowout ? NEG : spendPct > 0.85 ? '#E8B84B' : accent }} />
+                  <div style={{ width: `${Math.max(2, Math.min(100, spendPct * 100))}%`, height: '100%', background: blowout ? NEG : spendPct > 0.85 ? '#C9A24B' : accent }} />
                 </div>
               </div>
 
@@ -968,7 +968,7 @@ const DETAIL_TABS: { id: DetailTab; label: string; accent: string }[] = [
   { id: 'summary', label: 'Summary', accent: '#C4973A' },
   { id: 'land', label: 'Land Terms', accent: '#C4973A' },
   { id: 'consultants', label: 'Consultants', accent: '#6E9BE6' },
-  { id: 'statutory', label: 'Statutory & Finance', accent: '#E8B84B' },
+  { id: 'statutory', label: 'Statutory & Finance', accent: '#C9A24B' },
   { id: 'hardCosts', label: 'Hard Costs', accent: '#8FA8BF' },
   { id: 'marketing', label: 'Marketing', accent: '#B48CD9' },
   { id: 'finance', label: 'Finance', accent: '#6FD39A' },
@@ -1186,7 +1186,7 @@ function EntryGrid({ entity, accent, onCell, onDel, onClear, onAdd, onOpenLine }
           <td style={{ ...stick, padding: '2px 12px 2px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button onClick={() => onOpenLine(l.id)} title="Edit this line — name, section, months & more"
-                style={{ background: l.name ? 'transparent' : '#FFF7E6', border: l.name ? 'none' : '1px solid #E8B84B66', borderRadius: 5, cursor: 'pointer', textAlign: 'left', color: l.name ? '#1A1B1E' : '#B8935A', fontSize: 11, fontWeight: l.name ? 400 : 700, width: 156, padding: l.name ? 0 : '4px 6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                style={{ background: l.name ? 'transparent' : '#FFF7E6', border: l.name ? 'none' : '1px solid #C9A24B66', borderRadius: 5, cursor: 'pointer', textAlign: 'left', color: l.name ? '#1A1B1E' : '#B8935A', fontSize: 11, fontWeight: l.name ? 400 : 700, width: 156, padding: l.name ? 0 : '4px 6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {l.name || '＋ name this line'}
               </button>
               {l.fin && <Tag t={l.tax ? 'tax' : 'financing'} />}
@@ -1273,7 +1273,7 @@ function EntryGrid({ entity, accent, onCell, onDel, onClear, onAdd, onOpenLine }
 }
 
 function Tag({ t, col }: { t: string; col?: string }) {
-  return <span style={{ fontSize: 7.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: col || '#E8B84B', border: `1px solid ${(col || '#E8B84B')}55`, borderRadius: 4, padding: '1px 5px', fontWeight: 700 }}>{t}</span>
+  return <span style={{ fontSize: 7.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: col || '#C9A24B', border: `1px solid ${(col || '#C9A24B')}55`, borderRadius: 4, padding: '1px 5px', fontWeight: 700 }}>{t}</span>
 }
 function MiniBtn({ label, title, onClick }: { label: string; title?: string; onClick: () => void }) {
   return <button onClick={onClick} title={title} style={{ background: '#EDEDEF', border: '1px solid #D3D4D8', borderRadius: 5, color: '#4A4B50', fontSize: 8.5, padding: '2px 6px', cursor: 'pointer' }}>{label}</button>

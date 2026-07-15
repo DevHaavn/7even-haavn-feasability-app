@@ -20,7 +20,7 @@ import AutoSaveCloud from '../components/AutoSaveButton'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
-  if (status === 'pending') return '#EAB308'
+  if (status === 'pending') return '#C9A24B'
   switch (type) {
     case 'hotel': return '#A855F7'
     case 'btr':   return '#22C55E'

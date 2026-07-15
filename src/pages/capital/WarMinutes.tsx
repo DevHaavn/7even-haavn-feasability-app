@@ -235,7 +235,7 @@ export default function WarMinutes({ projects }: Props) {
                     <DateField value={it.due} onChange={v => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, due: v } : x) }))} style={field()} dark />
                     <button onClick={() => patch(active.id, m => ({ ...m, items: m.items.map(x => x.id === it.id ? { ...x, status: x.status === 'open' ? 'done' : 'open' } : x) }))}
                       style={{ ...HUD, fontSize: 8, letterSpacing: '0.12em', fontWeight: 700, padding: '5px 0', borderRadius: 4, cursor: 'pointer',
-                        border: `1px solid ${it.status === 'done' ? '#2A7A4F' : LINE}`, background: it.status === 'done' ? '#2A7A4F' : PANEL, color: it.status === 'done' ? '#fff' : DIM }}>
+                        border: `1px solid ${it.status === 'done' ? '#237A52' : LINE}`, background: it.status === 'done' ? '#237A52' : PANEL, color: it.status === 'done' ? '#fff' : DIM }}>
                       {it.status === 'done' ? 'Closed' : 'Open'}
                     </button>
                     <button onClick={() => patch(active.id, m => ({ ...m, items: m.items.filter(x => x.id !== it.id) }))} style={xBtn}>×</button>

@@ -25,7 +25,7 @@ const HEADER_H   = 48         // month header height
 
 const STATUS_COLORS: Record<TimelineStatus, string> = {
   'critical':    '#EF4444',
-  'delayed':     '#EAB308',
+  'delayed':     '#C9A24B',
   'in-progress': '#22C55E',
   'complete':    '#A855F7',
   'not-started': '#555555',
@@ -49,7 +49,7 @@ const CAT_COLORS: Record<TimelineCategory, string> = {
   acquisition:   '#C4973A',
   planning:      '#A855F7',
   approvals:     '#3B82F6',
-  site:          '#EAB308',
+  site:          '#C9A24B',
   construction:  '#6B6B6B',
   fitout:        '#22C55E',
   commissioning: '#EF4444',
@@ -243,7 +243,7 @@ export default function ProjectTimeline({ projectId }: Props) {
         {/* Traffic light counts */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <TrafficLight color="#EF4444" count={critical} label="Critical" flash />
-          <TrafficLight color="#EAB308" count={atRisk}   label="Delayed" />
+          <TrafficLight color="#C9A24B" count={atRisk}   label="Delayed" />
           <TrafficLight color="#22C55E" count={onTrack}  label="On Track" />
           <TrafficLight color="#A855F7" count={complete} label="Complete" />
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />

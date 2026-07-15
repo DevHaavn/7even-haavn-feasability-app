@@ -39,7 +39,7 @@ function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }
   const pct = tdc > 0 ? spend / tdc : 0
   const over = tdc > 0 && spend > tdc
   const warn = pct > 0.85
-  const col = over ? '#9B2335' : warn ? '#B8860B' : '#2A7A4F'
+  const col = over ? '#B4553F' : warn ? '#B8860B' : '#237A52'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '10px 16px', background: '#F5F3F0', borderBottom: '2px solid #E0DDD8' }}>
       <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Admin · Xero tracked spend</span>
@@ -285,7 +285,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
               <button onClick={() => update(item.id, { gstFree: !item.gstFree })}
                 title={item.gstFree ? 'GST-free — click to include GST' : 'Click to mark GST-free'}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'right', fontFamily: 'monospace', fontSize: 11,
-                  color: item.gstFree ? '#C9C4BC' : '#2A7A4F', textDecoration: item.gstFree ? 'line-through' : 'none', padding: 0 }}>
+                  color: item.gstFree ? '#C9C4BC' : '#237A52', textDecoration: item.gstFree ? 'line-through' : 'none', padding: 0 }}>
                 {item.gstFree ? 'excl' : `$${Math.round(gstOf(item)).toLocaleString()}`}
               </button>
 
@@ -308,7 +308,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
               </button>
               <button onClick={() => remove(item.id)}
                 style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
+                onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
             </div>
 
             {/* Expandable detail — funding split, notes & month-by-month cashflow */}
@@ -334,7 +334,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                     ⟲ Auto-spread by {S_CURVE_OPTS.find(o => o.id === (item.sCurve ?? 'scurve'))!.label}
                   </button>
                   {months.length > 0 && (
-                    <span style={{ fontSize: 10, color: Math.abs(scheduled - (item.amount || 0)) < 1 ? '#2A7A4F' : '#B8860B', fontFamily: 'monospace' }}>
+                    <span style={{ fontSize: 10, color: Math.abs(scheduled - (item.amount || 0)) < 1 ? '#237A52' : '#B8860B', fontFamily: 'monospace' }}>
                       Scheduled {fmt(scheduled)} / {fmt(item.amount || 0)}
                     </span>
                   )}
@@ -370,7 +370,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>GST incl.</span>
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 12, color: '#2A7A4F' }}>{fmt(Math.round(gstTotal))}</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 12, color: '#237A52' }}>{fmt(Math.round(gstTotal))}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
@@ -792,7 +792,7 @@ export default function CostStackTab({ projectId }: Props) {
               </FieldRow>
               {data.gstEnabled && (
                 <p className="text-[#888] text-[10px] mt-2 leading-relaxed">
-                  Input credits recovered: <span className="font-mono font-semibold text-[#2A7A4F]">${Math.round(result.gstCredits).toLocaleString()}</span>.
+                  Input credits recovered: <span className="font-mono font-semibold text-[#237A52]">${Math.round(result.gstCredits).toLocaleString()}</span>.
                   Statutory charges (GST-free), finance (input-taxed) and in-kind/land carry no GST.
                 </p>
               )}
@@ -823,7 +823,7 @@ export default function CostStackTab({ projectId }: Props) {
                     ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
                     ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
                   ]
-                  const col = { land: '#8A6A28', dev: '#1A1A1A', inkind: '#7A4AAA', gst: '#2A7A4F' }
+                  const col = { land: '#8A6A28', dev: '#1A1A1A', inkind: '#7A4AAA', gst: '#237A52' }
                   return rows.map((r, i) => (
                     <div key={i} className="flex justify-between items-baseline gap-4 py-3.5 border-b border-[#F1EEE9]">
                       <span className="text-[13px] tracking-wide" style={{ color: r.tone === 'dev' ? '#666' : col[r.tone] }}>{r.label}</span>

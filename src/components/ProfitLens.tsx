@@ -24,7 +24,7 @@ export default function ProfitLens({ projectId, title = 'Profit — every lens',
   const cardBg = dark ? '#0E0E0E' : '#FFFFFF'
   const sub = dark ? '#888' : '#999'
   const label = dark ? '#B8B8B8' : '#888'
-  const good = '#22C55E', warn = '#EAB308', bad = '#EF4444'
+  const good = '#22C55E', warn = '#C9A24B', bad = '#EF4444'
   const profitCol = m.profit > 0 ? good : bad
   const marginCol = (v: number) => (v >= 0.15 ? good : v > 0 ? warn : bad)
 

@@ -6,7 +6,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: st
   render() {
     if (this.state.error) return (
       <div style={{ padding: 40, color: '#1A1A1A', fontFamily: 'monospace', fontSize: 12 }}>
-        <p style={{ color: '#9B2335', marginBottom: 8 }}>Summary tab error:</p>
+        <p style={{ color: '#B4553F', marginBottom: 8 }}>Summary tab error:</p>
         <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{this.state.error}</pre>
       </div>
     )
@@ -361,7 +361,7 @@ function SummaryTabInner({ projectId }: Props) {
               const exitVal = isBTRorHotel ? bestRow.noi / 0.05 : bestRow.gav
               const profit = exitVal - bestRow.tdc
               const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
-              const profitColor = profit > 0 ? '#2A7A4F' : '#9B2335'
+              const profitColor = profit > 0 ? '#237A52' : '#B4553F'
               return (
                 <div style={{ border: '1px solid #C4973A', background: '#FDFBF4', padding: '20px 24px', marginBottom: 14 }}>
                   <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: '0 0 16px' }}>★ {bestRow.scenario} · {bestRow.type}</p>
@@ -427,7 +427,7 @@ function SummaryTabInner({ projectId }: Props) {
                         const exitVal = isBH ? r.noi / 0.05 : r.gav
                         const profit = exitVal - r.tdc
                         const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
-                        const pc = profit > 0 ? '#2A7A4F' : '#9B2335'
+                        const pc = profit > 0 ? '#237A52' : '#B4553F'
                         return (
                           <tr key={i} style={{ borderBottom: '1px solid #F0EDE8', background: r.isBest ? '#FDFBF4' : '#fff' }}>
                             <td style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: r.isBest ? '#B8963C' : '#1A1A1A' }}>{r.isBest ? '★ ' : ''}{r.type}</td>

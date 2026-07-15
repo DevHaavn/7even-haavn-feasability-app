@@ -171,7 +171,7 @@ function financeCurveBlocks(projectId: string): Block[] {
 
   const series: CurveSeries[] = [
     { label: 'Baseline Plan', color: '#C4973A', points: curvePoints(baseDuration, tdc) },
-    ...(fa.blowout3mActive ? [{ label: '+3m Blowout', color: '#EAB308', dash: true, points: curvePoints(baseDuration + 3, tdc + extra3) }] : []),
+    ...(fa.blowout3mActive ? [{ label: '+3m Blowout', color: '#C9A24B', dash: true, points: curvePoints(baseDuration + 3, tdc + extra3) }] : []),
     ...(fa.blowout6mActive ? [{ label: '+6m Blowout', color: '#F97316', dash: true, points: curvePoints(baseDuration + 6, tdc + extra6) }] : []),
     ...(fa.blowout12mActive ? [{ label: '+12m Blowout', color: '#EF4444', dash: true, points: curvePoints(baseDuration + 12, tdc + extra12) }] : []),
   ]

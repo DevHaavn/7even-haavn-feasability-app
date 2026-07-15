@@ -28,7 +28,7 @@ export function getTimelineHealth(tasks: TimelineTask[]): TimelineHealth {
   const pct = atRiskCount / tasks.length
   if (pct > 0.30) return { color: '#EF4444', label: 'Critical Risk',  delayMonths: 12, atRiskPct: pct, risk: 'red',    atRiskCount }
   if (pct > 0.15) return { color: '#F97316', label: 'High Risk',       delayMonths: 6,  atRiskPct: pct, risk: 'orange', atRiskCount }
-  if (pct > 0.05) return { color: '#EAB308', label: 'Monitor',         delayMonths: 3,  atRiskPct: pct, risk: 'amber',  atRiskCount }
+  if (pct > 0.05) return { color: '#C9A24B', label: 'Monitor',         delayMonths: 3,  atRiskPct: pct, risk: 'amber',  atRiskCount }
   return { color: '#22C55E', label: 'On Track', delayMonths: 0, atRiskPct: pct, risk: 'green', atRiskCount }
 }
 
@@ -42,7 +42,7 @@ interface Props {
 }
 
 const GOLD   = '#C4973A'
-const AMBER  = '#EAB308'
+const AMBER  = '#C9A24B'
 const ORANGE = '#F97316'
 const RED    = '#EF4444'
 

@@ -73,7 +73,7 @@ export default function CashflowTab({ projectId }: Props) {
   }
   const delManual = (id: string) => update({ manual: state.manual.filter(m => m.id !== id) })
 
-  const cell = (v: number, color = '#555'): React.CSSProperties => ({ padding: '6px', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', color: v < 0 ? '#9B2335' : color, whiteSpace: 'nowrap' })
+  const cell = (v: number, color = '#555'): React.CSSProperties => ({ padding: '6px', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', color: v < 0 ? '#B4553F' : color, whiteSpace: 'nowrap' })
 
   return (
     <div className="relative p-4 md:p-6 overflow-auto" style={{ minHeight: 0 }}>
@@ -163,13 +163,13 @@ export default function CashflowTab({ projectId }: Props) {
               <td style={{ ...cell(cf.total, '#1A1A1A'), fontWeight: 700 }}>{Math.round(cf.total / 1000).toLocaleString()}</td>
             </tr>
             {/* Funding */}
-            <tr style={{ background: '#F3F6F3' }}><td style={{ ...sticky, background: '#F3F6F3', padding: '6px 12px', fontSize: 10.5, color: '#2A7A4F' }}>Equity draw</td>{cf.equityByMonth.map((v, i) => <td key={i} style={cell(v, '#2A7A4F')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.equityByMonth.reduce((a, b) => a + b, 0), '#2A7A4F')}>{Math.round(cf.equityByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: '#F3F6F3' }}><td style={{ ...sticky, background: '#F3F6F3', padding: '6px 12px', fontSize: 10.5, color: '#237A52' }}>Equity draw</td>{cf.equityByMonth.map((v, i) => <td key={i} style={cell(v, '#237A52')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.equityByMonth.reduce((a, b) => a + b, 0), '#237A52')}>{Math.round(cf.equityByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
             <tr style={{ background: '#F0F3F7' }}><td style={{ ...sticky, background: '#F0F3F7', padding: '6px 12px', fontSize: 10.5, color: '#2E4A8B' }}>Debt draw</td>{cf.debtByMonth.map((v, i) => <td key={i} style={cell(v, '#2E4A8B')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.debtByMonth.reduce((a, b) => a + b, 0), '#2E4A8B')}>{Math.round(cf.debtByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
             <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: '#888' }}>Cumulative equity</td>{cf.cumEquity.map((v, i) => <td key={i} style={cell(v, '#6B9E7E')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakEquity, '#6B9E7E')}>{Math.round(cf.peakEquity / 1000).toLocaleString()}</td></tr>
             <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: '#888' }}>Cumulative debt (peak = facility)</td>{cf.cumDebt.map((v, i) => <td key={i} style={cell(v, '#7E93B8')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakDebt, '#7E93B8')}>{Math.round(cf.peakDebt / 1000).toLocaleString()}</td></tr>
             {/* GST — dealt separately as its own cash-timing line */}
             <tr style={{ borderTop: '2px solid #E0DDD8', background: '#FBF7EF' }}><td style={{ ...sticky, background: '#FBF7EF', padding: '6px 12px', fontSize: 10.5, color: '#8A6D1B' }}>GST paid on costs</td>{cf.gstPaid.map((v, i) => <td key={i} style={cell(-v, '#8A6D1B')}>{v ? '-' + Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(-cf.gstPaid.reduce((a, b) => a + b, 0), '#8A6D1B')}>{'-' + Math.round(cf.gstPaid.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
-            <tr style={{ background: '#FBF7EF' }}><td style={{ ...sticky, background: '#FBF7EF', padding: '6px 12px', fontSize: 10.5, color: '#2A7A4F' }}>GST credits (ITC)</td>{cf.gstReclaimed.map((v, i) => <td key={i} style={cell(v, '#2A7A4F')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.gstReclaimed.reduce((a, b) => a + b, 0), '#2A7A4F')}>{Math.round(cf.gstReclaimed.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: '#FBF7EF' }}><td style={{ ...sticky, background: '#FBF7EF', padding: '6px 12px', fontSize: 10.5, color: '#237A52' }}>GST credits (ITC)</td>{cf.gstReclaimed.map((v, i) => <td key={i} style={cell(v, '#237A52')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.gstReclaimed.reduce((a, b) => a + b, 0), '#237A52')}>{Math.round(cf.gstReclaimed.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
           </tbody>
         </table>
       </div>

@@ -255,9 +255,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                         ↺ Live
                       </button>
                       <button onClick={() => { if (confirm(`Delete "${p.name}" permanently? This cannot be undone.`)) { deleteProject(p.id); setArchiveMenu(false) } }}
-                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0, background: 'none', border: '1px solid #9B2335', color: '#9B2335', borderRadius: 4, cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#9B2335'; e.currentTarget.style.color = '#fff' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9B2335' }}
+                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0, background: 'none', border: '1px solid #B4553F', color: '#B4553F', borderRadius: 4, cursor: 'pointer' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#B4553F'; e.currentTarget.style.color = '#fff' }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#B4553F' }}
                         title="Delete this project permanently">
                         🗑 Delete
                       </button>
@@ -426,7 +426,7 @@ function EmptyState({ brand, onNew }: { brand: '7even' | 'haavn'; onNew: () => v
 
 function typeColor(type?: string, status?: string): { color: string; pulse: boolean; label: string } {
   if (status === 'on-hold') return { color: '#EF4444', pulse: true,  label: 'On Hold' }
-  if (status === 'pending') return { color: '#EAB308', pulse: true,  label: 'Pending' }
+  if (status === 'pending') return { color: '#C9A24B', pulse: true,  label: 'Pending' }
   switch (type) {
     case 'hotel': return { color: '#A855F7', pulse: false, label: 'Hotel' }
     case 'btr':   return { color: '#22C55E', pulse: false, label: 'BTR'   }
@@ -463,7 +463,7 @@ const STATUS_OPTIONS = [
   { type: 'btr',     status: 'active',  label: 'BTR',     color: '#22C55E', pulse: false },
   { type: 'bts',     status: 'active',  label: 'BTS',     color: '#3B82F6', pulse: false },
   { type: 'mixed',   status: 'active',  label: 'Mixed',   color: '#E8E6E1', pulse: false },
-  { type: undefined, status: 'pending', label: 'Pending', color: '#EAB308', pulse: true  },
+  { type: undefined, status: 'pending', label: 'Pending', color: '#C9A24B', pulse: true  },
   { type: undefined, status: 'on-hold', label: 'On Hold', color: '#EF4444', pulse: true  },
 ]
 

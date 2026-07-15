@@ -76,7 +76,7 @@ export default function CapitalGate({ onAuth, onClose }: { onAuth: () => void; o
               placeholder="········"
               style={{
                 width: '100%', background: 'transparent',
-                border: 'none', borderBottom: `1px solid ${error ? '#9B2335' : 'rgba(255,255,255,0.35)'}`,
+                border: 'none', borderBottom: `1px solid ${error ? '#B4553F' : 'rgba(255,255,255,0.35)'}`,
                 color: '#fff', fontSize: 18, letterSpacing: '0.12em',
                 padding: '10px 40px 10px 0', outline: 'none', fontFamily: 'var(--font-mono)', transition: 'border-color 0.2s',
               }}

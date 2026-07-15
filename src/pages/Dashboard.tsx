@@ -25,14 +25,14 @@ const TYPE_COLOR: Record<string, string> = {
 }
 const STATUS_COLOR: Record<string, string> = {
   active:   '#C4973A',
-  pending:  '#EAB308',
+  pending:  '#C9A24B',
   'on-hold':'#EF4444',
   archived: '#444',
 }
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
-  if (status === 'pending') return '#EAB308'
+  if (status === 'pending') return '#C9A24B'
   return TYPE_COLOR[type ?? ''] ?? '#555'
 }
 
@@ -356,7 +356,7 @@ export default function Dashboard({ onBack, brand = '7even' }: { onBack: () => v
                 const color   = dotColor(p.type, p.status)
                 const multiple = p.tdc > 0 && p.bestGAV > 0 ? (p.bestGAV / p.tdc).toFixed(2) + '×' : '—'
                 const verdict  = p.bestRLV > 10_000_000 ? 'POSITIVE' : p.bestRLV > 0 ? 'MARGINAL' : p.bestRLV === 0 ? 'NO DATA' : 'NEGATIVE'
-                const vColor   = verdict === 'POSITIVE' ? '#22C55E' : verdict === 'MARGINAL' ? '#EAB308' : verdict === 'NO DATA' ? '#444' : '#EF4444'
+                const vColor   = verdict === 'POSITIVE' ? '#22C55E' : verdict === 'MARGINAL' ? '#C9A24B' : verdict === 'NO DATA' ? '#444' : '#EF4444'
                 return (
                   <tr key={p.id} style={{ borderBottom: '1px solid #FBFAF8', background: i % 2 === 0 ? 'transparent' : '#F4F2EF' }}>
                     <td style={{ padding: '12px 16px' }}>

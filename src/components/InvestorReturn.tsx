@@ -16,7 +16,7 @@ export default function InvestorReturn({ projectId, editable = false }: { projec
   // Investor Return section removed at user request
   return null
 
-  const good = '#22C55E', warn = '#EAB308', bad = '#EF4444'
+  const good = '#22C55E', warn = '#C9A24B', bad = '#EF4444'
   const irrCol = r.irr == null ? '#888' : r.irr >= 0.2 ? good : r.irr > 0 ? warn : bad
   const profitCol = r.profit > 0 ? good : bad
 

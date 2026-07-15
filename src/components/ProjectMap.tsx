@@ -127,7 +127,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
         border: '1px solid #1E1E1E', padding: '10px 16px',
         pointerEvents: 'none',
       }}>
-        <div style={{ height: 1, background: 'linear-gradient(to right,#C4973A,#E8B84B)', marginBottom: 10 }} />
+        <div style={{ height: 1, background: 'linear-gradient(to right,#C4973A,#C9A24B)', marginBottom: 10 }} />
         <img
           src="/brand-logo-white.png"
           alt="7EVEN · HAAVN"
@@ -149,7 +149,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
       {status === 'notfound' && (
         <div style={{
           position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 500,
-          background: 'rgba(10,10,10,0.82)', color: '#9B2335', fontSize: 9,
+          background: 'rgba(10,10,10,0.82)', color: '#B4553F', fontSize: 9,
           letterSpacing: '0.2em', textTransform: 'uppercase', padding: '6px 14px',
         }}>
           Address not found

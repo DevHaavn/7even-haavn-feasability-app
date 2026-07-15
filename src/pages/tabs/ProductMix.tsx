@@ -431,7 +431,7 @@ export default function ProductMixTab({ projectId }: Props) {
                           />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
-                          <button onClick={() => removeUnit(u.id)} style={{ color: '#CCC', cursor: 'pointer', background: 'none', border: 'none', fontSize: 12 }} onMouseEnter={e => (e.target as HTMLElement).style.color = '#9B2335'} onMouseLeave={e => (e.target as HTMLElement).style.color = '#CCC'}>✕</button>
+                          <button onClick={() => removeUnit(u.id)} style={{ color: '#CCC', cursor: 'pointer', background: 'none', border: 'none', fontSize: 12 }} onMouseEnter={e => (e.target as HTMLElement).style.color = '#B4553F'} onMouseLeave={e => (e.target as HTMLElement).style.color = '#CCC'}>✕</button>
                         </td>
                       </tr>
                     )
@@ -449,7 +449,7 @@ export default function ProductMixTab({ projectId }: Props) {
               >
                 + Add Unit Type
               </button>
-              <span style={{ fontSize: 11, color: Math.abs(totalPct - 1) < 0.001 ? '#2A7A4F' : '#B8963C' }}>
+              <span style={{ fontSize: 11, color: Math.abs(totalPct - 1) < 0.001 ? '#237A52' : '#B8963C' }}>
                 Mix total: {(totalPct * 100).toFixed(0)}%&nbsp;
                 {Math.abs(totalPct - 1) < 0.001 ? '✓ Sums to 100%' : '— auto-normalised to 100% for the solver'}
               </span>
@@ -553,11 +553,11 @@ export default function ProductMixTab({ projectId }: Props) {
                   <SolverStat label="Ratio (spaces/unit)" value={totalUnits > 0 ? (reqSpaces / totalUnits).toFixed(2) : '—'} />
                 </div>
                 {shortfall < 0 ? (
-                  <div className="mt-4 p-3 text-xs" style={{ background: '#FCF3F3', border: '1px solid #E6B8B8', color: '#9B2335' }}>
+                  <div className="mt-4 p-3 text-xs" style={{ background: '#FCF3F3', border: '1px solid #E6B8B8', color: '#B4553F' }}>
                     ⚠ <strong>Parking shortfall of {Math.abs(shortfall)} spaces</strong> vs {provided} provided — planning non-compliance risk. Needs ~{extraLevels} more basement level{extraLevels !== 1 ? 's' : ''} (≈{LEVEL_SPACES}/level) or a mix re-cut. Update car spaces in Site &amp; Design once resolved.
                   </div>
                 ) : (
-                  <div className="mt-4 p-3 text-xs" style={{ background: '#F1F8F3', border: '1px solid #BEDCC7', color: '#2A7A4F' }}>
+                  <div className="mt-4 p-3 text-xs" style={{ background: '#F1F8F3', border: '1px solid #BEDCC7', color: '#237A52' }}>
                     ✓ Compliant — {provided} provided vs {reqSpaces} required ({shortfall} spare).
                   </div>
                 )}

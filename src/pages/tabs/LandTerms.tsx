@@ -240,7 +240,7 @@ export default function LandTermsTab({ projectId }: Props) {
                     </select>
                     <button onClick={() => update('acquisitionCosts', acqCosts.filter(x => x.id !== c.id))} title="Remove"
                       style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14 }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
+                      onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
                     {c.mode === 'pct' && derived > 0 && (
                       <div style={{ gridColumn: '3 / 5', fontSize: 10, color: '#9A7B2E', fontFamily: 'monospace', marginTop: -2 }}>= {fmt(derived)}</div>
                     )}
@@ -302,7 +302,7 @@ export default function LandTermsTab({ projectId }: Props) {
                       <input type="number" value={p.amount || ''} placeholder="0" onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, amount: parseFloat(e.target.value) || 0 } : x))} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
                     </div>
                     <button onClick={() => update('paymentSchedule', schedule.filter(x => x.id !== p.id))} style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14, textAlign: 'center' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#9B2335')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
+                      onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
                   </div>
                 )
               })}
@@ -316,7 +316,7 @@ export default function LandTermsTab({ projectId }: Props) {
               {schedule.length > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 13, fontSize: 12 }}>
                   <span style={{ color: '#888' }}>Scheduled vs contract</span>
-                  <span style={{ color: balanced ? '#2A7A4F' : '#B8860B', fontFamily: 'monospace' }}>{balanced ? '✓' : '⚠'} {fmt(scheduledTotal)}{balanced ? ' · balanced' : ` / ${fmt(data.landCost)}`}</span>
+                  <span style={{ color: balanced ? '#237A52' : '#B8860B', fontFamily: 'monospace' }}>{balanced ? '✓' : '⚠'} {fmt(scheduledTotal)}{balanced ? ' · balanced' : ` / ${fmt(data.landCost)}`}</span>
                 </div>
               )}
             </Card>
@@ -378,7 +378,7 @@ function SLine({ lbl, sub, val, neg }: { lbl: string; sub?: string; val: string;
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #EEEBE6', fontSize: 13 }}>
       <span style={{ color: '#888' }}>{lbl} {sub && <span style={{ fontSize: 10, color: '#B0ADA6' }}>{sub}</span>}</span>
-      <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-mono)', color: neg ? '#2A7A4F' : '#1A1A1A' }}>{val}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-mono)', color: neg ? '#237A52' : '#1A1A1A' }}>{val}</span>
     </div>
   )
 }

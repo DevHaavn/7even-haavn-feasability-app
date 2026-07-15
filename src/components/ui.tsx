@@ -120,7 +120,7 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
     secondary: 'bg-transparent border border-[#C8C5C0] text-[#666] hover:border-[#1A1A1A] hover:text-[#1A1A1A]',
     outline:   'bg-transparent border border-white/80 text-white hover:bg-white hover:text-black',
     ghost:     'text-[#888] hover:text-[#1A1A1A] hover:bg-[#F0EEE9]',
-    danger:    'bg-transparent border border-[#9B2335]/40 text-[#9B2335] hover:bg-[#9B2335] hover:text-white',
+    danger:    'bg-transparent border border-[#B4553F]/40 text-[#B4553F] hover:bg-[#B4553F] hover:text-white',
   }
   return (
     <button className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} style={{ borderRadius: 0 }} {...props}>
@@ -229,17 +229,17 @@ export function Money({ value, size = 'md', sign = false }: { value: number; siz
 
 export function VerdictBadge({ rlv }: { rlv: number }) {
   if (rlv > 5_000_000) return (
-    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#2A7A4F]/40 text-[#3DAA6A]">
+    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#237A52]/40 text-[#3DAA6A]">
       Positive
     </span>
   )
   if (rlv > 0) return (
-    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#8A6A10]/40 text-[#C49A20]">
+    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#8A6A10]/40 text-[#C9A24B]">
       Marginal
     </span>
   )
   return (
-    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#9B2335]/40 text-[#C43550]">
+    <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[#B4553F]/40 text-[#C43550]">
       Not viable
     </span>
   )
@@ -328,8 +328,8 @@ export function TabBar({ tabs, active, onChange, accentTabId, accentColor, goldT
 
 export function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    active:    'border-[#2A7A4F]/40 text-[#3DAA6A]',
-    'on-hold': 'border-[#8A6A10]/40 text-[#C49A20]',
+    active:    'border-[#237A52]/40 text-[#3DAA6A]',
+    'on-hold': 'border-[#8A6A10]/40 text-[#C9A24B]',
     archived:  'border-[#333] text-[#505050]',
   }
   return (
