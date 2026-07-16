@@ -58,14 +58,14 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0,
-      background: 'radial-gradient(ellipse 90% 70% at 50% 32%, rgba(233,240,247,0.55) 0%, rgba(180,196,213,0.30) 46%, rgba(120,140,162,0.20) 100%), linear-gradient(165deg, #E8EEF4 0%, #CDD8E3 40%, #A8B8C9 74%, #92A4B7 100%)',
+      background: 'linear-gradient(to bottom, rgba(10,14,20,0.30), rgba(10,14,20,0.46) 60%, rgba(8,11,16,0.70)), url(/renders/tower-hero.jpg) center 28% / cover no-repeat, #05070a',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     }}>
 
-      {/* ATRIUM brand device — flashing light-core, like the main app home */}
+      {/* ATRIUM brand device — flashing light-core, bright over the tower sky */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, marginBottom: 34 }}>
-        <AtriumApex size={104} variant="compact" flash style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.5)) drop-shadow(0 10px 26px rgba(40,60,84,0.30))' }} />
-        <span style={{ color: '#2C3A48', fontFamily: "'Inter Tight', var(--font-heading), system-ui, sans-serif", fontWeight: 600, fontSize: 26, letterSpacing: '0.30em', paddingLeft: '0.30em' }}>
+        <AtriumApex size={104} variant="compact" flash bright style={{ filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.45)) drop-shadow(0 10px 26px rgba(0,0,0,0.4))' }} />
+        <span style={{ color: '#EEF1F2', fontFamily: "'Inter Tight', var(--font-heading), system-ui, sans-serif", fontWeight: 600, fontSize: 26, letterSpacing: '0.30em', paddingLeft: '0.30em', textShadow: '0 2px 18px rgba(0,0,0,0.5)' }}>
           ATRIUM
         </span>
       </div>
@@ -141,7 +141,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30)',
           }}
         >
-          Deploy
+          ATRIUM Studio
         </button>
       </div>
 
@@ -151,7 +151,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
       </div>
 
       {/* Bottom brand */}
-      <p style={{ position: 'absolute', bottom: 34, color: 'rgba(44,58,72,0.45)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+      <p style={{ position: 'absolute', bottom: 34, color: 'rgba(255,255,255,0.42)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
         7EVEN Capital · Private Access
       </p>
       <DesignCredit style={{ position: 'absolute', bottom: 14, left: 0, right: 0 }} />

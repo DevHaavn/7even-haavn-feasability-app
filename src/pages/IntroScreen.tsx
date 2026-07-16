@@ -65,7 +65,7 @@ export default function IntroScreen({ onDone }: Props) {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         overflow: 'hidden',
-        background: 'radial-gradient(ellipse 90% 70% at 50% 30%, rgba(233,240,247,0.55) 0%, rgba(180,196,213,0.30) 46%, rgba(120,140,162,0.20) 100%), linear-gradient(165deg, #E8EEF4 0%, #CDD8E3 40%, #A8B8C9 74%, #92A4B7 100%)',
+        background: 'linear-gradient(to bottom, rgba(10,14,20,0.28), rgba(10,14,20,0.42) 60%, rgba(8,11,16,0.66)), url(/renders/tower-hero.jpg) center 28% / cover no-repeat, #05070a',
         animation: exiting ? 'intro-screen-out 0.9s ease forwards' : undefined,
       }}>
 
@@ -78,7 +78,7 @@ export default function IntroScreen({ onDone }: Props) {
 
           {/* WELCOME — fine, above the device */}
           <h1 style={{
-            margin: '0 0 30px', color: '#2C3A48',
+            margin: '0 0 30px', color: '#F0EFED',
             fontSize: 'clamp(13px, 2vw, 21px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
@@ -87,14 +87,14 @@ export default function IntroScreen({ onDone }: Props) {
             Welcome
           </h1>
 
-          {/* ATRIUM — the self-building A3 device (chrome + green floors climb to the light) */}
+          {/* ATRIUM — the self-building A1 device (11 chrome light-lines weave to the apex) */}
           <div style={{ opacity: 0, animation: phase >= 1 ? 'intro-wings-in 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both' : undefined }}>
-            <AtriumBuild size={Math.min(320, typeof window !== 'undefined' ? window.innerWidth * 0.58 : 320)} bright style={{ filter: 'drop-shadow(0 12px 30px rgba(40,60,84,0.28))' }} />
+            <AtriumBuild variant="A1" size={Math.min(320, typeof window !== 'undefined' ? window.innerWidth * 0.58 : 320)} bright style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.4)) drop-shadow(0 12px 30px rgba(0,0,0,0.35))' }} />
           </div>
 
           {/* Precision deployed — portal-page scale */}
           <p style={{
-            margin: '30px 0 0', color: '#2C3A48',
+            margin: '30px 0 0', color: '#F0EFED',
             fontSize: 'clamp(20px, 3.4vw, 34px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             letterSpacing: '0.34em', textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
@@ -113,9 +113,9 @@ export default function IntroScreen({ onDone }: Props) {
             animation: phase >= 2 ? 'intro-divider 0.9s ease forwards' : undefined,
           }} />
 
-          {/* Tagline — deep gold */}
+          {/* Tagline — bright gold */}
           <p style={{
-            fontSize: 9.5, textTransform: 'uppercase', color: '#9A7A2E',
+            fontSize: 9.5, textTransform: 'uppercase', color: '#E8C87A',
             fontFamily: 'monospace', fontWeight: 700, marginBottom: 56, opacity: 0,
             animation: phase >= 2 ? 'intro-tagline 0.9s ease 0.2s forwards' : undefined,
           }}>
@@ -144,21 +144,21 @@ export default function IntroScreen({ onDone }: Props) {
               animation: phase >= 3 ? 'intro-btn-in 0.8s ease forwards' : undefined,
             }}
           >
-            Deploy Studio
+            ATRIUM Studio
           </button>
         </div>
 
-        {/* Thin silver base line */}
+        {/* Thin gold base line */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
-          background: 'linear-gradient(to right, transparent, rgba(120,140,162,0.35), transparent)',
+          background: 'linear-gradient(to right, transparent, rgba(196,151,58,0.30), transparent)',
         }} />
 
         {/* Corner metadata */}
-        <div style={{ position: 'absolute', bottom: 24, left: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(44,58,72,0.30)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+        <div style={{ position: 'absolute', bottom: 24, left: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
           Confidential
         </div>
-        <div style={{ position: 'absolute', bottom: 24, right: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(44,58,72,0.30)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+        <div style={{ position: 'absolute', bottom: 24, right: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
           7even.au
         </div>
         <DesignCredit style={{ position: 'absolute', bottom: 24, left: 0, right: 0 }} />
