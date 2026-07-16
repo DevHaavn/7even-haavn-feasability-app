@@ -106,7 +106,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden',
-      background: 'linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
+      background: 'linear-gradient(rgba(5,7,10,0.15), rgba(5,7,10,0.15)), linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
 
       {/* ── Hero — floats over the full-bleed tower ── */}
       <div style={{ position: 'relative', height: 'clamp(300px, 58vh, 66vh)', flexShrink: 0 }}>
@@ -196,15 +196,16 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
               <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
-                {/* Real brand mark, filled with a space-grey chrome sheen via mask */}
+                {/* Real brand mark, filled with a black-chrome sheen via mask (reads
+                    sharper than silver over the bright render) */}
                 <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
                   WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
                   WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                  background: 'linear-gradient(180deg, #F2F2F4 0%, #C2C4C9 26%, #74767C 50%, #5A5C62 56%, #A6A8AE 74%, #E8E8EA 100%)',
-                  filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.55))' }} />
-                {isAdmin && <span className="chrome-silver-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
+                  background: 'linear-gradient(180deg, #E2E2E2 0%, #8F8F8F 24%, #2B2B2B 48%, #757575 60%, #0C0C0C 100%)',
+                  filter: 'drop-shadow(0 1px 1.5px rgba(255,255,255,0.55))' }} />
+                {isAdmin && <span className="chrome-black-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
               </button>
-              {!is7 && <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
+              {!is7 && <span className="chrome-black-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
               </span>
