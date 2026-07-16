@@ -10,6 +10,7 @@ import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
 import IntroScreen from './pages/IntroScreen'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
+import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
 
 export default function App() {
   const { activeProjectId, projects, loadProjects, bumpSync } = useStore()
@@ -19,9 +20,12 @@ export default function App() {
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
-  // JB Light (default) / JB BLK (dark-gold) — lifted here so the Manage screen can toggle it.
-  const [theme, setThemeState] = useState<'light' | 'blk'>(() => (localStorage.getItem('jb_theme') as 'light' | 'blk') || 'light')
-  const setTheme = (t: 'light' | 'blk') => { setThemeState(t); localStorage.setItem('jb_theme', t) }
+  // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
+  // theme store so the one light/dark button in the topbar, Manage screen, and the
+  // Capital/HAAVN pillars all share a single source of truth. dark ⇄ blk, light ⇄ light.
+  const atriumTheme = useAtriumTheme()
+  const theme: 'light' | 'blk' = atriumTheme === 'dark' ? 'blk' : 'light'
+  const setTheme = (t: 'light' | 'blk') => setAtriumTheme(t === 'blk' ? 'dark' : 'light')
 
   // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
   // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.

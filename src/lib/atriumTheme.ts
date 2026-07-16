@@ -10,7 +10,11 @@ export type AtriumTheme = 'dark' | 'light'
 const KEY = 'atrium_theme'
 
 function initial(): AtriumTheme {
-  try { const v = localStorage.getItem(KEY); if (v === 'light' || v === 'dark') return v } catch { /* SSR / private mode */ }
+  try {
+    const v = localStorage.getItem(KEY); if (v === 'light' || v === 'dark') return v
+    // Migrate from the studio's legacy key so the whole app starts on one theme.
+    const jb = localStorage.getItem('jb_theme'); if (jb === 'blk') return 'dark'; if (jb === 'light') return 'light'
+  } catch { /* SSR / private mode */ }
   return 'dark'
 }
 
@@ -20,7 +24,11 @@ const subs = new Set<() => void>()
 export function setAtriumTheme(t: AtriumTheme) {
   if (t === theme) return
   theme = t
-  try { localStorage.setItem(KEY, t) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(KEY, t)
+    // Keep the studio's legacy key aligned so both systems read one source of truth.
+    localStorage.setItem('jb_theme', t === 'dark' ? 'blk' : 'light')
+  } catch { /* ignore */ }
   subs.forEach(f => f())
 }
 export function toggleAtriumTheme() { setAtriumTheme(theme === 'dark' ? 'light' : 'dark') }

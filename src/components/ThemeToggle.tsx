@@ -6,9 +6,12 @@ import { useAtriumTheme, toggleAtriumTheme } from '../lib/atriumTheme'
 // light; Moon = will switch to dark. Adapts its own chrome to the active theme so
 // it reads on both the dark carbon header and the light frosted header.
 
-export default function ThemeToggle({ style }: { style?: React.CSSProperties }) {
+export default function ThemeToggle({ style, chrome }: { style?: React.CSSProperties; chrome?: 'dark' }) {
   const theme = useAtriumTheme()
   const light = theme === 'light'
+  // On an always-dark surface (e.g. the studio topbar) force the dark pill so the
+  // control doesn't flip to a white chip when the work surface is light.
+  const darkStyle = chrome === 'dark' || !light
   return (
     <button
       onClick={toggleAtriumTheme}
@@ -19,12 +22,12 @@ export default function ThemeToggle({ style }: { style?: React.CSSProperties }) 
         height: 30, padding: '0 12px', borderRadius: 999, cursor: 'pointer',
         fontSize: 8.5, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700,
         fontFamily: 'var(--font-mono)',
-        color: light ? '#3A4750' : '#C6CDCF',
-        border: `1px solid ${light ? 'rgba(120,140,162,0.36)' : 'rgba(220,232,244,0.18)'}`,
-        background: light ? 'rgba(255,255,255,0.55)' : 'rgba(24,34,48,0.55)',
+        color: darkStyle ? '#C6CDCF' : '#3A4750',
+        border: `1px solid ${darkStyle ? 'rgba(220,232,244,0.18)' : 'rgba(120,140,162,0.36)'}`,
+        background: darkStyle ? 'rgba(24,34,48,0.55)' : 'rgba(255,255,255,0.55)',
         backdropFilter: 'blur(10px) saturate(1.2)',
         WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-        boxShadow: light ? 'inset 0 1px 0 rgba(255,255,255,0.8)' : 'inset 0 1px 0 rgba(255,255,255,0.14)',
+        boxShadow: darkStyle ? 'inset 0 1px 0 rgba(255,255,255,0.14)' : 'inset 0 1px 0 rgba(255,255,255,0.8)',
         transition: 'all 0.2s',
         ...style,
       }}

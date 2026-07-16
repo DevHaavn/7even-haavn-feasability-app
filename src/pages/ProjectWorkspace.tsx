@@ -17,6 +17,7 @@ import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
 import SiteLinks from '../components/SiteLinks'
 import AutoSaveCloud from '../components/AutoSaveButton'
+import ThemeToggle from '../components/ThemeToggle'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
@@ -114,6 +115,8 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         )}
         {/* Manage — compact glass icon button (Dashboard now in tabs bar) */}
         <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
+          {/* Light / dark — shared ATRIUM theme (flips the work surface) */}
+          <ThemeToggle chrome="dark" />
           {onManage && (
             <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
               {/* Chrome stealth bento grid — manage portal */}

@@ -58,7 +58,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
   return (
     <div style={{
       position: 'fixed', inset: 0,
-      background: 'linear-gradient(to bottom, rgba(10,14,20,0.30), rgba(10,14,20,0.46) 60%, rgba(8,11,16,0.70)), url(/renders/tower-hero.jpg) center 28% / cover no-repeat, #05070a',
+      background: 'linear-gradient(to bottom, rgba(10,14,20,0.30), rgba(10,14,20,0.46) 60%, rgba(8,11,16,0.70)), url(/renders/login-bg.jpg) center / cover no-repeat, #05070a',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     }}>
 
