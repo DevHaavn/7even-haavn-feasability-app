@@ -890,6 +890,7 @@ function go(view,pidOrTab,tab){
  window.scrollTo(0,0);$('#main').scrollTop=0;render();
 }
 function render(){
+ persist();
  renderTopnav();renderRail();
  const main=$('#main');
  if(route.view==='project'){renderProject();return;}
@@ -970,6 +971,7 @@ function viewModuleStub(m){
 /* ---- PROJECT WORKSPACE ---- */
 function P(){return PROJECTS.find(p=>p.id===route.pid);}
 function renderProject(){
+ persist();
  const p=P();if(!p){go('portfolio');return;}
  const c=clDone(p);
  $('#main').className='main light';
@@ -1622,9 +1624,71 @@ const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 
 const MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 function setThemeBtn(){$('#themebtn').innerHTML=LIGHTMODE?MOON:SUN;}
 $('#themebtn').onclick=()=>{LIGHTMODE=!LIGHTMODE;setThemeBtn();render();toast(LIGHTMODE?'Light mode — work surface lightened.':'Dark mode — instrument view.');};
+/* ---- persistence (localStorage) + shared cloud sync (Supabase capital_kv) ----
+   Every mutation re-renders, and render()/renderProject() call persist(), so all
+   edits save. Non-blocking cloud: renders from localStorage first, still works
+   offline; once the capital_kv table exists, edits fan out live to all staff.
+   Same backend + discipline as the ATRIUM Accounts module. */
+const SKEY='atrium_mgmt_v1';
+const CLOUD_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+const CLOUD_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+let _saveT=null,_lastJSON='';
+function persist(){
+ clearTimeout(_saveT);
+ _saveT=setTimeout(()=>{
+  const blob={projects:PROJECTS,light:LIGHTMODE};
+  const json=JSON.stringify(blob);
+  if(json===_lastJSON) return;
+  _lastJSON=json;
+  try{ localStorage.setItem(SKEY,json); }catch(e){}
+  Cloud.push(blob,json);
+ },400);
+}
+function loadState(){
+ try{ const raw=localStorage.getItem(SKEY); if(raw){ const s=JSON.parse(raw);
+  if(Array.isArray(s.projects)&&s.projects.length) PROJECTS=s.projects;
+  if(typeof s.light==='boolean') LIGHTMODE=s.light; } }catch(e){}
+}
+function applyRemote(val){
+ if(Array.isArray(val.projects)&&val.projects.length) PROJECTS=val.projects;
+ if(typeof val.light==='boolean'){ LIGHTMODE=val.light; setThemeBtn(); }
+ try{ localStorage.setItem(SKEY,JSON.stringify(val)); }catch(e){}
+ if(route.view==='project') renderProject(); else render();
+}
+const Cloud={ sb:null, ready:false, _last:'', _pushT:null, _emptyRemote:false,
+ async init(){ try{
+  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+  this.sb = createClient(CLOUD_URL, CLOUD_ANON, { realtime:{ params:{ eventsPerSecond:5 } } });
+  const ok = await this.pull(); if(!ok){ this.ready=false; return; }
+  this.ready=true;
+  if(this._emptyRemote){ this._last=''; this.push({projects:PROJECTS,light:LIGHTMODE}); }
+  this.subscribe();
+ }catch(e){ this.ready=false; } },
+ async pull(){ try{
+  const { data, error } = await this.sb.from('capital_kv').select('value').eq('key',SKEY).maybeSingle();
+  if(error) return false;
+  if(!data || data.value==null){ this._emptyRemote=true; return true; }
+  this._last = JSON.stringify(data.value); applyRemote(data.value); return true;
+ }catch(e){ return false; } },
+ push(blob,json){ if(!this.ready||!this.sb) return; json=json||JSON.stringify(blob);
+  if(json===this._last) return; this._last=json;
+  clearTimeout(this._pushT);
+  this._pushT=setTimeout(()=>{ this.sb.from('capital_kv').upsert({key:SKEY,value:blob,updated_at:new Date().toISOString()},{onConflict:'key'})
+    .then(({error})=>{ if(error) console.warn('[atrium-mgmt] push',error.message); }); },250);
+ },
+ subscribe(){ this.sb.channel('atrium-mgmt-sync')
+  .on('postgres_changes',{event:'*',schema:'public',table:'capital_kv',filter:'key=eq.'+SKEY},payload=>{
+    const val=payload.new && payload.new.value; if(val==null) return;
+    const json=JSON.stringify(val); if(json===this._last) return; this._last=json; applyRemote(val);
+  }).subscribe();
+ }
+};
+
+loadState();
 setThemeBtn();
 $('#tbmark').innerHTML=apexMark('tb');
 $('#provmark').innerHTML=apexPrimary('pv');
 render();
+Cloud.init();
 </script>
 </body></html>
