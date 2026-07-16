@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { DesignCredit } from '../components/ui'
+import AtriumBuild from '../components/AtriumBuild'
 
 interface Props {
   onDone: () => void
@@ -44,9 +45,8 @@ export default function IntroScreen({ onDone }: Props) {
         @keyframes intro-btn-in { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
 
         .intro-btn:hover {
-          background: rgba(196,151,58,0.12) !important;
-          border-color: rgba(196,151,58,0.75) !important;
-          color: #C4973A !important;
+          background: linear-gradient(180deg, rgba(78,100,126,0.62), rgba(56,74,94,0.48)) !important;
+          border-color: rgba(220,232,244,0.42) !important;
         }
         @keyframes intro-title {
           from { opacity: 0; letter-spacing: 0.7em; }
@@ -65,7 +65,7 @@ export default function IntroScreen({ onDone }: Props) {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         overflow: 'hidden',
-        background: 'url(/home-bg.jpg) center / cover no-repeat, #030303',
+        background: 'radial-gradient(ellipse 90% 70% at 50% 30%, rgba(233,240,247,0.55) 0%, rgba(180,196,213,0.30) 46%, rgba(120,140,162,0.20) 100%), linear-gradient(165deg, #E8EEF4 0%, #CDD8E3 40%, #A8B8C9 74%, #92A4B7 100%)',
         animation: exiting ? 'intro-screen-out 0.9s ease forwards' : undefined,
       }}>
 
@@ -76,9 +76,9 @@ export default function IntroScreen({ onDone }: Props) {
           alignItems: 'center', justifyContent: 'center',
         }}>
 
-          {/* WELCOME — fine, above the wings */}
+          {/* WELCOME — fine, above the device */}
           <h1 style={{
-            margin: '0 0 44px', color: '#FFFFFF',
+            margin: '0 0 30px', color: '#2C3A48',
             fontSize: 'clamp(13px, 2vw, 21px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
@@ -87,53 +87,14 @@ export default function IntroScreen({ onDone }: Props) {
             Welcome
           </h1>
 
-          {/* Wings — float + glow, ringed with silver stars and dust */}
+          {/* ATRIUM — the self-building A3 device (chrome + green floors climb to the light) */}
           <div style={{ opacity: 0, animation: phase >= 1 ? 'intro-wings-in 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s both' : undefined }}>
-            <div style={{ position: 'relative', display: 'inline-flex', animation: phase >= 1 ? 'intro-float 4.5s 1.4s ease-in-out infinite, intro-glow 4s 1.4s ease-in-out infinite' : undefined }}>
-              <img
-                src="/winged-device-white.png"
-                alt="7EVEN"
-                draggable={false}
-                style={{ width: 'min(320px, 58vw)', height: 'auto', display: 'block', userSelect: 'none' }}
-              />
-              {/* Silver stars */}
-              {phase >= 1 && ([
-                { top: '-16%', left: '10%', delay: '1.9s', size: 13 },
-                { top: '-10%', left: '84%', delay: '2.6s', size: 10 },
-                { top: '42%',  left: '-7%', delay: '3.2s', size: 12 },
-                { top: '102%', left: '22%', delay: '2.2s', size: 9 },
-                { top: '96%',  left: '74%', delay: '2.9s', size: 11 },
-                { top: '8%',   left: '100%', delay: '3.6s', size: 8 },
-              ] as const).map((s, i) => (
-                <svg key={`star-${i}`} viewBox="0 0 20 20"
-                  style={{ position: 'absolute', top: s.top, left: s.left, width: s.size, height: s.size, opacity: 0, animation: `intro-sparkle 3.4s ease-in-out ${s.delay} infinite`, pointerEvents: 'none', overflow: 'visible' }}>
-                  <path d="M10 0 L11.5 8.5 L20 10 L11.5 11.5 L10 20 L8.5 11.5 L0 10 L8.5 8.5 Z" fill="#E4E4E8" />
-                </svg>
-              ))}
-              {/* Silver dust */}
-              {phase >= 1 && ([
-                { top: '-6%',  left: '30%', delay: '2.0s', size: 3 },
-                { top: '-12%', left: '58%', delay: '2.8s', size: 2.5 },
-                { top: '30%',  left: '104%', delay: '2.4s', size: 3 },
-                { top: '70%',  left: '-4%', delay: '3.1s', size: 2.5 },
-                { top: '108%', left: '48%', delay: '2.6s', size: 3 },
-                { top: '20%',  left: '-8%', delay: '3.5s', size: 2 },
-                { top: '60%',  left: '102%', delay: '3.8s', size: 2 },
-                { top: '-14%', left: '44%', delay: '3.3s', size: 2 },
-              ] as const).map((d, i) => (
-                <span key={`dust-${i}`} style={{
-                  position: 'absolute', top: d.top, left: d.left, width: d.size, height: d.size,
-                  borderRadius: '50%', background: '#D8D8DE', opacity: 0,
-                  boxShadow: '0 0 6px rgba(228,228,232,0.9)',
-                  animation: `intro-dust 4.2s ease-in-out ${d.delay} infinite`, pointerEvents: 'none',
-                }} />
-              ))}
-            </div>
+            <AtriumBuild size={Math.min(320, typeof window !== 'undefined' ? window.innerWidth * 0.58 : 320)} bright style={{ filter: 'drop-shadow(0 12px 30px rgba(40,60,84,0.28))' }} />
           </div>
 
-          {/* Precision deployed — portal-page scale, full brightness */}
+          {/* Precision deployed — portal-page scale */}
           <p style={{
-            margin: '46px 0 0', color: '#F0EFED',
+            margin: '30px 0 0', color: '#2C3A48',
             fontSize: 'clamp(20px, 3.4vw, 34px)', fontFamily: 'var(--font-heading)', fontWeight: 300,
             letterSpacing: '0.34em', textTransform: 'uppercase', textAlign: 'center', paddingLeft: '0.34em',
             opacity: 0,
@@ -152,26 +113,33 @@ export default function IntroScreen({ onDone }: Props) {
             animation: phase >= 2 ? 'intro-divider 0.9s ease forwards' : undefined,
           }} />
 
-          {/* Tagline — bright gold */}
+          {/* Tagline — deep gold */}
           <p style={{
-            fontSize: 9.5, textTransform: 'uppercase', color: '#E8C87A',
+            fontSize: 9.5, textTransform: 'uppercase', color: '#9A7A2E',
             fontFamily: 'monospace', fontWeight: 700, marginBottom: 56, opacity: 0,
             animation: phase >= 2 ? 'intro-tagline 0.9s ease 0.2s forwards' : undefined,
           }}>
             Development Feasibility Studio
           </p>
 
-          {/* Enter Studio */}
+          {/* Enter Studio — smoked glass, main-app feel */}
           <button
-            className="intro-btn glass-btn"
+            className="intro-btn"
             onClick={exit}
             style={{
               padding: '14px 52px',
               fontSize: 10,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.85)',
+              color: '#EEF1F2',
               fontFamily: 'monospace',
+              cursor: 'pointer',
+              borderRadius: 12,
+              border: '1px solid rgba(220,232,244,0.28)',
+              background: 'linear-gradient(180deg, rgba(60,80,104,0.55), rgba(44,60,78,0.42))',
+              backdropFilter: 'blur(14px) saturate(1.2)',
+              WebkitBackdropFilter: 'blur(14px) saturate(1.2)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.28), 0 12px 30px rgba(30,44,62,0.3)',
               opacity: 0,
               animation: phase >= 3 ? 'intro-btn-in 0.8s ease forwards' : undefined,
             }}
@@ -180,17 +148,17 @@ export default function IntroScreen({ onDone }: Props) {
           </button>
         </div>
 
-        {/* Thin gold base line */}
+        {/* Thin silver base line */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
-          background: 'linear-gradient(to right, transparent, rgba(196,151,58,0.30), transparent)',
+          background: 'linear-gradient(to right, transparent, rgba(120,140,162,0.35), transparent)',
         }} />
 
         {/* Corner metadata */}
-        <div style={{ position: 'absolute', bottom: 24, left: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.14)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+        <div style={{ position: 'absolute', bottom: 24, left: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(44,58,72,0.30)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
           Confidential
         </div>
-        <div style={{ position: 'absolute', bottom: 24, right: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.14)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+        <div style={{ position: 'absolute', bottom: 24, right: 28, fontSize: 7, letterSpacing: '0.20em', color: 'rgba(44,58,72,0.30)', fontFamily: 'monospace', textTransform: 'uppercase' }}>
           7even.au
         </div>
         <DesignCredit style={{ position: 'absolute', bottom: 24, left: 0, right: 0 }} />
