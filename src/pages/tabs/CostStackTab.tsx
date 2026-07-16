@@ -668,52 +668,33 @@ export default function CostStackTab({ projectId }: Props) {
 
       {/* ── SUMMARY TAB ── */}
       {innerTab === 'summary' && (
-        <div className="relative p-5 md:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start overflow-auto flex-1">
-          {/* ── Cost Stack rates — left column ── */}
-          <div className="w-full">
-            <div className="flex items-center justify-between mb-6">
-              <SectionHeading sub="Construction rate applied to GBA plus all soft costs">Cost Stack</SectionHeading>
-              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
-              {cs.canUndo && <Button size="sm" variant="ghost" onClick={() => cs.undo(setData)}>Undo</Button>}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="fx-wrap">
+          <div className="pagehead">
+            <div>
+              <div className="kicker">04 · Cost Stack</div>
+              <h1 className="h-sec">Development Cost</h1>
+              <div className="h-sub">Construction rate applied to GBA plus all soft costs — or itemise trade-by-trade.</div>
             </div>
-
-            <div className="mb-5">
-              <p className="text-[var(--ink-3)] text-[9px] tracking-[0.18em] uppercase mb-2">Build Rate Preset</p>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                {presets.map((p) => {
-                  const isActive = data.buildRatePerSqm === p.buildRatePerSqm
-                  return (
-                    <button key={p.id}
-                      onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)}
-                      style={{
-                        padding: '6px 12px',
-                        fontSize: 9,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        fontWeight: isActive ? 600 : 500,
-                        cursor: 'pointer',
-                        border: '1px solid var(--border)',
-                        borderRadius: 4,
-                        background: isActive ? '#F0F0F0' : 'var(--card)',
-                        color: isActive ? 'var(--ink)' : 'var(--ink-3)',
-                        transition: 'all 0.15s ease',
-                      }}
-                      onMouseEnter={e => {
-                        if (!isActive) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--ink)'
-                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)'
-                        }
-                      }}
-                      onMouseLeave={e => {
-                        if (!isActive) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)'
-                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-3)'
-                        }
-                      }}
-                    >{p.name}</button>
-                  )
-                })}
-              </div>
+            <div className="flex gap aic wrapf">
+              <span className="check">✓ Auto-saved</span>
+              {cs.canUndo && <span className="chip" onClick={() => cs.undo(setData)}>↶ Undo</span>}
+            </div>
+          </div>
+          <div className="two-64" style={{ alignItems: 'start' }}>
+          {/* ── Cost Stack rates — left panel ── */}
+          <div className="panel pad">
+            <div className="divlabel">Build rate preset</div>
+            <div className="presets">
+              {presets.map((p) => {
+                const isActive = data.buildRatePerSqm === p.buildRatePerSqm
+                return (
+                  <div key={p.id} className={`preset${isActive ? ' on' : ''}`} onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)}>
+                    <div className="pt">{p.name}</div>
+                    <div className="pv">${p.buildRatePerSqm.toLocaleString()}</div>
+                  </div>
+                )
+              })}
             </div>
 
             <InnerSection label="Construction">
@@ -810,42 +791,33 @@ export default function CostStackTab({ projectId }: Props) {
             )}
           </div>
 
-          {/* ── Cost Summary — right column, beside the rates ── */}
-          <div className="w-full">
-            <div className="mb-6"><SectionHeading sub="Rolled-up total development cost incl. land">Cost Summary</SectionHeading></div>
-            <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
-              {/* Line items flow across two roomy columns so nothing feels cramped */}
-              <div className="grid grid-cols-1 px-4 md:px-6 py-4">
-                {(() => {
-                  const rows: { label: string; value: number; tone: 'land' | 'dev' | 'inkind' | 'gst' }[] = [
-                    ...landRows.map(r => ({ ...r, tone: 'land' as const })),
-                    ...summaryRows.map(r => ({ ...r, tone: 'dev' as const })),
-                    ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
-                    ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
-                  ]
-                  const col = { land: 'var(--gold-deep)', dev: 'var(--ink)', inkind: 'var(--purple)', gst: 'var(--emerald)' }
-                  return rows.map((r, i) => (
-                    <div key={i} className="flex justify-between items-baseline gap-4 py-3.5 border-b border-[var(--card-3)]">
-                      <span className="text-[13px] tracking-wide" style={{ color: r.tone === 'dev' ? 'var(--ink-2)' : col[r.tone] }}>{r.label}</span>
-                      <span className="text-[17px] font-mono font-semibold whitespace-nowrap" style={{ color: col[r.tone] }}>
-                        {r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}
-                      </span>
-                    </div>
-                  ))
-                })()}
-              </div>
-              {/* Total — full-width banner across the bottom */}
-              <div className="flex flex-wrap justify-between items-center gap-4 px-6 md:px-10 py-7 border-t border-[var(--border)] bg-[var(--card-2)]">
-                <span className="text-[14px] font-semibold tracking-[0.14em] uppercase text-[var(--ink)]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
-                <div className="flex items-baseline gap-5">
-                  {site.resiGBA > 0 && (
-                    <span className="text-[var(--faint)] text-[12px] tracking-wide">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</span>
-                  )}
-                  <span className="font-mono font-bold text-4xl md:text-[40px] text-[var(--gold)] leading-none">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
-                </div>
-              </div>
+          {/* ── Cost Summary — right panel ── */}
+          <div className="panel pad gold-top" style={{ position: 'sticky', top: 20 }}>
+            <div className="eyebrow" style={{ color: 'var(--gold)' }}>Cost summary · incl. land</div>
+            <div style={{ marginTop: 8 }}>
+              {(() => {
+                const rows: { label: string; value: number; tone: 'land' | 'dev' | 'inkind' | 'gst' }[] = [
+                  ...landRows.map(r => ({ ...r, tone: 'land' as const })),
+                  ...summaryRows.map(r => ({ ...r, tone: 'dev' as const })),
+                  ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
+                  ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
+                ]
+                return rows.map((r, i) => (
+                  <div key={i} className={`sumrow${r.tone === 'land' ? ' gold' : ''}${(r.tone === 'gst' || r.tone === 'inkind') ? ' credit' : ''}`}>
+                    <span className="l">{r.label}</span>
+                    <span className="v">{r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}</span>
+                  </div>
+                ))
+              })()}
+            </div>
+            <div className="total">
+              <div className="tl">Total Dev Cost{landB.total > 0 ? ' · incl land' : ''}{result.gstCredits > 0 ? ' · ex GST' : ''}</div>
+              <div className="tv">${(tdcInclLand / 1_000_000).toFixed(1)}M</div>
+              {site.resiGBA > 0 && <div className="tsub">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</div>}
             </div>
           </div>
+          </div>
+        </div>
         </div>
       )}
 
@@ -919,11 +891,9 @@ function fmtShortM(n: number): string {
 
 function InnerSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="mb-4 border border-[var(--border)] bg-white">
-      <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--card-2)]">
-        <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)]">{label}</span>
-      </div>
-      <div className="px-4 py-1">{children}</div>
+    <div>
+      <div className="divlabel">{label}</div>
+      {children}
     </div>
   )
 }
