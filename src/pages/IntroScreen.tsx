@@ -65,7 +65,7 @@ export default function IntroScreen({ onDone }: Props) {
       <div style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         overflow: 'hidden',
-        background: 'linear-gradient(to bottom, rgba(10,14,20,0.28), rgba(10,14,20,0.42) 60%, rgba(8,11,16,0.66)), url(/renders/tower-hero.jpg) center 28% / cover no-repeat, #05070a',
+        background: 'linear-gradient(to bottom, rgba(10,14,20,0.28), rgba(10,14,20,0.42) 60%, rgba(8,11,16,0.66)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a',
         animation: exiting ? 'intro-screen-out 0.9s ease forwards' : undefined,
       }}>
 

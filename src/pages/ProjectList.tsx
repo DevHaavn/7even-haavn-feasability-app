@@ -106,7 +106,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
 
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden',
-      background: 'linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center 30% / cover no-repeat, #05070a' }}>
+      background: 'linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
 
       {/* ── Hero — floats over the full-bleed tower ── */}
       <div style={{ position: 'relative', height: 'clamp(300px, 58vh, 66vh)', flexShrink: 0 }}>
@@ -294,7 +294,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         <div onClick={() => setShowNew(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center 30% / cover no-repeat, #05070a',
+            background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a',
           }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{
