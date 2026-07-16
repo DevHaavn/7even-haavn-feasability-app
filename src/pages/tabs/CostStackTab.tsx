@@ -39,17 +39,17 @@ function AdminSpendBanner({ projectId, tdc }: { projectId: string; tdc: number }
   const pct = tdc > 0 ? spend / tdc : 0
   const over = tdc > 0 && spend > tdc
   const warn = pct > 0.85
-  const col = over ? '#B4553F' : warn ? '#B8860B' : '#237A52'
+  const col = over ? 'var(--red)' : warn ? 'var(--gold)' : 'var(--emerald)'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '10px 16px', background: '#F5F3F0', borderBottom: '2px solid #E0DDD8' }}>
-      <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Admin · Xero tracked spend</span>
-      <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>${spend.toLocaleString()}</span>
-      <span style={{ fontSize: 11, color: '#999' }}>of {fmt(tdc)} TDC · {(pct * 100).toFixed(0)}%</span>
-      {awaiting > 0 && <span style={{ fontSize: 10, color: '#B8860B' }}>${awaiting.toLocaleString()} awaiting</span>}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '10px 16px', background: 'var(--card-2)', borderBottom: '2px solid var(--border)' }}>
+      <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Admin · Xero tracked spend</span>
+      <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--ink)', fontWeight: 700 }}>${spend.toLocaleString()}</span>
+      <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>of {fmt(tdc)} TDC · {(pct * 100).toFixed(0)}%</span>
+      {awaiting > 0 && <span style={{ fontSize: 10, color: 'var(--gold)' }}>${awaiting.toLocaleString()} awaiting</span>}
       <span style={{ marginLeft: 'auto', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: col }}>
         {over ? '⚠ Over budget' : warn ? '● Approaching budget' : '● On budget'}
       </span>
-      <div style={{ flexBasis: '100%', height: 5, borderRadius: 3, background: '#E0DDD8', overflow: 'hidden' }}>
+      <div style={{ flexBasis: '100%', height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden' }}>
         <div style={{ width: `${Math.max(2, Math.min(100, pct * 100))}%`, height: '100%', background: col }} />
       </div>
     </div>
@@ -69,7 +69,7 @@ const INNER_TABS = [
 
 function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; onChange: (id: string) => void; tabs?: typeof INNER_TABS }) {
   return (
-    <div style={{ display: 'flex', borderBottom: '2px solid #E0DDD8', background: '#F5F3F0', flexShrink: 0 }}>
+    <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', background: 'var(--card-2)', flexShrink: 0 }}>
       {tabs.map(t => (
         <button
           key={t.id}
@@ -79,8 +79,8 @@ function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; 
             flex: 1, minWidth: 0, textAlign: 'center',
             padding: '10px 6px', border: 'none', background: 'none', cursor: 'pointer',
             fontSize: 9.5, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600,
-            color: active === t.id ? '#1A1A1A' : '#999',
-            borderBottom: active === t.id ? '2px solid #C4973A' : '2px solid transparent',
+            color: active === t.id ? 'var(--ink)' : 'var(--ink-3)',
+            borderBottom: active === t.id ? '2px solid var(--gold)' : '2px solid transparent',
             marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             transition: 'color 0.15s',
           }}
@@ -121,7 +121,7 @@ function fmtMonth(ym: string) {
   const [y, m] = ym.split('-').map(Number)
   return new Date(y, (m || 1) - 1, 1).toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })
 }
-const cellInput: React.CSSProperties = { background: '#fff', border: '1px solid #E0DDD8', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: '#1A1A1A', outline: 'none', width: '100%' }
+const cellInput: React.CSSProperties = { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, padding: '5px 6px', fontSize: 11, color: 'var(--ink)', outline: 'none', width: '100%' }
 
 function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, showBasis = false, gstEnabled = false }: { items: CostLineItem[]; onChange: (items: CostLineItem[]) => void; constructionValue?: number; gdvValue?: number; showBasis?: boolean; gstEnabled?: boolean }) {
   const basisValue = (fb?: 'construction' | 'gdv') => (fb === 'gdv' ? gdvValue : constructionValue)
@@ -202,11 +202,11 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
   const MINW = cols.reduce((s, c) => s + c.w, 0) + (cols.length - 1) * 8 + 28
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #E8E5E0', overflowX: 'auto' }}>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', overflowX: 'auto' }}>
       {/* Header */}
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', minWidth: MINW }}>
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '8px 14px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)', minWidth: MINW }}>
         {cols.map((c, i) => (
-          <span key={i} style={{ position: 'relative', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>
+          <span key={i} style={{ position: 'relative', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>
             {c.h}
             {i === 0 && (
               <span
@@ -214,7 +214,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                 onPointerDown={e => { drag.current = { startX: e.clientX, startW: descW }; document.body.style.cursor = 'col-resize'; e.preventDefault() }}
                 style={{ position: 'absolute', top: -8, right: -8, width: 14, height: 26, cursor: 'col-resize', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <span style={{ width: 2, height: 14, background: '#C9C4BC', borderRadius: 2, boxShadow: '3px 0 0 #E4DFD8' }} />
+                <span style={{ width: 2, height: 14, background: 'var(--border)', borderRadius: 2, boxShadow: '3px 0 0 var(--border)' }} />
               </span>
             )}
           </span>
@@ -228,7 +228,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
         const isOpen = openId === item.id
         const eqPct = item.equityPct ?? 0.5
         return (
-          <div key={item.id} style={{ borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', minWidth: MINW }}>
+          <div key={item.id} style={{ borderBottom: '1px solid var(--line)', background: idx % 2 === 0 ? 'var(--card)' : 'var(--card)', minWidth: MINW }}>
             <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 8, padding: '7px 14px', alignItems: 'center' }}>
               <input style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontSize: 12 }}
                 value={item.label} placeholder="Item description" title={item.label || undefined}
@@ -246,7 +246,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
 
               {/* Units — quantity (n/a on % basis lines) */}
               <input type="number" min={0} title={item.feeBasis ? 'Not used for % basis lines' : 'Quantity'}
-                style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right', color: item.feeBasis ? '#CCC' : '#1A1A1A' }}
+                style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right', color: item.feeBasis ? '#CCC' : 'var(--ink)' }}
                 value={item.feeBasis ? '' : (item.units || '')} placeholder={item.feeBasis ? '—' : '0'} disabled={!!item.feeBasis}
                 onChange={e => updateCalc(item, { units: parseFloat(e.target.value) || 0 })} />
 
@@ -256,11 +256,11 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                   <input type="number" min={0} step={0.25} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right' }}
                     value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
                     onChange={e => updateCalc(item, { pct: (parseFloat(e.target.value) || 0) / 100 })} />
-                  <span style={{ color: '#BBB', fontSize: 10, marginLeft: 2 }}>%</span>
+                  <span style={{ color: 'var(--faint)', fontSize: 10, marginLeft: 2 }}>%</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center' }} title="$ per unit">
-                  <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
+                  <span style={{ color: 'var(--faint)', fontSize: 11, marginRight: 3 }}>$</span>
                   <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
                     value={item.baseRate || ''} placeholder="0"
                     onChange={e => updateCalc(item, { baseRate: parseFloat(e.target.value) || 0 })} />
@@ -270,11 +270,11 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
               {/* Budget — auto-derived when built up; editable otherwise */}
               {isDerived(item) ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 3 }} title="Auto-calculated budget">
-                  <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1A1A1A' }}>${(item.amount || 0).toLocaleString()}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>${(item.amount || 0).toLocaleString()}</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ color: '#BBB', fontSize: 11, marginRight: 3 }}>$</span>
+                  <span style={{ color: 'var(--faint)', fontSize: 11, marginRight: 3 }}>$</span>
                   <input type="number" min={0} style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace' }}
                     value={item.amount || ''} placeholder="0"
                     onChange={e => update(item.id, { amount: parseFloat(e.target.value) || 0 })} />
@@ -285,7 +285,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
               <button onClick={() => update(item.id, { gstFree: !item.gstFree })}
                 title={item.gstFree ? 'GST-free — click to include GST' : 'Click to mark GST-free'}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'right', fontFamily: 'monospace', fontSize: 11,
-                  color: item.gstFree ? '#C9C4BC' : '#237A52', textDecoration: item.gstFree ? 'line-through' : 'none', padding: 0 }}>
+                  color: item.gstFree ? 'var(--border)' : 'var(--emerald)', textDecoration: item.gstFree ? 'line-through' : 'none', padding: 0 }}>
                 {item.gstFree ? 'excl' : `$${Math.round(gstOf(item)).toLocaleString()}`}
               </button>
 
@@ -303,24 +303,24 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                 {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
               </select>
               <button onClick={() => setOpenId(isOpen ? null : item.id)} title="Monthly cashflow & notes"
-                style={{ background: 'none', border: 'none', color: isOpen ? '#1A1A1A' : '#BBB', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
+                style={{ background: 'none', border: 'none', color: isOpen ? 'var(--ink)' : 'var(--faint)', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
                 {isOpen ? '▾' : '▸'}
               </button>
               <button onClick={() => remove(item.id)}
                 style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
             </div>
 
             {/* Expandable detail — funding split, notes & month-by-month cashflow */}
             {isOpen && (
-              <div style={{ padding: '4px 14px 16px 14px', background: '#FAF8F5', borderTop: '1px dashed #E4E1DC' }}>
+              <div style={{ padding: '4px 14px 16px 14px', background: 'var(--card-2)', borderTop: '1px dashed var(--border)' }}>
                 <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', margin: '10px 0 12px' }}>
                   {item.fundedBy === 'blend' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888' }}>Equity</span>
+                      <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Equity</span>
                       <input type="number" min={0} max={100} style={{ ...cellInput, width: 62 }}
                         value={Math.round(eqPct * 100)} onChange={e => update(item.id, { equityPct: Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)) / 100 })} />
-                      <span style={{ fontSize: 11, color: '#888' }}>% · Debt {Math.round((1 - eqPct) * 100)}%</span>
+                      <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>% · Debt {Math.round((1 - eqPct) * 100)}%</span>
                     </div>
                   )}
                   <input style={{ ...cellInput, flex: 1, minWidth: 200 }} value={item.notes} placeholder="Notes / consultant / ref"
@@ -328,24 +328,24 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Monthly Cashflow</span>
+                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Monthly Cashflow</span>
                   <button onClick={() => autoSpread(item)} disabled={months.length === 0}
-                    style={{ background: 'none', border: '1px solid #D0CEC9', color: months.length ? '#555' : '#CCC', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '4px 10px', cursor: months.length ? 'pointer' : 'default', borderRadius: 4 }}>
+                    style={{ background: 'none', border: '1px solid var(--border)', color: months.length ? 'var(--ink-2)' : '#CCC', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '4px 10px', cursor: months.length ? 'pointer' : 'default', borderRadius: 4 }}>
                     ⟲ Auto-spread by {S_CURVE_OPTS.find(o => o.id === (item.sCurve ?? 'scurve'))!.label}
                   </button>
                   {months.length > 0 && (
-                    <span style={{ fontSize: 10, color: Math.abs(scheduled - (item.amount || 0)) < 1 ? '#237A52' : '#B8860B', fontFamily: 'monospace' }}>
+                    <span style={{ fontSize: 10, color: Math.abs(scheduled - (item.amount || 0)) < 1 ? 'var(--emerald)' : 'var(--gold)', fontFamily: 'monospace' }}>
                       Scheduled {fmt(scheduled)} / {fmt(item.amount || 0)}
                     </span>
                   )}
                 </div>
                 {months.length === 0 ? (
-                  <p style={{ fontSize: 11, color: '#AAA' }}>Set a Start and End month above to schedule this line month-by-month.</p>
+                  <p style={{ fontSize: 11, color: 'var(--faint)' }}>Set a Start and End month above to schedule this line month-by-month.</p>
                 ) : (
                   <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
                     {months.map(mo => (
                       <div key={mo} style={{ flexShrink: 0, width: 78 }}>
-                        <div style={{ fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#999', marginBottom: 3, textAlign: 'center' }}>{fmtMonth(mo)}</div>
+                        <div style={{ fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 3, textAlign: 'center' }}>{fmtMonth(mo)}</div>
                         <input type="number" min={0} style={{ ...cellInput, textAlign: 'right', fontFamily: 'monospace' }}
                           value={item.monthly?.[mo] || ''} placeholder="0"
                           onChange={e => update(item.id, { monthly: { ...(item.monthly ?? {}), [mo]: parseFloat(e.target.value) || 0 } })} />
@@ -360,21 +360,21 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
       })}
 
       {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F7F5F2', borderTop: '1px solid #E0DDD8', minWidth: MINW }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'var(--card-2)', borderTop: '1px solid var(--border)', minWidth: MINW }}>
         <button
           onClick={add}
-          style={{ background: 'none', border: '1px solid #D0CEC9', color: '#888', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '6px 16px', cursor: 'pointer' }}
-          onMouseEnter={e => { (e.currentTarget.style.borderColor = '#2A2A2A'); (e.currentTarget.style.color = '#2A2A2A') }}
-          onMouseLeave={e => { (e.currentTarget.style.borderColor = '#D0CEC9'); (e.currentTarget.style.color = '#888') }}
+          style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '6px 16px', cursor: 'pointer' }}
+          onMouseEnter={e => { (e.currentTarget.style.borderColor = 'var(--ink)'); (e.currentTarget.style.color = 'var(--ink)') }}
+          onMouseLeave={e => { (e.currentTarget.style.borderColor = 'var(--border)'); (e.currentTarget.style.color = 'var(--ink-3)') }}
         >+ Add Row</button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>GST incl.</span>
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 12, color: '#237A52' }}>{fmt(Math.round(gstTotal))}</span>
+            <span style={{ fontSize: 9, color: 'var(--faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>GST incl.</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 12, color: 'var(--emerald)' }}>{fmt(Math.round(gstTotal))}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 9, color: '#AAA', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
-            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: '#1A1A1A' }}>{fmt(total)}</span>
+            <span style={{ fontSize: 9, color: 'var(--faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Section Total</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 16, color: 'var(--ink)' }}>{fmt(total)}</span>
           </div>
         </div>
       </div>
@@ -402,11 +402,11 @@ function ScheduleMatrix({ items }: { items: CostLineItem[] }) {
   const grand = colTotals.reduce((s, v) => s + v, 0)
 
   return (
-    <div style={{ maxWidth: 960, marginTop: 20, border: '1px solid #E8E5E0', background: '#fff' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#F7F5F2', borderBottom: '1px solid #E0DDD8' }}>
-        <span style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Cashflow Schedule · Time Duration</span>
+    <div style={{ maxWidth: 960, marginTop: 20, border: '1px solid var(--border)', background: 'var(--card)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
+        <span style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Cashflow Schedule · Time Duration</span>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#AAA' }}>Year</span>
+          <span style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--faint)' }}>Year</span>
           <select value={activeYear} onChange={e => setYear(Number(e.target.value))} style={{ ...cellInput, width: 90, fontWeight: 700 }}>
             {scheduledYears.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -415,27 +415,27 @@ function ScheduleMatrix({ items }: { items: CostLineItem[] }) {
       <div style={{ overflowX: 'auto' }}>
         <table style={{ borderCollapse: 'collapse', minWidth: 900, fontSize: 11 }}>
           <thead>
-            <tr style={{ background: '#FBFAF8' }}>
-              <th style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: '#FBFAF8', minWidth: 180 }}>Line Item</th>
-              {months.map(mo => <th key={mo} style={{ ...mCell, color: '#999' }}>{fmtMonth(mo)}</th>)}
-              <th style={{ ...mCell, color: '#555', fontWeight: 700 }}>Total</th>
+            <tr style={{ background: 'var(--card)' }}>
+              <th style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: 'var(--card)', minWidth: 180 }}>Line Item</th>
+              {months.map(mo => <th key={mo} style={{ ...mCell, color: 'var(--ink-3)' }}>{fmtMonth(mo)}</th>)}
+              <th style={{ ...mCell, color: 'var(--ink-2)', fontWeight: 700 }}>Total</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((it, i) => {
               const rowTotal = months.reduce((s, mo) => s + (it.monthly?.[mo] || 0), 0)
               return (
-                <tr key={it.id} style={{ background: i % 2 ? '#FDFCFB' : '#fff' }}>
-                  <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: i % 2 ? '#FDFCFB' : '#fff', color: '#1A1A1A' }}>{it.label || 'Untitled'}</td>
-                  {months.map(mo => <td key={mo} style={{ ...mCell, fontFamily: 'monospace', color: (it.monthly?.[mo] || 0) > 0 ? '#1A1A1A' : '#DDD' }}>{(it.monthly?.[mo] || 0) > 0 ? fmt(it.monthly![mo]) : '·'}</td>)}
-                  <td style={{ ...mCell, fontFamily: 'monospace', color: '#1A1A1A', fontWeight: 700 }}>{fmt(rowTotal)}</td>
+                <tr key={it.id} style={{ background: i % 2 ? 'var(--card)' : 'var(--card)' }}>
+                  <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: i % 2 ? 'var(--card)' : 'var(--card)', color: 'var(--ink)' }}>{it.label || 'Untitled'}</td>
+                  {months.map(mo => <td key={mo} style={{ ...mCell, fontFamily: 'monospace', color: (it.monthly?.[mo] || 0) > 0 ? 'var(--ink)' : '#DDD' }}>{(it.monthly?.[mo] || 0) > 0 ? fmt(it.monthly![mo]) : '·'}</td>)}
+                  <td style={{ ...mCell, fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 700 }}>{fmt(rowTotal)}</td>
                 </tr>
               )
             })}
-            <tr style={{ background: '#0A0A0A' }}>
-              <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: '#0A0A0A', color: '#888', letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: 9 }}>Monthly Total</td>
-              {colTotals.map((v, i) => <td key={i} style={{ ...mCell, fontFamily: 'monospace', color: v > 0 ? '#E8C87A' : '#444' }}>{v > 0 ? fmt(v) : '·'}</td>)}
-              <td style={{ ...mCell, fontFamily: 'monospace', color: '#E8C87A', fontWeight: 800 }}>{fmt(grand)}</td>
+            <tr style={{ background: 'var(--ink)' }}>
+              <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: 'var(--ink)', color: 'var(--ink-3)', letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: 9 }}>Monthly Total</td>
+              {colTotals.map((v, i) => <td key={i} style={{ ...mCell, fontFamily: 'monospace', color: v > 0 ? 'var(--gold-hi)' : '#444' }}>{v > 0 ? fmt(v) : '·'}</td>)}
+              <td style={{ ...mCell, fontFamily: 'monospace', color: 'var(--gold-hi)', fontWeight: 800 }}>{fmt(grand)}</td>
             </tr>
           </tbody>
         </table>
@@ -443,13 +443,13 @@ function ScheduleMatrix({ items }: { items: CostLineItem[] }) {
     </div>
   )
 }
-const mCell: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid #F0EDE8', textAlign: 'right', whiteSpace: 'nowrap' }
+const mCell: React.CSSProperties = { padding: '7px 10px', borderBottom: '1px solid var(--line)', textAlign: 'right', whiteSpace: 'nowrap' }
 
 // ── Grand total bar ───────────────────────────────────────────────────────────
 function GstBadge({ gstEnabled }: { gstEnabled: boolean }) {
   // James/CFO: every cost table must state whether amounts are incl/excl GST.
   const label = gstEnabled ? 'AMOUNTS GST-INCLUSIVE · input tax credits claimed' : 'AMOUNTS EX-GST'
-  const col = gstEnabled ? '#C4973A' : '#3DAA6A'
+  const col = gstEnabled ? 'var(--gold)' : 'var(--emerald)'
   return (
     <span title={gstEnabled ? 'Line amounts are entered GST-inclusive; the ex-GST cost carries into TDC (ITCs reclaimed).' : 'Line amounts exclude GST.'}
       style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: col, border: `1px solid ${col}55`, borderRadius: 4, padding: '3px 8px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -471,19 +471,19 @@ function GrandTotalBar({ detailed, gstEnabled }: { detailed: DetailedCostStack; 
   const grand = totals.reduce((s, t) => s + t.total, 0)
 
   return (
-    <div style={{ background: '#F5F3F0', borderBottom: '1px solid #E0DDD8', padding: '14px 24px', flexShrink: 0 }}>
+    <div style={{ background: 'var(--card-2)', borderBottom: '1px solid var(--border)', padding: '14px 24px', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#888', fontWeight: 700, flexShrink: 0 }}>Detailed Total</span>
+        <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700, flexShrink: 0 }}>Detailed Total</span>
         <GstBadge gstEnabled={gstEnabled} />
         {totals.map(t => (
           <div key={t.label} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 9, color: '#777', letterSpacing: '0.08em' }}>{t.label}</span>
-            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: t.total > 0 ? '#9A7B2E' : '#BBB' }}>{fmt(t.total)}</span>
+            <span style={{ fontSize: 9, color: 'var(--ink-3)', letterSpacing: '0.08em' }}>{t.label}</span>
+            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: t.total > 0 ? 'var(--gold)' : 'var(--faint)' }}>{fmt(t.total)}</span>
           </div>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Grand Total</span>
-          <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: grand > 0 ? '#9A7B2E' : '#BBB' }}>{fmt(grand)}</span>
+          <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Grand Total</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: grand > 0 ? 'var(--gold)' : 'var(--faint)' }}>{fmt(grand)}</span>
         </div>
       </div>
     </div>
@@ -651,15 +651,15 @@ export default function CostStackTab({ projectId }: Props) {
       <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
 
       {/* Project phase — where the project currently sits; shown on Timeline & Dashboard */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', background: '#F5F3F0', borderBottom: '1px solid #E0DDD8', flexShrink: 0, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#888', fontWeight: 700 }}>Project Phase</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Project Phase</span>
         <select value={data.currentPhase ?? ''}
           onChange={e => { const next = { ...data, currentPhase: (e.target.value || undefined) as CostStack['currentPhase'] }; setData(next); store.saveCostStack(next) }}
-          style={{ background: '#fff', border: '1px solid #D0CEC9', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: '#1A1A1A', fontWeight: 700, outline: 'none' }}>
+          style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--ink)', fontWeight: 700, outline: 'none' }}>
           <option value="">— not set —</option>
           {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
         </select>
-        <span style={{ fontSize: 10, color: '#AAA' }}>Surfaces on the project Timeline &amp; Dashboard.</span>
+        <span style={{ fontSize: 10, color: 'var(--faint)' }}>Surfaces on the project Timeline &amp; Dashboard.</span>
       </div>
 
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
@@ -673,12 +673,12 @@ export default function CostStackTab({ projectId }: Props) {
           <div className="w-full">
             <div className="flex items-center justify-between mb-6">
               <SectionHeading sub="Construction rate applied to GBA plus all soft costs">Cost Stack</SectionHeading>
-              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
               {cs.canUndo && <Button size="sm" variant="ghost" onClick={() => cs.undo(setData)}>Undo</Button>}
             </div>
 
             <div className="mb-5">
-              <p className="text-[#888] text-[9px] tracking-[0.18em] uppercase mb-2">Build Rate Preset</p>
+              <p className="text-[var(--ink-3)] text-[9px] tracking-[0.18em] uppercase mb-2">Build Rate Preset</p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                 {presets.map((p) => {
                   const isActive = data.buildRatePerSqm === p.buildRatePerSqm
@@ -692,22 +692,22 @@ export default function CostStackTab({ projectId }: Props) {
                         textTransform: 'uppercase',
                         fontWeight: isActive ? 600 : 500,
                         cursor: 'pointer',
-                        border: '1px solid #D0CEC9',
+                        border: '1px solid var(--border)',
                         borderRadius: 4,
-                        background: isActive ? '#F0F0F0' : '#FFFFFF',
-                        color: isActive ? '#1A1A1A' : '#999',
+                        background: isActive ? '#F0F0F0' : 'var(--card)',
+                        color: isActive ? 'var(--ink)' : 'var(--ink-3)',
                         transition: 'all 0.15s ease',
                       }}
                       onMouseEnter={e => {
                         if (!isActive) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#1A1A1A'
-                          (e.currentTarget as HTMLButtonElement).style.color = '#1A1A1A'
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--ink)'
+                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)'
                         }
                       }}
                       onMouseLeave={e => {
                         if (!isActive) {
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = '#D0CEC9'
-                          (e.currentTarget as HTMLButtonElement).style.color = '#999'
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)'
+                          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-3)'
                         }
                       }}
                     >{p.name}</button>
@@ -718,13 +718,13 @@ export default function CostStackTab({ projectId }: Props) {
 
             <InnerSection label="Construction">
               <FieldRow label="GBA (sqm)" note="From Site & Design">
-                <span className="text-[#1A1A1A] font-mono text-sm">{site.resiGBA.toLocaleString()}</span>
+                <span className="text-[var(--ink)] font-mono text-sm">{site.resiGBA.toLocaleString()}</span>
               </FieldRow>
               <FieldRow label="Build rate ($/sqm)" note="Standard rate for the building type">
                 <NumberInput value={data.buildRatePerSqm} onChange={v => update('buildRatePerSqm', v)} prefix="$" step={50} />
               </FieldRow>
               {hardTotal > 0 && (
-                <p className="text-[10px] mt-1" style={{ color: '#9A7B2E' }}>
+                <p className="text-[10px] mt-1" style={{ color: 'var(--gold)' }}>
                   Construction is itemised — feasibility uses the <b>Construction tab</b> total <span className="font-mono font-semibold">{fmt(hardTotal)}</span> (contingency & prelims included there); the rate above is ignored.
                 </p>
               )}
@@ -732,8 +732,8 @@ export default function CostStackTab({ projectId }: Props) {
                 <PctInput value={data.regionalLoadingPct ?? 0} onChange={v => update('regionalLoadingPct', v)} />
               </FieldRow>
               {(data.regionalLoadingPct ?? 0) !== 0 && (
-                <p className="text-[#888] text-[10px] mt-1">
-                  Loaded rate <span className="font-mono text-[#1A1A1A] font-semibold">${Math.round(data.buildRatePerSqm * (1 + (data.regionalLoadingPct ?? 0))).toLocaleString()}/sqm</span> → construction <span className="font-mono text-[#1A1A1A] font-semibold">{fmt(result.construction)}</span>
+                <p className="text-[var(--ink-3)] text-[10px] mt-1">
+                  Loaded rate <span className="font-mono text-[var(--ink)] font-semibold">${Math.round(data.buildRatePerSqm * (1 + (data.regionalLoadingPct ?? 0))).toLocaleString()}/sqm</span> → construction <span className="font-mono text-[var(--ink)] font-semibold">{fmt(result.construction)}</span>
                 </p>
               )}
             </InnerSection>
@@ -743,8 +743,8 @@ export default function CostStackTab({ projectId }: Props) {
               <FieldRow label="Prelims"><PctInput value={data.prelimsPct} onChange={v => update('prelimsPct', v)} /></FieldRow>
               {consTotal > 0 ? (
                 <FieldRow label="Professional fees" note="From Consultants tab">
-                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(consTotal)}</span>
-                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--ink)', fontWeight: 700 }}>{fmt(consTotal)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 8 }}>↑ itemised</span>
                 </FieldRow>
               ) : (
                 <FieldRow label="Professional fees"><PctInput value={data.professionalFeesPct} onChange={v => update('professionalFeesPct', v)} /></FieldRow>
@@ -755,8 +755,8 @@ export default function CostStackTab({ projectId }: Props) {
             <InnerSection label="Fixed Costs">
               {statTotal > 0 ? (
                 <FieldRow label="Statutory & council" note="From Statutory + Headworks tabs">
-                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(statTotal)}</span>
-                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--ink)', fontWeight: 700 }}>{fmt(statTotal)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 8 }}>↑ itemised</span>
                 </FieldRow>
               ) : (
                 <FieldRow label="Statutory & council"><NumberInput value={data.statutoryFixed} onChange={v => update('statutoryFixed', v)} prefix="$" step={50000} /></FieldRow>
@@ -765,20 +765,20 @@ export default function CostStackTab({ projectId }: Props) {
                 <PctInput value={data.posContributionPct ?? 0} onChange={v => update('posContributionPct', v)} />
               </FieldRow>
               {result.posContribution > 0 && (
-                <p className="text-[#888] text-[10px] mt-1 mb-1">POS contribution: <span className="font-mono text-[#1A1A1A] font-semibold">{fmt(result.posContribution)}</span> ({((data.posContributionPct ?? 0) * 100).toFixed(1)}% of land value)</p>
+                <p className="text-[var(--ink-3)] text-[10px] mt-1 mb-1">POS contribution: <span className="font-mono text-[var(--ink)] font-semibold">{fmt(result.posContribution)}</span> ({((data.posContributionPct ?? 0) * 100).toFixed(1)}% of land value)</p>
               )}
               {mgmtTotal > 0 ? (
                 <FieldRow label="Project management" note="From Management tab">
-                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(mgmtTotal)}</span>
-                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised Management Fees</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--ink)', fontWeight: 700 }}>{fmt(mgmtTotal)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 8 }}>↑ itemised Management Fees</span>
                 </FieldRow>
               ) : (
                 <FieldRow label="Project management"><NumberInput value={data.projectManagementFixed} onChange={v => update('projectManagementFixed', v)} prefix="$" step={50000} /></FieldRow>
               )}
               {mktTotal > 0 ? (
                 <FieldRow label="Marketing" note="From Marketing tab">
-                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#1A1A1A', fontWeight: 700 }}>{fmt(mktTotal)}</span>
-                  <span style={{ fontSize: 10, color: '#9A7B2E', marginLeft: 8 }}>↑ itemised</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--ink)', fontWeight: 700 }}>{fmt(mktTotal)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--gold)', marginLeft: 8 }}>↑ itemised</span>
                 </FieldRow>
               ) : (
                 <FieldRow label="Marketing"><NumberInput value={data.marketingFixed} onChange={v => update('marketingFixed', v)} prefix="$" step={50000} /></FieldRow>
@@ -791,8 +791,8 @@ export default function CostStackTab({ projectId }: Props) {
                 <input type="checkbox" checked={data.gstEnabled} onChange={e => update('gstEnabled', e.target.checked)} />
               </FieldRow>
               {data.gstEnabled && (
-                <p className="text-[#888] text-[10px] mt-2 leading-relaxed">
-                  Input credits recovered: <span className="font-mono font-semibold text-[#237A52]">${Math.round(result.gstCredits).toLocaleString()}</span>.
+                <p className="text-[var(--ink-3)] text-[10px] mt-2 leading-relaxed">
+                  Input credits recovered: <span className="font-mono font-semibold text-[var(--emerald)]">${Math.round(result.gstCredits).toLocaleString()}</span>.
                   Statutory charges (GST-free), finance (input-taxed) and in-kind/land carry no GST.
                 </p>
               )}
@@ -800,11 +800,11 @@ export default function CostStackTab({ projectId }: Props) {
 
             {land.isInKind && land.inKindGFA > 0 && (
               <div className="mt-4 border border-[#C8C0D8] bg-[#F8F5FC] p-4">
-                <p className="text-[9px] tracking-[0.18em] uppercase text-[#7A4AAA] mb-2">In-Kind — {land.inKindLabel}</p>
-                <p className="text-[#888] text-xs mb-2">{land.inKindNote}</p>
+                <p className="text-[9px] tracking-[0.18em] uppercase text-[var(--purple)] mb-2">In-Kind — {land.inKindLabel}</p>
+                <p className="text-[var(--ink-3)] text-xs mb-2">{land.inKindNote}</p>
                 <div className="flex justify-between">
-                  <span className="text-[10px] text-[#666]">{land.inKindGFA.toLocaleString()} sqm × ${land.inKindRatePerSqm.toLocaleString()}/sqm</span>
-                  <span className="text-[#1A1A1A] font-mono font-bold text-sm">${result.inKindCost.toLocaleString()}</span>
+                  <span className="text-[10px] text-[var(--ink-2)]">{land.inKindGFA.toLocaleString()} sqm × ${land.inKindRatePerSqm.toLocaleString()}/sqm</span>
+                  <span className="text-[var(--ink)] font-mono font-bold text-sm">${result.inKindCost.toLocaleString()}</span>
                 </div>
               </div>
             )}
@@ -813,7 +813,7 @@ export default function CostStackTab({ projectId }: Props) {
           {/* ── Cost Summary — right column, beside the rates ── */}
           <div className="w-full">
             <div className="mb-6"><SectionHeading sub="Rolled-up total development cost incl. land">Cost Summary</SectionHeading></div>
-            <div className="border border-[#E0DDD8] rounded-2xl overflow-hidden bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+            <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
               {/* Line items flow across two roomy columns so nothing feels cramped */}
               <div className="grid grid-cols-1 px-4 md:px-6 py-4">
                 {(() => {
@@ -823,10 +823,10 @@ export default function CostStackTab({ projectId }: Props) {
                     ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
                     ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
                   ]
-                  const col = { land: '#8A6A28', dev: '#1A1A1A', inkind: '#7A4AAA', gst: '#237A52' }
+                  const col = { land: 'var(--gold-deep)', dev: 'var(--ink)', inkind: 'var(--purple)', gst: 'var(--emerald)' }
                   return rows.map((r, i) => (
-                    <div key={i} className="flex justify-between items-baseline gap-4 py-3.5 border-b border-[#F1EEE9]">
-                      <span className="text-[13px] tracking-wide" style={{ color: r.tone === 'dev' ? '#666' : col[r.tone] }}>{r.label}</span>
+                    <div key={i} className="flex justify-between items-baseline gap-4 py-3.5 border-b border-[var(--card-3)]">
+                      <span className="text-[13px] tracking-wide" style={{ color: r.tone === 'dev' ? 'var(--ink-2)' : col[r.tone] }}>{r.label}</span>
                       <span className="text-[17px] font-mono font-semibold whitespace-nowrap" style={{ color: col[r.tone] }}>
                         {r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}
                       </span>
@@ -835,13 +835,13 @@ export default function CostStackTab({ projectId }: Props) {
                 })()}
               </div>
               {/* Total — full-width banner across the bottom */}
-              <div className="flex flex-wrap justify-between items-center gap-4 px-6 md:px-10 py-7 border-t border-[#D0CEC9] bg-[#F5F3F0]">
-                <span className="text-[14px] font-semibold tracking-[0.14em] uppercase text-[#1A1A1A]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
+              <div className="flex flex-wrap justify-between items-center gap-4 px-6 md:px-10 py-7 border-t border-[var(--border)] bg-[var(--card-2)]">
+                <span className="text-[14px] font-semibold tracking-[0.14em] uppercase text-[var(--ink)]">Total Dev Cost{landB.total > 0 ? ' (incl land)' : ''}{result.gstCredits > 0 ? ' (ex GST)' : ''}</span>
                 <div className="flex items-baseline gap-5">
                   {site.resiGBA > 0 && (
-                    <span className="text-[#AAA] text-[12px] tracking-wide">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</span>
+                    <span className="text-[var(--faint)] text-[12px] tracking-wide">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</span>
                   )}
-                  <span className="font-mono font-bold text-4xl md:text-[40px] text-[#B8963C] leading-none">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
+                  <span className="font-mono font-bold text-4xl md:text-[40px] text-[var(--gold)] leading-none">${(tdcInclLand / 1_000_000).toFixed(1)}M</span>
                 </div>
               </div>
             </div>
@@ -853,17 +853,17 @@ export default function CostStackTab({ projectId }: Props) {
       {meta && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #E8E5E0' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
             <div>
-              <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 4 }}>Cost Breakdown</p>
-              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 20, letterSpacing: '0.06em', color: '#1A1A1A', margin: '0 0 6px' }}>{meta.title}</h2>
-              <p style={{ color: '#AAA', fontSize: 11, margin: 0 }}>{meta.sub}</p>
+              <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 4 }}>Cost Breakdown</p>
+              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 20, letterSpacing: '0.06em', color: 'var(--ink)', margin: '0 0 6px' }}>{meta.title}</h2>
+              <p style={{ color: 'var(--faint)', fontSize: 11, margin: 0 }}>{meta.sub}</p>
             </div>
             <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 24, alignItems: 'center' }}>
-              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A' }}>⤳ Auto-saved</span>
+              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
               {dc.canUndo && (
                 <button onClick={() => dc.undo(setDetailed)}
-                  style={{ background: 'transparent', border: '1px solid #D0CEC9', color: '#888', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, padding: '8px 16px', cursor: 'pointer' }}>
+                  style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, padding: '8px 16px', cursor: 'pointer' }}>
                   Undo
                 </button>
               )}
@@ -871,9 +871,9 @@ export default function CostStackTab({ projectId }: Props) {
           </div>
 
           {/* Market benchmark hint */}
-          <div style={{ background: '#F7F5F2', border: '1px solid #E8E5E0', borderLeft: '3px solid #C4973A', padding: '10px 16px', marginBottom: 24 }}>
-            <p style={{ fontSize: 10, color: '#888', margin: 0, letterSpacing: '0.04em' }}>
-              <span style={{ color: '#C4973A', fontWeight: 700 }}>Market guide — </span>{meta.hint}
+          <div style={{ background: 'var(--card-2)', border: '1px solid var(--border)', borderLeft: '3px solid var(--gold)', padding: '10px 16px', marginBottom: 24 }}>
+            <p style={{ fontSize: 10, color: 'var(--ink-3)', margin: 0, letterSpacing: '0.04em' }}>
+              <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Market guide — </span>{meta.hint}
             </p>
           </div>
 
@@ -901,9 +901,9 @@ export default function CostStackTab({ projectId }: Props) {
 
 function InnerSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="mb-4 border border-[#E8E5E0] bg-white">
-      <div className="px-4 py-2 border-b border-[#E8E5E0] bg-[#F5F3F0]">
-        <span className="text-[9px] tracking-[0.2em] uppercase text-[#888]">{label}</span>
+    <div className="mb-4 border border-[var(--border)] bg-white">
+      <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--card-2)]">
+        <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)]">{label}</span>
       </div>
       <div className="px-4 py-1">{children}</div>
     </div>

@@ -115,7 +115,7 @@ const COLS_SUM = COLS_AFTER_ITEM.reduce((s, w) => s + w, 0)
 const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
 
 // Editable-cell styling — borderless so the grid stays clean but every field is live.
-const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: '#1A1A1A', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
+const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: 'var(--ink)', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
 const editSelect: React.CSSProperties = { ...editInput, cursor: 'pointer', appearance: 'none' as const }
 const actBtn: React.CSSProperties = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 11, lineHeight: 1, color: '#B4B2AD', padding: '0 1px' }
 
@@ -235,7 +235,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const grandBudget = items.reduce((s, i) => s + effAmt(i), 0)
   const grandGst = items.reduce((s, i) => s + gstOf(i), 0)
 
-  const th: React.CSSProperties = { fontSize: 9, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
+  const th: React.CSSProperties = { fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
   const banded = buildGroups(items, effGroups)
 
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
@@ -246,7 +246,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const badge = item.phase ? PHASE_BADGE[item.phase] : undefined
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
     return (
-      <div key={item.id} className="cs-row" style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid #F0EDE8', background: idx % 2 === 0 ? '#fff' : '#FDFCFB', alignItems: 'center' }}>
+      <div key={item.id} className="cs-row" style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid var(--line)', background: idx % 2 === 0 ? 'var(--card)' : 'var(--card)', alignItems: 'center' }}>
         {/* Item description — editable, with move/delete controls (reveal on hover) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
           <span className="cs-act" style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
@@ -257,7 +257,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               <select value={groupOf(item)?.id || ''} title="Move to category"
                 onChange={e => { const g = effGroups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: '#9B8ACB', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
-                {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: '#1A1A1A' }}>{g.label}</option>)}
+                {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: 'var(--ink)' }}>{g.label}</option>)}
               </select>
             )}
           </span>
@@ -282,15 +282,15 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         )}
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
         {isPct || hasUnitRate(item) ? (
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#1A1A1A', ...cellR }}>{money(effAmt(item))}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', ...cellR }}>{money(effAmt(item))}</span>
         ) : (
           <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
             onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
             style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
         )}
         {/* GST from budget (10%) + Incl. GST */}
-        <span style={{ fontSize: 10, color: '#999', ...cellR }}>{item.gstFree ? '—' : money(gst)}</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#1A1A1A', ...cellR }}>{money(effAmt(item) + gst)}</span>
+        <span style={{ fontSize: 10, color: 'var(--ink-3)', ...cellR }}>{item.gstFree ? '—' : money(gst)}</span>
+        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink)', ...cellR }}>{money(effAmt(item) + gst)}</span>
         {/* Funded by — editable dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ display: 'inline-flex', gap: 2, flexShrink: 0 }}>{fund.dots.map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c }} />)}</span>
@@ -300,16 +300,16 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         </div>
         {/* Phase — editable dropdown */}
         <select value={item.phase || ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}
-          style={{ ...editSelect, color: badge ? badge.text : '#BBB', background: badge ? badge.bg : 'transparent', borderRadius: 3 }}>
-          {PHASE_OPTS.map(([v, l]) => <option key={v} value={v} style={{ color: '#1A1A1A', background: '#fff' }}>{l}</option>)}
+          style={{ ...editSelect, color: badge ? badge.text : 'var(--faint)', background: badge ? badge.bg : 'transparent', borderRadius: 3 }}>
+          {PHASE_OPTS.map(([v, l]) => <option key={v} value={v} style={{ color: 'var(--ink)', background: 'var(--card)' }}>{l}</option>)}
         </select>
         {/* S-curve — editable dropdown */}
         <select value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })} style={{ ...editSelect, color: '#7A7975' }}>
           {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
         {/* Start / End — editable month pickers */}
-        <input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: '#666' }} />
-        <input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: '#666' }} />
+        <input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: 'var(--ink-2)' }} />
+        <input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: 'var(--ink-2)' }} />
       </div>
     )
   }
@@ -318,28 +318,28 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const b = rows.reduce((s, i) => s + effAmt(i), 0)
     const g = rows.reduce((s, i) => s + gstOf(i), 0)
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid #E8E5E0', background: '#F5F3F0', fontWeight: 600, fontSize: 11 }}>
-        <span style={{ color: '#1A1A1A', paddingLeft: 16 }}>{label} subtotal</span>
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid var(--border)', background: 'var(--card-2)', fontWeight: 600, fontSize: 11 }}>
+        <span style={{ color: 'var(--ink)', paddingLeft: 16 }}>{label} subtotal</span>
         <span /><span /><span />
-        <span style={{ color: '#237A52', ...cellR }}>{money(b)}</span>
-        <span style={{ color: '#999', ...cellR }}>{money(g)}</span>
-        <span style={{ color: '#237A52', ...cellR }}>{money(b + g)}</span>
+        <span style={{ color: 'var(--emerald)', ...cellR }}>{money(b)}</span>
+        <span style={{ color: 'var(--ink-3)', ...cellR }}>{money(g)}</span>
+        <span style={{ color: 'var(--emerald)', ...cellR }}>{money(b + g)}</span>
         <span style={{ gridColumn: '8 / -1' }} />
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #E8E5E0', borderRadius: 6, overflowX: 'auto' }}>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, overflowX: 'auto' }}>
       <style>{`.cs-row .cs-act{opacity:0;transition:opacity .12s}.cs-row:hover .cs-act{opacity:1}`}</style>
       <div style={{ minWidth: MINW }}>
         {/* + add row — sits at top-left, above the Item description column */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px', borderBottom: '1px solid #F0EDE8' }}>
-          <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: '#237A52', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px', borderBottom: '1px solid var(--line)' }}>
+          <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: 'var(--emerald)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
         </div>
 
         {/* Header */}
-        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: '#F7F5F2', borderBottom: '1px solid #E0DDD8', padding: '10px 16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: 'var(--card-2)', borderBottom: '1px solid var(--border)', padding: '10px 16px' }}>
           <span style={{ ...th, position: 'relative', paddingRight: 12 }}>
             Item description
             {/* drag divider — resize the Item column */}
@@ -366,14 +366,14 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           const open = !collapsed.has(def.id)
           return (
             <div key={def.id}>
-              <div onClick={() => toggle(def.id)} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '10px 16px', background: '#F5F3F0', borderBottom: '1px solid #E8E5E0', cursor: 'pointer', alignItems: 'center' }}>
+              <div onClick={() => toggle(def.id)} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '10px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)', cursor: 'pointer', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: def.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#1A1A1A', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: '#999', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: 'var(--ink-3)', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
                   <button onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}
-                    style={{ fontSize: 10, fontWeight: 500, color: '#237A52', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
+                    style={{ fontSize: 10, fontWeight: 500, color: 'var(--emerald)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
                 </div>
-                <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: '#999', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
+                <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: 'var(--ink-3)', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
               </div>
               {open && rows.map((item, idx) => renderRow(item, idx))}
               {renderSubtotal(def.label, rows)}
@@ -382,12 +382,12 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         }) : items.map((item, idx) => renderRow(item, idx))}
 
         {/* Section total */}
-        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: '#F5F3F0', borderTop: '1px solid #E0DDD8', fontWeight: 700, fontSize: 12 }}>
-          <span style={{ color: '#1A1A1A', letterSpacing: '0.04em' }}>Section total</span>
+        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: 'var(--card-2)', borderTop: '1px solid var(--border)', fontWeight: 700, fontSize: 12 }}>
+          <span style={{ color: 'var(--ink)', letterSpacing: '0.04em' }}>Section total</span>
           <span /><span /><span />
-          <span style={{ color: '#1A1A1A', ...cellR }}>{money(grandBudget)}</span>
-          <span style={{ color: '#999', ...cellR }}>{money(grandGst)}</span>
-          <span style={{ color: '#1A1A1A', ...cellR }}>{money(grandBudget + grandGst)}</span>
+          <span style={{ color: 'var(--ink)', ...cellR }}>{money(grandBudget)}</span>
+          <span style={{ color: 'var(--ink-3)', ...cellR }}>{money(grandGst)}</span>
+          <span style={{ color: 'var(--ink)', ...cellR }}>{money(grandBudget + grandGst)}</span>
           <span style={{ gridColumn: '8 / -1' }} />
         </div>
       </div>

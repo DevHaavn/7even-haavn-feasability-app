@@ -19,7 +19,7 @@ function fmt(n: number, d = 1) {
 }
 const pctS = (n: number, d = 1) => isFinite(n) ? `${(n * 100).toFixed(d)}%` : '—'
 
-const INK = '#1A1A1A', MUTE = '#8A8A8A', LINE = '#ECEAE5', RED = '#DC2626', GREEN = '#16A34A', GOLD = '#F59E0B'
+const INK = 'var(--ink)', MUTE = '#8A8A8A', LINE = '#ECEAE5', RED = '#DC2626', GREEN = '#16A34A', GOLD = '#F59E0B'
 
 const PHASE_COLOR: Record<string, string> = {
   'pre-acquisition': '#F59E0B', 'acquisition-planning': '#8B5CF6',
@@ -31,7 +31,7 @@ const COST_COLORS = { land: '#60A5FA', build: '#8B8CF0', fees: '#34D399', statut
 const LENSES = [['developer', 'Developer'], ['builder', 'Builder'], ['bank', 'Bank / lender'], ['equity', 'Equity investor']] as const
 
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 10, padding: 20, ...style }}>{children}</div>
+  return <div style={{ background: 'var(--card)', border: `1px solid ${LINE}`, borderRadius: 10, padding: 20, ...style }}>{children}</div>
 }
 function Label({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
@@ -160,7 +160,7 @@ export default function ProjectDashboard({ projectId }: Props) {
       )}
 
       {/* KPI strip */}
-      <div style={{ display: 'flex', background: '#fff', border: `1px solid ${LINE}`, borderRadius: 10, marginBottom: 16 }}>
+      <div style={{ display: 'flex', background: 'var(--card)', border: `1px solid ${LINE}`, borderRadius: 10, marginBottom: 16 }}>
         {[
           { l: 'Total dev cost', v: fmt(tdc, 1), s: 'land + all costs', c: INK },
           { l: 'Gross asset value', v: gav > 0 ? fmt(gav, 1) : '—', s: bestScenario ? `${bestScenario.strategy} yield basis` : 'no scenario', c: INK },
@@ -181,7 +181,7 @@ export default function ProjectDashboard({ projectId }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span style={{ fontSize: 11, color: MUTE }}>View as</span>
         {LENSES.map(([id, label]) => (
-          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: `1px solid ${LINE}`, padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? INK : '#fff', color: lens === id ? '#fff' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
+          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: `1px solid ${LINE}`, padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? INK : 'var(--card)', color: lens === id ? 'var(--card)' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
         ))}
       </div>
 
@@ -210,7 +210,7 @@ export default function ProjectDashboard({ projectId }: Props) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Card style={{ padding: 16 }}>
             <Label>Value creation</Label>
-            <div style={{ display: 'flex', height: 26, borderRadius: 5, overflow: 'hidden', fontSize: 9, color: '#fff', fontWeight: 600 }}>
+            <div style={{ display: 'flex', height: 26, borderRadius: 5, overflow: 'hidden', fontSize: 9, color: 'var(--card)', fontWeight: 600 }}>
               <div style={{ width: `${Math.max(6, (buckets.land / Math.max(gav, tdc, 1)) * 100)}%`, background: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E3A8A' }}>Land</div>
               <div style={{ width: `${Math.max(10, ((tdc - buckets.land) / Math.max(gav, tdc, 1)) * 100)}%`, background: '#C7C8F5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3730A3' }}>Build + soft</div>
               {devProfit > 0 && <div style={{ width: `${(devProfit / Math.max(gav, tdc, 1)) * 100}%`, background: '#6EE7B7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#065F46' }}>+{fmt(devProfit, 1)}</div>}
@@ -224,7 +224,7 @@ export default function ProjectDashboard({ projectId }: Props) {
           <Card style={{ padding: 16 }}>
             <Label>Land & acquisition</Label>
             <div style={{ fontSize: 20, fontWeight: 600, color: GOLD, marginBottom: 8 }}>{fmt(landCostEff, 2)}</div>
-            <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>{land.notes || `Contract ${fmt(land.landCost, 1)} · stamp duty ${fmt(land.stampDuty || 0, 1)} · settlement ${land.settlementDate || '—'}.`}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>{land.notes || `Contract ${fmt(land.landCost, 1)} · stamp duty ${fmt(land.stampDuty || 0, 1)} · settlement ${land.settlementDate || '—'}.`}</div>
           </Card>
         </div>
       </div>
@@ -261,7 +261,7 @@ export default function ProjectDashboard({ projectId }: Props) {
               <tr>
                 <td style={{ padding: '6px', color: '#444' }}>Finance cost</td>
                 {sens.map((s, i) => (
-                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? '#F0FDF4' : i === 3 ? '#FEF2F2' : '#FFFBEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
+                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? '#F0FDF4' : i === 3 ? '#FEF2F2' : 'var(--card)BEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
                 ))}
               </tr>
               <tr>

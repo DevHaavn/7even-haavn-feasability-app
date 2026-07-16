@@ -96,19 +96,19 @@ export default function ScenarioComparison({ projectId }: Props) {
   if (rows.length === 0) return (
     <div className="flex flex-col">
       <div className="p-6">
-        <p className="text-[#888] text-sm border border-[#E8E5E0] bg-white inline-block p-4">
+        <p className="text-[var(--ink-3)] text-sm border border-[var(--border)] bg-white inline-block p-4">
           Complete at least one mix scenario with unit counts to see the comparison matrix.
         </p>
       </div>
       <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: '#ECEAE7' }}>
         <img src="/brand-logo-white.png" alt="7EVEN · HAAVN" draggable={false} style={{ width: 195, height: 'auto', objectFit: 'contain', filter: 'invert(1)' }} />
-        <p style={{ color: '#888', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
-          We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: '#555' }}>every</em> adventure,
+        <p style={{ color: 'var(--ink-3)', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
+          We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: 'var(--ink-2)' }}>every</em> adventure,
         </p>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 32 }}>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 72, fontWeight: 900, letterSpacing: '-0.02em', color: '#1A1A1A', lineHeight: 1 }}>BIG</span>
-          <span style={{ fontSize: 13, color: '#999', letterSpacing: '0.12em' }}>or</span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 36, fontStyle: 'italic', fontWeight: 300, color: '#1A1A1A', letterSpacing: '0.01em' }}>small.</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 72, fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--ink)', lineHeight: 1 }}>BIG</span>
+          <span style={{ fontSize: 13, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>or</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 36, fontStyle: 'italic', fontWeight: 300, color: 'var(--ink)', letterSpacing: '0.01em' }}>small.</span>
         </div>
       </div>
     </div>
@@ -119,34 +119,34 @@ export default function ScenarioComparison({ projectId }: Props) {
       <div className="relative p-4 md:p-6">
       <SectionHeading sub="All scenarios ranked by RLV — the full outcome matrix">Scenario Comparison</SectionHeading>
 
-      <div className="border border-[#E0DDD8] bg-white overflow-x-auto mt-2">
+      <div className="border border-[var(--border)] bg-white overflow-x-auto mt-2">
         <table className="w-full" style={{ borderCollapse: 'collapse', minWidth: 540 }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #E0DDD8', background: '#F7F5F2' }}>
+            <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--card-2)' }}>
               {['Mix Scenario', 'Strategy', 'NOI / Revenue', 'GAV', 'TDC', 'RLV', 'Verdict'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '12px 16px', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>{h}</th>
+                <th key={h} style={{ textAlign: 'left', padding: '12px 16px', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {[...rows].sort((a, b) => b.rlv - a.rlv).map((r, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #F0EDE8', background: r.isBest ? '#FDFBF4' : 'white' }}>
+              <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'white' }}>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{ fontSize: 11, color: '#888', display: 'block' }}>{r.scenario}</span>
-                  {r.note && <span style={{ fontSize: 9, color: '#B8963C', letterSpacing: '0.06em', display: 'block', marginTop: 2 }}>{r.note}</span>}
+                  <span style={{ fontSize: 11, color: 'var(--ink-3)', display: 'block' }}>{r.scenario}</span>
+                  {r.note && <span style={{ fontSize: 9, color: 'var(--gold)', letterSpacing: '0.06em', display: 'block', marginTop: 2 }}>{r.note}</span>}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: r.isBest ? '#B8963C' : '#1A1A1A' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>
                     {r.isBest ? '★ ' : ''}{r.type}
                   </span>
                 </td>
-                <td style={{ padding: '10px 16px', fontSize: 11, color: '#666', fontFamily: 'monospace' }}>
+                <td style={{ padding: '10px 16px', fontSize: 11, color: 'var(--ink-2)', fontFamily: 'monospace' }}>
                   {r.noi != null ? `$${(r.noi / 1_000_000).toFixed(2)}M NOI` : `$${(r.gav / 1_000_000).toFixed(1)}M Rev`}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: '#1A1A1A' }}>${(r.gav / 1_000_000).toFixed(1)}M</span>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>${(r.gav / 1_000_000).toFixed(1)}M</span>
                 </td>
-                <td style={{ padding: '10px 16px', fontSize: 11, color: '#888', fontFamily: 'monospace' }}>${(r.tdc / 1_000_000).toFixed(1)}M</td>
+                <td style={{ padding: '10px 16px', fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>${(r.tdc / 1_000_000).toFixed(1)}M</td>
                 <td style={{ padding: '10px 16px' }}><Money value={r.rlv} size="md" /></td>
                 <td style={{ padding: '10px 16px' }}><VerdictBadge rlv={r.rlv} /></td>
               </tr>
@@ -159,13 +159,13 @@ export default function ScenarioComparison({ projectId }: Props) {
       {/* Brand + tagline section */}
       <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: '#ECEAE7' }}>
         <img src="/brand-logo-white.png" alt="7EVEN · HAAVN" draggable={false} style={{ width: 195, height: 'auto', objectFit: 'contain', filter: 'invert(1)' }} />
-        <p style={{ color: '#888', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
-          We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: '#555' }}>every</em> adventure,
+        <p style={{ color: 'var(--ink-3)', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
+          We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: 'var(--ink-2)' }}>every</em> adventure,
         </p>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 32 }}>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 72, fontWeight: 900, letterSpacing: '-0.02em', color: '#1A1A1A', lineHeight: 1 }}>BIG</span>
-          <span style={{ fontSize: 13, color: '#999', letterSpacing: '0.12em' }}>or</span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 36, fontStyle: 'italic', fontWeight: 300, color: '#1A1A1A', letterSpacing: '0.01em' }}>small.</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 72, fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--ink)', lineHeight: 1 }}>BIG</span>
+          <span style={{ fontSize: 13, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>or</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 36, fontStyle: 'italic', fontWeight: 300, color: 'var(--ink)', letterSpacing: '0.01em' }}>small.</span>
         </div>
       </div>
 

@@ -5,8 +5,8 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: st
   static getDerivedStateFromError(e: Error) { return { error: e.message } }
   render() {
     if (this.state.error) return (
-      <div style={{ padding: 40, color: '#1A1A1A', fontFamily: 'monospace', fontSize: 12 }}>
-        <p style={{ color: '#B4553F', marginBottom: 8 }}>Summary tab error:</p>
+      <div style={{ padding: 40, color: 'var(--ink)', fontFamily: 'monospace', fontSize: 12 }}>
+        <p style={{ color: 'var(--red)', marginBottom: 8 }}>Summary tab error:</p>
         <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{this.state.error}</pre>
       </div>
     )
@@ -37,14 +37,14 @@ function Row({ label, value, highlight, gold, large }: { label: string; value: s
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '10px 16px', borderBottom: '1px solid #F0EDE8',
+      padding: '10px 16px', borderBottom: '1px solid var(--line)',
       background: highlight ? '#FDFBF4' : 'transparent',
     }}>
-      <span style={{ color: '#666', fontSize: large ? 13 : 11, letterSpacing: '0.04em' }}>{label}</span>
+      <span style={{ color: 'var(--ink-2)', fontSize: large ? 13 : 11, letterSpacing: '0.04em' }}>{label}</span>
       <span style={{
         fontFamily: 'monospace', fontWeight: 700,
         fontSize: large ? 18 : 13,
-        color: gold ? '#C4973A' : '#1A1A1A',
+        color: gold ? 'var(--gold)' : 'var(--ink)',
       }}>{value}</span>
     </div>
   )
@@ -54,11 +54,11 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
   return (
     <div style={{ marginBottom: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <div style={{ width: 3, height: 22, background: '#C4973A', flexShrink: 0 }} />
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A1A1A', margin: 0 }}>{title}</h2>
+        <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
+        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>{title}</h2>
       </div>
-      {sub && <p style={{ color: '#999', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>{sub}</p>}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff' }}>{children}</div>
+      {sub && <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>{sub}</p>}
+      <div style={{ border: '1px solid var(--border)', background: 'var(--card)' }}>{children}</div>
     </div>
   )
 }
@@ -78,37 +78,37 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
   return (
     <div style={{ marginBottom: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <div style={{ width: 3, height: 22, background: '#C4973A', flexShrink: 0 }} />
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A1A1A', margin: 0 }}>LVR & Capital Deployment</h2>
+        <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
+        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>LVR & Capital Deployment</h2>
       </div>
-      <p style={{ color: '#999', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Required equity by phase — adjust LVR assumptions below</p>
+      <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Required equity by phase — adjust LVR assumptions below</p>
 
       {/* LVR Inputs */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', marginBottom: 12, padding: '14px 16px', display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12, padding: '14px 16px', display: 'flex', gap: 32, flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', color: '#888', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Land Phase LVR</label>
+          <label style={{ display: 'block', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Land Phase LVR</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <input type="range" min={0} max={80} value={Math.round(landLVR * 100)}
               onChange={e => setLandLVR(parseInt(e.target.value) / 100)}
-              style={{ width: 120, accentColor: '#C4973A' }} />
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: '#C4973A', width: 40 }}>{Math.round(landLVR * 100)}%</span>
+              style={{ width: 120, accentColor: 'var(--gold)' }} />
+            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: 'var(--gold)', width: 40 }}>{Math.round(landLVR * 100)}%</span>
           </div>
         </div>
         <div>
-          <label style={{ display: 'block', color: '#888', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Construction LVR</label>
+          <label style={{ display: 'block', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Construction LVR</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <input type="range" min={0} max={80} value={Math.round(constLVR * 100)}
               onChange={e => setConstLVR(parseInt(e.target.value) / 100)}
-              style={{ width: 120, accentColor: '#C4973A' }} />
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: '#C4973A', width: 40 }}>{Math.round(constLVR * 100)}%</span>
+              style={{ width: 120, accentColor: 'var(--gold)' }} />
+            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: 'var(--gold)', width: 40 }}>{Math.round(constLVR * 100)}%</span>
           </div>
         </div>
       </div>
 
       {/* Land Phase */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', marginBottom: 12 }}>
-        <div style={{ padding: '8px 16px', background: '#F7F5F2', borderBottom: '1px solid #E8E5E0' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>Land Phase</span>
+      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12 }}>
+        <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
+          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Land Phase</span>
         </div>
         <Row label="Land Cost (Total)" value={fmt(landCost)} />
         <Row label={`Bank Debt (${Math.round(landLVR * 100)}% LVR)`} value={fmt(landDebt)} />
@@ -116,9 +116,9 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
       </div>
 
       {/* Construction Phase */}
-      <div style={{ border: '1px solid #E8E5E0', background: '#fff', marginBottom: 12 }}>
-        <div style={{ padding: '8px 16px', background: '#F7F5F2', borderBottom: '1px solid #E8E5E0' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>Construction Phase</span>
+      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12 }}>
+        <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
+          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Construction Phase</span>
         </div>
         <Row label="Total Development Cost" value={fmt(tdc)} />
         <Row label={`Bank Debt (${Math.round(constLVR * 100)}% LVR)`} value={fmt(constDebt)} />
@@ -126,7 +126,7 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
       </div>
 
       {/* Total */}
-      <div style={{ border: '1px solid #C4973A', background: '#FDFBF4' }}>
+      <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4' }}>
         <div style={{ padding: '8px 16px', background: '#F5EDD6', borderBottom: '1px solid #E8D9A0' }}>
           <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#8A6A10', fontWeight: 700 }}>Total Capital Summary</span>
         </div>
@@ -134,7 +134,7 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
         <Row label="Total Bank Debt" value={fmt(totalDebt)} />
         <Row label="TOTAL EQUITY REQUIRED" value={fmt(totalEquity)} highlight large gold />
         <div style={{ padding: '8px 16px', borderTop: '1px solid #E8D9A0' }}>
-          <span style={{ fontSize: 10, color: '#999', letterSpacing: '0.06em' }}>
+          <span style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
             Effective blended LVR: {totalCost > 0 ? Math.round((totalDebt / totalCost) * 100) : 0}%
           </span>
         </div>
@@ -227,15 +227,15 @@ function SummaryTabInner({ projectId }: Props) {
       <div style={{ padding: '32px 40px', maxWidth: 900, width: '100%', margin: '0 auto' }}>
 
         {/* ── Header ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid #E8E5E0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
           <div>
-            <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 6 }}>Executive Summary</p>
-            <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 28, letterSpacing: '0.06em', color: '#1A1A1A', margin: 0 }}>{project?.name ?? 'Project'}</h1>
-            {project?.address && <p style={{ color: '#999', fontSize: 12, marginTop: 6, letterSpacing: '0.04em' }}>{project.address}</p>}
+            <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 6 }}>Executive Summary</p>
+            <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 28, letterSpacing: '0.06em', color: 'var(--ink)', margin: 0 }}>{project?.name ?? 'Project'}</h1>
+            {project?.address && <p style={{ color: 'var(--ink-3)', fontSize: 12, marginTop: 6, letterSpacing: '0.04em' }}>{project.address}</p>}
           </div>
           <div style={{ textAlign: 'right' }}>
             <Wordmark size="md" />
-            <p style={{ color: '#BBB', fontSize: 9, letterSpacing: '0.18em', marginTop: 8, textTransform: 'uppercase' }}>
+            <p style={{ color: 'var(--faint)', fontSize: 9, letterSpacing: '0.18em', marginTop: 8, textTransform: 'uppercase' }}>
               {new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
@@ -243,9 +243,9 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Best Scenario Hero ── */}
         {bestRow && (
-          <div style={{ border: '1px solid #C4973A', background: '#FDFBF4', padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
+          <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4', padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
             <div style={{ gridColumn: '1/-1', marginBottom: 8 }}>
-              <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
+              <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
             </div>
             {[
               { label: bestRow.noi != null ? 'Net Operating Income' : 'Gross Revenue', value: fmt(bestRow.noi ?? bestRow.gav) },
@@ -256,8 +256,8 @@ function SummaryTabInner({ projectId }: Props) {
               { label: 'Residual Land Value', value: fmt(bestRow.rlv) },
             ].map(({ label, value }) => (
               <div key={label}>
-                <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 6px' }}>{label}</p>
-                <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 22, color: '#1A1A1A', margin: 0 }}>{value}</p>
+                <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 6px' }}>{label}</p>
+                <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 22, color: 'var(--ink)', margin: 0 }}>{value}</p>
               </div>
             ))}
           </div>
@@ -323,19 +323,19 @@ function SummaryTabInner({ projectId }: Props) {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
                 <thead>
-                  <tr style={{ background: '#F7F5F2', borderBottom: '1px solid #E0DDD8' }}>
+                  <tr style={{ background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
                     {['Scenario', 'Strategy', 'NOI / Revenue', 'GAV', 'RLV', 'Verdict'].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>{h}</th>
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {[...allRows].sort((a, b) => b.rlv - a.rlv).map((r, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #F0EDE8', background: r.isBest ? '#FDFBF4' : '#fff' }}>
-                      <td style={{ padding: '9px 14px', fontSize: 11, color: '#888' }}>{r.scenario}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 12, fontWeight: 600, color: r.isBest ? '#B8963C' : '#1A1A1A' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 11, fontFamily: 'monospace', color: '#555' }}>{r.noi != null ? fmt(r.noi) + ' NOI' : fmt(r.gav) + ' Rev'}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color: '#1A1A1A' }}>{fmt(r.gav)}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'var(--card)' }}>
+                      <td style={{ padding: '9px 14px', fontSize: 11, color: 'var(--ink-3)' }}>{r.scenario}</td>
+                      <td style={{ padding: '9px 14px', fontSize: 12, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
+                      <td style={{ padding: '9px 14px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) + ' NOI' : fmt(r.gav) + ' Rev'}</td>
+                      <td style={{ padding: '9px 14px', fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{fmt(r.gav)}</td>
                       <td style={{ padding: '9px 14px' }}><Money value={r.rlv} size="md" /></td>
                       <td style={{ padding: '9px 14px' }}><VerdictBadge rlv={r.rlv} /></td>
                     </tr>
@@ -350,10 +350,10 @@ function SummaryTabInner({ projectId }: Props) {
         {bestRow && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <div style={{ width: 3, height: 22, background: '#C4973A', flexShrink: 0 }} />
-              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A1A1A', margin: 0 }}>Profit & Exit Valuation</h2>
+              <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
+              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>Profit & Exit Valuation</h2>
             </div>
-            <p style={{ color: '#999', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Developer returns and asset exit analysis — best scenario</p>
+            <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Developer returns and asset exit analysis — best scenario</p>
 
             {/* Hero profit card */}
             {(() => {
@@ -361,45 +361,45 @@ function SummaryTabInner({ projectId }: Props) {
               const exitVal = isBTRorHotel ? bestRow.noi / 0.05 : bestRow.gav
               const profit = exitVal - bestRow.tdc
               const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
-              const profitColor = profit > 0 ? '#237A52' : '#B4553F'
+              const profitColor = profit > 0 ? 'var(--emerald)' : 'var(--red)'
               return (
-                <div style={{ border: '1px solid #C4973A', background: '#FDFBF4', padding: '20px 24px', marginBottom: 14 }}>
-                  <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: '0 0 16px' }}>★ {bestRow.scenario} · {bestRow.type}</p>
+                <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4', padding: '20px 24px', marginBottom: 14 }}>
+                  <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: '0 0 16px' }}>★ {bestRow.scenario} · {bestRow.type}</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 20 }}>
                     {bestRow.noi != null && (
                       <div>
-                        <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Net Operating Income</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: '#1A1A1A', margin: 0 }}>{fmt(bestRow.noi)}</p>
-                        <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>per annum</p>
+                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Net Operating Income</p>
+                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.noi)}</p>
+                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>per annum</p>
                       </div>
                     )}
                     {isBTRorHotel ? (
                       <div>
-                        <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Exit Value @ 5% Cap Rate</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: '#1A1A1A', margin: 0 }}>{fmt(exitVal)}</p>
-                        <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>NOI ÷ 5%</p>
+                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Exit Value @ 5% Cap Rate</p>
+                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(exitVal)}</p>
+                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>NOI ÷ 5%</p>
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Gross Revenue</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: '#1A1A1A', margin: 0 }}>{fmt(bestRow.gav)}</p>
-                        <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>sale proceeds</p>
+                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Gross Revenue</p>
+                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.gav)}</p>
+                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>sale proceeds</p>
                       </div>
                     )}
                     <div>
-                      <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Total Dev Cost</p>
-                      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: '#1A1A1A', margin: 0 }}>{fmt(bestRow.tdc)}</p>
-                      <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>all-in TDC</p>
+                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Total Dev Cost</p>
+                      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.tdc)}</p>
+                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>all-in TDC</p>
                     </div>
                     <div>
-                      <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Developer Profit</p>
+                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Developer Profit</p>
                       <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: profitColor, margin: 0 }}>{profit >= 0 ? '+' : ''}{fmt(profit)}</p>
-                      <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>exit value − TDC</p>
+                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>exit value − TDC</p>
                     </div>
                     <div>
-                      <p style={{ color: '#999', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Profit Margin</p>
+                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Profit Margin</p>
                       <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: profitColor, margin: 0 }}>{margin.toFixed(1)}%</p>
-                      <p style={{ color: '#BBB', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>on TDC</p>
+                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>on TDC</p>
                     </div>
                   </div>
                 </div>
@@ -408,16 +408,16 @@ function SummaryTabInner({ projectId }: Props) {
 
             {/* All-scenario exit table */}
             {allRows.length > 1 && (
-              <div style={{ border: '1px solid #E8E5E0', background: '#fff' }}>
-                <div style={{ padding: '8px 16px', background: '#F7F5F2', borderBottom: '1px solid #E8E5E0' }}>
-                  <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#888', fontWeight: 600 }}>Exit Analysis — All Scenarios</span>
+              <div style={{ border: '1px solid var(--border)', background: 'var(--card)' }}>
+                <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Exit Analysis — All Scenarios</span>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
                     <thead>
-                      <tr style={{ background: '#FAFAF8', borderBottom: '1px solid #E8E5E0' }}>
+                      <tr style={{ background: '#FAFAF8', borderBottom: '1px solid var(--border)' }}>
                         {['Strategy', 'NOI / Revenue', 'Exit @ 5% Cap', 'TDC', 'Dev Profit', 'Margin %'].map(h => (
-                          <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>{h}</th>
+                          <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -427,13 +427,13 @@ function SummaryTabInner({ projectId }: Props) {
                         const exitVal = isBH ? r.noi / 0.05 : r.gav
                         const profit = exitVal - r.tdc
                         const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
-                        const pc = profit > 0 ? '#237A52' : '#B4553F'
+                        const pc = profit > 0 ? 'var(--emerald)' : 'var(--red)'
                         return (
-                          <tr key={i} style={{ borderBottom: '1px solid #F0EDE8', background: r.isBest ? '#FDFBF4' : '#fff' }}>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: r.isBest ? '#B8963C' : '#1A1A1A' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: '#555' }}>{r.noi != null ? fmt(r.noi) : fmt(r.gav)}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: '#1A1A1A' }}>{isBH ? fmt(exitVal) : '—'}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: '#777' }}>{fmt(r.tdc)}</td>
+                          <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'var(--card)' }}>
+                            <td style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
+                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) : fmt(r.gav)}</td>
+                            <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{isBH ? fmt(exitVal) : '—'}</td>
+                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-3)' }}>{fmt(r.tdc)}</td>
                             <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: pc }}>{profit >= 0 ? '+' : ''}{fmt(profit)}</td>
                             <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: pc }}>{margin.toFixed(1)}%</td>
                           </tr>
@@ -442,8 +442,8 @@ function SummaryTabInner({ projectId }: Props) {
                     </tbody>
                   </table>
                 </div>
-                <div style={{ padding: '8px 14px', borderTop: '1px solid #F0EDE8' }}>
-                  <span style={{ fontSize: 9, color: '#BBB', letterSpacing: '0.08em' }}>BTR/Hotel exit = NOI ÷ 5% cap rate · BTS = gross sales revenue · Profit = Exit Value − TDC</span>
+                <div style={{ padding: '8px 14px', borderTop: '1px solid var(--line)' }}>
+                  <span style={{ fontSize: 9, color: 'var(--faint)', letterSpacing: '0.08em' }}>BTR/Hotel exit = NOI ÷ 5% cap rate · BTS = gross sales revenue · Profit = Exit Value − TDC</span>
                 </div>
               </div>
             )}
@@ -454,7 +454,7 @@ function SummaryTabInner({ projectId }: Props) {
         <LVRSection landCost={landCost} tdc={tdc} />
 
         {!bestRow && allRows.length === 0 && (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#AAA', fontSize: 12 }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--faint)', fontSize: 12 }}>
             Complete Site & Design, Cost Stack, and at least one Mix scenario to generate the summary.
           </div>
         )}

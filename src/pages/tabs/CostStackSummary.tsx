@@ -16,15 +16,15 @@ const fmt = (n: number) =>
 const fmtPercent = (n: number) => `${(n * 100).toFixed(1)}%`
 
 // ── KPI Card (Header Row) ──────────────────────────────────────────
-function KpiCard({ label, value, unit = '', note = '', color = '#237A52' }: { label: string; value: string; unit?: string; note?: string; color?: string }) {
+function KpiCard({ label, value, unit = '', note = '', color = 'var(--emerald)' }: { label: string; value: string; unit?: string; note?: string; color?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <p style={{ color: '#888', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0, fontWeight: 600 }}>{label}</p>
+      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0, fontWeight: 600 }}>{label}</p>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
         <span style={{ fontFamily: 'monospace', fontSize: 24, fontWeight: 700, color: color }}>{value}</span>
-        {unit && <span style={{ color: '#999', fontSize: 12 }}>{unit}</span>}
+        {unit && <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>{unit}</span>}
       </div>
-      {note && <p style={{ color: '#999', fontSize: 10, margin: 0 }}>{note}</p>}
+      {note && <p style={{ color: 'var(--ink-3)', fontSize: 10, margin: 0 }}>{note}</p>}
     </div>
   )
 }
@@ -32,9 +32,9 @@ function KpiCard({ label, value, unit = '', note = '', color = '#237A52' }: { la
 // ── Section Container ──────────────────────────────────────────
 function Section({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: 24, gap: 2, border: '1px solid rgba(35,122,82,0.08)', marginBottom: 20 }}>
+    <div style={{ background: 'var(--card)', borderRadius: 12, padding: 24, gap: 2, border: '1px solid rgba(35,122,82,0.08)', marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 style={{ margin: 0, color: '#1A1A1A', fontSize: 14, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{title}</h3>
+        <h3 style={{ margin: 0, color: 'var(--ink)', fontSize: 14, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{title}</h3>
         {action}
       </div>
       {children}
@@ -45,7 +45,7 @@ function Section({ title, children, action }: { title: string; children: React.R
 export default function CostStackSummary({ projectId }: Props) {
   const { projects } = useStore()
   const project = projects.find(p => p.id === projectId) as Project | undefined
-  if (!project) return <div style={{ padding: 24, color: '#999' }}>Project not found</div>
+  if (!project) return <div style={{ padding: 24, color: 'var(--ink-3)' }}>Project not found</div>
 
   // Calculate costs
   const presets = getCostPresets(project.id)
@@ -123,8 +123,8 @@ export default function CostStackSummary({ projectId }: Props) {
 
       {/* ── KPI Header Row ────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20, marginBottom: 32 }}>
-        <KpiCard label="Total Dev Cost" value={fmt(tdc)} color="#237A52" />
-        <KpiCard label="Gross Asset Value" value={fmt(gdv)} color="#237A52" />
+        <KpiCard label="Total Dev Cost" value={fmt(tdc)} color="var(--emerald)" />
+        <KpiCard label="Gross Asset Value" value={fmt(gdv)} color="var(--emerald)" />
         <KpiCard
           label="Dev Profit"
           value={fmt(devProfit)}
@@ -136,17 +136,17 @@ export default function CostStackSummary({ projectId }: Props) {
           value={fmtPercent(devMargin)}
           color={devMargin < 0 ? '#EF4444' : '#10B981'}
         />
-        <KpiCard label="Residual Land Value" value={fmt(residualLandValue)} color="#237A52" />
-        <KpiCard label="Site" value={site.toLocaleString()} unit="m²" color="#237A52" />
+        <KpiCard label="Residual Land Value" value={fmt(residualLandValue)} color="var(--emerald)" />
+        <KpiCard label="Site" value={site.toLocaleString()} unit="m²" color="var(--emerald)" />
       </div>
 
       {/* ── Development Cost Stack ────────────────────────────────── */}
-      <Section title="Development Cost Stack" action={<span style={{ fontSize: 11, color: '#999' }}>$ {fmt(tdc)} TDC</span>}>
+      <Section title="Development Cost Stack" action={<span style={{ fontSize: 11, color: 'var(--ink-3)' }}>$ {fmt(tdc)} TDC</span>}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {costBreakdown.map((item, i) => (
             <div key={i}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: '#1A1A1A', fontWeight: 500 }}>{item.label}</span>
+                <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 500 }}>{item.label}</span>
                 <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600, color: item.color }}>{fmt(item.value)}</span>
               </div>
               <div style={{ height: 28, background: '#F3F1ED', borderRadius: 6, overflow: 'hidden' }}>
@@ -169,9 +169,9 @@ export default function CostStackSummary({ projectId }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
           {valueCreation.map((item, i) => (
             <div key={i} style={{ padding: 16, background: '#F9F8F7', borderRadius: 8, border: '1px solid #EAE7E0' }}>
-              <p style={{ margin: '0 0 12px', color: '#888', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>{item.label}</p>
-              <p style={{ margin: '0 0 8px', fontFamily: 'monospace', fontSize: 18, fontWeight: 700, color: '#237A52' }}>{fmt(item.value)}</p>
-              <p style={{ margin: 0, color: '#999', fontSize: 10 }}>{item.sublabel}: {fmt(item.subvalue)}</p>
+              <p style={{ margin: '0 0 12px', color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>{item.label}</p>
+              <p style={{ margin: '0 0 8px', fontFamily: 'monospace', fontSize: 18, fontWeight: 700, color: 'var(--emerald)' }}>{fmt(item.value)}</p>
+              <p style={{ margin: 0, color: 'var(--ink-3)', fontSize: 10 }}>{item.sublabel}: {fmt(item.subvalue)}</p>
             </div>
           ))}
         </div>
@@ -183,10 +183,10 @@ export default function CostStackSummary({ projectId }: Props) {
           {phaseData.map((phase, i) => (
             <div key={i}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: '#1A1A1A', fontWeight: 500 }}>{phase.name}</span>
+                <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 500 }}>{phase.name}</span>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600 }}>{fmt(phase.cost)}</span>
-                  <span style={{ fontSize: 11, color: '#999', width: 40, textAlign: 'right' }}>{phase.progress}%</span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-3)', width: 40, textAlign: 'right' }}>{phase.progress}%</span>
                 </div>
               </div>
               <div style={{ height: 8, background: '#E5E3DF', borderRadius: 4, overflow: 'hidden' }}>
@@ -194,7 +194,7 @@ export default function CostStackSummary({ projectId }: Props) {
                   style={{
                     height: '100%',
                     width: `${Math.max(1, (phase.progress / 100) * 100)}%`,
-                    background: '#237A52',
+                    background: 'var(--emerald)',
                     transition: 'width 0.3s ease',
                   }}
                 />
@@ -208,16 +208,16 @@ export default function CostStackSummary({ projectId }: Props) {
       <Section title="Finance - Critical Path Sensitivity">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div>
-            <p style={{ margin: '0 0 12px', color: '#888', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>On track - Month 6/36</p>
+            <p style={{ margin: '0 0 12px', color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>On track - Month 6/36</p>
             <div style={{ background: '#F0FDF4', borderRadius: 8, padding: 16, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
               <p style={{ margin: 0, color: '#059669', fontSize: 12, fontWeight: 600 }}>✓ Funding scenario stable</p>
             </div>
           </div>
           <div>
-            <p style={{ margin: '0 0 12px', color: '#888', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>Sensitivity ranges</p>
+            <p style={{ margin: '0 0 12px', color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>Sensitivity ranges</p>
             <div style={{ display: 'flex', gap: 8 }}>
               {['+0%', '-1%', '-1%', '-0.8%'].map((label, i) => (
-                <div key={i} style={{ flex: 1, background: '#F3F1ED', borderRadius: 6, padding: 8, textAlign: 'center', fontSize: 11, color: '#666', fontWeight: 600 }}>
+                <div key={i} style={{ flex: 1, background: '#F3F1ED', borderRadius: 6, padding: 8, textAlign: 'center', fontSize: 11, color: 'var(--ink-2)', fontWeight: 600 }}>
                   {label}
                 </div>
               ))}
@@ -231,27 +231,27 @@ export default function CostStackSummary({ projectId }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#EF4444', marginBottom: 4 }}>{projectHealth.critical}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Critical</p>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Critical</p>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#F59E0B', marginBottom: 4 }}>{projectHealth.delayed}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Delayed</p>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Delayed</p>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#10B981', marginBottom: 4 }}>{projectHealth.onTrack}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>On track</p>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>On track</p>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#10B981', marginBottom: 4 }}>{projectHealth.completed}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completed</p>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completed</p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#999', marginBottom: 4 }}>{projectHealth.notStarted}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Not started</p>
+            <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--ink-3)', marginBottom: 4 }}>{projectHealth.notStarted}</div>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Not started</p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#237A52', marginBottom: 4 }}>{fmtPercent(healthPercent)}</div>
-            <p style={{ margin: 0, fontSize: 11, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Health</p>
+            <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--emerald)', marginBottom: 4 }}>{fmtPercent(healthPercent)}</div>
+            <p style={{ margin: 0, fontSize: 11, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Health</p>
           </div>
         </div>
       </Section>
@@ -269,8 +269,8 @@ export default function CostStackSummary({ projectId }: Props) {
             { title: 'Practical completion', date: 'Q2 2025' },
           ].map((milestone, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 6 ? '1px solid #EAE7E0' : 'none' }}>
-              <span style={{ fontSize: 12, color: '#1A1A1A' }}>✓ {milestone.title}</span>
-              <span style={{ fontSize: 11, color: '#999' }}>{milestone.date}</span>
+              <span style={{ fontSize: 12, color: 'var(--ink)' }}>✓ {milestone.title}</span>
+              <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>{milestone.date}</span>
             </div>
           ))}
         </div>
@@ -282,7 +282,7 @@ export default function CostStackSummary({ projectId }: Props) {
           <p style={{ margin: 0, fontSize: 11, color: '#92400E', fontWeight: 500 }}>⚠️ Complete funding stack to unlock returns</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 12, color: '#1A1A1A', fontWeight: 500 }}>HE</span>
+          <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 500 }}>HE</span>
           <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 600, color: '#EF4444' }}>-17%</span>
         </div>
       </Section>

@@ -71,47 +71,47 @@ export default function BTSTab({ projectId }: Props) {
       <div className="w-full">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Build-to-sell — gross revenue, selling costs, RLV">BTS Income & Valuation</SectionHeading>
-          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)', alignSelf: 'center' }}>⤳ Auto-saved</span>
           {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
         </div>
 
         {scenarios.length > 1 && (
-          <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid #D0CEC9' }}>
+          <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid var(--border)' }}>
             {scenarios.map((s, i) => (
               <button key={s.id} onClick={() => setActiveId(s.id)}
-                style={{ borderRadius: 0, borderLeft: i > 0 ? '1px solid #D0CEC9' : 'none' }}
-                className={`px-4 py-2 text-[10px] tracking-widest uppercase cursor-pointer transition-colors ${activeId === s.id ? 'bg-[#1A1A1A] text-white font-semibold' : 'bg-white text-[#888] hover:text-[#1A1A1A]'}`}>
+                style={{ borderRadius: 0, borderLeft: i > 0 ? '1px solid var(--border)' : 'none' }}
+                className={`px-4 py-2 text-[10px] tracking-widest uppercase cursor-pointer transition-colors ${activeId === s.id ? 'bg-[var(--ink)] text-white font-semibold' : 'bg-white text-[var(--ink-3)] hover:text-[var(--ink)]'}`}>
                 {s.name}
               </button>
             ))}
           </div>
         )}
 
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Sale Prices — set per unit type</h3>
+        <div className="border border-[var(--border)] bg-white p-4 mb-4">
+          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)] mb-3">Sale Prices — set per unit type</h3>
           <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #E8E5E0', background: '#F7F5F2' }}>
+              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--card-2)' }}>
                 {['Type', 'Units', 'Conservative', 'Mid', 'Aggressive'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', fontWeight: 500 }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '8px', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 500 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {units.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid #F0EDE8' }}>
-                  <td style={{ padding: '8px', color: '#555' }}>{u.name}</td>
-                  <td style={{ padding: '8px', fontFamily: 'monospace', fontWeight: 700, color: '#1A1A1A' }}>{u.solvedCount || 0}</td>
+                <tr key={u.id} style={{ borderBottom: '1px solid var(--line)' }}>
+                  <td style={{ padding: '8px', color: 'var(--ink-2)' }}>{u.name}</td>
+                  <td style={{ padding: '8px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{u.solvedCount || 0}</td>
                   {(['salePriceConservative', 'salePriceMid', 'salePriceAggressive'] as const).map(field => (
                     <td key={field} style={{ padding: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span style={{ color: '#AAA', fontSize: 11 }}>$</span>
+                        <span style={{ color: 'var(--faint)', fontSize: 11 }}>$</span>
                         <input type="number" step={5000} value={u[field]}
                           onChange={e => {
                             const updated = store.getUnitTypes(activeId).map(x => x.id === u.id ? { ...x, [field]: parseFloat(e.target.value) || 0 } : x)
                             store.saveUnitTypes(activeId, updated)
                           }}
-                          style={{ width: 88, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, color: '#1A1A1A', fontFamily: 'monospace', outline: 'none' }}
+                          style={{ width: 88, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                         />
                       </div>
                     </td>
@@ -122,8 +122,8 @@ export default function BTSTab({ projectId }: Props) {
           </table>
         </div>
 
-        <div className="border border-[#E8E5E0] bg-white p-4">
-          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[#888] mb-3">Assumptions</h3>
+        <div className="border border-[var(--border)] bg-white p-4">
+          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)] mb-3">Assumptions</h3>
           <FieldRow label="Selling costs"><PctInput value={data.sellingCostsPct} onChange={v => update('sellingCostsPct', v)} /></FieldRow>
           <FieldRow label="Childcare value ($/sqm)"><NumberInput value={data.childcareValuePerSqm} onChange={v => update('childcareValuePerSqm', v)} prefix="$" step={100} /></FieldRow>
           <FieldRow label="Developer margin"><PctInput value={data.devMarginPct} onChange={v => update('devMarginPct', v)} /></FieldRow>
@@ -131,24 +131,24 @@ export default function BTSTab({ projectId }: Props) {
       </div>
 
       {/* Results — full width below the inputs */}
-      <div className="w-full pt-2 border-t border-[#E8E5E0]">
+      <div className="w-full pt-2 border-t border-[var(--border)]">
         <div className="flex items-center gap-4 mb-3">
           <SectionHeading>BTS Outcomes</SectionHeading>
-          <div className="text-[#888] text-xs">TDC: <span className="text-[#1A1A1A] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+          <div className="text-[var(--ink-3)] text-xs">TDC: <span className="text-[var(--ink)] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {scenarios3.map(({ label, result, color }) => (
-            <div key={label} className="border border-[#E8E5E0] bg-white p-6">
-              <div className={`text-[12px] tracking-[0.12em] uppercase font-semibold mb-5 ${color === 'text-green' ? 'text-[#237A52]' : color === 'text-amber' ? 'text-[#B8963C]' : 'text-[#666]'}`}>{label}</div>
+            <div key={label} className="border border-[var(--border)] bg-white p-6">
+              <div className={`text-[12px] tracking-[0.12em] uppercase font-semibold mb-5 ${color === 'text-green' ? 'text-[var(--emerald)]' : color === 'text-amber' ? 'text-[var(--gold)]' : 'text-[var(--ink-2)]'}`}>{label}</div>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-[#888]">Gross revenue</span><span className="text-[#1A1A1A] font-mono">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span></div>
+                <div className="flex justify-between"><span className="text-[var(--ink-3)]">Gross revenue</span><span className="text-[var(--ink)] font-mono">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span></div>
                 {result.gstOnSales > 0 && (
-                  <div className="flex justify-between"><span className="text-[#888]">Less GST on sales (1/11)</span><span className="text-[#B4553F] font-mono">−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span></div>
+                  <div className="flex justify-between"><span className="text-[var(--ink-3)]">Less GST on sales (1/11)</span><span className="text-[var(--red)] font-mono">−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span></div>
                 )}
-                <div className="flex justify-between"><span className="text-[#888]">Net revenue</span><span className="text-[#1A1A1A] font-mono">${(result.netRevenue / 1_000_000).toFixed(1)}M</span></div>
-                <div className="flex justify-between items-center pt-3 border-t border-[#E8E5E0]">
-                  <span className="font-semibold text-[#1A1A1A] text-[12px] tracking-widest uppercase">RLV</span>
+                <div className="flex justify-between"><span className="text-[var(--ink-3)]">Net revenue</span><span className="text-[var(--ink)] font-mono">${(result.netRevenue / 1_000_000).toFixed(1)}M</span></div>
+                <div className="flex justify-between items-center pt-3 border-t border-[var(--border)]">
+                  <span className="font-semibold text-[var(--ink)] text-[12px] tracking-widest uppercase">RLV</span>
                   <div className="flex items-center gap-2">
                     <Money value={result.rlv} size="lg" />
                     <VerdictBadge rlv={result.rlv} />

@@ -25,10 +25,10 @@ const HEADER_H   = 48         // month header height
 
 const STATUS_COLORS: Record<TimelineStatus, string> = {
   'critical':    '#EF4444',
-  'delayed':     '#C9A24B',
+  'delayed':     'var(--gold)',
   'in-progress': '#22C55E',
   'complete':    '#A855F7',
-  'not-started': '#555555',
+  'not-started': 'var(--ink-2)555',
 }
 const STATUS_LABELS: Record<TimelineStatus, string> = {
   'critical':    '🔴 Critical — In Trouble',
@@ -46,10 +46,10 @@ const STATUS_SHORT: Record<TimelineStatus, string> = {
 }
 
 const CAT_COLORS: Record<TimelineCategory, string> = {
-  acquisition:   '#C4973A',
+  acquisition:   'var(--gold)',
   planning:      '#A855F7',
   approvals:     '#3B82F6',
-  site:          '#C9A24B',
+  site:          'var(--gold)',
   construction:  '#6B6B6B',
   fitout:        '#22C55E',
   commissioning: '#EF4444',
@@ -69,7 +69,7 @@ const STATUSES  = Object.keys(STATUS_COLORS) as TimelineStatus[]
 // ── Delivery phases — the Timeline is organised by the same five phases used
 // across every project tab (Cost Stack, Cashflow, Land & Terms). ──
 const PHASE_COLORS: Record<CostPhase, string> = {
-  'pre-acquisition':      '#C4973A',
+  'pre-acquisition':      'var(--gold)',
   'acquisition-planning': '#A855F7',
   'pre-construction':     '#3B82F6',
   'construction':         '#6B6B6B',
@@ -221,7 +221,7 @@ export default function ProjectTimeline({ projectId }: Props) {
   const ganttW = dayPx(totalDays)
 
   return (
-    <div style={{ background: '#F4F2EF', color: '#1A1A1A', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#F4F2EF', color: 'var(--ink)', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* ─── Flashing keyframe style ─────────────────────────────────────────── */}
       <style>{`
@@ -243,20 +243,20 @@ export default function ProjectTimeline({ projectId }: Props) {
         {/* Traffic light counts */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <TrafficLight color="#EF4444" count={critical} label="Critical" flash />
-          <TrafficLight color="#C9A24B" count={atRisk}   label="Delayed" />
+          <TrafficLight color="var(--gold)" count={atRisk}   label="Delayed" />
           <TrafficLight color="#22C55E" count={onTrack}  label="On Track" />
           <TrafficLight color="#A855F7" count={complete} label="Complete" />
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
           <span style={{ fontSize: 9, color: '#9A9A9A', letterSpacing: '0.10em' }}>{total} tasks</span>
-          <span style={{ fontSize: 11, color: '#C4973A', fontWeight: 700 }}>{overallPct}%</span>
+          <span style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700 }}>{overallPct}%</span>
           <div style={{ width: 80, height: 3, background: 'rgba(255,255,255,0.12)', borderRadius: 2 }}>
-            <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? '#C4973A' : '#3B82F6', borderRadius: 2 }} />
+            <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? '#22C55E' : overallPct >= 40 ? 'var(--gold)' : '#3B82F6', borderRadius: 2 }} />
           </div>
           {phaseLabel && (
             <>
               <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: '#EDEBE7', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', boxShadow: '0 0 6px #3DAA6AAA' }} /> Phase · {phaseLabel}
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 6px var(--emerald)AA' }} /> Phase · {phaseLabel}
               </span>
             </>
           )}
@@ -275,13 +275,13 @@ export default function ProjectTimeline({ projectId }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           {/* All dates — show every year on one timeline */}
           <button onClick={() => setAllDates(v => !v)} aria-pressed={allDates}
-            style={{ padding: '6px 12px', borderRadius: 5, border: `1px solid ${allDates ? '#C4973A' : 'rgba(255,255,255,0.16)'}`, background: allDates ? '#C4973A' : 'rgba(255,255,255,0.06)', color: allDates ? '#1A1A1A' : '#EDEBE7', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            style={{ padding: '6px 12px', borderRadius: 5, border: `1px solid ${allDates ? 'var(--gold)' : 'rgba(255,255,255,0.16)'}`, background: allDates ? 'var(--gold)' : 'rgba(255,255,255,0.06)', color: allDates ? 'var(--ink)' : '#EDEBE7', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap' }}>
             All dates
           </button>
           <button onClick={() => { setAllDates(false); setViewYear(y => y - 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Previous year">‹</button>
           <select value={viewYear} disabled={allDates} onChange={e => { setAllDates(false); setViewYear(Number(e.target.value)) }}
             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: '#EDEBE7', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: allDates ? 'default' : 'pointer', opacity: allDates ? 0.35 : 1 }}>
-            {years.map(y => <option key={y} value={y} style={{ background: '#1A1A1A' }}>{y}</option>)}
+            {years.map(y => <option key={y} value={y} style={{ background: 'var(--ink)' }}>{y}</option>)}
           </select>
           <button onClick={() => { setAllDates(false); setViewYear(y => y + 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Next year">›</button>
         </div>
@@ -316,7 +316,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                     <div style={{
                       position: 'absolute', left: m.px, top: 0, bottom: 0,
                       width: m.isYear ? 1 : 1,
-                      background: m.isYear ? '#BEBAB3' : '#E0DDD8',
+                      background: m.isYear ? '#BEBAB3' : 'var(--border)',
                       zIndex: 1,
                     }} />
                     {/* Month label */}
@@ -324,7 +324,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                       position: 'absolute', left: m.px + 5, top: m.isYear ? 8 : 14,
                       fontSize: m.isYear ? 10 : 9,
                       fontWeight: m.isYear ? 700 : 400,
-                      color: m.isYear ? '#888' : '#555',
+                      color: m.isYear ? 'var(--ink-3)' : 'var(--ink-2)',
                       letterSpacing: m.isYear ? '0.12em' : '0.08em',
                       textTransform: 'uppercase',
                       whiteSpace: 'nowrap',
@@ -333,8 +333,8 @@ export default function ProjectTimeline({ projectId }: Props) {
                   </React.Fragment>
                 ))}
                 {/* Today line in header */}
-                <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A', zIndex: 5 }}>
-                  <span style={{ position: 'absolute', top: 6, left: 4, fontSize: 7, color: '#C4973A', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>TODAY</span>
+                <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)', zIndex: 5 }}>
+                  <span style={{ position: 'absolute', top: 6, left: 4, fontSize: 7, color: 'var(--gold)', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>TODAY</span>
                 </div>
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                   {/* Phase grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
                     {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#D8D5D0' : '#EDEBE7' }} />)}
-                    <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A33' }} />
+                    <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)33' }} />
                   </div>
                 </div>
 
@@ -368,12 +368,12 @@ export default function ProjectTimeline({ projectId }: Props) {
 
                   return (
                     <div key={task.id}
-                      style={{ display: 'flex', height: ROW_H, alignItems: 'center', borderBottom: '1px solid #E8E5E0' }}
+                      style={{ display: 'flex', height: ROW_H, alignItems: 'center', borderBottom: '1px solid var(--border)' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#ECEAE6')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
                       {/* Task label — sticky left */}
-                      <div style={{ width: LABEL_W, flexShrink: 0, position: 'sticky', left: 0, zIndex: 6, background: 'inherit', borderRight: '1px solid #E4E1DC', display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px', height: '100%', cursor: 'pointer' }}
+                      <div style={{ width: LABEL_W, flexShrink: 0, position: 'sticky', left: 0, zIndex: 6, background: 'inherit', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px', height: '100%', cursor: 'pointer' }}
                         onClick={() => openEdit(task)}>
 
                         {/* Traffic light dot */}
@@ -384,7 +384,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                         </span>
 
                         {/* Task name */}
-                        <span style={{ fontSize: 10, color: task.status === 'complete' ? '#AAA' : '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
+                        <span style={{ fontSize: 10, color: task.status === 'complete' ? 'var(--faint)' : '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
 
                         {/* Assignee initial */}
                         {task.assignee && <span style={{ fontSize: 7, color: '#9A968F', flexShrink: 0, maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.assignee.split(' ')[0]}</span>}
@@ -394,10 +394,10 @@ export default function ProjectTimeline({ projectId }: Props) {
                       <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
 
                         {/* Vertical month grid lines */}
-                        {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? '#E0DDD8' : '#EEECE8' }} />)}
+                        {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : '#EEECE8' }} />)}
 
                         {/* Today line */}
-                        <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: '#C4973A55', zIndex: 3 }} />
+                        <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)55', zIndex: 3 }} />
 
                         {(() => {
                           const dragOffset = dragId === task.id ? dragDays * PX_PER_DAY : 0
@@ -439,8 +439,8 @@ export default function ProjectTimeline({ projectId }: Props) {
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 11, color: '#888', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
-          <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid #C4973A44', background: 'transparent', color: '#C4973A', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
+          <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
+          <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid var(--gold)44', background: 'transparent', color: 'var(--gold)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
         </div>
       )}
 
@@ -448,7 +448,7 @@ export default function ProjectTimeline({ projectId }: Props) {
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setEditing(null) }}>
-          <div style={{ width: 540, background: '#F5F3F0', border: '1px solid #D8D5D0', borderRadius: 10, padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ width: 540, background: 'var(--card-2)', border: '1px solid #D8D5D0', borderRadius: 10, padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
               <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#9A968F' }}>{isNew ? 'Add Task' : 'Edit Task'}</p>
@@ -473,12 +473,12 @@ export default function ProjectTimeline({ projectId }: Props) {
             </div>
 
             {/* Traffic light preview */}
-            <div style={{ display: 'flex', gap: 10, padding: '8px 12px', background: '#FFFFFF', border: '1px solid #E4E1DC', borderRadius: 3, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, padding: '8px 12px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 3, alignItems: 'center' }}>
               {STATUSES.map(s => (
                 <button key={s} onClick={() => setEditing({ ...editing, status: s as TimelineStatus })}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px', border: `1px solid ${editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#D8D5D0'}`, background: editing.status === s ? `${STATUS_COLORS[s as TimelineStatus]}18` : 'transparent', cursor: 'pointer', borderRadius: 2 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_COLORS[s as TimelineStatus], display: 'block', flexShrink: 0 }} />
-                  <span style={{ fontSize: 7, color: editing.status === s ? STATUS_COLORS[s as TimelineStatus] : '#999', letterSpacing: '0.10em', whiteSpace: 'nowrap' }}>{STATUS_SHORT[s as TimelineStatus]}</span>
+                  <span style={{ fontSize: 7, color: editing.status === s ? STATUS_COLORS[s as TimelineStatus] : 'var(--ink-3)', letterSpacing: '0.10em', whiteSpace: 'nowrap' }}>{STATUS_SHORT[s as TimelineStatus]}</span>
                 </button>
               ))}
             </div>
@@ -508,17 +508,17 @@ export default function ProjectTimeline({ projectId }: Props) {
             </Field>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-              <input type="checkbox" checked={editing.isMilestone} onChange={e => setEditing({ ...editing, isMilestone: e.target.checked })} style={{ accentColor: '#C4973A', width: 14, height: 14 }} />
-              <span style={{ fontSize: 10, color: '#555', letterSpacing: '0.08em' }}>Milestone (diamond marker)</span>
+              <input type="checkbox" checked={editing.isMilestone} onChange={e => setEditing({ ...editing, isMilestone: e.target.checked })} style={{ accentColor: 'var(--gold)', width: 14, height: 14 }} />
+              <span style={{ fontSize: 10, color: 'var(--ink-2)', letterSpacing: '0.08em' }}>Milestone (diamond marker)</span>
             </label>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 14, borderTop: '1px solid #E8E5E0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
               {!isNew
                 ? <button onClick={() => { remove(editing.id); setEditing(null) }} style={{ background: 'none', border: '1px solid #EF444430', color: '#EF4444', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Delete</button>
                 : <span />}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid #E0DDD8', color: '#9A968F', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={save} disabled={!editing.name.trim()} style={{ background: '#1A1A1A', border: 'none', color: '#fff', padding: '8px 20px', fontSize: 9, letterSpacing: '0.14em', fontWeight: 700, cursor: 'pointer', opacity: editing.name.trim() ? 1 : 0.4 }}>
+                <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid var(--border)', color: '#9A968F', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={save} disabled={!editing.name.trim()} style={{ background: 'var(--ink)', border: 'none', color: 'var(--card)', padding: '8px 20px', fontSize: 9, letterSpacing: '0.14em', fontWeight: 700, cursor: 'pointer', opacity: editing.name.trim() ? 1 : 0.4 }}>
                   {isNew ? 'Add Task' : 'Save'}
                 </button>
               </div>
@@ -540,7 +540,7 @@ function TrafficLight({ color, count, label, flash }: { color: string; count: nu
         {/* Traffic-light lens — always its colour; dimmed + hollow when the count is 0, lit when active */}
         <span className={flash && count > 0 ? 'tl-critical-dot' : ''} style={{ width: 11, height: 11, borderRadius: '50%', background: color, opacity: count > 0 ? 1 : 0.28, boxShadow: count > 0 ? `0 0 6px ${color}AA` : 'none', display: 'block' } as CSSProperties} />
       </span>
-      <span style={{ fontSize: 9, color: count > 0 ? '#C8C8C8' : '#888', letterSpacing: '0.08em' }}>
+      <span style={{ fontSize: 9, color: count > 0 ? '#C8C8C8' : 'var(--ink-3)', letterSpacing: '0.08em' }}>
         <span style={{ color, opacity: count > 0 ? 1 : 0.55, fontWeight: 700, marginRight: 3 }}>{count}</span>
         {label}
       </span>
@@ -554,7 +554,7 @@ const yrNav: React.CSSProperties = {
 }
 
 const INPUT: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF', border: '1px solid #D8D5D0', color: '#1A1A1A',
+  width: '100%', background: 'var(--card)', border: '1px solid #D8D5D0', color: 'var(--ink)',
   padding: '8px 10px', fontSize: 11, outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit',
 }
 
@@ -572,8 +572,8 @@ function FilterChip({ label, active, color, onClick, dark }: { label: string; ac
     <button onClick={onClick} style={{
       padding: '5px 11px', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4,
       background: active ? `${color}2E` : (dark ? 'rgba(255,255,255,0.04)' : 'transparent'),
-      border: `1px solid ${active ? color : (dark ? 'rgba(255,255,255,0.14)' : '#D0CEC9')}`,
-      color: active ? (dark ? '#fff' : color) : (dark ? '#B8B8B8' : '#555'),
+      border: `1px solid ${active ? color : (dark ? 'rgba(255,255,255,0.14)' : 'var(--border)')}`,
+      color: active ? (dark ? 'var(--card)' : color) : (dark ? '#B8B8B8' : 'var(--ink-2)'),
       fontWeight: active ? 700 : 500,
       transition: 'all 0.15s',
     }}>{label}</button>
