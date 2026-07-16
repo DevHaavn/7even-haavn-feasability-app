@@ -79,89 +79,44 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
   const safeTab = visibleTabs.find(t => t.id === activeTab) ? activeTab : visibleTabs[0]?.id ?? 'site'
 
   return (
-    <div className={`ws-root flex flex-col h-full ${theme === 'blk' ? 'theme-blk' : ''}`}>
-      {/* Header — floats as a rounded panel over the texture on premium tabs */}
-      <div className={PREMIUM_TABS.includes(safeTab) ? 'ws-header-float relative z-50' : 'contents'}>
-      {/* Topbar */}
-      <div className="ws-topbar drag-region relative z-50 flex items-center gap-4 md:gap-8 px-4 md:px-8 py-3 md:py-4 border-b border-[#000]"
-        style={{ background: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 12px), repeating-linear-gradient(-45deg,rgba(255,255,255,0.02) 0 1px,transparent 1px 12px), linear-gradient(120deg,#0A0D0C,#12161A 60%,#0A0D0C)' }}>
-        <div className="flex items-center justify-center flex-shrink-0" style={{ minWidth: 80 }}>
-          <button
-            onClick={() => setActiveProject(null)}
-            className="no-drag text-[#C6CDCF] hover:text-white transition-colors text-[11px] tracking-[0.25em] cursor-pointer uppercase font-bold"
-          >
-            HOME
-          </button>
-        </div>
-        <div className="w-[1px] h-7 bg-[#3A4146] flex-shrink-0 hidden sm:block" />
-        <span className="hidden sm:block"><Wordmark size="md" tone="white" /></span>
-        <div className="w-[1px] h-7 bg-[#3A4146] flex-shrink-0 hidden sm:block" />
-        <div className="flex-1 min-w-0 hidden sm:block">
-          <div className="flex items-center gap-2">
+    <div className={`ws-root flex flex-col h-full fxs ${theme === 'blk' ? 'dark' : ''}`}>
+      {/* ── Chrome — header + tab bar, always dark (ATRIUM reskin) ── */}
+      <div className="fx-topbar drag-region">
+        <button className="fx-home no-drag" onClick={() => setActiveProject(null)}>HOME</button>
+        <div className="fx-div" />
+        <div className="fx-brandstack"><span className="fx-bs7">7EVEN</span><span className="fx-bsh">HAAVN</span></div>
+        <div className="fx-div" />
+        <div className="fx-proj">
+          <div className="fx-projname">
             <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-white text-[14px] md:text-[16px] tracking-[0.08em] truncate">{project.name}</h1>
+            <span className="fx-nm">{project.name}</span>
+            <span className="no-drag" style={{ display: 'inline-flex', alignItems: 'center' }}><AutoSaveCloud /></span>
           </div>
           {project.address && (
-            <p className="text-[#9AA2A4] text-[11px] md:text-[12px] truncate tracking-[0.12em] mt-0.5 font-medium flex items-center gap-1.5">
-              {project.address}<AutoSaveCloud />
-            </p>
+            <div className="fx-addr">{project.address}{project.type ? ` · ${project.type.toUpperCase()}` : ''}</div>
           )}
         </div>
-        <div className="flex-1 min-w-0 sm:hidden">
-          <div className="flex items-center gap-2">
-            <WorkspaceStatusDot type={project.type} status={project.status} />
-            <h1 className="font-heading font-semibold text-white text-[13px] tracking-[0.06em] truncate">{project.name}</h1>
-          </div>
-        </div>
         {role === 'external' && (
-          <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A44', border: '1px solid #C4973A22', padding: '3px 8px', flexShrink: 0 }}>
+          <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A88', border: '1px solid #C4973A33', padding: '4px 9px', borderRadius: 20, flexShrink: 0 }}>
             Consultant
           </span>
         )}
-        {/* Manage — compact glass icon button (Dashboard now in tabs bar) */}
-        <div className="no-drag" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 'auto', marginRight: 19 }}>
-          {/* Light / dark — shared ATRIUM theme (flips the work surface) */}
+        <div className="fx-right no-drag">
+          <span className="fx-atr">ATRIUM</span>
           <ThemeToggle chrome="dark" />
           {onManage && (
-            <button className="ws-bento-btn" onClick={onManage} title="Manage" aria-label="Manage">
-              {/* Chrome stealth bento grid — manage portal */}
-              <svg width="15" height="15" viewBox="0 0 24 24">
-                <defs>
-                  <linearGradient id="bentoChrome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#A8AAAE" />
-                    <stop offset="16%" stopColor="#5A5C62" />
-                    <stop offset="52%" stopColor="#1A1C22" />
-                    <stop offset="100%" stopColor="#000000" />
-                  </linearGradient>
-                </defs>
-                <rect x="4" y="4" width="7" height="9" rx="1.5" />
-                <rect x="4" y="15" width="7" height="5" rx="1.5" />
-                <rect x="13" y="4" width="7" height="5" rx="1.5" />
-                <rect x="13" y="11" width="7" height="9" rx="1.5" />
-              </svg>
-            </button>
+            <button className="fx-grid" onClick={onManage} title="Manage" aria-label="Manage">⊞</button>
           )}
-          {/* Consultants have no Manage screen — keep a direct Log Out for them */}
           {!onManage && onLogout && (
-            <button className="glass-btn glass-btn-light" onClick={onLogout}
-              style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 14px', whiteSpace: 'nowrap', fontWeight: 700 }}>
-              Log Out
-            </button>
+            <button className="fx-tgl" onClick={onLogout} style={{ fontWeight: 600 }}>LOG OUT</button>
           )}
         </div>
       </div>
-
-      {/* Tabs — z-40 keeps it above fixed tab backgrounds */}
-      <div className="relative z-40">
-        <TabBar
-          tabs={visibleTabs}
-          active={safeTab}
-          onChange={setActiveTab}
-          accentTabId={project.type === 'hotel' ? 'hotel' : project.type === 'btr' ? 'btr' : project.type === 'bts' ? 'bts' : undefined}
-          accentColor={project.type === 'hotel' ? '#A855F7' : project.type === 'btr' ? '#22C55E' : project.type === 'bts' ? '#3B82F6' : undefined}
-        />
+      <div className="fx-tabnav no-drag">
+        {visibleTabs.map(t => (
+          <button key={t.id} className={`fx-tab ${t.id === safeTab ? 'on' : ''}`} onClick={() => setActiveTab(t.id)}>{t.label}</button>
+        ))}
       </div>
-      </div>{/* /header float */}
 
       {/* Tab content — relative so absolute render-bg-fixed divs work on iOS.
           The timeline fills its stage (no outer scroll) so its own internal
