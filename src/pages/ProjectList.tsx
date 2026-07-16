@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useStore } from '../store'
 import { Project7Mark } from '../components/ui'
-import { AtriumApex } from '../components/AtriumMark'
+import AtriumBuild from '../components/AtriumBuild'
 import { seedProjectsIfEmpty } from '../db/seed'
 import { getCashflow } from '../db'
 import SiteLinks from '../components/SiteLinks'
@@ -152,9 +152,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
           <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
         </div>
 
-        {/* Brand — the flashing ATRIUM compact device (replaces the 7EVEN|HAAVN wordmark) */}
+        {/* Brand — the ATRIUM self-building device (same moving A1 mark as the intro) */}
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 14, transform: 'translateY(-8px)' }}>
-          <AtriumApex size={isMobile ? 96 : 150} variant="compact" flash bright style={{ filter: 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) drop-shadow(0 8px 26px rgba(0,0,0,0.42))' }} />
+          <AtriumBuild variant="A1" bright size={isMobile ? 116 : 180} style={{ filter: 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) drop-shadow(0 8px 26px rgba(0,0,0,0.42))' }} />
           <span style={{ color: '#fff', fontSize: isMobile ? 18 : 23, fontWeight: 600, letterSpacing: '0.42em', paddingLeft: '0.42em', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>ATRIUM</span>
         </div>
 
