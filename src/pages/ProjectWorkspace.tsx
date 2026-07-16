@@ -18,6 +18,7 @@ import ProjectTimeline from './tabs/ProjectTimeline'
 import SiteLinks from '../components/SiteLinks'
 import AutoSaveCloud from '../components/AutoSaveButton'
 import ThemeToggle from '../components/ThemeToggle'
+import { setAtriumTheme } from '../lib/atriumTheme'
 
 function dotColor(type?: string, status?: string) {
   if (status === 'on-hold') return '#EF4444'
@@ -63,6 +64,10 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
   const { activeProjectId, activeTab, setActiveTab, setActiveProject, projects } = useStore()
   const role = useRole()
   const project = projects.find(p => p.id === activeProjectId)
+
+  // Projects always open on the light work surface — the data-heavy tabs are hard to
+  // read in dark. The topbar light/dark toggle still lets you switch to dark in-session.
+  React.useEffect(() => { setAtriumTheme('light') }, [activeProjectId])
 
   if (!project) return null
 
