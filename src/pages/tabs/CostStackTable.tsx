@@ -8,6 +8,45 @@ const GROUP_PALETTE = ['#AFA9EC', '#85B7EB', '#9FE1CB', '#C0DD97', '#FAC775', '#
 // `notes` is the value written to a line when it is added to / moved into this group.
 export type GroupConfig = { id: string; label: string; color: string; notes: string; match: (item: CostLineItem) => boolean }
 
+// ── Numeric cell ────────────────────────────────────────────────────────────────
+// A decimal-friendly numeric input. Binding an input directly to a derived number
+// (e.g. `+(pct*100).toFixed(2)`) makes React re-render "2." back to "2" mid-keystroke,
+// so you can never type a decimal. This keeps a local text buffer while the field is
+// focused — letting you type "2.5", ".0", "0.05" — and commits the parsed value as you
+// go. When blurred it shows the formatted committed value. Module-level so its state
+// survives parent re-renders (rows keep focus while typing).
+function NumCell({ num, onCommit, fmt, placeholder, blankZero = true, style }: {
+  num: number | null
+  onCommit: (n: number) => void
+  fmt?: (n: number) => string
+  placeholder?: string
+  blankZero?: boolean
+  style?: React.CSSProperties
+}) {
+  const [buf, setBuf] = useState<string | null>(null)
+  const isBlank = num == null || (blankZero && num === 0)
+  const blurred = isBlank ? '' : (fmt ? fmt(num as number) : (num as number).toLocaleString())
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={buf != null ? buf : blurred}
+      placeholder={placeholder}
+      onFocus={() => setBuf(isBlank ? '' : String(num))}
+      onChange={e => {
+        // Keep digits + a single decimal point, so "2.5" / ".0" / "0.05" all type through.
+        let raw = e.target.value.replace(/[^0-9.]/g, '')
+        raw = raw.replace(/(\..*)\./g, '$1')
+        setBuf(raw)
+        const n = parseFloat(raw)
+        onCommit(Number.isFinite(n) ? n : 0)
+      }}
+      onBlur={() => setBuf(null)}
+      style={style}
+    />
+  )
+}
+
 interface Props {
   items: CostLineItem[]
   onChange: (items: CostLineItem[]) => void
@@ -226,18 +265,16 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {isPct ? (
           <span style={{ fontSize: 10, color: '#CBC9C4', ...cellR }}>—</span>
         ) : (
-          <input type="text" inputMode="decimal" value={item.units ? item.units.toLocaleString() : ''} placeholder="—"
-            onChange={e => changeUnits(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
+          <NumCell num={item.units ?? null} placeholder="—" onCommit={n => changeUnits(item, n)}
             style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         )}
-        {/* Rate — pct % for a %-basis line, otherwise the per-unit rate */}
+        {/* Rate — pct % for a %-basis line (decimals allowed), otherwise the per-unit rate */}
         {isPct ? (
-          <input type="text" inputMode="decimal" value={item.pct != null ? +(item.pct * 100).toFixed(2) : ''} placeholder="0"
-            onChange={e => changePct(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
+          <NumCell num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
+            fmt={n => String(+n.toFixed(2))} onCommit={n => changePct(item, n)}
             style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         ) : (
-          <input type="text" inputMode="decimal" value={item.baseRate ? item.baseRate.toLocaleString() : ''} placeholder="—"
-            onChange={e => changeRate(item, parseFloat(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
+          <NumCell num={item.baseRate ?? null} placeholder="—" onCommit={n => changeRate(item, n)}
             style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         )}
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
