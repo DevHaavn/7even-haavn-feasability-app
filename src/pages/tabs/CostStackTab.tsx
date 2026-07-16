@@ -664,7 +664,7 @@ export default function CostStackTab({ projectId }: Props) {
 
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
-      {innerTab !== 'summary' && <GrandTotalBar detailed={detailed} gstEnabled={data.gstEnabled} />}
+      {/* Grand-total now lives in the per-section DETAILED TOTAL sidebar (reference layout) */}
 
       {/* ── SUMMARY TAB ── */}
       {innerTab === 'summary' && (
@@ -849,54 +849,72 @@ export default function CostStackTab({ projectId }: Props) {
         </div>
       )}
 
-      {/* ── DETAIL TABS (hard / consultants / statutory / marketing) ── */}
+      {/* ── DETAIL TABS (hard / consultants / statutory / marketing) — reference layout ── */}
       {meta && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-            <div>
-              <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 4 }}>Cost Breakdown</p>
-              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 20, letterSpacing: '0.06em', color: 'var(--ink)', margin: '0 0 6px' }}>{meta.title}</h2>
-              <p style={{ color: 'var(--faint)', fontSize: 11, margin: 0 }}>{meta.sub}</p>
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div className="fx-wrap">
+            <div className="pagehead">
+              <div>
+                <div className="kicker">04 · Cost Stack</div>
+                <h1 className="h-sec">{meta.title}</h1>
+                <div className="h-sub">{meta.sub}</div>
+              </div>
+              <div className="flex gap aic wrapf">
+                <span className="check">✓ Auto-saved</span>
+                {dc.canUndo && <span className="chip" onClick={() => dc.undo(setDetailed)}>↶ Undo</span>}
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 24, alignItems: 'center' }}>
-              <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
-              {dc.canUndo && (
-                <button onClick={() => dc.undo(setDetailed)}
-                  style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, padding: '8px 16px', cursor: 'pointer' }}>
-                  Undo
-                </button>
-              )}
+
+            <div className="two-64">
+              <div className="panel pad">
+                <div className="guide"><b>Market guide</b> — {meta.hint}</div>
+                <div style={{ maxWidth: '100%' }}>
+                  <CostStackTable
+                    items={detailed[meta.key]}
+                    onChange={items => updateSection(meta.key, items)}
+                    gstEnabled={data.gstEnabled}
+                    basisMode={innerTab === 'hard' ? 'units' : 'basis'}
+                    groups={innerTab === 'consultants' ? undefined : COST_GROUPS[innerTab]}
+                    groupByNotes={innerTab === 'consultants'}
+                    constructionValue={result.construction}
+                    gdvValue={gdv}
+                  />
+                </div>
+                <ScheduleMatrix items={detailed[meta.key]} />
+              </div>
+
+              {/* DETAILED TOTAL sidebar — the six section totals + grand total */}
+              <div>
+                <div className="panel pad gold-top" style={{ position: 'sticky', top: 20 }}>
+                  <div className="dt-lab">Detailed total</div>
+                  <div className="dt-note">Ex-GST section totals · itemised</div>
+                  <div style={{ marginTop: 14 }}>
+                    {([
+                      ['hard', 'Construction Costs', hardTotal],
+                      ['consultants', 'Consultant & Professional Fees', consTotal],
+                      ['statutory', 'Statutory + Headworks', statTotal],
+                      ['management', 'Management Fees', mgmtTotal],
+                      ['marketing', 'Marketing & Advertising', mktTotal],
+                    ] as [string, string, number][]).map(([k, label, val]) => (
+                      <div key={k} className={`dtrow${innerTab === k || (k === 'statutory' && innerTab === 'headworks') ? ' on' : ''}`}>
+                        <span className="l">{label}</span><span className="v">{fmtShortM(val)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grand"><div className="gl">Grand total</div><div className="gv">{fmtShortM(hardTotal + consTotal + statTotal + mgmtTotal + mktTotal)}</div></div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Market benchmark hint */}
-          <div style={{ background: 'var(--card-2)', border: '1px solid var(--border)', borderLeft: '3px solid var(--gold)', padding: '10px 16px', marginBottom: 24 }}>
-            <p style={{ fontSize: 10, color: 'var(--ink-3)', margin: 0, letterSpacing: '0.04em' }}>
-              <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Market guide — </span>{meta.hint}
-            </p>
-          </div>
-
-          {/* Line item table — unified design across every cost-stack section */}
-          <div style={{ maxWidth: '100%' }}>
-            <CostStackTable
-              items={detailed[meta.key]}
-              onChange={items => updateSection(meta.key, items)}
-              gstEnabled={data.gstEnabled}
-              basisMode={innerTab === 'hard' ? 'units' : 'basis'}
-              groups={innerTab === 'consultants' ? undefined : COST_GROUPS[innerTab]}
-              groupByNotes={innerTab === 'consultants'}
-              constructionValue={result.construction}
-              gdvValue={gdv}
-            />
-          </div>
-
-          {/* Cashflow schedule — appears once any line has monthly cashflow set */}
-          <ScheduleMatrix items={detailed[meta.key]} />
         </div>
       )}
     </div>
   )
+}
+
+// Compact $M/$K formatter for the sidebar rollup.
+function fmtShortM(n: number): string {
+  return n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `$${(n / 1_000).toFixed(0)}K` : `$${Math.round(n).toLocaleString()}`
 }
 
 function InnerSection({ label, children }: { label: string; children: React.ReactNode }) {
