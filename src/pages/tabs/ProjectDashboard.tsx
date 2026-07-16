@@ -19,14 +19,14 @@ function fmt(n: number, d = 1) {
 }
 const pctS = (n: number, d = 1) => isFinite(n) ? `${(n * 100).toFixed(d)}%` : '—'
 
-const INK = 'var(--ink)', MUTE = '#8A8A8A', LINE = '#ECEAE5', RED = '#DC2626', GREEN = '#16A34A', GOLD = '#F59E0B'
+const INK = 'var(--ink)', MUTE = 'var(--ink-3)', LINE = 'var(--line)', RED = 'var(--red)', GREEN = 'var(--emerald)', GOLD = 'var(--amber)'
 
 const PHASE_COLOR: Record<string, string> = {
-  'pre-acquisition': '#F59E0B', 'acquisition-planning': '#8B5CF6',
-  'pre-construction': '#3B82F6', 'construction': '#16A34A', 'close-out': '#9CA3AF',
+  'pre-acquisition': 'var(--amber)', 'acquisition-planning': 'var(--purple)',
+  'pre-construction': 'var(--blue)', 'construction': 'var(--emerald)', 'close-out': 'var(--ink-3)',
 }
 // Cost-breakdown palette
-const COST_COLORS = { land: '#60A5FA', build: '#8B8CF0', fees: '#34D399', statutory: '#F59E0B', finance: '#F87171', mgmt: '#A3E635' }
+const COST_COLORS = { land: 'var(--blue)', build: 'var(--purple)', fees: 'var(--emerald)', statutory: 'var(--amber)', finance: 'var(--red)', mgmt: 'var(--emerald)' }
 
 const LENSES = [['developer', 'Developer'], ['builder', 'Builder'], ['bank', 'Bank / lender'], ['equity', 'Equity investor']] as const
 
@@ -151,10 +151,10 @@ export default function ProjectDashboard({ projectId }: Props) {
   const costSum = COST_ROWS.reduce((s, r) => s + r.v, 0) || 1
 
   return (
-    <div style={{ background: '#FAF9F7', minHeight: '100%', padding: '18px 24px 48px', color: INK }}>
+    <div className="fx-wrap" style={{ minHeight: '100%', color: INK }}>
       {/* Setup banner */}
       {fundingIncomplete && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: '#FEFCE8', border: '1px solid #FDE68A', borderRadius: 8, marginBottom: 18, fontSize: 12, color: '#854D0E' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)', borderRadius: 8, marginBottom: 18, fontSize: 12, color: 'var(--amber)' }}>
           <span>⚠</span> Setup incomplete — equity and revenue inputs required before profit and margin outputs are valid.
         </div>
       )}
@@ -188,11 +188,11 @@ export default function ProjectDashboard({ projectId }: Props) {
       {/* Row: cost stack + value creation */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: 16, marginBottom: 16 }}>
         <Card>
-          <Label right={<span onClick={() => store.setActiveTab('cost')} style={{ fontSize: 11, color: '#2563EB', cursor: 'pointer' }}>full breakdown →</span>}>Development cost stack — {fmt(tdc, 1)} TDC</Label>
+          <Label right={<span onClick={() => store.setActiveTab('cost')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>full breakdown →</span>}>Development cost stack — {fmt(tdc, 1)} TDC</Label>
           {COST_ROWS.map(r => (
             <div key={r.key} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 11 }}>
               <span style={{ fontSize: 11, color: '#444', width: 128, flexShrink: 0 }}>{r.label}</span>
-              <div style={{ flex: 1, height: 6, background: '#F1EFEA', borderRadius: 4 }}>
+              <div style={{ flex: 1, height: 6, background: 'var(--card-3)', borderRadius: 4 }}>
                 <div style={{ width: `${(r.v / costMax) * 100}%`, height: '100%', background: r.c, borderRadius: 4 }} />
               </div>
               <span style={{ fontSize: 11, fontWeight: 600, width: 68, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmt(r.v, 1)}</span>
@@ -211,9 +211,9 @@ export default function ProjectDashboard({ projectId }: Props) {
           <Card style={{ padding: 16 }}>
             <Label>Value creation</Label>
             <div style={{ display: 'flex', height: 26, borderRadius: 5, overflow: 'hidden', fontSize: 9, color: 'var(--card)', fontWeight: 600 }}>
-              <div style={{ width: `${Math.max(6, (buckets.land / Math.max(gav, tdc, 1)) * 100)}%`, background: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E3A8A' }}>Land</div>
-              <div style={{ width: `${Math.max(10, ((tdc - buckets.land) / Math.max(gav, tdc, 1)) * 100)}%`, background: '#C7C8F5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3730A3' }}>Build + soft</div>
-              {devProfit > 0 && <div style={{ width: `${(devProfit / Math.max(gav, tdc, 1)) * 100}%`, background: '#6EE7B7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#065F46' }}>+{fmt(devProfit, 1)}</div>}
+              <div style={{ width: `${Math.max(6, (buckets.land / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--blue)' }}>Land</div>
+              <div style={{ width: `${Math.max(10, ((tdc - buckets.land) / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--purple)' }}>Build + soft</div>
+              {devProfit > 0 && <div style={{ width: `${(devProfit / Math.max(gav, tdc, 1)) * 100}%`, background: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--emerald)' }}>+{fmt(devProfit, 1)}</div>}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: MUTE }}>
               <span>Land {fmt(buckets.land, 1)}</span>
@@ -231,16 +231,16 @@ export default function ProjectDashboard({ projectId }: Props) {
 
       {/* Cost & time by phase */}
       <Card style={{ marginBottom: 16 }}>
-        <Label right={<span onClick={() => store.setActiveTab('timeline')} style={{ fontSize: 11, color: '#2563EB', cursor: 'pointer' }}>timeline →</span>}>Cost & time by phase</Label>
+        <Label right={<span onClick={() => store.setActiveTab('timeline')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>timeline →</span>}>Cost & time by phase</Label>
         {phaseTracking.map(p => (
           <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: PHASE_COLOR[p.id], flexShrink: 0 }} />
             <span style={{ fontSize: 12, width: 150, flexShrink: 0 }}>{p.label}</span>
-            <div style={{ flex: 1, height: 6, background: '#F1EFEA', borderRadius: 4 }}>
+            <div style={{ flex: 1, height: 6, background: 'var(--card-3)', borderRadius: 4 }}>
               <div style={{ width: `${(p.cost / phaseTotal) * 100}%`, height: '100%', background: PHASE_COLOR[p.id], borderRadius: 4, opacity: 0.85 }} />
             </div>
             <span style={{ fontSize: 12, fontWeight: 600, width: 72, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.cost, 1)}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, width: 46, textAlign: 'right', color: p.progress >= 100 ? GREEN : p.progress > 0 ? GOLD : MUTE, background: p.progress >= 100 ? '#DCFCE7' : p.progress > 0 ? '#FEF3C7' : '#F3F4F6', borderRadius: 10, padding: '2px 0' }}>{p.progress}%</span>
+            <span style={{ fontSize: 10, fontWeight: 600, width: 46, textAlign: 'right', color: p.progress >= 100 ? GREEN : p.progress > 0 ? GOLD : MUTE, background: p.progress >= 100 ? 'var(--em-soft)' : p.progress > 0 ? 'var(--gold-soft)' : 'var(--card-3)', borderRadius: 10, padding: '2px 0' }}>{p.progress}%</span>
           </div>
         ))}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, color: MUTE }}>
@@ -253,15 +253,15 @@ export default function ProjectDashboard({ projectId }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
         {/* Finance sensitivity */}
         <Card>
-          <Label right={<span onClick={() => store.setActiveTab('finance')} style={{ fontSize: 11, color: '#2563EB', cursor: 'pointer' }}>full →</span>}>Finance — critical path sensitivity</Label>
-          <div style={{ padding: '10px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 6, fontSize: 12, color: '#166534', marginBottom: 14 }}>✓ On track · Month {overallPct > 0 ? Math.max(1, Math.round(tasks.length * overallPct / 100)) : 0}/{tasks.length}</div>
+          <Label right={<span onClick={() => store.setActiveTab('finance')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>full →</span>}>Finance — critical path sensitivity</Label>
+          <div style={{ padding: '10px 12px', background: 'var(--em-soft)', border: '1px solid var(--em-soft)', borderRadius: 6, fontSize: 12, color: 'var(--emerald)', marginBottom: 14 }}>✓ On track · Month {overallPct > 0 ? Math.max(1, Math.round(tasks.length * overallPct / 100)) : 0}/{tasks.length}</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
             <thead><tr style={{ color: MUTE }}><th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: 500 }} /><th style={{ padding: '4px 6px' }}>Base</th><th style={{ padding: '4px 6px' }}>+3mo</th><th style={{ padding: '4px 6px' }}>+6mo</th><th style={{ padding: '4px 6px' }}>+12mo</th></tr></thead>
             <tbody>
               <tr>
                 <td style={{ padding: '6px', color: '#444' }}>Finance cost</td>
                 {sens.map((s, i) => (
-                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? '#F0FDF4' : i === 3 ? '#FEF2F2' : 'var(--card)BEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
+                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? 'var(--em-soft)' : i === 3 ? 'var(--red-soft)' : 'var(--card)BEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
                 ))}
               </tr>
               <tr>
@@ -278,31 +278,31 @@ export default function ProjectDashboard({ projectId }: Props) {
         <Card>
           <Label>Project health</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {([['critical', 'Critical', RED], ['delayed', 'Delayed', GOLD], ['in-progress', 'On track', GREEN], ['complete', 'Complete', '#2563EB'], ['not-started', 'Not started', MUTE]] as const).map(([k, lab, c]) => (
+            {([['critical', 'Critical', RED], ['delayed', 'Delayed', GOLD], ['in-progress', 'On track', GREEN], ['complete', 'Complete', 'var(--blue)'], ['not-started', 'Not started', MUTE]] as const).map(([k, lab, c]) => (
               <div key={k} style={{ border: `1px solid ${LINE}`, borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: counts[k] > 0 ? c : INK }}>{counts[k]}</div>
                 <div style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, marginTop: 2 }}>{lab}</div>
               </div>
             ))}
-            <div style={{ border: `1px solid ${LINE}`, borderRadius: 8, padding: '10px 12px', textAlign: 'center', background: '#FAF9F7' }}>
+            <div style={{ border: `1px solid ${LINE}`, borderRadius: 8, padding: '10px 12px', textAlign: 'center', background: 'var(--card-2)' }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: GOLD }}>{overallPct}%</div>
               <div style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, marginTop: 2 }}>Overall</div>
             </div>
           </div>
           <div style={{ fontSize: 10, color: MUTE, margin: '14px 0 6px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Capital stack</div>
           <div style={{ display: 'flex', height: 12, borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ width: `${(totalDebt / Math.max(wf.baseTDC, 1)) * 100}%`, background: '#3B82F6' }} />
-            <div style={{ width: `${(totalEquity / Math.max(wf.baseTDC, 1)) * 100}%`, background: '#16A34A' }} />
+            <div style={{ width: `${(totalDebt / Math.max(wf.baseTDC, 1)) * 100}%`, background: 'var(--blue)' }} />
+            <div style={{ width: `${(totalEquity / Math.max(wf.baseTDC, 1)) * 100}%`, background: 'var(--emerald)' }} />
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: MUTE }}>
-            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#3B82F6', marginRight: 4, borderRadius: 2 }} />Debt {fmt(totalDebt, 1)}</span>
-            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: '#16A34A', marginRight: 4, borderRadius: 2 }} />Equity {fmt(totalEquity, 1)}</span>
+            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: 'var(--blue)', marginRight: 4, borderRadius: 2 }} />Debt {fmt(totalDebt, 1)}</span>
+            <span><span style={{ display: 'inline-block', width: 7, height: 7, background: 'var(--emerald)', marginRight: 4, borderRadius: 2 }} />Equity {fmt(totalEquity, 1)}</span>
           </div>
         </Card>
 
         {/* Milestones + returns */}
         <Card>
-          <Label right={<span onClick={() => store.setActiveTab('timeline')} style={{ fontSize: 11, color: '#2563EB', cursor: 'pointer' }}>all tasks →</span>}>Upcoming milestones</Label>
+          <Label right={<span onClick={() => store.setActiveTab('timeline')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>all tasks →</span>}>Upcoming milestones</Label>
           {milestones.length === 0 && <div style={{ fontSize: 11, color: MUTE }}>No milestones scheduled.</div>}
           {milestones.map(t => (
             <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -320,7 +320,7 @@ export default function ProjectDashboard({ projectId }: Props) {
               </div>
             ))}
           </div>
-          {fundingIncomplete && <div style={{ marginTop: 10, padding: '8px 10px', background: '#FEFCE8', border: '1px solid #FDE68A', borderRadius: 6, fontSize: 10, color: '#854D0E' }}>🔒 Complete funding stack to unlock returns</div>}
+          {fundingIncomplete && <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)', borderRadius: 6, fontSize: 10, color: 'var(--amber)' }}>🔒 Complete funding stack to unlock returns</div>}
         </Card>
       </div>
     </div>

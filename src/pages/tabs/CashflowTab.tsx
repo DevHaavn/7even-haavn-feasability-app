@@ -76,9 +76,13 @@ export default function CashflowTab({ projectId }: Props) {
   const cell = (v: number, color = 'var(--ink-2)'): React.CSSProperties => ({ padding: '6px', fontSize: 10.5, fontFamily: 'var(--font-mono)', textAlign: 'right', color: v < 0 ? 'var(--red)' : color, whiteSpace: 'nowrap' })
 
   return (
-    <div className="relative p-4 md:p-6 overflow-auto" style={{ minHeight: 0 }}>
+    <div className="fx-wrap overflow-auto" style={{ minHeight: 0 }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-        <SectionHeading sub="Month-by-month spend by phase, funded equity-first then debt. Phase timing drives the S-curve; add manual costs to any month.">Development Cashflow</SectionHeading>
+        <div>
+          <div className="kicker">06 · Cash Flow</div>
+          <h1 className="h-sec">Development Cashflow</h1>
+          <div className="h-sub">Month-by-month spend by phase, funded equity-first then debt. Phase timing drives the S-curve; add manual costs to any month.</div>
+        </div>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
@@ -94,14 +98,14 @@ export default function CashflowTab({ projectId }: Props) {
       </div>
 
       {/* Config */}
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16, padding: '12px 14px', background: 'var(--card-2)', border: '1px solid var(--border)', borderRadius: 8 }}>
+      <div className="panel" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16, padding: '14px 18px' }}>
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }}>Programme start<br /><input type="month" value={state.startDate} onChange={e => update({ startDate: e.target.value })} style={{ ...inp, marginTop: 4 }} /></label>
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }}>Programme (months)<br /><input type="number" value={state.months} onChange={e => update({ months: Math.max(1, Math.min(120, parseInt(e.target.value, 10) || 36)) })} style={{ ...inp, marginTop: 4, width: 80 }} /></label>
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }}>Equity-first ($)<br /><input type="number" value={state.equityFirst} onChange={e => update({ equityFirst: Math.max(0, parseFloat(e.target.value) || 0) })} style={{ ...inp, marginTop: 4, width: 130 }} /><span style={{ fontSize: 9, color: 'var(--ink-3)', marginLeft: 6 }}>equity in before debt draws</span></label>
       </div>
 
       {/* Phase timing editor */}
-      <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+      <div className="panel" style={{ marginBottom: 20 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: 'var(--card-2)' }}>
             {['Phase', 'Cost', 'Start month', 'Duration', 'S-curve', 'Funded by'].map(h => (
@@ -137,13 +141,13 @@ export default function CashflowTab({ projectId }: Props) {
 
       {/* Month-by-month grid */}
       <p style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)', fontWeight: 700, marginBottom: 8 }}>Monthly Cashflow ($000s)</p>
-      <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 8 }}>
+      <div className="panel scrollx">
         <table style={{ borderCollapse: 'collapse', width: '100%' }}>
           <thead>
             <tr style={{ background: 'var(--card-2)' }}>
               <th style={{ ...th, ...sticky, padding: '8px 12px' }}>Phase</th>
               {cf.monthLabels.map(m => (
-                <th key={m.n} style={th}><div>M{m.n}</div><div style={{ color: '#B0ADA8', fontSize: 7.5, fontWeight: 400 }}>{m.date}</div></th>
+                <th key={m.n} style={th}><div>M{m.n}</div><div style={{ color: 'var(--faint)', fontSize: 7.5, fontWeight: 400 }}>{m.date}</div></th>
               ))}
               <th style={{ ...th, color: 'var(--gold)' }}>Total</th>
             </tr>
@@ -151,25 +155,25 @@ export default function CashflowTab({ projectId }: Props) {
           <tbody>
             {cf.phaseRows.map(r => r.total > 0 && (
               <tr key={r.phase} style={{ borderTop: '1px solid var(--line)' }}>
-                <td style={{ ...sticky, padding: '6px 12px', fontSize: 11, color: '#333' }}>{r.label}</td>
+                <td style={{ ...sticky, padding: '6px 12px', fontSize: 11, color: 'var(--ink)' }}>{r.label}</td>
                 {r.monthly.map((v, i) => <td key={i} style={cell(v)}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}
                 <td style={cell(r.total, 'var(--gold)')}>{Math.round(r.total / 1000).toLocaleString()}</td>
               </tr>
             ))}
             {/* Total spend */}
-            <tr style={{ borderTop: '2px solid var(--border)', background: '#FAF9F7' }}>
-              <td style={{ ...sticky, background: '#FAF9F7', padding: '8px 12px', fontSize: 11, fontWeight: 700, color: 'var(--ink)' }}>Total spend</td>
+            <tr style={{ borderTop: '2px solid var(--border)', background: 'var(--card-3)' }}>
+              <td style={{ ...sticky, background: 'var(--card-3)', padding: '8px 12px', fontSize: 11, fontWeight: 700, color: 'var(--ink)' }}>Total spend</td>
               {cf.totalByMonth.map((v, i) => <td key={i} style={{ ...cell(v, 'var(--ink)'), fontWeight: 700 }}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}
               <td style={{ ...cell(cf.total, 'var(--ink)'), fontWeight: 700 }}>{Math.round(cf.total / 1000).toLocaleString()}</td>
             </tr>
             {/* Funding */}
-            <tr style={{ background: '#F3F6F3' }}><td style={{ ...sticky, background: '#F3F6F3', padding: '6px 12px', fontSize: 10.5, color: 'var(--emerald)' }}>Equity draw</td>{cf.equityByMonth.map((v, i) => <td key={i} style={cell(v, 'var(--emerald)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.equityByMonth.reduce((a, b) => a + b, 0), 'var(--emerald)')}>{Math.round(cf.equityByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
-            <tr style={{ background: '#F0F3F7' }}><td style={{ ...sticky, background: '#F0F3F7', padding: '6px 12px', fontSize: 10.5, color: '#2E4A8B' }}>Debt draw</td>{cf.debtByMonth.map((v, i) => <td key={i} style={cell(v, '#2E4A8B')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.debtByMonth.reduce((a, b) => a + b, 0), '#2E4A8B')}>{Math.round(cf.debtByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
-            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: 'var(--ink-3)' }}>Cumulative equity</td>{cf.cumEquity.map((v, i) => <td key={i} style={cell(v, '#6B9E7E')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakEquity, '#6B9E7E')}>{Math.round(cf.peakEquity / 1000).toLocaleString()}</td></tr>
-            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: 'var(--ink-3)' }}>Cumulative debt (peak = facility)</td>{cf.cumDebt.map((v, i) => <td key={i} style={cell(v, '#7E93B8')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakDebt, '#7E93B8')}>{Math.round(cf.peakDebt / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: 'var(--em-soft)' }}><td style={{ ...sticky, background: 'var(--em-soft)', padding: '6px 12px', fontSize: 10.5, color: 'var(--emerald)' }}>Equity draw</td>{cf.equityByMonth.map((v, i) => <td key={i} style={cell(v, 'var(--emerald)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.equityByMonth.reduce((a, b) => a + b, 0), 'var(--emerald)')}>{Math.round(cf.equityByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: 'rgba(88,120,168,0.10)' }}><td style={{ ...sticky, background: 'rgba(88,120,168,0.10)', padding: '6px 12px', fontSize: 10.5, color: 'var(--blue)' }}>Debt draw</td>{cf.debtByMonth.map((v, i) => <td key={i} style={cell(v, 'var(--blue)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.debtByMonth.reduce((a, b) => a + b, 0), 'var(--blue)')}>{Math.round(cf.debtByMonth.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: 'var(--ink-3)' }}>Cumulative equity</td>{cf.cumEquity.map((v, i) => <td key={i} style={cell(v, 'var(--emerald)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakEquity, 'var(--emerald)')}>{Math.round(cf.peakEquity / 1000).toLocaleString()}</td></tr>
+            <tr><td style={{ ...sticky, padding: '6px 12px', fontSize: 10, color: 'var(--ink-3)' }}>Cumulative debt (peak = facility)</td>{cf.cumDebt.map((v, i) => <td key={i} style={cell(v, 'var(--blue)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.peakDebt, 'var(--blue)')}>{Math.round(cf.peakDebt / 1000).toLocaleString()}</td></tr>
             {/* GST — dealt separately as its own cash-timing line */}
-            <tr style={{ borderTop: '2px solid var(--border)', background: '#FBF7EF' }}><td style={{ ...sticky, background: '#FBF7EF', padding: '6px 12px', fontSize: 10.5, color: '#8A6D1B' }}>GST paid on costs</td>{cf.gstPaid.map((v, i) => <td key={i} style={cell(-v, '#8A6D1B')}>{v ? '-' + Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(-cf.gstPaid.reduce((a, b) => a + b, 0), '#8A6D1B')}>{'-' + Math.round(cf.gstPaid.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
-            <tr style={{ background: '#FBF7EF' }}><td style={{ ...sticky, background: '#FBF7EF', padding: '6px 12px', fontSize: 10.5, color: 'var(--emerald)' }}>GST credits (ITC)</td>{cf.gstReclaimed.map((v, i) => <td key={i} style={cell(v, 'var(--emerald)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.gstReclaimed.reduce((a, b) => a + b, 0), 'var(--emerald)')}>{Math.round(cf.gstReclaimed.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ borderTop: '2px solid var(--border)', background: 'var(--gold-soft)' }}><td style={{ ...sticky, background: 'var(--gold-soft)', padding: '6px 12px', fontSize: 10.5, color: 'var(--amber)' }}>GST paid on costs</td>{cf.gstPaid.map((v, i) => <td key={i} style={cell(-v, 'var(--amber)')}>{v ? '-' + Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(-cf.gstPaid.reduce((a, b) => a + b, 0), 'var(--amber)')}>{'-' + Math.round(cf.gstPaid.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
+            <tr style={{ background: 'var(--gold-soft)' }}><td style={{ ...sticky, background: 'var(--gold-soft)', padding: '6px 12px', fontSize: 10.5, color: 'var(--emerald)' }}>GST credits (ITC)</td>{cf.gstReclaimed.map((v, i) => <td key={i} style={cell(v, 'var(--emerald)')}>{v ? Math.round(v / 1000).toLocaleString() : ''}</td>)}<td style={cell(cf.gstReclaimed.reduce((a, b) => a + b, 0), 'var(--emerald)')}>{Math.round(cf.gstReclaimed.reduce((a, b) => a + b, 0) / 1000).toLocaleString()}</td></tr>
           </tbody>
         </table>
       </div>
@@ -194,7 +198,7 @@ export default function CashflowTab({ projectId }: Props) {
                 <span style={{ color: 'var(--ink-3)' }}>M{m.month + 1}</span>
                 <span style={{ color: 'var(--ink-3)', textTransform: 'uppercase', fontSize: 9 }}>{m.fundedBy}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink)' }}>{fmtK(m.amount)}</span>
-                <button onClick={() => delManual(m.id)} style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14 }}>×</button>
+                <button onClick={() => delManual(m.id)} style={{ background: 'none', border: 'none', color: 'var(--faint)', cursor: 'pointer', fontSize: 14 }}>×</button>
               </div>
             ))}
           </div>

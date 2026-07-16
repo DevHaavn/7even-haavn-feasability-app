@@ -38,7 +38,7 @@ function Row({ label, value, highlight, gold, large }: { label: string; value: s
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       padding: '10px 16px', borderBottom: '1px solid var(--line)',
-      background: highlight ? '#FDFBF4' : 'transparent',
+      background: highlight ? 'var(--card-2)' : 'transparent',
     }}>
       <span style={{ color: 'var(--ink-2)', fontSize: large ? 13 : 11, letterSpacing: '0.04em' }}>{label}</span>
       <span style={{
@@ -126,14 +126,14 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
       </div>
 
       {/* Total */}
-      <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4' }}>
-        <div style={{ padding: '8px 16px', background: '#F5EDD6', borderBottom: '1px solid #E8D9A0' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#8A6A10', fontWeight: 700 }}>Total Capital Summary</span>
+      <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)' }}>
+        <div style={{ padding: '8px 16px', background: 'var(--gold-soft)', borderBottom: '1px solid var(--gold-line)' }}>
+          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--amber)', fontWeight: 700 }}>Total Capital Summary</span>
         </div>
         <Row label="Total Project Cost (Land + TDC)" value={fmt(totalCost)} />
         <Row label="Total Bank Debt" value={fmt(totalDebt)} />
         <Row label="TOTAL EQUITY REQUIRED" value={fmt(totalEquity)} highlight large gold />
-        <div style={{ padding: '8px 16px', borderTop: '1px solid #E8D9A0' }}>
+        <div style={{ padding: '8px 16px', borderTop: '1px solid var(--gold-line)' }}>
           <span style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
             Effective blended LVR: {totalCost > 0 ? Math.round((totalDebt / totalCost) * 100) : 0}%
           </span>
@@ -224,7 +224,7 @@ function SummaryTabInner({ projectId }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div style={{ padding: '32px 40px', maxWidth: 900, width: '100%', margin: '0 auto' }}>
+      <div className="fx-wrap" style={{ maxWidth: 1100 }}>
 
         {/* ── Header ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
@@ -243,7 +243,7 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Best Scenario Hero ── */}
         {bestRow && (
-          <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4', padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
+          <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)', padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
             <div style={{ gridColumn: '1/-1', marginBottom: 8 }}>
               <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
             </div>
@@ -331,7 +331,7 @@ function SummaryTabInner({ projectId }: Props) {
                 </thead>
                 <tbody>
                   {[...allRows].sort((a, b) => b.rlv - a.rlv).map((r, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'var(--card)' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? 'var(--card-2)' : 'var(--card)' }}>
                       <td style={{ padding: '9px 14px', fontSize: 11, color: 'var(--ink-3)' }}>{r.scenario}</td>
                       <td style={{ padding: '9px 14px', fontSize: 12, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
                       <td style={{ padding: '9px 14px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) + ' NOI' : fmt(r.gav) + ' Rev'}</td>
@@ -363,7 +363,7 @@ function SummaryTabInner({ projectId }: Props) {
               const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
               const profitColor = profit > 0 ? 'var(--emerald)' : 'var(--red)'
               return (
-                <div style={{ border: '1px solid var(--gold)', background: '#FDFBF4', padding: '20px 24px', marginBottom: 14 }}>
+                <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)', padding: '20px 24px', marginBottom: 14 }}>
                   <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: '0 0 16px' }}>★ {bestRow.scenario} · {bestRow.type}</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 20 }}>
                     {bestRow.noi != null && (
@@ -415,7 +415,7 @@ function SummaryTabInner({ projectId }: Props) {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
                     <thead>
-                      <tr style={{ background: '#FAFAF8', borderBottom: '1px solid var(--border)' }}>
+                      <tr style={{ background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
                         {['Strategy', 'NOI / Revenue', 'Exit @ 5% Cap', 'TDC', 'Dev Profit', 'Margin %'].map(h => (
                           <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
                         ))}
@@ -429,7 +429,7 @@ function SummaryTabInner({ projectId }: Props) {
                         const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
                         const pc = profit > 0 ? 'var(--emerald)' : 'var(--red)'
                         return (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'var(--card)' }}>
+                          <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? 'var(--card-2)' : 'var(--card)' }}>
                             <td style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
                             <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) : fmt(r.gav)}</td>
                             <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{isBH ? fmt(exitVal) : '—'}</td>

@@ -232,7 +232,7 @@ export default function ProductMixTab({ projectId }: Props) {
     <div className="relative min-h-full">
       {/* Render background */}
 
-      <div className="relative p-4 md:p-6">
+      <div className="fx-wrap relative">
         <div className="flex items-center justify-between mb-5">
           <SectionHeading sub="Define unit types, NSA and % mix — solver calculates integer counts">Product Mix Builder</SectionHeading>
           <div className="flex gap-2 items-center">
@@ -241,7 +241,7 @@ export default function ProductMixTab({ projectId }: Props) {
             {activeId && (
               <button
                 onClick={() => setShowArchImport(v => !v)}
-                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors cursor-pointer"
+                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors cursor-pointer"
                 style={{ borderRadius: 0 }}
               >
                 Paste Architect Schedule
@@ -262,7 +262,7 @@ export default function ProductMixTab({ projectId }: Props) {
           <div className="mb-5 border border-[var(--border)] bg-white p-5">
             <p className="text-[10px] tracking-[0.18em] uppercase text-[var(--ink-3)] mb-1 font-medium">Import from Architect Schedule</p>
             <p className="text-[var(--faint)] text-xs mb-2">Paste text from a unit schedule PDF or Excel. Detects unit type name, NSA per unit (sqm), and count. Replaces existing unit types in this scenario.</p>
-            <p className="text-[10px] text-[#C0BDB8] mb-3 font-mono">e.g. Studio  36  35 &nbsp;&nbsp; or &nbsp;&nbsp; 1 Bedroom  64sqm  168 units</p>
+            <p className="text-[10px] text-[var(--border)] mb-3 font-mono">e.g. Studio  36  35 &nbsp;&nbsp; or &nbsp;&nbsp; 1 Bedroom  64sqm  168 units</p>
             <textarea
               value={archPasteText}
               onChange={e => setArchPasteText(e.target.value)}
@@ -325,7 +325,7 @@ export default function ProductMixTab({ projectId }: Props) {
         {scenarios.length === 0 ? (
           <div className="border border-[var(--border)] bg-white py-16 text-center">
             <p className="text-[var(--ink-3)] text-[10px] tracking-[0.2em] uppercase mb-4">No scenarios yet</p>
-            <button onClick={() => setShowNew(true)} className="px-5 py-2 text-[10px] tracking-widest uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer" style={{ borderRadius: 0 }}>Create First Scenario</button>
+            <button onClick={() => setShowNew(true)} className="px-5 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer" style={{ borderRadius: 0 }}>Create First Scenario</button>
           </div>
         ) : activeId ? (
           <div>
@@ -357,7 +357,7 @@ export default function ProductMixTab({ projectId }: Props) {
                           <input
                             value={u.name}
                             onChange={e => updateUnit(u.id, 'name', e.target.value)}
-                            style={{ width: 110, background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', outline: 'none' }}
+                            style={{ width: 110, background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', outline: 'none' }}
                           />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
@@ -365,7 +365,7 @@ export default function ProductMixTab({ projectId }: Props) {
                             type="number"
                             value={u.nsaPerUnit}
                             onChange={e => editMix(u.id, 'nsaPerUnit', parseFloat(e.target.value) || 0)}
-                            style={{ width: 64, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
+                            style={{ width: 64, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                           />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
@@ -375,7 +375,7 @@ export default function ProductMixTab({ projectId }: Props) {
                               value={Math.round(u.targetPct * 1000) / 10}
                               step={1} min={0} max={100}
                               onChange={e => editMix(u.id, 'targetPct', (parseFloat(e.target.value) || 0) / 100)}
-                              style={{ width: 50, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
+                              style={{ width: 50, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                             />
                             <span style={{ color: 'var(--faint)', fontSize: 12 }}>%</span>
                             {/* Auto-normalised share of 100% actually used by the solver */}
@@ -393,7 +393,7 @@ export default function ProductMixTab({ projectId }: Props) {
                               type="number"
                               value={u.weeklyRentConservative}
                               onChange={e => updateUnit(u.id, 'weeklyRentConservative', parseFloat(e.target.value) || 0)}
-                              style={{ width: 72, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
+                              style={{ width: 72, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                             />
                           </div>
                         </td>
@@ -404,7 +404,7 @@ export default function ProductMixTab({ projectId }: Props) {
                               type="number"
                               value={u.weeklyRentAggressive}
                               onChange={e => updateUnit(u.id, 'weeklyRentAggressive', parseFloat(e.target.value) || 0)}
-                              style={{ width: 72, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
+                              style={{ width: 72, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                             />
                           </div>
                         </td>
@@ -416,7 +416,7 @@ export default function ProductMixTab({ projectId }: Props) {
                               value={u.salePriceMid}
                               step={5000}
                               onChange={e => updateUnit(u.id, 'salePriceMid', parseFloat(e.target.value) || 0)}
-                              style={{ width: 88, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
+                              style={{ width: 88, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '3px 0', fontSize: '13px', color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
                             />
                           </div>
                         </td>
@@ -427,7 +427,7 @@ export default function ProductMixTab({ projectId }: Props) {
                             value={u.solvedCount || 0}
                             onChange={e => editMix(u.id, 'solvedCount', Math.max(0, Math.round(parseFloat(e.target.value) || 0)))}
                             title="Type the unit count directly — the % mix re-derives automatically"
-                            style={{ width: 62, textAlign: 'center', background: 'transparent', border: 'none', borderBottom: '1px solid #E4D9BE', padding: '3px 0', fontSize: 15, fontFamily: 'monospace', fontWeight: 700, color: 'var(--gold)', outline: 'none' }}
+                            style={{ width: 62, textAlign: 'center', background: 'transparent', border: 'none', borderBottom: '1px solid var(--gold-line)', padding: '3px 0', fontSize: 15, fontFamily: 'monospace', fontWeight: 700, color: 'var(--gold)', outline: 'none' }}
                           />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
@@ -444,7 +444,7 @@ export default function ProductMixTab({ projectId }: Props) {
             <div className="flex items-center gap-4 mb-5">
               <button
                 onClick={addUnitType}
-                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
+                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
                 style={{ borderRadius: 0 }}
               >
                 + Add Unit Type
@@ -456,7 +456,7 @@ export default function ProductMixTab({ projectId }: Props) {
               {totalPct > 0 && Math.abs(totalPct - 1) > 0.001 && (
                 <button
                   onClick={() => saveUnits(units.map(u => ({ ...u, targetPct: Math.round((u.targetPct / totalPct) * 1000) / 1000 })))}
-                  className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
+                  className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
                   style={{ borderRadius: 0 }}
                 >
                   Normalise to 100%
@@ -475,7 +475,7 @@ export default function ProductMixTab({ projectId }: Props) {
                   <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)]">Mix Result — live</p>
                   {solverReady && (
                     <button onClick={solveToNSA}
-                      className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
+                      className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
                       style={{ borderRadius: 0 }} title="Fill the counts from the NSA-optimal solver">
                       ⟲ Solve to NSA
                     </button>
@@ -527,12 +527,12 @@ export default function ProductMixTab({ projectId }: Props) {
                           <td style={{ padding: '7px 10px' }}>
                             <input type="number" step={0.1} value={r.spu}
                               onChange={e => updateUnit(r.u.id, 'carSpacesPerUnit', parseFloat(e.target.value) || 0)}
-                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: 'var(--ink)', outline: 'none' }} />
+                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: 'var(--ink)', outline: 'none' }} />
                           </td>
                           <td style={{ padding: '7px 10px' }}>
                             <input type="number" step={0.5} value={r.stpu}
                               onChange={e => updateUnit(r.u.id, 'storageSqmPerUnit', parseFloat(e.target.value) || 0)}
-                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: 'var(--ink)', outline: 'none' }} />
+                              style={{ width: 60, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '2px 0', fontSize: 12, fontFamily: 'monospace', color: 'var(--ink)', outline: 'none' }} />
                           </td>
                           <td style={{ padding: '7px 10px', fontFamily: 'monospace', color: 'var(--ink)' }}>{r.reqSpaces.toFixed(1)}</td>
                           <td style={{ padding: '7px 10px', fontFamily: 'monospace', color: 'var(--ink)' }}>{Math.round(r.reqStorage)} sqm</td>
@@ -553,11 +553,11 @@ export default function ProductMixTab({ projectId }: Props) {
                   <SolverStat label="Ratio (spaces/unit)" value={totalUnits > 0 ? (reqSpaces / totalUnits).toFixed(2) : '—'} />
                 </div>
                 {shortfall < 0 ? (
-                  <div className="mt-4 p-3 text-xs" style={{ background: '#FCF3F3', border: '1px solid #E6B8B8', color: 'var(--red)' }}>
+                  <div className="mt-4 p-3 text-xs" style={{ background: 'var(--red-soft)', border: '1px solid var(--red-soft)', color: 'var(--red)' }}>
                     ⚠ <strong>Parking shortfall of {Math.abs(shortfall)} spaces</strong> vs {provided} provided — planning non-compliance risk. Needs ~{extraLevels} more basement level{extraLevels !== 1 ? 's' : ''} (≈{LEVEL_SPACES}/level) or a mix re-cut. Update car spaces in Site &amp; Design once resolved.
                   </div>
                 ) : (
-                  <div className="mt-4 p-3 text-xs" style={{ background: '#F1F8F3', border: '1px solid #BEDCC7', color: 'var(--emerald)' }}>
+                  <div className="mt-4 p-3 text-xs" style={{ background: 'var(--em-soft)', border: '1px solid var(--em-soft)', color: 'var(--emerald)' }}>
                     ✓ Compliant — {provided} provided vs {reqSpaces} required ({shortfall} spare).
                   </div>
                 )}
@@ -586,9 +586,9 @@ function SolverStat({ label, value, warn }: { label: string; value: string; warn
 // Each model tab lights up in the colour of the use-type it represents.
 const MODEL_TAB_COLOR: Record<ModelTab, { line: string; tint: string; glow: string }> = {
   none:    { line: 'var(--gold)', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Mix — gold
-  btr:     { line: '#22C55E', tint: 'rgba(34,197,94,0.12)',  glow: 'rgba(34,197,94,0.45)' },    // BTR — green
-  bts:     { line: '#3B82F6', tint: 'rgba(59,130,246,0.12)', glow: 'rgba(59,130,246,0.45)' },   // BTS — blue
-  hotel:   { line: '#A855F7', tint: 'rgba(168,85,247,0.12)', glow: 'rgba(168,85,247,0.45)' },   // Hotel — purple
+  btr:     { line: 'var(--emerald)', tint: 'rgba(34,197,94,0.12)',  glow: 'rgba(34,197,94,0.45)' },    // BTR — green
+  bts:     { line: 'var(--blue)', tint: 'rgba(59,130,246,0.12)', glow: 'rgba(59,130,246,0.45)' },   // BTS — blue
+  hotel:   { line: 'var(--purple)', tint: 'rgba(168,85,247,0.12)', glow: 'rgba(168,85,247,0.45)' },   // Hotel — purple
   compare: { line: 'var(--gold)', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Compare — gold
 }
 
@@ -610,16 +610,16 @@ function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: Mod
               flex: 1, minWidth: 0, textAlign: 'center',
               padding: '13px 8px', border: 'none', cursor: 'pointer',
               background: on ? `linear-gradient(180deg,var(--card), ${c.tint})` : 'transparent',
-              borderLeft: i > 0 ? '1px solid #E7E3DD' : 'none',
+              borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
               fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: on ? 800 : 600,
-              color: on ? 'var(--ink)' : '#9A968F',
+              color: on ? 'var(--ink)' : 'var(--ink-3)',
               borderBottom: on ? `3px solid ${c.line}` : '2px solid transparent',
               boxShadow: on ? `inset 0 -1px 10px -2px ${c.glow}, 0 6px 14px -10px ${c.glow}` : 'none',
               marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
               transition: 'color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease',
             }}
             onMouseEnter={e => { if (!on) e.currentTarget.style.color = c.line }}
-            onMouseLeave={e => { if (!on) e.currentTarget.style.color = '#9A968F' }}
+            onMouseLeave={e => { if (!on) e.currentTarget.style.color = 'var(--ink-3)' }}
           >
             {t.label}
           </button>
@@ -641,7 +641,7 @@ function ModelDrawer({ tab, projectId, onClose }: { tab: ModelTab; projectId: st
             {title} · slides over the mix builder
           </span>
           <button onClick={onClose}
-            className="px-3 py-1.5 text-[9px] tracking-[0.16em] uppercase border border-[#C8C5C0] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
+            className="px-3 py-1.5 text-[9px] tracking-[0.16em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
             style={{ borderRadius: 0 }}>
             ▲ Back to Mix
           </button>
