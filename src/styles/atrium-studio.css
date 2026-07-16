@@ -243,3 +243,13 @@
 .fxs .pbar{width:260px;height:6px;background:var(--track);border-radius:6px;overflow:hidden;margin-top:8px}
 
 .fxs .foot{text-align:center;padding:44px 0 8px;font-size:10px;letter-spacing:.2em;color:var(--faint)}
+
+/* ---- let the blue/grey field show through the work surface (retire the old
+        dark texture / invert stage) so reskinned tabs sit on the glass ---- */
+.fxs .workspace-content{background:transparent!important}
+.fxs .premium-stage{background:transparent!important}
+.fxs .premium-card{background:transparent!important;box-shadow:none!important;border:none!important;filter:none!important;border-radius:0!important;backdrop-filter:none!important}
+.fxs .premium-card::before{display:none!important}
+.fxs .premium-footer{background:transparent!important}
+/* centred content wrap for reskinned tabs */
+.fxs .fx-wrap{max-width:1440px;margin:0 auto;padding:30px 26px 120px}

@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '../../store'
 import { useAutosave } from '../../lib/useAutosave'
-import { SectionHeading, FieldRow, NumberInput, Button, Card } from '../../components/ui'
 import ProjectMap from '../../components/ProjectMap'
 import type { SiteDesign } from '../../db/schema'
 
 interface Props { projectId: string }
+
+// Small mono input matching the concept's `.inp`. Same parse behaviour as the old
+// NumberInput (parseFloat || 0) — presentation only, no logic change.
+function NumCell({ value, onChange, sm }: { value: number; onChange: (v: number) => void; sm?: boolean }) {
+  return (
+    <input className={`inp${sm ? ' sm' : ''}`} type="number" value={value || ''} min={0}
+      onChange={e => onChange(parseFloat(e.target.value) || 0)} />
+  )
+}
 
 export default function SiteDesignTab({ projectId }: Props) {
   const { getSiteDesign, saveSiteDesign, projects } = useStore()
@@ -23,13 +31,13 @@ export default function SiteDesignTab({ projectId }: Props) {
     setData(next)
   }
 
-  // Reconciliation checks
+  // Reconciliation checks (unchanged)
   const nsaGFAEff = data.resiGFA > 0 ? data.resiNSA / data.resiGFA : 0
   const nsaGFAFlag = nsaGFAEff > 0 && (nsaGFAEff < 0.78 || nsaGFAEff > 0.87)
   const totalGBA = data.resiGBA + data.childcareGFA + data.churchGFA
     + (data.commercialGFA || 0) + (data.retailGFA || 0) + (data.communalGFA || 0) + data.otherGFA
 
-  // PDF text parser
+  // PDF text parser (unchanged)
   function parsePaste() {
     const lines = pasteText.split('\n')
     let resiNSA = 0, resiGFA = 0, resiGBA = 0, balcony = 0
@@ -50,182 +58,106 @@ export default function SiteDesignTab({ projectId }: Props) {
     }
   }
 
+  const ancillary: [string, keyof SiteDesign][] = [
+    ['Childcare GFA', 'childcareGFA'], ['Church / Vendor GFA', 'churchGFA'], ['Church / Vendor NSA', 'churchNSA'],
+    ['Commercial GFA', 'commercialGFA'], ['Commercial NSA', 'commercialNSA'], ['Retail GFA', 'retailGFA'],
+    ['Retail NSA', 'retailNSA'], ['Communal areas GFA', 'communalGFA'], ['Other GFA', 'otherGFA'],
+  ]
+
   return (
-    <div className="flex flex-col">
-      <style>{`
-        .sd-panel label { color: #3A3A3A !important; }
-        .sd-panel .field-row-mobile label { color: #3A3A3A !important; }
-        .sd-panel input[type=number] { color: #1A1A1A !important; font-weight: 700; }
-      `}</style>
-
-      <div className="relative flex flex-col md:flex-row">
-
-      {/* ── Left: data panels ── */}
-      <div className="sd-panel p-4 md:p-6 md:w-1/2 flex-shrink-0">
-      <div className="flex items-center justify-between mb-6">
-        <SectionHeading sub="GBA, GFA, NSA and ancillary areas from architect's schedule">Site &amp; Design</SectionHeading>
-        <div className="flex gap-2">
-          <Button variant="primary" size="sm" onClick={() => setShowParser(!showParser)}>Paste Schedule</Button>
-          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
-          {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
+    <div className="fx-wrap">
+      <div className="pagehead">
+        <div>
+          <div className="kicker">01 · Site &amp; Design</div>
+          <h1 className="h-sec">Area Schedule</h1>
+          <div className="h-sub">GBA, GFA, NSA and ancillary areas from the architect's schedule.</div>
+        </div>
+        <div className="flex gap wrapf aic">
+          <span className="chip" onClick={() => setShowParser(v => !v)}>⧉ Paste Schedule</span>
+          <span className="check">✓ Auto-saved</span>
+          {canUndo && <span className="chip" onClick={() => undo(setData)}>↶ Undo</span>}
         </div>
       </div>
 
       {showParser && (
-        <div className="mb-6 bg-white border border-[#D0CEC9] p-4">
-          <p style={{ color: '#555', fontSize: 11, marginBottom: 8, letterSpacing: '0.04em' }}>Paste extracted text from an architect's area schedule PDF. The parser will auto-detect NSA, GFA, GBA, and balcony totals.</p>
-          <textarea
-            className="w-full h-32 text-xs font-mono text-[#1A1A1A]"
-            style={{ background: '#F5F3F0', border: '1px solid #D0CEC9', borderRadius: 0, padding: '8px' }}
-            placeholder="Paste schedule text here..."
-            value={pasteText}
-            onChange={e => setPasteText(e.target.value)}
-          />
-          <div className="flex gap-2 mt-2">
-            <Button size="sm" onClick={parsePaste}>Parse &amp; Import</Button>
-            <Button variant="ghost" size="sm" onClick={() => { setShowParser(false); setPasteText('') }}>Cancel</Button>
+        <div className="panel pad mb">
+          <div className="divlabel">Paste architect schedule</div>
+          <p className="note mb">Paste extracted text from an architect's area-schedule PDF. The parser auto-detects NSA, GFA, GBA and balcony totals.</p>
+          <textarea className="inp" style={{ width: '100%', height: 120, textAlign: 'left', fontFamily: 'var(--mono)' }}
+            placeholder="Paste schedule text here…" value={pasteText} onChange={e => setPasteText(e.target.value)} />
+          <div className="flex gap mt">
+            <span className="chip gold" onClick={parsePaste}>Parse &amp; Import</span>
+            <span className="chip" onClick={() => { setShowParser(false); setPasteText('') }}>Cancel</span>
           </div>
         </div>
       )}
 
-      <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Residential Areas</h3>
-        <FieldRow label="Resi NSA (sqm)">
-          <NumberInput value={data.resiNSA} onChange={v => update('resiNSA', v)} />
-        </FieldRow>
-        <FieldRow label="Resi GFA (sqm)">
-          <NumberInput value={data.resiGFA} onChange={v => update('resiGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Resi GBA (sqm)" note="Used for cost stack">
-          <NumberInput value={data.resiGBA} onChange={v => update('resiGBA', v)} />
-        </FieldRow>
-        <FieldRow label="Balcony (sqm)">
-          <NumberInput value={data.balcony} onChange={v => update('balcony', v)} />
-        </FieldRow>
-        <FieldRow label="Basement (sqm)">
-          <NumberInput value={data.basementTotal} onChange={v => update('basementTotal', v)} />
-        </FieldRow>
-        <FieldRow label="Car spaces">
-          <NumberInput value={data.carSpaces} onChange={v => update('carSpaces', v)} />
-        </FieldRow>
-      </div>
+      <div className="two-64">
+        {/* ── Left: area inputs ── */}
+        <div className="grid">
+          <div className="panel pad gold-top">
+            <div className="divlabel">Residential areas</div>
+            <div className="frow"><span className="fl">Resi NSA (sqm)</span><NumCell value={data.resiNSA} onChange={v => update('resiNSA', v)} /></div>
+            <div className="frow"><span className="fl">Resi GFA (sqm)</span><NumCell value={data.resiGFA} onChange={v => update('resiGFA', v)} /></div>
+            <div className="frow"><span className="fl">Resi GBA (sqm)<small>Used for cost stack</small></span><NumCell value={data.resiGBA} onChange={v => update('resiGBA', v)} /></div>
+            <div className="frow"><span className="fl">Balcony (sqm)</span><NumCell value={data.balcony} onChange={v => update('balcony', v)} /></div>
+            <div className="frow"><span className="fl">Basement (sqm)</span><NumCell value={data.basementTotal} onChange={v => update('basementTotal', v)} /></div>
+            <div className="frow"><span className="fl">Car spaces</span><NumCell value={data.carSpaces} onChange={v => update('carSpaces', v)} /></div>
 
-      <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-        <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Ancillary Areas</h3>
-        <FieldRow label="Childcare GFA (sqm)">
-          <NumberInput value={data.childcareGFA} onChange={v => update('childcareGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Church / Vendor GFA (sqm)">
-          <NumberInput value={data.churchGFA} onChange={v => update('churchGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Church / Vendor NSA (sqm)">
-          <NumberInput value={data.churchNSA} onChange={v => update('churchNSA', v)} />
-        </FieldRow>
-        <FieldRow label="Commercial GFA (sqm)">
-          <NumberInput value={data.commercialGFA || 0} onChange={v => update('commercialGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Commercial NSA (sqm)">
-          <NumberInput value={data.commercialNSA || 0} onChange={v => update('commercialNSA', v)} />
-        </FieldRow>
-        <FieldRow label="Retail GFA (sqm)">
-          <NumberInput value={data.retailGFA || 0} onChange={v => update('retailGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Retail NSA (sqm)">
-          <NumberInput value={data.retailNSA || 0} onChange={v => update('retailNSA', v)} />
-        </FieldRow>
-        <FieldRow label="Communal areas GFA (sqm)">
-          <NumberInput value={data.communalGFA || 0} onChange={v => update('communalGFA', v)} />
-        </FieldRow>
-        <FieldRow label="Other GFA (sqm)">
-          <NumberInput value={data.otherGFA} onChange={v => update('otherGFA', v)} />
-        </FieldRow>
-      </div>
-
-      {/* Reconciliation panel */}
-      {data.resiNSA > 0 && (
-        <div className="border border-[#E8E5E0] bg-white p-4 mb-4">
-          <h3 style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#2E2E2E', marginBottom: 12, fontWeight: 700 }}>Reconciliation Check</h3>
-          <ReconciliationRow
-            label="NSA/GFA Efficiency"
-            value={`${(nsaGFAEff * 100).toFixed(1)}%`}
-            flag={nsaGFAFlag}
-            note="Typical 78–87%"
-          />
-          <ReconciliationRow
-            label="Total ancillary GBA"
-            value={`${totalGBA.toLocaleString()} sqm`}
-            flag={false}
-            note={`Resi ${data.resiGBA.toLocaleString()} + Other ${(totalGBA - data.resiGBA).toLocaleString()}`}
-          />
+            <div className="divlabel">Ancillary areas</div>
+            <div className="two" style={{ gap: '2px 24px' }}>
+              {ancillary.map(([label, key]) => (
+                <div className="frow" key={key}>
+                  <span className="fl">{label}</span>
+                  <NumCell sm value={(data[key] as number) || 0} onChange={v => update(key, v)} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Architect development-summary PDF — paste the link to the latest version */}
-      <div style={{ borderTop: '2px solid transparent', borderImage: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A) 1', background: '#fff', padding: '20px 20px 18px', marginBottom: 4 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#2E2E2E', fontWeight: 700 }}>Architect Development Summary (PDF)</span>
-          <div style={{ flex: 1, height: 1, background: '#E8E5E0' }} />
-          {data.architectPdfUrl && (
-            <a href={data.architectPdfUrl} target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#1A1A1A', fontWeight: 700, border: '1px solid #C8C4BE', borderRadius: 6, padding: '6px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-              ↗ Open PDF
-            </a>
+        {/* ── Right: reconciliation, map, PDF, notes ── */}
+        <div className="grid">
+          {data.resiNSA > 0 && (
+            <div className="panel pad">
+              <div className="eyebrow">Reconciliation check</div>
+              <div className="flex between aic mt">
+                <div><div className="kpi" style={{ border: 'none', boxShadow: 'none', padding: 0, background: 'none' }}>
+                  <div className="lab">NSA / GFA efficiency</div>
+                  <div className={`val ${nsaGFAFlag ? 'am' : 'g'}`}>{(nsaGFAEff * 100).toFixed(1)}%</div>
+                </div></div>
+                <span className={nsaGFAFlag ? 'st marg' : 'check'}>{nsaGFAFlag ? '⚠ Outside 78–87%' : '✓ Typical 78–87%'}</span>
+              </div>
+              <div className="track-bar mt"><div className="fill" style={{ width: `${Math.min(100, nsaGFAEff * 100)}%`, background: 'linear-gradient(90deg,var(--emerald),var(--gold-hi))' }} /></div>
+              <div className="frow mt2"><span className="fl">Total ancillary GBA</span><span style={{ fontFamily: 'var(--mono)', color: 'var(--ink)' }}>{totalGBA.toLocaleString()} sqm</span></div>
+              <div className="note">✓ Resi {data.resiGBA.toLocaleString()} + Other {(totalGBA - data.resiGBA).toLocaleString()}</div>
+            </div>
           )}
+
+          <div className="panel" style={{ height: 300, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 14, left: 16, zIndex: 2 }} className="eyebrow">Site location · CARTO</div>
+            <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
+          </div>
+
+          <div className="panel pad">
+            <div className="eyebrow">Architect development summary (PDF)</div>
+            <p className="note mt">Keep pointed at the latest version so numbers double-check against source.</p>
+            <input className="inp mt" style={{ width: '100%', textAlign: 'left' }}
+              placeholder="Paste link to the architect's development summary PDF…"
+              value={data.architectPdfUrl ?? ''} onChange={e => update('architectPdfUrl' as keyof SiteDesign, e.target.value)} />
+            {data.architectPdfUrl && (
+              <a href={data.architectPdfUrl} target="_blank" rel="noopener noreferrer" className="chip gold" style={{ marginTop: 12, display: 'inline-block', textDecoration: 'none' }}>↗ Open PDF</a>
+            )}
+          </div>
+
+          <div className="panel pad">
+            <div className="eyebrow">Notes</div>
+            <textarea style={{ width: '100%', minHeight: 90, marginTop: 12, background: 'transparent', border: 'none', borderBottom: '1px solid var(--line)', color: 'var(--ink)', fontSize: 13, fontFamily: 'var(--serif)', lineHeight: 1.7, resize: 'vertical', outline: 'none' }}
+              placeholder="Site notes, council requirements, design caveats…"
+              value={data.notes} onChange={e => update('notes', e.target.value)} />
+          </div>
         </div>
-        <input
-          style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid #E0DDD8', borderRadius: 0, padding: '4px 0 8px', color: '#1A1A1A', fontSize: 12, outline: 'none' }}
-          placeholder="Paste link to the architect's development summary PDF (SharePoint / Dropbox / URL)…"
-          value={data.architectPdfUrl ?? ''}
-          onChange={e => update('architectPdfUrl' as any, e.target.value)}
-        />
-        <p style={{ fontSize: 10, color: '#999', marginTop: 6 }}>Keep this pointed at the latest version so numbers can be double-checked against source.</p>
       </div>
-
-      {/* Notes */}
-      <div style={{ borderTop: '2px solid transparent', borderImage: 'linear-gradient(to right, #2A2A2A, #B8B8B8 45%, #2A2A2A) 1', background: '#fff', padding: '20px 20px 20px', marginBottom: 4 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#2E2E2E', fontWeight: 700 }}>Notes</span>
-          <div style={{ flex: 1, height: 1, background: '#E8E5E0' }} />
-        </div>
-        <textarea
-          style={{
-            width: '100%', minHeight: 80, background: 'transparent', border: 'none',
-            borderBottom: '1px solid #E0DDD8', borderRadius: 0, padding: '0 0 12px',
-            resize: 'vertical', color: '#1A1A1A', fontSize: 13,
-            fontFamily: "'Georgia','Times New Roman',serif", lineHeight: 1.8,
-            letterSpacing: '0.02em', outline: 'none',
-          }}
-          placeholder="Site notes, council requirements, design caveats…"
-          value={data.notes}
-          onChange={e => update('notes', e.target.value)}
-        />
-      </div>
-      </div>
-
-      {/* Gold divider */}
-      <div className="hidden md:block flex-shrink-0" style={{ width: 1, background: 'linear-gradient(to bottom, transparent, #2A2A2A 18%, #B8B8B8 50%, #2A2A2A 82%, transparent)', margin: '24px 0' }} />
-
-      {/* ── Right: map ── */}
-      <div className="hidden md:block md:w-1/2" style={{ minHeight: 500, position: 'relative' }}>
-        <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
-      </div>
-
-      </div>
-
-      {/* Map on mobile — full width below panels */}
-      <div className="md:hidden" style={{ height: 300 }}>
-        <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
-      </div>
-    </div>
-  )
-}
-
-function ReconciliationRow({ label, value, flag, note }: { label: string; value: string; flag: boolean; note: string }) {
-  return (
-    <div className="flex items-center justify-between py-1.5 border-b border-[#F0EDE8] last:border-0">
-      <span className="text-xs text-[#666]">{label}</span>
-      <span className={`text-sm font-heading font-bold ${flag ? 'text-[#B8963C]' : 'text-[#237A52]'}`}>{value}</span>
-      <span className={`text-xs ${flag ? 'text-[#B8963C]' : 'text-[#888]'}`}>{flag ? '⚠ ' : '✓ '}{note}</span>
     </div>
   )
 }
