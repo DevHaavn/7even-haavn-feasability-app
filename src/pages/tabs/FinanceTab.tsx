@@ -12,7 +12,8 @@ const fmtM = (n: number) => `$${(n / 1_000_000).toFixed(2)}M`
 const fmtK = (n: number) => Math.abs(n) >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : Math.abs(n) >= 1000 ? `$${Math.round(n / 1000)}k` : `$${Math.round(n)}`
 const pct = (n: number, dp = 1) => `${(n * 100).toFixed(dp)}%`
 
-const BLUE = '#3B82F6', PURPLE = '#6366F1', GOLD = '#F59E0B', RED = '#EF4444', GREEN = '#16A34A', INK = 'var(--ink)', MUTE = '#8A8A8A'
+// ATRIUM palette — muted, no rainbow (brief §10). Same series/meaning, recoloured only.
+const BLUE = 'var(--blue)', PURPLE = 'var(--purple)', GOLD = 'var(--amber)', RED = 'var(--red)', GREEN = 'var(--emerald)', INK = 'var(--ink)', MUTE = 'var(--ink-3)'
 const trancheColor = (t: TrancheWaterfall) => t.type === 'mezz' ? PURPLE : t.type === 'preferred-equity' ? GOLD : BLUE
 
 const MODEL_LABEL: Record<string, string> = { compound: 'Compound monthly', pik: 'PIK', simple: 'Simple' }
@@ -90,10 +91,10 @@ function InterestByTrancheChart({ result }: { result: WaterfallResult }) {
 // ── KPI card ──────────────────────────────────────────────────────────────────
 function Kpi({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div style={{ flex: 1, padding: '16px 20px', borderRight: '1px solid #ECEAE5' }}>
-      <div style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 600, color: color || INK, letterSpacing: '-0.01em' }}>{value}</div>
-      {sub && <div style={{ fontSize: 10, color: MUTE, marginTop: 3 }}>{sub}</div>}
+    <div className="kpi">
+      <div className="lab">{label}</div>
+      <div className="val" style={color ? { color } : undefined}>{value}</div>
+      {sub && <div className="sub">{sub}</div>}
     </div>
   )
 }
@@ -141,40 +142,48 @@ export default function FinanceTab({ projectId }: Props) {
   const shown = buckets.length > 10 && freq === 'quarterly' ? buckets : buckets.slice(0, 12)
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: '#FAF9F7' }}>
-      {/* Sub-tab bar */}
-      <div style={{ display: 'flex', gap: 22, padding: '10px 24px 0', borderBottom: '1px solid #ECEAE5', background: 'var(--card)' }}>
-        {SUB_TABS.map(([id, label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: tab === id ? 700 : 500, color: tab === id ? INK : MUTE, padding: '6px 0', borderBottom: tab === id ? `2px solid ${INK}` : '2px solid transparent', marginBottom: -1 }}>{label}</button>
-        ))}
-      </div>
-
-      {/* KPI strip */}
-      <div style={{ display: 'flex', background: 'var(--card)', borderBottom: '1px solid #ECEAE5' }}>
-        <Kpi label="Base TDC" value={fmtM(result.baseTDC)} sub="ex finance costs" />
-        <Kpi label="Total finance cost" value={fmtM(result.totalFinanceCost)} sub={`${pct(financePctBase)} of base TDC`} color={GOLD} />
-        <Kpi label="Peak debt balance" value={fmtM(result.peakDebt)} sub="max outstanding" />
-        <Kpi label="Senior capitalised" value={fmtM(result.seniorCapitalised)} sub="rolls into debt balance" />
-        <div style={{ flex: 1, padding: '16px 20px' }}>
-          <div style={{ fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 6 }}>All-in TDC</div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: GREEN }}>{fmtM(result.allInTDC)}</div>
-          <div style={{ fontSize: 10, color: MUTE, marginTop: 3 }}>incl. all finance</div>
+    <div style={{ flex: 1, overflow: 'auto' }}>
+      <div className="fx-wrap">
+        <div className="pagehead">
+          <div>
+            <div className="kicker">05 · Finance</div>
+            <h1 className="h-sec">Capital Stack</h1>
+            <div className="h-sub">Debt, equity and the true cost of money across the programme.</div>
+          </div>
+          <span className="check">✓ Auto-saved</span>
         </div>
-      </div>
 
-      {/* View-as lenses */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px' }}>
-        <span style={{ fontSize: 11, color: MUTE }}>View as</span>
-        {LENSES.map(([id, label]) => (
-          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: '1px solid var(--border)', padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? INK : 'var(--card)', color: lens === id ? 'var(--card)' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
-        ))}
-      </div>
+        {/* Sub-tabs */}
+        <div className="subtabs mb">
+          {SUB_TABS.map(([id, label]) => (
+            <button key={id} onClick={() => setTab(id)} className={`subtab${tab === id ? ' on' : ''}`}>{label}</button>
+          ))}
+        </div>
 
-      <div style={{ padding: '0 24px 40px' }}>
+        {/* KPI row */}
+        <div className="kpis k5 mb">
+          <Kpi label="Base TDC" value={fmtM(result.baseTDC)} sub="ex finance costs" />
+          <Kpi label="Total finance cost" value={fmtM(result.totalFinanceCost)} sub={`${pct(financePctBase)} of base TDC`} color={GOLD} />
+          <Kpi label="Peak debt balance" value={fmtM(result.peakDebt)} sub="max outstanding" />
+          <Kpi label="Senior capitalised" value={fmtM(result.seniorCapitalised)} sub="rolls into debt balance" />
+          <Kpi label="All-in TDC" value={fmtM(result.allInTDC)} sub="incl. all finance" color={GREEN} />
+        </div>
+
+        {/* View-as lenses */}
+        <div className="flex aic gap mb wrapf">
+          <span className="eyebrow">View as</span>
+          <div className="seg">
+            {LENSES.map(([id, label]) => (
+              <button key={id} onClick={() => setLens(id)} className={lens === id ? 'on' : ''}>{label}</button>
+            ))}
+          </div>
+        </div>
+
+      <div style={{ paddingBottom: 20 }}>
         {/* Charts */}
         {(tab === 'capital' || tab === 'drawdown') && (
           <div style={{ display: 'grid', gridTemplateColumns: tab === 'capital' ? '1fr 1fr' : '1fr', gap: 20, marginBottom: 28 }}>
-            <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, padding: 16 }}>
+            <div className="panel chartcard">
               <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Debt balance — monthly drawdown curve</div>
               <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
                 <span><span style={{ display: 'inline-block', width: 8, height: 8, background: BLUE, marginRight: 4 }} />Debt balance</span>
@@ -183,7 +192,7 @@ export default function FinanceTab({ projectId }: Props) {
               <DebtBalanceChart months={result.months} />
             </div>
             {tab === 'capital' && (
-              <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, padding: 16 }}>
+              <div className="panel chartcard">
                 <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Interest accrual — by tranche per quarter</div>
                 <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
                   {result.tranches.map(t => <span key={t.id}><span style={{ display: 'inline-block', width: 8, height: 8, background: trancheColor(t), marginRight: 4 }} />{t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : 'Senior interest'}</span>)}
@@ -198,7 +207,7 @@ export default function FinanceTab({ projectId }: Props) {
         {tab === 'capital' && (
           <div style={{ marginBottom: 28 }}>
             <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 10 }}>Tranche configuration — interest model per facility</div>
-            <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+            <div className="panel scrollx">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 720 }}>
                 <thead>
                   <tr style={{ color: MUTE, textAlign: 'left' }}>
@@ -257,7 +266,7 @@ export default function FinanceTab({ projectId }: Props) {
                 ))}
               </div>
             </div>
-            <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+            <div className="panel scrollx">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10.5, minWidth: 720 }}>
                 <thead>
                   <tr style={{ color: MUTE }}>
@@ -289,7 +298,7 @@ export default function FinanceTab({ projectId }: Props) {
         {tab === 'capital' && (
           <div>
             <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 10 }}>Finance cost allocated to each TDC category</div>
-            <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, overflow: 'auto' }}>
+            <div className="panel scrollx">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 720 }}>
                 <thead>
                   <tr style={{ color: MUTE }}>
@@ -318,10 +327,11 @@ export default function FinanceTab({ projectId }: Props) {
         )}
 
         {tab === 'sensitivity' && (
-          <div style={{ background: 'var(--card)', border: '1px solid #ECEAE5', borderRadius: 8, padding: 20, color: MUTE, fontSize: 12 }}>
+          <div className="panel pad" style={{ color: 'var(--ink-2)', fontSize: 12 }}>
             Peak debt {fmtM(result.peakDebt)} · total finance cost {fmtM(result.totalFinanceCost)} ({pct(financePctBase)} of TDC). Adjust tranche rates/models on Capital stack to stress the outcome.
           </div>
         )}
+      </div>
       </div>
     </div>
   )
