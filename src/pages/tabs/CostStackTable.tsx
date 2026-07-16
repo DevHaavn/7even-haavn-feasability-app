@@ -217,9 +217,16 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     const p = pctPercent / 100
     update(it.id, { pct: p, amount: Math.round(p * basisVal(it)) })
   }
-  // Units × Rate drives the budget when both are present.
-  const changeUnits = (it: CostLineItem, u: number) =>
-    update(it.id, { units: u, amount: (u > 0 && (it.baseRate ?? 0) > 0) ? Math.round(u * (it.baseRate || 0)) : (it.amount || 0) })
+  // Units × Rate drives the budget when both are present. A line is EITHER a %-of-basis
+  // fee OR a units × rate fee — so entering units on a %-basis line switches it to
+  // units × rate (clears the % basis) rather than leaving the Units cell dead.
+  const changeUnits = (it: CostLineItem, u: number) => {
+    if (it.feeBasis && u > 0) {
+      update(it.id, { units: u, feeBasis: undefined, pct: undefined, amount: (it.baseRate ?? 0) > 0 ? Math.round(u * (it.baseRate || 0)) : 0 })
+    } else {
+      update(it.id, { units: u, amount: (u > 0 && (it.baseRate ?? 0) > 0) ? Math.round(u * (it.baseRate || 0)) : (it.amount || 0) })
+    }
+  }
   const changeRate = (it: CostLineItem, r: number) =>
     update(it.id, { baseRate: r, amount: ((it.units ?? 0) > 0 && r > 0) ? Math.round((it.units || 0) * r) : (it.amount || 0) })
 
@@ -261,13 +268,9 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
           {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
-        {/* Units — editable (n/a for % basis) */}
-        {isPct ? (
-          <span style={{ fontSize: 10, color: '#CBC9C4', ...cellR }}>—</span>
-        ) : (
-          <NumCell num={item.units ?? null} placeholder="—" onCommit={n => changeUnits(item, n)}
-            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
-        )}
+        {/* Units — editable on every line; typing units on a % line converts it to units × rate */}
+        <NumCell num={isPct ? null : (item.units ?? null)} placeholder="—" onCommit={n => changeUnits(item, n)}
+          style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
         {/* Rate — pct % for a %-basis line (decimals allowed), otherwise the per-unit rate */}
         {isPct ? (
           <NumCell num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
