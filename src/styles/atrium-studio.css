@@ -253,3 +253,5 @@
 .fxs .premium-footer{background:transparent!important}
 /* centred content wrap for reskinned tabs */
 .fxs .fx-wrap{max-width:1440px;margin:0 auto;padding:30px 26px 120px}
+/* shared FieldRow: first row in a panel drops its top divider */
+.fxs .fx-frow:first-of-type{border-top:none!important}

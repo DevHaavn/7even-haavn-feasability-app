@@ -84,11 +84,11 @@ export function Card({ children, className = '', dark = false }: { children: Rea
 
 export function SectionHeading({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
-    <div className="mb-5 cursor-default" style={{ paddingLeft: 4 }}>
-      <h2 className="font-heading font-black text-[18px] tracking-[0.10em] uppercase mb-1.5" style={{ color: '#141414' }}>{children}</h2>
+    <div className="mb-5 cursor-default" style={{ paddingLeft: 2 }}>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 34, fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1, color: 'var(--ink, #141414)' }}>{children}</h2>
       {/* ATRIUM livery — green nib running into brushed silver */}
-      <div style={{ height: 2, borderRadius: 2, width: 54, background: 'linear-gradient(to right, #237A52, #9AA2A4 60%, transparent)' }} />
-      {sub && <p className="text-[#666] text-[12px] tracking-wide font-medium mt-1.5">{sub}</p>}
+      <div style={{ height: 2, borderRadius: 2, width: 54, marginTop: 9, background: 'linear-gradient(to right, #237A52, #9AA2A4 60%, transparent)' }} />
+      {sub && <p style={{ color: 'var(--ink-2, #666)', fontSize: 12.5, marginTop: 9 }}>{sub}</p>}
     </div>
   )
 }
@@ -133,10 +133,11 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
 
 export function FieldRow({ label, children, note }: { label: string; children: React.ReactNode; note?: string }) {
   return (
-    <div className="field-row-mobile flex items-center gap-4 py-2.5 border-b border-[#E8E5E0] last:border-0">
-      <label className="text-[#888] text-[11px] tracking-[0.06em] w-44 flex-shrink-0">{label}</label>
-      <div className="flex-1 no-drag">{children}</div>
-      {note && <span className="text-[#AAA] text-[10px] w-36 text-right flex-shrink-0 tracking-wide hidden sm:block">{note}</span>}
+    <div className="field-row-mobile fx-frow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '11px 0', borderTop: '1px solid var(--line, #E8E5E0)' }}>
+      <label style={{ fontSize: 12.5, color: 'var(--ink-2, #888)' }}>
+        {label}{note && <small style={{ display: 'block', fontSize: 10, color: 'var(--faint, #AAA)', marginTop: 2, letterSpacing: '0.02em' }}>{note}</small>}
+      </label>
+      <div className="no-drag" style={{ flexShrink: 0 }}>{children}</div>
     </div>
   )
 }
@@ -172,17 +173,16 @@ export function NumberInput({ value, onChange, prefix, suffix, step, min }: {
 }) {
   return (
     <div className="flex items-center gap-2">
-      {prefix && <span className="text-[#AAA] text-xs font-mono">{prefix}</span>}
+      {prefix && <span style={{ color: 'var(--ink-3, #AAA)', fontSize: 12, fontFamily: 'var(--mono, monospace)' }}>{prefix}</span>}
       <input
         type="number"
         value={value || ''}
         step={step ?? 1}
         min={min ?? 0}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
-        className="w-32 text-right text-[#1A1A1A] text-sm font-mono"
-        style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #D0CEC9', borderRadius: 0, padding: '4px 0' }}
+        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 124, textAlign: 'right' }}
       />
-      {suffix && <span className="text-[#AAA] text-xs">{suffix}</span>}
+      {suffix && <span style={{ color: 'var(--ink-3, #AAA)', fontSize: 12 }}>{suffix}</span>}
     </div>
   )
 }
@@ -197,11 +197,10 @@ export function PctInput({ value, onChange, label }: { value: number; onChange: 
         min={0}
         max={100}
         onChange={e => onChange((parseFloat(e.target.value) || 0) / 100)}
-        className="w-16 text-right text-[#1A1A1A] text-sm font-mono"
-        style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #D0CEC9', borderRadius: 0, padding: '4px 0' }}
+        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 74, textAlign: 'right' }}
       />
-      <span className="text-[#AAA] text-xs">%</span>
-      {label && <span className="text-[#888] text-[10px] ml-1 tracking-wide">{label}</span>}
+      <span style={{ color: 'var(--ink-3, #AAA)', fontSize: 12 }}>%</span>
+      {label && <span style={{ color: 'var(--ink-2, #888)', fontSize: 10, marginLeft: 4 }}>{label}</span>}
     </div>
   )
 }

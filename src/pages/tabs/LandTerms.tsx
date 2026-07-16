@@ -26,23 +26,21 @@ const fmtShort = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}
 
 // ── shared card look — black-chrome stealth headers, light data-page palette.
 // GOLD stays only for the headline money figures (so JB BLK reads black + gold). ──
-const GOLD = '#B8963C'
-const CHROME = '#2A2A2A'
-const CHROME_LINE = '#C8C4BE'
+const GOLD = 'var(--gold, #B8963C)'
+const CHROME = 'var(--ink, #2A2A2A)'
+const CHROME_LINE = 'var(--border-hi, #C8C4BE)'
 function Card({ title, hint, isNew, accent, children }: { title: string; hint?: string; isNew?: boolean; accent?: 'gold' | 'violet'; children: React.ReactNode }) {
-  const border = accent === 'gold' ? CHROME_LINE : accent === 'violet' ? '#C8C0D8' : '#E8E5E0'
-  // 'gold' accent card = a soft black-chrome glass sheet
-  const bg = accent === 'gold' ? 'linear-gradient(160deg,#F6F4F1,#FFFFFF)' : accent === 'violet' ? '#F8F5FC' : '#fff'
   const isViolet = accent === 'violet'
+  const border = isViolet ? 'var(--purple, #C8C0D8)' : 'var(--border, #E8E5E0)'
   return (
-    <div style={{ border: `1px solid ${border}`, borderRadius: 14, overflow: 'hidden', background: bg, boxShadow: accent === 'gold' ? '0 1px 3px rgba(0,0,0,0.05)' : undefined }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 18px', borderBottom: `1px solid ${isViolet ? '#E7DEF2' : '#EDEAE5'}` }}>
-        <h2 className={isViolet ? undefined : 'chrome-black-text'} style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: isViolet ? '#7A4AAA' : undefined, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
-          {title}{isNew && <span style={{ fontSize: 8, letterSpacing: '0.12em', color: CHROME, border: `1px solid ${CHROME}55`, borderRadius: 20, padding: '2px 7px' }}>NEW</span>}
+    <div className={accent === 'gold' ? 'panel gold-top' : 'panel'} style={{ border: `1px solid ${border}`, borderRadius: 15, overflow: 'hidden', background: 'var(--card, #fff)', boxShadow: 'var(--shadow)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 20px', borderBottom: `1px solid var(--line, #EDEAE5)` }}>
+        <h2 style={{ fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: isViolet ? 'var(--purple, #7A4AAA)' : 'var(--ink-3, #8b959e)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {title}{isNew && <span style={{ fontSize: 8, letterSpacing: '0.12em', color: 'var(--gold, #2A2A2A)', border: `1px solid var(--gold-line, #C8C4BE)`, borderRadius: 20, padding: '2px 7px' }}>NEW</span>}
         </h2>
-        {hint && <span style={{ fontSize: 10, color: '#B0ADA6' }}>{hint}</span>}
+        {hint && <span style={{ fontSize: 10, color: 'var(--faint, #B0ADA6)' }}>{hint}</span>}
       </div>
-      <div style={{ padding: '6px 18px 16px' }}>{children}</div>
+      <div style={{ padding: '8px 20px 18px' }}>{children}</div>
     </div>
   )
 }
@@ -89,8 +87,8 @@ export default function LandTermsTab({ projectId }: Props) {
   const dealMeta = LAND_DEAL_TYPES.find(d => d.id === dealType)!
 
   return (
-    <div className="flex flex-col">
-      <div className="relative p-4 md:p-6" style={{ color: '#1A1A1A' }}>
+    <div className="fx-wrap">
+      <div className="relative" style={{ color: 'var(--ink, #1A1A1A)' }}>
 
         {/* ── HERO — header styled to match every other tab (SectionHeading) ── */}
         <div className="flex items-end justify-between flex-wrap gap-3 mb-1">
@@ -104,7 +102,7 @@ export default function LandTermsTab({ projectId }: Props) {
         </div>
 
         {/* ── METRIC STRIP ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, background: '#E8E5E0', border: '1px solid #E8E5E0', borderRadius: 12, overflow: 'hidden', marginTop: 24 }} className="ls-metrics">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, background: 'var(--border, #E8E5E0)', border: '1px solid var(--border, #E8E5E0)', borderRadius: 12, overflow: 'hidden', marginTop: 24 }} className="ls-metrics">
           <Metric k="Contract Price" v={fmt(dealType === 'inkind' ? 0 : data.landCost)} foot={perSqmSite != null ? `${fmt(perSqmSite)} / sqm site` : 'lump sum'} />
           <Metric k="Stamp Duty + Surcharge" v={fmt(cost.stampDuty + cost.foreignSurcharge)} foot={`${data.state} · ${cost.foreignSurcharge > 0 ? 'incl FPAD' : 'no surcharge'}`} />
           <Metric k="Terms Cost (finance)" v={fmt(cost.financeOnTerms)} foot="Deferral / option holding" />
@@ -349,14 +347,14 @@ export default function LandTermsTab({ projectId }: Props) {
   )
 }
 
-const cell: React.CSSProperties = { background: 'transparent', border: 'none', borderBottom: '1px solid #E0DDD8', padding: '5px 0', fontSize: 12, color: '#1A1A1A', outline: 'none', width: '100%' }
+const cell: React.CSSProperties = { background: 'transparent', border: 'none', borderBottom: '1px solid var(--line, #E0DDD8)', padding: '5px 0', fontSize: 12, color: 'var(--ink, #1A1A1A)', outline: 'none', width: '100%', fontFamily: 'var(--mono, monospace)' }
 
 function Metric({ k, v, foot, gold }: { k: string; v: string; foot?: string; gold?: boolean }) {
   return (
-    <div style={{ background: '#fff', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 5, boxShadow: gold ? `inset 0 0 0 1px ${CHROME}18` : undefined }}>
-      <div style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#AAA', fontWeight: 600 }}>{k}</div>
-      <div style={{ fontSize: 21, fontWeight: gold ? 500 : 300, fontFamily: 'var(--font-mono)', color: gold ? GOLD : '#1A1A1A' }}>{v}</div>
-      {foot && <div style={{ fontSize: 10, color: '#B0ADA6' }}>{foot}</div>}
+    <div style={{ background: gold ? 'linear-gradient(160deg, var(--gold-soft), var(--card))' : 'var(--card, #fff)', padding: '18px 18px 16px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+      <div style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3, #AAA)', fontWeight: 600 }}>{k}</div>
+      <div style={{ fontSize: 23, fontWeight: 400, fontFamily: 'var(--mono)', letterSpacing: '-0.02em', color: gold ? GOLD : 'var(--ink, #1A1A1A)' }}>{v}</div>
+      {foot && <div style={{ fontSize: 10, color: 'var(--faint, #B0ADA6)' }}>{foot}</div>}
     </div>
   )
 }
@@ -376,9 +374,9 @@ function Check({ checked, onChange, children }: { checked: boolean; onChange: (v
 
 function SLine({ lbl, sub, val, neg }: { lbl: string; sub?: string; val: string; neg?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #EEEBE6', fontSize: 13 }}>
-      <span style={{ color: '#888' }}>{lbl} {sub && <span style={{ fontSize: 10, color: '#B0ADA6' }}>{sub}</span>}</span>
-      <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-mono)', color: neg ? '#237A52' : '#1A1A1A' }}>{val}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid var(--line, #EEEBE6)', fontSize: 12.5 }}>
+      <span style={{ color: 'var(--ink-2, #888)' }}>{lbl} {sub && <span style={{ fontSize: 10, color: 'var(--faint, #B0ADA6)' }}>{sub}</span>}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--mono)', color: neg ? 'var(--emerald, #237A52)' : 'var(--ink, #1A1A1A)' }}>{val}</span>
     </div>
   )
 }
