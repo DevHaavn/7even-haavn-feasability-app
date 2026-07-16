@@ -249,6 +249,50 @@
 
 .fxs .foot{text-align:center;padding:44px 0 8px;font-size:10px;letter-spacing:.2em;color:var(--faint)}
 
+/* ============ COST STACK reference components (silver-glass) ============ */
+.fxs .subtitle{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--ink)}
+.fxs .desc{font-size:12px;color:var(--ink-2);margin-top:4px}
+.fxs .guide{font-size:11.5px;color:var(--ink-2);background:var(--card-3);border:1px solid var(--line);border-left:2px solid var(--gold-line);border-radius:8px;padding:11px 14px;line-height:1.5;margin:14px 0}
+.fxs .guide b{color:var(--ink)}
+.fxs .callout{background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:12px;padding:14px 18px;font-size:12px;color:var(--ink-2);line-height:1.6;margin-bottom:20px}
+.fxs .callout b{color:var(--ink)}
+/* wide grouped table */
+.fxs .gt{border-collapse:collapse;min-width:1080px;width:100%}
+.fxs .gt th{font-size:8.5px;letter-spacing:.07em;color:var(--ink-3);padding:11px 8px;text-transform:uppercase;font-weight:600;text-align:left;white-space:nowrap;background:var(--card-2)}
+.fxs .gt th.n{text-align:right}
+.fxs .gt td{padding:8px 8px;font-size:11.5px;border-top:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.fxs .gt td.n{text-align:right;font-family:var(--mono);color:var(--ink)}
+.fxs .gt tr:hover td{background:var(--hover)}
+.fxs .gt tr.grp td{background:var(--card-3);border-top:1px solid var(--border)}
+.fxs .gt .gname{font-family:var(--sans);font-weight:600;color:var(--ink);font-size:12px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.fxs .gt .gcount{font-size:9px;color:var(--ink-3);font-weight:500;letter-spacing:.06em}
+.fxs .gt .caret{color:var(--gold);font-size:10px}
+.fxs .gt tr.sub td{border-top:1px dashed var(--border);background:var(--gold-soft)}
+.fxs .gt tr.sub .stl{font-size:10px;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;font-weight:600}
+.fxs .gt tr.sect td{border-top:2px solid var(--border-hi);background:var(--card-3)}
+.fxs .gt tr.sect .stl2{font-weight:700;color:var(--ink);font-size:12px;letter-spacing:.04em;text-transform:uppercase;font-family:var(--sans)}
+.fxs .gt tr.sect td.n{color:var(--ink);font-weight:700}
+.fxs .mini-sel{font-size:11px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;max-width:160px}
+.fxs .mini-inp{font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:6px 7px;width:62px;text-align:right}
+.fxs .rowact{color:var(--faint);cursor:pointer;font-size:12px;padding:0 3px;background:none;border:none}
+.fxs .rowact:hover{color:var(--ink)}.fxs .rowact.x:hover{color:var(--red)}
+.fxs .badge{font-size:8.5px;letter-spacing:.06em;padding:3px 8px;border-radius:12px;font-weight:600;text-transform:uppercase;white-space:nowrap;display:inline-block}
+.fxs .b-eq{background:var(--em-soft);color:var(--emerald)}
+.fxs .b-sen{background:rgba(88,120,168,0.14);color:var(--blue)}
+.fxs .b-debt{background:rgba(125,111,174,0.14);color:var(--purple)}
+.fxs .b-bl{background:var(--gold-soft);color:var(--gold)}
+.fxs .b-phase{background:var(--card-3);color:var(--ink-2);border:1px solid var(--border)}
+/* detailed total sidebar */
+.fxs .dt-lab{font-size:9.5px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;font-weight:600}
+.fxs .dt-note{font-size:9px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:3px}
+.fxs .dtrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line);font-size:12.5px}
+.fxs .dtrow .l{color:var(--ink-2)}.fxs .dtrow .v{font-family:var(--mono);color:var(--ink)}
+.fxs .dtrow.on{margin:0 -14px;padding:14px;background:var(--gold-soft);border-radius:8px;border-top:1px solid transparent}
+.fxs .dtrow.on .l{color:var(--gold);font-weight:600}.fxs .dtrow.on .v{color:var(--gold);font-weight:600}
+.fxs .grand{margin-top:8px;padding-top:16px;border-top:2px solid var(--border-hi)}
+.fxs .grand .gl{font-size:10px;letter-spacing:.2em;color:var(--ink-2);text-transform:uppercase}
+.fxs .grand .gv{font-family:var(--mono);font-size:34px;color:var(--gold);font-weight:400;line-height:1.2}
+
 /* ---- let the blue/grey field show through the work surface (retire the old
         dark texture / invert stage) so reskinned tabs sit on the glass ---- */
 .fxs .workspace-content{background:transparent!important}
