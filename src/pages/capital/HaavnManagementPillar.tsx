@@ -3,12 +3,28 @@ import { Project7Mark } from '../../components/ui'
 import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { HMPillar } from './HaavnManagementBase'
-import Atrium from './Atrium'
 import MeetingsView from '../../features/meetings/MeetingsView'
 import { AtriumApex } from '../../components/AtriumMark'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
+
+  // HAAVN Management System — the full ATRIUM Management prototype (Today, Senior
+  // Management, Portfolio, Projects, project workspace, Client Portal, Meetings,
+  // New Project wizard) with its own topbar + forest rail and light/dark toggle.
+  // Runs as its own full-bleed shell; a carbon pill returns to the Management Hub.
+  if (pillar.id === 'crm') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        <iframe title="ATRIUM — Management System" src="/atrium-management.html"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+        <button onClick={onBack}
+          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#C6CDCF', background: 'rgba(10,13,12,0.92)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          ← Management Hub
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -30,10 +46,8 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
         <AtriumApex size={28} style={{ marginLeft: 'auto' }} />
       </div>
 
-      {/* Body — live CRM, live Meetings, or placeholder for future pillars */}
-      {pillar.id === 'crm' ? (
-        <Atrium />
-      ) : pillar.id === 'meetings' ? (
+      {/* Body — live Meetings, or placeholder for future pillars */}
+      {pillar.id === 'meetings' ? (
         <MeetingsView />
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>

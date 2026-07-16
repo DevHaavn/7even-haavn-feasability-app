@@ -1,0 +1,1630 @@
+<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Atrium Projects Preview",
+  "schemaVersion": 1,
+  "description": "ATRIUM Projects module — interactive working preview of the HAAVN project-management app. Built on the ATRIUM v3.0 brand language. Portfolio dashboard, per-project workspace (Project Info, 27-item A–I setup checklist, 16-template library with auto-populated filenames, 17-folder SharePoint-mirror filing structure), and a New Project wizard that provisions folders/checklist/templates from a single Project Info form.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATRIUM — Projects · Working Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --void:#050706;--carbon:#0A0D0C;--graphite:#12161A;--steel:#232a2d;--steel-2:#333b3f;--steel-3:#4C5559;
+ --f-900:#0B2318;--f-800:#0F3123;--f-700:#14452F;--f-600:#1B5E3F;--f-500:#237A52;--f-400:#38996B;--f-300:#6FBE96;--f-100:#DCEDE4;--f-50:#F1F8F4;
+ --sil-1:#EEF1F2;--sil-2:#C6CDCF;--sil-3:#9AA2A4;--sil-4:#8f9799;
+ --amber:#C9A24B;--red:#B4553F;--red-txt:#D07A62;
+ --ink:#12150F;--ink-2:#3A3F3C;--mute:#636966;--faint:#7C8380;--line:#E1E4E3;--line-2:#EDEFEE;--grey-50:#F7F8F8;--grey-100:#F1F3F2;--grey-200:#E7EAE9;
+ --disp:'Inter Tight',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Cormorant Garamond',Georgia,serif;
+ --ease:cubic-bezier(.32,.72,0,1);--r:12px;--r-m:16px;--r-l:22px;
+ --brushed:linear-gradient(100deg,#DCE1E2,#F4F6F7 16%,#BDC5C7 40%,#EEF1F2 56%,#A6AEB0 80%,#DCE1E2);
+ --sil-grad:linear-gradient(180deg,#F2F4F5,#C6CDCF 46%,#9AA2A4);
+ --sh-l:0 14px 40px -10px rgba(0,0,0,.55),0 50px 100px -30px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--sil-1);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--f-500);color:#fff}
+:focus-visible{outline:2px solid var(--f-400);outline-offset:2px;border-radius:6px}
+button{font-family:inherit}
+.carbon{background-color:#0b0f0e;
+ background-image:linear-gradient(27deg,#1b2226 6px,transparent 6px) 0 6px,linear-gradient(207deg,#1b2226 6px,transparent 6px) 12px 0,
+ linear-gradient(27deg,#0d1211 6px,transparent 6px) 0 12px,linear-gradient(207deg,#0d1211 6px,transparent 6px) 12px 6px,
+ linear-gradient(90deg,#12181a 12px,transparent 12px),linear-gradient(#171e20 25%,#0e1413 25%,#0e1413 50%,transparent 50%,transparent 75%,#171e20 75%,#171e20);
+ background-size:24px 24px}
+.sheen{position:relative}
+.sheen::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,rgba(224,232,234,.09),transparent 36%,transparent 64%,rgba(224,232,234,.05));mix-blend-mode:screen}
+.sil-txt{background:var(--sil-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.livery{display:inline-flex;align-items:center;height:5px;width:130px;border-radius:3px;overflow:hidden}
+.livery .g{width:34px;height:100%;background:linear-gradient(180deg,var(--f-400),var(--f-700))}
+.livery .s{flex:1;height:100%;background:var(--brushed)}
+.mono{font-family:var(--mono)}
+
+/* ====== APP SHELL ====== */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:0 20px;height:58px;background:rgba(8,11,10,.92);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--steel);z-index:40}
+.atr{display:inline-flex;align-items:center;gap:11px}
+.atr .w{font-family:var(--disp);font-weight:600;letter-spacing:.30em;text-transform:uppercase;padding-left:.30em;font-size:14px}
+.dev{display:inline-block;flex:0 0 auto}.dev svg{width:100%;display:block}
+.topnav{margin-left:20px;display:flex;gap:4px}
+.topnav button{background:none;border:none;color:var(--sil-4);font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding:8px 13px;border-radius:8px;cursor:pointer;transition:.15s}
+.topnav button:hover{color:var(--sil-1)}
+.topnav button.on{color:var(--f-300);background:rgba(35,122,82,.14)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.partner{display:inline-flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:10.5px;color:var(--sil-3)}
+.partner .sep{width:1px;height:12px;background:var(--steel-2)}
+.userchip{display:flex;align-items:center;gap:9px;padding:5px 6px 5px 12px;border:1px solid var(--steel-2);border-radius:100px;background:rgba(255,255,255,.03)}
+.userchip .nm{font-size:12px;color:var(--sil-2)}
+.userchip .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--f-500),var(--f-800));display:grid;place-items:center;font-family:var(--disp);font-weight:600;font-size:11px;color:#fff}
+
+.body{flex:1;display:flex;min-height:0}
+/* rail */
+.rail{flex:0 0 214px;background:linear-gradient(180deg,#0c1512,#080b0a);border-right:1px solid var(--steel);display:flex;flex-direction:column;padding:14px 12px;gap:3px;overflow-y:auto}
+.rail .grp{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-4);padding:14px 10px 6px}
+.navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;color:var(--sil-3);font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.14s;text-align:left;width:100%;background:none;font-weight:450}
+.navitem:hover{background:rgba(255,255,255,.04);color:var(--sil-1)}
+.navitem.on{background:linear-gradient(180deg,rgba(35,122,82,.20),rgba(20,69,47,.12));border-color:rgba(111,190,150,.28);color:#fff}
+.navitem .ic{width:17px;height:17px;flex:0 0 auto;opacity:.85}
+.navitem.on .ic{opacity:1}
+.navitem .ct{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--sil-4);background:rgba(255,255,255,.05);padding:1px 7px;border-radius:20px}
+.navitem.on .ct{color:var(--f-300)}
+.rail .newbtn{margin:8px 2px 2px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:11px;background:linear-gradient(180deg,var(--f-500),var(--f-700));color:#fff;font-weight:600;font-size:13px;border:1px solid rgba(0,0,0,.2);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 22px -8px rgba(27,94,63,.6);transition:transform .12s var(--ease)}
+.rail .newbtn:active{transform:scale(.97)}
+.railfoot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--steel);font-family:var(--mono);font-size:9.5px;color:var(--sil-4);line-height:1.7}
+
+/* main scroll */
+.main{flex:1;min-width:0;overflow-y:auto;position:relative}
+.main.dark{background:var(--void)}
+.main.dark::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;background:radial-gradient(46% 40% at 30% 0%,rgba(27,94,63,.14),transparent 60%)}
+.main.light{background:var(--grey-100)}
+.page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:30px 34px 80px}
+
+/* page header */
+.phead{display:flex;align-items:flex-end;gap:18px;margin-bottom:26px}
+.phead .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--f-300)}
+.phead h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,3.4vw,38px);letter-spacing:.01em;color:#fff;line-height:1.05;margin-top:5px}
+.light .phead h1{color:var(--ink)}
+.phead .sub{font-size:13.5px;color:var(--sil-3);margin-top:7px;max-width:64ch;line-height:1.6}
+.light .phead .sub{color:var(--mute)}
+.phead .liv{margin-top:12px}
+.phead .actions{margin-left:auto;display:flex;gap:10px;align-items:center}
+
+/* buttons */
+.btn{position:relative;overflow:hidden;height:38px;padding:0 16px;border-radius:11px;border:1px solid var(--steel-2);background:rgba(255,255,255,.05);color:var(--sil-1);font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .12s var(--ease),background .2s;white-space:nowrap}
+.btn:active{transform:scale(.97)}.btn:hover{background:rgba(255,255,255,.1)}
+.btn-green{background:linear-gradient(180deg,var(--f-500),var(--f-700));color:#fff;border-color:rgba(0,0,0,.2);font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 22px -8px rgba(27,94,63,.6)}
+.btn-sil{background:var(--brushed);color:#14181a;border:none;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.light .btn{border-color:var(--line);background:#fff;color:var(--ink-2)}
+.light .btn:hover{background:var(--grey-50)}
+.btn.sm{height:31px;padding:0 12px;font-size:11.5px;border-radius:9px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:7px;height:25px;padding:0 11px;border-radius:100px;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;border:1px solid;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%}
+.pill.live{border-color:rgba(111,190,150,.4);color:var(--f-300);background:rgba(35,122,82,.12)}
+.pill.live i{background:var(--f-300);box-shadow:0 0 7px var(--f-400)}
+.pill.hold{border-color:rgba(201,162,75,.4);color:var(--amber);background:rgba(201,162,75,.1)}
+.pill.hold i{background:var(--amber)}
+.tagcls{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--sil-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.light .tagcls{background:linear-gradient(180deg,#5b6265,#3a3f42);-webkit-background-clip:text;background-clip:text}
+
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.wcard{background:#fff;border-radius:var(--r-m);padding:16px 18px 17px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
+.wcard .bz{position:absolute;top:0;left:0;right:0;height:3px;background:var(--brushed)}
+.wcard .k{font-size:11px;color:var(--mute);margin-top:5px;font-weight:500}
+.wcard .v{font-family:var(--disp);font-weight:600;font-size:29px;color:var(--f-600);letter-spacing:-.03em;margin-top:6px;line-height:1}
+.wcard .d{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:8px;letter-spacing:.03em}
+.wcard.green{background:linear-gradient(160deg,var(--f-600),var(--f-800))}
+.wcard.green .k{color:rgba(220,237,228,.82)}.wcard.green .v{color:#fff}.wcard.green .d{color:rgba(220,237,228,.6)}
+
+/* project cards (dark) */
+.projgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.pcard{border:1px solid var(--steel-2);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#111615,#0a0d0c);cursor:pointer;transition:transform .16s var(--ease),border-color .2s}
+.pcard:hover{transform:translateY(-2px);border-color:rgba(111,190,150,.4)}
+.pcard .bz{height:4px;background:var(--brushed)}
+.pcard .pc{padding:20px 22px}
+.pcard .toprow{display:flex;align-items:flex-start;gap:12px}
+.pcard .pid{font-family:var(--mono);font-size:10px;color:var(--f-300);letter-spacing:.08em}
+.pcard h3{font-family:var(--disp);font-weight:600;font-size:18px;color:#fff;letter-spacing:-.01em;margin-top:5px;line-height:1.15}
+.pcard .addr{font-size:12.5px;color:var(--sil-3);margin-top:5px}
+.pcard .meta{display:flex;gap:22px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(198,205,207,.09)}
+.pcard .meta .lb{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--sil-4)}
+.pcard .meta .vl{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--sil-1);margin-top:4px;letter-spacing:-.02em}
+.pcard .prog{margin-top:16px}
+.pcard .ptrack{height:6px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.pcard .pfill{height:100%;background:linear-gradient(90deg,var(--f-600),var(--f-300));border-radius:6px;transition:width .5s var(--ease)}
+.pcard .pmeta{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:9.5px;color:var(--sil-4)}
+
+/* section head inside pages */
+.sec{margin:34px 0 16px;display:flex;align-items:center;gap:14px}
+.sec h2{font-family:var(--serif);font-weight:500;font-size:23px;color:#fff}
+.light .sec h2{color:var(--ink)}
+.sec .liv{opacity:.9}
+.sec .rt{margin-left:auto}
+
+/* ===== LIGHT WORK SURFACE PANELS ===== */
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden;box-shadow:0 1px 2px rgba(20,24,26,.03)}
+.panel .ph{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line-2);background:var(--grey-50)}
+.panel .ph h3{font-family:var(--disp);font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-.01em}
+.panel .ph .rt{margin-left:auto;display:flex;gap:8px;align-items:center}
+.panel .ph .cnt{font-family:var(--mono);font-size:10px;color:var(--mute)}
+
+/* info grid */
+.infogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:0}
+.infocell{padding:15px 20px;border-bottom:1px solid var(--line-2);border-right:1px solid var(--line-2)}
+.infocell .lb{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+.infocell .vl{font-size:14px;color:var(--ink);margin-top:6px;font-weight:500}
+.infocell .vl.mono{font-family:var(--mono);font-size:13px}
+.infocell.full{grid-column:1/-1;border-right:none}
+
+/* checklist */
+.clgroup{border-bottom:1px solid var(--line-2)}
+.clghead{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--grey-50);cursor:pointer}
+.clghead .gl{font-family:var(--disp);font-weight:600;font-size:12.5px;color:var(--ink-2);letter-spacing:.01em}
+.clghead .gc{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--mute)}
+.clghead .gbar{width:70px;height:5px;border-radius:5px;background:var(--grey-200);overflow:hidden}
+.clghead .gbf{height:100%;background:linear-gradient(90deg,var(--f-500),var(--f-400));border-radius:5px;transition:width .4s var(--ease)}
+.cli{display:flex;align-items:center;gap:14px;padding:12px 20px 12px 24px;border-top:1px solid var(--line-2);transition:background .15s}
+.cli:hover{background:var(--grey-50)}
+.cli .cb{width:20px;height:20px;border:1.6px solid var(--steel-3);border-radius:6px;flex:0 0 auto;cursor:pointer;display:grid;place-items:center;transition:.15s;background:#fff}
+.cli .cb:hover{border-color:var(--f-500)}
+.cli.done .cb{background:var(--f-500);border-color:var(--f-500)}
+.cli .cb svg{width:12px;height:12px;opacity:0;transition:.15s}
+.cli.done .cb svg{opacity:1}
+.cli .num{font-family:var(--mono);font-size:11px;color:var(--faint);width:20px;flex:0 0 auto}
+.cli .tk{font-size:13.5px;color:var(--ink);flex:1;transition:.15s}
+.cli.done .tk{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line)}
+.cli .own{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 7px;flex:0 0 auto}
+.cli .st{flex:0 0 auto;width:74px;text-align:right}
+.tinypill{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+.tinypill.open{color:var(--mute);background:var(--grey-100)}
+.tinypill.done{color:var(--f-600);background:var(--f-50)}
+
+/* progress ring */
+.ringwrap{display:flex;align-items:center;gap:22px;padding:22px 24px}
+.ring{position:relative;width:96px;height:96px;flex:0 0 auto}
+.ring svg{transform:rotate(-90deg)}
+.ring .rt{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .rv{font-family:var(--disp);font-weight:600;font-size:23px;color:var(--f-600);letter-spacing:-.03em;line-height:1}
+.ring .rl{font-family:var(--mono);font-size:8px;color:var(--mute);letter-spacing:.1em;margin-top:2px}
+.ringinfo .rh{font-family:var(--disp);font-weight:600;font-size:15px;color:var(--ink)}
+.ringinfo p{font-size:12.5px;color:var(--mute);margin-top:5px;line-height:1.55;max-width:44ch}
+
+/* tables (templates) */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--grey-50);font-weight:400}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line-2);font-size:13px;color:var(--ink-2);vertical-align:middle}
+.tbl tr:hover td{background:var(--grey-50)}
+.tbl .tname{font-weight:500;color:var(--ink)}
+.tbl .fmt{font-family:var(--mono);font-size:10px;color:var(--mute);border:1px solid var(--line);border-radius:5px;padding:2px 7px}
+.tbl .dest{font-family:var(--mono);font-size:10.5px;color:var(--f-600)}
+.tbl .fn{font-family:var(--mono);font-size:10.5px;color:var(--mute)}
+.st-tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.st-drafted{color:var(--f-600);background:var(--f-50)}
+.st-req{color:var(--amber);background:rgba(201,162,75,.12)}
+.st-ready{color:#fff;background:var(--f-500)}
+
+/* file tree */
+.tree{padding:8px 6px}
+.folder{border-radius:10px}
+.frow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;transition:background .12s}
+.frow:hover{background:var(--grey-50)}
+.frow .fi{width:18px;height:18px;flex:0 0 auto;color:var(--amber)}
+.frow .fname{font-size:13px;color:var(--ink-2);font-weight:500}
+.frow .fnum{font-family:var(--mono);font-size:11px;color:var(--f-600);width:26px;flex:0 0 auto}
+.frow .fmeta{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.frow .chev{width:14px;height:14px;color:var(--faint);transition:transform .2s}
+.folder.open .frow>.chev{transform:rotate(90deg)}
+.fchildren{display:none;padding:2px 0 6px 34px}
+.folder.open>.fchildren{display:block}
+.doc{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:8px}
+.doc:hover{background:var(--grey-50)}
+.doc .di{width:14px;height:14px;color:var(--f-500);flex:0 0 auto}
+.doc .dn{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.doc .dt{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--faint)}
+.subfolder .frow .fi{color:#c69a3f;opacity:.75}
+
+/* project workspace header */
+.pws{background:linear-gradient(180deg,#0c1210,#080b0a);border-bottom:1px solid var(--steel);padding:22px 34px 0}
+.pws .bc{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--sil-4);cursor:pointer}
+.pws .bc:hover{color:var(--f-300)}
+.pws .wtop{display:flex;align-items:flex-end;gap:16px;margin-top:12px}
+.pws h1{font-family:var(--serif);font-weight:500;font-size:30px;color:#fff;line-height:1}
+.pws .waddr{font-family:var(--mono);font-size:11.5px;color:var(--sil-3);margin-top:8px}
+.pws .wpid{font-family:var(--mono);font-size:11px;color:var(--f-300);letter-spacing:.1em}
+.pws .wact{margin-left:auto;display:flex;gap:10px;align-items:center}
+.wtabs{display:flex;gap:2px;margin-top:20px}
+.wtab{background:none;border:none;color:var(--sil-4);font-family:var(--disp);font-weight:500;font-size:13px;padding:11px 16px;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.wtab:hover{color:var(--sil-1)}
+.wtab.on{color:#fff;border-bottom-color:var(--f-400)}
+
+/* wizard */
+.wiz{max-width:820px;margin:0 auto}
+.wizcard{background:#fff;border:1px solid var(--line);border-radius:var(--r-l);overflow:hidden}
+.wizsec{padding:20px 26px;border-bottom:1px solid var(--line-2)}
+.wizsec .wl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--f-600);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.wizsec .wl::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11.5px;color:var(--mute);font-weight:500}
+.field input,.field select,.field textarea{font-family:var(--body);font-size:13.5px;color:var(--ink);padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;transition:.15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--f-400);box-shadow:0 0 0 3px rgba(56,153,107,.13)}
+.field input::placeholder,.field textarea::placeholder{color:#b7bdbd}
+.field .hint{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.wizfoot{display:flex;align-items:center;gap:12px;padding:18px 26px;background:var(--grey-50)}
+.wizfoot .note{font-size:12px;color:var(--mute)}
+.wizfoot .rt{margin-left:auto;display:flex;gap:10px}
+
+/* provisioning overlay */
+.prov{position:fixed;inset:0;z-index:80;background:rgba(5,7,6,.86);backdrop-filter:blur(10px);display:none;place-items:center}
+.prov.on{display:grid}
+.provbox{width:min(520px,90vw);border:1px solid var(--steel-2);border-radius:var(--r-l);background:linear-gradient(180deg,#0f1614,#0a0d0c);padding:34px 36px;text-align:left}
+.provbox .pv-h{font-family:var(--serif);font-weight:500;font-size:24px;color:#fff;text-align:center}
+.provbox .pv-s{text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--sil-4);letter-spacing:.06em;margin-top:8px}
+.provlist{margin-top:24px;display:flex;flex-direction:column;gap:2px}
+.provrow{display:flex;align-items:center;gap:12px;padding:9px 4px;font-size:13px;color:var(--sil-3);opacity:.4;transition:.3s}
+.provrow.on{opacity:1;color:var(--sil-1)}
+.provrow .pm{width:18px;height:18px;flex:0 0 auto;display:grid;place-items:center}
+.provrow .spin{width:14px;height:14px;border:2px solid var(--steel-2);border-top-color:var(--f-400);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.provrow .chk{color:var(--f-300)}
+
+/* toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:90;background:linear-gradient(180deg,#12191a,#0b0f0e);border:1px solid var(--steel-2);border-radius:12px;padding:13px 20px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--sil-1);opacity:0;pointer-events:none;transition:.3s var(--ease);box-shadow:var(--sh-l)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .ti{width:8px;height:8px;border-radius:50%;background:var(--f-400);box-shadow:0 0 8px var(--f-400)}
+
+/* empty */
+.empty{text-align:center;padding:60px 20px;color:var(--sil-4)}
+.empty .eh{font-family:var(--serif);font-size:20px;color:var(--sil-2);margin-bottom:8px}
+.empty p{font-size:13px;max-width:40ch;margin:0 auto}
+
+/* meetings/feasibility stub */
+.stub{border:1px dashed var(--steel-2);border-radius:var(--r-l);padding:48px;text-align:center;background:linear-gradient(180deg,#0e1211,#0a0d0c)}
+.stub .sh2{font-family:var(--serif);font-size:22px;color:#fff}
+.stub p{color:var(--sil-3);font-size:13.5px;margin-top:10px;max-width:52ch;margin-inline:auto;line-height:1.6}
+.stub .liv{margin:18px auto 0;justify-content:center}
+
+/* overview pillars + snapshot */
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.pill4{background:#fff;border:1px solid var(--line);border-radius:var(--r-m);padding:15px 18px;cursor:pointer;transition:transform .14s var(--ease),box-shadow .2s;position:relative;overflow:hidden}
+.pill4[data-ptab]:hover{transform:translateY(-2px);box-shadow:0 12px 28px -16px rgba(20,24,26,.45)}
+.pill4 .bz{position:absolute;top:0;left:0;right:0;height:3px;background:var(--brushed)}
+.pill4 .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+.pill4 .v{font-family:var(--disp);font-weight:600;font-size:27px;color:var(--f-600);letter-spacing:-.03em;margin-top:7px;line-height:1}
+.pill4 .d{font-size:11px;color:var(--mute);margin-top:7px}
+.pill4 .d .neg{color:var(--red);font-family:var(--mono);font-weight:500}
+.pill4 .d .pos{color:var(--f-600);font-family:var(--mono);font-weight:500}
+.pill4 .bar{height:5px;border-radius:5px;background:var(--grey-200);overflow:hidden;margin-top:12px}
+.pill4 .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--f-500),var(--f-300));border-radius:5px;transition:width .5s var(--ease)}
+.snap{display:flex;flex-direction:column}
+.snaprow{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--line-2)}
+.snaprow:last-child{border-bottom:none}
+.snaprow .sk{font-size:12.5px;color:var(--mute)}
+.snaprow .sv{margin-left:auto;font-family:var(--disp);font-weight:600;font-size:15px;color:var(--ink);letter-spacing:-.02em}
+.snaprow .sv.mono{font-family:var(--mono);font-size:13px;font-weight:500}
+.snaprow .sv.neg{color:var(--red)}.snaprow .sv.pos{color:var(--f-600)}
+.clientnote{padding:16px 20px;font-size:12.5px;color:var(--mute);line-height:1.65}
+.clientnote b{color:var(--ink)}
+
+/* programme timeline */
+.tl{padding:6px 0 2px}
+.tlrow{display:flex;gap:16px;padding:0 22px}
+.tlrow .tmark{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:16px}
+.tlrow .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--grey-200);background:#fff;margin-top:16px;z-index:2;flex:0 0 auto}
+.tlrow .line{width:2px;flex:1;background:var(--grey-200);margin-top:2px;min-height:8px}
+.tlrow:last-child .line{display:none}
+.tlrow.done .dot{background:var(--f-500);border-color:var(--f-500)}
+.tlrow.done .line{background:var(--f-400)}
+.tlrow.active .dot{background:#fff;border-color:var(--f-500);box-shadow:0 0 0 4px rgba(35,122,82,.15)}
+.tlrow.late .dot{background:var(--red);border-color:var(--red)}
+.tlbody{flex:1;padding:12px 0 18px;border-bottom:1px solid var(--line-2);cursor:pointer}
+.tlrow:last-child .tlbody{border-bottom:none}
+.tlbody .tn{font-size:14px;color:var(--ink);font-weight:500}
+.tlrow.done .tn{color:var(--mute)}
+.tlbody .tmeta{display:flex;gap:12px;margin-top:6px;align-items:center}
+.tlbody .td{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.tstate{font-family:var(--mono);font-size:8.5px;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+.tstate.done{color:var(--f-600);background:var(--f-50)}
+.tstate.active{color:var(--f-600);background:var(--f-50);border:1px solid rgba(56,153,107,.3)}
+.tstate.upcoming{color:var(--mute);background:var(--grey-100)}
+.tstate.late{color:#fff;background:var(--red)}
+
+/* financials */
+.finkpis,.qkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.spendchart{display:flex;align-items:flex-end;gap:8px;height:132px;padding:18px 22px 12px}
+.spendbar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;height:100%}
+.spendbar>i{width:100%;max-width:32px;background:linear-gradient(180deg,var(--f-400),var(--f-700));border-radius:5px 5px 0 0;transition:height .5s var(--ease);min-height:3px}
+.spendbar .bl{font-family:var(--mono);font-size:9px;color:var(--faint)}
+.budgetbar{margin:16px 22px 8px;height:34px;border-radius:9px;background:var(--grey-100);position:relative;overflow:hidden;border:1px solid var(--line)}
+.budgetbar .certf{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--f-600),var(--f-400));display:flex;align-items:center;padding-left:12px;font-family:var(--mono);font-size:10px;color:#fff;transition:width .5s var(--ease)}
+.budgetbar .fmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.qring{display:flex;align-items:center;gap:20px;padding:20px 24px}
+
+/* senior management */
+.mperiod{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--sil-3);border:1px solid var(--steel-2);border-radius:100px;padding:7px 14px}
+.pmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pmcard{border:1px solid var(--steel-2);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#111615,#0a0d0c)}
+.pmcard .bz{height:4px;background:var(--brushed)}
+.pmcard .pmc{padding:20px 22px}
+.pmhead{display:flex;align-items:center;gap:13px}
+.pmav{width:46px;height:46px;border-radius:12px;background:linear-gradient(180deg,var(--f-500),var(--f-800));display:grid;place-items:center;font-family:var(--disp);font-weight:600;font-size:15px;color:#fff;flex:0 0 auto;border:1px solid rgba(255,255,255,.12)}
+.pmhead .nm{font-family:var(--disp);font-weight:600;font-size:16px;color:#fff;letter-spacing:-.01em}
+.pmhead .ro{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--sil-4);margin-top:4px}
+.pmidx{margin-left:auto;text-align:right;flex:0 0 auto}
+.pmidx .iv{font-family:var(--disp);font-weight:600;font-size:27px;letter-spacing:-.03em;color:var(--f-300);line-height:1}
+.pmidx .il{font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--sil-4);margin-top:3px}
+.pmidx .tr{font-family:var(--mono);font-size:10px;margin-top:4px}
+.pmidx .tr.up{color:var(--f-300)}.pmidx .tr.down{color:var(--red-txt)}
+.pmstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 12px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(198,205,207,.09)}
+.pmstat .sl{font-family:var(--mono);font-size:8.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--sil-4)}
+.pmstat .sv{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--sil-1);margin-top:5px;letter-spacing:-.02em}
+.pmstat .sv.neg{color:var(--red-txt)}.pmstat .sv.pos{color:var(--f-300)}
+.pmprojs{margin-top:16px;padding-top:14px;border-top:1px solid rgba(198,205,207,.09);display:flex;flex-direction:column;gap:5px}
+.pmproj{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px;border-radius:8px;transition:background .12s}
+.pmproj:hover{background:rgba(255,255,255,.04)}
+.pmproj .pn{font-size:12px;color:var(--sil-2);width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 0 auto}
+.pmproj .pb{flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}
+.pmproj .pb>i{display:block;height:100%;background:linear-gradient(90deg,var(--f-600),var(--f-300))}
+.pmproj .ps{font-family:var(--mono);font-size:10px;width:42px;text-align:right;flex:0 0 auto}
+.cmp{display:flex;flex-direction:column;gap:13px;padding:20px 22px}
+.cmprow{display:flex;align-items:center;gap:14px}
+.cmprow .cn{width:120px;font-size:13px;color:var(--sil-2);flex:0 0 auto;display:flex;align-items:center;gap:9px}
+.cmprow .cn .mav{width:22px;height:22px;border-radius:6px;background:linear-gradient(180deg,var(--f-500),var(--f-800));display:grid;place-items:center;font-family:var(--disp);font-weight:600;font-size:8px;color:#fff;flex:0 0 auto}
+.cmprow .ct{flex:1;height:24px;border-radius:7px;background:rgba(255,255,255,.05);overflow:hidden}
+.cmprow .cf{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--f-700),var(--f-400));transition:width .6s var(--ease)}
+.cmprow .cvv{width:34px;text-align:right;font-family:var(--disp);font-weight:600;font-size:15px;color:var(--f-300);flex:0 0 auto}
+.mfilter{display:flex;gap:8px}
+.mchip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px;border:1px solid var(--steel-2);color:var(--sil-4);background:none;cursor:pointer;transition:.14s}
+.mchip:hover{color:var(--sil-1)}
+.mchip.on{color:var(--f-300);border-color:rgba(111,190,150,.4);background:rgba(35,122,82,.12)}
+.mlistwrap{overflow-x:auto;border:1px solid var(--steel);border-radius:16px;background:linear-gradient(180deg,#0e1211,#0a0d0c)}
+.mlist{min-width:820px}
+.mlh,.mrow{display:grid;grid-template-columns:2fr 1.2fr .8fr 1.1fr 1.2fr 1.1fr .9fr;gap:12px;align-items:center;padding:13px 20px}
+.mlh{border-bottom:1px solid var(--steel);font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--sil-4)}
+.mrow{border-top:1px solid rgba(198,205,207,.07);cursor:pointer;transition:background .12s}
+.mrow:hover{background:rgba(255,255,255,.03)}
+.mrow .mp{font-family:var(--disp);font-weight:600;font-size:13.5px;color:#fff}
+.mrow .mpid{font-family:var(--mono);font-size:9px;color:var(--f-300);margin-top:2px}
+.mpm{display:flex;align-items:center;gap:8px}
+.mpm .mav{width:24px;height:24px;border-radius:7px;background:linear-gradient(180deg,var(--f-500),var(--f-800));display:grid;place-items:center;font-family:var(--disp);font-weight:600;font-size:8.5px;color:#fff;flex:0 0 auto}
+.mpm .mnm{font-size:12px;color:var(--sil-2)}
+.mval{font-family:var(--mono);font-size:12px;color:var(--sil-1)}
+.mmini{display:flex;align-items:center;gap:8px}
+.mmini .mt{flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}
+.mmini .mf{display:block;height:100%;background:linear-gradient(90deg,var(--f-600),var(--f-300))}
+.mmini .mpct{font-family:var(--mono);font-size:10px;color:var(--sil-4);width:30px;text-align:right}
+.msched{font-family:var(--mono);font-size:12px;text-align:right}
+.msched.neg{color:var(--red-txt)}.msched.pos{color:var(--f-300)}.msched.zero{color:var(--sil-4)}
+.st-open{color:var(--mute);background:var(--grey-100)}
+.railbrand{display:flex;align-items:center;gap:11px;padding:4px 10px 14px;margin-bottom:2px;border-bottom:1px solid var(--steel)}
+.railbrand .railwm{font-family:var(--disp);font-weight:600;letter-spacing:.28em;font-size:13px;text-transform:uppercase;padding-left:.28em}
+/* actions register (light) */
+.wtag{font-family:var(--mono);font-size:10px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.wtag.cl{color:var(--f-600);background:var(--f-50);border-color:rgba(56,153,107,.25)}
+.mchip.lt{border-color:var(--line);color:var(--mute)}
+.mchip.lt:hover{color:var(--ink);background:var(--grey-50)}
+.mchip.lt.on{color:var(--f-600);border-color:rgba(56,153,107,.4);background:var(--f-50)}
+.afilter{display:flex;gap:7px}
+.dchip{font-family:var(--mono);font-size:10px;letter-spacing:.03em;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.05);color:var(--sil-3);white-space:nowrap}
+.dchip.neg{color:var(--red-txt);background:rgba(180,85,63,.14)}
+.dchip.due{color:var(--sil-1);background:rgba(255,255,255,.1)}
+.dchip.lt{background:var(--grey-100);color:var(--mute)}
+.dchip.lt.neg{color:var(--red);background:rgba(180,85,63,.1)}
+.dchip.lt.due{color:var(--ink);background:var(--grey-200)}
+.loglist{max-height:520px;overflow-y:auto}
+.logrow{display:flex;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line-2)}
+.logrow:last-child{border-bottom:none}
+.logrow .logd{font-family:var(--mono);font-size:10px;color:var(--f-600);width:44px;flex:0 0 auto;padding-top:2px}
+.logrow .logn{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.logrow .logmeta{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:4px}
+/* today cockpit (dark) */
+.alh,.arow{display:grid;grid-template-columns:1fr 2.6fr .8fr 1fr 1fr .9fr;gap:12px;align-items:center;padding:12px 20px}
+.alh{border-bottom:1px solid var(--steel);font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--sil-4)}
+.arow{border-top:1px solid rgba(198,205,207,.07);cursor:pointer;transition:background .12s}
+.arow:hover{background:rgba(255,255,255,.03)}
+.arow .aref{font-family:var(--mono);font-size:11px;color:var(--f-300);display:flex;flex-direction:column;gap:3px}
+.arow .atype{font-family:var(--mono);font-size:8.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--sil-4)}
+.arow .at{font-size:13px;color:var(--sil-1);font-weight:450}
+.arow .ap{font-family:var(--mono);font-size:9.5px;color:var(--sil-4);margin-top:3px}
+.arow .await{font-size:12px;color:var(--sil-3)}
+.arow .alast{font-size:11px;color:var(--sil-4)}
+.cadgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cadcard{border:1px solid var(--steel-2);border-radius:14px;background:linear-gradient(180deg,#111615,#0a0d0c);padding:16px 18px;cursor:pointer;transition:transform .14s var(--ease),border-color .2s}
+.cadcard:hover{transform:translateY(-2px);border-color:rgba(111,190,150,.35)}
+.cadcard.now{border-color:rgba(111,190,150,.5);background:linear-gradient(180deg,#0f1a15,#0a0d0c)}
+.cadtop{display:flex;align-items:center;justify-content:space-between}
+.cadfreq{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sil-4)}
+.cadwhen{font-family:var(--mono);font-size:10px;color:var(--sil-3)}
+.cadnow{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--f-300);background:rgba(35,122,82,.14);border:1px solid rgba(111,190,150,.3);padding:2px 8px;border-radius:20px}
+.cadlabel{font-family:var(--disp);font-weight:600;font-size:14px;color:#fff;margin-top:12px;letter-spacing:-.01em}
+.cadproj{font-size:11.5px;color:var(--sil-3);margin-top:5px}
+.aempty{grid-column:1/-1;padding:20px;text-align:center;color:var(--sil-4);font-size:12.5px}
+/* SM follow-up watch strip */
+.pmwatch{margin-top:14px;padding-top:12px;border-top:1px solid rgba(198,205,207,.09);display:flex;align-items:center;gap:10px}
+.pmwatch .wl{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sil-4)}
+.pmwatch .wv{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--sil-3)}
+.pmwatch .wv b{color:var(--sil-1);font-weight:600}
+.pmwatch .wv b.r{color:var(--red-txt)}
+/* client portal */
+.portalband{display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid rgba(111,190,150,.28);background:linear-gradient(180deg,rgba(35,122,82,.1),rgba(10,13,12,.4));border-radius:12px;margin-bottom:22px;flex-wrap:wrap}
+.portalband .pbtag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--f-300);border:1px solid rgba(111,190,150,.4);border-radius:20px;padding:4px 10px;white-space:nowrap}
+.portalband .pbtx{font-size:12.5px;color:var(--sil-2)}
+.portalband .pbrt{margin-left:auto}
+.prow{display:grid;grid-template-columns:1fr 3fr 1fr 1.2fr;gap:14px;align-items:center;padding:14px 20px;border-top:1px solid rgba(198,205,207,.07)}
+.prow:first-child{border-top:none}
+.prow .pref{font-family:var(--mono);font-size:11px;color:var(--f-300);display:flex;flex-direction:column;gap:3px}
+.prow .at{font-size:13.5px;color:var(--sil-1);font-weight:450}
+.prow .ap{font-family:var(--mono);font-size:9.5px;color:var(--sil-4);margin-top:3px}
+.clientswitch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.clientswitch .cslabel{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--sil-4);margin-right:4px}
+.clchip{font-family:var(--body);font-size:12px;color:var(--sil-3);border:1px solid var(--steel-2);background:none;border-radius:100px;padding:6px 13px;cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:7px}
+.clchip:hover{color:var(--sil-1);border-color:var(--steel-3)}
+.clchip.on{color:var(--f-300);border-color:rgba(111,190,150,.4);background:rgba(35,122,82,.12)}
+.clchip .clint{font-family:var(--mono);font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--sil-4);border:1px solid var(--steel-2);border-radius:10px;padding:1px 5px}
+.clbadge{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--sil-3);border:1px solid var(--steel-2);background:rgba(255,255,255,.04);border-radius:20px;padding:3px 9px;margin-left:12px;vertical-align:middle;font-weight:400}
+/* dark comparison/feed panels (themeable) */
+.dpanel{background:linear-gradient(180deg,#0e1211,#0a0d0c);border-color:var(--steel)}
+.dpanel .ph{background:rgba(255,255,255,.02);border-bottom-color:var(--steel)}
+.dpanel .ph h3{color:#fff}
+.dlog{border-bottom-color:rgba(198,205,207,.08)}
+.dlog .logn{color:var(--sil-2)}
+/* theme toggle */
+.themebtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--steel-2);background:rgba(255,255,255,.03);color:var(--sil-3);display:grid;place-items:center;cursor:pointer;transition:.15s}
+.themebtn:hover{color:var(--sil-1);background:rgba(255,255,255,.08)}
+.themebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* ===== LIGHT MODE: instrument chrome stays dark, work surface goes light ===== */
+.main.light .wcard{border-color:var(--line)}
+.main.light .pcard,.main.light .pmcard,.main.light .cadcard,.main.light .mlistwrap,.main.light .dpanel{background:#fff;border-color:var(--line)}
+.main.light .pcard:hover,.main.light .cadcard:hover{border-color:rgba(56,153,107,.4)}
+.main.light .cadcard.now{background:var(--f-50);border-color:rgba(56,153,107,.4)}
+.main.light .pcard h3,.main.light .pmhead .nm,.main.light .cadlabel,.main.light .mrow .mp,.main.light .arow .at,.main.light .pmstat .sv,.main.light .cmprow .cn,.main.light .dpanel .ph h3{color:var(--ink)}
+.main.light .pcard .addr,.main.light .pcard .meta .vl,.main.light .arow .await,.main.light .mval,.main.light .pmproj .pn,.main.light .dlog .logn{color:var(--ink-2)}
+.main.light .pcard .meta .lb,.main.light .pcard .pmeta,.main.light .pmhead .ro,.main.light .pmstat .sl,.main.light .arow .ap,.main.light .mrow .mpid,.main.light .alh,.main.light .mlh,.main.light .cadfreq,.main.light .cadwhen,.main.light .cadproj,.main.light .mpm .mnm,.main.light .cslabel,.main.light .aempty,.main.light .logmeta{color:var(--mute)}
+.main.light .aref,.main.light .pmidx .iv,.main.light .cmprow .cvv,.main.light .pmidx .tr.up,.main.light .pmstat .sv.pos,.main.light .msched.pos{color:var(--f-600)}
+.main.light .pmstat .sv.neg,.main.light .msched.neg,.main.light .pmidx .tr.down,.main.light .dchip.neg{color:var(--red)}
+.main.light .pcard .meta,.main.light .pmstats,.main.light .pmprojs,.main.light .pmwatch{border-top-color:var(--line-2)}
+.main.light .ptrack,.main.light .pmproj .pb,.main.light .mmini .mt,.main.light .cmprow .ct{background:var(--grey-200)}
+.main.light .mlh{border-bottom-color:var(--line);background:var(--grey-50)}
+.main.light .arow,.main.light .mrow,.main.light .dlog{border-top-color:var(--line-2);border-bottom-color:var(--line-2)}
+.main.light .arow:hover,.main.light .mrow:hover,.main.light .pmproj:hover{background:var(--grey-50)}
+.main.light .stub{background:var(--grey-50);border-color:var(--line)}
+.main.light .stub .sh2{color:var(--ink)}.main.light .stub p{color:var(--mute)}
+.main.light .dpanel .ph{background:var(--grey-50)}
+.main.light .dchip{background:var(--grey-100);color:var(--mute)}
+.main.light .dchip.due{background:var(--grey-200);color:var(--ink)}
+.main.light .portalband{background:linear-gradient(180deg,rgba(35,122,82,.07),rgba(247,248,248,.5));border-color:rgba(56,153,107,.3)}
+.main.light .portalband .pbtx{color:var(--ink-2)}
+.main.light .clchip{border-color:var(--line);color:var(--mute)}
+.main.light .clchip:hover{color:var(--ink)}
+.main.light .clchip.on{color:var(--f-600);background:var(--f-50);border-color:rgba(56,153,107,.4)}
+.main.light .clchip .clint,.main.light .clbadge{color:var(--mute);border-color:var(--line);background:var(--grey-100)}
+.main.light .mchip{border-color:var(--line);color:var(--mute)}
+.main.light .mchip:hover{color:var(--ink)}
+.main.light .mchip.on{color:var(--f-600);border-color:rgba(56,153,107,.4);background:var(--f-50)}
+.main.light .mperiod{border-color:var(--line);color:var(--mute)}
+.pbname{color:var(--sil-1)}
+.main.light .pbname{color:var(--ink)}
+.main.light .prow{border-top-color:var(--line-2)}
+.main.light .prow .at{color:var(--ink)}
+.main.light .prow .ap{color:var(--mute)}
+.main.light .prow .pref{color:var(--f-600)}
+@media(max-width:1080px){.pmgrid{grid-template-columns:1fr}.pillars,.finkpis,.qkpis{grid-template-columns:1fr 1fr}.cadgrid{grid-template-columns:1fr}}
+
+@media(max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}.projgrid,.fgrid,.infogrid{grid-template-columns:1fr}.rail{flex-basis:64px}.rail .navitem .tx,.rail .grp,.rail .newbtn span,.rail .railfoot,.rail .navitem .ct,.rail .railbrand .railwm{display:none}.rail .navitem{justify-content:center}.rail .railbrand{justify-content:center;padding-left:0;padding-right:0}.main.dark::before{left:64px}}
+@media(max-width:680px){.topnav{display:none}.partner{display:none}.page{padding:20px 16px 60px}.pws{padding:16px 16px 0}.kpis{grid-template-columns:1fr 1fr}.wtabs{overflow-x:auto}}
+*{min-width:0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<div class="app">
+ <!-- TOPBAR -->
+ <div class="topbar">
+  <span class="atr"><span class="dev" id="tbmark" style="width:22px"></span><span class="w sil-txt">ATRIUM</span></span>
+  <div class="topnav" id="topnav"></div>
+  <div class="tb-right">
+   <button class="themebtn" id="themebtn" aria-label="Toggle light or dark theme"></button>
+   <span class="partner">7EVEN<span class="sep"></span>HAAVN</span>
+   <div class="userchip"><span class="nm">James B.</span><span class="av">JB</span></div>
+  </div>
+ </div>
+ <div class="body">
+  <!-- RAIL -->
+  <nav class="rail" id="rail"></nav>
+  <!-- MAIN -->
+  <main class="main dark" id="main"><div class="page" id="page"></div></main>
+ </div>
+</div>
+
+<!-- provisioning overlay -->
+<div class="prov" id="prov"><div class="provbox">
+ <div class="dev" id="provmark" style="width:94px;margin:0 auto 14px"></div>
+ <div class="pv-h">Provisioning project</div>
+ <div class="pv-s" id="provsub">Initialising from Project Info</div>
+ <div class="provlist" id="provlist"></div>
+</div></div>
+<div class="toast" id="toast"><span class="ti"></span><span id="toasttx"></span></div>
+
+<script>
+/* ============ DATA MODEL ============ */
+const SVG={
+ folder:'<svg class="fi" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>',
+ doc:'<svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+ chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>',
+ chk:'<svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>'
+};
+function icon(p){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+const ICONS={
+ portfolio:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ portal:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M9 16v4M15 16v4"/>',
+ projects:'<path d="M3 7h18M3 12h18M3 17h12"/>',
+ feas:'<path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/>',
+ acct:'<path d="M3 6h18v12H3z"/><path d="M3 10h18M7 15h4"/>',
+ meet:'<circle cx="9" cy="8" r="3"/><path d="M15 8a3 3 0 0 1 0 6M2 20a6 6 0 0 1 12 0M14 20a6 6 0 0 0-1-3"/>',
+ setup:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+ sm:'<path d="M3 3v18h18"/><rect x="7" y="12" width="3.4" height="5" rx=".5"/><rect x="12.3" y="8" width="3.4" height="9" rx=".5"/><rect x="17.6" y="5" width="3.4" height="12" rx=".5"/>',
+ today:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8.5 15l2.2 2.2L15.5 12"/>'
+};
+/* ATRIUM Apex — A1 · Tight Weave. Tier by rendered size: Mark <28px, Compact 28–79px, Primary ≥80px. */
+function apexDefs(id,halo){return `<linearGradient id="c${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F7F8"/><stop offset=".42" stop-color="#AEB6B8"/><stop offset=".52" stop-color="#6E7779"/><stop offset=".66" stop-color="#D6DBDC"/><stop offset="1" stop-color="#8A9395"/></linearGradient><radialGradient id="k${id}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#EAFBF1"/><stop offset=".3" stop-color="#6FBE96"/><stop offset=".62" stop-color="#237A52" stop-opacity=".5"/><stop offset="1" stop-color="#237A52" stop-opacity="0"/></radialGradient>${halo?`<radialGradient id="h${id}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6FBE96" stop-opacity=".55"/><stop offset="1" stop-color="#6FBE96" stop-opacity="0"/></radialGradient><filter id="s${id}"><feGaussianBlur stdDeviation="5"/></filter>`:''}`;}
+function apexMark(id){return `<svg viewBox="0 0 240 240" width="100%" style="display:block" aria-label="ATRIUM"><defs>${apexDefs(id,false)}</defs><path d="M34 214 L120 26 L206 214" fill="none" stroke="url(#c${id})" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/><circle cx="120" cy="150" r="17" fill="url(#k${id})"/><circle cx="120" cy="150" r="6" fill="#EAFBF1"/></svg>`;}
+function apexCompact(id){return `<svg viewBox="0 0 240 240" width="100%" style="display:block" aria-label="ATRIUM"><defs>${apexDefs(id,true)}</defs><ellipse cx="120" cy="150" rx="50" ry="58" fill="url(#h${id})" filter="url(#s${id})"/><path d="M28.0 216.0 L120.0 24.0 L212.0 216.0" fill="none" stroke="url(#c${id})" stroke-width="2.60" stroke-linejoin="round" stroke-linecap="round" opacity="0.16"/><path d="M44.9 205.4 L120.0 49.2 L195.1 205.4" fill="none" stroke="url(#c${id})" stroke-width="3.20" stroke-linejoin="round" stroke-linecap="round" opacity="0.41"/><path d="M61.7 194.7 L120.0 74.4 L178.3 194.7" fill="none" stroke="url(#c${id})" stroke-width="3.80" stroke-linejoin="round" stroke-linecap="round" opacity="0.65"/><path d="M78.6 184.1 L120.0 99.6 L161.4 184.1" fill="none" stroke="url(#c${id})" stroke-width="4.40" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/><circle cx="120" cy="152" r="17" fill="url(#k${id})"/><circle cx="120" cy="152" r="5" fill="#EAFBF1"/></svg>`;}
+function apexPrimary(id){const F=[[28.0,216.0,120.0,24.0,212.0,1.00,0.16],[33.1,212.8,120.0,31.6,206.9,1.05,0.23],[38.1,209.6,120.0,39.1,201.9,1.11,0.31],[43.2,206.4,120.0,46.7,196.8,1.17,0.38],[48.2,203.2,120.0,54.2,191.8,1.22,0.46],[53.3,200.1,120.0,61.8,186.7,1.27,0.53],[58.4,196.9,120.0,69.4,181.6,1.33,0.60],[63.4,193.7,120.0,76.9,176.6,1.39,0.68],[68.5,190.5,120.0,84.5,171.5,1.44,0.75],[73.5,187.3,120.0,92.0,166.5,1.50,0.83],[78.6,184.1,120.0,99.6,161.4,1.55,0.90]];
+ const paths=F.map(f=>`<path d="M${f[0]} ${f[1]} L${f[2]} ${f[3]} L${f[4]} ${f[1]}" fill="none" stroke="url(#c${id})" stroke-width="${f[5]}" stroke-linejoin="round" stroke-linecap="round" opacity="${f[6]}"/>`).join('');
+ return `<svg viewBox="0 0 240 240" width="100%" style="display:block" aria-label="ATRIUM"><defs>${apexDefs(id,true)}</defs><ellipse cx="120" cy="150" rx="58" ry="66" fill="url(#h${id})" filter="url(#s${id})"/>${paths}<circle cx="120" cy="152" r="19" fill="url(#k${id})"/><circle cx="120" cy="152" r="5" fill="#EAFBF1"/></svg>`;}
+
+// 17-folder SharePoint structure (from screenshot) + subfolders referenced by templates
+const FOLDERS=[
+ {n:'01. Client', sub:['01 Client Information']},
+ {n:'02. Consultants', sub:[]},
+ {n:'03. Builder', sub:['01 Tender']},
+ {n:'04. Contract', sub:['01 Draft Contract']},
+ {n:'05. Authorities', sub:[]},
+ {n:'06. Council', sub:['01 Planning','02 Planning Permit']},
+ {n:'07. DD', sub:[]},
+ {n:'08. CD', sub:[]},
+ {n:'09. Programme', sub:['01 Master Program']},
+ {n:'10. Minutes and PCG', sub:['01 Meeting Minutes']},
+ {n:'11. Progress Claims', sub:[]},
+ {n:'12. Extension of Time', sub:[]},
+ {n:'13. Variations', sub:[]},
+ {n:'14. Site Images', sub:[]},
+ {n:'15. Statement of Compliance', sub:[]},
+ {n:'16. Superintendent Instructions', sub:[]},
+ {n:'17. Project Management', sub:[]}
+];
+
+// 27-item checklist, groups A–I
+const CHECKLIST=[
+ {g:'A. Engagement & Admin',items:[
+  [1,'Sign fee proposal & engagement letter'],[2,'Set up project folder per template structure'],
+  [3,'Issue conflict of interest declaration'],[4,'Define communication protocols & distribution list']]},
+ {g:'B. Correspondence',items:[[5,'Establish letterhead, transmittal & email template']]},
+ {g:'C. Meetings',items:[[6,'Schedule kick-off, design and PCG meetings'],[7,'Set up meeting minutes / agenda templates']]},
+ {g:'D. Registers',items:[[8,'Initialise drawing register'],[9,'Initialise RFI register'],[10,'Initialise SI register'],
+  [11,'Initialise variation register'],[12,'Initialise EOT register'],[13,'Initialise insurances register'],[14,'Initialise authorities register']]},
+ {g:'E. Tender & Procurement',items:[[15,'Issue ITT to selected builders'],[16,'Receive tenders, build comparison'],
+  [17,'Issue tender recommendation report'],[18,'Award contract (LOI then formal)']]},
+ {g:'F. Contract Admin',items:[[19,'Issue executed contract & contract review register'],[20,'Lodge bank guarantees & insurances'],[21,'Establish progress claim & certificate cycle']]},
+ {g:'G. Site',items:[[22,'Site possession & site establishment confirmation'],[23,'Commence weekly site inspections']]},
+ {g:'H. Reporting',items:[[24,'Initialise cost report / cost tracker'],[25,'Establish monthly PCG report cycle']]},
+ {g:'I. Closeout',items:[[26,'Handover documentation index established'],[27,'Lessons learned register opened']]}
+];
+
+// 16-template register — token = base filename after date prefix
+const TEMPLATES=[
+ [1,'A. Engagement & Admin','Fee proposal','Word','01. Client / 01 Client Information','Example Required',''],
+ [2,'A. Engagement & Admin','Fee proposal breakdown','Excel','02. Consultants','Drafted','Fee Proposal Breakdown.xlsx'],
+ [3,'A. Engagement & Admin','Principal Project Requirements (PPR)','Word','01. Client / 01 Client Information','Drafted','PPR.docx'],
+ [4,'A. Engagement & Admin','Project setup checklist','Excel','Project root','Drafted','Project Setup Checklist.xlsx'],
+ [5,'B. Correspondence','Haavn letterhead (general)','Word','Used across all folders','Drafted','Letterhead.docx'],
+ [6,'B. Correspondence','Document Transmittal','Excel','Used across all folders','Drafted','Document Transmittal.xlsx'],
+ [7,'C. Meetings','Meeting agenda — design','Word','10. Minutes and PCG / 01 Meeting Minutes','Drafted','Design Meeting Agenda.docx'],
+ [8,'C. Meetings','Meeting minutes — design','Word','10. Minutes and PCG / 01 Meeting Minutes','Drafted','Design Meeting Minutes.docx'],
+ [9,'D. Registers','Planning permit matrix','Excel','06. Council / 02 Planning Permit','Drafted','Planning Permit Matrix.xlsx'],
+ [10,'D. Registers','Authority matrix','Excel','05. Authorities','Drafted','Authority Matrix.xlsx'],
+ [11,'D. Registers','Novation matrix','Excel','02. Consultants','Drafted','Novation Matrix.xlsx'],
+ [12,'E. Tender & Procurement','Request for Tender','Word','03. Builder / 01 Tender','Drafted','Request for Tender.docx'],
+ [13,'E. Tender & Procurement','Tender Breakdown Comparison','Excel','03. Builder / 01 Tender','Drafted','Tender Breakdown Comparison.xlsx'],
+ [14,'F. Contract Admin','Contract review register','Excel','04. Contract / 01 Draft Contract','Drafted','Contract Review Register.xlsx'],
+ [15,'F. Contract Admin','Progress claim certificate','Excel','11. Progress Claims','Drafted','Progress Claim Certificate.xlsx'],
+ [16,'J. Programme','Master programme','Excel','09. Programme / 01 Master Program','Drafted','Master Programme.xlsx']
+];
+
+/* ============ STATE ============ */
+function newChecklistState(seed){ // seed = fraction 0..1 completed sequentially
+ const done={};let all=[];CHECKLIST.forEach(g=>g.items.forEach(it=>all.push(it[0])));
+ const cut=Math.round(all.length*(seed||0));all.forEach((id,i)=>done[id]=i<cut);return done;
+}
+// Project managers across the business
+const PMS={
+ james:{name:'James Bardas',init:'JB',role:'Director · Superintendent',trend:2},
+ luke:{name:'Luke Davies',init:'LD',role:'Senior Project Manager',trend:-3},
+ john:{name:'John Mercer',init:'JM',role:'Project Manager',trend:5}
+};
+// Standard client-side PM milestone lifecycle
+const MILESTONES=['Contract executed','Design development complete','Construction documentation issued','Building permit issued','Site possession','Construction commenced','Structure complete','Lock-up','Practical completion','Final completion & handover'];
+function buildProgramme(p,doneCount,lateIdx){
+ const start=p.contractDate?new Date(p.contractDate):null;
+ const end=p.pc?new Date(p.pc):null;const n=MILESTONES.length;
+ return MILESTONES.map((nm,i)=>{
+  let state='upcoming';
+  if(i<doneCount)state='done';else if(i===doneCount)state='active';
+  if(lateIdx!=null&&i===lateIdx)state='late';
+  let date='TBC';
+  if(start&&end){const t=start.getTime()+(end.getTime()-start.getTime())*(i/(n-1));date=new Date(t).toISOString().slice(0,10);}
+  return {name:nm,state,date};
+ });
+}
+function makeProject(o){
+ const pmKey=o.pmKey||'james';
+ const p={id:o.id,name:o.name,addr:o.addr,suburb:o.suburb,site:o.site||'',status:o.status||'live',
+  principal:o.principal,rep:o.rep||'',pmKey:pmKey,pm:(PMS[pmKey]?PMS[pmKey].name:(o.pm||'James Bardas')),
+  architect:o.architect||'',builder:o.builder||'',
+  contractDate:o.contractDate||'',possession:o.possession||'',pc:o.pc||'',sum:o.sum||0,form:o.form||'',financier:o.financier||'',
+  asset:o.asset||'BTS',datePrefix:o.datePrefix||'260501',sched:o.sched||0,overdue:o.overdue||0,
+  templatesGen:o.templatesGen||false};
+ p.checklist=newChecklistState(o.seed);
+ p.fin={variations:0,certified:0,claimed:0,forecast:p.sum,claims:[],spend:[]};
+ p.prog=buildProgramme(p,0,null);
+ p.qual={inspTotal:0,inspDone:0,defOpen:0,defClosed:0,ncr:0,compliance:0,holds:0};
+ p.actions=[];p.cadence=[];
+ return p;
+}
+let PROJECTS=[
+ makeProject({id:'26041',name:'Derrimut Rise',addr:'575 Derrimut Road',suburb:'Tarneit, VIC 3029',pmKey:'james',
+  site:'2.4 ha greenfield parcel fronting Derrimut Road; staged BTR delivery over three releases.',
+  status:'live',principal:'7EVEN Capital Pty Ltd',rep:'A. Okafor',architect:'Fieldwork Studio',builder:'Hacer Group Pty Ltd',
+  contractDate:'2026-03-14',possession:'2026-04-02',pc:'2027-09-30',sum:61240000,form:'Amended AS4300',financier:'NAB',
+  asset:'BTR + BTS',datePrefix:'260314',seed:0.63,sched:2,overdue:0,templatesGen:true}),
+ makeProject({id:'26043',name:'Imperium Docklands',addr:'8 Waterfront Way',suburb:'Docklands, VIC 3008',pmKey:'james',
+  site:'Waterfront tower; hotel podium with build-to-rent and build-to-sell levels above.',
+  status:'live',principal:'7EVEN Capital Pty Ltd',rep:'A. Okafor',architect:'Woods Bagot',builder:'Multiplex Pty Ltd',
+  contractDate:'2026-02-19',possession:'2026-03-05',pc:'2028-06-30',sum:142000000,form:'Amended AS4300',financier:'NAB',
+  asset:'BTR + BTS + HOTEL',datePrefix:'260219',seed:0.88,sched:5,overdue:0,templatesGen:true}),
+ makeProject({id:'26060',name:'The Range Preston',addr:'320 Murray Road',suburb:'Preston, VIC 3072',pmKey:'james',
+  site:'Infill townhouse project; three build stages fronting Murray Road.',
+  status:'live',principal:'Range Property Pty Ltd',rep:'D. Ellis',architect:'Six Degrees',builder:'ProBuild VIC Pty Ltd',
+  contractDate:'2026-06-30',possession:'2026-07-18',pc:'2027-11-30',sum:31500000,form:'Amended AS4902',financier:'Bankwest',
+  asset:'BTS',datePrefix:'260630',seed:0.20,sched:-6,overdue:3,templatesGen:false}),
+ makeProject({id:'26052',name:'Aurum Collingwood',addr:'41 Sackville Street',suburb:'Collingwood, VIC 3066',pmKey:'luke',
+  site:'Corner infill site; mixed-use with ground-floor retail and 9 residential levels above.',
+  status:'live',principal:'Aurum Dev Co Pty Ltd',rep:'M. Rossi',architect:'Kerstin Thompson',builder:'Icon Co Pty Ltd',
+  contractDate:'2026-05-08',possession:'2026-06-01',pc:'2027-12-15',sum:38900000,form:'Amended AS4902',financier:'CBA',
+  asset:'MIXED USE',datePrefix:'260508',seed:0.30,sched:-3,overdue:2,templatesGen:true}),
+ makeProject({id:'26049',name:'Eden South Yarra',addr:'6 Claremont Street',suburb:'South Yarra, VIC 3141',pmKey:'luke',
+  site:'Boutique mixed-use development; ground-floor retail with premium residences above.',
+  status:'live',principal:'Eden Dev Co Pty Ltd',rep:'P. Shah',architect:'Carr',builder:'Hickory Pty Ltd',
+  contractDate:'2026-04-22',possession:'2026-05-10',pc:'2027-10-31',sum:54000000,form:'Amended AS4300',financier:'CBA',
+  asset:'MIXED USE',datePrefix:'260422',seed:0.45,sched:-1,overdue:1,templatesGen:true}),
+ makeProject({id:'26055',name:'Summit Footscray',addr:'24 Nicholson Street',suburb:'Footscray, VIC 3011',pmKey:'john',
+  site:'Precision manufactured build form apartments; single stage over basement car park.',
+  status:'live',principal:'Summit Living Pty Ltd',rep:'R. Tan',architect:'Bruce Henderson',builder:'Hacer Group Pty Ltd',
+  contractDate:'2026-05-26',possession:'2026-06-15',pc:'2027-08-31',sum:27500000,form:'Amended AS4300',financier:'NAB',
+  asset:'BTS',datePrefix:'260526',seed:0.72,sched:3,overdue:0,templatesGen:true}),
+ makeProject({id:'26058',name:'Fortis Brunswick',addr:'12 Weston Street',suburb:'Brunswick, VIC 3056',pmKey:'john',
+  site:'Precision manufactured build form apartment project; early design phase.',
+  status:'hold',principal:'Fortis Holdings Pty Ltd',rep:'S. Nguyen',architect:'Clare Cousins',builder:'[TBC — tender]',
+  contractDate:'',possession:'',pc:'',sum:0,form:'[e.g. Amended AS4300]',financier:'[Bank]',
+  asset:'BTS',datePrefix:'260601',seed:0.08,sched:0,overdue:0,templatesGen:false})
+];
+// Per-project programme / financials / quality (seeded book)
+const EXTRA={
+ '26041':{variations:1850000,certified:22400000,claimed:24100000,forecast:62100000,spend:[4,9,16,24,33,41],progDone:5,progLate:null,
+  qual:{inspTotal:26,inspDone:18,defOpen:5,defClosed:34,ncr:1,compliance:97,holds:0},
+  claims:[{n:'PC-07',period:'Jun 2026',claimed:3850000,certified:3720000,status:'Certified'},{n:'PC-06',period:'May 2026',claimed:3610000,certified:3610000,status:'Paid'},{n:'PC-05',period:'Apr 2026',claimed:3300000,certified:3180000,status:'Paid'}]},
+ '26043':{variations:3200000,certified:61800000,claimed:64000000,forecast:143500000,spend:[6,13,22,30,38,45,52],progDone:6,progLate:null,
+  qual:{inspTotal:40,inspDone:31,defOpen:3,defClosed:52,ncr:0,compliance:99,holds:0},
+  claims:[{n:'PC-05',period:'Jun 2026',claimed:11200000,certified:10850000,status:'Under review'},{n:'PC-04',period:'May 2026',claimed:10600000,certified:10600000,status:'Paid'},{n:'PC-03',period:'Apr 2026',claimed:9800000,certified:9800000,status:'Paid'}]},
+ '26060':{variations:1150000,certified:3900000,claimed:4600000,forecast:34800000,spend:[3,6,9],progDone:3,progLate:3,
+  qual:{inspTotal:8,inspDone:3,defOpen:9,defClosed:4,ncr:3,compliance:82,holds:2},
+  claims:[{n:'PC-02',period:'Jul 2026',claimed:2100000,certified:1850000,status:'Under review'},{n:'PC-01',period:'Jun 2026',claimed:1900000,certified:1900000,status:'Paid'}]},
+ '26052':{variations:640000,certified:9200000,claimed:10100000,forecast:40100000,spend:[4,8,13,18],progDone:3,progLate:3,
+  qual:{inspTotal:14,inspDone:6,defOpen:6,defClosed:9,ncr:2,compliance:90,holds:1},
+  claims:[{n:'PC-04',period:'Jun 2026',claimed:2600000,certified:2480000,status:'Certified'},{n:'PC-03',period:'May 2026',claimed:2400000,certified:2400000,status:'Paid'}]},
+ '26049':{variations:1020000,certified:18400000,claimed:19500000,forecast:54600000,spend:[5,11,18,26,34],progDone:4,progLate:null,
+  qual:{inspTotal:20,inspDone:11,defOpen:4,defClosed:18,ncr:1,compliance:95,holds:0},
+  claims:[{n:'PC-03',period:'Jun 2026',claimed:5100000,certified:4950000,status:'Certified'},{n:'PC-02',period:'May 2026',claimed:4700000,certified:4700000,status:'Paid'}]},
+ '26055':{variations:410000,certified:14900000,claimed:15600000,forecast:27300000,spend:[6,13,22,31,40,49,54],progDone:6,progLate:null,
+  qual:{inspTotal:24,inspDone:19,defOpen:2,defClosed:22,ncr:0,compliance:98,holds:0},
+  claims:[{n:'PC-06',period:'Jun 2026',claimed:2900000,certified:2820000,status:'Certified'},{n:'PC-05',period:'May 2026',claimed:2700000,certified:2700000,status:'Paid'}]},
+ '26058':{variations:0,certified:0,claimed:0,forecast:0,spend:[],progDone:0,progLate:null,qual:{inspTotal:0,inspDone:0,defOpen:0,defClosed:0,ncr:0,compliance:0,holds:0},claims:[]}
+};
+function applyExtra(p,e){if(!e)return;
+ p.fin.variations=e.variations||0;p.fin.certified=e.certified||0;p.fin.claimed=e.claimed||0;
+ p.fin.forecast=e.forecast||p.sum;p.fin.claims=e.claims||[];p.fin.spend=e.spend||[];
+ p.prog=buildProgramme(p,e.progDone||0,e.progLate!=null?e.progLate:null);
+ if(e.qual)p.qual=Object.assign(p.qual,e.qual);
+}
+PROJECTS.forEach(p=>applyExtra(p,EXTRA[p.id]));
+// ===== Actions & follow-up register + daily cadence =====
+const APP_TODAY='2026-07-15';
+const CURRENT_PM='james';
+const ACTIONS={
+ '26060':[
+  {ref:'APR-003',type:'Approval',title:'Amended plans for building permit — client signature',with:'Client',raised:'2026-06-28',due:'2026-07-08',last:'2026-07-13',next:'2026-07-15',blocks:true,log:[{d:'2026-07-13',n:'Third follow-up email to D. Ellis — permit lodgement held pending signature.'},{d:'2026-07-06',n:'Called developer; awaiting internal board sign-off.'}]},
+  {ref:'DEC-002',type:'Decision',title:'Façade material selection sign-off',with:'Client',raised:'2026-07-02',due:'2026-07-16',last:'2026-07-11',next:'2026-07-15',blocks:false,log:[{d:'2026-07-11',n:'Sample board options A/B issued to developer for selection.'}]},
+  {ref:'PAY-002',type:'Payment',title:'PC-02 certified $1.85M — release for payment',with:'Client',raised:'2026-07-13',due:'2026-07-20',last:'2026-07-13',next:'2026-07-17',blocks:false,log:[{d:'2026-07-13',n:'Certificate issued to developer & financier.'}]},
+  {ref:'RFI-014',type:'RFI',title:'Slab edge detail at grid C',with:'Builder',raised:'2026-07-06',due:'2026-07-10',last:'2026-07-09',next:'2026-07-15',blocks:true,log:[{d:'2026-07-09',n:'Chased ProBuild site engineer for response.'}]},
+  {ref:'SI-004',type:'SI',title:'Instruction to proceed — retaining wall',with:'Builder',raised:'2026-07-12',due:'2026-07-18',last:'',next:'2026-07-16',blocks:false,log:[]}
+ ],
+ '26041':[
+  {ref:'VO-07',type:'Approval',title:'Variation VO-07 — client approval',with:'Client',raised:'2026-07-03',due:'2026-07-15',last:'2026-07-08',next:'2026-07-15',blocks:false,log:[{d:'2026-07-08',n:'Assessment & recommendation issued to A. Okafor.'}]},
+  {ref:'MIN-06',type:'Decision',title:'Design meeting actions — client to confirm',with:'Client',raised:'2026-07-07',due:'2026-07-14',last:'2026-07-10',next:'2026-07-15',blocks:false,log:[{d:'2026-07-10',n:'Minutes circulated; two actions sit with developer.'}]},
+  {ref:'RFI-032',type:'RFI',title:'Balustrade fixing to Level 4',with:'Architect',raised:'2026-07-09',due:'2026-07-17',last:'',next:'2026-07-16',blocks:false,log:[]}
+ ],
+ '26043':[
+  {ref:'EOT-02',type:'Approval',title:'EOT-02 determination — client acknowledgement',with:'Client',raised:'2026-07-05',due:'2026-07-22',last:'2026-07-12',next:'2026-07-18',blocks:false,log:[{d:'2026-07-12',n:'Superintendent determination issued to developer.'}]},
+  {ref:'SUB-021',type:'Submission',title:'Structural shop drawings — review',with:'Consultant',raised:'2026-07-08',due:'2026-07-21',last:'',next:'2026-07-17',blocks:false,log:[]},
+  {ref:'RFI-070',type:'RFI',title:'Core wall penetration coordination',with:'Builder',raised:'2026-07-10',due:'2026-07-16',last:'',next:'2026-07-15',blocks:false,log:[]}
+ ],
+ '26052':[
+  {ref:'APR-009',type:'Approval',title:'Contractor claim variance — client review',with:'Client',raised:'2026-07-04',due:'2026-07-13',last:'2026-07-09',next:'2026-07-15',blocks:false,log:[{d:'2026-07-09',n:'Flagged $120k assessment gap to developer.'}]},
+  {ref:'RFI-051',type:'RFI',title:'Retail tenancy services layout',with:'Consultant',raised:'2026-07-08',due:'2026-07-19',last:'',next:'2026-07-17',blocks:false,log:[]}
+ ],
+ '26049':[
+  {ref:'DEC-004',type:'Decision',title:'Lift supplier selection sign-off',with:'Client',raised:'2026-07-06',due:'2026-07-20',last:'2026-07-11',next:'2026-07-18',blocks:false,log:[{d:'2026-07-11',n:'Options issued with cost & programme comparison.'}]}
+ ],
+ '26055':[
+  {ref:'RFI-040',type:'RFI',title:'Basement waterproofing specification',with:'Builder',raised:'2026-07-09',due:'2026-07-21',last:'',next:'2026-07-18',blocks:false,log:[]}
+ ]
+};
+const CADENCE={
+ '26060':[{label:'Weekly site inspection',freq:'Weekly',date:'2026-07-15'},{label:'Client WIP call — D. Ellis',freq:'Fortnightly',date:'2026-07-16'},{label:'Monthly PCG',freq:'Monthly',date:'2026-07-28'}],
+ '26041':[{label:'Client WIP call — A. Okafor',freq:'Fortnightly',date:'2026-07-15'},{label:'Weekly site inspection',freq:'Weekly',date:'2026-07-16'},{label:'Monthly PCG',freq:'Monthly',date:'2026-07-24'}],
+ '26043':[{label:'Weekly site inspection',freq:'Weekly',date:'2026-07-17'},{label:'Monthly PCG',freq:'Monthly',date:'2026-07-30'}]
+};
+PROJECTS.forEach(p=>{
+ p.actions=(ACTIONS[p.id]||[]).map(a=>Object.assign({status:'Open'},a,{log:(a.log||[]).slice()}));
+ p.cadence=(CADENCE[p.id]||[]).slice();
+});
+// date + action helpers
+function dparse(s){return s?new Date(s+'T00:00:00'):null;}
+function daysBetween(a,b){return Math.round((dparse(a)-dparse(b))/86400000);}
+function daysToDue(due){return daysBetween(due,APP_TODAY);} // negative = overdue
+function addDays(s,n){const d=dparse(s);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function fmtDay(s){if(!s)return '—';return dparse(s).toLocaleDateString('en-AU',{day:'numeric',month:'short'});}
+function fmtFull(s){return dparse(s).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function openActions(p){return (p.actions||[]).filter(a=>a.status!=='Closed');}
+function awaitingClient(p){return openActions(p).filter(a=>a.with==='Client');}
+function overdueActions(p){return openActions(p).filter(a=>daysToDue(a.due)<0);}
+function dueFollowUps(p){return openActions(p).filter(a=>a.next&&daysToDue(a.next)<=0);}
+function blockingActions(p){return openActions(p).filter(a=>a.blocks);}
+function pmProjects(k){return PROJECTS.filter(p=>p.pmKey===k);}
+function staleDays(a){return a.last?daysBetween(APP_TODAY,a.last):daysBetween(APP_TODAY,a.raised);}
+function isWatch(a){return a.with==='Client'&&a.status!=='Closed'&&(daysToDue(a.due)<0||staleDays(a)>=5);}
+function watchAll(){const w=[];PROJECTS.forEach(p=>openActions(p).filter(isWatch).forEach(a=>w.push({p,a})));return w.sort((x,y)=>daysToDue(x.a.due)-daysToDue(y.a.due));}
+function portalBtnLabel(t){return t==='Approval'?'Approve':t==='Decision'?'Confirm':t==='Payment'?'Release payment':'Acknowledge';}
+function clientAction(pid,ref){const p=PROJECTS.find(x=>x.id===pid);if(!p)return;const a=p.actions.find(x=>x.ref===ref);if(!a)return;a.status='Closed';const verb=a.type==='Payment'?'released for payment':(a.type==='Decision'?'confirmed':(a.type==='Approval'?'approved':'acknowledged'));a.log.unshift({d:APP_TODAY,n:'Client '+verb+' via portal — '+a.ref+'.'});toast(a.ref+' '+verb+' — your project team has been notified.');render();}
+function dueChip(due,light){const l=light?'lt ':'';const n=daysToDue(due);if(n<0)return `<span class="dchip ${l}neg">${Math.abs(n)}d overdue</span>`;if(n===0)return `<span class="dchip ${l}due">Due today</span>`;return `<span class="dchip ${l}">in ${n}d</span>`;}
+function chaseAction(pid,ref){const p=PROJECTS.find(x=>x.id===pid);if(!p)return;const a=p.actions.find(x=>x.ref===ref);if(!a)return;a.log.unshift({d:APP_TODAY,n:'Follow-up sent to '+a.with+' — '+a.ref+'.'});a.last=APP_TODAY;a.next=addDays(APP_TODAY,3);toast('Followed up with '+a.with+' on '+a.ref+' — logged.');if(route.view==='today')render();else renderProject();}
+function bindChase(){$('#main').querySelectorAll('.chase').forEach(b=>b.onclick=e=>{e.stopPropagation();chaseAction(b.dataset.pid,b.dataset.ref);});}
+// derive helpers
+function revised(p){return p.sum+(p.fin.variations||0);}
+function spendPct(p){const r=revised(p);return r?Math.round(p.fin.certified/r*100):0;}
+function costVar(p){return revised(p)-(p.fin.forecast||p.sum);} // <0 = over budget (loss)
+function msDone(p){return p.prog.filter(m=>m.state==='done').length;}
+function msLate(p){return p.prog.filter(m=>m.state==='late').length;}
+function msPct(p){return Math.round(msDone(p)/p.prog.length*100);}
+let mgmtFilter='all';
+function pmMetrics(key){
+ const ps=PROJECTS.filter(p=>p.pmKey===key);
+ const live=ps.filter(p=>p.status==='live');
+ const value=ps.reduce((a,p)=>a+p.sum,0);
+ const avgSetup=ps.length?Math.round(ps.reduce((a,p)=>a+clDone(p).pct,0)/ps.length):0;
+ let openTasks=0,overdue=0,defOpen=0,ncr=0,cAwait=0,odAll=0,cWatch=0;ps.forEach(p=>{const c=clDone(p);openTasks+=c.t-c.d;overdue+=p.overdue;defOpen+=p.qual.defOpen;ncr+=p.qual.ncr;cAwait+=awaitingClient(p).length;odAll+=overdueActions(p).length;cWatch+=openActions(p).filter(isWatch).length;});
+ const avgSched=live.length?(live.reduce((a,p)=>a+p.sched,0)/live.length):0;
+ const onProg=live.filter(p=>p.sched>=0).length;
+ const costVarTotal=live.reduce((a,p)=>a+costVar(p),0);
+ const overrun=live.filter(p=>costVar(p)<0).length;
+ const avgComp=live.length?Math.round(live.reduce((a,p)=>a+p.qual.compliance,0)/live.length):0;
+ const idx=Math.max(55,Math.min(99,Math.round(88+avgSched*1.5-overdue*2.5-overrun*2-Math.max(0,100-avgComp)*0.1)));
+ return {ps,live:live.length,hold:ps.length-live.length,value,avgSetup,openTasks,overdue,defOpen,ncr,avgSched,onProg,costVarTotal,overrun,avgComp,idx,cAwait,odAll,cWatch};
+}
+let route={view:'portfolio',pid:null,tab:'overview'};
+let LIGHTMODE=false;
+function surf(){return LIGHTMODE?'main light':'main dark';}
+let openGroups={}; // checklist accordion
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+function money(n){if(!n)return '$0';if(n>=1e6)return '$'+(n/1e6).toFixed(n%1e6?1:0)+'M';if(n>=1e3)return '$'+(n/1e3).toFixed(0)+'k';return '$'+n;}
+function moneyFull(n){return '$'+(n||0).toLocaleString('en-AU');}
+function clDone(p){let d=0,t=0;CHECKLIST.forEach(g=>g.items.forEach(it=>{t++;if(p.checklist[it[0]])d++;}));return{d,t,pct:Math.round(d/t*100)};}
+function toast(msg){const t=$('#toast');$('#toasttx').textContent=msg;t.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('on'),2600);}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ============ RENDER: TOPNAV + RAIL ============ */
+const MODULES=[['today','Today'],['management','Senior Mgmt'],['portfolio','Portfolio'],['projects','Projects'],['feasibility','Feasibility'],['accounts','Accounts'],['meetings','Meetings']];
+function topOn(k){const c=route.view;
+ if(k==='today')return c==='today';
+ if(k==='management')return c==='management';
+ if(k==='portfolio')return c==='portfolio';
+ if(k==='projects')return c==='projects'||c==='project'||c==='newproject';
+ return c==='module'&&route.pid===k;}
+function renderTopnav(){
+ $('#topnav').innerHTML=MODULES.map(m=>`<button class="${topOn(m[0])?'on':''}" data-mod="${m[0]}">${m[1]}</button>`).join('');
+ $('#topnav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const m=b.dataset.mod;if(m==='portfolio')go('portfolio');else if(m==='projects')go('projects');else if(m==='management')go('management');else if(m==='today')go('today');else go('module',m);});
+}
+function renderRail(){
+ const active=(route.view==='project'||route.view==='projects'||route.view==='newproject');
+ const open=clOpenAll();
+ let html=`<div class="railbrand"><span class="dev" style="width:18px">${apexMark('rl')}</span><span class="railwm sil-txt">ATRIUM</span></div>`;
+ html+=`<div class="grp">Project Management</div>`;
+ html+=railItem('today','today','Today',null);
+ html+=railItem('management','sm','Senior Management',null);
+ html+=railItem('portfolio','portfolio','Portfolio',null);
+ html+=railItem('projects','projects','Projects',PROJECTS.length);
+ html+=`<button class="newbtn" id="railnew">${plus()}<span>New Project</span></button>`;
+ html+=`<div class="grp">External</div>`;
+ html+=railItem('portal','portal','Client Portal',null);
+ html+=`<div class="grp">Platform</div>`;
+ html+=railItem('feasibility','feas','Feasibility',null,true);
+ html+=railItem('accounts','acct','Accounts',null,true);
+ html+=railItem('meetings','meet','Meetings',null,true);
+ html+=`<div class="railfoot">ATRIUM v3.0<br>Carbon · silver · racing green<br>The home that arrives.</div>`;
+ const r=$('#rail');r.innerHTML=html;
+ r.querySelectorAll('[data-nav]').forEach(el=>el.onclick=()=>{const v=el.dataset.nav;if(v==='portfolio')go('portfolio');else if(v==='projects')go('projects');else if(v==='management')go('management');else if(v==='today')go('today');else if(v==='portal')go('portal',defaultPortalPid());else go('module',v);});
+ $('#railnew').onclick=()=>go('newproject');
+}
+function clOpenAll(){let d=0;PROJECTS.forEach(p=>{const c=clDone(p);d+=c.t-c.d;});return d;}
+function railItem(nav,ic,label,ct,muted){
+ let on=(nav==='today'&&route.view==='today')||(nav==='management'&&route.view==='management')||(nav==='portal'&&route.view==='portal')||(nav==='portfolio'&&route.view==='portfolio')||(nav==='projects'&&(route.view==='projects'||route.view==='project'||route.view==='newproject'))||(route.view==='module'&&route.pid===nav);
+ return `<button class="navitem ${on?'on':''}" data-nav="${nav}">${icon(ICONS[ic])}<span class="tx">${label}</span>${ct!=null?`<span class="ct">${ct}</span>`:''}</button>`;
+}
+function plus(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>';}
+function livery(){return '<span class="livery"><i class="g"></i><i class="s"></i></span>';}
+
+/* ============ VIEWS ============ */
+function go(view,pidOrTab,tab){
+ if(view==='project'){route={view:'project',pid:pidOrTab,tab:tab||'overview'};}
+ else if(view==='module'){route={view:'module',pid:pidOrTab,tab:null};}
+ else if(view==='portal'){route={view:'portal',pid:pidOrTab,tab:null};}
+ else route={view,pid:null,tab:null};
+ window.scrollTo(0,0);$('#main').scrollTop=0;render();
+}
+function render(){
+ renderTopnav();renderRail();
+ const main=$('#main');
+ if(route.view==='project'){renderProject();return;}
+ main.innerHTML='<div class="page" id="page"></div>'; // rebuild (project view replaces #main wholesale)
+ const page=$('#page');
+ if(route.view==='portfolio'){main.className=surf();page.innerHTML=viewPortfolio();bindPortfolio();}
+ else if(route.view==='today'){main.className=surf();page.innerHTML=viewToday();bindToday();}
+ else if(route.view==='management'){main.className=surf();page.innerHTML=viewManagement();bindManagement();}
+ else if(route.view==='portal'){main.className=surf();page.innerHTML=viewPortal(route.pid);bindPortal();}
+ else if(route.view==='projects'){main.className=surf();page.innerHTML=viewProjectsList();bindProjectsList();}
+ else if(route.view==='newproject'){main.className='main light';page.innerHTML=viewWizard();bindWizard();}
+ else if(route.view==='module'){main.className=surf();page.innerHTML=viewModuleStub(route.pid);}
+ else if(route.view==='project'){renderProject();}
+}
+
+/* ---- Portfolio (dark instrument dashboard) ---- */
+function viewPortfolio(){
+ const live=PROJECTS.filter(p=>p.status==='live');
+ const totalSum=PROJECTS.reduce((a,p)=>a+p.sum,0);
+ let openTasks=0;PROJECTS.forEach(p=>{const c=clDone(p);openTasks+=c.t-c.d;});
+ const onHold=PROJECTS.filter(p=>p.status==='hold').length;
+ return `
+ <div class="phead">
+  <div><div class="n">01 · OVERVIEW</div><h1>Portfolio</h1>
+   <div class="sub">Every live engagement, one instrument panel. Client-side project management &amp; superintendent — from raw land to handed-over keys.</div>
+   <div class="liv">${livery()}</div></div>
+  <div class="actions"><button class="btn btn-green" id="ppNew">${plus()} New Project</button></div>
+ </div>
+ <div class="kpis">
+  <div class="wcard"><div class="bz"></div><div class="k">Active projects</div><div class="v">${live.length}</div><div class="d">${PROJECTS.length} total · ${onHold} on hold</div></div>
+  <div class="wcard green"><div class="k">Contract value under management</div><div class="v">${money(totalSum)}</div><div class="d">ex GST · ${PROJECTS.filter(p=>p.sum>0).length} contracts awarded</div></div>
+  <div class="wcard"><div class="bz"></div><div class="k">Open setup tasks</div><div class="v">${openTasks}</div><div class="d">across all projects</div></div>
+  <div class="wcard"><div class="bz"></div><div class="k">Templates in library</div><div class="v">${TEMPLATES.length}</div><div class="d">auto-populated per project</div></div>
+ </div>
+ <div class="sec">${livery()}<h2>Projects</h2><div class="rt"><button class="btn sm" id="ppAll">View all</button></div></div>
+ <div class="projgrid">${PROJECTS.map(projCard).join('')}</div>`;
+}
+function projCard(p){
+ const c=clDone(p);
+ return `<div class="pcard" data-pid="${p.id}"><div class="bz"></div><div class="pc">
+  <div class="toprow"><div style="flex:1"><div class="pid">${p.id}</div><h3>${esc(p.name)}</h3><div class="addr">${esc(p.addr)} · ${esc(p.suburb)}</div></div>
+   <span class="pill ${p.status}"><i></i>${p.status==='live'?'Live':'On hold'}</span></div>
+  <div class="meta">
+   <div><div class="lb">Contract sum</div><div class="vl">${p.sum?money(p.sum):'—'}</div></div>
+   <div><div class="lb">Asset class</div><div class="vl"><span class="tagcls">${p.asset}</span></div></div>
+   <div><div class="lb">Builder</div><div class="vl" style="font-size:12.5px;font-weight:500">${esc(p.builder)}</div></div>
+  </div>
+  <div class="prog"><div class="ptrack"><div class="pfill" style="width:${c.pct}%"></div></div>
+   <div class="pmeta"><span>Setup ${c.d}/${c.t}</span><span>${c.pct}%</span></div></div>
+ </div></div>`;
+}
+function bindPortfolio(){
+ $('#ppNew').onclick=()=>go('newproject');$('#ppAll').onclick=()=>go('projects');
+ document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>go('project',c.dataset.pid));
+}
+
+/* ---- Projects list ---- */
+function viewProjectsList(){
+ return `<div class="phead"><div><div class="n">02 · ENGAGEMENTS</div><h1>Projects</h1>
+   <div class="sub">All engagements under management. Open one to run its setup checklist, template library and filing structure.</div><div class="liv">${livery()}</div></div>
+   <div class="actions"><button class="btn btn-green" id="plNew">${plus()} New Project</button></div></div>
+  <div class="projgrid">${PROJECTS.map(projCard).join('')}</div>`;
+}
+function bindProjectsList(){$('#plNew').onclick=()=>go('newproject');document.querySelectorAll('.pcard').forEach(c=>c.onclick=()=>go('project',c.dataset.pid));}
+
+/* ---- Module stubs ---- */
+function viewModuleStub(m){
+ const map={feasibility:['03 · CAPITAL','Feasibility','Model a site, raise the equity, build it, track it. Residual land value, development margin and equity waterfall — the numbers that decide whether a site becomes a project.'],
+  accounts:['04 · ADMIN','Accounts','Seven Xero orgs, one consolidated position. Cross-entity cash, tracking categories mapped to ATRIUM projects, actuals against feasibility budget — live.'],
+  meetings:['05 · CADENCE','Meetings','Kick-off, design and PCG cadence with agendas and minutes that write back to the project register. Same skeleton as the CRM.']};
+ const d=map[m]||map.feasibility;
+ return `<div class="phead"><div><div class="n">${d[0]}</div><h1>${d[1]}</h1><div class="liv">${livery()}</div></div></div>
+  <div class="stub"><div class="dev" style="width:60px;margin:0 auto 16px">${apexCompact('stub')}</div>
+   <div class="sh2">${d[1]} lives here</div><p>${d[2]}</p>
+   <p style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--sil-4)">This preview focuses on the Project Management module. ${d[1]} shares the same chassis.</p>${livery()}</div>`;
+}
+
+/* ---- PROJECT WORKSPACE ---- */
+function P(){return PROJECTS.find(p=>p.id===route.pid);}
+function renderProject(){
+ const p=P();if(!p){go('portfolio');return;}
+ const c=clDone(p);
+ $('#main').className='main light';
+ const tabs=['overview','actions','programme','financials','quality','checklist','templates','files'];
+ const tabLabel={overview:'Overview',actions:'Actions',programme:'Programme',financials:'Financials',quality:'Quality',checklist:'Setup',templates:'Templates',files:'Filing'};
+ let head=`<div class="pws">
+   <div class="bc" id="bcBack">← Projects</div>
+   <div class="wtop"><div><span class="wpid">${p.id}</span><h1>${esc(p.name)}</h1><div class="waddr">${esc(p.addr)} · ${esc(p.suburb)}</div></div>
+    <div class="wact"><span class="pill ${p.status}"><i></i>${p.status==='live'?'Live':'On hold'}</span>
+     <span class="tagcls" style="margin:0 4px">${p.asset}</span>
+     <button class="btn sm" id="wsPortal">Client portal</button>
+     <button class="btn sm" id="wsExport">Export PDF</button></div></div>
+   <div class="wtabs">${tabs.map(t=>`<button class="wtab ${route.tab===t?'on':''}" data-tab="${t}">${tabLabel[t]}</button>`).join('')}</div>
+  </div>`;
+ let content='';
+ if(route.tab==='overview')content=tabOverview(p,c);
+ else if(route.tab==='actions')content=tabActions(p);
+ else if(route.tab==='programme')content=tabProgramme(p);
+ else if(route.tab==='financials')content=tabFinancials(p);
+ else if(route.tab==='quality')content=tabQuality(p);
+ else if(route.tab==='checklist')content=tabChecklist(p);
+ else if(route.tab==='templates')content=tabTemplates(p);
+ else if(route.tab==='files')content=tabFiles(p);
+ // render into main directly (custom layout, no .page wrapper padding at top)
+ $('#main').innerHTML=head+`<div class="page">${content}</div>`;
+ // rebind rail/top since we replaced main? No—main only. topbar & rail are outside main. Good.
+ $('#bcBack').onclick=()=>go('projects');
+ $('#wsPortal').onclick=()=>go('portal',p.id);
+ $('#wsExport').onclick=()=>toast('Branded PDF queued — partnership lockup applied.');
+ $('#main').querySelectorAll('.wtab').forEach(b=>b.onclick=()=>go('project',p.id,b.dataset.tab));
+ if(route.tab==='checklist')bindChecklist(p);
+ if(route.tab==='templates')bindTemplates(p);
+ if(route.tab==='files')bindFiles();
+ if(route.tab==='overview')bindOverview(p);
+ if(route.tab==='programme')bindProgramme(p);
+ if(route.tab==='financials')bindFinancials(p);
+ if(route.tab==='quality')bindQuality(p);
+ if(route.tab==='actions')bindActions(p);
+}
+
+function tabOverview(p,c){
+ const dash=v=>v&&!/^\[/.test(v)?esc(v):'<span style="color:#c2c8c8">—</span>';
+ const cv=costVar(p);const next=p.prog.find(m=>m.state==='active'||m.state==='late');
+ return `
+ <div class="pillars">
+  ${pill4('setup','Setup',c.pct+'%',c.d+'/'+c.t+' tasks',c.pct)}
+  ${pill4('programme','Programme',msPct(p)+'%',schedInline(p.sched),msPct(p))}
+  ${pill4('financials','Spend',spendPct(p)+'%',cvInline(cv),spendPct(p))}
+  ${pill4('quality','Quality',(p.qual.compliance||0)+'%',p.qual.defOpen+' open defects',p.qual.compliance||0)}
+ </div>
+ <div style="display:grid;grid-template-columns:1.35fr .9fr;gap:16px;align-items:start">
+  <div class="panel">
+   <div class="ph"><h3>Project Info</h3><div class="rt"><span class="cnt">Locked at commencement</span><button class="btn sm" id="ovEdit">Edit</button></div></div>
+   <div class="infogrid">
+    <div class="infocell"><div class="lb">Project ID (YYSSS)</div><div class="vl mono">${p.id}</div></div>
+    <div class="infocell"><div class="lb">Form of contract</div><div class="vl">${dash(p.form)}</div></div>
+    <div class="infocell full"><div class="lb">Site description</div><div class="vl" style="font-weight:400;font-size:13px;line-height:1.55">${dash(p.site)}</div></div>
+    <div class="infocell"><div class="lb">Principal</div><div class="vl">${dash(p.principal)}</div></div>
+    <div class="infocell"><div class="lb">Principal representative</div><div class="vl">${dash(p.rep)}</div></div>
+    <div class="infocell"><div class="lb">Project Manager (Haavn)</div><div class="vl">${dash(p.pm)}</div></div>
+    <div class="infocell"><div class="lb">Architect</div><div class="vl">${dash(p.architect)}</div></div>
+    <div class="infocell"><div class="lb">Builder</div><div class="vl">${dash(p.builder)}</div></div>
+    <div class="infocell"><div class="lb">Financier</div><div class="vl">${dash(p.financier)}</div></div>
+    <div class="infocell"><div class="lb">Contract date</div><div class="vl mono">${dash(p.contractDate)}</div></div>
+    <div class="infocell"><div class="lb">Possession of site</div><div class="vl mono">${dash(p.possession)}</div></div>
+    <div class="infocell"><div class="lb">Date for Practical Completion</div><div class="vl mono">${dash(p.pc)}</div></div>
+    <div class="infocell" style="border-right:none"><div class="lb">Contract sum (ex GST)</div><div class="vl mono" style="color:var(--f-600)">${p.sum?moneyFull(p.sum):'—'}</div></div>
+   </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+   <div class="panel"><div class="ph"><h3>Delivery snapshot</h3><div class="rt"><span class="cnt">rolls up to Senior Mgmt</span></div></div>
+    <div class="snap">
+     <div class="snaprow"><span class="sk">Managed by</span><span class="sv" style="font-size:14px">${esc(p.pm)}</span></div>
+     <div class="snaprow"><span class="sk">Next milestone</span><span class="sv" style="font-size:13px">${next?esc(next.name):'—'}</span></div>
+     <div class="snaprow"><span class="sk">Schedule</span>${schedSnap(p.sched)}</div>
+     <div class="snaprow"><span class="sk">Cost variance</span>${cvSnap(cv)}</div>
+     <div class="snaprow"><span class="sk">Open defects / NCRs</span><span class="sv mono ${p.qual.defOpen>0?'neg':''}">${p.qual.defOpen} / ${p.qual.ncr}</span></div>
+     <div class="snaprow"><span class="sk">Awaiting the client</span><span class="sv mono ${awaitingClient(p).length?'neg':''}">${awaitingClient(p).length}</span></div>
+     <div class="snaprow"><span class="sk">Overdue actions</span><span class="sv mono ${overdueActions(p).length?'neg':''}">${overdueActions(p).length}</span></div>
+    </div></div>
+   <div class="panel"><div class="ph"><h3>Client interface</h3></div>
+    <div class="clientnote">The snapshot above is what the <b>principal</b> — ${dash(p.principal)} — sees in their portal, and what rolls up to <b>Senior Management</b> as ${esc(p.pm)}'s live scorecard for this project. Every update on Programme, Financials and Quality refreshes all three views at once.</div></div>
+  </div>
+ </div>`;
+}
+function ring(pct){const r=42,C=2*Math.PI*r,off=C*(1-pct/100);
+ return `<div class="ring"><svg width="96" height="96" viewBox="0 0 96 96">
+  <circle cx="48" cy="48" r="${r}" fill="none" stroke="#E7EAE9" stroke-width="8"/>
+  <circle cx="48" cy="48" r="${r}" fill="none" stroke="url(#rg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+  <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B5E3F"/><stop offset="1" stop-color="#6FBE96"/></linearGradient></defs></svg>
+  <div class="rt"><div class="rv">${pct}%</div><div class="rl">SETUP</div></div></div>`;
+}
+function bindOverview(p){
+ $('#main').querySelectorAll('[data-ptab]').forEach(el=>el.onclick=()=>go('project',p.id,el.dataset.ptab));
+ $('#ovEdit').onclick=()=>toast('Project Info is locked at commencement — change control applies.');
+}
+/* shared metric helpers */
+function varMoney(n){return (n<0?'−':'+')+money(Math.abs(Math.round(n)));}
+function schedInline(n){return n<0?`<span class="neg">${n}d behind</span>`:(n>0?`<span class="pos">+${n}d ahead</span>`:'on programme');}
+function cvInline(cv){return cv<0?`<span class="neg">${varMoney(cv)} over</span>`:`<span class="pos">${varMoney(cv)} under</span>`;}
+function schedSnap(n){return `<span class="sv mono ${n<0?'neg':(n>0?'pos':'')}">${n===0?'On time':(n>0?'+'+n:n)+' days'}</span>`;}
+function cvSnap(cv){return `<span class="sv mono ${cv<0?'neg':'pos'}">${varMoney(cv)}</span>`;}
+function schedBig(n){return n===0?'On time':(n>0?'+'+n+'d':n+'d');}
+function pill4(tab,label,value,desc,pct){return `<div class="pill4" data-ptab="${tab}"><div class="bz"></div><div class="k">${label}</div><div class="v">${value}</div><div class="d">${desc}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`;}
+function pill4mini(label,value,desc,pct,neg){return `<div class="pill4" style="cursor:default"><div class="bz"></div><div class="k">${label}</div><div class="v" style="${neg?'color:var(--red)':''}">${value}</div><div class="d">${desc}</div>${pct!=null?`<div class="bar"><i style="width:${pct}%"></i></div>`:''}</div>`;}
+function qKpi(label,value,desc,neg){return `<div class="pill4" style="cursor:default"><div class="bz"></div><div class="k">${label}</div><div class="v" style="${neg?'color:var(--red)':''}">${value}</div><div class="d">${desc}</div></div>`;}
+function cvKpi(cv){const neg=cv<0;return `<div class="pill4" style="cursor:default"><div class="bz"></div><div class="k">Cost variance</div><div class="v" style="color:${neg?'var(--red)':'var(--f-600)'}">${varMoney(cv)}</div><div class="d">${neg?'forecast over budget':'forecast under budget'}</div></div>`;}
+
+/* ---- Programme tab ---- */
+function tabProgramme(p){
+ const done=msDone(p),pct=msPct(p);
+ const rows=p.prog.map((m,i)=>`
+  <div class="tlrow ${m.state}"><div class="tmark"><div class="dot"></div><div class="line"></div></div>
+   <div class="tlbody" data-ms="${i}"><div class="tn">${esc(m.name)}</div>
+    <div class="tmeta"><span class="tstate ${m.state}">${m.state==='active'?'In progress':m.state}</span><span class="td">Target ${m.date}</span></div></div></div>`).join('');
+ return `<div class="sec">${livery()}<h2>Programme &amp; milestones</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">${done}/${p.prog.length} milestones · ${pct}%</span></div></div>
+  <div class="pillars" style="grid-template-columns:repeat(3,1fr)">
+   ${pill4mini('Milestones complete',done+' / '+p.prog.length,pct+'% of programme',pct)}
+   ${pill4mini('Schedule variance',schedBig(p.sched),p.sched<0?'behind programme':'on / ahead of programme',null,p.sched<0)}
+   ${pill4mini('Practical completion',p.pc||'TBC','contract date for PC',null)}
+  </div>
+  <div class="panel"><div class="ph"><h3>Milestone timeline</h3><div class="rt"><button class="btn btn-green sm" id="msNext">Complete next milestone</button></div></div>
+   <div class="tl">${rows}</div></div>
+  <p class="mono" style="font-size:10.5px;color:var(--mute);margin-top:12px;text-align:center">Completing a milestone updates the project dashboard, the client portal and ${esc(p.pm.split(' ')[0])}'s scorecard in Senior Management.</p>`;
+}
+function bindProgramme(p){
+ $('#msNext').onclick=()=>{const i=p.prog.findIndex(m=>m.state!=='done');if(i<0){toast('All milestones complete.');return;}p.prog=buildProgramme(p,i+1,null);if(p.sched<0)p.sched=Math.min(0,p.sched+2);toast('Milestone completed — dashboards updated.');renderProject();};
+ $('#main').querySelectorAll('[data-ms]').forEach(el=>el.onclick=()=>{const i=+el.dataset.ms;const m=p.prog[i];p.prog=buildProgramme(p,m.state==='done'?i:i+1,null);renderProject();});
+}
+
+/* ---- Financials tab ---- */
+function tabFinancials(p){
+ const rev=revised(p),sp=spendPct(p),cv=costVar(p);
+ const ctc=Math.max((p.fin.forecast||p.sum)-p.fin.certified,0);
+ const claims=p.fin.claims||[];
+ const claimRows=claims.length?claims.map(cl=>`<tr><td class="mono">${cl.n}</td><td>${cl.period}</td><td class="mono">${moneyFull(cl.claimed)}</td><td class="mono">${moneyFull(cl.certified)}</td><td><span class="st-tag ${cl.status==='Paid'?'st-drafted':(cl.status==='Under review'?'st-open':'st-ready')}">${cl.status}</span></td></tr>`).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px">No progress claims yet — cycle begins after contract award</td></tr>`;
+ const spendMax=Math.max(1,...(p.fin.spend.length?p.fin.spend:[0]));
+ const spendBars=p.fin.spend.length?p.fin.spend.map((v,i)=>`<div class="spendbar"><i style="height:${Math.round(v/spendMax*100)}%"></i><span class="bl">M${i+1}</span></div>`).join(''):'<div style="color:var(--faint);font-size:12px;padding:24px;margin:auto">No spend recorded yet</div>';
+ const certPct=rev?Math.round(p.fin.certified/rev*100):0;
+ const fPct=rev?Math.min(100,Math.round((p.fin.forecast||p.sum)/rev*100)):0;
+ return `<div class="sec">${livery()}<h2>Financials &amp; spend</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">${p.form||'—'}</span></div></div>
+  <div class="finkpis">
+   ${pill4mini('Revised contract',money(rev),'incl. '+money(p.fin.variations)+' variations',null)}
+   ${pill4mini('Certified to date',money(p.fin.certified),sp+'% of contract',sp)}
+   ${pill4mini('Cost to complete',money(ctc),'forecast remaining',null)}
+   ${cvKpi(cv)}
+  </div>
+  <div style="display:grid;grid-template-columns:1.3fr .9fr;gap:16px;align-items:start">
+   <div class="panel"><div class="ph"><h3>Progress claims &amp; cost tracker</h3><div class="rt"><button class="btn btn-green sm" id="finClaim">Certify next claim</button></div></div>
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Claim</th><th>Period</th><th>Claimed</th><th>Certified</th><th>Status</th></tr></thead><tbody>${claimRows}</tbody></table></div></div>
+   <div class="panel"><div class="ph"><h3>Budget vs certified</h3></div>
+    <div class="budgetbar"><div class="certf" style="width:${certPct}%">${certPct>8?certPct+'% certified':''}</div><div class="fmark" style="left:${fPct}%"></div></div>
+    <div style="padding:0 22px 14px;font-family:var(--mono);font-size:10px;color:var(--mute)">Marker = forecast final cost ${cv<0?'<span style="color:var(--red)">('+varMoney(cv)+' over)</span>':'<span style="color:var(--f-600)">('+varMoney(cv)+' under)</span>'}</div>
+    <div class="ph" style="border-top:1px solid var(--line-2)"><h3>Cumulative spend</h3></div>
+    <div class="spendchart">${spendBars}</div></div>
+  </div>`;
+}
+function bindFinancials(p){
+ $('#finClaim').onclick=()=>{const rev=revised(p);if(!rev){toast('Contract not yet awarded.');return;}const inc=Math.round(rev*0.04);p.fin.certified=Math.min(rev,p.fin.certified+inc);const no=p.fin.claims.length?(parseInt(p.fin.claims[0].n.split('-')[1])+1):1;p.fin.claims.unshift({n:'PC-'+String(no).padStart(2,'0'),period:'Current',claimed:inc,certified:inc,status:'Certified'});p.fin.spend.push(Math.min(100,(p.fin.spend.slice(-1)[0]||0)+6));toast('Claim certified — cost tracker updated.');renderProject();};
+}
+
+/* ---- Quality tab ---- */
+function tabQuality(p){
+ const q=p.qual;const inspPct=q.inspTotal?Math.round(q.inspDone/q.inspTotal*100):0;
+ return `<div class="sec">${livery()}<h2>Quality control</h2></div>
+  <div class="qkpis">
+   ${pill4mini('Compliance',(q.compliance||0)+'%','statements of compliance',q.compliance||0)}
+   ${pill4mini('Inspections',q.inspDone+' / '+q.inspTotal,inspPct+'% complete',inspPct)}
+   ${qKpi('Open defects',q.defOpen,q.defClosed+' closed to date',q.defOpen>0)}
+   ${qKpi('NCRs / holds',q.ncr+' / '+q.holds,'non-conformance',q.ncr>0)}
+  </div>
+  <div style="display:grid;grid-template-columns:1.3fr .9fr;gap:16px;align-items:start">
+   <div class="panel"><div class="ph"><h3>Defect &amp; inspection register</h3><div class="rt"><button class="btn btn-green sm" id="qClose">Close a defect</button></div></div>
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th style="width:34px">#</th><th>Item</th><th>Location</th><th>Type</th><th>Status</th></tr></thead><tbody>${qualRows(p)}</tbody></table></div></div>
+   <div class="panel"><div class="ph"><h3>Compliance</h3></div>
+    <div class="qring">${ring(q.compliance||0)}<div class="ringinfo"><div class="rh">${q.defOpen} open item${q.defOpen===1?'':'s'}</div><p>Weekly superintendent inspections feed defects, NCRs and hold points. Compliance and open items roll up to the PM scorecard.</p></div></div></div>
+  </div>`;
+}
+function qualRows(p){
+ const q=p.qual;if(q.inspTotal===0)return '<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:22px">Inspections begin at site establishment</td></tr>';
+ const items=['Waterproofing — wet areas','Slab set-out tolerance','Fire-rating penetrations','Balustrade fixing','Window head flashing','Render finish','Drainage falls','Electrical rough-in'];
+ const locs=['Level 1','Basement','Level 3','Core B','Unit 12','Podium','Level 5','Roof'];
+ let rows=[];
+ for(let i=0;i<q.defOpen;i++)rows.push([items[i%items.length],locs[i%locs.length],i<q.ncr?'NCR':'Defect','Open']);
+ for(let i=0;i<Math.min(4,q.defClosed);i++)rows.push([items[(i+3)%items.length],locs[(i+2)%locs.length],'Defect','Closed']);
+ return rows.map((r,i)=>`<tr><td class="mono" style="color:var(--faint)">${String(i+1).padStart(2,'0')}</td><td class="tname">${r[0]}</td><td>${r[1]}</td><td><span class="fmt" style="${r[2]==='NCR'?'color:var(--red);border-color:rgba(180,85,63,.3)':''}">${r[2]}</span></td><td><span class="st-tag ${r[3]==='Open'?'st-open':'st-drafted'}">${r[3]}</span></td></tr>`).join('');
+}
+function bindQuality(p){
+ $('#qClose').onclick=()=>{if(p.qual.defOpen>0){p.qual.defOpen--;p.qual.defClosed++;p.qual.compliance=Math.min(100,(p.qual.compliance||0)+1);toast('Defect closed — compliance updated.');renderProject();}else toast('No open defects to close.');};
+}
+
+/* ---- Actions & follow-ups tab ---- */
+let actionsFilter='all';
+function tabActions(p){
+ const open=openActions(p),aw=awaitingClient(p),od=overdueActions(p),bl=blockingActions(p);
+ let list=open.slice();
+ if(actionsFilter==='client')list=aw.slice();else if(actionsFilter==='overdue')list=od.slice();else if(actionsFilter==='blocking')list=bl.slice();
+ list.sort((a,b)=>daysToDue(a.due)-daysToDue(b.due));
+ const rows=list.length?list.map(a=>`<tr>
+   <td class="mono" style="color:var(--faint)">${a.ref}</td>
+   <td><div class="tname">${esc(a.title)}</div><div class="mono" style="font-size:10px;color:var(--faint);margin-top:3px">${a.type}${a.blocks?' · <span style="color:var(--red)">blocks programme</span>':''}</div></td>
+   <td><span class="wtag ${a.with==='Client'?'cl':''}">${a.with}</span></td>
+   <td>${dueChip(a.due,true)}</td>
+   <td class="fn">${a.last?fmtDay(a.last):'not chased'}</td>
+   <td><button class="btn btn-green sm chase" data-pid="${p.id}" data-ref="${a.ref}">Chase</button></td></tr>`).join(''):`<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:22px">Nothing in this view</td></tr>`;
+ const logs=[];(p.actions||[]).forEach(a=>a.log.forEach(l=>logs.push({d:l.d,ref:a.ref,who:a.with,n:l.n})));
+ logs.sort((x,y)=>dparse(y.d)-dparse(x.d));
+ const logRows=logs.length?logs.map(l=>`<div class="logrow"><div class="logd">${fmtDay(l.d)}</div><div class="logbody"><div class="logn">${esc(l.n)}</div><div class="logmeta">${l.ref} · with ${l.who}</div></div></div>`).join(''):'<div style="padding:18px 20px;color:var(--faint);font-size:12.5px">No follow-ups logged yet</div>';
+ return `<div class="sec">${livery()}<h2>Actions &amp; follow-ups</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">chase = log a follow-up</span></div></div>
+  <div class="finkpis">
+   ${pill4mini('Open actions',open.length,'in the register',null)}
+   ${qKpi('Awaiting the client',aw.length,'approvals &amp; decisions',aw.length>0)}
+   ${qKpi('Overdue',od.length,'past due date',od.length>0)}
+   ${qKpi('Blocking programme',bl.length,'on the critical path',bl.length>0)}
+  </div>
+  <div style="display:grid;grid-template-columns:1.4fr .85fr;gap:16px;align-items:start">
+   <div class="panel"><div class="ph"><h3>Action &amp; follow-up register</h3><div class="rt afilter">
+     <button class="mchip lt ${actionsFilter==='all'?'on':''}" data-af="all">All</button>
+     <button class="mchip lt ${actionsFilter==='client'?'on':''}" data-af="client">Client</button>
+     <button class="mchip lt ${actionsFilter==='overdue'?'on':''}" data-af="overdue">Overdue</button>
+     <button class="mchip lt ${actionsFilter==='blocking'?'on':''}" data-af="blocking">Blocking</button></div></div>
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Ref</th><th>Item</th><th>With</th><th>Due</th><th>Last chased</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>
+   <div class="panel"><div class="ph"><h3>Client follow-up log</h3><div class="rt"><span class="cnt">${logs.length} entries</span></div></div><div class="loglist">${logRows}</div></div>
+  </div>
+  <p class="mono" style="font-size:10.5px;color:var(--mute);margin-top:12px;text-align:center">Every chase is timestamped and rolls into Today and the client interface.</p>`;
+}
+function bindActions(p){
+ $('#main').querySelectorAll('[data-af]').forEach(b=>b.onclick=()=>{actionsFilter=b.dataset.af;renderProject();});
+ bindChase();
+}
+
+/* ---- Today (PM daily cockpit) ---- */
+function todoRow(p,a){const wait=a.raised?daysBetween(APP_TODAY,a.raised):0;
+ return `<div class="arow" data-pid="${p.id}"><div class="aref">${a.ref}<span class="atype">${a.type}</span></div>
+  <div class="atitle"><div class="at">${esc(a.title)}</div><div class="ap">${esc(p.name)} · with ${a.with}${a.blocks?' · <span style="color:var(--red-txt)">blocks</span>':''}</div></div>
+  <div class="await mono">${wait}d</div><div>${dueChip(a.due)}</div>
+  <div class="alast mono">${a.last?fmtDay(a.last):'—'}</div>
+  <div style="text-align:right"><button class="btn btn-green sm chase" data-pid="${p.id}" data-ref="${a.ref}">Chase</button></div></div>`;
+}
+function cadCard(p,c){const today=daysToDue(c.date)===0;
+ return `<div class="cadcard ${today?'now':''}" data-pid="${p.id}"><div class="cadtop"><span class="cadfreq">${c.freq}</span>${today?'<span class="cadnow">Today</span>':`<span class="cadwhen">${fmtDay(c.date)}</span>`}</div>
+  <div class="cadlabel">${esc(c.label)}</div><div class="cadproj">${esc(p.name)}</div></div>`;
+}
+function emptyRow(msg){return `<div class="aempty">${msg}</div>`;}
+function viewToday(){
+ const me=PMS[CURRENT_PM];const mine=pmProjects(CURRENT_PM).filter(p=>p.status==='live');
+ let allAw=[],allDue=[],cad=[];
+ mine.forEach(p=>{awaitingClient(p).forEach(a=>allAw.push({p,a}));openActions(p).forEach(a=>{if(daysToDue(a.due)<=0||(a.next&&daysToDue(a.next)<=0))allDue.push({p,a});});(p.cadence||[]).forEach(c=>cad.push({p,c}));});
+ allAw.sort((x,y)=>daysToDue(x.a.due)-daysToDue(y.a.due));
+ allDue.sort((x,y)=>daysToDue(x.a.due)-daysToDue(y.a.due));
+ const followDue=mine.reduce((n,p)=>n+dueFollowUps(p).length,0);
+ const overdue=mine.reduce((n,p)=>n+overdueActions(p).length,0);
+ const todayCad=cad.filter(x=>daysToDue(x.c.date)===0);
+ const weekCad=cad.filter(x=>{const d=daysToDue(x.c.date);return d>=0&&d<=7;}).sort((a,b)=>daysToDue(a.c.date)-daysToDue(b.c.date));
+ return `<div class="phead"><div><div class="n">PM · DAILY</div><h1>Today</h1>
+   <div class="sub">${fmtFull(APP_TODAY)} · ${esc(me.name)} — ${mine.length} live projects. Chase what's sitting with the developer and keep the works moving.</div><div class="liv">${livery()}</div></div></div>
+  <div class="kpis">
+   <div class="wcard"><div class="bz"></div><div class="k">Follow-ups due</div><div class="v">${followDue}</div><div class="d">scheduled for today</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Overdue actions</div><div class="v" style="${overdue>0?'color:var(--red)':''}">${overdue}</div><div class="d">past due date</div></div>
+   <div class="wcard green"><div class="k">Awaiting the client</div><div class="v">${allAw.length}</div><div class="d">approvals &amp; decisions</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Site &amp; client today</div><div class="v">${todayCad.length}</div><div class="d">inspections &amp; calls</div></div>
+  </div>
+  <div class="sec">${livery()}<h2>Chase the developer client</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">${allAw.length} with the client</span></div></div>
+  <div class="mlistwrap"><div class="mlist" style="min-width:780px">
+   <div class="alh"><span>Ref</span><span>Item</span><span>Waiting</span><span>Due</span><span>Last chased</span><span></span></div>
+   ${allAw.length?allAw.map(x=>todoRow(x.p,x.a)).join(''):emptyRow('Nothing sitting with the client — all clear.')}</div></div>
+  <div class="sec">${livery()}<h2>Overdue &amp; due today</h2></div>
+  <div class="mlistwrap"><div class="mlist" style="min-width:780px">
+   <div class="alh"><span>Ref</span><span>Item</span><span>Waiting</span><span>Due</span><span>Last chased</span><span></span></div>
+   ${allDue.length?allDue.map(x=>todoRow(x.p,x.a)).join(''):emptyRow('Nothing overdue — the queue is clear.')}</div></div>
+  <div class="sec">${livery()}<h2>This week — site &amp; client cadence</h2></div>
+  <div class="cadgrid">${weekCad.length?weekCad.map(x=>cadCard(x.p,x.c)).join(''):emptyRow('No touchpoints scheduled this week.')}</div>`;
+}
+function bindToday(){
+ $('#main').querySelectorAll('.arow').forEach(el=>el.onclick=()=>go('project',el.dataset.pid,'actions'));
+ $('#main').querySelectorAll('.cadcard').forEach(el=>el.onclick=()=>go('project',el.dataset.pid,'actions'));
+ bindChase();
+}
+
+/* ---- Client portal (developer view) ---- */
+function shortClient(n){return n.replace(/\s+Pty Ltd$/i,'');}
+function clientList(){const map={};PROJECTS.forEach(p=>{if(!map[p.principal])map[p.principal]={principal:p.principal,rep:p.rep,pid:p.id,internal:/7EVEN/i.test(p.principal)};});return Object.values(map);}
+function defaultPortalPid(){const c=clientList().find(x=>!x.internal);return c?c.pid:PROJECTS[0].id;}
+function viewPortal(pid){
+ const src=PROJECTS.find(p=>p.id===pid)||PROJECTS[0];
+ const principal=src.principal,rep=src.rep;
+ const projs=PROJECTS.filter(p=>p.principal===principal);
+ let owed=[];projs.forEach(p=>awaitingClient(p).forEach(a=>owed.push({p,a})));
+ owed.sort((x,y)=>daysToDue(x.a.due)-daysToDue(y.a.due));
+ const approvals=owed.filter(x=>x.a.type==='Approval'||x.a.type==='Decision').length;
+ const pays=owed.filter(x=>x.a.type==='Payment').length;
+ let feed=[];projs.forEach(p=>p.actions.forEach(a=>a.log.forEach(l=>feed.push({d:l.d,name:p.name,ref:a.ref,n:l.n}))));
+ feed.sort((x,y)=>dparse(y.d)-dparse(x.d));feed=feed.slice(0,6);
+ const pmName=[...new Set(projs.map(p=>p.pm))].join(', ');
+ const clients=clientList();const internal=/7EVEN/i.test(principal);
+ const chips=clients.map(c=>`<button class="clchip ${c.principal===principal?'on':''}" data-pid="${c.pid}">${esc(shortClient(c.principal))}${c.internal?'<span class="clint">test</span>':''}</button>`).join('');
+ return `<div class="portalband"><span class="pbtag">Client portal · preview</span><span class="pbtx">Read-only developer view for <b class="pbname">${esc(rep)}</b> — this is what the client sees and actions.</span><span class="pbrt"><button class="btn sm" id="ptReturn">Return to ATRIUM</button></span></div>
+  <div class="clientswitch"><span class="cslabel">Preview client</span>${chips}</div>
+  <div class="phead"><div><div class="n">DEVELOPER PORTAL</div><h1>${esc(principal)}${internal?'<span class="clbadge">Internal · test case</span>':''}</h1>
+   <div class="sub">${internal?'Internal 7EVEN Capital development — shown here as the preview / test case. ':'External developer client. Client-side project management &amp; superintendent delivered by HAAVN. '}Managed by ${esc(pmName)}.</div><div class="liv">${livery()}</div></div></div>
+  <div class="kpis">
+   <div class="wcard green"><div class="k">Awaiting your action</div><div class="v">${owed.length}</div><div class="d">items need you</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Approvals &amp; decisions</div><div class="v">${approvals}</div><div class="d">to sign off</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Payments to release</div><div class="v">${pays}</div><div class="d">certified claims</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Active developments</div><div class="v">${projs.filter(p=>p.status==='live').length}</div><div class="d">under management</div></div>
+  </div>
+  <div class="sec">${livery()}<h2>Awaiting your action</h2></div>
+  <div class="mlistwrap"><div class="mlist" style="min-width:680px">
+   ${owed.length?owed.map(x=>portalRow(x.p,x.a)).join(''):emptyRow("Nothing needs your action — you're all clear.")}</div></div>
+  <div class="sec">${livery()}<h2>Your developments</h2></div>
+  <div class="projgrid">${projs.map(clientProjCard).join('')}</div>
+  <div class="sec">${livery()}<h2>Recent updates from your project team</h2></div>
+  <div class="panel dpanel">
+   <div class="loglist">${feed.length?feed.map(l=>`<div class="logrow dlog"><div class="logd">${fmtDay(l.d)}</div><div class="logbody"><div class="logn">${esc(l.n)}</div><div class="logmeta">${l.ref} · ${esc(l.name)}</div></div></div>`).join(''):'<div style="padding:18px 20px;color:var(--sil-4);font-size:12.5px">No updates yet</div>'}</div></div>`;
+}
+function portalRow(p,a){return `<div class="prow"><div class="pref">${a.ref}<span class="atype">${a.type}</span></div>
+  <div><div class="at">${esc(a.title)}</div><div class="ap">${esc(p.name)}${a.blocks?' · <span style="color:var(--red-txt)">holding up works</span>':''}</div></div>
+  <div>${dueChip(a.due)}</div>
+  <div style="text-align:right"><button class="btn btn-green sm caction" data-pid="${p.id}" data-ref="${a.ref}">${portalBtnLabel(a.type)}</button></div></div>`;
+}
+function clientProjCard(p){const next=p.prog.find(m=>m.state==='active'||m.state==='late');
+ return `<div class="pcard" style="cursor:default"><div class="bz"></div><div class="pc">
+  <div class="toprow"><div style="flex:1"><div class="pid">${p.id}</div><h3>${esc(p.name)}</h3><div class="addr">${esc(p.addr)} · ${esc(p.suburb)}</div></div><span class="pill ${p.status}"><i></i>${p.status==='live'?'Live':'On hold'}</span></div>
+  <div class="meta"><div><div class="lb">Programme</div><div class="vl">${msPct(p)}%</div></div><div><div class="lb">Next milestone</div><div class="vl" style="font-size:12.5px">${next?esc(next.name):'—'}</div></div><div><div class="lb">Completion</div><div class="vl" style="font-size:13px">${p.pc||'TBC'}</div></div></div>
+  <div class="prog"><div class="ptrack"><div class="pfill" style="width:${msPct(p)}%"></div></div><div class="pmeta"><span>Programme</span><span>${msPct(p)}%</span></div></div>
+ </div></div>`;
+}
+function bindPortal(){
+ $('#ptReturn').onclick=()=>go('project',route.pid,'actions');
+ $('#main').querySelectorAll('.clchip').forEach(b=>b.onclick=()=>go('portal',b.dataset.pid));
+ $('#main').querySelectorAll('.caction').forEach(b=>b.onclick=()=>clientAction(b.dataset.pid,b.dataset.ref));
+}
+
+/* ---- Senior Management dashboard ---- */
+function viewManagement(){
+ const keys=['james','luke','john'];
+ const totalVal=PROJECTS.reduce((a,p)=>a+p.sum,0);
+ const live=PROJECTS.filter(p=>p.status==='live');
+ const avgSetup=Math.round(PROJECTS.reduce((a,p)=>a+clDone(p).pct,0)/PROJECTS.length);
+ const behind=live.filter(p=>p.sched<0).length;
+ const exposure=live.reduce((a,p)=>a+Math.min(p.sched,0),0);
+ const M=keys.map(k=>Object.assign({k,init:PMS[k].init,name:PMS[k].name,role:PMS[k].role},pmMetrics(k)));
+ let html=`<div class="phead"><div><div class="n">00 · OVERSIGHT</div><h1>Senior Management</h1>
+   <div class="sub">Business-wide performance across every engagement and project manager — a live snapshot of how James, Luke and John are running their books.</div><div class="liv">${livery()}</div></div>
+   <div class="actions"><span class="mperiod">FY26 · Q3</span></div></div>
+  <div class="kpis">
+   <div class="wcard green"><div class="k">Contract value under management</div><div class="v">${money(totalVal)}</div><div class="d">${PROJECTS.length} projects · ${live.length} live</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Portfolio setup avg</div><div class="v">${avgSetup}%</div><div class="d">across all engagements</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Projects behind programme</div><div class="v" style="${behind>0?'color:var(--red)':''}">${behind}</div><div class="d">of ${live.length} live projects</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">Schedule exposure</div><div class="v" style="${exposure<0?'color:var(--red)':''}">${exposure<0?exposure+'d':'On track'}</div><div class="d">total days behind programme</div></div>
+  </div>
+  <div class="sec">${livery()}<h2>Project manager performance</h2></div>
+  <div class="pmgrid">${M.map(pmCard).join('')}</div>
+  ${(()=>{const watch=watchAll();return watch.length?`<div class="sec">${livery()}<h2>Follow-up watch</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--red-txt)">${watch.length} client items aging — nudge the PM</span></div></div>
+  <div class="mlistwrap"><div class="mlist" style="min-width:820px">
+   <div class="alh"><span>Ref</span><span>Item</span><span>Manager</span><span>Due</span><span>Last chased</span><span></span></div>
+   ${watch.map(watchRow).join('')}</div></div>`:'';})()}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px">
+   ${cmpPanel('Delivery index',M.slice().sort((a,b)=>b.idx-a.idx).map(m=>[m,m.idx,m.idx]))}
+   ${cmpPanel('Avg setup completion',M.slice().sort((a,b)=>b.avgSetup-a.avgSetup).map(m=>[m,m.avgSetup,m.avgSetup]))}
+  </div>
+  <div class="sec">${livery()}<h2>All projects</h2><div class="rt mfilter">
+    <button class="mchip ${mgmtFilter==='all'?'on':''}" data-f="all">All</button>
+    ${keys.map(k=>`<button class="mchip ${mgmtFilter===k?'on':''}" data-f="${k}">${PMS[k].name.split(' ')[0]}</button>`).join('')}
+   </div></div>
+  <div class="mlistwrap"><div class="mlist">
+   <div class="mlh"><span>Project</span><span>Manager</span><span>Status</span><span>Contract</span><span>Setup</span><span>Spend</span><span>Schedule</span></div>
+   ${PROJECTS.filter(p=>mgmtFilter==='all'||p.pmKey===mgmtFilter).slice().sort((a,b)=>a.sched-b.sched).map(mRow).join('')}
+  </div></div>`;
+ return html;
+}
+function pmCard(m){
+ const tr=PMS[m.k].trend;const cvNeg=m.costVarTotal<0;
+ return `<div class="pmcard"><div class="bz"></div><div class="pmc">
+  <div class="pmhead"><div class="pmav">${m.init}</div><div style="flex:1"><div class="nm">${m.name}</div><div class="ro">${m.role}</div></div>
+   <div class="pmidx"><div class="iv">${m.idx}</div><div class="il">Delivery index</div><div class="tr ${tr>=0?'up':'down'}">${tr>=0?'▲ +'+tr:'▼ '+tr}</div></div></div>
+  <div class="pmstats">
+   <div class="pmstat"><div class="sl">Projects</div><div class="sv">${m.ps.length}<span style="font-size:11px;color:var(--sil-4);font-weight:400"> · ${m.hold} hold</span></div></div>
+   <div class="pmstat"><div class="sl">Book value</div><div class="sv">${money(m.value)}</div></div>
+   <div class="pmstat"><div class="sl">On programme</div><div class="sv ${m.onProg>=m.live?'pos':''}">${m.onProg}/${m.live}</div></div>
+   <div class="pmstat"><div class="sl">Avg setup</div><div class="sv">${m.avgSetup}%</div></div>
+   <div class="pmstat"><div class="sl">Cost variance</div><div class="sv ${cvNeg?'neg':'pos'}">${varMoney(m.costVarTotal)}</div></div>
+   <div class="pmstat"><div class="sl">Open defects</div><div class="sv ${m.defOpen>0?'neg':''}">${m.defOpen}</div></div>
+  </div>
+  <div class="pmprojs">${m.ps.map(p=>{const pc=clDone(p);return `<div class="pmproj" data-pid="${p.id}"><span class="pn">${esc(p.name)}</span><span class="pb"><i style="width:${pc.pct}%"></i></span><span class="ps" style="color:${p.status==='hold'?'var(--amber)':(p.sched<0?'var(--red-txt)':'var(--sil-4)')}">${p.status==='hold'?'hold':(p.sched<0?p.sched+'d':(p.sched>0?'+'+p.sched+'d':'0d'))}</span></div>`;}).join('')}</div>
+  <div class="pmwatch"><span class="wl">Follow-up watch</span><span class="wv">Awaiting <b>${m.cAwait}</b> · Overdue <b class="${m.odAll?'r':''}">${m.odAll}</b> · Aging <b class="${m.cWatch?'r':''}">${m.cWatch}</b></span></div>
+ </div></div>`;
+}
+function cmpPanel(title,rows){
+ return `<div class="panel dpanel">
+  <div class="ph"><h3>${title}</h3></div>
+  <div class="cmp">${rows.map(r=>`<div class="cmprow"><div class="cn"><span class="mav">${r[0].init}</span>${r[0].name.split(' ')[0]}</div><div class="ct"><div class="cf" style="width:${r[1]}%"></div></div><div class="cvv">${r[2]}</div></div>`).join('')}</div></div>`;
+}
+function mRow(p){const c=clDone(p);const sp=spendPct(p);const s=p.sched;
+ const scls=s<0?'neg':(s>0?'pos':'zero');const stxt=p.status==='hold'?'—':(s===0?'On time':(s>0?'+'+s+'d':s+'d'));
+ return `<div class="mrow" data-pid="${p.id}">
+  <div><div class="mp">${esc(p.name)}</div><div class="mpid">${p.id} · ${esc(p.suburb)}</div></div>
+  <div class="mpm"><span class="mav">${PMS[p.pmKey].init}</span><span class="mnm">${p.pm.split(' ')[0]}</span></div>
+  <div><span class="pill ${p.status}"><i></i>${p.status==='live'?'Live':'Hold'}</span></div>
+  <div class="mval">${p.sum?money(p.sum):'—'}</div>
+  <div class="mmini"><span class="mt"><span class="mf" style="width:${c.pct}%"></span></span><span class="mpct">${c.pct}%</span></div>
+  <div class="mmini"><span class="mt"><span class="mf" style="width:${sp}%"></span></span><span class="mpct">${sp}%</span></div>
+  <div class="msched ${scls}">${stxt}</div>
+ </div>`;
+}
+function watchRow(x){const p=x.p,a=x.a;
+ return `<div class="arow" data-pid="${p.id}"><div class="aref">${a.ref}<span class="atype">${a.type}</span></div>
+  <div class="atitle"><div class="at">${esc(a.title)}</div><div class="ap">${esc(p.name)}${a.blocks?' · <span style="color:var(--red-txt)">blocks</span>':''}</div></div>
+  <div class="mpm"><span class="mav">${PMS[p.pmKey].init}</span><span class="mnm">${p.pm.split(' ')[0]}</span></div>
+  <div>${dueChip(a.due)}</div>
+  <div class="alast mono">${a.last?('chased '+fmtDay(a.last)):'not chased'}</div>
+  <div style="text-align:right"><button class="btn sm nudge" data-pm="${p.pmKey}" data-ref="${a.ref}">Nudge</button></div></div>`;
+}
+function bindManagement(){
+ $('#main').querySelectorAll('.mchip').forEach(b=>b.onclick=()=>{mgmtFilter=b.dataset.f;render();});
+ $('#main').querySelectorAll('.pmproj').forEach(el=>el.onclick=()=>go('project',el.dataset.pid));
+ $('#main').querySelectorAll('.mrow').forEach(el=>el.onclick=()=>go('project',el.dataset.pid));
+ $('#main').querySelectorAll('.arow').forEach(el=>el.onclick=()=>go('project',el.dataset.pid,'actions'));
+ $('#main').querySelectorAll('.nudge').forEach(b=>b.onclick=e=>{e.stopPropagation();toast('Nudge sent to '+PMS[b.dataset.pm].name+' — '+b.dataset.ref+' flagged for follow-up.');});
+}
+
+function tabChecklist(p){
+ const c=clDone(p);
+ let rows=CHECKLIST.map((grp,gi)=>{
+  const gid='g'+gi;const isOpen=openGroups[p.id+gid]!==false;
+  let gd=0;grp.items.forEach(it=>{if(p.checklist[it[0]])gd++;});
+  const gpct=Math.round(gd/grp.items.length*100);
+  const items=grp.items.map(it=>{
+   const done=p.checklist[it[0]];
+   return `<div class="cli ${done?'done':''}" data-id="${it[0]}">
+    <div class="cb" data-toggle="${it[0]}">${SVG.check}</div>
+    <span class="num">${String(it[0]).padStart(2,'0')}</span>
+    <span class="tk">${esc(it[1])}</span>
+    <span class="own">PM</span>
+    <span class="st"><span class="tinypill ${done?'done':'open'}">${done?'Done':'Open'}</span></span></div>`;
+  }).join('');
+  return `<div class="clgroup ${isOpen?'open':''}" data-gid="${gid}">
+   <div class="clghead" data-g="${gid}"><span class="gl">${esc(grp.g)}</span>
+    <div class="gbar"><div class="gbf" style="width:${gpct}%"></div></div>
+    <span class="gc">${gd}/${grp.items.length}</span></div>
+   <div class="clitems" style="${isOpen?'':'display:none'}">${items}</div></div>`;
+ }).join('');
+ return `<div class="sec">${livery()}<h2>Setup checklist</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">${c.d}/${c.t} complete · ${c.pct}%</span></div></div>
+  <div class="panel"><div class="ph"><h3>General stages · A–I</h3><div class="rt"><button class="btn sm" id="clAll">Mark section complete</button></div></div>
+   <div>${rows}</div></div>
+  <p class="mono" style="font-size:10.5px;color:var(--mute);margin-top:14px;text-align:center">Ticking a task writes back to the project register and updates portfolio progress in real time.</p>`;
+}
+function bindChecklist(p){
+ $('#main').querySelectorAll('[data-toggle]').forEach(cb=>cb.onclick=()=>{
+  const id=+cb.dataset.toggle;p.checklist[id]=!p.checklist[id];renderProject();
+ });
+ $('#main').querySelectorAll('.clghead').forEach(h=>h.onclick=(e)=>{
+  if(e.target.closest('[data-toggle]'))return;
+  const gid=h.dataset.g;openGroups[p.id+gid]=openGroups[p.id+gid]===false?true:false;renderProject();
+ });
+ $('#clAll').onclick=()=>{
+  // find first incomplete group and complete it
+  for(let gi=0;gi<CHECKLIST.length;gi++){const grp=CHECKLIST[gi];const inc=grp.items.some(it=>!p.checklist[it[0]]);
+   if(inc){grp.items.forEach(it=>p.checklist[it[0]]=true);toast(grp.g+' — marked complete.');renderProject();return;}}
+  toast('All sections already complete.');
+ };
+}
+
+function tabTemplates(p){
+ const gen=p.templatesGen;
+ const rows=TEMPLATES.map(t=>{
+  const st=t[5];const fn=t[6];
+  const filename=fn?`${p.datePrefix}-Haavn.${fn}`:'—';
+  let stTag,stCls;
+  if(st==='Example Required'){stTag='Example Req.';stCls='st-req';}
+  else if(gen){stTag='Populated';stCls='st-ready';}
+  else{stTag='Drafted';stCls='st-drafted';}
+  return `<tr><td class="mono" style="color:var(--faint)">${String(t[0]).padStart(2,'0')}</td>
+   <td><div class="tname">${esc(t[2])}</div><div class="mono" style="font-size:10px;color:var(--faint);margin-top:3px">${esc(t[1])}</div></td>
+   <td><span class="fmt">${t[3]}</span></td>
+   <td class="dest">${esc(t[4])}</td>
+   <td class="fn">${gen&&fn?esc(filename):(fn?'<span style="color:#bcc2c2">'+esc(fn)+'</span>':'—')}</td>
+   <td><span class="st-tag ${stCls}">${stTag}</span></td></tr>`;
+ }).join('');
+ return `<div class="sec">${livery()}<h2>Template library</h2></div>
+  <div class="panel">
+   <div class="ph"><h3>Templates for ${esc(p.name)}</h3>
+    <div class="rt"><span class="cnt">${TEMPLATES.length} templates</span>
+     <button class="btn btn-green sm" id="tGen">${gen?'Re-run population':'Populate from Project Info'}</button></div></div>
+   <div style="overflow-x:auto"><table class="tbl">
+    <thead><tr><th style="width:34px">#</th><th>Template</th><th>Format</th><th>Folder destination</th><th>Generated file</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+  </div>
+  <div class="panel" style="margin-top:14px"><div style="padding:16px 20px;display:flex;gap:14px;align-items:center">
+   <div style="width:34px;height:34px;border-radius:9px;background:var(--f-50);display:grid;place-items:center;flex:0 0 auto">${SVG.doc.replace('class="di"','style="width:16px;color:var(--f-500)"')}</div>
+   <div style="font-size:12.5px;color:var(--mute);line-height:1.55">The <b style="color:var(--ink)">Project Info</b> tab is the single source of truth. Populating stamps every template with the project ID <span class="mono" style="color:var(--f-600)">${p.id}</span>, date prefix <span class="mono" style="color:var(--f-600)">${p.datePrefix}</span>, parties and addresses — then files each into its destination folder.</div>
+  </div></div>`;
+}
+function bindTemplates(p){
+ $('#tGen').onclick=()=>{
+  p.templatesGen=true;toast('Templates populated from Project Info and filed.');renderProject();
+ };
+}
+
+function tabFiles(p){
+ const gen=p.templatesGen;
+ // map templates to folders for doc display
+ function docsFor(folderName,subName){
+  return TEMPLATES.filter(t=>{
+   const dest=t[4];
+   if(subName){return dest.includes(folderName.replace(/^\d+\.\s/,''))&&dest.includes(subName);}
+   // top-level: dest starts with folderName and has no ' / ' OR matches folder w/o sub
+   const base=folderName;
+   if(dest===base)return true;
+   if(dest.startsWith(base)&&!dest.includes('/'))return true;
+   return false;
+  });
+ }
+ const tree=FOLDERS.map((f,i)=>{
+  const topDocs=docsFor(f.n,null);
+  const subs=f.sub.map(s=>{
+   const sd=TEMPLATES.filter(t=>t[4].includes(f.n.replace(/^\d+\.\s/,''))&&t[4].includes(s));
+   return {name:s,docs:sd};
+  });
+  const totalDocs=topDocs.length+subs.reduce((a,s)=>a+s.docs.length,0);
+  const auto=(i===0);// open first
+  let inner='';
+  subs.forEach(s=>{
+   inner+=`<div class="folder subfolder"><div class="frow" data-sub="1"><span style="width:26px"></span>${SVG.folder}<span class="fname" style="font-size:12.5px">${esc(s.name)}</span><span class="fmeta">${s.docs.length?s.docs.length+' file'+(s.docs.length>1?'s':''):'—'}</span></div>`;
+   if(s.docs.length){inner+='<div class="fchildren" style="display:block;padding-left:20px">'+s.docs.map(d=>docRow(d,p,gen)).join('')+'</div>';}
+   inner+='</div>';
+  });
+  topDocs.forEach(d=>inner+=docRow(d,p,gen));
+  if(!inner)inner='<div class="doc" style="opacity:.5"><span class="dn" style="color:#b9c0c0">Empty — ready for project content</span></div>';
+  return `<div class="folder ${auto?'open':''}" data-f="${i}"><div class="frow" data-folder="${i}">${SVG.chev}<span class="fnum">${f.n.match(/^\d+/)[0]}</span>${SVG.folder}<span class="fname">${esc(f.n.replace(/^\d+\.\s/,''))}</span><span class="fmeta">${totalDocs?totalDocs+' template'+(totalDocs>1?'s':''):(f.sub.length?f.sub.length+' subfolder'+(f.sub.length>1?'s':''):'—')}</span></div><div class="fchildren">${inner}</div></div>`;
+ }).join('');
+ return `<div class="sec">${livery()}<h2>Filing structure</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--mute)">Mirrors SharePoint · ${FOLDERS.length} folders</span></div></div>
+  <div class="panel"><div class="ph"><h3>${esc(p.name)} — project root</h3><div class="rt">${gen?'<span class="st-tag st-ready">Templates filed</span>':'<span class="st-tag st-drafted">Structure ready</span>'}</div></div>
+   <div class="tree">${tree}</div></div>
+  ${!gen?`<p class="mono" style="font-size:10.5px;color:var(--mute);margin-top:12px;text-align:center">Populate templates (Templates tab) to file stamped documents into these folders automatically.</p>`:''}`;
+}
+function docRow(d,p,gen){
+ const fn=d[6]?`${p.datePrefix}-Haavn.${d[6]}`:'';
+ const label=gen&&d[6]?fn:(d[2]+' ['+(d[3])+']');
+ return `<div class="doc">${SVG.doc}<span class="dn">${esc(label)}</span><span class="dt">${gen?'filed':'template'}</span></div>`;
+}
+function bindFiles(){
+ $('#main').querySelectorAll('[data-folder]').forEach(fr=>fr.onclick=()=>{
+  fr.closest('.folder').classList.toggle('open');
+ });
+}
+
+/* ---- WIZARD: New Project ---- */
+function nextId(){
+ // YYSSS: YY=26, SSS=sequential
+ const yy='26';let max=40;PROJECTS.forEach(p=>{if(p.id.startsWith(yy)){const n=+p.id.slice(2);if(n>max)max=n;}});
+ return yy+String(max+1).padStart(3,'0');
+}
+function viewWizard(){
+ const pid=nextId();
+ return `<div class="wiz">
+  <div class="phead"><div><div class="n" style="color:var(--f-600)">NEW ENGAGEMENT</div>
+   <h1 style="color:var(--ink)">Create project</h1>
+   <div class="sub" style="color:var(--mute)">Fill Project Info once. ATRIUM initialises the ${FOLDERS.length}-folder structure, seeds the 27-item A–I setup checklist and stamps all ${TEMPLATES.length} templates — locked at commencement.</div>
+   <div class="liv">${livery()}</div></div></div>
+  <div class="wizcard">
+   <div class="wizsec"><div class="wl">Identity</div>
+    <div class="fgrid">
+     <div class="field"><label>Project ID (YYSSS)</label><input id="f_id" value="${pid}" readonly style="font-family:var(--mono);background:var(--grey-50);color:var(--f-600)"><span class="hint">Auto-assigned · YY + sequence</span></div>
+     <div class="field"><label>Project name</label><input id="f_name" placeholder="e.g. Eden Richmond"></div>
+     <div class="field"><label>Street address</label><input id="f_addr" placeholder="e.g. 12 Church Street"></div>
+     <div class="field"><label>Suburb / State / Postcode</label><input id="f_suburb" placeholder="Richmond, VIC 3121"></div>
+     <div class="field full"><label>Site description</label><textarea id="f_site" rows="2" placeholder="One paragraph — parcel, frontage, delivery approach."></textarea></div>
+     <div class="field"><label>Asset class</label><select id="f_asset"><option>BTS</option><option>BTR + BTS</option><option>MIXED USE</option><option>BTR + BTS + HOTEL</option></select></div>
+     <div class="field"><label>Status</label><select id="f_status"><option value="live">Live</option><option value="hold">On hold</option></select></div>
+    </div></div>
+   <div class="wizsec"><div class="wl">Parties</div>
+    <div class="fgrid">
+     <div class="field"><label>Principal</label><input id="f_principal" placeholder="Principal Entity Pty Ltd"></div>
+     <div class="field"><label>Principal representative</label><input id="f_rep" placeholder="Name"></div>
+     <div class="field"><label>Project Manager (Haavn)</label><select id="f_pm"><option value="james">James Bardas — Director</option><option value="luke">Luke Davies — Senior PM</option><option value="john">John Mercer — PM</option></select><span class="hint">Assigns the PM scorecard in Senior Mgmt</span></div>
+     <div class="field"><label>Architect</label><input id="f_arch" placeholder="Firm"></div>
+     <div class="field full"><label>Builder</label><input id="f_builder" placeholder="Contractor Pty Ltd — or [TBC — tender]"></div>
+    </div></div>
+   <div class="wizsec"><div class="wl">Programme &amp; commercial</div>
+    <div class="fgrid">
+     <div class="field"><label>Contract date</label><input id="f_cdate" type="date"></div>
+     <div class="field"><label>Possession of site</label><input id="f_poss" type="date"></div>
+     <div class="field"><label>Date for Practical Completion</label><input id="f_pc" type="date"></div>
+     <div class="field"><label>Contract sum (ex GST)</label><input id="f_sum" placeholder="$0" inputmode="numeric"></div>
+     <div class="field"><label>Form of contract</label><input id="f_form" placeholder="e.g. Amended AS4300"></div>
+     <div class="field"><label>Financier</label><input id="f_fin" placeholder="Bank"></div>
+    </div></div>
+   <div class="wizfoot"><span class="note">Provisions <b>${FOLDERS.length}</b> folders · <b>27</b> checklist tasks · <b>${TEMPLATES.length}</b> templates.</span>
+    <div class="rt"><button class="btn" id="wCancel">Cancel</button><button class="btn btn-green" id="wCreate">${plus()} Create &amp; provision</button></div></div>
+  </div></div>`;
+}
+function bindWizard(){
+ $('#wCancel').onclick=()=>go('projects');
+ $('#wCreate').onclick=()=>{
+  const name=$('#f_name').value.trim();
+  if(!name){$('#f_name').focus();$('#f_name').style.borderColor='var(--red)';toast('Project name is required.');return;}
+  const sumRaw=$('#f_sum').value.replace(/[^0-9]/g,'');
+  const cdate=$('#f_cdate').value;
+  const prefix=cdate?cdate.slice(2).replace(/-/g,''):nextId().slice(0,2)+'0101';
+  const proj=makeProject({
+   id:$('#f_id').value,name:name,addr:$('#f_addr').value.trim()||'[Street Address]',
+   suburb:$('#f_suburb').value.trim()||'[Suburb, VIC 3xxx]',site:$('#f_site').value.trim(),
+   status:$('#f_status').value,asset:$('#f_asset').value,
+   principal:$('#f_principal').value.trim()||'[Principal Entity Pty Ltd]',rep:$('#f_rep').value.trim(),
+   pmKey:$('#f_pm').value,architect:$('#f_arch').value.trim(),builder:$('#f_builder').value.trim()||'[TBC — tender]',
+   contractDate:cdate,possession:$('#f_poss').value,pc:$('#f_pc').value,
+   sum:sumRaw?+sumRaw:0,form:$('#f_form').value.trim(),financier:$('#f_fin').value.trim(),
+   datePrefix:prefix,seed:0,templatesGen:false
+  });
+  runProvision(proj);
+ };
+}
+function runProvision(proj){
+ const steps=[
+  'Assigning Project ID '+proj.id,
+  'Creating '+FOLDERS.length+'-folder filing structure',
+  'Seeding 27-task setup checklist (A–I)',
+  'Initialising programme & milestone schedule',
+  'Opening financials, cost tracker & quality register',
+  'Stamping '+TEMPLATES.length+' templates from Project Info',
+  'Registering '+PMS[proj.pmKey].name+' on the Senior Mgmt scorecard'
+ ];
+ const ov=$('#prov');const list=$('#provlist');
+ list.innerHTML=steps.map((s,i)=>`<div class="provrow" data-i="${i}"><span class="pm"></span><span>${s}</span></div>`).join('');
+ ov.classList.add('on');
+ let i=0;
+ function step(){
+  const rows=list.querySelectorAll('.provrow');
+  if(i>0){rows[i-1].querySelector('.pm').innerHTML=SVG.chk;}
+  if(i<steps.length){
+   rows[i].classList.add('on');rows[i].querySelector('.pm').innerHTML='<span class="spin"></span>';
+   // mark previous done
+   for(let k=0;k<i;k++){rows[k].classList.add('on');}
+   i++;setTimeout(step,i===1?420:560);
+  }else{
+   setTimeout(()=>{
+    ov.classList.remove('on');
+    PROJECTS.unshift(proj);
+    go('project',proj.id,'overview');
+    toast(proj.name+' provisioned — '+FOLDERS.length+' folders, '+TEMPLATES.length+' templates ready.');
+   },420);
+  }
+ }
+ step();
+}
+
+/* ============ BOOT ============ */
+const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></svg>';
+const MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+function setThemeBtn(){$('#themebtn').innerHTML=LIGHTMODE?MOON:SUN;}
+$('#themebtn').onclick=()=>{LIGHTMODE=!LIGHTMODE;setThemeBtn();render();toast(LIGHTMODE?'Light mode — work surface lightened.':'Dark mode — instrument view.');};
+setThemeBtn();
+$('#tbmark').innerHTML=apexMark('tb');
+$('#provmark').innerHTML=apexPrimary('pv');
+render();
+</script>
+</body></html>
