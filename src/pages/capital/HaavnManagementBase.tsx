@@ -6,6 +6,7 @@ import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useRole } from '../../lib/role'
 
 export type HMPillarId = 'crm' | 'meetings' | 'social'
 
@@ -43,8 +44,13 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
+  const role = useRole()
+  // Pillar 01 (ATRIUM Management System / CRM) is director-only — consultants
+  // (external) never see the card and can never enter it.
+  const canManagement = role !== 'external'
+  const visiblePillars = HM_PILLARS.filter(p => canManagement || p.id !== 'crm')
 
-  if (pillar) {
+  if (pillar && (canManagement || pillar !== 'crm')) {
     const p = HM_PILLARS.find(x => x.id === pillar)!
     return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose} />
   }
@@ -58,7 +64,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
         <Button variant="glassDark" onClick={onClose} style={{ fontSize: 11 }}>
-          Deploy Studio
+          ATRIUM
         </Button>
         <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -88,7 +94,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
 
         {/* Pillars */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, alignItems: 'stretch' }}>
-          {HM_PILLARS.map(p => (
+          {visiblePillars.map(p => (
             <button key={p.id} onClick={() => setPillar(p.id)}
               className="cap-pillar"
               style={{

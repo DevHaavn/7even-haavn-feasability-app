@@ -4,10 +4,10 @@ import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
-import Atrium from './Atrium'
 import CapitalDeployment from './CapitalDeployment'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useRole } from '../../lib/role'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
  *  opens here. ATRIUM (Partner CRM) exits straight to the studio (never back through
@@ -17,10 +17,24 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
   const isCRM = pillar.id === 'crm'
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
-  // ATRIUM (CRM) is a sealed dark app; other pillars flip with the global theme.
-  const shellBg = isCRM
-    ? 'radial-gradient(ellipse 90% 60% at 50% 25%, rgba(35,122,82,0.08) 0%, rgba(8,7,4,0.9) 55%, rgba(3,3,3,0.96) 100%), url(/home-bg.jpg) center / cover no-repeat fixed, #030303'
-    : pal.bg
+  const role = useRole()
+
+  // Pillar 03 now runs the full ATRIUM Management System — the SAME tool as
+  // Management Hub pillar 01 — full-bleed, with all its tabs, and a back pill.
+  if (isCRM) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        <iframe title="ATRIUM — Management System" src={`/atrium-management.html${role === 'external' ? '?role=consultant' : ''}`}
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+        <button onClick={onBack}
+          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#C6CDCF', background: 'rgba(10,13,12,0.92)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          ← Capital Base
+        </button>
+      </div>
+    )
+  }
+
+  const shellBg = pal.bg
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
@@ -53,7 +67,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       {/* Body — live module, or scaffold for pillars not yet built.
           Budgets floats as a soft-grey sheet over the stealth-black texture,
           like the project pages. */}
-      {pillar.id === 'budgets' ? <BudgetsAdminBase /> : pillar.id === 'crm' ? <Atrium /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
+      {pillar.id === 'budgets' ? <BudgetsAdminBase /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>

@@ -114,7 +114,9 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
         {/* Top bar — drag region for the frameless window */}
         <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10 }} />
 
-        {/* Winged device — future investor portal entry (compact on mobile) */}
+        {/* Winged device — Capital Base entry. Consultants (external) are locked out
+            of the Capital back-of-house entirely, so the entry is hidden for them. */}
+        {role !== 'external' && (
         <button
           className="no-drag"
           title="7EVEN Capital — Capital Base"
@@ -128,6 +130,7 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
             Capital
           </span>
         </button>
+        )}
         <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-grey"
           style={{ position: 'fixed', bottom: isMobile ? 12 : 18, left: isMobile ? 14 : 20, zIndex: 30, fontSize: isMobile ? 8 : 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: isMobile ? '5px 12px' : '7px 16px' }}>
           Log Out
@@ -286,8 +289,8 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
       {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
       {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
-      {/* Director portal teaser — shown until the portal is built */}
-      {capitalOpen && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
+      {/* Capital Base — admin/director only (consultants can never open it) */}
+      {capitalOpen && role !== 'external' && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
 
       {/* ── New project modal ── */}
       {showNew && (

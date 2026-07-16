@@ -886,7 +886,10 @@ function toast(msg){const t=$('#toast');$('#toasttx').textContent=msg;t.classLis
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ============ RENDER: TOPNAV + RAIL ============ */
-const MODULES=[['today','Today'],['management','Senior Mgmt'],['portfolio','Portfolio'],['projects','Projects'],['feasibility','Feasibility'],['accounts','Accounts'],['meetings','Meetings']];
+/* Senior Management is director-only. When embedded for a consultant (?role=consultant)
+   the module is stripped from both nav bars and its route is blocked. */
+const CONSULT = new URLSearchParams(location.search).get('role')==='consultant';
+const MODULES=[['today','Today'],['management','Senior Mgmt'],['portfolio','Portfolio'],['projects','Projects'],['feasibility','Feasibility'],['accounts','Accounts'],['meetings','Meetings']].filter(m=>!(CONSULT&&m[0]==='management'));
 function topOn(k){const c=route.view;
  if(k==='today')return c==='today';
  if(k==='management')return c==='management';
@@ -903,7 +906,7 @@ function renderRail(){
  let html=`<div class="railbrand"><span class="dev" style="width:18px">${apexMark('rl')}</span><span class="railwm sil-txt">ATRIUM</span></div>`;
  html+=`<div class="grp">Project Management</div>`;
  html+=railItem('today','today','Today',null);
- html+=railItem('management','sm','Senior Management',null);
+ if(!CONSULT) html+=railItem('management','sm','Senior Management',null);
  html+=railItem('portfolio','portfolio','Portfolio',null);
  html+=railItem('projects','projects','Projects',PROJECTS.length);
  html+=`<button class="newbtn" id="railnew">${plus()}<span>New Project</span></button>`;
@@ -928,6 +931,7 @@ function livery(){return '<span class="livery"><i class="g"></i><i class="s"></i
 
 /* ============ VIEWS ============ */
 function go(view,pidOrTab,tab){
+ if(CONSULT&&view==='management'){view='today';} // Senior Management is director-only
  if(view==='project'){route={view:'project',pid:pidOrTab,tab:tab||'overview'};}
  else if(view==='module'){route={view:'module',pid:pidOrTab,tab:null};}
  else if(view==='portal'){route={view:'portal',pid:pidOrTab,tab:null};}

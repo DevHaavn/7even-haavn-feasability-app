@@ -34,9 +34,9 @@ export const PILLARS: Pillar[] = [
     color: '#1FE87A',
   },
   {
-    id: 'crm', num: '03', title: 'Partner CRM Portal',
-    sub: 'Targets · Range · Signals · Contacts',
-    blurb: 'The tactical CRM. Three commands — 7EVEN Developments, HAAVN Homes, HAAVN Management — every deal in your sights.',
+    id: 'crm', num: '03', title: 'Management System',
+    sub: 'Projects · Files · Workflow · Contacts',
+    blurb: 'The full ATRIUM Management System — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job. Mirrors the HAAVN Management command centre.',
     color: '#237A52',
   },
 ]
@@ -69,7 +69,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
         <button onClick={onClose} className="glass-btn"
           style={{ color: theme === 'light' ? '#33424F' : 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
-          Deploy Studio
+          ATRIUM
         </button>
         <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
