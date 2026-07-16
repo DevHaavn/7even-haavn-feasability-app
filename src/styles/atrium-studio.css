@@ -18,48 +18,53 @@
   /* fixed chrome (header + tab bar) — ALWAYS DARK, both themes */
   --chrome:#0f151c; --chrome-2:#0b1015; --chrome-line:rgba(255,255,255,0.08);
   --chrome-txt:#e8edf1; --chrome-dim:#8996a0; --chrome-faint:#5a656e;
-  /* brand + functional — brand accent is SILVER + BLACK chrome (not gold).
-     --gold* names kept so every component inherits the swap with zero edits:
-     the "accent" is now graphite/near-black for emphasis text + silver for lines. */
-  --gold:#2a333c; --gold-hi:#c6cdcf; --gold-deep:#12181e;
+  /* brand + functional — ATRIUM v3 accent = cool SILVER / PLATINUM (not gold).
+     --gold* names kept so every component inherits the swap with zero edits. */
+  --gold:#6e7c8e; --gold-hi:#9aa8b6; --gold-deep:#556475;
   --emerald:#2f9e6b; --red:#c8503f; --amber:#c67d33;
   --blue:#5878a8; --purple:#7d6fae; --slate:#7c8894;
   /* type */
   --mono:'JetBrains Mono',ui-monospace,monospace;
   --sans:'Inter',system-ui,sans-serif;
   --serif:'Cormorant Garamond',Georgia,serif;
-  /* LIGHT content (default) — blue/grey soft-glass field (matches live app) */
-  --page:#d3dde7; --page-2:#c7d3de;
-  --card:#ffffff; --card-2:#f3f6f9; --card-3:#e9eef4;
-  --ink:#1b2530; --ink-2:#54626e; --ink-3:#8592a0; --faint:#a3b0bc;
-  --line:rgba(24,36,50,0.10); --line-2:rgba(24,36,50,0.06);
-  --border:rgba(24,36,50,0.13); --border-hi:rgba(24,36,50,0.22);
-  --gold-soft:rgba(120,136,150,0.12); --gold-line:rgba(120,136,150,0.42);
-  --em-soft:rgba(47,158,107,0.11); --red-soft:rgba(200,80,63,0.1);
-  --shadow:0 2px 4px rgba(28,35,43,0.04),0 12px 30px -14px rgba(28,35,43,0.14);
-  --shadow-lg:0 30px 60px -24px rgba(28,35,43,0.24);
-  --track:rgba(24,36,50,0.08);
-  --input-bg:#fff; --hover:rgba(24,36,50,0.03);
+  /* LIGHT content (default) — BLUE-GREY SOFT GLASS · frosted translucent panels */
+  --page:#dfe5ec; --page-2:#d5dde6;
+  --card:rgba(255,255,255,0.66); --card-2:rgba(255,255,255,0.5); --card-3:rgba(255,255,255,0.38);
+  --ink:#232c37; --ink-2:#5b6672; --ink-3:#8592a0; --faint:#a6b2be;
+  --line:rgba(35,44,55,0.09); --line-2:rgba(35,44,55,0.055);
+  --border:rgba(35,44,55,0.12); --border-hi:rgba(35,44,55,0.2);
+  --gold-soft:rgba(110,124,142,0.15); --gold-line:rgba(110,124,142,0.42);
+  --em-soft:rgba(47,158,107,0.12); --red-soft:rgba(200,80,63,0.11);
+  --shadow:0 2px 5px rgba(30,45,65,0.05),0 16px 36px -16px rgba(30,45,65,0.22);
+  --shadow-lg:0 30px 60px -24px rgba(30,45,65,0.28);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,0.6);
+  --track:rgba(35,44,55,0.08);
+  --input-bg:rgba(255,255,255,0.72); --hover:rgba(35,44,55,0.03);
 
   font-family:var(--sans); color:var(--ink);
-  background:radial-gradient(120% 90% at 50% -5%, #e9eef4 0%, #d4dde7 46%, #c2cfdb 100%) fixed;
+  background:
+    radial-gradient(120% 85% at 12% -12%, rgba(188,206,226,0.65), transparent 55%),
+    radial-gradient(110% 80% at 92% 8%, rgba(206,214,226,0.55), transparent 55%),
+    radial-gradient(120% 90% at 85% 115%, rgba(150,172,198,0.5), transparent 60%),
+    linear-gradient(158deg,#e7ecf2 0%,#dde4ec 45%,#d2dbe5 100%) fixed;
   -webkit-font-smoothing:antialiased;
   transition:background .5s,color .5s;
   min-height:100%;
 }
 /* ---- Tokens: dark content (toggle) ---- */
 .fxs.dark{
-  --page:#0a0e13; --page-2:#0c1117;
-  --card:rgba(255,255,255,0.035); --card-2:rgba(255,255,255,0.055); --card-3:rgba(255,255,255,0.02);
+  --page:#0a0e14; --page-2:#0c1118;
+  --card:rgba(255,255,255,0.045); --card-2:rgba(255,255,255,0.065); --card-3:rgba(255,255,255,0.025);
   --ink:#e8edf1; --ink-2:#9aa7b1; --ink-3:#6b7680; --faint:#4d5760;
   --line:rgba(255,255,255,0.07); --line-2:rgba(255,255,255,0.045);
   --border:rgba(255,255,255,0.1); --border-hi:rgba(255,255,255,0.18);
-  --gold:#c6cdcf; --gold-hi:#e8edf1;
-  --gold-soft:rgba(200,210,218,0.13); --gold-line:rgba(200,210,218,0.34);
+  --gold:#9aa8b6; --gold-hi:#c7d2dd;
+  --gold-soft:rgba(154,168,182,0.16); --gold-line:rgba(154,168,182,0.42);
   --em-soft:rgba(87,192,138,0.14); --red-soft:rgba(224,100,92,0.14);
   --emerald:#57c08a; --red:#e0645c; --amber:#d59a52; --blue:#6f92c9; --purple:#9a8bc9;
   --shadow:0 24px 60px -20px rgba(0,0,0,0.6); --shadow-lg:0 30px 70px -24px rgba(0,0,0,0.75);
-  --track:rgba(255,255,255,0.06); --input-bg:rgba(255,255,255,0.03); --hover:rgba(255,255,255,0.03);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,0.12);
+  --track:rgba(255,255,255,0.06); --input-bg:rgba(255,255,255,0.04); --hover:rgba(255,255,255,0.03);
   background:
     radial-gradient(120% 80% at 80% -10%, rgba(120,150,180,0.14), transparent 55%),
     radial-gradient(90% 70% at 15% 110%, rgba(30,45,60,0.5), transparent 60%),
@@ -101,7 +106,7 @@
 
 /* ============ LAYOUT ============ */
 .fxs .fx-wrap{max-width:1440px;margin:0 auto;padding:32px 26px 140px}
-.fxs .panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:.4s}
+.fxs .panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow),var(--glass-edge);position:relative;overflow:hidden;transition:.4s;backdrop-filter:blur(16px) saturate(1.1);-webkit-backdrop-filter:blur(16px) saturate(1.1)}
 .fxs .panel.gold-top::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c6cdcf 30%,#eef1f2 50%,#9aa2a4 72%,transparent);opacity:.9}
 .fxs.dark .panel{backdrop-filter:blur(10px)}
 .fxs.dark .panel:not(.gold-top)::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)}
@@ -130,7 +135,7 @@
 .fxs .k6{grid-template-columns:repeat(6,1fr)}.fxs .k5{grid-template-columns:repeat(5,1fr)}.fxs .k4{grid-template-columns:repeat(4,1fr)}.fxs .k3{grid-template-columns:repeat(3,1fr)}
 @media(max-width:1000px){.fxs .k6,.fxs .k5,.fxs .k4{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.fxs .k6,.fxs .k5,.fxs .k4,.fxs .k3{grid-template-columns:repeat(2,1fr)}}
-.fxs .kpi{padding:18px 18px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:var(--shadow);transition:.25s;position:relative;overflow:hidden}
+.fxs .kpi{padding:18px 18px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:var(--shadow),var(--glass-edge);transition:.25s;position:relative;overflow:hidden}
 .fxs .kpi:hover{transform:translateY(-2px);border-color:var(--border-hi)}
 .fxs .kpi .lab{font-size:9px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-bottom:11px;font-weight:600}
 .fxs .kpi .val{font-family:var(--mono);font-size:23px;font-weight:400;letter-spacing:-.02em;color:var(--ink)}
