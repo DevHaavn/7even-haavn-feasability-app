@@ -395,6 +395,16 @@ input[type="checkbox"] {
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(255,255,255,0.06));
 }
 
+/* Jet chrome — near-black metallic with only a thin highlight edge */
+.jet-chrome-text {
+  background: linear-gradient(180deg, #6A6A6E 0%, #2A2A2E 18%, #050506 46%, #17171B 60%, #000000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.35));
+}
+
 /* Capital modules — tighter frame on phones */
 @media (max-width: 640px) {
   .cap-module {

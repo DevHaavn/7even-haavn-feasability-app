@@ -196,16 +196,16 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
               {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
               <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
-                {/* Real brand mark, filled with a black-chrome sheen via mask (reads
-                    sharper than silver over the bright render) */}
+                {/* Real brand mark, filled with a jet-chrome sheen via mask — near-black
+                    with just a metallic highlight edge, reads sharp over the render */}
                 <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
                   WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
                   WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                  background: 'linear-gradient(180deg, #E2E2E2 0%, #8F8F8F 24%, #2B2B2B 48%, #757575 60%, #0C0C0C 100%)',
-                  filter: 'drop-shadow(0 1px 1.5px rgba(255,255,255,0.55))' }} />
-                {isAdmin && <span className="chrome-black-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
+                  background: 'linear-gradient(180deg, #6A6A6E 0%, #2A2A2E 18%, #050506 46%, #17171B 60%, #000000 100%)',
+                  filter: 'drop-shadow(0 1px 1.5px rgba(255,255,255,0.6))' }} />
+                {isAdmin && <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
               </button>
-              {!is7 && <span className="chrome-black-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
+              {!is7 && <span className="jet-chrome-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
               <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
                 {list.length} project{list.length !== 1 ? 's' : ''}
               </span>
