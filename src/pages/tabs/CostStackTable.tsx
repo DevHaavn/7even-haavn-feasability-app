@@ -18,13 +18,14 @@ export type GroupConfig = { id: string; label: string; color: string; notes: str
 // focused — letting you type "2.5", ".0", "0.05" — and commits the parsed value as you
 // go. When blurred it shows the formatted committed value. Module-level so its state
 // survives parent re-renders (rows keep focus while typing).
-function NumCell({ num, onCommit, fmt, placeholder, blankZero = true, style }: {
+function NumCell({ num, onCommit, fmt, placeholder, blankZero = true, style, className }: {
   num: number | null
   onCommit: (n: number) => void
   fmt?: (n: number) => string
   placeholder?: string
   blankZero?: boolean
   style?: React.CSSProperties
+  className?: string
 }) {
   const [buf, setBuf] = useState<string | null>(null)
   const isBlank = num == null || (blankZero && num === 0)
@@ -46,6 +47,7 @@ function NumCell({ num, onCommit, fmt, placeholder, blankZero = true, style }: {
       }}
       onBlur={() => setBuf(null)}
       style={style}
+      className={className}
     />
   )
 }
@@ -69,49 +71,17 @@ interface Props {
 // Basis dropdown (fee tabs): direct $ / unit, or a % of a basis that derives the budget.
 const BASIS_OPTS: [string, string][] = [['', '$ / Unit'], ['construction', '% of Constr.'], ['gdv', '% of GRV']]
 
-// ── Phase badges ──────────────────────────────────────────────────────────────
-// Phase is a category, not a judgement — so these are muted slate/blue/silver,
-// never the old pastel rainbow. Tokens (not fixed hex) so they stay legible in
-// dark; the previous light-only hexes went near-invisible on the dark surface.
-const PHASE_TINT = (c: string) => `color-mix(in srgb, ${c} 16%, transparent)`
-const PHASE_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  preacq:       { bg: PHASE_TINT('var(--blue)'),    text: 'var(--blue)',   label: 'Pre-acq' },
-  acqplan:      { bg: PHASE_TINT('var(--slate)'),   text: 'var(--slate)',  label: 'Acq/planning' },
-  preconst:     { bg: PHASE_TINT('var(--ink-3)'),   text: 'var(--ink-2)',  label: 'Pre-const' },
-  construction: { bg: PHASE_TINT('var(--gold)'),    text: 'var(--gold)',   label: 'Construction' },
-  closeout:     { bg: PHASE_TINT('var(--purple)'),  text: 'var(--purple)', label: 'Close-out' },
-  allphases:    { bg: PHASE_TINT('var(--ink-3)'),   text: 'var(--ink-3)',  label: 'All phases' },
+// ── Badge skins ───────────────────────────────────────────────────────────────
+// The reference draws Funded-by and Phase as pills. In this app both are live
+// dropdowns, so the <select> wears the pill class instead of being replaced by a
+// static span — same look, control intact.
+// Phase uses the reference's single neutral .b-phase for every phase.
+const FUND_BADGE: Record<string, string> = {
+  equity: 'b-eq', senior: 'b-sen', debt: 'b-debt', blend: 'b-bl', both: 'b-bl',
 }
 
-// Funding source is a category, not a verdict — so equity reads silver rather
-// than green, keeping green/red for good/bad only. Senior stays muted blue.
-function fundingDisplay(fundedBy?: string): { label: string; dots: string[] } {
-  switch (fundedBy) {
-    case 'equity': return { label: 'Equity', dots: ['var(--gold)'] }
-    case 'debt':
-    case 'senior': return { label: 'Senior', dots: ['var(--blue)'] }
-    case 'blend':
-    case 'both':   return { label: 'Both',   dots: ['var(--gold)', 'var(--blue)'] }
-    default:       return { label: fundedBy || 'Equity', dots: ['var(--gold)'] }
-  }
-}
 
-const S_CURVE_LABEL: Record<string, string> = { scurve: 'S-curve', linear: 'Linear', upfront: 'Upfront', backloaded: 'Back' }
 
-function fmtMonth(ym?: string): string {
-  if (!ym) return '—'
-  const [y, m] = ym.split('-').map(Number)
-  if (!y || !m) return '—'
-  return new Date(y, m - 1, 1).toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })
-}
-
-// Basis label shown in 'basis' mode (Consultants / Statutory / Headworks / Management).
-function basisLabel(it: CostLineItem): string {
-  if (it.feeBasis === 'construction') return '% constr'
-  if (it.feeBasis === 'gdv') return '% land'
-  if ((it.units || 0) > 0 || (it.baseRate || 0) > 0) return '$ / unit'
-  return '$ fixed'
-}
 
 // Design convention: amounts are entered EX-GST; GST is 10% added on top.
 const GST_RATE = 0.1
@@ -120,13 +90,7 @@ const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 // Fixed widths (px) for every column after the draggable Item column. Wide enough
 // that large dollar figures never collide. Item width is user-resizable (descW).
 const COLS_AFTER_ITEM = [78, 66, 72, 116, 96, 118, 100, 108, 80, 112, 112] // Basis…End
-const COLS_SUM = COLS_AFTER_ITEM.reduce((s, w) => s + w, 0)
-const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
 
-// Editable-cell styling — borderless so the grid stays clean but every field is live.
-const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: 'var(--ink)', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
-const editSelect: React.CSSProperties = { ...editInput, cursor: 'pointer', appearance: 'none' as const }
-const actBtn: React.CSSProperties = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 11, lineHeight: 1, color: 'var(--ink-3)', padding: '0 1px' }
 
 const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
 const FUND_OPTS: [string, string][] = [['equity', 'Equity'], ['senior', 'Senior'], ['debt', 'Debt'], ['blend', 'Blend'], ['both', 'Both']]
@@ -172,10 +136,6 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
-  // Item width honours the user's drag on desktop but is capped to the viewport on
-  // small screens so the other columns stay reachable (the table scrolls sideways).
-  const GRID = `clamp(150px, ${descW}px, 62vw) ${COLS_AFTER_ITEM.map(w => `${w}px`).join(' ')}`
-  const MINW = Math.min(descW, 240) + COLS_SUM + 32
 
   const update = (id: string, patch: Partial<CostLineItem>) => onChange(items.map(it => (it.id === id ? { ...it, ...patch } : it)))
   const add = () => onChange([...items, { id: Math.random().toString(36).slice(2) + Date.now(), label: '', amount: 0, notes: '', sCurve: 'scurve', fundedBy: 'equity' }])
@@ -244,165 +204,210 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const grandBudget = items.reduce((s, i) => s + effAmt(i), 0)
   const grandGst = items.reduce((s, i) => s + gstOf(i), 0)
 
-  const th: React.CSSProperties = { fontSize: 9, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, whiteSpace: 'nowrap' }
   const banded = buildGroups(items, effGroups)
+
+  // 13 columns: Item · Basis · Units · Rate · Budget $ · GST · Incl. GST ·
+  // Funded by · Phase · S-curve · Start · End · actions. Group/subtotal/section
+  // rows span to the same 13 so the grid stays true.
+  const NCOLS = 13
 
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
   // defining a component inside render remounts every row on each keystroke.
-  const renderRow = (item: CostLineItem, idx: number) => {
+  const renderRow = (item: CostLineItem) => {
     const gst = gstOf(item)
-    const fund = fundingDisplay(item.fundedBy)
-    const badge = item.phase ? PHASE_BADGE[item.phase] : undefined
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
+    const fundCls = FUND_BADGE[item.fundedBy || 'equity'] || 'b-eq'
     return (
-      <div key={item.id} className="cs-row" style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '6px 16px', borderBottom: '1px solid var(--line)', background: idx % 2 === 0 ? 'var(--card)' : 'var(--card)', alignItems: 'center' }}>
-        {/* Item description — editable, with move/delete controls (reveal on hover) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
-          <span className="cs-act" style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-            <button onClick={() => moveRow(item.id, -1)} title="Move up" style={actBtn}>↑</button>
-            <button onClick={() => moveRow(item.id, 1)} title="Move down" style={actBtn}>↓</button>
-            <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: 'var(--red)', fontSize: 12 }}>×</button>
-            {effGroups && effGroups.length > 1 && (
-              <select value={groupOf(item)?.id || ''} title="Move to category"
-                onChange={e => { const g = effGroups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: 'var(--ink-3)', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
-                {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: 'var(--ink)' }}>{g.label}</option>)}
-              </select>
-            )}
+      <tr key={item.id} className="ln">
+        {/* Item description — editable, with move/delete/regroup controls (reveal on hover) */}
+        <td>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+            <span className="acts" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+              <button className="rowact" onClick={() => moveRow(item.id, -1)} title="Move up">↑</button>
+              <button className="rowact" onClick={() => moveRow(item.id, 1)} title="Move down">↓</button>
+              <button className="rowact x" onClick={() => removeRow(item.id)} title="Delete row">✕</button>
+              {effGroups && effGroups.length > 1 && (
+                <select value={groupOf(item)?.id || ''} title="Move to category"
+                  onChange={e => { const g = effGroups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: 'var(--ink-3)', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
+                  {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: 'var(--ink)' }}>{g.label}</option>)}
+                </select>
+              )}
+            </span>
+            <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
+              className="mini-inp" style={{ width: '100%', maxWidth: 'none', textAlign: 'left', fontFamily: 'var(--sans)', fontSize: 11.5 }} />
           </span>
-          <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
-            style={{ ...editInput, fontSize: 11, minWidth: 0 }} />
-        </div>
+        </td>
         {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
-        <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: 'var(--ink-2)' }}>
-          {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
+        <td>
+          <select className="mini-sel" value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)}>
+            {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </td>
         {/* Units — editable on every line; typing units on a % line converts it to units × rate */}
-        <NumCell num={isPct ? null : (item.units ?? null)} placeholder="—" onCommit={n => changeUnits(item, n)}
-          style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
+        <td className="n">
+          <NumCell className="mini-inp" num={isPct ? null : (item.units ?? null)} placeholder="—" onCommit={n => changeUnits(item, n)} />
+        </td>
         {/* Rate — pct % for a %-basis line (decimals allowed), otherwise the per-unit rate */}
-        {isPct ? (
-          <NumCell num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
-            fmt={n => String(+n.toFixed(2))} onCommit={n => changePct(item, n)}
-            style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
-        ) : (
-          <NumCell num={item.baseRate ?? null} placeholder="—" onCommit={n => changeRate(item, n)}
-            style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
-        )}
+        <td className="n">
+          {isPct ? (
+            <NumCell className="mini-inp" num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
+              fmt={n => `${+n.toFixed(2)}%`} onCommit={n => changePct(item, n)} />
+          ) : (
+            <NumCell className="mini-inp" num={item.baseRate ?? null} placeholder="—" onCommit={n => changeRate(item, n)} />
+          )}
+        </td>
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
-        {isPct || hasUnitRate(item) ? (
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', ...cellR }}>{money(effAmt(item))}</span>
-        ) : (
-          <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
-            onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
-            style={{ ...editInput, fontSize: 11, fontWeight: 700, ...cellR }} />
-        )}
+        <td className="n">
+          {isPct || hasUnitRate(item) ? (
+            <span style={{ fontWeight: 600 }}>{money(effAmt(item))}</span>
+          ) : (
+            <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
+              onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
+              className="mini-inp" style={{ width: 100, fontWeight: 600 }} />
+          )}
+        </td>
         {/* GST from budget (10%) + Incl. GST */}
-        <span style={{ fontSize: 10, color: 'var(--ink-3)', ...cellR }}>{item.gstFree ? '—' : money(gst)}</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink)', ...cellR }}>{money(effAmt(item) + gst)}</span>
-        {/* Funded by — editable dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ display: 'inline-flex', gap: 2, flexShrink: 0 }}>{fund.dots.map((c, i) => <span key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c }} />)}</span>
-          <select value={item.fundedBy || 'equity'} onChange={e => update(item.id, { fundedBy: e.target.value as CostLineItem['fundedBy'] })} style={editSelect}>
+        <td className="n" style={{ color: 'var(--ink-3)' }}>{item.gstFree ? '—' : money(gst)}</td>
+        <td className="n">{money(effAmt(item) + gst)}</td>
+        {/* Funded by — the badge IS the control, so it stays a live dropdown */}
+        <td>
+          <select className={`badge ${fundCls}`} value={item.fundedBy || 'equity'}
+            onChange={e => update(item.id, { fundedBy: e.target.value as CostLineItem['fundedBy'] })}>
             {FUND_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-        </div>
-        {/* Phase — editable dropdown */}
-        <select value={item.phase || ''} onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}
-          style={{ ...editSelect, color: badge ? badge.text : 'var(--faint)', background: badge ? badge.bg : 'transparent', borderRadius: 3 }}>
-          {PHASE_OPTS.map(([v, l]) => <option key={v} value={v} style={{ color: 'var(--ink)', background: 'var(--card)' }}>{l}</option>)}
-        </select>
+        </td>
+        {/* Phase — badge-skinned dropdown */}
+        <td>
+          <select className="badge b-phase" value={item.phase || ''}
+            onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}>
+            {PHASE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </td>
         {/* S-curve — editable dropdown */}
-        <select value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })} style={{ ...editSelect, color: 'var(--ink-2)' }}>
-          {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
+        <td>
+          <select className="mini-sel" value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })}>
+            {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </td>
         {/* Start / End — editable month pickers */}
-        <input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: 'var(--ink-2)' }} />
-        <input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} style={{ ...editInput, fontSize: 9.5, color: 'var(--ink-2)' }} />
-      </div>
+        <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: 106, fontSize: 9.5 }} /></td>
+        <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: 106, fontSize: 9.5 }} /></td>
+        <td />
+      </tr>
     )
   }
 
-  const renderSubtotal = (label: string, rows: CostLineItem[]) => {
+  // Group band header — carries the group's own rollup and its "+ row", per the reference.
+  const renderGroupHead = (def: GroupConfig, rows: CostLineItem[], open: boolean) => {
     const b = rows.reduce((s, i) => s + effAmt(i), 0)
     const g = rows.reduce((s, i) => s + gstOf(i), 0)
-    // Reference .atr-row-subtotal: silver on a dashed rule. A subtotal is not a
-    // verdict, so it no longer reads green — green stays for good/bad only.
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderTop: '1px dashed var(--border)', borderBottom: '1px solid var(--border)', background: 'color-mix(in srgb, var(--gold) 5%, transparent)', fontWeight: 600, fontSize: 11 }}>
-        <span style={{ color: 'var(--gold)', paddingLeft: 16, letterSpacing: '0.04em' }}>{label} subtotal</span>
-        <span /><span /><span />
-        <span style={{ color: 'var(--gold)', fontFamily: 'var(--mono)', ...cellR }}>{money(b)}</span>
-        <span style={{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', ...cellR }}>{money(g)}</span>
-        <span style={{ color: 'var(--gold)', fontFamily: 'var(--mono)', ...cellR }}>{money(b + g)}</span>
-        <span style={{ gridColumn: '8 / -1' }} />
-      </div>
+      <tr className="grp" key={`${def.id}-h`}>
+        <td onClick={() => toggle(def.id)} style={{ cursor: 'pointer' }}>
+          <span className="gname">
+            <span className="caret">{open ? '▾' : '▸'}</span>{def.label}
+            <span className="gcount">({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span>
+          </span>
+        </td>
+        <td colSpan={3} />
+        <td className="n">{money(b)}</td>
+        <td className="n">{money(g)}</td>
+        <td className="n">{money(b + g)}</td>
+        <td colSpan={5} />
+        <td>
+          <span className="addrow" style={{ padding: '4px 9px', fontSize: 9 }}
+            onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}>+ row</span>
+        </td>
+      </tr>
+    )
+  }
+
+  // Per-group subtotal — dashed rule, silver label (reference tr.sub).
+  const renderSubtotal = (def: GroupConfig, rows: CostLineItem[]) => {
+    const b = rows.reduce((s, i) => s + effAmt(i), 0)
+    const g = rows.reduce((s, i) => s + gstOf(i), 0)
+    return (
+      <tr className="sub" key={`${def.id}-s`}>
+        <td className="stl">{def.label} subtotal</td>
+        <td colSpan={3} />
+        <td className="n">{money(b)}</td>
+        <td className="n">{money(g)}</td>
+        <td className="n">{money(b + g)}</td>
+        <td colSpan={5} />
+        <td />
+      </tr>
     )
   }
 
   return (
-    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, overflowX: 'auto' }}>
-      <style>{`.cs-row .cs-act{opacity:0;transition:opacity .12s}.cs-row:hover .cs-act{opacity:1}`}</style>
-      <div style={{ minWidth: MINW }}>
-        {/* + add row — sits at top-left, above the Item description column */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '8px 16px', borderBottom: '1px solid var(--line)' }}>
-          <button onClick={add} style={{ fontSize: 11, fontWeight: 500, color: 'var(--emerald)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>+ add row</button>
-        </div>
-
-        {/* Header */}
-        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, background: 'var(--card-2)', borderBottom: '1px solid var(--border)', padding: '10px 16px' }}>
-          <span style={{ ...th, position: 'relative', paddingRight: 12 }}>
-            Item description
-            {/* drag divider — resize the Item column */}
-            <span onPointerDown={startResize} title="Drag to resize"
-              style={{ position: 'absolute', right: 2, top: -10, bottom: -10, width: 12, cursor: 'col-resize', display: 'flex', justifyContent: 'center', zIndex: 2 }}>
-              <span style={{ width: 2, background: 'var(--border-hi)', height: '100%' }} />
-            </span>
-          </span>
-          <span style={th}>Basis</span>
-          <span style={{ ...th, ...cellR }}>Units</span>
-          <span style={{ ...th, ...cellR }}>Rate</span>
-          <span style={{ ...th, ...cellR }}>Budget $</span>
-          <span style={{ ...th, ...cellR }}>GST</span>
-          <span style={{ ...th, ...cellR }}>Incl. GST</span>
-          <span style={th}>Funded by</span>
-          <span style={th}>Phase</span>
-          <span style={th}>S-curve</span>
-          <span style={th}>Start</span>
-          <span style={th}>End</span>
-        </div>
-
-        {/* Banded (grouped) or flat rows */}
-        {banded ? banded.map(({ def, items: rows }) => {
-          const open = !collapsed.has(def.id)
-          return (
-            <div key={def.id}>
-              <div onClick={() => toggle(def.id)} style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '10px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)', cursor: 'pointer', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: def.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: 'var(--ink-3)', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
-                  <button onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}
-                    style={{ fontSize: 10, fontWeight: 500, color: 'var(--gold)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
-                </div>
-                <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: 'var(--ink-3)', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
-              </div>
-              {open && rows.map((item, idx) => renderRow(item, idx))}
-              {renderSubtotal(def.label, rows)}
-            </div>
-          )
-        }) : items.map((item, idx) => renderRow(item, idx))}
-
-        {/* Section total */}
-        {/* Reference .atr-row-total: heavier rule, ink not silver, so the section
-            total reads as the stronger stop below the silver subtotals. */}
-        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: 'var(--card-3)', borderTop: '2px solid var(--border-hi)', fontWeight: 700, fontSize: 12 }}>
-          <span style={{ color: 'var(--ink)', letterSpacing: '0.04em' }}>Section total</span>
-          <span /><span /><span />
-          <span style={{ color: 'var(--ink)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandBudget)}</span>
-          <span style={{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandGst)}</span>
-          <span style={{ color: 'var(--ink)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandBudget + grandGst)}</span>
-          <span style={{ gridColumn: '8 / -1' }} />
-        </div>
+    <div>
+      <div className="scrollx">
+        <table className="gt">
+          {/* Item column keeps its drag-resize; the rest hold the reference widths. */}
+          <colgroup>
+            <col style={{ width: descW }} />
+            {COLS_AFTER_ITEM.map((w, i) => <col key={i} style={{ width: w }} />)}
+            <col style={{ width: 64 }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th style={{ position: 'relative', paddingRight: 14 }}>
+                Item description
+                {/* drag divider — resize the Item column */}
+                <span onPointerDown={startResize} title="Drag to resize"
+                  style={{ position: 'absolute', right: 2, top: 0, bottom: 0, width: 12, cursor: 'col-resize', display: 'flex', justifyContent: 'center', zIndex: 2 }}>
+                  <span style={{ width: 2, background: 'var(--border-hi)', height: '100%' }} />
+                </span>
+              </th>
+              <th>Basis</th>
+              <th className="n">Units</th>
+              <th className="n">Rate</th>
+              <th className="n">Budget $</th>
+              <th className="n">GST</th>
+              <th className="n">Incl. GST</th>
+              <th>Funded by</th>
+              <th>Phase</th>
+              <th>S-curve</th>
+              <th>Start</th>
+              <th>End</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {/* Banded (grouped) or flat rows */}
+            {banded
+              ? banded.flatMap(({ def, items: rows }) => {
+                  const open = !collapsed.has(def.id)
+                  return [
+                    renderGroupHead(def, rows, open),
+                    ...(open ? rows.map(item => renderRow(item)) : []),
+                    renderSubtotal(def, rows),
+                  ]
+                })
+              : items.map(item => renderRow(item))}
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={NCOLS} style={{ textAlign: 'center', color: 'var(--faint)', padding: 26 }}>
+                  No items yet — <span style={{ color: 'var(--gold)', cursor: 'pointer' }} onClick={add}>add a row</span> to begin.
+                </td>
+              </tr>
+            )}
+            {/* Section total (reference tr.sect) */}
+            <tr className="sect">
+              <td className="stl2">Section total</td>
+              <td colSpan={3} />
+              <td className="n">{money(grandBudget)}</td>
+              <td className="n">{money(grandGst)}</td>
+              <td className="n">{money(grandBudget + grandGst)}</td>
+              <td colSpan={5} />
+              <td />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        <span className="addrow" onClick={add}>+ ADD ROW</span>
       </div>
     </div>
   )

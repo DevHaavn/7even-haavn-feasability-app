@@ -282,6 +282,16 @@
 .fxs .b-debt{background:rgba(125,111,174,0.14);color:var(--purple)}
 .fxs .b-bl{background:var(--gold-soft);color:var(--gold)}
 .fxs .b-phase{background:var(--card-3);color:var(--ink-2);border:1px solid var(--border)}
+/* The reference draws Funded-by / Phase as a static span, but in the app both are
+   editable dropdowns and removing the control would be a behaviour change. So the
+   control wears the badge: a <select> skinned as the pill. Same pixels, still live. */
+.fxs select.badge{appearance:none;-webkit-appearance:none;border:none;cursor:pointer;font-family:var(--sans);line-height:1.6;text-align:center;text-align-last:center}
+.fxs select.badge.b-phase{border:1px solid var(--border)}
+.fxs select.badge:focus{outline:1px solid var(--gold-line);outline-offset:1px}
+.fxs select.badge option{background:var(--card);color:var(--ink);font-size:11px;text-transform:none;letter-spacing:0}
+/* Row actions reveal on hover, as before. */
+.fxs .gt tr.ln .acts{opacity:0;transition:opacity .12s}
+.fxs .gt tr.ln:hover .acts{opacity:1}
 /* detailed total sidebar */
 .fxs .dt-lab{font-size:9.5px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;font-weight:600}
 .fxs .dt-note{font-size:9px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:3px}
