@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useStore } from '../../store'
 import { useAutosave } from '../../lib/useAutosave'
 import ProjectMap from '../../components/ProjectMap'
-import type { SiteDesign } from '../../db/schema'
+import { getDisplayName, setDisplayName, timeAgo } from '../../lib/displayName'
+import type { SiteDesign, ProjectNote } from '../../db/schema'
 
 interface Props { projectId: string }
 
@@ -32,6 +33,34 @@ export default function SiteDesignTab({ projectId }: Props) {
   }
 
   // Reconciliation checks (unchanged)
+  // ── Project discussion ────────────────────────────────────────────────────
+  // Posts ride on the SiteDesign record, so they save and sync through exactly
+  // the same path (and the same realtime channel) as every other field here.
+  const [who, setWho] = useState<string>(() => getDisplayName())
+  const [nameDraft, setNameDraft] = useState('')
+  const [noteDraft, setNoteDraft] = useState('')
+
+  const thread = [...(data.noteThread ?? [])].sort((a, b) => b.ts.localeCompare(a.ts))
+
+  function saveWho() {
+    const n = nameDraft.trim()
+    if (!n) return
+    setDisplayName(n); setWho(n); setNameDraft('')
+  }
+  function postNote() {
+    const text = noteDraft.trim()
+    if (!text || !who) return
+    const note: ProjectNote = {
+      id: `n-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      author: who, text, ts: new Date().toISOString(),
+    }
+    update('noteThread' as keyof SiteDesign, [...(data.noteThread ?? []), note] as SiteDesign['noteThread'])
+    setNoteDraft('')
+  }
+  function removeNote(id: string) {
+    update('noteThread' as keyof SiteDesign, (data.noteThread ?? []).filter(n => n.id !== id) as SiteDesign['noteThread'])
+  }
+
   // Suburb for the map panel's label, read off the project address:
   // "20-30 Newman Street, Preston VIC 3072" -> "Preston". Display only.
   const suburb = (project?.address ?? '').split(',')[1]?.trim()
@@ -164,11 +193,70 @@ export default function SiteDesignTab({ projectId }: Props) {
             )}
           </div>
 
+          {/* Project discussion — posts sync live to everyone on the project via
+              the existing realtime channel. */}
           <div className="panel pad">
-            <div className="eyebrow">Notes</div>
-            <textarea style={{ width: '100%', minHeight: 90, marginTop: 12, background: 'transparent', border: 'none', borderBottom: '1px solid var(--line)', color: 'var(--ink)', fontSize: 13, fontFamily: 'var(--serif)', lineHeight: 1.7, resize: 'vertical', outline: 'none' }}
-              placeholder="Site notes, council requirements, design caveats…"
-              value={data.notes} onChange={e => update('notes', e.target.value)} />
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+              <div className="eyebrow">Notes · project discussion</div>
+              {who && (
+                <span className="note" style={{ cursor: 'pointer' }} onClick={() => setWho('')} title="Change the name shown on your notes">
+                  posting as <b style={{ color: 'var(--gold)' }}>{who}</b> · change
+                </span>
+              )}
+            </div>
+
+            {!who ? (
+              // Asked once, then remembered on this machine. Not a login — see lib/displayName.
+              <div style={{ marginTop: 12 }}>
+                <p className="note">Add your name so others know who wrote what.</p>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <input className="inp" style={{ flex: 1, textAlign: 'left' }} placeholder="Your name" value={nameDraft}
+                    onChange={e => setNameDraft(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') saveWho() }} />
+                  <span className="chip accent" onClick={saveWho}>Save</span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginTop: 12 }}>
+                <textarea
+                  style={{ width: '100%', minHeight: 62, background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '9px 11px', color: 'var(--ink)', fontSize: 12.5, lineHeight: 1.6, resize: 'vertical', outline: 'none', fontFamily: 'var(--sans)' }}
+                  placeholder="Add a note for the team…"
+                  value={noteDraft}
+                  onChange={e => setNoteDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) postNote() }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+                  <span className={`chip accent${noteDraft.trim() ? '' : ' is-off'}`} onClick={postNote}>+ Post note</span>
+                  <span className="note">⌘⏎ to post</span>
+                </div>
+              </div>
+            )}
+
+            {thread.length > 0 && (
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {thread.map(n => (
+                  <div key={n.id} style={{ borderTop: '1px solid var(--line)', paddingTop: 11 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{n.author || 'Someone'}</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                        <span className="note">{timeAgo(n.ts)}</span>
+                        <span className="rowact x" title="Delete note" onClick={() => removeNote(n.id)} style={{ cursor: 'pointer' }}>✕</span>
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.6, marginTop: 4, whiteSpace: 'pre-wrap' }}>{n.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* The original free-text notes field. Kept and still editable so
+                nothing written before the thread existed is lost. */}
+            {(data.notes ?? '').trim().length > 0 && (
+              <div style={{ marginTop: 18, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                <div className="note" style={{ marginBottom: 6 }}>Earlier site notes</div>
+                <textarea style={{ width: '100%', minHeight: 70, background: 'transparent', border: 'none', borderBottom: '1px solid var(--line)', color: 'var(--ink)', fontSize: 13, fontFamily: 'var(--serif)', lineHeight: 1.7, resize: 'vertical', outline: 'none' }}
+                  value={data.notes} onChange={e => update('notes', e.target.value)} />
+              </div>
+            )}
           </div>
         </div>
       </div>

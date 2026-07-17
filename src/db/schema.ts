@@ -47,6 +47,19 @@ export interface SiteDesign {
   otherGFA: number
   notes: string
   architectPdfUrl?: string   // link to the architect's development-summary PDF (latest version)
+  // Project discussion. Optional and additive: the plain `notes` field above is
+  // untouched and still shown, so nothing written before this is lost.
+  noteThread?: ProjectNote[]
+}
+
+// One entry in a project's discussion. `author` is self-declared — the app has a
+// shared admin password, not per-user logins, so this is a display name the
+// person typed on their own machine, NOT a verified identity.
+export interface ProjectNote {
+  id: string
+  author: string
+  text: string
+  ts: string          // ISO timestamp
 }
 
 export interface LandTerms {
