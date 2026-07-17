@@ -25,6 +25,33 @@ const COST_GROUPS: Record<string, GroupConfig[] | undefined> = {
   ],
 }
 
+// Reference pagehead: kicker + "Development Cost" + sub on the left, and the
+// Project phase eyebrow + select on the RIGHT of the same row. It is IDENTICAL on
+// every sub-tab — the per-section title lives in the panel below as .subtitle.
+// (Previously the phase sat in its own band above the tabs, and the page title
+// changed per sub-tab.)
+function CostStackHead({ phase, onPhase }: { phase?: string; onPhase: (v: string) => void }) {
+  return (
+    <div className="pagehead">
+      <div>
+        <div className="kicker">04 · Cost Stack</div>
+        <h1 className="h-sec">Development Cost</h1>
+        <div className="h-sub">Construction rate applied to GBA plus all soft costs — or itemise trade-by-trade.</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span className="eyebrow">Project phase</span>
+        <div>
+          <select className="sel" value={phase ?? ''} onChange={e => onPhase(e.target.value)}>
+            <option value="">— not set —</option>
+            {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+          </select>
+          <div style={{ fontSize: 9.5, color: 'var(--faint)', marginTop: 5, textAlign: 'right' }}>Surfaces on the project Timeline &amp; Dashboard.</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface Props { projectId: string }
 
 const fmt = (n: number) =>
@@ -67,23 +94,17 @@ const INNER_TABS = [
   { id: 'marketing',   label: 'Marketing & Advertising',        short: 'Marketing' },
 ]
 
+// Reference .subtabs: a left-aligned row on a hairline rule, active = ink text
+// with a silver underline. (Was a full-width segmented bar on a filled band.)
 function InnerTabBar({ active, onChange, tabs = INNER_TABS }: { active: string; onChange: (id: string) => void; tabs?: typeof INNER_TABS }) {
   return (
-    <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', background: 'var(--card-2)', flexShrink: 0 }}>
+    <div className="subtabs">
       {tabs.map(t => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
           title={t.label}
-          style={{
-            flex: 1, minWidth: 0, textAlign: 'center',
-            padding: '10px 6px', border: 'none', background: 'none', cursor: 'pointer',
-            fontSize: 9.5, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600,
-            color: active === t.id ? 'var(--ink)' : 'var(--ink-3)',
-            borderBottom: active === t.id ? '2px solid var(--gold)' : '2px solid transparent',
-            marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            transition: 'color 0.15s',
-          }}
+          className={`subtab ${active === t.id ? 'on' : ''}`}
         >
           {t.short ?? t.label}
         </button>
@@ -642,25 +663,18 @@ export default function CostStackTab({ projectId }: Props) {
   ]
   const tdcInclLand = result.totalDevelopmentCost + landB.total
 
+  // Project phase — unchanged save path, lifted out of the old inline handler
+  // so both the Summary and detail heads can share it.
+  const setPhase = (v: string) => {
+    const next = { ...data, currentPhase: (v || undefined) as CostStack['currentPhase'] }
+    setData(next); store.saveCostStack(next)
+  }
+
   // Active detail section
   const meta = innerTab !== 'summary' ? DETAIL_META[innerTab] : null
 
   return (
     <div className="flex flex-col" style={{ minHeight: 0 }}>
-
-      <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
-
-      {/* Project phase — where the project currently sits; shown on Timeline & Dashboard */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Project Phase</span>
-        <select value={data.currentPhase ?? ''}
-          onChange={e => { const next = { ...data, currentPhase: (e.target.value || undefined) as CostStack['currentPhase'] }; setData(next); store.saveCostStack(next) }}
-          style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--ink)', fontWeight: 700, outline: 'none' }}>
-          <option value="">— not set —</option>
-          {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-        </select>
-        <span style={{ fontSize: 10, color: 'var(--faint)' }}>Surfaces on the project Timeline &amp; Dashboard.</span>
-      </div>
 
       <AdminSpendBanner projectId={projectId} tdc={result.totalDevelopmentCost} />
 
@@ -670,27 +684,27 @@ export default function CostStackTab({ projectId }: Props) {
       {innerTab === 'summary' && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
         <div className="fx-wrap">
-          <div className="pagehead">
-            <div>
-              <div className="kicker">04 · Cost Stack</div>
-              <h1 className="h-sec">Development Cost</h1>
-              <div className="h-sub">Construction rate applied to GBA plus all soft costs — or itemise trade-by-trade.</div>
-            </div>
-            <div className="flex gap aic wrapf">
-              <span className="check">✓ Auto-saved</span>
-              {cs.canUndo && <span className="chip" onClick={() => cs.undo(setData)}>↶ Undo</span>}
-            </div>
-          </div>
+          <CostStackHead phase={data.currentPhase} onPhase={setPhase} />
+          <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
           <div className="two-64" style={{ alignItems: 'start' }}>
           {/* ── Cost Stack rates — left panel ── */}
           <div className="panel pad">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <span className="check">✓ Auto-saved</span>
+              {cs.canUndo && <span className="chip" onClick={() => cs.undo(setData)}>↶ Undo</span>}
+            </div>
             <div className="divlabel">Build rate preset</div>
             <div className="presets">
               {presets.map((p) => {
                 const isActive = data.buildRatePerSqm === p.buildRatePerSqm
                 return (
-                  <div key={p.id} className={`preset${isActive ? ' on' : ''}`} onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)}>
-                    <div className="pt">{p.name}</div>
+                  <div key={p.id} className={`preset${isActive ? ' on' : ''}`} onClick={() => update('buildRatePerSqm', p.buildRatePerSqm)} title={p.name}>
+                    {/* Reference card is <pt>RESIDENTIAL</pt><pv>$4,000</pv>. The stored
+                        preset name already ends in its rate ("Residential $4,000"), so
+                        rendering it whole printed the price twice. Trim it for display
+                        only — the rate is still shown, in .pv right below, and the
+                        stored name is untouched (full name kept on hover). */}
+                    <div className="pt">{p.name.replace(/\s*\$[\d,]+\s*$/, '')}</div>
                     <div className="pv">${p.buildRatePerSqm.toLocaleString()}</div>
                   </div>
                 )
@@ -825,20 +839,23 @@ export default function CostStackTab({ projectId }: Props) {
       {meta && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           <div className="fx-wrap">
-            <div className="pagehead">
-              <div>
-                <div className="kicker">04 · Cost Stack</div>
-                <h1 className="h-sec">{meta.title}</h1>
-                <div className="h-sub">{meta.sub}</div>
-              </div>
-              <div className="flex gap aic wrapf">
-                <span className="check">✓ Auto-saved</span>
-                {dc.canUndo && <span className="chip" onClick={() => dc.undo(setDetailed)}>↶ Undo</span>}
-              </div>
-            </div>
+            <CostStackHead phase={data.currentPhase} onPhase={setPhase} />
+            <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
 
             <div className="two-64">
               <div className="panel pad">
+                {/* Reference: the per-section title lives in the panel as .subtitle —
+                    the page head above stays "Development Cost" for every sub-tab. */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                  <div>
+                    <div className="subtitle">{meta.title}</div>
+                    <div className="desc">{meta.sub}</div>
+                  </div>
+                  <div className="flex gap aic wrapf" style={{ flexShrink: 0 }}>
+                    <span className="check">✓ Auto-saved</span>
+                    {dc.canUndo && <span className="chip" onClick={() => dc.undo(setDetailed)}>↶ Undo</span>}
+                  </div>
+                </div>
                 <div className="guide"><b>Market guide</b> — {meta.hint}</div>
                 <div style={{ maxWidth: '100%' }}>
                   <CostStackTable
