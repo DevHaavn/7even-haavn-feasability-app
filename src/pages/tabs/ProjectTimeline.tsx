@@ -108,6 +108,23 @@ function addDays(iso: string, days: number) {
   const d = parseDate(iso); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10)
 }
 function yearOf(iso: string) { return parseInt(iso.slice(0, 4), 10) }
+// Phase roll-up shown in the % column against each phase header. Mean of the
+// phase's task progress — the same basis as the Overall KPI.
+function phasePct(ts: TimelineTask[]) {
+  return ts.length > 0 ? Math.round(ts.reduce((s, t) => s + t.progress, 0) / ts.length) : 0
+}
+/**
+ * Tint a colour. STATUS_COLORS and PHASE_COLORS hold `var(--token)`, and a var()
+ * CANNOT take a hex alpha suffix: `var(--emerald)25` is invalid and the browser
+ * drops the whole declaration silently. Every bar fill, phase band and phase
+ * border in this file was written that way, so they all computed to transparent
+ * or fell back to default ink — the Gantt drew ghost outlines instead of bars.
+ * color-mix is the var()-safe equivalent. Percentages below are the old hex alpha
+ * converted: 0x25/255 ≈ 15%, 0x80/255 = 50%, and so on.
+ */
+const tint = (c: string, pct: number) => `color-mix(in srgb, ${c} ${pct}%, transparent)`
+/** Opaque version of a tint — for the sticky % column, which bars scroll under. */
+const solid = (c: string, pct: number) => `linear-gradient(${tint(c, pct)}, ${tint(c, pct)}), var(--page)`
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -120,7 +137,11 @@ export default function ProjectTimeline({ projectId }: Props) {
   // Screen real-estate: show one year at a time (default the current year).
   const [viewYear, setViewYear] = useState<number>(new Date().getFullYear())
   // "All dates" — span every year on one scrollable timeline (no year switching).
-  const [allDates, setAllDates] = useState(false)
+  // Defaults ON: off, the window is the CURRENT year only, so a programme running
+  // 2025-2029 showed just the slice crossing this year (15 of 47 tasks, 3 of 5
+  // phases) and read as "the data stopped pulling through". The whole programme is
+  // the right default for a Gantt; the year picker narrows it deliberately.
+  const [allDates, setAllDates] = useState(true)
   // Drag-to-move: grab a bar and slide it; commits new start/end on release.
   const dragRef = useRef<{ id: string; startX: number; origStart: string; origEnd: string; moved: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
@@ -263,7 +284,8 @@ export default function ProjectTimeline({ projectId }: Props) {
           </div>
           <div className="flex gap aic wrapf">
             {canUndo && <span className="chip" onClick={() => undo(setTasks)}>↶ Undo</span>}
-            <span className={`chip${allDates ? ' accent' : ''}`} onClick={() => setAllDates(v => !v)}>All dates</span>
+            <span className={`chip${allDates ? ' on' : ''}`} onClick={() => setAllDates(v => !v)}
+              title={allDates ? 'Showing the whole programme — click to filter to one year' : 'Showing one year — click to show every year'}>All dates</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, opacity: allDates ? 0.4 : 1 }}>
               <span className="chip" style={{ padding: '8px 11px' }} onClick={() => { if (!allDates) { setAllDates(false); setViewYear(y => y - 1) } }}>‹</span>
               <select className="sel" value={viewYear} disabled={allDates}
@@ -353,7 +375,7 @@ export default function ProjectTimeline({ projectId }: Props) {
               </div>
 
               {/* % complete — its own column on the right, per the design */}
-              <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 12px 8px' }}>
+              <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 12px 8px', position: 'sticky', right: 0, zIndex: 21, background: 'linear-gradient(var(--card-2), var(--card-2)), var(--page)', borderLeft: '1px solid var(--border)' }}>
                 <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>%</span>
               </div>
             </div>
@@ -363,17 +385,25 @@ export default function ProjectTimeline({ projectId }: Props) {
               <div key={cat}>
 
                 {/* Phase header row — label + task count + cost of works for the phase (30% larger) */}
-                <div style={{ display: 'flex', height: 39, alignItems: 'center', background: `linear-gradient(90deg, ${PHASE_COLORS[cat]}14, ${PHASE_COLORS[cat]}07)`, borderBottom: `1px solid ${PHASE_COLORS[cat]}2E`, borderTop: `1px solid ${PHASE_COLORS[cat]}18` }}>
-                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 9, padding: '0 13px', borderRight: '1px solid var(--border)', position: 'sticky', left: 0, zIndex: 8, background: `${PHASE_COLORS[cat]}12` }}>
+                <div style={{ display: 'flex', height: 39, alignItems: 'center', background: `linear-gradient(90deg, ${tint(PHASE_COLORS[cat], 8)}, ${tint(PHASE_COLORS[cat], 3)})`, borderBottom: `1px solid ${tint(PHASE_COLORS[cat], 18)}`, borderTop: `1px solid ${tint(PHASE_COLORS[cat], 9)}` }}>
+                  <div style={{ width: LABEL_W, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 9, padding: '0 13px', borderRight: '1px solid var(--border)', position: 'sticky', left: 0, zIndex: 8, background: solid(PHASE_COLORS[cat], 7) }}>
                     <span style={{ width: 4, height: 16, borderRadius: 1, background: PHASE_COLORS[cat], flexShrink: 0 }} />
                     <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PHASE_COLORS[cat], fontWeight: 700 }}>{PHASE_LABEL[cat]}</span>
                     <span style={{ fontSize: 10.5, color: PHASE_COLORS[cat], fontWeight: 700, marginLeft: 'auto', fontFamily: 'var(--font-mono)' }} title="Cost of works in this phase">{phaseFmt(phaseCosts[cat] || 0)}</span>
-                    <span style={{ fontSize: 9, color: `${PHASE_COLORS[cat]}88` }}>· {catTasks.length}</span>
+                    <span style={{ fontSize: 9, color: tint(PHASE_COLORS[cat], 53) }}>· {catTasks.length}</span>
                   </div>
                   {/* Phase grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
                     {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : 'var(--line)' }} />)}
                     <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'color-mix(in srgb, var(--gold) 20%, transparent)' }} />
+                  </div>
+
+                  {/* Phase % complete — the roll-up for the cost of works shown on the
+                      left of this row. The phase row had no % cell at all, so the
+                      column ran blank against every phase. Same mean as the Overall
+                      KPI, so the two cannot disagree. */}
+                  <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 12px', position: 'sticky', right: 0, zIndex: 8, background: solid(PHASE_COLORS[cat], 7), borderLeft: '1px solid var(--border)' }}>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: PHASE_COLORS[cat] }}>{phasePct(catTasks)}%</span>
                   </div>
                 </div>
 
@@ -429,23 +459,26 @@ export default function ProjectTimeline({ projectId }: Props) {
                           return isMile ? (
                           <div onMouseDown={startDrag} onClick={guardedEdit}
                             title="Drag to move"
-                            style={{ position: 'absolute', left: startPx + dragOffset, top: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: 10, height: 10, background: sColor, zIndex: dragId === task.id ? 6 : 4, boxShadow: `0 0 6px ${sColor}88`, cursor: dragId === task.id ? 'grabbing' : 'grab' }} />
+                            style={{ position: 'absolute', left: startPx + dragOffset, top: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: 10, height: 10, background: sColor, zIndex: dragId === task.id ? 6 : 4, boxShadow: `0 0 6px ${tint(sColor, 53)}`, cursor: dragId === task.id ? 'grabbing' : 'grab' }} />
                         ) : (
                           <div
                             onMouseDown={startDrag}
                             onClick={guardedEdit}
                             title="Drag to move · click to edit"
-                            style={{ position: 'absolute', left: startPx + dragOffset, width: widthPx, top: '50%', transform: 'translateY(-50%)', height: 20, background: `${sColor}25`, border: `1px solid ${sColor}80`, borderRadius: 3, zIndex: dragId === task.id ? 6 : 4, overflow: 'hidden', cursor: dragId === task.id ? 'grabbing' : 'grab', boxShadow: isCrit || dragId === task.id ? `0 0 8px ${sColor}66` : undefined }}>
+                            style={{ position: 'absolute', left: startPx + dragOffset, width: widthPx, top: '50%', transform: 'translateY(-50%)', height: 20, background: tint(sColor, 15), border: `1px solid ${tint(sColor, 50)}`, borderRadius: 3, zIndex: dragId === task.id ? 6 : 4, overflow: 'hidden', cursor: dragId === task.id ? 'grabbing' : 'grab', boxShadow: isCrit || dragId === task.id ? `0 0 8px ${tint(sColor, 40)}` : undefined }}>
                             {/* Progress fill */}
-                            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${task.progress}%`, background: `${sColor}50` }} />
+                            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${task.progress}%`, background: tint(sColor, 31) }} />
                           </div>
                         )
                         })()}
                       </div>
 
                       {/* % complete — its own column, always shown (it used to sit
-                          inside the bar and vanish on any bar under 30px wide). */}
-                      <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 12px' }}>
+                          inside the bar and vanish on any bar under 30px wide).
+                          Sticky right: "All dates" makes the Gantt ~9x the panel
+                          width, so a static column would sit thousands of px off
+                          screen and you'd have to scroll to the end to read it. */}
+                      <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 12px', position: 'sticky', right: 0, zIndex: 6, background: 'linear-gradient(var(--card-2), var(--card-2)), var(--page)', borderLeft: '1px solid var(--border)', height: '100%' }}>
                         <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 600, color: task.progress >= 100 ? 'var(--emerald)' : task.progress > 0 ? 'var(--ink-2)' : 'var(--faint)' }}>{task.progress}%</span>
                       </div>
                     </div>

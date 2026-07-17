@@ -293,6 +293,12 @@
 .fxs .chip:hover{border-color:var(--gold-line);color:var(--ink)}
 /* .accent is the reference's name for this variant; .gold is the original. Same rule. */
 .fxs .chip.gold,.fxs .chip.accent{border-color:var(--gold-line);color:var(--gold)}
+/* Pressed state for chips that are TOGGLES rather than actions. .accent only
+   recolours the border and text, which on a chip that already has a --card
+   background left an on/off toggle looking near enough identical either way.
+   This fills it, like .seg button.on. Separate from .accent so the primary
+   actions that use it ("+ Add task") keep their own look. */
+.fxs .chip.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold);font-weight:600;box-shadow:var(--glass-edge)}
 /* The positive counterpart to .warn — same shape, functional green. */
 .fxs .okmsg{font-size:12px;color:var(--emerald);background:var(--em-soft);border:1px solid color-mix(in srgb, var(--emerald) 25%, transparent);border-radius:10px;padding:13px 15px;line-height:1.55}
 
