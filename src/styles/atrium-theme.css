@@ -124,3 +124,24 @@
 
 /* ---- 16. NICETIES ------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce){.fxs *{transition:none!important}}
+
+/* ---- 17. TAILWIND COMPAT (studio only) ---------------------------------
+   Several studio surfaces still paint with Tailwind's light-only utilities —
+   `bg-white` panels and a few pale arbitrary tints. They are invisible to a
+   hex search, so they survived the colour sweep: in dark they left white
+   panels carrying dark-mode text (Product Mix and its BTR/BTS/Hotel
+   sub-tabs). Remapping them here to the glass tokens fixes every call site at
+   once, with no churn in the tab components.
+
+   Scoped to `.fxs`, so the same utilities keep stock Tailwind behaviour on
+   login, Capital Base and the hubs. `.hover\:bg-white` is a different class
+   and is deliberately untouched, as is `text-white` — that one is white text
+   on a dark button, which is correct in both themes. */
+.fxs .bg-white{background-color:var(--card)}
+.fxs .bg-\[\#F5F3F0\]{background-color:var(--card-2)}
+.fxs .bg-\[\#FDFAF5\],
+.fxs .bg-\[\#F5F7FC\],
+.fxs .bg-\[\#F8F5FC\],
+.fxs .bg-\[\#FDFBF4\],
+.fxs .bg-\[\#F0EEE9\]{background-color:var(--card-2)}
+.fxs .border-\[\#E8E4DE\]{border-color:var(--border)}
