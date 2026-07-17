@@ -104,9 +104,14 @@
 .fxs .fx-brand .atr-wm{height:67px!important;width:auto!important;filter:none;opacity:1}
 .fxs .fx-proj{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
 .fxs .fx-projname{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--chrome-txt)}
-.fxs .fx-projname .fx-nm{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.01em}
+/* nowrap + ellipsis on both of these keeps the topbar at a FIXED height, which
+   the .fx-tabnav sticky offset below depends on. Left to wrap, they grew the bar
+   the moment the window narrowed: at 820px the address broke onto a second line
+   and the bar went 94 -> 114, while the tab bar stayed pinned at top:94 — so it
+   sat 20px under the topbar and clipped on scroll. Ellipsis, not wrap. */
+.fxs .fx-projname .fx-nm{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .fxs .fx-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 9px var(--emerald);flex:none}
-.fxs .fx-addr{font-size:11px;color:var(--chrome-faint);letter-spacing:.05em}
+.fxs .fx-addr{font-size:11px;color:var(--chrome-faint);letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fxs .fx-pillmini{font-size:8.5px;letter-spacing:.2em;color:var(--chrome-dim);border:1px solid var(--chrome-line);padding:4px 9px;border-radius:20px;display:inline-flex;gap:6px;align-items:center;text-transform:uppercase}
 .fxs .fx-pillmini .d{width:5px;height:5px;border-radius:50%;background:var(--emerald)}
 .fxs .fx-right{display:flex;align-items:center;gap:12px;flex:none}
@@ -129,6 +134,46 @@
 .fxs .fx-tab:hover{color:var(--chrome-dim)}
 .fxs .fx-tab.on{color:var(--chrome-txt)}
 .fxs .fx-tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--chrome-faint),var(--gold-hi),var(--chrome-faint));box-shadow:0 0 12px rgba(198,206,214,0.45);border-radius:2px}
+
+/* ---- Mobile chrome (<=768px) ----
+   The topbar had no mobile rules at all, and it is a single non-wrapping row.
+   .fx-right is flex:none so it never yields, which squeezed .fx-proj (flex:1,
+   min-width:0) to ZERO width: measured at 375px the project name wrapped one
+   word per line, the address became a 149px-tall column one character wide, the
+   bar stood 255px tall on an 812px screen, and .fx-right still ran to x=542 —
+   167px off-screen, taking the ATRIUM wordmark with it.
+   The tab bar already scrolls sideways (overflow-x:auto, 1107px of tabs), so it
+   only needs tightening — but its sticky `top` MUST track the shorter topbar,
+   per the note above. */
+@media(max-width:768px){
+  .fxs .fx-topbar{padding:8px 12px;gap:10px}
+  /* 2 rules x (1px + 44px of margin) = 90px of pure spacing on a 375px bar */
+  .fxs .fx-div{display:none}
+  /* 67px is sized for a monitor; alone it is a third of the screen */
+  .fxs .fx-brand .atr-wm{height:30px!important}
+  .fxs .fx-proj{gap:0}
+  .fxs .fx-projname{gap:7px;min-width:0}
+  /* flex:1 is load-bearing. At 0 1 auto the name lost the row to the autosave
+     pill — the pill's text held its 113px while the name, having min-width:0,
+     collapsed to 0 and vanished entirely. The name takes the space first now. */
+  .fxs .fx-projname .fx-nm{flex:1 1 auto;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  /* Dot-only: "Autosave on" is 113px of a 124px row. The dot still carries the
+     state (grey -> green while saving) and the title attribute still names it. */
+  .fxs .ws-autosave-pill{font-size:0;gap:0;padding:5px;flex:none}
+  .fxs .ws-autosave-pill .dot{width:7px;height:7px}
+  /* Collapsed to 0 width anyway, and it is on the hub list you just came from */
+  .fxs .fx-addr{display:none}
+  /* Decorative: the 7EVEN·HAAVN mark already brands the bar */
+  .fxs .fx-atr{display:none}
+  .fxs .fx-home{font-size:9px;letter-spacing:.16em}
+  .fxs .fx-right{gap:8px}
+  .fxs .fx-tgl{font-size:9px;padding:6px 10px;letter-spacing:.12em}
+  .fxs .fx-grid{width:30px;height:28px}
+  /* = topbar: tallest child (logo 30) + 8px padding x2 + 1px border */
+  .fxs .fx-tabnav{top:47px;padding:0 8px}
+  .fxs .fx-tab{padding:12px 11px;font-size:9.5px;letter-spacing:.12em}
+  .fxs .fx-tab.on::after{left:11px;right:11px}
+}
 
 /* ============ LAYOUT ============ */
 .fxs .fx-wrap{max-width:1440px;margin:0 auto;padding:32px 26px 140px}
