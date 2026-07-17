@@ -240,76 +240,67 @@ export default function ProjectTimeline({ projectId }: Props) {
         .tl-critical-ring { animation: tl-ping 1.2s ease-out infinite; }
       `}</style>
 
-      {/* ─── Header bar — stealth black-grey glass ───────────────────────────── */}
-      <div style={{
-        padding: '13px 20px', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, flexWrap: 'wrap',
-        background: 'linear-gradient(180deg, rgba(22,22,24,0.96), rgba(12,12,13,0.97))',
-        borderBottom: '1px solid rgba(255,255,255,0.10)',
-        boxShadow: '0 1px 0 rgba(255,255,255,0.05) inset, 0 6px 20px rgba(0,0,0,0.35)',
-        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-      }}>
-
-        {/* Traffic light counts */}
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          {/* Read STATUS_COLORS rather than restating the colours: these tiles had
-              drifted out of step with the bars they summarise (Delayed silver,
-              On Track green, Complete purple). Same source now, so they can't. */}
-          <TrafficLight color={STATUS_COLORS['critical']} count={critical} label="Critical" flash />
-          <TrafficLight color={STATUS_COLORS['delayed']} count={atRisk}   label="Delayed" />
-          <TrafficLight color={STATUS_COLORS['in-progress']} count={onTrack}  label="On Track" />
-          <TrafficLight color={STATUS_COLORS['complete']} count={complete} label="Complete" />
-          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
-          <span style={{ fontSize: 9, color: 'var(--ink-3)', letterSpacing: '0.10em' }}>{total} tasks</span>
-          <span style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700 }}>{overallPct}%</span>
-          <div style={{ width: 80, height: 3, background: 'rgba(255,255,255,0.12)', borderRadius: 2 }}>
-            <div style={{ height: '100%', width: `${overallPct}%`, background: overallPct >= 80 ? 'var(--emerald)' : overallPct >= 40 ? 'var(--gold)' : 'var(--blue)', borderRadius: 2 }} />
+      {/* ─── Page head — kicker + serif title + sub, year nav and Add task right.
+           Replaces a bespoke dark control bar (hardcoded rgba(22,22,24,.96)) that
+           was still the OLD dark theme sitting on the light glass page. ─────── */}
+      <div className="fx-wrap" style={{ paddingBottom: 0 }}>
+        <div className="pagehead">
+          <div>
+            <div className="kicker">07 · Timeline</div>
+            <h1 className="h-sec">Programme &amp; Gantt</h1>
+            <div className="h-sub">{total} tasks across {PHASES.length} phases · owners, dependencies and progress.</div>
           </div>
-          {phaseLabel && (
-            <>
-              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'var(--line)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 6px color-mix(in srgb, var(--emerald) 67%, transparent)' }} /> Phase · {phaseLabel}
-              </span>
-            </>
-          )}
+          <div className="flex gap aic wrapf">
+            {canUndo && <span className="chip" onClick={() => undo(setTasks)}>↶ Undo</span>}
+            <span className={`chip${allDates ? ' accent' : ''}`} onClick={() => setAllDates(v => !v)}>All dates</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, opacity: allDates ? 0.4 : 1 }}>
+              <span className="chip" style={{ padding: '8px 11px' }} onClick={() => { if (!allDates) { setAllDates(false); setViewYear(y => y - 1) } }}>‹</span>
+              <select className="sel" value={viewYear} disabled={allDates}
+                onChange={e => { setAllDates(false); setViewYear(Number(e.target.value)) }}>
+                {years.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <span className="chip" style={{ padding: '8px 11px' }} onClick={() => { if (!allDates) { setAllDates(false); setViewYear(y => y + 1) } }}>›</span>
+            </span>
+            <span className="chip accent" onClick={openNew}>+ Add task</span>
+          </div>
         </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Status KPIs — the design's 5-up strip. Functional colours only, read
+            from STATUS_COLORS so they cannot drift from the bars they summarise. */}
+        <div className="kpis k5" style={{ marginBottom: 16 }}>
+          <div className="kpi"><div className="lab">Critical</div><div className="val" style={{ color: STATUS_COLORS['critical'] }}>{critical}</div></div>
+          <div className="kpi"><div className="lab">Delayed</div><div className="val" style={{ color: STATUS_COLORS['delayed'] }}>{atRisk}</div></div>
+          <div className="kpi"><div className="lab">On track</div><div className="val" style={{ color: STATUS_COLORS['in-progress'] }}>{onTrack}</div></div>
+          <div className="kpi"><div className="lab">Complete</div><div className="val" style={{ color: STATUS_COLORS['complete'] }}>{complete}</div></div>
+          <div className="kpi gold">
+            <div className="lab">Overall · {total} tasks</div>
+            <div className="val" style={{ color: 'var(--gold)' }}>{overallPct}%</div>
+            <div className="track-bar" style={{ marginTop: 8 }}>
+              <div className="fill" style={{ width: `${overallPct}%`, background: 'var(--gold)' }} />
+            </div>
+          </div>
+        </div>
 
-        {/* Phase filters — the same delivery phases used across every tab */}
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          <FilterChip label="All Phases" active={filterPhase === 'all'} color="var(--ink-3)" onClick={() => setFilterPhase('all')} dark />
+        {/* Phase filter — the design's segmented pill (was a row of dark chips) */}
+        <div className="seg" style={{ marginBottom: 16 }}>
+          <button className={filterPhase === 'all' ? 'on' : ''} onClick={() => setFilterPhase('all')}>All phases</button>
           {PHASES.map(p => (
-            <FilterChip key={p} label={PHASE_LABEL[p]} active={filterPhase === p} color={PHASE_COLORS[p]} onClick={() => setFilterPhase(p)} dark />
+            <button key={p} className={filterPhase === p ? 'on' : ''} onClick={() => setFilterPhase(p)}>{PHASE_LABEL[p]}</button>
           ))}
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          {/* All dates — show every year on one timeline */}
-          <button onClick={() => setAllDates(v => !v)} aria-pressed={allDates}
-            style={{ padding: '6px 12px', borderRadius: 5, border: `1px solid ${allDates ? 'var(--gold)' : 'rgba(255,255,255,0.16)'}`, background: allDates ? 'var(--gold)' : 'rgba(255,255,255,0.06)', color: allDates ? 'var(--ink)' : 'var(--line)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            All dates
-          </button>
-          <button onClick={() => { setAllDates(false); setViewYear(y => y - 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Previous year">‹</button>
-          <select value={viewYear} disabled={allDates} onChange={e => { setAllDates(false); setViewYear(Number(e.target.value)) }}
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: 'var(--line)', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', padding: '6px 8px', cursor: allDates ? 'default' : 'pointer', opacity: allDates ? 0.35 : 1 }}>
-            {years.map(y => <option key={y} value={y} style={{ background: 'var(--ink)' }}>{y}</option>)}
-          </select>
-          <button onClick={() => { setAllDates(false); setViewYear(y => y + 1) }} disabled={allDates} style={{ ...yrNav, opacity: allDates ? 0.35 : 1, cursor: allDates ? 'default' : 'pointer' }} aria-label="Next year">›</button>
-        </div>
-        {canUndo && (
-          <button onClick={() => undo(setTasks)} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', color: 'var(--faint)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
-            ↩ Undo
-          </button>
-        )}
-        <button onClick={openNew} style={{ padding: '7px 16px', background: 'linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))', border: '1px solid rgba(255,255,255,0.18)', color: 'var(--line)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 700, borderRadius: 6 }}>
-          + Add Task
-        </button>
       </div>
 
-      {/* ─── Gantt ───────────────────────────────────────────────────────────── */}
+
+      {/* ─── Gantt ─── inside the wrap and in a panel, so it lines up with the
+           page head above instead of running full-bleed to the window edge. ─── */}
       {tasks.length > 0 ? (
-        <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', position: 'relative' }}>
+        <div className="fx-wrap" style={{ paddingTop: 0 }}>
+        {/* Sizes to its content and lets the PAGE scroll vertically — one
+            scrollbar, same as the Product Mix drawer. It still scrolls
+            SIDEWAYS on its own, because the month columns genuinely run wider
+            than the panel. flex:1 was no use here: no ancestor sets a definite
+            height, so the panel collapsed to ~90px and cut the Gantt off. */}
+        <div className="panel" style={{ overflowX: 'auto', position: 'relative' }}>
           <div style={{ minWidth: LABEL_W + ganttW + 40 }}>
 
             {/* Month header — sticky top */}
@@ -449,10 +440,13 @@ export default function ProjectTimeline({ projectId }: Props) {
             <div style={{ height: 40 }} />
           </div>
         </div>
+        </div>
       ) : (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
-          <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid color-mix(in srgb, var(--gold) 27%, transparent)', background: 'transparent', color: 'var(--gold)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
+        <div className="fx-wrap" style={{ paddingTop: 0 }}>
+          <div className="panel pad" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: '60px 20px' }}>
+            <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
+            <span className="chip accent" onClick={openNew}>+ Add first task</span>
+          </div>
         </div>
       )}
 
@@ -544,27 +538,6 @@ export default function ProjectTimeline({ projectId }: Props) {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function TrafficLight({ color, count, label, flash }: { color: string; count: number; label: string; flash?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ position: 'relative', width: 11, height: 11, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        {flash && count > 0 && <span className="tl-critical-ring" style={{ position: 'absolute', width: 11, height: 11, borderRadius: '50%', background: color } as CSSProperties} />}
-        {/* Traffic-light lens — always its colour; dimmed + hollow when the count is 0, lit when active */}
-        <span className={flash && count > 0 ? 'tl-critical-dot' : ''} style={{ width: 11, height: 11, borderRadius: '50%', background: color, opacity: count > 0 ? 1 : 0.28, boxShadow: count > 0 ? `0 0 6px ${color}AA` : 'none', display: 'block' } as CSSProperties} />
-      </span>
-      <span style={{ fontSize: 9, color: count > 0 ? 'var(--faint)' : 'var(--ink-3)', letterSpacing: '0.08em' }}>
-        <span style={{ color, opacity: count > 0 ? 1 : 0.55, fontWeight: 700, marginRight: 3 }}>{count}</span>
-        {label}
-      </span>
-    </div>
-  )
-}
-
-const yrNav: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 5, color: 'var(--faint)',
-  width: 24, height: 28, fontSize: 14, lineHeight: 1, cursor: 'pointer', flexShrink: 0,
-}
-
 const INPUT: React.CSSProperties = {
   width: '100%', background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--ink)',
   padding: '8px 10px', fontSize: 11, outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit',
@@ -579,18 +552,6 @@ function Field({ label, children, flex }: { label: string; children: React.React
   )
 }
 
-function FilterChip({ label, active, color, onClick, dark }: { label: string; active: boolean; color: string; onClick: () => void; dark?: boolean }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '5px 11px', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 4,
-      background: active ? `${color}2E` : (dark ? 'rgba(255,255,255,0.04)' : 'transparent'),
-      border: `1px solid ${active ? color : (dark ? 'rgba(255,255,255,0.14)' : 'var(--border)')}`,
-      color: active ? (dark ? 'var(--card)' : color) : (dark ? 'var(--faint)' : 'var(--ink-2)'),
-      fontWeight: active ? 700 : 500,
-      transition: 'all 0.15s',
-    }}>{label}</button>
-  )
-}
 
 // ── Export traffic light colours for Dashboard use ────────────────────────────
 export { STATUS_COLORS, STATUS_SHORT }
