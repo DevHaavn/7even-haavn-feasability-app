@@ -81,11 +81,47 @@ begin
 end $$;
 
 -- ---- Realtime: broadcast changes to all connected browsers ------------------
+-- Guarded, because `alter publication ... add table` is NOT idempotent: on a
+-- database where these have already been added it raises 42710 ("relation is
+-- already member of publication"). The editor runs this file as ONE transaction,
+-- so that error rolls back everything after it — which is what silently ate the
+-- storage section below on the first re-run. Everything else in this file is
+-- re-runnable, so this needs to be too.
 
-alter publication supabase_realtime add table public.projects;
-alter publication supabase_realtime add table public.project_data;
-alter publication supabase_realtime add table public.mix_scenarios;
-alter publication supabase_realtime add table public.scenario_data;
-alter publication supabase_realtime add table public.feasibility_files;
+do $$
+declare t text;
+begin
+  foreach t in array array['projects','project_data','mix_scenarios','scenario_data','feasibility_files']
+  loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I;', t);
+    end if;
+  end loop;
+end $$;
+
+-- ---- Storage: the project-docs bucket (architect PDFs) ----------------------
+-- storage.objects has its OWN row level security, entirely separate from the
+-- public.* tables above. The anon_all loop does not reach it, so a bucket made
+-- in the dashboard starts with no policy and every upload fails with
+-- "new row violates row-level security policy" — the bucket looks fine, and
+-- writes are refused. This section is why the app can upload at all; creating
+-- the bucket without it is a no-op.
+
+-- Bucket. public = true → files are readable at their direct URL with no key,
+-- which is what the <a href> on the Site & Design panel opens.
+insert into storage.buckets (id, name, public)
+values ('project-docs', 'project-docs', true)
+on conflict (id) do update set public = excluded.public;
+
+-- Same trust model as the tables: the app's password screen is the gate.
+-- Scoped to this one bucket, so a future private bucket is unaffected.
+drop policy if exists anon_all_project_docs on storage.objects;
+create policy anon_all_project_docs on storage.objects
+  for all to anon, authenticated
+  using (bucket_id = 'project-docs')
+  with check (bucket_id = 'project-docs');
 
 -- Done. The new database is ready for the app.
