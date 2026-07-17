@@ -13,8 +13,11 @@ const fmtK = (n: number) => Math.abs(n) >= 1_000_000 ? `$${(n / 1_000_000).toFix
 const pct = (n: number, dp = 1) => `${(n * 100).toFixed(dp)}%`
 
 // ATRIUM palette — muted, no rainbow (brief §10). Same series/meaning, recoloured only.
-const BLUE = 'var(--blue)', PURPLE = 'var(--purple)', GOLD = 'var(--amber)', RED = 'var(--red)', GREEN = 'var(--emerald)', INK = 'var(--ink)', MUTE = 'var(--ink-3)'
-const trancheColor = (t: TrancheWaterfall) => t.type === 'mezz' ? PURPLE : t.type === 'preferred-equity' ? GOLD : BLUE
+// SILVER leads the chart series (playbook step 6: series are silver + muted
+// blue/purple). GOLD is amber and is kept ONLY for the 'Total finance cost'
+// KPI, which the playbook specifies as an amber caution — not for series.
+const SILVER = 'var(--gold)', BLUE = 'var(--blue)', PURPLE = 'var(--purple)', GOLD = 'var(--amber)', RED = 'var(--red)', GREEN = 'var(--emerald)', INK = 'var(--ink)', MUTE = 'var(--ink-3)'
+const trancheColor = (t: TrancheWaterfall) => t.type === 'mezz' ? PURPLE : t.type === 'preferred-equity' ? SILVER : BLUE
 
 const MODEL_LABEL: Record<string, string> = { compound: 'Compound monthly', pik: 'PIK', simple: 'Simple' }
 
@@ -33,13 +36,13 @@ function DebtBalanceChart({ months }: { months: WaterfallMonth[] }) {
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
       {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
         <g key={i}>
-          <line x1={PL} x2={W - PR} y1={yBal(maxBal * f)} y2={yBal(maxBal * f)} stroke="#EEE" />
+          <line x1={PL} x2={W - PR} y1={yBal(maxBal * f)} y2={yBal(maxBal * f)} stroke="var(--line)" />
           <text x={PL - 8} y={yBal(maxBal * f) + 3} textAnchor="end" fontSize="9" fill={MUTE}>{tick(maxBal * f)}</text>
         </g>
       ))}
       {months.map((m, i) => {
         const h = (m.costDraw / maxDraw) * (H - PT - PB)
-        return <rect key={i} x={x(i) - bw / 2} y={H - PB - h} width={bw} height={h} fill={GOLD} opacity={0.5} rx={1} />
+        return <rect key={i} x={x(i) - bw / 2} y={H - PB - h} width={bw} height={h} fill={SILVER} opacity={0.5} rx={1} />
       })}
       <path d={line} fill="none" stroke={BLUE} strokeWidth={2.5} />
       {months.filter((_, i) => i % Math.ceil(months.length / 8) === 0).map((m, i, arr) => {
@@ -65,7 +68,7 @@ function InterestByTrancheChart({ result }: { result: WaterfallResult }) {
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
       {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
         <g key={i}>
-          <line x1={PL} x2={W - PR} y1={y(maxT * f)} y2={y(maxT * f)} stroke="#EEE" />
+          <line x1={PL} x2={W - PR} y1={y(maxT * f)} y2={y(maxT * f)} stroke="var(--line)" />
           <text x={PL - 8} y={y(maxT * f) + 3} textAnchor="end" fontSize="9" fill={MUTE}>{tick(maxT * f)}</text>
         </g>
       ))}
@@ -187,7 +190,7 @@ export default function FinanceTab({ projectId }: Props) {
               <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Debt balance — monthly drawdown curve</div>
               <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
                 <span><span style={{ display: 'inline-block', width: 8, height: 8, background: BLUE, marginRight: 4 }} />Debt balance</span>
-                <span><span style={{ display: 'inline-block', width: 8, height: 8, background: GOLD, opacity: 0.5, marginRight: 4 }} />Monthly draws</span>
+                <span><span style={{ display: 'inline-block', width: 8, height: 8, background: SILVER, opacity: 0.5, marginRight: 4 }} />Monthly draws</span>
               </div>
               <DebtBalanceChart months={result.months} />
             </div>
@@ -316,7 +319,7 @@ export default function FinanceTab({ projectId }: Props) {
                       <td style={{ padding: '9px 14px', textAlign: 'right', color: MUTE }}>{c.avgHoldMonths} mo</td>
                       <td style={{ padding: '9px 14px', textAlign: 'right', color: BLUE, fontVariantNumeric: 'tabular-nums' }}>{c.seniorInt > 0 ? fmtK(c.seniorInt) : '—'}</td>
                       <td style={{ padding: '9px 14px', textAlign: 'right', color: PURPLE, fontVariantNumeric: 'tabular-nums' }}>{c.mezzInt > 0 ? fmtK(c.mezzInt) : '—'}</td>
-                      <td style={{ padding: '9px 14px', textAlign: 'right', color: GOLD, fontVariantNumeric: 'tabular-nums' }}>{c.prefInt > 0 ? fmtK(c.prefInt) : '—'}</td>
+                      <td style={{ padding: '9px 14px', textAlign: 'right', color: SILVER, fontVariantNumeric: 'tabular-nums' }}>{c.prefInt > 0 ? fmtK(c.prefInt) : '—'}</td>
                       <td style={{ padding: '9px 14px', textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{c.total > 0 ? fmtK(c.total) : '—'}</td>
                     </tr>
                   ))}
