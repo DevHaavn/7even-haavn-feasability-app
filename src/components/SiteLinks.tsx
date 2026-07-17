@@ -24,10 +24,10 @@ export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' |
     color: '#EEF1F2', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
   }
   const sevenLink: React.CSSProperties = light
-    ? { ...linkBase, background: '#fff', border: '1px solid rgba(196,151,58,0.45)', color: '#8A6A28' }
+    ? { ...linkBase, background: 'var(--card, #fff)', border: '1px solid color-mix(in srgb, var(--gold, #C4973A) 45%, transparent)', color: 'var(--gold, #8A6A28)' }
     : glass ? glassLink : linkBase
   const haavnLink: React.CSSProperties = light
-    ? { ...linkBase, background: '#fff', border: '1px solid #D3D4D8', color: '#12150F' }
+    ? { ...linkBase, background: 'var(--card, #fff)', border: '1px solid var(--border, #D3D4D8)', color: 'var(--ink, #12150F)' }
     : glass ? glassLink : { ...linkBase, color: 'rgba(255,255,255,0.9)' }
   const plain = light || glass
 
