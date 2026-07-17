@@ -173,8 +173,21 @@
 .fxs .subtab.on{color:var(--ink);border-color:var(--gold)}
 
 /* preset cards */
-.fxs .presets{display:flex;flex-wrap:wrap;gap:9px}
-.fxs .preset{border:1px solid var(--border);background:var(--card);border-radius:11px;padding:12px 15px;cursor:pointer;transition:.2s;min-width:118px;box-shadow:var(--shadow)}
+/* One line, evenly spread — the six presets share the row rather than wrapping.
+   (The reference stylesheet says flex-wrap:wrap + min-width:118px, but its own
+   screenshot shows a single spread row; JB confirmed the row is what he wants.
+   flex:1 1 0 makes every card an equal share of the width.) */
+.fxs .presets{display:flex;flex-wrap:nowrap;gap:10px}
+/* flex:1 1 auto, not 1 1 0 — each card takes its label's width and then shares
+   the slack, so the row spreads evenly AND no label wraps ("HAAVN HYBRID" broke
+   onto two lines at an equal 121px share, making that card taller than the rest). */
+.fxs .preset{flex:1 1 auto;min-width:0;border:1px solid var(--border);background:var(--card);border-radius:11px;padding:12px 15px;cursor:pointer;transition:.2s;box-shadow:var(--shadow)}
+.fxs .preset .pt{white-space:nowrap}
+/* Below tablet the six cannot share a row legibly, so they wrap there. */
+@media(max-width:860px){
+  .fxs .presets{flex-wrap:wrap}
+  .fxs .preset{flex:1 1 128px}
+}
 .fxs .preset:hover{border-color:var(--gold-line)}
 .fxs .preset.on{border-color:var(--gold);background:var(--gold-soft)}
 .fxs .preset .pt{font-size:10px;letter-spacing:.09em;color:var(--ink-2);font-weight:600;text-transform:uppercase}
