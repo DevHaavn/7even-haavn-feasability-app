@@ -116,25 +116,9 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
   }, [address])
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: 340 }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Dark map container */}
-      <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: 340 }} />
-
-      {/* Brand overlay — top right of map */}
-      <div style={{
-        position: 'absolute', top: 12, right: 12, zIndex: 500,
-        background: 'rgba(10,10,10,0.88)', backdropFilter: 'blur(8px)',
-        border: '1px solid #1E1E1E', padding: '10px 16px',
-        pointerEvents: 'none',
-      }}>
-        <div style={{ height: 1, background: 'linear-gradient(to right,var(--gold, #6e7c8e),var(--gold-hi, #9aa8b6))', marginBottom: 10 }} />
-        <img
-          src="/brand-logo-white.png"
-          alt="7EVEN · HAAVN"
-          style={{ width: 100, height: 'auto', display: 'block' }}
-        />
-        <p style={{ color: '#fff', fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', margin: '8px 0 0', fontWeight: 600 }}>Site Location</p>
-      </div>
+      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       {/* Status indicators */}
       {status === 'loading' && (

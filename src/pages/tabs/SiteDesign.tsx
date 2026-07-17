@@ -32,6 +32,11 @@ export default function SiteDesignTab({ projectId }: Props) {
   }
 
   // Reconciliation checks (unchanged)
+  // Suburb for the map panel's label, read off the project address:
+  // "20-30 Newman Street, Preston VIC 3072" -> "Preston". Display only.
+  const suburb = (project?.address ?? '').split(',')[1]?.trim()
+    .replace(/\s+(VIC|NSW|QLD|WA|SA|TAS|ACT|NT)\b.*$/i, '').trim() ?? ''
+
   const nsaGFAEff = data.resiGFA > 0 ? data.resiNSA / data.resiGFA : 0
   const nsaGFAFlag = nsaGFAEff > 0 && (nsaGFAEff < 0.78 || nsaGFAEff > 0.87)
   const totalGBA = data.resiGBA + data.childcareGFA + data.churchGFA
@@ -137,9 +142,15 @@ export default function SiteDesignTab({ projectId }: Props) {
             </div>
           )}
 
-          <div className="panel" style={{ height: 300, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: 14, left: 16, zIndex: 2 }} className="eyebrow">Site location · CARTO</div>
-            <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
+          {/* Design: the label is a panel header naming the suburb, with the map
+              below it — not floated on top of the map. */}
+          <div className="panel" style={{ overflow: 'hidden' }}>
+            <div className="eyebrow" style={{ padding: '16px 20px 12px' }}>
+              Site location{suburb ? ` · ${suburb}` : ''} · CARTO
+            </div>
+            <div style={{ height: 260, position: 'relative' }}>
+              <ProjectMap address={project?.address ?? ''} pinLabel={project?.mapPin} />
+            </div>
           </div>
 
           <div className="panel pad">
