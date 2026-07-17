@@ -233,27 +233,21 @@ export default function ProductMixTab({ projectId }: Props) {
       {/* Render background */}
 
       <div className="fx-wrap relative">
-        <div className="flex items-center justify-between mb-5">
-          <SectionHeading sub="Define unit types, NSA and % mix — solver calculates integer counts">Product Mix Builder</SectionHeading>
-          <div className="flex gap-2 items-center">
-            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
-            {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setUnits)}>Undo</Button>}
+        {/* Page head to the design: kicker + serif title + sub on the left, the two
+            action chips on the right. (Was a SectionHeading with square buttons.) */}
+        <div className="pagehead">
+          <div>
+            <div className="kicker">03 · Product Mix</div>
+            <h1 className="h-sec">Mix Builder</h1>
+            <div className="h-sub">Define unit types, NSA and % mix — solver calculates integer counts</div>
+          </div>
+          <div className="flex gap aic wrapf">
+            <span className="check">✓ Auto-saved</span>
+            {canUndo && <span className="chip" onClick={() => undo(setUnits)}>↶ Undo</span>}
             {activeId && (
-              <button
-                onClick={() => setShowArchImport(v => !v)}
-                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors cursor-pointer"
-                style={{ borderRadius: 0 }}
-              >
-                Paste Architect Schedule
-              </button>
+              <span className="chip" onClick={() => setShowArchImport(v => !v)}>⧉ Paste architect schedule</span>
             )}
-            <button
-              onClick={() => setShowNew(true)}
-              className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase bg-[var(--ink)] text-white hover:bg-[#333] transition-colors cursor-pointer"
-              style={{ borderRadius: 0 }}
-            >
-              + New Scenario
-            </button>
+            <span className="chip accent" onClick={() => setShowNew(true)}>+ New scenario</span>
           </div>
         </div>
 
@@ -339,13 +333,13 @@ export default function ProductMixTab({ projectId }: Props) {
                 panel when a model tab is selected */}
             {modelTab === 'none' ? (
             <>
-            {/* Unit type table */}
-            <div className="border border-[var(--border)] bg-white overflow-x-auto mb-4">
+            {/* Unit type table — inside a frosted panel, per the design */}
+            <div className="panel pad mb-4" style={{ overflowX: 'auto' }}>
               <table className="w-full" style={{ borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--card-2)' }}>
-                    {['Unit Type', 'NSA / unit (sqm)', '% Mix', 'Rent — Cons. /wk', 'Rent — Agg. /wk', 'Sale Price — Mid', 'Units (Count)', ''].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 12px', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 500 }}>{h}</th>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    {['Unit Type', 'NSA / unit (sqm)', '% Mix', 'Rent — Cons. /wk', 'Rent — Agg. /wk', 'Sale Price — Mid', 'Units (Count)', ''].map((h, i) => (
+                      <th key={h} style={{ textAlign: i === 0 ? 'left' : i === 7 ? 'center' : 'right', padding: '10px 12px', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -440,76 +434,80 @@ export default function ProductMixTab({ projectId }: Props) {
               </table>
             </div>
 
-            {/* Controls row */}
-            <div className="flex items-center gap-4 mb-5">
-              <button
-                onClick={addUnitType}
-                className="px-4 py-2 text-[10px] tracking-[0.1em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
-                style={{ borderRadius: 0 }}
-              >
-                + Add Unit Type
-              </button>
-              <span style={{ fontSize: 11, color: Math.abs(totalPct - 1) < 0.001 ? 'var(--emerald)' : 'var(--gold)' }}>
-                Mix total: {(totalPct * 100).toFixed(0)}%&nbsp;
-                {Math.abs(totalPct - 1) < 0.001 ? '✓ Sums to 100%' : '— auto-normalised to 100% for the solver'}
+            {/* Controls row — design: + ADD UNIT TYPE on the left; the 100% check and
+                SOLVE TO NSA on the right. Solve moved here from the Mix Result header. */}
+            <div className="flex items-center gap-3 mb-5" style={{ flexWrap: 'wrap' }}>
+              <span className="addrow" onClick={addUnitType}>+ Add unit type</span>
+              <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {Math.abs(totalPct - 1) < 0.001 ? (
+                  <span className="check">✓ Sums to 100%</span>
+                ) : (
+                  <span style={{ fontSize: 11, color: 'var(--amber)' }}>
+                    Mix total: {(totalPct * 100).toFixed(0)}% — auto-normalised to 100% for the solver
+                  </span>
+                )}
+                {totalPct > 0 && Math.abs(totalPct - 1) > 0.001 && (
+                  <span className="chip" onClick={() => saveUnits(units.map(u => ({ ...u, targetPct: Math.round((u.targetPct / totalPct) * 1000) / 1000 })))}>
+                    Normalise to 100%
+                  </span>
+                )}
+                {solverReady && (
+                  <span className="chip accent" onClick={solveToNSA} title="Fill the counts from the NSA-optimal solver">⟲ Solve to NSA</span>
+                )}
               </span>
-              {totalPct > 0 && Math.abs(totalPct - 1) > 0.001 && (
-                <button
-                  onClick={() => saveUnits(units.map(u => ({ ...u, targetPct: Math.round((u.targetPct / totalPct) * 1000) / 1000 })))}
-                  className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
-                  style={{ borderRadius: 0 }}
-                >
-                  Normalise to 100%
-                </button>
-              )}
             </div>
             </>
             ) : (
               <ModelDrawer key={modelTab} tab={modelTab} projectId={projectId} onClose={() => setModelTab('none')} />
             )}
 
-            {/* Mix result — live from the (manual or solved) counts */}
+            {/* Mix result + Unit split — two panels side by side, per the design.
+                (Was one panel with the split as a row of centred tiles.) */}
             {units.length > 0 && (
-              <div className="border border-[var(--border)] bg-white p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)]">Mix Result — live</p>
-                  {solverReady && (
-                    <button onClick={solveToNSA}
-                      className="px-3 py-1.5 text-[9px] tracking-[0.14em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
-                      style={{ borderRadius: 0 }} title="Fill the counts from the NSA-optimal solver">
-                      ⟲ Solve to NSA
-                    </button>
-                  )}
+              // Equal columns — the design draws Mix Result and Unit Split the same
+              // width (.two-64 is 1.55:1, the Cost Stack ratio, not this one).
+              <div className="two-eq" style={{ alignItems: 'start' }}>
+                <div className="panel pad">
+                  <div className="divlabel">Mix Result — live</div>
+                  <div className="kpis k4" style={{ marginTop: 12 }}>
+                    <SolverStat label="Total units" value={totalUnits.toString()} />
+                    <SolverStat label="NSA used" value={`${nsaUsed.toLocaleString()} sqm`} />
+                    <SolverStat label="Available NSA" value={`${site.resiNSA.toLocaleString()} sqm`} />
+                    <SolverStat
+                      label="NSA discrepancy"
+                      value={`${(site.resiNSA - nsaUsed).toLocaleString()} sqm`}
+                      warn={Math.abs(site.resiNSA - nsaUsed) > 200}
+                      ok={Math.abs(site.resiNSA - nsaUsed) <= 200}
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 gap-4 mb-4">
-                  <SolverStat label="Total units" value={totalUnits.toString()} />
-                  <SolverStat label="NSA used" value={`${nsaUsed.toLocaleString()} sqm`} />
-                  <SolverStat label="Available NSA" value={`${site.resiNSA.toLocaleString()} sqm`} />
-                  <SolverStat
-                    label="NSA discrepancy"
-                    value={`${(site.resiNSA - nsaUsed).toLocaleString()} sqm`}
-                    warn={Math.abs(site.resiNSA - nsaUsed) > 200}
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(units.length, 6)}, 1fr)`, gap: 8 }}>
-                  {units.map(u => {
-                    const count = u.solvedCount || 0
-                    return (
-                      <div key={u.id} style={{ background: 'var(--card-2)', border: '1px solid var(--border)', padding: '12px', textAlign: 'center' }}>
-                        <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 22, color: 'var(--gold)' }}>{count}</div>
-                        <div style={{ fontSize: 11, color: 'var(--ink-2)', marginTop: 2 }}>{u.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--faint)', marginTop: 1 }}>{totalUnits > 0 ? Math.round((count / totalUnits) * 100) : 0}%</div>
-                      </div>
-                    )
-                  })}
+
+                {/* Unit split — a labelled bar per type, as the design draws it */}
+                <div className="panel pad">
+                  <div className="divlabel">Unit split</div>
+                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {units.map(u => {
+                      const count = u.solvedCount || 0
+                      const pct = totalUnits > 0 ? Math.round((count / totalUnits) * 100) : 0
+                      return (
+                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span style={{ fontSize: 11, color: 'var(--ink-2)', width: 132, flexShrink: 0 }}>{u.name} · {pct}%</span>
+                          <div className="track-bar" style={{ flex: 1 }}>
+                            <div className="fill" style={{ width: `${pct}%`, background: 'var(--gold)' }} />
+                          </div>
+                          <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', width: 42, textAlign: 'right', flexShrink: 0 }}>{count}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Parking & storage — knock-on space + cost as the mix changes */}
             {units.length > 0 && (
-              <div className="border border-[var(--border)] bg-white p-5 mt-4">
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)] mb-4">Parking &amp; Storage — Knock-on Requirements</p>
+              <div className="panel pad" style={{ marginTop: 16 }}>
+                <div className="divlabel" style={{ marginBottom: 14 }}>Parking &amp; Storage — Knock-on Requirements</div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 560 }}>
                     <thead>
@@ -541,23 +539,25 @@ export default function ProductMixTab({ projectId }: Props) {
                     </tbody>
                   </table>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                  <SolverStat label="Spaces required" value={`${reqSpaces}`} />
-                  <SolverStat label="Spaces provided" value={`${provided}`} warn={shortfall < 0} />
+                {/* One 6-up KPI strip, per the design. Spaces required reads red when
+                    short (functional), and the two costs read amber as a caution. */}
+                <div className="kpis k6" style={{ marginTop: 16 }}>
+                  <SolverStat label="Spaces required" value={`${reqSpaces}`} warn={false} neg={shortfall < 0} />
+                  <SolverStat label="Spaces provided" value={`${provided}`} />
                   <SolverStat label="Storage required" value={`${reqStorage} sqm`} />
                   <SolverStat label="Parking area" value={`${parkArea.toLocaleString()} sqm`} />
+                  <SolverStat label={`Parking cost (@ $${(parkCostPerSpace/1000).toFixed(0)}k/space)`} value={`$${(reqSpaces * parkCostPerSpace / 1_000_000).toFixed(2)}M`} warn />
+                  <SolverStat label={`Storage cost (@ $${storageCostPerSqm}/sqm)`} value={`$${(reqStorage * storageCostPerSqm / 1_000_000).toFixed(2)}M`} warn />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-[var(--line)]">
-                  <SolverStat label={`Parking cost (@ $${(parkCostPerSpace/1000).toFixed(0)}k/space)`} value={`$${(reqSpaces * parkCostPerSpace / 1_000_000).toFixed(2)}M`} />
-                  <SolverStat label={`Storage cost (@ $${storageCostPerSqm}/sqm)`} value={`$${(reqStorage * storageCostPerSqm / 1_000_000).toFixed(2)}M`} />
+                <div className="kpis k3" style={{ marginTop: 13 }}>
                   <SolverStat label="Ratio (spaces/unit)" value={totalUnits > 0 ? (reqSpaces / totalUnits).toFixed(2) : '—'} />
                 </div>
                 {shortfall < 0 ? (
-                  <div className="mt-4 p-3 text-xs" style={{ background: 'var(--red-soft)', border: '1px solid var(--red-soft)', color: 'var(--red)' }}>
+                  <div className="warn" style={{ marginTop: 16 }}>
                     ⚠ <strong>Parking shortfall of {Math.abs(shortfall)} spaces</strong> vs {provided} provided — planning non-compliance risk. Needs ~{extraLevels} more basement level{extraLevels !== 1 ? 's' : ''} (≈{LEVEL_SPACES}/level) or a mix re-cut. Update car spaces in Site &amp; Design once resolved.
                   </div>
                 ) : (
-                  <div className="mt-4 p-3 text-xs" style={{ background: 'var(--em-soft)', border: '1px solid var(--em-soft)', color: 'var(--emerald)' }}>
+                  <div className="okmsg" style={{ marginTop: 16 }}>
                     ✓ Compliant — {provided} provided vs {reqSpaces} required ({shortfall} spare).
                   </div>
                 )}
@@ -574,57 +574,30 @@ export default function ProductMixTab({ projectId }: Props) {
   )
 }
 
-function SolverStat({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
+// A KPI tile, per the design (was bare label + value text).
+// `warn` is functional: an out-of-tolerance discrepancy reads amber, in-tolerance
+// reads green — the design shows a 0 discrepancy in green.
+function SolverStat({ label, value, warn, ok, neg }: { label: string; value: string; warn?: boolean; ok?: boolean; neg?: boolean }) {
   return (
-    <div>
-      <div style={{ fontSize: 10, color: 'var(--ink-3)', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 15, color: warn ? 'var(--gold)' : 'var(--ink)' }}>{value}</div>
+    <div className="kpi">
+      <div className="lab">{label}</div>
+      <div className="val" style={{ color: neg ? 'var(--red)' : warn ? 'var(--amber)' : ok ? 'var(--emerald)' : 'var(--ink)' }}>{value}</div>
     </div>
   )
 }
 
-// Each model tab lights up in the colour of the use-type it represents.
-const MODEL_TAB_COLOR: Record<ModelTab, { line: string; tint: string; glow: string }> = {
-  none:    { line: 'var(--gold)', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Mix — gold
-  btr:     { line: 'var(--emerald)', tint: 'rgba(34,197,94,0.12)',  glow: 'rgba(34,197,94,0.45)' },    // BTR — green
-  bts:     { line: 'var(--blue)', tint: 'rgba(59,130,246,0.12)', glow: 'rgba(59,130,246,0.45)' },   // BTS — blue
-  hotel:   { line: 'var(--purple)', tint: 'rgba(168,85,247,0.12)', glow: 'rgba(168,85,247,0.45)' },   // Hotel — purple
-  compare: { line: 'var(--gold)', tint: 'rgba(196,151,58,0.10)', glow: 'rgba(196,151,58,0.35)' },   // Compare — gold
-}
-
-// ── Model sub-tab bar — premium "folder" tabs (matches the Cost Stack look):
-//    evenly spaced, uppercase; the active tab lights up in its use-type colour. ──
+// Model sub-tabs as the design's segmented pill: one rounded control, active =
+// white pill with the silver label. (Was a full-width "folder tab" bar that tinted
+// each tab a different colour — a rainbow the palette does not allow.)
 function ModelTabBar({ active, onChange }: { active: ModelTab; onChange: (t: ModelTab) => void }) {
   const tabs: { id: ModelTab; label: string }[] = [{ id: 'none', label: 'Mix Builder' }, ...MODEL_TABS]
   return (
-    <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', background: 'var(--card-2)', borderTopLeftRadius: 8, borderTopRightRadius: 8, marginBottom: 18, overflow: 'hidden' }}>
-      {tabs.map((t, i) => {
-        const on = active === t.id
-        const c = MODEL_TAB_COLOR[t.id]
-        return (
-          <button
-            key={t.id}
-            onClick={() => onChange(t.id)}
-            title={t.label}
-            style={{
-              flex: 1, minWidth: 0, textAlign: 'center',
-              padding: '13px 8px', border: 'none', cursor: 'pointer',
-              background: on ? `linear-gradient(180deg,var(--card), ${c.tint})` : 'transparent',
-              borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
-              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: on ? 800 : 600,
-              color: on ? 'var(--ink)' : 'var(--ink-3)',
-              borderBottom: on ? `3px solid ${c.line}` : '2px solid transparent',
-              boxShadow: on ? `inset 0 -1px 10px -2px ${c.glow}, 0 6px 14px -10px ${c.glow}` : 'none',
-              marginBottom: -2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              transition: 'color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease',
-            }}
-            onMouseEnter={e => { if (!on) e.currentTarget.style.color = c.line }}
-            onMouseLeave={e => { if (!on) e.currentTarget.style.color = 'var(--ink-3)' }}
-          >
-            {t.label}
-          </button>
-        )
-      })}
+    <div className="seg" style={{ marginBottom: 18 }}>
+      {tabs.map(t => (
+        <button key={t.id} onClick={() => onChange(t.id)} title={t.label} className={active === t.id ? 'on' : ''}>
+          {t.label}
+        </button>
+      ))}
     </div>
   )
 }

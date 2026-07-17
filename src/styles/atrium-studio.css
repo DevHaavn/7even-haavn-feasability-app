@@ -138,9 +138,11 @@
 .fxs .grid{display:grid;gap:16px}
 .fxs .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .fxs .two-64{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
+/* Equal pair — Product Mix draws Mix Result and Unit Split the same width. */
+.fxs .two-eq{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .fxs .two-46{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}
 .fxs .three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:1000px){.fxs .two,.fxs .two-64,.fxs .two-46,.fxs .three{grid-template-columns:1fr}}
+@media(max-width:1000px){.fxs .two,.fxs .two-64,.fxs .two-eq,.fxs .two-46,.fxs .three{grid-template-columns:1fr}}
 .fxs .mt{margin-top:16px}.fxs .mt2{margin-top:26px}.fxs .mb{margin-bottom:16px}
 .fxs .flex{display:flex}.fxs .aic{align-items:center}.fxs .between{justify-content:space-between}.fxs .gap{gap:12px}.fxs .wrapf{flex-wrap:wrap}.fxs .col{flex-direction:column}
 
@@ -264,7 +266,10 @@
 .fxs .check{font-size:11.5px;color:var(--emerald);display:inline-flex;gap:7px;align-items:center}
 .fxs .chip{font-size:10px;letter-spacing:.14em;color:var(--ink-2);border:1px solid var(--border);padding:8px 13px;border-radius:20px;cursor:pointer;background:var(--card);transition:.2s;text-transform:uppercase}
 .fxs .chip:hover{border-color:var(--gold-line);color:var(--ink)}
-.fxs .chip.gold{border-color:var(--gold-line);color:var(--gold)}
+/* .accent is the reference's name for this variant; .gold is the original. Same rule. */
+.fxs .chip.gold,.fxs .chip.accent{border-color:var(--gold-line);color:var(--gold)}
+/* The positive counterpart to .warn — same shape, functional green. */
+.fxs .okmsg{font-size:12px;color:var(--emerald);background:var(--em-soft);border:1px solid color-mix(in srgb, var(--emerald) 25%, transparent);border-radius:10px;padding:13px 15px;line-height:1.55}
 
 /* chart card */
 .fxs .chartcard{padding:20px 22px}
