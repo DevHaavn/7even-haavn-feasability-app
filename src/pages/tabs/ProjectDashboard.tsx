@@ -22,11 +22,13 @@ const pctS = (n: number, d = 1) => isFinite(n) ? `${(n * 100).toFixed(d)}%` : '�
 const INK = 'var(--ink)', MUTE = 'var(--ink-3)', LINE = 'var(--line)', RED = 'var(--red)', GREEN = 'var(--emerald)', GOLD = 'var(--amber)'
 
 const PHASE_COLOR: Record<string, string> = {
-  'pre-acquisition': 'var(--amber)', 'acquisition-planning': 'var(--purple)',
-  'pre-construction': 'var(--blue)', 'construction': 'var(--emerald)', 'close-out': 'var(--ink-3)',
+  'pre-acquisition': 'var(--slate)', 'acquisition-planning': 'var(--slate)',
+  'pre-construction': 'var(--blue)', 'construction': 'var(--gold)', 'close-out': 'var(--ink-3)',
 }
 // Cost-breakdown palette
-const COST_COLORS = { land: 'var(--blue)', build: 'var(--purple)', fees: 'var(--emerald)', statutory: 'var(--amber)', finance: 'var(--red)', mgmt: 'var(--emerald)' }
+// Playbook step 10: silver leads (dominant hard-cost bar), rest muted blue/slate.
+// No rainbow — green/red stay reserved for good/bad, never decoration.
+const COST_COLORS = { land: 'var(--slate)', build: 'var(--gold)', fees: 'var(--blue)', statutory: 'var(--slate)', finance: 'var(--blue)', mgmt: 'var(--ink-3)' }
 
 const LENSES = [['developer', 'Developer'], ['builder', 'Builder'], ['bank', 'Bank / lender'], ['equity', 'Equity investor']] as const
 
@@ -181,7 +183,7 @@ export default function ProjectDashboard({ projectId }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span style={{ fontSize: 11, color: MUTE }}>View as</span>
         {LENSES.map(([id, label]) => (
-          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: `1px solid ${LINE}`, padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? INK : 'var(--card)', color: lens === id ? 'var(--card)' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
+          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: `1px solid ${lens === id ? 'var(--gold-line)' : LINE}`, padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? 'var(--gold-soft)' : 'var(--card)', color: lens === id ? 'var(--gold)' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
         ))}
       </div>
 
@@ -191,7 +193,7 @@ export default function ProjectDashboard({ projectId }: Props) {
           <Label right={<span onClick={() => store.setActiveTab('cost')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>full breakdown →</span>}>Development cost stack — {fmt(tdc, 1)} TDC</Label>
           {COST_ROWS.map(r => (
             <div key={r.key} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 11 }}>
-              <span style={{ fontSize: 11, color: '#444', width: 128, flexShrink: 0 }}>{r.label}</span>
+              <span style={{ fontSize: 11, color: 'var(--ink-2)', width: 128, flexShrink: 0 }}>{r.label}</span>
               <div style={{ flex: 1, height: 6, background: 'var(--card-3)', borderRadius: 4 }}>
                 <div style={{ width: `${(r.v / costMax) * 100}%`, height: '100%', background: r.c, borderRadius: 4 }} />
               </div>
@@ -211,9 +213,9 @@ export default function ProjectDashboard({ projectId }: Props) {
           <Card style={{ padding: 16 }}>
             <Label>Value creation</Label>
             <div style={{ display: 'flex', height: 26, borderRadius: 5, overflow: 'hidden', fontSize: 9, color: 'var(--card)', fontWeight: 600 }}>
-              <div style={{ width: `${Math.max(6, (buckets.land / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--blue)' }}>Land</div>
-              <div style={{ width: `${Math.max(10, ((tdc - buckets.land) / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--purple)' }}>Build + soft</div>
-              {devProfit > 0 && <div style={{ width: `${(devProfit / Math.max(gav, tdc, 1)) * 100}%`, background: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--emerald)' }}>+{fmt(devProfit, 1)}</div>}
+              <div style={{ width: `${Math.max(6, (buckets.land / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--slate)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Land</div>
+              <div style={{ width: `${Math.max(10, ((tdc - buckets.land) / Math.max(gav, tdc, 1)) * 100)}%`, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Build + soft</div>
+              {devProfit > 0 && <div style={{ width: `${(devProfit / Math.max(gav, tdc, 1)) * 100}%`, background: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>+{fmt(devProfit, 1)}</div>}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: MUTE }}>
               <span>Land {fmt(buckets.land, 1)}</span>
@@ -223,7 +225,7 @@ export default function ProjectDashboard({ projectId }: Props) {
           </Card>
           <Card style={{ padding: 16 }}>
             <Label>Land & acquisition</Label>
-            <div style={{ fontSize: 20, fontWeight: 600, color: GOLD, marginBottom: 8 }}>{fmt(landCostEff, 2)}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--gold)', fontFamily: 'var(--mono)', marginBottom: 8 }}>{fmt(landCostEff, 2)}</div>
             <div style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>{land.notes || `Contract ${fmt(land.landCost, 1)} · stamp duty ${fmt(land.stampDuty || 0, 1)} · settlement ${land.settlementDate || '—'}.`}</div>
           </Card>
         </div>
@@ -259,13 +261,13 @@ export default function ProjectDashboard({ projectId }: Props) {
             <thead><tr style={{ color: MUTE }}><th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: 500 }} /><th style={{ padding: '4px 6px' }}>Base</th><th style={{ padding: '4px 6px' }}>+3mo</th><th style={{ padding: '4px 6px' }}>+6mo</th><th style={{ padding: '4px 6px' }}>+12mo</th></tr></thead>
             <tbody>
               <tr>
-                <td style={{ padding: '6px', color: '#444' }}>Finance cost</td>
+                <td style={{ padding: '6px', color: 'var(--ink-2)' }}>Finance cost</td>
                 {sens.map((s, i) => (
-                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? 'var(--em-soft)' : i === 3 ? 'var(--red-soft)' : 'var(--card)BEB', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
+                  <td key={i} style={{ textAlign: 'center', padding: '6px', fontWeight: 600, background: i === 0 ? 'var(--em-soft)' : i === 3 ? 'var(--red-soft)' : 'var(--card-3)', borderRadius: 4 }}>{fmt(s.financeCost, 0)}</td>
                 ))}
               </tr>
               <tr>
-                <td style={{ padding: '6px', color: '#444' }}>Margin Δ</td>
+                <td style={{ padding: '6px', color: 'var(--ink-2)' }}>Margin Δ</td>
                 {sens.map((s, i) => (
                   <td key={i} style={{ textAlign: 'center', padding: '6px', color: i === 0 ? MUTE : RED }}>{i === 0 ? '—' : pctS(s.marginImpact, 1)}</td>
                 ))}

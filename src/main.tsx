@@ -5,6 +5,7 @@ import App from './App'
 import './theme/theme.css'
 import './index.css'
 import './styles/atrium-studio.css'
+import './styles/atrium-theme.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -803,7 +803,7 @@ export default function CostStackTab({ projectId }: Props) {
                   ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
                 ]
                 return rows.map((r, i) => (
-                  <div key={i} className={`sumrow${r.tone === 'land' ? ' gold' : ''}${(r.tone === 'gst' || r.tone === 'inkind') ? ' credit' : ''}`}>
+                  <div key={i} className={`sumrow${(r.tone === 'land' || r.tone === 'inkind') ? ' gold' : ''}${r.tone === 'gst' ? ' credit' : ''}`}>
                     <span className="l">{r.label}</span>
                     <span className="v">{r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}</span>
                   </div>

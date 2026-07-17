@@ -1,0 +1,126 @@
+/* ==========================================================================
+   ATRIUM THEME — drop-in stylesheet (silver / blue-grey soft glass)
+   Per ATRIUM_BUILD_PLAYBOOK.md · STEP 0.
+
+   Look only: no data, no logic, no field names.
+
+   SCOPING NOTE — the source file declares tokens on :root and dark on
+   body.dark. Here the identical kit is scoped to `.fxs` (the studio root)
+   and `.fxs.dark`, because the app also renders login, Capital Base and the
+   hubs, which have their own signed-off designs and must not be repainted.
+   Token VALUES are unchanged. Dark is driven by the existing atriumTheme
+   store, which puts `.dark` on the studio root — not on <body>.
+   ========================================================================== */
+
+/* ---- TOKEN ALIASES ------------------------------------------------------
+   --accent* is the playbook's name for the silver accent. The live token set
+   in atrium-studio.css names it --gold* (values already silver). Alias both
+   directions so either vocabulary works. */
+.fxs{
+  --accent:var(--gold); --accent-hi:var(--gold-hi); --accent-deep:var(--gold-deep);
+  --accent-soft:var(--gold-soft); --accent-line:var(--gold-line);
+}
+
+/* ---- 4. CHROME: header + tab bar (always dark) ------------------------- */
+.fxs .atr-topbar{display:flex;align-items:center;padding:13px 26px;position:sticky;top:0;z-index:50;
+  background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
+.fxs .atr-wordmark{font-family:var(--serif);font-size:19px;letter-spacing:.44em;color:var(--accent-hi);font-weight:500}
+.fxs .atr-tabbar{display:flex;gap:2px;padding:0 26px;position:sticky;top:61px;z-index:49;overflow-x:auto;
+  background:var(--chrome-2);border-bottom:1px solid var(--chrome-line)}
+.fxs .atr-tab{position:relative;padding:15px 17px;font-size:10.5px;letter-spacing:.18em;color:var(--chrome-faint);cursor:pointer;white-space:nowrap;text-transform:uppercase}
+.fxs .atr-tab:hover{color:var(--chrome-dim)}
+.fxs .atr-tab.on{color:var(--chrome-txt)}
+.fxs .atr-tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-hi));box-shadow:0 0 12px rgba(154,168,182,.5)}
+
+/* ---- 5. HEADINGS ------------------------------------------------------- */
+.fxs .atr-kicker{font-size:10px;letter-spacing:.32em;color:var(--accent);font-weight:600;text-transform:uppercase}
+.fxs .atr-title{font-family:var(--serif);font-size:36px;font-weight:500;line-height:1;color:var(--ink)}
+.fxs .atr-sub{font-size:12.5px;color:var(--ink-2)}
+.fxs .atr-eyebrow{font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
+.fxs .atr-label{font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase;font-weight:600}
+
+/* ---- 6. PANEL (frosted glass card) ------------------------------------- */
+.fxs .atr-panel{background:var(--card);border:1px solid var(--border);border-radius:15px;
+  box-shadow:var(--shadow),var(--glass-edge);position:relative;overflow:hidden;
+  backdrop-filter:blur(16px) saturate(1.1);-webkit-backdrop-filter:blur(16px) saturate(1.1)}
+.fxs .atr-panel--accent::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.7}
+
+/* ---- 7. KPI TILE ------------------------------------------------------- */
+.fxs .atr-kpi{padding:18px;border:1px solid var(--border);border-radius:12px;background:var(--card);
+  box-shadow:var(--shadow),var(--glass-edge);transition:.25s}
+.fxs .atr-kpi:hover{transform:translateY(-2px);border-color:var(--border-hi)}
+.fxs .atr-kpi__lab{font-size:9px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;font-weight:600;margin-bottom:11px}
+.fxs .atr-kpi__val{font-family:var(--mono);font-size:23px;color:var(--ink);letter-spacing:-.02em}
+.fxs .atr-kpi__sub{font-size:10px;color:var(--faint);margin-top:6px}
+.fxs .atr-kpi--accent{background:linear-gradient(160deg,var(--accent-soft),var(--card));border-color:var(--accent-line)}
+.fxs .atr-kpi--accent .atr-kpi__val{color:var(--accent)}
+.fxs .atr-kpi--pos .atr-kpi__val{color:var(--emerald)}
+.fxs .atr-kpi--neg .atr-kpi__val{color:var(--red)}
+
+/* ---- 8. SEGMENTED PILL TOGGLE ------------------------------------------ */
+.fxs .atr-seg{display:inline-flex;background:var(--card-3);border:1px solid var(--border);border-radius:24px;padding:4px;gap:2px}
+.fxs .atr-seg button{font:500 10.5px/1 var(--sans);letter-spacing:.12em;color:var(--ink-2);background:none;border:none;padding:9px 18px;border-radius:20px;cursor:pointer}
+.fxs .atr-seg button:hover{color:var(--ink)}
+.fxs .atr-seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--shadow);font-weight:600}
+
+/* ---- 9. SUB-TABS ------------------------------------------------------- */
+.fxs .atr-subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.fxs .atr-subtab{font-size:11px;letter-spacing:.1em;color:var(--ink-3);padding:11px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;text-transform:uppercase}
+.fxs .atr-subtab.on{color:var(--ink);border-color:var(--accent)}
+
+/* ---- 10. PRESET CARD --------------------------------------------------- */
+.fxs .atr-preset{border:1px solid var(--border);background:var(--card);border-radius:11px;padding:12px 15px;cursor:pointer;box-shadow:var(--shadow)}
+.fxs .atr-preset.on{border-color:var(--accent);background:var(--accent-soft)}
+.fxs .atr-preset__t{font-size:10px;letter-spacing:.09em;color:var(--ink-2);font-weight:600;text-transform:uppercase}
+.fxs .atr-preset__v{font-family:var(--mono);font-size:15px;color:var(--accent);margin-top:5px}
+
+/* ---- 11. TABLES -------------------------------------------------------- */
+.fxs .atr-table{width:100%;border-collapse:collapse}
+.fxs .atr-table th{font-size:9px;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase;text-align:left;padding:0 12px 12px;font-weight:600}
+.fxs .atr-table th.num,.fxs .atr-table td.num{text-align:right;font-family:var(--mono)}
+.fxs .atr-table td{padding:13px 12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.fxs .atr-table tr:hover td{background:var(--hover)}
+.fxs .atr-table td.name{color:var(--ink);font-weight:500}
+.fxs .atr-table td.hero{color:var(--accent);font-weight:600}
+.fxs .atr-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.fxs .atr-row-subtotal td{border-top:1px dashed var(--border);background:rgba(110,124,142,.05)}
+.fxs .atr-row-subtotal .lbl{font-size:10px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;font-weight:600}
+.fxs .atr-row-total td{border-top:2px solid var(--border-hi);background:var(--card-3);color:var(--ink);font-weight:700}
+
+/* ---- 12. INPUTS / SELECTS / TOGGLE ------------------------------------- */
+.fxs .atr-input{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:7px;padding:8px 11px;text-align:right}
+.fxs .atr-input:focus{outline:none;border-color:var(--accent)}
+.fxs .atr-select{font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:7px;padding:8px 11px;cursor:pointer}
+.fxs .atr-toggle{width:38px;height:22px;border-radius:12px;background:var(--track);position:relative;cursor:pointer;transition:.2s;flex:none}
+.fxs .atr-toggle.on{background:var(--accent)}
+.fxs .atr-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.fxs .atr-toggle.on::after{left:18px}
+
+/* ---- 13. SUMMARY ROLLUP ------------------------------------------------ */
+.fxs .atr-sumrow{display:flex;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:12.5px}
+.fxs .atr-sumrow .l{color:var(--ink-2)}
+.fxs .atr-sumrow .v{font-family:var(--mono);color:var(--ink)}
+.fxs .atr-sumrow--accent .l,.fxs .atr-sumrow--accent .v{color:var(--accent)}
+.fxs .atr-sumrow--credit .v{color:var(--emerald)}
+.fxs .atr-total{margin-top:6px;padding-top:18px;border-top:2px solid var(--border-hi)}
+.fxs .atr-total__lab{font-size:10px;letter-spacing:.18em;color:var(--ink-2);text-transform:uppercase}
+.fxs .atr-total__val{font-family:var(--mono);font-size:40px;color:var(--accent);letter-spacing:-.02em;line-height:1.15}
+
+/* ---- 14. BARS ---------------------------------------------------------- */
+.fxs .atr-track{height:7px;background:var(--track);border-radius:6px;overflow:hidden}
+.fxs .atr-fill{height:100%;border-radius:6px}
+
+/* ---- 15. STATUS PILLS / CHIPS / WARNINGS ------------------------------- */
+.fxs .atr-pill{font-size:8.5px;letter-spacing:.14em;padding:5px 10px;border-radius:16px;display:inline-flex;gap:6px;align-items:center;text-transform:uppercase;font-weight:600}
+.fxs .atr-pill--pos{color:var(--emerald);background:var(--em-soft)}
+.fxs .atr-pill--neg{color:var(--red);background:var(--red-soft)}
+.fxs .atr-chip{font-size:10px;letter-spacing:.14em;color:var(--ink-2);border:1px solid var(--border);padding:8px 13px;border-radius:20px;cursor:pointer;background:var(--card)}
+.fxs .atr-chip--accent{border-color:var(--accent-line);color:var(--accent)}
+.fxs .atr-addrow{font-size:10.5px;letter-spacing:.1em;color:var(--accent);border:1px dashed var(--accent-line);border-radius:8px;padding:8px 14px;cursor:pointer;display:inline-block;background:var(--accent-soft)}
+.fxs .atr-warn{font-size:12px;color:var(--red);background:var(--red-soft);border:1px solid rgba(200,80,63,.25);border-radius:10px;padding:13px 15px;line-height:1.55}
+.fxs .atr-check{font-size:11.5px;color:var(--emerald);display:inline-flex;gap:7px;align-items:center}
+
+/* ---- 16. NICETIES ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce){.fxs *{transition:none!important}}

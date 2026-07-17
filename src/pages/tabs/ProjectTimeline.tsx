@@ -28,7 +28,7 @@ const STATUS_COLORS: Record<TimelineStatus, string> = {
   'delayed':     'var(--gold)',
   'in-progress': 'var(--emerald)',
   'complete':    'var(--purple)',
-  'not-started': 'var(--ink-2)555',
+  'not-started': 'var(--ink-3)',
 }
 const STATUS_LABELS: Record<TimelineStatus, string> = {
   'critical':    '🔴 Critical — In Trouble',
@@ -256,7 +256,7 @@ export default function ProjectTimeline({ projectId }: Props) {
             <>
               <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'var(--line)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, padding: '5px 11px', borderRadius: 5 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 6px var(--emerald)AA' }} /> Phase · {phaseLabel}
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 6px color-mix(in srgb, var(--emerald) 67%, transparent)' }} /> Phase · {phaseLabel}
               </span>
             </>
           )}
@@ -354,7 +354,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                   {/* Phase grid underlay */}
                   <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
                     {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : 'var(--line)' }} />)}
-                    <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)33' }} />
+                    <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'color-mix(in srgb, var(--gold) 20%, transparent)' }} />
                   </div>
                 </div>
 
@@ -397,7 +397,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                         {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : 'var(--line)' }} />)}
 
                         {/* Today line */}
-                        <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)55', zIndex: 3 }} />
+                        <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'color-mix(in srgb, var(--gold) 33%, transparent)', zIndex: 3 }} />
 
                         {(() => {
                           const dragOffset = dragId === task.id ? dragDays * PX_PER_DAY : 0
@@ -440,7 +440,7 @@ export default function ProjectTimeline({ projectId }: Props) {
       ) : (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
           <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
-          <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid var(--gold)44', background: 'transparent', color: 'var(--gold)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
+          <button onClick={openNew} style={{ padding: '10px 24px', border: '1px solid color-mix(in srgb, var(--gold) 27%, transparent)', background: 'transparent', color: 'var(--gold)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>+ Add First Task</button>
         </div>
       )}
 
@@ -514,7 +514,7 @@ export default function ProjectTimeline({ projectId }: Props) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
               {!isNew
-                ? <button onClick={() => { remove(editing.id); setEditing(null) }} style={{ background: 'none', border: '1px solid var(--red)30', color: 'var(--red)', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Delete</button>
+                ? <button onClick={() => { remove(editing.id); setEditing(null) }} style={{ background: 'none', border: '1px solid color-mix(in srgb, var(--red) 19%, transparent)', color: 'var(--red)', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Delete</button>
                 : <span />}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setEditing(null)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--ink-3)', padding: '8px 16px', fontSize: 9, letterSpacing: '0.12em', cursor: 'pointer' }}>Cancel</button>
