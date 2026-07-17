@@ -169,6 +169,11 @@
    for Effective Land Cost). */
 .fxs .kpi.gold{background:linear-gradient(160deg,var(--gold-soft),var(--card));border-color:var(--gold-line)}
 /* The small "NEW" pill the design puts beside a section label. */
+/* Modal card — must be OPAQUE. It floats over a 75% black overlay, so a
+   translucent surface (--card-2 = white at 50%) muddies to grey and the fields
+   inside become unreadable. Solid, and it flips with the theme. */
+.fxs .fx-modal{background:#eef2f7;border:1px solid var(--border);box-shadow:0 40px 90px -24px rgba(0,0,0,.55)}
+.fxs.dark .fx-modal{background:#161d26;border-color:var(--border-hi)}
 .fxs .ls-new{font-size:8px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--gold);border:1px solid var(--gold-line);border-radius:20px;padding:2px 7px;line-height:1.4}
 /* Unit-count tile — the second row of the pinned Mix Result block. Centred, with
    the count as the hero, then the type name and its share. */

@@ -13,6 +13,7 @@ interface Props { projectId: string }
 
 const PX_PER_DAY = 5          // pixels per day — gives readable spacing, wide scroll
 const LABEL_W    = 280        // fixed left column width
+const PCT_W      = 64         // fixed right column: % complete (design draws it as its own column)
 const ROW_H      = 36         // task row height
 const HEADER_H   = 48         // month header height
 
@@ -230,7 +231,12 @@ export default function ProjectTimeline({ projectId }: Props) {
   const ganttW = dayPx(totalDays)
 
   return (
-    <div style={{ background: 'transparent', color: 'var(--ink)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    // minWidth:0 on the ROOT is what stops the Gantt bullying the page. This div is
+    // a flex item, and a flex item defaults to min-width:auto (= min-content), so
+    // the Gantt's ~1800px row propagated all the way up here and forced the whole
+    // tab wider than its container — clipping the KPI strip and "+ Add task" off
+    // the right edge. At 0 the root fits its container and the Gantt panel scrolls.
+    <div style={{ background: 'transparent', color: 'var(--ink)', height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
       {/* ─── Flashing keyframe style ─────────────────────────────────────────── */}
       <style>{`
@@ -243,7 +249,12 @@ export default function ProjectTimeline({ projectId }: Props) {
       {/* ─── Page head — kicker + serif title + sub, year nav and Add task right.
            Replaces a bespoke dark control bar (hardcoded rgba(22,22,24,.96)) that
            was still the OLD dark theme sitting on the light glass page. ─────── */}
-      <div className="fx-wrap" style={{ paddingBottom: 0 }}>
+      {/* maxWidth min(1440px, 100%): .fx-wrap's plain 1440 cap let the Gantt's wide
+          row hold the wrap open at 1440 inside a ~1264 container, pushing the KPI
+          strip and "+ Add task" off the right edge. Capping against the CONTAINER
+          too means the wrap never outgrows the page — the Gantt panel scrolls
+          sideways instead, which is what it is for. */}
+      <div className="fx-wrap" style={{ minWidth: 0, maxWidth: 'min(1440px, 100%)' }}>
         <div className="pagehead">
           <div>
             <div className="kicker">07 · Timeline</div>
@@ -288,27 +299,27 @@ export default function ProjectTimeline({ projectId }: Props) {
             <button key={p} className={filterPhase === p ? 'on' : ''} onClick={() => setFilterPhase(p)}>{PHASE_LABEL[p]}</button>
           ))}
         </div>
-      </div>
 
-
-      {/* ─── Gantt ─── inside the wrap and in a panel, so it lines up with the
-           page head above instead of running full-bleed to the window edge. ─── */}
+      {/* ─── Gantt — in the SAME .fx-wrap as the head above, so the two cannot
+           disagree about where the left edge is. As siblings they did: each wrap
+           resolved its own width against the flex column (941 vs 1440 CSS px) and
+           the panel sat ~200px left of the head. One wrap, one edge. ────────── */}
       {tasks.length > 0 ? (
-        <div className="fx-wrap" style={{ paddingTop: 0 }}>
+        <>
         {/* Sizes to its content and lets the PAGE scroll vertically — one
             scrollbar, same as the Product Mix drawer. It still scrolls
             SIDEWAYS on its own, because the month columns genuinely run wider
             than the panel. flex:1 was no use here: no ancestor sets a definite
             height, so the panel collapsed to ~90px and cut the Gantt off. */}
-        <div className="panel" style={{ overflowX: 'auto', position: 'relative' }}>
-          <div style={{ minWidth: LABEL_W + ganttW + 40 }}>
+        <div className="panel" style={{ overflowX: 'auto', position: 'relative', minWidth: 0 }}>
+          <div style={{ minWidth: LABEL_W + ganttW + PCT_W }}>
 
             {/* Month header — sticky top */}
             <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--card-2)', display: 'flex', height: HEADER_H, borderBottom: '1px solid var(--border)' }}>
 
               {/* Label column spacer */}
               <div style={{ width: LABEL_W, flexShrink: 0, background: 'var(--card-2)', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'flex-end', padding: '0 12px 8px' }}>
-                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>Task</span>
+                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>Task · Owner</span>
               </div>
 
               {/* Month labels + vertical grid lines */}
@@ -339,6 +350,11 @@ export default function ProjectTimeline({ projectId }: Props) {
                 <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)', zIndex: 5 }}>
                   <span style={{ position: 'absolute', top: 6, left: 4, fontSize: 7, color: 'var(--gold)', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>TODAY</span>
                 </div>
+              </div>
+
+              {/* % complete — its own column on the right, per the design */}
+              <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 12px 8px' }}>
+                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>%</span>
               </div>
             </div>
 
@@ -422,13 +438,15 @@ export default function ProjectTimeline({ projectId }: Props) {
                             style={{ position: 'absolute', left: startPx + dragOffset, width: widthPx, top: '50%', transform: 'translateY(-50%)', height: 20, background: `${sColor}25`, border: `1px solid ${sColor}80`, borderRadius: 3, zIndex: dragId === task.id ? 6 : 4, overflow: 'hidden', cursor: dragId === task.id ? 'grabbing' : 'grab', boxShadow: isCrit || dragId === task.id ? `0 0 8px ${sColor}66` : undefined }}>
                             {/* Progress fill */}
                             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${task.progress}%`, background: `${sColor}50` }} />
-                            {/* Progress label */}
-                            {task.progress > 0 && widthPx > 30 && (
-                              <span style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)', fontSize: 8, color: sColor, fontWeight: 700, whiteSpace: 'nowrap' }}>{task.progress}%</span>
-                            )}
                           </div>
                         )
                         })()}
+                      </div>
+
+                      {/* % complete — its own column, always shown (it used to sit
+                          inside the bar and vanish on any bar under 30px wide). */}
+                      <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 12px' }}>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 600, color: task.progress >= 100 ? 'var(--emerald)' : task.progress > 0 ? 'var(--ink-2)' : 'var(--faint)' }}>{task.progress}%</span>
                       </div>
                     </div>
                   )
@@ -440,21 +458,23 @@ export default function ProjectTimeline({ projectId }: Props) {
             <div style={{ height: 40 }} />
           </div>
         </div>
-        </div>
+        </>
       ) : (
-        <div className="fx-wrap" style={{ paddingTop: 0 }}>
-          <div className="panel pad" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: '60px 20px' }}>
-            <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
-            <span className="chip accent" onClick={openNew}>+ Add first task</span>
-          </div>
+        <div className="panel pad" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: '60px 20px' }}>
+          <p style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: '0.12em' }}>No timeline tasks yet</p>
+          <span className="chip accent" onClick={openNew}>+ Add first task</span>
         </div>
       )}
+      </div>
 
       {/* ─── Edit / Add modal ────────────────────────────────────────────────── */}
       {editing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setEditing(null) }}>
-          <div style={{ width: 540, background: 'var(--card-2)', border: '1px solid var(--border)', borderRadius: 10, padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* OPAQUE — see .fx-modal. --card-2 is white at 50%, so over the 75%
+              black overlay the card muddied to grey and the fields inside were
+              unreadable. */}
+          <div className="fx-modal" style={{ width: 540, borderRadius: 10, padding: 28, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
               <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{isNew ? 'Add Task' : 'Edit Task'}</p>
