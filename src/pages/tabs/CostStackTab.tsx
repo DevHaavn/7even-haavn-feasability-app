@@ -17,11 +17,11 @@ import CostStackTable, { type GroupConfig } from './CostStackTable'
 // Every other section renders flat.
 const COST_GROUPS: Record<string, GroupConfig[] | undefined> = {
   consultants: [
-    { id: 'arch',     label: 'Architecture',                   color: '#AFA9EC', notes: 'Architecture',        match: it => /architect/i.test(it.notes || '') },
-    { id: 'civil',    label: 'Civil & structural engineering', color: '#85B7EB', notes: 'Civil & structural',  match: it => /civil|structural/i.test(it.notes || '') },
-    { id: 'acoustic', label: 'Acoustic engineering',           color: '#9FE1CB', notes: 'Acoustic',            match: it => /acoustic/i.test(it.notes || '') },
-    { id: 'env',      label: 'Environmental & planning',       color: '#C0DD97', notes: 'Environmental',       match: it => /environ/i.test(it.notes || '') },
-    { id: 'other',    label: 'Other consultants',              color: '#FAC775', notes: 'Other',               match: () => true },
+    { id: 'arch',     label: 'Architecture',                   color: 'var(--gold)', notes: 'Architecture',        match: it => /architect/i.test(it.notes || '') },
+    { id: 'civil',    label: 'Civil & structural engineering', color: 'var(--blue)', notes: 'Civil & structural',  match: it => /civil|structural/i.test(it.notes || '') },
+    { id: 'acoustic', label: 'Acoustic engineering',           color: 'var(--slate)', notes: 'Acoustic',            match: it => /acoustic/i.test(it.notes || '') },
+    { id: 'env',      label: 'Environmental & planning',       color: 'var(--purple)', notes: 'Environmental',       match: it => /environ/i.test(it.notes || '') },
+    { id: 'other',    label: 'Other consultants',              color: 'var(--ink-3)', notes: 'Other',               match: () => true },
   ],
 }
 

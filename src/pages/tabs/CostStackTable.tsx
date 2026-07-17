@@ -1,8 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react'
 import type { CostLineItem } from '../../db/schema'
 
-// Colour palette for data-driven (by-category) groups.
-const GROUP_PALETTE = ['#AFA9EC', '#85B7EB', '#9FE1CB', '#C0DD97', '#FAC775', '#F4A9C1', '#9FC7F2', '#D4B5F0', '#F0C69A', '#AEDDCB', '#E8C4A0', '#B7CDEE', '#CBE0A6', '#EFB8D0', '#A9E0D6']
+// Band marker colours for data-driven (by-category) groups. Decorative only —
+// the group is named in text beside the dot, so these just separate the bands.
+// Muted silver/blue/slate/purple per the ATRIUM palette: no rainbow, and green
+// and red stay reserved for good/bad. Tokens so the bands follow light/dark.
+const GROUP_PALETTE = ['var(--gold)', 'var(--blue)', 'var(--slate)', 'var(--purple)', 'var(--gold-hi)', 'var(--ink-3)']
 
 // A grouping rule: items whose notes match are gathered under this labelled band.
 // `notes` is the value written to a line when it is added to / moved into this group.
@@ -67,23 +70,29 @@ interface Props {
 const BASIS_OPTS: [string, string][] = [['', '$ / Unit'], ['construction', '% of Constr.'], ['gdv', '% of GRV']]
 
 // ── Phase badges ──────────────────────────────────────────────────────────────
+// Phase is a category, not a judgement — so these are muted slate/blue/silver,
+// never the old pastel rainbow. Tokens (not fixed hex) so they stay legible in
+// dark; the previous light-only hexes went near-invisible on the dark surface.
+const PHASE_TINT = (c: string) => `color-mix(in srgb, ${c} 16%, transparent)`
 const PHASE_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  preacq:       { bg: '#E6F1FB', text: '#0C447C', label: 'Pre-acq' },
-  acqplan:      { bg: '#FAEEDA', text: '#854F0B', label: 'Acq/planning' },
-  preconst:     { bg: '#F1EFE8', text: '#5F5E5A', label: 'Pre-const' },
-  construction: { bg: '#EAF3DE', text: '#3B6D11', label: 'Construction' },
-  closeout:     { bg: '#FCEBEB', text: '#A32D2D', label: 'Close-out' },
-  allphases:    { bg: '#EFEFF4', text: '#4B4B57', label: 'All phases' },
+  preacq:       { bg: PHASE_TINT('var(--blue)'),    text: 'var(--blue)',   label: 'Pre-acq' },
+  acqplan:      { bg: PHASE_TINT('var(--slate)'),   text: 'var(--slate)',  label: 'Acq/planning' },
+  preconst:     { bg: PHASE_TINT('var(--ink-3)'),   text: 'var(--ink-2)',  label: 'Pre-const' },
+  construction: { bg: PHASE_TINT('var(--gold)'),    text: 'var(--gold)',   label: 'Construction' },
+  closeout:     { bg: PHASE_TINT('var(--purple)'),  text: 'var(--purple)', label: 'Close-out' },
+  allphases:    { bg: PHASE_TINT('var(--ink-3)'),   text: 'var(--ink-3)',  label: 'All phases' },
 }
 
+// Funding source is a category, not a verdict — so equity reads silver rather
+// than green, keeping green/red for good/bad only. Senior stays muted blue.
 function fundingDisplay(fundedBy?: string): { label: string; dots: string[] } {
   switch (fundedBy) {
-    case 'equity': return { label: 'Equity', dots: ['#5DCAA5'] }
+    case 'equity': return { label: 'Equity', dots: ['var(--gold)'] }
     case 'debt':
-    case 'senior': return { label: 'Senior', dots: ['#85B7EB'] }
+    case 'senior': return { label: 'Senior', dots: ['var(--blue)'] }
     case 'blend':
-    case 'both':   return { label: 'Both',   dots: ['#5DCAA5', '#85B7EB'] }
-    default:       return { label: fundedBy || 'Equity', dots: ['#5DCAA5'] }
+    case 'both':   return { label: 'Both',   dots: ['var(--gold)', 'var(--blue)'] }
+    default:       return { label: fundedBy || 'Equity', dots: ['var(--gold)'] }
   }
 }
 
@@ -117,7 +126,7 @@ const cellR: React.CSSProperties = { textAlign: 'right', fontVariantNumeric: 'ta
 // Editable-cell styling — borderless so the grid stays clean but every field is live.
 const editInput: React.CSSProperties = { border: '1px solid transparent', borderRadius: 3, background: 'transparent', fontSize: 10, color: 'var(--ink)', outline: 'none', width: '100%', padding: '2px 3px', fontFamily: 'inherit' }
 const editSelect: React.CSSProperties = { ...editInput, cursor: 'pointer', appearance: 'none' as const }
-const actBtn: React.CSSProperties = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 11, lineHeight: 1, color: '#B4B2AD', padding: '0 1px' }
+const actBtn: React.CSSProperties = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 11, lineHeight: 1, color: 'var(--ink-3)', padding: '0 1px' }
 
 const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
 const FUND_OPTS: [string, string][] = [['equity', 'Equity'], ['senior', 'Senior'], ['debt', 'Debt'], ['blend', 'Blend'], ['both', 'Both']]
@@ -127,7 +136,7 @@ const SCURVE_OPTS: [string, string][] = [['scurve', 'S-curve'], ['linear', 'Line
 function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
   if (!groups || groups.length === 0) return null
   const buckets = groups.map(g => ({ def: g, items: [] as CostLineItem[] }))
-  const other: { def: GroupConfig; items: CostLineItem[] } = { def: { id: '_other', label: 'Other', color: '#C9C6C0', match: () => true }, items: [] }
+  const other: { def: GroupConfig; items: CostLineItem[] } = { def: { id: '_other', label: 'Other', color: 'var(--ink-3)', match: () => true }, items: [] }
   for (const it of items) {
     const b = buckets.find(x => x.def.match(it))
     ;(b ? b.items : other.items).push(it)
@@ -252,11 +261,11 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           <span className="cs-act" style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
             <button onClick={() => moveRow(item.id, -1)} title="Move up" style={actBtn}>↑</button>
             <button onClick={() => moveRow(item.id, 1)} title="Move down" style={actBtn}>↓</button>
-            <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: '#C0392B', fontSize: 12 }}>×</button>
+            <button onClick={() => removeRow(item.id)} title="Delete row" style={{ ...actBtn, color: 'var(--red)', fontSize: 12 }}>×</button>
             {effGroups && effGroups.length > 1 && (
               <select value={groupOf(item)?.id || ''} title="Move to category"
                 onChange={e => { const g = effGroups.find(x => x.id === e.target.value); if (g) moveToGroup(item.id, g) }}
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: '#9B8ACB', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 9, color: 'var(--ink-3)', maxWidth: 16, appearance: 'none', outline: 'none', padding: 0 }}>
                 {effGroups.map(g => <option key={g.id} value={g.id} style={{ color: 'var(--ink)' }}>{g.label}</option>)}
               </select>
             )}
@@ -265,20 +274,20 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             style={{ ...editInput, fontSize: 11, minWidth: 0 }} />
         </div>
         {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
-        <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: '#6B6A66' }}>
+        <select value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)} style={{ ...editSelect, color: 'var(--ink-2)' }}>
           {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
         {/* Units — editable on every line; typing units on a % line converts it to units × rate */}
         <NumCell num={isPct ? null : (item.units ?? null)} placeholder="—" onCommit={n => changeUnits(item, n)}
-          style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+          style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
         {/* Rate — pct % for a %-basis line (decimals allowed), otherwise the per-unit rate */}
         {isPct ? (
           <NumCell num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
             fmt={n => String(+n.toFixed(2))} onCommit={n => changePct(item, n)}
-            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+            style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
         ) : (
           <NumCell num={item.baseRate ?? null} placeholder="—" onCommit={n => changeRate(item, n)}
-            style={{ ...editInput, ...cellR, color: '#6B6A66' }} />
+            style={{ ...editInput, ...cellR, color: 'var(--ink-2)' }} />
         )}
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
         {isPct || hasUnitRate(item) ? (
@@ -304,7 +313,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           {PHASE_OPTS.map(([v, l]) => <option key={v} value={v} style={{ color: 'var(--ink)', background: 'var(--card)' }}>{l}</option>)}
         </select>
         {/* S-curve — editable dropdown */}
-        <select value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })} style={{ ...editSelect, color: '#7A7975' }}>
+        <select value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })} style={{ ...editSelect, color: 'var(--ink-2)' }}>
           {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
         {/* Start / End — editable month pickers */}
@@ -317,13 +326,15 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const renderSubtotal = (label: string, rows: CostLineItem[]) => {
     const b = rows.reduce((s, i) => s + effAmt(i), 0)
     const g = rows.reduce((s, i) => s + gstOf(i), 0)
+    // Reference .atr-row-subtotal: silver on a dashed rule. A subtotal is not a
+    // verdict, so it no longer reads green — green stays for good/bad only.
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderBottom: '1px solid var(--border)', background: 'var(--card-2)', fontWeight: 600, fontSize: 11 }}>
-        <span style={{ color: 'var(--ink)', paddingLeft: 16 }}>{label} subtotal</span>
+      <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '9px 16px', borderTop: '1px dashed var(--border)', borderBottom: '1px solid var(--border)', background: 'color-mix(in srgb, var(--gold) 5%, transparent)', fontWeight: 600, fontSize: 11 }}>
+        <span style={{ color: 'var(--gold)', paddingLeft: 16, letterSpacing: '0.04em' }}>{label} subtotal</span>
         <span /><span /><span />
-        <span style={{ color: 'var(--emerald)', ...cellR }}>{money(b)}</span>
-        <span style={{ color: 'var(--ink-3)', ...cellR }}>{money(g)}</span>
-        <span style={{ color: 'var(--emerald)', ...cellR }}>{money(b + g)}</span>
+        <span style={{ color: 'var(--gold)', fontFamily: 'var(--mono)', ...cellR }}>{money(b)}</span>
+        <span style={{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', ...cellR }}>{money(g)}</span>
+        <span style={{ color: 'var(--gold)', fontFamily: 'var(--mono)', ...cellR }}>{money(b + g)}</span>
         <span style={{ gridColumn: '8 / -1' }} />
       </div>
     )
@@ -345,7 +356,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             {/* drag divider — resize the Item column */}
             <span onPointerDown={startResize} title="Drag to resize"
               style={{ position: 'absolute', right: 2, top: -10, bottom: -10, width: 12, cursor: 'col-resize', display: 'flex', justifyContent: 'center', zIndex: 2 }}>
-              <span style={{ width: 2, background: '#D8D5CF', height: '100%' }} />
+              <span style={{ width: 2, background: 'var(--border-hi)', height: '100%' }} />
             </span>
           </span>
           <span style={th}>Basis</span>
@@ -371,7 +382,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: def.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{def.label} <span style={{ fontSize: 9, color: 'var(--ink-3)', fontWeight: 400 }}>({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span></span>
                   <button onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}
-                    style={{ fontSize: 10, fontWeight: 500, color: 'var(--emerald)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
+                    style={{ fontSize: 10, fontWeight: 500, color: 'var(--gold)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>+ add row</button>
                 </div>
                 <span style={{ gridColumn: '2 / -1', textAlign: 'right', color: 'var(--ink-3)', fontSize: 10 }}>{open ? '▾' : '▸'}</span>
               </div>
@@ -382,12 +393,14 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         }) : items.map((item, idx) => renderRow(item, idx))}
 
         {/* Section total */}
-        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: 'var(--card-2)', borderTop: '1px solid var(--border)', fontWeight: 700, fontSize: 12 }}>
+        {/* Reference .atr-row-total: heavier rule, ink not silver, so the section
+            total reads as the stronger stop below the silver subtotals. */}
+        <div style={{ display: 'grid', gridTemplateColumns: GRID, gap: 0, padding: '11px 16px', background: 'var(--card-3)', borderTop: '2px solid var(--border-hi)', fontWeight: 700, fontSize: 12 }}>
           <span style={{ color: 'var(--ink)', letterSpacing: '0.04em' }}>Section total</span>
           <span /><span /><span />
-          <span style={{ color: 'var(--ink)', ...cellR }}>{money(grandBudget)}</span>
-          <span style={{ color: 'var(--ink-3)', ...cellR }}>{money(grandGst)}</span>
-          <span style={{ color: 'var(--ink)', ...cellR }}>{money(grandBudget + grandGst)}</span>
+          <span style={{ color: 'var(--ink)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandBudget)}</span>
+          <span style={{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandGst)}</span>
+          <span style={{ color: 'var(--ink)', fontFamily: 'var(--mono)', ...cellR }}>{money(grandBudget + grandGst)}</span>
           <span style={{ gridColumn: '8 / -1' }} />
         </div>
       </div>
