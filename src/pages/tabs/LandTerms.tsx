@@ -46,8 +46,10 @@ function Card({ title, hint, isNew, accent, children }: { title: string; hint?: 
 }
 function Flag({ children, info }: { children: React.ReactNode; info?: boolean }) {
   return (
+    // A warning flag is functional, so it reads amber; the info variant is neutral.
+    // Both were fixed light-only values (and the warning was the old gold tint).
     <div style={{ fontSize: 10.5, letterSpacing: '0.02em', display: 'flex', gap: 8, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 8, margin: '10px 0 2px',
-      color: info ? '#555' : '#9B6A2A', background: info ? 'rgba(0,0,0,0.035)' : 'rgba(217,164,65,0.1)', border: `1px solid ${info ? 'rgba(0,0,0,0.1)' : 'rgba(217,164,65,0.35)'}` }}>
+      color: info ? 'var(--ink-2)' : 'var(--amber)', background: info ? 'var(--hover)' : 'color-mix(in srgb, var(--amber) 10%, transparent)', border: `1px solid ${info ? 'var(--border)' : 'color-mix(in srgb, var(--amber) 35%, transparent)'}` }}>
       <span>{info ? 'ⓘ' : '⚠'}</span><span style={{ lineHeight: 1.5 }}>{children}</span>
     </div>
   )
@@ -94,10 +96,10 @@ export default function LandTermsTab({ projectId }: Props) {
         <div className="flex items-end justify-between flex-wrap gap-3 mb-1">
           <SectionHeading sub="Acquisition · Deal Structure · Settlement · Cashflow inputs">Land &amp; Vendor Terms</SectionHeading>
           <div className="flex items-center gap-3" style={{ paddingBottom: 4 }}>
-            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', alignSelf: 'center' }}>⤳ Auto-saved</span>
+            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)', alignSelf: 'center' }}>⤳ Auto-saved</span>
             {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
             {/* Current deal-structure badge — readable solid label (was an invisible chrome pill) */}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '7px 15px', borderRadius: 30, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: '#F5F3F0', color: '#2A2A2A' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '7px 15px', borderRadius: 30, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: 'var(--card-2)', color: 'var(--ink)' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
           </div>
         </div>
 
@@ -155,11 +157,15 @@ export default function LandTermsTab({ projectId }: Props) {
                 {LAND_DEAL_TYPES.map(d => {
                   const on = dealType === d.id
                   return (
+                    // Selected card follows the reference .atr-preset.on: silver border
+                    // over an accent-soft fill. Was light-only hex (white cards would sit
+                    // on the dark glass), and the old inset shadow interpolated to
+                    // `var(--ink, #2A2A2A)33` — invalid CSS, so it never painted.
                     <button key={d.id} onClick={() => setDeal(d.id)} style={{ textAlign: 'left', padding: 13, borderRadius: 10, cursor: 'pointer',
-                      border: `1px solid ${on ? CHROME : '#E0DDD8'}`, background: on ? '#F1EFEB' : '#fff', boxShadow: on ? `inset 0 0 0 1px ${CHROME}33` : 'none' }}>
-                      <div style={{ color: on ? '#1A1A1A' : '#888', fontSize: 13, marginBottom: 7 }}>{DEAL_ICON[d.id]}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1A1A1A', marginBottom: 4 }}>{d.label}</div>
-                      <div style={{ fontSize: 10, color: '#999', lineHeight: 1.45 }}>{d.blurb}</div>
+                      border: `1px solid ${on ? 'var(--gold)' : 'var(--border)'}`, background: on ? 'var(--gold-soft)' : 'var(--card)', boxShadow: on ? 'inset 0 0 0 1px color-mix(in srgb, var(--gold) 20%, transparent)' : 'none' }}>
+                      <div style={{ color: on ? 'var(--gold)' : 'var(--ink-3)', fontSize: 13, marginBottom: 7 }}>{DEAL_ICON[d.id]}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>{d.label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--ink-3)', lineHeight: 1.45 }}>{d.blurb}</div>
                     </button>
                   )
                 })}
@@ -207,7 +213,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 Each fixed $ or % of purchase price, with a delivery phase. */}
             <Card title="Acquisition Costs" hint="% of purchase price or fixed · into feasibility" isNew>
               {acqCosts.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#AAA', paddingBottom: 8, borderBottom: '1px solid #E8E5E0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-3)', paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
                   <span>Item</span><span>Basis</span><span>Rate / $</span><span>Phase</span><span />
                 </div>
               )}
@@ -215,7 +221,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 const derived = c.mode === 'pct' ? (c.pct ?? 0) * cost.price : (c.amount ?? 0)
                 const setC = (patch: Partial<AcquisitionCost>) => update('acquisitionCosts', acqCosts.map(x => x.id === c.id ? { ...x, ...patch } : x))
                 return (
-                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F2EFEA' }}>
+                  <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--line)' }}>
                     <input value={c.label} placeholder="Cost item" onChange={e => setC({ label: e.target.value })} style={cell} />
                     <select value={c.mode} onChange={e => setC({ mode: e.target.value as AcquisitionCost['mode'] })} style={{ ...cell, fontSize: 11 }}>
                       <option value="pct">% price</option>
@@ -224,11 +230,11 @@ export default function LandTermsTab({ projectId }: Props) {
                     {c.mode === 'pct' ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <input type="number" step={0.1} value={c.pct != null ? +(c.pct * 100).toFixed(2) : ''} placeholder="0" onChange={e => setC({ pct: (parseFloat(e.target.value) || 0) / 100 })} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
-                        <span style={{ color: '#BBB', fontSize: 11 }}>%</span>
+                        <span style={{ color: 'var(--ink-3)', fontSize: 11 }}>%</span>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span style={{ color: '#BBB', fontSize: 11 }}>$</span>
+                        <span style={{ color: 'var(--ink-3)', fontSize: 11 }}>$</span>
                         <input type="number" value={c.amount || ''} placeholder="0" onChange={e => setC({ amount: parseFloat(e.target.value) || 0 })} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
                       </div>
                     )}
@@ -237,20 +243,20 @@ export default function LandTermsTab({ projectId }: Props) {
                       {COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                     </select>
                     <button onClick={() => update('acquisitionCosts', acqCosts.filter(x => x.id !== c.id))} title="Remove"
-                      style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14 }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
+                      style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', fontSize: 14 }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-3)')}>×</button>
                     {c.mode === 'pct' && derived > 0 && (
-                      <div style={{ gridColumn: '3 / 5', fontSize: 10, color: '#9A7B2E', fontFamily: 'monospace', marginTop: -2 }}>= {fmt(derived)}</div>
+                      <div style={{ gridColumn: '3 / 5', fontSize: 10, color: 'var(--gold)', fontFamily: 'monospace', marginTop: -2 }}>= {fmt(derived)}</div>
                     )}
                   </div>
                 )
               })}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 12 }}>
                 <button onClick={() => update('acquisitionCosts', [...acqCosts, { id: pid('acq'), label: '', mode: 'pct', pct: 0, phase: 'pre-acquisition' }])}
-                  style={{ background: 'none', border: '1px dashed #D0CEC9', color: '#555', padding: '7px 12px', borderRadius: 8, fontSize: 10.5, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  style={{ background: 'none', border: '1px dashed var(--gold-line)', color: 'var(--ink-2)', padding: '7px 12px', borderRadius: 8, fontSize: 10.5, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
                   + Add acquisition cost
                 </button>
-                <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: '#1A1A1A' }}>{fmt(cost.acquisitionCosts)}</span>
+                <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{fmt(cost.acquisitionCosts)}</span>
               </div>
             </Card>
           </div>
@@ -268,39 +274,39 @@ export default function LandTermsTab({ projectId }: Props) {
               <SLine lbl="Acquisition costs" sub="fees · legals · DD" val={fmt(cost.acquisitionCosts)} />
               <SLine lbl="Vendor rebate" val={'−' + fmt(cost.rebate)} neg />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 16, marginTop: 4, borderTop: `1px solid ${CHROME_LINE}` }}>
-                <span style={{ color: '#1A1A1A', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: 12 }}>Total land cost</span>
+                <span style={{ color: 'var(--ink)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: 12 }}>Total land cost</span>
                 <span style={{ color: GOLD, fontSize: 24, fontWeight: 300, fontFamily: 'var(--font-mono)' }}>{fmt(cost.total)}</span>
               </div>
               {cost.effectivePerSqm != null && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 6 }}>
-                  <span style={{ fontSize: 10, color: '#B0ADA6' }}>Effective rate on site area</span>
-                  <span style={{ fontSize: 10, color: '#B0ADA6' }}>{fmt(cost.effectivePerSqm)} / sqm</span>
+                  <span style={{ fontSize: 10, color: 'var(--faint)' }}>Effective rate on site area</span>
+                  <span style={{ fontSize: 10, color: 'var(--faint)' }}>{fmt(cost.effectivePerSqm)} / sqm</span>
                 </div>
               )}
-              <p style={{ color: '#B0ADA6', fontSize: 10.5, lineHeight: 1.6, marginTop: 14 }}>This single number is what the Cost Stack, Finance and Summary tabs consume. Every term above is transparent and auditable — no hidden loadings.</p>
-              {cost.flags.map((f, i) => <div key={i} style={{ fontSize: 10, color: '#555', marginTop: 8, display: 'flex', gap: 6 }}><span>◆</span><span style={{ lineHeight: 1.5 }}>{f}</span></div>)}
+              <p style={{ color: 'var(--faint)', fontSize: 10.5, lineHeight: 1.6, marginTop: 14 }}>This single number is what the Cost Stack, Finance and Summary tabs consume. Every term above is transparent and auditable — no hidden loadings.</p>
+              {cost.flags.map((f, i) => <div key={i} style={{ fontSize: 10, color: 'var(--ink-2)', marginTop: 8, display: 'flex', gap: 6 }}><span>◆</span><span style={{ lineHeight: 1.5 }}>{f}</span></div>)}
             </Card>
 
             {/* Payment schedule */}
             <Card title="Payment Schedule" hint="→ Programme & Cashflow">
               {schedule.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr 1fr 24px', gap: 8, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#AAA', paddingBottom: 8, borderBottom: '1px solid #E8E5E0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr 1fr 24px', gap: 8, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
                   <span>Milestone</span><span>Date</span><span>%</span><span>Amount</span><span />
                 </div>
               )}
               {schedule.map(p => {
                 const pct = data.landCost > 0 ? Math.round((p.amount / data.landCost) * 100) : 0
                 return (
-                  <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr 1fr 24px', gap: 8, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F2EFEA' }}>
+                  <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr 1fr 24px', gap: 8, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--line)' }}>
                     <input value={p.label} placeholder="Milestone" onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, label: e.target.value } : x))} style={cell} />
                     <DateField value={p.date} onChange={v => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, date: v } : x))} style={cell} />
-                    <span style={{ fontSize: 11, color: '#999', fontFamily: 'monospace', textAlign: 'right' }}>{pct}%</span>
+                    <span style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace', textAlign: 'right' }}>{pct}%</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <span style={{ color: '#BBB', fontSize: 11 }}>$</span>
+                      <span style={{ color: 'var(--ink-3)', fontSize: 11 }}>$</span>
                       <input type="number" value={p.amount || ''} placeholder="0" onChange={e => update('paymentSchedule', schedule.map(x => x.id === p.id ? { ...x, amount: parseFloat(e.target.value) || 0 } : x))} style={{ ...cell, textAlign: 'right', fontFamily: 'monospace' }} />
                     </div>
-                    <button onClick={() => update('paymentSchedule', schedule.filter(x => x.id !== p.id))} style={{ background: 'none', border: 'none', color: '#CCC', cursor: 'pointer', fontSize: 14, textAlign: 'center' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#B4553F')} onMouseLeave={e => (e.currentTarget.style.color = '#CCC')}>×</button>
+                    <button onClick={() => update('paymentSchedule', schedule.filter(x => x.id !== p.id))} style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', fontSize: 14, textAlign: 'center' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-3)')}>×</button>
                   </div>
                 )
               })}
@@ -308,13 +314,13 @@ export default function LandTermsTab({ projectId }: Props) {
                 ...(schedule.length === 0
                   ? [{ id: pid('pay'), label: 'Deposit', date: '', amount: 0 }, { id: pid('pay'), label: 'Settlement balance', date: data.settlementDate || '', amount: 0 }]
                   : [{ id: pid('pay'), label: '', date: '', amount: 0 }])])}
-                style={{ background: 'none', border: '1px dashed #D0CEC9', color: '#555', padding: 9, borderRadius: 8, width: '100%', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 12 }}>
+                style={{ background: 'none', border: '1px dashed var(--gold-line)', color: 'var(--ink-2)', padding: 9, borderRadius: 8, width: '100%', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 12 }}>
                 + Add payment
               </button>
               {schedule.length > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 13, fontSize: 12 }}>
-                  <span style={{ color: '#888' }}>Scheduled vs contract</span>
-                  <span style={{ color: balanced ? '#237A52' : '#B8860B', fontFamily: 'monospace' }}>{balanced ? '✓' : '⚠'} {fmt(scheduledTotal)}{balanced ? ' · balanced' : ` / ${fmt(data.landCost)}`}</span>
+                  <span style={{ color: 'var(--ink-3)' }}>Scheduled vs contract</span>
+                  <span style={{ color: balanced ? 'var(--emerald)' : 'var(--amber)', fontFamily: 'monospace' }}>{balanced ? '✓' : '⚠'} {fmt(scheduledTotal)}{balanced ? ' · balanced' : ` / ${fmt(data.landCost)}`}</span>
                 </div>
               )}
             </Card>
@@ -322,12 +328,12 @@ export default function LandTermsTab({ projectId }: Props) {
             {/* In-kind */}
             {dealType === 'inkind' && (
               <Card title="In-Kind Vendor Consideration" hint="Optional" accent="violet">
-                <FieldRow label="Label"><input className="w-full" style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #C8C0D8', padding: '4px 0', outline: 'none', color: '#1A1A1A' }} placeholder="e.g. Church convention centre" value={data.inKindLabel} onChange={e => update('inKindLabel', e.target.value)} /></FieldRow>
+                <FieldRow label="Label"><input className="w-full" style={{ background: 'transparent', border: 'none', borderBottom: '1px solid var(--border-hi)', padding: '4px 0', outline: 'none', color: 'var(--ink)' }} placeholder="e.g. Church convention centre" value={data.inKindLabel} onChange={e => update('inKindLabel', e.target.value)} /></FieldRow>
                 <FieldRow label="Delivery GFA (sqm)"><NumberInput value={data.inKindGFA} onChange={v => update('inKindGFA', v)} /></FieldRow>
                 <FieldRow label="Build rate ($/sqm)"><NumberInput value={data.inKindRatePerSqm} onChange={v => update('inKindRatePerSqm', v)} prefix="$" step={100} /></FieldRow>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTop: '1px solid #E7DEF2', marginTop: 6 }}>
-                  <span style={{ color: '#888', fontSize: 12 }}>Implied in-kind cost</span>
-                  <span style={{ color: '#7A4AAA', fontSize: 20, fontWeight: 300, fontFamily: 'var(--font-mono)' }}>{fmt(inKindCost)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTop: '1px solid var(--border)', marginTop: 6 }}>
+                  <span style={{ color: 'var(--ink-3)', fontSize: 12 }}>Implied in-kind cost</span>
+                  <span style={{ color: 'var(--purple)', fontSize: 20, fontWeight: 300, fontFamily: 'var(--font-mono)' }}>{fmt(inKindCost)}</span>
                 </div>
               </Card>
             )}
@@ -365,9 +371,9 @@ function FieldRowNew({ label, note, children }: { label: string; note?: string; 
 
 function Check({ checked, onChange, children }: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid #F2EFEA', cursor: 'pointer' }}>
-      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ width: 'auto', accentColor: '#1A1A1A' }} />
-      <span style={{ fontSize: 12, color: '#666' }}>{children}</span>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}>
+      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ width: 'auto', accentColor: 'var(--ink)' }} />
+      <span style={{ fontSize: 12, color: 'var(--ink-2)' }}>{children}</span>
     </label>
   )
 }
