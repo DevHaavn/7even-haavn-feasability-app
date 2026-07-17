@@ -42,11 +42,20 @@
   --input-bg:rgba(255,255,255,0.72); --hover:rgba(35,44,55,0.03);
 
   font-family:var(--sans); color:var(--ink);
+  /* The reference field is the gradient PLUS a fine dot texture (.appbg::after:
+     a 4px dot grid, rgba(255,255,255,.5) at opacity .35, mix-blend-mode overlay).
+     Here it is the first background LAYER with background-blend-mode:overlay, so
+     it blends only with the gradient underneath and can never tint the panels or
+     text above it — the reference keeps its texture layer behind everything too.
+     The .35 layer opacity is baked into the dot colour (0.5 × 0.35 ≈ 0.175). */
   background:
+    radial-gradient(rgba(255,255,255,0.175) 1px, transparent 1px),
     radial-gradient(120% 85% at 12% -12%, rgba(188,206,226,0.65), transparent 55%),
     radial-gradient(110% 80% at 92% 8%, rgba(206,214,226,0.55), transparent 55%),
     radial-gradient(120% 90% at 85% 115%, rgba(150,172,198,0.5), transparent 60%),
     linear-gradient(158deg,#e7ecf2 0%,#dde4ec 45%,#d2dbe5 100%) fixed;
+  background-size:4px 4px, auto, auto, auto, auto;
+  background-blend-mode:overlay, normal, normal, normal, normal;
   -webkit-font-smoothing:antialiased;
   transition:background .5s,color .5s;
   min-height:100%;
@@ -65,10 +74,15 @@
   --shadow:0 24px 60px -20px rgba(0,0,0,0.6); --shadow-lg:0 30px 70px -24px rgba(0,0,0,0.75);
   --glass-edge:inset 0 1px 0 rgba(255,255,255,0.12);
   --track:rgba(255,255,255,0.06); --input-bg:rgba(255,255,255,0.04); --hover:rgba(255,255,255,0.03);
+  /* Same dot texture, softer in dark — the reference drops the layer to
+     opacity .15 there (0.5 × 0.15 ≈ 0.075). */
   background:
+    radial-gradient(rgba(255,255,255,0.075) 1px, transparent 1px),
     radial-gradient(120% 80% at 80% -10%, rgba(120,150,180,0.14), transparent 55%),
     radial-gradient(90% 70% at 15% 110%, rgba(30,45,60,0.5), transparent 60%),
     linear-gradient(180deg,#0c1219,#0a0e13 45%,#090c11);
+  background-size:4px 4px, auto, auto, auto;
+  background-blend-mode:overlay, normal, normal, normal;
 }
 @media(prefers-reduced-motion:reduce){ .fxs{transition:none} }
 
@@ -151,7 +165,9 @@
 .fxs .seg button:hover{color:var(--ink)}
 .fxs .seg button.on{background:var(--card);color:var(--gold);box-shadow:var(--shadow);font-weight:600}
 .fxs.dark .seg button.on{background:rgba(255,255,255,0.09);color:var(--gold-hi)}
-.fxs .subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:0}
+/* Reference: margin-bottom:20px — the panel must sit AWAY from the tab names,
+   not flush under them. (Was padding-bottom:0, so it read as one welded block.) */
+.fxs .subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
 .fxs .subtab{font-size:11px;letter-spacing:.1em;color:var(--ink-3);padding:11px 16px;cursor:pointer;transition:.2s;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans);text-transform:uppercase}
 .fxs .subtab:hover{color:var(--ink-2)}
 .fxs .subtab.on{color:var(--ink);border-color:var(--gold)}
@@ -292,6 +308,25 @@
 /* Row actions reveal on hover, as before. */
 .fxs .gt tr.ln .acts{opacity:0;transition:opacity .12s}
 .fxs .gt tr.ln:hover .acts{opacity:1}
+/* ---- DETAILED TOTAL — horizontal strip -------------------------------------
+   It used to be a right-hand sidebar eating a third of the width, which squeezed
+   the Item description column. It now sits ABOVE the table as a row of cards, in
+   the same language as the build-rate presets, so the line-item table gets the
+   full width of the screen. Active section highlights, exactly as the sidebar's
+   .dtrow.on did. Cards wrap on narrow screens. */
+.fxs .dtstrip{display:flex;flex-wrap:wrap;gap:9px;align-items:stretch;margin-bottom:16px}
+.fxs .dtcard{flex:1 1 150px;min-width:132px;border:1px solid var(--border);background:var(--card);border-radius:11px;padding:11px 14px;cursor:pointer;transition:.2s;box-shadow:var(--shadow),var(--glass-edge);backdrop-filter:blur(16px) saturate(1.1);-webkit-backdrop-filter:blur(16px) saturate(1.1)}
+.fxs .dtcard:hover{border-color:var(--gold-line)}
+.fxs .dtcard.on{border-color:var(--gold);background:var(--gold-soft)}
+.fxs .dtcard .dl{font-size:9px;letter-spacing:.09em;color:var(--ink-2);font-weight:600;text-transform:uppercase;line-height:1.35}
+.fxs .dtcard .dv{font-family:var(--mono);font-size:15px;color:var(--ink);margin-top:6px}
+.fxs .dtcard.on .dl,.fxs .dtcard.on .dv{color:var(--gold)}
+/* Grand total rides at the end of the strip, silver, as the hero figure. */
+.fxs .dtcard.tot{flex:1 1 170px;background:linear-gradient(160deg,var(--gold-soft),var(--card));border-color:var(--gold-line);cursor:default}
+.fxs .dtcard.tot .dl{color:var(--ink-2)}
+.fxs .dtcard.tot .dv{font-size:22px;color:var(--gold);letter-spacing:-.01em}
+@media(max-width:900px){.fxs .dtcard{flex:1 1 46%}}
+
 /* detailed total sidebar */
 .fxs .dt-lab{font-size:9.5px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;font-weight:600}
 .fxs .dt-note{font-size:9px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:3px}

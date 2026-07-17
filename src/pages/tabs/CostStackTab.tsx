@@ -842,57 +842,59 @@ export default function CostStackTab({ projectId }: Props) {
             <CostStackHead phase={data.currentPhase} onPhase={setPhase} />
             <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
 
-            <div className="two-64">
-              <div className="panel pad">
-                {/* Reference: the per-section title lives in the panel as .subtitle —
-                    the page head above stays "Development Cost" for every sub-tab. */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                  <div>
-                    <div className="subtitle">{meta.title}</div>
-                    <div className="desc">{meta.sub}</div>
+            {/* DETAILED TOTAL — a strip ABOVE the table (was a right sidebar taking a
+                third of the width and squeezing the Item description column). Same
+                five section totals + grand total; each card jumps to its section. */}
+            <div className="dtstrip">
+              {([
+                ['hard', 'Construction Costs', hardTotal],
+                ['consultants', 'Consultant & Professional Fees', consTotal],
+                ['statutory', 'Statutory + Headworks', statTotal],
+                ['management', 'Management Fees', mgmtTotal],
+                ['marketing', 'Marketing & Advertising', mktTotal],
+              ] as [string, string, number][]).map(([k, label, val]) => {
+                const active = innerTab === k || (k === 'statutory' && innerTab === 'headworks')
+                return (
+                  <div key={k} className={`dtcard${active ? ' on' : ''}`} onClick={() => setInnerTab(k)} title={`Go to ${label}`}>
+                    <div className="dl">{label}</div>
+                    <div className="dv">{fmtShortM(val)}</div>
                   </div>
-                  <div className="flex gap aic wrapf" style={{ flexShrink: 0 }}>
-                    <span className="check">✓ Auto-saved</span>
-                    {dc.canUndo && <span className="chip" onClick={() => dc.undo(setDetailed)}>↶ Undo</span>}
-                  </div>
-                </div>
-                <div className="guide"><b>Market guide</b> — {meta.hint}</div>
-                <div style={{ maxWidth: '100%' }}>
-                  <CostStackTable
-                    items={detailed[meta.key]}
-                    onChange={items => updateSection(meta.key, items)}
-                    gstEnabled={data.gstEnabled}
-                    basisMode={innerTab === 'hard' ? 'units' : 'basis'}
-                    groups={innerTab === 'consultants' ? undefined : COST_GROUPS[innerTab]}
-                    groupByNotes={innerTab === 'consultants'}
-                    constructionValue={result.construction}
-                    gdvValue={gdv}
-                  />
-                </div>
-                <ScheduleMatrix items={detailed[meta.key]} />
+                )
+              })}
+              <div className="dtcard tot">
+                <div className="dl">Grand total</div>
+                <div className="dv">{fmtShortM(hardTotal + consTotal + statTotal + mgmtTotal + mktTotal)}</div>
               </div>
+            </div>
 
-              {/* DETAILED TOTAL sidebar — the six section totals + grand total */}
-              <div>
-                <div className="panel pad gold-top" style={{ position: 'sticky', top: 20 }}>
-                  <div className="dt-lab">Detailed total</div>
-                  <div className="dt-note">Ex-GST section totals · itemised</div>
-                  <div style={{ marginTop: 14 }}>
-                    {([
-                      ['hard', 'Construction Costs', hardTotal],
-                      ['consultants', 'Consultant & Professional Fees', consTotal],
-                      ['statutory', 'Statutory + Headworks', statTotal],
-                      ['management', 'Management Fees', mgmtTotal],
-                      ['marketing', 'Marketing & Advertising', mktTotal],
-                    ] as [string, string, number][]).map(([k, label, val]) => (
-                      <div key={k} className={`dtrow${innerTab === k || (k === 'statutory' && innerTab === 'headworks') ? ' on' : ''}`}>
-                        <span className="l">{label}</span><span className="v">{fmtShortM(val)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grand"><div className="gl">Grand total</div><div className="gv">{fmtShortM(hardTotal + consTotal + statTotal + mgmtTotal + mktTotal)}</div></div>
+            {/* Line-item engine — now full width */}
+            <div className="panel pad">
+              {/* Reference: the per-section title lives in the panel as .subtitle —
+                  the page head above stays "Development Cost" for every sub-tab. */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                <div>
+                  <div className="subtitle">{meta.title}</div>
+                  <div className="desc">{meta.sub}</div>
+                </div>
+                <div className="flex gap aic wrapf" style={{ flexShrink: 0 }}>
+                  <span className="check">✓ Auto-saved</span>
+                  {dc.canUndo && <span className="chip" onClick={() => dc.undo(setDetailed)}>↶ Undo</span>}
                 </div>
               </div>
+              <div className="guide"><b>Market guide</b> — {meta.hint}</div>
+              <div style={{ maxWidth: '100%' }}>
+                <CostStackTable
+                  items={detailed[meta.key]}
+                  onChange={items => updateSection(meta.key, items)}
+                  gstEnabled={data.gstEnabled}
+                  basisMode={innerTab === 'hard' ? 'units' : 'basis'}
+                  groups={innerTab === 'consultants' ? undefined : COST_GROUPS[innerTab]}
+                  groupByNotes={innerTab === 'consultants'}
+                  constructionValue={result.construction}
+                  gdvValue={gdv}
+                />
+              </div>
+              <ScheduleMatrix items={detailed[meta.key]} />
             </div>
           </div>
         </div>
