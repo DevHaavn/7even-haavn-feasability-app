@@ -608,16 +608,11 @@ function ModelDrawer({ tab, projectId, onClose }: { tab: ModelTab; projectId: st
   const title = MODEL_TABS.find(t => t.id === tab)?.label ?? ''
   return (
     <div className="pm-drawer-wrap mb-4">
-      <div className="pm-drawer-inner">
-        <div className="pm-drawer-head">
-          <span style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>
-            {title} · slides over the mix builder
-          </span>
-          <button onClick={onClose}
-            className="px-3 py-1.5 text-[9px] tracking-[0.16em] uppercase border border-[var(--border)] text-[var(--ink-2)] hover:border-[var(--ink)] hover:text-[var(--ink)] cursor-pointer transition-colors"
-            style={{ borderRadius: 0 }}>
-            ▲ Back to Mix
-          </button>
+      <div className="panel pad pm-drawer-inner">
+        {/* Design: eyebrow left, "▲ BACK TO MIX" as a chip right. */}
+        <div className="pm-drawer-head" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
+          <span className="eyebrow">{title} · slides over the mix builder</span>
+          <span className="chip" onClick={onClose}>▲ Back to mix</span>
         </div>
         <div className="pm-drawer-body">
           {tab === 'btr' && <BTRTab projectId={projectId} />}

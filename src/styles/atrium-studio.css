@@ -382,6 +382,17 @@
 
 /* ---- let the blue/grey field show through the work surface (retire the old
         dark texture / invert stage) so reskinned tabs sit on the glass ---- */
+/* ---- Product Mix scenario drawer -----------------------------------------
+   index.css gives .pm-drawer-* its own light-only chrome (#fff, an #E0DDD8
+   border, an #F7F5F2 head bar). That would sit on top of the frosted .panel and
+   stay light in dark mode. Inside the studio the panel IS the surface, so the
+   wrap keeps only what it is actually for: the slide-down animation + clipping.
+   The height cap stays — it is what keeps the live Mix Result + Parking sections
+   pinned in view below the scenario, which is what the design describes. */
+.fxs .pm-drawer-wrap{background:transparent;border:none;box-shadow:none;border-radius:15px}
+.fxs .pm-drawer-head{background:transparent;border-bottom:none;padding:0}
+.fxs .pm-drawer-inner{max-height:66vh}
+
 .fxs .workspace-content{background:transparent!important}
 .fxs .premium-stage{background:transparent!important}
 .fxs .premium-card{background:transparent!important;box-shadow:none!important;border:none!important;filter:none!important;border-radius:0!important;backdrop-filter:none!important}
