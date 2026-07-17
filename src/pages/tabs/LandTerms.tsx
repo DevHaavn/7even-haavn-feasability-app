@@ -29,18 +29,18 @@ const fmtShort = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}
 const GOLD = 'var(--gold, #B8963C)'
 const CHROME = 'var(--ink, #2A2A2A)'
 const CHROME_LINE = 'var(--border-hi, #C8C4BE)'
+// The design's panel: a divlabel at the top (with the NEW badge inline and the
+// hint folded into the same line), then the content — no separate header bar.
 function Card({ title, hint, isNew, accent, children }: { title: string; hint?: string; isNew?: boolean; accent?: 'gold' | 'violet'; children: React.ReactNode }) {
-  const isViolet = accent === 'violet'
-  const border = isViolet ? 'var(--purple, #C8C0D8)' : 'var(--border, #E8E5E0)'
   return (
-    <div className={accent === 'gold' ? 'panel gold-top' : 'panel'} style={{ border: `1px solid ${border}`, borderRadius: 15, overflow: 'hidden', background: 'var(--card, #fff)', boxShadow: 'var(--shadow)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 20px', borderBottom: `1px solid var(--line, #EDEAE5)` }}>
-        <h2 style={{ fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: isViolet ? 'var(--purple, #7A4AAA)' : 'var(--ink-3, #8b959e)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-          {title}{isNew && <span style={{ fontSize: 8, letterSpacing: '0.12em', color: 'var(--gold, #2A2A2A)', border: `1px solid var(--gold-line, #C8C4BE)`, borderRadius: 20, padding: '2px 7px' }}>NEW</span>}
-        </h2>
-        {hint && <span style={{ fontSize: 10, color: 'var(--faint, #B0ADA6)' }}>{hint}</span>}
+    <div className={accent === 'gold' ? 'panel pad gold-top' : 'panel pad'}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <span className="divlabel" style={{ marginBottom: 0, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          {title}{hint ? ` — ${hint}` : ''}
+          {isNew && <span className="ls-new">New</span>}
+        </span>
       </div>
-      <div style={{ padding: '8px 20px 18px' }}>{children}</div>
+      <div style={{ marginTop: 6 }}>{children}</div>
     </div>
   )
 }
@@ -92,24 +92,28 @@ export default function LandTermsTab({ projectId }: Props) {
     <div className="fx-wrap">
       <div className="relative" style={{ color: 'var(--ink, #1A1A1A)' }}>
 
-        {/* ── HERO — header styled to match every other tab (SectionHeading) ── */}
-        <div className="flex items-end justify-between flex-wrap gap-3 mb-1">
-          <SectionHeading sub="Acquisition · Deal Structure · Settlement · Cashflow inputs">Land &amp; Vendor Terms</SectionHeading>
-          <div className="flex items-center gap-3" style={{ paddingBottom: 4 }}>
-            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)', alignSelf: 'center' }}>⤳ Auto-saved</span>
-            {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
-            {/* Current deal-structure badge — readable solid label (was an invisible chrome pill) */}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: `1px solid ${CHROME_LINE}`, padding: '7px 15px', borderRadius: 30, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, background: 'var(--card-2)', color: 'var(--ink)' }}>{DEAL_ICON[dealType]} {dealMeta.label}</span>
+        {/* ── Page head to the design: kicker + serif title + sub, auto-saved right ── */}
+        <div className="pagehead">
+          <div>
+            <div className="kicker">02 · Land &amp; Vendor Terms</div>
+            <h1 className="h-sec">Acquisition &amp; Deal Terms</h1>
+            <div className="h-sub">Acquisition · deal structure · settlement · cashflow inputs.</div>
+          </div>
+          <div className="flex gap aic wrapf">
+            <span className="check">✓ Auto-saved</span>
+            {canUndo && <span className="chip" onClick={() => undo(setData)}>↶ Undo</span>}
+            <span className="chip">{DEAL_ICON[dealType]} {dealMeta.label}</span>
           </div>
         </div>
 
-        {/* ── METRIC STRIP ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, background: 'var(--border, #E8E5E0)', border: '1px solid var(--border, #E8E5E0)', borderRadius: 12, overflow: 'hidden', marginTop: 24 }} className="ls-metrics">
+        {/* ── KPI strip — five separate cards, per the design (was one joined grid
+             welded together by 1px gaps over a border colour) ── */}
+        <div className="kpis k5 ls-metrics">
           <Metric k="Contract Price" v={fmt(dealType === 'inkind' ? 0 : data.landCost)} foot={perSqmSite != null ? `${fmt(perSqmSite)} / sqm site` : 'lump sum'} />
           <Metric k="Stamp Duty + Surcharge" v={fmt(cost.stampDuty + cost.foreignSurcharge)} foot={`${data.state} · ${cost.foreignSurcharge > 0 ? 'incl FPAD' : 'no surcharge'}`} />
           <Metric k="Terms Cost (finance)" v={fmt(cost.financeOnTerms)} foot="Deferral / option holding" />
           <Metric k="Effective Land Cost" v={fmt(cost.total)} foot="Into feasibility →" gold />
-          <Metric k="Settlement" v={monthsToSettle != null ? `${monthsToSettle} mo` : '—'} foot={data.settlementDate ? 'Est. ' + new Date(data.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : 'date TBC'} />
+          <Metric k="Settlement" v={data.settlementDate ? new Date(data.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : '—'} foot={monthsToSettle != null ? `${monthsToSettle} months` : 'date TBC'} />
         </div>
 
         {/* ── GRID ── */}
@@ -355,12 +359,13 @@ export default function LandTermsTab({ projectId }: Props) {
 
 const cell: React.CSSProperties = { background: 'transparent', border: 'none', borderBottom: '1px solid var(--line, #E0DDD8)', padding: '5px 0', fontSize: 12, color: 'var(--ink, #1A1A1A)', outline: 'none', width: '100%', fontFamily: 'var(--mono, monospace)' }
 
+// A KPI card. `gold` marks the Effective Land Cost — the design accents that one.
 function Metric({ k, v, foot, gold }: { k: string; v: string; foot?: string; gold?: boolean }) {
   return (
-    <div style={{ background: gold ? 'linear-gradient(160deg, var(--gold-soft), var(--card))' : 'var(--card, #fff)', padding: '18px 18px 16px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <div style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3, #AAA)', fontWeight: 600 }}>{k}</div>
-      <div style={{ fontSize: 23, fontWeight: 400, fontFamily: 'var(--mono)', letterSpacing: '-0.02em', color: gold ? GOLD : 'var(--ink, #1A1A1A)' }}>{v}</div>
-      {foot && <div style={{ fontSize: 10, color: 'var(--faint, #B0ADA6)' }}>{foot}</div>}
+    <div className={`kpi${gold ? ' gold' : ''}`}>
+      <div className="lab">{k}</div>
+      <div className="val" style={gold ? { color: 'var(--emerald)' } : undefined}>{v}</div>
+      {foot && <div className="sub">{foot}</div>}
     </div>
   )
 }

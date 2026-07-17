@@ -165,6 +165,11 @@
 @media(max-width:640px){.fxs .k6,.fxs .k5,.fxs .k4,.fxs .k3{grid-template-columns:repeat(2,1fr)}}
 .fxs .kpi{padding:18px 18px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:var(--shadow),var(--glass-edge);transition:.25s;position:relative;overflow:hidden}
 .fxs .kpi:hover{transform:translateY(-2px);border-color:var(--border-hi)}
+/* Accent KPI — the design lifts one tile out of the strip (Land & Terms uses it
+   for Effective Land Cost). */
+.fxs .kpi.gold{background:linear-gradient(160deg,var(--gold-soft),var(--card));border-color:var(--gold-line)}
+/* The small "NEW" pill the design puts beside a section label. */
+.fxs .ls-new{font-size:8px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--gold);border:1px solid var(--gold-line);border-radius:20px;padding:2px 7px;line-height:1.4}
 /* Unit-count tile — the second row of the pinned Mix Result block. Centred, with
    the count as the hero, then the type name and its share. */
 .fxs .unit-tile{text-align:center;padding:16px 14px}
