@@ -25,16 +25,21 @@ const HEADER_H   = 48         // month header height
 
 const STATUS_COLORS: Record<TimelineStatus, string> = {
   'critical':    'var(--red)',
-  'delayed':     'var(--gold)',
-  'in-progress': 'var(--emerald)',
-  'complete':    'var(--purple)',
+  // Delayed is a caution, so it reads amber. It had become silver in the colour
+  // sweep, which contradicted both the playbook and its own label ("🟡 Delayed").
+  'delayed':     'var(--amber)',
+  // Playbook: silver = in progress, green = complete. Purple was decorative.
+  // The STATUS_LABELS emoji below are kept in step with these colours — JB
+  // authorised that emoji change explicitly, since the labels name their colour.
+  'in-progress': 'var(--gold)',
+  'complete':    'var(--emerald)',
   'not-started': 'var(--ink-3)',
 }
 const STATUS_LABELS: Record<TimelineStatus, string> = {
   'critical':    '🔴 Critical — In Trouble',
   'delayed':     '🟡 Delayed — Needs Attention',
-  'in-progress': '🟢 In Progress — On Track',
-  'complete':    '🟣 Complete',
+  'in-progress': '🔘 In Progress — On Track',
+  'complete':    '🟢 Complete',
   'not-started': '⚫ Not Started',
 }
 const STATUS_SHORT: Record<TimelineStatus, string> = {
@@ -68,12 +73,16 @@ const STATUSES  = Object.keys(STATUS_COLORS) as TimelineStatus[]
 
 // ── Delivery phases — the Timeline is organised by the same five phases used
 // across every project tab (Cost Stack, Cashflow, Land & Terms). ──
+// Phase is a category, not a verdict — muted only, and matched to the same
+// mapping the Dashboard uses so the two tabs agree. 'close-out' was emerald and
+// 'acquisition-planning' purple: decorative uses of a functional colour and of
+// the rainbow respectively.
 const PHASE_COLORS: Record<CostPhase, string> = {
-  'pre-acquisition':      'var(--gold)',
-  'acquisition-planning': 'var(--purple)',
+  'pre-acquisition':      'var(--slate)',
+  'acquisition-planning': 'var(--slate)',
   'pre-construction':     'var(--blue)',
-  'construction':         'var(--ink-2)',
-  'close-out':            'var(--emerald)',
+  'construction':         'var(--gold)',
+  'close-out':            'var(--ink-3)',
 }
 const PHASES = COST_PHASES.map(p => p.id)
 const PHASE_LABEL: Record<CostPhase, string> = Object.fromEntries(COST_PHASES.map(p => [p.id, p.label])) as Record<CostPhase, string>
@@ -242,10 +251,13 @@ export default function ProjectTimeline({ projectId }: Props) {
 
         {/* Traffic light counts */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <TrafficLight color="var(--red)" count={critical} label="Critical" flash />
-          <TrafficLight color="var(--gold)" count={atRisk}   label="Delayed" />
-          <TrafficLight color="var(--emerald)" count={onTrack}  label="On Track" />
-          <TrafficLight color="var(--purple)" count={complete} label="Complete" />
+          {/* Read STATUS_COLORS rather than restating the colours: these tiles had
+              drifted out of step with the bars they summarise (Delayed silver,
+              On Track green, Complete purple). Same source now, so they can't. */}
+          <TrafficLight color={STATUS_COLORS['critical']} count={critical} label="Critical" flash />
+          <TrafficLight color={STATUS_COLORS['delayed']} count={atRisk}   label="Delayed" />
+          <TrafficLight color={STATUS_COLORS['in-progress']} count={onTrack}  label="On Track" />
+          <TrafficLight color={STATUS_COLORS['complete']} count={complete} label="Complete" />
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.12)' }} />
           <span style={{ fontSize: 9, color: 'var(--ink-3)', letterSpacing: '0.10em' }}>{total} tasks</span>
           <span style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700 }}>{overallPct}%</span>
