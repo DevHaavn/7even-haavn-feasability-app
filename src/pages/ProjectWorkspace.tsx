@@ -20,15 +20,15 @@ import AutoSaveCloud from '../components/AutoSaveButton'
 import ThemeToggle from '../components/ThemeToggle'
 import { setAtriumTheme } from '../lib/atriumTheme'
 
-function dotColor(type?: string, status?: string) {
-  if (status === 'on-hold') return '#EF4444'
-  if (status === 'pending') return '#C9A24B'
-  switch (type) {
-    case 'hotel': return '#A855F7'
-    case 'btr':   return '#22C55E'
-    case 'bts':   return '#3B82F6'
-    default:      return '#C4973A'
-  }
+// Status dot — functional only: green = running, amber = pending, red = on-hold.
+// It used to colour by project type as well (purple/green/blue, gold default),
+// which was decorative rainbow and the last of the old gold left in the chrome.
+// No information is lost: the type is already spelled out in the address line
+// beside it (e.g. "35 Corio Street … · MIXED").
+function dotColor(_type?: string, status?: string) {
+  if (status === 'on-hold') return 'var(--red)'
+  if (status === 'pending') return 'var(--amber)'
+  return 'var(--emerald)'
 }
 
 function WorkspaceStatusDot({ type, status }: { type?: string; status?: string }) {
@@ -97,7 +97,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           )}
         </div>
         {role === 'external' && (
-          <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C4973A88', border: '1px solid #C4973A33', padding: '4px 9px', borderRadius: 20, flexShrink: 0 }}>
+          <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--chrome-dim)', border: '1px solid var(--chrome-line)', padding: '4px 9px', borderRadius: 20, flexShrink: 0 }}>
             Consultant
           </span>
         )}
