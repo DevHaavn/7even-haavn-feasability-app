@@ -88,10 +88,10 @@ export function Card({ children, className = '', dark = false }: { children: Rea
 export function SectionHeading({ children, sub }: { children: React.ReactNode; sub?: string }) {
   return (
     <div className="mb-5 cursor-default" style={{ paddingLeft: 2 }}>
-      <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 34, fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1, color: 'var(--ink, #141414)' }}>{children}</h2>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 34, fontWeight: 500, letterSpacing: '0.01em', lineHeight: 1, color: 'var(--fx-ink, #141414)' }}>{children}</h2>
       {/* ATRIUM livery — green nib running into brushed silver */}
       <div style={{ height: 2, borderRadius: 2, width: 54, marginTop: 9, background: 'linear-gradient(to right, #237A52, #9AA2A4 60%, transparent)' }} />
-      {sub && <p style={{ color: 'var(--ink-2, #666)', fontSize: 12.5, marginTop: 9 }}>{sub}</p>}
+      {sub && <p style={{ color: 'var(--fx-ink-2, #666)', fontSize: 12.5, marginTop: 9 }}>{sub}</p>}
     </div>
   )
 }
@@ -100,7 +100,7 @@ export function SectionHeading({ children, sub }: { children: React.ReactNode; s
 
 export function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[var(--ink-2,#505050)] text-[10px] tracking-[0.15em] uppercase font-medium">{children}</span>
+    <span className="text-[var(--fx-ink-2,#505050)] text-[10px] tracking-[0.15em] uppercase font-medium">{children}</span>
   )
 }
 
@@ -120,9 +120,9 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
   }
   const variants = {
     primary:   'bg-[#1A1A1A] text-white hover:bg-[#333] active:scale-95',
-    secondary: 'bg-transparent border border-[var(--border-hi,#C8C5C0)] text-[var(--ink-2,#666)] hover:border-[var(--ink,#1A1A1A)] hover:text-[var(--ink,#1A1A1A)]',
+    secondary: 'bg-transparent border border-[var(--border-hi,#C8C5C0)] text-[var(--fx-ink-2,#666)] hover:border-[var(--fx-ink,#1A1A1A)] hover:text-[var(--fx-ink,#1A1A1A)]',
     outline:   'bg-transparent border border-white/80 text-white hover:bg-white hover:text-black',
-    ghost:     'text-[var(--ink-3,#888)] hover:text-[var(--ink,#1A1A1A)] hover:bg-[#F0EEE9]',
+    ghost:     'text-[var(--ink-3,#888)] hover:text-[var(--fx-ink,#1A1A1A)] hover:bg-[#F0EEE9]',
     danger:    'bg-transparent border border-[var(--red,#B4553F)]/40 text-[var(--red,#B4553F)] hover:bg-[var(--red,#B4553F)] hover:text-white',
   }
   return (
@@ -136,9 +136,9 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
 
 export function FieldRow({ label, children, note }: { label: string; children: React.ReactNode; note?: string }) {
   return (
-    <div className="field-row-mobile fx-frow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '11px 0', borderTop: '1px solid var(--line, #E8E5E0)' }}>
-      <label style={{ fontSize: 12.5, color: 'var(--ink-2, #888)' }}>
-        {label}{note && <small style={{ display: 'block', fontSize: 10, color: 'var(--faint, #AAA)', marginTop: 2, letterSpacing: '0.02em' }}>{note}</small>}
+    <div className="field-row-mobile fx-frow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '11px 0', borderTop: '1px solid var(--fx-line, #E8E5E0)' }}>
+      <label style={{ fontSize: 12.5, color: 'var(--fx-ink-2, #888)' }}>
+        {label}{note && <small style={{ display: 'block', fontSize: 10, color: 'var(--fx-faint, #AAA)', marginTop: 2, letterSpacing: '0.02em' }}>{note}</small>}
       </label>
       <div className="no-drag" style={{ flexShrink: 0 }}>{children}</div>
     </div>
@@ -183,7 +183,7 @@ export function NumberInput({ value, onChange, prefix, suffix, step, min }: {
         step={step ?? 1}
         min={min ?? 0}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
-        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 124, textAlign: 'right' }}
+        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--fx-ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 124, textAlign: 'right' }}
       />
       {suffix && <span style={{ color: 'var(--ink-3, #AAA)', fontSize: 12 }}>{suffix}</span>}
     </div>
@@ -200,10 +200,10 @@ export function PctInput({ value, onChange, label }: { value: number; onChange: 
         min={0}
         max={100}
         onChange={e => onChange((parseFloat(e.target.value) || 0) / 100)}
-        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 74, textAlign: 'right' }}
+        style={{ fontFamily: 'var(--mono, monospace)', fontSize: 13, color: 'var(--fx-ink, #1A1A1A)', background: 'var(--input-bg, #fff)', border: '1px solid var(--border, #D0CEC9)', borderRadius: 7, padding: '8px 11px', width: 74, textAlign: 'right' }}
       />
       <span style={{ color: 'var(--ink-3, #AAA)', fontSize: 12 }}>%</span>
-      {label && <span style={{ color: 'var(--ink-2, #888)', fontSize: 10, marginLeft: 4 }}>{label}</span>}
+      {label && <span style={{ color: 'var(--fx-ink-2, #888)', fontSize: 10, marginLeft: 4 }}>{label}</span>}
     </div>
   )
 }
@@ -219,7 +219,7 @@ export function Money({ value, size = 'md', sign = false }: { value: number; siz
     ? `$${(abs / 1_000).toFixed(0)}K`
     : `$${abs.toLocaleString()}`
   const sizes = { sm: 'text-xs', md: 'text-sm', lg: 'text-lg', xl: 'text-3xl' }
-  const color = neg ? 'text-[var(--red,#B4553F)]' : sign ? 'text-[var(--emerald,#237A52)]' : 'text-[var(--ink,#12150F)]'
+  const color = neg ? 'text-[var(--red,#B4553F)]' : sign ? 'text-[var(--emerald,#237A52)]' : 'text-[var(--fx-ink,#12150F)]'
   return (
     <span className={`font-mono font-bold num ${sizes[size]} ${color}`}>
       {neg ? '−' : sign ? '+' : ''}{formatted}
@@ -332,7 +332,7 @@ export function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     active:    'border-[var(--emerald,#237A52)]/40 text-[var(--emerald,#3DAA6A)]',
     'on-hold': 'border-[var(--amber,#8A6A10)]/40 text-[var(--amber,#C9A24B)]',
-    archived:  'border-[var(--border-hi,#333)] text-[var(--ink-2,#505050)]',
+    archived:  'border-[var(--border-hi,#333)] text-[var(--fx-ink-2,#505050)]',
   }
   return (
     <span className={`px-2 py-0.5 text-[9px] font-medium tracking-[0.14em] uppercase border ${styles[status] ?? styles.active}`}
@@ -348,7 +348,7 @@ export function MetricCard({ label, value, sub, highlight }: { label: string; va
   return (
     <div className={`p-4 border ${highlight ? 'border-[var(--border-hi,#C8C5C0)] bg-[#F5F3F0]' : 'border-[var(--border,#E8E5E0)] bg-white'}`} style={{ borderRadius: 0 }}>
       <div className="text-[var(--ink-3,#888)] text-[10px] tracking-[0.14em] uppercase mb-2">{label}</div>
-      <div className="font-mono font-bold text-xl text-[var(--ink,#1A1A1A)]">{value}</div>
+      <div className="font-mono font-bold text-xl text-[var(--fx-ink,#1A1A1A)]">{value}</div>
       {sub && <div className="text-[var(--ink-3,#AAA)] text-[10px] mt-1.5 tracking-wide">{sub}</div>}
     </div>
   )

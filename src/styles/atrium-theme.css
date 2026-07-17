@@ -21,6 +21,23 @@
   --accent-soft:var(--gold-soft); --accent-line:var(--gold-line);
 }
 
+/* ---- STUDIO-ONLY ALIASES (isolation) -----------------------------------
+   src/theme/theme.css declares --ink, --ink-2, --faint and --line on :root,
+   so they exist app-wide. That breaks the var(--token, <original>) fallback
+   pattern the SHARED components (ui.tsx, SiteLinks) rely on: outside .fxs the
+   fallback never fires, and the global token silently wins — repainting
+   Capital Base, the hubs and login, which are not part of this reskin.
+   (e.g. a label meant to stay #888 was rendering as the global #3A3F3C.)
+
+   These --fx-* aliases exist ONLY inside .fxs, so a shared component can write
+   var(--fx-ink, #1A1A1A) and be genuinely inert everywhere else. The other
+   tokens (--gold, --card, --border, --ink-3, …) are not declared globally, so
+   they need no alias. */
+.fxs{
+  --fx-ink:var(--ink); --fx-ink-2:var(--ink-2);
+  --fx-faint:var(--faint); --fx-line:var(--line);
+}
+
 /* ---- 4. CHROME: header + tab bar (always dark) ------------------------- */
 .fxs .atr-topbar{display:flex;align-items:center;padding:13px 26px;position:sticky;top:0;z-index:50;
   background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
