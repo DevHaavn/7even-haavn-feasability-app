@@ -121,9 +121,12 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
       </div>
 
       {/* Tab content — relative so absolute render-bg-fixed divs work on iOS.
-          The timeline fills its stage (no outer scroll) so its own internal
-          scroller + sticky date header work — the stage must not scroll it away. */}
-      <div className={`flex-1 workspace-content relative ${safeTab === 'timeline' ? 'overflow-hidden stage-fill' : 'overflow-auto'} ${PREMIUM_TABS.includes(safeTab) ? 'premium-stage' : ''}`} style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+          Every tab scrolls, the timeline included: it was overflow-hidden on the
+          theory that the Gantt scrolled internally, but the Gantt sizes to its
+          content, so its rows past the fold were clipped and unreachable. The
+          timeline keeps `card-static` (no rise animation) because that
+          animation's transform persists and breaks the Gantt's sticky columns. */}
+      <div className={`flex-1 workspace-content relative overflow-auto ${PREMIUM_TABS.includes(safeTab) ? 'premium-stage' : ''}`} style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         {(() => {
           const content = (
             <>
@@ -143,7 +146,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             </>
           )
           // Premium tabs float in a card hovering over the dark texture.
-          return PREMIUM_TABS.includes(safeTab) ? <div key={safeTab} className={`premium-card${safeTab === 'timeline' ? ' card-fill' : ''}`}>{content}</div> : content
+          return PREMIUM_TABS.includes(safeTab) ? <div key={safeTab} className={`premium-card${safeTab === 'timeline' ? ' card-static' : ''}`}>{content}</div> : content
         })()}
         {/* Footer — the site links float on the texture below the card (not on the
             fill-height timeline, which owns the full stage) */}

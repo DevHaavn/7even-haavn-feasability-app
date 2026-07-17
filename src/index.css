@@ -573,17 +573,18 @@ input[type="checkbox"] {
   transform-origin: center top;
   animation: premium-rise 0.5s cubic-bezier(0.22,0.9,0.24,1) both;
 }
-/* Fill mode (timeline): the stage doesn't scroll — the card fills its height so
-   the timeline's own internal scroller + sticky date header work correctly. */
-.premium-stage.stage-fill { display: flex; }
-.premium-card.card-fill {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  animation: none;   /* no rise transform — it would break sticky positioning */
-}
-.premium-card.card-fill > * { flex: 1; min-height: 0; }
+/* Timeline. It used to run in "fill mode": the stage didn't scroll and the card
+   filled the viewport, on the assumption the Gantt scrolled internally. The Gantt
+   was later changed to size to its content and let the PAGE scroll — but the
+   stage was still overflow:hidden, so anything past the fold was simply clipped
+   with no way to reach it. It only looked fine because the default view showed
+   one year (~15 rows) and happened to fit. Showing the whole programme (52 rows,
+   ~2400px) made it obvious.
+   The stage now scrolls like every other tab. All this needs to keep is the
+   animation off: premium-rise ends on translateY(0) scale(1) with fill-mode:both,
+   so its transform PERSISTS after the animation and becomes a containing block,
+   which breaks the Gantt's sticky month header, label column and % column. */
+.premium-card.card-static { animation: none; }
 
 /* the site-links footer floats on the texture (no solid panel behind it) */
 .premium-footer { margin-top: clamp(16px, 3vh, 30px); }

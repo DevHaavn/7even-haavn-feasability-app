@@ -336,7 +336,13 @@ export default function ProjectTimeline({ projectId }: Props) {
         <div className="panel" style={{ overflowX: 'auto', position: 'relative', minWidth: 0 }}>
           <div style={{ minWidth: LABEL_W + ganttW + PCT_W }}>
 
-            {/* Month header — sticky top */}
+            {/* Month header. `sticky top:0` here is inert and always has been: this
+                panel is overflow-x:auto, which makes it a scroll container on BOTH
+                axes, so sticky resolves against the PANEL rather than the page —
+                and the panel is only ever as tall as its content, so there is no
+                vertical scroll within it for the header to stick against. Pinning
+                it would mean giving the Gantt its own fixed-height scroller, which
+                costs the page scroll the rows need. Left as-is deliberately. */}
             <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--card-2)', display: 'flex', height: HEADER_H, borderBottom: '1px solid var(--border)' }}>
 
               {/* Label column spacer */}
