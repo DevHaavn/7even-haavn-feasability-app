@@ -1,11 +1,91 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store'
 import { useAutosave } from '../../lib/useAutosave'
 import ProjectMap from '../../components/ProjectMap'
 import { getDisplayName, setDisplayName, timeAgo } from '../../lib/displayName'
+import { uploadProjectDoc, removeProjectDoc, isUploadedDoc, docFileName } from '../../lib/uploads'
 import type { SiteDesign, ProjectNote } from '../../db/schema'
 
 interface Props { projectId: string }
+
+/**
+ * Architect development summary — upload a PDF, or point at one that already
+ * lives somewhere else.
+ *
+ * Both paths write the same `architectPdfUrl` field, so every link pasted before
+ * this existed keeps working untouched, and the Overview/Dashboard read it the
+ * same way they always have.
+ */
+function ArchitectPdfPanel({ projectId, url, onChange }: {
+  projectId: string; url: string; onChange: (url: string) => void
+}) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const ours = isUploadedDoc(url)
+
+  async function pick(file?: File) {
+    if (!file) return
+    setErr(null); setBusy(true)
+    const previous = url
+    try {
+      const next = await uploadProjectDoc(projectId, file)
+      onChange(next)
+      // Only bin the old file AFTER the new one is safely up, so a failed
+      // replace still leaves the original in place.
+      if (isUploadedDoc(previous) && previous !== next) await removeProjectDoc(previous)
+    } catch (e: any) {
+      setErr(e?.message ?? 'Upload failed.')
+    } finally {
+      setBusy(false)
+      if (fileRef.current) fileRef.current.value = ''   // re-picking the same file must re-fire onChange
+    }
+  }
+
+  async function clear() {
+    const previous = url
+    onChange('')
+    setErr(null)
+    if (isUploadedDoc(previous)) await removeProjectDoc(previous)
+  }
+
+  return (
+    <div className="panel pad">
+      <div className="eyebrow">Architect development summary (PDF)</div>
+      <p className="note mt">Keep pointed at the latest version so numbers double-check against source.</p>
+
+      <input ref={fileRef} type="file" accept="application/pdf,.pdf" style={{ display: 'none' }}
+        onChange={e => pick(e.target.files?.[0])} />
+
+      {url ? (
+        <>
+          <div className="frow mt" style={{ gap: 10 }}>
+            <span className="fl" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
+              {ours ? docFileName(url) : url}
+              <small>{ours ? 'uploaded · stored with the project' : 'external link'}</small>
+            </span>
+          </div>
+          <div className="flex gap mt wrapf">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="chip gold" style={{ textDecoration: 'none' }}>↗ Open PDF</a>
+            <span className="chip" onClick={() => !busy && fileRef.current?.click()}>{busy ? 'Uploading…' : '⤓ Replace'}</span>
+            <span className="chip" onClick={() => !busy && clear()}>✕ Remove</span>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex gap mt wrapf">
+            <span className="chip gold" onClick={() => !busy && fileRef.current?.click()}>{busy ? 'Uploading…' : '⤓ Upload PDF'}</span>
+          </div>
+          <input className="inp mt" style={{ width: '100%', textAlign: 'left' }}
+            placeholder="…or paste a link to the PDF"
+            value={url} onChange={e => onChange(e.target.value)} />
+        </>
+      )}
+
+      {err && <p className="note mt" style={{ color: 'var(--red)' }}>{err}</p>}
+    </div>
+  )
+}
 
 // Small mono input matching the concept's `.inp`. Same parse behaviour as the old
 // NumberInput (parseFloat || 0) — presentation only, no logic change.
@@ -182,16 +262,11 @@ export default function SiteDesignTab({ projectId }: Props) {
             </div>
           </div>
 
-          <div className="panel pad">
-            <div className="eyebrow">Architect development summary (PDF)</div>
-            <p className="note mt">Keep pointed at the latest version so numbers double-check against source.</p>
-            <input className="inp mt" style={{ width: '100%', textAlign: 'left' }}
-              placeholder="Paste link to the architect's development summary PDF…"
-              value={data.architectPdfUrl ?? ''} onChange={e => update('architectPdfUrl' as keyof SiteDesign, e.target.value)} />
-            {data.architectPdfUrl && (
-              <a href={data.architectPdfUrl} target="_blank" rel="noopener noreferrer" className="chip gold" style={{ marginTop: 12, display: 'inline-block', textDecoration: 'none' }}>↗ Open PDF</a>
-            )}
-          </div>
+          <ArchitectPdfPanel
+            projectId={projectId}
+            url={data.architectPdfUrl ?? ''}
+            onChange={u => update('architectPdfUrl' as keyof SiteDesign, u)}
+          />
 
           {/* Project discussion — posts sync live to everyone on the project via
               the existing realtime channel. */}
