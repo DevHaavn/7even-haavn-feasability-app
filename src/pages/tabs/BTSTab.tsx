@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAutosave } from '../../lib/useAutosave'
 import { useStore } from '../../store'
-import { SectionHeading, FieldRow, NumberInput, PctInput, Button, Money, VerdictBadge } from '../../components/ui'
+import { FieldRow, NumberInput, PctInput, VerdictBadge } from '../../components/ui'
 import { calculateBTSValuation } from '../../engine/bts'
 import { calculateCostStack } from '../../engine/costStack'
 import { solveUnitMix } from '../../engine/unitMix'
@@ -60,105 +60,110 @@ export default function BTSTab({ projectId }: Props) {
   const agg = calcBTS(u => u.salePriceAggressive)
 
   const scenarios3 = [
-    { label: 'Conservative', result: cons, color: 'text-mid-grey' },
-    { label: 'Mid', result: mid, color: 'text-white' },
-    { label: 'Aggressive', result: agg, color: 'text-gold' },
+    { label: 'Conservative', result: cons },
+    { label: 'Mid', result: mid },
+    { label: 'Aggressive', result: agg },
   ]
 
   return (
     <div className="flex flex-col">
-      <div className="relative p-4 md:p-6 flex flex-col gap-6">
-      <div className="w-full">
-        <div className="flex items-center justify-between mb-5">
-          <SectionHeading sub="Build-to-sell — gross revenue, selling costs, RLV">BTS Income & Valuation</SectionHeading>
-          <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)', alignSelf: 'center' }}>⤳ Auto-saved</span>
-          {canUndo && <Button size="sm" variant="ghost" onClick={() => undo(setData)}>Undo</Button>}
+      {/* Head — serif subtitle + desc left, auto-saved right (design) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 6 }}>
+        <div>
+          <div className="subtitle">BTS Income &amp; Valuation</div>
+          <div className="desc">Build-to-sell — gross revenue, selling costs, RLV.</div>
         </div>
+        <div className="flex gap aic wrapf" style={{ flexShrink: 0 }}>
+          <span className="check">✓ Auto-saved</span>
+          {canUndo && <span className="chip" onClick={() => undo(setData)}>↶ Undo</span>}
+        </div>
+      </div>
 
-        {scenarios.length > 1 && (
-          <div className="flex mb-4" style={{ display: 'inline-flex', border: '1px solid var(--border)' }}>
-            {scenarios.map((s, i) => (
-              <button key={s.id} onClick={() => setActiveId(s.id)}
-                style={{ borderRadius: 0, borderLeft: i > 0 ? '1px solid var(--border)' : 'none' }}
-                className={`px-4 py-2 text-[10px] tracking-widest uppercase cursor-pointer transition-colors ${activeId === s.id ? 'bg-[var(--ink)] text-white font-semibold' : 'bg-white text-[var(--ink-3)] hover:text-[var(--ink)]'}`}>
-                {s.name}
-              </button>
-            ))}
-          </div>
-        )}
+      {scenarios.length > 1 && (
+        <div className="seg" style={{ margin: '10px 0 4px' }}>
+          {scenarios.map(s => (
+            <button key={s.id} onClick={() => setActiveId(s.id)} className={activeId === s.id ? 'on' : ''}>{s.name}</button>
+          ))}
+        </div>
+      )}
 
-        <div className="border border-[var(--border)] bg-white p-4 mb-4">
-          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)] mb-3">Sale Prices — set per unit type</h3>
-          <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+      {/* Design: sale prices + assumptions in ONE left panel, outcomes card right.
+          (Was two stacked white boxes with the outcome cards full-width below.) */}
+      <div className="two-eq" style={{ alignItems: 'start', marginTop: 14 }}>
+        <div className="panel pad">
+          <div className="divlabel">Sale prices — set per unit type</div>
+          <table className="w-full" style={{ borderCollapse: 'collapse', marginTop: 10 }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--card-2)' }}>
-                {['Type', 'Units', 'Conservative', 'Mid', 'Aggressive'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 500 }}>{h}</th>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Type', 'Units', 'Conservative', 'Mid', 'Aggressive'].map((h, i) => (
+                  <th key={h} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '0 8px 10px', fontSize: 9, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {units.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid var(--line)' }}>
-                  <td style={{ padding: '8px', color: 'var(--ink-2)' }}>{u.name}</td>
-                  <td style={{ padding: '8px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{u.solvedCount || 0}</td>
+                <tr key={u.id} style={{ borderTop: '1px solid var(--line)' }}>
+                  <td style={{ padding: '9px 8px', color: 'var(--ink)', fontSize: 12.5, whiteSpace: 'nowrap' }}>{u.name}</td>
+                  <td style={{ padding: '9px 8px', fontFamily: 'var(--mono)', color: 'var(--ink-2)', fontSize: 12, textAlign: 'right' }}>{u.solvedCount || 0}</td>
                   {(['salePriceConservative', 'salePriceMid', 'salePriceAggressive'] as const).map(field => (
-                    <td key={field} style={{ padding: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span style={{ color: 'var(--faint)', fontSize: 11 }}>$</span>
-                        <input type="number" step={5000} value={u[field]}
-                          onChange={e => {
-                            const updated = store.getUnitTypes(activeId).map(x => x.id === u.id ? { ...x, [field]: parseFloat(e.target.value) || 0 } : x)
-                            store.saveUnitTypes(activeId, updated)
-                          }}
-                          style={{ width: 88, textAlign: 'right', background: 'transparent', border: 'none', borderBottom: '1px solid #D8D5D0', padding: '2px 0', fontSize: 12, color: 'var(--ink)', fontFamily: 'monospace', outline: 'none' }}
-                        />
-                      </div>
+                    <td key={field} style={{ padding: '6px 8px', textAlign: 'right' }}>
+                      <input type="number" step={5000} value={u[field]}
+                        onChange={e => {
+                          const updated = store.getUnitTypes(activeId).map(x => x.id === u.id ? { ...x, [field]: parseFloat(e.target.value) || 0 } : x)
+                          store.saveUnitTypes(activeId, updated)
+                        }}
+                        className="mini-inp" style={{ width: 92 }}
+                      />
                     </td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
 
-        <div className="border border-[var(--border)] bg-white p-4">
-          <h3 className="text-[9px] tracking-[0.2em] uppercase text-[var(--ink-3)] mb-3">Assumptions</h3>
-          <FieldRow label="Selling costs"><PctInput value={data.sellingCostsPct} onChange={v => update('sellingCostsPct', v)} /></FieldRow>
+          <div className="divlabel" style={{ marginTop: 22 }}>Assumptions</div>
+          <FieldRow label="Selling costs (%)"><PctInput value={data.sellingCostsPct} onChange={v => update('sellingCostsPct', v)} /></FieldRow>
           <FieldRow label="Childcare value ($/sqm)"><NumberInput value={data.childcareValuePerSqm} onChange={v => update('childcareValuePerSqm', v)} prefix="$" step={100} /></FieldRow>
-          <FieldRow label="Developer margin"><PctInput value={data.devMarginPct} onChange={v => update('devMarginPct', v)} /></FieldRow>
-        </div>
-      </div>
-
-      {/* Results — full width below the inputs */}
-      <div className="w-full pt-2 border-t border-[var(--border)]">
-        <div className="flex items-center gap-4 mb-3">
-          <SectionHeading>BTS Outcomes</SectionHeading>
-          <div className="text-[var(--ink-3)] text-xs">TDC: <span className="text-[var(--ink)] font-mono font-bold">${(tdc / 1_000_000).toFixed(1)}M</span></div>
+          <FieldRow label="Developer margin (%)"><PctInput value={data.devMarginPct} onChange={v => update('devMarginPct', v)} /></FieldRow>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-          {scenarios3.map(({ label, result, color }) => (
-            <div key={label} className="border border-[var(--border)] bg-white p-6">
-              <div className={`text-[12px] tracking-[0.12em] uppercase font-semibold mb-5 ${color === 'text-green' ? 'text-[var(--emerald)]' : color === 'text-amber' ? 'text-[var(--gold)]' : 'text-[var(--ink-2)]'}`}>{label}</div>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-[var(--ink-3)]">Gross revenue</span><span className="text-[var(--ink)] font-mono">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span></div>
-                {result.gstOnSales > 0 && (
-                  <div className="flex justify-between"><span className="text-[var(--ink-3)]">Less GST on sales (1/11)</span><span className="text-[var(--red)] font-mono">−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span></div>
-                )}
-                <div className="flex justify-between"><span className="text-[var(--ink-3)]">Net revenue</span><span className="text-[var(--ink)] font-mono">${(result.netRevenue / 1_000_000).toFixed(1)}M</span></div>
-                <div className="flex justify-between items-center pt-3 border-t border-[var(--border)]">
-                  <span className="font-semibold text-[var(--ink)] text-[12px] tracking-widest uppercase">RLV</span>
-                  <div className="flex items-center gap-2">
-                    <Money value={result.rlv} size="lg" />
-                    <VerdictBadge rlv={result.rlv} />
+        {/* BTS OUTCOMES — one card, the three scenarios as columns (design) */}
+        <div className="panel pad">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+            <div className="divlabel">BTS outcomes</div>
+            <div style={{ fontSize: 10, letterSpacing: '.1em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>
+              TDC: <span style={{ fontFamily: 'var(--mono)', color: 'var(--ink)' }}>${(tdc / 1_000_000).toFixed(1)}M</span>
+            </div>
+          </div>
+          <div className="three" style={{ marginTop: 14, gap: 18 }}>
+            {scenarios3.map(({ label, result }) => (
+              <div key={label}>
+                <div className="divlabel">{label}</div>
+                <div style={{ marginTop: 10 }}>
+                  <div className="sumrow" style={{ padding: '9px 0' }}>
+                    <span className="l">Gross revenue</span>
+                    <span className="v">${(result.grossRevenue / 1_000_000).toFixed(1)}M</span>
                   </div>
+                  {result.gstOnSales > 0 && (
+                    <div className="sumrow" style={{ padding: '9px 0' }}>
+                      <span className="l">Less GST on sales (1/11)</span>
+                      <span className="v" style={{ color: 'var(--red)' }}>−${(result.gstOnSales / 1_000_000).toFixed(1)}M</span>
+                    </div>
+                  )}
+                  <div className="sumrow" style={{ padding: '9px 0' }}>
+                    <span className="l">Net revenue</span>
+                    <span className="v">${(result.netRevenue / 1_000_000).toFixed(1)}M</span>
+                  </div>
+                  <div className="sumrow" style={{ borderTop: '1px solid var(--border-hi)', marginTop: 4 }}>
+                    <span className="l" style={{ color: 'var(--ink)', fontWeight: 700 }}>RLV</span>
+                    <span className="v" style={{ color: result.rlv >= 0 ? 'var(--emerald)' : 'var(--red)', fontWeight: 700 }}>${(result.rlv / 1_000_000).toFixed(1)}M</span>
+                  </div>
+                  <div style={{ marginTop: 12 }}><VerdictBadge rlv={result.rlv} /></div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   )

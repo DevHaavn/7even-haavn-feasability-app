@@ -97,10 +97,11 @@
    so the white art stays as-drawn in both themes — never inverted. */
 .fxs .fx-brand{display:flex;align-items:center;flex:none}
 /* !important is needed, not lazy: Wordmark hardcodes width + height:auto INLINE,
-   and inline beats any selector. Left unchecked the art renders 117x66 and pushes
-   the topbar to 93px — while .fx-tabnav is sticky at top:61px, so the tab bar
-   would overlap the header. Capping the height keeps the bar at ~60px. */
-.fxs .fx-brand .atr-wm{height:32px!important;width:auto!important;filter:none;opacity:1}
+   and inline beats any selector.
+   48px = 50% up on the original 32px, per JB. The topbar's tallest child is the
+   project block at 45px, so at 48 the LOGO now sets the bar height — see the
+   .fx-tabnav sticky offset below, which has to track it or the tab bar clips. */
+.fxs .fx-brand .atr-wm{height:48px!important;width:auto!important;filter:none;opacity:1}
 .fxs .fx-proj{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
 .fxs .fx-projname{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--chrome-txt)}
 .fxs .fx-projname .fx-nm{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.01em}
@@ -117,11 +118,12 @@
 .fxs .fx-tgl:hover{border-color:var(--chrome-dim);color:var(--chrome-txt)}
 .fxs .fx-grid{font-size:13px;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:9px;width:34px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none}
 
-/* top must equal the topbar's real height. The reference uses 61px because its
-   project block is a plain 15px name + 11px address; ours is a 17px serif name
-   plus the autosave pill, so the bar is 72px. At 61 the tab bar sticks 11px
-   UNDER the topbar (which sits at a higher z-index) and gets clipped on scroll. */
-.fxs .fx-tabnav{position:sticky;top:72px;z-index:49;display:flex;gap:2px;padding:0 26px;
+/* top must equal the topbar's real height, or the tab bar sticks UNDER the
+   topbar (which sits at a higher z-index) and gets clipped on scroll. The bar is
+   its tallest child + 26px padding: since the logo went to 48px it is now the
+   tallest (was the 45px project block), giving 48+26 = 74 -> 75 with the border.
+   Change the logo height and this must move with it. */
+.fxs .fx-tabnav{position:sticky;top:75px;z-index:49;display:flex;gap:2px;padding:0 26px;
   background:linear-gradient(180deg,var(--chrome-2),rgba(11,16,21,0.96));border-bottom:1px solid var(--chrome-line);overflow-x:auto}
 .fxs .fx-tab{position:relative;padding:15px 17px;font-size:10.5px;letter-spacing:.18em;color:var(--chrome-faint);cursor:pointer;white-space:nowrap;transition:.2s;background:none;border:none;font-family:var(--sans);text-transform:uppercase}
 .fxs .fx-tab:hover{color:var(--chrome-dim)}
