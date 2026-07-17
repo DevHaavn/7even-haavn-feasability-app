@@ -92,9 +92,9 @@ function InterestByTrancheChart({ result }: { result: WaterfallResult }) {
 }
 
 // ── KPI card ──────────────────────────────────────────────────────────────────
-function Kpi({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+function Kpi({ label, value, sub, color, accent }: { label: string; value: string; sub?: string; color?: string; accent?: boolean }) {
   return (
-    <div className="kpi">
+    <div className={`kpi${accent ? ' gold' : ''}`}>
       <div className="lab">{label}</div>
       <div className="val" style={color ? { color } : undefined}>{value}</div>
       {sub && <div className="sub">{sub}</div>}
@@ -156,30 +156,30 @@ export default function FinanceTab({ projectId }: Props) {
           <span className="check">✓ Auto-saved</span>
         </div>
 
-        {/* Sub-tabs */}
-        <div className="subtabs mb">
+        {/* Sub-tabs + the View-as lenses share ONE row, per the design: tabs left,
+            "VIEW AS" + the persona pill right-aligned against them. */}
+        <div className="subtabs mb" style={{ alignItems: 'center', gap: 12 }}>
           {SUB_TABS.map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} className={`subtab${tab === id ? ' on' : ''}`}>{label}</button>
           ))}
+          <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 12, paddingBottom: 6 }}>
+            <span className="eyebrow">View as</span>
+            <div className="seg">
+              {LENSES.map(([id, label]) => (
+                <button key={id} onClick={() => setLens(id)} className={lens === id ? 'on' : ''}>{label}</button>
+              ))}
+            </div>
+          </span>
         </div>
 
-        {/* KPI row */}
+        {/* KPI row — All-in TDC is the accent tile (the design lifts it out of the
+            strip); it was plain with a green figure. */}
         <div className="kpis k5 mb">
           <Kpi label="Base TDC" value={fmtM(result.baseTDC)} sub="ex finance costs" />
           <Kpi label="Total finance cost" value={fmtM(result.totalFinanceCost)} sub={`${pct(financePctBase)} of base TDC`} color={GOLD} />
           <Kpi label="Peak debt balance" value={fmtM(result.peakDebt)} sub="max outstanding" />
           <Kpi label="Senior capitalised" value={fmtM(result.seniorCapitalised)} sub="rolls into debt balance" />
-          <Kpi label="All-in TDC" value={fmtM(result.allInTDC)} sub="incl. all finance" color={GREEN} />
-        </div>
-
-        {/* View-as lenses */}
-        <div className="flex aic gap mb wrapf">
-          <span className="eyebrow">View as</span>
-          <div className="seg">
-            {LENSES.map(([id, label]) => (
-              <button key={id} onClick={() => setLens(id)} className={lens === id ? 'on' : ''}>{label}</button>
-            ))}
-          </div>
+          <Kpi label="All-in TDC" value={fmtM(result.allInTDC)} sub="incl. all finance" accent />
         </div>
 
       <div style={{ paddingBottom: 20 }}>
@@ -198,7 +198,12 @@ export default function FinanceTab({ projectId }: Props) {
               <div className="panel chartcard">
                 <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 4 }}>Interest accrual — by tranche per quarter</div>
                 <div style={{ display: 'flex', gap: 16, fontSize: 10, color: MUTE, marginBottom: 8 }}>
-                  {result.tranches.map(t => <span key={t.id}><span style={{ display: 'inline-block', width: 8, height: 8, background: trancheColor(t), marginRight: 4 }} />{t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : 'Senior interest'}</span>)}
+                  {[...new Map(result.tranches.map(t => [
+                    t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : 'Senior',
+                    t,
+                  ])).entries()].map(([name, t]) => (
+                    <span key={name}><span style={{ display: 'inline-block', width: 8, height: 8, background: trancheColor(t), marginRight: 4 }} />{name}</span>
+                  ))}
                 </div>
                 <InterestByTrancheChart result={result} />
               </div>
