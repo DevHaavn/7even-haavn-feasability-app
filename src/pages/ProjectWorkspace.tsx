@@ -84,7 +84,9 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
       <div className="fx-topbar drag-region">
         <button className="fx-home no-drag" onClick={() => setActiveProject(null)}>HOME</button>
         <div className="fx-div" />
-        <div className="fx-brandstack"><span className="fx-bs7">7EVEN</span><span className="fx-bsh">HAAVN</span></div>
+        {/* The real 7EVEN · HAAVN mark. The chrome rebuild had replaced the logo
+            artwork with hand-typed "7EVEN"/"HAAVN" text, which is not the brand. */}
+        <span className="fx-brand"><Wordmark size="md" tone="white" /></span>
         <div className="fx-div" />
         <div className="fx-proj">
           <div className="fx-projname">

@@ -170,9 +170,13 @@
    alone: it is not a page surface and not reliably styleable. */
 .fxs select{background-color:var(--input-bg);color:var(--ink)}
 
-/* The 7EVEN · HAAVN mark art is a WHITE png. On the studio's light surface it
-   rendered white-on-white — effectively invisible on Overview. Invert it in
-   light; dark keeps the white art as drawn. Only applies where the component
-   did not already set a filter inline (tone='black'), since inline wins. */
-.fxs .atr-wm{filter:brightness(0);opacity:.5}
-.fxs.dark .atr-wm{filter:none;opacity:.5}
+/* The 7EVEN · HAAVN mark art is a WHITE png. On the studio's light CONTENT
+   surface it rendered white-on-white — invisible on Overview. Invert it there;
+   dark keeps the white art as drawn. Only applies where the component did not
+   already set a filter inline (tone='black'), since inline wins.
+
+   Scoped to .fx-wrap — the CONTENT area — on purpose: the header mark sits on
+   the always-dark chrome, so it must stay white in BOTH themes and must never
+   be caught by this. */
+.fxs .fx-wrap .atr-wm{filter:brightness(0);opacity:.5}
+.fxs.dark .fx-wrap .atr-wm{filter:none;opacity:.5}
