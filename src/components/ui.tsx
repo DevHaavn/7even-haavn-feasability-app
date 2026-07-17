@@ -229,7 +229,16 @@ export function Money({ value, size = 'md', sign = false }: { value: number; siz
 
 // ── Verdict badge ─────────────────────────────────────────────────────────────
 
-export function VerdictBadge({ rlv }: { rlv: number }) {
+// `pill` is the studio design's filled .st chip. The design only uses it in the
+// Overview scenario table, so it stays opt-in — the outline badge below is what
+// BTR/BTS/Hotel/Compare draw. Thresholds are shared either way.
+export function VerdictBadge({ rlv, pill }: { rlv: number; pill?: boolean }) {
+  if (pill) {
+    const [cls, label] = rlv > 5_000_000 ? ['pos', 'Positive']
+      : rlv > 0 ? ['marg', 'Marginal']
+      : ['neg', 'Not viable']
+    return <span className={`st ${cls}`}>● {label}</span>
+  }
   if (rlv > 5_000_000) return (
     <span className="px-2 py-0.5 text-[10px] font-medium tracking-[0.1em] uppercase border border-[var(--emerald,#237A52)]/40 text-[var(--emerald,#3DAA6A)]">
       Positive

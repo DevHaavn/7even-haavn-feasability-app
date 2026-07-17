@@ -14,7 +14,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: st
   }
 }
 import { useStore } from '../../store'
-import { Wordmark, Money, VerdictBadge } from '../../components/ui'
+import { VerdictBadge } from '../../components/ui'
 import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateBTSValuation } from '../../engine/bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
@@ -23,7 +23,6 @@ import { solveUnitMix } from '../../engine/unitMix'
 import { getPhaseCosts, getTimelineTasks, getProjectTDC } from '../../db'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import ProfitLens from '../../components/ProfitLens'
-import InvestorReturn from '../../components/InvestorReturn'
 
 interface Props { projectId: string }
 
@@ -33,31 +32,49 @@ const fmt = (n: number) => n >= 1_000_000
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`
 
-function Row({ label, value, highlight, gold, large }: { label: string; value: string; highlight?: boolean; gold?: boolean; large?: boolean }) {
+// The design's summary line: label left, mono value right, hairline above.
+// `gold` marks a total, `credit` an emerald value.
+function SumRow({ label, value, tone, emerald }: {
+  label: string; value: string; tone?: 'gold' | 'credit'; emerald?: boolean
+}) {
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '10px 16px', borderBottom: '1px solid var(--line)',
-      background: highlight ? 'var(--card-2)' : 'transparent',
-    }}>
-      <span style={{ color: 'var(--ink-2)', fontSize: large ? 13 : 11, letterSpacing: '0.04em' }}>{label}</span>
-      <span style={{
-        fontFamily: 'monospace', fontWeight: 700,
-        fontSize: large ? 18 : 13,
-        color: gold ? 'var(--gold)' : 'var(--ink)',
-      }}>{value}</span>
+    <div className={`sumrow${tone ? ` ${tone}` : ''}`}>
+      <span className="l">{label}</span>
+      <span className="v" style={emerald ? { color: 'var(--emerald)' } : undefined}>{value}</span>
     </div>
   )
 }
 
-// The design's panel: a divlabel at the top, then the rows. Was a gold bar plus a
-// 900-weight heading sitting above a separate bordered box.
-function Section({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
+function Section({ title, children, className = 'panel pad' }: {
+  title: string; children: React.ReactNode; className?: string
+}) {
   return (
-    <div className="panel pad" style={{ marginBottom: 16 }}>
+    <div className={className}>
       <div className="divlabel">{title}</div>
-      {sub && <p className="note" style={{ marginTop: -4, marginBottom: 8 }}>{sub}</p>}
-      <div>{children}</div>
+      {children}
+    </div>
+  )
+}
+
+// The design types LVR straight into the field ("65%") rather than dragging a
+// slider. Buffered so a part-typed value isn't reparsed on every keystroke.
+function LvrField({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
+  const [buf, setBuf] = useState<string | null>(null)
+  const commit = () => {
+    const n = parseFloat((buf ?? '').replace('%', '').trim())
+    if (Number.isFinite(n)) onChange(Math.max(0, Math.min(100, n)) / 100)
+    setBuf(null)
+  }
+  return (
+    <div className="frow" style={{ border: 'none', padding: 0, gap: 10 }}>
+      <span className="fl">{label}</span>
+      <input
+        className="inp sm"
+        value={buf ?? `${Math.round(value * 100)}%`}
+        onChange={e => setBuf(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+      />
     </div>
   )
 }
@@ -75,68 +92,23 @@ function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
   const totalCost = landCost + tdc
 
   return (
-    <div style={{ marginBottom: 28 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>LVR & Capital Deployment</h2>
+    <div className="panel pad">
+      <div className="divlabel">LVR &amp; capital deployment</div>
+      <div className="flex gap mb wrapf">
+        <LvrField label="Land LVR" value={landLVR} onChange={setLandLVR} />
+        <LvrField label="Construction LVR" value={constLVR} onChange={setConstLVR} />
       </div>
-      <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Required equity by phase — adjust LVR assumptions below</p>
-
-      {/* LVR Inputs */}
-      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12, padding: '14px 16px', display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-        <div>
-          <label style={{ display: 'block', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Land Phase LVR</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <input type="range" min={0} max={80} value={Math.round(landLVR * 100)}
-              onChange={e => setLandLVR(parseInt(e.target.value) / 100)}
-              style={{ width: 120, accentColor: 'var(--gold)' }} />
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: 'var(--gold)', width: 40 }}>{Math.round(landLVR * 100)}%</span>
-          </div>
-        </div>
-        <div>
-          <label style={{ display: 'block', color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>Construction LVR</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <input type="range" min={0} max={80} value={Math.round(constLVR * 100)}
-              onChange={e => setConstLVR(parseInt(e.target.value) / 100)}
-              style={{ width: 120, accentColor: 'var(--gold)' }} />
-            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 14, color: 'var(--gold)', width: 40 }}>{Math.round(constLVR * 100)}%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Land Phase */}
-      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12 }}>
-        <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Land Phase</span>
-        </div>
-        <Row label="Land Cost (Total)" value={fmt(landCost)} />
-        <Row label={`Bank Debt (${Math.round(landLVR * 100)}% LVR)`} value={fmt(landDebt)} />
-        <Row label="Equity Required — Land" value={fmt(landEquity)} highlight gold />
-      </div>
-
-      {/* Construction Phase */}
-      <div style={{ border: '1px solid var(--border)', background: 'var(--card)', marginBottom: 12 }}>
-        <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Construction Phase</span>
-        </div>
-        <Row label="Total Development Cost" value={fmt(tdc)} />
-        <Row label={`Bank Debt (${Math.round(constLVR * 100)}% LVR)`} value={fmt(constDebt)} />
-        <Row label="Equity Required — Construction" value={fmt(constEquity)} highlight gold />
-      </div>
-
-      {/* Total */}
-      <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)' }}>
-        <div style={{ padding: '8px 16px', background: 'var(--gold-soft)', borderBottom: '1px solid var(--gold-line)' }}>
-          <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--amber)', fontWeight: 700 }}>Total Capital Summary</span>
-        </div>
-        <Row label="Total Project Cost (Land + TDC)" value={fmt(totalCost)} />
-        <Row label="Total Bank Debt" value={fmt(totalDebt)} />
-        <Row label="TOTAL EQUITY REQUIRED" value={fmt(totalEquity)} highlight large gold />
-        <div style={{ padding: '8px 16px', borderTop: '1px solid var(--gold-line)' }}>
-          <span style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '0.06em' }}>
-            Effective blended LVR: {totalCost > 0 ? Math.round((totalDebt / totalCost) * 100) : 0}%
-          </span>
-        </div>
+      <SumRow label="Land cost" value={fmt(landCost)} />
+      <SumRow label={`Bank debt — land (${Math.round(landLVR * 100)}% LVR)`} value={fmt(landDebt)} />
+      <SumRow label="Equity — land" value={fmt(landEquity)} />
+      <SumRow label="Total development cost" value={fmt(tdc)} />
+      <SumRow label={`Bank debt — construction (${Math.round(constLVR * 100)}% LVR)`} value={fmt(constDebt)} />
+      <SumRow label="Equity — construction" value={fmt(constEquity)} />
+      <SumRow label="Total project cost (land + TDC)" value={fmt(totalCost)} />
+      <SumRow label="Total bank debt" value={fmt(totalDebt)} />
+      <SumRow label="Total equity required" value={fmt(totalEquity)} tone="gold" />
+      <div className="note mt">
+        Effective blended LVR: {totalCost > 0 ? Math.round((totalDebt / totalCost) * 100) : 0}%
       </div>
     </div>
   )
@@ -221,238 +193,199 @@ function SummaryTabInner({ projectId }: Props) {
   const landCost = landAcq.total  // ex-GST contract price + stamp duty + acquisition costs
   const tdcIncl = tdc + landCost  // land-INCLUSIVE Total Development Cost (headline)
 
+  const devProfit = bestRow ? bestRow.gav - proj.tdc : 0
+  // The design colours Dev profit silver and leaves Dev margin as plain ink.
+  const heroItems: { lab: string; val: string; color?: string }[] = bestRow ? [
+    { lab: bestRow.noi != null ? 'Net operating income' : 'Gross revenue', val: fmt(bestRow.noi ?? bestRow.gav) },
+    { lab: 'Gross asset value', val: fmt(bestRow.gav) },
+    { lab: 'Total dev cost (incl land + finance)', val: fmt(proj.tdc) },
+    { lab: 'Dev profit', val: fmt(devProfit), color: 'var(--gold)' },
+    { lab: 'Dev margin', val: proj.tdc > 0 ? pct(devProfit / proj.tdc) : '—' },
+    { lab: 'Residual land value', val: fmt(bestRow.rlv) },
+  ] : []
+
+  const sortedRows = [...allRows].sort((a, b) => b.rlv - a.rlv)
+
   return (
     <div className="flex flex-col">
-      <div className="fx-wrap" style={{ maxWidth: 1100 }}>
+      <div className="fx-wrap">
 
-        {/* ── Header ── */}
-        <div className="pagehead">
-          <div>
-            <div className="kicker">08 · Executive Summary</div>
-            <h1 className="h-sec">{project?.name ?? 'Project'}</h1>
-            <div className="h-sub">
-              {[project?.address, new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })].filter(Boolean).join(' · ')}
-            </div>
+        <div style={{ marginBottom: 8 }}>
+          <div className="kicker">08 · Executive Summary</div>
+          <h1 className="h-sec" style={{ fontSize: 46 }}>{project?.name ?? 'Project'}</h1>
+          <div className="h-sub">
+            {[project?.address, new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })].filter(Boolean).join(' · ')}
           </div>
         </div>
 
-        {/* ── Best Scenario Hero ── */}
         {bestRow && (
-          // Step 9 asks for the hero as an accent panel — frosted glass with the
-          // silver top hairline — rather than a plain box with a silver outline.
-          <div className="panel gold-top ov-hero" style={{ padding: '24px 28px', marginBottom: 26, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-            <div style={{ gridColumn: '1/-1', marginBottom: 8 }}>
-              <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
+          <div className="panel pad gold-top mt2" style={{ background: 'linear-gradient(160deg,var(--gold-soft),var(--card))' }}>
+            <div className="eyebrow" style={{ color: 'var(--gold)' }}>★ Best scenario — {bestRow.scenario} · {bestRow.type}</div>
+            <div className="kpis k3 mt2" style={{ gap: 26 }}>
+              {heroItems.map(k => (
+                // overflow:visible — .kpi clips to its box, and with padding:0 the label
+                // sits flush at a fractional x, so the clip ate the first letter. Nothing
+                // to clip on a tile with no border or background.
+                <div key={k.lab} className="kpi" style={{ border: 'none', boxShadow: 'none', background: 'none', padding: 0, overflow: 'visible' }}>
+                  <div className="lab">{k.lab}</div>
+                  <div className="val" style={k.color ? { color: k.color } : undefined}>{k.val}</div>
+                </div>
+              ))}
             </div>
-            {[
-              { label: bestRow.noi != null ? 'Net Operating Income' : 'Gross Revenue', value: fmt(bestRow.noi ?? bestRow.gav) },
-              { label: 'Gross Asset Value', value: fmt(bestRow.gav) },
-              { label: 'Total Dev Cost (incl land + finance)', value: fmt(proj.tdc) },
-              { label: 'Dev Profit', value: fmt(bestRow.gav - proj.tdc) },
-              { label: 'Dev Margin', value: proj.tdc > 0 ? pct((bestRow.gav - proj.tdc) / proj.tdc) : '—' },
-              { label: 'Residual Land Value', value: fmt(bestRow.rlv) },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 6px' }}>{label}</p>
-                <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 22, color: 'var(--ink)', margin: 0 }}>{value}</p>
-              </div>
-            ))}
           </div>
         )}
 
-        {/* ── Profit — every lens ── */}
-        <ProfitLens projectId={projectId} title="Profit — every lens (developer · bank · investor)" />
+        <ProfitLens projectId={projectId} />
 
-        {/* ── Investor equity return ── */}
-        <InvestorReturn projectId={projectId} />
+        <div className="three mb" style={{ alignItems: 'start' }}>
+          <Section title="Site & design">
+            <SumRow label="Residential NSA" value={(site.resiNSA ?? 0).toLocaleString()} />
+            <SumRow label="Residential GFA" value={(site.resiGFA ?? 0).toLocaleString()} />
+            <SumRow label="Residential GBA" value={(site.resiGBA ?? 0).toLocaleString()} />
+            <SumRow label="Balcony" value={(site.balcony ?? 0).toLocaleString()} />
+            <SumRow label="Basement" value={(site.basementTotal ?? 0).toLocaleString()} />
+            <SumRow label="Car spaces" value={`${site.carSpaces ?? 0}`} />
+            {(site.childcareGFA ?? 0) > 0 && <SumRow label="Childcare GFA" value={site.childcareGFA.toLocaleString()} />}
+            {(site.resiNSA ?? 0) > 0 && (site.resiGFA ?? 0) > 0 && (
+              <SumRow label="NSA/GFA efficiency" value={pct(site.resiNSA / site.resiGFA)} emerald />
+            )}
+          </Section>
 
-        {/* Three summaries side by side, per the design (they were full-width and
-            stacked, so the page ran three screens long before the matrix). */}
-        <div className="three" style={{ alignItems: 'start' }}>
-        {/* ── Site Areas ── */}
-        <Section title="Site & Design" sub="Gross and net floor areas">
-          <Row label="Residential NSA" value={`${(site.resiNSA ?? 0).toLocaleString()} sqm`} />
-          <Row label="Residential GFA" value={`${(site.resiGFA ?? 0).toLocaleString()} sqm`} />
-          <Row label="Residential GBA" value={`${(site.resiGBA ?? 0).toLocaleString()} sqm`} />
-          <Row label="Balcony" value={`${(site.balcony ?? 0).toLocaleString()} sqm`} />
-          <Row label="Basement" value={`${(site.basementTotal ?? 0).toLocaleString()} sqm`} />
-          <Row label="Car Spaces" value={`${site.carSpaces ?? 0}`} />
-          {(site.childcareGFA ?? 0) > 0 && <Row label="Childcare GFA" value={`${site.childcareGFA.toLocaleString()} sqm`} />}
-          {(site.resiNSA ?? 0) > 0 && (site.resiGFA ?? 0) > 0 && (
-            <Row label="NSA/GFA Efficiency" value={pct(site.resiNSA / site.resiGFA)} highlight />
-          )}
-        </Section>
+          <Section title="Land & terms">
+            {landAcq.purchasePrice > 0 && <SumRow label={landAcq.gstCredit > 0 ? 'Purchase price (inc GST)' : 'Purchase price'} value={fmt(landAcq.purchasePrice)} />}
+            {landAcq.gstCredit > 0 && <SumRow label="GST input credit (1/11)" value={`−${fmt(landAcq.gstCredit)}`} tone="credit" />}
+            {landAcq.stampDuty > 0 && <SumRow label={`Stamp duty (${land.state})`} value={fmt(landAcq.stampDuty + landAcq.foreignSurcharge)} />}
+            {landAcq.settlementDate && <SumRow label="Settlement (duty due)" value={new Date(landAcq.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' })} />}
+            <SumRow label="Land cost in feasibility" value={fmt(landCost)} tone="gold" />
+            {land.isInKind && land.inKindGFA > 0 && <SumRow label="In-kind delivery GFA" value={land.inKindGFA.toLocaleString()} />}
+            {land.isInKind && land.inKindGFA > 0 && <SumRow label={`In-kind (${land.inKindLabel})`} value={land.inKindGFA.toLocaleString()} />}
+          </Section>
 
-        {/* ── Land & Terms ── */}
-        <Section title="Land & Terms" sub="Acquisition cost and structure">
-          {landAcq.purchasePrice > 0 && <Row label={landAcq.gstCredit > 0 ? 'Purchase Price (inc GST)' : 'Purchase Price'} value={fmt(landAcq.purchasePrice)} />}
-          {landAcq.gstCredit > 0 && <Row label="GST Input Credit (1/11)" value={`−${fmt(landAcq.gstCredit)}`} />}
-          {landAcq.stampDuty > 0 && <Row label={`Stamp Duty (${land.state})`} value={fmt(landAcq.stampDuty + landAcq.foreignSurcharge)} />}
-          {landAcq.settlementDate && <Row label="Settlement (duty due)" value={new Date(landAcq.settlementDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })} />}
-          <Row label="Land Cost in Feasibility" value={fmt(landCost)} gold />
-          {land.isInKind && land.inKindGFA > 0 && <Row label="In-Kind Delivery GFA" value={`${land.inKindGFA.toLocaleString()} sqm`} />}
-          {land.isInKind && land.inKindGFA > 0 && <Row label={`In-Kind (${land.inKindLabel})`} value={`${land.inKindGFA.toLocaleString()} sqm`} />}
-        </Section>
-
-        {/* ── Cost Stack ── */}
-        <Section title="Total Development Cost" sub="Land + construction + all costs + real finance">
-          <Row label="Land (incl. duty & acquisition)" value={fmt(landCost)} />
-          <Row label="Construction" value={fmt(costResult.construction)} />
-          <Row label="Contingency" value={fmt(costResult.contingency)} />
-          <Row label="Prelims" value={fmt(costResult.prelims)} />
-          <Row label="Professional Fees" value={fmt(costResult.professionalFees)} />
-          <Row label="Statutory & council" value={fmt(costData.statutoryFixed)} />
-          <Row label="Project management + marketing" value={fmt((costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0))} />
-          <Row label="Finance (real — tranches + land carry)" value={fmt(proj.financeCost)} gold />
-          {costResult.inKindCost > 0 && <Row label="In-Kind Delivery Cost" value={fmt(costResult.inKindCost)} />}
-          <Row label="TOTAL DEVELOPMENT COST" value={fmt(proj.tdc)} highlight large gold />
-          {site.resiGBA > 0 && proj.tdc > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(proj.tdc / site.resiGBA).toLocaleString()}/sqm`} />}
-        </Section>
+          <Section title="Total development cost">
+            <SumRow label="Land (incl duty & acq)" value={fmt(landCost)} />
+            <SumRow label="Construction" value={fmt(costResult.construction)} />
+            <SumRow label="Contingency" value={fmt(costResult.contingency)} />
+            <SumRow label="Prelims" value={fmt(costResult.prelims)} />
+            <SumRow label="Professional fees" value={fmt(costResult.professionalFees)} />
+            <SumRow label="Statutory & council" value={fmt(costData.statutoryFixed)} />
+            <SumRow label="Project management + marketing" value={fmt((costData.projectManagementFixed || 0) + (costData.marketingFixed || 0) + (costData.amenityFitoutFixed || 0))} />
+            <SumRow label="Finance (real tranches)" value={fmt(proj.financeCost)} />
+            {costResult.inKindCost > 0 && <SumRow label="In-kind delivery cost" value={fmt(costResult.inKindCost)} />}
+            <SumRow label="Total dev cost" value={fmt(proj.tdc)} tone="gold" />
+            {site.resiGBA > 0 && proj.tdc > 0 && <SumRow label="All-in rate per GBA sqm" value={`$${Math.round(proj.tdc / site.resiGBA).toLocaleString()}/sqm`} />}
+          </Section>
         </div>
 
-        {/* ── Cost & Time by Phase ── */}
-        <Section title="Cost & Time by Phase" sub="Cost of works, programme span and progress by delivery phase">
+        <Section title="Cost & time by phase" className="panel pad mb">
           {phaseRows.map(p => (
-            <Row key={p.id} label={`${p.label}${p.span ? `  ·  ${p.span}` : ''}${p.tasks > 0 ? `  ·  ${p.done}/${p.tasks} tasks` : ''}`} value={fmt(p.cost)} />
+            <SumRow key={p.id} label={`${p.label}${p.span ? `  ·  ${p.span}` : ''}${p.tasks > 0 ? `  ·  ${p.done}/${p.tasks} tasks` : ''}`} value={fmt(p.cost)} />
           ))}
-          <Row label="TOTAL COST OF WORKS" value={fmt(phaseRows.reduce((s, p) => s + p.cost, 0))} highlight gold />
+          <SumRow label="Total cost of works" value={fmt(phaseRows.reduce((s, p) => s + p.cost, 0))} tone="gold" />
         </Section>
 
-        {/* ── All Scenarios ── */}
         {allRows.length > 0 && (
-          <Section title="All Scenarios" sub="Full outcome matrix ranked by RLV">
+          <div className="panel pad mb">
+            <div className="divlabel">All scenarios — ranked by RLV</div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
+              <table className="dtable">
                 <thead>
-                  <tr style={{ background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
-                    {['Scenario', 'Strategy', 'NOI / Revenue', 'GAV', 'RLV', 'Verdict'].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
-                    ))}
+                  <tr>
+                    <th>Scenario · strategy</th>
+                    <th className="num">NOI / revenue</th>
+                    <th className="num">GAV</th>
+                    <th className="num">RLV</th>
+                    <th>Verdict</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...allRows].sort((a, b) => b.rlv - a.rlv).map((r, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? 'var(--card-2)' : 'var(--card)' }}>
-                      <td style={{ padding: '9px 14px', fontSize: 11, color: 'var(--ink-3)' }}>{r.scenario}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 12, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) + ' NOI' : fmt(r.gav) + ' Rev'}</td>
-                      <td style={{ padding: '9px 14px', fontSize: 13, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{fmt(r.gav)}</td>
-                      <td style={{ padding: '9px 14px' }}><Money value={r.rlv} size="md" /></td>
-                      <td style={{ padding: '9px 14px' }}><VerdictBadge rlv={r.rlv} /></td>
+                  {sortedRows.map((r, i) => (
+                    <tr key={i}>
+                      <td className="name">
+                        {r.isBest ? '★ ' : ''}{r.type}
+                        <div style={{ fontSize: 10, color: 'var(--faint)', fontWeight: 400, marginTop: 3 }}>{r.scenario}</div>
+                      </td>
+                      <td className="num">{r.noi != null ? `${fmt(r.noi)} NOI` : `${fmt(r.gav)} Rev`}</td>
+                      <td className="num">{fmt(r.gav)}</td>
+                      <td className={`num${r.isBest ? ' hero' : ''}`}>{fmt(r.rlv)}</td>
+                      <td><VerdictBadge rlv={r.rlv} pill /></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </Section>
-        )}
-
-        {/* ── Profit & Exit Valuation ── */}
-        {bestRow && (
-          <div style={{ marginBottom: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
-              <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>Profit & Exit Valuation</h2>
-            </div>
-            <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>Developer returns and asset exit analysis — best scenario</p>
-
-            {/* Hero profit card */}
-            {(() => {
-              const isBTRorHotel = (bestRow.type?.startsWith('BTR') || bestRow.type === 'Hotel') && bestRow.noi != null
-              const exitVal = isBTRorHotel ? bestRow.noi / 0.05 : bestRow.gav
-              const profit = exitVal - bestRow.tdc
-              const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
-              const profitColor = profit > 0 ? 'var(--emerald)' : 'var(--red)'
-              return (
-                <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)', padding: '20px 24px', marginBottom: 14 }}>
-                  <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: '0 0 16px' }}>★ {bestRow.scenario} · {bestRow.type}</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 20 }}>
-                    {bestRow.noi != null && (
-                      <div>
-                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Net Operating Income</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.noi)}</p>
-                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>per annum</p>
-                      </div>
-                    )}
-                    {isBTRorHotel ? (
-                      <div>
-                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Exit Value @ 5% Cap Rate</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(exitVal)}</p>
-                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>NOI ÷ 5%</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Gross Revenue</p>
-                        <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.gav)}</p>
-                        <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>sale proceeds</p>
-                      </div>
-                    )}
-                    <div>
-                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Total Dev Cost</p>
-                      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: 'var(--ink)', margin: 0 }}>{fmt(bestRow.tdc)}</p>
-                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>all-in TDC</p>
-                    </div>
-                    <div>
-                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Developer Profit</p>
-                      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: profitColor, margin: 0 }}>{profit >= 0 ? '+' : ''}{fmt(profit)}</p>
-                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>exit value − TDC</p>
-                    </div>
-                    <div>
-                      <p style={{ color: 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 5px' }}>Profit Margin</p>
-                      <p style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 20, color: profitColor, margin: 0 }}>{margin.toFixed(1)}%</p>
-                      <p style={{ color: 'var(--faint)', fontSize: 9, margin: '3px 0 0', letterSpacing: '0.08em' }}>on TDC</p>
-                    </div>
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* All-scenario exit table */}
-            {allRows.length > 1 && (
-              <div style={{ border: '1px solid var(--border)', background: 'var(--card)' }}>
-                <div style={{ padding: '8px 16px', background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
-                  <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>Exit Analysis — All Scenarios</span>
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
-                    <thead>
-                      <tr style={{ background: 'var(--card-2)', borderBottom: '1px solid var(--border)' }}>
-                        {['Strategy', 'NOI / Revenue', 'Exit @ 5% Cap', 'TDC', 'Dev Profit', 'Margin %'].map(h => (
-                          <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600 }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...allRows].sort((a, b) => b.rlv - a.rlv).map((r, i) => {
-                        const isBH = (r.type?.startsWith('BTR') || r.type === 'Hotel') && r.noi != null
-                        const exitVal = isBH ? r.noi / 0.05 : r.gav
-                        const profit = exitVal - r.tdc
-                        const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
-                        const pc = profit > 0 ? 'var(--emerald)' : 'var(--red)'
-                        return (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? 'var(--card-2)' : 'var(--card)' }}>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: r.isBest ? 'var(--gold)' : 'var(--ink)' }}>{r.isBest ? '★ ' : ''}{r.type}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-2)' }}>{r.noi != null ? fmt(r.noi) : fmt(r.gav)}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: 'var(--ink)' }}>{isBH ? fmt(exitVal) : '—'}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 11, fontFamily: 'monospace', color: 'var(--ink-3)' }}>{fmt(r.tdc)}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: pc }}>{profit >= 0 ? '+' : ''}{fmt(profit)}</td>
-                            <td style={{ padding: '8px 12px', fontSize: 12, fontFamily: 'monospace', fontWeight: 700, color: pc }}>{margin.toFixed(1)}%</td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <div style={{ padding: '8px 14px', borderTop: '1px solid var(--line)' }}>
-                  <span style={{ fontSize: 9, color: 'var(--faint)', letterSpacing: '0.08em' }}>BTR/Hotel exit = NOI ÷ 5% cap rate · BTS = gross sales revenue · Profit = Exit Value − TDC</span>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* ── LVR & Capital ── */}
-        <LVRSection landCost={landCost} tdc={tdc} />
+        {allRows.length > 1 && (
+          <div className="panel pad mb">
+            <div className="divlabel">Exit analysis — all scenarios</div>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="dtable">
+                <thead>
+                  <tr>
+                    <th>Strategy</th>
+                    <th className="num">NOI / revenue</th>
+                    <th className="num">Exit @ 5% cap</th>
+                    <th className="num">TDC</th>
+                    <th className="num">Dev profit</th>
+                    <th className="num">Margin %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedRows.map((r, i) => {
+                    const isBH = (r.type?.startsWith('BTR') || r.type === 'Hotel') && r.noi != null
+                    const exitVal = isBH ? r.noi / 0.05 : r.gav
+                    const profit = exitVal - r.tdc
+                    const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
+                    const pc = profit > 0 ? 'var(--emerald)' : 'var(--red)'
+                    return (
+                      <tr key={i}>
+                        <td className="name">{r.isBest ? '★ ' : ''}{r.type}</td>
+                        <td className="num">{r.noi != null ? fmt(r.noi) : fmt(r.gav)}</td>
+                        <td className="num">{isBH ? fmt(exitVal) : '—'}</td>
+                        <td className="num">{fmt(r.tdc)}</td>
+                        <td className="num" style={{ color: pc }}>{profit >= 0 ? '+' : ''}{fmt(profit)}</td>
+                        <td className="num" style={{ color: pc }}>{margin.toFixed(1)}%</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="note mt">BTR/Hotel exit = NOI ÷ 5% cap rate · BTS = gross sales revenue · Profit = exit value − TDC</div>
+          </div>
+        )}
+
+        <div className="two">
+          {bestRow && (() => {
+            const isBTRorHotel = (bestRow.type?.startsWith('BTR') || bestRow.type === 'Hotel') && bestRow.noi != null
+            const exitVal = isBTRorHotel ? bestRow.noi / 0.05 : bestRow.gav
+            const profit = exitVal - bestRow.tdc
+            const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
+            return (
+              <div className="panel pad">
+                <div className="divlabel">Profit &amp; exit valuation — best scenario</div>
+                <div className="kpis k3 mt" style={{ gap: 12 }}>
+                  <div className="kpi" style={{ boxShadow: 'none' }}>
+                    <div className="lab">{isBTRorHotel ? 'Exit @ 5% cap' : 'Gross revenue'}</div>
+                    <div className="val">{fmt(exitVal)}</div>
+                  </div>
+                  <div className="kpi" style={{ boxShadow: 'none' }}>
+                    <div className="lab">Total dev cost</div>
+                    <div className="val">{fmt(bestRow.tdc)}</div>
+                  </div>
+                  <div className={`kpi ${profit > 0 ? 'g' : 'r'}`} style={{ boxShadow: 'none' }}>
+                    <div className="lab">Developer profit</div>
+                    <div className="val">{profit >= 0 ? '+' : ''}{fmt(profit)}</div>
+                  </div>
+                </div>
+                {bestRow.noi != null && <SumRow label="Net operating income" value={fmt(bestRow.noi)} />}
+                <SumRow label="Profit margin on TDC" value={`${margin.toFixed(1)}%`} />
+              </div>
+            )
+          })()}
+          <LVRSection landCost={landCost} tdc={tdc} />
+        </div>
 
         {!bestRow && allRows.length === 0 && (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--faint)', fontSize: 12 }}>
