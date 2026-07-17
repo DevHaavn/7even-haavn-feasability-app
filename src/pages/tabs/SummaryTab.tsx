@@ -243,7 +243,9 @@ function SummaryTabInner({ projectId }: Props) {
 
         {/* ── Best Scenario Hero ── */}
         {bestRow && (
-          <div style={{ border: '1px solid var(--gold)', background: 'var(--card-2)', padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
+          // Step 9 asks for the hero as an accent panel — frosted glass with the
+          // silver top hairline — rather than a plain box with a silver outline.
+          <div className="panel gold-top" style={{ padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
             <div style={{ gridColumn: '1/-1', marginBottom: 8 }}>
               <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
             </div>

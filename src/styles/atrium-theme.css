@@ -152,3 +152,10 @@
    inline wins. <option> is drawn by the OS popup, not the page, so it is left
    alone: it is not a page surface and not reliably styleable. */
 .fxs select{background-color:var(--input-bg);color:var(--ink)}
+
+/* The 7EVEN · HAAVN mark art is a WHITE png. On the studio's light surface it
+   rendered white-on-white — effectively invisible on Overview. Invert it in
+   light; dark keeps the white art as drawn. Only applies where the component
+   did not already set a filter inline (tone='black'), since inline wins. */
+.fxs .atr-wm{filter:brightness(0);opacity:.5}
+.fxs.dark .atr-wm{filter:none;opacity:.5}

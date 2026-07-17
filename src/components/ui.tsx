@@ -25,7 +25,10 @@ export function Wordmark({ size = 'md', tone = 'white' }: { size?: 'sm' | 'md' |
       src="/brand-logo-white.png"
       alt="7EVEN · HAAVN"
       draggable={false}
-      className="select-none"
+      // atr-wm is a styling hook only: inside the studio the art has to invert on
+      // the light surface (the source PNG is white, so it was invisible there).
+      // It is inert everywhere else, and inert when tone='black' sets a filter inline.
+      className="select-none atr-wm"
       style={{ width: widths[size], height: 'auto', objectFit: 'contain', filter: toneFilter }}
     />
   )
