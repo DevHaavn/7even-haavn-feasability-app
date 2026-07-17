@@ -391,7 +391,19 @@
    pinned in view below the scenario, which is what the design describes. */
 .fxs .pm-drawer-wrap{background:transparent;border:none;box-shadow:none;border-radius:15px}
 .fxs .pm-drawer-head{background:transparent;border-bottom:none;padding:0}
-.fxs .pm-drawer-inner{max-height:66vh}
+
+/* ONE page, one scrollbar. index.css caps the drawer at 58vh and makes its body
+   an overflow-y:auto scroller — a nested scroll region inside the page scroll,
+   which is the "dragging" you get when the wheel is over the drawer. Here the
+   drawer grows to its natural height and the page does the scrolling; Mix Result
+   and Parking still sit below it, just further down. */
+.fxs .pm-drawer-inner{max-height:none}
+.fxs .pm-drawer-body{overflow-y:visible;overflow-x:visible}
+/* index.css animates max-height 0 -> 58vh, which would re-impose the cap for the
+   length of the animation and then jump. Animate opacity/transform instead. */
+.fxs .pm-drawer-wrap{animation:fxs-drawer-in .45s cubic-bezier(0.16,0.84,0.32,1)}
+@keyframes fxs-drawer-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.fxs .pm-drawer-wrap{animation:none}}
 
 .fxs .workspace-content{background:transparent!important}
 .fxs .premium-stage{background:transparent!important}
