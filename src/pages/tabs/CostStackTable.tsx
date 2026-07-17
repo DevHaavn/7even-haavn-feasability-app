@@ -89,7 +89,14 @@ const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 
 // Fixed widths (px) for every column after the draggable Item column. Wide enough
 // that large dollar figures never collide. Item width is user-resizable (descW).
-const COLS_AFTER_ITEM = [78, 66, 72, 116, 96, 118, 100, 108, 80, 112, 112] // Basis…End
+// Basis…End. Trimmed so the whole 12-column line reads without sideways scroll:
+// .workspace-content is CSS-zoomed (--ws-zoom, up to 1.4 on large monitors), so the
+// real estate is roughly viewport/zoom — about 1180px, not the ~1340 the raw window
+// suggests. These + the Item column + actions come to ~1160, which fits.
+// (Under the old table-layout:auto the table quietly squeezed itself to fit, which
+// is why this never showed — and why the drag did nothing. Fixed layout is honest,
+// so the widths have to be too.)
+const COLS_AFTER_ITEM = [76, 58, 66, 100, 82, 100, 88, 92, 76, 88, 88] // Basis…End
 
 
 const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
@@ -115,9 +122,15 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const toggle = (id: string) => { const n = new Set(collapsed); n.has(id) ? n.delete(id) : n.add(id); setCollapsed(n) }
 
   // Draggable Item ("description") column width — grab the divider to resize; persisted.
+  // Default 170 (was 300). With the trimmed columns above (930) + actions (40) the
+  // whole line is 1140px. The workspace is CSS-zoomed (--ws-zoom up to 1.4), so the
+  // usable width is roughly viewport/zoom — ~1150 at 1680/1.25 — and 1140 leaves a
+  // little slack rather than sitting exactly on the edge. All 12 columns read at
+  // once; narrower windows still scroll sideways, as the reference does (.gt
+  // min-width:1080 inside .scrollx). Drag it wider any time — that now works.
   const [descW, setDescW] = useState<number>(() => {
     const s = typeof localStorage !== 'undefined' ? parseInt(localStorage.getItem('cs.descW') || '', 10) : NaN
-    return Number.isFinite(s) ? Math.max(160, Math.min(760, s)) : 300
+    return Number.isFinite(s) ? Math.max(160, Math.min(760, s)) : 170
   })
   const dragRef = useRef<{ startX: number; startW: number } | null>(null)
   const startResize = (e: React.PointerEvent) => {
@@ -264,7 +277,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           ) : (
             <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
               onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
-              className="mini-inp" style={{ width: 100, fontWeight: 600 }} />
+              className="mini-inp" style={{ width: '100%', fontWeight: 600 }} />
           )}
         </td>
         {/* GST from budget (10%) + Incl. GST */}
@@ -291,8 +304,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           </select>
         </td>
         {/* Start / End — editable month pickers */}
-        <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: 106, fontSize: 9.5 }} /></td>
-        <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: 106, fontSize: 9.5 }} /></td>
+        <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
+        <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
         <td />
       </tr>
     )
@@ -348,7 +361,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           <colgroup>
             <col style={{ width: descW }} />
             {COLS_AFTER_ITEM.map((w, i) => <col key={i} style={{ width: w }} />)}
-            <col style={{ width: 64 }} />
+            <col style={{ width: 56 }} />
           </colgroup>
           <thead>
             <tr>

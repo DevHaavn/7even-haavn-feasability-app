@@ -292,12 +292,20 @@
 .fxs .callout{background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:12px;padding:14px 18px;font-size:12px;color:var(--ink-2);line-height:1.6;margin-bottom:20px}
 .fxs .callout b{color:var(--ink)}
 /* wide grouped table */
-.fxs .gt{border-collapse:collapse;min-width:1080px;width:100%}
+/* table-layout:fixed is load-bearing: with the default `auto`, a <colgroup>'s
+   widths are only a hint and the browser sizes columns from content instead —
+   which silently killed the Item column's drag-resize (the drag fired and
+   persisted, the column just never moved). Fixed makes the <col> widths
+   authoritative, so the drag works and the columns hold the reference widths. */
+.fxs .gt{border-collapse:collapse;min-width:1080px;width:100%;table-layout:fixed}
 .fxs .gt th{font-size:8.5px;letter-spacing:.07em;color:var(--ink-3);padding:11px 8px;text-transform:uppercase;font-weight:600;text-align:left;white-space:nowrap;background:var(--card-2)}
 .fxs .gt th.n{text-align:right}
 .fxs .gt td{padding:8px 8px;font-size:11.5px;border-top:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
 .fxs .gt td.n{text-align:right;font-family:var(--mono);color:var(--ink)}
 .fxs .gt tr:hover td{background:var(--hover)}
+/* Actions column: the default 8px cell padding left only 40px of a 56px column,
+   which clipped the group "+ row" pill. Trim the padding, not the column. */
+.fxs .gt td:last-child,.fxs .gt th:last-child{padding-left:2px;padding-right:2px;text-align:right}
 .fxs .gt tr.grp td{background:var(--card-3);border-top:1px solid var(--border)}
 .fxs .gt .gname{font-family:var(--sans);font-weight:600;color:var(--ink);font-size:12px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
 .fxs .gt .gcount{font-size:9px;color:var(--ink-3);font-weight:500;letter-spacing:.06em}
