@@ -42,7 +42,7 @@ export default function ProfitLens({ projectId, title = 'Profit — every lens',
         <p style={{ fontSize: 7, letterSpacing: '0.24em', textTransform: 'uppercase', color: label, margin: 0, fontWeight: 700 }}>{title}</p>
         <span style={{ fontSize: 9, color: sub }}>GDV {money(m.gdv)} · TDC {money(m.tdc)} (incl land)</span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
+      <div className="lens-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
         {items.map(it => (
           <div key={it.k} style={{ border: `1px solid ${border}`, background: cardBg, padding: '14px 16px' }}>
             <p style={{ fontSize: 7.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: label, margin: '0 0 6px' }}>{it.k}</p>

@@ -177,6 +177,10 @@
 .fxs .ls-new{font-size:8px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--gold);border:1px solid var(--gold-line);border-radius:20px;padding:2px 7px;line-height:1.4}
 /* Unit-count tile — the second row of the pinned Mix Result block. Centred, with
    the count as the hero, then the type name and its share. */
+/* Profit — every lens: five across, per the design. Wraps on narrower screens
+   rather than squeezing five tiles into a phone. */
+@media(max-width:1100px){.fxs .lens-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:640px){.fxs .lens-grid{grid-template-columns:repeat(2,1fr)!important}}
 .fxs .unit-tile{text-align:center;padding:16px 14px}
 .fxs .unit-tile .uv{font-family:var(--mono);font-size:26px;color:var(--gold);line-height:1.1;letter-spacing:-.01em}
 .fxs .unit-tile .un{font-size:11px;color:var(--ink-2);margin-top:7px}

@@ -50,15 +50,14 @@ function Row({ label, value, highlight, gold, large }: { label: string; value: s
   )
 }
 
+// The design's panel: a divlabel at the top, then the rows. Was a gold bar plus a
+// 900-weight heading sitting above a separate bordered box.
 function Section({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 28 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-        <div style={{ width: 3, height: 22, background: 'var(--gold)', flexShrink: 0 }} />
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)', margin: 0 }}>{title}</h2>
-      </div>
-      {sub && <p style={{ color: 'var(--ink-3)', fontSize: 10, letterSpacing: '0.08em', marginLeft: 13, marginBottom: 10 }}>{sub}</p>}
-      <div style={{ border: '1px solid var(--border)', background: 'var(--card)' }}>{children}</div>
+    <div className="panel pad" style={{ marginBottom: 16 }}>
+      <div className="divlabel">{title}</div>
+      {sub && <p className="note" style={{ marginTop: -4, marginBottom: 8 }}>{sub}</p>}
+      <div>{children}</div>
     </div>
   )
 }
@@ -227,17 +226,13 @@ function SummaryTabInner({ projectId }: Props) {
       <div className="fx-wrap" style={{ maxWidth: 1100 }}>
 
         {/* ── Header ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
+        <div className="pagehead">
           <div>
-            <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 6 }}>Executive Summary</p>
-            <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 28, letterSpacing: '0.06em', color: 'var(--ink)', margin: 0 }}>{project?.name ?? 'Project'}</h1>
-            {project?.address && <p style={{ color: 'var(--ink-3)', fontSize: 12, marginTop: 6, letterSpacing: '0.04em' }}>{project.address}</p>}
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <Wordmark size="md" />
-            <p style={{ color: 'var(--faint)', fontSize: 9, letterSpacing: '0.18em', marginTop: 8, textTransform: 'uppercase' }}>
-              {new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
+            <div className="kicker">08 · Executive Summary</div>
+            <h1 className="h-sec">{project?.name ?? 'Project'}</h1>
+            <div className="h-sub">
+              {[project?.address, new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })].filter(Boolean).join(' · ')}
+            </div>
           </div>
         </div>
 
@@ -245,7 +240,7 @@ function SummaryTabInner({ projectId }: Props) {
         {bestRow && (
           // Step 9 asks for the hero as an accent panel — frosted glass with the
           // silver top hairline — rather than a plain box with a silver outline.
-          <div className="panel gold-top" style={{ padding: '24px 28px', marginBottom: 36, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 24 }}>
+          <div className="panel gold-top ov-hero" style={{ padding: '24px 28px', marginBottom: 26, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             <div style={{ gridColumn: '1/-1', marginBottom: 8 }}>
               <p style={{ color: 'var(--gold)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', margin: 0 }}>★ Best Scenario — {bestRow.scenario} · {bestRow.type}</p>
             </div>
@@ -271,6 +266,9 @@ function SummaryTabInner({ projectId }: Props) {
         {/* ── Investor equity return ── */}
         <InvestorReturn projectId={projectId} />
 
+        {/* Three summaries side by side, per the design (they were full-width and
+            stacked, so the page ran three screens long before the matrix). */}
+        <div className="three" style={{ alignItems: 'start' }}>
         {/* ── Site Areas ── */}
         <Section title="Site & Design" sub="Gross and net floor areas">
           <Row label="Residential NSA" value={`${(site.resiNSA ?? 0).toLocaleString()} sqm`} />
@@ -310,6 +308,7 @@ function SummaryTabInner({ projectId }: Props) {
           <Row label="TOTAL DEVELOPMENT COST" value={fmt(proj.tdc)} highlight large gold />
           {site.resiGBA > 0 && proj.tdc > 0 && <Row label="All-in Rate per GBA sqm" value={`$${Math.round(proj.tdc / site.resiGBA).toLocaleString()}/sqm`} />}
         </Section>
+        </div>
 
         {/* ── Cost & Time by Phase ── */}
         <Section title="Cost & Time by Phase" sub="Cost of works, programme span and progress by delivery phase">
