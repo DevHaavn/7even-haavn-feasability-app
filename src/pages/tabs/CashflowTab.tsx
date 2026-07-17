@@ -88,10 +88,12 @@ export default function CashflowTab({ projectId }: Props) {
             <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
             {canUndo && <button onClick={() => undo(setState)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--ink-2)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '6px 14px', cursor: 'pointer', fontWeight: 600 }}>Undo</button>}
           </div>
+          {/* Playbook step 7 accents Peak equity only, so it reads as the headline
+              of the three; all three were silver, so none stood out. */}
           {[['Total cost', fmtM(cf.total)], ['Peak equity', fmtM(cf.peakEquity)], ['Peak debt', fmtM(cf.peakDebt)]].map(([l, v]) => (
             <div key={l} style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{l}</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: 'var(--gold)' }}>{v}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: l === 'Peak equity' ? 'var(--gold)' : 'var(--ink)' }}>{v}</div>
             </div>
           ))}
         </div>
