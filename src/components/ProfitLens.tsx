@@ -20,11 +20,11 @@ export default function ProfitLens({ projectId, title = 'Profit — every lens',
   const m = getProfitMetrics(projectId)
   if (!(m.gdv > 0)) return null
 
-  const border = dark ? '#2A2A2A' : '#E4E1DC'
-  const cardBg = dark ? '#0E0E0E' : '#FFFFFF'
-  const sub = dark ? '#888' : '#999'
-  const label = dark ? '#B8B8B8' : '#888'
-  const good = '#22C55E', warn = '#C9A24B', bad = '#EF4444'
+  const border = dark ? '#2A2A2A' : 'var(--border, #E4E1DC)'
+  const cardBg = dark ? '#0E0E0E' : 'var(--card, #FFFFFF)'
+  const sub = dark ? '#888' : 'var(--ink-3, #999)'
+  const label = dark ? '#B8B8B8' : 'var(--ink-3, #888)'
+  const good = 'var(--emerald, #22C55E)', warn = 'var(--amber, #C9A24B)', bad = 'var(--red, #EF4444)'
   const profitCol = m.profit > 0 ? good : bad
   const marginCol = (v: number) => (v >= 0.15 ? good : v > 0 ? warn : bad)
 

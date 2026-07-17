@@ -384,7 +384,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                         </span>
 
                         {/* Task name */}
-                        <span style={{ fontSize: 10, color: task.status === 'complete' ? 'var(--faint)' : '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
+                        <span style={{ fontSize: 10, color: task.status === 'complete' ? 'var(--faint)' : 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textDecoration: task.status === 'complete' ? 'line-through' : undefined }}>{task.name}</span>
 
                         {/* Assignee initial */}
                         {task.assignee && <span style={{ fontSize: 7, color: 'var(--ink-3)', flexShrink: 0, maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.assignee.split(' ')[0]}</span>}

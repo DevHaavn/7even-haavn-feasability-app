@@ -100,7 +100,7 @@ export default function ScenarioComparison({ projectId }: Props) {
           Complete at least one mix scenario with unit counts to see the comparison matrix.
         </p>
       </div>
-      <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: '#ECEAE7' }}>
+      <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: 'transparent' }}>
         <img src="/brand-logo-white.png" alt="7EVEN · HAAVN" draggable={false} style={{ width: 195, height: 'auto', objectFit: 'contain', filter: 'invert(1)' }} />
         <p style={{ color: 'var(--ink-3)', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
           We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: 'var(--ink-2)' }}>every</em> adventure,
@@ -130,7 +130,7 @@ export default function ScenarioComparison({ projectId }: Props) {
           </thead>
           <tbody>
             {[...rows].sort((a, b) => b.rlv - a.rlv).map((r, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? '#FDFBF4' : 'white' }}>
+              <tr key={i} style={{ borderBottom: '1px solid var(--line)', background: r.isBest ? 'var(--gold-soft)' : 'transparent' }}>
                 <td style={{ padding: '10px 16px' }}>
                   <span style={{ fontSize: 11, color: 'var(--ink-3)', display: 'block' }}>{r.scenario}</span>
                   {r.note && <span style={{ fontSize: 9, color: 'var(--gold)', letterSpacing: '0.06em', display: 'block', marginTop: 2 }}>{r.note}</span>}
@@ -157,7 +157,7 @@ export default function ScenarioComparison({ projectId }: Props) {
       </div>
 
       {/* Brand + tagline section */}
-      <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: '#ECEAE7' }}>
+      <div style={{ padding: '80px 40px 72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40, background: 'transparent' }}>
         <img src="/brand-logo-white.png" alt="7EVEN · HAAVN" draggable={false} style={{ width: 195, height: 'auto', objectFit: 'contain', filter: 'invert(1)' }} />
         <p style={{ color: 'var(--ink-3)', fontSize: 13, letterSpacing: '0.08em', textAlign: 'center', fontStyle: 'italic' }}>
           We have a HAAVN for <em style={{ fontStyle: 'normal', fontWeight: 700, color: 'var(--ink-2)' }}>every</em> adventure,

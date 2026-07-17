@@ -70,7 +70,7 @@ export default function HotelTab({ projectId }: Props) {
           ))}
         </div>
         {operatorType === 'lease' && (
-          <div className="text-[var(--ink-2)] text-xs border border-[#D0D8E8] bg-[#F5F7FC] p-3 mb-4">
+          <div className="text-[var(--ink-2)] text-xs border border-[var(--border)] bg-[#F5F7FC] p-3 mb-4">
             Under a lease structure, income flows as rent rather than NOI — GOP, mgmt fee and FF&amp;E are indicative only.
           </div>
         )}
@@ -179,7 +179,7 @@ export default function HotelTab({ projectId }: Props) {
                 <div style={{ borderTop: '1px solid #D8D5D0', paddingTop: 8 }}>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] uppercase tracking-widest text-[var(--ink-3)]">Cash-on-Cash</span>
-                    <span className={`font-mono font-bold text-base ${coc >= 0.07 ? 'text-[#2D7A45]' : coc >= 0.04 ? 'text-[var(--gold)]' : 'text-[var(--red)]'}`}>{(coc * 100).toFixed(2)}%</span>
+                    <span className={`font-mono font-bold text-base ${coc >= 0.07 ? 'text-[var(--emerald)]' : coc >= 0.04 ? 'text-[var(--gold)]' : 'text-[var(--red)]'}`}>{(coc * 100).toFixed(2)}%</span>
                   </div>
                 </div>
               </div>
@@ -197,7 +197,7 @@ function Row({ label, value, bold, dim }: { label: string; value: string; bold?:
   return (
     <div className="flex justify-between items-center">
       <span style={{ color: dim ? 'var(--faint)' : 'var(--ink-3)', fontSize: 13 }}>{label}</span>
-      <span style={{ fontFamily: 'monospace', fontWeight: bold ? 700 : 400, color: dim ? '#CCC' : 'var(--ink)', fontSize: 14 }}>{value}</span>
+      <span style={{ fontFamily: 'monospace', fontWeight: bold ? 700 : 400, color: dim ? 'var(--ink-3)' : 'var(--ink)', fontSize: 14 }}>{value}</span>
     </div>
   )
 }

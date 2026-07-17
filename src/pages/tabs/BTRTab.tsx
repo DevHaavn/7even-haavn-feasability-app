@@ -117,7 +117,7 @@ export default function BTRTab({ projectId }: Props) {
         )}
 
         {!hasUnits && (
-          <div className="text-[var(--gold)] text-xs border border-[#D8C88A] bg-[#FDFBF4] p-3 mb-4">
+          <div className="text-[var(--gold)] text-xs border border-[var(--gold-line)] bg-[#FDFBF4] p-3 mb-4">
             Set unit types and NSA mix in Product Mix first — solver will auto-populate unit counts.
           </div>
         )}
@@ -202,7 +202,7 @@ export default function BTRTab({ projectId }: Props) {
 
 function OutcomeCard({ label, income, val, capRate, highlight }: any) {
   return (
-    <div className={`border p-8 ${highlight ? 'border-[#C8C5C0] bg-[var(--card-2)]' : 'border-[var(--border)] bg-white'}`} style={{ borderRadius: 0 }}>
+    <div className={`border p-8 ${highlight ? 'border-[var(--border-hi)] bg-[var(--card-2)]' : 'border-[var(--border)] bg-white'}`} style={{ borderRadius: 0 }}>
       <p className="text-[11px] tracking-[0.24em] uppercase text-[var(--ink-3)] mb-6 font-semibold">{label}</p>
       <div className="space-y-3">
         <Line label="Gross annual rent" value={`$${(income.grossAnnualRent / 1_000_000).toFixed(2)}M`} />
@@ -219,7 +219,7 @@ function OutcomeCard({ label, income, val, capRate, highlight }: any) {
         <span className="text-[12px] tracking-[0.12em] uppercase text-[var(--ink-3)]">GAV @ {(capRate * 100).toFixed(2)}%</span>
         <span className="font-mono font-bold text-lg text-[var(--ink)]">${(val.gav / 1_000_000).toFixed(1)}M</span>
       </div>
-      <div className="mt-4 pt-4 border-t border-[#D8D5D0] flex justify-between items-center">
+      <div className="mt-4 pt-4 border-t border-[var(--border)] flex justify-between items-center">
         <span className="text-[12px] tracking-[0.12em] uppercase text-[var(--ink-2)]">RLV</span>
         <div className="flex items-center gap-3">
           <Money value={val.rlv} size="xl" />

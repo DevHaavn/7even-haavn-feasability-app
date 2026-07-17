@@ -431,7 +431,7 @@ export default function ProductMixTab({ projectId }: Props) {
                           />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
-                          <button onClick={() => removeUnit(u.id)} style={{ color: '#CCC', cursor: 'pointer', background: 'none', border: 'none', fontSize: 12 }} onMouseEnter={e => (e.target as HTMLElement).style.color = 'var(--red)'} onMouseLeave={e => (e.target as HTMLElement).style.color = '#CCC'}>✕</button>
+                          <button onClick={() => removeUnit(u.id)} style={{ color: 'var(--ink-3)', cursor: 'pointer', background: 'none', border: 'none', fontSize: 12 }} onMouseEnter={e => (e.target as HTMLElement).style.color = 'var(--red)'} onMouseLeave={e => (e.target as HTMLElement).style.color = 'var(--ink-3)'}>✕</button>
                         </td>
                       </tr>
                     )

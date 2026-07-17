@@ -145,3 +145,10 @@
 .fxs .bg-\[\#FDFBF4\],
 .fxs .bg-\[\#F0EEE9\]{background-color:var(--card-2)}
 .fxs .border-\[\#E8E4DE\]{border-color:var(--border)}
+
+/* Native <select> with no background of its own defaults to white, which reads
+   as a white chip on the dark surface. Give it the field tokens (the reference
+   .atr-select). Selects that set their own background inline are unaffected —
+   inline wins. <option> is drawn by the OS popup, not the page, so it is left
+   alone: it is not a page surface and not reliably styleable. */
+.fxs select{background-color:var(--input-bg);color:var(--ink)}

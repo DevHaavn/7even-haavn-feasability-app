@@ -246,7 +246,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
 
               {/* Units — quantity (n/a on % basis lines) */}
               <input type="number" min={0} title={item.feeBasis ? 'Not used for % basis lines' : 'Quantity'}
-                style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right', color: item.feeBasis ? '#CCC' : 'var(--ink)' }}
+                style={{ ...cellInput, border: '1px solid transparent', background: 'transparent', fontFamily: 'monospace', textAlign: 'right', color: item.feeBasis ? 'var(--ink-3)' : 'var(--ink)' }}
                 value={item.feeBasis ? '' : (item.units || '')} placeholder={item.feeBasis ? '—' : '0'} disabled={!!item.feeBasis}
                 onChange={e => updateCalc(item, { units: parseFloat(e.target.value) || 0 })} />
 
@@ -307,8 +307,8 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                 {isOpen ? '▾' : '▸'}
               </button>
               <button onClick={() => remove(item.id)}
-                style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')} onMouseLeave={e => (e.currentTarget.style.color = '#DDD')}>×</button>
+                style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-3)')}>×</button>
             </div>
 
             {/* Expandable detail — funding split, notes & month-by-month cashflow */}
@@ -330,7 +330,7 @@ function LineItemTable({ items, onChange, constructionValue = 0, gdvValue = 0, s
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 700 }}>Monthly Cashflow</span>
                   <button onClick={() => autoSpread(item)} disabled={months.length === 0}
-                    style={{ background: 'none', border: '1px solid var(--border)', color: months.length ? 'var(--ink-2)' : '#CCC', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '4px 10px', cursor: months.length ? 'pointer' : 'default', borderRadius: 4 }}>
+                    style={{ background: 'none', border: '1px solid var(--border)', color: months.length ? 'var(--ink-2)' : 'var(--ink-3)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '4px 10px', cursor: months.length ? 'pointer' : 'default', borderRadius: 4 }}>
                     ⟲ Auto-spread by {S_CURVE_OPTS.find(o => o.id === (item.sCurve ?? 'scurve'))!.label}
                   </button>
                   {months.length > 0 && (
@@ -427,14 +427,14 @@ function ScheduleMatrix({ items }: { items: CostLineItem[] }) {
               return (
                 <tr key={it.id} style={{ background: i % 2 ? 'var(--card)' : 'var(--card)' }}>
                   <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: i % 2 ? 'var(--card)' : 'var(--card)', color: 'var(--ink)' }}>{it.label || 'Untitled'}</td>
-                  {months.map(mo => <td key={mo} style={{ ...mCell, fontFamily: 'monospace', color: (it.monthly?.[mo] || 0) > 0 ? 'var(--ink)' : '#DDD' }}>{(it.monthly?.[mo] || 0) > 0 ? fmt(it.monthly![mo]) : '·'}</td>)}
+                  {months.map(mo => <td key={mo} style={{ ...mCell, fontFamily: 'monospace', color: (it.monthly?.[mo] || 0) > 0 ? 'var(--ink)' : 'var(--ink-3)' }}>{(it.monthly?.[mo] || 0) > 0 ? fmt(it.monthly![mo]) : '·'}</td>)}
                   <td style={{ ...mCell, fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 700 }}>{fmt(rowTotal)}</td>
                 </tr>
               )
             })}
             <tr style={{ background: 'var(--ink)' }}>
               <td style={{ ...mCell, textAlign: 'left', position: 'sticky', left: 0, background: 'var(--ink)', color: 'var(--ink-3)', letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: 9 }}>Monthly Total</td>
-              {colTotals.map((v, i) => <td key={i} style={{ ...mCell, fontFamily: 'monospace', color: v > 0 ? 'var(--gold-hi)' : '#444' }}>{v > 0 ? fmt(v) : '·'}</td>)}
+              {colTotals.map((v, i) => <td key={i} style={{ ...mCell, fontFamily: 'monospace', color: v > 0 ? 'var(--gold-hi)' : 'var(--ink-3)' }}>{v > 0 ? fmt(v) : '·'}</td>)}
               <td style={{ ...mCell, fontFamily: 'monospace', color: 'var(--gold-hi)', fontWeight: 800 }}>{fmt(grand)}</td>
             </tr>
           </tbody>
@@ -780,7 +780,7 @@ export default function CostStackTab({ projectId }: Props) {
             </InnerSection>
 
             {land.isInKind && land.inKindGFA > 0 && (
-              <div className="mt-4 border border-[#C8C0D8] bg-[#F8F5FC] p-4">
+              <div className="mt-4 border border-[var(--border-hi)] bg-[#F8F5FC] p-4">
                 <p className="text-[9px] tracking-[0.18em] uppercase text-[var(--purple)] mb-2">In-Kind — {land.inKindLabel}</p>
                 <p className="text-[var(--ink-3)] text-xs mb-2">{land.inKindNote}</p>
                 <div className="flex justify-between">

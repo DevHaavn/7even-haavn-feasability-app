@@ -276,10 +276,10 @@ export default function FinanceTab({ projectId }: Props) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: '#FAF9F7' }}>Cost drawdowns</td></tr>
+                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: 'var(--card-2)' }}>Cost drawdowns</td></tr>
                   <ScheduleRow label="Debt draws" vals={shown.map(b => -b.debtDraw)} />
                   <ScheduleRow label="Equity draws" vals={shown.map(b => -b.equityDraw)} />
-                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: '#FAF9F7' }}>Interest accrual — by tranche</td></tr>
+                  <tr><td colSpan={shown.length + 2} style={{ padding: '6px 12px', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE, background: 'var(--card-2)' }}>Interest accrual — by tranche</td></tr>
                   {result.tranches.map(t => (
                     <ScheduleRow key={t.id} label={t.type === 'mezz' ? 'Mezzanine' : t.type === 'preferred-equity' ? 'Preferred equity' : t.label} vals={shown.map(b => -(b.interestByTranche[t.id] || 0))} />
                   ))}
@@ -341,7 +341,7 @@ function ScheduleRow({ label, vals }: { label: string; vals: number[] }) {
   const total = vals.reduce((s, v) => s + v, 0)
   return (
     <tr style={{ borderTop: '1px solid #F6F4F0' }}>
-      <td style={{ padding: '7px 12px', color: '#444' }}>{label}</td>
+      <td style={{ padding: '7px 12px', color: 'var(--ink-2)' }}>{label}</td>
       {vals.map((v, i) => <td key={i} style={{ padding: '7px 10px', textAlign: 'right', color: v < 0 ? RED : 'var(--ink-3)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{v === 0 ? '—' : fmtK(v)}</td>)}
       <td style={{ padding: '7px 12px', textAlign: 'right', fontWeight: 600, color: total < 0 ? RED : 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>{total === 0 ? '—' : fmtK(total)}</td>
     </tr>
