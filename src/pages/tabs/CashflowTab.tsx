@@ -77,26 +77,24 @@ export default function CashflowTab({ projectId }: Props) {
 
   return (
     <div className="fx-wrap overflow-auto" style={{ minHeight: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+      <div className="pagehead">
         <div>
           <div className="kicker">06 · Cash Flow</div>
           <h1 className="h-sec">Development Cashflow</h1>
           <div className="h-sub">Month-by-month spend by phase, funded equity-first then debt. Phase timing drives the S-curve; add manual costs to any month.</div>
         </div>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--emerald)' }}>⤳ Auto-saved</span>
-            {canUndo && <button onClick={() => undo(setState)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--ink-2)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '6px 14px', cursor: 'pointer', fontWeight: 600 }}>Undo</button>}
-          </div>
-          {/* Playbook step 7 accents Peak equity only, so it reads as the headline
-              of the three; all three were silver, so none stood out. */}
-          {[['Total cost', fmtM(cf.total)], ['Peak equity', fmtM(cf.peakEquity)], ['Peak debt', fmtM(cf.peakDebt)]].map(([l, v]) => (
-            <div key={l} style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{l}</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: l === 'Peak equity' ? 'var(--gold)' : 'var(--ink)' }}>{v}</div>
-            </div>
-          ))}
+        <div className="flex gap aic wrapf">
+          <span className="check">✓ Auto-saved</span>
+          {canUndo && <span className="chip" onClick={() => undo(setState)}>↶ Undo</span>}
         </div>
+      </div>
+
+      {/* KPI row — three cards, Peak equity accented, per the design. They were
+          squeezed into the page head as bare right-aligned label/value pairs. */}
+      <div className="kpis k3" style={{ marginBottom: 16 }}>
+        <div className="kpi"><div className="lab">Total cost</div><div className="val">{fmtM(cf.total)}</div></div>
+        <div className="kpi gold"><div className="lab">Peak equity</div><div className="val" style={{ color: 'var(--gold)' }}>{fmtM(cf.peakEquity)}</div></div>
+        <div className="kpi"><div className="lab">Peak debt</div><div className="val">{fmtM(cf.peakDebt)}</div></div>
       </div>
 
       {/* Config */}
