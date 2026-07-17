@@ -128,7 +128,10 @@ export default function SiteDesignTab({ projectId }: Props) {
                 </div></div>
                 <span className={nsaGFAFlag ? 'st marg' : 'check'}>{nsaGFAFlag ? '⚠ Outside 78–87%' : '✓ Typical 78–87%'}</span>
               </div>
-              <div className="track-bar mt"><div className="fill" style={{ width: `${Math.min(100, nsaGFAEff * 100)}%`, background: 'linear-gradient(90deg,var(--emerald),var(--gold-hi))' }} /></div>
+              {/* Bar reads the same nsaGFAFlag the value and the pill already use —
+                  it was hardcoded green, so it signalled "good" while the pill beside
+                  it read "⚠ Outside 78–87%". Green only when in range. */}
+              <div className="track-bar mt"><div className="fill" style={{ width: `${Math.min(100, nsaGFAEff * 100)}%`, background: nsaGFAFlag ? 'linear-gradient(90deg,var(--amber),var(--gold-hi))' : 'linear-gradient(90deg,var(--emerald),var(--gold-hi))' }} /></div>
               <div className="frow mt2"><span className="fl">Total ancillary GBA</span><span style={{ fontFamily: 'var(--mono)', color: 'var(--ink)' }}>{totalGBA.toLocaleString()} sqm</span></div>
               <div className="note">✓ Resi {data.resiGBA.toLocaleString()} + Other {(totalGBA - data.resiGBA).toLocaleString()}</div>
             </div>

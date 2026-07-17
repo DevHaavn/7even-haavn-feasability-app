@@ -15,9 +15,9 @@ function makePinSvg(label: string) {
     </filter>
   </defs>
   <path d="M24 0 C10.7 0 0 10.7 0 24 C0 37.3 24 58 24 58 C24 58 48 37.3 48 24 C48 10.7 37.3 0 24 0Z" fill="#0A0A0A" filter="url(#shadow)"/>
-  <circle cx="24" cy="24" r="17" fill="none" stroke="#C4973A" stroke-width="1.5"/>
+  <circle cx="24" cy="24" r="17" fill="none" stroke="var(--gold, #6e7c8e)" stroke-width="1.5"/>
   <circle cx="24" cy="24" r="14" fill="#0A0A0A"/>
-  <text x="24" y="29" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="900" fill="#C4973A" letter-spacing="-1">${label}</text>
+  <text x="24" y="29" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="900" fill="var(--gold, #6e7c8e)" letter-spacing="-1">${label}</text>
 </svg>`
 }
 
@@ -68,7 +68,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
       maxZoom: 20,
       maxNativeZoom: 19,
       detectRetina: true,
-      attribution: '© <a href="https://carto.com/attributions" style="color:#C4973A;font-size:8px">CARTO</a>',
+      attribution: '© <a href="https://carto.com/attributions" style="color:#6e7c8e;font-size:8px">CARTO</a>',
     }).addTo(map)
 
     L.control.attribution({ prefix: false }).addTo(map)
@@ -95,7 +95,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
           .addTo(map)
           .bindPopup(`
             <div style="font-family:sans-serif;font-size:11px;color:#1A1A1A;padding:4px 2px;min-width:140px">
-              <div style="color:#C4973A;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px">7EVEN · HAAVN</div>
+              <div style="color:#6e7c8e;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px">7EVEN · HAAVN</div>
               <div style="font-weight:600">${address.split(',').slice(0, 2).join(',')}</div>
             </div>
           `, { className: 'haavn-popup' })
@@ -127,7 +127,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
         border: '1px solid #1E1E1E', padding: '10px 16px',
         pointerEvents: 'none',
       }}>
-        <div style={{ height: 1, background: 'linear-gradient(to right,#C4973A,#C9A24B)', marginBottom: 10 }} />
+        <div style={{ height: 1, background: 'linear-gradient(to right,var(--gold, #6e7c8e),var(--gold-hi, #9aa8b6))', marginBottom: 10 }} />
         <img
           src="/brand-logo-white.png"
           alt="7EVEN · HAAVN"
@@ -140,7 +140,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
       {status === 'loading' && (
         <div style={{
           position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 500,
-          background: 'rgba(10,10,10,0.82)', color: '#C4973A', fontSize: 9,
+          background: 'rgba(10,10,10,0.82)', color: 'var(--gold, #6e7c8e)', fontSize: 9,
           letterSpacing: '0.2em', textTransform: 'uppercase', padding: '6px 14px',
         }}>
           Locating…
@@ -149,7 +149,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
       {status === 'notfound' && (
         <div style={{
           position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 500,
-          background: 'rgba(10,10,10,0.82)', color: '#B4553F', fontSize: 9,
+          background: 'rgba(10,10,10,0.82)', color: 'var(--red, #c8503f)', fontSize: 9,
           letterSpacing: '0.2em', textTransform: 'uppercase', padding: '6px 14px',
         }}>
           Address not found
@@ -170,7 +170,7 @@ export default function ProjectMap({ address, pinLabel = '7' }: Props) {
         .haavn-popup .leaflet-popup-tip { background: #fff; }
         .haavn-popup .leaflet-popup-content { margin: 10px 14px; }
         .leaflet-control-zoom a {
-          background: #0A0A0A !important; color: #C4973A !important;
+          background: #0A0A0A !important; color: #9aa8b6 !important;
           border-color: #1E1E1E !important; border-radius: 0 !important;
         }
         .leaflet-control-zoom a:hover { background: #1A1A1A !important; }
