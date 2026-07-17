@@ -161,29 +161,39 @@ export default function ProjectDashboard({ projectId }: Props) {
         </div>
       )}
 
-      {/* KPI strip */}
-      <div style={{ display: 'flex', background: 'var(--card)', border: `1px solid ${LINE}`, borderRadius: 10, marginBottom: 16 }}>
+      {/* Page head — this tab had none at all. Kicker + serif title left, the
+          View-as personas right, per the design. */}
+      <div className="pagehead">
+        <div>
+          <div className="kicker">09 · Dashboard</div>
+          <h1 className="h-sec">Feasibility Command</h1>
+        </div>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+          <span className="eyebrow">View as</span>
+          <div className="seg">
+            {LENSES.map(([id, label]) => (
+              <button key={id} onClick={() => setLens(id)} className={lens === id ? 'on' : ''}>{label}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* KPI strip — six separate cards, GFA as the accent tile (design). It was
+          one joined row with 1px dividers, so the tiles read as a table not cards. */}
+      <div className="kpis k6" style={{ marginBottom: 16 }}>
         {[
           { l: 'Total dev cost', v: fmt(tdc, 1), s: 'land + all costs', c: INK },
           { l: 'Gross asset value', v: gav > 0 ? fmt(gav, 1) : '—', s: bestScenario ? `${bestScenario.strategy} yield basis` : 'no scenario', c: INK },
           { l: 'Dev profit', v: gav > 0 ? fmt(devProfit, 1) : '—', s: fundingIncomplete ? 'funding incomplete' : 'GAV − TDC', c: devProfit < 0 ? RED : GREEN },
           { l: 'Dev margin', v: gav > 0 ? pctS(margin) : '—', s: 'on total cost', c: margin < 0 ? RED : margin > 0.15 ? GREEN : GOLD },
           { l: 'Residual land value', v: rlv > 0 ? fmt(rlv, 1) : '—', s: `vs ${fmt(landCostEff, 1)} paid`, c: rlv > landCostEff ? GREEN : GOLD },
-          { l: 'GFA', v: site.resiGFA ? site.resiGFA.toLocaleString() : '—', s: 'sqm', c: INK },
+          { l: 'GFA', v: site.resiGFA ? site.resiGFA.toLocaleString() : '—', s: 'sqm', c: INK, accent: true },
         ].map((k, i) => (
-          <div key={i} style={{ flex: 1, padding: '16px 18px', borderRight: i < 5 ? `1px solid ${LINE}` : 'none' }}>
-            <div style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: MUTE, fontWeight: 600, marginBottom: 6 }}>{k.l}</div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: k.c }}>{k.v}</div>
-            <div style={{ fontSize: 10, color: MUTE, marginTop: 3 }}>{k.s}</div>
+          <div key={i} className={`kpi${k.accent ? ' gold' : ''}`}>
+            <div className="lab">{k.l}</div>
+            <div className="val" style={{ color: k.c }}>{k.v}</div>
+            <div className="sub">{k.s}</div>
           </div>
-        ))}
-      </div>
-
-      {/* Lenses */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <span style={{ fontSize: 11, color: MUTE }}>View as</span>
-        {LENSES.map(([id, label]) => (
-          <button key={id} onClick={() => setLens(id)} style={{ borderRadius: 20, border: `1px solid ${lens === id ? 'var(--gold-line)' : LINE}`, padding: '5px 14px', fontSize: 11, cursor: 'pointer', background: lens === id ? 'var(--gold-soft)' : 'var(--card)', color: lens === id ? 'var(--gold)' : INK, fontWeight: lens === id ? 600 : 400 }}>{label}</button>
         ))}
       </div>
 
