@@ -163,6 +163,12 @@
 @media(max-width:640px){.fxs .k6,.fxs .k5,.fxs .k4,.fxs .k3{grid-template-columns:repeat(2,1fr)}}
 .fxs .kpi{padding:18px 18px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:var(--shadow),var(--glass-edge);transition:.25s;position:relative;overflow:hidden}
 .fxs .kpi:hover{transform:translateY(-2px);border-color:var(--border-hi)}
+/* Unit-count tile — the second row of the pinned Mix Result block. Centred, with
+   the count as the hero, then the type name and its share. */
+.fxs .unit-tile{text-align:center;padding:16px 14px}
+.fxs .unit-tile .uv{font-family:var(--mono);font-size:26px;color:var(--gold);line-height:1.1;letter-spacing:-.01em}
+.fxs .unit-tile .un{font-size:11px;color:var(--ink-2);margin-top:7px}
+.fxs .unit-tile .up{font-size:10px;color:var(--faint);margin-top:2px}
 .fxs .kpi .lab{font-size:9px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-bottom:11px;font-weight:600}
 .fxs .kpi .val{font-family:var(--mono);font-size:23px;font-weight:400;letter-spacing:-.02em;color:var(--ink)}
 .fxs .kpi .sub{font-size:10px;color:var(--faint);margin-top:6px}

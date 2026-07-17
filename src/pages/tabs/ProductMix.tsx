@@ -464,42 +464,34 @@ export default function ProductMixTab({ projectId }: Props) {
             {/* Mix result + Unit split — two panels side by side, per the design.
                 (Was one panel with the split as a row of centred tiles.) */}
             {units.length > 0 && (
-              // Equal columns — the design draws Mix Result and Unit Split the same
-              // width (.two-64 is 1.55:1, the Cost Stack ratio, not this one).
-              <div className="two-eq" style={{ alignItems: 'start' }}>
-                <div className="panel pad">
-                  <div className="divlabel">Mix Result — live</div>
-                  <div className="kpis k4" style={{ marginTop: 12 }}>
-                    <SolverStat label="Total units" value={totalUnits.toString()} />
-                    <SolverStat label="NSA used" value={`${nsaUsed.toLocaleString()} sqm`} />
-                    <SolverStat label="Available NSA" value={`${site.resiNSA.toLocaleString()} sqm`} />
-                    <SolverStat
-                      label="NSA discrepancy"
-                      value={`${(site.resiNSA - nsaUsed).toLocaleString()} sqm`}
-                      warn={Math.abs(site.resiNSA - nsaUsed) > 200}
-                      ok={Math.abs(site.resiNSA - nsaUsed) <= 200}
-                    />
-                  </div>
+              // Design: a bare label, then a KPI row, then a row of unit-count tiles —
+              // no panel wrapper and no Unit Split bars. This block is pinned under
+              // EVERY scenario, so it has to read the same on all of them.
+              <div style={{ marginTop: 26 }}>
+                <div className="divlabel" style={{ marginBottom: 12 }}>Mix Result — live · pinned under every scenario</div>
+                <div className="kpis k4">
+                  <SolverStat label="Total units" value={totalUnits.toString()} />
+                  <SolverStat label="NSA used" value={nsaUsed.toLocaleString()} />
+                  <SolverStat label="Available NSA" value={site.resiNSA.toLocaleString()} />
+                  <SolverStat
+                    label="NSA discrepancy"
+                    value={(site.resiNSA - nsaUsed).toLocaleString()}
+                    warn={Math.abs(site.resiNSA - nsaUsed) > 200}
+                    ok={Math.abs(site.resiNSA - nsaUsed) <= 200}
+                  />
                 </div>
-
-                {/* Unit split — a labelled bar per type, as the design draws it */}
-                <div className="panel pad">
-                  <div className="divlabel">Unit split</div>
-                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {units.map(u => {
-                      const count = u.solvedCount || 0
-                      const pct = totalUnits > 0 ? Math.round((count / totalUnits) * 100) : 0
-                      return (
-                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <span style={{ fontSize: 11, color: 'var(--ink-2)', width: 132, flexShrink: 0 }}>{u.name} · {pct}%</span>
-                          <div className="track-bar" style={{ flex: 1 }}>
-                            <div className="fill" style={{ width: `${pct}%`, background: 'var(--gold)' }} />
-                          </div>
-                          <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', width: 42, textAlign: 'right', flexShrink: 0 }}>{count}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
+                <div className="kpis k4" style={{ marginTop: 13 }}>
+                  {units.map(u => {
+                    const count = u.solvedCount || 0
+                    const pct = totalUnits > 0 ? Math.round((count / totalUnits) * 100) : 0
+                    return (
+                      <div key={u.id} className="kpi unit-tile">
+                        <div className="uv">{count}</div>
+                        <div className="un">{u.name}</div>
+                        <div className="up">{pct}%</div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -544,8 +536,8 @@ export default function ProductMixTab({ projectId }: Props) {
                 <div className="kpis k6" style={{ marginTop: 16 }}>
                   <SolverStat label="Spaces required" value={`${reqSpaces}`} warn={false} neg={shortfall < 0} />
                   <SolverStat label="Spaces provided" value={`${provided}`} />
-                  <SolverStat label="Storage required" value={`${reqStorage} sqm`} />
-                  <SolverStat label="Parking area" value={`${parkArea.toLocaleString()} sqm`} />
+                  <SolverStat label="Storage required" value={reqStorage.toLocaleString()} />
+                  <SolverStat label="Parking area" value={parkArea.toLocaleString()} />
                   <SolverStat label={`Parking cost (@ $${(parkCostPerSpace/1000).toFixed(0)}k/space)`} value={`$${(reqSpaces * parkCostPerSpace / 1_000_000).toFixed(2)}M`} warn />
                   <SolverStat label={`Storage cost (@ $${storageCostPerSqm}/sqm)`} value={`$${(reqStorage * storageCostPerSqm / 1_000_000).toFixed(2)}M`} warn />
                 </div>
