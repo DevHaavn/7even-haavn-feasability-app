@@ -77,8 +77,24 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
       background: pal.bg,
       display: 'flex', flexDirection: 'column',
     }}>
+      {/* Architectural surface behind the gateway — the "liquid platinum" plate
+          from the redesign, extracted out of the concept's base64 into a real
+          asset. Fixed and behind everything, with a theme-aware scrim over it so
+          the type stays legible: near-black in dark, pale blue-grey in light —
+          the same two washes the concept uses. */}
+      <div aria-hidden style={{
+        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: "url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat",
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: theme === 'light'
+            ? 'linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9))'
+            : 'linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82))',
+        }} />
+      </div>
       {/* Header — same treatment as the site footer */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
         <button onClick={onClose} className="glass-btn"
           style={{ color: theme === 'light' ? '#33424F' : 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
           ATRIUM
@@ -94,7 +110,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
         {/* Kicker is SILVER, not the old gold — the ATRIUM system has no gold. */}
         <p style={{ color: PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Precision Capital Deployed</p>
         <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0' }}>
