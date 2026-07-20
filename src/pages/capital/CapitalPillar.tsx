@@ -46,7 +46,11 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
-      background: shellBg,
+      // Same architectural plate as the gateways, so entering a pillar keeps the
+      // surface rather than dropping to a flat colour. Scrim keeps type legible.
+      background: theme === 'light'
+        ? `linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9)), url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat fixed`
+        : `linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82)), url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat fixed`,
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Header — flips with the theme (CRM stays dark) */}

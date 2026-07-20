@@ -16,7 +16,9 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
     id: '7even', num: '01', title: '7EVEN Capital Administration',
     sub: 'Dashboards · Projects · Budgets',
     blurb: '7EVEN & 7EVEN Capital books — project-linked budgets tracked live against the feasibility studio, invoice register and dashboards.',
-    color: '#C4973A',
+    // Was the retired gold #C4973A. Xero blue — this book IS the Xero-backed
+    // 7EVEN set, and it matches pillar 01 on the gateway it sits under.
+    color: '#13B5EA',
   },
   {
     id: 'haavn', num: '02', title: 'HAAVN Administration',
@@ -64,45 +66,47 @@ export default function BudgetsAdminBase() {
   }
 
   return (
-    <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1000, width: '100%', margin: '0 auto' }}>
-      <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 8, textAlign: 'center' }}>Accounts · Two Sets of Books</p>
-      <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(24px, 4vw, 36px)', letterSpacing: '0.10em', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 6px' }}>
+    <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
+      {/* Silver kicker — the gold #C4973A is retired across the ATRIUM system. */}
+      <p style={{ color: '#9aa8b6', fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Accounts · Two Sets of Books</p>
+      <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textTransform: 'uppercase', textAlign: 'center', margin: '14px 0 0' }}>
         Administration
       </h1>
-      <p style={{ color: '#A7A7A7', fontSize: 12, textAlign: 'center', margin: '0 0 40px' }}>
+      <p style={{ color: '#A7A7A7', fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
         Choose a set of books — 7EVEN Capital and HAAVN are kept separate.
       </p>
 
-      <div style={{ height: 2, borderRadius: 2, background: 'linear-gradient(to right, transparent, #3A3A3A 16%, #D9D9D9 50%, #3A3A3A 84%, transparent)', boxShadow: '0 1px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.05)', maxWidth: 320, margin: '0 auto 40px' }} />
+      {/* Hairline, replacing the heavy chrome bar */}
+      <div style={{ width: 230, height: 1, background: 'linear-gradient(90deg, transparent, rgba(154,168,182,0.4), transparent)', margin: '22px auto 30px' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 22, alignItems: 'stretch' }}>
         {BOOKS.map(b => (
           <button key={b.id} onClick={() => setGroup(b.id)}
             className="cap-pillar"
             style={{
-              textAlign: 'left', cursor: 'pointer', minHeight: '44vh',
-              border: '1px solid rgba(255,255,255,0.10)', borderRadius: 18,
+              textAlign: 'left', cursor: 'pointer', minHeight: 440,
+              position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
+              border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16,
               background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.25))',
-              backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-              padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 16,
-              transition: 'all 0.2s', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)',
+              backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
+              padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
+              transition: 'all 0.3s', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)',
             }}
             onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${b.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${b.color}22` }}
             onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{b.num}</span>
+            {/* Accent hairline across the top of the card */}
+            <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${b.color}, transparent)`, opacity: 0.65 }} />
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: b.color, lineHeight: 1 }}>{b.num}</span>
+              <span aria-hidden style={{ fontSize: 15, color: b.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
             </div>
             <div>
-              {/* ATRIUM platform brand — carried on both books' buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '0 0 12px' }}>
-                <AtriumApex size={20} />
-                <span style={{ color: '#EEF1F2', fontFamily: "'Inter Tight', var(--font-heading), sans-serif", fontWeight: 600, fontSize: 15, letterSpacing: '0.30em', paddingLeft: '0.06em' }}>ATRIUM</span>
-              </div>
-              <h2 style={{ color: '#fff', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{b.title}</h2>
-              <p style={{ color: b.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{b.sub}</p>
+              <p style={{ color: b.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{b.sub}</p>
+              <h2 style={{ color: '#fff', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{b.title}</h2>
             </div>
-            <div style={{ height: 1, background: `linear-gradient(to right, ${b.color}55, transparent)` }} />
-            <p style={{ color: '#999', fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{b.blurb}</p>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.10)', margin: '4px 0' }} />
+            <p style={{ color: '#999', fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{b.blurb}</p>
 
             {/* Xero — the accounts backbone of both books */}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -111,7 +115,7 @@ export default function BudgetsAdminBase() {
                 style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
             </div>
 
-            <span className="chrome-black-text" style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Books →</span>
+            <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9aa8b6' }}>Enter Books →</span>
           </button>
         ))}
       </div>

@@ -33,7 +33,10 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
-      background: pal.bg,
+      // Same architectural plate as the hub and the Capital pillars.
+      background: theme === 'light'
+        ? `linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9)), url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat fixed`
+        : `linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82)), url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat fixed`,
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Header */}
