@@ -6,7 +6,7 @@ import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
 import CapitalCommand from './CapitalCommand'
 import ThemeToggle from '../../components/ThemeToggle'
-import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 
@@ -61,13 +61,9 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       {/* Header — flips with the theme (CRM stays dark) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: `1px solid ${isCRM ? '#1A1A1A' : pal.headerBorder}`, flexShrink: 0, background: isCRM ? 'linear-gradient(180deg, #0f151c, #0b1015)' : pal.headerBg }}>
         {isCRM ? (
-          <Button variant="glassDark" onClick={onExit} style={{ fontSize: 11 }}>
-            Deploy Studio
-          </Button>
+          <button onClick={onExit} style={atriumNavPill}>ATRIUM</button>
         ) : (
-          <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
-            ← Capital Base
-          </Button>
+          <button onClick={onBack} style={atriumNavPill}>← Capital Base</button>
         )}
         {!isCRM && <ThemeToggle />}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
@@ -106,10 +102,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       <Project7Mark />
 
       {/* Quick secure exit — matches the hub's grey-glow logout */}
-      <Button variant="glassDark" onClick={onLogout}
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
-        Log Out
-      </Button>
+      <button onClick={onLogout} style={{ ...atriumNavPill, position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11  }}>Log Out</button>
     </div>
   )
 }

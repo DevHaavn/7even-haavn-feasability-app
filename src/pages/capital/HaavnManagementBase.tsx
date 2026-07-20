@@ -5,7 +5,7 @@ import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
 import ThemeToggle from '../../components/ThemeToggle'
-import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
 
 export type HMPillarId = 'crm' | 'meetings' | 'social'
@@ -84,9 +84,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
 
       {/* Header */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
-        <Button variant="glassDark" onClick={onClose} style={{ fontSize: 11 }}>
-          ATRIUM
-        </Button>
+        <button onClick={onClose} style={atriumNavPill}>ATRIUM</button>
         <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ textAlign: 'right' }}>
@@ -166,10 +164,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       <Project7Mark />
 
       {/* Log out — bottom left */}
-      <Button variant="glassDark" onClick={onLogout}
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
-        Log Out
-      </Button>
+      <button onClick={onLogout} style={{ ...atriumNavPill, position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11  }}>Log Out</button>
     </div>
   )
 }

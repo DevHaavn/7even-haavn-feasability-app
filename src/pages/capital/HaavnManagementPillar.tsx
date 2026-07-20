@@ -6,18 +6,8 @@ import type { HMPillar } from './HaavnManagementBase'
 import MeetingsView from '../../features/meetings/MeetingsView'
 import { AtriumApex } from '../../components/AtriumMark'
 import ThemeToggle from '../../components/ThemeToggle'
-import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
-
-/** Back control for the pillar header. The header flips with the theme, so a
- *  translucent "glass" pill went light-on-light and became unreadable in light
- *  mode. This is solid carbon in both themes — always legible, never guessed. */
-const backPill: React.CSSProperties = {
-  padding: '9px 16px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
-  fontWeight: 700, color: '#EDF1F3', background: '#141a20', border: '1px solid #2b343d',
-  borderRadius: 999, cursor: 'pointer', flexShrink: 0,
-  boxShadow: '0 4px 14px rgba(12,18,26,0.28)',
-}
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
@@ -57,7 +47,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
-        <button onClick={onBack} style={backPill}>← Management Hub</button>
+        <button onClick={onBack} style={atriumNavPill}>← Management Hub</button>
         <ThemeToggle />
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
@@ -91,10 +81,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       <Project7Mark />
 
       {/* Quick exit */}
-      <Button variant="glassDark" onClick={onLogout}
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11 }}>
-        Log Out
-      </Button>
+      <button onClick={onLogout} style={{ ...atriumNavPill, position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11  }}>Log Out</button>
     </div>
   )
 }

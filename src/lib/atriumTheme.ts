@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useSyncExternalStore } from 'react'
 
 // ── ATRIUM light / dark theme ───────────────────────────────────────────────────
@@ -92,4 +93,20 @@ const LIGHT: AtriumPalette = {
 
 export function atriumPalette(t: AtriumTheme): AtriumPalette {
   return t === 'light' ? LIGHT : DARK
+}
+
+// ── Nav pill ────────────────────────────────────────────────────────────────────
+/**
+ * Solid carbon pill for header / overlay navigation (back, exit, log out).
+ *
+ * These controls sit on surfaces that flip with the theme — the pillar headers
+ * and the architectural plate — and they used to be a translucent "glass" pill.
+ * In light mode that rendered light-on-light and was genuinely unreadable.
+ * Being solid in both themes costs nothing and can never be illegible.
+ */
+export const atriumNavPill: React.CSSProperties = {
+  padding: '9px 16px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+  fontWeight: 700, color: '#EDF1F3', background: '#141a20', border: '1px solid #2b343d',
+  borderRadius: 999, cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
+  boxShadow: '0 4px 14px rgba(12,18,26,0.28)',
 }
