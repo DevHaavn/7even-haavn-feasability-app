@@ -70,6 +70,51 @@ export default function CapitalReturns() {
   }, [state])
 
   const moic = equityMultiple(totalFunded, distributed)
+  const realisedIrr = weightedIrr
+
+  /**
+   * Hurdle progress — the pref, then each waterfall tier's IRR hurdle.
+   *
+   * Measured against the realised weighted IRR once there is distribution
+   * history to compute one from; until then, against the portfolio's projected
+   * IRR (weighted by capital required), and the caption says which. The
+   * prototype's 100/88/64 were illustrative — these move with the deal.
+   */
+  const hurdles = useMemo(() => {
+    const projected = (() => {
+      let num = 0, den = 0
+      state.projects.forEach(p => {
+        if (p.projIrr == null || p.capitalRequired <= 0) return
+        num += (p.projIrr / 100) * p.capitalRequired
+        den += p.capitalRequired
+      })
+      return den > 0 ? num / den : null
+    })()
+    const measure = realisedIrr ?? projected
+    const rows: { label: string; state: string; pct: number; colour: string }[] = []
+
+    const prefTarget = (wf?.prefRate ?? 8) / 100
+    const prefPct = measure == null ? 0 : Math.max(0, Math.min(100, (measure / prefTarget) * 100))
+    rows.push({
+      label: `Pref hurdle ${wf?.prefRate ?? 8}%`,
+      state: measure == null ? 'no data' : prefPct >= 100 ? 'Cleared' : 'Below',
+      pct: prefPct,
+      colour: prefPct >= 100 ? 'var(--emerald)' : 'var(--amber)',
+    })
+
+    ;(wf?.tiers ?? []).forEach((t, i) => {
+      if (t.hurdleIrr >= 100) return   // the open-ended residual tier isn't a hurdle
+      const target = t.hurdleIrr / 100
+      const pct = measure == null ? 0 : Math.max(0, Math.min(100, (measure / target) * 100))
+      rows.push({
+        label: `${i === 0 ? '1st' : `${i + 1}th`} hurdle ${t.hurdleIrr}% IRR`,
+        state: measure == null ? 'no data' : pct >= 100 ? 'Cleared' : pct >= 80 ? 'On track' : 'Behind',
+        pct,
+        colour: pct >= 100 ? 'var(--emerald)' : pct >= 80 ? 'var(--emerald)' : 'var(--amber)',
+      })
+    })
+    return rows
+  }, [state.projects, wf, realisedIrr])
 
   // Waterfall preview at the CURRENT distributable position, so the chart shows
   // where the portfolio actually stands rather than an illustrative cascade.
@@ -141,6 +186,27 @@ export default function CapitalReturns() {
         </div>
 
         <div className="panel pad">
+          <div className="divlabel">Projected vs target return · by hurdle</div>
+          {hurdles.map(h => (
+            <div key={h.label} className="barrow" style={{ gridTemplateColumns: '1fr 120px' }}>
+              <span className="bl">
+                {h.label} <span style={{ color: h.colour }}>· {h.state}</span>
+              </span>
+              <div className="track"><div className="fill" style={{ width: `${h.pct}%`, background: h.colour }} /></div>
+            </div>
+          ))}
+          <div className="note" style={{ marginTop: 4, color: 'var(--faint)' }}>
+            {realisedIrr == null
+              ? 'Measured against the portfolio’s projected IRR — no distribution history to compute a realised return from yet.'
+              : 'Measured against the realised weighted IRR.'}
+          </div>
+
+          <div className="divlabel">Cash-on-cash · realised</div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 30, color: 'var(--emerald)' }}>
+            {fmtPct(cashOnCash(distributed, totalFunded), 1)}
+          </div>
+          <div className="note mt">Distributions {fmtM(distributed)} on {fmtM(totalFunded)} funded.</div>
+
           <div className="divlabel">Waterfall configuration</div>
           {wf
             ? <>
@@ -152,12 +218,6 @@ export default function CapitalReturns() {
                 ))}
               </>
             : <div className="note">No waterfall configured.</div>}
-
-          <div className="divlabel">Cash-on-cash · realised</div>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 30, color: 'var(--emerald)' }}>
-            {fmtPct(cashOnCash(distributed, totalFunded), 1)}
-          </div>
-          <div className="note mt">Distributions {fmtM(distributed)} on {fmtM(totalFunded)} funded.</div>
         </div>
       </div>
 

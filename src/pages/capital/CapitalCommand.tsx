@@ -568,32 +568,168 @@ function ProjectDrawer({ projectId, onPull }: { projectId: string; onPull: () =>
   )
 }
 
-// ── 7 · PORTAL (placeholder — needs per-user auth) ──────────────────────────
+// ── 7 · PORTAL ──────────────────────────────────────────────────────────────
+//
+// This is the INTERNAL preview — Lewis picking an investor and seeing exactly
+// what that investor would see. It reads the same store as every other tab, so
+// it is always true to their real position.
+//
+// It is not the external portal, and the distinction matters: the external
+// route is one where an outside party logs in and the DATABASE has to guarantee
+// they see only their own rows. That needs per-user auth + RLS. Previewing it
+// from inside the staff app needs neither — Lewis can already see everything.
 
 function PortalTab() {
+  const { state } = useCapital()
+  const withPositions = state.investors.filter(i => state.positions.some(p => p.investorId === i.id))
+  const [sel, setSel] = useState(withPositions[0]?.id ?? '')
+  const investor = state.investors.find(i => i.id === sel) ?? withPositions[0]
+
+  if (!investor) {
+    return (
+      <>
+        <div className="pagehead">
+          <div>
+            <div className="kicker">External · Read-only</div>
+            <h1 className="h-sec">Investor Portal</h1>
+          </div>
+        </div>
+        <div className="panel pad"><div className="empty">No investor has a position yet — add one to preview their portal.</div></div>
+      </>
+    )
+  }
+
+  const positions = state.positions.filter(p => p.investorId === investor.id)
+  const committed = investorCommitted(state, investor.id)
+  const funded = investorFunded(state, investor.id)
+  const distributed = state.distAllocations
+    .filter(d => d.investorId === investor.id).reduce((a, d) => a + d.amount, 0)
+  const pct = committed > 0 ? Math.round((funded / committed) * 100) : 0
+
+  // Their largest position drives the "where your project is" panel.
+  const lead = [...positions].sort((a, b) => b.committedAmount - a.committedAmount)[0]
+  const leadProject = state.projects.find(p => p.id === lead?.projectId)
+
+  // Phase timeline from the project's real phase, not a fixed list.
+  const PHASES = ['Feasibility', 'Permits & Design', 'Land Settlement', 'Construction', 'Completion & Lease-up', 'Stabilise & Return']
+  const phaseIdx = leadProject?.phase
+    ? Math.max(0, PHASES.findIndex(p => leadProject.phase!.toLowerCase().includes(p.split(' ')[0].toLowerCase())))
+    : 0
+
+  const projRaised = leadProject ? projectRaised(state, leadProject.id) : 0
+  const projDeployed = leadProject ? projectDeployed(state, leadProject.id) : 0
+  const workingPct = projRaised > 0 ? Math.round((projDeployed / projRaised) * 100) : 0
+
+  const prefRate = positions.find(p => p.prefRate)?.prefRate ?? 8
+  const projectedMultiple = leadProject?.equityMultiple
+
   return (
     <>
       <div className="pagehead">
         <div>
           <div className="kicker">External · Read-only</div>
           <h1 className="h-sec">Investor Portal</h1>
-          <div className="h-sub">The view an investor logs into — their commitment, distributions, project progress and statements.</div>
+          <div className="h-sub">Exactly what this investor sees when they log in — no pipeline, no fees, no other investors, no staff notes.</div>
+        </div>
+        <div className="flex aic gap wrapf">
+          <span className="eyebrow">Preview as</span>
+          <select className="fin" style={{ width: 'auto' }} value={investor.id} onChange={e => setSel(e.target.value)}>
+            {withPositions.map(i => <option key={i.id} value={i.id}>{i.companyName}</option>)}
+          </select>
         </div>
       </div>
-      <div className="panel pad gold-top">
-        <div className="divlabel">Not built yet — deliberately</div>
-        <div className="warn mb">
-          ⚠ The portal shows one investor <b>only their own</b> position, and that has to be enforced by the
-          database, not the screen. This app has no per-user login: access is one shared password, and the
-          Supabase key that ships in the public bundle grants full read of every table.
+
+      {/* Internal-preview banner — this is staff-side, and says so. */}
+      <div className="okbox mb" style={{ color: 'var(--blue)', background: 'rgba(88,120,168,0.10)', borderColor: 'rgba(88,120,168,0.28)' }}>
+        ◉ <b>Internal preview.</b> Investors cannot log in yet — the live external portal needs per-user
+        authentication so the database, not the screen, guarantees each investor sees only their own rows.
+        Everything below is this investor's real position, rendered as they would see it.
+      </div>
+
+      <div className="panel pad gold-top mb" style={{ background: 'linear-gradient(160deg,var(--gold-soft),var(--card))' }}>
+        <div className="flex between aic wrapf gap">
+          <div>
+            <div className="eyebrow" style={{ color: 'var(--gold)' }}>Welcome back</div>
+            <h2 style={{ fontFamily: 'var(--serif)', fontSize: 30, fontWeight: 500, color: 'var(--ink)', margin: '6px 0 4px' }}>
+              {investor.companyName}
+            </h2>
+            <div className="note">
+              Your position across {positions.length} active 7EVEN development{positions.length === 1 ? '' : 's'}
+            </div>
+            <div className="flex gap mt wrapf" style={{ gap: 8 }}>
+              {positions.map(p => {
+                const proj = state.projects.find(x => x.id === p.projectId)
+                return <span key={p.id} className="tag gold">{proj?.name ?? 'Portfolio'}</span>
+              })}
+            </div>
+          </div>
+          <div className="ring" style={{ ['--p' as any]: pct }}>
+            <div className="in">
+              <div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 22, color: 'var(--gold)' }}>{pct}%</div>
+                <div style={{ fontSize: 9, letterSpacing: '.12em', color: 'var(--faint)' }}>CALLED</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="note">
-          Building the portal on top of that would mean any investor — or anyone who opened the page source —
-          could read every other investor's positions and returns. It needs Supabase Auth, an <code>app_users</code>
-          role mapping and row-level security scoped to the signed-in investor first (spec §4, §6.4, §9.7).
-          <br /><br />
-          The same gap is why the investor intake form has its banking and KYC fields disabled: bank account
-          numbers and identity documents must not sit behind a public key.
+      </div>
+
+      <div className="kpis k4 mb">
+        <div className="kpi"><div className="lab">Your commitment</div><div className="val">{fmtM(committed)}</div><div className="sub">{fmtM(funded)} called</div></div>
+        <div className="kpi accent"><div className="lab">Distributions received</div><div className="val">{fmtM(distributed)}</div><div className="sub">pref + capital return</div></div>
+        <div className="kpi g"><div className="lab">Preferred return</div><div className="val">{prefRate}%</div><div className="sub">cumulative hurdle</div></div>
+        <div className="kpi"><div className="lab">Projected equity ×</div><div className="val">{projectedMultiple ? `${projectedMultiple.toFixed(2)}x` : '—'}</div><div className="sub">at exit</div></div>
+      </div>
+
+      <div className="two">
+        <div className="panel pad">
+          <div className="divlabel">Where your project is · {leadProject?.name ?? '—'}</div>
+          <div style={{ fontSize: 11, color: 'var(--faint)', marginBottom: 14 }}>
+            {leadProject?.assetType} · {leadProject?.address}
+          </div>
+          {PHASES.map((ph, i) => (
+            <div key={ph} className={`tl${i < phaseIdx ? ' done' : i === phaseIdx ? ' now' : ''}`}>
+              <div className="node" />
+              <div>
+                <div className="tt">{ph}</div>
+                <div className="td">{i < phaseIdx ? 'Complete' : i === phaseIdx ? 'In progress' : 'Upcoming'}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid">
+          <div className="panel pad">
+            <div className="divlabel">Where your money is</div>
+            <div className="flex between" style={{ fontSize: 11, color: 'var(--ink-2)', marginBottom: 6 }}>
+              <span>Deployed into the project</span>
+              <span style={{ fontFamily: 'var(--mono)' }}><b style={{ color: 'var(--gold)' }}>{workingPct}%</b> working</span>
+            </div>
+            <div className="track" style={{ height: 10 }}>
+              <div className="fill" style={{ width: `${workingPct}%`, background: 'var(--gold)' }} />
+            </div>
+            <div className="note mt">
+              {fmtM(funded)} of your {fmtM(committed)} commitment has been called.
+              {' '}{fmtM(Math.max(0, committed - funded))} remains uncalled.
+            </div>
+          </div>
+
+          <div className="panel pad">
+            <div className="divlabel">Your positions</div>
+            {positions.map(p => {
+              const proj = state.projects.find(x => x.id === p.projectId)
+              return (
+                <div key={p.id} className="sumrow">
+                  <span className="l">{proj?.name ?? 'Portfolio'}</span>
+                  <span className="v" style={{ color: 'var(--gold)' }}>{fmtM(p.committedAmount)}</span>
+                </div>
+              )
+            })}
+            <div className="divlabel">Documents &amp; statements</div>
+            <div className="note">
+              No statements issued yet. They appear here once a distribution is run and statements are generated.
+            </div>
+          </div>
         </div>
       </div>
     </>
