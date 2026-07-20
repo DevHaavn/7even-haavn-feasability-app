@@ -501,8 +501,8 @@ function ProjectsTab() {
         </div>
         <div className="flex gap wrapf">
           <span className="tag">{state.projects.length} projects</span>
-          <span className="tag">{fmtM(t.required)} required</span>
-          <span className="tag gold">{fmtM(t.raised)} raised</span>
+          <span className="tag">{fmtM(t.required, 0)} required</span>
+          <span className="tag gold">{fmtM(t.raised, 0)} raised</span>
         </div>
       </div>
 
@@ -530,13 +530,14 @@ function ProjectsTab() {
                     <td><span className="tag">{p.assetType}</span></td>
                     <td><StatusTag status={p.status} /></td>
                     <td>{p.phase ?? '—'}</td>
-                    <td className="num">{fmtM(p.gdv)}</td>
-                    <td className="num">{fmtM(p.capitalRequired)}</td>
+                    <td className="num">{fmtM(p.gdv, 0)}</td>
+                    <td className="num">{fmtM(p.capitalRequired, 0)}</td>
                     <td className="num">
                       <span className="mini-track"><i style={{ width: `${Math.min(100, pct)}%` }} /></span>{' '}
                       <span style={{ color: 'var(--gold)' }}>{pct}%</span>
                     </td>
-                    <td className="num" style={{ color: 'var(--emerald)' }}>{p.projIrr ? `${p.projIrr.toFixed(1)}%` : '—'}</td>
+                    {/* Trailing .0 trimmed — the design reads "16%", not "16.0%" */}
+                    <td className="num" style={{ color: 'var(--emerald)' }}>{p.projIrr ? `${Number(p.projIrr.toFixed(1))}%` : '—'}</td>
                     <td className="num" style={{ color: 'var(--faint)' }}>↗</td>
                   </tr>
                 )
