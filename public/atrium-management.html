@@ -954,6 +954,30 @@ let MEETINGS=[
   agenda:[{item:'Cost report — certified vs revised',owner:'PM',box:15},{item:'Defects & quality register',owner:'Superintendent',box:10},{item:'Programme recovery',owner:'Builder',box:10}],minutes:'',decisions:[],dist:[]},
 ];
 const MTG_TYPES=['Design','PCG','Site','Client WIP','Kickoff','Other'];
+
+/* ---- CRM → Meetings pillar bridge ------------------------------------------
+   The CRM owns meetings. It publishes them here; the Meetings pillar imports
+   them to record/translate, and writes results back under PILLAR_RESULTS. The
+   pillar never creates a meeting that belongs to a project, so a given meeting
+   has exactly one owner and the two sides cannot disagree about it. */
+const CRM_MTG_KEY='atrium:crm-meetings';
+const PILLAR_RESULTS='atrium:pillar-results';
+function publishCrmMeetings(){
+ try{
+  localStorage.setItem(CRM_MTG_KEY, JSON.stringify({v:1, at:new Date().toISOString(),
+   meetings: MEETINGS.map(m=>{ const p=mtgProject(m); return {
+    id:m.id, title:m.title, project:p?p.name:'', projectId:m.pid,
+    at:m.at, loc:m.loc||'', type:m.type||'Meeting', status:m.status,
+    agenda:(m.agenda||[]).map(a=>({item:a.item||'', owner:a.owner||'', box:a.box||0})),
+    attendees:(m.dist||[]).map(d=>typeof d==='string'?{name:d,email:''}:{name:d.name||'',email:d.email||''})
+   };})}));
+ }catch(e){/* quota / private mode — pillar just shows nothing new */}
+}
+/** Results the pillar sent back: { [meetingId]: {status, endedAt, minutes} } */
+function pillarResults(){
+ try{ const r=JSON.parse(localStorage.getItem(PILLAR_RESULTS)||'null'); return (r&&r.byId)?r.byId:{}; }catch(e){ return {}; }
+}
+
 function mtgProject(m){return PROJECTS.find(p=>p.id===m.pid)||PROJECTS[0];}
 function mtgDate(m){return (m.at||'').slice(0,10);}
 function mtgTime(m){return (m.at||'').slice(11,16);}
@@ -1162,7 +1186,11 @@ let MTG_SEL=null;
 function mtgStatusPill(m){
  const map={scheduled:['Draft','#8592a0'],recording:['Live','#2f9e6b'],recorded:['Recorded','#C4973A'],
   minuted:['Minuted','#4a5a6e'],circulated:['Sent','#2f9e6b']};
- const d=map[m.status]||[m.status,'#8592a0'];
+ // The pillar reports back when it has actually recorded/ended a meeting; that
+ // beats the CRM's own scheduled state, which nobody remembers to update.
+ const r=pillarResults()[m.id];
+ const eff=(r&&r.status==='recording')?'recording':(r&&(r.status==='ended'||r.status==='sent'))?'recorded':m.status;
+ const d=map[eff]||[eff,'#8592a0'];
  return `<span class="mw-pill" style="color:${d[1]};background:${d[1]}1f">${esc(d[0])}</span>`;
 }
 function mtgSorted(){return MEETINGS.slice().sort((a,b)=>dparse(mtgDate(b))-dparse(mtgDate(a)));}
@@ -2117,6 +2145,7 @@ function persist(){
   if(json===_lastJSON) return;
   _lastJSON=json;
   try{ localStorage.setItem(SKEY,json); }catch(e){}
+  publishCrmMeetings();
   Cloud.push(blob,json);
  },400);
 }

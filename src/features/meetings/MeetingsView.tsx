@@ -8,6 +8,7 @@ import { fmtDateTime } from './format'
 import SenderSelect from './SenderSelect'
 import type { MeetingBundle, Utterance, AgendaItem, Attendee } from './types'
 import { useAtriumTheme } from '../../lib/atriumTheme'
+import { syncFromCrm, publishResults, isCrmOwned } from './crmBridge'
 
 // ── dark-shell style helpers ──────────────────────────────────────────────────
 const REC = '#C6402B'
@@ -108,10 +109,16 @@ function StaffMenu({ onPick, exclude = [] }: { onPick: (m: { name: string; email
 
 // ── root: meetings list ↔ one meeting ─────────────────────────────────────────
 export default function MeetingsView() {
-  const [bundles, setBundles] = useState<MeetingBundle[]>(() => loadMeetings().bundles)
+  // The CRM owns project meetings — pull whatever it has published before we
+  // read the store, so a meeting booked in the CRM is here ready to record.
+  const [bundles, setBundles] = useState<MeetingBundle[]>(() => { syncFromCrm(); return loadMeetings().bundles })
   const [activeId, setActiveId] = useState<string | null>(null)
 
-  const refresh = () => setBundles(loadMeetings().bundles)
+  // Report status back so the CRM register shows what actually happened rather
+  // than whatever it was scheduled as.
+  useEffect(() => { publishResults() }, [bundles])
+
+  const refresh = () => { syncFromCrm(); setBundles(loadMeetings().bundles) }
   const openMeeting = (b: MeetingBundle) => { upsertBundle(b); refresh(); setActiveId(b.meeting.id) }
   const persist = (b: MeetingBundle) => { upsertBundle(b); setBundles(prev => prev.map(x => x.meeting.id === b.meeting.id ? b : x)) }
   const remove = (id: string) => { deleteBundle(id); refresh(); if (activeId === id) setActiveId(null) }
@@ -208,9 +215,15 @@ function MeetingsList({ bundles, onNew, onOpen, onDelete }: { bundles: MeetingBu
                   <div style={{ fontSize: 13.5, fontWeight: 500, color: T.ink }}>{b.meeting.title}</div>
                   <div style={{ fontSize: 11, color: T.faint, marginTop: 2 }}>{fmtDateTime(b.meeting.startsAt)} · {b.agenda.length} items · {b.attendees.length} attendees{b.meeting.locationLabel ? ` · ${b.meeting.locationLabel}` : ''}</div>
                 </div>
+                {isCrmOwned(b) && (
+                  <span title="Booked in the ATRIUM CRM — edit it there"
+                    style={{ ...mono, fontSize: 8.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 600, color: T.ink2, background: T.sel, borderRadius: 14, padding: '5px 9px' }}>CRM</span>
+                )}
                 <span style={{ ...mono, fontSize: 8.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 600, color: col, background: `${col}1f`, borderRadius: 14, padding: '5px 11px' }}>{lbl}</span>
-                <button style={{ ...btn('quiet'), width: 30, height: 30, padding: 0 }} title="Delete"
-                  onClick={e => { e.stopPropagation(); if (confirm('Delete this meeting?')) onDelete(b.meeting.id) }}>×</button>
+                {!isCrmOwned(b) && (
+                  <button style={{ ...btn('quiet'), width: 30, height: 30, padding: 0 }} title="Delete"
+                    onClick={e => { e.stopPropagation(); if (confirm('Delete this meeting?')) onDelete(b.meeting.id) }}>×</button>
+                )}
               </div>
             )
           })}
