@@ -409,11 +409,65 @@ ${preview ? `<div class="pnote">◆ PREVIEW · <b>ATRIUM Feasibility Export</b> 
 <div class="wrap">${coverSheet(meta, dateStr)}${sheets}${closingSheet()}</div></body></html>`
 }
 
-/** Open the document in a new tab. `print` fires the dialog once fonts settle. */
-export function openExportDocument(meta: DocMeta, sections: Section[], print: boolean) {
-  const w = window.open('', '_blank')
-  if (!w) throw new Error('Pop-up blocked — allow pop-ups for this site to export.')
-  w.document.write(buildExportDocument(meta, sections, !print))
-  w.document.close()
-  if (print) w.addEventListener('load', () => setTimeout(() => w.print(), 400))
+/**
+ * Render into an iframe rather than a new tab.
+ *
+ * window.open() after an `await` loses the user-activation the browser needs to
+ * allow it, so the export was silently pop-up blocked in production. An iframe
+ * needs no gesture and no permission, so this cannot be blocked.
+ */
+function frameWith(html: string, hidden: boolean): HTMLIFrameElement {
+  const f = document.createElement('iframe')
+  f.setAttribute('aria-label', 'Feasibility export')
+  f.style.cssText = hidden
+    ? 'position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none'
+    : 'width:100%;height:100%;border:0;display:block;background:#e9edf3'
+  f.srcdoc = html
+  return f
+}
+
+/** Wait for the frame to load and its webfonts to settle before printing. */
+function whenReady(f: HTMLIFrameElement): Promise<void> {
+  return new Promise(resolve => {
+    f.addEventListener('load', () => {
+      const d = f.contentDocument
+      const fonts = d && (d as Document & { fonts?: FontFaceSet }).fonts
+      const done = () => setTimeout(resolve, 120)
+      if (fonts && fonts.ready) fonts.ready.then(done, done)
+      else done()
+    }, { once: true })
+  })
+}
+
+/** Full-screen preview with its own Save-as-PDF control inside the document. */
+export async function previewExportDocument(meta: DocMeta, sections: Section[]) {
+  const host = document.createElement('div')
+  host.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#e9edf3;display:flex;flex-direction:column'
+  const bar = document.createElement('div')
+  bar.style.cssText = 'flex:none;display:flex;justify-content:flex-end;padding:8px 14px;background:#0d1420;border-bottom:1px solid rgba(255,255,255,.1)'
+  const close = document.createElement('button')
+  close.textContent = '\u2715  CLOSE PREVIEW'
+  close.style.cssText = 'font:700 10px/1 Inter,system-ui,sans-serif;letter-spacing:.18em;color:#eef2f5;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:9px 16px;cursor:pointer'
+  const shut = () => { host.remove(); document.removeEventListener('keydown', onKey) }
+  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') shut() }
+  close.onclick = shut
+  document.addEventListener('keydown', onKey)
+  bar.appendChild(close)
+  const f = frameWith(buildExportDocument(meta, sections, true), false)
+  host.append(bar, f)
+  document.body.appendChild(host)
+  await whenReady(f)
+}
+
+/** Straight to the print dialog, from an offscreen frame. */
+export async function printExportDocument(meta: DocMeta, sections: Section[]) {
+  const f = frameWith(buildExportDocument(meta, sections, false), true)
+  document.body.appendChild(f)
+  await whenReady(f)
+  const w = f.contentWindow
+  if (!w) { f.remove(); throw new Error('Could not prepare the document for printing.') }
+  w.focus()
+  w.print()
+  // Leave the frame in place until the dialog closes, or printing is cancelled.
+  setTimeout(() => f.remove(), 60_000)
 }

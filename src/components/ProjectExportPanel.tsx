@@ -44,14 +44,12 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
     setBusy('pdf'); setDone(null); setError(null)
     try {
       await new Promise(r => setTimeout(r, 30))
-      const { openExportDocument } = await import('../lib/exportHtml')
+      const m = await import('../lib/exportHtml')
       const sections = buildExportSections(projectId, Array.from(selected))
       if (!sections.length) { setError('Nothing to export — the selected tabs have no data yet.'); return }
-      openExportDocument({
-        projectName, address: project?.address ?? '',
-        status: project?.status,
-        type: project?.type,
-      }, sections, print)
+      const meta = { projectName, address: project?.address ?? '', status: project?.status, type: project?.type }
+      if (print) await m.printExportDocument(meta, sections)
+      else await m.previewExportDocument(meta, sections)
       setDone(print ? 'Print dialog opened' : 'Preview opened')
     } catch (e) {
       setError(`Export failed — ${e instanceof Error ? e.message : String(e)}`)
