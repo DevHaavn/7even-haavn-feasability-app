@@ -239,6 +239,16 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
   });
  });
 
+ /* "← Administration" is inside an iframe, so it cannot route the parent app
+    itself — it asks. The Administration pillar listens and closes the book. */
+ var bk=document.querySelector('.bk');
+ if(bk){
+  bk.style.cursor='pointer';
+  bk.addEventListener('click', function(){
+   try{ parent.postMessage({type:'atrium:back-admin'}, window.location.origin); }catch(e){}
+  });
+ }
+
  /* Entity chip → switch between the two Administration books. */
  var ent=document.querySelector('.entity');
  if(ent){

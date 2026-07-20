@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import BudgetsAdmin from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
 
@@ -31,6 +31,18 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
 
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
+
+  // The books run in an iframe, so their in-page "← Administration" control
+  // can't route this app — it posts a message instead. Origin is checked so
+  // only our own pages can close the book.
+  useEffect(() => {
+    function onMsg(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return
+      if (e.data && e.data.type === 'atrium:back-admin') setGroup(null)
+    }
+    window.addEventListener('message', onMsg)
+    return () => window.removeEventListener('message', onMsg)
+  }, [])
 
   // 7EVEN Capital Administration — Book 01. The ATRIUM silver-glass build:
   // Dashboard, 7EVEN GROUP · Structure (four animated org charts), Project
