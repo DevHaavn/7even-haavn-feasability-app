@@ -91,7 +91,9 @@ function strategyColor(type: string): string {
   return '#C4973A'
 }
 
-function comparisonRows(projectId: string): CompareRow[] {
+/** Exported so the ATRIUM feasibility bridge renders the SAME numbers the
+ *  exports do. Do not fork this — one engine, one set of figures. */
+export function comparisonRows(projectId: string): CompareRow[] {
   const site = db.getSiteDesign(projectId)
   const costData = db.getCostStack(projectId)
   const landEff = db.getEffectiveLandCost(projectId)   // land into TDC; RLV engine keeps land-excluded cost

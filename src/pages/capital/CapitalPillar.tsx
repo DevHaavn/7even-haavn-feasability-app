@@ -8,6 +8,7 @@ import CapitalCommand from './CapitalCommand'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
+import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 
 /** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
  *  opens here. ATRIUM (Partner CRM) exits straight to the studio (never back through
@@ -18,6 +19,8 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
   const role = useRole()
+  // Feasibility tab in the embedded Management System can hand off to the studio.
+  useOpenStudioBridge(onExit)
 
   // Capital Command brings its own ATRIUM chrome (topbar + tab nav + theme
   // toggle), so it renders full-bleed rather than inside the generic pillar

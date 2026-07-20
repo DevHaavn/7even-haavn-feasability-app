@@ -180,6 +180,24 @@ button{font-family:inherit}
    wrap its contract/asset/builder row and the address; full width lets that row
    sit on one line and gives the progress bar its full run. */
 .projgrid{display:grid;grid-template-columns:1fr;gap:14px}
+/* Feasibility tab — snapshot cards fed by the studio (see localStorage atrium:feasibility) */
+.fzgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.fzcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;
+ box-shadow:0 18px 40px -28px rgba(30,44,60,.5);transition:transform .16s var(--ease),box-shadow .2s}
+.fzcard:hover{transform:translateY(-2px);box-shadow:0 24px 50px -28px rgba(30,44,60,.55)}
+.fzcard .fid{font-family:var(--mono);font-size:11px;color:#2f9e6b;letter-spacing:.04em}
+.fzcard h3{font-size:19px;font-weight:600;color:var(--ink);margin:6px 0 0;letter-spacing:-.01em}
+.fzcard .fsub{font-size:12.5px;color:var(--mute);margin-top:5px}
+.fzcard .frule{height:1px;background:var(--line);margin:15px 0 13px}
+.fzstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fzstats .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.fzstats .v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink);margin-top:6px;letter-spacing:-.02em}
+.fzstats .v.pos{color:#2f9e6b}.fzstats .v.warn{color:#C4973A}.fzstats .v.neg{color:#C6402B}
+.fzcard .fopen{display:inline-block;margin-top:15px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+ text-transform:uppercase;color:var(--mute);cursor:pointer;background:none;border:0;padding:0}
+.fzcard .fopen:hover{color:var(--ink)}
+.fzempty{background:#fff;border:1px solid var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--mute);font-size:13px}
+@media(max-width:1080px){.fzgrid{grid-template-columns:1fr}}
 .pcard{border:1px solid var(--steel-2);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#111615,#0a0d0c);cursor:pointer;transition:transform .16s var(--ease),border-color .2s}
 .pcard:hover{transform:translateY(-2px);border-color:rgba(111,190,150,.4)}
 .pcard .bz{height:4px;background:var(--brushed)}
@@ -1011,6 +1029,7 @@ function render(){
  else if(route.view==='newproject'){main.className='main light';page.innerHTML=viewWizard();bindWizard();}
  else if(route.view==='meetings'){main.className=surf();page.innerHTML=viewMeetings();bindMeetings();}
  else if(route.view==='meeting'){main.className=surf();page.innerHTML=viewMeeting(route.pid);bindMeeting();}
+ else if(route.view==='module'&&route.pid==='feasibility'){main.className='main light';page.innerHTML=viewFeasibility();bindFeasibility();}
  else if(route.view==='module'){main.className=surf();page.innerHTML=viewModuleStub(route.pid);}
  else if(route.view==='project'){renderProject();}
 }
@@ -1122,6 +1141,71 @@ function bindMeeting(){
  const circ=$('#mtgCirc');if(circ)circ.onclick=()=>mtgCircularise(route.pid);
  const cal=$('#mtgCal');if(cal)cal.onclick=()=>{const m=M();const p=mtgProject(m);toast('Outlook invite created for '+esc(p.name)+'.');fetch('/api/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:p.id+' · '+m.type+' — '+p.name,start:m.at,location:m.loc})}).catch(()=>{});};
  const tx=$('#mtgTx');if(tx)tx.onclick=()=>toast('Live Mandarin→English transcription runs in the Meetings pillar (Azure Speech). File-upload transcription is the next step.');
+}
+
+/* ---- FEASIBILITY — live pull from the Feasibility Studio -------------------
+   The studio (React) computes TDC / GDV / margin / RLV through its own engine
+   and publishes a snapshot to localStorage under 'atrium:feasibility'. We are
+   same-origin, so we just read and format it.
+
+   We deliberately do NOT recompute anything here. Porting the cost stack, the
+   unit-mix solver and three valuation models into this file would give two
+   engines that drift apart, and the numbers must match the studio exactly.
+   See src/lib/feasBridge.ts.                                                 */
+const FEAS_KEY='atrium:feasibility';
+function feasSnapshot(){
+ try{ const raw=localStorage.getItem(FEAS_KEY); if(!raw) return null;
+  const s=JSON.parse(raw); return (s&&s.v===1&&Array.isArray(s.cards))?s:null;
+ }catch(e){ return null; }
+}
+function fzMoney(n){ // $213.3M / $88.4M / -$4.2M — same shorthand as the approved screen
+ if(typeof n!=='number'||!isFinite(n)) return '—';
+ const neg=n<0, a=Math.abs(n);
+ const s=a>=1e6?('$'+(a/1e6).toFixed(1)+'M'):a>=1e3?('$'+Math.round(a/1e3)+'k'):('$'+Math.round(a));
+ return (neg?'-':'')+s;
+}
+function fzAgo(iso){
+ const t=Date.parse(iso); if(!isFinite(t)) return '';
+ const mins=Math.round((Date.now()-t)/60000);
+ if(mins<2) return 'just now';
+ if(mins<60) return mins+' min ago';
+ const h=Math.round(mins/60); if(h<24) return h+(h===1?' hour ago':' hours ago');
+ const d=Math.round(h/24); return d+(d===1?' day ago':' days ago');
+}
+function viewFeasibility(){
+ const snap=feasSnapshot(), cards=snap?snap.cards:[];
+ const head=`<div class="phead"><div><div class="n">03 · FEASIBILITY</div><h1>Feasibility</h1>
+   <div class="sub">Live link to the Feasibility Studio — a snapshot per project. Open any card to work the full model.${
+     snap?` <span style="font-family:var(--mono);font-size:11px;color:var(--faint)">Updated ${esc(fzAgo(snap.generatedAt))}.</span>`:''}</div>
+   <div class="liv">${livery()}</div></div>
+   <div class="actions" style="align-self:flex-start"><button class="btn" data-studio="">↗ Open Studio</button></div></div>`;
+
+ if(!cards.length) return head+`<div class="fzempty">No feasibility snapshot yet.<br>
+   <span style="font-size:12px;color:var(--faint)">Open the Feasibility Studio once and the projects, costs and returns will appear here automatically.</span></div>`;
+
+ return head+`<div class="fzgrid">${cards.map(c=>{
+  const mc = c.margin==null?'':c.margin>=30?' pos':c.margin>=15?' warn':' neg';
+  const rc = c.rlv<0?' neg':'';
+  return `<div class="fzcard">
+   <div class="fid">${esc(c.id)}</div>
+   <h3>${esc(c.name)}</h3>
+   <div class="fsub">${esc(c.address)}${c.strategy?' · '+esc(c.strategy):''}</div>
+   <div class="frule"></div>
+   <div class="fzstats">
+    <div><div class="k">TDC</div><div class="v">${fzMoney(c.tdc)}</div></div>
+    <div><div class="k">GDV</div><div class="v">${fzMoney(c.gdv)}</div></div>
+    <div><div class="k">Margin</div><div class="v${mc}">${c.margin==null?'—':c.margin.toFixed(1)+'%'}</div></div>
+    <div><div class="k">RLV</div><div class="v${rc}">${fzMoney(c.rlv)}</div></div>
+   </div>
+   <button class="fopen" data-studio="${esc(c.id)}">Open in Studio →</button>
+  </div>`;}).join('')}</div>`;
+}
+function bindFeasibility(){
+ // The studio is the parent React app, not a route in this file — ask it to switch.
+ $('#main').querySelectorAll('[data-studio]').forEach(b=>b.onclick=()=>{
+  const pid=b.dataset.studio||'';
+  try{ parent.postMessage({type:'atrium:open-studio',projectId:pid},window.location.origin); }catch(e){}
+ });
 }
 
 /* ---- Module stubs ---- */

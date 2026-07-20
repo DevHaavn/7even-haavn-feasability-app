@@ -11,6 +11,8 @@ import IntroScreen from './pages/IntroScreen'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
+import { publishFeasSnapshot } from './lib/feasBridge'
+import { onSave } from './lib/saveSignal'
 
 export default function App() {
   const { activeProjectId, projects, loadProjects, bumpSync } = useStore()
@@ -46,6 +48,18 @@ export default function App() {
   // it is authoritative and the client never regenerates, migrates, or overwrites
   // anything — it only reads, and pushes the specific numbers a user edits. This
   // is what stops any one computer from resetting feasibility for everyone.
+  // Keep the Management System's Feasibility tab current as the model is edited.
+  // Debounced because auto-save fires per keystroke-batch and recomputing every
+  // project's cost stack on each one would be wasteful.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined
+    const unsub = onSave(() => {
+      clearTimeout(t)
+      t = setTimeout(publishFeasSnapshot, 1500)
+    })
+    return () => { clearTimeout(t); unsub() }
+  }, [])
+
   useEffect(() => {
     let done = false
     const finish = (status: 'has-data' | 'empty' | 'error') => {
@@ -66,6 +80,10 @@ export default function App() {
       // 'error': pull failed — render whatever local cache exists, but do NOT seed
       //          (seeding over an unreachable-but-populated cloud would clobber it).
       loadProjects()
+      // Hand the ATRIUM Management System a fresh feasibility snapshot. Derived,
+      // read-only, computed from whatever we just loaded — it never writes back
+      // to project data, so it's safe on every path including 'error'.
+      publishFeasSnapshot()
       setSyncing(false)
     }
     setSyncing(true)

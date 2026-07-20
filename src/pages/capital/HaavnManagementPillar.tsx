@@ -7,11 +7,14 @@ import MeetingsView from '../../features/meetings/MeetingsView'
 import { AtriumApex } from '../../components/AtriumMark'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
+import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
+  // Feasibility tab in the embedded Management System can hand off to the studio.
+  useOpenStudioBridge(onExit)
 
   // HAAVN Management System — the full ATRIUM Management prototype (Today, Senior
   // Management, Portfolio, Projects, project workspace, Client Portal, Meetings,
