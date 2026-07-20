@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import BudgetsAdmin from './BudgetsAdmin'
+import BudgetsAdmin, { ensureAdminData } from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
 
 /** Accounts Pillar 01 landing. Splits Administration into two books:
@@ -43,6 +43,11 @@ export default function BudgetsAdminBase() {
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
   }, [])
+
+  // The 7EVEN book reads capital_admin_v3 directly but cannot seed it. Ensure
+  // the CFO seed exists (fresh browsers) before the book's expenses/budget tabs
+  // try to read it. No-op when data already exists.
+  useEffect(() => { ensureAdminData() }, [])
 
   // 7EVEN Capital Administration — the live book: Xero connect / push / pull,
   // project tracking wired to the feasibility studio, the detailed cost stack

@@ -125,6 +125,18 @@ function loadData(): AdminData {
 
 function saveData(d: AdminData) { saveKV(STORE_KEY, d) }
 
+/**
+ * Make sure the budget store is seeded and persisted. The HTML book (which now
+ * renders the 7EVEN Capital surface) reads capital_admin_v3 directly but cannot
+ * seed it — that logic lives here. The parent calls this before showing the
+ * book so a fresh browser has the CFO seed to read and edit. Never overwrites
+ * existing data.
+ */
+export function ensureAdminData(): void {
+  if (typeof localStorage === 'undefined') return
+  if (!localStorage.getItem(STORE_KEY)) saveData(loadData())
+}
+
 // ── Cross-link: a settled 7EVEN sale posts here as revenue ───────────────────
 export function hasSaleRevenue(saleId: string): boolean {
   return loadData().txns.some(t => t.sourceId === `sale:${saleId}`)
