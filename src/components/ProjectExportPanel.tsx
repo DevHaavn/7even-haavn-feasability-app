@@ -38,6 +38,30 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
     setSelected(allSelected ? new Set() : new Set(ALL_EXPORT_IDS))
   }
 
+  /** Open the designed document — preview to read it, print to save as PDF. */
+  async function openDoc(print: boolean) {
+    if (selected.size === 0 || busy) return
+    setBusy('pdf'); setDone(null); setError(null)
+    try {
+      await new Promise(r => setTimeout(r, 30))
+      const { openExportDocument } = await import('../lib/exportHtml')
+      const sections = buildExportSections(projectId, Array.from(selected))
+      if (!sections.length) { setError('Nothing to export — the selected tabs have no data yet.'); return }
+      openExportDocument({
+        projectName, address: project?.address ?? '',
+        status: project?.status,
+        type: project?.type,
+      }, sections, print)
+      setDone(print ? 'Print dialog opened' : 'Preview opened')
+    } catch (e) {
+      setError(`Export failed — ${e instanceof Error ? e.message : String(e)}`)
+      console.error('[export]', e)
+    } finally {
+      setBusy(null)
+      setTimeout(() => { setDone(null); setError(null) }, 6000)
+    }
+  }
+
   async function run(format: 'pdf' | 'excel') {
     if (selected.size === 0 || busy) return
     setBusy(format)
@@ -140,13 +164,22 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
           <div style={{ flex: 1 }} />
           {done && <span style={{ color: '#3DAA6A', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>✓ {done}</span>}
           {error && <span style={{ color: '#D4553E', fontSize: 10.5, letterSpacing: '0.02em', maxWidth: 420 }}>{error}</span>}
+          {/* Read it first, then save. Both open the same designed document. */}
           <button
-            onClick={() => run('pdf')}
+            onClick={() => openDoc(false)}
+            disabled={count === 0 || busy !== null}
+            className={`glass-btn ${count > 0 ? '' : 'glass-btn-disabled'}`}
+            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 26px' }}
+          >
+            ◇ Preview
+          </button>
+          <button
+            onClick={() => openDoc(true)}
             disabled={count === 0 || busy !== null}
             className={`glass-btn ${count > 0 ? 'glass-btn-gold' : 'glass-btn-disabled'}`}
             style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px' }}
           >
-            {busy === 'pdf' ? 'Generating…' : '⬇ Export PDF'}
+            {busy === 'pdf' ? 'Opening…' : '⬇ Export PDF'}
           </button>
           <button
             onClick={() => run('excel')}
