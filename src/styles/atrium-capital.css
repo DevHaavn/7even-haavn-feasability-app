@@ -13,6 +13,37 @@
    timeline, contact log, linktile, mini-track and buttons.
    ========================================================================== */
 
+/* ---- Chrome layout -------------------------------------------------------
+   The studio pins its chrome with `position:sticky; top:0` / `top:94px` against
+   a page-level scroller. Capital Command scrolls a pane INSTEAD, so the chrome
+   are ordinary flex items — sticky here would be pointless at best, and at
+   worst re-creates the bug it replaced (sticky pins on one axis only, so any
+   sideways scroll used to drag the header and tab bar off screen entirely).
+   flex:none stops them being squeezed by a tall content pane. */
+/* `.fxs.ccx` (0,3,0), not `.ccx` (0,2,0): the root carries both classes and the
+   studio's `.fxs .fx-topbar{position:sticky}` ties on specificity, so at `.ccx`
+   the winner was stylesheet order — and the studio won. Same trap as .barrow. */
+.fxs.ccx .fx-topbar,
+.fxs.ccx .fx-tabnav{position:static;top:auto;flex:none}
+/* Tabs stay reachable on a narrow window by scrolling themselves, never by
+   moving the bar. */
+.fxs.ccx .fx-tabnav{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+
+/* The topbar carries more than the studio's (brand stack + persona + avatar +
+   wordmark + toggle). Below ~1150px it no longer fits, so the least useful
+   items step aside in order rather than the bar overflowing. */
+@media(max-width:1150px){
+  .ccx .fx-atr{display:none}
+}
+@media(max-width:960px){
+  .ccx .cc-persona{display:none}
+  .ccx .fx-div{margin:0 12px}
+}
+@media(max-width:820px){
+  .ccx .cc-avatar{display:none}
+  .ccx .fx-addr{display:none}
+}
+
 /* ---- Chrome: 7EVEN/CAPITAL stack + persona (studio's is a logo + project) -- */
 .ccx .cc-brandstack{display:flex;flex-direction:column;gap:3px;line-height:1;flex:none}
 .ccx .cc-bs7{font-size:14px;letter-spacing:.42em;font-weight:300;color:var(--chrome-txt)}

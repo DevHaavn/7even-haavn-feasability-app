@@ -49,6 +49,7 @@ export default function CapitalCommand({ onBack }: { onBack: () => void }) {
   const [tab, setTab] = useState<TabId>('command')
   const [drawer, setDrawer] = useState<React.ReactNode>(null)
   const theme = useAtriumTheme()
+  const scrollRef = React.useRef<HTMLDivElement | null>(null)
 
   // Every mutation writes through to the shared backend, so Lewis's edit shows
   // up for Daniel. saveCapital → saveKV → localStorage + capital_kv upsert.
@@ -58,15 +59,30 @@ export default function CapitalCommand({ onBack }: { onBack: () => void }) {
 
   const openDrawer = useCallback((node: React.ReactNode) => setDrawer(node), [])
   const closeDrawer = useCallback(() => setDrawer(null), [])
-  const goTab = useCallback((t: TabId) => { setTab(t); window.scrollTo({ top: 0, behavior: 'smooth' }) }, [])
+  // Reset BOTH axes on a tab change: landing on a new tab still scrolled
+  // sideways from the last one is how the header felt "lost".
+  const goTab = useCallback((t: TabId) => {
+    setTab(t)
+    scrollRef.current?.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [])
 
   const ctx = useMemo<Ctx>(() => ({ state, update, openDrawer, closeDrawer, goTab }),
     [state, update, openDrawer, closeDrawer, goTab])
 
   return (
     <CapitalCtx.Provider value={ctx}>
+      {/* Chrome is FIXED, only the content scrolls.
+          Previously the whole root was the scroller (overflow-y:auto — which
+          makes overflow-x compute to auto as well) and the topbar/tabnav relied
+          on `position:sticky; top:0`. Sticky only pins on the axis you scroll,
+          so the moment anything was wider than the window — a narrow window, or
+          the Distributions tab, the widest of the seven — scrolling sideways
+          carried the header and the whole tab bar off screen with no way back.
+          You had to maximise the window to see the chrome, and Returns trapped
+          you on the page. Now the chrome are plain flex items that cannot move,
+          and scrolling is confined to the content pane below them. */}
       <div className={`fxs ccx${theme === 'dark' ? ' dark' : ''}`}
-        style={{ position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        style={{ position: 'fixed', inset: 0, zIndex: 400, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         {/* ── Chrome — always dark, per the prototype ── */}
         <div className="fx-topbar">
@@ -106,15 +122,21 @@ export default function CapitalCommand({ onBack }: { onBack: () => void }) {
           ))}
         </div>
 
-        <div className="fx-wrap" style={{ minWidth: 0 }}>
-          {tab === 'command' && <CommandTab />}
-          {tab === 'projects' && <ProjectsTab />}
-          {tab === 'investors' && <CapitalInvestors />}
-          {tab === 'pipeline' && <CapitalPipeline />}
-          {tab === 'calls' && <CapitalCalls />}
-          {tab === 'returns' && <CapitalReturns />}
-          {tab === 'portal' && <PortalTab />}
-          <div className="foot">ATRIUM · CAPITAL COMMAND · PILLAR 02 · 7EVEN × HAAVN</div>
+        {/* The only scroller. minHeight:0 is load-bearing — without it a flex
+            child refuses to shrink below its content and the pane grows past the
+            window instead of scrolling inside it. */}
+        <div className="cc-scroll" ref={scrollRef}
+          style={{ flex: 1, minHeight: 0, minWidth: 0, overflowY: 'auto', overflowX: 'auto' }}>
+          <div className="fx-wrap" style={{ minWidth: 0 }}>
+            {tab === 'command' && <CommandTab />}
+            {tab === 'projects' && <ProjectsTab />}
+            {tab === 'investors' && <CapitalInvestors />}
+            {tab === 'pipeline' && <CapitalPipeline />}
+            {tab === 'calls' && <CapitalCalls />}
+            {tab === 'returns' && <CapitalReturns />}
+            {tab === 'portal' && <PortalTab />}
+            <div className="foot">ATRIUM · CAPITAL COMMAND · PILLAR 02 · 7EVEN × HAAVN</div>
+          </div>
         </div>
 
         {/* ── Drawer ── */}
