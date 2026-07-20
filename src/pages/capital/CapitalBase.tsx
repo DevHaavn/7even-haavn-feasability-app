@@ -110,10 +110,14 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
       </div>
 
       {/* Body */}
-      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
+      {/* 1440, not 1100 — the approved screen runs the three pillars much wider
+          across the plate, which is what gives them their proportion. */}
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
         {/* Kicker is SILVER, not the old gold — the ATRIUM system has no gold. */}
         <p style={{ color: PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Precision Capital Deployed</p>
-        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0' }}>
+        {/* Uppercase, per the approved screen — the concept sets it in the markup
+            rather than with a transform, so the tracking is drawn for caps. */}
+        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0', textTransform: 'uppercase' }}>
           Administration Base
         </h1>
         <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
@@ -133,7 +137,13 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
             // On the light theme it washes out to near-invisible, so pillar 02's
             // accent drops to the deeper silver. Xero blue and ATRIUM green
             // carry enough contrast in both and are left alone.
-            const accent = pillarDef.id === 'deployment' && theme === 'light' ? '#6e7c8e' : pillarDef.color
+            const accent =
+              pillarDef.id === 'deployment' ? (theme === 'light' ? '#6e7c8e' : '#cdd8e2')
+              // ATRIUM's #237A52 is a deep forest green — fine on white, but it
+              // sinks into the dark plate. Lifted to the light-on-dark green in
+              // dark mode, same as the system's --f-300.
+              : pillarDef.id === 'crm' ? (theme === 'light' ? '#237A52' : '#57c08a')
+              : pillarDef.color
             const p = { ...pillarDef, color: accent }
             return (
             <button key={p.id} onClick={() => setPillar(p.id)}
@@ -154,7 +164,10 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
 
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: p.color, lineHeight: 1 }}>{p.num}</span>
-                <AtriumApex size={20} style={{ opacity: 0.5 }} />
+                {/* The design marks each card with a small apex in the pillar's
+                    own colour. The AtriumApex SVG has fixed silver gradients and
+                    cannot take the accent, so this is the concept's own glyph. */}
+                <span aria-hidden style={{ fontSize: 15, color: p.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
               </div>
               <div>
                 {/* Eyebrow above the title, in the accent — per the redesign */}
