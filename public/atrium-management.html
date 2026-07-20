@@ -231,6 +231,29 @@ button{font-family:inherit}
 .msheet .mact{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
 .msheet .btn.ghost{background:none;border:1px solid var(--line);color:var(--mute)}
 @media(max-width:1080px){.fgrid2{grid-template-columns:1fr}.bvrow .bvt{flex-basis:110px}}
+/* Meetings — two-pane register + agenda preview.
+   Every class is mw- prefixed: this file already uses .mrow (a 7-column grid for
+   the dark meetings table) and .mt (a 5px progress track), and unprefixed names
+   collided with them. */
+.wcard.mw-list{padding:0}
+.mw-lhd{display:flex;justify-content:space-between;padding:18px 20px 14px}
+.mw-row{display:flex;align-items:center;gap:13px;padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s}
+.mw-row:hover{background:rgba(110,124,142,.06)}
+.mw-row.on{background:rgba(110,124,142,.10)}
+.mw-row .mw-ico{width:34px;height:34px;border-radius:9px;background:rgba(47,158,107,.10);color:#2f9e6b;display:grid;place-items:center;flex:0 0 auto;font-size:14px}
+.mw-row .mw-tx{flex:1 1 auto;min-width:0}
+.mw-row .mw-t{font-size:13.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mw-row .mw-m{font-size:11px;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mw-pill{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border-radius:14px;padding:5px 11px;flex:0 0 auto;white-space:nowrap}
+.mw-agt{font-family:var(--serif);font-size:21px;font-weight:500;color:var(--ink);margin:8px 0 0;line-height:1.2}
+.mw-agm{font-size:12px;color:var(--mute);margin-top:6px}
+.mw-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.mw-item{display:flex;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+.mw-item:first-of-type{margin-top:10px}
+.mw-item .mw-no{font-family:var(--mono);font-size:11px;color:var(--faint);flex:0 0 auto}
+.mw-item .mw-it{font-size:13.5px;font-weight:500;color:var(--ink)}
+.mw-item .mw-io{font-size:11px;color:var(--faint);margin-top:2px}
+
 .pcard{border:1px solid var(--steel-2);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#111615,#0a0d0c);cursor:pointer;transition:transform .16s var(--ease),border-color .2s}
 .pcard:hover{transform:translateY(-2px);border-color:rgba(111,190,150,.4)}
 .pcard .bz{height:4px;background:var(--brushed)}
@@ -1066,7 +1089,7 @@ function render(){
  else if(route.view==='portal'){main.className=surf();page.innerHTML=viewPortal(route.pid);bindPortal();}
  else if(route.view==='projects'){main.className=surf();page.innerHTML=viewProjectsList();bindProjectsList();}
  else if(route.view==='newproject'){main.className='main light';page.innerHTML=viewWizard();bindWizard();}
- else if(route.view==='meetings'){main.className=surf();page.innerHTML=viewMeetings();bindMeetings();}
+ else if(route.view==='meetings'){main.className='main light';page.innerHTML=viewMeetings();bindMeetings();}
  else if(route.view==='meeting'){main.className=surf();page.innerHTML=viewMeeting(route.pid);bindMeeting();}
  else if(route.view==='module'&&route.pid==='feasibility'){main.className='main light';page.innerHTML=viewFeasibility();bindFeasibility();}
  else if(route.view==='module'&&route.pid==='accounts'){main.className='main light';page.innerHTML=viewAccounts();bindAccounts();}
@@ -1130,29 +1153,68 @@ function mtgCard(m){const p=mtgProject(m);return `<button class="mtgcard" data-m
   <div style="font-family:var(--disp);font-weight:600;color:var(--text);margin:8px 0 3px;font-size:15px">${esc(m.title)}</div>
   <div class="mono" style="font-size:11px;color:var(--text-mute)">${esc(p.name)}</div>
   <div class="mono" style="font-size:11px;color:var(--text-faint);margin-top:2px">${esc(mtgWhen(m))} · ${esc(m.loc)}</div></button>`;}
+/* Meetings — two-pane workspace matching the approved screen: the register on
+   the left, the selected meeting's agenda previewed on the right. Clicking a row
+   previews it; "Open meeting" goes to the full screen, which still carries the
+   agenda editor, minutes, circulation and the write-back into the project action
+   register. The design shows the entry view only, so none of that was removed. */
+let MTG_SEL=null;
+function mtgStatusPill(m){
+ const map={scheduled:['Draft','#8592a0'],recording:['Live','#2f9e6b'],recorded:['Recorded','#C4973A'],
+  minuted:['Minuted','#4a5a6e'],circulated:['Sent','#2f9e6b']};
+ const d=map[m.status]||[m.status,'#8592a0'];
+ return `<span class="mw-pill" style="color:${d[1]};background:${d[1]}1f">${esc(d[0])}</span>`;
+}
+function mtgSorted(){return MEETINGS.slice().sort((a,b)=>dparse(mtgDate(b))-dparse(mtgDate(a)));}
 function viewMeetings(){
- const up=MEETINGS.filter(m=>m.status==='scheduled'&&daysToDue(mtgDate(m))>=0).sort((a,b)=>dparse(mtgDate(a))-dparse(mtgDate(b)));
- const aw=MEETINGS.filter(m=>m.status==='recorded');
- const recent=MEETINGS.filter(m=>m.status==='minuted'||m.status==='circulated').sort((a,b)=>dparse(mtgDate(b))-dparse(mtgDate(a)));
- const week=MEETINGS.filter(m=>{const d=daysToDue(mtgDate(m));return d>=0&&d<=7;}).length;
- const nextPcg=MEETINGS.filter(m=>m.type==='PCG'&&daysToDue(mtgDate(m))>=0).sort((a,b)=>dparse(mtgDate(a))-dparse(mtgDate(b)))[0];
- const actsFromMtg=PROJECTS.reduce((n,p)=>n+(p.actions||[]).filter(a=>/meeting/i.test((a.log&&a.log[0]&&a.log[0].n)||'')).length,0);
- return `<div class="phead"><div><div class="n">05 · CADENCE</div><h1>Meetings</h1>
-   <div class="sub">Schedule, agenda, minute and circulate — every decision writes back to the project register.</div><div class="liv">${livery()}</div></div>
-   <div class="rt"><button class="btn-green" id="mtgNew">+ Schedule meeting</button></div></div>
-  <div class="kpis">
-   <div class="wcard"><div class="bz"></div><div class="k">This week</div><div class="v">${week}</div><div class="d">scheduled meetings</div></div>
-   <div class="wcard"><div class="bz"></div><div class="k">Awaiting minutes</div><div class="v" style="${aw.length?'color:var(--amber)':''}">${aw.length}</div><div class="d">recorded, not minuted</div></div>
-   <div class="wcard green"><div class="k">Actions from meetings</div><div class="v">${actsFromMtg}</div><div class="d">in the register</div></div>
-   <div class="wcard"><div class="bz"></div><div class="k">Next PCG</div><div class="v" style="font-size:19px">${nextPcg?esc(mtgWhen(nextPcg)):'—'}</div><div class="d">${nextPcg?esc(mtgProject(nextPcg).name):'none scheduled'}</div></div></div>
-  <div class="sec">${livery()}<h2>Upcoming</h2></div>
-  <div class="cadgrid">${up.length?up.map(mtgCard).join(''):emptyRow('No meetings scheduled.')}</div>
-  ${aw.length?`<div class="sec">${livery()}<h2>Awaiting minutes</h2></div><div class="cadgrid">${aw.map(mtgCard).join('')}</div>`:''}
-  ${recent.length?`<div class="sec">${livery()}<h2>Recent &amp; filed</h2></div><div class="cadgrid">${recent.map(mtgCard).join('')}</div>`:''}`;
+ const list=mtgSorted();
+ const sel=list.find(m=>m.id===MTG_SEL)||list[0];
+ const rows=list.map(m=>{
+  const p=mtgProject(m), on=sel&&m.id===sel.id;
+  return `<div class="mw-row${on?' on':''}" data-msel="${esc(m.id)}">
+   <div class="mw-ico">\u25a4</div>
+   <div class="mw-tx"><div class="mw-t">${esc(m.title)}${p?' \u2014 '+esc(p.name):''}</div>
+    <div class="mw-m">${esc(mtgWhen(m))} \u00b7 ${(m.agenda||[]).length} items \u00b7 ${(m.dist||[]).length} attendees${m.loc?' \u00b7 '+esc(m.loc):''}</div></div>
+   ${mtgStatusPill(m)}</div>`;
+ }).join('');
+
+ const agenda = sel ? `
+  <div class="ahd">Agenda \u00b7 routed to CRM</div>
+  <h3 class="mw-agt">${esc(sel.title)}${mtgProject(sel)?' \u2014 '+esc(mtgProject(sel).name):''}</h3>
+  <div class="mw-agm">${esc(mtgWhen(sel))}${sel.loc?' \u00b7 '+esc(sel.loc):''}</div>
+  <div class="mw-chips">
+   ${sel.status==='recording'?'<span class="mw-pill" style="color:#C6402B;background:rgba(198,64,43,.12)">\u25cf Recording</span>':''}
+   <span class="mw-pill" style="color:var(--mute);background:rgba(110,124,142,.14)">${(sel.dist||[]).length} attendees</span>
+   <span class="mw-pill" style="color:var(--mute);background:rgba(110,124,142,.14)">${esc(sel.type||'Meeting')}</span>
+  </div>
+  ${(sel.agenda||[]).length?(sel.agenda||[]).map((a,i)=>`<div class="mw-item">
+    <span class="mw-no">${String(i+1).padStart(2,'0')}</span>
+    <div><div class="mw-it">${esc(a.item||'Item')}</div>
+     <div class="mw-io">${a.owner?'Owner: '+esc(a.owner):''}${a.box?(a.owner?' \u00b7 ':'')+a.box+' min':''}</div></div>
+   </div>`).join(''):'<div class="fzempty" style="box-shadow:none;border:0;padding:22px 0">No agenda items yet.</div>'}
+  <button class="btn" id="mtgOpen" style="width:100%;margin-top:16px">Open meeting \u2192</button>`
+  : '<div class="fzempty" style="box-shadow:none;border:0;padding:26px 0">No meetings yet.</div>';
+
+ return `<div class="phead"><div><div class="n">05 \u00b7 WORKFLOW</div><h1>Meetings</h1>
+   <div class="sub">Agendas, live recording &amp; translation, records routed to the CRM.</div>
+   <div class="liv">${livery()}</div></div>
+   <div class="actions" style="align-self:flex-start"><button class="btn-green" id="mtgNew">+ New meeting</button></div></div>
+  <div class="fgrid2">
+   <div class="wcard mw-list"><div class="bz"></div>
+    <div class="mw-lhd"><span class="ahd" style="margin:0">All meetings</span><span class="ahd" style="margin:0;letter-spacing:0">${list.length}</span></div>
+    ${rows||'<div class="fzempty" style="box-shadow:none;border:0;padding:26px 0">No meetings scheduled.</div>'}
+   </div>
+   <div class="wcard"><div class="bz"></div>${agenda}</div>
+  </div>`;
 }
 function bindMeetings(){
  const nb=$('#mtgNew');if(nb)nb.onclick=()=>{const p=PROJECTS.find(x=>x.status==='live')||PROJECTS[0];scheduleMeeting(p.id,'Design');};
- $('#main').querySelectorAll('.mtgcard').forEach(b=>b.onclick=()=>go('meeting',b.dataset.mid));
+ $('#main').querySelectorAll('[data-msel]').forEach(r=>{
+  r.onclick=()=>{MTG_SEL=r.dataset.msel;render();};
+  r.ondblclick=()=>go('meeting',r.dataset.msel);
+ });
+ const op=$('#mtgOpen');
+ if(op) op.onclick=()=>{const list=mtgSorted();const sel=list.find(m=>m.id===MTG_SEL)||list[0];if(sel)go('meeting',sel.id);};
 }
 function viewMeeting(id){
  const m=MEETINGS.find(x=>x.id===id);if(!m){go('meetings');return '';}const p=mtgProject(m);
