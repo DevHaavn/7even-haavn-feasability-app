@@ -19,6 +19,13 @@ export interface HMPillar {
   color: string
 }
 
+/** Shared ATRIUM accents — same values as the Capital Base gateway. */
+export const HM_PA = {
+  silver: '#9aa8b6',
+  silverHi: '#cdd8e2',
+  silverLine: 'rgba(154,168,182,0.4)',
+}
+
 export const HM_PILLARS: HMPillar[] = [
   {
     id: 'crm', num: '01', title: 'HAAVN Management',
@@ -61,8 +68,22 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       background: pal.bg,
       display: 'flex', flexDirection: 'column',
     }}>
+      {/* Same architectural plate and scrim as the Capital Base gateway, so the
+          two hubs read as one product rather than two skins. */}
+      <div aria-hidden style={{
+        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: "url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat",
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: theme === 'light'
+            ? 'linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9))'
+            : 'linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82))',
+        }} />
+      </div>
+
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
         <Button variant="glassDark" onClick={onClose} style={{ fontSize: 11 }}>
           ATRIUM
         </Button>
@@ -77,50 +98,65 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
-        <p style={{ color: '#1FE87A', fontSize: 9, letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 8, textAlign: 'center' }}>Integrated Management Platform</p>
-        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(24px, 4vw, 38px)', letterSpacing: '0.10em', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 6px' }}>
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
+        {/* Kicker silver, not the bright green — matches the Capital Base hero. */}
+        <p style={{ color: HM_PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Integrated Management Platform</p>
+        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0', textTransform: 'uppercase' }}>
           Management Hub
         </h1>
-        <p style={{ color: pal.sub, fontSize: 12, textAlign: 'center', margin: '0 0 8px' }}>
+        <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
           Three pillars for project delivery, team collaboration and brand strategy — unified command centre.
         </p>
-        <p style={{ color: pal.faint, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 44 }}>
+        <p style={{ color: pal.faint, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'center', margin: '8px 0 0' }}>
           Strategic partnerships · Operational efficiency · Market intelligence
         </p>
 
-        {/* Black-chrome divider */}
-        <div style={{ height: 2, borderRadius: 2, background: pal.divider, boxShadow: '0 1px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.05)', maxWidth: 320, margin: '0 auto 44px' }} />
+        {/* Hairline — replaces the heavy 2px chrome bar, same as Capital Base */}
+        <div style={{ width: 230, height: 1, background: `linear-gradient(90deg, transparent, ${HM_PA.silverLine}, transparent)`, margin: '22px auto 30px' }} />
 
         {/* Pillars */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, alignItems: 'stretch' }}>
-          {visiblePillars.map(p => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18, alignItems: 'stretch' }}>
+          {visiblePillars.map(pillarDef => {
+            // Both HM greens fail on the dark plate: #237A52 is a deep forest
+            // green that sinks into it, and #1FE87A is a neon that glares.
+            // Lifted / calmed in dark, left as the brand values in light.
+            const accent =
+              pillarDef.id === 'crm' ? (theme === 'light' ? '#237A52' : '#57c08a')
+              : pillarDef.id === 'meetings' ? (theme === 'light' ? '#2f9e6b' : '#57c08a')
+              : pillarDef.color
+            const p = { ...pillarDef, color: accent }
+            return (
             <button key={p.id} onClick={() => setPillar(p.id)}
               className="cap-pillar"
               style={{
-                textAlign: 'left', cursor: 'pointer', minHeight: '52vh',
-                border: `1px solid ${pal.cardBorder}`, borderRadius: 18,
+                textAlign: 'left', cursor: 'pointer', minHeight: 440,
+                position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
+                border: `1px solid ${pal.cardBorder}`, borderRadius: 16,
                 background: pal.cardBg,
-                backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 16,
-                transition: 'all 0.2s', boxShadow: pal.cardShadow,
+                backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
+                padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
+                transition: 'all 0.3s', boxShadow: pal.cardShadow,
               }}
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = pal.cardHoverShadow(p.color) }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = pal.cardBorder; t.style.transform = 'translateY(0)'; t.style.boxShadow = pal.cardShadow }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
+              {/* Accent hairline across the top of the card */}
+              <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${p.color}, transparent)`, opacity: 0.65 }} />
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: p.color, lineHeight: 1 }}>{p.num}</span>
+                <span aria-hidden style={{ fontSize: 15, color: p.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
               </div>
               <div>
-                <AtriumApex size={34} style={{ margin: '0 0 12px' }} />
-                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
-                <p style={{ color: p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
+                <p style={{ color: p.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{p.sub}</p>
+                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{p.title}</h2>
               </div>
-              <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />
-              <p style={{ color: pal.muted, fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{p.blurb}</p>
+              <div style={{ height: 1, background: pal.cardBorder, margin: '4px 0' }} />
+              <p style={{ color: pal.muted, fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{p.blurb}</p>
 
-              <span className="chrome-black-text" style={{ marginTop: 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: HM_PA.silver }}>Enter Pillar →</span>
             </button>
-          ))}
+            )
+          })}
         </div>
       </div>
 
