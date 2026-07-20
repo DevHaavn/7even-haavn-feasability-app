@@ -20,6 +20,16 @@ export interface Pillar {
   color: string
 }
 
+/** ATRIUM accents for this gateway. Silver is the system accent; the per-pillar
+ *  colours carry each pillar's own identity (Xero blue · silver · ATRIUM green),
+ *  exactly as the redesign draws them. No gold anywhere. */
+export const PA = {
+  silver: '#9aa8b6',
+  silverHi: '#cdd8e2',
+  silverDeep: '#6c7a88',
+  silverLine: 'rgba(154,168,182,0.4)',
+}
+
 export const PILLARS: Pillar[] = [
   {
     id: 'budgets', num: '01', title: 'Budgets / Administration',
@@ -31,7 +41,9 @@ export const PILLARS: Pillar[] = [
     id: 'deployment', num: '02', title: 'Capital Command',
     sub: 'Raise · Investors · Calls · Returns',
     blurb: 'The capital command centre. Every dollar across the portfolio — pulled live from the feasibility studio — plus the full investor lifecycle: intake, pipeline, capital calls and distributions.',
-    color: '#1FE87A',
+    // Silver, not the old bright green — the redesign gives pillar 02 the
+    // system accent, leaving green to ATRIUM (03) and Xero blue to 01.
+    color: '#cdd8e2',
   },
   {
     id: 'crm', num: '03', title: 'Management System',
@@ -83,48 +95,58 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
 
       {/* Body */}
       <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1100, width: '100%', margin: '0 auto' }}>
-        <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 8, textAlign: 'center' }}>Precision Capital Deployed</p>
-        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(24px, 4vw, 38px)', letterSpacing: '0.10em', textTransform: 'uppercase', textAlign: 'center', margin: '0 0 6px' }}>
+        {/* Kicker is SILVER, not the old gold — the ATRIUM system has no gold. */}
+        <p style={{ color: PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Precision Capital Deployed</p>
+        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0' }}>
           Administration Base
         </h1>
-        <p style={{ color: pal.sub, fontSize: 12, textAlign: 'center', margin: '0 0 8px' }}>
+        <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
           Three pillars for the accounts, capital and partner teams — linked to the feasibility studio.
         </p>
-        <p style={{ color: pal.faint, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 44 }}>
+        <p style={{ color: pal.faint, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'center', margin: '8px 0 0' }}>
           {projects.length} live project{projects.length !== 1 ? 's' : ''} · {fmtM(totalTDC)} land committed
         </p>
 
-        {/* Black-chrome divider */}
-        <div style={{ height: 2, borderRadius: 2, background: pal.divider, boxShadow: '0 1px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.05)', maxWidth: 320, margin: '0 auto 44px' }} />
+        {/* Hairline — replaces the heavy 2px black-chrome bar */}
+        <div style={{ width: 230, height: 1, background: `linear-gradient(90deg, transparent, ${PA.silverLine}, transparent)`, margin: '22px auto 30px' }} />
 
         {/* Pillars — portrait columns falling down the screen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22, alignItems: 'stretch' }}>
-          {PILLARS.map(p => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18, alignItems: 'stretch' }}>
+          {PILLARS.map(pillarDef => {
+            // The redesign is drawn on a dark base, where silver-hi reads well.
+            // On the light theme it washes out to near-invisible, so pillar 02's
+            // accent drops to the deeper silver. Xero blue and ATRIUM green
+            // carry enough contrast in both and are left alone.
+            const accent = pillarDef.id === 'deployment' && theme === 'light' ? '#6e7c8e' : pillarDef.color
+            const p = { ...pillarDef, color: accent }
+            return (
             <button key={p.id} onClick={() => setPillar(p.id)}
               className="cap-pillar"
               style={{
-                textAlign: 'left', cursor: 'pointer', minHeight: '52vh',
-                border: `1px solid ${pal.cardBorder}`, borderRadius: 18,
+                textAlign: 'left', cursor: 'pointer', minHeight: 440,
+                position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
+                border: `1px solid ${pal.cardBorder}`, borderRadius: 16,
                 background: pal.cardBg,
-                backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 16,
-                transition: 'all 0.2s', boxShadow: pal.cardShadow,
+                backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
+                padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
+                transition: 'all 0.3s', boxShadow: pal.cardShadow,
               }}
               onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = pal.cardHoverShadow(p.color) }}
               onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = pal.cardBorder; t.style.transform = 'translateY(0)'; t.style.boxShadow = pal.cardShadow }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="chrome-black-text" style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: 700 }}>{p.num}</span>
-                <AtriumApex size={22} />
+              {/* Accent hairline across the top of the card, in the pillar's colour */}
+              <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${p.color}, transparent)`, opacity: 0.65 }} />
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: p.color, lineHeight: 1 }}>{p.num}</span>
+                <AtriumApex size={20} style={{ opacity: 0.5 }} />
               </div>
               <div>
-                {p.id === 'crm' && (
-                  <span style={{ color: '#237A52', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 18, letterSpacing: '0.10em', display: 'block', margin: '0 0 12px' }}>ATRIUM</span>
-                )}
-                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 20, letterSpacing: '0.04em', margin: '0 0 8px' }}>{p.title}</h2>
-                <p style={{ color: p.id === 'crm' ? pal.sub : p.color, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>{p.sub}</p>
+                {/* Eyebrow above the title, in the accent — per the redesign */}
+                <p style={{ color: p.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{p.sub}</p>
+                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{p.title}</h2>
               </div>
-              <div style={{ height: 1, background: `linear-gradient(to right, ${p.color}55, transparent)` }} />
-              <p style={{ color: pal.muted, fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{p.blurb}</p>
+              <div style={{ height: 1, background: pal.cardBorder, margin: '4px 0' }} />
+              <p style={{ color: pal.muted, fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{p.blurb}</p>
 
               {p.id === 'budgets' && (
                 // Xero — the accounts backbone of the Budgets pillar
@@ -138,7 +160,11 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                 // Capital Command — the engine of the Capital Deployment pillar
                 <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <span style={{ color: pal.faint, fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-                  <CapitalCommandMark width={165} />
+                  {/* Desaturated to the pillar's silver — the mark's built-in
+                      green fought the accent and broke the no-gold/one-accent rule. */}
+                  <span style={{ filter: 'grayscale(1) brightness(1.25)', display: 'inline-flex' }}>
+                    <CapitalCommandMark width={165} />
+                  </span>
                 </div>
               )}
               {p.id === 'crm' && (
@@ -149,9 +175,10 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                 </div>
               )}
 
-              <span className="chrome-black-text" style={{ marginTop: 'auto', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Enter Pillar →</span>
+              <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: PA.silver }}>Enter Pillar →</span>
             </button>
-          ))}
+            )
+          })}
         </div>
       </div>
 
