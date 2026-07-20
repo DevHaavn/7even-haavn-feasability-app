@@ -7,24 +7,60 @@ import { defaultSender, TEAM, type Sender } from './senders'
 import { fmtDateTime } from './format'
 import SenderSelect from './SenderSelect'
 import type { MeetingBundle, Utterance, AgendaItem, Attendee } from './types'
+import { useAtriumTheme } from '../../lib/atriumTheme'
 
 // ── dark-shell style helpers ──────────────────────────────────────────────────
 const REC = '#C6402B'
-const panel: React.CSSProperties = { background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16 }
-const pHead: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 18px 12px', borderBottom: '1px solid rgba(255,255,255,0.07)' }
-const pTitle: React.CSSProperties = { fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: 14.5, color: '#EDF1EF', letterSpacing: '-0.01em' }
-const pSub: React.CSSProperties = { fontSize: 11.5, color: '#8B928E', marginTop: 2 }
-const chip: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, color: '#9FE1CB', background: 'rgba(111,190,150,0.10)', border: '1px solid rgba(111,190,150,0.22)', padding: '2px 8px', borderRadius: 100 }
+
+/**
+ * Shared surface tokens.
+ *
+ * These constants are module-level, so they can't read a hook — but every screen
+ * in this feature (list, agenda, live, wrap) is built from them. Routing them
+ * through CSS custom properties means <MeetingsView> sets the values ONCE on its
+ * root (see MTG_VARS) and all four screens follow the theme together. Previously
+ * they were hardcoded to the old forest-dark palette, which washed out to
+ * unreadable once the pillar gained the light architectural plate.
+ *
+ * The fallbacks after each `var()` are the dark values, so anything rendering
+ * outside the root still looks like it always did.
+ */
+const panel: React.CSSProperties = { background: 'var(--mtg-card, rgba(255,255,255,0.035))', border: '1px solid var(--mtg-border, rgba(255,255,255,0.10))', borderRadius: 15, backdropFilter: 'blur(16px) saturate(1.08)', WebkitBackdropFilter: 'blur(16px) saturate(1.08)', boxShadow: 'var(--mtg-shadow, 0 24px 50px -30px rgba(0,0,0,.45))' }
+const pHead: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 18px 12px', borderBottom: '1px solid var(--mtg-line, rgba(255,255,255,0.07))' }
+const pTitle: React.CSSProperties = { fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: 14.5, color: 'var(--mtg-ink, #EDF1EF)', letterSpacing: '-0.01em' }
+const pSub: React.CSSProperties = { fontSize: 11.5, color: 'var(--mtg-faint, #8B928E)', marginTop: 2 }
+const chip: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, color: 'var(--mtg-accent, #9FE1CB)', background: 'var(--mtg-accent-bg, rgba(111,190,150,0.10))', border: '1px solid var(--mtg-accent-bd, rgba(111,190,150,0.22))', padding: '2px 8px', borderRadius: 100 }
 const mono: React.CSSProperties = { fontFamily: 'monospace' }
-const inputCss: React.CSSProperties = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, color: '#EAEEEC', fontSize: 12.5, padding: '7px 10px', outline: 'none' }
-const av = (bg = 'rgba(111,190,150,0.14)', bd = 'rgba(111,190,150,0.28)', c = '#9FE1CB'): React.CSSProperties => ({ width: 30, height: 30, borderRadius: 10, background: bg, border: `1px solid ${bd}`, color: c, display: 'grid', placeItems: 'center', fontSize: 10.5, fontWeight: 700, flex: '0 0 auto' })
+const inputCss: React.CSSProperties = { background: 'var(--mtg-field, rgba(255,255,255,0.05))', border: '1px solid var(--mtg-border, rgba(255,255,255,0.12))', borderRadius: 8, color: 'var(--mtg-ink, #EAEEEC)', fontSize: 12.5, padding: '7px 10px', outline: 'none' }
+const av = (bg = 'var(--mtg-accent-bg, rgba(111,190,150,0.14))', bd = 'var(--mtg-accent-bd, rgba(111,190,150,0.28))', c = 'var(--mtg-accent, #9FE1CB)'): React.CSSProperties => ({ width: 30, height: 30, borderRadius: 10, background: bg, border: `1px solid ${bd}`, color: c, display: 'grid', placeItems: 'center', fontSize: 10.5, fontWeight: 700, flex: '0 0 auto' })
+
+/** Per-theme values for the tokens above. Applied to the feature root. */
+function mtgVars(light: boolean): React.CSSProperties {
+  return {
+    // Silver-glass sheet in light, the same faint white wash in dark.
+    ['--mtg-card' as any]: light ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.045)',
+    ['--mtg-border' as any]: light ? 'rgba(35,44,55,0.12)' : 'rgba(255,255,255,0.10)',
+    ['--mtg-line' as any]: light ? 'rgba(35,44,55,0.09)' : 'rgba(255,255,255,0.07)',
+    ['--mtg-shadow' as any]: '0 24px 50px -30px rgba(0,0,0,.45)',
+    ['--mtg-ink' as any]: light ? '#232c37' : '#eef2f5',
+    ['--mtg-ink2' as any]: light ? '#5b6672' : '#9aa7b2',
+    ['--mtg-faint' as any]: light ? '#8592a0' : '#697682',
+    ['--mtg-sel' as any]: light ? 'rgba(110,124,142,0.10)' : 'rgba(154,168,182,0.12)',
+    // Fields need to read as inset on a white sheet, not as a lighter wash.
+    ['--mtg-field' as any]: light ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.05)',
+    ['--mtg-accent' as any]: light ? '#2f9e6b' : '#9FE1CB',
+    ['--mtg-accent-bg' as any]: light ? 'rgba(47,158,107,0.10)' : 'rgba(111,190,150,0.14)',
+    ['--mtg-accent-bd' as any]: light ? 'rgba(47,158,107,0.26)' : 'rgba(111,190,150,0.28)',
+    ['--mtg-glass' as any]: light ? 'rgba(255,255,255,0.66)' : 'rgba(255,255,255,0.06)',
+  }
+}
 
 function btn(kind: 'primary' | 'glass' | 'rec' | 'quiet', extra: React.CSSProperties = {}): React.CSSProperties {
   const base: React.CSSProperties = { height: 36, padding: '0 15px', borderRadius: 10, fontSize: 12.5, fontWeight: 550, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, whiteSpace: 'nowrap', border: '1px solid transparent', ...extra }
   if (kind === 'primary') return { ...base, background: 'linear-gradient(180deg,#237A52,#14452F)', color: '#fff', border: '1px solid rgba(255,255,255,0.10)' }
   if (kind === 'rec') return { ...base, background: 'linear-gradient(180deg,#D4553E,#A6301D)', color: '#fff' }
-  if (kind === 'quiet') return { ...base, background: 'transparent', color: '#8B928E' }
-  return { ...base, background: 'rgba(255,255,255,0.06)', color: '#EAEEEC', border: '1px solid rgba(255,255,255,0.12)' }
+  if (kind === 'quiet') return { ...base, background: 'transparent', color: 'var(--mtg-faint, #8B928E)' }
+  return { ...base, background: 'var(--mtg-glass, rgba(255,255,255,0.06))', color: 'var(--mtg-ink, #EAEEEC)', border: '1px solid var(--mtg-border, rgba(255,255,255,0.12))' }
 }
 const initials = (name: string) => name.split(/[\s·]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 const iconOf = (t?: string) => t === 'project' ? '▣' : t === 'deal' ? '◎' : t === 'capital' ? '$' : '☺'
@@ -39,12 +75,12 @@ function CrmPicker({ onPick, onClose }: { onPick: (l: CrmLink) => void; onClose:
         <input autoFocus value={q} onChange={e => { setQ(e.target.value); setRes(crmSearch(e.target.value)) }} placeholder="Search projects, deals, contacts…" style={{ ...inputCss, flex: 1 }} />
         <button style={btn('quiet')} onClick={onClose}>Close</button>
       </div>
-      {res.length === 0 && <div style={{ fontSize: 12, color: '#6B726E', padding: 6 }}>No matches. Add records in the CRM pillar.</div>}
+      {res.length === 0 && <div style={{ fontSize: 12, color: 'var(--mtg-faint)', padding: 6 }}>No matches. Add records in the CRM pillar.</div>}
       <div style={{ maxHeight: 220, overflowY: 'auto' }}>
         {res.map(l => (
-          <div key={l.type + l.id} onClick={() => onPick(l)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 9, borderRadius: 9, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 6 }}>
+          <div key={l.type + l.id} onClick={() => onPick(l)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 9, borderRadius: 9, cursor: 'pointer', border: '1px solid var(--mtg-line)', marginBottom: 6 }}>
             <div style={av()}>{iconOf(l.type)}</div>
-            <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: '#EDF1EF', fontWeight: 500 }}>{l.label}</div><div style={{ fontSize: 11.5, color: '#8B928E' }}>{l.sub}</div></div>
+            <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: 'var(--mtg-ink)', fontWeight: 500 }}>{l.label}</div><div style={{ fontSize: 11.5, color: 'var(--mtg-faint)' }}>{l.sub}</div></div>
             <span style={{ color: '#6FBE96' }}>+</span>
           </div>
         ))}
@@ -58,12 +94,12 @@ function StaffMenu({ onPick, exclude = [] }: { onPick: (m: { name: string; email
   const list = TEAM.filter(m => !exclude.includes(m.email))
   return (
     <div style={{ ...panel, padding: 6, marginTop: 8, maxHeight: 240, overflowY: 'auto' }}>
-      {list.length === 0 && <div style={{ padding: 8, fontSize: 12, color: '#6B726E' }}>Everyone's already added.</div>}
+      {list.length === 0 && <div style={{ padding: 8, fontSize: 12, color: 'var(--mtg-faint)' }}>Everyone's already added.</div>}
       {list.map(m => (
         <div key={m.email} onClick={() => onPick(m)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 9, cursor: 'pointer' }}>
           <div style={av()}>{m.initials}</div>
-          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: '#EDF1EF' }}>{m.name}</div><div style={{ fontSize: 11, color: '#8B928E', ...mono }}>{m.email}</div></div>
-          <span style={{ ...mono, fontSize: 9, color: '#6B726E' }}>{m.org}</span>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: 'var(--mtg-ink)' }}>{m.name}</div><div style={{ fontSize: 11, color: 'var(--mtg-faint)', ...mono }}>{m.email}</div></div>
+          <span style={{ ...mono, fontSize: 9, color: 'var(--mtg-faint)' }}>{m.org}</span>
         </div>
       ))}
     </div>
@@ -82,40 +118,144 @@ export default function MeetingsView() {
 
   const active = bundles.find(b => b.meeting.id === activeId) || null
 
-  if (active) return <MeetingScreen bundle={active} persist={persist} onBack={() => { refresh(); setActiveId(null) }} />
-  return <MeetingsList bundles={bundles} onNew={() => openMeeting(newBundle())} onOpen={b => setActiveId(b.meeting.id)} onDelete={remove} />
+  // One wrapper carries the theme tokens for every screen below it, so the
+  // agenda / live / wrap views match the list instead of staying forest-dark.
+  // It's a transparent flex passthrough — the children still own their layout.
+  const light = useAtriumTheme() === 'light'
+  return (
+    <div style={{ ...mtgVars(light), flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      {active
+        ? <MeetingScreen bundle={active} persist={persist} onBack={() => { refresh(); setActiveId(null) }} />
+        : <MeetingsList bundles={bundles} onNew={() => openMeeting(newBundle())} onOpen={b => setActiveId(b.meeting.id)} onDelete={remove} />}
+    </div>
+  )
 }
 
 // ── LIST ──────────────────────────────────────────────────────────────────────
+/**
+ * Meetings — two-pane workspace, per the approved screen and playbook Step 7:
+ * the list on the left, and the selected meeting's agenda previewed on the right
+ * ("AGENDA · ROUTED TO CRM") so you can read what a meeting covers without
+ * opening it. It was one dark full-width list panel.
+ *
+ * Theme-aware: the pillar shell now carries the architectural plate in both
+ * themes, and the design is drawn light. Colours come from the ATRIUM tokens
+ * rather than the old hardcoded dark greens.
+ *
+ * Behaviour is unchanged — same bundles, same onOpen/onNew/onDelete, same
+ * status values. Clicking a row still opens the meeting; the preview is a
+ * read-only summary of what is already in the bundle.
+ */
 function MeetingsList({ bundles, onNew, onOpen, onDelete }: { bundles: MeetingBundle[]; onNew: () => void; onOpen: (b: MeetingBundle) => void; onDelete: (id: string) => void }) {
-  const badge = (s: string) => ({ scheduled: ['#8B928E', 'Scheduled'], recording: [REC, 'Recording'], ended: ['#9FE1CB', 'Ended'], sent: ['#6FBE96', 'Sent'] } as Record<string, [string, string]>)[s] || ['#8B928E', s]
+  const theme = useAtriumTheme()
+  const light = theme === 'light'
+  const T = {
+    ink: light ? '#232c37' : '#eef2f5',
+    ink2: light ? '#5b6672' : '#9aa7b2',
+    faint: light ? '#8592a0' : '#697682',
+    card: light ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.045)',
+    border: light ? 'rgba(35,44,55,0.12)' : 'rgba(255,255,255,0.10)',
+    line: light ? 'rgba(35,44,55,0.09)' : 'rgba(255,255,255,0.07)',
+    sel: light ? 'rgba(110,124,142,0.10)' : 'rgba(154,168,182,0.12)',
+    chipBg: light ? 'rgba(47,158,107,0.10)' : 'rgba(87,192,138,0.14)',
+  }
+  const badge = (s: string): [string, string] => ({
+    scheduled: [T.faint, 'Draft'], recording: [REC, 'Recording'],
+    ended: [light ? '#5878a8' : '#6f92c9', 'Ended'], sent: [light ? '#2f9e6b' : '#57c08a', 'Sent'],
+  } as Record<string, [string, string]>)[s] || [T.faint, s]
+
+  // The pane on the right previews whichever meeting is selected; first by default.
+  const [selId, setSelId] = useState<string | null>(null)
+  const sel = bundles.find(b => b.meeting.id === selId) ?? bundles[0]
+
+  const panelStyle: React.CSSProperties = {
+    background: T.card, border: `1px solid ${T.border}`, borderRadius: 15,
+    backdropFilter: 'blur(16px) saturate(1.08)', WebkitBackdropFilter: 'blur(16px) saturate(1.08)',
+    boxShadow: '0 24px 50px -30px rgba(0,0,0,.45)', overflow: 'hidden',
+  }
+  const eyebrow: React.CSSProperties = {
+    fontSize: 9.5, letterSpacing: '0.22em', color: T.faint, textTransform: 'uppercase', fontWeight: 600,
+  }
+
   return (
-    <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', color: '#EAEEEC', padding: 26, overflowY: 'auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
+    <div style={{ flex: 1, minHeight: 0, color: T.ink, padding: '26px 30px 80px', overflowY: 'auto', maxWidth: 1300, width: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap', marginBottom: 22 }}>
         <div>
-          <div style={{ fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: 22, color: '#F3F6F4' }}>Meetings</div>
-          <div style={{ fontSize: 12.5, color: '#8B928E', marginTop: 3 }}>Agendas, live recording & translation, records routed to the CRM</div>
+          <div style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 40, lineHeight: 1, color: T.ink }}>Meetings</div>
+          <div style={{ fontSize: 13, color: T.ink2, marginTop: 10 }}>Agendas, live recording &amp; translation, records routed to the CRM.</div>
         </div>
         <button style={{ ...btn('primary'), marginLeft: 'auto', height: 40 }} onClick={onNew}>+ New meeting</button>
       </div>
-      <div style={panel}>
-        <div style={pHead}><div style={pTitle}>All meetings</div><div style={pSub}>{bundles.length}</div></div>
-        {bundles.length === 0 && <div style={{ padding: 30, color: '#6B726E', fontSize: 13 }}>No meetings yet — click "New meeting" to build an agenda.</div>}
-        {bundles.map(b => {
-          const [col, lbl] = badge(b.meeting.status)
-          return (
-            <div key={b.meeting.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 18px', borderTop: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' }} onClick={() => onOpen(b)}>
-              <div style={av()}>▤</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: '#EDF1EF' }}>{b.meeting.title}</div>
-                <div style={{ fontSize: 11.5, color: '#8B928E', marginTop: 2 }}>{fmtDateTime(b.meeting.startsAt)} · {b.agenda.length} items · {b.attendees.length} attendees{b.meeting.locationLabel ? ` · ${b.meeting.locationLabel}` : ''}</div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16, alignItems: 'start' }} className="mtg-two">
+        {/* ── Left: the list ── */}
+        <div style={panelStyle}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 20px' }}>
+            <span style={eyebrow}>All meetings</span>
+            <span style={{ ...eyebrow, letterSpacing: 0 }}>{bundles.length}</span>
+          </div>
+          {bundles.length === 0 && <div style={{ padding: '30px 20px', color: T.faint, fontSize: 13 }}>No meetings yet — click “New meeting” to build an agenda.</div>}
+          {bundles.map(b => {
+            const [col, lbl] = badge(b.meeting.status)
+            const isSel = sel && b.meeting.id === sel.meeting.id
+            return (
+              <div key={b.meeting.id}
+                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderTop: `1px solid ${T.line}`, cursor: 'pointer', background: isSel ? T.sel : 'transparent', transition: '.15s' }}
+                onClick={() => setSelId(b.meeting.id)}
+                onDoubleClick={() => onOpen(b)}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: T.chipBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: light ? '#2f9e6b' : '#57c08a', flex: 'none', fontSize: 14 }}>▤</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 500, color: T.ink }}>{b.meeting.title}</div>
+                  <div style={{ fontSize: 11, color: T.faint, marginTop: 2 }}>{fmtDateTime(b.meeting.startsAt)} · {b.agenda.length} items · {b.attendees.length} attendees{b.meeting.locationLabel ? ` · ${b.meeting.locationLabel}` : ''}</div>
+                </div>
+                <span style={{ ...mono, fontSize: 8.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 600, color: col, background: `${col}1f`, borderRadius: 14, padding: '5px 11px' }}>{lbl}</span>
+                <button style={{ ...btn('quiet'), width: 30, height: 30, padding: 0 }} title="Delete"
+                  onClick={e => { e.stopPropagation(); if (confirm('Delete this meeting?')) onDelete(b.meeting.id) }}>×</button>
               </div>
-              <span style={{ ...mono, fontSize: 10, color: col, border: `1px solid ${col}55`, borderRadius: 100, padding: '3px 9px' }}>{lbl}</span>
-              <button style={{ ...btn('quiet'), width: 32, height: 32, padding: 0 }} title="Delete" onClick={e => { e.stopPropagation(); if (confirm('Delete this meeting?')) onDelete(b.meeting.id) }}>×</button>
+            )
+          })}
+          {bundles.length > 0 && (
+            <div style={{ padding: '12px 20px 16px', fontSize: 10.5, color: T.faint, borderTop: `1px solid ${T.line}` }}>
+              Click to preview · double-click to open
             </div>
-          )
-        })}
+          )}
+        </div>
+
+        {/* ── Right: agenda preview of the selected meeting ── */}
+        {sel && (
+          <div style={{ ...panelStyle, padding: '22px 24px' }}>
+            <div style={eyebrow}>Agenda · routed to CRM</div>
+            <h3 style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontSize: 22, fontWeight: 500, margin: '8px 0 0', color: T.ink }}>{sel.meeting.title}</h3>
+            <div style={{ fontSize: 12, color: T.ink2, marginTop: 6 }}>
+              {fmtDateTime(sel.meeting.startsAt)}{sel.meeting.locationLabel ? ` · ${sel.meeting.locationLabel}` : ''}
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+              {sel.meeting.status === 'recording' && (
+                <span style={{ ...mono, fontSize: 8.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 600, color: REC, border: `1px solid ${REC}55`, borderRadius: 14, padding: '5px 11px' }}>● Recording</span>
+              )}
+              <span style={{ ...mono, fontSize: 8.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 600, color: T.ink2, background: T.sel, borderRadius: 14, padding: '5px 11px' }}>
+                {sel.attendees.length} attendee{sel.attendees.length === 1 ? '' : 's'}
+              </span>
+            </div>
+
+            {sel.agenda.length === 0 && <div style={{ fontSize: 12.5, color: T.faint, marginTop: 18 }}>No agenda items yet.</div>}
+            {sel.agenda.map((a, i) => (
+              <div key={a.id ?? i} style={{ display: 'flex', gap: 14, padding: '14px 0', borderTop: i === 0 ? 'none' : `1px solid ${T.line}`, marginTop: i === 0 ? 10 : 0 }}>
+                <span style={{ ...mono, fontSize: 11, color: T.faint, flex: 'none' }}>{String(i + 1).padStart(2, '0')}</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 500, color: T.ink }}>{a.title || 'Item'}</div>
+                  {a.ownerId && <div style={{ fontSize: 11, color: T.faint, marginTop: 2 }}>Owner: {a.ownerId}</div>}
+                </div>
+              </div>
+            ))}
+
+            <button style={{ ...btn('quiet'), marginTop: 18, width: '100%' }} onClick={() => onOpen(sel)}>Open meeting →</button>
+          </div>
+        )}
       </div>
+
+      <style>{`@media(max-width:980px){.mtg-two{grid-template-columns:1fr !important}}`}</style>
     </div>
   )
 }
@@ -125,6 +265,7 @@ function MeetingScreen({ bundle, persist, onBack }: { bundle: MeetingBundle; per
   const [view, setView] = useState<'agenda' | 'live' | 'wrap'>('agenda')
   const [cal, setCal] = useState<string | null>(null)
   const [calBusy, setCalBusy] = useState(false)
+  const light = useAtriumTheme() === 'light'   // only for `colorScheme` on native date pickers
   const m = bundle.meeting
   const setMeeting = (patch: Partial<typeof m>) => persist({ ...bundle, meeting: { ...m, ...patch } })
 
@@ -148,31 +289,36 @@ function MeetingScreen({ bundle, persist, onBack }: { bundle: MeetingBundle; per
   }
 
   return (
-    <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', color: '#EAEEEC' }}>
-      <div style={{ padding: '14px 26px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+    <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', color: 'var(--mtg-ink)' }}>
+      {/* Meeting chrome — same silver-glass language as the list screen: serif
+          title, hairline rule, eyebrow tabs. Was a dark bar with a white title
+          and grey tabs, which is what washed out on the light plate. */}
+      <div style={{ padding: '18px 30px 14px', borderBottom: '1px solid var(--mtg-line)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         <button style={btn('quiet')} onClick={onBack}>← All meetings</button>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <input value={m.title} onChange={e => setMeeting({ title: e.target.value })} style={{ width: '100%', background: 'none', border: 'none', color: '#F3F6F4', fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: 19, outline: 'none' }} />
-          <div style={{ display: 'flex', gap: 12, marginTop: 4, flexWrap: 'wrap', alignItems: 'center' }}>
-            <input type="datetime-local" value={m.startsAt} onChange={e => setMeeting({ startsAt: e.target.value })} style={{ ...inputCss, padding: '4px 8px', fontSize: 11.5, colorScheme: 'dark' }} />
+          <input value={m.title} onChange={e => setMeeting({ title: e.target.value })}
+            style={{ width: '100%', background: 'none', border: 'none', color: 'var(--mtg-ink)', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 28, letterSpacing: '-0.01em', outline: 'none' }} />
+          <div style={{ display: 'flex', gap: 10, marginTop: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            <input type="datetime-local" value={m.startsAt} onChange={e => setMeeting({ startsAt: e.target.value })} style={{ ...inputCss, padding: '4px 8px', fontSize: 11.5, colorScheme: light ? 'light' : 'dark' }} />
             <input value={m.locationLabel || ''} onChange={e => setMeeting({ locationLabel: e.target.value })} placeholder="Location" style={{ ...inputCss, padding: '4px 8px', fontSize: 11.5, width: 180 }} />
           </div>
         </div>
-        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: 3, border: '1px solid rgba(255,255,255,0.08)', alignSelf: 'flex-start' }}>
+        <div style={{ display: 'inline-flex', background: 'var(--mtg-sel)', borderRadius: 12, padding: 3, border: '1px solid var(--mtg-border)', alignSelf: 'flex-start' }}>
           {(['agenda', 'live', 'wrap'] as const).map(v => (
-            <button key={v} onClick={() => setView(v)} style={{ border: 0, background: view === v ? 'rgba(255,255,255,0.12)' : 'transparent', color: view === v ? '#fff' : '#8B928E', fontSize: 12.5, fontWeight: view === v ? 600 : 500, padding: '7px 16px', borderRadius: 8, cursor: 'pointer' }}>
-              {v === 'wrap' ? 'Wrap-up' : v[0].toUpperCase() + v.slice(1)}
+            <button key={v} onClick={() => setView(v)}
+              style={{ border: 0, background: view === v ? 'var(--mtg-card)' : 'transparent', color: view === v ? 'var(--mtg-ink)' : 'var(--mtg-faint)', fontSize: 9.5, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: view === v ? 700 : 600, padding: '9px 16px', borderRadius: 9, cursor: 'pointer', boxShadow: view === v ? '0 2px 8px rgba(0,0,0,.10)' : 'none', transition: '.15s' }}>
+              {v === 'wrap' ? 'Wrap-up' : v}
             </button>
           ))}
         </div>
-        <div style={{ flexBasis: '100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flexBasis: '100%', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginTop: 4 }}>
           <button style={btn('glass')} disabled={calBusy} onClick={scheduleOutlook}>📅 {m.calendarEventId ? 'Re-sync Outlook' : 'Schedule in Outlook'}</button>
           {m.teamsJoinUrl && <a href={m.teamsJoinUrl} target="_blank" rel="noreferrer" style={{ ...btn('primary'), textDecoration: 'none' }}>Join Teams meeting →</a>}
-          {m.webLink && <a href={m.webLink} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: '#8B928E' }}>Open in Outlook</a>}
-          {cal && <span style={{ fontSize: 11.5, color: '#9FE1CB', ...mono }}>{cal}</span>}
+          {m.webLink && <a href={m.webLink} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: 'var(--mtg-faint)' }}>Open in Outlook</a>}
+          {cal && <span style={{ fontSize: 11.5, color: 'var(--mtg-accent)', ...mono }}>{cal}</span>}
         </div>
       </div>
-      <div style={{ padding: 22, overflowY: 'auto', flex: 1 }}>
+      <div style={{ padding: '22px 30px 80px', overflowY: 'auto', flex: 1, maxWidth: 1300, width: '100%' }}>
         {view === 'agenda' && <Agenda bundle={bundle} persist={persist} onStart={() => setView('live')} />}
         {view === 'live' && <Live bundle={bundle} persist={persist} onEnd={() => setView('wrap')} />}
         {view === 'wrap' && <Wrap bundle={bundle} persist={persist} />}
@@ -216,18 +362,18 @@ function Agenda({ bundle, persist, onStart }: { bundle: MeetingBundle; persist: 
           <div><div style={pTitle}>Agenda</div><div style={pSub}>{bundle.agenda.length} items · {totalMin} min</div></div>
           <button style={btn('glass', { height: 32 })} onClick={addItem}>+ Add item</button>
         </div>
-        {bundle.agenda.length === 0 && <div style={{ padding: 20, color: '#6B726E', fontSize: 13 }}>No items yet. Click "+ Add item", or "Pull from CRM" on the right to build the agenda from a project, deal or contact.</div>}
+        {bundle.agenda.length === 0 && <div style={{ padding: 20, color: 'var(--mtg-faint)', fontSize: 13 }}>No items yet. Click "+ Add item", or "Pull from CRM" on the right to build the agenda from a project, deal or contact.</div>}
         {bundle.agenda.map((a, i) => (
-          <div key={a.id} style={{ padding: '12px 18px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div key={a.id} style={{ padding: '12px 18px', borderTop: '1px solid var(--mtg-line)' }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(111,190,150,0.12)', color: '#9FE1CB', ...mono, fontSize: 11, fontWeight: 600, display: 'grid', placeItems: 'center', flex: '0 0 auto', marginTop: 3 }}>{i + 1}</div>
+              <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(111,190,150,0.12)', color: 'var(--mtg-accent)', ...mono, fontSize: 11, fontWeight: 600, display: 'grid', placeItems: 'center', flex: '0 0 auto', marginTop: 3 }}>{i + 1}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <input value={a.title} onChange={e => editItem(a.id, { title: e.target.value })} placeholder="Agenda item…" style={{ width: '100%', background: 'none', border: 'none', color: '#EDF1EF', fontSize: 14, fontWeight: 500, outline: 'none' }} />
+                <input value={a.title} onChange={e => editItem(a.id, { title: e.target.value })} placeholder="Agenda item…" style={{ width: '100%', background: 'none', border: 'none', color: 'var(--mtg-ink)', fontSize: 14, fontWeight: 500, outline: 'none' }} />
                 <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                   {a.linkId && <span style={chip}>{iconOf(a.linkType || '')} {linkLabel(a)}<span onClick={() => editItem(a.id, { linkType: null, linkId: null })} style={{ cursor: 'pointer', marginLeft: 2 }}>×</span></span>}
                   {!a.linkId && <button style={{ ...btn('quiet', { height: 24, padding: '0 8px', fontSize: 11 }) }} onClick={() => setPickFor(pickFor === a.id ? null : a.id)}>+ Link CRM</button>}
                   <input value={a.ownerId || ''} onChange={e => editItem(a.id, { ownerId: e.target.value })} placeholder="Owner" style={{ ...inputCss, padding: '3px 8px', fontSize: 11, width: 90 }} />
-                  <input type="number" value={a.minutes} onChange={e => editItem(a.id, { minutes: parseInt(e.target.value) || 0 })} style={{ ...inputCss, padding: '3px 8px', fontSize: 11, width: 54 }} /><span style={{ fontSize: 11, color: '#6B726E' }}>min</span>
+                  <input type="number" value={a.minutes} onChange={e => editItem(a.id, { minutes: parseInt(e.target.value) || 0 })} style={{ ...inputCss, padding: '3px 8px', fontSize: 11, width: 54 }} /><span style={{ fontSize: 11, color: 'var(--mtg-faint)' }}>min</span>
                 </div>
                 {pickFor === a.id && <CrmPicker onPick={l => attachLink(a.id, l)} onClose={() => setPickFor(null)} />}
               </div>
@@ -262,7 +408,7 @@ function Agenda({ bundle, persist, onStart }: { bundle: MeetingBundle; persist: 
             {bundle.attendees.map(at => (
               <div key={at.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 9 }}>
                 <div style={av()}>{initials(at.displayName)}</div>
-                <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: '#EDF1EF' }}>{at.displayName}</div>{at.email && <div style={{ fontSize: 11, color: '#8B928E', ...mono }}>{at.email}</div>}</div>
+                <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, color: 'var(--mtg-ink)' }}>{at.displayName}</div>{at.email && <div style={{ fontSize: 11, color: 'var(--mtg-faint)', ...mono }}>{at.email}</div>}</div>
                 <button style={{ ...btn('quiet', { width: 26, height: 26, padding: 0 }) }} onClick={() => setAttendees(bundle.attendees.filter(x => x.id !== at.id))}>×</button>
               </div>
             ))}
@@ -308,18 +454,18 @@ function Live({ bundle, persist, onEnd }: { bundle: MeetingBundle; persist: (b: 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', ...panel, marginBottom: 16 }}>
-        <span className={recording ? 'mtg-recdot' : ''} style={{ width: 11, height: 11, borderRadius: '50%', background: recording ? REC : '#6B726E', flex: '0 0 auto' }} />
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#F3F6F4' }}>{recording ? 'Recording' : 'Stopped'}</span>
+        <span className={recording ? 'mtg-recdot' : ''} style={{ width: 11, height: 11, borderRadius: '50%', background: recording ? REC : 'var(--mtg-faint)', flex: '0 0 auto' }} />
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--mtg-ink)' }}>{recording ? 'Recording' : 'Stopped'}</span>
         <span style={{ ...mono, fontSize: 13, color: '#B9C0BC' }}>{clock(secs)}</span>
         <div className="mtg-wave" style={{ display: 'flex', alignItems: 'center', gap: 2.5, height: 24, flex: 1, maxWidth: 200 }} aria-hidden>{Array.from({ length: 12 }).map((_, i) => <i key={i} style={{ width: 3, borderRadius: 2, background: recording ? '#38996B' : '#3A3F3C', animationDelay: `${(i % 5) * 0.1}s`, animationPlayState: recording ? 'running' : 'paused' }} />)}</div>
-        <span style={{ ...mono, fontSize: 10, color: mode === 'azure' ? '#9FE1CB' : '#8B928E', border: '1px solid rgba(255,255,255,0.14)', padding: '4px 9px', borderRadius: 100 }}>{mode === 'azure' ? '● Azure live · 中文→EN' : mode === 'mock' ? 'demo transcript' : 'connecting…'}</span>
+        <span style={{ ...mono, fontSize: 10, color: mode === 'azure' ? 'var(--mtg-accent)' : 'var(--mtg-faint)', border: '1px solid rgba(255,255,255,0.14)', padding: '4px 9px', borderRadius: 100 }}>{mode === 'azure' ? '● Azure live · 中文→EN' : mode === 'mock' ? 'demo transcript' : 'connecting…'}</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.5fr) minmax(0,1fr)', gap: 16 }} className="mtg-grid">
         <div style={panel}>
           <div style={pHead}><div><div style={pTitle}>Live transcript</div><div style={pSub}>Original + English · speaker-labelled</div></div></div>
           <div style={{ padding: '6px 0' }}>
-            {utts.length === 0 && <div style={{ padding: '30px 18px', color: '#6B726E', fontSize: 13 }}>{mode === 'azure' ? 'Listening… speak and it will transcribe + translate live.' : 'Listening…'}</div>}
+            {utts.length === 0 && <div style={{ padding: '30px 18px', color: 'var(--mtg-faint)', fontSize: 13 }}>{mode === 'azure' ? 'Listening… speak and it will transcribe + translate live.' : 'Listening…'}</div>}
             {utts.map(u => <UtteranceRow key={u.id} u={u} />)}
             <div ref={endRef} />
           </div>
@@ -329,18 +475,18 @@ function Live({ bundle, persist, onEnd }: { bundle: MeetingBundle; persist: (b: 
             <div style={pHead}><div><div style={pTitle}>Agenda</div><div style={pSub}>Tick off as you go</div></div></div>
             <div style={{ padding: '4px 0' }}>
               {bundle.agenda.map(a => (
-                <div key={a.id} onClick={() => persist({ ...bundle, agenda: bundle.agenda.map(x => x.id === a.id ? { ...x, state: x.state === 'done' ? 'pending' : 'done' } : x) })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: 13, cursor: 'pointer' }}>
+                <div key={a.id} onClick={() => persist({ ...bundle, agenda: bundle.agenda.map(x => x.id === a.id ? { ...x, state: x.state === 'done' ? 'pending' : 'done' } : x) })} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px', borderTop: '1px solid var(--mtg-line)', fontSize: 13, cursor: 'pointer' }}>
                   <span style={{ width: 16, height: 16, borderRadius: '50%', flex: '0 0 auto', border: `2px solid ${a.state === 'done' ? '#237A52' : 'rgba(255,255,255,0.2)'}`, background: a.state === 'done' ? '#237A52' : 'transparent', display: 'grid', placeItems: 'center', color: '#fff', fontSize: 9 }}>{a.state === 'done' ? '✓' : ''}</span>
-                  <span style={{ color: a.state === 'done' ? '#8B928E' : '#D6DAD9', textDecoration: a.state === 'done' ? 'line-through' : 'none' }}>{a.title || 'Untitled'}</span>
+                  <span style={{ color: a.state === 'done' ? 'var(--mtg-faint)' : '#D6DAD9', textDecoration: a.state === 'done' ? 'line-through' : 'none' }}>{a.title || 'Untitled'}</span>
                 </div>
               ))}
-              {bundle.agenda.length === 0 && <div style={{ padding: '10px 18px', color: '#6B726E', fontSize: 12 }}>No agenda items.</div>}
+              {bundle.agenda.length === 0 && <div style={{ padding: '10px 18px', color: 'var(--mtg-faint)', fontSize: 12 }}>No agenda items.</div>}
             </div>
           </div>
           <div style={panel}>
             <div style={{ padding: '16px 18px' }}>
               {[['Elapsed', clock(secs)], ['Lines captured', String(finals.length)], ['Translated', String(finals.filter(u => u.sourceLang === 'zh').length)]].map(([k, v]) => (
-                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.06)' }}><span style={{ fontSize: 12.5, color: '#8B928E' }}>{k}</span><span style={{ ...mono, fontSize: 13, fontWeight: 600, color: '#EDF1EF' }}>{v}</span></div>
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderTop: '1px solid var(--mtg-line)' }}><span style={{ fontSize: 12.5, color: 'var(--mtg-faint)' }}>{k}</span><span style={{ ...mono, fontSize: 13, fontWeight: 600, color: 'var(--mtg-ink)' }}>{v}</span></div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 10, padding: '0 18px 16px' }}>
@@ -356,14 +502,14 @@ function Live({ bundle, persist, onEnd }: { bundle: MeetingBundle; persist: (b: 
 
 function UtteranceRow({ u }: { u: Utterance }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '104px 1fr', gap: 14, padding: '13px 18px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '104px 1fr', gap: 14, padding: '13px 18px', borderTop: '1px solid var(--mtg-line)' }}>
       <div>
-        <div style={{ fontSize: 12.5, fontWeight: 600, color: '#EDF1EF' }}>{u.speaker}</div>
-        <div style={{ ...mono, fontSize: 10.5, color: '#6B726E' }}>{u.isFinal ? `${String(Math.floor(u.tsMs / 60000)).padStart(2, '0')}:${String(Math.floor(u.tsMs / 1000) % 60).padStart(2, '0')}` : 'now'}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--mtg-ink)' }}>{u.speaker}</div>
+        <div style={{ ...mono, fontSize: 10.5, color: 'var(--mtg-faint)' }}>{u.isFinal ? `${String(Math.floor(u.tsMs / 60000)).padStart(2, '0')}:${String(Math.floor(u.tsMs / 1000) % 60).padStart(2, '0')}` : 'now'}</div>
       </div>
       <div>
-        {u.sourceLang === 'zh' && <div style={{ fontFamily: "'Noto Sans SC', sans-serif", fontSize: 14, color: '#8B928E', lineHeight: 1.5 }}>{u.original}{!u.isFinal && <Caret />}</div>}
-        <div style={{ fontSize: 14.5, color: u.isFinal ? '#E6EBE8' : '#8B928E', lineHeight: 1.55, marginTop: u.sourceLang === 'zh' ? 5 : 0 }}>{u.sourceLang === 'zh' ? (u.translation || '') : u.original}{!u.isFinal && u.sourceLang === 'en' && <Caret />}</div>
+        {u.sourceLang === 'zh' && <div style={{ fontFamily: "'Noto Sans SC', sans-serif", fontSize: 14, color: 'var(--mtg-faint)', lineHeight: 1.5 }}>{u.original}{!u.isFinal && <Caret />}</div>}
+        <div style={{ fontSize: 14.5, color: u.isFinal ? '#E6EBE8' : 'var(--mtg-faint)', lineHeight: 1.55, marginTop: u.sourceLang === 'zh' ? 5 : 0 }}>{u.sourceLang === 'zh' ? (u.translation || '') : u.original}{!u.isFinal && u.sourceLang === 'en' && <Caret />}</div>
       </div>
     </div>
   )
@@ -431,8 +577,8 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
         <div style={pHead}><div><div style={pTitle}>Meeting record</div><div style={pSub}>Editable · {bundle.utterances.length} transcript lines</div></div></div>
         <div style={{ padding: '16px 18px' }}>
           <div style={field}><label style={label}>Summary</label><textarea value={summary} onChange={e => setSummary(e.target.value)} style={{ ...ta, minHeight: 90 }} /></div>
-          <div style={field}><label style={label}>Decisions <span style={{ color: '#6B726E', fontWeight: 400 }}>(one per line)</span></label><textarea value={decisions} onChange={e => setDecisions(e.target.value)} style={ta} /></div>
-          <div style={field}><label style={label}>Actions <span style={{ color: '#6B726E', fontWeight: 400 }}>(one per line · owner · due)</span></label><textarea value={actions} onChange={e => setActions(e.target.value)} style={ta} /></div>
+          <div style={field}><label style={label}>Decisions <span style={{ color: 'var(--mtg-faint)', fontWeight: 400 }}>(one per line)</span></label><textarea value={decisions} onChange={e => setDecisions(e.target.value)} style={ta} /></div>
+          <div style={field}><label style={label}>Actions <span style={{ color: 'var(--mtg-faint)', fontWeight: 400 }}>(one per line · owner · due)</span></label><textarea value={actions} onChange={e => setActions(e.target.value)} style={ta} /></div>
         </div>
       </div>
 
@@ -445,14 +591,14 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
               {routeOpts.map(r => {
                 const sel = route?.id === r.id
                 return (
-                  <div key={r.id} onClick={() => setRoute(sel ? null : r)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 10, border: `1.5px solid ${sel ? 'rgba(111,190,150,0.5)' : 'rgba(255,255,255,0.10)'}`, borderRadius: 11, cursor: 'pointer', background: sel ? 'rgba(35,122,82,0.14)' : 'transparent' }}>
+                  <div key={r.id} onClick={() => setRoute(sel ? null : r)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 10, border: `1.5px solid ${sel ? 'rgba(111,190,150,0.5)' : 'var(--mtg-border)'}`, borderRadius: 11, cursor: 'pointer', background: sel ? 'rgba(35,122,82,0.14)' : 'transparent' }}>
                     <div style={av()}>{iconOf(r.type)}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, fontWeight: 600, color: '#EDF1EF' }}>{r.label}</div><div style={{ fontSize: 11.5, color: '#8B928E' }}>{r.sub}</div></div>
+                    <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--mtg-ink)' }}>{r.label}</div><div style={{ fontSize: 11.5, color: 'var(--mtg-faint)' }}>{r.sub}</div></div>
                     <span style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${sel ? '#6FBE96' : 'rgba(255,255,255,0.2)'}`, background: sel ? '#237A52' : 'transparent', flex: '0 0 auto' }} />
                   </div>
                 )
               })}
-              {routeOpts.length === 0 && <div style={{ fontSize: 12, color: '#6B726E' }}>No CRM records yet — add them in the CRM pillar.</div>}
+              {routeOpts.length === 0 && <div style={{ fontSize: 12, color: 'var(--mtg-faint)' }}>No CRM records yet — add them in the CRM pillar.</div>}
             </div>
           </div>
 
@@ -462,7 +608,7 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
             <label style={label}>To</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 8 }}>
               {recips.map((r, i) => (
-                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 8px 6px 6px', background: 'rgba(111,190,150,0.10)', border: '1px solid rgba(111,190,150,0.22)', borderRadius: 100, color: '#9FE1CB' }}>
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 8px 6px 6px', background: 'rgba(111,190,150,0.10)', border: '1px solid rgba(111,190,150,0.22)', borderRadius: 100, color: 'var(--mtg-accent)' }}>
                   <span style={{ ...av(), width: 18, height: 18, borderRadius: 6, fontSize: 8 }}>{initials(r.name || r.email)}</span>{r.name || r.email}
                   <span onClick={() => setRecips(recips.filter((_, j) => j !== i))} style={{ cursor: 'pointer', fontSize: 14, lineHeight: 1 }}>×</span>
                 </span>
@@ -476,16 +622,16 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
             {recStaff && <StaffMenu exclude={recips.map(r => r.email)} onPick={m => setRecips([...recips, { name: m.name, email: m.email }])} />}
           </div>
 
-          <div style={field}><label style={label}>Attachments</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{['Transcript_EN.pdf', 'Transcript_中英.pdf'].map(f => <span key={f} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '8px 11px', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 9, background: 'rgba(255,255,255,0.03)', color: '#B9C0BC' }}>📄 {f}</span>)}</div></div>
+          <div style={field}><label style={label}>Attachments</label><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{['Transcript_EN.pdf', 'Transcript_中英.pdf'].map(f => <span key={f} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '8px 11px', border: '1px solid var(--mtg-border)', borderRadius: 9, background: 'var(--mtg-sel)', color: '#B9C0BC' }}>📄 {f}</span>)}</div></div>
 
           <Toggle on={incSummary} set={setIncSummary} label="Include summary & actions in email body" />
           <Toggle on={makeTasks} set={setMakeTasks} label="Create CRM tasks from actions" />
         </div>
-        <div style={{ display: 'flex', gap: 10, padding: '16px 18px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ display: 'flex', gap: 10, padding: '16px 18px', borderTop: '1px solid var(--mtg-line)' }}>
           <button style={{ ...btn('glass'), flex: 1 }} disabled={busy} onClick={() => send(false)}>Save only</button>
           <button style={{ ...btn('primary'), flex: 1.4, opacity: busy ? 0.6 : 1 }} disabled={busy} onClick={() => send(true)}>{busy ? 'Sending…' : 'Save to CRM & send'}</button>
         </div>
-        {status && <div style={{ padding: '10px 18px 16px', fontSize: 11.5, color: '#9FE1CB', ...mono }}>{status}</div>}
+        {status && <div style={{ padding: '10px 18px 16px', fontSize: 11.5, color: 'var(--mtg-accent)', ...mono }}>{status}</div>}
       </div>
     </div>
   )
@@ -493,9 +639,9 @@ function Wrap({ bundle, persist }: { bundle: MeetingBundle; persist: (b: Meeting
 
 function Toggle({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: 13, color: '#D6DAD9' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid var(--mtg-line)', fontSize: 13, color: '#D6DAD9' }}>
       <span>{label}</span>
-      <button role="switch" aria-checked={on} aria-label={label} onClick={() => set(!on)} style={{ width: 42, height: 25, borderRadius: 100, background: on ? '#237A52' : 'rgba(255,255,255,0.15)', position: 'relative', cursor: 'pointer', border: 'none', flex: '0 0 auto' }}>
+      <button role="switch" aria-checked={on} aria-label={label} onClick={() => set(!on)} style={{ width: 42, height: 25, borderRadius: 100, background: on ? '#237A52' : 'var(--mtg-border)', position: 'relative', cursor: 'pointer', border: 'none', flex: '0 0 auto' }}>
         <span style={{ position: 'absolute', top: 2, left: on ? 19 : 2, width: 21, height: 21, borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
       </button>
     </div>
