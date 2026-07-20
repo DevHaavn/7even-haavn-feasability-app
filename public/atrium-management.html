@@ -38,8 +38,9 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--void);color:var(--sil-1);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-::selection{background:var(--f-500);color:#fff}
-:focus-visible{outline:2px solid var(--f-400);outline-offset:2px;border-radius:6px}
+/* Selection and focus are brand furniture, not status — silver, not green. */
+::selection{background:var(--silver);color:#0b1015}
+:focus-visible{outline:2px solid var(--silver-hi);outline-offset:2px;border-radius:6px}
 button{font-family:inherit}
 .carbon{background-color:#0b0f0e;
  background-image:linear-gradient(27deg,#1b2226 6px,transparent 6px) 0 6px,linear-gradient(207deg,#1b2226 6px,transparent 6px) 12px 0,
@@ -50,7 +51,7 @@ button{font-family:inherit}
 .sheen::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,rgba(224,232,234,.09),transparent 36%,transparent 64%,rgba(224,232,234,.05));mix-blend-mode:screen}
 .sil-txt{background:var(--sil-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .livery{display:inline-flex;align-items:center;height:5px;width:130px;border-radius:3px;overflow:hidden}
-.livery .g{width:34px;height:100%;background:linear-gradient(180deg,var(--f-400),var(--f-700))}
+.livery .g{width:34px;height:100%;background:linear-gradient(180deg,var(--silver-hi),var(--sil-4))}
 .livery .s{flex:1;height:100%;background:var(--brushed)}
 .mono{font-family:var(--mono)}
 
@@ -138,10 +139,18 @@ button{font-family:inherit}
 .wcard{background:#fff;border-radius:var(--r-m);padding:16px 18px 17px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
 .wcard .bz{position:absolute;top:0;left:0;right:0;height:3px;background:var(--brushed)}
 .wcard .k{font-size:11px;color:var(--mute);margin-top:5px;font-weight:500}
-.wcard .v{font-family:var(--disp);font-weight:600;font-size:29px;color:var(--f-600);letter-spacing:-.03em;margin-top:6px;line-height:1}
+/* KPI value is INK by default, and mono. It was green on every card, which
+   spent the signal colour on figures carrying no status — the preview colours a
+   value only when it means something (positive / caution / risk / silver). */
+.wcard .v{font-family:var(--mono);font-weight:600;font-size:29px;color:var(--sil-1);letter-spacing:-.03em;margin-top:6px;line-height:1}
+.main.light .wcard .v{color:var(--ink)}
 .wcard .d{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:8px;letter-spacing:.03em}
-.wcard.green{background:linear-gradient(160deg,var(--f-600),var(--f-800))}
-.wcard.green .k{color:rgba(220,237,228,.82)}.wcard.green .v{color:#fff}.wcard.green .d{color:rgba(220,237,228,.6)}
+/* Feature card: solid green slab -> the silver-glass wash. Class name kept so
+   no markup changes; only its appearance does. */
+.wcard.green{background:linear-gradient(150deg,var(--silver-soft),var(--card));border-color:var(--silver-line)}
+.wcard.green .k{color:var(--sil-3)}.wcard.green .v{color:var(--silver-hi)}.wcard.green .d{color:var(--sil-4)}
+.main.light .wcard.green{background:linear-gradient(150deg,rgba(110,124,142,.13),rgba(255,255,255,.72));border-color:rgba(110,124,142,.4)}
+.main.light .wcard.green .k{color:var(--mute)}.main.light .wcard.green .v{color:#4a5a6e}.main.light .wcard.green .d{color:var(--faint)}
 
 /* project cards (dark) */
 .projgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
