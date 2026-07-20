@@ -198,6 +198,39 @@ button{font-family:inherit}
 .fzcard .fopen:hover{color:var(--ink)}
 .fzempty{background:#fff;border:1px solid var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--mute);font-size:13px}
 @media(max-width:1080px){.fzgrid{grid-template-columns:1fr}}
+/* Accounts — payables register */
+.fgrid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+.ahd{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.ptbl{width:100%;border-collapse:collapse;font-size:13px}
+.ptbl th{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+ text-align:left;font-weight:500;padding:0 10px 9px 0;border-bottom:1px solid var(--line)}
+.ptbl td{padding:12px 10px 12px 0;border-bottom:1px solid var(--line);color:var(--ink)}
+.ptbl tr:last-child td{border-bottom:0}
+.ptbl .r,.ptbl th.r{text-align:right}
+.ptbl .mono{font-family:var(--mono)}
+.pstat{font-family:var(--mono);font-size:9px;letter-spacing:.12em;border:0;border-radius:100px;padding:5px 9px;
+ cursor:pointer;background:rgba(110,124,142,.14);color:var(--mute);appearance:none;-webkit-appearance:none}
+.pstat.paid{background:rgba(47,158,107,.14);color:#2f9e6b}
+.pstat.approved{background:rgba(110,124,142,.18);color:#4a5a6e}
+.pstat.pending{background:rgba(196,151,58,.16);color:#9a7526}
+.pstat.overdue{background:rgba(198,64,43,.14);color:#C6402B}
+.ptbl .lnk{background:none;border:0;color:var(--faint);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.ptbl .lnk:hover{color:#C6402B}
+.bvrow{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.bvrow .bvn{flex:1;min-width:0;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bvrow .bvt{flex:0 0 190px;height:6px;border-radius:100px;background:rgba(110,124,142,.18);overflow:hidden}
+.bvrow .bvt i{display:block;height:100%;border-radius:100px}
+.bvrow .bvp{flex:0 0 42px;text-align:right;font-size:12px;color:var(--mute)}
+.bvfoot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-size:13px;color:var(--mute)}
+.modal{position:fixed;inset:0;z-index:900;background:rgba(10,14,20,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px}
+.msheet{background:#fff;border-radius:16px;padding:24px 26px;width:min(430px,100%);max-height:90vh;overflow:auto;box-shadow:0 30px 70px -20px rgba(0,0,0,.5)}
+.msheet h3{font-family:var(--serif);font-size:23px;font-weight:500;color:var(--ink);margin:0 0 16px}
+.msheet label{display:block;font-size:11px;color:var(--mute);margin-bottom:11px}
+.msheet input,.msheet select{width:100%;margin-top:5px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;
+ font-size:13.5px;color:var(--ink);background:#fff;font-family:inherit}
+.msheet .mact{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+.msheet .btn.ghost{background:none;border:1px solid var(--line);color:var(--mute)}
+@media(max-width:1080px){.fgrid2{grid-template-columns:1fr}.bvrow .bvt{flex-basis:110px}}
 .pcard{border:1px solid var(--steel-2);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#111615,#0a0d0c);cursor:pointer;transition:transform .16s var(--ease),border-color .2s}
 .pcard:hover{transform:translateY(-2px);border-color:rgba(111,190,150,.4)}
 .pcard .bz{height:4px;background:var(--brushed)}
@@ -883,6 +916,12 @@ function bindChase(){$('#main').querySelectorAll('.chase').forEach(b=>b.onclick=
 
 /* ============ MEETINGS (Phase 7) — schedule → agenda → minute → circulate → actions ============ */
 let MTGSEQ=2604;
+/* Project payables — invoices raised against a project's construction budget.
+   Entered here by the accounts team; there is no Xero connection yet, so this
+   register IS the source of truth for paid vs outstanding. Rides the same
+   persist()/Cloud path as everything else in this file. */
+let PAYABLES=[];
+
 let MEETINGS=[
  {id:'MTG-2601',pid:PROJECTS[0]&&PROJECTS[0].id,type:'Design',title:'Design coordination',at:'2026-07-17T10:00',loc:'Teams',status:'scheduled',
   agenda:[{item:'Facade package — sign-off',owner:'Architect',box:15},{item:'Services coordination — level 3',owner:'Builder',box:20},{item:'Outstanding RFIs',owner:'PM',box:10}],minutes:'',decisions:[],dist:[]},
@@ -1030,6 +1069,7 @@ function render(){
  else if(route.view==='meetings'){main.className=surf();page.innerHTML=viewMeetings();bindMeetings();}
  else if(route.view==='meeting'){main.className=surf();page.innerHTML=viewMeeting(route.pid);bindMeeting();}
  else if(route.view==='module'&&route.pid==='feasibility'){main.className='main light';page.innerHTML=viewFeasibility();bindFeasibility();}
+ else if(route.view==='module'&&route.pid==='accounts'){main.className='main light';page.innerHTML=viewAccounts();bindAccounts();}
  else if(route.view==='module'){main.className=surf();page.innerHTML=viewModuleStub(route.pid);}
  else if(route.view==='project'){renderProject();}
 }
@@ -1205,6 +1245,128 @@ function bindFeasibility(){
  $('#main').querySelectorAll('[data-studio]').forEach(b=>b.onclick=()=>{
   const pid=b.dataset.studio||'';
   try{ parent.postMessage({type:'atrium:open-studio',projectId:pid},window.location.origin); }catch(e){}
+ });
+}
+
+/* ---- ACCOUNTS — project payables register ---------------------------------
+   Xero is NOT connected. There is no invoice feed, so this register is the
+   source of truth for what has been invoiced, approved, paid and outstanding.
+   Every figure on this page is computed from PAYABLES — nothing is illustrative.
+
+   Budget-vs-actual pairs each project's invoiced total against the TDC from the
+   feasibility snapshot, so the budget side stays consistent with the
+   Feasibility tab rather than being a second, separately-maintained number.  */
+const PAY_STATUS=['pending','approved','paid','overdue'];
+function fyStart(d){ // Australian FY: 1 July → 30 June
+ const y=d.getFullYear(); return new Date(d.getMonth()>=6?y:y-1,6,1);
+}
+function payTotals(){
+ const from=fyStart(new Date()), t={invoiced:0,paid:0,out:0,open:0,count:0,pending:0};
+ PAYABLES.forEach(v=>{
+  const amt=+v.amount||0, d=Date.parse(v.date);
+  if(isFinite(d)&&d>=from.getTime()){ t.invoiced+=amt; t.count++; }
+  if(v.status==='paid') t.paid+=amt; else { t.out+=amt; t.open++; }
+  if(v.status==='pending') t.pending++;
+ });
+ return t;
+}
+function payProjects(){ // studio projects (real budgets) + any project already invoiced
+ const snap=feasSnapshot(), cards=snap?snap.cards:[];
+ const map=new Map(cards.map(c=>[c.id,{id:c.id,name:c.name,budget:c.tdc}]));
+ PAYABLES.forEach(v=>{ if(v.projectId&&!map.has(v.projectId)) map.set(v.projectId,{id:v.projectId,name:v.projectName||v.projectId,budget:0}); });
+ return [...map.values()];
+}
+function viewAccounts(){
+ const t=payTotals(), projs=payProjects();
+ const pctPaid=t.invoiced>0?Math.round((t.paid/(t.paid+t.out||1))*100):0;
+ const kpi=(k,v,d,cls)=>`<div class="wcard"><div class="bz"></div><div class="k">${k}</div><div class="v${cls||''}">${v}</div><div class="d">${d}</div></div>`;
+
+ const rows=PAYABLES.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(v=>{
+  const p=projs.find(x=>x.id===v.projectId);
+  return `<tr><td class="mono">${esc(v.no)}</td><td>${esc(p?p.name:(v.projectName||'—'))}</td><td>${esc(v.vendor)}</td>
+   <td class="r mono">${fzMoney(+v.amount||0)}</td>
+   <td><select data-pst="${esc(v.id)}" class="pstat ${esc(v.status)}">${PAY_STATUS.map(s=>`<option value="${s}"${s===v.status?' selected':''}>${s.toUpperCase()}</option>`).join('')}</select></td>
+   <td class="r"><button class="lnk" data-pdel="${esc(v.id)}" title="Delete">×</button></td></tr>`;
+ }).join('');
+
+ // Actual = invoiced to date against that project's feasibility TDC.
+ const bars=projs.filter(p=>p.budget>0||PAYABLES.some(v=>v.projectId===p.id)).map(p=>{
+  const spent=PAYABLES.filter(v=>v.projectId===p.id).reduce((a,v)=>a+(+v.amount||0),0);
+  const pct=p.budget>0?Math.round((spent/p.budget)*100):0;
+  const col=pct>100?'var(--red-tx,#C6402B)':pct>85?'#C4973A':'#2f9e6b';
+  return `<div class="bvrow"><div class="bvn">${esc(p.name)}</div>
+   <div class="bvt"><i style="width:${Math.max(0,Math.min(100,pct))}%;background:${col}"></i></div>
+   <div class="bvp mono">${p.budget>0?pct+'%':'—'}</div></div>`;
+ }).join('');
+
+ return `<div class="phead"><div><div class="n">04 · ACCOUNTS</div><h1>Accounts</h1>
+   <div class="sub">Budgets, invoices, approvals and payments across every project.</div>
+   <div class="liv">${livery()}</div></div>
+  <div class="actions" style="align-self:flex-start;flex-direction:column;align-items:flex-end;gap:4px">
+   <button class="btn" id="payAdd">+ Add invoice</button>
+   <span style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--faint)">XERO NOT CONNECTED · MANUAL REGISTER</span></div></div>
+
+  <div class="kpis" style="margin-bottom:18px">
+   ${kpi('Invoiced (FYTD)',fzMoney(t.invoiced),t.count+(t.count===1?' invoice':' invoices'))}
+   ${kpi('Paid',fzMoney(t.paid),pctPaid+'%','')}
+   ${kpi('Outstanding',fzMoney(t.out),t.open+' open')}
+   ${kpi('Approvals queue',String(t.pending),t.pending===1?'awaiting approval':'awaiting approval')}
+  </div>
+
+  <div class="fgrid2">
+   <div class="wcard"><div class="bz"></div>
+    <div class="ahd">Invoice register</div>
+    ${PAYABLES.length?`<div class="scroll"><table class="ptbl"><tr><th>Invoice</th><th>Project</th><th>Vendor</th><th class="r">Amount</th><th>Status</th><th></th></tr>${rows}</table></div>`
+      :`<div class="fzempty" style="box-shadow:none;border:0;padding:26px 0">No invoices yet.<br><span style="font-size:12px;color:var(--faint)">Click “+ Add invoice” to record the first one.</span></div>`}
+   </div>
+   <div class="wcard"><div class="bz"></div>
+    <div class="ahd">Budget vs actual · by project</div>
+    ${bars||`<div class="fzempty" style="box-shadow:none;border:0;padding:26px 0">Nothing to compare yet.<br><span style="font-size:12px;color:var(--faint)">Budgets come from the Feasibility tab; actuals from invoices above.</span></div>`}
+    <div class="bvfoot"><span>Approvals queue</span><b class="mono">${t.pending} pending</b></div>
+   </div>
+  </div>`;
+}
+function payForm(){
+ const projs=payProjects();
+ const opts=projs.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+ return `<div class="modal" id="payModal"><div class="msheet">
+  <h3>Add invoice</h3>
+  ${projs.length?'':'<div class="note" style="margin-bottom:10px">No projects found — open the Feasibility Studio once so budgets load.</div>'}
+  <label>Invoice no.<input id="pfNo" placeholder="INV-2041"></label>
+  <label>Project<select id="pfProj">${opts}</select></label>
+  <label>Vendor<input id="pfVen" placeholder="Multiplex"></label>
+  <label>Amount (AUD)<input id="pfAmt" type="number" step="0.01" placeholder="1200000"></label>
+  <label>Date<input id="pfDate" type="date" value="${new Date().toISOString().slice(0,10)}"></label>
+  <label>Status<select id="pfStat">${PAY_STATUS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>
+  <div class="mact"><button class="btn ghost" id="pfCancel">Cancel</button><button class="btn" id="pfSave">Save invoice</button></div>
+ </div></div>`;
+}
+function bindAccounts(){
+ const add=$('#payAdd');
+ if(add) add.onclick=()=>{
+  document.body.insertAdjacentHTML('beforeend',payForm());
+  const close=()=>{const m=$('#payModal');if(m)m.remove();};
+  $('#pfCancel').onclick=close;
+  $('#payModal').onclick=e=>{ if(e.target.id==='payModal') close(); };
+  $('#pfSave').onclick=()=>{
+   const amt=parseFloat($('#pfAmt').value);
+   const no=$('#pfNo').value.trim(), ven=$('#pfVen').value.trim();
+   if(!no||!ven||!isFinite(amt)||amt<=0){ toast('Invoice no., vendor and a positive amount are required.'); return; }
+   const sel=$('#pfProj');
+   PAYABLES.push({id:'pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),no:no,
+    projectId:sel?sel.value:'',projectName:sel&&sel.selectedOptions[0]?sel.selectedOptions[0].textContent:'',
+    vendor:ven,amount:amt,date:$('#pfDate').value,status:$('#pfStat').value});
+   close(); render(); toast('Invoice '+no+' recorded.');
+  };
+ };
+ $('#main').querySelectorAll('[data-pst]').forEach(sel=>sel.onchange=()=>{
+  const v=PAYABLES.find(x=>x.id===sel.dataset.pst); if(!v) return;
+  v.status=sel.value; render(); toast('Invoice '+v.no+' → '+v.status.toUpperCase()+'.');
+ });
+ $('#main').querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{
+  const v=PAYABLES.find(x=>x.id===b.dataset.pdel); if(!v) return;
+  if(!confirm('Delete invoice '+v.no+'?')) return;
+  PAYABLES=PAYABLES.filter(x=>x.id!==v.id); render(); toast('Invoice deleted.');
  });
 }
 
@@ -1888,7 +2050,7 @@ let _saveT=null,_lastJSON='';
 function persist(){
  clearTimeout(_saveT);
  _saveT=setTimeout(()=>{
-  const blob={projects:PROJECTS,meetings:MEETINGS,light:LIGHTMODE};
+  const blob={projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE};
   const json=JSON.stringify(blob);
   if(json===_lastJSON) return;
   _lastJSON=json;
@@ -1900,11 +2062,13 @@ function loadState(){
  try{ const raw=localStorage.getItem(SKEY); if(raw){ const s=JSON.parse(raw);
   if(Array.isArray(s.projects)&&s.projects.length) PROJECTS=s.projects;
   if(Array.isArray(s.meetings)) MEETINGS=s.meetings;
+  if(Array.isArray(s.payables)) PAYABLES=s.payables;
   if(typeof s.light==='boolean') LIGHTMODE=s.light; } }catch(e){}
 }
 function applyRemote(val){
  if(Array.isArray(val.projects)&&val.projects.length) PROJECTS=val.projects;
  if(Array.isArray(val.meetings)) MEETINGS=val.meetings;
+ if(Array.isArray(val.payables)) PAYABLES=val.payables;
  if(typeof val.light==='boolean'){ LIGHTMODE=val.light; setThemeBtn(); }
  try{ localStorage.setItem(SKEY,JSON.stringify(val)); }catch(e){}
  if(route.view==='project') renderProject(); else render();
@@ -1915,7 +2079,7 @@ const Cloud={ sb:null, ready:false, _last:'', _pushT:null, _emptyRemote:false,
   this.sb = createClient(CLOUD_URL, CLOUD_ANON, { realtime:{ params:{ eventsPerSecond:5 } } });
   const ok = await this.pull(); if(!ok){ this.ready=false; return; }
   this.ready=true;
-  if(this._emptyRemote){ this._last=''; this.push({projects:PROJECTS,light:LIGHTMODE}); }
+  if(this._emptyRemote){ this._last=''; this.push({projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE}); }
   this.subscribe();
  }catch(e){ this.ready=false; } },
  async pull(){ try{
