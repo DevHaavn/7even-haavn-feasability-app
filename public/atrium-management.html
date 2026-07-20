@@ -93,6 +93,22 @@ button{font-family:inherit}
 .rail .newbtn:active{transform:scale(.97)}
 .railfoot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--steel);font-family:var(--mono);font-size:9.5px;color:var(--sil-4);line-height:1.7}
 
+/* ---- Icon rail (the redesign) ------------------------------------------
+   The rail was 214px with labels, group headings and a footer. The approved
+   design is a 64px icon rail, which hands ~150px back to the content.
+   Done entirely in CSS — renderRail() and railItem() are untouched, so every
+   nav target, count and click handler is exactly as it was.
+   Labels are VISUALLY hidden rather than display:none, so they stay in the
+   accessibility tree and the icons keep their names for screen readers. */
+.rail{flex:0 0 64px;padding:18px 0;align-items:center;gap:8px}
+.rail .grp,.rail .railfoot,.rail .railwm{display:none}
+.rail .railbrand{padding:0;margin-bottom:6px;display:flex;justify-content:center}
+.navitem{width:38px;height:38px;padding:0;justify-content:center;border-radius:10px}
+.navitem .ct{display:none}
+.navitem .tx{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rail .newbtn{width:38px;height:38px;padding:0;margin:6px 0;justify-content:center;border-radius:11px}
+.rail .newbtn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
 /* main scroll */
 .main{flex:1;min-width:0;overflow-y:auto;position:relative}
 .main.dark{background:var(--void)}
@@ -100,11 +116,11 @@ button{font-family:inherit}
    gateway — one surface across the whole product rather than a gradient here
    and a photograph there. Sits under the content (z-index 0 + content above),
    never over it. */
-.main.dark::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;
+.main.dark::before{content:"";position:fixed;inset:58px 0 0 64px;z-index:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),
              url('/renders/atrium-surface-1.jpg') center 30%/cover no-repeat}
 .main.light{background:linear-gradient(158deg,#e7ecf2,#dde4ec 45%,#d2dbe5)}
-.main.light::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;
+.main.light::before{content:"";position:fixed;inset:58px 0 0 64px;z-index:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(226,233,240,.72),rgba(215,224,233,.9)),
              url('/renders/atrium-surface-1.jpg') center 30%/cover no-repeat}
 .page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:30px 34px 80px}
@@ -146,8 +162,11 @@ button{font-family:inherit}
 /* KPI value is INK by default, and mono. It was green on every card, which
    spent the signal colour on figures carrying no status — the preview colours a
    value only when it means something (positive / caution / risk / silver). */
-.wcard .v{font-family:var(--mono);font-weight:600;font-size:29px;color:var(--sil-1);letter-spacing:-.03em;margin-top:6px;line-height:1}
-.main.light .wcard .v{color:var(--ink)}
+/* .wcard is background:#fff in BOTH themes — white sheets on a dark ground —
+   so the value has to read against WHITE, not against the page. Step 1 set it
+   to near-white (--sil-1) and it vanished in dark; it only survived before
+   because the old green happened to contrast with white. Dark ink, both themes. */
+.wcard .v{font-family:var(--mono);font-weight:600;font-size:29px;color:var(--ink);letter-spacing:-.03em;margin-top:6px;line-height:1}
 .wcard .d{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:8px;letter-spacing:.03em}
 /* Feature card: solid green slab -> the silver-glass wash. Class name kept so
    no markup changes; only its appearance does. */
