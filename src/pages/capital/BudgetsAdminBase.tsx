@@ -128,7 +128,16 @@ export default function BudgetsAdminBase() {
             </div>
             <div>
               <p style={{ color: b.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{b.sub}</p>
-              <h2 style={{ color: '#fff', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{b.title}</h2>
+              <h2 style={{ color: '#fff', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0, display: 'flex', alignItems: 'baseline', gap: '0.2em' }}>
+                {b.id === '7even' ? (
+                  <>
+                    <img src="/seven-mark-white.png" alt="7EVEN" style={{ height: '0.9em', width: 'auto' }} />
+                    <span>Capital Administration</span>
+                  </>
+                ) : (
+                  b.title
+                )}
+              </h2>
             </div>
             <div style={{ height: 1, background: 'rgba(255,255,255,0.10)', margin: '4px 0' }} />
             <p style={{ color: '#999', fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{b.blurb}</p>
