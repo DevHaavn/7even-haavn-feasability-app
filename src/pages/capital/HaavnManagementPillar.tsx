@@ -9,6 +9,16 @@ import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 
+/** Back control for the pillar header. The header flips with the theme, so a
+ *  translucent "glass" pill went light-on-light and became unreadable in light
+ *  mode. This is solid carbon in both themes — always legible, never guessed. */
+const backPill: React.CSSProperties = {
+  padding: '9px 16px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+  fontWeight: 700, color: '#EDF1F3', background: '#141a20', border: '1px solid #2b343d',
+  borderRadius: 999, cursor: 'pointer', flexShrink: 0,
+  boxShadow: '0 4px 14px rgba(12,18,26,0.28)',
+}
+
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
   const theme = useAtriumTheme()
@@ -25,8 +35,11 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
         <iframe title="ATRIUM — Management System" src="/atrium-management.html"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+        {/* Top-left, under the Management System's own 58px topbar and clear of its
+            64px icon rail — where you look for a back control. It was bottom-right,
+            which read as a floating action rather than navigation. */}
         <button onClick={onBack}
-          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#C6CDCF', background: 'rgba(10,13,12,0.92)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          style={{ position: 'fixed', top: 70, left: 78, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
           ← Management Hub
         </button>
       </div>
@@ -44,9 +57,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
-        <Button variant="glassDark" onClick={onBack} style={{ fontSize: 11 }}>
-          ← Management Hub
-        </Button>
+        <button onClick={onBack} style={backPill}>← Management Hub</button>
         <ThemeToggle />
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 6 }}>
           <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 15, fontWeight: 700 }}>{pillar.num}</span>
