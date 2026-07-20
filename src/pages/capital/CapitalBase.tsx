@@ -102,7 +102,10 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
         <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ color: '#C4973A', fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>7EVEN Capital</p>
+            {/* ATRIUM is the platform brand and leads the header, per the
+                redesign's appbar (<b>ATRIUM</b> above CAPITAL BASE). Was
+                "7EVEN Capital" in the retired gold. */}
+            <p style={{ color: PA.silver, fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>ATRIUM</p>
             <p style={{ color: pal.ink, fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Capital Base</p>
           </div>
           <img src="/winged-device-white.png" alt="7EVEN Capital" draggable={false} style={{ width: 44, height: 'auto', filter: pal.logoFilter }} />

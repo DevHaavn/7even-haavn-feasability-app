@@ -90,8 +90,10 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
         <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ color: '#1FE87A', fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>HAAVN Management</p>
-            <p style={{ color: pal.ink, fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Command Centre</p>
+            {/* ATRIUM leads the header on every surface, same as Capital Base.
+                Was "HAAVN Management" in the neon #1FE87A. */}
+            <p style={{ color: HM_PA.silver, fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>ATRIUM</p>
+            <p style={{ color: pal.ink, fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Management Hub</p>
           </div>
           <AtriumApex size={40} />
         </div>
