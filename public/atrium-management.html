@@ -13,11 +13,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
- --void:#050706;--carbon:#0A0D0C;--graphite:#12161A;--steel:#232a2d;--steel-2:#333b3f;--steel-3:#4C5559;
- --f-900:#0B2318;--f-800:#0F3123;--f-700:#14452F;--f-600:#1B5E3F;--f-500:#237A52;--f-400:#38996B;--f-300:#6FBE96;--f-100:#DCEDE4;--f-50:#F1F8F4;
- --sil-1:#EEF1F2;--sil-2:#C6CDCF;--sil-3:#9AA2A4;--sil-4:#8f9799;
- --amber:#C9A24B;--red:#B4553F;--red-txt:#D07A62;
- --ink:#12150F;--ink-2:#3A3F3C;--mute:#636966;--faint:#7C8380;--line:#E1E4E3;--line-2:#EDEFEE;--grey-50:#F7F8F8;--grey-100:#F1F3F2;--grey-200:#E7EAE9;
+ /* ATRIUM silver-glass (Step 0). The token NAMES are unchanged on purpose —
+    ~1800 lines of rules reference them, so remapping the values restyles the
+    whole system without touching a single selector, value, field or handler.
+    Golden rule: pixels change, behaviour identical. */
+ /* chrome + surfaces: forest-black -> blue-black */
+ --void:#0a0e14;--carbon:#0c1219;--graphite:#12181f;--steel:#1e262f;--steel-2:#2c3540;--steel-3:#46525e;
+ /* --f-* was the brand green AND the functional green. It is now functional
+    ONLY (live / positive / progress, plus the + create buttons) — every brand
+    use in the chrome below moves to silver. Values retuned to the new green. */
+ --f-900:#0c2b1d;--f-800:#123c29;--f-700:#175033;--f-600:#1d6a45;--f-500:#2f9e6b;--f-400:#43b07c;--f-300:#57c08a;--f-100:#d8efe3;--f-50:#f0f9f4;
+ /* silver / platinum — the accent */
+ --sil-1:#eef2f5;--sil-2:#cdd8e2;--sil-3:#9aa8b6;--sil-4:#6c7a88;
+ --silver:#9aa8b6;--silver-hi:#cdd8e2;--silver-soft:rgba(154,168,182,.14);--silver-line:rgba(154,168,182,.4);
+ --amber:#d59a52;--red:#e0645c;--red-txt:#e0645c;--blue:#6f92c9;--xero:#28b6ea;
+ /* light content — blue-grey, not the old green-grey */
+ --ink:#232c37;--ink-2:#5b6672;--mute:#5b6672;--faint:#8592a0;--line:#dfe3e8;--line-2:#eaedf1;--grey-50:#f4f6f9;--grey-100:#dfe5ec;--grey-200:#d5dde6;
  --disp:'Inter Tight',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Cormorant Garamond',Georgia,serif;
  --ease:cubic-bezier(.32,.72,0,1);--r:12px;--r-m:16px;--r-l:22px;
  --brushed:linear-gradient(100deg,#DCE1E2,#F4F6F7 16%,#BDC5C7 40%,#EEF1F2 56%,#A6AEB0 80%,#DCE1E2);
@@ -45,14 +56,17 @@ button{font-family:inherit}
 
 /* ====== APP SHELL ====== */
 .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.topbar{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:0 20px;height:58px;background:rgba(8,11,10,.92);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--steel);z-index:40}
+/* Chrome (topbar + rail) is ALWAYS dark, in both themes — it sits outside
+   .main, which is the element the light/dark class lands on, so it can never be
+   flipped. That is what keeps light mode readable. */
+.topbar{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:0 20px;height:58px;background:linear-gradient(180deg,#0f151c,#0b1015);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--steel);z-index:40}
 .atr{display:inline-flex;align-items:center;gap:11px}
 .atr .w{font-family:var(--disp);font-weight:600;letter-spacing:.30em;text-transform:uppercase;padding-left:.30em;font-size:14px}
 .dev{display:inline-block;flex:0 0 auto}.dev svg{width:100%;display:block}
 .topnav{margin-left:20px;display:flex;gap:4px}
 .topnav button{background:none;border:none;color:var(--sil-4);font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;padding:8px 13px;border-radius:8px;cursor:pointer;transition:.15s}
 .topnav button:hover{color:var(--sil-1)}
-.topnav button.on{color:var(--f-300);background:rgba(35,122,82,.14)}
+.topnav button.on{color:var(--silver-hi);background:var(--silver-soft)}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px}
 .partner{display:inline-flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:10.5px;color:var(--sil-3)}
 .partner .sep{width:1px;height:12px;background:var(--steel-2)}
@@ -62,15 +76,18 @@ button{font-family:inherit}
 
 .body{flex:1;display:flex;min-height:0}
 /* rail */
-.rail{flex:0 0 214px;background:linear-gradient(180deg,#0c1512,#080b0a);border-right:1px solid var(--steel);display:flex;flex-direction:column;padding:14px 12px;gap:3px;overflow-y:auto}
+/* 214px labelled rail kept as-is. The preview mock draws a 64px icon-only rail,
+   but playbook rule 2 says the mock is look-and-feel, not a structure spec —
+   this rail carries labels and counts the icon rail has nowhere to put. */
+.rail{flex:0 0 214px;background:linear-gradient(180deg,#0f151c,#0b1015);border-right:1px solid var(--steel);display:flex;flex-direction:column;padding:14px 12px;gap:3px;overflow-y:auto}
 .rail .grp{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-4);padding:14px 10px 6px}
 .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;color:var(--sil-3);font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.14s;text-align:left;width:100%;background:none;font-weight:450}
 .navitem:hover{background:rgba(255,255,255,.04);color:var(--sil-1)}
-.navitem.on{background:linear-gradient(180deg,rgba(35,122,82,.20),rgba(20,69,47,.12));border-color:rgba(111,190,150,.28);color:#fff}
+.navitem.on{background:linear-gradient(180deg,rgba(154,168,182,.20),rgba(154,168,182,.08));border-color:var(--silver-line);color:#fff}
 .navitem .ic{width:17px;height:17px;flex:0 0 auto;opacity:.85}
 .navitem.on .ic{opacity:1}
 .navitem .ct{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--sil-4);background:rgba(255,255,255,.05);padding:1px 7px;border-radius:20px}
-.navitem.on .ct{color:var(--f-300)}
+.navitem.on .ct{color:var(--silver-hi)}
 .rail .newbtn{margin:8px 2px 2px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:11px;background:linear-gradient(180deg,var(--f-500),var(--f-700));color:#fff;font-weight:600;font-size:13px;border:1px solid rgba(0,0,0,.2);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 22px -8px rgba(27,94,63,.6);transition:transform .12s var(--ease)}
 .rail .newbtn:active{transform:scale(.97)}
 .railfoot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--steel);font-family:var(--mono);font-size:9.5px;color:var(--sil-4);line-height:1.7}
@@ -78,8 +95,13 @@ button{font-family:inherit}
 /* main scroll */
 .main{flex:1;min-width:0;overflow-y:auto;position:relative}
 .main.dark{background:var(--void)}
-.main.dark::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;background:radial-gradient(46% 40% at 30% 0%,rgba(27,94,63,.14),transparent 60%)}
-.main.light{background:var(--grey-100)}
+.main.dark::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 80% at 82% -10%,rgba(120,150,180,.14),transparent 55%),
+             radial-gradient(90% 70% at 12% 110%,rgba(30,45,60,.5),transparent 60%)}
+.main.light{background:linear-gradient(158deg,#e7ecf2,#dde4ec 45%,#d2dbe5)}
+.main.light::before{content:"";position:fixed;inset:58px 0 0 214px;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 85% at 12% -12%,rgba(188,206,226,.6),transparent 55%),
+             radial-gradient(110% 80% at 92% 8%,rgba(206,214,226,.5),transparent 55%)}
 .page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:30px 34px 80px}
 
 /* page header */
