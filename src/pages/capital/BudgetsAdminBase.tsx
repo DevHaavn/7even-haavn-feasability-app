@@ -32,12 +32,25 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
 export default function BudgetsAdminBase() {
   const [group, setGroup] = useState<Group | null>(null)
 
-  // 7EVEN Capital — the entity budget system, filtered to the 7even book, now on
-  // its own full-bleed ATRIUM surface (carbon topbar + forest rail), matching HAAVN.
+  // 7EVEN Capital Administration — Book 01. The ATRIUM silver-glass build:
+  // Dashboard, 7EVEN GROUP · Structure (four animated org charts), Project
+  // tracking, Budget entry, Invoices & Bills, Project spend. Self-contained and
+  // mounted the same way as Book 02 below, so both books behave identically.
   if (group === '7even') {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 500 }}>
-        <BudgetsAdmin key={group} group={group} onBackToGroups={() => setGroup(null)} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        <iframe
+          title="ATRIUM — 7EVEN Capital Administration"
+          src="/atrium-book01-7even-capital.html"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
+        />
+        <button onClick={() => setGroup(null)}
+          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501,
+            padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700,
+            color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #3A4146', borderRadius: 999,
+            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
+          ← Administration
+        </button>
       </div>
     )
   }
