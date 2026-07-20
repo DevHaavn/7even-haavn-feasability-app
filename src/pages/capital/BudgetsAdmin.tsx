@@ -287,7 +287,7 @@ function xeroGroupFor(entityId: string): '7even' | 'haavn' {
   return (entityId === 'hpl' || entityId === 'hm' || entityId === 'hprec' || entityId === 'htec') ? 'haavn' : '7even'
 }
 
-type View = 'dashboard' | 'entry' | 'transactions' | 'projects' | 'tracking'
+type View = 'dashboard' | 'entry' | 'expenses' | 'transactions' | 'projects' | 'tracking'
 
 export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even' | 'haavn'; onBackToGroups?: () => void } = {}) {
   const { projects, getDetailedCostStack } = useStore()
@@ -417,6 +417,7 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
     : [
         { g: 'Overview', items: [['dashboard', 'Dashboard']] },
         ...(PROJECT_LINKS[sel] ? [{ g: 'Projects', items: [['tracking', 'Project tracking'] as [View, string]] }] : []),
+        { g: 'Company', items: [['expenses', `${(entity?.name ?? 'Company').replace(/ Pty Ltd$/, '')} expenses`] as [View, string]] },
         { g: 'Budget', items: [['entry', 'Budget entry'] as [View, string]] },
         { g: 'Ledger', items: [['transactions', 'Invoices & Bills'], ['projects', 'Project spend']] },
       ]
@@ -581,6 +582,14 @@ export default function BudgetsAdmin({ group, onBackToGroups }: { group?: '7even
       {/* ── ENTRY GRID ── */}
       {view === 'entry' && entity && (
         <EntryGrid entity={entity} accent={accent}
+          onCell={setCell} onDel={delLine} onClear={clearLine} onAdd={addLine} onOpenLine={setEditLineId} />
+      )}
+
+      {/* Company running costs on their own page. Same grid, same lines, same
+          store — only operating expenses are shown, so the company's bills are
+          not buried under the project P&L. */}
+      {view === 'expenses' && entity && (
+        <EntryGrid entity={entity} accent={accent} only="opex"
           onCell={setCell} onDel={delLine} onClear={clearLine} onAdd={addLine} onOpenLine={setEditLineId} />
       )}
 
@@ -1134,8 +1143,10 @@ function Row({ label, value, sub, subColor }: { label: string; value: string; su
 }
 
 // ── Fathom-style entry grid ────────────────────────────────────────────────────
-function EntryGrid({ entity, accent, onCell, onDel, onClear, onAdd, onOpenLine }: {
+function EntryGrid({ entity, accent, only, onCell, onDel, onClear, onAdd, onOpenLine }: {
   entity: Entity; accent: string
+  /** Restrict the grid to one section — the company-expenses page uses 'opex'. */
+  only?: Section
   onCell: (id: string, mi: number, v: number) => void
   onDel: (id: string) => void
   onClear: (id: string) => void
@@ -1229,20 +1240,26 @@ function EntryGrid({ entity, accent, onCell, onDel, onClear, onAdd, onOpenLine }
             </tr>
           </thead>
           <tbody>
+            {(!only || only === 'revenue') && <>
             {sectionHead('Revenue')}
             {renderLines(entity.lines.filter(l => l.s === 'revenue' && !l.pipeline && !l.fin))}
             {addRow('revenue', 'revenue')}
             {totalRow('Total revenue', revT)}
+            </>}
+            {(!only || only === 'cogs') && <>
             {sectionHead('Cost of sales')}
             {renderLines(entity.lines.filter(l => l.s === 'cogs' && !l.fin))}
             {addRow('cogs', 'cost')}
             {totalRow('Total cost of sales', cogT)}
             {totalRow('Gross profit', gpT)}
+            </>}
+            {(!only || only === 'opex') && <>
             {sectionHead('Operating expenses')}
             {renderLines(entity.lines.filter(l => l.s === 'opex'))}
             {addRow('opex', 'expense')}
             {totalRow('Total operating expenses', ox)}
-            {totalRow('EBITDA · trading basis', ebT, true)}
+            </>}
+            {!only && totalRow('EBITDA · trading basis', ebT, true)}
             {hasFin && <>
               {sectionHead(`Below the line · financing${hasTax ? ' & tax' : ''}`)}
               {renderLines(entity.lines.filter(l => l.s === 'revenue' && l.fin))}
