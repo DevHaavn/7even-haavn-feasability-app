@@ -6,8 +6,10 @@ import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 import type { Section, Block, BarsBlock, CurveBlock } from './exportData'
 
-const INK = '#1A1A1A'
-const GOLD: [number, number, number] = [196, 151, 58]
+const INK = '#232C37'   // --ink from the export redesign
+// Redesign (docs/design/atrium-feasibility-export-redesign.html): the accent is
+// SILVER (--silver #8a97a6), not gold — gold is retired across ATRIUM.
+const GOLD: [number, number, number] = [138, 151, 166]
 
 /** Fine faded gold rule — the app's signature divider, simulated with
  *  colour-blended segments (transparent → gold 30–70% → transparent). */
@@ -116,8 +118,8 @@ export async function exportPdf(projectName: string, address: string, sections: 
   const margin = 48
   const logo = await loadBrandLogo()
 
-  // Cover header — black band with a crisp vector particle wave
-  doc.setFillColor(0, 0, 0)
+  // Cover header — ATRIUM chrome band (--chrome #0d1420), per the redesign
+  doc.setFillColor(13, 20, 32)
   doc.rect(0, 0, pageW, 128, 'F')
   drawWaveTexture(doc, 0, 0, pageW, 128, 0.55)
   if (logo) {
@@ -143,7 +145,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
   doc.text(projectName, margin, 100)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8)
-  doc.setTextColor(190, 190, 190)
+  doc.setTextColor(147, 160, 173)   // --chrome-dim
   const dateStr = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
   doc.text(`${address ? address + '  ·  ' : ''}Exported ${dateStr}  ·  Confidential`, margin, 115)
 
@@ -161,7 +163,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
 
   const hexRgb = (hex: string): [number, number, number] => {
     const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex)
-    return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [26, 26, 26]
+    return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [35, 44, 55]
   }
 
   const drawBars = (block: BarsBlock) => {
@@ -177,7 +179,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
     if (block.title) {
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(8.5)
-      doc.setTextColor(26, 26, 26)
+      doc.setTextColor(35, 44, 55)
       doc.text(block.title.toUpperCase(), margin, y + 10)
       y += 18
     }
@@ -188,7 +190,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
       // Label
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(7.5)
-      doc.setTextColor(90, 90, 90)
+      doc.setTextColor(91, 102, 114)
       const label = item.label.length > 42 ? item.label.slice(0, 41) + '…' : item.label
       doc.text(label, margin, y + 12)
       // Bar — data keeps its colour; negative values render red
@@ -197,7 +199,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
       doc.rect(margin + labelW, y + 4, barLen, 11, 'F')
       // Value
       doc.setFont('helvetica', 'bold')
-      doc.setTextColor(26, 26, 26)
+      doc.setTextColor(35, 44, 55)
       doc.text(`${neg ? '−' : ''}$${Math.round(Math.abs(item.value)).toLocaleString()}`, pageW - margin, y + 12, { align: 'right' })
       y += rowH
     }
@@ -212,7 +214,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
     if (block.title) {
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(8.5)
-      doc.setTextColor(26, 26, 26)
+      doc.setTextColor(35, 44, 55)
       doc.text(block.title.toUpperCase(), margin, y + 10)
       y += 18
     }
@@ -223,9 +225,9 @@ export async function exportPdf(projectName: string, address: string, sections: 
     const py = (c: number) => y0 + chartH - Math.max(0, Math.min(1, c / block.yMax)) * chartH
 
     // Background + grid
-    doc.setFillColor(249, 247, 244)
+    doc.setFillColor(246, 248, 251)
     doc.rect(x0, y0, chartW, chartH, 'F')
-    doc.setDrawColor(230, 228, 224)
+    doc.setDrawColor(222, 227, 234)
     doc.setLineWidth(0.5)
     const tdcVal = block.yMax / 1.12
     for (const f of [0, 0.25, 0.5, 0.75, 1]) {
@@ -233,25 +235,25 @@ export async function exportPdf(projectName: string, address: string, sections: 
       doc.line(x0, gy, x0 + chartW, gy)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(6)
-      doc.setTextColor(150, 150, 150)
+      doc.setTextColor(133, 146, 160)
       doc.text(fmtM(f * tdcVal), x0 - 4, gy + 2, { align: 'right' })
     }
     for (let m = 0; m <= block.xMax; m += 6) {
-      doc.setDrawColor(236, 234, 230)
+      doc.setDrawColor(228, 232, 238)
       doc.line(px(m), y0, px(m), y0 + chartH)
       doc.setFontSize(6)
-      doc.setTextColor(150, 150, 150)
+      doc.setTextColor(133, 146, 160)
       doc.text(`m${m}`, px(m), y0 + chartH + 10, { align: 'center' })
     }
     // Phase divider
     if (block.dividerX) {
-      doc.setDrawColor(200, 196, 174)
+      doc.setDrawColor(180, 190, 201)
       doc.setLineDashPattern([3, 3], 0)
       doc.line(px(block.dividerX), y0, px(block.dividerX), y0 + chartH)
       doc.setLineDashPattern([], 0)
       if (block.dividerLabels) {
         doc.setFontSize(5.5)
-        doc.setTextColor(170, 166, 150)
+        doc.setTextColor(131, 145, 160)
         doc.text(block.dividerLabels[0], x0 + 4, y0 + 10)
         doc.text(block.dividerLabels[1], px(block.dividerX) + 4, y0 + 10)
       }
@@ -300,7 +302,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
       doc.setLineDashPattern([], 0)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(6.5)
-      doc.setTextColor(90, 90, 90)
+      doc.setTextColor(91, 102, 114)
       doc.text(s.label, lx + 20, ly)
       lx += 24 + doc.getTextWidth(s.label) + 18
     }
@@ -348,7 +350,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
         ensureRoom(24)
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(8.5)
-        doc.setTextColor(26, 26, 26)
+        doc.setTextColor(35, 44, 55)
         doc.text(block.title.toUpperCase(), margin, y + 10)
       }
 
@@ -363,11 +365,12 @@ export async function exportPdf(projectName: string, address: string, sections: 
         body,
         margin: { left: margin, right: margin },
         theme: 'grid',
-        styles: { font: 'helvetica', fontSize: 8, textColor: INK, lineColor: [220, 220, 220], lineWidth: 0.5, cellPadding: 5 },
-        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 7.5, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [246, 246, 246] },
+        // Redesign: chrome table head, cool hairlines, faint blue-grey banding
+        styles: { font: 'helvetica', fontSize: 8, textColor: INK, lineColor: [222, 227, 234], lineWidth: 0.5, cellPadding: 5 },
+        headStyles: { fillColor: [13, 20, 32], textColor: [238, 242, 245], fontSize: 7.5, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [246, 248, 251] },
         columnStyles: block.type === 'kv'
-          ? { 0: { textColor: [105, 105, 105] }, 1: { fontStyle: 'bold', halign: 'right' } }
+          ? { 0: { textColor: [91, 102, 114] }, 1: { fontStyle: 'bold', halign: 'right' } }
           : {},
       })
       // @ts-expect-error jspdf-autotable attaches lastAutoTable
@@ -429,7 +432,7 @@ export async function exportPdf(projectName: string, address: string, sections: 
   // Confidentiality / privacy statement
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
-  doc.setTextColor(150, 150, 150)
+  doc.setTextColor(133, 146, 160)
   const conf = 'CONFIDENTIAL — This document and the information contained within it are strictly private and confidential, prepared solely for the intended recipient. It must not be reproduced, distributed or disclosed, in whole or in part, without the prior written consent of 7EVEN Capital. Figures are estimates prepared for feasibility purposes only and do not constitute financial advice or an offer of securities.'
   const confLines = doc.splitTextToSize(conf, pageW - 160)
   doc.text(confLines, cx, pageH * 0.58, { align: 'center' })
@@ -484,7 +487,7 @@ export function exportExcel(projectName: string, address: string, sections: Sect
       [],
     ]
     for (const block of section.blocks) {
-      if (block.title) aoa.push([block.title])
+      if ('title' in block && block.title) aoa.push([block.title])
       aoa.push(...blockToRows(block))
       aoa.push([])
     }
