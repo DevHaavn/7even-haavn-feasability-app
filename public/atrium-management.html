@@ -968,6 +968,7 @@ function publishCrmMeetings(){
    meetings: MEETINGS.map(m=>{ const p=mtgProject(m); return {
     id:m.id, title:m.title, project:p?p.name:'', projectId:m.pid,
     at:m.at, loc:m.loc||'', type:m.type||'Meeting', status:m.status,
+    source:m.source||'crm', joinUrl:m.joinUrl||'',
     agenda:(m.agenda||[]).map(a=>({item:a.item||'', owner:a.owner||'', box:a.box||0})),
     attendees:(m.dist||[]).map(d=>typeof d==='string'?{name:d,email:''}:{name:d.name||'',email:d.email||''})
    };})}));
@@ -1183,6 +1184,36 @@ function mtgCard(m){const p=mtgProject(m);return `<button class="mtgcard" data-m
    agenda editor, minutes, circulation and the write-back into the project action
    register. The design shows the entry view only, so none of that was removed. */
 let MTG_SEL=null;
+
+/* Meetings booked by email arrive on the shared mailbox; pull them in so the CRM
+   is the single front door. Idempotent on the Outlook event id, so re-importing
+   updates rather than duplicating, and never clobbers an agenda typed here. */
+async function importOutlook(){
+ const btn=$('#mtgPull'); if(btn){btn.disabled=true;btn.textContent='Checking Outlook…';}
+ try{
+  const r=await fetch('/api/calendar-list?days=30');
+  const j=await r.json().catch(()=>({}));
+  if(r.status===501){ toast('Outlook not connected yet — the Entra app needs Calendars.ReadWrite.'); return; }
+  if(!r.ok){ toast("Couldn't read Outlook — "+(j.error||('error '+r.status))); return; }
+  const evs=j.events||[]; let added=0, updated=0;
+  evs.forEach(e=>{
+   const ex=MEETINGS.find(m=>m.calendarEventId===e.calendarEventId);
+   if(ex){ ex.title=e.subject; ex.at=e.start; ex.loc=e.location||ex.loc;
+    ex.dist=e.attendees&&e.attendees.length?e.attendees:ex.dist; updated++; return; }
+   MEETINGS.push({ id:'MTG-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    calendarEventId:e.calendarEventId, pid:(PROJECTS[0]||{}).id, type:'Client WIP',
+    title:e.subject, at:e.start, loc:e.location||'Teams', status:'scheduled',
+    source:'outlook', joinUrl:e.joinUrl||'',
+    agenda:[], minutes:'', decisions:[], dist:e.attendees||[] });
+   added++;
+  });
+  if(!evs.length) toast('No upcoming Outlook meetings on '+(j.mailbox||'the shared mailbox')+'.');
+  else toast('Outlook — '+added+' new, '+updated+' updated. Assign each to a project.');
+  render();
+ }catch(err){ toast('Outlook import failed: '+String(err&&err.message||err)); }
+ finally{ const b=$('#mtgPull'); if(b){b.disabled=false;b.textContent='\u21bb From Outlook';} }
+}
+
 function mtgStatusPill(m){
  const map={scheduled:['Draft','#8592a0'],recording:['Live','#2f9e6b'],recorded:['Recorded','#C4973A'],
   minuted:['Minuted','#4a5a6e'],circulated:['Sent','#2f9e6b']};
@@ -1203,6 +1234,7 @@ function viewMeetings(){
    <div class="mw-ico">\u25a4</div>
    <div class="mw-tx"><div class="mw-t">${esc(m.title)}${p?' \u2014 '+esc(p.name):''}</div>
     <div class="mw-m">${esc(mtgWhen(m))} \u00b7 ${(m.agenda||[]).length} items \u00b7 ${(m.dist||[]).length} attendees${m.loc?' \u00b7 '+esc(m.loc):''}</div></div>
+   ${m.source==='outlook'?'<span class="mw-pill" style="color:#4a5a6e;background:rgba(110,124,142,.16)">Email</span>':''}
    ${mtgStatusPill(m)}</div>`;
  }).join('');
 
@@ -1226,7 +1258,9 @@ function viewMeetings(){
  return `<div class="phead"><div><div class="n">05 \u00b7 WORKFLOW</div><h1>Meetings</h1>
    <div class="sub">Agendas, live recording &amp; translation, records routed to the CRM.</div>
    <div class="liv">${livery()}</div></div>
-   <div class="actions" style="align-self:flex-start"><button class="btn-green" id="mtgNew">+ New meeting</button></div></div>
+   <div class="actions" style="align-self:flex-start;gap:8px">
+    <button class="btn" id="mtgPull" title="Pull meetings booked by email on the shared mailbox">\u21bb From Outlook</button>
+    <button class="btn-green" id="mtgNew">+ New meeting</button></div></div>
   <div class="fgrid2">
    <div class="wcard mw-list"><div class="bz"></div>
     <div class="mw-lhd"><span class="ahd" style="margin:0">All meetings</span><span class="ahd" style="margin:0;letter-spacing:0">${list.length}</span></div>
@@ -1237,6 +1271,7 @@ function viewMeetings(){
 }
 function bindMeetings(){
  const nb=$('#mtgNew');if(nb)nb.onclick=()=>{const p=PROJECTS.find(x=>x.status==='live')||PROJECTS[0];scheduleMeeting(p.id,'Design');};
+ const pb=$('#mtgPull');if(pb)pb.onclick=importOutlook;
  $('#main').querySelectorAll('[data-msel]').forEach(r=>{
   r.onclick=()=>{MTG_SEL=r.dataset.msel;render();};
   r.ondblclick=()=>go('meeting',r.dataset.msel);

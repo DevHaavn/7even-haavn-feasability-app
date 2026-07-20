@@ -191,7 +191,13 @@ function MeetingsList({ bundles, onNew, onOpen, onDelete }: { bundles: MeetingBu
           <div style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 40, lineHeight: 1, color: T.ink }}>Meetings</div>
           <div style={{ fontSize: 13, color: T.ink2, marginTop: 10 }}>Agendas, live recording &amp; translation, records routed to the CRM.</div>
         </div>
-        <button style={{ ...btn('primary'), marginLeft: 'auto', height: 40 }} onClick={onNew}>+ New meeting</button>
+        {/* Meetings originate in the CRM — typed in, or pulled from an Outlook
+            invite. This pillar runs them; it does not create them, so there is
+            one front door and no chance of two records for one meeting. */}
+        <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+          <div style={{ ...mono, fontSize: 9, letterSpacing: '.16em', textTransform: 'uppercase', color: T.faint }}>Booked in the CRM</div>
+          <div style={{ fontSize: 11, color: T.faint, marginTop: 4 }}>Schedule from a project, or invite {'\u2192'} boardroom@haavn.au</div>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16, alignItems: 'start' }} className="mtg-two">
