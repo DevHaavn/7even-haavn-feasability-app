@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
-import CapitalDeployment from './CapitalDeployment'
+import CapitalCommand from './CapitalCommand'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
@@ -18,6 +18,14 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
   const role = useRole()
+
+  // Capital Command brings its own ATRIUM chrome (topbar + tab nav + theme
+  // toggle), so it renders full-bleed rather than inside the generic pillar
+  // shell — same treatment as the CRM pillar below. Nesting it would have
+  // stacked two headers.
+  if (pillar.id === 'deployment') {
+    return <CapitalCommand onBack={onBack} />
+  }
 
   // Pillar 03 now runs the full ATRIUM Management System — the SAME tool as
   // Management Hub pillar 01 — full-bleed, with all its tabs, and a back pill.
@@ -67,7 +75,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       {/* Body — live module, or scaffold for pillars not yet built.
           Budgets floats as a soft-grey sheet over the stealth-black texture,
           like the project pages. */}
-      {pillar.id === 'budgets' ? <BudgetsAdminBase /> : pillar.id === 'deployment' ? <CapitalDeployment /> : (
+      {pillar.id === 'budgets' ? <BudgetsAdminBase /> : (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
         <span style={{ color: pillar.color, fontFamily: 'monospace', fontSize: 44, fontWeight: 700, opacity: 0.9, textShadow: `0 0 30px ${pillar.color}55` }}>{pillar.num}</span>
         <h1 style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 'clamp(26px, 4vw, 40px)', letterSpacing: '0.05em', margin: '18px 0 10px' }}>

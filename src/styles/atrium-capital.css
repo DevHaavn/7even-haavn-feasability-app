@@ -1,0 +1,144 @@
+/* ============================================================================
+   ATRIUM · CAPITAL COMMAND (Capital Base pillar 02)
+   ----------------------------------------------------------------------------
+   Companion to atrium-studio.css. The Capital Command root carries BOTH classes
+   (`fxs ccx`), so every shared ATRIUM primitive — .panel .kpi .seg .dtable
+   .sumrow .barrow .track .st .chip .pagehead .kicker .h-sec .tag .note .warn —
+   comes from atrium-studio.css unchanged, along with the design tokens, the
+   page texture and the whole `.fxs.dark` dark theme. Duplicating them here
+   would guarantee the two surfaces drift apart.
+
+   This file adds ONLY the components capital-command.html uses that the studio
+   has no equivalent for: its own chrome, kanban, ring, drawer, statgrid,
+   timeline, contact log, linktile, mini-track and buttons.
+   ========================================================================== */
+
+/* ---- Chrome: 7EVEN/CAPITAL stack + persona (studio's is a logo + project) -- */
+.ccx .cc-brandstack{display:flex;flex-direction:column;gap:3px;line-height:1;flex:none}
+.ccx .cc-bs7{font-size:14px;letter-spacing:.42em;font-weight:300;color:var(--chrome-txt)}
+.ccx .cc-bsh{font-size:10px;letter-spacing:.34em;font-weight:600;color:var(--chrome-dim)}
+.ccx .cc-persona{display:flex;flex-direction:column;gap:2px;text-align:right;line-height:1}
+.ccx .cc-persona .pn{font-size:12px;color:var(--chrome-txt);font-weight:500}
+.ccx .cc-persona .pr{font-size:8.5px;letter-spacing:.2em;color:var(--chrome-faint);text-transform:uppercase}
+.ccx .cc-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#556475,#9aa8b6);display:grid;place-items:center;color:#0b1015;font-weight:700;font-size:12px;font-family:var(--mono);flex:none}
+
+/* ---- linktile (deep links out to the studio) ------------------------------ */
+.ccx .linktile{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--border);border-radius:11px;background:var(--card-2);font-size:12px;color:var(--ink);cursor:pointer;transition:.2s;text-align:left;width:100%;font-family:var(--sans)}
+.ccx .linktile:hover{border-color:var(--gold-line)}
+.ccx .linktile .ic{width:28px;height:28px;border-radius:8px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:13px;font-family:var(--serif);flex:none}
+.ccx .linktile .ar{margin-left:auto;color:var(--faint)}
+
+/* ---- okbox (the positive counterpart to the studio's .warn) --------------- */
+.ccx .okbox{font-size:12px;color:var(--emerald);background:var(--em-soft);border:1px solid rgba(47,158,107,0.25);border-radius:10px;padding:13px 15px;line-height:1.55}
+.ccx .okbox.gold{color:var(--gold);background:var(--gold-soft);border-color:var(--gold-line)}
+
+/* ---- bars ----------------------------------------------------------------
+   The prototype's progress bar is `.track` > `.fill`. The studio calls the same
+   thing `.track-bar`, so `.track` carried NO height and NO background here —
+   the fills rendered at the right widths inside a zero-height, transparent box,
+   which drew nothing at all. `.fill` is shared and already correct.
+   The barrow columns are the prototype's too: the studio's 84px value column
+   wrapped "$19M · $24M · $28M" onto two lines. */
+.ccx .track{height:8px;background:var(--track);border-radius:6px;overflow:hidden;display:flex}
+/* `.fxs.ccx` (0,3,0) not `.ccx` (0,2,0): the root carries BOTH classes, and
+   `.fxs .barrow` already sets these columns at equal specificity — so at `.ccx`
+   the winner came down to stylesheet order, and the studio's 84px value column
+   won, clipping "$19M · $24M · $28M" mid-string. */
+/* 144px, not the prototype's 132px: a three-digit stage ("$39M · $86M · $164M")
+   measures 134px, so 132 clipped the last character. */
+.fxs.ccx .barrow{grid-template-columns:170px 1fr 144px}
+.fxs.ccx .barrow .bv{font-family:var(--mono);font-size:11.5px;text-align:right;color:var(--ink-2);white-space:nowrap}
+.fxs.ccx .barrow .bv b{color:var(--gold);font-weight:600}
+@media(max-width:700px){.fxs.ccx .barrow{grid-template-columns:110px 1fr 124px;gap:10px}}
+
+/* ---- mini inline progress (inside table cells) --------------------------- */
+.ccx .mini-track{height:6px;width:74px;border-radius:4px;background:var(--track);overflow:hidden;display:inline-block;vertical-align:middle}
+.ccx .mini-track i{display:block;height:100%;background:var(--gold)}
+
+/* ---- kanban (raise pipeline) --------------------------------------------- */
+.ccx .kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1100px){.ccx .kanban{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.ccx .kanban{grid-template-columns:1fr}}
+.ccx .kcol{background:var(--card-3);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:120px;transition:.15s}
+/* drag feedback — the column you'd drop into */
+.ccx .kcol.over{border-color:var(--gold);background:var(--gold-soft)}
+.ccx .khead{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 12px;font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;font-weight:600}
+.ccx .khead .ct{color:var(--gold);font-family:var(--mono)}
+.ccx .kcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:9px;cursor:grab;transition:.15s;box-shadow:var(--shadow)}
+.ccx .kcard:hover{border-color:var(--gold-line);transform:translateY(-1px)}
+.ccx .kcard.dragging{opacity:.4;cursor:grabbing}
+.ccx .kcard .nm{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.ccx .kcard .am{font-family:var(--mono);color:var(--gold);font-size:13px;margin:5px 0}
+.ccx .kcard .sm{font-size:10px;color:var(--faint)}
+.ccx .prob{height:4px;border-radius:3px;background:var(--track);margin-top:9px;overflow:hidden}
+.ccx .prob i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
+
+/* ---- timeline (portal / project phases) ---------------------------------- */
+.ccx .tl{display:flex;gap:14px;padding-bottom:16px;position:relative}
+.ccx .tl::before{content:'';position:absolute;left:8px;top:20px;bottom:-2px;width:2px;background:var(--border)}
+.ccx .tl:last-child::before{display:none}
+.ccx .tl .node{width:18px;height:18px;border-radius:50%;border:2px solid var(--border-hi);background:var(--card);flex-shrink:0;margin-top:2px;z-index:1}
+.ccx .tl.done .node{background:var(--emerald);border-color:var(--emerald)}
+.ccx .tl.now .node{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
+.ccx .tl .tt{font-size:13px;font-weight:600;color:var(--ink)}
+.ccx .tl .td{font-size:11px;color:var(--faint);margin-top:2px}
+
+/* ---- contact log --------------------------------------------------------- */
+.ccx .log{border-left:2px solid var(--border);padding:0 0 0 15px;margin-left:4px}
+.ccx .log .e{padding-bottom:14px;position:relative;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.ccx .log .e::before{content:'';position:absolute;left:-20px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.ccx .log .e .dt{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+
+/* ---- ring (conic progress) ----------------------------------------------- */
+.ccx .ring{width:118px;height:118px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%), var(--track) 0);display:grid;place-items:center;flex:none}
+.ccx .ring .in{width:90px;height:90px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;box-shadow:var(--glass-edge)}
+
+/* ---- drawer + scrim ------------------------------------------------------ */
+.ccx .scrim{position:fixed;inset:0;background:rgba(15,20,28,.4);opacity:0;pointer-events:none;transition:.25s;z-index:88;backdrop-filter:blur(2px)}
+.ccx .scrim.on{opacity:1;pointer-events:auto}
+/* OPAQUE in dark: --card is white at 4.5%, which over the scrim would let the
+   page read straight through the drawer. Same fix as the studio's .fx-modal. */
+.ccx .drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,94vw);z-index:90;background:var(--card);border-left:1px solid var(--border-hi);transform:translateX(100%);transition:.35s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:var(--shadow-lg);backdrop-filter:blur(24px) saturate(1.2)}
+.ccx.dark .drawer{background:#0d1319}
+.ccx .drawer.open{transform:none}
+.ccx .drawer-x{position:absolute;top:20px;right:22px;font-size:20px;color:var(--ink-2);cursor:pointer;background:none;border:none;z-index:2;line-height:1}
+.ccx .dr-pad{padding:34px 30px 70px}
+.ccx .dr-pad h2{font-family:var(--serif);font-size:27px;font-weight:500;color:var(--ink);margin:6px 0 2px}
+@media(prefers-reduced-motion:reduce){.ccx .drawer{transition:none}}
+
+/* ---- statgrid (3-up stat strip inside a drawer) -------------------------- */
+.ccx .statgrid{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:16px 0;background:var(--card-2)}
+.ccx .statgrid .s{flex:1;padding:13px;border-right:1px solid var(--line);min-width:0}
+.ccx .statgrid .s:last-child{border-right:0}
+.ccx .statgrid .s .l{font-size:8.5px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;font-weight:600}
+.ccx .statgrid .s .v{font-family:var(--mono);font-size:19px;margin-top:5px;color:var(--ink)}
+
+/* ---- buttons ------------------------------------------------------------- */
+.ccx .btn{font-size:10px;letter-spacing:.12em;padding:10px 15px;border-radius:9px;border:1px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);cursor:pointer;text-transform:uppercase;font-weight:600;font-family:var(--sans);transition:.2s}
+.ccx .btn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.ccx .btn.ghost{border-color:var(--border);background:transparent;color:var(--ink-2)}
+.ccx .btn.ghost:hover{border-color:var(--border-hi);color:var(--ink)}
+.ccx .btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- forms (intake / position / call / distribution) --------------------- */
+.ccx .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+@media(max-width:640px){.ccx .fgrid{grid-template-columns:1fr}}
+.ccx .fgrid .full{grid-column:1/-1}
+.ccx .flab{display:block;font-size:9px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.ccx .fin{width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;transition:.2s}
+.ccx .fin:focus{outline:none;border-color:var(--gold)}
+.ccx .fin.mono{font-family:var(--mono);text-align:right}
+.ccx textarea.fin{min-height:70px;resize:vertical}
+.ccx .fin:disabled{opacity:.55;cursor:not-allowed;background:var(--card-3)}
+.ccx .freq{color:var(--gold)}
+.ccx .ferr{font-size:10.5px;color:var(--red);margin-top:5px}
+/* Locked block — banking + KYC, pending real per-user auth. Deliberately looks
+   inert rather than hidden, so Lewis can see the shape of what is coming. */
+.ccx .flocked{border:1px dashed var(--border-hi);border-radius:11px;padding:15px 16px;background:var(--card-3);position:relative}
+.ccx .flocked .lockmsg{font-size:11px;color:var(--amber);background:rgba(198,125,51,0.1);border:1px solid rgba(198,125,51,0.25);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.5}
+
+/* ---- misc ---------------------------------------------------------------- */
+.ccx .foot{text-align:center;padding:40px 0 8px;font-size:10px;letter-spacing:.2em;color:var(--faint)}
+.ccx .empty{padding:34px 20px;text-align:center;color:var(--faint);font-size:12px}
+.ccx .srch{font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--input-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;min-width:190px;transition:.2s}
+.ccx .srch:focus{outline:none;border-color:var(--gold)}

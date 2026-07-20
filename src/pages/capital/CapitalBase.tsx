@@ -28,9 +28,9 @@ export const PILLARS: Pillar[] = [
     color: '#13B5EA', // Xero brand blue
   },
   {
-    id: 'deployment', num: '02', title: 'Capital Deployment',
-    sub: 'Capital Command Centre · Raise · Deploy',
-    blurb: 'The capital command centre. Requirement, committed and deployed across every stage of every project — with partners and upcoming calls.',
+    id: 'deployment', num: '02', title: 'Capital Command',
+    sub: 'Raise · Investors · Calls · Returns',
+    blurb: 'The capital command centre. Every dollar across the portfolio — pulled live from the feasibility studio — plus the full investor lifecycle: intake, pipeline, capital calls and distributions.',
     color: '#1FE87A',
   },
   {

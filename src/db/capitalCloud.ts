@@ -20,7 +20,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js'
 export const CAPITAL_KEYS = [
   'capital_admin_v3',    // Budgets / Administration (CFO model — live shared)
   'capital_admin_v2',    // Budgets / Administration (legacy)
-  'capital_deploy_v2',   // Capital Command Centre
+  'capital_deploy_v2',   // Capital Command Centre (legacy — pre-ATRIUM rebuild)
+  'capital_command_v1',  // Capital Command (pillar 02, ATRIUM rebuild)
   'war_room_v1',         // War Room — targets, contacts, signal feed
   'war_pipeline_v1',     // Division pipelines + workflow jobs
   'sales_stock_v1',      // 7ED stock ledger

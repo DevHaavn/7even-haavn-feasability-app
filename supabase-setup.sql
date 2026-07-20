@@ -124,4 +124,40 @@ create policy anon_all_project_docs on storage.objects
   using (bucket_id = 'project-docs')
   with check (bucket_id = 'project-docs');
 
+-- ---- Capital Base shared state (capital_kv) --------------------------------
+-- src/db/capitalCloud.ts mirrors each back-of-house module's state blob here so
+-- the team shares one dataset. It was never created, and that file is written to
+-- "degrade gracefully" — so every write failed SILENTLY and the whole Capital
+-- Base ran off localStorage alone. Anything Lewis entered lived in his browser
+-- only: invisible to Daniel, and gone on a cache clear or a new laptop.
+-- Without this table Capital Command is single-browser scratch space.
+
+create table if not exists public.capital_kv (
+  key        text primary key,   -- e.g. 'capital_deploy_v2' (see CAPITAL_KEYS)
+  value      jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table public.capital_kv enable row level security;
+drop policy if exists anon_all on public.capital_kv;
+create policy anon_all on public.capital_kv
+  for all to anon, authenticated using (true) with check (true);
+
+-- Realtime, so a teammate's edit fans out to every open browser.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'capital_kv'
+  ) then
+    alter publication supabase_realtime add table public.capital_kv;
+  end if;
+end $$;
+
+-- NOTE: this policy is the same open trust model as the tables above — the app's
+-- password screen is the gate, and the anon key ships in the public bundle. That
+-- is acceptable for 7EVEN's own commercial data. It is NOT an acceptable home for
+-- investor bank accounts, KYC or identity documents; those need real per-user auth
+-- and RLS first, which is why Capital Command does not store them.
+
 -- Done. The new database is ready for the app.
