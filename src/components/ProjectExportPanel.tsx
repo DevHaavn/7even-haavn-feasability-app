@@ -6,9 +6,13 @@ import { useStore } from '../store'
 export default function ProjectExportPanel({ projectId, projectName }: { projectId: string; projectName: string }) {
   const { projects } = useStore()
   const project = projects.find(p => p.id === projectId)
-  const [selected, setSelected] = useState<Set<string>>(new Set())
+  // Everything ticked by default. It used to start empty, so opening the panel
+  // and clicking PDF hit the `selected.size === 0` guard in run() and returned
+  // silently — no file, no error, which read as "export is broken".
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(ALL_EXPORT_IDS))
   const [busy, setBusy] = useState<'pdf' | 'excel' | null>(null)
   const [done, setDone] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const allSelected = selected.size === ALL_EXPORT_IDS.length
 
@@ -38,18 +42,26 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
     if (selected.size === 0 || busy) return
     setBusy(format)
     setDone(null)
+    setError(null)
     try {
       // Let the button state paint before the generation work
       await new Promise(r => setTimeout(r, 30))
       // Exporter libs are heavy — loaded on demand so the app bundle stays lean
       const { exportPdf, exportExcel } = await import('../lib/exporters')
       const sections = buildExportSections(projectId, Array.from(selected))
+      if (!sections.length) { setError('Nothing to export — the selected tabs have no data yet.'); return }
       if (format === 'pdf') await exportPdf(projectName, project?.address ?? '', sections)
       else exportExcel(projectName, project?.address ?? '', sections)
       setDone(format === 'pdf' ? 'PDF downloaded' : 'Excel downloaded')
+    } catch (e) {
+      // There was no catch here at all, so a failing export died silently and
+      // looked identical to nothing happening. Say what went wrong.
+      const msg = e instanceof Error ? e.message : String(e)
+      setError(`Export failed — ${msg}`)
+      console.error('[export]', e)
     } finally {
       setBusy(null)
-      setTimeout(() => setDone(null), 4000)
+      setTimeout(() => { setDone(null); setError(null) }, 6000)
     }
   }
 
@@ -127,6 +139,7 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
           </span>
           <div style={{ flex: 1 }} />
           {done && <span style={{ color: '#3DAA6A', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>✓ {done}</span>}
+          {error && <span style={{ color: '#D4553E', fontSize: 10.5, letterSpacing: '0.02em', maxWidth: 420 }}>{error}</span>}
           <button
             onClick={() => run('pdf')}
             disabled={count === 0 || busy !== null}
