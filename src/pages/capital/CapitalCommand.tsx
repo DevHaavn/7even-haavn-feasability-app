@@ -5,6 +5,7 @@ import { useStore } from '../../store'
 import {
   loadCapital, saveCapital, portfolioTotals, stageRollup,
   projectRaised, projectDeployed, investorCommitted, investorFunded,
+  callFunded, callInvestorCount,
   fmtM, fmtPct, type CapitalState, type CapProject,
 } from './capitalModel'
 import { readFeasibility, diffSync, applySync, type SyncDiffLine } from './capitalSync'
@@ -141,6 +142,47 @@ export function Bar2({ deployed, raised, required }: { deployed: number; raised:
   )
 }
 
+/**
+ * Objective row — reads as the design's "82%" readout, but click the figure to
+ * edit the underlying current value. An always-on input box (the first pass)
+ * put a form control in a panel the design draws as a summary.
+ */
+function ObjectiveRow({ objective, onChange }: {
+  objective: { id: string; label: string; current: number; target: number; unit?: string }
+  onChange: (v: number) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+  const pct = objective.target > 0 ? Math.min(100, (objective.current / objective.target) * 100) : 0
+  const col = pct < 70 ? 'var(--amber)' : 'var(--emerald)'
+
+  const commit = () => {
+    const v = parseFloat(draft)
+    if (Number.isFinite(v)) onChange(Math.max(0, v))
+    setEditing(false)
+  }
+
+  return (
+    <div className="barrow" style={{ gridTemplateColumns: '200px 1fr 56px' }}>
+      <span className="bl">{objective.label}</span>
+      <div className="track"><div className="fill" style={{ width: `${pct}%`, background: col }} /></div>
+      {editing ? (
+        <input className="fin mono" autoFocus style={{ padding: '3px 5px', fontSize: 11 }}
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }} />
+      ) : (
+        <span className="bv" style={{ color: col, cursor: 'pointer' }}
+          title={`${objective.current} of ${objective.target}${objective.unit ? ` ${objective.unit}` : ''} — click to edit`}
+          onClick={() => { setDraft(String(objective.current)); setEditing(true) }}>
+          {Math.round(pct)}%
+        </span>
+      )}
+    </div>
+  )
+}
+
 export function StatusTag({ status }: { status: string }) {
   const m: Record<string, [string, string]> = {
     live: ['pos', 'Live'], hold: ['marg', 'On hold'], complete: ['info', 'Complete'],
@@ -173,8 +215,8 @@ function CommandTab() {
     setTimeout(() => setToast(null), 4000)
   }
 
-  // Deployment velocity — cumulative funded by month from real call fundings.
-  const velocity = useMemo(() => {
+  // Deployment velocity — cumulative capital working, by month.
+  const [velocity, velocityIsActual] = useMemo<[number[], boolean]>(() => {
     const byMonth = new Array(12).fill(0)
     state.callAllocations.forEach(a => {
       if (!a.fundedDate) return
@@ -183,9 +225,16 @@ function CommandTab() {
     })
     let run = 0
     const cum = byMonth.map(v => (run += v))
-    // Nothing funded through calls yet (seed funds positions directly) — fall
-    // back to a flat ramp to today's deployed so the panel isn't a dead line.
-    return cum[11] > 0 ? cum : byMonth.map((_, i) => (t.deployed * (i + 1)) / 12)
+    // Most deployment predates the call register (seed positions are funded
+    // directly), so the call history alone understates it badly. When it covers
+    // less than half of what is actually deployed, show a modelled S-curve to
+    // today's figure instead — flagged in the caption, never presented as actual.
+    if (cum[11] >= t.deployed * 0.5 && cum[11] > 0) return [cum, true]
+    const shape = (i: number) => {
+      const x = (i + 1) / 12
+      return x * x * (3 - 2 * x)      // smoothstep: slow start, accelerating middle
+    }
+    return [Array.from({ length: 12 }, (_, i) => t.deployed * shape(i)), false]
   }, [state.callAllocations, t.deployed])
 
   const vmax = Math.max(...velocity, 1)
@@ -211,7 +260,7 @@ function CommandTab() {
   const stackTotal = stack.reduce((a, s) => a + s.v, 0) || 1
 
   const overdueCalls = state.calls.filter(c => c.status !== 'draft' && c.status !== 'funded' && new Date(c.dueDate) < new Date())
-  const underStage = stages.find(s => s.raised / (s.required || 1) < 0.6)
+  const biggestStage = [...stages].sort((a, b) => b.required - a.required)[0]
 
   return (
     <>
@@ -265,11 +314,13 @@ function CommandTab() {
         </div>
       )}
 
+      {/* 0dp throughout the headline figures — the design reads "$312M", and a
+          trailing ".0" on every card is noise at portfolio scale. */}
       <div className="kpis k4 mb">
-        <div className="kpi"><div className="lab">Total capital required</div><div className="val">{fmtM(t.required)}</div><div className="sub">portfolio · all stages</div></div>
-        <div className="kpi accent"><div className="lab">Committed / raised</div><div className="val">{fmtM(t.raised)}</div><div className="sub">{fmtPct(t.pctRaised)} of requirement</div></div>
-        <div className="kpi g"><div className="lab">Deployed &amp; working</div><div className="val">{fmtM(t.deployed)}</div><div className="sub">{fmtPct(t.pctDeployed)} drawn</div></div>
-        <div className="kpi"><div className="lab">Remaining to raise</div><div className="val">{fmtM(t.remaining)}</div><div className="sub">open equity ticket</div></div>
+        <div className="kpi"><div className="lab">Total capital required</div><div className="val">{fmtM(t.required, 0)}</div><div className="sub">portfolio · all stages</div></div>
+        <div className="kpi accent"><div className="lab">Committed / raised</div><div className="val">{fmtM(t.raised, 0)}</div><div className="sub">{fmtPct(t.pctRaised)} of requirement</div></div>
+        <div className="kpi g"><div className="lab">Deployed &amp; working</div><div className="val">{fmtM(t.deployed, 0)}</div><div className="sub">{fmtPct(t.pctDeployed)} drawn</div></div>
+        <div className="kpi"><div className="lab">Remaining to raise</div><div className="val">{fmtM(t.remaining, 0)}</div><div className="sub">open equity ticket</div></div>
       </div>
 
       <div className="panel pad gold-top mb">
@@ -282,9 +333,9 @@ function CommandTab() {
           <div className="fill" style={{ width: `${Math.max(0, (t.pctRaised - t.pctDeployed) * 100)}%`, background: 'var(--gold-line)' }} />
         </div>
         <div className="legend">
-          <span><i style={{ background: 'var(--gold)' }} />Deployed {fmtM(t.deployed)}</span>
-          <span><i style={{ background: 'var(--gold-line)' }} />Committed {fmtM(t.raised - t.deployed)}</span>
-          <span><i style={{ background: 'var(--track)' }} />To raise {fmtM(t.remaining)}</span>
+          <span><i style={{ background: 'var(--gold)' }} />Deployed {fmtM(t.deployed, 0)}</span>
+          <span><i style={{ background: 'var(--gold-line)' }} />Committed {fmtM(t.raised - t.deployed, 0)}</span>
+          <span><i style={{ background: 'var(--track)' }} />To raise {fmtM(t.remaining, 0)}</span>
         </div>
       </div>
 
@@ -300,7 +351,14 @@ function CommandTab() {
           ))}
         </div>
         <div className="panel pad">
-          <div className="flex between aic mb"><span className="eyebrow">Deployment velocity · cumulative · 12 mo</span></div>
+          <div className="flex between aic mb">
+            <span className="eyebrow">Deployment velocity · cumulative · 12 mo</span>
+            {!velocityIsActual && (
+              <span className="note" style={{ fontSize: 10, color: 'var(--faint)' }} title="Most capital was deployed before the call register existed, so this is a modelled ramp to today's figure rather than month-by-month actuals.">
+                modelled
+              </span>
+            )}
+          </div>
           <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={150} preserveAspectRatio="none">
             <defs>
               <linearGradient id="ccv" x1="0" x2="0" y1="0" y2="1">
@@ -315,15 +373,19 @@ function CommandTab() {
             {['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'].map((m, i) => <span key={i}>{m}</span>)}
           </div>
           {(() => {
-            const next = [...state.calls]
-              .filter(c => c.status !== 'funded')
+            // The next call is the next one DUE, not the earliest unfunded —
+            // an overdue call is a problem to chase (it has its own banner),
+            // not the thing to plan around.
+            const today = new Date().toISOString().slice(0, 10)
+            const upcoming = [...state.calls]
+              .filter(c => c.status !== 'funded' && c.dueDate >= today)
               .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]
-            const proj = next && state.projects.find(p => p.id === next.projectId)
+            const proj = upcoming && state.projects.find(p => p.id === upcoming.projectId)
             return (
               <div className="note mt">
-                {next
-                  ? <><b style={{ color: 'var(--gold)' }}>Next call</b> · {new Date(next.dueDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} · {fmtM(next.totalAmount)} — {next.stage}, {proj?.name ?? '—'}</>
-                  : 'No calls scheduled.'}
+                {upcoming
+                  ? <><b style={{ color: 'var(--gold)' }}>Next call</b> · {new Date(upcoming.dueDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} · {fmtM(upcoming.totalAmount, 0)} — {upcoming.stage}, {proj?.name ?? '—'}</>
+                  : 'No upcoming calls scheduled.'}
               </div>
             )
           })()}
@@ -332,12 +394,12 @@ function CommandTab() {
 
       <div className="two">
         <div className="panel pad">
-          <div className="divlabel">Capital stack · how {fmtM(t.required)} is structured</div>
+          <div className="divlabel">Capital stack · how {fmtM(t.required, 0)} is structured</div>
           <div className="track" style={{ height: 16 }}>
             {stack.map(s => <div key={s.n} className="fill" style={{ width: `${(s.v / stackTotal) * 100}%`, background: s.c }} />)}
           </div>
           <div className="legend">
-            {stack.map(s => <span key={s.n}><i style={{ background: s.c }} />{s.n} {fmtM(s.v)}</span>)}
+            {stack.map(s => <span key={s.n}><i style={{ background: s.c }} />{s.n} {fmtM(s.v, 0)}</span>)}
           </div>
           <div className="divlabel">Live feasibility &amp; finance feeds</div>
           <div className="two" style={{ gap: 10 }}>
@@ -363,32 +425,31 @@ function CommandTab() {
 
         <div className="panel pad">
           <div className="divlabel">Director objectives · alignment</div>
-          {state.objectives.map(o => {
-            const pct = o.target > 0 ? Math.min(100, (o.current / o.target) * 100) : 0
-            const col = pct < 70 ? 'var(--amber)' : 'var(--emerald)'
-            return (
-              <div key={o.id} className="barrow" style={{ gridTemplateColumns: '200px 1fr 64px' }}>
-                <span className="bl">{o.label}</span>
-                <div className="track"><div className="fill" style={{ width: `${pct}%`, background: col }} /></div>
-                <input className="fin mono" style={{ padding: '4px 6px', fontSize: 11 }}
-                  value={o.current}
-                  onChange={e => {
-                    const v = parseFloat(e.target.value)
-                    update(s => ({ ...s, objectives: s.objectives.map(x => x.id === o.id ? { ...x, current: Number.isFinite(v) ? v : 0 } : x) }))
-                  }} />
-              </div>
-            )
-          })}
+          {state.objectives.map(o => (
+            <ObjectiveRow key={o.id} objective={o}
+              onChange={v => update(s => ({ ...s, objectives: s.objectives.map(x => x.id === o.id ? { ...x, current: v } : x) }))} />
+          ))}
           <div className="mt2" />
           {overdueCalls.map(c => {
             const p = state.projects.find(x => x.id === c.projectId)
-            return <div key={c.id} className="warn mb">⚠ {p?.name} {c.stage} call ({fmtM(c.totalAmount)}) is <b>overdue</b> — due {new Date(c.dueDate).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}.</div>
-          })}
-          {underStage
-            ? <div className="okbox" style={{ color: 'var(--amber)', background: 'rgba(198,125,51,0.1)', borderColor: 'rgba(198,125,51,0.25)' }}>
-                ⚠ {underStage.stage} {fmtPct(underStage.raised / (underStage.required || 1))} subscribed — {fmtM(underStage.raised)} of {fmtM(underStage.required)}.
+            const short = c.totalAmount - callFunded(state, c.id)
+            const n = callInvestorCount(state, c.id)
+            return (
+              <div key={c.id} className="warn mb">
+                ⚠ {p?.name} {c.stage.toLowerCase()} call ({fmtM(c.totalAmount, 0)}) is <b>overdue</b>
+                {n > 0 && <> — {n} investor{n === 1 ? '' : 's'}, {fmtM(short)} outstanding</>}.
               </div>
-            : <div className="okbox">✓ All stages above 60% subscribed.</div>}
+            )
+          })}
+          {/* The largest stage's subscription level, stated rather than alarmed:
+              a partly-subscribed stage mid-raise is the normal case. The genuine
+              alert above is the overdue call. */}
+          {biggestStage && (
+            <div className="okbox">
+              ✓ {biggestStage.stage} {fmtPct(biggestStage.raised / (biggestStage.required || 1))} subscribed —
+              {' '}{fmtM(biggestStage.raised, 0)} of {fmtM(biggestStage.required, 0)} raised.
+            </div>
+          )}
           {overdueCalls.length === 0 && <div className="okbox mt">✓ No overdue capital calls.</div>}
         </div>
       </div>

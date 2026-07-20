@@ -254,6 +254,30 @@ const P = (
   capitalRequired: capitalRequired * 1e6, projIrr, equityMultiple, feasibilityRef,
 })
 
+/**
+ * Portfolio capital structure — Senior $148M · Mezz $40M · LP Equity $98M ·
+ * HAAVN/GP co-invest $26M, summing to the $312M requirement.
+ *
+ * Held per project (splitting each project's requirement in these ratios) rather
+ * than as one portfolio constant, because Command aggregates the stack from
+ * `project.capitalStack` — which is also what a Pull from Feasibility overwrites
+ * project by project. A portfolio-level constant would stop reflecting reality
+ * the moment the first project synced.
+ */
+const STACK_RATIO: { tranche: string; type: string; of: number; rate?: number }[] = [
+  { tranche: 'Senior Debt', type: 'senior', of: 148 / 312, rate: 6.85 },
+  { tranche: 'Mezzanine', type: 'mezz', of: 40 / 312, rate: 12.5 },
+  { tranche: 'LP Equity', type: 'lp_equity', of: 98 / 312 },
+  { tranche: 'HAAVN / GP Co-invest', type: 'lp_equity', of: 26 / 312 },
+]
+
+const withStack = (p: CapProject): CapProject => ({
+  ...p,
+  capitalStack: STACK_RATIO.map(s => ({
+    tranche: s.tranche, type: s.type, amount: p.capitalRequired * s.of, rate: s.rate,
+  })),
+})
+
 const SEED_PROJECTS: CapProject[] = [
   P('01', 'St Village Preston', '20–30 Newman St, Preston VIC', 'BTR', 'live', 'Construction', 78, 96, 19.4, 1.9, 'seed-preston-001'),
   P('02', '5IVE Hotels Caloundra', '31 Esplanade, Caloundra QLD', 'HOTEL', 'live', 'Permits & Design', 64, 58, 22.1, 2.1),
@@ -261,7 +285,7 @@ const SEED_PROJECTS: CapProject[] = [
   P('04', 'Waurnvale Drive', 'Belmont, Geelong VIC', 'BTS', 'live', 'Feasibility → DA', 41, 38, 20.5, 1.7),
   P('05', '225 Heaths Road Werribee', 'Werribee VIC', 'BTS', 'hold', 'On Hold', 34, 34, 16.0, 1.6),
   P('06', '575 Derrimut Road Tarneit', 'Tarneit VIC', 'MIXED', 'live', 'Feasibility', 31, 39, 17.8, 1.75),
-]
+].map(withStack)
 
 // dep / raised / req per §13. Σ req 312 · Σ raised 198 · Σ dep 124 — the same
 // totals the positions produce, so the stage panel and the KPI strip agree.
@@ -324,13 +348,17 @@ export function seedCapitalState(): CapitalState {
     }
   })
 
-  const calls: CapCall[] = [
-    { id: 'call_1', projectId: 'prj_01', stage: 'Construction Equity', callDate: '2026-07-29', dueDate: '2026-08-12', totalAmount: 14e6, allocationMethod: 'pro_rata', status: 'issued', purpose: 'Level 7–9 structure' },
-    { id: 'call_2', projectId: 'prj_04', stage: 'Working Capital', callDate: '2026-07-11', dueDate: '2026-07-25', totalAmount: 6e6, allocationMethod: 'pro_rata', status: 'issued', purpose: 'DA + consultants' },
-    { id: 'call_3', projectId: 'prj_02', stage: 'Construction Equity', callDate: '2026-08-20', dueDate: '2026-09-03', totalAmount: 9e6, allocationMethod: 'pro_rata', status: 'draft' },
-    { id: 'call_4', projectId: 'prj_06', stage: 'Land Acquisition', callDate: '2026-07-03', dueDate: '2026-07-17', totalAmount: 3e6, allocationMethod: 'pro_rata', status: 'funded' },
-    { id: 'call_5', projectId: 'prj_03', stage: 'Land Acquisition', callDate: '2026-09-30', dueDate: '2026-10-14', totalAmount: 7e6, allocationMethod: 'pro_rata', status: 'draft' },
+  // `funded` is the fraction collected so far. Waurnvale is deliberately past its
+  // due date and part-paid, which is what raises the overdue banner on Command:
+  // $6M called, 60% in, $2.4M outstanding across its 3 investors.
+  const callSeed: (CapCall & { funded: number })[] = [
+    { id: 'call_1', projectId: 'prj_01', stage: 'Construction Equity', callDate: '2026-07-29', dueDate: '2026-08-12', totalAmount: 14e6, allocationMethod: 'pro_rata', status: 'issued', purpose: 'Level 7–9 structure', funded: 0.4 },
+    { id: 'call_2', projectId: 'prj_04', stage: 'Working Capital', callDate: '2026-06-26', dueDate: '2026-07-10', totalAmount: 6e6, allocationMethod: 'pro_rata', status: 'issued', purpose: 'DA + consultants', funded: 0.6 },
+    { id: 'call_3', projectId: 'prj_02', stage: 'Construction Equity', callDate: '2026-08-20', dueDate: '2026-09-03', totalAmount: 9e6, allocationMethod: 'pro_rata', status: 'draft', funded: 0 },
+    { id: 'call_4', projectId: 'prj_06', stage: 'Land Acquisition', callDate: '2026-07-03', dueDate: '2026-07-17', totalAmount: 3e6, allocationMethod: 'pro_rata', status: 'funded', funded: 1 },
+    { id: 'call_5', projectId: 'prj_03', stage: 'Land Acquisition', callDate: '2026-09-30', dueDate: '2026-10-14', totalAmount: 7e6, allocationMethod: 'pro_rata', status: 'draft', funded: 0 },
   ]
+  const calls: CapCall[] = callSeed.map(({ funded, ...c }) => c)
 
   const pipeline: CapPipelineItem[] = [
     { id: 'pip_1', prospectName: 'Whitmore Trust', targetAmount: 15e6, projectId: 'prj_01', stage: 'prospect', probability: 20, owner: 'Lewis Jin', nextAction: 'Intro deck sent' },
@@ -350,19 +378,20 @@ export function seedCapitalState(): CapitalState {
   // uncalled commitment — the same rule the New Call form uses. Without this the
   // Calls tab seeds with calls that have nobody on them and nothing to fund.
   const callAllocations: CapCallAllocation[] = []
-  for (const c of calls) {
+  for (const c of callSeed) {
     const eligible = positions
       .filter(p => p.projectId === c.projectId)
       .map(p => ({ p, uncalled: Math.max(0, p.committedAmount - p.fundedAmount) }))
       .filter(x => x.uncalled > 0)
     if (eligible.length === 0) continue
     const split = allocateProRata(c.totalAmount, eligible.map(e => ({ id: e.p.id, weight: e.uncalled })))
+    // Collect the call's funded fraction pro-rata too, so the per-investor rows
+    // sum exactly to the amount actually in.
+    const collected = allocateProRata(c.totalAmount * c.funded, eligible.map(e => ({ id: e.p.id, weight: e.uncalled })))
     eligible.forEach((e, i) => {
       const amount = split[e.p.id] ?? 0
       if (amount <= 0) return
-      // A funded call is fully funded; an issued one is part-paid so Lewis has
-      // something live to work with. Drafts sit outstanding.
-      const fundedAmount = c.status === 'funded' ? amount : c.status === 'issued' && i === 0 ? amount : 0
+      const fundedAmount = Math.min(amount, collected[e.p.id] ?? 0)
       callAllocations.push({
         id: `cal_${c.id}_${i}`, callId: c.id, positionId: e.p.id, investorId: e.p.investorId,
         amount, fundedAmount,
