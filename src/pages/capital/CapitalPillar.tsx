@@ -54,7 +54,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Header — flips with the theme (CRM stays dark) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: `1px solid ${isCRM ? '#1A1A1A' : pal.headerBorder}`, flexShrink: 0, background: isCRM ? 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A' : pal.headerBg }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '18px 32px', borderBottom: `1px solid ${isCRM ? '#1A1A1A' : pal.headerBorder}`, flexShrink: 0, background: isCRM ? 'linear-gradient(180deg, #0f151c, #0b1015)' : pal.headerBg }}>
         {isCRM ? (
           <Button variant="glassDark" onClick={onExit} style={{ fontSize: 11 }}>
             Deploy Studio

@@ -9,7 +9,9 @@ export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' |
   // grey/blue glass over the home render — links + copyright stay readable on all.
   const bg = light ? 'transparent'
     : glass ? 'rgba(150,172,196,0.10)'
-    : 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A'
+    // ATRIUM chrome, matching the header bar. Was the /home-bg.jpg particle
+    // mesh, which left a black textured strip under the architectural plate.
+    : 'linear-gradient(180deg, #0f151c, #0b1015)'
   const visitCol = light ? '#636966' : glass ? '#C6CDCF' : '#fff'
   const dividerCol = light ? '#D3D4D8' : glass ? 'rgba(220,232,244,0.28)' : '#333'
   const brandCol = light ? '#3A3F3C' : glass ? '#EEF1F2' : 'rgba(255,255,255,0.85)'

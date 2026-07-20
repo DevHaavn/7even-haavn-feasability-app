@@ -57,8 +57,12 @@ export interface AtriumPalette {
 
 const DARK: AtriumPalette = {
   bg: 'linear-gradient(rgba(3,3,3,0.30), rgba(3,3,3,0.55) 70%, rgba(3,3,3,0.78)), url(/capital-bg.png) center / cover no-repeat fixed, #030303',
-  headerBg: 'linear-gradient(rgba(8,8,8,0.80), rgba(8,8,8,0.86)), url(/home-bg.jpg) center / cover no-repeat, #0A0A0A',
-  headerBorder: '#1A1A1A',
+  // The ATRIUM chrome — the same blue-black bar as the Capital Command topbar
+  // and the Management System. It used to composite /home-bg.jpg, the black
+  // particle mesh, which read as a leftover texture against the architectural
+  // plate now behind every pillar screen.
+  headerBg: 'linear-gradient(180deg, #0f151c, #0b1015)',
+  headerBorder: 'rgba(255,255,255,0.09)',
   cardBg: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.25))',
   cardBorder: 'rgba(255,255,255,0.10)',
   cardShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)',
