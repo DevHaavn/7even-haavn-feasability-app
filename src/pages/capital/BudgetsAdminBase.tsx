@@ -44,25 +44,17 @@ export default function BudgetsAdminBase() {
     return () => window.removeEventListener('message', onMsg)
   }, [])
 
-  // 7EVEN Capital Administration — Book 01. The ATRIUM silver-glass build:
-  // Dashboard, 7EVEN GROUP · Structure (four animated org charts), Project
-  // tracking, Budget entry, Invoices & Bills, Project spend. Self-contained and
-  // mounted the same way as Book 02 below, so both books behave identically.
+  // 7EVEN Capital Administration — the live book: Xero connect / push / pull,
+  // project tracking wired to the feasibility studio, the detailed cost stack
+  // and the month-by-month budget grid.
+  //
+  // This briefly rendered a static HTML design instead, which silently removed
+  // every one of those functions - the file is a visual target, not an app. The
+  // restyle has to be applied TO this component, never in place of it.
   if (group === '7even') {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
-        <iframe
-          title="ATRIUM — 7EVEN Capital Administration"
-          src="/atrium-book01-7even-capital.html"
-          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
-        />
-        <button onClick={() => setGroup(null)}
-          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501,
-            padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700,
-            color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #3A4146', borderRadius: 999,
-            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
-          ← Administration
-        </button>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500 }}>
+        <BudgetsAdmin key={group} group={group} onBackToGroups={() => setGroup(null)} />
       </div>
     )
   }
