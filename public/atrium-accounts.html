@@ -228,7 +228,46 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--f-400);outline-o
 @media(max-width:600px){.main{padding:18px 15px 50px}.grid2{grid-template-columns:1fr}.topbar{flex-wrap:wrap;gap:10px}.topbar .partner{display:none}.vhead h1{font-size:26px}}
 .stat>*,.grid>*,.grid2>*{min-width:0}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style></head><body>
+</style>
+<style id="atrium-reskin-v2">
+/* ── ATRIUM Book 02 re-skin · STEP 0 shell (CSS only — no JS/logic touched) ────
+   Recolour Dom's forest-green chrome to the new charcoal-blue silver-glass
+   chrome and add the new soft-gradient background. Content is restyled in the
+   following steps. */
+:root{ --cx:#131b26; --cx2:#0f1620; --cx-line:rgba(255,255,255,.09);
+  --cx-txt:#e8edf1; --cx-dim:#9aa7b2; --cx-faint:#6c7a88; --sil-hi:#cdd8e2; }
+/* page background — the new design's light-theme plate (chrome stays dark) */
+body{ background:#e6ebf1; }
+#atrium-bg{ position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+   radial-gradient(120% 85% at 12% -12%, rgba(190,208,228,.6), transparent 55%),
+   radial-gradient(110% 80% at 92% 6%, rgba(206,214,226,.5), transparent 55%),
+   linear-gradient(158deg,#eaeef4,#e2e8f0 45%,#d8e0ea); }
+.app{ position:relative; z-index:1; background:transparent; }
+/* top bar → chrome */
+.topbar{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important;
+  border-bottom:1px solid var(--cx-line)!important; }
+.topbar .mk .bw{ color:var(--cx-txt)!important; }
+.modlbl{ color:var(--cx-dim)!important; } .modlbl .n{ color:var(--sil-hi)!important; }
+.savestate{ color:var(--cx-dim)!important; }
+.partner{ color:var(--cx-dim)!important; }
+.partner .sep{ background:var(--cx-line)!important; }
+.ent-switch{ border-color:var(--cx-line)!important; background:rgba(255,255,255,.04)!important; }
+.ent-switch .el{ color:var(--cx-faint)!important; background:transparent!important; }
+.ent-switch .ec, #entSel{ color:var(--cx-txt)!important; background:transparent!important; }
+/* sidebar → chrome (was forest green) */
+.rail{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important;
+  border-right:1px solid var(--cx-line)!important; }
+.rail .cf.carbon{ display:none!important; }
+.rail .brand .bw{ color:var(--cx-txt)!important; }
+.rdiv{ background:var(--cx-line)!important; }
+.rgrp{ color:var(--cx-faint)!important; }
+.rnav{ color:var(--cx-dim)!important; }
+.rnav:hover{ background:rgba(255,255,255,.05)!important; color:var(--cx-txt)!important; }
+.rnav.on{ background:rgba(255,255,255,.09)!important; color:var(--cx-txt)!important;
+  box-shadow:inset 3px 0 0 0 var(--sil-hi)!important; }
+</style>
+</head><body><div id="atrium-bg"></div>
 <div class="app">
  <div class="topbar carbon carbon-sheen">
   <span class="mk"><span class="dev" style="width:22px" aria-label="ATRIUM Apex"><svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" aria-label="ATRIUM"><defs><linearGradient id="c_at1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F7F8"/><stop offset=".42" stop-color="#AEB6B8"/><stop offset=".52" stop-color="#6E7779"/><stop offset=".66" stop-color="#D6DBDC"/><stop offset="1" stop-color="#8A9395"/></linearGradient><radialGradient id="k_at1" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#EAFBF1"/><stop offset=".3" stop-color="#6FBE96"/><stop offset=".62" stop-color="#237A52" stop-opacity=".5"/><stop offset="1" stop-color="#237A52" stop-opacity="0"/></radialGradient><radialGradient id="h_at1" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6FBE96" stop-opacity=".55"/><stop offset="1" stop-color="#6FBE96" stop-opacity="0"/></radialGradient><filter id="s_at1"><feGaussianBlur stdDeviation="5"/></filter></defs><ellipse cx="120" cy="150" rx="58" ry="66" fill="url(#h_at1)" filter="url(#s_at1)"/><path d="M28.0 216.0 L120 24.0 L212.0 216.0" fill="none" stroke="url(#c_at1)" stroke-width="1.00" stroke-linejoin="round" stroke-linecap="round" opacity="0.16"/><path d="M33.1 212.8 L120 31.6 L206.9 212.8" fill="none" stroke="url(#c_at1)" stroke-width="1.05" stroke-linejoin="round" stroke-linecap="round" opacity="0.23"/><path d="M38.1 209.6 L120 39.1 L201.9 209.6" fill="none" stroke="url(#c_at1)" stroke-width="1.11" stroke-linejoin="round" stroke-linecap="round" opacity="0.31"/><path d="M43.2 206.4 L120 46.7 L196.8 206.4" fill="none" stroke="url(#c_at1)" stroke-width="1.17" stroke-linejoin="round" stroke-linecap="round" opacity="0.38"/><path d="M48.2 203.2 L120 54.2 L191.8 203.2" fill="none" stroke="url(#c_at1)" stroke-width="1.22" stroke-linejoin="round" stroke-linecap="round" opacity="0.46"/><path d="M53.3 200.1 L120 61.8 L186.7 200.1" fill="none" stroke="url(#c_at1)" stroke-width="1.27" stroke-linejoin="round" stroke-linecap="round" opacity="0.53"/><path d="M58.4 196.9 L120 69.4 L181.6 196.9" fill="none" stroke="url(#c_at1)" stroke-width="1.33" stroke-linejoin="round" stroke-linecap="round" opacity="0.60"/><path d="M63.4 193.7 L120 76.9 L176.6 193.7" fill="none" stroke="url(#c_at1)" stroke-width="1.39" stroke-linejoin="round" stroke-linecap="round" opacity="0.68"/><path d="M68.5 190.5 L120 84.5 L171.5 190.5" fill="none" stroke="url(#c_at1)" stroke-width="1.44" stroke-linejoin="round" stroke-linecap="round" opacity="0.75"/><path d="M73.5 187.3 L120 92.0 L166.5 187.3" fill="none" stroke="url(#c_at1)" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" opacity="0.83"/><path d="M78.6 184.1 L120 99.6 L161.4 184.1" fill="none" stroke="url(#c_at1)" stroke-width="1.55" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/><circle cx="120" cy="152" r="19" fill="url(#k_at1)"/><circle cx="120" cy="152" r="5" fill="#EAFBF1"/></svg></span><span class="bw sil-txt">ATRIUM</span></span>
