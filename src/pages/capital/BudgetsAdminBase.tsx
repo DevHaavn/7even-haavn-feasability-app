@@ -97,18 +97,14 @@ export default function BudgetsAdminBase() {
   if (group === 'haavn') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        {/* The back control lives IN the book's own header bar (top-left),
+            posting atrium:back-admin which the message listener above handles —
+            same pattern as Book 01. No floating pill. */}
         <iframe
           title="ATRIUM — Accounts & Settlement"
           src="/atrium-accounts.html"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
-        <button onClick={() => setGroup(null)}
-          style={{ position: 'fixed', bottom: 16, right: 18, zIndex: 501,
-            padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700,
-            color: '#C6CDCF', background: 'rgba(10,13,12,0.92)', border: '1px solid #3A4146', borderRadius: 999,
-            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-          ← Administration
-        </button>
       </div>
     )
   }

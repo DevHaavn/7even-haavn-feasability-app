@@ -306,6 +306,8 @@ body.atr-dark .fnode{ fill:#1a232f; }
 .dashp{ stroke:var(--line); stroke-width:1.4; fill:none; stroke-dasharray:5 5; }
 .dlegend span, .dsplit b{ white-space:nowrap; }
 /* theme toggle (inserted into topbar by script) */
+#atr-back{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 13px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; margin-left:4px; }
+#atr-back:hover{ color:var(--cx-txt); }
 #atr-theme{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 12px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; }
 #atr-theme:hover{ color:var(--cx-txt); }
 </style>
@@ -1286,6 +1288,15 @@ document.addEventListener('DOMContentLoaded', boot);
  var KEY='atrium-book02-theme';
  function apply(d){ document.body.classList.toggle('atr-dark', d); var b=document.getElementById('atr-theme'); if(b) b.textContent = d ? '\u263e DARK' : '\u2600 LIGHT'; }
  function build(){ var tb=document.querySelector('.topbar'); if(!tb||document.getElementById('atr-theme')) return;
+   // "← Administration" back control — top-left of the header bar. Posts to
+   // the parent (the Administration pillar) which closes the book. Same message
+   // the parent already listens for; no floating pill.
+   if(!document.getElementById('atr-back')){
+     var back=document.createElement('button'); back.id='atr-back'; back.type='button'; back.textContent='← Administration';
+     var anchor=tb.querySelector('.modlbl');
+     if(anchor && anchor.nextSibling) tb.insertBefore(back, anchor.nextSibling); else if(anchor) tb.appendChild(back); else tb.insertBefore(back, tb.firstChild);
+     back.addEventListener('click', function(){ try{ parent.postMessage({type:'atrium:back-admin'}, location.origin); }catch(e){} });
+   }
    var btn=document.createElement('button'); btn.id='atr-theme'; btn.type='button';
    var p=tb.querySelector('.partner'); if(p) tb.insertBefore(btn,p); else tb.appendChild(btn);
    btn.addEventListener('click', function(){ var d=!document.body.classList.contains('atr-dark'); apply(d); try{localStorage.setItem(KEY, d?'dark':'light');}catch(e){} });
