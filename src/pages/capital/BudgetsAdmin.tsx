@@ -137,6 +137,32 @@ export function ensureAdminData(): void {
   if (!localStorage.getItem(STORE_KEY)) saveData(loadData())
 }
 
+/**
+ * Publish each 7EVEN project's LIVE cost figures for the HTML book to read.
+ *
+ * The book runs in an iframe and reads localStorage, but the feasibility cost
+ * stack is computed in the store (construction = GBA × build rate, % fees off
+ * it) and may be hydrated from the cloud rather than sitting in a raw key. So
+ * the book's own read can come up empty. The parent has the fully-hydrated
+ * store, so it computes the real total development cost with the same function
+ * the feasibility studio uses and writes it to book:project-costs. The book
+ * reads that — guaranteed to match the studio, no logic duplicated.
+ */
+export function publishProjectCosts(): void {
+  if (typeof localStorage === 'undefined') return
+  const CATS = ['hardCosts', 'consultants', 'statutory', 'headworks', 'management', 'marketing'] as const
+  const txns = loadData().txns
+  const out: Record<string, { tdc: number; spend: number; invoiced: number; name: string; group: string }> = {}
+  for (const link of PROJECT_LINKS.sev) {
+    const dcs = dbGetDetailedCostStack(link.projectId) as unknown as Record<string, { amount?: number }[]>
+    const tdc = CATS.reduce((s, c) => s + (dcs[c] || []).reduce((a, x) => a + (x.amount || 0), 0), 0)
+    const spend = txns.filter(t => t.type === 'bill' && t.projectId === link.projectId).reduce((s, t) => s + t.amount, 0)
+    const invoiced = txns.filter(t => t.type === 'invoice' && t.projectId === link.projectId).reduce((s, t) => s + t.amount, 0)
+    out[link.projectId] = { tdc, spend, invoiced, name: link.label, group: link.group }
+  }
+  try { localStorage.setItem('book:project-costs', JSON.stringify(out)) } catch { /* ignore */ }
+}
+
 // ── Cross-link: a settled 7EVEN sale posts here as revenue ───────────────────
 export function hasSaleRevenue(saleId: string): boolean {
   return loadData().txns.some(t => t.sourceId === `sale:${saleId}`)

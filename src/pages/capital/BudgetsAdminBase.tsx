@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import BudgetsAdmin, { ensureAdminData } from './BudgetsAdmin'
+import BudgetsAdmin, { ensureAdminData, publishProjectCosts } from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
 
 /** Accounts Pillar 01 landing. Splits Administration into two books:
@@ -48,6 +48,18 @@ export default function BudgetsAdminBase() {
   // the CFO seed exists (fresh browsers) before the book's expenses/budget tabs
   // try to read it. No-op when data already exists.
   useEffect(() => { ensureAdminData() }, [])
+
+  // Publish each project's live cost stack (computed here, where the store is
+  // hydrated) for the book to read. Refresh on a short interval and on focus so
+  // a change in the feasibility studio flows into the admin without a reload.
+  useEffect(() => {
+    if (group !== '7even') return
+    publishProjectCosts()
+    const iv = setInterval(publishProjectCosts, 4000)
+    const onFocus = () => publishProjectCosts()
+    window.addEventListener('focus', onFocus)
+    return () => { clearInterval(iv); window.removeEventListener('focus', onFocus) }
+  }, [group])
 
   // 7EVEN Capital Administration — the live book: Xero connect / push / pull,
   // project tracking wired to the feasibility studio, the detailed cost stack

@@ -326,12 +326,17 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
     { key:'Waurn Ponds', id:'seed-geelong-001',  basis:'fixed' }
   ];
   var COST_CATS = ['hardCosts','consultants','statutory','headworks','management','marketing'];
+  function published(){ return readJSON('book:project-costs') || {}; }
   function tdcOf(id){
-    var d = readJSON('detailed-costs:'+id); if(!d) return 0;
+    var pub = published()[id];
+    if(pub && typeof pub.tdc==='number') return pub.tdc;   // parent-computed, matches the studio
+    var d = readJSON('detailed-costs:'+id); if(!d) return 0; // fallback: raw key sum
     var t=0; COST_CATS.forEach(function(c){ (d[c]||[]).forEach(function(x){ t += (+x.amount||0); }); });
     return t;
   }
   function ledgerOf(id){
+    var pub = published()[id];
+    if(pub){ return { spend: pub.spend||0, inv: pub.invoiced||0 }; }
     var a = readJSON('capital_admin_v3'); var out={spend:0,inv:0};
     if(a && a.txns){ a.txns.forEach(function(t){ if(t.projectId===id){
       if(t.type==='bill') out.spend += (+t.amount||0);
@@ -371,10 +376,10 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
       if(!row.cells[0].querySelector('.livesub')){
         var sub=document.createElement('div');
         sub.className='livesub';
-        sub.style.cssText='font-size:9px;letter-spacing:.02em;color:var(--silver-hi,#4a5a6e);margin-top:3px;font-family:var(--mono,monospace)';
+        sub.style.cssText='font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--silver-hi,#4a5a6e);margin-top:4px;font-family:var(--mono,monospace)';
         row.cells[0].appendChild(sub);
       }
-      row.cells[0].querySelector('.livesub').textContent = 'Feas. TDC '+moneyK(tdc)+' · live';
+      row.cells[0].querySelector('.livesub').textContent = tdc>0 ? ('Cost stack (live): '+money(tdc)) : 'Cost stack: not yet costed';
       totalContract += contract; totalInv += invoiced;
     });
 
@@ -403,8 +408,11 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
   runLive();
   // re-read when the feasibility studio or ledger changes in another tab/window
   window.addEventListener('storage', function(e){
-    if(e.key && (e.key.indexOf('detailed-costs:')===0 || e.key==='capital_admin_v3')) runLive();
+    if(e.key && (e.key.indexOf('detailed-costs:')===0 || e.key==='capital_admin_v3' || e.key==='book:project-costs')) runLive();
   });
+  // The parent republishes on an interval; poll the key so studio changes appear
+  // without needing a cross-window storage event.
+  setInterval(runLive, 4000);
 })();
 </script>
 <script>
