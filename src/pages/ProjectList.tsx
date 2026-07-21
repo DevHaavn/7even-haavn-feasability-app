@@ -44,7 +44,7 @@ function useIsNarrow(query = '(max-width: 1024px)') {
   return narrow
 }
 
-export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void }) {
+export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onOpenHomes?: () => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const isNarrow = useIsNarrow()
@@ -218,6 +218,13 @@ export default function ProjectList({ onLogout, onDashboard }: { onLogout?: () =
                       {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>}
                     </button>
                   ))}
+                  {/* HAAVN HOMES — Black Series homes company. Opens its own separate
+                      surface rather than flipping the project filter. */}
+                  <button onClick={() => { setBrandMenu(false); onOpenHomes?.() }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>HAAVN HOMES</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 8, color: '#8b9198', fontFamily: 'monospace' }}>↗</span>
+                  </button>
                 </div>
               )}
             </div>

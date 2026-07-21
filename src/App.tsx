@@ -8,6 +8,7 @@ import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
 import IntroScreen from './pages/IntroScreen'
+import HaavnHomes from './pages/HaavnHomes'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
@@ -20,6 +21,9 @@ export default function App() {
   const [role, setRole] = useState<Role>(getStoredRole())
   const [showIntro, setShowIntro] = useState(false)
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
+  // HAAVN HOMES — the Black Series homes company. A separate surface with its own
+  // store; never shares data with the Feasibility Studio.
+  const [homesOpen, setHomesOpen] = useState(false)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
@@ -119,6 +123,9 @@ export default function App() {
 
   if (showIntro) return <IntroScreen onDone={() => setShowIntro(false)} />
 
+  // HAAVN HOMES — Black Series homes company, its own self-contained surface.
+  if (homesOpen) return <HaavnHomes onBack={() => setHomesOpen(false)} />
+
   return (
     <RoleContext.Provider value={role}>
       {dashboardBrand && (dashboardBrand === 'haavn' || role === 'admin') ? (
@@ -150,7 +157,7 @@ export default function App() {
 
           {activeProjectId
             ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
-            : <ProjectList onLogout={handleLogout} onDashboard={(brand) => {
+            : <ProjectList onLogout={handleLogout} onOpenHomes={() => setHomesOpen(true)} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return
                 setDashboardBrand(brand)
