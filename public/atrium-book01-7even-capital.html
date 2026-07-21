@@ -399,6 +399,7 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
   }
 
   function runLive(){ try{ wireProjectTracking(); }catch(e){ /* never break the book */ } }
+  window.__refreshProj = runLive;
   runLive();
   // re-read when the feasibility studio or ledger changes in another tab/window
   window.addEventListener('storage', function(e){
@@ -510,7 +511,184 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
   }
   if(addBtn) addBtn.addEventListener('click', addLine);
 
+  window.__refreshExp = render;
   render();
+})();
+</script>
+<script>
+/* ── Book 01 · Budget entry + Invoices & Bills + Project spend — live ──────────
+   All three read/write the same capital_admin_v3 the app uses. Built with the
+   book's own classes (glass / tbl / kc / pill) so the design is unchanged. */
+(function(){
+  var KEY='capital_admin_v3', ENT='sev';
+  var MONTHS=['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+  var YEARS =['26','26','26','26','26','26','27','27','27','27','27','27'];
+  var CATS=['Cost of Sales','Wages & salaries','Superannuation','Rent & outgoings','Insurance','Motor vehicles','IT & software','Subscriptions','Marketing & BD','Entertainment','Accounting & legal','Phone & internet','Office & general','Bank & finance','Travel','Other'];
+  var PROJECTS=[{id:'seed-preston-001',name:'Preston · St Village'},{id:'seed-caloundra-001',name:'Caloundra · 5IVE Hotels'},{id:'seed-geelong-001',name:'Waurn Ponds · Waurnvale Dr'}];
+
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; } }
+  function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+  function ent(d){ return d&&d.entities ? d.entities.filter(function(e){return e.id===ENT;})[0] : null; }
+  function uid(){ return Math.random().toString(36).slice(2,10); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function comma(n){ return Math.round(n).toLocaleString(); }
+  function money(n){ return (n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString(); }
+  function moneyK(n){ var x=n/1000; return (x<0?'-$':'$')+Math.abs(Math.round(x)).toLocaleString()+'k'; }
+  function fyTotal(l){ return (l.m||[]).reduce(function(a,v){return a+(+v||0);},0); }
+  function el(sel){ return document.querySelector(sel); }
+
+  /* ── 1 · Budget entry — full editable P&L ─────────────────────────────────── */
+  function budgetGrid(){
+    var host = el('section[data-t="budget"] .scrollx'); if(!host) return;
+    var d=load(), e=ent(d);
+    if(!e){ host.innerHTML='<p style="color:var(--ink-3);font-size:12px;padding:20px">No company data yet.</p>'; return; }
+    var SECTIONS=[['revenue','Revenue'],['cogs','Cost of sales'],['opex','Operating expenses']];
+    function sum(sec){ var m=new Array(12).fill(0); e.lines.filter(function(l){return l.s===sec;}).forEach(function(l){ for(var i=0;i<12;i++) m[i]+=(+((l.m||[])[i])||0); }); return m; }
+    var rev=sum('revenue'), cog=sum('cogs'), opx=sum('opex');
+    var t=function(a){return a.reduce(function(x,y){return x+y;},0);};
+    var h='<table class="tbl" style="min-width:1060px"><thead><tr><th style="text-align:left">Line item</th>';
+    for(var i=0;i<12;i++) h+='<th class="n">'+MONTHS[i]+' '+YEARS[i]+'</th>';
+    h+='<th class="n">FY total</th><th></th></tr></thead><tbody>';
+    SECTIONS.forEach(function(sec){
+      h+='<tr class="grp"><td colspan="15" style="text-align:left">'+sec[1]+'</td></tr>';
+      e.lines.filter(function(l){return l.s===sec[0];}).forEach(function(l){
+        h+='<tr data-id="'+l.id+'"><td style="text-align:left"><input class="bd-name" data-id="'+l.id+'" value="'+esc(l.name)+'" placeholder="Line name" style="width:210px;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:11.5px;padding:3px 2px"></td>';
+        for(var i=0;i<12;i++){ var v=(l.m&&l.m[i])?l.m[i]:''; h+='<td class="n"><input class="bd-cell" data-id="'+l.id+'" data-mi="'+i+'" value="'+(v||'')+'" inputmode="numeric" style="width:60px;text-align:right;background:transparent;border:none;color:var(--ink-2);font-family:var(--mono,monospace);font-size:11px;padding:3px 2px"></td>'; }
+        h+='<td class="n bd-fy" data-id="'+l.id+'" style="font-family:var(--mono,monospace);color:var(--ink)">'+comma(fyTotal(l))+'</td>';
+        h+='<td class="n"><span class="bd-del" data-id="'+l.id+'" title="Delete" style="cursor:pointer;color:var(--ink-3);font-size:13px;padding:0 4px">×</span></td></tr>';
+      });
+      h+='<tr><td style="text-align:left"><span class="bd-add" data-s="'+sec[0]+'" style="cursor:pointer;color:var(--silver-hi,#4a5a6e);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700">+ Add '+sec[1].toLowerCase()+' line</span></td><td colspan="14"></td></tr>';
+      var sm=(sec[0]==='revenue')?rev:(sec[0]==='cogs')?cog:opx;
+      h+='<tr class="tot"><td style="text-align:left">Total '+sec[1].toLowerCase()+'</td>';
+      for(var i=0;i<12;i++) h+='<td class="n">'+comma(sm[i])+'</td>';
+      h+='<td class="n">'+comma(t(sm))+'</td><td></td></tr>';
+      if(sec[0]==='cogs'){ var gp=rev.map(function(r,i){return r-cog[i];}); h+='<tr class="tot"><td style="text-align:left">Gross profit</td>'; for(var i=0;i<12;i++) h+='<td class="n">'+comma(gp[i])+'</td>'; h+='<td class="n">'+comma(t(gp))+'</td><td></td></tr>'; }
+    });
+    var eb=rev.map(function(r,i){return r-cog[i]-opx[i];});
+    h+='<tr class="tot"><td style="text-align:left">EBITDA · trading basis</td>';
+    for(var i=0;i<12;i++) h+='<td class="n">'+comma(eb[i])+'</td>';
+    h+='<td class="n">'+comma(t(eb))+'</td><td></td></tr></tbody></table>';
+    host.innerHTML=h;
+    // wire
+    host.querySelectorAll('.bd-name').forEach(function(inp){ inp.addEventListener('change',function(){ var d=load(),e=ent(d); var l=e.lines.filter(function(x){return x.id===inp.dataset.id;})[0]; if(l){l.name=inp.value; save(d);} }); });
+    host.querySelectorAll('.bd-cell').forEach(function(inp){ inp.addEventListener('input',function(){ var d=load(),e=ent(d); var l=e.lines.filter(function(x){return x.id===inp.dataset.id;})[0]; if(!l)return; if(!l.m)l.m=new Array(12).fill(0); l.m[+inp.dataset.mi]=parseFloat(String(inp.value).replace(/[^0-9.-]/g,''))||0; save(d); budgetGrid(); }); });
+    host.querySelectorAll('.bd-del').forEach(function(x){ x.addEventListener('click',function(){ var d=load(),e=ent(d); e.lines=e.lines.filter(function(l){return l.id!==x.dataset.id;}); save(d); budgetGrid(); }); });
+    host.querySelectorAll('.bd-add').forEach(function(x){ x.addEventListener('click',function(){ var d=load(),e=ent(d); e.lines.push({id:uid(),name:'',s:x.dataset.s,m:new Array(12).fill(0)}); save(d); budgetGrid(); }); });
+  }
+  var budgetBtn=el('section[data-t="budget"] .phead .btn');
+  if(budgetBtn) budgetBtn.addEventListener('click',function(){ var d=load(),e=ent(d); if(!e)return; e.lines.push({id:uid(),name:'',s:'opex',m:new Array(12).fill(0)}); save(d); budgetGrid(); });
+
+  /* ── 2 · Invoices & Bills — live ledger ───────────────────────────────────── */
+  function txnsOf(d){ return (d&&d.txns?d.txns:[]).filter(function(t){ return !t.company || t.company===ENT; }); }
+  function ledger(){
+    var sec=el('section[data-t="invbills"]'); if(!sec) return;
+    var d=load(); var list=txnsOf(d);
+    var ar=list.filter(function(t){return t.type==='invoice'&&t.status!=='paid';}).reduce(function(a,t){return a+(+t.amount||0);},0);
+    var ap=list.filter(function(t){return t.type==='bill'&&t.status!=='paid';}).reduce(function(a,t){return a+(+t.amount||0);},0);
+    var arn=list.filter(function(t){return t.type==='invoice'&&t.status!=='paid';}).length;
+    var apn=list.filter(function(t){return t.type==='bill'&&t.status!=='paid';}).length;
+    var h='<div class="phead"><div><div class="k">7EVEN CAPITAL · LEDGER</div><h2>Invoices &amp; Bills</h2><div class="s">Accounts receivable and payable. Add manually or sync from Xero.</div></div>'
+      +'<span class="btn" id="inv-sync" style="margin-right:8px">⟲ Sync from Xero</span><span class="btn" id="inv-new">+ New transaction</span></div>';
+    h+='<div class="kpis k4">'
+      +'<div class="glass kc"><div class="l">AR outstanding</div><div class="v">'+money(ar)+'</div><div class="sub">'+arn+' invoice'+(arn===1?'':'s')+'</div></div>'
+      +'<div class="glass kc"><div class="l">AP outstanding</div><div class="v am">'+money(ap)+'</div><div class="sub">'+apn+' bill'+(apn===1?'':'s')+'</div></div>'
+      +'<div class="glass kc"><div class="l">Transactions</div><div class="v">'+list.length+'</div><div class="sub">this entity</div></div>'
+      +'<div class="glass kc"><div class="l">Net position</div><div class="v '+(ar-ap<0?'r':'g')+'">'+money(ar-ap)+'</div><div class="sub">'+(ar-ap<0?'payable':'receivable')+'</div></div></div>';
+    h+='<div id="inv-form"></div>';
+    h+='<div class="glass pad"><div class="scrollx"><table class="tbl" style="min-width:820px"><thead><tr><th style="text-align:left">Contact</th><th class="n">Description</th><th class="n">Type</th><th class="n">Date</th><th class="n">Amount</th><th class="n">Status</th><th></th></tr></thead><tbody>';
+    if(!list.length){ h+='<tr><td colspan="7" style="text-align:left;color:var(--ink-3)">No transactions yet — add one, or sync from Xero.</td></tr>'; }
+    list.forEach(function(t){
+      var proj=t.projectId?PROJECTS.filter(function(p){return p.id===t.projectId;})[0]:null;
+      h+='<tr data-id="'+t.id+'"><td style="text-align:left">'+esc(t.contact||'—')+'</td>'
+        +'<td class="n" style="text-align:left">'+esc(t.desc||t.category||'')+(proj?' · '+esc(proj.name):'')+'</td>'
+        +'<td class="n">'+(t.type==='invoice'?'Invoice':'Bill')+'</td>'
+        +'<td class="n">'+esc(t.date||'')+'</td>'
+        +'<td class="n">'+money(+t.amount||0)+'</td>'
+        +'<td class="n"><span class="pill '+(t.status==='paid'?'g':'a')+' inv-status" data-id="'+t.id+'" style="cursor:pointer">'+(t.status||'awaiting')+'</span></td>'
+        +'<td class="n"><span class="inv-del" data-id="'+t.id+'" title="Delete" style="cursor:pointer;color:var(--ink-3);font-size:13px">×</span></td></tr>';
+    });
+    h+='</tbody></table></div></div>';
+    sec.innerHTML=h;
+
+    el('#inv-new').addEventListener('click', function(){ var f=el('#inv-form'); if(f.innerHTML){ f.innerHTML=''; return; } showForm(f); });
+    el('#inv-sync').addEventListener('click', function(){
+      var b=el('#inv-sync'); b.textContent='Syncing…';
+      fetch('/api/xero/status?group=7even').then(function(r){return r.json();}).then(function(s){
+        if(s&&s.connected){ return fetch('/api/xero/invoices?group=7even').then(function(r){return r.json();}).then(function(){ b.textContent='⟲ Synced'; setTimeout(ledger,900); }); }
+        b.textContent = (s&&s.configured)?'Connect Xero first':'Xero not configured';
+      }).catch(function(){ b.textContent='Xero unavailable'; });
+    });
+    sec.querySelectorAll('.inv-status').forEach(function(x){ x.addEventListener('click',function(){ var d=load(); d.txns.forEach(function(t){ if(t.id===x.dataset.id) t.status=(t.status==='paid'?'awaiting':'paid'); }); save(d); ledger(); }); });
+    sec.querySelectorAll('.inv-del').forEach(function(x){ x.addEventListener('click',function(){ var d=load(); d.txns=d.txns.filter(function(t){return t.id!==x.dataset.id;}); save(d); ledger(); }); });
+  }
+  function showForm(f){
+    var opts=CATS.map(function(c){return '<option>'+c+'</option>';}).join('');
+    var popts='<option value="">— Business overhead —</option>'+PROJECTS.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
+    var today=new Date().toISOString().slice(0,10);
+    f.innerHTML='<div class="glass pad" style="margin-bottom:16px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">'
+      +field('Type','<select id="f-type" class="f-in"><option value="bill">Bill (money out)</option><option value="invoice">Invoice (money in)</option></select>')
+      +field('Contact','<input id="f-contact" class="f-in" placeholder="Supplier / client">')
+      +field('Description','<input id="f-desc" class="f-in" placeholder="What for">')
+      +field('Category','<select id="f-cat" class="f-in">'+opts+'</select>')
+      +field('Amount ex GST','<input id="f-amt" class="f-in" inputmode="numeric" placeholder="0">')
+      +field('Date','<input id="f-date" class="f-in" type="date" value="'+today+'">')
+      +field('Project (bills)','<select id="f-proj" class="f-in">'+popts+'</select>')
+      +'</div><span class="btn" id="f-add" style="margin-top:14px;display:inline-block">Add transaction</span></div>';
+    // style the inputs
+    f.querySelectorAll('.f-in').forEach(function(i){ i.style.cssText='width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font:inherit;font-size:12px;padding:8px 10px'; });
+    el('#f-add').addEventListener('click', function(){
+      var amt=parseFloat(String(el('#f-amt').value).replace(/[^0-9.-]/g,''))||0;
+      var contact=el('#f-contact').value.trim();
+      if(!contact||amt<=0){ el('#f-add').textContent='Enter a contact and amount'; return; }
+      var type=el('#f-type').value;
+      var d=load(); d.txns=d.txns||[];
+      d.txns.unshift({id:uid(),company:ENT,type:type,contact:contact,desc:el('#f-desc').value.trim(),
+        category:(type==='invoice')?'Revenue':el('#f-cat').value,amount:amt,date:el('#f-date').value,
+        status:'awaiting',projectId:(type==='bill'&&el('#f-proj').value)||undefined,xeroOrg:'7even-capital'});
+      save(d); ledger();
+    });
+  }
+  function field(label,inner){ return '<div><label style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:block;margin-bottom:5px">'+label+'</label>'+inner+'</div>'; }
+
+  /* ── 3 · Project spend — live actual spend per project ────────────────────── */
+  function projectSpend(){
+    var sec=el('section[data-t="spend"]'); if(!sec) return;
+    var d=load(); var bills=txnsOf(d).filter(function(t){return t.type==='bill';});
+    var byProj={}, overhead=0, total=0;
+    bills.forEach(function(t){ var a=+t.amount||0; total+=a; if(t.projectId){ byProj[t.projectId]=(byProj[t.projectId]||0)+a; } else overhead+=a; });
+    var anyTagged=Object.keys(byProj).length>0 || total>0;
+    var h='<div class="phead"><div><div class="k">7EVEN CAPITAL · LEDGER</div><h2>Project spend</h2><div class="s">Actual bills tagged to each project — live from the ledger. Tracking only, no fee impact.</div></div></div>';
+    h+='<div class="kpis k4">'
+      +'<div class="glass kc"><div class="l">Total spend tracked</div><div class="v">'+money(total)+'</div><div class="sub">'+bills.length+' bill'+(bills.length===1?'':'s')+'</div></div>'
+      +'<div class="glass kc"><div class="l">Tagged to projects</div><div class="v sv">'+money(total-overhead)+'</div><div class="sub">'+Object.keys(byProj).length+' project'+(Object.keys(byProj).length===1?'':'s')+'</div></div>'
+      +'<div class="glass kc"><div class="l">Business overhead</div><div class="v">'+money(overhead)+'</div><div class="sub">untagged</div></div>'
+      +'<div class="glass kc"><div class="l">Feasibility TDC</div><div class="v">'+moneyK(feasTotalTDC())+'</div><div class="sub">live · all projects</div></div></div>';
+    h+='<div class="glass pad"><div class="scrollx"><table class="tbl" style="min-width:620px"><thead><tr><th style="text-align:left">Project</th><th class="n">Feas. TDC (live)</th><th class="n">Actual spend</th><th class="n">Spend vs TDC</th></tr></thead><tbody>';
+    PROJECTS.forEach(function(p){
+      var tdc=tdcOf(p.id); var sp=byProj[p.id]||0; var pct=tdc>0?(sp/tdc*100):0;
+      h+='<tr><td style="text-align:left">'+esc(p.name)+'</td><td class="n">'+(tdc>0?moneyK(tdc):'—')+'</td><td class="n">'+money(sp)+'</td><td class="n">'+(tdc>0?pct.toFixed(1)+'%':'—')+'</td></tr>';
+    });
+    h+='<tr><td style="text-align:left">Business overhead</td><td class="n">—</td><td class="n">'+money(overhead)+'</td><td class="n">—</td></tr>';
+    h+='<tr class="tot"><td style="text-align:left">Total</td><td class="n">'+moneyK(feasTotalTDC())+'</td><td class="n">'+money(total)+'</td><td class="n"></td></tr>';
+    h+='</tbody></table></div>';
+    if(!anyTagged) h+='<p style="color:var(--ink-3);font-size:11px;margin-top:14px">Tag a bill to a project in Invoices &amp; Bills and its spend appears here.</p>';
+    h+='</div>';
+    sec.innerHTML=h;
+  }
+  var COST_CATS=['hardCosts','consultants','statutory','headworks','management','marketing'];
+  function tdcOf(id){ var d=null; try{d=JSON.parse(localStorage.getItem('detailed-costs:'+id)||'null');}catch(e){} if(!d)return 0; var t=0; COST_CATS.forEach(function(c){ (d[c]||[]).forEach(function(x){ t+=(+x.amount||0); }); }); return t; }
+  function feasTotalTDC(){ return PROJECTS.reduce(function(a,p){return a+tdcOf(p.id);},0); }
+
+  function renderAll(){ try{budgetGrid();}catch(e){} try{ledger();}catch(e){} try{projectSpend();}catch(e){} }
+  // Tabs render once at load; re-render the target tab when it is shown so a
+  // change made on another tab (e.g. a bill added in the ledger) is reflected.
+  var _go = window.go;
+  window.go = function(t){ if(typeof _go==='function') _go(t);
+    try{ if(t==='budget') budgetGrid(); else if(t==='invbills') ledger(); else if(t==='spend') projectSpend();
+         else if(t==='proj' && window.__refreshProj) window.__refreshProj();
+         else if(t==='expenses' && window.__refreshExp) window.__refreshExp(); }catch(e){} };
+  renderAll();
+  window.addEventListener('storage', function(e){ if(e.key===KEY || (e.key&&e.key.indexOf('detailed-costs:')===0)) renderAll(); });
 })();
 </script>
 </body></html>
