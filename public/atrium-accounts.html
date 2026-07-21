@@ -230,42 +230,75 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--f-400);outline-o
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <style id="atrium-reskin-v2">
-/* ── ATRIUM Book 02 re-skin · STEP 0 shell (CSS only — no JS/logic touched) ────
-   Recolour Dom's forest-green chrome to the new charcoal-blue silver-glass
-   chrome and add the new soft-gradient background. Content is restyled in the
-   following steps. */
-:root{ --cx:#131b26; --cx2:#0f1620; --cx-line:rgba(255,255,255,.09);
-  --cx-txt:#e8edf1; --cx-dim:#9aa7b2; --cx-faint:#6c7a88; --sil-hi:#cdd8e2; }
-/* page background — the new design's light-theme plate (chrome stays dark) */
+/* ── ATRIUM Book 02 re-skin (CSS only — Dom's JS/logic untouched) ──────────────
+   Light by default with a dark toggle. Chrome (topbar + rail) stays dark in
+   both themes. Most of the app reskins by remapping Dom's own tokens to the new
+   palette (172 var() refs); the few hardcoded backgrounds are patched to glass. */
+:root{ --cx:#131b26;--cx2:#0f1620;--cx-line:rgba(255,255,255,.09);--cx-txt:#e8edf1;--cx-dim:#9aa7b2;--cx-faint:#6c7a88;--sil-hi:#cdd8e2; }
+
+/* content tokens — LIGHT (default) */
+body:not(.atr-dark){
+  --ink:#232c37;--ink-2:#5b6672;--mute:#8592a0;--faint:#a6b2be;
+  --line:rgba(35,44,55,.12);--line-2:rgba(35,44,55,.07);
+  --grey-50:#eef3f8;--grey-100:#e7edf5;--grey-200:#dde5ef;
+  --f-700:#1b5e3f;--f-600:#237a52;--f-500:#2f9e6b;--f-400:#38996b;--f-300:#6fbe96;--f-100:#dcede4;--f-50:#eef7f2;
+  --sil-3:#8592a0;--sil-4:#6e7c8e;--amber:#c67d33;--red:#c8503f;
+  --glass-bg:rgba(255,255,255,.72);--glass-line:rgba(35,44,55,.10);
+  --glass-sh:0 24px 50px -30px rgba(20,30,45,.4),inset 0 1px 0 rgba(255,255,255,.7);
+  --modal-bg:#eef2f7;--input-bg:rgba(255,255,255,.9);
+}
+/* content tokens — DARK */
+body.atr-dark{
+  --ink:#eef2f5;--ink-2:#9fabb6;--mute:#6d7a86;--faint:#525d68;
+  --line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.06);
+  --grey-50:rgba(255,255,255,.05);--grey-100:rgba(255,255,255,.07);--grey-200:rgba(255,255,255,.10);
+  --f-700:#1b5e3f;--f-600:#237a52;--f-500:#57c08a;--f-400:#57c08a;--f-300:#6fbe96;--f-100:#183026;--f-50:#12211a;
+  --sil-3:#9aa7b2;--sil-4:#7c8894;--amber:#d59a52;--red:#e0645c;
+  --glass-bg:rgba(255,255,255,.05);--glass-line:rgba(255,255,255,.11);
+  --glass-sh:0 24px 50px -30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.13);
+  --modal-bg:#1a232f;--input-bg:rgba(255,255,255,.06);
+}
 body{ background:#e6ebf1; }
-#atrium-bg{ position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:
-   radial-gradient(120% 85% at 12% -12%, rgba(190,208,228,.6), transparent 55%),
+body.atr-dark{ background:#111823; color:var(--ink); }
+#atrium-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; transition:.4s;
+  background:radial-gradient(120% 85% at 12% -12%, rgba(190,208,228,.6), transparent 55%),
    radial-gradient(110% 80% at 92% 6%, rgba(206,214,226,.5), transparent 55%),
    linear-gradient(158deg,#eaeef4,#e2e8f0 45%,#d8e0ea); }
+body.atr-dark #atrium-bg{
+  background:radial-gradient(120% 80% at 84% -10%, rgba(120,150,180,.16), transparent 55%),
+   radial-gradient(90% 70% at 8% 108%, rgba(60,85,115,.4), transparent 60%),
+   linear-gradient(180deg,#16202c,#111823 48%,#0e1621); }
 .app{ position:relative; z-index:1; background:transparent; }
-/* top bar → chrome */
-.topbar{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important;
-  border-bottom:1px solid var(--cx-line)!important; }
-.topbar .mk .bw{ color:var(--cx-txt)!important; }
-.modlbl{ color:var(--cx-dim)!important; } .modlbl .n{ color:var(--sil-hi)!important; }
-.savestate{ color:var(--cx-dim)!important; }
-.partner{ color:var(--cx-dim)!important; }
-.partner .sep{ background:var(--cx-line)!important; }
+
+/* chrome — dark both themes */
+.topbar{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important; border-bottom:1px solid var(--cx-line)!important; }
+.topbar .mk .bw{ color:var(--cx-txt)!important; } .modlbl{ color:var(--cx-dim)!important; } .modlbl .n{ color:var(--sil-hi)!important; }
+.savestate{ color:var(--cx-dim)!important; } .partner{ color:var(--cx-dim)!important; } .partner .sep{ background:var(--cx-line)!important; }
 .ent-switch{ border-color:var(--cx-line)!important; background:rgba(255,255,255,.04)!important; }
 .ent-switch .el{ color:var(--cx-faint)!important; background:transparent!important; }
 .ent-switch .ec, #entSel{ color:var(--cx-txt)!important; background:transparent!important; }
-/* sidebar → chrome (was forest green) */
-.rail{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important;
-  border-right:1px solid var(--cx-line)!important; }
-.rail .cf.carbon{ display:none!important; }
-.rail .brand .bw{ color:var(--cx-txt)!important; }
-.rdiv{ background:var(--cx-line)!important; }
-.rgrp{ color:var(--cx-faint)!important; }
-.rnav{ color:var(--cx-dim)!important; }
+.rail{ background:linear-gradient(180deg,var(--cx),var(--cx2))!important; border-right:1px solid var(--cx-line)!important; }
+.rail .cf.carbon{ display:none!important; } .rail .brand .bw{ color:var(--cx-txt)!important; } .rdiv{ background:var(--cx-line)!important; }
+.rgrp{ color:var(--cx-faint)!important; } .rnav{ color:var(--cx-dim)!important; }
 .rnav:hover{ background:rgba(255,255,255,.05)!important; color:var(--cx-txt)!important; }
-.rnav.on{ background:rgba(255,255,255,.09)!important; color:var(--cx-txt)!important;
-  box-shadow:inset 3px 0 0 0 var(--sil-hi)!important; }
+.rnav.on{ background:rgba(255,255,255,.09)!important; color:var(--cx-txt)!important; box-shadow:inset 3px 0 0 0 var(--sil-hi)!important; }
+
+/* content — glass cards + hardcoded-bg patches */
+.card,.scard{ background:var(--glass-bg)!important; border:1px solid var(--glass-line)!important; box-shadow:var(--glass-sh)!important; backdrop-filter:blur(16px) saturate(1.06); -webkit-backdrop-filter:blur(16px) saturate(1.06); }
+.modal,.modal .inner,.check.over{ background:var(--modal-bg)!important; }
+input,select,textarea{ background:var(--input-bg)!important; color:var(--ink)!important; border-color:var(--line)!important; }
+.mx td.inv,.mx td:first-child{ background:var(--grey-50)!important; }
+.btn{ background:linear-gradient(180deg,rgba(255,255,255,.16),var(--glass-bg))!important; border:1px solid var(--sil-4)!important; color:var(--ink)!important; }
+/* green "feature" cards — were solid green with white text; make them tinted
+   glass with readable green figures in both themes (matches the new feature look) */
+.scard.forest,.card.forest{ background:linear-gradient(150deg,var(--f-50),var(--glass-bg))!important; border:1px solid var(--f-300)!important; box-shadow:var(--glass-sh)!important; }
+.scard.forest .v,.card.forest .v{ color:var(--f-600)!important; }
+body.atr-dark .scard.forest .v,body.atr-dark .card.forest .v{ color:var(--f-300)!important; }
+.scard.forest .l,.card.forest .l,.scard.forest .sub,.card.forest .sub,.scard.forest .k,.card.forest .k{ color:var(--ink-2)!important; }
+
+/* theme toggle (inserted into topbar by script) */
+#atr-theme{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 12px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; }
+#atr-theme:hover{ color:var(--cx-txt); }
 </style>
 </head><body><div id="atrium-bg"></div>
 <div class="app">
@@ -1210,5 +1243,17 @@ function boot(){
  Cloud.init();   // non-blocking: pull + subscribe once the SDK loads
 }
 document.addEventListener('DOMContentLoaded', boot);
+</script>
+<script>
+(function(){
+ var KEY='atrium-book02-theme';
+ function apply(d){ document.body.classList.toggle('atr-dark', d); var b=document.getElementById('atr-theme'); if(b) b.textContent = d ? '\u263e DARK' : '\u2600 LIGHT'; }
+ function build(){ var tb=document.querySelector('.topbar'); if(!tb||document.getElementById('atr-theme')) return;
+   var btn=document.createElement('button'); btn.id='atr-theme'; btn.type='button';
+   var p=tb.querySelector('.partner'); if(p) tb.insertBefore(btn,p); else tb.appendChild(btn);
+   btn.addEventListener('click', function(){ var d=!document.body.classList.contains('atr-dark'); apply(d); try{localStorage.setItem(KEY, d?'dark':'light');}catch(e){} });
+   apply((function(){try{return localStorage.getItem(KEY)==='dark';}catch(e){return false;}})()); }
+ if(document.readyState!=='loading') build(); else document.addEventListener('DOMContentLoaded', build);
+})();
 </script>
 </body></html>
