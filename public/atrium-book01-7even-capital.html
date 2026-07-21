@@ -195,7 +195,7 @@ th.pcol{background:rgba(180,196,212,.22) !important}
 .bmark{height:.66em;width:auto;display:inline-block;flex:none;transform:translateY(.02em)}
 .bmark.sm{height:.92em;transform:translateY(.16em);margin-right:.12em}
 body.light .brandh .bmark{filter:invert(1) brightness(.18)}
-</style></head><body>
+.pd-seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}.pd-t{font:600 10px/1 var(--sans,Inter);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);background:var(--card-2);border:1px solid var(--line);border-radius:16px;padding:9px 15px;cursor:pointer}.pd-t.on{color:var(--ink);border-color:var(--silver-line);background:var(--silver-soft)}.pd-pane{display:none}.pd-pane.on{display:block}@media(max-width:760px){.pd-grid{grid-template-columns:1fr!important}}</style></head><body>
 <div class="bg"><div class="bgphoto"></div><div class="bgscrim"></div></div>
 <div class="pnote">◆ PREVIEW · <b>01 · 7EVEN Capital · Administration</b> — full working build · all tabs live. <span class="tgl" id="tt">☀ LIGHT</span></div>
 <div class="app">
@@ -697,6 +697,102 @@ var tt=document.getElementById('tt');tt.addEventListener('click',function(){var 
          else if(t==='expenses' && window.__refreshExp) window.__refreshExp(); }catch(e){} };
   renderAll();
   window.addEventListener('storage', function(e){ if(e.key===KEY || (e.key&&e.key.indexOf('detailed-costs:')===0)) renderAll(); });
+})();
+</script>
+<script>
+/* ── Book 01 · per-project cost stack page ─────────────────────────────────────
+   Click a project in Project tracking or Project spend to open its full cost
+   stack — same categories/line items as the feasibility studio, live via
+   book:project-costs. Read-only (the studio is the source of truth). Built with
+   the book's own classes/tokens so it matches the design in dark and light. */
+(function(){
+  function readJSON(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+  function money(n){ return (n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString(); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var IDS={ 'Preston':'seed-preston-001','Caloundra':'seed-caloundra-001','Waurn Ponds':'seed-geelong-001' };
+  var CT='font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:12px';
+
+  function overlay(){
+    var o=document.getElementById('pdetail');
+    if(o) return o;
+    o=document.createElement('div'); o.id='pdetail';
+    o.style.cssText='position:fixed;inset:0;z-index:400;background:var(--page);color:var(--ink);overflow:auto;display:none';
+    document.body.appendChild(o);
+    return o;
+  }
+  function tbl(rows, minw){
+    return '<div style="overflow-x:auto"><table class="tbl" style="min-width:'+(minw||420)+'px">'+rows+'</table></div>';
+  }
+  function r2(label,val,strong){
+    return '<tr><td style="text-align:left;padding:9px 4px;border-top:1px solid var(--line);color:var(--ink-2);font-size:12px">'+esc(label)+'</td>'
+      +'<td class="n" style="text-align:right;padding:9px 4px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:'+(strong?'var(--silver-hi)':'var(--ink)')+';font-weight:'+(strong?'700':'500')+'">'+esc(val)+'</td></tr>';
+  }
+
+  function open(id, group){
+    var pub=(readJSON('book:project-costs')||{})[id];
+    var o=overlay();
+    if(!pub){ o.innerHTML=shell(group||'Project','<div class="glass pad"><p style="color:var(--ink-3);font-size:12px">No cost stack published yet — open this project in the feasibility studio first.</p></div>'); o.style.display='block'; wireClose(o); return; }
+    var cats=pub.categories||[]; var tdc=pub.tdc||0, land=pub.land||0, inclLand=tdc+land, fee=tdc*0.03;
+
+    // summary
+    var srows=''; if(land) srows+=r2('Land', money(land));
+    cats.forEach(function(c){ srows+=r2(c.label, money(c.total)); });
+    srows+=r2('Total development cost (incl. land)', money(inclLand), true);
+    var frows=r2('Cost stack (ex land)', money(tdc))+r2('Live 3% DM fee', money(fee)+'/yr', true)
+      +r2('Actual spend tracked', money(pub.spend||0))+r2('Invoiced to date', money(pub.invoiced||0));
+
+    // segmented tabs
+    var tabs='<div class="pd-seg"><button class="pd-t on" data-c="summary">Summary</button>';
+    if(land) tabs+='<button class="pd-t" data-c="land">Land</button>';
+    cats.forEach(function(c){ tabs+='<button class="pd-t" data-c="'+c.key+'">'+esc(c.label.split(' ')[0])+'</button>'; });
+    tabs+='</div>';
+
+    // panes
+    var panes='<div class="pd-pane on" data-c="summary"><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="pd-grid">'
+      +'<div class="glass pad"><div style="'+CT+'">Cost summary · incl. land</div>'+tbl('<tbody>'+srows+'</tbody>')+'</div>'
+      +'<div class="glass pad"><div style="'+CT+'">Fee &amp; tracking</div>'+tbl('<tbody>'+frows+'</tbody>')+'</div></div></div>';
+    if(land) panes+='<div class="pd-pane" data-c="land"><div class="glass pad"><div style="'+CT+'">Land &amp; acquisition</div>'+tbl('<tbody>'+r2('Land cost', money(land))+'</tbody>')+'</div></div>';
+    cats.forEach(function(c){
+      var body='';
+      (c.lines||[]).forEach(function(l){ body+=r2(l.label, money(l.amount)); });
+      if(!(c.lines||[]).length) body='<tr><td style="text-align:left;padding:10px 4px;color:var(--ink-3);font-size:12px">No line items.</td><td></td></tr>';
+      body+=r2('Total '+c.label.toLowerCase(), money(c.total), true);
+      panes+='<div class="pd-pane" data-c="'+c.key+'"><div class="glass pad"><div style="'+CT+'">'+esc(c.label)+' — '+(c.lines||[]).length+' line'+((c.lines||[]).length===1?'':'s')+'</div>'
+        +tbl('<thead><tr><th style="text-align:left;padding:0 4px 8px;color:var(--ink-3);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)">Line item</th><th class="n" style="text-align:right;padding:0 4px 8px;color:var(--ink-3);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)">Amount</th></tr></thead><tbody>'+body+'</tbody>')+'</div></div>';
+    });
+
+    o.innerHTML=shell(pub.name||group||'Project', tabs+panes, money(inclLand), money(fee));
+    o.style.display='block'; wireClose(o);
+    o.querySelectorAll('.pd-t').forEach(function(b){ b.addEventListener('click',function(){
+      o.querySelectorAll('.pd-t').forEach(function(x){x.classList.toggle('on',x===b);});
+      o.querySelectorAll('.pd-pane').forEach(function(p){p.classList.toggle('on',p.dataset.c===b.dataset.c);});
+    }); });
+    o.scrollTop=0;
+  }
+  function shell(title, inner, tdcStr, feeStr){
+    return '<div style="max-width:1000px;margin:0 auto;padding:26px 22px 60px">'
+      +'<button id="pd-back" class="btn" style="margin-bottom:20px">← Back to projects</button>'
+      +'<div style="font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-3);font-weight:600">7EVEN Capital · Project cost stack</div>'
+      +'<h2 style="font-family:var(--serif);font-size:34px;font-weight:600;color:var(--ink);margin:6px 0 4px">'+esc(title)+'</h2>'
+      +'<div class="s" style="color:var(--ink-2);font-size:12.5px;margin-bottom:20px">Live from the feasibility studio'
+        +(tdcStr?(' · TDC '+tdcStr+' · 3% fee '+feeStr+'/yr'):'')+'</div>'
+      +inner+'</div>';
+  }
+  function wireClose(o){ var b=o.querySelector('#pd-back'); if(b) b.addEventListener('click',function(){ o.style.display='none'; }); }
+
+  function makeClickable(){
+    ['proj','spend'].forEach(function(t){
+      document.querySelectorAll('section[data-t="'+t+'"] table tbody tr').forEach(function(tr){
+        var name=tr.cells[0]?tr.cells[0].childNodes[0].textContent.trim():'';
+        var key=Object.keys(IDS).filter(function(k){ return name.indexOf(k)===0; })[0];
+        if(!key || tr.dataset.pdWired) return;
+        tr.dataset.pdWired='1'; tr.style.cursor='pointer'; tr.title='View '+key+' cost stack →';
+        tr.addEventListener('click', function(){ open(IDS[key], name); });
+      });
+    });
+  }
+  makeClickable(); setInterval(makeClickable, 1500);
+  window.__openProjectDetail = open;
 })();
 </script>
 </body></html>

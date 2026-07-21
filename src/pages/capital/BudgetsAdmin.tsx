@@ -150,15 +150,27 @@ export function ensureAdminData(): void {
  */
 export function publishProjectCosts(): void {
   if (typeof localStorage === 'undefined') return
-  const CATS = ['hardCosts', 'consultants', 'statutory', 'headworks', 'management', 'marketing'] as const
+  // Category order + labels match the old ProjectDetail cost-stack view.
+  const CATS: [string, string][] = [
+    ['consultants', 'Consultant & professional fees'], ['statutory', 'Statutory fees'],
+    ['hardCosts', 'Construction costs'], ['headworks', 'Headworks & enviro'],
+    ['management', 'Management fees'], ['marketing', 'Marketing & advertising'],
+  ]
   const txns = loadData().txns
-  const out: Record<string, { tdc: number; spend: number; invoiced: number; name: string; group: string }> = {}
+  const out: Record<string, unknown> = {}
   for (const link of PROJECT_LINKS.sev) {
-    const dcs = dbGetDetailedCostStack(link.projectId) as unknown as Record<string, { amount?: number }[]>
-    const tdc = CATS.reduce((s, c) => s + (dcs[c] || []).reduce((a, x) => a + (x.amount || 0), 0), 0)
+    const dcs = dbGetDetailedCostStack(link.projectId) as unknown as Record<string, { label?: string; amount?: number }[]>
+    const land = getLandTerms(link.projectId).landCost || 0
+    const categories = CATS.map(([key, label]) => {
+      const lines = (dcs[key] || []).map(l => ({ label: l.label || '', amount: l.amount || 0 }))
+      return { key, label, total: lines.reduce((s, l) => s + l.amount, 0), lines }
+    })
+    // tdc = the six cost categories (the 3% DM-fee basis, matching Project
+    // tracking). Land is carried separately; the detail page shows tdc + land.
+    const tdc = categories.reduce((s, c) => s + c.total, 0)
     const spend = txns.filter(t => t.type === 'bill' && t.projectId === link.projectId).reduce((s, t) => s + t.amount, 0)
     const invoiced = txns.filter(t => t.type === 'invoice' && t.projectId === link.projectId).reduce((s, t) => s + t.amount, 0)
-    out[link.projectId] = { tdc, spend, invoiced, name: link.label, group: link.group }
+    out[link.projectId] = { tdc, spend, invoiced, name: link.label, group: link.group, land, categories }
   }
   try { localStorage.setItem('book:project-costs', JSON.stringify(out)) } catch { /* ignore */ }
 }
