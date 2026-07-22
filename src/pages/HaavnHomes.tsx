@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import SiteLinks from '../components/SiteLinks'
+import { Project7Mark } from '../components/ui'
 
 /**
  * HAAVN HOMES — the Black Series homes-building company.
@@ -145,9 +147,6 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', height: 'clamp(280px, 52vh, 60vh)', flexShrink: 0 }}>
-        {/* Bottom-left: Log Out for the restricted builder login; ← Home otherwise. */}
-        <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey"
-          style={{ position: 'absolute', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
         {/* Restricted builders reach the HM CRM from here — the HM device button,
             same mark/treatment as the main app page (no plate, device only). */}
         {restricted && onOpenCrm && (
@@ -272,6 +271,13 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           </div>
         </div>
       )}
+
+      {/* Same footer as the main ATRIUM app — brand, VISIT US links + copyright,
+          Log Out bottom-left, P7 mark bottom-right. */}
+      <SiteLinks tone="glass" />
+      <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey"
+        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 320, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
+      <Project7Mark />
     </div>
   )
 }
