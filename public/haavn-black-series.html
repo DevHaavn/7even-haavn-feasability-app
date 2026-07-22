@@ -786,9 +786,15 @@ function compute(h){
   h.items.forEach(i=>{i.total=round2((i.qty||0)*(i.rate||0)); if(i.on!==false) sub+=i.total;});
   h.labour.forEach(i=>{i.total=round2((i.qty||0)*(i.rate||0)); if(i.on!==false) sub+=i.total;});
   const prelims=sub*h.prelimsPct, totalcost=sub+prelims;
-  const total=totalcost/(1-h.marginPct), margin=total-totalcost;
+  // Sale price: if the user has set an explicit retail price (h.saleOverride,
+  // inc GST) use it and derive the margin from it — a proper feasibility. Else
+  // fall back to the seed margin% (cost + markup).
+  let total, margin;
+  if(h.saleOverride && h.saleOverride>0){ total=h.saleOverride/(1+h.gstPct); margin=total-totalcost; }
+  else { total=totalcost/(1-h.marginPct); margin=total-totalcost; }
   const gst=total*h.gstPct, sale=total+gst;
-  return {sub,prelims,totalcost,total,margin,gst,sale,costM2:totalcost/h.totalArea,saleM2:sale/h.totalArea};
+  const marginPctCost = totalcost ? margin/totalcost : 0;
+  return {sub,prelims,totalcost,total,margin,gst,sale,costM2:totalcost/h.totalArea,saleM2:sale/h.totalArea,marginPctCost};
 }
 
 /* ---------- MODULE DIAGRAM ---------- */
@@ -998,11 +1004,19 @@ function renderFeas(){
   const h=DATA[currentHome]; ensureLineSchedule(h);
   const a=computeBlock(), multi=isMulti();
   document.getElementById('ledgerTitle').innerHTML = multi?`Cost breakdown · <span class="edited">${h.name}</span>`:'Cost breakdown';
+  const canEditSale=!multi, ov=(DATA[currentHome].saleOverride||0)>0, mPctCost=(a.totalcost?a.margin/a.totalcost*100:0);
   document.getElementById('kpiStrip').innerHTML=`
     <div class="kpi"><div class="k">${multi?'Combined floor area':'Total floor area'}</div><div class="v">${NUM1.format(a.area)}</div><div class="s">m² · ${a.modules} modules${multi?' · '+totHomes()+' homes':''}</div></div>
     <div class="kpi"><div class="k">Cost to build</div><div class="v">${money(a.totalcost)}</div><div class="s">${money(a.costM2)}/m² · ex GST</div></div>
-    <div class="kpi"><div class="k">Gross margin</div><div class="v">${money(a.margin)}</div><div class="s">${(a.total?a.margin/a.total*100:0).toFixed(1)}% on sale</div></div>
-    <div class="kpi hl"><div class="k">${multi?'Total sale · inc GST':'Sale price · inc GST'}</div><div class="v">${money(a.sale)}</div><div class="s">${money(a.saleM2)}/m²</div></div>`;
+    <div class="kpi hl"><div class="k">${canEditSale?'Sale price · inc GST':'Total sale · inc GST'}</div><div class="v">${canEditSale?`<input id="saleInput" type="text" spellcheck="false" value="${money(a.sale)}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed currentColor;font:inherit;color:inherit;letter-spacing:inherit;padding:0 0 2px;outline:none">`:money(a.sale)}</div><div class="s">${money(a.saleM2)}/m²${canEditSale?(ov?` · <span id="saleReset" style="cursor:pointer;text-decoration:underline">reset</span>`:` · click to set`):''}</div></div>
+    <div class="kpi"><div class="k">Margin${ov?' · set price':''}</div><div class="v" style="${a.margin<0?'color:#c8503f':''}">${money(a.margin)}</div><div class="s">${mPctCost.toFixed(1)}% on cost</div></div>`;
+  if(canEditSale){
+    const si=document.getElementById('saleInput');
+    if(si){ si.onkeydown=e=>{ if(e.key==='Enter') si.blur(); };
+      si.onchange=()=>{ const val=parseFloat(String(si.value).replace(/[^0-9.]/g,''))||0; DATA[currentHome].saleOverride=val>0?val:0; doSave(); renderFeas(); try{renderDashboard();}catch(e){} }; }
+    const sr=document.getElementById('saleReset');
+    if(sr) sr.onclick=()=>{ DATA[currentHome].saleOverride=0; doSave(); renderFeas(); try{renderDashboard();}catch(e){} };
+  }
   let body='';
   SECTIONS.forEach(sec=>{
     const isLab=sec==='Site Labour';
