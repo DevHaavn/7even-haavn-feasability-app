@@ -503,6 +503,11 @@ input,select,textarea{font-family:inherit}
   .wrap{margin-left:0;max-width:none;padding:26px 18px 80px}
 }
 @media(max-width:640px){.wrap{padding:22px 14px 80px}.display{font-size:30px}.trow,.grid-head{grid-template-columns:150px 1fr}}
+
+/* Sale price / margin low-margin warning — flashes red when margin < 25% on cost */
+@keyframes lowpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,80,63,.0)}50%{box-shadow:0 0 0 4px rgba(200,80,63,.28)}}
+.kpi.lowmargin{border:1.5px solid rgba(200,80,63,.65)!important;animation:lowpulse 1.3s ease-in-out infinite}
+.kpi.lowmargin .v,.kpi.lowmargin input,.kpi.lowmargin .k{color:#e0645c!important}
 </style>
 </head>
 <body>
@@ -786,13 +791,15 @@ function compute(h){
   h.items.forEach(i=>{i.total=round2((i.qty||0)*(i.rate||0)); if(i.on!==false) sub+=i.total;});
   h.labour.forEach(i=>{i.total=round2((i.qty||0)*(i.rate||0)); if(i.on!==false) sub+=i.total;});
   const prelims=sub*h.prelimsPct, totalcost=sub+prelims;
-  // Sale price: if the user has set an explicit retail price (h.saleOverride,
-  // inc GST) use it and derive the margin from it — a proper feasibility. Else
-  // fall back to the seed margin% (cost + markup).
-  let total, margin;
-  if(h.saleOverride && h.saleOverride>0){ total=h.saleOverride/(1+h.gstPct); margin=total-totalcost; }
-  else { total=totalcost/(1-h.marginPct); margin=total-totalcost; }
-  const gst=total*h.gstPct, sale=total+gst;
+  // Sale price is a FIXED retail price set manually — it never moves when the
+  // cost changes. Cost edits only change the cost to build; the margin is the
+  // gap between that cost and this fixed price, so it recomputes as cost moves.
+  // Initial price is the seed sale; the user overrides it via h.salePrice.
+  if(!(h.salePrice>0)) h.salePrice = (h.saleOverride>0 ? h.saleOverride : h.sale); // lock the retail price once
+  const fixedSale = h.salePrice;
+  const total = fixedSale/(1+h.gstPct);       // ex GST
+  const margin = total - totalcost;
+  const gst = fixedSale - total, sale = fixedSale;
   const marginPctCost = totalcost ? margin/totalcost : 0;
   return {sub,prelims,totalcost,total,margin,gst,sale,costM2:totalcost/h.totalArea,saleM2:sale/h.totalArea,marginPctCost};
 }
@@ -1004,18 +1011,16 @@ function renderFeas(){
   const h=DATA[currentHome]; ensureLineSchedule(h);
   const a=computeBlock(), multi=isMulti();
   document.getElementById('ledgerTitle').innerHTML = multi?`Cost breakdown · <span class="edited">${h.name}</span>`:'Cost breakdown';
-  const canEditSale=!multi, ov=(DATA[currentHome].saleOverride||0)>0, mPctCost=(a.totalcost?a.margin/a.totalcost*100:0);
+  const canEditSale=!multi, mPctCost=(a.totalcost?a.margin/a.totalcost*100:0), lowM=mPctCost<25;
   document.getElementById('kpiStrip').innerHTML=`
     <div class="kpi"><div class="k">${multi?'Combined floor area':'Total floor area'}</div><div class="v">${NUM1.format(a.area)}</div><div class="s">m² · ${a.modules} modules${multi?' · '+totHomes()+' homes':''}</div></div>
     <div class="kpi"><div class="k">Cost to build</div><div class="v">${money(a.totalcost)}</div><div class="s">${money(a.costM2)}/m² · ex GST</div></div>
-    <div class="kpi hl"><div class="k">${canEditSale?'Sale price · inc GST':'Total sale · inc GST'}</div><div class="v">${canEditSale?`<input id="saleInput" type="text" spellcheck="false" value="${money(a.sale)}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed currentColor;font:inherit;color:inherit;letter-spacing:inherit;padding:0 0 2px;outline:none">`:money(a.sale)}</div><div class="s">${money(a.saleM2)}/m²${canEditSale?(ov?` · <span id="saleReset" style="cursor:pointer;text-decoration:underline">reset</span>`:` · click to set`):''}</div></div>
-    <div class="kpi"><div class="k">Margin${ov?' · set price':''}</div><div class="v" style="${a.margin<0?'color:#c8503f':''}">${money(a.margin)}</div><div class="s">${mPctCost.toFixed(1)}% on cost</div></div>`;
+    <div class="kpi hl${lowM?' lowmargin':''}"><div class="k">${canEditSale?'Sale price · inc GST':'Total sale · inc GST'}${lowM?' · ⚠ low margin':''}</div><div class="v">${canEditSale?`<input id="saleInput" type="text" spellcheck="false" value="${money(a.sale)}" style="width:100%;background:transparent;border:none;border-bottom:1px dashed currentColor;font:inherit;color:inherit;letter-spacing:inherit;padding:0 0 2px;outline:none">`:money(a.sale)}</div><div class="s">${money(a.saleM2)}/m²${canEditSale?' · you set this':''}</div></div>
+    <div class="kpi${lowM?' lowmargin':''}"><div class="k">Margin</div><div class="v" style="${a.margin<0?'color:#c8503f':''}">${money(a.margin)}</div><div class="s">${mPctCost.toFixed(1)}% on cost${lowM?' · below 25%':''}</div></div>`;
   if(canEditSale){
     const si=document.getElementById('saleInput');
     if(si){ si.onkeydown=e=>{ if(e.key==='Enter') si.blur(); };
-      si.onchange=()=>{ const val=parseFloat(String(si.value).replace(/[^0-9.]/g,''))||0; DATA[currentHome].saleOverride=val>0?val:0; doSave(); renderFeas(); try{renderDashboard();}catch(e){} }; }
-    const sr=document.getElementById('saleReset');
-    if(sr) sr.onclick=()=>{ DATA[currentHome].saleOverride=0; doSave(); renderFeas(); try{renderDashboard();}catch(e){} };
+      si.onchange=()=>{ const val=parseFloat(String(si.value).replace(/[^0-9.]/g,''))||0; if(val>0) DATA[currentHome].salePrice=val; doSave(); renderFeas(); try{renderDashboard();}catch(e){} }; }
   }
   let body='';
   SECTIONS.forEach(sec=>{
@@ -1084,10 +1089,16 @@ function onEdit(e){
   renderSummary();refreshKpi();
 }
 function refreshKpi(){const a=computeBlock(),multi=isMulti(),s=document.getElementById('kpiStrip').children;
+  const mPctCost=(a.totalcost?a.margin/a.totalcost*100:0), lowM=mPctCost<25;
   s[0].querySelector('.v').textContent=NUM1.format(a.area);s[0].querySelector('.s').textContent='m² · '+a.modules+' modules'+(multi?' · '+totHomes()+' homes':'');
   s[1].querySelector('.v').textContent=money(a.totalcost);s[1].querySelector('.s').textContent=money(a.costM2)+'/m² · ex GST';
-  s[2].querySelector('.v').textContent=money(a.margin);s[2].querySelector('.s').textContent=(a.total?a.margin/a.total*100:0).toFixed(1)+'% on sale';
-  s[3].querySelector('.v').textContent=money(a.sale);s[3].querySelector('.s').textContent=money(a.saleM2)+'/m²';}
+  /* s[2] = Sale price — FIXED. Never overwrite the value/input; only the /m² sub, label warning and flash. */
+  const sk=s[2].querySelector('.k'); if(sk) sk.textContent=(!multi?'Sale price · inc GST':'Total sale · inc GST')+(lowM?' · ⚠ low margin':'');
+  const ss=s[2].querySelector('.s'); if(ss) ss.textContent=money(a.saleM2)+'/m²'+(!multi?' · you set this':'');
+  s[2].classList.toggle('lowmargin',lowM);
+  /* s[3] = Margin — recomputes as cost moves against the fixed sale price. */
+  s[3].querySelector('.v').textContent=money(a.margin);s[3].querySelector('.s').textContent=mPctCost.toFixed(1)+'% on cost'+(lowM?' · below 25%':'');
+  s[3].classList.toggle('lowmargin',lowM);}
 function renderSummary(){
   const h=DATA[currentHome],a=computeBlock(),multi=isMulti();
   const blendPre=a.sub?a.prelims/a.sub*100:0, blendMar=a.total?a.margin/a.total*100:0, blendGst=a.total?a.gst/a.total*100:0;
