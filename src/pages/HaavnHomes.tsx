@@ -148,11 +148,14 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         {/* Bottom-left: Log Out for the restricted builder login; ← Home otherwise. */}
         <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey"
           style={{ position: 'absolute', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
-        {/* Restricted builders reach the HM CRM from here (their only other surface). */}
+        {/* Restricted builders reach the HM CRM from here — the HM device button,
+            same mark/treatment as the main app page (no plate, device only). */}
         {restricted && onOpenCrm && (
-          <button onClick={onOpenCrm} className="no-drag"
-            style={{ position: 'absolute', top: 22, right: 24, zIndex: 30, padding: '9px 18px', borderRadius: 12, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', cursor: 'pointer' }}>
-            <span style={{ color: '#fff', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>HM CRM →</span>
+          <button onClick={onOpenCrm} className="no-drag" title="HM CRM — Management Hub"
+            style={{ position: 'absolute', top: 30, right: 44, zIndex: 30, background: 'transparent', border: 'none', padding: '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}>
+            <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 22, width: 'auto', display: 'block' }} />
           </button>
         )}
 
@@ -222,9 +225,11 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
                 <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.4)', width: 22, flexShrink: 0 }}>{String(i + 1).padStart(2, '0')}</span>
-                <div style={{ minWidth: 0, flex: '0 0 auto', width: 260 }}>
-                  <div style={{ fontFamily: "Optima,'Gill Sans',serif", fontWeight: 800, letterSpacing: '0.06em', fontSize: 17, color: '#EDEFF1' }}>{p.name}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, marginTop: 3 }}>{p.address || '—'}</div>
+                {/* Name + address styled to match the main app's project rows —
+                    clean sans, not the heavy Optima serif. */}
+                <div style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
+                  <div style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 500, letterSpacing: '0.05em', marginBottom: 2, textShadow: '0 0 8px rgba(255,255,255,0.3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                  <div style={{ color: '#FFFFFF', fontSize: 9, letterSpacing: '0.08em', textShadow: '0 0 6px rgba(255,255,255,0.25)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.address || '—'}</div>
                 </div>
                 {/* LIVE pill */}
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: '1px solid rgba(61,170,106,0.4)', borderRadius: 999, padding: '4px 11px', flexShrink: 0 }}>
