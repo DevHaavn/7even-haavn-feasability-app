@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { DesignCredit } from '../components/ui'
 import InstallButton from '../components/InstallButton'
-import { setStoredRole, EXTERNAL_PASSWORD } from '../lib/role'
+import { setStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD } from '../lib/role'
 import { AtriumApex } from '../components/AtriumMark'
 
 const CORRECT = '7Evenhaavn!!!'
@@ -46,6 +46,11 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
     } else if (value === EXTERNAL_PASSWORD) {
       markAuthenticated()
       setStoredRole('external')
+      onAuth()
+    } else if (value === HOMES_PASSWORD) {
+      // HAAVN HOMES builder (Jeffrey Witbreuk + team) — homes studio + HM CRM only.
+      markAuthenticated()
+      setStoredRole('homes')
       onAuth()
     } else {
       setError(true)

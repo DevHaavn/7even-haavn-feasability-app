@@ -1,8 +1,13 @@
 import React from 'react'
 
-export type Role = 'admin' | 'external'
+export type Role = 'admin' | 'external' | 'homes'
 
 export const EXTERNAL_PASSWORD = '7EvenConsult!!!'
+
+// HAAVN HOMES builder login (Jeffrey Witbreuk + team). Locked to the HAAVN
+// Homes / Black Series feasibility studio and the ATRIUM (HM) CRM only — no
+// access to the 7EVEN feasibility studio or Capital Base.
+export const HOMES_PASSWORD = 'HaavnHomes!!!'
 
 const ROLE_KEY = '7even_role'
 

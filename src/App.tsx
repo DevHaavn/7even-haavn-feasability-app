@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
 import IntroScreen from './pages/IntroScreen'
 import HaavnHomes from './pages/HaavnHomes'
+import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
@@ -24,6 +25,9 @@ export default function App() {
   // HAAVN HOMES — the Black Series homes company. A separate surface with its own
   // store; never shares data with the Feasibility Studio.
   const [homesOpen, setHomesOpen] = useState(false)
+  // The HM CRM (Management Hub) opened from within the restricted HAAVN HOMES
+  // builder view (Jeffrey Witbreuk + team).
+  const [homesCrmOpen, setHomesCrmOpen] = useState(false)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
@@ -125,6 +129,23 @@ export default function App() {
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
   if (homesOpen) return <HaavnHomes onBack={() => setHomesOpen(false)} />
+
+  // HAAVN HOMES builder login (Jeffrey Witbreuk + team) — locked to the HAAVN
+  // Homes / Black Series feasibility studio and the ATRIUM (HM) CRM. Never the
+  // 7EVEN Feasibility Studio, Capital Base or the project list.
+  if (role === 'homes') {
+    return (
+      <RoleContext.Provider value={role}>
+        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
+        {/* Above HAAVN HOMES (z-index 600) — its own stacking context sits on top. */}
+        {homesCrmOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
+            <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
+          </div>
+        )}
+      </RoleContext.Provider>
+    )
+  }
 
   return (
     <RoleContext.Provider value={role}>

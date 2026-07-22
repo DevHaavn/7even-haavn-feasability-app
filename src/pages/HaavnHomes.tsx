@@ -93,7 +93,14 @@ function HomeClock({ handover }: { handover?: string }) {
   )
 }
 
-export default function HaavnHomes({ onBack }: { onBack: () => void }) {
+export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: {
+  onBack: () => void
+  /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
+   *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
+  restricted?: boolean
+  onOpenCrm?: () => void
+  onLogout?: () => void
+}) {
   const [list, setList] = useState<HomeProject[]>(() => load())
   const [openId, setOpenId] = useState<string | null>(null)
   const [brandMenu, setBrandMenu] = useState(false)
@@ -138,8 +145,16 @@ export default function HaavnHomes({ onBack }: { onBack: () => void }) {
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', height: 'clamp(280px, 52vh, 60vh)', flexShrink: 0 }}>
-        <button onClick={onBack} className="glass-btn glass-btn-grey"
-          style={{ position: 'absolute', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>← Home</button>
+        {/* Bottom-left: Log Out for the restricted builder login; ← Home otherwise. */}
+        <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey"
+          style={{ position: 'absolute', bottom: 18, left: 20, zIndex: 30, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
+        {/* Restricted builders reach the HM CRM from here (their only other surface). */}
+        {restricted && onOpenCrm && (
+          <button onClick={onOpenCrm} className="no-drag"
+            style={{ position: 'absolute', top: 22, right: 24, zIndex: 30, padding: '9px 18px', borderRadius: 12, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', cursor: 'pointer' }}>
+            <span style={{ color: '#fff', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>HM CRM →</span>
+          </button>
+        )}
 
         <div style={{ position: 'absolute', top: '4%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10 }}>
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Precision Homes · Black Series</p>
@@ -173,12 +188,13 @@ export default function HaavnHomes({ onBack }: { onBack: () => void }) {
         {/* Column header — brand dropdown + count + menu, mirroring the main list */}
         <div style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', borderBottom: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-            <button onClick={() => setBrandMenu(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            {/* Builders can't switch to the 7EVEN studio — the dropdown is a static label. */}
+            <button onClick={restricted ? undefined : () => setBrandMenu(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: restricted ? 'default' : 'pointer', padding: 0 }}>
               <span style={{ fontFamily: "Optima,'Gill Sans',serif", fontWeight: 800, letterSpacing: '0.1em', fontSize: 15, color: '#EDEFF1' }}>HAAVN HOMES</span>
-              <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>
+              {!restricted && <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
             </button>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: mono, marginLeft: 4, fontWeight: 700 }}>{list.length} home{list.length !== 1 ? 's' : ''}</span>
-            {brandMenu && (
+            {!restricted && brandMenu && (
               <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 200, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
                 {[['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']].map(([id, lbl]) => (
                   <button key={id} onClick={() => { setBrandMenu(false); onBack() }}
