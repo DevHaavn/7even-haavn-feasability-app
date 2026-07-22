@@ -147,9 +147,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', height: 'clamp(280px, 52vh, 60vh)', flexShrink: 0 }}>
-        {/* Restricted builders reach the HM CRM from here — the HM device button,
-            same mark/treatment as the main app page (no plate, device only). */}
-        {restricted && onOpenCrm && (
+        {/* HM CRM entry — the HM device button, same mark/treatment as the main
+            app page (no plate, device only). Shown in every HAAVN HOMES view. */}
+        {onOpenCrm && (
           <button onClick={onOpenCrm} className="no-drag" title="HM CRM — Management Hub"
             style={{ position: 'absolute', top: 30, right: 44, zIndex: 30, background: 'transparent', border: 'none', padding: '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}

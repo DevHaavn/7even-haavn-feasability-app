@@ -128,7 +128,17 @@ export default function App() {
   if (showIntro) return <IntroScreen onDone={() => setShowIntro(false)} />
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
-  if (homesOpen) return <HaavnHomes onBack={() => setHomesOpen(false)} />
+  // The HM device button (top-right) opens the Management Hub, mounted above.
+  if (homesOpen) return (
+    <RoleContext.Provider value={role}>
+      <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} />
+      {homesCrmOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
+          <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
+        </div>
+      )}
+    </RoleContext.Provider>
+  )
 
   // HAAVN HOMES builder login (Jeffrey Witbreuk + team) — locked to the HAAVN
   // Homes / Black Series feasibility studio and the ATRIUM (HM) CRM. Never the
