@@ -1869,6 +1869,25 @@ if(!RANGES[feasRange])feasRange='black';
 ensureFocus();
 bindProgSwitch(); initAutosave();
 renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPills();renderFeas();renderMix();renderDashboard();renderSidebar();
+/* Deep-link from HAAVN HOMES: the parent opens this engine with #home=<id>.
+   Map that id to the home's DATA key and open its feasibility directly, so the
+   card jumps into the home's live feasibility instead of the Range screen. */
+(function(){
+  var HOME_MAP={solum:'SOLUM',havan:'HAVEN',haven:'HAVEN',forma:'FORMA',magna:'MAGNA','magna-plus':'MAGNA PLUS',merrimu:'M-A1'};
+  function openFromHash(){
+    try{
+      var m=/home=([^&]+)/.exec(location.hash||''); if(!m) return;
+      var id=decodeURIComponent(m[1]).toLowerCase();
+      var key=HOME_MAP[id];
+      if(key && typeof DATA!=='undefined' && DATA[key] && typeof openHome==='function' && typeof switchView==='function'){
+        switchView('feas'); openHome(key);
+      }
+    }catch(e){}
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+})();
+
 </script>
 </body>
 </html>
