@@ -508,6 +508,37 @@ input,select,textarea{font-family:inherit}
 @keyframes lowpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,80,63,.0)}50%{box-shadow:0 0 0 4px rgba(200,80,63,.28)}}
 .kpi.lowmargin{border:1.5px solid rgba(200,80,63,.65)!important;animation:lowpulse 1.3s ease-in-out infinite}
 .kpi.lowmargin .v,.kpi.lowmargin input,.kpi.lowmargin .k{color:#e0645c!important}
+
+/* Range per-home sections + image carousel */
+.rangegrid{display:block}
+.homeblock{display:grid;grid-template-columns:1.2fr 1fr;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:22px 0;background:var(--panel,#fff);box-shadow:0 1px 2px rgba(5,7,6,.04),0 10px 30px -12px rgba(5,7,6,.10)}
+@media(max-width:860px){.homeblock{grid-template-columns:1fr}}
+.hb-media{position:relative;background:linear-gradient(160deg,#F7F4EC,#EFEADD);overflow:hidden;min-height:360px}
+.hb-media.drag{outline:2px dashed var(--ink3,#8a8f88);outline-offset:-10px}
+.hb-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100%;scrollbar-width:none;-ms-overflow-style:none}
+.hb-strip::-webkit-scrollbar{display:none}
+.hb-slide{position:relative;flex:0 0 100%;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;min-height:360px}
+.hb-slide img{width:100%;height:100%;min-height:360px;object-fit:cover;display:block}
+.hb-empty{background:repeating-linear-gradient(45deg,#F2EEE3,#F2EEE3 12px,#EDE8DB 12px,#EDE8DB 24px)}
+.hb-drop{text-align:center;color:#9a927f;font-size:13px;letter-spacing:.04em;line-height:1.7}.hb-drop span{font-size:11px;opacity:.8}
+.hb-nav{position:absolute;top:calc(50% - 20px);transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(15,15,15,.55);color:#fff;font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
+.hb-nav.prev{left:12px}.hb-nav.next{right:12px}
+.hb-dots{position:absolute;bottom:52px;left:0;right:0;display:flex;gap:6px;justify-content:center;pointer-events:none}
+.hb-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}.hb-dots span.on{background:#fff}
+.hb-tools{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:linear-gradient(0deg,rgba(0,0,0,.42),transparent)}
+.hb-count{color:rgba(255,255,255,.9);font-family:var(--mono,monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.hb-addbtn{background:rgba(255,255,255,.92);border:none;border-radius:999px;padding:7px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#12150f;cursor:pointer}
+.hb-del{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(15,15,15,.5);color:#fff;font-size:15px;cursor:pointer;line-height:1}
+.hb-info{padding:32px 36px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.hb-eye{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3,#8a8f88)}
+.hb-name{font-family:var(--serif,'Cormorant Garamond',serif);font-size:38px;font-weight:600;line-height:1;margin:6px 0 4px}
+.hb-tag{color:var(--ink2,#4a4f48);font-size:13px;margin:0 0 18px}
+.hb-specs,.hb-feas{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;padding:16px 0;border-top:1px solid var(--line)}
+.hb-specs div,.hb-feas div{display:flex;flex-direction:column;gap:3px}
+.hb-specs span,.hb-feas span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3,#8a8f88);font-weight:600}
+.hb-specs b,.hb-feas b{font-family:var(--mono,monospace);font-size:14px;font-weight:600;color:var(--ink,#12150f)}
+.hb-feas .low b{color:#e0645c}
+.hb-open{margin-top:18px;align-self:flex-start;background:#12150f;color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -836,28 +867,73 @@ function renderRange(){
   document.getElementById('archCred').innerHTML=am.cred;
   PLANS=PLAN_SETS[rangeTab].slice();
   renderPlanToggle();
+  // Range as per-home sections, top→bottom in BLACK order. Each home has an image
+  // carousel (drop floor plans + multiple images) and its own cost·sale·margin.
+  const _ab=document.getElementById('archBand'); if(_ab)_ab.style.display='none';
+  const _iw=document.querySelector('.importwrap'); if(_iw)_iw.style.display='none';
   let html='';
-  R.keys.forEach(k=>{const h=DATA[k],c=compute(h);
-    html+=`<div class="pcard" data-open="${k}"><div class="viz">${h.render?`<img src="${h.render}" alt="${h.name}" loading="lazy" style="width:100%;aspect-ratio:16/10;object-fit:cover;display:block;border-radius:4px">`:moduleSVG(h.modules,h.storeys,h.garage)}</div>
-      <div class="body"><div><div class="code">${rangeTab==='ess'?'MERRIMU · TYPE '+h.code:'TYPE '+h.code} · ${h.storeys>1?h.storeys+' STOREY':'SINGLE STOREY'}</div>
-      <div class="pname">${h.name}</div><div class="ptag">${h.tagline}</div></div>
-      <div class="specrow">${rangeTab==='ess'
-        ? `<div class="spec"><div class="k">Total area</div><div class="v">${NUM1.format(h.totalArea)}<small> m²</small></div></div>
-           <div class="spec"><div class="k">Config</div><div class="v" style="font-size:13px">${(h.bed||'').replace(' bed','')||h.modules+' mod'}</div></div>
-           <div class="spec"><div class="k">Lots (Stage 1)</div><div class="v">${h.lots||'—'}</div></div>`
-        : `<div class="spec"><div class="k">Total area</div><div class="v">${NUM1.format(h.totalArea)}<small> m²</small></div></div>
-           <div class="spec"><div class="k">Modules</div><div class="v">${h.modules}</div></div>
-           <div class="spec"><div class="k">Factory rate</div><div class="v">${num(h.rate_m2)}<small> $/m²</small></div></div>`}</div>
-      <div class="price"><div><div class="lbl">Indicative sale · inc GST</div><div class="amt">${money(c.sale)}</div></div><div class="opencta">Open feasibility ›</div></div></div></div>`;});
-  if(rangeTab==='black') TBC.forEach(t=>{html+=`<div class="pcard tbc"><div class="viz">${moduleSVG(t.modules,t.storeys,t.garage)}</div>
-    <div class="body"><div><div class="code">${t.code} · IN DEVELOPMENT</div><div class="pname" style="color:var(--ink3)">${t.name}</div><div class="ptag">${t.tagline}</div></div>
-    <div class="specrow"><div class="spec"><div class="k">Total area</div><div class="v">${NUM1.format(t.totalArea)}<small> m²</small></div></div>
-    <div class="spec"><div class="k">Modules</div><div class="v">${t.modules}</div></div>
-    <div class="spec"><div class="k">Garage</div><div class="v" style="font-size:13px">${t.garage}</div></div></div>
-    <div class="price"><div><div class="lbl">Pricing</div><div class="amt tbc">Awaiting release</div></div></div></div></div>`;});
-  const grid=document.getElementById('rangeGrid');grid.innerHTML=html;
-  grid.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{openHome(el.dataset.open);switchView('feas');});
+  R.keys.forEach((k,idx)=>{
+    const h=DATA[k], c=compute(h);
+    if(!DATA[k].gallery) DATA[k].gallery = h.render ? [h.render] : [];
+    const gal=DATA[k].gallery;
+    const slides = gal.length
+      ? gal.map((src,gi)=>`<div class="hb-slide"><img src="${src}" alt="${h.name} ${gi+1}" loading="lazy"><button class="hb-del" data-del="${gi}" title="Remove">×</button></div>`).join('')
+      : `<div class="hb-slide hb-empty"><div class="hb-drop">◇ Drop floor plans &amp; images<br><span>or use “+ Add” below</span></div></div>`;
+    const dots = gal.length>1 ? `<div class="hb-dots">${gal.map((_,gi)=>`<span${gi===0?' class="on"':''}></span>`).join('')}</div>` : '';
+    const mPct=(c.totalcost?c.margin/c.totalcost*100:0), low=mPct<25;
+    html+=`<section class="homeblock" data-hb="${k}">
+      <div class="hb-media" data-gk="${k}">
+        <div class="hb-strip">${slides}</div>
+        ${gal.length>1?`<button class="hb-nav prev" data-nav="-1">‹</button><button class="hb-nav next" data-nav="1">›</button>`:''}
+        ${dots}
+        <div class="hb-tools"><span class="hb-count">${gal.length} image${gal.length!==1?'s':''}</span><button class="hb-addbtn">+ Add image / floor plan</button></div>
+        <input type="file" accept="image/*" multiple class="hb-file" style="display:none">
+      </div>
+      <div class="hb-info">
+        <div class="hb-eye">${String(idx+1).padStart(2,'0')} · TYPE ${h.code} · ${h.storeys>1?h.storeys+' STOREY':'SINGLE STOREY'}</div>
+        <h2 class="hb-name">${h.name}</h2>
+        <p class="hb-tag">${h.tagline}</p>
+        <div class="hb-specs">
+          <div><span>Total area</span><b>${NUM1.format(h.totalArea)} m²</b></div>
+          <div><span>Modules</span><b>${h.modules}</b></div>
+          <div><span>Storeys</span><b>${h.storeys}</b></div>
+          <div><span>Module grid</span><b>4.2 × 8.4 m</b></div>
+        </div>
+        <div class="hb-feas">
+          <div><span>Cost to build</span><b>${money(c.totalcost)}</b></div>
+          <div><span>Sale price · inc GST</span><b>${money(c.sale)}</b></div>
+          <div class="${low?'low':''}"><span>Margin</span><b>${money(c.margin)} · ${mPct.toFixed(1)}%</b></div>
+        </div>
+        <button class="hb-open" data-open="${k}">Open feasibility →</button>
+      </div>
+    </section>`;
+  });
+  const grid=document.getElementById('rangeGrid'); grid.innerHTML=html;
+  grid.querySelectorAll('.hb-open').forEach(el=>el.onclick=()=>{openHome(el.dataset.open);switchView('feas');});
+  bindHomeGalleries();
 }
+function bindHomeGalleries(){
+  document.querySelectorAll('.homeblock').forEach(block=>{
+    const k=block.dataset.hb, media=block.querySelector('.hb-media'), strip=block.querySelector('.hb-strip');
+    const file=block.querySelector('.hb-file'), addBtn=block.querySelector('.hb-addbtn');
+    function addFiles(files){
+      const imgs=[...files].filter(f=>/^image\//.test(f.type)); if(!imgs.length) return;
+      let pending=imgs.length;
+      imgs.forEach(f=>{ const r=new FileReader(); r.onload=()=>{ (DATA[k].gallery=DATA[k].gallery||[]).push(r.result); if(--pending===0){ doSave(); renderRange(); } }; r.readAsDataURL(f); });
+    }
+    if(addBtn) addBtn.onclick=()=>file.click();
+    if(file) file.onchange=()=>addFiles(file.files);
+    media.addEventListener('dragover',e=>{e.preventDefault();media.classList.add('drag');});
+    media.addEventListener('dragleave',()=>media.classList.remove('drag'));
+    media.addEventListener('drop',e=>{e.preventDefault();media.classList.remove('drag');addFiles(e.dataTransfer.files);});
+    block.querySelectorAll('.hb-nav').forEach(btn=>btn.onclick=()=>{ const w=strip.clientWidth; strip.scrollBy({left:parseInt(btn.dataset.nav)*w,behavior:'smooth'}); });
+    block.querySelectorAll('.hb-del').forEach(btn=>btn.onclick=e=>{ e.stopPropagation(); const gi=+btn.dataset.del; DATA[k].gallery.splice(gi,1); doSave(); renderRange(); });
+    // dots follow scroll
+    const dots=block.querySelectorAll('.hb-dots span');
+    if(dots.length) strip.addEventListener('scroll',()=>{ const i=Math.round(strip.scrollLeft/strip.clientWidth); dots.forEach((d,di)=>d.classList.toggle('on',di===i)); });
+  });
+}
+
 
 /* ---------- PLAN VIEWER ---------- */
 function renderPlanToggle(){
