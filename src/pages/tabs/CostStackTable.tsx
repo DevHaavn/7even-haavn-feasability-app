@@ -1,5 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react'
 import type { CostLineItem } from '../../db/schema'
+import { effAmt, gstOf, isFixed, withBasis, withPct, withUnits, withRate, type CostCtx } from '../../lib/costLine'
+import CostLineDetailModal from './CostLineDetailModal'
 
 // Band marker colours for data-driven (by-category) groups. Decorative only —
 // the group is named in text beside the dot, so these just separate the bands.
@@ -66,6 +68,10 @@ interface Props {
   // When true, band rows into groups by each line's category (its `notes`), so any
   // number of categories render without a predefined config.
   groupByNotes?: boolean
+  // Section name (e.g. "Consultant & Professional Fees") shown in the detail modal.
+  sectionLabel?: string
+  // The project this section belongs to — needed to upload fee-proposal PDFs.
+  projectId?: string
 }
 
 // Basis dropdown (fee tabs): direct $ / unit, or a % of a basis that derives the budget.
@@ -117,7 +123,10 @@ function buildGroups(items: CostLineItem[], groups?: GroupConfig[]) {
   return res
 }
 
-export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0, groupByNotes = false }: Props) {
+export default function CostStackTable({ items, onChange, gstEnabled = true, basisMode = 'basis', groups, constructionValue = 0, gdvValue = 0, groupByNotes = false, sectionLabel = 'Cost item', projectId = '' }: Props) {
+  const ctx: CostCtx = { constructionValue, gdvValue }
+  // Which line's full detail screen is open (null = none).
+  const [openId, setOpenId] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const toggle = (id: string) => { const n = new Set(collapsed); n.has(id) ? n.delete(id) : n.add(id); setCollapsed(n) }
 
@@ -182,40 +191,19 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   }, [groups, groupByNotes, items])
   const groupOf = (it: CostLineItem) => (effGroups || []).find(g => g.match(it))
 
-  // Budget build-up: % of a basis, else Units × Rate, else the directly entered amount.
-  const basisVal = (it: CostLineItem) => (it.feeBasis === 'gdv' ? gdvValue : constructionValue)
+  // Budget build-up + variations now live in ../../lib/costLine so the table,
+  // detail modal and dashboard all agree. `eff`/`gst` bind the shared maths to
+  // this table's basis context; the change* handlers merge the returned patch.
   const hasUnitRate = (it: CostLineItem) => (it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0
-  const effAmt = (it: CostLineItem) =>
-    it.feeBasis ? Math.round((it.pct ?? 0) * basisVal(it))
-    : hasUnitRate(it) ? Math.round((it.units || 0) * (it.baseRate || 0))
-    : (it.amount || 0)
-  // Picking a basis sets the derived budget; clearing it keeps the entered amount.
-  const changeBasis = (it: CostLineItem, v: string) => {
-    const fb = (v || undefined) as CostLineItem['feeBasis']
-    if (fb) update(it.id, { feeBasis: fb, pct: it.pct ?? 0, amount: Math.round((it.pct ?? 0) * (fb === 'gdv' ? gdvValue : constructionValue)) })
-    else update(it.id, { feeBasis: undefined })
-  }
-  const changePct = (it: CostLineItem, pctPercent: number) => {
-    const p = pctPercent / 100
-    update(it.id, { pct: p, amount: Math.round(p * basisVal(it)) })
-  }
-  // Units × Rate drives the budget when both are present. A line is EITHER a %-of-basis
-  // fee OR a units × rate fee — so entering units on a %-basis line switches it to
-  // units × rate (clears the % basis) rather than leaving the Units cell dead.
-  const changeUnits = (it: CostLineItem, u: number) => {
-    if (it.feeBasis && u > 0) {
-      update(it.id, { units: u, feeBasis: undefined, pct: undefined, amount: (it.baseRate ?? 0) > 0 ? Math.round(u * (it.baseRate || 0)) : 0 })
-    } else {
-      update(it.id, { units: u, amount: (u > 0 && (it.baseRate ?? 0) > 0) ? Math.round(u * (it.baseRate || 0)) : (it.amount || 0) })
-    }
-  }
-  const changeRate = (it: CostLineItem, r: number) =>
-    update(it.id, { baseRate: r, amount: ((it.units ?? 0) > 0 && r > 0) ? Math.round((it.units || 0) * r) : (it.amount || 0) })
+  const eff = (it: CostLineItem) => effAmt(it, ctx)
+  const gst = (it: CostLineItem) => gstOf(it, ctx)
+  const changeBasis = (it: CostLineItem, v: string) => update(it.id, withBasis(it, v, ctx))
+  const changePct = (it: CostLineItem, pctPercent: number) => update(it.id, withPct(it, pctPercent, ctx))
+  const changeUnits = (it: CostLineItem, u: number) => update(it.id, withUnits(it, u, ctx))
+  const changeRate = (it: CostLineItem, r: number) => update(it.id, withRate(it, r, ctx))
 
-  // GST is shown straight off the budget figure (10%), except lines flagged GST-free.
-  const gstOf = (it: CostLineItem) => (it.gstFree ? 0 : effAmt(it) * GST_RATE)
-  const grandBudget = items.reduce((s, i) => s + effAmt(i), 0)
-  const grandGst = items.reduce((s, i) => s + gstOf(i), 0)
+  const grandBudget = items.reduce((s, i) => s + eff(i), 0)
+  const grandGst = items.reduce((s, i) => s + gst(i), 0)
 
   const banded = buildGroups(items, effGroups)
 
@@ -227,7 +215,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
   // defining a component inside render remounts every row on each keystroke.
   const renderRow = (item: CostLineItem) => {
-    const gst = gstOf(item)
+    const g = gst(item)
     const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
     const fundCls = FUND_BADGE[item.fundedBy || 'equity'] || 'b-eq'
     return (
@@ -272,8 +260,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         </td>
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
         <td className="n">
-          {isPct || hasUnitRate(item) ? (
-            <span style={{ fontWeight: 600 }}>{money(effAmt(item))}</span>
+          {isPct || hasUnitRate(item) || (item.variations && item.variations.length > 0) ? (
+            <span style={{ fontWeight: 600 }} title={item.variations && item.variations.length ? `Includes ${item.variations.length} variation(s)` : undefined}>{money(eff(item))}{item.variations && item.variations.length > 0 && <span style={{ color: 'var(--red)', fontSize: 9, marginLeft: 4 }}>▲</span>}</span>
           ) : (
             <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
               onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
@@ -281,8 +269,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           )}
         </td>
         {/* GST from budget (10%) + Incl. GST */}
-        <td className="n" style={{ color: 'var(--ink-3)' }}>{item.gstFree ? '—' : money(gst)}</td>
-        <td className="n">{money(effAmt(item) + gst)}</td>
+        <td className="n" style={{ color: 'var(--ink-3)' }}>{item.gstFree ? '—' : money(g)}</td>
+        <td className="n">{money(eff(item) + g)}</td>
         {/* Funded by — the badge IS the control, so it stays a live dropdown */}
         <td>
           <select className={`badge ${fundCls}`} value={item.fundedBy || 'equity'}
@@ -306,15 +294,26 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Start / End — editable month pickers */}
         <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
         <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
-        <td />
+        {/* Pricing quick-toggle (Fixed/Variable) + expand to the full detail screen */}
+        <td>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <button title={isFixed(item) ? 'Fixed — fee proposal locked in' : 'Variable — not properly priced yet'}
+              onClick={() => update(item.id, { pricing: isFixed(item) ? 'variable' : 'fixed' })}
+              style={{ border: 'none', borderRadius: 999, padding: '3px 7px', fontSize: 8.5, fontWeight: 700, letterSpacing: '.05em', cursor: 'pointer', color: '#fff', background: isFixed(item) ? 'var(--emerald, #2f7d54)' : 'var(--amber, #c0842c)' }}>
+              {isFixed(item) ? 'FIXED' : 'VAR'}
+            </button>
+            <button className="rowact" title="Open full detail (pricing, PDF, variations, timeline)" onClick={() => setOpenId(item.id)}
+              style={{ fontSize: 12 }}>⤢</button>
+          </span>
+        </td>
       </tr>
     )
   }
 
   // Group band header — carries the group's own rollup and its "+ row", per the reference.
   const renderGroupHead = (def: GroupConfig, rows: CostLineItem[], open: boolean) => {
-    const b = rows.reduce((s, i) => s + effAmt(i), 0)
-    const g = rows.reduce((s, i) => s + gstOf(i), 0)
+    const b = rows.reduce((s, i) => s + eff(i), 0)
+    const g = rows.reduce((s, i) => s + gst(i), 0)
     return (
       <tr className="grp" key={`${def.id}-h`}>
         <td onClick={() => toggle(def.id)} style={{ cursor: 'pointer' }}>
@@ -338,8 +337,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   // Per-group subtotal — dashed rule, silver label (reference tr.sub).
   const renderSubtotal = (def: GroupConfig, rows: CostLineItem[]) => {
-    const b = rows.reduce((s, i) => s + effAmt(i), 0)
-    const g = rows.reduce((s, i) => s + gstOf(i), 0)
+    const b = rows.reduce((s, i) => s + eff(i), 0)
+    const g = rows.reduce((s, i) => s + gst(i), 0)
     return (
       <tr className="sub" key={`${def.id}-s`}>
         <td className="stl">{def.label} subtotal</td>
@@ -361,7 +360,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           <colgroup>
             <col style={{ width: descW }} />
             {COLS_AFTER_ITEM.map((w, i) => <col key={i} style={{ width: w }} />)}
-            <col style={{ width: 56 }} />
+            <col style={{ width: 84 }} />
           </colgroup>
           <thead>
             <tr>
@@ -384,7 +383,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               <th>S-curve</th>
               <th>Start</th>
               <th>End</th>
-              <th />
+              <th>Pricing</th>
             </tr>
           </thead>
           <tbody>
@@ -422,6 +421,24 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
       <div style={{ marginTop: 14 }}>
         <span className="addrow" onClick={add}>+ ADD ROW</span>
       </div>
+
+      {/* Full detail screen for the open line */}
+      {openId && (() => {
+        const it = items.find(i => i.id === openId)
+        if (!it) return null
+        return (
+          <CostLineDetailModal
+            item={it}
+            sectionLabel={sectionLabel}
+            groupLabel={groupOf(it)?.label}
+            projectId={projectId}
+            ctx={ctx}
+            onPatch={patch => update(it.id, patch)}
+            onDelete={() => removeRow(it.id)}
+            onClose={() => setOpenId(null)}
+          />
+        )
+      })()}
     </div>
   )
 }

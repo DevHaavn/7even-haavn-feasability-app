@@ -233,6 +233,31 @@ export interface CostLineItem {
   units?: number
   baseRate?: number                  // $ per unit ('unit' basis)
   gstFree?: boolean                  // line carries no GST (e.g. statutory) — excluded from the GST component
+  // ── Cost Stack v2 (James/Daniel) — pricing certainty, variations, proposal, critical path ──
+  // Pricing status. 'fixed' = fee proposal received & locked in; 'variable' = indicative,
+  // not properly priced yet. Feeds the Dashboard "fee certainty / % cost outstanding" gauge.
+  // Undefined is treated as 'variable' (not yet locked) so nothing reads as priced by default.
+  pricing?: 'fixed' | 'variable'
+  // Public URL of the fee-proposal PDF (Supabase Storage 'project-docs' bucket, or a pasted link).
+  feeProposalUrl?: string
+  // Cost-variation history — every blow-out/adjustment with a reason and date. The signed
+  // deltas fold into the line's effective budget so TDC/GST/cashflow reflect the movement.
+  variations?: CostVariation[]
+  // ── Critical-path / Timeline settings, editable from the cost line (mirrors a Gantt task) ──
+  status?: TimelineStatus            // traffic light — shared with the Timeline
+  progress?: number                  // 0..100 % complete
+  barColor?: string                  // critical-path colour override for the Timeline bar
+  milestone?: boolean                // render as a diamond milestone on the Timeline
+  taskStart?: string                 // 'YYYY-MM-DD' precise task start (day-level, distinct from month startDate)
+  taskEnd?: string                   // 'YYYY-MM-DD' precise task end
+}
+
+// A single tracked change to a cost line — what moved, why, and when.
+export interface CostVariation {
+  id: string
+  date: string      // 'YYYY-MM-DD' when the change was approved/occurred
+  reason: string    // why the cost moved (scope increase, redesign, etc.)
+  amount: number    // signed $ delta applied to the line's budget (+ blow-out, − saving)
 }
 
 export interface DetailedCostStack {
@@ -359,6 +384,11 @@ export interface TimelineTask {
   progress: number    // 0–100
   notes: string
   isMilestone: boolean
+  color?: string             // critical-path colour override (else derived from status)
+  // When set, this task was generated from a Cost Stack line item and is kept in sync
+  // with it. `sourceSection` is the DetailedCostStack key (consultants, hardCosts, …).
+  sourceCostId?: string
+  sourceSection?: string
 }
 
 // ── Finance Assumptions ───────────────────────────────────────────────────────

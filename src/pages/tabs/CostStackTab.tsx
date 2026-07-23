@@ -892,6 +892,8 @@ export default function CostStackTab({ projectId }: Props) {
                   groupByNotes={innerTab === 'consultants'}
                   constructionValue={result.construction}
                   gdvValue={gdv}
+                  sectionLabel={meta.title}
+                  projectId={projectId}
                 />
               </div>
               <ScheduleMatrix items={detailed[meta.key]} />
