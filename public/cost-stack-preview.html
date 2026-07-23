@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cost Stack v2 — Preview · 7EVEN / HAAVN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0ed; --panel:#ffffff; --ink:#14170f; --ink2:#3c4038; --muted:#767c72; --faint:#a6aca1;
+  --line:#e4e6e0; --line2:#eceee9; --nav:#0d0d0f;
+  --green:#2f7d54; --greenbg:#e7f2ea; --amber:#c0842c; --amberbg:#fbf1e0; --red:#c0392b; --redbg:#fbe9e6;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+/* preview ribbon */
+.ribbon{position:fixed;top:0;left:0;right:0;z-index:200;background:linear-gradient(90deg,#1b1f17,#0d0d0f);color:#e8c87a;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;text-align:center;padding:5px;border-bottom:1px solid #2a2a2a}
+.ribbon b{color:#fff;font-weight:700}
+
+/* top nav */
+.nav{position:sticky;top:0;z-index:100;background:var(--nav);display:flex;align-items:center;gap:30px;padding:0 34px;height:58px;overflow-x:auto;margin-top:22px}
+.nav a{color:#8a8f88;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;text-decoration:none;white-space:nowrap;padding:20px 0;border-bottom:2px solid transparent}
+.nav a.on{color:#fff;border-bottom-color:#fff}
+
+.wrap{max-width:1500px;margin:0 auto;padding:34px 34px 90px}
+h1{font-family:var(--serif);font-weight:600;font-size:40px;letter-spacing:.01em;margin:6px 0 8px}
+.sub{color:var(--muted);font-size:15px;margin:0 0 22px}
+
+/* market guide + pricing summary */
+.guide{display:flex;gap:14px;background:linear-gradient(180deg,#f7f8f6,#eef1ee);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:12px;padding:15px 18px;margin-bottom:18px;font-size:14px;color:var(--ink2)}
+.guide b{color:var(--ink)}
+
+/* fee-certainty gauge (the dashboard push-through preview) */
+.gauge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:26px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.gauge-top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.gauge-eye{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.gauge-eye b{color:var(--ink)}
+.gauge-note{font-size:12px;color:var(--muted)}
+.bar{height:16px;border-radius:9px;background:var(--amberbg);overflow:hidden;display:flex}
+.bar .fx{background:linear-gradient(90deg,#2f7d54,#3faa6a);height:100%}
+.bar .vr{background:repeating-linear-gradient(45deg,#e5a13c,#e5a13c 7px,#d9922b 7px,#d9922b 14px);height:100%}
+.legend{display:flex;gap:20px;margin-top:12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);font-weight:500}
+.dot{width:11px;height:11px;border-radius:3px}
+.dot.fx{background:#2f7d54}.dot.vr{background:#e5a13c}
+
+/* table */
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.trow{display:grid;grid-template-columns:2.4fr 1.1fr .9fr .8fr .9fr 1fr .8fr .9fr .9fr;align-items:center;gap:8px;padding:0 20px}
+.thead{height:46px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.thead>div{text-align:right}.thead>div:first-child{text-align:left}
+.grp{height:56px;border-bottom:1px solid var(--line2);font-weight:700;font-size:16px}
+.grp>div{text-align:right;font-family:var(--mono);font-weight:500;font-size:14px;color:var(--ink2)}
+.grp>div:first-child{text-align:left}
+.grp .caret{color:var(--faint);font-size:11px;margin-right:8px}
+.grp .lines{color:var(--faint);font-weight:400;font-size:12px;font-family:var(--sans);margin-left:8px}
+.line{min-height:64px;padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line2)}
+.line:hover{background:#fafbf9}
+.desc{display:flex;align-items:center;gap:10px}
+.desc-btn{flex:1;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;padding:13px 15px;font-size:15px;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.desc-btn:hover{border-color:#c9cdc4;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.desc-btn .open{font-size:10px;color:var(--faint);font-family:var(--mono);letter-spacing:.1em}
+.cell{text-align:right;font-family:var(--mono);font-size:14px}
+.cell.mut{color:var(--faint)}
+.pill-field{background:#f6f7f5;border:1px solid var(--line);border-radius:8px;padding:9px 6px;text-align:right;font-family:var(--mono);font-size:13px;color:var(--ink2)}
+.chip{justify-self:end;border-radius:999px;padding:6px 13px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;font-family:var(--mono)}
+.chip.eq{background:var(--greenbg);color:var(--green)}
+.subtot{height:52px;background:#f3f4f1;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.subtot>div{text-align:right;color:var(--ink)}
+.subtot>div:first-child{text-align:left;color:var(--muted)}
+
+/* fixed / variable toggle (inline) */
+.fv{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#f4f5f2}
+.fv button{border:none;background:transparent;padding:7px 12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--faint);font-family:var(--mono)}
+.fv button.on.f{background:var(--green);color:#fff}
+.fv button.on.v{background:var(--amber);color:#fff}
+
+/* modal */
+.scrim{position:fixed;inset:0;z-index:300;background:rgba(10,12,8,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.scrim.on{display:flex}
+.modal{width:min(920px,100%);background:linear-gradient(180deg,#fbfcfb,#f1f3f0);border:1px solid #dfe2dc;border-radius:20px;box-shadow:0 40px 100px rgba(0,0,0,.4);overflow:hidden}
+.m-head{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 26px 0}
+.m-eye{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.m-title{font-family:var(--serif);font-size:30px;font-weight:600;margin:4px 0 0}
+.m-x{background:none;border:none;font-size:22px;color:var(--muted);line-height:1}
+.m-body{padding:18px 26px 4px}
+.sect{border-top:1px solid var(--line);padding:20px 0}
+.sect:first-child{border-top:none}
+.sect-h{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.sect-h .tag{color:var(--faint);text-transform:none;letter-spacing:.04em;font-family:var(--sans);font-size:11px}
+.lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+input.in,select.in,textarea.in{width:100%;background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 13px;font-size:15px;color:var(--ink);outline:none}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--green)}
+.ro{background:#f4f5f2;color:var(--ink2);font-family:var(--mono)}
+.hint{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* big fixed/variable selector in modal */
+.fvbig{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fvopt{border:1.5px solid var(--line);border-radius:13px;padding:15px 16px;background:#fff;text-align:left;transition:.15s}
+.fvopt .t{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px}
+.fvopt .d{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
+.fvopt.on.f{border-color:var(--green);background:var(--greenbg)}
+.fvopt.on.v{border-color:var(--amber);background:var(--amberbg)}
+.led{width:12px;height:12px;border-radius:50%}
+.led.f{background:var(--green)}.led.v{background:var(--amber)}
+
+/* traffic light chips */
+.tl{display:flex;gap:8px;flex-wrap:wrap}
+.tl button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font-size:12px;font-weight:600;color:var(--ink2)}
+.tl button.on{border-color:#2b2f27;box-shadow:0 0 0 1px #2b2f27 inset}
+.tl .c{width:9px;height:9px;border-radius:50%}
+
+/* colour swatches */
+.sw{display:flex;gap:9px}
+.sw button{width:30px;height:30px;border-radius:8px;border:2px solid transparent}
+.sw button.on{border-color:#14170f;box-shadow:0 0 0 2px #fff inset}
+
+/* variations */
+.var-tbl{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.var-row{display:grid;grid-template-columns:118px 1fr 120px 130px 34px;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line2);font-size:13px}
+.var-row.h{background:#f3f4f1;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.var-row:last-child{border-bottom:none}
+.var-amt{font-family:var(--mono);text-align:right;font-weight:600}
+.var-amt.up{color:var(--red)}.var-amt.down{color:var(--green)}
+.var-run{font-family:var(--mono);text-align:right;color:var(--ink2)}
+.var-del{background:none;border:none;color:var(--faint);font-size:16px}
+.var-add{display:grid;grid-template-columns:118px 1fr 120px auto;gap:10px;margin-top:12px}
+.var-summary{display:flex;gap:26px;flex-wrap:wrap;margin-top:16px;padding:14px 16px;background:#f6f7f5;border-radius:12px}
+.var-summary div span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.var-summary div b{font-family:var(--mono);font-size:17px}
+.blow{color:var(--red)}
+
+/* pdf */
+.pdf{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pdf-drop{flex:1;min-width:260px;border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);font-size:13px;background:#fff}
+.pdf-drop.has{border-style:solid;border-color:var(--green);background:var(--greenbg);color:var(--ink);text-align:left;display:flex;align-items:center;gap:12px}
+.pdf-ico{width:34px;height:42px;border-radius:5px;background:#c0392b;color:#fff;font-family:var(--mono);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink2)}
+.btn:hover{border-color:#c9cdc4}
+.btn.g{background:#1f2a20;color:#fff;border-color:#1f2a20}
+.btn.sm{padding:8px 13px;font-size:11px}
+
+/* footer */
+.m-foot{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-top:1px solid var(--line);background:#f1f3f0}
+.btn-del{background:none;border:1px solid var(--redbg);color:var(--red);border-radius:11px;padding:12px 20px;font-weight:600;font-size:13px}
+.btn-save{background:#1c2a1e;color:#fff;border:none;border-radius:11px;padding:13px 30px;font-weight:700;font-size:13px;letter-spacing:.05em}
+.btn-cancel{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 24px;font-weight:600;font-size:13px;color:var(--ink2);margin-right:10px}
+@media(max-width:720px){.g3,.g4,.g2{grid-template-columns:1fr 1fr}.trow{grid-template-columns:2fr 1fr 1fr}.trow .hidesm{display:none}}
+</style>
+</head>
+<body>
+<div class="ribbon">◆ Concept preview — <b>Cost Stack v2</b> · not live · for James &amp; Daniel review</div>
+
+<nav class="nav">
+  <a>Design</a><a>Land &amp; Terms</a><a>Product Mix</a><a class="on">Cost Stack</a>
+  <a>Finance</a><a>Cash Flow</a><a>Timeline</a><a>Overview</a><a>Dashboard</a>
+</nav>
+
+<div class="wrap">
+  <h1>Consultant &amp; Professional Fees</h1>
+  <p class="sub">All design, engineering and advisory consultant fees across the project lifecycle.</p>
+
+  <div class="guide"><span>💡</span><div><b>Market guide</b> — Typical range: 3–8% of construction cost. Include all stages — concept, DD, documentation and CA.</div></div>
+
+  <!-- Dashboard push-through: fee certainty gauge -->
+  <div class="gauge">
+    <div class="gauge-top">
+      <div class="gauge-eye">Fee certainty <b>· pushes to Dashboard</b></div>
+      <div class="gauge-note" id="gaugeNote"></div>
+    </div>
+    <div class="bar"><div class="fx" id="barFx"></div><div class="vr" id="barVr"></div></div>
+    <div class="legend">
+      <span><i class="dot fx"></i> Fixed — fee proposal locked in <b id="legFx" style="font-family:var(--mono);margin-left:5px"></b></span>
+      <span><i class="dot vr"></i> Variable — not properly priced yet <b id="legVr" style="font-family:var(--mono);margin-left:5px"></b></span>
+    </div>
+  </div>
+
+  <div class="tbl" id="tbl"></div>
+
+  <p style="color:var(--muted);font-size:12.5px;margin-top:16px;line-height:1.6">
+    <b style="color:var(--ink)">How to try it:</b> toggle any line between <b style="color:var(--green)">Fixed</b> / <b style="color:var(--amber)">Variable</b> and watch the gauge above update.
+    Click a line-item description to open the full detail screen — pricing status, fee-proposal PDF, cost-variation history and the timeline / critical-path settings for that item.
+  </p>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="scrim" id="scrim">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const money=n=>'$'+Math.round(n).toLocaleString('en-AU');
+const COLORS=['#c0392b','#e5a13c','#2f7d54','#3b6fb0','#7a5bb0','#5a5f57'];
+const STATUS=[['critical','Critical','#c0392b'],['delayed','Delayed','#e5a13c'],['ontrack','On Track','#5a5f57'],['complete','Complete','#2f7d54'],['notstarted','Not Started','#a6aca1']];
+const PHASES=['Pre-construction','Acquisition / Planning','Design & Approvals','Construction','Handover'];
+
+// ---- sample data ----
+let DATA=[
+ {group:'Acoustic Engineer',lines:[
+   {id:'ac1',name:'Planning',basis:'$ / Unit',units:1,rate:6000,funded:'Equity',pricing:'fixed',phase:'Design & Approvals',status:'ontrack',start:'2025-12-25',end:'2026-09-25',progress:80,color:'#2f7d54',milestone:false,pdf:{name:'Acoustic_Fee_Proposal_v2.pdf'},notes:'Full acoustic assessment for planning submission.',variations:[]},
+   {id:'ac2',name:'Schematic',basis:'$ / Unit',units:0,rate:0,funded:'Equity',pricing:'variable',phase:'Design & Approvals',status:'notstarted',start:'',end:'',progress:0,color:'#e5a13c',milestone:false,pdf:null,notes:'',variations:[]},
+   {id:'ac3',name:'Construction',basis:'$ / Unit',units:0,rate:0,funded:'Equity',pricing:'variable',phase:'Construction',status:'notstarted',start:'',end:'',progress:0,color:'#e5a13c',milestone:false,pdf:null,notes:'',variations:[]},
+ ]},
+ {group:'Arborist',lines:[
+   {id:'ar1',name:'Planning',basis:'$ / Unit',units:1,rate:3200,funded:'Equity',pricing:'fixed',phase:'Acquisition / Planning',status:'complete',start:'2025-11-01',end:'2026-01-15',progress:100,color:'#2f7d54',milestone:false,pdf:{name:'Arborist_Report_Fee.pdf'},notes:'Tree assessment + arborist report.',variations:[{date:'2026-02-10',reason:'Additional protected trees identified on site',amt:1400}]},
+   {id:'ar2',name:'Construction Monitoring',basis:'$ / Unit',units:0,rate:0,funded:'Equity',pricing:'variable',phase:'Construction',status:'notstarted',start:'',end:'',progress:0,color:'#e5a13c',milestone:false,pdf:null,notes:'',variations:[]},
+ ]},
+ {group:'Structural Engineer',lines:[
+   {id:'st1',name:'Documentation',basis:'% of build',units:1,rate:42000,funded:'Debt',pricing:'variable',phase:'Design & Approvals',status:'delayed',start:'2026-01-10',end:'2026-06-30',progress:35,color:'#e5a13c',milestone:false,pdf:null,notes:'Awaiting fee proposal — indicative only.',variations:[]},
+   {id:'st2',name:'Construction Support',basis:'$ / Unit',units:1,rate:18000,funded:'Debt',pricing:'fixed',phase:'Construction',status:'ontrack',start:'2026-07-01',end:'2027-02-01',progress:0,color:'#3b6fb0',milestone:false,pdf:{name:'Structural_CA_Proposal.pdf'},notes:'',variations:[]},
+ ]},
+];
+
+const rate=0.10; // GST
+function gstOf(l){return l.units*l.rate*rate}
+function baseBudget(l){return l.units*l.rate}
+function currentBudget(l){return baseBudget(l)+(l.variations||[]).reduce((s,v)=>s+(+v.amt||0),0)}
+
+// ---- gauge ----
+function renderGauge(){
+  let fixed=0,variable=0;
+  DATA.forEach(g=>g.lines.forEach(l=>{const b=currentBudget(l); if(l.pricing==='fixed')fixed+=b; else variable+=b;}));
+  const tot=fixed+variable||1;
+  const fxp=fixed/tot*100, vrp=variable/tot*100;
+  barFx.style.width=fxp+'%'; barVr.style.width=vrp+'%';
+  legFx.textContent=money(fixed)+' · '+Math.round(fxp)+'%';
+  legVr.textContent=money(variable)+' · '+Math.round(vrp)+'%';
+  gaugeNote.innerHTML='<b style="color:var(--amber)">'+Math.round(vrp)+'% of cost still outstanding</b> — '+money(variable)+' not yet locked to a fee proposal';
+}
+
+// ---- table ----
+function renderTable(){
+  let h=`<div class="trow thead"><div>Item description</div><div>Pricing</div><div>Basis</div><div>Units</div><div>Rate</div><div>Budget $</div><div>GST</div><div>Incl. GST</div><div>Funded by</div></div>`;
+  DATA.forEach((g,gi)=>{
+    const gb=g.lines.reduce((s,l)=>s+currentBudget(l),0), gg=g.lines.reduce((s,l)=>s+gstOf(l),0);
+    h+=`<div class="trow grp"><div><span class="caret">▾</span>${g.group}<span class="lines">(${g.lines.length} lines)</span></div><div></div><div></div><div></div><div></div><div>${money(gb)}</div><div>${money(gg)}</div><div>${money(gb+gg)}</div><div></div></div>`;
+    g.lines.forEach((l,li)=>{
+      const b=currentBudget(l), hasVar=(l.variations||[]).length>0;
+      h+=`<div class="trow line">
+        <div class="desc"><button class="desc-btn" onclick="openModal(${gi},${li})">${l.name}${hasVar?` <span style="color:var(--red);font-family:var(--mono);font-size:11px">▲ ${l.variations.length} var</span>`:''}<span class="open">OPEN ▸</span></button></div>
+        <div><span class="fv"><button class="f ${l.pricing==='fixed'?'on':''}" onclick="setPricing(${gi},${li},'fixed')">Fixed</button><button class="v ${l.pricing==='variable'?'on':''}" onclick="setPricing(${gi},${li},'variable')">Var</button></span></div>
+        <div class="pill-field">${l.basis}</div>
+        <div class="cell ${l.units?'':'mut'}">${l.units||'–'}</div>
+        <div class="cell ${l.rate?'':'mut'}">${l.rate?l.rate.toLocaleString():'–'}</div>
+        <div class="cell">${money(b)}</div>
+        <div class="cell mut">${money(gstOf(l))}</div>
+        <div class="cell">${money(b+gstOf(l))}</div>
+        <div><span class="chip eq">${l.funded}</span></div>
+      </div>`;
+    });
+    h+=`<div class="trow subtot"><div>${g.group} subtotal</div><div></div><div></div><div></div><div></div><div>${money(gb)}</div><div>${money(gg)}</div><div>${money(gb+gg)}</div><div></div></div>`;
+  });
+  tbl.innerHTML=h;
+}
+function setPricing(gi,li,p){DATA[gi].lines[li].pricing=p;renderTable();renderGauge();}
+
+// ---- modal ----
+let cur={gi:0,li:0};
+function openModal(gi,li){cur={gi,li};renderModal();scrim.classList.add('on');}
+function closeModal(){scrim.classList.remove('on');}
+function L(){return DATA[cur.gi].lines[cur.li]}
+
+function renderModal(){
+  const l=L(), g=DATA[cur.gi];
+  const base=baseBudget(l), varSum=(l.variations||[]).reduce((s,v)=>s+(+v.amt||0),0), curB=base+varSum;
+  const blow=base?(varSum/base*100):0;
+  let varRows=`<div class="var-row h"><div>Date</div><div>Reason for change</div><div>Amount</div><div>Running budget</div><div></div></div>`;
+  let run=base;
+  if(!l.variations||!l.variations.length){varRows+=`<div class="var-row"><div style="grid-column:1/-1;color:var(--faint);text-align:center;padding:6px">No variations — original fee holds.</div></div>`;}
+  (l.variations||[]).forEach((v,i)=>{run+=(+v.amt||0);varRows+=`<div class="var-row"><div style="font-family:var(--mono)">${v.date||'—'}</div><div>${v.reason||''}</div><div class="var-amt ${(+v.amt>=0)?'up':'down'}">${(+v.amt>=0?'+':'')}${money(+v.amt)}</div><div class="var-run">${money(run)}</div><button class="var-del" onclick="delVar(${i})">×</button></div>`;});
+
+  const m=document.getElementById('modal');
+  m.innerHTML=`
+  <div class="m-head"><div><div class="m-eye">Edit cost item</div><div class="m-title">${g.group} · ${l.name}</div></div><button class="m-x" onclick="closeModal()">✕</button></div>
+  <div class="m-body">
+
+    <div class="sect">
+      <div class="sect-h">Pricing basis</div>
+      <div class="grid g4">
+        <div><label class="lab">Basis</label><select class="in" onchange="edit('basis',this.value)">${['$ / Unit','% of build','Lump sum','Hourly'].map(o=>`<option ${o===l.basis?'selected':''}>${o}</option>`).join('')}</select></div>
+        <div><label class="lab">Units</label><input class="in" type="number" value="${l.units}" oninput="editNum('units',this.value)"></div>
+        <div><label class="lab">Rate</label><input class="in" type="number" value="${l.rate}" oninput="editNum('rate',this.value)"></div>
+        <div><label class="lab">Funded by</label><select class="in" onchange="edit('funded',this.value)">${['Equity','Debt','Grant'].map(o=>`<option ${o===l.funded?'selected':''}>${o}</option>`).join('')}</select></div>
+      </div>
+      <div class="grid g3" style="margin-top:14px">
+        <div><label class="lab">Original budget</label><input class="in ro" value="${money(base)}" readonly></div>
+        <div><label class="lab">GST</label><input class="in ro" value="${money(base*rate)}" readonly></div>
+        <div><label class="lab">Current budget (incl. variations)</label><input class="in ro" style="font-weight:700" value="${money(curB)}" readonly></div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Pricing status <span class="tag">— tells Daniel &amp; James if this cost is locked or still open</span></div>
+      <div class="fvbig">
+        <button class="fvopt f ${l.pricing==='fixed'?'on':''}" onclick="edit('pricing','fixed')"><div class="t"><span class="led f"></span> Fixed</div><div class="d">Fee proposal received &amp; locked in. Counts as priced on the dashboard gauge.</div></button>
+        <button class="fvopt v ${l.pricing==='variable'?'on':''}" onclick="edit('pricing','variable')"><div class="t"><span class="led v"></span> Variable</div><div class="d">Indicative only — not properly priced yet. Shows as outstanding on the dashboard.</div></button>
+      </div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Fee proposal <span class="tag">— attach the PDF, open it straight from the line item</span></div>
+      <div class="pdf">
+        <div class="pdf-drop ${l.pdf?'has':''}" id="pdfDrop">
+          ${l.pdf?`<div class="pdf-ico">PDF</div><div><div style="font-weight:600">${l.pdf.name}</div><div style="font-size:11px;color:var(--muted)">Fee proposal attached</div></div>`:'◇ Drop the fee-proposal PDF here, or use “Attach PDF”'}
+        </div>
+        ${l.pdf&&l.pdf.url?`<button class="btn g sm" onclick="window.open(L().pdf.url,'_blank')">Open PDF ▸</button>`:(l.pdf?`<button class="btn g sm" title="Demo file — attach a real PDF to open">Open PDF ▸</button>`:'')}
+        <button class="btn sm" onclick="document.getElementById('pdfFile').click()">${l.pdf?'Replace':'Attach PDF'}</button>
+        ${l.pdf?`<button class="btn sm" onclick="edit('pdf',null)">Remove</button>`:''}
+        <input id="pdfFile" type="file" accept="application/pdf" style="display:none" onchange="attachPdf(this.files[0])">
+      </div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Cost variations <span class="tag">— track every blow-out: why &amp; when</span></div>
+      <div class="var-tbl">${varRows}</div>
+      <div class="var-add">
+        <input class="in" type="date" id="vDate">
+        <input class="in" id="vReason" placeholder="Reason for the change (e.g. scope increase, redesign)">
+        <input class="in" id="vAmt" type="number" placeholder="Amount ±$">
+        <button class="btn g" onclick="addVar()">+ Add variation</button>
+      </div>
+      <div class="var-summary">
+        <div><span>Original</span><b>${money(base)}</b></div>
+        <div><span>Variations</span><b class="${varSum>0?'blow':''}">${varSum>=0?'+':''}${money(varSum)}</b></div>
+        <div><span>Current</span><b>${money(curB)}</b></div>
+        <div><span>Movement</span><b class="${blow>0?'blow':''}">${blow>0?'+':''}${blow.toFixed(1)}%</b></div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Timeline &amp; critical path <span class="tag">— drives this item’s bar on the Timeline Gantt</span></div>
+      <div class="grid g2">
+        <div><label class="lab">Phase</label><select class="in" onchange="edit('phase',this.value)">${PHASES.map(p=>`<option ${p===l.phase?'selected':''}>${p}</option>`).join('')}</select></div>
+        <div><label class="lab">Status / traffic light</label>
+          <div class="tl">${STATUS.map(s=>`<button class="${l.status===s[0]?'on':''}" onclick="edit('status','${s[0]}')"><span class="c" style="background:${s[2]}"></span>${s[1]}</button>`).join('')}</div>
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div><label class="lab">Start date</label><input class="in" type="date" value="${l.start}" onchange="edit('start',this.value)"></div>
+        <div><label class="lab">End date</label><input class="in" type="date" value="${l.end}" onchange="edit('end',this.value)"></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div><label class="lab">Progress — ${l.progress}%</label><input class="in" type="range" min="0" max="100" value="${l.progress}" oninput="editNum('progress',this.value)"></div>
+        <div><label class="lab">Bar colour (critical path)</label>
+          <div class="sw">${COLORS.map(c=>`<button class="${l.color===c?'on':''}" style="background:${c}" onclick="edit('color','${c}')"></button>`).join('')}</div>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--ink2)"><input type="checkbox" ${l.milestone?'checked':''} onchange="editBool('milestone',this.checked)"> Milestone (diamond marker)</label>
+        </div>
+      </div>
+      <div style="margin-top:14px"><label class="lab">Notes</label><textarea class="in" rows="2" oninput="edit('notes',this.value)">${l.notes||''}</textarea></div>
+    </div>
+
+  </div>
+  <div class="m-foot">
+    <button class="btn-del" onclick="closeModal()">Delete</button>
+    <div><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="closeModal()">Save</button></div>
+  </div>`;
+}
+function edit(k,v){L()[k]=v;renderModal();renderTable();renderGauge();}
+function editNum(k,v){L()[k]=+v||0;renderModal();renderTable();renderGauge();}
+function editBool(k,v){L()[k]=v;}
+function addVar(){const d=vDate.value,r=vReason.value.trim(),a=+vAmt.value;if(!r&&!a)return;(L().variations=L().variations||[]).push({date:d||new Date().toISOString().slice(0,10),reason:r||'Adjustment',amt:a||0});renderModal();renderTable();renderGauge();}
+function delVar(i){L().variations.splice(i,1);renderModal();renderTable();renderGauge();}
+function attachPdf(f){if(!f)return;L().pdf={name:f.name,url:URL.createObjectURL(f)};renderModal();renderTable();}
+
+scrim.addEventListener('click',e=>{if(e.target===scrim)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+renderTable();renderGauge();
+</script>
+</body>
+</html>
