@@ -8,6 +8,7 @@ import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
 import HaavnManagementBase from './capital/HaavnManagementBase'
+import { HaavnMark } from './HaavnHomes'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -196,13 +197,13 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
               <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
-                {/* Real brand mark, filled with a jet-chrome sheen via mask — near-black
-                    with just a metallic highlight edge, reads sharp over the render */}
+                {/* Real brand mark, filled white/silver via mask so it reads bright
+                    over the frosted-grey bar — matching the HAAVN wordmark elsewhere */}
                 <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
                   WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
                   WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                  background: 'linear-gradient(180deg, #6A6A6E 0%, #2A2A2E 18%, #050506 46%, #17171B 60%, #000000 100%)',
-                  filter: 'drop-shadow(0 1px 1.5px rgba(255,255,255,0.6))' }} />
+                  background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)',
+                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.35))' }} />
                 {isAdmin && <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
               </button>
               {!is7 && <span className="jet-chrome-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
@@ -211,10 +212,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               </span>
               {isAdmin && brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                  {([['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']] as const).map(([id, lbl]) => (
+                  {([['7even', '7EVEN'], ['haavn', 'MANAGEMENT']] as const).map(([id, lbl]) => (
                     <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
                       style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                      <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
+                      {id === 'haavn' && <HaavnMark height={12} fill="#C6CDCF" />}
+                      <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: id === 'haavn' ? '0.2em' : '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
                       {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>}
                     </button>
                   ))}
@@ -222,7 +224,8 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                       surface rather than flipping the project filter. */}
                   <button onClick={() => { setBrandMenu(false); onOpenHomes?.() }}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>HAAVN HOMES</span>
+                    <HaavnMark height={12} fill="#C6CDCF" />
+                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>HOMES</span>
                     <span style={{ marginLeft: 'auto', fontSize: 8, color: '#8b9198', fontFamily: 'monospace' }}>↗</span>
                   </button>
                 </div>
