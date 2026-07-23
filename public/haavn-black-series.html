@@ -547,6 +547,21 @@ html.embedded .home-btn{display:none}
 .bb-sel>span{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3,#8a8f88);font-weight:700;white-space:nowrap}
 .bb-sel select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink,#12150f);background:var(--card,#fff);border:1px solid var(--line);border-radius:10px;padding:9px 30px 9px 13px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' stroke='%238a8f88' fill='none' stroke-width='1.5'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
 .bb-onblock{margin-left:6px;padding-left:14px;border-left:1px solid var(--line)}
+
+/* Full-screen floor-plan lightbox — see the whole plan uncropped */
+.hb-slide img{cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:100000;background:rgba(12,10,8,.95);backdrop-filter:blur(6px);display:none;flex-direction:column}
+.lightbox.on{display:flex}
+.lb-top{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px}
+.lb-title{color:#EDE7D8;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+.lb-close{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.28);color:#EDE7D8;border-radius:999px;padding:9px 17px;cursor:pointer;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+.lb-close:hover{background:rgba(255,255,255,.16)}
+.lb-stage{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;padding:0 20px 24px}
+.lb-img{max-width:100%;max-height:100%;object-fit:contain;background:#fff;border-radius:6px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.28);color:#EDE7D8;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lb-nav:hover{background:rgba(255,255,255,.2)}
+.lb-nav.prev{left:26px}.lb-nav.next{right:26px}
+.lb-count{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(237,231,216,.7);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-family:monospace}
 </style>
 </head>
 <body>
@@ -958,6 +973,8 @@ function bindHomeGalleries(){
     media.addEventListener('drop',e=>{e.preventDefault();media.classList.remove('drag');addFiles(e.dataTransfer.files);});
     block.querySelectorAll('.hb-nav').forEach(btn=>btn.onclick=()=>{ const w=strip.clientWidth; strip.scrollBy({left:parseInt(btn.dataset.nav)*w,behavior:'smooth'}); });
     block.querySelectorAll('.hb-del').forEach(btn=>btn.onclick=e=>{ e.stopPropagation(); const gi=+btn.dataset.del; DATA[k].gallery.splice(gi,1); doSave(); renderRange(); });
+    // click a plan to open it full-screen (uncropped)
+    block.querySelectorAll('.hb-slide img').forEach((im,gi)=>im.onclick=e=>{ e.stopPropagation(); openLightbox(DATA[k].gallery,gi,DATA[k].name); });
     // dots follow scroll
     const dots=block.querySelectorAll('.hb-dots span');
     if(dots.length) strip.addEventListener('scroll',()=>{ const i=Math.round(strip.scrollLeft/strip.clientWidth); dots.forEach((d,di)=>d.classList.toggle('on',di===i)); });
@@ -1994,6 +2011,42 @@ document.getElementById('sbScrim').onclick=()=>document.body.classList.remove('s
 
 document.getElementById('footer').innerHTML=`<b>HAAVN Constructions Pty Ltd — Black Series feasibility engine.</b> Home figures derived from estimating workbooks last saved by Jeffrey Witbreuk (9 Jul 2026) and the Fraser &amp; Partners product schedule 26025 Rev A. Cost waterfall: build sub-total → preliminaries → total cost → gross margin (on sale) → GST → sale price. Land-fit, subdivision and program figures are indicative planning tools for the project team — subject to survey, planning approval, structural &amp; services design, freight schedules and site conditions. Prototype preview built to sit alongside the ATRIUM app.`;
 
+/* ---------- FLOOR-PLAN LIGHTBOX ---------- */
+var _lb={gal:[],i:0,name:''};
+function openLightbox(gal,i,name){
+  if(!gal||!gal.length)return;
+  _lb={gal:gal.slice(),i:Math.max(0,Math.min(i||0,gal.length-1)),name:name||''};
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('on');
+  document.getElementById('lightbox').setAttribute('aria-hidden','false');
+}
+function renderLightbox(){
+  var lb=document.getElementById('lightbox'); if(!lb)return;
+  lb.querySelector('#lbImg').src=_lb.gal[_lb.i]||'';
+  lb.querySelector('#lbTitle').textContent=_lb.name+(_lb.gal.length>1?' · Plan '+(_lb.i+1)+' of '+_lb.gal.length:'');
+  lb.querySelector('#lbCount').textContent=_lb.gal.length>1?(_lb.i+1)+' / '+_lb.gal.length:'';
+  var multi=_lb.gal.length>1;
+  lb.querySelector('#lbPrev').style.display=multi?'':'none';
+  lb.querySelector('#lbNext').style.display=multi?'':'none';
+}
+function closeLightbox(){ var lb=document.getElementById('lightbox'); lb.classList.remove('on'); lb.setAttribute('aria-hidden','true'); }
+function lbStep(d){ if(!_lb.gal.length)return; _lb.i=(_lb.i+d+_lb.gal.length)%_lb.gal.length; renderLightbox(); }
+function wireLightbox(){
+  var lb=document.getElementById('lightbox'); if(!lb||lb.dataset.wired)return; lb.dataset.wired='1';
+  document.getElementById('lbClose').onclick=closeLightbox;
+  document.getElementById('lbPrev').onclick=function(e){e.stopPropagation();lbStep(-1);};
+  document.getElementById('lbNext').onclick=function(e){e.stopPropagation();lbStep(1);};
+  lb.addEventListener('click',function(e){ if(e.target===lb||e.target.classList.contains('lb-stage')) closeLightbox(); });
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('on'))return;
+    if(e.key==='Escape')closeLightbox();
+    else if(e.key==='ArrowLeft')lbStep(-1);
+    else if(e.key==='ArrowRight')lbStep(1);
+  });
+}
+// The lightbox markup sits at the end of <body>, after this script — wire once the DOM is ready.
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wireLightbox); else wireLightbox();
+
 /* ---------- BOOT ---------- */
 restoreState();
 ensureSeedGalleries();   // add newly-seeded floor plans once, without wiping edits
@@ -2029,5 +2082,14 @@ renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPil
 })();
 
 </script>
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lb-top"><span class="lb-title" id="lbTitle"></span><button class="lb-close" id="lbClose">✕ Close</button></div>
+  <div class="lb-stage">
+    <button class="lb-nav prev" id="lbPrev" aria-label="Previous">‹</button>
+    <img class="lb-img" id="lbImg" alt="Floor plan">
+    <button class="lb-nav next" id="lbNext" aria-label="Next">›</button>
+    <div class="lb-count" id="lbCount"></div>
+  </div>
+</div>
 </body>
 </html>
