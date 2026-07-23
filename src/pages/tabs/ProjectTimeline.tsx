@@ -417,7 +417,8 @@ export default function ProjectTimeline({ projectId }: Props) {
                 {catTasks.map(task => {
                   const startPx  = dayPx(Math.max(0, daysBetween(minDate, task.startDate)))
                   const widthPx  = Math.max(8, dayPx(Math.max(1, daysBetween(task.startDate, task.endDate))))
-                  const sColor   = STATUS_COLORS[task.status]
+                  // A cost-stack line can override its critical-path colour; else the status colour.
+                  const sColor   = task.color || STATUS_COLORS[task.status]
                   const isMile   = task.isMilestone
                   const isCrit   = task.status === 'critical'
 

@@ -7,6 +7,7 @@ import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
 import { calculateBTSValuation } from '../../engine/bts'
 import { calculateFinanceWaterfall } from '../../engine/financeWaterfall'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
+import { feeCertainty } from '../../lib/costLine'
 
 interface Props { projectId: string }
 
@@ -98,6 +99,14 @@ export default function ProjectDashboard({ projectId }: Props) {
   const devProfit = gav - tdc
   const margin = tdc > 0 ? devProfit / tdc : 0
   const fundingIncomplete = gav <= 0 || bestScenario == null
+
+  // Fee certainty — across every itemised cost-stack section, how much cost is
+  // locked to a fee proposal (Fixed) vs still indicative (Variable / outstanding).
+  const feeCert = useMemo(() => {
+    const d = db.getDetailedCostStack(projectId)
+    const items = [...d.hardCosts, ...d.consultants, ...d.statutory, ...d.headworks, ...d.management, ...d.marketing]
+    return feeCertainty(items, { constructionValue: costStack.construction, gdvValue: gav })
+  }, [projectId, costData, costStack, gav])
 
   // Phase tracking
   const phaseTracking = useMemo(() => {
@@ -259,6 +268,33 @@ export default function ProjectDashboard({ projectId }: Props) {
           <span>{fmtMY(allStart)} → {fmtMY(allEnd)}</span>
           <span style={{ fontWeight: 600, color: INK }}>Total {fmt(phaseTotal, 1)}</span>
         </div>
+      </Card>
+
+      {/* Fee certainty — how much cost is locked to a fee proposal vs still variable.
+          Fed by each cost line's Fixed/Variable pricing status (Cost Stack v2). */}
+      <Card style={{ marginBottom: 16 }}>
+        <Label right={<span onClick={() => store.setActiveTab('cost')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>cost stack →</span>}>Fee certainty — priced vs outstanding</Label>
+        {feeCert.total > 0 ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 26, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ display: 'flex', height: 16, borderRadius: 9, overflow: 'hidden', background: 'var(--card-3)' }}>
+                <div style={{ width: `${feeCert.pctFixed}%`, background: GREEN }} />
+                <div style={{ width: `${feeCert.pctVariable}%`, background: GOLD }} />
+              </div>
+              <div style={{ display: 'flex', gap: 22, marginTop: 12, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink-2)' }}>
+                <span><span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: GREEN, marginRight: 6 }} />Fixed — locked to a fee proposal <b style={{ fontFamily: 'var(--mono)' }}>{fmt(feeCert.fixed, 1)} · {Math.round(feeCert.pctFixed)}%</b></span>
+                <span><span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: GOLD, marginRight: 6 }} />Variable — not properly priced yet <b style={{ fontFamily: 'var(--mono)' }}>{fmt(feeCert.variable, 1)} · {Math.round(feeCert.pctVariable)}%</b></span>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: feeCert.pctVariable > 40 ? GOLD : INK, fontFamily: 'var(--mono)', lineHeight: 1 }}>{Math.round(feeCert.pctVariable)}%</div>
+              <div style={{ fontSize: 10, color: MUTE, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>of cost outstanding</div>
+              <div style={{ fontSize: 11, color: MUTE, marginTop: 2 }}>{fmt(feeCert.variable, 1)} not yet locked</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: MUTE }}>Itemise a cost-stack section and mark each line Fixed or Variable to track fee certainty.</div>
+        )}
       </Card>
 
       {/* Row: finance sensitivity + health + milestones/returns */}

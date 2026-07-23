@@ -7,6 +7,7 @@ import {
   type CostCtx,
 } from '../../lib/costLine'
 import { uploadProjectDoc, removeProjectDoc, isUploadedDoc, docFileName } from '../../lib/uploads'
+import { syncCostLineTask, removeCostLineTask } from '../../lib/costTimeline'
 
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 const BASIS_OPTS: [string, string][] = [['', '$ / Unit'], ['construction', '% of Constr.'], ['gdv', '% of GRV']]
@@ -80,11 +81,16 @@ export default function CostLineDetailModal({ item, sectionLabel, groupLabel, pr
     setVDate(''); setVReason(''); setVAmt('')
   }
 
+  // On close, push the item's critical-path settings to the Timeline (upsert/remove
+  // the linked task). On delete, drop the linked task too.
+  const close = () => { try { syncCostLineTask(projectId, sectionLabel, item) } catch {} ; onClose() }
+  const del = () => { try { removeCostLineTask(projectId, item.id) } catch {} ; onDelete(); onClose() }
+
   const isPct = item.feeBasis === 'construction' || item.feeBasis === 'gdv'
   let run = base
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'rgba(10,12,8,.55)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '38px 16px', overflowY: 'auto' }}>
+    <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'rgba(10,12,8,.55)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '38px 16px', overflowY: 'auto' }}>
       <div onClick={e => e.stopPropagation()} style={{ width: 'min(900px, 100%)', background: 'var(--card, #fbfcfb)', border: '1px solid var(--border, #dfe2dc)', borderRadius: 18, boxShadow: '0 40px 100px rgba(0,0,0,.4)', overflow: 'hidden' }}>
 
         {/* header */}
@@ -94,7 +100,7 @@ export default function CostLineDetailModal({ item, sectionLabel, groupLabel, pr
             <input value={item.label} onChange={e => onPatch({ label: e.target.value })} placeholder="Item description"
               style={{ ...inp, border: 'none', background: 'transparent', fontSize: 26, fontWeight: 600, padding: '4px 0 0', fontFamily: 'var(--serif, Georgia, serif)' }} />
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--ink-3, #767c72)', cursor: 'pointer', lineHeight: 1 }}>✕</button>
+          <button onClick={close} style={{ background: 'none', border: 'none', fontSize: 22, color: 'var(--ink-3, #767c72)', cursor: 'pointer', lineHeight: 1 }}>✕</button>
         </div>
 
         <div style={{ padding: '10px 26px 4px' }}>
@@ -214,8 +220,8 @@ export default function CostLineDetailModal({ item, sectionLabel, groupLabel, pr
 
         {/* footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 26px', borderTop: '1px solid var(--border, #e4e6e0)', background: 'var(--bg, #f1f3f0)' }}>
-          <button onClick={() => { onDelete(); onClose() }} style={{ background: 'none', border: '1px solid var(--red-bg, #fbe9e6)', color: 'var(--red, #c0392b)', borderRadius: 11, padding: '11px 20px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Delete line</button>
-          <button onClick={onClose} style={{ background: 'var(--ink, #1c2a1e)', color: '#fff', border: 'none', borderRadius: 11, padding: '12px 30px', fontWeight: 700, fontSize: 13, letterSpacing: '.04em', cursor: 'pointer' }}>Done</button>
+          <button onClick={del} style={{ background: 'none', border: '1px solid var(--red-bg, #fbe9e6)', color: 'var(--red, #c0392b)', borderRadius: 11, padding: '11px 20px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Delete line</button>
+          <button onClick={close} style={{ background: 'var(--ink, #1c2a1e)', color: '#fff', border: 'none', borderRadius: 11, padding: '12px 30px', fontWeight: 700, fontSize: 13, letterSpacing: '.04em', cursor: 'pointer' }}>Done</button>
         </div>
       </div>
     </div>
