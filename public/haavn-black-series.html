@@ -539,6 +539,12 @@ input,select,textarea{font-family:inherit}
 .hb-specs b,.hb-feas b{font-family:var(--mono,monospace);font-size:14px;font-weight:600;color:var(--ink,#12150f)}
 .hb-feas .low b{color:#e0645c}
 .hb-open{margin-top:18px;align-self:flex-start;background:#12150f;color:#fff;border:none;border-radius:10px;padding:12px 22px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;cursor:pointer}
+
+/* Feasibility home selector */
+.bb-sel{display:inline-flex;align-items:center;gap:9px;margin-right:14px}
+.bb-sel>span{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3,#8a8f88);font-weight:700;white-space:nowrap}
+.bb-sel select{font-family:inherit;font-size:13px;font-weight:600;color:var(--ink,#12150f);background:var(--card,#fff);border:1px solid var(--line);border-radius:10px;padding:9px 30px 9px 13px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' stroke='%238a8f88' fill='none' stroke-width='1.5'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.bb-onblock{margin-left:6px;padding-left:14px;border-left:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -1041,8 +1047,13 @@ function renderPills(){
   const onblk=new Set(blockKeys());
   const grp=(lbl,keys)=>`<optgroup label="${lbl}">`+keys.map(k=>`<option value="${k}" ${onblk.has(k)?'disabled':''}>${DATA[k].name}${onblk.has(k)?' · on block':''}</option>`).join('')+'</optgroup>';
   const add=`<select class="addhomesel" id="addHomeSel"><option value="">＋ Add another home to this block…</option>${grp('Black Series',BLACK)+grp('Essentials · Merrimu',ESS)+grp('Display Suite',DS)}</select>`;
+  // Home selector — pick which home this feasibility is for (single home). Uses
+  // openHome() which focuses that one home; separate from the add-to-block flow.
+  const gsel=(lbl,arr)=>`<optgroup label="${lbl}">${arr.map(k=>`<option value="${k}"${k===currentHome?' selected':''}>${DATA[k].name} · ${NUM1.format(DATA[k].totalArea)} m²</option>`).join('')}</optgroup>`;
+  const homeSel=`<label class="bb-sel"><span>Feasibility for</span><select id="homeSel">${gsel('HAAVN Black Series',BLACK)+gsel('Essentials · Merrimu',ESS)+gsel('Display Suite',DS)}</select></label>`;
   document.getElementById('homePills').innerHTML=
-    `<div class="blockbar"><span class="bb-lab">On this block${isMulti()?` · ${totHomes()} homes`:''}</span><div class="bb-chips">${chips}</div>${add}</div>`;
+    `<div class="blockbar">${homeSel}<span class="bb-lab bb-onblock">On this block${isMulti()?` · ${totHomes()} homes`:''}</span><div class="bb-chips">${chips}</div>${add}</div>`;
+  { const hs=document.getElementById('homeSel'); if(hs) hs.onchange=e=>openHome(e.target.value); }
   document.querySelectorAll('#homePills .hp').forEach(b=>b.onclick=e=>{
     if(e.target.closest('[data-rmhome],[data-qd],[data-qu]'))return; selectHome(b.dataset.home);});
   document.querySelectorAll('#homePills [data-rmhome]').forEach(x=>x.onclick=e=>{e.stopPropagation();rmHome(x.dataset.rmhome);});
