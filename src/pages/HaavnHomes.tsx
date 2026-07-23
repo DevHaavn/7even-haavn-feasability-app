@@ -16,6 +16,22 @@ import { Project7Mark } from '../components/ui'
 const STORE_KEY = 'haavn_homes_v2'
 const BLACK_SERIES_URL = '/haavn-black-series.html'
 
+/** The real HAAVN wordmark, rendered inline wherever the brand name appears in a
+ *  header, dropdown or label — never the typed word "HAAVN". Height-scaled; colour
+ *  follows `fill`. */
+export function HaavnMark({ height = 13, fill = '#EDEFF1', style }: { height?: number; fill?: string; style?: React.CSSProperties }) {
+  return (
+    <svg viewBox="0 0 4020.14 639.17" role="img" aria-label="HAAVN" fill={fill}
+      style={{ height, width: 'auto', display: 'block', ...style }}>
+      <polygon points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/>
+      <polygon points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/>
+      <path d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/>
+      <path d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/>
+      <polygon points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/>
+    </svg>
+  )
+}
+
 export interface HomeProject {
   id: string
   name: string
@@ -200,21 +216,24 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         <div style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', borderBottom: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
             {/* Builders can't switch to the 7EVEN studio — the dropdown is a static label. */}
-            <button onClick={restricted ? undefined : () => setBrandMenu(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: restricted ? 'default' : 'pointer', padding: 0 }}>
-              <span style={{ fontFamily: "Optima,'Gill Sans',serif", fontWeight: 800, letterSpacing: '0.1em', fontSize: 15, color: '#EDEFF1' }}>HAAVN HOMES</span>
+            <button onClick={restricted ? undefined : () => setBrandMenu(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: restricted ? 'default' : 'pointer', padding: 0 }}>
+              <HaavnMark height={16} fill="#EDEFF1" />
+              <span style={{ fontFamily: "Optima,'Gill Sans',serif", fontWeight: 700, letterSpacing: '0.22em', fontSize: 13, color: '#EDEFF1' }}>HOMES</span>
               {!restricted && <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
             </button>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: mono, marginLeft: 4, fontWeight: 700 }}>{list.length} home{list.length !== 1 ? 's' : ''}</span>
             {!restricted && brandMenu && (
               <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 200, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                {[['7even', '7EVEN'], ['haavn', 'HAAVN MANAGEMENT']].map(([id, lbl]) => (
+                {[['7even', '7EVEN'], ['haavn', 'MANAGEMENT']].map(([id, lbl]) => (
                   <button key={id} onClick={() => { setBrandMenu(false); onBack() }}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
+                    {id === 'haavn' && <HaavnMark height={12} fill="#C6CDCF" />}
+                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: id === 'haavn' ? '0.2em' : '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
                   </button>
                 ))}
                 <button style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'default' }}>
-                  <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.1em' }}>HAAVN HOMES</span>
+                  <HaavnMark height={12} fill="#C6CDCF" />
+                  <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.2em' }}>HOMES</span>
                   <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>
                 </button>
               </div>
@@ -248,7 +267,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
                 <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: 11, color: 'rgba(255,255,255,0.7)', flexShrink: 0 }}>{p.handover ? handoverLabel(p.handover) : '—'}</span>
                 {p.external
                   ? <span style={{ fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: '#d5b26a', border: '1px solid rgba(213,178,106,0.4)', borderRadius: 999, padding: '4px 10px', flexShrink: 0, fontFamily: mono }}>External</span>
-                  : <span style={{ fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: '#7fd0a3', border: '1px solid rgba(127,208,163,0.35)', borderRadius: 999, padding: '4px 10px', flexShrink: 0, fontFamily: mono }}>HAAVN</span>}
+                  : <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid rgba(127,208,163,0.35)', borderRadius: 999, padding: '5px 11px', flexShrink: 0 }}><HaavnMark height={9} fill="#7fd0a3" /></span>}
                 {!SEED.some(s => s.id === p.id) && (
                   <button onClick={e => { e.stopPropagation(); remove(p.id) }} title="Remove"
                     style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>×</button>
