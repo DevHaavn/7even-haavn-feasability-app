@@ -35,6 +35,8 @@ button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit}
 
 .topbar{background:#141210;color:#EDE7D8;display:flex;align-items:center;gap:16px;padding:0 22px;height:52px;position:sticky;top:0;z-index:50;border-bottom:1px solid #262119}
+html.embedded .topbar{padding-left:216px}
+html.embedded .home-btn{display:none}
 .home-btn{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:#C9C2B0;background:#221E18;border:1px solid #34302699;border-radius:20px;padding:6px 15px;text-decoration:none;transition:.15s}
 .home-btn:hover{background:#EDE7D8;color:#141210;border-color:#EDE7D8}
 .sb-burger{display:none;background:none;border:none;color:#C9C2B0;font-size:18px;padding:0 4px}
@@ -567,6 +569,7 @@ input,select,textarea{font-family:inherit}
   </svg>
 </div>
 
+<script>try{if(window.self!==window.top)document.documentElement.classList.add("embedded")}catch(e){document.documentElement.classList.add("embedded")}</script>
 <div class="topbar">
   <a class="home-btn" id="homeBtn" href="/" title="Back to main app">← Home</a>
   <button class="sb-burger" id="sbBurger" aria-label="Menu">☰</button>

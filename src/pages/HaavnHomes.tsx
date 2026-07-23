@@ -131,11 +131,20 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         <iframe title={`HAAVN Black Series — ${open.name}`}
           src={`${BLACK_SERIES_URL}#home=${encodeURIComponent(open.id)}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
-        <button onClick={() => setOpenId(null)}
-          style={{ position: 'fixed', top: 12, left: 16, zIndex: 601, padding: '8px 15px', fontSize: 9,
-            letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, color: '#E8EDEF',
+        <button onClick={() => setOpenId(null)} title="Back to HAAVN Homes"
+          style={{ position: 'fixed', top: 10, left: 14, zIndex: 601, display: 'flex', alignItems: 'center', gap: 9,
+            padding: '8px 16px', color: '#E8EDEF',
             background: 'rgba(12,12,14,0.9)', border: '1px solid #333', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)' }}>
-          ← HAAVN Homes
+          <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1 }}>←</span>
+          {/* Real HAAVN wordmark — same paths as the hero, rendered small in silver */}
+          <svg viewBox="0 0 4020.14 639.17" role="img" aria-label="HAAVN" fill="#E8EDEF" style={{ height: 11, width: 'auto', display: 'block' }}>
+            <polygon points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/>
+            <polygon points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/>
+            <path d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/>
+            <path d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/>
+            <polygon points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/>
+          </svg>
+          <span style={{ fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700 }}>Homes</span>
         </button>
       </div>
     )
