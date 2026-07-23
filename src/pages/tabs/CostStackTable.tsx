@@ -139,7 +139,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   // min-width:1080 inside .scrollx). Drag it wider any time — that now works.
   const [descW, setDescW] = useState<number>(() => {
     const s = typeof localStorage !== 'undefined' ? parseInt(localStorage.getItem('cs.descW') || '', 10) : NaN
-    return Number.isFinite(s) ? Math.max(160, Math.min(760, s)) : 170
+    return Number.isFinite(s) ? Math.max(160, Math.min(760, s)) : 210
   })
   const dragRef = useRef<{ startX: number; startW: number } | null>(null)
   const startResize = (e: React.PointerEvent) => {
@@ -210,7 +210,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   // 13 columns: Item · Basis · Units · Rate · Budget $ · GST · Incl. GST ·
   // Funded by · Phase · S-curve · Start · End · actions. Group/subtotal/section
   // rows span to the same 13 so the grid stays true.
-  const NCOLS = 13
+  const NCOLS = 14
 
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
   // defining a component inside render remounts every row on each keystroke.
@@ -236,7 +236,21 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               )}
             </span>
             <input type="text" value={item.label} onChange={e => update(item.id, { label: e.target.value })} placeholder="Item description"
-              className="mini-inp" style={{ width: '100%', maxWidth: 'none', textAlign: 'left', fontFamily: 'var(--sans)', fontSize: 11.5 }} />
+              className="mini-inp" style={{ flex: 1, minWidth: 0, maxWidth: 'none', textAlign: 'left', fontFamily: 'var(--sans)', fontSize: 11.5 }} />
+            {item.variations && item.variations.length > 0 && (
+              <span title={`${item.variations.length} cost variation(s) — see detail`} style={{ color: 'var(--red)', fontSize: 9, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>▲{item.variations.length}</span>
+            )}
+            <button className="rowact" title="Open full detail — pricing, fee proposal PDF, variations, timeline" onClick={() => setOpenId(item.id)}
+              style={{ fontSize: 9, letterSpacing: '.08em', color: 'var(--ink-3)', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 600 }}>OPEN ▸</button>
+          </span>
+        </td>
+        {/* Pricing — prominent Fixed | Variable segmented toggle; feeds the fee-certainty gauge */}
+        <td>
+          <span style={{ display: 'inline-flex', width: '100%', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
+            <button onClick={() => update(item.id, { pricing: 'fixed' })} title="Fixed — fee proposal locked in"
+              style={{ flex: 1, border: 'none', padding: '5px 0', fontSize: 8.5, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', color: isFixed(item) ? '#fff' : 'var(--ink-3)', background: isFixed(item) ? 'var(--emerald, #2f7d54)' : 'transparent' }}>FIXED</button>
+            <button onClick={() => update(item.id, { pricing: 'variable' })} title="Variable — not properly priced yet"
+              style={{ flex: 1, border: 'none', padding: '5px 0', fontSize: 8.5, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', color: !isFixed(item) ? '#fff' : 'var(--ink-3)', background: !isFixed(item) ? 'var(--amber, #c0842c)' : 'transparent' }}>VAR</button>
           </span>
         </td>
         {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
@@ -261,7 +275,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
         <td className="n">
           {isPct || hasUnitRate(item) || (item.variations && item.variations.length > 0) ? (
-            <span style={{ fontWeight: 600 }} title={item.variations && item.variations.length ? `Includes ${item.variations.length} variation(s)` : undefined}>{money(eff(item))}{item.variations && item.variations.length > 0 && <span style={{ color: 'var(--red)', fontSize: 9, marginLeft: 4 }}>▲</span>}</span>
+            <span style={{ fontWeight: 600 }}>{money(eff(item))}</span>
           ) : (
             <input type="text" inputMode="numeric" value={`$${(item.amount || 0).toLocaleString()}`}
               onChange={e => update(item.id, { amount: parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0 })}
@@ -294,18 +308,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
         {/* Start / End — editable month pickers */}
         <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
         <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
-        {/* Pricing quick-toggle (Fixed/Variable) + expand to the full detail screen */}
-        <td>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <button title={isFixed(item) ? 'Fixed — fee proposal locked in' : 'Variable — not properly priced yet'}
-              onClick={() => update(item.id, { pricing: isFixed(item) ? 'variable' : 'fixed' })}
-              style={{ border: 'none', borderRadius: 999, padding: '3px 7px', fontSize: 8.5, fontWeight: 700, letterSpacing: '.05em', cursor: 'pointer', color: '#fff', background: isFixed(item) ? 'var(--emerald, #2f7d54)' : 'var(--amber, #c0842c)' }}>
-              {isFixed(item) ? 'FIXED' : 'VAR'}
-            </button>
-            <button className="rowact" title="Open full detail (pricing, PDF, variations, timeline)" onClick={() => setOpenId(item.id)}
-              style={{ fontSize: 12 }}>⤢</button>
-          </span>
-        </td>
+        <td />
       </tr>
     )
   }
@@ -322,6 +325,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             <span className="gcount">({rows.length} {rows.length === 1 ? 'line' : 'lines'})</span>
           </span>
         </td>
+        <td />
         <td colSpan={3} />
         <td className="n">{money(b)}</td>
         <td className="n">{money(g)}</td>
@@ -342,7 +346,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     return (
       <tr className="sub" key={`${def.id}-s`}>
         <td className="stl">{def.label} subtotal</td>
-        <td colSpan={3} />
+        <td colSpan={4} />
         <td className="n">{money(b)}</td>
         <td className="n">{money(g)}</td>
         <td className="n">{money(b + g)}</td>
@@ -359,8 +363,9 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           {/* Item column keeps its drag-resize; the rest hold the reference widths. */}
           <colgroup>
             <col style={{ width: descW }} />
+            <col style={{ width: 118 }} />
             {COLS_AFTER_ITEM.map((w, i) => <col key={i} style={{ width: w }} />)}
-            <col style={{ width: 84 }} />
+            <col style={{ width: 40 }} />
           </colgroup>
           <thead>
             <tr>
@@ -372,6 +377,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
                   <span style={{ width: 2, background: 'var(--border-hi)', height: '100%' }} />
                 </span>
               </th>
+              <th>Pricing</th>
               <th>Basis</th>
               <th className="n">Units</th>
               <th className="n">Rate</th>
@@ -383,7 +389,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               <th>S-curve</th>
               <th>Start</th>
               <th>End</th>
-              <th>Pricing</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -408,7 +414,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             {/* Section total (reference tr.sect) */}
             <tr className="sect">
               <td className="stl2">Section total</td>
-              <td colSpan={3} />
+              <td colSpan={4} />
               <td className="n">{money(grandBudget)}</td>
               <td className="n">{money(grandGst)}</td>
               <td className="n">{money(grandBudget + grandGst)}</td>

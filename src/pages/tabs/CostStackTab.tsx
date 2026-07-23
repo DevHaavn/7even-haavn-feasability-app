@@ -11,6 +11,7 @@ import { spreadWeights } from '../../engine/cashflow'
 import { useRole } from '../../lib/role'
 import { getProjectAdminSpend, projectLinkFor } from '../capital/BudgetsAdmin'
 import CostStackTable, { type GroupConfig } from './CostStackTable'
+import { feeCertainty } from '../../lib/costLine'
 
 // Which sections band their rows into labelled groups (matching the design).
 // Consultants → 5 discipline groups; Headworks → utilities vs environmental.
@@ -882,6 +883,29 @@ export default function CostStackTab({ projectId }: Props) {
                 </div>
               </div>
               <div className="guide"><b>Market guide</b> — {meta.hint}</div>
+              {/* Fee certainty — priced (Fixed) vs outstanding (Variable) for this section.
+                  Mirrors the Dashboard gauge; updates live as lines are toggled. */}
+              {(() => {
+                const fc = feeCertainty(detailed[meta.key], { constructionValue: result.construction, gdvValue: gdv })
+                if (fc.total <= 0) return null
+                const m = (n: number) => `$${Math.round(n).toLocaleString()}`
+                return (
+                  <div style={{ border: '1px solid var(--border)', borderRadius: 12, padding: '14px 16px', margin: '14px 0 6px', background: 'var(--card)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Fee certainty · <b style={{ color: 'var(--ink)' }}>pushes to Dashboard</b></span>
+                      <span style={{ fontSize: 12, color: 'var(--ink-3)' }}><b style={{ color: 'var(--amber)' }}>{Math.round(fc.pctVariable)}% of cost still outstanding</b> — {m(fc.variable)} not yet locked to a fee proposal</span>
+                    </div>
+                    <div style={{ display: 'flex', height: 14, borderRadius: 8, overflow: 'hidden', background: 'var(--card-3)' }}>
+                      <div style={{ width: `${fc.pctFixed}%`, background: 'var(--emerald)' }} />
+                      <div style={{ width: `${fc.pctVariable}%`, background: 'var(--amber)' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 22, marginTop: 10, flexWrap: 'wrap', fontSize: 11.5, color: 'var(--ink-2)' }}>
+                      <span><span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'var(--emerald)', marginRight: 6 }} />Fixed — fee proposal locked in <b style={{ fontFamily: 'var(--mono)' }}>{m(fc.fixed)} · {Math.round(fc.pctFixed)}%</b></span>
+                      <span><span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: 'var(--amber)', marginRight: 6 }} />Variable — not properly priced yet <b style={{ fontFamily: 'var(--mono)' }}>{m(fc.variable)} · {Math.round(fc.pctVariable)}%</b></span>
+                    </div>
+                  </div>
+                )
+              })()}
               <div style={{ maxWidth: '100%' }}>
                 <CostStackTable
                   items={detailed[meta.key]}
