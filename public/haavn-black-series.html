@@ -1994,6 +1994,8 @@ renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPil
     try{
       var m=/home=([^&]+)/.exec(location.hash||''); if(!m) return;
       var id=decodeURIComponent(m[1]).toLowerCase();
+      // BLACK SERIES is the umbrella project — land on the Range (all homes carousel).
+      if(id==='black-series'){ if(typeof switchView==='function') switchView('range'); return; }
       var key=HOME_MAP[id];
       if(key && typeof DATA!=='undefined' && DATA[key] && typeof openHome==='function' && typeof switchView==='function'){
         switchView('feas'); openHome(key);

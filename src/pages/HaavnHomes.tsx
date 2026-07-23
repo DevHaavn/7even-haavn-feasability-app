@@ -13,7 +13,7 @@ import { Project7Mark } from '../components/ui'
  * same way the Administration books are.
  */
 
-const STORE_KEY = 'haavn_homes_v2'
+const STORE_KEY = 'haavn_homes_v3'
 const BLACK_SERIES_URL = '/haavn-black-series.html'
 
 /** The real HAAVN wordmark, rendered inline wherever the brand name appears in a
@@ -48,11 +48,10 @@ const uid = () => Math.random().toString(36).slice(2, 10)
 // external developer engagement at Merrimu VIC 3340; the rest are HAAVN's own
 // signature homes. Seed handover dates give the clocks something live to count.
 const SEED: Omit<HomeProject, 'createdAt'>[] = [
-  { id: 'solum', name: 'SOLUM', address: 'Black Series · Signature home', start: '2026-09', handover: '2027-06' },
-  { id: 'havan', name: 'HAVAN', address: 'Black Series · Signature home', start: '2026-10', handover: '2027-07' },
-  { id: 'forma', name: 'FORMA', address: 'Black Series · Signature home', start: '2026-11', handover: '2027-08' },
-  { id: 'magna', name: 'MAGNA', address: 'Black Series · Signature home', start: '2027-01', handover: '2027-10' },
-  { id: 'magna-plus', name: 'MAGNA PLUS', address: 'Black Series · Signature home', start: '2027-02', handover: '2027-12' },
+  // BLACK SERIES is the single umbrella project holding every signature home
+  // (SOLUM · HAVAN · FORMA · MAGNA · MAGNA PLUS) — opening it lands on the full
+  // range carousel. Merrimu is the separate external-developer engagement.
+  { id: 'black-series', name: 'BLACK SERIES', address: 'SOLUM · HAVAN · FORMA · MAGNA · MAGNA PLUS', start: '2026-09', handover: '2027-06' },
   { id: 'merrimu', name: 'MERRIMU', address: 'Merrimu VIC 3340', external: true, start: '2026-08', handover: '2027-09' },
 ]
 
