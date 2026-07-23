@@ -797,7 +797,7 @@ const round2=n=>Math.round(n*100)/100;
 /* ---------- AUTOSAVE ---------- */
 const STATE_VERSION='haavn_state_v12block';
 let _saveT=null;
-function snapshot(){return JSON.stringify({v:STATE_VERSION,DATA,scenarios,curScen,mprog,mStart,phaseMeta,projectStart,progHome,feasBlocks,feasRange,currentHome});}
+function snapshot(){return JSON.stringify({v:STATE_VERSION,DATA,scenarios,curScen,mprog,mStart,phaseMeta,projectStart,progHome,feasBlocks,feasRange,currentHome,galleryMigration});}
 function doSave(){
   try{localStorage.setItem(STATE_VERSION,snapshot());}catch(e){}
   const p=document.getElementById('savePill'),t=document.getElementById('savePillTxt');
@@ -808,10 +808,31 @@ function touch(){
   if(p){p.classList.add('saving');p.classList.remove('saved');t.textContent='Saving…';}
   clearTimeout(_saveT);_saveT=setTimeout(doSave,700);
 }
+// Seeded galleries baked into the code (like SOLUM's render) so floor plans
+// persist for everyone, on every device and the live site — never localStorage-only.
+var SEED_GALLERY = {
+  'SOLUM': ['/haavn-renders/solum.jpg','/haavn-renders/solum-floor-ground.jpg'],
+  'MAGNA': ['/haavn-renders/magna-floor-ground.jpg','/haavn-renders/magna-floor-upper.jpg']
+};
+var GALLERY_SEED_REV = 2;      // bump when new seeded plans are added
+var galleryMigration = 0;      // persisted; guards the one-time, non-destructive merge
+// Flag-guarded (not content-signal based) so it runs once and never re-adds a
+// plan the user deliberately deleted, and never touches cost/sale edits.
+function ensureSeedGalleries(){
+  if(galleryMigration>=GALLERY_SEED_REV) return;
+  Object.keys(SEED_GALLERY).forEach(k=>{
+    if(!DATA[k]) return;
+    var g = DATA[k].gallery = DATA[k].gallery || [];
+    SEED_GALLERY[k].forEach(src=>{ if(g.indexOf(src)===-1) g.push(src); });
+  });
+  galleryMigration=GALLERY_SEED_REV;
+  try{ doSave(); }catch(e){}
+}
 function restoreState(){
   try{
     const raw=localStorage.getItem(STATE_VERSION);if(!raw)return;
     const o=JSON.parse(raw);if(!o||o.v!==STATE_VERSION)return;
+    if(typeof o.galleryMigration==='number')galleryMigration=o.galleryMigration;
     if(o.DATA)Object.keys(o.DATA).forEach(k=>{if(DATA[k])DATA[k]=o.DATA[k];});
     if(o.scenarios)scenarios=o.scenarios;
     if(typeof o.curScen==='number')curScen=o.curScen;
@@ -883,7 +904,7 @@ function renderRange(){
   let html='';
   R.keys.forEach((k,idx)=>{
     const h=DATA[k], c=compute(h);
-    if(!DATA[k].gallery) DATA[k].gallery = h.render ? [h.render] : [];
+    if(!DATA[k].gallery) DATA[k].gallery = SEED_GALLERY[k] ? SEED_GALLERY[k].slice() : (h.render ? [h.render] : []);
     const gal=DATA[k].gallery;
     const slides = gal.length
       ? gal.map((src,gi)=>`<div class="hb-slide"><img src="${src}" alt="${h.name} ${gi+1}" loading="lazy"><button class="hb-del" data-del="${gi}" title="Remove">×</button></div>`).join('')
@@ -1975,6 +1996,7 @@ document.getElementById('footer').innerHTML=`<b>HAAVN Constructions Pty Ltd — 
 
 /* ---------- BOOT ---------- */
 restoreState();
+ensureSeedGalleries();   // add newly-seeded floor plans once, without wiping edits
 // integrity: every tab must have a valid, non-empty block
 ['black','ds','ess'].forEach(r=>{
   if(!Array.isArray(feasBlocks[r]))feasBlocks[r]=[];
