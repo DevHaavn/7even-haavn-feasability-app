@@ -794,11 +794,7 @@ function newChecklistState(seed){ // seed = fraction 0..1 completed sequentially
 // blob, so it syncs to the team via capital_kv and survives reloads). `cost` is the
 // PM's annual cost to the business; `rate` an optional day rate. These seed the
 // roster on first run; the Senior Management screen lets you add/edit/remove PMs.
-let PMS={
- james:{name:'James Bardas',init:'JB',role:'Director · Superintendent',trend:2,cost:280000,rate:1400},
- luke:{name:'Luke Davies',init:'LD',role:'Senior Project Manager',trend:-3,cost:195000,rate:1050},
- john:{name:'John Mercer',init:'JM',role:'Project Manager',trend:5,cost:155000,rate:850}
-};
+let PMS={};
 // Stable key from a name for a newly-added PM (first name, de-duped).
 function pmKeyFromName(nm){
  let base=(nm||'pm').trim().toLowerCase().split(/\s+/)[0].replace(/[^a-z0-9]/g,'')||'pm';
@@ -820,9 +816,9 @@ function buildProgramme(p,doneCount,lateIdx){
  });
 }
 function makeProject(o){
- const pmKey=o.pmKey||'james';
+ const pmKey=o.pmKey||Object.keys(PMS)[0]||'';
  const p={id:o.id,name:o.name,addr:o.addr,suburb:o.suburb,site:o.site||'',status:o.status||'live',
-  principal:o.principal,rep:o.rep||'',pmKey:pmKey,pm:(PMS[pmKey]?PMS[pmKey].name:(o.pm||'James Bardas')),
+  principal:o.principal,rep:o.rep||'',pmKey:pmKey,pm:(PMS[pmKey]?PMS[pmKey].name:(o.pm||'')),
   architect:o.architect||'',builder:o.builder||'',
   contractDate:o.contractDate||'',possession:o.possession||'',pc:o.pc||'',sum:o.sum||0,form:o.form||'',financier:o.financier||'',
   asset:o.asset||'BTS',datePrefix:o.datePrefix||'260501',sched:o.sched||0,overdue:o.overdue||0,
@@ -834,43 +830,7 @@ function makeProject(o){
  p.actions=[];p.cadence=[];
  return p;
 }
-let PROJECTS=[
- makeProject({id:'26041',name:'Derrimut Rise',addr:'575 Derrimut Road',suburb:'Tarneit, VIC 3029',pmKey:'james',
-  site:'2.4 ha greenfield parcel fronting Derrimut Road; staged BTR delivery over three releases.',
-  status:'live',principal:'7EVEN Capital Pty Ltd',rep:'A. Okafor',architect:'Fieldwork Studio',builder:'Hacer Group Pty Ltd',
-  contractDate:'2026-03-14',possession:'2026-04-02',pc:'2027-09-30',sum:61240000,form:'Amended AS4300',financier:'NAB',
-  asset:'BTR + BTS',datePrefix:'260314',seed:0.63,sched:2,overdue:0,templatesGen:true}),
- makeProject({id:'26043',name:'Imperium Docklands',addr:'8 Waterfront Way',suburb:'Docklands, VIC 3008',pmKey:'james',
-  site:'Waterfront tower; hotel podium with build-to-rent and build-to-sell levels above.',
-  status:'live',principal:'7EVEN Capital Pty Ltd',rep:'A. Okafor',architect:'Woods Bagot',builder:'Multiplex Pty Ltd',
-  contractDate:'2026-02-19',possession:'2026-03-05',pc:'2028-06-30',sum:142000000,form:'Amended AS4300',financier:'NAB',
-  asset:'BTR + BTS + HOTEL',datePrefix:'260219',seed:0.88,sched:5,overdue:0,templatesGen:true}),
- makeProject({id:'26060',name:'The Range Preston',addr:'320 Murray Road',suburb:'Preston, VIC 3072',pmKey:'james',
-  site:'Infill townhouse project; three build stages fronting Murray Road.',
-  status:'live',principal:'Range Property Pty Ltd',rep:'D. Ellis',architect:'Six Degrees',builder:'ProBuild VIC Pty Ltd',
-  contractDate:'2026-06-30',possession:'2026-07-18',pc:'2027-11-30',sum:31500000,form:'Amended AS4902',financier:'Bankwest',
-  asset:'BTS',datePrefix:'260630',seed:0.20,sched:-6,overdue:3,templatesGen:false}),
- makeProject({id:'26052',name:'Aurum Collingwood',addr:'41 Sackville Street',suburb:'Collingwood, VIC 3066',pmKey:'luke',
-  site:'Corner infill site; mixed-use with ground-floor retail and 9 residential levels above.',
-  status:'live',principal:'Aurum Dev Co Pty Ltd',rep:'M. Rossi',architect:'Kerstin Thompson',builder:'Icon Co Pty Ltd',
-  contractDate:'2026-05-08',possession:'2026-06-01',pc:'2027-12-15',sum:38900000,form:'Amended AS4902',financier:'CBA',
-  asset:'MIXED USE',datePrefix:'260508',seed:0.30,sched:-3,overdue:2,templatesGen:true}),
- makeProject({id:'26049',name:'Eden South Yarra',addr:'6 Claremont Street',suburb:'South Yarra, VIC 3141',pmKey:'luke',
-  site:'Boutique mixed-use development; ground-floor retail with premium residences above.',
-  status:'live',principal:'Eden Dev Co Pty Ltd',rep:'P. Shah',architect:'Carr',builder:'Hickory Pty Ltd',
-  contractDate:'2026-04-22',possession:'2026-05-10',pc:'2027-10-31',sum:54000000,form:'Amended AS4300',financier:'CBA',
-  asset:'MIXED USE',datePrefix:'260422',seed:0.45,sched:-1,overdue:1,templatesGen:true}),
- makeProject({id:'26055',name:'Summit Footscray',addr:'24 Nicholson Street',suburb:'Footscray, VIC 3011',pmKey:'john',
-  site:'Precision manufactured build form apartments; single stage over basement car park.',
-  status:'live',principal:'Summit Living Pty Ltd',rep:'R. Tan',architect:'Bruce Henderson',builder:'Hacer Group Pty Ltd',
-  contractDate:'2026-05-26',possession:'2026-06-15',pc:'2027-08-31',sum:27500000,form:'Amended AS4300',financier:'NAB',
-  asset:'BTS',datePrefix:'260526',seed:0.72,sched:3,overdue:0,templatesGen:true}),
- makeProject({id:'26058',name:'Fortis Brunswick',addr:'12 Weston Street',suburb:'Brunswick, VIC 3056',pmKey:'john',
-  site:'Precision manufactured build form apartment project; early design phase.',
-  status:'hold',principal:'Fortis Holdings Pty Ltd',rep:'S. Nguyen',architect:'Clare Cousins',builder:'[TBC — tender]',
-  contractDate:'',possession:'',pc:'',sum:0,form:'[e.g. Amended AS4300]',financier:'[Bank]',
-  asset:'BTS',datePrefix:'260601',seed:0.08,sched:0,overdue:0,templatesGen:false})
-];
+let PROJECTS=[];
 // Per-project programme / financials / quality (seeded book)
 const EXTRA={
  '26041':{variations:1850000,certified:22400000,claimed:24100000,forecast:62100000,spend:[4,9,16,24,33,41],progDone:5,progLate:null,
@@ -971,14 +931,7 @@ let MTGSEQ=2604;
    persist()/Cloud path as everything else in this file. */
 let PAYABLES=[];
 
-let MEETINGS=[
- {id:'MTG-2601',pid:PROJECTS[0]&&PROJECTS[0].id,type:'Design',title:'Design coordination',at:'2026-07-17T10:00',loc:'Teams',status:'scheduled',
-  agenda:[{item:'Facade package — sign-off',owner:'Architect',box:15},{item:'Services coordination — level 3',owner:'Builder',box:20},{item:'Outstanding RFIs',owner:'PM',box:10}],minutes:'',decisions:[],dist:[]},
- {id:'MTG-2602',pid:PROJECTS[1]&&PROJECTS[1].id,type:'Client WIP',title:'Client work-in-progress',at:'2026-07-18T14:00',loc:'On site',status:'scheduled',
-  agenda:[{item:'Programme update',owner:'PM',box:10},{item:'Variation VO-07 — client approval',owner:'Client',box:10},{item:'Progress claim PC-07',owner:'PM',box:10}],minutes:'',decisions:[],dist:[]},
- {id:'MTG-2603',pid:PROJECTS[2]&&PROJECTS[2].id,type:'PCG',title:'Project control group',at:'2026-07-14T09:00',loc:'Teams',status:'recorded',
-  agenda:[{item:'Cost report — certified vs revised',owner:'PM',box:15},{item:'Defects & quality register',owner:'Superintendent',box:10},{item:'Programme recovery',owner:'Builder',box:10}],minutes:'',decisions:[],dist:[]},
-];
+let MEETINGS=[];
 const MTG_TYPES=['Design','PCG','Site','Client WIP','Kickoff','Other'];
 
 /* ---- CRM → Meetings pillar bridge ------------------------------------------
@@ -1782,7 +1735,7 @@ function cadCard(p,c){const today=daysToDue(c.date)===0;
 }
 function emptyRow(msg){return `<div class="aempty">${msg}</div>`;}
 function viewToday(){
- const me=PMS[CURRENT_PM];const mine=pmProjects(CURRENT_PM).filter(p=>p.status==='live');
+ const me=PMS[CURRENT_PM]||Object.values(PMS)[0]||{name:'the team',init:'—'};const mine=pmProjects(CURRENT_PM).filter(p=>p.status==='live');
  let allAw=[],allDue=[],cad=[];
  mine.forEach(p=>{awaitingClient(p).forEach(a=>allAw.push({p,a}));openActions(p).forEach(a=>{if(daysToDue(a.due)<=0||(a.next&&daysToDue(a.next)<=0))allDue.push({p,a});});(p.cadence||[]).forEach(c=>cad.push({p,c}));});
  allAw.sort((x,y)=>daysToDue(x.a.due)-daysToDue(y.a.due));
@@ -1819,9 +1772,10 @@ function bindToday(){
 /* ---- Client portal (developer view) ---- */
 function shortClient(n){return n.replace(/\s+Pty Ltd$/i,'');}
 function clientList(){const map={};PROJECTS.forEach(p=>{if(!map[p.principal])map[p.principal]={principal:p.principal,rep:p.rep,pid:p.id,internal:/7EVEN/i.test(p.principal)};});return Object.values(map);}
-function defaultPortalPid(){const c=clientList().find(x=>!x.internal);return c?c.pid:PROJECTS[0].id;}
+function defaultPortalPid(){const c=clientList().find(x=>!x.internal);return c?c.pid:((PROJECTS[0]&&PROJECTS[0].id)||'');}
 function viewPortal(pid){
  const src=PROJECTS.find(p=>p.id===pid)||PROJECTS[0];
+ if(!src) return `<div class="phead"><div><div class="n">Developer portal</div><h1>Client portal</h1><div class="sub">No projects yet — add a project first and its client portal preview appears here.</div><div class="liv">${livery()}</div></div></div>`;
  const principal=src.principal,rep=src.rep;
  const projs=PROJECTS.filter(p=>p.principal===principal);
  let owed=[];projs.forEach(p=>awaitingClient(p).forEach(a=>owed.push({p,a})));
@@ -1865,7 +1819,7 @@ function clientProjCard(p){const next=p.prog.find(m=>m.state==='active'||m.state
  </div></div>`;
 }
 function bindPortal(){
- $('#ptReturn').onclick=()=>go('project',route.pid,'actions');
+ const rt=$('#ptReturn'); if(rt) rt.onclick=()=>go('project',route.pid,'actions');
  $('#main').querySelectorAll('.clchip').forEach(b=>b.onclick=()=>go('portal',b.dataset.pid));
  $('#main').querySelectorAll('.caction').forEach(b=>b.onclick=()=>clientAction(b.dataset.pid,b.dataset.ref));
 }
@@ -1891,7 +1845,7 @@ function viewManagement(){
    <div class="wcard"><div class="bz"></div><div class="k">PM cost · annual</div><div class="v">${money(teamCost)}</div><div class="d">${keys.length} manager${keys.length===1?'':'s'}${totalVal>0?' · '+(teamCost/totalVal*100).toFixed(2)+'% of book':''}</div></div>
   </div>
   <div class="sec">${livery()}<h2>Project manager performance</h2><div class="rt"><button class="btn sm" id="pmAdd">+ Add / edit PMs</button></div></div>
-  <div class="pmgrid">${M.map(pmCard).join('')}</div>
+  <div class="pmgrid">${M.length?M.map(pmCard).join(''):`<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:12px">No project managers yet. <button class="btn sm" id="pmAdd2" style="margin-left:6px">+ Add your first PM</button></div>`}</div>
   ${(()=>{const watch=watchAll();return watch.length?`<div class="sec">${livery()}<h2>Follow-up watch</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--red-txt)">${watch.length} client items aging — nudge the PM</span></div></div>
   <div class="mlistwrap"><div class="mlist" style="min-width:820px">
    <div class="alh"><span>Ref</span><span>Item</span><span>Manager</span><span>Due</span><span>Last chased</span><span></span></div>
@@ -1963,7 +1917,7 @@ function openPmEdit(key){
  let ov=document.getElementById('pmedit');
  if(!ov){ ov=document.createElement('div'); ov.id='pmedit'; document.body.appendChild(ov); }
  ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(6,8,12,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px';
- ov.innerHTML=`<div style="width:min(440px,100%);background:var(--card,#12161c);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)">
+ ov.innerHTML=`<div style="width:min(440px,100%);background:#161d25;color:#eef2f6;border:1px solid #2c3742;border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)">
    <div style="padding:18px 20px;border-bottom:1px solid var(--line,rgba(255,255,255,.1))"><div style="font-family:var(--mono,monospace);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute,#8a93a0)">Project manager</div><div style="font-size:20px;font-weight:600;margin-top:2px">${isNew?'Add a project manager':'Edit '+esc(pm.name)}</div></div>
    <div style="padding:18px 20px;display:grid;gap:13px">
     <label><span class="pmlab">Full name</span><input id="pe_name" value="${esc(pm.name)}" placeholder="e.g. Sarah Nguyen"></label>
@@ -1982,8 +1936,8 @@ function openPmEdit(key){
     <div style="display:flex;gap:8px"><button class="btn sm" id="pe_cancel">Cancel</button><button class="btn sm btn-green" id="pe_save">${isNew?'Add PM':'Save'}</button></div>
    </div>
  </div>`;
- ov.querySelectorAll('input').forEach(i=>i.style.cssText='width:100%;margin-top:5px;background:var(--field,rgba(255,255,255,.05));border:1px solid var(--line,rgba(255,255,255,.14));border-radius:9px;padding:9px 11px;color:var(--ink,#e8edf2);font-size:14px;outline:none;box-sizing:border-box');
- ov.querySelectorAll('.pmlab').forEach(s=>s.style.cssText='font-family:var(--mono,monospace);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute,#8a93a0)');
+ ov.querySelectorAll('input').forEach(i=>i.style.cssText='width:100%;margin-top:6px;background:#1e2831;border:1px solid #3a4753;border-radius:9px;padding:11px 12px;color:#f4f7fa;font-size:15px;font-weight:500;outline:none;box-sizing:border-box');
+ ov.querySelectorAll('.pmlab').forEach(s=>s.style.cssText='font-family:var(--mono,monospace);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#9aa4b0');
  const close=()=>ov.remove();
  ov.onclick=e=>{ if(e.target===ov) close(); };
  $('#pe_cancel').onclick=close;
@@ -1999,6 +1953,7 @@ function openPmEdit(key){
 }
 function bindManagement(){
  const add=$('#pmAdd'); if(add) add.onclick=()=>openPmEdit(null);
+ const add2=$('#pmAdd2'); if(add2) add2.onclick=()=>openPmEdit(null);
  $('#main').querySelectorAll('.pmEdit').forEach(b=>b.onclick=e=>{e.stopPropagation();openPmEdit(b.dataset.k);});
  $('#main').querySelectorAll('.mchip').forEach(b=>b.onclick=()=>{mgmtFilter=b.dataset.f;render();});
  $('#main').querySelectorAll('.pmproj').forEach(el=>el.onclick=()=>go('project',el.dataset.pid));
@@ -2161,7 +2116,7 @@ function viewWizard(){
     <div class="fgrid">
      <div class="field"><label>Principal</label><input id="f_principal" placeholder="Principal Entity Pty Ltd"></div>
      <div class="field"><label>Principal representative</label><input id="f_rep" placeholder="Name"></div>
-     <div class="field"><label>Project Manager (Haavn)</label><select id="f_pm">${Object.keys(PMS).map(k=>`<option value="${k}">${esc(PMS[k].name)} — ${esc(PMS[k].role.split('·')[0].trim())}</option>`).join('')}</select><span class="hint">Assigns the PM scorecard in Senior Mgmt</span></div>
+     <div class="field"><label>Project Manager (Haavn)</label><select id="f_pm">${Object.keys(PMS).length?Object.keys(PMS).map(k=>`<option value="${k}">${esc(PMS[k].name)} — ${esc(PMS[k].role.split('·')[0].trim())}</option>`).join(''):'<option value="">— add a PM in Senior Mgmt first —</option>'}</select><span class="hint">Assigns the PM scorecard in Senior Mgmt</span></div>
      <div class="field"><label>Architect</label><input id="f_arch" placeholder="Firm"></div>
      <div class="field full"><label>Builder</label><input id="f_builder" placeholder="Contractor Pty Ltd — or [TBC — tender]"></div>
     </div></div>
@@ -2207,7 +2162,7 @@ function runProvision(proj){
   'Initialising programme & milestone schedule',
   'Opening financials, cost tracker & quality register',
   'Stamping '+TEMPLATES.length+' templates from Project Info',
-  'Registering '+PMS[proj.pmKey].name+' on the Senior Mgmt scorecard'
+  'Registering '+((PMS[proj.pmKey]&&PMS[proj.pmKey].name)||proj.pm||'the project manager')+' on the Senior Mgmt scorecard'
  ];
  const ov=$('#prov');const list=$('#provlist');
  list.innerHTML=steps.map((s,i)=>`<div class="provrow" data-i="${i}"><span class="pm"></span><span>${s}</span></div>`).join('');
@@ -2243,7 +2198,7 @@ $('#themebtn').onclick=()=>{LIGHTMODE=!LIGHTMODE;setThemeBtn();render();toast(LI
    edits save. Non-blocking cloud: renders from localStorage first, still works
    offline; once the capital_kv table exists, edits fan out live to all staff.
    Same backend + discipline as the ATRIUM Accounts module. */
-const SKEY='atrium_mgmt_v1';
+const SKEY='atrium_mgmt_v2';
 const CLOUD_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
 const CLOUD_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
 let _saveT=null,_lastJSON='';
