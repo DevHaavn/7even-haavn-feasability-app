@@ -562,6 +562,16 @@ html.embedded .home-btn{display:none}
 .lb-nav:hover{background:rgba(255,255,255,.2)}
 .lb-nav.prev{left:26px}.lb-nav.next{right:26px}
 .lb-count{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(237,231,216,.7);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-family:monospace}
+
+/* ATRIUM footer — brand + visit links + Update, at the bottom of the page */
+.atr-footer{margin-top:48px;padding:18px 24px;background:linear-gradient(180deg,rgba(44,60,78,.92),rgba(26,38,52,.96));border:1px solid rgba(220,232,244,.16);border-radius:14px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.atr-flinks{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.atr-brand{display:inline-flex;align-items:center;gap:8px;color:#EEF1F2;font-size:12px;letter-spacing:.28em;font-weight:600}
+.atr-vdiv{width:1px;height:13px;background:rgba(220,232,244,.3)}
+.atr-visit{color:#C6CDCF;font-size:7.5px;letter-spacing:.25em;text-transform:uppercase;font-weight:600}
+.atr-fpill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(210,222,234,.12);border:1px solid rgba(220,232,244,.3);color:#EEF1F2;backdrop-filter:blur(8px);cursor:pointer;font-family:inherit}
+.atr-fpill:hover{background:rgba(210,222,234,.2)}
+.atr-copy{margin-top:12px;color:rgba(255,255,255,.5);font-size:9px;letter-spacing:.16em;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -766,6 +776,17 @@ html.embedded .home-btn{display:none}
   </section>
 
   <div class="footer" id="footer"></div>
+  <div class="atr-footer">
+    <div class="atr-flinks">
+      <span class="atr-brand"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 3.5 L20.5 20 L3.5 20 Z" fill="none" stroke="#3DAA6A" stroke-width="1.6"/></svg>ATRIUM</span>
+      <span class="atr-vdiv"></span>
+      <span class="atr-visit">Visit Us</span>
+      <a class="atr-fpill" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU &#8599;</a>
+      <a class="atr-fpill" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU &#8599;</a>
+      <button class="atr-fpill" id="atrUpdate" type="button" title="Get the latest version — reloads if a new update has shipped. Your saved work is kept.">&#8635; Update</button>
+    </div>
+    <div class="atr-copy">Design &amp; Interface © 2026 JB Design × Studio · All Rights Reserved</div>
+  </div>
 </div>
 
 <script>
@@ -2091,8 +2112,6 @@ renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPil
     <div class="lb-count" id="lbCount"></div>
   </div>
 </div>
-<button id="atrUpdate" title="Get the latest version — reloads if a new update has shipped. Your saved work is kept."
-  style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99990;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#EEF1F2;background:rgba(28,38,50,0.88);border:1px solid rgba(150,172,196,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer">⟳ Update</button>
 <script>(function(){var b=document.getElementById('atrUpdate');if(!b)return;b.onclick=async function(){if(b.dataset.busy)return;b.dataset.busy='1';b.textContent='⟳ Updating…';try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();}catch(e){}await new Promise(function(r){setTimeout(r,900);});try{if(window.caches){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}}catch(e){}try{if(navigator.serviceWorker){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(function(r){return r.unregister();}));}}catch(e){}try{(window.top||window).location.reload();}catch(e){location.reload();}};})();</script>
 </body>
 </html>
