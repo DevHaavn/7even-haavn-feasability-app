@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cost Summary fix — Options 1 &amp; 2 · Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef0ed;--panel:#fff;--ink:#14170f;--ink2:#3c4038;--muted:#767c72;--faint:#a6aca1;
+  --line:#e4e6e0;--line2:#eceee9;--nav:#0d0d0f;
+  --green:#2f7d54;--greenbg:#e7f2ea;--amber:#c0842c;--amberbg:#fbf1e0;--red:#c0392b;--redbg:#fbe9e6;--blue:#3b6fb0;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+.ribbon{background:linear-gradient(90deg,#1b1f17,#0d0d0f);color:#e8c87a;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;text-align:center;padding:6px}
+.ribbon b{color:#fff}
+.wrap{max-width:1240px;margin:0 auto;padding:26px 30px 90px}
+h1{font-family:var(--serif);font-weight:600;font-size:34px;margin:6px 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 20px}
+
+/* option tabs */
+.tabs{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:13px 18px;text-align:left;min-width:260px;flex:1}
+.tab.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset}
+.tab .t{font-weight:700;font-size:14px}
+.tab .d{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+h2c{}
+.h2{font-family:var(--serif);font-size:24px;font-weight:600;margin:2px 0 2px}
+.sect-lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:20px 0 10px;border-top:1px solid var(--line2);padding-top:14px}
+
+/* source toggle (option 2) */
+.srcbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 4px}
+.srcbar .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:transparent;padding:8px 14px;font-size:12px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+
+/* rows */
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line2)}
+.row:last-child{border-bottom:none}
+.rl{font-size:13.5px}
+.rl small{display:block;color:var(--faint);font-size:11px}
+.ctrl{display:flex;align-items:center;gap:8px}
+input.f{width:120px;text-align:right;font-family:var(--mono);font-size:14px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);background:#fff;outline:none}
+input.f:focus{border-color:var(--green)}
+.unit{font-size:11px;color:var(--faint);font-family:var(--mono)}
+.ro{font-family:var(--mono);font-size:14px;color:var(--ink2);font-weight:600}
+
+/* disabled / locked state */
+.locked input.f,.locked .seg{opacity:.5;pointer-events:none;background:#f3f4f1}
+.lockrow{opacity:.55}
+.lockpill{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:var(--amberbg);border-radius:999px;padding:3px 8px;font-weight:700}
+
+/* annotation banner */
+.note{display:flex;gap:11px;background:var(--amberbg);border:1px solid #eddcbd;border-left:3px solid var(--amber);border-radius:11px;padding:13px 15px;margin:8px 0 4px;font-size:13px;color:#6b4e18;line-height:1.5}
+.note b{color:#543d12}
+.note.blue{background:#e9f0f8;border-color:#cfe0f0;border-left-color:var(--blue);color:#274866}
+.note.blue b{color:#1d3852}
+
+/* cost summary panel */
+.sum h3{font-family:var(--serif);font-size:22px;font-weight:600;margin:0 0 4px}
+.srow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.srow .v{font-family:var(--mono);font-weight:600}
+.srow.muted .v{color:var(--faint)}
+.srow.hl{background:var(--greenbg);margin:0 -10px;padding:9px 10px;border-radius:6px;border:none}
+.tag{font-size:9px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:var(--amberbg);border-radius:4px;padding:2px 6px;margin-left:7px}
+.tdc{margin-top:16px;padding-top:14px;border-top:2px solid var(--ink)}
+.tdc .lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tdc .big{font-family:var(--serif);font-size:40px;font-weight:600;line-height:1;margin-top:4px}
+.tdc .sub{font-size:11px;color:var(--muted);margin-top:6px}
+.delta{font-family:var(--mono);font-size:11px;margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--bg)}
+.help{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:16px}
+.help b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="ribbon">◆ Concept preview — Cost Summary fix · <b>Options 1 &amp; 2</b> · not live</div>
+<div class="wrap">
+  <h1>Cost Stack — Summary <span style="font-family:var(--sans);font-size:14px;color:var(--muted);font-weight:500">· fix preview</span></h1>
+  <p class="sub">The bug: once the Construction sub-tab is itemised, the engine ignores the top-down build rate / GBA / contingency / prelims — so those controls look live but do nothing. Two ways to fix it, side by side. Sample figures ≈ St Village Preston.</p>
+
+  <div class="tabs">
+    <button class="tab on" id="tab1" onclick="setOpt(1)"><div class="t">Option 1 — Honest lock</div><div class="d">When Construction is itemised, the dead controls are disabled &amp; clearly annotated. No maths change — just removes the trap.</div></button>
+    <button class="tab" id="tab2" onclick="setOpt(2)"><div class="t">Option 2 — Source toggle</div><div class="d">A switch: drive construction from the <b>top-down build rate</b>, or from the <b>itemised Construction tab</b>. You choose which wins; TDC follows live.</div></button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="eyebrow">04 · Cost Stack</div>
+      <div class="h2">Development Cost</div>
+
+      <div id="srcbarWrap"></div>
+
+      <div class="sect-lbl">Construction</div>
+      <div id="constRows"></div>
+
+      <div class="sect-lbl">Soft costs — % of construction</div>
+      <div id="softRows"></div>
+
+      <div class="sect-lbl">Fixed costs</div>
+      <div class="row"><div class="rl">Statutory &amp; council <small>from Statutory tab</small></div><div class="ro">$6.01M</div></div>
+      <div class="row"><div class="rl">Project management <small>from Management tab</small></div><div class="ro">$4.60M</div></div>
+      <div class="row"><div class="rl">Marketing <small>from Marketing tab</small></div><div class="ro">$1.20M</div></div>
+    </div>
+
+    <div class="card sum" id="sumPanel"></div>
+  </div>
+
+  <p class="help" id="helpTxt"></p>
+</div>
+
+<script>
+const M=n=>'$'+Math.round(n).toLocaleString();
+const MM=n=>'$'+(n/1e6).toFixed(1)+'M';
+
+const S={
+  opt:1,
+  source:'itemised',        // option 2 only: 'topdown' | 'itemised'
+  gba:46300,
+  buildRate:3850,
+  regional:0,
+  contingencyPct:5,
+  prelimsPct:0,
+  financePct:8,
+  itemisedConstruction:183638500,
+  profFees:5842914,         // itemised consultants
+  statutory:6014108, pm:4604964, marketing:1195869,
+  land:15000000, stamp:955000, acq:363000,
+};
+
+// which construction source is in force
+function activeSource(){ return S.opt===1 ? 'itemised' : S.source; }
+function locked(){ return activeSource()==='itemised'; }
+
+function compute(){
+  const topdown = S.gba*S.buildRate*(1+S.regional/100);
+  const construction = locked() ? S.itemisedConstruction : topdown;
+  const contingency = locked() ? 0 : construction*(S.contingencyPct/100);
+  const prelims     = locked() ? 0 : construction*(S.prelimsPct/100);
+  const finance     = construction*(S.financePct/100);
+  const subtotal = construction+contingency+prelims+S.profFees+S.statutory+finance+S.pm+S.marketing;
+  const tdc = subtotal + S.land + S.stamp + S.acq;
+  return {topdown,construction,contingency,prelims,finance,subtotal,tdc};
+}
+
+function inputRow(label,sub,key,unit,dis){
+  return `<div class="row ${dis?'lockrow':''}"><div class="rl">${label}${sub?`<small>${sub}</small>`:''}</div>
+   <div class="ctrl"><input class="f" value="${S[key].toLocaleString()}" ${dis?'disabled':''} oninput="edit('${key}',this.value)">${unit?`<span class="unit">${unit}</span>`:''}${dis?'<span class="lockpill">ignored</span>':''}</div></div>`;
+}
+
+function render(){
+  const lk=locked();
+  const c=compute();
+
+  // source toggle (option 2 only)
+  document.getElementById('srcbarWrap').innerHTML = S.opt===2 ? `
+   <div class="srcbar">
+     <span class="lab">Construction source</span>
+     <span class="seg">
+       <button class="${S.source==='topdown'?'on':''}" onclick="setSrc('topdown')">Top-down build rate</button>
+       <button class="${S.source==='itemised'?'on':''}" onclick="setSrc('itemised')">Itemised Construction tab</button>
+     </span>
+     <span style="font-size:11.5px;color:var(--muted)">${S.source==='itemised'?'Using the itemised total ('+MM(S.itemisedConstruction)+')':'Using GBA × build rate'}</span>
+   </div>` : '';
+
+  // construction controls
+  const constDis = lk;
+  document.getElementById('constRows').innerHTML =
+    `<div class="row ${constDis?'lockrow':''}"><div class="rl">GBA <small>from Site &amp; Design</small></div><div class="ro">${S.gba.toLocaleString()} <span class="unit">sqm</span></div></div>`
+    + inputRow('Build rate','standard $/sqm','buildRate','$/sqm',constDis)
+    + inputRow('Regional loading','','regional','%',constDis)
+    + (lk
+        ? `<div class="note"><span>🔒</span><div><b>Construction is itemised in the Construction tab (${MM(S.itemisedConstruction)}).</b> The top-down build rate &amp; GBA are ignored — construction is driven by the line items. ${S.opt===2?'Switch the source above to use the build rate instead.':'Edit it in the Construction sub-tab, or (Option&nbsp;2) add a source toggle.'}</div></div>`
+        : `<div class="note blue"><span>✏️</span><div><b>Top-down mode.</b> Construction = GBA × loaded build rate = <b>${M(c.construction)}</b>. The itemised Construction tab is set aside while this is selected.</div></div>`);
+
+  // soft costs
+  document.getElementById('softRows').innerHTML =
+    inputRow('Contingency','','contingencyPct','%',lk)
+    + inputRow('Prelims','','prelimsPct','%',lk)
+    + `<div class="row"><div class="rl">Professional fees <small>itemised · Consultants tab</small></div><div class="ro">${MM(S.profFees)}</div></div>`
+    + inputRow('Finance cost','interest — always live','financePct','%',false);
+
+  // cost summary panel
+  const rows=[
+    ['Land — purchase price',S.land,false,''],
+    ['Stamp duty + surcharge',S.stamp,false,''],
+    ['Acquisition costs',S.acq,false,''],
+    ['Construction',c.construction,false, lk?'itemised':''],
+    ['Contingency ('+S.contingencyPct+'%)',c.contingency,c.contingency===0,''],
+    ['Prelims ('+S.prelimsPct+'%)',c.prelims,c.prelims===0,''],
+    ['Professional fees',S.profFees,false,'itemised'],
+    ['Statutory &amp; council',S.statutory,false,''],
+    ['Finance ('+S.financePct+'%)',c.finance,false,''],
+    ['Project management',S.pm,false,''],
+    ['Marketing',S.marketing,false,''],
+  ];
+  const base=compute.baseTDC || (compute.baseTDC = (()=>{const o=S.opt,s=S.source;S.opt=1;const t=compute().tdc;S.opt=o;S.source=s;return t;})());
+  document.getElementById('sumPanel').innerHTML=
+    `<div class="eyebrow">Cost summary · incl. land</div><h3>Development cost</h3>
+     ${rows.map(r=>`<div class="srow ${r[2]?'muted':''}"><span>${r[0]}${r[3]?`<span class="tag">${r[3]}</span>`:''}</span><span class="v">${M(r[1])}</span></div>`).join('')}
+     <div class="tdc"><div class="lab">Total dev cost · incl land</div><div class="big">${MM(c.tdc)}</div><div class="sub">${M(Math.round(c.tdc/S.gba))}/sqm GBA all-in</div>
+       <div class="delta">vs itemised baseline (${MM(base)}): <b style="color:${c.tdc-base>0?'var(--red)':(c.tdc-base<0?'var(--green)':'var(--ink)')}">${c.tdc-base>0?'+':''}${M(c.tdc-base)}</b></div>
+     </div>`;
+
+  document.getElementById('helpTxt').innerHTML = S.opt===1
+    ? `<b>Option 1 — Honest lock.</b> The build rate, GBA, regional loading, contingency and prelims are <b>disabled and marked “ignored”</b> because the Construction tab is itemised. Only <b>Finance cost %</b> stays live — try changing it and watch the TDC move. Nothing about the numbers changes; it just stops the controls pretending to work.`
+    : `<b>Option 2 — Source toggle.</b> Flip <b>Construction source</b> above. On <b>Top-down build rate</b>, the build-rate / GBA / contingency / prelims go live and drive the TDC (try editing the build rate). On <b>Itemised Construction tab</b>, they lock and the itemised total wins. You keep both ways of working and choose per project.`;
+}
+function edit(k,v){ S[k]=parseFloat(String(v).replace(/[^0-9.]/g,''))||0; render(); }
+function setSrc(s){ S.source=s; render(); }
+function setOpt(o){ S.opt=o; document.getElementById('tab1').classList.toggle('on',o===1); document.getElementById('tab2').classList.toggle('on',o===2); if(o===1)S.source='itemised'; render(); }
+render();
+</script>
+</body>
+</html>

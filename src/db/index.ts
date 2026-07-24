@@ -215,9 +215,15 @@ export function getCostStack(projectId: string): CostStack {
   const statHead = sum(d.statutory) + sum(d.headworks)
   const mgmt = sum(d.management)
   const mkt = sum(d.marketing)
+  // Construction source (Option 2). 'itemised' → the Construction tab total drives
+  // construction everywhere (TDC/RLV/dashboard/finance/exports); 'topdown' → GBA ×
+  // build rate drives it. Undefined = auto (itemised when line items exist), so
+  // existing projects are unchanged until the switch is flipped on the Summary.
+  const constrSource = cs.constructionSource || (hard > 0 ? 'itemised' : 'topdown')
+  const useItemised = constrSource === 'itemised' && hard > 0
   return {
     ...cs,
-    constructionOverride: hard > 0 ? hard : undefined,
+    constructionOverride: useItemised ? hard : undefined,
     professionalFeesOverride: cons > 0 ? cons : undefined,
     statutoryFixed: statHead > 0 ? statHead : cs.statutoryFixed,
     projectManagementFixed: mgmt > 0 ? mgmt : cs.projectManagementFixed,

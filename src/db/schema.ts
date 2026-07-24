@@ -189,6 +189,12 @@ export interface CostStack {
   regionalLoadingPct?: number
   posContributionPct?: number
   buildRateType?: string   // which building-type preset the rate came from (resi/commercial/pbsa/hotel…)
+  // Which figure drives Construction on the Summary + feasibility:
+  //   'itemised' → the Construction sub-tab line-item total wins (build rate ignored)
+  //   'topdown'  → GBA × build rate drives it (+ contingency/prelims), itemised set aside
+  // Undefined = auto (itemised when the Construction tab has line items, else top-down),
+  // which preserves every existing project's current behaviour.
+  constructionSource?: 'topdown' | 'itemised'
   // JW: current delivery phase the project is IN — surfaced on the Timeline &
   // Dashboard so everyone can see where each project sits.
   currentPhase?: CostPhase

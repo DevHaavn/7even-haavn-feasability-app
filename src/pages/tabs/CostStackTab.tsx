@@ -607,9 +607,17 @@ export default function CostStackTab({ projectId }: Props) {
   const mgmtTotal = sumSec(detailed.management)
   const mktTotal = sumSec(detailed.marketing)
 
+  // Construction source (Option 2): the Construction tab total wins ('itemised'),
+  // or GBA × build rate drives it ('topdown'). Undefined = auto: itemised when the
+  // Construction tab has line items, else top-down — so existing projects are
+  // unchanged until someone flips the switch.
+  const hasItemisedConstruction = hardTotal > 0
+  const constrSource: 'topdown' | 'itemised' = data.constructionSource || (hasItemisedConstruction ? 'itemised' : 'topdown')
+  const useItemisedConstruction = constrSource === 'itemised' && hasItemisedConstruction
+
   const result = calculateCostStack({
     ...data,
-    constructionOverride: hardTotal > 0 ? hardTotal : undefined,
+    constructionOverride: useItemisedConstruction ? hardTotal : undefined,
     professionalFeesOverride: consTotal > 0 ? consTotal : undefined,
     statutoryFixed: statTotal > 0 ? statTotal : data.statutoryFixed,
     projectManagementFixed: mgmtTotal > 0 ? mgmtTotal : data.projectManagementFixed,
@@ -713,17 +721,37 @@ export default function CostStackTab({ projectId }: Props) {
             </div>
 
             <InnerSection label="Construction">
+              {/* Option 2 — construction source toggle. Only meaningful when the
+                  Construction tab is itemised; otherwise top-down is the only source. */}
+              {hasItemisedConstruction && (
+                <div style={{ margin: '2px 0 12px', padding: '11px 13px', background: 'var(--card-2, rgba(0,0,0,0.035))', border: '1px solid var(--line)', borderRadius: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Construction source</span>
+                    <span style={{ display: 'inline-flex', border: '1px solid var(--line)', borderRadius: 8, overflow: 'hidden' }}>
+                      {(['topdown', 'itemised'] as const).map(s => {
+                        const on = constrSource === s
+                        return (
+                        <button key={s} onClick={() => update('constructionSource', s)}
+                          style={{ border: 'none', padding: '7px 14px', fontSize: 11, fontWeight: on ? 700 : 600, cursor: 'pointer', background: on ? '#bfe6cd' : 'transparent', color: on ? '#0f3d24' : 'var(--ink-3)' }}>
+                          {on ? '✓ ' : ''}{s === 'topdown' ? 'Top-down build rate' : 'Itemised Construction tab'}
+                        </button>
+                        )
+                      })}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '8px 0 0', lineHeight: 1.5 }}>
+                    {useItemisedConstruction
+                      ? <>Using the <b>Construction tab</b> total <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(hardTotal)}</span> — the build rate &amp; GBA below are ignored (contingency &amp; prelims are included there).</>
+                      : <>Using <b>GBA × build rate</b> → construction <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(result.construction)}</span>. The itemised Construction tab ({fmt(hardTotal)}) is set aside while this is selected.</>}
+                  </p>
+                </div>
+              )}
               <FieldRow label="GBA (sqm)" note="From Site & Design">
                 <span className="text-[var(--ink)] font-mono text-sm">{site.resiGBA.toLocaleString()}</span>
               </FieldRow>
               <FieldRow label="Build rate ($/sqm)" note="Standard rate for the building type">
                 <NumberInput value={data.buildRatePerSqm} onChange={v => update('buildRatePerSqm', v)} prefix="$" step={50} />
               </FieldRow>
-              {hardTotal > 0 && (
-                <p className="text-[10px] mt-1" style={{ color: 'var(--gold)' }}>
-                  Construction is itemised — feasibility uses the <b>Construction tab</b> total <span className="font-mono font-semibold">{fmt(hardTotal)}</span> (contingency & prelims included there); the rate above is ignored.
-                </p>
-              )}
               <FieldRow label="Regional loading" note="Locational impact layered on the standard rate (e.g. +8%)">
                 <PctInput value={data.regionalLoadingPct ?? 0} onChange={v => update('regionalLoadingPct', v)} />
               </FieldRow>
