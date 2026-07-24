@@ -1,6 +1,7 @@
 import React from 'react'
 import { DesignCredit } from './ui'
 import { AtriumApex } from './AtriumMark'
+import UpdateButton from './UpdateButton'
 
 export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' | 'glass' }) {
   const light = tone === 'light'
@@ -51,6 +52,8 @@ export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' |
         <a href="https://www.haavn.au" target="_blank" rel="noopener noreferrer" className={plain ? undefined : 'glass-btn'} style={haavnLink}>
           HAAVN.AU ↗
         </a>
+        {/* Get-latest — same glass footer pill, so users never need Cmd+Shift+R. */}
+        <UpdateButton tone={tone} />
       </div>
       <DesignCredit style={light ? { color: '#9AA2A4' } : glass ? { color: 'rgba(255,255,255,0.44)' } : undefined} />
     </div>

@@ -11,7 +11,6 @@ import IntroScreen from './pages/IntroScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import ProjectManagePanel from './components/ProjectManagePanel'
-import UpdateButton from './components/UpdateButton'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
 import { publishFeasSnapshot } from './lib/feasBridge'
@@ -138,7 +137,6 @@ export default function App() {
           <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
         </div>
       )}
-      <UpdateButton />
     </RoleContext.Provider>
   )
 
@@ -155,7 +153,6 @@ export default function App() {
             <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
           </div>
         )}
-        <UpdateButton />
       </RoleContext.Provider>
     )
   }
@@ -169,7 +166,7 @@ export default function App() {
       ) : (
         <div className="h-screen flex flex-col bg-charcoal overflow-hidden">
           {syncing && (
-            <div style={{ position: 'fixed', bottom: 62, right: 18, zIndex: 9000, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(196,151,58,0.3)', padding: '5px 10px', backdropFilter: 'blur(6px)' }}>
+            <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 9000, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#C4973A', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(196,151,58,0.3)', padding: '5px 10px', backdropFilter: 'blur(6px)' }}>
               ⟳ Syncing…
             </div>
           )}
@@ -199,7 +196,6 @@ export default function App() {
           }
         </div>
       )}
-      <UpdateButton />
     </RoleContext.Provider>
   )
 }
