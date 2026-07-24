@@ -790,12 +790,21 @@ function newChecklistState(seed){ // seed = fraction 0..1 completed sequentially
  const done={};let all=[];CHECKLIST.forEach(g=>g.items.forEach(it=>all.push(it[0])));
  const cut=Math.round(all.length*(seed||0));all.forEach((id,i)=>done[id]=i<cut);return done;
 }
-// Project managers across the business
-const PMS={
- james:{name:'James Bardas',init:'JB',role:'Director · Superintendent',trend:2},
- luke:{name:'Luke Davies',init:'LD',role:'Senior Project Manager',trend:-3},
- john:{name:'John Mercer',init:'JM',role:'Project Manager',trend:5}
+// Project managers across the business. Editable + persisted (saved in the state
+// blob, so it syncs to the team via capital_kv and survives reloads). `cost` is the
+// PM's annual cost to the business; `rate` an optional day rate. These seed the
+// roster on first run; the Senior Management screen lets you add/edit/remove PMs.
+let PMS={
+ james:{name:'James Bardas',init:'JB',role:'Director · Superintendent',trend:2,cost:280000,rate:1400},
+ luke:{name:'Luke Davies',init:'LD',role:'Senior Project Manager',trend:-3,cost:195000,rate:1050},
+ john:{name:'John Mercer',init:'JM',role:'Project Manager',trend:5,cost:155000,rate:850}
 };
+// Stable key from a name for a newly-added PM (first name, de-duped).
+function pmKeyFromName(nm){
+ let base=(nm||'pm').trim().toLowerCase().split(/\s+/)[0].replace(/[^a-z0-9]/g,'')||'pm';
+ let k=base,i=2; while(PMS[k]) k=base+i++; return k;
+}
+function pmInitials(nm){return (nm||'').trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'PM';}
 // Standard client-side PM milestone lifecycle
 const MILESTONES=['Contract executed','Design development complete','Construction documentation issued','Building permit issued','Site possession','Construction commenced','Structure complete','Lock-up','Practical completion','Final completion & handover'];
 function buildProgramme(p,doneCount,lateIdx){
@@ -1863,12 +1872,13 @@ function bindPortal(){
 
 /* ---- Senior Management dashboard ---- */
 function viewManagement(){
- const keys=['james','luke','john'];
+ const keys=Object.keys(PMS);
  const totalVal=PROJECTS.reduce((a,p)=>a+p.sum,0);
  const live=PROJECTS.filter(p=>p.status==='live');
- const avgSetup=Math.round(PROJECTS.reduce((a,p)=>a+clDone(p).pct,0)/PROJECTS.length);
+ const avgSetup=PROJECTS.length?Math.round(PROJECTS.reduce((a,p)=>a+clDone(p).pct,0)/PROJECTS.length):0;
  const behind=live.filter(p=>p.sched<0).length;
  const exposure=live.reduce((a,p)=>a+Math.min(p.sched,0),0);
+ const teamCost=keys.reduce((a,k)=>a+(+PMS[k].cost||0),0);
  const M=keys.map(k=>Object.assign({k,init:PMS[k].init,name:PMS[k].name,role:PMS[k].role},pmMetrics(k)));
  let html=`<div class="phead"><div><div class="n">00 · OVERSIGHT</div><h1>Senior Management</h1>
    <div class="sub">Business-wide performance across every engagement and project manager — a live snapshot of how James, Luke and John are running their books.</div><div class="liv">${livery()}</div></div>
@@ -1878,8 +1888,9 @@ function viewManagement(){
    <div class="wcard"><div class="bz"></div><div class="k">Portfolio setup avg</div><div class="v">${avgSetup}%</div><div class="d">across all engagements</div></div>
    <div class="wcard"><div class="bz"></div><div class="k">Projects behind programme</div><div class="v" style="${behind>0?'color:var(--red)':''}">${behind}</div><div class="d">of ${live.length} live projects</div></div>
    <div class="wcard"><div class="bz"></div><div class="k">Schedule exposure</div><div class="v" style="${exposure<0?'color:var(--red)':''}">${exposure<0?exposure+'d':'On track'}</div><div class="d">total days behind programme</div></div>
+   <div class="wcard"><div class="bz"></div><div class="k">PM cost · annual</div><div class="v">${money(teamCost)}</div><div class="d">${keys.length} manager${keys.length===1?'':'s'}${totalVal>0?' · '+(teamCost/totalVal*100).toFixed(2)+'% of book':''}</div></div>
   </div>
-  <div class="sec">${livery()}<h2>Project manager performance</h2></div>
+  <div class="sec">${livery()}<h2>Project manager performance</h2><div class="rt"><button class="btn sm" id="pmAdd">+ Add / edit PMs</button></div></div>
   <div class="pmgrid">${M.map(pmCard).join('')}</div>
   ${(()=>{const watch=watchAll();return watch.length?`<div class="sec">${livery()}<h2>Follow-up watch</h2><div class="rt"><span class="mono" style="font-size:11px;color:var(--red-txt)">${watch.length} client items aging — nudge the PM</span></div></div>
   <div class="mlistwrap"><div class="mlist" style="min-width:820px">
@@ -1900,13 +1911,17 @@ function viewManagement(){
  return html;
 }
 function pmCard(m){
- const tr=PMS[m.k].trend;const cvNeg=m.costVarTotal<0;
+ const tr=PMS[m.k].trend||0;const cvNeg=m.costVarTotal<0;
+ const cost=+PMS[m.k].cost||0; const lev=cost>0?Math.round(m.value/cost):0;
  return `<div class="pmcard"><div class="bz"></div><div class="pmc">
   <div class="pmhead"><div class="pmav">${m.init}</div><div style="flex:1"><div class="nm">${m.name}</div><div class="ro">${m.role}</div></div>
-   <div class="pmidx"><div class="iv">${m.idx}</div><div class="il">Delivery index</div><div class="tr ${tr>=0?'up':'down'}">${tr>=0?'▲ +'+tr:'▼ '+tr}</div></div></div>
+   <div class="pmidx"><div class="iv">${m.idx}</div><div class="il">Delivery index</div><div class="tr ${tr>=0?'up':'down'}">${tr>=0?'▲ +'+tr:'▼ '+tr}</div></div>
+   <button class="btn sm pmEdit" data-k="${m.k}" title="Edit ${esc(m.name)}" style="margin-left:8px;flex:0 0 auto">Edit</button></div>
   <div class="pmstats">
    <div class="pmstat"><div class="sl">Projects</div><div class="sv">${m.ps.length}<span style="font-size:11px;color:var(--sil-4);font-weight:400"> · ${m.hold} hold</span></div></div>
    <div class="pmstat"><div class="sl">Book value</div><div class="sv">${money(m.value)}</div></div>
+   <div class="pmstat"><div class="sl">Annual cost</div><div class="sv">${cost?money(cost):'—'}</div></div>
+   <div class="pmstat"><div class="sl">Managed ÷ cost</div><div class="sv ${lev>=40?'pos':''}">${cost?('$'+lev):'—'}</div></div>
    <div class="pmstat"><div class="sl">On programme</div><div class="sv ${m.onProg>=m.live?'pos':''}">${m.onProg}/${m.live}</div></div>
    <div class="pmstat"><div class="sl">Avg setup</div><div class="sv">${m.avgSetup}%</div></div>
    <div class="pmstat"><div class="sl">Cost variance</div><div class="sv ${cvNeg?'neg':'pos'}">${varMoney(m.costVarTotal)}</div></div>
@@ -1925,7 +1940,7 @@ function mRow(p){const c=clDone(p);const sp=spendPct(p);const s=p.sched;
  const scls=s<0?'neg':(s>0?'pos':'zero');const stxt=p.status==='hold'?'—':(s===0?'On time':(s>0?'+'+s+'d':s+'d'));
  return `<div class="mrow" data-pid="${p.id}">
   <div><div class="mp">${esc(p.name)}</div><div class="mpid">${p.id} · ${esc(p.suburb)}</div></div>
-  <div class="mpm"><span class="mav">${PMS[p.pmKey].init}</span><span class="mnm">${p.pm.split(' ')[0]}</span></div>
+  <div class="mpm"><span class="mav">${(PMS[p.pmKey]||{init:'—'}).init}</span><span class="mnm">${(p.pm||'—').split(' ')[0]}</span></div>
   <div><span class="pill ${p.status}"><i></i>${p.status==='live'?'Live':'Hold'}</span></div>
   <div class="mval">${p.sum?money(p.sum):'—'}</div>
   <div class="mmini"><span class="mt"><span class="mf" style="width:${c.pct}%"></span></span><span class="mpct">${c.pct}%</span></div>
@@ -1936,12 +1951,55 @@ function mRow(p){const c=clDone(p);const sp=spendPct(p);const s=p.sched;
 function watchRow(x){const p=x.p,a=x.a;
  return `<div class="arow" data-pid="${p.id}"><div class="aref">${a.ref}<span class="atype">${a.type}</span></div>
   <div class="atitle"><div class="at">${esc(a.title)}</div><div class="ap">${esc(p.name)}${a.blocks?' · <span style="color:var(--red-txt)">blocks</span>':''}</div></div>
-  <div class="mpm"><span class="mav">${PMS[p.pmKey].init}</span><span class="mnm">${p.pm.split(' ')[0]}</span></div>
+  <div class="mpm"><span class="mav">${(PMS[p.pmKey]||{init:'—'}).init}</span><span class="mnm">${(p.pm||'—').split(' ')[0]}</span></div>
   <div>${dueChip(a.due)}</div>
   <div class="alast mono">${a.last?('chased '+fmtDay(a.last)):'not chased'}</div>
   <div style="text-align:right"><button class="btn sm nudge" data-pm="${p.pmKey}" data-ref="${a.ref}">Nudge</button></div></div>`;
 }
+/* ---- Project-manager editor (add / edit / remove a real PM + their cost) ---- */
+function openPmEdit(key){
+ const isNew=!key||!PMS[key];
+ const pm=isNew?{name:'',init:'',role:'Project Manager',cost:0,rate:0,trend:0}:PMS[key];
+ let ov=document.getElementById('pmedit');
+ if(!ov){ ov=document.createElement('div'); ov.id='pmedit'; document.body.appendChild(ov); }
+ ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(6,8,12,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px';
+ ov.innerHTML=`<div style="width:min(440px,100%);background:var(--card,#12161c);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)">
+   <div style="padding:18px 20px;border-bottom:1px solid var(--line,rgba(255,255,255,.1))"><div style="font-family:var(--mono,monospace);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute,#8a93a0)">Project manager</div><div style="font-size:20px;font-weight:600;margin-top:2px">${isNew?'Add a project manager':'Edit '+esc(pm.name)}</div></div>
+   <div style="padding:18px 20px;display:grid;gap:13px">
+    <label><span class="pmlab">Full name</span><input id="pe_name" value="${esc(pm.name)}" placeholder="e.g. Sarah Nguyen"></label>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px">
+     <label><span class="pmlab">Initials</span><input id="pe_init" value="${esc(pm.init)}" maxlength="3" placeholder="auto"></label>
+     <label><span class="pmlab">Role / title</span><input id="pe_role" value="${esc(pm.role)}" placeholder="Project Manager"></label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+     <label><span class="pmlab">Annual cost ($)</span><input id="pe_cost" inputmode="numeric" value="${pm.cost||''}" placeholder="180000"></label>
+     <label><span class="pmlab">Day rate ($)</span><input id="pe_rate" inputmode="numeric" value="${pm.rate||''}" placeholder="900"></label>
+    </div>
+    <label><span class="pmlab">Trend arrow (delivery index ±)</span><input id="pe_trend" inputmode="numeric" value="${pm.trend||0}" placeholder="0"></label>
+   </div>
+   <div style="padding:15px 20px;border-top:1px solid var(--line,rgba(255,255,255,.1));display:flex;justify-content:space-between;align-items:center">
+    ${isNew?'<span></span>':`<button class="btn sm" id="pe_del" style="color:var(--red,#e0524a);border-color:rgba(224,82,74,.4)">Remove</button>`}
+    <div style="display:flex;gap:8px"><button class="btn sm" id="pe_cancel">Cancel</button><button class="btn sm btn-green" id="pe_save">${isNew?'Add PM':'Save'}</button></div>
+   </div>
+ </div>`;
+ ov.querySelectorAll('input').forEach(i=>i.style.cssText='width:100%;margin-top:5px;background:var(--field,rgba(255,255,255,.05));border:1px solid var(--line,rgba(255,255,255,.14));border-radius:9px;padding:9px 11px;color:var(--ink,#e8edf2);font-size:14px;outline:none;box-sizing:border-box');
+ ov.querySelectorAll('.pmlab').forEach(s=>s.style.cssText='font-family:var(--mono,monospace);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute,#8a93a0)');
+ const close=()=>ov.remove();
+ ov.onclick=e=>{ if(e.target===ov) close(); };
+ $('#pe_cancel').onclick=close;
+ const del=$('#pe_del'); if(del) del.onclick=()=>{ const n=pmProjects(key).length; if(n){ toast('Reassign '+n+' project'+(n===1?'':'s')+' before removing '+pm.name+'.'); return; } delete PMS[key]; persist(); close(); render(); toast(pm.name+' removed from the team.'); };
+ $('#pe_save').onclick=()=>{
+  const nm=$('#pe_name').value.trim(); if(!nm){ $('#pe_name').focus(); toast('Name is required.'); return; }
+  const rec={ name:nm, init:($('#pe_init').value.trim()||pmInitials(nm)).toUpperCase().slice(0,3), role:$('#pe_role').value.trim()||'Project Manager', cost:+($('#pe_cost').value.replace(/[^0-9]/g,''))||0, rate:+($('#pe_rate').value.replace(/[^0-9]/g,''))||0, trend:parseInt($('#pe_trend').value,10)||0 };
+  const k=isNew?pmKeyFromName(nm):key;
+  PMS[k]=rec;
+  PROJECTS.forEach(p=>{ if(p.pmKey===k) p.pm=rec.name; });   // keep project labels in sync
+  persist(); close(); render(); toast(isNew?(nm+' added to the team.'):(nm+' updated.'));
+ };
+}
 function bindManagement(){
+ const add=$('#pmAdd'); if(add) add.onclick=()=>openPmEdit(null);
+ $('#main').querySelectorAll('.pmEdit').forEach(b=>b.onclick=e=>{e.stopPropagation();openPmEdit(b.dataset.k);});
  $('#main').querySelectorAll('.mchip').forEach(b=>b.onclick=()=>{mgmtFilter=b.dataset.f;render();});
  $('#main').querySelectorAll('.pmproj').forEach(el=>el.onclick=()=>go('project',el.dataset.pid));
  $('#main').querySelectorAll('.mrow').forEach(el=>el.onclick=()=>go('project',el.dataset.pid));
@@ -2103,7 +2161,7 @@ function viewWizard(){
     <div class="fgrid">
      <div class="field"><label>Principal</label><input id="f_principal" placeholder="Principal Entity Pty Ltd"></div>
      <div class="field"><label>Principal representative</label><input id="f_rep" placeholder="Name"></div>
-     <div class="field"><label>Project Manager (Haavn)</label><select id="f_pm"><option value="james">James Bardas — Director</option><option value="luke">Luke Davies — Senior PM</option><option value="john">John Mercer — PM</option></select><span class="hint">Assigns the PM scorecard in Senior Mgmt</span></div>
+     <div class="field"><label>Project Manager (Haavn)</label><select id="f_pm">${Object.keys(PMS).map(k=>`<option value="${k}">${esc(PMS[k].name)} — ${esc(PMS[k].role.split('·')[0].trim())}</option>`).join('')}</select><span class="hint">Assigns the PM scorecard in Senior Mgmt</span></div>
      <div class="field"><label>Architect</label><input id="f_arch" placeholder="Firm"></div>
      <div class="field full"><label>Builder</label><input id="f_builder" placeholder="Contractor Pty Ltd — or [TBC — tender]"></div>
     </div></div>
@@ -2212,7 +2270,7 @@ function asFlash(){
 function persist(){
  clearTimeout(_saveT);
  _saveT=setTimeout(()=>{
-  const blob={projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE};
+  const blob={projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE,pms:PMS};
   const json=JSON.stringify(blob);
   if(json===_lastJSON) return;
   _lastJSON=json;
@@ -2227,12 +2285,14 @@ function loadState(){
   if(Array.isArray(s.projects)&&s.projects.length) PROJECTS=s.projects;
   if(Array.isArray(s.meetings)) MEETINGS=s.meetings;
   if(Array.isArray(s.payables)) PAYABLES=s.payables;
+  if(s.pms&&typeof s.pms==='object'&&Object.keys(s.pms).length) PMS=s.pms;
   if(typeof s.light==='boolean') LIGHTMODE=s.light; } }catch(e){}
 }
 function applyRemote(val){
  if(Array.isArray(val.projects)&&val.projects.length) PROJECTS=val.projects;
  if(Array.isArray(val.meetings)) MEETINGS=val.meetings;
  if(Array.isArray(val.payables)) PAYABLES=val.payables;
+ if(val.pms&&typeof val.pms==='object'&&Object.keys(val.pms).length) PMS=val.pms;
  if(typeof val.light==='boolean'){ LIGHTMODE=val.light; setThemeBtn(); }
  try{ localStorage.setItem(SKEY,JSON.stringify(val)); }catch(e){}
  if(route.view==='project') renderProject(); else render();
@@ -2243,7 +2303,7 @@ const Cloud={ sb:null, ready:false, _last:'', _pushT:null, _emptyRemote:false,
   this.sb = createClient(CLOUD_URL, CLOUD_ANON, { realtime:{ params:{ eventsPerSecond:5 } } });
   const ok = await this.pull(); if(!ok){ this.ready=false; return; }
   this.ready=true;
-  if(this._emptyRemote){ this._last=''; this.push({projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE}); }
+  if(this._emptyRemote){ this._last=''; this.push({projects:PROJECTS,meetings:MEETINGS,payables:PAYABLES,light:LIGHTMODE,pms:PMS}); }
   this.subscribe();
  }catch(e){ this.ready=false; } },
  async pull(){ try{
