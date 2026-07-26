@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>HAAVN · Black Series — Feasibility Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
   --sh:0 1px 2px rgba(18,18,18,.04),0 8px 30px rgba(18,18,18,.06);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;overscroll-behavior:none}
 body{background:var(--bone);color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 /* ambient sculptural architecture backdrop (recreated) */
 .appbg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:
@@ -46,7 +46,7 @@ html.embedded .home-btn{display:none}
 .crumb .cr-pre{color:#8C8677;font-weight:500}
 .topright{margin-left:auto;display:flex;align-items:center;gap:14px}
 /* ===== SIDEBAR (ATRIUM-style) ===== */
-.sidebar{position:fixed;left:0;top:52px;bottom:0;width:272px;z-index:45;overflow-y:auto;
+.sidebar{position:fixed;left:0;top:52px;bottom:0;width:272px;z-index:45;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
   background:linear-gradient(180deg,#16130F 0%,#12100C 100%);border-right:1px solid #262119;
   display:flex;flex-direction:column}
 .sb-brand{display:flex;align-items:center;gap:12px;padding:22px 24px 16px}

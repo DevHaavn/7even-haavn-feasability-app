@@ -44,8 +44,26 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Every scroll pane keeps its scroll to itself — no chaining/bounce to the page
+   (html/body are locked to `none` below, which wins on specificity). */
+* { overscroll-behavior: contain; }
 
 html, body, #root { height: 100%; }
+/* Dynamic viewport height — tracks the visible area as the mobile address bar
+   shows/hides, so the app frame never reflows or "jumps" while scrolling. */
+@supports (height: 100dvh) { html, body, #root { height: 100dvh; } }
+
+/* Mobile: lock the page so only inner panes scroll — no whole-page rubber-band
+   bounce, no address-bar reflow. overscroll-behavior:none kills the iOS
+   rubber-band; the app owns scrolling via its own overflow-auto containers. */
+html, body { overflow: hidden; overscroll-behavior: none; }
+#root { overflow: hidden; }
+.h-screen { height: 100% !important; }   /* fill #root (dvh), not 100vh */
+/* Inner scroll panes: momentum + no scroll-chaining bounce past their edges. */
+.workspace-content, .overflow-auto, .overflow-y-auto, .overflow-scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 
 body {
   font-family: var(--font-body);
