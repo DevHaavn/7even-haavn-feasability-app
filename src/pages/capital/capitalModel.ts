@@ -279,7 +279,7 @@ const withStack = (p: CapProject): CapProject => ({
 })
 
 const SEED_PROJECTS: CapProject[] = [
-  P('01', 'St Village Preston', '20–30 Newman St, Preston VIC', 'BTR', 'live', 'Construction', 78, 96, 19.4, 1.9, 'seed-preston-001'),
+  P('01', 'St Village Preston', '2-3 Newman St, Preston VIC', 'BTR', 'live', 'Construction', 78, 96, 19.4, 1.9, 'seed-preston-001'),
   P('02', '5IVE Hotels Caloundra', '31 Esplanade, Caloundra QLD', 'HOTEL', 'live', 'Permits & Design', 64, 58, 22.1, 2.1),
   P('03', 'Cunningham Place', '35 Corio St, Geelong VIC', 'MIXED', 'live', 'Land Settlement', 52, 47, 18.2, 1.8),
   P('04', 'Waurnvale Drive', 'Belmont, Geelong VIC', 'BTS', 'live', 'Feasibility → DA', 41, 38, 20.5, 1.7),

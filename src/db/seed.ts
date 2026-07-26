@@ -41,8 +41,8 @@ export function seedProjectsIfEmpty() {
   } else {
     // Patch address if it was seeded with the old value
     const p = existing.find(x => x.id === 'seed-preston-001')
-    if (p && p.address !== '20-30 Newman Street, Preston VIC 3072') {
-      db.saveProject({ ...p, address: '20-30 Newman Street, Preston VIC 3072', updatedAt: new Date().toISOString() })
+    if (p && p.address !== '2-3 Newman Street, Preston VIC 3072') {
+      db.saveProject({ ...p, address: '2-3 Newman Street, Preston VIC 3072', updatedAt: new Date().toISOString() })
     }
     // One-time repair: an earlier build corrupted Preston's unit mix (NSA/unit
     // per unit was overwritten with the counts, giving a huge NSA discrepancy).
@@ -779,7 +779,7 @@ function seedPreston() {
   db.saveProject({
     id: pid,
     name: 'St Village Preston',
-    address: '20-30 Newman Street, Preston VIC 3072',
+    address: '2-3 Newman Street, Preston VIC 3072',
     suburb: 'Preston',
     state: 'VIC',
     zone: 'Mixed Use Zone',
@@ -1399,7 +1399,7 @@ function seedHAAVN() {
   db.saveProject({
     id: pid,
     name: 'St Village Preston · BTR',
-    address: '20-30 Newman Street, Preston VIC 3072',
+    address: '2-3 Newman Street, Preston VIC 3072',
     suburb: 'Preston',
     state: 'VIC',
     zone: 'Mixed Use',
