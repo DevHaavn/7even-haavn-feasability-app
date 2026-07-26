@@ -4,8 +4,7 @@ import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
-import ThemeToggle from '../../components/ThemeToggle'
-import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
+import { atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
 
 export type HMPillarId = 'crm' | 'meetings' | 'social'
@@ -49,7 +48,9 @@ export const HM_PILLARS: HMPillar[] = [
 
 export default function HaavnManagementBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
-  const theme = useAtriumTheme()
+  // The Management Hub is a back-of-house command surface — always dark as
+  // standard (like Capital Base), regardless of the studio's light/dark setting.
+  const theme: 'light' | 'dark' = 'dark'
   const pal = atriumPalette(theme)
   const role = useRole()
   // Pillar 01 (ATRIUM Management System / CRM) is director-only — consultants
@@ -85,7 +86,6 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       {/* Header */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
         <button onClick={onClose} style={atriumNavPill}>ATRIUM</button>
-        <ThemeToggle style={{ marginLeft: 12 }} />
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ textAlign: 'right' }}>
             {/* ATRIUM leads the header on every surface, same as Capital Base.
