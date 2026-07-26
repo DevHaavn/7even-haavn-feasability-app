@@ -81,7 +81,7 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 /* 214px labelled rail kept as-is. The preview mock draws a 64px icon-only rail,
    but playbook rule 2 says the mock is look-and-feel, not a structure spec —
    this rail carries labels and counts the icon rail has nowhere to put. */
-.rail{flex:0 0 214px;background:linear-gradient(180deg,#0f151c,#0b1015);border-right:1px solid var(--steel);display:flex;flex-direction:column;padding:14px 12px;gap:3px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.rail{flex:0 0 214px;background:linear-gradient(180deg,#0f151c,#0b1015);border-right:1px solid var(--steel);display:flex;flex-direction:column;padding:14px 12px;gap:3px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .rail .grp{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-4);padding:14px 10px 6px}
 .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;color:var(--sil-3);font-size:13.5px;cursor:pointer;border:1px solid transparent;transition:.14s;text-align:left;width:100%;background:none;font-weight:450}
 .navitem:hover{background:rgba(255,255,255,.04);color:var(--sil-1)}
@@ -111,7 +111,7 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 .rail .newbtn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* main scroll */
-.main{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;position:relative}
+.main{flex:1;min-width:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 .main.dark{background:var(--void)}
 /* The architectural plate, same asset and same scrim stops as the Capital Base
    gateway — one surface across the whole product rather than a gradient here
@@ -549,7 +549,7 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 .dchip.lt{background:var(--grey-100);color:var(--mute)}
 .dchip.lt.neg{color:var(--red);background:rgba(180,85,63,.1)}
 .dchip.lt.due{color:var(--ink);background:var(--grey-200)}
-.loglist{max-height:520px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.loglist{max-height:520px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .logrow{display:flex;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line-2)}
 .logrow:last-child{border-bottom:none}
 .logrow .logd{font-family:var(--mono);font-size:10px;color:var(--f-600);width:44px;flex:0 0 auto;padding-top:2px}
