@@ -8,9 +8,11 @@ import { AtriumApex } from '../../components/AtriumMark'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
+import { useRole } from '../../lib/role'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
+  const role = useRole()
   const theme = useAtriumTheme()
   const pal = atriumPalette(theme)
   // Feasibility tab in the embedded Management System can hand off to the studio.
@@ -23,7 +25,9 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'crm') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
-        <iframe title="ATRIUM — Management System" src="/atrium-management.html"
+        {/* Consultants (external) get the full Management System EXCEPT the
+            director-only Senior Management module (?role=consultant strips it). */}
+        <iframe title="ATRIUM — Management System" src={`/atrium-management.html${role === 'external' ? '?role=consultant' : ''}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
         {/* Top-left, under the Management System's own 58px topbar and clear of its
             64px icon rail — where you look for a back control. It was bottom-right,

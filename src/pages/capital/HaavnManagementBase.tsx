@@ -5,7 +5,6 @@ import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
 import { atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
-import { useRole } from '../../lib/role'
 
 export type HMPillarId = 'crm' | 'meetings' | 'social'
 
@@ -52,13 +51,14 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
   // standard (like Capital Base), regardless of the studio's light/dark setting.
   const theme: 'light' | 'dark' = 'dark'
   const pal = atriumPalette(theme)
-  const role = useRole()
-  // Pillar 01 (ATRIUM Management System / CRM) is director-only — consultants
-  // (external) never see the card and can never enter it.
-  const canManagement = role !== 'external'
-  const visiblePillars = HM_PILLARS.filter(p => canManagement || p.id !== 'crm')
+  // Pillar 01 (ATRIUM Management System / CRM) is now open to EVERY login,
+  // including the 7EVEN consultant (external), so consultants can create and run
+  // their own projects and use the CRM. The consultant view still hides the
+  // director-only Senior Management module (HaavnManagementPillar renders the
+  // system with ?role=consultant for external); everything else is fully theirs.
+  const visiblePillars = HM_PILLARS
 
-  if (pillar && (canManagement || pillar !== 'crm')) {
+  if (pillar) {
     const p = HM_PILLARS.find(x => x.id === pillar)!
     return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose} />
   }
