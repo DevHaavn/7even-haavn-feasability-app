@@ -721,9 +721,11 @@ export default function CostStackTab({ projectId }: Props) {
             </div>
 
             <InnerSection label="Construction">
-              {/* Option 2 — construction source toggle. Only meaningful when the
-                  Construction tab is itemised; otherwise top-down is the only source. */}
-              {hasItemisedConstruction && (
+              {/* Option 2 — construction source toggle. Shown on EVERY project so
+                  the control is consistent; when the Construction tab has no line
+                  items yet, picking "itemised" simply falls back to top-down until
+                  lines are added (the note explains this). */}
+              {(
                 <div style={{ margin: '2px 0 12px', padding: '11px 13px', background: 'var(--card-2, rgba(0,0,0,0.035))', border: '1px solid var(--line)', borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Construction source</span>
@@ -742,7 +744,9 @@ export default function CostStackTab({ projectId }: Props) {
                   <p style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '8px 0 0', lineHeight: 1.5 }}>
                     {useItemisedConstruction
                       ? <>Using the <b>Construction tab</b> total <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(hardTotal)}</span> — the build rate &amp; GBA below are ignored (contingency &amp; prelims are included there).</>
-                      : <>Using <b>GBA × build rate</b> → construction <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(result.construction)}</span>. The itemised Construction tab ({fmt(hardTotal)}) is set aside while this is selected.</>}
+                      : constrSource === 'itemised'
+                        ? <><b>Itemised</b> selected, but the <b>Construction tab</b> has no line items yet — add them there to drive construction from the itemised total. Until then it falls back to <b>GBA × build rate</b> → <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(result.construction)}</span>.</>
+                        : <>Using <b>GBA × build rate</b> → construction <span style={{ fontFamily: 'monospace', color: 'var(--ink)', fontWeight: 600 }}>{fmt(result.construction)}</span>.{hasItemisedConstruction ? <> The itemised Construction tab ({fmt(hardTotal)}) is set aside while this is selected.</> : null}</>}
                   </p>
                 </div>
               )}
