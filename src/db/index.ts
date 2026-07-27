@@ -149,7 +149,14 @@ export function getEffectiveLandCost(projectId: string): number {
 // ── Mix Scenarios ─────────────────────────────────────────────────────────────
 
 export function getMixScenarios(projectId: string): MixScenario[] {
+  // Oldest-first, deterministically. The cloud pull hydrates these in DB row
+  // order, which Postgres can reshuffle on any UPDATE (an edited scenario jumps
+  // to a new physical position). The BTR/Mix tabs default to scenarios[0], so
+  // relying on row order made the "primary" scenario shown flip unpredictably.
+  // createdAt-ascending pins the first-created scenario as the stable default.
   return load<MixScenario[]>(`scenarios:${projectId}`, [])
+    .slice()
+    .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''))
 }
 
 export function saveMixScenario(scenario: MixScenario) {
