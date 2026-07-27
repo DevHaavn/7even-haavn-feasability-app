@@ -3,7 +3,7 @@ import { useStore } from '../store'
 import { Project7Mark } from '../components/ui'
 import AtriumBuild from '../components/AtriumBuild'
 import { seedProjectsIfEmpty } from '../db/seed'
-import { getCashflow } from '../db'
+import { getCashflow, getDeletedProjectIds } from '../db'
 import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
@@ -94,8 +94,14 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
 
   // Archived projects drop off the live board (restored via the Archive dropdown).
   // We use the persisted `status` field ('archived') so it survives cloud sync.
-  const live = projects.filter(p => p.status !== 'archived' && p.status !== 'deleted')
-  const archivedProjects = projects.filter(p => p.status === 'archived')
+  // A project you deleted stays hidden on THIS browser no matter what the cloud
+  // says. A stale tab / old cached build elsewhere can resurrect the row (reset
+  // its status to on-hold and push it back); the local delete tombstone means we
+  // still never show it here, and the load-time re-assert (seed) re-deletes it in
+  // the cloud so it propagates once the old build is gone.
+  const tombstoned = new Set(getDeletedProjectIds())
+  const live = projects.filter(p => p.status !== 'archived' && p.status !== 'deleted' && !tombstoned.has(p.id))
+  const archivedProjects = projects.filter(p => p.status === 'archived' && !tombstoned.has(p.id))
   // 7EVEN side = 7even + joint projects (what the master/admin manages).
   const sevenProjects = live.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
   // HAAVN Management manages EVERYTHING — every 7even project is mirrored here

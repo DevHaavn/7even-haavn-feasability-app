@@ -13,6 +13,17 @@ export function seedProjectsIfEmpty() {
   const tombstoned = new Set(db.getDeletedProjectIds())
   const missing = (id: string) => !ids.has(id) && !tombstoned.has(id)
 
+  // Self-heal deletions. A stale tab or an old cached build elsewhere can
+  // resurrect a project the user deleted here (reset its status to on-hold and
+  // push it back to the cloud). For every id in this browser's delete tombstone
+  // that has reappeared as non-deleted, re-assert the soft-delete so it sticks
+  // and propagates. Runs on load; the ProjectList already hides tombstoned ids
+  // regardless, so the user never sees the flicker.
+  for (const id of tombstoned) {
+    const p = existing.find(x => x.id === id)
+    if (p && p.status !== 'deleted') db.deleteProject(id)
+  }
+
   // Ensure Werribee + Geelong exist (idempotent, keyed by id).
   // Previously these only seeded on a fully-empty browser; after cloud sync
   // overwrote localStorage with the 2 cloud projects they vanished. Re-create
