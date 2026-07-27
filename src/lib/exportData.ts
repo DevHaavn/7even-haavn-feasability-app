@@ -4,7 +4,7 @@
 
 import * as db from '../db'
 import { calculateCostStack } from '../engine/costStack'
-import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
+import { calculateBTRIncome, calculateBTRValuation, commercialLinesFromBTR } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
 import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
 import { calculateFinance } from '../engine/finance'
@@ -401,7 +401,7 @@ function btrSection(projectId: string): Section {
     if (units.length === 0) continue
     const sr = site.resiNSA > 0 ? solveUnitMix(site.resiNSA, units.map(u => ({ name: u.name, nsaPerUnit: u.nsaPerUnit, targetPct: u.targetPct }))) : null
     const unitLines = units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-    const inputs = { unitLines, vacancyPct: a.vacancyPct, managementFeePct: a.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: a.carParkIncomeAnnual, buildingAdminFixed: a.buildingAdminFixed }
+    const inputs = { unitLines, vacancyPct: a.vacancyPct, managementFeePct: a.managementFeePct, commercialIncomeLines: commercialLinesFromBTR(a), carParkIncomeAnnual: a.carParkIncomeAnnual, buildingAdminFixed: a.buildingAdminFixed }
     const tdc = projectTdc(projectId).totalDevelopmentCost
     const landEff = db.getEffectiveLandCost(projectId)
     const consI = calculateBTRIncome(inputs, 'conservative')

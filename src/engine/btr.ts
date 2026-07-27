@@ -32,6 +32,27 @@ export interface BTRValuationResult {
   rlv: number
 }
 
+/** Build the non-apartment commercial income lines from a project's BTR
+ *  assumptions — childcare + commercial (e.g. 5IVE co-working) + up to three
+ *  custom "Other Income" lines. Shared by the BTR tab AND the project-level
+ *  GDV/RLV/export rollups so commercial income is counted identically
+ *  everywhere (previously the rollups dropped it by passing []). */
+export function commercialLinesFromBTR(a: {
+  childcareAnnualNet?: number
+  commercialAnnualNet?: number
+  otherIncomeLabel1?: string; otherIncomeAmount1?: number
+  otherIncomeLabel2?: string; otherIncomeAmount2?: number
+  otherIncomeLabel3?: string; otherIncomeAmount3?: number
+}): { label: string; annualNet: number }[] {
+  return [
+    ...(a.childcareAnnualNet && a.childcareAnnualNet > 0 ? [{ label: 'Childcare', annualNet: a.childcareAnnualNet }] : []),
+    ...(a.commercialAnnualNet && a.commercialAnnualNet > 0 ? [{ label: 'Commercial', annualNet: a.commercialAnnualNet }] : []),
+    ...(a.otherIncomeLabel1 && a.otherIncomeAmount1 ? [{ label: a.otherIncomeLabel1, annualNet: a.otherIncomeAmount1 }] : []),
+    ...(a.otherIncomeLabel2 && a.otherIncomeAmount2 ? [{ label: a.otherIncomeLabel2, annualNet: a.otherIncomeAmount2 }] : []),
+    ...(a.otherIncomeLabel3 && a.otherIncomeAmount3 ? [{ label: a.otherIncomeLabel3, annualNet: a.otherIncomeAmount3 }] : []),
+  ]
+}
+
 export function calculateBTRIncome(
   inputs: BTRIncomeInputs,
   scenario: 'conservative' | 'aggressive'

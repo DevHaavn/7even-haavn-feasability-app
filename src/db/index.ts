@@ -5,7 +5,7 @@ import { defaultCashflowState } from '../engine/cashflow'
 import { calculateStampDuty } from '../engine/stampDuty'
 import { computeLandCost } from '../engine/landCost'
 import { calculateHotelIncome, calculateHotelValuation } from '../engine/hotel'
-import { calculateBTRIncome, calculateBTRValuation } from '../engine/btr'
+import { calculateBTRIncome, calculateBTRValuation, commercialLinesFromBTR } from '../engine/btr'
 import { calculateBTSValuation } from '../engine/bts'
 import { calculateCostStack } from '../engine/costStack'
 import { buildCashflow } from '../engine/cashflow'
@@ -623,7 +623,7 @@ export function getProjectGDV(projectId: string): number {
     }
     if (units.some(u => u.weeklyRentConservative > 0)) {
       const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-      const btrInputs = { unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
+      const btrInputs = { unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: commercialLinesFromBTR(btrA), carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
       const incC = calculateBTRIncome(btrInputs, 'conservative')
       best = Math.max(best, calculateBTRValuation(incC.noi, btrA.capRateConservative, 0, btrA.devMarginPct).gav)
       const incA = calculateBTRIncome(btrInputs, 'aggressive')
@@ -754,7 +754,7 @@ export function getProjectTDC(projectId: string): ProjectTDC {
     }
     if (units.some(u => u.weeklyRentConservative > 0)) {
       const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-      const inc = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
+      const inc = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: commercialLinesFromBTR(btrA), carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
       const v = calculateBTRValuation(inc.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
       consider(v.gav, v.rlv, tdcBuild, r.finance)
       const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
