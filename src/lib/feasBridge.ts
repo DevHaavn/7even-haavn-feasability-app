@@ -58,7 +58,7 @@ function strategyLabel(types: string[], bestType: string): string {
 export function buildFeasCards(): FeasCard[] {
   const cards: FeasCard[] = []
   for (const p of db.getProjects()) {
-    if (p.status === 'archived') continue
+    if (p.status === 'archived' || p.status === 'deleted') continue
     let rows: ReturnType<typeof comparisonRows>
     try {
       rows = comparisonRows(p.id)

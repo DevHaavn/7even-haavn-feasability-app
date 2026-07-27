@@ -44,7 +44,7 @@ const ASSET: Record<string, FeasibilityProject['assetType']> = {
 /** Read every studio project into the §7 payload shape. */
 export function readFeasibility(): FeasibilityProject[] {
   const out: FeasibilityProject[] = []
-  for (const p of db.getProjects()) {
+  for (const p of db.getProjects().filter(x => x.status !== 'deleted')) {
     let econ: FeasibilityProject['economics'] = { gdv: 0, tdc: 0, equityRequired: 0, debtRequired: 0 }
     let stack: FeasibilityProject['capitalStack'] = []
     let flows: FeasibilityProject['cashflow'] = []

@@ -7,7 +7,7 @@ export interface Project {
   state: string
   zone: string
   responsibleAuthority: string
-  status: 'active' | 'on-hold' | 'pending' | 'archived'
+  status: 'active' | 'on-hold' | 'pending' | 'archived' | 'deleted'
   createdAt: string
   updatedAt: string
   mapPin?: string   // custom pin label (default '7')

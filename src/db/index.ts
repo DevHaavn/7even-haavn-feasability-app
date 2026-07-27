@@ -52,11 +52,23 @@ export function saveProject(project: Project) {
 }
 
 export function deleteProject(id: string) {
-  save('projects', getProjects().filter(p => p.id !== id))
+  // Soft-delete, cloud-persisted. A hard delete only removes the row from THIS
+  // browser + its cloud view; the seed re-creates any MISSING featured project,
+  // so a second device (or a stale tab) that never saw the delete would re-seed
+  // it and push it back to the cloud for everyone ("keeps coming back"). Marking
+  // the row 'deleted' keeps it present in the cloud, so every client's seed sees
+  // it still exists and never resurrects it. The UI hides 'deleted' projects.
+  const p = getProject(id)
+  if (p) {
+    const deleted = { ...p, status: 'deleted' as const, updatedAt: new Date().toISOString() }
+    save('projects', [...getProjects().filter(x => x.id !== id), deleted])
+    cloud.pushProject(deleted as unknown as Record<string, unknown>)
+  } else {
+    save('projects', getProjects().filter(x => x.id !== id))
+  }
+  // Local tombstone as a secondary guard for this browser's seed.
   const tomb = getDeletedProjectIds()
   if (!tomb.includes(id)) save('deleted-projects', [...tomb, id])
-  cloud.deleteCloudProject(id)
-  resetProjectData(id)
 }
 
 // Wipe all data for a project but keep the project record itself

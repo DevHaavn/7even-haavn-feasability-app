@@ -54,7 +54,7 @@ interface ProjectSummary {
 }
 
 function aggregatePortfolio(brand?: '7even' | 'haavn'): ProjectSummary[] {
-  const allProjects = db.getProjects()
+  const allProjects = db.getProjects().filter(p => p.status !== 'deleted')
   const projects = brand
     ? allProjects.filter(p => brand === 'haavn' ? p.brand === 'haavn' : (!p.brand || p.brand === '7even'))
     : allProjects

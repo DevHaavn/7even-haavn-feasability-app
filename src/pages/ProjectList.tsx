@@ -94,7 +94,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
 
   // Archived projects drop off the live board (restored via the Archive dropdown).
   // We use the persisted `status` field ('archived') so it survives cloud sync.
-  const live = projects.filter(p => p.status !== 'archived')
+  const live = projects.filter(p => p.status !== 'archived' && p.status !== 'deleted')
   const archivedProjects = projects.filter(p => p.status === 'archived')
   // 7EVEN side = 7even + joint projects (what the master/admin manages).
   const sevenProjects = live.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')

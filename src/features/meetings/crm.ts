@@ -24,7 +24,7 @@ function readAtrium(): AtriumData {
 const money = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : `$${(n / 1_000).toFixed(0)}K`
 
 export function crmProjects(): CrmLink[] {
-  return db.getProjects().map(p => ({ type: 'project', id: p.id, label: p.name, sub: p.address || 'Project' }))
+  return db.getProjects().filter(p => p.status !== 'deleted').map(p => ({ type: 'project', id: p.id, label: p.name, sub: p.address || 'Project' }))
 }
 export function crmDeals(): CrmLink[] {
   return (readAtrium().targets || []).map(t => ({ type: 'deal', id: t.id, label: t.name || t.company, sub: `Deal · ${t.company} · ${money(t.value || 0)}` }))
