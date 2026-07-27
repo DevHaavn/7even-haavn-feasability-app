@@ -198,7 +198,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 <FieldRow label="Vendor rebate" note="Reduces effective land cost"><NumberInput value={data.rebateAmount ?? 0} onChange={v => update('rebateAmount', v)} prefix="$" step={50000} /></FieldRow>
               )}
               {dealType === 'inkind' && (
-                <Flag info>Cash price is zeroed — enter the delivered product in the In-Kind Consideration card. In-kind consideration is treated as a construction cost (no debt, finance or holding cost), mirroring the Werribee &amp; Geelong models.</Flag>
+                <Flag info>Enter the delivered product in the In-Kind Consideration card. The in-kind value is added to the effective land cost (it shows on the land line and in TDC), but carries no cash outflow — so no finance or holding interest. You can still add a cash component, stamp duty, settlement adjustments, a % or fixed sales commission and a payment schedule; all of them flow through.</Flag>
               )}
               {dealType === 'jv' && (<>
                 <FieldRow label="Land value credited to JV"><NumberInput value={data.jvLandValue ?? 0} onChange={v => update('jvLandValue', v)} prefix="$" step={100000} /></FieldRow>
@@ -222,7 +222,7 @@ export default function LandTermsTab({ projectId }: Props) {
                 </div>
               )}
               {acqCosts.map(c => {
-                const derived = c.mode === 'pct' ? (c.pct ?? 0) * cost.price : (c.amount ?? 0)
+                const derived = c.mode === 'pct' ? (c.pct ?? 0) * cost.considerationValue : (c.amount ?? 0)
                 const setC = (patch: Partial<AcquisitionCost>) => update('acquisitionCosts', acqCosts.map(x => x.id === c.id ? { ...x, ...patch } : x))
                 return (
                   <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '1.35fr 74px 1fr 1.1fr 22px', gap: 8, alignItems: 'center', padding: '7px 0', borderBottom: '1px solid var(--line)' }}>
@@ -270,7 +270,9 @@ export default function LandTermsTab({ projectId }: Props) {
 
             {/* Effective land cost summary */}
             <Card title="Effective Land Cost" hint="Flows into feasibility →" accent="gold">
-              <SLine lbl="Purchase price" sub={dealType === 'inkind' ? '(in-kind)' : undefined} val={fmt(cost.price)} />
+              <SLine lbl="Purchase price" sub={dealType === 'inkind' ? '(cash portion)' : undefined} val={fmt(cost.price)} />
+              {cost.inKindValue > 0 && <SLine lbl="In-kind consideration" val={fmt(cost.inKindValue)} />}
+              {cost.jvValue > 0 && <SLine lbl="JV land value" val={fmt(cost.jvValue)} />}
               <SLine lbl="Stamp duty" sub={dutyRate > 0 ? `(${dutyRate.toFixed(1)}%)` : undefined} val={fmt(cost.stampDuty)} />
               <SLine lbl="Foreign surcharge (FPAD)" val={fmt(cost.foreignSurcharge)} />
               <SLine lbl="Finance on terms" val={fmt(cost.financeOnTerms)} />

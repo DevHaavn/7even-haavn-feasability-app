@@ -4,6 +4,9 @@ import type { LandTerms } from '../db/schema'
 export interface LandCostBreakdown {
   dealType: NonNullable<LandTerms['dealType']>
   price: number              // cash purchase price used in the feasibility
+  inKindValue: number        // in-kind consideration (GFA × build rate), 0 unless in-kind
+  jvValue: number            // land value credited to the JV, 0 unless JV
+  considerationValue: number // cash + in-kind + JV — the base for duty & %-commission
   dutiableValue: number      // value duty is assessed on (may differ for in-kind/JV)
   gstCredit: number          // input tax credit recovered on the price
   stampDuty: number
@@ -25,24 +28,29 @@ export interface LandCostBreakdown {
  * Cost Stack, Finance, Compare and Summary tabs consume (via getEffectiveLandCost).
  */
 export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostBreakdown {
-  const dealType = land.dealType ?? 'standard'
+  const dealType = land.dealType ?? (land.isInKind ? 'inkind' : 'standard')
 
-  // Cash price + the value duty is assessed on (they can differ)
-  const price = dealType === 'inkind' ? 0 : land.landCost
-  const inKindValue = (land.inKindGFA || 0) * (land.inKindRatePerSqm || 0)
-  const dutiableValue =
-    dealType === 'inkind' ? inKindValue :
-    dealType === 'jv'     ? (land.jvLandValue ?? land.landCost) :
-    land.landCost
+  // COMPOSITIONAL model — no deal structure blocks the common land inputs. Every
+  // deal may carry a cash price, stamp duty, settlement adjustments, acquisition
+  // costs / commission and a payment schedule; the structure only ADDS its own
+  // mechanics (deferred interest, option fee, rebate, in-kind, JV) on top.
+  const cashPrice = land.landCost || 0                                     // respected for ALL types (was forced 0 for in-kind, which also zeroed %-commission)
+  const inKindValue = land.isInKind ? (land.inKindGFA || 0) * (land.inKindRatePerSqm || 0) : 0
+  const jvValue = dealType === 'jv' ? (land.jvLandValue ?? 0) : 0
+  // Full consideration given for the land — the base for stamp duty AND for
+  // %-based acquisition costs, so a % sales commission applies even on an
+  // in-kind or JV deal (previously it was × cash price = 0).
+  const considerationValue = cashPrice + inKindValue + jvValue
+  const price = cashPrice
+  const dutiableValue = considerationValue
 
-  // GST at acquisition. 'inc' embeds GST (1/11 credit); 'full' adds 10% reclaimed;
-  // 'none' / 'margin' recover nothing at acquisition (margin scheme hits the end sale).
+  // GST is recoverable only on the CASH portion (in-kind / JV carry no cash GST).
   const gstCredit = !gstEnabled ? 0
-    : land.landGst === 'inc'  ? price / 11
-    : land.landGst === 'full' ? price * 0.10
+    : land.landGst === 'inc'  ? cashPrice / 11
+    : land.landGst === 'full' ? cashPrice * 0.10
     : 0
-  const grossPrice = land.landGst === 'full' ? price * 1.10 : price
-  const exGstPrice = grossPrice - gstCredit
+  const grossCash = land.landGst === 'full' ? cashPrice * 1.10 : cashPrice
+  const exGstCash = grossCash - gstCredit
 
   // Stamp duty (+ FPAD) — engine gates FPAD to residential; commercial surcharge = 0.
   const duty = land.applyStampDuty && dutiableValue > 0
@@ -64,21 +72,19 @@ export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostB
 
   // Acquisition costs — agent/acquisition fee, legals, accounting, DD. Each is a
   // fixed $ or a % of the purchase price (the cash price, before GST credit).
+  // Acquisition costs / commission — a % rate is of the FULL consideration (not
+  // just the cash price), so a sales commission applies on in-kind & JV deals too.
   const acquisitionCosts = (land.acquisitionCosts ?? []).reduce((sum, c) =>
-    sum + (c.mode === 'pct' ? (c.pct ?? 0) * price : (c.amount ?? 0)), 0)
+    sum + (c.mode === 'pct' ? (c.pct ?? 0) * considerationValue : (c.amount ?? 0)), 0)
 
   const rebate = dealType === 'rebate' ? (land.rebateAmount ?? 0) : 0
 
-  // In-kind consideration (land swapped for delivered product) IS a real cost of
-  // the project — it belongs in the effective land cost so it shows on the land
-  // line and top summary. It carries no cash outflow, so the finance waterfall
-  // (which draws on land.landCost, not this total) charges no interest on it —
-  // i.e. an in-kind/at-completion settlement saves the holding interest, not the
-  // cost. (Previously this value was added inside the cost stack as a hidden
-  // "in-kind" construction line, so the land line read $0.)
-  const inKindConsideration = land.isInKind ? inKindValue : 0
-
-  const total = exGstPrice + inKindConsideration + stampDuty + foreignSurcharge + financeOnTerms + adjustments + acquisitionCosts - rebate
+  // Effective land cost = whole consideration (cash net of GST + in-kind + JV) +
+  // duty + terms cost + settlement adjustments + acquisition costs − rebate. The
+  // in-kind / JV portions carry no cash outflow, so the finance waterfall (which
+  // draws on land.landCost) charges no holding interest on them — an in-kind /
+  // at-completion settlement saves the interest, not the cost.
+  const total = exGstCash + inKindValue + jvValue + stampDuty + foreignSurcharge + financeOnTerms + adjustments + acquisitionCosts - rebate
 
   const siteArea = land.siteAreaSqm ?? 0
   const effectivePerSqm = siteArea > 0 ? total / siteArea : undefined
@@ -95,7 +101,7 @@ export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostB
   if (land.state === 'VIC' && land.propertyType === 'commercial') flags.push('VIC CIPT — commercial/industrial pays duty once upfront (above), then a 1% annual property tax from year 11 (model that as a holding cost, not a second duty).')
 
   return {
-    dealType, price, dutiableValue, gstCredit, stampDuty, foreignSurcharge,
+    dealType, price, inKindValue, jvValue, considerationValue, dutiableValue, gstCredit, stampDuty, foreignSurcharge,
     financeOnTerms, adjustments, acquisitionCosts, rebate, total, effectivePerSqm,
     settlementDate: land.settlementDate,
     dutyNotes: duty?.notes ?? [],
