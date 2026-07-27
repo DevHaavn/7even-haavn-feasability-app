@@ -112,6 +112,10 @@ export function calculateFinanceWaterfall(
   let starts = dated.map(it => (it.startDate || it.endDate)!.slice(0, 7))
   let ends = dated.map(it => (it.endDate || it.startDate)!.slice(0, 7))
   if (landMonth) { starts.push(landMonth); ends.push(landMonth) }
+  // Vendor payment-schedule dates also stretch the finance window (a deposit can
+  // fall well before settlement) so carry is computed from the first cash out.
+  const schedMonths = (land.paymentSchedule ?? []).filter(p => p.date).map(p => p.date.slice(0, 7))
+  for (const m of schedMonths) { starts.push(m); ends.push(m) }
   if (starts.length === 0) { starts = ['2025-01']; ends = ['2027-12'] }
   const startMonth = starts.sort()[0]
   const endMonth = ends.sort()[ends.length - 1]
@@ -137,8 +141,18 @@ export function calculateFinanceWaterfall(
     catDraw[cat] = catDraw[cat] || {}
     catDraw[cat][mo] = (catDraw[cat][mo] || 0) + v
   }
-  // Land draws upfront at settlement (or timeline start).
-  addDraw('Land', landMonth || startMonth, landAmount)
+  // Land draws follow the vendor payment schedule when one is entered (deposit →
+  // stage payments → settlement balance), so the carry reflects the real timing
+  // of cash out. With no schedule it's a single lump at settlement (or timeline
+  // start). In-kind land has no cash outflow (landAmount 0), so nothing is drawn
+  // or financed — an in-kind / at-completion settlement saves the holding
+  // interest, not the cost (which sits in the land line of TDC).
+  const landSchedule = (land.isInKind ? [] : (land.paymentSchedule ?? [])).filter(p => p.date && p.amount)
+  if (landSchedule.length > 0) {
+    for (const p of landSchedule) addDraw('Land', p.date.slice(0, 7), p.amount)
+  } else {
+    addDraw('Land', landMonth || startMonth, landAmount)
+  }
   for (const { it, section } of allItems) {
     const m = itemMonthly(it, startMonth, endMonth)
     for (const mo in m) addDraw(SECTION_LABEL[section as keyof typeof SECTION_LABEL], mo, m[mo])
