@@ -203,7 +203,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
                 {/* Real brand mark, filled white/silver via mask so it reads bright
                     over the frosted-grey bar — matching the HAAVN wordmark elsewhere */}
-                <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 109 : 62, flexShrink: 0,
+                <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 101 : 62, flexShrink: 0,
                   WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
                   WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
                   background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)',
@@ -337,30 +337,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 onMouseLeave={e => (e.currentTarget.style.color = '#C6CDCF')}>✕</button>
             </div>
 
-            {/* Brand toggle — the real marks: 7EVEN and HM */}
-            <div style={{ marginBottom: 28 }}>
-              <p style={{ color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Brand</p>
-              <div style={{ display: 'flex', gap: 0, border: '1px solid rgba(220,232,244,0.22)', borderRadius: 10, overflow: 'hidden' }}>
-                {(['7even', 'haavn'] as const).map(b => {
-                  const active = newBrand === b
-                  return (
-                    <button key={b} onClick={() => setNewBrand(b)}
-                      style={{
-                        flex: 1, padding: '13px 0', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: active ? 'rgba(255,255,255,0.16)' : 'transparent',
-                        borderRight: b === '7even' ? '1px solid rgba(220,232,244,0.18)' : 'none',
-                      }}>
-                      <img
-                        src={b === '7even' ? '/seven-mark-white.png' : '/hm-device-white.png'}
-                        alt={b === '7even' ? '7EVEN' : 'HAAVN Management'}
-                        draggable={false}
-                        style={{ height: b === '7even' ? 15 : 16, width: 'auto', display: 'block', filter: active ? 'none' : 'opacity(0.45)', transition: 'filter 0.2s' }} />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+            {/* Brand toggle removed — HAAVN is retired; every new project is 7EVEN. */}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Project name */}
