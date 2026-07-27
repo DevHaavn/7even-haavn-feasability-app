@@ -80,7 +80,7 @@ export default function BTRTab({ projectId }: Props) {
   const hasUnits = unitLines.some(u => u.unitCount > 0)
   const cons = hasUnits ? calculateBTRIncome(btrInputs, 'conservative') : null
   const agg = hasUnits ? calculateBTRIncome(btrInputs, 'aggressive') : null
-  const tdc = costResult.totalDevelopmentCost
+  const tdc = costResult.totalDevelopmentCost + store.getEffectiveLandCost(projectId)   // land-inclusive (incl. in-kind consideration)
   // Lease-up: income foregone as occupancy ramps from 0 to stabilised over the lease-up period
   // (average ~50% of net stabilised rent across the ramp). Informational — excluded from cap value.
   const fmt = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M` : `$${Math.round(n / 1000).toLocaleString()}K`

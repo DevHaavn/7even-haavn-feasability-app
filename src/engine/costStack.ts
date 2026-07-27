@@ -95,6 +95,11 @@ export function calculateCostStack(inputs: CostStackInputs): CostStackResult {
     inputs.marketingFixed +
     inputs.amenityFitoutFixed
   const gstCredits = inputs.gstEnabled ? gstIncluded(gstableCosts) : 0
-  const totalDevelopmentCost = subtotal + inKindCost - gstCredits
+  // NB: inKindCost is NO LONGER added here. In-kind land consideration now lives
+  // in the effective land cost (computeLandCost.total → landEff), which every TDC
+  // consumer adds on top of this. Adding it here too would double-count it.
+  // inKindCost is still returned (kept at 0-impact) only for the POS land-value
+  // basis above and backward compatibility of the result shape.
+  const totalDevelopmentCost = subtotal - gstCredits
   return { construction, contingency, prelims, professionalFees, finance, posContribution, subtotal, inKindCost, gstCredits, totalDevelopmentCost }
 }

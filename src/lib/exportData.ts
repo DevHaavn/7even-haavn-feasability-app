@@ -287,7 +287,8 @@ function costSummarySection(projectId: string): Section {
     ['Marketing', $(costData.marketingFixed)],
     ['BTR amenity fitout', $(costData.amenityFitoutFixed)],
   ]
-  if (land.isInKind && r.inKindCost > 0) rows.push([`In-kind (${land.inKindLabel})`, $(r.inKindCost)])
+  // In-kind consideration is now included in the Land line above (landEff), so it
+  // is no longer shown as a separate row (it would double up).
   if (r.gstCredits > 0) rows.push(['Less GST input credits (1/11)', '−' + $(r.gstCredits)])
   rows.push([`TOTAL DEVELOPMENT COST (incl. land${r.gstCredits > 0 ? ', ex GST' : ''})`, $(tdcIncl)])
   const bars: Block = {
@@ -302,7 +303,6 @@ function costSummarySection(projectId: string): Section {
       { label: 'Project management', value: costData.projectManagementFixed },
       { label: 'Marketing', value: costData.marketingFixed },
       { label: 'Amenity fitout', value: costData.amenityFitoutFixed },
-      ...(r.inKindCost > 0 ? [{ label: 'In-kind', value: r.inKindCost }] : []),
     ] as { label: string; value: number }[]).filter(i => i.value > 0).map(i => ({ ...i, color: '#C4973A' })),
   }
   return { id: 'cost-summary', title: 'Cost Stack — Summary', blocks: [{ type: 'kv', rows }, bars] }

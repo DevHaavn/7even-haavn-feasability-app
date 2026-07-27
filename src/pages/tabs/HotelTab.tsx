@@ -25,7 +25,7 @@ export default function HotelTab({ projectId }: Props) {
   const effectiveBuildRate = data?.buildRateOverride ?? costData.buildRatePerSqm
   const effectiveFinancePct = data?.constructionFinancePct ?? costData.financePct
   const costStack = calculateCostStack({ ...costData, buildRatePerSqm: effectiveBuildRate, financePct: effectiveFinancePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
-  const tdc = costStack.totalDevelopmentCost
+  const tdc = costStack.totalDevelopmentCost + store.getEffectiveLandCost(projectId)   // land-inclusive (incl. in-kind consideration)
 
   useEffect(() => {
     const s = store.getMixScenarios(projectId)

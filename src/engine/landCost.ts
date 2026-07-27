@@ -69,7 +69,16 @@ export function computeLandCost(land: LandTerms, gstEnabled: boolean): LandCostB
 
   const rebate = dealType === 'rebate' ? (land.rebateAmount ?? 0) : 0
 
-  const total = exGstPrice + stampDuty + foreignSurcharge + financeOnTerms + adjustments + acquisitionCosts - rebate
+  // In-kind consideration (land swapped for delivered product) IS a real cost of
+  // the project — it belongs in the effective land cost so it shows on the land
+  // line and top summary. It carries no cash outflow, so the finance waterfall
+  // (which draws on land.landCost, not this total) charges no interest on it —
+  // i.e. an in-kind/at-completion settlement saves the holding interest, not the
+  // cost. (Previously this value was added inside the cost stack as a hidden
+  // "in-kind" construction line, so the land line read $0.)
+  const inKindConsideration = land.isInKind ? inKindValue : 0
+
+  const total = exGstPrice + inKindConsideration + stampDuty + foreignSurcharge + financeOnTerms + adjustments + acquisitionCosts - rebate
 
   const siteArea = land.siteAreaSqm ?? 0
   const effectivePerSqm = siteArea > 0 ? total / siteArea : undefined
