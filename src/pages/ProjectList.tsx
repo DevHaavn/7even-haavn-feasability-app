@@ -55,12 +55,10 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   const [hmOpen, setHmOpen] = useState(false)
   const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
-  // Director view — the 7EVEN logo flips the admin column between 7EVEN and HAAVN
-  // Management. Persisted so it survives a trip into the Dashboard and back.
-  const [adminBrand, setAdminBrand] = useState<'7even' | 'haavn'>(
-    () => (localStorage.getItem('7even_admin_brand') as '7even' | 'haavn') || '7even',
-  )
-  const chooseBrand = (b: '7even' | 'haavn') => { setAdminBrand(b); localStorage.setItem('7even_admin_brand', b) }
+  // HAAVN Management is retired as a separate board — the studio runs ONE unified
+  // board showing every project. adminBrand is pinned to '7even' (kept only so the
+  // 7EVEN mark + Dashboard entry still read correctly).
+  const [adminBrand] = useState<'7even'>('7even')
   const [brandMenu, setBrandMenu] = useState(false)
   const [archiveMenu, setArchiveMenu] = useState(false)
   const [name, setName] = useState('')
@@ -102,10 +100,10 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const tombstoned = new Set(getDeletedProjectIds())
   const live = projects.filter(p => p.status !== 'archived' && p.status !== 'deleted' && !tombstoned.has(p.id))
   const archivedProjects = projects.filter(p => p.status === 'archived' && !tombstoned.has(p.id))
-  // 7EVEN side = 7even + joint projects (what the master/admin manages).
-  const sevenProjects = live.filter(p => !p.brand || p.brand === '7even' || p.brand === 'both')
-  // HAAVN Management manages EVERYTHING — every 7even project is mirrored here
-  // for the management company plus any HAAVN-only projects.
+  // One unified studio board — every live project (7EVEN, HAAVN and joint), since
+  // the separate HAAVN Management board has been retired. `haavnProjects` kept as
+  // an alias so any remaining reference still resolves to the same full list.
+  const sevenProjects = live
   const haavnProjects = live
   function setArchived(p: any, archived: boolean) {
     updateProject({ ...p, status: archived ? 'archived' : 'active', updatedAt: new Date().toISOString() })
@@ -218,20 +216,14 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               </span>
               {isAdmin && brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                  {([['7even', '7EVEN'], ['haavn', 'MANAGEMENT']] as const).map(([id, lbl]) => (
-                    <button key={id} onClick={() => { chooseBrand(id); setBrandMenu(false) }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: adminBrand === id ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                      {id === '7even'
-                        ? (/* real 7EVEN wordmark, filled white to match the HAAVN logo's size */
-                           <span style={{ display: 'inline-block', height: 13, width: 84, flexShrink: 0,
-                             WebkitMaskImage: 'url(/seven-mark-white.png)', maskImage: 'url(/seven-mark-white.png)',
-                             WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                             background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)' }} />)
-                        : <HaavnMark height={12} fill="#C6CDCF" />}
-                      {id === 'haavn' && <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>{lbl}</span>}
-                      {adminBrand === id && <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>}
-                    </button>
-                  ))}
+                  {/* 7EVEN — the single studio board (HAAVN Management board retired). */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid #141414' }}>
+                    <span style={{ display: 'inline-block', height: 13, width: 84, flexShrink: 0,
+                      WebkitMaskImage: 'url(/seven-mark-white.png)', maskImage: 'url(/seven-mark-white.png)',
+                      WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
+                      background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)' }} />
+                    <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>
+                  </div>
                   {/* HAAVN HOMES — Black Series homes company. Opens its own separate
                       surface rather than flipping the project filter. */}
                   <button onClick={() => { setBrandMenu(false); onOpenHomes?.() }}

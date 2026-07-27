@@ -157,6 +157,18 @@ export default function App() {
     )
   }
 
+  // 7EVEN consultant (external) — lands DIRECTLY on the HM Management Hub with all
+  // three pillars (CRM + Meetings + Social). No 7EVEN Feasibility Studio, no
+  // project list, no Capital Base. Both exit controls log out (there's no home to
+  // return to).
+  if (role === 'external') {
+    return (
+      <RoleContext.Provider value={role}>
+        <HaavnManagementBase onClose={handleLogout} onLogout={handleLogout} />
+      </RoleContext.Provider>
+    )
+  }
+
   return (
     <RoleContext.Provider value={role}>
       {dashboardBrand && (dashboardBrand === 'haavn' || role === 'admin') ? (
