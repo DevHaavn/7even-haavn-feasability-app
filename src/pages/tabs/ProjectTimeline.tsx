@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
-import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack } from '../../db'
+import { getTimelineTasks, saveTimelineTasks, generateId, getCostStack, getLandTerms } from '../../db'
 import { useAutosave } from '../../lib/useAutosave'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import type { TimelineTask, TimelineCategory, TimelineStatus, CostPhase } from '../../db/schema'
@@ -134,6 +134,23 @@ export default function ProjectTimeline({ projectId }: Props) {
   const [isNew, setIsNew]     = useState(false)
   const [filterPhase, setFilterPhase] = useState<CostPhase | 'all'>('all')
   const phaseCosts = useMemo(() => getPhaseCosts(projectId), [projectId, tasks])
+  // Land settlement / vendor payment schedule → read-only milestones on the
+  // programme (pre-acquisition phase). Derived live from Land & Terms; ids are
+  // prefixed '__land_' so they are NEVER persisted, dragged or edited — they
+  // just surface the settlement/payment dates on the timeline.
+  const landRows = useMemo<TimelineTask[]>(() => {
+    const land = getLandTerms(projectId)
+    const mk = (key: string, name: string, date: string): TimelineTask => ({
+      id: `__land_${key}`, projectId, name, category: 'planning', phase: 'pre-acquisition',
+      assignee: '', startDate: date, endDate: date, status: 'in-progress', progress: 0,
+      notes: '', isMilestone: true, color: '#C4973A',
+    })
+    const sched = (land.paymentSchedule ?? []).filter(p => p.date)
+    if (sched.length) return sched.map((p, i) => mk(p.id || String(i),
+      `Land — ${p.label || 'Payment'}${p.amount ? ` ($${(p.amount / 1e6).toFixed(1)}M)` : ''}`, p.date))
+    if (land.settlementDate) return [mk('settle', land.isInKind ? 'Land settlement (in-kind)' : 'Land settlement', land.settlementDate)]
+    return []
+  }, [projectId, tasks])
   // Screen real-estate: show one year at a time (default the current year).
   const [viewYear, setViewYear] = useState<number>(new Date().getFullYear())
   // "All dates" — span every year on one scrollable timeline (no year switching).
@@ -163,7 +180,7 @@ export default function ProjectTimeline({ projectId }: Props) {
   const years = useMemo(() => {
     const nowY = new Date().getFullYear()
     let max = nowY + 2
-    tasks.forEach(t => { max = Math.max(max, yearOf(t.endDate), yearOf(t.startDate)) })
+    ;[...tasks, ...landRows].forEach(t => { max = Math.max(max, yearOf(t.endDate), yearOf(t.startDate)) })
     const out: number[] = []
     for (let y = 2024; y <= max; y++) out.push(y)
     return out
@@ -177,7 +194,7 @@ export default function ProjectTimeline({ projectId }: Props) {
   const totalDays = daysBetween(minDate, maxDate) + 1
 
   // Tasks whose span overlaps the window (all tasks when "All dates" is on).
-  const visible = tasks.filter(t =>
+  const visible = [...tasks, ...landRows].filter(t =>
     (filterPhase === 'all' || taskPhase(t) === filterPhase) &&
     (allDates || (yearOf(t.startDate) <= viewYear && yearOf(t.endDate) >= viewYear)),
   )
@@ -409,7 +426,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                       column ran blank against every phase. Same mean as the Overall
                       KPI, so the two cannot disagree. */}
                   <div style={{ width: PCT_W, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 12px', position: 'sticky', right: 0, zIndex: 8, background: solid(PHASE_COLORS[cat], 7), borderLeft: '1px solid var(--border)' }}>
-                    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: PHASE_COLORS[cat] }}>{phasePct(catTasks)}%</span>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: PHASE_COLORS[cat] }}>{phasePct(catTasks.filter(t => !t.id.startsWith('__land_')))}%</span>
                   </div>
                 </div>
 
@@ -430,7 +447,7 @@ export default function ProjectTimeline({ projectId }: Props) {
 
                       {/* Task label — sticky left */}
                       <div style={{ width: LABEL_W, flexShrink: 0, position: 'sticky', left: 0, zIndex: 6, background: 'inherit', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 10px', height: '100%', cursor: 'pointer' }}
-                        onClick={() => openEdit(task)}>
+                        onClick={() => { if (!task.id.startsWith('__land_')) openEdit(task) }}>
 
                         {/* Traffic light dot */}
                         <span style={{ position: 'relative', width: 8, height: 8, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -458,11 +475,12 @@ export default function ProjectTimeline({ projectId }: Props) {
                         {(() => {
                           const dragOffset = dragId === task.id ? dragDays * PX_PER_DAY : 0
                           const startDrag = (e: React.MouseEvent) => {
+                            if (task.id.startsWith('__land_')) return   // derived land milestone — read-only
                             e.stopPropagation()
                             dragRef.current = { id: task.id, startX: e.clientX, origStart: task.startDate, origEnd: task.endDate, moved: false }
                             setDragId(task.id)
                           }
-                          const guardedEdit = () => { if (clickGuard.current) { clickGuard.current = false; return } openEdit(task) }
+                          const guardedEdit = () => { if (task.id.startsWith('__land_')) return; if (clickGuard.current) { clickGuard.current = false; return } openEdit(task) }
                           return isMile ? (
                           <div onMouseDown={startDrag} onClick={guardedEdit}
                             title="Drag to move"
