@@ -7,21 +7,26 @@ import { HAAVN_CONSTRUCTION, HAAVN_CONSULTANTS, HAAVN_STATUTORY, HAAVN_HEADWORKS
 export function seedProjectsIfEmpty() {
   const existing = db.getProjects()
   const ids = new Set(existing.map(p => p.id))
+  // Ids the user has explicitly deleted — NEVER re-create these, or a delete
+  // "keeps coming back" on the next mount. `missing(id)` = not present AND not
+  // deleted, i.e. genuinely needs seeding.
+  const tombstoned = new Set(db.getDeletedProjectIds())
+  const missing = (id: string) => !ids.has(id) && !tombstoned.has(id)
 
   // Ensure Werribee + Geelong exist (idempotent, keyed by id).
   // Previously these only seeded on a fully-empty browser; after cloud sync
   // overwrote localStorage with the 2 cloud projects they vanished. Re-create
   // them if missing so they get restored + pushed back to the cloud.
-  if (!ids.has('seed-werribee-001')) {
+  if (missing('seed-werribee-001')) {
     seedWerribee()
   }
-  if (!ids.has('seed-geelong-001')) {
+  if (missing('seed-geelong-001')) {
     seedGeelong()
   }
   // 35 Corio Street, Geelong — Cunningham Place (Fraser & Partners yield analysis)
-  if (!ids.has('geelong-35-corio')) {
+  if (missing('geelong-35-corio')) {
     seedCorio()
-  } else if (!localStorage.getItem('corio-patch-v1')) {
+  } else if (ids.has('geelong-35-corio') && !localStorage.getItem('corio-patch-v1')) {
     // One-time patch for already-seeded copies: Fraser & Partners architect +
     // $25M in-kind church land (no interest).
     const pid = 'geelong-35-corio'
@@ -35,10 +40,11 @@ export function seedProjectsIfEmpty() {
     localStorage.setItem('corio-scenario-a-v2', 'true')
   }
 
-  // Always ensure named featured projects exist (idempotent)
-  if (!ids.has('seed-preston-001')) {
+  // Always ensure named featured projects exist (idempotent) — unless the user
+  // deleted them.
+  if (missing('seed-preston-001')) {
     seedPreston()
-  } else {
+  } else if (ids.has('seed-preston-001')) {
     // Patch address if it was seeded with the old value
     const p = existing.find(x => x.id === 'seed-preston-001')
     if (p && p.address !== '2-3 Newman Street, Preston VIC 3072') {
@@ -58,7 +64,7 @@ export function seedProjectsIfEmpty() {
     }
   }
 
-  if (!ids.has('seed-caloundra-001')) {
+  if (missing('seed-caloundra-001')) {
     // Create a clean blank project — no pre-filled data
     db.saveProject({
       id: 'seed-caloundra-001',
@@ -93,11 +99,12 @@ export function seedProjectsIfEmpty() {
     localStorage.setItem(SNAP_FLAG, 'true')
   }
 
-  // Patch existing seed projects with type + status if missing
+  // Patch existing seed projects with type if missing. NB: do NOT force `status`
+  // here — this runs on every mount, and the old `status !== 'on-hold'` check
+  // re-set Werribee to on-hold every time, silently un-archiving it. Status is
+  // the user's to change; the on-hold default is applied once at seed time only.
   const werribee = existing.find(x => x.id === 'seed-werribee-001')
-  if (werribee && (!werribee.type || werribee.status !== 'on-hold')) {
-    db.saveProject({ ...werribee, type: 'bts', status: 'on-hold' })
-  }
+  if (werribee && !werribee.type) db.saveProject({ ...werribee, type: 'bts' })
   const geelong = existing.find(x => x.id === 'seed-geelong-001')
   if (geelong && !geelong.type) db.saveProject({ ...geelong, type: 'bts' })
   const preston = existing.find(x => x.id === 'seed-preston-001')

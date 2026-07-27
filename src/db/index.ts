@@ -33,15 +33,28 @@ export function getProject(id: string): Project | undefined {
   return getProjects().find(p => p.id === id)
 }
 
+// Tombstones — ids the user has explicitly deleted. The seed runs on every
+// ProjectList mount and re-creates any missing "featured" project; without a
+// tombstone a deleted project would be resurrected on the next mount ("keeps
+// coming back"). Deleting records the id here; the seed skips tombstoned ids.
+export function getDeletedProjectIds(): string[] {
+  return load<string[]>('deleted-projects', [])
+}
+
 export function saveProject(project: Project) {
   const updated = { ...project, updatedAt: new Date().toISOString() }
   const all = getProjects().filter(p => p.id !== project.id)
   save('projects', [...all, updated])
+  // Deliberately re-creating a previously-deleted id clears its tombstone.
+  const tomb = getDeletedProjectIds()
+  if (tomb.includes(project.id)) save('deleted-projects', tomb.filter(t => t !== project.id))
   cloud.pushProject(updated as unknown as Record<string, unknown>)
 }
 
 export function deleteProject(id: string) {
   save('projects', getProjects().filter(p => p.id !== id))
+  const tomb = getDeletedProjectIds()
+  if (!tomb.includes(id)) save('deleted-projects', [...tomb, id])
   cloud.deleteCloudProject(id)
   resetProjectData(id)
 }
