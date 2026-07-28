@@ -223,13 +223,16 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: mono, marginLeft: 4, fontWeight: 700 }}>{list.length} home{list.length !== 1 ? 's' : ''}</span>
             {!restricted && brandMenu && (
               <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 200, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                {[['7even', '7EVEN'], ['haavn', 'MANAGEMENT']].map(([id, lbl]) => (
-                  <button key={id} onClick={() => { setBrandMenu(false); onBack() }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-                    {id === 'haavn' && <HaavnMark height={12} fill="#C6CDCF" />}
-                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: id === 'haavn' ? '0.2em' : '0.1em', whiteSpace: 'nowrap' }}>{lbl}</span>
-                  </button>
-                ))}
+                {/* 7EVEN — switch back to the 7EVEN studio. HAAVN Management removed
+                    from the Homes dropdown. Uses the real 7EVEN wordmark (was plain
+                    serif text at the wrong size). */}
+                <button onClick={() => { setBrandMenu(false); onBack() }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
+                  <span style={{ display: 'inline-block', height: 13, width: 84, flexShrink: 0,
+                    WebkitMaskImage: 'url(/seven-mark-white.png)', maskImage: 'url(/seven-mark-white.png)',
+                    WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
+                    background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)' }} />
+                </button>
                 <button style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'default' }}>
                   <HaavnMark height={12} fill="#C6CDCF" />
                   <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.2em' }}>HOMES</span>
