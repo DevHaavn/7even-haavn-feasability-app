@@ -520,7 +520,7 @@ html.embedded .home-btn{display:none}
 .hb-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100%;scrollbar-width:none;-ms-overflow-style:none}
 .hb-strip::-webkit-scrollbar{display:none}
 .hb-slide{position:relative;flex:0 0 100%;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;min-height:360px}
-.hb-slide img{width:100%;height:100%;min-height:360px;object-fit:cover;display:block}
+.hb-slide img{width:100%;height:100%;min-height:360px;object-fit:contain;background:#f4f2ec;display:block}
 .hb-empty{background:repeating-linear-gradient(45deg,#F2EEE3,#F2EEE3 12px,#EDE8DB 12px,#EDE8DB 24px)}
 .hb-drop{text-align:center;color:#9a927f;font-size:13px;letter-spacing:.04em;line-height:1.7}.hb-drop span{font-size:11px;opacity:.8}
 .hb-nav{position:absolute;top:calc(50% - 20px);transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(15,15,15,.55);color:#fff;font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px)}
@@ -850,7 +850,7 @@ var SEED_GALLERY = {
   'SOLUM': ['/haavn-renders/solum.jpg','/haavn-renders/solum-floor-ground.jpg'],
   'MAGNA': ['/haavn-renders/magna-floor-ground.jpg','/haavn-renders/magna-floor-upper.jpg']
 };
-var GALLERY_SEED_REV = 2;      // bump when new seeded plans are added
+var GALLERY_SEED_REV = 3;      // bump when new seeded plans are added
 var galleryMigration = 0;      // persisted; guards the one-time, non-destructive merge
 // Flag-guarded (not content-signal based) so it runs once and never re-adds a
 // plan the user deliberately deleted, and never touches cost/sale edits.
@@ -943,7 +943,7 @@ function renderRange(){
     if(!DATA[k].gallery) DATA[k].gallery = SEED_GALLERY[k] ? SEED_GALLERY[k].slice() : (h.render ? [h.render] : []);
     const gal=DATA[k].gallery;
     const slides = gal.length
-      ? gal.map((src,gi)=>`<div class="hb-slide"><img src="${src}" alt="${h.name} ${gi+1}" loading="lazy"><button class="hb-del" data-del="${gi}" title="Remove">×</button></div>`).join('')
+      ? gal.map((src,gi)=>`<div class="hb-slide"><img src="${src}" alt="${h.name} ${gi+1}" loading="lazy"></div>`).join('')
       : `<div class="hb-slide hb-empty"><div class="hb-drop">◇ Drop floor plans &amp; images<br><span>or use “+ Add” below</span></div></div>`;
     const dots = gal.length>1 ? `<div class="hb-dots">${gal.map((_,gi)=>`<span${gi===0?' class="on"':''}></span>`).join('')}</div>` : '';
     const mPct=(c.totalcost?c.margin/c.totalcost*100:0), low=mPct<25;
