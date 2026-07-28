@@ -848,9 +848,15 @@ function touch(){
 // persist for everyone, on every device and the live site — never localStorage-only.
 var SEED_GALLERY = {
   'SOLUM': ['/haavn-renders/solum.jpg','/haavn-renders/solum-floor-ground.jpg'],
-  'MAGNA': ['/haavn-renders/magna-floor-ground.jpg','/haavn-renders/magna-floor-upper.jpg']
+  'MAGNA': ['/haavn-renders/magna-floor-ground.jpg','/haavn-renders/magna-floor-upper.jpg'],
+  'M-A1': ['/haavn-renders/merrimu-a1.jpg'],
+  'M-A2': ['/haavn-renders/merrimu-a2.jpg'],
+  'M-B': ['/haavn-renders/merrimu-b.jpg'],
+  'M-C': ['/haavn-renders/merrimu-c.jpg'],
+  'M-D': ['/haavn-renders/merrimu-d.jpg'],
+  'M-E': ['/haavn-renders/merrimu-e.jpg']
 };
-var GALLERY_SEED_REV = 3;      // bump when new seeded plans are added
+var GALLERY_SEED_REV = 4;      // bump when new seeded plans are added
 var galleryMigration = 0;      // persisted; guards the one-time, non-destructive merge
 // Flag-guarded (not content-signal based) so it runs once and never re-adds a
 // plan the user deliberately deleted, and never touches cost/sale edits.
