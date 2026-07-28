@@ -849,14 +849,14 @@ function touch(){
 var SEED_GALLERY = {
   'SOLUM': ['/haavn-renders/solum.jpg','/haavn-renders/solum-floor-ground.jpg'],
   'MAGNA': ['/haavn-renders/magna-floor-ground.jpg','/haavn-renders/magna-floor-upper.jpg'],
-  'M-A1': ['/haavn-renders/merrimu-a1.jpg'],
-  'M-A2': ['/haavn-renders/merrimu-a2.jpg'],
-  'M-B': ['/haavn-renders/merrimu-b.jpg'],
-  'M-C': ['/haavn-renders/merrimu-c.jpg'],
-  'M-D': ['/haavn-renders/merrimu-d.jpg'],
-  'M-E': ['/haavn-renders/merrimu-e.jpg']
+  'M-A1': ['/haavn-renders/merrimu-nova-vela.jpg','/haavn-renders/merrimu-a1.jpg'],
+  'M-A2': ['/haavn-renders/merrimu-aura-alta-1.jpg','/haavn-renders/merrimu-aura-alta-2.jpg','/haavn-renders/merrimu-aura-alta-3.jpg','/haavn-renders/merrimu-a2.jpg'],
+  'M-B': ['/haavn-renders/merrimu-aura-alta-1.jpg','/haavn-renders/merrimu-aura-alta-2.jpg','/haavn-renders/merrimu-aura-alta-3.jpg','/haavn-renders/merrimu-b.jpg'],
+  'M-C': ['/haavn-renders/merrimu-nova-vela.jpg','/haavn-renders/merrimu-c.jpg'],
+  'M-D': ['/haavn-renders/merrimu-terra-vista-1.jpg','/haavn-renders/merrimu-terra-vista-2.jpg','/haavn-renders/merrimu-d.jpg'],
+  'M-E': ['/haavn-renders/merrimu-terra-vista-1.jpg','/haavn-renders/merrimu-terra-vista-2.jpg','/haavn-renders/merrimu-e.jpg']
 };
-var GALLERY_SEED_REV = 4;      // bump when new seeded plans are added
+var GALLERY_SEED_REV = 5;      // bump when new seeded plans are added
 var galleryMigration = 0;      // persisted; guards the one-time, non-destructive merge
 // Flag-guarded (not content-signal based) so it runs once and never re-adds a
 // plan the user deliberately deleted, and never touches cost/sale edits.
@@ -864,8 +864,10 @@ function ensureSeedGalleries(){
   if(galleryMigration>=GALLERY_SEED_REV) return;
   Object.keys(SEED_GALLERY).forEach(k=>{
     if(!DATA[k]) return;
-    var g = DATA[k].gallery = DATA[k].gallery || [];
-    SEED_GALLERY[k].forEach(src=>{ if(g.indexOf(src)===-1) g.push(src); });
+    var g = DATA[k].gallery || [];
+    var seed = SEED_GALLERY[k];
+    var extras = g.filter(function(src){ return seed.indexOf(src)===-1; });
+    DATA[k].gallery = seed.concat(extras);
   });
   galleryMigration=GALLERY_SEED_REV;
   try{ doSave(); }catch(e){}
