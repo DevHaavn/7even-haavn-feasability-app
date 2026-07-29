@@ -187,16 +187,18 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
 
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16, transform: 'translateY(-6px)' }}>
-          {/* Real HAAVN wordmark (grey #474748 source), rendered white for the dark hero */}
-          <svg viewBox="0 0 4020.14 639.17" role="img" aria-label="HAAVN" fill="#FFFFFF"
-            style={{ width: 'min(430px, 64vw)', height: 'auto', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
-            <polygon points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/>
-            <polygon points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/>
-            <path d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/>
-            <path d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/>
-            <polygon points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/>
-          </svg>
-          <span style={{ color: '#fff', fontSize: 12, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
+          {/* Main header — co-brand lockup: HAAVN HOMES × HAAVNSKY */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(16px, 3.4vw, 36px)', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+              <HaavnMark height={34} fill="#FFFFFF" />
+              <span style={{ color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
+            </div>
+            <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 200, lineHeight: 1, alignSelf: 'center' }}>×</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.16em' }}>
+              <HaavnMark height={34} fill="#FFFFFF" />
+              <span style={{ color: '#8FB79D', fontSize: 44, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
+            </div>
+          </div>
         </div>
 
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
