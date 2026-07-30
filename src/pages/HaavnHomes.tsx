@@ -201,7 +201,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           </div>
         </div>
 
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10, transform: 'translateY(70mm)' }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10, transform: 'translateY(60mm)' }}>
           <button onClick={() => setShowNew(true)}
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
@@ -209,7 +209,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
       </div>
 
-      <div className="chrome-line" style={{ height: 2, flexShrink: 0, marginTop: '70mm' }} />
+      <div className="chrome-line" style={{ height: 2, flexShrink: 0, marginTop: '60mm' }} />
 
       {/* ── Board ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
