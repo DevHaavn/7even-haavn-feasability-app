@@ -193,7 +193,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
               <HaavnMark height={34} fill="#FFFFFF" />
               <span style={{ color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 200, lineHeight: 1, alignSelf: 'center', transform: 'translateY(-17px)' }}>×</span>
+            <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 200, lineHeight: 1, alignSelf: 'center', transform: 'translateY(-13px)' }}>×</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.16em', transform: 'translateY(-13px)' }}>
               <HaavnMark height={34} fill="#FFFFFF" />
               <span style={{ color: '#8FB79D', fontSize: 44, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
