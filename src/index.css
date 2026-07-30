@@ -689,3 +689,10 @@ input[type="checkbox"] {
 .mtg-caret { animation: mtg-blink 1s step-end infinite; }
 @media (max-width: 1000px){ .mtg-grid { grid-template-columns: 1fr !important; } }
 @media (prefers-reduced-motion: reduce){ .mtg-recdot,.mtg-wave i,.mtg-caret { animation: none !important; } }
+
+/* HAAVN Homes — New Project brand chooser. Two cards side-by-side on desktop,
+   stacked on narrow screens so the wordmark lockups never overflow. */
+.hh-brand-grid { display: flex; gap: 14px; }
+.hh-brand-card { flex: 1; min-width: 0; }
+.hh-brand-card svg { max-width: 100%; height: auto; }
+@media (max-width: 480px){ .hh-brand-grid { flex-direction: column; } }

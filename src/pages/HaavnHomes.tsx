@@ -298,23 +298,23 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
               <>
                 <p style={{ color: '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>New Project</p>
                 <h2 style={{ fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: '0 0 22px' }}>Choose a brand</h2>
-                <div style={{ display: 'flex', gap: 14 }}>
+                <div className="hh-brand-grid">
                   {/* HAAVN HOMES */}
-                  <button onClick={() => setNewBrand('homes')}
-                    style={{ flex: 1, padding: '32px 14px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: 'background 0.15s, border-color 0.15s' }}
+                  <button className="hh-brand-card" onClick={() => setNewBrand('homes')}
+                    style={{ padding: '28px 12px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, overflow: 'hidden', transition: 'background 0.15s, border-color 0.15s' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.55)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.22)' }}>
-                    <HaavnMark height={24} fill="#FFFFFF" />
+                    <HaavnMark height={18} fill="#FFFFFF" />
                     <span style={{ color: '#fff', fontSize: 9, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
                   </button>
                   {/* HAAVNSKY */}
-                  <button onClick={() => setNewBrand('sky')}
-                    style={{ flex: 1, padding: '32px 14px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: 'background 0.15s, border-color 0.15s' }}
+                  <button className="hh-brand-card" onClick={() => setNewBrand('sky')}
+                    style={{ padding: '28px 12px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, overflow: 'hidden', transition: 'background 0.15s, border-color 0.15s' }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(143,183,157,0.14)'; e.currentTarget.style.borderColor = 'rgba(143,183,157,0.6)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.22)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.14em' }}>
-                      <HaavnMark height={24} fill="#FFFFFF" />
-                      <span style={{ color: '#8FB79D', fontSize: 30, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.14em', maxWidth: '100%' }}>
+                      <HaavnMark height={18} fill="#FFFFFF" />
+                      <span style={{ color: '#8FB79D', fontSize: 22, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
                     </div>
                     <span style={{ color: '#8FB79D', fontSize: 8.5, fontWeight: 600, letterSpacing: '0.28em', opacity: 0.85, marginTop: 3 }}>VERTICAL</span>
                   </button>
