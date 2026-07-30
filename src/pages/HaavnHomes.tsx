@@ -186,7 +186,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Precision Homes · Black Series</p>
         </div>
 
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16, transform: 'translateY(-6px)' }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16, transform: 'translateY(30mm)' }}>
           {/* Main header — co-brand lockup: HAAVN HOMES × HAAVNSKY */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(16px, 3.4vw, 36px)', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
@@ -201,7 +201,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           </div>
         </div>
 
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10, transform: 'translateY(100mm)' }}>
           <button onClick={() => setShowNew(true)}
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
@@ -209,7 +209,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
       </div>
 
-      <div className="chrome-line" style={{ height: 2, flexShrink: 0 }} />
+      <div className="chrome-line" style={{ height: 2, flexShrink: 0, marginTop: '100mm' }} />
 
       {/* ── Board ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
