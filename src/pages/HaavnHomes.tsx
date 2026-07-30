@@ -37,6 +37,7 @@ export interface HomeProject {
   name: string
   address: string
   external?: boolean       // Merrimu is an external-developer project
+  brand?: 'homes' | 'sky'  // which HAAVN brand — HAAVN HOMES (default) or HAAVNSKY
   start?: string           // programme start (YYYY-MM)
   handover?: string        // target handover (YYYY-MM) — drives the live clock
   createdAt: string
@@ -122,6 +123,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
   const [openId, setOpenId] = useState<string | null>(null)
   const [brandMenu, setBrandMenu] = useState(false)
   const [showNew, setShowNew] = useState(false)
+  // Which brand the New Project flow is creating. null = still on the brand
+  // chooser (HAAVN HOMES vs HAAVNSKY); once chosen, the create form is shown.
+  const [newBrand, setNewBrand] = useState<'homes' | 'sky' | null>(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [start, setStart] = useState('')
@@ -132,8 +136,8 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
 
   function addProject() {
     if (!name.trim()) return
-    setList(prev => [...prev, { id: uid(), name: name.trim(), address: address.trim(), start: start || undefined, handover: handover || undefined, createdAt: new Date().toISOString() }])
-    setName(''); setAddress(''); setStart(''); setHandover(''); setShowNew(false)
+    setList(prev => [...prev, { id: uid(), name: name.trim(), address: address.trim(), brand: newBrand || 'homes', start: start || undefined, handover: handover || undefined, createdAt: new Date().toISOString() }])
+    setName(''); setAddress(''); setStart(''); setHandover(''); setShowNew(false); setNewBrand(null)
   }
   function remove(id: string) { setList(prev => prev.filter(p => p.id !== id)) }
 
@@ -202,7 +206,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
 
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10, transform: 'translateY(60mm)' }}>
-          <button onClick={() => setShowNew(true)}
+          <button onClick={() => { setNewBrand(null); setShowNew(true) }}
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
           </button>
@@ -269,9 +273,11 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
                 </span>
                 <HomeClock handover={p.handover} />
                 <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: 11, color: 'rgba(255,255,255,0.7)', flexShrink: 0 }}>{p.handover ? handoverLabel(p.handover) : '—'}</span>
-                {p.external
-                  ? <span style={{ fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: '#d5b26a', border: '1px solid rgba(213,178,106,0.4)', borderRadius: 999, padding: '4px 10px', flexShrink: 0, fontFamily: mono }}>External</span>
-                  : <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid rgba(127,208,163,0.35)', borderRadius: 999, padding: '5px 11px', flexShrink: 0 }}><HaavnMark height={9} fill="#7fd0a3" /></span>}
+                {p.brand === 'sky'
+                  ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.12em', border: '1px solid rgba(143,183,157,0.5)', borderRadius: 999, padding: '5px 11px', flexShrink: 0 }}><HaavnMark height={9} fill="#EDEFF1" /><span style={{ color: '#8FB79D', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>SKY</span></span>
+                  : p.external
+                    ? <span style={{ fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700, color: '#d5b26a', border: '1px solid rgba(213,178,106,0.4)', borderRadius: 999, padding: '4px 10px', flexShrink: 0, fontFamily: mono }}>External</span>
+                    : <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid rgba(127,208,163,0.35)', borderRadius: 999, padding: '5px 11px', flexShrink: 0 }}><HaavnMark height={9} fill="#7fd0a3" /></span>}
                 {!SEED.some(s => s.id === p.id) && (
                   <button onClick={e => { e.stopPropagation(); remove(p.id) }} title="Remove"
                     style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 15, flexShrink: 0 }}>×</button>
@@ -284,22 +290,64 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
 
       {/* New project modal — mirrors the studio's create dialog */}
       {showNew && (
-        <div onClick={() => setShowNew(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
+        <div onClick={() => { setShowNew(false); setNewBrand(null) }} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
           <div onClick={e => e.stopPropagation()} style={{ width: 'min(480px, calc(100vw - 28px))', padding: 38, background: 'rgba(44,60,78,0.52)', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 20, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 30px 70px -20px rgba(0,0,0,0.7)' }}>
             <div style={{ height: 2, borderRadius: 2, marginBottom: 28, background: 'linear-gradient(to right, transparent, #C6CDCF 30%, #EEF1F2 50%, #9AA2A4 72%, transparent)' }} />
-            <p style={{ color: '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>New Home</p>
-            <h2 style={{ fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: '0 0 24px' }}>Create Project</h2>
-            {[['Home / project name', name, setName, 'e.g. SOLUM', 'text'],
-              ['Address', address, setAddress, 'Suburb, State, Postcode', 'text'],
-              ['Programme start', start, setStart, '', 'month'],
-              ['Target handover', handover, setHandover, '', 'month']].map(([lbl, val, set, ph, type]) => (
-              <div key={lbl as string} style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#AEB6B8', fontWeight: 700, marginBottom: 7 }}>{lbl as string}</label>
-                <input type={type as string} value={val as string} placeholder={ph as string} onChange={e => (set as (v: string) => void)(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 9, color: '#EEF1F2', fontSize: 13, padding: '11px 13px', outline: 'none' }} />
-              </div>
-            ))}
-            <button onClick={addProject} style={{ marginTop: 10, width: '100%', padding: '13px', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, color: '#0c0d0f', background: 'linear-gradient(180deg,#e7ebef,#c3ccd3)', border: 'none', borderRadius: 10, cursor: 'pointer' }}>Create Project</button>
+            {!newBrand ? (
+              /* Step 1 — choose the brand, using the two lockups from the hero. */
+              <>
+                <p style={{ color: '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>New Project</p>
+                <h2 style={{ fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: '0 0 22px' }}>Choose a brand</h2>
+                <div style={{ display: 'flex', gap: 14 }}>
+                  {/* HAAVN HOMES */}
+                  <button onClick={() => setNewBrand('homes')}
+                    style={{ flex: 1, padding: '32px 14px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: 'background 0.15s, border-color 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.55)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.22)' }}>
+                    <HaavnMark height={24} fill="#FFFFFF" />
+                    <span style={{ color: '#fff', fontSize: 9, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
+                  </button>
+                  {/* HAAVNSKY */}
+                  <button onClick={() => setNewBrand('sky')}
+                    style={{ flex: 1, padding: '32px 14px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.22)', background: 'rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: 'background 0.15s, border-color 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(143,183,157,0.14)'; e.currentTarget.style.borderColor = 'rgba(143,183,157,0.6)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(220,232,244,0.22)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.14em' }}>
+                      <HaavnMark height={24} fill="#FFFFFF" />
+                      <span style={{ color: '#8FB79D', fontSize: 30, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
+                    </div>
+                    <span style={{ color: '#8FB79D', fontSize: 8.5, fontWeight: 600, letterSpacing: '0.28em', opacity: 0.85, marginTop: 3 }}>VERTICAL</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Step 2 — the create form, headed by the chosen brand's lockup. */
+              <>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+                  <div>
+                    <p style={{ color: newBrand === 'sky' ? '#8FB79D' : '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>{newBrand === 'sky' ? 'New HAAVNSKY Project' : 'New HAAVN HOMES Home'}</p>
+                    <h2 style={{ fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
+                  </div>
+                  {newBrand === 'sky'
+                    ? <div style={{ display: 'flex', alignItems: 'center', gap: '0.14em', flexShrink: 0, marginTop: 2 }}><HaavnMark height={15} fill="#FFFFFF" /><span style={{ color: '#8FB79D', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>SKY</span></div>
+                    : <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flexShrink: 0, marginTop: 2 }}><HaavnMark height={15} fill="#FFFFFF" /><span style={{ color: '#fff', fontSize: 7, fontWeight: 600, letterSpacing: '0.4em', paddingLeft: '0.4em', opacity: 0.85 }}>HOMES</span></div>}
+                </div>
+                {[['Home / project name', name, setName, newBrand === 'sky' ? 'e.g. HAAVNSKY ONE' : 'e.g. SOLUM', 'text'],
+                  ['Address', address, setAddress, 'Suburb, State, Postcode', 'text'],
+                  ['Programme start', start, setStart, '', 'month'],
+                  ['Target handover', handover, setHandover, '', 'month']].map(([lbl, val, set, ph, type]) => (
+                  <div key={lbl as string} style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#AEB6B8', fontWeight: 700, marginBottom: 7 }}>{lbl as string}</label>
+                    <input type={type as string} value={val as string} placeholder={ph as string} onChange={e => (set as (v: string) => void)(e.target.value)}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 9, color: '#EEF1F2', fontSize: 13, padding: '11px 13px', outline: 'none' }} />
+                  </div>
+                ))}
+                <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                  <button onClick={() => setNewBrand(null)} style={{ padding: '13px 18px', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, color: '#EEF1F2', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(220,232,244,0.22)', borderRadius: 10, cursor: 'pointer', flexShrink: 0 }}>← Brand</button>
+                  <button onClick={addProject} style={{ flex: 1, padding: '13px', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, color: '#0c0d0f', background: 'linear-gradient(180deg,#e7ebef,#c3ccd3)', border: 'none', borderRadius: 10, cursor: 'pointer' }}>Create Project</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
