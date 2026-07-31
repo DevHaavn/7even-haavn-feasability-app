@@ -323,6 +323,43 @@ const DSTATUS=['Not started','In progress','Blocked','Complete'];
 
 /* ---------------- STATE + PERSISTENCE ---------------- */
 const KEY='haavn_atrium_crm_v2';
+/* ---------------- CLOUD SYNC (Supabase capital_kv) -----------------
+   Live, shared, multi-user persistence for the HAAVN Homes CRM. The whole DB
+   blob is mirrored under one key. Degrades gracefully: if the capital_kv table
+   is missing/unreachable, the CRM keeps running on localStorage exactly as
+   before and auto-upgrades to cloud the instant the table exists. */
+const SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+const CLOUD_KEY='haavn_homes_crm';
+const SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+let _cloudOk=false,_cloudTs=0,_pushT=null;
+function _isTyping(){const a=document.activeElement;return !!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable);}
+function _reuid(){try{const ids=[...DB.customers.map(c=>c.id),...(DB.shareholders||[]).map(s=>s.id)];_uid=(ids.length?Math.max(...ids):0)+1;}catch(e){}}
+async function cloudPull(){
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=value,updated_at',{headers:SUPA_H});
+    if(!r.ok)return null; _cloudOk=true; const rows=await r.json(); return (rows&&rows.length)?rows[0]:null;
+  }catch(e){return null;}
+}
+function cloudPush(){
+  if(!_cloudOk)return; clearTimeout(_pushT);
+  _pushT=setTimeout(async()=>{
+    try{const body=[{key:CLOUD_KEY,value:DB,updated_at:new Date().toISOString()}];
+      const r=await fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)});
+      if(r.ok){const rows=await r.json(); if(rows&&rows[0])_cloudTs=Date.parse(rows[0].updated_at)||Date.now();}
+    }catch(e){}
+  },500);
+}
+async function cloudPoll(){
+  if(!_cloudOk||_isTyping())return;
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=updated_at',{headers:SUPA_H});
+    if(!r.ok)return; const rows=await r.json(); if(!rows||!rows.length)return;
+    const ts=Date.parse(rows[0].updated_at)||0;
+    if(ts>_cloudTs){const row=await cloudPull(); if(!row||!row.value)return;
+      DB=row.value; _cloudTs=ts; _reuid(); try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
+      const openId=(typeof curId!=='undefined')?curId:null; render(); if(openId&&typeof renderDrawer==='function')renderDrawer();
+    }
+  }catch(e){}
+}
 let DB=null, role='sales', view='dashboard', curId=null, detTab='journey';
 let _uid=1; const uid=()=>_uid++;
 
@@ -410,6 +447,7 @@ function save(){
   clearTimeout(_st);
   _st=setTimeout(()=>{
     try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
+    cloudPush();
     if(p){p.classList.remove('saving');t.textContent='Saved '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
   },450);
 }
@@ -1023,7 +1061,13 @@ document.addEventListener('change',e=>{
 /* ===========================================================
    INIT
    =========================================================== */
-load(); render();
+(async function boot(){
+  const row=await cloudPull();
+  if(row&&row.value){ DB=row.value; _cloudTs=Date.parse(row.updated_at)||Date.now(); _reuid(); try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){} }
+  else { load(); if(_cloudOk) cloudPush(); }
+  render();
+  if(_cloudOk) setInterval(cloudPoll, 12000);
+})();
 </script>
 </body>
 </html>
