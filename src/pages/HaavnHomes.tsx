@@ -178,7 +178,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         {/* HM CRM entry — the HM device button, same mark/treatment as the main
             app page (no plate, device only). Shown in every HAAVN HOMES view. */}
         {onOpenCrm && (
-          <button onClick={onOpenCrm} className="no-drag" title="HM CRM — Management Hub"
+          <button onClick={onOpenCrm} className="no-drag" title="HAAVN Homes — CRM & Delivery"
             style={{ position: 'absolute', top: 30, right: 44, zIndex: 30, background: 'transparent', border: 'none', padding: '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}>

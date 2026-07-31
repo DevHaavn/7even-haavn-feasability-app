@@ -10,6 +10,7 @@ import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
 import IntroScreen from './pages/IntroScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
+import HaavnHomesCrm from './pages/HaavnHomesCrm'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
@@ -132,11 +133,9 @@ export default function App() {
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
       <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} />
-      {homesCrmOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
-          <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
-        </div>
-      )}
+      {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
+          Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
+      {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} />}
     </RoleContext.Provider>
   )
 
@@ -147,12 +146,8 @@ export default function App() {
     return (
       <RoleContext.Provider value={role}>
         <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
-        {/* Above HAAVN HOMES (z-index 600) — its own stacking context sits on top. */}
-        {homesCrmOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
-            <HaavnManagementBase onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />
-          </div>
-        )}
+        {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
+        {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} />}
       </RoleContext.Provider>
     )
   }
