@@ -154,6 +154,9 @@ tbody tr:last-child td{border-bottom:none}
 .dr-tabs button{padding:11px 13px;font-size:12px;font-weight:600;color:#8C8578;border-bottom:2px solid transparent}
 .dr-tabs button.on{color:#fff;border-color:var(--goldl)}
 .dr-body{flex:1;overflow-y:auto;padding:20px 22px}
+.dr-foot{display:flex;justify-content:space-between;gap:12px;padding:13px 22px;background:var(--paper);border-top:1px solid rgba(0,0,0,.12)}
+.dr-foot .btn{padding:11px 20px;font-size:13px;font-weight:700;border-radius:9px}
+.btn.arm{background:#c0362f!important;color:#fff!important;border-color:#c0362f!important}
 
 /* ---------- STEP TRACKER ---------- */
 .steps{display:flex;flex-direction:column;gap:0}
@@ -894,7 +897,11 @@ function renderDrawer(){
     <div class="dr-sub">${c.home} · ${esc(c.suburb||'—')} · Step ${c.stage}/15 · ${esc(c.owner)}</div>
   </div>
   <div class="dr-tabs">${tabs.map(([k,l])=>`<button class="${detTab===k?'on':''}" data-act="detTab" data-tab="${k}">${l}</button>`).join('')}</div>
-  <div class="dr-body">${dBody(c)}</div>`;
+  <div class="dr-body">${dBody(c)}</div>
+  <div class="dr-foot">
+    <button class="btn danger" data-act="delCust" data-id="${c.id}">🗑 Delete</button>
+    <button class="btn gold" data-act="saveClose">✓ Save &amp; Close</button>
+  </div>`;
 }
 function dBody(c){
   if(detTab==='journey')return dJourney(c);
@@ -962,8 +969,7 @@ function dEdit(c){
   <div class="frow"><div class="f"><label>Source</label><select data-bind="c:${c.id}:source">${Object.entries(SOURCES).map(([k,v])=>`<option value="${k}" ${c.source===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
     <div class="f"><label>Home / product</label><select data-bind="c:${c.id}:home" data-hook="homeChange:${c.id}">${Object.keys(HOMES).map(h=>`<option ${c.home===h?'selected':''}>${h}</option>`).join('')}</select></div></div>
   <div class="f"><label>Budget (ex-GST)</label><input class="mono" value="${c.budget}" data-bind="c:${c.id}:budget" data-num="1"></div>
-  <div class="divlbl">Danger zone</div>
-  <button class="btn danger" data-act="delCust" data-id="${c.id}">Delete this customer permanently</button>`;
+  <p class="muted" style="font-size:12px;margin-top:14px">All changes save automatically. Use <b>✓ Save &amp; Close</b> below to confirm, or <b>🗑 Delete</b> to remove this customer.</p>`;
 }
 
 /* ===========================================================
@@ -997,7 +1003,14 @@ function toggleGate(id,gk){const c=cust(id);if(!c)return;const g=c.delivery.gate
 function addNote(id){const c=cust(id);if(!c)return;const t=$('#noteInp').value.trim();if(!t)return;const att=$('#noteAtt').value.trim();
   c.notes.unshift({who:c.owner,when:new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'}),tx:t,attach:att});save();renderDrawer();}
 function delNote(id,i){const c=cust(id);if(!c)return;c.notes.splice(i,1);save();renderDrawer();}
-function delCust(id){const c=cust(id);if(!c)return;if(!confirm('Delete '+c.name+' permanently? This cannot be undone.'))return;DB.customers=DB.customers.filter(x=>x.id!==id);save();closeDrawer();render();}
+let _delArm=null,_delT=null;
+function delCust(id){const c=cust(id);if(!c)return;
+  if(_delArm!==id){_delArm=id;
+    document.querySelectorAll('[data-act="delCust"][data-id="'+id+'"]').forEach(b=>{if(!b.dataset.lbl)b.dataset.lbl=b.innerHTML;b.innerHTML='⚠ Click again to confirm';b.classList.add('arm');});
+    clearTimeout(_delT);_delT=setTimeout(()=>{_delArm=null;document.querySelectorAll('[data-act="delCust"]').forEach(b=>{if(b.dataset.lbl){b.innerHTML=b.dataset.lbl;b.classList.remove('arm');}});},3500);
+    return;}
+  clearTimeout(_delT);_delArm=null;
+  DB.customers=DB.customers.filter(x=>x.id!==id);save();closeDrawer();render();}
 function addSh(){DB.shareholders.push({id:uid(),name:'New stakeholder',role:'',org:'HAAVN',email:''});save();render();}
 function delSh(id){DB.shareholders=DB.shareholders.filter(s=>s.id!==id);save();render();}
 
@@ -1011,6 +1024,7 @@ document.addEventListener('click',e=>{
     case 'go': go(t.dataset.view); break;
     case 'open': openDetail(id); break;
     case 'closeDrawer': closeDrawer(); break;
+    case 'saveClose': save(); closeDrawer(); render(); break;
     case 'detTab': detTab=t.dataset.tab; renderDrawer(); break;
     case 'newLead': newLead(); break;
     case 'fwd': moveStage(id,1); break;
