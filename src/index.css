@@ -711,3 +711,18 @@ input[type="checkbox"] {
   .hh-newproj-wrap { transform: none; }
   .hh-divider { margin-top: 0 !important; }
 }
+
+/* HAAVN Homes — mobile touch reliability.
+   Desktop keeps the fixed, overflow:hidden app-shell with a nested-scroll board.
+   On a phone that combination rubber-band-bounces and swallows taps, so buttons
+   feel dead. On mobile: make the whole shell ONE momentum-scrolling surface with
+   contained overscroll (kills the bounce), and let the board rows flow at natural
+   height instead of scrolling inside a fixed layer. */
+.hh-hero-lockup { pointer-events: none; }
+@media (max-width: 700px){
+  .hh-shell { overflow-y: auto !important; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .hh-rows { overflow: visible !important; flex: none !important; }
+}
+/* Remove the 300ms tap delay / double-tap zoom on all controls — taps register
+   immediately and reliably on touch devices. */
+button, a, [role="button"] { touch-action: manipulation; }

@@ -170,7 +170,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    <div className="hh-shell" style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', flexDirection: 'column', overflow: 'hidden',
       background: 'linear-gradient(rgba(5,7,10,0.15), rgba(5,7,10,0.15)), linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
 
       {/* ── Hero ── */}
@@ -186,7 +186,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           </button>
         )}
 
-        <div style={{ position: 'absolute', top: '4%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: '4%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Precision Homes · Black Series</p>
         </div>
 
@@ -251,7 +251,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
 
         {/* Rows */}
-        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+        <div className="hh-rows" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {list.map((p, i) => {
             const near = false
             return (
