@@ -11,6 +11,7 @@ import IntroScreen from './pages/IntroScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
+import HaavnDisplaySuite from './pages/HaavnDisplaySuite'
 import ProjectManagePanel from './components/ProjectManagePanel'
 import { RoleContext, getStoredRole, clearStoredRole, type Role } from './lib/role'
 import { useAtriumTheme, setAtriumTheme } from './lib/atriumTheme'
@@ -29,6 +30,8 @@ export default function App() {
   // The HM CRM (Management Hub) opened from within the restricted HAAVN HOMES
   // builder view (Jeffrey Witbreuk + team).
   const [homesCrmOpen, setHomesCrmOpen] = useState(false)
+  // Customer-facing Display Suite (DS logo, top-left of HAAVN Homes).
+  const [displaySuiteOpen, setDisplaySuiteOpen] = useState(false)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
@@ -132,10 +135,11 @@ export default function App() {
   // The HM device button (top-right) opens the Management Hub, mounted above.
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
-      <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} />
+      <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
+      {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
     </RoleContext.Provider>
   )
 
@@ -145,9 +149,10 @@ export default function App() {
   if (role === 'homes') {
     return (
       <RoleContext.Provider value={role}>
-        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
+        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
         {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
+        {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
       </RoleContext.Provider>
     )
   }

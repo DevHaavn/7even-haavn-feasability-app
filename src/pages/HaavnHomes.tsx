@@ -111,12 +111,14 @@ function HomeClock({ handover }: { handover?: string }) {
   )
 }
 
-export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: {
+export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onLogout }: {
   onBack: () => void
   /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
    *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
   restricted?: boolean
   onOpenCrm?: () => void
+  /** Opens the customer-facing Display Suite (DS logo, top-left). */
+  onOpenDisplaySuite?: () => void
   onLogout?: () => void
 }) {
   const [list, setList] = useState<HomeProject[]>(() => load())
@@ -183,6 +185,20 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}>
             <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 22, width: 'auto', display: 'block' }} />
+          </button>
+        )}
+
+        {/* DS — the customer Display Suite. Top-left, mirroring the HM device
+            top-right. Opens the showroom where clients browse homes & floor plans
+            and enquire. */}
+        {onOpenDisplaySuite && (
+          <button onClick={onOpenDisplaySuite} className="no-drag" title="Display Suite — browse homes, floor plans & enquire"
+            style={{ position: 'absolute', top: 26, left: 40, zIndex: 30, width: 48, height: 48, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 22px rgba(0,0,0,0.35)', transition: 'background 0.2s, border-color 0.2s' }}
+            onMouseEnter={e => { const t = e.currentTarget as HTMLElement; t.style.background = 'rgba(255,255,255,0.14)'; t.style.borderColor = 'rgba(255,255,255,0.5)' }}
+            onMouseLeave={e => { const t = e.currentTarget as HTMLElement; t.style.background = 'rgba(255,255,255,0.07)'; t.style.borderColor = 'rgba(255,255,255,0.28)' }}>
+            <span style={{ fontFamily: '"Cormorant Garamond", Georgia, "Times New Roman", serif', fontSize: 25, fontWeight: 600, color: '#fff', letterSpacing: '0.04em', lineHeight: 1, textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>DS</span>
           </button>
         )}
 
