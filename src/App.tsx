@@ -135,7 +135,7 @@ export default function App() {
       <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
-      {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} />}
+      {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
     </RoleContext.Provider>
   )
 
@@ -147,7 +147,7 @@ export default function App() {
       <RoleContext.Provider value={role}>
         <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
-        {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} />}
+        {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
       </RoleContext.Provider>
     )
   }
