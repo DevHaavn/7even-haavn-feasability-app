@@ -140,24 +140,38 @@ export function deleteCloudScenario(scenarioId: string) {
 //             create duplicate/blank data over a cloud that actually has data.
 export type PullResult = 'has-data' | 'empty' | 'error'
 
-export async function pullFromCloud(): Promise<PullResult> {
+export async function pullFromCloud(opts?: { light?: boolean }): Promise<PullResult> {
   if (!cloudEnabled) return 'empty' // local-only mode — build the local baseline
+  // A 'light' pull skips the two heaviest, rarely-changing tables: snapshots
+  // carry a FULL copy of project state each, and feasibility_files. The realtime
+  // re-pull uses light mode, so a single field edit no longer re-downloads every
+  // snapshot for every connected client — the egress amplifier that tripped the
+  // quota. Snapshots + files still hydrate on the initial boot pull / a refresh.
+  const light = opts?.light === true
   try {
     const [
       { data: projects, error: pe },
       { data: projectData, error: pde },
       { data: scenarios, error: se },
       { data: scenarioData, error: sde },
-      { data: snapshots, error: snape },
-      { data: feasibilityFiles, error: ffe },
     ] = await Promise.all([
       supabase.from('projects').select('*'),
       supabase.from('project_data').select('*'),
       supabase.from('mix_scenarios').select('*'),
       supabase.from('scenario_data').select('*'),
-      supabase.from('snapshots').select('*'),
-      supabase.from('feasibility_files').select('*'),
     ])
+
+    let snapshots: Record<string, unknown>[] | null = null
+    let feasibilityFiles: Record<string, unknown>[] | null = null
+    let snape: unknown = null, ffe: unknown = null
+    if (!light) {
+      const [snapRes, ffRes] = await Promise.all([
+        supabase.from('snapshots').select('*'),
+        supabase.from('feasibility_files').select('*'),
+      ])
+      snapshots = snapRes.data; snape = snapRes.error
+      feasibilityFiles = ffRes.data; ffe = ffRes.error
+    }
 
     if (pe || pde || se || sde || snape || ffe) {
       console.warn('[cloud] pull error', pe || pde || se || sde || snape || ffe)
@@ -311,10 +325,18 @@ export function subscribeRealtime(onUpdate: () => void) {
 
   // A remote change lands: re-pull — UNLESS we just wrote locally, in which case
   // this is the echo of our own save and re-pulling would clobber the fresh edit.
-  const handleRemote = async () => {
+  // Coalesce bursts of remote changes into ONE light re-pull. Autosave fires per
+  // keystroke-batch, so without this every field write triggered a full re-pull
+  // for every connected client — the egress runaway that tripped the quota.
+  let remoteTimer: ReturnType<typeof setTimeout> | undefined
+  const handleRemote = () => {
     if (suppressingRemote()) return
-    await pullFromCloud()
-    onUpdate()
+    clearTimeout(remoteTimer)
+    remoteTimer = setTimeout(async () => {
+      if (suppressingRemote()) return
+      await pullFromCloud({ light: true })
+      onUpdate()
+    }, 3000)
   }
 
   channel = supabase
@@ -326,5 +348,5 @@ export function subscribeRealtime(onUpdate: () => void) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'feasibility_files' }, handleRemote)
     .subscribe()
 
-  return () => { channel?.unsubscribe(); channel = null }
+  return () => { clearTimeout(remoteTimer); channel?.unsubscribe(); channel = null }
 }
