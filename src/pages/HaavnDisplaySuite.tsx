@@ -18,7 +18,7 @@ export default function HaavnDisplaySuite({ onClose }: { onClose: () => void }) 
   }, [onClose])
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)' }}>
       <iframe title="HAAVN Display Suite" src="/haavn-display-suite.html"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>

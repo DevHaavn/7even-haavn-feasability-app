@@ -51,7 +51,7 @@ export default function HaavnHomesCrm({ onClose, onLogout }: { onClose: () => vo
   // Chosen pillar — mount its tool full-bleed. The tool's own "← Back" returns here.
   if (active) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)' }}>
         <iframe title={active.title} src={active.src}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>

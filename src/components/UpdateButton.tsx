@@ -10,37 +10,24 @@ import React, { useState } from 'react'
  * re-syncs to the cloud on load) — no lost work. If already current it just says so.
  */
 export default function UpdateButton({ tone = 'dark' }: { tone?: 'dark' | 'light' | 'glass' }) {
-  const [state, setState] = useState<'idle' | 'busy' | 'latest'>('idle')
+  const [state, setState] = useState<'idle' | 'busy'>('idle')
 
-  function currentBundle(): string | null {
-    return Array.from(document.querySelectorAll('script[src]'))
-      .map(s => (s as HTMLScriptElement).src)
-      .find(s => /\/assets\/index-[\w-]+\.js/.test(s)) || null
-  }
-  async function deployedBundle(): Promise<string | null> {
-    try {
-      const html = await fetch(`/?_=${Date.now()}`, { cache: 'no-store' }).then(r => r.text())
-      const m = html.match(/\/assets\/index-[\w-]+\.js/)
-      return m ? new URL(m[0], location.origin).href : null
-    } catch { return null }
-  }
-
+  // An explicit "Update" tap ALWAYS force-refreshes. The old version compared the
+  // loaded bundle hash to the deployed one and skipped the reload if they looked
+  // equal — but on iOS Safari that check reads a *cached* index.html, so it wrongly
+  // said "up to date" and the new build never came through. And a plain
+  // location.reload() serves iOS's cached page. So: clear caches + service worker,
+  // then navigate to a cache-busted URL, which forces a fresh index.html (and its
+  // new hashed bundle) on every browser including iOS.
   async function getLatest() {
     if (state === 'busy') return
     setState('busy')
-    const cur = currentBundle()
-    const live = await deployedBundle()
-    if (cur && live && cur === live) {
-      setState('latest')
-      setTimeout(() => setState('idle'), 2400)
-      return
-    }
-    // New build (or unknown) → safe reload.
     ;(document.activeElement as HTMLElement | null)?.blur?.()
-    await new Promise(r => setTimeout(r, 900))   // let debounced auto-save flush to localStorage
+    await new Promise(r => setTimeout(r, 700))   // let debounced auto-save flush to localStorage
     try { if ('caches' in window) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))) } } catch { /* ignore */ }
     try { const rs = await navigator.serviceWorker?.getRegistrations?.(); if (rs) await Promise.all(rs.map(r => r.unregister())) } catch { /* ignore */ }
-    window.location.reload()
+    const url = location.origin + location.pathname + '?u=' + Date.now()
+    try { location.replace(url) } catch { window.location.href = url }
   }
 
   const light = tone === 'light'
