@@ -148,7 +148,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   // ── the mounted Black Series feasibility studio ──────────────────────────────
   if (open) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)' }}>
         <iframe title={`HAAVN Black Series — ${open.name}`}
           src={`${BLACK_SERIES_URL}#home=${encodeURIComponent(open.id)}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
@@ -181,7 +181,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
             app page (no plate, device only). Shown in every HAAVN HOMES view. */}
         {onOpenCrm && (
           <button onClick={onOpenCrm} className="no-drag" title="HAAVN Homes — CRM & Delivery"
-            style={{ position: 'absolute', top: 30, right: 44, zIndex: 30, background: 'transparent', border: 'none', padding: '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
+            style={{ position: 'absolute', top: 'calc(30px + env(safe-area-inset-top))', right: 44, zIndex: 30, background: 'transparent', border: 'none', padding: '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}>
             <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: 22, width: 'auto', display: 'block' }} />
@@ -191,19 +191,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
         {/* DS — the customer Display Suite. Top-left, mirroring the HM device
             top-right. Opens the showroom where clients browse homes & floor plans
             and enquire. */}
-        {onOpenDisplaySuite && (
-          <button onClick={onOpenDisplaySuite} className="dss-btn no-drag" aria-label="Open the HAAVN Display Suite"
-            style={{ position: 'absolute', top: 22, left: 34, zIndex: 30 }}>
-            <span className="dss-mark" role="img" aria-label="DS" />
-            <span className="dss-txt">
-              <span className="dss-t1">HAAVN</span>
-              <span className="dss-t2">Display Suite</span>
-            </span>
-            <span className="dss-go" aria-hidden="true">→</span>
-          </button>
-        )}
-
-        <div style={{ position: 'absolute', top: '4%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 'calc(4% + env(safe-area-inset-top))', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Precision Homes · Black Series</p>
         </div>
 
@@ -222,7 +210,19 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
           </div>
         </div>
 
-        <div className="hh-newproj-wrap" style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
+        <div className="hh-newproj-wrap" style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, zIndex: 10 }}>
+          {/* Display Suite — centred, above + New Project, below the co-brand logo. */}
+          {onOpenDisplaySuite && (
+            <button onClick={onOpenDisplaySuite} className="dss-btn no-drag" aria-label="Open the HAAVN Homes Display Suite"
+              style={{ marginBottom: '15mm' }}>
+              <span className="dss-mark" role="img" aria-label="DS" />
+              <span className="dss-txt">
+                <HaavnMark height={11} fill="#F1F3F4" />
+                <span className="dss-t2">Display Suite</span>
+              </span>
+              <span className="dss-go" aria-hidden="true">→</span>
+            </button>
+          )}
           <button onClick={() => { setNewBrand(null); setShowNew(true) }}
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>

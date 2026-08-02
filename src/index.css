@@ -747,11 +747,11 @@ button, a, [role="button"] { touch-action: manipulation; }
 .dss-btn:hover{ border-color:rgba(195,154,70,.55);
   background:linear-gradient(180deg, rgba(160,182,206,0.30), rgba(120,146,172,0.12));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.34), 0 14px 32px rgba(0,0,0,.4); animation-duration:3.2s; }
-.dss-mark{ display:inline-block;aspect-ratio:var(--dss-ar);height:30px;flex:none;
+.dss-mark{display:inline-block;aspect-ratio:var(--dss-ar);height:28px;flex:none;
   -webkit-mask:url('/ds-mark.png') center/contain no-repeat;mask:url('/ds-mark.png') center/contain no-repeat;
   background:linear-gradient(105deg, #EEF1F2 0%, #EEF1F2 38%, #C9A24A 46%, var(--gold) 50%, var(--goldl) 54%, #EEF1F2 62%, #EEF1F2 100%);
-  background-size:280% 100%; animation:dss-sheen 4.6s cubic-bezier(.5,0,.5,1) infinite;
-  filter:drop-shadow(0 1px 4px rgba(0,0,0,.4)); }
+  background-size:280% 100%;animation:dss-sheen 4.6s cubic-bezier(.5,0,.5,1) infinite;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
+.dss-txt svg{display:block;margin-bottom:3px;opacity:.92}
 .dss-txt{display:flex;flex-direction:column;line-height:1.14;border-left:1px solid rgba(255,255,255,.22);padding-left:12px}
 .dss-txt .dss-t1{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72);font-weight:600}
 .dss-txt .dss-t2{font-size:13px;font-weight:800;letter-spacing:-.01em;color:#fff;margin-top:2px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
@@ -759,5 +759,9 @@ button, a, [role="button"] { touch-action: manipulation; }
 .dss-btn:hover .dss-go{transform:translateX(4px)}
 @keyframes dss-sheen{0%{background-position:165% 0}55%{background-position:-65% 0}100%{background-position:-65% 0}}
 @keyframes dss-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@media (max-width:700px){ .dss-btn{padding:8px 13px;gap:9px} .dss-mark{height:24px} .dss-txt{padding-left:10px} .dss-txt .dss-t2{font-size:12px} }
+@media (max-width:700px){ .dss-btn{padding:8px 13px;gap:9px} .dss-mark{height:22px} .dss-txt{padding-left:10px} .dss-txt .dss-t2{font-size:12px} }
 @media (prefers-reduced-motion:reduce){.dss-btn,.dss-mark{animation:none}}
+
+/* iOS: stop Safari auto-inflating text (made fonts huge / buttons unreachable on
+   iPhone, worst inside the embedded showroom/CRM iframes). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
