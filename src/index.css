@@ -696,3 +696,18 @@ input[type="checkbox"] {
 .hh-brand-card { flex: 1; min-width: 0; }
 .hh-brand-card svg { max-width: 100%; height: auto; }
 @media (max-width: 480px){ .hh-brand-grid { flex-direction: column; } }
+
+/* HAAVN Homes hero — the large downward nudges (logo/button/divider) are a
+   desktop treatment. On phones they push the board + New Project button off a
+   fixed, overflow:hidden shell, leaving the page unscrollable and "broken".
+   Neutralise them on mobile and give the hero a fitting height so the board,
+   button and rows all sit on screen. */
+.hh-hero-lockup { transform: translateY(45mm); }
+.hh-newproj-wrap { transform: translateY(60mm); }
+.hh-divider { margin-top: 60mm; }
+@media (max-width: 700px){
+  .hh-hero { height: 42vh !important; min-height: 228px; }
+  .hh-hero-lockup { transform: translateY(4mm) scale(0.82); }
+  .hh-newproj-wrap { transform: none; }
+  .hh-divider { margin-top: 0 !important; }
+}

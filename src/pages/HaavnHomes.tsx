@@ -174,7 +174,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
       background: 'linear-gradient(rgba(5,7,10,0.15), rgba(5,7,10,0.15)), linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
 
       {/* ── Hero ── */}
-      <div style={{ position: 'relative', height: 'clamp(280px, 52vh, 60vh)', flexShrink: 0 }}>
+      <div className="hh-hero" style={{ position: 'relative', height: 'clamp(280px, 52vh, 60vh)', flexShrink: 0 }}>
         {/* HM CRM entry — the HM device button, same mark/treatment as the main
             app page (no plate, device only). Shown in every HAAVN HOMES view. */}
         {onOpenCrm && (
@@ -190,7 +190,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           <p style={{ color: 'white', fontSize: 11, letterSpacing: '0.38em', textTransform: 'uppercase', fontWeight: 500 }}>Precision Homes · Black Series</p>
         </div>
 
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16, transform: 'translateY(45mm)' }}>
+        <div className="hh-hero-lockup" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16 }}>
           {/* Main header — co-brand lockup: HAAVN HOMES × HAAVNSKY */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(16px, 3.4vw, 36px)', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
@@ -205,7 +205,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
           </div>
         </div>
 
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10, transform: 'translateY(60mm)' }}>
+        <div className="hh-newproj-wrap" style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
           <button onClick={() => { setNewBrand(null); setShowNew(true) }}
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
@@ -213,7 +213,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onLogout }: 
         </div>
       </div>
 
-      <div className="chrome-line" style={{ height: 2, flexShrink: 0, marginTop: '60mm' }} />
+      <div className="chrome-line hh-divider" style={{ height: 2, flexShrink: 0 }} />
 
       {/* ── Board ── */}
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
