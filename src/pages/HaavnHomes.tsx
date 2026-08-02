@@ -192,13 +192,14 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
             top-right. Opens the showroom where clients browse homes & floor plans
             and enquire. */}
         {onOpenDisplaySuite && (
-          <button onClick={onOpenDisplaySuite} className="no-drag" title="Display Suite — browse homes, floor plans & enquire"
-            style={{ position: 'absolute', top: 26, left: 40, zIndex: 30, width: 48, height: 48, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.28)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 22px rgba(0,0,0,0.35)', transition: 'background 0.2s, border-color 0.2s' }}
-            onMouseEnter={e => { const t = e.currentTarget as HTMLElement; t.style.background = 'rgba(255,255,255,0.14)'; t.style.borderColor = 'rgba(255,255,255,0.5)' }}
-            onMouseLeave={e => { const t = e.currentTarget as HTMLElement; t.style.background = 'rgba(255,255,255,0.07)'; t.style.borderColor = 'rgba(255,255,255,0.28)' }}>
-            <span style={{ fontFamily: '"Cormorant Garamond", Georgia, "Times New Roman", serif', fontSize: 25, fontWeight: 600, color: '#fff', letterSpacing: '0.04em', lineHeight: 1, textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>DS</span>
+          <button onClick={onOpenDisplaySuite} className="dss-btn no-drag" aria-label="Open the HAAVN Display Suite"
+            style={{ position: 'absolute', top: 22, left: 34, zIndex: 30 }}>
+            <span className="dss-mark" role="img" aria-label="DS" />
+            <span className="dss-txt">
+              <span className="dss-t1">HAAVN</span>
+              <span className="dss-t2">Display Suite</span>
+            </span>
+            <span className="dss-go" aria-hidden="true">→</span>
           </button>
         )}
 

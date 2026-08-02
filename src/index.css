@@ -726,3 +726,37 @@ input[type="checkbox"] {
 /* Remove the 300ms tap delay / double-tap zoom on all controls — taps register
    immediately and reliably on touch devices. */
 button, a, [role="button"] { touch-action: manipulation; }
+
+/* ── HAAVN Display Suite button (DS) — glass pill, top-left of HAAVN Homes.
+   The DS mark is the real logo (public/ds-mark.png) masked with a gold sheen. */
+.dss-btn{
+  --dss-ar:0.9533;
+  --ink:#1A1714; --ink3:#736E62; --gold:#9A7526; --goldl:#C39A46;
+  position:relative;display:inline-flex;align-items:center;gap:16px;
+  padding:15px 26px 15px 22px;border-radius:18px;text-decoration:none;cursor:pointer;
+  background:rgba(251,250,246,.72);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 12px 26px rgba(26,23,20,.14), 0 34px 64px rgba(26,23,20,.22);
+  animation:dss-float 6s ease-in-out infinite;
+  transition:box-shadow .28s ease,border-color .28s ease;
+}
+.dss-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.7),rgba(255,255,255,0) 46%)}
+.dss-btn:hover{ border-color:rgba(154,117,38,.42);
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 18px 34px rgba(26,23,20,.16), 0 48px 88px rgba(26,23,20,.26);
+  animation-duration:3.2s; }
+.dss-mark{ display:inline-block;aspect-ratio:var(--dss-ar);height:42px;flex:none;
+  -webkit-mask:url('/ds-mark.png') center/contain no-repeat;mask:url('/ds-mark.png') center/contain no-repeat;
+  background:linear-gradient(105deg, var(--ink) 0%, var(--ink) 39%, #6B4F17 46%, var(--gold) 50%, var(--goldl) 54%, var(--ink) 63%, var(--ink) 100%);
+  background-size:280% 100%; animation:dss-sheen 4.6s cubic-bezier(.5,0,.5,1) infinite;
+  filter:drop-shadow(0 1px 3px rgba(26,23,20,.16)); }
+.dss-txt{display:flex;flex-direction:column;line-height:1.15;border-left:1px solid rgba(26,23,20,.14);padding-left:16px}
+.dss-txt .dss-t1{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.dss-txt .dss-t2{font-size:18px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin-top:2px}
+.dss-go{margin-left:6px;color:var(--gold);font-size:19px;transition:transform .28s ease}
+.dss-btn:hover .dss-go{transform:translateX(4px)}
+@keyframes dss-sheen{0%{background-position:165% 0}55%{background-position:-65% 0}100%{background-position:-65% 0}}
+@keyframes dss-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (max-width:700px){ .dss-btn{padding:11px 16px;gap:11px} .dss-mark{height:32px} .dss-txt{padding-left:12px} .dss-txt .dss-t2{font-size:15px} }
+@media (prefers-reduced-motion:reduce){.dss-btn,.dss-mark{animation:none}}
