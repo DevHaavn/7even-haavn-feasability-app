@@ -702,7 +702,7 @@ input[type="checkbox"] {
    fixed, overflow:hidden shell, leaving the page unscrollable and "broken".
    Neutralise them on mobile and give the hero a fitting height so the board,
    button and rows all sit on screen. */
-.hh-hero-lockup { transform: translateY(45mm); }
+.hh-hero-lockup { transform: translate(5mm, 45mm); }
 .hh-newproj-wrap { transform: translateY(60mm); }
 .hh-divider { margin-top: 60mm; }
 @media (max-width: 700px){

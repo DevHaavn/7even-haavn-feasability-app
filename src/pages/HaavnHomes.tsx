@@ -214,7 +214,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
           {/* Display Suite — centred, above + New Project, below the co-brand logo. */}
           {onOpenDisplaySuite && (
             <button onClick={onOpenDisplaySuite} className="dss-btn no-drag" aria-label="Open the HAAVN Homes Display Suite"
-              style={{ marginBottom: '15mm' }}>
+              style={{ marginBottom: '15mm', left: '-1mm' }}>
               <span className="dss-mark" role="img" aria-label="DS" />
               <span className="dss-txt">
                 <HaavnMark height={11} fill="#F1F3F4" />
