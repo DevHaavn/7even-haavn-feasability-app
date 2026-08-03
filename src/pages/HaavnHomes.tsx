@@ -233,7 +233,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       <div className="chrome-line hh-divider" style={{ height: 2, flexShrink: 0 }} />
 
       {/* ── Board ── */}
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div className="hh-board" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {/* Column header — brand dropdown + count + menu, mirroring the main list */}
         <div style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', borderBottom: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
@@ -372,7 +372,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       {/* Same footer as the main ATRIUM app — brand, VISIT US links + copyright,
           Log Out bottom-left, P7 mark bottom-right. */}
       <SiteLinks tone="glass" />
-      <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey"
+      <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey hh-corner-btn"
         style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 320, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
       <Project7Mark />
     </div>

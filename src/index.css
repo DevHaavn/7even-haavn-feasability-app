@@ -784,3 +784,13 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .hh-newproj-btn { padding: 7px 18px !important; border-radius: 10px !important; }
   .hh-newproj-btn span { font-size: 8px !important; letter-spacing: 0.2em !important; }
 }
+
+/* HAAVN Homes mobile — let the footer + corner controls scroll out of view with
+   the page (they were pinned, overlapping content), and give the project board
+   room to breathe + scroll. Scoped to .hh-shell / ≤700px so desktop is unchanged. */
+@media (max-width: 700px){
+  .hh-corner-btn { position: static !important; display: block; width: max-content; margin: 16px auto 6px !important; }
+  .hh-shell .p7-mark { position: static !important; display: block; margin: 4px auto 26px !important; opacity: 0.75; }
+  .hh-board { flex: none !important; }
+  .hh-rows { padding-bottom: 22mm; }
+}
