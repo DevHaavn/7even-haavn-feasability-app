@@ -707,7 +707,7 @@ input[type="checkbox"] {
 .hh-divider { margin-top: 60mm; }
 @media (max-width: 700px){
   .hh-hero { height: 58vh !important; min-height: 340px; }
-  .hh-hero-lockup { transform: translateY(-7mm); justify-content: flex-start !important; padding-top: 12vh; }
+  .hh-hero-lockup { transform: translateY(8mm); justify-content: flex-start !important; padding-top: 12vh; }
   .hh-newproj-wrap { transform: none; }
   .hh-divider { margin-top: 0 !important; }
 }
@@ -791,6 +791,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (max-width: 700px){
   .hh-corner-btn { position: static !important; display: block; width: max-content; margin: 16px auto 6px !important; }
   .hh-shell .p7-mark { position: static !important; display: block; margin: 4px auto 26px !important; opacity: 0.75; }
+  .hh-hm-btn { right: 14px !important; padding: 6px 6px !important; }
+  .hh-hm-btn img { height: 18px !important; }
   .hh-board { flex: none !important; }
   .hh-rows { padding-bottom: 22mm; }
 }
