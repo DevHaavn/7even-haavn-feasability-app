@@ -50,6 +50,35 @@ const FIELD_KEY: Record<string, (pid: string) => string> = {
 let seeding = false
 export function setSeeding(v: boolean) { seeding = v }
 
+// ── Debounced, coalesced writes ───────────────────────────────────────────────
+// Every keystroke-batch used to fire its own upsert AND a realtime fan-out that
+// made every other connected client re-pull — the single biggest cost multiplier
+// (it's what tripped the egress quota). We now buffer the LATEST value per
+// (table+id+field) key and flush one upsert after a short quiet window, so a burst
+// of edits to a field becomes ONE write and ONE fan-out. The echo-suppress and
+// per-key edit guard are still set synchronously on every edit (below), so a stray
+// realtime pull can't clobber an in-progress edit before it flushes. The tab
+// flushes any pending writes when hidden/closed, so nothing is lost.
+const WRITE_DEBOUNCE_MS = 1500
+const pendingWrites = new Map<string, () => void>()
+let writeTimer: ReturnType<typeof setTimeout> | undefined
+function queueWrite(key: string, upsert: () => void) {
+  pendingWrites.set(key, upsert) // keep only the newest value for this key
+  clearTimeout(writeTimer)
+  writeTimer = setTimeout(flushWrites, WRITE_DEBOUNCE_MS)
+}
+function flushWrites() {
+  clearTimeout(writeTimer); writeTimer = undefined
+  if (!pendingWrites.size) return
+  const jobs = Array.from(pendingWrites.values())
+  pendingWrites.clear()
+  for (const j of jobs) j()
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushWrites() })
+  window.addEventListener('pagehide', flushWrites)
+}
+
 // ── Push helpers (fire-and-forget from save functions) ────────────────────────
 
 export function pushProject(project: Record<string, unknown>) {
@@ -73,15 +102,16 @@ export function pushProjectField(projectId: string, field: 'site' | 'land' | 'co
   noteKeyWrite(FIELD_KEY[field](projectId))
   if (seeding) return // local-only seed write — never overwrite shared cloud data
   if (!cloudEnabled) { console.warn(`[cloud] ⚠ SKIPPED ${field} for ${projectId} — cloud disabled (missing Supabase env at build)`); return }
-  supabase.from('project_data').upsert({
-    project_id: projectId,
-    [field]: data,
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'project_id' })
-    .then(({ error }) => {
-      if (error) console.error(`[cloud] ✗ push FAILED ${field} for ${projectId}:`, error.message, error)
-      else console.info(`[cloud] ✓ pushed ${field} for ${projectId}`)
-    }, (err) => console.error(`[cloud] ✗ push THREW ${field} for ${projectId}:`, err?.message || err))
+  queueWrite(`pd:${projectId}:${field}`, () => {
+    supabase.from('project_data').upsert({
+      project_id: projectId,
+      [field]: data,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'project_id' })
+      .then(({ error }) => {
+        if (error) console.error(`[cloud] ✗ push FAILED ${field} for ${projectId}:`, error.message)
+      }, (err) => console.error(`[cloud] ✗ push THREW ${field} for ${projectId}:`, err?.message || err))
+  })
 }
 
 export function pushScenario(scenario: Record<string, unknown>) {
@@ -95,12 +125,14 @@ export function pushScenario(scenario: Record<string, unknown>) {
 }
 
 export function pushScenarioField(scenarioId: string, field: 'unit_types' | 'btr' | 'bts' | 'hotel', data: unknown) {
-  if (seeding) return
   noteLocalWrite()
-  supabase.from('scenario_data').upsert({
-    scenario_id: scenarioId,
-    [field]: data,
-  }, { onConflict: 'scenario_id' }).then(({ error }) => { if (error) console.warn(`[cloud] pushScenarioField ${field}`, error.message) })
+  if (seeding) return
+  queueWrite(`sd:${scenarioId}:${field}`, () => {
+    supabase.from('scenario_data').upsert({
+      scenario_id: scenarioId,
+      [field]: data,
+    }, { onConflict: 'scenario_id' }).then(({ error }) => { if (error) console.warn(`[cloud] pushScenarioField ${field}`, error.message) })
+  })
 }
 
 export function pushSnapshot(snapshot: Record<string, unknown>) {
