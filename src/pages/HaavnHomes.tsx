@@ -197,15 +197,15 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
 
         <div className="hh-hero-lockup" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 16 }}>
           {/* Main header — co-brand lockup: HAAVN HOMES × HAAVNSKY */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(16px, 3.4vw, 36px)', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
+          <div className="hh-cobrand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(16px, 3.4vw, 36px)', filter: 'drop-shadow(0 2px 14px rgba(0,0,0,0.45))' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
               <HaavnMark height={34} fill="#FFFFFF" />
               <span style={{ color: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: '0.5em', paddingLeft: '0.5em', opacity: 0.9 }}>HOMES</span>
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 200, lineHeight: 1, alignSelf: 'center', transform: 'translateY(-13px)' }}>×</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.16em', transform: 'translateY(-13px)' }}>
+            <span className="hh-x" style={{ color: 'rgba(255,255,255,0.45)', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 200, lineHeight: 1, alignSelf: 'center', transform: 'translateY(-13px)' }}>×</span>
+            <div className="hh-skywrap" style={{ display: 'flex', alignItems: 'center', gap: '0.16em', transform: 'translateY(-13px)' }}>
               <HaavnMark height={34} fill="#FFFFFF" />
-              <span style={{ color: '#8FB79D', fontSize: 44, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
+              <span className="hh-sky" style={{ color: '#8FB79D', fontSize: 44, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1 }}>SKY</span>
             </div>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
               <span className="dss-go" aria-hidden="true">→</span>
             </button>
           )}
-          <button onClick={() => { setNewBrand(null); setShowNew(true) }}
+          <button onClick={() => { setNewBrand(null); setShowNew(true) }} className="hh-newproj-btn"
             style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
             <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
           </button>

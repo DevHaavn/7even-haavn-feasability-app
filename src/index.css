@@ -706,8 +706,8 @@ input[type="checkbox"] {
 .hh-newproj-wrap { transform: translate(-10mm, 60mm); }
 .hh-divider { margin-top: 60mm; }
 @media (max-width: 700px){
-  .hh-hero { height: 42vh !important; min-height: 228px; }
-  .hh-hero-lockup { transform: translateY(4mm) scale(0.82); }
+  .hh-hero { height: 58vh !important; min-height: 340px; }
+  .hh-hero-lockup { transform: translateY(-7mm); justify-content: flex-start !important; padding-top: 12vh; }
   .hh-newproj-wrap { transform: none; }
   .hh-divider { margin-top: 0 !important; }
 }
@@ -765,3 +765,22 @@ button, a, [role="button"] { touch-action: manipulation; }
 /* iOS: stop Safari auto-inflating text (made fonts huge / buttons unreachable on
    iPhone, worst inside the embedded showroom/CRM iframes). */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* HAAVN Homes — mobile hero rebuild (≤700px). Desktop is untouched.
+   Stack the co-brand wordmarks vertically (HAAVN HOMES over × over HAAVNSKY),
+   shrink the marks, and halve the buttons so nothing clogs/overlaps on a phone. */
+@media (max-width: 700px){
+  .hh-cobrand { flex-direction: column !important; flex-wrap: nowrap !important; gap: 7px !important; }
+  .hh-cobrand svg { height: 27px !important; }
+  .hh-x { transform: none !important; align-self: center !important; font-size: 18px !important; margin: 0 !important; }
+  .hh-skywrap { transform: none !important; }
+  .hh-sky { font-size: 28px !important; }
+  /* buttons ~50% smaller */
+  .dss-btn { margin-bottom: 6mm !important; padding: 6px 11px !important; gap: 8px !important; border-radius: 11px !important; left: 0 !important; }
+  .dss-mark { height: 15px !important; }
+  .dss-txt svg { height: 8px !important; }
+  .dss-txt .dss-t2 { font-size: 10px !important; }
+  .dss-go { font-size: 12px !important; }
+  .hh-newproj-btn { padding: 7px 18px !important; border-radius: 10px !important; }
+  .hh-newproj-btn span { font-size: 8px !important; letter-spacing: 0.2em !important; }
+}
