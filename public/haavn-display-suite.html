@@ -337,7 +337,7 @@ const home=k=>HOMES.find(h=>h.key===k);
 
 /* ---- state ---- */
 const SKEY='haavn_display_shortlist';
-let view='gallery', filter='all', curKey=null, cIdx=0, planIdx=0;
+let view='gallery', filter='ess', curKey=null, cIdx=0, planIdx=0;
 let shortlist=[];
 try{shortlist=JSON.parse(localStorage.getItem(SKEY))||[];}catch(e){shortlist=[];}
 function saveShort(){try{localStorage.setItem(SKEY,JSON.stringify(shortlist));}catch(e){}}
@@ -354,11 +354,14 @@ function heart(k){return shortlist.includes(k)?'on':'';}
 
 function vGallery(){
   const featured=home('SOLUM');
+  // Hero background follows the active collection: SOLUM's render for All/Black
+  // Series, and an Essentials render when the Essentials filter is selected.
+  const heroBg = filter==='ess' ? IMG['r1'] : IMG[featured.renders[0]];
   const list=HOMES.filter(h=> filter==='all'?true:(filter==='short'?shortlist.includes(h.key):h.series===filter));
   const counts={all:HOMES.length,black:HOMES.filter(h=>h.series==='black').length,ess:HOMES.filter(h=>h.series==='ess').length,short:shortlist.length};
   return `
   <div class="hero">
-    <div class="bg" style="background-image:url(${IMG[featured.renders[0]]})"></div><div class="scrim"></div>
+    <div class="bg" style="background-image:url(${heroBg})"></div><div class="scrim"></div>
     <div class="inner">
       <div class="eyebrow" style="color:#D9CFB9">HAAVN Homes · Precision Intelligence</div>
       <h1>The Display Suite.<br><i>Every home. One standard.</i></h1>
@@ -385,9 +388,9 @@ function vGallery(){
       <div><div class="eyebrow">The collection</div><h2>Choose your <i>HAAVN</i>.</h2>
       <p>Filter by collection. Tap any home to step inside — renders, plans, specification and retail pricing.</p></div>
       <div class="filters">
-        <button class="fchip ${filter==='all'?'on':''}" data-act="filter" data-f="all">All homes<span class="c">${counts.all}</span></button>
-        <button class="fchip ${filter==='black'?'on':''}" data-act="filter" data-f="black">Black Series<span class="c">${counts.black}</span></button>
         <button class="fchip ${filter==='ess'?'on':''}" data-act="filter" data-f="ess">Essentials<span class="c">${counts.ess}</span></button>
+        <button class="fchip ${filter==='black'?'on':''}" data-act="filter" data-f="black">Black Series<span class="c">${counts.black}</span></button>
+        <button class="fchip ${filter==='all'?'on':''}" data-act="filter" data-f="all">All homes<span class="c">${counts.all}</span></button>
         <button class="fchip ${filter==='short'?'on':''}" data-act="filter" data-f="short">♥ Shortlist<span class="c">${counts.short}</span></button>
       </div>
     </div>
