@@ -37,8 +37,6 @@ button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit}
 
 .topbar{background:#141210;color:#EDE7D8;display:flex;align-items:center;gap:16px;padding:0 22px;height:52px;position:sticky;top:0;z-index:50;border-bottom:1px solid #262119}
-html.embedded .topbar{padding-left:216px}
-html.embedded .home-btn{display:none}
 .home-btn{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:#C9C2B0;background:#221E18;border:1px solid #34302699;border-radius:20px;padding:6px 15px;text-decoration:none;transition:.15s}
 .home-btn:hover{background:#EDE7D8;color:#141210;border-color:#EDE7D8}
 .sb-burger{display:none;background:none;border:none;color:#C9C2B0;font-size:18px;padding:0 4px}
@@ -647,6 +645,13 @@ html.embedded .home-btn{display:none}
 .hm-logo{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;white-space:nowrap;letter-spacing:.005em}
 .hm-logo .ham{color:var(--ink)}.hm-logo .mar{color:#F0791E}.hm-logo.rev .ham{color:var(--bone)}
 @media(max-width:1080px){.capdoc .cg3,.capdoc .cg4,.capdoc .cg2{grid-template-columns:1fr 1fr}.capdoc .proj{grid-template-columns:1fr}}
+@media(max-width:960px){
+  .topbar{padding-top:calc(env(safe-area-inset-top) + 8px)!important;height:auto!important;min-height:52px}
+  .sidebar,.sb-scrim{top:calc(env(safe-area-inset-top) + 60px)!important}
+  .wrap{padding-top:calc(26px + 15mm)!important}
+  .crumb .cr-pre{display:none!important}
+}
+html,body{overscroll-behavior:none}
 </style>
 </head>
 <body>
@@ -671,7 +676,7 @@ html.embedded .home-btn{display:none}
 
 <script>try{if(window.self!==window.top)document.documentElement.classList.add("embedded")}catch(e){document.documentElement.classList.add("embedded")}</script>
 <div class="topbar">
-  <a class="home-btn" id="homeBtn" href="/" title="Back to main app">← Home</a>
+  <a class="home-btn" id="homeBtn" href="/" title="Back to main app" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-close-studio','*');return false;}">← Home</a>
   <button class="sb-burger" id="sbBurger" aria-label="Menu">☰</button>
   <div class="crumb" id="breadcrumb"><span class="cr-pre">◆ Preview</span> · <svg viewBox="0 0 4020.14 639.17" aria-label="HAAVN" style="height:.82em;width:auto;display:inline-block;vertical-align:-0.04em;fill:currentColor"><polygon points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/><polygon points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/><path d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/><path d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/><polygon points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/></svg> Black Series</div>
   <div class="hdr-tag">Precision Intelligence — manufactured by <svg viewBox="0 0 4020.14 639.17" aria-label="HAAVN" style="height:.82em;width:auto;display:inline-block;vertical-align:-0.04em;fill:currentColor"><polygon points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/><polygon points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/><path d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/><path d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/><polygon points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/></svg> Technologies</div>
