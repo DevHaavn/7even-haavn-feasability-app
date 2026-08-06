@@ -1029,6 +1029,7 @@ let _saveT=null;
 function snapshot(){return JSON.stringify({v:STATE_VERSION,DATA,scenarios,curScen,mprog,mStart,phaseMeta,projectStart,progHome,feasBlocks,feasRange,currentHome,galleryMigration,nameMigration});}
 function doSave(){
   try{localStorage.setItem(STATE_VERSION,snapshot());}catch(e){}
+  cloudPush();   // mirror to Supabase so every staff device sees the change
   const p=document.getElementById('savePill'),t=document.getElementById('savePillTxt');
   if(p){p.classList.remove('saving');p.classList.add('saved');t.textContent='Saved '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
 }
@@ -1036,6 +1037,42 @@ function touch(){
   const p=document.getElementById('savePill'),t=document.getElementById('savePillTxt');
   if(p){p.classList.add('saving');p.classList.remove('saved');t.textContent='Saving…';}
   clearTimeout(_saveT);_saveT=setTimeout(doSave,700);
+}
+/* ---------------- CLOUD SYNC (Supabase capital_kv) -----------------
+   Shares the Black Series feasibility — costings, scenarios, program — across
+   EVERY staff device. The whole state blob is mirrored under one key, so an edit
+   on one machine appears on all. Degrades gracefully to localStorage-only if the
+   table is ever unreachable. Live multi-user safe: the poll path only re-renders,
+   it never re-seeds/migrates (migrations are flag-guarded and run once at boot). */
+const SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+const CLOUD_KEY='haavn_black_series';
+const SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+let _cloudOk=false,_cloudTs=0,_cpushT=null;
+function _bsTyping(){const a=document.activeElement;return !!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable);}
+async function cloudPull(){
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=value,updated_at',{headers:SUPA_H});
+    if(!r.ok)return null; _cloudOk=true; const rows=await r.json(); return (rows&&rows.length)?rows[0]:null;
+  }catch(e){return null;}
+}
+function cloudPush(){
+  if(!_cloudOk)return; clearTimeout(_cpushT);
+  _cpushT=setTimeout(async()=>{
+    try{const body=[{key:CLOUD_KEY,value:JSON.parse(snapshot()),updated_at:new Date().toISOString()}];
+      const r=await fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)});
+      if(r.ok){const rows=await r.json(); if(rows&&rows[0])_cloudTs=Date.parse(rows[0].updated_at)||Date.now();}
+    }catch(e){}
+  },900);
+}
+function adoptCloud(value){ try{localStorage.setItem(STATE_VERSION,JSON.stringify(value));}catch(e){} restoreState(); }
+function renderAllBS(){ try{renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPills();renderFeas();renderMix();renderDashboard();renderSidebar();}catch(e){} }
+async function cloudPoll(){
+  if(!_cloudOk||_bsTyping())return;
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=updated_at',{headers:SUPA_H});
+    if(!r.ok)return; const rows=await r.json(); if(!rows||!rows.length)return;
+    const ts=Date.parse(rows[0].updated_at)||0;
+    if(ts>_cloudTs){const row=await cloudPull(); if(!row||!row.value)return; _cloudTs=ts; adoptCloud(row.value); renderAllBS();}
+  }catch(e){}
 }
 // Seeded galleries baked into the code (like SOLUM's render) so floor plans
 // persist for everyone, on every device and the live site — never localStorage-only.
@@ -2280,40 +2317,50 @@ function wireLightbox(){
 // The lightbox markup sits at the end of <body>, after this script — wire once the DOM is ready.
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wireLightbox); else wireLightbox();
 
-/* ---------- BOOT ---------- */
-restoreState();
-ensureSeedGalleries();
-ensureHomeNames();   // add newly-seeded floor plans once, without wiping edits
-// integrity: every tab must have a valid, non-empty block
-['black','ds','ess'].forEach(r=>{
-  if(!Array.isArray(feasBlocks[r]))feasBlocks[r]=[];
-  feasBlocks[r]=feasBlocks[r].filter(b=>b&&DATA[b.k]).map(b=>({k:b.k,n:Math.max(1,parseInt(b.n)||1)}));
-  if(!feasBlocks[r].length)feasBlocks[r]=[{k:RANGES[r].keys[0],n:1}];
-});
-if(!RANGES[feasRange])feasRange='black';
-ensureFocus();
-bindProgSwitch(); initAutosave();
-renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPills();renderFeas();renderMix();renderDashboard();renderSidebar();
+/* ---------- BOOT (cloud-aware) ---------- */
+(async function boot(){
+  // Pull the shared cloud copy first. If it exists, adopt it (all staff see the
+  // same feasibility); if the cloud is empty/unreachable, keep this device's
+  // local copy — and if the cloud is reachable-but-empty, seed it from local.
+  const row = await cloudPull();
+  if(row && row.value){ adoptCloud(row.value); _cloudTs = Date.parse(row.updated_at)||Date.now(); }
+  else { restoreState(); }
+  ensureSeedGalleries();
+  ensureHomeNames();   // add newly-seeded floor plans once, without wiping edits
+  // integrity: every tab must have a valid, non-empty block
+  ['black','ds','ess'].forEach(r=>{
+    if(!Array.isArray(feasBlocks[r]))feasBlocks[r]=[];
+    feasBlocks[r]=feasBlocks[r].filter(b=>b&&DATA[b.k]).map(b=>({k:b.k,n:Math.max(1,parseInt(b.n)||1)}));
+    if(!feasBlocks[r].length)feasBlocks[r]=[{k:RANGES[r].keys[0],n:1}];
+  });
+  if(!RANGES[feasRange])feasRange='black';
+  ensureFocus();
+  bindProgSwitch(); initAutosave();
+  renderRangeSwitch();renderRange();renderPlanToggle();renderFeasRange();renderPills();renderFeas();renderMix();renderDashboard();renderSidebar();
+  // First device to open after this ships seeds the cloud from its local copy.
+  if(_cloudOk && !(row && row.value)) cloudPush();
+  if(_cloudOk) setInterval(cloudPoll, 10000);   // live: pick up other staff's edits
+  try{ openFromHash(); }catch(e){}
+})();
 /* Deep-link from HAAVN HOMES: the parent opens this engine with #home=<id>.
    Map that id to the home's DATA key and open its feasibility directly, so the
    card jumps into the home's live feasibility instead of the Range screen. */
-(function(){
-  var HOME_MAP={solum:'SOLUM',havan:'HAVEN',haven:'HAVEN',forma:'FORMA',magna:'MAGNA','magna-plus':'MAGNA PLUS',merrimu:'M-A1'};
-  function openFromHash(){
-    try{
-      var m=/home=([^&]+)/.exec(location.hash||''); if(!m) return;
-      var id=decodeURIComponent(m[1]).toLowerCase();
-      // BLACK SERIES is the umbrella project — land on the Range (all homes carousel).
-      if(id==='black-series'){ if(typeof switchView==='function') switchView('range'); return; }
-      var key=HOME_MAP[id];
-      if(key && typeof DATA!=='undefined' && DATA[key] && typeof openHome==='function' && typeof switchView==='function'){
-        switchView('feas'); openHome(key);
-      }
-    }catch(e){}
-  }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
-})();
+// Defined top-level (hoisted) so the cloud-aware BOOT can call openFromHash()
+// after its async render; the initial call now lives in BOOT.
+var HOME_MAP={solum:'SOLUM',havan:'HAVEN',haven:'HAVEN',forma:'FORMA',magna:'MAGNA','magna-plus':'MAGNA PLUS',merrimu:'M-A1'};
+function openFromHash(){
+  try{
+    var m=/home=([^&]+)/.exec(location.hash||''); if(!m) return;
+    var id=decodeURIComponent(m[1]).toLowerCase();
+    // BLACK SERIES is the umbrella project — land on the Range (all homes carousel).
+    if(id==='black-series'){ if(typeof switchView==='function') switchView('range'); return; }
+    var key=HOME_MAP[id];
+    if(key && typeof DATA!=='undefined' && DATA[key] && typeof openHome==='function' && typeof switchView==='function'){
+      switchView('feas'); openHome(key);
+    }
+  }catch(e){}
+}
+window.addEventListener('hashchange', openFromHash);
 
 </script>
 <div class="lightbox" id="lightbox" aria-hidden="true">
