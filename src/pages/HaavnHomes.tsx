@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import SiteLinks from '../components/SiteLinks'
 import { Project7Mark } from '../components/ui'
+import { useScrollLock } from '../lib/useScrollLock'
 
 /**
  * HAAVN HOMES — the Black Series homes-building company.
@@ -144,6 +145,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
   }, [])
   const open = list.find(p => p.id === openId) || null
+  // Pin the parent document while the embedded studio is open — stops the iOS
+  // address-bar shift + bounce that made the studio "jump around" on mobile.
+  useScrollLock(!!open)
 
   function addProject() {
     if (!name.trim()) return
@@ -157,7 +161,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   // ── the mounted Black Series feasibility studio ──────────────────────────────
   if (open) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', overflow: 'hidden', overscrollBehavior: 'none' }}>
         <iframe title={`HAAVN Black Series — ${open.name}`}
           src={`${BLACK_SERIES_URL}#home=${encodeURIComponent(open.id)}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />

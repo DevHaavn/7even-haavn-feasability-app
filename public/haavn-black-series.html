@@ -650,8 +650,11 @@ input,select,textarea{font-family:inherit}
   .sidebar,.sb-scrim{top:calc(env(safe-area-inset-top) + 60px)!important}
   .wrap{padding-top:calc(26px + 15mm)!important}
   .crumb .cr-pre{display:none!important}
+  /* Pin the page on mobile: momentum scroll, no horizontal page-pan (wide tables
+     keep their own inner scroll), no rubber-band. */
+  body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 }
-html,body{overscroll-behavior:none}
+html,body{overscroll-behavior:none;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
