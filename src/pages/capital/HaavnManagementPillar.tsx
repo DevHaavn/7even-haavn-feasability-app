@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Project7Mark } from '../../components/ui'
 import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
@@ -9,6 +9,7 @@ import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 import { useRole } from '../../lib/role'
+import { useScrollLock } from '../../lib/useScrollLock'
 
 export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isCRM = pillar.id === 'crm'
@@ -17,6 +18,17 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   const pal = atriumPalette(theme)
   // Feasibility tab in the embedded Management System can hand off to the studio.
   useOpenStudioBridge(onExit)
+  // Pillar 03 (Weekly Meetings) mounts the boardroom agenda tool in an iframe;
+  // its top-bar "← Hub" posts this message to return, and we pin the page on mobile.
+  useScrollLock(pillar.id === 'agenda')
+  useEffect(() => {
+    if (pillar.id !== 'agenda') return
+    const onMsg = (e: MessageEvent) => { if (e.data === 'haavn-agenda-close') onBack() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onBack() }
+    window.addEventListener('message', onMsg)
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
+  }, [pillar.id, onBack])
 
   // HAAVN Management System — the full ATRIUM Management prototype (Today, Senior
   // Management, Portfolio, Projects, project workspace, Client Portal, Meetings,
@@ -36,6 +48,17 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
           style={{ position: 'fixed', top: 70, left: 78, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
           ← Management Hub
         </button>
+      </div>
+    )
+  }
+
+  // Pillar 03 · Weekly Meetings & Agenda Tracking — the boardroom agenda tool,
+  // mounted full-bleed. Its own top-bar "← Hub" returns (see the effect above).
+  if (pillar.id === 'agenda') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#ECE8DE', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+        <iframe title="Weekly Meetings & Agenda Tracking" src="/haavn-boardroom.html"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
   }

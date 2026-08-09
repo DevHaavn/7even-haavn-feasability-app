@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>7EVEN · HAAVN — Boardroom Agenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bone:#ECE8DE;--paper:#F4F1E9;--card:#FBFAF6;--ink:#1A1714;--ink2:#403A32;--ink3:#736E62;
+  --line:#D6D0C2;--line2:#C4BDAB;--gold:#9A7526;--goldl:#C39A46;
+  --char:#17150F;--char2:#211E17;--charline:#332F26;
+  --green:#3C6E47;--greenbg:#E4EBE0;--amber:#9A6B1F;--amberbg:#F3E9D4;--red:#8A3A2E;--redbg:#F1E0DA;--blue:#2A4C6B;--bluebg:#E1E8EE;
+  --sh:0 1px 2px rgba(26,23,20,.05),0 8px 24px rgba(26,23,20,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:none}
+html,body{overscroll-behavior:none;-webkit-overflow-scrolling:touch}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bone);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:13px;color:var(--ink)}
+.mono{font-family:'IBM Plex Mono',monospace}
+/* chrome */
+.topbar{height:56px;background:var(--char);color:#E9E5DB;display:flex;align-items:center;gap:14px;padding:0 24px;position:sticky;top:0;z-index:40;border-bottom:1px solid #000}
+.brand svg{height:18px;display:block}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;color:#75715F;font-weight:600;padding-left:13px;border-left:1px solid var(--charline)}
+.hubback{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:#B9B3A5;background:#0C0B08;border:1px solid var(--charline);padding:6px 12px;border-radius:20px;font-weight:600;white-space:nowrap}
+.hubback:hover{color:#fff;border-color:#4a463a}
+.savepill{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11px;color:#B9B3A5;background:#0C0B08;border:1px solid var(--charline);padding:5px 11px;border-radius:20px;white-space:nowrap}
+.savepill .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.savepill.saving .dot{background:var(--goldl);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.tabsbar{background:var(--char);padding:0 24px;display:flex;gap:2px;position:sticky;top:56px;z-index:39;border-bottom:1px solid #000;overflow-x:auto}
+.tabsbar button{padding:12px 15px;font-size:12.5px;font-weight:600;color:#8C8578;border-bottom:2px solid transparent;white-space:nowrap}
+.tabsbar button.on{color:#fff;border-bottom-color:var(--goldl)}
+.tabsbar .tct{font-family:'IBM Plex Mono',monospace;font-size:10px;background:#000;color:#B9B3A5;padding:0 6px;border-radius:20px;margin-left:5px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 28px 70px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;font-weight:600}
+h1.title{font-size:27px;font-weight:800;letter-spacing:-.025em;margin-top:5px}
+.lede{color:var(--ink3);font-size:13px;margin-top:5px;max-width:680px}
+.h-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.flexwrap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.right{margin-left:auto}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:8px;font-size:12.5px;font-weight:600;background:var(--card);border:1px solid var(--line2);color:var(--ink);transition:.13s;white-space:nowrap}
+.btn:hover{border-color:var(--ink3);background:#fff}
+.btn.pri{background:var(--ink);color:var(--paper);border-color:var(--ink)}.btn.pri:hover{background:#000}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn.gold:hover{background:#87651f}
+.btn.sm{padding:6px 11px;font-size:11.5px}
+.btn.danger{color:var(--red)}.btn.danger:hover{background:var(--redbg);border-color:var(--red)}
+/* meeting header */
+.mhead{background:var(--char);color:var(--paper);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--sh)}
+.mhead .mtop{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.mhead .mt-when{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--goldl)}
+.mhead h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:4px}
+.mhead .msub{font-size:12px;color:#A39C8C;margin-top:4px}
+.mhead input,.mhead select{background:var(--char2);border:1px solid var(--charline);border-radius:7px;padding:6px 9px;color:#fff;font-size:12.5px}
+.mstat{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid var(--charline)}
+.mstat .st .v{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.mstat .st .l{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#8C8578;text-transform:uppercase;margin-top:2px}
+.att{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.attchip{display:inline-flex;align-items:center;gap:7px;background:var(--char2);border:1px solid var(--charline);border-radius:20px;padding:5px 8px 5px 11px;font-size:12px;cursor:pointer;transition:.12s}
+.attchip .ad{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.attchip.away{opacity:.5}.attchip.away .ad{background:var(--ink3)}
+.attchip .x{color:#8C8578;font-size:14px;line-height:1}.attchip .x:hover{color:var(--red)}
+.addatt{background:transparent;border:1px dashed var(--charline);border-radius:20px;padding:5px 12px;font-size:12px;color:#A39C8C}
+/* department panels */
+.dept{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.dept-h{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dept-h .dbar{width:5px;height:34px;border-radius:4px;flex:none}
+.dept-h .dn{font-size:16px;font-weight:800;letter-spacing:-.015em}
+.dept-h .ds{font-size:11.5px;color:var(--ink3)}
+.dept-h .dlead{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)}
+.dept-b{padding:12px 16px}
+.item{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff;transition:.12s}
+.item.done{background:var(--paper);opacity:.85}
+.item-row{display:flex;align-items:center;gap:11px;padding:10px 13px}
+.chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line2);flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;cursor:pointer;transition:.12s}
+.chk.on{background:var(--green);border-color:var(--green);color:#fff}
+.item .ti{flex:1;border:none;background:transparent;font-size:13.5px;font-weight:600;padding:3px 2px;min-width:0}
+.item.done .ti{text-decoration:line-through;color:var(--ink3)}
+.item .ti:focus{outline:none;background:var(--bone);border-radius:5px}
+.typesel,.ownsel,.statsel{border:1px solid var(--line2);border-radius:7px;padding:5px 7px;font-size:11.5px;background:#fff}
+.typepill{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.typepill.update{background:var(--bluebg);color:var(--blue)}
+.typepill.request{background:var(--amberbg);color:var(--amber)}
+.typepill.event{background:#EAE3F0;color:#6A4E86}
+.typepill.decision{background:var(--greenbg);color:var(--green)}
+.iconbtn{width:28px;height:28px;border-radius:7px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink3);background:#fff;flex:none}
+.iconbtn:hover{border-color:var(--ink3);color:var(--ink)}
+.item-exp{padding:0 13px 13px 44px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.item-exp textarea{flex:1;min-width:220px;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;background:#fff;resize:vertical;min-height:40px;font-size:12.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.pill .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.open{background:var(--bone);color:var(--ink3)}
+.pill.prog{background:var(--amberbg);color:var(--amber)}
+.pill.done{background:var(--greenbg);color:var(--green)}
+.pill.block{background:var(--redbg);color:var(--red)}
+.minutes{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);padding:16px 18px;margin-bottom:16px}
+.minutes textarea{width:100%;border:1px solid var(--line2);border-radius:9px;padding:11px 13px;background:#fff;resize:vertical;min-height:90px;font-size:13px;line-height:1.55}
+/* tables */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.panel-h h3{font-size:14px;font-weight:800}
+table{width:100%;border-collapse:collapse}
+th{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);font-weight:600;background:var(--bone)}
+td{padding:9px 13px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+.cin{width:100%;border:1px solid transparent;border-radius:6px;padding:6px 7px;background:transparent;font-size:13px}
+.cin:hover{border-color:var(--line)}.cin:focus{outline:none;border-color:var(--gold);background:#fff}
+.datec{border:1px solid var(--line2);border-radius:7px;padding:5px 7px;font-size:12px;font-family:'IBM Plex Mono',monospace;background:#fff}
+.selc{border:1px solid var(--line2);border-radius:7px;padding:5px 7px;font-size:12px;background:#fff}
+.deptdot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.empty{text-align:center;padding:34px;color:var(--ink3)}
+.empty .ei{font-size:24px;opacity:.4}
+.arch{display:flex;align-items:center;gap:14px;padding:13px 16px;border:1px solid var(--line);border-radius:11px;background:#fff;margin-bottom:9px;cursor:pointer;transition:.12s}
+.arch:hover{border-color:var(--ink3)}
+.arch .ad{font-size:20px;font-weight:800;letter-spacing:-.02em;width:64px}
+.arch .amo{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold)}
+@media(max-width:820px){.item-row{flex-wrap:wrap}.mstat{gap:16px}}
+@media print{
+  .topbar,.tabsbar,.savepill,.addatt,.iconbtn,.btn,.chk,.attchip .x{display:none!important}
+  body{background:#fff}.wrap{padding:0}.mhead{background:#fff;color:#000;border:1px solid #ccc}
+  .mhead .mt-when,.mhead h2,.mhead .msub,.mstat .st .v{color:#000}.dept,.panel,.item{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="hubback" id="hubBack" title="Back to Management Hub" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-agenda-close','*');return false;}">← Hub</button>
+  <span class="brand"><svg viewBox="74 0 771 180" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,180) scale(0.1,-0.1)" fill="#F4F2ED" stroke="none"><path d="M747 1544 c-4 -4 -7 -279 -7 -611 l0 -603 160 0 160 0 0 200 0 200 525 0 525 0 0 -200 0 -200 160 0 160 0 -2 608 -3 607 -135 3 c-74 1 -145 0 -158 -3 l-22 -5 3 -233 c2 -127 2 -238 -1 -244 l-4 -13 -524 0 -524 0 -2 248 -3 247 -151 3 c-82 1 -153 -1 -157 -4z M2580 940 l0 -610 160 0 160 0 0 531 0 530 15 -3 c8 -2 259 -243 559 -535 l545 -533 218 0 218 1 -131 127 c-72 70 -340 330 -595 577 -255 248 -483 467 -507 488 l-42 37 -300 0 -300 0 0 -610z M3920 1302 l0 -247 153 -153 c84 -83 156 -152 160 -152 l7 0 0 320 0 320 11 0 c9 0 329 -309 949 -917 l145 -143 225 0 225 1 -24 20 c-14 11 -257 249 -540 528 -284 279 -554 544 -601 589 l-85 81 -312 1 -313 0 0 -248z M4750 1547 c0 -2 278 -276 619 -610 l618 -605 314 -3 314 -3 3 612 2 612 -159 0 -160 0 6 -535 5 -535 -16 0 -17 0 -417 413 c-229 226 -473 467 -542 534 l-125 123 -222 0 c-123 0 -223 -1 -223 -3z M6770 941 l0 -609 153 -4 c83 -2 155 -2 160 0 l7 3 0 440 0 440 14 -3 c18 -4 123 -104 560 -536 l348 -345 216 1 c118 1 216 3 218 5 2 2 7 1141 4 1202 l0 10 -155 3 -155 3 0 -446 0 -446 -14 3 c-15 3 -104 88 -610 585 l-309 303 -218 0 -219 0 0 -609z"/></g></svg></span>
+  <span class="tag">7EVEN · HAAVN — GROUP BOARDROOM</span>
+  <div class="savepill" id="savePill"><span class="dot"></span><span id="saveTxt">Saved</span></div>
+</div>
+<div class="tabsbar" id="tabsbar"></div>
+<div class="wrap" id="view"></div>
+
+<script>
+/* ==================================================================
+   7EVEN · HAAVN — Weekly Group Boardroom Agenda
+   Live single-file app · localStorage autosave · Mondays 08:30
+   ================================================================== */
+const DEPTS=[
+  {id:'7even',name:'7EVEN',sub:'Group · Strategy & Platform',lead:'Jamie Baldwin',color:'#2A4C6B'},
+  {id:'haavn',name:'HAAVN',sub:'Homes · Sales & Product',lead:'James Winstanley',color:'#2E5D46'},
+  {id:'mgmt',name:'HAAVN Management',sub:'Development & Construction',lead:'John Dimmatina',color:'#9A7526'},
+  {id:'admin',name:'Administration & Accounts',sub:'Finance & Operations',lead:'Dom Ma / Amy Baldwin',color:'#7A5B8E'},
+];
+const dept=id=>DEPTS.find(d=>d.id===id);
+const TYPES=['update','request','event','decision'];
+const TYPE_LABEL={update:'Update',request:'Request',event:'Event',decision:'Decision'};
+const ISTATUS=['open','prog','done','block'];
+const IS_LABEL={open:'Open',prog:'In progress',done:'Done',block:'Blocked'};
+const RSTATUS=['Open','Approved','Declined','On hold','Actioned'];
+const ESTATUS=['Planned','Confirmed','Done'];
+const ASTATUS=['Open','In progress','Done'];
+
+/* ---- date helpers ---- */
+function upcomingMonday(){const d=new Date();const day=d.getDay();const add=(1-day+7)%7;const m=new Date(d);m.setDate(d.getDate()+add);return m.toISOString().slice(0,10);}
+function fmtLong(iso){if(!iso)return '—';const d=new Date(iso+'T00:00');return d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function fmtShort(iso){if(!iso)return '—';const d=new Date(iso+'T00:00');return isNaN(d)?iso:d.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
+
+/* ---- state ---- */
+const KEY='haavn_boardroom_v1';
+let DB=null, tab='agenda', openItem=null, viewArchiveId=null;
+let _uid=1; const uid=()=>_uid++;
+
+function newMeeting(dateISO){
+  return {id:uid(),date:dateISO||upcomingMonday(),time:'08:30',chair:'Jamie Baldwin',
+    attendees:[
+      {id:uid(),name:'Jamie Baldwin',present:true},{id:uid(),name:'James Winstanley',present:true},
+      {id:uid(),name:'Jeffrey Witbreuk',present:true},{id:uid(),name:'Callum McDonald',present:true},
+      {id:uid(),name:'Daniel Sette',present:true},{id:uid(),name:'Lewis Jin',present:false},
+    ],
+    items:[], minutes:'', closed:false};
+}
+function seedItems(m){
+  const add=(d,type,title,owner,status)=>m.items.push({id:uid(),dept:d,type,title,owner,status,discussed:false,notes:''});
+  add('7even','update','ATRIUM platform — CRM & Display Suite live for review','Jamie Baldwin','prog');
+  add('7even','decision','Approve go-to-market pricing before Friday','Jamie Baldwin','open');
+  add('haavn','update','Sales pipeline — 3 reservations this week','Sarah Deakin','prog');
+  add('haavn','request','Need final Black Series renders for website','Jamie Baldwin','open');
+  add('mgmt','update','Display suite build — Melbourne site program','James Winstanley','prog');
+  add('mgmt','decision','Confirm crane & set-down dates for first SOLUM','Jeffrey Witbreuk','open');
+  add('admin','update','China documents & financial structure progressing','Lewis Jin','prog');
+  add('admin','request','Sign-off on developer funding package','Accounts','block');
+}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){DB=JSON.parse(r);const ids=collectIds(DB);_uid=(ids.length?Math.max(...ids):0)+1;return;}}catch(e){}
+  const m=newMeeting(); DB={meetings:[m],currentId:m.id,requests:[],events:[],actions:[]};
+  seedItems(m);
+  DB.requests=[
+    {id:uid(),title:'Final Black Series renders for website',detail:'Callum Fraser to supply hero renders',from:'Jamie Baldwin',dept:'haavn',owner:'Callum Fraser',status:'Open',due:'',created:upcomingMonday()},
+    {id:uid(),title:'Developer funding package sign-off',detail:'Legal to finalise; accounts to review',from:'Lewis Jin',dept:'admin',owner:'Accounts',status:'On hold',due:'',created:upcomingMonday()},
+  ];
+  DB.events=[
+    {id:uid(),title:'Melbourne display suite — filming day',date:'',dept:'haavn',owner:'Seth · Marketing',status:'Planned',detail:'Fraser & Baldwin filmed in the homes'},
+    {id:uid(),title:'Volume supply opens — announcement',date:'',dept:'7even',owner:'Jamie Baldwin',status:'Planned',detail:'Open hybrid system to all builders'},
+  ];
+  DB.actions=[
+    {id:uid(),title:'Confirm crane & set-down dates for first SOLUM',dept:'mgmt',owner:'Jeffrey Witbreuk',due:'',status:'Open',created:upcomingMonday()},
+    {id:uid(),title:'Approve go-to-market pricing',dept:'7even',owner:'Jamie Baldwin',due:'',status:'In progress',created:upcomingMonday()},
+  ];
+}
+function collectIds(db){const ids=[];db.meetings.forEach(m=>{ids.push(m.id);m.attendees.forEach(a=>ids.push(a.id));m.items.forEach(i=>ids.push(i.id));});['requests','events','actions'].forEach(k=>(db[k]||[]).forEach(x=>ids.push(x.id)));return ids;}
+let _st=null;
+function save(){const p=document.getElementById('savePill'),t=document.getElementById('saveTxt');if(p){p.classList.add('saving');t.textContent='Saving…';}
+  clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}cloudPush();if(p){p.classList.remove('saving');t.textContent='Saved '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}},450);}
+
+/* ---------------- CLOUD SYNC (Supabase capital_kv) -----------------
+   Shared weekly boardroom agenda — every staff device sees the same live
+   document. The whole DB blob is mirrored under one key: pull on boot (adopt if
+   present, else keep local and seed), debounced push on every save, and an 8s
+   poll for other people's edits. Degrades to localStorage-only if unreachable. */
+const SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+const CLOUD_KEY='haavn_boardroom';
+const SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+let _cloudOk=false,_cloudTs=0,_cpushT=null;
+function _bmTyping(){const a=document.activeElement;return !!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable);}
+async function cloudPull(){
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=value,updated_at',{headers:SUPA_H});
+    if(!r.ok)return null;_cloudOk=true;const rows=await r.json();return (rows&&rows.length)?rows[0]:null;}catch(e){return null;}
+}
+function cloudPush(){
+  if(!_cloudOk)return;clearTimeout(_cpushT);
+  _cpushT=setTimeout(async()=>{
+    try{const body=[{key:CLOUD_KEY,value:DB,updated_at:new Date().toISOString()}];
+      const r=await fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)});
+      if(r.ok){const rows=await r.json();if(rows&&rows[0])_cloudTs=Date.parse(rows[0].updated_at)||Date.now();}
+    }catch(e){}
+  },700);
+}
+function adoptCloud(value){DB=value;try{const ids=collectIds(DB);_uid=(ids.length?Math.max(...ids):0)+1;}catch(e){}try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+async function cloudPoll(){
+  if(!_cloudOk||_bmTyping())return;
+  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=updated_at',{headers:SUPA_H});
+    if(!r.ok)return;const rows=await r.json();if(!rows||!rows.length)return;
+    const ts=Date.parse(rows[0].updated_at)||0;
+    if(ts>_cloudTs){const row=await cloudPull();if(!row||!row.value)return;_cloudTs=ts;adoptCloud(row.value);render();}
+  }catch(e){}
+}
+const cur=()=>DB.meetings.find(m=>m.id===DB.currentId);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function get(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o);}
+function set(o,p,v){const ks=p.split('.');const last=ks.pop();let t=o;ks.forEach(k=>t=t[k]);t[last]=v;}
+
+/* ================= RENDER ================= */
+const TABS=[['agenda','Agenda'],['requests','Requests'],['events','Events'],['actions','Actions'],['archive','Archive']];
+function renderTabs(){
+  const m=cur();
+  const ct={requests:DB.requests.filter(r=>r.status==='Open'||r.status==='On hold').length,events:DB.events.length,actions:DB.actions.filter(a=>a.status!=='Done').length,archive:DB.meetings.filter(x=>x.closed).length};
+  document.getElementById('tabsbar').innerHTML=TABS.map(([k,l])=>`<button class="${tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}${ct[k]?`<span class="tct">${ct[k]}</span>`:''}</button>`).join('');
+}
+function render(){renderTabs();const v=document.getElementById('view');
+  const map={agenda:vAgenda,requests:vRequests,events:vEvents,actions:vActions,archive:vArchive};
+  v.innerHTML=(map[tab]||vAgenda)();window.scrollTo(0,0);}
+
+function vAgenda(){
+  const m=cur();
+  const total=m.items.length, done=m.items.filter(i=>i.discussed).length;
+  const present=m.attendees.filter(a=>a.present).length;
+  return `
+  <div class="mhead">
+    <div class="mtop">
+      <div>
+        <div class="mt-when">WEEKLY GROUP BOARDROOM · MONDAY 08:30</div>
+        <h2>${fmtLong(m.date)}</h2>
+        <div class="msub">Chair: ${esc(m.chair)} · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts</div>
+      </div>
+      <div class="flexwrap">
+        <input type="date" value="${m.date}" data-bind="m:date" title="Meeting date">
+        <input value="${esc(m.time)}" style="width:64px;text-align:center" data-bind="m:time" title="Time">
+        <button class="btn sm" data-act="print">⎙ Minutes</button>
+        <button class="btn sm gold" data-act="closeMeeting">Close &amp; archive →</button>
+      </div>
+    </div>
+    <div class="mstat">
+      <div class="st"><div class="v">${done}<span style="font-size:14px;color:#8C8578">/${total}</span></div><div class="l">Items discussed</div></div>
+      <div class="st"><div class="v">${present}<span style="font-size:14px;color:#8C8578">/${m.attendees.length}</span></div><div class="l">Present</div></div>
+      <div class="st"><div class="v">${DB.requests.filter(r=>r.status==='Open'||r.status==='On hold').length}</div><div class="l">Open requests</div></div>
+      <div class="st"><div class="v">${DB.actions.filter(a=>a.status!=='Done').length}</div><div class="l">Open actions</div></div>
+    </div>
+    <div class="att">
+      ${m.attendees.map(a=>`<span class="attchip ${a.present?'':'away'}"><span class="ad" data-act="togAtt" data-id="${a.id}"></span><span data-act="togAtt" data-id="${a.id}">${esc(a.name)}</span><span class="x" data-act="rmAtt" data-id="${a.id}">×</span></span>`).join('')}
+      <button class="addatt" data-act="addAtt">＋ Add attendee</button>
+    </div>
+  </div>
+
+  ${DEPTS.map(d=>{
+    const items=m.items.filter(i=>i.dept===d.id);
+    const dn=items.filter(i=>i.discussed).length;
+    return `<div class="dept">
+      <div class="dept-h">
+        <div class="dbar" style="background:${d.color}"></div>
+        <div style="flex:1"><div class="dn">${d.name}</div><div class="ds">${d.sub}</div></div>
+        <div style="text-align:right"><div class="dlead">Lead · ${esc(d.lead)}</div><div class="mono" style="font-size:10px;color:var(--ink3);margin-top:3px">${dn}/${items.length} discussed</div></div>
+        <button class="btn sm" data-act="addItem" data-dept="${d.id}">＋ Item</button>
+      </div>
+      <div class="dept-b">
+      ${items.length?items.map(i=>itemRow(i)).join(''):'<div class="empty" style="padding:16px">No items yet — add a talking point for this department.</div>'}
+      </div>
+    </div>`;
+  }).join('')}
+
+  <div class="minutes">
+    <div class="eyebrow" style="margin-bottom:8px">Minutes &amp; general notes</div>
+    <textarea data-bind="m:minutes" placeholder="Decisions, discussion notes, anything for the record…">${esc(m.minutes)}</textarea>
+  </div>`;
+}
+function itemRow(i){
+  const exp=openItem===i.id;
+  return `<div class="item ${i.discussed?'done':''}">
+    <div class="item-row">
+      <div class="chk ${i.discussed?'on':''}" data-act="togItem" data-id="${i.id}">✓</div>
+      <span class="typepill ${i.type}">${TYPE_LABEL[i.type]}</span>
+      <input class="ti" value="${esc(i.title)}" data-bind="i:${i.id}:title" placeholder="Talking point…">
+      <span class="pill ${i.status}"><span class="d"></span>${IS_LABEL[i.status]}</span>
+      <button class="iconbtn" data-act="expItem" data-id="${i.id}" title="Details">⋯</button>
+    </div>
+    ${exp?`<div class="item-exp">
+      <label class="mono" style="font-size:10px;color:var(--ink3)">Type
+        <select class="typesel" data-bind="i:${i.id}:type" style="display:block;margin-top:3px">${TYPES.map(t=>`<option value="${t}" ${i.type===t?'selected':''}>${TYPE_LABEL[t]}</option>`).join('')}</select></label>
+      <label class="mono" style="font-size:10px;color:var(--ink3)">Owner
+        <input class="ownsel" style="display:block;margin-top:3px" value="${esc(i.owner)}" data-bind="i:${i.id}:owner"></label>
+      <label class="mono" style="font-size:10px;color:var(--ink3)">Status
+        <select class="statsel" data-bind="i:${i.id}:status" style="display:block;margin-top:3px">${ISTATUS.map(s=>`<option value="${s}" ${i.status===s?'selected':''}>${IS_LABEL[s]}</option>`).join('')}</select></label>
+      <textarea data-bind="i:${i.id}:notes" placeholder="Notes / detail…">${esc(i.notes)}</textarea>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn sm" data-act="promote" data-id="${i.id}" title="Send to the matching register">→ Register</button>
+        <button class="btn sm danger" data-act="rmItem" data-id="${i.id}">Delete</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+
+function vRequests(){
+  return `<div class="h-row"><div><div class="eyebrow">Company-wide</div><h1 class="title">Requests</h1>
+    <p class="lede">Internal requests and approvals across the group — raised in the meeting or any time. Everything auto-saves.</p></div>
+    <button class="btn pri" data-act="addReq">＋ New request</button></div>
+   <div class="panel"><div class="panel-b" style="padding:0"><table>
+    <thead><tr><th>Request</th><th>Dept</th><th>Raised by</th><th>Owner</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>
+    ${DB.requests.length?DB.requests.map(r=>`<tr>
+      <td><input class="cin" style="font-weight:600" value="${esc(r.title)}" data-bind="r:${r.id}:title"><input class="cin" style="font-size:11px;color:var(--ink3)" value="${esc(r.detail)}" data-bind="r:${r.id}:detail" placeholder="detail…"></td>
+      <td><select class="selc" data-bind="r:${r.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${r.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
+      <td><input class="cin" value="${esc(r.from)}" data-bind="r:${r.id}:from"></td>
+      <td><input class="cin" value="${esc(r.owner)}" data-bind="r:${r.id}:owner"></td>
+      <td><select class="selc" data-bind="r:${r.id}:status">${RSTATUS.map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><input class="datec" type="date" value="${r.due}" data-bind="r:${r.id}:due"></td>
+      <td><button class="iconbtn" data-act="rmReq" data-id="${r.id}">×</button></td>
+    </tr>`).join(''):`<tr><td colspan="7"><div class="empty"><div class="ei">＋</div>No requests yet.</div></td></tr>`}
+    </tbody></table></div></div>`;
+}
+function vEvents(){
+  const evs=DB.events.slice().sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+  return `<div class="h-row"><div><div class="eyebrow">Company calendar</div><h1 class="title">Events</h1>
+    <p class="lede">Upcoming company events, filming days, launches and milestones — sorted by date.</p></div>
+    <button class="btn pri" data-act="addEvent">＋ New event</button></div>
+   <div class="panel"><div class="panel-b" style="padding:0"><table>
+    <thead><tr><th>Event</th><th>Date</th><th>Dept</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>
+    ${evs.length?evs.map(e=>`<tr>
+      <td><input class="cin" style="font-weight:600" value="${esc(e.title)}" data-bind="e:${e.id}:title"><input class="cin" style="font-size:11px;color:var(--ink3)" value="${esc(e.detail)}" data-bind="e:${e.id}:detail" placeholder="detail…"></td>
+      <td><input class="datec" type="date" value="${e.date}" data-bind="e:${e.id}:date"></td>
+      <td><select class="selc" data-bind="e:${e.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${e.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
+      <td><input class="cin" value="${esc(e.owner)}" data-bind="e:${e.id}:owner"></td>
+      <td><select class="selc" data-bind="e:${e.id}:status">${ESTATUS.map(s=>`<option ${e.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><button class="iconbtn" data-act="rmEvent" data-id="${e.id}">×</button></td>
+    </tr>`).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">＋</div>No events yet.</div></td></tr>`}
+    </tbody></table></div></div>`;
+}
+function vActions(){
+  return `<div class="h-row"><div><div class="eyebrow">Follow-through</div><h1 class="title">Actions &amp; decisions</h1>
+    <p class="lede">The running action log — owners and due dates carried between meetings until they're done.</p></div>
+    <button class="btn pri" data-act="addAction">＋ New action</button></div>
+   <div class="panel"><div class="panel-b" style="padding:0"><table>
+    <thead><tr><th>Action</th><th>Dept</th><th>Owner</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>
+    ${DB.actions.length?DB.actions.map(a=>`<tr>
+      <td><input class="cin" style="font-weight:600" value="${esc(a.title)}" data-bind="a:${a.id}:title"></td>
+      <td><select class="selc" data-bind="a:${a.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${a.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
+      <td><input class="cin" value="${esc(a.owner)}" data-bind="a:${a.id}:owner"></td>
+      <td><input class="datec" type="date" value="${a.due}" data-bind="a:${a.id}:due"></td>
+      <td><select class="selc" data-bind="a:${a.id}:status">${ASTATUS.map(s=>`<option ${a.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><button class="iconbtn" data-act="rmAction" data-id="${a.id}">×</button></td>
+    </tr>`).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">＋</div>No open actions.</div></td></tr>`}
+    </tbody></table></div></div>`;
+}
+function vArchive(){
+  if(viewArchiveId){const m=DB.meetings.find(x=>x.id===viewArchiveId);if(m)return archiveDetail(m);}
+  const past=DB.meetings.filter(m=>m.closed).sort((a,b)=>b.date.localeCompare(a.date));
+  return `<div class="h-row"><div><div class="eyebrow">Minute book</div><h1 class="title">Archive</h1>
+    <p class="lede">Every closed weekly meeting, kept as a snapshot of its agenda, attendance and minutes.</p></div></div>
+   ${past.length?past.map(m=>{const d=new Date(m.date+'T00:00');return `<div class="arch" data-act="openArchive" data-id="${m.id}">
+      <div class="ad">${d.toLocaleDateString('en-AU',{day:'2-digit'})}<div class="amo">${d.toLocaleDateString('en-AU',{month:'short',year:'2-digit'}).toUpperCase()}</div></div>
+      <div style="flex:1"><div style="font-weight:700">${fmtLong(m.date)}</div><div class="mono" style="font-size:11px;color:var(--ink3)">${m.items.length} items · ${m.attendees.filter(a=>a.present).length} present · chair ${esc(m.chair)}</div></div>
+      <span class="btn sm">Open →</span></div>`;}).join(''):'<div class="empty"><div class="ei">▤</div>No archived meetings yet. Close the current meeting to file it here.</div>'}`;
+}
+function archiveDetail(m){
+  return `<button class="btn sm" data-act="backArchive" style="margin-bottom:14px">← All meetings</button>
+   <div class="mhead"><div class="mt-when">WEEKLY GROUP BOARDROOM · ARCHIVED</div><h2>${fmtLong(m.date)}</h2>
+     <div class="msub">Chair: ${esc(m.chair)} · ${m.attendees.filter(a=>a.present).length}/${m.attendees.length} present</div></div>
+   ${DEPTS.map(d=>{const items=m.items.filter(i=>i.dept===d.id);if(!items.length)return '';
+     return `<div class="dept"><div class="dept-h"><div class="dbar" style="background:${d.color}"></div><div class="dn">${d.name}</div></div>
+       <div class="dept-b">${items.map(i=>`<div class="item ${i.discussed?'done':''}"><div class="item-row"><div class="chk ${i.discussed?'on':''}">✓</div><span class="typepill ${i.type}">${TYPE_LABEL[i.type]}</span><span style="flex:1;font-weight:600">${esc(i.title)}</span><span class="mono" style="font-size:11px;color:var(--ink3)">${esc(i.owner)}</span></div>${i.notes?`<div style="padding:0 13px 12px 44px;font-size:12.5px;color:var(--ink2)">${esc(i.notes)}</div>`:''}</div>`).join('')}</div></div>`;}).join('')}
+   ${m.minutes?`<div class="minutes"><div class="eyebrow" style="margin-bottom:8px">Minutes</div><div style="white-space:pre-wrap;font-size:13px">${esc(m.minutes)}</div></div>`:''}`;
+}
+
+/* ================= MUTATIONS ================= */
+function addItem(deptId){const m=cur();m.items.push({id:uid(),dept:deptId,type:'update',title:'',owner:dept(deptId).lead.split(' / ')[0],status:'open',discussed:false,notes:''});openItem=null;save();render();}
+function rmItem(id){const m=cur();m.items=m.items.filter(i=>i.id!==id);save();render();}
+function togItem(id){const it=cur().items.find(i=>i.id===id);it.discussed=!it.discussed;if(it.discussed&&it.status==='open')it.status='done';save();render();}
+function expItem(id){openItem=openItem===id?null:id;render();}
+function promote(id){const it=cur().items.find(i=>i.id===id);const created=cur().date;
+  if(it.type==='request')DB.requests.unshift({id:uid(),title:it.title,detail:it.notes,from:cur().chair,dept:it.dept,owner:it.owner,status:'Open',due:'',created});
+  else if(it.type==='event')DB.events.unshift({id:uid(),title:it.title,date:'',dept:it.dept,owner:it.owner,status:'Planned',detail:it.notes});
+  else DB.actions.unshift({id:uid(),title:it.title,dept:it.dept,owner:it.owner,due:'',status:'Open',created});
+  save();alert('Sent to the '+(it.type==='request'?'Requests':it.type==='event'?'Events':'Actions')+' register.');}
+function addAtt(){const n=prompt('Attendee name:');if(!n)return;cur().attendees.push({id:uid(),name:n.trim(),present:true});save();render();}
+function rmAtt(id){const m=cur();m.attendees=m.attendees.filter(a=>a.id!==id);save();render();}
+function togAtt(id){const a=cur().attendees.find(x=>x.id===id);a.present=!a.present;save();render();}
+function closeMeeting(){const m=cur();if(!confirm('Close and archive this meeting? A fresh agenda for next Monday will be created, carrying over any items not marked discussed.'))return;
+  m.closed=true;
+  const d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);const nm=newMeeting(d.toISOString().slice(0,10));
+  nm.chair=m.chair;nm.attendees=m.attendees.map(a=>({id:uid(),name:a.name,present:true}));
+  m.items.filter(i=>!i.discussed).forEach(i=>nm.items.push({id:uid(),dept:i.dept,type:i.type,title:i.title,owner:i.owner,status:i.status,discussed:false,notes:i.notes}));
+  DB.meetings.push(nm);DB.currentId=nm.id;openItem=null;save();render();}
+function addReq(){DB.requests.unshift({id:uid(),title:'',detail:'',from:cur().chair,dept:'haavn',owner:'',status:'Open',due:'',created:cur().date});save();render();}
+function rmReq(id){DB.requests=DB.requests.filter(r=>r.id!==id);save();render();}
+function addEvent(){DB.events.unshift({id:uid(),title:'',date:'',dept:'haavn',owner:'',status:'Planned',detail:''});save();render();}
+function rmEvent(id){DB.events=DB.events.filter(e=>e.id!==id);save();render();}
+function addAction(){DB.actions.unshift({id:uid(),title:'',dept:'haavn',owner:'',due:'',status:'Open',created:cur().date});save();render();}
+function rmAction(id){DB.actions=DB.actions.filter(a=>a.id!==id);save();render();}
+
+/* ================= EVENTS ================= */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id?+t.dataset.id:null;
+  switch(a){
+    case 'tab': tab=t.dataset.tab; openItem=null; viewArchiveId=null; render(); break;
+    case 'addItem': addItem(t.dataset.dept); break;
+    case 'rmItem': rmItem(id); break;
+    case 'togItem': togItem(id); break;
+    case 'expItem': expItem(id); break;
+    case 'promote': promote(id); break;
+    case 'addAtt': addAtt(); break;
+    case 'rmAtt': rmAtt(id); break;
+    case 'togAtt': togAtt(id); break;
+    case 'closeMeeting': closeMeeting(); break;
+    case 'print': window.print(); break;
+    case 'addReq': addReq(); break;
+    case 'rmReq': rmReq(id); break;
+    case 'addEvent': addEvent(); break;
+    case 'rmEvent': rmEvent(id); break;
+    case 'addAction': addAction(); break;
+    case 'rmAction': rmAction(id); break;
+    case 'openArchive': viewArchiveId=id; render(); break;
+    case 'backArchive': viewArchiveId=null; render(); break;
+  }
+});
+/* inline binding: kinds m(meeting) i(item) r a e(registers) */
+function applyBind(el){
+  const b=el.dataset.bind;if(!b)return;const parts=b.split(':');const kind=parts[0];
+  let obj,path;
+  if(kind==='m'){obj=cur();path=parts.slice(1).join(':');}
+  else{const id=+parts[1];path=parts.slice(2).join(':');
+    if(kind==='i')obj=cur().items.find(x=>x.id===id);
+    else if(kind==='r')obj=DB.requests.find(x=>x.id===id);
+    else if(kind==='e')obj=DB.events.find(x=>x.id===id);
+    else if(kind==='a')obj=DB.actions.find(x=>x.id===id);}
+  if(!obj)return;set(obj,path,el.value);save();
+}
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset&&el.dataset.bind&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')&&el.type!=='date')applyBind(el);});
+document.addEventListener('change',e=>{const el=e.target;if(!el.dataset||!el.dataset.bind)return;applyBind(el);
+  if(el.tagName==='SELECT'||el.type==='date'){render();}});
+
+/* boot (cloud-aware) */
+try{ if(window.parent===window){ var _hb=document.getElementById('hubBack'); if(_hb)_hb.style.display='none'; } }catch(e){}
+(async function boot(){
+  const row=await cloudPull();
+  if(row&&row.value){ adoptCloud(row.value); _cloudTs=Date.parse(row.updated_at)||Date.now(); }
+  else { load(); }
+  render();
+  // First device to open seeds the shared cloud document from its local copy.
+  if(_cloudOk && !(row&&row.value)) cloudPush();
+  if(_cloudOk) setInterval(cloudPoll, 8000);   // live: pick up other staff's edits
+})();
+</script>
+</body>
+</html>
