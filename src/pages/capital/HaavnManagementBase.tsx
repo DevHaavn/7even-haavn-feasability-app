@@ -6,7 +6,7 @@ import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
 import { atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 
-export type HMPillarId = 'crm' | 'meetings' | 'social'
+export type HMPillarId = 'crm' | 'meetings' | 'agenda'
 
 export interface HMPillar {
   id: HMPillarId
@@ -38,9 +38,9 @@ export const HM_PILLARS: HMPillar[] = [
     color: '#1FE87A', // Green
   },
   {
-    id: 'social', num: '03', title: 'Social Media & Business News',
-    sub: 'Analytics · Publishing · Market Intelligence',
-    blurb: 'Social media publishing hub, news aggregation, brand analytics and market intelligence for strategic decision-making.',
+    id: 'agenda', num: '03', title: 'Weekly Meetings & Agenda Tracking',
+    sub: 'Agenda · Actions · Minutes · Weekly cadence',
+    blurb: 'The weekly rhythm of the business — recurring meeting agendas, live action tracking, minutes and decisions, and accountability across the leadership team, week to week.',
     color: '#13B5EA', // Blue
   },
 ]
