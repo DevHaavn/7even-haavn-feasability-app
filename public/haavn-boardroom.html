@@ -143,9 +143,11 @@ tbody tr:last-child td{border-bottom:none}
    Live single-file app · localStorage autosave · Mondays 08:30
    ================================================================== */
 const DEPTS=[
-  {id:'7even',name:'7EVEN',sub:'Group · Strategy & Platform',lead:'Jamie Baldwin',color:'#2A4C6B'},
+  {id:'company',name:'Company',sub:'Group-wide · Strategy & Priorities',lead:'Jamie Baldwin',color:'#4A5568'},
+  {id:'7even',name:'7EVEN',sub:'Group · Strategy & Platform',lead:'Daniel Sette',color:'#2A4C6B'},
   {id:'haavn',name:'HAAVN',sub:'Homes · Sales & Product',lead:'James Winstanley',color:'#2E5D46'},
   {id:'mgmt',name:'HAAVN Management',sub:'Development & Construction',lead:'John Dimmatina',color:'#9A7526'},
+  {id:'finance',name:'Group Finances',sub:'Funding · Cashflow · Reporting',lead:'Lewis Jin',color:'#2F6E6A'},
   {id:'admin',name:'Administration & Accounts',sub:'Finance & Operations',lead:'Dom Ma / Amy Baldwin',color:'#7A5B8E'},
 ];
 const dept=id=>DEPTS.find(d=>d.id===id);
@@ -306,8 +308,15 @@ function vAgenda(){
   }).join('')}
 
   <div class="minutes">
-    <div class="eyebrow" style="margin-bottom:8px">Minutes &amp; general notes</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+      <div class="eyebrow">Minutes &amp; general notes</div>
+      <div class="flexwrap">
+        <button class="btn sm" data-act="copyMin">⧉ Copy for email</button>
+        <button class="btn sm gold" data-act="emailMin">✉ Email minutes</button>
+      </div>
+    </div>
     <textarea data-bind="m:minutes" placeholder="Decisions, discussion notes, anything for the record…">${esc(m.minutes)}</textarea>
+    <div class="mono" style="font-size:10px;color:var(--ink3);margin-top:8px">Emails the full agenda + minutes from your mail app — send using the <b>boardroom@7even.au</b> account. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
   </div>`;
 }
 function itemRow(i){
@@ -432,6 +441,33 @@ function rmEvent(id){DB.events=DB.events.filter(e=>e.id!==id);save();render();}
 function addAction(){DB.actions.unshift({id:uid(),title:'',dept:'haavn',owner:'',due:'',status:'Open',created:cur().date});save();render();}
 function rmAction(id){DB.actions=DB.actions.filter(a=>a.id!==id);save();render();}
 
+/* ---- email / distribute minutes ---- */
+function meetingText(m){
+  const L=[];
+  L.push('7EVEN · HAAVN — WEEKLY GROUP BOARDROOM');
+  L.push(fmtLong(m.date)+'  ·  '+m.time);
+  L.push('Chair: '+m.chair);
+  L.push('Present: '+(m.attendees.filter(a=>a.present).map(a=>a.name).join(', ')||'—'));
+  L.push('');
+  DEPTS.forEach(d=>{const items=m.items.filter(i=>i.dept===d.id);if(!items.length)return;
+    L.push('── '+d.name.toUpperCase()+'   (Lead: '+d.lead+')');
+    items.forEach(i=>{L.push('  '+(i.discussed?'[x]':'[ ]')+' '+TYPE_LABEL[i.type]+': '+i.title+'  — '+IS_LABEL[i.status]+' · '+(i.owner||'—'));
+      if(i.notes)L.push('        '+i.notes);});
+    L.push('');});
+  if(m.minutes){L.push('MINUTES & GENERAL NOTES');L.push(m.minutes);L.push('');}
+  const oReq=DB.requests.filter(r=>r.status==='Open'||r.status==='On hold');
+  if(oReq.length){L.push('OPEN REQUESTS');oReq.forEach(r=>L.push('  · '+r.title+' — '+r.status+' · '+(r.owner||'—')));L.push('');}
+  const oAct=DB.actions.filter(a=>a.status!=='Done');
+  if(oAct.length){L.push('OPEN ACTIONS');oAct.forEach(a=>L.push('  · '+a.title+' — '+a.status+' · '+(a.owner||'—')+(a.due?' · due '+a.due:'')));L.push('');}
+  return L.join('\n');
+}
+function emailMinutes(){const m=cur();const subj='7EVEN · HAAVN Weekly Boardroom — Minutes — '+fmtLong(m.date);
+  window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(meetingText(m));}
+function fallbackCopy(txt,cb){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);cb&&cb();}catch(e){alert('Copy failed — select the minutes text manually.');}}
+function copyMinutes(){const m=cur();const txt='Subject: 7EVEN · HAAVN Weekly Boardroom — Minutes — '+fmtLong(m.date)+'\n\n'+meetingText(m);
+  const done=()=>{const b=document.querySelector('[data-act="copyMin"]');if(b){const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>{b.textContent=o;},1400);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done));}else fallbackCopy(txt,done);}
+
 /* ================= EVENTS ================= */
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id?+t.dataset.id:null;
@@ -447,6 +483,8 @@ document.addEventListener('click',e=>{
     case 'togAtt': togAtt(id); break;
     case 'closeMeeting': closeMeeting(); break;
     case 'print': window.print(); break;
+    case 'emailMin': emailMinutes(); break;
+    case 'copyMin': copyMinutes(); break;
     case 'addReq': addReq(); break;
     case 'rmReq': rmReq(id); break;
     case 'addEvent': addEvent(); break;
