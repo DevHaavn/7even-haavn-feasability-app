@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATRIUM · Weekly Meeting Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ATRIUM · WEEKLY MEETING HUB — Pillar 03 redesign
+   Moody Apple-glass system · dark + light
+   ============================================================ */
+:root{
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --accent:#d8a54a;        /* atrium gold */
+  --accent-soft:#e9c988;
+  --green:#5aa87a;
+  --blue:#5b8def;
+  --red:#e0644f;
+  --purple:#a179d8;
+  --slate:#8a9099;
+
+  --ring:#d8a54a;
+  --radius:20px;
+  --radius-sm:13px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* ---------- DARK (default, "moodie") ---------- */
+[data-theme="dark"]{
+  --bg0:#0b0c0f;
+  --bg1:#101216;
+  --ink:#f3f1ec;
+  --ink-2:#b7b9bf;
+  --ink-3:#7d818b;
+  --ink-4:#565a63;
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.055);
+  --glass:rgba(24,26,32,.62);
+  --glass-2:rgba(30,33,40,.5);
+  --glass-hi:rgba(255,255,255,.04);
+  --shadow:0 24px 60px -24px rgba(0,0,0,.75);
+  --shadow-sm:0 8px 24px -12px rgba(0,0,0,.6);
+  --hero:linear-gradient(160deg,#15171d 0%,#0d0e12 60%,#0a0b0e 100%);
+  --card-inner:rgba(255,255,255,.02);
+  --pill:rgba(255,255,255,.045);
+}
+/* ---------- LIGHT (clean) ---------- */
+[data-theme="light"]{
+  --bg0:#eceae4;
+  --bg1:#f4f2ec;
+  --ink:#1a1b1e;
+  --ink-2:#4a4d54;
+  --ink-3:#83868e;
+  --ink-4:#a7aab1;
+  --line:rgba(20,20,25,.10);
+  --line-2:rgba(20,20,25,.06);
+  --glass:rgba(255,255,255,.68);
+  --glass-2:rgba(255,255,255,.5);
+  --glass-hi:rgba(255,255,255,.6);
+  --shadow:0 24px 55px -26px rgba(30,30,40,.35);
+  --shadow-sm:0 10px 26px -16px rgba(30,30,40,.3);
+  --hero:linear-gradient(160deg,#191b20 0%,#111318 100%);
+  --card-inner:rgba(255,255,255,.55);
+  --pill:rgba(20,20,25,.04);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--sans);
+  background:var(--bg0);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  overflow-x:hidden;
+  transition:background .5s var(--ease), color .4s var(--ease);
+}
+/* ambient moody glow */
+.ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ambient::before,.ambient::after{content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;transition:opacity .6s var(--ease)}
+.ambient::before{width:620px;height:620px;top:-220px;right:-120px;background:radial-gradient(circle,rgba(216,165,74,.20),transparent 70%)}
+.ambient::after{width:560px;height:560px;bottom:-260px;left:-160px;background:radial-gradient(circle,rgba(91,141,239,.14),transparent 70%)}
+[data-theme="light"] .ambient::before{opacity:.4}
+[data-theme="light"] .ambient::after{opacity:.35}
+
+::selection{background:rgba(216,165,74,.28)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-4)}
+
+.wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:0 26px 90px}
+
+.mono{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:10.5px}
+.serif{font-family:var(--serif)}
+
+/* ============================ TOP BAR ============================ */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  background:linear-gradient(to bottom,var(--glass),transparent 200%);
+  border-bottom:1px solid var(--line-2);
+}
+.topbar-inner{max-width:1160px;margin:0 auto;padding:13px 26px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:13px;min-width:0}
+.hub-btn{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);font-size:12px;cursor:pointer;transition:.2s var(--ease);font-family:var(--sans)}
+.hub-btn:hover{border-color:var(--ink-4);color:var(--ink);transform:translateX(-1px)}
+.logo-mark{width:19px;height:17px;display:inline-block}
+.wordmark{font-family:var(--serif);font-weight:500;letter-spacing:.42em;font-size:19px;padding-left:.42em}
+.pillar-tag{color:var(--ink-3);border-left:1px solid var(--line);padding-left:16px;margin-left:2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.clock{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.saved{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2);padding:6px 12px;border-radius:100px;background:var(--pill);border:1px solid var(--line-2)}
+.saved .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(90,168,122,.18)}
+.seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
+.seg button{border:none;background:transparent;color:var(--ink-3);font-family:var(--mono);font-size:10px;letter-spacing:.12em;padding:6px 12px;border-radius:100px;cursor:pointer;transition:.2s var(--ease)}
+.seg button.on{background:var(--ink);color:var(--bg0)}
+[data-theme="dark"] .seg button.on{background:rgba(255,255,255,.9);color:#000}
+.icon-btn{width:36px;height:34px;display:grid;place-items:center;border-radius:11px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer;transition:.2s var(--ease)}
+.icon-btn:hover{color:var(--ink);border-color:var(--ink-4)}
+
+/* ============================ TABS ============================ */
+.tabs{position:sticky;top:59px;z-index:55;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:linear-gradient(to bottom,var(--glass) 40%,transparent);border-bottom:1px solid var(--line-2)}
+.tabs-inner{max-width:1160px;margin:0 auto;padding:0 26px;display:flex;align-items:center;gap:4px}
+.tab{position:relative;background:none;border:none;color:var(--ink-3);font-family:var(--sans);font-size:13.5px;font-weight:500;padding:15px 15px;cursor:pointer;transition:.2s var(--ease);display:flex;align-items:center;gap:8px}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--ink)}
+.tab.on::after{content:"";position:absolute;left:15px;right:15px;bottom:-1px;height:2px;background:var(--accent);border-radius:2px}
+.tab .count{font-family:var(--mono);font-size:10px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center;border-radius:6px;background:var(--pill);color:var(--ink-3)}
+.tab.on .count{background:rgba(216,165,74,.16);color:var(--accent-soft)}
+.tabs-inner .kbd-hint{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--ink-4);font-size:11.5px;cursor:pointer}
+.kbd{font-family:var(--mono);font-size:10px;border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:var(--ink-3)}
+
+/* ============================ PANELS ============================ */
+.panel{display:none;animation:fade .5s var(--ease)}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* --------- Meeting header (hero) --------- */
+.hero{margin-top:26px;border-radius:var(--radius);background:var(--hero);border:1px solid rgba(255,255,255,.07);box-shadow:var(--shadow);padding:26px 28px;position:relative;overflow:hidden;color:#f3f1ec}
+.hero::after{content:"";position:absolute;top:-40%;right:-6%;width:340px;height:340px;background:radial-gradient(circle,rgba(216,165,74,.16),transparent 68%);pointer-events:none}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;position:relative}
+.hero .eyebrow{color:rgba(233,201,136,.85)}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.05;margin:11px 0 8px;letter-spacing:-.01em}
+.hero .chair{color:#9a9da6;font-size:13px}
+.hero .chair b{color:#d7d9de;font-weight:500}
+.hero-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.field{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:8px 12px;font-size:13px;color:#e7e8ec;font-family:var(--mono);letter-spacing:.02em}
+.btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 15px;border-radius:11px;cursor:pointer;transition:.2s var(--ease);border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn-ghost{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#e7e8ec}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-gold{background:linear-gradient(135deg,#e2b45c,#c8912f);color:#231a06;font-weight:600;box-shadow:0 8px 20px -8px rgba(216,165,74,.6)}
+.btn-gold:hover{filter:brightness(1.05);transform:translateY(-1px)}
+
+/* stat divider inside hero */
+.hero-stats{display:flex;gap:34px;flex-wrap:wrap;margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.09);position:relative}
+.stat{display:flex;flex-direction:column;gap:3px}
+.stat .num{font-family:var(--serif);font-size:26px;line-height:1}
+.stat .num small{font-size:15px;color:#7f828b}
+.stat .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:#7f828b}
+.stat.warn .num{color:var(--accent-soft)}
+.stat.bad .num{color:var(--red)}
+
+/* --------- Momentum scorecard (NEW) --------- */
+.grid-tiles{display:grid;grid-template-columns:1.15fr 1fr 1fr 1fr;gap:14px;margin-top:16px}
+.tile{background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:var(--radius-sm);padding:17px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.tile .tl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tile .big{font-family:var(--serif);font-size:30px;line-height:1;color:var(--ink)}
+.tile .sub{font-size:11.5px;color:var(--ink-3);margin-top:6px}
+.ring-tile{display:flex;align-items:center;gap:16px}
+.ring{--p:0;width:70px;height:70px;flex:0 0 70px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .rt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:19px}
+.trend{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:6px}
+.trend.up{color:var(--green);background:rgba(90,168,122,.12)}
+.trend.down{color:var(--red);background:rgba(224,100,79,.12)}
+.spark{display:flex;align-items:flex-end;gap:3px;height:26px;margin-top:10px}
+.spark i{flex:1;background:linear-gradient(to top,var(--accent),rgba(216,165,74,.35));border-radius:2px;min-height:3px;opacity:.85}
+
+/* --------- pacing / timer bar (NEW) --------- */
+.pacer{margin-top:14px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius-sm);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:14px 18px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.pacer .clockbig{font-family:var(--mono);font-size:22px;letter-spacing:.02em;font-weight:500}
+.pacer .plabel{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3)}
+.pacer-track{flex:1;min-width:180px;height:8px;border-radius:20px;background:var(--pill);overflow:hidden;position:relative}
+.pacer-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:20px;transition:width 1s linear}
+.tbtn{display:flex;gap:7px}
+
+/* --------- filter chips --------- */
+.toolbar{display:flex;align-items:center;gap:9px;margin-top:22px;flex-wrap:wrap}
+.chip{font-family:var(--sans);font-size:12.5px;padding:7px 14px;border-radius:100px;border:1px solid var(--line);background:var(--glass-2);color:var(--ink-2);cursor:pointer;transition:.18s var(--ease);display:inline-flex;align-items:center;gap:7px}
+.chip:hover{border-color:var(--ink-4);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg0);border-color:var(--ink)}
+[data-theme="dark"] .chip.on{background:rgba(255,255,255,.92);color:#000}
+.chip .cdot{width:7px;height:7px;border-radius:50%}
+.toolbar .spacer{margin-left:auto}
+
+/* --------- attendees --------- */
+.attendees{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius-sm);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.attendees .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.att-list{display:flex;flex-wrap:wrap;gap:8px}
+.att{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:100px;border:1px solid var(--line);background:var(--pill);font-size:12.5px;cursor:pointer;transition:.18s var(--ease);user-select:none}
+.att:hover{border-color:var(--ink-4)}
+.att.absent{opacity:.45}
+.att.absent .av{filter:grayscale(1)}
+.av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;font-weight:600;color:#fff;background:#333}
+.att .st{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.att.absent .st{background:var(--ink-4)}
+
+/* --------- department sections --------- */
+.dept{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-sm);overflow:hidden}
+.dept-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer}
+.dept-bar{width:4px;align-self:stretch;border-radius:4px;min-height:34px}
+.dept-title{font-family:var(--serif);font-size:20px;font-weight:500;display:flex;align-items:center;gap:9px}
+.dept-title .cdot{width:8px;height:8px;border-radius:50%}
+.dept-sub{font-size:11.5px;color:var(--ink-3);margin-top:2px;font-family:var(--mono);letter-spacing:.05em}
+.dept-meta{margin-left:auto;text-align:right;font-size:11.5px;color:var(--ink-3);display:flex;align-items:center;gap:14px}
+.dept-meta .lead b{color:var(--ink-2);font-weight:500}
+.health{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:4px 9px;border-radius:100px;border:1px solid var(--line)}
+.health.ok{color:var(--green);background:rgba(90,168,122,.1)}
+.health.risk{color:var(--red);background:rgba(224,100,79,.1)}
+.addtask{font-family:var(--sans);font-size:12px;padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer;transition:.18s var(--ease)}
+.addtask:hover{border-color:var(--accent);color:var(--ink)}
+.dept-body{padding:4px 14px 16px}
+.empty{text-align:center;color:var(--ink-4);font-size:13px;padding:26px;font-style:italic}
+
+/* task row */
+.task{display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:var(--radius-sm);border:1px solid transparent;transition:.16s var(--ease);position:relative}
+.task:hover{background:var(--card-inner);border-color:var(--line-2)}
+.task::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--rowc,var(--ink-4));opacity:.7}
+.task.done{opacity:.5}
+.task.done .t-title{text-decoration:line-through}
+.cbx{width:20px;height:20px;flex:0 0 20px;border-radius:7px;border:1.5px solid var(--ink-4);cursor:pointer;transition:.18s var(--ease);display:grid;place-items:center;margin-left:6px}
+.cbx:hover{border-color:var(--accent)}
+.cbx.checked{background:var(--accent);border-color:var(--accent)}
+.cbx svg{opacity:0;transition:.15s}
+.cbx.checked svg{opacity:1}
+.pill{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:4px 9px;border-radius:100px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pill .pd{width:6px;height:6px;border-radius:50%}
+.pill.s-followup{color:var(--accent-soft);background:rgba(216,165,74,.12)}.pill.s-followup .pd{background:var(--accent)}
+.pill.s-action{color:var(--green);background:rgba(90,168,122,.12)}.pill.s-action .pd{background:var(--green)}
+.pill.s-update{color:var(--blue);background:rgba(91,141,239,.12)}.pill.s-update .pd{background:var(--blue)}
+.pill.s-introuble{color:var(--red);background:rgba(224,100,79,.14)}.pill.s-introuble .pd{background:var(--red)}
+.tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;padding:3px 7px;border-radius:6px;border:1px solid var(--line);color:var(--ink-3)}
+.t-title{font-size:14px;font-weight:500;color:var(--ink);flex:1;min-width:0}
+.age{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--red);background:rgba(224,100,79,.1);padding:3px 7px;border-radius:6px}
+.assignee{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.due{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--line);padding:3px 8px;border-radius:7px}
+.dots{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--ink-4);cursor:pointer;border:1px solid transparent}
+.dots:hover{border-color:var(--line);color:var(--ink-2)}
+
+/* --------- decision log + minutes --------- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-sm);padding:20px}
+.card .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card h3{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-3);font-weight:500}
+textarea,.txt{width:100%;background:var(--card-inner);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--ink);font-family:var(--sans);font-size:13.5px;resize:vertical;transition:.18s}
+textarea:focus,.txt:focus{outline:none;border-color:var(--accent)}
+textarea{min-height:120px}
+.dec{display:flex;gap:10px;padding:11px 12px;border-radius:11px;background:var(--card-inner);border:1px solid var(--line-2);margin-bottom:9px;font-size:13px}
+.dec .dn{font-family:var(--serif);color:var(--accent-soft);font-size:14px;flex:0 0 auto}
+.dec .meta{font-family:var(--mono);font-size:9px;color:var(--ink-4);letter-spacing:.08em;margin-top:3px}
+.dec-add{display:flex;gap:8px;margin-top:6px}
+.footnote{font-size:11.5px;color:var(--ink-4);margin-top:12px;line-height:1.6}
+.footnote b{color:var(--ink-2);font-weight:500}
+
+/* --------- roll-up tables --------- */
+.panel-head{margin-top:30px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.panel-head .eyebrow{color:var(--ink-3)}
+.panel-head h2{font-family:var(--serif);font-weight:400;font-size:34px;letter-spacing:-.01em;margin:8px 0 6px}
+.panel-head p{color:var(--ink-3);font-size:13.5px;max-width:560px}
+.tablewrap{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-sm);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;color:var(--ink-4);text-align:left;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:500}
+tbody td{padding:15px 18px;border-bottom:1px solid var(--line-2);color:var(--ink-2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:.15s}
+tbody tr:hover{background:var(--card-inner)}
+td .tt{color:var(--ink);font-weight:500}
+td .st2{font-size:11px;color:var(--ink-4);margin-top:2px}
+.deptdot{display:inline-flex;align-items:center;gap:8px}
+.deptdot .cdot{width:8px;height:8px;border-radius:50%}
+
+/* --------- archive --------- */
+.arch{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.arch-row{display:flex;align-items:center;gap:18px;padding:18px 20px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius-sm);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);cursor:pointer;transition:.18s var(--ease)}
+.arch-row:hover{border-color:var(--ink-4);transform:translateY(-1px)}
+.arch-date{font-family:var(--serif);font-size:19px;min-width:150px}
+.arch-mini{display:flex;gap:20px;font-size:11.5px;color:var(--ink-3);flex-wrap:wrap}
+.arch-mini b{color:var(--ink);font-family:var(--serif);font-size:15px}
+.arch-row .go{margin-left:auto;color:var(--ink-4)}
+
+/* ============================ command palette ============================ */
+.cmd-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;padding-top:14vh}
+.cmd-overlay.on{display:flex;animation:fade .25s var(--ease)}
+.cmd{width:min(560px,92vw);background:var(--glass);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);overflow:hidden}
+.cmd-in{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.cmd-in input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:var(--sans);font-size:16px}
+.cmd-in .kbd{margin-left:auto}
+.cmd-body{padding:12px}
+.cmd-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-4);padding:6px 10px}
+.cmd-opt{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;cursor:pointer;font-size:13.5px}
+.cmd-opt:hover,.cmd-opt.sel{background:var(--card-inner)}
+.cmd-opt .cdot{width:8px;height:8px;border-radius:50%}
+
+/* ============================ footer ============================ */
+.foot{max-width:1160px;margin:60px auto 0;padding:26px;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:var(--ink-4);font-size:11.5px}
+.foot .fm{font-family:var(--serif);letter-spacing:.35em;color:var(--ink-2);font-size:15px;display:flex;align-items:center;gap:8px}
+.foot a{color:var(--ink-3);text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--line);padding:6px 11px;border-radius:100px;transition:.18s}
+.foot a:hover{border-color:var(--ink-4);color:var(--ink)}
+.foot .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
+
+/* toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg0);padding:12px 20px;border-radius:100px;font-size:13px;font-weight:500;z-index:120;opacity:0;pointer-events:none;transition:.3s var(--ease);box-shadow:var(--shadow)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* focus / present mode */
+body.focus .tile,body.focus .pacer,body.focus .toolbar,body.focus .attendees,body.focus .two{opacity:.28;filter:blur(1px);pointer-events:none;transition:.4s}
+body.focus .dept{opacity:.3;transition:.35s}
+body.focus .dept.spot{opacity:1;filter:none;transform:scale(1.008);box-shadow:var(--shadow)}
+.present-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:90;display:none;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--line);border-radius:100px;padding:8px 10px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:var(--shadow)}
+body.focus .present-nav{display:flex}
+.present-nav .pn{font-family:var(--mono);font-size:11px;color:var(--ink-2);padding:0 8px;min-width:150px;text-align:center}
+.present-nav button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer;display:grid;place-items:center}
+.present-nav button:hover{color:var(--ink);border-color:var(--ink-4)}
+
+@media(max-width:880px){
+  .grid-tiles{grid-template-columns:1fr 1fr}
+  .two{grid-template-columns:1fr}
+  .hero h1{font-size:30px}
+  .pillar-tag{display:none}
+  .dept-meta{width:100%;justify-content:flex-start;margin-left:0;margin-top:8px}
+  .dept-head{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ================= TOP BAR ================= -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <button class="hub-btn">← Hub</button>
+      <svg class="logo-mark" viewBox="0 0 24 22" fill="none"><path d="M12 1L23 21H1L12 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span class="wordmark">ATRIUM</span>
+      <span class="mono pillar-tag">Pillar 03 · Weekly Company Meeting</span>
+    </div>
+    <div class="topbar-right">
+      <span class="clock" id="clock">—</span>
+      <span class="saved"><span class="dot"></span> Saved</span>
+      <div class="seg" id="themeSeg">
+        <button data-theme-set="dark">Dark</button>
+        <button data-theme-set="light" class="on">Light</button>
+      </div>
+      <button class="icon-btn" id="focusBtn" title="Present / focus mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TABS ================= -->
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab on" data-tab="agenda">Agenda</button>
+    <button class="tab" data-tab="requests">Requests <span class="count" id="cReq">0</span></button>
+    <button class="tab" data-tab="events">Events <span class="count" id="cEvt">0</span></button>
+    <button class="tab" data-tab="actions">Actions <span class="count" id="cAct">0</span></button>
+    <button class="tab" data-tab="archive">Archive <span class="count">1</span></button>
+    <div class="kbd-hint" id="cmdHint"><span class="kbd">⌘ K</span> Quick add</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= AGENDA ================= -->
+<section class="panel on" id="p-agenda">
+  <!-- hero -->
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="mono eyebrow">ATRIUM · Weekly Company Meeting · Monday 08:30</div>
+        <h1>Monday 17 August 2026</h1>
+        <div class="chair">Chair <b>Jamie Baldwin</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts</div>
+      </div>
+      <div class="hero-controls">
+        <span class="field">📅 17/08/2026</span>
+        <span class="field">08:30</span>
+        <button class="btn btn-ghost" onclick="toast('Agenda exported to PDF')">↧ Export</button>
+        <button class="btn btn-gold" onclick="toast('Meeting closed &amp; saved to Archive')">Close &amp; archive →</button>
+      </div>
+    </div>
+    <div class="hero-stats" id="heroStats"></div>
+  </div>
+
+  <!-- momentum scorecard (NEW) -->
+  <div class="grid-tiles">
+    <div class="tile ring-tile">
+      <div class="ring" id="ring">
+        <svg width="70" height="70">
+          <circle cx="35" cy="35" r="30" stroke="var(--line)" stroke-width="6" fill="none"/>
+          <circle id="ringArc" cx="35" cy="35" r="30" stroke="var(--accent)" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5"/>
+        </svg>
+        <div class="rt" id="ringPct">0%</div>
+      </div>
+      <div>
+        <div class="tl">Meeting completion</div>
+        <div class="big" id="tileComplete">0 / 0</div>
+        <div class="sub">items closed live in the room</div>
+      </div>
+    </div>
+    <div class="tile">
+      <div class="tl">Weekly momentum</div>
+      <div class="big"><span class="trend up" id="momTrend">▲ 0%</span></div>
+      <div class="spark" id="spark"></div>
+      <div class="sub">completion vs last 6 weeks</div>
+    </div>
+    <div class="tile">
+      <div class="tl">Carried over</div>
+      <div class="big" id="tileCarried" style="color:var(--accent-soft)">0</div>
+      <div class="sub" id="tileCarriedSub">items rolling from prior weeks</div>
+    </div>
+    <div class="tile">
+      <div class="tl">Needs attention</div>
+      <div class="big" id="tileTrouble" style="color:var(--red)">0</div>
+      <div class="sub">flagged in trouble &amp; overdue</div>
+    </div>
+  </div>
+
+  <!-- pacer / timer (NEW) -->
+  <div class="pacer">
+    <div>
+      <div class="plabel">Meeting timer</div>
+      <div class="clockbig" id="timer">00:00</div>
+    </div>
+    <div style="flex:1;min-width:180px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:7px" class="plabel"><span>Pace</span><span id="paceLbl">Target 45:00</span></div>
+      <div class="pacer-track"><div class="pacer-fill" id="paceFill"></div></div>
+    </div>
+    <div class="tbtn">
+      <button class="btn btn-ghost" id="timerToggle" onclick="toggleTimer()">▶ Start</button>
+      <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <!-- filters -->
+  <div class="toolbar" id="filters">
+    <button class="chip on" data-filter="all">All items</button>
+    <button class="chip" data-filter="mine">◎ My items</button>
+    <button class="chip" data-filter="action">Actions</button>
+    <button class="chip" data-filter="request">Requests</button>
+    <button class="chip" data-filter="event">Events</button>
+    <button class="chip" data-filter="introuble"><span class="cdot" style="background:var(--red)"></span> In trouble</button>
+    <button class="chip" data-filter="open">Open only</button>
+    <div class="spacer"></div>
+    <button class="chip" onclick="openCmd()"><span class="kbd">⌘ K</span> Add task</button>
+  </div>
+
+  <!-- attendees -->
+  <div class="attendees">
+    <div class="head">
+      <span class="mono" style="color:var(--ink-3)">Attendance · <span id="attCount">0/0</span> present</span>
+      <button class="addtask" onclick="toast('Add attendee')">+ Add attendee</button>
+    </div>
+    <div class="att-list" id="attList"></div>
+  </div>
+
+  <!-- departments -->
+  <div id="depts"></div>
+
+  <!-- decision log + minutes -->
+  <div class="two">
+    <div class="card">
+      <div class="ch"><h3>Decision Log</h3><span class="mono" style="color:var(--ink-4)" id="decCount">0 logged</span></div>
+      <div id="decList"></div>
+      <div class="dec-add">
+        <input class="txt" id="decInput" placeholder="Record a decision made in the room…" onkeydown="if(event.key==='Enter')addDecision()">
+        <button class="btn btn-ghost" onclick="addDecision()">Log</button>
+      </div>
+      <div class="footnote">Decisions are captured separately from tasks so the board has a clean record of <b>what was agreed</b>, not just what's outstanding.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>Minutes &amp; General Notes</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="copyMinutes()">⧉ Copy for email</button>
+          <button class="btn btn-gold" onclick="toast('Minutes emailed from boardroom@7even.au')">✉ Email minutes</button>
+        </div>
+      </div>
+      <textarea id="minutes" placeholder="Decisions, discussion notes, anything for the record…"></textarea>
+      <div class="footnote">Emails the full agenda + minutes from your mail app — send using the <b>boardroom@7even.au</b> account. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ROLL-UP PANELS ================= -->
+<section class="panel" id="p-requests">
+  <div class="panel-head">
+    <div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Requests</h2><p>Every agenda item classified as a Request — from any meeting. Manage them on the item itself.</p></div>
+    <button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbReq"></tbody></table></div>
+</section>
+
+<section class="panel" id="p-events">
+  <div class="panel-head">
+    <div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Events</h2><p>Every agenda item classified as an Event. Set its date on the item.</p></div>
+    <button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbEvt"></tbody></table></div>
+</section>
+
+<section class="panel" id="p-actions">
+  <div class="panel-head">
+    <div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Actions</h2><p>Every action assigned in a meeting — owner, colour-coded status and due date. Assign &amp; email from the item.</p></div>
+    <button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbAct"></tbody></table></div>
+</section>
+
+<section class="panel" id="p-archive">
+  <div class="panel-head">
+    <div><div class="mono eyebrow">History · closed meetings</div><h2 class="serif">Archive</h2><p>Every closed meeting with its agenda, minutes and outcome scorecard preserved. Reopen to review or roll unfinished items forward.</p></div>
+  </div>
+  <div class="arch" id="archList"></div>
+</section>
+
+</div><!-- /wrap -->
+
+<div class="foot">
+  <span class="fm"><svg class="logo-mark" viewBox="0 0 24 22" fill="none"><path d="M12 1L23 21H1L12 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg> ATRIUM</span>
+  <span style="color:var(--ink-4)">Visit</span>
+  <a href="#">7even.au ↗</a>
+  <a href="#">haavn.au ↗</a>
+  <a href="#">⟳ Update</a>
+  <span class="cr">Weekly Meeting Hub · redesign concept<br>Design &amp; interface © 2026 JB Design × Studio</span>
+</div>
+
+<!-- present nav -->
+<div class="present-nav">
+  <button onclick="present(-1)">‹</button>
+  <span class="pn" id="presentLbl">Company</span>
+  <button onclick="present(1)">›</button>
+  <button onclick="document.getElementById('focusBtn').click()" title="Exit" style="margin-left:6px">✕</button>
+</div>
+
+<!-- command palette -->
+<div class="cmd-overlay" id="cmdOverlay">
+  <div class="cmd">
+    <div class="cmd-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="cmdInput" placeholder="Add a task — type it, then choose a department…" autocomplete="off">
+      <span class="kbd">esc</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-label">Add to department</div>
+      <div id="cmdOpts"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+var DEPTS = [
+  {id:"company", name:"Company", sub:"Group-wide · Strategy & Priorities", lead:"Jamie Baldwin", color:"#8a9099", tasks:[]},
+  {id:"7even", name:"7EVEN", sub:"Group · Strategy & Platform", lead:"Daniel Sette", color:"#5b8def", tasks:[
+    {status:"followup", type:"action", title:"ATRIUM platform — CRM & Display Suite live for review", who:"Jamie Baldwin", done:true},
+    {status:"action", type:"action", title:"Approve go-to-market pricing before Friday", who:"Jamie Baldwin"},
+    {status:"update", type:null, title:"DFP", who:"Daniel Sette", done:true},
+    {status:"update", type:"event", title:"Volume supply opens — announcement", who:"Jamie Baldwin"},
+    {status:"followup", type:"action", title:"Approve go-to-market pricing", who:"Jamie Baldwin", carried:2}
+  ]},
+  {id:"haavn", name:"HAAVN", sub:"Homes · Sales & Product", lead:"James Winstanley", color:"#5aa87a", tasks:[
+    {status:"followup", type:null, title:"Sales pipeline — 3 reservations this week", who:"Sarah Deakin"},
+    {status:"action", type:"request", title:"Need final Black Series renders for website", who:"Jamie Baldwin"},
+    {status:"update", type:null, title:"General Updates, Homes and Sky", who:"James Winstanley", done:true},
+    {status:"action", type:"request", title:"Final Black Series renders for website", who:"Callum Fraser"},
+    {status:"update", type:"event", title:"Melbourne display suite — filming day", who:"Seth · Marketing", done:true}
+  ]},
+  {id:"haavnmgmt", name:"HAAVN Management", sub:"Development & Construction", lead:"John Dimmiatina", color:"#d8a54a", tasks:[
+    {status:"followup", type:null, title:"Display suite build — Melbourne site program", who:"James Winstanley", done:true},
+    {status:"action", type:"action", title:"Confirm crane & set-down dates for first SOLUM", who:"Jeffrey Witbreuk"},
+    {status:"update", type:null, title:"General Updates", who:"John Dimmiatina", done:true}
+  ]},
+  {id:"admin", name:"Administration & Accounts", sub:"Finance & Operations", lead:"Dom Ma / Amy Baldwin", color:"#a179d8", tasks:[
+    {status:"followup", type:null, title:"China documents & financial structure progressing", who:"Lewis Jin", due:"14 Aug"},
+    {status:"introuble", type:"request", title:"Sign-off on developer funding package", who:"Accounts", carried:3},
+    {status:"update", type:null, title:"Expense Tracking and Reimbursement", who:"Dom Ma", done:true},
+    {status:"followup", type:"request", title:"Developer funding package sign-off", who:"Accounts"}
+  ]}
+];
+var ATTENDEES = [
+  {n:"Jamie Baldwin",p:true},{n:"James Winstanley",p:true},{n:"Jeffrey Witbreuk",p:true},
+  {n:"Callum McDonald",p:true},{n:"Daniel Sette",p:true},{n:"Lewis Jin",p:true},
+  {n:"Amy Baldwin",p:true},{n:"John Dimmiatina",p:true},{n:"James Maloney",p:true}
+];
+var DECISIONS = [
+  {t:"Go-to-market pricing to be finalised & approved by Friday COB.", by:"Company · Jamie Baldwin"},
+  {t:"Developer funding package escalated to priority — legal + accounts joint review.", by:"Admin · Accounts"}
+];
+var HISTORY = [
+  {date:"Monday 10 August 2026", complete:14, total:17, present:"8/9", decisions:3},
+  {date:"Monday 3 August 2026", complete:12, total:16, present:"9/9", decisions:2},
+  {date:"Monday 28 July 2026", complete:15, total:18, present:"7/9", decisions:4}
+];
+var WEEKLY_TREND = [58,64,61,72,69,76]; // % completion history for sparkline
+var ME = "Jamie Baldwin";
+var TARGET_SECONDS = 45*60;
+
+/* colour helpers */
+function initials(n){var p=n.replace(/·.*/,"").trim().split(" ");return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}
+function avatarColor(n){var c=["#5b8def","#5aa87a","#d8a54a","#a179d8","#e0644f","#5aa8a8","#c77dbb"];var s=0;for(var i=0;i<n.length;i++)s+=n.charCodeAt(i);return c[s%c.length];}
+var STATUS_LABEL={followup:"FOLLOW-UP",action:"ACTION",update:"UPDATE",introuble:"IN TROUBLE"};
+
+/* give every task an id + defaults */
+var _id=0;
+DEPTS.forEach(function(d){d.tasks.forEach(function(t){t.id=++_id;t.done=t.done||false;t.carried=t.carried||0;});});
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+var activeFilter="all";
+
+function render(){
+  renderAtt();
+  renderDepts();
+  renderStats();
+  renderDecisions();
+  renderRollups();
+  renderArchive();
+  renderCmdOpts();
+}
+
+function renderAtt(){
+  var present=ATTENDEES.filter(function(a){return a.p}).length;
+  document.getElementById("attCount").textContent=present+"/"+ATTENDEES.length;
+  document.getElementById("attList").innerHTML=ATTENDEES.map(function(a,i){
+    return '<span class="att '+(a.p?"":"absent")+'" onclick="toggleAtt('+i+')">'+
+      '<span class="av" style="background:'+avatarColor(a.n)+'">'+initials(a.n)+'</span>'+
+      a.n+' <span class="st"></span></span>';
+  }).join("");
+}
+function toggleAtt(i){ATTENDEES[i].p=!ATTENDEES[i].p;renderAtt();renderStats();}
+
+function taskRow(t,color){
+  var hide = !passFilter(t);
+  var tag = t.type?'<span class="tag">'+t.type.toUpperCase()+'</span>':'';
+  var age = t.carried>0?'<span class="age">↻ '+t.carried+'w carried</span>':'';
+  var due = t.due?'<span class="due">'+t.due+'</span>':'';
+  return '<div class="task '+(t.done?"done":"")+'" data-id="'+t.id+'" style="--rowc:'+color+';'+(hide?"display:none":"")+'">'+
+    '<div class="cbx '+(t.done?"checked":"")+'" onclick="toggleTask('+t.id+')">'+
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>'+
+    '<span class="pill s-'+t.status+'"><span class="pd"></span>'+STATUS_LABEL[t.status]+'</span>'+
+    tag+
+    '<span class="t-title">'+t.title+'</span>'+
+    age+
+    '<span class="assignee"><span class="av" style="width:24px;height:24px;background:'+avatarColor(t.who)+'">'+initials(t.who)+'</span>'+t.who+'</span>'+
+    due+
+    '<span class="dots" onclick="toast(\'Assign · set due · email · reclassify\')">⋯</span>'+
+  '</div>';
+}
+
+function renderDepts(){
+  document.getElementById("depts").innerHTML=DEPTS.map(function(d){
+    var discussed=d.tasks.filter(function(t){return t.done}).length;
+    var risk=d.tasks.some(function(t){return t.status==="introuble"});
+    var health=d.tasks.length===0?'':'<span class="health '+(risk?"risk":"ok")+'">'+(risk?"⚠ At risk":"● On track")+'</span>';
+    var body=d.tasks.length?d.tasks.map(function(t){return taskRow(t,d.color)}).join(""):'<div class="empty">No tasks yet — add a task for this department.</div>';
+    return '<div class="dept" data-dept="'+d.id+'">'+
+      '<div class="dept-head">'+
+        '<span class="dept-bar" style="background:'+d.color+'"></span>'+
+        '<div><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div>'+
+        '<div class="dept-sub">'+d.sub+'</div></div>'+
+        '<div class="dept-meta">'+health+
+          '<span class="lead">Lead · <b>'+d.lead+'</b><br>'+discussed+'/'+d.tasks.length+' discussed</span>'+
+          '<button class="addtask" onclick="quickAdd(\''+d.id+'\')">+ Task</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="dept-body">'+body+'</div>'+
+    '</div>';
+  }).join("");
+}
+
+function passFilter(t){
+  switch(activeFilter){
+    case "all":return true;
+    case "mine":return t.who===ME;
+    case "action":return t.type==="action"||t.status==="action";
+    case "request":return t.type==="request";
+    case "event":return t.type==="event";
+    case "introuble":return t.status==="introuble";
+    case "open":return !t.done;
+    default:return true;
+  }
+}
+
+function toggleTask(id){
+  DEPTS.forEach(function(d){d.tasks.forEach(function(t){if(t.id===id)t.done=!t.done;});});
+  render();
+}
+
+/* ---- stats + momentum ---- */
+function allTasks(){var a=[];DEPTS.forEach(function(d){a=a.concat(d.tasks)});return a;}
+function renderStats(){
+  var tasks=allTasks();
+  var total=tasks.length;
+  var done=tasks.filter(function(t){return t.done}).length;
+  var open=total-done;
+  var trouble=tasks.filter(function(t){return t.status==="introuble"}).length;
+  var carried=tasks.filter(function(t){return t.carried>0}).length;
+  var present=ATTENDEES.filter(function(a){return a.p}).length;
+  var pct=total?Math.round(done/total*100):0;
+
+  document.getElementById("heroStats").innerHTML=
+    stat(done+'<small>/'+total+'</small>',"Complete")+
+    stat(present+'<small>/'+ATTENDEES.length+'</small>',"Present")+
+    stat(open,"Open tasks")+
+    stat(trouble,"In trouble",trouble>0?"bad":"");
+
+  // ring
+  var arc=document.getElementById("ringArc");
+  var circ=2*Math.PI*30;
+  arc.style.strokeDasharray=circ;
+  arc.style.strokeDashoffset=circ*(1-pct/100);
+  document.getElementById("ringPct").textContent=pct+"%";
+  document.getElementById("tileComplete").textContent=done+" / "+total;
+  document.getElementById("tileCarried").textContent=carried;
+  document.getElementById("tileTrouble").textContent=trouble;
+
+  // momentum = 6-week completion trajectory (first → latest week)
+  var traj=WEEKLY_TREND[WEEKLY_TREND.length-1]-WEEKLY_TREND[0];
+  var tr=document.getElementById("momTrend");
+  tr.className="trend "+(traj>=0?"up":"down");
+  tr.textContent=(traj>=0?"▲ ":"▼ ")+Math.abs(traj)+"%";
+
+  // sparkline (6-week completion history)
+  var series=WEEKLY_TREND;
+  var max=Math.max.apply(null,series);
+  document.getElementById("spark").innerHTML=series.map(function(v,i){
+    var op=i===series.length-1?1:.5+.4*(i/series.length);
+    return '<i style="height:'+(v/max*100)+'%;opacity:'+op+'"></i>';
+  }).join("");
+
+  document.getElementById("attCount").textContent=present+"/"+ATTENDEES.length;
+}
+function stat(num,lbl,cls){return '<div class="stat '+(cls||"")+'"><div class="num">'+num+'</div><div class="lbl">'+lbl+'</div></div>';}
+
+/* ---- decisions ---- */
+function renderDecisions(){
+  document.getElementById("decCount").textContent=DECISIONS.length+" logged";
+  document.getElementById("decList").innerHTML=DECISIONS.map(function(d,i){
+    return '<div class="dec"><span class="dn">'+(i+1)+'.</span><div><div>'+d.t+'</div><div class="meta">'+d.by+' · 17 Aug 2026</div></div></div>';
+  }).join("");
+}
+function addDecision(){
+  var v=document.getElementById("decInput").value.trim();
+  if(!v)return;
+  DECISIONS.push({t:v,by:"Company · "+ME});
+  document.getElementById("decInput").value="";
+  renderDecisions();toast("Decision logged");
+}
+
+/* ---- roll-ups ---- */
+function deptOf(t){var r;DEPTS.forEach(function(d){d.tasks.forEach(function(x){if(x===t)r=d;})});return r;}
+function rollRow(t){
+  var d=deptOf(t);
+  return '<tr><td><div class="tt">'+t.title+'</div></td>'+
+    '<td><span class="deptdot"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</span></td>'+
+    '<td>'+t.who+'</td>'+
+    '<td><span class="pill s-'+t.status+'"><span class="pd"></span>'+STATUS_LABEL[t.status]+'</span></td>'+
+    '<td>'+(t.due||"—")+'</td>'+
+    '<td class="mono" style="letter-spacing:.05em;color:var(--ink-3)">17 Aug</td></tr>';
+}
+function renderRollups(){
+  var tasks=allTasks();
+  var reqs=tasks.filter(function(t){return t.type==="request"});
+  var evts=tasks.filter(function(t){return t.type==="event"});
+  var acts=tasks.filter(function(t){return t.type==="action"||t.status==="action"});
+  document.getElementById("tbReq").innerHTML=reqs.map(rollRow).join("");
+  document.getElementById("tbEvt").innerHTML=evts.map(rollRow).join("");
+  document.getElementById("tbAct").innerHTML=acts.map(rollRow).join("");
+  document.getElementById("cReq").textContent=reqs.length;
+  document.getElementById("cEvt").textContent=evts.length;
+  document.getElementById("cAct").textContent=acts.length;
+}
+
+/* ---- archive ---- */
+function renderArchive(){
+  document.getElementById("archList").innerHTML=HISTORY.map(function(h){
+    var pct=Math.round(h.complete/h.total*100);
+    return '<div class="arch-row" onclick="toast(\'Reopen meeting · roll forward unfinished items\')">'+
+      '<div class="arch-date">'+h.date+'</div>'+
+      '<div class="arch-mini">'+
+        '<span><b>'+pct+'%</b> complete</span>'+
+        '<span><b>'+h.complete+'/'+h.total+'</b> items</span>'+
+        '<span><b>'+h.present+'</b> present</span>'+
+        '<span><b>'+h.decisions+'</b> decisions</span>'+
+      '</div>'+
+      '<span class="go">Reopen →</span></div>';
+  }).join("");
+}
+
+/* ============================================================
+   INTERACTIONS
+   ============================================================ */
+/* theme */
+document.getElementById("themeSeg").addEventListener("click",function(e){
+  var b=e.target.closest("[data-theme-set]");if(!b)return;
+  document.documentElement.setAttribute("data-theme",b.dataset.themeSet);
+  this.querySelectorAll("button").forEach(function(x){x.classList.remove("on")});
+  b.classList.add("on");
+});
+
+/* tabs */
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("on",t.dataset.tab===name)});
+  document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("on",p.id==="p-"+name)});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){switchTab(t.dataset.tab)}});
+
+/* filters */
+document.getElementById("filters").addEventListener("click",function(e){
+  var c=e.target.closest(".chip[data-filter]");if(!c)return;
+  activeFilter=c.dataset.filter;
+  this.querySelectorAll(".chip[data-filter]").forEach(function(x){x.classList.remove("on")});
+  c.classList.add("on");
+  renderDepts();
+});
+
+/* clock */
+function tickClock(){
+  var d=new Date();
+  var h=(d.getHours()%12||12), m=String(d.getMinutes()).padStart(2,"0"), s=String(d.getSeconds()).padStart(2,"0");
+  document.getElementById("clock").textContent=h+":"+m+":"+s+" "+(d.getHours()<12?"AM":"PM");
+}
+setInterval(tickClock,1000);tickClock();
+
+/* timer */
+var tSec=0,tRun=false,tInt=null;
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function toggleTimer(){
+  tRun=!tRun;
+  document.getElementById("timerToggle").textContent=tRun?"❚❚ Pause":"▶ Start";
+  if(tRun){tInt=setInterval(function(){tSec++;updTimer();},1000);}else{clearInterval(tInt);}
+}
+function resetTimer(){tSec=0;updTimer();}
+function updTimer(){
+  document.getElementById("timer").textContent=fmt(tSec);
+  var pct=Math.min(100,tSec/TARGET_SECONDS*100);
+  var fill=document.getElementById("paceFill");
+  fill.style.width=pct+"%";
+  if(tSec>TARGET_SECONDS){fill.style.background="linear-gradient(90deg,var(--accent),var(--red))";document.getElementById("paceLbl").textContent="Over by "+fmt(tSec-TARGET_SECONDS);}
+  else{document.getElementById("paceLbl").textContent="Target 45:00";}
+}
+
+/* command palette */
+var cmdText="";
+function openCmd(){document.getElementById("cmdOverlay").classList.add("on");document.getElementById("cmdInput").focus();}
+function closeCmd(){document.getElementById("cmdOverlay").classList.remove("on");document.getElementById("cmdInput").value="";}
+document.getElementById("cmdHint").onclick=openCmd;
+document.getElementById("cmdOverlay").addEventListener("click",function(e){if(e.target===this)closeCmd();});
+function renderCmdOpts(){
+  document.getElementById("cmdOpts").innerHTML=DEPTS.map(function(d){
+    return '<div class="cmd-opt" onclick="cmdAdd(\''+d.id+'\')"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div>';
+  }).join("");
+}
+function cmdAdd(deptId){
+  var v=document.getElementById("cmdInput").value.trim();
+  if(!v){toast("Type a task first");return;}
+  var d=DEPTS.find(function(x){return x.id===deptId});
+  d.tasks.push({id:++_id,status:"followup",type:null,title:v,who:ME,done:false,carried:0});
+  closeCmd();render();switchTab("agenda");toast("Added to "+d.name);
+}
+function quickAdd(deptId){openCmd();document.getElementById("cmdInput").dataset.dept=deptId;}
+
+document.addEventListener("keydown",function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCmd();}
+  if(e.key==="Escape")closeCmd();
+});
+
+/* focus / present mode */
+var presentIdx=0,focusOn=false;
+document.getElementById("focusBtn").onclick=function(){
+  focusOn=!focusOn;
+  document.body.classList.toggle("focus",focusOn);
+  this.style.color=focusOn?"var(--accent)":"";
+  if(focusOn){switchTab("agenda");presentIdx=0;spot();}else{clearSpot();}
+};
+function clearSpot(){document.querySelectorAll(".dept").forEach(function(d){d.classList.remove("spot")});}
+function spot(){
+  clearSpot();
+  var d=document.querySelectorAll(".dept")[presentIdx];
+  if(d){d.classList.add("spot");d.scrollIntoView({behavior:"smooth",block:"center"});document.getElementById("presentLbl").textContent=DEPTS[presentIdx].name;}
+}
+function present(dir){
+  presentIdx=Math.max(0,Math.min(DEPTS.length-1,presentIdx+dir));
+  spot();
+}
+
+/* minutes / toast */
+function copyMinutes(){
+  var v=document.getElementById("minutes").value||"(no notes yet)";
+  var txt="ATRIUM · Weekly Company Meeting · Monday 17 August 2026\n\nMINUTES:\n"+v+"\n\nDECISIONS:\n"+DECISIONS.map(function(d,i){return (i+1)+". "+d.t}).join("\n");
+  if(navigator.clipboard)navigator.clipboard.writeText(txt);
+  toast("Minutes + decisions copied");
+}
+var toastT;
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on")},2200);}
+
+render();
+</script>
+</body>
+</html>
