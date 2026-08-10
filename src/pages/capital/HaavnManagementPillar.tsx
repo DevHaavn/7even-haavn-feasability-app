@@ -56,8 +56,8 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   // mounted full-bleed. Its own top-bar "← Hub" returns (see the effect above).
   if (pillar.id === 'agenda') {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#ECE8DE', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="Weekly Meetings & Agenda Tracking" src="/haavn-boardroom.html"
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+        <iframe title="ATRIUM · Weekly Company Meeting" src="/atrium-meeting-hub.html"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
