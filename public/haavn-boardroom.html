@@ -120,6 +120,17 @@ tbody tr:last-child td{border-bottom:none}
 .arch .ad{font-size:20px;font-weight:800;letter-spacing:-.02em;width:64px}
 .arch .amo{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold)}
 @media(max-width:820px){.item-row{flex-wrap:wrap}.mstat{gap:16px}}
+/* celebration / party overlay when an agenda point is ticked */
+.celebrate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(23,21,15,.34);opacity:0;transition:opacity .28s}
+.celebrate.in{opacity:1}.celebrate.out{opacity:0}
+.confetti-c{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.celeb-card{position:relative;background:var(--card);border:1px solid var(--line2);border-radius:18px;box-shadow:0 24px 60px rgba(26,23,20,.32);padding:30px 40px 26px;text-align:center;max-width:calc(100vw - 40px);transform:scale(.88) translateY(10px);transition:transform .34s cubic-bezier(.2,.9,.3,1.35)}
+.celebrate.in .celeb-card{transform:scale(1) translateY(0)}
+.celeb-emoji{font-size:54px;line-height:1;animation:celebpop .55s ease both}
+@keyframes celebpop{0%{transform:scale(0) rotate(-18deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+.celeb-title{font-size:25px;font-weight:800;letter-spacing:-.02em;margin-top:10px;color:var(--ink)}
+.celeb-sub{font-size:13px;color:var(--ink3);margin-top:7px;max-width:360px;margin-left:auto;margin-right:auto}
+.celeb-actions{display:flex;gap:10px;justify-content:center;margin-top:20px}
 @media print{
   .topbar,.tabsbar,.savepill,.addatt,.iconbtn,.btn,.chk,.attchip .x{display:none!important}
   body{background:#fff}.wrap{padding:0}.mhead{background:#fff;color:#000;border:1px solid #ccc}
@@ -417,7 +428,49 @@ function archiveDetail(m){
 /* ================= MUTATIONS ================= */
 function addItem(deptId){const m=cur();m.items.push({id:uid(),dept:deptId,type:'update',title:'',owner:dept(deptId).lead.split(' / ')[0],status:'open',discussed:false,notes:''});openItem=null;save();render();}
 function rmItem(id){const m=cur();m.items=m.items.filter(i=>i.id!==id);save();render();}
-function togItem(id){const it=cur().items.find(i=>i.id===id);it.discussed=!it.discussed;if(it.discussed&&it.status==='open')it.status='done';save();render();}
+function togItem(id){const it=cur().items.find(i=>i.id===id);if(!it)return;
+  const wasDiscussed=it.discussed,prevStatus=it.status;
+  it.discussed=!it.discussed;
+  const bumped=(it.discussed&&prevStatus==='open');if(bumped)it.status='done';
+  save();render();
+  if(it.discussed&&!wasDiscussed){
+    const allDone=cur().items.length>0&&cur().items.every(x=>x.discussed);
+    celebrate(it.title,allDone,function(){const x=cur().items.find(i=>i.id===id);if(x){x.discussed=false;if(bumped)x.status=prevStatus;}save();render();});
+  }
+}
+/* ---- celebration + undo when an agenda point is ticked ---- */
+let _celebT=null;
+function closeCelebrate(){clearTimeout(_celebT);const o=document.getElementById('celebrate');if(o){o.classList.remove('in');o.classList.add('out');setTimeout(()=>{if(o.parentNode)o.parentNode.removeChild(o);},360);}}
+function celebrate(title,allDone,onUndo){
+  closeCelebrate();
+  const o=document.createElement('div');o.id='celebrate';o.className='celebrate';
+  o.innerHTML='<canvas class="confetti-c"></canvas><div class="celeb-card">'+
+    '<div class="celeb-emoji">'+(allDone?'🎊':'🎉')+'</div>'+
+    '<div class="celeb-title">'+(allDone?'Full agenda completed!':'Agenda completed')+'</div>'+
+    '<div class="celeb-sub">'+(allDone?'Every point covered — great meeting.':esc(title||''))+'</div>'+
+    '<div class="celeb-actions"><button class="btn" id="celebUndo">↩ Undo</button><button class="btn pri" id="celebDone">Done</button></div>'+
+    '</div>';
+  document.body.appendChild(o);
+  requestAnimationFrame(()=>o.classList.add('in'));
+  fireConfetti(o.querySelector('.confetti-c'),allDone);
+  o.querySelector('#celebUndo').onclick=function(){if(onUndo)onUndo();closeCelebrate();};
+  o.querySelector('#celebDone').onclick=closeCelebrate;
+  o.addEventListener('click',function(ev){if(ev.target===o)closeCelebrate();});
+  _celebT=setTimeout(closeCelebrate,4200);
+}
+function fireConfetti(canvas,big){
+  if(!canvas)return;const ctx=canvas.getContext('2d');const DPR=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=canvas.clientWidth*DPR;canvas.height=canvas.clientHeight*DPR;
+  const colors=['#C39A46','#3C6E47','#2A4C6B','#9A7526','#8A3A2E','#6A4E86','#EACB78','#4A5568'];
+  const N=big?200:130,parts=[],cx=canvas.width/2,cy=canvas.height*0.42;
+  for(let i=0;i<N;i++){const ang=Math.random()*Math.PI*2,sp=(4+Math.random()*9)*DPR;
+    parts.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-6*DPR,w:(6+Math.random()*7)*DPR,h:(9+Math.random()*9)*DPR,col:colors[i%colors.length],rot:Math.random()*6.28,vr:(Math.random()-0.5)*0.4});}
+  const g=0.3*DPR;let t0=null;
+  function frame(ts){if(t0==null)t0=ts;const el=ts-t0;ctx.clearRect(0,0,canvas.width,canvas.height);
+    parts.forEach(p=>{p.vy+=g;p.x+=p.vx;p.y+=p.vy;p.vx*=0.99;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=Math.max(0,1-el/4200);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    if(el<4200)requestAnimationFrame(frame);else ctx.clearRect(0,0,canvas.width,canvas.height);}
+  requestAnimationFrame(frame);
+}
 function expItem(id){openItem=openItem===id?null:id;render();}
 function promote(id){const it=cur().items.find(i=>i.id===id);const created=cur().date;
   if(it.type==='request')DB.requests.unshift({id:uid(),title:it.title,detail:it.notes,from:cur().chair,dept:it.dept,owner:it.owner,status:'Open',due:'',created});
