@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>7EVEN · HAAVN — Boardroom Agenda</title>
+<title>ATRIUM — Weekly Company Meeting</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -94,10 +94,38 @@ h1.title{font-size:27px;font-weight:800;letter-spacing:-.025em;margin-top:5px}
 .item-exp textarea{flex:1;min-width:220px;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;background:#fff;resize:vertical;min-height:40px;font-size:12.5px}
 .pill{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
 .pill .d{width:6px;height:6px;border-radius:50%;background:currentColor}
-.pill.open{background:var(--bone);color:var(--ink3)}
-.pill.prog{background:var(--amberbg);color:var(--amber)}
-.pill.done{background:var(--greenbg);color:var(--green)}
-.pill.block{background:var(--redbg);color:var(--red)}
+/* 5-state colour system */
+.pill.update{background:var(--bluebg);color:var(--blue)}
+.pill.action{background:var(--greenbg);color:var(--green)}
+.pill.followup{background:var(--amberbg);color:var(--amber)}
+.pill.trouble{background:var(--redbg);color:var(--red)}
+.pill.complete{background:#EAE3F0;color:#6A4E86}
+/* subtle left accent per state on the item card */
+.item.st-update{box-shadow:inset 3px 0 0 var(--blue)}
+.item.st-action{box-shadow:inset 3px 0 0 var(--green)}
+.item.st-followup{box-shadow:inset 3px 0 0 var(--amber)}
+.item.st-trouble{box-shadow:inset 3px 0 0 var(--red)}
+.item.st-complete{box-shadow:inset 3px 0 0 #6A4E86}
+/* kind tag (Request/Event/Action) */
+.kindtag{font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;border:1px solid var(--line2);color:var(--ink3);background:var(--paper)}
+.kindtag.request{border-color:#C9A24688;color:#8A6516}
+.kindtag.event{border-color:#6A4E8688;color:#6A4E86}
+.kindtag.action{border-color:#3C6E4788;color:#2E5D46}
+/* assignee badge */
+.who{display:inline-flex;align-items:center;gap:6px;flex:none;max-width:150px}
+.who .wav{width:22px;height:22px;border-radius:50%;background:var(--char);color:#F4F2ED;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;font-family:'IBM Plex Mono',monospace}
+.who .wn{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.duetag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3);background:var(--bone);border-radius:6px;padding:3px 7px;flex:none}
+/* item-exp labels */
+.item-exp .xl{display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.item-exp .xl select,.item-exp .xl input{border:1px solid var(--line2);border-radius:7px;padding:6px 8px;font-size:12.5px;background:#fff;color:var(--ink);text-transform:none;letter-spacing:0}
+/* attendee modal */
+.modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;background:rgba(23,21,15,.4);opacity:0;transition:opacity .2s}
+.modal.in{opacity:1}
+.modal-card{background:var(--card);border:1px solid var(--line2);border-radius:16px;box-shadow:0 24px 60px rgba(26,23,20,.35);padding:24px 26px;width:min(420px,calc(100vw - 32px));display:flex;flex-direction:column;gap:12px}
+.modal-card .xl{display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.modal-card .xl input{border:1px solid var(--line2);border-radius:8px;padding:9px 11px;font-size:13.5px;background:#fff;color:var(--ink);text-transform:none;letter-spacing:0}
+.modal-card .xl input:focus{outline:none;border-color:var(--gold)}
 .minutes{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);padding:16px 18px;margin-bottom:16px}
 .minutes textarea{width:100%;border:1px solid var(--line2);border-radius:9px;padding:11px 13px;background:#fff;resize:vertical;min-height:90px;font-size:13px;line-height:1.55}
 /* tables */
@@ -141,8 +169,8 @@ tbody tr:last-child td{border-bottom:none}
 <body>
 <div class="topbar">
   <button class="hubback" id="hubBack" title="Back to Management Hub" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-agenda-close','*');return false;}">← Hub</button>
-  <span class="brand"><svg viewBox="74 0 771 180" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,180) scale(0.1,-0.1)" fill="#F4F2ED" stroke="none"><path d="M747 1544 c-4 -4 -7 -279 -7 -611 l0 -603 160 0 160 0 0 200 0 200 525 0 525 0 0 -200 0 -200 160 0 160 0 -2 608 -3 607 -135 3 c-74 1 -145 0 -158 -3 l-22 -5 3 -233 c2 -127 2 -238 -1 -244 l-4 -13 -524 0 -524 0 -2 248 -3 247 -151 3 c-82 1 -153 -1 -157 -4z M2580 940 l0 -610 160 0 160 0 0 531 0 530 15 -3 c8 -2 259 -243 559 -535 l545 -533 218 0 218 1 -131 127 c-72 70 -340 330 -595 577 -255 248 -483 467 -507 488 l-42 37 -300 0 -300 0 0 -610z M3920 1302 l0 -247 153 -153 c84 -83 156 -152 160 -152 l7 0 0 320 0 320 11 0 c9 0 329 -309 949 -917 l145 -143 225 0 225 1 -24 20 c-14 11 -257 249 -540 528 -284 279 -554 544 -601 589 l-85 81 -312 1 -313 0 0 -248z M4750 1547 c0 -2 278 -276 619 -610 l618 -605 314 -3 314 -3 3 612 2 612 -159 0 -160 0 6 -535 5 -535 -16 0 -17 0 -417 413 c-229 226 -473 467 -542 534 l-125 123 -222 0 c-123 0 -223 -1 -223 -3z M6770 941 l0 -609 153 -4 c83 -2 155 -2 160 0 l7 3 0 440 0 440 14 -3 c18 -4 123 -104 560 -536 l348 -345 216 1 c118 1 216 3 218 5 2 2 7 1141 4 1202 l0 10 -155 3 -155 3 0 -446 0 -446 -14 3 c-15 3 -104 88 -610 585 l-309 303 -218 0 -219 0 0 -609z"/></g></svg></span>
-  <span class="tag">7EVEN · HAAVN — GROUP BOARDROOM</span>
+  <span class="brand" style="display:flex;align-items:center;gap:9px"><svg width="18" height="17" viewBox="0 0 24 22" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M12 1.6 L22.6 20.4 L1.4 20.4 Z" fill="none" stroke="#F4F2ED" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.4 20.4 L12 7.6 L16.6 20.4" fill="none" stroke="#F4F2ED" stroke-width="1.4" stroke-linejoin="round"/></svg><span style="font-size:15px;font-weight:700;letter-spacing:.34em;color:#F4F2ED;padding-right:2px">ATRIUM</span></span>
+  <span class="tag">WEEKLY COMPANY MEETING</span>
   <div class="savepill" id="savePill"><span class="dot"></span><span id="saveTxt">Saved</span></div>
 </div>
 <div class="tabsbar" id="tabsbar"></div>
@@ -161,13 +189,17 @@ const DEPTS=[
   {id:'admin',name:'Administration & Accounts',sub:'Finance & Operations',lead:'Dom Ma / Amy Baldwin',color:'#7A5B8E'},
 ];
 const dept=id=>DEPTS.find(d=>d.id===id);
+/* item STATUS = colour-coded state (Asana-style working tool) */
+const ISTATUS=['update','action','followup','trouble','complete'];
+const IS_LABEL={update:'Update',action:'Action',followup:'Follow-up',trouble:'In trouble',complete:'Complete'};
+/* KIND = which register roll-up an item feeds (built into the item itself) */
+const KINDS=['','request','event','action'];
+const KIND_LABEL={'':'— none —',request:'Request',event:'Event',action:'Action'};
+const KIND_TABS={requests:'request',events:'event',actions:'action'};
+/* migrate legacy values → new model */
+const STATUS_MAP={open:'action',prog:'followup',done:'complete',block:'trouble',update:'update',action:'action',followup:'followup',trouble:'trouble',complete:'complete'};
 const TYPES=['update','request','event','decision'];
 const TYPE_LABEL={update:'Update',request:'Request',event:'Event',decision:'Decision'};
-const ISTATUS=['open','prog','done','block'];
-const IS_LABEL={open:'Open',prog:'In progress',done:'Done',block:'Blocked'};
-const RSTATUS=['Open','Approved','Declined','On hold','Actioned'];
-const ESTATUS=['Planned','Confirmed','Done'];
-const ASTATUS=['Open','In progress','Done'];
 
 /* ---- date helpers ---- */
 function upcomingMonday(){const d=new Date();const day=d.getDay();const add=(1-day+7)%7;const m=new Date(d);m.setDate(d.getDate()+add);return m.toISOString().slice(0,10);}
@@ -182,22 +214,23 @@ let _uid=1; const uid=()=>_uid++;
 function newMeeting(dateISO){
   return {id:uid(),date:dateISO||upcomingMonday(),time:'08:30',chair:'Jamie Baldwin',
     attendees:[
-      {id:uid(),name:'Jamie Baldwin',present:true},{id:uid(),name:'James Winstanley',present:true},
-      {id:uid(),name:'Jeffrey Witbreuk',present:true},{id:uid(),name:'Callum McDonald',present:true},
-      {id:uid(),name:'Daniel Sette',present:true},{id:uid(),name:'Lewis Jin',present:false},
+      {id:uid(),name:'Jamie Baldwin',email:'',role:'Group Director',present:true},{id:uid(),name:'James Winstanley',email:'',role:'HAAVN Lead',present:true},
+      {id:uid(),name:'John Dimmatina',email:'',role:'HAAVN Management Lead',present:true},{id:uid(),name:'Daniel Sette',email:'',role:'7EVEN Lead',present:true},
+      {id:uid(),name:'Dom Ma',email:'',role:'Accounts',present:true},{id:uid(),name:'Amy Baldwin',email:'',role:'Accounts',present:true},{id:uid(),name:'Lewis Jin',email:'',role:'',present:false},
     ],
     items:[], minutes:'', closed:false};
 }
+function newItem(o){return Object.assign({id:uid(),dept:'company',status:'update',title:'',kind:'',assigneeId:'',owner:'',due:'',discussed:false,notes:''},o||{});}
 function seedItems(m){
-  const add=(d,type,title,owner,status)=>m.items.push({id:uid(),dept:d,type,title,owner,status,discussed:false,notes:''});
-  add('7even','update','ATRIUM platform — CRM & Display Suite live for review','Jamie Baldwin','prog');
-  add('7even','decision','Approve go-to-market pricing before Friday','Jamie Baldwin','open');
-  add('haavn','update','Sales pipeline — 3 reservations this week','Sarah Deakin','prog');
-  add('haavn','request','Need final Black Series renders for website','Jamie Baldwin','open');
-  add('mgmt','update','Display suite build — Melbourne site program','James Winstanley','prog');
-  add('mgmt','decision','Confirm crane & set-down dates for first SOLUM','Jeffrey Witbreuk','open');
-  add('admin','update','China documents & financial structure progressing','Lewis Jin','prog');
-  add('admin','request','Sign-off on developer funding package','Accounts','block');
+  const add=(dept,status,title,kind)=>m.items.push(newItem({dept,status,title,kind:kind||''}));
+  add('7even','update','ATRIUM platform — CRM & Display Suite live for review','');
+  add('7even','action','Approve go-to-market pricing before Friday','action');
+  add('haavn','followup','Sales pipeline — 3 reservations this week','');
+  add('haavn','action','Need final Black Series renders for website','request');
+  add('mgmt','followup','Display suite build — Melbourne site program','');
+  add('mgmt','action','Confirm crane & set-down dates for first SOLUM','action');
+  add('admin','update','China documents & financial structure progressing','');
+  add('admin','trouble','Sign-off on developer funding package','request');
 }
 function load(){
   try{const r=localStorage.getItem(KEY);if(r){DB=JSON.parse(r);const ids=collectIds(DB);_uid=(ids.length?Math.max(...ids):0)+1;return;}}catch(e){}
@@ -217,6 +250,33 @@ function load(){
   ];
 }
 function collectIds(db){const ids=[];db.meetings.forEach(m=>{ids.push(m.id);m.attendees.forEach(a=>ids.push(a.id));m.items.forEach(i=>ids.push(i.id));});['requests','events','actions'].forEach(k=>(db[k]||[]).forEach(x=>ids.push(x.id)));return ids;}
+/* ---- migrate legacy data → new item-centric model (idempotent, non-destructive) ---- */
+function migrateItem(i){
+  if(ISTATUS.indexOf(i.status)<0) i.status=STATUS_MAP[i.status]||'action';
+  if(i.kind===undefined){var t=i.type; i.kind=(t==='request'?'request':t==='event'?'event':t==='decision'?'action':''); if(t==='update'&&i.status==='action')i.status='update';}
+  if(i.assigneeId===undefined)i.assigneeId='';
+  if(i.due===undefined)i.due='';
+  if(i.owner===undefined)i.owner='';
+  if(i.discussed&&i.status!=='complete')i.status='complete';
+}
+function migrateAll(){
+  if(!DB)return;
+  (DB.meetings||[]).forEach(function(m){
+    (m.attendees||[]).forEach(function(a){if(a.email===undefined)a.email='';if(a.role===undefined)a.role='';});
+    (m.items||[]).forEach(migrateItem);
+  });
+  if(!DB.registersMerged){
+    var m=DB.meetings.find(function(x){return x.id===DB.currentId;});
+    if(m){
+      var seen={};(m.items||[]).forEach(function(it){var k=(it.title||'').trim().toLowerCase();if(k)seen[k]=true;});
+      function pushUnique(o){var k=(o.title||'').trim().toLowerCase();if(k&&seen[k])return;if(k)seen[k]=true;m.items.push(newItem(o));}
+      (DB.requests||[]).forEach(function(r){pushUnique({dept:r.dept||'company',status:(r.status==='Actioned'||r.status==='Approved')?'complete':(r.status==='On hold')?'followup':(r.status==='Declined')?'trouble':'action',title:r.title||'',kind:'request',owner:r.owner||'',due:r.due||'',notes:r.detail||''});});
+      (DB.events||[]).forEach(function(e){pushUnique({dept:e.dept||'company',status:(e.status==='Done')?'complete':(e.status==='Confirmed')?'action':'update',title:e.title||'',kind:'event',owner:e.owner||'',due:e.date||'',notes:e.detail||''});});
+      (DB.actions||[]).forEach(function(a){pushUnique({dept:a.dept||'company',status:(a.status==='Done')?'complete':(a.status==='In progress')?'followup':'action',title:a.title||'',kind:'action',owner:a.owner||'',due:a.due||'',notes:''});});
+    }
+    DB.registersMerged=true;
+  }
+}
 let _st=null;
 function save(){const p=document.getElementById('savePill'),t=document.getElementById('saveTxt');if(p){p.classList.add('saving');t.textContent='Saving…';}
   clearTimeout(_st);_st=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}cloudPush();if(p){p.classList.remove('saving');t.textContent='Saved '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}},450);}
@@ -228,7 +288,7 @@ function save(){const p=document.getElementById('savePill'),t=document.getElemen
    poll for other people's edits. Degrades to localStorage-only if unreachable. */
 const SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
-const CLOUD_KEY='haavn_boardroom';
+const CLOUD_KEY=(location.search.indexOf('preview')>=0||location.hash.indexOf('preview')>=0)?'haavn_boardroom_preview':'haavn_boardroom';
 const SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
 let _cloudOk=false,_cloudTs=0,_cpushT=null;
 function _bmTyping(){const a=document.activeElement;return !!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable);}
@@ -245,7 +305,7 @@ function cloudPush(){
     }catch(e){}
   },700);
 }
-function adoptCloud(value){DB=value;try{const ids=collectIds(DB);_uid=(ids.length?Math.max(...ids):0)+1;}catch(e){}try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+function adoptCloud(value){DB=value;try{const ids=collectIds(DB);_uid=(ids.length?Math.max(...ids):0)+1;}catch(e){}migrateAll();try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
 async function cloudPoll(){
   if(!_cloudOk||_bmTyping())return;
   try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=updated_at',{headers:SUPA_H});
@@ -268,7 +328,10 @@ function renderTabs(){
 }
 function render(){renderTabs();const v=document.getElementById('view');
   const map={agenda:vAgenda,requests:vRequests,events:vEvents,actions:vActions,archive:vArchive};
-  v.innerHTML=(map[tab]||vAgenda)();window.scrollTo(0,0);}
+  const _sy=window.scrollY;
+  v.innerHTML=(map[tab]||vAgenda)();
+  if(tab!==window._lastTab||viewArchiveId!==window._lastArch){window.scrollTo(0,0);}else{window.scrollTo(0,_sy);}
+  window._lastTab=tab;window._lastArch=viewArchiveId;}
 
 function vAgenda(){
   const m=cur();
@@ -278,25 +341,26 @@ function vAgenda(){
   <div class="mhead">
     <div class="mtop">
       <div>
-        <div class="mt-when">WEEKLY GROUP BOARDROOM · MONDAY 08:30</div>
+        <div class="mt-when">ATRIUM · WEEKLY COMPANY MEETING · MONDAY 08:30</div>
         <h2>${fmtLong(m.date)}</h2>
         <div class="msub">Chair: ${esc(m.chair)} · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts</div>
       </div>
       <div class="flexwrap">
         <input type="date" value="${m.date}" data-bind="m:date" title="Meeting date">
         <input value="${esc(m.time)}" style="width:64px;text-align:center" data-bind="m:time" title="Time">
+        <button class="btn sm" data-act="emailAssign" title="Email everyone their assigned items">✉ Email assignments</button>
         <button class="btn sm" data-act="print">⎙ Minutes</button>
         <button class="btn sm gold" data-act="closeMeeting">Close &amp; archive →</button>
       </div>
     </div>
     <div class="mstat">
-      <div class="st"><div class="v">${done}<span style="font-size:14px;color:#8C8578">/${total}</span></div><div class="l">Items discussed</div></div>
+      <div class="st"><div class="v">${done}<span style="font-size:14px;color:#8C8578">/${total}</span></div><div class="l">Complete</div></div>
       <div class="st"><div class="v">${present}<span style="font-size:14px;color:#8C8578">/${m.attendees.length}</span></div><div class="l">Present</div></div>
-      <div class="st"><div class="v">${DB.requests.filter(r=>r.status==='Open'||r.status==='On hold').length}</div><div class="l">Open requests</div></div>
-      <div class="st"><div class="v">${DB.actions.filter(a=>a.status!=='Done').length}</div><div class="l">Open actions</div></div>
+      <div class="st"><div class="v">${m.items.filter(i=>i.status==='action'||i.status==='followup').length}</div><div class="l">Open tasks</div></div>
+      <div class="st"><div class="v" style="${m.items.filter(i=>i.status==='trouble').length?'color:var(--red)':''}">${m.items.filter(i=>i.status==='trouble').length}</div><div class="l">In trouble</div></div>
     </div>
     <div class="att">
-      ${m.attendees.map(a=>`<span class="attchip ${a.present?'':'away'}"><span class="ad" data-act="togAtt" data-id="${a.id}"></span><span data-act="togAtt" data-id="${a.id}">${esc(a.name)}</span><span class="x" data-act="rmAtt" data-id="${a.id}">×</span></span>`).join('')}
+      ${m.attendees.map(a=>`<span class="attchip ${a.present?'':'away'}" title="${esc(a.name)}${a.role?' · '+esc(a.role):''}${a.email?' · '+esc(a.email):' · no email — click to add'}"><span class="ad" data-act="togAtt" data-id="${a.id}" title="Toggle present"></span><span data-act="editAtt" data-id="${a.id}">${esc(a.name)}</span><span class="x" data-act="rmAtt" data-id="${a.id}">×</span></span>`).join('')}
       <button class="addatt" data-act="addAtt">＋ Add attendee</button>
     </div>
   </div>
@@ -329,82 +393,62 @@ function vAgenda(){
     <div class="mono" style="font-size:10px;color:var(--ink3);margin-top:8px">Emails the full agenda + minutes from your mail app — send using the <b>boardroom@7even.au</b> account. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
   </div>`;
 }
+function initials(name){return (name||'').split(/\s+/).filter(Boolean).slice(0,2).map(s=>s[0].toUpperCase()).join('')||'?';}
+function attById(id){return cur().attendees.find(a=>''+a.id===''+id);}
 function itemRow(i){
   const exp=openItem===i.id;
-  return `<div class="item ${i.discussed?'done':''}">
+  const a=i.assigneeId?attById(i.assigneeId):null;
+  const who=a?a.name:(i.owner||'');
+  return `<div class="item ${i.discussed?'done':''} st-${i.status}">
     <div class="item-row">
       <div class="chk ${i.discussed?'on':''}" data-act="togItem" data-id="${i.id}">✓</div>
-      <span class="typepill ${i.type}">${TYPE_LABEL[i.type]}</span>
-      <input class="ti" value="${esc(i.title)}" data-bind="i:${i.id}:title" placeholder="Talking point…">
       <span class="pill ${i.status}"><span class="d"></span>${IS_LABEL[i.status]}</span>
+      ${i.kind?`<span class="kindtag ${i.kind}">${KIND_LABEL[i.kind]}</span>`:''}
+      <input class="ti" value="${esc(i.title)}" data-bind="i:${i.id}:title" placeholder="Talking point / task…">
+      ${who?`<span class="who" title="${esc(who)}${a&&a.email?' · '+esc(a.email):(a?' · no email':'')}"><span class="wav">${esc(initials(who))}</span><span class="wn">${esc(who)}</span></span>`:''}
+      ${i.due?`<span class="duetag">${fmtShort(i.due)}</span>`:''}
       <button class="iconbtn" data-act="expItem" data-id="${i.id}" title="Details">⋯</button>
     </div>
     ${exp?`<div class="item-exp">
-      <label class="mono" style="font-size:10px;color:var(--ink3)">Type
-        <select class="typesel" data-bind="i:${i.id}:type" style="display:block;margin-top:3px">${TYPES.map(t=>`<option value="${t}" ${i.type===t?'selected':''}>${TYPE_LABEL[t]}</option>`).join('')}</select></label>
-      <label class="mono" style="font-size:10px;color:var(--ink3)">Owner
-        <input class="ownsel" style="display:block;margin-top:3px" value="${esc(i.owner)}" data-bind="i:${i.id}:owner"></label>
-      <label class="mono" style="font-size:10px;color:var(--ink3)">Status
-        <select class="statsel" data-bind="i:${i.id}:status" style="display:block;margin-top:3px">${ISTATUS.map(s=>`<option value="${s}" ${i.status===s?'selected':''}>${IS_LABEL[s]}</option>`).join('')}</select></label>
+      <label class="xl">Status
+        <select class="statsel" data-bind="i:${i.id}:status">${ISTATUS.map(s=>`<option value="${s}" ${i.status===s?'selected':''}>${IS_LABEL[s]}</option>`).join('')}</select></label>
+      <label class="xl">Classify
+        <select class="selc" data-bind="i:${i.id}:kind">${KINDS.map(k=>`<option value="${k}" ${i.kind===k?'selected':''}>${KIND_LABEL[k]}</option>`).join('')}</select></label>
+      <label class="xl">Assign to
+        <select class="selc" data-bind="i:${i.id}:assigneeId"><option value="">— unassigned —</option>${cur().attendees.map(p=>`<option value="${p.id}" ${''+i.assigneeId===''+p.id?'selected':''}>${esc(p.name)}${p.email?'':' (no email)'}</option>`).join('')}</select></label>
+      <label class="xl">Due
+        <input class="datec" type="date" value="${i.due||''}" data-bind="i:${i.id}:due"></label>
       <textarea data-bind="i:${i.id}:notes" placeholder="Notes / detail…">${esc(i.notes)}</textarea>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn sm" data-act="promote" data-id="${i.id}" title="Send to the matching register">→ Register</button>
+        <button class="btn sm gold" data-act="emailItem" data-id="${i.id}" title="Email this item to its assignee">✉ Email assignee</button>
         <button class="btn sm danger" data-act="rmItem" data-id="${i.id}">Delete</button>
       </div>
     </div>`:''}
   </div>`;
 }
 
-function vRequests(){
-  return `<div class="h-row"><div><div class="eyebrow">Company-wide</div><h1 class="title">Requests</h1>
-    <p class="lede">Internal requests and approvals across the group — raised in the meeting or any time. Everything auto-saves.</p></div>
-    <button class="btn pri" data-act="addReq">＋ New request</button></div>
-   <div class="panel"><div class="panel-b" style="padding:0"><table>
-    <thead><tr><th>Request</th><th>Dept</th><th>Raised by</th><th>Owner</th><th>Status</th><th>Due</th><th></th></tr></thead><tbody>
-    ${DB.requests.length?DB.requests.map(r=>`<tr>
-      <td><input class="cin" style="font-weight:600" value="${esc(r.title)}" data-bind="r:${r.id}:title"><input class="cin" style="font-size:11px;color:var(--ink3)" value="${esc(r.detail)}" data-bind="r:${r.id}:detail" placeholder="detail…"></td>
-      <td><select class="selc" data-bind="r:${r.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${r.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
-      <td><input class="cin" value="${esc(r.from)}" data-bind="r:${r.id}:from"></td>
-      <td><input class="cin" value="${esc(r.owner)}" data-bind="r:${r.id}:owner"></td>
-      <td><select class="selc" data-bind="r:${r.id}:status">${RSTATUS.map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
-      <td><input class="datec" type="date" value="${r.due}" data-bind="r:${r.id}:due"></td>
-      <td><button class="iconbtn" data-act="rmReq" data-id="${r.id}">×</button></td>
-    </tr>`).join(''):`<tr><td colspan="7"><div class="empty"><div class="ei">＋</div>No requests yet.</div></td></tr>`}
+/* roll-ups derived from the agenda items themselves (single source of truth) */
+function rollupItems(kind){const out=[];(DB.meetings||[]).forEach(function(m){(m.items||[]).forEach(function(it){if(it.kind===kind)out.push({it:it,m:m});});});return out;}
+function rollupRow(x){const it=x.it,m=x.m;const a=(m.attendees||[]).find(function(p){return ''+p.id===''+it.assigneeId;});const who=a?a.name:(it.owner||'—');const dd=dept(it.dept)||{};return `<tr>
+  <td style="font-weight:600">${esc(it.title||'(untitled)')}${it.notes?`<div style="font-size:11px;color:var(--ink3);font-weight:400">${esc(it.notes)}</div>`:''}</td>
+  <td><span class="deptdot" style="background:${dd.color||'#999'}"></span>${esc(dd.name||it.dept||'')}</td>
+  <td>${esc(who)}${a&&a.email?`<div style="font-size:10px;color:var(--ink3)">${esc(a.email)}</div>`:''}</td>
+  <td><span class="pill ${it.status}"><span class="d"></span>${IS_LABEL[it.status]}</span></td>
+  <td class="mono" style="font-size:11px">${it.due?fmtShort(it.due):'—'}</td>
+  <td class="mono" style="font-size:11px;color:var(--ink3)">${fmtShort(m.date)}</td></tr>`;}
+function vRollup(kind,title,lede){
+  const rows=rollupItems(kind);
+  return `<div class="h-row"><div><div class="eyebrow">Roll-up · built from agenda items</div><h1 class="title">${title}</h1>
+    <p class="lede">${lede}</p></div>
+    <button class="btn pri" data-act="tab" data-tab="agenda">← Add on the Agenda</button></div>
+   <div class="panel"><div style="padding:0;overflow-x:auto"><table>
+    <thead><tr><th>Item</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody>
+    ${rows.length?rows.map(rollupRow).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">▤</div>Nothing here yet — on the Agenda, open an item (⋯) and set <b>Classify → ${KIND_LABEL[kind]}</b>.</div></td></tr>`}
     </tbody></table></div></div>`;
 }
-function vEvents(){
-  const evs=DB.events.slice().sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
-  return `<div class="h-row"><div><div class="eyebrow">Company calendar</div><h1 class="title">Events</h1>
-    <p class="lede">Upcoming company events, filming days, launches and milestones — sorted by date.</p></div>
-    <button class="btn pri" data-act="addEvent">＋ New event</button></div>
-   <div class="panel"><div class="panel-b" style="padding:0"><table>
-    <thead><tr><th>Event</th><th>Date</th><th>Dept</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>
-    ${evs.length?evs.map(e=>`<tr>
-      <td><input class="cin" style="font-weight:600" value="${esc(e.title)}" data-bind="e:${e.id}:title"><input class="cin" style="font-size:11px;color:var(--ink3)" value="${esc(e.detail)}" data-bind="e:${e.id}:detail" placeholder="detail…"></td>
-      <td><input class="datec" type="date" value="${e.date}" data-bind="e:${e.id}:date"></td>
-      <td><select class="selc" data-bind="e:${e.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${e.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
-      <td><input class="cin" value="${esc(e.owner)}" data-bind="e:${e.id}:owner"></td>
-      <td><select class="selc" data-bind="e:${e.id}:status">${ESTATUS.map(s=>`<option ${e.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
-      <td><button class="iconbtn" data-act="rmEvent" data-id="${e.id}">×</button></td>
-    </tr>`).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">＋</div>No events yet.</div></td></tr>`}
-    </tbody></table></div></div>`;
-}
-function vActions(){
-  return `<div class="h-row"><div><div class="eyebrow">Follow-through</div><h1 class="title">Actions &amp; decisions</h1>
-    <p class="lede">The running action log — owners and due dates carried between meetings until they're done.</p></div>
-    <button class="btn pri" data-act="addAction">＋ New action</button></div>
-   <div class="panel"><div class="panel-b" style="padding:0"><table>
-    <thead><tr><th>Action</th><th>Dept</th><th>Owner</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>
-    ${DB.actions.length?DB.actions.map(a=>`<tr>
-      <td><input class="cin" style="font-weight:600" value="${esc(a.title)}" data-bind="a:${a.id}:title"></td>
-      <td><select class="selc" data-bind="a:${a.id}:dept">${DEPTS.map(d=>`<option value="${d.id}" ${a.dept===d.id?'selected':''}>${d.name}</option>`).join('')}</select></td>
-      <td><input class="cin" value="${esc(a.owner)}" data-bind="a:${a.id}:owner"></td>
-      <td><input class="datec" type="date" value="${a.due}" data-bind="a:${a.id}:due"></td>
-      <td><select class="selc" data-bind="a:${a.id}:status">${ASTATUS.map(s=>`<option ${a.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
-      <td><button class="iconbtn" data-act="rmAction" data-id="${a.id}">×</button></td>
-    </tr>`).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">＋</div>No open actions.</div></td></tr>`}
-    </tbody></table></div></div>`;
-}
+function vRequests(){return vRollup('request','Requests','Every agenda item classified as a Request — from any meeting. Manage them on the item itself.');}
+function vEvents(){return vRollup('event','Events','Every agenda item classified as an Event. Set its date on the item.');}
+function vActions(){return vRollup('action','Actions','Every action assigned in a meeting — owner, colour-coded status and due date. Assign & email from the item.');}
 function vArchive(){
   if(viewArchiveId){const m=DB.meetings.find(x=>x.id===viewArchiveId);if(m)return archiveDetail(m);}
   const past=DB.meetings.filter(m=>m.closed).sort((a,b)=>b.date.localeCompare(a.date));
@@ -421,17 +465,17 @@ function archiveDetail(m){
      <div class="msub">Chair: ${esc(m.chair)} · ${m.attendees.filter(a=>a.present).length}/${m.attendees.length} present</div></div>
    ${DEPTS.map(d=>{const items=m.items.filter(i=>i.dept===d.id);if(!items.length)return '';
      return `<div class="dept"><div class="dept-h"><div class="dbar" style="background:${d.color}"></div><div class="dn">${d.name}</div></div>
-       <div class="dept-b">${items.map(i=>`<div class="item ${i.discussed?'done':''}"><div class="item-row"><div class="chk ${i.discussed?'on':''}">✓</div><span class="typepill ${i.type}">${TYPE_LABEL[i.type]}</span><span style="flex:1;font-weight:600">${esc(i.title)}</span><span class="mono" style="font-size:11px;color:var(--ink3)">${esc(i.owner)}</span></div>${i.notes?`<div style="padding:0 13px 12px 44px;font-size:12.5px;color:var(--ink2)">${esc(i.notes)}</div>`:''}</div>`).join('')}</div></div>`;}).join('')}
+       <div class="dept-b">${items.map(i=>{var a=i.assigneeId?(m.attendees.find(p=>''+p.id===''+i.assigneeId)):null;var who=a?a.name:(i.owner||'');return `<div class="item ${i.discussed?'done':''}"><div class="item-row"><div class="chk ${i.discussed?'on':''}">✓</div><span class="pill ${i.status}"><span class="d"></span>${IS_LABEL[i.status]}</span>${i.kind?`<span class="kindtag ${i.kind}">${KIND_LABEL[i.kind]}</span>`:''}<span style="flex:1;font-weight:600">${esc(i.title)}</span><span class="mono" style="font-size:11px;color:var(--ink3)">${esc(who)}</span></div>${i.notes?`<div style="padding:0 13px 12px 44px;font-size:12.5px;color:var(--ink2)">${esc(i.notes)}</div>`:''}</div>`;}).join('')}</div></div>`;}).join('')}
    ${m.minutes?`<div class="minutes"><div class="eyebrow" style="margin-bottom:8px">Minutes</div><div style="white-space:pre-wrap;font-size:13px">${esc(m.minutes)}</div></div>`:''}`;
 }
 
 /* ================= MUTATIONS ================= */
-function addItem(deptId){const m=cur();m.items.push({id:uid(),dept:deptId,type:'update',title:'',owner:dept(deptId).lead.split(' / ')[0],status:'open',discussed:false,notes:''});openItem=null;save();render();}
+function addItem(deptId){const m=cur();const it=newItem({dept:deptId,status:'update',title:''});m.items.push(it);openItem=it.id;save();render();}
 function rmItem(id){const m=cur();m.items=m.items.filter(i=>i.id!==id);save();render();}
 function togItem(id){const it=cur().items.find(i=>i.id===id);if(!it)return;
   const wasDiscussed=it.discussed,prevStatus=it.status;
   it.discussed=!it.discussed;
-  const bumped=(it.discussed&&prevStatus==='open');if(bumped)it.status='done';
+  const bumped=(it.discussed&&it.status!=='complete');if(bumped)it.status='complete';
   save();render();
   if(it.discussed&&!wasDiscussed){
     const allDone=cur().items.length>0&&cur().items.every(x=>x.discussed);
@@ -477,14 +521,41 @@ function promote(id){const it=cur().items.find(i=>i.id===id);const created=cur()
   else if(it.type==='event')DB.events.unshift({id:uid(),title:it.title,date:'',dept:it.dept,owner:it.owner,status:'Planned',detail:it.notes});
   else DB.actions.unshift({id:uid(),title:it.title,dept:it.dept,owner:it.owner,due:'',status:'Open',created});
   save();alert('Sent to the '+(it.type==='request'?'Requests':it.type==='event'?'Events':'Actions')+' register.');}
-function addAtt(){const n=prompt('Attendee name:');if(!n)return;cur().attendees.push({id:uid(),name:n.trim(),present:true});save();render();}
+function openAttModal(id){
+  const a=id?attById(id):null;
+  const o=document.createElement('div');o.id='attmodal';o.className='modal';
+  o.innerHTML='<div class="modal-card">'+
+    '<div class="eyebrow" style="margin-bottom:12px">'+(a?'Edit attendee':'Add attendee')+'</div>'+
+    '<label class="xl">Name<input id="am_name" value="'+(a?esc(a.name):'')+'" placeholder="Full name"></label>'+
+    '<label class="xl">Email<input id="am_email" type="email" value="'+(a?esc(a.email||''):'')+'" placeholder="name@company.com"></label>'+
+    '<label class="xl">Role / title<input id="am_role" value="'+(a?esc(a.role||''):'')+'" placeholder="e.g. HAAVN Lead"></label>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">'+
+      (a?'<button class="btn sm danger" data-mact="del" data-id="'+a.id+'">Remove</button>':'')+
+      '<button class="btn sm" data-mact="cancel">Cancel</button>'+
+      '<button class="btn sm pri" data-mact="save" data-id="'+(a?a.id:'')+'">Save</button>'+
+    '</div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.classList.add('in');});
+  setTimeout(function(){var n=document.getElementById('am_name');if(n)n.focus();},50);
+  o.addEventListener('click',function(ev){if(ev.target===o)closeAttModal();});
+}
+function closeAttModal(){const o=document.getElementById('attmodal');if(o&&o.parentNode)o.parentNode.removeChild(o);}
+function saveAttModal(id){
+  const name=(document.getElementById('am_name').value||'').trim();if(!name){alert('Please enter a name.');return;}
+  const email=(document.getElementById('am_email').value||'').trim();
+  const role=(document.getElementById('am_role').value||'').trim();
+  if(id){const a=attById(id);if(a){a.name=name;a.email=email;a.role=role;}}
+  else{cur().attendees.push({id:uid(),name:name,email:email,role:role,present:true});}
+  closeAttModal();save();render();
+}
+function addAtt(){openAttModal();}
 function rmAtt(id){const m=cur();m.attendees=m.attendees.filter(a=>a.id!==id);save();render();}
 function togAtt(id){const a=cur().attendees.find(x=>x.id===id);a.present=!a.present;save();render();}
-function closeMeeting(){const m=cur();if(!confirm('Close and archive this meeting? A fresh agenda for next Monday will be created, carrying over any items not marked discussed.'))return;
+function closeMeeting(){const m=cur();if(!confirm('Close and archive this meeting? A fresh agenda for next Monday will be created, carrying over any items not marked complete.'))return;
   m.closed=true;
   const d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);const nm=newMeeting(d.toISOString().slice(0,10));
-  nm.chair=m.chair;nm.attendees=m.attendees.map(a=>({id:uid(),name:a.name,present:true}));
-  m.items.filter(i=>!i.discussed).forEach(i=>nm.items.push({id:uid(),dept:i.dept,type:i.type,title:i.title,owner:i.owner,status:i.status,discussed:false,notes:i.notes}));
+  nm.chair=m.chair;nm.attendees=m.attendees.map(a=>({id:uid(),name:a.name,email:a.email||'',role:a.role||'',present:true}));
+  const idmap={};nm.attendees.forEach((na,ix)=>{idmap[m.attendees[ix]?m.attendees[ix].id:'']=na.id;});
+  m.items.filter(i=>i.status!=='complete').forEach(i=>nm.items.push(newItem({dept:i.dept,status:i.status,title:i.title,kind:i.kind,assigneeId:idmap[i.assigneeId]||'',owner:i.owner,due:i.due,notes:i.notes})));
   DB.meetings.push(nm);DB.currentId=nm.id;openItem=null;save();render();}
 function addReq(){DB.requests.unshift({id:uid(),title:'',detail:'',from:cur().chair,dept:'haavn',owner:'',status:'Open',due:'',created:cur().date});save();render();}
 function rmReq(id){DB.requests=DB.requests.filter(r=>r.id!==id);save();render();}
@@ -503,14 +574,13 @@ function meetingText(m){
   L.push('');
   DEPTS.forEach(d=>{const items=m.items.filter(i=>i.dept===d.id);if(!items.length)return;
     L.push('── '+d.name.toUpperCase()+'   (Lead: '+d.lead+')');
-    items.forEach(i=>{L.push('  '+(i.discussed?'[x]':'[ ]')+' '+TYPE_LABEL[i.type]+': '+i.title+'  — '+IS_LABEL[i.status]+' · '+(i.owner||'—'));
+    items.forEach(i=>{var a=i.assigneeId?m.attendees.find(p=>''+p.id===''+i.assigneeId):null;var who=a?a.name:(i.owner||'');
+      L.push('  '+(i.status==='complete'?'[x]':'[ ]')+' ['+IS_LABEL[i.status]+'] '+(i.title||'')+(i.kind?' ('+KIND_LABEL[i.kind]+')':'')+(who?' — '+who:'')+(i.due?' · due '+i.due:''));
       if(i.notes)L.push('        '+i.notes);});
     L.push('');});
   if(m.minutes){L.push('MINUTES & GENERAL NOTES');L.push(m.minutes);L.push('');}
-  const oReq=DB.requests.filter(r=>r.status==='Open'||r.status==='On hold');
-  if(oReq.length){L.push('OPEN REQUESTS');oReq.forEach(r=>L.push('  · '+r.title+' — '+r.status+' · '+(r.owner||'—')));L.push('');}
-  const oAct=DB.actions.filter(a=>a.status!=='Done');
-  if(oAct.length){L.push('OPEN ACTIONS');oAct.forEach(a=>L.push('  · '+a.title+' — '+a.status+' · '+(a.owner||'—')+(a.due?' · due '+a.due:'')));L.push('');}
+  const open=m.items.filter(i=>i.status==='action'||i.status==='followup'||i.status==='trouble');
+  if(open.length){L.push('OPEN TASKS');open.forEach(i=>{var a=i.assigneeId?m.attendees.find(p=>''+p.id===''+i.assigneeId):null;L.push('  · '+(i.title||'')+' — '+IS_LABEL[i.status]+(a?' · '+a.name:'')+(i.due?' · due '+i.due:''));});L.push('');}
   return L.join('\n');
 }
 function emailMinutes(){const m=cur();const subj='7EVEN · HAAVN Weekly Boardroom — Minutes — '+fmtLong(m.date);
@@ -520,8 +590,42 @@ function copyMinutes(){const m=cur();const txt='Subject: 7EVEN · HAAVN Weekly B
   const done=()=>{const b=document.querySelector('[data-act="copyMin"]');if(b){const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>{b.textContent=o;},1400);}};
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done));}else fallbackCopy(txt,done);}
 
+/* ---- assign & email individual items / all assignments ---- */
+function emailItem(id){
+  const it=cur().items.find(i=>i.id===id);if(!it)return;
+  const a=it.assigneeId?attById(it.assigneeId):null;
+  if(!a){alert('Assign this item to an attendee first (open ⋯ → Assign to).');return;}
+  if(!a.email){alert(a.name+' has no email yet — click their name chip to add it.');return;}
+  const m=cur();const subj='['+(it.kind?KIND_LABEL[it.kind]:'Agenda')+'] '+(it.title||'Action from the boardroom');
+  const body='Hi '+(a.name.split(' ')[0])+',\n\nFrom the weekly boardroom ('+fmtLong(m.date)+') you have been assigned:\n\n• '+(it.title||'')+'\n  Status: '+IS_LABEL[it.status]+(it.due?'\n  Due: '+fmtLong(it.due):'')+(it.notes?'\n  Notes: '+it.notes:'')+'\n\n— 7EVEN · HAAVN boardroom (boardroom@7even.au)\n';
+  window.location.href='mailto:'+encodeURIComponent(a.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+}
+function assignmentGroups(){const m=cur();const g={};m.items.forEach(function(it){if(it.assigneeId){(g[it.assigneeId]=g[it.assigneeId]||[]).push(it);}});return Object.keys(g).map(function(k){return {a:attById(k),items:g[k]};}).filter(function(x){return x.a;});}
+async function emailAssign(){
+  const m=cur();const people=assignmentGroups();
+  if(!people.length){alert('No items are assigned yet. Open an item (⋯) → Assign to, then try again.');return;}
+  const payload={meeting:fmtLong(m.date),from:'boardroom@7even.au',assignments:people.map(function(g){return {name:g.a.name,email:g.a.email,items:g.items.map(function(it){return {title:it.title,status:IS_LABEL[it.status],due:it.due,notes:it.notes,kind:it.kind};})};})};
+  try{
+    const r=await fetch('/api/send-assignments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){const j=await r.json().catch(function(){return null;});if(j&&typeof j.sent!=='undefined'){alert('✓ Assignments emailed from boardroom@7even.au — '+j.sent+' sent');return;}}
+    if(r.status!==404&&r.status!==501&&!r.ok){throw new Error('HTTP '+r.status);}
+  }catch(e){/* backend not deployed / not configured → fall back to the mail app */}
+  const to=people.map(function(g){return g.a.email;}).filter(Boolean).join(',');
+  const subj='Boardroom assignments — '+fmtLong(m.date);
+  let body='Assignments from the weekly boardroom ('+fmtLong(m.date)+'):\n\n';
+  people.forEach(function(g){body+=g.a.name+(g.a.email?' <'+g.a.email+'>':' (no email)')+':\n';g.items.forEach(function(it){body+='  • '+(it.title||'')+' — '+IS_LABEL[it.status]+(it.due?' (due '+it.due+')':'')+'\n';});body+='\n';});
+  body+='(Auto-send from boardroom@7even.au activates once the M365 mail credentials are added — send this from the boardroom@7even.au account for now.)\n';
+  window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+}
+
 /* ================= EVENTS ================= */
 document.addEventListener('click',e=>{
+  const mt=e.target.closest('[data-mact]');
+  if(mt){const ma=mt.dataset.mact,mid=mt.dataset.id;
+    if(ma==='cancel')closeAttModal();
+    else if(ma==='save')saveAttModal(mid||null);
+    else if(ma==='del'){if(mid)rmAtt(+mid);closeAttModal();}
+    return;}
   const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id?+t.dataset.id:null;
   switch(a){
     case 'tab': tab=t.dataset.tab; openItem=null; viewArchiveId=null; render(); break;
@@ -531,6 +635,9 @@ document.addEventListener('click',e=>{
     case 'expItem': expItem(id); break;
     case 'promote': promote(id); break;
     case 'addAtt': addAtt(); break;
+    case 'editAtt': openAttModal(id); break;
+    case 'emailItem': emailItem(id); break;
+    case 'emailAssign': emailAssign(); break;
     case 'rmAtt': rmAtt(id); break;
     case 'togAtt': togAtt(id); break;
     case 'closeMeeting': closeMeeting(); break;
@@ -557,7 +664,7 @@ function applyBind(el){
     else if(kind==='r')obj=DB.requests.find(x=>x.id===id);
     else if(kind==='e')obj=DB.events.find(x=>x.id===id);
     else if(kind==='a')obj=DB.actions.find(x=>x.id===id);}
-  if(!obj)return;set(obj,path,el.value);save();
+  if(!obj)return;let v=el.value;if(path==='assigneeId')v=v?(+v):'';set(obj,path,v);save();
 }
 document.addEventListener('input',e=>{const el=e.target;if(el.dataset&&el.dataset.bind&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')&&el.type!=='date')applyBind(el);});
 document.addEventListener('change',e=>{const el=e.target;if(!el.dataset||!el.dataset.bind)return;applyBind(el);
@@ -569,6 +676,7 @@ try{ if(window.parent===window){ var _hb=document.getElementById('hubBack'); if(
   const row=await cloudPull();
   if(row&&row.value){ adoptCloud(row.value); _cloudTs=Date.parse(row.updated_at)||Date.now(); }
   else { load(); }
+  migrateAll();
   render();
   // First device to open seeds the shared cloud document from its local copy.
   if(_cloudOk && !(row&&row.value)) cloudPush();
