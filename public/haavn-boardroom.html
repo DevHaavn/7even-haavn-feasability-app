@@ -126,6 +126,11 @@ h1.title{font-size:27px;font-weight:800;letter-spacing:-.025em;margin-top:5px}
 .modal-card .xl{display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
 .modal-card .xl input{border:1px solid var(--line2);border-radius:8px;padding:9px 11px;font-size:13.5px;background:#fff;color:var(--ink);text-transform:none;letter-spacing:0}
 .modal-card .xl input:focus{outline:none;border-color:var(--gold)}
+/* clickable task rows + toast */
+.item-row{cursor:pointer}
+.item .ti{cursor:text}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);background:var(--char);color:#F4F2ED;padding:12px 20px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.4);font-size:13px;font-weight:600;z-index:1200;opacity:0;transition:.3s;max-width:calc(100vw - 32px);text-align:center}
+.toast.in{opacity:1;transform:translateX(-50%) translateY(0)}
 .minutes{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);padding:16px 18px;margin-bottom:16px}
 .minutes textarea{width:100%;border:1px solid var(--line2);border-radius:9px;padding:11px 13px;background:#fff;resize:vertical;min-height:90px;font-size:13px;line-height:1.55}
 /* tables */
@@ -202,7 +207,8 @@ const TYPES=['update','request','event','decision'];
 const TYPE_LABEL={update:'Update',request:'Request',event:'Event',decision:'Decision'};
 
 /* ---- date helpers ---- */
-function upcomingMonday(){const d=new Date();const day=d.getDay();const add=(1-day+7)%7;const m=new Date(d);m.setDate(d.getDate()+add);return m.toISOString().slice(0,10);}
+function ymd(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
+function upcomingMonday(){const d=new Date();const day=d.getDay();const add=(1-day+7)%7;const m=new Date(d);m.setDate(d.getDate()+add);return ymd(m);}
 function fmtLong(iso){if(!iso)return '—';const d=new Date(iso+'T00:00');return d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function fmtShort(iso){if(!iso)return '—';const d=new Date(iso+'T00:00');return isNaN(d)?iso:d.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
 
@@ -349,7 +355,7 @@ function vAgenda(){
         <input type="date" value="${m.date}" data-bind="m:date" title="Meeting date">
         <input value="${esc(m.time)}" style="width:64px;text-align:center" data-bind="m:time" title="Time">
         <button class="btn sm" data-act="emailAssign" title="Email everyone their assigned items">✉ Email assignments</button>
-        <button class="btn sm" data-act="print">⎙ Minutes</button>
+        <button class="btn sm" data-act="exportMenu">⤓ Export</button>
         <button class="btn sm gold" data-act="closeMeeting">Close &amp; archive →</button>
       </div>
     </div>
@@ -373,10 +379,10 @@ function vAgenda(){
         <div class="dbar" style="background:${d.color}"></div>
         <div style="flex:1"><div class="dn">${d.name}</div><div class="ds">${d.sub}</div></div>
         <div style="text-align:right"><div class="dlead">Lead · ${esc(d.lead)}</div><div class="mono" style="font-size:10px;color:var(--ink3);margin-top:3px">${dn}/${items.length} discussed</div></div>
-        <button class="btn sm" data-act="addItem" data-dept="${d.id}">＋ Item</button>
+        <button class="btn sm" data-act="addItem" data-dept="${d.id}">＋ Task</button>
       </div>
       <div class="dept-b">
-      ${items.length?items.map(i=>itemRow(i)).join(''):'<div class="empty" style="padding:16px">No items yet — add a talking point for this department.</div>'}
+      ${items.length?items.map(i=>itemRow(i)).join(''):'<div class="empty" style="padding:16px">No tasks yet — add a task for this department.</div>'}
       </div>
     </div>`;
   }).join('')}
@@ -400,7 +406,7 @@ function itemRow(i){
   const a=i.assigneeId?attById(i.assigneeId):null;
   const who=a?a.name:(i.owner||'');
   return `<div class="item ${i.discussed?'done':''} st-${i.status}">
-    <div class="item-row">
+    <div class="item-row" data-act="expItem" data-id="${i.id}">
       <div class="chk ${i.discussed?'on':''}" data-act="togItem" data-id="${i.id}">✓</div>
       <span class="pill ${i.status}"><span class="d"></span>${IS_LABEL[i.status]}</span>
       ${i.kind?`<span class="kindtag ${i.kind}">${KIND_LABEL[i.kind]}</span>`:''}
@@ -442,8 +448,8 @@ function vRollup(kind,title,lede){
     <p class="lede">${lede}</p></div>
     <button class="btn pri" data-act="tab" data-tab="agenda">← Add on the Agenda</button></div>
    <div class="panel"><div style="padding:0;overflow-x:auto"><table>
-    <thead><tr><th>Item</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody>
-    ${rows.length?rows.map(rollupRow).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">▤</div>Nothing here yet — on the Agenda, open an item (⋯) and set <b>Classify → ${KIND_LABEL[kind]}</b>.</div></td></tr>`}
+    <thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody>
+    ${rows.length?rows.map(rollupRow).join(''):`<tr><td colspan="6"><div class="empty"><div class="ei">▤</div>Nothing here yet — on the Agenda, open a task (⋯) and set <b>Classify → ${KIND_LABEL[kind]}</b>.</div></td></tr>`}
     </tbody></table></div></div>`;
 }
 function vRequests(){return vRollup('request','Requests','Every agenda item classified as a Request — from any meeting. Manage them on the item itself.');}
@@ -550,13 +556,42 @@ function saveAttModal(id){
 function addAtt(){openAttModal();}
 function rmAtt(id){const m=cur();m.attendees=m.attendees.filter(a=>a.id!==id);save();render();}
 function togAtt(id){const a=cur().attendees.find(x=>x.id===id);a.present=!a.present;save();render();}
-function closeMeeting(){const m=cur();if(!confirm('Close and archive this meeting? A fresh agenda for next Monday will be created, carrying over any items not marked complete.'))return;
+function closeMeeting(){
+  confirmModal('Archive this meeting and start next Monday? Open (non-complete) tasks and all attendees carry forward; completed tasks stay in the archived copy.','Archive & start next week',doCloseMeeting);
+}
+function doCloseMeeting(){const m=cur();
   m.closed=true;
-  const d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);const nm=newMeeting(d.toISOString().slice(0,10));
+  const d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);const nm=newMeeting(ymd(d));
   nm.chair=m.chair;nm.attendees=m.attendees.map(a=>({id:uid(),name:a.name,email:a.email||'',role:a.role||'',present:true}));
-  const idmap={};nm.attendees.forEach((na,ix)=>{idmap[m.attendees[ix]?m.attendees[ix].id:'']=na.id;});
+  const idmap={};m.attendees.forEach((oa,ix)=>{idmap[oa.id]=nm.attendees[ix].id;});
   m.items.filter(i=>i.status!=='complete').forEach(i=>nm.items.push(newItem({dept:i.dept,status:i.status,title:i.title,kind:i.kind,assigneeId:idmap[i.assigneeId]||'',owner:i.owner,due:i.due,notes:i.notes})));
-  DB.meetings.push(nm);DB.currentId=nm.id;openItem=null;save();render();}
+  DB.meetings.push(nm);DB.currentId=nm.id;openItem=null;tab='agenda';save();render();
+  toast('Meeting archived — new meeting for '+fmtLong(nm.date)+' created. Open tasks carried over.');
+}
+/* ---- generic confirm modal + toast (native confirm/alert can be blocked when embedded in the app) ---- */
+function confirmModal(msg,yesLabel,onYes){
+  const o=document.createElement('div');o.className='modal in';o.id='confirmModal';
+  o.innerHTML='<div class="modal-card" style="max-width:380px"><div style="font-size:14px;line-height:1.55;color:var(--ink)">'+esc(msg)+'</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px"><button class="btn sm" data-cfx="no">Cancel</button><button class="btn sm gold" data-cfx="yes">'+esc(yesLabel||'Confirm')+'</button></div></div>';
+  document.body.appendChild(o);
+  o.addEventListener('click',function(ev){const yes=ev.target.closest('[data-cfx="yes"]');const no=ev.target.closest('[data-cfx="no"]');if(ev.target===o||no||yes){o.remove();if(yes&&onYes)onYes();}});
+}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);requestAnimationFrame(function(){t.classList.add('in');});setTimeout(function(){t.classList.remove('in');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},300);},3200);}
+/* ---- export the meeting (PDF via print / Save-as-PDF, or Excel download) ---- */
+function exportMenu(){
+  const o=document.createElement('div');o.className='modal in';o.id='exportModal';
+  o.innerHTML='<div class="modal-card" style="max-width:340px"><div class="eyebrow" style="margin-bottom:6px">Export this meeting</div><div style="font-size:12px;color:var(--ink3);margin-bottom:12px">Full agenda — tasks, statuses, assignees, due dates &amp; notes.</div><div style="display:flex;gap:8px"><button class="btn" data-act="exportPDF" style="flex:1">⤓ PDF</button><button class="btn" data-act="exportXLS" style="flex:1">⤓ Excel</button></div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn sm" data-cfx="no">Cancel</button></div></div>';
+  document.body.appendChild(o);
+  o.addEventListener('click',function(ev){if(ev.target===o||ev.target.closest('[data-cfx="no"]'))o.remove();});
+}
+function closeExportMenu(){var o=document.getElementById('exportModal');if(o&&o.parentNode)o.parentNode.removeChild(o);}
+function exportPDF(){closeExportMenu();setTimeout(function(){window.print();},60);}
+function exportXLS(){const m=cur();let html='<table border="1"><tr><th>Department</th><th>Task</th><th>Status</th><th>Type</th><th>Assignee</th><th>Due</th><th>Notes</th></tr>';
+  DEPTS.forEach(function(d){m.items.filter(function(i){return i.dept===d.id;}).forEach(function(i){var a=i.assigneeId?m.attendees.find(function(p){return ''+p.id===''+i.assigneeId;}):null;html+='<tr><td>'+esc(d.name)+'</td><td>'+esc(i.title||'')+'</td><td>'+esc(IS_LABEL[i.status])+'</td><td>'+esc(i.kind?KIND_LABEL[i.kind]:'')+'</td><td>'+esc(a?a.name:(i.owner||''))+'</td><td>'+esc(i.due||'')+'</td><td>'+esc(i.notes||'')+'</td></tr>';});});
+  html+='</table>';
+  const blob=new Blob(['﻿<html><head><meta charset="utf-8"></head><body>'+html+'</body></html>'],{type:'application/vnd.ms-excel'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ATRIUM-meeting-'+m.date+'.xls';document.body.appendChild(a);a.click();setTimeout(function(){if(a.parentNode)a.parentNode.removeChild(a);URL.revokeObjectURL(url);},120);
+  closeExportMenu();toast('Excel exported.');
+}
 function addReq(){DB.requests.unshift({id:uid(),title:'',detail:'',from:cur().chair,dept:'haavn',owner:'',status:'Open',due:'',created:cur().date});save();render();}
 function rmReq(id){DB.requests=DB.requests.filter(r=>r.id!==id);save();render();}
 function addEvent(){DB.events.unshift({id:uid(),title:'',date:'',dept:'haavn',owner:'',status:'Planned',detail:''});save();render();}
@@ -632,7 +667,10 @@ document.addEventListener('click',e=>{
     case 'addItem': addItem(t.dataset.dept); break;
     case 'rmItem': rmItem(id); break;
     case 'togItem': togItem(id); break;
-    case 'expItem': expItem(id); break;
+    case 'expItem': if(e.target.closest('input,textarea,select'))break; expItem(id); break;
+    case 'exportMenu': exportMenu(); break;
+    case 'exportPDF': exportPDF(); break;
+    case 'exportXLS': exportXLS(); break;
     case 'promote': promote(id); break;
     case 'addAtt': addAtt(); break;
     case 'editAtt': openAttModal(id); break;
