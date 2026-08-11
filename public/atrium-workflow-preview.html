@@ -721,8 +721,11 @@ function loginAs(name,email){
   else if(name){p.name=name;}
   ME=p.name;applyUser(p);render();go("myday");
   document.getElementById("login").classList.add("gone");
+  try{localStorage.setItem("atrium_wf_user",JSON.stringify({name:p.name,email:p.email||email||""}));}catch(e){}
   toast("Welcome, "+p.name.split(" ")[0]+" — this is your workspace");
 }
+/* Keep the user signed in on this device across in/out of the workflow. */
+function tryAutoLogin(){try{var s=JSON.parse(localStorage.getItem("atrium_wf_user")||"null");if(s&&s.name){loginAs(s.name,s.email||"");}}catch(e){}}
 function applyUser(p){
   document.getElementById("greeting").textContent="Good morning, "+p.name.split(" ")[0];
   document.getElementById("meName").textContent=p.name;
@@ -732,7 +735,7 @@ function applyUser(p){
   document.getElementById("meRole").textContent=(p.role||"Member").toUpperCase()+" · "+deptN(p.dept).split(" ")[0].toUpperCase();
   document.getElementById("mtEyebrow").textContent=p.name+" · assigned to me";
 }
-function logout(){var l=document.getElementById("login");l.classList.remove("gone");document.getElementById("loginName").value="";document.getElementById("loginEmail").value="";setTimeout(function(){document.getElementById("loginName").focus();},100);}
+function logout(){try{localStorage.removeItem("atrium_wf_user");}catch(e){}var l=document.getElementById("login");l.classList.remove("gone");document.getElementById("loginName").value="";document.getElementById("loginEmail").value="";setTimeout(function(){document.getElementById("loginName").focus();},100);}
 function renderDeptNav(){
   document.getElementById("deptNav").innerHTML=DEPTS.map(function(d){
     var mine=DEPT_MEMBERS[d.id].indexOf(ME)>=0;
@@ -864,7 +867,7 @@ function taskRow(t){
     '<span class="row-av" title="'+esc(t.owner||"")+'">'+av(t.owner,24)+'</span>'+
   '</div>';
 }
-function toggleTask(id){var t=TASKS.find(function(x){return x.id===id});t.done=!t.done;t.status=t.done?"done":"doing";render();if(drawerId===id)openTask(id);}
+function toggleTask(id){var t=TASKS.find(function(x){return x.id===id});t.done=!t.done;t.status=t.done?"done":"doing";pushBoardTask(t);render();if(drawerId===id)openTask(id);}
 function toggleWeekly(id){var t=TASKS.find(function(x){return x.id===id});t.weekly=!t.weekly;render();if(drawerId===id)openTask(id);toast(t.weekly?"Added to weekly agenda":"Removed from weekly agenda");}
 
 /* ---- MY DAY ---- */
@@ -1038,7 +1041,7 @@ function openTask(id){
 }
 function closeDrawer(){drawerId=null;document.getElementById("drawer").classList.remove("on");document.getElementById("drawerScrim").classList.remove("on");}
 function toggleSub(id,i){var t=TASKS.find(function(x){return x.id===id});t.subs[i].done=!t.subs[i].done;openTask(id);}
-function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";render();openTask(id);}
+function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";pushBoardTask(t);render();openTask(id);}
 
 /* ============================== RECORD MODAL ============================== */
 function openRecord(){
@@ -1178,7 +1181,7 @@ function cloudPush(){if(!_sbOk)return;clearTimeout(_pushT);_pushT=setTimeout(fun
 function save(){if(_adopting)return;cloudPush();}
 function _busy(){var a=document.activeElement;return drawerId!=null||(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName));}
 function cloudPoll(){if(!_sbOk||_busy())return;fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+CK+"&select=updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length)return;var ts=Date.parse(rows[0].updated_at)||0;if(ts>_ts+400){cloudPull().then(function(row){if(!row||!row.value)return;_ts=ts;adopt(row.value);render();});}}).catch(function(){});}
-function bootSync(){cloudPull().then(function(row){if(row&&row.value){_ts=Date.parse(row.updated_at)||Date.now();adopt(row.value);}else{_sbOk=true;cloudPush();}render();setInterval(cloudPoll,9000);});}
+function bootSync(){cloudPull().then(function(row){if(row&&row.value){_ts=Date.parse(row.updated_at)||Date.now();adopt(row.value);}else{_sbOk=true;cloudPush();}render();tryAutoLogin();bootBridge();setInterval(cloudPoll,9000);});}
 
 /* ===================== BRIDGE → Pillar 03 (Weekly Company Meeting) =====================
    Weekly-flagged tasks flow into the shared boardroom agenda doc, grouped by
@@ -1280,6 +1283,49 @@ function searchGoMeeting(i){searchClear();go("mymeetings");setTimeout(function()
   gs.addEventListener("keydown",function(e){if(e.key==="Escape"){searchClear();this.blur();}else if(e.key==="Enter"){var first=document.querySelector("#searchResults .sr-item");if(first)first.click();}});
   document.addEventListener("click",function(e){if(!e.target.closest(".search")){var b=document.getElementById("searchResults");if(b)b.classList.remove("on");}});
 })();
+
+/* ============================== MEETING BRIDGE ==============================
+   Live two-way sync with Pillar 02 (Weekly Company Meeting), which stores its
+   agenda in capital_kv key haavn_boardroom. Every meeting item ASSIGNED to a
+   person is mirrored into that person's Workflow as a task (owner = assignee,
+   flagged weekly so it shows on their Weekly Agenda). Changing a mirrored task's
+   status/done here pushes straight back to the meeting item — and changes made
+   in the meeting flow back here on the 9s poll. Cloud-saved both sides. */
+var BOARD=null,_boardTs=0,_boardPushT=null,_importing=false;
+var M2WF_DEPT={company:"company","7even":"7even",haavn:"haavn",mgmt:"haavnmgmt",admin:"admin"};
+var NAME_ALIAS={"john dimmatina":"John Dimattina","dom ma":"Dominika Ma","dom":"Dominika Ma"};
+function canonName(n){var k=(n||"").trim().toLowerCase();if(!k)return "";if(NAME_ALIAS[k])return NAME_ALIAS[k];
+  var p=PEOPLE.find(function(x){return x.name.toLowerCase()===k;});if(p)return p.name;
+  var parts=k.split(/\s+/);var p2=PEOPLE.find(function(x){var xs=x.name.toLowerCase().split(/\s+/);return xs[0]===parts[0]&&((xs[xs.length-1]||"")[0]||"")===((parts[parts.length-1]||"")[0]||"");});
+  return p2?p2.name:(n||"");}
+function mStatus2wf(it){if(it.discussed||it.status==="complete")return "done";if(it.status==="trouble")return "blocked";if(it.status==="followup")return "doing";return "todo";}
+function wfStatus2m(t){if(t.done||t.status==="done")return {status:"complete",discussed:true};if(t.status==="blocked")return {status:"trouble",discussed:false};if(t.status==="doing"||t.status==="review")return {status:"followup",discussed:false};return {status:"action",discussed:false};}
+function mAssignee(m,it){if(it.assigneeId){var a=(m.attendees||[]).find(function(p){return ""+p.id===""+it.assigneeId;});if(a&&a.name)return a.name;}return it.owner||"";}
+function curBoardMeeting(){if(!BOARD||!BOARD.meetings||!BOARD.meetings.length)return null;return BOARD.meetings.find(function(x){return x.id===BOARD.currentId;})||BOARD.meetings[BOARD.meetings.length-1];}
+function importBoard(){
+  var m=curBoardMeeting();if(!m)return;_importing=true;
+  var assigned=(m.items||[]).map(function(it){return {it:it,who:canonName(mAssignee(m,it))};}).filter(function(o){return o.who;});
+  var keep={};
+  assigned.forEach(function(o){
+    var key=m.id+":"+o.it.id;keep[key]=true;
+    var mapped={title:o.it.title||"(untitled)",owner:o.who,dept:M2WF_DEPT[o.it.dept]||"company",status:mStatus2wf(o.it),due:o.it.due||"",desc:o.it.notes||"",kind:o.it.kind||""};
+    var ex=TASKS.find(function(t){return t.fromMeeting&&t.mKey===key;});
+    if(!ex){ // adopt an existing hand-made task with the same title+owner instead of duplicating it
+      ex=TASKS.find(function(t){return !t.fromMeeting&&_norm(t.title)===_norm(mapped.title)&&canonName(t.owner)===mapped.owner;});
+      if(ex){ex.fromMeeting=true;ex.mKey=key;ex.mItem=o.it.id;ex.mMeet=m.id;}
+    }
+    if(ex){ex.title=mapped.title;ex.owner=mapped.owner;ex.dept=mapped.dept;ex.status=mapped.status;ex.done=(mapped.status==="done");ex.due=mapped.due;ex.desc=mapped.desc;ex.weekly=true;ex.source="Weekly Company Meeting";}
+    else{TASKS.push(T({title:mapped.title,owner:mapped.owner,dept:mapped.dept,project:"Weekly Meeting",status:mapped.status,prio:(o.it.status==="trouble"?"high":"med"),due:mapped.due,weekly:true,source:"Weekly Company Meeting",desc:mapped.desc,kind:mapped.kind,fromMeeting:true,mKey:key,mItem:o.it.id,mMeet:m.id}));}
+  });
+  // drop meeting-mirror tasks whose item is gone / no longer assigned / from a past meeting
+  TASKS=TASKS.filter(function(t){return !t.fromMeeting||keep[t.mKey];});
+  _importing=false;
+}
+function boardPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+BOARD_KEY+"&select=value,updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){return (rows&&rows.length)?rows[0]:null;}).catch(function(){return null;});}
+function boardPush(){if(!BOARD)return;clearTimeout(_boardPushT);_boardPushT=setTimeout(function(){fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:BOARD,updated_at:new Date().toISOString()}])}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_boardTs=Date.parse(rows[0].updated_at)||Date.now();}).catch(function(){});},700);}
+function boardPoll(){if(_busy())return;boardPull().then(function(row){if(!row||!row.value)return;var ts=Date.parse(row.updated_at)||0;if(ts>_boardTs+400){_boardTs=ts;BOARD=row.value;importBoard();render();}});}
+function pushBoardTask(t){if(!t||!t.fromMeeting||!BOARD)return;var m=curBoardMeeting();if(!m)return;var it=(m.items||[]).find(function(x){return ""+x.id===""+t.mItem;});if(!it)return;var s=wfStatus2m(t);it.status=s.status;it.discussed=s.discussed;boardPush();}
+function bootBridge(){boardPull().then(function(row){if(row&&row.value){_boardTs=Date.parse(row.updated_at)||Date.now();BOARD=row.value;importBoard();render();}setInterval(boardPoll,9000);});}
 
 bootSync();
 </script>
