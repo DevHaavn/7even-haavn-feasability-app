@@ -50,6 +50,9 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .notif-item .nt{flex:1;font-size:13px;color:var(--ink);line-height:1.35}
 .notif-item .nsub{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink-3);margin-top:3px}
 .notif-empty{padding:20px 14px;text-align:center;color:var(--ink-3);font-size:12.5px}
+.notif-item .nic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--pill);color:var(--ink-2);font-size:12px}
+.notif-item.unread{background:rgba(216,165,74,.10)}
+.notif-item.unread .nic{background:var(--accent);color:#231a06}
 .search-results.on{display:block}
 .sr-group{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);padding:11px 10px 5px}
 .sr-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink)}
@@ -761,6 +764,13 @@ var MEETINGS=[];
    recorded/invited meetings show. */
 var DEMO_MTG={"haavn + hm — modular design & pricing workshop":1,"nic westpac catch up":1,"fraser & partners — derrimut planning":1};
 function stripDemoMeetings(){MEETINGS=(MEETINGS||[]).filter(function(m){return !DEMO_MTG[(m.title||"").trim().toLowerCase()];});}
+/* Notifications feed — cloud-synced so a person is told (on their device) whenever
+   they're added to a task, group, department or meeting. */
+var NOTIFS=[];
+function notify(to,text,kind,ref){to=canonName(to);if(!to||to===ME)return;NOTIFS.push({id:String(Date.now())+"-"+Math.floor(Math.random()*10000),to:to,text:text,kind:kind||"",ref:ref,at:Date.now(),read:false});if(NOTIFS.length>300)NOTIFS=NOTIFS.slice(-300);}
+function myNotifs(){return NOTIFS.filter(function(n){return n.to===ME;}).sort(function(a,b){return b.at-a.at;});}
+function notifWhen(ts){var s=Math.floor((Date.now()-ts)/1000);if(s<60)return "just now";var m=Math.floor(s/60);if(m<60)return m+"m ago";var h=Math.floor(m/60);if(h<24)return h+"h ago";return Math.floor(h/24)+"d ago";}
+function notifyTaskAssign(t,addedWatchers,newOwner){if(newOwner)notify(newOwner,"You're the task leader on “"+t.title+"”","task",t.id);(addedWatchers||[]).forEach(function(n){notify(n,"You're on the FYI list for “"+t.title+"”","task",t.id);});}
 var PROJECTS=["575 Derrimut Road Tarneit","Waurnvale Drive Geelong","Cunningham Place","5IVE Hotels Caloundra","St Village Preston"];
 
 /* department membership (a person can join more than one) + private workflow groups */
@@ -800,18 +810,23 @@ function render(){
   save();
 }
 /* ---- login / identity / notifications ---- */
-function updateNotif(){var n=myUpdates().length;var b=document.getElementById("bellBadge");b.textContent=n;b.style.display=n?"grid":"none";var p=document.getElementById("notifPanel");if(p&&p.classList.contains("on"))renderNotif();}
+var NOTIF_ICON={task:"✔",group:"◈",dept:"▦",meeting:"▶"};
+function updateNotif(){var n=myNotifs().filter(function(x){return !x.read;}).length;var b=document.getElementById("bellBadge");if(b){b.textContent=n;b.style.display=n?"grid":"none";}var p=document.getElementById("notifPanel");if(p&&p.classList.contains("on"))renderNotif();}
 function renderNotif(){
   var p=document.getElementById("notifPanel");if(!p)return;
-  var ups=myUpdates();
-  var body=ups.length?ups.map(function(t){
-    var src=t.fromMeeting?"Weekly Company Meeting":(t.source||"Workflow");
-    return '<div class="notif-item" onclick="notifOpen('+t.id+')">'+av(t.owner,26)+'<div class="nt">'+esc(t.title)+'<div class="nsub">'+esc((STLBL[t.status]||"")+" · "+deptN(t.dept).split(" ")[0]+" · "+src)+'</div></div></div>';
-  }).join(""):'<div class="notif-empty">No updates yet — you’ll be notified here when you’re assigned a job in the Weekly Company Meeting.</div>';
-  p.innerHTML='<div class="notif-head"><span class="t">Notifications</span><span class="t" style="color:var(--accent)">'+ups.length+' active</span></div>'+body;
+  var ns=myNotifs().slice(0,20),unread=myNotifs().filter(function(x){return !x.read;}).length;
+  var body=ns.length?ns.map(function(n){
+    return '<div class="notif-item'+(n.read?"":" unread")+'" onclick="notifOpen(\''+n.id+'\')"><span class="nic">'+(NOTIF_ICON[n.kind]||"•")+'</span><div class="nt">'+esc(n.text)+'<div class="nsub">'+notifWhen(n.at)+'</div></div></div>';
+  }).join(""):'<div class="notif-empty">No notifications yet — you’ll be told here when you’re added to a task, group, department or meeting.</div>';
+  p.innerHTML='<div class="notif-head"><span class="t">Notifications</span>'+(ns.length?'<span class="t" style="cursor:pointer;color:var(--accent)" onclick="event.stopPropagation();markAllNotifsRead()">Mark all read</span>':'<span class="t" style="color:var(--accent)">'+unread+' new</span>')+'</div>'+body;
 }
+function markAllNotifsRead(){myNotifs().forEach(function(n){n.read=true;});render();}
 function notifToggle(e){if(e){e.stopPropagation();}var p=document.getElementById("notifPanel");if(!p)return;var open=p.classList.contains("on");if(open){p.classList.remove("on");return;}renderNotif();p.classList.add("on");}
-function notifOpen(id){var p=document.getElementById("notifPanel");if(p)p.classList.remove("on");openTask(id);}
+function notifOpen(id){var n=NOTIFS.find(function(x){return x.id===id;});var p=document.getElementById("notifPanel");if(p)p.classList.remove("on");if(!n)return;n.read=true;render();
+  if(n.kind==="task")openTask(n.ref);
+  else if(n.kind==="group")openGroup(n.ref);
+  else if(n.kind==="dept")openDept(n.ref);
+  else if(n.kind==="meeting")openMeeting(n.ref);}
 function doLogin(){var name=document.getElementById("loginName").value.trim();var email=document.getElementById("loginEmail").value.trim();if(!name||!email){toast("Enter your name and email");return;}loginAs(name,email);}
 function loginAs(name,email){
   var p=PEOPLE.find(function(x){return x.email.toLowerCase()===String(email).toLowerCase()})||PEOPLE.find(function(x){return x.name.toLowerCase()===String(name).toLowerCase()});
@@ -889,8 +904,8 @@ function addMemberPrompt(){
     else{askText("Email for "+n,"name@company.au",function(email){p={name:n,email:(email||"").trim(),dept:curDeptView,role:"Member",ext:false};PEOPLE.push(p);finishAddMember(p);});}
   });
 }
-function finishAddMember(p){if(DEPT_MEMBERS[curDeptView].indexOf(p.name)<0)DEPT_MEMBERS[curDeptView].push(p.name);renderDepartment();renderDeptNav();save();toast(p.name+" added to "+deptN(curDeptView));}
-function addExisting(name){if(DEPT_MEMBERS[curDeptView].indexOf(name)<0)DEPT_MEMBERS[curDeptView].push(name);renderDepartment();renderDeptNav();toast(name+" added");}
+function finishAddMember(p){if(DEPT_MEMBERS[curDeptView].indexOf(p.name)<0)DEPT_MEMBERS[curDeptView].push(p.name);notify(p.name,"You were added to the "+deptN(curDeptView)+" department","dept",curDeptView);renderDepartment();renderDeptNav();save();toast(p.name+" added to "+deptN(curDeptView));}
+function addExisting(name){if(DEPT_MEMBERS[curDeptView].indexOf(name)<0)DEPT_MEMBERS[curDeptView].push(name);notify(name,"You were added to the "+deptN(curDeptView)+" department","dept",curDeptView);renderDepartment();renderDeptNav();save();toast(name+" added");}
 function renderDepartment(){
   var d=DEPTS.find(function(x){return x.id===curDeptView});if(!d)return;
   if(!DEPT_MEMBERS[d.id])DEPT_MEMBERS[d.id]=[];
@@ -941,7 +956,9 @@ function createGroup(){
   var members=Array.prototype.map.call(document.querySelectorAll("#grpMembers .checkrow.on"),function(r){return r.dataset.name;});
   if(members.indexOf(ME)<0)members.unshift(ME);
   var priv=document.getElementById("grpPrivate").classList.contains("on");
-  GROUPS.push(G({name:name,deptId:deptId,private:priv,desc:document.getElementById("grpDesc").value.trim(),goals:document.getElementById("grpGoals").value.trim(),members:members}));
+  var ng=G({name:name,deptId:deptId,private:priv,desc:document.getElementById("grpDesc").value.trim(),goals:document.getElementById("grpGoals").value.trim(),members:members});
+  GROUPS.push(ng);
+  members.forEach(function(n){notify(n,"You were added to the group “"+name+"”","group",ng.id);});
   closeGroupModal();render();renderDepartment();toast((priv?"Private":"Public")+" group created · "+members.length+" members");
 }
 function openGroup(id){
@@ -974,7 +991,7 @@ function groupAddPrompt(id){
     else{askText("Email for "+n,"name@company.au",function(email){p={name:n,email:(email||"").trim(),dept:g.deptId,role:"Member",ext:false};PEOPLE.push(p);finishGroupAdd(g,p,id);});}
   });
 }
-function finishGroupAdd(g,p,id){if(g.members.indexOf(p.name)<0)g.members.push(p.name);render();openGroup(id);toast(p.name+" added to group");
+function finishGroupAdd(g,p,id){if(g.members.indexOf(p.name)<0)g.members.push(p.name);notify(p.name,"You were added to the group “"+g.name+"”","group",id);render();openGroup(id);toast(p.name+" added to group");
 }
 function groupRemove(id,name){var g=GROUPS.find(function(x){return x.id===id});var i=g.members.indexOf(name);if(i>=0)g.members.splice(i,1);render();openGroup(id);}
 function groupAddTask(id){
@@ -1356,14 +1373,16 @@ function finishRecord(){
   var title=(document.getElementById("recName").value||"Meeting").trim();
   var dept=document.getElementById("recDept").value;
   // 1) the meeting record → My Meetings list (cloud-saved via render/save)
-  MEETINGS.unshift(buildMeetingRecord("recorded"));
+  var rec=buildMeetingRecord("recorded");MEETINGS.unshift(rec);
+  recAtt.forEach(function(n){notify(n,"Meeting record shared: “"+title+"” ("+rec.when+")","meeting",rec.id);});
   // 2) the meeting itself, tracked as a task on the owner's board (if ticked)
   saveMeetingAsTask(true,false);
   // 3) each action → a tracked task assigned to its leader; watchers = other attendees
   var acts=recWrapActions.filter(function(a){return (a.title||"").trim();});
   var teamWatch=recAtt.filter(function(n){var p=person(n);return p&&!p.ext;});
   acts.forEach(function(a){var owner=canonName(a.owner||"")||ME;
-    TASKS.push(T({title:a.title.trim(),owner:owner,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:a.due||"",weekly:false,source:title,kind:"action",desc:"Action from meeting: "+title,watchers:teamWatch.filter(function(n){return n!==owner;})}));});
+    var nt=T({title:a.title.trim(),owner:owner,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:a.due||"",weekly:false,source:title,kind:"action",desc:"Action from meeting: "+title,watchers:teamWatch.filter(function(n){return n!==owner;})});
+    TASKS.push(nt);notifyTaskAssign(nt,nt.watchers,nt.owner);});
   // 4) email the record to attendees from the sender's mail app
   var names=recAttendeeNames(),emails=meetingEmails(names);
   var actTxt=acts.length?acts.map(function(a){return "• "+a.title+(a.owner?" — "+a.owner:"")+(a.due?" (due "+a.due+")":"");}).join("\n"):"—";
@@ -1372,7 +1391,7 @@ function finishRecord(){
   toast(acts.length+" action task"+(acts.length===1?"":"s")+" created · meeting saved to My Meetings");
   if(emails.length){window.location.href="mailto:"+encodeURIComponent(emails.join(","))+"?subject="+encodeURIComponent("Meeting record — "+title)+"&body="+encodeURIComponent(body);}
 }
-function saveDraft(){MEETINGS.unshift(buildMeetingRecord("scheduled"));render();closeRecord();toast("Saved to My Meetings");}
+function saveDraft(){var rec=buildMeetingRecord("scheduled");MEETINGS.unshift(rec);recAtt.forEach(function(n){notify(n,"You're invited to “"+rec.title+"” ("+rec.when+")","meeting",rec.id);});render();closeRecord();toast("Saved to My Meetings");}
 function scheduleICS(){
   var title=(document.getElementById("recName").value||"Meeting").trim();
   var when=document.getElementById("recWhen").value;var d=new Date(when);
@@ -1464,8 +1483,8 @@ function openTaskModal(preset,editId){
     var title=q("#tmTitle").value.trim();if(!title){toast("Enter a task title");return;}
     var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical,watchers:_tmSel.watchers.slice()};
     data.done=(data.status==="done");
-    if(editId!=null){var tt=TASKS.find(function(x){return x.id===editId;});for(var k in data)tt[k]=data[k];if(tt.fromMeeting)pushBoardTask(tt);ov.style.display="none";render();openTask(editId);toast("Task updated");}
-    else{data.project="—";data.source=null;var nt=T(data);TASKS.push(nt);ov.style.display="none";render();openTask(nt.id);toast("Task created");}
+    if(editId!=null){var tt=TASKS.find(function(x){return x.id===editId;});var oldW=(tt.watchers||[]).slice(),oldOwner=tt.owner;for(var k in data)tt[k]=data[k];if(tt.fromMeeting)pushBoardTask(tt);notifyTaskAssign(tt,(data.watchers||[]).filter(function(n){return oldW.indexOf(n)<0;}),data.owner!==oldOwner?data.owner:null);ov.style.display="none";render();openTask(editId);toast("Task updated");}
+    else{data.project="—";data.source=null;var nt=T(data);TASKS.push(nt);notifyTaskAssign(nt,nt.watchers||[],nt.owner);ov.style.display="none";render();openTask(nt.id);toast("Task created");}
   };
   ov.style.display="flex";setTimeout(function(){q("#tmTitle").focus();},40);
 }
@@ -1499,10 +1518,11 @@ var CK=PREVIEW?"atrium_workflow_preview":"atrium_workflow";
 var BOARD_KEY=PREVIEW?"haavn_boardroom_preview":"haavn_boardroom";
 var SB_H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"};
 var _sbOk=false,_pushT=null,_ts=0,_adopting=false;
-function snapshot(){return {TASKS:TASKS,PEOPLE:PEOPLE,DEPT_MEMBERS:DEPT_MEMBERS,GROUPS:GROUPS,MEETINGS:MEETINGS,customDepts:customDepts,_id:_id,groupSeed:groupSeed};}
+function snapshot(){return {TASKS:TASKS,PEOPLE:PEOPLE,DEPT_MEMBERS:DEPT_MEMBERS,GROUPS:GROUPS,MEETINGS:MEETINGS,customDepts:customDepts,NOTIFS:NOTIFS,_id:_id,groupSeed:groupSeed};}
 function adopt(v){_adopting=true;try{
   if(v.TASKS)TASKS=v.TASKS;if(v.PEOPLE)PEOPLE=v.PEOPLE;if(v.DEPT_MEMBERS)DEPT_MEMBERS=v.DEPT_MEMBERS;if(v.GROUPS)GROUPS=v.GROUPS;if(v.MEETINGS)MEETINGS=v.MEETINGS;
   stripDemoMeetings();
+  if(v.NOTIFS)NOTIFS=v.NOTIFS;
   if(v.customDepts)customDepts=v.customDepts;rebuildDepts();
   var ids=TASKS.map(function(t){return +t.id||0;});_id=Math.max(v._id||0,ids.length?Math.max.apply(null,ids):0);
   var gs=GROUPS.map(function(g){return +String(g.id).replace(/\D/g,"")||0;});groupSeed=Math.max(v.groupSeed||0,gs.length?Math.max.apply(null,gs):0);
