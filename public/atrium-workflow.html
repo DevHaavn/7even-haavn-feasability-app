@@ -38,6 +38,17 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .tag{color:var(--ink-3);border-left:1px solid var(--line);padding-left:14px}
 .search{margin-left:24px;flex:1;max-width:420px;display:flex;align-items:center;gap:9px;background:var(--pill);border:1px solid var(--line);border-radius:11px;padding:8px 13px;color:var(--ink-3);font-size:13px}
 .search input{border:none;background:none;outline:none;color:var(--ink);font-family:var(--sans);font-size:13px;flex:1}
+.search{position:relative}
+.search-results{position:absolute;top:calc(100% + 9px);left:0;right:0;z-index:140;background:var(--bg1);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);max-height:64vh;overflow:auto;display:none;padding:6px}
+.search-results.on{display:block}
+.sr-group{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);padding:11px 10px 5px}
+.sr-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink)}
+.sr-item>span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-item:hover{background:var(--pill)}
+.sr-item .sr-sub{color:var(--ink-3);font-size:11px;margin-left:auto;font-family:var(--mono);letter-spacing:.03em;white-space:nowrap;flex:none}
+.sr-item .cdot{flex:none}
+.sr-kind{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--ink-4);border:1px solid var(--line);border-radius:6px;padding:2px 6px;flex:none}
+.sr-empty{padding:16px 12px;color:var(--ink-3);font-size:12.5px;text-align:center}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
 .seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
 .seg button{border:none;background:none;color:var(--ink-3);font-family:var(--mono);font-size:9px;letter-spacing:.12em;padding:6px 11px;border-radius:100px;cursor:pointer}
@@ -340,7 +351,8 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     </div>
     <div class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-      <input placeholder="Search tasks, people, meetings…" id="globalSearch">
+      <input placeholder="Search tasks, people, meetings…" id="globalSearch" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
     </div>
     <div class="topbar-right">
       <div class="seg" id="themeSeg"><button data-theme-set="dark">Dark</button><button data-theme-set="light" class="on">Light</button></div>
@@ -1238,6 +1250,36 @@ function openProfile(){
 }
 /* Footer: clear caches + hard-reload to the latest deploy. */
 function doUpdate(){try{if('caches'in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});}catch(e){}var pv=location.search.indexOf('preview')>=0?'preview=1&':'';setTimeout(function(){location.replace(location.origin+location.pathname+'?'+pv+'u='+Date.now());},120);}
+
+/* ===================== GLOBAL SEARCH =====================
+   Search people / tasks / meetings from the top bar; selecting a result jumps
+   straight to it — task opens its detail drawer, person opens their department
+   board, meeting opens the Meetings view and flashes the card. */
+function jsq(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+function searchRun(q){
+  q=(q||"").trim().toLowerCase();
+  var box=document.getElementById("searchResults");if(!box)return;
+  if(!q){box.classList.remove("on");box.innerHTML="";return;}
+  var ppl=PEOPLE.filter(function(p){return p.name.toLowerCase().indexOf(q)>=0||(p.email||"").toLowerCase().indexOf(q)>=0||(p.role||"").toLowerCase().indexOf(q)>=0;}).slice(0,6);
+  var tsk=TASKS.filter(function(t){return (t.title||"").toLowerCase().indexOf(q)>=0||(t.owner||"").toLowerCase().indexOf(q)>=0||(t.project||"").toLowerCase().indexOf(q)>=0;}).slice(0,7);
+  var mtg=MEETINGS.map(function(m,i){return {m:m,i:i};}).filter(function(o){return (o.m.title||"").toLowerCase().indexOf(q)>=0||(o.m.when||"").toLowerCase().indexOf(q)>=0;}).slice(0,5);
+  var html="";
+  if(ppl.length)html+='<div class="sr-group">People</div>'+ppl.map(function(p){return '<div class="sr-item" onclick="searchGoPerson(\''+jsq(p.name)+'\')">'+av(p.name,24)+'<span>'+esc(p.name)+'</span><span class="sr-sub">'+esc((p.role||"Member")+" · "+deptN(p.dept).split(" ")[0])+'</span></div>';}).join("");
+  if(tsk.length)html+='<div class="sr-group">Tasks</div>'+tsk.map(function(t){return '<div class="sr-item" onclick="searchGoTask('+t.id+')"><span class="cdot" style="background:'+deptC(t.dept)+'"></span><span>'+esc(t.title)+'</span><span class="sr-sub">'+esc((STLBL[t.status]||"")+" · "+(t.owner||""))+'</span></div>';}).join("");
+  if(mtg.length)html+='<div class="sr-group">Meetings</div>'+mtg.map(function(o){return '<div class="sr-item" onclick="searchGoMeeting('+o.i+')"><span class="sr-kind">MTG</span><span>'+esc(o.m.title)+'</span><span class="sr-sub">'+esc(o.m.when||"")+'</span></div>';}).join("");
+  if(!html)html='<div class="sr-empty">No matches for “'+esc(q)+'”</div>';
+  box.innerHTML=html;box.classList.add("on");
+}
+function searchClear(){var i=document.getElementById("globalSearch");if(i)i.value="";var b=document.getElementById("searchResults");if(b)b.classList.remove("on");}
+function searchGoTask(id){searchClear();openTask(id);}
+function searchGoPerson(name){searchClear();var p=person(name);if(!p){toast(name);return;}setDept(p.dept);go("teamboard");toast("Showing "+deptN(p.dept)+" board — "+name.split(" ")[0]+"’s tasks");}
+function searchGoMeeting(i){searchClear();go("mymeetings");setTimeout(function(){var cards=document.querySelectorAll("#meetingList .card");var c=cards[i];if(c){c.scrollIntoView({block:"center"});c.style.transition="box-shadow .3s";c.style.boxShadow="0 0 0 2px var(--accent)";setTimeout(function(){c.style.boxShadow="";},1500);}},70);}
+(function(){var gs=document.getElementById("globalSearch");if(!gs)return;
+  gs.addEventListener("input",function(){searchRun(this.value);});
+  gs.addEventListener("focus",function(){if(this.value.trim())searchRun(this.value);});
+  gs.addEventListener("keydown",function(e){if(e.key==="Escape"){searchClear();this.blur();}else if(e.key==="Enter"){var first=document.querySelector("#searchResults .sr-item");if(first)first.click();}});
+  document.addEventListener("click",function(e){if(!e.target.closest(".search")){var b=document.getElementById("searchResults");if(b)b.classList.remove("on");}});
+})();
 
 bootSync();
 </script>
