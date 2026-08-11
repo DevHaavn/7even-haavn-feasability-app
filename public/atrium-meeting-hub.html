@@ -557,6 +557,9 @@ var DEPTS=[
   {id:'admin',name:'Administration & Accounts',sub:'Finance & Operations',lead:'Dom Ma / Amy Baldwin',color:'#a179d8',tasks:[]}
 ];
 function deptMeta(id){return DEPTS.find(function(d){return d.id===id;});}
+/* Departments added in Pillar 01 (Workflow) are mirrored to a shared key and
+   merged in here, so new departments push through to the weekly agenda. */
+function mergeSharedDepts(){var k=(location.search.indexOf('preview')>=0)?'atrium_departments_preview':'atrium_departments';fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+k+'&select=value',{headers:SUPA_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length||!Array.isArray(rows[0].value))return;var changed=false;rows[0].value.forEach(function(cd){if(cd&&cd.id&&!DEPTS.find(function(d){return d.id===cd.id;})){DEPTS.push({id:cd.id,name:cd.name||cd.id,sub:cd.sub||'Department',lead:cd.owner||'',color:cd.color||'#8a9099',tasks:[]});changed=true;}});if(changed&&DB)render();}).catch(function(){});}
 var ISTATUS=['update','action','followup','trouble','complete'];
 var IS_LABEL={update:'UPDATE',action:'ACTION',followup:'FOLLOW-UP',trouble:'IN TROUBLE',complete:'COMPLETE'};
 var PILLCLASS={update:'s-update',action:'s-action',followup:'s-followup',trouble:'s-introuble',complete:'s-complete'};
@@ -707,7 +710,7 @@ function confetti(canvas,big){if(!canvas)return;var ctx=canvas.getContext('2d');
 (function boot(){cloudPull().then(function(row){if(row&&row.value){adoptCloud(row.value);_cloudTs=Date.parse(row.updated_at)||Date.now();}else{load();migrateAll();}var mm=cur();var mi=document.getElementById('minutes');if(mi)mi.value=(mm&&mm.minutes)||'';render();
 if(window.innerWidth>=1200){document.body.classList.add('console-open');}else{var cc=document.getElementById('console');if(cc)cc.classList.add('hid');}
 window.addEventListener('scroll',function(){updateSection();},{passive:true});
-if(_cloudOk&&!(row&&row.value))cloudPush();if(_cloudOk)setInterval(cloudPoll,9000);});})();
+if(_cloudOk&&!(row&&row.value))cloudPush();if(_cloudOk)setInterval(cloudPoll,9000);mergeSharedDepts();setInterval(mergeSharedDepts,15000);});})();
 </script>
 </body>
 </html>

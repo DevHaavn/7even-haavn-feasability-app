@@ -313,6 +313,17 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .wrap-act input,.wrap-act select{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:13px;outline:none}
 .wrap-act .wa-title{flex:1;min-width:0}
 .wrap-act .wa-x{cursor:pointer;color:var(--ink-4);padding:4px 8px;flex:none}
+.grp-add{display:flex;align-items:center;justify-content:space-between}
+.grp-plus{border:none;background:none;color:var(--ink-3);font-size:15px;cursor:pointer;line-height:1;padding:0 3px;font-family:var(--sans)}
+.grp-plus:hover{color:var(--accent)}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.teamcard{background:var(--glass-2,rgba(255,255,255,.5));border:1px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;transition:.15s}
+.teamcard:hover{border-color:var(--ink-4)}
+.teamcard .tc-h{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;color:var(--ink)}
+.teamcard .tc-own{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink-4);margin-top:3px}
+.teamcard .tc-bar{height:6px;border-radius:6px;background:var(--pill);margin:10px 0 8px;overflow:hidden}
+.teamcard .tc-bar i{display:block;height:100%;border-radius:6px}
+.teamcard .tc-meta{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink-3)}
 .login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
 .login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
 .login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
@@ -405,8 +416,10 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <a data-view="people"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="lbl">Workload</span></a>
     <a data-view="weekly"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><span class="lbl">Weekly Review</span><span class="ct" id="navWeekly">0</span></a>
     <a data-view="groups"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></svg><span class="lbl">Workflow Groups</span><span class="ct" id="navGroups">0</span></a>
-    <div class="grp">Departments</div>
+    <div class="grp grp-add">Departments<button class="grp-plus" onclick="openDeptModal()" title="Add a department">＋</button></div>
     <div id="deptNav"></div>
+    <div class="grp grp-add">Collaborators<button class="grp-plus" onclick="openGroupModal()" title="New group">＋</button></div>
+    <div id="collabNav"></div>
     <div class="nav-foot">
       <button class="btn-rec" onclick="openRecord()">● Record a meeting</button>
     </div>
@@ -436,6 +449,14 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
             <div id="dayActions"></div>
           </div>
         </div>
+      </div>
+      <div class="card pad" style="margin-top:16px">
+        <div class="ch"><h3>How my teams &amp; departments are tracking</h3><span class="lnk" onclick="go('weekly')">Weekly review →</span></div>
+        <div class="teams-grid" id="dayTeams"></div>
+      </div>
+      <div class="card pad" style="margin-top:16px" id="dayCollabCard">
+        <div class="ch"><h3>My collaborations</h3><span class="lnk" onclick="go('groups')">All groups →</span></div>
+        <div class="teams-grid" id="dayCollab"></div>
       </div>
     </section>
 
@@ -621,6 +642,25 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
   </div>
 </div>
 
+<!-- DEPARTMENT MODAL -->
+<div class="modal-scrim" id="deptScrim">
+  <div class="modal" style="width:min(520px,96vw)">
+    <div class="modal-top">
+      <span class="av" style="width:30px;height:30px;background:var(--teal)">▦</span>
+      <h2 class="serif">Add a department</h2>
+      <button class="iconbtn" onclick="document.getElementById('deptScrim').classList.remove('on')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Department name</label><input id="deptName" placeholder="e.g. Development &amp; Design" autocomplete="off"></div>
+      <div class="field"><label>Department owner / lead</label><select id="deptOwnerSel"></select></div>
+      <div class="field"><label>Colour</label><div class="segrow" id="deptSwatches"></div></div>
+      <div class="field"><label>Purpose / details</label><textarea id="deptPurpose" rows="2" placeholder="What this department covers…"></textarea></div>
+      <div style="color:var(--ink-3);font-size:12px;margin-top:2px">New departments appear across the workflow and are pushed to the Weekly Company Meeting agenda.</div>
+      <div class="actions" style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-gold" onclick="createDept()">Add department</button><button class="btn btn-ghost" onclick="document.getElementById('deptScrim').classList.remove('on')">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- GROUP MODAL -->
 <div class="modal-scrim" id="groupScrim">
   <div class="modal" style="width:min(560px,96vw)">
@@ -633,8 +673,9 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
       <div class="field"><label>Group name</label><input id="grpName" placeholder="e.g. Black Series — Website Launch"></div>
       <div class="field"><label>Department</label><select id="grpDept"></select></div>
       <div class="field"><label>Purpose (optional)</label><input id="grpDesc" placeholder="What this group is managing…"></div>
+      <div class="field"><label>Goals (one per line)</label><textarea id="grpGoals" rows="2" placeholder="What this team is working toward…"></textarea></div>
       <div class="field"><label>Members</label><div class="checklist" id="grpMembers"></div></div>
-      <label class="toggle on" id="grpPrivate" onclick="this.classList.toggle('on')"><span class="tk"></span><span>Private — only members can see this group</span></label>
+      <label class="toggle on" id="grpPrivate" onclick="this.classList.toggle('on')"><span class="tk"></span><span>Private — only members can see this group (off = public to the team)</span></label>
       <div class="actions" style="display:flex;gap:8px;margin-top:18px"><button class="btn btn-gold" onclick="createGroup()">Create group</button><button class="btn btn-ghost" onclick="closeGroupModal()">Cancel</button></div>
     </div>
   </div>
@@ -644,15 +685,19 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 
 <script>
 /* ============================== DATA ============================== */
-var DEPTS=[
+var BUILTIN_DEPTS=[
   {id:"company",name:"Company",color:"#8a9099"},
   {id:"7even",name:"7EVEN",color:"#5b8def"},
   {id:"haavn",name:"HAAVN",color:"#5aa87a"},
   {id:"haavnmgmt",name:"HAAVN Management",color:"#d8a54a"},
   {id:"admin",name:"Administration & Accounts",color:"#a179d8"}
 ];
+var customDepts=[];
+var DEPTS=BUILTIN_DEPTS.slice();
+function rebuildDepts(){DEPTS=BUILTIN_DEPTS.concat(customDepts);DEPTS.forEach(function(d){if(!DEPT_MEMBERS[d.id])DEPT_MEMBERS[d.id]=[];});}
 function deptC(id){var d=DEPTS.find(function(x){return x.id===id});return d?d.color:"#8a9099";}
 function deptN(id){var d=DEPTS.find(function(x){return x.id===id});return d?d.name:id;}
+function deptOwner(id){var d=DEPTS.find(function(x){return x.id===id});return d?d.owner:"";}
 
 /* Roster imported from Pillar 03 · Weekly Company Meeting (roles + emails as set in the live app) */
 var PEOPLE=[
@@ -775,12 +820,42 @@ function applyUser(p){
 function logout(){try{localStorage.removeItem("atrium_wf_user");}catch(e){}var l=document.getElementById("login");l.classList.remove("gone");document.getElementById("loginName").value="";document.getElementById("loginEmail").value="";setTimeout(function(){document.getElementById("loginName").focus();},100);}
 function renderDeptNav(){
   document.getElementById("deptNav").innerHTML=DEPTS.map(function(d){
-    var mine=DEPT_MEMBERS[d.id].indexOf(ME)>=0;
-    return '<div class="deptrow" onclick="openDept(\''+d.id+'\')"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+(mine?' <span title="You\'re a member" style="color:var(--green);font-size:10px">●</span>':'')+'<span class="ct" style="margin-left:auto">'+DEPT_MEMBERS[d.id].length+'</span></div>';
+    var mem=DEPT_MEMBERS[d.id]||[];var mine=mem.indexOf(ME)>=0;
+    return '<div class="deptrow" onclick="openDept(\''+d.id+'\')"><span class="cdot" style="background:'+d.color+'"></span>'+esc(d.name)+(mine?' <span title="You\'re a member" style="color:var(--green);font-size:10px">●</span>':'')+'<span class="ct" style="margin-left:auto">'+mem.length+'</span></div>';
   }).join("");
   document.getElementById("navGroups").textContent=GROUPS.filter(canSeeGroup).length;
+  renderCollab();
+}
+function renderCollab(){
+  var el=document.getElementById("collabNav");if(!el)return;
+  var gs=GROUPS.filter(canSeeGroup);
+  el.innerHTML=gs.length?gs.map(function(g){return '<div class="deptrow" onclick="openGroup(\''+g.id+'\')"><span class="cdot" style="background:'+deptC(g.deptId)+'"></span>'+esc(g.name)+'<span class="ct" style="margin-left:auto">'+(g.private?"🔒":"◦")+'</span></div>';}).join(""):'<div style="padding:5px 12px;color:var(--ink-4);font-size:11px">No groups yet — press ＋</div>';
 }
 function canSeeGroup(g){return !g.private||g.members.indexOf(ME)>=0;}
+/* ---- add a department (owner + colour + purpose) → pushes to Weekly Meeting ---- */
+var DEPT_PAL=["#4fa8a0","#5b8def","#5aa87a","#d8a54a","#a179d8","#e0644f","#c77dbb","#8a9099"];
+var _deptColor=DEPT_PAL[0];
+function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24)||("dept"+Date.now());}
+function paintDeptSw(){var box=document.getElementById("deptSwatches");box.innerHTML=DEPT_PAL.map(function(c){return '<span class="swatch'+(c===_deptColor?" sel":"")+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");box.querySelectorAll(".swatch").forEach(function(s){s.onclick=function(){_deptColor=s.getAttribute("data-c");paintDeptSw();};});}
+function openDeptModal(){
+  _deptColor=DEPT_PAL[0];
+  document.getElementById("deptName").value="";document.getElementById("deptPurpose").value="";
+  document.getElementById("deptOwnerSel").innerHTML='<option value="">— owner —</option>'+PEOPLE.filter(function(p){return !p.ext;}).map(function(p){return '<option value="'+esc(p.name)+'"'+(p.name===ME?" selected":"")+'>'+esc(p.name)+'</option>';}).join("");
+  paintDeptSw();document.getElementById("deptScrim").classList.add("on");
+  setTimeout(function(){document.getElementById("deptName").focus();},40);
+}
+function createDept(){
+  var name=document.getElementById("deptName").value.trim();if(!name){toast("Name the department");return;}
+  var id=slugify(name);if(DEPTS.find(function(d){return d.id===id;}))id=id+"-"+String(Date.now()).slice(-4);
+  var owner=document.getElementById("deptOwnerSel").value;
+  customDepts.push({id:id,name:name,color:_deptColor,owner:owner,sub:document.getElementById("deptPurpose").value.trim(),custom:true});
+  rebuildDepts();DEPT_MEMBERS[id]=owner?[owner]:[];
+  document.getElementById("deptScrim").classList.remove("on");
+  render();pushDeptsShared();
+  toast("Department “"+name+"” added — pushed to the Weekly Meeting");
+}
+/* mirror custom departments to a shared key the Weekly Meeting (Pillar 02) reads */
+function pushDeptsShared(){var k=PREVIEW?"atrium_departments_preview":"atrium_departments";fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify([{key:k,value:customDepts,updated_at:new Date().toISOString()}])}).catch(function(){});}
 
 /* ---- department view: join / add members ---- */
 function openDept(id){curDeptView=id;renderDepartment();go("department");}
@@ -837,7 +912,7 @@ function openGroupModal(deptId){
   document.getElementById("grpMembers").innerHTML=PEOPLE.map(function(p){
     return '<div class="checkrow'+(p.name===ME?" on":"")+'" data-name="'+esc(p.name)+'" onclick="this.classList.toggle(\'on\')"><span class="cb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5"><path d="M20 6L9 17l-5-5"/></svg></span>'+av(p.name,22)+'<span style="flex:1">'+esc(p.name)+'</span><span class="role" style="color:var(--ink-4);font-family:var(--mono);font-size:9px">'+(p.ext?"CONSULTANT":(p.role||"Member"))+'</span></div>';
   }).join("");
-  document.getElementById("grpName").value="";document.getElementById("grpDesc").value="";
+  document.getElementById("grpName").value="";document.getElementById("grpDesc").value="";document.getElementById("grpGoals").value="";
   document.getElementById("grpPrivate").classList.add("on");
   document.getElementById("groupScrim").classList.add("on");
 }
@@ -848,8 +923,8 @@ function createGroup(){
   var members=Array.prototype.map.call(document.querySelectorAll("#grpMembers .checkrow.on"),function(r){return r.dataset.name;});
   if(members.indexOf(ME)<0)members.unshift(ME);
   var priv=document.getElementById("grpPrivate").classList.contains("on");
-  GROUPS.push(G({name:name,deptId:deptId,private:priv,desc:document.getElementById("grpDesc").value.trim(),members:members}));
-  closeGroupModal();render();renderDepartment();toast("Group created · "+members.length+" members");
+  GROUPS.push(G({name:name,deptId:deptId,private:priv,desc:document.getElementById("grpDesc").value.trim(),goals:document.getElementById("grpGoals").value.trim(),members:members}));
+  closeGroupModal();render();renderDepartment();toast((priv?"Private":"Public")+" group created · "+members.length+" members");
 }
 function openGroup(id){
   var g=GROUPS.find(function(x){return x.id===id});if(!g)return;curGroup=id;
@@ -863,6 +938,7 @@ function openGroup(id){
     '<h2 class="serif">'+esc(g.name)+'</h2>'+
     '<div class="dstatus">'+(g.private?'<span class="private-badge">🔒 PRIVATE</span>':'<span class="chiplet">Open</span>')+'<span class="chiplet"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</span></div>'+
     (g.desc?'<div class="sec"><h4>Purpose</h4><div style="font-size:13px;color:var(--ink-2)">'+esc(g.desc)+'</div></div>':'')+
+    (g.goals?'<div class="sec"><h4>Goals</h4>'+g.goals.split("\n").filter(function(x){return x.trim();}).map(function(x){return '<div style="display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink-2);padding:3px 0"><span style="color:var(--accent)">◎</span><span>'+esc(x.trim())+'</span></div>';}).join("")+'</div>':'')+
     '<div class="sec"><h4>Members · '+g.members.length+'</h4><div class="members">'+mem+'<span class="memberchip addable" onclick="groupAddPrompt(\''+id+'\')">＋ Add member</span></div></div>'+
     '<div class="sec"><h4>Group tasks</h4><div class="tasklist" id="grpTasks">'+(gtasks.length?gtasks.map(taskRow).join(""):'<div class="empty" style="padding:14px">No tasks yet.</div>')+'</div>'+
       '<div class="dec-add" style="display:flex;gap:8px;margin-top:8px"><input class="txt" id="grpTaskInput" placeholder="Add a task for this group…" onkeydown="if(event.key===\'Enter\')groupAddTask(\''+id+'\')"><button class="btn btn-ghost" onclick="groupAddTask(\''+id+'\')">Add</button></div>'+
@@ -937,6 +1013,29 @@ function renderDay(){
       return '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px"><span style="color:var(--accent)">▸</span><span style="flex:1">'+esc(t.title)+'</span><span class="chiplet"><span class="cdot" style="background:'+deptC(t.dept)+'"></span>'+deptN(t.dept)+'</span></div>';
     }).join("")
     :'<div class="empty" style="padding:16px">No updates yet — you\'ll be notified here when you\'re assigned a job in the Weekly Company Meeting.</div>';
+  renderDayTeams();renderDayCollab();
+}
+function renderDayTeams(){
+  var el=document.getElementById("dayTeams");if(!el)return;
+  el.innerHTML=DEPTS.map(function(d){
+    var ts=TASKS.filter(function(t){return t.dept===d.id;});
+    var total=ts.length,done=ts.filter(function(t){return t.done;}).length,open=total-done;
+    var risk=ts.filter(function(t){return !t.done&&(t.light==="red"||t.status==="blocked");}).length;
+    var pct=total?Math.round(done/total*100):0;
+    var own=d.owner||(DEPT_MEMBERS[d.id]&&DEPT_MEMBERS[d.id][0])||"";
+    return '<div class="teamcard" onclick="openDept(\''+d.id+'\')"><div class="tc-h"><span class="cdot" style="background:'+d.color+'"></span>'+esc(d.name)+'</div>'+(own?'<div class="tc-own">LEAD · '+esc(own)+'</div>':'')+'<div class="tc-bar"><i style="width:'+pct+'%;background:'+d.color+'"></i></div><div class="tc-meta">'+done+'/'+total+' done · '+open+' open'+(risk?' · <span style="color:var(--red)">'+risk+' at risk</span>':'')+'</div></div>';
+  }).join("");
+}
+function renderDayCollab(){
+  var el=document.getElementById("dayCollab");if(!el)return;
+  var gs=GROUPS.filter(function(g){return canSeeGroup(g)&&g.members.indexOf(ME)>=0;});
+  var card=document.getElementById("dayCollabCard");if(card)card.style.display=gs.length?"":"none";
+  el.innerHTML=gs.map(function(g){
+    var ts=TASKS.filter(function(t){return t.groupId===g.id;});
+    var total=ts.length,done=ts.filter(function(t){return t.done;}).length;var pct=total?Math.round(done/total*100):0;
+    var dc=deptC(g.deptId);var goals=(g.goals||"").split("\n").filter(function(x){return x.trim();}).length;
+    return '<div class="teamcard" onclick="openGroup(\''+g.id+'\')"><div class="tc-h">'+(g.private?"🔒 ":"")+esc(g.name)+'</div><div class="tc-own">'+esc(deptN(g.deptId))+' · '+g.members.length+' members'+(goals?' · '+goals+' goal'+(goals>1?"s":""):"")+'</div><div class="tc-bar"><i style="width:'+pct+'%;background:'+dc+'"></i></div><div class="tc-meta">'+done+'/'+total+' tasks done</div></div>';
+  }).join("");
 }
 /* a person only receives weekly-meeting updates for jobs assigned to them */
 function myUpdates(){return TASKS.filter(function(t){return !t.done&&((t.owner===ME&&t.weekly)||(t.watchers&&t.watchers.indexOf(ME)>=0));});}
@@ -1331,9 +1430,10 @@ var CK=PREVIEW?"atrium_workflow_preview":"atrium_workflow";
 var BOARD_KEY=PREVIEW?"haavn_boardroom_preview":"haavn_boardroom";
 var SB_H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"};
 var _sbOk=false,_pushT=null,_ts=0,_adopting=false;
-function snapshot(){return {TASKS:TASKS,PEOPLE:PEOPLE,DEPT_MEMBERS:DEPT_MEMBERS,GROUPS:GROUPS,MEETINGS:MEETINGS,_id:_id,groupSeed:groupSeed};}
+function snapshot(){return {TASKS:TASKS,PEOPLE:PEOPLE,DEPT_MEMBERS:DEPT_MEMBERS,GROUPS:GROUPS,MEETINGS:MEETINGS,customDepts:customDepts,_id:_id,groupSeed:groupSeed};}
 function adopt(v){_adopting=true;try{
   if(v.TASKS)TASKS=v.TASKS;if(v.PEOPLE)PEOPLE=v.PEOPLE;if(v.DEPT_MEMBERS)DEPT_MEMBERS=v.DEPT_MEMBERS;if(v.GROUPS)GROUPS=v.GROUPS;if(v.MEETINGS)MEETINGS=v.MEETINGS;
+  if(v.customDepts)customDepts=v.customDepts;rebuildDepts();
   var ids=TASKS.map(function(t){return +t.id||0;});_id=Math.max(v._id||0,ids.length?Math.max.apply(null,ids):0);
   var gs=GROUPS.map(function(g){return +String(g.id).replace(/\D/g,"")||0;});groupSeed=Math.max(v.groupSeed||0,gs.length?Math.max.apply(null,gs):0);
 }catch(e){}_adopting=false;}
@@ -1352,7 +1452,7 @@ var DEPT2BOARD={company:"company","7even":"7even",haavn:"haavn",haavnmgmt:"mgmt"
 var ST2BOARD={todo:"action",doing:"followup",blocked:"trouble",review:"followup",done:"complete"};
 function _norm(s){return String(s||"").trim().toLowerCase();}
 function _newBoardId(){return Date.now()*1000+Math.floor(Math.random()*1000);}
-function _boardItem(t){return {id:_newBoardId(),dept:DEPT2BOARD[t.dept]||"company",status:ST2BOARD[t.status]||"action",title:t.title,kind:t.kind||"",assigneeId:"",owner:t.owner||"",due:t.due||"",notes:t.desc||"",carried:0,discussed:t.status==="done"};}
+function _boardItem(t){return {id:_newBoardId(),dept:DEPT2BOARD[t.dept]||t.dept,status:ST2BOARD[t.status]||"action",title:t.title,kind:t.kind||"",assigneeId:"",owner:t.owner||"",due:t.due||"",notes:t.desc||"",carried:0,discussed:t.status==="done"};}
 function syncToWeekly(mineOnly){
   var set=TASKS.filter(function(t){return t.weekly&&(!mineOnly||t.owner===ME);});
   if(!set.length){toast("No weekly-flagged tasks to sync — star tasks to add them");return;}
@@ -1368,7 +1468,7 @@ function syncToWeekly(mineOnly){
     if(!m.items)m.items=[];
     var seen={};m.items.forEach(function(i){seen[_norm(i.title)]=i;});
     var added=0,updated=0;
-    set.forEach(function(t){var ex=seen[_norm(t.title)];if(ex){ex.status=ST2BOARD[t.status]||ex.status;ex.owner=t.owner||ex.owner;ex.due=t.due||ex.due;ex.dept=DEPT2BOARD[t.dept]||ex.dept;if(t.status==="done")ex.discussed=true;updated++;}else{m.items.push(_boardItem(t));added++;}});
+    set.forEach(function(t){var ex=seen[_norm(t.title)];if(ex){ex.status=ST2BOARD[t.status]||ex.status;ex.owner=t.owner||ex.owner;ex.due=t.due||ex.due;ex.dept=DEPT2BOARD[t.dept]||t.dept;if(t.status==="done")ex.discussed=true;updated++;}else{m.items.push(_boardItem(t));added++;}});
     fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:doc,updated_at:new Date().toISOString()}])}).then(function(r){
       if(r.ok)toast("Weekly Meeting agenda updated — "+added+" added, "+updated+" updated"+(PREVIEW?" (preview)":""));
       else toast("Sync failed — please retry");
@@ -1472,7 +1572,7 @@ function importBoard(){
   var keep={};
   assigned.forEach(function(o){
     var key=m.id+":"+o.it.id;keep[key]=true;
-    var mapped={title:o.it.title||"(untitled)",owner:o.who,dept:M2WF_DEPT[o.it.dept]||"company",status:mStatus2wf(o.it),due:o.it.due||"",desc:o.it.notes||"",kind:o.it.kind||""};
+    var mapped={title:o.it.title||"(untitled)",owner:o.who,dept:M2WF_DEPT[o.it.dept]||o.it.dept,status:mStatus2wf(o.it),due:o.it.due||"",desc:o.it.notes||"",kind:o.it.kind||""};
     var ex=TASKS.find(function(t){return t.fromMeeting&&t.mKey===key;});
     if(!ex){ // adopt an existing hand-made task with the same title+owner instead of duplicating it
       ex=TASKS.find(function(t){return !t.fromMeeting&&_norm(t.title)===_norm(mapped.title)&&canonName(t.owner)===mapped.owner;});
