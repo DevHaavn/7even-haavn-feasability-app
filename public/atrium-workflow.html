@@ -414,7 +414,6 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <section class="view on" id="v-myday">
       <div class="vhead">
         <div><div class="mono eyebrow" id="dayEyebrow">Monday 17 August 2026 · Meeting day</div><h1 class="serif" id="greeting">Good morning, Jamie</h1><p>Your tasks, action points and what you're taking into today's Weekly Company Meeting — all in one place.</p></div>
-        <button class="btn btn-gold" onclick="openRecord()">● Record a meeting</button>
       </div>
       <div class="tiles" id="dayTiles"></div>
       <div class="two">
@@ -575,7 +574,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
           <div class="field"><label>Due / follow-up</label><input id="recDue" value="Mon 17 Aug"></div>
         </div>
         <label class="astask"><input type="checkbox" id="recAsTask" checked><span>Track this meeting as a task on my board</span></label>
-        <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold" onclick="recStep('live')">Start recording →</button><button class="btn btn-ghost" onclick="saveMeetingAsTask(false,true)">✓ Save as task</button><button class="btn btn-ghost" onclick="toast('Scheduled in Outlook')">📅 Schedule in Outlook</button></div>
+        <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold" onclick="recStep('live')">Start recording →</button><button class="btn btn-ghost" onclick="saveMeetingAsTask(false,true)">✓ Save as task</button><button class="btn btn-ghost" onclick="scheduleICS()">📅 Schedule in Outlook</button></div>
       </div>
       <!-- live -->
       <div class="mstep" id="step-live">
@@ -609,7 +608,7 @@ Send funding package to legal · Accounts · Wed</textarea></div>
             <div class="field"><label>Send record to</label><div class="chips-in" id="wrapSend"></div></div>
             <div class="actions">
               <button class="btn btn-gold" onclick="finishRecord()">✉ Send &amp; create tasks</button>
-              <button class="btn btn-ghost" onclick="toast('Saved to my meetings')">Save draft</button>
+              <button class="btn btn-ghost" onclick="saveDraft()">Save draft</button>
             </div>
           </div>
         </div>
@@ -1105,27 +1104,34 @@ function recStep(s){
 }
 document.getElementById("mtabs").addEventListener("click",function(e){var b=e.target.closest("button");if(b)recStep(b.dataset.step);});
 document.getElementById("wave").innerHTML=Array.from({length:9}).map(function(_,i){return '<i style="animation-delay:'+(i*0.09)+'s"></i>';}).join("");
-var recSec=0,recInt=null,recSimInt=null,recIdx=0,recActions=[];
-var SIMT=[
-  {sp:"Callum Fraser",t:"We can have the hero renders finalised by Thursday if the palette is locked.",zh:false},
-  {sp:"Jamie Baldwin",t:"Lock the palette today then — I'll confirm with the team.",zh:false},
-  {sp:"陆卡斯",t:"起重机的日期需要在周五之前确认。",tr:"The crane dates need to be confirmed before Friday.",zh:true},
-  {sp:"Jeffrey Witbreuk",t:"I'll coordinate the set-down with the site and come back Friday.",zh:false},
-  {sp:"Jamie Baldwin",t:"Good — and send the funding package to legal this week.",zh:false}
-];
+var recSec=0,recInt=null,recActions=[],recLines=[],recSR=null,recActive=false;
 function startRec(){
+  recActions=[];recLines=[];recSec=0;updRec();
+  document.getElementById("recTranscript").innerHTML="";document.getElementById("recActionsLive").innerHTML="";document.getElementById("recLines").textContent="0 lines";
+  var lbl=document.getElementById("recLangLbl");if(lbl)lbl.textContent="live mic";
   document.querySelectorAll(".btn-rec").forEach(function(b){b.classList.add("recording")});
-  recSec=0;document.getElementById("recTranscript").innerHTML="";recIdx=0;updRec();
   clearInterval(recInt);recInt=setInterval(function(){recSec++;updRec();},1000);
-  clearInterval(recSimInt);recSimInt=setInterval(function(){
-    var l=SIMT[recIdx%SIMT.length];recIdx++;
-    var feed=document.getElementById("recTranscript");
-    feed.innerHTML+='<div class="tline '+(l.zh?"zh":"")+'"><span class="sp">'+esc(l.sp)+'</span>'+esc(l.t)+(l.tr?'<div class="tr">↳ '+esc(l.tr)+'</div>':'')+'</div>';
-    feed.scrollTop=feed.scrollHeight;
-    document.getElementById("recLines").textContent=recIdx+" lines";
-  },2600);
+  startDictation();
 }
-function stopRec(){clearInterval(recInt);clearInterval(recSimInt);document.querySelectorAll(".btn-rec").forEach(function(b){b.classList.remove("recording")});}
+function recNote(txt){var feed=document.getElementById("recTranscript");if(feed)feed.innerHTML+='<div class="tline"><span class="sp">System</span>'+esc(txt)+'</div>';}
+function renderRecLines(interim){
+  var feed=document.getElementById("recTranscript");if(!feed)return;
+  feed.innerHTML=recLines.map(function(l){return '<div class="tline"><span class="sp">'+esc(l.sp)+'</span>'+esc(l.t)+'</div>';}).join("")+(interim?'<div class="tline" style="opacity:.5"><span class="sp">'+esc(ME)+'</span>'+esc(interim)+'</div>':'');
+  feed.scrollTop=feed.scrollHeight;
+  document.getElementById("recLines").textContent=recLines.length+" line"+(recLines.length===1?"":"s");
+}
+function startDictation(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){recNote("Live dictation isn’t available in this browser — use “Capture action” to jot notes; they save with the record.");return;}
+  try{
+    recSR=new SR();recSR.continuous=true;recSR.interimResults=true;recSR.lang="en-AU";
+    recSR.onresult=function(e){var fin="",inter="";for(var i=e.resultIndex;i<e.results.length;i++){var r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else inter+=r[0].transcript;}if(fin.trim())recLines.push({sp:ME,t:fin.trim()});renderRecLines(inter);};
+    recSR.onerror=function(ev){if(ev.error==="not-allowed"||ev.error==="service-not-allowed")recNote("Microphone blocked — allow mic access to capture the live transcript, or use “Capture action”.");};
+    recSR.onend=function(){if(recActive){try{recSR.start();}catch(e){}}};
+    recActive=true;recSR.start();
+  }catch(e){recNote("Couldn’t start the microphone on this device.");}
+}
+function stopRec(){recActive=false;clearInterval(recInt);if(recSR){try{recSR.stop();}catch(e){}recSR=null;}document.querySelectorAll(".btn-rec").forEach(function(b){b.classList.remove("recording")});}
 function updRec(){document.getElementById("recTimer").textContent=String(Math.floor(recSec/60)).padStart(2,"0")+":"+String(recSec%60).padStart(2,"0");}
 function addRecAction(){var i=document.getElementById("recQuickAction");if(!i.value.trim())return;recActions.push(i.value);document.getElementById("recActionsLive").innerHTML=recActions.map(function(a){return '<div class="chiplet" style="width:fit-content">▸ '+esc(a)+'</div>';}).join("");
   var ta=document.getElementById("wrapActions");ta.value=(ta.value?ta.value+"\n":"")+i.value;i.value="";toast("Action captured");}
@@ -1145,20 +1151,46 @@ function saveMeetingAsTask(done,showToast){
   if(showToast)toast("Meeting added to My Tasks");
   return t.id;
 }
+function fmtWhen(v){try{var d=new Date(v);if(isNaN(d))return v||"";return d.toLocaleString("en-AU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch(e){return v||"";}}
+function recAttendeeNames(){return [].slice.call(document.querySelectorAll("#recAttendees .pchip")).map(function(c){return c.textContent.replace(/×.*$/,"").replace(/ · ext.*$/,"").replace(/\s*\+ Add.*/,"").trim();}).filter(function(n){return n&&n.indexOf("+ Add")<0;});}
+function meetingEmails(names){return names.map(function(n){var p=person(n);return p&&p.email;}).filter(Boolean);}
+function buildMeetingRecord(status){
+  var title=(document.getElementById("recName").value||"Meeting").trim();
+  var when=document.getElementById("recWhen").value;
+  var names=recAttendeeNames();
+  var summary=(document.getElementById("wrapSummary").value||"").trim();
+  var decisions=(document.getElementById("wrapDecisions").value||"").split("\n").map(function(x){return x.trim();}).filter(Boolean);
+  return {id:Date.now(),title:title,when:fmtWhen(when),whenISO:when,dept:document.getElementById("recDept").value,attendees:names.length,attendeeNames:names,status:status,lines:recLines.length,transcript:recLines.slice(),summary:summary,decisions:decisions,owner:ME};
+}
 function finishRecord(){
   var title=(document.getElementById("recName").value||"Meeting").trim();
   var dept=document.getElementById("recDept").value;
-  // 1) the meeting itself, saved as a completed task on the user's board
+  // 1) the meeting record → My Meetings list (cloud-saved via render/save)
+  MEETINGS.unshift(buildMeetingRecord("recorded"));
+  // 2) the meeting itself, tracked as a task on the owner's board (if ticked)
   saveMeetingAsTask(true,false);
-  // 2) an action point for the user, from the wrap-up
-  TASKS.push(T({title:"Action point · follow up “"+title+"”",owner:ME,dept:dept,project:"Action point",status:"todo",prio:"high",due:"This week",weekly:false,source:title,kind:"action",desc:"Follow-up action point captured at wrap-up — send the record and confirm the actions."}));
-  // 3) action lines → tracked tasks assigned to their owners
-  var lines=document.getElementById("wrapActions").value.split("\n").filter(function(l){return l.trim()});
-  lines.forEach(function(l){var parts=l.split("·").map(function(x){return x.trim()});
-    TASKS.push(T({title:parts[0]||l,owner:parts[1]||ME,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:parts[2]||"This week",weekly:false,source:title,kind:"action"}));});
-  var m=MEETINGS.find(function(x){return /Fraser/.test(x.title)});if(m){m.status="recorded";m.lines=recIdx||24;}
-  closeRecord();render();
-  toast("Record sent · meeting + action point saved to your workflow · "+lines.length+" action tasks created");
+  // 3) action lines → tracked tasks assigned to their owners (name-resolved)
+  var lines=(document.getElementById("wrapActions").value||"").split("\n").filter(function(l){return l.trim()});
+  lines.forEach(function(l){var parts=l.split("·").map(function(x){return x.trim()});var owner=canonName(parts[1]||"")||ME;
+    TASKS.push(T({title:parts[0]||l,owner:owner,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:parts[2]||"",weekly:false,source:title,kind:"action",desc:"Action from meeting: "+title}));});
+  // 4) email the record to attendees from the sender's mail app
+  var names=recAttendeeNames(),emails=meetingEmails(names);
+  var body="Meeting: "+title+"\nWhen: "+fmtWhen(document.getElementById("recWhen").value)+"\nAttendees: "+(names.join(", ")||"—")+"\n\nSUMMARY\n"+((document.getElementById("wrapSummary").value||"").trim()||"—")+"\n\nDECISIONS\n"+((document.getElementById("wrapDecisions").value||"").trim()||"—")+"\n\nACTIONS\n"+(lines.length?lines.map(function(l){return "• "+l;}).join("\n"):"—")+"\n\n— ATRIUM Workflow";
+  render();closeRecord();
+  toast(lines.length+" action task"+(lines.length===1?"":"s")+" created · meeting saved to My Meetings");
+  if(emails.length){window.location.href="mailto:"+encodeURIComponent(emails.join(","))+"?subject="+encodeURIComponent("Meeting record — "+title)+"&body="+encodeURIComponent(body);}
+}
+function saveDraft(){MEETINGS.unshift(buildMeetingRecord("scheduled"));render();closeRecord();toast("Saved to My Meetings");}
+function scheduleICS(){
+  var title=(document.getElementById("recName").value||"Meeting").trim();
+  var when=document.getElementById("recWhen").value;var d=new Date(when);
+  if(isNaN(d)){toast("Set a valid date & time first");return;}
+  function z(n){return String(n).padStart(2,"0");}
+  function f(dt){return dt.getUTCFullYear()+z(dt.getUTCMonth()+1)+z(dt.getUTCDate())+"T"+z(dt.getUTCHours())+z(dt.getUTCMinutes())+"00Z";}
+  var end=new Date(d.getTime()+3600000);var emails=meetingEmails(recAttendeeNames());
+  var ics="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//ATRIUM//Workflow//EN\r\nBEGIN:VEVENT\r\nUID:"+Date.now()+"@atrium\r\nDTSTAMP:"+f(new Date(d.getTime()))+"\r\nDTSTART:"+f(d)+"\r\nDTEND:"+f(end)+"\r\nSUMMARY:"+title.replace(/\r?\n/g," ")+"\r\n"+emails.map(function(e){return "ATTENDEE;CN="+e+":mailto:"+e;}).join("\r\n")+(emails.length?"\r\n":"")+"END:VEVENT\r\nEND:VCALENDAR";
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));a.download=title.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".ics";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},150);
+  toast("Calendar invite downloaded — opens in Outlook");
 }
 
 /* ============================== ROUTER / MISC ============================== */
