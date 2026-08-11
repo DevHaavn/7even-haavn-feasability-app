@@ -268,7 +268,9 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .toggle.on .tk::after{left:18px;background:#fff}
 
 /* login */
-.login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--hero);overflow:hidden;transition:.5s var(--ease)}
+.login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
+.login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
+.login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
 .login::before{content:"";position:absolute;width:700px;height:700px;top:-200px;right:-160px;border-radius:50%;filter:blur(100px);background:radial-gradient(circle,rgba(216,165,74,.22),transparent 70%)}
 .login::after{content:"";position:absolute;inset:0;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .login.gone{opacity:0;pointer-events:none;transform:scale(1.02)}
@@ -304,6 +306,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 
 <!-- ================= LOGIN ================= -->
 <div class="login" id="login">
+  <button class="login-back" onclick="parent.postMessage('haavn-workflow-close','*')">← Management Hub</button>
   <div class="login-card">
     <div class="lb"><svg class="logo" viewBox="0 0 24 22" fill="none"><path d="M12 1L23 21H1L12 1Z" stroke="#f3f1ec" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="wordmark">ATRIUM</span></div>
     <div class="mono eyebrow">Team Workflow · Meeting CRM</div>
@@ -314,10 +317,6 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <label>Work email</label>
     <input id="loginEmail" placeholder="you@haavn.au" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="go" onclick="doLogin()">Enter workspace →</button>
-    <div class="quick">
-      <div class="ql">Quick sign-in · demo team</div>
-      <div class="qchips" id="loginQuick"></div>
-    </div>
   </div>
   <div class="login-note">ATRIUM · one login, your own workflow · updates only for jobs assigned to you</div>
 </div>
@@ -1121,7 +1120,6 @@ function askText(label,ph,cb){
 var toastT;function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on")},2300);}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeDrawer();closeRecord();closeGroupModal();}});
 
-document.getElementById("loginQuick").innerHTML=["Jamie Baldwin","Daniel Sette","James Winstanley","John Dimattina","Dominika Ma"].map(function(n){var pp=person(n);return '<span class="qchip" onclick="loginAs(\''+n+'\',\''+pp.email+'\')">'+av(n,20)+n.split(" ")[0]+'</span>';}).join("");
 
 /* ============================== CLOUD SYNC ==============================
    Shared team workspace via Supabase capital_kv (same infra as the other
