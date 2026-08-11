@@ -505,7 +505,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <section class="view" id="v-mymeetings">
       <div class="vhead">
         <div><div class="mono eyebrow">Recorded &amp; scheduled · routed to CRM</div><h1 class="serif">My Meetings</h1><p>Record a meeting with live Azure transcription &amp; translation, then send the record to yourself and your consultants.</p></div>
-        <button class="btn btn-gold" onclick="openRecord()">● Record a meeting</button>
+        <button class="btn btn-gold" onclick="openRecord()">＋ Meeting</button>
       </div>
       <div id="meetingList" style="display:flex;flex-direction:column;gap:12px"></div>
     </section>
@@ -598,6 +598,9 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
         <div class="grid2">
           <div class="field"><label>Meeting title</label><input id="recName" value="Jamie · Fraser & Partners — Derrimut planning"></div>
           <div class="field"><label>Date &amp; time</label><input type="datetime-local" id="recWhen" value="2026-08-17T14:00"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Location / link</label><input id="recLoc" placeholder="Boardroom · or Teams/Zoom link" autocomplete="off"></div>
         </div>
         <div class="field"><label>Attendees &amp; consultants</label>
           <div class="chips-in" id="recAttendees"></div>
@@ -753,11 +756,11 @@ var TASKS=[
   T({title:"General updates — Homes & Sky",owner:"James Winstanley",dept:"haavn",project:"Homes",status:"done",prio:"low",due:"10 Aug",weekly:false,source:"Weekly Company Meeting"})
 ];
 
-var MEETINGS=[
-  {title:"Haavn + HM — Modular design & pricing Workshop",when:"Tue 29 Jul, 10:00",attendees:9,status:"recorded",lines:214,dept:"haavnmgmt"},
-  {title:"Nic Westpac Catch up",when:"Tue 29 Jul, 9:00",attendees:4,status:"recorded",lines:88,dept:"admin"},
-  {title:"Fraser & Partners — Derrimut planning",when:"Mon 17 Aug, 14:00",attendees:5,status:"scheduled",lines:0,dept:"haavn"}
-];
+var MEETINGS=[];
+/* Demo meetings that shipped in the prototype — stripped on load so only real
+   recorded/invited meetings show. */
+var DEMO_MTG={"haavn + hm — modular design & pricing workshop":1,"nic westpac catch up":1,"fraser & partners — derrimut planning":1};
+function stripDemoMeetings(){MEETINGS=(MEETINGS||[]).filter(function(m){return !DEMO_MTG[(m.title||"").trim().toLowerCase()];});}
 var PROJECTS=["575 Derrimut Road Tarneit","Waurnvale Drive Geelong","Cunningham Place","5IVE Hotels Caloundra","St Village Preston"];
 
 /* department membership (a person can join more than one) + private workflow groups */
@@ -1127,14 +1130,38 @@ function renderAgenda(){
 }
 
 /* ---- MY MEETINGS ---- */
+function myMeetings(){return MEETINGS.filter(function(m){var names=m.attendeeNames||[];return m.owner===ME||names.indexOf(ME)>=0;});}
 function renderMeetings(){
-  document.getElementById("meetingList").innerHTML=MEETINGS.map(function(m){
+  var mine=myMeetings();
+  document.getElementById("meetingList").innerHTML=mine.length?mine.map(function(m){
     var badge=m.status==="recorded"?'<span class="status-pill st-done">RECORDED</span>':'<span class="status-pill st-review">SCHEDULED</span>';
-    return '<div class="card pad" style="display:flex;align-items:center;gap:16px;cursor:pointer" onclick="openRecord()">'+
+    var loc=m.location?' · '+esc(m.location):"";var mgr=m.owner?' · '+esc(m.owner.split(" ")[0]):"";
+    var natt=(m.attendeeNames?m.attendeeNames.length:m.attendees)||0;
+    return '<div class="card pad" style="display:flex;align-items:center;gap:16px;cursor:pointer" onclick="openMeeting('+m.id+')">'+
       '<span class="av" style="width:38px;height:38px;background:'+deptC(m.dept)+'">'+(m.status==="recorded"?"▦":"●")+'</span>'+
-      '<div style="flex:1"><div style="font-weight:600;font-size:14px">'+esc(m.title)+'</div><div class="mono" style="color:var(--ink-3);margin-top:3px">'+m.when+' · '+m.attendees+' attendees · '+(m.lines?m.lines+' transcript lines':'not yet recorded')+'</div></div>'+
+      '<div style="flex:1"><div style="font-weight:600;font-size:14px">'+esc(m.title)+'</div><div class="mono" style="color:var(--ink-3);margin-top:3px">'+esc(m.when||"")+loc+' · '+natt+' attendees'+mgr+'</div></div>'+
       badge+'<span class="chiplet"><span class="cdot" style="background:'+deptC(m.dept)+'"></span>'+deptN(m.dept)+'</span></div>';
-  }).join("");
+  }).join(""):'<div class="empty" style="padding:26px">No meetings yet. Record one with ＋ Meeting, or when you\'re added as an attendee it appears here with the time, location, agenda and tasks.</div>';
+}
+function openMeeting(id){
+  var m=MEETINGS.find(function(x){return ""+x.id===""+id;});if(!m)return;
+  var names=m.attendeeNames||[];
+  var att=names.length?names.map(function(n){return '<span class="memberchip">'+av(n,22)+esc(n)+'</span>';}).join(""):'<span style="color:var(--ink-4);font-size:12px">—</span>';
+  var mtasks=TASKS.filter(function(t){return t.source===m.title;});
+  var decs=(m.decisions||[]).length?'<div class="sec"><h4>Decisions</h4>'+m.decisions.map(function(d){return '<div style="font-size:13px;color:var(--ink-2);padding:2px 0">• '+esc(d)+'</div>';}).join("")+'</div>':"";
+  var tasksHtml='<div class="sec"><h4>Agenda · tasks &amp; leaders</h4>'+(mtasks.length?'<div class="tasklist">'+mtasks.map(taskRow).join("")+'</div>':'<div class="empty" style="padding:12px">No tasks from this meeting.</div>')+'</div>';
+  document.getElementById("drawer").innerHTML=
+    '<button class="dclose" onclick="closeDrawer()">✕</button>'+
+    '<div class="mono" style="color:var(--ink-3)">'+esc(deptN(m.dept))+' · '+(m.status==="recorded"?"recorded":"scheduled")+'</div>'+
+    '<h2 class="serif">'+esc(m.title)+'</h2>'+
+    '<div class="row"><span class="k">When</span>'+esc(m.when||"—")+'</div>'+
+    (m.location?'<div class="row"><span class="k">Location</span>'+esc(m.location)+'</div>':'')+
+    '<div class="row"><span class="k">Manager</span>'+av(m.owner||"",24)+' '+esc(m.owner||"—")+'</div>'+
+    '<div class="sec"><h4>Attendees · '+names.length+'</h4><div class="members">'+att+'</div></div>'+
+    (m.summary?'<div class="sec"><h4>Summary</h4><div style="font-size:13px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.summary)+'</div></div>':'')+
+    decs+tasksHtml;
+  document.getElementById("drawer").classList.add("on");
+  document.getElementById("drawerScrim").classList.add("on");
 }
 
 /* ---- TEAM BOARD ---- */
@@ -1251,6 +1278,8 @@ function addWrapAction(){recWrapActions.push({title:"",owner:"",due:""});renderW
 function newTaskFromMeeting(){var title=(document.getElementById("recName").value||"").trim();openTaskModal({dept:document.getElementById("recDept").value,owner:ME,desc:"From meeting: "+title,watchers:recAtt.filter(function(n){var p=person(n);return p&&!p.ext;})});}
 function openRecord(){
   recAtt=[ME];recWrapActions=[];
+  document.getElementById("recName").value="";
+  var rl=document.getElementById("recLoc");if(rl)rl.value="";
   document.getElementById("recDept").innerHTML=DEPTS.map(function(d){return '<option value="'+d.id+'" '+(d.id==="haavn"?"selected":"")+'>'+d.name+'</option>';}).join("");
   document.getElementById("recOwner").value=ME;
   renderRecAtt();renderWrapActions();
@@ -1321,7 +1350,7 @@ function buildMeetingRecord(status){
   var names=recAttendeeNames();
   var summary=(document.getElementById("wrapSummary").value||"").trim();
   var decisions=(document.getElementById("wrapDecisions").value||"").split("\n").map(function(x){return x.trim();}).filter(Boolean);
-  return {id:Date.now(),title:title,when:fmtWhen(when),whenISO:when,dept:document.getElementById("recDept").value,attendees:names.length,attendeeNames:names,status:status,lines:recLines.length,transcript:recLines.slice(),summary:summary,decisions:decisions,owner:ME};
+  return {id:Date.now(),title:title,when:fmtWhen(when),whenISO:when,location:(document.getElementById("recLoc")&&document.getElementById("recLoc").value||"").trim(),dept:document.getElementById("recDept").value,attendees:names.length,attendeeNames:names,status:status,lines:recLines.length,transcript:recLines.slice(),summary:summary,decisions:decisions,owner:ME};
 }
 function finishRecord(){
   var title=(document.getElementById("recName").value||"Meeting").trim();
@@ -1473,6 +1502,7 @@ var _sbOk=false,_pushT=null,_ts=0,_adopting=false;
 function snapshot(){return {TASKS:TASKS,PEOPLE:PEOPLE,DEPT_MEMBERS:DEPT_MEMBERS,GROUPS:GROUPS,MEETINGS:MEETINGS,customDepts:customDepts,_id:_id,groupSeed:groupSeed};}
 function adopt(v){_adopting=true;try{
   if(v.TASKS)TASKS=v.TASKS;if(v.PEOPLE)PEOPLE=v.PEOPLE;if(v.DEPT_MEMBERS)DEPT_MEMBERS=v.DEPT_MEMBERS;if(v.GROUPS)GROUPS=v.GROUPS;if(v.MEETINGS)MEETINGS=v.MEETINGS;
+  stripDemoMeetings();
   if(v.customDepts)customDepts=v.customDepts;rebuildDepts();
   var ids=TASKS.map(function(t){return +t.id||0;});_id=Math.max(v._id||0,ids.length?Math.max.apply(null,ids):0);
   var gs=GROUPS.map(function(g){return +String(g.id).replace(/\D/g,"")||0;});groupSeed=Math.max(v.groupSeed||0,gs.length?Math.max.apply(null,gs):0);
