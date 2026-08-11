@@ -849,7 +849,7 @@ function taskRow(t){
     '<span class="chiplet"><span class="cdot" style="background:'+deptC(t.dept)+'"></span>'+deptN(t.dept)+'</span>'+
     '<span class="star '+(t.weekly?"on":"")+'" title="Weekly agenda" onclick="event.stopPropagation();toggleWeekly('+t.id+')">★</span>'+
     '<span class="due '+(od?"od":"")+'">'+(t.due||"—")+'</span>'+
-    (t.owner!==ME?av(t.owner,24):'')+
+    '<span class="row-av" title="'+esc(t.owner||"")+'">'+av(t.owner,24)+'</span>'+
   '</div>';
 }
 function toggleTask(id){var t=TASKS.find(function(x){return x.id===id});t.done=!t.done;t.status=t.done?"done":"doing";render();if(drawerId===id)openTask(id);}
