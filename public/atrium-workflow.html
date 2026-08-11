@@ -308,6 +308,11 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .tm-field label{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
 .tm-field input,.tm-field select,.tm-field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:13.5px;outline:none}
 .tm-field input:focus,.tm-field select:focus,.tm-field textarea:focus{border-color:var(--accent)}
+.recAddSel{border:1px dashed var(--line);border-radius:100px;padding:7px 12px;background:var(--pill);color:var(--ink-2);font-family:var(--sans);font-size:12px;cursor:pointer;outline:none}
+.wrap-act{display:flex;gap:8px;align-items:center}
+.wrap-act input,.wrap-act select{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:13px;outline:none}
+.wrap-act .wa-title{flex:1;min-width:0}
+.wrap-act .wa-x{cursor:pointer;color:var(--ink-4);padding:4px 8px;flex:none}
 .login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
 .login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
 .login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
@@ -596,21 +601,20 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
       <!-- wrap -->
       <div class="mstep" id="step-wrap">
         <div class="grid2">
-          <div>
-            <div class="field"><label>Summary</label><textarea id="wrapSummary" rows="4">Fraser & Partners — Derrimut planning. Reviewed set-down program and funding package status.</textarea></div>
-            <div class="field"><label>Decisions (one per line)</label><textarea id="wrapDecisions" rows="3">Proceed with crane set-down dates as proposed.</textarea></div>
-            <div class="field"><label>Actions (become tracked tasks · owner · due)</label><textarea id="wrapActions" rows="3">Confirm crane & set-down dates for first SOLUM · Jeffrey Witbreuk · Fri
-Send funding package to legal · Accounts · Wed</textarea></div>
-          </div>
-          <div>
-            <div class="field"><label>Save record to CRM project</label><div id="wrapCrm"></div></div>
-            <div class="field"><label>Send from</label><input value="jamie@haavn.au" readonly></div>
-            <div class="field"><label>Send record to</label><div class="chips-in" id="wrapSend"></div></div>
-            <div class="actions">
-              <button class="btn btn-gold" onclick="finishRecord()">✉ Send &amp; create tasks</button>
-              <button class="btn btn-ghost" onclick="saveDraft()">Save draft</button>
-            </div>
-          </div>
+          <div class="field"><label>Summary</label><textarea id="wrapSummary" rows="4" placeholder="What was covered…"></textarea></div>
+          <div class="field"><label>Decisions (one per line)</label><textarea id="wrapDecisions" rows="4" placeholder="Decisions made…"></textarea></div>
+        </div>
+        <div class="field"><label>Actions → tasks (assign a leader; each becomes a tracked task in the workflow)</label>
+          <div id="wrapActionsList" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div style="display:flex;gap:8px;margin-top:9px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="addWrapAction()">+ Add action</button><button class="btn btn-ghost" onclick="newTaskFromMeeting()">✎ New task (full form)</button></div>
+        </div>
+        <div class="grid2" style="margin-top:4px">
+          <div class="field"><label>Send from</label><input id="wrapFrom" value="jamie@haavn.au" readonly></div>
+          <div class="field"><label>Circulate record to (attendees)</label><div class="chips-in" id="wrapSend"></div></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-gold" onclick="finishRecord()">✉ Send &amp; create tasks</button>
+          <button class="btn btn-ghost" onclick="saveDraft()">Save to My Meetings</button>
         </div>
       </div>
     </div>
@@ -1086,12 +1090,31 @@ function toggleSub(id,i){var t=TASKS.find(function(x){return x.id===id});t.subs[
 function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";pushBoardTask(t);render();openTask(id);}
 
 /* ============================== RECORD MODAL ============================== */
+var recAtt=[],recWrapActions=[];
+function renderRecAtt(){
+  var chips=recAtt.map(function(n,i){var p=person(n);var ext=p&&p.ext;return '<span class="pchip '+(ext?"ext":"")+'">'+av(n,20)+esc(n)+(ext?' · ext':'')+'<span class="x" onclick="rmAtt('+i+')">×</span></span>';}).join("");
+  var avail=PEOPLE.filter(function(p){return recAtt.indexOf(p.name)<0;});
+  var addSel='<select class="recAddSel" onchange="addAttFromSel(this)"><option value="">+ Add from team…</option>'+avail.map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+(p.ext?" · ext":"")+'</option>';}).join("")+'</select>';
+  document.getElementById("recAttendees").innerHTML=chips+addSel+'<span class="pchip" style="cursor:pointer;color:var(--ink-3)" onclick="addNewAttendee()">+ New person</span>';
+  var ws=document.getElementById("wrapSend");if(ws)ws.innerHTML=recAtt.map(function(n,i){var p=person(n);var ext=p&&p.ext;return '<span class="pchip '+(ext?"ext":"")+'">'+av(n,20)+esc(n)+'<span class="x" onclick="rmAtt('+i+')">×</span></span>';}).join("")||'<span style="color:var(--ink-4);font-size:12px">No attendees added yet.</span>';
+}
+function rmAtt(i){recAtt.splice(i,1);renderRecAtt();}
+function addAttFromSel(sel){if(sel.value){if(recAtt.indexOf(sel.value)<0)recAtt.push(sel.value);renderRecAtt();}}
+function addNewAttendee(){askText("New attendee — full name","Full name",function(n){if(!n)return;n=n.trim();var p=person(n);if(p){if(recAtt.indexOf(n)<0)recAtt.push(n);renderRecAtt();return;}askText("Email for "+n+" (for circulation)","name@company.au",function(email){PEOPLE.push({name:n,email:(email||"").trim(),dept:"company",role:"Consultant",ext:true});recAtt.push(n);renderRecAtt();save();});});}
+function renderWrapActions(){
+  var box=document.getElementById("wrapActionsList");if(!box)return;
+  var opts=function(cur){return '<option value="">— unassigned —</option>'+PEOPLE.filter(function(p){return !p.ext;}).map(function(p){return '<option value="'+esc(p.name)+'" '+(cur===p.name?"selected":"")+'>'+esc(p.name)+'</option>';}).join("");};
+  box.innerHTML=recWrapActions.length?recWrapActions.map(function(a,i){return '<div class="wrap-act"><input class="wa-title" placeholder="Action…" value="'+esc(a.title||"")+'" oninput="setWA('+i+',\'title\',this.value)"><select onchange="setWA('+i+',\'owner\',this.value)">'+opts(a.owner)+'</select><input type="date" value="'+esc(a.due||"")+'" onchange="setWA('+i+',\'due\',this.value)" style="width:150px"><span class="wa-x" onclick="rmWA('+i+')">✕</span></div>';}).join(""):'<div style="color:var(--ink-4);font-size:12.5px">No actions yet — add one, or capture them live during the meeting.</div>';
+}
+function setWA(i,f,v){if(recWrapActions[i])recWrapActions[i][f]=v;}
+function rmWA(i){recWrapActions.splice(i,1);renderWrapActions();}
+function addWrapAction(){recWrapActions.push({title:"",owner:"",due:""});renderWrapActions();}
+function newTaskFromMeeting(){var title=(document.getElementById("recName").value||"").trim();openTaskModal({dept:document.getElementById("recDept").value,owner:ME,desc:"From meeting: "+title,watchers:recAtt.filter(function(n){var p=person(n);return p&&!p.ext;})});}
 function openRecord(){
-  document.getElementById("recAttendees").innerHTML=["Jamie Baldwin","Callum Fraser","Lucas Menegazzo","Jeffrey Witbreuk"].map(function(n){var p=person(n);var ext=p&&p.ext;return '<span class="pchip '+(ext?"ext":"")+'">'+av(n,20)+n+(ext?' · ext':'')+'<span class="x">×</span></span>';}).join("")+'<span class="pchip" style="cursor:pointer;color:var(--ink-3)" onclick="toast(\'Add from CRM contacts\')">+ Add</span>';
-  document.getElementById("wrapSend").innerHTML=["Jamie Baldwin","Callum Fraser","Lucas Menegazzo","Jeffrey Witbreuk"].map(function(n){var p=person(n);var ext=p&&p.ext;return '<span class="pchip '+(ext?"ext":"")+'">'+av(n,20)+n+'<span class="x">×</span></span>';}).join("");
-  document.getElementById("wrapCrm").innerHTML=PROJECTS.map(function(p,i){return '<div class="crmrow '+(i===0?"sel":"")+'" onclick="this.parentNode.querySelectorAll(\'.crmrow\').forEach(function(x){x.classList.remove(\'sel\')});this.classList.add(\'sel\')"><span class="av" style="width:26px;height:26px;background:var(--slate);font-size:9px">▣</span>'+p+'</div>';}).join("");
+  recAtt=[ME];recWrapActions=[];
   document.getElementById("recDept").innerHTML=DEPTS.map(function(d){return '<option value="'+d.id+'" '+(d.id==="haavn"?"selected":"")+'>'+d.name+'</option>';}).join("");
   document.getElementById("recOwner").value=ME;
+  renderRecAtt();renderWrapActions();
   currentMeetingTaskId=null;
   recStep("setup");
   document.getElementById("recordScrim").classList.add("on");
@@ -1133,8 +1156,7 @@ function startDictation(){
 }
 function stopRec(){recActive=false;clearInterval(recInt);if(recSR){try{recSR.stop();}catch(e){}recSR=null;}document.querySelectorAll(".btn-rec").forEach(function(b){b.classList.remove("recording")});}
 function updRec(){document.getElementById("recTimer").textContent=String(Math.floor(recSec/60)).padStart(2,"0")+":"+String(recSec%60).padStart(2,"0");}
-function addRecAction(){var i=document.getElementById("recQuickAction");if(!i.value.trim())return;recActions.push(i.value);document.getElementById("recActionsLive").innerHTML=recActions.map(function(a){return '<div class="chiplet" style="width:fit-content">▸ '+esc(a)+'</div>';}).join("");
-  var ta=document.getElementById("wrapActions");ta.value=(ta.value?ta.value+"\n":"")+i.value;i.value="";toast("Action captured");}
+function addRecAction(){var i=document.getElementById("recQuickAction");if(!i.value.trim())return;var parts=i.value.split("·").map(function(x){return x.trim();});recWrapActions.push({title:parts[0]||i.value.trim(),owner:canonName(parts[1]||"")||"",due:parts[2]||""});recActions.push(i.value);document.getElementById("recActionsLive").innerHTML=recActions.map(function(a){return '<div class="chiplet" style="width:fit-content">▸ '+esc(a)+'</div>';}).join("");renderWrapActions();i.value="";toast("Action captured");}
 var currentMeetingTaskId=null;
 function saveMeetingAsTask(done,showToast){
   var title=(document.getElementById("recName").value||"Meeting").trim();
@@ -1152,7 +1174,7 @@ function saveMeetingAsTask(done,showToast){
   return t.id;
 }
 function fmtWhen(v){try{var d=new Date(v);if(isNaN(d))return v||"";return d.toLocaleString("en-AU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}catch(e){return v||"";}}
-function recAttendeeNames(){return [].slice.call(document.querySelectorAll("#recAttendees .pchip")).map(function(c){return c.textContent.replace(/×.*$/,"").replace(/ · ext.*$/,"").replace(/\s*\+ Add.*/,"").trim();}).filter(function(n){return n&&n.indexOf("+ Add")<0;});}
+function recAttendeeNames(){return recAtt.slice();}
 function meetingEmails(names){return names.map(function(n){var p=person(n);return p&&p.email;}).filter(Boolean);}
 function buildMeetingRecord(status){
   var title=(document.getElementById("recName").value||"Meeting").trim();
@@ -1169,15 +1191,17 @@ function finishRecord(){
   MEETINGS.unshift(buildMeetingRecord("recorded"));
   // 2) the meeting itself, tracked as a task on the owner's board (if ticked)
   saveMeetingAsTask(true,false);
-  // 3) action lines → tracked tasks assigned to their owners (name-resolved)
-  var lines=(document.getElementById("wrapActions").value||"").split("\n").filter(function(l){return l.trim()});
-  lines.forEach(function(l){var parts=l.split("·").map(function(x){return x.trim()});var owner=canonName(parts[1]||"")||ME;
-    TASKS.push(T({title:parts[0]||l,owner:owner,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:parts[2]||"",weekly:false,source:title,kind:"action",desc:"Action from meeting: "+title}));});
+  // 3) each action → a tracked task assigned to its leader; watchers = other attendees
+  var acts=recWrapActions.filter(function(a){return (a.title||"").trim();});
+  var teamWatch=recAtt.filter(function(n){var p=person(n);return p&&!p.ext;});
+  acts.forEach(function(a){var owner=canonName(a.owner||"")||ME;
+    TASKS.push(T({title:a.title.trim(),owner:owner,dept:dept,project:"Meeting action",status:"todo",prio:"med",due:a.due||"",weekly:false,source:title,kind:"action",desc:"Action from meeting: "+title,watchers:teamWatch.filter(function(n){return n!==owner;})}));});
   // 4) email the record to attendees from the sender's mail app
   var names=recAttendeeNames(),emails=meetingEmails(names);
-  var body="Meeting: "+title+"\nWhen: "+fmtWhen(document.getElementById("recWhen").value)+"\nAttendees: "+(names.join(", ")||"—")+"\n\nSUMMARY\n"+((document.getElementById("wrapSummary").value||"").trim()||"—")+"\n\nDECISIONS\n"+((document.getElementById("wrapDecisions").value||"").trim()||"—")+"\n\nACTIONS\n"+(lines.length?lines.map(function(l){return "• "+l;}).join("\n"):"—")+"\n\n— ATRIUM Workflow";
+  var actTxt=acts.length?acts.map(function(a){return "• "+a.title+(a.owner?" — "+a.owner:"")+(a.due?" (due "+a.due+")":"");}).join("\n"):"—";
+  var body="Meeting: "+title+"\nWhen: "+fmtWhen(document.getElementById("recWhen").value)+"\nAttendees: "+(names.join(", ")||"—")+"\n\nSUMMARY\n"+((document.getElementById("wrapSummary").value||"").trim()||"—")+"\n\nDECISIONS\n"+((document.getElementById("wrapDecisions").value||"").trim()||"—")+"\n\nACTIONS\n"+actTxt+"\n\n— ATRIUM Workflow";
   render();closeRecord();
-  toast(lines.length+" action task"+(lines.length===1?"":"s")+" created · meeting saved to My Meetings");
+  toast(acts.length+" action task"+(acts.length===1?"":"s")+" created · meeting saved to My Meetings");
   if(emails.length){window.location.href="mailto:"+encodeURIComponent(emails.join(","))+"?subject="+encodeURIComponent("Meeting record — "+title)+"&body="+encodeURIComponent(body);}
 }
 function saveDraft(){MEETINGS.unshift(buildMeetingRecord("scheduled"));render();closeRecord();toast("Saved to My Meetings");}
@@ -1219,7 +1243,7 @@ function ragColor(l){return l==="red"?"var(--red)":l==="amber"?"var(--accent)":l
 var _tmSel={color:"#5aa87a",light:"",critical:false};
 function openTaskModal(preset,editId){
   preset=preset||{};var t=(editId!=null)?TASKS.find(function(x){return x.id===editId;}):null;
-  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical),watchers:(t&&t.watchers?t.watchers.slice():[])};
+  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical),watchers:(t&&t.watchers?t.watchers.slice():(preset.watchers?preset.watchers.slice():[]))};
   var ov=document.getElementById("taskOv");
   if(!ov){ov=document.createElement("div");ov.id="taskOv";
     ov.style.cssText="position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
@@ -1251,7 +1275,7 @@ function openTaskModal(preset,editId){
     +'<div style="display:flex;gap:9px;justify-content:flex-end;margin-top:22px"><button class="btn btn-ghost" id="tmCancel">Cancel</button><button class="btn btn-gold" id="tmSave">'+(editId!=null?"Save changes":"Create task")+'</button></div>'
     +'</div>';
   var q=function(id){return ov.querySelector(id);};
-  q("#tmTitle").value=t?t.title:"";
+  q("#tmTitle").value=t?t.title:(preset.title||"");
   q("#tmDept").value=(t&&t.dept)||preset.dept||"company";
   q("#tmOwner").value=(t&&t.owner)||preset.owner||"";
   q("#tmDue").value=(t&&/^\d{4}-\d{2}-\d{2}$/.test(t.due||"")?t.due:"");
@@ -1259,7 +1283,7 @@ function openTaskModal(preset,editId){
   q("#tmPrio").value=(t&&t.prio)||"med";
   q("#tmKind").value=(t&&t.kind)||"";
   q("#tmStatus").value=(t&&t.status)||"todo";
-  q("#tmDesc").value=(t&&t.desc)||"";
+  q("#tmDesc").value=(t&&t.desc)||preset.desc||"";
   q("#tmWeekly").checked=!!(t&&t.weekly);
   function paintRag(){q("#tmRag").innerHTML=RAG.map(function(r){return '<button type="button" class="segbtn'+(_tmSel.light===r[0]?" on":"")+'" data-l="'+r[0]+'"><span class="tlight" style="background:'+ragColor(r[0])+'"></span>'+r[1]+'</button>';}).join("");q("#tmRag").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){_tmSel.light=b.getAttribute("data-l");paintRag();};});}
   function paintSw(){q("#tmSwatches").innerHTML=TASK_PAL.map(function(c){return '<span class="swatch'+(c===_tmSel.color?" sel":"")+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");q("#tmSwatches").querySelectorAll(".swatch").forEach(function(s){s.onclick=function(){_tmSel.color=s.getAttribute("data-c");paintSw();};});}
