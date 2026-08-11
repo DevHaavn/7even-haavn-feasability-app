@@ -6,7 +6,9 @@ import HaavnManagementPillar from './HaavnManagementPillar'
 import { AtriumApex } from '../../components/AtriumMark'
 import { atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 
-export type HMPillarId = 'crm' | 'meetings' | 'agenda'
+// 'crm' and 'meetings' are retired from the hub listing (see HM_PILLARS) but
+// their render paths are kept in HaavnManagementPillar for easy restoration.
+export type HMPillarId = 'crm' | 'meetings' | 'agenda' | 'workflow'
 
 export interface HMPillar {
   id: HMPillarId
@@ -26,21 +28,15 @@ export const HM_PA = {
 
 export const HM_PILLARS: HMPillar[] = [
   {
-    id: 'crm', num: '01', title: 'HAAVN Management',
-    sub: 'Projects · Files · Workflow · Contacts',
-    blurb: 'The HAAVN Management company tool — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job.',
+    id: 'workflow', num: '01', title: 'ATRIUM Workflow',
+    sub: 'Tasks · Meeting CRM · Weekly agenda',
+    blurb: 'Every person’s workspace — personal tasks and team boards, department workload and workflow groups, meeting recording with live Azure transcription, and the actions that flow straight into the Weekly Company Meeting.',
     color: '#237A52', // Forest green (ATRIUM)
   },
   {
-    id: 'meetings', num: '02', title: 'Meetings & Digital Workflow',
-    sub: 'Calendar · Notes · Approvals · Tasks',
-    blurb: 'Centralized meeting management, collaborative notes, approval workflows and task automation for the leadership team.',
-    color: '#1FE87A', // Green
-  },
-  {
-    id: 'agenda', num: '03', title: 'Weekly Meetings & Agenda Tracking',
+    id: 'agenda', num: '02', title: 'Meeting Management',
     sub: 'Agenda · Actions · Minutes · Weekly cadence',
-    blurb: 'The weekly rhythm of the business — recurring meeting agendas, live action tracking, minutes and decisions, and accountability across the leadership team, week to week.',
+    blurb: 'The weekly rhythm of the business — the live Company Meeting agenda, action tracking, minutes and decisions, department leads and the Meeting Console, week to week.',
     color: '#13B5EA', // Blue
   },
 ]
@@ -105,7 +101,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
           Management Hub
         </h1>
         <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
-          Three pillars for project delivery, team collaboration and brand strategy — unified command centre.
+          Two pillars — the team’s workflow and the weekly meeting — one unified command centre.
         </p>
         <p style={{ color: pal.faint, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'center', margin: '8px 0 0' }}>
           Strategic partnerships · Operational efficiency · Market intelligence
@@ -121,8 +117,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
             // green that sinks into it, and #1FE87A is a neon that glares.
             // Lifted / calmed in dark, left as the brand values in light.
             const accent =
-              pillarDef.id === 'crm' ? (theme === 'light' ? '#237A52' : '#57c08a')
-              : pillarDef.id === 'meetings' ? (theme === 'light' ? '#2f9e6b' : '#57c08a')
+              pillarDef.id === 'workflow' ? (theme === 'light' ? '#237A52' : '#57c08a')
               : pillarDef.color
             const p = { ...pillarDef, color: accent }
             return (

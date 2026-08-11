@@ -18,17 +18,19 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   const pal = atriumPalette(theme)
   // Feasibility tab in the embedded Management System can hand off to the studio.
   useOpenStudioBridge(onExit)
-  // Pillar 03 (Weekly Meetings) mounts the boardroom agenda tool in an iframe;
-  // its top-bar "← Hub" posts this message to return, and we pin the page on mobile.
-  useScrollLock(pillar.id === 'agenda')
+  // Pillars 01 (ATRIUM Workflow) and 02 (Meeting Management) each mount a
+  // self-contained tool in an iframe; their top-bar "← Hub" posts a close
+  // message to return, and we pin the page on mobile.
+  const isIframeTool = pillar.id === 'agenda' || pillar.id === 'workflow'
+  useScrollLock(isIframeTool)
   useEffect(() => {
-    if (pillar.id !== 'agenda') return
-    const onMsg = (e: MessageEvent) => { if (e.data === 'haavn-agenda-close') onBack() }
+    if (!isIframeTool) return
+    const onMsg = (e: MessageEvent) => { if (e.data === 'haavn-agenda-close' || e.data === 'haavn-workflow-close') onBack() }
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onBack() }
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [pillar.id, onBack])
+  }, [isIframeTool, onBack])
 
   // HAAVN Management System — the full ATRIUM Management prototype (Today, Senior
   // Management, Portfolio, Projects, project workspace, Client Portal, Meetings,
@@ -52,8 +54,19 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     )
   }
 
-  // Pillar 03 · Weekly Meetings & Agenda Tracking — the boardroom agenda tool,
-  // mounted full-bleed. Its own top-bar "← Hub" returns (see the effect above).
+  // Pillar 01 · ATRIUM Workflow — the team tasks & meeting-CRM tool, mounted
+  // full-bleed. Its own top-bar "← Hub" returns (see the effect above).
+  if (pillar.id === 'workflow') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+      </div>
+    )
+  }
+
+  // Pillar 02 · Meeting Management — the boardroom agenda tool, mounted
+  // full-bleed. Its own top-bar "← Hub" returns (see the effect above).
   if (pillar.id === 'agenda') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
