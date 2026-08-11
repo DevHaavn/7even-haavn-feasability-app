@@ -324,6 +324,19 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .teamcard .tc-bar{height:6px;border-radius:6px;background:var(--pill);margin:10px 0 8px;overflow:hidden}
 .teamcard .tc-bar i{display:block;height:100%;border-radius:6px}
 .teamcard .tc-meta{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink-3)}
+.t-del{opacity:0;cursor:pointer;color:var(--ink-4);font-size:12px;transition:.15s;flex:none;margin-left:2px}
+.task:hover .t-del,.kcard:hover .t-del{opacity:.65}
+.t-del:hover{opacity:1;color:var(--red)}
+.celebrate{position:fixed;inset:0;z-index:660;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.34);opacity:0;transition:opacity .28s}
+.celebrate.in{opacity:1}.celebrate.out{opacity:0}
+.confetti-c{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.celeb-card{position:relative;background:var(--glass,rgba(255,255,255,.8));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);padding:28px 38px 24px;text-align:center;transform:scale(.88) translateY(10px);transition:transform .34s cubic-bezier(.2,.9,.3,1.35)}
+.celebrate.in .celeb-card{transform:scale(1) translateY(0)}
+.celeb-emoji{font-size:52px;line-height:1;animation:cpop .55s ease both}
+@keyframes cpop{0%{transform:scale(0) rotate(-18deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1)}}
+.celeb-title{font-family:var(--serif);font-size:25px;margin-top:10px;color:var(--ink)}
+.celeb-sub{font-size:13px;color:var(--ink-3);margin-top:6px;max-width:340px}
+.celeb-actions{display:flex;gap:10px;justify-content:center;margin-top:18px}
 .login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
 .login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
 .login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
@@ -529,7 +542,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <section class="view" id="v-department">
       <div class="vhead">
         <div><div class="mono eyebrow" id="depEyebrow">Department</div><h1 class="serif" id="depTitle">Department</h1><p id="depBlurb">Members of this department. Join it to receive its tasks and updates, or add someone to the team.</p></div>
-        <button class="btn" id="depJoinBtn" onclick="toggleJoin()">Join department</button>
+        <div style="display:flex;gap:8px"><button class="btn" id="depJoinBtn" onclick="toggleJoin()">Join department</button><button class="btn btn-ghost" id="depRemoveBtn" style="color:var(--red);display:none" onclick="deleteDept(curDeptView)">🗑 Remove</button></div>
       </div>
       <div class="card pad" style="margin-bottom:16px">
         <div class="ch"><h3>Members</h3><span class="mono" style="color:var(--ink-4)" id="depCount"></span></div>
@@ -877,9 +890,11 @@ function finishAddMember(p){if(DEPT_MEMBERS[curDeptView].indexOf(p.name)<0)DEPT_
 function addExisting(name){if(DEPT_MEMBERS[curDeptView].indexOf(name)<0)DEPT_MEMBERS[curDeptView].push(name);renderDepartment();renderDeptNav();toast(name+" added");}
 function renderDepartment(){
   var d=DEPTS.find(function(x){return x.id===curDeptView});if(!d)return;
+  if(!DEPT_MEMBERS[d.id])DEPT_MEMBERS[d.id]=[];
   document.getElementById("depTitle").textContent=d.name;
   document.getElementById("depEyebrow").textContent="Department · "+DEPT_MEMBERS[d.id].length+" members";
   document.getElementById("depCount").textContent=DEPT_MEMBERS[d.id].length+" people";
+  var rb=document.getElementById("depRemoveBtn");if(rb)rb.style.display=d.custom?"":"none";
   var mine=DEPT_MEMBERS[d.id].indexOf(ME)>=0;
   var jb=document.getElementById("depJoinBtn");jb.textContent=mine?"✓ You're a member — leave":"+ Join department";jb.className="btn "+(mine?"btn-ghost":"btn-gold");
   var mem=DEPT_MEMBERS[d.id].map(function(n){var p=person(n)||{role:"Member",ext:false};
@@ -942,7 +957,8 @@ function openGroup(id){
     '<div class="sec"><h4>Members · '+g.members.length+'</h4><div class="members">'+mem+'<span class="memberchip addable" onclick="groupAddPrompt(\''+id+'\')">＋ Add member</span></div></div>'+
     '<div class="sec"><h4>Group tasks</h4><div class="tasklist" id="grpTasks">'+(gtasks.length?gtasks.map(taskRow).join(""):'<div class="empty" style="padding:14px">No tasks yet.</div>')+'</div>'+
       '<div class="dec-add" style="display:flex;gap:8px;margin-top:8px"><input class="txt" id="grpTaskInput" placeholder="Add a task for this group…" onkeydown="if(event.key===\'Enter\')groupAddTask(\''+id+'\')"><button class="btn btn-ghost" onclick="groupAddTask(\''+id+'\')">Add</button></div>'+
-    '</div>';
+    '</div>'+
+    '<div class="actions" style="margin-top:6px"><button class="btn btn-ghost" style="color:var(--red)" onclick="deleteGroup(\''+id+'\')">🗑 Delete group</button></div>';
   document.getElementById("drawer").classList.add("on");
   document.getElementById("drawerScrim").classList.add("on");
 }
@@ -980,9 +996,32 @@ function taskRow(t){
     '<span class="star '+(t.weekly?"on":"")+'" title="Weekly agenda" onclick="event.stopPropagation();toggleWeekly('+t.id+')">★</span>'+
     '<span class="due '+(od?"od":"")+'">'+(t.due||"—")+'</span>'+
     '<span class="row-av" title="'+esc(t.owner||"")+'">'+av(t.owner,24)+'</span>'+
+    '<span class="t-del" title="Delete task" onclick="event.stopPropagation();deleteTask('+t.id+')">🗑</span>'+
   '</div>';
 }
-function toggleTask(id){var t=TASKS.find(function(x){return x.id===id});t.done=!t.done;t.status=t.done?"done":"doing";pushBoardTask(t);render();if(drawerId===id)openTask(id);}
+function toggleTask(id){var t=TASKS.find(function(x){return x.id===id});if(!t)return;var was=t.done;t.done=!t.done;t.status=t.done?"done":"doing";pushBoardTask(t);render();if(drawerId===id)openTask(id);
+  if(t.done&&!was){var stillOpen=TASKS.filter(function(x){return x.owner===ME&&!x.done;}).length;celebrate(t.title,stillOpen===0,function(){var x=TASKS.find(function(y){return y.id===id;});if(x){x.done=false;x.status="doing";pushBoardTask(x);}render();if(drawerId===id)openTask(id);});}}
+/* Celebration on completing a task — Done or Undo (mistake) — mirrors the Weekly Meeting. */
+var _celebT=null;
+function closeCelebrate(){clearTimeout(_celebT);var o=document.getElementById("celebrate");if(o){o.classList.remove("in");o.classList.add("out");setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o);},360);}}
+function celebrate(title,all,onUndo){closeCelebrate();var o=document.createElement("div");o.id="celebrate";o.className="celebrate";o.innerHTML='<canvas class="confetti-c"></canvas><div class="celeb-card"><div class="celeb-emoji">'+(all?"🎊":"🎉")+'</div><div class="celeb-title">'+(all?"All your tasks are done!":"Task complete")+'</div><div class="celeb-sub">'+(all?"Nothing open on your plate — nice work.":esc(title||""))+'</div><div class="celeb-actions"><button class="btn btn-ghost" id="cU">↩ Undo</button><button class="btn btn-gold" id="cD">Done</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.classList.add("in");});confetti(o.querySelector(".confetti-c"),all);o.querySelector("#cU").onclick=function(){if(onUndo)onUndo();closeCelebrate();};o.querySelector("#cD").onclick=closeCelebrate;o.addEventListener("click",function(ev){if(ev.target===o)closeCelebrate();});_celebT=setTimeout(closeCelebrate,4200);}
+function confetti(canvas,big){if(!canvas)return;var ctx=canvas.getContext("2d");var DPR=Math.min(window.devicePixelRatio||1,2);canvas.width=canvas.clientWidth*DPR;canvas.height=canvas.clientHeight*DPR;var cols=["#d8a54a","#5aa87a","#5b8def","#a179d8","#e0644f","#e9c988"];var N=big?200:130,ps=[],cx=canvas.width/2,cy=canvas.height*0.42;for(var i=0;i<N;i++){var ang=Math.random()*Math.PI*2,sp=(4+Math.random()*9)*DPR;ps.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-6*DPR,w:(6+Math.random()*7)*DPR,h:(9+Math.random()*9)*DPR,col:cols[i%cols.length],rot:Math.random()*6.28,vr:(Math.random()-0.5)*0.4});}var g=0.3*DPR,t0=null;function fr(ts){if(t0==null)t0=ts;var el=ts-t0;ctx.clearRect(0,0,canvas.width,canvas.height);ps.forEach(function(p){p.vy+=g;p.x+=p.vx;p.y+=p.vy;p.vx*=0.99;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=Math.max(0,1-el/4200);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});if(el<4200)requestAnimationFrame(fr);else ctx.clearRect(0,0,canvas.width,canvas.height);}requestAnimationFrame(fr);}
+/* Reusable confirm (native confirm is blocked inside the hub iframe). */
+function confirmModal(msg,onYes,yesLabel){
+  var ov=document.getElementById("confOv");
+  if(!ov){ov=document.createElement("div");ov.id="confOv";ov.style.cssText="position:fixed;inset:0;z-index:660;display:none;align-items:center;justify-content:center;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
+    ov.innerHTML='<div style="background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;width:min(400px,92vw)"><div id="confMsg" style="font-size:14px;color:var(--ink);line-height:1.5"></div><div style="display:flex;gap:9px;justify-content:flex-end;margin-top:20px"><button class="btn btn-ghost" id="confNo">Cancel</button><button class="btn" id="confYes" style="background:var(--red);color:#fff;border-color:var(--red)">Delete</button></div></div>';
+    document.body.appendChild(ov);}
+  ov.querySelector("#confMsg").textContent=msg;ov.querySelector("#confYes").textContent=yesLabel||"Delete";ov.style.display="flex";
+  var yes=ov.querySelector("#confYes"),no=ov.querySelector("#confNo");
+  function close(){ov.style.display="none";yes.onclick=null;no.onclick=null;}
+  yes.onclick=function(){close();onYes();};no.onclick=close;
+}
+function deleteTask(id){var t=TASKS.find(function(x){return x.id===id;});if(!t)return;confirmModal("Delete “"+(t.title||"this task")+"”? This can’t be undone.",function(){
+  if(t.fromMeeting&&BOARD){var m=curBoardMeeting();if(m&&m.items){m.items=m.items.filter(function(i){return ""+i.id!==""+t.mItem;});boardPush();}}
+  TASKS=TASKS.filter(function(x){return x.id!==id;});if(drawerId===id)closeDrawer();render();toast("Task deleted");});}
+function deleteGroup(id){var g=GROUPS.find(function(x){return x.id===id;});if(!g)return;confirmModal("Delete group “"+g.name+"”? Its tasks stay but lose the group.",function(){GROUPS=GROUPS.filter(function(x){return x.id!==id;});TASKS.forEach(function(t){if(t.groupId===id)t.groupId=null;});if(curGroup===id)closeDrawer();render();toast("Group deleted");});}
+function deleteDept(id){var d=DEPTS.find(function(x){return x.id===id;});if(!d)return;if(!d.custom){toast("Built-in departments can’t be removed");return;}confirmModal("Remove department “"+d.name+"”? Tasks keep their label; the department leaves the sidebar and Weekly Meeting.",function(){customDepts=customDepts.filter(function(x){return x.id!==id;});delete DEPT_MEMBERS[id];rebuildDepts();if(curDeptView===id)go("myday");render();pushDeptsShared();toast("Department removed");});}
 function toggleWeekly(id){var t=TASKS.find(function(x){return x.id===id});t.weekly=!t.weekly;render();if(drawerId===id)openTask(id);toast(t.weekly?"Added to weekly agenda":"Removed from weekly agenda");}
 
 /* ---- MY DAY ---- */
@@ -1179,6 +1218,7 @@ function openTask(id){
     '<div class="actions">'+
       '<button class="btn '+(t.weekly?"btn-ghost":"btn-gold")+'" onclick="toggleWeekly('+id+')">'+(t.weekly?"Remove from weekly":"★ Add to weekly agenda")+'</button>'+
       '<button class="btn btn-ghost" onclick="openTaskModal(null,'+id+')">✎ Edit details</button>'+
+      '<button class="btn btn-ghost" style="color:var(--red)" onclick="deleteTask('+id+')">🗑 Delete</button>'+
       '<button class="btn btn-dark" onclick="toggleTask('+id+')">'+(t.done?"Reopen":"Mark done")+'</button>'+
     '</div>';
   document.getElementById("drawer").classList.add("on");

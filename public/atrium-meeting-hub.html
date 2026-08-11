@@ -559,7 +559,10 @@ var DEPTS=[
 function deptMeta(id){return DEPTS.find(function(d){return d.id===id;});}
 /* Departments added in Pillar 01 (Workflow) are mirrored to a shared key and
    merged in here, so new departments push through to the weekly agenda. */
-function mergeSharedDepts(){var k=(location.search.indexOf('preview')>=0)?'atrium_departments_preview':'atrium_departments';fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+k+'&select=value',{headers:SUPA_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length||!Array.isArray(rows[0].value))return;var changed=false;rows[0].value.forEach(function(cd){if(cd&&cd.id&&!DEPTS.find(function(d){return d.id===cd.id;})){DEPTS.push({id:cd.id,name:cd.name||cd.id,sub:cd.sub||'Department',lead:cd.owner||'',color:cd.color||'#8a9099',tasks:[]});changed=true;}});if(changed&&DB)render();}).catch(function(){});}
+function mergeSharedDepts(){var k=(location.search.indexOf('preview')>=0)?'atrium_departments_preview':'atrium_departments';fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+k+'&select=value',{headers:SUPA_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length||!Array.isArray(rows[0].value))return;var shared=rows[0].value,ids=shared.map(function(c){return c.id;}),changed=false;
+  shared.forEach(function(cd){if(cd&&cd.id&&!DEPTS.find(function(d){return d.id===cd.id;})){DEPTS.push({id:cd.id,name:cd.name||cd.id,sub:cd.sub||'Department',lead:cd.owner||'',color:cd.color||'#8a9099',tasks:[],_shared:true});changed=true;}});
+  for(var i=DEPTS.length-1;i>=0;i--){if(DEPTS[i]._shared&&ids.indexOf(DEPTS[i].id)<0){DEPTS.splice(i,1);changed=true;}}
+  if(changed&&DB)render();}).catch(function(){});}
 var ISTATUS=['update','action','followup','trouble','complete'];
 var IS_LABEL={update:'UPDATE',action:'ACTION',followup:'FOLLOW-UP',trouble:'IN TROUBLE',complete:'COMPLETE'};
 var PILLCLASS={update:'s-update',action:'s-action',followup:'s-followup',trouble:'s-introuble',complete:'s-complete'};
