@@ -936,7 +936,7 @@ function renderDay(){
     :'<div class="empty" style="padding:16px">No updates yet — you\'ll be notified here when you\'re assigned a job in the Weekly Company Meeting.</div>';
 }
 /* a person only receives weekly-meeting updates for jobs assigned to them */
-function myUpdates(){return TASKS.filter(function(t){return t.owner===ME&&t.weekly&&!t.done;});}
+function myUpdates(){return TASKS.filter(function(t){return !t.done&&((t.owner===ME&&t.weekly)||(t.watchers&&t.watchers.indexOf(ME)>=0));});}
 function tile(big,tl,sub,cls){return '<div class="tile '+(cls||"")+'"><div class="tl">'+tl+'</div><div class="big">'+big+'</div><div class="sub">'+sub+'</div></div>';}
 
 /* ---- MY TASKS ---- */
@@ -1063,6 +1063,7 @@ function openTask(id){
       (t.critical?'<span class="chiplet" style="color:var(--accent)">⚡ Critical path</span>':'')+
       (t.overdue&&!t.done?'<span class="chiplet" style="color:var(--red)">Overdue</span>':'')+'</div>'+
     '<div class="row"><span class="k">Task leader</span>'+av(t.owner,24)+' '+(t.owner||"— unassigned —")+'</div>'+
+    ((t.watchers&&t.watchers.length)?'<div class="row"><span class="k">Team · FYI</span><span class="stack">'+t.watchers.map(function(n){return av(n,24);}).join("")+'</span><span style="margin-left:9px;color:var(--ink-3);font-size:12px">'+t.watchers.map(function(n){return esc(n.split(" ")[0]);}).join(", ")+'</span></div>':'')+
     '<div class="row"><span class="k">Due</span>'+(t.due||"—")+(t.time?' · '+t.time:'')+'</div>'+
     '<div class="row"><span class="k">Source</span>'+(t.source?'📋 '+t.source:"—")+'</div>'+
     '<div class="row"><span class="k">Status</span><select class="txt" style="padding:6px 9px" onchange="setStatus('+id+',this.value)">'+
@@ -1186,7 +1187,7 @@ function ragColor(l){return l==="red"?"var(--red)":l==="amber"?"var(--accent)":l
 var _tmSel={color:"#5aa87a",light:"",critical:false};
 function openTaskModal(preset,editId){
   preset=preset||{};var t=(editId!=null)?TASKS.find(function(x){return x.id===editId;}):null;
-  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical)};
+  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical),watchers:(t&&t.watchers?t.watchers.slice():[])};
   var ov=document.getElementById("taskOv");
   if(!ov){ov=document.createElement("div");ov.id="taskOv";
     ov.style.cssText="position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
@@ -1211,6 +1212,7 @@ function openTaskModal(preset,editId){
     +'<div class="tm-field"><label>Delivery light</label><div class="segrow" id="tmRag"></div></div>'
     +'<div class="tm-field full"><label>Colour</label><div class="segrow" id="tmSwatches"></div></div>'
     +'<div class="tm-field full"><label>Critical path</label><div class="segrow"><button type="button" class="segbtn" id="tmCrit"></button><span style="color:var(--ink-3);font-size:12px;align-self:center">Flag jobs on the critical path so they surface on the dashboard.</span></div></div>'
+    +'<div class="tm-field full"><label>Team members · FYI &amp; updates</label><div class="segrow" id="tmWatch"></div></div>'
     +'<div class="tm-field full"><label>Description</label><textarea id="tmDesc" rows="3" placeholder="Detail, context, links…"></textarea></div>'
     +'<div class="tm-field full"><label style="display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px;color:var(--ink-2);cursor:pointer"><input type="checkbox" id="tmWeekly" style="width:auto"> Add to weekly agenda (surfaces in Monday’s Company Meeting)</label></div>'
     +'</div>'
@@ -1230,12 +1232,13 @@ function openTaskModal(preset,editId){
   function paintRag(){q("#tmRag").innerHTML=RAG.map(function(r){return '<button type="button" class="segbtn'+(_tmSel.light===r[0]?" on":"")+'" data-l="'+r[0]+'"><span class="tlight" style="background:'+ragColor(r[0])+'"></span>'+r[1]+'</button>';}).join("");q("#tmRag").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){_tmSel.light=b.getAttribute("data-l");paintRag();};});}
   function paintSw(){q("#tmSwatches").innerHTML=TASK_PAL.map(function(c){return '<span class="swatch'+(c===_tmSel.color?" sel":"")+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");q("#tmSwatches").querySelectorAll(".swatch").forEach(function(s){s.onclick=function(){_tmSel.color=s.getAttribute("data-c");paintSw();};});}
   function paintCrit(){var b=q("#tmCrit");b.classList.toggle("on",_tmSel.critical);b.innerHTML=(_tmSel.critical?"⚡ On critical path":"Not critical");}
-  paintRag();paintSw();paintCrit();
+  function paintWatch(){q("#tmWatch").innerHTML=ppl.map(function(p){var on=_tmSel.watchers.indexOf(p.name)>=0;return '<button type="button" class="segbtn'+(on?" on":"")+'" data-w="'+esc(p.name)+'">'+av(p.name,18)+esc(p.name.split(" ")[0])+'</button>';}).join("");q("#tmWatch").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){var n=b.getAttribute("data-w");var i=_tmSel.watchers.indexOf(n);if(i>=0)_tmSel.watchers.splice(i,1);else _tmSel.watchers.push(n);paintWatch();};});}
+  paintRag();paintSw();paintCrit();paintWatch();
   q("#tmCrit").onclick=function(){_tmSel.critical=!_tmSel.critical;paintCrit();};
   q("#tmCancel").onclick=function(){ov.style.display="none";};
   q("#tmSave").onclick=function(){
     var title=q("#tmTitle").value.trim();if(!title){toast("Enter a task title");return;}
-    var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical};
+    var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical,watchers:_tmSel.watchers.slice()};
     data.done=(data.status==="done");
     if(editId!=null){var tt=TASKS.find(function(x){return x.id===editId;});for(var k in data)tt[k]=data[k];if(tt.fromMeeting)pushBoardTask(tt);ov.style.display="none";render();openTask(editId);toast("Task updated");}
     else{data.project="—";data.source=null;var nt=T(data);TASKS.push(nt);ov.style.display="none";render();openTask(nt.id);toast("Task created");}
