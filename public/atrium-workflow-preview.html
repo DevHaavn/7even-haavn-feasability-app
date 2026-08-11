@@ -268,6 +268,14 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .toggle.on .tk::after{left:18px;background:#fff}
 
 /* login */
+.foot{max-width:1160px;margin:56px auto 0;padding:26px 8px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--line-2);display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:var(--ink-4);font-size:11.5px}
+.foot .fm{font-family:var(--serif);letter-spacing:.35em;color:var(--ink-2);font-size:15px;display:flex;align-items:center;gap:8px}
+.foot .logo-mark{width:19px;height:17px;display:inline-block}
+.foot a{color:var(--ink-3);text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--line);padding:6px 11px;border-radius:100px;transition:.18s;cursor:pointer}
+.foot a:hover{border-color:var(--ink-4);color:var(--ink)}
+.foot .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
+.swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
+.swatch.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg1) inset}
 .login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
 .login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
 .login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
@@ -337,7 +345,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
     <div class="topbar-right">
       <div class="seg" id="themeSeg"><button data-theme-set="dark">Dark</button><button data-theme-set="light" class="on">Light</button></div>
       <button class="iconbtn" onclick="notifClick()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge" id="bellBadge" style="display:none">0</span></button>
-      <div class="me" id="meChip" title="Sign out" onclick="logout()">
+      <div class="me" id="meChip" title="Edit your profile" onclick="openProfile()">
         <span class="av avatar-sm" id="meAv" style="width:28px;height:28px;background:#5aa87a">JB</span>
         <div><div class="nm" id="meName">Jamie Baldwin</div><div class="rl" id="meRole">DIRECTOR · COMPANY</div></div>
       </div>
@@ -480,6 +488,15 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
       </div>
       <div class="dgrid" id="groupsList"></div>
     </section>
+
+    <div class="foot">
+      <span class="fm"><svg class="logo-mark" viewBox="0 0 24 22" fill="none"><path d="M12 1L23 21H1L12 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg> ATRIUM</span>
+      <span style="color:var(--ink-4)">Visit</span>
+      <a href="https://7even.au" target="_blank" rel="noopener">7even.au ↗</a>
+      <a href="https://haavn.au" target="_blank" rel="noopener">haavn.au ↗</a>
+      <a onclick="doUpdate();return false">⟳ Update</a>
+      <span class="cr">Team Workflow · Meeting CRM<br>Design &amp; interface © 2026 JB Design × Studio · All rights reserved</span>
+    </div>
 
   </div>
 </div>
@@ -661,7 +678,11 @@ var curDeptView="7even",curGroup=null;
 /* helpers */
 function initials(n){var p=n.replace(/·.*/,"").trim().split(" ");return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}
 function avC(n){var c=["#5b8def","#5aa87a","#d8a54a","#a179d8","#e0644f","#4fa8a0","#c77dbb"];var s=0;for(var i=0;i<n.length;i++)s+=n.charCodeAt(i);return c[s%c.length];}
-function av(n,sz){sz=sz||24;return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;font-size:'+(sz*0.38)+'px;background:'+avC(n)+'">'+initials(n)+'</span>';}
+function avColor(n){var p=person(n);return (p&&p.color)||avC(n);}
+function avPhoto(n){var p=person(n);return p&&p.photo;}
+function av(n,sz){sz=sz||24;var ph=avPhoto(n);
+  if(ph)return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;background-image:url(\''+ph+'\');background-size:cover;background-position:center"></span>';
+  return '<span class="av" style="width:'+sz+'px;height:'+sz+'px;font-size:'+(sz*0.38)+'px;background:'+avColor(n)+'">'+initials(n)+'</span>';}
 var STLBL={todo:"TO DO",doing:"IN PROGRESS",blocked:"BLOCKED",review:"IN REVIEW",done:"DONE"};
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 var SVG_CAM='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 7l-7 5 7 5zM1 5h15a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1z"/></svg>';
@@ -693,7 +714,9 @@ function loginAs(name,email){
 function applyUser(p){
   document.getElementById("greeting").textContent="Good morning, "+p.name.split(" ")[0];
   document.getElementById("meName").textContent=p.name;
-  var a=document.getElementById("meAv");a.textContent=initials(p.name);a.style.background=avC(p.name);
+  var a=document.getElementById("meAv");
+  if(p.photo){a.textContent="";a.style.backgroundImage="url('"+p.photo+"')";a.style.backgroundSize="cover";a.style.backgroundPosition="center";}
+  else{a.style.backgroundImage="";a.textContent=initials(p.name);a.style.background=(p.color||avC(p.name));}
   document.getElementById("meRole").textContent=(p.role||"Member").toUpperCase()+" · "+deptN(p.dept).split(" ")[0].toUpperCase();
   document.getElementById("mtEyebrow").textContent=p.name+" · assigned to me";
 }
@@ -1176,6 +1199,45 @@ function syncToWeekly(mineOnly){
     }).catch(function(){toast("Sync failed — please retry");});
   }).catch(function(){toast("Could not reach the Weekly Meeting doc");});
 }
+
+/* ===================== PROFILE EDITOR =====================
+   Click the identity chip → edit email / position, pick an avatar colour or
+   upload a photo. Photo is centre-cropped + downscaled to 128px so the cloud
+   blob stays small; it then shows everywhere av() renders (tasks, boards, chat). */
+var PROF_PAL=["#5aa87a","#5b8def","#d8a54a","#a179d8","#e0644f","#4fa8a0","#c77dbb","#8a9099","#237A52","#13B5EA"];
+function _resizeImg(file,cb){var r=new FileReader();r.onload=function(e){var img=new Image();img.onload=function(){var s=128,c=document.createElement("canvas");c.width=s;c.height=s;var ctx=c.getContext("2d");var mn=Math.min(img.width,img.height),sx=(img.width-mn)/2,sy=(img.height-mn)/2;ctx.drawImage(img,sx,sy,mn,mn,0,0,s,s);cb(c.toDataURL("image/jpeg",0.82));};img.src=e.target.result;};r.readAsDataURL(file);}
+function openProfile(){
+  var p=person(ME);if(!p)return;
+  var sel={color:p.color||avC(p.name),photo:p.photo||""};
+  var ov=document.getElementById("profOv");
+  if(!ov){ov=document.createElement("div");ov.id="profOv";
+    ov.style.cssText="position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
+    ov.innerHTML='<div style="background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;width:min(440px,94vw);max-height:92vh;overflow:auto">'
+      +'<div class="mono" style="color:var(--ink-3);margin-bottom:16px">Your profile</div>'
+      +'<div style="display:flex;align-items:center;gap:16px;margin-bottom:18px"><span id="profAvWrap"></span><div><div id="profName" class="serif" style="font-size:19px;color:var(--ink)"></div><div id="profDept" class="mono" style="color:var(--ink-3);margin-top:3px"></div></div></div>'
+      +'<div style="display:flex;gap:9px;margin-bottom:18px"><label class="btn btn-ghost" style="cursor:pointer">Upload photo<input id="profFile" type="file" accept="image/*" style="display:none"></label><button class="btn btn-ghost" id="profRemove">Remove photo</button></div>'
+      +'<div class="mono" style="color:var(--ink-3);margin-bottom:9px">Avatar colour</div><div id="profSwatches" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div>'
+      +'<label class="mono" style="color:var(--ink-3);display:block;margin-bottom:7px">Position / role</label><input id="profRole" autocomplete="off" style="width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:14px;outline:none;margin-bottom:16px">'
+      +'<label class="mono" style="color:var(--ink-3);display:block;margin-bottom:7px">Work email</label><input id="profEmail" autocomplete="off" style="width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:14px;outline:none">'
+      +'<div style="display:flex;gap:9px;justify-content:space-between;align-items:center;margin-top:24px"><button class="btn btn-ghost" id="profSignout" style="color:var(--red);border-color:var(--red)">Sign out</button><div style="display:flex;gap:9px"><button class="btn btn-ghost" id="profCancel">Cancel</button><button class="btn btn-gold" id="profSave">Save</button></div></div>'
+      +'</div>';
+    document.body.appendChild(ov);}
+  var q=function(s){return ov.querySelector(s);};
+  q("#profName").textContent=p.name;q("#profDept").textContent=deptN(p.dept).toUpperCase();
+  q("#profRole").value=p.role||"";q("#profEmail").value=p.email||"";
+  function paintAv(){var ph=sel.photo;q("#profAvWrap").innerHTML=ph?'<span class="av" style="width:64px;height:64px;background-image:url(\''+ph+'\');background-size:cover;background-position:center"></span>':'<span class="av" style="width:64px;height:64px;font-size:24px;background:'+sel.color+'">'+initials(p.name)+'</span>';}
+  function paintSwatches(){q("#profSwatches").innerHTML=PROF_PAL.map(function(c){return '<span class="swatch'+(c===sel.color&&!sel.photo?' sel':'')+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");
+    q("#profSwatches").querySelectorAll(".swatch").forEach(function(sw){sw.onclick=function(){sel.color=sw.getAttribute("data-c");sel.photo="";paintAv();paintSwatches();};});}
+  paintAv();paintSwatches();
+  q("#profFile").onchange=function(e){var f=e.target.files&&e.target.files[0];if(!f)return;_resizeImg(f,function(d){sel.photo=d;paintAv();paintSwatches();});};
+  q("#profRemove").onclick=function(){sel.photo="";paintAv();paintSwatches();};
+  q("#profCancel").onclick=function(){ov.style.display="none";};
+  q("#profSignout").onclick=function(){ov.style.display="none";logout();};
+  q("#profSave").onclick=function(){p.role=q("#profRole").value.trim()||p.role;p.email=q("#profEmail").value.trim()||p.email;p.color=sel.color;p.photo=sel.photo;applyUser(p);render();ov.style.display="none";toast("Profile updated");};
+  ov.style.display="flex";
+}
+/* Footer: clear caches + hard-reload to the latest deploy. */
+function doUpdate(){try{if('caches'in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});}catch(e){}var pv=location.search.indexOf('preview')>=0?'preview=1&':'';setTimeout(function(){location.replace(location.origin+location.pathname+'?'+pv+'u='+Date.now());},120);}
 
 bootSync();
 </script>
