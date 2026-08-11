@@ -121,7 +121,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .ch .lnk{font-size:11.5px;color:var(--accent);cursor:pointer}
 
 /* stat tiles */
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:18px}
 .tile{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow-sm)}
 .tile .tl{font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--ink-3);margin-bottom:9px}
 .tile .big{font-family:var(--serif);font-size:30px;line-height:1}
@@ -297,6 +297,17 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .foot .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
 .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
 .swatch.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg1) inset}
+.tlight{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--bg1)}
+.crit{color:var(--accent);font-size:12px;flex:none;font-weight:700}
+.segrow{display:flex;gap:6px;flex-wrap:wrap}
+.segbtn{padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);font-size:12.5px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.segbtn.on{background:var(--ink);color:var(--bg1);border-color:var(--ink)}
+.tm-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 16px}
+.tm-field{display:flex;flex-direction:column;gap:6px}
+.tm-field.full{grid-column:1/3}
+.tm-field label{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.tm-field input,.tm-field select,.tm-field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card-inner);color:var(--ink);font-family:var(--sans);font-size:13.5px;outline:none}
+.tm-field input:focus,.tm-field select:focus,.tm-field textarea:focus{border-color:var(--accent)}
 .login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,rgba(7,9,13,.5),rgba(7,9,13,.82)),url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat;overflow:hidden;transition:.5s var(--ease)}
 .login-back{position:absolute;top:22px;left:22px;z-index:3;display:flex;align-items:center;gap:7px;padding:9px 15px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(20,22,28,.5);color:#e8edef;font-family:var(--sans);font-size:12px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:.2s var(--ease)}
 .login-back:hover{border-color:rgba(255,255,255,.3);background:rgba(30,33,40,.62)}
@@ -881,6 +892,8 @@ function taskRow(t){
   return '<div class="task '+(t.done?"done":"")+'" style="--tc:'+deptC(t.dept)+'" onclick="openTask('+t.id+')">'+
     '<div class="cbx '+(t.done?"on":"")+'" onclick="event.stopPropagation();toggleTask('+t.id+')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'+
     '<span class="prio '+t.prio+'" title="'+t.prio+' priority"></span>'+
+    (t.light?'<span class="tlight" title="'+({green:"On track",amber:"Watch",red:"At risk"}[t.light]||"")+'" style="background:'+ragColor(t.light)+'"></span>':'')+
+    (t.critical?'<span class="crit" title="On the critical path">⚡</span>':'')+
     kindIcon(t.kind)+
     '<span class="t-title">'+esc(t.title)+'</span>'+
     (t.status!=="done"?'<span class="status-pill st-'+t.status+'">'+STLBL[t.status]+'</span>':'')+
@@ -900,10 +913,14 @@ function renderDay(){
   var today=mine.filter(function(t){return !t.done&&/Mon 17|Today/.test(t.due||"")}).length;
   var od=mine.filter(function(t){return t.overdue&&!t.done}).length;
   var weekly=mine.filter(function(t){return t.weekly}).length;
+  var crit=mine.filter(function(t){return t.critical&&!t.done}).length;
+  var risk=mine.filter(function(t){return t.light==="red"&&!t.done}).length;
   document.getElementById("dayTiles").innerHTML=
     tile(open,"Open tasks","assigned to me","")+
     tile(od,"Overdue","need attention today",od>0?"bad":"good")+
     tile(weekly,"On weekly agenda","into today's meeting","warn")+
+    tile(crit,"Critical path","must-hit jobs",crit>0?"bad":"")+
+    tile(risk,"At risk","red delivery lights",risk>0?"bad":"good")+
     tile("2","Meetings today","1 to record","");
   var focus=mine.filter(function(t){return !t.done&&(t.overdue||t.prio==="high"||t.weekly)}).slice(0,6);
   document.getElementById("dayFocus").innerHTML=focus.map(taskRow).join("")||'<div class="empty">Nothing urgent — nice.</div>';
@@ -1042,9 +1059,11 @@ function openTask(id){
     '<div class="dstatus"><span class="status-pill st-'+t.status+'">'+STLBL[t.status]+'</span>'+
       '<span class="chiplet"><span class="prio '+t.prio+'"></span>'+t.prio+' priority</span>'+
       (t.weekly?'<span class="chiplet" style="color:var(--accent)">★ Weekly agenda</span>':'')+
+      (t.light?'<span class="chiplet"><span class="tlight" style="background:'+ragColor(t.light)+'"></span>'+({green:"On track",amber:"Watch",red:"At risk"}[t.light])+'</span>':'')+
+      (t.critical?'<span class="chiplet" style="color:var(--accent)">⚡ Critical path</span>':'')+
       (t.overdue&&!t.done?'<span class="chiplet" style="color:var(--red)">Overdue</span>':'')+'</div>'+
-    '<div class="row"><span class="k">Owner</span>'+av(t.owner,24)+' '+t.owner+'</div>'+
-    '<div class="row"><span class="k">Due</span>'+(t.due||"—")+'</div>'+
+    '<div class="row"><span class="k">Task leader</span>'+av(t.owner,24)+' '+(t.owner||"— unassigned —")+'</div>'+
+    '<div class="row"><span class="k">Due</span>'+(t.due||"—")+(t.time?' · '+t.time:'')+'</div>'+
     '<div class="row"><span class="k">Source</span>'+(t.source?'📋 '+t.source:"—")+'</div>'+
     '<div class="row"><span class="k">Status</span><select class="txt" style="padding:6px 9px" onchange="setStatus('+id+',this.value)">'+
       ['todo','doing','blocked','review','done'].map(function(s){return '<option value="'+s+'" '+(t.status===s?"selected":"")+'>'+STLBL[s]+'</option>';}).join("")+'</select></div>'+
@@ -1056,7 +1075,7 @@ function openTask(id){
     '</div>'+
     '<div class="actions">'+
       '<button class="btn '+(t.weekly?"btn-ghost":"btn-gold")+'" onclick="toggleWeekly('+id+')">'+(t.weekly?"Remove from weekly":"★ Add to weekly agenda")+'</button>'+
-      '<button class="btn btn-ghost" onclick="toast(\'Reassign…\')">Reassign</button>'+
+      '<button class="btn btn-ghost" onclick="openTaskModal(null,'+id+')">✎ Edit details</button>'+
       '<button class="btn btn-dark" onclick="toggleTask('+id+')">'+(t.done?"Reopen":"Mark done")+'</button>'+
     '</div>';
   document.getElementById("drawer").classList.add("on");
@@ -1156,12 +1175,72 @@ document.getElementById("themeSeg").addEventListener("click",function(e){var b=e
   document.documentElement.setAttribute("data-theme",b.dataset.themeSet);
   this.querySelectorAll("button").forEach(function(x){x.classList.remove("on")});b.classList.add("on");});
 
-function quickAddTask(){
-  askText("New task","What needs doing?",function(title){
-    if(!title)return;
-    TASKS.push(T({title:title,owner:ME,dept:curDeptView,project:"—",status:"todo",prio:"med",due:"This week",weekly:false,source:null}));
-    render();if(document.getElementById("v-teamboard").classList.contains("on"))renderBoardInit();toast("Task added");
-  });
+function quickAddTask(){var d=(document.getElementById("v-teamboard")&&document.getElementById("v-teamboard").classList.contains("on"))?curDept:(curDeptView||"company");openTaskModal({dept:d,owner:ME});}
+/* ===================== TASK BUILDER (create / edit) =====================
+   Full task form: title, department, task leader, date + time, priority, type,
+   status, colour, RAG delivery light and critical-path flag — the last two feed
+   the My Day health tiles (dashboard). */
+var TASK_PAL=["#5aa87a","#5b8def","#d8a54a","#a179d8","#e0644f","#4fa8a0","#c77dbb","#8a9099"];
+var RAG=[["","No light"],["green","On track"],["amber","Watch"],["red","At risk"]];
+function ragColor(l){return l==="red"?"var(--red)":l==="amber"?"var(--accent)":l==="green"?"var(--green)":"var(--ink-4)";}
+var _tmSel={color:"#5aa87a",light:"",critical:false};
+function openTaskModal(preset,editId){
+  preset=preset||{};var t=(editId!=null)?TASKS.find(function(x){return x.id===editId;}):null;
+  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical)};
+  var ov=document.getElementById("taskOv");
+  if(!ov){ov=document.createElement("div");ov.id="taskOv";
+    ov.style.cssText="position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
+    document.body.appendChild(ov);}
+  var deptOpts=DEPTS.map(function(d){return '<option value="'+d.id+'">'+esc(d.name)+'</option>';}).join("");
+  var ppl=PEOPLE.filter(function(p){return !p.ext;});
+  var ownerOpts='<option value="">— unassigned —</option>'+ppl.map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join("");
+  var prioOpts=[["high","High"],["med","Medium"],["low","Low"]].map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join("");
+  var kindOpts=[["","—"],["request","Request"],["event","Event"],["action","Action"]].map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join("");
+  var statOpts=[["todo","To do"],["doing","In progress"],["blocked","Blocked"],["review","In review"],["done","Done"]].map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join("");
+  ov.innerHTML='<div style="background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;width:min(600px,96vw);max-height:92vh;overflow:auto">'
+    +'<div class="mono" style="color:var(--ink-3);margin-bottom:16px">'+(editId!=null?"Edit task":"New task")+'</div>'
+    +'<div class="tm-grid">'
+    +'<div class="tm-field full"><label>Task</label><input id="tmTitle" placeholder="What needs doing?" autocomplete="off"></div>'
+    +'<div class="tm-field"><label>Department</label><select id="tmDept">'+deptOpts+'</select></div>'
+    +'<div class="tm-field"><label>Task leader / responsible</label><select id="tmOwner">'+ownerOpts+'</select></div>'
+    +'<div class="tm-field"><label>Due date</label><input id="tmDue" type="date"></div>'
+    +'<div class="tm-field"><label>Time</label><input id="tmTime" type="time"></div>'
+    +'<div class="tm-field"><label>Priority</label><select id="tmPrio">'+prioOpts+'</select></div>'
+    +'<div class="tm-field"><label>Type / action</label><select id="tmKind">'+kindOpts+'</select></div>'
+    +'<div class="tm-field"><label>Status</label><select id="tmStatus">'+statOpts+'</select></div>'
+    +'<div class="tm-field"><label>Delivery light</label><div class="segrow" id="tmRag"></div></div>'
+    +'<div class="tm-field full"><label>Colour</label><div class="segrow" id="tmSwatches"></div></div>'
+    +'<div class="tm-field full"><label>Critical path</label><div class="segrow"><button type="button" class="segbtn" id="tmCrit"></button><span style="color:var(--ink-3);font-size:12px;align-self:center">Flag jobs on the critical path so they surface on the dashboard.</span></div></div>'
+    +'<div class="tm-field full"><label>Description</label><textarea id="tmDesc" rows="3" placeholder="Detail, context, links…"></textarea></div>'
+    +'<div class="tm-field full"><label style="display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px;color:var(--ink-2);cursor:pointer"><input type="checkbox" id="tmWeekly" style="width:auto"> Add to weekly agenda (surfaces in Monday’s Company Meeting)</label></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:9px;justify-content:flex-end;margin-top:22px"><button class="btn btn-ghost" id="tmCancel">Cancel</button><button class="btn btn-gold" id="tmSave">'+(editId!=null?"Save changes":"Create task")+'</button></div>'
+    +'</div>';
+  var q=function(id){return ov.querySelector(id);};
+  q("#tmTitle").value=t?t.title:"";
+  q("#tmDept").value=(t&&t.dept)||preset.dept||"company";
+  q("#tmOwner").value=(t&&t.owner)||preset.owner||"";
+  q("#tmDue").value=(t&&/^\d{4}-\d{2}-\d{2}$/.test(t.due||"")?t.due:"");
+  q("#tmTime").value=(t&&t.time)||"";
+  q("#tmPrio").value=(t&&t.prio)||"med";
+  q("#tmKind").value=(t&&t.kind)||"";
+  q("#tmStatus").value=(t&&t.status)||"todo";
+  q("#tmDesc").value=(t&&t.desc)||"";
+  q("#tmWeekly").checked=!!(t&&t.weekly);
+  function paintRag(){q("#tmRag").innerHTML=RAG.map(function(r){return '<button type="button" class="segbtn'+(_tmSel.light===r[0]?" on":"")+'" data-l="'+r[0]+'"><span class="tlight" style="background:'+ragColor(r[0])+'"></span>'+r[1]+'</button>';}).join("");q("#tmRag").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){_tmSel.light=b.getAttribute("data-l");paintRag();};});}
+  function paintSw(){q("#tmSwatches").innerHTML=TASK_PAL.map(function(c){return '<span class="swatch'+(c===_tmSel.color?" sel":"")+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");q("#tmSwatches").querySelectorAll(".swatch").forEach(function(s){s.onclick=function(){_tmSel.color=s.getAttribute("data-c");paintSw();};});}
+  function paintCrit(){var b=q("#tmCrit");b.classList.toggle("on",_tmSel.critical);b.innerHTML=(_tmSel.critical?"⚡ On critical path":"Not critical");}
+  paintRag();paintSw();paintCrit();
+  q("#tmCrit").onclick=function(){_tmSel.critical=!_tmSel.critical;paintCrit();};
+  q("#tmCancel").onclick=function(){ov.style.display="none";};
+  q("#tmSave").onclick=function(){
+    var title=q("#tmTitle").value.trim();if(!title){toast("Enter a task title");return;}
+    var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical};
+    data.done=(data.status==="done");
+    if(editId!=null){var tt=TASKS.find(function(x){return x.id===editId;});for(var k in data)tt[k]=data[k];if(tt.fromMeeting)pushBoardTask(tt);ov.style.display="none";render();openTask(editId);toast("Task updated");}
+    else{data.project="—";data.source=null;var nt=T(data);TASKS.push(nt);ov.style.display="none";render();openTask(nt.id);toast("Task created");}
+  };
+  ov.style.display="flex";setTimeout(function(){q("#tmTitle").focus();},40);
 }
 /* In-app text prompt — native prompt() is blocked inside the hub iframe, so all
    name/email/task entry flows through this modal instead. */
