@@ -1504,7 +1504,14 @@ function openTaskModal(preset,editId){
   function paintRag(){q("#tmRag").innerHTML=RAG.map(function(r){return '<button type="button" class="segbtn'+(_tmSel.light===r[0]?" on":"")+'" data-l="'+r[0]+'"><span class="tlight" style="background:'+ragColor(r[0])+'"></span>'+r[1]+'</button>';}).join("");q("#tmRag").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){_tmSel.light=b.getAttribute("data-l");paintRag();};});}
   function paintSw(){q("#tmSwatches").innerHTML=TASK_PAL.map(function(c){return '<span class="swatch'+(c===_tmSel.color?" sel":"")+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join("");q("#tmSwatches").querySelectorAll(".swatch").forEach(function(s){s.onclick=function(){_tmSel.color=s.getAttribute("data-c");paintSw();};});}
   function paintCrit(){var b=q("#tmCrit");b.classList.toggle("on",_tmSel.critical);b.innerHTML=(_tmSel.critical?"⚡ On critical path":"Not critical");}
-  function paintWatch(){q("#tmWatch").innerHTML=ppl.map(function(p){var on=_tmSel.watchers.indexOf(p.name)>=0;return '<button type="button" class="segbtn'+(on?" on":"")+'" data-w="'+esc(p.name)+'">'+av(p.name,18)+esc(p.name.split(" ")[0])+'</button>';}).join("");q("#tmWatch").querySelectorAll(".segbtn").forEach(function(b){b.onclick=function(){var n=b.getAttribute("data-w");var i=_tmSel.watchers.indexOf(n);if(i>=0)_tmSel.watchers.splice(i,1);else _tmSel.watchers.push(n);paintWatch();};});}
+  function paintWatch(){
+    var chips=_tmSel.watchers.map(function(n){return '<span class="memberchip">'+av(n,18)+esc(n)+' <span class="x" data-rm="'+esc(n)+'">×</span></span>';}).join("");
+    var avail=ppl.filter(function(p){return _tmSel.watchers.indexOf(p.name)<0;});
+    var sel='<select class="recAddSel" id="tmWatchSel"><option value="">+ Add team member…</option>'+avail.map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join("")+'</select>';
+    q("#tmWatch").innerHTML=chips+sel;
+    var s=q("#tmWatchSel");if(s)s.onchange=function(){if(this.value){_tmSel.watchers.push(this.value);paintWatch();}};
+    q("#tmWatch").querySelectorAll("[data-rm]").forEach(function(x){x.onclick=function(){var n=x.getAttribute("data-rm");_tmSel.watchers=_tmSel.watchers.filter(function(m){return m!==n;});paintWatch();};});
+  }
   paintRag();paintSw();paintCrit();paintWatch();
   q("#tmCrit").onclick=function(){_tmSel.critical=!_tmSel.critical;paintCrit();};
   q("#tmCancel").onclick=function(){ov.style.display="none";};
