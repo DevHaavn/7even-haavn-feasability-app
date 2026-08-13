@@ -1456,10 +1456,12 @@ function quickAddTask(){var d=(document.getElementById("v-teamboard")&&document.
 var TASK_PAL=["#5aa87a","#5b8def","#d8a54a","#a179d8","#e0644f","#4fa8a0","#c77dbb","#8a9099"];
 var RAG=[["","No light"],["green","On track"],["amber","Watch"],["red","At risk"]];
 function ragColor(l){return l==="red"?"var(--red)":l==="amber"?"var(--accent)":l==="green"?"var(--green)":"var(--ink-4)";}
-var _tmSel={color:"#5aa87a",light:"",critical:false};
+var _tmSel={color:"#5aa87a",light:"",critical:false,files:[]};
+var _tmPaintFiles=null;
+function tmAttach(input){uploadAttachment(input,function(ref){if(!_tmSel.files)_tmSel.files=[];_tmSel.files.push(ref);if(_tmPaintFiles)_tmPaintFiles();toast("Attached "+ref.name);});}
 function openTaskModal(preset,editId){
   preset=preset||{};var t=(editId!=null)?TASKS.find(function(x){return x.id===editId;}):null;
-  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical),watchers:(t&&t.watchers?t.watchers.slice():(preset.watchers?preset.watchers.slice():[]))};
+  _tmSel={color:(t&&t.color)||deptC(preset.dept||t&&t.dept||"company"),light:(t&&t.light)||"",critical:!!(t&&t.critical),watchers:(t&&t.watchers?t.watchers.slice():(preset.watchers?preset.watchers.slice():[])),files:(t&&t.files?t.files.slice():[])};
   var ov=document.getElementById("taskOv");
   if(!ov){ov=document.createElement("div");ov.id="taskOv";
     ov.style.cssText="position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,11,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)";
@@ -1486,6 +1488,7 @@ function openTaskModal(preset,editId){
     +'<div class="tm-field full"><label>Colour</label><div class="segrow" id="tmSwatches"></div></div>'
     +'<div class="tm-field full"><label>Critical path</label><div class="segrow"><button type="button" class="segbtn" id="tmCrit"></button><span style="color:var(--ink-3);font-size:12px;align-self:center">Flag jobs on the critical path so they surface on the dashboard.</span></div></div>'
     +'<div class="tm-field full"><label>Description</label><textarea id="tmDesc" rows="3" placeholder="Detail, context, links…"></textarea></div>'
+    +'<div class="tm-field full"><label>Attachments — document or image</label><div id="tmFiles"></div><label class="btn btn-ghost" style="cursor:pointer;margin-top:8px;width:fit-content">📎 Attach document / image<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="tmAttach(this)"></label><span style="color:var(--ink-3);font-size:12px;display:block;margin-top:5px">Shown to the team and in the meeting. Max 4MB.</span></div>'
     +'<div class="tm-field full"><label style="display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px;color:var(--ink-2);cursor:pointer"><input type="checkbox" id="tmWeekly" style="width:auto"> Add to weekly agenda (surfaces in Monday’s Company Meeting)</label></div>'
     +'</div>'
     +'<div style="display:flex;gap:9px;justify-content:flex-end;margin-top:22px"><button class="btn btn-ghost" id="tmCancel">Cancel</button><button class="btn btn-gold" id="tmSave">'+(editId!=null?"Save changes":"Create task")+'</button></div>'
@@ -1512,12 +1515,14 @@ function openTaskModal(preset,editId){
     var s=q("#tmWatchSel");if(s)s.onchange=function(){if(this.value){_tmSel.watchers.push(this.value);paintWatch();}};
     q("#tmWatch").querySelectorAll("[data-rm]").forEach(function(x){x.onclick=function(){var n=x.getAttribute("data-rm");_tmSel.watchers=_tmSel.watchers.filter(function(m){return m!==n;});paintWatch();};});
   }
-  paintRag();paintSw();paintCrit();paintWatch();
+  function paintFiles(){var box=q("#tmFiles");if(!box)return;box.innerHTML=_tmSel.files.length?_tmSel.files.map(function(f){return '<div class="attrow"><span class="fic">📄</span><span class="fnm" style="cursor:default;text-decoration:none;color:var(--ink)">'+esc(f.name)+'</span><span class="fsz">'+fileSize(f.size||0)+'</span><span class="x" data-fid="'+f.id+'">×</span></div>';}).join(""):'<div style="color:var(--ink-4);font-size:12px">No attachments yet.</div>';box.querySelectorAll("[data-fid]").forEach(function(x){x.onclick=function(){var fid=x.getAttribute("data-fid");_tmSel.files=_tmSel.files.filter(function(f){return f.id!==fid;});paintFiles();};});}
+  _tmPaintFiles=paintFiles;
+  paintRag();paintSw();paintCrit();paintWatch();paintFiles();
   q("#tmCrit").onclick=function(){_tmSel.critical=!_tmSel.critical;paintCrit();};
   q("#tmCancel").onclick=function(){ov.style.display="none";};
   q("#tmSave").onclick=function(){
     var title=q("#tmTitle").value.trim();if(!title){toast("Enter a task title");return;}
-    var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical,watchers:_tmSel.watchers.slice()};
+    var data={title:title,dept:q("#tmDept").value,owner:q("#tmOwner").value,due:q("#tmDue").value||"",time:q("#tmTime").value||"",prio:q("#tmPrio").value,kind:q("#tmKind").value,status:q("#tmStatus").value,desc:q("#tmDesc").value.trim(),weekly:q("#tmWeekly").checked,color:_tmSel.color,light:_tmSel.light,critical:_tmSel.critical,watchers:_tmSel.watchers.slice(),files:(_tmSel.files||[]).slice()};
     data.done=(data.status==="done");
     if(editId!=null){var tt=TASKS.find(function(x){return x.id===editId;});var oldW=(tt.watchers||[]).slice(),oldOwner=tt.owner;for(var k in data)tt[k]=data[k];if(tt.fromMeeting)pushBoardTask(tt);notifyTaskAssign(tt,(data.watchers||[]).filter(function(n){return oldW.indexOf(n)<0;}),data.owner!==oldOwner?data.owner:null);ov.style.display="none";render();openTask(editId);toast("Task updated");}
     else{data.project="—";data.source=null;var nt=T(data);TASKS.push(nt);notifyTaskAssign(nt,nt.watchers||[],nt.owner);ov.style.display="none";render();openTask(nt.id);toast("Task created");}
