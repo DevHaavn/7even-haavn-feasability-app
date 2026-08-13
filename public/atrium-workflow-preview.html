@@ -53,6 +53,11 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .notif-item .nic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--pill);color:var(--ink-2);font-size:12px}
 .notif-item.unread{background:rgba(216,165,74,.10)}
 .notif-item.unread .nic{background:var(--accent);color:#231a06}
+.attrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px}
+.attrow .fic{opacity:.7;flex:none}
+.attrow .fnm{flex:1;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attrow .fsz{font-family:var(--mono);font-size:10px;color:var(--ink-4);flex:none}
+.attrow .x{cursor:pointer;color:var(--ink-4);flex:none;padding:0 4px}
 .search-results.on{display:block}
 .sr-group{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);padding:11px 10px 5px}
 .sr-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink)}
@@ -1248,7 +1253,10 @@ function openTask(id){
       (t.critical?'<span class="chiplet" style="color:var(--accent)">⚡ Critical path</span>':'')+
       (t.overdue&&!t.done?'<span class="chiplet" style="color:var(--red)">Overdue</span>':'')+'</div>'+
     '<div class="row"><span class="k">Task leader</span>'+av(t.owner,24)+' '+(t.owner||"— unassigned —")+'</div>'+
-    ((t.watchers&&t.watchers.length)?'<div class="row"><span class="k">Team · FYI</span><span class="stack">'+t.watchers.map(function(n){return av(n,24);}).join("")+'</span><span style="margin-left:9px;color:var(--ink-3);font-size:12px">'+t.watchers.map(function(n){return esc(n.split(" ")[0]);}).join(", ")+'</span></div>':'')+
+    '<div class="sec"><h4>Reviewers · FYI'+((t.watchers&&t.watchers.length)?' · '+t.watchers.length:'')+'</h4><div class="members">'+
+      (t.watchers||[]).map(function(n){return '<span class="memberchip">'+av(n,22)+esc(n)+' <span class="x" onclick="rmReviewer('+id+',\''+n.replace(/'/g,"")+'\')">×</span></span>';}).join("")+
+      '<select class="recAddSel" onchange="addReviewer('+id+',this.value)"><option value="">+ Add reviewer…</option>'+PEOPLE.filter(function(p){return !p.ext&&(t.watchers||[]).indexOf(p.name)<0;}).map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join("")+'</select>'+
+      '</div></div>'+
     '<div class="row"><span class="k">Due</span>'+(t.due||"—")+(t.time?' · '+t.time:'')+'</div>'+
     '<div class="row"><span class="k">Source</span>'+(t.source?'📋 '+t.source:"—")+'</div>'+
     '<div class="row"><span class="k">Status</span><select class="txt" style="padding:6px 9px" onchange="setStatus('+id+',this.value)">'+
@@ -1256,6 +1264,9 @@ function openTask(id){
     '<div class="sec"><h4>Description</h4><div style="font-size:13px;color:var(--ink-2)">'+esc(t.desc||"—")+'</div></div>'+
     '<div class="sec"><h4>Subtasks'+((t.subs&&t.subs.length)?' · '+t.subs.filter(function(s){return s.done;}).length+'/'+t.subs.length:'')+'</h4>'+subs+
       '<div class="dec-add" style="display:flex;gap:8px;margin-top:8px"><input class="txt" id="subInput" placeholder="Add a subtask…" onkeydown="if(event.key===\'Enter\')addSub('+id+')"><button class="btn btn-ghost" onclick="addSub('+id+')">Add</button></div></div>'+
+    '<div class="sec"><h4>Attachments'+((t.files&&t.files.length)?' · '+t.files.length:'')+'</h4>'+
+      ((t.files&&t.files.length)?t.files.map(function(f){return '<div class="attrow"><span class="fic">📄</span><span class="fnm" onclick="openAttachment(\''+f.id+'\')">'+esc(f.name)+'</span><span class="fsz">'+fileSize(f.size||0)+'</span><span class="x" onclick="rmAttach('+id+',\''+f.id+'\')">×</span></div>';}).join(""):'<div style="color:var(--ink-4);font-size:12px;padding:2px 0 6px">No documents attached — add one to share it in the meeting.</div>')+
+      '<label class="btn btn-ghost" style="cursor:pointer;margin-top:8px">📎 Attach document<input type="file" style="display:none" onchange="attachToTask('+id+',this)"></label></div>'+
     '<div class="sec"><h4>Activity</h4>'+
       ((t.comments&&t.comments.length)?t.comments.map(function(c){return '<div class="cmt">'+av(c.by,26)+'<div class="body"><div class="who">'+esc(c.by)+' <span style="color:var(--ink-4);font-weight:400;font-size:11px">'+notifWhen(c.at)+'</span></div>'+esc(c.text)+'</div></div>';}).join(""):'<div style="color:var(--ink-4);font-size:12px;padding:2px 0 8px">No activity yet — add the first comment.</div>')+
       '<textarea class="txt" id="cmtInput" rows="2" placeholder="Add a comment…" onkeydown="if(event.key===\'Enter\'&&(event.metaKey||event.ctrlKey))addComment('+id+')"></textarea>'+
@@ -1277,6 +1288,17 @@ function addComment(id){var t=TASKS.find(function(x){return x.id===id});if(!t)re
   var to=[];if(t.owner&&t.owner!==ME)to.push(t.owner);(t.watchers||[]).forEach(function(n){if(n!==ME&&to.indexOf(n)<0)to.push(n);});
   to.forEach(function(n){notify(n,ME.split(" ")[0]+" commented on “"+t.title+"”","task",t.id);});
   save();openTask(id);}
+/* ---- reviewers on a task (adds to watchers; they get an FYI notification) ---- */
+function addReviewer(id,name){if(!name)return;var t=TASKS.find(function(x){return x.id===id;});if(!t)return;if(!t.watchers)t.watchers=[];if(t.watchers.indexOf(name)<0){t.watchers.push(name);notify(name,"You were added as a reviewer on “"+t.title+"”","task",t.id);}save();openTask(id);}
+function rmReviewer(id,name){var t=TASKS.find(function(x){return x.id===id;});if(!t||!t.watchers)return;t.watchers=t.watchers.filter(function(n){return n!==name;});save();openTask(id);}
+/* ---- document attachments (stored in their own capital_kv rows; task holds a ref) ---- */
+function _fileKey(fid){return "atrium_file_"+fid;}
+function _dataURLtoBlob(d){var parts=d.split(",");var mime=(parts[0].match(/:(.*?);/)||[])[1]||"application/octet-stream";var bin=atob(parts[1]);var n=bin.length,u=new Uint8Array(n);for(var i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime});}
+function uploadAttachment(inputEl,cb){var f=inputEl.files&&inputEl.files[0];if(!f)return;if(f.size>4*1024*1024){toast("File too large — max 4MB");return;}toast("Uploading "+f.name+"…");var r=new FileReader();r.onload=function(e){var fid=String(Date.now())+"-"+Math.floor(Math.random()*10000);var row=[{key:_fileKey(fid),value:{name:f.name,type:f.type,size:f.size,dataUrl:e.target.result,by:ME,at:Date.now()},updated_at:new Date().toISOString()}];fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify(row)}).then(function(r2){if(r2.ok)cb({id:fid,name:f.name,type:f.type,size:f.size});else toast("Upload failed");}).catch(function(){toast("Upload failed");});};r.readAsDataURL(f);}
+function openAttachment(fid){fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+_fileKey(fid)+"&select=value",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length){toast("File not found");return;}var v=rows[0].value;try{var url=URL.createObjectURL(_dataURLtoBlob(v.dataUrl));window.open(url,"_blank");setTimeout(function(){URL.revokeObjectURL(url);},60000);}catch(e){var a=document.createElement("a");a.href=v.dataUrl;a.download=v.name;a.click();}}).catch(function(){toast("Could not open file");});}
+function fileSize(b){return b>1048576?(b/1048576).toFixed(1)+"MB":Math.max(1,Math.round(b/1024))+"KB";}
+function attachToTask(id,inputEl){uploadAttachment(inputEl,function(ref){var t=TASKS.find(function(x){return x.id===id;});if(!t)return;if(!t.files)t.files=[];t.files.push(ref);save();openTask(id);toast("Attached "+ref.name);});}
+function rmAttach(id,fid){var t=TASKS.find(function(x){return x.id===id;});if(!t||!t.files)return;t.files=t.files.filter(function(f){return f.id!==fid;});save();openTask(id);}
 function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";pushBoardTask(t);render();openTask(id);}
 
 /* ============================== RECORD MODAL ============================== */
