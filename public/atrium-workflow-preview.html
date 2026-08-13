@@ -1253,9 +1253,9 @@ function openTask(id){
       (t.critical?'<span class="chiplet" style="color:var(--accent)">⚡ Critical path</span>':'')+
       (t.overdue&&!t.done?'<span class="chiplet" style="color:var(--red)">Overdue</span>':'')+'</div>'+
     '<div class="row"><span class="k">Task leader</span>'+av(t.owner,24)+' '+(t.owner||"— unassigned —")+'</div>'+
-    '<div class="sec"><h4>Reviewers · FYI'+((t.watchers&&t.watchers.length)?' · '+t.watchers.length:'')+'</h4><div class="members">'+
+    '<div class="sec"><h4>Team members — view &amp; run'+((t.watchers&&t.watchers.length)?' · '+t.watchers.length:'')+'</h4><div class="members">'+
       (t.watchers||[]).map(function(n){return '<span class="memberchip">'+av(n,22)+esc(n)+' <span class="x" onclick="rmReviewer('+id+',\''+n.replace(/'/g,"")+'\')">×</span></span>';}).join("")+
-      '<select class="recAddSel" onchange="addReviewer('+id+',this.value)"><option value="">+ Add reviewer…</option>'+PEOPLE.filter(function(p){return !p.ext&&(t.watchers||[]).indexOf(p.name)<0;}).map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join("")+'</select>'+
+      '<select class="recAddSel" onchange="addReviewer('+id+',this.value)"><option value="">+ Add team member…</option>'+PEOPLE.filter(function(p){return !p.ext&&(t.watchers||[]).indexOf(p.name)<0;}).map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join("")+'</select>'+
       '</div></div>'+
     '<div class="row"><span class="k">Due</span>'+(t.due||"—")+(t.time?' · '+t.time:'')+'</div>'+
     '<div class="row"><span class="k">Source</span>'+(t.source?'📋 '+t.source:"—")+'</div>'+
@@ -1476,6 +1476,7 @@ function openTaskModal(preset,editId){
     +'<div class="tm-field full"><label>Task</label><input id="tmTitle" placeholder="What needs doing?" autocomplete="off"></div>'
     +'<div class="tm-field"><label>Department</label><select id="tmDept">'+deptOpts+'</select></div>'
     +'<div class="tm-field"><label>Task leader / responsible</label><select id="tmOwner">'+ownerOpts+'</select></div>'
+    +'<div class="tm-field full"><label>Team members — who will view &amp; run this task</label><div class="segrow" id="tmWatch"></div><span style="color:var(--ink-3);font-size:12px;margin-top:4px">Tap to add anyone who works on or follows this task — they see it and get updates.</span></div>'
     +'<div class="tm-field"><label>Due date</label><input id="tmDue" type="date"></div>'
     +'<div class="tm-field"><label>Time</label><input id="tmTime" type="time"></div>'
     +'<div class="tm-field"><label>Priority</label><select id="tmPrio">'+prioOpts+'</select></div>'
@@ -1484,7 +1485,6 @@ function openTaskModal(preset,editId){
     +'<div class="tm-field"><label>Delivery light</label><div class="segrow" id="tmRag"></div></div>'
     +'<div class="tm-field full"><label>Colour</label><div class="segrow" id="tmSwatches"></div></div>'
     +'<div class="tm-field full"><label>Critical path</label><div class="segrow"><button type="button" class="segbtn" id="tmCrit"></button><span style="color:var(--ink-3);font-size:12px;align-self:center">Flag jobs on the critical path so they surface on the dashboard.</span></div></div>'
-    +'<div class="tm-field full"><label>Team members · FYI &amp; updates</label><div class="segrow" id="tmWatch"></div></div>'
     +'<div class="tm-field full"><label>Description</label><textarea id="tmDesc" rows="3" placeholder="Detail, context, links…"></textarea></div>'
     +'<div class="tm-field full"><label style="display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px;color:var(--ink-2);cursor:pointer"><input type="checkbox" id="tmWeekly" style="width:auto"> Add to weekly agenda (surfaces in Monday’s Company Meeting)</label></div>'
     +'</div>'
