@@ -1297,7 +1297,7 @@ function _dataURLtoBlob(d){var parts=d.split(",");var mime=(parts[0].match(/:(.*
 function uploadAttachment(inputEl,cb){var f=inputEl.files&&inputEl.files[0];if(!f)return;if(f.size>4*1024*1024){toast("File too large — max 4MB");return;}toast("Uploading "+f.name+"…");var r=new FileReader();r.onload=function(e){var fid=String(Date.now())+"-"+Math.floor(Math.random()*10000);var row=[{key:_fileKey(fid),value:{name:f.name,type:f.type,size:f.size,dataUrl:e.target.result,by:ME,at:Date.now()},updated_at:new Date().toISOString()}];fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify(row)}).then(function(r2){if(r2.ok)cb({id:fid,name:f.name,type:f.type,size:f.size});else toast("Upload failed");}).catch(function(){toast("Upload failed");});};r.readAsDataURL(f);}
 function openAttachment(fid){fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+_fileKey(fid)+"&select=value",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length){toast("File not found");return;}var v=rows[0].value;try{var url=URL.createObjectURL(_dataURLtoBlob(v.dataUrl));window.open(url,"_blank");setTimeout(function(){URL.revokeObjectURL(url);},60000);}catch(e){var a=document.createElement("a");a.href=v.dataUrl;a.download=v.name;a.click();}}).catch(function(){toast("Could not open file");});}
 function fileSize(b){return b>1048576?(b/1048576).toFixed(1)+"MB":Math.max(1,Math.round(b/1024))+"KB";}
-function attachToTask(id,inputEl){uploadAttachment(inputEl,function(ref){var t=TASKS.find(function(x){return x.id===id;});if(!t)return;if(!t.files)t.files=[];t.files.push(ref);save();openTask(id);toast("Attached "+ref.name);});}
+function attachToTask(id,inputEl){uploadAttachment(inputEl,function(ref){var t=TASKS.find(function(x){return x.id===id;});if(!t)return;if(!t.files)t.files=[];t.files.push(ref);if(t.fromMeeting)pushBoardTask(t);save();openTask(id);toast("Attached "+ref.name);});}
 function rmAttach(id,fid){var t=TASKS.find(function(x){return x.id===id;});if(!t||!t.files)return;t.files=t.files.filter(function(f){return f.id!==fid;});save();openTask(id);}
 function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";pushBoardTask(t);render();openTask(id);}
 
@@ -1571,7 +1571,8 @@ var DEPT2BOARD={company:"company","7even":"7even",haavn:"haavn",haavnmgmt:"mgmt"
 var ST2BOARD={todo:"action",doing:"followup",blocked:"trouble",review:"followup",done:"complete"};
 function _norm(s){return String(s||"").trim().toLowerCase();}
 function _newBoardId(){return Date.now()*1000+Math.floor(Math.random()*1000);}
-function _boardItem(t){return {id:_newBoardId(),dept:DEPT2BOARD[t.dept]||t.dept,status:ST2BOARD[t.status]||"action",title:t.title,kind:t.kind||"",assigneeId:"",owner:t.owner||"",due:t.due||"",notes:t.desc||"",carried:0,discussed:t.status==="done"};}
+function _mergeFiles(a,b){var seen={},out=[];(a||[]).concat(b||[]).forEach(function(f){if(f&&f.id&&!seen[f.id]){seen[f.id]=1;out.push(f);}});return out;}
+function _boardItem(t){return {id:_newBoardId(),dept:DEPT2BOARD[t.dept]||t.dept,status:ST2BOARD[t.status]||"action",title:t.title,kind:t.kind||"",assigneeId:"",owner:t.owner||"",due:t.due||"",notes:t.desc||"",carried:0,discussed:t.status==="done",files:(t.files||[]).slice(),reviewers:[]};}
 function syncToWeekly(mineOnly){
   var set=TASKS.filter(function(t){return t.weekly&&(!mineOnly||t.owner===ME);});
   if(!set.length){toast("No weekly-flagged tasks to sync — star tasks to add them");return;}
@@ -1697,8 +1698,8 @@ function importBoard(){
       ex=TASKS.find(function(t){return !t.fromMeeting&&_norm(t.title)===_norm(mapped.title)&&canonName(t.owner)===mapped.owner;});
       if(ex){ex.fromMeeting=true;ex.mKey=key;ex.mItem=o.it.id;ex.mMeet=m.id;}
     }
-    if(ex){ex.title=mapped.title;ex.owner=mapped.owner;ex.dept=mapped.dept;ex.status=mapped.status;ex.done=(mapped.status==="done");ex.due=mapped.due;ex.desc=mapped.desc;ex.weekly=true;ex.source="Weekly Company Meeting";}
-    else{TASKS.push(T({title:mapped.title,owner:mapped.owner,dept:mapped.dept,project:"Weekly Meeting",status:mapped.status,prio:(o.it.status==="trouble"?"high":"med"),due:mapped.due,weekly:true,source:"Weekly Company Meeting",desc:mapped.desc,kind:mapped.kind,fromMeeting:true,mKey:key,mItem:o.it.id,mMeet:m.id}));}
+    if(ex){ex.title=mapped.title;ex.owner=mapped.owner;ex.dept=mapped.dept;ex.status=mapped.status;ex.done=(mapped.status==="done");ex.due=mapped.due;ex.desc=mapped.desc;ex.weekly=true;ex.source="Weekly Company Meeting";ex.files=_mergeFiles(ex.files,o.it.files);}
+    else{TASKS.push(T({title:mapped.title,owner:mapped.owner,dept:mapped.dept,project:"Weekly Meeting",status:mapped.status,prio:(o.it.status==="trouble"?"high":"med"),due:mapped.due,weekly:true,source:"Weekly Company Meeting",desc:mapped.desc,kind:mapped.kind,files:(o.it.files||[]).slice(),fromMeeting:true,mKey:key,mItem:o.it.id,mMeet:m.id}));}
   });
   // drop meeting-mirror tasks whose item is gone / no longer assigned / from a past meeting
   TASKS=TASKS.filter(function(t){return !t.fromMeeting||keep[t.mKey];});
@@ -1707,7 +1708,7 @@ function importBoard(){
 function boardPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+BOARD_KEY+"&select=value,updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){return (rows&&rows.length)?rows[0]:null;}).catch(function(){return null;});}
 function boardPush(){if(!BOARD)return;clearTimeout(_boardPushT);_boardPushT=setTimeout(function(){fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:BOARD,updated_at:new Date().toISOString()}])}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_boardTs=Date.parse(rows[0].updated_at)||Date.now();}).catch(function(){});},700);}
 function boardPoll(){if(_busy())return;boardPull().then(function(row){if(!row||!row.value)return;var ts=Date.parse(row.updated_at)||0;if(ts>_boardTs+400){_boardTs=ts;BOARD=row.value;importBoard();reconcileWeekly();render();}});}
-function pushBoardTask(t){if(!t||!t.fromMeeting||!BOARD)return;var m=curBoardMeeting();if(!m)return;var it=(m.items||[]).find(function(x){return ""+x.id===""+t.mItem;});if(!it)return;var s=wfStatus2m(t);it.status=s.status;it.discussed=s.discussed;boardPush();}
+function pushBoardTask(t){if(!t||!t.fromMeeting||!BOARD)return;var m=curBoardMeeting();if(!m)return;var it=(m.items||[]).find(function(x){return ""+x.id===""+t.mItem;});if(!it)return;var s=wfStatus2m(t);it.status=s.status;it.discussed=s.discussed;it.files=_mergeFiles(it.files,t.files);boardPush();}
 /* Auto-push: any weekly-flagged task with a leader is placed on the current
    Weekly Meeting agenda and linked (two-way). Un-starring a task we pushed pulls
    it back off the agenda. Meeting-origin tasks are left alone. */
