@@ -1042,7 +1042,7 @@ function deleteTask(id){var t=TASKS.find(function(x){return x.id===id;});if(!t)r
   TASKS=TASKS.filter(function(x){return x.id!==id;});if(drawerId===id)closeDrawer();render();toast("Task deleted");});}
 function deleteGroup(id){var g=GROUPS.find(function(x){return x.id===id;});if(!g)return;confirmModal("Delete group “"+g.name+"”? Its tasks stay but lose the group.",function(){GROUPS=GROUPS.filter(function(x){return x.id!==id;});TASKS.forEach(function(t){if(t.groupId===id)t.groupId=null;});if(curGroup===id)closeDrawer();render();toast("Group deleted");});}
 function deleteDept(id){var d=DEPTS.find(function(x){return x.id===id;});if(!d)return;if(!d.custom){toast("Built-in departments can’t be removed");return;}confirmModal("Remove department “"+d.name+"”? Tasks keep their label; the department leaves the sidebar and Weekly Meeting.",function(){customDepts=customDepts.filter(function(x){return x.id!==id;});delete DEPT_MEMBERS[id];rebuildDepts();if(curDeptView===id)go("myday");render();pushDeptsShared();toast("Department removed");});}
-function toggleWeekly(id){var t=TASKS.find(function(x){return x.id===id});t.weekly=!t.weekly;render();if(drawerId===id)openTask(id);toast(t.weekly?"Added to weekly agenda":"Removed from weekly agenda");}
+function toggleWeekly(id){var t=TASKS.find(function(x){return x.id===id});t.weekly=!t.weekly;reconcileWeekly();render();if(drawerId===id)openTask(id);toast(t.weekly?"Added to weekly agenda — on Monday’s meeting":"Removed from weekly agenda");}
 
 /* ---- MY DAY ---- */
 function renderDay(){
@@ -1254,10 +1254,12 @@ function openTask(id){
     '<div class="row"><span class="k">Status</span><select class="txt" style="padding:6px 9px" onchange="setStatus('+id+',this.value)">'+
       ['todo','doing','blocked','review','done'].map(function(s){return '<option value="'+s+'" '+(t.status===s?"selected":"")+'>'+STLBL[s]+'</option>';}).join("")+'</select></div>'+
     '<div class="sec"><h4>Description</h4><div style="font-size:13px;color:var(--ink-2)">'+esc(t.desc||"—")+'</div></div>'+
-    '<div class="sec"><h4>Subtasks</h4>'+subs+'</div>'+
+    '<div class="sec"><h4>Subtasks'+((t.subs&&t.subs.length)?' · '+t.subs.filter(function(s){return s.done;}).length+'/'+t.subs.length:'')+'</h4>'+subs+
+      '<div class="dec-add" style="display:flex;gap:8px;margin-top:8px"><input class="txt" id="subInput" placeholder="Add a subtask…" onkeydown="if(event.key===\'Enter\')addSub('+id+')"><button class="btn btn-ghost" onclick="addSub('+id+')">Add</button></div></div>'+
     '<div class="sec"><h4>Activity</h4>'+
-      '<div class="cmt">'+av(t.owner,26)+'<div class="body"><div class="who">'+t.owner+'</div>Progressing — will update before Monday.</div></div>'+
-      '<textarea class="txt" id="cmtInput" rows="2" placeholder="Add a comment…"></textarea>'+
+      ((t.comments&&t.comments.length)?t.comments.map(function(c){return '<div class="cmt">'+av(c.by,26)+'<div class="body"><div class="who">'+esc(c.by)+' <span style="color:var(--ink-4);font-weight:400;font-size:11px">'+notifWhen(c.at)+'</span></div>'+esc(c.text)+'</div></div>';}).join(""):'<div style="color:var(--ink-4);font-size:12px;padding:2px 0 8px">No activity yet — add the first comment.</div>')+
+      '<textarea class="txt" id="cmtInput" rows="2" placeholder="Add a comment…" onkeydown="if(event.key===\'Enter\'&&(event.metaKey||event.ctrlKey))addComment('+id+')"></textarea>'+
+      '<button class="btn btn-ghost" style="margin-top:7px" onclick="addComment('+id+')">Comment</button>'+
     '</div>'+
     '<div class="actions">'+
       '<button class="btn '+(t.weekly?"btn-ghost":"btn-gold")+'" onclick="toggleWeekly('+id+')">'+(t.weekly?"Remove from weekly":"★ Add to weekly agenda")+'</button>'+
@@ -1269,7 +1271,12 @@ function openTask(id){
   document.getElementById("drawerScrim").classList.add("on");
 }
 function closeDrawer(){drawerId=null;document.getElementById("drawer").classList.remove("on");document.getElementById("drawerScrim").classList.remove("on");}
-function toggleSub(id,i){var t=TASKS.find(function(x){return x.id===id});t.subs[i].done=!t.subs[i].done;openTask(id);}
+function toggleSub(id,i){var t=TASKS.find(function(x){return x.id===id});t.subs[i].done=!t.subs[i].done;save();openTask(id);}
+function addSub(id){var t=TASKS.find(function(x){return x.id===id});if(!t)return;var el=document.getElementById("subInput");var v=(el.value||"").trim();if(!v)return;if(!t.subs)t.subs=[];t.subs.push({t:v,done:false});save();openTask(id);setTimeout(function(){var i=document.getElementById("subInput");if(i)i.focus();},30);}
+function addComment(id){var t=TASKS.find(function(x){return x.id===id});if(!t)return;var el=document.getElementById("cmtInput");var v=(el.value||"").trim();if(!v)return;if(!t.comments)t.comments=[];t.comments.push({by:ME,text:v,at:Date.now()});
+  var to=[];if(t.owner&&t.owner!==ME)to.push(t.owner);(t.watchers||[]).forEach(function(n){if(n!==ME&&to.indexOf(n)<0)to.push(n);});
+  to.forEach(function(n){notify(n,ME.split(" ")[0]+" commented on “"+t.title+"”","task",t.id);});
+  save();openTask(id);}
 function setStatus(id,v){var t=TASKS.find(function(x){return x.id===id});t.status=v;t.done=v==="done";pushBoardTask(t);render();openTask(id);}
 
 /* ============================== RECORD MODAL ============================== */
@@ -1529,7 +1536,7 @@ function adopt(v){_adopting=true;try{
 }catch(e){}_adopting=false;}
 function cloudPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+CK+"&select=value,updated_at",{headers:SB_H}).then(function(r){if(!r.ok)return null;_sbOk=true;return r.json();}).then(function(rows){return (rows&&rows.length)?rows[0]:null;}).catch(function(){return null;});}
 function cloudPush(){if(!_sbOk)return;clearTimeout(_pushT);_pushT=setTimeout(function(){var body=[{key:CK,value:snapshot(),updated_at:new Date().toISOString()}];fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify(body)}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_ts=Date.parse(rows[0].updated_at)||Date.now();var s=document.getElementById("syncDot");if(s){s.textContent="Saved "+new Date().toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit"});}}).catch(function(){});},650);}
-function save(){if(_adopting)return;cloudPush();}
+function save(){if(_adopting)return;reconcileWeekly();cloudPush();}
 function _busy(){var a=document.activeElement;return drawerId!=null||(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName));}
 function cloudPoll(){if(!_sbOk||_busy())return;fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+CK+"&select=updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length)return;var ts=Date.parse(rows[0].updated_at)||0;if(ts>_ts+400){cloudPull().then(function(row){if(!row||!row.value)return;_ts=ts;adopt(row.value);render();});}}).catch(function(){});}
 function bootSync(){cloudPull().then(function(row){if(row&&row.value){_ts=Date.parse(row.updated_at)||Date.now();adopt(row.value);}else{_sbOk=true;cloudPush();}render();tryAutoLogin();bootBridge();setInterval(cloudPoll,9000);});}
@@ -1677,9 +1684,25 @@ function importBoard(){
 }
 function boardPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+BOARD_KEY+"&select=value,updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){return (rows&&rows.length)?rows[0]:null;}).catch(function(){return null;});}
 function boardPush(){if(!BOARD)return;clearTimeout(_boardPushT);_boardPushT=setTimeout(function(){fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:BOARD,updated_at:new Date().toISOString()}])}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_boardTs=Date.parse(rows[0].updated_at)||Date.now();}).catch(function(){});},700);}
-function boardPoll(){if(_busy())return;boardPull().then(function(row){if(!row||!row.value)return;var ts=Date.parse(row.updated_at)||0;if(ts>_boardTs+400){_boardTs=ts;BOARD=row.value;importBoard();render();}});}
+function boardPoll(){if(_busy())return;boardPull().then(function(row){if(!row||!row.value)return;var ts=Date.parse(row.updated_at)||0;if(ts>_boardTs+400){_boardTs=ts;BOARD=row.value;importBoard();reconcileWeekly();render();}});}
 function pushBoardTask(t){if(!t||!t.fromMeeting||!BOARD)return;var m=curBoardMeeting();if(!m)return;var it=(m.items||[]).find(function(x){return ""+x.id===""+t.mItem;});if(!it)return;var s=wfStatus2m(t);it.status=s.status;it.discussed=s.discussed;boardPush();}
-function bootBridge(){boardPull().then(function(row){if(row&&row.value){_boardTs=Date.parse(row.updated_at)||Date.now();BOARD=row.value;importBoard();render();}setInterval(boardPoll,9000);});}
+/* Auto-push: any weekly-flagged task with a leader is placed on the current
+   Weekly Meeting agenda and linked (two-way). Un-starring a task we pushed pulls
+   it back off the agenda. Meeting-origin tasks are left alone. */
+function reconcileWeekly(){
+  if(!BOARD)return;var m=curBoardMeeting();if(!m)return;if(!m.items)m.items=[];var changed=false;
+  TASKS.forEach(function(t){
+    if(t.weekly&&t.owner&&!t.mKey&&!t.fromMeeting){
+      var it=_boardItem(t);m.items.push(it);
+      t.fromMeeting=true;t.pushedToBoard=true;t.mItem=it.id;t.mMeet=m.id;t.mKey=m.id+":"+it.id;changed=true;
+    }else if(!t.weekly&&t.pushedToBoard&&t.mKey){
+      m.items=m.items.filter(function(i){return ""+i.id!==""+t.mItem;});
+      t.fromMeeting=false;t.pushedToBoard=false;t.mKey=undefined;t.mItem=undefined;t.mMeet=undefined;changed=true;
+    }
+  });
+  if(changed)boardPush();
+}
+function bootBridge(){boardPull().then(function(row){if(row&&row.value){_boardTs=Date.parse(row.updated_at)||Date.now();BOARD=row.value;importBoard();reconcileWeekly();render();}setInterval(boardPoll,9000);});}
 
 bootSync();
 </script>
