@@ -297,11 +297,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       {/* HAAVN BLACK — Homes company. Was in the brand dropdown; now a footer
           button beside the P7 mark. Opens the HAAVN Homes surface. */}
       <button onClick={() => onOpenHomes?.()} title="HAAVN BLACK — Homes"
-        style={{ position: 'fixed', bottom: 24, right: 100, zIndex: 300, display: 'flex', alignItems: 'center', gap: 9, padding: '9px 15px', borderRadius: 11, background: 'rgba(10,10,12,0.74)', backdropFilter: 'blur(12px) saturate(1.15)', WebkitBackdropFilter: 'blur(12px) saturate(1.15)', border: '1px solid rgba(220,232,244,0.18)', cursor: 'pointer', boxShadow: '0 10px 26px rgba(0,0,0,0.55)', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(220,232,244,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(220,232,244,0.18)'; e.currentTarget.style.transform = 'translateY(0)' }}>
-        <HaavnMark height={13} fill="#FFFFFF" />
-        <span style={{ fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, fontSize: 12, letterSpacing: '0.24em', color: '#9aa1a8' }}>BLACK</span>
+        style={{ position: 'fixed', bottom: 24, right: 96, zIndex: 300, display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 9, background: 'rgba(12,12,14,0.38)', backdropFilter: 'blur(16px) saturate(1.1)', WebkitBackdropFilter: 'blur(16px) saturate(1.1)', border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer', boxShadow: '0 8px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)', transition: 'all 0.2s' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.38)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(0)' }}>
+        <HaavnMark height={10} fill="#FFFFFF" />
+        <span style={{ fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, fontSize: 10, letterSpacing: '0.22em', color: '#9aa1a8' }}>BLACK</span>
       </button>
 
       {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
