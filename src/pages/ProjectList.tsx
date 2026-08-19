@@ -297,7 +297,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       {/* HAAVN BLACK — Homes company. Was in the brand dropdown; now a footer
           button beside the P7 mark. Opens the HAAVN Homes surface. */}
       <button onClick={() => onOpenHomes?.()} title="HAAVN BLACK — Homes"
-        style={{ position: 'fixed', bottom: 24, right: 96, zIndex: 300, display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 9, background: 'rgba(12,12,14,0.38)', backdropFilter: 'blur(16px) saturate(1.1)', WebkitBackdropFilter: 'blur(16px) saturate(1.1)', border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer', boxShadow: '0 8px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)', transition: 'all 0.2s' }}
+        style={{ position: 'fixed', bottom: 24, right: 192, zIndex: 300, display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 9, background: 'rgba(12,12,14,0.38)', backdropFilter: 'blur(16px) saturate(1.1)', WebkitBackdropFilter: 'blur(16px) saturate(1.1)', border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer', boxShadow: '0 8px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)', transition: 'all 0.2s' }}
         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.38)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(0)' }}>
         <HaavnMark height={10} fill="#FFFFFF" />
