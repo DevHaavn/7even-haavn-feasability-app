@@ -216,22 +216,15 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               </span>
               {isAdmin && brandMenu && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                  {/* 7EVEN — the single studio board (HAAVN Management board retired). */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,0.06)', borderBottom: '1px solid #141414' }}>
+                  {/* 7EVEN — the single studio board. HAAVN HOMES moved to the footer
+                      as the HAAVN BLACK button (next to P7). */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,0.06)' }}>
                     <span style={{ display: 'inline-block', height: 13, width: 84, flexShrink: 0,
                       WebkitMaskImage: 'url(/seven-mark-white.png)', maskImage: 'url(/seven-mark-white.png)',
                       WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
                       background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)' }} />
                     <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>
                   </div>
-                  {/* HAAVN HOMES — Black Series homes company. Opens its own separate
-                      surface rather than flipping the project filter. */}
-                  <button onClick={() => { setBrandMenu(false); onOpenHomes?.() }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '11px 14px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                    <HaavnMark height={12} fill="#C6CDCF" />
-                    <span className="chrome-silver-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>HOMES</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 8, color: '#8b9198', fontFamily: 'monospace' }}>↗</span>
-                  </button>
                 </div>
               )}
             </div>
@@ -300,6 +293,16 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
 
       <SiteLinks tone="glass" />
       <Project7Mark />
+
+      {/* HAAVN BLACK — Homes company. Was in the brand dropdown; now a footer
+          button beside the P7 mark. Opens the HAAVN Homes surface. */}
+      <button onClick={() => onOpenHomes?.()} title="HAAVN BLACK — Homes"
+        style={{ position: 'fixed', bottom: 24, right: 100, zIndex: 300, display: 'flex', alignItems: 'center', gap: 9, padding: '9px 15px', borderRadius: 11, background: 'rgba(10,10,12,0.74)', backdropFilter: 'blur(12px) saturate(1.15)', WebkitBackdropFilter: 'blur(12px) saturate(1.15)', border: '1px solid rgba(220,232,244,0.18)', cursor: 'pointer', boxShadow: '0 10px 26px rgba(0,0,0,0.55)', transition: 'all 0.2s' }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(220,232,244,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(220,232,244,0.18)'; e.currentTarget.style.transform = 'translateY(0)' }}>
+        <HaavnMark height={13} fill="#FFFFFF" />
+        <span style={{ fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, fontSize: 12, letterSpacing: '0.24em', color: '#9aa1a8' }}>BLACK</span>
+      </button>
 
       {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
       {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
