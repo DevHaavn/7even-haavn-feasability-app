@@ -15,7 +15,7 @@
   --grey-dim:#7b787b;
   --line:rgba(255,255,255,.10);
   --live:#7ee0a8;
-  --led:#dcebff;
+  --led:#2fe07a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -102,19 +102,19 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
   background:radial-gradient(120% 150% at 50% 50%, rgba(190,215,255,.04), rgba(0,0,0,0) 70%)}
 .stripe.lit .inner-wash{opacity:1}
 /* faint always-on hairlines top + bottom */
-.stripe::before,.stripe::after{content:"";position:absolute;left:0;right:0;height:1px;pointer-events:none;background:rgba(200,224,255,.09)}
+.stripe::before,.stripe::after{content:"";position:absolute;left:0;right:0;height:1px;pointer-events:none;background:rgba(60,235,130,.16)}
 .stripe::before{top:0}.stripe::after{bottom:0}
 /* travelling LED edges: top fades L→R, bottom fades R→L, brighter through the middle */
 .led-top,.led-bot{position:absolute;left:0;right:0;height:2px;pointer-events:none;overflow:visible;z-index:2}
 .led-top{top:-1px}.led-bot{bottom:-1px}
 .led-top::before,.led-bot::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg, transparent 0%, rgba(180,214,255,.28) 26%, var(--led) 50%, rgba(180,214,255,.28) 74%, transparent 100%);
-  background-size:62% 100%;background-repeat:no-repeat;
-  filter:brightness(1.9) drop-shadow(0 0 9px rgba(215,235,255,.92)) drop-shadow(0 0 26px rgba(160,205,255,.72)) drop-shadow(0 0 44px rgba(150,195,255,.45))}
-.led-top::before{animation:ledLR 15s cubic-bezier(.45,.02,.55,.98) infinite}
-.led-bot::before{animation:ledRL 15s cubic-bezier(.45,.02,.55,.98) infinite}
-@keyframes ledLR{0%{background-position:-62% 0;opacity:0}14%{opacity:.4}50%{opacity:1}86%{opacity:.4}100%{background-position:162% 0;opacity:0}}
-@keyframes ledRL{0%{background-position:162% 0;opacity:0}14%{opacity:.4}50%{opacity:1}86%{opacity:.4}100%{background-position:-62% 0;opacity:0}}
+  background:linear-gradient(90deg, transparent 0%, rgba(48,224,120,.62) 26%, var(--led) 50%, rgba(48,224,120,.62) 74%, transparent 100%);
+  background-size:46% 100%;background-repeat:no-repeat;
+  filter:brightness(1.3) drop-shadow(0 0 9px rgba(120,255,170,.95)) drop-shadow(0 0 26px rgba(48,224,120,.9)) drop-shadow(0 0 44px rgba(30,205,100,.62))}
+.led-top::before{animation:ledLR 15.6s linear infinite}
+.led-bot::before{animation:ledRL 15.6s linear infinite}
+@keyframes ledLR{0%{background-position:-62% 0;opacity:0}6%{opacity:1}94%{opacity:1}100%{background-position:162% 0;opacity:0}}
+@keyframes ledRL{0%{background-position:162% 0;opacity:0}6%{opacity:1}94%{opacity:1}100%{background-position:-62% 0;opacity:0}}
 
 .logo{display:block;width:min(60vw,760px);height:auto;opacity:0;transform:translateY(12px);
   animation:rise 1.6s cubic-bezier(.16,.84,.28,1) .35s forwards;
