@@ -138,12 +138,21 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   // The Black Series studio's own "← Home" posts this when embedded — close the
   // studio overlay and return to HAAVN Homes (Escape too).
   useEffect(() => {
-    function onMsg(e: MessageEvent) { if (e.data === 'haavn-close-studio') setOpenId(null) }
+    function onMsg(e: MessageEvent) {
+      if (e.data === 'haavn-close-studio') { setOpenId(null); return }
+      const m = e.data && (e.data as { haavnBlack?: string }).haavnBlack
+      if (!m) return
+      // New HAAVN BLACK home screen (public/haavn-black.html) button actions.
+      if (m === 'return') { restricted ? onLogout?.() : onBack() }
+      else if (m === 'display') onOpenDisplaySuite?.()
+      else if (m === 'feasibility') setOpenId('black-series')
+      else if (m === 'crm') onOpenCrm?.()
+    }
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setOpenId(null) }
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [])
+  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm])
   const open = list.find(p => p.id === openId) || null
   // Pin the parent document while the embedded studio is open — stops the iOS
   // address-bar shift + bounce that made the studio "jump around" on mobile.
@@ -168,6 +177,15 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       </div>
     )
   }
+
+  // ── HAAVN BLACK home screen — the new hero (replaces the glass-tower landing).
+  //    Its buttons post messages handled by the effect above. ──────────────────
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+      <iframe title="HAAVN BLACK" src="/haavn-black.html" allow="autoplay; fullscreen"
+        style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+    </div>
+  )
 
   return (
     <div className="hh-shell" style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', flexDirection: 'column', overflow: 'hidden',
