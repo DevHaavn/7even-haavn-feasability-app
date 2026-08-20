@@ -79,20 +79,14 @@ header{padding-bottom:14px}
 .hm .hm-lbl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.28em;color:var(--grey-txt);
   opacity:0;transform:translateX(8px);transition:.4s cubic-bezier(.2,.7,.3,1)}
 .hm:hover .hm-lbl{opacity:1;transform:translateX(0)}
-/* HM tile: the designed black background, live shards showing faintly through */
-.hm .sq{position:relative;overflow:hidden;
-  background:linear-gradient(158deg, rgba(22,25,29,.80) 0%, rgba(10,12,15,.86) 55%, rgba(4,5,7,.92) 100%);
-  backdrop-filter:blur(9px) saturate(120%);-webkit-backdrop-filter:blur(9px) saturate(120%);
-  border:1px solid rgba(255,255,255,.13);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(0,0,0,.5), 0 12px 28px -14px #000}
-.hm .sq::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(120% 90% at 28% 8%, rgba(255,255,255,.10), rgba(255,255,255,0) 62%)}
-.hm .sq .hmdev{position:relative;width:70%;height:auto;display:block;
-  filter:drop-shadow(0 1px 3px rgba(0,0,0,.6))}
+/* No tile — floating white HM device over the header. */
+.hm .sq{position:relative;overflow:visible;background:none;border:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.hm .sq::after{display:none}
+.hm .sq .hmdev{position:relative;width:90%;height:auto;display:block;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.55));transition:.4s cubic-bezier(.2,.7,.3,1)}
 .hm .sq .hmdev path{fill:#fff}
-.hm:hover .sq{border-color:rgba(210,230,255,.42);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 14px 32px -13px #000, 0 0 26px -6px rgba(190,215,255,.42)}
-.hm:hover .hmdev{filter:drop-shadow(0 0 10px rgba(215,235,255,.55))}
+.hm:hover .sq{border:none;box-shadow:none}
+.hm:hover .hmdev{filter:brightness(1.1) drop-shadow(0 0 11px rgba(215,235,255,.6)) drop-shadow(0 1px 3px rgba(0,0,0,.5));transform:translateY(-1px)}
 
 .kicker{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.44em;
   color:var(--grey-dim);text-transform:uppercase;text-align:center;white-space:nowrap}
