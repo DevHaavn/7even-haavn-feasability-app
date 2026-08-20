@@ -63,22 +63,17 @@ header{padding-bottom:14px}
   display:grid;place-items:center;flex:none;transition:.4s cubic-bezier(.2,.7,.3,1)}
 
 .ret{justify-self:start}
-/* Glass tile in the same material as the header bar, floated above it. */
-.ret .sq{background:linear-gradient(180deg, rgba(var(--grey),.30), rgba(var(--grey),.10));
-  backdrop-filter:blur(24px) saturate(115%);-webkit-backdrop-filter:blur(24px) saturate(115%);
-  border:1px solid rgba(var(--grey),.42);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.30), 0 12px 24px -10px rgba(0,0,0,.72)}
-.ret .sq svg{width:64%;height:64%;display:block;overflow:visible}
+/* No tile — just the high-gloss metal arrow floating over the header. */
+.ret .sq{background:none;border:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.ret .sq svg{width:82%;height:82%;display:block;overflow:visible}
 /* High-gloss dark-metal arrow. */
 .ret .sq path{fill:none;stroke:url(#retmetal);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.28)) drop-shadow(0 -1px 1px rgba(0,0,0,.55));transition:.4s cubic-bezier(.2,.7,.3,1)}
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.30)) drop-shadow(0 2px 3px rgba(0,0,0,.6));transition:.4s cubic-bezier(.2,.7,.3,1)}
 .ret .rtxt{display:flex;flex-direction:column;gap:3px;line-height:1}
 .ret .rtxt b{font-weight:400;font-size:10px;letter-spacing:.26em;color:#e9ebed}
 .ret .rtxt i{font-style:normal;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.22em;color:var(--grey-txt)}
-.ret:hover .sq{background:linear-gradient(180deg, rgba(var(--grey),.44), rgba(var(--grey),.18));
-  border-color:rgba(255,255,255,.32);transform:translateY(-2px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), inset 0 -1px 0 rgba(0,0,0,.30), 0 16px 28px -10px rgba(0,0,0,.8)}
-.ret:hover .sq path{filter:brightness(1.5) drop-shadow(0 0 4px rgba(220,235,255,.45)) drop-shadow(0 1px 0 rgba(255,255,255,.35))}
+.ret:hover .sq{transform:translateX(-3px)}
+.ret:hover .sq path{filter:brightness(1.55) drop-shadow(0 0 5px rgba(220,235,255,.5)) drop-shadow(0 1px 0 rgba(255,255,255,.4))}
 .ret:hover .rtxt b{color:#fff}
 
 .cap{justify-self:center;display:block;padding:2px 10px;transition:.4s}
