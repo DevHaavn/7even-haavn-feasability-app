@@ -15,7 +15,10 @@ import { useScrollLock } from '../lib/useScrollLock'
  */
 
 const STORE_KEY = 'haavn_homes_v3'
-const BLACK_SERIES_URL = '/haavn-black-series.html'
+// Live feasibility = the migrated HAAVN BLACK redesign (cloud key haavn_black_atrium_feas,
+// carrying the legacy studio's pricing/renders/plans). The legacy studio remains on disk
+// at /haavn-black-series.html (cloud key haavn_black_series) as an untouched fallback.
+const BLACK_SERIES_URL = '/haavn-black-feasibility.html'
 
 /** The real HAAVN wordmark, rendered inline wherever the brand name appears in a
  *  header, dropdown or label — never the typed word "HAAVN". Height-scaled; colour
