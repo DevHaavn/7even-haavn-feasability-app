@@ -120,8 +120,13 @@ h1.title i{font-style:italic;color:var(--green)}
 .sec-h .cnt{font-family:var(--f-d);font-size:10px;color:var(--ink3);background:var(--mint2);padding:2px 8px;border-radius:20px}
 .sec-h .st{font-family:var(--f-d);font-weight:600;font-size:14px;color:var(--ink)}
 .sec-b{padding:6px 16px 14px}
-.lhead{display:grid;grid-template-columns:1fr 76px 96px 96px 30px;gap:10px;font-family:var(--f-d);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:8px 0 6px}
-.lrow{display:grid;grid-template-columns:1fr 76px 96px 96px 30px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.lhead{display:grid;grid-template-columns:24px 1fr 76px 96px 96px 30px;gap:10px;font-family:var(--f-d);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:8px 0 6px}
+.lrow{display:grid;grid-template-columns:24px 1fr 76px 96px 96px 30px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.ltog{width:20px;height:20px;border-radius:6px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:var(--green);border-color:var(--green)}
+.ltog:hover{filter:brightness(1.06)}
+.lrow.off{opacity:.4}
+.lrow.off .amt{text-decoration:line-through}
+.lrow.off .ltog{background:transparent;color:transparent;border-color:var(--line2)}
 .lrow .li{min-width:0}.lrow .li .ln{font-weight:600;font-size:13px;color:var(--ink)}
 .lrow .li input.ename{border:none;background:transparent;font-weight:600;font-size:13px;color:var(--ink);width:100%;padding:2px 0}
 .lrow .li input.ename:focus{outline:none;background:var(--card2);border-radius:4px}
@@ -184,6 +189,17 @@ body{background:#08090a}
 .bg-shapes i:nth-child(4){width:200px;height:200px;bottom:16%;right:9%;transform:rotate(-8deg);opacity:.5;clip-path:polygon(20% 0,100% 30%,70% 100%,0 60%)}
 .app,.top{position:relative;z-index:1}
 .main,.wrap{background:transparent}
+/* ==== HAAVN BLACK marble brand band ==== */
+.brandband{position:relative;margin:2px 0 24px;padding:30px 34px;border-radius:16px;overflow:hidden;border:1px solid var(--charline2);
+  background:radial-gradient(130% 150% at 14% 8%, #2b2e34 0%, rgba(43,46,52,0) 44%),radial-gradient(100% 130% at 88% 92%, #23262b 0%, rgba(35,38,43,0) 46%),linear-gradient(115deg,#0b0c0e 0%,#16181c 50%,#090a0c 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 12px 34px rgba(0,0,0,.4)}
+.brandband::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.6;
+  background:linear-gradient(68deg,transparent 0 43%,rgba(255,255,255,.07) 44.5% 45.5%,transparent 47%),linear-gradient(104deg,transparent 0 60%,rgba(255,255,255,.05) 61.5% 62.5%,transparent 64%),linear-gradient(88deg,transparent 0 76%,rgba(255,255,255,.045) 77% 78%,transparent 79%),radial-gradient(50% 7% at 32% 42%,rgba(255,255,255,.05),transparent 70%)}
+.brandband .bb-in{position:relative;display:flex;align-items:baseline;gap:11px}
+.brandband svg{height:28px}
+.brandband .bb-blk{font-family:var(--f-d);font-weight:400;font-size:30px;line-height:1;letter-spacing:.05em;color:#9aa0a6}
+.brandband .bb-sub{position:relative;margin-top:12px;font-family:var(--f-d);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--steel2)}
+@media(max-width:640px){.brandband{padding:22px 20px}.brandband svg{height:22px}.brandband .bb-blk{font-size:24px}}
 </style>
 </head>
 <body>
@@ -262,7 +278,7 @@ function openLB(src){const el=document.getElementById('lb');document.getElementB
 const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---- compute ---- */
-function secTotal(id,secId){return (DB.est[id][secId]||[]).reduce((a,l)=>a+(+l.qty||0)*(+l.rate||0),0);}
+function secTotal(id,secId){return (DB.est[id][secId]||[]).reduce((a,l)=>a+(l.on===false?0:(+l.qty||0)*(+l.rate||0)),0);}
 function phaseCost(id,phase){return SECTION_META.filter(s=>s.phases.includes(phase)).reduce((a,s)=>a+secTotal(id,s.id),0);}
 function totalArea(id){return home(id).area;}
 function wf(cost,marginPct,st){const prelims=cost*(+st.prelimsPct||0)/100;const totalCost=cost+prelims;const marginAmt=totalCost*(+marginPct||0)/100;const exgst=totalCost+marginAmt;const gst=exgst*(+st.gstPct||0)/100;return {cost,prelims,totalCost,marginAmt,exgst,gst,sale:exgst+gst};}
@@ -280,10 +296,11 @@ function renderShell(){
 function render(){renderShell();document.getElementById('view').innerHTML=({range:vRange,feas:vFeas,mix:vMix,program:vProgram,dash:vDash,cap:vCap}[view]||vRange)();window.scrollTo(0,0);}
 
 /* ---------- RANGE ---------- */
+function brandBand(sub){return `<div class="brandband"><div class="bb-in"><svg viewBox="58 -10 800 200"><use href="#hlogo"/></svg><span class="bb-blk">BLACK</span></div>${sub?`<div class="bb-sub">${sub}</div>`:''}</div>`;}
 function vRange(){
   const list=HOMES.filter(h=>h.range===rangeSel);
   const title=rangeSel==='black'?'The <i>Black Series</i> range':'The <i>Essentials</i> range';
-  return `<div class="h-row"><div><div class="eyebrow">Precision intelligence homes</div><h1 class="title">${title}</h1>
+  return `${brandBand('Precision Intelligence — Manufactured by HAAVN')}<div class="h-row"><div><div class="eyebrow">Precision intelligence homes</div><h1 class="title">${title}</h1>
     <p class="lede">Every home composed from 4.2 × 8.4 m precision modules, built in the factory and installed on site. Select any home to open its live feasibility — now priced across the three purchase phases.</p></div></div>
   ${list.map((h,i)=>{const c2=phaseCost(h.id,2),w2=phaseWf(h.id,2);const md=DB.media[h.id];const imgs=md.images,idx=(md.i||0)%Math.max(1,imgs.length);const cur=imgs[idx];return `<div class="rcard">
     <div class="img" ${cur?`style="background:#000"`:''}>
@@ -315,7 +332,7 @@ function vRange(){
 /* ---------- FEASIBILITY (workbook + 3-phase) ---------- */
 function vFeas(){
   const h=home(fhome);const st=DB.set[fhome];
-  return `<div class="h-row"><div><div class="eyebrow">Single-home feasibility · 3-phase pricing</div><h1 class="title">Feasibility <i>estimate</i></h1>
+  return `${brandBand('Single-home feasibility · 3-phase pricing')}<div class="h-row"><div><div class="eyebrow">Single-home feasibility · 3-phase pricing</div><h1 class="title">Feasibility <i>estimate</i></h1>
     <p class="lede">The live estimating workbook. Edit any quantity or rate, add or delete cost lines in any section — the three purchase-phase prices recalculate instantly. Each section is tagged to the phases it belongs to.</p></div></div>
   <div class="blockbar">
     <div><label>Feasibility for</label><select data-act="setFhome">${HOMES.map(x=>`<option value="${x.id}" ${x.id===fhome?'selected':''}>${x.name} · ${x.area} m²</option>`).join('')}</select></div>
@@ -352,8 +369,9 @@ function secBlock(s){
     <span class="tri">▾</span><span class="sn">${s.name}</span><span class="ph">${s.phases.map(phtag).join('')}</span>
     <span class="cnt">${lines.length} lines</span><span class="st" data-sst="${s.id}">${money(secTotal(fhome,s.id))}</span></div>
     ${col?'':`<div class="sec-b">
-    <div class="lhead"><span>Line item / supplier</span><span style="text-align:right">Qty</span><span style="text-align:right">Rate</span><span style="text-align:right">Amount</span><span></span></div>
-    ${lines.map(l=>`<div class="lrow" data-line="${l.id}">
+    <div class="lhead"><span></span><span>Line item / supplier</span><span style="text-align:right">Qty</span><span style="text-align:right">Rate</span><span style="text-align:right">Amount</span><span></span></div>
+    ${lines.map(l=>`<div class="lrow ${l.on===false?'off':''}" data-line="${l.id}">
+      <button class="ltog" data-act="toggleLine" data-sec="${s.id}" data-id="${l.id}" title="Include / exclude from totals">${l.on===false?'':'✓'}</button>
       <div class="li"><input class="ename" value="${esc(l.name)}" data-bind="lname:${fhome}:${s.id}:${l.id}"><input class="esup" value="${esc(l.sup)}" data-bind="lsup:${fhome}:${s.id}:${l.id}"></div>
       <input class="qin" value="${l.qty}" data-bind="lqty:${fhome}:${s.id}:${l.id}" inputmode="decimal">
       <input class="rin" value="${l.rate}" data-bind="lrate:${fhome}:${s.id}:${l.id}" inputmode="decimal">
@@ -480,6 +498,7 @@ document.addEventListener('click',e=>{
   else if(a==='collapse'){collapsed[t.dataset.sec]=!collapsed[t.dataset.sec];render();}
   else if(a==='addLine'){DB.est[fhome][t.dataset.sec].push({id:uid(),name:'New cost line',sup:'Supplier',qty:1,rate:0});save();render();}
   else if(a==='delLine'){DB.est[fhome][t.dataset.sec]=DB.est[fhome][t.dataset.sec].filter(l=>l.id!==+t.dataset.id);save();render();}
+  else if(a==='toggleLine'){const l=(DB.est[fhome][t.dataset.sec]||[]).find(x=>x.id===+t.dataset.id);if(l){l.on=(l.on===false);save();render();}}
   else if(a==='mimg'){const md=DB.media[t.dataset.id];md.i=((md.i||0)+ (+t.dataset.d)+md.images.length)%Math.max(1,md.images.length);render();}
   else if(a==='addMedia'){addMedia(t.dataset.id,t.dataset.kind||'image');}
   else if(a==='mdel'){const md=DB.media[t.dataset.id];const arr=t.dataset.kind==='plan'?md.plans:md.images;arr.splice(+t.dataset.i,1);save();render();}
