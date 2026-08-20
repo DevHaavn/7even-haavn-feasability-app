@@ -8,7 +8,6 @@ import SiteLinks from '../components/SiteLinks'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
 import HaavnManagementBase from './capital/HaavnManagementBase'
-import { HaavnMark } from './HaavnHomes'
 import { useRole } from '../lib/role'
 
 function useAddressSearch(query: string) {
@@ -296,12 +295,28 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
 
       {/* HAAVN BLACK — Homes company. Was in the brand dropdown; now a footer
           button beside the P7 mark. Opens the HAAVN Homes surface. */}
-      <button onClick={() => onOpenHomes?.()} title="HAAVN BLACK — Homes"
-        style={{ position: 'fixed', bottom: 24, right: 192, zIndex: 300, display: 'flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 9, background: 'rgba(12,12,14,0.38)', backdropFilter: 'blur(16px) saturate(1.1)', WebkitBackdropFilter: 'blur(16px) saturate(1.1)', border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer', boxShadow: '0 8px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)', transition: 'all 0.2s' }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(12,12,14,0.38)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(0)' }}>
-        <HaavnMark height={10} fill="#FFFFFF" />
-        <span style={{ fontFamily: "'Optima','Gill Sans',serif", fontWeight: 800, fontSize: 10, letterSpacing: '0.22em', color: '#9aa1a8' }}>BLACK</span>
+      <style>{`
+.hb-plinth{--hb-mark:12px;--hb-gap:16px;--hb-arrow:10px;--hb-accent:#dcebff;--hb-white:#fff;--hb-grey:#8d939a;--hb-ease:cubic-bezier(.2,.7,.3,1);
+  position:fixed;bottom:22px;right:150px;z-index:300;display:inline-flex;align-items:center;gap:var(--hb-gap);
+  padding:13px 2px;background:none;border:0;color:inherit;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hb-plinth__mark{height:var(--hb-mark);width:auto;display:block;overflow:visible;transition:filter .45s var(--hb-ease)}
+.hb-plinth__mark .hb-h{fill:var(--hb-white)} .hb-plinth__mark .hb-b{fill:var(--hb-grey)}
+.hb-plinth__arrow{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--hb-arrow);line-height:1;color:var(--hb-accent);opacity:.85;transition:transform .45s var(--hb-ease),opacity .45s var(--hb-ease)}
+.hb-plinth__rule{position:absolute;left:0;right:100%;bottom:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(190,215,255,.28),transparent);transition:right .7s var(--hb-ease);pointer-events:none}
+.hb-plinth:hover .hb-plinth__mark,.hb-plinth:focus-visible .hb-plinth__mark{filter:drop-shadow(0 0 22px rgba(215,232,255,.45))}
+.hb-plinth:hover .hb-plinth__arrow,.hb-plinth:focus-visible .hb-plinth__arrow{transform:translateX(6px);opacity:1}
+.hb-plinth:hover .hb-plinth__rule,.hb-plinth:focus-visible .hb-plinth__rule{right:0}
+.hb-plinth:active .hb-plinth__mark{filter:drop-shadow(0 0 10px rgba(215,232,255,.30))}
+.hb-plinth:focus{outline:none}
+.hb-plinth:focus-visible{outline:1px solid rgba(220,235,255,.75);outline-offset:4px}
+`}</style>
+      <button className="hb-plinth" onClick={() => onOpenHomes?.()} aria-label="HAAVN BLACK — enter" title="HAAVN BLACK — Homes">
+        <svg className="hb-plinth__mark" viewBox="0 0 1317.58 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path className="hb-h" fillRule="evenodd" d="M 478.58 2.79 L 478.81 98.72 L 504.07 98.37 L 505.01 27.71 L 575.67 97.67 L 612.22 98.6 L 612.11 1.28 L 588.94 1.05 L 586.85 2.79 L 586.38 72.18 L 514.09 1.16 L 480.68 1.05 Z M 319.21 1.4 L 415.02 97.67 L 437.37 100 L 465.89 98.95 L 467.99 97.21 L 468.1 3.26 L 466.36 1.16 L 443.42 1.05 L 441.33 2.79 L 440.86 86.15 L 355.76 2.33 Z M 252.85 1.4 L 252.74 41.33 L 276.48 65.08 L 278.23 64.61 L 279.05 13.85 L 366.12 98.84 L 401.51 98.72 L 356.23 54.13 L 357.16 51.22 L 353.32 51.22 L 304.54 2.33 L 301.75 1.05 Z M 145.63 2.79 L 145.52 96.74 L 147.26 98.84 L 161.47 100 L 172.29 98.37 L 173.22 14.9 L 257.86 97.67 L 294.41 98.72 L 195.11 1.16 L 147.73 1.05 Z M 0.23 2.56 L 0 96.74 L 1.75 98.84 L 25.49 98.6 L 25.49 68.45 L 27.82 66.12 L 107.8 67.4 L 108.38 97.21 L 110.48 98.95 L 134.92 98.6 L 134.81 2.44 L 110.48 1.05 L 108.38 2.79 L 107.8 40.75 L 26.19 40.75 L 25.61 2.79 L 23.52 1.05 Z" />
+          <path className="hb-b" fillRule="evenodd" d="M 644 2.56 L 644.12 98.72 L 767.05 98.6 L 767.17 58.67 L 750.99 58.21 L 750.64 43.19 L 661.12 43.19 L 658.79 40.86 L 659.49 17.35 L 750.41 17.35 L 751.11 41.56 L 766.71 41.79 L 766.94 2.44 Z M 658.91 58.67 L 659.49 58.09 L 750.87 58.09 L 750.99 82.07 L 750.41 82.65 L 659.49 82.65 L 658.91 82.07 Z M 1192.2 3.96 L 1192.08 96.74 L 1193.83 98.84 L 1208.38 98.37 L 1208.96 58.09 L 1297.56 58.09 L 1298.14 98.37 L 1314.2 98.6 L 1314.2 43.31 L 1282.77 43.19 L 1280.56 41.09 L 1317.58 2.44 L 1297.44 2.33 L 1257.97 41.91 L 1232.13 40.75 L 1229.57 43.19 L 1208.5 41.56 L 1208.38 2.79 L 1194.3 2.21 Z M 780.09 3.96 L 779.98 96.74 L 781.72 98.84 L 903.26 98.6 L 903.49 84.75 L 901.28 82.54 L 796.62 82.54 L 796.27 2.79 L 782.19 2.21 Z M 1056.11 2.56 L 1056.23 98.72 L 1179.16 98.6 L 1178.81 82.65 L 1073.22 82.77 L 1070.9 80.44 L 1070.9 21.77 L 1072.53 17.46 L 1178.81 17.35 L 1179.05 2.44 L 1079.05 1.05 Z M 1043.07 3.96 L 1040.98 2.21 L 1006.87 2.44 L 1004.31 0 L 1003.03 2.33 L 917.69 2.44 L 917.58 98.6 L 932.48 98.37 L 933.76 82.42 L 932.36 80.44 L 933.64 75.2 L 932.36 61.47 L 934.23 58.09 L 1026.31 58.09 L 1026.89 98.37 L 1041.44 98.84 L 1043.19 96.74 Z M 1026.89 17.93 L 1027.01 40.86 L 1024.68 43.19 L 934.69 43.19 L 932.36 40.86 L 932.48 17.93 L 933.06 17.35 L 987.43 17.23 L 988.82 18.51 L 990.57 17.23 L 1026.31 17.35 Z" />
+        </svg>
+        <span className="hb-plinth__arrow" aria-hidden="true">&#8594;</span>
+        <span className="hb-plinth__rule" aria-hidden="true" />
       </button>
 
       {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
