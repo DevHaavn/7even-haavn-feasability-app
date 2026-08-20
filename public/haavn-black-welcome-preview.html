@@ -33,7 +33,7 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
   gap:clamp(26px,5vh,58px);padding:0 clamp(16px,5vw,80px)}
 
 /* WELCOME eyebrow */
-.welcome{position:absolute;top:clamp(56px,16vh,196px);left:0;right:0;opacity:0;text-align:center;
+.welcome{position:absolute;top:clamp(128px,24vh,290px);left:0;right:0;opacity:0;text-align:center;
   font-size:clamp(13px,1.9vw,19px);letter-spacing:.7em;text-transform:uppercase;text-indent:.7em;
   background:linear-gradient(180deg,#ffffff 0%,#e3e9f0 38%,#98a0a9 53%,#c9d1da 66%,#f4f8fc 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
@@ -57,23 +57,25 @@ svg{width:100%;height:auto;display:block;overflow:visible;shape-rendering:geomet
 .k .edge{opacity:.85}
 
 /* EXPLORE CTA */
-.cta{opacity:0}
+.cta{opacity:0;margin-top:clamp(34px,7vh,88px)}
 .run .cta{animation:rise 1.4s cubic-bezier(.2,.7,.3,1) 2.7s forwards}
 .explore{position:relative;overflow:hidden;font:inherit;font-size:clamp(10px,1.2vw,13px);letter-spacing:.44em;
-  color:#0e1015;cursor:pointer;padding:16px 48px;border-radius:6px;text-indent:.44em;text-transform:uppercase;
-  background:linear-gradient(180deg,#f7fafd 0%,#d3d9e0 46%,#a7aeb6 53%,#e9eef3 100%);
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -8px 15px rgba(0,0,0,.22),0 12px 32px -10px rgba(180,205,235,.55);
-  text-shadow:0 1px 0 rgba(255,255,255,.6);
-  transition:.4s cubic-bezier(.2,.7,.3,1);animation:ctaGlow 3.6s ease-in-out 3.6s infinite}
-/* moving gloss sheen */
-.explore::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,.75),transparent);
-  transform:skewX(-18deg);animation:sheen 4.6s ease-in-out 3.8s infinite}
-@keyframes sheen{0%{left:-60%}22%{left:130%}100%{left:130%}}
-.explore:hover{filter:brightness(1.05);border-color:rgba(255,255,255,.85);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -7px 15px rgba(0,0,0,.2),0 16px 42px -8px rgba(190,215,255,.72);animation:none}
-@keyframes ctaGlow{0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -8px 15px rgba(0,0,0,.22),0 0 0 0 rgba(190,215,255,0)}50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -8px 15px rgba(0,0,0,.22),0 10px 36px -12px rgba(190,215,255,.6)}}
+  color:#e9edf2;cursor:pointer;padding:16px 48px;border-radius:7px;text-indent:.44em;text-transform:uppercase;
+  background:linear-gradient(180deg,rgba(74,79,86,.42) 0%,rgba(26,29,34,.5) 52%,rgba(16,18,22,.55) 100%);
+  -webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -10px 20px rgba(0,0,0,.28),0 12px 30px -12px rgba(0,0,0,.6);
+  text-shadow:0 1px 3px rgba(0,0,0,.45);
+  transition:.4s cubic-bezier(.2,.7,.3,1);animation:ctaGlow 4s ease-in-out 3.6s infinite}
+/* soft glass sheen — subtle */
+.explore::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:44%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:skewX(-18deg);animation:sheen 6s ease-in-out 4s infinite}
+@keyframes sheen{0%{left:-60%}26%{left:130%}100%{left:130%}}
+.explore:hover{border-color:rgba(207,225,255,.5);
+  background:linear-gradient(180deg,rgba(90,96,104,.5) 0%,rgba(30,34,40,.56) 52%,rgba(18,20,24,.6) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -10px 20px rgba(0,0,0,.25),0 16px 40px -10px rgba(150,180,220,.4);animation:none}
+@keyframes ctaGlow{0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -10px 20px rgba(0,0,0,.28),0 0 0 0 rgba(150,180,220,0)}50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -10px 20px rgba(0,0,0,.28),0 10px 30px -14px rgba(150,180,220,.4)}}
 
 .skip{position:fixed;top:20px;right:22px;font:inherit;font-size:8.5px;letter-spacing:.24em;
   color:#4d5157;background:none;border:none;cursor:pointer;text-transform:uppercase;opacity:0;transition:.3s}
