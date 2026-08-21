@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAVN — Consolidated Position</title>
+<style>
+:root{
+  --paper:#f1efe9;
+  --paper-2:#f7f6f1;
+  --ink:#1c1c1e;
+  --muted:#6d6e64;
+  --sage:#8f907f;
+  --line:#d3d1c7;
+  --line-soft:#e0ded4;
+  --card:#ffffff;
+  --green:#2f8f5b;
+  --orange:#cf8a3c;
+  --bronze-d:#8a6a44;
+  --charcoal:#0b0b0d;
+  --shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.07);
+  --shadow-lg:0 6px 14px rgba(28,28,30,.10),0 26px 60px rgba(28,28,30,.16);
+  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Menlo","Consolas",monospace;
+  --font:"Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
+
+/* ---------- MASTHEAD (HAAVN brand on marble) ---------- */
+.masthead{position:relative;background:linear-gradient(180deg,#eaf5ef 0%,#d9eee2 100%);border-bottom:1px solid rgba(0,0,0,.06);overflow:hidden}
+.masthead::after{display:none}
+.hero{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:clamp(46px,7vw,88px) 20px clamp(30px,4vw,44px)}
+.hero .mark{height:clamp(48px,7vw,86px);width:auto}
+.hero .tag{margin-top:16px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#48594f;font-weight:600}
+.mast-rule{position:relative;z-index:2;display:flex;align-items:center;gap:16px;
+  padding:14px clamp(18px,4vw,54px);border-top:1px solid rgba(0,0,0,.08)}
+.mast-rule .m-logo{height:20px}
+.mast-rule .m-x{color:#8f8e82;font-size:.8em}
+.mast-rule .m-co{font-weight:700;letter-spacing:.1em;font-size:13px;color:#2f4a3a}
+.mast-rule .sp{flex:1}
+.mast-rule .m-doc{text-align:right;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#6b7a6f;font-weight:600;line-height:1.7}
+
+/* ---------- HEADER ---------- */
+header{padding:26px clamp(18px,4vw,54px) 0}
+.title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+h1{font-weight:800;letter-spacing:-.02em;font-size:clamp(26px,4.4vw,44px);line-height:1;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+h1 .thin{font-weight:300;color:var(--muted)}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:var(--green);
+  border:1px solid #bfe0cd;background:#eef7f1;border-radius:999px;padding:4px 11px}
+.live .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.subhead{max-width:460px;font-size:13px;color:#55564c;line-height:1.6}
+.controls{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:16px clamp(18px,4vw,54px) 6px}
+.btn{border:1px solid var(--line);background:var(--paper-2);cursor:pointer;font-family:var(--font);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--bronze-d);padding:9px 15px;border-radius:999px;transition:.2s}
+.btn:hover{border-color:var(--ink);color:var(--ink)}
+.spacer{flex:1}
+.legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.legend .li{display:flex;align-items:center;gap:7px;font-size:11px;color:#5c5d51;font-weight:600}
+.legend .dot{width:10px;height:10px;border-radius:50%}
+.legend .dot.o{background:var(--orange)} .legend .dot.g{background:var(--green)}
+.hint{text-align:center;font-size:11px;color:var(--sage);letter-spacing:.02em;padding:2px 20px 6px}
+
+/* ---------- STAGE ---------- */
+.stage-wrap{padding:6px clamp(12px,3vw,40px) 20px;overflow-x:auto}
+.stage{position:relative;min-width:940px;max-width:1180px;margin:0 auto;padding:14px 10px 6px}
+svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.wire{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:5 5;transition:stroke .25s,opacity .25s}
+.wire.solid{stroke-dasharray:none;stroke:#c9c7bd}
+.wire.idle{stroke:#e2e0d6}
+.wire.hot{stroke:var(--ink);opacity:1}
+.wire.dim{opacity:.3}
+.flow{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:5 45;pointer-events:none;opacity:0}
+.animating .flow{opacity:1}
+.flow.o{stroke:var(--orange);animation:flowDown 2.4s linear infinite}
+.flow.g{stroke:var(--green);animation:flowUp 2.4s linear infinite}
+@keyframes flowDown{from{stroke-dashoffset:50}to{stroke-dashoffset:0}}
+@keyframes flowUp{from{stroke-dashoffset:0}to{stroke-dashoffset:50}}
+.wlabel{font-family:var(--mono);font-size:11px;fill:var(--muted);font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.wlabel.o{fill:var(--orange)} .wlabel.g{fill:var(--green)}
+
+.tier{position:relative;z-index:2;display:flex;justify-content:center;align-items:stretch;gap:26px}
+.tier + .tier{margin-top:52px}
+
+.node{position:relative;background:var(--card);border:1px solid var(--line-soft);border-radius:16px;box-shadow:var(--shadow);cursor:pointer;padding:17px 20px;transition:transform .2s,box-shadow .2s,border-color .2s,opacity .25s;text-align:center;width:300px}
+.node:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--ink)}
+.node.dim{opacity:.4}
+.node.sel{border-color:var(--ink);box-shadow:var(--shadow-lg)}
+.node h3{font-size:19px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.node .role{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+.node h3 .role{font-size:12px}
+.node .fig{font-family:var(--mono);font-size:13px;color:#3f4038;margin-top:11px;line-height:1.7;letter-spacing:-.01em}
+.node .fig .g{color:var(--green)} .node .fig .o{color:var(--orange)} .node .fig .mut{color:var(--sage)}
+.node .own{margin-top:11px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.chip{font-size:11px;background:#eef0e9;color:var(--bronze-d);border:1px solid #e0e2d8;border-radius:999px;padding:3px 10px;font-weight:600}
+
+/* parent / bank */
+.node.bank{width:360px;border-color:#bfe0cd;background:linear-gradient(180deg,#f2faf5,#ffffff);border-width:1.5px}
+.node.bank h3{font-size:22px}
+/* shareholders */
+.node.sh{width:520px;background:var(--paper-2)}
+.node.sh h3{font-size:16px}
+/* idle sub */
+.node.idle{opacity:.72}
+.node.idle .fig{color:var(--sage)}
+/* pool bar */
+.node.pool{width:100%;max-width:1120px;border:1.5px dashed var(--orange);background:#fbf3e8;text-align:center;padding:16px 22px;border-radius:14px}
+.node.pool h3{font-size:15px;font-weight:800;color:var(--bronze-d);font-family:var(--mono);letter-spacing:-.01em;display:inline}
+.node.pool .amt{font-family:var(--mono);font-weight:800;color:var(--orange)}
+.node.pool .parts{font-family:var(--mono);color:var(--muted);font-size:13px}
+/* 7even external */
+.node.ext{width:340px;background:#eef0f3;border-color:#d8dbe0}
+.node.ext h3{font-size:17px}
+
+/* ---------- FOOTER ---------- */
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:8px clamp(18px,4vw,54px) 4px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.foot b{color:var(--ink);font-weight:700}
+.foot .k{color:var(--sage)}
+footer{background:var(--charcoal);color:#c9c8bd;padding:30px clamp(18px,4vw,54px) 34px;margin-top:22px}
+footer .disc{font-size:10.5px;color:#7c7c72;line-height:1.7;max-width:1180px;margin:0 auto}
+footer .disc b{color:#cfcec2}
+
+/* ---------- COMMAND HEADER ---------- */
+.command{padding:28px clamp(18px,4vw,54px) 4px;background:linear-gradient(180deg,#edf3ec 0%,#f1efe9 100%)}
+.cmd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.cmd-title{font-weight:800;letter-spacing:-.02em;font-size:clamp(30px,5vw,52px);line-height:1;margin-top:8px;color:var(--ink)}
+.progress{height:6px;width:min(320px,60vw);background:linear-gradient(90deg,#d6d4ca,rgba(214,212,202,0));border-radius:6px;margin:16px 0 0;overflow:hidden}
+.progress span{display:block;height:100%;width:32%;background:var(--green);border-radius:6px}
+.cmd-sub{max-width:760px;font-size:14px;color:#6a6b60;margin-top:16px;line-height:1.6}
+.cmd-sub .mn{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#8a8b7e}
+.export-btn{border:1px solid var(--line);background:var(--card);cursor:pointer;font-family:var(--font);font-weight:700;font-size:13px;color:var(--ink);padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);transition:.2s;white-space:nowrap}
+.export-btn:hover{border-color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:26px 0 8px}
+.kpi{background:var(--card);border:1px solid var(--line-soft);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
+.kpi .lab{font-size:13px;color:var(--muted);font-weight:500}
+.kpi .num{font-size:clamp(21px,2.3vw,29px);font-weight:800;letter-spacing:-.02em;margin-top:8px;color:#1f7d49}
+.kpi .num.neg{color:#b3402f}
+.kpi .sub{font-family:var(--mono);font-size:12px;color:var(--sage);margin-top:6px;line-height:1.5}
+.kpi.hl{border:1.5px solid #bfe0cd;background:linear-gradient(180deg,#f2faf5,#ffffff)}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- PANELS ---------- */
+.panel{background:var(--card);border:1px solid var(--line-soft);border-radius:20px;box-shadow:var(--shadow);margin:18px clamp(18px,4vw,54px);padding:6px 4px 14px}
+.panel-head{padding:18px 24px 4px}
+.panel-head h2{font-size:20px;font-weight:800;color:var(--ink);display:inline-flex;align-items:center;gap:12px}
+.panel-sub{font-size:13px;color:#6a6b60;margin-top:6px}
+.mono-tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);font-weight:600}
+.bottom{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin:0 clamp(18px,4vw,54px) 8px}
+.bottom .panel{margin:0}
+@media(max-width:900px){.bottom{grid-template-columns:1fr}}
+.panel-pad{padding:6px 18px 8px}
+.tbl-scroll{overflow-x:auto}
+
+/* settlement table */
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+.tbl th{text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700;padding:9px 14px;border-bottom:2px solid #cfe0d5;white-space:nowrap}
+.tbl th:first-child,.tbl th.l{text-align:left}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--line-soft);text-align:right;color:var(--ink);white-space:nowrap}
+.tbl td:first-child{text-align:left;font-family:var(--font);font-weight:600}
+.tbl td.l{text-align:left}
+.tbl tr.hl td{background:#fbf6e6}
+.tbl tr.total td{background:#eef2f5;font-weight:800;border-bottom:none}
+.tbl td.neg{color:#b3402f}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;padding:5px 11px;border:1px solid}
+.pill .d{width:6px;height:6px;border-radius:50%}
+.pill.reimburse{background:#fbf3df;border-color:#ecdcb0;color:#8a6a1f}.pill.reimburse .d{background:#c99a2e}
+.pill.owes{background:#fbeceb;border-color:#f0cfcb;color:#b3402f}.pill.owes .d{background:#c0503f}
+
+/* billing */
+.bill{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:14px}
+.bill th{text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700;padding:9px 14px;border-bottom:2px solid #cfe0d5}
+.bill th:first-child{text-align:left}
+.bill td{padding:15px 14px;border-bottom:1px solid var(--line-soft);text-align:right;color:var(--ink)}
+.bill td:first-child{text-align:left}
+.bill tr.var td{border-top:2px solid var(--green);border-bottom:none;font-weight:800;background:#f7f6ef}
+.bill td.neg{color:#b3402f}
+.bill-note{font-size:13px;color:#6a6b60;padding:14px 18px 4px;line-height:1.6}
+.bill-note b{color:var(--green);font-weight:700}
+
+/* ---------- DRAWER ---------- */
+.scrim{position:fixed;inset:0;background:rgba(20,20,22,.42);opacity:0;visibility:hidden;transition:.28s;z-index:40}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:#eae9e4;z-index:50;transform:translateX(102%);transition:transform .34s cubic-bezier(.4,0,.1,1);box-shadow:-20px 0 60px rgba(20,20,22,.25);display:flex;flex-direction:column}
+.drawer.on{transform:translateX(0)}
+.dr-head{padding:24px 26px 18px;border-bottom:1px solid rgba(0,0,0,.12);position:relative}
+.dr-head .cap{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--sage);font-weight:700}
+.dr-head h2{font-size:22px;font-weight:800;margin-top:9px;color:var(--ink);line-height:1.1}
+.dr-head .role{font-size:12.5px;color:var(--bronze-d);margin-top:6px;font-weight:600}
+.dr-close{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.16);background:#fff;cursor:pointer;font-size:16px;color:#565646}
+.dr-close:hover{border-color:var(--ink);color:var(--ink)}
+.dr-body{padding:20px 26px 40px;overflow-y:auto;flex:1}
+.dr-body .sec{margin-bottom:18px}
+.dr-body .sec h5{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7c7c6d;font-weight:700;margin-bottom:7px}
+.dr-body .sec p{font-size:13.5px;color:#33342c;line-height:1.6}
+.kv{display:flex;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.10);font-family:var(--mono)}
+.kv .k{color:#7c7c6d;min-width:130px;font-weight:600}
+.kv .v{color:var(--ink);font-weight:700}
+.flowbadge{display:inline-flex;align-items:center;gap:7px;background:#f1ede4;border:1px solid #e4dbcc;color:var(--bronze-d);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;margin:3px 4px 0 0}
+@media(max-width:720px){.node.sh{width:auto}}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="hero">
+    <img class="mark" src="data:image/png;base64,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" alt="HAAVN">
+    <div class="tag">Precision Intelligence</div>
+  </div>
+  <div class="mast-rule">
+    <img class="m-logo" src="data:image/png;base64,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" alt="HAAVN">
+    <span class="m-co">GROUP</span>
+    <span class="sp"></span>
+    <span class="m-doc">Fund Flows<br>Internal Bank</span>
+  </div>
+</div>
+
+<section class="command">
+  <div class="cmd-top">
+    <div class="cmd-left">
+      <div class="eyebrow">Command · FY27</div>
+      <h1 class="cmd-title">Consolidated position</h1>
+      <div class="progress"><span></span></div>
+      <p class="cmd-sub">Client revenue, group settlement and the FY27 budget in one view. <span class="mn">Focused on HAAVN Management — highlighted below</span></p>
+    </div>
+    <button class="export-btn" id="exportBtn">Export workbook</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Client contract value</div><div class="num">$1,361,930</div><div class="sub">28 clients</div></div>
+    <div class="kpi"><div class="lab">Invoiced to date</div><div class="num">$0</div><div class="sub">0.0% of contract</div></div>
+    <div class="kpi"><div class="lab">Remaining to invoice</div><div class="num">$1,361,930</div><div class="sub">full contract open</div></div>
+    <div class="kpi"><div class="lab">FY27 committed revenue</div><div class="num">$962,930</div><div class="sub">+ $399,000 pipeline</div></div>
+    <div class="kpi"><div class="lab">Group loans outstanding</div><div class="num">$80,000</div><div class="sub">interest $852 → 2026-08-21</div></div>
+    <div class="kpi hl"><div class="lab">M2 net result · FY27 plan</div><div class="num neg">-$199,055</div><div class="sub">wind-down in progress</div></div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Group structure &amp; fund flows <span class="live"><span class="pulse"></span>Live</span></h2>
+    <p class="panel-sub">HAAVN as parent and internal bank — intercompany loans, interest and the shared expense pool. Click any entity for detail.</p>
+  </div>
+
+<div class="controls">
+  <button class="btn" id="flowBtn">❚❚ Pause flow</button>
+  <button class="btn" id="resetBtn">Reset view</button>
+  <div class="spacer"></div>
+  <div class="legend">
+    <span class="li"><span class="dot o"></span>Drawdown</span>
+    <span class="li"><span class="dot g"></span>Repay + interest</span>
+  </div>
+</div>
+<p class="hint">Hover an entity to trace its flows · click for full detail · orange flows down (drawdown) · green flows up (repay + interest)</p>
+
+<div class="stage-wrap">
+  <div class="stage animating" id="stage">
+    <svg class="wires" id="wires"></svg>
+
+    <!-- Shareholders -->
+    <div class="tier">
+      <div class="node sh" id="n-sh">
+        <div class="cap"></div>
+        <h3>Shareholders <span class="role">· own 100%</span></h3>
+        <div class="own"><span class="chip">Lewis Jin</span><span class="chip">Jamie Baldwin</span><span class="chip">Daniel Sette</span></div>
+        <div class="fig">100% of HAAVN &amp; the group</div>
+      </div>
+    </div>
+
+    <!-- HAAVN parent / internal bank -->
+    <div class="tier">
+      <div class="node bank" id="n-haavn">
+        <h3>HAAVN <span class="role">· Parent · internal bank</span></h3>
+        <div class="fig">Loans out <span class="o">$80,000</span> · Interest <span class="g">$852</span></div>
+      </div>
+    </div>
+
+    <!-- Subsidiaries -->
+    <div class="tier" id="tier-subs">
+      <div class="node" id="n-hm">
+        <h3>HAAVN Management</h3>
+        <div class="fig">Loan <span class="o">$50,000</span> · Int <span class="g">$594</span><br>Exp share $3,420</div>
+      </div>
+      <div class="node" id="n-ht">
+        <h3>HAAVN Technologies</h3>
+        <div class="fig">Loan <span class="o">$30,000</span> · Int <span class="g">$258</span><br>Exp share $3,420</div>
+      </div>
+      <div class="node idle" id="n-hpi">
+        <h3>HAAVN Precision Intelligence</h3>
+        <div class="fig"><span class="mut">Not yet operating · —</span></div>
+      </div>
+    </div>
+
+    <!-- Shared expense pool -->
+    <div class="tier">
+      <div class="node pool" id="n-pool">
+        <h3>Shared expense pool · <span class="amt">$10,260</span></h3>
+        <div class="parts">Rent · Outgoings · Office</div>
+      </div>
+    </div>
+
+    <!-- 7even -->
+    <div class="tier">
+      <div class="node ext" id="n-7even">
+        <h3>7even <span class="role">· related external co.</span></h3>
+        <div class="fig">Exp share $3,420</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="foot">
+  <div><span class="k">Split</span> &nbsp;HM <b>33.3333%</b> · HT <b>33.3333%</b> · 7even <b>33.3334%</b></div>
+  <div><span class="k">Rate</span> <b>8.5% p.a.</b> &nbsp;→&nbsp; as at <b>2026-08-21</b></div>
+</div>
+</section>
+
+<section class="bottom">
+  <div class="panel settle">
+    <div class="panel-head"><h2>Shared expense settlement</h2></div>
+    <div class="tbl-scroll panel-pad">
+    <table class="tbl">
+      <thead><tr><th>Entity</th><th>Share due</th><th>Paid</th><th>Net</th><th class="l">Status</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>HAAVN Management</td><td>$3,420.00</td><td>$9,000.00</td><td>$5,580.00</td><td class="l"><span class="pill reimburse"><span class="d"></span>To reimburse</span></td></tr>
+        <tr><td>HAAVN Technologies</td><td>$3,420.00</td><td>$0.00</td><td class="neg">-$3,420.00</td><td class="l"><span class="pill owes"><span class="d"></span>Owes pool</span></td></tr>
+        <tr><td>7even</td><td>$3,420.01</td><td>$1,260.00</td><td class="neg">-$2,160.01</td><td class="l"><span class="pill owes"><span class="d"></span>Owes pool</span></td></tr>
+        <tr class="total"><td>Pool total</td><td>$10,260.00</td><td>$10,260.00</td><td>$0.00</td><td class="l"></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="panel billing">
+    <div class="panel-head"><h2>This month · billing <span class="mono-tag">Aug 2026</span></h2></div>
+    <div class="panel-pad">
+    <table class="bill">
+      <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Scheduled</td><td>$91,186.00</td></tr>
+        <tr><td>Invoiced</td><td>$0.00</td></tr>
+        <tr class="var"><td>Variance</td><td class="neg">-$91,186.00</td></tr>
+      </tbody>
+    </table>
+    <p class="bill-note">Open <b>Billing run</b> to reconcile each client against Xero for the month.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DRAWER -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="dr-head">
+    <button class="dr-close" id="drClose">✕</button>
+    <div class="cap" id="drCap"></div>
+    <h2 id="drTitle"></h2>
+    <div class="role" id="drRole"></div>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+<footer>
+  <p class="disc">Indicative only. Intercompany loan balances, interest, expense allocations, shareholdings and entity names shown are for internal discussion and are subject to final legal, financial and taxation advice and definitive agreements. Interest accrued at <b>8.5% p.a.</b> as at <b>2026-08-21</b>. Shared expense pool split HM 33.3333% · HT 33.3333% · 7even 33.3334%. © 2026 Haavn Technologies Pty Ltd.</p>
+</footer>
+
+<script>
+const NODES={
+  "n-sh":{cap:"Ownership",color:"#6b6c5c",title:"Shareholders",role:"Own 100% of HAAVN & the group",
+    own:"The group is owned equally by its three shareholders — Lewis Jin, Jamie Baldwin and Daniel Sette — holding 100% of HAAVN between them.",
+    kv:[["Lewis Jin","Shareholder"],["Jamie Baldwin","Shareholder"],["Daniel Sette","Shareholder"],["Total held","100%"]],
+    flow:["Own 100% → HAAVN"]},
+  "n-haavn":{cap:"Parent · Internal Bank",color:"#2f8f5b",title:"HAAVN",role:"Parent company & internal bank",
+    own:"HAAVN is the parent company and acts as the group's internal bank — lending to the operating subsidiaries and receiving repayments plus interest. Owned 100% by the three shareholders.",
+    kv:[["Role","Parent · internal bank"],["Loans out","$80,000"],["— HAAVN Management","$50,000"],["— HAAVN Technologies","$30,000"],["Interest receivable","$852"],["Rate","8.5% p.a."],["As at","2026-08-21"]],
+    flow:["Owned 100% ← Shareholders","Drawdown → subsidiaries","Repay + interest ← subsidiaries"]},
+  "n-hm":{cap:"Subsidiary · Operating",color:"#cf8a3c",title:"HAAVN Management",role:"Borrower · shares group expenses",
+    own:"Operating subsidiary. Has drawn $50,000 from the internal bank, accruing $594 interest, and carries a $3,420 share of the shared expense pool (33.3333%).",
+    kv:[["Loan drawn","$50,000"],["Interest accrued","$594"],["Expense share","$3,420"],["Expense split","33.3333%"],["Rate","8.5% p.a."]],
+    flow:["Drawdown ← HAAVN","Repay + interest → HAAVN","Expense share → Shared pool"]},
+  "n-ht":{cap:"Subsidiary · Operating",color:"#cf8a3c",title:"HAAVN Technologies",role:"Borrower · shares group expenses",
+    own:"Operating subsidiary. Has drawn $30,000 from the internal bank, accruing $258 interest, and carries a $3,420 share of the shared expense pool (33.3333%).",
+    kv:[["Loan drawn","$30,000"],["Interest accrued","$258"],["Expense share","$3,420"],["Expense split","33.3333%"],["Rate","8.5% p.a."]],
+    flow:["Drawdown ← HAAVN","Repay + interest → HAAVN","Expense share → Shared pool"]},
+  "n-hpi":{cap:"Subsidiary · Dormant",color:"#8f907f",title:"HAAVN Precision Intelligence",role:"Not yet operating",
+    own:"A group subsidiary that is not yet operating — no loan, interest or expense share at this time.",
+    kv:[["Status","Not yet operating"],["Loan drawn","—"],["Interest","—"],["Expense share","—"]],
+    flow:["Part of → HAAVN group"]},
+  "n-pool":{cap:"Shared Costs",color:"#cf8a3c",title:"Shared expense pool",role:"$10,260 · Rent · Outgoings · Office",
+    own:"The group's shared costs — rent, outgoings and office — pooled at $10,260 and split three ways between HAAVN Management, HAAVN Technologies and 7even.",
+    kv:[["Total pool","$10,260"],["Covers","Rent · Outgoings · Office"],["HAAVN Management","$3,420 · 33.3333%"],["HAAVN Technologies","$3,420 · 33.3333%"],["7even","$3,420 · 33.3334%"]],
+    flow:["Funded by → HAAVN Management","Funded by → HAAVN Technologies","Funded by → 7even"]},
+  "n-7even":{cap:"Related External Co.",color:"#6d7f88",title:"7even",role:"Related external company",
+    own:"A related external company (outside the HAAVN group) that shares in the group's expense pool — a $3,420 share (33.3334%).",
+    kv:[["Type","Related external company"],["In group","No (external)"],["Expense share","$3,420"],["Expense split","33.3334%"]],
+    flow:["Expense share → Shared pool"]},
+};
+
+// edges: type own | fund (bank<->sub) | idle | exp (payer->pool)
+const EDGES=[
+  {a:"n-sh",b:"n-haavn",type:"own",label:"own 100%"},
+  {a:"n-haavn",b:"n-hm",type:"fund"},
+  {a:"n-haavn",b:"n-ht",type:"fund"},
+  {a:"n-haavn",b:"n-hpi",type:"idle"},
+  {a:"n-hm",b:"n-pool",type:"exp"},
+  {a:"n-ht",b:"n-pool",type:"exp"},
+  {a:"n-7even",b:"n-pool",type:"exp"}
+];
+
+const stage=document.getElementById('stage');
+const svg=document.getElementById('wires');
+const NS='http://www.w3.org/2000/svg';
+function c(el,side){
+  const s=stage.getBoundingClientRect(), r=el.getBoundingClientRect();
+  const x=r.left-s.left, y=r.top-s.top;
+  if(side==='bottom')return{x:x+r.width/2,y:y+r.height};
+  if(side==='top')return{x:x+r.width/2,y:y};
+  if(side==='left')return{x:x,y:y+r.height/2};
+  if(side==='right')return{x:x+r.width,y:y+r.height/2};
+  return{x:x+r.width/2,y:y+r.height/2};
+}
+function wire(d,cls,a,b){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('class',cls);if(a)p.dataset.a=a;if(b)p.dataset.b=b;svg.appendChild(p);return p;}
+function flow(d,cls,a,b){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('class','flow '+cls);p.setAttribute('pathLength','100');if(a)p.dataset.a=a;if(b)p.dataset.b=b;svg.appendChild(p);}
+function label(x,y,text,cls,a,b){const t=document.createElementNS(NS,'text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('text-anchor','middle');t.setAttribute('class','wlabel '+(cls||''));if(a)t.dataset.a=a;if(b)t.dataset.b=b;t.textContent=text;svg.appendChild(t);}
+
+function elbow(p1,p2){const my=(p1.y+p2.y)/2;return `M ${p1.x} ${p1.y} V ${my} H ${p2.x} V ${my} V ${p2.y}`;}
+function vElbow(p1,p2){const my=(p1.y+p2.y)/2;return `M ${p1.x} ${p1.y} V ${my} H ${p2.x} V ${p2.y}`;}
+
+function draw(){
+  const s=stage.getBoundingClientRect();
+  svg.setAttribute('viewBox',`0 0 ${s.width} ${s.height}`);
+  svg.innerHTML='';
+  EDGES.forEach(e=>{
+    const A=document.getElementById(e.a), B=document.getElementById(e.b);
+    if(!A||!B)return;
+    if(e.type==='own'){
+      const p1=c(A,'bottom'), p2=c(B,'top'); const d=vElbow(p1,p2);
+      wire(d,'wire solid',e.a,e.b);
+      label(p2.x, (p1.y+p2.y)/2-6, e.label, '', e.a, e.b);
+    } else if(e.type==='idle'){
+      const p1=c(A,'bottom'), p2=c(B,'top'); const d=vElbow(p1,p2);
+      wire(d,'wire idle',e.a,e.b);
+    } else if(e.type==='fund'){
+      const p1=c(A,'bottom'), p2=c(B,'top'); const d=vElbow(p1,p2);
+      wire(d,'wire',e.a,e.b);
+      flow(d,'o',e.a,e.b);   // drawdown down
+      flow(d,'g',e.a,e.b);   // repay + interest up
+    } else if(e.type==='exp'){
+      // payer -> pool ; anchor by relative position
+      const ar=A.getBoundingClientRect(), br=B.getBoundingClientRect();
+      let p1,p2;
+      if(ar.top<br.top){ p1=c(A,'bottom'); p2=c(B,'top'); }
+      else { p1=c(A,'top'); p2=c(B,'bottom'); }
+      const d=vElbow(p1,p2);
+      wire(d,'wire',e.a,e.b);
+      flow(d,'o',e.a,e.b);
+    }
+  });
+  // flow direction labels near the fund edges
+  const bk=document.getElementById('n-haavn'), hm=document.getElementById('n-hm'), hpi=document.getElementById('n-hpi');
+  if(bk&&hm){const a=c(bk,'bottom'),b=c(hm,'top');label((a.x+b.x)/2-6,(a.y+b.y)/2-16,'↓ drawdown','o','n-haavn','n-hm');}
+  if(bk&&hpi){const a=c(bk,'bottom'),b=c(hpi,'top');label((a.x+b.x)/2+6,(a.y+b.y)/2-16,'↑ repay + interest','g','n-haavn','n-ht');}
+}
+
+/* ---- highlight ---- */
+function connected(id){
+  const set=new Set([id]);
+  EDGES.forEach(e=>{if(e.a===id)set.add(e.b);if(e.b===id)set.add(e.a);});
+  if(id==='n-pool'){set.add('n-hm');set.add('n-ht');set.add('n-7even');}
+  if(id==='n-haavn'){set.add('n-hm');set.add('n-ht');set.add('n-hpi');set.add('n-sh');}
+  return set;
+}
+function hi(id){
+  const keep=connected(id);
+  document.querySelectorAll('.node').forEach(n=>n.classList.toggle('dim',!keep.has(n.id)));
+  svg.querySelectorAll('.wire').forEach(w=>{const hot=(w.dataset.a===id||w.dataset.b===id);w.classList.toggle('hot',hot);w.classList.toggle('dim',!hot);});
+  svg.querySelectorAll('.flow').forEach(f=>{const on=(f.dataset.a===id||f.dataset.b===id);f.style.opacity=on?'1':'.12';});
+  svg.querySelectorAll('.wlabel').forEach(l=>l.style.opacity=(l.dataset.a===id||l.dataset.b===id)?'1':'.25');
+}
+function clearHi(){
+  document.querySelectorAll('.node').forEach(n=>n.classList.remove('dim'));
+  svg.querySelectorAll('.wire').forEach(w=>w.classList.remove('hot','dim'));
+  svg.querySelectorAll('.flow').forEach(f=>f.style.opacity='');
+  svg.querySelectorAll('.wlabel').forEach(l=>l.style.opacity='');
+}
+
+/* ---- drawer ---- */
+const drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim');
+function open(id){
+  const d=NODES[id]; if(!d)return;
+  document.querySelectorAll('.node').forEach(n=>n.classList.toggle('sel',n.id===id));
+  document.getElementById('drCap').textContent=d.cap;
+  document.getElementById('drTitle').textContent=d.title;
+  document.getElementById('drRole').textContent=d.role;
+  let html=`<div class="sec"><p>${d.own}</p></div>`;
+  html+=`<div class="sec"><h5>Flows</h5>${d.flow.map(f=>`<span class="flowbadge">${f}</span>`).join('')}</div>`;
+  html+=`<div class="sec"><h5>Detail</h5>`;
+  d.kv.forEach(r=>html+=`<div class="kv"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`);
+  html+=`</div>`;
+  document.getElementById('drBody').innerHTML=html;
+  drawer.classList.add('on'); scrim.classList.add('on');
+}
+function close(){drawer.classList.remove('on');scrim.classList.remove('on');document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));}
+document.getElementById('drClose').onclick=close;
+scrim.onclick=close;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+
+document.querySelectorAll('.node').forEach(n=>{
+  n.addEventListener('mouseenter',()=>hi(n.id));
+  n.addEventListener('mouseleave',clearHi);
+  n.addEventListener('click',()=>open(n.id));
+});
+
+/* ---- flow play/pause ---- */
+const flowBtn=document.getElementById('flowBtn');
+flowBtn.addEventListener('click',()=>{
+  const on=stage.classList.toggle('animating');
+  flowBtn.textContent=on?'❚❚ Pause flow':'▶ Play flow';
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{close();clearHi();});
+document.getElementById('exportBtn').addEventListener('click',()=>window.print());
+
+window.addEventListener('load',()=>setTimeout(draw,40));
+window.addEventListener('resize',()=>setTimeout(draw,40));
+draw();
+</script>
+</body>
+</html>
