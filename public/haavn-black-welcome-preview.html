@@ -32,7 +32,7 @@ body.leaving .stagewrap{opacity:0;transform:scale(1.035)}
   background:radial-gradient(120% 100% at 50% 50%, rgba(0,0,0,0) 46%, rgba(0,0,0,.72) 100%)}
 
 /* fine silver LED picture-frame, fades in with the ignition */
-.frame{position:fixed;inset:clamp(15px,2.4vh,34px) clamp(15px,2vw,34px);pointer-events:none;
+.frame{position:fixed;left:clamp(15px,2vw,34px);right:clamp(15px,2vw,34px);top:17vh;bottom:17vh;pointer-events:none;
   border:1.4px solid rgba(210,222,240,.9);border-radius:3px;opacity:0;
   box-shadow:0 0 9px rgba(190,215,255,.4),0 0 22px rgba(150,180,225,.16),
     inset 0 0 9px rgba(190,215,255,.2),inset 0 0 1px rgba(255,255,255,.6)}
@@ -207,6 +207,18 @@ function enter(){
 }
 document.getElementById('explore').onclick=enter;
 document.getElementById('skip').onclick=enter;
+/* Fit the LED frame into a rectangle ~2cm above WELCOME TO and ~2cm below the Enter button. */
+function fitFrame(){
+  var f=document.querySelector('.frame'), w=document.querySelector('.welcome'), b=document.getElementById('explore');
+  if(!f||!w||!b)return;
+  var pad=76; /* ~2cm */
+  var wt=w.getBoundingClientRect().top;
+  var bb=b.getBoundingClientRect().bottom;
+  f.style.top=Math.max(10,wt-pad)+'px';
+  f.style.bottom=Math.max(10,window.innerHeight-bb-pad)+'px';
+}
+addEventListener('resize',fitFrame);
+addEventListener('load',function(){fitFrame();setTimeout(fitFrame,320);setTimeout(fitFrame,4300);});
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(play)}else{addEventListener('load',play)}
 </script>
 </body></html>
