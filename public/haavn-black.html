@@ -553,9 +553,17 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
 <script>
 /* Wire the header/entry buttons to the ATRIUM app (postMessage to parent). */
 (function(){
-  function post(m){try{parent.postMessage({haavnBlack:m},'*');}catch(e){}}
+  /* Release the background video + any timers before we leave, so tearing the
+     hero down (7EVEN → back to the studio) can't leave a decoding media element
+     or animation loop running and hard-crash the tab/GPU on some machines. */
+  function teardown(){
+    try{var v=document.getElementById('bgv');if(v){v.pause();v.removeAttribute('src');v.load();}}catch(e){}
+    try{if(window.__hbClock)clearInterval(window.__hbClock);}catch(e){}
+  }
+  function post(m){if(m==='return'){teardown();}try{parent.postMessage({haavnBlack:m},'*');}catch(e){}}
   function wire(id,m){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){e.preventDefault();post(m);});}
   wire('btnReturn','return');   /* 7EVEN mark → back to the studio */
+  wire('btnCapital','capital'); /* CAPITAL wings → Capital Base (accounts management) */
   wire('btnDisplay','display'); /* Black Display → Display Suite */
   wire('btnFeas','feasibility');/* Black Feasibility → Black Series studio */
   wire('btnHM','crm');          /* HM device → HAAVN Homes CRM */

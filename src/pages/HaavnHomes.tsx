@@ -115,7 +115,7 @@ function HomeClock({ handover }: { handover?: string }) {
   )
 }
 
-export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onLogout }: {
+export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onLogout }: {
   onBack: () => void
   /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
    *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
@@ -123,6 +123,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   onOpenCrm?: () => void
   /** Opens the customer-facing Display Suite (DS logo, top-left). */
   onOpenDisplaySuite?: () => void
+  /** Opens Capital Base (accounts management) — CAPITAL wings in the hero header.
+   *  Only wired for the admin surface; omitted for restricted builder logins. */
+  onOpenCapital?: () => void
   onLogout?: () => void
 }) {
   const [list, setList] = useState<HomeProject[]>(() => load())
@@ -155,13 +158,14 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       else if (m === 'return') { restricted ? onLogout?.() : onBack() }
       else if (m === 'display') onOpenDisplaySuite?.()
       else if (m === 'feasibility') setOpenId('black-series')
+      else if (m === 'capital') onOpenCapital?.()
       else if (m === 'crm') onOpenCrm?.()
     }
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setOpenId(null) }
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm])
+  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm, onOpenCapital])
   const open = list.find(p => p.id === openId) || null
   // Pin the parent document while the embedded studio is open — stops the iOS
   // address-bar shift + bounce that made the studio "jump around" on mobile.
