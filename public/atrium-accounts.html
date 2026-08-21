@@ -314,6 +314,47 @@ body.atr-dark .fnode{ fill:#1a232f; }
 #atr-theme{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 12px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; }
 #atr-theme:hover{ color:var(--cx-txt); }
 </style>
+<style id="hb-reskin">
+/* ===== HAAVN × Hamilton Marino document look — warm paper, readable & functional ===== */
+:root{
+  --grey-50:#f6f5f0; --grey-100:#ecebe4; --grey-200:#e4e2d8; --grey-300:#d7d5ca;
+  --line:#c9c7bd; --line-2:#dcdad0;
+  --paper:#ecebe4; --paper-2:#f6f5f0;
+  --body:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
+  --disp:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
+  --bronze:#a9855c; --olive:#6b6c5c;
+}
+/* warm cream content canvas (was cold grey) */
+.main{background:radial-gradient(120% 80% at 50% -8%, #f5f4ee 0%, rgba(245,244,238,0) 48%), #ecebe4}
+/* white cards with the document's soft warm shadow + hairline */
+.card,.scard{border:1px solid var(--line) !important;
+  box-shadow:0 1px 2px rgba(28,28,30,.05),0 8px 26px rgba(28,28,30,.08) !important}
+/* headings in bold Helvetica like the document (not the serif) */
+.vhead h1{font-family:var(--disp) !important;font-weight:700 !important;letter-spacing:-.01em !important;color:var(--ink)}
+.vhead .vk{color:var(--bronze) !important}
+h2,h3{font-family:var(--disp)}
+/* warm zebra + muted table headers for readability */
+tbody tr:nth-child(even) td{background:#f4f3ec}
+th{color:var(--mute)}
+/* ---- side rail + top header: warm dark grey / bronze ---- */
+.rail{background:linear-gradient(175deg,#2b2824,#211e1a 72%,#17140f) !important}
+.rail .cf{opacity:.16 !important;filter:grayscale(1) !important}
+.topbar{background:linear-gradient(180deg,#272420,#1b1815) !important;border-bottom:1px solid #000 !important}
+.rail .brand .bw,.topbar .mk .bw{color:#efe9dd !important}
+.rgrp{color:rgba(232,224,208,.42) !important}
+.rnav{color:rgba(234,228,216,.78) !important}
+.rnav:hover{background:rgba(255,255,255,.06) !important;color:#fff !important}
+.rnav.on{background:rgba(169,133,92,.18) !important;color:#fff !important;box-shadow:inset 3px 0 0 0 #b98e54 !important}
+.rail .rdiv{background:linear-gradient(90deg,#7a5c38,#cba36c,#7a5c38) !important;opacity:.92 !important}
+.railfoot{color:rgba(232,224,208,.4) !important;border-top-color:rgba(232,224,208,.14) !important}
+/* entity switch + module number -> bronze accent */
+.ent-switch{border-color:rgba(169,133,92,.45) !important}
+.ent-switch .ec i{background:#c99f6a !important;box-shadow:0 0 8px rgba(201,159,106,.6) !important}
+.topbar .modlbl{color:#dcd6ca !important}
+.topbar .modlbl .n{color:#c99f6a !important}
+.topbar .partner{color:rgba(220,214,202,.6) !important}
+.topbar .partner .sep{background:rgba(220,214,202,.28) !important}
+</style>
 </head><body><div id="atrium-bg"></div>
 <div class="app">
  <div class="topbar carbon carbon-sheen">
