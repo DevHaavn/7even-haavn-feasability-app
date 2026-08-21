@@ -144,8 +144,13 @@ export default function App() {
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
       {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
-      {/* CAPITAL wings → Capital Base (accounts management), over HAAVN BLACK. Admin only. */}
-      {homesCapitalOpen && <CapitalPortal onClose={() => setHomesCapitalOpen(false)} />}
+      {/* CAPITAL wings → Capital Base (accounts management), over HAAVN BLACK. Admin only.
+          Wrapped above the hero iframe (z-index 600) so it doesn't open behind it. */}
+      {homesCapitalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
+          <CapitalPortal onClose={() => setHomesCapitalOpen(false)} />
+        </div>
+      )}
     </RoleContext.Provider>
   )
 
