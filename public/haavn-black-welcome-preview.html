@@ -9,17 +9,10 @@
 :root{--o4:.44;--o3:.52;--o2:.62;--o1:.92;--k4:.34;--k3:.42;--k2:.52;--k1:.78}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background-color:#050506;
-  background-image:
-    radial-gradient(118% 86% at 50% 42%, rgba(38,42,49,.55), rgba(0,0,0,0) 58%),
-    linear-gradient(rgba(255,255,255,.016) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.016) 1px, transparent 1px);
-  background-size:100% 100%, 46px 46px, 46px 46px;
+body{background:#000;   /* jet black */
   color:#6a6e74;font-family:'JetBrains Mono',monospace;overflow:hidden;
   display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
-/* film grain so the black reads textured, not flat */
-.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.grain{display:none}   /* no texture — pure black */
 
 /* fade the whole intro out on EXPLORE */
 .stagewrap{position:fixed;inset:0;display:flex;flex-direction:column;transition:opacity 1s ease, transform 1s ease}
@@ -112,15 +105,17 @@ svg{width:100%;height:auto;display:block;overflow:visible;shape-rendering:geomet
 body.run .skip{opacity:1}.skip:hover{color:#9aa0a6}
 /* ---- framed ENTER button (matches the hero Black Display / Feasibility CTA) ---- */
 .enterbtn{position:relative;display:grid;grid-template-columns:auto 1px auto auto;align-items:center;
-  border:1px solid rgba(160,168,176,.42);border-radius:2px;overflow:hidden;cursor:pointer;padding:0;
+  border:1px solid rgba(214,226,238,.4);border-radius:3px;overflow:hidden;cursor:pointer;padding:0;
   font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;
-  background:linear-gradient(180deg, rgba(120,124,130,.15), rgba(120,124,130,.05));
-  -webkit-backdrop-filter:blur(22px) saturate(115%);backdrop-filter:blur(22px) saturate(115%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 24px 56px -30px #000;
-  transition:border-color .45s var(--hb-ease,cubic-bezier(.2,.7,.3,1)), box-shadow .45s, transform .45s, background .45s}
-.enterbtn:hover,.enterbtn:focus-visible{border-color:rgba(220,235,255,.42);transform:translateY(-2px);
-  background:linear-gradient(180deg, rgba(120,124,130,.24), rgba(120,124,130,.085));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 28px 66px -28px #000, 0 0 40px -12px rgba(180,210,255,.26);outline:none}
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.018));
+  -webkit-backdrop-filter:blur(14px) saturate(120%);backdrop-filter:blur(14px) saturate(120%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.45),
+    0 22px 48px -22px rgba(0,0,0,.95), 0 0 34px -16px rgba(190,215,255,.22);
+  transition:border-color .4s var(--hb-ease,cubic-bezier(.2,.7,.3,1)), box-shadow .4s, transform .4s, background .4s}
+.enterbtn:hover,.enterbtn:focus-visible{border-color:rgba(228,240,252,.62);transform:translateY(-2px);
+  background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(0,0,0,.45),
+    0 30px 62px -24px rgba(0,0,0,.95), 0 0 48px -14px rgba(190,215,255,.42);outline:none}
 .enterbtn .eb-ds{display:flex;align-items:center;justify-content:center;padding:0 17px 0 21px;
   font-family:'JetBrains Mono',monospace;font-weight:500;font-size:12px;letter-spacing:.06em;color:#e7e9ec}
 .enterbtn .eb-div{align-self:stretch;background:rgba(255,255,255,.12);margin:13px 0}
