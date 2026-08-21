@@ -315,51 +315,27 @@ body.atr-dark .fnode{ fill:#1a232f; }
 #atr-theme:hover{ color:var(--cx-txt); }
 </style>
 <style id="hb-reskin">
-/* ================= HAAVN BLACK re-skin — preview ================= */
+/* ===== HAAVN × Hamilton Marino document look — warm paper, readable & functional ===== */
 :root{
-  --ink:#e9edf1; --ink-2:#c3c9ce; --mute:#8b9298; --faint:#6f767c;
-  --line:rgba(255,255,255,.10); --line-2:rgba(255,255,255,.06);
-  --grey-50:#14171a; --grey-100:#0c0e10; --grey-200:#181b1f; --grey-300:#22262b;
+  --grey-50:#f6f5f0; --grey-100:#ecebe4; --grey-200:#e4e2d8; --grey-300:#d7d5ca;
+  --line:#c9c7bd; --line-2:#dcdad0;
+  --paper:#ecebe4; --paper-2:#f6f5f0;
+  --body:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
+  --disp:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
+  --bronze:#a9855c; --olive:#6b6c5c;
 }
-body{background:#050506}
-.main{background:radial-gradient(120% 90% at 50% -10%, #15181c 0%, rgba(21,24,28,0) 55%), #0a0b0c}
-.card,.scard,body .scard,body .card{background:#14161a !important;border:1px solid rgba(255,255,255,.06) !important;
-  box-shadow:0 1px 2px rgba(0,0,0,.42),0 14px 34px -18px rgba(0,0,0,.65) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
-body .scard.forest{background:linear-gradient(160deg,rgba(35,122,82,.34),rgba(15,49,35,.6)) !important;border-color:rgba(126,224,168,.28) !important}
-.scard.forest .t,.scard.forest .v{color:#e9f6ee !important}
-.scard .t{color:var(--faint)} .scard .v{color:var(--ink)}
-.vhead h1{color:var(--ink)}
-.vhead .vk{color:#7ee0a8}
-h2,h3{color:var(--ink)}
-/* tables */
-table{color:var(--ink)}
-th{color:var(--faint) !important;border-bottom-color:var(--line) !important;background:transparent !important}
-td{border-top-color:var(--line-2) !important;color:var(--ink)}
-tbody tr:hover td, tr:nth-child(even) td{background:rgba(255,255,255,.025) !important}
-.mx td:first-child,.mx th:first-child{background:#14161a !important}
-/* form fields */
-input,select,textarea{background:#0f1114 !important;color:var(--ink) !important;border:1px solid rgba(255,255,255,.12) !important}
-select option{background:#14161a;color:var(--ink)}
-label{color:var(--mute) !important}
-/* buttons */
-.btn{background:#1a1d21 !important;color:var(--ink) !important;border:1px solid rgba(255,255,255,.12) !important}
-.btn.ghost{background:transparent !important}
-.btn.green{background:linear-gradient(180deg,#8fe9b6,#4fca88) !important;color:#07160e !important;border:none !important}
-/* modal */
-.overlay{background:rgba(0,0,0,.74) !important}
-.modal,.modal .inner{background:#101215 !important;border:1px solid rgba(255,255,255,.08) !important;color:var(--ink)}
-/* green accent for tags/notes */
-.tag{color:#7ee0a8}
-.note{color:var(--ink-2)}
-:root{--ink-3:#9aa2ab;
-  --red-bg:rgba(196,96,72,.16); --red-tx:#e6987f; --red:#d67a5f;
-  --amber-bg:rgba(201,162,75,.16); --amber-tx:#e0c078;
-  --f-50:rgba(126,224,168,.10); --f-100:rgba(126,224,168,.16);}
-/* group-structure diagram nodes -> dark */
-.fnode{fill:#14161a !important;stroke:rgba(255,255,255,.12) !important}
-.diagram svg text[fill="#fff"],.diagram svg text[fill="#ffffff"]{fill:var(--ink) !important}
-/* any remaining inline white surfaces */
-[style*="background:#fff"],[style*="background:#FFF"],[style*="background: #fff"]{background:#14161a !important}
+/* warm cream content canvas (was cold grey) */
+.main{background:radial-gradient(120% 80% at 50% -8%, #f5f4ee 0%, rgba(245,244,238,0) 48%), #ecebe4}
+/* white cards with the document's soft warm shadow + hairline */
+.card,.scard{border:1px solid var(--line) !important;
+  box-shadow:0 1px 2px rgba(28,28,30,.05),0 8px 26px rgba(28,28,30,.08) !important}
+/* headings in bold Helvetica like the document (not the serif) */
+.vhead h1{font-family:var(--disp) !important;font-weight:700 !important;letter-spacing:-.01em !important;color:var(--ink)}
+.vhead .vk{color:var(--bronze) !important}
+h2,h3{font-family:var(--disp)}
+/* warm zebra + muted table headers for readability */
+tbody tr:nth-child(even) td{background:#f4f3ec}
+th{color:var(--mute)}
 </style>
 </head><body><div id="atrium-bg"></div>
 <div class="app">
