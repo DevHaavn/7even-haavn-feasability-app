@@ -228,7 +228,7 @@ footer{padding-bottom:20px}
 <div id="stage">
   <!-- Background video. Swap /haavn-black-bg.mp4 for the LICENSED (non-watermarked)
        export before go-live. Canvas below stays as a fallback if the video fails. -->
-  <video id="bgv" class="bgv" autoplay muted loop playsinline preload="auto" src="/haavn-black-bg.mp4"></video>
+  <video id="bgv" class="bgv" autoplay muted loop playsinline webkit-playsinline preload="metadata" disablepictureinpicture disableremoteplayback src="/haavn-black-bg.mp4"></video>
   <canvas id="bg"></canvas>
   <div class="dim"></div>
 
@@ -393,6 +393,16 @@ void main(){
 (function(){
   var stage=document.getElementById('stage'), cv=document.getElementById('bg');
   var gl=null;
+  var __vid=document.getElementById('bgv');
+  if(__vid && __vid.getAttribute('src')){
+    /* The licensed video is the background. Do NOT run the WebGL shader behind
+       it (it's hidden and just burns GPU → glitchy/slow, esp. on mobile).
+       Fall back to the shader only if the video genuinely fails to load. */
+    __vid.addEventListener('error', __startShader, {once:true});
+    return;
+  }
+  __startShader();
+  function __startShader(){
   try{gl=cv.getContext('webgl',{antialias:false,alpha:false,powerPreference:'high-performance'})
         ||cv.getContext('experimental-webgl',{antialias:false,alpha:false});}catch(e){}
   if(!gl){stage.classList.add('nogl');return}
@@ -433,6 +443,7 @@ void main(){
     if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=null;}
     else if(!raf&&!still){t0=performance.now()-18000;raf=requestAnimationFrame(draw);}
   });
+  }
 })();
 </script>
 <script>
@@ -533,9 +544,11 @@ var LED = (function(){
   return {run:run,build:build};
 })();
 
-if(document.fonts && document.fonts.ready){document.fonts.ready.then(function(){LED.run()});}
-else{window.addEventListener('load',LED.run);}
-window.addEventListener('load',function(){setTimeout(LED.build,50)});
+if(LED){
+  if(document.fonts && document.fonts.ready){document.fonts.ready.then(function(){LED.run()});}
+  else{window.addEventListener('load',LED.run);}
+  window.addEventListener('load',function(){setTimeout(LED.build,50)});
+}
 
 /* ---------- route stubs ---------- */
 function stub(id,msg){var e=document.getElementById(id);if(e)e.addEventListener('click',function(ev){ev.preventDefault();console.log('[HAAVN BLACK] '+msg)})}
