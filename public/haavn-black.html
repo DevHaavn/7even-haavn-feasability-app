@@ -186,6 +186,11 @@ footer{padding-bottom:20px}
 .chip:hover{border-color:rgba(255,255,255,.34);color:#fff;background:rgba(var(--grey),.24);transform:translateY(-1px)}
 .chip .ext{font-size:9px;opacity:.6}
 .chip.upd .ring{width:6px;height:6px;border:1px solid rgba(255,255,255,.4);border-radius:50%}
+ /* unified footer buttons — green arrow / accent to match the Black Display / Feasibility CTAs */
+ .chip .go{color:var(--led);margin-left:4px;font-size:11px;display:inline-block;transition:transform .35s cubic-bezier(.2,.7,.3,1)}
+ .chip:hover .go{transform:translateX(3px)}
+ .chip .ext{color:var(--led);opacity:.9}
+ .chip.upd .ring{border-color:var(--led)}
 .legal{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:11px}
 .legal span{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.30em;color:#4a474a}
 
@@ -224,7 +229,7 @@ footer{padding-bottom:20px}
 
 /* ---- PARTNERS glass button (footer) — shareholder access ---- */
 .partners-btn{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#dfe1e4;cursor:pointer;
-  padding:8px 20px;border-radius:100px;border:1px solid rgba(255,255,255,.18);
+  padding:9px 20px;border-radius:3px;border:1px solid rgba(255,255,255,.18);
   background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
   -webkit-backdrop-filter:blur(14px) saturate(1.12);backdrop-filter:blur(14px) saturate(1.12);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -12px rgba(0,0,0,.7);transition:.35s cubic-bezier(.2,.7,.3,1)}
@@ -316,7 +321,7 @@ footer{padding-bottom:20px}
       <div class="fc">
         <span class="dot-live"></span><span class="live">LIVE</span>
         <span class="clock" id="clock">--:--:--</span><span class="zone" id="zone">MELBOURNE</span>
-        <button class="partners-btn" id="btnPartners" aria-label="Partners — shareholder access">PARTNERS</button>
+        <button class="chip" id="btnPartners" aria-label="Partners — shareholder access">PARTNERS <span class="go">&#8594;</span></button>
       </div>
       <div class="fr">
         <span class="vis">VISIT</span>
