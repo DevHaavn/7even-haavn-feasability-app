@@ -3,81 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HAAVN BLACK — Shareholder Briefing</title>
+<title>HAAVN × Hamilton Marino — Shareholder Briefing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    HAAVN BLACK · SHAREHOLDER BRIEFING — one design system
-   Palette: Black · Grey · White · Green · Gold
+   Light reading surface: soft-grey bg · black/grey text
+   Accents: Green · Gold  |  Chrome: Black rail
    ============================================================ */
 :root{
-  --black:#08090a;--black-2:#0c0e10;--ink:#0a0b0c;
-  --panel:#141619;--panel-2:#1a1d21;--panel-3:#212429;
-  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
-  --white:#f4f5f6;--w-soft:#c9cdd2;--muted:#9297a0;--faint:#666b73;
-  --green:#2fe07a;--green-d:#1fae5f;--green-deep:#0f3a25;
-  --gold:#d6b46a;--gold-d:#b8934a;--gold-deep:#3a2f16;
-  --red:#e8836e;
+  --paper:#e7e6e1;--paper-2:#efeee9;--card:#ffffff;--panel:#f6f5f1;--panel-2:#f0efe9;
+  --ink:#161719;--body:#3d3e42;--muted:#6b6c71;--faint:#9a9b9f;
+  --line:rgba(0,0,0,.10);--line-2:rgba(0,0,0,.17);
+  --green:#1f9d57;--green-bright:#24c069;--green-deep:#0f6b3c;--green-tint:#e7f4ec;
+  --gold:#a87f36;--gold-bright:#c39b53;--gold-tint:#f5efe2;
+  --purple:#8a5fa8;--grey-bar:#8c8f94;--red:#c0492f;
   --fd:'Chakra Petch','Rajdhani','Arial Narrow',sans-serif;
   --fb:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
   --rail:264px;
+  /* rail (dark chrome) */
+  --rk:#0f1113;--rk2:#0b0c0e;--rline:rgba(255,255,255,.08);--rtxt:#c9cdd2;--rmut:#7d8288;--rfaint:#565a60;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  font-family:var(--fb);color:var(--w-soft);font-weight:300;line-height:1.6;
-  background:var(--black);-webkit-font-smoothing:antialiased;overflow-x:hidden;
-}
-/* faint grid + grain */
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  font-family:var(--fb);color:var(--body);font-weight:400;line-height:1.6;
   background:
-    radial-gradient(120% 80% at 82% -6%, rgba(47,224,122,.05), transparent 52%),
-    radial-gradient(90% 70% at 4% 104%, rgba(214,180,106,.045), transparent 55%);}
-body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");mix-blend-mode:overlay}
-::selection{background:var(--green);color:#04120a}
-
-/* ---------------- SIDEBAR RAIL ---------------- */
-.rail{
-  position:fixed;top:0;left:0;bottom:0;width:var(--rail);z-index:40;
-  display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#0b0d0f,#090a0b 60%,#070808);
-  border-right:1px solid var(--line);
+    radial-gradient(120% 80% at 84% -6%, rgba(31,157,87,.05), transparent 50%),
+    radial-gradient(90% 70% at 2% 104%, rgba(168,127,54,.05), transparent 55%),
+    var(--paper);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
-.rail-top{padding:24px 24px 20px;border-bottom:1px solid var(--line)}
-.lock{display:flex;align-items:center;gap:9px}
-.lock .hm{font-family:var(--fd);font-weight:700;font-size:19px;letter-spacing:.1em;color:#fff}
-.lock .hm .x{color:var(--gold);font-weight:400;margin:0 .18em;font-size:.85em}
-.lock-sub{font-family:var(--fd);font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin-top:7px;font-weight:500}
-.badge{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:7px 12px;border:1px solid rgba(47,224,122,.32);border-radius:999px;
-  font-family:var(--fd);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);font-weight:500;background:rgba(47,224,122,.05)}
-.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2.6s infinite}
+::selection{background:var(--green);color:#fff}
+.gold{color:var(--gold)}.grn{color:var(--green)}
+
+/* ---------------- SIDEBAR RAIL (dark chrome) ---------------- */
+.rail{position:fixed;top:0;left:0;bottom:0;width:var(--rail);z-index:40;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,var(--rk),var(--rk2));border-right:1px solid var(--line)}
+.rail-top{padding:24px 24px 20px;border-bottom:1px solid var(--rline)}
+.lock{display:flex;flex-direction:column;align-items:flex-start}
+.hmark{height:24px;width:auto;filter:brightness(0) invert(1)}
+.xrule{display:flex;align-items:center;gap:9px;width:100%;max-width:190px;margin:11px 0 8px}
+.xrule span{flex:1;height:1px;background:var(--rline)}
+.xrule b{font-family:var(--fd);color:var(--gold-bright);font-weight:400;font-size:12px}
+.hmw{font-family:var(--fd);font-weight:700;font-size:15px;letter-spacing:.09em;color:#fff}
+.pip{font-family:var(--fd);font-size:8.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--rmut);margin-top:7px;font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:7px 12px;border:1px solid rgba(36,192,105,.34);border-radius:999px;
+  font-family:var(--fd);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--green-bright);font-weight:500;background:rgba(36,192,105,.06)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green-bright);box-shadow:0 0 9px var(--green-bright);animation:pulse 2.6s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
 .nav{flex:1;padding:18px 14px;display:flex;flex-direction:column;gap:3px;overflow-y:auto}
-.nav-lbl{font-family:var(--fd);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);padding:8px 12px 10px;font-weight:500}
-.nav-item{
-  display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;
-  border:0;background:transparent;width:100%;padding:13px 14px;border-radius:10px;position:relative;
-  color:var(--muted);transition:.24s;font-family:var(--fb);
-}
-.nav-item:hover{background:rgba(255,255,255,.03);color:var(--white)}
-.nav-item .n{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.04em;transition:.24s}
+.nav-lbl{font-family:var(--fd);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--rfaint);padding:8px 12px 10px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;border:0;background:transparent;width:100%;
+  padding:13px 14px;border-radius:10px;position:relative;color:var(--rmut);transition:.24s;font-family:var(--fb)}
+.nav-item:hover{background:rgba(255,255,255,.04);color:#fff}
+.nav-item .n{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--rfaint);letter-spacing:.04em;transition:.24s}
 .nav-item .t{font-family:var(--fd);font-size:13.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;line-height:1.2}
-.nav-item.on{background:linear-gradient(90deg,rgba(47,224,122,.10),rgba(47,224,122,.02));color:#fff}
-.nav-item.on .n{color:var(--green)}
-.nav-item.on::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--green);box-shadow:0 0 14px var(--green)}
-
-.rail-foot{padding:16px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
-.back{
-  display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;width:100%;
-  font-family:var(--fd);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--w-soft);font-weight:500;
-  padding:12px;border-radius:10px;border:1px solid var(--line-2);background:transparent;transition:.28s}
-.back:hover{border-color:rgba(47,224,122,.6);color:#fff;background:rgba(47,224,122,.06);box-shadow:0 0 26px -12px rgba(47,224,122,.6)}
-.clock{font-family:var(--fd);font-size:10px;letter-spacing:.16em;color:var(--faint);text-align:center;text-transform:uppercase}
-.clock b{color:var(--muted);font-weight:500}
+.nav-item.on{background:linear-gradient(90deg,rgba(36,192,105,.12),rgba(36,192,105,.02));color:#fff}
+.nav-item.on .n{color:var(--green-bright)}
+.nav-item.on::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--green-bright);box-shadow:0 0 14px var(--green-bright)}
+.rail-foot{padding:16px 18px;border-top:1px solid var(--rline);display:flex;flex-direction:column;gap:12px}
+.back{display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;width:100%;font-family:var(--fd);font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--rtxt);font-weight:500;padding:12px;border-radius:10px;border:1px solid var(--rline);background:transparent;transition:.28s}
+.back:hover{border-color:rgba(36,192,105,.6);color:#fff;background:rgba(36,192,105,.08)}
+.clock{font-family:var(--fd);font-size:10px;letter-spacing:.16em;color:var(--rfaint);text-align:center;text-transform:uppercase}
+.clock b{color:var(--rmut);font-weight:500}
 
 /* ---------------- MAIN ---------------- */
 .main{margin-left:var(--rail);position:relative;z-index:1;min-height:100vh}
@@ -86,152 +78,151 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 .vhero{padding:clamp(40px,6vw,72px) 0 30px;border-bottom:1px solid var(--line);margin-bottom:36px}
-.eyebrow{font-family:var(--fd);font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);font-weight:500;display:flex;align-items:center;gap:14px}
-.eyebrow::after{content:'';flex:1;max-width:90px;height:1px;background:linear-gradient(90deg,var(--gold-d),transparent)}
-h1{font-family:var(--fd);font-weight:700;color:#fff;font-size:clamp(34px,5.4vw,60px);line-height:1.02;letter-spacing:-.01em;margin:20px 0 0}
+.eyebrow{font-family:var(--fd);font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:14px}
+.eyebrow::after{content:'';flex:1;max-width:90px;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+h1{font-family:var(--fd);font-weight:700;color:var(--ink);font-size:clamp(34px,5.4vw,60px);line-height:1.02;letter-spacing:-.01em;margin:20px 0 0}
 h1 .thin{font-weight:300;color:var(--muted)}
-.lede{font-size:16px;color:var(--w-soft);max-width:74ch;margin-top:20px;font-weight:300}
-.lede b{color:#fff;font-weight:500}
-.gold{color:var(--gold)}.grn{color:var(--green)}
+.lede{font-size:16px;color:var(--body);max-width:74ch;margin-top:20px;font-weight:400}
+.lede b{color:var(--ink);font-weight:600}
 
-/* verdict ribbon */
-.verdict{display:flex;gap:16px;align-items:center;margin-top:26px;padding:18px 22px;border-radius:14px;
-  background:linear-gradient(90deg,rgba(47,224,122,.09),rgba(47,224,122,.01));border:1px solid rgba(47,224,122,.28)}
-.verdict .vic{flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:var(--green);color:#04140b;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;box-shadow:0 0 24px -6px var(--green)}
-.verdict p{font-size:14.5px;color:#d9 efe4;color:#d9efe4;margin:0}
-.verdict b{color:var(--green);font-weight:600}
+.verdict{display:flex;gap:16px;align-items:center;margin-top:26px;padding:18px 22px;border-radius:14px;background:var(--green-tint);border:1px solid rgba(31,157,87,.3)}
+.verdict .vic{flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.verdict p{font-size:14.5px;color:#1f5a3c;margin:0}
+.verdict b{color:var(--green-deep);font-weight:700}
 
-/* section titling inside a view */
 .block{margin-top:44px}
 .block-h{display:flex;align-items:baseline;gap:14px;margin-bottom:20px}
-.block-h .bn{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--gold);letter-spacing:.1em}
-.block-h h2{font-family:var(--fd);font-weight:600;color:#fff;font-size:22px;letter-spacing:.01em}
+.block-h .bn{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.1em}
+.block-h h2{font-family:var(--fd);font-weight:600;color:var(--ink);font-size:22px;letter-spacing:.01em}
 .block-h .bs{font-size:13px;color:var(--muted);margin-left:auto;text-align:right;max-width:44ch}
 
 /* ---------------- STAT CARDS ---------------- */
 .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
 @media(max-width:1080px){.stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;transition:.3s}
-.stat:hover{border-color:var(--line-2);transform:translateY(-3px)}
-.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--line-2),transparent);opacity:0;transition:.3s}
-.stat:hover::before{opacity:1}
-.stat.hl{border-color:rgba(47,224,122,.36);background:linear-gradient(180deg,rgba(47,224,122,.07),var(--panel))}
-.stat.gold{border-color:rgba(214,180,106,.34);background:linear-gradient(180deg,rgba(214,180,106,.06),var(--panel))}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.04),0 12px 30px -22px rgba(0,0,0,.3)}
+.stat:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(0,0,0,.06),0 22px 46px -26px rgba(0,0,0,.4)}
+.stat.hl{border-color:rgba(31,157,87,.4);background:linear-gradient(180deg,var(--green-tint),var(--card))}
+.stat.gold{border-color:rgba(168,127,54,.4);background:linear-gradient(180deg,var(--gold-tint),var(--card))}
 .stat .k{font-size:11.5px;color:var(--muted);line-height:1.35;min-height:31px}
-.stat .v{font-family:var(--fd);font-size:clamp(21px,2vw,27px);font-weight:700;color:#fff;letter-spacing:-.01em;margin-top:10px;line-height:1}
+.stat .v{font-family:var(--fd);font-size:clamp(21px,2vw,27px);font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-top:10px;line-height:1}
 .stat .v.grn{color:var(--green)}.stat .v.gold{color:var(--gold)}.stat .v.red{color:var(--red)}
 .stat .s{font-family:var(--fd);font-size:10.5px;letter-spacing:.06em;color:var(--faint);margin-top:7px;text-transform:uppercase}
 
 /* ---------------- PANELS / CARDS ---------------- */
-.panel{background:linear-gradient(180deg,var(--panel),var(--black-2));border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:0 30px 60px -40px #000}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 18px 40px -30px rgba(0,0,0,.28)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
-
-.card{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:22px 22px;position:relative;overflow:hidden;transition:.3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .card:hover{border-color:var(--line-2)}
 .card .rail-top-accent{position:absolute;top:0;left:0;right:0;height:3px}
-.card .ct{font-family:var(--fd);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);font-weight:500}
-.card .cn{font-family:var(--fd);font-size:24px;font-weight:700;color:#fff;letter-spacing:.04em;margin-top:8px}
-.card .cbig{font-family:var(--fd);font-size:30px;font-weight:700;color:#fff;margin-top:14px}
+.card .ct{font-family:var(--fd);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card .cn{font-family:var(--fd);font-size:24px;font-weight:700;color:var(--ink);letter-spacing:.04em;margin-top:8px}
+.card .cbig{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--ink);margin-top:14px}
 .card .cbig span{font-size:12px;color:var(--muted);font-weight:500}
 .card ul{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:9px}
-.card li{display:flex;justify-content:space-between;gap:12px;font-family:var(--fd);font-size:12.5px;color:var(--w-soft);border-bottom:1px solid var(--line);padding-bottom:9px}
+.card li{display:flex;justify-content:space-between;gap:12px;font-family:var(--fd);font-size:12.5px;color:var(--body);border-bottom:1px solid var(--line);padding-bottom:9px}
 .card li:last-child{border-bottom:0;padding-bottom:0}
-.card li span:last-child{color:var(--green);font-weight:600}
+.card li span:last-child{color:var(--green);font-weight:700}
 
 /* ---------------- CHART ---------------- */
 .chart{width:100%;height:auto;display:block;margin-top:6px}
 .legend{display:flex;gap:20px;flex-wrap:wrap;margin:2px 0 6px}
-.legend .li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--w-soft)}
+.legend .li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--body)}
 .legend .sw{width:11px;height:11px;border-radius:3px}
-.chart-cap{font-size:12px;color:var(--muted);margin-top:4px}
-.chart-cap b{color:#fff}
-.tip{position:fixed;pointer-events:none;z-index:99;background:#0d0f11;border:1px solid var(--line-2);color:#fff;font-family:var(--fd);font-size:12px;padding:8px 11px;border-radius:9px;opacity:0;transition:opacity .12s;white-space:nowrap;box-shadow:0 12px 30px -12px #000}
-.tip b{color:var(--green)}
+.chart-cap{font-size:12px;color:var(--muted);margin-top:4px}.chart-cap b{color:var(--ink)}
+.tip{position:fixed;pointer-events:none;z-index:99;background:var(--ink);color:#fff;font-family:var(--fd);font-size:12px;padding:8px 11px;border-radius:9px;opacity:0;transition:opacity .12s;white-space:nowrap;box-shadow:0 12px 30px -12px rgba(0,0,0,.5)}
+.tip b{color:var(--green-bright)}
 
 /* ---------------- TABLE ---------------- */
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-top:6px}
 .tbl{width:100%;border-collapse:collapse;font-family:var(--fd);font-size:12.5px;min-width:520px}
-.tbl th{text-align:right;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:500;padding:14px 16px;border-bottom:1px solid var(--line-2);white-space:nowrap;background:rgba(255,255,255,.015)}
+.tbl th{text-align:right;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:14px 16px;border-bottom:1px solid var(--line-2);white-space:nowrap;background:var(--panel)}
 .tbl th:first-child{text-align:left}
-.tbl td{padding:12px 16px;border-bottom:1px solid var(--line);text-align:right;color:var(--w-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
-.tbl td:first-child{text-align:left;color:#fff;font-family:var(--fb);font-weight:500}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line);text-align:right;color:var(--body);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl td:first-child{text-align:left;color:var(--ink);font-family:var(--fb);font-weight:600}
 .tbl tr:last-child td{border-bottom:0}
-.tbl tr:hover td{background:rgba(255,255,255,.02)}
-.tbl tr.grp td{background:rgba(255,255,255,.03);color:#fff;font-weight:600}
-.tbl tr.tot td{background:rgba(47,224,122,.07);color:#fff;font-weight:700;border-top:1px solid var(--line-2)}
+.tbl tr:hover td{background:var(--panel-2)}
+.tbl tr.grp td{background:var(--panel);color:var(--ink);font-weight:700}
+.tbl tr.tot td{background:var(--green-tint);color:var(--green-deep);font-weight:700;border-top:1px solid var(--line-2)}
 .tbl td.neg{color:var(--red)}
-.tbl td.pos{color:var(--green)}
 .dotk{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:9px;vertical-align:0}
 
 /* ---------------- TIMELINE ---------------- */
-.timeline{position:relative;margin-top:10px;padding-left:6px}
+.timeline{position:relative;margin-top:6px}
 .tl-row{display:grid;grid-template-columns:150px 1fr;gap:22px;padding:18px 0;border-bottom:1px solid var(--line);align-items:start}
 .tl-row:last-child{border-bottom:0}
-.tl-when{font-family:var(--fd);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:10px}
+.tl-when{font-family:var(--fd);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:flex;align-items:center;gap:10px}
 .tl-when .mk{width:9px;height:9px;transform:rotate(45deg);background:var(--gold)}
 .tl-row.grn .tl-when{color:var(--green)}.tl-row.grn .mk{background:var(--green)}
-.tl-t{font-family:var(--fd);font-size:17px;font-weight:600;color:#fff;letter-spacing:.03em}
+.tl-t{font-family:var(--fd);font-size:17px;font-weight:600;color:var(--ink);letter-spacing:.03em}
 .tl-d{font-size:13px;color:var(--muted);margin-top:5px}
 
 /* ---------------- GATES / PRIORITIES ---------------- */
 .gates{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 @media(max-width:820px){.gates{grid-template-columns:1fr}}
-.gate{background:var(--panel);padding:18px 18px;transition:.3s}
-.gate:hover{background:var(--panel-2)}
-.gate .gn{font-family:var(--fd);font-size:11px;color:var(--gold);letter-spacing:.16em;font-weight:600}
-.gate .gt{font-family:var(--fd);font-size:14px;font-weight:600;color:#fff;margin-top:7px;letter-spacing:.03em}
+.gate{background:var(--card);padding:18px;transition:.3s}
+.gate:hover{background:var(--panel)}
+.gate .gn{font-family:var(--fd);font-size:11px;color:var(--gold);letter-spacing:.16em;font-weight:700}
+.gate .gt{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--ink);margin-top:7px;letter-spacing:.03em}
 .gate .gd{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
-
 .prio{display:flex;flex-direction:column}
 .prio-row{display:grid;grid-template-columns:60px 1fr;gap:22px;padding:20px 0;border-bottom:1px solid var(--line);align-items:start}
 .prio-row:last-child{border-bottom:0}
-.prio-row .pn{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--panel-3);line-height:1;transition:.3s}
+.prio-row .pn{font-family:var(--fd);font-size:30px;font-weight:700;color:#d8d6cf;line-height:1;transition:.3s}
 .prio-row:hover .pn{color:var(--gold)}
-.prio-row h4{font-family:var(--fd);font-size:16px;font-weight:600;color:#fff;letter-spacing:.02em}
+.prio-row h4{font-family:var(--fd);font-size:16px;font-weight:600;color:var(--ink);letter-spacing:.02em}
 .prio-row p{font-size:13px;color:var(--muted);margin-top:6px;max-width:80ch}
-
-/* ways */
 .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:820px){.ways{grid-template-columns:1fr}}
-.way{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:18px}
-.way b{font-family:var(--fd);font-size:15px;color:#fff;letter-spacing:.03em}
+.way{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.way b{font-family:var(--fd);font-size:15px;color:var(--ink);letter-spacing:.03em}
 .way span{display:block;font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.55}
 
-/* ---------------- ORG STRUCTURE ---------------- */
-.org{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:8px}
-.node{width:min(560px,100%);background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:18px 22px;position:relative;transition:.3s}
+/* ---------------- ANIMATED ORG STRUCTURE ---------------- */
+.flowctl{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.fbtn{font-family:var(--fd);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer;
+  padding:10px 16px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);color:var(--muted);transition:.24s}
+.fbtn:hover{border-color:var(--gold)}
+.fbtn.on[data-dir="down"]{background:var(--gold);border-color:var(--gold);color:#fff;box-shadow:0 6px 16px -8px rgba(168,127,54,.6)}
+.fbtn.on[data-dir="up"]{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 16px -8px rgba(31,157,87,.6)}
+.flow-live{display:inline-flex;align-items:center;gap:8px;margin-left:auto;font-family:var(--fd);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--gold)}
+.flow-live .fdot{width:9px;height:9px;border-radius:50%;background:var(--gold);animation:pulse 1.6s infinite}
+.org.up .flow-live{color:var(--green)}.org.up .flow-live .fdot{background:var(--green)}
+
+.org{display:flex;flex-direction:column;align-items:center}
+.node{width:min(560px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;position:relative;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.04),0 14px 34px -28px rgba(0,0,0,.3)}
 .node:hover{border-color:var(--line-2);transform:translateY(-2px)}
-.node .ntag{font-family:var(--fd);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:9px}
+.node .ntag{font-family:var(--fd);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:9px}
 .node .ntag .sw{width:9px;height:9px;border-radius:2px}
-.node .nn{font-family:var(--fd);font-size:19px;font-weight:700;color:#fff;letter-spacing:.03em;margin-top:9px}
+.node .nn{font-family:var(--fd);font-size:19px;font-weight:700;color:var(--ink);letter-spacing:.03em;margin-top:9px}
 .node .nd{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5}
 .node .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
-.chip{font-family:var(--fd);font-size:10.5px;letter-spacing:.06em;padding:5px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--w-soft);background:rgba(255,255,255,.02)}
-.chip.g{border-color:rgba(47,224,122,.4);color:var(--green);background:rgba(47,224,122,.05)}
-.chip.au{border-color:rgba(214,180,106,.4);color:var(--gold);background:rgba(214,180,106,.05)}
-.node.hero-node{border-color:rgba(214,180,106,.4);background:linear-gradient(180deg,rgba(214,180,106,.07),var(--panel))}
-.node.jv{border-color:rgba(47,224,122,.4);background:linear-gradient(180deg,rgba(47,224,122,.06),var(--panel))}
-.connect{width:2px;height:30px;background:linear-gradient(180deg,var(--gold-d),rgba(214,180,106,.15));position:relative;margin:2px 0}
-.connect.g{background:linear-gradient(180deg,var(--green-d),rgba(47,224,122,.15))}
-.connect .lbl{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:var(--fd);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.chip{font-family:var(--fd);font-size:10.5px;letter-spacing:.06em;padding:5px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--body);background:var(--panel)}
+.chip.g{border-color:rgba(31,157,87,.45);color:var(--green-deep);background:var(--green-tint)}
+.chip.au{border-color:rgba(168,127,54,.45);color:var(--gold);background:var(--gold-tint)}
+.node.hero-node{border-color:rgba(168,127,54,.5);background:linear-gradient(180deg,var(--gold-tint),var(--card))}
+.node.jv{border-color:rgba(31,157,87,.5);background:linear-gradient(180deg,var(--green-tint),var(--card))}
+/* animated connector */
+.flow-connect{width:2px;height:46px;position:relative;display:flex;justify-content:center}
+.flow-connect svg{position:absolute;top:0;left:-40px;width:80px;height:46px;overflow:visible}
+.flowline{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:5 13;animation:march 1.05s linear infinite}
+@keyframes march{to{stroke-dashoffset:-36}}
+.org.up .flowline{stroke:var(--green);animation-direction:reverse}
+.flow-connect .lbl{position:absolute;left:24px;top:50%;transform:translateY(-50%);font-family:var(--fd);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
 .owners{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.owner{display:flex;flex-direction:column}
 .owner .op{font-family:var(--fd);font-size:19px;font-weight:700;color:var(--gold)}
 .owner .ow{font-size:11px;color:var(--muted);letter-spacing:.04em}
 
 .note{font-size:12px;color:var(--faint);line-height:1.6;margin-top:20px;max-width:92ch}
 .foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.7;max-width:1000px}
 
-/* ---------------- MOBILE RAIL ---------------- */
-.railtoggle{display:none}
+/* ---------------- MOBILE ---------------- */
 @media(max-width:900px){
   :root{--rail:0px}
-  .rail{position:sticky;top:0;left:0;right:0;bottom:auto;width:100%;flex-direction:row;align-items:center;
-    height:auto;padding:10px 14px;gap:10px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}
-  .rail-top{padding:0;border-bottom:0;flex:0 0 auto}.lock-sub,.badge{display:none}
+  .rail{position:sticky;top:0;width:100%;flex-direction:row;align-items:center;height:auto;padding:10px 14px;gap:10px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .rail-top{padding:0;border-bottom:0;flex:0 0 auto}.badge,.xrule,.hmw,.pip{display:none}.hmark{height:20px}
   .nav{flex-direction:row;padding:0;gap:6px;flex:1}.nav-lbl{display:none}
   .nav-item{padding:9px 12px;white-space:nowrap}.nav-item .t{font-size:11.5px}.nav-item.on::before{display:none}
   .rail-foot{padding:0;border-top:0;flex:0 0 auto}.clock{display:none}.back{padding:9px 12px}
@@ -241,11 +232,14 @@ h1 .thin{font-weight:300;color:var(--muted)}
 </head>
 <body>
 
-<!-- ================= RAIL ================= -->
 <aside class="rail">
   <div class="rail-top">
-    <div class="lock"><span class="hm">HAAVN<span class="x">&times;</span>HM</span></div>
-    <div class="lock-sub">Shareholder Briefing</div>
+    <div class="lock">
+      <img class="hmark" src="/haavn-mark.png" alt="HAAVN">
+      <div class="xrule"><span></span><b>&times;</b><span></span></div>
+      <div class="hmw">HAMILTON MARINO</div>
+      <div class="pip">Partners in Precision</div>
+    </div>
     <div class="badge"><span class="dot"></span>Shareholder Access</div>
   </div>
   <nav class="nav" id="nav">
@@ -271,7 +265,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
       <p class="lede">HAAVN Black's staged entry — <b>SOLUM</b>, <b>MAGNA</b> and <b>bathroom pods</b> — and the income to <b>HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino</b> as delivery partner, set against the growing cost base. Figures are margin to the JV for partner planning; confirmed pricing lives in <span class="gold">ATRIUM</span>.</p>
       <div class="verdict"><div class="vic">&#10003;</div><p><b>The partnership makes money from Year&nbsp;1.</b> +$8.76M net in the first trading year, building to +$77.4M cumulative by FY31. Break-even inside year one.</p></div>
     </div>
-
     <div class="stats">
       <div class="stat hl"><div class="k">Year 1 income to the JV</div><div class="v grn">$9.30M</div><div class="s">SOLUM · MAGNA · Pods</div></div>
       <div class="stat"><div class="k">5-year income</div><div class="v">$84.6M</div><div class="s">FY27 → FY31</div></div>
@@ -280,52 +273,40 @@ h1 .thin{font-weight:300;color:var(--muted)}
       <div class="stat gold"><div class="k">Break-even</div><div class="v gold">Year 1</div><div class="s">first trading year</div></div>
       <div class="stat"><div class="k">FY31 net · fully scaled</div><div class="v grn">+$24.4M</div><div class="s">run-rate</div></div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">A</span><h2>Staged entry to market</h2><span class="bs">Prove with SOLUM, carry the system into MAGNA, supply pods to the builder channel.</span></div>
-      <div class="panel">
-        <div class="timeline">
-          <div class="tl-row grn"><div class="tl-when"><span class="mk"></span>Oct 2026</div><div><div class="tl-t">SOLUM · to market</div><div class="tl-d">Precision studio / secondary dwelling — the flagship and first HAAVN product to market. The proof point for everything that follows. VIC · QLD · NSW.</div></div></div>
-          <div class="tl-row"><div class="tl-when"><span class="mk"></span>Apr 2027</div><div><div class="tl-t">MAGNA · to market</div><div class="tl-d">Large-format residence — reuses every system SOLUM proves, carried into the full home. QLD · VIC.</div></div></div>
-          <div class="tl-row"><div class="tl-when"><span class="mk"></span>From 2027</div><div><div class="tl-t">Bathroom pods</div><div class="tl-d">Volume modular pods to Hamilton Marino (exclusive) and out to other builders — the volume engine.</div></div></div>
-        </div>
-      </div>
+      <div class="panel"><div class="timeline">
+        <div class="tl-row grn"><div class="tl-when"><span class="mk"></span>Oct 2026</div><div><div class="tl-t">SOLUM · to market</div><div class="tl-d">Precision studio / secondary dwelling — the flagship and first HAAVN product to market. The proof point for everything that follows. VIC · QLD · NSW.</div></div></div>
+        <div class="tl-row"><div class="tl-when"><span class="mk"></span>Apr 2027</div><div><div class="tl-t">MAGNA · to market</div><div class="tl-d">Large-format residence — reuses every system SOLUM proves, carried into the full home. QLD · VIC.</div></div></div>
+        <div class="tl-row"><div class="tl-when"><span class="mk"></span>From 2027</div><div><div class="tl-t">Bathroom pods</div><div class="tl-d">Volume modular pods to Hamilton Marino (exclusive) and out to other builders — the volume engine.</div></div></div>
+      </div></div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">B</span><h2>Revenue model — income per unit to the JV</h2></div>
       <div class="grid3">
         <div class="card"><div class="rail-top-accent" style="background:var(--gold)"></div><div class="ct">Flagship</div><div class="cn">SOLUM</div><div class="cbig">$20,000<span> / order</span></div><ul><li><span>Year 1 volume</span><span>60 / yr</span></li><li><span>Growth</span><span>+30% · 5yr</span></li></ul></div>
-        <div class="card"><div class="rail-top-accent" style="background:#9a6fb0"></div><div class="ct">Large-format home</div><div class="cn">MAGNA</div><div class="cbig">$50,000<span> / home</span></div><ul><li><span>Year 1 volume</span><span>12 / yr</span></li><li><span>Growth</span><span>+35% · 4yr</span></li></ul></div>
+        <div class="card"><div class="rail-top-accent" style="background:var(--purple)"></div><div class="ct">Large-format home</div><div class="cn">MAGNA</div><div class="cbig">$50,000<span> / home</span></div><ul><li><span>Year 1 volume</span><span>12 / yr</span></li><li><span>Growth</span><span>+35% · 4yr</span></li></ul></div>
         <div class="card"><div class="rail-top-accent" style="background:var(--green)"></div><div class="ct">Hamilton Marino + builders</div><div class="cn">Bathroom Pods</div><div class="cbig">$5,000<span> / pod</span></div><ul><li><span>Year 1 volume</span><span>1,500 pods</span></li><li><span>Growth</span><span>+30% · 4yr</span></li></ul></div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">C</span><h2>Income by product</h2><span class="bs">FY27 → FY31 · $M</span></div>
       <div class="panel">
-        <div class="legend"><span class="li"><span class="sw" style="background:var(--green)"></span>Bathroom pods</span><span class="li"><span class="sw" style="background:var(--gold)"></span>SOLUM</span><span class="li"><span class="sw" style="background:#9a6fb0"></span>MAGNA</span></div>
+        <div class="legend"><span class="li"><span class="sw" style="background:var(--green)"></span>Bathroom pods</span><span class="li"><span class="sw" style="background:var(--gold)"></span>SOLUM</span><span class="li"><span class="sw" style="background:var(--purple)"></span>MAGNA</span></div>
         <svg class="chart" id="c_rev" viewBox="0 0 960 340"></svg>
         <div class="tblwrap"><table class="tbl"><thead><tr><th>Income stream</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>FY31</th></tr></thead><tbody>
           <tr><td><span class="dotk" style="background:var(--green)"></span>Bathroom pods</td><td>$7.50M</td><td>$9.75M</td><td>$12.68M</td><td>$16.48M</td><td>$21.42M</td></tr>
           <tr><td><span class="dotk" style="background:var(--gold)"></span>SOLUM</td><td>$1.20M</td><td>$1.56M</td><td>$2.03M</td><td>$2.64M</td><td>$3.43M</td></tr>
-          <tr><td><span class="dotk" style="background:#9a6fb0"></span>MAGNA</td><td>$0.60M</td><td>$0.81M</td><td>$1.09M</td><td>$1.48M</td><td>$1.99M</td></tr>
+          <tr><td><span class="dotk" style="background:var(--purple)"></span>MAGNA</td><td>$0.60M</td><td>$0.81M</td><td>$1.09M</td><td>$1.48M</td><td>$1.99M</td></tr>
           <tr class="tot"><td>Total income</td><td>$9.30M</td><td>$12.12M</td><td>$15.80M</td><td>$20.59M</td><td>$26.84M</td></tr>
         </tbody></table></div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">D</span><h2>Income vs cost — the profit</h2></div>
       <div class="grid2">
-        <div class="panel">
-          <div class="legend"><span class="li"><span class="sw" style="background:var(--green)"></span>Total income</span><span class="li"><span class="sw" style="background:#4a4d52"></span>Total cost base</span></div>
-          <svg class="chart" id="c_pnl" viewBox="0 0 480 300"></svg>
-        </div>
-        <div class="panel">
-          <div class="chart-cap"><b>Cumulative net position</b> — break-even inside Year 1</div>
-          <svg class="chart" id="c_cum" viewBox="0 0 480 300"></svg>
-        </div>
+        <div class="panel"><div class="legend"><span class="li"><span class="sw" style="background:var(--green)"></span>Total income</span><span class="li"><span class="sw" style="background:var(--grey-bar)"></span>Total cost base</span></div><svg class="chart" id="c_pnl" viewBox="0 0 480 300"></svg></div>
+        <div class="panel"><div class="chart-cap"><b>Cumulative net position</b> — break-even inside Year 1</div><svg class="chart" id="c_cum" viewBox="0 0 480 300"></svg></div>
       </div>
     </div>
     <p class="note">Concentration watch: bathroom pods are ~81% of Year 1 income — downside sits in pod volume and the Hamilton Marino order. Volumes/growth are conservative planning inputs; capacity is the real constraint as volume scales.</p>
@@ -338,7 +319,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
       <h1>What it costs <span class="thin">to run &amp; to grow.</span></h1>
       <p class="lede">Everything it costs to run <b>HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino</b> today — the <b>HAAVN Technologies FY27 budget</b> carried into the partnership — plus the staged cost of scaling: sales, project management and delivery staff added from 2028.</p>
     </div>
-
     <div class="stats">
       <div class="stat hl"><div class="k">FY27 current cost base</div><div class="v">$544,199</div><div class="s">cost to run today</div></div>
       <div class="stat"><div class="k">Pre-revenue monthly burn</div><div class="v red">−$45,350</div><div class="s">until launch</div></div>
@@ -347,33 +327,31 @@ h1 .thin{font-weight:300;color:var(--muted)}
       <div class="stat gold"><div class="k">Growth cost from 2028</div><div class="v gold">+$40k/mo</div><div class="s">each yr · 4 yrs</div></div>
       <div class="stat"><div class="k">FY31 cost base · scaled</div><div class="v">$2.39M</div><div class="s">fully staffed · ex-IDX</div></div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">A</span><h2>FY27 cost composition</h2><span class="bs">Where the $544,199 sits — direct delivery vs running the business.</span></div>
       <div class="grid2">
         <div class="panel"><svg class="chart" id="c_comp" viewBox="0 0 300 300" style="max-width:300px;margin:0 auto"></svg></div>
         <div class="panel">
           <div class="legend" style="flex-direction:column;gap:14px">
-            <span class="li"><span class="sw" style="background:var(--green)"></span><span style="flex:1">Cost of sales — direct delivery</span><b style="font-family:var(--fd);color:#fff">$312,000 · 57.3%</b></span>
-            <span class="li"><span class="sw" style="background:var(--gold)"></span><span style="flex:1">Fixed operating costs</span><b style="font-family:var(--fd);color:#fff">$195,366 · 35.9%</b></span>
-            <span class="li"><span class="sw" style="background:#6e7278"></span><span style="flex:1">Variable operating costs</span><b style="font-family:var(--fd);color:#fff">$36,832 · 6.8%</b></span>
+            <span class="li"><span class="sw" style="background:var(--green)"></span><span style="flex:1">Cost of sales — direct delivery</span><b style="font-family:var(--fd);color:var(--ink)">$312,000 · 57.3%</b></span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span><span style="flex:1">Fixed operating costs</span><b style="font-family:var(--fd);color:var(--ink)">$195,366 · 35.9%</b></span>
+            <span class="li"><span class="sw" style="background:var(--grey-bar)"></span><span style="flex:1">Variable operating costs</span><b style="font-family:var(--fd);color:var(--ink)">$36,832 · 6.8%</b></span>
           </div>
-          <p class="note" style="margin-top:24px">Pre-revenue cash burn averages <b style="color:#fff">$45,350 / month</b> until SOLUM launches. IDX delivery ($72k) is a one-year engagement ending Feb-27 — ongoing COGS from FY28 is $240,000.</p>
+          <p class="note" style="margin-top:24px">Pre-revenue cash burn averages <b style="color:var(--ink)">$45,350 / month</b> until SOLUM launches. IDX delivery ($72k) is a one-year engagement ending Feb-27 — ongoing COGS from FY28 is $240,000.</p>
         </div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">B</span><h2>Cost line items</h2></div>
       <div class="grid2">
         <div class="panel">
-          <div class="ct" style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:10px">Cost of sales — $312,000</div>
+          <div style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:10px">Cost of sales — $312,000</div>
           <div class="tblwrap"><table class="tbl"><thead><tr><th>Line item</th><th>Monthly</th><th>FY27</th></tr></thead><tbody>
             <tr><td>James Winstanley — delivery</td><td>$20,000</td><td>$240,000</td></tr>
             <tr><td>IDX — delivery (1-yr)</td><td>$6,000</td><td>$72,000</td></tr>
             <tr class="tot"><td>Total COGS</td><td>$26,000</td><td>$312,000</td></tr>
           </tbody></table></div>
-          <div class="ct" style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8a8e94;font-weight:600;margin:22px 0 10px">Variable operating — $36,832</div>
+          <div style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:22px 0 10px">Variable operating — $36,832</div>
           <div class="tblwrap"><table class="tbl"><thead><tr><th>Line item</th><th>FY27</th></tr></thead><tbody>
             <tr><td>Office fit-out (one-off)</td><td>$10,581</td></tr>
             <tr><td>Office expense (general)</td><td>$7,332</td></tr>
@@ -386,7 +364,7 @@ h1 .thin{font-weight:300;color:var(--muted)}
           </tbody></table></div>
         </div>
         <div class="panel">
-          <div class="ct" style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:10px">Fixed operating — $195,366 · $16,281/mo</div>
+          <div style="font-family:var(--fd);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px">Fixed operating — $195,366 · $16,281/mo</div>
           <div class="tblwrap"><table class="tbl"><thead><tr><th>Line item</th><th>Monthly</th><th>FY27</th></tr></thead><tbody>
             <tr><td>Wages — Callum Macdonald</td><td>$8,333</td><td>$99,996</td></tr>
             <tr><td>Rent &amp; outgoings</td><td>$5,418</td><td>$65,014</td></tr>
@@ -400,7 +378,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
         </div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">C</span><h2>Cost to grow</h2><span class="bs">+$40k/mo added each year from 2028 → +$160k/mo by FY31.</span></div>
       <div class="ways">
@@ -409,7 +386,7 @@ h1 .thin{font-weight:300;color:var(--muted)}
         <div class="way"><b>Delivery &amp; support</b><span>≈ +$10k / mo per year — additional delivery, coordination and aftersales staff as volume scales.</span></div>
       </div>
       <div class="panel" style="margin-top:16px">
-        <div class="legend"><span class="li"><span class="sw" style="background:#6e7278"></span>Ongoing cost base</span><span class="li"><span class="sw" style="background:var(--gold)"></span>Growth layer (sales · PM · staff)</span></div>
+        <div class="legend"><span class="li"><span class="sw" style="background:var(--grey-bar)"></span>Ongoing cost base</span><span class="li"><span class="sw" style="background:var(--gold)"></span>Growth layer (sales · PM · staff)</span></div>
         <svg class="chart" id="c_cost" viewBox="0 0 960 320"></svg>
         <div class="tblwrap"><table class="tbl"><thead><tr><th>Cost layer</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>FY31</th></tr></thead><tbody>
           <tr><td>Ongoing cost base</td><td>$544,199</td><td>$472,199</td><td>$472,199</td><td>$472,199</td><td>$472,199</td></tr>
@@ -422,35 +399,41 @@ h1 .thin{font-weight:300;color:var(--muted)}
     </div>
   </section>
 
-  <!-- ============ 03 STRUCTURE ============ -->
+  <!-- ============ 03 STRUCTURE (animated flow) ============ -->
   <section class="view" data-view="structure">
     <div class="vhero">
       <div class="eyebrow">Group Structure · Ownership</div>
       <h1>Ownership <span class="thin">&amp; supply chain.</span></h1>
-      <p class="lede">From China suppliers, through the exclusive licence and the <b>HAAVN Pty Ltd</b> brand/IP holding company, down to the operating subsidiaries and the <b>HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino</b> supply JV. Indicative — for shareholder discussion.</p>
+      <p class="lede">From China suppliers, through the exclusive licence and the <b>HAAVN Pty Ltd</b> brand/IP holding company, down to the operating subsidiaries and the <b>HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino</b> supply JV. Toggle the flow to trace supply down, or value back up.</p>
     </div>
-
-    <div class="block">
-      <div class="org">
+    <div class="flowctl">
+      <button class="fbtn on" data-dir="down">Ownership &amp; Supply &#8595;</button>
+      <button class="fbtn" data-dir="up">Value &amp; Returns &#8593;</button>
+    </div>
+    <div class="block" style="margin-top:0">
+      <div class="org" id="org">
+        <div style="display:flex;width:min(560px,100%);align-items:center;margin-bottom:12px">
+          <span class="flow-live"><span class="fdot"></span><span id="flowlbl">Ownership &amp; supply flowing down</span></span>
+        </div>
         <div class="node">
-          <div class="ntag"><span class="sw" style="background:#6e7278"></span>Supply · China entities</div>
+          <div class="ntag"><span class="sw" style="background:var(--grey-bar)"></span>Supply · China entities</div>
           <div class="nn">China Suppliers</div>
           <div class="nd">Manufacturing supply base. Bound to the group via exclusive agreements held by World Trade Holdings.</div>
         </div>
-        <div class="connect au"><span class="lbl">Exclusive agreements</span></div>
+        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Exclusive agreements</span></div>
         <div class="node">
           <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Holding · China entities</div>
           <div class="nn">World Trade Holdings (WTH)</div>
           <div class="nd">Holds the exclusive supply agreements with the China entities.</div>
         </div>
-        <div class="connect au"><span class="lbl">Grants licence</span></div>
+        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Grants licence</span></div>
         <div class="node">
           <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Exclusive licence to WTH</div>
           <div class="nn">Exclusive Licence</div>
           <div class="nd">Held personally by the founders — grants the supply licence to WTH.</div>
           <div class="chips"><span class="chip au">Lewis Jin</span><span class="chip au">Jamie Baldwin</span><span class="chip au">Daniel Sette</span></div>
         </div>
-        <div class="connect"><span class="lbl">Founders own</span></div>
+        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Founders own</span></div>
         <div class="node hero-node">
           <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Brand / IP holding company</div>
           <div class="nn">HAAVN PTY LTD</div>
@@ -461,7 +444,7 @@ h1 .thin{font-weight:300;color:var(--muted)}
             <div class="owner"><span class="op">25%</span><span class="ow">Sette</span></div>
           </div>
         </div>
-        <div class="connect g"><span class="lbl">Owns · brand &amp; IP</span></div>
+        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Owns · brand &amp; IP</span></div>
         <div class="node jv">
           <div class="ntag"><span class="sw" style="background:var(--green)"></span>Operating · supply JV</div>
           <div class="nn">HAAVN × Hamilton Marino</div>
@@ -470,12 +453,9 @@ h1 .thin{font-weight:300;color:var(--muted)}
         </div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">A</span><h2>Sub-licence &amp; supply security</h2></div>
-      <div class="panel">
-        <p style="font-size:14px;color:var(--w-soft)">A <b style="color:#fff">Sub-Licence &amp; Supply</b> is granted personally by Lewis&nbsp;Jin, Jamie&nbsp;Baldwin and Daniel&nbsp;Sette — giving the JV direct supply security into its operations, while the WTH agreement itself is left untouched. This protects the JV's supply without disturbing the upstream holding structure.</p>
-      </div>
+      <div class="panel"><p style="font-size:14px;color:var(--body)">A <b style="color:var(--ink)">Sub-Licence &amp; Supply</b> is granted personally by Lewis&nbsp;Jin, Jamie&nbsp;Baldwin and Daniel&nbsp;Sette — giving the JV direct supply security into its operations, while the WTH agreement itself is left untouched. This protects the JV's supply without disturbing the upstream holding structure.</p></div>
     </div>
   </section>
 
@@ -486,7 +466,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
       <h1>Homes to market. <span class="thin">The standard.</span></h1>
       <p class="lede">The operating framework for bringing <b>SOLUM</b> and <b>MAGNA</b> to the Australian market under the HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino delivery model — one team, one sequence, one definition of ready. <span class="gold">HAAVN enters as a precision, high-quality luxury manufacturer of homes — and SOLUM is the first thing anyone will ever judge us on.</span></p>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">A</span><h2>The eight priorities</h2><span class="bs">Where two things compete for the same hour, the higher number yields.</span></div>
       <div class="panel"><div class="prio">
@@ -500,7 +479,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
         <div class="prio-row"><div class="pn">08</div><div><h4>The brand is the constraint on everything.</h4><p>Every touchpoint reads as a luxury precision manufacturer. Anything that does not meet that reading is rejected regardless of cost or schedule saving.</p></div></div>
       </div></div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">B</span><h2>Nine gates — same sequence, both products</h2><span class="bs">A gate is closed only when its stated evidence exists.</span></div>
       <div class="gates">
@@ -515,7 +493,6 @@ h1 .thin{font-weight:300;color:var(--muted)}
         <div class="gate"><div class="gn">09</div><div class="gt">Launch &amp; Care</div><div class="gd">Market release, install crews, aftersales &amp; warranty desk live.</div></div>
       </div>
     </div>
-
     <div class="block">
       <div class="block-h"><span class="bn">C</span><h2>Three ways to buy</h2></div>
       <div class="ways">
@@ -524,106 +501,90 @@ h1 .thin{font-weight:300;color:var(--muted)}
         <div class="way"><b>Hybrid Managed</b><span>HAAVN manages the full program end-to-end for the customer.</span></div>
       </div>
     </div>
-
     <p class="foot">Revenue volumes, per-unit margins and growth rates are conservative planning inputs; SOLUM/MAGNA timing per the HAAVN Black directive; the 2028+ growth cost is an indicative assumption. For partner discussion — subject to final legal, financial and taxation advice, confirmed pricing in ATRIUM, and definitive agreements. Not an offer or invitation to invest. © 2026 Haavn Technologies Pty Ltd.</p>
   </section>
 
 </main>
-
 <div class="tip" id="tip"></div>
 
 <script>
 const NS='http://www.w3.org/2000/svg', tip=document.getElementById('tip');
 function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
-function txt(s,x,y,a,sz,f,w){const t=el('text',{x,y,'text-anchor':a||'middle','font-family':"'Chakra Petch',monospace",'font-size':sz||11,fill:f||'#9297a0','font-weight':w||400});t.textContent=s;return t;}
+function txt(s,x,y,a,sz,f,w){const t=el('text',{x,y,'text-anchor':a||'middle','font-family':"'Chakra Petch',monospace",'font-size':sz||11,fill:f||'#6b6c71','font-weight':w||400});t.textContent=s;return t;}
 function money(v){return '$'+(v>=1e6?(v/1e6).toFixed(2)+'M':Math.round(v).toLocaleString());}
 function show(e,h){tip.style.opacity=1;tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-12)+'px';tip.innerHTML=h;}
 function hide(){tip.style.opacity=0;}
 function grid(svg,W,H,ml,maxY,step,mt,mb,mr){mr=mr||14;const pw=W-ml-mr,ph=H-mt-mb;
-  for(let v=0;v<=maxY+1;v+=step){const y=mt+ph-(v/maxY)*ph;
-    svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'rgba(255,255,255,.18)':'rgba(255,255,255,.06)','stroke-width':1}));
-    svg.appendChild(txt('$'+(Number.isInteger(v)?v:v.toFixed(2))+'M',ml-9,y+3.5,'end',10,'#666b73'));}
+  for(let v=0;v<=maxY+.001;v+=step){const y=mt+ph-(v/maxY)*ph;
+    svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'rgba(0,0,0,.18)':'rgba(0,0,0,.08)','stroke-width':1}));
+    svg.appendChild(txt('$'+(Number.isInteger(v)?v:v.toFixed(2))+'M',ml-9,y+3.5,'end',10,'#9a9b9f'));}
   return {pw,ph};}
-
+const C={green:'#1f9d57',gold:'#a87f36',purple:'#8a5fa8',grey:'#8c8f94'};
 const years=['FY27','FY28','FY29','FY30','FY31'];
 const pods=[7.5,9.75,12.675,16.4775,21.42075],solum=[1.2,1.56,2.028,2.6364,3.42732],magna=[.6,.81,1.0935,1.476225,1.992904];
 const income=[9.3,12.12,15.7965,20.590125,26.840974],cost=[.544199,.952199,1.432199,1.912199,2.392199];
 const cum=[8.755801,19.923602,34.287903,52.965829,77.414604];
 const baseA=[.544199,.472199,.472199,.472199,.472199],grow=[0,.48,.96,1.44,1.92],tot=[.544199,.952199,1.432199,1.912199,2.392199];
 
-// ---- revenue stacked ----
 (function(){const svg=document.getElementById('c_rev'),W=960,H=340,ml=52,mt=18,mb=40,maxY=28;const g=grid(svg,W,H,ml,maxY,7,mt,mb);const bw=g.pw/years.length;
  years.forEach((yr,i)=>{let base=0;const x=ml+i*bw+bw*.22,w=bw*.56;
-   [['Bathroom pods',pods[i]*1e6,'#2fe07a'],['SOLUM',solum[i]*1e6,'#d6b46a'],['MAGNA',magna[i]*1e6,'#9a6fb0']].forEach(([nm,val,col])=>{
+   [['Bathroom pods',pods[i]*1e6,C.green],['SOLUM',solum[i]*1e6,C.gold],['MAGNA',magna[i]*1e6,C.purple]].forEach(([nm,val,col])=>{
      const bh=(val/1e6/maxY)*g.ph,y=mt+g.ph-((base+val)/1e6/maxY)*g.ph;
      const r=el('rect',{x,y,width:w,height:Math.max(bh-2,0),rx:3,fill:col});
-     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',hide);
-     svg.appendChild(r);base+=val;});
-   svg.appendChild(txt(yr,ml+i*bw+bw/2,H-14,'middle',10.5,'#9297a0'));
-   svg.appendChild(txt('$'+income[i].toFixed(1)+'M',ml+i*bw+bw/2,mt+g.ph-(income[i]/maxY)*g.ph-8,'middle',11,'#fff',600));});
-})();
-// ---- income vs cost grouped ----
+     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',hide);svg.appendChild(r);base+=val;});
+   svg.appendChild(txt(yr,ml+i*bw+bw/2,H-14,'middle',10.5,'#6b6c71'));
+   svg.appendChild(txt('$'+income[i].toFixed(1)+'M',ml+i*bw+bw/2,mt+g.ph-(income[i]/maxY)*g.ph-8,'middle',11,'#161719',600));});})();
 (function(){const svg=document.getElementById('c_pnl'),W=480,H=300,ml=44,mt=16,mb=36,maxY=28;const g=grid(svg,W,H,ml,maxY,7,mt,mb);const bw=g.pw/years.length;
  years.forEach((yr,i)=>{const gx=ml+i*bw,w=bw*.30;
-   [[income[i],'#2fe07a','Income'],[cost[i],'#5a5e63','Cost']].forEach(([val,col,nm],k)=>{
-     const bh=(val/maxY)*g.ph,x=gx+bw*.12+k*(w+bw*.06),y=mt+g.ph-bh;
+   [[income[i],C.green,'Income'],[cost[i],C.grey,'Cost']].forEach(([val,col,nm],k)=>{const bh=(val/maxY)*g.ph,x=gx+bw*.12+k*(w+bw*.06),y=mt+g.ph-bh;
      const r=el('rect',{x,y,width:w,height:bh,rx:3,fill:col});
-     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>$'+val.toFixed(2)+'M</b>'));r.addEventListener('mouseleave',hide);
-     svg.appendChild(r);});
-   svg.appendChild(txt(yr,gx+bw/2,H-13,'middle',9.5,'#9297a0'));});
-})();
-// ---- cumulative area+line ----
+     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>$'+val.toFixed(2)+'M</b>'));r.addEventListener('mouseleave',hide);svg.appendChild(r);});
+   svg.appendChild(txt(yr,gx+bw/2,H-13,'middle',9.5,'#6b6c71'));});})();
 (function(){const svg=document.getElementById('c_cum'),W=480,H=300,ml=44,mt=16,mb=36,maxY=80;const g=grid(svg,W,H,ml,maxY,20,mt,mb);const bw=g.pw/years.length;
  const pts=cum.map((v,i)=>[ml+i*bw+bw/2,mt+g.ph-(v/maxY)*g.ph]);
  let d='M '+ml+' '+(mt+g.ph);pts.forEach(p=>d+=' L '+p[0]+' '+p[1]);d+=' L '+pts[pts.length-1][0]+' '+(mt+g.ph)+' Z';
- const grad=el('linearGradient',{id:'ga',x1:0,y1:0,x2:0,y2:1});grad.appendChild(el('stop',{offset:'0%','stop-color':'rgba(47,224,122,.28)'}));grad.appendChild(el('stop',{offset:'100%','stop-color':'rgba(47,224,122,0)'}));
+ const grad=el('linearGradient',{id:'ga',x1:0,y1:0,x2:0,y2:1});grad.appendChild(el('stop',{offset:'0%','stop-color':'rgba(31,157,87,.22)'}));grad.appendChild(el('stop',{offset:'100%','stop-color':'rgba(31,157,87,0)'}));
  const defs=el('defs',{});defs.appendChild(grad);svg.appendChild(defs);
  svg.appendChild(el('path',{d,fill:'url(#ga)'}));
- let ld='M '+pts[0][0]+' '+pts[0][1];pts.forEach(p=>ld+=' L '+p[0]+' '+p[1]);
- svg.appendChild(el('path',{d:ld,fill:'none',stroke:'#2fe07a','stroke-width':2.5}));
- pts.forEach((p,i)=>{const c=el('circle',{cx:p[0],cy:p[1],r:4.5,fill:'#2fe07a',stroke:'#0a0b0c','stroke-width':2});
+ let ld='M '+pts[0][0]+' '+pts[0][1];pts.forEach(p=>ld+=' L '+p[0]+' '+p[1]);svg.appendChild(el('path',{d:ld,fill:'none',stroke:C.green,'stroke-width':2.5}));
+ pts.forEach((p,i)=>{const c=el('circle',{cx:p[0],cy:p[1],r:4.5,fill:C.green,stroke:'#fff','stroke-width':2});
    c.addEventListener('mousemove',e=>show(e,'Cumulative '+years[i]+' &nbsp;<b>$'+cum[i].toFixed(1)+'M</b>'));c.addEventListener('mouseleave',hide);svg.appendChild(c);
-   svg.appendChild(txt(years[i],p[0],H-13,'middle',9.5,'#9297a0'));});
-})();
-// ---- cost composition donut ----
+   svg.appendChild(txt(years[i],p[0],H-13,'middle',9.5,'#6b6c71'));});})();
 (function(){const svg=document.getElementById('c_comp'),cx=150,cy=150,r=104,rin=64;
- const segs=[['COGS',312000,'#2fe07a'],['Fixed',195366,'#d6b46a'],['Variable',36832,'#6e7278']];
+ const segs=[['COGS',312000,C.green],['Fixed',195366,C.gold],['Variable',36832,C.grey]];
  const total=segs.reduce((a,s)=>a+s[1],0);let ang=-Math.PI/2;
  segs.forEach(([nm,val,col])=>{const a2=ang+(val/total)*Math.PI*2;
    const x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
    const xi1=cx+rin*Math.cos(a2),yi1=cy+rin*Math.sin(a2),xi2=cx+rin*Math.cos(ang),yi2=cy+rin*Math.sin(ang);
    const large=(a2-ang)>Math.PI?1:0;
    const d='M '+x1+' '+y1+' A '+r+' '+r+' 0 '+large+' 1 '+x2+' '+y2+' L '+xi1+' '+yi1+' A '+rin+' '+rin+' 0 '+large+' 0 '+xi2+' '+yi2+' Z';
-   const p=el('path',{d,fill:col,stroke:'#0a0b0c','stroke-width':2});
-   p.addEventListener('mousemove',e=>show(e,nm+' &nbsp;<b>'+money(val)+'</b> · '+(val/total*100).toFixed(1)+'%'));p.addEventListener('mouseleave',hide);
-   svg.appendChild(p);ang=a2;});
- svg.appendChild(txt('$544k',cx,cy-2,'middle',22,'#fff',700));
- svg.appendChild(txt('FY27 BASE',cx,cy+18,'middle',9,'#9297a0'));
-})();
-// ---- cost base stacked ----
+   const p=el('path',{d,fill:col,stroke:'#fff','stroke-width':2});
+   p.addEventListener('mousemove',e=>show(e,nm+' &nbsp;<b>'+money(val)+'</b> · '+(val/total*100).toFixed(1)+'%'));p.addEventListener('mouseleave',hide);svg.appendChild(p);ang=a2;});
+ svg.appendChild(txt('$544k',cx,cy-2,'middle',22,'#161719',700));svg.appendChild(txt('FY27 BASE',cx,cy+18,'middle',9,'#6b6c71'));})();
 (function(){const svg=document.getElementById('c_cost'),W=960,H=320,ml=52,mt=18,mb=40,maxY=2.6;const g=grid(svg,W,H,ml,maxY,.65,mt,mb);const bw=g.pw/years.length;
  years.forEach((yr,i)=>{let base=0;const x=ml+i*bw+bw*.22,w=bw*.56;
-   [['Ongoing',baseA[i],'#6e7278'],['Growth',grow[i],'#d6b46a']].forEach(([nm,val,col])=>{if(val<=0)return;
+   [['Ongoing',baseA[i],C.grey],['Growth',grow[i],C.gold]].forEach(([nm,val,col])=>{if(val<=0)return;
      const bh=(val/maxY)*g.ph,y=mt+g.ph-((base+val)/maxY)*g.ph;
      const r=el('rect',{x,y,width:w,height:Math.max(bh-2,0),rx:3,fill:col});
-     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>$'+(val*1e6>=1e6?(val).toFixed(2)+'M':(val*1000).toFixed(0)+'k')+'</b>'));r.addEventListener('mouseleave',hide);
-     svg.appendChild(r);base+=val;});
-   svg.appendChild(txt(yr,ml+i*bw+bw/2,H-14,'middle',10.5,'#9297a0'));
-   svg.appendChild(txt('$'+tot[i].toFixed(2)+'M',ml+i*bw+bw/2,mt+g.ph-(tot[i]/maxY)*g.ph-8,'middle',10.5,'#fff',600));});
-})();
+     r.addEventListener('mousemove',e=>show(e,nm+' '+yr+' &nbsp;<b>$'+(val>=1?val.toFixed(2)+'M':(val*1000).toFixed(0)+'k')+'</b>'));r.addEventListener('mouseleave',hide);svg.appendChild(r);base+=val;});
+   svg.appendChild(txt(yr,ml+i*bw+bw/2,H-14,'middle',10.5,'#6b6c71'));
+   svg.appendChild(txt('$'+tot[i].toFixed(2)+'M',ml+i*bw+bw/2,mt+g.ph-(tot[i]/maxY)*g.ph-8,'middle',10.5,'#161719',600));});})();
 
-// ---- nav switching ----
+// nav
 const nav=document.getElementById('nav');
-nav.addEventListener('click',e=>{const b=e.target.closest('.nav-item');if(!b)return;
-  const v=b.dataset.view;
+nav.addEventListener('click',e=>{const b=e.target.closest('.nav-item');if(!b)return;const v=b.dataset.view;
   nav.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('on',n===b));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.dataset.view===v));
-  document.querySelector('.main').scrollTo({top:0});window.scrollTo({top:0,behavior:'smooth'});
-});
-// ---- return to hub ----
+  window.scrollTo({top:0,behavior:'smooth'});});
+// structure flow toggle
+const org=document.getElementById('org');
+document.querySelector('.flowctl').addEventListener('click',e=>{const b=e.target.closest('.fbtn');if(!b)return;
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x===b));
+  const up=b.dataset.dir==='up';org.classList.toggle('up',up);
+  document.getElementById('flowlbl').textContent=up?'Value & returns flowing up':'Ownership & supply flowing down';});
+// return + clock
 document.getElementById('btnBack').addEventListener('click',()=>{try{parent.postMessage('haavn-crm-close','*');}catch(e){}});
-// ---- clock ----
-function tick(){const d=new Date();document.getElementById('clk').textContent=d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
+function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
 tick();setInterval(tick,30000);
 </script>
 </body>
