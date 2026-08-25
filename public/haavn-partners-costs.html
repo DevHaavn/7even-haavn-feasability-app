@@ -6,7 +6,7 @@
 <title>HAAVN × Hamilton Marino — Cost Base</title>
 <style>
 :root{
-  --paper:#f1efe9;--paper-2:#f7f6f1;--ink:#1c1c1e;--muted:#6d6e64;--sage:#8f907f;
+  --paper:#f1efe9;--paper-2:#f7f6f1;--ink:#1c1c1e;--muted:#6d6e64;--sage:#7d8288;
   --line:#d3d1c7;--line-soft:#e0ded4;--card:#ffffff;
   --green:#2f8f5b;--green-d:#1f7d49;--orange:#cf8a3c;--bronze-d:#8a6a44;--red:#b3402f;--charcoal:#0b0b0d;
   --cogs:#3f7fb0;--fixed:#d38f3a;--var:#a05aa0;
@@ -161,6 +161,100 @@ footer .disc b{color:#cfcec2}
 .role .ra{font-family:var(--mono);font-size:18px;font-weight:800;margin-top:8px;color:var(--bronze-d)}
 .role p{font-size:12px;color:#4a4b42;margin-top:8px;line-height:1.5}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style id="haavn-black-skin">
+/* ============ HAAVN BLACK dark skin — soft-grey readable panels ============ */
+:root{
+  --paper:#040404;--paper-2:#16171a;--ink:#f2f3f4;--muted:#a3a7ac;--sage:#8b8f95;
+  --line:rgba(255,255,255,.12);--line-soft:rgba(255,255,255,.08);--card:#212327;
+  --green:#2fe07a;--green-d:#2fe07a;--orange:#d8b23a;--bronze-d:#c99f6a;--red:#e8836e;--charcoal:#020202;
+  --olive:#a3a7ac;--olive-d:#c2c6cb;
+  --f-display:'Chakra Petch','Rajdhani','Arial Narrow',sans-serif;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  --mono:'Chakra Petch',ui-monospace,'JetBrains Mono',monospace;
+  --led:#2fe07a;
+}
+body{background:radial-gradient(120% 90% at 72% 8%, rgba(47,224,122,.05), transparent 55%),#050506 !important;color:var(--ink)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");mix-blend-mode:overlay}
+h1,h2,h3,h4,.wordmark,.hm,.hm-word,.pname,.prod-name{font-family:var(--f-display)!important;color:#fff!important}
+h1 .thin{color:var(--sage)!important}
+p,.cmd-sub,.psub,.subhead{color:#b0b4b9}
+
+/* masthead / header — stay dark (framing) */
+.masthead{background:radial-gradient(120% 120% at 70% 10%,rgba(47,224,122,.06),transparent 55%),#080808!important;border-bottom:1px solid var(--line)!important}
+.hero .hm{color:#cfe0d4!important}.hero .x{color:var(--sage)!important}.hero .tag{color:var(--led)!important}
+.mast-rule{border-top:1px solid var(--line)!important;color:var(--sage)!important}
+header{background:transparent!important}
+.top-rule{border-bottom:1px solid var(--line)!important}
+.wordmark{color:#fff!important}.wordmark .slash{color:var(--led)!important}
+.xd{color:var(--sage)!important}.tagline{color:var(--led)!important}.doc-tag{color:var(--sage)!important}
+.command{background:transparent!important}
+.eyebrow{color:var(--led)!important}
+.export-btn,.btn{background:#212327!important;border:1px solid var(--line)!important;color:#e9eaeb!important}
+.export-btn:hover,.btn:hover{border-color:rgba(47,224,122,.6)!important;color:#fff!important}
+
+/* segmented control (structure) */
+.seg{background:#16171a!important;border:1px solid var(--line)!important}
+.seg button{color:var(--muted)!important}
+.seg button.active{background:var(--led)!important;color:#04120a!important;box-shadow:0 0 20px -6px rgba(47,224,122,.6)!important}
+.ctrl-note,.legend .li{color:#b0b4b9!important}
+
+/* callout */
+.callout{background:rgba(47,224,122,.07)!important;border:1px solid rgba(47,224,122,.24)!important;border-left:3px solid var(--led)!important;color:#d3e4da!important}
+.callout b{color:var(--led)!important}
+
+/* ===== SOFT-GREY DATA WINDOWS (readable) ===== */
+.kpi{background:linear-gradient(180deg,#26282c,#1e2023)!important;border:1px solid var(--line)!important;box-shadow:0 18px 44px -30px #000!important}
+.kpi.hl{border:1px solid rgba(47,224,122,.4)!important;background:linear-gradient(180deg,rgba(47,224,122,.10),#1e2023)!important}
+.kpi .lab{color:var(--muted)!important}.kpi .num{color:#fff!important}.kpi .sub{color:var(--sage)!important}
+.kpi .num.red{color:var(--red)!important}.kpi .num.mut{color:var(--sage)!important}
+.panel{background:linear-gradient(180deg,#222428,#1a1c1f)!important;border:1px solid var(--line)!important;box-shadow:0 24px 56px -36px #000!important}
+.panel h2,.panel h2 .secnum{color:#fff!important}
+.secnum{color:var(--led)!important}
+.compbar{border:1px solid var(--line)!important}
+.complegend .amt{color:#fff!important}.complegend .pct{color:var(--sage)!important}
+.complegend .li{color:#c3c7cb!important}
+.prod,.role,.phase,.ms,.way{background:linear-gradient(180deg,#242629,#1c1e21)!important;border:1px solid var(--line)!important}
+.prod .prole,.role .rt,.phase .ph{color:var(--sage)!important}
+.prod .pmar,.phase .amt,.ms h4,.role h4,.way b{color:#fff!important}
+.prod .pmar span{color:var(--sage)!important}
+.prod li,.phase li,.role p,.way span,.ms p{color:#b8bcc1!important}
+.prod li span:last-child,.phase li span:last-child{color:var(--led)!important}
+.phase .amt.ind,.role .ra{color:var(--bronze-d)!important}
+.phase.p1{border-color:rgba(47,224,122,.34)!important;background:linear-gradient(180deg,rgba(47,224,122,.06),#1c1e21)!important}
+.gate{background:rgba(255,255,255,.08)!important;border:1px solid var(--line)!important;color:var(--bronze-d)!important}
+.milestones .ms .when{color:var(--orange)!important}
+.indnote{color:var(--sage)!important}
+.verdict{background:rgba(47,224,122,.07)!important;border:1px solid rgba(47,224,122,.26)!important}
+.verdict .v-ic{background:var(--led)!important;color:#04120a!important}
+.verdict div:last-child{color:#d3e4da!important}.verdict b{color:var(--led)!important}
+
+/* tables inside the soft-grey panels */
+.tbl th{color:var(--sage)!important;border-bottom:1px solid var(--line-2,rgba(255,255,255,.18))!important}
+.tbl td{color:#ccd0d4!important;border-bottom:1px solid var(--line)!important}
+.tbl td:first-child{color:#fff!important}
+.tbl td.sub2{color:var(--muted)!important}
+.tbl tr.grp td{background:rgba(255,255,255,.06)!important;color:#fff!important}
+.tbl tr.tot td{background:rgba(47,224,122,.08)!important;border-top:1px solid var(--line)!important;color:#fff!important}
+.tbl td.neg{color:var(--red)!important}
+
+/* placeholder + footer */
+.placeholder{background:#1f2124!important;border:2px dashed rgba(255,255,255,.16)!important}
+.placeholder h3{color:#fff!important}.placeholder p{color:#b0b4b9!important}
+.placeholder .chip{background:#26282c!important;border:1px solid var(--line)!important;color:var(--bronze-d)!important}
+footer{background:#050506!important;border-top:1px solid var(--line)}
+footer .disc{color:#8b8f95!important}footer .disc b{color:#c3c7cb!important}
+
+/* generic org/entity nodes (structure) → soft grey, light text */
+.node,.entity,.ent,.box,.card,.cell,.unit,.subsid,.entnode,.n-card{background:#242629!important;border:1px solid var(--line)!important;color:#e9eaeb!important}
+
+/* tooltip */
+.tip{background:#16171a!important;border:1px solid var(--line)!important;color:#fff!important}
+.tip b{color:var(--led)!important}
+</style>
 </head>
 <body>
 <div class="masthead">
@@ -295,11 +389,11 @@ document.getElementById('exportBtn').addEventListener('click',()=>window.print()
 const NS='http://www.w3.org/2000/svg';const tip=document.getElementById('tip');
 const money=v=>'$'+Math.round(v).toLocaleString();
 function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
-function txt(x,y,s,anchor,size,fill){const t=el('text',{x:x,y:y,'text-anchor':anchor||'middle','font-family':'SFMono-Regular,monospace','font-size':size||10,fill:fill||'#8f907f'});t.textContent=s;return t;}
+function txt(x,y,s,anchor,size,fill){const t=el('text',{x:x,y:y,'text-anchor':anchor||'middle','font-family':'SFMono-Regular,monospace','font-size':size||10,fill:fill||'#7d8288'});t.textContent=s;return t;}
 function tshow(e,html){tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-14)+'px';tip.innerHTML=html;}
 function thide(){tip.style.opacity=0;}
 function frame(svg,maxY,step,ml){ml=ml||58;const W=960,H=+svg.getAttribute('data-h')||320,mr=16,mt=16,mb=34;const plotW=W-ml-mr,plotH=H-mt-mb;
-  for(let v=0;v<=maxY+1;v+=step){const y=mt+plotH-(v/maxY)*plotH;svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'#d3d1c7':'#e0ded4','stroke-width':v===0?1.5:1}));
+  for(let v=0;v<=maxY+1;v+=step){const y=mt+plotH-(v/maxY)*plotH;svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'rgba(255,255,255,.18)':'rgba(255,255,255,.07)','stroke-width':v===0?1.5:1}));
     svg.appendChild(txt(ml-8,y+3,(maxY>=1e6?('$'+(v/1e6)+'M'):('$'+(v/1000)+'k')),'end'));}
   return {W,H,ml,mr,mt,mb,plotW,plotH};}
 function xb(f,i,n){return f.ml+i*(f.plotW/n);}
@@ -309,7 +403,7 @@ function xb(f,i,n){return f.ml+i*(f.plotW/n);}
  vals.forEach((v,i)=>{const bh=(v/maxY)*f.plotH;const x=f.ml+i*bw+bw*0.16;const y=f.mt+f.plotH-bh;const r=el('rect',{x:x,y:y,width:bw*0.68,height:bh,rx:4,fill:'#cf8a3c'});r.addEventListener('mousemove',e=>tshow(e,months[i]+'-'+(i<6?'26':'27')+' &nbsp;<b>'+money(v)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);svg.appendChild(txt(f.ml+i*bw+bw/2,f.H-12,months[i]));});})();
 // cost base stacked (base + growth)
 (function(){const svg=document.getElementById('costChart');const years=["FY27","FY28","FY29","FY30","FY31"];const baseA=[544199,472199,472199,472199,472199];const grow=[0,480000,960000,1440000,1920000];const tot=[544199,952199,1432199,1912199,2392199];const maxY=2.6e6;const f=frame(svg,maxY,650000);const bw=f.plotW/years.length;
- years.forEach((yr,i)=>{const x=xb(f,i,years.length)+bw*0.2,w=bw*0.6;let base=0;[['Current cost',baseA[i],'#6d7f88'],['Growth layer',grow[i],'#d38f3a']].forEach(([nm,val,col])=>{if(val<=0)return;const bh=(val/maxY)*f.plotH;const y=f.mt+f.plotH-((base+val)/maxY)*f.plotH;const r=el('rect',{x:x,y:y,width:w,height:Math.max(bh-2,0),rx:3,fill:col,class:'stackseg'});r.addEventListener('mousemove',e=>tshow(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);base+=val;});svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.H-12,yr));svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.mt+f.plotH-(tot[i]/maxY)*f.plotH-7,'$'+(tot[i]/1e6).toFixed(2)+'M','middle',10,'#4a4b42'));});})();
+ years.forEach((yr,i)=>{const x=xb(f,i,years.length)+bw*0.2,w=bw*0.6;let base=0;[['Current cost',baseA[i],'#6d7f88'],['Growth layer',grow[i],'#d38f3a']].forEach(([nm,val,col])=>{if(val<=0)return;const bh=(val/maxY)*f.plotH;const y=f.mt+f.plotH-((base+val)/maxY)*f.plotH;const r=el('rect',{x:x,y:y,width:w,height:Math.max(bh-2,0),rx:3,fill:col,class:'stackseg'});r.addEventListener('mousemove',e=>tshow(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);base+=val;});svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.H-12,yr));svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.mt+f.plotH-(tot[i]/maxY)*f.plotH-7,'$'+(tot[i]/1e6).toFixed(2)+'M','middle',10,'#c9cdd1'));});})();
 </script>
 </body>
 </html>
