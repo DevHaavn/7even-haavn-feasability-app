@@ -235,20 +235,24 @@ footer{padding-bottom:20px}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -12px rgba(0,0,0,.7);transition:.35s cubic-bezier(.2,.7,.3,1)}
 .partners-btn:hover{color:#fff;border-color:rgba(220,235,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 26px -10px rgba(190,215,255,.5);transform:translateY(-1px)}
 /* ---- PARTNERS password gate ---- */
-.pw-scrim{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.pw-scrim{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.58);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
 .pw-scrim.on{display:flex}
-.pw-card{width:min(372px,92vw);background:linear-gradient(180deg,rgba(32,34,38,.92),rgba(13,15,19,.95));border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:30px 28px;text-align:center;box-shadow:0 40px 90px -24px #000,inset 0 1px 0 rgba(255,255,255,.1)}
+.pw-card{width:min(372px,92vw);background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025));
+  -webkit-backdrop-filter:blur(30px) saturate(1.3);backdrop-filter:blur(30px) saturate(1.3);
+  border:1px solid rgba(230,242,255,.3);border-radius:14px;padding:30px 28px;text-align:center;
+  box-shadow:0 40px 100px -28px #000,inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.3),0 0 60px -18px rgba(126,224,168,.24)}
 .pw-brand{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;letter-spacing:.2em;color:#fff}
 .pw-t{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#8f959c;margin-top:9px}
 .pw-card input{width:100%;margin-top:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;text-align:center;outline:none}
-.pw-card input:focus{border-color:rgba(220,235,255,.5)}
+.pw-card input:focus{border-color:rgba(126,224,168,.6);box-shadow:0 0 0 3px rgba(126,224,168,.14)}
+ .pw-t::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--led);margin-right:9px;vertical-align:middle;box-shadow:0 0 8px var(--led)}
 .pw-err{min-height:13px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#e6987f}
 .pw-row{display:flex;gap:10px;margin-top:16px}
 .pw-cancel,.pw-go{flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;padding:11px;border-radius:9px;cursor:pointer;transition:.3s}
 .pw-cancel{background:none;border:1px solid rgba(255,255,255,.16);color:#9aa0a6}
 .pw-cancel:hover{border-color:rgba(255,255,255,.3);color:#fff}
-.pw-go{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(220,235,255,.4);color:#fff}
-.pw-go:hover{box-shadow:0 0 22px -8px rgba(190,215,255,.6)}
+.pw-go{background:linear-gradient(180deg,rgba(126,224,168,.22),rgba(126,224,168,.06));border:1px solid rgba(126,224,168,.55);color:#eafff2;text-shadow:0 0 10px rgba(126,224,168,.4)}
+.pw-go:hover{border-color:rgba(126,224,168,.85);box-shadow:0 0 26px -8px rgba(126,224,168,.65)}
 </style>
 </head>
 <body>
