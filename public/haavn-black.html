@@ -221,6 +221,29 @@ footer{padding-bottom:20px}
   #spill{width:320px;height:320px;margin:-160px 0 0 -160px}
 }
 
+
+/* ---- PARTNERS glass button (footer) — shareholder access ---- */
+.partners-btn{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#dfe1e4;cursor:pointer;
+  padding:8px 20px;border-radius:100px;border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  -webkit-backdrop-filter:blur(14px) saturate(1.12);backdrop-filter:blur(14px) saturate(1.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -12px rgba(0,0,0,.7);transition:.35s cubic-bezier(.2,.7,.3,1)}
+.partners-btn:hover{color:#fff;border-color:rgba(220,235,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 26px -10px rgba(190,215,255,.5);transform:translateY(-1px)}
+/* ---- PARTNERS password gate ---- */
+.pw-scrim{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.pw-scrim.on{display:flex}
+.pw-card{width:min(372px,92vw);background:linear-gradient(180deg,rgba(32,34,38,.92),rgba(13,15,19,.95));border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:30px 28px;text-align:center;box-shadow:0 40px 90px -24px #000,inset 0 1px 0 rgba(255,255,255,.1)}
+.pw-brand{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;letter-spacing:.2em;color:#fff}
+.pw-t{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#8f959c;margin-top:9px}
+.pw-card input{width:100%;margin-top:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:12px 14px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;text-align:center;outline:none}
+.pw-card input:focus{border-color:rgba(220,235,255,.5)}
+.pw-err{min-height:13px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#e6987f}
+.pw-row{display:flex;gap:10px;margin-top:16px}
+.pw-cancel,.pw-go{flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;padding:11px;border-radius:9px;cursor:pointer;transition:.3s}
+.pw-cancel{background:none;border:1px solid rgba(255,255,255,.16);color:#9aa0a6}
+.pw-cancel:hover{border-color:rgba(255,255,255,.3);color:#fff}
+.pw-go{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(220,235,255,.4);color:#fff}
+.pw-go:hover{box-shadow:0 0 22px -8px rgba(190,215,255,.6)}
 </style>
 </head>
 <body>
@@ -293,10 +316,7 @@ footer{padding-bottom:20px}
       <div class="fc">
         <span class="dot-live"></span><span class="live">LIVE</span>
         <span class="clock" id="clock">--:--:--</span><span class="zone" id="zone">MELBOURNE</span>
-        <a class="tilebtn hm hm-foot" href="#" id="btnHM" aria-label="HM">
-        <span class="hm-lbl">HM</span>
-        <span class="sq"><svg class="hmdev" viewBox="0 0 389.3 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 0 0 L 25.5 0 L 25.5 40.5 L 112.5 40.5 L 112.5 0 L 138 0 L 138 100 L 112.5 100 L 112.5 66.5 L 25.5 66.5 L 25.5 100 L 0 100 Z M 145.9 0 L 146 100 L 172.4 100 L 172.4 12.4 L 263.8 100 L 299.2 100 L 262.7 62.3 L 263.2 12.8 L 353.1 100 L 389.3 100 L 288.4 0 L 237.5 0 L 236 35.4 L 198.9 0 Z"/></svg></span>
-      </a>
+        <button class="partners-btn" id="btnPartners" aria-label="Partners — shareholder access">PARTNERS</button>
       </div>
       <div class="fr">
         <span class="vis">VISIT</span>
@@ -563,6 +583,13 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     setTimeout(function(){b.innerHTML='<span class="ring"></span> UPDATE';},1800);},900);
 });
 </script>
+<div class="pw-scrim" id="pwScrim"><div class="pw-card">
+  <div class="pw-brand">HAAVN BLACK</div>
+  <div class="pw-t">Partners &middot; Shareholder Access</div>
+  <input id="pwInput" type="password" placeholder="Access password" autocomplete="off" spellcheck="false">
+  <div class="pw-err" id="pwErr"></div>
+  <div class="pw-row"><button class="pw-cancel" id="pwCancel">Cancel</button><button class="pw-go" id="pwGo">Enter &#8594;</button></div>
+</div></div>
 <script>
 /* Wire the header/entry buttons to the ATRIUM app (postMessage to parent). */
 (function(){
@@ -579,7 +606,19 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
   wire('btnCapital','capital'); /* CAPITAL wings → Capital Base (accounts management) */
   wire('btnDisplay','display'); /* Black Display → Display Suite */
   wire('btnFeas','feasibility');/* Black Feasibility → Black Series studio */
-  wire('btnHM','crm');          /* HM device → HAAVN Homes CRM */
+ /* PARTNERS — shareholder-only password gate → management/CRM */
+  (function(){
+    var scrim=document.getElementById('pwScrim'),inp=document.getElementById('pwInput'),err=document.getElementById('pwErr');
+    var b=document.getElementById('btnPartners');
+    function openGate(){try{if(sessionStorage.getItem('haavn_partners')==='1'){post('crm');return;}}catch(e){}if(err)err.textContent='';if(inp)inp.value='';scrim.classList.add('on');setTimeout(function(){inp&&inp.focus();},60);}
+    function closeGate(){scrim.classList.remove('on');}
+    function submitGate(){if(inp.value==='HaavnBlack!!!'){try{sessionStorage.setItem('haavn_partners','1');}catch(e){}closeGate();post('crm');}else{if(err)err.textContent='Access denied';inp.value='';inp.focus();}}
+    if(b)b.addEventListener('click',function(e){e.preventDefault();openGate();});
+    var go=document.getElementById('pwGo'),cx=document.getElementById('pwCancel');
+    if(go)go.onclick=submitGate; if(cx)cx.onclick=closeGate;
+    if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter')submitGate();else if(e.key==='Escape')closeGate();});
+    if(scrim)scrim.addEventListener('click',function(e){if(e.target===scrim)closeGate();});
+  })();
   /* external site links open in a new tab, not inside the app iframe */
   document.querySelectorAll('a[href^="https://7even"],a[href^="https://haavn"]').forEach(function(a){a.target='_blank';a.rel='noopener';});
 })();
