@@ -273,7 +273,18 @@ let _cpush=null;
 function cloudPush(){clearTimeout(_cpush);_cpush=setTimeout(async()=>{try{await fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},SUPA_H),body:JSON.stringify({key:CKEY,value:DB})});_lastRemote=JSON.stringify(DB);_dirty=false;}catch(e){}},600);}
 let _poll=null;
 function startPoll(){clearInterval(_poll);_poll=setInterval(async()=>{if(_dirty)return;if(document.querySelector('input:focus,[contenteditable]:focus'))return;const remote=await cloudPull();if(!remote||!remote.est)return;const rs=JSON.stringify(remote);if(rs!==JSON.stringify(DB)){DB=remote;_lastRemote=rs;recomputeUid();render();}},9000);}
-async function boot(){const remote=await cloudPull();if(remote&&remote.est){DB=remote;_lastRemote=JSON.stringify(remote);recomputeUid();}else{load();cloudPush();}render();startPoll();}
+/* one-time: add the MAGNA/MAGNA PLUS interior renders to their gallery (media seeded before these existed) */
+var MAGNA_RENDERS=['/haavn-renders/magna-render-01.jpg','/haavn-renders/magna-render-02.jpg','/haavn-renders/magna-render-03.jpg','/haavn-renders/magna-render-04.jpg','/haavn-renders/magna-render-05.jpg','/haavn-renders/magna-render-06.jpg','/haavn-renders/magna-render-07.jpg'];
+function migrateMagnaRenders(){
+  if(!DB||DB._migMagnaRenders)return false;
+  var changed=false;
+  ['MAGNA','MAGNA PLUS'].forEach(function(id){
+    var md=DB.media&&DB.media[id]; if(!md)return; md.images=md.images||[];
+    MAGNA_RENDERS.forEach(function(p){ if(!md.images.some(function(x){return (x.url||x.key)===p;})){ md.images.push({url:p}); changed=true; } });
+  });
+  DB._migMagnaRenders=true; return changed;
+}
+async function boot(){const remote=await cloudPull();if(remote&&remote.est){DB=remote;_lastRemote=JSON.stringify(remote);recomputeUid();}else{load();cloudPush();}if(migrateMagnaRenders())cloudPush();render();startPoll();}
 let DB=null, view='range', rangeSel='black', fhome='SOLUM', collapsed={}, progHome='SOLUM';
 let _uid=1; const uid=()=>_uid++;
 function cloneEst(id){const src=ESTIMATES[id]||{};const est={};SECTION_META.forEach(s=>{est[s.id]=(src[s.id]||[]).map(l=>({id:uid(),name:l.name,sup:l.sup,qty:l.qty,rate:l.rate}));});return est;}

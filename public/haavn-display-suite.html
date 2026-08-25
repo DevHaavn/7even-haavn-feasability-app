@@ -234,10 +234,10 @@ var HOMES=[
   blurb:'An eight-module residence designed for the more demanding site — generous proportions, three bathrooms and an architectural façade resolved before a single component is made.',img:null,plans:[]},
  {key:'MAGNA',series:'black',tag:'The twelve-module luxury residence.',area:479.4,storeys:2,modules:12,beds:5,baths:3,garage:'Double',frontage:12.6,depth:18.9,
   blurb:'A luxury residence of twelve modules — five bedrooms, expansive living and a fully-resolved premium specification, manufactured whole and installed to the millimetre.',
-  img:null,plans:[['Ground floor',R+'magna-floor-ground.jpg'],['Upper floor',R+'magna-floor-upper.jpg']]},
+  img:R+'magna-render-01.jpg',gallery:[R+'magna-render-01.jpg',R+'magna-render-02.jpg',R+'magna-render-03.jpg',R+'magna-render-04.jpg',R+'magna-render-05.jpg',R+'magna-render-06.jpg',R+'magna-render-07.jpg'],plans:[['Ground floor',R+'magna-floor-ground.jpg'],['Upper floor',R+'magna-floor-upper.jpg']]},
  {key:'MAGNA PLUS',series:'black',tag:'The fourteen-module flagship.',area:549.9,storeys:2,modules:14,beds:5,baths:4,garage:'Double',frontage:12.6,depth:21.0,
   blurb:'The flagship of the Black Series — fourteen modules of uncompromising space and specification. The premium pre-sell model: reveal, reserve, then build to demand.',
-  img:null,plans:[['Type F · Ground',R+'magna-plus-typef-ground.jpg'],['Type F · First',R+'magna-plus-typef-first.jpg'],['Type FA · Ground',R+'magna-plus-typefa-ground.jpg'],['Type FA · First',R+'magna-plus-typefa-first.jpg']]},
+  img:R+'magna-render-02.jpg',gallery:[R+'magna-render-01.jpg',R+'magna-render-02.jpg',R+'magna-render-03.jpg',R+'magna-render-04.jpg',R+'magna-render-05.jpg',R+'magna-render-06.jpg',R+'magna-render-07.jpg'],plans:[['Type F · Ground',R+'magna-plus-typef-ground.jpg'],['Type F · First',R+'magna-plus-typef-first.jpg'],['Type FA · Ground',R+'magna-plus-typefa-ground.jpg'],['Type FA · First',R+'magna-plus-typefa-first.jpg']]},
  {key:'NOVA',series:'ess',tag:'Type A.1 · 6.0 × 26.0 m lot — two modules.',area:150.0,storeys:2,modules:2,beds:3,baths:2,garage:'Double',frontage:6.0,depth:26.0,
   blurb:'The Essentials range brings HAAVN precision to standard land lots. Type A.1 suits a 6.0 × 26.0 m lot with three bedrooms across two efficient modules.',
   img:R+'merrimu-nova-vela.jpg',plans:[['Floor plan',R+'merrimu-a1.jpg']]},
@@ -286,6 +286,7 @@ function openHome(i){
     .map(function(x){return '<div class="h"><span class="d">◆</span><span>'+x+'</span></div>';}).join('');
   var plans=h.plans.length?('<div class="d-sec"><h3>Floor plans</h3><div class="plans">'+
     h.plans.map(function(p){return '<div class="plan"><img src="'+p[1]+'" alt="'+esc(p[0])+'" onclick="lightbox(\''+p[1]+'\')"><div class="cap">'+esc(p[0])+'</div></div>';}).join('')+'</div></div>'):'';
+   var gallery=(h.gallery&&h.gallery.length)?('<div class="d-sec"><h3>Gallery</h3><div class="plans">'+h.gallery.map(function(src,gi){return '<div class="plan"><img src="'+src+'" alt="'+esc(h.key)+' render '+(gi+1)+'" loading="lazy" onclick="lightbox(\''+src+'\')"><div class="cap">View '+(gi+1)+'</div></div>';}).join('')+'</div></div>'):'';
   var el=document.getElementById('detail');
   el.innerHTML=
     '<div class="d-hero">'+hero+
@@ -296,6 +297,7 @@ function openHome(i){
       '<p class="d-lead">'+esc(h.blurb)+'</p>'+
       '<div class="spec-tiles">'+tiles+'</div>'+
       '<div class="d-sec"><h3>Specification highlights</h3><div class="hl-grid">'+hi+'</div></div>'+
+      gallery+
       plans+
     '</div>'+
     '<aside class="aside">'+
