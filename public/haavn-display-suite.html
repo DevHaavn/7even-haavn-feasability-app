@@ -160,8 +160,15 @@ footer .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
   .brand-logo{height:13px}   /* shrink the wide wordmark so Shortlist sits clear of it */
 }
 /* lightbox */
-.lb{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
-.lb.on{display:flex}.lb img{max-width:96vw;max-height:92vh;object-fit:contain;border-radius:6px}
+.lb{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.93);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.on{display:flex}.lb img{max-width:88vw;max-height:86vh;object-fit:contain;border-radius:6px;box-shadow:0 30px 90px -20px #000}
+.lb-x{position:absolute;top:18px;right:22px;z-index:2;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;font-size:16px;cursor:pointer;transition:.2s}
+.lb-x:hover{background:rgba(255,255,255,.14)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;font-size:30px;line-height:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lb-nav:hover{background:rgba(126,224,168,.22);border-color:var(--green);color:#eafff2}
+.lb-prev{left:clamp(12px,3vw,34px)}.lb-next{right:clamp(12px,3vw,34px)}
+.lb-bar{position:absolute;bottom:20px;left:0;right:0;z-index:2;display:flex;justify-content:center;align-items:center;gap:18px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#cfd4d9;text-transform:uppercase}
+.lb-bar .lb-count{color:var(--green)}
 </style>
 </head>
 <body>
@@ -219,7 +226,13 @@ footer .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
 <!-- HOME DETAIL -->
 <div class="detail" id="detail"></div>
 <!-- LIGHTBOX -->
-<div class="lb" id="lb" onclick="this.classList.remove('on')"><img id="lbImg" src="" alt=""></div>
+<div class="lb" id="lb">
+  <button class="lb-x" onclick="closeLb()" aria-label="Close">✕</button>
+  <button class="lb-nav lb-prev" onclick="event.stopPropagation();lbGo(-1)" aria-label="Previous">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-nav lb-next" onclick="event.stopPropagation();lbGo(1)" aria-label="Next">›</button>
+  <div class="lb-bar"><span id="lbCap"></span><span class="lb-count" id="lbCount"></span></div>
+</div>
 
 <script>
 var R='/haavn-renders/';
@@ -273,8 +286,12 @@ document.getElementById('rangeToggle').addEventListener('click',function(e){var 
 
 function openHome(i){
   var h=HOMES[i];
+  var galleryItems=(h.gallery&&h.gallery.length)?h.gallery.map(function(s,gi){return {src:s,cap:h.key+' · View '+(gi+1)};}):(h.img?[{src:h.img,cap:h.key}]:[]);
+  var planItems=h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};});
+  LBMEDIA=galleryItems.concat(planItems); var GL=galleryItems.length;
+  var heroIdx=0; for(var _k=0;_k<galleryItems.length;_k++){if(galleryItems[_k].src===h.img){heroIdx=_k;break;}}
   var hero=h.img?'<img src="'+h.img+'" alt="'+esc(h.key)+'">':'<div class="mark">'+HM+'</div>';
-  var enlarge=h.img?'<button class="d-enlarge" onclick="lightbox(\''+h.img+'\')">⤢ Enlarge</button>':'';
+  var enlarge=LBMEDIA.length?'<button class="d-enlarge" onclick="openLightbox('+heroIdx+')">⤢ Enlarge</button>':'';
   var tiles=[['Internal area',h.area.toFixed(1)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],['Storeys',h.storeys],['Modules',h.modules],['Garage','<small>'+h.garage+'</small>']]
     .map(function(t){return '<div class="t"><div class="tl">'+t[0].toUpperCase()+'</div><div class="tv">'+t[1]+'</div></div>';}).join('');
   var hi=[h.beds+' bed · '+h.baths+' bath · '+h.garage.toLowerCase()+(h.garage!=='—'?' garage':''),
@@ -285,8 +302,8 @@ function openHome(i){
           'Factory-finished · <1mm precision']
     .map(function(x){return '<div class="h"><span class="d">◆</span><span>'+x+'</span></div>';}).join('');
   var plans=h.plans.length?('<div class="d-sec"><h3>Floor plans</h3><div class="plans">'+
-    h.plans.map(function(p){return '<div class="plan"><img src="'+p[1]+'" alt="'+esc(p[0])+'" onclick="lightbox(\''+p[1]+'\')"><div class="cap">'+esc(p[0])+'</div></div>';}).join('')+'</div></div>'):'';
-   var gallery=(h.gallery&&h.gallery.length)?('<div class="d-sec"><h3>Gallery</h3><div class="plans">'+h.gallery.map(function(src,gi){return '<div class="plan"><img src="'+src+'" alt="'+esc(h.key)+' render '+(gi+1)+'" loading="lazy" onclick="lightbox(\''+src+'\')"><div class="cap">View '+(gi+1)+'</div></div>';}).join('')+'</div></div>'):'';
+    h.plans.map(function(p,pj){return '<div class="plan"><img src="'+p[1]+'" alt="'+esc(p[0])+'" onclick="openLightbox('+(GL+pj)+')"><div class="cap">'+esc(p[0])+'</div></div>';}).join('')+'</div></div>'):'';
+   var gallery=(h.gallery&&h.gallery.length)?('<div class="d-sec"><h3>Gallery</h3><div class="plans">'+h.gallery.map(function(src,gi){return '<div class="plan"><img src="'+src+'" alt="'+esc(h.key)+' render '+(gi+1)+'" loading="lazy" onclick="openLightbox('+gi+')"><div class="cap">View '+(gi+1)+'</div></div>';}).join('')+'</div></div>'):'';
   var el=document.getElementById('detail');
   el.innerHTML=
     '<div class="d-hero">'+hero+
@@ -314,7 +331,14 @@ function openHome(i){
   el.classList.add('on');el.scrollTop=0;document.body.style.overflow='hidden';
 }
 function closeHome(){var el=document.getElementById('detail');el.classList.remove('on');document.body.style.overflow='';}
-function lightbox(src){var lb=document.getElementById('lb');document.getElementById('lbImg').src=src;lb.classList.add('on');}
+var LBMEDIA=[], LBIDX=0;
+function openLightbox(idx){if(!LBMEDIA.length)return;LBIDX=((idx||0)%LBMEDIA.length+LBMEDIA.length)%LBMEDIA.length;lbRender();document.getElementById('lb').classList.add('on');}
+function lbRender(){var m=LBMEDIA[LBIDX]||{};document.getElementById('lbImg').src=m.src||'';document.getElementById('lbCap').textContent=m.cap||'';document.getElementById('lbCount').textContent=(LBIDX+1)+' / '+LBMEDIA.length;}
+function lbGo(d){if(!LBMEDIA.length)return;LBIDX=(LBIDX+d+LBMEDIA.length)%LBMEDIA.length;lbRender();}
+function closeLb(){document.getElementById('lb').classList.remove('on');}
+function lightbox(src){LBMEDIA=[{src:src,cap:''}];openLightbox(0);}
+(function(){var lb=document.getElementById('lb');lb.addEventListener('click',function(e){if(e.target===lb)closeLb();});
+document.addEventListener('keydown',function(e){if(!lb.classList.contains('on'))return;if(e.key==='ArrowLeft')lbGo(-1);else if(e.key==='ArrowRight')lbGo(1);else if(e.key==='Escape')closeLb();});})();
 function addShort(){shortlist++;document.getElementById('slCount').textContent=shortlist;}
 function enquire(k){window.location.href='mailto:design@haavn.au?bcc=jamie@haavn.au&subject='+encodeURIComponent('HAAVN Display Suite enquiry — '+k)+'&body='+encodeURIComponent('I would like to enquire about the '+k+'.\n\nName:\nPhone:\nPreferred contact:\n');}
 document.getElementById('btnBack').addEventListener('click',function(e){e.preventDefault();try{parent.postMessage('haavn-ds-close','*');}catch(err){}});
