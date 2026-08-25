@@ -75,6 +75,9 @@ body{
 .main{margin-left:var(--rail);position:relative;z-index:1;min-height:100vh}
 .view{display:none;padding:0 clamp(22px,4vw,60px) 80px;max-width:1200px}
 .view.on{display:block;animation:fade .5s ease}
+.view-embed{padding:0;max-width:none}
+.view-embed.on{height:100vh}
+.structframe{width:100%;height:100vh;border:0;display:block;background:var(--paper)}
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 .vhero{padding:clamp(40px,6vw,72px) 0 30px;border-bottom:1px solid var(--line);margin-bottom:36px}
@@ -399,64 +402,9 @@ h1 .thin{font-weight:300;color:var(--muted)}
     </div>
   </section>
 
-  <!-- ============ 03 STRUCTURE (animated flow) ============ -->
-  <section class="view" data-view="structure">
-    <div class="vhero">
-      <div class="eyebrow">Group Structure · Ownership</div>
-      <h1>Ownership <span class="thin">&amp; supply chain.</span></h1>
-      <p class="lede">From China suppliers, through the exclusive licence and the <b>HAAVN Pty Ltd</b> brand/IP holding company, down to the operating subsidiaries and the <b>HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino</b> supply JV. Toggle the flow to trace supply down, or value back up.</p>
-    </div>
-    <div class="flowctl">
-      <button class="fbtn on" data-dir="down">Ownership &amp; Supply &#8595;</button>
-      <button class="fbtn" data-dir="up">Value &amp; Returns &#8593;</button>
-    </div>
-    <div class="block" style="margin-top:0">
-      <div class="org" id="org">
-        <div style="display:flex;width:min(560px,100%);align-items:center;margin-bottom:12px">
-          <span class="flow-live"><span class="fdot"></span><span id="flowlbl">Ownership &amp; supply flowing down</span></span>
-        </div>
-        <div class="node">
-          <div class="ntag"><span class="sw" style="background:var(--grey-bar)"></span>Supply · China entities</div>
-          <div class="nn">China Suppliers</div>
-          <div class="nd">Manufacturing supply base. Bound to the group via exclusive agreements held by World Trade Holdings.</div>
-        </div>
-        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Exclusive agreements</span></div>
-        <div class="node">
-          <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Holding · China entities</div>
-          <div class="nn">World Trade Holdings (WTH)</div>
-          <div class="nd">Holds the exclusive supply agreements with the China entities.</div>
-        </div>
-        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Grants licence</span></div>
-        <div class="node">
-          <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Exclusive licence to WTH</div>
-          <div class="nn">Exclusive Licence</div>
-          <div class="nd">Held personally by the founders — grants the supply licence to WTH.</div>
-          <div class="chips"><span class="chip au">Lewis Jin</span><span class="chip au">Jamie Baldwin</span><span class="chip au">Daniel Sette</span></div>
-        </div>
-        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Founders own</span></div>
-        <div class="node hero-node">
-          <div class="ntag"><span class="sw" style="background:var(--gold)"></span>Brand / IP holding company</div>
-          <div class="nn">HAAVN PTY LTD</div>
-          <div class="nd">Branding &amp; IP company only — does not transact. Parent of the HAAVN subsidiaries (each its own tenant).</div>
-          <div class="owners">
-            <div class="owner"><span class="op">50%</span><span class="ow">Jin Family</span></div>
-            <div class="owner"><span class="op">25%</span><span class="ow">Baldwin</span></div>
-            <div class="owner"><span class="op">25%</span><span class="ow">Sette</span></div>
-          </div>
-        </div>
-        <div class="flow-connect"><svg viewBox="0 0 80 46" preserveAspectRatio="none"><path class="flowline" d="M40 0 V46"/></svg><span class="lbl">Owns · brand &amp; IP</span></div>
-        <div class="node jv">
-          <div class="ntag"><span class="sw" style="background:var(--green)"></span>Operating · supply JV</div>
-          <div class="nn">HAAVN × Hamilton Marino</div>
-          <div class="nd">The operating supply joint venture — manufacturing, install, warranty and insurance capability. One entity to the customer; HAAVN Black is the market-facing precision homes brand.</div>
-          <div class="chips"><span class="chip g">SOLUM</span><span class="chip g">MAGNA</span><span class="chip g">Bathroom Pods</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="block">
-      <div class="block-h"><span class="bn">A</span><h2>Sub-licence &amp; supply security</h2></div>
-      <div class="panel"><p style="font-size:14px;color:var(--body)">A <b style="color:var(--ink)">Sub-Licence &amp; Supply</b> is granted personally by Lewis&nbsp;Jin, Jamie&nbsp;Baldwin and Daniel&nbsp;Sette — giving the JV direct supply security into its operations, while the WTH agreement itself is left untouched. This protects the JV's supply without disturbing the upstream holding structure.</p></div>
-    </div>
+  <!-- ============ 03 STRUCTURE — exact full moving document, embedded ============ -->
+  <section class="view view-embed" data-view="structure">
+    <iframe class="structframe" src="/haavn-structure-full.html" title="HAAVN × Hamilton Marino — Group Structure"></iframe>
   </section>
 
   <!-- ============ 04 DIRECTIVE ============ -->
@@ -576,12 +524,6 @@ nav.addEventListener('click',e=>{const b=e.target.closest('.nav-item');if(!b)ret
   nav.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('on',n===b));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.dataset.view===v));
   window.scrollTo({top:0,behavior:'smooth'});});
-// structure flow toggle
-const org=document.getElementById('org');
-document.querySelector('.flowctl').addEventListener('click',e=>{const b=e.target.closest('.fbtn');if(!b)return;
-  document.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('on',x===b));
-  const up=b.dataset.dir==='up';org.classList.toggle('up',up);
-  document.getElementById('flowlbl').textContent=up?'Value & returns flowing up':'Ownership & supply flowing down';});
 // return + clock
 document.getElementById('btnBack').addEventListener('click',()=>{try{parent.postMessage('haavn-crm-close','*');}catch(e){}});
 function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
