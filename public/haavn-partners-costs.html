@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAVN × Hamilton Marino — Cost Base</title>
+<style>
+:root{
+  --paper:#f1efe9;--paper-2:#f7f6f1;--ink:#1c1c1e;--muted:#6d6e64;--sage:#8f907f;
+  --line:#d3d1c7;--line-soft:#e0ded4;--card:#ffffff;
+  --green:#2f8f5b;--green-d:#1f7d49;--orange:#cf8a3c;--bronze-d:#8a6a44;--red:#b3402f;--charcoal:#0b0b0d;
+  --cogs:#3f7fb0;--fixed:#d38f3a;--var:#a05aa0;
+  --shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.07);
+  --shadow-lg:0 6px 14px rgba(28,28,30,.10),0 26px 60px rgba(28,28,30,.16);
+  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Menlo","Consolas",monospace;
+  --font:"Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
+
+/* masthead */
+.masthead{position:relative;background:linear-gradient(180deg,#eaf5ef 0%,#d9eee2 100%);border-bottom:1px solid rgba(0,0,0,.06)}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(40px,6vw,74px) 20px clamp(24px,3vw,36px)}
+.hero .mark{height:clamp(42px,6vw,72px)}
+.hero .lock{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.hero .x{color:#5a6b60;font-size:1.3em;font-weight:300}
+.hero .hm{font-weight:700;letter-spacing:.12em;font-size:clamp(15px,2.4vw,22px);color:#2f4a3a}
+.hero .tag{margin-top:16px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#48594f;font-weight:600}
+.mast-rule{display:flex;align-items:center;gap:14px;padding:13px clamp(18px,4vw,54px);border-top:1px solid rgba(0,0,0,.08);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#6b7a6f;font-weight:600}
+.mast-rule .sp{flex:1}
+
+/* command header */
+.command{padding:28px clamp(18px,4vw,54px) 4px;background:linear-gradient(180deg,#edf3ec 0%,#f1efe9 100%)}
+.cmd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--orange);font-weight:700}
+h1{font-weight:800;letter-spacing:-.02em;font-size:clamp(28px,4.6vw,48px);line-height:1.02;margin-top:8px;color:var(--ink)}
+.cmd-sub{max-width:820px;font-size:14px;color:#5c5d52;margin-top:14px;line-height:1.6}
+.export-btn{border:1px solid var(--line);background:var(--card);cursor:pointer;font-family:var(--font);font-weight:700;font-size:13px;color:var(--ink);padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);white-space:nowrap}
+.export-btn:hover{border-color:var(--ink)}
+
+/* callout */
+.callout{margin:20px clamp(18px,4vw,54px) 0;background:#eef7f1;border:1px solid #bfe0cd;border-left:4px solid var(--green);border-radius:12px;padding:14px 18px;font-size:13.5px;color:#2c4a3a;line-height:1.55}
+.callout b{color:var(--green-d)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:22px clamp(18px,4vw,54px) 6px}
+.kpi{background:var(--card);border:1px solid var(--line-soft);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .lab{font-size:12px;color:var(--muted);font-weight:500;line-height:1.3}
+.kpi .num{font-size:clamp(19px,1.8vw,25px);font-weight:800;letter-spacing:-.02em;margin-top:8px;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi .num.red{color:var(--red)} .kpi .num.mut{color:var(--sage)}
+.kpi .sub{font-family:var(--mono);font-size:11px;color:var(--sage);margin-top:5px;line-height:1.4}
+.kpi.hl{border:1.5px solid #e6c9a0;background:linear-gradient(180deg,#fdf7ee,#fff)}
+@media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* panels */
+.panel{background:var(--card);border:1px solid var(--line-soft);border-radius:20px;box-shadow:var(--shadow);margin:18px clamp(18px,4vw,54px);padding:20px 24px 22px}
+.panel h2{font-size:19px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.panel .psub{font-size:13px;color:#6a6b60;margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 clamp(18px,4vw,54px)}
+.grid2 .panel{margin:0}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+/* composition bar */
+.compbar{display:flex;height:46px;border-radius:10px;overflow:hidden;margin:18px 0 14px;border:1px solid var(--line-soft)}
+.compbar div{display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;border-right:2px solid var(--card);white-space:nowrap}
+.compbar div:last-child{border-right:none}
+.seg-cogs{background:var(--cogs)} .seg-fixed{background:var(--fixed)} .seg-var{background:var(--var)}
+.complegend{display:flex;gap:22px;flex-wrap:wrap}
+.complegend .li{display:flex;align-items:center;gap:9px;font-size:13px}
+.complegend .sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+.complegend .amt{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.complegend .pct{font-family:var(--mono);color:var(--sage);font-size:12px}
+
+/* bar chart */
+.chart{width:100%;margin-top:14px}
+.bar{fill:var(--orange);transition:fill .15s}
+.bar:hover{fill:#b8752b}
+.axis text{font-family:var(--mono);font-size:10px;fill:var(--sage)}
+.gridline{stroke:var(--line-soft);stroke-width:1}
+.baseaxis{stroke:var(--line);stroke-width:1.5}
+.blabel{font-family:var(--mono);font-size:9.5px;fill:var(--muted);text-anchor:middle}
+.tip{position:fixed;pointer-events:none;background:#1c1c1e;color:#fff;font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:8px;opacity:0;transition:opacity .12s;z-index:60;white-space:nowrap}
+.tip b{color:#ffd9a8}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;margin-top:6px}
+.tbl th{text-align:right;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);font-weight:700;padding:8px 12px;border-bottom:2px solid var(--line);white-space:nowrap}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line-soft);text-align:right;color:var(--ink);white-space:nowrap}
+.tbl td:first-child{text-align:left;font-family:var(--font);font-weight:600}
+.tbl td.sub2{font-family:var(--mono);color:var(--muted);font-weight:400;padding-left:26px}
+.tbl tr.grp td{background:#f6f5ef;font-weight:800}
+.tbl tr.tot td{border-top:2px solid var(--line);border-bottom:none;font-weight:800;background:#f2f5f3}
+.tag-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+
+/* growth phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.phases{grid-template-columns:1fr}}
+.phase{border:1px solid var(--line-soft);border-radius:14px;padding:18px;background:var(--paper-2)}
+.phase.p1{border-color:#bfe0cd;background:#f3faf6}
+.phase .ph{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);font-weight:700}
+.phase h4{font-size:16px;font-weight:800;margin-top:4px;color:var(--ink)}
+.phase .amt{font-family:var(--mono);font-size:20px;font-weight:800;margin-top:8px;color:var(--ink)}
+.phase .amt.ind{color:var(--bronze-d)}
+.phase ul{list-style:none;margin-top:11px;display:flex;flex-direction:column;gap:7px}
+.phase li{font-size:12.5px;color:#4a4b42;display:flex;justify-content:space-between;gap:10px;font-family:var(--mono)}
+.phase li span:last-child{color:var(--bronze-d);font-weight:700}
+.indnote{font-size:11px;color:var(--sage);margin-top:12px;font-style:italic}
+
+/* placeholder */
+.placeholder{margin:18px clamp(18px,4vw,54px);border:2px dashed #c7c3b4;border-radius:20px;padding:30px 26px;text-align:center;background:repeating-linear-gradient(135deg,#f7f6f1,#f7f6f1 12px,#f4f2ec 12px,#f4f2ec 24px)}
+.placeholder .pk{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.placeholder h3{font-size:22px;font-weight:800;margin-top:8px;color:var(--ink)}
+.placeholder p{font-size:14px;color:#5c5d52;margin-top:10px;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.6}
+.placeholder .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.placeholder .chip{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:var(--bronze-d);font-weight:600}
+
+footer{background:var(--charcoal);color:#c9c8bd;padding:26px clamp(18px,4vw,54px) 32px;margin-top:22px}
+footer .disc{font-size:10.5px;color:#7c7c72;line-height:1.7;max-width:1180px;margin:0 auto}
+footer .disc b{color:#cfcec2}
+.secnum{font-family:var(--mono);color:var(--orange);font-size:13px;font-weight:700;margin-right:2px}
+.prods{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0 8px}
+@media(max-width:900px){.prods{grid-template-columns:1fr}}
+.prod{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2);position:relative;overflow:hidden}
+.prod .pc{position:absolute;top:0;left:0;right:0;height:4px}
+.prod .pname{font-size:18px;font-weight:800;letter-spacing:.02em;margin-top:6px}
+.prod .prole{font-size:12px;color:var(--muted);margin-top:2px}
+.prod .pmar{font-family:var(--mono);font-size:22px;font-weight:800;margin-top:12px;color:var(--ink)}
+.prod .pmar span{font-size:12px;color:var(--sage);font-weight:600}
+.prod ul{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.prod li{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12px;color:#4a4b42}
+.prod li span:last-child{color:var(--ink);font-weight:700}
+.chart-head{font-size:13px;color:#4a4b42;margin-top:18px}
+.chart-head b{color:var(--ink)}
+.stackseg{transition:opacity .15s} .stackseg:hover{opacity:.82}
+.verdict{display:flex;gap:16px;align-items:flex-start;margin-top:16px;background:#eef7f1;border:1px solid #bfe0cd;border-radius:14px;padding:18px 20px}
+.verdict .v-ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.verdict div:last-child{font-size:14px;color:#2c4a3a;line-height:1.6}
+.verdict b{color:var(--green-d)}
+.tbl td.l{white-space:normal}
+
+.milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.milestones{grid-template-columns:1fr}}
+.ms{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2);position:relative;overflow:hidden}
+.ms .mc{position:absolute;top:0;left:0;right:0;height:4px}
+.ms .when{font-family:var(--mono);font-size:12px;color:var(--orange);font-weight:700}
+.ms h4{font-size:17px;font-weight:800;margin-top:6px}
+.ms p{font-size:12.5px;color:#4a4b42;margin-top:6px;line-height:1.5}
+.gates{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.gate{font-size:11px;font-family:var(--mono);background:#f1ede4;border:1px solid #e4dbcc;color:var(--bronze-d);border-radius:8px;padding:5px 10px}
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+@media(max-width:820px){.ways{grid-template-columns:1fr}}
+.way{border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;background:var(--paper-2)}
+.way b{font-size:14px}.way span{font-size:12px;color:var(--muted);display:block;margin-top:4px;line-height:1.5}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.roles{grid-template-columns:1fr}}
+.role{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2)}
+.role .rt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700}
+.role h4{font-size:16px;font-weight:800;margin-top:4px}
+.role .ra{font-family:var(--mono);font-size:18px;font-weight:800;margin-top:8px;color:var(--bronze-d)}
+.role p{font-size:12px;color:#4a4b42;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="masthead">
+  <div class="hero">
+    <div class="lock"><img class="mark" src="data:image/png;base64,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" alt="HAAVN"><span class="x">×</span><span class="hm">HAMILTON MARINO</span></div>
+    <div class="tag">Partners in Precision</div>
+  </div>
+  <div class="mast-rule"><span>Partnership</span><span class="sp"></span><span>Cost Base · FY27 → FY31</span></div>
+</div>
+<section class="command">
+  <div class="cmd-top">
+    <div>
+      <div class="eyebrow">Partnership · Cost Base · Current + Growth</div>
+      <h1>Current cost &amp; cost to grow</h1>
+      <p class="cmd-sub">Everything it costs to run <b>HAAVN × Hamilton Marino</b> today — and the staged cost of scaling it: a sales team, project management and additional delivery staff added from 2028. Revenue and profit sit on the <b>Path to Market</b> tab.</p>
+    </div>
+    <button class="export-btn" id="exportBtn">Export / print</button>
+  </div>
+</section>
+<div class="callout">Current cost is the <b>HAAVN Technologies Pty Ltd FY27 budget</b> (Jul-26 → Jun-27), carried into the partnership. The growth layer below is a <b>separate planning assumption</b>: cost rising <b>+$40,000 / month each year</b> from 2028, over the four-year growth period.</div>
+<div class="kpis">
+  <div class="kpi hl"><div class="lab">FY27 current cost base</div><div class="num">$544,199</div><div class="sub">cost to run today</div></div>
+  <div class="kpi"><div class="lab">Pre-revenue monthly burn</div><div class="num red">−$45,350</div><div class="sub">until products launch</div></div>
+  <div class="kpi"><div class="lab">Cost of sales (COGS)</div><div class="num">$312,000</div><div class="sub">direct delivery</div></div>
+  <div class="kpi"><div class="lab">Operating expenses</div><div class="num">$232,199</div><div class="sub">fixed + variable</div></div>
+  <div class="kpi"><div class="lab">Growth cost from 2028</div><div class="num" style="color:var(--bronze-d)">+$40k/mo</div><div class="sub">each yr · 4 yrs</div></div>
+  <div class="kpi"><div class="lab">FY31 cost base (scaled)</div><div class="num">$2,392,199</div><div class="sub">fully staffed · ex-IDX</div></div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">01</span> FY27 cost composition</h2>
+  <div class="psub">Where the $544,199 current cost base sits — direct delivery vs. the cost of running the business.</div>
+  <div class="compbar">
+    <div class="seg-cogs" style="width:57.3%">COGS $312,000</div>
+    <div class="seg-fixed" style="width:35.9%">Fixed $195,366</div>
+    <div class="seg-var" style="width:6.8%">Var $36,832</div>
+  </div>
+  <div class="complegend">
+    <span class="li"><span class="sw" style="background:var(--cogs)"></span>Cost of sales — direct delivery &nbsp;<span class="amt">$312,000</span> <span class="pct">· 57.3%</span></span>
+    <span class="li"><span class="sw" style="background:var(--fixed)"></span>Fixed operating costs &nbsp;<span class="amt">$195,366</span> <span class="pct">· 35.9%</span></span>
+    <span class="li"><span class="sw" style="background:var(--var)"></span>Variable operating costs &nbsp;<span class="amt">$36,832</span> <span class="pct">· 6.8%</span></span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">02</span> Monthly burn profile <span style="font-family:var(--mono);font-size:12px;color:var(--sage);font-weight:600;letter-spacing:.06em">JUL-26 → JUN-27</span></h2>
+  <div class="psub">Total monthly cost (COGS + operating) for the current year — the pre-revenue cash burn.</div>
+  <svg class="chart" id="burnChart" data-h="300" viewBox="0 0 960 300" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <h2><span class="tag-dot" style="background:var(--cogs)"></span>Cost of sales — $312,000</h2>
+    <div class="psub">Direct delivery cost.</div>
+    <table class="tbl"><thead><tr><th>Line item</th><th>Monthly</th><th>FY27</th></tr></thead><tbody>
+      <tr><td>James Winstanley — delivery</td><td>$20,000</td><td>$240,000</td></tr>
+      <tr><td>IDX — delivery <span style="font-family:var(--mono);font-size:10px;color:var(--orange);font-weight:700">1-YR</span></td><td>$6,000</td><td>$72,000</td></tr>
+      <tr class="tot"><td>Total COGS · FY27</td><td>$26,000</td><td>$312,000</td></tr>
+    </tbody></table>
+    <div class="indnote" style="margin-top:10px">IDX is a <b>one-year engagement (Feb-26 → Feb-27)</b> and does not recur — ongoing delivery COGS from FY28 is <b>$240,000</b> (James Winstanley only).</div>
+  </div>
+  <div class="panel">
+    <h2><span class="tag-dot" style="background:var(--var)"></span>Variable operating — $36,832</h2>
+    <div class="psub">Usage-based &amp; one-off costs.</div>
+    <table class="tbl"><thead><tr><th>Line item</th><th>FY27</th></tr></thead><tbody>
+      <tr><td>Office fit-out (one-off)</td><td>$10,581</td></tr>
+      <tr><td>Technicalities / IT</td><td>$6,181</td></tr>
+      <tr><td>International travel</td><td>$5,478</td></tr>
+      <tr><td>Office expense (general)</td><td>$7,332</td></tr>
+      <tr><td>Accounting fees</td><td>$4,260</td></tr>
+      <tr><td>Entertainment</td><td>$2,400</td></tr>
+      <tr><td>ASIC &amp; bank fees</td><td>$600</td></tr>
+      <tr class="tot"><td>Total variable</td><td>$36,832</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2><span class="tag-dot" style="background:var(--fixed)"></span>Fixed operating costs — $195,366</h2>
+  <div class="psub">The standing cost of running the business each month — $16,281 / month.</div>
+  <table class="tbl"><thead><tr><th>Line item</th><th>Detail</th><th>Monthly</th><th>FY27</th></tr></thead><tbody>
+    <tr><td>Wages &amp; salaries</td><td class="l" style="text-align:left">Callum Macdonald</td><td>$8,333</td><td>$99,996</td></tr>
+    <tr><td>Superannuation</td><td class="l" style="text-align:left">Callum Macdonald</td><td>$1,000</td><td>$12,000</td></tr>
+    <tr><td>Rent &amp; outgoings</td><td class="l" style="text-align:left">Office $51,497 · Outgoings $13,517</td><td>$5,418</td><td>$65,014</td></tr>
+    <tr><td>Subscriptions &amp; services</td><td class="l" style="text-align:left">Claude AI · Office 365 · Adobe · Xero · Supabase</td><td>$895</td><td>$10,737</td></tr>
+    <tr><td>Insurance</td><td class="l" style="text-align:left">Professional indemnity · workers comp</td><td>$600</td><td>$7,200</td></tr>
+    <tr><td>Telephone &amp; internet</td><td class="l" style="text-align:left">NBN</td><td>$35</td><td>$420</td></tr>
+    <tr class="tot"><td>Total fixed</td><td></td><td>$16,281</td><td>$195,366</td></tr>
+  </tbody></table>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">03</span> Cost to grow — sales, project management &amp; staff</h2>
+  <div class="psub">From 2028 the partnership scales its team. Modelled as a growth layer of <b>+$40,000 / month added each year</b> over the four-year growth period — reaching <b>+$160,000 / month</b> by FY31. Indicative split shown; roles and timing to confirm.</div>
+  <div class="roles">
+    <div class="role"><div class="rt">Growth hire</div><h4>Sales team</h4><div class="ra">≈ +$15k / mo · yr</div><p>Sales lead + support to drive SOLUM, MAGNA and pod demand and manage the builder channel.</p></div>
+    <div class="role"><div class="rt">Growth hire</div><h4>Project management</h4><div class="ra">≈ +$15k / mo · yr</div><p>Project &amp; delivery managers to run concurrent home and pod programs to standard.</p></div>
+    <div class="role"><div class="rt">Growth hire</div><h4>Delivery &amp; support staff</h4><div class="ra">≈ +$10k / mo · yr</div><p>Additional delivery, coordination and aftersales staff as volume scales.</p></div>
+  </div>
+  <div class="chart-head"><b>Total cost base</b> · current + growth layer · FY27 → FY31</div>
+  <div class="complegend" style="margin:2px 0 4px">
+    <span class="li"><span class="sw" style="background:#6d7f88"></span>Ongoing cost base</span>
+    <span class="li"><span class="sw" style="background:var(--fixed)"></span>Growth layer (sales · PM · staff)</span>
+  </div>
+  <svg class="chart" id="costChart" data-h="320" viewBox="0 0 960 320" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="tbl-scroll">
+  <table class="tbl" style="margin-top:14px"><thead><tr><th>Cost layer</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>FY31</th></tr></thead><tbody>
+    <tr><td>Ongoing cost base</td><td>$544,199</td><td>$472,199</td><td>$472,199</td><td>$472,199</td><td>$472,199</td></tr>
+    <tr><td>Growth layer (from 2028)</td><td>$0</td><td>$480,000</td><td>$960,000</td><td>$1,440,000</td><td>$1,920,000</td></tr>
+    <tr class="tot"><td>Total cost base</td><td>$544,199</td><td>$952,199</td><td>$1,432,199</td><td>$1,912,199</td><td>$2,392,199</td></tr>
+    <tr><td>Monthly run-rate</td><td>$45,350</td><td>$79,350</td><td>$119,350</td><td>$159,350</td><td>$199,350</td></tr>
+  </tbody></table>
+  </div>
+  <div class="indnote" style="margin-top:10px">FY27 ongoing base includes the one-year IDX engagement ($72k); from FY28 the base drops to <b>$472,199</b> as IDX ends (Feb-27), before the growth layer is added.</div>
+</div>
+
+<div class="panel" style="background:#faf9f4">
+  <h2><span class="secnum">04</span> Cost assumptions</h2>
+  <table class="tbl"><tbody>
+    <tr><td>Current cost</td><td class="l" style="text-align:left">HAAVN Technologies FY27 budget, carried into the partnership.</td></tr>
+    <tr><td>Growth layer</td><td class="l" style="text-align:left">+$40,000 / month added each year from 2028, over 4 years — covering sales, project management and additional staff. Reaches +$160k / month by FY31.</td></tr>
+    <tr><td>Role split</td><td class="l" style="text-align:left">Indicative (sales $15k · PM $15k · staff $10k per month per year); exact roles, salaries and timing to confirm.</td></tr>
+    <tr><td>Excludes</td><td class="l" style="text-align:left">Product build cost (COGS scaling with volume) — the per-unit figures on the Path to Market tab are margin to the JV, net of build cost.</td></tr>
+  </tbody></table>
+</div>
+
+<footer><p class="disc">Source: <b>HAAVN Technologies Pty Ltd — FY27 Budget</b> (21 Aug 2026). Current figures from that budget; the 2028+ growth layer is an indicative planning assumption for partner discussion, subject to final advice and definitive agreements. © 2026 Haavn Technologies Pty Ltd.</p></footer>
+<div class="tip" id="tip"></div>
+<script>
+document.getElementById('exportBtn').addEventListener('click',()=>window.print());
+
+const NS='http://www.w3.org/2000/svg';const tip=document.getElementById('tip');
+const money=v=>'$'+Math.round(v).toLocaleString();
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function txt(x,y,s,anchor,size,fill){const t=el('text',{x:x,y:y,'text-anchor':anchor||'middle','font-family':'SFMono-Regular,monospace','font-size':size||10,fill:fill||'#8f907f'});t.textContent=s;return t;}
+function tshow(e,html){tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-14)+'px';tip.innerHTML=html;}
+function thide(){tip.style.opacity=0;}
+function frame(svg,maxY,step,ml){ml=ml||58;const W=960,H=+svg.getAttribute('data-h')||320,mr=16,mt=16,mb=34;const plotW=W-ml-mr,plotH=H-mt-mb;
+  for(let v=0;v<=maxY+1;v+=step){const y=mt+plotH-(v/maxY)*plotH;svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'#d3d1c7':'#e0ded4','stroke-width':v===0?1.5:1}));
+    svg.appendChild(txt(ml-8,y+3,(maxY>=1e6?('$'+(v/1e6)+'M'):('$'+(v/1000)+'k')),'end'));}
+  return {W,H,ml,mr,mt,mb,plotW,plotH};}
+function xb(f,i,n){return f.ml+i*(f.plotW/n);}
+
+// monthly burn
+(function(){const svg=document.getElementById('burnChart');const months=["Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"];const vals=[54762,50632,43631,43631,43631,43631,43631,43631,43631,43631,43631,46131];const maxY=60000;const f=frame(svg,maxY,20000);const bw=f.plotW/12;
+ vals.forEach((v,i)=>{const bh=(v/maxY)*f.plotH;const x=f.ml+i*bw+bw*0.16;const y=f.mt+f.plotH-bh;const r=el('rect',{x:x,y:y,width:bw*0.68,height:bh,rx:4,fill:'#cf8a3c'});r.addEventListener('mousemove',e=>tshow(e,months[i]+'-'+(i<6?'26':'27')+' &nbsp;<b>'+money(v)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);svg.appendChild(txt(f.ml+i*bw+bw/2,f.H-12,months[i]));});})();
+// cost base stacked (base + growth)
+(function(){const svg=document.getElementById('costChart');const years=["FY27","FY28","FY29","FY30","FY31"];const baseA=[544199,472199,472199,472199,472199];const grow=[0,480000,960000,1440000,1920000];const tot=[544199,952199,1432199,1912199,2392199];const maxY=2.6e6;const f=frame(svg,maxY,650000);const bw=f.plotW/years.length;
+ years.forEach((yr,i)=>{const x=xb(f,i,years.length)+bw*0.2,w=bw*0.6;let base=0;[['Current cost',baseA[i],'#6d7f88'],['Growth layer',grow[i],'#d38f3a']].forEach(([nm,val,col])=>{if(val<=0)return;const bh=(val/maxY)*f.plotH;const y=f.mt+f.plotH-((base+val)/maxY)*f.plotH;const r=el('rect',{x:x,y:y,width:w,height:Math.max(bh-2,0),rx:3,fill:col,class:'stackseg'});r.addEventListener('mousemove',e=>tshow(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);base+=val;});svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.H-12,yr));svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.mt+f.plotH-(tot[i]/maxY)*f.plotH-7,'$'+(tot[i]/1e6).toFixed(2)+'M','middle',10,'#4a4b42'));});})();
+</script>
+</body>
+</html>

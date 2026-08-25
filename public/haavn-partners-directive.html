@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAVN BLACK — Homes to Market Operating Directive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HAAVN BLACK — BRAND SYSTEM
+   ============================================================ */
+:root{
+  --black:#040404;
+  --ink:#080809;
+  --panel:#0d0d0f;
+  --panel-2:#121215;
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.16);
+  --white:#ffffff;
+  --grey:#8c9095;
+  --grey-2:#6a6e73;
+  --dim:#4a4d51;
+  --dimmer:#2e3033;
+  --accent:#ffffff;
+  --solum:#e8e8e8;
+  --magna:#7f858b;
+  --warn:#c9a227;
+  --live:#7ea88a;
+  --f-display:'Chakra Petch','Rajdhani','Arial Narrow',sans-serif;
+  --f-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --maxw:1240px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--grey);
+  font-family:var(--f-body);
+  font-weight:300;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* film grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.10;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+::selection{background:#fff;color:#000}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 40px}
+
+/* ---------- TYPE ---------- */
+.dsp{font-family:var(--f-display);font-weight:600;color:var(--white);letter-spacing:.02em;line-height:1.05}
+h1{font-family:var(--f-display);font-weight:700;color:#fff;line-height:1.02;letter-spacing:-.01em}
+h2{font-family:var(--f-display);font-weight:600;color:#fff;font-size:clamp(28px,3.6vw,46px);letter-spacing:.01em;line-height:1.08}
+h3{font-family:var(--f-display);font-weight:600;color:#fff;font-size:19px;letter-spacing:.04em;text-transform:uppercase}
+h4{font-family:var(--f-display);font-weight:500;color:#fff;font-size:15px;letter-spacing:.12em;text-transform:uppercase}
+p{font-size:15.5px;color:var(--grey);max-width:74ch}
+strong{color:#e9eaeb;font-weight:500}
+a{color:#fff;text-decoration:none;border-bottom:1px solid var(--line-2)}
+.eyebrow{font-family:var(--f-display);font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--dim);font-weight:500}
+.mono{font-family:var(--f-display);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.lede{font-size:18px;color:#b6babe;font-weight:300;max-width:70ch}
+
+/* ---------- LOGO ---------- */
+.logo{font-family:var(--f-display);font-weight:700;letter-spacing:.06em;white-space:nowrap;display:inline-block}
+.logo .h{color:#fff}
+.logo .b{color:var(--grey-2)}
+
+/* ---------- NAV ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:9000;
+  background:rgba(4,4,4,.72);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1);
+}
+nav.hide{transform:translateY(-102%)}
+.nav-in{max-width:var(--maxw);margin:0 auto;padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav-in .logo{font-size:16px}
+.nav-links{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{
+  font-family:var(--f-display);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);border:0;white-space:nowrap;transition:color .25s;padding:4px 0;
+}
+.nav-links a:hover,.nav-links a.on{color:#fff}
+.prog{position:absolute;bottom:-1px;left:0;height:1px;background:#fff;width:0}
+
+/* ---------- HERO ---------- */
+.hero{
+  min-height:100vh;position:relative;display:flex;align-items:center;
+  overflow:hidden;border-bottom:1px solid var(--line);
+}
+.marble{
+  position:absolute;inset:-10%;z-index:0;opacity:.55;
+  background:
+    radial-gradient(120% 90% at 70% 20%, rgba(255,255,255,.05), transparent 55%),
+    radial-gradient(80% 60% at 20% 80%, rgba(255,255,255,.035), transparent 60%),
+    #000;
+}
+.marble svg{position:absolute;inset:0;width:100%;height:100%}
+.hero::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:radial-gradient(75% 55% at 50% 50%, transparent 0%, rgba(0,0,0,.62) 72%, #000 100%);
+}
+.hero-in{position:relative;z-index:2;width:100%;padding:120px 0 70px}
+.hero .logo{font-size:clamp(38px,8.4vw,104px);letter-spacing:.055em}
+.hero-rule{height:1px;background:linear-gradient(90deg,rgba(255,255,255,.5),rgba(255,255,255,0));margin:38px 0 30px;width:0}
+.hero h1{font-size:clamp(24px,3.3vw,40px);font-weight:600;max-width:19ch}
+.hero-meta{display:flex;flex-wrap:wrap;gap:0;margin-top:52px;border-top:1px solid var(--line)}
+.hero-meta div{flex:1 1 190px;padding:20px 24px 20px 0;border-right:1px solid var(--line)}
+.hero-meta div:last-child{border-right:0}
+.hero-meta .k{font-family:var(--f-display);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.hero-meta .v{font-family:var(--f-display);font-size:15px;color:#fff;letter-spacing:.05em;font-weight:500}
+.scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;text-align:center}
+.scrollcue span{display:block;font-family:var(--f-display);font-size:9px;letter-spacing:.32em;color:var(--dim);margin-bottom:8px}
+.scrollcue i{display:block;width:1px;height:44px;background:linear-gradient(180deg,rgba(255,255,255,.55),transparent);margin:0 auto;animation:cue 2.4s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- SECTION ---------- */
+section{padding:110px 0;position:relative;border-bottom:1px solid var(--line)}
+.sec-head{margin-bottom:56px;max-width:900px}
+.sec-num{font-family:var(--f-display);font-size:11px;letter-spacing:.3em;color:var(--dimmer);margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.sec-num::after{content:'';flex:1;height:1px;background:var(--line);max-width:120px}
+.sec-head h2{margin-bottom:18px}
+
+/* ---------- REVEAL ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+.rv.d4{transition-delay:.32s}.rv.d5{transition-delay:.40s}.rv.d6{transition-delay:.48s}
+
+/* ---------- CARDS / GRID ---------- */
+.grid{display:grid;gap:1px;background:var(--line)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.cell{background:var(--ink);padding:32px 30px}
+.card{
+  background:linear-gradient(180deg,var(--panel) 0%,var(--ink) 100%);
+  border:1px solid var(--line);padding:34px 32px;position:relative;overflow:hidden;
+  transition:border-color .4s,transform .4s;
+}
+.card:hover{border-color:var(--line-2)}
+.card::before{content:'';position:absolute;top:0;left:0;width:0;height:1px;background:#fff;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.card:hover::before{width:100%}
+
+/* ---------- PRIORITY LIST ---------- */
+.prio{border-top:1px solid var(--line)}
+.prio-row{display:grid;grid-template-columns:76px 1fr;gap:28px;padding:26px 0;border-bottom:1px solid var(--line);align-items:start;transition:background .35s;}
+.prio-row:hover{background:rgba(255,255,255,.018)}
+.prio-row .n{font-family:var(--f-display);font-size:34px;font-weight:700;color:var(--dimmer);line-height:1;transition:color .35s}
+.prio-row:hover .n{color:#fff}
+.prio-row h4{margin-bottom:8px}
+.prio-row p{font-size:14.5px;color:var(--grey-2)}
+
+/* ---------- PRODUCT ---------- */
+.prod{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.prod-cell{background:var(--ink);padding:44px 40px;position:relative;overflow:hidden}
+.prod-cell .tag{
+  position:absolute;top:22px;right:26px;font-family:var(--f-display);font-size:9.5px;
+  letter-spacing:.24em;text-transform:uppercase;padding:5px 11px;border:1px solid var(--line-2);color:var(--grey)
+}
+.prod-cell .tag.live{color:#cfe0d4;border-color:rgba(126,168,138,.5)}
+.prod-name{font-family:var(--f-display);font-size:clamp(38px,5vw,62px);font-weight:700;color:#fff;letter-spacing:.06em;line-height:1}
+.prod-cell.b .prod-name{color:var(--magna)}
+.prod-sub{font-family:var(--f-display);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+.spec{margin-top:34px;border-top:1px solid var(--line)}
+.spec div{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.spec .k{font-family:var(--f-display);letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;color:var(--dim)}
+.spec .v{color:#e2e4e6;text-align:right;font-family:var(--f-display);letter-spacing:.04em;font-size:13px}
+
+/* ---------- FLOW ---------- */
+.flow{position:relative;margin-top:20px}
+.flow-track{position:relative;padding:44px 0 0}
+.flowline{position:absolute;top:0;left:0;height:1px;background:var(--line);width:100%}
+.flowline i{position:absolute;left:0;top:0;height:1px;background:#fff;width:0;transition:width 2.6s cubic-bezier(.16,.84,.28,1)}
+.flow.on .flowline i{width:100%}
+.stages{display:grid;grid-template-columns:repeat(9,1fr);gap:1px;background:var(--line)}
+.stage{background:var(--ink);padding:24px 16px 26px;position:relative;transition:background .35s;cursor:default}
+.stage:hover{background:var(--panel-2)}
+.stage::before{
+  content:'';position:absolute;top:-44px;left:50%;transform:translateX(-50%) scale(0);
+  width:9px;height:9px;background:#fff;border-radius:50%;
+  transition:transform .5s cubic-bezier(.2,1.4,.4,1);
+}
+.flow.on .stage::before{transform:translateX(-50%) scale(1)}
+.flow.on .stage:nth-child(1)::before{transition-delay:.1s}
+.flow.on .stage:nth-child(2)::before{transition-delay:.38s}
+.flow.on .stage:nth-child(3)::before{transition-delay:.66s}
+.flow.on .stage:nth-child(4)::before{transition-delay:.94s}
+.flow.on .stage:nth-child(5)::before{transition-delay:1.22s}
+.flow.on .stage:nth-child(6)::before{transition-delay:1.5s}
+.flow.on .stage:nth-child(7)::before{transition-delay:1.78s}
+.flow.on .stage:nth-child(8)::before{transition-delay:2.06s}
+.flow.on .stage:nth-child(9)::before{transition-delay:2.34s}
+.stage .sn{font-family:var(--f-display);font-size:10px;letter-spacing:.22em;color:var(--dimmer);margin-bottom:12px}
+.stage .st{font-family:var(--f-display);font-size:12.5px;font-weight:600;color:#fff;letter-spacing:.05em;text-transform:uppercase;line-height:1.3;margin-bottom:10px}
+.stage .sd{font-size:11.5px;color:var(--grey-2);line-height:1.5}
+.stage .gate{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--f-display);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* ---------- PURCHASE PHASES ---------- */
+.phase{border:1px solid var(--line);background:var(--ink);margin-bottom:1px;overflow:hidden}
+.phase-head{display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:center;padding:30px 34px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--panel),var(--ink))}
+.phase-head .pn{font-family:var(--f-display);font-size:42px;font-weight:700;color:#fff;line-height:1}
+.phase-head .pn small{display:block;font-size:9.5px;letter-spacing:.28em;color:var(--dim);font-weight:500;margin-bottom:4px}
+.phase-head h3{margin-bottom:6px}
+.phase-head p{font-size:14px;color:var(--grey-2);max-width:70ch}
+.phase-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line)}
+.pb{background:var(--ink);padding:28px 30px}
+.pb h4{color:var(--grey);margin-bottom:18px;font-size:10.5px;letter-spacing:.2em}
+.pb ul{list-style:none}
+.pb li{font-size:13.5px;color:#b9bdc1;padding:8px 0 8px 22px;position:relative;border-bottom:1px solid rgba(255,255,255,.045);line-height:1.5}
+.pb li:last-child{border-bottom:0}
+.pb li::before{content:'';position:absolute;left:0;top:16px;width:9px;height:1px;background:var(--dim)}
+.pb.inc li::before{background:#fff}
+.pb.exc li{color:var(--grey-2)}
+.pb.exc li::before{background:var(--dimmer);width:9px}
+.pb.exc li::after{content:'';position:absolute;left:0;top:11px;width:9px;height:9px;border:0}
+.riskflag{margin-top:16px;padding:12px 14px;border:1px dashed rgba(201,162,39,.42);background:rgba(201,162,39,.05);font-size:12.5px;color:#d8c88f;line-height:1.55}
+.riskflag b{color:var(--warn);font-family:var(--f-display);letter-spacing:.14em;font-size:10px;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:600}
+
+/* ---------- TABLE ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{
+  font-family:var(--f-display);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);text-align:left;padding:14px 16px;border-bottom:1px solid var(--line-2);font-weight:500;vertical-align:bottom;
+}
+.tbl td{padding:15px 16px;border-bottom:1px solid var(--line);color:#b3b7bb;vertical-align:top;line-height:1.5}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl td.lead{color:#fff;font-family:var(--f-display);letter-spacing:.04em;font-weight:500}
+.tbl .c{text-align:center}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.dot.f{background:#fff}
+.dot.h{background:var(--dim)}
+.dot.n{background:transparent;border:1px solid var(--dimmer)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);background:var(--ink)}
+.legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-size:11.5px;color:var(--dim);font-family:var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.legend span{display:flex;align-items:center;gap:8px}
+
+/* ---------- GANTT ---------- */
+.gantt{border:1px solid var(--line);background:var(--ink);overflow:hidden}
+.gantt-head{display:grid;grid-template-columns:250px 1fr;border-bottom:1px solid var(--line-2)}
+.gantt-head .lbl{padding:14px 20px;font-family:var(--f-display);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);border-right:1px solid var(--line)}
+.gantt-cols{display:grid}
+.gantt-cols span{padding:14px 6px;font-family:var(--f-display);font-size:9.5px;letter-spacing:.1em;color:var(--dim);text-align:center;border-right:1px solid rgba(255,255,255,.05)}
+.gantt-cols span:last-child{border-right:0}
+.grow{display:grid;grid-template-columns:250px 1fr;border-bottom:1px solid var(--line)}
+.grow:last-child{border-bottom:0}
+.grow .lbl{padding:15px 20px;border-right:1px solid var(--line);font-size:13px;color:#c3c7cb}
+.grow .lbl b{display:block;font-family:var(--f-display);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:500;margin-top:3px}
+.gtrack{position:relative;padding:15px 0;background:
+  repeating-linear-gradient(90deg,transparent,transparent calc(var(--cw) - 1px),rgba(255,255,255,.05) calc(var(--cw) - 1px),rgba(255,255,255,.05) var(--cw));}
+.gbar{
+  position:absolute;height:16px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(90deg,rgba(255,255,255,.92),rgba(255,255,255,.55));
+  transform-origin:left center;scale:0 1;transition:scale 1s cubic-bezier(.2,.8,.2,1);
+}
+.gantt.on .gbar{scale:1 1}
+.gbar.alt{background:linear-gradient(90deg,rgba(140,144,149,.85),rgba(140,144,149,.35))}
+.gbar.out{background:transparent;border:1px dashed var(--dim)}
+.gbar span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-family:var(--f-display);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#000;font-weight:600;white-space:nowrap}
+.gbar.alt span{color:#0b0b0c}
+.gbar.out span{color:var(--grey);left:auto;right:calc(100% + 12px);transform:translateY(-50%)}
+.milestone{position:absolute;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:11px;height:11px;background:#fff;z-index:2}
+
+/* ---------- COUNTDOWN ---------- */
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.cd div{background:var(--ink);padding:30px 24px 26px;text-align:left;display:flex;flex-direction:column;justify-content:flex-start}
+.cd .num{font-family:var(--f-display);font-size:clamp(34px,4.6vw,56px);font-weight:700;color:#fff;line-height:1}
+.cd .cap{font-family:var(--f-display);font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);margin-top:10px}
+
+/* ---------- MAP ---------- */
+.mapgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.mapcell{background:var(--ink);padding:36px 34px}
+.terr{border-top:1px solid var(--line)}
+.terr-row{display:grid;grid-template-columns:1fr 92px 92px;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.terr-row .t{font-family:var(--f-display);font-size:14px;color:#fff;letter-spacing:.06em;text-transform:uppercase}
+.terr-row .t small{display:block;font-family:var(--f-body);font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--dim);margin-top:2px}
+.chip{font-family:var(--f-display);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 0;text-align:center;border:1px solid var(--line-2);color:var(--dim)}
+.chip.y{color:#000;background:#fff;border-color:#fff;font-weight:600}
+.chip.m{color:#0b0b0c;background:var(--magna);border-color:var(--magna);font-weight:600}
+svg.aus{width:100%;height:auto;display:block}
+svg.aus path{fill:#0f0f11;stroke:var(--line-2);stroke-width:1.1;transition:fill .6s}
+svg.aus path.act{fill:#f2f2f2;stroke:#050505;stroke-width:2.2}
+svg.aus path.act2{fill:var(--magna);stroke:#050505;stroke-width:2.2}
+
+/* ---------- RACI / OWNERSHIP ---------- */
+.ownr{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.own{background:var(--ink);padding:30px 28px}
+.own .role{font-family:var(--f-display);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.own .who{font-family:var(--f-display);font-size:20px;color:#fff;letter-spacing:.03em;font-weight:600;line-height:1.2}
+.own .duty{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:13.5px;color:var(--grey-2)}
+
+/* ---------- ACTIONS ---------- */
+.act-row{display:grid;grid-template-columns:52px 1fr 190px 130px;gap:20px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);transition:padding-left .35s}
+.act-row:hover{padding-left:10px}
+.act-row .i{font-family:var(--f-display);font-size:11px;color:var(--dimmer);letter-spacing:.1em}
+.act-row .w{color:#dcdee0;font-size:14.5px}
+.act-row .o,.act-row .d{font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.act-row .d{color:#fff;text-align:right}
+
+/* ---------- CALLOUT ---------- */
+.callout{border-left:2px solid #fff;padding:22px 28px;background:linear-gradient(90deg,rgba(255,255,255,.045),transparent);margin:34px 0}
+.callout p{color:#d5d8da;font-size:16px}
+.note{font-size:12.5px;color:var(--dim);line-height:1.6;max-width:88ch}
+
+/* ---------- FOOTER ---------- */
+footer{padding:80px 0 60px;border-bottom:0}
+.foot-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap;padding-top:34px;border-top:1px solid var(--line)}
+footer .logo{font-size:26px}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1080px){
+  .stages{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .ownr{grid-template-columns:1fr 1fr}
+  .phase-body{grid-template-columns:1fr}
+  .act-row{grid-template-columns:40px 1fr;row-gap:6px}
+  .act-row .o,.act-row .d{grid-column:2;text-align:left}
+}
+@media (max-width:820px){
+  .wrap,.nav-in{padding:0 22px}
+  section{padding:74px 0}
+  .prod,.mapgrid,.g2,.g3{grid-template-columns:1fr}
+  .stages{grid-template-columns:repeat(2,1fr)}
+  .cd{grid-template-columns:1fr 1fr}
+  .ownr{grid-template-columns:1fr}
+  .gantt-head,.grow{grid-template-columns:130px 1fr}
+  .grow .lbl,.gantt-head .lbl{padding:12px;font-size:11.5px}
+  .phase-head{grid-template-columns:1fr;gap:14px}
+  .hero-meta div{border-right:0;border-bottom:1px solid var(--line);flex:1 1 100%}
+  .terr-row{grid-template-columns:1fr 70px 70px}
+}
+@media print{
+  body{background:#fff;color:#000}
+  .rv{opacity:1;transform:none}
+  nav,.scrollcue{display:none}
+}
+
+/* ============================================================
+   INVERTED STEEL THEME — everything from the issue band down
+   Base = the steel grey of "BLACK" in the wordmark. Type = black.
+   ============================================================ */
+:root{
+  --steel:#7d8084;
+  --steel-lo:#74777b;
+  --steel-hi:#888c90;
+  --steel-hi2:#91959a;
+  --iron:#0a0a0b;
+  --iron-2:#1d1f21;
+  --iron-3:#2a2e31;
+  --iron-4:#3a3e41;
+  --rule:rgba(0,0,0,.20);
+  --rule-2:rgba(0,0,0,.42);
+}
+.inv{
+  background:var(--steel);color:var(--iron-2);border-bottom:1px solid var(--rule-2);
+  /* re-point the dark-theme tokens so any inherited use resolves for steel */
+  --white:#000;--accent:#000;
+  --grey:#1d1f21;--grey-2:#2a2e31;--dim:#3a3e41;--dimmer:rgba(0,0,0,.32);
+  --line:rgba(0,0,0,.20);--line-2:rgba(0,0,0,.42);
+}
+.inv *{border-color:var(--rule)}
+.inv h1,.inv h2,.inv h3,.inv h4{color:var(--iron)}
+.inv p{color:var(--iron-2)}
+.inv strong{color:#000;font-weight:600}
+.inv .lede{color:var(--iron-2)}
+.inv .eyebrow{color:var(--iron-3)}
+.inv .note{color:var(--iron-3)}
+.inv a{color:#000;border-bottom-color:var(--rule-2)}
+.inv ::selection{background:#000;color:var(--steel)}
+
+/* issue band */
+.metaband{padding:0;border-bottom:1px solid var(--rule-2)}
+.metaband .hero-meta{display:flex;flex-wrap:wrap;gap:0;margin:0;border-top:0}
+.metaband .hero-meta div{flex:1 1 200px;padding:26px 26px 26px 0;border-right:1px solid var(--rule)}
+.metaband .hero-meta div:last-child{border-right:0}
+.metaband .k{font-family:var(--f-display);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--iron-4);margin-bottom:8px}
+.metaband .v{font-family:var(--f-display);font-size:16px;color:#000;letter-spacing:.05em;font-weight:600;line-height:1.3}
+.metaband .sub{display:block;font-size:11px;letter-spacing:.18em;color:var(--iron-3);font-weight:400;margin-top:4px}
+
+/* structure */
+.inv .sec-num{color:var(--iron-4)}
+.inv .sec-num::after{background:var(--rule-2)}
+.inv .grid{background:var(--rule-2)}
+.inv .cell{background:var(--steel-hi)}
+.inv .card{background:linear-gradient(180deg,var(--steel-hi) 0%,var(--steel) 100%);border-color:var(--rule)}
+.inv .card::before{background:#000}
+.inv .callout{border-left:2px solid #000;background:linear-gradient(90deg,rgba(0,0,0,.10),transparent)}
+.inv .callout p{color:#0b0c0d}
+
+/* priorities */
+.inv .prio{border-top:1px solid var(--rule-2)}
+.inv .prio-row{border-bottom:1px solid var(--rule)}
+.inv .prio-row:hover{background:rgba(255,255,255,.07)}
+.inv .prio-row .n{color:rgba(0,0,0,.30)}
+.inv .prio-row:hover .n{color:#000}
+.inv .prio-row p{color:var(--iron-2)}
+
+/* products */
+.inv .prod{background:var(--rule-2);border-color:var(--rule-2)}
+.inv .prod-cell{background:var(--steel-hi)}
+.inv .prod-cell.b{background:var(--steel-lo)}
+.inv .prod-name{color:#000}
+.inv .prod-cell.b .prod-name{color:#26292b}
+.inv .prod-sub{color:var(--iron-4)}
+.inv .prod-cell .tag{border-color:var(--rule-2);color:var(--iron-2)}
+.inv .prod-cell .tag.live{color:var(--steel-hi2);background:#0a0a0b;border-color:#0a0a0b}
+.inv .spec{border-top:1px solid var(--rule-2)}
+.inv .spec div{border-bottom:1px solid var(--rule)}
+.inv .spec .k{color:var(--iron-4)}
+.inv .spec .v{color:#000}
+
+/* flow */
+.inv .stages{background:var(--rule-2)}
+.inv .stage{background:var(--steel-hi)}
+.inv .stage:hover{background:var(--steel-hi2)}
+.inv .stage::before{background:#000}
+.inv .flowline{background:var(--rule)}
+.inv .flowline i{background:#000}
+.inv .stage .sn{color:var(--iron-4)}
+.inv .stage .st{color:#000}
+.inv .stage .sd{color:var(--iron-2)}
+.inv .stage .gate{border-top:1px solid var(--rule);color:var(--iron-3)}
+
+/* purchase phases */
+.inv .phase{border-color:var(--rule-2);background:var(--steel-hi)}
+.inv .phase-head{background:linear-gradient(90deg,var(--steel-hi2),var(--steel-hi));border-bottom:1px solid var(--rule-2)}
+.inv .phase-head .pn{color:#000}
+.inv .phase-head .pn small{color:var(--iron-4)}
+.inv .phase-head p{color:var(--iron-2)}
+.inv .phase-body{background:var(--rule-2)}
+.inv .pb{background:var(--steel-hi)}
+.inv .pb h4{color:var(--iron-4)}
+.inv .pb li{color:#111315;border-bottom:1px solid rgba(0,0,0,.13)}
+.inv .pb li::before{background:rgba(0,0,0,.45)}
+.inv .pb.inc li::before{background:#000}
+.inv .pb.exc li{color:var(--iron-3)}
+.inv .pb.exc li::before{background:rgba(0,0,0,.3)}
+
+/* flagged notes — treatment, not colour */
+.inv .riskflag{
+  border:0;border-left:2px solid #000;background:rgba(255,255,255,.16);
+  color:#0d0e0f;padding:14px 16px;
+}
+.inv .riskflag b{color:#000}
+
+/* tables */
+.inv .tblwrap{background:var(--steel-hi);border-color:var(--rule-2)}
+.inv .tbl th{color:var(--iron-4);border-bottom:1px solid var(--rule-2)}
+.inv .tbl td{color:#131517;border-bottom:1px solid var(--rule)}
+.inv .tbl tr:hover td{background:rgba(255,255,255,.09)}
+.inv .tbl td.lead{color:#000}
+.inv .dot.f{background:#000}
+.inv .dot.h{background:rgba(0,0,0,.42)}
+.inv .dot.n{border:1px solid rgba(0,0,0,.35)}
+.inv .legend{color:var(--iron-3)}
+
+/* countdown */
+.inv .cd{background:var(--rule-2);border-color:var(--rule-2)}
+.inv .cd div{background:var(--steel-hi)}
+.inv .cd .num{color:#000}
+.inv .cd .cap{color:var(--iron-4)}
+
+/* gantt */
+.inv .gantt{background:var(--steel-hi);border-color:var(--rule-2)}
+.inv .gantt-head{border-bottom:1px solid var(--rule-2)}
+.inv .gantt-head .lbl{color:var(--iron-4);border-right:1px solid var(--rule-2)}
+.inv .gantt-cols span{color:var(--iron-4);border-right:1px solid rgba(0,0,0,.13)}
+.inv .grow{border-bottom:1px solid var(--rule)}
+.inv .grow .lbl{color:#000;border-right:1px solid var(--rule-2)}
+.inv .grow .lbl b{color:var(--iron-4)}
+.inv .gtrack{background:repeating-linear-gradient(90deg,transparent,transparent calc(var(--cw) - 1px),rgba(0,0,0,.13) calc(var(--cw) - 1px),rgba(0,0,0,.13) var(--cw))}
+.inv .gbar{background:linear-gradient(90deg,#0a0a0b,#3a3e41)}
+.inv .gbar.alt{background:linear-gradient(90deg,#2d3134,#575c60)}
+.inv .gbar span,.inv .gbar.alt span{color:#e9eaeb}
+.inv .gbar.out{background:transparent;border:1px dashed rgba(0,0,0,.55)}
+.inv .gbar.out span{color:#000}
+.inv .milestone{background:#000}
+
+/* markets */
+.inv .mapgrid{background:var(--rule-2);border-color:var(--rule-2)}
+.inv .mapcell{background:var(--steel-hi)}
+.inv svg.aus path{fill:var(--steel-lo);stroke:rgba(0,0,0,.30)}
+.inv svg.aus path.act{fill:#0a0a0b;stroke:var(--steel-hi);stroke-width:2.2}
+.inv svg.aus text{fill:var(--iron-4)}
+.inv svg.aus text.lit{fill:#f0f1f2}
+.inv .terr{border-top:1px solid var(--rule-2)}
+.inv .terr-row{border-bottom:1px solid var(--rule)}
+.inv .terr-row .t{color:#000}
+.inv .terr-row .t small{color:var(--iron-3)}
+.inv .chip{border-color:rgba(0,0,0,.35);color:var(--iron-3)}
+.inv .chip.y{background:#0a0a0b;border-color:#0a0a0b;color:#f0f1f2}
+.inv .chip.m{background:#4b4f52;border-color:#4b4f52;color:#f0f1f2}
+
+/* ownership */
+.inv .ownr{background:var(--rule-2);border-color:var(--rule-2)}
+.inv .own{background:var(--steel-hi)}
+.inv .own .role{color:var(--iron-4)}
+.inv .own .who{color:#000}
+.inv .own .duty{border-top:1px solid var(--rule);color:var(--iron-2)}
+
+/* care lists */
+.inv .cell ul li span{background:#000 !important}
+.inv .cell ul li{border-bottom-color:var(--rule) !important;color:#111315}
+
+/* actions */
+.inv .act-row{border-bottom:1px solid var(--rule)}
+.inv .act-row .i{color:var(--iron-4)}
+.inv .act-row .w{color:#0d0e0f}
+.inv .act-row .o{color:var(--iron-3)}
+.inv .act-row .d{color:#000}
+
+/* footer */
+footer.inv{border-bottom:0;background:var(--steel-lo)}
+.inv .foot-grid{border-top:1px solid var(--rule-2)}
+.inv .logo .h{color:#000}
+.inv .logo .b{color:#eceef0}
+
+/* nav switches to steel once past the hero */
+nav.light{background:rgba(125,128,132,.90);border-bottom:1px solid var(--rule-2)}
+nav.light .logo .h{color:#000}
+nav.light .logo .b{color:#f2f3f4}
+nav.light .nav-links a{color:var(--iron-3)}
+nav.light .nav-links a:hover,nav.light .nav-links a.on{color:#000}
+nav.light .prog{background:#000}
+
+@media (max-width:820px){
+  .metaband .hero-meta div{flex:1 1 100%;border-right:0;border-bottom:1px solid var(--rule);padding-right:0}
+  .metaband .hero-meta div:last-child{border-bottom:0}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-in">
+    <div class="logo"><span class="h">HAAVN</span><span class="b">BLACK</span></div>
+    <div class="nav-links">
+      <a href="#directive">Directive</a>
+      <a href="#products">Products</a>
+      <a href="#path">Path to Market</a>
+      <a href="#purchase">Purchase Model</a>
+      <a href="#pricing">Pricing Scope</a>
+      <a href="#markets">Markets</a>
+      <a href="#program">Program</a>
+      <a href="#ownership">Ownership</a>
+      <a href="#care">Warranty</a>
+      <a href="#risk">Risk</a>
+      <a href="#actions">Actions</a>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="marble">
+    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1200 800">
+      <defs>
+        <filter id="marb">
+          <feTurbulence type="fractalNoise" baseFrequency="0.004 0.012" numOctaves="6" seed="7" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="180"/>
+          <feGaussianBlur stdDeviation="0.6"/>
+        </filter>
+        <filter id="veins">
+          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.02" numOctaves="5" seed="19" result="t2"/>
+          <feColorMatrix in="t2" type="matrix"
+            values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.6 -0.6 0 0 -0.42"/>
+        </filter>
+      </defs>
+      <rect width="1200" height="800" fill="#000"/>
+      <rect width="1200" height="800" filter="url(#veins)" opacity="0.5"/>
+      <g filter="url(#marb)" opacity="0.28">
+        <path d="M-100 210 Q 300 90 640 250 T 1320 190" stroke="#fff" stroke-width="1.4" fill="none"/>
+        <path d="M-100 430 Q 340 330 700 470 T 1320 400" stroke="#fff" stroke-width="1" fill="none"/>
+        <path d="M-100 640 Q 380 560 720 690 T 1320 620" stroke="#fff" stroke-width="1.2" fill="none"/>
+        <path d="M180 -60 Q 260 300 140 520 T 300 900" stroke="#fff" stroke-width=".9" fill="none"/>
+        <path d="M980 -60 Q 900 280 1040 540 T 900 900" stroke="#fff" stroke-width="1.1" fill="none"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-in">
+    <div class="wrap">
+      <div class="eyebrow rv" style="margin-bottom:30px">Internal Operating Directive &nbsp;/&nbsp; Confidential</div>
+      <div class="logo rv d1"><span class="h">HAAVN</span><span class="b">BLACK</span></div>
+      <div class="hero-rule" id="hrule"></div>
+      <h1 class="rv d3">Homes to Market.<br>The Path, The Priority,<br>The Standard.</h1>
+      <p class="lede rv d4" style="margin-top:26px">
+        The operating framework for bringing <strong>SOLUM</strong> and <strong>MAGNA</strong> to the
+        Australian market under the HAAVN&nbsp;&times;&nbsp;HAMILTON&nbsp;MARINO delivery model.
+        This document exists so that one team works to one sequence, one standard and one definition of ready.
+      </p>
+
+    </div>
+  </div>
+
+  <div class="scrollcue"><span>Scroll</span><i></i></div>
+</header>
+
+<!-- ============ ISSUE BAND — steel begins here ============ -->
+<div class="metaband inv">
+  <div class="wrap">
+    <div class="hero-meta">
+      <div><div class="k">Issued By</div><div class="v">Jamie Baldwin<span class="sub">Director — HAAVN BLACK</span></div></div>
+      <div><div class="k">Directed To</div><div class="v">James Winstanley<span class="sub">Design Director — HAAVN BLACK HOMES</span></div></div>
+      <div><div class="k">Delivery Entity</div><div class="v">HAAVN &times; HAMILTON MARINO<span class="sub">Joint delivery model</span></div></div>
+      <div><div class="k">Issue Date</div><div class="v">19 August 2026<span class="sub">Revision A — Living Document</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 01 DIRECTIVE ============ -->
+<section id="directive" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">01 — Directive</div>
+      <h2 class="rv d1">What comes first, and why.</h2>
+      <p class="lede rv d2">
+        This is not a wish list. It is the order of priority set by the Director of HAAVN BLACK.
+        Where two things compete for the same hour, the higher-numbered priority yields.
+        Every decision James's team makes between now and launch should be traceable back to one of these eight lines.
+      </p>
+    </div>
+
+    <div class="callout rv">
+      <p><strong>The single sentence:</strong> HAAVN enters the Australian market as a precision, high-quality luxury manufacturer of homes — and SOLUM is the first thing anyone will ever judge us on.</p>
+    </div>
+
+    <div class="prio rv d1">
+      <div class="prio-row"><div class="n">01</div><div>
+        <h4>Quality is the gate. The date is the target.</h4>
+        <p>We do not ship a compromised first product to protect a calendar. If a gate cannot be closed at the required standard, it escalates to the Director the day it is known — not the week before launch. Slipping a date is survivable. A defective flagship is not.</p></div></div>
+
+      <div class="prio-row"><div class="n">02</div><div>
+        <h4>SOLUM is the flagship and the proof.</h4>
+        <p>SOLUM is the first HAAVN product ever released. Everything the market believes about MAGNA, and about every product after it, will be inferred from SOLUM. It is resourced first, decided first and protected first.</p></div></div>
+
+      <div class="prio-row"><div class="n">03</div><div>
+        <h4>One accountable technical line: James Winstanley.</h4>
+        <p>Design, engineering, technical direction, design management and procurement direction sit with the Design Director. Not distributed, not consensus-run. James's team may delegate execution; it does not delegate the decision.</p></div></div>
+
+      <div class="prio-row"><div class="n">04</div><div>
+        <h4>HAAVN &times; HAMILTON MARINO is one entity to the customer.</h4>
+        <p>The customer buys from HAAVN BLACK. Internally the manufacturing, install, warranty and insurance capability is the HAAVN&nbsp;&times;&nbsp;HAMILTON&nbsp;MARINO joint delivery model. The customer never manages the seam between them — we do.</p></div></div>
+
+      <div class="prio-row"><div class="n">05</div><div>
+        <h4>Three ways to buy. One standard of build.</h4>
+        <p>Supply Only, Supply &amp; Install, and Hybrid Managed are commercial pathways — not quality tiers. The dwelling that leaves the factory is identical in specification, finish and tolerance regardless of which phase the customer purchased.</p></div></div>
+
+      <div class="prio-row"><div class="n">06</div><div>
+        <h4>Pricing is a system, not a document.</h4>
+        <p>All pricing, freight, and phase configuration is built and maintained inside <strong>ATRIUM</strong>, the HAAVN online application. This directive defines <em>what must be priced</em> and <em>how it is structured</em>. It deliberately carries no figures. Figures issued outside ATRIUM are not HAAVN pricing.</p></div></div>
+
+      <div class="prio-row"><div class="n">07</div><div>
+        <h4>Warranty and aftersales are designed before the first sale.</h4>
+        <p>The support model, response times, and the escalation path into the HAAVN Management team must be operational on the day the website takes its first enquiry — not built reactively after the first defect.</p></div></div>
+
+      <div class="prio-row"><div class="n">08</div><div>
+        <h4>The brand is the constraint on everything.</h4>
+        <p>Materials, tolerances, packaging, delivery presentation, documentation, the website, the contract, the handover — every touchpoint reads as a luxury precision manufacturer. Anything that does not meet that reading is rejected regardless of cost or schedule saving.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 PRODUCTS ============ -->
+<section id="products" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">02 — Products</div>
+      <h2 class="rv d1">Two products. Two market phases.</h2>
+      <p class="lede rv d2">A staged entry: prove the model at small scale with SOLUM, then carry the proven system into the large-format residence with MAGNA.</p>
+    </div>
+
+    <div class="prod rv d1">
+      <div class="prod-cell a">
+        <div class="tag live">Phase 1 — Flagship</div>
+        <div class="prod-name">SOLUM</div>
+        <div class="prod-sub">Secondary Dwelling / Precision Studio</div>
+        <p style="margin-top:22px;font-size:14.5px">The first HAAVN product to market. A compact, fully-engineered secondary dwelling delivered as a precision manufactured unit. Sold direct through haavnblack.com.au across three states.</p>
+        <div class="spec">
+          <div><span class="k">Launch</span><span class="v">October 2026</span></div>
+          <div><span class="k">Markets</span><span class="v">VIC &middot; QLD &middot; NSW</span></div>
+          <div><span class="k">Channel</span><span class="v">haavnblack.com.au</span></div>
+          <div><span class="k">Purchase Phases</span><span class="v">1 &middot; 2 &middot; 3</span></div>
+          <div><span class="k">Role</span><span class="v">Brand Proof / Volume</span></div>
+          <div><span class="k">Runway From Issue</span><span class="v" id="solumdays">—</span></div>
+        </div>
+      </div>
+      <div class="prod-cell b">
+        <div class="tag">Phase 2 — Scale</div>
+        <div class="prod-name">MAGNA</div>
+        <div class="prod-sub">60 Square Residence</div>
+        <p style="margin-top:22px;font-size:14.5px">The large-format flagship residence. Same manufacturing discipline, same purchase model, materially higher engineering, logistics and compliance load. Deliberately restricted to two states at launch.</p>
+        <div class="spec">
+          <div><span class="k">Launch</span><span class="v">Autumn 2027 — April</span></div>
+          <div><span class="k">Markets</span><span class="v">QLD &middot; VIC</span></div>
+          <div><span class="k">Channel</span><span class="v">haavnblack.com.au</span></div>
+          <div><span class="k">Purchase Phases</span><span class="v">1 &middot; 2 &middot; 3</span></div>
+          <div><span class="k">Role</span><span class="v">Margin / Brand Ceiling</span></div>
+          <div><span class="k">Runway From Issue</span><span class="v" id="magnadays">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="riskflag rv d2" style="margin-top:26px;max-width:none">
+      <b>Director's note — runway reality</b>
+      This directive is issued 19 August 2026 against an October 2026 SOLUM launch. That is a compressed run, not a development window.
+      The first deliverable required from James's team is therefore not a plan — it is an honest <strong>readiness audit</strong> (Section 07, Week 01)
+      confirming which of the nine path-to-market gates are already closed. Any gate not closed by the dates shown escalates to the Director immediately.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 PATH TO MARKET ============ -->
+<section id="path" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">03 — Path to Market</div>
+      <h2 class="rv d1">Nine gates. Same sequence for both products.</h2>
+      <p class="lede rv d2">
+        SOLUM runs this sequence to October 2026. MAGNA runs the identical sequence to April 2027, reusing every system SOLUM proves.
+        A gate is closed only when its stated evidence exists — not when the work "feels done".
+      </p>
+    </div>
+
+    <div class="flow rv d1" id="flow">
+      <div class="flow-track">
+        <div class="flowline"><i></i></div>
+        <div class="stages">
+          <div class="stage">
+            <div class="sn">01</div><div class="st">Product Definition</div>
+            <div class="sd">Brand position, spec ladder, target buyer, inclusions standard, what SOLUM is and is not.</div>
+            <div class="gate">Gate — Signed spec brief</div>
+          </div>
+          <div class="stage">
+            <div class="sn">02</div><div class="st">Design Freeze</div>
+            <div class="sd">Architectural design locked. No further plan or finish changes without Director sign-off.</div>
+            <div class="gate">Gate — Freeze register issued</div>
+          </div>
+          <div class="stage">
+            <div class="sn">03</div><div class="st">Engineering &amp; Docs</div>
+            <div class="sd">Structural, lifting/transport, services, shop drawings, bill of materials, tolerance schedule.</div>
+            <div class="gate">Gate — Stamped drawing set</div>
+          </div>
+          <div class="stage">
+            <div class="sn">04</div><div class="st">Compliance</div>
+            <div class="sd">NCC pathway, energy rating, wind &amp; BAL, plumbing/electrical, state-by-state approval route.</div>
+            <div class="gate">Gate — Certifier acceptance</div>
+          </div>
+          <div class="stage">
+            <div class="sn">05</div><div class="st">Prototype</div>
+            <div class="sd">First article build, tolerance verification, transport trial, quality benchmark unit retained.</div>
+            <div class="gate">Gate — Benchmark unit signed</div>
+          </div>
+          <div class="stage">
+            <div class="sn">06</div><div class="st">Supply Chain</div>
+            <div class="sd">Suppliers locked, lead times validated, long-lead items ordered, factory slot reserved.</div>
+            <div class="gate">Gate — Procurement lock</div>
+          </div>
+          <div class="stage">
+            <div class="sn">07</div><div class="st">Commercial</div>
+            <div class="sd">Three purchase phases configured, freight zones, contracts, insurance, warranty — built in ATRIUM.</div>
+            <div class="gate">Gate — ATRIUM live</div>
+          </div>
+          <div class="stage">
+            <div class="sn">08</div><div class="st">Channel</div>
+            <div class="sd">haavnblack.com.au product release, enquiry-to-order flow, sales collateral, display strategy.</div>
+            <div class="gate">Gate — Site release approved</div>
+          </div>
+          <div class="stage">
+            <div class="sn">09</div><div class="st">Launch &amp; Care</div>
+            <div class="sd">Market release, delivery scheduling, install crews, aftersales and warranty desk operational.</div>
+            <div class="gate">Gate — Director go/no-go</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3 rv d2" style="margin-top:1px;border:1px solid var(--line);border-top:0">
+      <div class="cell">
+        <h4 style="margin-bottom:12px">Gates 01 – 05</h4>
+        <p style="font-size:14px">Owned by <strong>James Winstanley</strong>. Design, engineering and physical proof. Nothing downstream is real until the benchmark unit is signed.</p>
+      </div>
+      <div class="cell">
+        <h4 style="margin-bottom:12px">Gates 06 – 07</h4>
+        <p style="font-size:14px">Owned jointly by <strong>James Winstanley</strong> and the <strong>HAAVN &times; HAMILTON MARINO</strong> commercial team. Cost certainty and buildable supply.</p>
+      </div>
+      <div class="cell">
+        <h4 style="margin-bottom:12px">Gates 08 – 09</h4>
+        <p style="font-size:14px">Owned by the <strong>HAAVN Management team</strong> under Director approval. Channel, launch and the customer's experience after handover.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 PURCHASE MODEL ============ -->
+<section id="purchase" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">04 — Purchase Model</div>
+      <h2 class="rv d1">Three ways to buy a HAAVN home.</h2>
+      <p class="lede rv d2">
+        The same dwelling, delivered under three different levels of HAAVN responsibility. Each phase must be independently priced for
+        <strong>both products</strong> in <strong>every launch state</strong>. Scope boundaries below are the contract boundaries —
+        they define exactly where HAAVN's obligation stops and the customer's begins.
+      </p>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase rv d1">
+      <div class="phase-head">
+        <div class="pn"><small>Phase</small>01</div>
+        <div>
+          <h3>Supply Only</h3>
+          <p>The manufactured dwelling delivered to the customer's site. HAAVN's obligation ends at set-down. No permits, no install, no external works. For customers with their own builder, or developers running their own program.</p>
+        </div>
+        <div class="chip" style="padding:8px 14px">SOLUM &amp; MAGNA</div>
+      </div>
+      <div class="phase-body">
+        <div class="pb inc">
+          <h4>HAAVN Supplies</h4>
+          <ul>
+            <li>Complete manufactured dwelling to HAAVN specification</li>
+            <li>Factory quality certification and benchmark compliance</li>
+            <li>Engineering and shop documentation pack</li>
+            <li>Transport to nominated site address</li>
+            <li>Craneage / set-down onto customer-prepared base</li>
+            <li>Transit insurance to point of set-down</li>
+            <li>Manufacturer's product warranty on the dwelling</li>
+          </ul>
+        </div>
+        <div class="pb exc">
+          <h4>Explicitly Excluded</h4>
+          <ul>
+            <li>Building permit and any planning approvals</li>
+            <li>Site survey, soil testing, site preparation</li>
+            <li>Footings, slab or any base works</li>
+            <li>Service connections — power, water, sewer, gas, data</li>
+            <li>Installation, tie-down, final fix or commissioning</li>
+            <li>Occupancy Permit and any certification of the completed works</li>
+            <li>Driveways, paths, decks, landscaping, fencing</li>
+            <li>All other external and site works of any kind</li>
+          </ul>
+        </div>
+        <div class="pb">
+          <h4>Pricing Inputs Required</h4>
+          <ul>
+            <li>Ex-works dwelling value per product</li>
+            <li>Freight rate per delivery zone</li>
+            <li>Craneage and set-down allowance by access class</li>
+            <li>Transit insurance provisioning</li>
+            <li>Product warranty provisioning</li>
+            <li>Escort / permit costs for oversize loads</li>
+            <li>Price validity period and escalation trigger</li>
+          </ul>
+          <div class="riskflag">
+            <b>Boundary risk</b>
+            Set-down onto a base HAAVN did not build creates a defect-attribution risk. James's team must issue a mandatory
+            <strong>base tolerance specification</strong> and a customer sign-off before dispatch, or Phase 1 warranty exposure is uncontrolled.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase rv d2" style="margin-top:34px">
+      <div class="phase-head">
+        <div class="pn"><small>Phase</small>02</div>
+        <div>
+          <h3>Supply &amp; Install — Turnkey to Occupancy</h3>
+          <p>HAAVN&nbsp;&times;&nbsp;HAMILTON&nbsp;MARINO supply, install, insure and warrant the dwelling to the point of Occupancy Permit. The bare minimum required for a legally occupiable, fully finished turn-key home — and nothing beyond it.</p>
+        </div>
+        <div class="chip y" style="padding:8px 14px">Primary Offer</div>
+      </div>
+      <div class="phase-body">
+        <div class="pb inc">
+          <h4>HAAVN Supplies</h4>
+          <ul>
+            <li>Everything in Phase 01</li>
+            <li>Building permit and required certifications for the dwelling</li>
+            <li>Site establishment and set-out</li>
+            <li>Footings / base system to engineered design</li>
+            <li>Full installation, tie-down, seal and weatherproofing</li>
+            <li>Service connections from dwelling to nominated service points</li>
+            <li>Internal completion, final fix and commissioning</li>
+            <li>Statutory domestic building insurance for the state of works</li>
+            <li>Works and public liability insurance during installation</li>
+            <li>Achievement of <strong>Occupancy Permit</strong></li>
+            <li>Full HAAVN warranty on dwelling and installation</li>
+            <li>Handover, documentation pack and homeowner induction</li>
+          </ul>
+        </div>
+        <div class="pb exc">
+          <h4>Explicitly Excluded</h4>
+          <ul>
+            <li>Driveways, crossovers, paths and paving</li>
+            <li>Landscaping, turf, gardens, retaining</li>
+            <li>Decking, pergolas, carports, sheds</li>
+            <li>Pools, water tanks, solar beyond base spec</li>
+            <li>Extension of services beyond the nominated connection point</li>
+            <li>Demolition, tree removal, rock excavation, contaminated soil</li>
+            <li>Planning / town planning applications where required</li>
+            <li>Any works to the existing primary dwelling on the lot</li>
+            <li>All other external works of any kind</li>
+          </ul>
+        </div>
+        <div class="pb">
+          <h4>Pricing Inputs Required</h4>
+          <ul>
+            <li>All Phase 01 inputs</li>
+            <li>Permit and certification cost by state</li>
+            <li>Site establishment by access and slope class</li>
+            <li>Base / footing system by soil classification</li>
+            <li>Installation crew cost by region</li>
+            <li>Service connection allowance and PC-sum method</li>
+            <li>Statutory building insurance premium by state</li>
+            <li>Works, liability and defects insurance</li>
+            <li>Warranty reserve per unit</li>
+            <li>Provisional sums, exclusions register and variation rates</li>
+          </ul>
+          <div class="riskflag">
+            <b>Open decision — fencing</b>
+            The Director's brief reads <em>"no driveway or any other works excluding fencing."</em> This document has been written with fencing
+            <strong>excluded</strong> from Phase 02. If the intent is that fencing is <em>included</em>, James must confirm in writing before
+            ATRIUM configuration — the two readings carry materially different cost and contract scope.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase rv d3" style="margin-top:34px">
+      <div class="phase-head">
+        <div class="pn"><small>Phase</small>03</div>
+        <div>
+          <h3>Hybrid Supply &amp; HAAVN Managed Build Support</h3>
+          <p>HAAVN supplies the dwelling; the customer's own builder or nominated trades perform the installation under HAAVN technical direction, staged inspection and management. Warranty is apportioned by scope, not assumed wholesale.</p>
+        </div>
+        <div class="chip" style="padding:8px 14px">Managed</div>
+      </div>
+      <div class="phase-body">
+        <div class="pb inc">
+          <h4>HAAVN Supplies</h4>
+          <ul>
+            <li>Everything in Phase 01</li>
+            <li>HAAVN installation methodology and technical specification</li>
+            <li>Builder induction, accreditation and briefing</li>
+            <li>Design management and technical direction through install</li>
+            <li>Nominated hold points and staged HAAVN inspections</li>
+            <li>Remote and on-site technical support to the installing builder</li>
+            <li>Compliance review of installed works against HAAVN standard</li>
+            <li>Sign-off certificate on satisfactory completion</li>
+            <li>Dwelling warranty retained by HAAVN; install warranty by the builder</li>
+          </ul>
+        </div>
+        <div class="pb exc">
+          <h4>Explicitly Excluded</h4>
+          <ul>
+            <li>Physical installation labour and plant</li>
+            <li>Builder's permits, licences and insurances</li>
+            <li>All site, civil and external works</li>
+            <li>Programme and cost risk on the builder's scope</li>
+            <li>Warranty on works performed outside HAAVN control</li>
+            <li>Rectification arising from non-compliance with HAAVN method</li>
+          </ul>
+        </div>
+        <div class="pb">
+          <h4>Pricing Inputs Required</h4>
+          <ul>
+            <li>All Phase 01 inputs</li>
+            <li>Management fee — fixed or percentage basis</li>
+            <li>Technical direction hours by product</li>
+            <li>Inspection visits — number, cost and travel by region</li>
+            <li>Builder accreditation and induction cost</li>
+            <li>Documentation and methodology licence value</li>
+            <li>Additional / re-inspection rate card</li>
+            <li>Apportioned warranty reserve</li>
+          </ul>
+          <div class="riskflag">
+            <b>Structural risk</b>
+            Phase 03 is where brand damage is most likely: a third party's poor install becomes a HAAVN-branded home.
+            Accreditation must be a gate, not a formality — HAAVN retains the right to refuse a builder and to withhold the
+            sign-off certificate. James to define the minimum accreditation standard before launch.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 PRICING SCOPE ============ -->
+<section id="pricing" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">05 — Pricing Scope</div>
+      <h2 class="rv d1">What must be priced. Built in ATRIUM.</h2>
+      <p class="lede rv d2">
+        No figures appear in this document by design. Pricing is constructed, versioned and issued exclusively through
+        <strong>ATRIUM</strong>, the HAAVN online application. What follows is the required <em>structure</em> — the matrix James's team must
+        populate, and the rules that govern it.
+      </p>
+    </div>
+
+    <div class="callout rv">
+      <p><strong>Rule:</strong> A price that did not come out of ATRIUM is not a HAAVN price. No spreadsheets, no emailed quotes, no verbal numbers. This protects margin integrity, version control and the brand.</p>
+    </div>
+
+    <h4 class="rv d1" style="margin:44px 0 18px">Required Price Set — Product &times; Phase &times; Market</h4>
+    <div class="tblwrap rv d1">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:130px">Product</th>
+            <th style="min-width:150px">Market</th>
+            <th class="c">Phase 01<br>Supply Only</th>
+            <th class="c">Phase 02<br>Supply &amp; Install</th>
+            <th class="c">Phase 03<br>Hybrid Managed</th>
+            <th style="min-width:150px">Freight Zone Set</th>
+            <th style="min-width:130px">Required By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="lead">SOLUM</td><td>Melbourne / VIC</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td>Metro + Regional VIC</td><td class="lead">Sep 2026</td></tr>
+          <tr><td class="lead">SOLUM</td><td>Queensland</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td>SEQ + Regional QLD</td><td class="lead">Sep 2026</td></tr>
+          <tr><td class="lead">SOLUM</td><td>New South Wales</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td>Sydney + Regional NSW</td><td class="lead">Sep 2026</td></tr>
+          <tr><td class="lead">MAGNA</td><td>Melbourne / VIC</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td>Metro + Regional VIC</td><td class="lead">Feb 2027</td></tr>
+          <tr><td class="lead">MAGNA</td><td>Queensland</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td>SEQ + Regional QLD</td><td class="lead">Feb 2027</td></tr>
+          <tr><td class="lead" style="color:var(--dim)">MAGNA</td><td style="color:var(--dim)">New South Wales</td><td class="c"><span class="dot n"></span></td><td class="c"><span class="dot n"></span></td><td class="c"><span class="dot n"></span></td><td style="color:var(--dim)">Not in scope</td><td style="color:var(--dim)">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend rv d1">
+      <span><i class="dot f"></i> Price required</span>
+      <span><i class="dot n"></i> Out of scope at launch</span>
+      <span>15 discrete price configurations total</span>
+    </div>
+
+    <h4 class="rv d2" style="margin:56px 0 18px">Cost Line Architecture — every phase price is built from these</h4>
+    <div class="grid g3 rv d2" style="border:1px solid var(--line)">
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Manufacture</h4>
+        <p style="font-size:13.5px">Ex-works dwelling value &middot; bill of materials &middot; factory labour &middot; finishes and inclusions ladder &middot; optional upgrade lines &middot; factory overhead recovery &middot; quality and benchmark cost.</p>
+      </div>
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Freight &amp; Logistics</h4>
+        <p style="font-size:13.5px">Zone rate card &middot; oversize permits and escorts &middot; route survey &middot; craneage by lift class &middot; site access classification &middot; storage / standby &middot; failed-delivery and re-delivery rates &middot; fuel escalation clause.</p>
+      </div>
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Install &amp; Site</h4>
+        <p style="font-size:13.5px">Site establishment &middot; base system by soil class &middot; install crew by region &middot; service connection allowances &middot; commissioning &middot; provisional sums &middot; variation rate card.</p>
+      </div>
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Compliance &amp; Insurance</h4>
+        <p style="font-size:13.5px">Permit and certification by state &middot; statutory domestic building insurance &middot; works and liability cover &middot; transit insurance &middot; defects liability provisioning &middot; licensing cost per state.</p>
+      </div>
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Management &amp; Care</h4>
+        <p style="font-size:13.5px">Phase 03 management fee &middot; technical direction hours &middot; inspection schedule &middot; builder accreditation &middot; warranty reserve per unit &middot; aftersales servicing cost per home per year.</p>
+      </div>
+      <div class="cell">
+        <h4 style="color:var(--grey);margin-bottom:16px">Commercial Rules</h4>
+        <p style="font-size:13.5px">Target margin by phase &middot; contingency &middot; GST treatment &middot; deposit and progress payment schedule &middot; price validity period &middot; escalation trigger &middot; discount authority levels &middot; ATRIUM version control.</p>
+      </div>
+    </div>
+
+    <p class="note rv d3" style="margin-top:26px">
+      Sequence note — the cost line architecture above must be locked <em>before</em> ATRIUM is configured. Building the application around an
+      incomplete cost model is the most common cause of pricing rework. Gate 07 does not close until every line above has an owner and a source.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 06 MARKETS ============ -->
+<section id="markets" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">06 — Markets</div>
+      <h2 class="rv d1">Where we sell, and when.</h2>
+      <p class="lede rv d2">Market entry is deliberately staged. Each state carries its own licensing, insurance, certification and freight profile — treat each as a separate readiness workstream, not a copy of the last.</p>
+    </div>
+
+    <div class="mapgrid rv d1">
+      <div class="mapcell">
+        <svg class="aus" viewBox="0 0 620 540" xmlns="http://www.w3.org/2000/svg" aria-label="Australia market coverage">
+          <!-- stylised state blocks -->
+          <path id="wa" d="M40 120 L215 120 L215 415 L95 415 Q40 380 40 300 Z"/>
+          <path id="nt" d="M215 120 L320 120 L320 300 L215 300 Z"/>
+          <path id="sa" d="M215 300 L340 300 L340 430 L215 430 Z"/>
+          <path id="qld" class="act act-m" d="M320 100 L520 110 Q558 188 518 262 L410 262 L410 298 L320 298 Z"/>
+          <path id="nsw" class="act" d="M340 302 L410 302 L410 266 L518 266 Q532 330 500 368 L340 368 Z"/>
+          <path id="vic" class="act act-m" d="M340 372 L498 372 Q478 424 400 430 L340 430 Z"/>
+          <path id="tas" d="M425 462 L478 462 L478 508 L425 508 Z"/>
+          <g font-family="Chakra Petch, sans-serif" font-size="13" letter-spacing="2">
+            <text x="105" y="275" fill="#3a3c3f">WA</text>
+            <text x="248" y="215" fill="#3a3c3f">NT</text>
+            <text x="255" y="372" fill="#3a3c3f">SA</text>
+            <text class="lit" x="415" y="190" fill="#0b0b0c" font-weight="700">QLD</text>
+            <text class="lit" x="405" y="330" fill="#0b0b0c" font-weight="700">NSW</text>
+            <text class="lit" x="392" y="408" fill="#0b0b0c" font-weight="700">VIC</text>
+            <text x="432" y="530" fill="#3a3c3f">TAS</text>
+          </g>
+        </svg>
+        <p class="note" style="margin-top:18px">Schematic only — indicates market coverage, not geography.</p>
+      </div>
+      <div class="mapcell">
+        <h4 style="margin-bottom:6px">Coverage by Product</h4>
+        <div class="terr">
+          <div class="terr-row" style="border-bottom:1px solid var(--line-2)">
+            <div style="font-family:var(--f-display);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase">Market</div>
+            <div style="font-family:var(--f-display);font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;text-align:center">SOLUM</div>
+            <div style="font-family:var(--f-display);font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;text-align:center">MAGNA</div>
+          </div>
+          <div class="terr-row"><div class="t">Victoria<small>Melbourne metro + regional</small></div><div class="chip y">Oct 2026</div><div class="chip m">Apr 2027</div></div>
+          <div class="terr-row"><div class="t">Queensland<small>South-east QLD + regional</small></div><div class="chip y">Oct 2026</div><div class="chip m">Apr 2027</div></div>
+          <div class="terr-row"><div class="t">New South Wales<small>Sydney metro + regional</small></div><div class="chip y">Oct 2026</div><div class="chip">Not in scope</div></div>
+          <div class="terr-row"><div class="t">SA &middot; WA &middot; TAS &middot; NT &middot; ACT<small>Future consideration</small></div><div class="chip">Not in scope</div><div class="chip">Not in scope</div></div>
+        </div>
+        <div class="riskflag" style="margin-top:26px">
+          <b>Per-state readiness — non-negotiable</b>
+          Each launch state requires its own confirmed position on builder licensing, statutory home warranty insurance, certification pathway,
+          transport permits and consumer contract form. James's team must produce a one-page state readiness sheet for VIC, QLD and NSW before
+          the website accepts an order from that state. HAAVN does not take an order in a market it is not licensed and insured to deliver in.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 PROGRAM ============ -->
+<section id="program" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">07 — Program</div>
+      <h2 class="rv d1">The run to October, and the year to Autumn.</h2>
+      <p class="lede rv d2">Two programs running in sequence and overlapping. SOLUM is a six-week close-out. MAGNA is an eight-month build using every system SOLUM proves.</p>
+    </div>
+
+    <div class="cd rv d1" style="margin-bottom:52px">
+      <div><div class="num" id="c-weeks">—</div><div class="cap">Weeks to SOLUM launch</div></div>
+      <div><div class="num" id="c-days">—</div><div class="cap">Days to SOLUM launch</div></div>
+      <div><div class="num">9</div><div class="cap">Gates to close</div></div>
+      <div><div class="num">15</div><div class="cap">Price configurations</div></div>
+    </div>
+
+    <h4 class="rv" style="margin-bottom:18px">SOLUM — Run to Market &nbsp;/&nbsp; Aug – Nov 2026</h4>
+    <div class="gantt rv d1" id="g1" style="--cw:calc(100% / 7)">
+      <div class="gantt-head">
+        <div class="lbl">Workstream</div>
+        <div class="gantt-cols" style="grid-template-columns:repeat(7,1fr)">
+          <span>W1<br>19 Aug</span><span>W2<br>26 Aug</span><span>W3<br>2 Sep</span><span>W4<br>9 Sep</span><span>W5<br>16 Sep</span><span>W6<br>23 Sep</span><span>LAUNCH<br>1 Oct</span>
+        </div>
+      </div>
+
+      <div class="grow"><div class="lbl">Readiness audit<b>James Winstanley</b></div>
+        <div class="gtrack"><div class="gbar" style="left:0%;width:14.28%"><span>Audit all 9 gates</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Design freeze &amp; docs<b>Design / Engineering</b></div>
+        <div class="gtrack"><div class="gbar" style="left:0%;width:28.5%;transition-delay:.1s"><span>Freeze + stamped set</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Compliance per state<b>James / Certifier</b></div>
+        <div class="gtrack"><div class="gbar" style="left:7%;width:35.7%;transition-delay:.2s"><span>VIC · QLD · NSW pathway</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Benchmark unit<b>Hamilton Marino</b></div>
+        <div class="gtrack"><div class="gbar" style="left:14.28%;width:28.5%;transition-delay:.3s"><span>Build + sign-off</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Procurement lock<b>Procurement / James</b></div>
+        <div class="gtrack"><div class="gbar" style="left:14.28%;width:28.5%;transition-delay:.4s"><span>Suppliers + long lead</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Pricing build — ATRIUM<b>Commercial</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:14.28%;width:42.8%;transition-delay:.5s"><span>15 configurations</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Freight &amp; logistics<b>Logistics lead</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:28.5%;width:28.5%;transition-delay:.6s"><span>Zones + carriers</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Contracts &amp; insurance<b>Commercial / Legal</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:28.5%;width:28.5%;transition-delay:.7s"><span>3 phase contracts</span></div></div></div>
+
+      <div class="grow"><div class="lbl">haavnblack.com.au<b>Digital / Brand</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:35.7%;width:35.7%;transition-delay:.8s"><span>Product release + flow</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Aftersales &amp; warranty desk<b>HAAVN Management</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:42.8%;width:35.7%;transition-delay:.9s"><span>Operational before launch</span></div></div></div>
+
+      <div class="grow"><div class="lbl">Director go / no-go<b>Jamie Baldwin</b></div>
+        <div class="gtrack"><div class="milestone" style="left:89%"></div><div class="gbar out" style="left:78%;width:11%;transition-delay:1s"><span>Launch decision</span></div></div></div>
+    </div>
+
+    <h4 class="rv d2" style="margin:60px 0 18px">MAGNA — Run to Market &nbsp;/&nbsp; Sep 2026 – Apr 2027</h4>
+    <div class="gantt rv d2" id="g2" style="--cw:calc(100% / 8)">
+      <div class="gantt-head">
+        <div class="lbl">Workstream</div>
+        <div class="gantt-cols" style="grid-template-columns:repeat(8,1fr)">
+          <span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span><span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span>
+        </div>
+      </div>
+      <div class="grow"><div class="lbl">Product definition<b>James Winstanley</b></div>
+        <div class="gtrack"><div class="gbar" style="left:0%;width:25%"><span>60sq brief + spec ladder</span></div></div></div>
+      <div class="grow"><div class="lbl">Design &amp; freeze<b>Design</b></div>
+        <div class="gtrack"><div class="gbar" style="left:12.5%;width:37.5%;transition-delay:.1s"><span>Concept to freeze</span></div></div></div>
+      <div class="grow"><div class="lbl">Engineering &amp; documentation<b>Engineering</b></div>
+        <div class="gtrack"><div class="gbar" style="left:25%;width:37.5%;transition-delay:.2s"><span>Structural · transport · services</span></div></div></div>
+      <div class="grow"><div class="lbl">Compliance — VIC &amp; QLD<b>James / Certifier</b></div>
+        <div class="gtrack"><div class="gbar" style="left:37.5%;width:37.5%;transition-delay:.3s"><span>Two-state pathway</span></div></div></div>
+      <div class="grow"><div class="lbl">Prototype / benchmark<b>Hamilton Marino</b></div>
+        <div class="gtrack"><div class="gbar" style="left:50%;width:25%;transition-delay:.4s"><span>First article</span></div></div></div>
+      <div class="grow"><div class="lbl">Procurement &amp; supply chain<b>Procurement</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:50%;width:25%;transition-delay:.5s"><span>Long lead lock</span></div></div></div>
+      <div class="grow"><div class="lbl">Pricing build — ATRIUM<b>Commercial</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:50%;width:37.5%;transition-delay:.6s"><span>6 configurations</span></div></div></div>
+      <div class="grow"><div class="lbl">Oversize freight strategy<b>Logistics lead</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:37.5%;width:37.5%;transition-delay:.7s"><span>Route survey · permits · escorts</span></div></div></div>
+      <div class="grow"><div class="lbl">Channel &amp; launch<b>Digital / Brand</b></div>
+        <div class="gtrack"><div class="gbar alt" style="left:62.5%;width:25%;transition-delay:.8s"><span>Site + collateral</span></div></div></div>
+      <div class="grow"><div class="lbl">Director go / no-go<b>Jamie Baldwin</b></div>
+        <div class="gtrack"><div class="milestone" style="left:93%"></div><div class="gbar out" style="left:81%;width:12%;transition-delay:.9s"><span>Autumn launch</span></div></div></div>
+    </div>
+
+    <p class="note rv d3" style="margin-top:26px">
+      MAGNA deliberately begins while SOLUM is still closing out. This is intentional — but it is also the program's principal resourcing risk.
+      James's team must confirm that MAGNA definition work does not draw people off SOLUM gates 03–05 during September.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 08 OWNERSHIP ============ -->
+<section id="ownership" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">08 — Ownership</div>
+      <h2 class="rv d1">Who decides, who delivers.</h2>
+      <p class="lede rv d2">Clear single-point accountability. Where a name appears against a workstream, that person is answerable for it at the Director's review — regardless of who performed the work.</p>
+    </div>
+
+    <div class="ownr rv d1">
+      <div class="own">
+        <div class="role">Accountable</div>
+        <div class="who">Jamie Baldwin</div>
+        <div class="duty"><strong>Director — HAAVN BLACK.</strong> Brand position and market standard. Final go/no-go at every launch gate. Approves any deviation from this directive. Owns the decision to move a date.</div>
+      </div>
+      <div class="own">
+        <div class="role">Responsible — Technical</div>
+        <div class="who">James Winstanley</div>
+        <div class="duty"><strong>Design Director.</strong> Design, engineering, technical direction, design management and procurement direction for both products. Owns gates 01–06. Escalates any at-risk gate the day it is known.</div>
+      </div>
+      <div class="own">
+        <div class="role">Delivery</div>
+        <div class="who">HAAVN &times; HAMILTON MARINO</div>
+        <div class="duty"><strong>Manufacture, install, warranty, insurance.</strong> Builds the benchmark unit and every production unit. Provides licensed install capability and statutory insurance in each launch state.</div>
+      </div>
+      <div class="own">
+        <div class="role">Commercial</div>
+        <div class="who">Commercial &amp; ATRIUM</div>
+        <div class="duty">Builds and versions all 15 SOLUM and 6 MAGNA price configurations in ATRIUM. Owns contracts, payment schedules, margin rules and discount authority.</div>
+      </div>
+      <div class="own">
+        <div class="role">Logistics</div>
+        <div class="who">Freight &amp; Delivery</div>
+        <div class="duty">Zone rate cards, carrier contracts, oversize permits and escorts, route surveys, craneage, delivery scheduling and site access assessment across VIC, QLD and NSW.</div>
+      </div>
+      <div class="own">
+        <div class="role">Customer</div>
+        <div class="who">HAAVN Management Team</div>
+        <div class="duty">Channel and enquiry handling through haavnblack.com.au, order administration, handover, and the aftersales and warranty support desk for HAAVN BLACK HOMES.</div>
+      </div>
+    </div>
+
+    <h4 class="rv d2" style="margin:52px 0 18px">Responsibility Matrix</h4>
+    <div class="tblwrap rv d2">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:220px">Workstream</th>
+            <th class="c">Director</th>
+            <th class="c">James W.</th>
+            <th class="c">HAAVN &times; HM</th>
+            <th class="c">Commercial</th>
+            <th class="c">Logistics</th>
+            <th class="c">Management</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="lead">Brand &amp; market standard</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td><td class="c"></td><td class="c"><span class="dot h"></span></td></tr>
+          <tr><td class="lead">Product definition</td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Design &amp; freeze</td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Engineering &amp; documentation</td><td class="c"></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Compliance &amp; certification</td><td class="c"></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Prototype / benchmark unit</td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Procurement &amp; supply chain</td><td class="c"></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"></td></tr>
+          <tr><td class="lead">Pricing build in ATRIUM</td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td></tr>
+          <tr><td class="lead">Freight, delivery &amp; craneage</td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"></td></tr>
+          <tr><td class="lead">Installation &amp; occupancy</td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"></td></tr>
+          <tr><td class="lead">Contracts &amp; insurance</td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"></td><td class="c"><span class="dot h"></span></td></tr>
+          <tr><td class="lead">haavnblack.com.au channel</td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"></td><td class="c"><span class="dot f"></span></td></tr>
+          <tr><td class="lead">Aftersales &amp; warranty support</td><td class="c"></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot f"></span></td><td class="c"></td><td class="c"></td><td class="c"><span class="dot f"></span></td></tr>
+          <tr><td class="lead">Launch go / no-go</td><td class="c"><span class="dot f"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td><td class="c"><span class="dot h"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend rv d2">
+      <span><i class="dot f"></i> Owns / decides</span>
+      <span><i class="dot h"></i> Contributes / consulted</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 WARRANTY & CARE ============ -->
+<section id="care" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">09 — After the Sale</div>
+      <h2 class="rv d1">Warranty and support, built before launch.</h2>
+      <p class="lede rv d2">A luxury manufacturer is judged on what happens after the money changes hands. The support model must be live and staffed on the day haavnblack.com.au takes its first enquiry.</p>
+    </div>
+
+    <div class="grid g4 rv d1" style="border:1px solid var(--line)">
+      <div class="cell">
+        <div class="eyebrow" style="margin-bottom:14px">Stage 01</div>
+        <h4 style="margin-bottom:10px">Handover</h4>
+        <p style="font-size:13.5px">Documentation pack, warranty register, homeowner induction, defect inspection at completion, digital record created in ATRIUM.</p>
+      </div>
+      <div class="cell">
+        <div class="eyebrow" style="margin-bottom:14px">Stage 02</div>
+        <h4 style="margin-bottom:10px">Defects Period</h4>
+        <p style="font-size:13.5px">Defined defects liability window with published response and rectification times. Scheduled check-in inspections, not customer-initiated only.</p>
+      </div>
+      <div class="cell">
+        <div class="eyebrow" style="margin-bottom:14px">Stage 03</div>
+        <h4 style="margin-bottom:10px">Structural Warranty</h4>
+        <p style="font-size:13.5px">Statutory structural and non-structural warranty per state, plus HAAVN's own manufacturer warranty on the dwelling. Apportioned in Phase 03.</p>
+      </div>
+      <div class="cell">
+        <div class="eyebrow" style="margin-bottom:14px">Stage 04</div>
+        <h4 style="margin-bottom:10px">Ongoing Care</h4>
+        <p style="font-size:13.5px">Single support channel into the HAAVN Management team. Parts and finishes supply, service visits, and a feedback loop back into engineering.</p>
+      </div>
+    </div>
+
+    <div class="grid g2 rv d2" style="border:1px solid var(--line);border-top:0;margin-top:1px">
+      <div class="cell">
+        <h4 style="margin-bottom:16px">What James's team must define</h4>
+        <ul style="list-style:none">
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Warranty scope and duration by phase and by state</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Published response and rectification times</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Warranty apportionment rules for Phase 03 builder installs</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Escalation path and authority to approve rectification spend</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Spare parts, finishes and component continuity plan</li>
+          <li style="padding:9px 0 9px 20px;position:relative;font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:#fff"></span>Warranty reserve per unit, fed into ATRIUM pricing</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <h4 style="margin-bottom:16px">Channel — haavnblack.com.au</h4>
+        <p style="font-size:14px;margin-bottom:16px">The website is the sales channel, not a brochure. Before launch it must carry:</p>
+        <ul style="list-style:none">
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:var(--dim)"></span>SOLUM product release with the three purchase phases clearly separated</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:var(--dim)"></span>State selector that only accepts enquiries from licensed markets</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:var(--dim)"></span>Enquiry-to-order flow connected to ATRIUM pricing</li>
+          <li style="padding:9px 0 9px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:var(--dim)"></span>Delivery zone and site-access qualification before quoting</li>
+          <li style="padding:9px 0 9px 20px;position:relative;font-size:14px"><span style="position:absolute;left:0;top:17px;width:9px;height:1px;background:var(--dim)"></span>Owner support entry point for the aftersales desk</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note rv d3" style="margin-top:24px">
+      Statutory warranty periods, licensing requirements and home warranty insurance obligations differ between Victoria, Queensland and New South Wales
+      and change over time. The positions above are structural, not legal advice — each must be confirmed with the relevant state regulator and HAAVN's
+      legal and insurance advisers before any contract is issued.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 10 RISK ============ -->
+<section id="risk" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">10 — Risk</div>
+      <h2 class="rv d1">What will most likely go wrong.</h2>
+      <p class="lede rv d2">Named early so it can be managed rather than discovered. Each risk carries an owner and the action that retires it.</p>
+    </div>
+
+    <div class="tblwrap rv d1">
+      <table class="tbl">
+        <thead>
+          <tr><th style="min-width:60px">#</th><th style="min-width:220px">Risk</th><th style="min-width:280px">Consequence</th><th style="min-width:280px">Mitigation</th><th style="min-width:150px">Owner</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="lead">R1</td><td class="lead">Compressed SOLUM runway</td><td>Six weeks to launch. Any open gate becomes a launch-week emergency or a quality compromise.</td><td>Week 01 readiness audit against all nine gates. Escalate every open gate to the Director immediately with a recovery date.</td><td>James Winstanley</td></tr>
+          <tr><td class="lead">R2</td><td class="lead">State licensing &amp; insurance not in place</td><td>Cannot lawfully contract or install in a launch state. Orders taken that cannot be delivered.</td><td>State readiness sheet for VIC, QLD, NSW. Website blocks enquiries from any state not confirmed.</td><td>Commercial / Legal</td></tr>
+          <tr><td class="lead">R3</td><td class="lead">Phase 01 base tolerance failure</td><td>Dwelling set down on a customer base outside tolerance. Defect blamed on HAAVN, warranty disputed.</td><td>Mandatory base tolerance specification, pre-delivery verification and customer sign-off before dispatch.</td><td>James Winstanley</td></tr>
+          <tr><td class="lead">R4</td><td class="lead">Phase 03 builder quality</td><td>A third-party install carries the HAAVN name. Poor workmanship damages the brand at launch.</td><td>Accreditation as a hard gate, hold-point inspections, right to refuse a builder, sign-off certificate withheld until compliant.</td><td>James Winstanley</td></tr>
+          <tr><td class="lead">R5</td><td class="lead">Freight cost and access volatility</td><td>Margin erosion on interstate deliveries; failed deliveries where site access was not assessed.</td><td>Zone rate card with escalation clause, mandatory site access qualification before quoting, re-delivery rate card.</td><td>Logistics lead</td></tr>
+          <tr><td class="lead">R6</td><td class="lead">ATRIUM not ready at launch</td><td>Pricing issued outside the system. Version drift, margin leakage, inconsistent customer quotes.</td><td>Lock the cost line architecture before configuration. ATRIUM live is a hard gate on the launch decision.</td><td>Commercial</td></tr>
+          <tr><td class="lead">R7</td><td class="lead">MAGNA drawing resource off SOLUM</td><td>SOLUM gates 03–05 slip while the team starts the 60 square program in September.</td><td>Ring-fence the SOLUM team until the benchmark unit is signed. MAGNA definition runs with separate resource.</td><td>James Winstanley</td></tr>
+          <tr><td class="lead">R8</td><td class="lead">Aftersales built after the fact</td><td>First defects handled ad hoc. A luxury positioning undone by a poor first support experience.</td><td>Support desk, response times and escalation path operational before the site takes its first enquiry.</td><td>HAAVN Management</td></tr>
+          <tr><td class="lead">R9</td><td class="lead">Scope ambiguity in Phase 02</td><td>Fencing and external works disputes at handover. Cost absorbed or customer relationship damaged.</td><td>Resolve the fencing question in writing. Publish the exclusions register with every Phase 02 quote.</td><td>James Winstanley</td></tr>
+          <tr><td class="lead">R10</td><td class="lead">Brand dilution under pressure</td><td>Schedule pressure drives material substitution or finish compromise on the flagship product.</td><td>Any deviation from the signed benchmark unit requires Director approval. No exceptions delegated.</td><td>Jamie Baldwin</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 ACTIONS ============ -->
+<section id="actions" class="inv">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num rv">11 — Immediate Actions</div>
+      <h2 class="rv d1">Week one. Starting now.</h2>
+      <p class="lede rv d2">Ten items for James Winstanley's team, due before the end of the first week. Everything else in this document depends on these being answered honestly.</p>
+    </div>
+
+    <div class="rv d1" style="border-top:1px solid var(--line-2)">
+      <div class="act-row"><div class="i">01</div><div class="w">Readiness audit — status of all nine path-to-market gates for SOLUM, RAG rated with evidence</div><div class="o">James Winstanley</div><div class="d">Week 01</div></div>
+      <div class="act-row"><div class="i">02</div><div class="w">Confirm or reject the October 2026 launch date based on the audit — in writing, to the Director</div><div class="o">James Winstanley</div><div class="d">Week 01</div></div>
+      <div class="act-row"><div class="i">03</div><div class="w">Resolve the Phase 02 fencing scope question and issue the definitive exclusions register</div><div class="o">James Winstanley</div><div class="d">Week 01</div></div>
+      <div class="act-row"><div class="i">04</div><div class="w">Issue the state readiness sheet for VIC, QLD and NSW — licensing, insurance, certification, transport</div><div class="o">Commercial / Legal</div><div class="d">Week 02</div></div>
+      <div class="act-row"><div class="i">05</div><div class="w">Lock the cost line architecture for all 15 SOLUM price configurations before ATRIUM configuration begins</div><div class="o">Commercial</div><div class="d">Week 02</div></div>
+      <div class="act-row"><div class="i">06</div><div class="w">Publish the freight zone definitions and craneage access classes for the three launch states</div><div class="o">Logistics lead</div><div class="d">Week 02</div></div>
+      <div class="act-row"><div class="i">07</div><div class="w">Nominate the benchmark unit and set the date it will be signed off by the Director</div><div class="o">HAAVN &times; Hamilton Marino</div><div class="d">Week 02</div></div>
+      <div class="act-row"><div class="i">08</div><div class="w">Define the Phase 03 builder accreditation standard and the right-of-refusal process</div><div class="o">James Winstanley</div><div class="d">Week 03</div></div>
+      <div class="act-row"><div class="i">09</div><div class="w">Stand up the aftersales and warranty desk — people, channel, response times, escalation</div><div class="o">HAAVN Management</div><div class="d">Week 03</div></div>
+      <div class="act-row"><div class="i">10</div><div class="w">Confirm MAGNA resourcing does not draw from SOLUM gates 03–05 during September</div><div class="o">James Winstanley</div><div class="d">Week 03</div></div>
+    </div>
+
+    <div class="callout rv d2" style="margin-top:48px">
+      <p><strong>To James and the team —</strong> the value of this document is not the plan. It is that everyone reads the same order of priority. If something here is wrong, say so early and it gets changed. If something here is missing, it belongs in the next revision. What does not work is discovering in launch week that we were working to different assumptions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="inv">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="h">HAAVN</span><span class="b">BLACK</span></div>
+        <p style="margin-top:14px;font-size:13px;color:var(--dim);max-width:46ch">Homes to Market — Operating Directive. Revision A, 19 August 2026. Living document; supersedes all prior verbal direction.</p>
+      </div>
+      <div style="text-align:right">
+        <div class="eyebrow" style="margin-bottom:8px">Confidential — Internal</div>
+        <div style="font-family:var(--f-display);font-size:13px;color:var(--grey);letter-spacing:.08em">haavnblack.com.au</div>
+        <div style="font-family:var(--f-display);font-size:11px;color:var(--dim);letter-spacing:.14em;margin-top:6px">HAAVN &times; HAMILTON MARINO</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---- reveal on scroll ---- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  /* ---- hero rule draw ---- */
+  window.setTimeout(function(){
+    var r = document.getElementById('hrule');
+    if(r){ r.style.transition='width 1.4s cubic-bezier(.2,.8,.2,1)'; r.style.width='300px'; }
+  }, 620);
+
+  /* ---- flow + gantt activation ---- */
+  var io2 = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('on'); io2.unobserve(e.target); }
+    });
+  },{threshold:.2});
+  ['flow','g1','g2'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) io2.observe(el);
+  });
+
+  /* ---- map states light up ---- */
+  var mapObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var order = ['vic','qld','nsw'];
+      order.forEach(function(id,i){
+        window.setTimeout(function(){
+          var p = document.getElementById(id);
+          if(p) p.classList.add('act');
+        }, 260 * i);
+      });
+      mapObs.unobserve(e.target);
+    });
+  },{threshold:.35});
+  var mapEl = document.querySelector('svg.aus');
+  if(mapEl){
+    ['vic','qld','nsw'].forEach(function(id){
+      var p = document.getElementById(id);
+      if(p) p.classList.remove('act');
+    });
+    mapObs.observe(mapEl);
+  }
+
+  /* ---- countdown / runway ---- */
+  var ISSUE = new Date(2026,7,19);
+  var SOLUM = new Date(2026,9,1);
+  var MAGNA = new Date(2027,3,1);
+  var now = new Date();
+  var base = now > ISSUE ? now : ISSUE;
+  function days(a,b){ return Math.max(0, Math.round((b-a)/86400000)); }
+  var dS = days(base,SOLUM), dM = days(base,MAGNA);
+
+  function count(el, target, suffix){
+    if(!el) return;
+    var start = null, dur = 1200;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min(1,(ts-start)/dur);
+      var e = 1 - Math.pow(1-p,3);
+      el.textContent = Math.round(target*e) + (suffix||'');
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var cObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      count(document.getElementById('c-weeks'), Math.max(0,Math.ceil(dS/7)));
+      count(document.getElementById('c-days'), dS);
+      cObs.unobserve(e.target);
+    });
+  },{threshold:.4});
+  var cdEl = document.querySelector('.cd');
+  if(cdEl) cObs.observe(cdEl);
+
+  var sd = document.getElementById('solumdays');
+  var md = document.getElementById('magnadays');
+  if(sd) sd.textContent = dS + ' days';
+  if(md) md.textContent = dM + ' days';
+
+  /* ---- nav progress + hide on scroll down ---- */
+  var nav = document.getElementById('nav'), prog = document.getElementById('prog');
+  var last = 0;
+  function onScroll(){
+    var st = window.pageYOffset || document.documentElement.scrollTop;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    if(prog) prog.style.width = ((st/(h||1))*100) + '%';
+    if(nav){
+      if(st > last && st > 260) nav.classList.add('hide');
+      else nav.classList.remove('hide');
+      var band = document.querySelector('.metaband');
+      var trigger = band ? band.offsetTop - 70 : 600;
+      nav.classList.toggle('light', st >= trigger);
+    }
+    last = st;
+
+    /* active link */
+    var secs = document.querySelectorAll('section[id]');
+    var cur = '';
+    secs.forEach(function(s){
+      if(st >= s.offsetTop - 120) cur = s.id;
+    });
+    document.querySelectorAll('.nav-links a').forEach(function(a){
+      a.classList.toggle('on', a.getAttribute('href') === '#'+cur);
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* ---- reduced motion ---- */
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>

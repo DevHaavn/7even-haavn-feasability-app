@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAVN × Hamilton Marino — Path to Market</title>
+<style>
+:root{
+  --paper:#f1efe9;--paper-2:#f7f6f1;--ink:#1c1c1e;--muted:#6d6e64;--sage:#8f907f;
+  --line:#d3d1c7;--line-soft:#e0ded4;--card:#ffffff;
+  --green:#2f8f5b;--green-d:#1f7d49;--orange:#cf8a3c;--bronze-d:#8a6a44;--red:#b3402f;--charcoal:#0b0b0d;
+  --cogs:#3f7fb0;--fixed:#d38f3a;--var:#a05aa0;
+  --shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.07);
+  --shadow-lg:0 6px 14px rgba(28,28,30,.10),0 26px 60px rgba(28,28,30,.16);
+  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Menlo","Consolas",monospace;
+  --font:"Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
+
+/* masthead */
+.masthead{position:relative;background:linear-gradient(180deg,#eaf5ef 0%,#d9eee2 100%);border-bottom:1px solid rgba(0,0,0,.06)}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(40px,6vw,74px) 20px clamp(24px,3vw,36px)}
+.hero .mark{height:clamp(42px,6vw,72px)}
+.hero .lock{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.hero .x{color:#5a6b60;font-size:1.3em;font-weight:300}
+.hero .hm{font-weight:700;letter-spacing:.12em;font-size:clamp(15px,2.4vw,22px);color:#2f4a3a}
+.hero .tag{margin-top:16px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#48594f;font-weight:600}
+.mast-rule{display:flex;align-items:center;gap:14px;padding:13px clamp(18px,4vw,54px);border-top:1px solid rgba(0,0,0,.08);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#6b7a6f;font-weight:600}
+.mast-rule .sp{flex:1}
+
+/* command header */
+.command{padding:28px clamp(18px,4vw,54px) 4px;background:linear-gradient(180deg,#edf3ec 0%,#f1efe9 100%)}
+.cmd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--orange);font-weight:700}
+h1{font-weight:800;letter-spacing:-.02em;font-size:clamp(28px,4.6vw,48px);line-height:1.02;margin-top:8px;color:var(--ink)}
+.cmd-sub{max-width:820px;font-size:14px;color:#5c5d52;margin-top:14px;line-height:1.6}
+.export-btn{border:1px solid var(--line);background:var(--card);cursor:pointer;font-family:var(--font);font-weight:700;font-size:13px;color:var(--ink);padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);white-space:nowrap}
+.export-btn:hover{border-color:var(--ink)}
+
+/* callout */
+.callout{margin:20px clamp(18px,4vw,54px) 0;background:#eef7f1;border:1px solid #bfe0cd;border-left:4px solid var(--green);border-radius:12px;padding:14px 18px;font-size:13.5px;color:#2c4a3a;line-height:1.55}
+.callout b{color:var(--green-d)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:22px clamp(18px,4vw,54px) 6px}
+.kpi{background:var(--card);border:1px solid var(--line-soft);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .lab{font-size:12px;color:var(--muted);font-weight:500;line-height:1.3}
+.kpi .num{font-size:clamp(19px,1.8vw,25px);font-weight:800;letter-spacing:-.02em;margin-top:8px;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi .num.red{color:var(--red)} .kpi .num.mut{color:var(--sage)}
+.kpi .sub{font-family:var(--mono);font-size:11px;color:var(--sage);margin-top:5px;line-height:1.4}
+.kpi.hl{border:1.5px solid #e6c9a0;background:linear-gradient(180deg,#fdf7ee,#fff)}
+@media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* panels */
+.panel{background:var(--card);border:1px solid var(--line-soft);border-radius:20px;box-shadow:var(--shadow);margin:18px clamp(18px,4vw,54px);padding:20px 24px 22px}
+.panel h2{font-size:19px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.panel .psub{font-size:13px;color:#6a6b60;margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 clamp(18px,4vw,54px)}
+.grid2 .panel{margin:0}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+/* composition bar */
+.compbar{display:flex;height:46px;border-radius:10px;overflow:hidden;margin:18px 0 14px;border:1px solid var(--line-soft)}
+.compbar div{display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;border-right:2px solid var(--card);white-space:nowrap}
+.compbar div:last-child{border-right:none}
+.seg-cogs{background:var(--cogs)} .seg-fixed{background:var(--fixed)} .seg-var{background:var(--var)}
+.complegend{display:flex;gap:22px;flex-wrap:wrap}
+.complegend .li{display:flex;align-items:center;gap:9px;font-size:13px}
+.complegend .sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto}
+.complegend .amt{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.complegend .pct{font-family:var(--mono);color:var(--sage);font-size:12px}
+
+/* bar chart */
+.chart{width:100%;margin-top:14px}
+.bar{fill:var(--orange);transition:fill .15s}
+.bar:hover{fill:#b8752b}
+.axis text{font-family:var(--mono);font-size:10px;fill:var(--sage)}
+.gridline{stroke:var(--line-soft);stroke-width:1}
+.baseaxis{stroke:var(--line);stroke-width:1.5}
+.blabel{font-family:var(--mono);font-size:9.5px;fill:var(--muted);text-anchor:middle}
+.tip{position:fixed;pointer-events:none;background:#1c1c1e;color:#fff;font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:8px;opacity:0;transition:opacity .12s;z-index:60;white-space:nowrap}
+.tip b{color:#ffd9a8}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;margin-top:6px}
+.tbl th{text-align:right;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);font-weight:700;padding:8px 12px;border-bottom:2px solid var(--line);white-space:nowrap}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line-soft);text-align:right;color:var(--ink);white-space:nowrap}
+.tbl td:first-child{text-align:left;font-family:var(--font);font-weight:600}
+.tbl td.sub2{font-family:var(--mono);color:var(--muted);font-weight:400;padding-left:26px}
+.tbl tr.grp td{background:#f6f5ef;font-weight:800}
+.tbl tr.tot td{border-top:2px solid var(--line);border-bottom:none;font-weight:800;background:#f2f5f3}
+.tag-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+
+/* growth phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.phases{grid-template-columns:1fr}}
+.phase{border:1px solid var(--line-soft);border-radius:14px;padding:18px;background:var(--paper-2)}
+.phase.p1{border-color:#bfe0cd;background:#f3faf6}
+.phase .ph{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);font-weight:700}
+.phase h4{font-size:16px;font-weight:800;margin-top:4px;color:var(--ink)}
+.phase .amt{font-family:var(--mono);font-size:20px;font-weight:800;margin-top:8px;color:var(--ink)}
+.phase .amt.ind{color:var(--bronze-d)}
+.phase ul{list-style:none;margin-top:11px;display:flex;flex-direction:column;gap:7px}
+.phase li{font-size:12.5px;color:#4a4b42;display:flex;justify-content:space-between;gap:10px;font-family:var(--mono)}
+.phase li span:last-child{color:var(--bronze-d);font-weight:700}
+.indnote{font-size:11px;color:var(--sage);margin-top:12px;font-style:italic}
+
+/* placeholder */
+.placeholder{margin:18px clamp(18px,4vw,54px);border:2px dashed #c7c3b4;border-radius:20px;padding:30px 26px;text-align:center;background:repeating-linear-gradient(135deg,#f7f6f1,#f7f6f1 12px,#f4f2ec 12px,#f4f2ec 24px)}
+.placeholder .pk{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.placeholder h3{font-size:22px;font-weight:800;margin-top:8px;color:var(--ink)}
+.placeholder p{font-size:14px;color:#5c5d52;margin-top:10px;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.6}
+.placeholder .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.placeholder .chip{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:var(--bronze-d);font-weight:600}
+
+footer{background:var(--charcoal);color:#c9c8bd;padding:26px clamp(18px,4vw,54px) 32px;margin-top:22px}
+footer .disc{font-size:10.5px;color:#7c7c72;line-height:1.7;max-width:1180px;margin:0 auto}
+footer .disc b{color:#cfcec2}
+.secnum{font-family:var(--mono);color:var(--orange);font-size:13px;font-weight:700;margin-right:2px}
+.prods{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0 8px}
+@media(max-width:900px){.prods{grid-template-columns:1fr}}
+.prod{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2);position:relative;overflow:hidden}
+.prod .pc{position:absolute;top:0;left:0;right:0;height:4px}
+.prod .pname{font-size:18px;font-weight:800;letter-spacing:.02em;margin-top:6px}
+.prod .prole{font-size:12px;color:var(--muted);margin-top:2px}
+.prod .pmar{font-family:var(--mono);font-size:22px;font-weight:800;margin-top:12px;color:var(--ink)}
+.prod .pmar span{font-size:12px;color:var(--sage);font-weight:600}
+.prod ul{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.prod li{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12px;color:#4a4b42}
+.prod li span:last-child{color:var(--ink);font-weight:700}
+.chart-head{font-size:13px;color:#4a4b42;margin-top:18px}
+.chart-head b{color:var(--ink)}
+.stackseg{transition:opacity .15s} .stackseg:hover{opacity:.82}
+.verdict{display:flex;gap:16px;align-items:flex-start;margin-top:16px;background:#eef7f1;border:1px solid #bfe0cd;border-radius:14px;padding:18px 20px}
+.verdict .v-ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.verdict div:last-child{font-size:14px;color:#2c4a3a;line-height:1.6}
+.verdict b{color:var(--green-d)}
+.tbl td.l{white-space:normal}
+
+.milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.milestones{grid-template-columns:1fr}}
+.ms{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2);position:relative;overflow:hidden}
+.ms .mc{position:absolute;top:0;left:0;right:0;height:4px}
+.ms .when{font-family:var(--mono);font-size:12px;color:var(--orange);font-weight:700}
+.ms h4{font-size:17px;font-weight:800;margin-top:6px}
+.ms p{font-size:12.5px;color:#4a4b42;margin-top:6px;line-height:1.5}
+.gates{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.gate{font-size:11px;font-family:var(--mono);background:#f1ede4;border:1px solid #e4dbcc;color:var(--bronze-d);border-radius:8px;padding:5px 10px}
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+@media(max-width:820px){.ways{grid-template-columns:1fr}}
+.way{border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;background:var(--paper-2)}
+.way b{font-size:14px}.way span{font-size:12px;color:var(--muted);display:block;margin-top:4px;line-height:1.5}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.roles{grid-template-columns:1fr}}
+.role{border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;background:var(--paper-2)}
+.role .rt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700}
+.role h4{font-size:16px;font-weight:800;margin-top:4px}
+.role .ra{font-family:var(--mono);font-size:18px;font-weight:800;margin-top:8px;color:var(--bronze-d)}
+.role p{font-size:12px;color:#4a4b42;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="masthead">
+  <div class="hero">
+    <div class="lock"><img class="mark" src="data:image/png;base64,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" alt="HAAVN"><span class="x">×</span><span class="hm">HAMILTON MARINO</span></div>
+    <div class="tag">Partners in Precision</div>
+  </div>
+  <div class="mast-rule"><span>Partnership</span><span class="sp"></span><span>Path to Market &amp; Revenue</span></div>
+</div>
+<section class="command">
+  <div class="cmd-top">
+    <div>
+      <div class="eyebrow">Partnership · Path to Market · Revenue Opportunity</div>
+      <h1>Path to market &amp; revenue</h1>
+      <p class="cmd-sub">HAAVN Black's route to market — <b>SOLUM</b>, <b>MAGNA</b> and <b>bathroom pods</b> — and the income opportunity for <b>HAAVN × Hamilton Marino</b>, set against the growing cost base from the <b>Cost Base</b> tab. Does the partnership make money? Yes — from Year 1.</p>
+    </div>
+    <button class="export-btn" id="exportBtn">Export / print</button>
+  </div>
+</section>
+<div class="callout">Path to market per the <b>HAAVN Black — Homes to Market</b> directive: SOLUM to market <b>Oct 2026</b>, MAGNA <b>Apr 2027</b>, both delivered under the HAAVN × Hamilton Marino model; bathroom pods to Hamilton Marino from <b>2027</b>. Official pricing lives in ATRIUM — figures here are the margin to the JV for partner planning.</div>
+<div class="kpis">
+  <div class="kpi hl"><div class="lab">Year 1 income to the JV</div><div class="num" style="color:var(--green-d)">$9.30M</div><div class="sub">SOLUM · MAGNA · pods</div></div>
+  <div class="kpi"><div class="lab">5-year income</div><div class="num" style="color:var(--green-d)">$84.6M</div><div class="sub">FY27 → FY31</div></div>
+  <div class="kpi"><div class="lab">Year 1 net result</div><div class="num" style="color:var(--green-d)">+$8.76M</div><div class="sub">after cost base</div></div>
+  <div class="kpi"><div class="lab">5-year net (cumulative)</div><div class="num" style="color:var(--green-d)">+$77.4M</div><div class="sub">after growth cost</div></div>
+  <div class="kpi"><div class="lab">Break-even</div><div class="num">Year 1</div><div class="sub">first trading year</div></div>
+  <div class="kpi"><div class="lab">FY31 net result</div><div class="num" style="color:var(--green-d)">+$24.4M</div><div class="sub">fully scaled</div></div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">01</span> Path to market — HAAVN Black</h2>
+  <div class="psub">A staged entry: prove the model with SOLUM, carry the proven system into MAGNA, and supply pods to the builder channel. Nine gates, same sequence for both homes.</div>
+  <div class="milestones">
+    <div class="ms"><div class="mc" style="background:var(--fixed)"></div><div class="when">To market · Oct 2026</div><h4>SOLUM</h4><p>Precision studio / secondary dwelling — the flagship and first HAAVN product to market. The proof point for everything after.</p></div>
+    <div class="ms"><div class="mc" style="background:#7d5f9e"></div><div class="when">To market · Apr 2027</div><h4>MAGNA</h4><p>Large-format residence — reuses every system SOLUM proves, carried into the full home.</p></div>
+    <div class="ms"><div class="mc" style="background:var(--cogs)"></div><div class="when">From · 2027</div><h4>Bathroom pods</h4><p>Volume modular pods to Hamilton Marino (exclusive) and out to other builders.</p></div>
+  </div>
+  <div class="gates">
+    <span class="gate">01 Product definition</span><span class="gate">02 Design freeze</span><span class="gate">03 Engineering &amp; docs</span><span class="gate">04 Compliance</span><span class="gate">05 Prototype</span><span class="gate">06 Supply chain</span><span class="gate">07 Commercial · ATRIUM</span><span class="gate">08 Channel</span><span class="gate">09 Launch &amp; care</span>
+  </div>
+  <div class="ways">
+    <div class="way"><b>Supply Only</b><span>Manufactured dwelling delivered to site. HAAVN obligation ends at set-down.</span></div>
+    <div class="way"><b>Supply &amp; Install</b><span>Delivered and installed — HAAVN carries the build through to commissioning.</span></div>
+    <div class="way"><b>Hybrid Managed</b><span>HAAVN manages the full program end-to-end for the customer.</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">02</span> Revenue model — income to the partnership</h2>
+  <div class="psub">The margin HAAVN × Hamilton Marino earns per unit as HAAVN Black's delivery partner. Growth rates are the conservative planning inputs.</div>
+  <div class="prods">
+    <div class="prod"><div class="pc" style="background:var(--fixed)"></div><div class="pname">SOLUM</div><div class="prole">Precision studio · flagship</div><div class="pmar">$20,000<span> / order to JV</span></div><ul><li><span>Year 1</span><span>5 / mo · 60 / yr</span></li><li><span>Growth</span><span>+30% · 5 yrs</span></li></ul></div>
+    <div class="prod"><div class="pc" style="background:#7d5f9e"></div><div class="pname">MAGNA</div><div class="prole">Large-format home</div><div class="pmar">$50,000<span> / home to JV</span></div><ul><li><span>Year 1</span><span>1 / mo · 12 / yr</span></li><li><span>Growth</span><span>+35% · 4 yrs</span></li></ul></div>
+    <div class="prod"><div class="pc" style="background:var(--cogs)"></div><div class="pname">Bathroom pods</div><div class="prole">Hamilton Marino + builders</div><div class="pmar">$5,000<span> / pod to JV</span></div><ul><li><span>Year 1</span><span>1,500 pods</span></li><li><span>Growth</span><span>+30% · 4 yrs</span></li></ul></div>
+  </div>
+  <div class="chart-head"><b>Income by product</b> · FY27 → FY31</div>
+  <div class="complegend" style="margin:2px 0 4px"><span class="li"><span class="sw" style="background:var(--cogs)"></span>Bathroom pods</span><span class="li"><span class="sw" style="background:var(--fixed)"></span>SOLUM</span><span class="li"><span class="sw" style="background:var(--var)"></span>MAGNA</span></div>
+  <svg class="chart" id="revChart" data-h="320" viewBox="0 0 960 320" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="tbl-scroll"><table class="tbl" style="margin-top:14px"><thead><tr><th>Income stream</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>FY31</th></tr></thead><tbody>
+    <tr><td>Bathroom pods</td><td>$7,500,000</td><td>$9,750,000</td><td>$12,675,000</td><td>$16,477,500</td><td>$21,420,750</td></tr>
+    <tr><td>SOLUM</td><td>$1,200,000</td><td>$1,560,000</td><td>$2,028,000</td><td>$2,636,400</td><td>$3,427,320</td></tr>
+    <tr><td>MAGNA</td><td>$600,000</td><td>$810,000</td><td>$1,093,500</td><td>$1,476,225</td><td>$1,992,904</td></tr>
+    <tr class="tot"><td>Total income</td><td>$9,300,000</td><td>$12,120,000</td><td>$15,796,500</td><td>$20,590,125</td><td>$26,840,974</td></tr>
+  </tbody></table></div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">03</span> Income vs cost — the profit</h2>
+  <div class="psub">Partnership income against the growing cost base (current + the 2028+ growth layer from the Cost Base tab).</div>
+  <div class="chart-head"><b>Income vs total cost base</b> · each year</div>
+  <div class="complegend" style="margin:2px 0 4px"><span class="li"><span class="sw" style="background:var(--green)"></span>Total income</span><span class="li"><span class="sw" style="background:var(--red)"></span>Total cost base</span></div>
+  <svg class="chart" id="pnlChart" data-h="320" viewBox="0 0 960 320" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="tbl-scroll"><table class="tbl" style="margin-top:14px"><thead><tr><th>Line</th><th>FY27</th><th>FY28</th><th>FY29</th><th>FY30</th><th>FY31</th></tr></thead><tbody>
+    <tr><td>Total income</td><td>$9,300,000</td><td>$12,120,000</td><td>$15,796,500</td><td>$20,590,125</td><td>$26,840,974</td></tr>
+    <tr><td>Total cost base</td><td class="neg">−$544,199</td><td class="neg">−$952,199</td><td class="neg">−$1,432,199</td><td class="neg">−$1,912,199</td><td class="neg">−$2,392,199</td></tr>
+    <tr class="grp"><td>Net result (EBITDA)</td><td>$8,755,801</td><td>$11,167,801</td><td>$14,364,301</td><td>$18,677,926</td><td>$24,448,775</td></tr>
+    <tr class="tot"><td>Cumulative net</td><td>$8,755,801</td><td>$19,923,602</td><td>$34,287,903</td><td>$52,965,829</td><td>$77,414,604</td></tr>
+  </tbody></table></div>
+</div>
+
+<div class="panel">
+  <h2><span class="secnum">04</span> Cash flow &amp; break-even</h2>
+  <div class="psub">Cumulative net position with the full growth cost base absorbed.</div>
+  <svg class="chart" id="cumChart" data-h="300" viewBox="0 0 960 300" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="verdict"><div class="v-ic">✓</div><div><b>Yes — the partnership makes money, from Year 1.</b> Even after adding the sales team, project management and growth staff (cost base rising to $2.39M by FY31, with the one-year IDX cost ending Feb-27), Year 1 delivers <b>+$8.76M</b> net and the plan reaches <b>+$77.4M</b> cumulative by FY31. Break-even is inside the first trading year.</div></div>
+</div>
+
+<div class="panel" style="background:#faf9f4">
+  <h2><span class="secnum">05</span> Assumptions &amp; watch-items</h2>
+  <table class="tbl"><tbody>
+    <tr><td>Per-unit figures</td><td class="l" style="text-align:left">Margin / income to HAAVN × Hamilton Marino per unit, net of product build cost.</td></tr>
+    <tr><td>Volumes &amp; growth</td><td class="l" style="text-align:left">SOLUM 5/mo +30% (5yr) · MAGNA 1/mo +35% (4yr) · pods 1,500 +30% (4yr) — conservative inputs provided.</td></tr>
+    <tr><td>Concentration</td><td class="l" style="text-align:left">Bathroom pods are <b>81%</b> of Year 1 income — downside sits in pod volume and the Hamilton Marino order.</td></tr>
+    <tr><td>Cost base</td><td class="l" style="text-align:left">Current FY27 cost + growth layer (+$40k/mo each year from 2028). Detail on the Cost Base tab.</td></tr>
+    <tr><td>Capacity</td><td class="l" style="text-align:left">1,500+ pods plus homes assumes manufacturing &amp; install capacity scales with the growth staffing — capacity is the real constraint.</td></tr>
+  </tbody></table>
+</div>
+
+<footer><p class="disc">Revenue volumes, per-unit margins and growth rates are the conservative planning inputs provided; SOLUM/MAGNA timing per the HAAVN Black directive; growth cost is an indicative assumption. For partner discussion — subject to final legal, financial and taxation advice, confirmed pricing in ATRIUM, and definitive agreements. Not an offer or invitation to invest. © 2026 Haavn Technologies Pty Ltd.</p></footer>
+<div class="tip" id="tip"></div>
+<script>
+document.getElementById('exportBtn').addEventListener('click',()=>window.print());
+
+const NS='http://www.w3.org/2000/svg';const tip=document.getElementById('tip');
+const money=v=>'$'+Math.round(v).toLocaleString();
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function txt(x,y,s,anchor,size,fill){const t=el('text',{x:x,y:y,'text-anchor':anchor||'middle','font-family':'SFMono-Regular,monospace','font-size':size||10,fill:fill||'#8f907f'});t.textContent=s;return t;}
+function tshow(e,html){tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-14)+'px';tip.innerHTML=html;}
+function thide(){tip.style.opacity=0;}
+function frame(svg,maxY,step,ml){ml=ml||58;const W=960,H=+svg.getAttribute('data-h')||320,mr=16,mt=16,mb=34;const plotW=W-ml-mr,plotH=H-mt-mb;
+  for(let v=0;v<=maxY+1;v+=step){const y=mt+plotH-(v/maxY)*plotH;svg.appendChild(el('line',{x1:ml,y1:y,x2:W-mr,y2:y,stroke:v===0?'#d3d1c7':'#e0ded4','stroke-width':v===0?1.5:1}));
+    svg.appendChild(txt(ml-8,y+3,(maxY>=1e6?('$'+(v/1e6)+'M'):('$'+(v/1000)+'k')),'end'));}
+  return {W,H,ml,mr,mt,mb,plotW,plotH};}
+function xb(f,i,n){return f.ml+i*(f.plotW/n);}
+
+const years=["FY27","FY28","FY29","FY30","FY31"],income=[9300000,12120000,15796500,20590125,26840974],cost=[544199,952199,1432199,1912199,2392199],cum=[8755801,19923602,34287903,52965829,77414604],pods=[7500000,9750000,12675000,16477500,21420750],solum=[1200000,1560000,2028000,2636400,3427320],magna=[600000,810000,1093500,1476225,1992904];
+// stacked revenue
+(function(){const svg=document.getElementById('revChart');const maxY=28e6;const f=frame(svg,maxY,7e6);const bw=f.plotW/years.length;
+ years.forEach((yr,i)=>{let base=0;const st=[['Bathroom pods',pods[i],'#3f7fb0'],['SOLUM',solum[i],'#d38f3a'],['MAGNA',magna[i],'#a05aa0']];const x=xb(f,i,years.length)+bw*0.2,w=bw*0.6;
+   st.forEach(([nm,val,col])=>{const bh=(val/maxY)*f.plotH;const y=f.mt+f.plotH-((base+val)/maxY)*f.plotH;const r=el('rect',{x:x,y:y,width:w,height:Math.max(bh-2,0),rx:3,fill:col,class:'stackseg'});r.addEventListener('mousemove',e=>tshow(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);base+=val;});
+   svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.H-12,yr));svg.appendChild(txt(xb(f,i,years.length)+bw/2,f.mt+f.plotH-(income[i]/maxY)*f.plotH-7,'$'+(income[i]/1e6).toFixed(1)+'M','middle',10,'#4a4b42'));});})();
+// income vs cost grouped
+(function(){const svg=document.getElementById('pnlChart');const maxY=28e6;const f=frame(svg,maxY,7e6);const bw=f.plotW/years.length;
+ years.forEach((yr,i)=>{const gx=xb(f,i,years.length);const w=bw*0.30;[[income[i],'#2f8f5b','Income'],[cost[i],'#b3402f','Cost']].forEach(([val,col,nm],k)=>{const bh=(val/maxY)*f.plotH;const x=gx+bw*0.14+k*(w+bw*0.06);const y=f.mt+f.plotH-bh;const r=el('rect',{x:x,y:y,width:w,height:bh,rx:4,fill:col});r.addEventListener('mousemove',e=>tshow(e,nm+' '+yr+' &nbsp;<b>'+money(val)+'</b>'));r.addEventListener('mouseleave',thide);svg.appendChild(r);});svg.appendChild(txt(gx+bw/2,f.H-12,yr));});})();
+// cumulative area
+(function(){const svg=document.getElementById('cumChart');const maxY=80e6;const f=frame(svg,maxY,20e6);const bw=f.plotW/years.length;
+ const pts=cum.map((v,i)=>[xb(f,i,years.length)+bw/2,f.mt+f.plotH-(v/maxY)*f.plotH]);let d='M '+f.ml+' '+(f.mt+f.plotH);pts.forEach(p=>d+=' L '+p[0]+' '+p[1]);d+=' L '+pts[pts.length-1][0]+' '+(f.mt+f.plotH)+' Z';
+ svg.appendChild(el('path',{d:d,fill:'rgba(47,143,91,.14)'}));let ld='M '+pts[0][0]+' '+pts[0][1];pts.forEach(p=>ld+=' L '+p[0]+' '+p[1]);svg.appendChild(el('path',{d:ld,fill:'none',stroke:'#2f8f5b','stroke-width':2.5}));
+ pts.forEach((p,i)=>{const c=el('circle',{cx:p[0],cy:p[1],r:5,fill:'#2f8f5b',stroke:'#fff','stroke-width':2});c.addEventListener('mousemove',e=>tshow(e,'Cumulative '+years[i]+' &nbsp;<b>'+money(cum[i])+'</b>'));c.addEventListener('mouseleave',thide);svg.appendChild(c);svg.appendChild(txt(p[0],f.H-12,years[i]));svg.appendChild(txt(p[0],p[1]-12,'$'+(cum[i]/1e6).toFixed(1)+'M','middle',10,'#1f7d49'));});})();
+</script>
+</body>
+</html>

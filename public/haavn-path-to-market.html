@@ -1,629 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-<title>HAAVN · Path to Market — Stakeholder Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAVN × Hamilton Marino — Shareholder · Path to Market</title>
 <style>
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-
 :root{
-  --bone:#ECE8DE;--paper:#F4F1E9;--card:#FBFAF6;--ink:#1A1714;--ink2:#403A32;--ink3:#736E62;
-  --line:#D6D0C2;--line2:#C4BDAB;--gold:#9A7526;--goldl:#C39A46;
-  --char:#17150F;--char2:#211E17;--charline:#332F26;
-  --green:#3C6E47;--greenbg:#E4EBE0;--amber:#9A6B1F;--amberbg:#F3E9D4;--red:#8A3A2E;--redbg:#F1E0DA;--blue:#2A4C6B;--bluebg:#E1E8EE;
-  --sh:0 1px 2px rgba(26,23,20,.05),0 8px 24px rgba(26,23,20,.06);
+  --paper:#eeece6;--paper-2:#f5f4ef;--ink:#1c1c1e;
+  --olive:#6b6c5c;--olive-d:#565646;--sage:#8f907f;
+  --bronze:#a9855c;--bronze-d:#8a6a44;
+  --green:#2f8f5b;--green-d:#1f7d49;
+  --line:#c9c7bd;--line-soft:#d9d7cd;--card:#ffffff;
+  --shadow:0 1px 2px rgba(28,28,30,.05),0 8px 26px rgba(28,28,30,.08);
+  --font:"Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Menlo",monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bone);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font-family:inherit;font-size:13px;color:var(--ink)}
-.mono{font-family:'IBM Plex Mono',monospace}
-/* chrome */
-.topbar{height:54px;background:var(--char);color:#E9E5DB;display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40;border-bottom:1px solid #000}
-.home-btn{font-size:12px;color:#B9B3A5;text-decoration:none;font-weight:600}
-.home-btn:hover{color:#fff}
-.brand svg{height:19px;display:block}
-.tag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;color:#75715F;font-weight:600}
-.savepill{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11px;color:#B9B3A5;background:#0C0B08;border:1px solid var(--charline);padding:5px 11px;border-radius:20px;white-space:nowrap}
-.savepill .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-.savepill.saving .dot{background:var(--goldl);animation:pulse 1s infinite}
-@keyframes pulse{50%{opacity:.35}}
-.tabsbar{background:var(--char);padding:0 24px;display:flex;gap:2px;position:sticky;top:54px;z-index:39;border-bottom:1px solid #000;overflow-x:auto}
-.tabsbar button{padding:12px 16px;font-size:12.5px;font-weight:600;color:#8C8578;border-bottom:2px solid transparent;letter-spacing:.01em;white-space:nowrap}
-.tabsbar button.on{color:#fff;border-bottom-color:var(--goldl)}
-.wrap{max-width:1280px;margin:0 auto;padding:26px 30px 70px}
-/* headers */
-.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;font-weight:600}
-.sec-head{margin-bottom:22px}
-h1.title{font-size:30px;font-weight:800;letter-spacing:-.026em;line-height:1.04;margin-top:6px}
-h1.title i{font-style:normal;color:var(--ink3)}
-.lede{color:var(--ink3);font-size:13.5px;margin-top:7px;max-width:770px}
-.h-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px}
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;font-size:12.5px;font-weight:600;background:var(--card);border:1px solid var(--line2);color:var(--ink);transition:.13s;white-space:nowrap}
-.btn:hover{border-color:var(--ink3);background:#fff}
-.btn.pri{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.btn.pri:hover{background:#000}
-.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}.btn.gold:hover{background:#87651f}
-.btn.sm{padding:6px 11px;font-size:11.5px}
-.btn.danger{color:var(--red)}.btn.danger:hover{background:var(--redbg);border-color:var(--red)}
-.ml-auto{margin-left:auto}
-/* kpis */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 17px;box-shadow:var(--sh)}
-.kpi.hl{background:var(--char);border-color:#000;color:var(--paper)}
-.kpi .k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:600}
-.kpi.hl .k{color:#8C8578}
-.kpi .v{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:7px;line-height:1}
-.kpi .v .u{font-size:15px;color:var(--gold);font-weight:700}
-.kpi .s{font-size:11.5px;color:var(--ink3);margin-top:6px}.kpi.hl .s{color:#A39C8C}
-/* panels */
-.panel{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
-.panel-h{display:flex;align-items:center;gap:11px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.panel-h h3{font-size:13.5px;font-weight:800;letter-spacing:-.01em}
-.panel-h .sub{font-size:11.5px;color:var(--ink3)}
-.panel-b{padding:16px 18px}
-.dotc{width:10px;height:10px;border-radius:50%;flex:none}
-/* pills */
-.pill{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase;white-space:nowrap}
-.pill .d{width:6px;height:6px;border-radius:50%;background:currentColor}
-.pill.done{background:var(--greenbg);color:var(--green)}
-.pill.inprogress{background:var(--amberbg);color:var(--amber)}
-.pill.todo{background:var(--bone);color:var(--ink3)}
-.pill.risk{background:var(--redbg);color:var(--red)}
-.chip{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border:1px solid var(--line2);border-radius:6px;color:var(--ink2)}
-/* rag cards */
-.ragstrip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.ragcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;cursor:pointer;transition:.12s;box-shadow:var(--sh)}
-.ragcard:hover{border-color:var(--ink3);transform:translateY(-1px)}
-.ragcard .top{display:flex;align-items:center;gap:9px}
-.ragcard .nm{font-weight:800;font-size:14px;letter-spacing:-.01em}
-.ragcard .sub{font-size:10.5px;color:var(--ink3);margin-top:3px}
-.prog{height:7px;background:var(--bone);border-radius:20px;overflow:hidden;margin:12px 0 6px}
-.prog>span{display:block;height:100%;border-radius:20px}
-.ragcard .foot{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink3)}
-/* gates */
-.gates{display:flex;gap:9px;overflow-x:auto;padding-bottom:6px}
-.gate{flex:none;width:158px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
-.gate.done{background:var(--char);border-color:var(--char);color:var(--paper)}
-.gate .g{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center}
-.gate .gt{font-size:12px;font-weight:700;margin-top:5px;letter-spacing:-.01em}
-.gate .gu{font-size:10px;color:var(--ink3);margin-top:5px;line-height:1.4}
-.gate.done .gu{color:#A39C8C}
-.gate .gd{margin-top:8px}
-.gate .gd input{width:100%;background:transparent;border:1px solid var(--line2);border-radius:6px;padding:3px 6px;font-size:10px;font-family:'IBM Plex Mono',monospace;color:inherit}
-.gate.done .gd input{border-color:var(--charline);color:#C9C3B4}
-/* critical path */
-.cpath{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px}
-.cpath .node{background:var(--ink);color:var(--paper);padding:7px 12px;border-radius:8px;font-weight:600;font-size:11.5px}
-.cpath .node.hl{background:var(--gold)}
-.cpath .arr{color:var(--ink3)}
-/* process phases */
-.phase{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
-.phase-h{display:flex;align-items:center;gap:13px;padding:15px 18px;border-bottom:1px solid var(--line)}
-.phase-h .pnum{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex:none;font-size:14px}
-.phase-h .pn{font-size:15px;font-weight:800;letter-spacing:-.015em}
-.phase-h .pmo{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.06em;margin-top:1px}
-.phase-h .pgoal{font-size:11.5px;color:var(--ink3);margin-top:2px}
-.phase-b{padding:12px 16px}
-.phline{display:flex;align-items:center;gap:11px;padding:9px 4px;border-top:1px solid var(--line)}
-.phline:first-child{border-top:none}
-.phline .pt{flex:1;min-width:0}
-.phline .ptt{font-weight:600;font-size:13px}
-.phline .pts{font-size:11px;color:var(--ink3)}
-/* deliverable rows */
-.delrow{display:grid;grid-template-columns:5px 1fr 138px 128px 78px;gap:12px;align-items:center;padding:12px 15px;border:1px solid var(--line);border-radius:11px;margin-bottom:8px;background:var(--card);transition:.12s}
-.delrow:hover{border-color:var(--line2)}
-.delrow .bar{width:5px;height:40px;border-radius:4px}
-.delrow .main{min-width:0}
-.delrow .t{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px}
-.delrow .dsub{font-size:11.5px;color:var(--ink3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.delrow .who{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3);margin-top:3px;letter-spacing:.02em}
-.gateflag{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--gold)}
-.datein,.stsel,.inp{border:1px solid var(--line2);border-radius:7px;padding:6px 8px;font-size:12px;background:#fff;width:100%}
-.datein{font-family:'IBM Plex Mono',monospace}
-.stsel{font-weight:600}
-.delact{display:flex;gap:6px;align-items:center;justify-content:flex-end}
-.iconbtn{width:30px;height:30px;border-radius:7px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink3);position:relative;background:#fff}
-.iconbtn:hover{border-color:var(--ink3);color:var(--ink)}
-.iconbtn .badge{position:absolute;top:-6px;right:-6px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.deledit{border:1px solid var(--line2);border-radius:12px;margin:-2px 0 10px;background:var(--paper);padding:15px 16px}
-.deledit textarea{width:100%;border:1px solid var(--line2);border-radius:8px;padding:9px 11px;resize:vertical;min-height:46px;background:#fff}
-.fgrid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.fgrid label{flex:1;min-width:180px;font-size:11px;color:var(--ink3)}
-.fgrid input,.fgrid select{width:100%;margin-top:4px;border:1px solid var(--line2);border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff}
-.mlbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:8px}
-.note{border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:8px;background:#fff}
-.note .meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3);margin-bottom:3px}
-.note .tx{font-size:12.5px;color:var(--ink2);line-height:1.45}
-.att{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#fff;font-size:12.5px}
-.att .fi{width:24px;height:24px;border-radius:5px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex:none}
-.att a{color:var(--blue);text-decoration:none;font-weight:600}
-.att .sz{margin-left:auto;color:var(--ink3);font-size:11px}
-/* timeline */
-.tl{overflow-x:auto}
-.tlgrid{min-width:900px}
-.tlhead{display:grid;grid-template-columns:160px repeat(6,1fr);border-bottom:1px solid var(--line)}
-.tlhead .mh{padding:10px 8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-align:center;color:var(--ink2);border-left:1px solid var(--line)}
-.tlhead .mh.hot{color:var(--gold)}
-.tlrow{display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid var(--line);min-height:56px}
-.tlrow .pn{padding:11px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700}
-.tllane{position:relative;border-left:1px solid var(--line)}
-.tlgridlines{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);pointer-events:none}
-.tlgridlines>div{border-left:1px solid var(--line)}
-.tlbar{position:absolute;top:50%;transform:translateY(-50%);height:24px;color:#fff;font-size:10px;font-weight:600;padding:0 9px;border-radius:7px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;box-shadow:0 2px 6px rgba(26,23,20,.18)}
-.tlbar.done{background:var(--green)}.tlbar.inprogress{background:var(--gold)}.tlbar.risk{background:var(--red)}.tlbar.todo{background:#7A756A}
-.hardline{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);opacity:.55;z-index:2}
-.hardline .hl-lbl{position:absolute;top:-2px;left:5px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--gold);white-space:nowrap;font-weight:600}
-.tllegend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);margin-top:4px}
-/* stakeholders */
-.team{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.tmember{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:10px;padding:7px 10px 7px 8px;background:var(--paper)}
-.tmember .av{width:28px;height:28px;border-radius:50%;background:var(--ink);color:#F3EFE6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
-.tmember .tn{font-size:12.5px;font-weight:700;line-height:1.1}
-.tmember .tr{font-size:10.5px;color:var(--ink3)}
-.tmember .tx{margin-left:4px;color:var(--ink3);font-size:14px;line-height:1}
-.tmember .tx:hover{color:var(--red)}
-.slist{border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:9px 0}
-.hide{display:none!important}
-.empty{text-align:center;padding:34px 20px;color:var(--ink3)}
-.empty .ei{font-size:24px;opacity:.4}
-@media(max-width:1000px){.kpis,.ragstrip{grid-template-columns:1fr 1fr}.delrow{grid-template-columns:5px 1fr;gap:9px}.delrow>.datein,.delrow>.stsel,.delrow>.delact{grid-column:2}}
+html,body{height:100%}
+body{
+  font-family:var(--font);color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 78% -8%, #f7f6f1 0%, rgba(247,246,241,0) 55%),
+    radial-gradient(1100px 800px at 6% 108%, #e7e6dd 0%, rgba(231,230,221,0) 55%),
+    var(--paper);
+  display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+
+/* ---------- masthead ---------- */
+header{padding:16px clamp(16px,3.4vw,40px) 0;flex:0 0 auto}
+.top-rule{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.wordmark{font-weight:800;letter-spacing:.14em;font-size:clamp(15px,2vw,20px);color:var(--ink);white-space:nowrap}
+.wordmark .xd{color:var(--sage);font-weight:400;font-size:.82em;margin:0 .28em;transform:translateY(-1px);display:inline-block}
+.hm-word{font-weight:700;letter-spacing:.11em;font-size:clamp(12px,1.6vw,16px);color:var(--olive-d)}
+.tagline{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--sage);font-weight:600}
+.top-spacer{flex:1}
+.access{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--green-d);font-weight:700;white-space:nowrap}
+.access .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(47,143,91,.5)}
+.title-block{padding:16px 0 6px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+h1{font-weight:800;letter-spacing:-.02em;font-size:clamp(22px,3.4vw,36px);line-height:1;color:var(--ink)}
+h1 .thin{font-weight:300;color:var(--olive)}
+.subhead{max-width:520px;font-size:12.5px;color:#55564c;line-height:1.55}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:14px clamp(16px,3.4vw,40px) 16px;flex:0 0 auto}
+.tab{
+  border:1px solid var(--line);background:var(--paper-2);cursor:pointer;
+  font-family:var(--font);font-weight:700;font-size:12px;letter-spacing:.04em;color:var(--olive-d);
+  padding:11px 18px;border-radius:12px;transition:.2s;display:flex;align-items:center;gap:10px;
+}
+.tab:hover{border-color:var(--olive);color:var(--ink)}
+.tab .tn{font-family:var(--mono);font-size:11px;color:var(--bronze-d);font-weight:700}
+.tab.active{background:var(--ink);color:#f4f3ee;border-color:var(--ink);box-shadow:var(--shadow)}
+.tab.active .tn{color:var(--bronze)}
+
+/* ---------- frame ---------- */
+.stage{flex:1 1 auto;position:relative;margin:0 clamp(16px,3.4vw,40px) clamp(16px,3.4vw,40px);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sage);
+  background:var(--card);transition:opacity .3s;pointer-events:none}
+.loading.hide{opacity:0}
+
+@media(max-width:720px){
+  .title-block{padding-top:12px}
+  .subhead{display:none}
+  .tab{padding:9px 13px;font-size:11px}
+}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <a class="home-btn" href="https://7even-haavn-feasability-app-redux.vercel.app/" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-crm-close','*');return false;}">← Back</a>
-  <span class="brand"><svg viewBox="74 0 771 180" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,180) scale(0.1,-0.1)" fill="#F4F2ED" stroke="none"><path d="M747 1544 c-4 -4 -7 -279 -7 -611 l0 -603 160 0 160 0 0 200 0 200 525 0 525 0 0 -200 0 -200 160 0 160 0 -2 608 -3 607 -135 3 c-74 1 -145 0 -158 -3 l-22 -5 3 -233 c2 -127 2 -238 -1 -244 l-4 -13 -524 0 -524 0 -2 248 -3 247 -151 3 c-82 1 -153 -1 -157 -4z M2580 940 l0 -610 160 0 160 0 0 531 0 530 15 -3 c8 -2 259 -243 559 -535 l545 -533 218 0 218 1 -131 127 c-72 70 -340 330 -595 577 -255 248 -483 467 -507 488 l-42 37 -300 0 -300 0 0 -610z M3920 1302 l0 -247 153 -153 c84 -83 156 -152 160 -152 l7 0 0 320 0 320 11 0 c9 0 329 -309 949 -917 l145 -143 225 0 225 1 -24 20 c-14 11 -257 249 -540 528 -284 279 -554 544 -601 589 l-85 81 -312 1 -313 0 0 -248z M4750 1547 c0 -2 278 -276 619 -610 l618 -605 314 -3 314 -3 3 612 2 612 -159 0 -160 0 6 -535 5 -535 -16 0 -17 0 -417 413 c-229 226 -473 467 -542 534 l-125 123 -222 0 c-123 0 -223 -1 -223 -3z M6770 941 l0 -609 153 -4 c83 -2 155 -2 160 0 l7 3 0 440 0 440 14 -3 c18 -4 123 -104 560 -536 l348 -345 216 1 c118 1 216 3 218 5 2 2 7 1141 4 1202 l0 10 -155 3 -155 3 0 -446 0 -446 -14 3 c-15 3 -104 88 -610 585 l-309 303 -218 0 -219 0 0 -609z"/></g></svg></span>
-  <span class="tag">PATH TO MARKET · SHAREHOLDER TRACKER</span>
-  <div class="savepill" id="savePill"><span class="dot"></span><span id="saveTxt">Saved</span></div>
+<header>
+  <div class="top-rule">
+    <div class="brand">
+      <span class="wordmark">HAAVN<span class="xd">×</span></span>
+      <span class="hm-word">HAMILTON MARINO</span>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="access"><span class="dot"></span>Shareholder Access</div>
+  </div>
+  <div class="title-block">
+    <div>
+      <div class="tagline">Partnership · Confidential</div>
+      <h1 style="margin-top:6px">Path to market <span class="thin">&amp; the business</span></h1>
+    </div>
+    <p class="subhead">The route to market for HAAVN Black, the income to the partnership, the cost to run and scale it, and the group structure behind it — for HAAVN&nbsp;×&nbsp;Hamilton&nbsp;Marino shareholders.</p>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-src="/haavn-partners-market.html"><span class="tn">01</span> Path to Market &amp; Revenue</button>
+  <button class="tab" data-src="/haavn-partners-costs.html"><span class="tn">02</span> Cost to the Business</button>
+  <button class="tab" data-src="/haavn-partners-structure.html"><span class="tn">03</span> Group Structure</button>
+  <button class="tab" data-src="/haavn-partners-directive.html"><span class="tn">04</span> Operating Directive</button>
+</nav>
+
+<div class="stage">
+  <div class="loading" id="loading">Loading…</div>
+  <iframe id="frame" src="/haavn-partners-market.html" title="Shareholder view"></iframe>
 </div>
-<div class="tabsbar" id="tabsbar">
-  <button data-act="tab" data-tab="overview" class="on">Overview</button>
-  <button data-act="tab" data-tab="process">Process · 6-month path</button>
-  <button data-act="tab" data-tab="deliverables">Deliverables</button>
-  <button data-act="tab" data-tab="timeline">Timeline</button>
-  <button data-act="tab" data-tab="stakeholders">Stakeholders</button>
-</div>
-<div class="wrap" id="view"></div>
-<input type="file" id="fileInput" accept="application/pdf" class="hide">
 
 <script>
-/* ==================================================================
-   HAAVN · PATH TO MARKET — Process & Deliverables · Stakeholder Tracker
-   Fully functional single-file app · localStorage autosave
-   6-month window: Aug 2026 → Jan 2027
-   ================================================================== */
-const MONTHS=[['AUG','2026'],['SEP','2026'],['OCT','2026'],['NOV','2026'],['DEC','2026'],['JAN','2027']];
-const M_START=new Date('2026-08-01'), M_END=new Date('2027-01-31');
-const STATUSES=['todo','inprogress','done','risk'];
-const ST_LABEL={todo:'To do',inprogress:'In progress',done:'Done',risk:'At risk'};
-const ST_COLOR={todo:'#7A756A',inprogress:'var(--gold)',done:'var(--green)',risk:'var(--red)'};
-
-/* ---- seed reference ---- */
-const SEED_PHASES=[
-  {id:'p1',name:'Foundations — Partnerships & Capital',month:'Aug 2026',color:'#2E5D46',goal:'Ownership, contracts, funding and China structure locked so the business can trade.'},
-  {id:'p2',name:'Platform & Product Readiness',month:'Aug–Sep 2026',color:'#3E5C74',goal:'ATRIUM live, cost bases loaded, go-to-market pricing agreed with shareholders.'},
-  {id:'p3',name:'Volume Supply Opens',month:'Sep 2026',color:'#9A7526',goal:'First repeatable income — hybrid system & pods open to all Australian builders.'},
-  {id:'p4',name:'Design Complete & Displays',month:'Oct–Nov 2026',color:'#7A5B8E',goal:'Full Black Series design pack complete; display suites and towers built to sell from.'},
-  {id:'p5',name:'Brand & Content',month:'Oct–Dec 2026',color:'#B4923D',goal:'Website, film and social content — the story that turns product into demand.'},
-  {id:'p6',name:'Launch to Market',month:'Dec 2026–Jan 2027',color:'#8A3A2E',goal:'Homes live sales journey and the full HAAVN range to market.'},
-];
-const SEED_STAKE=[
-  {id:'fraser',name:'Fraser & Partners',sub:'Design Authority',color:'#3E5C74',team:[
-    {id:'f1',n:'Callum Fraser',r:'Design Authority · Founder'},{id:'f2',n:'Reede Dixon',r:'Design'}]},
-  {id:'haavn',name:'HAAVN Technologies',sub:'Management & Platform',color:'#2E5D46',team:[
-    {id:'h1',n:'Daniel Sette',r:'Legal & Partnerships'},{id:'h2',n:'Lewis Jin',r:'China Supply & Finance'},
-    {id:'h3',n:'Jamie Baldwin',r:'ATRIUM Platform & Go-to-Market'},{id:'h4',n:'James Winstanley',r:'Development Manager · HAAVN'},
-    {id:'h5',n:'Jeffrey Witbreuk',r:'Construction Manager · HAAVN'},{id:'h6',n:'Callum McDonald',r:'HAAVN Technologies Project Lead'}]},
-  {id:'hamilton',name:'Hamilton Marino',sub:'Build & Delivery JV · est. 1975',color:'#9A7526',team:[
-    {id:'m1',n:'Matthew Green',r:'Director'},{id:'m2',n:'Shaun O’Connell',r:'Director'}]},
-];
-/* deliverable: phase, stakeholder, title, detail, start, due, status, owner, gate, pct */
-const SEED_DELS=[
-  ['p1','haavn','China partnership signed · Melbourne HQ','Official signing & photo — Sette, Baldwin, Jin & China partners; ownership confirmed.','2026-08-01','2026-08-04','done','Daniel Sette',false,100],
-  ['p1','haavn','MOU & term sheet agreed','Partnership MOU and term sheet agreed between Fraser & HAAVN.','2026-08-04','2026-08-07','done','Daniel Sette',false,100],
-  ['p1','haavn','All contracts signed','Heads of agreement & contracts signed by all parties and directors.','2026-08-08','2026-08-18','done','Daniel Sette',true,100],
-  ['p1','hamilton','Exclusive delivery partnership signed','Hamilton Marino to build, insure & deliver all HAAVN homes — Victorian hybrid at volume.','2026-08-01','2026-08-01','done','Matthew Green',true,100],
-  ['p1','hamilton','HAAVN Essentials priced & finalised','Pricing finalised (Harry Stamoulis) — ETC joint pitch with Fraser & Partners.','2026-08-04','2026-08-08','done','Shaun O’Connell',false,100],
-  ['p1','hamilton','Cost-based solution & pricing — review','Complete hybrid cost-based solution & pricing for the team.','2026-08-08','2026-08-15','done','Matthew Green',false,100],
-  ['p1','haavn','China documents & financial structure','China State documents & financial structure for product purchase + insurance.','2026-08-12','2026-08-30','inprogress','Lewis Jin',false,60],
-  ['p1','haavn','Developer funding package','Modular homes/apartments + pods funding package ready for legal to finalise.','2026-08-12','2026-08-30','inprogress','Lewis Jin',false,55],
-  ['p2','haavn','ATRIUM App online','Customer orders, tracking, CRM & product builder live for developer stock & retail.','2026-08-01','2026-08-30','inprogress','Jamie Baldwin',true,75],
-  ['p2','hamilton','High-rise modular cost base in ATRIUM','High-rise modular cost base built out in the ATRIUM app for review.','2026-08-15','2026-08-30','inprogress','Shaun O’Connell',false,50],
-  ['p2','haavn','Sales & marketing strategy','Australian market + retail & wholesale pricing, presented to shareholders.','2026-08-15','2026-08-30','inprogress','Jamie Baldwin',false,60],
-  ['p3','haavn','Volume supply opens','Hybrid system & modular pods open to all Australian builders — first repeatable income.','2026-08-20','2026-09-01','todo','Callum McDonald',true,10],
-  ['p4','fraser','HAAVNSKY — Design & Interior Package','High-rise & low-rise design + full interior package across every high-density segment.','2026-09-15','2026-10-20','todo','Callum Fraser',false,15],
-  ['p4','hamilton','End-to-end Hybrid solution — go live','Live to all Victorian developers — Hamilton Marino delivering with HAAVN modular, end to end.','2026-09-15','2026-10-15','todo','Matthew Green',false,10],
-  ['p4','fraser','Display Suites — MAGNA & SOLUM','Full design pack for both display suites (QLD & Melbourne) — ready to build & ship.','2026-08-15','2026-08-30','done','Callum Fraser',false,100],
-  ['p4','fraser','High-Rise Display Tower','Hybrid Hotel/BTR display tower — Preston & 5IVE hotel spec, full design pack incl. FFE.','2026-08-20','2026-08-31','inprogress','Reede Dixon',false,45],
-  ['p4','fraser','Full Black Series Range — Design Complete','All five Black Series homes complete: internal, exterior, façade, FFE, renders & floor plans.','2026-10-01','2026-11-15','todo','Callum Fraser',true,20],
-  ['p4','haavn','Melbourne display suite built','Display suite complete in Melbourne, Victoria — the room clients walk through.','2026-10-15','2026-11-30','todo','James Winstanley',false,0],
-  ['p5','haavn','Website v1 live','Website built & live — awaiting final renders & video content.','2026-09-15','2026-10-15','todo','Seth · Marketing',false,25],
-  ['p5','haavn','Melbourne homes filmed','Callum Fraser & Jamie Baldwin filmed in the homes — branding & website.','2026-10-20','2026-11-15','todo','Seth · Marketing',false,0],
-  ['p5','haavn','Crane-install film & social push','Product & team dressed in HAAVN — social & website push.','2026-11-15','2026-12-10','todo','Seth · Marketing',false,0],
-  ['p6','haavn','Homes live sales journey — LAUNCH','SOLUM at 10/mo, then 2 MAGNA/mo. Crane-install social push. Black Series launches.','2026-11-15','2026-12-01','todo','Jamie Baldwin',true,5],
-  ['p6','haavn','Full range launch','Entire HAAVN Homes range to market — the full push.','2026-12-15','2027-01-15','todo','James Winstanley',false,0],
-];
-const SEED_GATES=[
-  ['G0','JV Executed','High-rise pipeline + base demand for the factory.',true,'2026-08-01'],
-  ['G1','Factory & Tooling Ready','Produce pods & hybrid components at volume — the pre-condition for every sale.',false,''],
-  ['G2','Volume Supply Opens','First repeatable income — supply orders independent of any single project.',false,'2026-09-01'],
-  ['G3','First JV Tower Contracted','High-value manufacturing revenue per tower + reference project.',false,''],
-  ['G4','Black Series Launch','Consumer demand & pre-sales — the brand becomes a market.',false,'2026-12-01'],
-  ['G5','First SOLUM Installed','Proven, repeatable consumer product — the high-frequency revenue line.',false,''],
-  ['G6','Full Range to Market','The complete HAAVN range live and selling.',false,'2027-01-15'],
-];
-
-/* ---------------- STATE + PERSISTENCE ---------------- */
-const KEY='haavn_path_to_market_v1';
-/* ---------------- CLOUD SYNC (Supabase capital_kv) -----------------
-   Live, shared, multi-user persistence. The serialisable DB snapshot is mirrored
-   under one key. Degrades gracefully to localStorage when the table is absent,
-   and auto-upgrades the moment capital_kv exists. */
-const SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
-const CLOUD_KEY='haavn_path_to_market';
-const SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
-let _cloudOk=false,_cloudTs=0,_pushT=null;
-function _isTyping(){const a=document.activeElement;return !!a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable);}
-function _reuidFromDB(){try{const ids=DB.dels.map(d=>d.id);_uid=(ids.length?Math.max(...ids):0)+1;}catch(e){}}
-async function cloudPull(){
-  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=value,updated_at',{headers:SUPA_H});
-    if(!r.ok)return null; _cloudOk=true; const rows=await r.json(); return (rows&&rows.length)?rows[0]:null;
-  }catch(e){return null;}
-}
-function cloudPush(){
-  if(!_cloudOk)return; clearTimeout(_pushT);
-  _pushT=setTimeout(async()=>{
-    try{const body=[{key:CLOUD_KEY,value:stripForSave(),updated_at:new Date().toISOString()}];
-      const r=await fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)});
-      if(r.ok){const rows=await r.json(); if(rows&&rows[0])_cloudTs=Date.parse(rows[0].updated_at)||Date.now();}
-    }catch(e){}
-  },500);
-}
-async function cloudPoll(){
-  if(!_cloudOk||_isTyping())return;
-  try{const r=await fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+CLOUD_KEY+'&select=updated_at',{headers:SUPA_H});
-    if(!r.ok)return; const rows=await r.json(); if(!rows||!rows.length)return;
-    const ts=Date.parse(rows[0].updated_at)||0;
-    if(ts>_cloudTs){const row=await cloudPull(); if(!row||!row.value)return;
-      DB=row.value; _cloudTs=ts; _reuidFromDB(); try{localStorage.setItem(KEY,JSON.stringify(stripForSave()));}catch(e){}
-      render();
-    }
-  }catch(e){}
-}
-let DB=null, tab='overview', openId=null, _fileTarget=null, delGroup='phase';
-let _uid=1; const uid=()=>_uid++;
-function mkDel(a){return {id:uid(),phase:a[0],stake:a[1],title:a[2],detail:a[3],start:a[4],due:a[5],status:a[6],owner:a[7],gate:a[8],pct:a[9],notes:[],atts:[]};}
-function load(){
-  try{const r=localStorage.getItem(KEY);
-    if(r){DB=JSON.parse(r);const ids=DB.dels.map(d=>d.id);_uid=(ids.length?Math.max(...ids):0)+1;return;}
-  }catch(e){}
-  DB={
-    meta:{title:'HAAVN — 6-Month Path to Market',window:'Aug 2026 → Jan 2027',blueprint:'v4'},
-    phases:JSON.parse(JSON.stringify(SEED_PHASES)),
-    stakeholders:JSON.parse(JSON.stringify(SEED_STAKE)),
-    dels:SEED_DELS.map(mkDel),
-    gates:SEED_GATES.map(g=>({g:g[0],t:g[1],u:g[2],done:g[3],date:g[4]})),
-  };
-}
-let _st=null;
-function save(){
-  const p=document.getElementById('savePill'),t=document.getElementById('saveTxt');
-  if(p){p.classList.add('saving');t.textContent='Saving…';}
-  clearTimeout(_st);
-  _st=setTimeout(()=>{
-    try{localStorage.setItem(KEY,JSON.stringify(stripForSave()));}catch(e){}
-    cloudPush();
-    if(p){p.classList.remove('saving');t.textContent='Saved '+new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});}
-  },450);
-}
-function stripForSave(){ /* keep attachment metadata only — object URLs can't be persisted */
-  const c=JSON.parse(JSON.stringify({meta:DB.meta,phases:DB.phases,stakeholders:DB.stakeholders,gates:DB.gates,
-    dels:DB.dels.map(d=>({...d,atts:d.atts.map(a=>({name:a.name,size:a.size,when:a.when}))}))}));
-  return c;
-}
-/* ---------------- HELPERS ---------------- */
-const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const del=id=>DB.dels.find(d=>d.id===id);
-const stake=id=>DB.stakeholders.find(s=>s.id===id);
-const phase=id=>DB.phases.find(p=>p.id===id);
-function get(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o);}
-function set(o,p,v){const ks=p.split('.');const last=ks.pop();let t=o;ks.forEach(k=>t=t[k]);t[last]=v;}
-function shortDate(iso){if(!iso)return '—';const d=new Date(iso+'T00:00');return isNaN(d)?iso:d.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
-function datePct(iso){const d=new Date(iso+'T00:00');const p=(d-M_START)/(M_END-M_START)*100;return Math.max(0,Math.min(100,p));}
-function initials(n){return n.split(' ').map(x=>x[0]).slice(0,2).join('');}
-function delsBy(key,val){return DB.dels.filter(d=>d[key]===val).sort((a,b)=>a.due.localeCompare(b.due));}
-function stakeStats(sid){const ds=delsBy('stake',sid);const done=ds.filter(d=>d.status==='done').length;const risk=ds.some(d=>d.status==='risk');
-  const next=ds.find(d=>d.status!=='done');const pct=ds.length?Math.round(ds.reduce((a,d)=>a+(d.status==='done'?100:d.pct),0)/ds.length):0;
-  return {total:ds.length,done,pct,risk,next};}
-function ragColor(sid){const s=stakeStats(sid);if(s.risk)return 'var(--red)';if(s.pct===100)return 'var(--green)';if(s.pct>=50)return 'var(--goldl)';return 'var(--gold)';}
-function phaseStats(pid){const ds=delsBy('phase',pid);const done=ds.filter(d=>d.status==='done').length;
-  const pct=ds.length?Math.round(ds.reduce((a,d)=>a+(d.status==='done'?100:d.pct),0)/ds.length):0;return {total:ds.length,done,pct};}
-
-/* ===========================================================
-   RENDER
-   =========================================================== */
-function render(){
-  document.querySelectorAll('#tabsbar button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
-  const v=document.getElementById('view');
-  const map={overview:vOverview,process:vProcess,deliverables:vDeliverables,timeline:vTimeline,stakeholders:vStakeholders};
-  v.innerHTML=(map[tab]||vOverview)();
-  window.scrollTo(0,0);
-}
-
-function vOverview(){
-  const all=DB.dels, done=all.filter(d=>d.status==='done').length, risk=all.filter(d=>d.status==='risk').length;
-  const nextGate=DB.gates.find(g=>!g.done);
-  const overallPct=Math.round(all.reduce((a,d)=>a+(d.status==='done'?100:d.pct),0)/all.length);
-  return `<div class="sec-head"><div class="eyebrow">Shareholder strategy · ${esc(DB.meta.window)}</div>
-    <h1 class="title">Process, deliverables <i>& the pathway to market.</i></h1>
-    <p class="lede">Live tracking of what each partner ships across the six-month path to market — and the gates that turn those deliverables into a trading business. Adjust dates, set status, add notes and attach PDFs; everything auto-saves.</p></div>
-   <div class="kpis">
-    <div class="kpi"><div class="k">Deliverables complete</div><div class="v">${done}<span class="u"> / ${all.length}</span></div><div class="s">${overallPct}% weighted progress</div></div>
-    <div class="kpi hl"><div class="k">Next gate</div><div class="v" style="font-size:26px">${nextGate?nextGate.g:'—'}</div><div class="s">${nextGate?esc(nextGate.t):'all gates cleared'}</div></div>
-    <div class="kpi"><div class="k">Hard date · volume opens</div><div class="v" style="font-size:22px">1 Sep 2026</div><div class="s">G2 · first repeatable income</div></div>
-    <div class="kpi"><div class="k">At risk</div><div class="v">${risk}</div><div class="s">${risk?'needs attention':'flagged deliverables'}</div></div>
-   </div>
-   <div class="panel"><div class="panel-h"><h3>Stakeholder status</h3><span class="sub">live · click a partner to open their tracker</span></div>
-    <div class="panel-b"><div class="ragstrip">
-    ${DB.stakeholders.map(p=>{const s=stakeStats(p.id);return `<div class="ragcard" data-act="openStake" data-id="${p.id}">
-      <div class="top"><span class="dotc" style="background:${ragColor(p.id)}"></span><span class="nm">${esc(p.name)}</span></div>
-      <div class="sub">${esc(p.sub)}</div>
-      <div class="prog"><span style="width:${s.pct}%;background:${ragColor(p.id)}"></span></div>
-      <div class="foot"><span>${s.done}/${s.total} done · ${s.pct}%</span><span>${s.next?'Next: '+shortDate(s.next.due):'complete'}</span></div></div>`;}).join('')}
-    </div></div></div>
-   <div class="panel"><div class="panel-h"><h3>Seven gates · signed to selling</h3><span class="sub">tap a gate to flip it · each unlocks a way to earn</span></div>
-    <div class="panel-b"><div class="gates">
-    ${DB.gates.map((g,i)=>`<div class="gate ${g.done?'done':''}">
-      <div class="g"><span data-act="toggleGate" data-i="${i}" style="cursor:pointer">${g.g}${g.done?' ✓':''}</span></div>
-      <div class="gt">${esc(g.t)}</div><div class="gu">${esc(g.u)}</div>
-      <div class="gd"><input type="date" value="${g.date}" data-bind="g:${i}:date"></div></div>`).join('')}
-    </div>
-    <div style="margin-top:14px;font-size:11.5px;color:var(--ink3)">The single dependency that governs everything is <b style="color:var(--gold)">factory &amp; tooling readiness (G1)</b> — it gates volume supply, JV manufacturing and the Black Series alike.</div>
-    </div></div>
-   <div class="panel"><div class="panel-h"><h3>The critical path</h3></div><div class="panel-b">
-    <div class="cpath"><span class="node hl">Factory ready</span><span class="arr">→</span><span class="node">Volume opens · 1 Sep</span><span class="arr">→</span><span class="node">Tower 1 contracted</span><span class="arr">→</span><span class="node">Displays &amp; launch · Nov</span><span class="arr">→</span><span class="node">First SOLUM installed</span></div>
-   </div></div>`;
-}
-
-/* ---------- PROCESS (6-month path) ---------- */
-function vProcess(){
-  return `<div class="h-row"><div><div class="eyebrow">The six-month path · editable phases</div><h1 class="title">Process · path to market</h1>
-    <p class="lede">The route from signed partnerships to a live, selling business, in six phases. Each phase carries its own deliverables — progress rolls up automatically. Add, rename or re-time a phase; it saves instantly.</p></div>
-    <button class="btn pri" data-act="addPhase">＋ Add phase</button></div>
-   ${DB.phases.map((p,i)=>{const s=phaseStats(p.id);const ds=delsBy('phase',p.id);
-    return `<div class="phase">
-      <div class="phase-h">
-        <div class="pnum" style="background:${p.color}">${i+1}</div>
-        <div style="flex:1;min-width:0">
-          <input class="inp" style="font-size:15px;font-weight:800;border:none;background:transparent;padding:2px 0;width:100%" value="${esc(p.name)}" data-bind="p:${p.id}:name">
-          <div class="pmo">${esc(p.month)}</div>
-          <input class="inp" style="font-size:11.5px;color:var(--ink3);border:none;background:transparent;padding:2px 0;width:100%" value="${esc(p.goal)}" data-bind="p:${p.id}:goal">
-        </div>
-        <div style="text-align:right"><span class="pill ${s.pct===100?'done':'inprogress'}"><span class="d"></span>${s.done}/${s.total} · ${s.pct}%</span>
-          <div style="margin-top:8px"><button class="btn sm" data-act="addDelPhase" data-id="${p.id}">＋ Deliverable</button>
-          <button class="iconbtn" style="display:inline-flex;vertical-align:middle;margin-left:4px" data-act="delPhase" data-id="${p.id}" title="Remove phase">×</button></div>
-        </div>
-      </div>
-      <div class="phase-b">
-      ${ds.length?ds.map(d=>`<div class="phline">
-        <span class="dotc" style="width:8px;height:8px;background:${ST_COLOR[d.status]}"></span>
-        <div class="pt"><div class="ptt">${esc(d.title)} ${d.gate?'<span class="gateflag">◆ gate</span>':''}</div><div class="pts">${esc(d.owner)} · ${stakeName(d.stake)} · due ${shortDate(d.due)}</div></div>
-        <span class="pill ${d.status}"><span class="d"></span>${ST_LABEL[d.status]}</span>
-        <button class="btn sm" data-act="editDel" data-id="${d.id}">Open</button>
-      </div>`).join(''):'<div class="empty" style="padding:18px">No deliverables in this phase yet.</div>'}
-      </div>
-    </div>`;}).join('')}`;
-}
-function stakeName(sid){return stake(sid)?.name||'—';}
-
-/* ---------- DELIVERABLES (full CRUD) ---------- */
-function vDeliverables(){
-  const groups=delGroup==='phase'?DB.phases.map(p=>({key:p.id,name:p.name,color:p.color,sub:p.month,list:delsBy('phase',p.id)}))
-    :DB.stakeholders.map(s=>({key:s.id,name:s.name,color:s.color,sub:s.sub,list:delsBy('stake',s.id)}));
-  return `<div class="h-row"><div><div class="eyebrow">What each partner ships · editable</div><h1 class="title">Deliverables</h1>
-    <p class="lede">Adjust dates and status inline; expand any row for notes and PDF attachments. Every change auto-saves.</p></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="chip" style="padding:0">
-        <button class="btn sm ${delGroup==='phase'?'pri':''}" data-act="group" data-g="phase">By phase</button>
-        <button class="btn sm ${delGroup==='stake'?'pri':''}" data-act="group" data-g="stake">By partner</button>
-      </div>
-      <button class="btn pri" data-act="addDel">＋ Add deliverable</button></div></div>
-   ${groups.map(g=>`<div class="panel"><div class="panel-h"><span class="dotc" style="background:${g.color}"></span><h3>${esc(g.name)}</h3><span class="sub">${esc(g.sub)}</span>
-     <span class="ml-auto pill ${g.list.every(d=>d.status==='done')&&g.list.length?'done':'inprogress'}"><span class="d"></span>${g.list.filter(d=>d.status==='done').length}/${g.list.length}</span></div>
-     <div class="panel-b">${g.list.length?g.list.map(d=>delRow(d)).join(''):'<div class="empty">No deliverables here yet.</div>'}</div></div>`).join('')}`;
-}
-function delRow(d){
-  const editing=openId===d.id;
-  return `<div>
-   <div class="delrow">
-    <div class="bar" style="background:${ST_COLOR[d.status]}"></div>
-    <div class="main" data-act="editDel" data-id="${d.id}" style="cursor:pointer">
-      <div class="t">${esc(d.title)} ${d.gate?'<span class="gateflag">◆ gate</span>':''}</div>
-      <div class="dsub">${esc(d.detail)}</div>
-      <div class="who">${esc(d.owner)} · ${stakeName(d.stake)} · ${phase(d.phase)?esc(phase(d.phase).name.split('—')[0].trim()):''}</div>
-    </div>
-    <input class="datein" type="date" value="${d.due}" data-bind="d:${d.id}:due">
-    <select class="stsel" data-bind="d:${d.id}:status" data-rerender="1" style="color:${ST_COLOR[d.status]}">
-      ${STATUSES.map(s=>`<option value="${s}" ${d.status===s?'selected':''}>${ST_LABEL[s]}</option>`).join('')}
-    </select>
-    <div class="delact">
-      <button class="iconbtn" data-act="editDel" data-id="${d.id}" title="Edit / notes">✎${d.notes.length?`<span class="badge">${d.notes.length}</span>`:''}</button>
-      <button class="iconbtn" data-act="attach" data-id="${d.id}" title="Attach PDF">📎${d.atts.length?`<span class="badge">${d.atts.length}</span>`:''}</button>
-    </div>
-   </div>
-   ${editing?delEditor(d):''}
-  </div>`;
-}
-function delEditor(d){
-  return `<div class="deledit">
-   <div class="fgrid">
-     <label>Title<input value="${esc(d.title)}" data-bind="d:${d.id}:title" data-rerender="1"></label>
-     <label>Owner<input value="${esc(d.owner)}" data-bind="d:${d.id}:owner"></label>
-   </div>
-   <div class="fgrid">
-     <label>Phase<select data-bind="d:${d.id}:phase" data-rerender="1">${DB.phases.map(p=>`<option value="${p.id}" ${d.phase===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
-     <label>Partner<select data-bind="d:${d.id}:stake" data-rerender="1">${DB.stakeholders.map(s=>`<option value="${s.id}" ${d.stake===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
-   </div>
-   <div class="fgrid">
-     <label>Start<input type="date" value="${d.start}" data-bind="d:${d.id}:start"></label>
-     <label>Due<input type="date" value="${d.due}" data-bind="d:${d.id}:due" data-rerender="1"></label>
-     <label>Progress %<input value="${d.pct}" data-bind="d:${d.id}:pct" data-num="1" data-clamp="100"></label>
-     <label style="display:flex;align-items:center;gap:8px;margin-top:18px"><input type="checkbox" ${d.gate?'checked':''} data-bind="d:${d.id}:gate" data-bool="1" data-rerender="1" style="width:auto;flex:none"> Gate deliverable</label>
-   </div>
-   <label style="font-size:11px;color:var(--ink3)">Detail<textarea data-bind="d:${d.id}:detail">${esc(d.detail)}</textarea></label>
-   <div style="margin-top:14px"><div class="mlbl">Attachments</div>
-    ${d.atts.map((a,i)=>`<div class="att"><span class="fi">PDF</span>${a.url?`<a href="${a.url}" target="_blank">${esc(a.name)}</a>`:`<span>${esc(a.name)}</span>`}<span class="sz">${a.size||''}${a.url?'':' · re-attach to open'}</span><button class="iconbtn" style="width:24px;height:24px;margin-left:8px" data-act="rmAtt" data-id="${d.id}" data-i="${i}">×</button></div>`).join('')||'<div style="font-size:11.5px;color:var(--ink3);margin-bottom:8px">No attachments.</div>'}
-    <button class="btn sm" data-act="attach" data-id="${d.id}">📎 Attach PDF</button></div>
-   <div style="margin-top:14px"><div class="mlbl">Notes</div>
-    ${d.notes.map(n=>`<div class="note"><div class="meta">${esc(n.who)} · ${esc(n.when)}</div><div class="tx">${esc(n.tx)}</div></div>`).join('')}
-    <div style="display:flex;gap:8px;margin-top:6px"><input class="inp" id="note_${d.id}" placeholder="Add a note / decision…" style="flex:1"><button class="btn sm gold" data-act="addNote" data-id="${d.id}">Add</button></div></div>
-   <div style="margin-top:12px;text-align:right"><button class="btn sm danger" data-act="rmDel" data-id="${d.id}">Delete deliverable</button></div>
-  </div>`;
-}
-
-/* ---------- TIMELINE ---------- */
-function vTimeline(){
-  const rows=DB.stakeholders.map(p=>{const ds=delsBy('stake',p.id);
-    return `<div class="tlrow"><div class="pn"><span class="dotc" style="background:${p.color}"></span>${esc(p.name.split(' ')[0])}${p.id==='fraser'?' & P.':p.id==='hamilton'?' Marino':' Tech'}</div>
-     <div class="tllane"><div class="tlgridlines">${MONTHS.map(()=>'<div></div>').join('')}</div>
-      ${ds.map(d=>{const l=datePct(d.start),r=datePct(d.due);const w=Math.max(4,r-l);
-        return `<div class="tlbar ${d.status}" style="left:${l}%;width:${w}%" data-act="editDelTL" data-id="${d.id}" title="${esc(d.title)} · ${shortDate(d.start)}–${shortDate(d.due)}">${esc(d.title.length>26?d.title.slice(0,24)+'…':d.title)}</div>`;}).join('')}
-     </div></div>`;
-  }).join('');
-  return `<div class="sec-head"><div class="eyebrow">Six months of deliverables · ${esc(DB.meta.window)}</div><h1 class="title">Timeline</h1>
-    <p class="lede">Every partner's deliverables as start-to-due bars across the six-month plan. Two hard dates anchor it — 1 Sep volume supply opens and Dec Black Series launch. Click any bar to edit it.</p></div>
-   <div class="panel"><div class="panel-b tl"><div class="tlgrid">
-    <div class="tlhead"><div class="mh" style="border-left:none"></div>${MONTHS.map(([m,y],i)=>`<div class="mh ${m==='SEP'||m==='DEC'?'hot':''}">${m} ${y}</div>`).join('')}</div>
-    <div style="position:relative">${rows}
-      <div style="position:absolute;left:160px;right:0;top:0;bottom:0;pointer-events:none">
-        <div class="hardline" style="left:${datePct('2026-09-01')}%"><span class="hl-lbl">1 Sep · volume opens</span></div>
-        <div class="hardline" style="left:${datePct('2026-12-01')}%"><span class="hl-lbl">Dec · launch</span></div>
-      </div>
-    </div>
-   </div></div></div>
-   <div class="tllegend">
-     ${STATUSES.map(s=>`<span><span class="tlbar ${s}" style="position:static;display:inline-flex;height:auto;padding:2px 8px;box-shadow:none">${ST_LABEL[s]}</span></span>`).join('')}
-   </div>`;
-}
-
-/* ---------- STAKEHOLDERS ---------- */
-function vStakeholders(){
-  return `<div class="h-row"><div><div class="eyebrow">Partners in precision</div><h1 class="title">Stakeholders</h1>
-    <p class="lede">The shareholder view of the blueprint — each delivery partner, their team, live progress, next due date and status. Everything here is editable.</p></div>
-    <button class="btn pri" data-act="addStake">＋ Add stakeholder</button></div>
-   ${DB.stakeholders.map(p=>{const s=stakeStats(p.id);const ds=delsBy('stake',p.id);
-    return `<div class="panel"><div class="panel-h"><span class="dotc" style="width:12px;height:12px;background:${p.color}"></span>
-      <input class="inp" style="font-size:14px;font-weight:800;border:none;background:transparent;width:auto;min-width:180px;padding:2px 0" value="${esc(p.name)}" data-bind="s:${p.id}:name">
-      <input class="inp" style="font-size:11.5px;color:var(--ink3);border:none;background:transparent;width:auto;min-width:150px;padding:2px 0" value="${esc(p.sub)}" data-bind="s:${p.id}:sub">
-      <span class="ml-auto pill ${s.pct===100?'done':s.risk?'risk':'inprogress'}"><span class="d"></span>${s.pct}% complete</span>
-      <button class="iconbtn" data-act="delStake" data-id="${p.id}" title="Remove stakeholder">×</button></div>
-     <div class="panel-b">
-      <div class="team">${p.team.map(m=>`<div class="tmember"><span class="av">${esc(initials(m.n))}</span><div><div class="tn">${esc(m.n)}</div><div class="tr">${esc(m.r)}</div></div><button class="tx" data-act="rmMember" data-id="${p.id}" data-mid="${m.id}" title="Remove">×</button></div>`).join('')}
-        <button class="btn sm" data-act="addMember" data-id="${p.id}">＋ Person</button></div>
-      <div class="prog" style="height:9px"><span style="width:${s.pct}%;background:${ragColor(p.id)}"></span></div>
-      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-bottom:8px"><span>${s.done} of ${s.total} deliverables complete</span><span>${s.next?'Next: '+esc(s.next.title)+' · '+shortDate(s.next.due):'All complete'}</span></div>
-      ${ds.map(d=>`<div class="slist"><span class="pill ${d.status}"><span class="d"></span>${ST_LABEL[d.status]}</span>
-        <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">${esc(d.title)} ${d.gate?'<span class="gateflag">◆</span>':''}</div><div style="font-size:11px;color:var(--ink3)">${esc(d.owner)} · ${phase(d.phase)?esc(phase(d.phase).month):''}</div></div>
-        <span class="mono" style="font-size:12px;color:var(--ink2)">${shortDate(d.due)}</span>
-        <button class="btn sm" data-act="editDelJump" data-id="${d.id}">Open</button></div>`).join('')}
-     </div></div>`;}).join('')}`;
-}
-
-/* ===========================================================
-   MUTATIONS
-   =========================================================== */
-function addPhase(){const n=DB.phases.length+1;DB.phases.push({id:'ph'+uid(),name:'New phase '+n,month:'2026',color:'#736E62',goal:'Describe the goal of this phase…'});save();render();}
-function delPhase(id){if(delsBy('phase',id).length&&!confirm('This phase has deliverables. Remove the phase anyway? (deliverables stay, unassigned)'))return;DB.phases=DB.phases.filter(p=>p.id!==id);save();render();}
-function addDel(pid,sid){const d=mkDel([pid||DB.phases[0].id,sid||DB.stakeholders[0].id,'New deliverable','Describe the deliverable…','2026-09-01','2026-09-15','todo','Owner',false,0]);DB.dels.push(d);openId=d.id;save();
-  if(tab!=='deliverables'){tab='deliverables';}render();
-  setTimeout(()=>{const e=document.querySelector('.deledit');if(e)e.scrollIntoView({block:'center'});},60);}
-function rmDel(id){DB.dels=DB.dels.filter(d=>d.id!==id);openId=null;save();render();}
-function editDel(id){openId=openId===id?null:id;render();}
-function editDelJump(id){tab='deliverables';delGroup='phase';openId=id;render();setTimeout(()=>{const e=document.querySelector('.deledit');if(e)e.scrollIntoView({block:'center'});},60);}
-function addNote(id){const inp=document.getElementById('note_'+id);const tx=inp.value.trim();if(!tx)return;
-  del(id).notes.unshift({who:'You',when:new Date().toLocaleDateString('en-AU',{day:'2-digit',month:'short'}),tx});save();render();
-  setTimeout(()=>{const e=document.querySelector('.deledit');if(e)e.scrollIntoView({block:'center'});},40);}
-function addStake(){DB.stakeholders.push({id:'st'+uid(),name:'New stakeholder',sub:'Role',color:'#736E62',team:[]});save();render();}
-function delStake(id){if(!confirm('Remove this stakeholder? Their deliverables remain but become unassigned.'))return;DB.stakeholders=DB.stakeholders.filter(s=>s.id!==id);save();render();}
-function addMember(sid){stake(sid).team.push({id:'m'+uid(),n:'New person',r:'Role'});save();render();}
-function rmMember(sid,mid){const s=stake(sid);s.team=s.team.filter(m=>m.id!==mid);save();render();}
-function toggleGate(i){DB.gates[i].done=!DB.gates[i].done;if(DB.gates[i].done&&!DB.gates[i].date)DB.gates[i].date=new Date().toISOString().slice(0,10);save();render();}
-function attach(id){_fileTarget=id;document.getElementById('fileInput').click();}
-function rmAtt(id,i){del(id).atts.splice(i,1);save();render();}
-document.getElementById('fileInput').onchange=function(e){const f=e.target.files[0];if(!f||_fileTarget==null)return;
-  const d=del(_fileTarget);const url=URL.createObjectURL(f);
-  d.atts.push({name:f.name,size:(f.size/1024).toFixed(0)+' KB',when:new Date().toLocaleDateString('en-AU'),url});
-  openId=d.id;save();render();e.target.value='';
-  setTimeout(()=>{const el=document.querySelector('.deledit');if(el)el.scrollIntoView({block:'center'});},50);};
-
-/* ===========================================================
-   EVENT DELEGATION
-   =========================================================== */
-document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-act]'); if(!t)return;
-  const a=t.dataset.act, id=t.dataset.id;
-  switch(a){
-    case 'tab': tab=t.dataset.tab; openId=null; render(); break;
-    case 'openStake': tab='stakeholders'; render(); break;
-    case 'group': delGroup=t.dataset.g; render(); break;
-    case 'addPhase': addPhase(); break;
-    case 'delPhase': delPhase(id); break;
-    case 'addDel': addDel(); break;
-    case 'addDelPhase': addDel(id); break;
-    case 'editDel': editDel(+id); break;
-    case 'editDelJump': editDelJump(+id); break;
-    case 'editDelTL': editDelJump(+id); break;
-    case 'rmDel': rmDel(+id); break;
-    case 'addNote': addNote(+id); break;
-    case 'attach': attach(+id); break;
-    case 'rmAtt': rmAtt(+id,+t.dataset.i); break;
-    case 'addStake': addStake(); break;
-    case 'delStake': delStake(id); break;
-    case 'addMember': addMember(id); break;
-    case 'rmMember': rmMember(id,t.dataset.mid); break;
-    case 'toggleGate': toggleGate(+t.dataset.i); break;
-  }
-});
-/* inline binding: data-bind="<kind>:<id>:<path>" kinds d|s|p|g */
-function applyBind(el){
-  const b=el.dataset.bind; if(!b)return;
-  const [kind,id,...pp]=b.split(':'); const path=pp.join(':');
-  let obj;
-  if(kind==='d')obj=del(+id);
-  else if(kind==='s')obj=stake(id);
-  else if(kind==='p')obj=phase(id);
-  else if(kind==='g')obj=DB.gates[+id];
-  if(!obj)return;
-  let v;
-  if(el.dataset.bool){v=el.checked;}
-  else{v=el.value; if(el.dataset.num){v=parseInt(String(v).replace(/[^0-9-]/g,''),10);if(isNaN(v))v=0;if(el.dataset.clamp)v=Math.max(0,Math.min(+el.dataset.clamp,v));}}
-  set(obj,path,v);
-  save();
-}
-document.addEventListener('input',e=>{const el=e.target;if(el.dataset&&el.dataset.bind&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')&&el.type!=='date'&&el.type!=='checkbox')applyBind(el);});
-document.addEventListener('change',e=>{
-  const el=e.target; if(!el.dataset||!el.dataset.bind)return;
-  applyBind(el);
-  if(el.dataset.rerender||el.tagName==='SELECT'||el.type==='date'||el.type==='checkbox'){
-    /* preserve caret focus is unnecessary for date/select; re-render to refresh rollups */
-    render();
-  }
-});
-
-/* boot */
-(async function boot(){
-  const row=await cloudPull();
-  if(row&&row.value){ DB=row.value; _cloudTs=Date.parse(row.updated_at)||Date.now(); _reuidFromDB(); try{localStorage.setItem(KEY,JSON.stringify(stripForSave()));}catch(e){} }
-  else { load(); if(_cloudOk) cloudPush(); }
-  render();
-  if(_cloudOk) setInterval(cloudPoll, 12000);
+(function(){
+  var tabs=document.getElementById('tabs');
+  var frame=document.getElementById('frame');
+  var loading=document.getElementById('loading');
+  frame.addEventListener('load',function(){loading.classList.add('hide');});
+  tabs.addEventListener('click',function(e){
+    var btn=e.target.closest('.tab'); if(!btn) return;
+    if(btn.classList.contains('active')) return;
+    tabs.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    btn.classList.add('active');
+    loading.classList.remove('hide');
+    frame.src=btn.getAttribute('data-src');
+  });
 })();
 </script>
 </body>
