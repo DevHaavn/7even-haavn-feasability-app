@@ -60,15 +60,15 @@ const CSS = `
 @keyframes hbm-spin{to{--hbmA:360deg}}
 .ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
 .ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
-  background:conic-gradient(from var(--hbmA),transparent 0deg,#2fe07a 80deg,#13B5EA 190deg,transparent 300deg,transparent 360deg);
+  background:conic-gradient(from var(--hbmA),transparent 0deg,#2fe07a 130deg,#2fe07a 190deg,transparent 310deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
   animation:hbm-spin 4.6s linear infinite;z-index:1}
 .ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.5;pointer-events:none;
-  background:conic-gradient(from var(--hbmA),transparent 0deg,rgba(47,224,122,.5) 80deg,rgba(19,181,234,.5) 190deg,transparent 300deg);
+  background:conic-gradient(from var(--hbmA),transparent 0deg,rgba(47,224,122,.55) 150deg,transparent 300deg);
   filter:blur(16px);animation:hbm-spin 4.6s linear infinite}
-.ledbox.b2::before{animation-delay:-2.3s;background:conic-gradient(from var(--hbmA),transparent 0deg,#13B5EA 80deg,#2fe07a 190deg,transparent 300deg,transparent 360deg)}
-.ledbox.b2::after{animation-delay:-2.3s}
+.ledbox.b2::before{animation-delay:-2.3s;background:conic-gradient(from var(--hbmA),transparent 0deg,#13B5EA 130deg,#13B5EA 190deg,transparent 310deg,transparent 360deg)}
+.ledbox.b2::after{animation-delay:-2.3s;background:conic-gradient(from var(--hbmA),transparent 0deg,rgba(19,181,234,.55) 150deg,transparent 300deg)}
 .ledbox:hover{transform:translateY(-4px)}
 .ledbox:hover::before,.ledbox:hover::after{animation-duration:2.4s}
 .pcard{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
