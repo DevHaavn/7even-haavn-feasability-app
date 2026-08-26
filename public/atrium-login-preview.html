@@ -37,22 +37,27 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 /* stage */
 .stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
 
-/* 7EVEN in LED purple — ignites from nothing to full bright, then breathes + slow 3D spin */
-.persp{perspective:1100px}
-.seven7{width:clamp(240px,32vw,460px);aspect-ratio:1800/280;
+/* 7EVEN in LED purple — true 3D: extruded glyph stack, ignition, then slow clockwise spin.
+   NOTE: filters flatten preserve-3d, so the glow is its own element, not a drop-shadow. */
+.persp{perspective:1000px;position:relative;width:clamp(240px,32vw,460px);aspect-ratio:1800/280;
+  opacity:0;animation:ignite 7.2s ease-out forwards}
+@keyframes ignite{0%{opacity:0}35%{opacity:.3}100%{opacity:1}}
+.glow7{position:absolute;inset:-46% -14%;pointer-events:none;border-radius:50%;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(122,59,240,.4),rgba(122,59,240,.14) 55%,transparent 75%);
+  filter:blur(14px);animation:gpulse 6.5s ease-in-out 7.2s infinite}
+@keyframes gpulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+.spin3{position:absolute;inset:0;transform-style:preserve-3d;
+  transform:rotateX(10deg);animation:spin7 16s linear 7.2s infinite}
+@keyframes spin7{from{transform:rotateX(10deg) rotateY(0deg)}to{transform:rotateX(10deg) rotateY(360deg)}}
+.stack{position:absolute;inset:0;transform-style:preserve-3d}
+.stack i{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  background:linear-gradient(180deg,#7a3bf0,#6a2fd6 55%,#5522b8);
-  animation:ignite 7.2s ease-out forwards, breathe 6.5s ease-in-out 7.2s infinite, spin7 16s linear 7.2s infinite;
-  transform-style:preserve-3d}
-@keyframes spin7{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
-@keyframes ignite{
-  0%{opacity:0;filter:drop-shadow(0 0 0 rgba(168,107,255,0)) brightness(.3)}
-  35%{opacity:.35;filter:drop-shadow(0 0 8px rgba(168,107,255,.2)) brightness(.55)}
-  100%{opacity:1;filter:drop-shadow(0 0 16px rgba(168,107,255,.75)) drop-shadow(0 0 60px rgba(168,107,255,.35)) brightness(1.12)}}
-@keyframes breathe{
-  0%,100%{filter:drop-shadow(0 0 16px rgba(168,107,255,.75)) drop-shadow(0 0 60px rgba(168,107,255,.35)) brightness(1.12)}
-  50%{filter:drop-shadow(0 0 22px rgba(168,107,255,.95)) drop-shadow(0 0 80px rgba(168,107,255,.5)) brightness(1.25)}}
+  background:#341070;backface-visibility:visible}
+.stack i.face{transform:translateZ(1.5px);
+  background:linear-gradient(180deg,#9a5cff,#7a3bf0 45%,#5522b8)}
+/* pre-mirrored back face — the wordmark reads correctly from behind mid-spin */
+.stack i.fback{transform:translateZ(-18px) rotateY(180deg)}
 .welcome{font-family:var(--mono);font-size:8px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
   opacity:0;animation:wfade 2.6s ease-out 4.4s forwards}
 @keyframes wfade{to{opacity:1}}
@@ -101,7 +106,7 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 <div class="pvr">Preview · ATRIUM Login redesign · <b>new design language</b></div>
 
 <div class="stage">
-  <div class="persp"><div class="seven7"></div></div>
+  <div class="persp"><div class="glow7"></div><div class="spin3"><div class="stack"><i style="transform:translateZ(-16.5px)"></i><i style="transform:translateZ(-15.0px)"></i><i style="transform:translateZ(-13.5px)"></i><i style="transform:translateZ(-12.0px)"></i><i style="transform:translateZ(-10.5px)"></i><i style="transform:translateZ(-9.0px)"></i><i style="transform:translateZ(-7.5px)"></i><i style="transform:translateZ(-6.0px)"></i><i style="transform:translateZ(-4.5px)"></i><i style="transform:translateZ(-3.0px)"></i><i style="transform:translateZ(-1.5px)"></i><i class="face"></i><i class="face fback"></i></div></div></div>
   <div class="welcome">Welcome to Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
 
   <div class="card">
