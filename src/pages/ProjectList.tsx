@@ -137,7 +137,24 @@ const CSS = `
 .ath-root.menu-open .ath-hero{opacity:.08;filter:blur(2px)}
 .ath-sevenwrap{display:flex;flex-direction:column;align-items:center;opacity:0;animation:athBrandIn 2.4s ease-out .5s forwards}
 @keyframes athBrandIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.ath-seven{width:clamp(269px,40.3vw,576px);filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
+.ath-seven{width:clamp(269px,40.3vw,576px)}
+.ath-7stack{position:relative;aspect-ratio:1800/280}
+.s7{position:absolute;inset:0;display:block;opacity:0;
+  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
+  mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
+.s7p{background:#7a52c7;filter:drop-shadow(0 0 6px rgba(122,82,199,.7)) drop-shadow(0 0 22px rgba(122,82,199,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:s7pk 3.6s steps(1,end) .5s forwards}
+.s7g{background:#4d7a63;filter:drop-shadow(0 0 6px rgba(77,122,99,.75)) drop-shadow(0 0 22px rgba(77,122,99,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:s7gk 3.6s steps(1,end) .5s forwards}
+.s7au{background:#ddcb96;filter:drop-shadow(0 0 6px rgba(221,203,150,.7)) drop-shadow(0 0 22px rgba(221,203,150,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:s7auk 3.6s steps(1,end) .5s forwards}
+.s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:s7wk 3.6s steps(1,end) .5s forwards}
+@keyframes s7pk{0%{opacity:0}4%{opacity:1}13%{opacity:0}16%{opacity:1}24%{opacity:0}100%{opacity:0}}
+@keyframes s7gk{0%{opacity:0}26%{opacity:1}34%{opacity:0}37%{opacity:1}46%{opacity:0}100%{opacity:0}}
+@keyframes s7auk{0%{opacity:0}48%{opacity:1}56%{opacity:0}59%{opacity:1}68%{opacity:0}100%{opacity:0}}
+@keyframes s7wk{0%{opacity:0}70%{opacity:1}76%{opacity:0}79%{opacity:1}84%{opacity:0}87%{opacity:1}100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.s7p,.s7g,.s7au{animation:none}.s7w{animation:none;opacity:1}}
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
@@ -319,7 +336,9 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         {/* centre hero — the crisp 7EVEN master */}
         <div className="ath-hero">
           <div className="ath-sevenwrap">
-            <img className="ath-seven" src="/seven-mark-white-hd.png" alt="7EVEN" draggable={false} />
+            <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
+              <i className="s7 s7p" /><i className="s7 s7g" /><i className="s7 s7au" /><i className="s7 s7w" />
+            </div>
             <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
           </div>
         </div>
