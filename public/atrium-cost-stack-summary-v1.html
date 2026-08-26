@@ -3,205 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATRIUM — Cost Stack → Summary (Design Spec v1 preview)</title>
+<title>ATRIUM · Cost Stack → Summary (redesign preview)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#f4f4f1;--card:#ffffff;--ink:#1b1c1e;--muted:#6c6d72;--faint:#9a9b9f;
-  --line:#e6e5df;--line-2:#d8d7d0;--line-strong:#1b1c1e;
-  --green:#1e8f4e;--green-d:#146b39;
-  --blue:#3b6ea5;--blue-bg:#eef4fb;--blue-bd:#cfe0f2;
-  --amber:#8a6d1f;--amber-bg:#fbf6e6;--amber-bd:#ecdca7;
-  --f:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Inter',system-ui,sans-serif;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --chrome:#0f151c;--chrome-2:#0b1015;--chrome-line:rgba(255,255,255,.08);--chrome-txt:#e8edf1;--chrome-dim:#8996a0;--chrome-faint:#5a656e;
+  --gold:#6e7c8e;--gold-hi:#9aa8b6;--gold-deep:#556475;
+  --emerald:#2f9e6b;--em-deep:#1f7d52;--red:#c8503f;--amber:#c67d33;--blue:#5878a8;
+  --page:#dfe5ec;--card:rgba(255,255,255,.66);--card-solid:rgba(255,255,255,.78);
+  --ink:#232c37;--ink-2:#5b6672;--ink-3:#8592a0;--faint:#a6b2be;
+  --line:rgba(35,44,55,.09);--line-2:rgba(35,44,55,.055);--border:rgba(35,44,55,.12);--border-hi:rgba(35,44,55,.2);
+  --gold-soft:rgba(110,124,142,.15);--gold-line:rgba(110,124,142,.42);
+  --em-soft:rgba(47,158,107,.12);--amber-soft:rgba(198,125,51,.1);--amber-line:rgba(198,125,51,.32);--blue-soft:rgba(88,120,168,.1);--blue-line:rgba(88,120,168,.3);
+  --shadow:0 2px 5px rgba(30,45,65,.05),0 16px 36px -16px rgba(30,45,65,.22);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,.6);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--f);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.5;font-variant-numeric:tabular-nums}
-.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+body{font-family:var(--sans);color:var(--ink);font-weight:400;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+  background:
+    radial-gradient(rgba(255,255,255,.175) 1px, transparent 1px),
+    radial-gradient(120% 85% at 12% -12%, rgba(188,206,226,.65), transparent 55%),
+    radial-gradient(110% 80% at 92% 8%, rgba(206,214,226,.55), transparent 55%),
+    radial-gradient(120% 90% at 85% 115%, rgba(150,172,198,.5), transparent 60%),
+    linear-gradient(158deg,#e7ecf2 0%,#dde4ec 45%,#d2dbe5 100%) fixed;
+  background-size:4px 4px,auto,auto,auto,auto;background-blend-mode:overlay,normal,normal,normal,normal;min-height:100vh}
 
-/* preview banner */
-.pvbar{background:#141516;color:#e7e7e4;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:9px 16px}
-.pvbar b{color:#7fe0a6}
+/* preview ribbon */
+.pvr{background:#080b0e;color:#cfd6dc;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:7px 14px}
+.pvr b{color:var(--emerald)}
 
-/* page head */
-.phead{padding:34px 0 6px}
-.phead h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;letter-spacing:-.01em}
-.phead h1 .arrow{color:var(--muted);font-weight:400}
-.phead .sub{color:var(--muted);font-size:13.5px;margin-top:5px}
-.draftpill{display:inline-block;margin-top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--amber);border:1px solid var(--amber-bd);background:var(--amber-bg);border-radius:6px;padding:6px 12px}
-.rule{height:3px;background:var(--line-strong);margin:26px 0 30px;border-radius:2px}
+/* ---------- CHROME (dark topbar + tabs) ---------- */
+.fx-topbar{display:flex;align-items:center;padding:12px 26px;background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
+.fx-home{font-family:var(--sans);font-size:11px;letter-spacing:.28em;color:var(--chrome-dim);text-transform:uppercase;background:none;border:none;cursor:pointer}
+.fx-div{width:1px;height:30px;background:var(--chrome-line);margin:0 22px}
+.fx-brand img{height:40px;width:auto;display:block;filter:brightness(0) invert(1)}
+.fx-proj{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.fx-projname{display:flex;align-items:center;gap:10px;color:var(--chrome-txt)}
+.fx-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 9px var(--emerald)}
+.fx-nm{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.01em}
+.fx-save{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:20px;padding:5px 11px;text-transform:uppercase}
+.fx-save .d{width:6px;height:6px;border-radius:50%;background:var(--emerald)}
+.fx-addr{font-family:var(--mono);font-size:11px;color:var(--chrome-faint);letter-spacing:.05em}
+.fx-right{display:flex;align-items:center;gap:16px}
+.fx-atr{font-family:var(--serif);font-size:19px;letter-spacing:.44em;font-weight:500;padding-left:.44em;
+  background:linear-gradient(180deg,#f4f7f8 0%,#c2cacc 42%,#8b9498 52%,#e4e9ea 66%,#a6aeb0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.fx-tgl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--chrome-dim);border:1px solid var(--chrome-line);padding:8px 14px;border-radius:22px;background:rgba(255,255,255,.03);text-transform:uppercase}
+.fx-grid{font-size:13px;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:9px;width:34px;height:32px;display:flex;align-items:center;justify-content:center}
+.fx-tabnav{display:flex;gap:2px;padding:0 26px;background:linear-gradient(180deg,var(--chrome-2),rgba(11,16,21,.96));border-bottom:1px solid var(--chrome-line);overflow-x:auto}
+.fx-tab{position:relative;padding:15px 17px;font-family:var(--sans);font-size:10.5px;letter-spacing:.18em;color:var(--chrome-faint);white-space:nowrap;background:none;border:none;text-transform:uppercase;cursor:pointer}
+.fx-tab.on{color:var(--chrome-txt)}
+.fx-tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--chrome-faint),var(--gold-hi),var(--chrome-faint));box-shadow:0 0 12px rgba(198,206,214,.45);border-radius:2px}
 
-/* section */
-.sec{margin:0 0 40px}
-.sec>h2{font-size:18px;font-weight:800;margin-bottom:16px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px clamp(18px,2.4vw,28px);box-shadow:0 1px 2px rgba(0,0,0,.03),0 16px 40px -34px rgba(0,0,0,.4)}
-.panel .fd{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-bottom:18px}
-.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px}
-.sechead .st{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500}
-.sechead .draft{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
-.formula-tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+/* ---------- CONTENT ---------- */
+.body{max-width:1240px;margin:0 auto;padding:34px clamp(18px,3vw,40px) 80px}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.kicker{font-family:var(--sans);font-size:10px;letter-spacing:.32em;color:var(--gold);font-weight:600;margin-bottom:11px;text-transform:uppercase}
+.h-sec{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:.01em;line-height:1;color:var(--ink)}
+.h-sub{font-size:12.5px;color:var(--ink-2);margin-top:9px}
+.eyebrow{font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
+.sel{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:9px 14px}
+
+.subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:22px}
+.subtab{font-family:var(--sans);font-size:11px;letter-spacing:.1em;color:var(--ink-3);padding:11px 16px;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;text-transform:uppercase;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer}
+.subtab.on{color:var(--ink);border-bottom-color:var(--gold)}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow),var(--glass-edge);position:relative;overflow:hidden;
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);padding:24px 26px;margin-bottom:22px}
+.panel.gold-top::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c6cdcf 30%,#eef1f2 50%,#9aa2a4 72%,transparent);opacity:.9}
+.p-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.p-lab{font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;color:var(--gold)}
+.p-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.p-tag.blue{color:var(--blue)}
 
 /* KPI tiles */
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 @media(max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.kpi{border:1px solid var(--line);border-radius:12px;padding:16px 16px 15px;background:#fff;min-height:150px;display:flex;flex-direction:column}
-.kpi .lab{font-family:var(--f);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.3;min-height:28px}
-.kpi .val{font-size:clamp(21px,2vw,26px);font-weight:800;letter-spacing:-.01em;color:var(--green);margin-top:12px;line-height:1}
-.kpi .fx{font-size:11px;color:var(--faint);margin-top:9px;line-height:1.4;flex:1}
+.kpi{background:var(--card-solid);border:1px solid var(--border);border-radius:12px;padding:15px 15px 14px;min-height:148px;display:flex;flex-direction:column}
+.kpi .lab{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);line-height:1.3;min-height:26px}
+.kpi .val{font-family:var(--mono);font-size:clamp(19px,1.9vw,24px);font-weight:500;letter-spacing:-.01em;color:var(--em-deep);margin-top:12px;line-height:1}
+.kpi .fx{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:9px;line-height:1.45;flex:1}
 
 /* notes */
-.note{border-radius:10px;padding:13px 16px;font-size:12.5px;line-height:1.55;margin-top:16px}
-.note.amber{background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber)}
-.note.amber b{color:#6f560f}
-.note.blue{background:var(--blue-bg);border:1px solid var(--blue-bd);color:#375f8c}
-.note.blue b{color:#284a70}
+.note{border-radius:10px;padding:12px 15px;font-size:12px;line-height:1.55;margin-top:16px;font-family:var(--sans)}
+.note.amber{background:var(--amber-soft);border:1px solid var(--amber-line);border-left:3px solid var(--amber);color:#7a5320}
+.note.amber b{color:#5f4014}
+.note.blue{background:var(--blue-soft);border:1px solid var(--blue-line);border-left:3px solid var(--blue);color:#39547d}
+.note.blue b{color:#284364}
 
 /* tables */
 .tbl-scroll{overflow-x:auto}
-table.cs{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
-table.cs th{font-family:var(--f);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:10px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line-2)}
+table.cs{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px}
+table.cs th{font-family:var(--sans);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border-hi)}
 table.cs th:first-child{text-align:left}
-table.cs td{padding:11px 12px;text-align:right;white-space:nowrap;color:var(--ink);border-bottom:1px solid var(--line)}
-table.cs td:first-child{text-align:left}
-.gname{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+table.cs td{padding:10px 12px;text-align:right;white-space:nowrap;color:var(--ink);border-bottom:1px solid var(--line);font-family:var(--mono)}
+table.cs td:first-child{text-align:left;font-family:var(--sans);color:var(--ink)}
+.gname{font-family:var(--sans);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600}
 tr.grp td{padding-top:20px;border-bottom:0}
-.li .n{font-weight:500;color:var(--ink)}
-.li .src{color:var(--faint);font-size:11px;font-weight:400;margin-left:2px}
-.li .tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--blue);border:1px solid var(--blue-bd);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.li .src{color:var(--ink-3);font-size:11px;font-family:var(--sans);margin-left:4px}
+.li .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;color:var(--blue);border:1px solid var(--blue-line);border-radius:4px;padding:1px 5px;margin-left:6px}
 .dim{color:var(--faint)}
-tr.sub td{font-weight:700;border-top:1px solid var(--line-2);border-bottom:0;padding-top:12px}
-tr.sub td:first-child{color:var(--ink)}
-tr.total td{font-weight:800;border-top:2px solid var(--line-strong);border-bottom:0;padding-top:14px;background:#faf9f6}
-.cap{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:12px}
+tr.sub td{font-weight:600;border-top:1px solid var(--border);border-bottom:0;padding-top:12px;color:var(--ink)}
+tr.sub td:first-child{font-weight:600}
+tr.total td{font-weight:700;border-top:2px solid var(--border-hi);border-bottom:0;padding-top:13px;background:rgba(255,255,255,.4)}
+.cap{font-size:11.5px;color:var(--ink-2);line-height:1.55;margin-top:12px}
 .cap b{color:var(--ink)}
 
-/* big number footer for a table block */
-.bignum{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-top:26px;padding-top:20px;border-top:1px solid var(--line-2)}
-.bignum .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:500}
-.bignum .k .meta{display:block;margin-top:6px;font-size:10px;letter-spacing:.06em;color:var(--faint);text-transform:none;font-family:var(--f)}
-.bignum .v{font-size:clamp(30px,4vw,42px);font-weight:800;letter-spacing:-.02em}
+.total-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:2px solid var(--border-hi)}
+.total-foot .tl{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--ink-2);text-transform:uppercase}
+.total-foot .tl .meta{display:block;margin-top:7px;font-family:var(--mono);font-size:10px;letter-spacing:.02em;color:var(--faint);text-transform:none}
+.total-foot .tv{font-family:var(--mono);font-size:clamp(30px,3.6vw,40px);color:var(--gold);font-weight:400;letter-spacing:-.02em;line-height:1.05}
 
-footer{padding:14px 0 60px;color:var(--faint);font-size:11px;line-height:1.6}
+.oi{font-size:12px;color:var(--ink-2);line-height:1.6}
+.oi b{color:var(--ink)}
+footer{max-width:1240px;margin:0 auto;padding:0 clamp(18px,3vw,40px) 60px;color:var(--faint);font-size:11px;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="pvbar">Preview · Cost Stack → Summary · <b>Design Spec v1</b> · sample project data — not yet wired to live inputs</div>
+<div class="pvr">Preview · Cost Stack → Summary redesign · <b>Design Spec v1</b> · St Village Preston · not yet wired to live inputs</div>
 
-<div class="wrap">
-  <div class="phead">
-    <h1>ATRIUM <span class="arrow">— Cost Stack →</span> Summary</h1>
-    <div class="sub">Redesign preview for review · rendered from Daniel's v1 handoff spec</div>
-    <span class="draftpill">DRAFT — LOCKED, MINOR AMENDMENTS POSSIBLE</span>
+<!-- ATRIUM chrome -->
+<div class="fx-topbar">
+  <button class="fx-home">HOME</button>
+  <div class="fx-div"></div>
+  <span class="fx-brand"><img src="/brand-logo-white.png" alt="7EVEN · HAAVN"></span>
+  <div class="fx-div"></div>
+  <div class="fx-proj">
+    <div class="fx-projname"><span class="fx-dot"></span><span class="fx-nm">St Village Preston</span><span class="fx-save"><span class="d"></span>Autosave On</span></div>
+    <div class="fx-addr">2-3 Newman Street, Preston VIC 3072 · BTR</div>
   </div>
-  <div class="rule"></div>
-
-  <!-- ============ 1 · KEY METRICS ============ -->
-  <div class="sec">
-    <h2>1 · Key Metrics</h2>
-    <div class="panel">
-      <div class="sechead"><span class="st">Key Metrics</span><span class="formula-tag">Formula preview — not yet live-linked</span></div>
-      <div class="kpis">
-        <div class="kpi"><div class="lab">Development Profit</div><div class="val">$62.4M</div><div class="fx">GRV $302.3M − TDC $239.9M</div></div>
-        <div class="kpi"><div class="lab">Margin on Cost</div><div class="val">26.0%</div><div class="fx">Profit ÷ TDC</div></div>
-        <div class="kpi"><div class="lab">Margin on GRV</div><div class="val">20.6%</div><div class="fx">Profit ÷ GRV</div></div>
-        <div class="kpi"><div class="lab">Margin on Equity</div><div class="val">131.6%</div><div class="fx">Profit ÷ Equity $47.43M</div></div>
-        <div class="kpi"><div class="lab">Equity Multiple (EM)</div><div class="val">2.32x</div><div class="fx">(Equity + Profit) ÷ Equity</div></div>
-        <div class="kpi"><div class="lab">Residual Land Value</div><div class="val">$73.4M</div><div class="fx">Site-related value — Dashboard (not yet recalculated)</div></div>
-      </div>
-      <div class="note amber"><b>TDC moved again — now $239.9M (was $243.0M last pass):</b> reviewing line-item names surfaced two real corrections: (1) Management Fees was carrying a stale $6.83M that didn't tie to any tab — corrected to the real Management tab total, $4.76M. (2) Splitting Finance into Interest / Line Fees / Finance Costs showed the real tranche-level Interest is $13.45M, not the flat "Finance (8%) $14.47M" the old Summary used — Line Fees and other Finance Costs aren't modelled anywhere yet. Both corrections reduced TDC. All metrics above reflect the new $239.9M base. Equity and Residual Land Value are still unchanged pass-throughs pending their own recalculation.</div>
-    </div>
-  </div>
-
-  <!-- ============ 2 · REVENUE SUMMARY ============ -->
-  <div class="sec">
-    <h2>2 · Revenue Summary</h2>
-    <div class="panel">
-      <div class="sechead"><span class="st">Revenue Summary · Gross Realisation Value</span><span class="draft">Draft — pending Product Mix redesign</span></div>
-      <div class="tbl-scroll">
-        <table class="cs">
-          <thead><tr><th></th><th>Annual $</th><th>% of TDC</th><th>% of GRV</th><th>$ / sqm NSA</th><th>Ex. GST $</th></tr></thead>
-          <tbody>
-            <tr class="grp"><td colspan="6"><span class="gname">Gross Realisation Value</span> &nbsp;<span class="dim" style="font-size:11px">collapsed — detail lives in Product Mix; methodology varies by asset class</span></td></tr>
-            <tr class="li"><td><span class="n">Gross Realisation Value</span> <span class="src">(all unit types)</span></td><td>$302.3M</td><td>130.2%</td><td>100.0%</td><td>$13,555</td><td class="dim">—</td></tr>
-            <tr class="li"><td><span class="n">Less: GST on Sales</span> <span class="tag">BTS</span><span class="src"> — margin scheme, n/a here (asset is BTR, input-taxed)</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
-            <tr class="sub"><td>Net Sale Proceeds</td><td>$302.3M</td><td>130.2%</td><td>100.0%</td><td>$13,555</td><td class="dim">—</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="bignum"><div class="k">Gross Realisation Value<span class="meta">130.2% of TDC · 100% of GRV · $13,555/sqm NSA · n/a — residential rent is input-taxed</span></div><div class="v">$302.3M</div></div>
-      <div class="note blue"><b>Now asset-agnostic:</b> the unit-type rental detail and cap-rate workings collapse into one Gross Realisation Value line, so this Summary layout works for any asset class (BTR rental &amp; cap rate, BTS direct sale, hotel RevPAR, etc.) without redesign. Full methodology and assumptions stay in Product Mix, which gets its own dedicated design pass.</div>
-      <div class="note amber"><b>GST on Sales</b> is wired to the same <b>Apply GST</b> toggle on Cost Stack → Summary (currently OFF for this project). For this BTR asset it correctly shows $0 (rental revenue is input-taxed); for a BTS asset with the toggle on, this line would deduct GST payable on sale price under the margin scheme.</div>
-    </div>
-  </div>
-
-  <!-- ============ 3 · COST SUMMARY ============ -->
-  <div class="sec">
-    <h2>3 · Cost Summary</h2>
-    <div class="panel">
-      <div class="sechead"><span class="st">Cost Summary · Incl. Land</span></div>
-      <div class="tbl-scroll">
-        <table class="cs">
-          <thead><tr><th></th><th>Budget $</th><th>% of TDC</th><th>% of GRV</th><th>$ / sqm</th><th>Ex. GST $</th></tr></thead>
-          <tbody>
-            <tr class="grp"><td colspan="6"><span class="gname">Land &amp; Acquisition</span></td></tr>
-            <tr class="li"><td><span class="n">Contract Price</span></td><td>$15,000,000</td><td>6.3%</td><td>5.0%</td><td>$324</td><td class="dim">n/a</td></tr>
-            <tr class="li"><td><span class="n">Stamp Duty + Government Levies</span></td><td>$955,000</td><td>0.4%</td><td>0.3%</td><td>$21</td><td class="dim">n/a</td></tr>
-            <tr class="li"><td><span class="n">Acquisition Costs</span></td><td>$363,000</td><td>0.2%</td><td>0.1%</td><td>$8</td><td class="dim">n/a</td></tr>
-            <tr class="sub"><td>Subtotal — Land</td><td>$16,318,000</td><td>7.0%</td><td>5.4%</td><td>$352</td><td class="dim">n/a</td></tr>
-
-            <tr class="grp"><td colspan="6"><span class="gname">Construction</span></td></tr>
-            <tr class="li"><td><span class="n">Construction Costs</span> <span class="src">Construction tab</span></td><td>$176,866,000</td><td>72.8%</td><td>58.5%</td><td>$3,821</td><td>$160,787,273</td></tr>
-            <tr class="li"><td><span class="n">Construction — External Works</span></td><td>$6,000,000</td><td>2.5%</td><td>2.0%</td><td>$130</td><td>$5,454,545</td></tr>
-            <tr class="li"><td><span class="n">Demolition</span></td><td>$300,000</td><td>0.1%</td><td>0.1%</td><td>$6</td><td>$272,727</td></tr>
-            <tr class="li"><td><span class="n">Contingency</span></td><td>$9,181,925</td><td>3.8%</td><td>3.0%</td><td>$198</td><td>$8,347,205</td></tr>
-            <tr class="sub"><td>Subtotal — Construction</td><td>$192,347,925</td><td>79.2%</td><td>63.6%</td><td>$4,155</td><td>$174,861,750</td></tr>
-
-            <tr class="grp"><td colspan="6"><span class="gname">Professional Fees + Other Costs</span></td></tr>
-            <tr class="li"><td><span class="n">Consultants</span> <span class="src">Consultants tab</span></td><td>$5,842,914</td><td>2.4%</td><td>1.9%</td><td>$126</td><td>$5,311,740</td></tr>
-            <tr class="li"><td><span class="n">Environmental Costs</span> <span class="src">Headworks &amp; Env tab</span></td><td>$1,769,108</td><td>0.7%</td><td>0.6%</td><td>$38</td><td>$1,608,280</td></tr>
-            <tr class="li"><td><span class="n">Headworks</span> <span class="src">Headworks &amp; Env tab</span></td><td>$1,100,000</td><td>0.5%</td><td>0.4%</td><td>$24</td><td class="dim">n/a</td></tr>
-            <tr class="li"><td><span class="n">Management Fees</span> <span class="src">Management tab</span></td><td>$4,762,206</td><td>2.0%</td><td>1.6%</td><td>$103</td><td>$4,329,278</td></tr>
-            <tr class="li"><td><span class="n">Marketing</span> <span class="src">Marketing tab</span></td><td>$1,195,869</td><td>0.5%</td><td>0.4%</td><td>$26</td><td>$1,087,154</td></tr>
-            <tr class="li"><td><span class="n">Statutory Fees</span> <span class="src">Statutory tab</span></td><td>$3,145,000</td><td>1.3%</td><td>1.0%</td><td>$68</td><td class="dim">n/a</td></tr>
-            <tr class="sub"><td>Subtotal — Professional Fees + Other Costs</td><td>$17,815,097</td><td>7.4%</td><td>5.9%</td><td>$385</td><td>$16,581,452</td></tr>
-
-            <tr class="total"><td>Total Dev Cost — before finance</td><td>$226,481,022</td><td>94.4%</td><td>74.9%</td><td>$4,893</td><td>$207,761,202</td></tr>
-
-            <tr class="grp"><td colspan="6"><span class="gname">Finance</span></td></tr>
-            <tr class="li"><td><span class="n">Finance Costs</span> <span class="src">not yet itemised — placeholder</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
-            <tr class="li"><td><span class="n">Interest</span> <span class="src">Finance tab — tranche accrual</span></td><td>$13,450,000</td><td>5.6%</td><td>4.4%</td><td>$291</td><td class="dim">n/a</td></tr>
-            <tr class="li"><td><span class="n">Line Fees</span> <span class="src">not yet itemised — placeholder</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
-            <tr class="sub"><td>Subtotal — Finance</td><td>$13,450,000</td><td>5.6%</td><td>4.4%</td><td>$291</td><td class="dim">n/a</td></tr>
-
-            <tr class="grp"><td colspan="6"><span class="gname">GST Credits</span> &nbsp;<span class="dim" style="font-size:11px">on commercial costs &amp; consultants — same Apply GST toggle</span></td></tr>
-            <tr class="li"><td><span class="n">Less: GST credits claimed</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
-            <tr class="sub"><td>Net Dev Cost — cash, after GST credits</td><td>$226,481,022</td><td>94.4%</td><td>74.9%</td><td>$4,893</td><td class="dim">—</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="cap">Construction sourced from Construction tab line items (Construction Costs = Basement + Apartment + Cold Shell + Common Area + Amenities + Balconies + Commercial Fit Out; Demolition = Temporary Works + Hard Works). Headworks &amp; Environmental split from the combined Headworks &amp; Env tab total. <b>Management Fees corrected to the real Management-tab total ($4.76M)</b> — the old Summary carried a stale $6.83M that didn't reconcile to any tab.</div>
-      <div class="bignum"><div class="k">Total Dev Cost · Incl. Land<span class="meta">100% of TDC · 79.4% of GRV · $5,183/sqm GBA all-in · ~$221.2M ex. GST</span></div><div class="v">$239.9M</div></div>
-      <div class="note amber"><b>Interest ($13.45M) is real</b> — the sum of tranche-level accrual already on the Finance tab. Line Fees &amp; other Finance Costs (establishment, guarantee, valuation/legal) aren't modelled anywhere yet, so they show as $0 placeholders. This $13.45M also doesn't match the old flat "Finance (8%) $14.47M" — another cross-page figure to reconcile once the Finance tab becomes the source of truth for finance costs.</div>
-    </div>
-  </div>
-
-  <!-- ============ OPEN ITEMS ============ -->
-  <div class="sec">
-    <h2>Open items — please confirm before build</h2>
-    <div class="panel">
-      <div class="cap" style="margin-top:0">
-        <b>1 · Line Fees &amp; other Finance Costs</b> don't exist as modelled inputs anywhere in the app — shown as $0 placeholders. Only Interest is live (Finance-tab tranche accrual). Decision needed: add input fields for these, or remove the placeholder rows.<br><br>
-        <b>2 · Construction tab internal mismatch:</b> its own category summary card shows $183.64M but the itemised section totals $192.35M. Pre-existing inconsistency in the live app (not introduced by this redesign) — needs reconciling at the source.<br><br>
-        <b>3 · Total Dev Cost differs across three places</b> (Cost Stack Summary, Finance tab, Dashboard). This redesign uses the Cost Stack Summary ledger as source of truth ($239.9M) per the project's stated principle — Finance tab and Dashboard will need to be updated to match, or explicitly reconciled.<br><br>
-        <b>4 · Residual Land Value</b> is still a static pass-through from Dashboard — needs its own live formula/build task.
-      </div>
-    </div>
-  </div>
-
-  <footer>Preview mockup for review — Cost Stack → Summary page only, rendered from Daniel's Design Spec v1. Sample project figures; not yet connected to live inputs. Next pages (Cash Flow, Finance, Product Mix, Dashboard reconciliation) to follow once this is approved and built.</footer>
+  <div class="fx-right"><span class="fx-atr">ATRIUM</span><span class="fx-tgl">☾ Dark</span><span class="fx-grid">⊞</span></div>
 </div>
+<div class="fx-tabnav">
+  <button class="fx-tab">Site &amp; Design</button>
+  <button class="fx-tab">Land &amp; Terms</button>
+  <button class="fx-tab">Product Mix</button>
+  <button class="fx-tab on">Cost Stack</button>
+  <button class="fx-tab">Finance</button>
+  <button class="fx-tab">Cash Flow</button>
+  <button class="fx-tab">Timeline</button>
+  <button class="fx-tab">Overview</button>
+  <button class="fx-tab">Dashboard</button>
+</div>
+
+<div class="body">
+  <div class="pagehead">
+    <div>
+      <div class="kicker">04 · Cost Stack</div>
+      <h1 class="h-sec">Development Cost</h1>
+      <div class="h-sub">Construction rate applied to GBA plus all soft costs — or itemise trade-by-trade.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="eyebrow">Project phase</span><span class="sel">— not set —</span></div>
+  </div>
+
+  <div class="subtabs">
+    <button class="subtab on">Summary</button>
+    <button class="subtab">Construction</button>
+    <button class="subtab">Consultants</button>
+    <button class="subtab">Statutory</button>
+    <button class="subtab">Headworks &amp; Env</button>
+    <button class="subtab">Management</button>
+    <button class="subtab">Marketing</button>
+  </div>
+
+  <!-- 1 · KEY METRICS -->
+  <div class="panel gold-top">
+    <div class="p-head"><span class="p-lab">Key Metrics</span><span class="p-tag blue">Formula preview — not yet live-linked</span></div>
+    <div class="kpis">
+      <div class="kpi"><div class="lab">Development Profit</div><div class="val">$62.4M</div><div class="fx">GRV $302.3M − TDC $239.9M</div></div>
+      <div class="kpi"><div class="lab">Margin on Cost</div><div class="val">26.0%</div><div class="fx">Profit ÷ TDC</div></div>
+      <div class="kpi"><div class="lab">Margin on GRV</div><div class="val">20.6%</div><div class="fx">Profit ÷ GRV</div></div>
+      <div class="kpi"><div class="lab">Margin on Equity</div><div class="val">131.6%</div><div class="fx">Profit ÷ Equity $47.43M</div></div>
+      <div class="kpi"><div class="lab">Equity Multiple (EM)</div><div class="val">2.32x</div><div class="fx">(Equity + Profit) ÷ Equity</div></div>
+      <div class="kpi"><div class="lab">Residual Land Value</div><div class="val">$73.4M</div><div class="fx">Site-related value — Dashboard (not yet recalculated)</div></div>
+    </div>
+    <div class="note amber"><b>TDC moved again — now $239.9M (was $243.0M last pass):</b> reviewing line-item names surfaced two real corrections — (1) Management Fees carried a stale $6.83M that didn't tie to any tab, corrected to the real Management-tab total $4.76M; (2) splitting Finance into Interest / Line Fees / Finance Costs showed the real tranche-level Interest is $13.45M, not the flat "Finance (8%) $14.47M" the old Summary used. Both reduced TDC. All metrics reflect the new $239.9M base. Equity and Residual Land Value are still unchanged pass-throughs pending their own recalculation.</div>
+  </div>
+
+  <!-- 2 · REVENUE SUMMARY -->
+  <div class="panel gold-top">
+    <div class="p-head"><span class="p-lab">Revenue Summary · Gross Realisation Value</span><span class="p-tag">Draft — pending Product Mix redesign</span></div>
+    <div class="tbl-scroll">
+      <table class="cs">
+        <thead><tr><th></th><th>Annual $</th><th>% of TDC</th><th>% of GRV</th><th>$ / sqm NSA</th><th>Ex. GST $</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="6"><span class="gname">Gross Realisation Value</span> &nbsp;<span class="dim" style="font-size:11px;font-family:var(--sans)">collapsed — detail lives in Product Mix; methodology varies by asset class</span></td></tr>
+          <tr class="li"><td>Gross Realisation Value <span class="src">(all unit types)</span></td><td>$302.3M</td><td>130.2%</td><td>100.0%</td><td>$13,555</td><td class="dim">—</td></tr>
+          <tr class="li"><td>Less: GST on Sales <span class="tag">BTS</span><span class="src">margin scheme, n/a here (BTR, input-taxed)</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
+          <tr class="sub"><td>Net Sale Proceeds</td><td>$302.3M</td><td>130.2%</td><td>100.0%</td><td>$13,555</td><td class="dim">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="total-foot"><div class="tl">Gross Realisation Value<span class="meta">130.2% of TDC · 100% of GRV · $13,555/sqm NSA · n/a — residential rent is input-taxed</span></div><div class="tv">$302.3M</div></div>
+    <div class="note blue"><b>Now asset-agnostic:</b> unit-type rental detail and cap-rate workings collapse into one Gross Realisation Value line, so this Summary works for any asset class (BTR rental &amp; cap rate, BTS direct sale, hotel RevPAR) without redesign. Full methodology stays in Product Mix.</div>
+    <div class="note amber"><b>GST on Sales</b> is wired to the same <b>Apply GST</b> toggle on Cost Stack → Summary (OFF for this project). For this BTR asset it correctly shows $0 (rental revenue input-taxed); for a BTS asset with the toggle on, this line deducts GST payable on the sale price under the margin scheme.</div>
+  </div>
+
+  <!-- 3 · COST SUMMARY -->
+  <div class="panel gold-top">
+    <div class="p-head"><span class="p-lab">Cost Summary · Incl. Land</span></div>
+    <div class="tbl-scroll">
+      <table class="cs">
+        <thead><tr><th></th><th>Budget $</th><th>% of TDC</th><th>% of GRV</th><th>$ / sqm</th><th>Ex. GST $</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="6"><span class="gname">Land &amp; Acquisition</span></td></tr>
+          <tr class="li"><td>Contract Price</td><td>$15,000,000</td><td>6.3%</td><td>5.0%</td><td>$324</td><td class="dim">n/a</td></tr>
+          <tr class="li"><td>Stamp Duty + Government Levies</td><td>$955,000</td><td>0.4%</td><td>0.3%</td><td>$21</td><td class="dim">n/a</td></tr>
+          <tr class="li"><td>Acquisition Costs</td><td>$363,000</td><td>0.2%</td><td>0.1%</td><td>$8</td><td class="dim">n/a</td></tr>
+          <tr class="sub"><td>Subtotal — Land</td><td>$16,318,000</td><td>7.0%</td><td>5.4%</td><td>$352</td><td class="dim">n/a</td></tr>
+
+          <tr class="grp"><td colspan="6"><span class="gname">Construction</span></td></tr>
+          <tr class="li"><td>Construction Costs <span class="src">Construction tab</span></td><td>$176,866,000</td><td>72.8%</td><td>58.5%</td><td>$3,821</td><td>$160,787,273</td></tr>
+          <tr class="li"><td>Construction — External Works</td><td>$6,000,000</td><td>2.5%</td><td>2.0%</td><td>$130</td><td>$5,454,545</td></tr>
+          <tr class="li"><td>Demolition</td><td>$300,000</td><td>0.1%</td><td>0.1%</td><td>$6</td><td>$272,727</td></tr>
+          <tr class="li"><td>Contingency</td><td>$9,181,925</td><td>3.8%</td><td>3.0%</td><td>$198</td><td>$8,347,205</td></tr>
+          <tr class="sub"><td>Subtotal — Construction</td><td>$192,347,925</td><td>79.2%</td><td>63.6%</td><td>$4,155</td><td>$174,861,750</td></tr>
+
+          <tr class="grp"><td colspan="6"><span class="gname">Professional Fees + Other Costs</span></td></tr>
+          <tr class="li"><td>Consultants <span class="src">Consultants tab</span></td><td>$5,842,914</td><td>2.4%</td><td>1.9%</td><td>$126</td><td>$5,311,740</td></tr>
+          <tr class="li"><td>Environmental Costs <span class="src">Headworks &amp; Env tab</span></td><td>$1,769,108</td><td>0.7%</td><td>0.6%</td><td>$38</td><td>$1,608,280</td></tr>
+          <tr class="li"><td>Headworks <span class="src">Headworks &amp; Env tab</span></td><td>$1,100,000</td><td>0.5%</td><td>0.4%</td><td>$24</td><td class="dim">n/a</td></tr>
+          <tr class="li"><td>Management Fees <span class="src">Management tab</span></td><td>$4,762,206</td><td>2.0%</td><td>1.6%</td><td>$103</td><td>$4,329,278</td></tr>
+          <tr class="li"><td>Marketing <span class="src">Marketing tab</span></td><td>$1,195,869</td><td>0.5%</td><td>0.4%</td><td>$26</td><td>$1,087,154</td></tr>
+          <tr class="li"><td>Statutory Fees <span class="src">Statutory tab</span></td><td>$3,145,000</td><td>1.3%</td><td>1.0%</td><td>$68</td><td class="dim">n/a</td></tr>
+          <tr class="sub"><td>Subtotal — Professional Fees + Other Costs</td><td>$17,815,097</td><td>7.4%</td><td>5.9%</td><td>$385</td><td>$16,581,452</td></tr>
+
+          <tr class="total"><td>Total Dev Cost — before finance</td><td>$226,481,022</td><td>94.4%</td><td>74.9%</td><td>$4,893</td><td>$207,761,202</td></tr>
+
+          <tr class="grp"><td colspan="6"><span class="gname">Finance</span></td></tr>
+          <tr class="li"><td>Finance Costs <span class="src">not yet itemised — placeholder</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
+          <tr class="li"><td>Interest <span class="src">Finance tab — tranche accrual</span></td><td>$13,450,000</td><td>5.6%</td><td>4.4%</td><td>$291</td><td class="dim">n/a</td></tr>
+          <tr class="li"><td>Line Fees <span class="src">not yet itemised — placeholder</span></td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
+          <tr class="sub"><td>Subtotal — Finance</td><td>$13,450,000</td><td>5.6%</td><td>4.4%</td><td>$291</td><td class="dim">n/a</td></tr>
+
+          <tr class="grp"><td colspan="6"><span class="gname">GST Credits</span> &nbsp;<span class="dim" style="font-size:11px;font-family:var(--sans)">on commercial costs &amp; consultants — same Apply GST toggle</span></td></tr>
+          <tr class="li"><td>Less: GST credits claimed</td><td>$0</td><td>0.0%</td><td>0.0%</td><td>$0</td><td class="dim">n/a</td></tr>
+          <tr class="sub"><td>Net Dev Cost — cash, after GST credits</td><td>$226,481,022</td><td>94.4%</td><td>74.9%</td><td>$4,893</td><td class="dim">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cap">Construction sourced from Construction-tab line items (Construction Costs = Basement + Apartment + Cold Shell + Common Area + Amenities + Balconies + Commercial Fit Out; Demolition = Temporary Works + Hard Works). Headworks &amp; Environmental split from the combined Headworks &amp; Env tab total. <b>Management Fees corrected to the real Management-tab total ($4.76M)</b> — the old Summary carried a stale $6.83M that didn't reconcile to any tab.</div>
+    <div class="total-foot"><div class="tl">Total Dev Cost · Incl. Land<span class="meta">100% of TDC · 79.4% of GRV · $5,183/sqm GBA all-in · ~$221.2M ex. GST</span></div><div class="tv">$239.9M</div></div>
+    <div class="note amber"><b>Interest ($13.45M) is real</b> — the sum of tranche-level accrual already on the Finance tab. Line Fees &amp; other Finance Costs (establishment, guarantee, valuation/legal) aren't modelled anywhere yet, so they show as $0 placeholders. This $13.45M also doesn't match the old flat "Finance (8%) $14.47M" — another cross-page figure to reconcile once the Finance tab is the source of truth.</div>
+  </div>
+
+  <!-- OPEN ITEMS -->
+  <div class="panel gold-top">
+    <div class="p-head"><span class="p-lab">Open items — please confirm before build</span></div>
+    <div class="oi">
+      <b>1 · Line Fees &amp; other Finance Costs</b> don't exist as modelled inputs anywhere in the app — shown as $0 placeholders. Only Interest is live (Finance-tab tranche accrual). Decision: add input fields, or remove the placeholder rows.<br><br>
+      <b>2 · Construction tab internal mismatch:</b> its own category card shows $183.64M but the itemised section totals $192.35M. Pre-existing inconsistency in the live app (not introduced by this redesign) — reconcile at the source.<br><br>
+      <b>3 · Total Dev Cost differs across three places</b> (Cost Stack Summary, Finance tab, Dashboard). This redesign uses the Cost Stack ledger as source of truth ($239.9M); Finance tab and Dashboard need updating to match, or explicitly reconciling.<br><br>
+      <b>4 · Residual Land Value</b> is still a static pass-through from Dashboard — needs its own live formula/build task.
+    </div>
+  </div>
+</div>
+
+<footer>Preview mockup rendered from Daniel's Cost Stack Summary Design Spec v1, styled to the ATRIUM studio · St Village Preston figures with his corrections applied · not yet connected to live inputs. Next pages (Cash Flow, Finance, Product Mix, Dashboard reconciliation) follow the same format once approved.</footer>
 </body>
 </html>
