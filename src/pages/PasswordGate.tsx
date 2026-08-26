@@ -73,7 +73,7 @@ const CSS = `
   .pg-stack i{animation:none;filter:brightness(1)}
   .pg-glow{animation:none}}
 
-.pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
+.pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#d6b36a;margin-top:20px;text-align:center;
   opacity:0;animation:pg-wfade 2.6s ease-out 4.4s forwards}
 @keyframes pg-wfade{to{opacity:1}}
 
@@ -81,13 +81,13 @@ const CSS = `
 .pg-card{margin-top:52px;width:min(360px,90vw)}
 .pg-card.shake{animation:pg-shake .4s ease}
 @keyframes pg-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-.pg-pa{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#b9a4e8;text-align:center;margin:0 0 26px}
+.pg-pa{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#d6b36a;text-align:center;margin:0 0 26px}
 .pg-lbl{display:block;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
 .pg-inwrap{position:relative}
 .pg-inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
   font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.4em;padding:8px 52px 10px 2px;outline:none;transition:.3s;box-sizing:border-box}
 .pg-inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
-.pg-inp:focus{border-bottom-color:#a86bff;box-shadow:0 1px 0 0 rgba(168,107,255,.45)}
+.pg-inp:focus{border-bottom-color:#d6b36a;box-shadow:0 1px 0 0 rgba(214,179,106,.45)}
 .pg-inp.err{border-bottom-color:#e0645c}
 .pg-inp:-webkit-autofill,.pg-inp:-webkit-autofill:hover,.pg-inp:-webkit-autofill:focus{
   -webkit-text-fill-color:#fff;caret-color:#fff;
@@ -98,8 +98,8 @@ const CSS = `
 .pg-enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
   background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
-.pg-enter:hover{border-color:rgba(168,107,255,.75);color:#fff;background:rgba(168,107,255,.07);box-shadow:0 0 28px -10px rgba(168,107,255,.65)}
-.pg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #a86bff}
+.pg-enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.65)}
+.pg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #d6b36a}
 .pg-err{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
 
 /* fixed one-line footer — same as main app */
@@ -117,8 +117,8 @@ const CSS = `
 .pg-fr{display:flex;align-items:center;gap:8px;justify-self:end}
 .pg-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
   font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s;text-transform:uppercase;text-decoration:none}
-.pg-chip:hover{border-color:rgba(168,107,255,.7);color:#fff;transform:translateY(-2px);background:rgba(168,107,255,.06)}
-.pg-chip .ext{color:#a86bff;opacity:.9;font-size:9px}
+.pg-chip:hover{border-color:rgba(214,179,106,.7);color:#fff;transform:translateY(-2px);background:rgba(214,179,106,.06)}
+.pg-chip .ext{color:#d6b36a;opacity:.9;font-size:9px}
 @media(max-width:760px){.pg-frail{grid-template-columns:1fr auto}.pg-fc{display:none}}
 @media(max-width:600px){
   .pg-frail{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 0 9px}

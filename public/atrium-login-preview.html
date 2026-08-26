@@ -62,23 +62,23 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
    Both faces are one-sided so neither ever shows through the other's glyph gaps. */
 .stack i.face{backface-visibility:hidden}
 .stack i.fback{transform:translateZ(-18px) rotateY(180deg)}
-.welcome{font-family:var(--mono);font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
+.welcome{font-family:var(--mono);font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#d6b36a;margin-top:20px;text-align:center;
   opacity:0;animation:wfade 2.6s ease-out 4.4s forwards}
 @keyframes wfade{to{opacity:1}}
 
 /* clear glass card — boxless feel, floats on the video */
 .card{margin-top:52px;width:min(360px,90vw);border:none;background:transparent;padding:0}
-.pa{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#b9a4e8;text-align:center;margin-bottom:26px}
+.pa{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#d6b36a;text-align:center;margin-bottom:26px}
 .lbl{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
 .inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
   font-family:var(--mono);font-size:18px;letter-spacing:.4em;padding:8px 2px 10px;outline:none;transition:.3s}
 .inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
-.inp:focus{border-bottom-color:var(--pur);box-shadow:0 1px 0 0 rgba(168,107,255,.45)}
+.inp:focus{border-bottom-color:var(--gold);box-shadow:0 1px 0 0 rgba(214,179,106,.45)}
 .enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
   font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
   background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
-.enter:hover{border-color:rgba(168,107,255,.75);color:#fff;background:rgba(168,107,255,.07);box-shadow:0 0 28px -10px rgba(168,107,255,.65)}
-.enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--pur)}
+.enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.65)}
+.enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--gold)}
 .err{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
 .priv{font-family:var(--mono);font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:26px}
 
