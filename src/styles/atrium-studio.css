@@ -200,9 +200,12 @@
 
 /* headings */
 .fxs .pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
-.fxs .kicker{font-size:10px;letter-spacing:.32em;color:var(--gold);font-weight:600;margin-bottom:11px;text-transform:uppercase}
-.fxs .h-sec{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:.01em;line-height:1;color:var(--ink)}
-.fxs .h-sub{font-size:12.5px;color:var(--ink-2);margin-top:9px}
+.fxs .kicker{font-size:10px;letter-spacing:.32em;color:#a3782a;font-weight:600;margin-bottom:11px;text-transform:uppercase;text-shadow:0 1px 12px rgba(255,255,255,.75)}
+.fxs.dark .kicker{color:#d6b36a;text-shadow:0 0 12px rgba(214,179,106,.4)}
+.fxs .h-sec{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:.01em;line-height:1;color:var(--ink);text-shadow:0 1px 14px rgba(255,255,255,.6)}
+.fxs.dark .h-sec{text-shadow:none}
+.fxs .h-sub{font-size:12.5px;color:#8a6e30;font-weight:500;margin-top:9px;text-shadow:0 1px 10px rgba(255,255,255,.7)}
+.fxs.dark .h-sub{color:#c9ad72;text-shadow:none}
 .fxs .eyebrow{font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
 .fxs .divlabel{font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase;font-weight:600;margin:22px 0 6px}
 .fxs .divlabel:first-child{margin-top:0}
