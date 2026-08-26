@@ -122,6 +122,15 @@ const CSS = `
 .ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
 .ath-hor7:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
 .ath-hor7 .g{color:#d6b36a;font-size:12px}
+.ath-brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:13px 16px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:2px;transition:.3s}
+.ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
+.ath-brandrow:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.ath-brandrow .g{color:#d6d9dd;font-size:12px}
+.ath-logoutrow{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:12px 16px;cursor:pointer;
+  font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
+  background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:2px;transition:.3s}
+.ath-logoutrow:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
 .ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:2px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
 .ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
 .ath-plist{max-height:min(54vh,460px);overflow-y:auto}
@@ -361,6 +370,16 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <img src="/hori7on-gold.png" alt="HORI7ON" />
                 <span className="g">→</span>
               </button>
+              {/* HM + HAAVN BLACK — moved in from the footer */}
+              <button className="ath-brandrow" title="HAAVN Management — Management Hub" onClick={() => { setHmOpen(true); setMenuOpen(false) }}>
+                <img style={{ height: 16 }} src="/hm-device-white.png" alt="HM" />
+                <span className="g">→</span>
+              </button>
+              <button className="ath-brandrow" title="HAAVN BLACK — Homes" onClick={() => { onOpenHomes?.(); setMenuOpen(false) }}>
+                <img style={{ height: 12 }} src="/haavn-black-logo.png" alt="HAAVN BLACK" />
+                <span className="g">→</span>
+              </button>
+              <button className="ath-logoutrow" onClick={() => onLogout?.()}>LOG OUT</button>
             </div>
           </div>
         </div>
@@ -382,14 +401,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-frail">
           <div className="ath-fl">
             <span className="ath-atrium"><span className="ath-tri" />ATRIUM</span>
-            <span className="ath-vd" />
-            <button className="ath-hmlink no-drag" title="HAAVN Management — Management Hub" onClick={() => setHmOpen(true)}>
-              <img src="/hm-device-white.png" alt="HM" draggable={false} />
-            </button>
-            <span className="ath-vd" />
-            <button className="ath-hbentry no-drag" title="HAAVN BLACK — Homes" onClick={() => onOpenHomes?.()}>
-              <img src="/haavn-black-logo.png" alt="HAAVN BLACK" draggable={false} /><span className="go">→</span>
-            </button>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
@@ -398,7 +409,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
             <a className="ath-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
             <a className="ath-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span className="ext">↗</span></a>
             <button className="ath-chip" title="Get the latest version" onClick={() => window.location.reload()}><span className="ring" />UPDATE</button>
-            <button className="ath-chip" onClick={() => onLogout?.()}>LOG OUT</button>
           </div>
         </div>
       </div>
