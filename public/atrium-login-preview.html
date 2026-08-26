@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--led:#2fe07a;--gold:#d6b36a;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif}
+:root{--led:#2fe07a;--gold:#d6b36a;--pur:#a86bff;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif}
 html,body{height:100%}
 body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 
@@ -37,28 +37,36 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 /* stage */
 .stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
 
-.wings{height:34px;width:auto;opacity:.92;filter:drop-shadow(0 2px 14px rgba(0,0,0,.6))}
-.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.44em;text-transform:uppercase;color:#8d9298;margin-top:14px}
-
-.seven{width:clamp(220px,30vw,420px);height:auto;margin-top:34px;
-  filter:drop-shadow(0 0 18px rgba(255,255,255,.35)) drop-shadow(0 0 60px rgba(255,255,255,.12))}
-.sub{font-family:var(--mono);font-size:7.5px;letter-spacing:.5em;text-transform:uppercase;color:#7e838a;margin-top:16px;text-align:center}
+/* 7EVEN in LED purple — ignites from nothing to full bright, then breathes */
+.seven7{width:clamp(240px,32vw,460px);aspect-ratio:1800/280;
+  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
+  mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
+  background:linear-gradient(180deg,#d9c2ff,var(--pur) 55%,#7b3fe0);
+  animation:ignite 4.2s ease-out forwards, breathe 5.5s ease-in-out 4.2s infinite}
+@keyframes ignite{
+  0%{opacity:0;filter:drop-shadow(0 0 0 rgba(168,107,255,0)) brightness(.3)}
+  35%{opacity:.35;filter:drop-shadow(0 0 8px rgba(168,107,255,.2)) brightness(.55)}
+  100%{opacity:1;filter:drop-shadow(0 0 16px rgba(168,107,255,.75)) drop-shadow(0 0 60px rgba(168,107,255,.35)) brightness(1.12)}}
+@keyframes breathe{
+  0%,100%{filter:drop-shadow(0 0 16px rgba(168,107,255,.75)) drop-shadow(0 0 60px rgba(168,107,255,.35)) brightness(1.12)}
+  50%{filter:drop-shadow(0 0 22px rgba(168,107,255,.95)) drop-shadow(0 0 80px rgba(168,107,255,.5)) brightness(1.25)}}
+.welcome{font-family:var(--mono);font-size:8px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
+  opacity:0;animation:wfade 2.4s ease-out 2s forwards}
+@keyframes wfade{to{opacity:1}}
 
 /* clear glass card — boxless feel, floats on the video */
-.card{margin-top:44px;width:min(360px,90vw);border:1px solid rgba(255,255,255,.2);border-radius:4px;
-  background:rgba(255,255,255,.02);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
-  padding:30px 32px 28px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.1)}
-.pa{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:26px}
+.card{margin-top:52px;width:min(360px,90vw);border:none;background:transparent;padding:0}
+.pa{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#b9a4e8;text-align:center;margin-bottom:26px}
 .lbl{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
 .inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
   font-family:var(--mono);font-size:18px;letter-spacing:.4em;padding:8px 2px 10px;outline:none;transition:.3s}
 .inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
-.inp:focus{border-bottom-color:var(--gold);box-shadow:0 1px 0 0 rgba(214,179,106,.4)}
+.inp:focus{border-bottom-color:var(--pur);box-shadow:0 1px 0 0 rgba(168,107,255,.45)}
 .enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
   font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
   background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
-.enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.6)}
-.enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--gold)}
+.enter:hover{border-color:rgba(168,107,255,.75);color:#fff;background:rgba(168,107,255,.07);box-shadow:0 0 28px -10px rgba(168,107,255,.65)}
+.enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--pur)}
 .err{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
 .priv{font-family:var(--mono);font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:26px}
 
@@ -89,15 +97,9 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 
 <div class="pvr">Preview · ATRIUM Login redesign · <b>new design language</b></div>
 
-<div class="vl vl1"></div><div class="vl vl2"></div>
-<div class="vl vr1"></div><div class="vl vr2"></div>
-
 <div class="stage">
-  <img class="wings" src="/winged-device-white.png" alt="CAPITAL">
-  <div class="eyebrow">Development Feasibility Studio</div>
-
-  <img class="seven" src="/seven-mark-white-hd.png" alt="7EVEN">
-  <div class="sub">Atrium&nbsp;&nbsp;·&nbsp;&nbsp;Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
+  <div class="seven7"></div>
+  <div class="welcome">Welcome to Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
 
   <div class="card">
     <div class="pa">Private Access</div>
@@ -107,7 +109,6 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
     <div class="err" id="err">Incorrect access code — try again</div>
   </div>
 
-  <div class="priv">7EVEN Capital · Private Access</div>
 </div>
 
 <div class="foot">
