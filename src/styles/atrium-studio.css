@@ -519,3 +519,16 @@
 .fxs .ff-chip .x{color:#d6b36a;opacity:.9;font-size:9px}
 .fxs .ff-chip .ring{width:6px;height:6px;border:1px solid #d6b36a;border-radius:50%}
 @media(max-width:900px){.fxs .ff-c{display:none}.fxs .ff-rail{grid-template-columns:auto 1fr}.fxs .ff-r{justify-self:end}}
+
+
+/* ---- Phone (<=600px): footer wraps cleanly, no overlap ---- */
+@media(max-width:600px){
+  .fxs .ff-rail{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 0 9px}
+  .fxs .ff-l{display:none}
+  .fxs .ff-c{display:flex}
+  .fxs .ff-chip{padding:5px 8px;font-size:8px;letter-spacing:.16em}
+}
+/* iOS: background-attachment:fixed is unsupported and causes repaint wobble */
+@media(max-width:768px){
+  .fxs{background:url('/atrium-fabric-grey.jpg') center / cover no-repeat #8a8a8a}
+}

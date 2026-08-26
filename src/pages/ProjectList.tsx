@@ -189,6 +189,8 @@ const CSS = `
 @media(max-width:840px){
   .ath-frail{grid-template-columns:1fr;justify-items:start;gap:12px}
   .ath-fc,.ath-fr{justify-self:start}
+  .ath-fr{flex-wrap:wrap}
+  .ath-chip{padding:6px 8px;font-size:8px;letter-spacing:.16em}
   .ath-capwings{width:56px}
 }
 `

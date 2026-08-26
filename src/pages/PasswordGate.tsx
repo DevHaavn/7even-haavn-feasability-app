@@ -120,6 +120,12 @@ const CSS = `
 .pg-chip:hover{border-color:rgba(168,107,255,.7);color:#fff;transform:translateY(-2px);background:rgba(168,107,255,.06)}
 .pg-chip .ext{color:#a86bff;opacity:.9;font-size:9px}
 @media(max-width:760px){.pg-frail{grid-template-columns:1fr auto}.pg-fc{display:none}}
+@media(max-width:600px){
+  .pg-frail{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 0 9px}
+  .pg-fl{display:none}
+  .pg-chip{padding:5px 8px;font-size:8px;letter-spacing:.16em}
+  .pg-welcome{font-size:5px;letter-spacing:.34em}
+}
 `
 
 const DEPTHS = Array.from({ length: 11 }, (_, i) => (11 - i) * 1.5)

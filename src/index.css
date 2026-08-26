@@ -497,14 +497,6 @@ input[type="checkbox"] {
   .hero-wm { width: min(160px, 25vw) !important; }
   /* Clear band at the footer bottom for the fixed Log Out + P7 mark */
   .site-footer { padding-bottom: 46px !important; }
-  /* Project page: Manage/Log Out sit in a slim strip above the black header */
-  .ws-root { padding-top: 36px; box-sizing: border-box; }
-  .ws-actions {
-    top: 0 !important; left: 0 !important; right: 0 !important; height: 36px;
-    background: #050505; border-bottom: 1px solid #1A1A1A;
-    display: flex !important; align-items: center; justify-content: flex-end;
-    gap: 8px; padding: 0 12px;
-  }
   /* Dashboard: slim header, stack KPI cards 2-up so values aren't cut off */
   .dash-topbar { padding: 12px 16px !important; gap: 12px !important; }
   .dash-brand, .dash-date { display: none !important; }
