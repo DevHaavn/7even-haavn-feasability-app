@@ -104,6 +104,8 @@ const CSS = `
 .cab-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
 .cab-logout{position:fixed;bottom:18px;left:20px;z-index:30}
 @media(max-width:640px){.cab-body{padding:36px 20px}.cab-pcard{min-height:auto}}
+
+@media(max-width:600px){.cab-head{padding-top:calc(env(safe-area-inset-top,0px) + 57px)}}
 `
 
 export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId; crmOnly?: boolean }) {
