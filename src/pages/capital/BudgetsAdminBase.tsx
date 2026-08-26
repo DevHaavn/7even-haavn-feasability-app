@@ -24,7 +24,7 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
     id: 'haavn', num: '02', title: 'HAAVN Administration',
     sub: 'Accounts & Settlement · Client revenue · FY27',
     blurb: 'The full ATRIUM Accounts & Settlement surface — client revenue, manager splits, group settlement, inter-co loans and the FY27 budget across every HAAVN entity, consolidated.',
-    color: '#3DAA6A',
+    color: '#2fe07a',
   },
 ]
 
@@ -109,68 +109,93 @@ export default function BudgetsAdminBase() {
     )
   }
 
+  const CSS = `
+.abh-wrap{position:relative;flex:1;display:flex;flex-direction:column;align-items:stretch;padding:0;width:100%;margin:0;min-height:100%;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.abh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:0}
+.abh-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
+.abh-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:48px 32px;max-width:1440px;width:100%;margin:0 auto}
+.abh-eyebrow{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500;text-align:center}
+.abh-title{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:clamp(28px,4.6vw,52px);letter-spacing:.08em;line-height:1;color:#fff;margin-top:16px;text-transform:uppercase;text-align:center}
+.abh-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:16px;line-height:1.6}
+.abh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
+.abh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
+@property --abhA{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes abh-spin{to{--abhA:360deg}}
+.abh-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
+.abh-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
+  background:conic-gradient(from var(--abhA),transparent 0deg,var(--ring) 130deg,var(--ring) 190deg,transparent 310deg,transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  animation:abh-spin 4.6s linear infinite;z-index:1}
+.abh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.45;pointer-events:none;
+  background:conic-gradient(from var(--abhA),transparent 0deg,var(--ringGlow) 150deg,transparent 300deg);
+  filter:blur(16px);animation:abh-spin 4.6s linear infinite}
+.abh-ledbox.d2::before,.abh-ledbox.d2::after{animation-delay:-2.3s}
+.abh-ledbox:hover{transform:translateY(-4px)}
+.abh-ledbox:hover::before,.abh-ledbox:hover::after{animation-duration:2.4s}
+.abh-card{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+  padding:30px 28px 26px;min-height:480px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.abh-prow{display:flex;align-items:flex-start;justify-content:space-between}
+.abh-num{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1}
+.abh-apex{font-size:15px;opacity:.8;line-height:1}
+.abh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px}
+.abh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:25px;letter-spacing:.01em;line-height:1.08;color:#fff;margin:0;display:flex;align-items:baseline;gap:.25em;flex-wrap:wrap}
+.abh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
+.abh-blurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
+.abh-pow{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:18px}
+.abh-pow .k{color:#6a6e73;font-family:'Chakra Petch',sans-serif;font-size:8px;letter-spacing:.26em;text-transform:uppercase}
+.abh-enter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+`
+  const RING: Record<Group, { ring: string; glow: string }> = {
+    '7even': { ring: '#13B5EA', glow: 'rgba(19,181,234,.55)' },
+    'haavn': { ring: '#2fe07a', glow: 'rgba(47,224,122,.55)' },
+  }
   return (
-    <div style={{ flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
-      {/* Silver kicker — the gold #C4973A is retired across the ATRIUM system. */}
-      <p style={{ color: '#9aa8b6', fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Accounts · Two Sets of Books</p>
-      <h1 style={{ color: '#F0EFED', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textTransform: 'uppercase', textAlign: 'center', margin: '14px 0 0' }}>
-        Administration
-      </h1>
-      <p style={{ color: '#A7A7A7', fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
-        Choose a set of books — 7EVEN Capital and HAAVN are kept separate.
-      </p>
-
-      {/* Hairline, replacing the heavy chrome bar */}
-      <div style={{ width: 230, height: 1, background: 'linear-gradient(90deg, transparent, rgba(154,168,182,0.4), transparent)', margin: '22px auto 30px' }} />
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 22, alignItems: 'stretch' }}>
-        {BOOKS.map(b => (
-          <button key={b.id} onClick={() => setGroup(b.id)}
-            className="cap-pillar"
-            style={{
-              textAlign: 'left', cursor: 'pointer', minHeight: 440,
-              position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
-              border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16,
-              background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.25))',
-              backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
-              padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
-              transition: 'all 0.3s', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)',
-            }}
-            onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${b.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.16), 0 22px 52px rgba(0,0,0,0.5), 0 0 30px ${b.color}22` }}
-            onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = 'rgba(255,255,255,0.10)'; t.style.transform = 'translateY(0)'; t.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 44px rgba(0,0,0,0.40)' }}>
-            {/* Accent hairline across the top of the card */}
-            <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${b.color}, transparent)`, opacity: 0.65 }} />
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: b.color, lineHeight: 1 }}>{b.num}</span>
-              <span aria-hidden style={{ fontSize: 15, color: b.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
-            </div>
-            <div>
-              <p style={{ color: b.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{b.sub}</p>
-              <h2 style={{ color: '#fff', fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0, display: 'flex', alignItems: 'baseline', gap: '0.2em' }}>
-                {b.id === '7even' ? (
-                  <>
-                    <img src="/seven-mark-white.png" alt="7EVEN" style={{ height: '0.9em', width: 'auto' }} />
-                    <span>Capital Administration</span>
-                  </>
-                ) : (
-                  b.title
-                )}
-              </h2>
-            </div>
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.10)', margin: '4px 0' }} />
-            <p style={{ color: '#999', fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{b.blurb}</p>
-
-            {/* Xero — the accounts backbone of both books */}
-            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-              <img src="/xero-logo.png" alt="Xero" draggable={false}
-                style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
-            </div>
-
-            <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9aa8b6' }}>Enter Books →</span>
-          </button>
+    <div className="abh-wrap">
+      <style>{CSS}</style>
+      <video className="abh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="abh-scrim" />
+      <div className="abh-in">
+      <div className="abh-eyebrow">Accounts · Two Sets of Books</div>
+      <h1 className="abh-title">Accounts Hub</h1>
+      <p className="abh-sub">Choose a set of books — 7EVEN Capital and HAAVN are kept separate.</p>
+      <div className="abh-rule" />
+      <div className="abh-grid">
+        {BOOKS.map((b, i) => (
+          <div key={b.id} className={`abh-ledbox${i === 1 ? ' d2' : ''}`}
+            style={{ ['--ring' as any]: RING[b.id].ring, ['--ringGlow' as any]: RING[b.id].glow }}>
+            <button className="abh-card" onClick={() => setGroup(b.id)}>
+              <div className="abh-prow">
+                <span className="abh-num" style={{ color: b.color }}>{b.num}</span>
+                <span className="abh-apex" style={{ color: b.color }}>&#9650;</span>
+              </div>
+              <div>
+                <p className="abh-psub" style={{ color: b.color }}>{b.sub}</p>
+                <h2 className="abh-ptitle">
+                  {b.id === '7even' ? (
+                    <>
+                      <img src="/seven-mark-white-hd.png" alt="7EVEN" style={{ height: '0.82em', width: 'auto' }} />
+                      <span>Capital Administration</span>
+                    </>
+                  ) : (
+                    b.title
+                  )}
+                </h2>
+              </div>
+              <div className="abh-pline" />
+              <p className="abh-blurb">{b.blurb}</p>
+              <div className="abh-pow">
+                <span className="k">Powered by</span>
+                <img src="/xero-logo.png" alt="Xero" draggable={false}
+                  style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
+              </div>
+              <span className="abh-enter">Enter Books &#8594;</span>
+            </button>
+          </div>
         ))}
+      </div>
       </div>
     </div>
   )

@@ -5,9 +5,6 @@ import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
 import CapitalCommandMark from './CapitalCommandMark'
-import { AtriumApex } from '../../components/AtriumMark'
-import ThemeToggle from '../../components/ThemeToggle'
-import { useAtriumTheme, atriumPalette } from '../../lib/atriumTheme'
 
 export type PillarId = 'budgets' | 'deployment' | 'crm'
 
@@ -20,9 +17,7 @@ export interface Pillar {
   color: string
 }
 
-/** ATRIUM accents for this gateway. Silver is the system accent; the per-pillar
- *  colours carry each pillar's own identity (Xero blue · silver · ATRIUM green),
- *  exactly as the redesign draws them. No gold anywhere. */
+/** ATRIUM accents for this gateway. */
 export const PA = {
   silver: '#9aa8b6',
   silverHi: '#cdd8e2',
@@ -41,23 +36,79 @@ export const PILLARS: Pillar[] = [
     id: 'deployment', num: '02', title: 'Capital Command',
     sub: 'Raise · Investors · Calls · Returns',
     blurb: 'The capital command centre. Every dollar across the portfolio — pulled live from the feasibility studio — plus the full investor lifecycle: intake, pipeline, capital calls and distributions.',
-    // Silver, not the old bright green — the redesign gives pillar 02 the
-    // system accent, leaving green to ATRIUM (03) and Xero blue to 01.
-    color: '#cdd8e2',
+    color: '#cdd8e2', // system silver
   },
   {
     id: 'crm', num: '03', title: 'Management System',
     sub: 'Projects · Files · Workflow · Contacts',
     blurb: 'The full ATRIUM Management System — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job. Mirrors the HAAVN Management command centre.',
-    color: '#237A52',
+    color: '#2fe07a', // LED green
   },
 ]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMINISTRATION BASE — HAAVN BLACK Management design: moving video backdrop
+// and pillar cards ringed by a rotating LED border (blue 01 · silver 02 ·
+// green 03). Pillar wiring unchanged.
+// ─────────────────────────────────────────────────────────────────────────────
+const CSS = `
+.cab-root{position:fixed;inset:0;z-index:400;overflow-y:auto;background:#040404;display:flex;flex-direction:column;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.cab-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.cab-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
+.cab-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.cab-btn{cursor:pointer;font-family:'Chakra Petch','JetBrains Mono',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:#c9cdd2;padding:10px 16px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;transition:.3s}
+.cab-btn:hover{border-color:rgba(47,224,122,.7);color:#fff;background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.6)}
+.cab-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
+.cab-brand .t{text-align:right}
+.cab-brand .t .a{font-family:'Chakra Petch',sans-serif;font-size:8px;letter-spacing:.32em;text-transform:uppercase;color:#7d8288;margin:0}
+.cab-brand .t .b{font-family:'Chakra Petch',sans-serif;font-size:13px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;color:#fff;margin:2px 0 0}
+.cab-brand img{width:44px;height:auto}
+.cab-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:52px 32px 40px;max-width:1440px;width:100%;margin:0 auto}
+.cab-eyebrow{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500}
+.cab-title{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:clamp(28px,4.6vw,52px);letter-spacing:.08em;line-height:1;color:#fff;margin-top:16px;text-transform:uppercase;text-align:center}
+.cab-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:16px;max-width:66ch;line-height:1.6}
+.cab-faint{color:#6a6e73;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px}
+.cab-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
+.cab-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1240px}
+@property --cabA{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes cab-spin{to{--cabA:360deg}}
+.cab-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
+.cab-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
+  background:conic-gradient(from var(--cabA),transparent 0deg,var(--ring) 130deg,var(--ring) 190deg,transparent 310deg,transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  animation:cab-spin 4.6s linear infinite;z-index:1}
+.cab-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.45;pointer-events:none;
+  background:conic-gradient(from var(--cabA),transparent 0deg,var(--ringGlow) 150deg,transparent 300deg);
+  filter:blur(16px);animation:cab-spin 4.6s linear infinite}
+.cab-ledbox.d2::before,.cab-ledbox.d2::after{animation-delay:-1.55s}
+.cab-ledbox.d3::before,.cab-ledbox.d3::after{animation-delay:-3.1s}
+.cab-ledbox:hover{transform:translateY(-4px)}
+.cab-ledbox:hover::before,.cab-ledbox:hover::after{animation-duration:2.4s}
+.cab-pcard{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+  padding:30px 28px 26px;min-height:520px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.cab-prow{display:flex;align-items:flex-start;justify-content:space-between}
+.cab-pnum{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1}
+.cab-papex{font-size:15px;opacity:.8;line-height:1}
+.cab-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px}
+.cab-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:25px;letter-spacing:.01em;line-height:1.08;color:#fff;margin:0}
+.cab-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
+.cab-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
+.cab-pow{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:18px}
+.cab-pow .k{color:#6a6e73;font-family:'Chakra Petch',sans-serif;font-size:8px;letter-spacing:.26em;text-transform:uppercase}
+.cab-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+.cab-logout{position:fixed;bottom:18px;left:20px;z-index:30}
+@media(max-width:640px){.cab-body{padding:36px 20px}.cab-pcard{min-height:auto}}
+`
 
 export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId; crmOnly?: boolean }) {
   const { projects } = useStore()
   const [pillar, setPillar] = useState<PillarId | null>(initialPillar ?? null)
-  const theme = useAtriumTheme()
-  const pal = atriumPalette(theme)
 
   if (pillar) {
     const p = PILLARS.find(x => x.id === pillar)!
@@ -71,157 +122,83 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
   }, 0)
   const fmtM = (n: number) => n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n / 1e3).toFixed(0)}K` : `$${Math.round(n)}`
 
+  const RING: Record<PillarId, { ring: string; glow: string }> = {
+    budgets: { ring: '#13B5EA', glow: 'rgba(19,181,234,.55)' },
+    deployment: { ring: '#cdd8e2', glow: 'rgba(205,216,226,.45)' },
+    crm: { ring: '#2fe07a', glow: 'rgba(47,224,122,.55)' },
+  }
+
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
-      background: pal.bg,
-      display: 'flex', flexDirection: 'column',
-    }}>
-      {/* Architectural surface behind the gateway — the "liquid platinum" plate
-          from the redesign, extracted out of the concept's base64 into a real
-          asset. Fixed and behind everything, with a theme-aware scrim over it so
-          the type stays legible: near-black in dark, pale blue-grey in light —
-          the same two washes the concept uses. */}
-      <div aria-hidden style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: "url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat",
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: theme === 'light'
-            ? 'linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9))'
-            : 'linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82))',
-        }} />
-      </div>
-      {/* Header — same treatment as the site footer */}
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
-        <button onClick={onClose} className="glass-btn"
-          style={{ color: theme === 'light' ? '#33424F' : 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', padding: '8px 16px' }}>
-          ATRIUM
-        </button>
-        <ThemeToggle style={{ marginLeft: 12 }} />
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ textAlign: 'right' }}>
-            {/* ATRIUM is the platform brand and leads the header, per the
-                redesign's appbar (<b>ATRIUM</b> above CAPITAL BASE). Was
-                "7EVEN Capital" in the retired gold. */}
-            <p style={{ color: PA.silver, fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>ATRIUM</p>
-            <p style={{ color: pal.ink, fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Capital Base</p>
-          </div>
-          <img src="/winged-device-white.png" alt="7EVEN Capital" draggable={false} style={{ width: 44, height: 'auto', filter: pal.logoFilter }} />
+    <div className="cab-root">
+      <style>{CSS}</style>
+      <video className="cab-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="cab-scrim" />
+
+      {/* Header */}
+      <div className="cab-head">
+        <button className="cab-btn" onClick={onClose}>&#8592; ATRIUM</button>
+        <div className="cab-brand">
+          <div className="t"><p className="a">ATRIUM</p><p className="b">Capital Base</p></div>
+          <img src="/winged-device-white.png" alt="7EVEN Capital" draggable={false} />
         </div>
       </div>
 
       {/* Body */}
-      {/* 1440, not 1100 — the approved screen runs the three pillars much wider
-          across the plate, which is what gives them their proportion. */}
-      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
-        {/* Kicker is SILVER, not the old gold — the ATRIUM system has no gold. */}
-        <p style={{ color: PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Precision Capital Deployed</p>
-        {/* Uppercase, per the approved screen — the concept sets it in the markup
-            rather than with a transform, so the tracking is drawn for caps. */}
-        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0', textTransform: 'uppercase' }}>
-          Administration Base
-        </h1>
-        <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
-          Three pillars for the accounts, capital and partner teams — linked to the feasibility studio.
-        </p>
-        <p style={{ color: pal.faint, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'center', margin: '8px 0 0' }}>
-          {projects.length} live project{projects.length !== 1 ? 's' : ''} · {fmtM(totalTDC)} land committed
-        </p>
+      <div className="cab-body">
+        <div className="cab-eyebrow">Precision Capital Deployed</div>
+        <h1 className="cab-title">Administration Base</h1>
+        <p className="cab-sub">Three pillars for the accounts, capital and partner teams — linked to the feasibility studio.</p>
+        <div className="cab-faint">{projects.length} live project{projects.length !== 1 ? 's' : ''} · {fmtM(totalTDC)} land committed</div>
+        <div className="cab-rule" />
 
-        {/* Hairline — replaces the heavy 2px black-chrome bar */}
-        <div style={{ width: 230, height: 1, background: `linear-gradient(90deg, transparent, ${PA.silverLine}, transparent)`, margin: '22px auto 30px' }} />
-
-        {/* Pillars — portrait columns falling down the screen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18, alignItems: 'stretch' }}>
-          {PILLARS.map(pillarDef => {
-            // The redesign is drawn on a dark base, where silver-hi reads well.
-            // On the light theme it washes out to near-invisible, so pillar 02's
-            // accent drops to the deeper silver. Xero blue and ATRIUM green
-            // carry enough contrast in both and are left alone.
-            const accent =
-              pillarDef.id === 'deployment' ? (theme === 'light' ? '#6e7c8e' : '#cdd8e2')
-              // ATRIUM's #237A52 is a deep forest green — fine on white, but it
-              // sinks into the dark plate. Lifted to the light-on-dark green in
-              // dark mode, same as the system's --f-300.
-              : pillarDef.id === 'crm' ? (theme === 'light' ? '#237A52' : '#57c08a')
-              : pillarDef.color
-            const p = { ...pillarDef, color: accent }
-            return (
-            <button key={p.id} onClick={() => setPillar(p.id)}
-              className="cap-pillar"
-              style={{
-                textAlign: 'left', cursor: 'pointer', minHeight: 440,
-                position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
-                border: `1px solid ${pal.cardBorder}`, borderRadius: 16,
-                background: pal.cardBg,
-                backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
-                padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
-                transition: 'all 0.3s', boxShadow: pal.cardShadow,
-              }}
-              onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = pal.cardHoverShadow(p.color) }}
-              onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = pal.cardBorder; t.style.transform = 'translateY(0)'; t.style.boxShadow = pal.cardShadow }}>
-              {/* Accent hairline across the top of the card, in the pillar's colour */}
-              <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${p.color}, transparent)`, opacity: 0.65 }} />
-
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: p.color, lineHeight: 1 }}>{p.num}</span>
-                {/* The design marks each card with a small apex in the pillar's
-                    own colour. The AtriumApex SVG has fixed silver gradients and
-                    cannot take the accent, so this is the concept's own glyph. */}
-                <span aria-hidden style={{ fontSize: 15, color: p.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
-              </div>
-              <div>
-                {/* Eyebrow above the title, in the accent — per the redesign */}
-                <p style={{ color: p.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{p.sub}</p>
-                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{p.title}</h2>
-              </div>
-              <div style={{ height: 1, background: pal.cardBorder, margin: '4px 0' }} />
-              <p style={{ color: pal.muted, fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{p.blurb}</p>
-
-              {p.id === 'budgets' && (
-                // Xero — the accounts backbone of the Budgets pillar
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <span style={{ color: pal.faint, fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-                  <img src="/xero-logo.png" alt="Xero" draggable={false}
-                    style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
+        <div className="cab-pillars">
+          {PILLARS.map((p, i) => (
+            <div key={p.id} className={`cab-ledbox${i === 1 ? ' d2' : i === 2 ? ' d3' : ''}`}
+              style={{ ['--ring' as any]: RING[p.id].ring, ['--ringGlow' as any]: RING[p.id].glow }}>
+              <button className="cab-pcard" onClick={() => setPillar(p.id)}>
+                <div className="cab-prow">
+                  <span className="cab-pnum" style={{ color: p.color }}>{p.num}</span>
+                  <span className="cab-papex" style={{ color: p.color }}>&#9650;</span>
                 </div>
-              )}
-              {p.id === 'deployment' && (
-                // Capital Command — the engine of the Capital Deployment pillar
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <span style={{ color: pal.faint, fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-                  {/* Desaturated to the pillar's silver — the mark's built-in
-                      green fought the accent and broke the no-gold/one-accent rule. */}
-                  <span style={{ filter: 'grayscale(1) brightness(1.25)', display: 'inline-flex' }}>
-                    <CapitalCommandMark width={165} />
-                  </span>
+                <div>
+                  <p className="cab-psub" style={{ color: p.color }}>{p.sub}</p>
+                  <h2 className="cab-ptitle">{p.title}</h2>
                 </div>
-              )}
-              {p.id === 'crm' && (
-                // ATRIUM — the CRM platform for the Partner CRM pillar
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <span style={{ color: pal.faint, fontSize: 8, letterSpacing: '0.26em', textTransform: 'uppercase' }}>Powered by</span>
-                  <span style={{ color: pal.ink, fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: 16, letterSpacing: '0.08em' }}>ATRIUM</span>
-                </div>
-              )}
+                <div className="cab-pline" />
+                <p className="cab-pblurb">{p.blurb}</p>
 
-              <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: PA.silver }}>Enter Pillar →</span>
-            </button>
-            )
-          })}
+                {p.id === 'budgets' && (
+                  <div className="cab-pow">
+                    <span className="k">Powered by</span>
+                    <img src="/xero-logo.png" alt="Xero" draggable={false}
+                      style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
+                  </div>
+                )}
+                {p.id === 'deployment' && (
+                  <div className="cab-pow">
+                    <span className="k">Powered by</span>
+                    <span style={{ filter: 'grayscale(1) brightness(1.25)', display: 'inline-flex' }}>
+                      <CapitalCommandMark width={165} />
+                    </span>
+                  </div>
+                )}
+                {p.id === 'crm' && (
+                  <div className="cab-pow">
+                    <span className="k">Powered by</span>
+                    <span style={{ color: '#fff', fontFamily: "'Chakra Petch',sans-serif", fontWeight: 500, fontSize: 16, letterSpacing: '0.14em' }}>ATRIUM</span>
+                  </div>
+                )}
+
+                <span className="cab-penter">Enter Pillar &#8594;</span>
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
       <SiteLinks />
       <Project7Mark />
-
-      {/* Log out of Capital — bottom left, matches the studio's button but glows soft grey */}
-      <button onClick={onLogout} className="glass-btn glass-btn-grey"
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 30, color: 'rgba(255,255,255,0.85)', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>
-        Log Out
-      </button>
+      <button className="cab-btn cab-logout" onClick={onLogout}>Log Out</button>
     </div>
   )
 }
