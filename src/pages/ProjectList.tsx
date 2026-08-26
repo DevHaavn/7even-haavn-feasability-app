@@ -297,9 +297,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
             <div className={`ath-pmenu${menuOpen ? ' on' : ''}`}>
               <div className="ath-mh">
                 <span>Projects · {live.length}</span>
-                <span style={{ display: 'flex', gap: 8 }}>
-                  {isAdmin && <button className="ath-dash" onClick={() => { onDashboard?.('7even'); setMenuOpen(false) }}>▦ Dashboard</button>}
-                </span>
+
               </div>
               {/* BASE — 7EVEN sub-brand: press to drop down the project feasibilities */}
               <button className={`ath-base${baseOpen ? ' on' : ''}`} title="BASE — Project Feasibilities" onClick={() => setBaseOpen(v => !v)}>
