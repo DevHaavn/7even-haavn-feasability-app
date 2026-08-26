@@ -52,7 +52,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
   return (
     <>
       {/* Full-screen overlay — z-index 9999 puts it above everything including Leaflet */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: 'rgba(3,4,5,0.5)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: 'rgba(3,4,5,0.5)', backdropFilter: 'blur(21px)', WebkitBackdropFilter: 'blur(21px)' }}>
 
         {/* Glass overlay — the live workspace shows through, blurred (approved preview design) */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.5), rgba(3,3,3,0.32) 40%, rgba(3,3,3,0.55))', pointerEvents: 'none' }} />
