@@ -320,14 +320,14 @@ document.getElementById('mediaInput').onchange=function(e){const f=e.target.file
   if(_mKind==='plan')md.plans.push(Object.assign(ent,{label:f.name.replace(/\.[^.]+$/,'').slice(0,14)}));else md.images.push(ent);
   save();render();e.target.value='';};
 var LBLIST=[],LBI=0;
-function lbBuild(){var md=(DB&&DB.media&&DB.media[fhome])||{images:[],plans:[]};
-  return (md.images||[]).map(function(m,i){return {src:mSrc(m),cap:fhome+' · View '+(i+1)};})
-    .concat((md.plans||[]).map(function(p){return {src:mSrc(p),cap:fhome+' · '+(p.label||'Floor plan')};}));}
+function lbBuild(hid){hid=hid||fhome;var md=(DB&&DB.media&&DB.media[hid])||{images:[],plans:[]};var nm=(typeof home==='function'&&home(hid)&&home(hid).name)||hid;
+  return (md.images||[]).map(function(m,i){return {src:mSrc(m),cap:nm+' · View '+(i+1)};})
+    .concat((md.plans||[]).map(function(p){return {src:mSrc(p),cap:nm+' · '+(p.label||'Floor plan')};}));}
 function lbShow(){var m=LBLIST[LBI]||{};document.getElementById('lbImg').src=m.src||'';
   var c=document.getElementById('lbCap');if(c)c.textContent=m.cap||'';
   var n=document.getElementById('lbCount');if(n)n.textContent=(LBI+1)+' / '+LBLIST.length;}
 function lbGo(d){if(!LBLIST.length)return;LBI=(LBI+d+LBLIST.length)%LBLIST.length;lbShow();}
-function openLB(src){LBLIST=lbBuild();LBI=0;for(var k=0;k<LBLIST.length;k++){if(LBLIST[k].src===src){LBI=k;break;}}
+function openLB(src,hid){LBLIST=lbBuild(hid);LBI=0;for(var k=0;k<LBLIST.length;k++){if(LBLIST[k].src===src){LBI=k;break;}}
   if(!LBLIST.length){LBLIST=[{src:src,cap:''}];LBI=0;}lbShow();document.getElementById('lb').classList.add('on');}
 (function(){var lb=document.getElementById('lb');if(lb)lb.addEventListener('click',function(e){if(e.target===lb)lb.classList.remove('on');});
 document.addEventListener('keydown',function(e){var lb=document.getElementById('lb');if(!lb||!lb.classList.contains('on'))return;if(e.key==='ArrowLeft')lbGo(-1);else if(e.key==='ArrowRight')lbGo(1);else if(e.key==='Escape')lb.classList.remove('on');});})();
@@ -361,11 +361,11 @@ function vRange(){
   ${list.map((h,i)=>{const c2=phaseCost(h.id,2),w2=phaseWf(h.id,2);const md=DB.media[h.id];const imgs=md.images,idx=(md.i||0)%Math.max(1,imgs.length);const cur=imgs[idx];return `<div class="rcard">
     <div class="img" ${cur?`style="background:#000"`:''}>
       <span class="flag">${h.range==='black'?'HAAVN BLACK':'ESSENTIALS'}</span>
-      ${cur?`<img src="${mSrc(cur)}" alt="${esc(h.name)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" data-act="lb" data-src="${mSrc(cur)}">`:`<span style="position:relative">◇ ${esc(h.name)} — image &amp; floor plan from app library</span>`}
+      ${cur?`<img src="${mSrc(cur)}" alt="${esc(h.name)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" data-act="lb" data-home="${h.id}" data-src="${mSrc(cur)}">`:`<span style="position:relative">◇ ${esc(h.name)} — image &amp; floor plan from app library</span>`}
       ${imgs.length>1?`<button class="gnav gp" data-act="mimg" data-id="${h.id}" data-d="-1">‹</button><button class="gnav gn" data-act="mimg" data-id="${h.id}" data-d="1">›</button>`:''}
       <div class="gmeta"><span>${imgs.length} image${imgs.length===1?'':'s'}${md.plans.length?` · ${md.plans.length} plan${md.plans.length===1?'':'s'}`:''}</span>
         <button class="addimg" data-act="addMedia" data-id="${h.id}" data-kind="image">+ Add image / floor plan</button></div>
-      ${md.plans.length?`<div class="planstrip">${md.plans.map((p,pi)=>`<div class="pthumb" data-act="lb" data-src="${mSrc(p)}" title="${esc(p.label||'Plan')}"><img src="${mSrc(p)}" alt="plan"><span>${esc(p.label||'Plan')}</span></div>`).join('')}</div>`:''}
+      ${md.plans.length?`<div class="planstrip">${md.plans.map((p,pi)=>`<div class="pthumb" data-act="lb" data-home="${h.id}" data-src="${mSrc(p)}" title="${esc(p.label||'Plan')}"><img src="${mSrc(p)}" alt="plan"><span>${esc(p.label||'Plan')}</span></div>`).join('')}</div>`:''}
     </div>
     <div class="info">
       <div class="rt">${String(i+1).padStart(2,'0')} · ${h.storeys}-storey · ${h.modules} module${h.modules>1?'s':''}</div>
@@ -398,8 +398,8 @@ function vFeas(){
     <div style="margin-left:auto"><select data-act="addBlock"><option value="">+ Add another home…</option>${HOMES.filter(x=>!DB.block.find(b=>b.homeId===x.id)).map(x=>`<option value="${x.id}">${x.name}</option>`).join('')}</select></div>
   </div>
   <div class="mstrip">
-    ${DB.media[fhome].images.map((m,i)=>`<div class="mthumb" data-act="lb" data-src="${mSrc(m)}"><img src="${mSrc(m)}" alt=""><span class="x" data-act="mdel" data-id="${fhome}" data-kind="image" data-i="${i}" onclick="event.stopPropagation()">×</span></div>`).join('')}
-    ${DB.media[fhome].plans.map((m,i)=>`<div class="mthumb" data-act="lb" data-src="${mSrc(m)}" title="${esc(m.label||'Plan')}"><img src="${mSrc(m)}" alt=""><span class="x" data-act="mdel" data-id="${fhome}" data-kind="plan" data-i="${i}" onclick="event.stopPropagation()">×</span></div>`).join('')}
+    ${DB.media[fhome].images.map((m,i)=>`<div class="mthumb" data-act="lb" data-home="${fhome}" data-src="${mSrc(m)}"><img src="${mSrc(m)}" alt=""><span class="x" data-act="mdel" data-id="${fhome}" data-kind="image" data-i="${i}" onclick="event.stopPropagation()">×</span></div>`).join('')}
+    ${DB.media[fhome].plans.map((m,i)=>`<div class="mthumb" data-act="lb" data-home="${fhome}" data-src="${mSrc(m)}" title="${esc(m.label||'Plan')}"><img src="${mSrc(m)}" alt=""><span class="x" data-act="mdel" data-id="${fhome}" data-kind="plan" data-i="${i}" onclick="event.stopPropagation()">×</span></div>`).join('')}
     <button class="maddbtn" data-act="addMedia" data-id="${fhome}" data-kind="image">+ Image</button>
     <button class="maddbtn" data-act="addMedia" data-id="${fhome}" data-kind="plan">+ Floor plan</button>
   </div>
@@ -558,7 +558,7 @@ document.addEventListener('click',e=>{
   else if(a==='mimg'){const md=DB.media[t.dataset.id];md.i=((md.i||0)+ (+t.dataset.d)+md.images.length)%Math.max(1,md.images.length);render();}
   else if(a==='addMedia'){addMedia(t.dataset.id,t.dataset.kind||'image');}
   else if(a==='mdel'){const md=DB.media[t.dataset.id];const arr=t.dataset.kind==='plan'?md.plans:md.images;arr.splice(+t.dataset.i,1);save();render();}
-  else if(a==='lb'){openLB(t.dataset.src);}
+  else if(a==='lb'){openLB(t.dataset.src,t.dataset.home);}
   else if(a==='lbprev'){lbGo(-1);}
   else if(a==='lbnext'){lbGo(1);}
   else if(a==='lbclose'){document.getElementById('lb').classList.remove('on');}
