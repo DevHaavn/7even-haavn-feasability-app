@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATRIUM · Login (redesign preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--led:#2fe07a;--gold:#d6b36a;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif}
+html,body{height:100%}
+body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
+
+/* moving background */
+.bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,4,4,.72),rgba(4,4,4,.5) 44%,rgba(4,4,4,.88))}
+
+/* preview ribbon */
+.pvr{position:fixed;top:0;left:0;right:0;z-index:40;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.3em;
+  text-transform:uppercase;color:#9aa0a6;padding:8px 0;background:rgba(4,5,6,.7);border-bottom:1px solid rgba(255,255,255,.08)}
+.pvr b{color:var(--gold);font-weight:500}
+
+/* counter-flowing LED line pairs — same device as the home page */
+.vl{position:fixed;top:0;bottom:57px;width:1.5px;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,transparent,var(--led) 14%,var(--led) 86%,transparent);
+  box-shadow:0 0 12px rgba(47,224,122,.55);opacity:.6}
+@keyframes drawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes drawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
+.vl1{left:calc(clamp(46px,6vw,110px) + 96px);animation:drawDown 7.5s ease-in-out infinite}
+.vl2{left:calc(clamp(46px,6vw,110px) + 286px);animation:drawUp 7.5s ease-in-out infinite}
+.vr1{right:calc(clamp(46px,6vw,110px) + 286px);animation:drawDown 7.5s ease-in-out infinite}
+.vr2{right:calc(clamp(46px,6vw,110px) + 96px);animation:drawUp 7.5s ease-in-out infinite}
+@media(max-width:900px){.vl1,.vr1{display:none}}
+
+/* stage */
+.stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
+
+.wings{height:34px;width:auto;opacity:.92;filter:drop-shadow(0 2px 14px rgba(0,0,0,.6))}
+.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.44em;text-transform:uppercase;color:#8d9298;margin-top:14px}
+
+.seven{width:clamp(220px,30vw,420px);height:auto;margin-top:34px;
+  filter:drop-shadow(0 0 18px rgba(255,255,255,.35)) drop-shadow(0 0 60px rgba(255,255,255,.12))}
+.sub{font-family:var(--mono);font-size:7.5px;letter-spacing:.5em;text-transform:uppercase;color:#7e838a;margin-top:16px;text-align:center}
+
+/* clear glass card — boxless feel, floats on the video */
+.card{margin-top:44px;width:min(360px,90vw);border:1px solid rgba(255,255,255,.2);border-radius:4px;
+  background:rgba(255,255,255,.02);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  padding:30px 32px 28px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.1)}
+.pa{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:26px}
+.lbl{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
+.inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
+  font-family:var(--mono);font-size:18px;letter-spacing:.4em;padding:8px 2px 10px;outline:none;transition:.3s}
+.inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
+.inp:focus{border-bottom-color:var(--gold);box-shadow:0 1px 0 0 rgba(214,179,106,.4)}
+.enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
+  background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
+.enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.6)}
+.enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--gold)}
+.err{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
+.priv{font-family:var(--mono);font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-top:26px}
+
+/* fixed one-line footer — same as main app */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:0 clamp(18px,3.4vw,46px)}
+.hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
+.frail{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:12px 2px 14px;white-space:nowrap}
+.fl{display:flex;align-items:center;gap:14px}
+.atrium{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.34em;color:#c3c7cd}
+.tri2{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
+.fc{display:flex;align-items:center;gap:9px;justify-self:center;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:#a9a6a9}
+.livedot{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 10px var(--led);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em}
+.fr{display:flex;align-items:center;gap:8px;justify-self:end}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
+  font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s;text-transform:uppercase;text-decoration:none}
+.chip:hover{border-color:rgba(214,179,106,.7);color:#fff;transform:translateY(-2px);background:rgba(214,179,106,.06)}
+.chip .ext{color:var(--gold);opacity:.9;font-size:9px}
+@media(max-width:760px){.frail{grid-template-columns:1fr auto}.fc{display:none}}
+</style>
+</head>
+<body>
+
+<video class="bg" autoplay muted loop playsinline preload="auto" src="/haavn-black-bg.mp4"></video>
+<div class="scrim"></div>
+
+<div class="pvr">Preview · ATRIUM Login redesign · <b>new design language</b></div>
+
+<div class="vl vl1"></div><div class="vl vl2"></div>
+<div class="vl vr1"></div><div class="vl vr2"></div>
+
+<div class="stage">
+  <img class="wings" src="/winged-device-white.png" alt="CAPITAL">
+  <div class="eyebrow">Development Feasibility Studio</div>
+
+  <img class="seven" src="/seven-mark-white-hd.png" alt="7EVEN">
+  <div class="sub">Atrium&nbsp;&nbsp;·&nbsp;&nbsp;Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
+
+  <div class="card">
+    <div class="pa">Private Access</div>
+    <label class="lbl" for="code">Access Code</label>
+    <input id="code" class="inp" type="password" placeholder="········" autocomplete="off">
+    <button class="enter" onclick="go()"><span class="tri"></span>Enter Atrium</button>
+    <div class="err" id="err">Incorrect access code — try again</div>
+  </div>
+
+  <div class="priv">7EVEN Capital · Private Access</div>
+</div>
+
+<div class="foot">
+  <div class="hair"></div>
+  <div class="frail">
+    <div class="fl"><span class="atrium"><span class="tri2"></span>ATRIUM</span></div>
+    <div class="fc"><span class="livedot"></span>LIVE&nbsp;&nbsp;<span class="clock" id="clock">--:--:--</span>&nbsp;·&nbsp;MELBOURNE</div>
+    <div class="fr">
+      <a class="chip" href="https://7even.au" target="_blank" rel="noopener">7EVEN.AU <span class="ext">↗</span></a>
+      <a class="chip" href="https://www.haavn.au" target="_blank" rel="noopener">HAAVN.AU <span class="ext">↗</span></a>
+    </div>
+  </div>
+</div>
+
+<script>
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-AU',{hour12:false});}
+tick();setInterval(tick,1000);
+function go(){
+  var e=document.getElementById('err');
+  e.style.display='block';
+  e.textContent='Preview only — the live gate keeps its real access code.';
+  e.style.color='#d6b36a';
+}
+document.getElementById('code').addEventListener('keydown',function(ev){if(ev.key==='Enter')go();});
+</script>
+</body>
+</html>
