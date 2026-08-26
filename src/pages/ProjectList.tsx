@@ -1,14 +1,23 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useStore } from '../store'
-import { Project7Mark } from '../components/ui'
-import AtriumBuild from '../components/AtriumBuild'
 import { seedProjectsIfEmpty } from '../db/seed'
-import { getCashflow, getDeletedProjectIds } from '../db'
-import SiteLinks from '../components/SiteLinks'
+import { getDeletedProjectIds } from '../db'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
 import HaavnManagementBase from './capital/HaavnManagementBase'
 import { useRole } from '../lib/role'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ATRIUM home — the 7EVEN Development Feasibility Studio landing.
+// Rebuilt to the HAAVN BLACK look: moving video background, counter-flowing
+// green LED lines (stopping at the footer hairline), the crisp white 7EVEN
+// master centre-stage, a floating glass hamburger holding every project
+// feasibility + New Project, CAPITAL wings → Capital Base login, and a
+// one-line footer: ▲ ATRIUM · HM · HMVN BLACK → | LIVE clock | links.
+// All existing wiring preserved: open project → workspace, create, archive,
+// restore, delete, Dashboard (admin), Capital gate (non-external), HM hub,
+// HAAVN BLACK entry, Log Out.
+// ─────────────────────────────────────────────────────────────────────────────
 
 function useAddressSearch(query: string) {
   const [results, setResults] = useState<string[]>([])
@@ -32,346 +41,352 @@ function useAddressSearch(query: string) {
   return { results, loading }
 }
 
-// Below this width the 7EVEN/HAAVN columns stack vertically instead of sitting side by side
-function useIsNarrow(query = '(max-width: 1024px)') {
-  const [narrow, setNarrow] = useState(() => window.matchMedia(query).matches)
-  useEffect(() => {
-    const mq = window.matchMedia(query)
-    const onChange = (e: MediaQueryListEvent) => setNarrow(e.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [query])
-  return narrow
+function typeColor(type?: string, status?: string): { color: string; pulse: boolean; label: string } {
+  if (status === 'on-hold') return { color: '#EF4444', pulse: true, label: 'On Hold' }
+  if (status === 'pending') return { color: '#C9A24B', pulse: true, label: 'Pending' }
+  switch (type) {
+    case 'hotel': return { color: '#A855F7', pulse: false, label: 'Hotel' }
+    case 'btr': return { color: '#22C55E', pulse: false, label: 'BTR' }
+    case 'bts': return { color: '#3B82F6', pulse: false, label: 'BTS' }
+    case 'mixed': return { color: '#E8E6E1', pulse: false, label: 'Mixed' }
+    default: return { color: '#8d939a', pulse: false, label: 'Active' }
+  }
 }
+
+const STATUS_OPTIONS = [
+  { type: 'hotel', status: 'active', label: 'Hotel', color: '#A855F7' },
+  { type: 'btr', status: 'active', label: 'BTR', color: '#22C55E' },
+  { type: 'bts', status: 'active', label: 'BTS', color: '#3B82F6' },
+  { type: 'mixed', status: 'active', label: 'Mixed', color: '#E8E6E1' },
+  { type: undefined, status: 'pending', label: 'Pending', color: '#C9A24B' },
+  { type: undefined, status: 'on-hold', label: 'On Hold', color: '#EF4444' },
+]
+
+const CSS = `
+.ath-root{position:relative;display:flex;flex-direction:column;height:100%;overflow:hidden;background:#040404;color:#e8e6e8;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;
+  --led:#2fe07a;--line:rgba(255,255,255,.14);--grey-txt:#a9a6a9;--mono:'JetBrains Mono',ui-monospace,monospace}
+.ath-bgv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ath-dim{position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.56)}
+.ath-vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
+.ath-main{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;min-height:0;padding:0 clamp(18px,3.4vw,46px)}
+/* vertical LED lines — live inside ath-main so they stop at the footer hairline */
+.ath-vled{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;overflow:visible;z-index:2}
+.ath-vled::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, transparent 0%, rgba(48,224,120,.75) 7%, var(--led) 50%, rgba(48,224,120,.75) 93%, transparent 100%);
+  filter:brightness(1.3) drop-shadow(0 0 9px rgba(120,255,170,.95)) drop-shadow(0 0 26px rgba(48,224,120,.9)) drop-shadow(0 0 44px rgba(30,205,100,.62))}
+.ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
+.ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
+.ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
+.ath-vr2{right:calc(clamp(46px,6vw,110px) + 96px)}
+.ath-vl1::before,.ath-vr1::before{animation:athDrawDown 15.6s linear infinite}
+.ath-vl2::before,.ath-vr2::before{animation:athDrawUp 15.6s linear infinite}
+@keyframes athDrawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes athDrawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
+@media(max-width:900px){.ath-vl2,.ath-vr1{display:none}.ath-vl1{left:26px}.ath-vr2{right:26px}}
+/* top */
+.ath-tophead{position:relative;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;padding:26px 2px 0}
+.ath-capbtn{grid-column:2;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-decoration:none;background:none;border:none;transition:.3s;padding:0}
+.ath-capbtn:hover{transform:translateY(-2px)}
+.ath-capbtn:hover .ath-capwings{filter:drop-shadow(0 2px 10px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(47,224,122,.55));opacity:1}
+.ath-capbtn:hover .ath-capword{color:#fff;text-shadow:0 0 12px rgba(47,224,122,.5)}
+.ath-capwings{width:78px;height:auto;opacity:.92;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));transition:.3s}
+.ath-capword{font-family:var(--mono);font-size:8px;letter-spacing:.5em;color:#cfd3d8;text-transform:uppercase;padding-left:.5em;transition:.3s}
+.ath-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.44em;margin-top:6px}
+/* burger */
+.ath-menuwrap{grid-column:3;justify-self:end;position:relative;z-index:60}
+.ath-burger{width:46px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
+.ath-burger span{display:block;width:22px;height:1.8px;background:#dfe1e4;transition:.3s;border-radius:1px}
+.ath-burger:hover span{background:var(--led);box-shadow:0 0 10px rgba(47,224,122,.9),0 0 22px rgba(47,224,122,.5)}
+.ath-burger.on span:nth-child(1){transform:translateY(7.8px) rotate(45deg)}
+.ath-burger.on span:nth-child(2){opacity:0}
+.ath-burger.on span:nth-child(3){transform:translateY(-7.8px) rotate(-45deg)}
+/* floating menu — centred under the eyebrow, no card */
+.ath-pmenu{position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(560px,84vw);z-index:50;
+  opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
+.ath-pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.ath-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
+  font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
+  border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
+.ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
+.ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:2px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
+.ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
+.ath-plist{max-height:min(54vh,460px);overflow-y:auto}
+.ath-prow{display:flex;align-items:center;gap:14px;padding:14px 4px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.1);transition:.22s;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.ath-prow:hover{border-bottom-color:rgba(47,224,122,.55)}
+.ath-prow:hover .ath-pname{color:#fff;text-shadow:0 0 14px rgba(47,224,122,.35)}
+.ath-num{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.32);width:16px;flex-shrink:0}
+.ath-pinfo{flex:1;min-width:0}
+.ath-pname{font-size:13px;font-weight:600;color:#f0eff0;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ath-paddr{font-family:var(--mono);font-size:9px;color:var(--grey-txt);letter-spacing:.06em;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ath-ptype{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:#cfd3d8;border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 8px;display:inline-flex;align-items:center;gap:6px;background:transparent;cursor:pointer;flex-shrink:0}
+.ath-ptype:hover{border-color:rgba(47,224,122,.55)}
+.ath-ptype .d{width:5px;height:5px;border-radius:50%}
+.ath-go{color:var(--led);font-size:11px;opacity:0;transform:translateX(-4px);transition:.25s;flex-shrink:0}
+.ath-prow:hover .ath-go{opacity:1;transform:none}
+.ath-sub{position:absolute;z-index:80;background:rgba(10,11,12,.92);border:1px solid rgba(255,255,255,.16);border-radius:4px;min-width:150px;overflow:hidden;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 20px 50px -20px #000}
+.ath-sub button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 12px;background:transparent;border:none;cursor:pointer;color:#cfd3d8;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.ath-sub button:hover{background:rgba(47,224,122,.1);color:#fff}
+.ath-arch{padding:12px 4px 4px;font-family:var(--mono);font-size:8px;letter-spacing:.26em;color:rgba(255,255,255,.35);text-transform:uppercase}
+.ath-archrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:#b9bdc4;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.ath-archrow .a-act{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:5px 10px;border-radius:2px;cursor:pointer;background:transparent}
+/* hero */
+.ath-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s, filter .35s;z-index:4;position:relative}
+.ath-root.menu-open .ath-hero{opacity:.08;filter:blur(2px)}
+.ath-sevenwrap{display:flex;flex-direction:column;align-items:center;opacity:0;animation:athBrandIn 2.4s ease-out .5s forwards}
+@keyframes athBrandIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ath-seven{width:clamp(269px,40.3vw,576px);filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
+.ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
+/* footer */
+.ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
+.ath-frail{position:relative;z-index:4;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:14px 2px 16px;white-space:nowrap}
+.ath-fl{display:flex;align-items:center;gap:16px;min-width:0}
+.ath-atrium{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.34em;color:#c3c7cd}
+.ath-tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
+.ath-vd{width:1px;height:18px;background:var(--line)}
+.ath-hmlink{display:inline-flex;align-items:center;cursor:pointer;transition:.3s;opacity:.85;background:none;border:none;padding:0}
+.ath-hmlink img{height:15px;width:auto;display:block}
+.ath-hmlink:hover{opacity:1;filter:drop-shadow(0 0 12px rgba(47,224,122,.5));transform:translateY(-1px)}
+.ath-hbentry{display:inline-flex;align-items:center;gap:8px;cursor:pointer;opacity:.9;transition:.3s;background:none;border:none;padding:0}
+.ath-hbentry img{height:11px;width:auto;display:block}
+.ath-hbentry .go{color:var(--led);font-size:12px;transition:transform .35s cubic-bezier(.2,.7,.3,1)}
+.ath-hbentry:hover{opacity:1;filter:drop-shadow(0 0 12px rgba(47,224,122,.4))}
+.ath-hbentry:hover .go{transform:translateX(3px)}
+.ath-fc{display:flex;align-items:center;gap:14px;justify-self:center}
+.ath-livewrap{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--grey-txt)}
+.ath-livedot{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 10px var(--led);animation:athPulse 2.4s infinite}
+@keyframes athPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ath-clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em;font-family:var(--mono)}
+.ath-fr{display:flex;align-items:center;gap:8px;justify-self:end}
+.ath-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
+  font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s cubic-bezier(.2,.7,.3,1);text-transform:uppercase;text-decoration:none}
+.ath-chip:hover{border-color:rgba(47,224,122,.7);color:#fff;transform:translateY(-2px);background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
+.ath-chip .ext{color:var(--led);opacity:.9;font-size:9px}
+.ath-chip .ring{width:6px;height:6px;border:1px solid var(--led);border-radius:50%}
+@media(max-width:840px){
+  .ath-frail{grid-template-columns:1fr;justify-items:start;gap:12px}
+  .ath-fc,.ath-fr{justify-self:start}
+  .ath-capwings{width:56px}
+}
+`
 
 export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onOpenHomes?: () => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
-  const isNarrow = useIsNarrow()
-  const isMobile = useIsNarrow('(max-width: 640px)')
+  const [menuOpen, setMenuOpen] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   const [hmOpen, setHmOpen] = useState(false)
-  const [newBrand, setNewBrand] = useState<'7even' | 'haavn'>('7even')
-  // HAAVN Management is retired as a separate board — the studio runs ONE unified
-  // board showing every project. adminBrand is pinned to '7even' (kept only so the
-  // 7EVEN mark + Dashboard entry still read correctly).
-  const [adminBrand] = useState<'7even'>('7even')
-  const [brandMenu, setBrandMenu] = useState(false)
-  const [archiveMenu, setArchiveMenu] = useState(false)
+  const [statusFor, setStatusFor] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const { results, loading } = useAddressSearch(address)
   const addressRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [clock, setClock] = useState('--:--:--')
 
+  useEffect(() => { seedProjectsIfEmpty(); loadProjects() }, [])
+  useEffect(() => {
+    const t = () => setClock(new Date().toLocaleTimeString('en-AU', { hour12: false }))
+    t(); const id = setInterval(t, 1000); return () => clearInterval(id)
+  }, [])
   useEffect(() => {
     function handle(e: MouseEvent) {
       if (addressRef.current && !addressRef.current.contains(e.target as Node)) setShowSuggestions(false)
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) { setMenuOpen(false); setStatusFor(null) }
     }
+    function key(e: KeyboardEvent) { if (e.key === 'Escape') { setMenuOpen(false); setStatusFor(null) } }
     document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
+    document.addEventListener('keydown', key)
+    return () => { document.removeEventListener('mousedown', handle); document.removeEventListener('keydown', key) }
   }, [])
 
-  useEffect(() => { seedProjectsIfEmpty(); loadProjects() }, [])
-
-
-  function handleCreate() {
-    if (!name.trim()) return
-    const p = createProject(name.trim(), address.trim(), newBrand)
-    setName(''); setAddress(''); setShowNew(false)
-    setActiveProject(p.id)
-  }
-
-  function openNew(brand: '7even' | 'haavn') {
-    setNewBrand(brand)
-    setShowNew(true)
-  }
-
-  // Archived projects drop off the live board (restored via the Archive dropdown).
-  // We use the persisted `status` field ('archived') so it survives cloud sync.
-  // A project you deleted stays hidden on THIS browser no matter what the cloud
-  // says. A stale tab / old cached build elsewhere can resurrect the row (reset
-  // its status to on-hold and push it back); the local delete tombstone means we
-  // still never show it here, and the load-time re-assert (seed) re-deletes it in
-  // the cloud so it propagates once the old build is gone.
   const tombstoned = new Set(getDeletedProjectIds())
   const live = projects.filter(p => p.status !== 'archived' && p.status !== 'deleted' && !tombstoned.has(p.id))
   const archivedProjects = projects.filter(p => p.status === 'archived' && !tombstoned.has(p.id))
-  // One unified studio board — every live project (7EVEN, HAAVN and joint), since
-  // the separate HAAVN Management board has been retired. `haavnProjects` kept as
-  // an alias so any remaining reference still resolves to the same full list.
-  const sevenProjects = live
-  const haavnProjects = live
-  function setArchived(p: any, archived: boolean) {
-    updateProject({ ...p, status: archived ? 'archived' : 'active', updatedAt: new Date().toISOString() })
+
+  function handleCreate() {
+    if (!name.trim()) return
+    const p = createProject(name.trim(), address.trim(), '7even')
+    setName(''); setAddress(''); setShowNew(false)
+    setActiveProject(p.id)
   }
+  const isAdmin = role === 'admin'
 
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden',
-      background: 'linear-gradient(rgba(5,7,10,0.15), rgba(5,7,10,0.15)), linear-gradient(to bottom, rgba(5,7,10,0.30) 0%, rgba(5,7,10,0.04) 30%, rgba(5,7,10,0.16) 62%, rgba(5,7,10,0.60) 100%), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a' }}>
+    <div className={`ath-root${menuOpen ? ' menu-open' : ''}`}>
+      <style>{CSS}</style>
 
-      {/* ── Hero — floats over the full-bleed tower ── */}
-      <div style={{ position: 'relative', height: 'clamp(300px, 58vh, 66vh)', flexShrink: 0 }}>
+      {/* moving background */}
+      <video className="ath-bgv" autoPlay muted loop playsInline preload="metadata" src="/haavn-black-bg.mp4" />
+      <div className="ath-dim" />
+      <div className="ath-vign" />
 
-        {/* Top bar — drag region for the frameless window */}
-        <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10 }} />
+      {/* drag region for the frameless window */}
+      <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10, pointerEvents: 'none' }} />
 
-        {/* Winged device — Capital Base entry. Consultants (external) are locked out
-            of the Capital back-of-house entirely, so the entry is hidden for them. */}
-        {role !== 'external' && (
-        <button
-          className="no-drag"
-          title="7EVEN Capital — Capital Base"
-          onClick={() => setCapitalOpen(true)}
-          style={{ position: 'absolute', top: isMobile ? 12 : 22, left: isMobile ? 14 : 40, zIndex: 20, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.85, transition: 'opacity 0.2s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
-        >
-          <img src="/winged-device-white.png" alt="7EVEN" draggable={false} style={{ width: isMobile ? 48 : 88, height: 'auto', display: 'block' }} />
-          <span style={{ display: 'block', textAlign: 'center', marginTop: isMobile ? 2 : 5, color: 'rgba(255,255,255,0.85)', fontSize: isMobile ? 6 : 8, letterSpacing: '0.42em', textTransform: 'uppercase', fontWeight: 400, paddingLeft: '0.42em' }}>
-            Capital
-          </span>
-        </button>
-        )}
-        <button onClick={() => onLogout?.()} className="no-drag glass-btn glass-btn-grey"
-          style={{ position: 'fixed', bottom: isMobile ? 12 : 18, left: isMobile ? 14 : 20, zIndex: 30, fontSize: isMobile ? 8 : 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: isMobile ? '5px 12px' : '7px 16px' }}>
-          Log Out
-        </button>
+      <div className="ath-main">
+        {/* LED lines — end at the footer hairline (they live inside ath-main) */}
+        <div className="ath-vled ath-vl1" /><div className="ath-vled ath-vl2" />
+        <div className="ath-vled ath-vr1" /><div className="ath-vled ath-vr2" />
 
-        {/* HAAVN Management — staff entry to the Management Hub (CRM + Meetings + Social).
-            The device IS the button, clean to its edges, mirroring the wings
-            top-left — no plate. */}
-        <button
-          className="no-drag"
-          title="HAAVN Management — Management Hub"
-          onClick={() => setHmOpen(true)}
-          style={{ position: 'absolute', top: isMobile ? 16 : 30, right: isMobile ? 16 : 44, zIndex: 20, background: 'transparent', border: 'none', padding: isMobile ? '4px 6px' : '6px 10px', cursor: 'pointer', opacity: 0.9, transition: 'opacity 0.2s', lineHeight: 0 }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
-        >
-          <img src="/hm-device-white.png" alt="HAAVN Management" draggable={false} style={{ height: isMobile ? 16 : 22, width: 'auto', display: 'block' }} />
-        </button>
-
-        {/* Title — high in the treeline above the house; dropped clear of the wings on mobile */}
-        <div style={{ position: 'absolute', top: isMobile ? '30%' : '3%', left: 0, right: 0, display: 'flex', justifyContent: 'center', padding: '0 16px', zIndex: 10 }}>
-          <p style={{ color: 'white', fontSize: isMobile ? 9 : 11, letterSpacing: isMobile ? '0.28em' : '0.38em', textTransform: 'uppercase', fontWeight: 500, textAlign: 'center' }}>Development Feasibility Studio</p>
-        </div>
-
-        {/* Brand — the ATRIUM self-building device (same moving A1 mark as the intro) */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10, gap: 14, transform: 'translateY(-8px)' }}>
-          <AtriumBuild variant="A1" bright size={isMobile ? 116 : 180} style={{ filter: 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) drop-shadow(0 8px 26px rgba(0,0,0,0.42))' }} />
-          <span style={{ color: '#fff', fontSize: isMobile ? 18 : 23, fontWeight: 600, letterSpacing: '0.42em', paddingLeft: '0.42em', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>ATRIUM</span>
-        </div>
-
-        {/* + New Project — blue/grey glass, centred low on the hero */}
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '7%', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
-          <button onClick={() => openNew('7even')} className="no-drag"
-            style={{ padding: '13px 32px', borderRadius: 14, border: '1px solid rgba(220,232,244,0.28)', background: 'linear-gradient(180deg, rgba(150,172,196,0.24), rgba(120,146,172,0.10))', backdropFilter: 'blur(14px) saturate(1.2)', WebkitBackdropFilter: 'blur(14px) saturate(1.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.30), 0 12px 34px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
-            <span style={{ color: '#fff', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>+ New Project</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Black-chrome shining divider ── */}
-      <div className="chrome-line" style={{ height: 2, flexShrink: 0 }} />
-
-      {/* ── Lower half — project board floats directly over the render (clear) ── */}
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-
-      {/* ── Split columns — stacked below 1024px, side by side above ── */}
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: isNarrow ? 'column' : 'row', overflow: 'hidden', overflowY: isNarrow ? 'auto' : 'hidden', minHeight: 0 }}>
-
-        {/* Project column — one branded board for everyone. Director flips
-            7EVEN / HAAVN Management; consultants are locked to HAAVN Management
-            (financial Dashboard hidden). Same look + buttons for both roles. */}
-        {(() => {
-          const isAdmin = role === 'admin'
-          const is7 = isAdmin && adminBrand === '7even'
-          const list = is7 ? sevenProjects : haavnProjects
-          const accent = is7 ? '#C4973A' : 'rgba(255,255,255,0.75)'
-          const brand: '7even' | 'haavn' = is7 ? '7even' : 'haavn'
-          return (
-        <div style={{ flex: isNarrow ? 'none' : 1, display: 'flex', flexDirection: 'column', overflow: isNarrow ? 'visible' : 'hidden', borderBottom: isNarrow ? '1px solid #111' : 'none' }}>
-          {/* Column header — frosted soft-grey glass bar that bleeds into the surrounds */}
-          <div className="ws-col-header" style={{ position: 'relative', zIndex: 60, flexShrink: 0, padding: '15px 28px 13px 10mm', background: 'transparent', borderTop: 'none', borderBottom: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', marginLeft: '7mm' }}>
-              {/* Brand mark — admin: view dropdown; consultant: static HAAVN mark */}
-              <button onClick={isAdmin ? () => setBrandMenu(v => !v) : undefined}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: isAdmin ? 'pointer' : 'default', padding: 0 }}>
-                {/* Real brand mark, filled white/silver via mask so it reads bright
-                    over the frosted-grey bar — matching the HAAVN wordmark elsewhere */}
-                <span style={{ display: 'inline-block', height: is7 ? 17 : 16, width: is7 ? 101 : 62, flexShrink: 0,
-                  WebkitMaskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`, maskImage: `url(${is7 ? '/seven-mark-white.png' : '/hm-device-white.png'})`,
-                  WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                  background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)',
-                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.35))' }} />
-                {isAdmin && <span className="jet-chrome-text" style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>▾</span>}
+        {/* top: CAPITAL wings → Capital Base · burger → projects */}
+        <div className="ath-tophead">
+          <div />
+          <div style={{ gridColumn: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {role !== 'external' ? (
+              <button className="ath-capbtn no-drag" title="7EVEN Capital — Capital Base" onClick={() => setCapitalOpen(true)}>
+                <img className="ath-capwings" src="/winged-device-white.png" alt="Capital" draggable={false} />
+                <span className="ath-capword">Capital</span>
               </button>
-              {!is7 && <span className="jet-chrome-text" style={{ fontSize: 11, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>MANAGEMENT</span>}
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.82)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace', marginLeft: 4, fontWeight: 700 }}>
-                {list.length} project{list.length !== 1 ? 's' : ''}
-              </span>
-              {isAdmin && brandMenu && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 190, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                  {/* 7EVEN — the single studio board. HAAVN HOMES moved to the footer
-                      as the HAAVN BLACK button (next to P7). */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,0.06)' }}>
-                    <span style={{ display: 'inline-block', height: 13, width: 84, flexShrink: 0,
-                      WebkitMaskImage: 'url(/seven-mark-white.png)', maskImage: 'url(/seven-mark-white.png)',
-                      WebkitMaskSize: 'contain', maskSize: 'contain', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskPosition: 'left center', maskPosition: 'left center',
-                      background: 'linear-gradient(180deg, #FFFFFF 0%, #EDEFF1 52%, #CDD3D8 100%)' }} />
-                    <span style={{ marginLeft: 'auto', fontSize: 9, color: '#C4973A' }}>✓</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-              {/* Menu — one chrome-silver dropdown holding Dashboard (admin only) + Archive */}
-              <button onClick={() => setArchiveMenu(v => !v)} title="Menu"
-                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
-                {archivedProjects.length > 0 && <span style={{ fontSize: 8, color: '#C4973A', fontFamily: 'monospace', fontWeight: 700 }}>{archivedProjects.length}</span>}
-                <span className="chrome-silver-text" style={{ fontSize: 37, fontWeight: 800, lineHeight: 0.6, marginTop: -11 }}>▾</span>
-              </button>
-              {archiveMenu && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 300, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 260, boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
-                  {/* Dashboard — financial portfolio view, admin/director only */}
-                  {isAdmin && (
-                  <button onClick={() => { onDashboard?.(adminBrand); setArchiveMenu(false) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '13px 16px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A1A1A', cursor: 'pointer' }}>
-                    <span style={{ fontSize: 13 }}>▦</span>
-                    <span style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 800, color: '#FFFFFF' }}>Dashboard</span>
-                  </button>
-                  )}
-                  {/* Archive */}
-                  <div style={{ padding: '10px 16px 7px' }}>
-                    <span style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#AEB6B8' }}>▤ Archived Projects{archivedProjects.length > 0 ? ` · ${archivedProjects.length}` : ''}</span>
-                  </div>
-                  {archivedProjects.length === 0 ? (
-                    <div style={{ padding: '2px 16px 14px', fontSize: 11, color: '#C6CDCF' }}>No archived projects.</div>
-                  ) : archivedProjects.map(p => (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderTop: '1px solid #141414' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 11, color: '#D0CCC6', margin: 0 }} className="truncate">{p.name}</p>
-                        <p style={{ fontSize: 8, color: '#555', margin: 0, letterSpacing: '0.06em' }} className="truncate">{p.address || '—'}</p>
-                      </div>
-                      <button onClick={() => { setArchived(p, false); setArchiveMenu(false) }} className="glass-btn glass-btn-green"
-                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0 }}>
-                        ↺ Live
-                      </button>
-                      <button onClick={() => { if (confirm(`Delete "${p.name}" permanently? This cannot be undone.`)) { deleteProject(p.id); setArchiveMenu(false) } }}
-                        style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, padding: '6px 12px', flexShrink: 0, background: 'none', border: '1px solid #B4553F', color: '#B4553F', borderRadius: 4, cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#B4553F'; e.currentTarget.style.color = '#fff' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#B4553F' }}
-                        title="Delete this project permanently">
-                        🗑 Delete
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Project list */}
-          <div className="hide-scrollbar" style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto' }}>
-            {list.length === 0 ? (
-              <EmptyState brand={brand} onNew={() => openNew(brand)} />
             ) : (
-              list.map((p, i) => (
-                <ProjectCard key={p.id} project={p} index={i + 1} onClick={() => setActiveProject(p.id)} onUpdate={updateProject} accentColor={accent} />
-              ))
+              <span className="ath-capbtn" style={{ cursor: 'default' }}>
+                <img className="ath-capwings" src="/winged-device-white.png" alt="" draggable={false} />
+                <span className="ath-capword">Capital</span>
+              </span>
             )}
+            <div className="ath-eyebrow">Development Feasibility Studio</div>
+          </div>
+          <div className="ath-menuwrap no-drag" ref={menuRef}>
+            <button className={`ath-burger${menuOpen ? ' on' : ''}`} aria-label="Projects menu" onClick={() => setMenuOpen(v => !v)}>
+              <span /><span /><span />
+            </button>
+            <div className={`ath-pmenu${menuOpen ? ' on' : ''}`}>
+              <div className="ath-mh">
+                <span>Projects · {live.length}</span>
+                <span style={{ display: 'flex', gap: 8 }}>
+                  {isAdmin && <button className="ath-dash" onClick={() => { onDashboard?.('7even'); setMenuOpen(false) }}>▦ Dashboard</button>}
+                  <button className="ath-newp" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project</button>
+                </span>
+              </div>
+              <div className="ath-plist">
+                {live.length === 0 && (
+                  <div style={{ padding: '22px 4px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', textTransform: 'uppercase' }}>
+                    No projects yet — <span style={{ color: 'var(--led)', cursor: 'pointer' }} onClick={() => { setShowNew(true); setMenuOpen(false) }}>create the first</span>
+                  </div>
+                )}
+                {live.map((p, i) => {
+                  const tc = typeColor(p.type, p.status)
+                  return (
+                    <div key={p.id} className="ath-prow" onClick={() => setActiveProject(p.id)}>
+                      <span className="ath-num">{String(i + 1).padStart(2, '0')}</span>
+                      <div className="ath-pinfo">
+                        <div className="ath-pname">{p.name}</div>
+                        <div className="ath-paddr">{p.address || '—'}</div>
+                      </div>
+                      <span style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                        <button className="ath-ptype" title="Set status" onClick={() => setStatusFor(v => v === p.id ? null : p.id)}>
+                          <span className="d" style={{ background: tc.color }} />{tc.label}
+                        </button>
+                        {statusFor === p.id && (
+                          <div className="ath-sub" style={{ top: 'calc(100% + 6px)', right: 0 }}>
+                            {STATUS_OPTIONS.map(opt => (
+                              <button key={opt.label} onClick={() => { updateProject({ ...p, type: opt.type, status: opt.status, updatedAt: new Date().toISOString() }); setStatusFor(null) }}>
+                                <span className="d" style={{ width: 5, height: 5, borderRadius: '50%', background: opt.color, display: 'inline-block' }} />{opt.label}
+                              </button>
+                            ))}
+                            <button onClick={() => { updateProject({ ...p, status: 'archived', updatedAt: new Date().toISOString() }); setStatusFor(null) }} style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>▤ Archive</button>
+                          </div>
+                        )}
+                      </span>
+                      <span className="ath-go">→</span>
+                    </div>
+                  )
+                })}
+                {archivedProjects.length > 0 && (
+                  <>
+                    <div className="ath-arch">▤ Archived · {archivedProjects.length}</div>
+                    {archivedProjects.map(p => (
+                      <div key={p.id} className="ath-archrow">
+                        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                        <button className="a-act" style={{ border: '1px solid rgba(47,224,122,.45)', color: 'var(--led)' }}
+                          onClick={() => updateProject({ ...p, status: 'active', updatedAt: new Date().toISOString() })}>↺ LIVE</button>
+                        <button className="a-act" style={{ border: '1px solid rgba(200,80,63,.55)', color: '#e8836e' }}
+                          onClick={() => { if (confirm(`Delete "${p.name}" permanently? This cannot be undone.`)) deleteProject(p.id) }}>🗑</button>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-          )
-        })()}
+
+        {/* centre hero — the crisp 7EVEN master */}
+        <div className="ath-hero">
+          <div className="ath-sevenwrap">
+            <img className="ath-seven" src="/seven-mark-white-hd.png" alt="7EVEN" draggable={false} />
+            <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
+          </div>
+        </div>
       </div>
+
+      {/* footer — one line */}
+      <div style={{ position: 'relative', zIndex: 4, padding: '0 clamp(18px,3.4vw,46px)' }}>
+        <div className="ath-hair" />
+        <div className="ath-frail">
+          <div className="ath-fl">
+            <span className="ath-atrium"><span className="ath-tri" />ATRIUM</span>
+            <span className="ath-vd" />
+            <button className="ath-hmlink no-drag" title="HAAVN Management — Management Hub" onClick={() => setHmOpen(true)}>
+              <img src="/hm-device-white.png" alt="HM" draggable={false} />
+            </button>
+            <span className="ath-vd" />
+            <button className="ath-hbentry no-drag" title="HAAVN BLACK — Homes" onClick={() => onOpenHomes?.()}>
+              <img src="/haavn-black-logo.png" alt="HAAVN BLACK" draggable={false} /><span className="go">→</span>
+            </button>
+          </div>
+          <div className="ath-fc">
+            <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
+          </div>
+          <div className="ath-fr">
+            <a className="ath-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
+            <a className="ath-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span className="ext">↗</span></a>
+            <button className="ath-chip" title="Get the latest version" onClick={() => window.location.reload()}><span className="ring" />UPDATE</button>
+            <button className="ath-chip" onClick={() => onLogout?.()}>LOG OUT</button>
+          </div>
+        </div>
       </div>
 
-      <SiteLinks tone="glass" />
-      <Project7Mark />
-
-      {/* HAAVN BLACK — Homes company. Was in the brand dropdown; now a footer
-          button beside the P7 mark. Opens the HAAVN Homes surface. */}
-      <style>{`
-.hb-plinth{--hb-mark:12px;--hb-gap:16px;--hb-arrow:10px;--hb-accent:#dcebff;--hb-white:#fff;--hb-grey:#8d939a;--hb-ease:cubic-bezier(.2,.7,.3,1);
-  position:fixed;bottom:22px;right:150px;z-index:300;display:inline-flex;align-items:center;gap:var(--hb-gap);
-  padding:13px 2px;background:none;border:0;color:inherit;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.hb-plinth__mark{height:var(--hb-mark);width:auto;display:block;overflow:visible;transition:filter .45s var(--hb-ease)}
-.hb-plinth__mark .hb-h{fill:var(--hb-white)} .hb-plinth__mark .hb-b{fill:var(--hb-grey)}
-.hb-plinth__arrow{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--hb-arrow);line-height:1;color:var(--hb-accent);opacity:.85;transition:transform .45s var(--hb-ease),opacity .45s var(--hb-ease)}
-.hb-plinth__rule{position:absolute;left:0;right:100%;bottom:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(190,215,255,.28),transparent);transition:right .7s var(--hb-ease);pointer-events:none}
-.hb-plinth:hover .hb-plinth__mark,.hb-plinth:focus-visible .hb-plinth__mark{filter:drop-shadow(0 0 22px rgba(215,232,255,.45))}
-.hb-plinth:hover .hb-plinth__arrow,.hb-plinth:focus-visible .hb-plinth__arrow{transform:translateX(6px);opacity:1}
-.hb-plinth:hover .hb-plinth__rule,.hb-plinth:focus-visible .hb-plinth__rule{right:0}
-.hb-plinth:active .hb-plinth__mark{filter:drop-shadow(0 0 10px rgba(215,232,255,.30))}
-.hb-plinth:focus{outline:none}
-.hb-plinth:focus-visible{outline:1px solid rgba(220,235,255,.75);outline-offset:4px}
-`}</style>
-      <button className="hb-plinth" onClick={() => onOpenHomes?.()} aria-label="HAAVN BLACK — enter" title="HAAVN BLACK — Homes">
-        <svg className="hb-plinth__mark" viewBox="0 0 1317.58 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-          <path className="hb-h" fillRule="evenodd" d="M 478.58 2.79 L 478.81 98.72 L 504.07 98.37 L 505.01 27.71 L 575.67 97.67 L 612.22 98.6 L 612.11 1.28 L 588.94 1.05 L 586.85 2.79 L 586.38 72.18 L 514.09 1.16 L 480.68 1.05 Z M 319.21 1.4 L 415.02 97.67 L 437.37 100 L 465.89 98.95 L 467.99 97.21 L 468.1 3.26 L 466.36 1.16 L 443.42 1.05 L 441.33 2.79 L 440.86 86.15 L 355.76 2.33 Z M 252.85 1.4 L 252.74 41.33 L 276.48 65.08 L 278.23 64.61 L 279.05 13.85 L 366.12 98.84 L 401.51 98.72 L 356.23 54.13 L 357.16 51.22 L 353.32 51.22 L 304.54 2.33 L 301.75 1.05 Z M 145.63 2.79 L 145.52 96.74 L 147.26 98.84 L 161.47 100 L 172.29 98.37 L 173.22 14.9 L 257.86 97.67 L 294.41 98.72 L 195.11 1.16 L 147.73 1.05 Z M 0.23 2.56 L 0 96.74 L 1.75 98.84 L 25.49 98.6 L 25.49 68.45 L 27.82 66.12 L 107.8 67.4 L 108.38 97.21 L 110.48 98.95 L 134.92 98.6 L 134.81 2.44 L 110.48 1.05 L 108.38 2.79 L 107.8 40.75 L 26.19 40.75 L 25.61 2.79 L 23.52 1.05 Z" />
-          <path className="hb-b" fillRule="evenodd" d="M 644 2.56 L 644.12 98.72 L 767.05 98.6 L 767.17 58.67 L 750.99 58.21 L 750.64 43.19 L 661.12 43.19 L 658.79 40.86 L 659.49 17.35 L 750.41 17.35 L 751.11 41.56 L 766.71 41.79 L 766.94 2.44 Z M 658.91 58.67 L 659.49 58.09 L 750.87 58.09 L 750.99 82.07 L 750.41 82.65 L 659.49 82.65 L 658.91 82.07 Z M 1192.2 3.96 L 1192.08 96.74 L 1193.83 98.84 L 1208.38 98.37 L 1208.96 58.09 L 1297.56 58.09 L 1298.14 98.37 L 1314.2 98.6 L 1314.2 43.31 L 1282.77 43.19 L 1280.56 41.09 L 1317.58 2.44 L 1297.44 2.33 L 1257.97 41.91 L 1232.13 40.75 L 1229.57 43.19 L 1208.5 41.56 L 1208.38 2.79 L 1194.3 2.21 Z M 780.09 3.96 L 779.98 96.74 L 781.72 98.84 L 903.26 98.6 L 903.49 84.75 L 901.28 82.54 L 796.62 82.54 L 796.27 2.79 L 782.19 2.21 Z M 1056.11 2.56 L 1056.23 98.72 L 1179.16 98.6 L 1178.81 82.65 L 1073.22 82.77 L 1070.9 80.44 L 1070.9 21.77 L 1072.53 17.46 L 1178.81 17.35 L 1179.05 2.44 L 1079.05 1.05 Z M 1043.07 3.96 L 1040.98 2.21 L 1006.87 2.44 L 1004.31 0 L 1003.03 2.33 L 917.69 2.44 L 917.58 98.6 L 932.48 98.37 L 933.76 82.42 L 932.36 80.44 L 933.64 75.2 L 932.36 61.47 L 934.23 58.09 L 1026.31 58.09 L 1026.89 98.37 L 1041.44 98.84 L 1043.19 96.74 Z M 1026.89 17.93 L 1027.01 40.86 L 1024.68 43.19 L 934.69 43.19 L 932.36 40.86 L 932.48 17.93 L 933.06 17.35 L 987.43 17.23 L 988.82 18.51 L 990.57 17.23 L 1026.31 17.35 Z" />
-        </svg>
-        <span className="hb-plinth__arrow" aria-hidden="true">&#8594;</span>
-        <span className="hb-plinth__rule" aria-hidden="true" />
-      </button>
-
-      {/* HAAVN Management — 3-pillar hub (CRM + Meetings + Social) */}
+      {/* HAAVN Management — 3-pillar hub */}
       {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
-      {/* Capital Base — admin/director only (consultants can never open it) */}
+      {/* Capital Base — admin/director only */}
       {capitalOpen && role !== 'external' && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}
 
-      {/* ── New project modal ── */}
+      {/* ── New project modal (unchanged flow) ── */}
       {showNew && (
         <div onClick={() => setShowNew(false)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(rgba(5,7,10,0.55), rgba(5,7,10,0.68)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a',
-          }}>
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,3,4,.78)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
-            style={{
-              width: 'min(480px, calc(100vw - 28px))', maxHeight: 'calc(100vh - 32px)', padding: isMobile ? '30px 24px' : '40px',
-              background: 'rgba(44,60,78,0.52)', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)',
-              border: '1px solid rgba(220,232,244,0.22)', borderRadius: 20, overflow: 'auto',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 30px 70px -20px rgba(0,0,0,0.7)',
-            }}>
-
-            {/* Brushed-silver top line */}
-            <div style={{ height: 2, borderRadius: 2, marginBottom: 32, background: 'linear-gradient(to right, transparent, #C6CDCF 30%, #EEF1F2 50%, #9AA2A4 72%, transparent)' }} />
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+            style={{ width: 'min(480px, calc(100vw - 28px))', maxHeight: 'calc(100vh - 32px)', padding: '36px',
+              background: 'linear-gradient(180deg, rgba(14,15,17,.9), rgba(8,9,10,.94))', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)',
+              border: '1px solid rgba(255,255,255,.22)', borderRadius: 6, overflow: 'auto',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 30px 70px -20px rgba(0,0,0,0.8)' }}>
+            <div style={{ height: 2, borderRadius: 2, marginBottom: 30, background: 'linear-gradient(to right, transparent, rgba(47,224,122,.7) 50%, transparent)' }} />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 26 }}>
               <div>
-                <p style={{ color: '#E8C87A', fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
-                  New Development
-                </p>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
+                <p style={{ color: 'var(--led, #2fe07a)', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.30em', textTransform: 'uppercase', marginBottom: 8, fontWeight: 500 }}>New Development</p>
+                <h2 style={{ fontWeight: 300, color: '#EEF1F2', fontSize: 22, letterSpacing: '0.08em', margin: 0 }}>Create Project</h2>
               </div>
-              <button onClick={() => setShowNew(false)} style={{ color: '#C6CDCF', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1, transition: 'color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#C6CDCF')}>✕</button>
+              <button onClick={() => setShowNew(false)} style={{ color: '#C6CDCF', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}>✕</button>
             </div>
-
-            {/* Brand toggle removed — HAAVN is retired; every new project is 7EVEN. */}
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {/* Project name */}
               <div>
                 <label style={{ display: 'block', color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Project Name *</label>
                 <input autoFocus
-                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(220,232,244,0.28)', padding: '10px 0', color: '#EEF1F2', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
+                  style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.28)', padding: '10px 0', color: '#EEF1F2', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                   placeholder="e.g. 225 Heaths Road Werribee"
                   value={name} onChange={e => setName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCreate()} />
               </div>
-
-              {/* Address */}
               <div ref={addressRef} style={{ position: 'relative' }}>
                 <label style={{ display: 'block', color: '#AEB6B8', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 700 }}>Address</label>
-                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(220,232,244,0.28)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.28)' }}>
                   <input
                     style={{ flex: 1, background: 'transparent', border: 'none', padding: '10px 0', color: '#EEF1F2', fontSize: 14, outline: 'none', letterSpacing: '0.04em' }}
                     placeholder="Start typing an address…"
@@ -381,10 +396,10 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   {loading && <span style={{ color: '#9AA2A4', fontSize: 10, flexShrink: 0 }}>···</span>}
                 </div>
                 {showSuggestions && results.length > 0 && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'rgba(18,26,38,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(220,232,244,0.16)', borderRadius: 10, maxHeight: 200, overflowY: 'auto', boxShadow: '0 14px 34px rgba(0,0,0,0.5)' }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'rgba(10,11,12,0.96)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: 6, maxHeight: 200, overflowY: 'auto', boxShadow: '0 14px 34px rgba(0,0,0,0.6)' }}>
                     {results.map((r, i) => (
                       <button key={i} onMouseDown={e => { e.preventDefault(); setAddress(r.split(', ').slice(0, 4).join(', ')); setShowSuggestions(false) }}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#EEF1F2', fontSize: 12, cursor: 'pointer', transition: 'background 0.15s' }}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', color: '#EEF1F2', fontSize: 12, cursor: 'pointer' }}
                         onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         {r.split(', ').slice(0, 4).join(', ')}
@@ -394,15 +409,13 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   </div>
                 )}
               </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid rgba(220,232,244,0.16)' }}>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.14)' }}>
                 <button onClick={() => setShowNew(false)}
-                  style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(220,232,244,0.24)', borderRadius: 10, color: '#EEF1F2', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.24)', borderRadius: 2, color: '#EEF1F2', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
                   Cancel
                 </button>
                 <button onClick={handleCreate} disabled={!name.trim()}
-                  style={{ padding: '10px 32px', background: !name.trim() ? 'rgba(150,172,196,0.10)' : 'linear-gradient(180deg, rgba(150,172,196,0.32), rgba(120,146,172,0.14))', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: '1px solid rgba(220,232,244,0.28)', borderRadius: 10, color: !name.trim() ? 'rgba(255,255,255,0.4)' : '#fff', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: !name.trim() ? 'default' : 'pointer' }}>
+                  style={{ padding: '10px 28px', background: !name.trim() ? 'rgba(47,224,122,0.06)' : 'rgba(47,224,122,0.14)', border: '1px solid rgba(47,224,122,0.5)', borderRadius: 2, color: !name.trim() ? 'rgba(255,255,255,0.4)' : '#eafff2', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: !name.trim() ? 'default' : 'pointer' }}>
                   Create Project
                 </button>
               </div>
@@ -410,256 +423,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-// ── Empty state ───────────────────────────────────────────────────────────────
-
-function EmptyState({ brand, onNew }: { brand: '7even' | 'haavn'; onNew: () => void }) {
-  const is7even = brand === '7even'
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', gap: 16, padding: '48px 24px', textAlign: 'center' }}>
-      <p style={{ color: '#222', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center' }}>
-        No {is7even ? '7EVEN' : 'HAAVN'} projects yet
-      </p>
-      <button onClick={onNew} className={`glass-btn ${is7even ? 'glass-btn-gold' : ''}`}
-        style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '8px 20px', ...(is7even ? {} : { color: 'rgba(255,255,255,0.7)' }) }}>
-        Create First Project
-      </button>
-    </div>
-  )
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function typeColor(type?: string, status?: string): { color: string; pulse: boolean; label: string } {
-  if (status === 'on-hold') return { color: '#EF4444', pulse: true,  label: 'On Hold' }
-  if (status === 'pending') return { color: '#C9A24B', pulse: true,  label: 'Pending' }
-  switch (type) {
-    case 'hotel': return { color: '#A855F7', pulse: false, label: 'Hotel' }
-    case 'btr':   return { color: '#22C55E', pulse: false, label: 'BTR'   }
-    case 'bts':   return { color: '#3B82F6', pulse: false, label: 'BTS'   }
-    case 'mixed': return { color: '#E8E6E1', pulse: false, label: 'Mixed' }
-    default:      return { color: '#2A2A2A', pulse: false, label: 'Active' }
-  }
-}
-
-function StatusDot({ type, status, size = 8 }: { type?: string; status?: string; size?: number }) {
-  const { color, pulse } = typeColor(type, status)
-  return (
-    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      {pulse && <span style={{ position: 'absolute', borderRadius: '50%', width: size + 6, height: size + 6, background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
-      <span style={{ width: size, height: size, borderRadius: '50%', background: color, display: 'block', flexShrink: 0 }} />
-    </span>
-  )
-}
-
-function TypeLegend({ color, label, pulse }: { color: string; label: string; pulse?: boolean }) {
-  return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-      <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-        {pulse && <span style={{ position: 'absolute', borderRadius: '50%', width: 12, height: 12, background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'block' }} />
-      </span>
-      <span style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#383838' }}>{label}</span>
-    </span>
-  )
-}
-
-const STATUS_OPTIONS = [
-  { type: 'hotel',   status: 'active',  label: 'Hotel',   color: '#A855F7', pulse: false },
-  { type: 'btr',     status: 'active',  label: 'BTR',     color: '#22C55E', pulse: false },
-  { type: 'bts',     status: 'active',  label: 'BTS',     color: '#3B82F6', pulse: false },
-  { type: 'mixed',   status: 'active',  label: 'Mixed',   color: '#E8E6E1', pulse: false },
-  { type: undefined, status: 'pending', label: 'Pending', color: '#C9A24B', pulse: true  },
-  { type: undefined, status: 'on-hold', label: 'On Hold', color: '#EF4444', pulse: true  },
-]
-
-// Mini stealth countdown — ticks down to the project's feasibility completion
-// (programme start + duration months, from the cashflow model).
-function CountdownClock({ projectId }: { projectId: string }) {
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id) }, [])
-  const target = useMemo(() => {
-    try {
-      const cf = getCashflow(projectId)
-      if (cf?.startDate && cf?.months) {
-        const [y, m] = cf.startDate.split('-').map(Number)
-        if (y && m) return new Date(y, (m - 1) + cf.months, 1).getTime()
-      }
-    } catch { /* no cashflow yet */ }
-    return null
-  }, [projectId])
-
-  const W = 150
-  const ML = 38   // ~1cm further right of the Live button
-  if (!target) return <div className="pcard-clock" style={{ width: W, marginLeft: ML, flexShrink: 0 }} />
-
-  const diff = target - now
-  if (diff <= 0) {
-    return (
-      <div className="pcard-clock" style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
-        <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.16em', color: '#3DAA6A', fontWeight: 700 }}>COMPLETE</span>
-      </div>
-    )
-  }
-  const d = Math.floor(diff / 86400000)
-  const months = Math.floor(d / 30.44)
-  const days = d - Math.round(months * 30.44)
-  const hh = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0')
-  const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0')
-  const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0')
-  // Amber when inside the final 3 months, otherwise a cool stealth silver.
-  const near = months < 3
-  return (
-    <div title="Live countdown to feasibility completion" className="pcard-clock"
-      style={{ width: W, marginLeft: ML, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0 }}>
-        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#F0B860' : '#FFFFFF', animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite', opacity: 0.55 }} />
-        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: near ? '#F0B860' : '#FFFFFF' }} />
-      </span>
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.05 }}>
-        <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', color: near ? '#FFD9A0' : '#FFFFFF' }}>
-          {months}<span style={{ fontSize: 8, opacity: 0.75 }}>M</span> {days}<span style={{ fontSize: 8, opacity: 0.75 }}>D</span>
-        </span>
-        <span style={{ fontFamily: 'monospace', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.10em', color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>
-          {hh}:{mm}:{ss}
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function ProjectCard({ project, index, onClick, onUpdate, accentColor }: {
-  project: any; index: number; onClick: () => void; onUpdate: (p: any) => void; accentColor: string
-}) {
-  const [dropOpen, setDropOpen] = useState(false)
-  const [lifeOpen, setLifeOpen] = useState(false)
-  const dropRef = useRef<HTMLDivElement>(null)
-  const lifeRef = useRef<HTMLDivElement>(null)
-  const updated = new Date(project.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
-  const { color, label, pulse } = typeColor(project.type, project.status)
-
-  useEffect(() => {
-    if (!dropOpen) return
-    function handle(e: MouseEvent) {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
-    }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [dropOpen])
-
-  useEffect(() => {
-    if (!lifeOpen) return
-    function handle(e: MouseEvent) {
-      if (lifeRef.current && !lifeRef.current.contains(e.target as Node)) setLifeOpen(false)
-    }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [lifeOpen])
-
-  function handleStatusChange(opt: typeof STATUS_OPTIONS[0], e: React.MouseEvent) {
-    e.stopPropagation()
-    onUpdate({ ...project, type: opt.type, status: opt.status, updatedAt: new Date().toISOString() })
-    setDropOpen(false)
-  }
-
-  return (
-    <div onClick={onClick} className="group cursor-pointer pcard-row"
-      style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '16px 28px', display: 'flex', alignItems: 'center', gap: 14, transition: 'background 0.18s', background: 'transparent' }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)'}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
-
-      <span style={{ color: '#555', fontSize: 10, fontFamily: 'monospace', flexShrink: 0, width: 20 }}>
-        {String(index).padStart(2, '0')}
-      </span>
-
-      {/* Fixed-width name column so every Live button lines up down the board */}
-      <div className="pcard-name" style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
-        <p style={{ color: '#FFFFFF', fontSize: 12, fontWeight: 500, letterSpacing: '0.05em', marginBottom: 2, transition: 'color 0.18s', textShadow: '0 0 8px rgba(255,255,255,0.3)' }}
-          className="group-hover:text-white truncate">
-          {project.name}
-        </p>
-        <p style={{ color: '#FFFFFF', fontSize: 9, letterSpacing: '0.08em', textShadow: '0 0 6px rgba(255,255,255,0.25)' }} className="truncate">
-          {project.address || '—'}
-        </p>
-      </div>
-
-      {/* Live / Archive — parks the project off the board or keeps it live */}
-      <div ref={lifeRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-        <button onClick={e => { e.stopPropagation(); setLifeOpen(v => !v) }}
-          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 6, padding: '4px 9px', cursor: 'pointer' }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A', flexShrink: 0 }} />
-          <span style={{ fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>Live</span>
-          <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)' }}>▾</span>
-        </button>
-        {lifeOpen && (
-          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 200, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 30px rgba(0,0,0,0.5)' }}>
-            <button onClick={e => { e.stopPropagation(); setLifeOpen(false) }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'rgba(61,170,106,0.10)', border: 'none', borderBottom: '1px solid #141414', cursor: 'pointer' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3DAA6A' }} />
-              <span style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#3DAA6A', fontWeight: 700 }}>Live</span>
-            </button>
-            <button onClick={e => { e.stopPropagation(); onUpdate({ ...project, status: 'archived', updatedAt: new Date().toISOString() }); setLifeOpen(false) }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: 'transparent', border: 'none', cursor: 'pointer' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-              <span style={{ fontSize: 9, color: '#999' }}>▤</span>
-              <span style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#AAA', fontWeight: 700 }}>Archive</span>
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Live stealth countdown to feasibility completion */}
-      <CountdownClock projectId={project.id} />
-
-      <div className="pcard-spacer" style={{ flex: 1 }} />
-
-      {/* Updated date — crisp white so it's clearly legible */}
-      <span className="pcard-date" style={{ color: 'rgba(255,255,255,0.9)', fontSize: 9, letterSpacing: '0.06em', flexShrink: 0, fontWeight: 600 }}>{updated}</span>
-
-      {/* Type / status chip — clear glass, flush right under the Dashboard button */}
-      <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-        <button onClick={e => { e.stopPropagation(); setDropOpen(v => !v) }}
-          className={`glass-chip pcard-chip ${dropOpen ? 'glass-chip-open' : ''}`}
-          style={{ '--chip': 'rgba(255,255,255,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 6, width: 90, padding: '8px 10px' } as React.CSSProperties}>
-          {/* Status light — fixed at the left of the chip so it lines up down the board */}
-          <span style={{ position: 'relative', width: 6, height: 6, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-            {pulse && <span style={{ position: 'absolute', width: 11, height: 11, borderRadius: '50%', background: color, opacity: 0.25, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'block' }} />
-          </span>
-          <span style={{ fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.95)', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
-          <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.95)', opacity: 0.8, marginLeft: 'auto' }}>▾</span>
-        </button>
-        {dropOpen && (
-          <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200, background: 'rgba(24,34,48,0.66)', backdropFilter: 'blur(24px) saturate(1.25)', WebkitBackdropFilter: 'blur(24px) saturate(1.25)', border: '1px solid rgba(220,232,244,0.20)', borderRadius: 12, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10)' }}>
-            <div style={{ padding: '6px 10px 4px', borderBottom: '1px solid #1A1A1A' }}>
-              <span style={{ fontSize: 7, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9AA2A4' }}>Set Status</span>
-            </div>
-            {STATUS_OPTIONS.map(opt => {
-              const isActive = (opt.status === 'on-hold' || opt.status === 'pending')
-                ? project.status === opt.status
-                : project.type === opt.type && project.status !== 'on-hold' && project.status !== 'pending'
-              return (
-                <button key={opt.label} onClick={e => handleStatusChange(opt, e)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '9px 12px', background: isActive ? `${opt.color}14` : 'transparent', border: 'none', borderBottom: '1px solid #111', cursor: 'pointer', transition: 'background 0.12s' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = `${opt.color}1A`)}
-                  onMouseLeave={e => (e.currentTarget.style.background = isActive ? `${opt.color}14` : 'transparent')}>
-                  <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 10, height: 10, flexShrink: 0 }}>
-                    {opt.pulse && <span style={{ position: 'absolute', borderRadius: '50%', width: 14, height: 14, background: opt.color, opacity: 0.22, animation: 'ping 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />}
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: opt.color, display: 'block' }} />
-                  </span>
-                  <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: isActive ? opt.color : '#C6CDCF', fontWeight: isActive ? 700 : 400 }}>{opt.label}</span>
-                  {isActive && <span style={{ marginLeft: 'auto', fontSize: 8, color: opt.color }}>✓</span>}
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
     </div>
   )
 }
