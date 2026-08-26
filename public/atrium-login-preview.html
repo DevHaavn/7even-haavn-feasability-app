@@ -14,9 +14,9 @@ html,body{height:100%}
 body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 
 /* moving background */
-.bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:grayscale(1)}
 .scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(4,4,4,.72),rgba(4,4,4,.5) 44%,rgba(4,4,4,.88))}
+  background:linear-gradient(180deg,rgba(4,4,4,.35),rgba(4,4,4,.18) 44%,rgba(4,4,4,.72))}
 
 /* preview ribbon */
 .pvr{position:fixed;top:0;left:0;right:0;z-index:40;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.3em;
@@ -36,7 +36,7 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 @media(max-width:900px){.vl1,.vr1{display:none}}
 
 /* stage */
-.stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
+.stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:60px 24px 110px}
 
 /* 7EVEN in LED purple — true 3D: extruded glyph stack, ignition, then slow clockwise spin.
    NOTE: filters flatten preserve-3d, so the glow is its own element, not a drop-shadow. */
@@ -104,13 +104,13 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 </head>
 <body>
 
-<video class="bg" autoplay muted loop playsinline preload="auto" src="/haavn-black-bg.mp4"></video>
+<video class="bg" autoplay muted loop playsinline preload="auto" src="/7even-haavn-tv.mp4"></video>
 <div class="scrim"></div>
 
 <div class="pvr">Preview · ATRIUM Login redesign · <b>new design language</b></div>
 
 <div class="stage">
-  <div class="persp"><div class="glow7"></div><div class="spin3"><div class="stack"><i style="transform:translateZ(-16.5px)"></i><i style="transform:translateZ(-15.0px)"></i><i style="transform:translateZ(-13.5px)"></i><i style="transform:translateZ(-12.0px)"></i><i style="transform:translateZ(-10.5px)"></i><i style="transform:translateZ(-9.0px)"></i><i style="transform:translateZ(-7.5px)"></i><i style="transform:translateZ(-6.0px)"></i><i style="transform:translateZ(-4.5px)"></i><i style="transform:translateZ(-3.0px)"></i><i style="transform:translateZ(-1.5px)"></i><i style="transform:translateZ(-16.5px) rotateY(180deg)"></i><i style="transform:translateZ(-15.0px) rotateY(180deg)"></i><i style="transform:translateZ(-13.5px) rotateY(180deg)"></i><i style="transform:translateZ(-12.0px) rotateY(180deg)"></i><i style="transform:translateZ(-10.5px) rotateY(180deg)"></i><i style="transform:translateZ(-9.0px) rotateY(180deg)"></i><i style="transform:translateZ(-7.5px) rotateY(180deg)"></i><i style="transform:translateZ(-6.0px) rotateY(180deg)"></i><i style="transform:translateZ(-4.5px) rotateY(180deg)"></i><i style="transform:translateZ(-3.0px) rotateY(180deg)"></i><i style="transform:translateZ(-1.5px) rotateY(180deg)"></i><i class="face"></i><i class="face fback"></i></div></div></div>
+  
   <div class="welcome">Welcome to Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
 
   <div class="card">
