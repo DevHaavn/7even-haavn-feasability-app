@@ -1,6 +1,5 @@
-import React, { type CSSProperties } from 'react'
+import React, { useEffect, useState, type CSSProperties } from 'react'
 import { useStore } from '../store'
-import { Wordmark, TabBar, Project7Mark } from '../components/ui'
 import { useRole, EXTERNAL_TABS } from '../lib/role'
 import SiteDesignTab from './tabs/SiteDesign'
 import LandTermsTab from './tabs/LandTerms'
@@ -15,10 +14,20 @@ import ScenarioComparison from './tabs/ScenarioComparison'
 import SummaryTab from './tabs/SummaryTab'
 import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
-import SiteLinks from '../components/SiteLinks'
 import AutoSaveCloud from '../components/AutoSaveButton'
 import ThemeToggle from '../components/ThemeToggle'
 import { setAtriumTheme } from '../lib/atriumTheme'
+
+function FootClock() {
+  const [now, setNow] = useState('--:--:--')
+  useEffect(() => {
+    const tick = () => setNow(new Date().toLocaleTimeString('en-AU', { hour12: false }))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
+  return <span className="ff-clock">{now}</span>
+}
 
 // Status dot — functional only: green = running, amber = pending, red = on-hold.
 // It used to colour by project type as well (purple/green/blue, gold default),
@@ -84,10 +93,6 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
       <div className="fx-topbar drag-region">
         <button className="fx-home no-drag" onClick={() => setActiveProject(null)}>HOME</button>
         <div className="fx-div" />
-        {/* The real 7EVEN · HAAVN mark. The chrome rebuild had replaced the logo
-            artwork with hand-typed "7EVEN"/"HAAVN" text, which is not the brand. */}
-        <span className="fx-brand"><Wordmark size="md" tone="white" /></span>
-        <div className="fx-div" />
         <div className="fx-proj">
           <div className="fx-projname">
             <WorkspaceStatusDot type={project.type} status={project.status} />
@@ -104,10 +109,10 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           </span>
         )}
         <div className="fx-right no-drag">
-          <span className="fx-atr">ATRIUM</span>
+          <img className="fx-seven" src="/seven-mark-white-hd.png" alt="7EVEN" />
           <ThemeToggle chrome="dark" />
           {onManage && (
-            <button className="fx-grid" onClick={onManage} title="Manage" aria-label="Manage">⊞</button>
+            <button className="fx-burger" onClick={onManage} title="Menu" aria-label="Menu"><span /><span /><span /></button>
           )}
           {!onManage && onLogout && (
             <button className="fx-tgl" onClick={onLogout} style={{ fontWeight: 600 }}>LOG OUT</button>
@@ -148,12 +153,28 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           // Premium tabs float in a card hovering over the dark texture.
           return PREMIUM_TABS.includes(safeTab) ? <div key={safeTab} className={`premium-card${safeTab === 'timeline' ? ' card-static' : ''}`}>{content}</div> : content
         })()}
-        {/* Footer — the site links float on the texture below the card (not on the
-            fill-height timeline, which owns the full stage) */}
-        {PREMIUM_TABS.includes(safeTab) && safeTab !== 'timeline' && <div className="premium-footer"><SiteLinks tone="light" /></div>}
       </div>
 
-      <Project7Mark size={58} bottom={12} right={16} />
+      {/* ── Fixed one-line footer — main-app style ── */}
+      <div className="fx-foot no-drag">
+        <div className="ff-hair" />
+        <div className="ff-rail">
+          <div className="ff-l">
+            <button className="ff-atr" onClick={() => setActiveProject(null)}><span className="ff-tri" />ATRIUM</button>
+            <span className="ff-vd" />
+            <img className="ff-hm" src="/hm-device-white.png" alt="HM" />
+            <span className="ff-vd" />
+            <img className="ff-hb" src="/haavn-black-logo.png" alt="HAAVN BLACK" />
+          </div>
+          <div className="ff-c"><span className="ff-livedot" />LIVE&nbsp;&nbsp;<FootClock />&nbsp;·&nbsp;MELBOURNE</div>
+          <div className="ff-r">
+            <a className="ff-chip" href="https://7even.au" target="_blank" rel="noopener">7EVEN.AU <span className="x">↗</span></a>
+            <a className="ff-chip" href="https://www.haavn.au" target="_blank" rel="noopener">HAAVN.AU <span className="x">↗</span></a>
+            <button className="ff-chip" onClick={() => window.location.reload()}><span className="ring" />UPDATE</button>
+            {onLogout && <button className="ff-chip" onClick={onLogout}>LOG OUT</button>}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -52,11 +52,10 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
   return (
     <>
       {/* Full-screen overlay — z-index 9999 puts it above everything including Leaflet */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: '#050505' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: 'rgba(3,4,5,0.5)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
 
-        {/* Particle wave background — blurred up from source, dark overlay keeps content legible */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(/manage-bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(3px)', opacity: 0.55, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.82), rgba(3,3,3,0.62) 40%, rgba(3,3,3,0.88))', pointerEvents: 'none' }} />
+        {/* Glass overlay — the live workspace shows through, blurred (approved preview design) */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.5), rgba(3,3,3,0.32) 40%, rgba(3,3,3,0.55))', pointerEvents: 'none' }} />
 
         {/* Header */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
