@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { Project7Mark } from '../../components/ui'
-import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
-import { AtriumApex } from '../../components/AtriumMark'
-import { atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 
 // 'crm' and 'meetings' are retired from the hub listing (see HM_PILLARS) but
 // their render paths are kept in HaavnManagementPillar for easy restoration.
@@ -31,27 +28,80 @@ export const HM_PILLARS: HMPillar[] = [
     id: 'workflow', num: '01', title: 'ATRIUM Workflow',
     sub: 'Tasks · Meeting CRM · Weekly agenda',
     blurb: 'Every person’s workspace — personal tasks and team boards, department workload and workflow groups, meeting recording with live Azure transcription, and the actions that flow straight into the Weekly Company Meeting.',
-    color: '#237A52', // Forest green (ATRIUM)
+    color: '#2fe07a', // LED green (matches HAAVN BLACK Management pillar 01)
   },
   {
     id: 'agenda', num: '02', title: 'Meeting Management',
     sub: 'Agenda · Actions · Minutes · Weekly cadence',
     blurb: 'The weekly rhythm of the business — the live Company Meeting agenda, action tracking, minutes and decisions, department leads and the Meeting Console, week to week.',
-    color: '#13B5EA', // Blue
+    color: '#13B5EA', // Blue (matches pillar 02)
   },
 ]
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 7EVEN | HAAVN — MANAGEMENT HUB. Exact copy of the HAAVN BLACK MANAGEMENT
+// design: moving video backdrop, brand lockup centre, and pillar cards ringed
+// by a rotating LED border — green on 01, blue on 02.
+// ─────────────────────────────────────────────────────────────────────────────
+const CSS = `
+.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;background:#040404;display:flex;flex-direction:column;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.hmh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
+.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.hmh-btn{cursor:pointer;font-family:'Chakra Petch','JetBrains Mono',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:#c9cdd2;padding:10px 16px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;transition:.3s}
+.hmh-btn:hover{border-color:rgba(47,224,122,.7);color:#fff;background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.6)}
+.hmh-brand{margin-left:auto;display:flex;align-items:center;gap:10px}
+.hmh-brand .m7{height:13px;width:auto}
+.hmh-brand .div{width:1px;height:16px;background:rgba(255,255,255,.25)}
+.hmh-brand .mh{height:15px;width:auto;filter:brightness(0) invert(1)}
+.hmh-brand .b{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:12px;letter-spacing:.18em;color:#8a8d90;white-space:nowrap}
+.hmh-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 32px 40px;max-width:1180px;width:100%;margin:0 auto}
+.hmh-eyebrow{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500}
+.hmh-lock{display:flex;align-items:center;gap:20px;margin-top:22px}
+.hmh-lock .m7{height:clamp(26px,3.6vw,42px);width:auto;filter:drop-shadow(0 2px 12px rgba(0,0,0,.6))}
+.hmh-lock .div{width:1px;height:clamp(30px,4.4vw,52px);background:rgba(255,255,255,.3)}
+.hmh-lock .mh{height:clamp(24px,3.4vw,40px);width:auto;filter:brightness(0) invert(1) drop-shadow(0 2px 12px rgba(0,0,0,.6))}
+.hmh-mgmt{font-family:'Chakra Petch',sans-serif;font-weight:500;font-size:clamp(14px,1.8vw,19px);letter-spacing:.52em;text-transform:uppercase;color:#fff;margin-top:18px;padding-left:.52em}
+.hmh-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:16px;max-width:62ch;line-height:1.6}
+.hmh-faint{color:#6a6e73;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px}
+.hmh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
+.hmh-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
+@property --hmhA{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes hmh-spin{to{--hmhA:360deg}}
+.hmh-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
+.hmh-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
+  background:conic-gradient(from var(--hmhA),transparent 0deg,#2fe07a 130deg,#2fe07a 190deg,transparent 310deg,transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  animation:hmh-spin 4.6s linear infinite;z-index:1}
+.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.5;pointer-events:none;
+  background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(47,224,122,.55) 150deg,transparent 300deg);
+  filter:blur(16px);animation:hmh-spin 4.6s linear infinite}
+.hmh-ledbox.b2::before{animation-delay:-2.3s;background:conic-gradient(from var(--hmhA),transparent 0deg,#13B5EA 130deg,#13B5EA 190deg,transparent 310deg,transparent 360deg)}
+.hmh-ledbox.b2::after{animation-delay:-2.3s;background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(19,181,234,.55) 150deg,transparent 300deg)}
+.hmh-ledbox:hover{transform:translateY(-4px)}
+.hmh-ledbox:hover::before,.hmh-ledbox:hover::after{animation-duration:2.4s}
+.hmh-pcard{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+  padding:30px 28px 26px;min-height:560px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
+.hmh-pnum{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1}
+.hmh-papex{font-size:15px;opacity:.8;line-height:1}
+.hmh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px}
+.hmh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:27px;letter-spacing:.01em;line-height:1.06;color:#fff;margin:0}
+.hmh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
+.hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
+.hmh-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+.hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30}
+@media(max-width:640px){.hmh-body{padding:36px 20px}.hmh-pcard{min-height:auto}}
+`
+
 export default function HaavnManagementBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
-  // The Management Hub is a back-of-house command surface — always dark as
-  // standard (like Capital Base), regardless of the studio's light/dark setting.
-  const theme: 'light' | 'dark' = 'dark'
-  const pal = atriumPalette(theme)
-  // Pillar 01 (ATRIUM Management System / CRM) is now open to EVERY login,
-  // including the 7EVEN consultant (external), so consultants can create and run
-  // their own projects and use the CRM. The consultant view still hides the
-  // director-only Senior Management module (HaavnManagementPillar renders the
-  // system with ?role=consultant for external); everything else is fully theirs.
   const visiblePillars = HM_PILLARS
 
   if (pillar) {
@@ -60,106 +110,59 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 400, overflowY: 'auto',
-      background: pal.bg,
-      display: 'flex', flexDirection: 'column',
-    }}>
-      {/* Same architectural plate and scrim as the Capital Base gateway, so the
-          two hubs read as one product rather than two skins. */}
-      <div aria-hidden style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: "url('/renders/atrium-surface-1.jpg') center 30% / cover no-repeat",
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: theme === 'light'
-            ? 'linear-gradient(180deg, rgba(226,233,240,.72), rgba(215,224,233,.9))'
-            : 'linear-gradient(180deg, rgba(7,9,13,.5), rgba(7,9,13,.82))',
-        }} />
-      </div>
+    <div className="hmh-root">
+      <style>{CSS}</style>
+      <video className="hmh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="hmh-scrim" />
 
       {/* Header */}
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 16, padding: '20px 32px', borderBottom: `1px solid ${pal.headerBorder}`, flexShrink: 0, background: pal.headerBg }}>
-        <button onClick={onClose} style={atriumNavPill}>ATRIUM</button>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ textAlign: 'right' }}>
-            {/* ATRIUM leads the header on every surface, same as Capital Base.
-                Was "HAAVN Management" in the neon #1FE87A. */}
-            <p style={{ color: HM_PA.silver, fontSize: 8, letterSpacing: '0.32em', textTransform: 'uppercase', margin: 0 }}>ATRIUM</p>
-            <p style={{ color: pal.ink, fontSize: 13, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600, margin: '2px 0 0' }}>Management Hub</p>
-          </div>
-          <AtriumApex size={40} />
+      <div className="hmh-head">
+        <button className="hmh-btn" onClick={onClose}>&#8592; ATRIUM</button>
+        <div className="hmh-brand">
+          <img className="m7" src="/seven-mark-white-hd.png" alt="7EVEN" />
+          <span className="div" />
+          <img className="mh" src="/haavn-mark.png" alt="HAAVN" />
+          <span className="b">· MANAGEMENT HUB</span>
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '48px 32px', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
-        {/* Kicker silver, not the bright green — matches the Capital Base hero. */}
-        <p style={{ color: HM_PA.silver, fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 0, textAlign: 'center' }}>Integrated Management Platform</p>
-        <h1 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 600, fontSize: 'clamp(34px, 6vw, 64px)', letterSpacing: '0.06em', lineHeight: 1, textAlign: 'center', margin: '14px 0 0', textTransform: 'uppercase' }}>
-          Management Hub
-        </h1>
-        <p style={{ color: pal.sub, fontSize: 14, textAlign: 'center', margin: '16px 0 0' }}>
-          Two pillars — the team’s workflow and the weekly meeting — one unified command centre.
-        </p>
-        <p style={{ color: pal.faint, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'center', margin: '8px 0 0' }}>
-          Strategic partnerships · Operational efficiency · Market intelligence
-        </p>
+      <div className="hmh-body">
+        <div className="hmh-eyebrow">Integrated Management Platform</div>
+        <div className="hmh-lock">
+          <img className="m7" src="/seven-mark-white-hd.png" alt="7EVEN" />
+          <span className="div" />
+          <img className="mh" src="/haavn-mark.png" alt="HAAVN" />
+        </div>
+        <div className="hmh-mgmt">Management Hub</div>
+        <p className="hmh-sub">Two pillars — the team’s workflow and the weekly meeting — one unified command centre.</p>
+        <div className="hmh-faint">Strategic partnerships · Operational efficiency · Market intelligence</div>
+        <div className="hmh-rule" />
 
-        {/* Hairline — replaces the heavy 2px chrome bar, same as Capital Base */}
-        <div style={{ width: 230, height: 1, background: `linear-gradient(90deg, transparent, ${HM_PA.silverLine}, transparent)`, margin: '22px auto 30px' }} />
-
-        {/* Pillars */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18, alignItems: 'stretch' }}>
-          {visiblePillars.map(pillarDef => {
-            // Both HM greens fail on the dark plate: #237A52 is a deep forest
-            // green that sinks into it, and #1FE87A is a neon that glares.
-            // Lifted / calmed in dark, left as the brand values in light.
-            const accent =
-              pillarDef.id === 'workflow' ? (theme === 'light' ? '#237A52' : '#57c08a')
-              : pillarDef.color
-            const p = { ...pillarDef, color: accent }
-            return (
-            <button key={p.id} onClick={() => setPillar(p.id)}
-              className="cap-pillar"
-              style={{
-                textAlign: 'left', cursor: 'pointer', minHeight: 440,
-                position: 'relative', overflow: 'hidden',   // anchors the accent top-rule
-                border: `1px solid ${pal.cardBorder}`, borderRadius: 16,
-                background: pal.cardBg,
-                backdropFilter: 'blur(18px) saturate(1.1)', WebkitBackdropFilter: 'blur(18px) saturate(1.1)',
-                padding: '30px 28px 26px', display: 'flex', flexDirection: 'column', gap: 0,
-                transition: 'all 0.3s', boxShadow: pal.cardShadow,
-              }}
-              onMouseEnter={e => { const t = e.currentTarget; t.style.borderColor = `${p.color}66`; t.style.transform = 'translateY(-4px)'; t.style.boxShadow = pal.cardHoverShadow(p.color) }}
-              onMouseLeave={e => { const t = e.currentTarget; t.style.borderColor = pal.cardBorder; t.style.transform = 'translateY(0)'; t.style.boxShadow = pal.cardShadow }}>
-              {/* Accent hairline across the top of the card */}
-              <span aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${p.color}, transparent)`, opacity: 0.65 }} />
-
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--mono, monospace)', fontSize: 34, fontWeight: 300, color: p.color, lineHeight: 1 }}>{p.num}</span>
-                <span aria-hidden style={{ fontSize: 15, color: p.color, opacity: 0.75, lineHeight: 1 }}>▲</span>
-              </div>
-              <div>
-                <p style={{ color: p.color, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600, margin: '14px 0 6px' }}>{p.sub}</p>
-                <h2 style={{ color: pal.ink, fontFamily: 'var(--font-serif, "Cormorant Garamond", serif)', fontWeight: 500, fontSize: 30, letterSpacing: '0.01em', lineHeight: 1.05, margin: 0 }}>{p.title}</h2>
-              </div>
-              <div style={{ height: 1, background: pal.cardBorder, margin: '4px 0' }} />
-              <p style={{ color: pal.muted, fontSize: 13, lineHeight: 1.6, margin: 0, flex: 1 }}>{p.blurb}</p>
-
-              <span style={{ marginTop: 22, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: HM_PA.silver }}>Enter Pillar →</span>
-            </button>
-            )
-          })}
+        <div className="hmh-pillars">
+          {visiblePillars.map((p, i) => (
+            <div key={p.id} className={'hmh-ledbox' + (i === 1 ? ' b2' : '')}>
+              <button className="hmh-pcard" onClick={() => setPillar(p.id)}>
+                <div className="hmh-prow">
+                  <span className="hmh-pnum" style={{ color: p.color }}>{p.num}</span>
+                  <span className="hmh-papex" style={{ color: p.color }}>&#9650;</span>
+                </div>
+                <div>
+                  <p className="hmh-psub" style={{ color: p.color }}>{p.sub}</p>
+                  <h2 className="hmh-ptitle">{p.title}</h2>
+                </div>
+                <div className="hmh-pline" />
+                <p className="hmh-pblurb">{p.blurb}</p>
+                <span className="hmh-penter">Enter Pillar &#8594;</span>
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
       <SiteLinks />
       <Project7Mark />
-
-      {/* Log out — bottom left */}
-      <button onClick={onLogout} style={{ ...atriumNavPill, position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11  }}>Log Out</button>
+      <button className="hmh-btn hmh-logout" onClick={onLogout}>Log Out</button>
     </div>
   )
 }
