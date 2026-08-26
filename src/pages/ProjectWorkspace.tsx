@@ -15,7 +15,6 @@ import SummaryTab from './tabs/SummaryTab'
 import ProjectDashboard from './tabs/ProjectDashboard'
 import ProjectTimeline from './tabs/ProjectTimeline'
 import AutoSaveCloud from '../components/AutoSaveButton'
-import ThemeToggle from '../components/ThemeToggle'
 import { setAtriumTheme } from '../lib/atriumTheme'
 
 function FootClock() {
@@ -110,7 +109,6 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         )}
         <div className="fx-right no-drag">
           <img className="fx-seven" src="/seven-mark-white-hd.png" alt="7EVEN" />
-          <ThemeToggle chrome="dark" />
           {onManage && (
             <button className="fx-burger" onClick={onManage} title="Menu" aria-label="Menu"><span /><span /><span /></button>
           )}

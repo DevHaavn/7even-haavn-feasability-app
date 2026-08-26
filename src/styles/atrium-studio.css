@@ -81,7 +81,7 @@
 @media(prefers-reduced-motion:reduce){ .fxs{transition:none} }
 
 /* ============ CHROME: header + tab bar (always dark) ============ */
-.fxs .fx-topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;padding:13px 26px;
+.fxs .fx-topbar{position:relative;z-index:50;display:flex;align-items:center;padding:13px 26px;
   background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
 .fxs .fx-home{font-size:15px;letter-spacing:.32em;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.5),0 0 30px rgba(255,255,255,.22);cursor:pointer;transition:.2s;background:none;border:none;font-family:var(--sans);text-transform:uppercase;font-weight:500}
 .fxs .fx-home:hover{color:var(--gold-hi)}
@@ -126,7 +126,7 @@
    its tallest child + 26px padding: the logo (67px) is the tallest, giving
    67+26 = 93 -> 94 with the border.
    Change the logo height and this MUST move with it. */
-.fxs .fx-tabnav{position:sticky;top:94px;z-index:49;display:flex;gap:2px;padding:0 26px;
+.fxs .fx-tabnav{position:relative;z-index:49;display:flex;gap:2px;padding:0 26px;
   background:linear-gradient(180deg,var(--chrome-2),rgba(11,16,21,0.96));border-bottom:1px solid var(--chrome-line);overflow-x:auto}
 .fxs .fx-tab{position:relative;padding:15px 17px;font-size:10.5px;letter-spacing:.18em;color:var(--chrome-faint);cursor:pointer;white-space:nowrap;transition:.2s;background:none;border:none;font-family:var(--sans);text-transform:uppercase}
 .fxs .fx-tab:hover{color:var(--chrome-dim)}
@@ -168,7 +168,7 @@
   .fxs .fx-tgl{font-size:9px;padding:6px 10px;letter-spacing:.12em}
   .fxs .fx-grid{width:30px;height:28px}
   /* = topbar: tallest child (logo 30) + 8px padding x2 + 1px border */
-  .fxs .fx-tabnav{top:47px;padding:0 8px}
+  .fxs .fx-tabnav{padding:0 8px}
   .fxs .fx-tab{padding:12px 11px;font-size:9.5px;letter-spacing:.12em}
   .fxs .fx-tab.on::after{left:11px;right:11px}
 }
