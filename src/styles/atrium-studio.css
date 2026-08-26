@@ -117,7 +117,7 @@
 .fxs .fx-tgl:hover{border-color:var(--chrome-dim);color:var(--chrome-txt)}
 .fxs .fx-grid{font-size:13px;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:9px;width:34px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none}
 .fxs .fx-seven{height:17.6px;width:auto;filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
-.fxs .fx-burger{display:flex;flex-direction:column;gap:5px;justify-content:center;width:30px;height:32px;background:none;border:none;cursor:pointer;padding:0}
+.fxs .fx-burger{display:flex;flex-direction:column;gap:5px;justify-content:center;width:30px;height:32px;background:none;border:none;cursor:pointer;padding:0;margin-left:38px}
 .fxs .fx-burger span{display:block;height:2px;width:100%;border-radius:2px;background:#d6d9dd;transition:.3s}
 .fxs .fx-burger:hover span{background:#d6b36a;box-shadow:0 0 10px rgba(214,179,106,.9),0 0 22px rgba(214,179,106,.5)}
 
