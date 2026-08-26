@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATRIUM · Cost Stack → Construction row (redesign preview)</title>
+<title>ATRIUM · Cost Stack — line-item rows (redesign preview)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
   --page:#dfe5ec;--card:rgba(255,255,255,.66);--card-solid:rgba(255,255,255,.85);
   --ink:#232c37;--ink-2:#5b6672;--ink-3:#8592a0;--faint:#a6b2be;
   --line:rgba(35,44,55,.09);--border:rgba(35,44,55,.12);--border-hi:rgba(35,44,55,.2);
-  --em-soft:rgba(47,158,107,.12);--em-line:rgba(47,158,107,.5);--amber-soft:rgba(198,125,51,.1);--amber-line:rgba(198,125,51,.5);
+  --em-soft:rgba(47,158,107,.12);--em-line:rgba(47,158,107,.5);--amber-line:rgba(198,125,51,.5);
   --shadow:0 2px 5px rgba(30,45,65,.05),0 16px 36px -16px rgba(30,45,65,.22);--glass-edge:inset 0 1px 0 rgba(255,255,255,.6);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,7 +23,7 @@ body{font-family:var(--sans);color:var(--ink);font-variant-numeric:tabular-nums;
   background:radial-gradient(rgba(255,255,255,.175) 1px, transparent 1px),radial-gradient(120% 85% at 12% -12%, rgba(188,206,226,.65), transparent 55%),radial-gradient(110% 80% at 92% 8%, rgba(206,214,226,.55), transparent 55%),linear-gradient(158deg,#e7ecf2 0%,#dde4ec 45%,#d2dbe5 100%) fixed;background-size:4px 4px,auto,auto,auto;background-blend-mode:overlay,normal,normal,normal;min-height:100vh}
 .pvr{background:#080b0e;color:#cfd6dc;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:7px 14px}
 .pvr b{color:var(--emerald)}
-a{color:inherit;text-decoration:none}
+a{text-decoration:none;color:inherit}
 
 .fx-topbar{display:flex;align-items:center;padding:12px 26px;background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
 .fx-home{font-size:11px;letter-spacing:.28em;color:var(--chrome-dim);text-transform:uppercase;background:none;border:none;cursor:pointer}
@@ -45,26 +45,40 @@ a{color:inherit;text-decoration:none}
 .fx-tab.on{color:var(--chrome-txt)}
 .fx-tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--chrome-faint),var(--gold-hi),var(--chrome-faint));box-shadow:0 0 12px rgba(198,206,214,.45);border-radius:2px}
 
-.body{max-width:1240px;margin:0 auto;padding:34px clamp(18px,3vw,40px) 80px}
-.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.body{max-width:1300px;margin:0 auto;padding:34px clamp(18px,3vw,40px) 80px}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
 .kicker{font-size:10px;letter-spacing:.32em;color:var(--gold);font-weight:600;margin-bottom:11px;text-transform:uppercase}
 .h-sec{font-family:var(--serif);font-size:36px;font-weight:500;line-height:1;color:var(--ink)}
 .h-sub{font-size:12.5px;color:var(--ink-2);margin-top:9px}
-.subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+.eyebrow{font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
+.sel{font-family:var(--sans);font-size:12px;color:var(--ink-2);background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:9px 14px}
+.subtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:22px}
 .subtab{font-size:11px;letter-spacing:.1em;color:var(--ink-3);padding:11px 16px;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;text-transform:uppercase;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;font-family:var(--sans)}
 .subtab.on{color:var(--ink);border-bottom-color:var(--gold)}
 
+/* top summary cards */
+.sumcards{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:1050px){.sumcards{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.sumcards{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--card-solid);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.sc .l{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);line-height:1.3;min-height:26px}
+.sc .v{font-family:var(--mono);font-size:clamp(18px,1.7vw,23px);font-weight:500;color:var(--ink);margin-top:12px;letter-spacing:-.01em}
+.sc.on{border:1.5px solid var(--border-hi);background:linear-gradient(180deg,rgba(230,235,241,.9),rgba(255,255,255,.75))}
+.sc.grand .v{color:var(--gold)}
+.sc.grand .l{color:var(--ink-3)}
+
+.tabhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:6px 2px 16px}
+.tabhead h2{font-family:var(--serif);font-size:27px;font-weight:500;color:var(--ink)}
+.tabhead .d{font-size:12.5px;color:var(--ink-2);margin-top:5px;max-width:70ch}
+.saved{font-size:12px;color:var(--em-deep);font-weight:500;white-space:nowrap}
+
 .panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow),var(--glass-edge);position:relative;overflow:hidden;-webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);padding:8px}
 .panel.gold-top::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c6cdcf 30%,#eef1f2 50%,#9aa2a4 72%,transparent);z-index:2}
-.callout{font-size:12.5px;color:var(--ink-2);margin:2px 0 16px;line-height:1.55}
-.callout b{color:var(--ink)}
 
-/* row table */
 .rowtbl{width:100%;border-collapse:collapse;font-size:13px}
 .rowtbl thead th{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:12px 14px;text-align:right;border-bottom:1px solid var(--border-hi)}
-.rowtbl thead th:first-child{text-align:left}
-.rowtbl thead th.c-pr,.rowtbl thead th.c-fund{text-align:left}
-.r-main>td{padding:14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.rowtbl thead th:first-child,.rowtbl thead th.c-pr,.rowtbl thead th.c-fund{text-align:left}
+.r-main>td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
 .r-item{font-weight:600;color:var(--ink)}
 .r-item .sub{font-weight:400;color:var(--ink-3);font-size:11px}
 .tgl{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:var(--sans)}
@@ -77,15 +91,17 @@ a{color:inherit;text-decoration:none}
 .v-fund.senior{color:var(--blue)}
 .openbtn{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;letter-spacing:.04em;white-space:nowrap}
 .openbtn:hover{color:var(--ink)}
+tr.r-total td{padding:14px;border-top:1px solid var(--border-hi);font-weight:700;color:var(--ink)}
+tr.r-total .v-budget,tr.r-total .v-gst{font-weight:700}
 .r-detail>td{padding:0;border-bottom:1px solid var(--line)}
 .detail{background:rgba(255,255,255,.55);border:1px solid var(--border);border-radius:12px;margin:2px 8px 12px;padding:22px 24px}
 .detail.hidden{display:none}
 .d-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
-.d-head .k{font-family:var(--sans);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.d-head .k{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
 .d-head .nm{font-family:var(--serif);font-size:21px;color:var(--ink);margin-top:4px}
 .d-x{font-size:16px;color:var(--ink-3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;background:none;cursor:pointer}
 .d-sec{margin-top:22px}
-.d-lab{font-family:var(--sans);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:12px}
+.d-lab{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:12px}
 .fields{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:760px){.fields{grid-template-columns:1fr 1fr}}
 .field label{display:block;font-size:11px;color:var(--ink-2);margin-bottom:6px}
@@ -97,29 +113,25 @@ a{color:inherit;text-decoration:none}
 .trip .t .l{font-size:11px;color:var(--ink-2)}
 .trip .t .v{font-family:var(--mono);font-weight:600;color:var(--ink);margin-top:5px}
 .statuscards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.sc{border:1px solid var(--border);border-radius:11px;padding:14px 16px;cursor:pointer}
-.sc .h{font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
-.sc .h .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
-.sc .d{font-size:11.5px;color:var(--ink-2);margin-top:7px;line-height:1.45}
-.sc.on.fx{border-color:var(--em-line);background:var(--em-soft)}.sc.on.fx .dot{background:var(--emerald)}
-.sc.on.vr{border-color:var(--amber-line);background:rgba(198,125,51,.07)}.sc.on.vr .dot{background:var(--amber)}
+.stc{border:1px solid var(--border);border-radius:11px;padding:14px 16px}
+.stc .h{font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+.stc .h .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.stc .d{font-size:11.5px;color:var(--ink-2);margin-top:7px;line-height:1.45}
+.stc.on.fx{border-color:var(--em-line);background:var(--em-soft)}.stc.on.fx .dot{background:var(--emerald)}
+.stc.on.vr{border-color:var(--amber-line);background:rgba(198,125,51,.07)}.stc.on.vr .dot{background:var(--amber)}
 .rowline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
-.btn-ghost{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--ink);background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:9px 14px;cursor:pointer}
+.btn-ghost{font-size:12px;font-weight:600;color:var(--ink);background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:9px 14px;cursor:pointer}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.chip{font-family:var(--sans);font-size:11px;color:var(--ink-2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;background:var(--card-solid);cursor:pointer}
+.chip{font-size:11px;color:var(--ink-2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;background:var(--card-solid);cursor:pointer}
 .chip.on{background:var(--ink);color:#f2f5f8;border-color:var(--ink)}
-.notes{width:100%;background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-family:var(--sans);font-size:12.5px;color:var(--ink);min-height:64px;resize:vertical}
+.notes{width:100%;background:var(--card-solid);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:12.5px;color:var(--ink);min-height:64px;resize:vertical}
 .d-foot{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
 .del{color:var(--red);font-weight:600;font-size:12.5px;background:none;border:none;cursor:pointer}
 .done{font-weight:700;font-size:13px;color:var(--ink);background:none;border:none;cursor:pointer}
-.wc{background:rgba(88,120,168,.08);border:1px solid rgba(88,120,168,.28);border-radius:10px;padding:12px 15px;font-size:12px;color:#39547d;line-height:1.55;margin-top:18px}
-.wc b{color:#284364}
-.note{border-radius:10px;padding:12px 15px;font-size:12px;line-height:1.55;margin-top:18px;background:var(--amber-soft);border:1px solid var(--amber-line);border-left:3px solid var(--amber);color:#7a5320}
-.note b{color:#5f4014}
 </style>
 </head>
 <body>
-<div class="pvr">Preview · Cost Stack → Construction / Marketing row · <b>Design Spec v1</b> · St Village Preston · not yet wired to live inputs</div>
+<div class="pvr">Preview · Cost Stack line-item rows · <b>Design Spec v1</b> · St Village Preston</div>
 
 <div class="fx-topbar">
   <button class="fx-home">HOME</button><div class="fx-div"></div>
@@ -138,86 +150,146 @@ a{color:inherit;text-decoration:none}
 <div class="body">
   <div class="pagehead">
     <div><div class="kicker">04 · Cost Stack</div><h1 class="h-sec">Development Cost</h1><div class="h-sub">Construction rate applied to GBA plus all soft costs — or itemise trade-by-trade.</div></div>
-  </div>
-  <div class="subtabs">
-    <a class="subtab" href="/atrium-cost-stack-summary-v1.html">Summary</a>
-    <button class="subtab on">Construction</button>
-    <button class="subtab">Consultants</button><button class="subtab">Statutory</button><button class="subtab">Headworks &amp; Env</button><button class="subtab">Management</button><button class="subtab">Marketing</button>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="eyebrow">Project phase</span><span class="sel">— not set —</span></div>
   </div>
 
-  <div class="callout">The line-item row now shows only <b>6 things</b> — Item Description, Fixed/Var, Budget $, Incl. GST, Funded By, and Open. Everything else that used to sit in the row (Basis, Units, Rate, Phase, S-Curve, Start, End) has moved into the <b>Open</b> detail panel — no data removed, just not all shown inline. <b>Same component &amp; rules apply to the Marketing tab.</b></div>
+  <div class="subtabs" id="subtabs">
+    <a class="subtab" href="/atrium-cost-stack-summary-v1.html">Summary</a>
+    <button class="subtab" data-t="construction">Construction</button>
+    <button class="subtab on" data-t="consultants">Consultants</button>
+    <button class="subtab" data-t="statutory">Statutory</button>
+    <button class="subtab" data-t="headworks">Headworks &amp; Env</button>
+    <button class="subtab" data-t="management">Management</button>
+    <button class="subtab" data-t="marketing">Marketing</button>
+  </div>
+
+  <div class="sumcards" id="sumcards"></div>
+
+  <div class="tabhead" id="tabhead"></div>
 
   <div class="panel gold-top">
-    <table class="rowtbl" id="tbl">
-      <thead><tr><th>Item description</th><th class="c-pr">Pricing</th><th>Budget $</th><th>Incl. GST</th><th class="c-fund">Funded by</th><th></th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <table class="rowtbl" id="tbl"><thead><tr><th>Item description</th><th class="c-pr">Pricing</th><th>Budget $</th><th>Incl. GST</th><th class="c-fund">Funded by</th><th></th></tr></thead><tbody id="tbody"></tbody></table>
   </div>
-
-  <div class="note"><b>Open item (flagged, not part of this redesign):</b> the Marketing tab's on-page Section Total ($1,263,778 incl. items, $1,390,156 incl. GST) does not match the Cost Stack Summary ledger's "Marketing" line ($1,195,869) — flagging for correction. Nothing outstanding on the row/Open panel design itself; the S-Curve gap is resolved by adding it to the Open panel.</div>
 </div>
 
 <script>
-const ROWS=[
-  {name:'Construction Costs', sub:'Basement (s)', budget:0, fund:'Equity', pr:'fx', basis:'$ / Unit', units:'—', rate:'—', phase:'Construction'},
-  {name:'Construction Costs', sub:'Apartment', budget:176866000, fund:'Senior', pr:'vr', basis:'$ / Unit', units:'46,300', rate:'3,820', phase:'Construction'},
-  {name:'Construction Costs', sub:'External Works', budget:6000000, fund:'Senior', pr:'fx', basis:'$ / Item', units:'1', rate:'6,000,000', phase:'Construction'},
-  {name:'Contingency', sub:'', budget:9181925, fund:'Senior', pr:'fx', basis:'% of construction', units:'—', rate:'5.0%', phase:'Construction'},
+// top-line category summary cards (match live app), highlight per tab
+const CARDS=[
+  {key:'construction', l:'Construction Costs', v:'$183.64M'},
+  {key:'consult',      l:'Consultant & Professional Fees', v:'$5.84M'},
+  {key:'stathead',     l:'Statutory + Headworks', v:'$6.01M'},
+  {key:'mgmt',         l:'Management Fees', v:'$4.76M'},
+  {key:'marketing',    l:'Marketing & Advertising', v:'$1.20M'},
+  {key:'grand',        l:'Grand Total', v:'$201.45M', grand:1},
 ];
+const TABS={
+  construction:{card:'construction', heading:'Construction Costs', desc:'Basement, apartment, external works, demolition and contingency — the built form.', items:[
+    {name:'Construction Costs', sub:'Basement (s)', budget:0, fund:'Equity', pr:'fx', basis:'$ / Unit', units:'—', rate:'—', phase:'Construction'},
+    {name:'Construction Costs', sub:'Apartment', budget:168000000, fund:'Senior', pr:'vr', basis:'$ / Unit', units:'46,300', rate:'3,628', phase:'Construction'},
+    {name:'Construction — External Works', sub:'', budget:6000000, fund:'Senior', pr:'fx', basis:'$ / Item', units:'1', rate:'6,000,000', phase:'Construction'},
+    {name:'Demolition', sub:'', budget:300000, fund:'Senior', pr:'fx', basis:'$ / Item', units:'1', rate:'300,000', phase:'Early works'},
+    {name:'Contingency', sub:'', budget:9340000, fund:'Senior', pr:'fx', basis:'% of construction', units:'—', rate:'5.0%', phase:'Construction'},
+  ]},
+  consultants:{card:'consult', heading:'Consultant & Professional Fees', desc:'All design, engineering and advisory consultant fees across the project lifecycle.', items:[
+    {name:'Architecture', sub:'Fraser & Partners', budget:1850000, fund:'Senior', pr:'fx', basis:'% of construction', units:'—', rate:'1.0%', phase:'Design'},
+    {name:'Structural & Civil Engineering', sub:'', budget:780000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'780,000', phase:'Design'},
+    {name:'Services Engineering', sub:'Mech · Elec · Hydraulic', budget:640000, fund:'Senior', pr:'vr', basis:'Lump sum', units:'1', rate:'640,000', phase:'Design'},
+    {name:'Project Superintendent', sub:'Contract admin', budget:690000, fund:'Senior', pr:'vr', basis:'% of construction', units:'—', rate:'0.4%', phase:'Construction'},
+    {name:'Town Planning', sub:'', budget:320000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'320,000', phase:'Planning'},
+    {name:'Legal & Conveyancing', sub:'', budget:340000, fund:'Equity', pr:'fx', basis:'Lump sum', units:'1', rate:'340,000', phase:'Acquisition'},
+    {name:'Quantity Surveyor', sub:'', budget:265000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'265,000', phase:'Design'},
+    {name:'Land & Building Surveyor', sub:'', budget:210000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'210,000', phase:'Design'},
+    {name:'Geotechnical & Environmental', sub:'', budget:180000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'180,000', phase:'Design'},
+    {name:'ESD / Sustainability', sub:'', budget:145000, fund:'Senior', pr:'vr', basis:'Lump sum', units:'1', rate:'145,000', phase:'Design'},
+    {name:'Traffic & Acoustic', sub:'', budget:120000, fund:'Senior', pr:'fx', basis:'Lump sum', units:'1', rate:'120,000', phase:'Design'},
+    {name:'Other consultants', sub:'Wind · Waste · Access', budget:300000, fund:'Senior', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Design'},
+  ]},
+  statutory:{card:'stathead', heading:'Statutory Fees', desc:'Council, planning and government statutory charges and contributions.', items:[
+    {name:'Open Space Contribution', sub:'', budget:1200000, fund:'Senior', pr:'fx', basis:'% of land value', units:'—', rate:'—', phase:'Planning'},
+    {name:'Development Contributions (DCP)', sub:'', budget:640000, fund:'Senior', pr:'fx', basis:'Per dwelling', units:'400', rate:'1,600', phase:'Planning'},
+    {name:'Building Permit & Levies', sub:'', budget:620000, fund:'Senior', pr:'fx', basis:'% of construction', units:'—', rate:'—', phase:'Pre-construction'},
+    {name:'Council Planning Application Fees', sub:'', budget:290358, fund:'Senior', pr:'fx', basis:'Fixed', units:'1', rate:'290,358', phase:'Planning'},
+    {name:'Other statutory charges', sub:'', budget:249642, fund:'Senior', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Planning'},
+    {name:'Metropolitan Planning Levy', sub:'', budget:145000, fund:'Senior', pr:'fx', basis:'Fixed', units:'1', rate:'145,000', phase:'Planning'},
+  ]},
+  headworks:{card:'stathead', heading:'Headworks & Infrastructure', desc:'Authority headworks, servicing and environmental / remediation costs.', items:[
+    {name:'Environmental Remediation', sub:'', budget:1200000, fund:'Senior', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Early works'},
+    {name:'Water & Sewer Headworks', sub:'', budget:700000, fund:'Senior', pr:'fx', basis:'Authority quote', units:'1', rate:'700,000', phase:'Pre-construction'},
+    {name:'Contamination / EPA', sub:'', budget:569108, fund:'Senior', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Early works'},
+    {name:'Power / Electrical Headworks', sub:'', budget:400000, fund:'Senior', pr:'fx', basis:'Authority quote', units:'1', rate:'400,000', phase:'Pre-construction'},
+  ]},
+  management:{card:'mgmt', heading:'Management Fees', desc:'Development, marketing, administration, accounting and legal management — running across every phase.', items:[
+    {name:'Development Management', sub:'', budget:2938212, fund:'Equity', pr:'fx', basis:'$ / month', units:'34', rate:'86,418', phase:'All phases'},
+    {name:'Marketing Management', sub:'', budget:722160, fund:'Equity', pr:'fx', basis:'$ / month', units:'34', rate:'21,240', phase:'All phases'},
+    {name:'Administration Management', sub:'', budget:367268, fund:'Equity', pr:'fx', basis:'$ / month', units:'34', rate:'10,802', phase:'All phases'},
+    {name:'Accounting Management', sub:'', budget:367268, fund:'Equity', pr:'fx', basis:'$ / month', units:'34', rate:'10,802', phase:'All phases'},
+    {name:'Legal Management', sub:'', budget:367268, fund:'Equity', pr:'fx', basis:'$ / month', units:'34', rate:'10,802', phase:'All phases'},
+  ]},
+  marketing:{card:'marketing', heading:'Marketing & Advertising', desc:'Display suite, collateral, renders, signage and digital advertising.', items:[
+    {name:'Display Suite', sub:'', budget:450000, fund:'Equity', pr:'fx', basis:'Lump sum', units:'1', rate:'450,000', phase:'Pre-launch'},
+    {name:'Marketing Collateral', sub:'', budget:300000, fund:'Equity', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Launch'},
+    {name:'Marketing Renders & Signage', sub:'', budget:241619, fund:'Equity', pr:'fx', basis:'Lump sum', units:'1', rate:'241,619', phase:'Launch'},
+    {name:'Digital & Advertising', sub:'', budget:208381, fund:'Equity', pr:'vr', basis:'Allowance', units:'—', rate:'—', phase:'Launch'},
+  ]},
+};
+let cur='consultants';
 const money=v=>'$'+Math.round(v).toLocaleString();
-function render(){
-  const tb=document.getElementById('tbody'); tb.innerHTML='';
-  ROWS.forEach((r,i)=>{
-    const gst=r.budget*1.10;
+function renderCards(){
+  const active=TABS[cur].card;
+  document.getElementById('sumcards').innerHTML=CARDS.map(c=>
+    '<div class="sc'+(c.key===active?' on':'')+(c.grand?' grand':'')+'"><div class="l">'+c.l+'</div><div class="v">'+c.v+'</div></div>').join('');
+}
+function renderHead(){
+  const t=TABS[cur];
+  document.getElementById('tabhead').innerHTML='<div><h2>'+t.heading+'</h2><div class="d">'+t.desc+'</div></div><span class="saved">✓ Auto-saved</span>';
+}
+function renderTable(){
+  const t=TABS[cur]; const tb=document.getElementById('tbody'); tb.innerHTML='';
+  let tot=0;
+  t.items.forEach((r,i)=>{
+    const gst=r.budget*1.10; tot+=r.budget;
     const main=document.createElement('tr'); main.className='r-main';
-    main.innerHTML=
-      '<td class="r-item">'+r.name+(r.sub?' <span class="sub">| '+r.sub+'</span>':'')+'</td>'+
+    main.innerHTML='<td class="r-item">'+r.name+(r.sub?' <span class="sub">| '+r.sub+'</span>':'')+'</td>'+
       '<td><span class="tgl" data-i="'+i+'"><button class="fx '+(r.pr==='fx'?'on':'')+'" data-p="fx">Fixed</button><button class="vr '+(r.pr==='vr'?'on':'')+'" data-p="vr">Var</button></span></td>'+
-      '<td class="v-budget">'+money(r.budget)+'</td>'+
-      '<td class="v-gst">'+money(gst)+'</td>'+
+      '<td class="v-budget">'+money(r.budget)+'</td><td class="v-gst">'+money(gst)+'</td>'+
       '<td><span class="v-fund '+(r.fund==='Senior'?'senior':'')+'">'+r.fund+'</span></td>'+
       '<td style="text-align:right"><button class="openbtn" data-open="'+i+'">Open ›</button></td>';
     tb.appendChild(main);
     const det=document.createElement('tr'); det.className='r-detail';
-    det.innerHTML='<td colspan="6"><div class="detail hidden" id="det'+i+'">'+detailHtml(r,i)+'</div></td>';
+    det.innerHTML='<td colspan="6"><div class="detail hidden" id="det'+i+'">'+detailHtml(r)+'</div></td>';
     tb.appendChild(det);
   });
+  const tr=document.createElement('tr'); tr.className='r-total';
+  tr.innerHTML='<td>Section total · '+t.items.length+' items</td><td></td><td class="v-budget">'+money(tot)+'</td><td class="v-gst">'+money(tot*1.10)+'</td><td></td><td></td>';
+  tb.appendChild(tr);
   wire();
 }
-function detailHtml(r,i){
-  const gst=r.budget*1.10;
-  return ''+
-  '<div class="d-head"><div><div class="k">Edit cost item · '+r.name.toUpperCase()+'</div><div class="nm">'+r.name+(r.sub?' | '+r.sub:'')+'</div></div><button class="d-x" data-close="'+i+'">✕</button></div>'+
+function detailHtml(r){
+  return '<div class="d-head"><div><div class="k">Edit cost item · '+TABS[cur].heading.toUpperCase()+'</div><div class="nm">'+r.name+(r.sub?' | '+r.sub:'')+'</div></div><button class="d-x" data-close="1">✕</button></div>'+
   '<div class="d-sec"><div class="d-lab">Pricing Basis</div><div class="fields">'+
-    '<div class="field"><label>Basis</label><div class="in">'+r.basis+'</div></div>'+
-    '<div class="field"><label>Units</label><div class="in">'+r.units+'</div></div>'+
-    '<div class="field"><label>Rate</label><div class="in">'+r.rate+'</div></div>'+
-    '<div class="field"><label>Funded By</label><div class="in">'+r.fund+'</div></div></div>'+
-    '<div class="trip"><div class="t"><div class="l">Original Budget</div><div class="v">'+money(r.budget)+'</div></div>'+
-    '<div class="t"><div class="l">GST</div><div class="v">'+money(r.budget*0.10)+'</div></div>'+
-    '<div class="t"><div class="l">Current Budget incl. Variations</div><div class="v">'+money(r.budget)+'</div></div></div></div>'+
+    field('Basis',r.basis)+field('Units',r.units)+field('Rate',r.rate)+field('Funded By',r.fund)+'</div>'+
+    '<div class="trip"><div class="t"><div class="l">Original Budget</div><div class="v">'+money(r.budget)+'</div></div><div class="t"><div class="l">GST</div><div class="v">'+money(r.budget*0.10)+'</div></div><div class="t"><div class="l">Current Budget incl. Variations</div><div class="v">'+money(r.budget)+'</div></div></div></div>'+
   '<div class="d-sec"><div class="d-lab">Pricing Status</div><div class="statuscards">'+
-    '<div class="sc fx '+(r.pr==='fx'?'on':'')+'"><div class="h"><span class="dot"></span>Fixed</div><div class="d">Fee proposal received &amp; locked in. Counts as priced on the dashboard gauge.</div></div>'+
-    '<div class="sc vr '+(r.pr==='vr'?'on':'')+'"><div class="h"><span class="dot"></span>Variable</div><div class="d">Indicative only — not properly priced yet. Shows as outstanding on the dashboard.</div></div></div></div>'+
+    '<div class="stc fx '+(r.pr==='fx'?'on':'')+'"><div class="h"><span class="dot"></span>Fixed</div><div class="d">Fee proposal received & locked in. Counts as priced on the dashboard gauge.</div></div>'+
+    '<div class="stc vr '+(r.pr==='vr'?'on':'')+'"><div class="h"><span class="dot"></span>Variable</div><div class="d">Indicative only — not properly priced yet. Shows as outstanding on the dashboard.</div></div></div></div>'+
   '<div class="d-sec"><div class="d-lab">Fee Proposal</div><div class="rowline"><span>No fee proposal attached yet</span><button class="btn-ghost">Attach PDF</button></div></div>'+
-  '<div class="d-sec"><div class="d-lab">Cost Variations</div><div class="rowline" style="color:var(--ink-2)">No variations — original fee holds.</div>'+
-    '<div class="rowline" style="margin-top:10px;color:var(--ink-3);font-size:11.5px">Original <b style="color:var(--ink)">'+money(r.budget)+'</b> &nbsp; Variations <b style="color:var(--ink)">+$0</b> &nbsp; Current <b style="color:var(--ink)">'+money(r.budget)+'</b> &nbsp; Movement <b style="color:var(--ink)">0.0%</b></div></div>'+
-  '<div class="d-sec"><div class="d-lab">Timeline &amp; Critical Path</div><div class="fields">'+
-    '<div class="field"><label>Phase</label><div class="in">'+r.phase+'</div></div>'+
-    '<div class="field new"><label>S-Curve <span class="newtag">NEW FIELD</span></label><div class="in">Linear</div></div>'+
-    '<div class="field"><label>Start Date</label><div class="in">—</div></div>'+
-    '<div class="field"><label>End Date</label><div class="in">—</div></div></div>'+
-    '<div style="margin-top:14px"><label style="font-size:11px;color:var(--ink-2)">Status / Traffic Light</label><div class="chips"><span class="chip">Critical</span><span class="chip">Delayed</span><span class="chip on">On Track</span><span class="chip">Complete</span><span class="chip">Not Started</span></div></div>'+
-    '<div class="rowline" style="margin-top:14px"><span style="font-size:11px;color:var(--ink-2)">Progress · Bar Colour</span><span style="font-size:11px;color:var(--ink-3)">◇ Milestone</span></div></div>'+
+  '<div class="d-sec"><div class="d-lab">Cost Variations</div><div class="rowline" style="color:var(--ink-2)">No variations — original fee holds.</div><div class="rowline" style="margin-top:10px;color:var(--ink-3);font-size:11.5px">Original <b style="color:var(--ink)">'+money(r.budget)+'</b> &nbsp; Variations <b style="color:var(--ink)">+$0</b> &nbsp; Current <b style="color:var(--ink)">'+money(r.budget)+'</b> &nbsp; Movement <b style="color:var(--ink)">0.0%</b></div></div>'+
+  '<div class="d-sec"><div class="d-lab">Timeline & Critical Path</div><div class="fields">'+
+    field('Phase',r.phase)+'<div class="field new"><label>S-Curve <span class="newtag">NEW FIELD</span></label><div class="in">Linear</div></div>'+field('Start Date','—')+field('End Date','—')+'</div>'+
+    '<div style="margin-top:14px"><label style="font-size:11px;color:var(--ink-2)">Status / Traffic Light</label><div class="chips"><span class="chip">Critical</span><span class="chip">Delayed</span><span class="chip on">On Track</span><span class="chip">Complete</span><span class="chip">Not Started</span></div></div></div>'+
   '<div class="d-sec"><div class="d-lab">Notes</div><textarea class="notes" placeholder="Notes for this cost item..."></textarea></div>'+
-  '<div class="d-foot"><button class="del">Delete line</button><button class="done" data-close="'+i+'">Done</button></div>';
+  '<div class="d-foot"><button class="del">Delete line</button><button class="done" data-close="1">Done</button></div>';
 }
+function field(l,v){return '<div class="field"><label>'+l+'</label><div class="in">'+v+'</div></div>';}
 function wire(){
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{const i=b.dataset.open;const d=document.getElementById('det'+i);d.classList.toggle('hidden');b.textContent=d.classList.contains('hidden')?'Open ›':'Close ✕';});
-  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{const i=b.dataset.close;document.getElementById('det'+i).classList.add('hidden');document.querySelector('[data-open="'+i+'"]').textContent='Open ›';});
-  document.querySelectorAll('.tgl').forEach(t=>t.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{const i=+t.dataset.i;ROWS[i].pr=btn.dataset.p;render();}));
+  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{const d=b.closest('.detail');d.classList.add('hidden');const i=d.id.replace('det','');const ob=document.querySelector('[data-open="'+i+'"]');if(ob)ob.textContent='Open ›';});
+  document.querySelectorAll('.tgl').forEach(t=>t.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{const i=+t.dataset.i;TABS[cur].items[i].pr=btn.dataset.p;renderTable();}));
 }
-render();
+document.getElementById('subtabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;
+  cur=b.dataset.t;document.querySelectorAll('#subtabs .subtab').forEach(x=>x.classList.toggle('on',x===b));
+  renderCards();renderHead();renderTable();});
+renderCards();renderHead();renderTable();
 </script>
 </body>
 </html>

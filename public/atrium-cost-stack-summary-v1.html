@@ -173,7 +173,7 @@ footer{max-width:1240px;margin:0 auto;padding:0 clamp(18px,3vw,40px) 60px;color:
 
   <!-- 1 · KEY METRICS -->
   <div class="panel gold-top">
-    <div class="p-head"><span class="p-lab">Key Metrics</span><span class="p-tag blue">Formula preview — not yet live-linked</span></div>
+    <div class="p-head"><span class="p-lab">Key Metrics</span></div>
     <div class="kpis">
       <div class="kpi"><div class="lab">Development Profit</div><div class="val">$62.4M</div><div class="fx">GRV $302.3M − TDC $239.9M</div></div>
       <div class="kpi"><div class="lab">Margin on Cost</div><div class="val">26.0%</div><div class="fx">Profit ÷ TDC</div></div>
@@ -182,12 +182,11 @@ footer{max-width:1240px;margin:0 auto;padding:0 clamp(18px,3vw,40px) 60px;color:
       <div class="kpi"><div class="lab">Equity Multiple (EM)</div><div class="val">2.32x</div><div class="fx">(Equity + Profit) ÷ Equity</div></div>
       <div class="kpi"><div class="lab">Residual Land Value</div><div class="val">$73.4M</div><div class="fx">Site-related value — Dashboard (not yet recalculated)</div></div>
     </div>
-    <div class="note amber"><b>TDC moved again — now $239.9M (was $243.0M last pass):</b> reviewing line-item names surfaced two real corrections — (1) Management Fees carried a stale $6.83M that didn't tie to any tab, corrected to the real Management-tab total $4.76M; (2) splitting Finance into Interest / Line Fees / Finance Costs showed the real tranche-level Interest is $13.45M, not the flat "Finance (8%) $14.47M" the old Summary used. Both reduced TDC. All metrics reflect the new $239.9M base. Equity and Residual Land Value are still unchanged pass-throughs pending their own recalculation.</div>
   </div>
 
   <!-- 2 · REVENUE SUMMARY -->
   <div class="panel gold-top">
-    <div class="p-head"><span class="p-lab">Revenue Summary · Gross Realisation Value</span><span class="p-tag">Draft — pending Product Mix redesign</span></div>
+    <div class="p-head"><span class="p-lab">Revenue Summary · Gross Realisation Value</span></div>
     <div class="tbl-scroll">
       <table class="cs">
         <thead><tr><th></th><th>Annual $</th><th>% of TDC</th><th>% of GRV</th><th>$ / sqm NSA</th><th>Ex. GST $</th></tr></thead>
@@ -200,8 +199,6 @@ footer{max-width:1240px;margin:0 auto;padding:0 clamp(18px,3vw,40px) 60px;color:
       </table>
     </div>
     <div class="total-foot"><div class="tl">Gross Realisation Value<span class="meta">130.2% of TDC · 100% of GRV · $13,555/sqm NSA · n/a — residential rent is input-taxed</span></div><div class="tv">$302.3M</div></div>
-    <div class="note blue"><b>Now asset-agnostic:</b> unit-type rental detail and cap-rate workings collapse into one Gross Realisation Value line, so this Summary works for any asset class (BTR rental &amp; cap rate, BTS direct sale, hotel RevPAR) without redesign. Full methodology stays in Product Mix.</div>
-    <div class="note amber"><b>GST on Sales</b> is wired to the same <b>Apply GST</b> toggle on Cost Stack → Summary (OFF for this project). For this BTR asset it correctly shows $0 (rental revenue input-taxed); for a BTS asset with the toggle on, this line deducts GST payable on the sale price under the margin scheme.</div>
   </div>
 
   <!-- 3 · COST SUMMARY -->
@@ -247,22 +244,8 @@ footer{max-width:1240px;margin:0 auto;padding:0 clamp(18px,3vw,40px) 60px;color:
         </tbody>
       </table>
     </div>
-    <div class="cap">Construction sourced from Construction-tab line items (Construction Costs = Basement + Apartment + Cold Shell + Common Area + Amenities + Balconies + Commercial Fit Out; Demolition = Temporary Works + Hard Works). Headworks &amp; Environmental split from the combined Headworks &amp; Env tab total. <b>Management Fees corrected to the real Management-tab total ($4.76M)</b> — the old Summary carried a stale $6.83M that didn't reconcile to any tab.</div>
     <div class="total-foot"><div class="tl">Total Dev Cost · Incl. Land<span class="meta">100% of TDC · 79.4% of GRV · $5,183/sqm GBA all-in · ~$221.2M ex. GST</span></div><div class="tv">$239.9M</div></div>
-    <div class="note amber"><b>Interest ($13.45M) is real</b> — the sum of tranche-level accrual already on the Finance tab. Line Fees &amp; other Finance Costs (establishment, guarantee, valuation/legal) aren't modelled anywhere yet, so they show as $0 placeholders. This $13.45M also doesn't match the old flat "Finance (8%) $14.47M" — another cross-page figure to reconcile once the Finance tab is the source of truth.</div>
   </div>
-
-  <!-- OPEN ITEMS -->
-  <div class="panel gold-top">
-    <div class="p-head"><span class="p-lab">Open items — please confirm before build</span></div>
-    <div class="oi">
-      <b>1 · Line Fees &amp; other Finance Costs</b> don't exist as modelled inputs anywhere in the app — shown as $0 placeholders. Only Interest is live (Finance-tab tranche accrual). Decision: add input fields, or remove the placeholder rows.<br><br>
-      <b>2 · Construction tab internal mismatch:</b> its own category card shows $183.64M but the itemised section totals $192.35M. Pre-existing inconsistency in the live app (not introduced by this redesign) — reconcile at the source.<br><br>
-      <b>3 · Total Dev Cost differs across three places</b> (Cost Stack Summary, Finance tab, Dashboard). This redesign uses the Cost Stack ledger as source of truth ($239.9M); Finance tab and Dashboard need updating to match, or explicitly reconciling.<br><br>
-      <b>4 · Residual Land Value</b> is still a static pass-through from Dashboard — needs its own live formula/build task.
-    </div>
-  </div>
-</div>
 
 <footer>Preview mockup rendered from Daniel's Cost Stack Summary Design Spec v1, styled to the ATRIUM studio · St Village Preston figures with his corrections applied · not yet connected to live inputs. Next pages (Cash Flow, Finance, Product Mix, Dashboard reconciliation) follow the same format once approved.</footer>
 </body>
