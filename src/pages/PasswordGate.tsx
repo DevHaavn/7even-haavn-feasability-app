@@ -73,7 +73,7 @@ const CSS = `
   .pg-stack i{animation:none;filter:brightness(.65)}
   .pg-glow{animation:none}}
 
-.pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:8px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
+.pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
   opacity:0;animation:pg-wfade 2.6s ease-out 4.4s forwards}
 @keyframes pg-wfade{to{opacity:1}}
 
