@@ -52,10 +52,14 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 .stack i{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  background:#341070;backface-visibility:visible}
+  background:#341070;backface-visibility:visible;
+  animation:idim 7.2s ease-out forwards}
+@keyframes idim{0%{filter:brightness(0)}40%{filter:brightness(.28)}100%{filter:brightness(1)}}
 .stack i.face{transform:translateZ(1.5px);
   background:linear-gradient(180deg,#9a5cff,#7a3bf0 45%,#5522b8)}
-/* pre-mirrored back face — the wordmark reads correctly from behind mid-spin */
+/* pre-mirrored back face — the wordmark reads correctly from behind mid-spin.
+   Both faces are one-sided so neither ever shows through the other's glyph gaps. */
+.stack i.face{backface-visibility:hidden}
 .stack i.fback{transform:translateZ(-18px) rotateY(180deg)}
 .welcome{font-family:var(--mono);font-size:8px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
   opacity:0;animation:wfade 2.6s ease-out 4.4s forwards}
