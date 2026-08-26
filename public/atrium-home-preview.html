@@ -48,8 +48,12 @@ body{background:#040404;color:#e8e6e8;font-family:var(--sans);overflow:hidden;-w
 /* top eyebrow row */
 .tophead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:26px 2px 0}
 .topcap{grid-column:2;display:flex;flex-direction:column;align-items:center;gap:7px}
-.capwings{width:78px;height:auto;opacity:.92;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6))}
-.capword{font-family:var(--mono);font-size:8px;letter-spacing:.5em;color:#cfd3d8;text-transform:uppercase;padding-left:.5em}
+.capbtn{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-decoration:none;transition:.3s}
+.capbtn:hover{transform:translateY(-2px)}
+.capbtn:hover .capwings{filter:drop-shadow(0 2px 10px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(47,224,122,.55));opacity:1}
+.capbtn:hover .capword{color:#fff;text-shadow:0 0 12px rgba(47,224,122,.5)}
+.capwings{width:78px;height:auto;opacity:.92;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));transition:.3s}
+.capword{font-family:var(--mono);font-size:8px;letter-spacing:.5em;color:#cfd3d8;text-transform:uppercase;padding-left:.5em;transition:.3s}
 .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.44em;margin-top:6px}
 
 /* ---------- glass hamburger + project menu ---------- */
@@ -90,7 +94,7 @@ body.menu-open .hero{opacity:.08;filter:blur(2px)}
 .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
 .sevenwrap{display:flex;flex-direction:column;align-items:center;opacity:0;animation:brandIn 2.4s ease-out .5s forwards}
 @keyframes brandIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.seven{width:clamp(224px,33.6vw,480px);filter:drop-shadow(0 3px 18px rgba(0,0,0,.65))}
+.seven{width:clamp(224px,33.6vw,480px);filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
 .herosub{margin-top:26px;font-family:var(--mono);font-size:10px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 
 /* ---------- footer (exact HAAVN BLACK pattern) ---------- */
@@ -148,8 +152,10 @@ body.menu-open .hero{opacity:.08;filter:blur(2px)}
   <div class="tophead">
     <div></div>
     <div class="topcap">
-      <img class="capwings" src="/winged-device-white.png" alt="Capital">
-      <div class="capword">CAPITAL</div>
+      <a class="capbtn" href="#capital" title="Capital Base — login">
+        <img class="capwings" src="/winged-device-white.png" alt="Capital">
+        <span class="capword">CAPITAL</span>
+      </a>
       <div class="eyebrow">Development Feasibility Studio</div>
     </div>
     <div class="menuwrap">
@@ -170,7 +176,7 @@ body.menu-open .hero{opacity:.08;filter:blur(2px)}
   <!-- centre hero: wings fade in slowly, then 7EVEN takes the show -->
   <div class="hero">
     <div class="sevenwrap">
-      <img class="seven" src="/seven-mark-white.png" alt="7EVEN">
+      <img class="seven" src="/seven-mark-white-hd.png" alt="7EVEN">
       <div class="herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
     </div>
   </div>
