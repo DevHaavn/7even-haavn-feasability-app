@@ -97,7 +97,6 @@ const CSS = `
 .pg-enter:hover{border-color:rgba(168,107,255,.75);color:#fff;background:rgba(168,107,255,.07);box-shadow:0 0 28px -10px rgba(168,107,255,.65)}
 .pg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #a86bff}
 .pg-err{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
-.pg-install{margin-top:28px}
 
 /* fixed one-line footer — same as main app */
 .pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);
@@ -201,9 +200,6 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
           </div>
           <button className="pg-enter" onClick={attempt}><span className="tri" />Enter Atrium</button>
           {error && <p className="pg-err">Incorrect access code — try again</p>}
-          <div className="pg-install" style={{ display: 'flex', justifyContent: 'center' }}>
-            <InstallButton />
-          </div>
         </div>
       </div>
 
@@ -214,6 +210,7 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
           <div className="pg-fl"><span className="pg-atr"><span className="pg-tri2" />ATRIUM</span></div>
           <div className="pg-fc"><span className="pg-livedot" />LIVE&nbsp;&nbsp;<GateClock />&nbsp;·&nbsp;MELBOURNE</div>
           <div className="pg-fr">
+            <InstallButton compact />
             <a className="pg-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
             <a className="pg-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span className="ext">↗</span></a>
           </div>
