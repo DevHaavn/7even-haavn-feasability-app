@@ -46,9 +46,8 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
   background:radial-gradient(50% 50% at 50% 50%,rgba(122,59,240,.4),rgba(122,59,240,.14) 55%,transparent 75%);
   filter:blur(14px);animation:gpulse 6.5s ease-in-out 7.2s infinite}
 @keyframes gpulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
-.spin3{position:absolute;inset:0;transform-style:preserve-3d;
-  transform:rotateX(10deg);animation:spin7 16s linear 7.2s infinite}
-@keyframes spin7{from{transform:rotateX(10deg) rotateY(0deg)}to{transform:rotateX(10deg) rotateY(360deg)}}
+.spin3{position:absolute;inset:0;transform-style:preserve-3d;animation:spin7 16s linear 7.2s infinite}
+@keyframes spin7{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
 .stack{position:absolute;inset:0;transform-style:preserve-3d}
 .stack i{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
