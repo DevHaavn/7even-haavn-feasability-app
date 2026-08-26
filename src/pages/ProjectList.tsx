@@ -143,18 +143,22 @@ const CSS = `
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
 .s7p{background:#7a52c7;filter:drop-shadow(0 0 6px rgba(122,82,199,.7)) drop-shadow(0 0 22px rgba(122,82,199,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7pk 3.6s steps(1,end) .5s forwards}
+  animation:s7pk 4.4s steps(1,end) .5s forwards}
 .s7g{background:#4d7a63;filter:drop-shadow(0 0 6px rgba(77,122,99,.75)) drop-shadow(0 0 22px rgba(77,122,99,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7gk 3.6s steps(1,end) .5s forwards}
+  animation:s7gk 4.4s steps(1,end) .5s forwards}
 .s7au{background:#ddcb96;filter:drop-shadow(0 0 6px rgba(221,203,150,.7)) drop-shadow(0 0 22px rgba(221,203,150,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7auk 3.6s steps(1,end) .5s forwards}
+  animation:s7auk 4.4s steps(1,end) .5s forwards}
+.s7k{background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113);
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.28)) drop-shadow(0 0 22px rgba(160,170,180,.18)) drop-shadow(0 3px 18px rgba(0,0,0,.7));
+  animation:s7kk 4.4s steps(1,end) .5s forwards}
 .s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7wk 3.6s steps(1,end) .5s forwards}
-@keyframes s7pk{0%{opacity:0}4%{opacity:1}13%{opacity:0}16%{opacity:1}24%{opacity:0}100%{opacity:0}}
-@keyframes s7gk{0%{opacity:0}26%{opacity:1}34%{opacity:0}37%{opacity:1}46%{opacity:0}100%{opacity:0}}
-@keyframes s7auk{0%{opacity:0}48%{opacity:1}56%{opacity:0}59%{opacity:1}68%{opacity:0}100%{opacity:0}}
-@keyframes s7wk{0%{opacity:0}70%{opacity:1}76%{opacity:0}79%{opacity:1}84%{opacity:0}87%{opacity:1}100%{opacity:1}}
-@media(prefers-reduced-motion:reduce){.s7p,.s7g,.s7au{animation:none}.s7w{animation:none;opacity:1}}
+  animation:s7wk 4.4s steps(1,end) .5s forwards}
+@keyframes s7pk{0%{opacity:0}3%{opacity:1}11%{opacity:0}14%{opacity:1}20%{opacity:0}100%{opacity:0}}
+@keyframes s7gk{0%{opacity:0}22%{opacity:1}30%{opacity:0}33%{opacity:1}39%{opacity:0}100%{opacity:0}}
+@keyframes s7auk{0%{opacity:0}41%{opacity:1}49%{opacity:0}52%{opacity:1}58%{opacity:0}100%{opacity:0}}
+@keyframes s7kk{0%{opacity:0}60%{opacity:1}66%{opacity:0}69%{opacity:1}75%{opacity:0}100%{opacity:0}}
+@keyframes s7wk{0%{opacity:0}77%{opacity:1}82%{opacity:0}85%{opacity:1}89%{opacity:0}91%{opacity:1}100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.s7p,.s7g,.s7au,.s7k{animation:none}.s7w{animation:none;opacity:1}}
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
@@ -337,7 +341,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-hero">
           <div className="ath-sevenwrap">
             <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-              <i className="s7 s7p" /><i className="s7 s7g" /><i className="s7 s7au" /><i className="s7 s7w" />
+              <i className="s7 s7p" /><i className="s7 s7g" /><i className="s7 s7au" /><i className="s7 s7k" /><i className="s7 s7w" />
             </div>
             <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
           </div>
