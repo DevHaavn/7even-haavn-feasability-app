@@ -19,10 +19,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);color:#e8e6e8;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;min-height:100vh;
   /* smokey carbon grey */
-  background:
-    linear-gradient(160deg, rgba(20,22,24,.55), rgba(14,16,18,.72) 60%, rgba(10,12,14,.82)),
-    url('/atrium-fabric-grey.jpg') center / cover no-repeat fixed #1e2023}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-index:0;
+  background:url('/atrium-fabric-grey.jpg') center / cover no-repeat fixed #8a8a8a}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:0;z-index:0;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");mix-blend-mode:overlay}
 .pvr{position:relative;z-index:5;background:#050607;color:#cfd6dc;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:7px 14px}
 .pvr b{color:var(--led)}
