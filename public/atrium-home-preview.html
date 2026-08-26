@@ -61,10 +61,12 @@ body{background:#040404;color:#e8e6e8;font-family:var(--sans);overflow:hidden;-w
 .burger.on span:nth-child(1){transform:translateY(7.1px) rotate(45deg)}
 .burger.on span:nth-child(2){opacity:0}
 .burger.on span:nth-child(3){transform:translateY(-7.1px) rotate(-45deg)}
-.pmenu{position:absolute;top:54px;right:0;width:min(420px,86vw);z-index:50;
+.pmenu{position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(540px,82vw);z-index:50;
   border:none;border-radius:0;background:transparent;box-shadow:none;
-  opacity:0;transform:translateY(-8px);pointer-events:none;transition:.32s cubic-bezier(.2,.7,.3,1)}
-.pmenu.on{opacity:1;transform:none;pointer-events:auto}
+  opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
+.pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+body.menu-open .hero{opacity:.08;filter:blur(2px)}
+.hero{transition:opacity .35s, filter .35s}
 .pmenu .mh{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
   font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .pmenu .newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
@@ -198,9 +200,9 @@ body{background:#040404;color:#e8e6e8;font-family:var(--sans);overflow:hidden;-w
 <script>
 (function(){
   var b=document.getElementById('burger'),m=document.getElementById('pmenu');
-  b.addEventListener('click',function(e){e.stopPropagation();b.classList.toggle('on');m.classList.toggle('on');});
-  document.addEventListener('click',function(e){if(!m.contains(e.target)){b.classList.remove('on');m.classList.remove('on');}});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){b.classList.remove('on');m.classList.remove('on');}});
+  b.addEventListener('click',function(e){e.stopPropagation();b.classList.toggle('on');m.classList.toggle('on');document.body.classList.toggle('menu-open',m.classList.contains('on'));});
+  document.addEventListener('click',function(e){if(!m.contains(e.target)){b.classList.remove('on');m.classList.remove('on');document.body.classList.remove('menu-open');}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){b.classList.remove('on');m.classList.remove('on');document.body.classList.remove('menu-open');}});
   function fitLines(){var fr=document.querySelector('.frail'),hr=document.querySelector('.hair');
     if(fr&&hr)document.documentElement.style.setProperty('--ledstop',(fr.offsetHeight+hr.offsetHeight+0)+'px');}
   fitLines();window.addEventListener('resize',fitLines);
