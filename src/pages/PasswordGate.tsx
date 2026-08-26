@@ -62,7 +62,7 @@ const CSS = `
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   background:#341070;backface-visibility:hidden;
   animation:pg-idim 7.2s ease-out forwards}
-@keyframes pg-idim{0%{filter:brightness(0)}40%{filter:brightness(.28)}100%{filter:brightness(1)}}
+@keyframes pg-idim{0%{filter:brightness(0)}40%{filter:brightness(.18)}100%{filter:brightness(.65)}}
 .pg-stack i.face{transform:translateZ(1.5px);backface-visibility:hidden;
   background:linear-gradient(180deg,#7a3bf0,#6a2fd6 55%,#5522b8)}
 /* pre-mirrored back face — the wordmark reads correctly from behind mid-spin */
@@ -70,7 +70,7 @@ const CSS = `
 @media(prefers-reduced-motion:reduce){
   .pg-persp{animation:none;opacity:1}
   .pg-spin{animation:none}
-  .pg-stack i{animation:none;filter:brightness(1)}
+  .pg-stack i{animation:none;filter:brightness(.65)}
   .pg-glow{animation:none}}
 
 .pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:8px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
