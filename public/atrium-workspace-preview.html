@@ -30,12 +30,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 .pvr b{color:var(--led)}
 
 /* ─── BLACK HEADER — crisp white back-lit type ─── */
-.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:22px;padding:14px 28px;
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:30px;padding:18px 38px;
   background:linear-gradient(180deg,#0a0b0c,#060708);border-bottom:1px solid rgba(255,255,255,.09)}
 .tb-home{font-family:var(--mono);font-size:11px;letter-spacing:.28em;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;
   text-shadow:0 0 10px rgba(255,255,255,.55),0 0 26px rgba(255,255,255,.22)}
 .tb-div{width:1px;height:30px;background:rgba(255,255,255,.12)}
-.tb-brand img{height:34px;filter:brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.4))}
+.tb-brand img{height:22px;filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
 .tb-proj{flex:1;min-width:0}
 .tb-projname{display:flex;align-items:center;gap:10px;color:#fff}
 .tb-dot{width:7px;height:7px;border-radius:50%;background:var(--led);box-shadow:0 0 10px var(--led)}
@@ -45,7 +45,36 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 .tb-addr{font-family:var(--mono);font-size:11px;color:#8b9095;letter-spacing:.05em;margin-top:3px}
 .tb-atr{font-family:var(--serif);font-size:19px;letter-spacing:.44em;font-weight:500;padding-left:.44em;color:#fff;
   text-shadow:0 0 12px rgba(255,255,255,.65),0 0 34px rgba(255,255,255,.3)}
-.tb-pill{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#cfd3d8;border:1px solid rgba(255,255,255,.22);padding:8px 14px;border-radius:22px;background:rgba(255,255,255,.03);text-transform:uppercase}
+/* boxless burger + see-through pull-out (same as the main app page) */
+.menuwrap{position:relative}
+.burger{width:46px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
+.burger span{display:block;width:22px;height:1.8px;background:#dfe1e4;transition:.3s;border-radius:1px}
+.burger:hover span{background:var(--led);box-shadow:0 0 10px rgba(47,224,122,.9),0 0 22px rgba(47,224,122,.5)}
+.burger.on span:nth-child(1){transform:translateY(7.8px) rotate(45deg)}
+.burger.on span:nth-child(2){opacity:0}
+.burger.on span:nth-child(3){transform:translateY(-7.8px) rotate(-45deg)}
+.pmenu{position:fixed;left:50%;top:clamp(120px,17vh,180px);width:min(560px,84vw);z-index:80;
+  opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
+.pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
+  font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
+  border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
+.newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
+.plist{max-height:min(52vh,430px);overflow-y:auto}
+.prow{display:flex;align-items:center;gap:14px;padding:14px 4px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.1);transition:.22s;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.prow:hover{border-bottom-color:rgba(47,224,122,.55)}
+.prow:hover .pname{color:#fff;text-shadow:0 0 14px rgba(47,224,122,.35)}
+.num{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.32);width:16px;flex-shrink:0}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:13px;font-weight:600;color:#f0eff0;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paddr{font-family:var(--mono);font-size:9px;color:#a9a6a9;letter-spacing:.06em;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptype{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:#cfd3d8;border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 8px;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.ptype .d{width:5px;height:5px;border-radius:50%}
+.go{color:var(--led);font-size:11px;opacity:0;transform:translateX(-4px);transition:.25s;flex-shrink:0}
+.prow:hover .go{opacity:1;transform:none}
+.menu-blur .body{filter:blur(3px);opacity:.35;transition:.35s}
+.body{transition:filter .35s,opacity .35s}
 /* tabs */
 .tabnav{position:sticky;top:63px;z-index:49;display:flex;gap:2px;padding:0 28px;
   background:linear-gradient(180deg,#060708,#0a0b0cf5);border-bottom:1px solid rgba(255,255,255,.09);overflow-x:auto}
@@ -155,16 +184,26 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 <!-- black LED header -->
 <div class="topbar">
   <button class="tb-home">Home</button>
-  <span class="tb-div"></span>
-  <span class="tb-brand"><img src="/brand-logo-white.png" alt="7EVEN · HAAVN"></span>
+  <span class="tb-brand"><img src="/seven-mark-white-hd.png" alt="7EVEN"></span>
   <span class="tb-div"></span>
   <div class="tb-proj">
     <div class="tb-projname"><span class="tb-dot"></span><span class="tb-nm">St Village Preston</span><span class="tb-save"><span class="d"></span>Autosave On</span></div>
     <div class="tb-addr">2-3 Newman Street, Preston VIC 3072 · BTR</div>
   </div>
   <span class="tb-atr">ATRIUM</span>
-  <span class="tb-pill">☾ Dark</span>
-  <span class="tb-pill" style="padding:8px 11px">⊞</span>
+  <div class="menuwrap">
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="pmenu" id="pmenu">
+      <div class="mh"><span>Projects · 5</span><button class="newp">+ New Project</button></div>
+      <div class="plist">
+        <div class="prow"><span class="num">01</span><div class="pinfo"><div class="pname">St Village Preston</div><div class="paddr">2-3 Newman Street, Preston VIC 3072</div></div><span class="ptype"><span class="d" style="background:#2fe07a"></span>BTR</span><span class="go">→</span></div>
+        <div class="prow"><span class="num">02</span><div class="pinfo"><div class="pname">5IVE Hotels Caloundra</div><div class="paddr">31 Esplanade Bulcock Beach, Caloundra QLD 4551</div></div><span class="ptype"><span class="d" style="background:#a78bfa"></span>HOTEL</span><span class="go">→</span></div>
+        <div class="prow"><span class="num">03</span><div class="pinfo"><div class="pname">Cunningham Place</div><div class="paddr">35 Corio Street, Geelong VIC 3220</div></div><span class="ptype"><span class="d" style="background:#2fe07a"></span>BTR</span><span class="go">→</span></div>
+        <div class="prow"><span class="num">04</span><div class="pinfo"><div class="pname">Waurnvale Drive Geelong</div><div class="paddr">Waurnvale Drive, Belmont VIC 3216</div></div><span class="ptype"><span class="d" style="background:#5b9bd5"></span>BTS</span><span class="go">→</span></div>
+        <div class="prow"><span class="num">05</span><div class="pinfo"><div class="pname">575 Derrimut Road Tarneit</div><div class="paddr">575 Derrimut Road, Tarneit VIC 3029</div></div><span class="ptype"><span class="d" style="background:#d9d9d9"></span>MIXED</span><span class="go">→</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="tabnav">
   <button class="tab on">Site &amp; Design</button>
@@ -273,6 +312,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 <script>
 function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-AU',{hour12:false});}
 tick();setInterval(tick,1000);
+var b=document.getElementById('burger'),m=document.getElementById('pmenu');
+b.addEventListener('click',function(e){e.stopPropagation();b.classList.toggle('on');m.classList.toggle('on');document.body.classList.toggle('menu-blur',m.classList.contains('on'));});
+document.addEventListener('click',function(e){if(!m.contains(e.target)&&e.target!==b){b.classList.remove('on');m.classList.remove('on');document.body.classList.remove('menu-blur');}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){b.classList.remove('on');m.classList.remove('on');document.body.classList.remove('menu-blur');}});
 </script>
 </body>
 </html>
