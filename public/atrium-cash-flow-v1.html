@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATRIUM · Cash Flow (rebuild preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;--serif:'Cormorant Garamond',Georgia,serif;
+  --chrome:#0f151c;--chrome-2:#0b1015;--chrome-line:rgba(255,255,255,.08);--chrome-txt:#e8edf1;--chrome-dim:#8996a0;--chrome-faint:#5a656e;
+  --gold:#6e7c8e;--gold-hi:#9aa8b6;--emerald:#2f9e6b;--em-deep:#1f7d52;--red:#c8503f;--amber:#c67d33;--blue:#5878a8;
+  --page:#dfe5ec;--card:rgba(255,255,255,.66);--card-solid:rgba(255,255,255,.82);
+  --ink:#232c37;--ink-2:#5b6672;--ink-3:#8592a0;--faint:#a6b2be;
+  --line:rgba(35,44,55,.09);--border:rgba(35,44,55,.12);--border-hi:rgba(35,44,55,.2);
+  --em-soft:rgba(47,158,107,.12);--amber-soft:rgba(198,125,51,.1);--amber-line:rgba(198,125,51,.32);
+  --shadow:0 2px 5px rgba(30,45,65,.05),0 16px 36px -16px rgba(30,45,65,.22);--glass-edge:inset 0 1px 0 rgba(255,255,255,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(rgba(255,255,255,.175) 1px, transparent 1px),radial-gradient(120% 85% at 12% -12%, rgba(188,206,226,.65), transparent 55%),radial-gradient(110% 80% at 92% 8%, rgba(206,214,226,.55), transparent 55%),linear-gradient(158deg,#e7ecf2 0%,#dde4ec 45%,#d2dbe5 100%) fixed;background-size:4px 4px,auto,auto,auto;background-blend-mode:overlay,normal,normal,normal;min-height:100vh}
+.pvr{background:#080b0e;color:#cfd6dc;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-align:center;padding:7px 14px}
+.pvr b{color:var(--emerald)}
+a{color:inherit;text-decoration:none}
+
+/* chrome */
+.fx-topbar{display:flex;align-items:center;padding:12px 26px;background:linear-gradient(180deg,var(--chrome),var(--chrome-2));border-bottom:1px solid var(--chrome-line)}
+.fx-home{font-size:11px;letter-spacing:.28em;color:var(--chrome-dim);text-transform:uppercase;background:none;border:none;cursor:pointer}
+.fx-div{width:1px;height:30px;background:var(--chrome-line);margin:0 22px}
+.fx-brand img{height:40px;filter:brightness(0) invert(1)}
+.fx-proj{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.fx-projname{display:flex;align-items:center;gap:10px;color:var(--chrome-txt)}
+.fx-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 9px var(--emerald)}
+.fx-nm{font-family:var(--serif);font-size:17px;font-weight:500}
+.fx-save{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:20px;padding:5px 11px;text-transform:uppercase}
+.fx-save .d{width:6px;height:6px;border-radius:50%;background:var(--emerald)}
+.fx-addr{font-family:var(--mono);font-size:11px;color:var(--chrome-faint);letter-spacing:.05em}
+.fx-right{display:flex;align-items:center;gap:16px}
+.fx-atr{font-family:var(--serif);font-size:19px;letter-spacing:.44em;font-weight:500;padding-left:.44em;background:linear-gradient(180deg,#f4f7f8,#c2cacc 42%,#8b9498 52%,#e4e9ea 66%,#a6aeb0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.fx-tgl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--chrome-dim);border:1px solid var(--chrome-line);padding:8px 14px;border-radius:22px;background:rgba(255,255,255,.03);text-transform:uppercase}
+.fx-grid{font-size:13px;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:9px;width:34px;height:32px;display:flex;align-items:center;justify-content:center}
+.fx-tabnav{display:flex;gap:2px;padding:0 26px;background:linear-gradient(180deg,var(--chrome-2),rgba(11,16,21,.96));border-bottom:1px solid var(--chrome-line);overflow-x:auto}
+.fx-tab{position:relative;padding:15px 17px;font-size:10.5px;letter-spacing:.18em;color:var(--chrome-faint);white-space:nowrap;background:none;border:none;text-transform:uppercase;cursor:pointer;font-family:var(--sans)}
+.fx-tab.on{color:var(--chrome-txt)}
+.fx-tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--chrome-faint),var(--gold-hi),var(--chrome-faint));box-shadow:0 0 12px rgba(198,206,214,.45);border-radius:2px}
+
+.body{max-width:1600px;margin:0 auto;padding:30px clamp(16px,2.4vw,36px) 70px}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.kicker{font-size:10px;letter-spacing:.32em;color:var(--gold);font-weight:600;margin-bottom:11px;text-transform:uppercase}
+.h-sec{font-family:var(--serif);font-size:36px;font-weight:500;line-height:1;color:var(--ink)}
+.h-sub{font-size:12.5px;color:var(--ink-2);margin-top:9px;max-width:80ch}
+.sectorbar{display:flex;gap:8px;margin:4px 0 16px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--card-solid);border:1px solid var(--border);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;font-family:var(--sans);font-size:11px;letter-spacing:.06em;font-weight:600;color:var(--ink-3);padding:8px 14px;border-radius:8px;cursor:pointer;text-transform:uppercase}
+.seg button.on{background:var(--ink);color:#f2f5f8}
+.hint{font-size:11.5px;color:var(--ink-2)}
+.hint b{color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow),var(--glass-edge);position:relative;overflow:hidden;-webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1)}
+.panel.gold-top::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c6cdcf 30%,#eef1f2 50%,#9aa2a4 72%,transparent);z-index:5}
+
+/* grid */
+.gridwrap{overflow:auto;max-height:74vh;border-radius:15px}
+table.cf{border-collapse:separate;border-spacing:0;font-family:var(--mono);font-size:11px;white-space:nowrap}
+table.cf th,table.cf td{padding:7px 12px;text-align:right;border-bottom:1px solid var(--line)}
+.c-name{position:sticky;left:0;z-index:3;text-align:left!important;background:var(--card-solid);min-width:250px;font-family:var(--sans);color:var(--ink);font-weight:500;border-right:1px solid var(--border)}
+.c-total{position:sticky;right:0;z-index:3;background:var(--card-solid);border-left:1px solid var(--border);font-weight:600;color:var(--ink)}
+thead th{position:sticky;top:0;z-index:4;background:#eef2f6;color:var(--ink-3);font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border-hi)}
+thead th.c-name{z-index:6}thead th.c-total{z-index:6}
+.mcell{color:var(--ink-2);min-width:78px}
+.mcell.z{color:transparent}
+.mcell.z::after{content:"—";color:var(--faint)}
+.mcell.drag{cursor:grab}
+.mcell.drag:hover{background:var(--em-soft);color:var(--ink);border-radius:5px}
+.mcell.picked{outline:2px solid var(--emerald);outline-offset:-2px;background:var(--em-soft)!important;border-radius:5px}
+.mcell.dropok{background:rgba(88,120,168,.14)!important;border-radius:5px}
+tr.divider td{background:#dbe2ea;color:var(--gold);font-family:var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;text-align:left;position:sticky;left:0}
+tr.divider .c-name{background:#dbe2ea}
+tr.calc .c-name,tr.calc td{font-weight:700;color:var(--ink);background:rgba(255,255,255,.5)}
+tr.calc.tdc td{border-top:1px solid var(--border-hi)}
+tr.net .c-name,tr.net td{color:var(--ink-2);font-style:normal}
+tr.fin .c-name{color:var(--em-deep);font-weight:600}
+tr.fin.sr .c-name{color:var(--blue);font-weight:600}
+tr.fin.mz .c-name{color:var(--blue);font-weight:600}
+tr.subfin .c-name{padding-left:26px;color:var(--amber);font-style:italic;font-weight:400}
+tr.subfin td{color:var(--amber)}
+tr.grand .c-name,tr.grand td{font-weight:700;color:var(--ink);border-top:2px solid var(--border-hi);background:rgba(255,255,255,.55)}
+tr.bal .c-name,tr.bal td{color:var(--ink-2)}
+.neg{color:var(--red)}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:11px;color:var(--ink-2)}
+.legend .k{display:flex;align-items:center;gap:7px}
+.legend .sw{width:12px;height:12px;border-radius:3px;border:1px solid var(--border)}
+.note{border-radius:10px;padding:12px 15px;font-size:12px;line-height:1.55;margin-top:16px;background:var(--amber-soft);border:1px solid var(--amber-line);border-left:3px solid var(--amber);color:#7a5320}
+.note b{color:#5f4014}
+.oi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-top:18px;box-shadow:var(--shadow)}
+.oi .p-lab{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;color:var(--gold);margin-bottom:12px}
+.oi ul{margin:0;padding-left:18px;font-size:12px;color:var(--ink-2);line-height:1.7}
+.oi b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="pvr">Preview · Cash Flow rebuild · <b>Design Spec v1</b> · St Village Preston · illustrative timing — not yet wired to live inputs</div>
+
+<div class="fx-topbar">
+  <button class="fx-home">HOME</button><div class="fx-div"></div>
+  <span class="fx-brand"><img src="/brand-logo-white.png" alt="7EVEN · HAAVN"></span><div class="fx-div"></div>
+  <div class="fx-proj"><div class="fx-projname"><span class="fx-dot"></span><span class="fx-nm">St Village Preston</span><span class="fx-save"><span class="d"></span>Autosave On</span></div><div class="fx-addr">2-3 Newman Street, Preston VIC 3072 · BTR</div></div>
+  <div class="fx-right"><span class="fx-atr">ATRIUM</span><span class="fx-tgl">☾ Dark</span><span class="fx-grid">⊞</span></div>
+</div>
+<div class="fx-tabnav">
+  <button class="fx-tab">Site &amp; Design</button><button class="fx-tab">Land &amp; Terms</button><button class="fx-tab">Product Mix</button>
+  <a class="fx-tab" href="/atrium-cost-stack-summary-v1.html">Cost Stack</a>
+  <button class="fx-tab">Finance</button>
+  <button class="fx-tab on">Cash Flow</button>
+  <button class="fx-tab">Timeline</button><button class="fx-tab">Overview</button><button class="fx-tab">Dashboard</button>
+</div>
+
+<div class="body">
+  <div class="pagehead">
+    <div>
+      <div class="kicker">06 · Cash Flow</div>
+      <h1 class="h-sec">Cash Flow</h1>
+      <div class="h-sub">Revenue at the top, every real cost line item flat underneath (no phases), then Total Development Cost and pre-finance Net Cashflow. Finance at the bottom: Equity carries no interest or line fee; Senior Debt and Mezzanine each carry their own Interest and Line Fee, calculated independently from their own running balance and facility limit.</div>
+    </div>
+  </div>
+
+  <div class="sectorbar">
+    <div class="seg" id="sector">
+      <button class="on" data-s="btr">BTR — rent ramp-up</button>
+      <button data-s="bts">BTS — settlement curve</button>
+      <button data-s="hotel">Hotel — occupancy ramp</button>
+    </div>
+    <span class="hint">Drag any <b>$ amount</b> onto another month in the same row to re-time it. Drag a debt draw and only that tranche's Interest / Line Fee recalculate — Equity, and the other tranche, are unaffected.</span>
+  </div>
+
+  <div class="panel gold-top">
+    <div class="gridwrap"><table class="cf" id="cf"></table></div>
+  </div>
+
+  <div class="legend">
+    <span class="k"><span class="sw" style="background:var(--em-soft)"></span>Draggable $ cell</span>
+    <span class="k"><span class="sw" style="background:rgba(88,120,168,.14)"></span>Drop target</span>
+    <span class="k"><span class="sw" style="background:#dbe2ea"></span>Category divider (label only)</span>
+    <span class="k" style="color:var(--amber)">Interest / Line Fee — calculated, not draggable</span>
+  </div>
+
+  <div class="note"><b>Illustrative timing.</b> Month-by-month spread within each line item (linear / S-curve / backloaded / upfront) is a first proposal — real per-item timing should come from the construction programme / drawdown schedule. GRV phasing is a first proposal too (the live app has no monthly revenue phasing today). Interest &amp; Line Fee rates (Senior ~6% p.a. + ~0.5% line fee; Mezzanine ~12% + ~0.8%) are placeholders reflecting typical market pricing — confirm real rates from the Capital Stack. Equity $19.5M · Senior $144.37M · Mezzanine $12.93M match the app's Peak Equity / tranche KPIs.</div>
+
+  <div class="oi">
+    <div class="p-lab">Open items for the app builder</div>
+    <ul>
+      <li>Per-item month spread is illustrative — real timing should come from the actual construction programme / drawdown schedule, not an assumed shape.</li>
+      <li>Marketing category total shown ($0.54M across two line items) has not been pulled from the live Marketing tab — verify before build.</li>
+      <li>Revenue (GRV) timing is a first proposal — the live app has zero monthly revenue phasing to reference; Finance/Product to confirm the settlement/rent/occupancy ramp per sector.</li>
+      <li>Interest &amp; Line Fee rates are illustrative placeholders — confirm the deal's real terms from the Capital Stack / finance agreements.</li>
+      <li>No debt repayment / refinance / exit event is modelled — Debt Balance (EOP) only ever rises. A repayment waterfall at exit is a separate scope.</li>
+      <li>"+N more (mostly $0)" placeholder lines stand in for real near-zero items — the build should list every real line item from Cost Stack.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const N=36;                       // 36 months
+const START={m:7,y:2026};         // M1 = Aug 2026 (0-indexed month 7)
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function label(i){let m=(START.m+i)%12,y=START.y+Math.floor((START.m+i)/12);return {top:'M'+(i+1),bot:MON[m].toUpperCase()+String(y).slice(2)};}
+
+// ---- shape helpers: return 36-length array summing ~ total ----
+const A0=()=>Array(N).fill(0);
+function upfront(total,at){const a=A0();a[at]=total;return a;}
+function linear(total,a0,a1){const a=A0();const n=a1-a0+1;for(let i=a0;i<=a1;i++)a[i]=Math.round(total/n);fix(a,total);return a;}
+function scurve(total,a0,a1){const a=A0();const n=a1-a0+1;let w=[];for(let k=0;k<n;k++){const x=(k+0.5)/n;w.push(Math.exp(-Math.pow((x-0.5)/0.22,2)/2));}const s=w.reduce((p,c)=>p+c,0);for(let k=0;k<n;k++)a[a0+k]=Math.round(total*w[k]/s);fix(a,total);return a;}
+function backload(total,a0,a1){const a=A0();const n=a1-a0+1;let w=[];for(let k=0;k<n;k++)w.push(k+1);const s=w.reduce((p,c)=>p+c,0);for(let k=0;k<n;k++)a[a0+k]=Math.round(total*w[k]/s);fix(a,total);return a;}
+function ramp(total,a0,a1){return linear(total,a0,a1);} // simple ramp
+function fix(a,total){let s=a.reduce((p,c)=>p+c,0);let d=total-s;for(let i=a.length-1;i>=0&&d!==0;i--){if(a[i]>0){a[i]+=d;break;}}}
+
+// ---- cost line items (illustrative timing over 36 mo) ----
+let ROWS=[
+ {div:'Land & Acquisition'},
+ {k:'land', name:'Land — purchase price', arr:upfront(15000000,0), drag:1, cost:1},
+ {k:'stamp',name:'Stamp duty + government levies', arr:upfront(955000,0), drag:1, cost:1},
+ {k:'acq',  name:'Acquisition costs (fees · legals · DD)', arr:upfront(363000,0), drag:1, cost:1},
+ {div:'Statutory & Planning'},
+ {k:'stat', name:'Statutory Fees', arr:linear(3145000,0,5), drag:1, cost:1},
+ {k:'statm',name:'+ 4 more (mostly $0)', arr:A0(), drag:0, cost:1, dim:1},
+ {div:'Consultants'},
+ {k:'cons', name:'Consultants', arr:linear(5842914,0,7), drag:1, cost:1},
+ {k:'consm',name:'+ 11 more (mostly $0)', arr:A0(), drag:0, cost:1, dim:1},
+ {div:'Headworks & Infrastructure'},
+ {k:'head', name:'Headworks', arr:linear(1100000,0,7), drag:1, cost:1},
+ {k:'env',  name:'Environmental Costs', arr:linear(1769108,0,7), drag:1, cost:1},
+ {div:'Construction'},
+ {k:'con',  name:'Construction Costs', arr:scurve(176866000,8,29), drag:1, cost:1},
+ {k:'ext',  name:'Construction — External Works', arr:scurve(6000000,8,29), drag:1, cost:1},
+ {k:'demo', name:'Demolition', arr:linear(300000,8,10), drag:1, cost:1},
+ {k:'cont', name:'Contingency', arr:scurve(9181925,8,29), drag:1, cost:1},
+ {div:'Marketing'},
+ {k:'mkt1', name:'Marketing Collateral', arr:backload(300000,30,35), drag:1, cost:1},
+ {k:'mkt2', name:'Marketing Renders & Signage', arr:backload(241619,30,35), drag:1, cost:1},
+ {k:'mktm', name:'+ other marketing line items ($0)', arr:A0(), drag:0, cost:1, dim:1},
+ {div:'Management (runs across every phase)'},
+ {k:'mDev', name:'Development Management', arr:linear(86418*34,2,35), drag:1, cost:1},
+ {k:'mMkt', name:'Marketing Management', arr:linear(21240*34,2,35), drag:1, cost:1},
+ {k:'mAdm', name:'Administration Management', arr:linear(10802*34,2,35), drag:1, cost:1},
+ {k:'mAcc', name:'Accounting Management', arr:linear(10802*34,2,35), drag:1, cost:1},
+ {k:'mLeg', name:'Legal Management', arr:linear(10802*34,2,35), drag:1, cost:1},
+];
+// GRV revenue shapes (post practical completion ~ M31-36)
+const GRV={btr:ramp(302300000,30,35), bts:upfront(302300000,35), hotel:ramp(302300000,29,35)};
+let grv=GRV.btr.slice();
+// finance draws (illustrative; totals match KPIs)
+let equity={name:'Equity Draw (preferred + ordinary)', arr:(()=>{const a=upfront(13000000,0);const l=linear(6500000,0,7);return a.map((v,i)=>v+l[i]);})(), drag:1};
+let senior={name:'Senior Debt Draw (land + construction)', arr:(()=>{const a=upfront(25860000,0);const s=scurve(118510000,8,29);return a.map((v,i)=>v+s[i]);})(), drag:1};
+let mezz  ={name:'Mezzanine Debt Draw', arr:backload(12930000,19,29), drag:1};
+const SEN_FAC=144370000, MEZ_FAC=12930000;
+const SEN_INT=0.005, SEN_FEE=0.005/12, MEZ_INT=0.01, MEZ_FEE=0.008/12;
+
+const fmt=v=>v===0?'—':(v<0?'−':'')+'$'+Math.round(Math.abs(v)).toLocaleString();
+const fmtM=v=>'$'+(v/1e6).toFixed(1)+'M';
+
+// derived per-month
+function tdcArr(){const t=A0();ROWS.forEach(r=>{if(r.arr)r.arr.forEach((v,i)=>t[i]+=v);});return t;}
+function financeCalc(){ // returns interest/fee/balance arrays per tranche
+  const sInt=A0(),sFee=A0(),mInt=A0(),mFee=A0(),sBal=A0(),mBal=A0();
+  let sb=0,mb=0;
+  for(let i=0;i<N;i++){
+    const si=Math.round(sb*SEN_INT); const sf=sb>0||senior.arr[i]>0?Math.round(SEN_FAC*SEN_FEE):0;
+    sb=sb+senior.arr[i]+si+sf; sInt[i]=si;sFee[i]=sf;sBal[i]=sb;
+    const mi=Math.round(mb*MEZ_INT); const mf=mb>0||mezz.arr[i]>0?Math.round(MEZ_FAC*MEZ_FEE):0;
+    mb=mb+mezz.arr[i]+mi+mf; mInt[i]=mi;mFee[i]=mf;mBal[i]=mb;
+  }
+  return {sInt,sFee,mInt,mFee,sBal,mBal};
+}
+
+let picked=null; // {rowRef, idx}
+function render(){
+  const t=document.getElementById('cf'); const tdc=tdcArr(); const F=financeCalc();
+  const net=grv.map((v,i)=>v-tdc[i]);
+  const fund=equity.arr.map((v,i)=>v+senior.arr[i]+mezz.arr[i]);
+  const debtBal=F.sBal.map((v,i)=>v+F.mBal[i]);
+  const sum=a=>a.reduce((p,c)=>p+c,0);
+  // header
+  let h='<thead><tr><th class="c-name">Line item</th>';
+  for(let i=0;i<N;i++){const L=label(i);h+='<th><div>'+L.top+'</div><div style="color:var(--faint);font-weight:400">'+L.bot+'</div></th>';}
+  h+='<th class="c-total">Total</th></tr></thead>';
+  let b='<tbody>';
+  // GRV
+  b+=rowHtml({name:'GRV / Revenue',ref:{obj:'grv'},arr:grv,drag:1,cls:'fin',bold:1});
+  // cost rows
+  ROWS.forEach((r,ri)=>{
+    if(r.div){b+='<tr class="divider"><td class="c-name" colspan="'+(N+2)+'">'+r.div+'</td></tr>';return;}
+    b+=rowHtml({name:r.name,ref:{obj:'ROWS',i:ri},arr:r.arr,drag:r.drag,dim:r.dim});
+  });
+  // TDC + Net
+  b+=calcRow('Total Development Cost',tdc,'calc tdc');
+  b+=calcRow('Net Cashflow (pre-finance)',net,'net',true);
+  // finance
+  b+='<tr class="divider"><td class="c-name" colspan="'+(N+2)+'">Finance — Equity &amp; Debt</td></tr>';
+  b+=rowHtml({name:equity.name,ref:{obj:'equity'},arr:equity.arr,drag:1,cls:'fin'});
+  b+=rowHtml({name:senior.name,ref:{obj:'senior'},arr:senior.arr,drag:1,cls:'fin sr'});
+  b+=calcRow('Interest — Senior Debt',F.sInt,'subfin');
+  b+=calcRow('Line Fee — Senior Debt',F.sFee,'subfin');
+  b+=rowHtml({name:mezz.name,ref:{obj:'mezz'},arr:mezz.arr,drag:1,cls:'fin mz'});
+  b+=calcRow('Interest — Mezzanine Debt',F.mInt,'subfin');
+  b+=calcRow('Line Fee — Mezzanine Debt',F.mFee,'subfin');
+  b+=calcRow('Total Funding Drawn (Equity + Debt)',fund,'grand');
+  b+=calcRow('Debt Balance (EOP)',debtBal,'bal',false,true);
+  b+='</tbody>';
+  t.innerHTML=h+b;
+  wireDrag();
+}
+function rowHtml(o){
+  const sum=o.arr.reduce((p,c)=>p+c,0);
+  let s='<tr class="'+(o.cls||'')+'"><td class="c-name">'+o.name+'</td>';
+  for(let i=0;i<N;i++){const v=o.arr[i];
+    const cls='mcell'+(v===0?' z':'')+(o.drag&&v!==0?' drag':'')+(o.dim?' dimc':'');
+    s+='<td class="'+cls+'" data-obj="'+o.ref.obj+'"'+(o.ref.i!==undefined?' data-i="'+o.ref.i+'"':'')+' data-m="'+i+'">'+(v===0?'':fmt(v))+'</td>';}
+  s+='<td class="c-total">'+(sum===0?'—':fmtM(sum))+'</td></tr>';
+  return s;
+}
+function calcRow(name,arr,cls,net,eop){
+  const sum=arr.reduce((p,c)=>p+c,0);
+  let s='<tr class="'+cls+'"><td class="c-name">'+name+'</td>';
+  for(let i=0;i<N;i++){const v=arr[i];const neg=(net&&v<0);s+='<td class="'+(neg?'neg':'')+'">'+(v===0?'—':(neg?'('+'$'+Math.abs(Math.round(v)).toLocaleString()+')':fmt(v)))+'</td>';}
+  s+='<td class="c-total">'+(eop?fmtM(arr[N-1]):(sum===0?'—':fmtM(sum)))+'</td></tr>';
+  return s;
+}
+function arrOf(obj,i){if(obj==='grv')return grv;if(obj==='equity')return equity.arr;if(obj==='senior')return senior.arr;if(obj==='mezz')return mezz.arr;if(obj==='ROWS')return ROWS[i].arr;return null;}
+
+// drag-to-retime (HTML5 DnD)
+function wireDrag(){
+  document.querySelectorAll('.mcell.drag').forEach(c=>{
+    c.setAttribute('draggable','true');
+    c.addEventListener('dragstart',e=>{picked={obj:c.dataset.obj,i:c.dataset.i,m:+c.dataset.m};c.classList.add('picked');e.dataTransfer.effectAllowed='move';});
+    c.addEventListener('dragend',()=>{picked=null;document.querySelectorAll('.picked,.dropok').forEach(x=>x.classList.remove('picked','dropok'));});
+  });
+  document.querySelectorAll('.mcell').forEach(c=>{
+    c.addEventListener('dragover',e=>{if(!picked)return;if(c.dataset.obj===picked.obj&&c.dataset.i==(picked.i||'')&&+c.dataset.m!==picked.m){e.preventDefault();c.classList.add('dropok');}});
+    c.addEventListener('dragleave',()=>c.classList.remove('dropok'));
+    c.addEventListener('drop',e=>{e.preventDefault();if(!picked)return;
+      if(c.dataset.obj!==picked.obj||c.dataset.i!=(picked.i||''))return;
+      const a=arrOf(picked.obj,picked.i);const from=picked.m,to=+c.dataset.m;
+      a[to]+=a[from];a[from]=0;picked=null;render();});
+  });
+}
+// sector toggle
+document.getElementById('sector').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  document.querySelectorAll('#sector button').forEach(x=>x.classList.toggle('on',x===b));
+  grv=GRV[b.dataset.s].slice();render();});
+render();
+</script>
+</body>
+</html>
