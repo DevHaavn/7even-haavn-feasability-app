@@ -111,6 +111,12 @@ const CSS = `
 .ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
   border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
 .ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
+.ath-base{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin:4px 0 12px;padding:13px 16px;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.4);border-radius:2px;transition:.3s}
+.ath-base img{height:15px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(255,255,255,.4))}
+.ath-base:hover,.ath-base.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.75);box-shadow:0 0 26px -10px rgba(255,255,255,.5)}
+.ath-base .g{color:#fff;font-size:12px}
+.ath-newp-row{width:100%;justify-content:center;margin-bottom:12px}
 .ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:14px;padding:13px 16px;cursor:pointer;
   background:rgba(214,179,106,.05);border:1px solid rgba(214,179,106,.45);border-radius:2px;transition:.3s}
 .ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
@@ -208,6 +214,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [baseOpen, setBaseOpen] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
@@ -292,10 +299,17 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <span>Projects · {live.length}</span>
                 <span style={{ display: 'flex', gap: 8 }}>
                   {isAdmin && <button className="ath-dash" onClick={() => { onDashboard?.('7even'); setMenuOpen(false) }}>▦ Dashboard</button>}
-                  <button className="ath-newp" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project</button>
                 </span>
               </div>
-              <div className="ath-plist">
+              {/* BASE — 7EVEN sub-brand: press to drop down the project feasibilities */}
+              <button className={`ath-base${baseOpen ? ' on' : ''}`} title="BASE — Project Feasibilities" onClick={() => setBaseOpen(v => !v)}>
+                <img src="/base-white.png" alt="BASE" />
+                <span className="g">{baseOpen ? '▾' : '▸'}</span>
+              </button>
+              {baseOpen && (
+                <button className="ath-newp ath-newp-row" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project — Start a new feasibility</button>
+              )}
+              <div className="ath-plist" style={{ display: baseOpen ? undefined : 'none' }}>
                 {live.length === 0 && (
                   <div style={{ padding: '22px 4px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', textTransform: 'uppercase' }}>
                     No projects yet — <span style={{ color: 'var(--led)', cursor: 'pointer' }} onClick={() => { setShowNew(true); setMenuOpen(false) }}>create the first</span>
