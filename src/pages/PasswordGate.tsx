@@ -47,7 +47,7 @@ const CSS = `
 /* 7EVEN in LED purple — true 3D: extruded glyph stack, ignition, slow clockwise spin.
    Filters flatten preserve-3d, so the glow is its own element and the brightness
    ramp lives on the leaf layers. */
-.pg-persp{perspective:1000px;position:relative;width:clamp(240px,32vw,460px);aspect-ratio:1800/280;
+.pg-persp{perspective:1000px;position:relative;width:clamp(312px,41.6vw,598px);aspect-ratio:1800/280;
   opacity:0;animation:pg-ignite 7.2s ease-out forwards}
 @keyframes pg-ignite{0%{opacity:0}35%{opacity:.3}100%{opacity:1}}
 .pg-glow{position:absolute;inset:-46% -14%;pointer-events:none;border-radius:50%;
