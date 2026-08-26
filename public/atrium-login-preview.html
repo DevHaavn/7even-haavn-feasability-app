@@ -44,7 +44,7 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
   opacity:0;animation:ignite 7.2s ease-out forwards}
 @keyframes ignite{0%{opacity:0}35%{opacity:.3}100%{opacity:1}}
 .glow7{position:absolute;inset:-46% -14%;pointer-events:none;border-radius:50%;
-  background:radial-gradient(50% 50% at 50% 50%,rgba(122,59,240,.4),rgba(122,59,240,.14) 55%,transparent 75%);
+  background:radial-gradient(50% 50% at 50% 50%,rgba(200,210,220,.30),rgba(200,210,220,.10) 55%,transparent 75%);
   filter:blur(14px);animation:gpulse 6.5s ease-in-out 7.2s infinite}
 @keyframes gpulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
 .spin3{position:absolute;inset:0;transform-style:preserve-3d;animation:spin7 16s linear 7.2s infinite}
@@ -53,11 +53,11 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
 .stack i{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  background:#341070;backface-visibility:hidden;
+  background:#1c1f22;backface-visibility:hidden;
   animation:idim 7.2s ease-out forwards}
-@keyframes idim{0%{filter:brightness(0)}40%{filter:brightness(.18)}100%{filter:brightness(.65)}}
+@keyframes idim{0%{filter:brightness(0)}40%{filter:brightness(.3)}100%{filter:brightness(1)}}
 .stack i.face{transform:translateZ(1.5px);
-  background:linear-gradient(180deg,#9a5cff,#7a3bf0 45%,#5522b8)}
+  background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113)}
 /* pre-mirrored back face — the wordmark reads correctly from behind mid-spin.
    Both faces are one-sided so neither ever shows through the other's glyph gaps. */
 .stack i.face{backface-visibility:hidden}
