@@ -195,6 +195,13 @@ export default function CostLineDetailModal({ item, sectionLabel, groupLabel, pr
             <div style={sectH}>Timeline &amp; critical path <span style={tag}>— drives this item’s bar on the Timeline Gantt</span></div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div><label style={lab}>Phase</label><select style={inp} value={item.phase || ''} onChange={e => onPatch({ phase: (e.target.value || undefined) as CostLineItem['phase'] })}><option value="">—</option>{COST_PHASES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}</select></div>
+              {/* S-Curve — Design Spec v1: sits directly next to Phase; drives this line's
+                  spend shape over its Start–End window on the cashflow. */}
+              <div><label style={lab}>S-Curve</label><select style={inp} value={item.sCurve || 'scurve'} onChange={e => onPatch({ sCurve: e.target.value as CostLineItem['sCurve'] })}>
+                {([['scurve', 'S-curve'], ['linear', 'Linear'], ['upfront', 'Upfront'], ['backloaded', 'Back-loaded']] as [string, string][]).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select></div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14, marginTop: 14 }}>
               <div><label style={lab}>Status / traffic light</label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{STATUS.map(([s, l, c]) => (
                   <button key={s} onClick={() => onPatch({ status: s })} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: `1px solid ${item.status === s ? 'var(--ink, #2b2f27)' : 'var(--border, #e4e6e0)'}`, boxShadow: item.status === s ? 'inset 0 0 0 1px var(--ink, #2b2f27)' : 'none', background: 'var(--card, #fff)', borderRadius: 999, padding: '7px 12px', fontSize: 12, fontWeight: 600, color: 'var(--ink-2, #3c4038)', cursor: 'pointer' }}><span style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />{l}</button>

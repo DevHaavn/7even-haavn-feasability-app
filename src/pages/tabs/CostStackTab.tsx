@@ -770,9 +770,9 @@ export default function CostStackTab({ projectId }: Props) {
             </div>
           </div>
 
-          <div className="two-64" style={{ alignItems: 'start' }}>
-          {/* ── Cost Stack rates — left panel ── */}
-          <div className="panel pad">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'stretch' }}>
+          {/* ── Cost Stack rates & inputs — below the ledger (Design Spec v1 order) ── */}
+          <div className="panel pad" style={{ order: 2 }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <span className="check">✓ Auto-saved</span>
               {cs.canUndo && <span className="chip" onClick={() => cs.undo(setData)}>↶ Undo</span>}
@@ -915,7 +915,7 @@ export default function CostStackTab({ projectId }: Props) {
 
           {/* ── Cost Summary — right panel (Design Spec v1: grouped ledger,
                  % of TDC · % of GRV · $/sqm · ex-GST columns, REAL finance) ── */}
-          <div className="panel pad gold-top" style={{ position: 'sticky', top: 20 }}>
+          <div className="panel pad gold-top" style={{ order: 1 }}>
             <div className="eyebrow" style={{ color: 'var(--gold)' }}>Cost summary · incl. land</div>
             {(() => {
               const th: React.CSSProperties = { fontSize: 8.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--faint)', fontWeight: 600, textAlign: 'right', padding: '8px 6px 6px', borderBottom: '1px solid var(--border-hi)', whiteSpace: 'nowrap' }

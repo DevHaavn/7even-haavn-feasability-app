@@ -102,7 +102,7 @@ const money = (n: number) => `$${Math.round(n).toLocaleString()}`
 // (Under the old table-layout:auto the table quietly squeezed itself to fit, which
 // is why this never showed — and why the drag did nothing. Fixed layout is honest,
 // so the widths have to be too.)
-const COLS_AFTER_ITEM = [76, 58, 66, 100, 82, 100, 88, 92, 76, 88, 88] // Basis…End
+const COLS_AFTER_ITEM = [128, 118, 96] // Budget $ · Incl. GST · Funded by  (Design Spec v1 — 6-column row)
 
 
 const PHASE_OPTS: [string, string][] = [['', '—'], ['preacq', 'Pre-acq'], ['acqplan', 'Acq/planning'], ['preconst', 'Pre-const'], ['construction', 'Construction'], ['closeout', 'Close-out'], ['allphases', 'All phases']]
@@ -197,6 +197,7 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
   const hasUnitRate = (it: CostLineItem) => (it.units ?? 0) > 0 && (it.baseRate ?? 0) > 0
   const eff = (it: CostLineItem) => effAmt(it, ctx)
   const gst = (it: CostLineItem) => gstOf(it, ctx)
+  // retained for the Open modal path (unused inline since Design Spec v1 row)
   const changeBasis = (it: CostLineItem, v: string) => update(it.id, withBasis(it, v, ctx))
   const changePct = (it: CostLineItem, pctPercent: number) => update(it.id, withPct(it, pctPercent, ctx))
   const changeUnits = (it: CostLineItem, u: number) => update(it.id, withUnits(it, u, ctx))
@@ -204,13 +205,14 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
 
   const grandBudget = items.reduce((s, i) => s + eff(i), 0)
   const grandGst = items.reduce((s, i) => s + gst(i), 0)
+  void NumCell; void changeBasis; void changePct; void changeUnits; void changeRate; void BASIS_OPTS; void PHASE_OPTS; void SCURVE_OPTS
 
   const banded = buildGroups(items, effGroups)
 
   // 13 columns: Item · Basis · Units · Rate · Budget $ · GST · Incl. GST ·
   // Funded by · Phase · S-curve · Start · End · actions. Group/subtotal/section
   // rows span to the same 13 so the grid stays true.
-  const NCOLS = 14
+  const NCOLS = 6
 
   // NB: rendered as a plain function (not <Row/>) so inputs keep focus while typing —
   // defining a component inside render remounts every row on each keystroke.
@@ -240,8 +242,6 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             {item.variations && item.variations.length > 0 && (
               <span title={`${item.variations.length} cost variation(s) — see detail`} style={{ color: 'var(--red)', fontSize: 9, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>▲{item.variations.length}</span>
             )}
-            <button className="rowact" title="Open full detail — pricing, fee proposal PDF, variations, timeline" onClick={() => setOpenId(item.id)}
-              style={{ fontSize: 9, letterSpacing: '.08em', color: 'var(--ink-3)', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 600 }}>OPEN ▸</button>
           </span>
         </td>
         {/* Pricing — prominent Fixed | Variable segmented toggle; feeds the fee-certainty gauge */}
@@ -253,26 +253,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               style={{ flex: 1, border: 'none', padding: '5px 0', fontSize: 8.5, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', color: !isFixed(item) ? '#fff' : 'var(--ink-3)', background: !isFixed(item) ? 'var(--amber, #c0842c)' : 'transparent' }}>VAR</button>
           </span>
         </td>
-        {/* Basis — dropdown: $ / Unit · % of Constr. · % of GRV */}
-        <td>
-          <select className="mini-sel" value={item.feeBasis ?? ''} onChange={e => changeBasis(item, e.target.value)}>
-            {BASIS_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-        </td>
-        {/* Units — editable on every line; typing units on a % line converts it to units × rate */}
-        <td className="n">
-          <NumCell className="mini-inp" num={isPct ? null : (item.units ?? null)} placeholder="—" onCommit={n => changeUnits(item, n)} />
-        </td>
-        {/* Rate — pct % for a %-basis line (decimals allowed), otherwise the per-unit rate */}
-        <td className="n">
-          {isPct ? (
-            <NumCell className="mini-inp" num={item.pct != null ? +(item.pct * 100).toFixed(4) : null} blankZero={false} placeholder="0"
-              fmt={n => `${+n.toFixed(2)}%`} onCommit={n => changePct(item, n)} />
-          ) : (
-            <NumCell className="mini-inp" num={item.baseRate ?? null} placeholder="—" onCommit={n => changeRate(item, n)} />
-          )}
-        </td>
-        {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable */}
+        {/* Budget $ — derived (read-only) when % basis or Units × Rate; else editable.
+            Basis / Units / Rate / Phase / S-curve / Start / End all live in OPEN (Design Spec v1). */}
         <td className="n">
           {isPct || hasUnitRate(item) || (item.variations && item.variations.length > 0) ? (
             <span style={{ fontWeight: 600 }}>{money(eff(item))}</span>
@@ -282,9 +264,8 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
               className="mini-inp" style={{ width: '100%', fontWeight: 600 }} />
           )}
         </td>
-        {/* GST from budget (10%) + Incl. GST */}
-        <td className="n" style={{ color: 'var(--ink-3)' }}>{item.gstFree ? '—' : money(g)}</td>
-        <td className="n">{money(eff(item) + g)}</td>
+        {/* Incl. GST = Budget × 1.10 */}
+        <td className="n">{item.gstFree ? money(eff(item)) : money(eff(item) + g)}</td>
         {/* Funded by — the badge IS the control, so it stays a live dropdown */}
         <td>
           <select className={`badge ${fundCls}`} value={item.fundedBy || 'equity'}
@@ -292,23 +273,12 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             {FUND_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         </td>
-        {/* Phase — badge-skinned dropdown */}
-        <td>
-          <select className="badge b-phase" value={item.phase || ''}
-            onChange={e => update(item.id, { phase: (e.target.value || undefined) as CostLineItem['phase'] })}>
-            {PHASE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+        {/* OPEN — the full detail panel: pricing basis, status, fee proposal, variations, timeline + S-curve */}
+        <td className="n">
+          <button className="rowact" title="Open full detail — pricing, fee proposal PDF, variations, timeline"
+            onClick={() => setOpenId(item.id)}
+            style={{ fontSize: 10, letterSpacing: '.06em', color: 'var(--gold)', whiteSpace: 'nowrap', fontWeight: 700 }}>OPEN ›</button>
         </td>
-        {/* S-curve — editable dropdown */}
-        <td>
-          <select className="mini-sel" value={item.sCurve || 'scurve'} onChange={e => update(item.id, { sCurve: e.target.value as CostLineItem['sCurve'] })}>
-            {SCURVE_OPTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-        </td>
-        {/* Start / End — editable month pickers */}
-        <td className="n"><input type="month" value={item.startDate?.slice(0, 7) || ''} onChange={e => update(item.id, { startDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
-        <td className="n"><input type="month" value={item.endDate?.slice(0, 7) || ''} onChange={e => update(item.id, { endDate: e.target.value })} className="mini-inp" style={{ width: '100%', fontSize: 9 }} /></td>
-        <td />
       </tr>
     )
   }
@@ -326,11 +296,9 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
           </span>
         </td>
         <td />
-        <td colSpan={3} />
         <td className="n">{money(b)}</td>
-        <td className="n">{money(g)}</td>
         <td className="n">{money(b + g)}</td>
-        <td colSpan={5} />
+        <td />
         <td>
           <span className="addrow" style={{ padding: '4px 9px', fontSize: 9 }}
             onClick={e => { e.stopPropagation(); addToGroup(def) }} title={`Add a line to ${def.label}`}>+ row</span>
@@ -346,12 +314,10 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
     return (
       <tr className="sub" key={`${def.id}-s`}>
         <td className="stl">{def.label} subtotal</td>
-        <td colSpan={4} />
-        <td className="n">{money(b)}</td>
-        <td className="n">{money(g)}</td>
-        <td className="n">{money(b + g)}</td>
-        <td colSpan={5} />
         <td />
+        <td className="n">{money(b)}</td>
+        <td className="n">{money(b + g)}</td>
+        <td colSpan={2} />
       </tr>
     )
   }
@@ -378,18 +344,10 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
                 </span>
               </th>
               <th>Pricing</th>
-              <th>Basis</th>
-              <th className="n">Units</th>
-              <th className="n">Rate</th>
               <th className="n">Budget $</th>
-              <th className="n">GST</th>
               <th className="n">Incl. GST</th>
               <th>Funded by</th>
-              <th>Phase</th>
-              <th>S-curve</th>
-              <th>Start</th>
-              <th>End</th>
-              <th />
+              <th className="n" />
             </tr>
           </thead>
           <tbody>
@@ -414,12 +372,10 @@ export default function CostStackTable({ items, onChange, gstEnabled = true, bas
             {/* Section total (reference tr.sect) */}
             <tr className="sect">
               <td className="stl2">Section total</td>
-              <td colSpan={4} />
-              <td className="n">{money(grandBudget)}</td>
-              <td className="n">{money(grandGst)}</td>
-              <td className="n">{money(grandBudget + grandGst)}</td>
-              <td colSpan={5} />
               <td />
+              <td className="n">{money(grandBudget)}</td>
+              <td className="n">{money(grandBudget + grandGst)}</td>
+              <td colSpan={2} />
             </tr>
           </tbody>
         </table>
