@@ -111,6 +111,11 @@ const CSS = `
 .ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
   border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
 .ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
+.ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:14px;padding:13px 16px;cursor:pointer;
+  background:rgba(214,179,106,.05);border:1px solid rgba(214,179,106,.45);border-radius:2px;transition:.3s}
+.ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
+.ath-hor7:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
+.ath-hor7 .g{color:#d6b36a;font-size:12px}
 .ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:2px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
 .ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
 .ath-plist{max-height:min(54vh,460px);overflow-y:auto}
@@ -339,6 +344,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   </>
                 )}
               </div>
+              {/* HORI7ON — 7EVEN sub-brand: project overview display */}
+              <button className="ath-hor7" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
+                <img src="/hori7on-gold.png" alt="HORI7ON" />
+                <span className="g">→</span>
+              </button>
             </div>
           </div>
         </div>
