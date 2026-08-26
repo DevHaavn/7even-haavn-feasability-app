@@ -36,8 +36,9 @@ body{background:#040404;color:#e8e6e8;font-family:var(--sans);overflow:hidden;-w
 .vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .vr2{right:calc(clamp(46px,6vw,110px) + 96px)}
 /* draw in as one full line, hold, then release out the far end and restart */
-.vl1::before,.vl2::before{animation:drawDown 15.6s linear infinite}
-.vr1::before,.vr2::before{animation:drawUp 15.6s linear infinite}
+/* counter-flow: outer-left down · inner-left up · inner-right down · outer-right up */
+.vl1::before,.vr1::before{animation:drawDown 15.6s linear infinite}
+.vl2::before,.vr2::before{animation:drawUp 15.6s linear infinite}
 @keyframes drawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @keyframes drawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
 
