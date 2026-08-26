@@ -51,7 +51,7 @@ const CSS = `
   opacity:0;animation:pg-ignite 7.2s ease-out forwards}
 @keyframes pg-ignite{0%{opacity:0}35%{opacity:.3}100%{opacity:1}}
 .pg-glow{position:absolute;inset:-46% -14%;pointer-events:none;border-radius:50%;
-  background:radial-gradient(50% 50% at 50% 50%,rgba(122,59,240,.4),rgba(122,59,240,.14) 55%,transparent 75%);
+  background:radial-gradient(50% 50% at 50% 50%,rgba(200,210,220,.30),rgba(200,210,220,.10) 55%,transparent 75%);
   filter:blur(14px);animation:pg-gpulse 6.5s ease-in-out 7.2s infinite}
 @keyframes pg-gpulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
 .pg-spin{position:absolute;inset:0;transform-style:preserve-3d;animation:pg-spin7 16s linear 7.2s infinite}
@@ -60,17 +60,17 @@ const CSS = `
 .pg-stack i{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  background:#341070;backface-visibility:hidden;
+  background:#1c1f22;backface-visibility:hidden;
   animation:pg-idim 7.2s ease-out forwards}
-@keyframes pg-idim{0%{filter:brightness(0)}40%{filter:brightness(.18)}100%{filter:brightness(.65)}}
+@keyframes pg-idim{0%{filter:brightness(0)}40%{filter:brightness(.3)}100%{filter:brightness(1)}}
 .pg-stack i.face{transform:translateZ(1.5px);backface-visibility:hidden;
-  background:linear-gradient(180deg,#7a3bf0,#6a2fd6 55%,#5522b8)}
+  background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113)}
 /* pre-mirrored back face — the wordmark reads correctly from behind mid-spin */
 .pg-stack i.fback{transform:translateZ(-18px) rotateY(180deg)}
 @media(prefers-reduced-motion:reduce){
   .pg-persp{animation:none;opacity:1}
   .pg-spin{animation:none}
-  .pg-stack i{animation:none;filter:brightness(.65)}
+  .pg-stack i{animation:none;filter:brightness(1)}
   .pg-glow{animation:none}}
 
 .pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#9d96ab;margin-top:20px;text-align:center;
@@ -89,6 +89,10 @@ const CSS = `
 .pg-inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
 .pg-inp:focus{border-bottom-color:#a86bff;box-shadow:0 1px 0 0 rgba(168,107,255,.45)}
 .pg-inp.err{border-bottom-color:#e0645c}
+.pg-inp:-webkit-autofill,.pg-inp:-webkit-autofill:hover,.pg-inp:-webkit-autofill:focus{
+  -webkit-text-fill-color:#fff;caret-color:#fff;
+  transition:background-color 600000s 0s;
+  -webkit-box-shadow:0 0 0 1000px transparent inset}
 .pg-show{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aab0b6;
   font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:4px}
 .pg-enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
