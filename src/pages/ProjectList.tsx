@@ -142,23 +142,26 @@ const CSS = `
 .s7{position:absolute;inset:0;display:block;opacity:0;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
-.s7p{background:linear-gradient(180deg,#dcc6ff,#a86bff 52%,#7a3bf0);filter:drop-shadow(0 0 7px rgba(168,107,255,.85)) drop-shadow(0 0 26px rgba(168,107,255,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7pk 4.4s ease-in-out .5s forwards}
-.s7g{background:linear-gradient(180deg,#c4ffdd,#2fe07a 52%,#1fae5c);filter:drop-shadow(0 0 7px rgba(47,224,122,.85)) drop-shadow(0 0 26px rgba(47,224,122,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7gk 4.4s ease-in-out .5s forwards}
-.s7au{background:linear-gradient(180deg,#faf0d8,#ecd394 52%,#d6b36a);filter:drop-shadow(0 0 7px rgba(236,211,148,.85)) drop-shadow(0 0 26px rgba(236,211,148,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7auk 4.4s ease-in-out .5s forwards}
+/* Brand reveal: black metal chrome sweeps in left->right, then the white master
+   sweeps over it right->left and holds. Wrapper masks do the directional fade;
+   the child keeps the glyph mask + glow. */
+.s7wrap{position:absolute;inset:0;display:block;
+  -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.s7wrap .s7{opacity:1}
+.s7kwrap{-webkit-mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
+  mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  animation:s7ksweep 1.9s ease .4s forwards}
+@keyframes s7ksweep{to{-webkit-mask-position:0 0;mask-position:0 0}}
+.s7wwrap{-webkit-mask-image:linear-gradient(90deg,transparent 0 40%,#000 60% 100%);
+  mask-image:linear-gradient(90deg,transparent 0 40%,#000 60% 100%);
+  -webkit-mask-position:0 0;mask-position:0 0;
+  animation:s7wsweep 1.9s ease 2.6s forwards}
+@keyframes s7wsweep{to{-webkit-mask-position:100% 0;mask-position:100% 0}}
 .s7k{background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113);
-  filter:drop-shadow(0 0 6px rgba(255,255,255,.28)) drop-shadow(0 0 22px rgba(160,170,180,.18)) drop-shadow(0 3px 18px rgba(0,0,0,.7));
-  animation:s7kk 4.4s ease-in-out .5s forwards}
-.s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7wk 4.4s ease-in-out .5s forwards}
-@keyframes s7pk{0%{opacity:0}8%{opacity:1}20%{opacity:1}28%{opacity:0}100%{opacity:0}}
-@keyframes s7gk{0%{opacity:0}22%{opacity:0}30%{opacity:1}42%{opacity:1}50%{opacity:0}100%{opacity:0}}
-@keyframes s7auk{0%{opacity:0}44%{opacity:0}52%{opacity:1}62%{opacity:1}70%{opacity:0}100%{opacity:0}}
-@keyframes s7kk{0%{opacity:0}64%{opacity:0}72%{opacity:1}80%{opacity:1}88%{opacity:0}100%{opacity:0}}
-@keyframes s7wk{0%{opacity:0}83%{opacity:0}94%{opacity:1}100%{opacity:1}}
-@media(prefers-reduced-motion:reduce){.s7p,.s7g,.s7au,.s7k{animation:none}.s7w{animation:none;opacity:1}}
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.28)) drop-shadow(0 0 22px rgba(160,170,180,.18)) drop-shadow(0 3px 18px rgba(0,0,0,.7))}
+.s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
+@media(prefers-reduced-motion:reduce){.s7kwrap{display:none}.s7wwrap{animation:none;-webkit-mask:none;mask:none}}
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
@@ -343,7 +346,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-hero">
           <div className="ath-sevenwrap">
             <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-              <i className="s7 s7p" /><i className="s7 s7g" /><i className="s7 s7au" /><i className="s7 s7k" /><i className="s7 s7w" />
+              <span className="s7wrap s7kwrap"><i className="s7 s7k" /></span><span className="s7wrap s7wwrap"><i className="s7 s7w" /></span>
             </div>
             <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
           </div>
