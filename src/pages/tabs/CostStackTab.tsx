@@ -4,7 +4,7 @@ import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
 import { computeLandCost } from '../../engine/landCost'
-import { getCostPresets, getProjectGDV } from '../../db'
+import { getCostPresets, getProjectGDV, getProfitMetrics, getProjectTDC, getProject } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
 import { COST_PHASES } from '../../db/schema'
 import { spreadWeights } from '../../engine/cashflow'
@@ -672,6 +672,44 @@ export default function CostStackTab({ projectId }: Props) {
   ]
   const tdcInclLand = result.totalDevelopmentCost + landB.total
 
+  // ── Daniel Design Spec v1 — Summary redesign ─────────────────────────────
+  // Real-finance TDC: replace the rough `construction × financePct` estimate
+  // with the finance model's real cost (tranche interest + fees + land carry).
+  // getProjectTDC is the app's single authoritative TDC (source-of-truth ledger).
+  const projTDC = useMemo(() => getProjectTDC(projectId), [projectId, data, detailedDirty, land])
+  const metrics = useMemo(() => getProfitMetrics(projectId), [projectId, data, detailedDirty, land])
+  const residualLandValue = getProject(projectId)?.landValue ?? 0
+  const grv = projTDC.gdv
+  const tdcReal = projTDC.tdc                       // costs ex rough finance + land + REAL finance
+  const devProfit = metrics.profit
+  const marginOnEquity = metrics.peakEquity > 0 ? devProfit / metrics.peakEquity : 0
+  // Derived columns per spec: % of TDC · % of GRV · $/sqm GBA · ex-GST.
+  const gba = site.resiGBA || 0
+  const pctT = (v: number) => (tdcReal > 0 ? (v / tdcReal) * 100 : 0)
+  const pctG = (v: number) => (grv > 0 ? (v / grv) * 100 : 0)
+  const psqm = (v: number) => (gba > 0 ? v / gba : 0)
+  const exG = (v: number) => v / 1.10
+  const fmtC = (v: number) => `${v < 0 ? '−' : ''}$${Math.abs(Math.round(v)).toLocaleString()}`
+  // Grouped ledger per spec — Land & Acquisition / Construction / Professional
+  // Fees + Other (alphabetised) / Finance (real) / GST credits.
+  const grpConstruction: { label: string; value: number; gstFree?: boolean }[] = [
+    { label: 'Construction', value: result.construction },
+    ...(result.contingency > 0 ? [{ label: `Contingency (${(data.contingencyPct * 100).toFixed(0)}%)`, value: result.contingency }] : []),
+    ...(result.prelims > 0 ? [{ label: `Prelims (${(data.prelimsPct * 100).toFixed(0)}%)`, value: result.prelims }] : []),
+  ]
+  const grpProf: { label: string; value: number; gstFree?: boolean }[] = [
+    { label: consTotal > 0 ? 'Consultants' : `Professional fees (${(data.professionalFeesPct * 100).toFixed(0)}%)`, value: result.professionalFees },
+    { label: 'Management fees', value: mgmtTotal > 0 ? mgmtTotal : data.projectManagementFixed },
+    { label: 'Marketing', value: mktTotal > 0 ? mktTotal : data.marketingFixed },
+    { label: 'Statutory & council', value: statTotal > 0 ? statTotal : data.statutoryFixed, gstFree: true },
+    ...(result.posContribution > 0 ? [{ label: `Public Open Space (${((data.posContributionPct ?? 0) * 100).toFixed(1)}%)`, value: result.posContribution, gstFree: true }] : []),
+    ...(data.amenityFitoutFixed > 0 ? [{ label: 'BTR amenity fitout', value: data.amenityFitoutFixed }] : []),
+  ].sort((a, b) => a.label.localeCompare(b.label))
+  const subLand = landB.total
+  const subConstruction = grpConstruction.reduce((s, r) => s + r.value, 0)
+  const subProf = grpProf.reduce((s, r) => s + r.value, 0)
+  const financeReal = projTDC.financeCost
+
   // Project phase — unchanged save path, lifted out of the old inline handler
   // so both the Summary and detail heads can share it.
   const setPhase = (v: string) => {
@@ -695,6 +733,43 @@ export default function CostStackTab({ projectId }: Props) {
         <div className="fx-wrap">
           <CostStackHead phase={data.currentPhase} onPhase={setPhase} />
           <InnerTabBar active={innerTab} onChange={setInnerTab} tabs={visibleInnerTabs} />
+
+          {/* ── Key Metrics — KPI tiles (Design Spec v1) ── */}
+          <div className="panel pad gold-top" style={{ marginBottom: 18 }}>
+            <div className="eyebrow" style={{ color: 'var(--gold)', marginBottom: 12 }}>Key metrics</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+              {[
+                { lab: 'Development Profit', val: `$${(devProfit / 1e6).toFixed(1)}M`, fx: `GRV $${(grv / 1e6).toFixed(1)}M − TDC $${(tdcReal / 1e6).toFixed(1)}M` },
+                { lab: 'Margin on Cost', val: `${(metrics.marginOnCost * 100).toFixed(1)}%`, fx: 'Profit ÷ TDC' },
+                { lab: 'Margin on GRV', val: `${(metrics.marginOnGdv * 100).toFixed(1)}%`, fx: 'Profit ÷ GRV' },
+                { lab: 'Margin on Equity', val: `${(marginOnEquity * 100).toFixed(1)}%`, fx: `Profit ÷ Equity $${(metrics.peakEquity / 1e6).toFixed(2)}M` },
+                { lab: 'Equity Multiple (EM)', val: `${(metrics.equityMultiple || 0).toFixed(2)}x`, fx: '(Equity + Profit) ÷ Equity' },
+                { lab: 'Residual Land Value', val: `$${(residualLandValue / 1e6).toFixed(1)}M`, fx: 'Site-related value — Dashboard' },
+              ].map((k, i) => (
+                <div key={i} style={{ background: 'var(--card-2, rgba(255,255,255,0.5))', border: '1px solid var(--border)', borderRadius: 12, padding: '14px 15px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', minHeight: 26, lineHeight: 1.3 }}>{k.lab}</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 22, color: 'var(--emerald)', marginTop: 9, lineHeight: 1 }}>{k.val}</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--faint)', marginTop: 8, lineHeight: 1.45 }}>{k.fx}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Revenue Summary — Gross Realisation Value (Design Spec v1) ── */}
+          <div className="panel pad gold-top" style={{ marginBottom: 18 }}>
+            <div className="eyebrow" style={{ color: 'var(--gold)' }}>Revenue summary · gross realisation value</div>
+            <div style={{ marginTop: 8 }}>
+              <div className="sumrow"><span className="l">Gross Realisation Value (all unit types)</span><span className="v">{fmtC(grv)}</span></div>
+              <div className="sumrow"><span className="l">Less: GST on Sales{data.gstEnabled ? '' : ' — n/a (input-taxed / toggle off)'}</span><span className="v">$0</span></div>
+              <div className="sumrow" style={{ fontWeight: 700 }}><span className="l" style={{ color: 'var(--ink)' }}>Net Sale Proceeds</span><span className="v">{fmtC(grv)}</span></div>
+            </div>
+            <div className="total">
+              <div className="tl">Gross Realisation Value</div>
+              <div className="tv">${(grv / 1e6).toFixed(1)}M</div>
+              {gba > 0 && <div className="tsub">{tdcReal > 0 ? `${((grv / tdcReal) * 100).toFixed(1)}% of TDC · ` : ''}${Math.round(grv / gba).toLocaleString()}/sqm GBA</div>}
+            </div>
+          </div>
+
           <div className="two-64" style={{ alignItems: 'start' }}>
           {/* ── Cost Stack rates — left panel ── */}
           <div className="panel pad">
@@ -838,29 +913,59 @@ export default function CostStackTab({ projectId }: Props) {
             )}
           </div>
 
-          {/* ── Cost Summary — right panel ── */}
+          {/* ── Cost Summary — right panel (Design Spec v1: grouped ledger,
+                 % of TDC · % of GRV · $/sqm · ex-GST columns, REAL finance) ── */}
           <div className="panel pad gold-top" style={{ position: 'sticky', top: 20 }}>
             <div className="eyebrow" style={{ color: 'var(--gold)' }}>Cost summary · incl. land</div>
-            <div style={{ marginTop: 8 }}>
-              {(() => {
-                const rows: { label: string; value: number; tone: 'land' | 'dev' | 'inkind' | 'gst' }[] = [
-                  ...landRows.map(r => ({ ...r, tone: 'land' as const })),
-                  ...summaryRows.map(r => ({ ...r, tone: 'dev' as const })),
-                  ...(land.isInKind && result.inKindCost > 0 ? [{ label: land.inKindLabel || 'In-kind', value: result.inKindCost, tone: 'inkind' as const }] : []),
-                  ...(result.gstCredits > 0 ? [{ label: 'Less GST input credits (1/11)', value: -Math.round(result.gstCredits), tone: 'gst' as const }] : []),
-                ]
-                return rows.map((r, i) => (
-                  <div key={i} className={`sumrow${(r.tone === 'land' || r.tone === 'inkind') ? ' gold' : ''}${r.tone === 'gst' ? ' credit' : ''}`}>
-                    <span className="l">{r.label}</span>
-                    <span className="v">{r.value < 0 ? '−' : ''}${Math.abs(r.value).toLocaleString()}</span>
-                  </div>
-                ))
-              })()}
-            </div>
+            {(() => {
+              const th: React.CSSProperties = { fontSize: 8.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--faint)', fontWeight: 600, textAlign: 'right', padding: '8px 6px 6px', borderBottom: '1px solid var(--border-hi)', whiteSpace: 'nowrap' }
+              const td: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 11, textAlign: 'right', padding: '8px 6px', borderBottom: '1px solid var(--line)', whiteSpace: 'nowrap', color: 'var(--ink-2)' }
+              const tdL: React.CSSProperties = { ...td, fontFamily: 'var(--sans)', textAlign: 'left', color: 'var(--ink)', paddingLeft: 0 }
+              const grp: React.CSSProperties = { fontSize: 9, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--gold)', fontWeight: 700, textAlign: 'left', paddingTop: 14, paddingBottom: 4 }
+              const sub: React.CSSProperties = { ...td, fontWeight: 700, color: 'var(--ink)', borderTop: '1px solid var(--border)' }
+              const subL: React.CSSProperties = { ...tdL, fontWeight: 700, borderTop: '1px solid var(--border)' }
+              const line = (label: string, v: number, opts?: { gstFree?: boolean; strong?: boolean }) => (
+                <tr key={label}>
+                  <td style={opts?.strong ? subL : tdL}>{label}</td>
+                  <td style={opts?.strong ? sub : td}>{fmtC(v)}</td>
+                  <td style={opts?.strong ? sub : td}>{pctT(v).toFixed(1)}%</td>
+                  <td style={opts?.strong ? sub : td}>{pctG(v).toFixed(1)}%</td>
+                  <td style={opts?.strong ? sub : td}>${Math.round(psqm(v)).toLocaleString()}</td>
+                  <td style={opts?.strong ? sub : td}>{opts?.gstFree ? 'n/a' : fmtC(exG(v))}</td>
+                </tr>
+              )
+              return (
+                <div style={{ overflowX: 'auto', marginTop: 4 }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 470 }}>
+                    <thead><tr><th style={{ ...th, textAlign: 'left', paddingLeft: 0 }}></th><th style={th}>Budget $</th><th style={th}>% TDC</th><th style={th}>% GRV</th><th style={th}>$/sqm</th><th style={th}>Ex. GST</th></tr></thead>
+                    <tbody>
+                      <tr><td colSpan={6} style={grp}>Land &amp; acquisition</td></tr>
+                      {landRows.map(r => line(r.label, r.value, { gstFree: true }))}
+                      {line('Subtotal — Land', subLand, { gstFree: true, strong: true })}
+                      <tr><td colSpan={6} style={grp}>Construction</td></tr>
+                      {grpConstruction.map(r => line(r.label, r.value))}
+                      {line('Subtotal — Construction', subConstruction, { strong: true })}
+                      <tr><td colSpan={6} style={grp}>Professional fees + other costs</td></tr>
+                      {grpProf.map(r => line(r.label, r.value, { gstFree: r.gstFree }))}
+                      {line('Subtotal — Professional fees + other', subProf, { strong: true })}
+                      {line('Total Dev Cost — before finance', subLand + subConstruction + subProf, { strong: true })}
+                      <tr><td colSpan={6} style={grp}>Finance</td></tr>
+                      {line('Finance — real (tranches + land carry)', financeReal, { gstFree: true })}
+                      {line('Subtotal — Finance', financeReal, { gstFree: true, strong: true })}
+                      {(land.isInKind && result.inKindCost > 0) && <>{<tr><td colSpan={6} style={grp}>In-kind</td></tr>}{line(land.inKindLabel || 'In-kind', result.inKindCost, { gstFree: true })}</>}
+                      {result.gstCredits > 0 && <>
+                        <tr><td colSpan={6} style={grp}>GST credits</td></tr>
+                        {line('Less GST input credits (1/11)', -Math.round(result.gstCredits), { gstFree: true })}
+                      </>}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            })()}
             <div className="total">
-              <div className="tl">Total Dev Cost{landB.total > 0 ? ' · incl land' : ''}{result.gstCredits > 0 ? ' · ex GST' : ''}</div>
-              <div className="tv">${(tdcInclLand / 1_000_000).toFixed(1)}M</div>
-              {site.resiGBA > 0 && <div className="tsub">${Math.round(tdcInclLand / site.resiGBA).toLocaleString()}/sqm GBA all-in</div>}
+              <div className="tl">Total Dev Cost · incl land · real finance</div>
+              <div className="tv">${(tdcReal / 1_000_000).toFixed(1)}M</div>
+              {gba > 0 && <div className="tsub">100% of TDC · {grv > 0 ? `${((tdcReal / grv) * 100).toFixed(1)}% of GRV · ` : ''}${Math.round(tdcReal / gba).toLocaleString()}/sqm GBA all-in</div>}
             </div>
           </div>
           </div>
