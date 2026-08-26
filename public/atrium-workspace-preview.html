@@ -32,7 +32,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 /* ─── BLACK HEADER — crisp white back-lit type ─── */
 .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:30px;padding:18px 38px;
   background:linear-gradient(180deg,#0a0b0c,#060708);border-bottom:1px solid rgba(255,255,255,.09)}
-.tb-home{font-family:var(--mono);font-size:11px;letter-spacing:.28em;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;
+.tb-home{font-family:var(--mono);font-size:15px;letter-spacing:.32em;font-weight:500;color:#fff;text-transform:uppercase;cursor:pointer;background:none;border:none;
   text-shadow:0 0 10px rgba(255,255,255,.55),0 0 26px rgba(255,255,255,.22)}
 .tb-div{width:1px;height:30px;background:rgba(255,255,255,.12)}
 .tb-brand img{height:22px;filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
@@ -73,6 +73,23 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 .ptype .d{width:5px;height:5px;border-radius:50%}
 .go{color:var(--led);font-size:11px;opacity:0;transform:translateX(-4px);transition:.25s;flex-shrink:0}
 .prow:hover .go{opacity:1;transform:none}
+/* project utilities menu */
+.umtabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.16);padding-bottom:2px}
+.umtab{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#b9bdc4;background:none;border:none;border-bottom:2px solid transparent;padding:11px 13px;cursor:pointer;transition:.25s;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.umtab:hover{color:#fff}
+.umtab.on{color:#fff;border-bottom-color:var(--led);text-shadow:0 0 12px rgba(47,224,122,.4)}
+.umtab.danger:hover{color:#ff8d75;border-bottom-color:rgba(200,80,63,.7)}
+.ufile{margin-top:14px;border:1px solid rgba(47,224,122,.5);border-radius:6px;padding:16px 18px;background:rgba(47,224,122,.045);
+  box-shadow:0 0 30px -12px rgba(47,224,122,.45), inset 0 1px 0 rgba(255,255,255,.08);cursor:pointer;transition:.3s}
+.ufile:hover{background:rgba(47,224,122,.09);box-shadow:0 0 40px -12px rgba(47,224,122,.6)}
+.uf-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.uf-name{font-size:14px;font-weight:600;color:#f0eff0;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.uf-tag{font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:#cfd3d8;border:1px solid rgba(255,255,255,.25);border-radius:2px;padding:3px 7px}
+.uf-live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--led);margin-left:auto}
+.uf-live .d{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 8px var(--led);animation:pulse 2.2s infinite}
+.uf-meta{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:#a9a6a9;margin-top:7px}
+.uf-line{height:1px;background:rgba(255,255,255,.12);margin:12px 0 4px}
+.uhint{margin-top:14px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .menu-blur .body{filter:blur(3px);opacity:.35;transition:.35s}
 .body{transition:filter .35s,opacity .35s}
 /* tabs */
@@ -184,24 +201,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.06;z-
 <!-- black LED header -->
 <div class="topbar">
   <button class="tb-home">Home</button>
-  <span class="tb-brand"><img src="/seven-mark-white-hd.png" alt="7EVEN"></span>
   <span class="tb-div"></span>
   <div class="tb-proj">
     <div class="tb-projname"><span class="tb-dot"></span><span class="tb-nm">St Village Preston</span><span class="tb-save"><span class="d"></span>Autosave On</span></div>
     <div class="tb-addr">2-3 Newman Street, Preston VIC 3072 · BTR</div>
   </div>
-  <span class="tb-atr">ATRIUM</span>
+  <span class="tb-brand"><img src="/seven-mark-white-hd.png" alt="7EVEN"></span>
   <div class="menuwrap">
     <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="pmenu" id="pmenu">
-      <div class="mh"><span>Projects · 5</span><button class="newp">+ New Project</button></div>
-      <div class="plist">
-        <div class="prow"><span class="num">01</span><div class="pinfo"><div class="pname">St Village Preston</div><div class="paddr">2-3 Newman Street, Preston VIC 3072</div></div><span class="ptype"><span class="d" style="background:#2fe07a"></span>BTR</span><span class="go">→</span></div>
-        <div class="prow"><span class="num">02</span><div class="pinfo"><div class="pname">5IVE Hotels Caloundra</div><div class="paddr">31 Esplanade Bulcock Beach, Caloundra QLD 4551</div></div><span class="ptype"><span class="d" style="background:#a78bfa"></span>HOTEL</span><span class="go">→</span></div>
-        <div class="prow"><span class="num">03</span><div class="pinfo"><div class="pname">Cunningham Place</div><div class="paddr">35 Corio Street, Geelong VIC 3220</div></div><span class="ptype"><span class="d" style="background:#2fe07a"></span>BTR</span><span class="go">→</span></div>
-        <div class="prow"><span class="num">04</span><div class="pinfo"><div class="pname">Waurnvale Drive Geelong</div><div class="paddr">Waurnvale Drive, Belmont VIC 3216</div></div><span class="ptype"><span class="d" style="background:#5b9bd5"></span>BTS</span><span class="go">→</span></div>
-        <div class="prow"><span class="num">05</span><div class="pinfo"><div class="pname">575 Derrimut Road Tarneit</div><div class="paddr">575 Derrimut Road, Tarneit VIC 3029</div></div><span class="ptype"><span class="d" style="background:#d9d9d9"></span>MIXED</span><span class="go">→</span></div>
+      <div class="umtabs">
+        <button class="umtab on">▦ Feasibility</button>
+        <button class="umtab">⟲ History</button>
+        <button class="umtab">⤓ Export</button>
+        <button class="umtab">◑ Display</button>
+        <button class="umtab danger">↺ Reset Project</button>
       </div>
+      <div class="mh" style="margin-top:18px"><span>Project Data · Feasibility Working Files</span><button class="newp">+ New File</button></div>
+      <div class="ufile">
+        <div class="uf-top">
+          <span class="uf-name">Working File — Legacy</span>
+          <span class="uf-tag">LEGACY</span>
+          <span class="uf-live"><span class="d"></span>LIVE · AUTOSAVING</span>
+        </div>
+        <div class="uf-meta">Last autosaved · 26 Aug 2026, 1:15 pm</div>
+        <div class="uf-line"></div>
+        <div class="uf-meta" style="color:#d6d9dd">St Village Preston</div>
+        <div class="uf-meta">2-3 Newman Street, Preston VIC 3072</div>
+      </div>
+      <div class="uhint">History, exports and display settings open in place — reset requires confirmation.</div>
     </div>
   </div>
 </div>
