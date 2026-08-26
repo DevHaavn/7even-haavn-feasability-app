@@ -142,11 +142,11 @@ const CSS = `
 .s7{position:absolute;inset:0;display:block;opacity:0;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
-.s7p{background:#7a52c7;filter:drop-shadow(0 0 6px rgba(122,82,199,.7)) drop-shadow(0 0 22px rgba(122,82,199,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+.s7p{background:linear-gradient(180deg,#dcc6ff,#a86bff 52%,#7a3bf0);filter:drop-shadow(0 0 7px rgba(168,107,255,.85)) drop-shadow(0 0 26px rgba(168,107,255,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
   animation:s7pk 4.4s ease-in-out .5s forwards}
-.s7g{background:#4d7a63;filter:drop-shadow(0 0 6px rgba(77,122,99,.75)) drop-shadow(0 0 22px rgba(77,122,99,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+.s7g{background:linear-gradient(180deg,#c4ffdd,#2fe07a 52%,#1fae5c);filter:drop-shadow(0 0 7px rgba(47,224,122,.85)) drop-shadow(0 0 26px rgba(47,224,122,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
   animation:s7gk 4.4s ease-in-out .5s forwards}
-.s7au{background:#ddcb96;filter:drop-shadow(0 0 6px rgba(221,203,150,.7)) drop-shadow(0 0 22px rgba(221,203,150,.4)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+.s7au{background:linear-gradient(180deg,#faf0d8,#ecd394 52%,#d6b36a);filter:drop-shadow(0 0 7px rgba(236,211,148,.85)) drop-shadow(0 0 26px rgba(236,211,148,.45)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
   animation:s7auk 4.4s ease-in-out .5s forwards}
 .s7k{background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113);
   filter:drop-shadow(0 0 6px rgba(255,255,255,.28)) drop-shadow(0 0 22px rgba(160,170,180,.18)) drop-shadow(0 3px 18px rgba(0,0,0,.7));
