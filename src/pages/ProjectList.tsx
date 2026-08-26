@@ -73,8 +73,8 @@ const CSS = `
 /* vertical LED lines — live inside ath-main so they stop at the footer hairline */
 .ath-vled{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;overflow:visible;z-index:2}
 .ath-vled::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg, transparent 0%, rgba(48,224,120,.75) 7%, var(--led) 50%, rgba(48,224,120,.75) 93%, transparent 100%);
-  filter:brightness(1.3) drop-shadow(0 0 9px rgba(120,255,170,.95)) drop-shadow(0 0 26px rgba(48,224,120,.9)) drop-shadow(0 0 44px rgba(30,205,100,.62))}
+  background:linear-gradient(180deg, transparent 0%, rgba(214,179,106,.75) 7%, #d6b36a 50%, rgba(214,179,106,.75) 93%, transparent 100%);
+  filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
 .ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
 .ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
