@@ -361,12 +361,12 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       {/* ── New project modal (unchanged flow) ── */}
       {showNew && (
         <div onClick={() => setShowNew(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,3,4,.78)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,3,4,.45)', backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)' }}>
           <div onClick={e => e.stopPropagation()} className="no-drag"
             style={{ width: 'min(480px, calc(100vw - 28px))', maxHeight: 'calc(100vh - 32px)', padding: '36px',
-              background: 'linear-gradient(180deg, rgba(14,15,17,.9), rgba(8,9,10,.94))', backdropFilter: 'blur(30px) saturate(1.25)', WebkitBackdropFilter: 'blur(30px) saturate(1.25)',
-              border: '1px solid rgba(255,255,255,.22)', borderRadius: 6, overflow: 'auto',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 30px 70px -20px rgba(0,0,0,0.8)' }}>
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,.2)', borderRadius: 6, overflow: 'auto',
+              textShadow: '0 1px 10px rgba(0,0,0,.9)' }}>
             <div style={{ height: 2, borderRadius: 2, marginBottom: 30, background: 'linear-gradient(to right, transparent, rgba(47,224,122,.7) 50%, transparent)' }} />
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 26 }}>
               <div>
