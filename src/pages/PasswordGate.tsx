@@ -31,47 +31,17 @@ function markAuthenticated() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATRIUM login — new design language (from atrium-login-preview.html):
-// HAAVN BLACK video field, deep-purple 3D extruded 7EVEN that ignites from
-// nothing then spins upright, boxless access form floating on the render,
-// one-line footer. Auth logic unchanged.
+// ATRIUM login — 7 x HAAVN TV animation loops black & white as the full
+// background (the video carries the brand), boxless access form floating low
+// on the render, one-line footer. Auth logic unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
 .pg-root{position:fixed;inset:0;background:#040404;color:#e8e9eb;overflow:hidden;
   font-family:'Inter',system-ui,sans-serif}
-.pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
 .pg-scrim{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(4,4,4,.72),rgba(4,4,4,.5) 44%,rgba(4,4,4,.88))}
-.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
-
-/* 7EVEN in LED purple — true 3D: extruded glyph stack, ignition, slow clockwise spin.
-   Filters flatten preserve-3d, so the glow is its own element and the brightness
-   ramp lives on the leaf layers. */
-.pg-persp{perspective:1000px;position:relative;width:clamp(312px,41.6vw,598px);aspect-ratio:1800/280;
-  opacity:0;animation:pg-ignite 7.2s ease-out forwards}
-@keyframes pg-ignite{0%{opacity:0}35%{opacity:.3}100%{opacity:1}}
-.pg-glow{position:absolute;inset:-46% -14%;pointer-events:none;border-radius:50%;
-  background:radial-gradient(50% 50% at 50% 50%,rgba(200,210,220,.30),rgba(200,210,220,.10) 55%,transparent 75%);
-  filter:blur(14px);animation:pg-gpulse 6.5s ease-in-out 7.2s infinite}
-@keyframes pg-gpulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
-.pg-spin{position:absolute;inset:0;transform-style:preserve-3d;animation:pg-spin7 16s linear 7.2s infinite}
-@keyframes pg-spin7{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
-.pg-stack{position:absolute;inset:0;transform-style:preserve-3d}
-.pg-stack i{position:absolute;inset:0;display:block;
-  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  background:#1c1f22;backface-visibility:hidden;
-  animation:pg-idim 7.2s ease-out forwards}
-@keyframes pg-idim{0%{filter:brightness(0)}40%{filter:brightness(.3)}100%{filter:brightness(1)}}
-.pg-stack i.face{transform:translateZ(1.5px);backface-visibility:hidden;
-  background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113)}
-/* pre-mirrored back face — the wordmark reads correctly from behind mid-spin */
-.pg-stack i.fback{transform:translateZ(-18px) rotateY(180deg)}
-@media(prefers-reduced-motion:reduce){
-  .pg-persp{animation:none;opacity:1}
-  .pg-spin{animation:none}
-  .pg-stack i{animation:none;filter:brightness(1)}
-  .pg-glow{animation:none}}
+  background:linear-gradient(180deg,rgba(4,4,4,.35),rgba(4,4,4,.18) 44%,rgba(4,4,4,.72))}
+.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:60px 24px 110px}
 
 .pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#d6b36a;margin-top:20px;text-align:center;
   opacity:0;animation:pg-wfade 2.6s ease-out 4.4s forwards}
@@ -128,8 +98,6 @@ const CSS = `
 }
 `
 
-const DEPTHS = Array.from({ length: 11 }, (_, i) => (11 - i) * 1.5)
-
 function GateClock() {
   const [now, setNow] = useState('--:--:--')
   useEffect(() => {
@@ -172,22 +140,10 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
   return (
     <div className="pg-root">
       <style>{CSS}</style>
-      <video className="pg-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <video className="pg-bg" autoPlay muted loop playsInline preload="auto" src="/7even-haavn-tv.mp4" />
       <div className="pg-scrim" />
 
       <div className="pg-stage">
-        {/* deep-purple 3D 7EVEN — ignites, then spins upright */}
-        <div className="pg-persp">
-          <div className="pg-glow" />
-          <div className="pg-spin">
-            <div className="pg-stack">
-              {DEPTHS.map(d => <i key={`f${d}`} style={{ transform: `translateZ(-${d}px)` }} />)}
-              {DEPTHS.map(d => <i key={`b${d}`} style={{ transform: `translateZ(-${d}px) rotateY(180deg)` }} />)}
-              <i className="face" />
-              <i className="face fback" />
-            </div>
-          </div>
-        </div>
         <div className="pg-welcome">Welcome to Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
 
         {/* boxless access form */}
