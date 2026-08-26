@@ -7,7 +7,6 @@ import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
 import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
-import IntroScreen from './pages/IntroScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
@@ -23,7 +22,6 @@ export default function App() {
   const { activeProjectId, projects, loadProjects, bumpSync } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
   const [role, setRole] = useState<Role>(getStoredRole())
-  const [showIntro, setShowIntro] = useState(false)
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
   // HAAVN HOMES — the Black Series homes company. A separate surface with its own
   // store; never shares data with the Feasibility Studio.
@@ -131,9 +129,8 @@ export default function App() {
     setManageOpen(false)
   }
 
-  if (!authed) return <PasswordGate onAuth={() => { setAuthed(true); setRole(getStoredRole()); setShowIntro(true) }} />
+  if (!authed) return <PasswordGate onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
 
-  if (showIntro) return <IntroScreen onDone={() => setShowIntro(false)} />
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
   // The HM device button (top-right) opens the Management Hub, mounted above.
