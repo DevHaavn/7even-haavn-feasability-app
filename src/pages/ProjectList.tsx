@@ -122,6 +122,11 @@ const CSS = `
 .ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
 .ath-hor7:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
 .ath-hor7 .g{color:#d6b36a;font-size:12px}
+.ath-hor7{margin-top:12px}
+.ath-hor7.grn{background:rgba(47,224,122,.05);border-color:rgba(47,224,122,.45)}
+.ath-hor7.grn img{filter:drop-shadow(0 0 10px rgba(47,224,122,.4))}
+.ath-hor7.grn:hover{background:rgba(47,224,122,.12);border-color:rgba(47,224,122,.8);box-shadow:0 0 26px -10px rgba(47,224,122,.6)}
+.ath-hor7.grn .g{color:#2fe07a}
 .ath-brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:13px 16px;cursor:pointer;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:2px;transition:.3s}
 .ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
@@ -287,10 +292,10 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
           <div />
           <div style={{ gridColumn: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {role !== 'external' ? (
-              <button className="ath-capbtn no-drag" title="7EVEN Capital — Capital Base" onClick={() => setCapitalOpen(true)}>
+              <span className="ath-capbtn" style={{ cursor: 'default' }}>
                 <img className="ath-capwings" src="/winged-device-white.png" alt="Capital" draggable={false} />
                 <span className="ath-capword">Capital</span>
-              </button>
+              </span>
             ) : (
               <span className="ath-capbtn" style={{ cursor: 'default' }}>
                 <img className="ath-capwings" src="/winged-device-white.png" alt="" draggable={false} />
@@ -365,9 +370,16 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   </>
                 )}
               </div>
+              {/* ENTERPRISE — Capital Base / accounts administration (replaces the wings button) */}
+              {role !== 'external' && (
+                <button className="ath-hor7" title="ENTERPRISE — Accounts &amp; Administration" onClick={() => { setCapitalOpen(true); setMenuOpen(false) }}>
+                  <img src="/enterprise-gold.png" alt="ENTERPRISE" />
+                  <span className="g">→</span>
+                </button>
+              )}
               {/* HORI7ON — 7EVEN sub-brand: project overview display */}
-              <button className="ath-hor7" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
-                <img src="/hori7on-gold.png" alt="HORI7ON" />
+              <button className="ath-hor7 grn" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
+                <img src="/hori7on-green.png" alt="HORI7ON" />
                 <span className="g">→</span>
               </button>
               {/* HM + HAAVN BLACK — moved in from the footer */}
