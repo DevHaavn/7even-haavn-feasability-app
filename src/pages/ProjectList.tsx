@@ -371,8 +371,8 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 )}
               </div>
               {/* HORI7ON — 7EVEN sub-brand: project overview display */}
-              <button className="ath-hor7 grn" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
-                <img src="/hori7on-green.png" alt="HORI7ON" />
+              <button className="ath-brandrow" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
+                <img style={{ height: 13 }} src="/hori7on-white.png" alt="HORI7ON" />
                 <span className="g">→</span>
               </button>
               {/* ENTERPRISE — Capital Base / accounts administration (replaces the wings button) */}
