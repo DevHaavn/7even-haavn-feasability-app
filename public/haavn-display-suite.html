@@ -39,6 +39,11 @@ header{position:sticky;top:0;z-index:40;padding:12px clamp(16px,3.4vw,42px);
 .brand{display:inline-flex;align-items:center;cursor:pointer;transition:.25s}
 .brand:hover{filter:brightness(1.12);transform:translateX(-1px)}
 .brand-logo{height:17px;width:auto;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}
+.homebtn{font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.32em;color:#fff;cursor:pointer;
+  text-transform:uppercase;font-weight:500;text-decoration:none;
+  text-shadow:0 0 12px rgba(255,255,255,.5),0 0 30px rgba(255,255,255,.22);transition:.2s}
+.homebtn:hover{color:#2fe07a;text-shadow:0 0 12px rgba(47,224,122,.7)}
+
 .dsl{font-family:var(--mono);font-size:9px;letter-spacing:.30em;color:var(--faint);padding-left:16px;border-left:1px solid var(--line)}
 .hc{display:flex;align-items:center;gap:9px;justify-self:center;font-family:var(--mono);font-size:9px;letter-spacing:.20em;color:var(--green)}
 .hr{display:flex;align-items:center;gap:22px;justify-self:end}
@@ -174,7 +179,7 @@ footer .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
 <body>
 <header>
   <div class="hl">
-    <a class="brand" id="btnBack" title="Back to HAAVN Homes"><img class="brand-logo" src="/haavn-black-logo.png" alt="HAAVN BLACK"></a>
+    <a class="homebtn" id="btnBack" title="Back to HAAVN BLACK">HOME</a>
     <span class="dsl">DISPLAY SUITE</span>
   </div>
   <div class="hc"><span class="livedot pulse"></span> HAAVN BLACK</div>
