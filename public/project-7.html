@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PROJECT 7 · 7EVEN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--sil:#c7ced4;--mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif}
+html,body{height:100%}
+body{font-family:var(--sans);background:#020203;color:#e8e9eb;overflow:hidden}
+
+/* ── silver racing carbon, moving like a slow wave ── */
+.carbon{position:fixed;inset:-6%;z-index:0;background:url('/p7-carbon-bg.jpg') center 62% / cover no-repeat;
+  animation:cwave 16s ease-in-out infinite;transform-origin:50% 60%;will-change:transform}
+@keyframes cwave{
+  0%,100%{transform:scale(1.02) translate3d(0,0,0) rotate(0.001deg)}
+  25%{transform:scale(1.055) translate3d(-1.2%,0.7%,0) rotate(0.001deg)}
+  50%{transform:scale(1.03) translate3d(0.6%,-0.5%,0) rotate(0.001deg)}
+  75%{transform:scale(1.06) translate3d(1.1%,0.6%,0) rotate(0.001deg)}}
+/* light travelling across the weave — the wave crest */
+.sheen{position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:.5;
+  background:linear-gradient(115deg,transparent 30%,rgba(199,206,212,.14) 46%,rgba(255,255,255,.22) 50%,rgba(199,206,212,.14) 54%,transparent 70%);
+  background-size:280% 280%;animation:sweep 9s ease-in-out infinite}
+@keyframes sweep{0%{background-position:120% 0}55%{background-position:-40% 100%}100%{background-position:-40% 100%}}
+.scrim{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,rgba(2,2,3,.55),rgba(2,2,3,.1) 40%,rgba(2,2,3,.78))}
+@media(prefers-reduced-motion:reduce){.carbon,.sheen{animation:none}}
+
+.back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 20px);left:22px;z-index:30;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#c9cdd2;
+  background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:9px 14px;transition:.3s;text-decoration:none}
+.back:hover{border-color:rgba(255,255,255,.7);color:#fff;background:rgba(255,255,255,.06)}
+
+.stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:60px 24px 120px;text-align:center}
+.mark{width:clamp(280px,42vw,640px);height:auto;filter:drop-shadow(0 0 16px rgba(255,255,255,.28)) drop-shadow(0 0 50px rgba(199,206,212,.14));
+  opacity:0;animation:fadein 2.6s ease-out .4s forwards}
+.eyebrow{font-family:var(--mono);font-size:8.5px;letter-spacing:.5em;text-transform:uppercase;color:var(--sil);margin-top:24px;
+  opacity:0;animation:fadein 2.2s ease-out 1.3s forwards}
+.mission{max-width:56ch;font-size:12.5px;line-height:1.85;color:#b9bdc4;font-weight:300;margin-top:18px;
+  opacity:0;animation:fadein 2.4s ease-out 1.9s forwards}
+.line{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(199,206,212,.55),transparent);margin-top:26px;
+  opacity:0;animation:fadein 2.2s ease-out 2.4s forwards}
+.soon{font-family:var(--mono);font-size:11px;letter-spacing:.6em;text-transform:uppercase;color:#fff;margin-top:24px;padding-left:.6em;
+  text-shadow:0 0 14px rgba(255,255,255,.45);opacity:0;animation:fadein 2.4s ease-out 2.8s forwards}
+.tags{font-family:var(--mono);font-size:8px;letter-spacing:.34em;text-transform:uppercase;color:#7e838a;margin-top:16px;
+  opacity:0;animation:fadein 2.4s ease-out 3.2s forwards}
+@keyframes fadein{to{opacity:1}}
+
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(3,3,4,.92),#020203);padding:0 clamp(18px,3.4vw,46px)}
+.hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
+.frail{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 2px 14px;white-space:nowrap}
+.atr{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.34em;color:#c3c7cd;text-decoration:none}
+.tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:#8a8f95;text-transform:uppercase}
+.tag a{color:#c7ced4;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="carbon"></div>
+<div class="sheen"></div>
+<div class="scrim"></div>
+
+<a class="back" href="/">&#8592; ATRIUM</a>
+
+<div class="stage">
+  <img class="mark" src="/pro7ect-white.png" alt="PRO7ECT">
+  <div class="eyebrow">The philanthropic arm of 7EVEN &nbsp;&#183;&nbsp; Not for profit</div>
+  <p class="mission">Dedicated to addressing the housing crisis with lasting solutions &mdash; developing affordable, high-quality homes that offer security and stability, and investing in people and community where drive meets opportunity.</p>
+  <div class="line"></div>
+  <div class="soon">Coming Soon</div>
+  <div class="tags">Housing &nbsp;&#183;&nbsp; Investing in people &nbsp;&#183;&nbsp; Community</div>
+</div>
+
+<div class="foot">
+  <div class="hair"></div>
+  <div class="frail">
+    <a class="atr" href="/"><span class="tri"></span>ATRIUM</a>
+    <span class="tag">PROJECT 7 &#183; 7EVEN &nbsp;&#183;&nbsp; <a href="https://7even.au/project-7" target="_blank" rel="noopener">7EVEN.AU/PROJECT-7 &#8599;</a></span>
+  </div>
+</div>
+</body>
+</html>

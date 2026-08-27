@@ -387,6 +387,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <img style={{ height: 13 }} src="/navigators-white.png" alt="NAVIGATORS" />
                 <span className="g">→</span>
               </button>
+              {/* PROJECT 7 — the philanthropic arm of 7EVEN */}
+              <button className="ath-brandrow" title="PROJECT 7 — Not for profit" onClick={() => { window.location.href = '/project-7.html' }}>
+                <img style={{ height: 13 }} src="/pro7ect-white.png" alt="PROJECT 7" />
+                <span className="g">→</span>
+              </button>
               <button className="ath-brandrow" title="HAAVN BLACK — Homes" onClick={() => { onOpenHomes?.(); setMenuOpen(false) }}>
                 <img style={{ height: 12 }} src="/haavn-black-logo.png" alt="HAAVN BLACK" />
                 <span className="g">→</span>
