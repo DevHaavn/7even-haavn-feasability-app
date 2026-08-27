@@ -241,6 +241,10 @@ body.hubview .nav:not(.solid){background:transparent}
 .sec-light .pcard:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.4);
   box-shadow:0 0 0 1.5px rgba(255,255,255,.36),0 0 34px rgba(255,255,255,.12),0 0 120px -14px rgba(255,255,255,.13),0 36px 74px -28px rgba(0,0,0,.9)}
 .sec-light .pcard .ph{border-radius:13px}
+.statwrap{display:flex;flex-direction:column;gap:14px}
+.imexp{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 0;border:1px solid var(--gold);color:var(--gold);
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;text-decoration:none;border-radius:2px;transition:.3s;background:rgba(214,179,106,.05)}
+.imexp:hover{background:var(--gold);color:#0a0a0b}
 </style>
 </head>
 <body>
@@ -254,7 +258,6 @@ body.hubview .nav:not(.solid){background:transparent}
   <span class="sub">Horizon</span>
   <span class="sp"></span>
   <button class="nlink" data-act="home">Portfolio</button>
-  <button class="imbtn" data-act="enquire">Request IM</button>
 </div>
 
 <div id="app"></div>
@@ -405,7 +408,7 @@ function vProject(){
   <div class="dbody">
     <div class="dtop">
       <div class="lead">${p.devimg?'<img class="pdev" src="'+p.devimg+'">':''}${p.brandimg?'<img class="pbrand2" src="'+p.brandimg+'">':''}<span class="drop">“</span>${p.tag}<div class="body"><p>${p.overview}</p>${p.arch?`<div class="archline">Architecture — <b>${p.arch}</b></div>`:''}${p.partners?'<div class="partline">In partnership with</div><div class="partnerrow big">'+p.partners.map(function(s){return '<img src="'+s+'">';}).join('')+'</div>':''}</div></div>
-      <div class="statgrid">${(p.stats||[['Gross valuation',p.gv,'GDV '+p.gdv],['Land area',p.land,''],['Yield / scale',p.keys,p.gfa!=='—'?'GFA '+p.gfa:''],['Status',p.status,'Target '+p.complete]]).map((s,si)=>`<div class="cell"><div class="cl">${s[0]}</div><div class="cv ${si===0?'gv':''}" style="font-size:${(''+s[1]).length>7?'22px':'30px'}">${s[1]}</div><div class="cs">${s[2]||''}</div></div>`).join('')}</div>
+      <div class="statwrap"><a class="imexp" href="/hori7on-im-preview.html" target="_blank">⤓&nbsp; Export IM · PDF</a><div class="statgrid">${(p.stats||[['Gross valuation',p.gv,'GDV '+p.gdv],['Land area',p.land,''],['Yield / scale',p.keys,p.gfa!=='—'?'GFA '+p.gfa:''],['Status',p.status,'Target '+p.complete]]).map((s,si)=>`<div class="cell"><div class="cl">${s[0]}</div><div class="cv ${si===0?'gv':''}" style="font-size:${(''+s[1]).length>7?'22px':'30px'}">${s[1]}</div><div class="cs">${s[2]||''}</div></div>`).join('')}</div></div>
     </div>
     <div class="dcols">
       <div><div class="blk-t">Key selling points</div>${p.points.map((pt,i)=>`<div class="point"><div class="pi">0${i+1}</div><div><div class="pt">${pt[0]}</div><div class="pd">${pt[1]}</div></div></div>`).join('')}</div>
