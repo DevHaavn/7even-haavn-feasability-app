@@ -253,9 +253,13 @@ footer{padding-bottom:20px}
   background:#2fe07a;filter:drop-shadow(0 0 8px rgba(47,224,122,.85)) drop-shadow(0 0 18px rgba(47,224,122,.45));transition:.3s}
 .hbburger.on::before{left:8px;clip-path:polygon(0 0,42% 0,100% 50%,42% 100%,0 100%,58% 50%)}
 .hbburger.on::after{right:8px;clip-path:polygon(100% 0,58% 0,0 50%,58% 100%,100% 100%,42% 50%)}
-.hbmenu{position:fixed;top:calc(env(safe-area-inset-top,0px) + 80px);right:26px;z-index:219;width:min(400px,88vw);
-  opacity:0;pointer-events:none;transform:translateY(-8px);transition:.35s cubic-bezier(.2,.7,.3,1)}
-.hbmenu.on{opacity:1;pointer-events:auto;transform:none}
+.hbmenu{position:fixed;top:clamp(150px,20vh,210px);left:50%;z-index:219;width:min(560px,84vw);
+  max-height:calc(100vh - clamp(150px,20vh,210px) - 80px);overflow-y:auto;
+  opacity:0;pointer-events:none;transform:translate(-50%,-14px);transition:.38s cubic-bezier(.2,.7,.3,1)}
+.hbmenu.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+/* fade the brand + page while the menu is open — same as the 7EVEN home */
+body.hbmenu-open main,body.hbmenu-open footer,body.hbmenu-open header .kicker{opacity:.08;filter:blur(2px);transition:.38s}
+main,footer,header .kicker{transition:.38s}
 .hbrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:14px 16px;cursor:pointer;
   background:transparent;border:1px solid rgba(255,255,255,.32);border-radius:2px;transition:.3s;
   font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:#fff;
@@ -670,9 +674,9 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
   /* CAPITAL wings are display-only — Capital opens via ENTERPRISE in the menu */
   (function(){
     var bg=document.getElementById('hbBurger'),mn=document.getElementById('hbMenu');
-    function close(){bg.classList.remove('on');mn.classList.remove('on');}
+    function close(){bg.classList.remove('on');mn.classList.remove('on');document.body.classList.remove('hbmenu-open');}
     if(bg&&mn){
-      bg.addEventListener('click',function(){bg.classList.toggle('on');mn.classList.toggle('on');});
+      bg.addEventListener('click',function(){bg.classList.toggle('on');mn.classList.toggle('on');document.body.classList.toggle('hbmenu-open',mn.classList.contains('on'));});
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
       var mm=[['mSeven','return'],['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
