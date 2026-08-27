@@ -233,9 +233,11 @@ footer{padding-bottom:20px}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;background:transparent;padding:0;transition:.3s}
 .hbburger span{display:block;width:22px;height:1.8px;background:#dfe1e4;transition:.3s;border-radius:1px}
 .hbburger:hover span,.hbburger.on span{background:#2fe07a;box-shadow:0 0 10px rgba(47,224,122,.9),0 0 22px rgba(47,224,122,.5)}
-.hbburger.on span:nth-child(1){transform:translateY(7.8px) rotate(45deg)}
-.hbburger.on span:nth-child(2){opacity:0}
-.hbburger.on span:nth-child(3){transform:translateY(-7.8px) rotate(-45deg)}
+.hbburger.on span{opacity:0}
+.hbburger.on::before,.hbburger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
+  background:#2fe07a;filter:drop-shadow(0 0 8px rgba(47,224,122,.85)) drop-shadow(0 0 18px rgba(47,224,122,.45));transition:.3s}
+.hbburger.on::before{left:8px;clip-path:polygon(0 0,42% 0,100% 50%,42% 100%,0 100%,58% 50%)}
+.hbburger.on::after{right:8px;clip-path:polygon(100% 0,58% 0,0 50%,58% 100%,100% 100%,42% 50%)}
 .hbmenu{position:fixed;top:calc(env(safe-area-inset-top,0px) + 80px);right:26px;z-index:219;width:min(400px,88vw);
   opacity:0;pointer-events:none;transform:translateY(-8px);transition:.35s cubic-bezier(.2,.7,.3,1)}
 .hbmenu.on{opacity:1;pointer-events:auto;transform:none}
