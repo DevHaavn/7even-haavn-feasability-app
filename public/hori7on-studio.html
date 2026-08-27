@@ -11,7 +11,7 @@
 :root{
   --bg:#0A0A0B;--bg2:#111113;--panel:#16161A;--panel2:#1D1D22;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);
   --ink:#F4F2EC;--ink2:#B9B6AD;--ink3:#7C7A72;--dim:#4A4842;
-  --gold:#d6b36a;--gold2:#e8d296;--goldd:#a3782a;
+  --gold:#d6b36a;--gold2:#d6b36a;--goldd:#d6b36a;
   --f-d:'Cormorant Garamond',Georgia,serif;--f-b:'Inter',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +27,14 @@ img{display:block;max-width:100%}
 /* ---------- NAV ---------- */
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;gap:24px;height:70px;padding:0 40px;transition:.4s;background:linear-gradient(180deg,rgba(10,10,11,.82),transparent)}
 .nav.solid{background:rgba(10,10,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);height:62px}
+.homebtn{font-family:var(--f-b);font-size:12px;letter-spacing:.3em;color:#fff;text-transform:uppercase;font-weight:600;text-decoration:none;margin-right:10px;text-shadow:0 0 10px rgba(255,255,255,.35);transition:.3s}
+.homebtn:hover{color:var(--gold)}
+body.hubview .nav:not(.solid) .homebtn{color:#131210;text-shadow:none}
 .brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+.brand img{height:15px;width:auto;display:block}
+.brand .bb7{display:none}
+body.hubview .nav:not(.solid) .brand .bw7{display:none}
+body.hubview .nav:not(.solid) .brand .bb7{display:block}
 .brand svg{height:20px;width:auto}
 .brand .wm{font-family:var(--f-b);font-weight:300;font-size:19px;letter-spacing:.42em;color:#fff;padding-left:2px}
 .brand .wm b{font-weight:600}
@@ -40,7 +47,7 @@ img{display:block;max-width:100%}
 /* ---------- HERO ---------- */
 .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
 .hero .bg{position:absolute;inset:0;background:
-  radial-gradient(120% 90% at 70% 20%,rgba(198,168,103,.10),transparent 55%),
+  radial-gradient(120% 90% at 70% 20%,rgba(214,179,106,.10),transparent 55%),
   radial-gradient(80% 80% at 20% 90%,rgba(255,255,255,.04),transparent 60%),
   linear-gradient(180deg,#141416 0%,#0A0A0B 100%)}
 .hero .grain{position:absolute;inset:0;opacity:.5;background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px)}
@@ -87,11 +94,11 @@ img{display:block;max-width:100%}
 .pcard .gv .g{font-family:var(--f-d);font-size:26px;color:var(--gold2);line-height:1}
 .pcard .gv .gl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-top:5px}
 /* placeholder art fills (until real images fed) */
-.artA{background:linear-gradient(135deg,#1c1e24,#0e0f12),radial-gradient(60% 80% at 70% 20%,rgba(198,168,103,.16),transparent 60%)}
+.artA{background:linear-gradient(135deg,#1c1e24,#0e0f12),radial-gradient(60% 80% at 70% 20%,rgba(214,179,106,.16),transparent 60%)}
 .artB{background:linear-gradient(135deg,#20211d,#101110),radial-gradient(50% 70% at 30% 30%,rgba(255,255,255,.05),transparent 60%)}
-.artC{background:linear-gradient(135deg,#1a1c22,#0d0e11),radial-gradient(60% 60% at 80% 70%,rgba(198,168,103,.12),transparent 60%)}
+.artC{background:linear-gradient(135deg,#1a1c22,#0d0e11),radial-gradient(60% 60% at 80% 70%,rgba(214,179,106,.12),transparent 60%)}
 .artD{background:linear-gradient(135deg,#181a1c,#0e0f10),radial-gradient(50% 60% at 20% 80%,rgba(255,255,255,.05),transparent 60%)}
-.artE{background:linear-gradient(135deg,#1e1c22,#0e0d10),radial-gradient(60% 70% at 60% 30%,rgba(198,168,103,.14),transparent 60%)}
+.artE{background:linear-gradient(135deg,#1e1c22,#0e0d10),radial-gradient(60% 70% at 60% 30%,rgba(214,179,106,.14),transparent 60%)}
 .phlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.16);font-size:12px;letter-spacing:.24em;text-transform:uppercase}
 /* ---------- PROJECT DETAIL ---------- */
 .detail{display:none}.detail.on{display:block}
@@ -198,7 +205,7 @@ img{display:block;max-width:100%}
 /* ================= WHITE HERO (portfolio top) ================= */
 .hero{background:#FBFAF7}
 .hero .bg{background:
-  radial-gradient(120% 92% at 76% 10%,rgba(198,168,103,.18),transparent 56%),
+  radial-gradient(120% 92% at 76% 10%,rgba(214,179,106,.18),transparent 56%),
   linear-gradient(180deg,#FFFFFF 0%,#F3F0E8 100%)}
 .hero .grain{opacity:.22;background-image:repeating-linear-gradient(115deg,rgba(0,0,0,.014) 0 1px,transparent 1px 3px)}
 .hero .wmk{opacity:.12}
@@ -233,9 +240,10 @@ body.hubview .nav:not(.solid) .bgold{display:block}
 <body>
 
 <div class="nav" id="nav">
+  <a class="homebtn" href="/">Home</a>
   <div class="brand" data-act="home">
-    <span class="wing wing-w bwhite"></span><span class="wing wing-g bgold"></span>
-    <span class="wm"><b>7</b>EVEN</span>
+    <img class="bw7" src="/seven-mark-white-hd.png" alt="7EVEN">
+    <img class="bb7" src="/seven-mark-black-hd.png" alt="7EVEN">
   </div>
   <span class="sub">Horizon</span>
   <span class="sp"></span>
