@@ -28,6 +28,16 @@ body{font-family:var(--sans);background:#020203;color:#e8e9eb;overflow:hidden}
 .scrim{position:fixed;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(180deg,rgba(2,2,3,.55),rgba(2,2,3,.1) 40%,rgba(2,2,3,.78))}
 @media(prefers-reduced-motion:reduce){.carbon,.sheen{animation:none}}
+/* phone: device small and high, text clear below, footer wraps */
+@media(max-width:600px){
+  .carbon{background-size:auto 58vh;background-position:center 6%;background-color:#020203}
+  .stage{padding-bottom:84px}
+  .mark{width:min(300px,78vw)}
+  .mission{font-size:11px;max-width:92vw}
+  .frail{flex-wrap:wrap;justify-content:center;gap:6px;padding:8px 0 9px}
+  .tag a{display:none}
+  .tag{font-size:8px}
+}
 
 .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 20px);left:22px;z-index:30;cursor:pointer;
   font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#c9cdd2;
@@ -79,7 +89,7 @@ body{font-family:var(--sans);background:#020203;color:#e8e9eb;overflow:hidden}
   <div class="hair"></div>
   <div class="frail">
     <a class="atr" href="/"><span class="tri"></span>ATRIUM</a>
-    <span class="tag">PROJECT 7 &#183; 7EVEN &nbsp;&#183;&nbsp; <a href="https://7even.au/project-7" target="_blank" rel="noopener">7EVEN.AU/PROJECT-7 &#8599;</a></span>
+    <span class="tag">PROJECT 7 &#183; 7EVEN<a href="https://7even.au/project-7" target="_blank" rel="noopener">&nbsp;&nbsp;&#183;&nbsp;&nbsp;7EVEN.AU/PROJECT-7 &#8599;</a></span>
   </div>
 </div>
 </body>
