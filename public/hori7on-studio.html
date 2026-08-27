@@ -30,6 +30,7 @@ img{display:block;max-width:100%}
 .homebtn{font-family:var(--f-b);font-size:12px;letter-spacing:.3em;color:#fff;text-transform:uppercase;font-weight:600;text-decoration:none;margin-right:10px;text-shadow:0 0 10px rgba(255,255,255,.35);transition:.3s}
 .homebtn:hover{color:var(--gold)}
 body.hubview .nav:not(.solid) .homebtn{color:#131210;text-shadow:none}
+.pcard .fill.contain{object-fit:contain!important;background:#6d5142}
 .pdev{height:clamp(80px,9vw,120px);width:auto;display:block;margin:0 0 12px;filter:drop-shadow(0 2px 12px rgba(0,0,0,.55))}
 .pdev.sm{height:54px;margin-bottom:8px}
 .inb{height:.82em;width:auto;display:inline-block;vertical-align:-.04em;margin:0 .1em}
@@ -297,7 +298,8 @@ const PROJECTS=[
   imgcaps:["Twin towers over the podium \u2014 Corio Bay beyond", "Corio Street corner \u2014 podium market & tower", "Elevated garden terraces to the harbour", "Ground-plane arrival & laneway activation", "Premium market & food-and-beverage hall"],
   images:5,plans:6},
  {id:'stvillage',n:'St Village Preston',addr:'2\u20133 Newman Street',city:'Preston VIC 3072',type:'BTR',art:'artC',feat:true,
-  devimg:'/sv-device-chrome.png',
+  devimg:'/sv-device-black.png',
+  cardfit:'contain',
   gv:'$365M',gdv:'$365M',land:'\u2014',gfa:'\u2014',keys:'400 BTR apartments',status:'Planning / design',complete:'2029',
   tag:'On the park. Over the city. Preston\'s build-to-rent landmark.',
   overview:'St Village Preston is a $365 million build-to-rent tower set on the park \u2014 its podium and every home above commanding uninterrupted views across parkland to the Melbourne CBD skyline, just 7 kilometres away. Four hundred premium build-to-rent apartments rise over a world-class ground plane: 1,500 m\u00b2 of retail and food precinct, 1,500 m\u00b2 of co-working, and more than 1,000 m\u00b2 of world-class wellness, day-spa and five-star hotel-grade facilities. In a tightly planning-controlled pocket of Preston, it is a rare, amenity-led rental community delivered at institutional scale.',
@@ -377,7 +379,7 @@ function vHub(){
 }
 function pcard(p,i){
   const n=PROJECTS.indexOf(p)+1;const nimg=Array.isArray(p.imgs)?p.imgs.length:p.images;
-  const fillHtml=Array.isArray(p.imgs)?`<img class="fill" src="${p.imgs[0]}" alt="">`:`<div class="fill ${p.art}"></div>`;
+  const fillHtml=Array.isArray(p.imgs)?`<img class="fill${p.cardfit?' contain':''}" src="${p.imgs[0]}" alt="">`:`<div class="fill ${p.art}"></div>`;
   return `<div class="pcard ${p.feat?'feat':''}" data-act="open" data-id="${p.id}">
     <div class="ph">${fillHtml}<div class="phlabel">${p.type} · ${nimg} images</div><div class="scrim"></div>
       <div class="num">${String(n).padStart(2,'0')}</div><div class="type">${p.type}</div>
