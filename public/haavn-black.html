@@ -227,6 +227,31 @@ footer{padding-bottom:20px}
 }
 
 
+/* ---- burger menu (top right) — green hover, glass drop-down ---- */
+.hbburger{position:fixed;top:calc(env(safe-area-inset-top,0px) + 22px);right:26px;z-index:220;width:46px;height:42px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;background:transparent;padding:0;transition:.3s}
+.hbburger span{display:block;width:22px;height:1.8px;background:#dfe1e4;transition:.3s;border-radius:1px}
+.hbburger:hover span,.hbburger.on span{background:#2fe07a;box-shadow:0 0 10px rgba(47,224,122,.9),0 0 22px rgba(47,224,122,.5)}
+.hbburger.on span:nth-child(1){transform:translateY(7.8px) rotate(45deg)}
+.hbburger.on span:nth-child(2){opacity:0}
+.hbburger.on span:nth-child(3){transform:translateY(-7.8px) rotate(-45deg)}
+.hbmenu{position:fixed;top:calc(env(safe-area-inset-top,0px) + 80px);right:26px;z-index:219;width:min(400px,88vw);
+  opacity:0;pointer-events:none;transform:translateY(-8px);transition:.35s cubic-bezier(.2,.7,.3,1)}
+.hbmenu.on{opacity:1;pointer-events:auto;transform:none}
+.hbrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:14px 16px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:2px;transition:.3s;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#e8e9eb;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hbrow:hover{background:rgba(47,224,122,.08);border-color:rgba(47,224,122,.65);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
+.hbrow .g{color:#2fe07a;font-size:12px}
+.hbrow img{height:13px;width:auto;display:block}
+.hbrow.gold{background:rgba(214,179,106,.05);border-color:rgba(214,179,106,.45)}
+.hbrow.gold:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
+.hbrow.gold .g{color:#d6b36a}
+/* CAPITAL wings — display only, navigation lives in the menu */
+.cap{pointer-events:none}
+/* PARTNERS chip retired from the footer — reachable from the menu */
+#btnPartners{display:none}
 /* ---- PARTNERS glass button (footer) — shareholder access ---- */
 .partners-btn{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#dfe1e4;cursor:pointer;
   padding:9px 20px;border-radius:3px;border:1px solid rgba(255,255,255,.18);
@@ -273,6 +298,13 @@ footer{padding-bottom:20px}
 </div>
 
 <div id="shell">
+  <button class="hbburger" id="hbBurger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="hbmenu" id="hbMenu">
+    <button class="hbrow" id="mDisplay">Black Display<span class="g">&#8594;</span></button>
+    <button class="hbrow" id="mFeas">Black Feasibility<span class="g">&#8594;</span></button>
+    <button class="hbrow gold" id="mEnterprise"><img src="/enterprise-gold.png" alt="ENTERPRISE"><span class="g">&#8594;</span></button>
+    <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
+  </div>
 
   <header>
     <div class="bar">
@@ -612,7 +644,19 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
   function post(m){if(m==='return'){teardown();}try{parent.postMessage({haavnBlack:m},'*');}catch(e){}}
   function wire(id,m){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){e.preventDefault();post(m);});}
   wire('btnReturn','return');   /* 7EVEN mark → back to the studio */
-  wire('btnCapital','capital'); /* CAPITAL wings → Capital Base (accounts management) */
+  /* CAPITAL wings are display-only — Capital opens via ENTERPRISE in the menu */
+  (function(){
+    var bg=document.getElementById('hbBurger'),mn=document.getElementById('hbMenu');
+    function close(){bg.classList.remove('on');mn.classList.remove('on');}
+    if(bg&&mn){
+      bg.addEventListener('click',function(){bg.classList.toggle('on');mn.classList.toggle('on');});
+      document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
+      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital']];
+      mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
+      var mp=document.getElementById('mPartners');
+      if(mp)mp.addEventListener('click',function(){close();var b=document.getElementById('btnPartners');if(b)b.click();});
+    }
+  })();
   wire('btnDisplay','display'); /* Black Display → Display Suite */
   wire('btnFeas','feasibility');/* Black Feasibility → Black Series studio */
  /* PARTNERS — shareholder-only password gate → management/CRM */
