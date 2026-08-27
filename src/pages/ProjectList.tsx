@@ -370,6 +370,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   </>
                 )}
               </div>
+              {/* HORI7ON — 7EVEN sub-brand: project overview display */}
+              <button className="ath-hor7 grn" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
+                <img src="/hori7on-green.png" alt="HORI7ON" />
+                <span className="g">→</span>
+              </button>
               {/* ENTERPRISE — Capital Base / accounts administration (replaces the wings button) */}
               {role !== 'external' && (
                 <button className="ath-hor7" title="ENTERPRISE — Accounts &amp; Administration" onClick={() => { setCapitalOpen(true); setMenuOpen(false) }}>
@@ -377,11 +382,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   <span className="g">→</span>
                 </button>
               )}
-              {/* HORI7ON — 7EVEN sub-brand: project overview display */}
-              <button className="ath-hor7 grn" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
-                <img src="/hori7on-green.png" alt="HORI7ON" />
-                <span className="g">→</span>
-              </button>
               {/* HM + HAAVN BLACK — moved in from the footer */}
               <button className="ath-brandrow" title="HAAVN Management — Management Hub" onClick={() => { setHmOpen(true); setMenuOpen(false) }}>
                 <img style={{ height: 16 }} src="/hm-device-white.png" alt="HM" />
