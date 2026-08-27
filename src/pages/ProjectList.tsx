@@ -98,7 +98,7 @@ const CSS = `
 .ath-menuwrap{grid-column:3;justify-self:end;position:relative;z-index:60}
 .ath-burger{width:46px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
 .ath-burger span{display:block;width:22px;height:1.8px;background:#dfe1e4;transition:.3s;border-radius:1px}
-.ath-burger:hover span{background:var(--led);box-shadow:0 0 10px rgba(47,224,122,.9),0 0 22px rgba(47,224,122,.5)}
+.ath-burger:hover span,.ath-burger.on span{background:#d6b36a;box-shadow:0 0 10px rgba(214,179,106,.9),0 0 22px rgba(214,179,106,.5)}
 .ath-burger.on span:nth-child(1){transform:translateY(7.8px) rotate(45deg)}
 .ath-burger.on span:nth-child(2){opacity:0}
 .ath-burger.on span:nth-child(3){transform:translateY(-7.8px) rotate(-45deg)}
