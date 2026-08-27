@@ -240,14 +240,16 @@ footer{padding-bottom:20px}
 .hbmenu.on{opacity:1;pointer-events:auto;transform:none}
 .hbrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:14px 16px;cursor:pointer;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:2px;transition:.3s;
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:#e8e9eb;
+  font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:#e8e9eb;
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .hbrow:hover{background:rgba(47,224,122,.08);border-color:rgba(47,224,122,.65);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
 .hbrow .g{color:#2fe07a;font-size:12px}
-.hbrow img{height:13px;width:auto;display:block}
+.hbrow img{height:15px;width:auto;display:block}
 .hbrow.gold{background:rgba(214,179,106,.05);border-color:rgba(214,179,106,.45)}
 .hbrow.gold:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
 .hbrow.gold .g{color:#d6b36a}
+.hbrow.logout{justify-content:center;font-size:11px;letter-spacing:.28em;color:#b9bdc4;border-color:rgba(255,255,255,.22)}
+.hbrow.logout:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08);box-shadow:none}
 /* CAPITAL wings — display only, navigation lives in the menu */
 .cap{pointer-events:none}
 /* PARTNERS chip retired from the footer — reachable from the menu */
@@ -300,10 +302,12 @@ footer{padding-bottom:20px}
 <div id="shell">
   <button class="hbburger" id="hbBurger" aria-label="Menu"><span></span><span></span><span></span></button>
   <div class="hbmenu" id="hbMenu">
+    <button class="hbrow" id="mSeven"><img style="height:15px" src="/seven-mark-white-hd.png" alt="7EVEN"><span class="g">&#8594;</span></button>
     <button class="hbrow" id="mDisplay">Black Display<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mFeas">Black Feasibility<span class="g">&#8594;</span></button>
     <button class="hbrow gold" id="mEnterprise"><img src="/enterprise-gold.png" alt="ENTERPRISE"><span class="g">&#8594;</span></button>
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
+    <button class="hbrow logout" id="mLogout">Log Out</button>
   </div>
 
   <header>
@@ -349,8 +353,7 @@ footer{padding-bottom:20px}
         <div class="atrium"><span class="tri"></span>ATRIUM</div>
         <div class="pipe"></div>
         <div class="meta">BLACK SERIES &nbsp;/&nbsp; BUILD 26.08</div>
-        <div class="pipe"></div>
-        <a class="ret ret-foot" href="#" id="btnReturn" aria-label="Return to 7EVEN Feasibility" title="Return to 7EVEN Feasibility">
+        <a class="ret ret-foot" href="#" id="btnReturn" aria-label="Return to 7EVEN Feasibility" title="Return to 7EVEN Feasibility" style="display:none">
         <span class="ret-logo"></span>
       </a>
       </div>
@@ -651,7 +654,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     if(bg&&mn){
       bg.addEventListener('click',function(){bg.classList.toggle('on');mn.classList.toggle('on');});
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
-      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital']];
+      var mm=[['mSeven','return'],['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
       var mp=document.getElementById('mPartners');
       if(mp)mp.addEventListener('click',function(){close();var b=document.getElementById('btnPartners');if(b)b.click();});

@@ -159,6 +159,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       else if (m === 'display') onOpenDisplaySuite?.()
       else if (m === 'feasibility') setOpenId('black-series')
       else if (m === 'capital') onOpenCapital?.()
+      else if (m === 'logout') (onLogout ?? onBack)?.()
       else if (m === 'crm') onOpenCrm?.()
     }
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setOpenId(null) }
