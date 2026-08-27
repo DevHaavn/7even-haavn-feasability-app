@@ -26,8 +26,14 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
   opacity:0;animation:mfade 2.2s ease-out 1.4s forwards}
 .line{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(214,179,106,.5),transparent);margin-top:26px;
   opacity:0;animation:mfade 2.2s ease-out 1.9s forwards}
-.soon{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-top:24px;
+.enterst{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:26px;padding:13px 46px;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
+  background:transparent;border:1px solid rgba(214,179,106,.5);border-radius:2px;transition:.35s;
   opacity:0;animation:mfade 2.2s ease-out 2.3s forwards}
+.enterst:hover{border-color:rgba(214,179,106,.9);color:#fff;background:rgba(214,179,106,.08);box-shadow:0 0 28px -10px rgba(214,179,106,.65)}
+.enterst .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid var(--gold)}
+.fadeout{position:fixed;inset:0;z-index:100;background:#000;opacity:0;pointer-events:none;transition:opacity .9s ease}
+.fadeout.on{opacity:1;pointer-events:auto}
 .foot{position:fixed;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);padding:0 clamp(18px,3.4vw,46px)}
 .hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
 .frail{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 2px 14px;white-space:nowrap}
@@ -44,7 +50,7 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
   <img class="mark" src="/hori7on-gold.png" alt="HORI7ON">
   <div class="sub">A 7EVEN Development &nbsp;&#183;&nbsp; Project Overview Display</div>
   <div class="line"></div>
-  <div class="soon">Coming Online</div>
+  <button class="enterst" onclick="enterStudio()"><span class="tri"></span>Enter Studio</button>
 </div>
 <div class="foot">
   <div class="hair"></div>
@@ -53,5 +59,12 @@ body{font-family:var(--sans);background:#040404;color:#e8e9eb;overflow:hidden}
     <span class="tag">HORI7ON &#183; 7EVEN</span>
   </div>
 </div>
+<div class="fadeout" id="fadeout"></div>
+<script>
+function enterStudio(){
+  document.getElementById('fadeout').classList.add('on');
+  setTimeout(function(){ window.location.href='/hori7on-studio.html'; }, 950);
+}
+</script>
 </body>
 </html>
