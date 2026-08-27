@@ -340,6 +340,22 @@ let view='hub', cur=null, cIdx=0, filter='All';
 const proj=id=>PROJECTS.find(p=>p.id===id);
 const el=id=>document.getElementById(id);
 
+function hubStats(){
+  const num=s=>parseFloat(String(s||'').replace(/[^0-9.]/g,''))||0;
+  const tot=PROJECTS.reduce((a,p)=>a+num(p.gv),0);
+  const plus=PROJECTS.some(p=>/\+/.test(p.gv||''));
+  const gv=tot>=1000
+    ? '$'+(tot/1000).toFixed(2).replace(/\.?0+$/,'')+'<span class="u">B'+(plus?'+':'')+'</span>'
+    : '$'+Math.round(tot)+'<span class="u">M'+(plus?'+':'')+'</span>';
+  const states=[...new Set(PROJECTS.map(p=>{const m=(p.city||'').match(/\b(VIC|QLD|NSW|SA|WA|TAS|NT|ACT)\b/);return m?m[1]:null}).filter(Boolean))];
+  const classes=[...new Set(PROJECTS.map(p=>p.type))];
+  const pad=n=>String(n).padStart(2,'0');
+  return `<div class="stat"><div class="sv">${gv}</div><div class="sl">Portfolio gross value</div></div>
+    <div class="stat"><div class="sv">${pad(PROJECTS.length)}</div><div class="sl">Flagship projects</div></div>
+    <div class="stat"><div class="sv">${pad(states.length)}<span class="u"> states</span></div><div class="sl">${states.join(' · ')}</div></div>
+    <div class="stat"><div class="sv">${pad(classes.length)}</div><div class="sl">Asset classes</div></div>`;
+}
+const NWORDS=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'];
 function render(){
   el('app').innerHTML = view==='project'? vProject() : vHub();
   document.body.classList.toggle('hubview', view==='hub');
@@ -357,15 +373,10 @@ function vHub(){
     </div>
     <div class="scroll">Scroll</div>
   </div>
-  <div class="stats">
-    <div class="stat"><div class="sv">$1.4<span class="u">B+</span></div><div class="sl">Portfolio gross value</div></div>
-    <div class="stat"><div class="sv">05</div><div class="sl">Flagship projects</div></div>
-    <div class="stat"><div class="sv">02<span class="u"> states</span></div><div class="sl">VIC · QLD</div></div>
-    <div class="stat"><div class="sv">04</div><div class="sl">Asset classes</div></div>
-  </div>
+  <div class="stats">${hubStats()}</div>
   <div class="sec sec-light"><div class="wrap">
     <div class="sec-head">
-      <div><div class="eyebrow">The portfolio</div><h2>Five projects.<br>One conviction.</h2></div>
+      <div><div class="eyebrow">The portfolio</div><h2>${NWORDS[PROJECTS.length]||PROJECTS.length} projects.<br>One conviction.</h2></div>
       <div style="text-align:right"><p>Select a project to explore its vision, valuation and the case for investment.</p>
         <div class="filters" style="justify-content:flex-end;margin-top:18px">${TYPES.map(t=>`<button class="fchip ${filter===t?'on':''}" data-act="filter" data-t="${t}">${t}</button>`).join('')}</div></div>
     </div>
