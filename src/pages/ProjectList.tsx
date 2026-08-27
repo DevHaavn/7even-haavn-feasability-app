@@ -384,7 +384,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               )}
               {/* HM + HAAVN BLACK — moved in from the footer */}
               <button className="ath-brandrow" title="NAVIGATORS — Management Hub" onClick={() => { setHmOpen(true); setMenuOpen(false) }}>
-                <img style={{ height: 11 }} src="/navigators-white.png" alt="NAVIGATORS" />
+                <img style={{ height: 13 }} src="/navigators-white.png" alt="NAVIGATORS" />
                 <span className="g">→</span>
               </button>
               <button className="ath-brandrow" title="HAAVN BLACK — Homes" onClick={() => { onOpenHomes?.(); setMenuOpen(false) }}>
