@@ -30,6 +30,11 @@ img{display:block;max-width:100%}
 .homebtn{font-family:var(--f-b);font-size:12px;letter-spacing:.3em;color:#fff;text-transform:uppercase;font-weight:600;text-decoration:none;margin-right:10px;text-shadow:0 0 10px rgba(255,255,255,.35);transition:.3s}
 .homebtn:hover{color:var(--gold)}
 body.hubview .nav:not(.solid) .homebtn{color:#131210;text-shadow:none}
+.partnerrow{display:flex;align-items:center;gap:22px;margin:10px 0 8px}
+.partnerrow img{height:20px;width:auto;display:block;opacity:.92;filter:drop-shadow(0 1px 6px rgba(0,0,0,.5))}
+.partnerrow.big{margin:14px 0 0}
+.partnerrow.big img{height:30px}
+.partline{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink3);margin-top:26px}
 .pnbrand{height:clamp(44px,6vw,64px);width:auto;display:block;margin-bottom:8px;filter:drop-shadow(0 2px 10px rgba(0,0,0,.5))}
 .pbrand{height:clamp(70px,10vw,130px);width:auto;display:block;margin:0 0 12px;filter:drop-shadow(0 2px 14px rgba(0,0,0,.55))}
 .pbrand2{height:clamp(90px,9vw,120px);width:auto;display:block;margin-bottom:26px;opacity:1;filter:drop-shadow(0 2px 10px rgba(0,0,0,.4))}
@@ -270,6 +275,7 @@ const PROJECTS=[
   gv:'$125M',gdv:'$125M',land:'1,042 m\u00b2',gfa:'7,135 m\u00b2',keys:'120 keys',status:'Fraser & Partners scheme',complete:'2028',
   arch:'Callum Fraser \u00b7 Fraser & Partners',
   brandimg:'/5ive-hotels-white.png',
+  partners:['/marriott-bonvoy-white.png','/autograph-collection-white.png'],
   tag:'Australia\'s first 5IVE. Marriott Bonvoy on the beachfront.',
   overview:'5IVE Caloundra is the first five-star branded hotel on the Sunshine Coast \u2014 a Callum Fraser\u2013designed, eight-storey beachfront landmark on the edge of Bulcock Beach, delivering 120 luxury residence hotel rooms with a gross value on completion of $125 million. 5IVE is backed and managed by Marriott Bonvoy \u2014 the world\'s largest hotelier, opening a new hotel every 48 hours with more than 10,000 hotels worldwide \u2014 joining its Autograph Collection alongside St Regis, EDITION, The Ritz-Carlton and W Hotels. From a 1,042 m\u00b2 double-frontage site, the hotel steps out over the water with a 1,000 m\u00b2 elevated bar above the ocean and a combined drop-off and arrival, crowned by a rooftop pool, fire pit and bar. Caloundra is one of three host locations for the villages of the 2032 Australian Olympic Games.',
   stats:[['Project value','$125M','GRV on completion'],['Hotel keys','120','Luxury residences \u00b7 8 storeys'],['Elevated ocean bar','1,000 m\u00b2','Over the water \u00b7 combined arrival'],['Site','1,042 m\u00b2','Two frontages \u00b7 48 cars \u00b7 7,135 m\u00b2 GBA']],
@@ -371,7 +377,7 @@ function pcard(p,i){
   return `<div class="pcard ${p.feat?'feat':''}" data-act="open" data-id="${p.id}">
     <div class="ph">${fillHtml}<div class="phlabel">${p.type} · ${nimg} images</div><div class="scrim"></div>
       <div class="num">${String(n).padStart(2,'0')}</div><div class="type">${p.type}</div>
-      <div class="cap"><div>${p.brandimg?'<img class="pnbrand" src="'+p.brandimg+'" alt="'+p.n+'">':'<div class="pn">'+p.n+'</div>'}<div class="pl">${p.addr}, ${p.city}</div></div>
+      <div class="cap"><div>${p.brandimg?'<img class="pnbrand" src="'+p.brandimg+'" alt="'+p.n+'">':'<div class="pn">'+p.n+'</div>'}${p.partners?'<div class="partnerrow">'+p.partners.map(function(s){return '<img src="'+s+'">';}).join('')+'</div>':''}<div class="pl">${p.addr}, ${p.city}</div></div>
         <div class="gv"><div class="g">${p.gv}</div><div class="gl">Gross value</div></div></div>
     </div></div>`;
 }
@@ -388,11 +394,11 @@ function vProject(){
     <div class="count mono">${cIdx+1} / ${N}</div>
     <button class="cnav dprev" data-act="cimg" data-d="-1">‹</button><button class="cnav dnext" data-act="cimg" data-d="1">›</button>
     <div class="dots">${slides.map((_,i)=>`<span class="dot ${i===cIdx?'on':''}" data-act="cdot" data-i="${i}"></span>`).join('')}</div>
-    <div class="dcap"><div class="in"><div class="dtype">${p.type} · ${p.status}</div>${p.brandimg?'<img class="pbrand" src="'+p.brandimg+'" alt="'+p.n+'">':'<h1>'+p.n+'</h1>'}<div class="dloc">${p.addr}, ${p.city}</div></div></div>
+    <div class="dcap"><div class="in"><div class="dtype">${p.type} · ${p.status}</div>${p.brandimg?'<img class="pbrand" src="'+p.brandimg+'" alt="'+p.n+'">':'<h1>'+p.n+'</h1>'}${p.partners?'<div class="partnerrow">'+p.partners.map(function(s){return '<img src="'+s+'">';}).join('')+'</div>':''}<div class="dloc">${p.addr}, ${p.city}</div></div></div>
   </div>
   <div class="dbody">
     <div class="dtop">
-      <div class="lead">${p.brandimg?'<img class="pbrand2" src="'+p.brandimg+'">':''}<span class="drop">“</span>${p.tag}<div class="body"><p>${p.overview}</p>${p.arch?`<div class="archline">Architecture — <b>${p.arch}</b></div>`:''}</div></div>
+      <div class="lead">${p.brandimg?'<img class="pbrand2" src="'+p.brandimg+'">':''}<span class="drop">“</span>${p.tag}<div class="body"><p>${p.overview}</p>${p.arch?`<div class="archline">Architecture — <b>${p.arch}</b></div>`:''}${p.partners?'<div class="partline">In partnership with</div><div class="partnerrow big">'+p.partners.map(function(s){return '<img src="'+s+'">';}).join('')+'</div>':''}</div></div>
       <div class="statgrid">${(p.stats||[['Gross valuation',p.gv,'GDV '+p.gdv],['Land area',p.land,''],['Yield / scale',p.keys,p.gfa!=='—'?'GFA '+p.gfa:''],['Status',p.status,'Target '+p.complete]]).map((s,si)=>`<div class="cell"><div class="cl">${s[0]}</div><div class="cv ${si===0?'gv':''}" style="font-size:${(''+s[1]).length>7?'22px':'30px'}">${s[1]}</div><div class="cs">${s[2]||''}</div></div>`).join('')}</div>
     </div>
     <div class="dcols">
