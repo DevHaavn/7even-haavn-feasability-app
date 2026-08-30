@@ -85,6 +85,8 @@ const CSS = `
 @keyframes athDrawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
 @media(max-width:900px){.ath-vl2,.ath-vr1{display:none}.ath-vl1{left:26px}.ath-vr2{right:26px}}
 @media(max-width:600px){.ath-tophead{padding-top:calc(env(safe-area-inset-top,0px) + 57px)}
+  /* burger pinned with a HARD floor below the Dynamic Island — env() can misreport 0 */
+  .ath-menuwrap{position:fixed;top:calc(max(env(safe-area-inset-top,0px), 54px) + 8px);right:14px;z-index:70}
   .ath-pmenu{top:calc(env(safe-area-inset-top,0px) + 118px);width:92vw;max-height:calc(100vh - env(safe-area-inset-top,0px) - 190px);overflow-y:auto}
   .ath-plist{max-height:38vh}}
 /* top */
