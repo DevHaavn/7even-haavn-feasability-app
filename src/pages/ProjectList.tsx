@@ -84,11 +84,7 @@ const CSS = `
 @keyframes athDrawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @keyframes athDrawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
 @media(max-width:900px){.ath-vl2,.ath-vr1{display:none}.ath-vl1{left:26px}.ath-vr2{right:26px}}
-@media(max-width:600px){.ath-tophead{padding-top:calc(env(safe-area-inset-top,0px) + 57px)}
-  /* burger pinned with a HARD floor below the Dynamic Island — env() can misreport 0 */
-  .ath-menuwrap{position:fixed;top:calc(max(env(safe-area-inset-top,0px), 54px) + 8px);right:14px;z-index:70}
-  .ath-pmenu{top:calc(env(safe-area-inset-top,0px) + 118px);width:92vw;max-height:calc(100vh - env(safe-area-inset-top,0px) - 190px);overflow-y:auto}
-  .ath-plist{max-height:38vh}}
+
 /* top */
 .ath-tophead{position:relative;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;padding:26px 2px 0}
 .ath-capbtn{grid-column:2;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-decoration:none;background:none;border:none;transition:.3s;padding:0}
@@ -230,6 +226,22 @@ const CSS = `
   .ath-chip{padding:6px 8px;font-size:8px;letter-spacing:.16em}
   .ath-capwings{width:56px}
 }
+
+@media(max-width:600px){
+  /* ── phone-only layout (approved preview): CAPITAL block centred mid-screen,
+     burger centred under STUDIO, 7EVEN in the lower third, menu drops beneath ── */
+  .ath-tophead{position:fixed;left:0;right:0;top:34%;transform:translateY(-50%);z-index:22;
+    display:flex;flex-direction:column;align-items:center;padding:0}
+  .ath-tophead > div:first-child{display:none}
+  .ath-capwings{width:92px}
+  .ath-eyebrow{font-size:11px;line-height:1.9;max-width:22ch;margin-top:12px}
+  .ath-menuwrap{position:relative;margin-top:20px;z-index:70}
+  .ath-burger{width:64px;height:56px}
+  .ath-hero{justify-content:flex-end;padding-bottom:19vh}
+  .ath-seven{width:min(300px,76vw)}
+  .ath-root.menu-open .ath-tophead > div:nth-child(2){opacity:.07;filter:blur(2px);transition:.35s}
+  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:50%;width:88vw;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .ath-plist{max-height:32vh}}
 `
 
 export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onOpenHomes?: () => void }) {
