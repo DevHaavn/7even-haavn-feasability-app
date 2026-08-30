@@ -98,7 +98,7 @@ const CSS = `
 .ath-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.44em;margin-top:6px}
 /* burger */
 .ath-menuwrap{grid-column:3;justify-self:end;position:relative;z-index:60}
-.ath-burger{width:46px;height:42px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
+.ath-burger{width:58px;height:52px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
 .ath-burger span{display:block;width:4px;height:22px;background:#dfe1e4;transition:.3s;border-radius:1px}
 .ath-burger span:nth-child(2){display:none}
 .ath-burger:hover span,.ath-burger.on span{background:#d6b36a;box-shadow:0 0 10px rgba(214,179,106,.9),0 0 22px rgba(214,179,106,.5)}
@@ -197,7 +197,7 @@ const CSS = `
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
-.ath-frail{position:relative;z-index:4;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:14px 2px 16px;white-space:nowrap}
+.ath-frail{position:relative;z-index:4;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:14px 2px calc(16px + env(safe-area-inset-bottom,0px));white-space:nowrap}
 .ath-fl{display:flex;align-items:center;gap:16px;min-width:0}
 .ath-atrium{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.34em;color:#c3c7cd}
 .ath-tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}

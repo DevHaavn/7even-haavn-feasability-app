@@ -500,7 +500,7 @@
 /* ============ WORKSPACE FOOTER — one-line, main-app style ============ */
 .fxs .fx-foot{flex:none;background:linear-gradient(180deg,rgba(6,7,8,.96),#050607);padding:0 clamp(16px,3vw,40px);z-index:51}
 .fxs .ff-hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
-.fxs .ff-rail{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:9px 2px 10px;white-space:nowrap}
+.fxs .ff-rail{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:9px 2px calc(10px + env(safe-area-inset-bottom,0px));white-space:nowrap}
 .fxs .ff-l{display:flex;align-items:center;gap:14px;min-width:0}
 .fxs .ff-atr{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.34em;color:#c3c7cd;background:none;border:none;cursor:pointer;text-transform:uppercase}
 .fxs .ff-atr:hover{color:#fff;text-shadow:0 0 10px rgba(255,255,255,.4)}

@@ -184,7 +184,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   // ── the mounted Black Series feasibility studio ──────────────────────────────
   if (open) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', overflow: 'hidden', overscrollBehavior: 'none' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
         <iframe title={`HAAVN Black Series — ${open.name}`}
           src={`${BLACK_SERIES_URL}#home=${encodeURIComponent(open.id)}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
@@ -195,9 +195,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   // ── HAAVN BLACK home screen — the new hero (replaces the glass-tower landing).
   //    Its buttons post messages handled by the effect above. ──────────────────
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title={welcomed ? 'HAAVN BLACK' : 'HAAVN BLACK — Welcome'}
-        src={welcomed ? '/haavn-black.html?v=13' : '/haavn-black-welcome.html'} allow="autoplay; fullscreen"
+        src={welcomed ? '/haavn-black.html?v=14' : '/haavn-black-welcome.html'} allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

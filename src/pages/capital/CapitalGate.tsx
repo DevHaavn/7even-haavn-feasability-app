@@ -55,7 +55,7 @@ const CSS = `
 .cg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:0 clamp(18px,3.4vw,46px)}
 .cg-hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
-.cg-frail{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 2px 14px;white-space:nowrap}
+.cg-frail{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 2px calc(14px + env(safe-area-inset-bottom,0px));white-space:nowrap}
 .cg-atr{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.34em;color:#c3c7cd}
 .cg-tri2{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
 .cg-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;color:#8a8f95;text-transform:uppercase}
