@@ -121,6 +121,16 @@ const CSS = `
 .ath-base:hover,.ath-base.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.75);box-shadow:0 0 26px -10px rgba(255,255,255,.5)}
 .ath-base .g{color:#fff;font-size:12px}
 .ath-newp-row{width:100%;justify-content:center;margin-bottom:12px}
+.ath-pinrow{display:flex;align-items:center;gap:14px;width:100%;margin:2px 0 12px;padding:12px 16px;
+  border:1px solid rgba(214,179,106,.45);border-radius:2px;background:rgba(214,179,106,.04);transition:.3s}
+.ath-pinrow.err{border-color:rgba(224,100,92,.75);animation:athPinShake .4s ease}
+@keyframes athPinShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+.ath-pinlbl{font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6b36a;text-transform:uppercase;flex:none}
+.ath-pininp{width:96px;background:transparent;border:none;border-bottom:1px solid rgba(214,179,106,.5);color:#fff;outline:none;
+  font-family:var(--mono);font-size:20px;letter-spacing:.5em;text-align:center;padding:2px 0 5px;caret-color:#d6b36a}
+.ath-pininp::placeholder{color:rgba(255,255,255,.3)}
+.ath-pinhint{font-family:var(--mono);font-size:7.5px;letter-spacing:.22em;color:#8a8f95;text-transform:uppercase;margin-left:auto;text-align:right}
+.ath-pinrow.err .ath-pinhint{color:#e0645c}
 .ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:14px;padding:13px 16px;cursor:pointer;
   background:rgba(214,179,106,.05);border:1px solid rgba(214,179,106,.45);border-radius:2px;transition:.3s}
 .ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
@@ -253,6 +263,26 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
   const [baseOpen, setBaseOpen] = useState(false)
+  // BASE is PIN-gated (Daniel + JB): the wider team holds the app code without
+  // reaching the feasibility numbers. SHA-256 — the PIN never ships in the bundle.
+  const BASE_PIN_HASH = '2926a2731f4b312c08982cacf8061eb14bf65c1a87cc5d70e864e079c6220731'
+  const [baseUnlocked, setBaseUnlocked] = useState<boolean>(() => {
+    try { return sessionStorage.getItem('base_pin_ok') === '1' } catch { return false }
+  })
+  const [pinPrompt, setPinPrompt] = useState(false)
+  const [pinVal, setPinVal] = useState('')
+  const [pinErr, setPinErr] = useState(false)
+  async function tryPin(v: string) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v))
+    const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+    if (hex === BASE_PIN_HASH) {
+      try { sessionStorage.setItem('base_pin_ok', '1') } catch { /* ignore */ }
+      setBaseUnlocked(true); setPinPrompt(false); setPinVal(''); setPinErr(false); setBaseOpen(true)
+    } else {
+      setPinErr(true); setPinVal('')
+      setTimeout(() => setPinErr(false), 900)
+    }
+  }
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
@@ -338,10 +368,31 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
 
               </div>
               {/* BASE — 7EVEN sub-brand: press to drop down the project feasibilities */}
-              <button className={`ath-base${baseOpen ? ' on' : ''}`} title="BASE — Project Feasibilities" onClick={() => setBaseOpen(v => !v)}>
+              <button className={`ath-base${baseOpen ? ' on' : ''}`} title="BASE — Project Feasibilities" onClick={() => { if (baseUnlocked) { setBaseOpen(v => !v) } else { setPinPrompt(v => !v); setPinVal(''); setPinErr(false) } }}>
                 <img src="/base-white.png" alt="BASE" />
                 <span className="g">{baseOpen ? '▾' : '▸'}</span>
               </button>
+              {pinPrompt && !baseUnlocked && (
+                <div className={`ath-pinrow${pinErr ? ' err' : ''}`}>
+                  <span className="ath-pinlbl">PIN</span>
+                  <input
+                    className="ath-pininp"
+                    type="password"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={4}
+                    autoFocus
+                    placeholder="····"
+                    value={pinVal}
+                    onChange={e => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 4)
+                      setPinVal(v); setPinErr(false)
+                      if (v.length === 4) void tryPin(v)
+                    }}
+                  />
+                  <span className="ath-pinhint">{pinErr ? 'INCORRECT PIN' : 'AUTHORISED ACCESS ONLY'}</span>
+                </div>
+              )}
               {baseOpen && (
                 <button className="ath-newp ath-newp-row" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project — Start a new feasibility</button>
               )}
