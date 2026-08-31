@@ -240,7 +240,11 @@ const CSS = `
   .ath-hero{justify-content:flex-end;padding-bottom:19vh}
   .ath-seven{width:min(300px,76vw)}
   .ath-root.menu-open .ath-tophead > div:nth-child(2){opacity:.07;filter:blur(2px);transition:.35s}
-  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:50%;width:88vw;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .ath-footwrap{transition:transform .35s ease,opacity .35s ease}
+  .ath-root.menu-open .ath-footwrap{transform:translateY(110%);opacity:0;pointer-events:none}
+  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:50%;width:88vw;
+    max-height:calc(48vh - env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
   .ath-plist{max-height:32vh}}
 `
 
@@ -433,7 +437,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       </div>
 
       {/* footer — one line */}
-      <div style={{ position: 'relative', zIndex: 4, padding: '0 clamp(18px,3.4vw,46px)' }}>
+      <div className="ath-footwrap" style={{ position: 'relative', zIndex: 4, padding: '0 clamp(18px,3.4vw,46px)' }}>
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">

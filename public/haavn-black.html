@@ -306,6 +306,25 @@ main,footer,header .kicker{transition:.38s}
 .pw-cancel:hover{border-color:rgba(255,255,255,.3);color:#fff}
 .pw-go{background:linear-gradient(180deg,rgba(126,224,168,.22),rgba(126,224,168,.06));border:1px solid rgba(126,224,168,.55);color:#eafff2;text-shadow:0 0 10px rgba(126,224,168,.4)}
 .pw-go:hover{border-color:rgba(126,224,168,.85);box-shadow:0 0 26px -8px rgba(126,224,168,.65)}
+
+/* ── phone-only layout — mirrors the 7EVEN home ── */
+@media(max-width:600px){
+  header{position:fixed;left:0;right:0;top:30%;transform:translateY(-50%);z-index:22;
+    display:flex;flex-direction:column;align-items:center;padding:0;border:none;background:none}
+  .bar{padding:0}
+  .cap img{height:44px}
+  .kicker{font-size:11px;line-height:1.9;max-width:24ch;text-align:center;margin-top:12px}
+  .hbburger{top:auto;right:auto;position:fixed;left:50%;transform:translateX(-50%);
+    top:calc(30% + 96px);width:64px;height:56px}
+  main{justify-content:flex-end;padding-bottom:16vh}
+  .logo{width:min(320px,84vw)}
+  .hbmenu{top:calc(30% + 168px);width:88vw;
+    max-height:calc(70% - 168px - env(safe-area-inset-bottom,0px) - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  footer{transition:transform .35s ease,opacity .35s ease}
+  body.hbmenu-open footer{transform:translateY(110%)!important;opacity:0;pointer-events:none;filter:none}
+  body.hbmenu-open header .bar,body.hbmenu-open header .kicker{opacity:.07;filter:blur(2px);transition:.35s}
+}
 </style>
 </head>
 <body>
