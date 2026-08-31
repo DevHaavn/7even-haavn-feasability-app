@@ -105,7 +105,7 @@ const CSS = `
 .ath-burger{position:relative}
 .ath-burger.on span{opacity:0}
 .ath-burger.on::before,.ath-burger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
-  background:#d6b36a;filter:drop-shadow(0 0 8px rgba(214,179,106,.7)) drop-shadow(0 0 18px rgba(214,179,106,.4));transition:.3s}
+  background:#d6b36a;filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62));transition:.3s}
 .ath-burger.on::before{left:8px;clip-path:polygon(0 0,42% 0,100% 50%,42% 100%,0 100%,58% 50%)}
 .ath-burger.on::after{right:8px;clip-path:polygon(100% 0,58% 0,0 50%,58% 100%,100% 100%,42% 50%)}
 /* floating menu — centred under the eyebrow, no card */
