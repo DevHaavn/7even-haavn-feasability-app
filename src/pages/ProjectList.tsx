@@ -184,26 +184,18 @@ const CSS = `
 .s7{position:absolute;inset:0;display:block;opacity:0;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
-/* Brand reveal: black metal chrome sweeps in left->right, then the white master
-   sweeps over it right->left and holds. Wrapper masks do the directional fade;
-   the child keeps the glyph mask + glow. */
-.s7wrap{position:absolute;inset:0;display:block;
-  -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-.s7wrap .s7{opacity:1}
-.s7kwrap{-webkit-mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
-  mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
-  -webkit-mask-position:100% 0;mask-position:100% 0;
-  animation:s7ksweep 1.9s ease .4s forwards}
-@keyframes s7ksweep{to{-webkit-mask-position:0 0;mask-position:0 0}}
-.s7wwrap{-webkit-mask-image:linear-gradient(90deg,transparent 0 40%,#000 60% 100%);
-  mask-image:linear-gradient(90deg,transparent 0 40%,#000 60% 100%);
-  -webkit-mask-position:0 0;mask-position:0 0;
-  animation:s7wsweep 1.9s ease 2.6s forwards}
-@keyframes s7wsweep{to{-webkit-mask-position:100% 0;mask-position:100% 0}}
-.s7k{background:linear-gradient(180deg,#2c2f33,#787f86 38%,#0a0b0c 55%,#43484e 78%,#101113);
-  filter:drop-shadow(0 0 6px rgba(255,255,255,.28)) drop-shadow(0 0 22px rgba(160,170,180,.18)) drop-shadow(0 3px 18px rgba(0,0,0,.7))}
-.s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
-@media(prefers-reduced-motion:reduce){.s7kwrap{display:none}.s7wwrap{animation:none;-webkit-mask:none;mask:none}}
+/* Brand reveal: jet-black high-gloss logo appears, then a slow 8s cross-fade
+   to the white master, which holds. No light effects on the black. */
+.s7{opacity:1}
+.s7k{background:linear-gradient(180deg,
+    #0d0e10 0%, #020203 28%, #000 55%,
+    #000 80%, #060708 100%);
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.85))}
+.s7w{background:#fff;opacity:0;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:s7toWhite 8s ease-in-out 2.9s forwards}
+@keyframes s7toWhite{to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.s7w{animation:none;opacity:1}}
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
@@ -482,7 +474,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-hero">
           <div className="ath-sevenwrap">
             <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-              <span className="s7wrap s7kwrap"><i className="s7 s7k" /></span><span className="s7wrap s7wwrap"><i className="s7 s7w" /></span>
+              <i className="s7 s7k" /><i className="s7 s7w" />
             </div>
             <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
           </div>
