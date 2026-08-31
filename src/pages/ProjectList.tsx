@@ -97,7 +97,7 @@ const CSS = `
 /* burger */
 .ath-menuwrap{grid-column:3;justify-self:end;position:relative;z-index:60}
 .ath-burger{width:58px;height:52px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
-.ath-burger span{display:block;width:4px;height:22px;transition:.3s;border-radius:1px;
+.ath-burger span{display:block;width:2px;height:22px;transition:.3s;border-radius:1px;
   background:linear-gradient(180deg, transparent 0%, rgba(214,179,106,.75) 7%, #d6b36a 50%, rgba(214,179,106,.75) 93%, transparent 100%);
   filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
 .ath-burger span:nth-child(2){display:none}
