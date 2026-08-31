@@ -135,7 +135,7 @@ const CSS = `
 .ath-pinrow.err .ath-pinhint{color:#e0645c}
 .ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:14px;padding:13px 16px;cursor:pointer;
   background:rgba(214,179,106,.05);border:1px solid rgba(214,179,106,.45);border-radius:2px;transition:.3s}
-.ath-hor7 img{height:14px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(214,179,106,.4))}
+.ath-hor7 img{height:14px;width:auto;display:block;filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
 .ath-hor7:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
 .ath-hor7 .g{color:#d6b36a;font-size:12px}
 .ath-hor7{margin-top:12px}
