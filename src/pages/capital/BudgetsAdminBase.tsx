@@ -18,13 +18,13 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
     blurb: '7EVEN & 7EVEN Capital books — project-linked budgets tracked live against the feasibility studio, invoice register and dashboards.',
     // Was the retired gold #C4973A. Xero blue — this book IS the Xero-backed
     // 7EVEN set, and it matches pillar 01 on the gateway it sits under.
-    color: '#13B5EA',
+    color: '#d6b36a',
   },
   {
     id: 'haavn', num: '02', title: 'HAAVN Administration',
     sub: 'Accounts & Settlement · Client revenue · FY27',
     blurb: 'The full ATRIUM Accounts & Settlement surface — client revenue, manager splits, group settlement, inter-co loans and the FY27 budget across every HAAVN entity, consolidated.',
-    color: '#2fe07a',
+    color: '#d6b36a',
   },
 ]
 
@@ -124,23 +124,26 @@ export default function BudgetsAdminBase() {
 @keyframes abh-spin{to{--abhA:360deg}}
 .abh-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
 .abh-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
-  background:conic-gradient(from var(--abhA),transparent 0deg,var(--ring) 130deg,var(--ring) 190deg,transparent 310deg,transparent 360deg);
+  background:conic-gradient(from var(--abhA),transparent 0deg,var(--ring) 130deg,#f4e3bd 160deg,var(--ring) 190deg,transparent 310deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.45)) drop-shadow(0 0 14px rgba(214,179,106,.3));
   animation:abh-spin 4.6s linear infinite;z-index:1}
-.abh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.45;pointer-events:none;
+.abh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.22;pointer-events:none;
   background:conic-gradient(from var(--abhA),transparent 0deg,var(--ringGlow) 150deg,transparent 300deg);
   filter:blur(16px);animation:abh-spin 4.6s linear infinite}
-.abh-ledbox.d2::before,.abh-ledbox.d2::after{animation-delay:-2.3s}
+.abh-ledbox.d2::before,.abh-ledbox.d2::after{animation-direction:reverse}
 .abh-ledbox:hover{transform:translateY(-4px)}
 .abh-ledbox:hover::before,.abh-ledbox:hover::after{animation-duration:2.4s}
 .abh-card{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
   -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
   padding:30px 28px 26px;min-height:480px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
 .abh-prow{display:flex;align-items:flex-start;justify-content:space-between}
-.abh-num{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1}
-.abh-apex{font-size:15px;opacity:.8;line-height:1}
-.abh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px}
+.abh-num{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1;
+  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3),0 0 34px rgba(190,150,80,.2)}
+.abh-apex{font-size:15px;opacity:.9;line-height:1;text-shadow:0 0 8px rgba(244,227,189,.45),0 0 18px rgba(214,179,106,.28)}
+.abh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px;
+  text-shadow:0 0 8px rgba(244,227,189,.38),0 0 18px rgba(214,179,106,.22)}
 .abh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:25px;letter-spacing:.01em;line-height:1.08;color:#fff;margin:0;display:flex;align-items:baseline;gap:.25em;flex-wrap:wrap}
 .abh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
 .abh-blurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
@@ -149,8 +152,8 @@ export default function BudgetsAdminBase() {
 .abh-enter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
 `
   const RING: Record<Group, { ring: string; glow: string }> = {
-    '7even': { ring: '#13B5EA', glow: 'rgba(19,181,234,.55)' },
-    'haavn': { ring: '#2fe07a', glow: 'rgba(47,224,122,.55)' },
+    '7even': { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
+    'haavn': { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
   }
   return (
     <div className="abh-wrap">
