@@ -8,7 +8,14 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{min-height:100vh;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
-  background:url('/atrium-dark-particles.jpg') center / cover no-repeat fixed #0a0a0b;color:#111}
+  background:url('/atrium-dark-particles.jpg') center / cover no-repeat fixed #060607;color:#111;position:relative}
+/* gloss film: darkens the field and lays a diagonal sheen + vignette over it for depth */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 38%, transparent 30%, rgba(0,0,0,.55) 100%),
+    linear-gradient(118deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 22%, transparent 40%, transparent 58%, rgba(255,255,255,.045) 78%, rgba(255,255,255,.01) 100%),
+    linear-gradient(180deg, rgba(4,4,5,.42), rgba(4,4,5,.3) 45%, rgba(4,4,5,.5))}
+.chrome,.wrap,.pvtag{position:relative;z-index:1}
 .chrome{position:sticky;top:0;z-index:20;background:#0a0b0c;border-bottom:1px solid rgba(255,255,255,.08)}
 .c1{display:flex;align-items:center;gap:22px;padding:14px 26px}
 .home{font-size:15px;letter-spacing:.32em;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.5),0 0 30px rgba(255,255,255,.22);text-transform:uppercase;font-weight:500}
