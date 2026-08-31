@@ -217,6 +217,7 @@ const CSS = `
 .ath-livedot{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 10px var(--led);animation:athPulse 2.4s infinite}
 @keyframes athPulse{0%,100%{opacity:1}50%{opacity:.4}}
 .ath-clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em;font-family:var(--mono)}
+.ath-melb{color:#d6b36a;text-shadow:0 0 9px rgba(244,227,189,.85),0 0 26px rgba(214,179,106,.7),0 0 44px rgba(190,150,80,.45)}
 .ath-fr{display:flex;align-items:center;gap:8px;justify-self:end}
 .ath-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
   font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s cubic-bezier(.2,.7,.3,1);text-transform:uppercase;text-decoration:none}
@@ -489,7 +490,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
             <span className="ath-atrium"><span className="ath-tri" />ATRIUM</span>
           </div>
           <div className="ath-fc">
-            <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
+            <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;<span className="ath-melb">·&nbsp;MELBOURNE</span></span>
           </div>
           <div className="ath-fr">
             <a className="ath-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
