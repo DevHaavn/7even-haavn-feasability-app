@@ -249,12 +249,12 @@ footer{padding-bottom:20px}
 /* ---- burger menu (top right) — green hover, glass drop-down ---- */
 .hbburger{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:18px;z-index:220;width:60px;height:54px;
   display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;padding:0;transition:.3s}
-.hbburger span{display:block;width:4px;height:22px;background:#dfe1e4;transition:.3s;border-radius:1px}
+.hbburger span{display:block;width:4px;height:22px;background:#219d55;box-shadow:0 0 8px rgba(33,157,85,.5);transition:.3s;border-radius:1px}
 .hbburger span:nth-child(2){display:none}
-.hbburger:hover span,.hbburger.on span{background:#219d55;box-shadow:0 0 10px rgba(33,157,85,.65),0 0 22px rgba(33,157,85,.35)}
+.hbburger:hover span,.hbburger.on span{background:#2fe07a;box-shadow:0 0 10px rgba(47,224,122,.8),0 0 22px rgba(47,224,122,.45)}
 .hbburger.on span{opacity:0}
 .hbburger.on::before,.hbburger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
-  background:#219d55;filter:drop-shadow(0 0 8px rgba(33,157,85,.6)) drop-shadow(0 0 18px rgba(33,157,85,.32));transition:.3s}
+  background:#2fe07a;filter:drop-shadow(0 0 8px rgba(47,224,122,.7)) drop-shadow(0 0 18px rgba(47,224,122,.4));transition:.3s}
 .hbburger.on::before{left:8px;clip-path:polygon(0 0,42% 0,100% 50%,42% 100%,0 100%,58% 50%)}
 .hbburger.on::after{right:8px;clip-path:polygon(100% 0,58% 0,0 50%,58% 100%,100% 100%,42% 50%)}
 .hbmenu{position:fixed;top:clamp(150px,20vh,210px);left:50%;z-index:219;width:min(560px,84vw);
