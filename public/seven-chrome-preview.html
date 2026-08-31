@@ -20,37 +20,17 @@ body{background:#040404;color:#e8e9eb;font-family:'JetBrains Mono',monospace;ove
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
 
-/* wrapper masks do the directional reveals */
-.s7wrap{position:absolute;inset:0;display:block;
-  -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-
-/* 1 — high-gloss black chrome sweeps in L->R */
-.kwrap{-webkit-mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
-  mask-image:linear-gradient(90deg,#000 0 40%,transparent 60% 100%);
-  -webkit-mask-position:100% 0;mask-position:100% 0;
-  animation:ksweep 1.9s ease .4s forwards}
-@keyframes ksweep{to{-webkit-mask-position:0 0;mask-position:0 0}}
-
-/* piano-black body with a crisp mirror specular band */
+/* full high-gloss piano black — no light effects, subtle dark reflections only */
 .s7k{background:linear-gradient(180deg,
-    #202226 0%, #0b0c0e 26%, #040506 40%,
-    #5c636b 47%, #eef2f6 50%, #5c636b 53%,
-    #030405 62%, #101215 84%, #1c1e22 100%);
-  filter:drop-shadow(0 0 5px rgba(255,255,255,.32)) drop-shadow(0 0 20px rgba(170,180,190,.16)) drop-shadow(0 4px 20px rgba(0,0,0,.75))}
+    #2a2c30 0%, #101114 30%, #030405 52%,
+    #08090b 68%, #1e2024 88%, #0b0c0e 100%);
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.8))}
 
-/* moving gloss sheen while the chrome holds */
-.s7sheen{background:linear-gradient(115deg,transparent 0 42%,rgba(255,255,255,.78) 50%,transparent 58% 100%);
-  background-size:300% 100%;background-position:120% 0;opacity:0;
-  animation:sheen 2.3s ease-in-out 2.5s forwards}
-@keyframes sheen{0%{opacity:0;background-position:120% 0}12%{opacity:.85}88%{opacity:.85}100%{opacity:0;background-position:-20% 0}}
-
-/* 2 — white master fades over it R->L, slower + softer edge, then holds */
-.wwrap{-webkit-mask-image:linear-gradient(90deg,transparent 0 22%,#000 78% 100%);
-  mask-image:linear-gradient(90deg,transparent 0 22%,#000 78% 100%);
-  -webkit-mask-position:0 0;mask-position:0 0;
-  animation:wsweep 4.2s ease-in-out 5.2s forwards}
-@keyframes wsweep{to{-webkit-mask-position:100% 0;mask-position:100% 0}}
-.s7w{background:#fff;filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6))}
+/* white master cross-fades over it — 8s, then holds */
+.s7w{background:#fff;opacity:0;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
+  animation:toWhite 8s ease-in-out 2.9s forwards}
+@keyframes toWhite{to{opacity:1}}
 
 .sub{margin-top:22px;font-size:7px;letter-spacing:.5em;color:#8a8f95;text-transform:uppercase;text-align:center;padding-left:.5em}
 
@@ -67,8 +47,7 @@ body{background:#040404;color:#e8e9eb;font-family:'JetBrains Mono',monospace;ove
 <div class="stage">
   <div class="sevenwrap" id="wrap">
     <div class="seven" role="img" aria-label="7EVEN">
-      <span class="s7wrap kwrap"><i class="s7 s7k"></i><i class="s7 s7sheen"></i></span>
-      <span class="s7wrap wwrap"><i class="s7 s7w"></i></span>
+      <i class="s7 s7k"></i><i class="s7 s7w"></i>
     </div>
     <div class="sub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
   </div>
