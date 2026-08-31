@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATRIUM · Workspace Background (preview)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background:url('/atrium-dark-particles.jpg') center / cover no-repeat fixed #0a0a0b;color:#111}
+.chrome{position:sticky;top:0;z-index:20;background:#0a0b0c;border-bottom:1px solid rgba(255,255,255,.08)}
+.c1{display:flex;align-items:center;gap:22px;padding:14px 26px}
+.home{font-size:15px;letter-spacing:.32em;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.5),0 0 30px rgba(255,255,255,.22);text-transform:uppercase;font-weight:500}
+.pn{font-family:'Cormorant Garamond',serif;font-size:17px;color:#e8eaec}
+.pa{font-size:10px;letter-spacing:.1em;color:#8a8f95;margin-top:2px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fe07a;box-shadow:0 0 9px #2fe07a;margin-right:8px}
+.tabs{display:flex;gap:2px;padding:0 16px;border-top:1px solid rgba(255,255,255,.06)}
+.tab{padding:15px 17px;font-size:10.5px;letter-spacing:.18em;color:#7d8288;text-transform:uppercase;position:relative}
+.tab.on{color:#fff}
+.tab.on::after{content:"";position:absolute;left:17px;right:17px;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,#d6b36a,transparent);box-shadow:0 0 14px rgba(214,179,106,.8),0 0 30px rgba(214,179,106,.4)}
+.wrap{max-width:1500px;margin:0 auto;padding:44px 40px;display:grid;grid-template-columns:1fr 380px;gap:26px;align-items:start}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.34em;color:#d6b36a;text-transform:uppercase}
+.h-sec{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:#f2f3f5;margin-top:10px;text-shadow:0 2px 18px rgba(0,0,0,.65)}
+.sub{font-size:13.5px;color:#d6b36a;margin-top:8px;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.head{grid-column:1/-1}
+.panel{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:15px;padding:28px 30px;
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06)}
+.sect{font-size:10.5px;letter-spacing:.26em;color:#8a8f95;text-transform:uppercase;margin-bottom:8px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:17px 0;border-bottom:1px solid rgba(0,0,0,.07)}
+.row .l{font-size:14.5px;color:#1a1c1f}
+.row .hint{font-size:11.5px;color:#9aa0a6;margin-top:3px}
+.inp{width:170px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:14px;color:#111;
+  border:1px solid rgba(0,0,0,.14);border-radius:9px;padding:12px 14px;background:#fff}
+.side .panel{margin-bottom:22px}
+.klabel{font-size:10.5px;letter-spacing:.26em;color:#8a8f95;text-transform:uppercase}
+.kbig{font-family:'JetBrains Mono',monospace;font-size:30px;color:#111;margin-top:12px}
+.bar{height:6px;border-radius:6px;background:rgba(0,0,0,.08);margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;width:80%;background:linear-gradient(90deg,#1f8a5b,#2fbf7d);border-radius:6px}
+.note{font-size:13px;color:#3a3f45;margin-top:16px}
+.pvtag{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:40;font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.28em;color:#d6b36a;text-transform:uppercase;background:rgba(6,6,8,.8);border:1px solid rgba(214,179,106,.5);
+  padding:8px 16px;border-radius:2px;backdrop-filter:blur(8px)}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="c1">
+    <span class="home">Home</span>
+    <div><div class="pn"><span class="dot"></span>St Village Preston</div><div class="pa">2-3 Newman Street, Preston VIC 3072 · BTR</div></div>
+  </div>
+  <div class="tabs">
+    <span class="tab on">Site &amp; Design</span><span class="tab">Land &amp; Terms</span><span class="tab">Product Mix</span>
+    <span class="tab">Cost Stack</span><span class="tab">Finance</span><span class="tab">Cash Flow</span>
+    <span class="tab">Timeline</span><span class="tab">Overview</span><span class="tab">Dashboard</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">01 · Site &amp; Design</div>
+    <div class="h-sec">Area Schedule</div>
+    <div class="sub">GBA, GFA, NSA and ancillary areas from the architect's schedule.</div>
+  </div>
+
+  <div class="panel">
+    <div class="sect">Residential Areas</div>
+    <div class="row"><span class="l">Resi NSA (sqm)</span><input class="inp" value="22300"></div>
+    <div class="row"><span class="l">Resi GFA (sqm)</span><input class="inp" value="27875"></div>
+    <div class="row"><div><span class="l">Resi GBA (sqm)</span><div class="hint">Used for cost stack</div></div><input class="inp" value="46300"></div>
+    <div class="row"><span class="l">Balcony (sqm)</span><input class="inp" value="2400"></div>
+    <div class="row"><span class="l">Basement (sqm)</span><input class="inp" value="5400"></div>
+    <div class="row" style="border-bottom:none"><span class="l">Car spaces</span><input class="inp" value="180"></div>
+  </div>
+
+  <div class="side">
+    <div class="panel">
+      <div class="klabel">Reconciliation Check</div>
+      <div class="klabel" style="margin-top:16px;color:#6a6f75">NSA / GFA Efficiency</div>
+      <div class="kbig">80.0%</div>
+      <div class="bar"><i></i></div>
+      <div class="note"><b>Total ancillary GBA</b><br>✓ Resi 46,300 + Other 2,000</div>
+    </div>
+  </div>
+</div>
+
+<div class="pvtag">New workspace background — preview</div>
+</body>
+</html>
