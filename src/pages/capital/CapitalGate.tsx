@@ -26,7 +26,8 @@ const CSS = `
 .cg-back:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07)}
 .cg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 90px}
 .cg-wings{height:44px;width:auto;opacity:.95;filter:drop-shadow(0 2px 14px rgba(0,0,0,.6))}
-.cg-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#d6b36a;margin-top:20px;padding-left:.5em}
+.cg-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#d6b36a;margin-top:20px;padding-left:.5em;
+  text-shadow:0 0 8px rgba(244,227,189,.9),0 0 20px rgba(214,179,106,.6),0 0 34px rgba(190,150,80,.4)}
 .cg-sub{font-family:'JetBrains Mono',monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#9aa0a6;margin-top:12px;text-align:center}
 
 .cg-card{margin-top:46px;width:min(360px,90vw)}
@@ -34,10 +35,11 @@ const CSS = `
 @keyframes cg-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 .cg-lbl{display:block;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
 .cg-inwrap{position:relative}
-.cg-inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
+.cg-inp{width:100%;background:transparent;border:none;border-bottom:1px solid #d6b36a;color:#fff;
+  box-shadow:0 3px 9px -2px rgba(244,227,189,.7),0 5px 22px -2px rgba(214,179,106,.45);
   font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.4em;padding:8px 52px 10px 2px;outline:none;transition:.3s;box-sizing:border-box}
 .cg-inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
-.cg-inp:focus{border-bottom-color:#d6b36a;box-shadow:0 1px 0 0 rgba(214,179,106,.45)}
+.cg-inp:focus{border-bottom-color:#f4e3bd;box-shadow:0 3px 10px -2px rgba(244,227,189,.95),0 5px 26px -2px rgba(214,179,106,.7)}
 .cg-inp.err{border-bottom-color:#e0645c}
 .cg-inp:-webkit-autofill,.cg-inp:-webkit-autofill:hover,.cg-inp:-webkit-autofill:focus{
   -webkit-text-fill-color:#fff;caret-color:#fff;
@@ -49,7 +51,8 @@ const CSS = `
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
   background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
 .cg-enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.65)}
-.cg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #d6b36a}
+.cg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #d6b36a;
+  filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.9)) drop-shadow(0 0 16px rgba(214,179,106,.6))}
 .cg-err{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
 
 .cg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);
