@@ -49,7 +49,11 @@
      text above it — the reference keeps its texture layer behind everything too.
      The .35 layer opacity is baked into the dot colour (0.5 × 0.35 ≈ 0.175). */
   /* Exact grey fabric field (workspace redesign) — no filter, no tint. */
-  background:url('/atrium-fabric-grey.jpg') center / cover no-repeat fixed #8a8a8a;
+  background:
+    radial-gradient(120% 90% at 50% 38%, transparent 30%, rgba(0,0,0,.55) 100%),
+    linear-gradient(118deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 22%, transparent 40%, transparent 58%, rgba(255,255,255,.045) 78%, rgba(255,255,255,.01) 100%),
+    linear-gradient(180deg, rgba(4,4,5,.42), rgba(4,4,5,.3) 45%, rgba(4,4,5,.5)),
+    url('/atrium-dark-particles.jpg') center / cover no-repeat fixed #060607;
   -webkit-font-smoothing:antialiased;
   transition:background .5s,color .5s;
   min-height:100%;
@@ -201,8 +205,8 @@
 /* headings */
 .fxs .pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
 .fxs .kicker{font-size:10px;letter-spacing:.32em;color:#d6b36a;font-weight:600;margin-bottom:11px;text-transform:uppercase}
-.fxs .h-sec{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:.01em;line-height:1;color:var(--ink)}
-.fxs .h-sub{font-size:12.5px;color:#d6b36a;font-weight:500;margin-top:9px}
+.fxs .h-sec{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:.01em;line-height:1;color:#f2f3f5;text-shadow:0 2px 18px rgba(0,0,0,.65)}
+.fxs .h-sub{font-size:12.5px;color:#d6b36a;font-weight:500;margin-top:9px;text-shadow:0 1px 10px rgba(0,0,0,.5)}
 .fxs .eyebrow{font-size:9.5px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
 .fxs .divlabel{font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase;font-weight:600;margin:22px 0 6px}
 .fxs .divlabel:first-child{margin-top:0}
@@ -530,7 +534,11 @@
 }
 /* iOS: background-attachment:fixed is unsupported and causes repaint wobble */
 @media(max-width:768px){
-  .fxs{background:url('/atrium-fabric-grey.jpg') center / cover no-repeat #8a8a8a}
+  .fxs{background:
+    radial-gradient(120% 90% at 50% 38%, transparent 30%, rgba(0,0,0,.55) 100%),
+    linear-gradient(118deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 22%, transparent 40%, transparent 58%, rgba(255,255,255,.045) 78%, rgba(255,255,255,.01) 100%),
+    linear-gradient(180deg, rgba(4,4,5,.42), rgba(4,4,5,.3) 45%, rgba(4,4,5,.5)),
+    url('/atrium-dark-particles.jpg') center / cover no-repeat #060607}
 }
 
 /* Phone: drop the workspace header content below the Dynamic Island (~1.5cm);
