@@ -77,10 +77,10 @@ const CSS = `
   background:conic-gradient(from var(--hmhA),transparent 0deg,#d6b36a 130deg,#f4e3bd 160deg,#d6b36a 190deg,transparent 310deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
-  filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.9)) drop-shadow(0 0 14px rgba(214,179,106,.6));
+  filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.45)) drop-shadow(0 0 14px rgba(214,179,106,.3));
   animation:hmh-spin 4.6s linear infinite;z-index:1}
-.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.55;pointer-events:none;
-  background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(214,179,106,.6) 150deg,transparent 300deg);
+.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.28;pointer-events:none;
+  background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(214,179,106,.3) 150deg,transparent 300deg);
   filter:blur(16px);animation:hmh-spin 4.6s linear infinite}
 .hmh-ledbox.b2::before,.hmh-ledbox.b2::after{animation-direction:reverse}
 .hmh-ledbox:hover{transform:translateY(-4px)}
@@ -90,10 +90,10 @@ const CSS = `
   padding:30px 28px 26px;min-height:560px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
 .hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
 .hmh-pnum{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1;
-  text-shadow:0 0 8px rgba(244,227,189,.9),0 0 20px rgba(214,179,106,.6),0 0 34px rgba(190,150,80,.4)}
-.hmh-papex{font-size:15px;opacity:.9;line-height:1;text-shadow:0 0 8px rgba(244,227,189,.9),0 0 18px rgba(214,179,106,.55)}
+  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3),0 0 34px rgba(190,150,80,.2)}
+.hmh-papex{font-size:15px;opacity:.9;line-height:1;text-shadow:0 0 8px rgba(244,227,189,.45),0 0 18px rgba(214,179,106,.28)}
 .hmh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px;
-  text-shadow:0 0 8px rgba(244,227,189,.75),0 0 18px rgba(214,179,106,.45)}
+  text-shadow:0 0 8px rgba(244,227,189,.38),0 0 18px rgba(214,179,106,.22)}
 .hmh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:27px;letter-spacing:.01em;line-height:1.06;color:#fff;margin:0}
 .hmh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
 .hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
