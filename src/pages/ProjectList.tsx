@@ -99,11 +99,11 @@ const CSS = `
 .ath-burger{width:58px;height:52px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
 .ath-burger span{display:block;width:4px;height:22px;background:#dfe1e4;transition:.3s;border-radius:1px}
 .ath-burger span:nth-child(2){display:none}
-.ath-burger:hover span,.ath-burger.on span{background:#d6b36a;box-shadow:0 0 10px rgba(214,179,106,.9),0 0 22px rgba(214,179,106,.5)}
+.ath-burger:hover span,.ath-burger.on span{background:#967d4a;box-shadow:0 0 10px rgba(150,125,74,.65),0 0 22px rgba(150,125,74,.35)}
 .ath-burger{position:relative}
 .ath-burger.on span{opacity:0}
 .ath-burger.on::before,.ath-burger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
-  background:#d6b36a;filter:drop-shadow(0 0 8px rgba(214,179,106,.85)) drop-shadow(0 0 18px rgba(214,179,106,.45));transition:.3s}
+  background:#967d4a;filter:drop-shadow(0 0 8px rgba(150,125,74,.6)) drop-shadow(0 0 18px rgba(150,125,74,.32));transition:.3s}
 .ath-burger.on::before{left:8px;clip-path:polygon(0 0,42% 0,100% 50%,42% 100%,0 100%,58% 50%)}
 .ath-burger.on::after{right:8px;clip-path:polygon(100% 0,58% 0,0 50%,58% 100%,100% 100%,42% 50%)}
 /* floating menu — centred under the eyebrow, no card */
