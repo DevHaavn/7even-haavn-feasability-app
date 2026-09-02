@@ -4,6 +4,7 @@ import * as db from '../../db'
 import type { FinanceAssumptions, DebtTranche } from '../../db/schema'
 import { calculateFinanceWaterfall } from '../../engine/financeWaterfall'
 import type { WaterfallResult, WaterfallMonth, TrancheWaterfall } from '../../engine/financeWaterfall'
+import ProfitLens from '../../components/ProfitLens'
 
 interface Props { projectId: string }
 
@@ -127,7 +128,15 @@ export default function FinanceTab({ projectId }: Props) {
 
   const detailed = db.getDetailedCostStack(projectId)
   const land = db.getLandTerms(projectId)
-  const result = useMemo(() => calculateFinanceWaterfall(detailed, land, fa), [detailed, land, fa])
+  // ONE TDC: size facilities/equity/interest off the authoritative project cost
+  // (cost stack + effective land), the same figure Cost Stack & Overview show.
+  const proj = db.getProjectTDC(projectId)
+  const metrics = db.getProfitMetrics(projectId)
+  const result = useMemo(
+    () => calculateFinanceWaterfall(detailed, land, fa, proj.costExFinance + proj.land),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(fa), proj.costExFinance, proj.land, projectId, syncTick],
+  )
 
   function patchTranche(id: string, patch: Partial<DebtTranche>) {
     lastEdit.current = Date.now()
@@ -181,6 +190,59 @@ export default function FinanceTab({ projectId }: Props) {
           <Kpi label="Senior capitalised" value={fmtM(result.seniorCapitalised)} sub="rolls into debt balance" />
           <Kpi label="All-in TDC" value={fmtM(result.allInTDC)} sub="incl. all finance" accent />
         </div>
+
+        {/* Project outcome — same engine feed as Overview & Dashboard */}
+        <div className="kpis k5 mb">
+          <Kpi label="GDV" value={fmtM(metrics.gdv)} sub="best scenario" />
+          <Kpi label="Dev profit" value={fmtM(metrics.profit)} color={metrics.profit >= 0 ? GREEN : RED} sub="GDV − all-in TDC" />
+          <Kpi label="Margin on cost" value={pct(metrics.marginOnCost)} sub="profit ÷ TDC" />
+          <Kpi label="Project IRR" value={metrics.irr == null ? '—' : pct(metrics.irr)} sub="equity cashflow" />
+          <Kpi label="Equity multiple" value={`${metrics.equityMultiple.toFixed(2)}×`} sub="on peak equity" />
+        </div>
+
+        {/* View-as lens — each persona's read of the same numbers */}
+        {lens === 'developer' && <div className="panel pad mb"><ProfitLens projectId={projectId} /></div>}
+        {lens === 'bank' && (() => {
+          const totalFac = result.tranches.reduce((a, t) => a + t.facility, 0)
+          const lvr = result.baseTDC > 0 ? totalFac / result.baseTDC : 0
+          const cover = result.peakDebt > 0 ? metrics.gdv / result.peakDebt : 0
+          return (
+            <div className="kpis k4 mb">
+              <Kpi label="Total facilities" value={fmtM(totalFac)} sub={`${pct(lvr)} of base TDC`} />
+              <Kpi label="Peak debt" value={fmtM(result.peakDebt)} sub="max outstanding" />
+              <Kpi label="GDV cover on peak debt" value={`${cover.toFixed(2)}×`} sub="GDV ÷ peak debt" color={cover >= 1.5 ? GREEN : GOLD} />
+              <Kpi label="Margin on GDV" value={pct(metrics.marginOnGdv)} sub="financier's margin test" />
+            </div>
+          )
+        })()}
+        {lens === 'mezz' && (() => {
+          const mezz = result.tranches.filter(t => t.type === 'mezz')
+          const mezzFac = mezz.reduce((a, t) => a + t.facility, 0)
+          const mezzInt = mezz.reduce((a, t) => a + t.interestTotal, 0)
+          const seniorFac = result.tranches.filter(t => t.type === 'senior' || t.type === 'land').reduce((a, t) => a + t.facility, 0)
+          const attach = result.baseTDC > 0 ? seniorFac / result.baseTDC : 0
+          const detach = result.baseTDC > 0 ? (seniorFac + mezzFac) / result.baseTDC : 0
+          return (
+            <div className="kpis k4 mb">
+              <Kpi label="Mezz facility" value={fmtM(mezzFac)} sub={mezz.length ? mezz.map(t => `${((t.rate || 0) * 100).toFixed(1)}%`).join(' · ') : 'no mezz tranche'} />
+              <Kpi label="Mezz interest earned" value={fmtM(mezzInt)} color={PURPLE} sub="over the facility life" />
+              <Kpi label="Attach / detach" value={`${pct(attach, 0)} – ${pct(detach, 0)}`} sub="of base TDC" />
+              <Kpi label="Equity cushion below" value={fmtM(Math.max(0, result.baseTDC - seniorFac - mezzFac))} sub="losses absorbed first" />
+            </div>
+          )
+        })()}
+        {lens === 'equity' && (() => {
+          const inv = db.getInvestorReturn(projectId)
+          return (
+            <div className="kpis k5 mb">
+              <Kpi label="Equity required" value={fmtM(inv.projectEquity)} sub="project equity draw" />
+              <Kpi label="Dev profit" value={fmtM(inv.profit)} color={inv.profit >= 0 ? GREEN : RED} sub="realised at exit" />
+              <Kpi label="Equity IRR" value={inv.irr == null ? '—' : pct(inv.irr)} sub={`${inv.months} month hold`} />
+              <Kpi label="Multiple" value={`${inv.multiple.toFixed(2)}×`} sub="(equity + profit) ÷ equity" />
+              <Kpi label="Return on equity" value={pct(inv.roe)} sub="profit ÷ equity" />
+            </div>
+          )
+        })()}
 
       <div style={{ paddingBottom: 20 }}>
         {/* Charts */}
@@ -334,11 +396,39 @@ export default function FinanceTab({ projectId }: Props) {
           </div>
         )}
 
-        {tab === 'sensitivity' && (
-          <div className="panel pad" style={{ color: 'var(--ink-2)', fontSize: 12 }}>
-            Peak debt {fmtM(result.peakDebt)} · total finance cost {fmtM(result.totalFinanceCost)} ({pct(financePctBase)} of TDC). Adjust tranche rates/models on Capital stack to stress the outcome.
-          </div>
-        )}
+        {tab === 'sensitivity' && (() => {
+          const rateBumps = [0, 0.01, 0.02]
+          const gdvShifts = [-0.10, -0.05, 0, 0.05]
+          const finAt = rateBumps.map(b => {
+            if (b === 0) return result.totalFinanceCost
+            const bumped = { ...fa, tranches: fa.tranches.map(t => ({ ...t, interestRate: (t.interestRate || 0) + b })) }
+            return calculateFinanceWaterfall(detailed, land, bumped, proj.costExFinance + proj.land).totalFinanceCost
+          })
+          return (
+            <div className="panel scrollx">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, minWidth: 640 }}>
+                <thead>
+                  <tr style={{ color: MUTE }}>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Dev profit — GDV shift ↓ / all rates ↑</th>
+                    {rateBumps.map(b => <th key={b} style={{ padding: '10px 14px', textAlign: 'right', fontSize: 9, textTransform: 'uppercase' }}>{b === 0 ? 'Current rates' : `+${(b * 100).toFixed(0)}% rates`}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {gdvShifts.map(g => (
+                    <tr key={g} style={{ borderTop: '1px solid var(--line)' }}>
+                      <td style={{ padding: '9px 14px' }}>{g === 0 ? 'GDV as modelled' : `GDV ${g > 0 ? '+' : ''}${(g * 100).toFixed(0)}%`} <span style={{ color: MUTE }}>({fmtM(metrics.gdv * (1 + g))})</span></td>
+                      {rateBumps.map((b, i) => {
+                        const profit = metrics.gdv * (1 + g) - (proj.costExFinance + proj.land + finAt[i])
+                        return <td key={b} style={{ padding: '9px 14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: g === 0 && b === 0 ? 700 : 400, color: profit >= 0 ? GREEN : RED }}>{fmtM(profit)}</td>
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ padding: '10px 14px', fontSize: 10.5, color: MUTE }}>Each cell re-runs the full monthly debt waterfall at the bumped rates against the shifted GDV — profit = GDV − (cost stack + land + finance at that rate).</div>
+            </div>
+          )
+        })()}
       </div>
       </div>
     </div>

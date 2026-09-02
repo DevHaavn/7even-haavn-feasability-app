@@ -643,6 +643,7 @@ export function migrateCostStackLabels() {
  *  development cost, so this is safe to use as a fee basis without circularity. */
 export function getProjectGDV(projectId: string): number {
   const gst = costStackRaw(projectId).gstEnabled !== false
+  const siteG = getSiteDesign(projectId)
   let best = 0
   for (const s of getMixScenarios(projectId)) {
     const units = getUnitTypes(s.id)
@@ -661,7 +662,8 @@ export function getProjectGDV(projectId: string): number {
       const incA = calculateBTRIncome(btrInputs, 'aggressive')
       best = Math.max(best, calculateBTRValuation(incA.noi, btrA.capRateAggressive, 0, btrA.devMarginPct).gav)
       const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-      best = Math.max(best, calculateBTSValuation(bl, [], btsA.sellingCostsPct, 0, btsA.devMarginPct, gst).grossRevenue)
+      const otherRev = siteG.childcareGFA > 0 ? [{ label: 'Childcare', amount: siteG.childcareGFA * btsA.childcareValuePerSqm }] : []
+      best = Math.max(best, calculateBTSValuation(bl, otherRev, btsA.sellingCostsPct, 0, btsA.devMarginPct, gst).grossRevenue)
     }
   }
   return best
@@ -790,7 +792,8 @@ export function getProjectTDC(projectId: string): ProjectTDC {
       const v = calculateBTRValuation(inc.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
       consider(v.gav, v.rlv, tdcBuild, r.finance)
       const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-      const vb = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
+      const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
+      const vb = calculateBTSValuation(bl, otherRev, btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
       consider(vb.grossRevenue, vb.rlv, tdcBuild, r.finance)
     }
   }
@@ -800,10 +803,97 @@ export function getProjectTDC(projectId: string): ProjectTDC {
   const gdv = best?.gav ?? 0
   const costExFinance = tdcBuild - roughFinance                        // all cost-stack costs except the placeholder finance %
   // Single source of truth for finance cost: the monthly debt waterfall (same
-  // engine the Finance tab uses), so every screen shows one consistent number.
-  const financeCost = calculateFinanceWaterfall(getDetailedCostStack(projectId), getLandTerms(projectId), getFinanceAssumptions(projectId)).totalFinanceCost
+  // engine the Finance tab uses), sized off THIS authoritative base TDC (cost
+  // stack + effective land) so facilities, equity and interest reconcile with
+  // the cost shown on every screen — including top-down projects with no
+  // itemised lines.
+  const financeCost = calculateFinanceWaterfall(getDetailedCostStack(projectId), getLandTerms(projectId), getFinanceAssumptions(projectId), costExFinance + landEff).totalFinanceCost
   const tdc = costExFinance + landEff + financeCost                    // REAL total project cost (incl land + real finance)
   return { gdv, land: landEff, costExFinance, financeCost, tdc, tdcBuild }
+}
+
+/** One row per scenario × strategy — THE shared scenario table. Overview, the
+ *  project Dashboard, the portfolio Dashboard and the Cost Stack RLV tile all
+ *  read this, so unit counts, commercial income, cap rates and price bases can
+ *  never diverge between screens again. Recipes mirror getProjectTDC exactly;
+ *  each row's real TDC swaps the rough finance % for the project's waterfall
+ *  finance cost, so the best row reconciles to getProjectTDC().tdc to the cent. */
+export interface ScenarioRow {
+  scenarioId: string
+  scenario: string
+  strategy: 'BTR' | 'BTS' | 'Hotel'
+  variant: 'Conservative' | 'Mid' | 'Aggressive' | ''  // pricing basis of this row
+  counted: boolean        // true when this variant is in the running for best (engine basis)
+  units: number
+  noi: number | null      // stabilised NOI (BTR/Hotel; null for BTS)
+  capRate: number | null  // valuation cap rate used (null for BTS)
+  gav: number             // gross asset value / gross revenue on the SAME basis as getProjectTDC
+  gavAggressive: number | null // BTR aggressive-rent GAV for range display (null otherwise)
+  rlv: number             // residual land value from the strategy valuation
+  tdcBuild: number        // scenario cost-stack TDC (incl rough finance %) — debt-sizing basis
+  roughFinance: number    // the placeholder finance % inside tdcBuild
+  tdc: number             // REAL scenario TDC: (tdcBuild − rough finance) + effective land + waterfall finance
+  isBest: boolean         // the row getProjectTDC/getProfitMetrics report on
+}
+
+export function getScenarioTable(projectId: string): ScenarioRow[] {
+  const site = getSiteDesign(projectId)
+  const land = getLandTerms(projectId)
+  const cs = getCostStack(projectId)
+  const landEff = getEffectiveLandCost(projectId)
+  const inKindLineItem = land.isInKind && land.inKindGFA > 0
+    ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
+    : undefined
+  const rows: ScenarioRow[] = []
+  for (const s of getMixScenarios(projectId)) {
+    const units = getUnitTypes(s.id)
+    const hotelA = getHotelAssumptions(s.id)
+    const btrA = getBTRAssumptions(s.id)
+    const btsA = getBTSAssumptions(s.id)
+    const buildRate = hotelA.buildRateOverride ?? cs.buildRatePerSqm
+    const finPct = hotelA.constructionFinancePct ?? cs.financePct
+    const r = calculateCostStack({ ...cs, buildRatePerSqm: buildRate, financePct: finPct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
+    const tdcBuild = r.totalDevelopmentCost
+    const unitCount = units.reduce((n, u) => n + (u.solvedCount || 0), 0)
+    const base = { scenarioId: s.id, scenario: s.name, tdcBuild, roughFinance: r.finance, tdc: 0, isBest: false }
+    if (hotelA.keys > 0) {
+      const inc = calculateHotelIncome(hotelA)
+      const v = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdcBuild, hotelA.devMarginPct)
+      rows.push({ ...base, strategy: 'Hotel', variant: '', counted: true, units: hotelA.keys, noi: inc.noi, capRate: hotelA.hotelCapRate, gav: v.gav, gavAggressive: null, rlv: v.rlv })
+    }
+    if (units.some(u => u.weeklyRentConservative > 0)) {
+      const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
+      const btrInputs = { unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: commercialLinesFromBTR(btrA), carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
+      const incC = calculateBTRIncome(btrInputs, 'conservative')
+      const vC = calculateBTRValuation(incC.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
+      const incA = calculateBTRIncome(btrInputs, 'aggressive')
+      const vA = calculateBTRValuation(incA.noi, btrA.capRateAggressive, tdcBuild, btrA.devMarginPct)
+      // Conservative BTR is the engine's basis for "best"; aggressive shows the spread.
+      rows.push({ ...base, strategy: 'BTR', variant: 'Conservative', counted: true, units: unitCount, noi: incC.noi, capRate: btrA.capRateConservative, gav: vC.gav, gavAggressive: vA.gav, rlv: vC.rlv })
+      rows.push({ ...base, strategy: 'BTR', variant: 'Aggressive', counted: false, units: unitCount, noi: incA.noi, capRate: btrA.capRateAggressive, gav: vA.gav, gavAggressive: null, rlv: vA.rlv })
+      const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
+      const mk = (price: (u: UnitType) => number) => units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: price(u) }))
+      const vbC = calculateBTSValuation(mk(u => u.salePriceConservative), otherRev, btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
+      const vbM = calculateBTSValuation(mk(u => u.salePriceMid), otherRev, btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
+      const vbA = calculateBTSValuation(mk(u => u.salePriceAggressive), otherRev, btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, cs.gstEnabled)
+      rows.push({ ...base, strategy: 'BTS', variant: 'Conservative', counted: false, units: unitCount, noi: null, capRate: null, gav: vbC.grossRevenue, gavAggressive: null, rlv: vbC.rlv })
+      rows.push({ ...base, strategy: 'BTS', variant: 'Mid', counted: true, units: unitCount, noi: null, capRate: null, gav: vbM.grossRevenue, gavAggressive: null, rlv: vbM.rlv })
+      rows.push({ ...base, strategy: 'BTS', variant: 'Aggressive', counted: false, units: unitCount, noi: null, capRate: null, gav: vbA.grossRevenue, gavAggressive: null, rlv: vbA.rlv })
+    }
+  }
+  // Real per-row TDC uses the ONE waterfall finance cost (getProjectTDC's), so
+  // the best row's tdc equals getProjectTDC().tdc exactly. "Best" is judged only
+  // over the variants the engine counts (BTR cons · BTS mid · Hotel), matching
+  // getProjectTDC/getProfitMetrics.
+  const proj = getProjectTDC(projectId)
+  const counted = rows.filter(r => r.counted)
+  const bestRlv = counted.length ? Math.max(...counted.map(r => r.rlv)) : 0
+  let bestMarked = false
+  for (const row of rows) {
+    row.tdc = (row.tdcBuild - row.roughFinance) + proj.land + proj.financeCost
+    if (!bestMarked && row.counted && row.rlv === bestRlv && counted.length > 0) { row.isBest = true; bestMarked = true }
+  }
+  return rows
 }
 
 export function getProfitMetrics(projectId: string): ProfitMetrics {

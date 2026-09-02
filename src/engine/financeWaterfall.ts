@@ -160,6 +160,20 @@ export function calculateFinanceWaterfall(
 
   const baseTDC = baseTDCOverride ?? Object.values(costByMonth).reduce((s, v) => s + v, 0)
 
+  // When the caller supplies the authoritative base TDC (cost stack + effective
+  // land), any cost NOT covered by dated line items / the land draw is real spend
+  // the waterfall would otherwise never see (top-down build rate, duty, FPAD,
+  // acquisition costs). Spread it evenly across the finance window so facilities,
+  // equity and interest are sized off the same TDC every screen shows.
+  if (baseTDCOverride != null) {
+    const drawsTotal = Object.values(costByMonth).reduce((s, v) => s + v, 0)
+    const unallocated = baseTDCOverride - drawsTotal
+    if (unallocated > 1 && timeline.length > 0) {
+      const per = unallocated / timeline.length
+      for (const mo of timeline) addDraw('Build (top-down)', mo, per)
+    }
+  }
+
   // 3) Tranche facilities + equity requirement.
   const activeTranches = fa.tranches
     .map(t => {

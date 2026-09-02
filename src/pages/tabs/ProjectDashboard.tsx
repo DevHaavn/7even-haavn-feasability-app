@@ -56,31 +56,10 @@ export default function ProjectDashboard({ projectId }: Props) {
   const inKindLineItem = land.isInKind && land.inKindGFA > 0
     ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote } : undefined
 
-  const { bestScenario } = useMemo(() => {
-    const scenarios = store.getMixScenarios(projectId)
-    const landEff = store.getEffectiveLandCost(projectId)
-    let best: any = null
-    for (const s of scenarios) {
-      const units = store.getUnitTypes(s.id)
-      const hotelA = store.getHotelAssumptions(s.id), btrA = store.getBTRAssumptions(s.id), btsA = store.getBTSAssumptions(s.id)
-      const cs = calculateCostStack({ ...costData, buildRatePerSqm: hotelA.buildRateOverride ?? costData.buildRatePerSqm, financePct: hotelA.constructionFinancePct ?? costData.financePct, gba: site.resiGBA, inKindLineItem, landCost: land.landCost })
-      const tdcBuild = cs.totalDevelopmentCost, tdc = tdcBuild + landEff
-      if (hotelA.keys > 0) {
-        const inc = calculateHotelIncome(hotelA); const val = calculateHotelValuation(inc.noi, hotelA.hotelCapRate, tdcBuild, hotelA.devMarginPct)
-        if (!best || val.rlv > best.rlv) best = { ...val, strategy: 'Hotel', tdc }
-      }
-      if (units.some(u => u.weeklyRentConservative > 0)) {
-        const ul = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-        const i2 = calculateBTRIncome({ unitLines: ul, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }, 'conservative')
-        const v2 = calculateBTRValuation(i2.noi, btrA.capRateConservative, tdcBuild, btrA.devMarginPct)
-        if (!best || v2.rlv > best.rlv) best = { ...v2, strategy: 'BTR', tdc }
-        const bl = units.map(u => ({ typeName: u.name, unitCount: u.solvedCount, pricePerUnit: u.salePriceMid }))
-        const v3 = calculateBTSValuation(bl, [], btsA.sellingCostsPct, tdcBuild, btsA.devMarginPct, costData.gstEnabled)
-        if (!best || v3.rlv > best.rlv) best = { gav: v3.grossRevenue, rlv: v3.rlv, strategy: 'BTS', tdc }
-      }
-    }
-    return { bestScenario: best }
-  }, [projectId, costData, site])
+  // ONE scenario table — the same rows Overview and the portfolio read, so GAV,
+  // RLV, units and strategy can never diverge between screens again.
+  const scenarioRows = db.getScenarioTable(projectId)
+  const bestScenario = scenarioRows.find(r => r.isBest) ?? null
 
   const costStack = useMemo(() => calculateCostStack({ ...costData, gba: site.resiGBA, inKindLineItem, landCost: land.landCost }), [costData, site])
   const proj = useMemo(() => db.getProjectTDC(projectId), [projectId, costData, site])
@@ -125,7 +104,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   // Finance — one source of truth: the monthly debt waterfall (same as Finance tab).
   const fa = useMemo(() => db.getFinanceAssumptions(projectId), [projectId])
-  const wf = useMemo(() => calculateFinanceWaterfall(db.getDetailedCostStack(projectId), land, fa), [projectId, costData, land, fa])
+  const wf = useMemo(() => calculateFinanceWaterfall(db.getDetailedCostStack(projectId), land, fa, proj.costExFinance + proj.land), [projectId, costData, land, fa, proj.costExFinance, proj.land])
   const totalDebt = wf.tranches.reduce((s, t) => s + t.facility, 0)
   const totalEquity = Math.max(0, wf.baseTDC - totalDebt)
   // Critical-path sensitivity: extra interest = peak debt × blended rate × delay.
@@ -245,7 +224,7 @@ export default function ProjectDashboard({ projectId }: Props) {
           <Card style={{ padding: 16 }}>
             <Label>Land & acquisition</Label>
             <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--gold)', fontFamily: 'var(--mono)', marginBottom: 8 }}>{fmt(landCostEff, 2)}</div>
-            <div style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>{land.notes || `Contract ${fmt(land.landCost, 1)} · stamp duty ${fmt(land.stampDuty || 0, 1)} · settlement ${land.settlementDate || '—'}.`}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>{land.notes || `Contract ${fmt(land.landCost, 1)} · stamp duty ${fmt(db.getLandAcquisition(projectId).stampDuty, 1)} · settlement ${land.settlementDate || '—'}.`}</div>
           </Card>
         </div>
       </div>
@@ -302,7 +281,11 @@ export default function ProjectDashboard({ projectId }: Props) {
         {/* Finance sensitivity */}
         <Card>
           <Label right={<span onClick={() => store.setActiveTab('finance')} style={{ fontSize: 11, color: 'var(--blue)', cursor: 'pointer' }}>full →</span>}>Finance — critical path sensitivity</Label>
-          <div style={{ padding: '10px 12px', background: 'var(--em-soft)', border: '1px solid var(--em-soft)', borderRadius: 6, fontSize: 12, color: 'var(--emerald)', marginBottom: 14 }}>✓ On track · Month {overallPct > 0 ? Math.max(1, Math.round(tasks.length * overallPct / 100)) : 0}/{tasks.length}</div>
+          {(() => {
+            const bad = counts.critical + counts.delayed
+            const cls = bad > 0 ? { bg: 'var(--red-soft)', col: 'var(--red)', msg: `⚠ ${counts.critical ? `${counts.critical} critical` : ''}${counts.critical && counts.delayed ? ' · ' : ''}${counts.delayed ? `${counts.delayed} delayed` : ''}` } : { bg: 'var(--em-soft)', col: 'var(--emerald)', msg: `✓ On track · ${counts.complete}/${tasks.length} tasks complete` }
+            return <div style={{ padding: '10px 12px', background: cls.bg, border: `1px solid ${cls.bg}`, borderRadius: 6, fontSize: 12, color: cls.col, marginBottom: 14 }}>{cls.msg}</div>
+          })()}
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
             <thead><tr style={{ color: MUTE }}><th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: 500 }} /><th style={{ padding: '4px 6px' }}>Base</th><th style={{ padding: '4px 6px' }}>+3mo</th><th style={{ padding: '4px 6px' }}>+6mo</th><th style={{ padding: '4px 6px' }}>+12mo</th></tr></thead>
             <tbody>
@@ -361,14 +344,23 @@ export default function ProjectDashboard({ projectId }: Props) {
           ))}
           <div style={{ fontSize: 10, color: MUTE, margin: '16px 0 8px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Returns at completion</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 6 }}>
-            {[['IRR', '—'], ['Multiple', '—'], ['ROC', '—'], ['Margin', gav > 0 ? pctS(margin, 0) : '—']].map(([l, v]) => (
+            {(() => {
+              const m = db.getProfitMetrics(projectId)
+              const inv = db.getInvestorReturn(projectId)
+              return [
+                ['IRR', m.irr == null ? '—' : pctS(m.irr, 1)],
+                ['Multiple', `${m.equityMultiple.toFixed(2)}×`],
+                ['ROC', pctS(m.marginOnCost, 0)],
+                ['Margin', gav > 0 ? pctS(margin, 0) : '—'],
+              ]
+            })().map(([l, v]) => (
               <div key={l} style={{ border: `1px solid ${LINE}`, borderRadius: 8, padding: '8px 6px', textAlign: 'center' }}>
                 <div style={{ fontSize: 8, letterSpacing: '0.08em', textTransform: 'uppercase', color: MUTE }}>{l}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: l === 'Margin' && margin < 0 ? RED : INK, marginTop: 3 }}>{v}</div>
               </div>
             ))}
           </div>
-          {fundingIncomplete && <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)', borderRadius: 6, fontSize: 10, color: 'var(--amber)' }}>🔒 Complete funding stack to unlock returns</div>}
+          {fundingIncomplete && <div style={{ marginTop: 10, padding: '8px 10px', background: 'var(--gold-soft)', border: '1px solid var(--gold-soft)', borderRadius: 6, fontSize: 10, color: 'var(--amber)' }}>Add a revenue scenario (Product Mix) to price returns</div>}
         </Card>
       </div>
     </div>

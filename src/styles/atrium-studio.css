@@ -558,8 +558,13 @@
 .fxs{--input-ink:#1a56c4}
 .fxs.dark{--input-ink:#82a9f5}
 
-/* the sheet: edge to edge under the tab bar, above the footer */
-.fxs .fx-wrap{max-width:none;margin:0;padding:0 0 120px;background:var(--card);min-height:calc(100vh - 200px)}
+/* the sheet: edge to edge under the tab bar, above the footer — kill every
+   outer gutter (.premium-stage padding, panel radii) so the worksheet uses the
+   full real estate of the screen. */
+.fxs .premium-stage{padding:0!important}
+.fxs .workspace-content{padding:0!important}
+.fxs .fx-wrap{max-width:none;margin:0;padding:0 0 40px;background:var(--card);min-height:100%}
+.fxs .fx-wrap>*:last-child{margin-bottom:0}
 /* page head — compact band ON the sheet, dark ink */
 .fxs .pagehead{padding:16px 22px 12px;margin-bottom:0;border-bottom:1px solid var(--line);align-items:baseline}
 .fxs .kicker{font-size:9.5px;margin-bottom:6px;color:#a3782a}
@@ -577,7 +582,7 @@
 .fxs .grid,.fxs .two,.fxs .two-64,.fxs .two-eq,.fxs .two-46,.fxs .three{gap:10px}
 .fxs .fx-wrap>.panel,.fxs .fx-wrap>div{margin-left:0;margin-right:0}
 /* inner page padding that tabs add via fx-wrap is gone; give direct children air */
-.fxs .fx-wrap>*:not(.pagehead){margin:10px 12px 0}
+.fxs .fx-wrap>*:not(.pagehead){margin:8px 10px 0}
 .fxs .fx-wrap>.pagehead{margin:0}
 
 /* KPI strip — flat exact-number band, not floating cards */

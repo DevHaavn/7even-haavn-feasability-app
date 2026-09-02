@@ -4,7 +4,7 @@ import { useStore } from '../../store'
 import { SectionHeading, FieldRow, NumberInput, PctInput, Button } from '../../components/ui'
 import { calculateCostStack } from '../../engine/costStack'
 import { computeLandCost } from '../../engine/landCost'
-import { getCostPresets, getProjectGDV, getProfitMetrics, getProjectTDC, getProject } from '../../db'
+import { getCostPresets, getProjectGDV, getProfitMetrics, getProjectTDC, getProject, getScenarioTable } from '../../db'
 import type { CostStack, CostLineItem, DetailedCostStack, SCurveProfile, FundingSource } from '../../db/schema'
 import { COST_PHASES } from '../../db/schema'
 import { spreadWeights } from '../../engine/cashflow'
@@ -678,7 +678,9 @@ export default function CostStackTab({ projectId }: Props) {
   // getProjectTDC is the app's single authoritative TDC (source-of-truth ledger).
   const projTDC = useMemo(() => getProjectTDC(projectId), [projectId, data, detailedDirty, land])
   const metrics = useMemo(() => getProfitMetrics(projectId), [projectId, data, detailedDirty, land])
-  const residualLandValue = getProject(projectId)?.landValue ?? 0
+  // Best-scenario RLV from the shared scenario table (the Project record never
+  // had a landValue field — this tile was permanently $0).
+  const residualLandValue = useMemo(() => getScenarioTable(projectId).find(r => r.isBest)?.rlv ?? 0, [projectId, data, detailedDirty, land])
   const grv = projTDC.gdv
   const tdcReal = projTDC.tdc                       // costs ex rough finance + land + REAL finance
   const devProfit = metrics.profit

@@ -15,12 +15,8 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: st
 }
 import { useStore } from '../../store'
 import { VerdictBadge } from '../../components/ui'
-import { calculateBTRIncome, calculateBTRValuation } from '../../engine/btr'
-import { calculateBTSValuation } from '../../engine/bts'
-import { calculateHotelIncome, calculateHotelValuation } from '../../engine/hotel'
 import { calculateCostStack } from '../../engine/costStack'
-import { solveUnitMix } from '../../engine/unitMix'
-import { getPhaseCosts, getTimelineTasks, getProjectTDC } from '../../db'
+import { getPhaseCosts, getTimelineTasks, getProjectTDC, getScenarioTable, getFinanceAssumptions, saveFinanceAssumptions } from '../../db'
 import { COST_PHASES, CATEGORY_TO_PHASE } from '../../db/schema'
 import ProfitLens from '../../components/ProfitLens'
 
@@ -79,9 +75,19 @@ function LvrField({ label, value, onChange }: { label: string; value: number; on
   )
 }
 
-function LVRSection({ landCost, tdc }: { landCost: number; tdc: number }) {
-  const [landLVR, setLandLVR] = useState(0.65)
-  const [constLVR, setConstLVR] = useState(0.65)
+function LVRSection({ projectId, landCost, tdc }: { projectId: string; landCost: number; tdc: number }) {
+  // Wired to the SAME assumptions the Finance tab uses — no more local-only LVRs.
+  const [fa, setFa] = useState(() => getFinanceAssumptions(projectId))
+  useEffect(() => { setFa(getFinanceAssumptions(projectId)) }, [projectId])
+  const seniorIdx = fa.tranches.findIndex(t => t.type === 'senior')
+  const landLVR = fa.landLvr ?? 0.65
+  const constLVR = seniorIdx >= 0 ? (fa.tranches[seniorIdx].lvr || 0.65) : 0.65
+  const setLandLVR = (v: number) => { const next = { ...fa, landLvr: v }; setFa(next); saveFinanceAssumptions(next) }
+  const setConstLVR = (v: number) => {
+    if (seniorIdx < 0) return
+    const next = { ...fa, tranches: fa.tranches.map((t, i) => i === seniorIdx ? { ...t, lvr: v } : t) }
+    setFa(next); saveFinanceAssumptions(next)
+  }
 
   const landDebt = landCost * landLVR
   const landEquity = landCost * (1 - landLVR)
@@ -120,8 +126,13 @@ function SummaryTabInner({ projectId }: Props) {
   const site = store.getSiteDesign(projectId)
   const land = store.getLandTerms(projectId)
   const costData = store.getCostStack(projectId)
-  const [bestRow, setBestRow] = useState<any>(null)
-  const [allRows, setAllRows] = useState<any[]>([])
+  // THE shared scenario table — derived live every render, so it can never go
+  // stale and always matches the Dashboard, Cost Stack and portfolio.
+  const allRows = getScenarioTable(projectId).map(r => ({
+    ...r,
+    type: r.variant ? `${r.strategy} (${r.variant})` : r.strategy,
+  }))
+  const bestRow = allRows.find(r => r.isBest) ?? allRows[0] ?? null
 
   const inKindLineItem = land.isInKind && land.inKindGFA > 0
     ? { label: land.inKindLabel, gfa: land.inKindGFA, ratePerSqm: land.inKindRatePerSqm, note: land.inKindNote }
@@ -145,49 +156,6 @@ function SummaryTabInner({ projectId }: Props) {
     })
   })()
 
-  useEffect(() => {
-    const scenarios = store.getMixScenarios(projectId)
-    const landEff = store.getEffectiveLandCost(projectId)   // land into TDC; engines still get land-excluded cost for RLV
-    const computed: any[] = []
-    for (const s of scenarios) {
-      const units = store.getUnitTypes(s.id)
-      const btrA = store.getBTRAssumptions(s.id)
-      const btsA = store.getBTSAssumptions(s.id)
-      const hotelA = store.getHotelAssumptions(s.id)
-      const sr = site.resiNSA > 0 && units.length > 0
-        ? solveUnitMix(site.resiNSA, units.map(u => ({ name: u.name, nsaPerUnit: u.nsaPerUnit, targetPct: u.targetPct })))
-        : null
-      const hasUnits = sr ? sr.solvedUnits > 0 : units.some(u => u.solvedCount > 0)
-      if (hasUnits) {
-        const unitLines = units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, weeklyRentConservative: u.weeklyRentConservative, weeklyRentAggressive: u.weeklyRentAggressive, opexPerUnitPerYear: u.opexPerUnitPerYear }))
-        const btrInputs = { unitLines, vacancyPct: btrA.vacancyPct, managementFeePct: btrA.managementFeePct, commercialIncomeLines: [], carParkIncomeAnnual: btrA.carParkIncomeAnnual, buildingAdminFixed: btrA.buildingAdminFixed }
-        const consI = calculateBTRIncome(btrInputs, 'conservative')
-        const aggI = calculateBTRIncome(btrInputs, 'aggressive')
-        const consV = calculateBTRValuation(consI.noi, btrA.capRateConservative, tdc, btrA.devMarginPct)
-        const aggV = calculateBTRValuation(aggI.noi, btrA.capRateAggressive, tdc, btrA.devMarginPct)
-        computed.push({ scenario: s.name, type: 'BTR (Conservative)', noi: consI.noi, gav: consV.gav, tdc: tdc + landEff, rlv: consV.rlv })
-        computed.push({ scenario: s.name, type: 'BTR (Aggressive)', noi: aggI.noi, gav: aggV.gav, tdc: tdc + landEff, rlv: aggV.rlv })
-        const btsLines = {
-          cons: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceConservative })),
-          agg: units.map((u, i) => ({ typeName: u.name, unitCount: sr?.mix[i]?.count ?? u.solvedCount ?? 0, pricePerUnit: u.salePriceAggressive })),
-        }
-        const otherRev = site.childcareGFA > 0 ? [{ label: 'Childcare', amount: site.childcareGFA * btsA.childcareValuePerSqm }] : []
-        const btsCons = calculateBTSValuation(btsLines.cons, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        const btsAgg = calculateBTSValuation(btsLines.agg, otherRev, btsA.sellingCostsPct, tdc, btsA.devMarginPct, costData.gstEnabled)
-        computed.push({ scenario: s.name, type: 'BTS (Conservative)', noi: null, gav: btsCons.grossRevenue, tdc: tdc + landEff, rlv: btsCons.rlv })
-        computed.push({ scenario: s.name, type: 'BTS (Aggressive)', noi: null, gav: btsAgg.grossRevenue, tdc: tdc + landEff, rlv: btsAgg.rlv })
-      }
-      if (store.getHotelAssumptions(s.id).keys > 0) {
-        const hotelI = calculateHotelIncome(hotelA)
-        const hotelV = calculateHotelValuation(hotelI.noi, hotelA.hotelCapRate, tdc, hotelA.devMarginPct)
-        computed.push({ scenario: s.name, type: 'Hotel', noi: hotelI.noi, gav: hotelV.gav, tdc: tdc + landEff, rlv: hotelV.rlv })
-      }
-    }
-    const maxRLV = Math.max(...computed.map(r => r.rlv))
-    const rows = computed.map(r => ({ ...r, isBest: r.rlv === maxRLV && maxRLV > 0 }))
-    setAllRows(rows)
-    setBestRow(rows.find(r => r.isBest) ?? rows[0] ?? null)
-  }, [projectId])
 
   const landAcq = store.getLandAcquisition(projectId)
   const landCost = landAcq.total  // ex-GST contract price + stamp duty + acquisition costs
@@ -325,7 +293,7 @@ function SummaryTabInner({ projectId }: Props) {
                   <tr>
                     <th>Strategy</th>
                     <th className="num">NOI / revenue</th>
-                    <th className="num">Exit @ 5% cap</th>
+                    <th className="num">Exit @ cap rate</th>
                     <th className="num">TDC</th>
                     <th className="num">Dev profit</th>
                     <th className="num">Margin %</th>
@@ -333,8 +301,8 @@ function SummaryTabInner({ projectId }: Props) {
                 </thead>
                 <tbody>
                   {sortedRows.map((r, i) => {
-                    const isBH = (r.type?.startsWith('BTR') || r.type === 'Hotel') && r.noi != null
-                    const exitVal = isBH ? r.noi / 0.05 : r.gav
+                    const isBH = (r.type?.startsWith('BTR') || r.type === 'Hotel') && r.noi != null && (r.capRate ?? 0) > 0
+                    const exitVal = isBH ? r.noi / r.capRate : r.gav
                     const profit = exitVal - r.tdc
                     const margin = r.tdc > 0 ? (profit / r.tdc) * 100 : 0
                     const pc = profit > 0 ? 'var(--emerald)' : 'var(--red)'
@@ -352,14 +320,14 @@ function SummaryTabInner({ projectId }: Props) {
                 </tbody>
               </table>
             </div>
-            <div className="note mt">BTR/Hotel exit = NOI ÷ 5% cap rate · BTS = gross sales revenue · Profit = exit value − TDC</div>
+            <div className="note mt">BTR/Hotel exit = NOI ÷ that scenario's cap rate · BTS = gross sales revenue · Profit = exit value − real TDC (incl land + waterfall finance)</div>
           </div>
         )}
 
         <div className="two">
           {bestRow && (() => {
-            const isBTRorHotel = (bestRow.type?.startsWith('BTR') || bestRow.type === 'Hotel') && bestRow.noi != null
-            const exitVal = isBTRorHotel ? bestRow.noi / 0.05 : bestRow.gav
+            const isBTRorHotel = (bestRow.type?.startsWith('BTR') || bestRow.type === 'Hotel') && bestRow.noi != null && (bestRow.capRate ?? 0) > 0
+            const exitVal = isBTRorHotel ? bestRow.noi / bestRow.capRate : bestRow.gav
             const profit = exitVal - bestRow.tdc
             const margin = bestRow.tdc > 0 ? (profit / bestRow.tdc) * 100 : 0
             return (
@@ -367,7 +335,7 @@ function SummaryTabInner({ projectId }: Props) {
                 <div className="divlabel">Profit &amp; exit valuation — best scenario</div>
                 <div className="kpis k3 mt" style={{ gap: 12 }}>
                   <div className="kpi" style={{ boxShadow: 'none' }}>
-                    <div className="lab">{isBTRorHotel ? 'Exit @ 5% cap' : 'Gross revenue'}</div>
+                    <div className="lab">{isBTRorHotel ? `Exit @ ${(bestRow.capRate * 100).toFixed(2)}% cap` : 'Gross revenue'}</div>
                     <div className="val">{fmt(exitVal)}</div>
                   </div>
                   <div className="kpi" style={{ boxShadow: 'none' }}>
@@ -384,7 +352,7 @@ function SummaryTabInner({ projectId }: Props) {
               </div>
             )
           })()}
-          <LVRSection landCost={landCost} tdc={tdc} />
+          <LVRSection projectId={projectId} landCost={landCost} tdc={Math.max(0, proj.tdc - landCost)} />
         </div>
 
         {!bestRow && allRows.length === 0 && (
