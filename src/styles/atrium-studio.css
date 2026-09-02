@@ -546,3 +546,85 @@
 @media(max-width:600px){
   .fxs .fx-topbar{padding-top:calc(env(safe-area-inset-top,0px) + 57px)}
 }
+
+/* ================================================================
+   WORKSHEET MODE — EstateMaster-style reading surface (2026-09-03)
+   One continuous full-bleed sheet under the chrome: flat sections,
+   dense ledger tables, exact-number discipline, and the EstateMaster
+   colour convention (blue = input you typed, black = calculated).
+   Pure skin: appended last so it overrides the card look above with
+   ZERO changes to tab markup, data or wiring.
+   ================================================================ */
+.fxs{--input-ink:#1a56c4}
+.fxs.dark{--input-ink:#82a9f5}
+
+/* the sheet: edge to edge under the tab bar, above the footer */
+.fxs .fx-wrap{max-width:none;margin:0;padding:0 0 120px;background:var(--card);min-height:calc(100vh - 200px)}
+/* page head — compact band ON the sheet, dark ink */
+.fxs .pagehead{padding:16px 22px 12px;margin-bottom:0;border-bottom:1px solid var(--line);align-items:baseline}
+.fxs .kicker{font-size:9.5px;margin-bottom:6px;color:#a3782a}
+.fxs.dark .kicker{color:#d6b36a}
+.fxs .h-sec{font-size:23px;color:var(--ink);text-shadow:none}
+.fxs .h-sub{font-size:11.5px;margin-top:5px;color:#a3782a;text-shadow:none}
+.fxs.dark .h-sub{color:#d6b36a}
+
+/* panels flatten into sheet sections: hairline-ruled, square, no float */
+.fxs .panel{border-radius:0;box-shadow:none;border:1px solid var(--line);backdrop-filter:none;-webkit-backdrop-filter:none}
+.fxs .panel.gold-top::before{display:none}
+.fxs.dark .panel:not(.gold-top)::before{display:none}
+.fxs .pad{padding:16px 22px}
+/* grids tighten so sections read as one sheet */
+.fxs .grid,.fxs .two,.fxs .two-64,.fxs .two-eq,.fxs .two-46,.fxs .three{gap:10px}
+.fxs .fx-wrap>.panel,.fxs .fx-wrap>div{margin-left:0;margin-right:0}
+/* inner page padding that tabs add via fx-wrap is gone; give direct children air */
+.fxs .fx-wrap>*:not(.pagehead){margin:10px 12px 0}
+.fxs .fx-wrap>.pagehead{margin:0}
+
+/* KPI strip — flat exact-number band, not floating cards */
+.fxs .kpis{gap:0;border:1px solid var(--line);background:var(--card-3)}
+.fxs .kpi{padding:10px 16px;border:none;border-right:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
+.fxs .kpi:hover{transform:none}
+.fxs .kpi .lab{font-size:8.5px;margin-bottom:5px}
+.fxs .kpi .val{font-size:17px}
+.fxs .kpi .sub{margin-top:3px}
+.fxs .kpi.accent,.fxs .kpi.gold{background:var(--gold-soft);border-radius:0}
+
+/* EstateMaster colour code: inputs read BLUE and sit flush like cells —
+   the box only appears when you're in the cell */
+.fxs .inp,.fxs .mini-inp{color:var(--input-ink);font-weight:500;background:transparent;border-color:transparent;border-bottom:1px dashed transparent;border-radius:0;transition:border-color .15s}
+.fxs .inp:hover,.fxs .mini-inp:hover{border-bottom-color:color-mix(in srgb, var(--input-ink) 40%, transparent)}
+.fxs .inp:focus,.fxs .mini-inp:focus{outline:none;border-color:transparent;border-bottom:1px solid var(--input-ink);background:color-mix(in srgb, var(--input-ink) 5%, transparent)}
+.fxs .sel,.fxs .mini-sel{border-radius:3px}
+
+/* ledger density — more rows per screen, digits aligned */
+.fxs .frow{padding:7px 0}
+.fxs .dtable td{padding:8px 12px;font-size:12.5px}
+.fxs .gt td{padding:5px 8px;font-size:12px}
+.fxs .gt th{padding:8px 8px}
+.fxs .gt td.n,.fxs .dtable td.num{font-size:12px;letter-spacing:0}
+.fxs .scrollx{border-radius:0}
+/* subtotal + section bands, EstateMaster style */
+.fxs .gt tr.sub td{background:var(--card-3);border-top:1px solid var(--border)}
+.fxs .gt tr.sub .stl{color:var(--ink-2)}
+.fxs .gt tr.sect td{border-top:2px solid var(--ink);background:var(--card-2)}
+/* grand totals: bold with the double rule, not oversized gold */
+.fxs .total .tv{font-size:26px;color:var(--ink)}
+.fxs .grand .gv{font-size:24px;color:var(--ink)}
+.fxs .total{border-top:2px solid var(--ink)}
+.fxs .grand{border-top:2px solid var(--ink)}
+
+/* detailed-total strip + presets: flat chips */
+.fxs .dtcard{border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:9px 12px}
+.fxs .dtcard .dv{font-size:13.5px}
+.fxs .dtcard.tot .dv{font-size:17px;color:var(--ink)}
+.fxs .preset{border-radius:0;box-shadow:none}
+.fxs .seg{border-radius:4px}
+.fxs .seg button{border-radius:3px}
+
+/* worksheet on phones: keep full bleed, restore breathing room */
+@media(max-width:768px){
+  .fxs .fx-wrap{padding:0 0 120px}
+  .fxs .pagehead{padding:12px 14px 10px}
+  .fxs .fx-wrap>*:not(.pagehead){margin:8px 8px 0}
+  .fxs .pad{padding:12px 14px}
+}
