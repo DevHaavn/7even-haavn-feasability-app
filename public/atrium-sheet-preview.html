@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATRIUM · Worksheet View (preview)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#d6b36a;--ink:#111417;--ink2:#4b5157;--ink3:#8a9095;--line:#e3e6e9;--line2:#c9cdd2;
+  --input:#1a56c4; /* EstateMaster convention: inputs read blue, calculated black */
+  --mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif}
+body{font-family:var(--sans);background:#0a0b0c;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ── black ATRIUM chrome (unchanged) ── */
+.chrome{position:sticky;top:0;z-index:30;background:#0a0b0c;border-bottom:1px solid rgba(255,255,255,.08)}
+.c1{display:flex;align-items:center;gap:22px;padding:13px 22px}
+.home{font-size:14px;letter-spacing:.32em;color:#fff;text-shadow:0 0 12px rgba(255,255,255,.5);text-transform:uppercase;font-weight:500}
+.pn{font-family:'Cormorant Garamond',serif;font-size:16px;color:#e8eaec}
+.pa{font-size:9.5px;letter-spacing:.1em;color:#8a8f95;margin-top:2px}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 8px #2fe07a;margin-right:7px}
+.tabs{display:flex;gap:2px;padding:0 12px;border-top:1px solid rgba(255,255,255,.06);overflow-x:auto}
+.tab{padding:13px 15px;font-size:10px;letter-spacing:.18em;color:#7d8288;text-transform:uppercase;position:relative;white-space:nowrap}
+.tab.on{color:#fff}
+.tab.on::after{content:"";position:absolute;left:15px;right:15px;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 14px rgba(214,179,106,.8)}
+
+/* ── the worksheet: full bleed, edge to edge ── */
+.sheet{background:#fff;min-height:calc(100vh - 140px)}
+
+/* compact KPI strip — one line of exact numbers, not six cards */
+.kpis{display:flex;flex-wrap:wrap;border-bottom:2px solid var(--ink);background:#fafbfc}
+.kpi{flex:1 1 0;min-width:150px;padding:12px 18px;border-right:1px solid var(--line)}
+.kpi:last-child{border-right:none}
+.kpi .l{font-size:8.5px;letter-spacing:.2em;color:var(--ink3);text-transform:uppercase;font-weight:600}
+.kpi .v{font-family:var(--mono);font-size:16px;font-weight:500;margin-top:4px;white-space:nowrap}
+.kpi.total{background:#111417}.kpi.total .l{color:#b9a26b}.kpi.total .v{color:#fff}
+
+/* page head — compact, on the sheet */
+.phead{display:flex;align-items:baseline;gap:16px;padding:16px 22px 10px;border-bottom:1px solid var(--line)}
+.phead .k{font-size:9.5px;letter-spacing:.3em;color:#a3782a;text-transform:uppercase;font-weight:600}
+.phead .t{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--ink)}
+.phead .s{font-size:11.5px;color:var(--ink3);margin-left:auto}
+.phead .save{font-size:10px;color:#1f8a5b;letter-spacing:.08em}
+
+/* certainty line — one row, exact numbers */
+.cert{display:flex;align-items:center;gap:14px;padding:9px 22px;border-bottom:1px solid var(--line);font-size:11px;color:var(--ink2)}
+.cert b{font-family:var(--mono);font-weight:600}
+.cert .bar{flex:1;height:5px;border-radius:3px;background:#e8ecef;overflow:hidden;min-width:120px}
+.cert .bar i{display:block;height:100%;width:100%;background:#c98a2e}
+.cert .amber{color:#a3660a}
+
+/* ── the ledger table ── */
+table{width:100%;border-collapse:collapse}
+thead th{position:sticky;top:97px;z-index:10;background:#f2f4f6;border-bottom:1px solid var(--line2);
+  font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);font-weight:600;
+  padding:8px 10px;text-align:right;white-space:nowrap}
+thead th:first-child{text-align:left;padding-left:22px}
+thead th.c{text-align:center}
+td{padding:6px 10px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+td:first-child{padding-left:22px}
+td:last-child,th:last-child{padding-right:22px}
+tr.item td{height:32px}
+tr.item:nth-child(even){background:#fbfcfd}
+.num{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap}
+.in{color:var(--input);font-weight:500}          /* input cell — blue, editable */
+.calc{color:var(--ink)}                           /* calculated — black */
+.zero{color:#b6bcc1}
+tr.group td{background:#eef1f3;border-bottom:1px solid var(--line2);font-weight:600;font-size:12px;height:34px}
+tr.group .cnt{color:var(--ink3);font-weight:400;font-size:10.5px;margin-left:8px}
+tr.group .addrow{float:right;font-size:9px;letter-spacing:.14em;color:var(--ink3);border:1px solid var(--line2);border-radius:3px;padding:3px 8px;background:#fff;cursor:pointer}
+tr.sub td{background:#f7f8fa;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--line2);height:30px}
+tr.grand td{background:#fff;border-top:2px solid var(--ink);border-bottom:3px double var(--ink);font-weight:600;height:38px;font-size:13px}
+.desc-in{border:none;background:transparent;font:inherit;color:var(--input);width:100%;outline:none;padding:2px 0}
+.cellin{border:none;background:transparent;font-family:var(--mono);font-size:12px;color:var(--input);font-weight:500;text-align:right;width:110px;outline:none;border-bottom:1px dashed transparent}
+.cellin:hover{border-bottom-color:#b9c6e8}
+.cellin:focus{border-bottom:1px solid var(--input)}
+.fv{display:inline-flex;border:1px solid var(--line2);border-radius:3px;overflow:hidden;font-size:8.5px;letter-spacing:.08em;font-weight:600}
+.fv span{padding:3px 7px;color:#9aa0a6;cursor:pointer}
+.fv .on.f{background:#1f8a5b;color:#fff}
+.fv .on.v{background:#c98a2e;color:#fff}
+.fund{font-size:9px;letter-spacing:.1em;color:#1f8a5b;background:#e9f5ee;border-radius:3px;padding:3px 8px;font-weight:600}
+.open{font-size:9px;letter-spacing:.14em;color:var(--ink3)}
+.guide{padding:8px 22px;border-bottom:1px solid var(--line);font-size:11px;color:var(--ink2);background:#fffdf7}
+.guide b{color:#a3782a}
+
+.pvtag{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:40;font-family:var(--mono);
+  font-size:9px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;background:rgba(6,6,8,.85);
+  border:1px solid rgba(214,179,106,.5);padding:8px 16px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="c1">
+    <span class="home">Home</span>
+    <div><div class="pn"><span class="dot"></span>St Village Preston</div><div class="pa">2-3 Newman Street, Preston VIC 3072 · BTR</div></div>
+  </div>
+  <div class="tabs">
+    <span class="tab">Site &amp; Design</span><span class="tab">Land &amp; Terms</span><span class="tab">Product Mix</span>
+    <span class="tab on">Cost Stack</span><span class="tab">Finance</span><span class="tab">Cash Flow</span>
+    <span class="tab">Timeline</span><span class="tab">Overview</span><span class="tab">Dashboard</span>
+  </div>
+</div>
+
+<div class="sheet">
+
+  <!-- exact-number KPI strip -->
+  <div class="kpis">
+    <div class="kpi"><div class="l">Construction</div><div class="v">$183,640,000</div></div>
+    <div class="kpi"><div class="l">Consultants</div><div class="v">$5,842,914</div></div>
+    <div class="kpi"><div class="l">Statutory + Headworks</div><div class="v">$6,010,000</div></div>
+    <div class="kpi"><div class="l">Management</div><div class="v">$4,760,000</div></div>
+    <div class="kpi"><div class="l">Marketing</div><div class="v">$1,200,000</div></div>
+    <div class="kpi total"><div class="l">TDC Total</div><div class="v">$201,452,914</div></div>
+  </div>
+
+  <div class="phead">
+    <span class="k">04 · Cost Stack</span>
+    <span class="t">Consultant &amp; Professional Fees</span>
+    <span class="s">All design, engineering and advisory consultant fees across the lifecycle.</span>
+    <span class="save">✓ Auto-saved</span>
+  </div>
+
+  <div class="guide"><b>Market guide</b> — typical range 3–8% of construction cost. Include all stages: concept, DD, documentation, CA.</div>
+
+  <div class="cert">
+    <span>FEE CERTAINTY</span>
+    <span><b style="color:#1f8a5b">$6,000</b> fixed · 0.1%</span>
+    <div class="bar"><i></i></div>
+    <span class="amber"><b>$5,836,914</b> variable — not yet locked to a fee proposal · 99.9%</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:34%">Item description</th>
+        <th class="c" style="width:90px">Pricing</th>
+        <th>Budget $</th>
+        <th>Incl. GST</th>
+        <th class="c">Funded by</th>
+        <th style="width:70px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="group"><td colspan="2">Acoustic Engineer<span class="cnt">3 lines</span></td><td class="num calc">$6,000</td><td class="num calc">$6,600</td><td></td><td><span class="addrow">+ Row</span></td></tr>
+      <tr class="item"><td><input class="desc-in" value="Planning"></td><td style="text-align:center"><span class="fv"><span class="on f">FIXED</span><span>VAR</span></span></td><td class="num"><input class="cellin" value="6,000"></td><td class="num calc">$6,600</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Schematic"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="0"></td><td class="num zero">$0</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Construction"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="0"></td><td class="num zero">$0</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="sub"><td colspan="2">Acoustic Engineer subtotal</td><td class="num calc">$6,000</td><td class="num calc">$6,600</td><td></td><td></td></tr>
+
+      <tr class="group"><td colspan="2">Arborist<span class="cnt">2 lines</span></td><td class="num zero">$0</td><td class="num zero">$0</td><td></td><td><span class="addrow">+ Row</span></td></tr>
+      <tr class="item"><td><input class="desc-in" value="Planning"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="0"></td><td class="num zero">$0</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Project Arborist"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="0"></td><td class="num zero">$0</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="sub"><td colspan="2">Arborist subtotal</td><td class="num zero">$0</td><td class="num zero">$0</td><td></td><td></td></tr>
+
+      <tr class="group"><td colspan="2">Architect<span class="cnt">11 lines</span></td><td class="num calc">$3,778,000</td><td class="num calc">$4,155,800</td><td></td><td><span class="addrow">+ Row</span></td></tr>
+      <tr class="item"><td><input class="desc-in" value="Feasibility DPO"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="10,000"></td><td class="num calc">$11,000</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Concept design"></td><td style="text-align:center"><span class="fv"><span class="on f">FIXED</span><span>VAR</span></span></td><td class="num"><input class="cellin" value="380,000"></td><td class="num calc">$418,000</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Town planning package"></td><td style="text-align:center"><span class="fv"><span class="on f">FIXED</span><span>VAR</span></span></td><td class="num"><input class="cellin" value="640,000"></td><td class="num calc">$704,000</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Design development"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="748,000"></td><td class="num calc">$822,800</td><td style="text-align:center"><span class="fund">EQUITY</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Contract documentation"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="1,200,000"></td><td class="num calc">$1,320,000</td><td style="text-align:center"><span class="fund">DEBT</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="item"><td><input class="desc-in" value="Contract administration"></td><td style="text-align:center"><span class="fv"><span>FIXED</span><span class="on v">VAR</span></span></td><td class="num"><input class="cellin" value="800,000"></td><td class="num calc">$880,000</td><td style="text-align:center"><span class="fund">DEBT</span></td><td class="open">OPEN ›</td></tr>
+      <tr class="sub"><td colspan="2">Architect subtotal</td><td class="num calc">$3,778,000</td><td class="num calc">$4,155,800</td><td></td><td></td></tr>
+
+      <tr class="grand"><td colspan="2">CONSULTANT &amp; PROFESSIONAL FEES — TOTAL</td><td class="num">$5,842,914</td><td class="num">$6,427,205</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<div class="pvtag">Worksheet view — EstateMaster-style · preview</div>
+</body>
+</html>
