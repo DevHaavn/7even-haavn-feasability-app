@@ -22,7 +22,7 @@ function ChevronX({ size = 22 }: { size?: number }) {
     filter: 'brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9))',
   }
   return (
-    <span style={{ position: 'relative', display: 'inline-block', width: size * 1.9, height: size, verticalAlign: 'middle' }} aria-hidden>
+    <span style={{ position: 'relative', display: 'inline-block', width: size * 1.35, height: size, verticalAlign: 'middle' }} aria-hidden>
       <span style={{ ...arm, left: 0, clipPath: 'polygon(0 0,23% 0,100% 50%,23% 100%,0 100%,77% 50%)' }} />
       <span style={{ ...arm, right: 0, clipPath: 'polygon(100% 0,77% 0,0 50%,77% 100%,100% 100%,23% 50%)' }} />
     </span>
@@ -72,35 +72,6 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
         {/* Glass overlay — the live workspace shows through, blurred (approved preview design) */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.5), rgba(3,3,3,0.32) 40%, rgba(3,3,3,0.55))', pointerEvents: 'none' }} />
 
-        {/* Header */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 0, borderBottom: '1px solid #222', flexShrink: 0, background: 'rgba(5,5,5,0.72)', backdropFilter: 'blur(8px)' }}>
-          {/* Tab bar */}
-          <div style={{ display: 'flex', flex: 1 }}>
-            {([{ id: 'feasibility', label: '📋 Feasibility' }, { id: 'history', label: '⏱ History' }, { id: 'export', label: '⬇ Export' }, { id: 'display', label: '◐ Display' }, { id: 'reset', label: '↺ Reset Project' }] as const).map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                style={{
-                  padding: '18px 28px',
-                  fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase',
-                  color: tab === t.id ? (t.id === 'reset' ? '#EF4444' : '#C4973A') : '#A8A8A8',
-                  background: 'transparent', border: 'none',
-                  borderBottom: tab === t.id ? `2px solid ${t.id === 'reset' ? '#EF4444' : '#C4973A'}` : '2px solid transparent',
-                  cursor: 'pointer', transition: 'all 0.2s', fontWeight: tab === t.id ? 700 : 400,
-                }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-          {/* Project name */}
-          <div style={{ padding: '0 28px', color: '#B8B8B8', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-            {projectName}
-          </div>
-          {/* Close (header) — larger tap target */}
-          <button onClick={onClose} aria-label="Close"
-            style={{ flexShrink: 0, padding: '0 22px', minWidth: 56, height: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ChevronX />
-          </button>
-        </div>
-
         {/* Mobile-friendly close — large, thumb-reachable at the bottom */}
         <button onClick={onClose} aria-label="Close manage panel"
           style={{
@@ -115,8 +86,38 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
           <ChevronX size={14} />&nbsp; Close
         </button>
 
-        {/* Body */}
-        <div style={{ position: 'relative', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        {/* Centred pop-out menu — same language as the main 7EVEN page menu */}
+        <div style={{ position: 'relative', flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px' }}>
+          <div style={{ width: 'min(780px,94vw)', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
+            {/* eyebrow */}
+            <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9aa0a6', marginBottom: 14, paddingLeft: '0.4em' }}>{projectName}</div>
+            {/* flickable tab strip + chevron X */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Display' }, { id: 'reset', label: 'Reset' }] as const).map(t => {
+                const on = tab === t.id
+                const danger = t.id === 'reset'
+                const col = on ? (danger ? '#e0645c' : '#d6b36a') : '#fff'
+                return (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    style={{
+                      fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, letterSpacing: '0.24em', textTransform: 'uppercase',
+                      color: col, background: 'transparent', cursor: 'pointer', padding: '11px 18px', borderRadius: 2,
+                      border: `1px solid ${on ? (danger ? '#e0645c' : '#d6b36a') : 'rgba(255,255,255,0.32)'}`,
+                      textShadow: on && !danger ? '0 0 8px rgba(244,227,189,.45), 0 0 18px rgba(214,179,106,.28)' : '0 1px 8px rgba(0,0,0,.6)',
+                      boxShadow: on && !danger ? '0 0 9px rgba(244,227,189,.35), 0 0 22px rgba(214,179,106,.22), inset 0 0 9px rgba(214,179,106,.14)' : 'none',
+                      transition: 'all .25s',
+                    }}>
+                    {t.label}
+                  </button>
+                )
+              })}
+              <button onClick={onClose} aria-label="Close"
+                style={{ marginLeft: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', display: 'flex', alignItems: 'center' }}>
+                <ChevronX />
+              </button>
+            </div>
+            {/* content card — clear glass */}
+            <div style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch', border: '1px solid rgba(255,255,255,0.28)', borderRadius: 2, background: 'rgba(5,6,8,0.62)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
 
           {/* ── FEASIBILITY TAB ── */}
           {tab === 'feasibility' && (() => {
@@ -283,13 +284,11 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             </div>
           )}
 
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: '12px 28px', borderTop: '1px solid #0D0D0D', flexShrink: 0 }}>
-          <p style={{ fontSize: 8, color: '#1A1A1A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Snapshots stored locally in browser · not synced across devices
-          </p>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 10, fontFamily: "'JetBrains Mono',monospace", fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+              Snapshots stored locally in browser · not synced across devices
+            </div>
+          </div>
         </div>
       </div>
 
