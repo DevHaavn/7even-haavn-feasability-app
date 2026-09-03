@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HORI7ON | 7EVEN IM · St Village Preston (preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#d6b36a;--gold2:#e8d296;--goldd:#a3782a;--ink:#F4F2EC;--ink2:#B9B6AD;--ink3:#7C7A72;
+  --paper:#FBFAF7;--pink:#111417;--pink2:#4b5157;--pink3:#8a9095;--line:rgba(255,255,255,.14);--pline:rgba(17,20,23,.12);
+  --fd:'Cormorant Garamond',Georgia,serif;--fb:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#040405;font-family:var(--fb);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* preview chrome */
+.pvbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:18px;
+  padding:10px clamp(16px,3vw,40px);background:rgba(4,5,6,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.pvbar .t{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#9aa0a6}
+.pvbar .t b{color:var(--gold);font-weight:500}
+.pvbar .sp{flex:1}
+.pvbar button{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--gold);border-radius:2px;color:var(--gold);padding:8px 14px;cursor:pointer}
+.pvbar button:hover{background:var(--gold);color:#0a0a0b}
+.stage{padding:76px 0 80px;display:flex;flex-direction:column;align-items:center;gap:36px}
+
+/* A4 pages */
+.page{width:min(880px,94vw);aspect-ratio:210/297;background:#0A0A0B;position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.09),0 40px 90px -40px rgba(0,0,0,.9)}
+.page.light{background:var(--paper);color:var(--pink)}
+.pad{position:absolute;inset:0;padding:7.5% 8%}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.light .eyebrow{color:var(--goldd)}
+.folio{position:absolute;left:8%;right:8%;bottom:4%;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:7.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink3);border-top:1px solid var(--line);padding-top:9px}
+.light .folio{color:var(--pink3);border-top-color:var(--pline)}
+.folio .wing{height:10px;width:auto;opacity:.8}
+.light .folio .wing{filter:invert(1);opacity:.6}
+
+/* editorial type */
+.disp{font-family:var(--fd);font-weight:400;line-height:1.04;letter-spacing:.005em}
+.disp i{font-style:italic;color:var(--gold2)}
+.light .disp i{color:var(--goldd)}
+.body{font-size:10.2px;line-height:1.8;font-weight:300;color:var(--ink2)}
+.light .body{color:var(--pink2)}
+.body .lede::first-letter{font-family:var(--fd);font-size:34px;float:left;line-height:.82;padding:4px 7px 0 0;color:var(--gold)}
+.cap{font-family:var(--mono);font-size:7.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3);margin-top:8px}
+.light .cap{color:var(--pink3)}
+.rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin:14px 0}
+.img{background:#111 center/cover no-repeat}
+.stat .v{font-family:var(--mono);font-size:19px;color:var(--gold);letter-spacing:-.01em}
+.light .stat .v{color:var(--goldd)}
+.stat .l{font-family:var(--mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3);margin-top:4px}
+.light .stat .l{color:var(--pink3)}
+
+/* ledger tables (worksheet discipline) */
+table{width:100%;border-collapse:collapse}
+.lt td{padding:6px 2px;border-bottom:1px solid var(--pline);font-size:9.6px;color:var(--pink2)}
+.lt td.n{font-family:var(--mono);text-align:right;color:var(--pink);font-size:9.4px;white-space:nowrap}
+.lt tr.sub td{font-weight:600;color:var(--pink)}
+.lt tr.tot td{border-top:2px solid var(--pink);border-bottom:3px double var(--pink);font-weight:600;color:var(--pink);padding:8px 2px}
+.lt .sec{font-family:var(--mono);font-size:7.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--pink3);padding-top:12px}
+.dk td{border-bottom-color:var(--line);color:var(--ink2)}
+.dk td.n{color:var(--ink)}
+.dk tr.tot td{border-top-color:var(--gold);border-bottom:3px double var(--gold);color:var(--gold)}
+
+@media print{
+  .pvbar{display:none}
+  body{background:#0A0A0B}
+  .stage{padding:0;gap:0;display:block}
+  .page{width:210mm;height:297mm;aspect-ratio:auto;box-shadow:none;page-break-after:always;margin:0}
+  @page{size:A4 portrait;margin:0}
+  .img,.page{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="pvbar">
+  <span class="t">HORI7ON | 7EVEN · Investment Memorandum — <b>St Village Preston</b> · editorial preview</span>
+  <span class="sp"></span>
+  <button onclick="window.print()">⤓ Save as PDF</button>
+</div>
+
+<div class="stage">
+
+<!-- ═══ 01 · COVER — full-bleed park approach ═══ -->
+<div class="page">
+  <div class="img" style="position:absolute;inset:0;background-image:url('/im-stv-2.jpg')"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,4,5,.62),rgba(4,4,5,.08) 34%,rgba(4,4,5,.05) 55%,rgba(4,4,5,.82) 86%)"></div>
+  <div style="position:absolute;top:5.5%;left:8%;right:8%;display:flex;justify-content:space-between;align-items:center">
+    <img src="/hori7on-gold.png" alt="HORI7ON" style="height:14px;width:auto">
+    <span class="mono" style="font-size:8px;letter-spacing:.3em;color:#fff;opacity:.9">7EVEN DEVELOPMENTS</span>
+    <span class="mono" style="font-size:7.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink2);border:1px solid rgba(255,255,255,.35);padding:5px 10px">Confidential</span>
+  </div>
+  <div style="position:absolute;left:8%;right:8%;bottom:7%">
+    <div class="eyebrow" style="margin-bottom:14px">Investment Memorandum · No. 03 · The HORI7ON Portfolio</div>
+    <div class="disp" style="font-size:64px;color:#fff">St Village<br><i>Preston</i></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px">
+      <div class="mono" style="font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink2)">2–3 Newman Street · Preston VIC 3072 · Build-to-Rent</div>
+      <div class="mono" style="font-size:8.5px;letter-spacing:.22em;color:var(--gold)">GDV $321.3M · 400 RESIDENCES</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02 · THE BRAND — gold suede plate + manifesto ═══ -->
+<div class="page">
+  <div class="img" style="position:absolute;inset:0;background-image:url('/im-stv-0.jpg')"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,5,.35),transparent 40%,rgba(10,8,5,.78) 82%)"></div>
+  <div style="position:absolute;left:8%;right:8%;bottom:9%">
+    <div class="eyebrow">01 · The Idea</div>
+    <div class="disp" style="font-size:37px;color:#fff;margin-top:12px;max-width:86%">“On the park. Over the city.<br><i>Preston's build-to-rent landmark.</i>”</div>
+    <div class="body" style="max-width:62%;margin-top:16px;color:rgba(244,242,236,.85)">Four hundred residences in single ownership, wrapped around a members' club, a day spa and a working ground plane — seven kilometres from the Melbourne CBD, on the edge of the park.</div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>02</span></div>
+</div>
+
+<!-- ═══ 03 · THE VISION — editorial spread ═══ -->
+<div class="page light">
+  <div class="pad">
+    <div class="eyebrow">02 · The Vision</div>
+    <div class="disp" style="font-size:33px;margin-top:12px;color:var(--pink)">A rental community built<br>like a <i>private estate.</i></div>
+    <div class="rule" style="width:110px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5.5%;margin-top:10px">
+      <div class="body"><span class="lede">S</span>t Village Preston is a $321 million build-to-rent landmark set on the park — its podium and every home above commanding uninterrupted views across parkland to the Melbourne CBD skyline, just seven kilometres away. Four hundred premium build-to-rent apartments rise over a world-class ground plane: 1,500&nbsp;m² of retail and food precinct, 1,500&nbsp;m² of co-working, and more than 1,000&nbsp;m² of wellness, day-spa and five-star hotel-grade facilities.</div>
+      <div class="body">In a tightly planning-controlled pocket of Preston, it is a rare, amenity-led rental community delivered at institutional scale — single ownership, one operator, one standard. The Saints Row Members Club anchors the community across 2,911&nbsp;m², complete with an indoor basketball court; the arched brick laneways below carry cafés, dining and daily life.<br><br><span class="mono" style="font-size:8px;letter-spacing:.24em;color:var(--goldd)">ARCHITECTURE — ARCHED BRICK PODIUM · TWIN GREEN TOWERS · 16 STOREYS</span></div>
+    </div>
+    <div class="img" style="background-image:url('/im-stv-1.jpg');aspect-ratio:21/9;margin-top:22px"></div>
+    <div class="cap">Twin towers on the park — Melbourne CBD beyond</div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>03</span></div>
+</div>
+
+<!-- ═══ 04 · THE LIFE — amenity editorial ═══ -->
+<div class="page light">
+  <div class="pad">
+    <div class="eyebrow">03 · The Life</div>
+    <div class="disp" style="font-size:29px;margin-top:10px;color:var(--pink)">Amenity that <i>earns the rent.</i></div>
+    <div style="display:grid;grid-template-columns:1.45fr 1fr;gap:4.5%;margin-top:16px;align-items:start">
+      <div>
+        <div class="img" style="background-image:url('/im-stv-11.jpg');aspect-ratio:16/10"></div>
+        <div class="cap">The bath house — arched glass to the gardens</div>
+        <div class="img" style="background-image:url('/im-stv-10.jpg');aspect-ratio:16/10;margin-top:14px"></div>
+        <div class="cap">Saints Row Members Club — dining hall &amp; co-working</div>
+      </div>
+      <div>
+        <div class="img" style="background-image:url('/im-stv-8.jpg');aspect-ratio:10/13"></div>
+        <div class="cap">The laneway — brick arches, morning light</div>
+        <div style="margin-top:18px;border-top:1px solid var(--pline);padding-top:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 10px">
+            <div class="stat"><div class="v">2,911 m²</div><div class="l">Saints Row Club</div></div>
+            <div class="stat"><div class="v">1,112 m²</div><div class="l">Retail &amp; F&amp;B</div></div>
+            <div class="stat"><div class="v">1,500 m²</div><div class="l">Co-working</div></div>
+            <div class="stat"><div class="v">1,000 m²+</div><div class="l">Wellness &amp; spa</div></div>
+          </div>
+        </div>
+        <div class="body" style="margin-top:16px;font-size:9.4px">Residents keep the club, the spa, the court and the gardens; the precinct keeps the cafés and the working day. Amenity depth drives the rental premium — and keeps it.</div>
+      </div>
+    </div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>04</span></div>
+</div>
+
+<!-- ═══ 05 · THE SCHEME — architect's numbers ═══ -->
+<div class="page light">
+  <div class="pad">
+    <div class="eyebrow">04 · The Scheme</div>
+    <div class="disp" style="font-size:29px;margin-top:10px;color:var(--pink)">The numbers behind <i>the drawings.</i></div>
+    <div style="display:grid;grid-template-columns:1fr 1.05fr;gap:5.5%;margin-top:18px;align-items:start">
+      <div>
+        <table class="lt">
+          <tr><td class="sec" colspan="2">Area schedule — as modelled</td></tr>
+          <tr><td>Residential NSA</td><td class="n">22,300 m²</td></tr>
+          <tr><td>Residential GFA</td><td class="n">27,875 m²</td></tr>
+          <tr><td>Residential GBA <span style="color:var(--pink3)">(cost basis)</span></td><td class="n">46,300 m²</td></tr>
+          <tr><td>Balconies</td><td class="n">2,400 m²</td></tr>
+          <tr><td>Basement</td><td class="n">5,400 m²</td></tr>
+          <tr><td>Car spaces</td><td class="n">180</td></tr>
+          <tr class="sub"><td>NSA / GFA efficiency</td><td class="n" style="color:#1f8a5b">80.0%</td></tr>
+        </table>
+        <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px 10px">
+          <div class="stat"><div class="v">400</div><div class="l">BTR residences</div></div>
+          <div class="stat"><div class="v">16</div><div class="l">Storeys · two towers</div></div>
+          <div class="stat"><div class="v">4,902 m²</div><div class="l">Site · park frontage</div></div>
+          <div class="stat"><div class="v">7 km</div><div class="l">To Melbourne CBD</div></div>
+        </div>
+        <div class="body" style="margin-top:16px;font-size:9.2px">Mix: 34% studio · 37% one-bed · 27% two-bed · 3% three-bed — solved against 22,300&nbsp;m² of residential NSA.</div>
+      </div>
+      <div>
+        <div class="img" style="background-image:url('/im-stv-3.jpg');aspect-ratio:10/13.6"></div>
+        <div class="cap">The green tower — planted facade over the arches</div>
+      </div>
+    </div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>05</span></div>
+</div>
+
+<!-- ═══ 06 · THE FEASIBILITY — Daniel's ledger ═══ -->
+<div class="page light">
+  <div class="pad">
+    <div class="eyebrow">05 · The Feasibility</div>
+    <div class="disp" style="font-size:29px;margin-top:10px;color:var(--pink)">Every dollar, <i>accounted.</i></div>
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:5.5%;margin-top:16px;align-items:start">
+      <div>
+        <table class="lt">
+          <tr><td class="sec" colspan="2">Total development cost</td></tr>
+          <tr><td>Land — incl. duty &amp; acquisition</td><td class="n">$16,320,000</td></tr>
+          <tr><td>Construction — hard costs</td><td class="n">$183,640,000</td></tr>
+          <tr><td>Professional fees</td><td class="n">$5,840,000</td></tr>
+          <tr><td>Statutory &amp; council</td><td class="n">$6,010,000</td></tr>
+          <tr><td>Project management + marketing</td><td class="n">$4,970,000</td></tr>
+          <tr><td>Finance — waterfall, incl. fees</td><td class="n">$16,960,000</td></tr>
+          <tr class="tot"><td>TOTAL DEVELOPMENT COST</td><td class="n">$233,750,000</td></tr>
+        </table>
+        <table class="lt" style="margin-top:16px">
+          <tr><td class="sec" colspan="2">Valuation — conservative basis</td></tr>
+          <tr><td>Net operating income (stabilised)</td><td class="n">$13,650,000</td></tr>
+          <tr><td>Gross asset value — BTR yield basis</td><td class="n">$321,270,000</td></tr>
+          <tr><td>Residual land value</td><td class="n">$88,610,000</td></tr>
+          <tr><td>All-in rate per GBA m²</td><td class="n">$5,049 /m²</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="background:#111417;color:var(--ink);padding:22px 22px 18px">
+          <div class="eyebrow" style="color:var(--gold)">The outcome</div>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:15px">
+            <div><div class="mono" style="font-size:24px;color:#57c08a">$87.52M</div><div class="l mono" style="font-size:7px;letter-spacing:.22em;color:var(--ink3);margin-top:3px;text-transform:uppercase">Development profit · GDV − TDC</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+              <div><div class="mono" style="font-size:16px;color:var(--gold)">37.4%</div><div class="l mono" style="font-size:7px;letter-spacing:.2em;color:var(--ink3);margin-top:3px;text-transform:uppercase">Margin on cost</div></div>
+              <div><div class="mono" style="font-size:16px;color:var(--gold)">27.2%</div><div class="l mono" style="font-size:7px;letter-spacing:.2em;color:var(--ink3);margin-top:3px;text-transform:uppercase">Margin on GDV</div></div>
+              <div><div class="mono" style="font-size:16px;color:var(--gold)">58.5%</div><div class="l mono" style="font-size:7px;letter-spacing:.2em;color:var(--ink3);margin-top:3px;text-transform:uppercase">Project IRR</div></div>
+              <div><div class="mono" style="font-size:16px;color:var(--gold)">2.79×</div><div class="l mono" style="font-size:7px;letter-spacing:.2em;color:var(--ink3);margin-top:3px;text-transform:uppercase">Equity multiple</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="img" style="background-image:url('/im-stv-7.jpg');aspect-ratio:16/11;margin-top:14px"></div>
+        <div class="cap">Street arrival — the arches at dusk</div>
+        <div class="body" style="margin-top:12px;font-size:8.8px;color:var(--pink3)">Figures are live outputs of the 7EVEN ATRIUM feasibility engine — cost stack, cashflow-plotted finance waterfall and conservative-basis valuation — as at September 2026.</div>
+      </div>
+    </div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>06</span></div>
+</div>
+
+<!-- ═══ 07 · THE CAPITAL — structure page (dark) ═══ -->
+<div class="page">
+  <div class="pad">
+    <div class="eyebrow">06 · The Capital</div>
+    <div class="disp" style="font-size:29px;margin-top:10px;color:#fff">How the money <i>works.</i></div>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:5.5%;margin-top:18px;align-items:start">
+      <div>
+        <table class="lt dk">
+          <tr><td class="sec" colspan="3" style="color:var(--ink3)">Capital stack — monthly debt waterfall</td></tr>
+          <tr><td>Senior — land facility</td><td class="n">$26.0M</td><td class="n" style="color:var(--ink3)">7.3%</td></tr>
+          <tr><td>Senior — construction</td><td class="n">$119.2M</td><td class="n" style="color:var(--ink3)">7.5%</td></tr>
+          <tr><td>Mezzanine — PIK</td><td class="n">$13.0M</td><td class="n" style="color:var(--ink3)">12.5%</td></tr>
+          <tr><td>Preferred equity</td><td class="n">$10.8M</td><td class="n" style="color:var(--ink3)">13.0%</td></tr>
+          <tr class="sub"><td>Sponsor + preferred equity drawn</td><td class="n">$48.8M</td><td></td></tr>
+          <tr class="tot"><td>BASE TDC FUNDED</td><td class="n">$216.8M</td><td></td></tr>
+        </table>
+        <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px">
+          <div class="stat"><div class="v">$180.9M</div><div class="l">Peak debt</div></div>
+          <div class="stat"><div class="v">$16.96M</div><div class="l">Finance cost incl. fees</div></div>
+          <div class="stat"><div class="v">1.78×</div><div class="l">GDV cover on peak debt</div></div>
+        </div>
+        <div class="body" style="margin-top:16px;font-size:9.2px">Equity draws first; facilities fund in priority — land, senior, mezzanine, preferred — each capped at facility, interest accruing monthly on drawn balances and clearing at practical completion. Establishment, line and exit fees are charged as configured. Timing follows the project cashflow plot, month by month.</div>
+      </div>
+      <div>
+        <div class="img" style="background-image:url('/im-stv-16.jpg');aspect-ratio:10/12.4"></div>
+        <div class="cap" style="color:var(--ink3)">Rooftop garden building — last light</div>
+        <div style="border:1px solid rgba(214,179,106,.4);background:rgba(214,179,106,.06);padding:14px 16px;margin-top:14px">
+          <div class="eyebrow">For the equity partner</div>
+          <div class="body" style="margin-top:8px;font-size:9.2px;color:var(--ink2)">$48.8M of equity through delivery returns capital plus $87.5M of development profit at completion — a 2.79× multiple on peak equity at a 58.5% project IRR, before any long-hold yield play on the stabilised asset.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>07</span></div>
+</div>
+
+<!-- ═══ 08 · THE CASE — points + why ═══ -->
+<div class="page light">
+  <div class="pad">
+    <div class="eyebrow">07 · The Case</div>
+    <div class="disp" style="font-size:29px;margin-top:10px;color:var(--pink)">Why this deal, <i>now.</i></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5.5%;margin-top:16px;align-items:start">
+      <div>
+        <div style="display:flex;flex-direction:column;gap:13px">
+          <div style="display:flex;gap:12px"><span class="mono" style="color:var(--goldd);font-size:11px;flex:none">01</span><div><div style="font-size:10.2px;font-weight:600;color:var(--pink)">Park frontage, city views</div><div class="body" style="font-size:9px;margin-top:2px">Uninterrupted, podium-up views to the Melbourne CBD skyline — protected by the park itself.</div></div></div>
+          <div style="display:flex;gap:12px"><span class="mono" style="color:var(--goldd);font-size:11px;flex:none">02</span><div><div style="font-size:10.2px;font-weight:600;color:var(--pink)">400 build-to-rent apartments</div><div class="body" style="font-size:9px;margin-top:2px">Single-ownership, institutional-grade rental community at scale.</div></div></div>
+          <div style="display:flex;gap:12px"><span class="mono" style="color:var(--goldd);font-size:11px;flex:none">03</span><div><div style="font-size:10.2px;font-weight:600;color:var(--pink)">1,000 m²+ wellness &amp; spa</div><div class="body" style="font-size:9px;margin-top:2px">A world-class wellness centre, day spa and five-star hotel-grade facilities.</div></div></div>
+          <div style="display:flex;gap:12px"><span class="mono" style="color:var(--goldd);font-size:11px;flex:none">04</span><div><div style="font-size:10.2px;font-weight:600;color:var(--pink)">A 3,000 m² ground plane</div><div class="body" style="font-size:9px;margin-top:2px">1,500&nbsp;m² of retail and food precinct plus 1,500&nbsp;m² of co-working under the arches.</div></div></div>
+          <div style="display:flex;gap:12px"><span class="mono" style="color:var(--goldd);font-size:11px;flex:none">05</span><div><div style="font-size:10.2px;font-weight:600;color:var(--pink)">Supply-constrained pocket</div><div class="body" style="font-size:9px;margin-top:2px">Tight planning controls make new scale rental stock in Preston genuinely rare.</div></div></div>
+        </div>
+        <div style="border:1px solid rgba(163,120,42,.35);background:rgba(214,179,106,.07);padding:14px 16px;margin-top:18px">
+          <div class="eyebrow">Why invest</div>
+          <ul style="margin:8px 0 0 14px">
+            <li class="body" style="font-size:8.9px;margin-bottom:5px">Build-to-rent — long-hold, income-producing at institutional scale</li>
+            <li class="body" style="font-size:8.9px;margin-bottom:5px">Irreplaceable park frontage with protected CBD skyline views</li>
+            <li class="body" style="font-size:8.9px;margin-bottom:5px">Amenity depth drives rental premium and retention</li>
+            <li class="body" style="font-size:8.9px;margin-bottom:5px">Supply-constrained, planning-tight catchment</li>
+            <li class="body" style="font-size:8.9px">Aligned to Victorian Government build-to-rent incentives</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="img" style="background-image:url('/im-stv-6.jpg');aspect-ratio:10/8.2"></div>
+        <div class="cap">The corner — rooftop garden over the arches</div>
+        <div class="img" style="background-image:url('/im-stv-13.jpg');aspect-ratio:10/6.6;margin-top:12px"></div>
+        <div class="cap">Retail street — daily life at the ground plane</div>
+      </div>
+    </div>
+  </div>
+  <div class="folio"><span>St Village Preston · Investment Memorandum</span><img class="wing" src="/winged-device-white.png" alt=""><span>08</span></div>
+</div>
+
+<!-- ═══ 09 · BACK COVER ═══ -->
+<div class="page">
+  <div class="pad" style="display:flex;flex-direction:column">
+    <div style="text-align:center;margin-top:15%">
+      <img src="/winged-device-white.png" style="height:38px;width:auto;opacity:.95" alt="7EVEN">
+      <div style="margin-top:20px"><img src="/seven-mark-white-hd.png" style="height:24px;width:auto" alt="7EVEN"></div>
+      <div style="margin-top:22px"><img src="/hori7on-gold.png" style="height:12px;width:auto" alt="HORI7ON"></div>
+      <div style="width:70px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px auto 0"></div>
+      <div class="body" style="max-width:58%;margin:20px auto 0;text-align:center">Developments shaping Australia's next chapter — presented for our banking, institutional and government partners by 7EVEN Developments.</div>
+      <div class="mono" style="margin-top:26px;font-size:9px;letter-spacing:.24em;color:var(--ink2);text-transform:uppercase">7EVEN.AU &nbsp;·&nbsp; ENQUIRIES@7EVEN.AU</div>
+    </div>
+    <div style="margin-top:auto">
+      <div class="eyebrow">Confidentiality &amp; Disclaimer</div>
+      <div style="font-size:7.4px;line-height:1.75;color:var(--ink3);margin-top:10px;font-weight:300">This Investment Memorandum is confidential and provided for the exclusive use of the intended recipient. It may not be reproduced or distributed without the written consent of 7EVEN Developments. All figures are indicative outputs of the 7EVEN ATRIUM feasibility model as at the date of issue, are subject to due diligence, planning and statutory approvals, financing and market conditions, and do not constitute an offer, invitation or financial product advice. Imagery is indicative of design intent and subject to change. Recipients must rely on their own enquiries and professional advice.</div>
+    </div>
+  </div>
+  <div class="folio"><span>7EVEN Developments · The HORI7ON Portfolio</span><img class="wing" src="/winged-device-white.png" alt=""><span>09</span></div>
+</div>
+
+</div>
+</body>
+</html>
