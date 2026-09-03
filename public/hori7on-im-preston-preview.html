@@ -11,7 +11,7 @@
 /* ══ 7even.au issue language — ported verbatim where possible ══ */
 :root{
   --bg:#0A0A0B;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);
-  --ink:#F4F2EC;--ink2:#B9B6AD;--ink3:#7C7A72;--dim:#4A4842;
+  --ink:#FFFFFF;--ink2:#E3E1DA;--ink3:#A6A39B;--dim:#6A6862;
   --gold:#d6b36a;--gold2:#e8d296;--goldd:#b8933f;
   --f-d:'Cormorant Garamond',Georgia,serif;--f-b:'Inter',system-ui,sans-serif;--f-m:'JetBrains Mono',ui-monospace,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -32,18 +32,18 @@ img{display:block;max-width:100%}
 /* A4 pages — every page rides the black field */
 .page{width:min(920px,94vw);aspect-ratio:210/297;position:relative;overflow:hidden;color:var(--ink);
   /* the main app page field — the ATRIUM black-fabric still, fixed (not moving),
-     pre-darkened 20% so the gold and white pop */
+     pre-darkened 60% so it sits back as a field and the white + gold read crisp */
   background:
-    radial-gradient(120% 90% at 50% 42%, transparent 45%, rgba(0,0,0,.45) 100%),
+    radial-gradient(120% 90% at 50% 42%, transparent 55%, rgba(0,0,0,.3) 100%),
     url('/im-field-dark.jpg') center / cover no-repeat #060607;
   box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 90px -40px rgba(0,0,0,.9)}
 .pgpad{position:absolute;inset:0;padding:5.4% 6.4%;display:flex;flex-direction:column}
 
 /* mono rails */
 .pg-head{display:flex;justify-content:space-between;gap:18px;align-items:baseline;
-  font-family:var(--f-m);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#8a8e93}
+  font-family:var(--f-m);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:#AFB3B6}
 .pg-folio{display:flex;justify-content:space-between;font-family:var(--f-m);font-size:8.5px;letter-spacing:.28em;
-  text-transform:uppercase;color:#6a6e73;margin-top:auto;padding-top:14px}
+  text-transform:uppercase;color:#9a9e9a;margin-top:auto;padding-top:14px}
 .mid7{opacity:.75}
 
 /* type */
@@ -51,17 +51,17 @@ img{display:block;max-width:100%}
 .mast{font-family:var(--f-d);font-weight:500;line-height:.92;letter-spacing:-.015em;color:var(--ink)}
 .mast i{font-style:italic;font-weight:300;color:var(--gold)}
 .mast .it{display:block;font-style:italic;font-weight:300;color:var(--gold)}
-.lead{font-family:var(--f-d);font-size:14.5px;line-height:1.55;color:#d8d5cd}
+.lead{font-family:var(--f-d);font-size:14.5px;line-height:1.55;color:#F2F0EA}
 .just{font-size:10.6px;line-height:1.78;color:var(--ink2);text-align:justify}
 .just b{color:var(--ink);font-weight:600}
-.figcap{margin-top:9px;font-size:9px;line-height:1.6;color:#9a978f}
+.figcap{margin-top:9px;font-size:9px;line-height:1.6;color:#C9C6BE}
 .figcap b{color:var(--ink);font-weight:600}
 .mcaps{display:flex;justify-content:space-between;gap:18px;margin-top:9px;
-  font-family:var(--f-m);font-size:7.6px;letter-spacing:.2em;text-transform:uppercase;color:#6a6e73}
+  font-family:var(--f-m);font-size:7.6px;letter-spacing:.2em;text-transform:uppercase;color:#9CA09A}
 
 /* Monoton display numbers */
 .sv{font-family:'Monoton',var(--f-d);font-weight:400;line-height:1.15;letter-spacing:.04em;color:var(--gold)}
-.sl{font-family:var(--f-m);font-size:7.6px;letter-spacing:.22em;text-transform:uppercase;color:#8a8e93;margin-top:6px}
+.sl{font-family:var(--f-m);font-size:7.6px;letter-spacing:.22em;text-transform:uppercase;color:#BCB9B1;margin-top:6px}
 
 /* floating plates — edges dissolve into the field */
 .plate{overflow:hidden}
@@ -80,11 +80,11 @@ img{display:block;max-width:100%}
 
 /* meta blocks (ENGINE/FOCUS/STATUS) */
 .meta{display:flex;gap:34px}
-.meta div{border-left:1px solid rgba(255,255,255,.3);padding-left:12px;font-size:9.6px;color:#b3b0a8}
+.meta div{border-left:1px solid rgba(255,255,255,.4);padding-left:12px;font-size:9.6px;color:#DBD9D2}
 .meta b{display:block;font-family:var(--f-m);font-size:7.6px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink);font-weight:600;margin-bottom:4px}
 
 /* pull quote + chips */
-.pq{border-left:2px solid var(--gold);padding-left:16px;font-family:var(--f-d);font-style:italic;font-size:14.5px;line-height:1.6;color:#d8d5cd}
+.pq{border-left:2px solid var(--gold);padding-left:16px;font-family:var(--f-d);font-style:italic;font-size:14.5px;line-height:1.6;color:#F2F0EA}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{font-family:var(--f-m);font-size:7.8px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);
   border:1px solid rgba(255,255,255,.28);padding:7px 11px;white-space:nowrap}
@@ -92,10 +92,10 @@ img{display:block;max-width:100%}
 /* ledger tables — worksheet discipline on the field */
 table{width:100%;border-collapse:collapse}
 .lt td{padding:6px 2px;border-bottom:1px solid var(--line);font-size:9.4px;color:var(--ink2)}
-.lt td.n{font-family:var(--f-m);text-align:right;color:var(--ink);font-size:9.2px;white-space:nowrap}
+.lt td.n{font-family:var(--f-m);text-align:right;color:#fff;font-size:9.2px;white-space:nowrap}
 .lt tr.sub td{font-weight:600;color:var(--ink)}
 .lt tr.tot td{border-top:2px solid var(--gold);border-bottom:3px double var(--gold);font-weight:600;color:var(--gold);padding:8px 2px}
-.lt .sec{font-family:var(--f-m);font-size:7.4px;letter-spacing:.24em;text-transform:uppercase;color:#8a8e93;padding-top:12px}
+.lt .sec{font-family:var(--f-m);font-size:7.4px;letter-spacing:.24em;text-transform:uppercase;color:#BCB9B1;padding-top:12px}
 
 .rule{width:64px;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
 .hairline{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
