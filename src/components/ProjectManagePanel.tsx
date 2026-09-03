@@ -90,7 +90,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9aa0a6', marginBottom: 14, paddingLeft: '0.4em' }}>{projectName}</div>
             {/* flickable tab strip + chevron X */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Settings' }, { id: 'reset', label: 'Reset' }] as const).map(t => {
+              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Settings' }] as const).map(t => {
                 const on = tab === t.id
                 const danger = t.id === 'reset'
                 const col = on ? (danger ? '#e0645c' : '#d6b36a') : '#fff'
@@ -254,37 +254,23 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                   ⎋ Log Out
                 </button>
               </div>
-            </div>
-          )}
 
-          {/* ── RESET TAB ── */}
-          {tab === 'reset' && (
-            <div style={{ maxWidth: 520, margin: '0 auto', padding: '60px 28px' }}>
-              <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#EF4444', marginBottom: 6 }}>Danger Zone</p>
-              <h2 style={{ fontSize: 22, fontFamily: "'Optima','Gill Sans',serif", fontWeight: 700, color: '#fff', letterSpacing: '0.06em', marginBottom: 16 }}>Reset Project Data</h2>
-              <p style={{ fontSize: 12, color: '#444', lineHeight: 1.7, letterSpacing: '0.04em', marginBottom: 10 }}>
-                This will wipe all data for <span style={{ color: '#C8C8C8' }}>{projectName}</span> — Site & Design, Cost Stack, Finance, Timeline, and all scenarios.
-              </p>
-              <p style={{ fontSize: 11, color: '#C4973A', letterSpacing: '0.06em', marginBottom: 40, lineHeight: 1.6 }}>
-                A snapshot will be saved automatically before the reset, so you can restore it from Version History at any time.
-              </p>
-
-              <div style={{ border: '1px solid #1A1A1A', padding: '24px', marginBottom: 20 }}>
-                <div style={{ height: 1, background: 'linear-gradient(to right, #EF4444, transparent)', marginBottom: 20 }} />
-                <p style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#333', marginBottom: 20 }}>
-                  This action cannot be undone except via Version History restore.
+              <div style={{ borderTop: '1px solid #1A1A1A', paddingTop: 28, marginTop: 28 }}>
+                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#EF4444', marginBottom: 10 }}>Danger Zone</p>
+                <p style={{ fontSize: 10, color: '#8A8A8A', letterSpacing: '0.06em', lineHeight: 1.6, marginBottom: 8 }}>
+                  Reset wipes all data for <span style={{ color: '#C8C8C8' }}>{projectName}</span> — Site &amp; Design, Cost Stack, Finance, Timeline and all scenarios.
+                </p>
+                <p style={{ fontSize: 9, color: '#C4973A', letterSpacing: '0.06em', marginBottom: 16, lineHeight: 1.6 }}>
+                  A snapshot is saved automatically first, restorable from History. {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} currently stored.
                 </p>
                 <button onClick={() => setConfirmReset(true)} className="glass-btn glass-btn-red"
-                  style={{ width: '100%', padding: '14px 0', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#EF4444', fontWeight: 700 }}>
-                  ↺ Reset & Snapshot
+                  style={{ padding: '11px 26px', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#EF4444', fontWeight: 700 }}>
+                  ↺ Reset &amp; Snapshot
                 </button>
               </div>
-
-              <p style={{ fontSize: 9, color: '#1E1E1E', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} currently stored for this project
-              </p>
             </div>
           )}
+
 
             </div>
             <div style={{ textAlign: 'center', marginTop: 10, fontFamily: "'JetBrains Mono',monospace", fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>

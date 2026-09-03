@@ -236,8 +236,6 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         <div className="ff-rail">
           <div className="ff-l">
             <button className="ff-atr" onClick={() => setActiveProject(null)}><span className="ff-tri" />ATRIUM</button>
-            <span className="ff-vd" />
-            <img className="ff-hm" src="/hm-device-white.png" alt="HM" />
           </div>
           <div className="ff-c"><span className="ff-livedot" />LIVE&nbsp;&nbsp;<FootClock />&nbsp;·&nbsp;MELBOURNE</div>
           <div className="ff-r" />
