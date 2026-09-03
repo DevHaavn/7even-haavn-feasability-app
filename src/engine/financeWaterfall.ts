@@ -38,7 +38,9 @@ export interface WaterfallMonth {
   costDraw: number
   equityDraw: number
   debtDraw: number
+  drawByTranche: Record<string, number>
   interestByTranche: Record<string, number>
+  feeByTranche: Record<string, number>   // establishment + line + exit fees charged this month
   interestTotal: number
   debtBalanceEOP: number
 }
@@ -227,6 +229,7 @@ export function calculateFinanceWaterfall(
     let remaining = need
     let equityDraw = 0
     let debtDraw = 0
+    const drawByTranche: Record<string, number> = {}
 
     if (!repaid) {
       // Equity first, up to the equity requirement.
@@ -242,6 +245,7 @@ export function calculateFinanceWaterfall(
         const d = Math.min(remaining, room)
         if (!(x.t.id in firstDrawIdx)) firstDrawIdx[x.t.id] = i
         drawn[x.t.id] += d; balance[x.t.id] += d; debtDraw += d; remaining -= d
+        drawByTranche[x.t.id] = (drawByTranche[x.t.id] || 0) + d
       }
     }
     // Overflow (facilities exhausted) and all post-PC draws are funded by equity.
@@ -271,7 +275,7 @@ export function calculateFinanceWaterfall(
     }
 
     const debtBalanceEOP = activeTranches.reduce((s, x) => s + balance[x.t.id], 0)
-    months.push({ month: mo, costDraw: need, equityDraw, debtDraw, interestByTranche, interestTotal, debtBalanceEOP })
+    months.push({ month: mo, costDraw: need, equityDraw, debtDraw, drawByTranche, interestByTranche, feeByTranche: {}, interestTotal, debtBalanceEOP })
   })
 
   // 5) Quarter aggregation.
@@ -294,8 +298,15 @@ export function calculateFinanceWaterfall(
     const fd = firstDrawIdx[x.t.id]
     const activeMonths = fd == null ? 0 : Math.max(0, endIdxForFees - fd + 1)
     const estab = fd == null ? 0 : (x.t.establishmentFeePct || 0) * x.facility
-    const line = (x.t.lineFeePct || 0) / 12 * x.facility * activeMonths
+    const lineMonthly = (x.t.lineFeePct || 0) / 12 * x.facility
+    const line = lineMonthly * activeMonths
     const exit = fd == null ? 0 : (x.t.exitFeePct || 0) * x.facility
+    // Plot the fees into the months so schedules show them where they land.
+    if (fd != null) {
+      months[fd].feeByTranche[x.t.id] = (months[fd].feeByTranche[x.t.id] || 0) + estab
+      for (let i = fd; i <= endIdxForFees; i++) months[i].feeByTranche[x.t.id] = (months[i].feeByTranche[x.t.id] || 0) + lineMonthly
+      months[endIdxForFees].feeByTranche[x.t.id] = (months[endIdxForFees].feeByTranche[x.t.id] || 0) + exit
+    }
     return {
       id: x.t.id, label: x.t.label, type: x.t.type,
       facility: x.facility, peakDrawn: peakDrawn[x.t.id],

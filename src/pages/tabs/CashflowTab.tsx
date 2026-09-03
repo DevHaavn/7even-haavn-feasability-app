@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useAutosave } from '../../lib/useAutosave'
 import {
   getCashflow, saveCashflow, getDetailedCostStack, saveDetailedCostStack,
-  getLandTerms, getCostStack, getProjectGDV, getFinanceAssumptions, getProject,
+  getLandTerms, getCostStack, getProjectGDV, getProjectTDC, getProject,
 } from '../../db'
 import { computeLandCost } from '../../engine/landCost'
 import { spreadWeights } from '../../engine/cashflow'
@@ -96,8 +96,21 @@ export default function CashflowTab({ projectId }: Props) {
       ['Settlement adjustments', landB.adjustments],
       ['Finance on terms', landB.financeOnTerms],
     ]
-    landRows.filter(([, v]) => v > 0).forEach(([nm, v], i) =>
-      out.push({ key: `land${i}`, kind: 'item', name: nm, base: spread(v, settleIdx, settleIdx, 'upfront', N), calcOnly: true }))
+    const sched = (land.isInKind ? [] : (land.paymentSchedule ?? [])).filter(p => p.date && p.amount)
+    landRows.filter(([, v]) => v > 0).forEach(([nm, v], i) => {
+      let base: number[]
+      if (i === 0 && sched.length > 0) {
+        // Purchase price follows the vendor payment schedule (deposit → stages →
+        // settlement balance) — the same months the finance waterfall draws on.
+        base = Array(N).fill(0)
+        let placed = 0
+        for (const p of sched) { const ix = monthIndex(p.date, startYM, N); if (ix != null) { base[ix] += p.amount; placed += p.amount } }
+        if (v - placed > 1) base[settleIdx] += v - placed
+      } else {
+        base = spread(v, settleIdx, settleIdx, 'upfront', N)
+      }
+      out.push({ key: `land${i}`, kind: 'item', name: nm, base, calcOnly: true })
+    })
 
     // A detailed section → flat rows under its divider. Non-zero items are listed
     // individually; zero items roll into one "+N more" line. Timing: the line's own
@@ -148,64 +161,35 @@ export default function CashflowTab({ projectId }: Props) {
   const [grvMoved, setGrvMoved] = useState<number[] | null>(null)
   const grv = grvMoved ?? grvDefault
 
-  // ── Finance — Equity + Senior/Mezz from the REAL tranche configuration ──────
-  const fin = getFinanceAssumptions(projectId)
-  const tr = (ty: 'senior' | 'mezz') => fin.tranches.find(t => t.type === ty)
-  const senT = tr('senior'); const mezT = tr('mezz')
-
+  // ── Finance — THE real debt waterfall (same run as Finance/Overview/Dashboard).
+  // The grid's cost plot drives it, so these rows reconcile to the dollar with
+  // every headline figure in the app.
   const tdcByMonth = useMemo(() => {
     const t = Array(N).fill(0)
     model.forEach(r => { if ('base' in r) r.base.forEach((v, i) => (t[i] += v)) })
     return t
   }, [model, N])
-  const tdcTotal = tdcByMonth.reduce((s, v) => s + v, 0)
 
-  // Draw split per month: equity-first (state.equityFirst), then senior to facility, then mezz.
-  const equityFirst = state.equityFirst || 0
-  const senFacility = senT ? (senT.amount || Math.round(tdcTotal * (senT.lvr || 0.65))) : Math.round(tdcTotal * 0.65)
-  const mezFacility = mezT ? (mezT.amount || Math.round(tdcTotal * (mezT.lvr || 0.1))) : 0
-  const defaultDraws = useMemo(() => {
-    const eq = Array(N).fill(0), sen = Array(N).fill(0), mez = Array(N).fill(0)
-    let eqUsed = 0, senUsed = 0, mezUsed = 0
-    for (let i = 0; i < N; i++) {
-      let need = tdcByMonth[i]
-      const e = Math.min(need, Math.max(0, equityFirst - eqUsed)); eq[i] = e; eqUsed += e; need -= e
-      const s = Math.min(need, Math.max(0, senFacility - senUsed)); sen[i] = s; senUsed += s; need -= s
-      const m = Math.min(need, Math.max(0, mezFacility - mezUsed)); mez[i] = m; mezUsed += m; need -= m
-      eq[i] += need // any residual falls to equity (over-run)
-    }
-    return { eq, sen, mez }
-  }, [tdcByMonth, equityFirst, senFacility, mezFacility, N])
-  const [eqMoved, setEqMoved] = useState<number[] | null>(null)
-  const [senMoved, setSenMoved] = useState<number[] | null>(null)
-  const [mezMoved, setMezMoved] = useState<number[] | null>(null)
-  const eqArr = eqMoved ?? defaultDraws.eq
-  const senArr = senMoved ?? defaultDraws.sen
-  const mezArr = mezMoved ?? defaultDraws.mez
-
-  // Per-tranche Interest + Line Fee from each tranche's OWN running balance & facility.
-  const finCalc = useMemo(() => {
-    const senRate = (senT?.interestRate ?? 0.06) / 12, senFee = (senT?.lineFeePct ?? 0.005) / 12
-    const mezRate = (mezT?.interestRate ?? 0.12) / 12, mezFee = (mezT?.lineFeePct ?? 0.008) / 12
-    const sInt = Array(N).fill(0), sFee = Array(N).fill(0), mInt = Array(N).fill(0), mFee = Array(N).fill(0), sBal = Array(N).fill(0), mBal = Array(N).fill(0)
-    let sb = 0, mb = 0
-    for (let i = 0; i < N; i++) {
-      const si = Math.round(sb * senRate); const sf = (sb > 0 || senArr[i] > 0) ? Math.round(senFacility * senFee) : 0
-      sb += senArr[i] + si + sf; sInt[i] = si; sFee[i] = sf; sBal[i] = sb
-      const mi = Math.round(mb * mezRate); const mf = (mb > 0 || mezArr[i] > 0) ? Math.round(mezFacility * mezFee) : 0
-      mb += mezArr[i] + mi + mf; mInt[i] = mi; mFee[i] = mf; mBal[i] = mb
-    }
-    return { sInt, sFee, mInt, mFee, sBal, mBal }
-  }, [senArr, mezArr, senFacility, mezFacility, senT, mezT, N])
+  const wf = useMemo(() => getProjectTDC(projectId).wf, [projectId, detailed, state, N])
+  const wfArr = (pick: (m: typeof wf.months[number]) => number): number[] => {
+    const a = Array(N).fill(0)
+    for (const m of wf.months) { const ix = monthIndex(m.month, startYM, N); if (ix != null) a[ix] += pick(m) }
+    return a
+  }
+  const eqArr = wfArr(m => m.equityDraw)
+  const trancheRows = wf.tranches.map(t => ({
+    t,
+    draw: wfArr(m => m.drawByTranche[t.id] || 0),
+    interest: wfArr(m => m.interestByTranche[t.id] || 0),
+    fees: wfArr(m => m.feeByTranche[t.id] || 0),
+  }))
+  const debtDrawArr = wfArr(m => m.debtDraw)
 
   // ── Drag-to-retime ──────────────────────────────────────────────────────────
   const [picked, setPicked] = useState<{ key: string; m: number } | null>(null)
   const dragKeyOf = (r: Row) => r.key
   function applyMove(r: Row, from: number, to: number) {
     if (r.kind === 'grv') { const a = grv.slice(); a[to] += a[from]; a[from] = 0; setGrvMoved(a); return }
-    if (r.kind === 'equity') { const a = eqArr.slice(); a[to] += a[from]; a[from] = 0; setEqMoved(a); return }
-    if (r.kind === 'senior') { const a = senArr.slice(); a[to] += a[from]; a[from] = 0; setSenMoved(a); return }
-    if (r.kind === 'mezz') { const a = mezArr.slice(); a[to] += a[from]; a[from] = 0; setMezMoved(a); return }
     // Cost line item — persist into the line's `monthly` map so the re-timing sticks.
     if (!r.itemRef) return
     const a = r.base.slice(); a[to] += a[from]; a[from] = 0
@@ -277,8 +261,12 @@ export default function CashflowTab({ projectId }: Props) {
   )
 
   const netArr = grv.map((v, i) => v - tdcByMonth[i])
-  const fundArr = eqArr.map((v, i) => v + senArr[i] + mezArr[i])
-  const debtBal = finCalc.sBal.map((v, i) => v + finCalc.mBal[i])
+  const fundArr = eqArr.map((v, i) => v + debtDrawArr[i])
+  const debtBalEOP = (() => {
+    const a = Array(N).fill(0)
+    for (const m of wf.months) { const ix = monthIndex(m.month, startYM, N); if (ix != null) a[ix] = m.debtBalanceEOP }
+    return a
+  })()
 
   return (
     <div className="fx-wrap overflow-auto" style={{ minHeight: 0 }}>
@@ -286,7 +274,7 @@ export default function CashflowTab({ projectId }: Props) {
         <div>
           <div className="kicker">06 · Cash Flow</div>
           <h1 className="h-sec">Cash Flow</h1>
-          <div className="h-sub">Revenue at the top, every real cost line item flat underneath (no phases), then Total Development Cost and pre-finance Net Cashflow. Finance at the bottom: Equity carries no interest or line fee; Senior Debt and Mezzanine each carry their own Interest and Line Fee, calculated independently from their own running balance and facility limit.</div>
+          <div className="h-sub">Revenue at the top, every real cost line item flat underneath, then Total Development Cost and pre-finance Net Cashflow. This plot is the source of truth for WHEN costs draw — the finance rows below are the real debt waterfall run on it (equity-first, tranches in priority, interest + establishment/line/exit fees), the same run behind Finance, Overview and Dashboard.</div>
         </div>
         <div className="flex gap aic wrapf"><span className="check">✓ Auto-saved</span></div>
       </div>
@@ -302,7 +290,7 @@ export default function CashflowTab({ projectId }: Props) {
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }}>Start <input type="month" value={startYM} onChange={e => updateState({ startDate: e.target.value })} style={{ marginLeft: 6, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '5px 8px', fontSize: 12, color: 'var(--ink)' }} /></label>
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }}>Months <input type="number" value={N} onChange={e => updateState({ months: Math.max(12, Math.min(120, parseInt(e.target.value, 10) || 36)) })} style={{ marginLeft: 6, width: 64, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '5px 8px', fontSize: 12, color: 'var(--ink)' }} /></label>
         <label style={{ fontSize: 10, color: 'var(--ink-2)' }} title="Sponsor equity drawn before any debt">Equity first $ <input type="number" step={100000} value={state.equityFirst || 0} onChange={e => updateState({ equityFirst: Math.max(0, parseInt(e.target.value, 10) || 0) })} style={{ marginLeft: 6, width: 110, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '5px 8px', fontSize: 12, color: 'var(--input-ink, var(--ink))', textAlign: 'right' }} /></label>
-        <span style={{ fontSize: 11.5, color: 'var(--ink-2)' }}>Drag any <b style={{ color: 'var(--ink)' }}>$ amount</b> onto another month in the same row to re-time it. Drag a debt draw and only that tranche's Interest / Line Fee recalculate — Equity, and the other tranche, are unaffected.</span>
+        <span style={{ fontSize: 11.5, color: 'var(--ink-2)' }}>Drag any <b style={{ color: 'var(--ink)' }}>cost amount</b> onto another month to re-time it — the waterfall below (and every finance figure in the app) recalculates from your new timing.</span>
       </div>
 
       {/* The grid */}
@@ -324,17 +312,20 @@ export default function CashflowTab({ projectId }: Props) {
               {/* TDC + Net */}
               {calcRow('Total Development Cost', tdcByMonth, { bold: true, bg: 'var(--card-2)' })}
               {calcRow('Net Cashflow (pre-finance)', netArr, { neg: true, color: 'var(--ink-2)' })}
-              {/* Finance */}
-              {dividerRow('Finance — Equity & Debt')}
-              {renderDataRow({ key: 'eq', kind: 'equity', name: 'Equity Draw (preferred + ordinary)', base: eqArr }, { nameColor: 'var(--emerald)', bold: true, arr: eqArr })}
-              {renderDataRow({ key: 'sen', kind: 'senior', name: `Senior Debt Draw (facility ${fmtM(senFacility)})`, base: senArr }, { nameColor: 'var(--blue)', bold: true, arr: senArr })}
-              {calcRow('Interest — Senior Debt', finCalc.sInt, { color: 'var(--amber)', indent: true, italic: true })}
-              {calcRow('Line Fee — Senior Debt', finCalc.sFee, { color: 'var(--amber)', indent: true, italic: true })}
-              {renderDataRow({ key: 'mez', kind: 'mezz', name: `Mezzanine Debt Draw${mezFacility > 0 ? ` (facility ${fmtM(mezFacility)})` : ''}`, base: mezArr }, { nameColor: 'var(--blue)', bold: true, arr: mezArr })}
-              {calcRow('Interest — Mezzanine Debt', finCalc.mInt, { color: 'var(--amber)', indent: true, italic: true })}
-              {calcRow('Line Fee — Mezzanine Debt', finCalc.mFee, { color: 'var(--amber)', indent: true, italic: true })}
+              {/* Finance — the REAL debt waterfall (same engine + same run as the
+                  Finance tab, Overview and Dashboard; reconciles to the dollar) */}
+              {dividerRow('Finance — Equity & Debt · real waterfall')}
+              {calcRow('Equity Draw (sponsor + preferred)', eqArr, { color: 'var(--emerald)', bold: true })}
+              {trancheRows.map(({ t, draw, interest, fees }) => (
+                <React.Fragment key={t.id}>
+                  {calcRow(`${t.label} — Draw (facility ${fmtM(t.facility)})`, draw, { color: 'var(--blue)', bold: true })}
+                  {calcRow(`Interest — ${t.label}`, interest, { color: 'var(--amber)', indent: true, italic: true })}
+                  {fees.some(v => v > 0.5) && calcRow(`Fees — ${t.label} (estab · line · exit)`, fees, { color: 'var(--amber)', indent: true, italic: true })}
+                </React.Fragment>
+              ))}
               {calcRow('Total Funding Drawn (Equity + Debt)', fundArr, { bold: true, bg: 'var(--card-2)' })}
-              {calcRow('Debt Balance (EOP)', debtBal, { color: 'var(--ink-2)', eop: true })}
+              {calcRow('Total Finance Cost (interest + fees)', wfArr(m => m.interestTotal + Object.values(m.feeByTranche).reduce((s, v) => s + v, 0)), { color: 'var(--amber)', bold: true })}
+              {calcRow('Debt Balance (EOP)', debtBalEOP, { color: 'var(--ink-2)', eop: true })}
             </tbody>
           </table>
         </div>
@@ -343,10 +334,8 @@ export default function CashflowTab({ projectId }: Props) {
       {/* Legend */}
       <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 12, fontSize: 11, color: 'var(--ink-2)' }}>
         <span>GRV / Revenue — draggable, swaps per sector</span>
-        <span>Cost line item — draggable (persists to the line's monthly timing)</span>
-        <span>Equity draw — draggable, no interest/fee</span>
-        <span>Debt draw — draggable, own Interest &amp; Line Fee below it</span>
-        <span style={{ color: 'var(--amber)' }}>Interest / Line Fee — calculated, not draggable</span>
+        <span>Cost line item — draggable (persists to the line's monthly timing and drives the finance waterfall)</span>
+        <span style={{ color: 'var(--amber)' }}>Equity / Debt / Interest / Fees — computed by the real waterfall from YOUR cost timing; matches Finance · Overview · Dashboard to the dollar</span>
       </div>
     </div>
   )
