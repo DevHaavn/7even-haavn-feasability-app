@@ -60,6 +60,25 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
     }
   }
 
+  /** HORI7ON | 7EVEN Investment Memorandum — the editorial sales document,
+   *  generated from this project's LIVE feasibility numbers. */
+  async function openIm(print: boolean) {
+    if (busy) return
+    setBusy('pdf'); setDone(null); setError(null)
+    try {
+      await new Promise(r => setTimeout(r, 30))
+      const m = await import('../lib/imDocument')
+      m.openImDocument(projectId, print)
+      setDone(print ? 'IM print dialog opened' : 'Investment Memorandum opened')
+    } catch (e) {
+      setError(`IM failed — ${e instanceof Error ? e.message : String(e)}`)
+      console.error('[im]', e)
+    } finally {
+      setBusy(null)
+      setTimeout(() => { setDone(null); setError(null) }, 6000)
+    }
+  }
+
   async function run(format: 'pdf' | 'excel') {
     if (selected.size === 0 || busy) return
     setBusy(format)
@@ -129,6 +148,37 @@ export default function ProjectExportPanel({ projectId, projectName }: { project
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '36px 48px' }}>
       <div style={{ maxWidth: 860, margin: '0 auto' }}>
+
+        {/* ── HORI7ON | 7EVEN IM — the editorial sales document ── */}
+        <div style={{ border: '1px solid rgba(214,179,106,.42)', background: 'linear-gradient(150deg,rgba(214,179,106,.10),rgba(8,8,8,.72))', padding: '22px 26px', marginBottom: 26 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 22, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 280 }}>
+              <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 8 }}>Capital raising</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <img src="/hori7on-gold.png" alt="HORI7ON" style={{ height: 13, width: 'auto' }} />
+                <span style={{ color: '#6a6e73', fontSize: 12 }}>|</span>
+                <img src="/seven-mark-white-hd.png" alt="7EVEN" style={{ height: 13, width: 'auto' }} />
+                <span style={{ color: '#F0EFED', fontSize: 11, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600 }}>Investment Memorandum</span>
+              </div>
+              <p style={{ color: '#8a8e93', fontSize: 11, lineHeight: 1.65, margin: 0 }}>
+                The editorial sales document — HORI7ON imagery and the 7EVEN issue design, carrying this project's
+                live feasibility numbers: cost stack, cashflow-plotted finance waterfall, valuation, profit and IRR.
+                Nine A4 pages, print-ready.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexShrink: 0, alignSelf: 'center' }}>
+              <button onClick={() => openIm(false)} disabled={busy !== null} className="glass-btn"
+                style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 24px', color: '#d6b36a', border: '1px solid rgba(214,179,106,.55)' }}>
+                ◇ Preview IM
+              </button>
+              <button onClick={() => openIm(true)} disabled={busy !== null} className="glass-btn glass-btn-gold"
+                style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 24px' }}>
+                ⤓ Export IM · PDF
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Heading */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
           <div>
