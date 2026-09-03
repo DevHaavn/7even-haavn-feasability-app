@@ -31,10 +31,11 @@ img{display:block;max-width:100%}
 
 /* A4 pages — every page rides the black field */
 .page{width:min(920px,94vw);aspect-ratio:210/297;position:relative;overflow:hidden;color:var(--ink);
+  /* the main app page field — the ATRIUM black-fabric still, fixed (not moving),
+     pre-darkened 20% so the gold and white pop */
   background:
-    radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%),
-    linear-gradient(180deg,rgba(4,4,4,.44),rgba(4,4,4,.34) 45%,rgba(4,4,4,.5)),
-    url('/atrium-dark-particles-deep.jpg') center / cover no-repeat #0A0A0B;
+    radial-gradient(120% 90% at 50% 42%, transparent 45%, rgba(0,0,0,.45) 100%),
+    url('/im-field-dark.jpg') center / cover no-repeat #060607;
   box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 90px -40px rgba(0,0,0,.9)}
 .pgpad{position:absolute;inset:0;padding:5.4% 6.4%;display:flex;flex-direction:column}
 
