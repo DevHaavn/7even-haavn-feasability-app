@@ -133,7 +133,7 @@ export default function FinanceTab({ projectId }: Props) {
   const proj = db.getProjectTDC(projectId)
   const metrics = db.getProfitMetrics(projectId)
   const result = useMemo(
-    () => calculateFinanceWaterfall(detailed, land, fa, proj.costExFinance + proj.land),
+    () => calculateFinanceWaterfall(detailed, land, fa, proj.costExFinance + proj.land, db.getCostPlot(projectId)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(fa), proj.costExFinance, proj.land, projectId, syncTick],
   )
@@ -402,7 +402,7 @@ export default function FinanceTab({ projectId }: Props) {
           const finAt = rateBumps.map(b => {
             if (b === 0) return result.totalFinanceCost
             const bumped = { ...fa, tranches: fa.tranches.map(t => ({ ...t, interestRate: (t.interestRate || 0) + b })) }
-            return calculateFinanceWaterfall(detailed, land, bumped, proj.costExFinance + proj.land).totalFinanceCost
+            return calculateFinanceWaterfall(detailed, land, bumped, proj.costExFinance + proj.land, db.getCostPlot(projectId)).totalFinanceCost
           })
           return (
             <div className="panel scrollx">

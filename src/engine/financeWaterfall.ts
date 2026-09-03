@@ -1,4 +1,5 @@
 import type { CostLineItem, DebtTranche, FinanceAssumptions, DetailedCostStack, LandTerms } from '../db/schema'
+import type { CostPlot } from './costPlot'
 import { spreadWeights } from './cashflow'
 
 // ── Month helpers ─────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ export interface TrancheWaterfall {
   id: string; label: string; type: DebtTranche['type']
   facility: number; peakDrawn: number
   interestTotal: number; capitalisedInterest: number; cashInterest: number
+  fees: number   // establishment + line + exit fees actually charged
   rate: number; interestModel: string; capitalised: boolean; dayCount: string
 }
 export interface CategoryFinance {
@@ -101,6 +103,7 @@ export function calculateFinanceWaterfall(
   land: LandTerms,
   fa: FinanceAssumptions,
   baseTDCOverride?: number,
+  plot?: CostPlot,
 ): WaterfallResult {
   const sections = ['hardCosts', 'consultants', 'statutory', 'headworks', 'management', 'marketing'] as const
 
@@ -117,8 +120,11 @@ export function calculateFinanceWaterfall(
   const schedMonths = (land.paymentSchedule ?? []).filter(p => p.date).map(p => p.date.slice(0, 7))
   for (const m of schedMonths) { starts.push(m); ends.push(m) }
   if (starts.length === 0) { starts = ['2025-01']; ends = ['2027-12'] }
-  const startMonth = starts.sort()[0]
-  const endMonth = ends.sort()[ends.length - 1]
+  // Cashflow-plot mode (Daniel's rule): the Cashflow tab's monthly plot is the
+  // source of truth for WHEN costs draw — its window replaces the line-date one.
+  const plotEnd = plot ? (() => { const [py, pm] = plot.startYM.split('-').map(Number); const e = (pm - 1) + plot.months - 1; return `${py + Math.floor(e / 12)}-${String((e % 12) + 1).padStart(2, '0')}` })() : ''
+  const startMonth = plot ? plot.startYM : starts.sort()[0]
+  const endMonth = plot ? plotEnd : ends.sort()[ends.length - 1]
   const timeline = monthList(startMonth, endMonth)
 
   // Debt is repaid at practical completion (end of the construction phase); interest
@@ -129,7 +135,7 @@ export function calculateFinanceWaterfall(
     .map(x => (x.it.endDate || x.it.startDate || '').slice(0, 7))
     .filter(Boolean)
     .sort()
-  const repaymentMonth = constructionEnds.length ? constructionEnds[constructionEnds.length - 1] : endMonth
+  const repaymentMonth = plot ? plot.repaymentMonth : (constructionEnds.length ? constructionEnds[constructionEnds.length - 1] : endMonth)
 
   // 2) Per-month cost draws (total + per category) and category timing.
   const costByMonth: Record<string, number> = {}
@@ -147,15 +153,19 @@ export function calculateFinanceWaterfall(
   // start). In-kind land has no cash outflow (landAmount 0), so nothing is drawn
   // or financed — an in-kind / at-completion settlement saves the holding
   // interest, not the cost (which sits in the land line of TDC).
-  const landSchedule = (land.isInKind ? [] : (land.paymentSchedule ?? [])).filter(p => p.date && p.amount)
-  if (landSchedule.length > 0) {
-    for (const p of landSchedule) addDraw('Land', p.date.slice(0, 7), p.amount)
+  if (plot) {
+    for (const cat in plot.byCategory) for (const mo in plot.byCategory[cat]) addDraw(cat, mo, plot.byCategory[cat][mo])
   } else {
-    addDraw('Land', landMonth || startMonth, landAmount)
-  }
-  for (const { it, section } of allItems) {
-    const m = itemMonthly(it, startMonth, endMonth)
-    for (const mo in m) addDraw(SECTION_LABEL[section as keyof typeof SECTION_LABEL], mo, m[mo])
+    const landSchedule = (land.isInKind ? [] : (land.paymentSchedule ?? [])).filter(p => p.date && p.amount)
+    if (landSchedule.length > 0) {
+      for (const p of landSchedule) addDraw('Land', p.date.slice(0, 7), p.amount)
+    } else {
+      addDraw('Land', landMonth || startMonth, landAmount)
+    }
+    for (const { it, section } of allItems) {
+      const m = itemMonthly(it, startMonth, endMonth)
+      for (const mo in m) addDraw(SECTION_LABEL[section as keyof typeof SECTION_LABEL], mo, m[mo])
+    }
   }
 
   const baseTDC = baseTDCOverride ?? Object.values(costByMonth).reduce((s, v) => s + v, 0)
@@ -206,6 +216,7 @@ export function calculateFinanceWaterfall(
 
   let equityDrawnCum = 0
   const months: WaterfallMonth[] = []
+  const firstDrawIdx: Record<string, number> = {}
   const repayIdx = timeline.indexOf(repaymentMonth)
 
   timeline.forEach((mo, i) => {
@@ -229,6 +240,7 @@ export function calculateFinanceWaterfall(
         const room = x.facility - drawn[x.t.id]
         if (room <= 0) continue
         const d = Math.min(remaining, room)
+        if (!(x.t.id in firstDrawIdx)) firstDrawIdx[x.t.id] = i
         drawn[x.t.id] += d; balance[x.t.id] += d; debtDraw += d; remaining -= d
       }
     }
@@ -274,18 +286,29 @@ export function calculateFinanceWaterfall(
   }
   const quarters = Array.from(qMap.values())
 
-  // 6) Tranche summaries.
-  const tranches: TrancheWaterfall[] = activeTranches.map(x => ({
-    id: x.t.id, label: x.t.label, type: x.t.type,
-    facility: x.facility, peakDrawn: peakDrawn[x.t.id],
-    interestTotal: intTotal[x.t.id], capitalisedInterest: capInt[x.t.id], cashInterest: cashInt[x.t.id],
-    rate: x.t.interestRate || 0,
-    interestModel: x.t.interestModel || (x.t.type === 'mezz' ? 'pik' : 'compound'),
-    capitalised: x.t.capitalised ?? (x.t.type !== 'preferred-equity'),
-    dayCount: x.t.dayCount || 'act365',
-  }))
+  // 6) Tranche summaries — including the facility fees the tranche config
+  // carries (establishment at first draw · line fee monthly on the facility
+  // while active, per the Cashflow tab's convention · exit fee at repayment).
+  const endIdxForFees = repayIdx >= 0 ? repayIdx : timeline.length - 1
+  const tranches: TrancheWaterfall[] = activeTranches.map(x => {
+    const fd = firstDrawIdx[x.t.id]
+    const activeMonths = fd == null ? 0 : Math.max(0, endIdxForFees - fd + 1)
+    const estab = fd == null ? 0 : (x.t.establishmentFeePct || 0) * x.facility
+    const line = (x.t.lineFeePct || 0) / 12 * x.facility * activeMonths
+    const exit = fd == null ? 0 : (x.t.exitFeePct || 0) * x.facility
+    return {
+      id: x.t.id, label: x.t.label, type: x.t.type,
+      facility: x.facility, peakDrawn: peakDrawn[x.t.id],
+      interestTotal: intTotal[x.t.id], capitalisedInterest: capInt[x.t.id], cashInterest: cashInt[x.t.id],
+      fees: estab + line + exit,
+      rate: x.t.interestRate || 0,
+      interestModel: x.t.interestModel || (x.t.type === 'mezz' ? 'pik' : 'compound'),
+      capitalised: x.t.capitalised ?? (x.t.type !== 'preferred-equity'),
+      dayCount: x.t.dayCount || 'act365',
+    }
+  })
 
-  const totalFinanceCost = tranches.reduce((s, t) => s + t.interestTotal, 0)
+  const totalFinanceCost = tranches.reduce((s, t) => s + t.interestTotal + t.fees, 0)
   const peakDebt = months.reduce((mx, m) => Math.max(mx, m.debtBalanceEOP), 0)
   const seniorCapitalised = tranches.filter(t => t.type === 'senior' || t.type === 'land').reduce((s, t) => s + t.capitalisedInterest, 0)
   const allInTDC = baseTDC + totalFinanceCost

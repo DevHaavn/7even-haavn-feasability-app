@@ -10,6 +10,9 @@ import { calculateBTSValuation } from '../engine/bts'
 import { calculateCostStack } from '../engine/costStack'
 import { buildCashflow } from '../engine/cashflow'
 import { calculateFinanceWaterfall } from '../engine/financeWaterfall'
+import type { WaterfallResult } from '../engine/financeWaterfall'
+import { buildCostPlot } from '../engine/costPlot'
+import type { CostPlot } from '../engine/costPlot'
 import { developmentIRR, type ProfitMetrics } from '../engine/returns'
 
 function load<T>(key: string, fallback: T): T {
@@ -638,6 +641,16 @@ export function migrateCostStackLabels() {
   localStorage.setItem(FLAG, '1')
 }
 
+/** The project's monthly cost plot — the Cashflow tab's timing as a pure value.
+ *  This is the source of truth for WHEN costs draw (Daniel's rule): the finance
+ *  waterfall runs on these months, so re-timing a cost on the Cashflow tab moves
+ *  the finance cost everywhere. */
+export function getCostPlot(projectId: string): CostPlot {
+  const land = getLandTerms(projectId)
+  const landB = computeLandCost(land, getCostStack(projectId).gstEnabled)
+  return buildCostPlot(getDetailedCostStack(projectId), land, landB, getCashflow(projectId))
+}
+
 /** Project Gross Development Value — the best scenario's gross realisation
  *  (BTS gross revenue / BTR-Hotel gross asset value). Revenue is independent of
  *  development cost, so this is safe to use as a fee basis without circularity. */
@@ -753,6 +766,7 @@ export interface ProjectTDC {
   financeCost: number  // REAL all-in finance cost (tranches + land carry) from the finance model
   tdc: number          // REAL total development cost = costExFinance + land + real finance
   tdcBuild: number     // best-scenario cost-stack TDC (incl its rough finance %) — for debt sizing
+  wf: WaterfallResult  // the waterfall run (cashflow-plot timing) behind financeCost
 }
 
 /** The single authoritative "real" project cost: every cost-stack cost + land +
@@ -807,9 +821,10 @@ export function getProjectTDC(projectId: string): ProjectTDC {
   // stack + effective land) so facilities, equity and interest reconcile with
   // the cost shown on every screen — including top-down projects with no
   // itemised lines.
-  const financeCost = calculateFinanceWaterfall(getDetailedCostStack(projectId), getLandTerms(projectId), getFinanceAssumptions(projectId), costExFinance + landEff).totalFinanceCost
+  const wf = calculateFinanceWaterfall(getDetailedCostStack(projectId), getLandTerms(projectId), getFinanceAssumptions(projectId), costExFinance + landEff, getCostPlot(projectId))
+  const financeCost = wf.totalFinanceCost
   const tdc = costExFinance + landEff + financeCost                    // REAL total project cost (incl land + real finance)
-  return { gdv, land: landEff, costExFinance, financeCost, tdc, tdcBuild }
+  return { gdv, land: landEff, costExFinance, financeCost, tdc, tdcBuild, wf }
 }
 
 /** One row per scenario × strategy — THE shared scenario table. Overview, the
@@ -903,13 +918,16 @@ export function getProfitMetrics(projectId: string): ProfitMetrics {
   const profit = gdv - tdc
   const marginOnCost = tdc > 0 ? profit / tdc : 0
   const marginOnGdv = gdv > 0 ? profit / gdv : 0
-  // IRR from the equity cashflow — equity drawn through delivery, then equity +
-  // profit realised at PROJECT COMPLETION (last month with any spend / sale).
-  const cf = buildCashflow(getCashflow(projectId), getPhaseCosts(projectId))
+  // IRR from the REAL equity timeline — the same cashflow-plot waterfall that
+  // sets the finance cost. Equity draws through delivery, equity + profit
+  // realised at the last month with any spend.
+  const eq = t.wf.months.map(m => m.equityDraw)
   let exitMonth = 0
-  for (let m = cf.totalByMonth.length - 1; m >= 0; m--) { if ((cf.totalByMonth[m] || 0) > 0) { exitMonth = m; break } }
-  const { irr, equityMultiple } = developmentIRR(cf.equityByMonth, profit, exitMonth)
-  return { gdv, tdc, profit, marginOnCost, marginOnGdv, irr, equityMultiple, peakEquity: cf.peakEquity }
+  for (let m = t.wf.months.length - 1; m >= 0; m--) { if ((t.wf.months[m].costDraw || 0) > 0) { exitMonth = m; break } }
+  const { irr, equityMultiple } = developmentIRR(eq, profit, exitMonth)
+  let cum = 0, peakEquity = 0
+  for (const v of eq) { cum += v; peakEquity = Math.max(peakEquity, cum) }
+  return { gdv, tdc, profit, marginOnCost, marginOnGdv, irr, equityMultiple, peakEquity }
 }
 
 export interface InvestorReturn {
@@ -928,14 +946,15 @@ export interface InvestorReturn {
 export function getInvestorReturn(projectId: string, investorEquity?: number): InvestorReturn {
   const equity = investorEquity ?? getFinanceAssumptions(projectId).investorEquity ?? 20_000_000
   const m = getProfitMetrics(projectId)   // land-inclusive TDC, best-scenario GDV, dev profit
-  const cf = buildCashflow(getCashflow(projectId), getPhaseCosts(projectId))
-  const projectEquity = cf.equityByMonth.reduce((s, v) => s + (v || 0), 0) || cf.peakEquity
+  const wf = getProjectTDC(projectId).wf  // same cashflow-plot equity timeline as the IRR
+  const eqDraws = wf.months.map(x => x.equityDraw)
+  const projectEquity = eqDraws.reduce((s, v) => s + (v || 0), 0)
   // Scale the equity draw pattern to the investor's cheque (IRR is scale-invariant
   // on the pattern; the profit/equity ratio drives the level).
   const scale = projectEquity > 0 ? equity / projectEquity : 0
-  const scaledDraws = cf.equityByMonth.map(v => (v || 0) * scale)
+  const scaledDraws = eqDraws.map(v => (v || 0) * scale)
   let exit = 0
-  for (let i = cf.totalByMonth.length - 1; i >= 0; i--) { if ((cf.totalByMonth[i] || 0) > 0) { exit = i; break } }
+  for (let i = wf.months.length - 1; i >= 0; i--) { if ((wf.months[i].costDraw || 0) > 0) { exit = i; break } }
   const { irr } = developmentIRR(scaledDraws, m.profit, exit)
   const profit = m.profit
   return {

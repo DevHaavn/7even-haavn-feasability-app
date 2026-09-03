@@ -104,7 +104,7 @@ export default function ProjectDashboard({ projectId }: Props) {
 
   // Finance — one source of truth: the monthly debt waterfall (same as Finance tab).
   const fa = useMemo(() => db.getFinanceAssumptions(projectId), [projectId])
-  const wf = useMemo(() => calculateFinanceWaterfall(db.getDetailedCostStack(projectId), land, fa, proj.costExFinance + proj.land), [projectId, costData, land, fa, proj.costExFinance, proj.land])
+  const wf = proj.wf  // same cashflow-plot waterfall as every other screen
   const totalDebt = wf.tranches.reduce((s, t) => s + t.facility, 0)
   const totalEquity = Math.max(0, wf.baseTDC - totalDebt)
   // Critical-path sensitivity: extra interest = peak debt × blended rate × delay.
