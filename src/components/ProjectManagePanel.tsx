@@ -14,6 +14,21 @@ interface Props {
   onLogout: () => void
 }
 
+// The main 7EVEN menu's open-state device: gold chevron >< X with the LED glow.
+function ChevronX({ size = 22 }: { size?: number }) {
+  const arm: React.CSSProperties = {
+    position: 'absolute', top: '50%', width: size * 0.59, height: size, transform: 'translateY(-50%)',
+    background: '#d6b36a',
+    filter: 'brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9))',
+  }
+  return (
+    <span style={{ position: 'relative', display: 'inline-block', width: size * 1.9, height: size, verticalAlign: 'middle' }} aria-hidden>
+      <span style={{ ...arm, left: 0, clipPath: 'polygon(0 0,23% 0,100% 50%,23% 100%,0 100%,77% 50%)' }} />
+      <span style={{ ...arm, right: 0, clipPath: 'polygon(100% 0,77% 0,0 50%,77% 100%,100% 100%,23% 50%)' }} />
+    </span>
+  )
+}
+
 export default function ProjectManagePanel({ projectId, projectName, onClose, theme, onPickTheme, onLogout }: Props) {
   const { loadProjects, setActiveTab } = useStore()
   const [tab, setTab] = useState<'feasibility' | 'history' | 'export' | 'display' | 'reset'>('feasibility')
@@ -81,10 +96,8 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
           </div>
           {/* Close (header) — larger tap target */}
           <button onClick={onClose} aria-label="Close"
-            style={{ flexShrink: 0, padding: '0 22px', minWidth: 56, height: '100%', color: '#D8D8D8', background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', transition: 'color 0.2s', lineHeight: 1 }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#D8D8D8')}>
-            ✕
+            style={{ flexShrink: 0, padding: '0 22px', minWidth: 56, height: '100%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ChevronX />
           </button>
         </div>
 
@@ -99,7 +112,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
             boxShadow: '0 10px 30px rgba(0,0,0,0.55)', cursor: 'pointer', whiteSpace: 'nowrap',
           }}>
-          ✕ Close
+          <ChevronX size={14} />&nbsp; Close
         </button>
 
         {/* Body */}

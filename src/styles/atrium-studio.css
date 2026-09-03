@@ -121,9 +121,14 @@
 .fxs .fx-tgl:hover{border-color:var(--chrome-dim);color:var(--chrome-txt)}
 .fxs .fx-grid{font-size:13px;color:var(--chrome-dim);border:1px solid var(--chrome-line);border-radius:9px;width:34px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none}
 .fxs .fx-seven{height:17.6px;width:auto;filter:drop-shadow(0 0 10px rgba(255,255,255,.45))}
-.fxs .fx-burger{display:flex;flex-direction:column;gap:5px;justify-content:center;width:30px;height:32px;background:none;border:none;cursor:pointer;padding:0;margin-left:38px}
-.fxs .fx-burger span{display:block;height:2px;width:100%;border-radius:2px;background:#d6d9dd;transition:.3s}
-.fxs .fx-burger:hover span{background:#d6b36a;box-shadow:0 0 10px rgba(214,179,106,.9),0 0 22px rgba(214,179,106,.5)}
+/* Workspace burger = the main 7EVEN home device: two vertical LED-gold bars
+   (same gradient + glow as the home burger and the page's LED lines). */
+.fxs .fx-burger{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;width:44px;height:32px;background:none;border:none;cursor:pointer;padding:0;margin-left:38px}
+.fxs .fx-burger span{display:block;width:2px;height:20px;border-radius:1px;transition:.3s;
+  background:linear-gradient(180deg, transparent 0%, rgba(214,179,106,.75) 7%, #d6b36a 50%, rgba(214,179,106,.75) 93%, transparent 100%);
+  filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
+.fxs .fx-burger span:nth-child(2){display:none}
+.fxs .fx-burger:hover span{filter:brightness(1.55) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
 
 /* top must equal the topbar's real height, or the tab bar sticks UNDER the
    topbar (which sits at a higher z-index) and gets clipped on scroll. The bar is
