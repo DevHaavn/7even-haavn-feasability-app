@@ -238,16 +238,9 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
             <button className="ff-atr" onClick={() => setActiveProject(null)}><span className="ff-tri" />ATRIUM</button>
             <span className="ff-vd" />
             <img className="ff-hm" src="/hm-device-white.png" alt="HM" />
-            <span className="ff-vd" />
-            <img className="ff-hb" src="/haavn-black-logo.png" alt="HAAVN BLACK" />
           </div>
           <div className="ff-c"><span className="ff-livedot" />LIVE&nbsp;&nbsp;<FootClock />&nbsp;·&nbsp;MELBOURNE</div>
-          <div className="ff-r">
-            <a className="ff-chip" href="https://7even.au" target="_blank" rel="noopener">7EVEN.AU <span className="x">↗</span></a>
-            <a className="ff-chip" href="https://www.haavn.au" target="_blank" rel="noopener">HAAVN.AU <span className="x">↗</span></a>
-            <button className="ff-chip" onClick={() => window.location.reload()}><span className="ring" />UPDATE</button>
-            {onLogout && <button className="ff-chip" onClick={onLogout}>LOG OUT</button>}
-          </div>
+          <div className="ff-r" />
         </div>
       </div>
     </div>

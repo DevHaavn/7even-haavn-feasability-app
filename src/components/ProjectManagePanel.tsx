@@ -108,6 +108,22 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                   </button>
                 )
               })}
+              <button onClick={() => window.location.reload()}
+                style={{
+                  fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, letterSpacing: '0.24em', textTransform: 'uppercase',
+                  color: '#fff', background: 'transparent', cursor: 'pointer', padding: '11px 18px', borderRadius: 2,
+                  border: '1px solid rgba(255,255,255,0.32)', textShadow: '0 1px 8px rgba(0,0,0,.6)', transition: 'all .25s',
+                }}>
+                ⟳ Update
+              </button>
+              <button onClick={onLogout}
+                style={{
+                  fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, letterSpacing: '0.24em', textTransform: 'uppercase',
+                  color: '#e0645c', background: 'transparent', cursor: 'pointer', padding: '11px 18px', borderRadius: 2,
+                  border: '1px solid rgba(224,100,92,0.5)', textShadow: '0 1px 8px rgba(0,0,0,.6)', transition: 'all .25s',
+                }}>
+                Log Out
+              </button>
               <button onClick={onClose} aria-label="Close"
                 style={{ marginLeft: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', display: 'flex', alignItems: 'center' }}>
                 <ChevronX />
