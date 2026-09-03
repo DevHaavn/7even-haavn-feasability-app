@@ -90,7 +90,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9aa0a6', marginBottom: 14, paddingLeft: '0.4em' }}>{projectName}</div>
             {/* flickable tab strip + chevron X */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Display' }, { id: 'reset', label: 'Reset' }] as const).map(t => {
+              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Settings' }, { id: 'reset', label: 'Reset' }] as const).map(t => {
                 const on = tab === t.id
                 const danger = t.id === 'reset'
                 const col = on ? (danger ? '#e0645c' : '#d6b36a') : '#fff'
@@ -108,22 +108,6 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
                   </button>
                 )
               })}
-              <button onClick={() => window.location.reload()}
-                style={{
-                  fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, letterSpacing: '0.24em', textTransform: 'uppercase',
-                  color: '#fff', background: 'transparent', cursor: 'pointer', padding: '11px 18px', borderRadius: 2,
-                  border: '1px solid rgba(255,255,255,0.32)', textShadow: '0 1px 8px rgba(0,0,0,.6)', transition: 'all .25s',
-                }}>
-                ⟳ Update
-              </button>
-              <button onClick={onLogout}
-                style={{
-                  fontFamily: "'JetBrains Mono',monospace", fontSize: 10.5, letterSpacing: '0.24em', textTransform: 'uppercase',
-                  color: '#e0645c', background: 'transparent', cursor: 'pointer', padding: '11px 18px', borderRadius: 2,
-                  border: '1px solid rgba(224,100,92,0.5)', textShadow: '0 1px 8px rgba(0,0,0,.6)', transition: 'all .25s',
-                }}>
-                Log Out
-              </button>
               <button onClick={onClose} aria-label="Close"
                 style={{ marginLeft: 6, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', display: 'flex', alignItems: 'center' }}>
                 <ChevronX />
@@ -259,6 +243,11 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
               </div>
 
               <div style={{ borderTop: '1px solid #1A1A1A', paddingTop: 28 }}>
+                <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#666', marginBottom: 14 }}>App</p>
+                <button onClick={() => window.location.reload()} className="glass-btn"
+                  style={{ padding: '11px 26px', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, color: '#d6b36a', border: '1px solid rgba(214,179,106,0.5)', marginBottom: 28 }}>
+                  ⟳ Update — reload latest version
+                </button>
                 <p style={{ fontSize: 8, letterSpacing: '0.28em', textTransform: 'uppercase', color: '#666', marginBottom: 14 }}>Session</p>
                 <button onClick={onLogout} className="glass-btn glass-btn-red"
                   style={{ padding: '11px 26px', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>
