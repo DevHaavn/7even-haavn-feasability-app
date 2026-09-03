@@ -144,7 +144,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
           setActiveProject(p.id)
         }
         return (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', background: 'rgba(3,4,5,0.5)', backdropFilter: 'blur(21px)', WebkitBackdropFilter: 'blur(21px)' }}
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', background: "radial-gradient(120% 90% at 50% 38%, transparent 30%, rgba(0,0,0,.55) 100%), linear-gradient(118deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 22%, transparent 40%, transparent 58%, rgba(255,255,255,.045) 78%, rgba(255,255,255,.01) 100%), linear-gradient(180deg, rgba(4,4,5,.42), rgba(4,4,5,.3) 45%, rgba(4,4,5,.5)), url('/atrium-dark-particles.jpg') center / cover no-repeat #060607" }}
             onClick={e => { if (e.target === e.currentTarget) setProjOpen(false) }}>
             <div style={{ width: 'min(620px,92vw)', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16 }}>

@@ -67,10 +67,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
   return (
     <>
       {/* Full-screen overlay — z-index 9999 puts it above everything including Leaflet */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: 'rgba(3,4,5,0.5)', backdropFilter: 'blur(21px)', WebkitBackdropFilter: 'blur(21px)' }}>
-
-        {/* Glass overlay — the live workspace shows through, blurred (approved preview design) */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(3,3,3,0.5), rgba(3,3,3,0.32) 40%, rgba(3,3,3,0.55))', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', background: "radial-gradient(120% 90% at 50% 38%, transparent 30%, rgba(0,0,0,.55) 100%), linear-gradient(118deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 22%, transparent 40%, transparent 58%, rgba(255,255,255,.045) 78%, rgba(255,255,255,.01) 100%), linear-gradient(180deg, rgba(4,4,5,.42), rgba(4,4,5,.3) 45%, rgba(4,4,5,.5)), url('/atrium-dark-particles.jpg') center / cover no-repeat #060607" }}>
 
         {/* Mobile-friendly close — large, thumb-reachable at the bottom */}
         <button onClick={onClose} aria-label="Close manage panel"
