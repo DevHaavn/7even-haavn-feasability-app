@@ -366,8 +366,21 @@ export function buildImHtml(projectId: string): string {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Monoton&display=swap" rel="stylesheet">
 <style>${IM_CSS}</style></head><body>
-<div class="pvbar"><span class="t">HORI7ON | 7EVEN · Investment Memorandum — <b>${esc(name)}</b> · live feasibility data</span>
+<div class="pvbar">
+<button class="back" onclick="imBack()">← Back to feasibility</button>
+<span class="t">HORI7ON | 7EVEN · Investment Memorandum — <b>${esc(name)}</b> · live feasibility data</span>
 <span class="sp"></span><button onclick="window.print()">⤓ Save as PDF</button></div>
+<script>
+function imBack(){
+  // Opened as a tab/pop-up from the app → just close it.
+  try{ if(window.opener && !window.opener.closed){ window.close(); return } }catch(e){}
+  // Installed PWA / same-window navigation → step back to the studio.
+  if(history.length > 1){ history.back(); return }
+  try{ window.close() }catch(e){}
+  // Last resort: go to the app root.
+  location.href = '/'
+}
+<\/script>
 <div class="stage">${p1}${p2}${p3}${p4}${p5}${p6}${p7}${p8}${p9}</div>
 </body></html>`
 }
@@ -411,6 +424,8 @@ img{display:block;max-width:100%}
 .pvbar button{font-family:var(--f-m);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
   background:transparent;border:1px solid var(--gold);border-radius:2px;color:var(--gold);padding:8px 14px;cursor:pointer}
 .pvbar button:hover{background:var(--gold);color:#0a0a0b}
+.pvbar button.back{border-color:rgba(255,255,255,.3);color:#c9cdd2}
+.pvbar button.back:hover{background:transparent;border-color:#fff;color:#fff}
 .stage{padding:76px 0 80px;display:flex;flex-direction:column;align-items:center;gap:36px}
 .page{width:min(920px,94vw);aspect-ratio:210/297;position:relative;overflow:hidden;color:var(--ink);
   background:radial-gradient(120% 90% at 50% 42%, transparent 55%, rgba(0,0,0,.3) 100%),
