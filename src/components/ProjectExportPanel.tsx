@@ -1,247 +1,164 @@
 import React, { useMemo, useState } from 'react'
-import { EXPORT_TREE, ALL_EXPORT_IDS, buildExportSections, type ExportNode } from '../lib/exportData'
 import { useStore } from '../store'
+import { collectImData } from '../lib/imDocument'
 
-/** Export picker — tick any tab or sub-tab, download as PDF or Excel. */
+/**
+ * Export — one document: the HORI7ON | 7EVEN | MARKETING IM.
+ * The editorial sales memorandum, generated from this project's LIVE feasibility
+ * numbers (cost stack · cashflow-plotted finance waterfall · valuation · returns).
+ * The old tick-box data export is retired; `lib/exporters` is still on disk if a
+ * numbers-only workbook is ever wanted back.
+ */
 export default function ProjectExportPanel({ projectId, projectName }: { projectId: string; projectName: string }) {
   const { projects } = useStore()
   const project = projects.find(p => p.id === projectId)
-  // Everything ticked by default. It used to start empty, so opening the panel
-  // and clicking PDF hit the `selected.size === 0` guard in run() and returned
-  // silently — no file, no error, which read as "export is broken".
-  const [selected, setSelected] = useState<Set<string>>(() => new Set(ALL_EXPORT_IDS))
-  const [busy, setBusy] = useState<'pdf' | 'excel' | null>(null)
+  const [busy, setBusy] = useState<null | 'preview' | 'pdf'>(null)
   const [done, setDone] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const allSelected = selected.size === ALL_EXPORT_IDS.length
-
-  function toggle(id: string) {
-    setSelected(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      return next
-    })
-  }
-
-  function toggleGroup(node: ExportNode) {
-    const ids = node.children!.map(c => c.id)
-    const allOn = ids.every(id => selected.has(id))
-    setSelected(prev => {
-      const next = new Set(prev)
-      ids.forEach(id => allOn ? next.delete(id) : next.add(id))
-      return next
-    })
-  }
-
-  function toggleAll() {
-    setSelected(allSelected ? new Set() : new Set(ALL_EXPORT_IDS))
-  }
-
-  /** Open the designed document — preview to read it, print to save as PDF. */
-  async function openDoc(print: boolean) {
-    if (selected.size === 0 || busy) return
-    setBusy('pdf'); setDone(null); setError(null)
+  // Live headline figures — the same engine feed the document prints.
+  const snap = useMemo(() => {
     try {
-      await new Promise(r => setTimeout(r, 30))
-      const m = await import('../lib/exportHtml')
-      const sections = buildExportSections(projectId, Array.from(selected))
-      if (!sections.length) { setError('Nothing to export — the selected tabs have no data yet.'); return }
-      const meta = { projectName, address: project?.address ?? '', status: project?.status, type: project?.type }
-      if (print) await m.printExportDocument(meta, sections)
-      else await m.previewExportDocument(meta, sections)
-      setDone(print ? 'Print dialog opened' : 'Preview opened')
-    } catch (e) {
-      setError(`Export failed — ${e instanceof Error ? e.message : String(e)}`)
-      console.error('[export]', e)
-    } finally {
-      setBusy(null)
-      setTimeout(() => { setDone(null); setError(null) }, 6000)
-    }
-  }
+      const d = collectImData(projectId)
+      const noRevenue = !d.best || d.proj.gdv <= 0
+      const M = (n: number) => {
+        const a = Math.abs(n)
+        if (a >= 1e9) return `$${(n / 1e9).toFixed(2)}B`
+        if (a >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
+        if (a >= 1e3) return `$${Math.round(n / 1e3)}K`
+        return `$${Math.round(n)}`
+      }
+      return {
+        ok: true, noRevenue,
+        rows: [
+          ['Gross development value', noRevenue ? '—' : M(d.proj.gdv)],
+          ['Total development cost', M(d.proj.tdc)],
+          ['Development profit', noRevenue ? '—' : M(d.metrics.profit)],
+          ['Project IRR', noRevenue || d.metrics.irr == null ? '—' : `${(d.metrics.irr * 100).toFixed(1)}%`],
+        ] as [string, string][],
+      }
+    } catch { return { ok: false, noRevenue: false, rows: [] as [string, string][] } }
+  }, [projectId])
 
-  /** HORI7ON | 7EVEN Investment Memorandum — the editorial sales document,
-   *  generated from this project's LIVE feasibility numbers. */
   async function openIm(print: boolean) {
     if (busy) return
-    setBusy('pdf'); setDone(null); setError(null)
+    // Open the tab SYNCHRONOUSLY inside the click — a window.open after an
+    // await has lost the user gesture and every browser blocks it.
+    const win = window.open('', '_blank')
+    if (win) win.document.write('<title>HORI7ON | 7EVEN — Marketing IM</title><body style="background:#050506;color:#d6b36a;font:12px/1.6 ui-monospace,monospace;letter-spacing:.24em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">Preparing the memorandum…</body>')
+    setBusy(print ? 'pdf' : 'preview'); setDone(null); setError(null)
     try {
-      await new Promise(r => setTimeout(r, 30))
       const m = await import('../lib/imDocument')
-      m.openImDocument(projectId, print)
-      setDone(print ? 'IM print dialog opened' : 'Investment Memorandum opened')
+      m.openImDocument(projectId, print, win)
+      setDone(print ? 'Print dialog opened — choose “Save as PDF”' : 'Memorandum opened in a new tab')
     } catch (e) {
-      setError(`IM failed — ${e instanceof Error ? e.message : String(e)}`)
+      try { win?.close() } catch { /* ignore */ }
+      setError(`Export failed — ${e instanceof Error ? e.message : String(e)}`)
       console.error('[im]', e)
     } finally {
       setBusy(null)
-      setTimeout(() => { setDone(null); setError(null) }, 6000)
+      setTimeout(() => { setDone(null); setError(null) }, 7000)
     }
   }
 
-  async function run(format: 'pdf' | 'excel') {
-    if (selected.size === 0 || busy) return
-    setBusy(format)
-    setDone(null)
-    setError(null)
-    try {
-      // Let the button state paint before the generation work
-      await new Promise(r => setTimeout(r, 30))
-      // Exporter libs are heavy — loaded on demand so the app bundle stays lean
-      const { exportPdf, exportExcel } = await import('../lib/exporters')
-      const sections = buildExportSections(projectId, Array.from(selected))
-      if (!sections.length) { setError('Nothing to export — the selected tabs have no data yet.'); return }
-      if (format === 'pdf') await exportPdf(projectName, project?.address ?? '', sections)
-      else exportExcel(projectName, project?.address ?? '', sections)
-      setDone(format === 'pdf' ? 'PDF downloaded' : 'Excel downloaded')
-    } catch (e) {
-      // There was no catch here at all, so a failing export died silently and
-      // looked identical to nothing happening. Say what went wrong.
-      const msg = e instanceof Error ? e.message : String(e)
-      setError(`Export failed — ${msg}`)
-      console.error('[export]', e)
-    } finally {
-      setBusy(null)
-      setTimeout(() => { setDone(null); setError(null) }, 6000)
-    }
-  }
+  const contents = [
+    ['01', 'Cover', 'Hero plate, strategy and headline value'],
+    ['02', 'The deal', "Figures at a glance, contents and editor's note"],
+    ['03', 'The vision', 'The idea, the address, the offer'],
+    ['04', 'The life', 'Amenity and the ground plane'],
+    ['05', 'The scheme', 'Live area schedule — NSA · GFA · GBA'],
+    ['06', 'The feasibility', 'Full cost ledger, valuation and returns'],
+    ['07', 'The capital', 'Tranche stack, peak debt and finance cost'],
+    ['08', 'The case', 'Why this deal, now'],
+    ['09', 'Partner with 7EVEN', 'Contact and disclaimer'],
+  ]
 
-  const count = selected.size
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '40px 48px' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto' }}>
 
-  const checkboxStyle: React.CSSProperties = { width: 14, height: 14, accentColor: '#C4973A', cursor: 'pointer', flexShrink: 0 }
+        {/* Masthead */}
+        <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 12 }}>Capital raising · Marketing</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 13, flexWrap: 'wrap', marginBottom: 12 }}>
+          <img src="/hori7on-gold.png" alt="HORI7ON" style={{ height: 15, width: 'auto' }} />
+          <span style={{ color: '#5a5e63', fontSize: 13 }}>|</span>
+          <img src="/seven-mark-white-hd.png" alt="7EVEN" style={{ height: 15, width: 'auto' }} />
+          <span style={{ color: '#5a5e63', fontSize: 13 }}>|</span>
+          <span style={{ color: '#F0EFED', fontSize: 13, letterSpacing: '0.26em', textTransform: 'uppercase', fontWeight: 600 }}>Marketing IM</span>
+        </div>
+        <h2 style={{ color: '#F0EFED', fontFamily: "'Cormorant Garamond',Georgia,serif", fontWeight: 400, fontSize: 30, letterSpacing: '0.01em', margin: '0 0 10px' }}>
+          {projectName}
+        </h2>
+        <p style={{ color: '#8a8e93', fontSize: 12, lineHeight: 1.7, margin: 0, maxWidth: 620 }}>
+          The editorial investment memorandum — HORI7ON imagery in the 7EVEN issue design, carrying this
+          project's <b style={{ color: '#D8D6D2', fontWeight: 600 }}>live feasibility numbers</b>: cost stack,
+          cashflow-plotted finance waterfall, valuation, profit and IRR. Nine A4 pages, print-ready.
+          Every figure is read from the model at the moment you export — nothing is typed twice.
+        </p>
 
-  function renderNode(node: ExportNode) {
-    if (node.children) {
-      const onCount = node.children.filter(c => selected.has(c.id)).length
-      return (
-        <div key={node.id} style={{ border: '1px solid #141414', background: 'rgba(8,8,8,0.78)', padding: '14px 18px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={onCount === node.children.length}
-              ref={el => { if (el) el.indeterminate = onCount > 0 && onCount < node.children!.length }}
-              onChange={() => toggleGroup(node)}
-              style={checkboxStyle}
-            />
-            <span style={{ color: '#D8D6D2', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{node.label}</span>
-            <span style={{ color: '#444', fontSize: 8, letterSpacing: '0.1em', marginLeft: 'auto' }}>{onCount}/{node.children.length}</span>
-          </label>
-          <div style={{ marginTop: 10, marginLeft: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {node.children.map(c => (
-              <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} style={checkboxStyle} />
-                <span style={{ color: selected.has(c.id) ? '#A0A0A0' : '#555', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{c.label}</span>
-              </label>
+        {/* Live figures the document will carry */}
+        {snap.ok && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: '#141414', border: '1px solid #1c1c1c', marginTop: 26 }}>
+            {snap.rows.map(([l, v]) => (
+              <div key={l} style={{ background: 'rgba(8,8,8,0.9)', padding: '15px 16px' }}>
+                <div style={{ color: '#6a6e73', fontSize: 7.5, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 600 }}>{l}</div>
+                <div style={{ color: v === '—' ? '#5a5e63' : '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: 17, marginTop: 7 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {snap.noRevenue && (
+          <div style={{ border: '1px solid rgba(214,179,106,.4)', background: 'rgba(214,179,106,.06)', padding: '13px 16px', marginTop: 14 }}>
+            <span style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600 }}>Revenue model pending</span>
+            <div style={{ color: '#9a978f', fontSize: 11, lineHeight: 1.65, marginTop: 6 }}>
+              No revenue scenario is entered for this project, so the memorandum shows “—” for valuation, profit
+              and returns and says why. The cost side is live and complete. Add a Product Mix scenario to populate it fully.
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => openIm(false)} disabled={busy !== null}
+            className="glass-btn"
+            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '15px 30px', color: '#d6b36a', border: '1px solid rgba(214,179,106,.55)' }}>
+            {busy === 'preview' ? 'Opening…' : '◇ Preview'}
+          </button>
+          <button
+            onClick={() => openIm(true)} disabled={busy !== null}
+            className="glass-btn glass-btn-gold"
+            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '15px 30px' }}>
+            {busy === 'pdf' ? 'Preparing…' : '⤓ Export IM · PDF'}
+          </button>
+          <div style={{ flex: 1 }} />
+          {done && <span style={{ color: '#3DAA6A', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>✓ {done}</span>}
+          {error && <span style={{ color: '#D4553E', fontSize: 10.5, maxWidth: 380 }}>{error}</span>}
+        </div>
+        <div style={{ color: '#4a4e53', fontSize: 10, marginTop: 10 }}>
+          In the print dialog choose <b style={{ color: '#7a7e83' }}>Save as PDF</b>, A4 portrait, background graphics on.
+        </div>
+
+        {/* Contents */}
+        <div style={{ marginTop: 36, borderTop: '1px solid #141414', paddingTop: 24 }}>
+          <p style={{ color: '#6a6e73', fontSize: 8.5, letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: 16 }}>What's in the document</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(230px,1fr))', gap: '14px 26px' }}>
+            {contents.map(([n, t, s]) => (
+              <div key={n} style={{ display: 'flex', gap: 12 }}>
+                <span style={{ color: '#C4973A', fontFamily: "'JetBrains Mono',monospace", fontSize: 10, flexShrink: 0, paddingTop: 2 }}>{n}</span>
+                <div>
+                  <div style={{ color: '#D8D6D2', fontSize: 12, fontWeight: 500 }}>{t}</div>
+                  <div style={{ color: '#5a5e63', fontSize: 10.5, lineHeight: 1.5, marginTop: 2 }}>{s}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      )
-    }
-    return (
-      <label key={node.id} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', border: '1px solid #141414', background: 'rgba(8,8,8,0.78)', padding: '14px 18px' }}>
-        <input type="checkbox" checked={selected.has(node.id)} onChange={() => toggle(node.id)} style={checkboxStyle} />
-        <span style={{ color: selected.has(node.id) ? '#D8D6D2' : '#555', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600 }}>{node.label}</span>
-      </label>
-    )
-  }
 
-  return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '36px 48px' }}>
-      <div style={{ maxWidth: 860, margin: '0 auto' }}>
-
-        {/* ── HORI7ON | 7EVEN IM — the editorial sales document ── */}
-        <div style={{ border: '1px solid rgba(214,179,106,.42)', background: 'linear-gradient(150deg,rgba(214,179,106,.10),rgba(8,8,8,.72))', padding: '22px 26px', marginBottom: 26 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 22, flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 280 }}>
-              <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 8 }}>Capital raising</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <img src="/hori7on-gold.png" alt="HORI7ON" style={{ height: 13, width: 'auto' }} />
-                <span style={{ color: '#6a6e73', fontSize: 12 }}>|</span>
-                <img src="/seven-mark-white-hd.png" alt="7EVEN" style={{ height: 13, width: 'auto' }} />
-                <span style={{ color: '#F0EFED', fontSize: 11, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 600 }}>Investment Memorandum</span>
-              </div>
-              <p style={{ color: '#8a8e93', fontSize: 11, lineHeight: 1.65, margin: 0 }}>
-                The editorial sales document — HORI7ON imagery and the 7EVEN issue design, carrying this project's
-                live feasibility numbers: cost stack, cashflow-plotted finance waterfall, valuation, profit and IRR.
-                Nine A4 pages, print-ready.
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 10, flexShrink: 0, alignSelf: 'center' }}>
-              <button onClick={() => openIm(false)} disabled={busy !== null} className="glass-btn"
-                style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 24px', color: '#d6b36a', border: '1px solid rgba(214,179,106,.55)' }}>
-                ◇ Preview IM
-              </button>
-              <button onClick={() => openIm(true)} disabled={busy !== null} className="glass-btn glass-btn-gold"
-                style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 24px' }}>
-                ⤓ Export IM · PDF
-              </button>
-            </div>
-          </div>
+        <div style={{ color: '#3a3e43', fontSize: 9.5, marginTop: 28, letterSpacing: '0.04em' }}>
+          {project?.address ? `${project.address} · ` : ''}Confidential — by invitation. Figures are live model outputs as at export.
         </div>
-
-        {/* Heading */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div>
-            <p style={{ color: '#C4973A', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 6 }}>Project Export</p>
-            <h2 style={{ color: '#F0EFED', fontFamily: 'var(--font-heading)', fontWeight: 300, fontSize: 22, letterSpacing: '0.06em', margin: 0 }}>
-              Choose what to share
-            </h2>
-            <p style={{ color: '#666', fontSize: 11, marginTop: 6 }}>
-              Tick any tab or sub-tab, then export a branded PDF for meetings or an Excel workbook for your team.
-            </p>
-          </div>
-          <button
-            onClick={toggleAll}
-            className="glass-btn"
-            style={{ color: '#AAA', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '8px 18px', flexShrink: 0 }}
-          >
-            {allSelected ? 'Clear all' : 'Select all'}
-          </button>
-        </div>
-
-        {/* Checkbox grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginTop: 22 }}>
-          {EXPORT_TREE.map(renderNode)}
-        </div>
-
-        {/* Action bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 30, paddingTop: 22, borderTop: '1px solid #141414' }}>
-          <span style={{ color: '#666', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-            {count} section{count !== 1 ? 's' : ''} selected
-          </span>
-          <div style={{ flex: 1 }} />
-          {done && <span style={{ color: '#3DAA6A', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase' }}>✓ {done}</span>}
-          {error && <span style={{ color: '#D4553E', fontSize: 10.5, letterSpacing: '0.02em', maxWidth: 420 }}>{error}</span>}
-          {/* Read it first, then save. Both open the same designed document. */}
-          <button
-            onClick={() => openDoc(false)}
-            disabled={count === 0 || busy !== null}
-            className={`glass-btn ${count > 0 ? '' : 'glass-btn-disabled'}`}
-            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 26px' }}
-          >
-            ◇ Preview
-          </button>
-          <button
-            onClick={() => openDoc(true)}
-            disabled={count === 0 || busy !== null}
-            className={`glass-btn ${count > 0 ? 'glass-btn-gold' : 'glass-btn-disabled'}`}
-            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px' }}
-          >
-            {busy === 'pdf' ? 'Opening…' : '⬇ Export PDF'}
-          </button>
-          <button
-            onClick={() => run('excel')}
-            disabled={count === 0 || busy !== null}
-            className={`glass-btn ${count > 0 ? 'glass-btn-green' : 'glass-btn-disabled'}`}
-            style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, padding: '13px 30px' }}
-          >
-            {busy === 'excel' ? 'Generating…' : '⬇ Export Excel'}
-          </button>
-        </div>
-
-        <p style={{ color: '#333', fontSize: 9, letterSpacing: '0.1em', marginTop: 18 }}>
-          Exports carry current saved data, the 7EVEN | HAAVN header and a confidential footer — ready for external and internal distribution.
-        </p>
       </div>
     </div>
   )

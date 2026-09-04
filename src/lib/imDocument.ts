@@ -372,14 +372,26 @@ export function buildImHtml(projectId: string): string {
 </body></html>`
 }
 
-/** Open the IM in a new tab (optionally straight to the print dialog). */
-export function openImDocument(projectId: string, print = false) {
+/** Open the IM in a new tab (optionally straight to the print dialog).
+ *  `win` is a window opened synchronously in the click handler — browsers block
+ *  a window.open that happens after an await, so the caller opens it first and
+ *  hands it here. Falls back to a blob URL if no window was passed / it failed. */
+export function openImDocument(projectId: string, print = false, win?: Window | null) {
   const html = buildImHtml(projectId)
-  const w = window.open('', '_blank')
-  if (!w) throw new Error('Allow pop-ups to open the Investment Memorandum')
-  w.document.write(html)
-  w.document.close()
-  if (print) w.addEventListener('load', () => setTimeout(() => w.print(), 600))
+  const w = win ?? window.open('', '_blank')
+  if (w) {
+    w.document.open()
+    w.document.write(html)
+    w.document.close()
+    if (print) setTimeout(() => { try { w.focus(); w.print() } catch { /* user can print manually */ } }, 800)
+    return
+  }
+  // Pop-up blocked — hand the document over as a blob the browser will open.
+  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+  const a = document.createElement('a')
+  a.href = url; a.target = '_blank'; a.rel = 'noopener'
+  document.body.appendChild(a); a.click(); a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
 // ── the issue stylesheet (7even.au language) ──────────────────────────────────

@@ -90,7 +90,7 @@ export default function ProjectManagePanel({ projectId, projectName, onClose, th
             <div style={{ textAlign: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: 9, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9aa0a6', marginBottom: 14, paddingLeft: '0.4em' }}>{projectName}</div>
             {/* flickable tab strip + chevron X */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Export' }, { id: 'display', label: 'Settings' }] as const).map(t => {
+              {([{ id: 'feasibility', label: 'Feasibility' }, { id: 'history', label: 'History' }, { id: 'export', label: 'Marketing IM' }, { id: 'display', label: 'Settings' }] as const).map(t => {
                 const on = tab === t.id
                 const danger = t.id === 'reset'
                 const col = on ? (danger ? '#e0645c' : '#d6b36a') : '#fff'
