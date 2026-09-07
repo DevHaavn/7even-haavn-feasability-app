@@ -268,6 +268,83 @@ export default function ProjectTimeline({ projectId }: Props) {
 
   const ganttW = dayPx(totalDays)
 
+  // ── Gantt panning: the month bar floats down the page and carries a slider,
+  //    because the panel scrolls sideways far wider than the screen and a
+  //    trackpad-less mouse has no way to reach the right-hand months.
+  const panelRef = useRef<HTMLDivElement | null>(null)
+  const headRef = useRef<HTMLDivElement | null>(null)
+  const [sx, setSx] = useState(0)          // panel scrollLeft
+  const [maxSx, setMaxSx] = useState(0)    // scrollWidth − clientWidth
+  const [floatBar, setFloatBar] = useState<{ top: number; left: number; width: number } | null>(null)
+
+  const panTo = (x: number) => { const p = panelRef.current; if (p) p.scrollLeft = x }
+
+  useEffect(() => {
+    const p = panelRef.current
+    if (!p) return
+    const onScroll = () => { setSx(p.scrollLeft); setMaxSx(Math.max(0, p.scrollWidth - p.clientWidth)) }
+    p.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => p.removeEventListener('scroll', onScroll)
+  }, [ganttW, tasks.length, filterPhase, allDates, viewYear])
+
+  useEffect(() => {
+    const measure = () => {
+      const p = panelRef.current, h = headRef.current
+      if (!p || !h) { setFloatBar(null); return }
+      setMaxSx(Math.max(0, p.scrollWidth - p.clientWidth))
+      const pr = p.getBoundingClientRect(), hr = h.getBoundingClientRect()
+      // The workspace scrolls inside its own pane, so the "top of the screen"
+      // for a floating bar is that pane's top edge — not the window's.
+      const host = p.closest('.workspace-content') as HTMLElement | null
+      const topEdge = host ? host.getBoundingClientRect().top : 0
+      const show = hr.top < topEdge - 2 && pr.bottom > topEdge + HEADER_H + 60
+      setFloatBar(show ? { top: topEdge, left: pr.left, width: pr.width } : null)
+    }
+    measure()
+    window.addEventListener('scroll', measure, true)
+    window.addEventListener('resize', measure)
+    return () => { window.removeEventListener('scroll', measure, true); window.removeEventListener('resize', measure) }
+  }, [ganttW, tasks.length, filterPhase, allDates, viewYear])
+
+  /** Click an empty stretch of the grid → new task starting on that day, in that
+   *  phase. The Gantt becomes a planning surface, not just a viewer. */
+  function addAt(phase: CostPhase, e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const days = Math.max(0, Math.round((e.clientX - rect.left) / PX_PER_DAY))
+    const start = addDays(minDate, days)
+    setEditing({ id: generateId(), projectId, ...BLANK_TASK, phase, startDate: start, endDate: addDays(start, 14) })
+    setIsNew(true)
+  }
+
+  const PanSlider = ({ compact }: { compact?: boolean }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0, flex: compact ? '1 1 200px' : 1 }}>
+      <button onClick={() => panTo(Math.max(0, sx - 400))} title="Pan left"
+        style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', fontSize: 13, padding: '0 2px', flexShrink: 0 }}>‹</button>
+      <input type="range" min={0} max={Math.max(1, maxSx)} value={Math.min(sx, maxSx)} disabled={maxSx <= 0}
+        onChange={e => panTo(Number(e.target.value))}
+        aria-label="Pan the timeline left and right"
+        style={{ flex: 1, minWidth: 0, accentColor: 'var(--gold)', height: 3, cursor: maxSx > 0 ? 'grab' : 'default' }} />
+      <button onClick={() => panTo(Math.min(maxSx, sx + 400))} title="Pan right"
+        style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', fontSize: 13, padding: '0 2px', flexShrink: 0 }}>›</button>
+    </div>
+  )
+
+  /** The month strip, drawn twice: once in the panel, once in the floating bar. */
+  const MonthStrip = () => (
+    <>
+      {monthMarkers.map((m, i) => (
+        <React.Fragment key={i}>
+          <div style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--faint)' : 'var(--border)', zIndex: 1 }} />
+          <span style={{ position: 'absolute', left: m.px + 5, top: m.isYear ? 8 : 14, fontSize: m.isYear ? 10 : 9, fontWeight: m.isYear ? 700 : 400, color: m.isYear ? 'var(--ink-3)' : 'var(--ink-2)', letterSpacing: m.isYear ? '0.12em' : '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap', zIndex: 2 }}>{m.label}</span>
+        </React.Fragment>
+      ))}
+      <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'var(--gold)', zIndex: 5 }}>
+        <span style={{ position: 'absolute', top: 6, left: 4, fontSize: 7, color: 'var(--gold)', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>TODAY</span>
+      </div>
+    </>
+  )
+
   return (
     // minWidth:0 on the ROOT is what stops the Gantt bullying the page. This div is
     // a flex item, and a flex item defaults to min-width:auto (= min-content), so
@@ -331,6 +408,16 @@ export default function ProjectTimeline({ projectId }: Props) {
           </div>
         </div>
 
+        {/* Pan control — always reachable, even at the top of the Gantt where the
+            floating bar has not appeared yet (hidden scrollbars leave no other way). */}
+        {tasks.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <span style={{ fontSize: 7.5, letterSpacing: '0.2em', color: 'var(--ink-3)', textTransform: 'uppercase', flexShrink: 0 }}>Pan timeline</span>
+            <PanSlider />
+            <span style={{ fontSize: 9, color: 'var(--faint)', flexShrink: 0 }}>Click an empty day to add a task</span>
+          </div>
+        )}
+
         {/* Phase filter — the design's segmented pill (was a row of dark chips) */}
         <div className="seg" style={{ marginBottom: 16 }}>
           <button className={filterPhase === 'all' ? 'on' : ''} onClick={() => setFilterPhase('all')}>All phases</button>
@@ -345,12 +432,32 @@ export default function ProjectTimeline({ projectId }: Props) {
            the panel sat ~200px left of the head. One wrap, one edge. ────────── */}
       {tasks.length > 0 ? (
         <>
+        {/* Floating month bar — pinned to the top of the workspace pane once the
+            real header scrolls away, mirroring the panel's horizontal position,
+            with the pan slider along its bottom edge. */}
+        {floatBar && (
+          <div style={{ position: 'fixed', top: floatBar.top, left: floatBar.left, width: floatBar.width, zIndex: 40, pointerEvents: 'auto',
+            background: 'var(--card-2)', borderBottom: '1px solid var(--border-hi)', boxShadow: '0 10px 24px -14px rgba(0,0,0,.5)' }}>
+            <div style={{ position: 'relative', height: HEADER_H, overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', left: LABEL_W - sx, top: 0, width: ganttW, height: '100%' }}>
+                <MonthStrip />
+              </div>
+              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: LABEL_W, background: 'var(--card-2)', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'flex-end', padding: '0 12px 8px', zIndex: 6 }}>
+                <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase' }}>Task · Owner</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '5px 12px 6px', borderTop: '1px solid var(--line)' }}>
+              <span style={{ fontSize: 7, letterSpacing: '0.20em', color: 'var(--ink-3)', textTransform: 'uppercase', flexShrink: 0 }}>Pan</span>
+              <PanSlider />
+            </div>
+          </div>
+        )}
         {/* Sizes to its content and lets the PAGE scroll vertically — one
             scrollbar, same as the Product Mix drawer. It still scrolls
             SIDEWAYS on its own, because the month columns genuinely run wider
             than the panel. flex:1 was no use here: no ancestor sets a definite
             height, so the panel collapsed to ~90px and cut the Gantt off. */}
-        <div className="panel" style={{ overflowX: 'auto', position: 'relative', minWidth: 0 }}>
+        <div className="panel" ref={panelRef} style={{ overflowX: 'auto', position: 'relative', minWidth: 0 }}>
           <div style={{ minWidth: LABEL_W + ganttW + PCT_W }}>
 
             {/* Month header. `sticky top:0` here is inert and always has been: this
@@ -360,7 +467,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                 vertical scroll within it for the header to stick against. Pinning
                 it would mean giving the Gantt its own fixed-height scroller, which
                 costs the page scroll the rows need. Left as-is deliberately. */}
-            <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--card-2)', display: 'flex', height: HEADER_H, borderBottom: '1px solid var(--border)' }}>
+            <div ref={headRef} style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--card-2)', display: 'flex', height: HEADER_H, borderBottom: '1px solid var(--border)' }}>
 
               {/* Label column spacer */}
               <div style={{ width: LABEL_W, flexShrink: 0, background: 'var(--card-2)', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'flex-end', padding: '0 12px 8px' }}>
@@ -416,7 +523,9 @@ export default function ProjectTimeline({ projectId }: Props) {
                     <span style={{ fontSize: 9, color: tint(PHASE_COLORS[cat], 53) }}>· {catTasks.length}</span>
                   </div>
                   {/* Phase grid underlay */}
-                  <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
+                  <div onClick={e => { if (e.target === e.currentTarget) addAt(cat as CostPhase, e) }}
+                    title="Click a day to add a task in this phase"
+                    style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%', cursor: 'copy' }}>
                     {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : 'var(--line)' }} />)}
                     <div style={{ position: 'absolute', left: todayPx, top: 0, bottom: 0, width: 2, background: 'color-mix(in srgb, var(--gold) 20%, transparent)' }} />
                   </div>
@@ -463,8 +572,10 @@ export default function ProjectTimeline({ projectId }: Props) {
                         {task.assignee && <span style={{ fontSize: 7, color: 'var(--ink-3)', flexShrink: 0, maxWidth: 50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.assignee.split(' ')[0]}</span>}
                       </div>
 
-                      {/* Gantt bar area */}
-                      <div style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%' }}>
+                      {/* Gantt bar area — clicking empty grid adds a task on that day */}
+                      <div onClick={e => { if (e.target === e.currentTarget) addAt(cat as CostPhase, e) }}
+                        title="Click an empty day to add a task here"
+                        style={{ width: ganttW, flexShrink: 0, position: 'relative', height: '100%', cursor: 'copy' }}>
 
                         {/* Vertical month grid lines */}
                         {monthMarkers.map((m, i) => <div key={i} style={{ position: 'absolute', left: m.px, top: 0, bottom: 0, width: 1, background: m.isYear ? 'var(--border)' : 'var(--line)' }} />)}
@@ -480,7 +591,7 @@ export default function ProjectTimeline({ projectId }: Props) {
                             dragRef.current = { id: task.id, startX: e.clientX, origStart: task.startDate, origEnd: task.endDate, moved: false }
                             setDragId(task.id)
                           }
-                          const guardedEdit = () => { if (task.id.startsWith('__land_')) return; if (clickGuard.current) { clickGuard.current = false; return } openEdit(task) }
+                          const guardedEdit = (e: React.MouseEvent) => { e.stopPropagation(); if (task.id.startsWith('__land_')) return; if (clickGuard.current) { clickGuard.current = false; return } openEdit(task) }
                           return isMile ? (
                           <div onMouseDown={startDrag} onClick={guardedEdit}
                             title="Drag to move"
