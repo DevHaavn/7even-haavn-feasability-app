@@ -289,7 +289,7 @@ function migrateMagnaRenders(){
   });
   DB._migMagnaRenders=true; return changed;
 }
-var SOLUM_IMAGES=['/haavn-renders/solum-ext-charred-01.jpg','/haavn-renders/solum-ext-stone-01.jpg','/haavn-renders/solum-ext-stone-02.jpg','/haavn-renders/solum-ext-stone-03.jpg','/haavn-renders/solum-ext-charred-02.jpg','/haavn-renders/solum-ext-charred-03.jpg','/haavn-renders/solum-ext-black-01.jpg','/haavn-renders/solum-ext-black-02.jpg','/haavn-renders/solum-ext-black-03.jpg','/haavn-renders/solum-int-01.jpg','/haavn-renders/solum-int-02.jpg','/haavn-renders/solum-int-03.jpg','/haavn-renders/solum-int-04.jpg','/haavn-renders/solum-int-05.jpg','/haavn-renders/solum-int-06.jpg','/haavn-renders/solum-int-07.jpg','/haavn-renders/solum-int-08.jpg','/haavn-renders/solum-materials.jpg'];
+var SOLUM_IMAGES=['/haavn-renders/solum-ext-charred-01.jpg','/haavn-renders/solum-ext-stone-01.jpg','/haavn-renders/solum-ext-stone-02.jpg','/haavn-renders/solum-ext-stone-03.jpg','/haavn-renders/solum-ext-charred-02.jpg','/haavn-renders/solum-ext-charred-03.jpg','/haavn-renders/solum-ext-black-01.jpg','/haavn-renders/solum-ext-black-02.jpg','/haavn-renders/solum-ext-black-03.jpg','/haavn-renders/solum-int-01.jpg','/haavn-renders/solum-int-02.jpg','/haavn-renders/solum-int-03.jpg','/haavn-renders/solum-int-04.jpg','/haavn-renders/solum-int-05.jpg','/haavn-renders/solum-int-06.jpg','/haavn-renders/solum-int-07.jpg','/haavn-renders/solum-int-08.jpg'];
 function migrateSolumAssets(){
   if(!DB||DB._migSolumAssetsV3)return false;
   DB.media=DB.media||{}; DB.media['SOLUM']=DB.media['SOLUM']||{};
