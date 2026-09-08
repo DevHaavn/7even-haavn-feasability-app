@@ -56,7 +56,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    Derrimut cover carries, in #d4e84a. It needs more opacity than a black
    watermark would: the light green sits close to the paper in value. */
 #stage .device{position:absolute;right:-6vw;bottom:-7vh;width:min(39vw,630px);height:auto;
-  opacity:0;pointer-events:none;animation:deviceIn 2.6s ease 1.1s forwards}
+  opacity:0;pointer-events:none;animation:deviceIn 2.4s ease 2.4s forwards}
 @keyframes deviceIn{to{opacity:.26}}
 body.view-inner #stage .device{opacity:.12;animation:none;transition:opacity .5s}
 @media(max-width:600px){#stage .device{width:56vw;right:-12vw;bottom:-4vh}}
@@ -124,11 +124,40 @@ main,footer,header .kicker{transition:.38s}
 /* ═══ HOME ═══ */
 .stripe{position:relative;width:100vw;max-width:100vw;
   padding:clamp(40px,7vh,90px) clamp(24px,5vw,80px);display:flex;flex-direction:column;align-items:center}
-.mark{display:block;width:min(54vw,620px);height:auto;opacity:0;transform:translateY(12px);
-  animation:rise 1.5s cubic-bezier(.16,.84,.28,1) .3s forwards;
+/* The wordmark arrives in three pieces. The cuts are DIAGONAL, not vertical:
+   the A's lower stroke runs under the H's right stem and the V's upper stroke
+   runs over the N's left stem, so a straight cut would take the bottom of the
+   A with the H and the top of the V with the N. Each cut follows the logo's
+   own -0.641 slope through the gap between the strokes, so both letters come
+   out whole and the three pieces tile exactly. The H flies in from off-screen
+   left and the N from off-screen right, both landing on the 3 second mark;
+   then the assembled wordmark flicks through four of Seth's greens and
+   settles on black. Each piece is the same artwork used as a mask over a
+   solid colour — that is what lets the flick hit the exact palette hexes. */
+.mark{position:relative;width:min(54vw,620px);aspect-ratio:2400/281}
+.mark span{position:absolute;inset:0;display:block;background:var(--ink);
+  -webkit-mask:url(assets/brand/haavn-wordmark-black.png) center/100% 100% no-repeat;
+          mask:url(assets/brand/haavn-wordmark-black.png) center/100% 100% no-repeat;
   filter:drop-shadow(0 10px 26px rgba(16,16,16,.14))}
+.mark .h{clip-path:polygon(0 0, 21.667% 0, 21.667% 69.22%, 16.125% 100%, 0 100%);
+  transform:translateX(-128vw);animation:slideL 2.9s cubic-bezier(.16,.86,.26,1) .1s forwards,
+                                         flick 1.6s ease 3s forwards}
+.mark .m{clip-path:polygon(16.125% 100%, 21.667% 69.22%, 21.667% 0, 82.479% 0, 76.833% 30.89%, 76.833% 100%);
+  animation:flick 1.6s ease 3s forwards}
+.mark .n{clip-path:polygon(76.833% 100%, 76.833% 30.89%, 82.479% 0, 100% 0, 100% 100%);
+  transform:translateX(128vw);animation:slideR 2.4s cubic-bezier(.16,.86,.26,1) .6s forwards,
+                                        flick 1.6s ease 3s forwards}
+@keyframes slideL{to{transform:translateX(0)}}
+@keyframes slideR{to{transform:translateX(0)}}
+@keyframes flick{
+   0%,  9%{background:#d4e84a}
+  13%, 22%{background:#bdd420}
+  26%, 35%{background:#a8bc10}
+  39%, 48%{background:#687808}
+  62%,100%{background:#101010}
+}
 .subline{margin-top:clamp(18px,2.8vh,32px);display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;
-  opacity:0;animation:fade 1.5s ease 1s forwards}
+  opacity:0;animation:fade 1.3s ease 4.5s forwards}
 .subline span{font-family:var(--f-mono);font-size:9px;letter-spacing:.42em;color:var(--ink-3);white-space:nowrap}
 .subline .dot{width:4px;height:4px;border-radius:50%;background:var(--lime-dp)}
 
@@ -142,9 +171,11 @@ main,footer,header .kicker{transition:.38s}
 .phead p{font-size:13.5px;line-height:1.7;color:var(--ink-2);max-width:46ch;margin-top:12px}
 .phead .cnt{font-family:var(--f-mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-4);white-space:nowrap}
 .back{display:inline-flex;align-items:center;gap:10px;margin-bottom:26px;padding:8px 15px;
-  border:1px solid var(--hair);border-radius:2px;background:var(--tablet);
+  border:1px solid transparent;border-radius:2px;background:rgba(250,251,250,.06);
+  border-image:linear-gradient(180deg,#4a4a4a 0%,#141414 32%,#000 58%,#2e2e2e 88%,#181818 100%) 1;
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
   font-family:var(--f-mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-2);transition:.3s}
-.back:hover{border-color:var(--lime);color:var(--ink);background:#fff}
+.back:hover{color:var(--ink);background:rgba(250,251,250,.2);box-shadow:inset 3px 0 0 var(--lime)}
 .back .a{color:var(--lime-txt)}
 
 /* deck rows */
@@ -203,7 +234,7 @@ code{font-family:var(--f-mono);font-size:11.5px;color:var(--lime-txt);background
 
 /* ═══ SERVICES — the six product lines, bottom left above the footer rule ═══ */
 .services{display:flex;flex-direction:column;gap:11px;padding-bottom:20px;
-  opacity:0;animation:fade 1.4s ease 1.9s forwards}
+  opacity:0;animation:fade 1.3s ease 5s forwards}
 body.view-inner .services{display:none}
 .services__k{font-family:var(--f-mono);font-size:8px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-4)}
 .services__row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
@@ -237,10 +268,13 @@ footer{padding-bottom:20px;margin-top:auto}
 .zone{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.26em;color:var(--ink-4)}
 .fr{display:flex;align-items:center;gap:8px;justify-self:end;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:2px;
-  border:1px solid var(--hair);background:var(--tablet);
+  border:1px solid transparent;background:rgba(250,251,250,.06);
+  border-image:linear-gradient(180deg,#4a4a4a 0%,#141414 32%,#000 58%,#2e2e2e 88%,#181818 100%) 1;
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
   font-family:var(--f-mono);font-size:9px;letter-spacing:.22em;color:var(--ink-2);
   transition:.35s cubic-bezier(.2,.7,.3,1)}
-.chip:hover{border-color:var(--lime);color:var(--ink);transform:translateY(-2px);background:#fff}
+.chip:hover{color:var(--ink);transform:translateY(-2px);background:rgba(250,251,250,.2);
+  box-shadow:inset 3px 0 0 var(--lime)}
 .chip .ext{font-size:9px;color:var(--lime-txt)}
 .chip.upd .ring{width:6px;height:6px;border:1px solid var(--lime-dp);border-radius:50%}
 .legal{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:11px}
@@ -256,7 +290,7 @@ footer{padding-bottom:20px;margin-top:auto}
     top:calc(env(safe-area-inset-top,0px) + 10px);right:auto}
   .menu{top:calc(env(safe-area-inset-top,0px) + 84px);width:90vw}
   body.menu-open footer{transform:translateY(110%);opacity:0;pointer-events:none;filter:none}
-  .mark{width:74vw}
+  .mark{width:78vw}
   .kicker{font-size:8px;letter-spacing:.3em;white-space:normal}
   .deck{grid-template-columns:86px 1fr auto}
   .deck__go{padding:0 14px}
@@ -296,7 +330,9 @@ footer{padding-bottom:20px;margin-top:auto}
     <!-- ══ HOME ══════════════════════════════════════════════════════════ -->
     <section class="view on" id="vHome">
       <div class="stripe">
-        <img class="mark" src="assets/brand/haavn-wordmark-black.png" alt="HAAVN">
+        <div class="mark" role="img" aria-label="HAAVN">
+          <span class="h"></span><span class="m"></span><span class="n"></span>
+        </div>
         <div class="subline">
           <span>A SUPPLY BUSINESS</span><span class="dot"></span><span>NOT A BUILDER</span>
         </div>
