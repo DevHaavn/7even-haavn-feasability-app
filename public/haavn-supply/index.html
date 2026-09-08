@@ -55,11 +55,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* the HVN device, bled off the bottom-right corner — the same watermark the
    Derrimut cover carries, in #d4e84a. It needs more opacity than a black
    watermark would: the light green sits close to the paper in value. */
-#stage .device{position:absolute;right:-6vw;bottom:-7vh;width:min(56vw,900px);height:auto;
+#stage .device{position:absolute;right:-6vw;bottom:-7vh;width:min(39vw,630px);height:auto;
   opacity:0;pointer-events:none;animation:deviceIn 2.6s ease 1.1s forwards}
 @keyframes deviceIn{to{opacity:.26}}
 body.view-inner #stage .device{opacity:.12;animation:none;transition:opacity .5s}
-@media(max-width:600px){#stage .device{width:78vw;right:-14vw;bottom:-4vh}}
+@media(max-width:600px){#stage .device{width:56vw;right:-12vw;bottom:-4vh}}
 
 /* The green LED bar pairs are retired on HAAVN — on paper they shouted where
    on black they glowed. The brand line survives as the hairlines that bound
