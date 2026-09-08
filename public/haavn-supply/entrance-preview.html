@@ -11,10 +11,15 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    PREVIEW ONLY — the HAAVN wordmark entrance. Not linked from anywhere.
 
-   Three pieces, cut on true vertical stem edges so nothing is sliced:
-     H       0      → 21.71%   (the H's right stem ends at px 520 of 2400)
-     A A V   21.71% → 76.833%  (static — it never moves)
-     N       76.833% → 100%    (the N's left stem starts at px 1844)
+   Three pieces. The cuts are DIAGONAL, not vertical: the A's lower stroke runs
+   under the H's right stem and the V's upper stroke runs over the N's left
+   stem, so a straight cut takes the bottom of the A with the H and the top of
+   the V with the N. Each cut instead follows the letterform's own -0.641 slope
+   (the logo's single diagonal angle), through the gap between the two strokes:
+     H      0 → 21.667% at the top, falling to 16.125% at the baseline
+     A A V  the middle, static — it never moves
+     N      82.479% at the top, back to 76.833% at the baseline
+   Both letters come out whole, and the three pieces tile exactly.
 
    The H flies in from off-screen left and the N from off-screen right, both
    landing at the 3 second mark. Then the assembled wordmark flicks through
@@ -56,9 +61,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   -webkit-mask:url(assets/brand/haavn-wordmark-black.png) center/100% 100% no-repeat;
           mask:url(assets/brand/haavn-wordmark-black.png) center/100% 100% no-repeat;
   filter:drop-shadow(0 10px 26px rgba(16,16,16,.14))}
-.mk .h{clip-path:inset(0 78.29% 0 0);      transform:translateX(-128vw)}
-.mk .m{clip-path:inset(0 23.167% 0 21.71%)}
-.mk .n{clip-path:inset(0 0 0 76.833%);     transform:translateX(128vw)}
+.mk .h{clip-path:polygon(0 0, 21.667% 0, 21.667% 69.22%, 16.125% 100%, 0 100%);
+       transform:translateX(-128vw)}
+.mk .m{clip-path:polygon(16.125% 100%, 21.667% 69.22%, 21.667% 0, 82.479% 0, 76.833% 30.89%, 76.833% 100%)}
+.mk .n{clip-path:polygon(76.833% 100%, 76.833% 30.89%, 82.479% 0, 100% 0, 100% 100%);
+       transform:translateX(128vw)}
 
 .mk.go .h{animation:slideL 2.9s cubic-bezier(.16,.86,.26,1) .1s forwards,
                     flick  1.6s ease var(--in) forwards}
