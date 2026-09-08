@@ -335,18 +335,8 @@ footer{padding-bottom:20px;margin-top:auto}
         </div>
         <div class="ledh b"></div>
       </div>
-      <div class="ctarow">
-        <a class="cta" href="#/presentations" id="ctaPres">
-          <span class="ds">PR</span><span class="div"></span>
-          <span class="lbl"><b>PRESENTATIONS</b><i id="ctaPresSub">CLIENT DECKS</i></span>
-          <span class="go">&#8594;</span>
-        </a>
-        <a class="cta" href="#/documents" id="ctaDocs">
-          <span class="ds">DL</span><span class="div"></span>
-          <span class="lbl"><b>DOCUMENTS</b><i id="ctaDocsSub">BRAND &amp; TECHNICAL LIBRARY</i></span>
-          <span class="go">&#8594;</span>
-        </a>
-      </div>
+      <!-- No entry buttons on the home screen: the brand stands on its own and
+           Presentations / Documents are reached from the menu. -->
     </section>
 
     <!-- ══ PRESENTATIONS ═════════════════════════════════════════════════ -->
@@ -489,7 +479,6 @@ var DOCS = [
     '</a>';
   }).join('');
   $('#presCount').textContent = DECKS.length + (DECKS.length === 1 ? ' deck' : ' decks');
-  $('#ctaPresSub').textContent = DECKS.length + ' CLIENT ' + (DECKS.length === 1 ? 'DECK' : 'DECKS');
 
   /* the menu drop-down — the deck list, straight off the menu row */
   $('#mDrop').innerHTML = DECKS.map(function(d){
@@ -514,7 +503,6 @@ var DOCS = [
     return '<div class="shelf"><h2>' + esc(cat) + '</h2>' + body + '</div>';
   }).join('');
   $('#docCount').textContent = DOCS.length + (DOCS.length === 1 ? ' document' : ' documents');
-  $('#ctaDocsSub').textContent = DOCS.length + ' ' + (DOCS.length === 1 ? 'DOCUMENT' : 'DOCUMENTS') + ' FILED';
 
   /* ---- views --------------------------------------------------------- */
   var VIEWS = {
