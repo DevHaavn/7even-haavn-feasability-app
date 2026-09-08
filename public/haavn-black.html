@@ -353,6 +353,7 @@ main,footer,header .kicker{transition:.38s}
   <div class="hbmenu" id="hbMenu">
     <button class="hbrow" id="mDisplay">Black Display<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mFeas">Black Feasibility<span class="g">&#8594;</span></button>
+    <button class="hbrow" id="mPresentation">Presentation<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mSeven"><img style="height:15px" src="/seven-mark-white-hd.png" alt="7EVEN"><span class="g">&#8594;</span></button>
     <button class="hbrow gold" id="mEnterprise"><img src="/enterprise-gold.png" alt="ENTERPRISE"><span class="g">&#8594;</span></button>
@@ -705,6 +706,14 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
       var mm=[['mSeven','return'],['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
+      var pres=document.getElementById('mPresentation');
+      if(pres)pres.addEventListener('click',function(){
+        close();
+        // Open in a new tab: the deck owns the keyboard (arrows, G, N, F, ⌘P) and
+        // goes fullscreen, which it cannot do trapped in this iframe.
+        try{ window.open('/haavn-supply/index.html','_blank','noopener'); }
+        catch(e){ top.location.href='/haavn-supply/index.html'; }
+      });
       var mp=document.getElementById('mPartners');
       if(mp)mp.addEventListener('click',function(){close();var b=document.getElementById('btnPartners');if(b)b.click();});
     }

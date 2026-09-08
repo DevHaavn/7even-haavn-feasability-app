@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HAAVN SUPPLY — Client Presentation</title>
+<link rel="icon" href="assets/brand/haavn-device-black.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   HAAVN SUPPLY — PRESENTATION FRAMEWORK
+   Palette: Seth Bean expanded palette (HVN Colour Codes)
+   Display: Chakra Petch · Body: Inter
+   Stage: 1920 × 1080, scaled to fit any projector / screen
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* --- Seth Bean expanded palette ------------------------------------- */
+  --w-00:#fafbfa; --w-01:#f0f1f0; --w-02:#e2e4e2; --w-03:#d0d2d0; --w-04:#b8bab8;
+  --k-00:#2c2c2c; --k-01:#222222; --k-02:#181818; --k-03:#101010; --k-04:#000000;
+  --g-00:#d4e84a; --g-01:#bdd420; --g-02:#a8bc10; --g-03:#8a9c08; --g-04:#687808;
+
+  --lime:var(--g-01);
+  --accent:var(--g-01);
+  --f-display:'Chakra Petch',ui-sans-serif,system-ui,sans-serif;
+  --f-body:'Inter',ui-sans-serif,system-ui,sans-serif;
+
+  /* --- theme tokens (dark default) ------------------------------------ */
+  --paper:var(--k-03);
+  --ink:var(--w-00);
+  --ink-2:var(--w-04);
+  --ink-3:rgba(250,251,250,.42);
+  --hair:rgba(250,251,250,.14);
+  --hair-soft:rgba(250,251,250,.07);
+  --panel:rgba(250,251,250,.045);
+  --veil:rgba(0,0,0,.62);
+
+  --pad-x:120px; --pad-y:92px;
+}
+[data-slide-theme="light"]{
+  --accent:var(--g-03);
+  --paper:var(--w-00);
+  --ink:var(--k-02);
+  --ink-2:#5d5f5d;
+  --ink-3:rgba(24,24,24,.45);
+  --hair:rgba(24,24,24,.16);
+  --hair-soft:rgba(24,24,24,.08);
+  --panel:rgba(24,24,24,.04);
+  --veil:rgba(250,251,250,.85);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#000;
+  color:var(--ink);
+  font-family:var(--f-body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── viewport + stage ─────────────────────────────────────────────────── */
+.viewport{position:fixed;inset:0;overflow:hidden;background:#000}
+#stage{
+  position:absolute;left:50%;top:50%;width:1920px;height:1080px;
+  transform:translate(-50%,-50%) scale(var(--s,1));transform-origin:center center;
+  background:var(--paper);
+  transition:background .45s ease;
+  overflow:hidden;
+}
+
+/* ── the ground: grid texture + vignette ──────────────────────────────── */
+#stage::before{
+  content:"";position:absolute;inset:0;z-index:0;
+  background:url('assets/brand/grid-texture.png') center/cover no-repeat;
+  opacity:.9;transition:opacity .45s ease;
+}
+#stage::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(122deg,rgba(189,212,32,.055) 0 1px,transparent 1px 9px),
+    radial-gradient(120% 90% at 78% 12%,rgba(0,0,0,0) 0%,rgba(0,0,0,.55) 78%);
+  transition:opacity .45s ease;
+}
+#stage[data-slide-theme="light"]::before{opacity:0}
+#stage[data-slide-theme="light"]::after{
+  background:
+    repeating-linear-gradient(122deg,rgba(24,24,24,.035) 0 1px,transparent 1px 9px),
+    radial-gradient(120% 90% at 78% 12%,rgba(0,0,0,0) 0%,rgba(0,0,0,.05) 80%);
+}
+
+#deck{position:absolute;inset:0;z-index:1}
+
+/* ── slides ───────────────────────────────────────────────────────────── */
+.slide{
+  position:absolute;inset:0;z-index:1;color:var(--ink);
+  padding:var(--pad-y) var(--pad-x) 118px;
+  opacity:0;pointer-events:none;visibility:hidden;
+  transition:opacity .42s cubic-bezier(.4,0,.2,1);
+}
+.slide.is-active{opacity:1;pointer-events:auto;visibility:visible}
+.slide.is-active .rise{animation:rise .62s cubic-bezier(.2,.7,.2,1) both}
+.slide.is-active .rise:nth-child(2){animation-delay:.05s}
+.slide.is-active .rise:nth-child(3){animation-delay:.1s}
+.slide.is-active .rise:nth-child(4){animation-delay:.15s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide,.slide.is-active .rise{transition:none;animation:none}}
+
+.slide--bleed{padding:0}
+
+/* ── editorial primitives ─────────────────────────────────────────────── */
+.kicker{
+  font-family:var(--f-display);font-size:14px;font-weight:600;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:18px;
+}
+.kicker::before{content:"";width:44px;height:2px;background:var(--accent);flex:none}
+.kicker--plain::before{display:none}
+
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-.015em;line-height:.98}
+.display{font-size:150px;font-weight:700;text-transform:uppercase;letter-spacing:-.03em;line-height:.86}
+.h1{font-size:96px}
+.h2{font-size:66px}
+.h3{font-size:38px;letter-spacing:0}
+
+.lede{font-size:27px;line-height:1.5;font-weight:300;color:var(--ink)}
+.body{font-size:21px;line-height:1.62;font-weight:300;color:var(--ink-2)}
+.body + .body{margin-top:20px}
+.caption{
+  font-family:var(--f-display);font-size:13px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);
+}
+.rule{height:1px;background:var(--hair);border:0}
+.rule--lime{height:2px;background:var(--accent)}
+
+.col-rule{border-left:1px solid var(--hair);padding-left:38px}
+.col-rule--lime{border-left:2px solid var(--accent)}
+
+.tag{
+  display:inline-flex;align-items:center;gap:10px;height:34px;padding:0 16px;
+  border:1px solid var(--hair);font-family:var(--f-display);font-size:12px;
+  font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+}
+.tag--sample{border-color:var(--g-03);color:var(--g-00)}
+
+.icon{width:100%;height:100%;object-fit:contain}
+[data-slide-theme="dark"] .icon--invert,#stage:not([data-slide-theme="light"]) .icon--invert{filter:invert(1)}
+#stage[data-slide-theme="light"] .icon--invert{filter:none}
+
+/* vertical magazine spine text */
+.spine{
+  position:absolute;left:46px;top:50%;transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl;font-family:var(--f-display);font-size:12px;font-weight:500;
+  letter-spacing:.4em;text-transform:uppercase;color:var(--ink-3);z-index:3;
+  pointer-events:none;
+}
+
+/* ═══ SLIDE: COVER ═══════════════════════════════════════════════════════ */
+.cover{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+.cover__top{display:flex;justify-content:space-between;align-items:flex-start}
+.cover__sector{width:104px;height:104px;opacity:.9}
+.cover__title{align-self:center;max-width:1440px}
+.cover__title .display{margin-top:26px}
+.cover__sub{margin-top:34px;font-size:29px;font-weight:300;color:var(--ink-2);max-width:1000px;line-height:1.4}
+.cover__meta{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border-top:1px solid var(--hair);padding-top:26px}
+.cover__meta > div + div{border-left:1px solid var(--hair);padding-left:34px}
+.cover__meta dt{font-family:var(--f-display);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.cover__meta dd{font-family:var(--f-display);font-size:23px;font-weight:500;color:var(--ink)}
+.cover__watermark{
+  position:absolute;right:-90px;bottom:-70px;width:760px;opacity:.05;
+  filter:invert(1);pointer-events:none;z-index:0;
+}
+#stage[data-slide-theme="light"] .cover__watermark{filter:none;opacity:.05}
+
+/* ═══ SLIDE: CONTENTS ════════════════════════════════════════════════════ */
+.contents{display:grid;grid-template-columns:400px 1fr;gap:100px;height:100%}
+.contents__list{align-self:center;columns:2;column-gap:80px}
+.contents__item{
+  break-inside:avoid;display:grid;grid-template-columns:64px 1fr;gap:20px;
+  padding:20px 0;border-bottom:1px solid var(--hair-soft);cursor:pointer;
+}
+.contents__item:hover .contents__label{color:var(--accent)}
+.contents__n{font-family:var(--f-display);font-size:15px;font-weight:600;letter-spacing:.1em;color:var(--accent);padding-top:6px}
+.contents__label{font-family:var(--f-display);font-size:27px;font-weight:500;color:var(--ink);transition:color .2s}
+.contents__sub{font-size:15px;color:var(--ink-3);margin-top:4px;font-weight:300}
+.contents__side{align-self:center}
+
+/* ═══ SLIDE: STATEMENT ═══════════════════════════════════════════════════ */
+.statement{display:grid;grid-template-rows:auto 1fr;height:100%}
+.statement__grid{display:grid;grid-template-columns:1.25fr 1fr;gap:110px;align-items:end;align-self:center;width:100%}
+.statement__head{font-size:82px;font-weight:600;line-height:1.02;letter-spacing:-.02em;font-family:var(--f-display)}
+.statement__head em{font-style:normal;color:var(--accent)}
+
+/* ═══ SLIDE: METRICS ═════════════════════════════════════════════════════ */
+.metrics{display:grid;grid-template-rows:auto 1fr;height:100%;gap:56px}
+.metrics__grid{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border-top:1px solid var(--hair);align-self:center;width:100%}
+.metric{padding:44px 42px 0 0;position:relative}
+.metric + .metric{border-left:1px solid var(--hair);padding-left:42px}
+.metric__v{font-family:var(--f-display);font-size:104px;font-weight:600;line-height:.9;letter-spacing:-.04em}
+.metric__v span{font-size:38px;font-weight:400;color:var(--accent);margin-left:6px;letter-spacing:0}
+.metric__l{margin-top:22px;font-family:var(--f-display);font-size:14px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--ink)}
+.metric__n{margin-top:12px;font-size:17px;line-height:1.5;font-weight:300;color:var(--ink-3);max-width:300px}
+
+/* ═══ SLIDE: SPLIT (image + column) ══════════════════════════════════════ */
+.split{display:grid;grid-template-columns:1fr 1fr;height:100%;gap:0;padding:0}
+.split__media{position:relative;overflow:hidden;background:var(--k-04)}
+.split__media img{width:100%;height:100%;object-fit:cover;display:block}
+.split__media figcaption{
+  position:absolute;left:0;bottom:0;right:0;padding:24px 34px 96px;
+  background:linear-gradient(to top,rgba(0,0,0,.82),transparent);
+  font-family:var(--f-display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#fafbfa;
+}
+.split__body{padding:var(--pad-y) var(--pad-x) 118px;display:flex;flex-direction:column;justify-content:center;gap:34px}
+.split--flip .split__media{order:2}
+.split__list{display:grid;gap:0;border-top:1px solid var(--hair)}
+.split__list li{
+  list-style:none;display:grid;grid-template-columns:34px 1fr;gap:16px;
+  padding:19px 0;border-bottom:1px solid var(--hair-soft);font-size:19px;font-weight:300;color:var(--ink-2);
+}
+.split__list li b{font-family:var(--f-display);font-weight:600;color:var(--accent);font-size:14px;letter-spacing:.1em;padding-top:4px}
+
+/* ═══ SLIDE: PLATE (full bleed image) ════════════════════════════════════ */
+.plate{background:var(--k-04)}
+.plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.plate__scrim{position:absolute;inset:0;background:linear-gradient(105deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.42) 46%,rgba(0,0,0,.05) 78%)}
+.plate__text{position:absolute;left:var(--pad-x);bottom:130px;max-width:900px;color:#fafbfa}
+.plate__text .h2{margin-top:24px;color:#fafbfa}
+.plate__text .body{color:rgba(250,251,250,.78);margin-top:24px;max-width:640px}
+
+/* ═══ SLIDE: GALLERY ═════════════════════════════════════════════════════ */
+.gallery{display:grid;grid-template-rows:auto 1fr;gap:46px;height:100%}
+.gallery__grid{display:grid;gap:22px;align-self:center;width:100%}
+.gallery__grid--3{grid-template-columns:repeat(3,1fr)}
+.gallery__grid--4{grid-template-columns:repeat(4,1fr)}
+.gallery__grid--2{grid-template-columns:repeat(2,1fr)}
+.gallery figure{position:relative;overflow:hidden;background:var(--k-01);min-height:0;aspect-ratio:var(--fig,4/5)}
+.gallery figure img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:18px 22px;
+  background:linear-gradient(to top,rgba(0,0,0,.8),transparent);
+  font-family:var(--f-display);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#fafbfa;
+}
+
+/* ═══ SLIDE: SPECS TABLE ═════════════════════════════════════════════════ */
+.specs{display:grid;grid-template-rows:auto 1fr auto;gap:44px;height:100%}
+.specs table{width:100%;border-collapse:collapse;align-self:start}
+.specs th{
+  text-align:left;font-family:var(--f-display);font-size:12px;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);
+  padding:0 24px 18px 0;border-bottom:1px solid var(--hair);
+}
+.specs th:not(:first-child),.specs td:not(:first-child){text-align:right;padding-right:0;padding-left:24px}
+.specs td{
+  padding:22px 24px 22px 0;border-bottom:1px solid var(--hair-soft);
+  font-size:22px;font-weight:300;color:var(--ink-2);
+}
+.specs td:first-child{font-family:var(--f-display);font-weight:500;color:var(--ink);font-size:23px}
+.specs tr:last-child td{border-bottom:1px solid var(--hair)}
+.specs tr.is-total td{color:var(--ink);font-weight:500;background:var(--panel)}
+.specs tr.is-total td:first-child{color:var(--accent)}
+.specs .caption{
+  font-family:var(--f-body);text-transform:none;letter-spacing:.01em;font-size:15px;
+  font-weight:300;line-height:1.6;color:var(--ink-3);max-width:1560px;
+}
+
+/* ═══ SLIDE: TIMELINE ════════════════════════════════════════════════════ */
+.timeline{display:grid;grid-template-rows:auto 1fr;gap:70px;height:100%}
+.timeline__track{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;align-self:center;width:100%;position:relative}
+.phase{padding-right:40px;position:relative}
+.phase::after{content:"";position:absolute;left:0;right:0;top:68px;height:1px;background:var(--hair);z-index:0}
+.phase__n{font-family:var(--f-display);font-size:13px;letter-spacing:.24em;color:var(--ink-3);text-transform:uppercase}
+.phase__dot{width:15px;height:15px;border:2px solid var(--hair);background:var(--paper);margin:44px 0 0;position:relative;z-index:1;transform:rotate(45deg)}
+.phase--done .phase__dot{background:var(--ink-3);border-color:var(--ink-3)}
+.phase--now .phase__dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 8px rgba(189,212,32,.16)}
+.phase__t{margin-top:38px;font-family:var(--f-display);font-size:29px;font-weight:600}
+.phase--now .phase__t{color:var(--accent)}
+.phase__s{margin-top:14px;font-size:17px;font-weight:300;color:var(--ink-2);line-height:1.5;max-width:290px}
+.phase__w{margin-top:20px;font-family:var(--f-display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ═══ SLIDE: PROCESS ═════════════════════════════════════════════════════ */
+.process{display:grid;grid-template-rows:auto 1fr;gap:54px;height:100%}
+.process__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--hair);align-self:center;width:100%}
+.step{padding:40px 40px 0 0}
+.step + .step{border-left:1px solid var(--hair);padding-left:40px}
+.step__n{font-family:var(--f-display);font-size:64px;font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:1.4px var(--accent)}
+.step__t{margin-top:26px;font-family:var(--f-display);font-size:26px;font-weight:600;line-height:1.15}
+.step__b{margin-top:16px;font-size:18px;line-height:1.55;font-weight:300;color:var(--ink-2)}
+
+/* ═══ SLIDE: VIDEO ═══════════════════════════════════════════════════════ */
+.videoslide{background:var(--k-04)}
+.videoslide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.videoslide__scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 42%)}
+.videoslide__text{position:absolute;left:var(--pad-x);bottom:126px;max-width:820px;color:#fafbfa;pointer-events:none}
+.videoslide__text .h2{margin-top:22px;color:#fafbfa}
+.videoslide__text .body{color:rgba(250,251,250,.76);margin-top:20px}
+.videoslide__ctrl{
+  position:absolute;right:var(--pad-x);bottom:126px;display:flex;gap:14px;
+}
+.vbtn{
+  height:56px;padding:0 28px;border:1px solid rgba(250,251,250,.34);background:rgba(0,0,0,.35);
+  color:#fafbfa;font-family:var(--f-display);font-size:13px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:.18s;
+}
+.vbtn:hover{background:var(--accent);color:var(--k-03);border-color:var(--accent)}
+.video-missing{
+  position:absolute;inset:80px;border:1px dashed rgba(250,251,250,.28);
+  display:grid;place-content:center;text-align:center;gap:18px;padding:60px;
+}
+.video-missing code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;color:var(--accent);
+  background:rgba(189,212,32,.09);padding:10px 16px;display:inline-block;
+}
+
+/* ═══ SLIDE: PLAN SHEET (full-bleed drawing) ═════════════════════════════ */
+.plan{background:#fff}
+.plan__sheet{position:absolute;left:0;top:58px;width:100%;height:calc(100% - 138px);object-fit:contain;background:#fff}
+.plan__label{
+  position:absolute;left:44px;top:50%;transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl;display:flex;align-items:center;gap:22px;
+  font-family:var(--f-display);font-size:14px;font-weight:600;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--k-01);white-space:nowrap;
+}
+.plan__label b{color:var(--g-03);font-weight:700}
+.plan__label i{font-style:normal;font-weight:400;color:#8b8d8b;letter-spacing:.22em;font-size:12px}
+.plan__mark{
+  position:absolute;right:24px;top:50%;width:210px;
+  transform:translateY(-50%) rotate(90deg);transform-origin:center;opacity:.3;
+}
+.plan__ghost{
+  position:absolute;left:-60px;bottom:-40px;width:330px;opacity:.045;pointer-events:none;
+}
+
+/* ═══ SLIDE: SECTION DIVIDER (page breaker) ══════════════════════════════ */
+.divider{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+.divider__n{
+  font-family:var(--f-display);font-size:230px;font-weight:700;line-height:.8;
+  color:transparent;-webkit-text-stroke:2px var(--accent);letter-spacing:-.04em;
+}
+.divider__mid{align-self:center}
+.divider__h{font-family:var(--f-display);font-size:104px;font-weight:600;line-height:.98;margin-top:34px;text-transform:uppercase;letter-spacing:-.02em}
+.divider__s{margin-top:30px;font-size:25px;font-weight:300;color:var(--ink-2);max-width:900px;line-height:1.5}
+.divider__meta{display:flex;gap:40px;border-top:1px solid var(--hair);padding-top:26px}
+.divider__meta span{font-family:var(--f-display);font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ═══ SLIDE: VERSUS (two schemes side by side) ═══════════════════════════ */
+.versus{display:grid;grid-template-rows:auto 1fr;gap:44px;height:100%}
+.versus__grid{display:grid;grid-template-columns:1fr 1fr;gap:0;align-self:center;width:100%;border-top:1px solid var(--hair)}
+.vcol{padding:38px 46px 0 0}
+.vcol + .vcol{border-left:1px solid var(--hair);padding-left:46px}
+.vcol__tag{font-family:var(--f-display);font-size:12px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-3)}
+.vcol--new .vcol__tag{color:var(--accent)}
+.vcol__h{font-family:var(--f-display);font-size:40px;font-weight:600;line-height:1.05;margin:16px 0 6px}
+.vcol--old .vcol__h{color:var(--ink-2)}
+.vcol__who{font-size:16px;font-weight:300;color:var(--ink-3);margin-bottom:26px}
+.vrow{display:flex;justify-content:space-between;gap:22px;padding:13px 0;border-top:1px solid var(--hair-soft);font-size:18px;font-weight:300;color:var(--ink-2)}
+.vrow b{font-family:var(--f-display);font-weight:600;color:var(--ink);text-align:right;font-size:19px}
+.vcol--new .vrow b{color:var(--ink)}
+.vcol--new .vrow.is-key b{color:var(--accent)}
+
+/* ═══ SLIDE: STACK (vertical level comparison) ═══════════════════════════ */
+.stackslide{display:grid;grid-template-rows:auto 1fr auto;gap:34px;height:100%}
+.stacks{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-self:center;width:100%}
+.stk__h{font-family:var(--f-display);font-size:26px;font-weight:600}
+.stk__cap{font-size:15px;font-weight:300;color:var(--ink-3);margin:6px 0 18px}
+.lvl{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+.lvl__n{width:54px;flex:none;text-align:right;font-family:var(--f-display);font-size:13px;font-weight:500;letter-spacing:.14em;color:var(--ink-3)}
+.lvl__b{
+  height:30px;display:flex;align-items:center;padding:0 13px;font-family:var(--f-display);
+  font-size:13.5px;font-weight:600;letter-spacing:.04em;white-space:nowrap;overflow:hidden;color:#fafbfa;
+}
+.b-res-old{background:#8b8d8b}
+.b-res-new{background:var(--g-02)}
+.b-park{background:#4a4c4a}
+.b-comm{background:#b8bab8;color:var(--k-02)}
+.b-plant{background:#e2e4e2;color:#5d5f5d}
+.stk__legend{display:flex;flex-wrap:wrap;gap:26px;font-family:var(--f-display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.stk__legend i{display:inline-block;width:12px;height:12px;margin-right:9px;vertical-align:-1px}
+
+/* ═══ SLIDE: SECTORS ═════════════════════════════════════════════════════ */
+.sectors{display:grid;grid-template-rows:auto 1fr;gap:56px;height:100%}
+.sectors__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.sector{
+  background:var(--paper);padding:38px 36px;display:flex;flex-direction:column;gap:18px;
+  border-left:3px solid transparent;transition:.2s;opacity:.52;
+}
+.sector__ic{width:76px;height:76px;opacity:.92}
+.sector__t{font-family:var(--f-display);font-size:27px;font-weight:600}
+.sector__b{font-size:17px;line-height:1.5;font-weight:300;color:var(--ink-2)}
+.sector.is-on{border-left-color:var(--accent);opacity:1}
+.sector.is-on .sector__t{color:var(--accent)}
+.sector__st{
+  margin-top:auto;font-family:var(--f-display);font-size:11px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+  display:inline-flex;align-items:center;gap:9px;
+}
+.sector__st::before{content:"";width:7px;height:7px;background:var(--ink-3);transform:rotate(45deg)}
+.sector__st--on{color:var(--accent)}
+.sector__st--on::before{background:var(--accent)}
+
+/* ═══ SLIDE: QUOTE ═══════════════════════════════════════════════════════ */
+.quote{display:grid;place-content:center;height:100%;max-width:1500px;margin:0 auto;text-align:left}
+.quote__q{font-family:var(--f-display);font-size:70px;font-weight:400;line-height:1.18;letter-spacing:-.015em}
+.quote__q::before{content:"“";color:var(--accent)}
+.quote__q::after{content:"”";color:var(--accent)}
+.quote__a{margin-top:52px;display:flex;align-items:center;gap:22px}
+.quote__a span{font-family:var(--f-display);font-size:17px;letter-spacing:.2em;text-transform:uppercase}
+.quote__a small{font-size:16px;color:var(--ink-3);font-weight:300;letter-spacing:0;text-transform:none}
+
+/* ═══ SLIDE: CLOSE ═══════════════════════════════════════════════════════ */
+.close{display:grid;grid-template-rows:1fr auto;height:100%}
+.close__mid{align-self:center}
+.close__wm{width:660px;filter:invert(1);opacity:.96}
+#stage[data-slide-theme="light"] .close__wm{filter:none}
+.close__grid{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;border-top:1px solid var(--hair);padding-top:34px}
+.contact + .contact{border-left:1px solid var(--hair);padding-left:40px}
+.contact{padding-right:40px}
+.contact__n{font-family:var(--f-display);font-size:29px;font-weight:600}
+.contact__r{margin-top:8px;font-family:var(--f-display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.contact__d{margin-top:20px;font-size:18px;font-weight:300;color:var(--ink-2);line-height:1.7}
+
+/* ═══ CHROME (persistent frame) ══════════════════════════════════════════ */
+.chrome{position:absolute;inset:0;z-index:20;pointer-events:none}
+.chrome__veil{position:absolute;left:0;right:0;height:160px;pointer-events:none}
+.chrome__veil--top{top:0;background:linear-gradient(to bottom,var(--veil),transparent)}
+.chrome__veil--bot{bottom:0;background:linear-gradient(to top,var(--veil),transparent)}
+.chrome__top{
+  position:absolute;top:40px;left:var(--pad-x);right:var(--pad-x);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.lockup{display:flex;align-items:center;gap:20px}
+.lockup img{height:19px;filter:invert(1)}
+#stage[data-slide-theme="light"] .lockup img{filter:none}
+.lockup__div{width:1px;height:22px;background:var(--hair)}
+.lockup__w{font-family:var(--f-display);font-size:14px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--ink-2)}
+.chrome__right{display:flex;align-items:center;gap:18px;pointer-events:auto}
+.pill{
+  height:38px;display:flex;align-items:center;gap:12px;padding:0 18px;
+  border:1px solid var(--hair);font-family:var(--f-display);font-size:12px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);background:transparent;
+}
+.pill img{width:20px;height:20px}
+select.pill{
+  appearance:none;cursor:pointer;color:var(--ink);padding-right:38px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--accent) 50%),linear-gradient(135deg,var(--accent) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 16px,calc(100% - 14px) 16px;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;
+}
+select.pill option{background:var(--k-02);color:var(--w-00)}
+
+.chrome__bot{
+  position:absolute;bottom:44px;left:var(--pad-x);right:var(--pad-x);
+  display:flex;justify-content:space-between;align-items:center;gap:40px;
+}
+.runhead{font-family:var(--f-display);font-size:12px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
+.progress{flex:1;height:1px;background:var(--hair);position:relative;max-width:none}
+.progress__f{position:absolute;left:0;top:-1px;height:3px;background:var(--accent);width:0;transition:width .42s cubic-bezier(.4,0,.2,1)}
+.folio{font-family:var(--f-display);font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--ink-2);white-space:nowrap}
+.folio b{color:var(--accent);font-weight:600}
+
+.navbtns{display:flex;gap:7px;pointer-events:auto;margin-left:6px}
+.navbtn{
+  width:42px;height:32px;border:1px solid var(--hair);background:transparent;color:var(--ink-2);
+  cursor:pointer;display:grid;place-items:center;transition:.18s;font-size:13px;line-height:1;
+}
+.navbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── overlays ─────────────────────────────────────────────────────────── */
+.overlay{
+  position:absolute;inset:0;z-index:40;background:rgba(8,8,8,.965);
+  padding:80px 100px;display:none;overflow:auto;
+}
+.overlay.is-open{display:block}
+.overlay__head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid rgba(250,251,250,.14);padding-bottom:26px;margin-bottom:40px}
+.overlay__head h3{font-size:34px;color:#fafbfa}
+.overlay__hint{font-family:var(--f-display);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:rgba(250,251,250,.4)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:16px}
+.thumb{
+  border:1px solid rgba(250,251,250,.14);padding:20px;cursor:pointer;min-height:132px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:14px;transition:.18s;background:rgba(250,251,250,.02);
+}
+.thumb:hover{border-color:var(--accent);background:rgba(189,212,32,.07)}
+.thumb.is-current{border-color:var(--accent);background:rgba(189,212,32,.12)}
+.thumb__n{font-family:var(--f-display);font-size:12px;letter-spacing:.2em;color:var(--accent)}
+.thumb__t{font-family:var(--f-display);font-size:19px;font-weight:500;color:#fafbfa;line-height:1.2}
+.thumb__s{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(250,251,250,.38)}
+
+.keys{display:grid;grid-template-columns:repeat(2,1fr);gap:0 80px;max-width:1100px}
+.keys div{display:flex;justify-content:space-between;gap:30px;padding:16px 0;border-bottom:1px solid rgba(250,251,250,.09);color:rgba(250,251,250,.72);font-size:18px;font-weight:300}
+.keys kbd{
+  font-family:var(--f-display);font-size:13px;letter-spacing:.12em;color:#fafbfa;
+  border:1px solid rgba(250,251,250,.24);padding:5px 12px;white-space:nowrap;
+}
+
+/* presenter notes drawer */
+.notes{
+  position:absolute;left:0;right:0;bottom:0;z-index:30;background:rgba(8,8,8,.94);
+  border-top:2px solid var(--accent);padding:32px var(--pad-x);
+  transform:translateY(24px);opacity:0;visibility:hidden;pointer-events:none;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s ease,visibility .3s;
+  max-height:340px;overflow:auto;
+}
+.notes.is-open{transform:none;opacity:1;visibility:visible;pointer-events:auto}
+.notes h4{font-family:var(--f-display);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.notes p{font-size:21px;line-height:1.6;font-weight:300;color:rgba(250,251,250,.86);max-width:1400px}
+
+/* blackout */
+.blackout{position:absolute;inset:0;z-index:60;background:#000;display:none}
+.blackout.is-on{display:block}
+
+/* boot / helper toast */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:80;
+  font-family:var(--f-display);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(250,251,250,.55);background:rgba(0,0,0,.6);border:1px solid rgba(250,251,250,.14);
+  padding:11px 20px;transition:opacity .5s;
+}
+.toast.is-gone{opacity:0}
+
+/* ═══ PRINT / PDF EXPORT (landscape A3 → one slide per page) ════════════ */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  body,html{overflow:visible;background:#fff}
+  .viewport{position:static;display:block;overflow:visible}
+  #stage{position:static;left:auto;top:auto;transform:none!important;width:1920px;height:auto;overflow:visible}
+  .slide{
+    position:relative;opacity:1!important;visibility:visible!important;
+    height:1080px;page-break-after:always;break-after:page;
+    background:var(--paper);
+  }
+  .slide::after{content:"";position:absolute;inset:0;z-index:-1}
+  .chrome,.overlay,.notes,.navbtns,.toast{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="viewport">
+  <div id="stage">
+
+    <!-- slides are rendered here -->
+    <div id="deck"></div>
+
+    <!-- persistent frame -->
+    <div class="chrome">
+      <div class="chrome__veil chrome__veil--top"></div>
+      <div class="chrome__veil chrome__veil--bot"></div>
+      <div class="chrome__top">
+        <div class="lockup">
+          <img src="assets/brand/haavn-wordmark-black.png" alt="HAAVN">
+          <span class="lockup__div"></span>
+          <span class="lockup__w">Supply</span>
+        </div>
+        <div class="chrome__right">
+          <span class="pill" id="sectorPill"><img id="sectorIcon" class="icon--invert" src="" alt=""><span id="sectorLabel"></span></span>
+          <select class="pill" id="projectSelect" title="Switch client project"></select>
+        </div>
+      </div>
+
+      <div class="chrome__bot">
+        <span class="runhead" id="runhead"></span>
+        <span class="progress"><span class="progress__f" id="progressFill"></span></span>
+        <span class="folio"><b id="folioN">01</b> / <span id="folioT">01</span></span>
+        <span class="navbtns">
+          <button class="navbtn" id="btnPrev" title="Previous (←)">←</button>
+          <button class="navbtn" id="btnGrid" title="All slides (G)">▦</button>
+          <button class="navbtn" id="btnNext" title="Next (→)">→</button>
+        </span>
+      </div>
+    </div>
+
+    <!-- overlays -->
+    <div class="overlay" id="gridOverlay">
+      <div class="overlay__head">
+        <h3>All slides</h3>
+        <span class="overlay__hint">G or Esc to close · click to jump</span>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+
+    <div class="overlay" id="helpOverlay">
+      <div class="overlay__head">
+        <h3>Presenter controls</h3>
+        <span class="overlay__hint">? or Esc to close</span>
+      </div>
+      <div class="keys">
+        <div><span>Next slide</span><kbd>→ / Space / PgDn</kbd></div>
+        <div><span>Previous slide</span><kbd>← / PgUp</kbd></div>
+        <div><span>First / last slide</span><kbd>Home / End</kbd></div>
+        <div><span>All slides overview</span><kbd>G</kbd></div>
+        <div><span>Presenter notes</span><kbd>N</kbd></div>
+        <div><span>Blackout screen</span><kbd>B</kbd></div>
+        <div><span>Fullscreen</span><kbd>F</kbd></div>
+        <div><span>Play / pause video</span><kbd>V</kbd></div>
+        <div><span>Export deck to PDF</span><kbd>⌘ P</kbd></div>
+        <div><span>This help</span><kbd>?</kbd></div>
+      </div>
+    </div>
+
+    <div class="notes" id="notesDrawer">
+      <h4>Presenter notes</h4>
+      <p id="notesBody"></p>
+    </div>
+
+    <div class="blackout" id="blackout"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">← → to move · G all slides · N notes · ? help</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   ██  HAAVN SUPPLY — PRESENTATION FRAMEWORK
+   ██  Everything the presentation team edits lives in CONFIG below.
+   ██
+   ██  TO SWAP A CLIENT PROJECT IN OR OUT:
+   ██    1. Copy one of the PROJECTS entries, rename slug + name.
+   ██    2. Drop imagery into  assets/img/  and point the slides at it.
+   ██    3. Delete or comment out a project to take it off the switcher.
+   ██  The HAAVN story slides (@ prefixed) are shared by every project —
+   ██  edit them once in COMMON and every deck updates.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const SECTORS = {
+  'build-to-rent':         { label:'Mixed Residential Use', icon:'assets/icons/build-to-rent.png' },
+  'affordable-housing':    { label:'Affordable Housing',    icon:'assets/icons/affordable-housing.png' },
+  'aged-care':             { label:'Aged Care',             icon:'assets/icons/aged-care.png' },
+  'student-accommodation': { label:'Student Accommodation', icon:'assets/icons/student-accommodation.png' },
+  'hotels':                { label:'Hotels',                icon:'assets/icons/hotels.png' },
+  'data-centre':           { label:'Data Centre',           icon:'assets/icons/data-centre.png' },
+  'social-housing':        { label:'Social Housing',        icon:'assets/icons/affordable-housing.png' }
+};
+
+/* ── SHARED HAAVN SUPPLY STORY ───────────────────────────────────────────
+   Referenced from a project deck as '@key'. Tokens like {{project}} are
+   filled in from the project record automatically.                        */
+const COMMON = {
+
+  'supply-statement': {
+    type:'statement', section:'The Offer', title:'How we read the project', theme:'dark',
+    kicker:'Our position',
+    headline:'Make it stack up first. <em>Then manufacture it.</em>',
+    body:[
+      'We have taken the approved scheme and recut it for efficiency — a tighter podium, a repeating plate, a higher share of floor that earns. Everything in this document assumes traditional construction at standard rates, so the comparison is apples to apples.',
+      'Once the scheme stacks up on those terms, delivering it as hybrid modular through CCIST is the next stage of design and the next layer of upside. It is not what carries the case in front of {{client}} today.'
+    ],
+    notes:'Frame the whole conversation here. We are not asking anyone to believe a modular saving. The recut has to stand on design efficiency alone; modular is the stage after.'
+  },
+
+  'sectors': {
+    type:'sectors', section:'Capability', title:'Six product lines', theme:'light',
+    kicker:'Product lines',
+    headline:'One manufacturing platform.<br>Six asset classes.',
+    items:[
+      { key:'build-to-rent',         body:'Repeatable apartment typologies across sale, rental and mixed tenure — one plate, one module set.' },
+      { key:'affordable-housing',    body:'Community-housing compliant plans at a fixed supply rate and program.' },
+      { key:'aged-care',             body:'Care-ready rooms with services pre-installed and commissioned in factory.' },
+      { key:'student-accommodation', body:'High-density studio and cluster modules on tight inner-city footprints.' },
+      { key:'hotels',                body:'Key-ready rooms including bathroom pods, FF&E and finishes.' },
+      { key:'data-centre',           body:'Prefabricated shells and plant enclosures for staged capacity roll-out.' }
+    ],
+    notes:'Point at the client\'s own sector first — the highlighted tile — then show the platform breadth behind it.'
+  },
+
+  'ccist-video': {
+    type:'video', section:'Manufacturing', title:'Inside the CCIST line', theme:'dark',
+    kicker:'CCIST · HAAVN Supply manufacturing',
+    headline:'Our factory.',
+    body:'CCIST is HAAVN’s precision manufacturing line. This film follows a modular housing program through it end to end — the same line that would build a hybrid modular refinement of this scheme at the next stage of design.',
+    src:'assets/video/ccist-manufacturing.mp4',
+    autoplay:false, loop:true, muted:true,
+    notes:'Run the film for 60–90 seconds and talk over it. Key beats: tolerance control, QA at every station, modules leave the line watertight and finished. Keep it framed as capability — we are not asking anyone to price a modular saving today.'
+  },
+
+  'process': {
+    type:'process', section:'Manufacturing', title:'How a module is made', theme:'light',
+    kicker:'Manufacturing sequence',
+    headline:'Four controlled stages, one continuous line.',
+    steps:[
+      { t:'Engineer',   b:'Design is locked to the module library and released to the line as a manufacturing file — no site RFIs.' },
+      { t:'Form & Weld',b:'Cold-formed steel frames are jigged, robot-welded and dimensionally verified to ±2 mm.' },
+      { t:'Fit Out',    b:'Services, linings, bathrooms, joinery and finishes are installed and commissioned indoors.' },
+      { t:'Ship & Set', b:'Modules are wrapped, tracked and craned into position — a floor a day on a typical set.' }
+    ],
+    notes:'This is the slide the technical audience asks about. Tolerance, QA hold points and the fact that fitout happens before the module leaves the building.'
+  },
+
+  'why': {
+    type:'split', section:'The Offer', title:'Where the further upside sits', theme:'dark',
+    kicker:'The stage after this one',
+    headline:'Where the further<br>upside sits.',
+    body:['Refining an already efficient scheme for hybrid modular delivery is a design stage, not a substitution at tender. These are the gains it targets — to be quantified then, not claimed here.'],
+    list:[
+      ['01','Program compression — factory and site running in parallel.'],
+      ['02','A fixed supply rate for the repeating apartment module.'],
+      ['03','Single point of warranty across structure, services and finish.'],
+      ['04','Trade risk, weather risk and defect rectification moved off site.']
+    ],
+    image:'assets/img/render-02.jpg',
+    caption:'575 Derrimut Road · Façade detail',
+    flip:false,
+    notes:'Be disciplined here — no numbers. If asked what modular saves, the answer is that it is the next design stage and we will price it then. Claiming it now undermines the apples-to-apples case we just made.'
+  },
+
+  'quote': {
+    type:'quote', section:'The Offer', title:'Position', theme:'light',
+    quote:'Every hour a module spends in the factory is an hour it is not exposed to weather, trades or a program you can\'t control.',
+    attrib:'HAAVN Supply',
+    role:'Manufacturing & delivery'
+  }
+};
+
+/* ── ARCHITECTURAL DRAWING SET ───────────────────────────────────────────
+   Sheets are rendered images in assets/plans/. To swap a set in, export the
+   PDF to JPGs (see tools/render-pdf-sheets.js) and rewrite the lists below:
+   ['file (no extension)', 'drawing no.', 'sheet title'].
+   Current set: Preliminary Yield Plans, 575 Derrimut Road, Tarneit — LIFE
+   Architecture + Urban Design, project 25048, 04.09.2026. Every sheet is
+   stamped DRAFT · YIELD ANALYSIS · NOT FOR CONSTRUCTION.                    */
+const ARCHITECT = 'LIFE Architecture + Urban Design';
+
+const SHEETS_DERRIMUT = {
+  context:[
+    ['sheet-02','TP00.01','Typical Floor Plan · Level 4 — Full Site']
+  ],
+  plans:[
+    ['sheet-06','TP00.05','Ground Floor Plan'],
+    ['sheet-07','TP00.06','Level 01 Plan'],
+    ['sheet-08','TP00.07','Level 02 Plan'],
+    ['sheet-09','TP00.08','Level 03 Plan'],
+    ['sheet-10','TP00.09','Level 04–14 Plan']
+  ],
+  module:[
+    ['sheet-03','TP00.02','Typical Building Module'],
+    ['sheet-04','TP00.03','Typical Apartment Module — 1 & 2 Bedroom'],
+    ['sheet-05','TP00.04','Typical Apartment Module — Studio']
+  ],
+  summary:[
+    ['sheet-01','TP00.00','Development Summary']
+  ]
+};
+
+/* turns a sheet list into full-bleed drawing slides */
+function planSlides(list, section){
+  return list.map(([file,no,label]) => ({
+    type:'plan', section:section||'Architecture', title:no + ' · ' + label,
+    no, label, credit:ARCHITECT, src:'assets/plans/' + file + '.jpg', theme:'light'
+  }));
+}
+
+/* ── CLIENT PROJECTS ─────────────────────────────────────────────────────
+   sample:true prints a SAMPLE CONTENT tag on the cover — remove it once the
+   numbers in the deck are real and signed off.                            */
+const PROJECTS = [
+{
+  slug:'derrimut',
+  name:'575 Derrimut Road',
+  client:'7EVEN Development',
+  builder:'Hamilton Marino',
+  supply:'HAAVN',
+  sector:'build-to-rent',                       /* primary sector — drives the cover icon */
+  sectors:['hotels','build-to-rent','affordable-housing','social-housing','aged-care','data-centre'],
+  location:'575 Derrimut Road, Tarneit VIC',
+  date:'September 2026',
+  reference:'HS-26-021',
+  status:'Draft · Yield analysis',              /* stamp on the cover — clear it when the scheme is signed off */
+  deck:[
+    { type:'cover',
+      kicker:'Client presentation',
+      title:'575 Derrimut<br>Road',
+      subtitle:'A mixed-use accommodation precinct for 7EVEN Development — built by Hamilton Marino, supplied by HAAVN.',
+      image:'assets/img/render-01.jpg' },
+
+    { type:'contents', title:'Contents' },
+
+    { type:'sectors', section:'The Project', title:'Program mix', theme:'light',
+      kicker:'Program mix · Tarneit',
+      headline:'One site. Six accommodation products.<br>One supply line.',
+      highlight:'all',
+      items:[
+        { key:'hotels',             body:'Key-ready hotel rooms with bathroom pods, FF&E and finishes installed on the line.', status:'In program' },
+        { key:'build-to-rent',      body:'The repeating apartment plate — the volume that makes the whole precinct pay, whatever the tenure.', status:'In program' },
+        { key:'affordable-housing', body:'Affordable dwellings delivered to the same module standard, same rate, same program.',status:'In program' },
+        { key:'social-housing',     body:'Social housing tenancies integrated into the mix with no visible product difference.',status:'In program' },
+        { key:'aged-care',          body:'Care-ready rooms with services pre-installed and commissioned in factory.',           status:'In program' },
+        { key:'data-centre',        body:'Small-format data centre — prefabricated shell and plant enclosure, staged capacity.',status:'potential' }
+      ],
+      notes:'This is the slide that explains why HAAVN suits this site: six different products, one module platform, one supply agreement. Flag the data centre as an option under investigation — not committed.' },
+
+    '@supply-statement',
+
+    { type:'metrics', section:'The Project', title:'Yield at a glance', theme:'light',
+      kicker:'Preliminary yield · One of four buildings across the site',
+      headline:'Podium 3, as drawn.<br>One of four buildings on the site.',
+      stats:[
+        { v:'336', u:'',    l:'Apartments',   n:'Studio to two bedroom, 35–74 m², averaging 58.7 m² — 28 per floor across levels 03 to 14.' },
+        { v:'38,369', u:'m²', l:'GFA',        n:'Excluding private open space. NSA 19,722 m² apartments, NLA 1,550 m² office — 21,272 m² combined.' },
+        { v:'55.4', u:'%',  l:'NSA + NLA : GFA', n:'The share of the building that earns. The efficiency measure this recut is built around.' },
+        { v:'371', u:'bays', l:'Car parking', n:'Over 10,425 m² — 28.1 m² per bay, against a 366-space minimum.' }
+      ],
+      notes:'Say up front that these numbers cover Podium 3 only — one of four buildings across the 575 Derrimut Road holding. Architect\'s figures from the 04.09.2026 yield analysis, draft, not for construction. Everything here assumes traditional construction; modular refinement is a later stage.' },
+
+    { type:'specs', section:'The Project', title:'Unit mix', theme:'light',
+      kicker:'Apartment mix',
+      headline:'One typical floor, repeated twelve times.',
+      columns:['Type','Size','Per level','Levels 03–14','Mix'],
+      rows:[
+        ['Studio',         '35 m²',    '4',  '48',  '14%'],
+        ['1 bed · 1 bath', '45–49 m²', '7',  '84',  '25%'],
+        ['2 bed · 1 bath', '60 m²',    '2',  '24',  '7%'],
+        ['2 bed · 2 bath', '67–74 m²','15', '180',  '54%']
+      ],
+      total:['Total · average 58.7 m²','35–74 m²','28','336','100%'],
+      note:'NSA 19,722 m² across 336 apartments — average 58.7 m², range 35 to 74 m². Unit mix as drawn, LIFE Architecture + Urban Design, project 25048, 04.09.2026. Draft yield analysis, not for construction.',
+      notes:'Land on the repetition: four apartment types, one floor plate, twelve identical levels. That is a manufacturing brief, not a construction brief.' },
+
+    { type:'plate', section:'The Building', title:'The Building', theme:'dark',
+      optional:true,
+      image:'assets/img/render-01.jpg',
+      overline:'575 Derrimut Road · Podium 3',
+      headline:'Efficiency you cannot see<br>from the street.',
+      body:'Curved balcony edges, planted terraces and a landscaped address. The plate behind them repeats twelve times unchanged — the discipline sits in the plan, not on the façade.',
+      notes:'The point of showing these: nothing about the efficiency recut costs the building its architecture. Repetition is invisible from the street and worth eleven points of NSA to GFA.' },
+
+    { type:'gallery', section:'The Building', title:'External renders', theme:'dark',
+      optional:true, aspect:'16/10',
+      kicker:'External renders',
+      headline:'575 Derrimut Road, as it will be seen.',
+      images:[
+        { src:'assets/img/render-02.jpg', caption:'Façade detail · Balcony line' },
+        { src:'assets/img/render-03.jpg', caption:'Lower building · Undercroft entry' },
+        { src:'assets/img/render-04.jpg', caption:'Street level · Residents’ edge' }
+      ],
+      notes:'Three exteriors from LIFE Architecture. The interiors follow two slides later.' },
+
+    { type:'plate', section:'The Building', title:'Typical apartment', theme:'dark',
+      optional:true,
+      image:'assets/img/interior-living.jpg',
+      overline:'Typical apartment · Levels 04–14',
+      headline:'The same apartment,<br>twelve times over.',
+      body:'Four types repeat unchanged through every residential level. The repetition that lifts net saleable area against gross is the same discipline that holds one fitout standard from level 3 to level 14.',
+      notes:'Tie the interiors back to the efficiency argument rather than treating them as pretty pictures. Repetition is a quality control as much as a yield outcome.' },
+
+    { type:'gallery', section:'The Building', title:'Interiors', theme:'dark',
+      optional:true, aspect:'3/2',
+      kicker:'Interiors',
+      headline:'One fitout standard, every apartment.',
+      images:[
+        { src:'assets/img/interior-kitchen.jpg',  caption:'Kitchen · Typical two bedroom' },
+        { src:'assets/img/interior-bathroom.jpg', caption:'Bathroom · Typical' }
+      ],
+      notes:'Worth naming the finishes if anyone asks — timber-look joinery, stone benchtop and splashback, travertine-look tiling, wall-hung vanity. The point for us is that they are identical in every apartment.' },
+
+    { type:'split', section:'The Project', title:'Who does what', theme:'dark',
+      kicker:'Delivery structure',
+      headline:'Three parties,<br>one program.',
+      body:['The supply agreement sits alongside the build contract. HAAVN carries the module; Hamilton Marino carries the site.'],
+      list:[
+        ['01','7EVEN Development — client, land, funding and program authority.'],
+        ['02','Hamilton Marino — builder: civil, footings, services, set and site works.'],
+        ['03','HAAVN — modular supply: structure, façade, services and internal fitout.'],
+        ['04','CCIST — HAAVN’s precision manufacturing line.']
+      ],
+      image:'assets/img/render-03.jpg',
+      caption:'575 Derrimut Road · Lower building',
+      flip:true,
+      notes:'Be explicit that HAAVN is not competing with Hamilton Marino. We de-risk their program and hand them a set sequence.' },
+
+    '@why',
+    '@ccist-video',
+    '@process',
+
+    { type:'divider', section:'Architecture', title:'The Architecture', theme:'dark',
+      kicker:'The architecture', n:'01',
+      headline:'The<br>Architecture',
+      body:'Preliminary yield analysis for 575 Derrimut Road — eight buildings over four podiums, by LIFE Architecture + Urban Design.',
+      meta:['LIFE Architecture','Project 25048','Draft · Yield analysis','04.09.2026'],
+      notes:'Hand over to the architecture. This is the current scheme — a yield analysis, not a construction set. Buildings 5 and 6 over Podium 3 are the subject site.' },
+
+    ...planSlides(SHEETS_DERRIMUT.context),
+
+    { type:'divider', section:'Architecture', title:'Floor Plans', theme:'dark',
+      kicker:'Drawing set', n:'02',
+      headline:'Floor<br>Plans',
+      body:'Ground and podium parking through to the residential typical — TP00.05 to TP00.09.',
+      meta:['Podium 3','Buildings 5 & 6','Ground + 14 levels'] },
+
+    ...planSlides(SHEETS_DERRIMUT.plans),
+
+    { type:'divider', section:'Architecture', title:'Floorplate & Repeatability', theme:'dark',
+      kicker:'Drawing set', n:'03',
+      headline:'Floorplate<br>& Repeatability',
+      body:'One efficient plate and four apartment types, repeating unchanged through twelve residential levels. That repetition is what lifts NSA against GFA — and it is the same discipline a modular refinement would build on at the next stage.',
+      meta:['1,951 m² typical plate','84.2% net to gross','28 apartments per level'],
+      notes:'The most important slide in the architecture section. Efficiency first: a repeating plate holds circulation and core flat while NSA rises. Modular is the next-stage refinement of the same discipline, not the argument here.' },
+
+    ...planSlides(SHEETS_DERRIMUT.module),
+
+    { type:'divider', section:'Architecture', title:'Yield Summary', theme:'dark',
+      kicker:'Drawing set', n:'04',
+      headline:'Yield<br>Summary',
+      body:'Gross floor area, net saleable and lettable area, unit mix and parking allocation as drawn.',
+      meta:['38,369 m² GFA','21,272 m² NSA + NLA · 55.4%','336 apartments','371 car spaces'] },
+
+    ...planSlides(SHEETS_DERRIMUT.summary),
+
+    { type:'divider', section:'The Case', title:'Two Schemes', theme:'dark',
+      kicker:'The case', n:'05',
+      headline:'Two<br>Schemes',
+      body:'The approved 2018 scheme — itself designed for modular delivery through CIMC — against our 2026 recut. This is not traditional against modular. It is an approved scheme carrying weak underlying metrics, against one recut for efficiency, on the same construction assumptions.',
+      meta:['2018 approved · CIMC modular','2026 recut · LIFE + HAAVN','Traditional rates both sides','Modular uplift comes later'],
+      notes:'Say this plainly: the 2018 scheme was already a modular scheme. We are not claiming a method saving over it. We are showing that the underlying design metrics — GFA to NSA in particular — were poor, and that the recut fixes them before delivery method is even discussed.' },
+
+    { type:'statement', section:'The Case', title:'Apples to apples', theme:'dark',
+      kicker:'Apples to apples',
+      headline:'Same rates. Same method. <em>A better building.</em>',
+      body:[
+        'Both schemes are read here on standard traditional build rates. No modular saving is claimed and none is needed — the recut has to stack up on its own before delivery method enters the conversation at all.',
+        'What changes is the design: a tighter podium, a repeating plate, and a materially higher share of floor that earns. Refining that scheme for hybrid modular delivery is the next stage, and the next layer of upside.'
+      ],
+      notes:'If anyone reaches for a modular number here, hold the line. The whole credibility of the recut rests on it standing up without one.' },
+
+    { type:'versus', section:'The Case', title:'The two schemes', theme:'light',
+      kicker:'Scheme comparison',
+      headline:'Same site. Same fifteen levels.<br>A different set of metrics.',
+      columns:[
+        { tag:'2018 · Approved scheme', title:'As approved', who:'flōdesign · MBD18-002 · designed for CIMC modular',
+          rows:[
+            ['Levels','15 (Ground + L01–14)'],
+            ['GFA','24,793 m²'],
+            ['NSA + NLA','10,840 m²'],
+            ['NSA + NLA : GFA','43.7%', true],
+            ['Primary product','175 hotel keys + 20 apartments'],
+            ['Average key / dwelling','26 m²'],
+            ['Car parking','242 bays · 7,303 m² · 30.2 m² per bay'],
+            ['Levels that earn','7 of 15']
+          ] },
+        { tag:'2026 · Recut', title:'As recut', who:'LIFE Architecture · 25048 · efficiency recut with HAAVN',
+          rows:[
+            ['Levels','15 (Ground + L01–14)'],
+            ['GFA','38,368.7 m²'],
+            ['NSA + NLA','21,272.0 m² · 19,722 NSA + 1,550 NLA'],
+            ['NSA + NLA : GFA','55.4%', true],
+            ['Primary product','336 apartments, 35–74 m²'],
+            ['Average apartment','58.7 m²'],
+            ['Car parking','371 bays · 10,425 m² · 28.1 m² per bay'],
+            ['Levels that earn','12 of 15']
+          ] }
+      ],
+      notes:'Land two rows only: NSA + NLA to GFA at 43.7% against 55.4%, and seven earning levels against twelve. Everything else is support. Both columns cover Podium 3 — one of four buildings across the site.' },
+
+    { type:'stack', section:'The Case', title:'What each level does', theme:'light',
+      kicker:'Vertical stacking',
+      headline:'Two podium levels released is the whole design move.',
+      left:{ title:'2018 · As approved', cap:'7 of 15 levels earn · 46% of the building is podium',
+        levels:[
+          ['L14','Plant','plant',42],['L13','8 apartments','res',50],['L12','12 apartments','res',49],
+          ['L11','35 keys','res',48],['L10','35 keys','res',48],['L09','35 keys','res',48],
+          ['L08','35 keys','res',48],['L07','35 keys','res',48],
+          ['L06','Offices','comm',65],['L05','Function centre','comm',86],
+          ['L04','Carpark · 56','park',90],['L03','Carpark · 54','park',91],
+          ['L02','Carpark · 54','park',91],['L01','Carpark · 58','park',91],
+          ['GND','Hotel entry / BOH','park',94]
+        ] },
+      right:{ title:'2026 · As recut', cap:'12 of 15 levels earn · 34% of the building is podium',
+        levels:[
+          ['L14','28 apartments','res',51],['L13','28 apartments','res',51],['L12','28 apartments','res',51],
+          ['L11','28 apartments','res',51],['L10','28 apartments','res',51],['L09','28 apartments','res',51],
+          ['L08','28 apartments','res',51],['L07','28 apartments','res',51],['L06','28 apartments','res',51],
+          ['L05','28 apartments','res',51],['L04','28 apartments','res',51],
+          ['L03','28 apartments + 2,070 m² communal deck','res',100],
+          ['L02','Carpark · 149','park',100],['L01','Carpark · 149','park',100],
+          ['GND','Carpark · 73 + 1,550 m² office','park',100]
+        ] },
+      notes:'Parking 53% more cars in two fewer levels is what frees L03 and L04. Every other gain follows from that one move. Bar widths are proportional to floor area within each scheme — the 2018 plate steps in hard above L06, which is why its tower levels carry only 35 keys.' },
+
+    { type:'metrics', section:'The Case', title:'What it moves', theme:'dark',
+      kicker:'Design efficiency',
+      headline:'Three gains, before delivery<br>method is even discussed.',
+      stats:[
+        { v:'+11.7', u:'pts', l:'NSA + NLA : GFA', n:'43.7% to 55.4%. The share of the building that earns — the metric the approved scheme was weakest on.' },
+        { v:'+5', u:'lvls', l:'Levels that earn', n:'Seven of fifteen becomes twelve of fifteen, off the back of a three-level podium instead of five.' },
+        { v:'+8.4', u:'pts', l:'Typical floor net to gross', n:'75.8% to 84.2%. A repeating plate holds circulation and core flat while net area rises.' }
+      ],
+      notes:'All three are design outcomes on traditional construction. None of them depend on modular. That is the point — the recut earns its place before we start talking about how it gets built.' },
+
+    { type:'specs', section:'The Case', title:'Design efficiency', theme:'light',
+      kicker:'Design efficiency',
+      headline:'The recut, measured against the approval.',
+      columns:['Metric','2018 approved','2026 recut','Movement'],
+      rows:[
+        ['GFA',                       '24,793 m²',      '38,368.7 m²',        '—'],
+        ['NSA + NLA',                 '10,840 m²',      '21,272.0 m²',        '—'],
+        ['Levels that earn',          '7 of 15',        '12 of 15',           '+5'],
+        ['Podium levels',             '5',              '3',                  '−2'],
+        ['Car bays',                  '242',            '371',                '+129'],
+        ['Structure per bay',         '30.2 m²',        '28.1 m²',            '−2.1 m²'],
+        ['Typical floor net to gross','75.8%',          '84.2%',              '+8.4 pts'],
+        ['Average key / apartment',   '26 m²',          '58.7 m²',            '—']
+      ],
+      total:['NSA + NLA : GFA','43.7%','55.4%','+11.7 pts'],
+      note:'Design efficiency only — each scheme assessed on its own drawings, with no construction method assumed on either side. 2018 areas from flōdesign MBD18-002; 2026 areas from LIFE Architecture 25048 draft yield analysis. Podium 3 only — one of four buildings across the site.',
+      notes:'If challenged on the 2018 NSA figure, it is derived from the key schedule and the function and office levels rather than stated on the drawings. Worth saying so before anyone finds it.' },
+
+    { type:'specs', section:'The Case', title:'Build cost — traditional rates', theme:'light',
+      kicker:'Cost check · Traditional construction',
+      headline:'The recut, priced the conventional way.',
+      columns:['Element','Area','Rate','Cost'],
+      rows:[
+        ['Apartments — residential GFA','23,418 m²','$4,500 / m²','$105,382,000'],
+        ['Car parking',                 '10,425 m²','$1,500 / m²','$15,638,000'],
+        ['Balconies & terraces',        '3,267 m²', '$1,450 / m²','$4,737,000'],
+        ['Office — cold shell',         '1,550 m²', '$2,800 / m²','$4,339,000'],
+        ['Communal deck',               '2,070 m²', '$1,450 / m²','$3,001,000'],
+        ['Podium circulation & cores',  '615 m²',   '$2,800 / m²','$1,722,000'],
+        ['Communal — internal',         '291 m²',   '$3,800 / m²','$1,104,000']
+      ],
+      total:['Total','38,369 m² GFA','','$135,923,000'],
+      note:'Standard traditional build rates applied to the recut as drawn — no modular saving assumed. $404,500 per apartment · $3,542 per m² of GFA · $6,390 per m² of NSA + NLA. Excludes land, professional fees, statutory contributions, finance and contingency. Hybrid modular refinement at the next design stage is where further upside is expected.',
+      notes:'Two assumptions to own if asked: the apartment rate is applied to residential GFA including corridors and cores, and the 2,070 m² communal deck is priced at the terrace rate rather than the communal rate. Both are stated on the slide.' },
+
+    { type:'specs', section:'The Case', title:'Cost comparison', theme:'light',
+      kicker:'Cost comparison · One rate, both schemes',
+      headline:'Earning area nearly doubles.<br>Floor area grows by half.',
+      columns:['Metric','2018 approved','2026 recut','Movement'],
+      rows:[
+        ['GFA',                                 '24,793 m²',          '38,368.7 m²',        '+54.8%'],
+        ['NSA + NLA',                           '10,840 m²',          '21,272.0 m²',        '+96.2%'],
+        ['Build cost — $3,500 / m² of GFA',     '$86.78m',            '$134.29m',           '+54.8%'],
+        ['Non-earning floor',                   '13,953 m² · 56.3%',  '17,097 m² · 44.6%',  '−11.7 pts'],
+        ['Build carried by non-earning floor',  '$48.84m',            '$59.84m',            '+22.5%'],
+        ['Premium 2018 pays for its earning area','$86.78m vs $68.43m','—',                 '−$18.34m']
+      ],
+      total:['Build cost per m² of NSA + NLA','$8,005 / m²','$6,313 / m²','−21.1%'],
+      note:'Both schemes priced on one broad rate — $3,500 per m² of GFA, traditional construction, no modular saving assumed on either side. The premium row applies the recut\'s $6,313 per m² of earning area back to the approved scheme: its 10,840 m² is worth $68.43m of build against the $86.78m it actually costs. Excludes land, professional fees, statutory contributions, finance and contingency. Podium 3 only — one of four buildings across the site.',
+      notes:'The line to say: at the same construction rate, the approved scheme spends $86.8m to produce 10,840 m² of earning area; the recut spends $134.3m to produce 21,272 m². Floor area grows by half, earning area nearly doubles — that gap is design, and none of it depends on how the building gets built. Two backup facts: spend on non-earning floor rises only 22.5% while earning area rises 96.2%; and if challenged on the rate, the $6,313 per m² from this broad method matches the $6,390 the detailed element build-up returns on the previous slide — a 1.2% spread from two independent routes.' },
+
+    { type:'timeline', section:'Delivery', title:'Program', theme:'light',
+      kicker:'Indicative program',
+      headline:'Factory and site, running in parallel.',
+      phases:[
+        { t:'Design lock',     s:'Typologies released to the module library and priced.',        w:'TBC', state:'done' },
+        { t:'Manufacture',     s:'Modules through the CCIST line, QA at every station.',         w:'TBC', state:'now'  },
+        { t:'Site & footings', s:'Hamilton Marino: civil, footings and services, concurrent.',   w:'TBC', state:'now'  },
+        { t:'Set & connect',   s:'Craned, connected and made weathertight, floor a day.',        w:'TBC', state:'next' },
+        { t:'Handover',        s:'Commissioning, defect-free handover and warranty start.',      w:'TBC', state:'next' }
+      ],
+      notes:'Replace TBC with the agreed dates once Hamilton Marino confirm the site program.' },
+
+    '@sectors',
+    '@quote',
+
+    { type:'close', section:'Next steps', title:'Next steps', theme:'dark',
+      kicker:'Next steps',
+      headline:'Let’s lock the schedule.',
+      body:'Issue the current yield plans and we will return a fixed supply schedule and staged set program for 7EVEN Development and Hamilton Marino.',
+      contacts:[
+        { n:'James Winstanley', r:'Supply & Delivery', d:'0450 872 221<br>projects@haavn.au' },
+        { n:'Callum Macdonald', r:'Client & Projects', d:'0495 012 452<br>projects@haavn.au' },
+        { n:'HAAVN HQ',         r:'Abbotsford',       d:'03 9962 2888<br>Level 1, Suite 2, 20–30 Mollison Street<br>Abbotsford VIC 3067' }
+      ] }
+  ]
+}
+/* ── SAMPLE PROJECT — parked for the 575 Derrimut Road meeting ───────────
+   To put Merrimu Stage 01 back in the project switcher, delete this comment
+   opener above and the matching closer on the line just before the "];".
+   Remember to add a comma after the closing brace of the project above.
+
+{
+  slug:'merrimu',
+  name:'Merrimu Stage 01',
+  client:'Hamilton',
+  sector:'affordable-housing',
+  location:'Merrimu, VIC',
+  date:'September 2026',
+  reference:'HS-26-014',
+  sample:true,
+  deck:[
+    { type:'cover',
+      kicker:'Client presentation',
+      title:'Merrimu<br>Stage 01',
+      subtitle:'A 48-dwelling affordable housing release, manufactured off site and set in eleven weeks.',
+      image:'assets/img/exterior-01.jpg' },
+
+    { type:'contents', title:'Contents' },
+
+    '@supply-statement',
+
+    { type:'metrics', section:'The Project', title:'Scope at a glance', theme:'light',
+      kicker:'Scope',
+      headline:'What HAAVN Supply delivers on Stage 01.',
+      stats:[
+        { v:'48',  u:'',    l:'Dwellings',        n:'Two- and three-bedroom typologies across four building forms.' },
+        { v:'96',  u:'mod', l:'Modules',          n:'Two modules per dwelling, craned as matched pairs.' },
+        { v:'11',  u:'wks', l:'Set program',      n:'From first crane lift to lock-up across the whole stage.' },
+        { v:'4,410',u:'m²', l:'Supplied GFA',     n:'Structure, façade, services and full internal fitout.' }
+      ],
+      notes:'Sample numbers — confirm the dwelling mix and GFA against the current area schedule before presenting.' },
+
+    { type:'plate', section:'The Project', title:'Product', theme:'dark',
+      image:'assets/img/exterior-03.jpg',
+      overline:'Type AA · Yakisugi façade',
+      headline:'Manufactured to a finish, not to a stage.',
+      body:'Modules arrive weatherproof, lined, serviced and finished. Site works are limited to footings, connections and the set.' },
+
+    '@why',
+    '@ccist-video',
+    '@process',
+
+    { type:'specs', section:'The Project', title:'Module schedule', theme:'light',
+      kicker:'Supply schedule',
+      headline:'Module schedule — Stage 01',
+      columns:['Type','Dwellings','Modules','GFA (m²)','Set weeks'],
+      rows:[
+        ['Type AA · 2 bed',  '20', '40', '1,640', '4'],
+        ['Type AB · 2 bed',  '12', '24', '1,020', '2'],
+        ['Type BA · 3 bed',  '10', '20', '1,050', '3'],
+        ['Type BB · 3 bed',   '6', '12',   '700', '2']
+      ],
+      total:['Stage 01 total','48','96','4,410','11'],
+      note:'Indicative supply schedule. Rates, inclusions and set sequence confirmed at contract.' },
+
+    { type:'gallery', section:'The Project', title:'Interiors', theme:'dark',
+      kicker:'Delivered finish',
+      headline:'Every interior finished on the line.',
+      images:[
+        { src:'assets/img/interior-01.jpg', caption:'Living · Type AA' },
+        { src:'assets/img/interior-02.jpg', caption:'Kitchen · Type AA' },
+        { src:'assets/img/interior-03.jpg', caption:'Bedroom · Type BA' },
+        { src:'assets/img/interior-04.jpg', caption:'Bathroom pod' }
+      ] },
+
+    { type:'timeline', section:'Delivery', title:'Program', theme:'light',
+      kicker:'Delivery program',
+      headline:'Factory and site, running in parallel.',
+      phases:[
+        { t:'Design lock',    s:'Typologies released to the module library and priced.',      w:'Wks 1–4',   state:'done' },
+        { t:'Manufacture',    s:'96 modules through the CCIST line, QA at every station.',    w:'Wks 5–18',  state:'now'  },
+        { t:'Site & footings',s:'Civil, footings and services run concurrently on site.',     w:'Wks 8–18',  state:'now'  },
+        { t:'Set & connect',  s:'Craned, connected and made weathertight, floor a day.',      w:'Wks 19–29', state:'next' },
+        { t:'Handover',       s:'Commissioning, defect-free handover and warranty start.',    w:'Wks 30–32', state:'next' }
+      ] },
+
+    '@sectors',
+    '@quote',
+
+    { type:'close', section:'Next steps', title:'Next steps', theme:'dark',
+      kicker:'Next steps',
+      headline:'Let\'s lock the schedule.',
+      body:'We can issue a fixed supply schedule and indicative set program within ten business days of receiving the current architectural set.',
+      contacts:[
+        { n:'James Winstanley', r:'Supply & Delivery', d:'0450 872 221<br>projects@haavn.au' },
+        { n:'Callum Macdonald', r:'Client & Projects', d:'0495 012 452<br>projects@haavn.au' },
+        { n:'HAAVN HQ',         r:'Abbotsford',       d:'03 9962 2888<br>Level 1, Suite 2, 20–30 Mollison Street<br>Abbotsford VIC 3067' }
+      ] }
+  ]
+}
+*/
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENGINE — no editing required below this line
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const $  = s => document.querySelector(s);
+const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstElementChild; };
+const esc = s => String(s==null?'':s);
+const pad2 = n => String(n).padStart(2,'0');
+
+let PROJECT = null, SLIDES = [], idx = 0, notesOpen = false;
+
+/* token fill: {{client}} {{project}} {{location}} {{sector}} */
+function fill(node, p){
+  const map = { project:p.name, client:p.client, location:p.location,
+                sector:(SECTORS[p.sector]||{}).label||'', date:p.date, reference:p.reference||'' };
+  const walk = v => {
+    if (typeof v === 'string') return v.replace(/\{\{(\w+)\}\}/g, (m,k)=> map[k] !== undefined ? map[k] : m);
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object'){ const o={}; for (const k in v) o[k]=walk(v[k]); return o; }
+    return v;
+  };
+  return walk(node);
+}
+
+function buildSlides(p){
+  return p.deck
+    .map(s => typeof s === 'string' ? COMMON[s.replace(/^@/,'')] : s)
+    .filter(Boolean)
+    .map(s => fill(JSON.parse(JSON.stringify(s)), p));
+}
+
+/* ── renderers ───────────────────────────────────────────────────────── */
+const R = {};
+
+R.cover = (s,p) => {
+  const sec = SECTORS[p.sector] || {};
+  return `<section class="slide cover" data-theme="${s.theme||'dark'}">
+    <div class="spine">HAAVN Supply · ${esc(p.reference||'')} · ${esc(p.date||'')}</div>
+    <img class="cover__watermark" src="assets/brand/haavn-device-black.png" alt="">
+    <div class="cover__top rise">
+      <div>${(p.status||p.sample)?`<span class="tag tag--sample">${esc(p.status||'Sample content')}</span>`:''}</div>
+      <img class="cover__sector icon--invert" src="${esc(sec.icon)}" alt="${esc(sec.label)}">
+    </div>
+    <div class="cover__title rise">
+      <div class="kicker">${esc(s.kicker||'Client presentation')}</div>
+      <h1 class="display">${s.title}</h1>
+      ${s.subtitle?`<p class="cover__sub">${s.subtitle}</p>`:''}
+    </div>
+    <dl class="cover__meta rise">
+      <div><dt>Client</dt><dd>${esc(p.client)}</dd></div>
+      ${p.builder?`<div><dt>Builder</dt><dd>${esc(p.builder)}</dd></div>`:`<div><dt>Sector</dt><dd>${esc(sec.label)}</dd></div>`}
+      <div><dt>Modular supply</dt><dd>${esc(p.supply||'HAAVN')}</dd></div>
+      <div><dt>Location</dt><dd>${esc(p.location)}</dd></div>
+    </dl>
+  </section>`;
+};
+
+R.contents = (s,p) => {
+  const seen = {}, items = [];
+  SLIDES.forEach((sl,i)=>{
+    if (sl.type==='cover' || sl.type==='contents') return;
+    const key = sl.section || sl.title || sl.type;
+    if (seen[key] === undefined){ seen[key] = items.length; items.push({ sl, i, key, n:1 }); }
+    else items[seen[key]].n++;
+  });
+  return `<section class="slide contents" data-theme="${s.theme||'dark'}">
+    <div class="contents__side rise">
+      <div class="kicker">Contents</div>
+      <h2 class="h1" style="margin-top:26px">In this<br>deck.</h2>
+      <p class="body" style="margin-top:30px;max-width:330px">${esc(p.name)} — ${esc(SECTORS[p.sector].label)}, ${esc(p.location)}.</p>
+    </div>
+    <div class="contents__list rise">
+      ${items.map(x=>`
+        <div class="contents__item" data-goto="${x.i}">
+          <span class="contents__n">${pad2(items.indexOf(x)+1)}</span>
+          <span>
+            <span class="contents__label">${esc(x.key)}</span>
+            <span class="contents__sub">${x.n > 1 ? x.n + ' slides' : esc(x.sl.title || '')}</span>
+          </span>
+        </div>`).join('')}
+    </div>
+  </section>`;
+};
+
+R.statement = (s) => `<section class="slide statement" data-theme="${s.theme||'dark'}">
+    <div class="kicker rise">${esc(s.kicker)}</div>
+    <div class="statement__grid rise">
+      <h2 class="statement__head">${s.headline}</h2>
+      <div class="col-rule col-rule--lime">
+        ${(s.body||[]).map(b=>`<p class="body">${b}</p>`).join('')}
+      </div>
+    </div>
+  </section>`;
+
+R.metrics = (s) => `<section class="slide metrics" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:28px;max-width:1100px">${s.headline}</h2>
+    </div>
+    <div class="metrics__grid rise">
+      ${(s.stats||[]).map(m=>`
+        <div class="metric">
+          <div class="metric__v">${esc(m.v)}${m.u?`<span>${esc(m.u)}</span>`:''}</div>
+          <div class="metric__l">${esc(m.l)}</div>
+          ${m.n?`<div class="metric__n">${esc(m.n)}</div>`:''}
+        </div>`).join('')}
+    </div>
+  </section>`;
+
+R.split = (s) => `<section class="slide slide--bleed split ${s.flip?'split--flip':''}" data-theme="${s.theme||'dark'}">
+    <figure class="split__media">
+      <img src="${esc(s.image)}" alt="">
+      ${s.caption?`<figcaption>${esc(s.caption)}</figcaption>`:''}
+    </figure>
+    <div class="split__body">
+      <div class="rise">
+        <div class="kicker">${esc(s.kicker)}</div>
+        <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+      </div>
+      <div class="rise">
+        ${(s.body||[]).map(b=>`<p class="body">${b}</p>`).join('')}
+        ${s.list?`<ul class="split__list" style="margin-top:34px">
+          ${s.list.map(([n,t])=>`<li><b>${esc(n)}</b><span>${esc(t)}</span></li>`).join('')}
+        </ul>`:''}
+      </div>
+    </div>
+  </section>`;
+
+R.plate = (s) => `<section class="slide slide--bleed plate" data-theme="dark">
+    <img src="${esc(s.image)}" alt="">
+    <div class="plate__scrim"></div>
+    <div class="plate__text rise">
+      <div class="kicker">${esc(s.overline)}</div>
+      <h2 class="h2">${s.headline}</h2>
+      ${s.body?`<p class="body">${s.body}</p>`:''}
+    </div>
+  </section>`;
+
+R.gallery = (s) => `<section class="slide gallery" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <div class="gallery__grid gallery__grid--${(s.images||[]).length>=4?4:(s.images||[]).length>=3?3:2} rise" style="--fig:${esc(s.aspect||'4/5')}">
+      ${(s.images||[]).map(i=>`<figure><img src="${esc(i.src)}" alt=""><figcaption>${esc(i.caption)}</figcaption></figure>`).join('')}
+    </div>
+  </section>`;
+
+R.specs = (s) => `<section class="slide specs" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <table class="rise">
+      <thead><tr>${s.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${s.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}
+        ${s.total?`<tr class="is-total">${s.total.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`:''}
+      </tbody>
+    </table>
+    ${s.note?`<p class="caption rise">${esc(s.note)}</p>`:''}
+  </section>`;
+
+R.timeline = (s) => `<section class="slide timeline" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <div class="timeline__track rise">
+      ${(s.phases||[]).map((f,i)=>`
+        <div class="phase phase--${esc(f.state||'next')}">
+          <div class="phase__n">Phase ${pad2(i+1)}</div>
+          <div class="phase__dot"></div>
+          <div class="phase__t">${esc(f.t)}</div>
+          <div class="phase__s">${esc(f.s)}</div>
+          <div class="phase__w">${esc(f.w)}</div>
+        </div>`).join('')}
+    </div>
+  </section>`;
+
+R.process = (s) => `<section class="slide process" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px;max-width:1200px">${s.headline}</h2>
+    </div>
+    <div class="process__grid rise">
+      ${(s.steps||[]).map((st,i)=>`
+        <div class="step">
+          <div class="step__n">${pad2(i+1)}</div>
+          <div class="step__t">${esc(st.t)}</div>
+          <div class="step__b">${esc(st.b)}</div>
+        </div>`).join('')}
+    </div>
+  </section>`;
+
+R.video = (s) => `<section class="slide slide--bleed videoslide" data-theme="dark">
+    <video id="deckVideo" ${s.poster?`poster="${esc(s.poster)}"`:''} ${s.loop?'loop':''} ${s.muted!==false?'muted':''} playsinline preload="metadata" data-nonav>
+      <source src="${esc(s.src)}" type="video/mp4">
+    </video>
+    <div class="videoslide__scrim"></div>
+    <div class="videoslide__text">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2">${esc(s.headline)}</h2>
+      ${s.body?`<p class="body">${esc(s.body)}</p>`:''}
+    </div>
+    <div class="videoslide__ctrl" data-nonav>
+      <button class="vbtn" id="vPlay">Play film</button>
+      <button class="vbtn" id="vRestart">Restart</button>
+    </div>
+  </section>`;
+
+R.plan = (s) => `<section class="slide slide--bleed plan" data-theme="light">
+    <img class="plan__ghost" src="assets/brand/haavn-device-black.png" alt="">
+    <img class="plan__sheet" src="${esc(s.src)}" alt="${esc(s.label||'')}">
+    <div class="plan__label"><b>${esc(s.no||'')}</b><span>${esc(s.label||'')}</span>${s.credit?`<i>${esc(s.credit)}</i>`:''}</div>
+    <img class="plan__mark" src="assets/brand/haavn-wordmark-black.png" alt="HAAVN">
+  </section>`;
+
+R.divider = (s) => `<section class="slide divider" data-theme="${s.theme||'dark'}">
+    <div class="rise"><div class="kicker">${esc(s.kicker||'Section')}</div></div>
+    <div class="divider__mid rise">
+      <div class="divider__n">${esc(s.n||'')}</div>
+      <h2 class="divider__h">${s.headline}</h2>
+      ${s.body?`<p class="divider__s">${s.body}</p>`:''}
+    </div>
+    <div class="divider__meta rise">${(s.meta||[]).map(m=>`<span>${esc(m)}</span>`).join('')}</div>
+  </section>`;
+
+R.versus = (s) => `<section class="slide versus" data-theme="${s.theme||'light'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <div class="versus__grid rise">
+      ${(s.columns||[]).map((c,i)=>`
+        <div class="vcol ${i===0?'vcol--old':'vcol--new'}">
+          <div class="vcol__tag">${esc(c.tag)}</div>
+          <div class="vcol__h">${esc(c.title)}</div>
+          <div class="vcol__who">${esc(c.who||'')}</div>
+          ${(c.rows||[]).map(([k,v,key])=>`<div class="vrow ${key?'is-key':''}"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
+        </div>`).join('')}
+    </div>
+  </section>`;
+
+R.stack = (s) => {
+  const col = (c, cls) => `<div class="stk">
+      <div class="stk__h">${esc(c.title)}</div>
+      <div class="stk__cap">${esc(c.cap||'')}</div>
+      ${(c.levels||[]).map(([n,label,kind,w])=>`
+        <div class="lvl"><span class="lvl__n">${esc(n)}</span>
+          <span class="lvl__b b-${esc(kind)}${kind==='res'?'-'+cls:''}" style="width:${w}%">${esc(label)}</span>
+        </div>`).join('')}
+    </div>`;
+  return `<section class="slide stackslide" data-theme="${s.theme||'light'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <div class="stacks rise">${col(s.left,'old')}${col(s.right,'new')}</div>
+    <div class="stk__legend rise">
+      <span><i class="b-res-old" style="background:#8b8d8b"></i>2018 · keys &amp; apartments</span>
+      <span><i style="background:#a8bc10"></i>2026 · apartments</span>
+      <span><i style="background:#4a4c4a"></i>Parking podium</span>
+      <span><i style="background:#b8bab8"></i>Commercial</span>
+      <span><i style="background:#e2e4e2"></i>Plant</span>
+    </div>
+  </section>`;
+};
+
+R.sectors = (s,p) => `<section class="slide sectors" data-theme="${s.theme||'dark'}">
+    <div class="rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h2" style="margin-top:26px">${s.headline}</h2>
+    </div>
+    <div class="sectors__grid rise">
+      ${(s.items||[]).map(it=>{
+        const sec = SECTORS[it.key]||{};
+        const on  = s.highlight === 'all' ? it.status !== 'potential'
+                  : (p.sectors||[p.sector]).includes(it.key);
+        return `<div class="sector ${on?'is-on':''}">
+          <img class="sector__ic icon--invert" src="${esc(sec.icon)}" alt="">
+          <div class="sector__t">${esc(it.label||sec.label)}</div>
+          <div class="sector__b">${esc(it.body)}</div>
+          ${it.status?`<div class="sector__st ${it.status!=='potential'?'sector__st--on':''}">${esc(it.status)}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+  </section>`;
+
+R.quote = (s) => `<section class="slide quote" data-theme="${s.theme||'dark'}">
+    <div class="rise" style="max-width:1400px">
+      <p class="quote__q">${esc(s.quote)}</p>
+      <div class="quote__a">
+        <span class="rule rule--lime" style="width:64px"></span>
+        <span>${esc(s.attrib)}</span>
+        <small>${esc(s.role||'')}</small>
+      </div>
+    </div>
+  </section>`;
+
+R.close = (s) => `<section class="slide close" data-theme="${s.theme||'dark'}">
+    <div class="close__mid rise">
+      <div class="kicker">${esc(s.kicker)}</div>
+      <h2 class="h1" style="margin:30px 0 40px">${s.headline}</h2>
+      ${s.body?`<p class="lede" style="max-width:820px">${s.body}</p>`:''}
+      <img class="close__wm" src="assets/brand/haavn-wordmark-black.png" alt="HAAVN" style="margin-top:70px">
+    </div>
+    <div class="close__grid rise">
+      ${(s.contacts||[]).map(c=>`
+        <div class="contact">
+          <div class="contact__n">${esc(c.n)}</div>
+          <div class="contact__r">${esc(c.r)}</div>
+          <div class="contact__d">${c.d}</div>
+        </div>`).join('')}
+    </div>
+  </section>`;
+
+/* ── deck build + navigation ─────────────────────────────────────────── */
+function render(){
+  const deck = $('#deck');
+  deck.innerHTML = SLIDES.map(s => (R[s.type] ? R[s.type](s, PROJECT) :
+    `<section class="slide" data-theme="dark"><p class="body">Unknown slide type: ${esc(s.type)}</p></section>`)).join('');
+
+  $('#folioT').textContent = pad2(SLIDES.length);
+  const sec = SECTORS[PROJECT.sector] || {};
+  $('#sectorIcon').src = sec.icon || '';
+  $('#sectorLabel').textContent = sec.label || '';
+
+  deck.querySelectorAll('[data-goto]').forEach(n =>
+    n.addEventListener('click', e => { e.stopPropagation(); go(+n.dataset.goto); }));
+
+  buildThumbs();
+  go(0, true);
+  preload();
+}
+
+/* Slides flagged optional:true disappear until their imagery exists, so a deck
+   never shows a black frame for a render that has not been dropped in yet.   */
+function pruneMissing(done){
+  const probes = [];
+  SLIDES.forEach(sl => {
+    if (!sl.optional) return;
+    [sl.image, ...(sl.images||[]).map(i=>i.src)].filter(Boolean).forEach(src =>
+      probes.push(new Promise(res => {
+        const im = new Image();
+        im.onload = () => res([src,true]);
+        im.onerror = () => res([src,false]);
+        im.src = src;
+      })));
+  });
+  if (!probes.length) return done(false);
+  Promise.all(probes).then(r => {
+    const missing = new Set(r.filter(x => !x[1]).map(x => x[0]));
+    if (!missing.size) return done(false);
+    SLIDES = SLIDES.filter(sl => {
+      if (!sl.optional) return true;
+      if (sl.image && missing.has(sl.image)) return false;
+      if (sl.images){ sl.images = sl.images.filter(i => !missing.has(i.src)); return sl.images.length > 0; }
+      return true;
+    });
+    done(true);
+  });
+}
+
+function preload(){
+  SLIDES.forEach(s=>{
+    [s.image, s.poster, ...(s.images||[]).map(i=>i.src)].filter(Boolean)
+      .forEach(src => { const i = new Image(); i.src = src; });
+  });
+}
+
+function go(n, silent){
+  const slides = document.querySelectorAll('#deck .slide');
+  if (!slides.length) return;
+  idx = Math.max(0, Math.min(n, slides.length - 1));
+
+  const prevVideo = document.querySelector('#deck video');
+  if (prevVideo) prevVideo.pause();
+
+  slides.forEach((s,i) => s.classList.toggle('is-active', i === idx));
+
+  const cur = SLIDES[idx];
+  const theme = slides[idx].dataset.theme || 'dark';
+  $('#stage').setAttribute('data-slide-theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+
+  $('#folioN').textContent = pad2(idx + 1);
+  $('#runhead').textContent = [PROJECT.name, cur.section].filter(Boolean).join('  ·  ');
+  $('#progressFill').style.width = ((idx) / Math.max(1, slides.length - 1) * 100) + '%';
+
+  $('#notesBody').textContent = cur.notes || 'No notes for this slide.';
+  document.querySelectorAll('.thumb').forEach((t,i)=>t.classList.toggle('is-current', i===idx));
+
+  if (cur.type === 'video') wireVideo(cur);
+  if (!silent) history.replaceState(null,'', '?project=' + PROJECT.slug + '#' + (idx+1));
+}
+
+function wireVideo(cur){
+  const v = document.querySelector('#deck .slide.is-active video');
+  if (!v) return;
+  const play = $('#vPlay'), restart = $('#vRestart');
+  const sync = () => { if (play) play.textContent = v.paused ? 'Play film' : 'Pause film'; };
+  if (play) play.onclick = e => { e.stopPropagation(); v.paused ? v.play() : v.pause(); };
+  if (restart) restart.onclick = e => { e.stopPropagation(); v.currentTime = 0; v.play(); };
+  v.onplay = sync; v.onpause = sync; sync();
+  if (cur.autoplay) v.play().catch(()=>{});
+  v.onerror = () => showVideoMissing(v, cur);
+  v.querySelector('source').onerror = () => showVideoMissing(v, cur);
+}
+
+function showVideoMissing(v, cur){
+  const host = v.closest('.videoslide');
+  if (!host || host.querySelector('.video-missing')) return;
+  host.querySelector('.videoslide__ctrl').style.display = 'none';
+  host.appendChild(el(`<div class="video-missing" data-nonav>
+      <div class="kicker kicker--plain" style="justify-content:center">Film not loaded</div>
+      <p class="body" style="color:rgba(250,251,250,.8);max-width:640px;margin:0 auto">
+        Drop the CCIST manufacturing film into the deck folder as:</p>
+      <code>${esc(cur.src)}</code>
+      <p class="caption">MP4 · H.264 · 1920×1080 recommended</p>
+    </div>`));
+}
+
+const next = () => go(idx + 1);
+const prev = () => go(idx - 1);
+
+/* ── overview thumbs ─────────────────────────────────────────────────── */
+function buildThumbs(){
+  $('#thumbs').innerHTML = SLIDES.map((s,i)=>`
+    <div class="thumb" data-i="${i}">
+      <span class="thumb__n">${pad2(i+1)}</span>
+      <span class="thumb__t">${esc(s.title || (s.type==='cover' ? PROJECT.name : s.type.charAt(0).toUpperCase()+s.type.slice(1)))}</span>
+      <span class="thumb__s">${esc(s.section || s.type)}</span>
+    </div>`).join('');
+  $('#thumbs').querySelectorAll('.thumb').forEach(t =>
+    t.addEventListener('click', () => { go(+t.dataset.i); closeOverlays(); }));
+}
+
+function closeOverlays(){
+  $('#gridOverlay').classList.remove('is-open');
+  $('#helpOverlay').classList.remove('is-open');
+}
+const toggleOverlay = id => {
+  const o = $(id), was = o.classList.contains('is-open');
+  closeOverlays(); if (!was) o.classList.add('is-open');
+};
+
+/* ── project switching ───────────────────────────────────────────────── */
+function loadProject(slug, keepIndex){
+  PROJECT = PROJECTS.find(p => p.slug === slug) || PROJECTS[0];
+  SLIDES = buildSlides(PROJECT);
+  $('#projectSelect').value = PROJECT.slug;
+  try { localStorage.setItem('haavn-supply-project', PROJECT.slug); } catch(e){}
+  render();
+  pruneMissing(changed => { if (changed) render(); });
+  if (keepIndex) go(Math.min(keepIndex, SLIDES.length - 1));
+}
+
+$('#projectSelect').innerHTML = PROJECTS.map(p =>
+  `<option value="${p.slug}">${p.name}</option>`).join('');
+$('#projectSelect').addEventListener('change', e => loadProject(e.target.value));
+
+/* ── stage scaling ───────────────────────────────────────────────────── */
+function fit(){
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.documentElement.style.setProperty('--s', s);
+}
+window.addEventListener('resize', fit); fit();
+
+/* ── input ───────────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  const k = e.key;
+  if (k === 'Escape'){ closeOverlays(); $('#blackout').classList.remove('is-on'); return; }
+  if (k === 'ArrowRight' || k === ' ' || k === 'PageDown'){ e.preventDefault(); next(); }
+  else if (k === 'ArrowLeft' || k === 'PageUp'){ e.preventDefault(); prev(); }
+  else if (k === 'ArrowDown'){ e.preventDefault(); next(); }
+  else if (k === 'ArrowUp'){ e.preventDefault(); prev(); }
+  else if (k === 'Home'){ go(0); }
+  else if (k === 'End'){ go(SLIDES.length - 1); }
+  else if (k === 'g' || k === 'G' || k === 'c' || k === 'C'){ toggleOverlay('#gridOverlay'); }
+  else if (k === '?' || k === '/'){ toggleOverlay('#helpOverlay'); }
+  else if (k === 'n' || k === 'N'){ notesOpen = !notesOpen; $('#notesDrawer').classList.toggle('is-open', notesOpen); }
+  else if (k === 'b' || k === 'B'){ $('#blackout').classList.toggle('is-on'); }
+  else if (k === 'f' || k === 'F'){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  else if (k === 'v' || k === 'V'){
+    const v = document.querySelector('#deck .slide.is-active video');
+    if (v) v.paused ? v.play() : v.pause();
+  }
+});
+
+$('#btnNext').addEventListener('click', e => { e.stopPropagation(); next(); });
+$('#btnPrev').addEventListener('click', e => { e.stopPropagation(); prev(); });
+$('#btnGrid').addEventListener('click', e => { e.stopPropagation(); toggleOverlay('#gridOverlay'); });
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-nonav]') || e.target.closest('.overlay') ||
+      e.target.closest('.chrome__right') || e.target.closest('.navbtns') ||
+      e.target.closest('.notes') || e.target.closest('[data-goto]')) return;
+  if ($('#gridOverlay').classList.contains('is-open') || $('#helpOverlay').classList.contains('is-open')) return;
+  next();
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => tx = e.changedTouches[0].clientX, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 60) dx < 0 ? next() : prev();
+}, {passive:true});
+
+/* ── boot ────────────────────────────────────────────────────────────── */
+(function boot(){
+  const qs = new URLSearchParams(location.search).get('project');
+  let saved = null; try { saved = localStorage.getItem('haavn-supply-project'); } catch(e){}
+  loadProject(qs || saved || PROJECTS[0].slug);
+  const start = parseInt(location.hash.replace('#',''), 10);
+  if (start > 1) go(start - 1);
+  setTimeout(() => $('#toast').classList.add('is-gone'), 5200);
+})();
+</script>
+</body>
+</html>
