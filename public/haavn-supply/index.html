@@ -207,6 +207,51 @@ main,footer,header .kicker{transition:.38s}
 .deck__go .ar{font-family:var(--f-mono);font-size:15px;color:var(--lime-txt);transition:transform .4s}
 .deck:hover .deck__go .ar{transform:translateX(5px)}
 
+/* ═══ CONTENT — the media library ═══ */
+.media{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.med{display:flex;flex-direction:column;text-align:left;cursor:pointer;overflow:hidden;
+  border:1px solid var(--hair);border-radius:2px;background:var(--tablet);
+  box-shadow:0 12px 30px -26px rgba(16,16,16,.65);transition:.4s cubic-bezier(.2,.7,.3,1)}
+.med:hover{border-color:var(--lime);transform:translateY(-2px);background:#fff;
+  box-shadow:0 20px 44px -28px rgba(16,16,16,.5), inset 0 3px 0 var(--lime)}
+.med__f{position:relative;aspect-ratio:16/10;background:#c9ccc9 center/cover no-repeat;overflow:hidden}
+.med__f::after{content:"";position:absolute;inset:0;background:rgba(16,16,16,.06);transition:.4s}
+.med:hover .med__f::after{background:rgba(16,16,16,0)}
+/* the play target reads as a lens over the frame, not a chrome button */
+.med__play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
+  width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(250,251,250,.7);background:rgba(16,16,16,.42);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:.4s cubic-bezier(.2,.7,.3,1)}
+.med__play::before{content:"";margin-left:3px;border-left:13px solid #fafbfa;
+  border-top:8px solid transparent;border-bottom:8px solid transparent}
+.med:hover .med__play{background:rgba(16,16,16,.62);transform:translate(-50%,-50%) scale(1.08)}
+.med__b{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.med__k{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-family:var(--f-mono);font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--lime-txt)}
+.med__t{font-family:var(--f-display);font-weight:600;font-size:16px;color:var(--ink)}
+.med__d{font-size:12.5px;line-height:1.65;color:var(--ink-2)}
+.med__m{margin-top:auto;padding-top:12px;border-top:1px solid var(--hair-soft);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-family:var(--f-mono);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-4)}
+.med__m .ar{color:var(--lime-txt);font-size:13px;transition:transform .4s}
+.med:hover .med__m .ar{transform:translateX(4px)}
+
+/* the player — full bleed over the page, nothing but the media */
+.lb{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
+  padding:clamp(20px,5vw,72px);background:rgba(226,228,226,.86);
+  -webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1)}
+.lb.on{display:flex;animation:viewin .32s ease}
+.lb video,.lb img{max-width:100%;max-height:100%;display:block;
+  box-shadow:0 40px 90px -40px rgba(16,16,16,.75)}
+.lb__x{position:absolute;top:22px;right:24px;width:46px;height:46px;display:grid;place-items:center;
+  border:1px solid transparent;border-radius:2px;background:rgba(250,251,250,.1);
+  border-image:linear-gradient(180deg,#4a4a4a 0%,#141414 32%,#000 58%,#2e2e2e 88%,#181818 100%) 1;
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  font-family:var(--f-mono);font-size:14px;color:var(--ink);transition:.3s}
+.lb__x:hover{background:rgba(250,251,250,.3)}
+.lb__cap{position:absolute;left:0;right:0;bottom:22px;text-align:center;
+  font-family:var(--f-mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-3)}
+
 /* document shelf */
 .shelf{margin-top:34px}
 .shelf h2{font-family:var(--f-mono);font-size:9px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-3);
@@ -321,6 +366,7 @@ footer{padding-bottom:20px;margin-top:auto}
 <div class="menu" id="menu">
   <button class="mrow" id="mPres">Presentations<span class="g">&#8594;</span></button>
   <div class="mdrop" id="mDrop"></div>
+  <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
   <button class="mrow" id="mBlack"><img src="assets/brand/haavn-black-wordmark-ink.png" alt="HAAVN BLACK"><span class="g">&#8594;</span></button>
   <button class="mrow" id="mSeven"><img style="height:15px" src="/seven-mark-black-hd.png" alt="7EVEN"><span class="g">&#8594;</span></button>
@@ -352,7 +398,7 @@ footer{padding-bottom:20px;margin-top:auto}
     <!-- ══ PRESENTATIONS ═════════════════════════════════════════════════ -->
     <section class="view" id="vPres">
       <div class="page">
-        <a class="back" href="#/"><span class="a">&#8592;</span> HAAVN</a>
+        <a class="back" href="#/"><span class="a">&#8592;</span> Home</a>
         <div class="phead">
           <div>
             <div class="pk">Presentations</div>
@@ -369,10 +415,30 @@ footer{padding-bottom:20px;margin-top:auto}
       </div>
     </section>
 
+    <!-- ══ CONTENT ═══════════════════════════════════════════════════════ -->
+    <section class="view" id="vContent">
+      <div class="page">
+        <a class="back" href="#/"><span class="a">&#8592;</span> Home</a>
+        <div class="phead">
+          <div>
+            <div class="pk">Content</div>
+            <h1>How modular works.</h1>
+            <p>Film, imagery and 3D assets the team can put in front of a client — the factory, the set, the finished product. Everything plays here; nothing needs downloading first.</p>
+          </div>
+          <div class="cnt" id="mediaCount"></div>
+        </div>
+        <div id="mediaShelves"></div>
+        <div class="filenote">
+          <b>Adding content</b>
+          Drop the file into <code>public/haavn-supply/content/</code> and add one row to the <code>MEDIA</code> block at the top of this page — group, kind (<code>video</code>, <code>image</code> or <code>file</code>), title, one line of description, the filename and its size. A video wants a poster frame beside it: same name, <code>.jpg</code>. On a Mac, <code>qlmanage -t -s 1600 -o . yourfile.mp4</code> pulls one straight out of the video.
+        </div>
+      </div>
+    </section>
+
     <!-- ══ DOCUMENTS ═════════════════════════════════════════════════════ -->
     <section class="view" id="vDocs">
       <div class="page">
-        <a class="back" href="#/"><span class="a">&#8592;</span> HAAVN</a>
+        <a class="back" href="#/"><span class="a">&#8592;</span> Home</a>
         <div class="phead">
           <div>
             <div class="pk">Documents</div>
@@ -421,6 +487,13 @@ footer{padding-bottom:20px;margin-top:auto}
   </footer>
 </div>
 
+<!-- the player: film and imagery open here, over the page -->
+<div class="lb" id="lb">
+  <button class="lb__x" id="lbX" aria-label="Close">&#10005;</button>
+  <div id="lbIn"></div>
+  <div class="lb__cap" id="lbCap"></div>
+</div>
+
 <script>
 /* ══════════════════════════════════════════════════════════════════════════
    1. THE DECKS — every HAAVN presentation, newest first.
@@ -466,6 +539,18 @@ var DOCS = [
   { cat:'Brand', t:'Brand Device Pack', k:'Devices',
     d:'The HAAVN wordmark, the HVN device, the HAAVN BLACK wordmark, the six sector icons and the grid texture, at 5×.',
     f:'documents/haavn-brand-pack.zip', s:'ZIP · 669 KB' }
+];
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2a. THE CONTENT LIBRARY — film, imagery and 3D assets that show a client
+       how modular works. Files live in content/.
+       kind: 'video' (needs a poster jpg) | 'image' | 'file' (opens in a tab).
+   ═════════════════════════════════════════════════════════════════════════ */
+var MEDIA_GROUPS = ['Film','Renders & imagery','3D & assets'];
+var MEDIA = [
+  { g:'Film', kind:'video', k:'Factory', t:'Port Hedland Program',
+    d:'The introduction film — a module built on the CCIST line, finished, craned and set.',
+    src:'content/port-hedland-intro.mp4', poster:'content/port-hedland-intro.jpg', s:'MP4 · 12 MB' }
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -524,6 +609,53 @@ var SERVICES = [
     '</span>';
   }).join('');
 
+  /* ---- content ------------------------------------------------------- */
+  $('#mediaShelves').innerHTML = MEDIA_GROUPS.map(function(g){
+    var rows = MEDIA.filter(function(m){ return m.g === g; });
+    var body = rows.length
+      ? '<div class="media">' + rows.map(function(m,i){
+          var idx = MEDIA.indexOf(m);
+          var frame = m.poster || (m.kind === 'image' ? m.src : '');
+          return '<button class="med" data-i="' + idx + '">' +
+            '<span class="med__f"' + (frame ? ' style="background-image:url(' + frame + ')"' : '') + '>' +
+              (m.kind === 'video' ? '<span class="med__play"></span>' : '') +
+            '</span>' +
+            '<span class="med__b">' +
+              '<span class="med__k"><span>' + esc(m.k || m.kind) + '</span></span>' +
+              '<span class="med__t">' + esc(m.t) + '</span>' +
+              '<span class="med__d">' + esc(m.d) + '</span>' +
+              '<span class="med__m"><span>' + esc(m.s || '') + '</span><span class="ar">&#8594;</span></span>' +
+            '</span>' +
+          '</button>'; }).join('') + '</div>'
+      : '<div class="empty">Nothing here yet &nbsp;·&nbsp; content/ &nbsp;·&nbsp; add a row to MEDIA</div>';
+    return '<div class="shelf"><h2>' + esc(g) + '</h2>' + body + '</div>';
+  }).join('');
+  $('#mediaCount').textContent = MEDIA.length + (MEDIA.length === 1 ? ' item' : ' items');
+
+  /* the player. A video element is created on open and destroyed on close, so
+     nothing keeps playing behind a closed overlay. */
+  var lb = $('#lb'), lbIn = $('#lbIn'), lbCap = $('#lbCap');
+  function closeLb(){
+    lb.classList.remove('on');
+    lbIn.innerHTML = '';
+    document.body.style.overflow = '';
+  }
+  function openLb(m){
+    if (m.kind === 'file'){ window.open(m.src, '_blank', 'noopener'); return; }
+    lbIn.innerHTML = m.kind === 'video'
+      ? '<video src="' + esc(m.src) + '" poster="' + esc(m.poster || '') + '" controls autoplay playsinline></video>'
+      : '<img src="' + esc(m.src) + '" alt="' + esc(m.t) + '">';
+    lbCap.textContent = m.t;
+    lb.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  $('#mediaShelves').addEventListener('click', function(e){
+    var card = e.target.closest('.med');
+    if (card) openLb(MEDIA[+card.dataset.i]);
+  });
+  $('#lbX').addEventListener('click', closeLb);
+  lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
+
   /* ---- documents ----------------------------------------------------- */
   $('#shelves').innerHTML = CATEGORIES.map(function(cat){
     var rows = DOCS.filter(function(d){ return d.cat === cat; });
@@ -544,6 +676,7 @@ var SERVICES = [
   var VIEWS = {
     '#/':              { el:'#vHome', kicker:'Modular Supply &nbsp;·&nbsp; CCIST Manufacturing &nbsp;·&nbsp; Melbourne' },
     '#/presentations': { el:'#vPres', kicker:'Presentations &nbsp;·&nbsp; Client Decks &nbsp;·&nbsp; HAAVN Supply' },
+    '#/content':       { el:'#vContent', kicker:'Content &nbsp;·&nbsp; Film, Imagery &amp; 3D Assets' },
     '#/documents':     { el:'#vDocs', kicker:'Documents &nbsp;·&nbsp; Brand &amp; Technical Library' }
   };
   function route(){
@@ -554,7 +687,7 @@ var SERVICES = [
     $('#kicker').innerHTML = v.kicker;
     document.body.classList.toggle('view-inner', h !== '#/');
     window.scrollTo(0,0);
-    closeMenu();
+    closeMenu(); closeLb();
   }
   window.addEventListener('hashchange', route);
 
@@ -576,6 +709,7 @@ var SERVICES = [
     presRow.classList.toggle('open', open);
     drop.style.maxHeight = open ? (drop.scrollHeight + 20) + 'px' : '0px';
   });
+  $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
   $('#mBlack').addEventListener('click', function(){ location.href = '/?open=black'; });
   $('#mSeven').addEventListener('click', function(){ location.href = '/'; });
@@ -583,7 +717,10 @@ var SERVICES = [
     try { localStorage.removeItem('7even_auth'); } catch(e){}
     location.href = '/';
   });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Escape') return;
+    if (lb.classList.contains('on')) closeLb(); else closeMenu();
+  });
 
   /* ---- footer -------------------------------------------------------- */
   function tick(){
