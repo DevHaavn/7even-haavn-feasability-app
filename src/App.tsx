@@ -56,6 +56,18 @@ export default function App() {
     return () => window.removeEventListener('resize', applyZoom)
   }, [])
 
+  // Deep link back in from a static pillar page. The HAAVN supply surface
+  // (/haavn-supply/) is a top-level page, so its "HAAVN BLACK →" button returns
+  // here with ?open=black and we open the homes surface directly. The param is
+  // stripped straight away so a refresh lands on the normal home screen.
+  useEffect(() => {
+    const open = new URLSearchParams(window.location.search).get('open')
+    if (open === 'black') {
+      setHomesOpen(true)
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
   // On mount: pull the cloud (the single source of truth), then subscribe to
   // live changes. SEEDING RULE — the app seeds/migrates ONLY when the cloud is
   // confirmed empty (a brand-new database). When the cloud already has projects,

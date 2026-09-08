@@ -466,6 +466,12 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <img style={{ height: 12 }} src="/haavn-black-logo.png" alt="HAAVN BLACK" />
                 <span className="g">→</span>
               </button>
+              {/* HAAVN — the supply business. Its own pillar alongside 7EVEN and
+                  HAAVN BLACK: presentations, the document library, its own surface. */}
+              <button className="ath-brandrow" title="HAAVN — Modular Supply" onClick={() => { window.location.href = '/haavn-supply/index.html' }}>
+                <img style={{ height: 13 }} src="/haavn-wordmark-white.png" alt="HAAVN" />
+                <span className="g">→</span>
+              </button>
               <button className="ath-logoutrow" onClick={() => onLogout?.()}>LOG OUT</button>
             </div>
           </div>
