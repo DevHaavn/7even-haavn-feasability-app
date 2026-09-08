@@ -59,6 +59,29 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:radial-gradient(100% 70% at 50% 26%, rgba(168,188,16,.06) 0%, rgba(226,228,226,0) 60%)}
 #stage .vig{position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(140% 120% at 50% 46%, rgba(226,228,226,0) 42%, rgba(168,170,168,.24) 100%)}
+/* PRESTON, drawn. The elevation is a raster, not vector line work, so it is
+   not stroked path by path — it is revealed from the ground up behind a pen
+   line that travels with the clip edge, which is how an elevation gets drawn
+   anyway. A ghost of the full sheet fades in first, so the pen reads as
+   tracing over a guide rather than conjuring the building out of nothing.
+   The source white-on-black PNG is re-inked to dark-on-transparent (its own
+   luminance becomes the alpha) to sit on the paper. */
+#stage .wirewrap{position:absolute;left:-7vw;top:-2vh;width:min(40vw,620px);
+  aspect-ratio:1100/1148;pointer-events:none;transition:opacity .5s}
+#stage .wire{position:absolute;inset:0;
+  background:url(assets/brand/preston-wire-ink.png) top left/100% 100% no-repeat}
+#stage .wire--ghost{opacity:0;animation:wireGhost 1.8s ease 1.1s forwards}
+@keyframes wireGhost{to{opacity:.028}}
+#stage .wire--draw{opacity:.085;clip-path:inset(100% 0 0 0);
+  animation:wireDraw 7.8s cubic-bezier(.42,0,.24,1) 1.5s forwards}
+@keyframes wireDraw{to{clip-path:inset(0 0 0 0)}}
+#stage .wire__pen{position:absolute;left:-2%;right:-2%;height:1px;top:100%;opacity:0;
+  background:linear-gradient(90deg,transparent,var(--lime) 22%,var(--lime) 78%,transparent);
+  animation:wirePen 7.8s cubic-bezier(.42,0,.24,1) 1.5s forwards}
+@keyframes wirePen{0%{top:100%;opacity:0}5%{opacity:.42}90%{opacity:.42}100%{top:0;opacity:0}}
+body.view-inner #stage .wirewrap{opacity:.45}
+@media(max-width:600px){#stage .wirewrap{width:74vw;left:-18vw;top:-5vh}}
+
 /* the HVN device, bled off the bottom-right corner — the same watermark the
    Derrimut cover carries, in #d4e84a. It needs more opacity than a black
    watermark would: the light green sits close to the paper in value. */
@@ -357,6 +380,11 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <div id="stage">
   <div class="tex"></div>
+  <div class="wirewrap">
+    <div class="wire wire--ghost"></div>
+    <div class="wire wire--draw"></div>
+    <div class="wire__pen"></div>
+  </div>
   <div class="wash"></div>
   <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
   <div class="vig"></div>
