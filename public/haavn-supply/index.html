@@ -45,8 +45,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-wei
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
-/* ═══ THE GROUND — Seth's paper, clean. Nothing ruled into it. ═══ */
+/* ═══ THE GROUND — Seth's paper, carrying his grid texture ═══ */
 #stage{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--paper)}
+/* Seth's Green Grid Texture, geometry only. The source is dark olive with a
+   heavy gradient baked in; a high-pass against a blurred copy lifts the line
+   work away from both, so what is left is the exact diagonal grid — same
+   sweep, same density falloff — re-inked at #101010 to sit on the paper.
+   grid-texture.png is still the original, untouched, for dark surfaces. */
+#stage .tex{position:absolute;inset:0;opacity:.4;
+  background:url(assets/brand/grid-texture-ink.png) center/cover no-repeat}
 /* the green is a hint on the paper, never a tint over it */
 #stage .wash{position:absolute;inset:0;
   background:radial-gradient(100% 70% at 50% 26%, rgba(168,188,16,.06) 0%, rgba(226,228,226,0) 60%)}
@@ -304,6 +311,7 @@ footer{padding-bottom:20px;margin-top:auto}
 <body>
 
 <div id="stage">
+  <div class="tex"></div>
   <div class="wash"></div>
   <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
   <div class="vig"></div>
