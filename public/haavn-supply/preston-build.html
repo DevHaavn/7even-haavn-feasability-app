@@ -38,9 +38,15 @@ canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
 #tl{top:13.5%;left:2.6%}
 #tr{top:13.5%;right:5.4%;text-align:right}
 #bl{top:24%;left:2.6%}
+/* The rotated block is placed by measurement, not by arithmetic: a rotated
+   element's on-screen box is its natural HEIGHT wide and its natural WIDTH
+   tall, so its extent depends on the longest line and the font size — both of
+   which move. placeBR() measures the real box each time and nudges it inside
+   the frame. The --dx/--dy translate is listed FIRST so it composes last, in
+   screen space, and is unaffected by the rotation that follows it. */
 #br{top:50%;right:0;transform-origin:100% 50%;
-  transform:translateY(-50%) rotate(-90deg);white-space:nowrap;text-align:center;
-  line-height:2.4;letter-spacing:.28em}
+  transform:translate(var(--dx,0px),var(--dy,0px)) translateY(-50%) rotate(-90deg);
+  white-space:nowrap;text-align:center;line-height:2.4;letter-spacing:.28em}
 /* below tablet the frame is too short to carry five rotated lines legibly */
 @media(max-width:560px){.lab{display:none}}
 </style>
@@ -60,6 +66,15 @@ canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
    sign plates keep their own dark fill — they are lit signs, and the white
    HAAVN mark needs something to sit on. */
 const INK='#101010', LIME='#bdd420';
+
+/* ============ THE REAL SCHEDULE ========================================= */
+/* The drawing is a representative elevation on a 10-bay grid — 118 craned
+   boxes — not one box per real module. These are the project's own numbers,
+   and the read-outs report them by scaling the animation's progress onto
+   them, so the count on screen is Preston's, not the drawing's.
+   PROGRAM_WEEKS is still the source file's implied install program; swap it
+   for the real one when Hamilton Marino confirm the set program.           */
+const APTS=400, MODULES=700, PER_TRUCK=2, PROGRAM_WEEKS=10;
 
 /* ============ GEOMETRY MODEL ============================================ */
 const W=2000,H=1125;
@@ -244,8 +259,8 @@ function crane(tx,hy){
 }
 
 /* truck ------------------------------------------------------------------ */
-function truck(x,loaded){
-  const y=1062, mh=48, ml=185;
+function truck(x,load){
+  const y=1062, mh=42, ml=185;
   ctx.save();ctx.strokeStyle=INK;ctx.globalAlpha=.8;ctx.lineWidth=1.5;
   // trailer deck
   L(x-40,y,x+ml+30,y); L(x-40,y+9,x+ml+30,y+9); L(x-40,y,x-40,y+9); L(x+ml+30,y,x+ml+30,y+9);
@@ -259,12 +274,16 @@ function truck(x,loaded){
     ctx.beginPath();ctx.arc(wx,y+22,13,0,7);ctx.stroke();
     ctx.beginPath();ctx.arc(wx,y+22,5,0,7);ctx.stroke();
   });
-  if(loaded){
+  /* two modules to a truck, stacked — 12.0 x 3.5 m each */
+  if(load>0){
     ctx.globalAlpha=1;ctx.strokeStyle=LIME;
-    R(x,y-mh,ml,mh);
-    L(x,y-mh+9,x+ml,y-mh+9);
-    for(let k=1;k<4;k++) L(x+ml*k/4,y-mh,x+ml*k/4,y);
-    R(x+14,y-mh+18,26,20);
+    for(let n=0;n<load;n++){
+      const yy=y-mh*(n+1);
+      R(x,yy,ml,mh);
+      L(x,yy+8,x+ml,yy+8);
+      for(let k=1;k<4;k++) L(x+ml*k/4,yy,x+ml*k/4,yy+mh);
+    }
+    R(x+14,y-mh+16,26,18);          // door, on the lower module
   }
   ctx.restore();
 }
@@ -376,7 +395,11 @@ function draw(){
        left of the trailer, so the cab leads only when the convoy runs RIGHT
        to LEFT: loaded trucks queue off to the right, draw up to the pickup,
        and the emptied one carries on past the site and off the left edge. */
-    const shift = m ? smooth(p,.56,.94) : 0;
+    /* The front truck is emptied over two lift cycles, so the convoy only
+       draws forward on the second of each pair. */
+    const second = (idx % PER_TRUCK) === PER_TRUCK-1;
+    const shift = (m && second) ? smooth(p,.56,.94) : 0;
+    const load0 = m ? (PER_TRUCK - (idx % PER_TRUCK) - (p>=.30 ? 1 : 0)) : 0;
     /* Spacing is tighter than the source's 430: the queue now sits in the
        narrow margin to the RIGHT of the pickup rather than the open half to
        its left, so at 360 the next truck is already at the frame edge and the
@@ -385,7 +408,7 @@ function draw(){
     for(let k=4;k>=0;k--){
       const from=slots[k], to=k===0?PICK-1980:slots[k-1];
       const x=from+(to-from)*shift;
-      if(x>-380&&x<2280) truck(x, k===0 ? (m? p<.30 : false) : true);
+      if(x>-380&&x<2280) truck(x, k===0 ? load0 : PER_TRUCK);
     }
   }
 
@@ -398,20 +421,39 @@ function draw(){
   const set=Math.min(idx,NLIFT);
   const cur = phase==='insitu'?'GROUND' : (idx<NLIFT?lname(LIFT[idx].l):'COMPLETE');
   tl.innerHTML='HAAVN SUPPLY<br><span class="lm">MODULAR ASSEMBLY</span>';
-  tr.innerHTML='PRESTON<br><b>15 LEVELS · 400 APTS</b>';
+  const mods   = Math.round(set/NLIFT*MODULES);
+  const trucks = Math.ceil(mods/PER_TRUCK);
+  tr.innerHTML='PRESTON<br><b>15 LEVELS · '+APTS+' APTS</b>';
   bl.innerHTML=
-    'MODULES SET <b>'+String(set).padStart(3,'0')+' / '+NLIFT+'</b><br>'+
-    'TRUCK DELIVERIES <b>'+String(set).padStart(3,'0')+'</b><br>'+
+    'MODULES SET <b>'+String(mods).padStart(3,'0')+' / '+MODULES+'</b><br>'+
+    'TRUCK DELIVERIES <b>'+String(trucks).padStart(3,'0')+' / '+(MODULES/PER_TRUCK)+'</b><br>'+
     'PLACING <span class="lm">'+cur+'</span>';
   br.innerHTML=
     'GROUND <b>IN-SITU</b><br>'+
     'L01–L14 <span class="lm">MODULAR</span><br>'+
     'MODULE <b>12.0 × 3.5 m</b><br>'+
-    '1 TRUCK = 1 MODULE<br>'+
-    'INSTALL <b>WEEK '+Math.max(1,Math.ceil(set/12))+'</b>';
+    '1 TRUCK = <b>'+PER_TRUCK+' MODULES</b><br>'+
+    'INSTALL <b>WEEK '+Math.max(1,Math.ceil(set/NLIFT*PROGRAM_WEEKS))+'</b>';
+  if(br.textContent.length !== brLen){ brLen = br.textContent.length; placeBR(); }
 }
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const smooth=(v,a,b)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);};
+
+/* keep the rotated read-out inside the frame ---------------------------- */
+let brLen=-1;
+function placeBR(){
+  const e=document.getElementById('br'), M=12;
+  e.style.setProperty('--dx','0px'); e.style.setProperty('--dy','0px');
+  const r=e.getBoundingClientRect(), vw=innerWidth, vh=innerHeight;
+  let dx=0, dy=0;
+  if(r.right > vw-M) dx = (vw-M) - r.right;      // pull in from the right edge
+  if(r.left + dx < M) dx = M - r.left;           // …but never past the left
+  dy = Math.max(M - r.top, Math.min((vh-M) - r.bottom, (vh - r.height)/2 - r.top));
+  e.style.setProperty('--dx', Math.round(dx)+'px');
+  e.style.setProperty('--dy', Math.round(dy)+'px');
+}
+addEventListener('resize', placeBR);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(placeBR);
 
 resize(); requestAnimationFrame(frame);
 </script>
