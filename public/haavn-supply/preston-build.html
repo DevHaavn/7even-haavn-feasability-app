@@ -16,23 +16,25 @@
        is drawn on the left of the trailer, so the source's left-to-right
        convoy had them travelling backwards;
      · it loops, and it runs at the source's 4x.
-   Everything else is the source: white line work, #bdd420 at full brightness,
-   on #0a0a0a. That black ground is what makes the white read, so this frame
-   sits as a dark plate on the light page rather than as a watermark in it.
+   The frame is glass — no ground of its own, the page's paper shows through.
+   The line work is therefore INK at full strength rather than the source's
+   white, which would be invisible on #e2e4e2; the green is the source's
+   #bdd420 at full brightness. On the read-outs the green steps to #8a9c08,
+   because #bdd420 on paper is about 1.4:1 and unreadable at 11px.
    It loops, and it stops drawing when the tab is hidden or the parent hides
    it, so a background animation never burns a phone battery.
    The original is untouched on the Desktop.
    ══════════════════════════════════════════════════════════════════════════ */
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#0a0a0a;overflow:hidden}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
 canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
 /* the four read-outs, in the source's own positions and wording — faded into
    the paper rather than lit on black */
 .lab{position:absolute;font-size:clamp(7px,1.3vw,11px);letter-spacing:.22em;text-transform:uppercase;
-  color:#6d6d6d;pointer-events:none;line-height:2.0;
+  color:#7c7e7b;pointer-events:none;line-height:2.0;
   font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
-.lab b{color:#fff;font-weight:500}
-.lab .lm{color:#bdd420}
+.lab b{color:#101010;font-weight:500}
+.lab .lm{color:#8a9c08}
 #tl{top:13.5%;left:2.6%}
 #tr{top:13.5%;right:5.4%;text-align:right}
 #bl{top:24%;left:2.6%}
@@ -51,11 +53,13 @@ canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
 <div class="lab" id="br"></div>
 <script>
 /* ============ PALETTE =================================================== */
-/* Full strength, exactly as the source HTML: white line work and #bdd420 at
-   full brightness, on the source's own #0a0a0a ground. That ground is why the
-   white reads — on the page's paper it would vanish — so this frame sits as a
-   dark plate on the light page rather than as a watermark in it. */
-const INK='#ffffff', LIME='#bdd420', GROUND_FILL='#0a0a0a';
+/* No ground at all — the frame is glass and the page's paper shows through.
+   That is why the line work is INK rather than the source's white: white on
+   #e2e4e2 is invisible. It runs at FULL strength, not the faded ink it used
+   to, and the green is the source's #bdd420 at full brightness. The crane's
+   sign plates keep their own dark fill — they are lit signs, and the white
+   HAAVN mark needs something to sit on. */
+const INK='#101010', LIME='#bdd420';
 
 /* ============ GEOMETRY MODEL ============================================ */
 const W=2000,H=1125;
@@ -311,11 +315,11 @@ function frame(ts){
 
 function draw(){
   ctx.setTransform(SC,0,0,SC,0,0);
-  ctx.fillStyle=GROUND_FILL; ctx.fillRect(0,0,W,H);
+  ctx.clearRect(0,0,W,H);                     // glass — the page shows through
   ctx.lineJoin='miter'; ctx.lineCap='butt';
 
   /* ghost of the completed elevation */
-  MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.09,INK,1); });
+  MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.16,INK,1); });
 
   /* ground floor — traditional in-situ, rises as concrete not as boxes */
   const gp = phase==='intro'?0 : phase==='insitu' ? insituT/INSITU : 1;
