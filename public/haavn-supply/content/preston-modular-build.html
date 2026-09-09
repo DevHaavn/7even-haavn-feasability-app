@@ -91,6 +91,13 @@ const BAY=54, BX0=730, NB=10;     // 3.5m module bay = 54px  → 1m ≈ 15.4px
 const GH=95, LH=48;               // ground storey / typical storey
 const PICK=300;                   // truck pickup centreline (jib tip)
 const JIB=90, MASTX=1500;          // crane
+const BL=730-11, BR=730+540+11;   // basement extent, matching the transfer slab
+const BDEPTH=68;                  // one basement level below the hard ground line
+const DIGX=BR+66;                 // the excavator works off the east end
+const PSPACE=22, PDEPTH=34;       // screw piles: pitch and embedment below the dig
+const PX0=BL+9;
+const NPILE=Math.floor((BR-BL-18)/PSPACE)+1;
+const NB1=NB+1;                   // basement columns sit on every bay line
 
 const levBot = l => l===1 ? GROUND : 890-(l-2)*LH;
 const levTop = l => levBot(l) - (l===1?GH:LH);
@@ -322,6 +329,166 @@ function crane(tx,hy){
   ctx.restore();
 }
 
+/* basement — excavation, then the concrete pour ------------------------- */
+function polyPart(pts,frac,lw,alpha,col){
+  let total=0; const seg=[];
+  for(let i=1;i<pts.length;i++){
+    const d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);
+    seg.push(d); total+=d;
+  }
+  let want=total*Math.max(0,Math.min(1,frac));
+  if(want<=0) return;
+  ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=col; ctx.lineWidth=lw;
+  ctx.lineCap='square'; ctx.lineJoin='miter';
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length&&want>0;i++){
+    const d=seg[i-1], t=Math.min(1,want/d);
+    ctx.lineTo(pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t,
+               pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t);
+    want-=d;
+  }
+  ctx.stroke(); ctx.restore();
+}
+
+function basement(exc,conc){
+  const d=BDEPTH*exc;
+  if(d>0.5){
+    ctx.save();ctx.strokeStyle='#fff';ctx.globalAlpha=.62*WF;ctx.lineWidth=1.5;
+    L(BL,GROUND,BL,GROUND+d); L(BL,GROUND+d,BR,GROUND+d); L(BR,GROUND+d,BR,GROUND);
+    ctx.globalAlpha=.26*WF;                       // batter hatching on the cut faces
+    for(let y=GROUND+9;y<GROUND+d;y+=12){ L(BL,y,BL+10,y-7); L(BR,y,BR-10,y-7); }
+    ctx.restore();
+  }
+  if(pdrawn>0||phase==='piling'){
+    const top=GROUND+BDEPTH;
+    const done = phase==='piling' ? pidx : pdrawn;
+    const a = phase==='piling' ? .85*WF : .30*WF;   // buried once the pour starts
+    for(let i=0;i<done;i++) pile(PX0+i*PSPACE, top, PDEPTH, i*1.3, a, '#ffffff');
+    if(phase==='piling'&&pidx<NPILE){
+      const t=ease(pp), x=PX0+pidx*PSPACE;
+      pile(x, top, PDEPTH*t, pp*34, WF, '#ffffff');
+      rig(x, top+PDEPTH*t-PDEPTH-6, .8*WF);
+    }
+  }
+  if(conc>0){
+    const q=Math.min(1,conc/0.45);
+    polyPart([[BL,GROUND],[BL,GROUND+BDEPTH],[BR,GROUND+BDEPTH],[BR,GROUND]],
+             q,3.4,WF,'#ffffff');                 // pumped perimeter
+
+    if(conc>0.45){          // structural columns, on the bay grid of the building above
+      const t=(conc-0.45)/0.33, full=Math.floor(t*NB1), part=t*NB1-full;
+      const top=GROUND-7, bot=GROUND+BDEPTH;
+      ctx.save();ctx.globalAlpha=WF;ctx.strokeStyle='#fff';
+      ctx.lineWidth=4;ctx.lineCap='butt';
+      for(let i=0;i<Math.min(full,NB1);i++) L(bx(i),bot,bx(i),top);
+      if(full<NB1) L(bx(full),bot,bx(full),bot-(bot-top)*Math.min(1,part));
+      ctx.restore();
+    }
+
+    if(conc>0.78){                                // slab separating basement from ground
+      const t=(conc-0.78)/0.22, w=(BR-BL)*t;
+      ctx.save();ctx.globalAlpha=WF;ctx.strokeStyle='#fff';ctx.lineWidth=2.4;
+      L(BL,GROUND,BL+w,GROUND); L(BL,GROUND-7,BL+w,GROUND-7);
+      ctx.globalAlpha=.5*WF;ctx.lineWidth=1;
+      for(let x=BL;x<BL+w;x+=14) L(x,GROUND,x+7,GROUND-7);
+      ctx.restore();
+    }
+  }
+}
+
+/* screw pile — helical flight, drawn spinning as it drives in */
+function pile(x,top,depth,rot,alpha,col){
+  if(depth<=0.4) return;
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=col;ctx.lineCap='round';
+  ctx.lineWidth=2.1; L(x,top,x,top+depth);                    // shaft
+  ctx.lineWidth=1.2; ctx.beginPath();                          // helix
+  for(let t=0;t<=depth;t+=1.4){
+    const a=(t/9)*Math.PI*2+rot, px=x+Math.cos(a)*6.2, py=top+t;
+    t===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  ctx.lineWidth=1.6; ctx.beginPath();                          // tip
+  ctx.moveTo(x-4.5,top+depth-7);ctx.lineTo(x,top+depth);ctx.lineTo(x+4.5,top+depth-7);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* piling rig — mast over the pile being driven, head follows it down */
+function rig(x,headY,alpha){
+  const base=GROUND+BDEPTH, topY=GROUND-104;
+  ctx.save();ctx.strokeStyle='#fff';ctx.globalAlpha=alpha;ctx.lineWidth=1.4;
+  L(x-9,topY,x-9,base); L(x+9,topY,x+9,base);                  // mast
+  for(let y=topY;y<base;y+=17) L(x-9,y,x+9,y+8.5);
+  L(x-22,base,x+22,base);                                      // sole
+  R(x-15,headY-16,30,16);                                      // rotary head
+  L(x-15,headY-8,x+15,headY-8);
+  ctx.restore();
+}
+
+/* excavator — one dig, swing and dump per cycle */
+const DIGKEY=[[0,2.72,0.95,0.15],[.28,2.42,0.62,0.15],[.44,2.42,0.52,0.95],
+              [.68,3.52,1.05,0.95],[.84,3.62,1.18,0.10],[1,2.72,0.95,0.15]];
+function digger(x,cyc,alpha){
+  let a1=2.7,a2=0.9,bk=0.2;
+  for(let i=1;i<DIGKEY.length;i++){
+    if(cyc<=DIGKEY[i][0]){
+      const A=DIGKEY[i-1],B=DIGKEY[i], t=ease((cyc-A[0])/(B[0]-A[0]||1));
+      a1=A[1]+(B[1]-A[1])*t; a2=A[2]+(B[2]-A[2])*t; bk=A[3]+(B[3]-A[3])*t; break;
+    }
+  }
+  const gy=GROUND;
+  ctx.save();ctx.strokeStyle='#fff';ctx.globalAlpha=alpha;ctx.lineWidth=1.5;
+  R(x-36,gy-16,72,16);                                   // tracks
+  for(let i=1;i<6;i++) L(x-36+i*12,gy-16,x-36+i*12,gy);
+  ctx.beginPath();ctx.arc(x-25,gy-8,5.5,0,7);ctx.stroke();
+  ctx.beginPath();ctx.arc(x+25,gy-8,5.5,0,7);ctx.stroke();
+  R(x-26,gy-47,44,31); R(x-21,gy-43,18,16);              // house + cab glazing
+  L(x+18,gy-47,x+26,gy-40); L(x+26,gy-40,x+26,gy-16);    // counterweight
+  const px=x-22, py=gy-42, BOOM=76, DIP=54;
+  const bxE=px+Math.cos(a1)*BOOM, byE=py+Math.sin(a1)*BOOM;
+  const dxE=bxE+Math.cos(a1+a2)*DIP, dyE=byE+Math.sin(a1+a2)*DIP;
+  ctx.lineWidth=2.2; L(px,py,bxE,byE); ctx.lineWidth=1.8; L(bxE,byE,dxE,dyE);
+  ctx.lineWidth=1.4; L(px,py-4,bxE,byE-4);               // boom back member
+  const ba=a1+a2+bk*1.5;                                 // bucket
+  ctx.beginPath();
+  ctx.moveTo(dxE,dyE);
+  ctx.lineTo(dxE+Math.cos(ba+1.0)*17,dyE+Math.sin(ba+1.0)*17);
+  ctx.lineTo(dxE+Math.cos(ba+0.1)*24,dyE+Math.sin(ba+0.1)*24);
+  ctx.lineTo(dxE+Math.cos(ba-0.5)*13,dyE+Math.sin(ba-0.5)*13);
+  ctx.closePath();ctx.stroke();
+  ctx.restore();
+}
+
+/* dump truck — takes the spoil away */
+function dumper(x,loaded,alpha){
+  const y=1062;
+  ctx.save();ctx.strokeStyle='#fff';ctx.globalAlpha=alpha*.8;ctx.lineWidth=1.5;
+  ctx.beginPath();                                        // prime mover, facing left
+  ctx.moveTo(x,y);ctx.lineTo(x,y-20);ctx.lineTo(x+12,y-20);
+  ctx.lineTo(x+20,y-44);ctx.lineTo(x+58,y-44);ctx.lineTo(x+58,y);ctx.stroke();
+  R(x+24,y-40,24,15);                                     // cab glazing
+  ctx.beginPath();                                        // tipper body behind it
+  ctx.moveTo(x+62,y);ctx.lineTo(x+56,y-44);ctx.lineTo(x+196,y-44);
+  ctx.lineTo(x+196,y);ctx.closePath();ctx.stroke();
+  [[x+14],[x+48],[x+140],[x+176]].forEach(([wx])=>{
+    ctx.beginPath();ctx.arc(wx,y+13,13,0,7);ctx.stroke();
+    ctx.beginPath();ctx.arc(wx,y+13,5,0,7);ctx.stroke();
+  });
+  ctx.globalAlpha=alpha*.95;                              // HAAVN on the body
+  const bh=13, bw=bh*WMAR;
+  mark(x+62+((196-62)-bw)/2, y-30, bh, 0);
+  if(loaded){                                             // spoil heap
+    ctx.globalAlpha=alpha;ctx.strokeStyle='#fff';
+    ctx.beginPath();ctx.moveTo(x+56,y-44);
+    for(let i=0;i<=7;i++){
+      const t=i/7, hx=x+56+t*140, hh=-44-14*Math.sin(t*Math.PI)-3*Math.sin(t*13);
+      ctx.lineTo(hx,y+hh);
+    }
+    ctx.lineTo(x+196,y-44);ctx.stroke();
+  }
+  ctx.restore();
+}
+
 /* truck ------------------------------------------------------------------ */
 function truck(x,loaded){
   x-=92.5;                       // so the module sits centred on x
@@ -344,7 +511,8 @@ function truck(x,loaded){
     R(x,y-mh,ml,mh);
     L(x,y-mh+9,x+ml,y-mh+9);
     for(let k=1;k<4;k++) L(x+ml*k/4,y-mh,x+ml*k/4,y);
-    R(x+14,y-mh+18,26,20);
+    const bh=12, bw=bh*WMAR;                 // HAAVN on the side of every module
+    mark(x+(ml-bw)/2, y-mh+20, bh, 0);
   }
   ctx.restore();
 }
@@ -371,20 +539,29 @@ let idx=0, p=0, playing=true, speed=1, showBox=false, last=0;
 const RATE=1.4;              // build-sequence speed-up
 const HOLD=5.0, FADE=1.2, INTRO=HOLD+FADE;   // title card: 5s hold, then fade
 const card=document.getElementById('card'); let cardOp=-1;
-let phase='intro';           // intro → insitu → modular → done → reveal
+let phase='intro';           // intro → excavate → concrete → insitu → shaft → modular → done → reveal
+let ep=0, cp=0, pidx=0, pp=0, pdrawn=0;
+const EXCAV=9.6, CONC=11.4;  // basement dig / pour, in phase-seconds
+const pdur=i=>i<3?0.96:0.408; // per pile
 let rev=0, hold=0, WF=1, sidx=0;   // reveal progress / post-build hold / wireframe alpha
 let insituT=0;
 const INSITU=7.0;            // seconds for the traditional ground floor
 function dur(i){ return i<3?3.0 : i<8?2.0 : i<16?1.15 : i<32?0.72 : i<64?0.5 : 0.28; }
 
-function reset(){ idx=0;sidx=0;p=0;phase='intro';insituT=0;rev=0;hold=0;MODS.forEach(m=>m.f=0); }
+function reset(){ idx=0;sidx=0;p=0;phase='intro';insituT=0;rev=0;hold=0;ep=0;cp=0;pidx=0;pp=0;pdrawn=0;MODS.forEach(m=>m.f=0); }
 
 /* ============ FRAME ===================================================== */
 function frame(ts){
   requestAnimationFrame(frame);
   const dt=Math.min(.05,(ts-last)/1000)||0; last=ts;
   if(playing){
-    if(phase==='intro'){ insituT+=dt*speed; if(insituT>INTRO){phase='insitu';insituT=0;} }
+    if(phase==='intro'){ insituT+=dt*speed; if(insituT>INTRO){phase='excavate';ep=0;} }
+    else if(phase==='excavate'){ ep+=dt*speed*RATE/EXCAV;
+      if(ep>=1){ep=1;phase='piling';pidx=0;pp=0;} }
+    else if(phase==='piling'){ pp+=dt*speed*RATE/pdur(pidx);
+      if(pp>=1){ pidx++; pp=0; pdrawn=pidx;
+                 if(pidx>=NPILE){phase='concrete';cp=0;} } }
+    else if(phase==='concrete'){ cp+=dt*speed*RATE/CONC; if(cp>=1){cp=1;phase='insitu';insituT=0;} }
     else if(phase==='insitu'){ insituT+=dt*speed*RATE; if(insituT>=INSITU){phase='shaft';p=0;} }
     else if(phase==='shaft'){
       p+=dt*speed*RATE/(sidx<2?1.9:1.15);
@@ -395,7 +572,7 @@ function frame(ts){
       if(p>=1){ if(idx<NLIFT){LIFT[idx].f=1;} idx++; p=0; if(idx>=NLIFT){phase='done';hold=0;} }
     }
     else if(phase==='done'){ hold+=dt*speed; if(hold>1.5) phase='reveal'; }
-    else if(phase==='reveal'){ rev=Math.min(1,rev+dt*speed/18); }
+    else if(phase==='reveal'){ rev=Math.min(1,rev+dt*speed/26); }
   }
   MODS.forEach(m=>{ if(m.f>0) m.f=Math.max(0,m.f-dt*2.2); });
   draw();
@@ -406,8 +583,9 @@ function draw(){
   ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,W,H);
   ctx.lineJoin='miter'; ctx.lineCap='butt';
 
-  /* completed project fades up underneath the drawing */
-  const r=soft(rev); WF=1-soft(Math.min(1,rev/0.88));   // line-work lingers under the render
+  /* completed project fades up underneath the drawing, which dissolves off it */
+  const r=soft(rev); WF=1-soft(Math.min(1,rev/0.88));
+  const kreg=ease(Math.min(1,rev/0.78));
   SHAFT.forEach(m=>{ m.na=coreAlpha(m.l); });    // modules clad over the core as they land
   if(r>0&&RDY){
     const base=Math.min(W/RW,H/RH);
@@ -419,10 +597,9 @@ function draw(){
 
   /* the line-work settles onto the render's building as it dissolves */
   ctx.save();
-  if(rev>0){
-    const k=ease(Math.min(1,rev/0.78));
-    ctx.translate(1000+(957-1000)*k, 985+(1034-985)*k);
-    ctx.scale(1+0.45*k, 1+0.264*k);
+  if(rev>0){                        // the drawing settles onto the render as it fades
+    ctx.translate(1000+(957-1000)*kreg, 985+(1034-985)*kreg);
+    ctx.scale(1+0.45*kreg, 1+0.264*kreg);
     ctx.translate(-1000,-985);
   }
 
@@ -432,8 +609,13 @@ function draw(){
   /* box-breakdown overlay */
   if(showBox||phase==='intro') MODS.forEach(m=>ticks(m.x,m.y,m.w,m.h,(showBox?.55:.28)*WF));
 
+  /* basement — dug, then poured, before anything comes out of the ground */
+  basement(ep, cp);
+
   /* ground floor — traditional in-situ, rises as concrete not as boxes */
-  const gp = phase==='intro'?0 : phase==='insitu' ? insituT/INSITU : 1;
+  const gp = (phase==='intro'||phase==='excavate'||phase==='piling'
+              ||phase==='concrete') ? 0
+           : phase==='insitu' ? insituT/INSITU : 1;
   if(gp>0){
     /* traditional build: rises out of the ground, soft leading edge, up to the slab */
     const g = Math.min(1, gp/0.78);
@@ -464,9 +646,24 @@ function draw(){
       ctx.restore();
     }
   }
+  /* excavation plant */
+  if(phase==='excavate'){
+    const cyc=(ep*EXCAV*1.6)%1;
+    digger(DIGX, cyc, .9*WF);
+    const load=(ep*5)%1, shift=smooth(load,.62,.96);
+    const slots=[DIGX+120,DIGX+430,DIGX+740];
+    for(let k=2;k>=0;k--){
+      const from=slots[k], to=k===0?-720:slots[k-1];
+      const x=from+(to-from)*shift;
+      if(x>-560&&x<2400) dumper(x, k===0?(load<.62):false, WF);
+    }
+  }
+
   /* site datum */
   ctx.save();ctx.globalAlpha=.35*WF;ctx.strokeStyle='#fff';ctx.lineWidth=1;
-  L(60,GROUND,1940,GROUND); ctx.globalAlpha=.16*WF; L(60,1088,1940,1088); ctx.restore();
+  if(ep>0.01){ L(60,GROUND,BL,GROUND); L(BR,GROUND,1940,GROUND); }
+  else L(60,GROUND,1940,GROUND);
+  ctx.globalAlpha=.16*WF; L(60,1088,1940,1088); ctx.restore();
 
   /* lift shaft already erected */
   for(let i=0;i<sidx&&i<SHAFT.length;i++){ const m=SHAFT[i];
@@ -529,22 +726,35 @@ function draw(){
 
   ctx.restore();                                   // end registered line-work
 
+
   /* end lockup */
   const ec=Math.max(0,Math.min(1,(rev-0.5)/0.42));
   if(ec>0){
     ctx.save(); ctx.globalAlpha=ec;
-    const g=ctx.createLinearGradient(0,H-340,0,H);
-    g.addColorStop(0,'rgba(10,10,10,0)'); g.addColorStop(1,'rgba(10,10,10,.88)');
-    ctx.fillStyle=g; ctx.fillRect(0,H-340,W,340);
-    const bx0=92, by=H-150;
-    mark(bx0,by-30,26,10);
-    led('PRESTON', bx0+4, by+42, 26, 11, 6, '#ffffff');
-    ctx.globalAlpha=ec*.72;
-    led('15 LEVELS · 400 APARTMENTS · 700 MODULES', bx0+4, by+72, 13, 3.6, 0, '#ffffff');
-    ctx.globalAlpha=ec*.9;
-    const mkw=20*WMAR; mark(W-92-mkw, by-16, 20, 8);
-    const sw2=ledWidth('SUPPLY',12,5.4);
-    led('SUPPLY', W-92-sw2, by+22, 12, 5.4, 0, '#bdd420');
+    const g=ctx.createLinearGradient(0,H-470,0,H);
+    g.addColorStop(0,'rgba(10,10,10,0)'); g.addColorStop(.45,'rgba(10,10,10,.62)');
+    g.addColorStop(1,'rgba(10,10,10,.96)');
+    ctx.fillStyle=g; ctx.fillRect(0,H-470,W,470);
+    /* hero ender — HAAVN SUPPLY, centred over the finished project */
+    const by=H-150;
+    ctx.globalAlpha=ec*.85;
+    const pw=ledWidth('PRESTON',16,11);
+    led('PRESTON', (W-pw)/2, by-62, 16, 11, 0, '#ffffff');
+
+    const mh=40, mw=mh*WMAR, gap=26;
+    const sw2=ledWidth('SUPPLY',22,10);
+    const tot=mw+gap+sw2, lx=(W-tot)/2;
+    ctx.globalAlpha=ec;
+    mark(lx, by-mh+4, mh, 12);
+    led('SUPPLY', lx+mw+gap, by, 22, 10, 9, '#bdd420');
+
+    ctx.globalAlpha=ec*.55;
+    ctx.strokeStyle='#ffffff'; ctx.lineWidth=1;
+    L((W-tot)/2, by+30, (W+tot)/2, by+30);
+    ctx.globalAlpha=ec*.7;
+    const st='15 LEVELS · 400 APARTMENTS · 700 MODULES · DELIVERED MODULAR';
+    const stw=ledWidth(st,12,4.2);
+    led(st, (W-stw)/2, by+58, 12.5, 4.4, 0, '#ffffff');
     ctx.restore();
   }
 
@@ -557,7 +767,11 @@ function draw(){
 
   /* HUD */
   const set=Math.min(idx,NLIFT), TOTAL=700, shown=Math.round(set*TOTAL/NLIFT);
-  const cur = phase==='intro'||phase==='insitu' ? 'GROUND SLAB'
+  const cur = phase==='excavate' ? 'BASEMENT EXCAVATION'
+            : phase==='piling' ? 'SCREW PILING '+String(Math.min(pidx+1,NPILE)).padStart(2,'0')+' / '+NPILE
+            : phase==='concrete' ? (cp<0.45?'BASEMENT CONCRETE'
+                                 :cp<0.78?'BASEMENT COLUMNS':'GROUND SLAB POUR')
+            : phase==='intro'||phase==='insitu' ? 'GROUND SLAB'
             : phase==='shaft' ? 'LIFT SHAFT '+String(Math.min(sidx+1,15)).padStart(2,'0')
             : (idx<NLIFT?lname(LIFT[idx].l):'COMPLETE');
   tr.innerHTML='PRESTON';
@@ -567,16 +781,21 @@ function draw(){
     'PLACING <span class="lm">'+cur+'</span>';
   br.innerHTML=[
     '<b>15 LEVELS · 400 APARTMENTS</b>',
-    'GROUND <b>IN-SITU</b>',
+    'BASEMENT + GROUND <b>IN-SITU</b>',
+    'SCREW PILES <b>'+NPILE+'</b>',
+    'BASEMENT COLUMNS <b>'+NB1+'</b>',
     'L01–L14 <i class="lm">MODULAR</i>',
     'LIFT SHAFT <b>15 PRECAST</b>',
     'MODULE <b>12.0 × 3.5 m</b>',
     '700 MODULES · 1 TRUCK EACH',
     'INSTALL <b>WEEK '+Math.max(1,Math.ceil(shown/20))+'</b>'
   ].map(t=>'<span>'+t+'</span>').join('');
-  const prog = phase==='intro'?0 : phase==='insitu'?0.06*(insituT/INSITU)
-             : phase==='shaft'?0.06+0.16*(sidx/SHAFT.length)
-             : phase==='modular'?0.22+0.78*(set/NLIFT) : 1;
+  const prog = phase==='intro'?0 : phase==='excavate'?0.06*ep
+             : phase==='piling'?0.06+0.07*((pidx+pp)/NPILE)
+             : phase==='concrete'?0.13+0.05*cp
+             : phase==='insitu'?0.18+0.04*(insituT/INSITU)
+             : phase==='shaft'?0.22+0.12*(sidx/SHAFT.length)
+             : phase==='modular'?0.34+0.66*(set/NLIFT) : 1;
   fill.style.width=(prog*100)+'%';
   const fadeHud=1-Math.max(0,Math.min(1,(rev-0.05)/0.35));
   [tl,tr,bl,br].forEach(e=>e.style.opacity=fadeHud);
@@ -589,13 +808,13 @@ const smooth=(v,a,b)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3
 pp.onclick=()=>{playing=!playing;pp.textContent=playing?'Pause':'Play';};
 rs.onclick=()=>{reset();playing=true;pp.textContent='Pause';};
 bx.onclick=()=>{showBox=!showBox;bx.classList.toggle('on',showBox);};
-sk.onclick=()=>{phase='reveal';idx=NLIFT;sidx=SHAFT.length;p=0;insituT=INSITU;rev=1;};
+sk.onclick=()=>{phase='reveal';idx=NLIFT;sidx=SHAFT.length;p=0;insituT=INSITU;ep=1;cp=1;pidx=NPILE;pdrawn=NPILE;rev=1;};
 document.querySelectorAll('.sp').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.sp').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); speed=+b.dataset.s;});
 track.onclick=e=>{
   const r=track.getBoundingClientRect(); const q=(e.clientX-r.left)/r.width;
-  idx=Math.round(q*NLIFT); sidx=SHAFT.length; p=0; insituT=INSITU; rev=0; hold=0;
+  idx=Math.round(q*NLIFT); sidx=SHAFT.length; p=0; insituT=INSITU; ep=1; cp=1; pidx=NPILE; pdrawn=NPILE; rev=0; hold=0;
   phase = idx>=NLIFT?'done':'modular';
 };
 resize(); requestAnimationFrame(frame);
