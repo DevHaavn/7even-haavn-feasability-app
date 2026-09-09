@@ -8,29 +8,57 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    PRESTON — MODULAR ASSEMBLY, as the ground of the HAAVN home page.
 
-   Jamie's prestonmodularbuild.html, ported verbatim in geometry and sequence.
-   Three things changed, all of them because this is now a background on paper
-   rather than a presentation on black:
+   Jamie's prestonmodularbuild.html, ported verbatim in geometry, sequence and
+   read-outs. What changed, because this is now a ground on paper rather than
+   a presentation on black:
      · the canvas is CLEARED each frame instead of filled #0a0a0a, so the
        page's own paper shows through;
-     · the white line work is re-inked #101010 and the lime steps to #a8bc10,
-       the HAAVN accent — except inside the crane's sign plates, which stay
-       dark with a white mark, because that is a lit sign and reads as one;
-     · the HUD, the intro card, the scrub bar and the buttons are gone.
+     · the white line work is re-inked to a FADED ink, rgba(16,16,16,.38) —
+       the fade lives in the colour, not in the element's opacity, so the
+       brand green stays at full strength beside it;
+     · the green is the source's own #bdd420 everywhere it appears — crane
+       signage, LED branding, aviation lights, loaded trucks, the module in
+       flight and the module being set;
+     · the four read-outs keep the source's positions, wording and the
+       rotated vertical block, re-coloured to read on paper;
+     · the intro card, the scrub bar and the buttons are gone.
    It loops, and it stops drawing when the tab is hidden or the parent hides
    it, so a background animation never burns a phone battery.
    The original is untouched on the Desktop.
    ══════════════════════════════════════════════════════════════════════════ */
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:transparent;overflow:hidden}
-canvas{display:block;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
+/* the four read-outs, in the source's own positions and wording — faded into
+   the paper rather than lit on black */
+.lab{position:absolute;font-size:clamp(7px,1.3vw,11px);letter-spacing:.22em;text-transform:uppercase;
+  color:#8e908d;pointer-events:none;line-height:2.0;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.lab b{color:#2c2c2c;font-weight:500}
+.lab .lm{color:#8a9c08}
+#tl{top:13.5%;left:2.6%}
+#tr{top:13.5%;right:5.4%;text-align:right}
+#bl{top:24%;left:2.6%}
+#br{top:50%;right:0;transform-origin:100% 50%;
+  transform:translateY(-50%) rotate(-90deg);white-space:nowrap;text-align:center;
+  line-height:2.4;letter-spacing:.28em}
+/* below tablet the frame is too short to carry five rotated lines legibly */
+@media(max-width:560px){.lab{display:none}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div class="lab" id="tl"></div>
+<div class="lab" id="tr"></div>
+<div class="lab" id="bl"></div>
+<div class="lab" id="br"></div>
 <script>
 /* ============ PALETTE =================================================== */
-const INK='#101010', LIME='#a8bc10';
+/* The line work carries its fade in the colour itself, so the element can sit
+   at full opacity and the brand green comes through at full strength — the
+   crane signage, the LED branding, the loaded trucks and the module being set
+   are all #bdd420, exactly as the source HTML. */
+const INK='rgba(16,16,16,.38)', LIME='#bdd420';
 
 /* ============ GEOMETRY MODEL ============================================ */
 const W=2000,H=1125;
@@ -63,6 +91,7 @@ MODS.push({l:16,b:3,t:'plant',x:bx(3)+6,y:levTop(15)-32,w:BAY*2-12,h:32,f:0}); /
 const GND = MODS.filter(m=>m.l===1);          // in-situ, no crane
 const LIFT = MODS.filter(m=>m.l>1);           // craned modules
 const NLIFT = LIFT.length;
+const lname = l => l===1?'GROUND': l===16?'ROOF':'L'+String(l-1).padStart(2,'0');
 
 /* ============ DRAWING =================================================== */
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
@@ -180,8 +209,8 @@ function crane(tx,hy){
   // counter-jib LED sign panel
   const sx=344, sy=JIB+21, sw=176, sh=44;
   ctx.save();
-  ctx.fillStyle='#101010'; ctx.fillRect(sx,sy,sw,sh);
-  ctx.globalAlpha=.14; ctx.fillStyle=LIME; ctx.fillRect(sx,sy,sw,sh);
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(sx,sy,sw,sh);
+  ctx.globalAlpha=.10; ctx.fillStyle=LIME; ctx.fillRect(sx,sy,sw,sh);
   ctx.globalAlpha=1; ctx.strokeStyle=LIME; ctx.lineWidth=1.4;
   ctx.shadowColor=LIME; ctx.shadowBlur=gl2; R(sx,sy,sw,sh);
   ctx.restore();
@@ -194,8 +223,8 @@ function crane(tx,hy){
   ctx.save();
   ctx.translate(MASTX, 790); ctx.rotate(-Math.PI/2);
   const bh=26, bw=bh*WMAR, sub=ledWidth('SUPPLY',16,7.5), pw=bw+sub+58, ph=56;
-  ctx.fillStyle='#101010'; ctx.fillRect(-22,-ph/2,pw,ph);
-  ctx.globalAlpha=.12; ctx.fillStyle=LIME; ctx.fillRect(-22,-ph/2,pw,ph);
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(-22,-ph/2,pw,ph);
+  ctx.globalAlpha=.09; ctx.fillStyle=LIME; ctx.fillRect(-22,-ph/2,pw,ph);
   ctx.globalAlpha=1; ctx.strokeStyle=LIME; ctx.lineWidth=1.4;
   ctx.shadowColor=LIME; ctx.shadowBlur=gl2;
   ctx.strokeRect(-22,-ph/2,pw,ph); ctx.shadowBlur=0;
@@ -288,7 +317,7 @@ function draw(){
   ctx.lineJoin='miter'; ctx.lineCap='butt';
 
   /* ghost of the completed elevation */
-  MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.12,INK,1); });
+  MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.34,INK,1); });
 
   /* ground floor — traditional in-situ, rises as concrete not as boxes */
   const gp = phase==='intro'?0 : phase==='insitu' ? insituT/INSITU : 1;
@@ -355,6 +384,22 @@ function draw(){
     ctx.save();ctx.strokeStyle=LIME;ctx.globalAlpha=.9;ctx.lineWidth=2.4;
     L(BX0-46,GROUND,bx(NB)+46,GROUND);ctx.restore();
   }
+
+  /* HUD */
+  const set=Math.min(idx,NLIFT);
+  const cur = phase==='insitu'?'GROUND' : (idx<NLIFT?lname(LIFT[idx].l):'COMPLETE');
+  tl.innerHTML='HAAVN SUPPLY<br><span class="lm">MODULAR ASSEMBLY</span>';
+  tr.innerHTML='PRESTON<br><b>15 LEVELS · 400 APTS</b>';
+  bl.innerHTML=
+    'MODULES SET <b>'+String(set).padStart(3,'0')+' / '+NLIFT+'</b><br>'+
+    'TRUCK DELIVERIES <b>'+String(set).padStart(3,'0')+'</b><br>'+
+    'PLACING <span class="lm">'+cur+'</span>';
+  br.innerHTML=
+    'GROUND <b>IN-SITU</b><br>'+
+    'L01–L14 <span class="lm">MODULAR</span><br>'+
+    'MODULE <b>12.0 × 3.5 m</b><br>'+
+    '1 TRUCK = 1 MODULE<br>'+
+    'INSTALL <b>WEEK '+Math.max(1,Math.ceil(set/12))+'</b>';
 }
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const smooth=(v,a,b)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);};
