@@ -288,6 +288,7 @@ function flight(m,cx,cy,s,rot){
 let idx=0, p=0, last=0, holdT=0;
 let phase='intro';           // intro → insitu → modular → done → (loop)
 let insituT=0;
+const SPEED=4;               // the source's 4× setting — a full cycle in ~26s
 const INSITU=7.0;            // seconds for the traditional ground floor
 const HOLD=6.0;              // seconds the finished elevation is held before looping
 function dur(i){ return i<3?3.0 : i<8?2.0 : i<16?1.15 : i<32?0.72 : i<64?0.5 : 0.28; }
@@ -300,10 +301,10 @@ function frame(ts){
   const dt=Math.min(.05,(ts-last)/1000)||0; last=ts;
   // a background never draws when nobody can see it
   if(document.hidden || !cv.clientWidth) return;
-  if(phase==='intro'){ insituT+=dt; if(insituT>1.6){phase='insitu';insituT=0;} }
-  else if(phase==='insitu'){ insituT+=dt; if(insituT>=INSITU){phase='modular';} }
+  if(phase==='intro'){ insituT+=dt*SPEED; if(insituT>1.6){phase='insitu';insituT=0;} }
+  else if(phase==='insitu'){ insituT+=dt*SPEED; if(insituT>=INSITU){phase='modular';} }
   else if(phase==='modular'){
-    p+=dt/dur(idx);
+    p+=dt*SPEED/dur(idx);
     if(p>=1){ if(idx<NLIFT){LIFT[idx].f=1;} idx++; p=0; if(idx>=NLIFT) phase='done'; }
   }
   else if(phase==='done'){ holdT+=dt; if(holdT>=HOLD) reset(); }
