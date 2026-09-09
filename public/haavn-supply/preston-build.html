@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preston · Modular Assembly</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRESTON — MODULAR ASSEMBLY, as the ground of the HAAVN home page.
+
+   Jamie's prestonmodularbuild.html, ported verbatim in geometry and sequence.
+   Three things changed, all of them because this is now a background on paper
+   rather than a presentation on black:
+     · the canvas is CLEARED each frame instead of filled #0a0a0a, so the
+       page's own paper shows through;
+     · the white line work is re-inked #101010 and the lime steps to #a8bc10,
+       the HAAVN accent — except inside the crane's sign plates, which stay
+       dark with a white mark, because that is a lit sign and reads as one;
+     · the HUD, the intro card, the scrub bar and the buttons are gone.
+   It loops, and it stops drawing when the tab is hidden or the parent hides
+   it, so a background animation never burns a phone battery.
+   The original is untouched on the Desktop.
+   ══════════════════════════════════════════════════════════════════════════ */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+/* ============ PALETTE =================================================== */
+const INK='#101010', LIME='#a8bc10';
+
+/* ============ GEOMETRY MODEL ============================================ */
+const W=2000,H=1125;
+const GROUND=985;                 // site datum
+const BAY=54, BX0=730, NB=10;     // 3.5m module bay = 54px  → 1m ≈ 15.4px
+const GH=95, LH=48;               // ground storey / typical storey
+const PICK=1600;                  // truck pickup centreline
+const JIB=90, MASTX=520;          // crane
+
+const levBot = l => l===1 ? GROUND : 890-(l-2)*LH;
+const levTop = l => levBot(l) - (l===1?GH:LH);
+const bx = b => BX0 + b*BAY;
+
+/* module schedule ------------------------------------------------------- */
+const MODS=[];
+const add=(l,b,t,w)=>MODS.push({l,b,t,x:bx(b),y:levTop(l),w:w||BAY,h:l===1?GH:LH,f:0});
+
+for(let b=0;b<NB;b++) add(1,b,'arch');                       // GROUND — traditional
+for(let l=2;l<=5;l++){                                        // L01–L04 podium
+  for(let b=0;b<=6;b++) add(l,b,'pod');
+  for(let b=7;b<=9;b++) add(l,b,'core');
+}
+for(let l=6;l<=14;l++){                                       // L05–L13 tower
+  for(let b=2;b<=6;b++) add(l,b,'tower');
+  for(let b=7;b<=9;b++) add(l,b,'core');
+}
+for(let b=2;b<=6;b++) add(15,b,'tower');                      // L14
+MODS.push({l:16,b:3,t:'plant',x:bx(3)+6,y:levTop(15)-32,w:BAY*2-12,h:32,f:0}); // roof plant
+
+const GND = MODS.filter(m=>m.l===1);          // in-situ, no crane
+const LIFT = MODS.filter(m=>m.l>1);           // craned modules
+const NLIFT = LIFT.length;
+
+/* ============ DRAWING =================================================== */
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+let SC=1;
+function resize(){
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const w=cv.clientWidth||innerWidth;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(w*9/16*dpr); SC=cv.width/W;
+}
+addEventListener('resize',resize);
+
+const L=(a,b,c,d)=>{ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();};
+const R=(x,y,w,h)=>{ctx.beginPath();ctx.rect(x,y,w,h);ctx.stroke();};
+
+/* facade detail for one module box -------------------------------------- */
+function facade(m,x,y,w,h){
+  const i=5;
+  if(m.t==='arch'){                                   // ground arcade
+    const ax=x+i,ay=y+i,aw=w-2*i,ah=h-2*i,r=aw/2;
+    ctx.beginPath();ctx.moveTo(ax,ay+ah);ctx.lineTo(ax,ay+r);
+    ctx.arc(ax+r,ay+r,r,Math.PI,0);ctx.lineTo(ax+aw,ay+ah);ctx.stroke();
+    const jx=ax+4,jw=aw-8,jr=jw/2;
+    ctx.beginPath();ctx.moveTo(jx,ay+ah);ctx.lineTo(jx,ay+r);
+    ctx.arc(jx+jr,ay+r,jr,Math.PI,0);ctx.lineTo(jx+jw,ay+ah);ctx.stroke();
+    L(ax+r,ay+r,ax+r,ay+ah);
+    L(jx,ay+ah-30,jx+jw,ay+ah-30);
+    L(jx,ay+ah-52,jx+jw,ay+ah-52);
+    L(jx+jr*0.5,ay+r-jr*0.86,jx+jr,ay+r);
+    L(jx+jr*1.5,ay+r-jr*0.86,jx+jr,ay+r);
+  } else if(m.t==='pod'){                             // podium apartment
+    R(x+i,y+i,w-2*i,h-2*i);
+    const iw=w-2*i;
+    L(x+i+iw/3,y+i,x+i+iw/3,y+h-i);
+    L(x+i+2*iw/3,y+i,x+i+2*iw/3,y+h-i);
+    L(x+i,y+i+(h-2*i)*0.42,x+w-i,y+i+(h-2*i)*0.42);
+    L(x+i,y+h-i-9,x+w-i,y+h-i-9);
+  } else if(m.t==='tower'){                           // tower apartment + balcony
+    R(x+i,y+i,w-2*i,h-i-13);
+    L(x+w/2,y+i,x+w/2,y+h-13);
+    L(x+i,y+i+(h-i-13-i)*0.5,x+w-i,y+i+(h-i-13-i)*0.5);
+    L(x-7,y+h,x+w+7,y+h);                             // slab edge
+    L(x-7,y+h-8,x+w+7,y+h-8);                         // balustrade
+    for(let k=0;k<=4;k++) L(x-7+k*(w+14)/4,y+h-8,x-7+k*(w+14)/4,y+h);
+  } else if(m.t==='core'){                            // lift / stair core glazing
+    const px=x+8,pw=w-16;
+    R(px,y,pw,h);
+    L(px+pw/3,y,px+pw/3,y+h);
+    L(px+2*pw/3,y,px+2*pw/3,y+h);
+    for(let k=1;k<4;k++) L(px,y+h*k/4,px+pw,y+h*k/4);
+    if(m.l===14){                                     // arched head
+      ctx.beginPath();ctx.arc(px+pw/2,y,pw/2,Math.PI,0);ctx.stroke();
+    }
+  } else if(m.t==='plant'){
+    R(x+7,y+7,w-14,h-14);
+    L(x,y+h,x+w,y+h);
+  }
+}
+function box(m,x,y,w,h,alpha,col,lw){
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=col;ctx.lineWidth=lw||1.6;
+  R(x,y,w,h); facade(m,x,y,w,h); ctx.restore();
+}
+
+/* HAAVN wordmark — the real vector mark, white on the lit sign plates ----- */
+const WM=new Image(); let WMOK=false; WM.onload=()=>{WMOK=true;};
+WM.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4020.14 639.17"><defs><style>.cls-1{fill:#ffffff;}</style></defs><g><polygon class="cls-1" points="4020.14 639.17 3787.03 639.17 3723.54 572.13 3620.55 471.17 3544.69 396.65 3307.1 163.63 3307.08 639.17 3140.8 639.17 3140.57 .65 3369.89 .65 3507.96 135.08 3591.43 216.8 3670.23 294.11 3774.77 396.56 3850.97 471.05 3853.7 469.31 3853.69 1.5 4020.14 1.47 4020.14 639.17"/><polygon class="cls-1" points="880.97 638.32 715.06 638.32 715.04 427.68 165.71 427.69 165.71 638.32 0 638.32 .01 1.96 165.71 1.88 165.71 261.98 715.04 261.98 715.05 1.89 880.95 1.97 880.97 638.32"/><path class="cls-1" d="M3064.68.65l-.02,638.52h-329L2085.15.09l237.1-.09,137.2,135.3,114.85,113.38,132.98,131.05,117.05,115.5,71.57,70.36c-.19.68,1.22-1.02,2.28-2.57l-.02-562.37h166.52Z"/><path class="cls-1" d="M1625.19,560.05l-499.68-486.47-.21,564.74h-167.22l-.15-377.23-.21-259.9,319.91.27s658.4,638.47,655.7,637.71h-230.37l-77.76-79.12Z"/><polygon class="cls-1" points="2320.39 559.87 2247.92 488.97 2175.04 417.79 2101.43 345.84 2030.1 276.11 1961.01 208.61 1887.47 136.63 1822.32 73.24 1821.02 420.83 1733.97 336.34 1655.56 260 1655.49 1.45 1985.17 1.47 2033.84 49 2099.72 113.71 2181.57 193.87 2258.16 268.85 2327.9 337.24 2424.84 432.29 2501.54 507.38 2636.18 639.17 2401.73 639.17 2320.39 559.87"/></g></svg>`);
+const WMAR=4020.14/639.17;                    // wordmark aspect ratio
+function mark(x,y,h,glow){                    // returns drawn width
+  const w=h*WMAR;
+  if(WMOK){
+    ctx.save();
+    ctx.shadowColor='#ffffff'; ctx.shadowBlur=glow;
+    ctx.drawImage(WM,x,y,w,h);
+    ctx.shadowBlur=glow*0.5; ctx.drawImage(WM,x,y,w,h);   // second pass = bloom
+    ctx.restore();
+  }
+  return w;
+}
+function led(str,x,y,size,sp,glow,col){
+  ctx.save();
+  ctx.fillStyle=col||'#ffffff'; ctx.font='300 '+size+'px "Helvetica Neue",Helvetica,Arial';
+  ctx.shadowColor=col||'#ffffff'; ctx.shadowBlur=glow; ctx.textBaseline='alphabetic';
+  let cx=x; for(const ch of str){ ctx.fillText(ch,cx,y); cx+=ctx.measureText(ch).width+sp; }
+  ctx.restore(); return cx-x-sp;
+}
+function ledWidth(str,size,sp){
+  ctx.save(); ctx.font='300 '+size+'px "Helvetica Neue",Helvetica,Arial';
+  let w=0; for(const ch of str) w+=ctx.measureText(ch).width+sp; ctx.restore(); return w-sp;
+}
+
+/* crane ------------------------------------------------------------------ */
+function crane(tx,hy){
+  ctx.save();ctx.strokeStyle=INK;ctx.globalAlpha=.85;ctx.lineWidth=1.4;
+  const a=MASTX-13,b=MASTX+13;
+  L(a,GROUND,a,JIB); L(b,GROUND,b,JIB);
+  for(let y=GROUND;y>JIB;y-=42){ L(a,y,b,y-21); L(b,y,a,y-21); L(a,y,b,y); }
+  L(a-18,GROUND,b+18,GROUND);
+  // jib
+  L(230,JIB,1720,JIB); L(230,JIB+18,1720,JIB+18);
+  for(let x=230;x<1720;x+=46){ L(x,JIB,Math.min(x+46,1720),JIB+18); }
+  // apex + pendants
+  ctx.beginPath();ctx.moveTo(a,JIB);ctx.lineTo(MASTX,JIB-58);ctx.lineTo(b,JIB);ctx.stroke();
+  L(MASTX,JIB-58,1690,JIB); L(MASTX,JIB-58,242,JIB);
+  // counterweight
+  R(236,JIB+18,92,36);  L(236,JIB+31,328,JIB+31);
+  // operator cab
+  R(b,JIB+18,34,30);
+  // trolley + hook
+  R(tx-16,JIB+18,32,14);
+  L(tx,JIB+32,tx,hy);  L(tx-9,hy,tx+9,hy); R(tx-9,hy,18,11);
+  ctx.restore();
+
+  /* ---- HAAVN SUPPLY illuminated signage ---- */
+  const t=performance.now()/1000, glow=15+7*Math.sin(t*1.9), gl2=11+5*Math.sin(t*1.9+1);
+
+  // counter-jib LED sign panel
+  const sx=344, sy=JIB+21, sw=176, sh=44;
+  ctx.save();
+  ctx.fillStyle='#101010'; ctx.fillRect(sx,sy,sw,sh);
+  ctx.globalAlpha=.14; ctx.fillStyle=LIME; ctx.fillRect(sx,sy,sw,sh);
+  ctx.globalAlpha=1; ctx.strokeStyle=LIME; ctx.lineWidth=1.4;
+  ctx.shadowColor=LIME; ctx.shadowBlur=gl2; R(sx,sy,sw,sh);
+  ctx.restore();
+  ctx.save(); ctx.strokeStyle=INK; ctx.globalAlpha=.75; ctx.lineWidth=1.3;
+  L(sx+34,JIB+18,sx+34,sy); L(sx+sw-34,JIB+18,sx+sw-34,sy); ctx.restore();
+  const mh=20, wid=mh*WMAR;
+  mark(sx+(sw-wid)/2, sy+(sh-mh)/2, mh, glow);
+
+  // mast banner — vertical lockup
+  ctx.save();
+  ctx.translate(MASTX, 790); ctx.rotate(-Math.PI/2);
+  const bh=26, bw=bh*WMAR, sub=ledWidth('SUPPLY',16,7.5), pw=bw+sub+58, ph=56;
+  ctx.fillStyle='#101010'; ctx.fillRect(-22,-ph/2,pw,ph);
+  ctx.globalAlpha=.12; ctx.fillStyle=LIME; ctx.fillRect(-22,-ph/2,pw,ph);
+  ctx.globalAlpha=1; ctx.strokeStyle=LIME; ctx.lineWidth=1.4;
+  ctx.shadowColor=LIME; ctx.shadowBlur=gl2;
+  ctx.strokeRect(-22,-ph/2,pw,ph); ctx.shadowBlur=0;
+  mark(0,-bh/2,bh,glow);
+  led('SUPPLY', bw+22, 6, 16, 7.5, glow, '#ffffff');
+  ctx.restore();
+
+  // aviation LEDs
+  ctx.save(); ctx.fillStyle=LIME; ctx.shadowColor=LIME;
+  [[1712,JIB-4],[MASTX,JIB-62],[240,JIB-4]].forEach(([lx,ly],i)=>{
+    ctx.shadowBlur=8+9*Math.abs(Math.sin(t*2.2+i));
+    ctx.globalAlpha=.5+.5*Math.abs(Math.sin(t*2.2+i));
+    ctx.beginPath(); ctx.arc(lx,ly,3.2,0,7); ctx.fill();
+  });
+  ctx.restore();
+}
+
+/* truck ------------------------------------------------------------------ */
+function truck(x,loaded){
+  const y=1062, mh=48, ml=185;
+  ctx.save();ctx.strokeStyle=INK;ctx.globalAlpha=.8;ctx.lineWidth=1.5;
+  // trailer deck
+  L(x-40,y,x+ml+30,y); L(x-40,y+9,x+ml+30,y+9); L(x-40,y,x-40,y+9); L(x+ml+30,y,x+ml+30,y+9);
+  // prime mover
+  ctx.beginPath();
+  ctx.moveTo(x-40,y);ctx.lineTo(x-40,y-46);ctx.lineTo(x-92,y-46);
+  ctx.lineTo(x-100,y-22);ctx.lineTo(x-118,y-22);ctx.lineTo(x-118,y);ctx.stroke();
+  R(x-90,y-40,26,17);
+  // wheels
+  [[x-108,0],[x-58,0],[x+96,0],[x+134,0]].forEach(([wx])=>{
+    ctx.beginPath();ctx.arc(wx,y+22,13,0,7);ctx.stroke();
+    ctx.beginPath();ctx.arc(wx,y+22,5,0,7);ctx.stroke();
+  });
+  if(loaded){
+    ctx.globalAlpha=1;ctx.strokeStyle=LIME;
+    R(x,y-mh,ml,mh);
+    L(x,y-mh+9,x+ml,y-mh+9);
+    for(let k=1;k<4;k++) L(x+ml*k/4,y-mh,x+ml*k/4,y);
+    R(x+14,y-mh+18,26,20);
+  }
+  ctx.restore();
+}
+
+/* module in flight — spins 90° from 12m long face to 3.5m elevation face -- */
+function flight(m,cx,cy,s,rot){
+  const lw=185, lh=48;
+  const w=lw+(m.w-lw)*s, h=lh+(m.h-lh)*s;
+  const x=cx-w/2, y=cy-h/2;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);ctx.translate(-cx,-cy);
+  ctx.strokeStyle=LIME;ctx.lineWidth=1.8;ctx.globalAlpha=1;
+  R(x,y,w,h);
+  if(s<0.62){ ctx.globalAlpha=1-s/0.62;
+    L(x,y+9,x+w,y+9); for(let k=1;k<4;k++) L(x+w*k/4,y,x+w*k/4,y+h);
+  }
+  if(s>0.45){ ctx.globalAlpha=(s-0.45)/0.55; facade(m,x,y,w,h); }
+  ctx.restore();
+  return {x,y,w,h};
+}
+
+/* ============ STATE ===================================================== */
+let idx=0, p=0, last=0, holdT=0;
+let phase='intro';           // intro → insitu → modular → done → (loop)
+let insituT=0;
+const INSITU=7.0;            // seconds for the traditional ground floor
+const HOLD=6.0;              // seconds the finished elevation is held before looping
+function dur(i){ return i<3?3.0 : i<8?2.0 : i<16?1.15 : i<32?0.72 : i<64?0.5 : 0.28; }
+
+function reset(){ idx=0;p=0;phase='intro';insituT=0;holdT=0;MODS.forEach(m=>m.f=0); }
+
+/* ============ FRAME ===================================================== */
+function frame(ts){
+  requestAnimationFrame(frame);
+  const dt=Math.min(.05,(ts-last)/1000)||0; last=ts;
+  // a background never draws when nobody can see it
+  if(document.hidden || !cv.clientWidth) return;
+  if(phase==='intro'){ insituT+=dt; if(insituT>1.6){phase='insitu';insituT=0;} }
+  else if(phase==='insitu'){ insituT+=dt; if(insituT>=INSITU){phase='modular';} }
+  else if(phase==='modular'){
+    p+=dt/dur(idx);
+    if(p>=1){ if(idx<NLIFT){LIFT[idx].f=1;} idx++; p=0; if(idx>=NLIFT) phase='done'; }
+  }
+  else if(phase==='done'){ holdT+=dt; if(holdT>=HOLD) reset(); }
+  MODS.forEach(m=>{ if(m.f>0) m.f=Math.max(0,m.f-dt*2.2); });
+  draw();
+}
+
+function draw(){
+  ctx.setTransform(SC,0,0,SC,0,0);
+  ctx.clearRect(0,0,W,H);                     // the page's paper is the ground
+  ctx.lineJoin='miter'; ctx.lineCap='butt';
+
+  /* ghost of the completed elevation */
+  MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.12,INK,1); });
+
+  /* ground floor — traditional in-situ, rises as concrete not as boxes */
+  const gp = phase==='intro'?0 : phase==='insitu' ? insituT/INSITU : 1;
+  if(gp>0){
+    const gy = GROUND-GH*Math.min(1,gp/0.82);
+    ctx.save();ctx.beginPath();ctx.rect(0,gy,W,GROUND-gy+2);ctx.clip();
+    GND.forEach(m=>box(m,m.x,m.y,m.w,m.h,1,INK,1.6));
+    ctx.restore();
+    if(gp>0.55){                                  // transfer slab / podium deck
+      const a=Math.min(1,(gp-0.55)/0.3);
+      ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=LIME;ctx.lineWidth=2.2;
+      const w=(bx(NB)-BX0+22)*Math.min(1,(gp-0.55)/0.3);
+      L(BX0-11,levTop(1),BX0-11+w,levTop(1));
+      L(BX0-11,levTop(1)-7,BX0-11+w,levTop(1)-7);
+      ctx.globalAlpha=a*.7;ctx.lineWidth=1;
+      for(let x=BX0-11;x<BX0-11+w;x+=13) L(x,levTop(1),x+7,levTop(1)-7);
+      ctx.restore();
+    }
+  }
+  /* site datum */
+  ctx.save();ctx.globalAlpha=.35;ctx.strokeStyle=INK;ctx.lineWidth=1;
+  L(60,GROUND,1940,GROUND); ctx.globalAlpha=.16; L(60,1088,1940,1088); ctx.restore();
+
+  /* modules already set */
+  for(let i=0;i<idx&&i<NLIFT;i++){ const m=LIFT[i];
+    box(m,m.x,m.y,m.w,m.h,1,m.f>0?LIME:INK,m.f>0?2.2:1.6);
+  }
+
+  /* crane + convoy + lift cycle */
+  if(phase==='modular'){
+    const m = idx<NLIFT?LIFT[idx]:null;
+    let tx=PICK, hy=JIB+55;
+    if(m){
+      const tgt=m.x+m.w/2, prev=idx>0?LIFT[idx-1].x+LIFT[idx-1].w/2:PICK;
+      let cx=PICK, cy=0, s=0, rot=0, carry=false;
+      const HI=JIB+55, LO=1038-45-m.h/2;
+      if(p<.28){ const q=p/.28; tx=prev+(PICK-prev)*ease(q); hy=HI+(LO-HI)*ease(q); }
+      else if(p<.50){ const q=(p-.28)/.22; tx=PICK; hy=LO+(HI-LO)*ease(q);
+        carry=true; cx=PICK; cy=hy+45+m.h/2; s=Math.max(0,(q-.2)/.8); }
+      else if(p<.72){ const q=(p-.50)/.22; tx=PICK+(tgt-PICK)*ease(q); hy=HI;
+        carry=true; cx=tx; cy=hy+45+m.h/2; s=1; rot=Math.sin(q*7)*0.022*(1-q); }
+      else { const q=Math.min(1,(p-.72)/.22); tx=tgt; hy=HI+(m.y-45-HI)*ease(q);
+        carry=true; cx=tgt; cy=hy+45+m.h/2; s=1; }
+      crane(tx,hy);
+      if(carry){
+        ctx.save();ctx.strokeStyle=LIME;ctx.globalAlpha=.8;ctx.lineWidth=1.2;
+        const b=flight(m,cx,cy,s,rot);
+        L(cx,hy+11,b.x+2,b.y); L(cx,hy+11,b.x+b.w-2,b.y);
+        ctx.restore();
+      }
+    } else { crane(PICK,JIB+55); }
+
+    /* truck convoy — one truck = one module */
+    const shift = m ? smooth(p,.56,.94) : 0;
+    const slots=[PICK,PICK-430,PICK-860,PICK-1290,PICK-1720];
+    for(let k=4;k>=0;k--){
+      const from=slots[k], to=k===0?2560:slots[k-1];
+      const x=from+(to-from)*shift;
+      if(x>-330&&x<2400) truck(x, k===0 ? (m? p<.30 : false) : true);
+    }
+  }
+
+  if(phase==='done'){
+    ctx.save();ctx.strokeStyle=LIME;ctx.globalAlpha=.9;ctx.lineWidth=2.4;
+    L(BX0-46,GROUND,bx(NB)+46,GROUND);ctx.restore();
+  }
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const smooth=(v,a,b)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);};
+
+resize(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
