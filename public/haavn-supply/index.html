@@ -18,21 +18,21 @@
    other two pillars are black, HAAVN is light.
 
    THE PALETTE IS SETH'S (HVN Colour Codes) — nothing outside it:
-     ground   #d0d2d0    tablets #fafbfa    hairlines #b4b6b4 / #c2c4c2
+     ground   #b8bab8    tablets #fafbfa    hairlines #9c9e9c / #aaacaa
      ink      #101010    #2c2c2c            #b8bab8
      accent   #a8bc10  — every brand line, rule and hint of colour
-     on light small type the accent steps down to #687808 so it stays legible.
-     That step-down is the brand rule, not a substitution: even #a8bc10 on
-     #d0d2d0 is about 1.5:1 and too faint at caption size.
+     on light small type the accent steps down to #687808, the deepest green
+     in the set. On this ground that is only 2.5:1 — the palette has nothing
+     darker, so eyebrow labels in green are as strong as they can honestly be.
 
    TO ADD A PRESENTATION  → the DECKS array below, and the matching project in
                             presentation.html (PROJECTS).
    TO ADD A DOCUMENT      → drop the file in documents/ and add a row to DOCS.
    ══════════════════════════════════════════════════════════════════════════ */
 :root{
-  --paper:#d0d2d0; --tablet:#fafbfa;
-  --ink:#101010; --ink-2:#2c2c2c; --ink-3:#63655F; --ink-4:#7e807e;
-  --hair:#b4b6b4; --hair-soft:#c2c4c2;
+  --paper:#b8bab8; --tablet:#fafbfa;
+  --ink:#101010; --ink-2:#2c2c2c; --ink-3:#54564F; --ink-4:#6a6c6a;
+  --hair:#9c9e9c; --hair-soft:#aaacaa;
   --lime:#a8bc10; --lime-dp:#687808; --lime-txt:#687808;
   --f-display:'Chakra Petch',ui-sans-serif,system-ui,sans-serif;
   --f-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -56,9 +56,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:url(assets/brand/grid-texture-ink.png) center/cover no-repeat}
 /* the green is a hint on the paper, never a tint over it */
 #stage .wash{position:absolute;inset:0;
-  background:radial-gradient(100% 70% at 50% 26%, rgba(168,188,16,.06) 0%, rgba(208,210,208,0) 60%)}
+  background:radial-gradient(100% 70% at 50% 26%, rgba(168,188,16,.06) 0%, rgba(184,186,184,0) 60%)}
 #stage .vig{position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(140% 120% at 50% 46%, rgba(208,210,208,0) 42%, rgba(150,152,150,.26) 100%)}
+  background:radial-gradient(140% 120% at 50% 46%, rgba(184,186,184,0) 42%, rgba(132,134,132,.28) 100%)}
 /* PRESTON — the modular assembly sequence, running as the ground. Jamie's
    prestonmodularbuild.html ported into preston-build.html: same geometry,
    same sequence, re-inked for paper and stripped of its HUD and controls.
@@ -204,7 +204,7 @@ main,footer,header .kicker{transition:.38s}
   box-shadow:0 12px 30px -26px rgba(16,16,16,.65);transition:.4s cubic-bezier(.2,.7,.3,1)}
 .deck:hover{border-color:var(--lime);transform:translateY(-2px);background:#fff;
   box-shadow:0 20px 44px -28px rgba(16,16,16,.5), inset 3px 0 0 var(--lime)}
-.deck__thumb{background:#c2c4c2 center/cover no-repeat;min-height:110px}
+.deck__thumb{background:#aaacaa center/cover no-repeat;min-height:110px}
 .deck__body{padding:18px 22px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
 .deck__n{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.32em;color:var(--lime-txt)}
 .deck__t{font-family:var(--f-display);font-weight:600;font-size:19px;letter-spacing:.02em;color:var(--ink)}
@@ -250,7 +250,7 @@ main,footer,header .kicker{transition:.38s}
 
 /* the player — full bleed over the page, nothing but the media */
 .lb{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
-  padding:clamp(20px,5vw,72px);background:rgba(208,210,208,.88);
+  padding:clamp(20px,5vw,72px);background:rgba(184,186,184,.9);
   -webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1)}
 .lb.on{display:flex;animation:viewin .32s ease}
 .lb video,.lb img{max-width:100%;max-height:100%;display:block;
@@ -377,7 +377,7 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <div id="stage">
   <div class="tex"></div>
-  <iframe class="build" src="preston-build.html?v=12" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
+  <iframe class="build" src="preston-build.html?v=13" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
   <div class="wash"></div>
   <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
   <div class="vig"></div>
