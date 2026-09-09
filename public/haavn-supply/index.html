@@ -255,6 +255,14 @@ main,footer,header .kicker{transition:.38s}
 .lb.on{display:flex;animation:viewin .32s ease}
 .lb video,.lb img{max-width:100%;max-height:100%;display:block;
   box-shadow:0 40px 90px -40px rgba(16,16,16,.75)}
+/* a whole presentation opens here too — it brings its own ground and its own
+   controls, so it gets the frame edge to edge */
+.lb.lb--page{padding:clamp(10px,2vw,34px)}
+/* #lbIn is auto-sized so video and stills centre at their own size; a page
+   has no intrinsic size, so for that case the holder is stretched to fill */
+.lb.lb--page #lbIn{flex:1;align-self:stretch;display:flex;min-width:0}
+.lb iframe{flex:1;width:100%;height:100%;border:0;background:#0a0a0a;
+  box-shadow:0 40px 90px -40px rgba(16,16,16,.75)}
 .lb__x{position:absolute;top:22px;right:24px;width:46px;height:46px;display:grid;place-items:center;
   border:1px solid transparent;border-radius:2px;background:rgba(250,251,250,.1);
   border-image:linear-gradient(180deg,#4a4a4a 0%,#141414 32%,#000 58%,#2e2e2e 88%,#181818 100%) 1;
@@ -369,7 +377,7 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <div id="stage">
   <div class="tex"></div>
-  <iframe class="build" src="preston-build.html?v=11" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
+  <iframe class="build" src="preston-build.html?v=12" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
   <div class="wash"></div>
   <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
   <div class="vig"></div>
@@ -557,10 +565,15 @@ var DOCS = [
 /* ══════════════════════════════════════════════════════════════════════════
    2a. THE CONTENT LIBRARY — film, imagery and 3D assets that show a client
        how modular works. Files live in content/.
-       kind: 'video' (needs a poster jpg) | 'image' | 'file' (opens in a tab).
+       kind: 'video' (needs a poster jpg) | 'image' | 'page' (a whole HTML
+      presentation, opens in the player) | 'file' (opens in a tab).
    ═════════════════════════════════════════════════════════════════════════ */
 var MEDIA_GROUPS = ['Film','Renders & imagery','3D & assets'];
 var MEDIA = [
+  { g:'Film', kind:'page', k:'Assembly', t:'Preston Modular Build',
+    d:'The full assembly sequence — ground floor in-situ, the core erected, then 700 modules craned and set, ending on the render.',
+    src:'content/preston-modular-build.html', poster:'content/preston-modular-build.jpg', s:'Interactive · 1.9 MB' },
+
   { g:'Film', kind:'video', k:'Factory', t:'Port Hedland Program',
     d:'The introduction film — a module built on the CCIST line, finished, craned and set.',
     src:'content/port-hedland-intro.mp4', poster:'content/port-hedland-intro.jpg', s:'MP4 · 12 MB' }
@@ -631,7 +644,7 @@ var SERVICES = [
           var frame = m.poster || (m.kind === 'image' ? m.src : '');
           return '<button class="med" data-i="' + idx + '">' +
             '<span class="med__f"' + (frame ? ' style="background-image:url(' + frame + ')"' : '') + '>' +
-              (m.kind === 'video' ? '<span class="med__play"></span>' : '') +
+              (m.kind === 'video' || m.kind === 'page' ? '<span class="med__play"></span>' : '') +
             '</span>' +
             '<span class="med__b">' +
               '<span class="med__k"><span>' + esc(m.k || m.kind) + '</span></span>' +
@@ -649,18 +662,30 @@ var SERVICES = [
      nothing keeps playing behind a closed overlay. */
   var lb = $('#lb'), lbIn = $('#lbIn'), lbCap = $('#lbCap');
   function closeLb(){
-    lb.classList.remove('on');
+    lb.classList.remove('on','lb--page');
     lbIn.innerHTML = '';
     document.body.style.overflow = '';
   }
   function openLb(m){
     if (m.kind === 'file'){ window.open(m.src, '_blank', 'noopener'); return; }
-    lbIn.innerHTML = m.kind === 'video'
-      ? '<video src="' + esc(m.src) + '" poster="' + esc(m.poster || '') + '" controls autoplay playsinline></video>'
-      : '<img src="' + esc(m.src) + '" alt="' + esc(m.t) + '">';
+    lb.classList.toggle('lb--page', m.kind === 'page');
+    lbIn.innerHTML =
+      m.kind === 'video' ? '<video src="' + esc(m.src) + '" poster="' + esc(m.poster || '') + '" controls autoplay playsinline></video>'
+    : m.kind === 'page'  ? '<iframe src="' + esc(m.src) + '" title="' + esc(m.t) + '" allow="fullscreen"></iframe>'
+    :                      '<img src="' + esc(m.src) + '" alt="' + esc(m.t) + '">';
     lbCap.textContent = m.t;
     lb.classList.add('on');
     document.body.style.overflow = 'hidden';
+    /* Once focus is inside the frame the parent never hears Escape, so the
+       key is also listened for in there. Same origin, so this is allowed. */
+    if (m.kind === 'page'){
+      var fr = lbIn.querySelector('iframe');
+      if (fr) fr.addEventListener('load', function(){
+        try { fr.contentDocument.addEventListener('keydown', function(e){
+          if (e.key === 'Escape') closeLb();
+        }); } catch(err) {}
+      });
+    }
   }
   $('#mediaShelves').addEventListener('click', function(e){
     var card = e.target.closest('.med');

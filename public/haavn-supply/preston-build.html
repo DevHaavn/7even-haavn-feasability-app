@@ -72,9 +72,10 @@ const INK='#101010', LIME='#bdd420';
    boxes — not one box per real module. These are the project's own numbers,
    and the read-outs report them by scaling the animation's progress onto
    them, so the count on screen is Preston's, not the drawing's.
-   PROGRAM_WEEKS is still the source file's implied install program; swap it
-   for the real one when Hamilton Marino confirm the set program.           */
-const APTS=400, MODULES=700, PER_TRUCK=2, PROGRAM_WEEKS=10;
+   PER_WEEK is the install-rate assumption already set on this project — 20
+   modules a week, so 700 modules reads as a 35-week set program. Swap it for
+   the real rate when Hamilton Marino confirm the program.                   */
+const APTS=400, MODULES=700, PER_TRUCK=2, PER_WEEK=20;
 
 /* ============ GEOMETRY MODEL ============================================ */
 const W=2000,H=1125;
@@ -433,7 +434,7 @@ function draw(){
     'L01–L14 <span class="lm">MODULAR</span><br>'+
     'MODULE <b>12.0 × 3.5 m</b><br>'+
     '1 TRUCK = <b>'+PER_TRUCK+' MODULES</b><br>'+
-    'INSTALL <b>WEEK '+Math.max(1,Math.ceil(set/NLIFT*PROGRAM_WEEKS))+'</b>';
+    'INSTALL <b>WEEK '+Math.max(1,Math.ceil(mods/PER_WEEK))+'</b>';
   if(br.textContent.length !== brLen){ brLen = br.textContent.length; placeBR(); }
 }
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
