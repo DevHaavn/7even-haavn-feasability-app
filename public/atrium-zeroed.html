@@ -3224,3 +3224,87 @@ renderAll();
   live = true;
 })();
 </script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   READING SKIN — added by ATRIUM. Colours and type only.
+
+   Daniel's stylesheet above is untouched. Every rule here either redefines one
+   of his :root variables or repaints a value he hard-coded, so the layout,
+   the spacing and the structure are exactly as he built them — only the
+   surface changes, from his black ground to the 7EVEN studio's light one.
+
+   Taken from src/styles/atrium-studio.css (.fxs, light content):
+     ground  #dfe5ec   panels #ffffff   ink #111417 / #454b52 / #767c83
+     type    Inter for text, JetBrains Mono for figures
+
+   His ACCENTS stay his — gold, green, blue, purple, teal, rose, orange, red —
+   because ~30 of his tints are hard-coded rgba() of those exact hues, and
+   swapping the variable alone would leave gold-tinted rows carrying
+   silver text. They are darkened only as far as legibility on a light
+   ground demands.
+   ══════════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#dfe5ec;                 /* studio --page */
+  --s1:#ffffff;                 /* panels, nav, topbar */
+  --s2:#eef2f7;                 /* table heads, tiles, input hover */
+  --s3:#e4eaf1;                 /* group rows */
+  --border:rgba(35,44,55,.14);
+  --text:#111417; --text-2:#454b52; --text-3:#767c83;
+  /* his hues, pulled down far enough to read on a light ground */
+  --gold:#8a6d24; --gold-dim:rgba(184,148,63,.16);
+  --green:#2f9e6b; --blue:#5878a8; --purple:#7d6fae;
+  --teal:#3f8f96;  --rose:#a8607a; --orange:#c67d33; --red:#c8503f;
+  --calc:rgba(47,158,107,.09);
+}
+
+/* ── type ────────────────────────────────────────────────────────────── */
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
+.logo,.hdrk,.nn,.th-n,.nb,.fv,.ci,.ci.dte,
+td.num,td.cal,td.dim,td.dt,tr.tot td.num,tr.tot td.cal,tr.tot td.dim,
+.cal,.ov,.pill,.gt,.cr,.fx,.vup,.kv,.ks,.alert-i,#cftbl td,
+tr.grp td.num,tr.ctot td.num,tr.ctot td.dim,.rno2,.rcount,.rno,
+.pg-yr,.pg-mo,.pg-l .pgr .amt,.pgbar,.pg-mflag,.tgn,.chip,.lr .v,
+.modrate .cal,.gt-y,.gt-bar{font-family:'JetBrains Mono',ui-monospace,monospace}
+/* he sets these two back to the sans face, and so do we */
+select.ci,.ci.txt,.fcname .ci{font-family:'Inter',system-ui,sans-serif}
+
+/* ── the values he hard-coded, repainted for a light ground ──────────── */
+.p-sh{background:rgba(35,44,55,.055)}
+tr.grp:hover td,tr.grp:hover td.stk{background:#dbe3ec}
+tr.ln:hover td{background:rgba(35,44,55,.035)}
+tr.ln:hover td.stk{background:#f2f6fa}
+tr.ctot td.stk{background:#efe7d4}                    /* the gold column head */
+tr.cfl:hover td{background:rgba(35,44,55,.03)}
+tr.cfs td.stk{background:#efe7d4}
+tr.cfn td.stk{background:#e2ebf5}
+tr.cfgst td.stk{background:#ece7f3}
+tr.frow-f:hover td{background:rgba(35,44,55,.035)}
+.pg-mo{border-right-color:rgba(35,44,55,.09)}
+.pg-mo.q1{background:rgba(35,44,55,.035)}
+.pgr{border-bottom-color:rgba(35,44,55,.08)}
+.pgr.grp:hover{background:#dbe3ec}
+.pg-gc{border-right-color:rgba(35,44,55,.07)}
+.pg-gc.q1{background:rgba(35,44,55,.03)}
+.fcbox+.fcbox{background:rgba(35,44,55,.022)}
+.lr{border-bottom-color:rgba(35,44,55,.08)}
+.gt-y{border-right-color:rgba(35,44,55,.07)}
+.gt-r:hover{background:rgba(35,44,55,.03)}
+.gt-cell{border-right-color:rgba(35,44,55,.07)}
+/* an undated / unfunded bar was dark grey on black; it is light grey on paper */
+.pgbar.b-none,.b-n{background:#c3ccd6;color:#5c6672}
+/* bar labels sit on saturated fills, so they stay dark — but the label on a
+   light bar needs to be darker still than his .78 black */
+.pgbar,.gt-bar{color:rgba(0,0,0,.82)}
+
+/* ── the two panels he paints with white alpha over black ────────────── */
+.ci:hover{background:var(--s2)}
+.cscroll,.cf-wrap,.pg-wrap,.tw,.frows,.rulebox,.gt-wrap,.fcard,.kt,.alert{background:var(--s1)}
+.rulebox,.pg-cash,.pg-cash .pg-l{background:var(--s1)}
+td.stk,.pg-l{background:var(--s1)}
+th.stk,tr.grp td.stk{background:var(--s2)}
+/* scrollbars follow the light ground */
+.cscroll,.cf-wrap,.pg-wrap,.scrollpad{scrollbar-color:rgba(35,44,55,.28) transparent}
+</style>
