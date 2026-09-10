@@ -33,11 +33,43 @@ const clone = <T,>(o: T): T => JSON.parse(JSON.stringify(o))
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'offline'
 
+/* The cloud pill. Daniel needs to be able to glance up and know the row went
+   to Supabase — a static word doesn't tell you that, so the dot pulses gold
+   while a write is in flight and the whole pill flashes green as it lands. */
+const PILL_CSS = `
+@keyframes azDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.18;transform:scale(.55)} }
+@keyframes azFlash {
+  0%   { background:rgba(47,224,122,.30); box-shadow:0 0 0 0 rgba(47,224,122,.55), 0 0 24px 2px rgba(47,224,122,.65) }
+  100% { background:rgba(47,224,122,.07); box-shadow:0 0 0 11px rgba(47,224,122,0), 0 0 0 0 rgba(47,224,122,0) }
+}
+.az-pill{display:inline-flex;align-items:center;gap:7px;height:22px;padding:0 11px;border-radius:11px;
+  font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid;cursor:pointer;user-select:none;white-space:nowrap;transition:border-color .2s}
+.az-pill .az-dot{width:6px;height:6px;border-radius:50%;flex:none;background:currentColor;box-shadow:0 0 7px currentColor}
+.az-pill .az-t{opacity:.6;letter-spacing:.08em}
+.az-idle{color:#8a8a8a;border-color:#333;background:rgba(255,255,255,.03)}
+.az-saving{color:#D6B36A;border-color:rgba(214,179,106,.52);background:rgba(214,179,106,.10)}
+.az-saving .az-dot{animation:azDot .7s ease-in-out infinite}
+.az-saved{color:#2FE07A;border-color:rgba(47,224,122,.42);background:rgba(47,224,122,.07);
+  animation:azFlash .95s cubic-bezier(.2,.7,.3,1)}
+.az-offline{color:#E05555;border-color:rgba(224,85,85,.52);background:rgba(224,85,85,.10)}
+.az-offline .az-dot{animation:azDot .5s steps(1,end) infinite}
+`
+
+const PILL: Record<SaveState, { cls: string; label: string }> = {
+  idle:    { cls: 'az-idle',    label: 'Cloud · standby' },
+  saving:  { cls: 'az-saving',  label: 'Saving to cloud' },
+  saved:   { cls: 'az-saved',   label: 'Cloud saved' },
+  offline: { cls: 'az-offline', label: 'Offline · device only' },
+}
+
 export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
   const frame = useRef<HTMLIFrameElement | null>(null)
   const [index, setIndex] = useState<Index>({ v: 1, activeId: null, projects: [] })
   const [save, setSave] = useState<SaveState>('idle')
   const [ready, setReady] = useState(false)
+  const [savedAt, setSavedAt] = useState<Date | null>(null)
+  const [writes, setWrites] = useState(0)   // also re-keys the pill so the flash replays
 
   // The blank model the page ships with, captured from its first message, so
   // "New" always starts from Daniel's own template.
@@ -48,6 +80,13 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
   const idxRef = useRef(index); idxRef.current = index
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pending = useRef(false)
+
+  /** A row actually landed in Supabase. `stamp` is false on boot, where the
+      state is "already saved" but no write of ours produced it. */
+  const markSaved = useCallback((stamp = true) => {
+    setSave('saved')
+    if (stamp) { setSavedAt(new Date()); setWrites(n => n + 1) }
+  }, [])
 
   const writeIndex = useCallback(async (ix: Index) => {
     try { localStorage.setItem(IDX_KEY, JSON.stringify(ix)) } catch { /* private mode */ }
@@ -82,13 +121,13 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
     pending.current = false
     try {
       await writeModel(ix.activeId, model.current, keepalive)
-      setSave('saved')
+      markSaved()
     } catch (err) {
       console.warn('[zeroed] save', err)
       pending.current = true
       setSave('offline')
     }
-  }, [writeModel])
+  }, [writeModel, markSaved])
 
   /** Writes are debounced — the model recalculates on every field change. */
   const queue = useCallback(() => {
@@ -160,7 +199,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
         const fresh: Index = { v: 1, activeId: meta.id, projects: [meta] }
         setIndex(fresh)
         model.current = clone(blank.current)
-        try { await writeIndex(fresh); await writeModel(meta.id, model.current); setSave('saved') }
+        try { await writeIndex(fresh); await writeModel(meta.id, model.current); markSaved() }
         catch { setSave('offline') }
         return                                   // the page already shows a blank model
       }
@@ -170,11 +209,11 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
          "Project 1" instead of the projects that actually exist. */
       try { localStorage.setItem(IDX_KEY, JSON.stringify(ix)) } catch { /* private mode */ }
       setIndex(ix)
-      setSave('saved')
+      markSaved(false)                     // already in the cloud, but not by us
       await openProject(ix.projects.find(p => p.id === ix!.activeId)!)
     })()
     return () => { cancelled = true }
-  }, [ready, writeIndex, writeModel, openProject])
+  }, [ready, writeIndex, writeModel, openProject, markSaved])
 
   const active = index.projects.find(p => p.id === index.activeId) || null
 
@@ -196,7 +235,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
     commitIndex({ ...index, activeId: meta.id, projects: [...index.projects, meta] })
     model.current = clone(m)
     send(model.current)
-    try { await writeModel(meta.id, model.current); setSave('saved') } catch { setSave('offline') }
+    try { await writeModel(meta.id, model.current); markSaved() } catch { setSave('offline') }
   }
   const onNew = () => { const n = prompt('Name the project:', 'New Project'); if (n !== null) void create(n.trim() || 'New Project', blank.current) }
   const onDup = () => { if (!active) return; const n = prompt('Name the copy:', active.name + ' (copy)'); if (n !== null) void create(n.trim() || active.name + ' (copy)', model.current) }
@@ -224,11 +263,17 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
     color: '#909090', background: 'transparent', border: '1px solid #282828',
     borderRadius: 3, padding: '5px 10px', cursor: 'pointer',
   }
-  const saveText = save === 'saved' ? 'saved' : save === 'saving' ? 'saving…' : save === 'offline' ? 'offline — saved on this device' : '—'
-  const saveColour = save === 'saved' ? '#4CAF7D' : save === 'offline' ? '#E05555' : '#909090'
+  const pill = PILL[save]
+  const stamp = savedAt ? savedAt.toLocaleTimeString('en-AU', { hour12: false }) : ''
+  const pillTitle = save === 'offline'
+    ? 'Supabase is unreachable. Your work is held on this device and will be pushed on the next successful save. Click to retry now.'
+    : `Supabase · capital_kv · ${index.activeId ? rowKey(index.activeId) : '—'}`
+      + (savedAt ? `\nLast write ${stamp} · ${writes} this session` : '')
+      + '\nClick to save now.'
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#0C0C0C', display: 'flex', flexDirection: 'column' }}>
+      <style>{PILL_CSS}</style>
       {/* Shell chrome. Everything about projects lives up here so Daniel's own
           topbar stays exactly as he designed it. */}
       <div className="no-drag" style={{ height: 36, flexShrink: 0, background: '#111', borderBottom: '1px solid #282828', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px' }}>
@@ -245,11 +290,17 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
         <button style={btn} onClick={onDup}>Duplicate</button>
         <button style={btn} onClick={onRename}>Rename</button>
         <button style={btn} onClick={() => void onDelete()}>Delete</button>
-        <span style={{ fontFamily: mono, fontSize: 9.5, letterSpacing: '0.14em', color: saveColour, marginLeft: 4 }}>{saveText}</span>
         <span style={{ flex: 1 }} />
         <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>
           separate engine · own data · 7EVEN studio untouched
         </span>
+        {/* Remounted on every write so the flash animation replays. */}
+        <div key={`${save}-${writes}`} className={`az-pill ${pill.cls}`} title={pillTitle}
+             onClick={() => { pending.current = true; void flush() }}>
+          <span className="az-dot" />
+          <span>{pill.label}</span>
+          {save === 'saved' && stamp && <span className="az-t">{stamp}</span>}
+        </div>
       </div>
       <iframe ref={frame} src={SRC} title="ATRIUM Zeroed"
         style={{ flex: 1, width: '100%', border: 0, display: 'block' }} />
