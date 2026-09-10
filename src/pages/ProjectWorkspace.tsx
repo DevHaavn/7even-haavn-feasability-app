@@ -179,11 +179,11 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
                   </div>
                 )}
                 {role !== 'external' && (
-                  <button style={{ ...rowS, borderColor: 'rgba(184,148,63,0.6)', color: '#B8943F' }}
+                  <button style={rowS}
                     onClick={() => { setProjOpen(false); setZeroedOpen(true) }}>
                     <span style={{ flex: 1 }}>ATRIUM ZEROED</span>
-                    <span style={{ fontSize: 8, letterSpacing: '0.2em', border: '1px solid rgba(184,148,63,.45)', borderRadius: 2, padding: '2px 7px', color: '#B8943F' }}>SEPARATE ENGINE</span>
-                    <span>→</span>
+                    <span style={{ fontSize: 8, letterSpacing: '0.2em', border: '1px solid rgba(255,255,255,.3)', borderRadius: 2, padding: '2px 7px', color: 'rgba(255,255,255,.7)' }}>SEPARATE ENGINE</span>
+                    <span style={{ color: '#fff' }}>→</span>
                   </button>
                 )}
                 {live.map(p => {

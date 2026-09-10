@@ -124,6 +124,14 @@ const CSS = `
 .ath-base:hover,.ath-base.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.75);box-shadow:0 0 26px -10px rgba(255,255,255,.5)}
 .ath-base .g{color:#fff;font-size:12px}
 .ath-newp-row{width:100%;justify-content:center;margin-bottom:12px}
+/* ATRIUM ZEROED sits in the BASE list but is neither a feasibility nor a new
+   project, so it takes the menu's neutral idiom: clear, and white on hover. */
+.ath-zeroed{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:12px;cursor:pointer;
+  font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.32);border-radius:2px;
+  padding:7px 12px;background:transparent;transition:.25s}
+.ath-zeroed:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);
+  box-shadow:0 0 26px -12px rgba(255,255,255,.5)}
 .ath-pinrow{display:flex;align-items:center;gap:14px;width:100%;margin:2px 0 12px;padding:12px 16px;
   border:1px solid rgba(214,179,106,.45);border-radius:2px;background:rgba(214,179,106,.04);transition:.3s}
 .ath-pinrow.err{border-color:rgba(224,100,92,.75);animation:athPinShake .4s ease}
@@ -396,8 +404,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <button className="ath-newp ath-newp-row" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project — Start a new feasibility</button>
               )}
               {baseOpen && role !== 'external' && (
-                <button className="ath-newp ath-newp-row"
-                  style={{ color: '#B8943F', borderColor: 'rgba(184,148,63,.55)', marginBottom: 14 }}
+                <button className="ath-zeroed"
                   onClick={() => { setZeroedOpen(true); setMenuOpen(false) }}>
                   ATRIUM ZEROED — separate engine
                 </button>
