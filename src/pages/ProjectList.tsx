@@ -5,6 +5,7 @@ import { getDeletedProjectIds } from '../db'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
 import HaavnManagementBase from './capital/HaavnManagementBase'
+import AtriumZeroed from './AtriumZeroed'
 import { useRole } from '../lib/role'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -258,6 +259,9 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
   const [baseOpen, setBaseOpen] = useState(false)
+  /* ATRIUM ZEROED — Daniel's model, its own engine and its own data, sitting
+     in the BASE list beside the feasibilities but sharing nothing with them. */
+  const [zeroedOpen, setZeroedOpen] = useState(false)
   // BASE is PIN-gated (Daniel + JB): the wider team holds the app code without
   // reaching the feasibility numbers. SHA-256 — the PIN never ships in the bundle.
   const BASE_PIN_HASH = '2926a2731f4b312c08982cacf8061eb14bf65c1a87cc5d70e864e079c6220731'
@@ -391,6 +395,13 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               {baseOpen && (
                 <button className="ath-newp ath-newp-row" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project — Start a new feasibility</button>
               )}
+              {baseOpen && role !== 'external' && (
+                <button className="ath-newp ath-newp-row"
+                  style={{ color: '#B8943F', borderColor: 'rgba(184,148,63,.55)', marginBottom: 14 }}
+                  onClick={() => { setZeroedOpen(true); setMenuOpen(false) }}>
+                  ATRIUM ZEROED — separate engine
+                </button>
+              )}
               <div className="ath-plist" style={{ display: baseOpen ? undefined : 'none' }}>
                 {live.length === 0 && (
                   <div style={{ padding: '22px 4px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', textTransform: 'uppercase' }}>
@@ -507,6 +518,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       </div>
 
       {/* HAAVN Management — 3-pillar hub */}
+      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} />}
       {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
       {/* Capital Base — admin/director only */}
