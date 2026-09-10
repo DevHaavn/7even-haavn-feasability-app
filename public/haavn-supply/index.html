@@ -18,7 +18,9 @@
    other two pillars are black, HAAVN is light.
 
    THE PALETTE IS SETH'S (HVN Colour Codes) — nothing outside it:
-     ground   #b8bab8    tablets #fafbfa    hairlines #9c9e9c / #aaacaa
+     ground   the haavn.au isometric field (see THE GROUND) — accent #7d7f76
+              → white #f2ede9, floor #bfbdb6; #cfccc6 when WebGL is absent
+     tablets  #fafbfa    hairlines #9c9e9c / #aaacaa
      ink      #101010    #2c2c2c            #b8bab8
      accent   #a8bc10  — every brand line, rule and hint of colour
      on light small type the accent steps down to #687808, the deepest green
@@ -30,7 +32,7 @@
    TO ADD A DOCUMENT      → drop the file in documents/ and add a row to DOCS.
    ══════════════════════════════════════════════════════════════════════════ */
 :root{
-  --paper:#b8bab8; --tablet:#fafbfa;
+  --paper:#cfccc6; --tablet:#fafbfa;
   --ink:#101010; --ink-2:#2c2c2c; --ink-3:#54564F; --ink-4:#6a6c6a;
   --hair:#9c9e9c; --hair-soft:#aaacaa;
   --lime:#a8bc10; --lime-dp:#687808; --lime-txt:#687808;
@@ -45,20 +47,19 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-wei
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
-/* ═══ THE GROUND — Seth's paper, carrying his grid texture ═══ */
+/* ═══ THE GROUND — the haavn.au isometric field ═══
+   The same ground as the haavn.au landing page. That site draws it with
+   Squarespace's "Isometric" background art; this is our own renderer, tuned
+   against captures of theirs until tone, line pitch and motion matched:
+   a field of box tiles under an isometric camera, their heights boiling
+   slowly on a noise field that clamps flat at the floor. There are no drawn
+   lines — the lines are the side faces the steps between boxes expose, lit
+   ones as bright slivers, shaded ones as dark bands. Tones run between the
+   two haavn.au palette colours. Script at the foot of the page. */
 #stage{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--paper)}
-/* Seth's Green Grid Texture, geometry only. The source is dark olive with a
-   heavy gradient baked in; a high-pass against a blurred copy lifts the line
-   work away from both, so what is left is the exact diagonal grid — same
-   sweep, same density falloff — re-inked at #101010 to sit on the paper.
-   grid-texture.png is still the original, untouched, for dark surfaces. */
-#stage .tex{position:absolute;inset:0;opacity:.4;
-  background:url(assets/brand/grid-texture-ink.png) center/cover no-repeat}
-/* the green is a hint on the paper, never a tint over it */
-#stage .wash{position:absolute;inset:0;
-  background:radial-gradient(100% 70% at 50% 26%, rgba(168,188,16,.06) 0%, rgba(184,186,184,0) 60%)}
-#stage .vig{position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(140% 120% at 50% 46%, rgba(184,186,184,0) 42%, rgba(132,134,132,.28) 100%)}
+#stage .iso{position:absolute;inset:0;width:100%;height:100%;display:block;
+  opacity:0;transition:opacity 1.6s ease}
+#stage .iso.on{opacity:1}
 /* PRESTON — the modular assembly sequence, running as the ground. Jamie's
    prestonmodularbuild.html ported into preston-build.html: same geometry,
    same sequence, re-inked for paper and stripped of its HUD and controls.
@@ -250,7 +251,7 @@ main,footer,header .kicker{transition:.38s}
 
 /* the player — full bleed over the page, nothing but the media */
 .lb{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
-  padding:clamp(20px,5vw,72px);background:rgba(184,186,184,.9);
+  padding:clamp(20px,5vw,72px);background:rgba(207,204,198,.92);
   -webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1)}
 .lb.on{display:flex;animation:viewin .32s ease}
 .lb video,.lb img{max-width:100%;max-height:100%;display:block;
@@ -376,11 +377,9 @@ footer{padding-bottom:20px;margin-top:auto}
 <body>
 
 <div id="stage">
-  <div class="tex"></div>
+  <canvas class="iso" id="iso" aria-hidden="true"></canvas>
   <iframe class="build" src="preston-build.html?v=13" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
-  <div class="wash"></div>
   <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
-  <div class="vig"></div>
 </div>
 
 <button class="burger" id="burger" aria-label="Menu"><span></span><span></span></button>
@@ -777,6 +776,158 @@ var SERVICES = [
 
   route();
 })();
+</script>
+
+<script>
+/* ═══ THE GROUND — isometric field renderer ════════════════════════════════
+   One WebGL draw per frame. Geometry is built once per resize: every box
+   whose projection can reach the screen, as a top plus the two side faces
+   that look toward the camera. The vertex shader lifts each box to its
+   noise height and runs each side face down to the lower neighbour — so a
+   face exists only where there is a step, and collapses to nothing on the
+   flat. That is the whole trick: no line is ever drawn.
+
+   Tuned against 1500px-wide captures of haavn.au (tones within ~3 levels
+   from the 5th to 95th percentile, same line pitch, same decorrelation over
+   time). Numbers below are the tuned set — change them together or not at all. */
+(function () {
+  const P = {
+    accent: [125, 127, 118],   // haavn.au --accent  hsl(72 4% 48%)
+    white:  [242, 237, 233],   // haavn.au --white   hsl(26.67 25.71% 93.14%)
+    t0: 0.55, tTop: 0.985, gamma: 0.9,   // floor → peak tone, as mix(accent, white)
+    shadeX: 0.86,              // +X faces: the dark bands along "/"
+    shadeZ: 1.07,              // +Z faces: the bright slivers along "\"
+    unit: 0.020,               // px per tile-unit, × viewport width (haavn.au scales the same way)
+    // swell size, swell height (tiles), floor clamp. Height sets line WEIGHT
+    // only (tone is keyed to relative height) — above ~3.5 the slivers turn
+    // into bands and it stops reading as haavn.au.
+    freq: 0.018, amp: 3.2, cut: -0.55,
+    speed: 0.24,               // noise time per second
+    dprMax: 1.5,               // haavn.au caps its canvas at 1.5× too
+  }
+  const cv = document.getElementById('iso')
+  const gl = cv && cv.getContext('webgl', { antialias: true, alpha: false, powerPreference: 'low-power' })
+  if (!gl) return                                  // #stage keeps --paper; nothing else depends on this
+
+  const VS = `
+  attribute vec2 aCell; attribute vec3 aCorner; attribute float aFace;
+  uniform float uT, uK; uniform vec3 uR, uU, uC; uniform vec2 uHalf; uniform float uDepth;
+  varying vec3 vCol;
+  // simplex noise 3D — Ashima Arts / Stefan Gustavson, MIT licence
+  vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+  vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+  vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+  float snoise(vec3 v){
+    const vec2 C=vec2(1./6.,1./3.); const vec4 D=vec4(0.,.5,1.,2.);
+    vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+    vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+    vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+    i=mod289(i);
+    vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+    float n_=.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+    vec4 j=p-49.*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.*x_);
+    vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.-abs(x)-abs(y);
+    vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+    vec4 s0=floor(b0)*2.+1.; vec4 s1=floor(b1)*2.+1.; vec4 sh=-step(h,vec4(0.));
+    vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+    vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+    vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+    p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+    vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.); m=m*m;
+    return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+  // domain offset keeps (0,0) off the lattice — exactly there simplex ties and one box spikes
+  float height(vec2 c){
+    float n=snoise(vec3(c*${P.freq.toFixed(4)}+vec2(37.13,11.71),uT));
+    return ${P.amp.toFixed(3)}*max(0.,n-(${P.cut.toFixed(3)}))/(1.-(${P.cut.toFixed(3)}));
+  }
+  void main(){
+    float h=height(aCell), y=h;
+    if(aFace>.5){                                       // side face: from our top…
+      vec2 nb=aCell+(aFace<1.5?vec2(1.,0.):vec2(0.,1.));
+      y=mix(min(height(nb),h),h,aCorner.y);             // …down to the lower neighbour
+    }
+    vec3 p=vec3(aCell.x+aCorner.x,y,aCell.y+aCorner.z);
+    gl_Position=vec4(vec2(dot(p,uR),dot(p,uU))*uK/uHalf,-dot(p,uC)/uDepth,1.);
+    float t=mix(${P.t0},${P.tTop},pow(clamp(h/${P.amp.toFixed(3)},0.,1.),${P.gamma.toFixed(3)}));
+    vec3 col=mix(vec3(${P.accent.map(v => (v / 255).toFixed(4))}),vec3(${P.white.map(v => (v / 255).toFixed(4))}),t);
+    vCol=min(col*(aFace<.5?1.:(aFace<1.5?${P.shadeX.toFixed(3)}:${P.shadeZ.toFixed(3)})),vec3(1.));
+  }`
+  const FS = 'precision mediump float;varying vec3 vCol;void main(){gl_FragColor=vec4(vCol,1.);}'
+
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s)
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s }
+  let prog
+  try {
+    prog = gl.createProgram()
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS))
+    gl.linkProgram(prog); gl.useProgram(prog)
+  } catch (e) { console.warn('[haavn ground]', e); return }
+  const U = n => gl.getUniformLocation(prog, n)
+
+  // true isometric camera: azimuth 45°, elevation atan(1/√2)
+  const C = [0.57735, 0.57735, 0.57735]
+  const R = [0.70711, 0, -0.70711]
+  const Up = [-0.40825, 0.8165, -0.40825]
+  const buf = gl.createBuffer(), STRIDE = 6
+  let nVerts = 0
+
+  function build() {
+    const dpr = Math.min(P.dprMax, devicePixelRatio || 1)
+    const W = cv.clientWidth || innerWidth, H = cv.clientHeight || innerHeight
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr)
+    gl.viewport(0, 0, cv.width, cv.height)
+    const K = Math.min(44, Math.max(18, P.unit * W))
+    const mx = W / 2 / K + 2, my = H / 2 / K + 2
+    const n = Math.ceil((mx + 2 * my + P.amp) * 1.6)
+    const cells = []
+    for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+      const cx = i + .5, cz = j + .5
+      const sx = cx * R[0] + cz * R[2], sy = cx * Up[0] + cz * Up[2]
+      if (Math.abs(sx) <= mx && sy <= my && sy >= -my - P.amp) cells.push(i, j)
+    }
+    const quads = [                                   // [face, corners (x, top?, z)]
+      [0, [[0,1,0],[1,1,0],[1,1,1],[0,1,1]]],
+      [1, [[1,1,0],[1,1,1],[1,0,1],[1,0,0]]],
+      [2, [[0,1,1],[1,1,1],[1,0,1],[0,0,1]]],
+    ]
+    const tri = [0, 1, 2, 0, 2, 3]
+    const data = new Float32Array(cells.length / 2 * 18 * STRIDE)
+    let o = 0
+    for (let c = 0; c < cells.length; c += 2) for (const [face, q] of quads) for (const k of tri) {
+      data[o++] = cells[c]; data[o++] = cells[c + 1]
+      data[o++] = q[k][0]; data[o++] = q[k][1]; data[o++] = q[k][2]; data[o++] = face
+    }
+    nVerts = data.length / STRIDE
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
+    ;[['aCell', 2, 0], ['aCorner', 3, 2], ['aFace', 1, 5]].forEach(([name, size, off]) => {
+      const l = gl.getAttribLocation(prog, name); gl.enableVertexAttribArray(l)
+      gl.vertexAttribPointer(l, size, gl.FLOAT, false, STRIDE * 4, off * 4) })
+    gl.uniform3fv(U('uR'), R); gl.uniform3fv(U('uU'), Up); gl.uniform3fv(U('uC'), C)
+    gl.uniform2f(U('uHalf'), W / 2, H / 2); gl.uniform1f(U('uK'), K)
+    gl.uniform1f(U('uDepth'), (n + P.amp + 4) * 2)
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL)
+    gl.clearColor(0.812, 0.8, 0.776, 1)              // --paper, under any gap
+  }
+  const t0 = performance.now(), seed = Math.random() * 400
+  function draw(now) {
+    gl.uniform1f(U('uT'), seed + (now - t0) / 1000 * P.speed)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.drawArrays(gl.TRIANGLES, 0, nVerts)
+  }
+
+  build(); draw(t0)
+  requestAnimationFrame(() => cv.classList.add('on'))
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { build(); draw(performance.now()) }, 120) })
+
+  // reduced motion gets the field as a still; everyone else gets it breathing.
+  // rAF already sleeps in a hidden tab, so there is nothing to pause by hand.
+  const still = matchMedia('(prefers-reduced-motion: reduce)')
+  ;(function loop(now) { if (!still.matches) draw(now); requestAnimationFrame(loop) })(t0)
+  cv.addEventListener('webglcontextlost', e => e.preventDefault())
+  cv.addEventListener('webglcontextrestored', () => location.reload())
+})()
 </script>
 </body>
 </html>
