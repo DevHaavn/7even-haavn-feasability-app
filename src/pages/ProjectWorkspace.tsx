@@ -1,4 +1,5 @@
 import React, { useEffect, useState, type CSSProperties } from 'react'
+import AtriumZeroed from './AtriumZeroed'
 import { useStore } from '../store'
 import { useRole, EXTERNAL_TABS } from '../lib/role'
 import SiteDesignTab from './tabs/SiteDesign'
@@ -77,11 +78,10 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
   const [npOpen, setNpOpen] = React.useState(false)
   const [npName, setNpName] = React.useState('')
   const [npAddr, setNpAddr] = React.useState('')
-  /* The ATRIUM engine runs ALONGSIDE this studio, not instead of it — Daniel's
-     model and this one stay live together until his replaces BASE outright.
-     It keeps its own projects in its own Supabase row, so nothing either side
-     does can touch the other's data. */
-  const [atriumOpen, setAtriumOpen] = React.useState(false)
+  /* ATRIUM ZEROED — Daniel's model, running in isolation beside this studio.
+     Its own engine, its own projects, its own Supabase row. Nothing in the
+     7EVEN feasibility below is shared with it. */
+  const [zeroedOpen, setZeroedOpen] = React.useState(false)
 
   // Projects always open on the light work surface — the data-heavy tabs are hard to
   // read in dark. The topbar light/dark toggle still lets you switch to dark in-session.
@@ -180,9 +180,9 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
                 )}
                 {role !== 'external' && (
                   <button style={{ ...rowS, borderColor: 'rgba(184,148,63,0.6)', color: '#B8943F' }}
-                    onClick={() => { setProjOpen(false); setAtriumOpen(true) }}>
-                    <span style={{ flex: 1 }}>ATRIUM Engine — New Feasibility Model</span>
-                    <span style={{ fontSize: 8, letterSpacing: '0.2em', border: '1px solid rgba(184,148,63,.45)', borderRadius: 2, padding: '2px 7px', color: '#B8943F' }}>PREVIEW</span>
+                    onClick={() => { setProjOpen(false); setZeroedOpen(true) }}>
+                    <span style={{ flex: 1 }}>ATRIUM ZEROED</span>
+                    <span style={{ fontSize: 8, letterSpacing: '0.2em', border: '1px solid rgba(184,148,63,.45)', borderRadius: 2, padding: '2px 7px', color: '#B8943F' }}>SEPARATE ENGINE</span>
                     <span>→</span>
                   </button>
                 )}
@@ -207,21 +207,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         )
       })()}
 
-      {atriumOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#0C0C0C', display: 'flex', flexDirection: 'column' }}>
-          <div className="no-drag" style={{ height: 34, flexShrink: 0, background: '#111', borderBottom: '1px solid #282828', display: 'flex', alignItems: 'center', gap: 12, padding: '0 12px' }}>
-            <button onClick={() => setAtriumOpen(false)}
-              style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9.5, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#909090', background: 'transparent', border: '1px solid #282828', borderRadius: 3, padding: '5px 11px', cursor: 'pointer' }}>
-              ← Base Feasibility
-            </button>
-            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9.5, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#555' }}>
-              ATRIUM Engine · running alongside BASE · its own projects, its own data
-            </span>
-          </div>
-          <iframe src="/atrium-base-preview.html?v=1" title="ATRIUM Engine"
-            style={{ flex: 1, width: '100%', border: 0, display: 'block' }} />
-        </div>
-      )}
+      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} />}
 
       <div className="fx-tabnav no-drag">
         {visibleTabs.map(t => (
