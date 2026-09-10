@@ -5,22 +5,28 @@ import { supabase } from '../lib/supabase'
  * ATRIUM ZEROED — Daniel's feasibility model, running in isolation.
  *
  * public/atrium-zeroed.html is his file, byte for byte, plus one appended
- * bridge block. Everything below is the shell around it: projects, naming and
- * saving. None of it lives inside his page, so his layout and his engine are
- * exactly as he built them and stay that way while he develops the model.
+ * bridge block. Everything here is the shell around it: projects, naming and
+ * saving. None of it lives inside his page, so his layout and his engine stay
+ * exactly as he built them while he develops the model.
  *
- * Deliberately sealed off from the 7EVEN studio:
- *   · its own Supabase row (`atrium_zeroed_v1` in the shared capital_kv table)
- *   · its own project list, ids and names
- *   · it never reads or writes the studio's project store
- * The two run side by side until this one is ready to replace BASE.
+ * Storage — one row PER PROJECT, not one row for everything.
+ *   atrium_zeroed_index   { activeId, projects:[{id,name,created,updated}] }
+ *   atrium_zeroed:<id>    { model }
+ * A model is ~50KB. Held in a single row, every keystroke-blur would rewrite
+ * every project Daniel owns, and two people editing different projects would
+ * overwrite each other wholesale. Per-project rows mean a save touches only
+ * the project in front of you, and the index stays small enough to be free.
+ *
+ * Sealed off from the 7EVEN studio: its own rows, its own ids, and it never
+ * reads or writes the studio's project store.
  */
 
-const KV_KEY = 'atrium_zeroed_v1'
+const IDX_KEY = 'atrium_zeroed_index'
+const rowKey = (id: string) => `atrium_zeroed:${id}`
 const SRC = '/atrium-zeroed.html?v=1'
 
-type Project = { id: string; name: string; created: string; updated: string; model: unknown }
-type Store = { v: 1; activeId: string | null; projects: Project[] }
+type Meta = { id: string; name: string; created: string; updated: string }
+type Index = { v: 1; activeId: string | null; projects: Meta[] }
 
 const newId = () => 'z_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 const clone = <T,>(o: T): T => JSON.parse(JSON.stringify(o))
@@ -29,142 +35,187 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'offline'
 
 export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
   const frame = useRef<HTMLIFrameElement | null>(null)
-  const [store, setStore] = useState<Store>({ v: 1, activeId: null, projects: [] })
+  const [index, setIndex] = useState<Index>({ v: 1, activeId: null, projects: [] })
   const [save, setSave] = useState<SaveState>('idle')
   const [ready, setReady] = useState(false)
 
-  // The blank model the page ships with — captured from its first message, so
-  // "New" always starts from Daniel's own template rather than a copy of ours.
+  // The blank model the page ships with, captured from its first message, so
+  // "New" always starts from Daniel's own template.
   const blank = useRef<unknown>(null)
-  const storeRef = useRef(store)
-  storeRef.current = store
+  // The model currently on screen, kept out of React state — it changes on
+  // every recalculation and re-rendering the shell for that would be waste.
+  const model = useRef<unknown>(null)
+  const idxRef = useRef(index); idxRef.current = index
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastPushed = useRef('')
+  const pending = useRef(false)
 
-  const push = useCallback(async (s: Store) => {
-    const body = JSON.stringify(s)
-    if (body === lastPushed.current) { setSave('saved'); return }
+  const writeIndex = useCallback(async (ix: Index) => {
+    try { localStorage.setItem(IDX_KEY, JSON.stringify(ix)) } catch { /* private mode */ }
+    const { error } = await supabase.from('capital_kv')
+      .upsert({ key: IDX_KEY, value: ix, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    if (error) throw error
+  }, [])
+
+  const writeModel = useCallback(async (id: string, m: unknown, keepalive = false) => {
+    try { localStorage.setItem(rowKey(id), JSON.stringify(m)) } catch { /* quota */ }
+    if (keepalive) {
+      // On the way out there is no time for the SDK's retries — one shot,
+      // flagged keepalive so the browser finishes it after the page is gone.
+      const url = (supabase as unknown as { supabaseUrl: string }).supabaseUrl
+      const key = (supabase as unknown as { supabaseKey: string }).supabaseKey
+      await fetch(`${url}/rest/v1/capital_kv`, {
+        method: 'POST', keepalive: true,
+        headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json',
+                   Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify([{ key: rowKey(id), value: m, updated_at: new Date().toISOString() }]),
+      })
+      return
+    }
+    const { error } = await supabase.from('capital_kv')
+      .upsert({ key: rowKey(id), value: m, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    if (error) throw error
+  }, [])
+
+  const flush = useCallback(async (keepalive = false) => {
+    const ix = idxRef.current
+    if (!ix.activeId || !pending.current) return
+    pending.current = false
     try {
-      const { error } = await supabase.from('capital_kv')
-        .upsert({ key: KV_KEY, value: s, updated_at: new Date().toISOString() }, { onConflict: 'key' })
-      if (error) throw error
-      lastPushed.current = body
+      await writeModel(ix.activeId, model.current, keepalive)
       setSave('saved')
     } catch (err) {
       console.warn('[zeroed] save', err)
+      pending.current = true
       setSave('offline')
     }
-    try { localStorage.setItem(KV_KEY, body) } catch { /* private mode */ }
-  }, [])
+  }, [writeModel])
 
   /** Writes are debounced — the model recalculates on every field change. */
-  const queue = useCallback((s: Store) => {
+  const queue = useCallback(() => {
+    pending.current = true
     setSave('saving')
     if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(() => push(s), 1200)
-  }, [push])
+    timer.current = setTimeout(() => void flush(), 800)
+  }, [flush])
 
-  const send = useCallback((model: unknown) => {
-    frame.current?.contentWindow?.postMessage({ atriumZeroed: 'load', model }, '*')
+  const send = useCallback((m: unknown) => {
+    model.current = m
+    frame.current?.contentWindow?.postMessage({ atriumZeroed: 'load', model: m }, '*')
   }, [])
 
   // ── the page talks back: 'ready' once, then 'model' on every recalculation ──
   useEffect(() => {
     function onMsg(e: MessageEvent) {
       const d = (e.data || {}) as { atriumZeroed?: string; model?: unknown }
-      if (d.atriumZeroed === 'ready') {
-        blank.current = d.model
-        setReady(true)
-        return
-      }
+      if (d.atriumZeroed === 'ready') { blank.current = d.model; setReady(true); return }
       if (d.atriumZeroed !== 'model' || !d.model) return
-      setStore(prev => {
-        if (!prev.activeId) return prev
-        const next: Store = {
-          ...prev,
-          projects: prev.projects.map(p =>
-            p.id === prev.activeId ? { ...p, model: d.model, updated: new Date().toISOString() } : p),
-        }
-        queue(next)
-        return next
-      })
+      model.current = d.model
+      if (idxRef.current.activeId) queue()
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
   }, [queue])
 
-  // ── load the row once the page has handed us its blank model ──────────────
+  // ── closing the tab must not cost the last edit ────────────────────────────
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') void flush(true) }
+    window.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', () => void flush(true))
+    return () => {
+      window.removeEventListener('visibilitychange', onHide)
+      if (timer.current) clearTimeout(timer.current)
+      void flush()                       // and not on the way back to BASE either
+    }
+  }, [flush])
+
+  const openProject = useCallback(async (meta: Meta) => {
+    let m: unknown = null
+    try {
+      const { data } = await supabase.from('capital_kv').select('value').eq('key', rowKey(meta.id)).maybeSingle()
+      m = data?.value ?? null
+    } catch { /* fall through to local */ }
+    if (!m) { try { m = JSON.parse(localStorage.getItem(rowKey(meta.id)) || 'null') } catch { /* ignore */ } }
+    send(m ?? clone(blank.current))
+  }, [send])
+
+  // ── boot, once the page has handed us its blank model ─────────────────────
   useEffect(() => {
     if (!ready) return
     let cancelled = false
     ;(async () => {
-      let loaded: Store | null = null
+      let ix: Index | null = null
       try {
-        const { data, error } = await supabase.from('capital_kv').select('value').eq('key', KV_KEY).maybeSingle()
+        const { data, error } = await supabase.from('capital_kv').select('value').eq('key', IDX_KEY).maybeSingle()
         if (error) throw error
-        if (data?.value) loaded = data.value as Store
+        ix = (data?.value as Index) ?? null
       } catch (err) {
-        console.warn('[zeroed] load', err)
-        try { loaded = JSON.parse(localStorage.getItem(KV_KEY) || 'null') } catch { /* ignore */ }
+        console.warn('[zeroed] index', err)
+        try { ix = JSON.parse(localStorage.getItem(IDX_KEY) || 'null') } catch { /* ignore */ }
         setSave('offline')
       }
       if (cancelled) return
 
-      if (!loaded?.projects?.length) {
-        const p: Project = {
-          id: newId(), name: 'Project 1',
-          created: new Date().toISOString(), updated: new Date().toISOString(),
-          model: clone(blank.current),
-        }
-        const fresh: Store = { v: 1, activeId: p.id, projects: [p] }
-        setStore(fresh); queue(fresh)
+      if (!ix?.projects?.length) {
+        const meta: Meta = { id: newId(), name: 'Project 1', created: new Date().toISOString(), updated: new Date().toISOString() }
+        const fresh: Index = { v: 1, activeId: meta.id, projects: [meta] }
+        setIndex(fresh)
+        model.current = clone(blank.current)
+        try { await writeIndex(fresh); await writeModel(meta.id, model.current); setSave('saved') }
+        catch { setSave('offline') }
         return                                   // the page already shows a blank model
       }
-      if (!loaded.projects.some(p => p.id === loaded!.activeId)) loaded.activeId = loaded.projects[0].id
-      lastPushed.current = JSON.stringify(loaded)
-      setStore(loaded)
+      if (!ix.projects.some(p => p.id === ix!.activeId)) ix.activeId = ix.projects[0].id
+      /* Mirror the list we just pulled. Without this the offline fallback has
+         models but no index, and a disconnected browser would show a fresh
+         "Project 1" instead of the projects that actually exist. */
+      try { localStorage.setItem(IDX_KEY, JSON.stringify(ix)) } catch { /* private mode */ }
+      setIndex(ix)
       setSave('saved')
-      send(loaded.projects.find(p => p.id === loaded!.activeId)!.model)
+      await openProject(ix.projects.find(p => p.id === ix!.activeId)!)
     })()
     return () => { cancelled = true }
-  }, [ready, queue, send])
+  }, [ready, writeIndex, writeModel, openProject])
 
-  // flush a pending write if the surface is closed mid-debounce
-  useEffect(() => () => {
-    if (timer.current) { clearTimeout(timer.current); push(storeRef.current) }
-  }, [push])
+  const active = index.projects.find(p => p.id === index.activeId) || null
 
-  const active = store.projects.find(p => p.id === store.activeId) || null
-
-  const switchTo = (id: string) => {
-    const p = store.projects.find(x => x.id === id)
-    if (!p) return
-    const next = { ...store, activeId: id }
-    setStore(next); queue(next); send(p.model)
+  const commitIndex = (ix: Index) => {
+    setIndex(ix)
+    writeIndex(ix).catch(err => { console.warn('[zeroed] index', err); setSave('offline') })
   }
-  const create = (name: string, model: unknown) => {
-    const p: Project = {
-      id: newId(), name, created: new Date().toISOString(),
-      updated: new Date().toISOString(), model: clone(model),
-    }
-    const next: Store = { ...store, activeId: p.id, projects: [...store.projects, p] }
-    setStore(next); queue(next); send(p.model)
+
+  const switchTo = async (id: string) => {
+    const meta = index.projects.find(x => x.id === id)
+    if (!meta || id === index.activeId) return
+    await flush()                                  // never leave the old one half-saved
+    commitIndex({ ...index, activeId: id })
+    await openProject(meta)
   }
-  const onNew = () => { const n = prompt('Name the project:', 'New Project'); if (n !== null) create(n.trim() || 'New Project', blank.current) }
-  const onDup = () => { if (!active) return; const n = prompt('Name the copy:', active.name + ' (copy)'); if (n !== null) create(n.trim() || active.name + ' (copy)', active.model) }
+  const create = async (name: string, m: unknown) => {
+    await flush()
+    const meta: Meta = { id: newId(), name, created: new Date().toISOString(), updated: new Date().toISOString() }
+    commitIndex({ ...index, activeId: meta.id, projects: [...index.projects, meta] })
+    model.current = clone(m)
+    send(model.current)
+    try { await writeModel(meta.id, model.current); setSave('saved') } catch { setSave('offline') }
+  }
+  const onNew = () => { const n = prompt('Name the project:', 'New Project'); if (n !== null) void create(n.trim() || 'New Project', blank.current) }
+  const onDup = () => { if (!active) return; const n = prompt('Name the copy:', active.name + ' (copy)'); if (n !== null) void create(n.trim() || active.name + ' (copy)', model.current) }
   const onRename = () => {
     if (!active) return
     const n = prompt('Rename project:', active.name); if (n === null) return
-    const next: Store = { ...store, projects: store.projects.map(p => p.id === active.id ? { ...p, name: n.trim() || p.name } : p) }
-    setStore(next); queue(next)
+    commitIndex({ ...index, projects: index.projects.map(p => p.id === active.id ? { ...p, name: n.trim() || p.name, updated: new Date().toISOString() } : p) })
   }
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!active) return
-    if (store.projects.length < 2) { alert('This is the only project. Create another before deleting this one.'); return }
+    if (index.projects.length < 2) { alert('This is the only project. Create another before deleting this one.'); return }
     if (!confirm(`Delete "${active.name}"?\n\nThis removes it for everyone and cannot be undone.`)) return
-    const rest = store.projects.filter(p => p.id !== active.id)
-    const next: Store = { ...store, activeId: rest[0].id, projects: rest }
-    setStore(next); queue(next); send(rest[0].model)
+    pending.current = false
+    const rest = index.projects.filter(p => p.id !== active.id)
+    commitIndex({ ...index, activeId: rest[0].id, projects: rest })
+    supabase.from('capital_kv').delete().eq('key', rowKey(active.id))
+      .then(({ error }) => { if (error) console.warn('[zeroed] delete', error.message) })
+    try { localStorage.removeItem(rowKey(active.id)) } catch { /* ignore */ }
+    await openProject(rest[0])
   }
 
   const mono = "'IBM Plex Mono',ui-monospace,monospace"
@@ -173,7 +224,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
     color: '#909090', background: 'transparent', border: '1px solid #282828',
     borderRadius: 3, padding: '5px 10px', cursor: 'pointer',
   }
-  const saveText = save === 'saved' ? 'saved' : save === 'saving' ? 'saving…' : save === 'offline' ? 'offline — local only' : '—'
+  const saveText = save === 'saved' ? 'saved' : save === 'saving' ? 'saving…' : save === 'offline' ? 'offline — saved on this device' : '—'
   const saveColour = save === 'saved' ? '#4CAF7D' : save === 'offline' ? '#E05555' : '#909090'
 
   return (
@@ -181,19 +232,19 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
       {/* Shell chrome. Everything about projects lives up here so Daniel's own
           topbar stays exactly as he designed it. */}
       <div className="no-drag" style={{ height: 36, flexShrink: 0, background: '#111', borderBottom: '1px solid #282828', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px' }}>
-        <button style={btn} onClick={onClose}>← Base</button>
+        <button style={btn} onClick={() => { void flush(); onClose() }}>← Base</button>
         <span style={{ fontFamily: mono, fontSize: 9.5, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#B8943F' }}>Atrium Zeroed</span>
         <span style={{ width: 1, height: 18, background: '#282828' }} />
         <select
-          value={store.activeId ?? ''}
-          onChange={e => switchTo(e.target.value)}
+          value={index.activeId ?? ''}
+          onChange={e => void switchTo(e.target.value)}
           style={{ ...btn, color: '#E8E8E8', background: '#171717', minWidth: 180, maxWidth: 280, letterSpacing: '0.04em', textTransform: 'none', fontSize: 11.5 }}>
-          {store.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          {index.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <button style={btn} onClick={onNew}>+ New</button>
         <button style={btn} onClick={onDup}>Duplicate</button>
         <button style={btn} onClick={onRename}>Rename</button>
-        <button style={btn} onClick={onDelete}>Delete</button>
+        <button style={btn} onClick={() => void onDelete()}>Delete</button>
         <span style={{ fontFamily: mono, fontSize: 9.5, letterSpacing: '0.14em', color: saveColour, marginLeft: 4 }}>{saveText}</span>
         <span style={{ flex: 1 }} />
         <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>
