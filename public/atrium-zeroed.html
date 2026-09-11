@@ -1429,8 +1429,6 @@ const MODEL = {
     enforce:true,
     maxConstrLTC:0.80,    // FIX 3 — each construction facility / all-in TDC
     maxLandLVR:0.55,      // FIX 3 — each land facility / as-is land valuation
-    maxLTC:0.80,          // total debt / all-in TDC
-    maxLVR:0.65,          // total debt / GRV
     minPresales:1.00      // presales as a multiple of debt — reported
   },
 
@@ -1916,9 +1914,21 @@ function compute(){
     detail: `${conLim>0?pcRaw(conPeak/allInTDC):'—'} — ${$(conPeak)==='—'?'$0':$(conPeak)} peak against ${$a(conLim)} limit<br>`
       + (conPass ? `<b>${$(conLim-conPeak)}</b> of headroom`
                  : `<b style="color:var(--red);font-size:1.15em">${$(conPeak-conLim)} over</b> — reduce senior debt or replace with equity`)});
-  gates.push({id:'lvr', label:`Loan to value within ${pcRaw(C.maxLVR)}`,
-    pass: lvr <= C.maxLVR + 1e-6,
-    detail:`${pcRaw(lvr)} of $${Math.round(grv).toLocaleString('en-AU')} GRV`});
+  /* FIX 6 — the land facility against 55% of the as-is land valuation (fix 4),
+     not against GRV: GRV is the wrong base for a land facility, and on a
+     project with no revenue yet it made the old check meaningless. Peak
+     combined balance of every Land-role facility, capitalised interest and
+     fees included. Says so when the valuation is only the purchase price. */
+  const lanPeak = peakOf('Land'), lanLim = (C.maxLandLVR||0)*landVal;
+  const lanPass = lanPeak <= lanLim + 1;
+  gates.push({id:'landLVR',
+    label: lanPass ? `Land facility within ${pcRaw(C.maxLandLVR)} of valuation`
+                   : `Land facility exceeds ${pcRaw(C.maxLandLVR)} of valuation`,
+    pass: lanPass,
+    detail: `${landVal>0?pcRaw(lanPeak/landVal):'—'} — ${$(lanPeak)==='—'?'$0':$(lanPeak)} peak against ${$a(lanLim)} limit<br>`
+      + (lanPass ? `<b>${$(lanLim-lanPeak)}</b> of headroom`
+                 : `<b style="color:var(--red);font-size:1.15em">${$(lanPeak-lanLim)} over</b> — reduce the land facility or increase equity`)
+      + (landValEntered ? '' : `<br><span style="color:var(--text-3)">valuation defaulted to purchase price</span>`)});
   const expired = wf.facilities.filter(f=>f.expiredWith>0);
   gates.push({id:'expiry', label:'Every facility clears by its expiry date',
     pass: expired.length===0,
