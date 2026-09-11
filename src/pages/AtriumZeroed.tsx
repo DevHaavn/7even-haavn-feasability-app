@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabase'
 
 const IDX_KEY = 'atrium_zeroed_index'
 const rowKey = (id: string) => `atrium_zeroed:${id}`
-const SRC = '/atrium-zeroed.html?v=6'
+const SRC = '/atrium-zeroed.html?v=7'
 
 type Meta = { id: string; name: string; created: string; updated: string }
 type Index = { v: 1; activeId: string | null; projects: Meta[] }
@@ -64,7 +64,8 @@ const PILL_CSS = `
    see-through, and his working area is the grey panel tucked into the inside
    corner, so the video shows only in the L. Buttons, dropdown and pill are the
    main menu's clear glass: no fill, a thin light outline, a soft glow on
-   hover; the title is lit gold like the menu's lit row. */
+   hover; the title is lit gold like the menu's lit row. The project dropdown
+   opens as see-through frosted glass over the engine. */
 const ISLAND_TOP = 10, ROW = 46
 const SHELL_CSS = `
 .azs{position:fixed;inset:0;z-index:9500;background:#d7d4ce}
@@ -81,11 +82,28 @@ const SHELL_CSS = `
   color:rgba(255,255,255,.82);background:transparent;border:1px solid rgba(255,255,255,.32);border-radius:2px;
   padding:7px 12px;cursor:pointer;transition:.25s}
 .azs-btn:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);box-shadow:0 0 26px -12px rgba(255,255,255,.5)}
-.azs-sel{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#fff;background:rgba(255,255,255,.03);color-scheme:dark;
-  border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:6px 9px;min-width:190px;max-width:290px;cursor:pointer;transition:.25s}
-.azs-sel:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
-.azs-sel:focus{outline:none;border-color:rgba(255,255,255,.75)}
-.azs-sel option{background:#121314;color:#fff}
+.azs-dd{position:relative}
+.azs-sel{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Inter',system-ui,sans-serif;font-size:11.5px;
+  color:#fff;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:6px 10px;
+  min-width:200px;max-width:300px;cursor:pointer;transition:.25s;text-align:left}
+.azs-sel span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.azs-sel i{font-style:normal;font-size:8px;opacity:.7;transition:transform .25s}
+.azs-sel:hover,.azs-sel.open{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.azs-sel.open i{transform:rotate(180deg)}
+.azs-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:100%;max-width:360px;max-height:60vh;overflow-y:auto;z-index:20;
+  padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(14,15,17,.38);-webkit-backdrop-filter:blur(18px) saturate(1.25);backdrop-filter:blur(18px) saturate(1.25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 22px 44px -18px rgba(0,0,0,.75);animation:azsIn .18s ease-out}
+@keyframes azsIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.azs-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 6px;padding:9px 12px;cursor:pointer;
+  font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:rgba(255,255,255,.9);white-space:nowrap;
+  background:transparent;border:1px solid rgba(255,255,255,.26);border-radius:2px;transition:.25s;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.azs-menu button:last-child{margin-bottom:0}
+.azs-menu button:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.azs-menu button.on{color:#fff;background:rgba(214,179,106,.06);border-color:#d6b36a;
+  box-shadow:0 0 9px rgba(244,227,189,.5),0 0 22px rgba(214,179,106,.3),inset 0 0 9px rgba(214,179,106,.22)}
+.azs-menu button b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:400;font-size:8.5px;letter-spacing:.2em;color:rgba(255,255,255,.45)}
+.azs-menu button.on b{color:#d6b36a}
 .azs-t{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;
   color:#d6b36a;padding:7px 13px;border:1px solid #d6b36a;border-radius:2px;background:rgba(214,179,106,.05);
   text-shadow:0 0 8px rgba(244,227,189,.9),0 0 20px rgba(214,179,106,.6);
@@ -120,6 +138,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
   const idxRef = useRef(index); idxRef.current = index
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pending = useRef(false)
+  const [menu, setMenu] = useState(false)   // the glass project dropdown
 
   /** A row actually landed in Supabase. `stamp` is false on boot, where the
       state is "already saved" but no write of ours produced it. */
@@ -257,6 +276,25 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
 
   const active = index.projects.find(p => p.id === index.activeId) || null
 
+  /* The page's header title reads the project name from here (the address it
+     reads from its own Land & Terms). A display-only message — it never
+     triggers a recalculation, so it never causes a save. */
+  const activeName = active?.name ?? ''
+  useEffect(() => {
+    if (ready) frame.current?.contentWindow?.postMessage({ atriumZeroed: 'meta', name: activeName }, '*')
+  }, [ready, activeName])
+
+  /* Close the dropdown on Escape, or on any click — including one inside the
+     engine, which lands in the iframe and shows up here as the window blurring. */
+  useEffect(() => {
+    if (!menu) return
+    const close = () => setMenu(false)
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
+    window.addEventListener('blur', close); window.addEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', close)
+    return () => { window.removeEventListener('blur', close); window.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', close) }
+  }, [menu])
+
   const commitIndex = (ix: Index) => {
     setIndex(ix)
     writeIndex(ix).catch(err => { console.warn('[zeroed] index', err); setSave('offline') })
@@ -321,9 +359,23 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
         <button className="azs-btn" onClick={() => { void flush(); onClose() }}>← Base</button>
         <span className="azs-t">Atrium Engine</span>
         <span className="azs-dv" />
-        <select className="azs-sel" value={index.activeId ?? ''} onChange={e => void switchTo(e.target.value)}>
-          {index.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
+        <div className="azs-dd" onPointerDown={e => e.stopPropagation()}>
+          <button className={`azs-sel${menu ? ' open' : ''}`} onClick={() => setMenu(m => !m)}
+                  aria-haspopup="listbox" aria-expanded={menu}>
+            <span>{active?.name ?? '—'}</span><i>▼</i>
+          </button>
+          {menu && (
+            <div className="azs-menu" role="listbox">
+              {index.projects.map((p, n) => (
+                <button key={p.id} role="option" aria-selected={p.id === index.activeId}
+                        className={p.id === index.activeId ? 'on' : ''}
+                        onClick={() => { setMenu(false); void switchTo(p.id) }}>
+                  <b>{String(n + 1).padStart(2, '0')}</b>{p.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button className="azs-btn" onClick={onNew}>+ New</button>
         <button className="azs-btn" onClick={onDup}>Duplicate</button>
         <button className="azs-btn" onClick={onRename}>Rename</button>
