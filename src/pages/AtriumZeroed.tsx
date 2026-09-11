@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabase'
 
 const IDX_KEY = 'atrium_zeroed_index'
 const rowKey = (id: string) => `atrium_zeroed:${id}`
-const SRC = '/atrium-zeroed.html?v=3'
+const SRC = '/atrium-zeroed.html?v=4'
 
 type Meta = { id: string; name: string; created: string; updated: string }
 type Index = { v: 1; activeId: string | null; projects: Meta[] }
@@ -47,13 +47,38 @@ const PILL_CSS = `
   border:1px solid;cursor:pointer;user-select:none;white-space:nowrap;transition:border-color .2s}
 .az-pill .az-dot{width:6px;height:6px;border-radius:50%;flex:none;background:currentColor;box-shadow:0 0 7px currentColor}
 .az-pill .az-t{opacity:.6;letter-spacing:.08em}
-.az-idle{color:#8a8a8a;border-color:#333;background:rgba(255,255,255,.03)}
+.az-idle{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.04)}
 .az-saving{color:#D6B36A;border-color:rgba(214,179,106,.52);background:rgba(214,179,106,.10)}
 .az-saving .az-dot{animation:azDot .7s ease-in-out infinite}
 .az-saved{color:#2FE07A;border-color:rgba(47,224,122,.42);background:rgba(47,224,122,.07);
   animation:azFlash .95s cubic-bezier(.2,.7,.3,1)}
 .az-offline{color:#E05555;border-color:rgba(224,85,85,.52);background:rgba(224,85,85,.10)}
 .az-offline .az-dot{animation:azDot .5s steps(1,end) infinite}
+`
+
+/* The shell, in the clean skin (Jamie, 11 Sep): the flat HAAVN grey ground,
+   and a floating space-grey glass bar whose buttons are clear glass with a
+   thin light outline — the 7EVEN menu, in grey. Matches the bars inside
+   Daniel's page, which float on the same ground. */
+const SHELL_CSS = `
+.azs{position:fixed;inset:0;z-index:9500;background:#d7d4ce;display:flex;flex-direction:column}
+.azs-bar{height:42px;flex-shrink:0;margin:10px 12px 0;padding:0 10px;display:flex;align-items:center;gap:8px;
+  border-radius:10px;border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(180deg,rgba(86,90,96,.94) 0%,rgba(54,57,62,.95) 46%,rgba(38,40,44,.97) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.35),0 12px 26px -16px rgba(0,0,0,.55)}
+.azs-btn{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.86);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:3px;
+  padding:6px 11px;cursor:pointer;transition:color .25s,border-color .25s,background .25s,box-shadow .25s}
+.azs-btn:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.1);box-shadow:0 0 18px -8px rgba(255,255,255,.6)}
+.azs-sel{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#fff;background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.28);border-radius:3px;padding:5px 9px;min-width:180px;max-width:280px;cursor:pointer}
+.azs-sel:hover{border-color:rgba(255,255,255,.7)}
+.azs-sel option{background:#2c2e32;color:#fff}
+.azs-t{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:#d6b36a;text-shadow:0 0 12px rgba(214,179,106,.35)}
+.azs-dv{width:1px;height:18px;background:rgba(255,255,255,.22)}
+.azs-note{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+.azs-frame{flex:1;width:100%;border:0;display:block;background:transparent}
 `
 
 const PILL: Record<SaveState, { cls: string; label: string }> = {
@@ -257,12 +282,6 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
     await openProject(rest[0])
   }
 
-  const mono = "'IBM Plex Mono',ui-monospace,monospace"
-  const btn: React.CSSProperties = {
-    fontFamily: mono, fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase',
-    color: '#909090', background: 'transparent', border: '1px solid #282828',
-    borderRadius: 3, padding: '5px 10px', cursor: 'pointer',
-  }
   const pill = PILL[save]
   const stamp = savedAt ? savedAt.toLocaleTimeString('en-AU', { hour12: false }) : ''
   const pillTitle = save === 'offline'
@@ -272,28 +291,23 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
       + '\nClick to save now.'
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#0C0C0C', display: 'flex', flexDirection: 'column' }}>
-      <style>{PILL_CSS}</style>
+    <div className="azs">
+      <style>{SHELL_CSS + PILL_CSS}</style>
       {/* Shell chrome. Everything about projects lives up here so Daniel's own
           topbar stays exactly as he designed it. */}
-      <div className="no-drag" style={{ height: 36, flexShrink: 0, background: '#111', borderBottom: '1px solid #282828', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px' }}>
-        <button style={btn} onClick={() => { void flush(); onClose() }}>← Base</button>
-        <span style={{ fontFamily: mono, fontSize: 9.5, letterSpacing: '0.24em', textTransform: 'uppercase', color: '#B8943F' }}>Atrium Zeroed</span>
-        <span style={{ width: 1, height: 18, background: '#282828' }} />
-        <select
-          value={index.activeId ?? ''}
-          onChange={e => void switchTo(e.target.value)}
-          style={{ ...btn, color: '#E8E8E8', background: '#171717', minWidth: 180, maxWidth: 280, letterSpacing: '0.04em', textTransform: 'none', fontSize: 11.5 }}>
+      <div className="no-drag azs-bar">
+        <button className="azs-btn" onClick={() => { void flush(); onClose() }}>← Base</button>
+        <span className="azs-t">Atrium Zeroed</span>
+        <span className="azs-dv" />
+        <select className="azs-sel" value={index.activeId ?? ''} onChange={e => void switchTo(e.target.value)}>
           {index.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-        <button style={btn} onClick={onNew}>+ New</button>
-        <button style={btn} onClick={onDup}>Duplicate</button>
-        <button style={btn} onClick={onRename}>Rename</button>
-        <button style={btn} onClick={() => void onDelete()}>Delete</button>
+        <button className="azs-btn" onClick={onNew}>+ New</button>
+        <button className="azs-btn" onClick={onDup}>Duplicate</button>
+        <button className="azs-btn" onClick={onRename}>Rename</button>
+        <button className="azs-btn" onClick={() => void onDelete()}>Delete</button>
         <span style={{ flex: 1 }} />
-        <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>
-          separate engine · own data · 7EVEN studio untouched
-        </span>
+        <span className="azs-note">separate engine · own data · 7EVEN studio untouched</span>
         {/* Remounted on every write so the flash animation replays. */}
         <div key={`${save}-${writes}`} className={`az-pill ${pill.cls}`} title={pillTitle}
              onClick={() => { pending.current = true; void flush() }}>
@@ -302,8 +316,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
           {save === 'saved' && stamp && <span className="az-t">{stamp}</span>}
         </div>
       </div>
-      <iframe ref={frame} src={SRC} title="ATRIUM Zeroed"
-        style={{ flex: 1, width: '100%', border: 0, display: 'block' }} />
+      <iframe ref={frame} src={SRC} title="ATRIUM Zeroed" className="azs-frame" />
     </div>
   )
 }

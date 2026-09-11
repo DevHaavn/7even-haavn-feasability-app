@@ -3473,84 +3473,137 @@ renderAll();
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
-   READING SKIN — added by ATRIUM. Colours and type only.
+   CLEAN SKIN — added by ATRIUM (Jamie, 11 Sep). Look and feel only.
 
-   Daniel's stylesheet above is untouched. Every rule here either redefines one
-   of his :root variables or repaints a value he hard-coded, so the layout,
-   the spacing and the structure are exactly as he built them — only the
-   surface changes, from his black ground to the 7EVEN studio's light one.
+   A holding design while Daniel finishes his updates; the real design pass
+   comes after. Nothing in his markup, engine or layout changes — every rule
+   here redefines one of his :root variables or repaints a value he
+   hard-coded for his old black ground.
 
-   Taken from src/styles/atrium-studio.css (.fxs, light content):
-     ground  #dfe5ec   panels #ffffff   ink #111417 / #454b52 / #767c83
-     type    Inter for text, JetBrains Mono for figures
-
-   His ACCENTS stay his — gold, green, blue, purple, teal, rose, orange, red —
-   because ~30 of his tints are hard-coded rgba() of those exact hues, and
-   swapping the variable alone would leave gold-tinted rows carrying
-   silver text. They are darkened only as far as legibility on a light
-   ground demands.
+     ground    flat #d7d4ce — the HAAVN home tone, without the pattern
+     panels    #efede9 lifted off it, framed in crisp black
+     rules     fine black hairlines inside the panels
+     ink       near-black, sharp
+     colour    green and red are for NUMBERS (and pass / fail) only — his
+               gold, blue, purple, teal and rose text all goes black
+     menus     the top bar and the left nav float as space-grey glossy
+               glass; nav items are clear glass buttons with a thin light
+               outline, the open tab lit gold — the 7EVEN menu, in grey
    ══════════════════════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root{
-  --bg:#dfe5ec;                 /* studio --page */
-  --s1:#ffffff;                 /* panels, nav, topbar */
-  --s2:#eef2f7;                 /* table heads, tiles, input hover */
-  --s3:#e4eaf1;                 /* group rows */
-  --border:rgba(35,44,55,.14);
-  --text:#111417; --text-2:#454b52; --text-3:#767c83;
-  /* his hues, pulled down far enough to read on a light ground */
-  --gold:#8a6d24; --gold-dim:rgba(184,148,63,.16);
-  --green:#2f9e6b; --blue:#5878a8; --purple:#7d6fae;
-  --teal:#3f8f96;  --rose:#a8607a; --orange:#c67d33; --red:#c8503f;
-  --calc:rgba(47,158,107,.09);
+  --bg:#d7d4ce;                 /* the page — flat */
+  --s1:#efede9;                 /* panels, cards, tiles */
+  --s2:#e4e1db;                 /* table heads, input hover */
+  --s3:#dedad3;                 /* group rows */
+  --border:rgba(0,0,0,.2);      /* hairlines inside a panel */
+  --text:#0b0b0b; --text-2:#1e1e1e; --text-3:#4f4e4b;
+  --gold:#0b0b0b; --gold-dim:rgba(0,0,0,.06);             /* accents → ink */
+  --blue:#0b0b0b; --purple:#0b0b0b; --teal:#0b0b0b; --rose:#0b0b0b;
+  --orange:#b45309;                                        /* warnings only */
+  --green:#157a3b; --red:#c42b1c;                          /* numbers and status */
+  --calc:transparent;
+  --frame:rgba(0,0,0,.78);      /* the crisp outer line of a panel */
+  --glass:linear-gradient(180deg,rgba(86,90,96,.94) 0%,rgba(54,57,62,.95) 46%,rgba(38,40,44,.97) 100%);
+  --glass-edge:rgba(255,255,255,.16);
+  --brand-gold:#d6b36a;
 }
 
-/* ── type ────────────────────────────────────────────────────────────── */
-body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
+/* ── type: sharp ─────────────────────────────────────────────────────── */
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;text-rendering:geometricPrecision;background:var(--bg)}
 .logo,.hdrk,.nn,.th-n,.nb,.fv,.ci,.ci.dte,
 td.num,td.cal,td.dim,td.dt,tr.tot td.num,tr.tot td.cal,tr.tot td.dim,
 .cal,.ov,.pill,.gt,.cr,.fx,.vup,.kv,.ks,.alert-i,#cftbl td,
 tr.grp td.num,tr.ctot td.num,tr.ctot td.dim,.rno2,.rcount,.rno,
 .pg-yr,.pg-mo,.pg-l .pgr .amt,.pgbar,.pg-mflag,.tgn,.chip,.lr .v,
 .modrate .cal,.gt-y,.gt-bar{font-family:'JetBrains Mono',ui-monospace,monospace}
-/* he sets these two back to the sans face, and so do we */
 select.ci,.ci.txt,.fcname .ci{font-family:'Inter',system-ui,sans-serif}
+.th-t{font-weight:600;letter-spacing:-.01em}
+.st,.fcbt,.tgl,.grpt,.fdt{color:var(--text);letter-spacing:.12em}
 
-/* ── the values he hard-coded, repainted for a light ground ──────────── */
-.p-sh{background:rgba(35,44,55,.055)}
-tr.grp:hover td,tr.grp:hover td.stk{background:#dbe3ec}
-tr.ln:hover td{background:rgba(35,44,55,.035)}
-tr.ln:hover td.stk{background:#f2f6fa}
-tr.ctot td.stk{background:#efe7d4}                    /* the gold column head */
-tr.cfl:hover td{background:rgba(35,44,55,.03)}
-tr.cfs td.stk{background:#efe7d4}
-tr.cfn td.stk{background:#e2ebf5}
-tr.cfgst td.stk{background:#ece7f3}
-tr.frow-f:hover td{background:rgba(35,44,55,.035)}
-.pg-mo{border-right-color:rgba(35,44,55,.09)}
-.pg-mo.q1{background:rgba(35,44,55,.035)}
-.pgr{border-bottom-color:rgba(35,44,55,.08)}
-.pgr.grp:hover{background:#dbe3ec}
-.pg-gc{border-right-color:rgba(35,44,55,.07)}
-.pg-gc.q1{background:rgba(35,44,55,.03)}
-.fcbox+.fcbox{background:rgba(35,44,55,.022)}
-.lr{border-bottom-color:rgba(35,44,55,.08)}
-.gt-y{border-right-color:rgba(35,44,55,.07)}
-.gt-r:hover{background:rgba(35,44,55,.03)}
-.gt-cell{border-right-color:rgba(35,44,55,.07)}
-/* an undated / unfunded bar was dark grey on black; it is light grey on paper */
-.pgbar.b-none,.b-n{background:#c3ccd6;color:#5c6672}
-/* bar labels sit on saturated fills, so they stay dark — but the label on a
-   light bar needs to be darker still than his .78 black */
-.pgbar,.gt-bar{color:rgba(0,0,0,.82)}
+/* ── menus: floating space-grey glass ────────────────────────────────── */
+.topbar{margin:10px 12px 0;border-radius:10px;border:1px solid var(--glass-edge);background:var(--glass);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.35),0 12px 26px -16px rgba(0,0,0,.55);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
+.topbar .logo{color:var(--brand-gold);text-shadow:0 0 12px rgba(214,179,106,.35)}
+.topbar .dv{background:rgba(255,255,255,.22)}
+.topbar .pname{color:#f2f2f2}
+.topbar .badge{color:var(--brand-gold);background:rgba(214,179,106,.08);border-color:rgba(214,179,106,.55)}
+.topbar .hdrk div{color:rgba(255,255,255,.55)}
+.topbar .hdrk b{color:#ffffff}
 
-/* ── the two panels he paints with white alpha over black ────────────── */
-.ci:hover{background:var(--s2)}
-.cscroll,.cf-wrap,.pg-wrap,.tw,.frows,.rulebox,.gt-wrap,.fcard,.kt,.alert{background:var(--s1)}
-.rulebox,.pg-cash,.pg-cash .pg-l{background:var(--s1)}
-td.stk,.pg-l{background:var(--s1)}
+.body{padding:10px 12px 12px;gap:12px;background:var(--bg)}
+.nav{width:190px;border:1px solid var(--glass-edge);border-radius:12px;background:var(--glass);padding:10px 0 8px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 16px 30px -18px rgba(0,0,0,.6)}
+.ni{margin:4px 10px;padding:9px 11px;border:1px solid rgba(255,255,255,.2);border-left-width:1px;border-radius:3px;
+  background:rgba(255,255,255,.03);transition:background .25s,border-color .25s,box-shadow .25s}
+.ni:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.55)}
+.ni.on{background:rgba(214,179,106,.08);border-color:var(--brand-gold);
+  box-shadow:0 0 0 1px rgba(214,179,106,.25),0 0 22px -4px rgba(214,179,106,.55),inset 0 0 14px rgba(214,179,106,.12)}
+.nn{color:rgba(255,255,255,.5)}
+.ni.on .nn{color:var(--brand-gold)}
+.nl{color:rgba(255,255,255,.88);letter-spacing:.02em}
+.ni.on .nl{color:#ffffff}
+.nfoot{border-top-color:rgba(255,255,255,.14);color:rgba(255,255,255,.55)}
+.nfoot b{color:#7fd6a0}
+
+.main{border-radius:10px;background:var(--bg)}
+
+/* ── panels: lifted, crisp black frame, fine rules inside ─────────────── */
+.frows,.tw,.fcard,.kt,.alert,.rulebox,.cscroll,.cf-wrap,.pg-wrap,.gt-wrap{background:var(--s1);border-color:var(--frame)}
+.th-row{border-bottom-color:var(--frame)}
+th{background:var(--s2);color:var(--text);border-bottom-color:var(--frame)}
 th.stk,tr.grp td.stk{background:var(--s2)}
-/* scrollbars follow the light ground */
-.cscroll,.cf-wrap,.pg-wrap,.scrollpad{scrollbar-color:rgba(35,44,55,.28) transparent}
+td.stk,.pg-l{background:var(--s1)}
+.fch,.fcfoot,.rrow.rfoot,.pg-head,.pg-hl,.gt-hd{background:var(--s2)}
+.lr{border-bottom-color:rgba(0,0,0,.1)}
+.fcbox+.fcbox{background:transparent}
+
+/* every coloured row tint goes; emphasis is weight and a rule, not colour */
+.frow.c,.frow.t,.frow.r{background:transparent}
+.frow.t{border-top:1px solid var(--frame)}
+.frow.t .fl,.frow.t .fv{color:var(--text);font-weight:600}
+.frow.r .fl{color:var(--red)}
+tr.tot td,tr.ctot td,tr.cfs td,tr.cfn td,tr.cfgst td{background:var(--s1);color:var(--text)}
+tr.tot td,tr.ctot td,tr.cfs td,tr.cfn td{font-weight:600;border-top:1px solid var(--frame)}
+tr.ctot td.stk,tr.cfs td.stk,tr.cfn td.stk,tr.cfgst td.stk{background:var(--s1)}
+tr.tot td.num,tr.tot td.dim,tr.ctot td.num,tr.ctot td.dim{color:var(--text)}
+.lr.tot .k,.lr.tot .v{color:var(--text)}
+.pgr.mile{background:transparent}
+.kt.warn{background:var(--s1);border-color:var(--red)}
+.alert{background:var(--s1);border-color:var(--red)}
+.alert.ok{background:var(--s1);border-color:var(--frame)}
+
+/* hovers he wrote for a black ground */
+tr.grp:hover td,tr.grp:hover td.stk,.pgr.grp:hover{background:#d4d0c8}
+tr.ln:hover td,tr.cfl:hover td,tr.frow-f:hover td,.gt-r:hover{background:rgba(0,0,0,.035)}
+tr.ln:hover td.stk{background:#e7e4df}
+.pg-mo{border-right-color:rgba(0,0,0,.1)} .pg-mo.q1{background:rgba(0,0,0,.035)}
+.pgr{border-bottom-color:rgba(0,0,0,.08)} .pg-gc{border-right-color:rgba(0,0,0,.07)} .pg-gc.q1{background:rgba(0,0,0,.03)}
+.gt-y,.gt-cell{border-right-color:rgba(0,0,0,.08)}
+.pgbar.b-none,.b-n{background:#c9c5bd;color:#3d3c39}
+.pgbar,.gt-bar{color:rgba(0,0,0,.85)}
+.pg-mline{background:rgba(0,0,0,.45)} .pg-mflag{color:var(--text)}
+
+/* chips, tags and buttons: black outline, no fill — status chips keep their colour */
+.badge,.nb,.nb.chg,.tgn,.fx-v,.p-sh,.p-btr,.p-com,.p-il,.p-rv,.p-ac{background:transparent;border-color:rgba(0,0,0,.45);color:var(--text)}
+.p-bts,.fx-f{background:transparent}
+.btn,.ovb{border-color:rgba(0,0,0,.45);color:var(--text)}
+.btn:hover,.ovb:hover{background:rgba(0,0,0,.06);border-color:var(--text);color:var(--text)}
+.btn.gold{color:var(--text);border-color:var(--text)}
+.chip.wait{background:transparent;border-color:rgba(0,0,0,.35);color:var(--text-3)}
+.chip.draw{background:transparent} .chip.exh{background:transparent}
+.ufill.hot{background:#8a6d24}
+
+/* inputs: quiet until touched, then a crisp black edge */
+.ci{color:var(--text)}
+.ci:hover{background:rgba(255,255,255,.55);border-color:rgba(0,0,0,.3)}
+.ci:focus{background:#ffffff;border-color:var(--text)}
+.ci.dte{color-scheme:light}
+.ci.dte::-webkit-calendar-picker-indicator{filter:none;opacity:.6}
+.amtc{border-bottom-color:rgba(0,0,0,.3)} .amtc:hover{color:var(--text);border-bottom-color:var(--text)}
+
+.cscroll,.cf-wrap,.pg-wrap,.scrollpad{scrollbar-color:rgba(0,0,0,.35) transparent}
 </style>
