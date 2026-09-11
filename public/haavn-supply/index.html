@@ -65,32 +65,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #stage .iso{position:absolute;inset:0;width:100%;height:100%;display:block;
   opacity:0;transition:opacity 1.6s ease}
 #stage .iso.on{opacity:1}
-/* PRESTON — the modular assembly sequence, running as the ground. Jamie's
-   prestonmodularbuild.html ported into preston-build.html: same geometry,
-   same sequence, re-inked for paper and stripped of its HUD and controls.
-   It sits in an iframe so the canvas loop stays sealed off from the page,
-   and it is hidden outright on the inner views so it stops drawing there. */
-#stage .build{position:absolute;left:0;top:2vh;width:min(52vw,860px);
-  aspect-ratio:16/9;border:0;background:transparent;pointer-events:none;
-  opacity:0;animation:buildIn 2.4s ease 1.1s forwards}
-@keyframes buildIn{to{opacity:1}}
-body.view-inner #stage .build{display:none}
-@media(max-width:600px){#stage .build{width:100vw;left:0;top:12vh}}
-
-/* the HVN device, bled off the bottom-right corner — the same watermark the
-   Derrimut cover carries, in #d4e84a. It needs more opacity than a black
-   watermark would: the light green sits close to the paper in value. */
+/* The home screens carry nothing on the ground but the field itself — the
+   hero reads as the HAAVN brand alone (Jamie, 11 Sep). The Preston build
+   that used to run behind the hero is now its own page (screen two, see
+   preston-slide.html), and the HVN device is off the home view entirely.
+   It stays, faint, behind the inner pages — the HVN device bled off the
+   bottom-right corner, the watermark the Derrimut cover carries. */
 #stage .device{position:absolute;right:-6vw;bottom:-7vh;width:min(39vw,630px);height:auto;
-  opacity:0;pointer-events:none;animation:deviceIn 2.4s ease 2.4s forwards}
-@keyframes deviceIn{to{opacity:.26}}
-body.view-inner #stage .device{opacity:.12;animation:none;transition:opacity .5s}
-/* Preston and the device belong to screen one — they ride up with it as the
-   page scrolls (--sy is scrollY, set by script) instead of sitting over
-   screen two. They move as one screen-sized layer that clips: the device
-   bleeds off screen one's bottom edge by design, and moving it alone would
-   carry that hidden overhang up into screen two. */
-#stage .s1{position:absolute;inset:0;overflow:hidden;translate:0 calc(var(--sy,0) * -1px)}
-body.view-inner #stage .s1{translate:none}      /* inner pages keep the faint device fixed, as before */
+  opacity:.12;pointer-events:none;display:none}
+body.view-inner #stage .device{display:block}
 @media(max-width:600px){#stage .device{width:56vw;right:-12vw;bottom:-4vh}}
 
 /* The green LED bar pairs are retired on HAAVN — on paper they shouted where
@@ -348,6 +331,15 @@ code{font-family:var(--f-mono);font-size:11.5px;color:var(--lime-txt);background
 .scrollcue img{display:block;width:100%;height:auto;opacity:.5}   /* haavn.au runs it at 50% */
 .scrollcue:hover{filter:drop-shadow(0 0 6px rgba(168,188,16,.55))}
 
+/* ── screen two: the Preston build ──────────────────────────────────────
+   One full viewport, the animation's 16:9 frame fitted inside it (contain)
+   by preston-slide.html itself. The iframe is glass: no ground of its own,
+   so the isometric field runs straight through behind the line work. It is
+   told when it is on screen and only draws then (see the script). */
+.pA{position:relative;width:100vw;margin-left:calc(50% - 50vw);height:100vh;height:100svh}
+.pA .slide{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;display:block;
+  pointer-events:none}   /* nothing to click in it, and wheel/touch scroll must reach the page */
+
 /* ── screen two ──────────────────────────────────────────────────────────
    Measured off haavn.au at five widths (1280–1920) after its reveal
    animation had run. Every position there is (px + vw) — the text carries
@@ -462,10 +454,7 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <div id="stage">
   <canvas class="iso" id="iso" aria-hidden="true"></canvas>
-  <div class="s1">
-    <iframe class="build" src="preston-build.html?v=13" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
-    <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
-  </div>
+  <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
 </div>
 
 <button class="burger" id="burger" aria-label="Menu"><span></span><span></span></button>
@@ -507,7 +496,14 @@ footer{padding-bottom:20px;margin-top:auto}
         <button class="scrollcue" id="scrollCue" aria-label="Scroll down"><img src="assets/haavnau/scroll-icon.gif" alt=""></button>
       </div>
 
-      <!-- screen two: haavn.au's second section, copy verbatim from the site -->
+      <!-- screen two: the Preston modular assembly, a whole page of its own,
+           floating over the ground (glass iframe — the field shows through) -->
+      <div class="pA" id="pA">
+        <iframe class="slide" id="slide" src="preston-slide.html?v=1" title="Preston — modular assembly sequence"
+                tabindex="-1" scrolling="no"></iframe>
+      </div>
+
+      <!-- screen three: haavn.au's second section, copy verbatim from the site -->
       <div class="p2" id="p2">
         <div class="p2s">
           <h3 class="rv" style="--o:.7">AUSTRALIA’S FIRST END-TO-END SOLUTION IN MODULAR <strong>SUPPLY</strong>, <strong>FINANCE</strong>, AND <strong>CONSTRUCTION</strong>.</h3>
@@ -863,12 +859,12 @@ var MEDIA = [
   tick(); setInterval(tick, 1000);
   $('#btnUpdate').addEventListener('click', function(){ location.reload(); });
 
-  /* ---- the two home screens ------------------------------------------
+  /* ---- the three home screens ----------------------------------------
+     1 hero · 2 the Preston build · 3 haavn.au's section + the footer.
      --above: everything over screen one (shell padding + header), so the
-     hero is one viewport exactly. --foot: the footer, so screen two plus the
-     footer is one viewport too. --sy: scroll, for the layers that ride with
-     screen one. */
-  var root = document.documentElement, p1 = $('#p1'), p2 = $('#p2');
+     hero is one viewport exactly. --foot: the footer, so screen three plus
+     the footer is one viewport too. */
+  var root = document.documentElement, p1 = $('#p1'), p2 = $('#p2'), pA = $('#pA'), slide = $('#slide');
   function measure(){
     if (!document.body.classList.contains('view-inner')){
       // offsetTop, not getBoundingClientRect: the view's entrance animation
@@ -878,17 +874,34 @@ var MEDIA = [
     }
     root.style.setProperty('--foot', $('#foot').offsetHeight + 'px');
   }
-  var sy = 0;
-  function onScroll(){ var y = Math.round(window.scrollY); if (y !== sy){ sy = y; root.style.setProperty('--sy', y); } }
-  window.addEventListener('scroll', onScroll, { passive:true });
   window.addEventListener('resize', measure);
-  $('#scrollCue').addEventListener('click', function(){ p2.scrollIntoView({ behavior:'smooth', block:'start' }); });
-  // haavn.au reveals screen two as it comes into view — once, then it stays
+  $('#scrollCue').addEventListener('click', function(){ pA.scrollIntoView({ behavior:'smooth', block:'start' }); });
+
+  /* The Preston build only draws while its page is on screen. Arriving at
+     it after it has been fully off screen starts the sequence from the dig,
+     so nobody walks in on the middle of the modular set. */
+  var slideOn = false, slideAway = true;
+  function tellSlide(msg){ try { slide.contentWindow.postMessage(msg, location.origin); } catch(e){} }
+  function slideState(on){
+    if (on === slideOn) return;
+    slideOn = on;
+    tellSlide(on ? { preston:'play', restart:slideAway } : { preston:'pause' });
+    if (on) slideAway = false;
+  }
+  slide.addEventListener('load', function(){ if (slideOn){ slideOn = false; slideState(true); } });
+
   if ('IntersectionObserver' in window){
+    // haavn.au reveals its section as it comes into view — once, then it stays
     new IntersectionObserver(function(es, io){
       es.forEach(function(e){ if (e.isIntersecting){ p2.classList.add('in'); io.disconnect(); } });
     }, { threshold:.18 }).observe(p2);
-  } else p2.classList.add('in');
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (e.intersectionRatio >= .3) slideState(true);
+        else if (!e.isIntersecting){ slideState(false); slideAway = true; }
+      });
+    }, { threshold:[0, .3] }).observe(pA);
+  } else { p2.classList.add('in'); slideState(true); }
 
   route();
   /* The header and footer change height when the web fonts land (and the
