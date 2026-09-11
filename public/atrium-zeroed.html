@@ -770,6 +770,7 @@ const ENG = (() => {
     const totalCost = Array.isArray(costNet) ? costNet : costNet.total;
     const EQ_NAME = 'Sponsor Equity';
     const spills = [];
+    const unknown = [];        // FIX 9 — demand assigned to a source not in the stack
 
     const out={
       need:[], eqDraw:new Array(n).fill(0), surplus:[],
@@ -885,6 +886,10 @@ const ENG = (() => {
           if(want<=1e-9) return;
           const idx = F.findIndex(f=>f.name===src);
           const before = want;
+          /* FIX 9 — only the equity NAME means equity. Any other name not in the
+             stack is a data error (a renamed or deleted facility): it still goes
+             to the backstop, but it is recorded so the UI can say so. */
+          if(idx<0 && src!==EQ_NAME) unknown.push({m, src, amount:want});
           want = (src===EQ_NAME || idx<0) ? drawEquity(want) : drawFacility(idx, want);
           if(want>1e-6){
             /* the named source could not cover it — spill down the remaining
@@ -1013,7 +1018,7 @@ const ENG = (() => {
     const interest=F.reduce((s,f)=>s+f.interest,0);
     const fees=F.reduce((s,f)=>s+f.fees,0);
     return {
-      ...out, facilities:F, groups:GROUPS, equityDrawn:eq.drawn, spills,
+      ...out, facilities:F, groups:GROUPS, equityDrawn:eq.drawn, spills, unknown,
       interest, fees, financeCost:interest+fees,
       peakDebt:Math.max(...out.debtBal,0),
       peakEquity:Math.max(...out.eqBal,0),
@@ -1864,7 +1869,7 @@ function compute(){
   const la = bySource[landSrc] || (bySource[landSrc] = new Array(n).fill(0));
   for(let m=0;m<n;m++) la[m] += landProf[m] + vendorProf[m];
   landCosts.forEach(c=>{
-    const src = c.funded || landSrc;
+    const src = (c.funded && !/^—.*—$/.test(c.funded)) ? c.funded : landSrc;   // FIX 9 — a stored placeholder is 'unset'
     const a = bySource[src] || (bySource[src] = new Array(n).fill(0));
     for(let m=0;m<n;m++) a[m] += c.profile[m];
   });
@@ -1973,6 +1978,14 @@ function compute(){
     detail: spillNames.length===0 ? 'no source ran out'
       : spillNames.map(k=>`${k} ran out ${spillBy[k]}×, spilled to the next tranche`).join(' · ')});
 
+  /* FIX 9 — a line naming a source that is not in the stack */
+  const unk = {}; (wf.unknown||[]).forEach(u=>{ unk[u.src]=(unk[u.src]||0)+u.amount; });
+  const unkNames = Object.keys(unk);
+  gates.push({id:'srcname', label:'Every funding source named is in the capital stack',
+    pass: unkNames.length===0,
+    detail: unkNames.length===0 ? 'every Funded by names a facility or Sponsor Equity'
+      : unkNames.map(k=>`"${k}" is not in the stack — ${$(unk[k])} went to the backstop (sponsor equity, then the stack) instead`).join(' · ')});
+
   const unmatched = lineCalc.filter(l=>l.amount>0 && l.fundVia==='unmatched');
   gates.push({id:'fundrule', label:'Every funded line has a funding source',
     pass: unmatched.length===0,
@@ -2031,6 +2044,21 @@ function sel(path, opts, val){ return `<select class="ci" data-path="${path}">${
 
 /* ---------------- 01 LAND ---------------- */
 function dinp(path, val){ return `<input type="date" class="ci dte" data-path="${path}" value="${val||''}">`; }
+
+/* FIX 9 — the Acquisition & Holding 'Funded by' select. The placeholder has
+   an EMPTY value, so an unset row stores '' and falls back to the land
+   facility; the list is de-duplicated (a facility named 'Sponsor Equity'
+   would otherwise appear twice); a stored name that is no longer in the
+   stack is shown as such rather than silently displayed as the placeholder. */
+function fundSel(i, cur){
+  const names = [...new Set(MODEL.facilities.map(f=>f.name).concat(['Sponsor Equity']))];
+  const stale = cur && !/^—.*—$/.test(cur) && !names.includes(cur);
+  return `<select class="ci" data-path="land.costs.${i}.funded">`
+    + `<option value=""${!cur||/^—.*—$/.test(cur)?' selected':''}>— land facility —</option>`
+    + (stale ? `<option value="${cur}" selected>${cur} — not in the stack</option>` : '')
+    + names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('')
+    + `</select>`;
+}
 
 function rLand(){
   const {L,duty,acqFee,hold,vendorInt,pays,payVariance,landTotal,landCosts,acqTotal}=R;
@@ -2156,7 +2184,7 @@ function rLand(){
         <td class="ctr">${dinp('land.costs.'+i+'.date',c.date)}</td>
         <td class="ctr">${per?dinp('land.costs.'+i+'.end',c.end):'<span class="u">—</span>'}</td>
         <td class="ctr">${per?sel('land.costs.'+i+'.curve',['Linear','S-curve','Upfront','Back-loaded'],c.curve):'<span class="u">—</span>'}</td>
-        <td class="ctr">${sel('land.costs.'+i+'.funded',['— land facility —'].concat(MODEL.facilities.map(f=>f.name)).concat(['Sponsor Equity']),c.funded||'— land facility —')}</td>
+        <td class="ctr">${fundSel(i,c.funded)}</td>
         <td class="ctr">${auto?'':`<button class="ovb" onclick="delLandCost(${i})">del</button>`}</td>
       </tr>`}).join('')}
       <tr class="tot"><td>Acquisition &amp; holding total</td>
