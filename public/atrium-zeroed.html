@@ -3503,15 +3503,45 @@ renderAll();
     if(d.atriumZeroed === 'meta' && typeof d.name === 'string'){ projName = d.name; title(); }
   });
 
+  /* The 7EVEN footer (Jamie, 11 Sep) — the home page's one-line footer, at the
+     very bottom of whichever page is open, joined to the sidebar. It carries
+     no background of its own: the page leaves that strip see-through, so the
+     island's video runs from the nav straight along under it. His panes are
+     re-rendered on every recalculation, so after each render (and each tab
+     change) the one footer is put back at the end of the open page. */
+  const foot = document.createElement('div'); foot.className = 'azfoot';
+  foot.innerHTML =
+      '<div class="af-l"><span class="af-atrium"><i class="af-tri"></i>ATRIUM</span></div>'
+    + '<div class="af-c"><span class="af-live"><i class="af-dot"></i>LIVE&nbsp;&nbsp;<span class="af-clock">--:--:--</span>&nbsp;·&nbsp;MELBOURNE</span></div>'
+    + '<div class="af-r"><a class="af-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span class="ext">↗</span></a>'
+    + '<a class="af-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span class="ext">↗</span></a>'
+    + '<button class="af-chip" type="button" title="Get the latest version"><i class="ring"></i>UPDATE</button></div>';
+  foot.querySelector('button').onclick = () => { try { top.location.reload(); } catch(e){ location.reload(); } };
+  const clock = foot.querySelector('.af-clock');
+  const tick = () => { clock.textContent = new Date().toLocaleTimeString('en-AU', { hour12:false }); };
+  tick(); setInterval(tick, 1000);
+  const gap = document.createElement('div'); gap.className = 'azfgap';   // pushes the footer down on a short page
+  function placeFoot(){
+    const pane = document.querySelector('.pane.on'); if(!pane) return;
+    const pad = pane.querySelector(':scope > .scrollpad'), host = pad || pane;
+    if(pad){ if(gap.parentNode !== host || foot.previousElementSibling !== gap) host.appendChild(gap); }
+    else if(gap.parentNode) gap.remove();
+    if(foot.parentNode !== host || host.lastElementChild !== foot) host.appendChild(foot);
+  }
+  const goInner = window.go;
+  if(typeof goInner === 'function') window.go = function(){ goInner.apply(this, arguments); placeFoot(); };
+
   const inner = window.renderAll;
   window.renderAll = function(){
     inner.apply(this, arguments);
+    placeFoot();
     title();
     const p = document.getElementById('hdrProf'); if(!p || typeof R === 'undefined') return;
     p.classList.toggle('neg', !!R.gatesPass && R.profit < 0);
     p.classList.toggle('pos', !!R.gatesPass && R.profit > 0);
   };
   title();
+  placeFoot();
 })();
 </script>
 
@@ -3618,6 +3648,52 @@ html.standalone .main{border-radius:12px 0 0 0}
 .kstrip .hdrk div{color:var(--text-3);letter-spacing:.14em}
 .kstrip .hdrk b{color:var(--text);font-weight:600;margin-left:9px;letter-spacing:0}
 .kstrip .hdrk b.neg{color:var(--red)} .kstrip .hdrk b.pos{color:var(--green)}
+
+/* ── the 7EVEN footer, joined to the sidebar at the bottom ───────────────
+   The grey stops short of the bottom of the open page; the footer sits in
+   that see-through strip, so the island's own video shows behind it and runs
+   on from the nav. Its right and bottom edges line up with the island's, the
+   corner where it meets the grey is rounded to match the one at the top, and
+   the grey always ends exactly above it. 78px = 12 corner + 56 footer + 10 gap. */
+.main{background:transparent}
+.kstrip{background:var(--bg);border-radius:12px 0 0 0}
+.pane{background:linear-gradient(var(--bg),var(--bg)) 0 0/100% calc(100% - 78px) no-repeat}
+.pane:has(> .scrollpad){background:none}
+.scrollpad:has(> .azfoot){display:flex;flex-direction:column;padding-bottom:10px !important;   /* Cost sets 20px inline */
+  
+  background:linear-gradient(var(--bg),var(--bg)) 0 0/100% calc(100% - 78px) no-repeat local}
+.scrollpad:has(> .azfoot) > :not(.azfgap){flex-shrink:0;min-width:0}   /* keep wide tables scrolling inside themselves */
+html.standalone .pane,html.standalone .scrollpad:has(> .azfoot){background-color:transparent}
+
+.azfoot{position:relative;flex-shrink:0;height:56px;margin:0 12px 10px 0;padding:0 22px 0 26px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;white-space:nowrap;
+  font-family:'JetBrains Mono',ui-monospace,monospace}
+.scrollpad > .azfoot{margin:0 -10px 0 -22px}
+.pane > .azfoot{margin-top:24px}   /* Cash Flow / Program don't scroll — keep their last box clear of the corner */
+.azfgap{flex:1 0 30px}
+/* the grey's bottom edge above the footer, its inside corner rounded */
+.azfoot::before{content:'';position:absolute;left:0;right:-12px;top:-12px;height:12px;pointer-events:none;
+  background:radial-gradient(circle at 12px 0,var(--bg) 11.5px,transparent 12px) 0 0/12px 12px no-repeat,
+             linear-gradient(var(--bg),var(--bg)) 12px 0/calc(100% - 12px) 12px no-repeat}
+/* and the footer's own top-right corner rounded like the island's */
+.azfoot::after{content:'';position:absolute;right:0;top:0;width:12px;height:12px;pointer-events:none;
+  background:radial-gradient(circle at 0 100%,transparent 11.5px,var(--bg) 12px)}
+html.standalone .azfoot::before,html.standalone .azfoot::after{display:none}
+.af-l{display:flex;align-items:center;min-width:0}
+.af-atrium{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.34em;color:#c3c7cd}
+.af-tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
+.af-c{display:flex;align-items:center;justify-self:center}
+.af-live{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.22em;color:#a9a6a9}
+.af-dot{width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 10px #2fe07a;animation:afPulse 2.4s infinite}
+@keyframes afPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.af-clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em}
+.af-r{display:flex;align-items:center;gap:8px;justify-self:end}
+.af-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
+  font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;
+  transition:.35s cubic-bezier(.2,.7,.3,1);text-transform:uppercase;text-decoration:none}
+.af-chip:hover{border-color:rgba(47,224,122,.7);color:#fff;transform:translateY(-2px);background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
+.af-chip .ext{color:#2fe07a;opacity:.9;font-size:9px}
+.af-chip .ring{width:6px;height:6px;border:1px solid #2fe07a;border-radius:50%}
 
 /* Funded-by cells: his select is width:100% and the pinned / manual / rule
    chip sat beside it, so the chip spilled over the del button. The chip now
