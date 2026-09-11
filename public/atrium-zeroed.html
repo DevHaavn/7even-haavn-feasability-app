@@ -167,6 +167,7 @@
   .rcount{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-3);text-align:right}
   .rrow .ci{font-size:10.5px;padding:2px 5px}
   .rno{font-size:8.5px;font-family:'IBM Plex Mono',monospace;color:var(--text-3);margin-left:5px}
+  .wwarn{color:var(--orange);cursor:help;margin-left:6px;font-size:12px;font-weight:700}   /* FIX 11 */
   .fpin{color:var(--gold)}
   tr.frow-f{cursor:pointer}
   tr.frow-f:hover td{background:rgba(255,255,255,.025)}
@@ -899,6 +900,17 @@ const ENG = (() => {
           if(idx<0 && src!==EQ_NAME) unknown.push({m, src, amount:want});
           want = (src===EQ_NAME || idx<0) ? drawEquity(want) : drawFacility(idx, want);
           if(want>1e-6){
+            /* FIX 11 — record WHY the named source could not cover it, and
+               WHERE each dollar landed, so the UI can say so. Routing below is
+               unchanged: that behaviour is correct. */
+            const failed = want, f0 = idx>=0 ? F[idx] : null;
+            const reason = !f0 ? (src===EQ_NAME ? 'equity limit reached' : 'not in the stack')
+              : f0.closed ? 'already repaid'
+              : (f0.from!=null && m<f0.from) ? 'not yet available'
+              : (f0.to!=null && m>f0.to)     ? 'expired'
+              : f0.constrained               ? 'covenant capped'
+              :                                'limit exhausted';
+            const snapD = F.map((f,k)=>out.draw[k][m]), snapE = out.eqDraw[m];
             /* the named source could not cover it — spill down the remaining
                tranches in priority order, then to equity as the backstop */
             const srcG = idx<0 ? -1 : groupOf[idx];
@@ -908,8 +920,10 @@ const ENG = (() => {
             /* then, only as a last resort, earlier tranche numbers */
             for(let gi=0; gi<Math.max(0,srcG) && want>1e-9; gi++)    want = drawGroup(gi, want);
             if(want>1e-9 && src!==EQ_NAME)                           want = drawEquity(want);
-            const spilled = (before - (assigned[src][m]-want)) ;
-            spills.push({m, from:src, amount:Math.min(before, before-want>0?before-(before-want):before), unfunded:want});
+            const landed = [];
+            F.forEach((f,k)=>{ const d=out.draw[k][m]-snapD[k]; if(d>1e-6) landed.push({name:f.name, amt:d}); });
+            if(out.eqDraw[m]-snapE>1e-6) landed.push({name:EQ_NAME, amt:out.eqDraw[m]-snapE});
+            spills.push({m, from:src, amount:failed, reason, landed, unfunded:want});
           }
           unmet += Math.max(0, want);
         });
@@ -1913,6 +1927,43 @@ function compute(){
   const gstSunkEst = sum(gstPaid) - sum(gstCredRaw);
   const wf = ENG.converge(build, S);
 
+  /* FIX 11 — make spills visible. The waterfall already gates every draw on
+     the facility's window and spills correctly; this only says so. Every row
+     that draws funding is listed with its source, each spill is attributed to
+     the rows behind it (pro rata to their demand that month), and a row dated
+     outside the window of the facility it names gets a warning. */
+  const fmtD = iso => { if(!iso) return ''; const d=new Date(iso); return isNaN(d) ? String(iso)
+                        : d.toLocaleDateString('en-AU',{day:'2-digit',month:'2-digit',year:'numeric'}); };
+  const fundRows = [];
+  lineCalc.forEach(l=>{ if(l.amount>0) fundRows.push({kind:'Cost', key:'c'+l.id, label:l.name, date:l.start, s:l.s, src:l.funded, prof:l.profile}); });
+  pays.forEach((p,i)=>{ if(p.m!=null && p.amt>0){ const pr=new Array(n).fill(0); pr[p.m]=p.amt;
+    fundRows.push({kind:'Land payment', key:'p'+i, label:p.desc||'Land payment', date:fmtD(p.date), s:p.m, src:landSrc, prof:pr}); } });
+  if(vendorProf.some(v=>v>0)) fundRows.push({kind:'Land payment', key:'v', label:'Vendor interest', date:'', s:vendorProf.findIndex(v=>v>0), src:landSrc, prof:vendorProf});
+  landCosts.forEach((c,i)=>{ if(c.entered>0) fundRows.push({kind:'Acquisition & holding', key:'l'+i, label:c.desc, date:fmtD(c.date), s:c.s, src:c.src, prof:c.profile}); });
+
+  const spillAcc = {};
+  (wf.spills||[]).forEach(sp=>{
+    const rows = fundRows.filter(r=>r.src===sp.from && (r.prof[sp.m]||0)>1e-9);
+    const tot = rows.reduce((a,r)=>a+r.prof[sp.m],0); if(tot<=0) return;
+    rows.forEach(r=>{
+      const sh = r.prof[sp.m]/tot;
+      const x = spillAcc[r.key] || (spillAcc[r.key] = {kind:r.kind, key:r.key, label:r.label, date:r.date, src:r.src, amount:0, reasons:new Set(), landed:{}});
+      x.amount += sp.amount*sh; x.reasons.add(sp.reason);
+      (sp.landed||[]).forEach(l=>{ x.landed[l.name] = (x.landed[l.name]||0) + l.amt*sh; });
+      if(sp.unfunded>1e-6) x.landed['unfunded'] = (x.landed['unfunded']||0) + sp.unfunded*sh;
+    });
+  });
+  const spillRows = Object.values(spillAcc).map(x=>({...x, reasons:[...x.reasons]})).sort((a,b)=>b.amount-a.amount);
+  const landedText = key => { const x=spillAcc[key]; if(!x) return 'the next tranche';
+    const L2=Object.entries(x.landed).filter(([,v])=>v>1).sort((a,b)=>b[1]-a[1]);
+    return L2.length ? L2.map(([k])=>k==='unfunded'?'nothing (unfunded)':k).join(' and ') : 'the next tranche'; };
+  const winOf = {}; withWindow.forEach(f=>winOf[f.name]=f);
+  const rowWarn = {};
+  fundRows.forEach(r=>{ const f=winOf[r.src]; if(!f || r.s==null) return;
+    const early = r.s < f.from, late = r.s > f.to; if(!early && !late) return;
+    rowWarn[r.key] = `Dated ${r.date||'—'}. ${r.src} ${late ? 'expired '+(fmtD(f.expires)||'before then') : 'is not available until '+(fmtD(f.availFrom)||'later')}. Funded by ${landedText(r.key)} instead.`;
+  });
+
   /* --- roll-ups --- */
   const grv  = comps.reduce((s,c)=>s+c.netValue,0);
   const devCost = sum(costAmt);
@@ -1987,23 +2038,27 @@ function compute(){
     detail: expired.length===0 ? `${wf.facilities.length} facilities repaid within term`
       : expired.map(f=>`${f.name} still owes $${Math.round(f.expiredWith).toLocaleString('en-AU')} at ${f.expires||'expiry'}`).join(' · ')});
 
-  const facWin = {}; withWindow.forEach(f=>facWin[f.name]=f);
-  const outside = lineCalc.filter(l=>{ if(!(l.amount>0)||l.s==null) return false;
-    const f=facWin[l.funded]; if(!f) return false;
-    return l.s < f.from || l.s > f.to; });
+  /* FIX 11 — every row that draws funding, not only cost lines: land
+     payments and Acquisition & Holding rows name a facility too */
+  const winKeys = Object.keys(rowWarn);
   gates.push({id:'window', label:'Every cost draws inside its facility window',
-    pass: outside.length===0,
-    detail: outside.length===0 ? 'all draws within term'
-      : outside.slice(0,3).map(l=>`${l.name} (${l.start}) is outside ${l.funded}`).join(' · ')
-        + (outside.length>3?` · and ${outside.length-3} more`:'')});
+    pass: winKeys.length===0,
+    detail: winKeys.length===0 ? 'all draws within term'
+      : winKeys.slice(0,3).map(k=>{ const r=fundRows.find(x=>x.key===k); return `${r.label} (${r.date||'undated'}) is outside ${r.src}`; }).join(' · ')
+        + (winKeys.length>3?` · and ${winKeys.length-3} more`:'') + ' — marked ⚠ on the row'});
 
-  const spillBy = {};
-  (wf.spills||[]).forEach(sp=>{ spillBy[sp.from] = (spillBy[sp.from]||0) + 1; });
-  const spillNames = Object.keys(spillBy);
+  /* FIX 11 — the spill check now says which rows, how much, why, and where */
+  const spillBySrc = {};
+  spillRows.forEach(x=>{ const g=spillBySrc[x.src]||(spillBySrc[x.src]={amt:0, rows:0, why:new Set(), to:{}});
+    g.amt+=x.amount; g.rows++; x.reasons.forEach(r=>g.why.add(r)); Object.entries(x.landed).forEach(([k,v])=>g.to[k]=(g.to[k]||0)+v); });
+  const spillNames = Object.keys(spillBySrc);
   gates.push({id:'spill', label:'Every line funded by the source it names',
     pass: spillNames.length===0,
     detail: spillNames.length===0 ? 'no source ran out'
-      : spillNames.map(k=>`${k} ran out ${spillBy[k]}×, spilled to the next tranche`).join(' · ')});
+      : spillNames.map(k=>{ const g=spillBySrc[k];
+          const to=Object.entries(g.to).filter(([,v])=>v>1).sort((a,b)=>b[1]-a[1]).map(([n2])=>n2==='unfunded'?'unfunded':n2).join(' and ');
+          return `${k}: ${$(g.amt)} across ${g.rows} row${g.rows>1?'s':''} — ${[...g.why].join(', ')} — funded by ${to||'the next tranche'} instead`; }).join(' · ')
+        + ' · detail on Finance → Spills'});
 
   /* FIX 9 — a line naming a source that is not in the stack */
   const unk = {}; (wf.unknown||[]).forEach(u=>{ unk[u.src]=(unk[u.src]||0)+u.amount; });
@@ -2030,7 +2085,7 @@ function compute(){
     detail:Math.abs(payVariance)<1 ? `${pays.length} payments, ${$(L.price)} allocated`
       : `schedule is ${$(Math.abs(payVariance))} ${payVariance>0?'over':'under'} the purchase price`});
 
-  R = {CAL,S,L,cov,landVal,landValEntered,landCosts,acqTotal,wctx,modStacks,opInc,saleInc,termInc,ltc,lvr,ctx,withWindow,outside,bySource,spillBy,duty,acqFee,hold,vendorInt,pays,payVariance,firstM,setM,landTotal, comps, apport, lineCalc, groups,
+  R = {CAL,S,L,cov,landVal,landValEntered,spillRows,rowWarn,fundRows,landCosts,acqTotal,wctx,modStacks,opInc,saleInc,termInc,ltc,lvr,ctx,withWindow,outside:winKeys.map(k=>fundRows.find(x=>x.key===k)),bySource,spillBy:Object.fromEntries(Object.entries(spillBySrc).map(([k,g])=>[k,g.rows])),duty,acqFee,hold,vendorInt,pays,payVariance,firstM,setM,landTotal, comps, apport, lineCalc, groups,
        costNet, costAmt, gstPaid, gstCred, gstCredRaw, gstOnRev, revenue,
        wf, grv, devCost, baseTDC, gstSunk, allInTDC, profit,
        marginCost: allInTDC>0 ? profit/allInTDC : null,
@@ -2078,6 +2133,10 @@ function dinp(path, val){ return `<input type="date" class="ci dte" data-path="$
    facility; the list is de-duplicated (a facility named 'Sponsor Equity'
    would otherwise appear twice); a stored name that is no longer in the
    stack is shown as such rather than silently displayed as the placeholder. */
+/* FIX 11 — a row dated outside the window of the facility it names */
+const wmark = key => (R.rowWarn && R.rowWarn[key])
+  ? `<span class="wwarn" title="${R.rowWarn[key].replace(/"/g,'&quot;')}">⚠</span>` : '';
+
 /* FIX 10 — why a line is funded the way it is: pinned / manual / rule N / auto */
 function fundChip(via, ruleNo){
   const t = via==='pinned' ? 'pinned' : via==='manual' ? 'manual' : via==='rule' ? 'rule '+(ruleNo||'?') : 'auto';
@@ -2106,7 +2165,7 @@ function rLand(){
                     :p.basis==='Fixed'?inp('land.payments.'+i+'.amount',$(p.amount))
                     :'<span class="u">remainder</span>'}</td>
     <td class="cal">${$(p.amt)}</td>
-    <td class="ctr">${dinp('land.payments.'+i+'.date',p.date)}</td>
+    <td class="ctr">${dinp('land.payments.'+i+'.date',p.date)}${wmark('p'+i)}</td>
     <td class="ctr" style="font-size:10px;color:var(--text-3)">${p.m!=null?CAL[p.m].label:'<span style="color:var(--red)">outside program</span>'}</td>
     <td class="ctr">${pays.length>1?`<button class="ovb" onclick="delPay(${i})">remove</button>`:''}</td></tr>`).join('');
 
@@ -2221,7 +2280,7 @@ function rLand(){
         <td class="ctr">${dinp('land.costs.'+i+'.date',c.date)}</td>
         <td class="ctr">${per?dinp('land.costs.'+i+'.end',c.end):'<span class="u">—</span>'}</td>
         <td class="ctr">${per?sel('land.costs.'+i+'.curve',['Linear','S-curve','Upfront','Back-loaded'],c.curve):'<span class="u">—</span>'}</td>
-        <td class="ctr">${fundSel(i,c.funded)}${fundChip(c.fundVia, c.ruleNo)}</td>
+        <td class="ctr">${fundSel(i,c.funded)}${fundChip(c.fundVia, c.ruleNo)}${wmark('l'+i)}</td>
         <td class="ctr">${auto?'':`<button class="ovb" onclick="delLandCost(${i})">del</button>`}</td>
       </tr>`}).join('')}
       <tr class="tot"><td>Acquisition &amp; holding total</td>
@@ -2706,7 +2765,7 @@ function rCost(){
                     :sel('costLines.'+l.id+'.curve',['S-curve','Linear','Upfront','Back-loaded'],l.curve)}</td>
         <td class="ctr" style="font-size:9.5px">${l.pin
             ? `<span class="fpin">${fundName(l.funded)}</span><span class="ovr">PIN</span>`
-            : `<span style="color:var(--text-3)">${fundName(l.funded)}</span>${fundChip(l.fundVia, l.ruleNo)}`}</td>
+            : `<span style="color:var(--text-3)">${fundName(l.funded)}</span>${fundChip(l.fundVia, l.ruleNo)}`}${wmark('c'+l.id)}</td>
         <td class="ctr"><button class="ovb" onclick="pinLine(${l.id})">${l.pin?'unpin':'pin'}</button></td></tr>`;
     });
   });
@@ -2931,6 +2990,21 @@ function rFin(){
     ${cards}
     ${eqCard}
     ${stackTot}
+
+    ${/* FIX 11 — every spill: which row, how much, what it was assigned to,
+          why that source could not take it, and where it actually landed */''}
+    <div class="bar"><span class="st">Spills</span>
+      <span class="th-note" style="margin-left:auto">costs a named source could not fund, and where they went instead</span></div>
+    ${R.spillRows.length ? `<div class="tw"><table><thead><tr><th>Row</th><th>Dated</th><th class="num">Amount</th><th>Assigned to</th><th>Why it could not be used</th><th>Landed on</th></tr></thead><tbody>
+      ${R.spillRows.map(x=>{ const why = x.reasons.map(rsn=>{ const f=R.withWindow.find(q=>q.name===x.src);
+          return rsn==='expired'&&f&&f.expires ? 'expired '+new Date(f.expires).toLocaleDateString('en-AU')
+               : rsn==='not yet available'&&f&&f.availFrom ? 'not available until '+new Date(f.availFrom).toLocaleDateString('en-AU') : rsn; }).join(', ');
+        const land = Object.entries(x.landed).filter(([,v])=>v>1).sort((a,b)=>b[1]-a[1])
+          .map(([k,v])=>`${k==='unfunded'?'<span style="color:var(--red)">unfunded</span>':k} ${$(v)}`).join(' · ');
+        return `<tr><td class="nm">${x.label} <span class="u">${x.kind}</span></td><td>${x.date||'—'}</td><td class="num">${$(x.amount)}</td>
+          <td>${x.src}</td><td style="color:var(--orange)">${why}</td><td>${land||'—'}</td></tr>`; }).join('')}
+      </tbody></table></div>`
+      : `<div class="frows"><div class="frow"><div class="fl">No spills — every line was funded by the source it names</div><div class="fv" style="color:var(--green)">clean</div></div></div>`}
 
     <div class="two">
       <div>
