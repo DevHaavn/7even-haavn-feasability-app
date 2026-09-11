@@ -761,6 +761,7 @@ const ENG = (() => {
       });
   }
 
+  const PRIORITY_SRC = '__priority__';   // FIX 10 — demand with no source: priority waterfall
   function waterfall(costNet, gstPaid, gstCred, revenue, facilities, equityLimit, cal, settings){
     const n=cal.length;
     const df=DRAW_FACTOR[settings.drawConvention] ?? 0.5;
@@ -769,6 +770,7 @@ const ENG = (() => {
     const assigned = costNet && !Array.isArray(costNet) && costNet.bySource ? costNet.bySource : null;
     const totalCost = Array.isArray(costNet) ? costNet : costNet.total;
     const EQ_NAME = 'Sponsor Equity';
+    const PRI = PRIORITY_SRC;     // FIX 10 — 'auto': equity first, then tranche priority
     const spills = [];
     const unknown = [];        // FIX 9 — demand assigned to a source not in the stack
 
@@ -884,6 +886,11 @@ const ENG = (() => {
         Object.keys(assigned).forEach(src=>{
           let want = assigned[src][m]||0;
           if(want<=1e-9) return;
+          if(src===PRI){                    // FIX 10 — the priority waterfall, as for unassigned demand
+            want = drawEquity(want);
+            for(let gi=0; gi<GROUPS.length && want>1e-9; gi++) want = drawGroup(gi, want);
+            unmet += Math.max(0, want); return;
+          }
           const idx = F.findIndex(f=>f.name===src);
           const before = want;
           /* FIX 9 — only the equity NAME means equity. Any other name not in the
@@ -1341,7 +1348,7 @@ const ENG = (() => {
           MOD_ROWS, MOD_COST_ROWS, MOD_COST_KEYS, modularRowRate, modularCheck, modularStack, modularProduct, modularRate, modularArea, newModularProduct,
           REV_TYPES, REV_BASIS, REV_PCT, OPEX_BASIS, revQty, revFactor, revAmount, revWorking,
           opexQty, opexAmount, componentRevenue, newComponent,
-          RULE_FIELDS, RULE_OPS, ruleMatches, ruleHolds, resolveFunding, applyCovenants,
+          RULE_FIELDS, RULE_OPS, ruleMatches, ruleHolds, resolveFunding, applyCovenants, PRIORITY_SRC,
           trancheGroups};
 })();
 
@@ -1845,8 +1852,23 @@ function compute(){
   /* --- funding source per line: rules, unless pinned --- */
   const constrM = Math.min(...lineCalc.filter(l=>l.group==='Construction'&&l.amount>0&&l.s!=null).map(l=>l.s).concat([999]));
   const ctx = {milestones:{construction:constrM===999?0:constrM}};
-  lineCalc.forEach(l=>{ const f=ENG.resolveFunding(l, MODEL.fundingRules, ctx);
-    l.fundVia=f.via; l.ruleNo=f.ruleNo; l.funded=f.fund||l.funded; });
+  /* FIX 10 — one precedence for every line, highest wins:
+       1 pinned   an explicit pin
+       2 manual   a Funded-by the user chose on that row
+       3 rule N   the first matching funding rule
+       4 auto     land facility for land costs, else the priority waterfall
+     Previously a matching rule silently overrode a hand-picked source. Cost
+     lines' stored 'funded' is seeded by the template (there is no per-line
+     control for it), so it is NOT treated as manual — only a value flagged
+     fundedManual is; otherwise every rule would stop applying to the Cost tab. */
+  const pickFunding = (line, manual, fallback) => {
+    if(line.pin) return {fund:line.pin, via:'pinned', ruleNo:null};
+    if(manual)   return {fund:manual,   via:'manual', ruleNo:null};
+    const r = ENG.resolveFunding({...line, pin:null}, MODEL.fundingRules, ctx);
+    return r.via==='rule' ? r : {fund:fallback, via:'auto', ruleNo:null};
+  };
+  lineCalc.forEach(l=>{ const f=pickFunding(l, l.fundedManual ? l.funded : null, ENG.PRIORITY_SRC);
+    l.fundVia=f.via; l.ruleNo=f.ruleNo; l.funded=f.fund; });
 
   /* --- waterfall, iterated; covenants bind against the TDC each pass --- */
   const grvNow = comps.reduce((s2,c)=>s2+c.netValue,0);
@@ -1869,7 +1891,12 @@ function compute(){
   const la = bySource[landSrc] || (bySource[landSrc] = new Array(n).fill(0));
   for(let m=0;m<n;m++) la[m] += landProf[m] + vendorProf[m];
   landCosts.forEach(c=>{
-    const src = (c.funded && !/^—.*—$/.test(c.funded)) ? c.funded : landSrc;   // FIX 9 — a stored placeholder is 'unset'
+    /* FIX 10 — Acquisition & Holding rows go through the same precedence as
+       cost lines, so a funding rule reaches stamp duty, legal, land tax, … */
+    const manual = (c.funded && !/^—.*—$/.test(c.funded)) ? c.funded : null;   // FIX 9 — a stored placeholder is 'unset'
+    const f = pickFunding({group:'Land & Acquisition', phase:'Acquisition', alloc:'Shared', amount:c.entered, s:c.s, pin:c.pin}, manual, landSrc);
+    c.fundVia=f.via; c.ruleNo=f.ruleNo; c.src=f.fund;
+    const src = f.fund;
     const a = bySource[src] || (bySource[src] = new Array(n).fill(0));
     for(let m=0;m<n;m++) a[m] += c.profile[m];
   });
@@ -1987,10 +2014,11 @@ function compute(){
       : unkNames.map(k=>`"${k}" is not in the stack — ${$(unk[k])} went to the backstop (sponsor equity, then the stack) instead`).join(' · ')});
 
   const unmatched = lineCalc.filter(l=>l.amount>0 && l.fundVia==='unmatched');
+  /* FIX 10 — every line now resolves (pin → manual → rule → auto); report how */
+  const via = k => lineCalc.filter(l=>l.amount>0 && l.fundVia===k).length + landCosts.filter(c=>c.entered>0 && c.fundVia===k).length;
   gates.push({id:'fundrule', label:'Every funded line has a funding source',
-    pass: unmatched.length===0,
-    detail: unmatched.length===0 ? `${lineCalc.filter(l=>l.pin).length} pinned, the rest by rule`
-      : `${unmatched.length} line${unmatched.length>1?'s':''} matched no rule`});
+    pass: true,
+    detail: `${via('pinned')} pinned · ${via('manual')} manual · ${via('rule')} by rule · ${via('auto')} auto (land facility / priority waterfall)`});
 
   gates.push({id:'dates', label:'Every cost line with a value is dated',
     pass:undated.length===0,
@@ -2050,6 +2078,15 @@ function dinp(path, val){ return `<input type="date" class="ci dte" data-path="$
    facility; the list is de-duplicated (a facility named 'Sponsor Equity'
    would otherwise appear twice); a stored name that is no longer in the
    stack is shown as such rather than silently displayed as the placeholder. */
+/* FIX 10 — why a line is funded the way it is: pinned / manual / rule N / auto */
+function fundChip(via, ruleNo){
+  const t = via==='pinned' ? 'pinned' : via==='manual' ? 'manual' : via==='rule' ? 'rule '+(ruleNo||'?') : 'auto';
+  const tip = {pinned:'An explicit pin — beats everything', manual:'Chosen by hand on this row — beats the rules',
+               rule:'The first funding rule that matches this line', auto:'No pin, no choice, no rule — the default'}[via==='rule'?'rule':via] || '';
+  return `<span class="rno" title="${tip}" style="border:1px solid var(--border);border-radius:3px;padding:0 4px">${t}</span>`;
+}
+const fundName = f => f===ENG.PRIORITY_SRC ? 'priority' : String(f||'').replace('Senior — ','S·').replace('Sponsor ','');
+
 function fundSel(i, cur){
   const names = [...new Set(MODEL.facilities.map(f=>f.name).concat(['Sponsor Equity']))];
   const stale = cur && !/^—.*—$/.test(cur) && !names.includes(cur);
@@ -2184,7 +2221,7 @@ function rLand(){
         <td class="ctr">${dinp('land.costs.'+i+'.date',c.date)}</td>
         <td class="ctr">${per?dinp('land.costs.'+i+'.end',c.end):'<span class="u">—</span>'}</td>
         <td class="ctr">${per?sel('land.costs.'+i+'.curve',['Linear','S-curve','Upfront','Back-loaded'],c.curve):'<span class="u">—</span>'}</td>
-        <td class="ctr">${fundSel(i,c.funded)}</td>
+        <td class="ctr">${fundSel(i,c.funded)}${fundChip(c.fundVia, c.ruleNo)}</td>
         <td class="ctr">${auto?'':`<button class="ovb" onclick="delLandCost(${i})">del</button>`}</td>
       </tr>`}).join('')}
       <tr class="tot"><td>Acquisition &amp; holding total</td>
@@ -2305,7 +2342,7 @@ function pinLine(id){
   if(l.pin){ l.pin=null; renderAll(); return; }
   const opts=['Senior — Land Facility','Senior — Construction','Mezzanine','Preferred Equity','Sponsor Equity'];
   const cur=R.lineCalc.find(x=>x.id===id);
-  const pick=prompt('Pin "'+l.name+'" to a facility.\n\nRule '+(cur.ruleNo||'?')+' currently sends it to: '+cur.funded+'\n\n'
+  const pick=prompt('Pin "'+l.name+'" to a facility.\n\nRule '+(cur.ruleNo||'?')+' currently sends it to: '+fundName(cur.funded)+'\n\n'
     +opts.map((o,i)=>(i+1)+'  '+o).join('\n')+'\n\nEnter 1-'+opts.length+', or blank to cancel:');
   const i=parseInt(pick,10);
   if(i>=1&&i<=opts.length){ l.pin=opts[i-1]; renderAll(); }
@@ -2668,8 +2705,8 @@ function rCost(){
         <td>${single?'<span class="u">one payment</span>'
                     :sel('costLines.'+l.id+'.curve',['S-curve','Linear','Upfront','Back-loaded'],l.curve)}</td>
         <td class="ctr" style="font-size:9.5px">${l.pin
-            ? `<span class="fpin">${l.funded.replace('Senior — ','S·').replace('Sponsor ','')}</span><span class="ovr">PIN</span>`
-            : `<span style="color:var(--text-3)">${l.funded.replace('Senior — ','S·').replace('Sponsor ','')}</span><span class="rno">r${l.ruleNo||'?'}</span>`}</td>
+            ? `<span class="fpin">${fundName(l.funded)}</span><span class="ovr">PIN</span>`
+            : `<span style="color:var(--text-3)">${fundName(l.funded)}</span>${fundChip(l.fundVia, l.ruleNo)}`}</td>
         <td class="ctr"><button class="ovb" onclick="pinLine(${l.id})">${l.pin?'unpin':'pin'}</button></td></tr>`;
     });
   });
@@ -2694,7 +2731,7 @@ function rCost(){
   const FAC=['Senior — Land Facility','Senior — Construction','Mezzanine','Preferred Equity','Sponsor Equity'];
   const FLD=['group','phase','serves','amount','start month','always'];
   const OPS=['is','is not','over','under','before','after'];
-  const counts={}; R.lineCalc.forEach(l=>{ const k=l.pin?'pin':l.ruleNo; counts[k]=(counts[k]||0)+1; });
+  const counts={}; R.lineCalc.forEach(l=>{ const k=l.pin?'pin':(l.fundVia==='auto'?'auto':(l.fundVia==='manual'?'manual':l.ruleNo)); counts[k]=(counts[k]||0)+1; });
   if(!RULES_SHOW){
     H('rules', `<div class="rrow rfoot"><span></span>
       <span class="u" style="grid-column:span 8">${MODEL.fundingRules.length} rule${MODEL.fundingRules.length===1?'':'s'}, in order · ${counts.pin||0} line${(counts.pin||0)===1?'':'s'} pinned by hand · ${
