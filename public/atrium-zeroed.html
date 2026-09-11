@@ -3479,12 +3479,8 @@ renderAll();
   if(parent === window) document.documentElement.classList.add('standalone');
   const bar = document.querySelector('.topbar'), k = document.querySelector('.topbar .hdrk');
   if(bar && k){
-    /* the numbers get their own floating island, the home-page video behind them */
     const strip = document.createElement('div'); strip.className = 'kstrip';
-    const isle = document.createElement('div'); isle.className = 'kisle';
-    isle.innerHTML = '<video autoplay muted loop playsinline preload="metadata" src="/haavn-black-bg.mp4"></video>'
-                   + '<i class="kdim"></i><i class="kvign"></i>';
-    isle.appendChild(k); strip.appendChild(isle);
+    strip.appendChild(k);
     const main = document.querySelector('.main'); main ? main.prepend(strip) : bar.after(strip);
   }
 
@@ -3615,19 +3611,13 @@ html.standalone .main{border-radius:12px 0 0 0}
 .topbar .pname .padr{color:rgba(255,255,255,.72);font-weight:400;overflow:hidden;text-overflow:ellipsis}
 .topbar .pname b+.padr::before{content:'';display:inline-block;width:1px;height:12px;margin-right:12px;vertical-align:-1px;background:rgba(255,255,255,.3)}
 
-/* GRV · TDC · PROFIT — their own island, floating at the top of the working
-   area with the home-page video behind them; 30% bigger (11 → 14.3px) */
-.kstrip{flex-shrink:0;display:flex;justify-content:flex-end;padding:14px 22px 2px}
-.kisle{position:relative;overflow:hidden;border-radius:12px;padding:13px 24px;background:#0a0b0c;
-  border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 16px 30px -18px rgba(0,0,0,.7)}
-.kisle video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.kisle .kdim{position:absolute;inset:0;background:rgba(0,0,0,.56)}
-.kisle .kvign{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
-.kstrip .hdrk{position:relative;font-size:14.3px;gap:32px}
-.kstrip .hdrk div{color:rgba(255,255,255,.6);letter-spacing:.14em}
-.kstrip .hdrk b{color:#ffffff;font-weight:600;margin-left:10px;letter-spacing:0}
-.kstrip .hdrk b.neg{color:#ff6a5c;text-shadow:0 0 10px rgba(255,106,92,.45)}
-.kstrip .hdrk b.pos{color:#2fe07a;text-shadow:0 0 10px rgba(47,224,122,.45)}
+/* GRV · TDC · PROFIT — a clean row at the top of the working area,
+   30% bigger (11 → 14.3px), black on the grey */
+.kstrip{flex-shrink:0;display:flex;justify-content:flex-end;padding:14px 26px 0}
+.kstrip .hdrk{font-size:14.3px;gap:30px}
+.kstrip .hdrk div{color:var(--text-3);letter-spacing:.14em}
+.kstrip .hdrk b{color:var(--text);font-weight:600;margin-left:9px;letter-spacing:0}
+.kstrip .hdrk b.neg{color:var(--red)} .kstrip .hdrk b.pos{color:var(--green)}
 
 /* Funded-by cells: his select is width:100% and the pinned / manual / rule
    chip sat beside it, so the chip spilled over the del button. The chip now
