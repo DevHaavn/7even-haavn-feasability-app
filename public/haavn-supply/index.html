@@ -871,7 +871,10 @@ var MEDIA = [
   var root = document.documentElement, p1 = $('#p1'), p2 = $('#p2');
   function measure(){
     if (!document.body.classList.contains('view-inner')){
-      root.style.setProperty('--above', Math.round(p1.getBoundingClientRect().top + window.scrollY) + 'px');
+      // offsetTop, not getBoundingClientRect: the view's entrance animation
+      // slides it in from translateY(10px) and a rect would count that
+      var y = 0, e = p1; while (e){ y += e.offsetTop; e = e.offsetParent; }
+      root.style.setProperty('--above', y + 'px');
     }
     root.style.setProperty('--foot', $('#foot').offsetHeight + 'px');
   }
@@ -888,7 +891,15 @@ var MEDIA = [
   } else p2.classList.add('in');
 
   route();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);   // header height settles once fonts land
+  /* The header and footer change height when the web fonts land (and the
+     kicker wraps on phones). fonts.ready can resolve before the Google Fonts
+     stylesheet has even applied, so watch the elements themselves — a stale
+     --above left the page 6px short of two screens and a sliver of screen
+     one showing at the bottom of the scroll. */
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function(){ measure(); });
+    ro.observe(document.querySelector('#shell > header')); ro.observe($('#foot'));
+  } else if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 })();
 </script>
 
