@@ -698,6 +698,10 @@ const ENG = (() => {
 
     let remaining = capTotal, seniorLeft = capSenior, binding = null;
     const out = stated.map(f=>{
+      /* FIX 1 — loan covenants are debt tests. Preferred and sponsor equity are
+         not loans: they never consume the covenant budget and their stated
+         limit is never reduced by one. Keyed on the class chip, not the name. */
+      if(f.cls==='PREF' || f.cls==='EQUITY') return {...f, constrained:false};
       let lim = f.statedLimit;
       if(f.cls==='DEBT'){ const s=Math.min(lim, Math.max(0,seniorLeft)); if(s<lim) binding=binding||'Max senior LTC'; lim=s; seniorLeft-=lim; }
       const t = Math.min(lim, Math.max(0,remaining));
