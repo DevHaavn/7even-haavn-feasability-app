@@ -179,10 +179,14 @@ main,footer,header .kicker{transition:.38s}
   39%, 48%{background:#687808}
   62%,100%{background:#101010}
 }
-.subline{margin-top:clamp(18px,2.8vh,32px);display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;
-  opacity:0;animation:fade 1.3s ease 4.5s forwards}
-.subline span{font-family:var(--f-mono);font-size:9px;letter-spacing:.42em;color:var(--ink-3);white-space:nowrap}
-.subline .dot{width:4px;height:4px;border-radius:50%;background:var(--lime-dp)}
+/* the pillar line: +30% (9→11.7px, dots and gaps with it), crisp fine black,
+   1cm lower (Jamie). Lowered with `translate`, not margin — the stripe is
+   centred as a block, so a margin would pull the wordmark up half as far. */
+.subline{margin-top:clamp(18px,2.8vh,32px);display:flex;align-items:center;gap:20.8px;flex-wrap:wrap;justify-content:center;
+  translate:0 1cm;opacity:0;animation:fade 1.3s ease 4.5s forwards}
+.subline span{font-family:var(--f-mono);font-size:11.7px;font-weight:300;letter-spacing:.42em;color:var(--ink);white-space:nowrap}
+.subline .dot{width:5.2px;height:5.2px;border-radius:50%;background:var(--lime-dp)}
+@media(max-width:600px){.subline{gap:14px}.subline span{font-size:10px;letter-spacing:.26em}}   /* one line on a phone */
 
 /* ═══ INNER PAGES ═══ */
 .page{width:100%;max-width:1180px;margin:0 auto;padding:0 clamp(4px,2vw,24px)}
