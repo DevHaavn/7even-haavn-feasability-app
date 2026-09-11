@@ -681,37 +681,34 @@ const ENG = (() => {
   /* ---------- covenants ----------
      Market gearing limits bind the facilities before the waterfall runs.
      A limit that bites is reported, not silently absorbed.                */
-  function applyCovenants(facilities, cov, tdc, grv){
+  /* FIX 3 — no shared covenant budget. There is no pooled "debt allowance"
+     in reality: each debt facility is sized against its OWN base, and one
+     facility never shrinks because an earlier one used part of a pool.
+       Construction  capped at maxConstrLTC × TDC
+       Land          capped at maxLandLVR × as-is land valuation
+       Mezzanine     not capped by these tests
+       Preferred / Sponsor   never capped by a loan covenant
+     Keyed off the facility's role (fix 2), never its name or its order.  */
+  function applyCovenants(facilities, cov, tdc, grv, landVal){
     const stated = facilities.map(f=>({...f, statedLimit:f.limit}));
-    if(!cov || cov.enforce===false) return {facilities:stated, caps:[], binding:null, headroom:null};
+    if(!cov || cov.enforce===false) return {facilities:stated, caps:[], binding:null};
 
     const caps=[];
-    const capLTC = cov.maxLTC>0 && tdc>0 ? cov.maxLTC*tdc : Infinity;
-    const capLVR = cov.maxLVR>0 && grv>0 ? cov.maxLVR*grv : Infinity;
-    if(isFinite(capLTC)) caps.push({name:'Max LTC',  pct:cov.maxLTC, base:tdc, cap:capLTC});
-    if(isFinite(capLVR)) caps.push({name:'Max LVR',  pct:cov.maxLVR, base:grv, cap:capLVR});
-    const capTotal = Math.min(capLTC, capLVR);
+    const capC = cov.maxConstrLTC>0 && tdc>0     ? cov.maxConstrLTC*tdc   : Infinity;
+    const capL = cov.maxLandLVR>0   && landVal>0 ? cov.maxLandLVR*landVal : Infinity;
+    if(isFinite(capC)) caps.push({name:'Max construction LTC',  role:'Construction', pct:cov.maxConstrLTC, base:tdc,     baseName:'TDC',            cap:capC});
+    if(isFinite(capL)) caps.push({name:'Max land facility LVR', role:'Land',         pct:cov.maxLandLVR,   base:landVal, baseName:'land valuation', cap:capL});
 
-    /* senior sub-limit applies to the senior tranches combined */
-    const capSenior = cov.maxSeniorLTC>0 && tdc>0 ? cov.maxSeniorLTC*tdc : Infinity;
-    if(isFinite(capSenior)) caps.push({name:'Max senior LTC', pct:cov.maxSeniorLTC, base:tdc, cap:capSenior});
-
-    let remaining = capTotal, seniorLeft = capSenior, binding = null;
+    let binding = null;
     const out = stated.map(f=>{
-      /* FIX 1 — loan covenants are debt tests. Preferred and sponsor equity are
-         not loans: they never consume the covenant budget and their stated
-         limit is never reduced by one. Keyed on the class chip, not the name. */
-      if(f.cls==='PREF' || f.cls==='EQUITY') return {...f, constrained:false};
-      let lim = f.statedLimit;
-      if(f.cls==='DEBT'){ const s=Math.min(lim, Math.max(0,seniorLeft)); if(s<lim) binding=binding||'Max senior LTC'; lim=s; seniorLeft-=lim; }
-      const t = Math.min(lim, Math.max(0,remaining));
-      if(t<lim) binding = binding || (capLTC<=capLVR ? 'Max LTC' : 'Max LVR');
-      remaining -= t;
-      return {...f, limit:t, constrained:t < f.statedLimit};
+      const c = f.role==='Construction' ? capC : f.role==='Land' ? capL : Infinity;
+      const lim = Math.min(f.statedLimit, c);
+      const constrained = lim < f.statedLimit - 1e-6;
+      const capName = constrained ? (f.role==='Land' ? 'Max land facility LVR' : 'Max construction LTC') : null;
+      if(constrained) binding = binding || capName;
+      return {...f, limit:lim, constrained, capName};
     });
-    const statedTotal = stated.reduce((s,f)=>s+f.statedLimit,0);
-    return {facilities:out, caps, binding, capTotal,
-            headroom: isFinite(capTotal) ? capTotal - statedTotal : null};
+    return {facilities:out, caps, binding};
   }
 
   /* ---------- period interest rate ---------- */
@@ -1430,8 +1427,9 @@ const MODEL = {
   /* Market gearing limits. Editable, but these are the defaults and they bind. */
   covenants:{
     enforce:true,
+    maxConstrLTC:0.80,    // FIX 3 — each construction facility / all-in TDC
+    maxLandLVR:0.55,      // FIX 3 — each land facility / as-is land valuation
     maxLTC:0.80,          // total debt / all-in TDC
-    maxSeniorLTC:0.65,    // senior tranches / all-in TDC
     maxLVR:0.65,          // total debt / GRV
     minPresales:1.00      // presales as a multiple of debt — reported
   },
@@ -1611,12 +1609,17 @@ const defaultRole = f => f.cls==='DEBT' ? (/land/i.test(f.name||'') ? 'Land' : '
                        : f.cls==='MEZZ' ? 'Mezzanine' : f.cls==='PREF' ? 'Preferred'
                        : f.cls==='EQUITY' ? 'Sponsor' : 'Construction';
 function ensureRoles(){ (MODEL.facilities||[]).forEach(f=>{ if(!ROLES.includes(f.role)) f.role = defaultRole(f); }); }
+/* FIX 3 — the two per-facility market limits, filled on projects saved before
+   they existed. Only a missing value is filled; an entered one is never touched. */
+function ensureCovenants(){ const c = MODEL.covenants || (MODEL.covenants = {enforce:true});
+  if(c.maxConstrLTC==null) c.maxConstrLTC = 0.80;
+  if(c.maxLandLVR==null)   c.maxLandLVR   = 0.55; }
 
 /* ---------------- COMPUTE ---------------- */
 let R = {};                                    // last computed result
 
 function compute(){
-  ensureRoles();
+  ensureRoles(); ensureCovenants();
   const S=MODEL.settings, L=MODEL.land, n=N_MONTHS;
 
   /* --- land --- */
@@ -1847,7 +1850,7 @@ function compute(){
   });
 
   const build = (fc) => {
-    cov = ENG.applyCovenants(withWindow, MODEL.covenants, baseNow + gstSunkEst + (fc||0), grvNow);
+    cov = ENG.applyCovenants(withWindow, MODEL.covenants, baseNow + gstSunkEst + (fc||0), grvNow, L.price||0);
     return ENG.waterfall({total:costNet, bySource}, gstPaid, gstCred, revenue,
                          cov.facilities, MODEL.equityLimit, CAL, S);
   };
@@ -2725,7 +2728,7 @@ function rFin(){
         <div class="fcbox">
           <div class="fcbt">Balance of funds</div>
           <div class="lr"><div class="k">Facility limit</div><div class="v">${$(stated)}</div></div>
-          ${f.constrained?`<div class="lr neg"><div class="k">capped by ${R.cov.binding||'a market limit'}</div><div class="v">(${$(stated-f.limit)})</div></div>`:''}
+          ${f.constrained?`<div class="lr neg"><div class="k">capped by ${f.capName||R.cov.binding||'a market limit'}</div><div class="v">(${$(stated-f.limit)})</div></div>`:''}
           <div class="lr neg"><div class="k">less establishment fee ${pc(f.estab,2)}</div><div class="v">(${$(estab)})</div></div>
           <div class="lr neg"><div class="k">${pre?`less line fee retained (${f.prepaidDays} days on the limit)`:'less line fees to date'}</div><div class="v">(${$(lineF)})</div></div>
           <div class="lr neg"><div class="k">${pre?`less interest retained upfront (${f.prepaidDays} days on the limit)`:'less capitalised interest on drawings'}</div><div class="v">(${$(intr)})</div></div>
@@ -2831,11 +2834,16 @@ function rFin(){
         <div class="st" style="margin-bottom:7px">Market Limits <span class="nb">BINDING</span></div>
         <div class="frows">
           <div class="frow"><div class="fl">Enforce limits</div><div class="fv">${sel('covenants.enforce',['Yes','No'],MODEL.covenants.enforce?'Yes':'No')}</div></div>
-          <div class="frow"><div class="fl">Max loan to cost</div><div class="fv">${inp('covenants.maxLTC',pc(MODEL.covenants.maxLTC))}</div></div>
-          <div class="frow"><div class="fl">Max senior loan to cost</div><div class="fv">${inp('covenants.maxSeniorLTC',pc(MODEL.covenants.maxSeniorLTC))}</div></div>
-          <div class="frow"><div class="fl">Max loan to value</div><div class="fv">${inp('covenants.maxLVR',pc(MODEL.covenants.maxLVR))}</div></div>
-          <div class="frow c"><div class="fl">Actual LTC</div><div class="fv" style="color:${R.ltc<=MODEL.covenants.maxLTC?'var(--green)':'var(--red)'}">${pc(R.ltc)}</div></div>
-          <div class="frow c"><div class="fl">Actual LVR</div><div class="fv" style="color:${R.lvr<=MODEL.covenants.maxLVR?'var(--green)':'var(--red)'}">${pc(R.lvr)}</div></div>
+          ${/* FIX 3 — each limit names its own base; the old pooled
+                LTC / senior LTC / LVR inputs (and the "Actual" rows measured
+                against them) are gone: they no longer describe the model. */''}
+          ${(()=>{ const cap = n => (R.cov.caps||[]).find(c=>c.name===n);
+            const cC = cap('Max construction LTC'), cL = cap('Max land facility LVR');
+            const b = t => `<span style="color:var(--text-3);font-size:.86em;margin-left:6px">base: ${t}</span>`;
+            return `<div class="frow"><div class="fl">Max construction LTC${b('TDC')}</div><div class="fv">${inp('covenants.maxConstrLTC',pc(MODEL.covenants.maxConstrLTC))}</div></div>
+          <div class="frow c"><div class="fl">&nbsp;&nbsp;= cap per construction facility</div><div class="fv">${cC?$(cC.cap):'—'}</div></div>
+          <div class="frow"><div class="fl">Max land facility LVR${b('land valuation')}</div><div class="fv">${inp('covenants.maxLandLVR',pc(MODEL.covenants.maxLandLVR))}</div></div>
+          <div class="frow c"><div class="fl">&nbsp;&nbsp;= cap per land facility</div><div class="fv">${cL?$(cL.cap):'—'}</div></div>`; })()}
           <div class="frow ${R.cov.binding?'r':'c'}"><div class="fl">Binding constraint</div><div class="fv">${R.cov.binding||'none'}</div></div>
         </div>
         <div class="st" style="margin-bottom:7px">Returns</div>
@@ -3130,7 +3138,7 @@ function rDash(){
 /* ---------------- WIRING ---------------- */
 /* Fields displayed and entered as percentages. Exact match only —
    'rates' (council rates, a dollar figure) must never be caught here. */
-const PCT = new Set(['capRate','disposalPct','occupancy','escalation','esc','ohPct','marginPct','insPct','supplyMarginPct','rate','estab','line','exit','vendorRate','acqFeePct','pct','maxLTC','maxSeniorLTC','maxLVR','minPresales']);
+const PCT = new Set(['capRate','disposalPct','occupancy','escalation','esc','ohPct','marginPct','insPct','supplyMarginPct','rate','estab','line','exit','vendorRate','acqFeePct','pct','maxLTC','maxSeniorLTC','maxLVR','minPresales','maxConstrLTC','maxLandLVR']);
 const parseNum = s => { const v=parseFloat(String(s).replace(/[$,%\s,]/g,'')); return isNaN(v)?0:v; };
 
 function setPath(path, raw){
