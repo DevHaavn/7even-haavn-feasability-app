@@ -3489,6 +3489,12 @@ renderAll();
      which feasibility is open. */
   const pn = bar && bar.querySelector('.pname'), badge = bar && bar.querySelector('.badge');
   if(pn && badge) badge.after(pn);
+  /* the greeting, at the right end of the bar where the numbers used to sit */
+  if(bar){
+    const hi = document.createElement('span'); hi.className = 'hello';
+    hi.innerHTML = 'Welcome back, <b>Daniel</b><i class="hl-dv"></i><i class="hl-dot"></i>your engine is ready';
+    bar.appendChild(hi);
+  }
   let projName = '';
   function title(){
     if(!pn) return;
@@ -3640,6 +3646,13 @@ html.standalone .main{border-radius:12px 0 0 0}
 .topbar .pname b{font-weight:600;letter-spacing:.01em}
 .topbar .pname .padr{color:rgba(255,255,255,.72);font-weight:400;overflow:hidden;text-overflow:ellipsis}
 .topbar .pname b+.padr::before{content:'';display:inline-block;width:1px;height:12px;margin-right:12px;vertical-align:-1px;background:rgba(255,255,255,.3)}
+
+/* the greeting — right end of the header's second row */
+.topbar .hello{display:flex;align-items:center;gap:10px;white-space:nowrap;font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72);text-shadow:0 1px 8px rgba(0,0,0,.8)}
+.topbar .hello b{color:#ffffff;font-weight:500}
+.topbar .hello .hl-dv{width:1px;height:14px;background:rgba(255,255,255,.25);margin:0 4px}
+.topbar .hello .hl-dot{width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 10px #2fe07a;animation:afPulse 2.4s infinite}
 
 /* GRV · TDC · PROFIT — a clean row at the top of the working area,
    30% bigger (11 → 14.3px), black on the grey */
