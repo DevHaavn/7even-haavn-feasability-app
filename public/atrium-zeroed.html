@@ -1,4 +1,4 @@
-<title>ATRIUM Zeroed</title>
+<title>ATRIUM Engine</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
   :root{--bg:#0C0C0C;--s1:#111;--s2:#171717;--s3:#1F1F1F;--border:#282828;
@@ -291,7 +291,7 @@
 <div class="topbar">
   <span class="logo">ATRIUM</span><div class="dv"></div>
   <span class="pname">New Project</span>
-  <span class="badge">ZEROED · READY FOR DATA</span>
+  <span class="badge">ENGINE · READY FOR DATA</span>
   <div class="spacer"></div>
   <div class="hdrk">
     <div>GRV<b id="hdrGrv">—</b></div>
@@ -3469,6 +3469,28 @@ renderAll();
   post({atriumZeroed:'ready', model:JSON.parse(JSON.stringify(MODEL))});
   live = true;
 })();
+
+/* ── ATRIUM header layout (Jamie, 11 Sep) — look and feel only ───────────
+   Inside the shell, the top bar and the left nav are part of the ATRIUM island;
+   opened on its own the page draws its own dark bar. GRV / TDC / PROFIT move
+   out of the bar into a clean row at the top of the working area — the same three elements, same ids, so
+   his renderAll keeps writing them — and profit reads green or red. */
+(function(){
+  if(parent === window) document.documentElement.classList.add('standalone');
+  const bar = document.querySelector('.topbar'), k = document.querySelector('.topbar .hdrk');
+  if(bar && k){
+    const strip = document.createElement('div'); strip.className = 'kstrip';
+    strip.appendChild(k);
+    const main = document.querySelector('.main'); main ? main.prepend(strip) : bar.after(strip);
+  }
+  const inner = window.renderAll;
+  window.renderAll = function(){
+    inner.apply(this, arguments);
+    const p = document.getElementById('hdrProf'); if(!p || typeof R === 'undefined') return;
+    p.classList.toggle('neg', !!R.gatesPass && R.profit < 0);
+    p.classList.toggle('pos', !!R.gatesPass && R.profit > 0);
+  };
+})();
 </script>
 
 <style>
@@ -3512,7 +3534,7 @@ renderAll();
 
 /* ── type: sharp ─────────────────────────────────────────────────────── */
 body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;text-rendering:geometricPrecision;background:var(--bg)}
+  -moz-osx-font-smoothing:grayscale;text-rendering:geometricPrecision}
 .logo,.hdrk,.nn,.th-n,.nb,.fv,.ci,.ci.dte,
 td.num,td.cal,td.dim,td.dt,tr.tot td.num,tr.tot td.cal,tr.tot td.dim,
 .cal,.ov,.pill,.gt,.cr,.fx,.vup,.kv,.ks,.alert-i,#cftbl td,
@@ -3523,33 +3545,50 @@ select.ci,.ci.txt,.fcname .ci{font-family:'Inter',system-ui,sans-serif}
 .th-t{font-weight:600;letter-spacing:-.01em}
 .st,.fcbt,.tgl,.grpt,.fdt{color:var(--text);letter-spacing:.12em}
 
-/* ── menus: floating space-grey glass ────────────────────────────────── */
-.topbar{margin:10px 12px 0;border-radius:10px;border:1px solid var(--glass-edge);background:var(--glass);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.35),0 12px 26px -16px rgba(0,0,0,.55);
-  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
-.topbar .logo{color:var(--brand-gold);text-shadow:0 0 12px rgba(214,179,106,.35)}
-.topbar .dv{background:rgba(255,255,255,.22)}
-.topbar .pname{color:#f2f2f2}
-.topbar .badge{color:var(--brand-gold);background:rgba(214,179,106,.08);border-color:rgba(214,179,106,.55)}
-.topbar .hdrk div{color:rgba(255,255,255,.55)}
-.topbar .hdrk b{color:#ffffff}
+/* ── ONE island, a right angle: header across the top, nav down the left ──
+   The ATRIUM shell draws the island — the 7EVEN main-page video, dimmed and
+   vignetted, rounded outer corners — and the shell controls in its top row.
+   This page sits over it: the top bar (the island's second row) and the left
+   nav are see-through, so the video runs behind both in one piece. The working
+   area is the flat grey panel tucked into the inside corner (its rounded
+   top-left corner is the island's inner corner). Buttons have no fill — clear
+   glass with a thin light outline like the 7EVEN menu; the open tab is lit
+   gold. GRV / TDC / PROFIT sit in a clean row at the top of the working area.
+   Opened on its own (no shell) the page draws a dark ground instead. */
+:root{color-scheme:light}
+html,body{background:transparent}
+html.standalone body{background:#161718}
+.topbar{height:46px;margin:0 12px;padding:0 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+.topbar .logo{color:var(--brand-gold);text-shadow:0 0 8px rgba(244,227,189,.75),0 0 20px rgba(214,179,106,.5)}
+.topbar .dv{background:rgba(255,255,255,.25)}
+.topbar .pname{color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+.topbar .badge{color:var(--brand-gold);background:rgba(214,179,106,.05);border:1px solid var(--brand-gold);border-radius:2px;
+  box-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3),inset 0 0 7px rgba(214,179,106,.22)}
 
-.body{padding:10px 12px 12px;gap:12px;background:var(--bg)}
-.nav{width:190px;border:1px solid var(--glass-edge);border-radius:12px;background:var(--glass);padding:10px 0 8px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 16px 30px -18px rgba(0,0,0,.6)}
-.ni{margin:4px 10px;padding:9px 11px;border:1px solid rgba(255,255,255,.2);border-left-width:1px;border-radius:3px;
-  background:rgba(255,255,255,.03);transition:background .25s,border-color .25s,box-shadow .25s}
-.ni:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.55)}
-.ni.on{background:rgba(214,179,106,.08);border-color:var(--brand-gold);
-  box-shadow:0 0 0 1px rgba(214,179,106,.25),0 0 22px -4px rgba(214,179,106,.55),inset 0 0 14px rgba(214,179,106,.12)}
+.body{padding:0;gap:0;background:transparent}
+.nav{width:214px;margin-left:12px;padding:14px 14px 12px 18px;border:0;border-radius:0;background:transparent;box-shadow:none}
+.ni{margin:0 0 8px;padding:9px 12px;border:1px solid rgba(255,255,255,.3);border-left-width:1px;border-radius:2px;
+  background:transparent;transition:.3s}
+.ni:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.ni.on{background:rgba(214,179,106,.05);border-color:#d6b36a;
+  box-shadow:0 0 9px rgba(244,227,189,.6),0 0 26px rgba(214,179,106,.4),0 0 44px rgba(190,150,80,.25),inset 0 0 9px rgba(214,179,106,.26)}
+.ni.on:hover{background:rgba(214,179,106,.12)}
 .nn{color:rgba(255,255,255,.5)}
-.ni.on .nn{color:var(--brand-gold)}
-.nl{color:rgba(255,255,255,.88);letter-spacing:.02em}
+.ni.on .nn{color:var(--brand-gold);text-shadow:0 0 8px rgba(244,227,189,.8)}
+.nl{color:rgba(255,255,255,.88);letter-spacing:.02em;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 .ni.on .nl{color:#ffffff}
-.nfoot{border-top-color:rgba(255,255,255,.14);color:rgba(255,255,255,.55)}
-.nfoot b{color:#7fd6a0}
+.nfoot{border-top-color:rgba(255,255,255,.16);color:rgba(255,255,255,.6);padding-left:4px}
+.nfoot b{color:#2fe07a}
 
-.main{border-radius:10px;background:var(--bg)}
+.main{background:var(--bg);border-radius:12px 0 0 0}
+html.standalone .main{border-radius:12px 0 0 0}
+
+/* GRV · TDC · PROFIT — below the header, 30% bigger (11 → 14.3px), clean */
+.kstrip{flex-shrink:0;display:flex;justify-content:flex-end;padding:14px 26px 0}
+.kstrip .hdrk{font-size:14.3px;gap:30px}
+.kstrip .hdrk div{color:var(--text-3);letter-spacing:.14em}
+.kstrip .hdrk b{color:var(--text);font-weight:600;margin-left:9px;letter-spacing:0}
+.kstrip .hdrk b.neg{color:var(--red)} .kstrip .hdrk b.pos{color:var(--green)}
 
 /* ── panels: lifted, crisp black frame, fine rules inside ─────────────── */
 .frows,.tw,.fcard,.kt,.alert,.rulebox,.cscroll,.cf-wrap,.pg-wrap,.gt-wrap{background:var(--s1);border-color:var(--frame)}
@@ -3607,36 +3646,19 @@ tr.ln:hover td.stk{background:#e7e4df}
 
 .cscroll,.cf-wrap,.pg-wrap,.scrollpad{scrollbar-color:rgba(0,0,0,.35) transparent}
 
-/* ── TILES: dark grey gloss glass, the 7EVEN main menu buttons (Jamie, 11 Sep) ──
-   Every tile — the Dashboard checks, the KPI tiles, the Program notices —
-   floats as a dark, see-through glass button: a thin light outline, a gloss
-   highlight along the top edge, white type. Hover lifts the outline the way
-   the menu does. Where the menu lights one item gold, a FAILED check is lit
-   the same way in red. The colours inside a tile are re-pointed for the dark
-   glass by redefining the ink variables on the tile itself, so the detail
-   lines Daniel's engine writes (and their inline var(--…) colours) follow. */
-.alert,.kt{
-  --text:#ffffff; --text-2:rgba(255,255,255,.8); --text-3:rgba(255,255,255,.55);
-  --green:#6fdc9a; --red:#ff7b6b; --frame:rgba(255,255,255,.3);
-  position:relative;border:1px solid rgba(255,255,255,.3);border-radius:3px;color:#fff;
-  background:linear-gradient(180deg,rgba(70,73,79,.84) 0%,rgba(40,42,46,.86) 52%,rgba(26,28,31,.9) 100%);
-  -webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),inset 0 -1px 0 rgba(0,0,0,.35),0 14px 26px -18px rgba(0,0,0,.7);
-  transition:border-color .25s,box-shadow .25s,transform .25s}
-.alert:hover,.kt:hover{border-color:rgba(255,255,255,.62);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.35),0 18px 30px -18px rgba(0,0,0,.75),0 0 18px -8px rgba(255,255,255,.35)}
-.alert.ok{background:linear-gradient(180deg,rgba(70,73,79,.84) 0%,rgba(40,42,46,.86) 52%,rgba(26,28,31,.9) 100%);border-color:rgba(255,255,255,.3)}
-/* a failed check is lit like the menu's gold item — in red */
-.alert:not(.ok),.kt.warn{border-color:#ff7b6b;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px rgba(255,123,107,.25),0 0 24px -6px rgba(255,123,107,.55),inset 0 0 16px rgba(255,123,107,.1)}
-.alert-t{color:#fff;letter-spacing:.01em}
-.alert-b{color:rgba(255,255,255,.8)}
-.alert-b b{color:#fff}
-.alert-i{background:transparent;color:var(--red);border-color:rgba(255,123,107,.65)}
-.alert.ok .alert-i{color:var(--green);border-color:rgba(111,220,154,.6)}
-.kl,.ks{color:rgba(255,255,255,.55)}
-.kv{color:#fff}
-.kt.gold .kv,.kt.blue .kv{color:#fff}
-.kt.green .kv{color:var(--green)} .kt.red .kv{color:var(--red)}
-.kt .blk{color:rgba(255,255,255,.55)}
+/* ── TILES: see-through glass, the 7EVEN main menu buttons (Jamie, 11 Sep) ──
+   No fill — the page shows straight through. A crisp outline, a light glass
+   lip along the top edge, and a lift on hover, the way the menu buttons do.
+   Glow only where it is needed: a FAILED check is lit red the way the menu
+   lights its gold item. Type stays sharp black on the light ground. */
+.alert,.kt{position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(0,0,0,.42);border-radius:2px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 12px 24px -20px rgba(0,0,0,.45);
+  transition:background .3s,border-color .3s,box-shadow .3s}
+.alert:hover,.kt:hover{background:rgba(255,255,255,.16);border-color:rgba(0,0,0,.75);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 24px -10px rgba(0,0,0,.35)}
+.alert.ok{background:rgba(255,255,255,.05);border-color:rgba(0,0,0,.42)}
+.alert:not(.ok),.kt.warn{background:rgba(196,43,28,.035);border-color:#c42b1c;
+  box-shadow:0 0 9px rgba(196,43,28,.28),0 0 26px rgba(196,43,28,.2),inset 0 0 9px rgba(196,43,28,.1)}
+.alert-i{background:transparent}
+.kt.gold .kv,.kt.blue .kv{color:var(--text)}
 </style>

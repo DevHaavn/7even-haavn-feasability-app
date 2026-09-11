@@ -181,7 +181,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
                 {role !== 'external' && (
                   <button style={rowS}
                     onClick={() => { setProjOpen(false); setZeroedOpen(true) }}>
-                    <span style={{ flex: 1 }}>ATRIUM ZEROED</span>
+                    <span style={{ flex: 1 }}>ATRIUM ENGINE</span>
                     <span style={{ fontSize: 8, letterSpacing: '0.2em', border: '1px solid rgba(255,255,255,.3)', borderRadius: 2, padding: '2px 7px', color: 'rgba(255,255,255,.7)' }}>SEPARATE ENGINE</span>
                     <span style={{ color: '#fff' }}>→</span>
                   </button>

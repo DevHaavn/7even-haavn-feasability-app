@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabase'
 
 const IDX_KEY = 'atrium_zeroed_index'
 const rowKey = (id: string) => `atrium_zeroed:${id}`
-const SRC = '/atrium-zeroed.html?v=5'
+const SRC = '/atrium-zeroed.html?v=6'
 
 type Meta = { id: string; name: string; created: string; updated: string }
 type Index = { v: 1; activeId: string | null; projects: Meta[] }
@@ -47,7 +47,7 @@ const PILL_CSS = `
   border:1px solid;cursor:pointer;user-select:none;white-space:nowrap;transition:border-color .2s}
 .az-pill .az-dot{width:6px;height:6px;border-radius:50%;flex:none;background:currentColor;box-shadow:0 0 7px currentColor}
 .az-pill .az-t{opacity:.6;letter-spacing:.08em}
-.az-idle{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.04)}
+.az-idle{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.3);background:transparent}
 .az-saving{color:#D6B36A;border-color:rgba(214,179,106,.52);background:rgba(214,179,106,.10)}
 .az-saving .az-dot{animation:azDot .7s ease-in-out infinite}
 .az-saved{color:#2FE07A;border-color:rgba(47,224,122,.42);background:rgba(47,224,122,.07);
@@ -56,29 +56,44 @@ const PILL_CSS = `
 .az-offline .az-dot{animation:azDot .5s steps(1,end) infinite}
 `
 
-/* The shell, in the clean skin (Jamie, 11 Sep): the flat HAAVN grey ground,
-   and a floating space-grey glass bar whose buttons are clear glass with a
-   thin light outline — the 7EVEN menu, in grey. Matches the bars inside
-   Daniel's page, which float on the same ground. */
+/* The shell (Jamie, 11 Sep): the flat HAAVN grey ground, and ONE floating
+   island in a right angle — header across the top, nav down the left — with
+   the 7EVEN main-page video behind it, dimmed and vignetted exactly as the
+   home page. The shell's controls are the island's top row. The iframe sits
+   over the island: Daniel's top bar (the second row) and his nav are drawn
+   see-through, and his working area is the grey panel tucked into the inside
+   corner, so the video shows only in the L. Buttons, dropdown and pill are the
+   main menu's clear glass: no fill, a thin light outline, a soft glow on
+   hover; the title is lit gold like the menu's lit row. */
+const ISLAND_TOP = 10, ROW = 46
 const SHELL_CSS = `
-.azs{position:fixed;inset:0;z-index:9500;background:#d7d4ce;display:flex;flex-direction:column}
-.azs-bar{height:42px;flex-shrink:0;margin:10px 12px 0;padding:0 10px;display:flex;align-items:center;gap:8px;
-  border-radius:10px;border:1px solid rgba(255,255,255,.16);
-  background:linear-gradient(180deg,rgba(86,90,96,.94) 0%,rgba(54,57,62,.95) 46%,rgba(38,40,44,.97) 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.35),0 12px 26px -16px rgba(0,0,0,.55)}
-.azs-btn{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(255,255,255,.86);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:3px;
-  padding:6px 11px;cursor:pointer;transition:color .25s,border-color .25s,background .25s,box-shadow .25s}
-.azs-btn:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.1);box-shadow:0 0 18px -8px rgba(255,255,255,.6)}
-.azs-sel{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#fff;background:rgba(0,0,0,.22);
-  border:1px solid rgba(255,255,255,.28);border-radius:3px;padding:5px 9px;min-width:180px;max-width:280px;cursor:pointer}
-.azs-sel:hover{border-color:rgba(255,255,255,.7)}
-.azs-sel option{background:#2c2e32;color:#fff}
-.azs-t{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;
-  color:#d6b36a;text-shadow:0 0 12px rgba(214,179,106,.35)}
-.azs-dv{width:1px;height:18px;background:rgba(255,255,255,.22)}
-.azs-note{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.42)}
-.azs-frame{flex:1;width:100%;border:0;display:block;background:transparent}
+.azs{position:fixed;inset:0;z-index:9500;background:#d7d4ce}
+.azs-isle{position:absolute;top:${ISLAND_TOP}px;left:12px;right:12px;bottom:10px;border-radius:12px;overflow:hidden;
+  background:#0a0b0c;border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 18px 34px -20px rgba(0,0,0,.7)}
+.azs-isle video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.azs-dim{position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.56)}
+.azs-vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
+.azs-hl{position:absolute;left:18px;right:18px;top:${ROW}px;height:1px;background:rgba(255,255,255,.14);pointer-events:none}
+.azs-bar{position:absolute;top:${ISLAND_TOP}px;left:12px;right:12px;height:${ROW}px;z-index:2;padding:0 18px;
+  display:flex;align-items:center;gap:8px}
+.azs-btn{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);background:transparent;border:1px solid rgba(255,255,255,.32);border-radius:2px;
+  padding:7px 12px;cursor:pointer;transition:.25s}
+.azs-btn:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);box-shadow:0 0 26px -12px rgba(255,255,255,.5)}
+.azs-sel{font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:#fff;background:rgba(255,255,255,.03);color-scheme:dark;
+  border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:6px 9px;min-width:190px;max-width:290px;cursor:pointer;transition:.25s}
+.azs-sel:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.azs-sel:focus{outline:none;border-color:rgba(255,255,255,.75)}
+.azs-sel option{background:#121314;color:#fff}
+.azs-t{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;
+  color:#d6b36a;padding:7px 13px;border:1px solid #d6b36a;border-radius:2px;background:rgba(214,179,106,.05);
+  text-shadow:0 0 8px rgba(244,227,189,.9),0 0 20px rgba(214,179,106,.6);
+  box-shadow:0 0 9px rgba(244,227,189,.55),0 0 26px rgba(214,179,106,.35),inset 0 0 9px rgba(214,179,106,.24)}
+.azs-dv{width:1px;height:18px;background:rgba(255,255,255,.22);margin:0 4px}
+.azs-note{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.azs-frame{position:absolute;top:${ISLAND_TOP + ROW}px;left:0;right:0;bottom:0;width:100%;height:calc(100% - ${ISLAND_TOP + ROW}px);
+  z-index:1;border:0;display:block;background:transparent;color-scheme:light}
 `
 
 const PILL: Record<SaveState, { cls: string; label: string }> = {
@@ -293,11 +308,18 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
   return (
     <div className="azs">
       <style>{SHELL_CSS + PILL_CSS}</style>
+      {/* The island: the home-page video runs behind the header and the nav. */}
+      <div className="azs-isle" aria-hidden="true">
+        <video autoPlay muted loop playsInline preload="metadata" src="/haavn-black-bg.mp4" />
+        <div className="azs-dim" />
+        <div className="azs-vign" />
+        <div className="azs-hl" />
+      </div>
       {/* Shell chrome. Everything about projects lives up here so Daniel's own
           topbar stays exactly as he designed it. */}
       <div className="no-drag azs-bar">
         <button className="azs-btn" onClick={() => { void flush(); onClose() }}>← Base</button>
-        <span className="azs-t">Atrium Zeroed</span>
+        <span className="azs-t">Atrium Engine</span>
         <span className="azs-dv" />
         <select className="azs-sel" value={index.activeId ?? ''} onChange={e => void switchTo(e.target.value)}>
           {index.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -316,7 +338,7 @@ export default function AtriumZeroed({ onClose }: { onClose: () => void }) {
           {save === 'saved' && stamp && <span className="az-t">{stamp}</span>}
         </div>
       </div>
-      <iframe ref={frame} src={SRC} title="ATRIUM Zeroed" className="azs-frame" />
+      <iframe ref={frame} src={SRC} title="ATRIUM Engine" className="azs-frame" />
     </div>
   )
 }

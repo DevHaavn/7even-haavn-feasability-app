@@ -406,7 +406,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               {baseOpen && role !== 'external' && (
                 <button className="ath-zeroed"
                   onClick={() => { setZeroedOpen(true); setMenuOpen(false) }}>
-                  ATRIUM ZEROED — separate engine
+                  ATRIUM ENGINE
                 </button>
               )}
               <div className="ath-plist" style={{ display: baseOpen ? undefined : 'none' }}>
