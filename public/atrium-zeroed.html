@@ -154,6 +154,7 @@
   tr.cfn td.stk{background:#141C24}
   tr.cfgst td{background:rgba(155,127,196,.06)}
   tr.cfgst td.stk{background:#1A1620}
+  tr.cffac td.stk{padding-left:22px}   /* FIX 8 — per-facility rows sit under their header */
   .neg{color:var(--red)}.pos{color:var(--green)}
   .chev{display:inline-block;font-size:9px;color:var(--text-3);margin-right:8px;width:8px;transition:transform .15s}
   .chev.open{transform:rotate(90deg)}
@@ -772,6 +773,7 @@ const ENG = (() => {
 
     const out={
       need:[], eqDraw:new Array(n).fill(0), surplus:[],
+      short:new Array(n).fill(0),          // FIX 8 — unfunded, per month
       draw:F.map(()=>new Array(n).fill(0)),
       intr:F.map(()=>new Array(n).fill(0)),
       fee: F.map(()=>new Array(n).fill(0)),
@@ -900,7 +902,7 @@ const ENG = (() => {
           unmet += Math.max(0, want);
         });
         need = unmet;
-        if(need>1e-6) out.shortfall=(out.shortfall||0)+need;
+        if(need>1e-6){ out.shortfall=(out.shortfall||0)+need; out.short[m]+=need; }
       }
       else if(need>0){
         /* --- UNASSIGNED: equity first, then tranche priority --- */
@@ -911,7 +913,7 @@ const ENG = (() => {
            still pay. That is why a $6.6m facility delivers less than $6.6m of funds.
            'Drawdowns only': the limit caps cash drawn; charges sit on top. */
         for(let gi=0; gi<GROUPS.length && need>1e-9; gi++) need = drawGroup(gi, need);
-        if(need>1e-6) out.shortfall=(out.shortfall||0)+need;   // unfundable
+        if(need>1e-6){ out.shortfall=(out.shortfall||0)+need; out.short[m]+=need; }   // unfundable
       }
 
       /* --- repay from surplus, reverse priority --- */
@@ -2918,6 +2920,7 @@ function rFin(){
 }
 
 /* ---------------- 05 CASH FLOW ---------------- */
+let CF_FAC_OPEN = true;          // FIX 8 — the per-facility section, open by default
 function rCF(){
   const q=ENG.toQuarters(R.costNet,CAL), keys=q.keys, NQ=keys.length;
   const Q=a=>ENG.toQuarters(a,CAL).vals;
@@ -2929,6 +2932,29 @@ function rCF(){
   const fee=Q(R.wf.fee.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
   const eop=m=>{const out=[];let k=-1,last='';CAL.forEach((c,i)=>{if(c.q!==last){out.push(m[i]);k++;last=c.q;}else out[k]=m[i];});return out;};
   const bal=eop(R.wf.debtBal), ebal=eop(R.wf.eqBal);
+  /* FIX 8 — which facility funded which cost. The waterfall already returns
+     draw / interest / fees / balance per facility per month; this shows it
+     instead of summing it away. Sponsor equity drawn directly gets its own
+     row so the section totals to every dollar drawn, and the shortfall row
+     shows WHICH quarter the stack runs short in. */
+  const W8=R.wf;
+  const facSec = ()=>{            // built at render time — row() is defined below
+    const hdr=`<tr class="cfs" onclick="CF_FAC_OPEN=!CF_FAC_OPEN;rCF()" style="cursor:pointer" title="Show or hide the per-facility rows">`
+      +`<td class="stk">${CF_FAC_OPEN?'▾':'▸'} Funding by facility <span class="u" style="margin-left:6px">${W8.facilities.length} facilities + sponsor equity</span></td>`
+      +keys.map(()=>'<td></td>').join('')+'<td></td></tr>';
+    if(!CF_FAC_OPEN) return hdr;
+    let rows='';
+    W8.facilities.forEach((f,k)=>{
+      rows += row('cfl cffac', f.name+' — draw',     Q(W8.draw[k]), true)
+            + row('cfl cffac', f.name+' — interest', Q(W8.intr[k]), false)
+            + row('cfl cffac', f.name+' — fees',     Q(W8.fee[k]),  false)
+            + `<tr class="cfl cffac"><td class="stk">${f.name} — closing balance</td>${eop(W8.bal[k]).map(v=>`<td>${$(v)}</td>`).join('')}<td>—</td></tr>`;
+    });
+    rows += row('cfl cffac', 'Sponsor Equity — draw', Q(W8.eqDraw), true);
+    rows += row('cfs', 'Total drawn — all sources', Q(W8.draw.reduce((a,d)=>a.map((v,i)=>v+d[i]), W8.eqDraw.slice())), true);
+    rows += row('cfl cffac', 'Unfunded / shortfall', Q(W8.short), false);
+    return hdr+rows;
+  };
   const pre=cost.map((v,i)=>rev[i]-v-gp[i]+gc[i]);
   const post=pre.map((v,i)=>v+eqd[i]+dbd[i]-intr[i]-fee[i]);
   let cum=0; const cml=post.map(v=>cum+=v);
@@ -2947,6 +2973,7 @@ function rCF(){
    + row('cfl','Fees',fee,false)
    + `<tr class="cfl"><td class="stk">Debt balance (EOP)</td>${bal.map(v=>`<td>${$(v)}</td>`).join('')}<td>—</td></tr>`
    + `<tr class="cfl"><td class="stk">Equity balance (EOP)</td>${ebal.map(v=>`<td>${$(v)}</td>`).join('')}<td>—</td></tr>`
+   + facSec()
    + row('cfn','Net cash — post-finance',post,true)
    + `<tr class="cfs"><td class="stk">Cumulative position</td>${cml.map(v=>`<td class="${v<0?'neg':'pos'}">${$(v)}</td>`).join('')}<td>${$(cml[cml.length-1])}</td></tr>`);
   H('cffoot',`
