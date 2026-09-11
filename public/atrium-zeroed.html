@@ -991,13 +991,31 @@ const ENG = (() => {
       } else f.expiredWith = 0;
     });
 
+    /* FIX 7 — roll drawings up by ROLE, not into one debt bucket. Preferred
+       equity is equity. Debt = Land, Construction, Mezzanine; equity =
+       Preferred and Sponsor facilities plus sponsor equity drawn directly
+       (cumulative — it is not repaid in the waterfall). A facility saved
+       without a role falls back to its class. */
+    const DEBT_ROLES = ['Land','Construction','Mezzanine'];
+    const isDebt = f => f.role ? DEBT_ROLES.includes(f.role) : (f.cls==='DEBT' || f.cls==='MEZZ');
+    out.debtDraw = new Array(n).fill(0); out.eqDrawAll = new Array(n).fill(0);
+    out.debtBal  = new Array(n).fill(0); out.eqBal     = new Array(n).fill(0);
+    let eqCum = 0;
+    for(let m=0;m<n;m++){
+      F.forEach((f,k)=>{ if(isDebt(f)){ out.debtDraw[m]+=out.draw[k][m]; out.debtBal[m]+=out.bal[k][m]; }
+                         else        { out.eqDrawAll[m]+=out.draw[k][m]; out.eqBal[m]+=out.bal[k][m]; } });
+      eqCum += out.eqDraw[m]; out.eqDrawAll[m] += out.eqDraw[m]; out.eqBal[m] += eqCum;
+    }
+    F.forEach(f=>{ f.isDebt = isDebt(f); });
+
     const interest=F.reduce((s,f)=>s+f.interest,0);
     const fees=F.reduce((s,f)=>s+f.fees,0);
     return {
       ...out, facilities:F, groups:GROUPS, equityDrawn:eq.drawn, spills,
       interest, fees, financeCost:interest+fees,
-      peakDebt:Math.max(...out.totalBal,0),
-      peakEquity:eq.drawn,
+      peakDebt:Math.max(...out.debtBal,0),
+      peakEquity:Math.max(...out.eqBal,0),
+      sponsorEquity:eq.drawn,
       shortfall:out.shortfall||0
     };
   }
@@ -1892,9 +1910,9 @@ function compute(){
   const gatesPass = gates.every(g=>g.pass);
 
   const undated = lineCalc.filter(l=>l.amount>0 && (l.s==null||l.e==null));
-  const debtDrawn = wf.facilities.reduce((s2,f)=>s2+f.drawn,0);
-  const ltc = allInTDC>0 ? debtDrawn/allInTDC : 0;
-  const lvr = grv>0 ? debtDrawn/grv : 0;
+  /* FIX 7 — LTC / LVR on DEBT balances only (peak), never total capital drawn */
+  const ltc = allInTDC>0 ? wf.peakDebt/allInTDC : 0;
+  const lvr = grv>0 ? wf.peakDebt/grv : 0;
   const C = MODEL.covenants;
   /* FIX 5 — senior construction debt against 80% of TDC. Measured on the
      PEAK combined balance of every Construction-role facility, capitalised
@@ -2886,7 +2904,7 @@ function rFin(){
           <div class="frow c"><div class="fl">Margin on cost</div><div class="fv">${pc(R.marginCost)}</div></div>
           <div class="frow c"><div class="fl">Margin on GRV</div><div class="fv">${pc(R.marginGrv)}</div></div>
           <div class="frow c"><div class="fl">Peak equity</div><div class="fv">${$(w.peakEquity)}</div></div>
-          <div class="frow c"><div class="fl">LTC</div><div class="fv">${pc(w.facilities.reduce((s,f)=>s+f.drawn,0)/R.baseTDC)}</div></div>
+          <div class="frow c"><div class="fl">LTC <span class="u" style="margin-left:6px">peak debt / TDC</span></div><div class="fv">${pc(R.ltc)}</div></div>
         </div>
       </div>
     </div>
@@ -2904,11 +2922,13 @@ function rCF(){
   const q=ENG.toQuarters(R.costNet,CAL), keys=q.keys, NQ=keys.length;
   const Q=a=>ENG.toQuarters(a,CAL).vals;
   const rev=Q(R.revenue), cost=Q(R.costNet), gp=Q(R.gstPaid), gc=Q(R.gstCred);
-  const eqd=Q(R.wf.eqDraw);
-  const dbd=Q(R.wf.draw.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
+  /* FIX 7 — debt and equity kept apart: preferred equity is equity */
+  const eqd=Q(R.wf.eqDrawAll);
+  const dbd=Q(R.wf.debtDraw);
   const intr=Q(R.wf.intr.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
   const fee=Q(R.wf.fee.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
-  const bal=(()=>{const m=R.wf.totalBal;const out=[];let k=-1,last='';CAL.forEach((c,i)=>{if(c.q!==last){out.push(m[i]);k++;last=c.q;}else out[k]=m[i];});return out;})();
+  const eop=m=>{const out=[];let k=-1,last='';CAL.forEach((c,i)=>{if(c.q!==last){out.push(m[i]);k++;last=c.q;}else out[k]=m[i];});return out;};
+  const bal=eop(R.wf.debtBal), ebal=eop(R.wf.eqBal);
   const pre=cost.map((v,i)=>rev[i]-v-gp[i]+gc[i]);
   const post=pre.map((v,i)=>v+eqd[i]+dbd[i]-intr[i]-fee[i]);
   let cum=0; const cml=post.map(v=>cum+=v);
@@ -2921,11 +2941,12 @@ function rCF(){
    + row('cfgst','GST paid on costs',gp,false)
    + row('cfgst','GST credits recovered',gc,true)
    + row('cfs','Net cash — pre-finance',pre,true)
-   + row('cfl','Sponsor equity draw',eqd,true)
    + row('cfl','Debt draw',dbd,true)
+   + row('cfl','Equity draw',eqd,true)
    + row('cfl','Interest',intr,false)
    + row('cfl','Fees',fee,false)
    + `<tr class="cfl"><td class="stk">Debt balance (EOP)</td>${bal.map(v=>`<td>${$(v)}</td>`).join('')}<td>—</td></tr>`
+   + `<tr class="cfl"><td class="stk">Equity balance (EOP)</td>${ebal.map(v=>`<td>${$(v)}</td>`).join('')}<td>—</td></tr>`
    + row('cfn','Net cash — post-finance',post,true)
    + `<tr class="cfs"><td class="stk">Cumulative position</td>${cml.map(v=>`<td class="${v<0?'neg':'pos'}">${$(v)}</td>`).join('')}<td>${$(cml[cml.length-1])}</td></tr>`);
   H('cffoot',`
@@ -3052,7 +3073,7 @@ function rProg(){
   });
 
   /* ---- cash strip: monthly net cash, and the debt balance over it ---- */
-  const need=R.wf.need, bal=R.wf.totalBal;
+  const need=R.wf.need, bal=R.wf.debtBal;
   const maxB=Math.max(1,...bal);
   /* One month can carry a whole asset sale. Scaling every other month against
      that makes the strip unreadable, so the bars are drawn to the 90th
@@ -3105,7 +3126,7 @@ function rProg(){
     <div class="kt green"><div class="kl">Revenue on program</div><div class="kv">${$m(G['Revenue'].amount||0)}</div>
       <div class="ks">${G['Revenue'].items.length} events</div></div>
     <div class="kt red"><div class="kl">Peak debt</div><div class="kv">${$m(R.wf.peakDebt)}</div>
-      <div class="ks">${(()=>{const i=R.wf.totalBal.indexOf(Math.max(...R.wf.totalBal));return i>=0&&R.wf.peakDebt>0?CAL[i].label:'—';})()}</div></div>
+      <div class="ks">${(()=>{const i=R.wf.debtBal.indexOf(Math.max(...R.wf.debtBal));return i>=0&&R.wf.peakDebt>0?CAL[i].label:'—';})()}</div></div>
   </div>`);
 
   H('progLegend', PGROUPS.filter(k=>G[k]&&G[k].items.length)
