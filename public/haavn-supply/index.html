@@ -6,7 +6,7 @@
 <title>HAAVN · SUPPLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@500;700&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    HAAVN — the third pillar.
@@ -41,7 +41,12 @@
   --f-mono:'JetBrains Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow-x:hidden;overscroll-behavior-x:none}
+/* clip, not hidden: overflow-x:hidden on both html and a 100%-tall body turns
+   the body into its own scroll box, the window never scrolls, and everything
+   keyed to scrollY (the field, Preston riding off screen one) stands still */
+html,body{overflow-x:clip;overscroll-behavior-x:none}
+html{height:100%}
+body{min-height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-weight:300;
   -webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
@@ -79,6 +84,13 @@ body.view-inner #stage .build{display:none}
   opacity:0;pointer-events:none;animation:deviceIn 2.4s ease 2.4s forwards}
 @keyframes deviceIn{to{opacity:.26}}
 body.view-inner #stage .device{opacity:.12;animation:none;transition:opacity .5s}
+/* Preston and the device belong to screen one — they ride up with it as the
+   page scrolls (--sy is scrollY, set by script) instead of sitting over
+   screen two. They move as one screen-sized layer that clips: the device
+   bleeds off screen one's bottom edge by design, and moving it alone would
+   carry that hidden overhang up into screen two. */
+#stage .s1{position:absolute;inset:0;overflow:hidden;translate:0 calc(var(--sy,0) * -1px)}
+body.view-inner #stage .s1{translate:none}      /* inner pages keep the faint device fixed, as before */
 @media(max-width:600px){#stage .device{width:56vw;right:-12vw;bottom:-4vh}}
 
 /* The green LED bar pairs are retired on HAAVN — on paper they shouted where
@@ -86,7 +98,10 @@ body.view-inner #stage .device{opacity:.12;animation:none;transition:opacity .5s
    the wordmark, and the accent lives in the rules, tags and hovers. */
 
 /* ═══ SHELL ═══ */
-#shell{position:relative;z-index:5;min-height:100%;display:flex;flex-direction:column;
+/* z-index:auto, not a number: a numbered z-index isolates the shell, and screen
+   two's paragraphs need to hard-light blend with the field underneath. #stage
+   comes first in the DOM, so the shell still paints over it. */
+#shell{position:relative;z-index:auto;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;
   padding:20px clamp(16px,3.4vw,46px) 0}
 header{padding-bottom:14px}
 .kicker{margin-top:12px;font-family:var(--f-mono);font-size:9px;letter-spacing:.44em;
@@ -305,23 +320,92 @@ code{font-family:var(--f-mono);font-size:11.5px;color:var(--lime-txt);background
 @keyframes viewin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 #vHome.on{display:flex;flex-direction:column;align-items:center}
 
-/* ═══ SERVICES — the six product lines, bottom left above the footer rule ═══ */
-.services{display:flex;flex-direction:column;gap:11px;padding-bottom:20px;
-  opacity:0;animation:fade 1.3s ease 5s forwards}
-body.view-inner .services{display:none}
-.services__k{font-family:var(--f-mono);font-size:8px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-4)}
-.services__row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.svc{position:relative;display:grid;place-items:center;width:38px;height:38px;flex:none}
-.svc img{width:100%;height:100%;object-fit:contain;opacity:.55;transition:.32s cubic-bezier(.2,.7,.3,1)}
-.svc:hover img{opacity:1;transform:translateY(-2px)}
-/* the name rides up out of the tile rather than sitting under it — six labels
-   in a row would be wider than the tiles they belong to */
-.svc__l{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translate(-50%,4px);
-  padding:5px 10px;border:1px solid var(--hair);border-left:2px solid var(--lime);border-radius:2px;
-  background:var(--tablet);white-space:nowrap;pointer-events:none;
-  font-family:var(--f-mono);font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-2);
-  opacity:0;transition:.32s cubic-bezier(.2,.7,.3,1);box-shadow:0 10px 24px -18px rgba(16,16,16,.8)}
-.svc:hover .svc__l{opacity:1;transform:translate(-50%,0)}
+/* ═══ HOME — two screens, the way haavn.au runs ═══════════════════════════
+   Screen one is the hero, exactly one viewport tall: wordmark, the pillar
+   line, haavn.au's LIVE · clock · MELBOURNE bar and its scroll icon.
+   Screen two slides up beneath it with haavn.au's second section, and the
+   ATRIUM footer closes it. --above is the header's height, set by script, so
+   screen one can be measured against the whole viewport.
+
+   Hero positions are haavn.au's, as a share of the viewport: wordmark centre
+   40%, live bar 62%, scroll icon 88%. */
+#vHome.on{display:block}
+.p1{position:relative;height:calc(100svh - var(--above,57px));min-height:420px}
+.p1 .stripe{position:absolute;left:50%;top:calc(40svh - var(--above,57px));transform:translate(-50%,-50%);padding:0}
+/* haavn.au's live bar, its own CSS: Helvetica Neue 13/4px, 70% black, #BDD420
+   dot breathing on 3s — deliberately not our mono footer style */
+.livebar{position:absolute;left:50%;top:calc(62svh - var(--above,57px));transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;gap:18px;white-space:nowrap;
+  font-family:"Helvetica Neue",Arial,sans-serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(0,0,0,.7);-webkit-font-smoothing:antialiased;opacity:0;animation:fade 1.3s ease 4.8s forwards}
+.livebar .d{width:8px;height:8px;border-radius:50%;background:#BDD420;flex-shrink:0;animation:breathe 3s ease-in-out infinite}
+.livebar .sep{color:rgba(0,0,0,.25)}
+.livebar .t{font-variant-numeric:tabular-nums}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.25}}
+/* their scroll icon — the chevrons fall through the pill on a 9s GIF loop */
+.scrollcue{position:absolute;left:50%;top:calc(88svh - var(--above,57px));transform:translate(-50%,-50%);
+  width:max(14px,1.25vw);cursor:pointer;opacity:0;animation:fade 1.3s ease 5.2s forwards;transition:filter .3s}
+.scrollcue img{display:block;width:100%;height:auto;opacity:.5}   /* haavn.au runs it at 50% */
+.scrollcue:hover{filter:drop-shadow(0 0 6px rgba(168,188,16,.55))}
+
+/* ── screen two ──────────────────────────────────────────────────────────
+   Measured off haavn.au at five widths (1280–1920) after its reveal
+   animation had run. Every position there is (px + vw) — the text carries
+   a fixed rem, so pure vw drifts — and the numbers below are those fits,
+   good to under a pixel across that range. Squarespace scales each block by
+   a designer-set transform (headline 0.7, "WHAT WE SUPPLY" 0.7, the // heads
+   0.6); these are the on-screen results, so no transforms are needed here.
+   Offsets are from the headline's top. */
+.p2{position:relative;width:100vw;margin-left:calc(50% - 50vw);
+  min-height:calc(100svh - var(--foot,96px));padding-top:calc(18px + .6vw)}
+.p2s{position:relative;height:calc(166px + 42.3vw)}
+.p2s>*{position:absolute;margin:0}
+.p2 h3{left:calc(14.7px + 12.595vw);top:0;width:calc(-4.3px + 30.81vw);
+  font-family:'Oxanium',var(--f-display);font-weight:500;font-size:calc(11.2px + 1.344vw);
+  line-height:1.03;letter-spacing:-.04em;color:#292929}
+.p2 h3 strong,.p2 h4 strong{font-weight:700}
+.p2 h4{font-family:'Oxanium',var(--f-display);font-weight:500;line-height:1.065;letter-spacing:-.04em;color:#292929;white-space:nowrap}
+.p2 h4 strong{color:#A8BC10}
+.p2 .what{left:calc(-.5px + 14.214vw);top:calc(84.9px + 15.667vw);font-size:calc(11.2px + .672vw)}
+.p2 .hd{left:calc(3.9px + 56.405vw);font-size:calc(9.6px + .576vw)}
+.p2 .hd.man{top:calc(3.7px + .214vw)}
+.p2 .hd.int{top:calc(80.6px + 14.667vw)}
+.p2 .hd.pre{top:calc(157.1px + 29.143vw)}
+.p2 .tx{left:calc(6.4px + 58vw);width:calc(-7.8px + 28vw);
+  font-family:"Helvetica Neue",Arial,sans-serif;font-weight:400;font-size:calc(16px - .12vw);line-height:1.2;color:#292929;
+  mix-blend-mode:hard-light}   /* haavn.au's: #292929 hard-lit over the field reads ~#454442 and moves with it */
+.p2 .tx.man{top:calc(25.5px + 2.571vw)}
+.p2 .tx.int{top:calc(102px + 17.048vw)}
+.p2 .tx.pre{top:calc(178.9px + 31.5vw)}
+.p2 .stack{left:calc(1.8px + 13.976vw);top:calc(164.3px + 16.786vw);width:calc(-7.3px + 32vw);height:auto}
+.p2 .rule{left:49.952vw;top:calc(-3.8px + .524vw);width:1.5px;height:calc(197.5px + 39.238vw);background:#A8BC10}
+/* haavn.au's reveal: headings and the stack scale up from 90% while they fade
+   in, paragraphs only fade — 1.2s on their ease, staggered. Each fades to
+   its block's resting opacity there (--o): headline and WHAT WE SUPPLY 70%,
+   the lime rule 80%, the rest full. */
+.p2 .rv{opacity:0;transform:scale(.9);transition:opacity 1.2s cubic-bezier(.19,1,.22,1),transform 1.2s cubic-bezier(.19,1,.22,1);transition-delay:var(--dl,0s)}
+.p2 .rv.f{transform:none}
+.p2.in .rv{opacity:var(--o,1);transform:none}
+.p2 .rule.rv{transform:scaleY(.9);transform-origin:50% 0}
+.p2.in .rule.rv{transform:none}
+body:not(.view-inner) main{padding:0}
+
+/* phones (haavn.au's own breakpoint): the live bar steps down the way theirs
+   does, and screen two stacks — headline, the three pillars, then the stack */
+@media(max-width:767px){
+  .livebar{font-size:10px;letter-spacing:3px;gap:14px;color:rgba(0,0,0,.5)}
+  .scrollcue{width:16px}
+  .p2{padding:36px 7vw 40px}
+  .p2s{height:auto;display:flex;flex-direction:column}
+  .p2s>*{position:static}
+  .p2 h3{width:auto;font-size:26px;order:1;margin-bottom:34px}
+  .p2 .hd{font-size:17px;margin-top:26px}
+  .p2 .hd.man{order:2}.p2 .tx.man{order:3}.p2 .hd.int{order:4}.p2 .tx.int{order:5}.p2 .hd.pre{order:6}.p2 .tx.pre{order:7}
+  .p2 .tx{width:auto;font-size:14px;margin:12px 0 0 18px}
+  .p2 .what{order:8;font-size:19px;margin-top:44px}
+  .p2 .stack{order:9;width:100%;max-width:420px;margin-top:22px}
+  .p2 .rule{display:none}
+}
 
 /* ═══ FOOTER ═══ */
 footer{padding-bottom:20px;margin-top:auto}
@@ -378,8 +462,10 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <div id="stage">
   <canvas class="iso" id="iso" aria-hidden="true"></canvas>
-  <iframe class="build" src="preston-build.html?v=13" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
-  <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
+  <div class="s1">
+    <iframe class="build" src="preston-build.html?v=13" title="" aria-hidden="true" tabindex="-1" scrolling="no"></iframe>
+    <img class="device" src="assets/brand/haavn-device-d4e84a.png" alt="">
+  </div>
 </div>
 
 <button class="burger" id="burger" aria-label="Menu"><span></span><span></span></button>
@@ -403,16 +489,40 @@ footer{padding-bottom:20px;margin-top:auto}
 
     <!-- ══ HOME ══════════════════════════════════════════════════════════ -->
     <section class="view on" id="vHome">
-      <div class="stripe">
-        <div class="mark" role="img" aria-label="HAAVN">
-          <span class="h"></span><span class="m"></span><span class="n"></span>
+      <!-- screen one: the hero. No entry buttons — the brand stands on its own
+           and Presentations / Content / Documents are reached from the menu. -->
+      <div class="p1" id="p1">
+        <div class="stripe">
+          <div class="mark" role="img" aria-label="HAAVN">
+            <span class="h"></span><span class="m"></span><span class="n"></span>
+          </div>
+          <div class="subline">
+            <span>MANAGEMENT</span><span class="dot"></span><span>INTELLIGENCE</span><span class="dot"></span><span>PRECISION</span>
+          </div>
         </div>
-        <div class="subline">
-          <span>MANAGEMENT</span><span class="dot"></span><span>INTELLIGENCE</span><span class="dot"></span><span>PRECISION</span>
+        <div class="livebar" aria-label="Live, Melbourne time">
+          <span class="d"></span><span>LIVE</span><span class="sep">·</span>
+          <span class="t" id="liveTime">--:--:--</span><span class="sep">·</span><span>MELBOURNE</span>
+        </div>
+        <button class="scrollcue" id="scrollCue" aria-label="Scroll down"><img src="assets/haavnau/scroll-icon.gif" alt=""></button>
+      </div>
+
+      <!-- screen two: haavn.au's second section, copy verbatim from the site -->
+      <div class="p2" id="p2">
+        <div class="p2s">
+          <h3 class="rv" style="--o:.7">AUSTRALIA’S FIRST END-TO-END SOLUTION IN MODULAR <strong>SUPPLY</strong>, <strong>FINANCE</strong>, AND <strong>CONSTRUCTION</strong>.</h3>
+          <div class="rule rv" style="--dl:.08s;--o:.8"></div>
+          <h4 class="hd man rv" style="--dl:.16s"><strong>// </strong>MANAGEMENT</h4>
+          <p class="tx man rv f" style="--dl:.24s">With decades of hands-on experience, Haavn knows what it takes to make projects work right from feasibility through to practical completion.<br><br>Traditional build or modular, we manage the process from end to end with the discipline and certainty that comes from having done it well for a long time.</p>
+          <h4 class="hd int rv" style="--dl:.32s"><strong>// </strong>INTELLIGENCE</h4>
+          <p class="tx int rv f" style="--dl:.40s">Underpinning the modular intelligence that we bring to all projects is our ability to deliver the final outcome.<br><br>Through precision manufacturing our supply offering guarantees levels of quality, economies of scale and certainty in delivery that can’t be matched through traditional construction techniques.</p>
+          <h4 class="hd pre rv" style="--dl:.48s"><strong>// </strong>PRECISION</h4>
+          <p class="tx pre rv f" style="--dl:.56s">Given our depth of knowledge in property development and what makes a feasibility work, by natural evolution we have established the modular construction intelligence that will see our industry through to a new era.<br><br>We use this intelligence to advise our clients on how a modular solution can deliver high-quality outcomes, condensed programmes and cost certainty for their projects.</p>
+          <h4 class="what rv" style="--dl:.24s;--o:.7">WHAT WE SUPPLY:</h4>
+          <img class="stack rv" style="--dl:.36s" src="assets/haavnau/what-we-supply-stack.png"
+               alt="Student accommodation, affordable housing, build to rent, hotels, aged care, multi-residential">
         </div>
       </div>
-      <!-- No entry buttons on the home screen: the brand stands on its own and
-           Presentations / Documents are reached from the menu. -->
     </section>
 
     <!-- ══ PRESENTATIONS ═════════════════════════════════════════════════ -->
@@ -477,12 +587,9 @@ footer{padding-bottom:20px;margin-top:auto}
 
   </main>
 
-  <footer>
-    <!-- what HAAVN supplies — the six product lines, in Seth's order -->
-    <div class="services">
-      <div class="services__k">What we supply</div>
-      <div class="services__row" id="services"></div>
-    </div>
+  <footer id="foot">
+    <!-- on the home view this closes screen two; "What we supply" now lives
+         there, as haavn.au's stack -->
     <div class="hair"></div>
     <div class="frail">
       <div class="fl">
@@ -583,19 +690,6 @@ var MEDIA = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
-   2b. THE SERVICES — the six product lines HAAVN supplies, left to right in
-       the order Seth set them. Icons live in assets/icons/.
-   ═════════════════════════════════════════════════════════════════════════ */
-var SERVICES = [
-  { k:'affordable-housing',    l:'Affordable Housing' },
-  { k:'aged-care',             l:'Aged Care' },
-  { k:'build-to-rent',         l:'Mixed Residential Use' },
-  { k:'data-centre',           l:'Data Centre' },
-  { k:'hotels',                l:'Hotels' },
-  { k:'student-accommodation', l:'Student Accommodation' }
-];
-
-/* ══════════════════════════════════════════════════════════════════════════
    3. ENGINE — no editing needed below.
    ═════════════════════════════════════════════════════════════════════════ */
 (function(){
@@ -630,14 +724,6 @@ var SERVICES = [
   }).join('') + '<a class="msub" href="#/presentations"><span><b>All presentations</b>' +
       '<i>The full list</i></span><span class="g">&#8594;</span></a>';
 
-  /* ---- services ------------------------------------------------------ */
-  $('#services').innerHTML = SERVICES.map(function(s){
-    return '<span class="svc" title="' + esc(s.l) + '">' +
-      '<span class="svc__l">' + esc(s.l) + '</span>' +
-      '<img src="assets/icons/' + esc(s.k) + '.png" alt="' + esc(s.l) + '">' +
-    '</span>';
-  }).join('');
-
   /* ---- content ------------------------------------------------------- */
   $('#mediaShelves').innerHTML = MEDIA_GROUPS.map(function(g){
     var rows = MEDIA.filter(function(m){ return m.g === g; });
@@ -667,7 +753,7 @@ var SERVICES = [
   function closeLb(){
     lb.classList.remove('on','lb--page');
     lbIn.innerHTML = '';
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
   function openLb(m){
     if (m.kind === 'file'){ window.open(m.src, '_blank', 'noopener'); return; }
@@ -678,7 +764,7 @@ var SERVICES = [
     :                      '<img src="' + esc(m.src) + '" alt="' + esc(m.t) + '">';
     lbCap.textContent = m.t;
     lb.classList.add('on');
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     /* Once focus is inside the frame the parent never hears Escape, so the
        key is also listened for in there. Same origin, so this is allowed. */
     if (m.kind === 'page'){
@@ -729,6 +815,7 @@ var SERVICES = [
     document.body.classList.toggle('view-inner', h !== '#/');
     window.scrollTo(0,0);
     closeMenu(); closeLb();
+    if (typeof measure === 'function') measure();
   }
   window.addEventListener('hashchange', route);
 
@@ -763,18 +850,45 @@ var SERVICES = [
     if (lb.classList.contains('on')) closeLb(); else closeMenu();
   });
 
-  /* ---- footer -------------------------------------------------------- */
+  /* ---- clocks: the footer's and the hero live bar's ------------------- */
   function tick(){
+    var t;
     try {
-      $('#clock').textContent = new Intl.DateTimeFormat('en-AU',{
+      t = new Intl.DateTimeFormat('en-AU',{
         timeZone:'Australia/Melbourne', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
       }).format(new Date());
-    } catch(e){ $('#clock').textContent = new Date().toLocaleTimeString(); }
+    } catch(e){ t = new Date().toLocaleTimeString(); }
+    $('#clock').textContent = t; $('#liveTime').textContent = t;
   }
   tick(); setInterval(tick, 1000);
   $('#btnUpdate').addEventListener('click', function(){ location.reload(); });
 
+  /* ---- the two home screens ------------------------------------------
+     --above: everything over screen one (shell padding + header), so the
+     hero is one viewport exactly. --foot: the footer, so screen two plus the
+     footer is one viewport too. --sy: scroll, for the layers that ride with
+     screen one. */
+  var root = document.documentElement, p1 = $('#p1'), p2 = $('#p2');
+  function measure(){
+    if (!document.body.classList.contains('view-inner')){
+      root.style.setProperty('--above', Math.round(p1.getBoundingClientRect().top + window.scrollY) + 'px');
+    }
+    root.style.setProperty('--foot', $('#foot').offsetHeight + 'px');
+  }
+  var sy = 0;
+  function onScroll(){ var y = Math.round(window.scrollY); if (y !== sy){ sy = y; root.style.setProperty('--sy', y); } }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', measure);
+  $('#scrollCue').addEventListener('click', function(){ p2.scrollIntoView({ behavior:'smooth', block:'start' }); });
+  // haavn.au reveals screen two as it comes into view — once, then it stays
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(es, io){
+      es.forEach(function(e){ if (e.isIntersecting){ p2.classList.add('in'); io.disconnect(); } });
+    }, { threshold:.18 }).observe(p2);
+  } else p2.classList.add('in');
+
   route();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);   // header height settles once fonts land
 })();
 </script>
 
@@ -794,7 +908,11 @@ var SERVICES = [
   const P = {
     accent: [125, 127, 118],   // haavn.au --accent  hsl(72 4% 48%)
     white:  [242, 237, 233],   // haavn.au --white   hsl(26.67 25.71% 93.14%)
-    t0: 0.55, tTop: 0.985, gamma: 0.9,   // floor → peak tone, as mix(accent, white)
+    // floor → peak tone, as mix(accent, white). sat < 1 lets the upper swells
+    // reach full white — haavn.au spends a lot of time in open near-white
+    // swells, and without it ours read ~8 levels darker (time-averaged, 20
+    // moments each over 40s: now within 0–2 levels at every percentile).
+    t0: 0.56, tTop: 1.0, gamma: 0.8, sat: 0.75,
     shadeX: 0.86,              // +X faces: the dark bands along "/"
     shadeZ: 1.07,              // +Z faces: the bright slivers along "\"
     unit: 0.020,               // px per tile-unit, × viewport width (haavn.au scales the same way)
@@ -812,6 +930,7 @@ var SERVICES = [
   const VS = `
   attribute vec2 aCell; attribute vec3 aCorner; attribute float aFace;
   uniform float uT, uK; uniform vec3 uR, uU, uC; uniform vec2 uHalf; uniform float uDepth;
+  uniform vec2 uShift;   // scroll: whole tiles along the field's down-screen axis, then the sub-tile pixels
   varying vec3 vCol;
   // simplex noise 3D — Ashima Arts / Stefan Gustavson, MIT licence
   vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
@@ -843,14 +962,16 @@ var SERVICES = [
     return ${P.amp.toFixed(3)}*max(0.,n-(${P.cut.toFixed(3)}))/(1.-(${P.cut.toFixed(3)}));
   }
   void main(){
-    float h=height(aCell), y=h;
+    vec2 cw=aCell+uShift.x;                             // the world cell under this box after scrolling
+    float h=height(cw), y=h;
     if(aFace>.5){                                       // side face: from our top…
-      vec2 nb=aCell+(aFace<1.5?vec2(1.,0.):vec2(0.,1.));
+      vec2 nb=cw+(aFace<1.5?vec2(1.,0.):vec2(0.,1.));
       y=mix(min(height(nb),h),h,aCorner.y);             // …down to the lower neighbour
     }
     vec3 p=vec3(aCell.x+aCorner.x,y,aCell.y+aCorner.z);
-    gl_Position=vec4(vec2(dot(p,uR),dot(p,uU))*uK/uHalf,-dot(p,uC)/uDepth,1.);
-    float t=mix(${P.t0},${P.tTop},pow(clamp(h/${P.amp.toFixed(3)},0.,1.),${P.gamma.toFixed(3)}));
+    vec2 s=vec2(dot(p,uR),dot(p,uU))*uK+vec2(0.,uShift.y);
+    gl_Position=vec4(s/uHalf,-dot(p,uC)/uDepth,1.);
+    float t=mix(${P.t0.toFixed(3)},${P.tTop.toFixed(3)},pow(clamp(h/${(P.amp * P.sat).toFixed(3)},0.,1.),${P.gamma.toFixed(3)}));
     vec3 col=mix(vec3(${P.accent.map(v => (v / 255).toFixed(4))}),vec3(${P.white.map(v => (v / 255).toFixed(4))}),t);
     vCol=min(col*(aFace<.5?1.:(aFace<1.5?${P.shadeX.toFixed(3)}:${P.shadeZ.toFixed(3)})),vec3(1.));
   }`
@@ -871,21 +992,21 @@ var SERVICES = [
   const R = [0.70711, 0, -0.70711]
   const Up = [-0.40825, 0.8165, -0.40825]
   const buf = gl.createBuffer(), STRIDE = 6
-  let nVerts = 0
+  let nVerts = 0, KK = 30
 
   function build() {
     const dpr = Math.min(P.dprMax, devicePixelRatio || 1)
     const W = cv.clientWidth || innerWidth, H = cv.clientHeight || innerHeight
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr)
     gl.viewport(0, 0, cv.width, cv.height)
-    const K = Math.min(44, Math.max(18, P.unit * W))
+    const K = KK = Math.min(44, Math.max(18, P.unit * W))
     const mx = W / 2 / K + 2, my = H / 2 / K + 2
     const n = Math.ceil((mx + 2 * my + P.amp) * 1.6)
     const cells = []
     for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
       const cx = i + .5, cz = j + .5
       const sx = cx * R[0] + cz * R[2], sy = cx * Up[0] + cz * Up[2]
-      if (Math.abs(sx) <= mx && sy <= my && sy >= -my - P.amp) cells.push(i, j)
+      if (Math.abs(sx) <= mx && sy <= my && sy >= -my - P.amp - 2) cells.push(i, j)   // -2: room for the scroll offset
     }
     const quads = [                                   // [face, corners (x, top?, z)]
       [0, [[0,1,0],[1,1,0],[1,1,1],[0,1,1]]],
@@ -913,6 +1034,13 @@ var SERVICES = [
   const t0 = performance.now(), seed = Math.random() * 400
   function draw(now) {
     gl.uniform1f(U('uT'), seed + (now - t0) / 1000 * P.speed)
+    /* The field scrolls with the page, as haavn.au's canvas does. Moving one
+       tile along (1,0,1) moves the image 0.8165·K px down-screen, so the
+       scroll splits into whole tiles (fed to the noise — new ground comes up
+       from below) and the pixels left over (a sub-tile nudge). The geometry
+       itself never leaves the viewport. */
+    const S = window.scrollY || 0, step = 0.8165 * KK, m = Math.floor(S / step)
+    gl.uniform2f(U('uShift'), m, S - m * step)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.drawArrays(gl.TRIANGLES, 0, nVerts)
   }
@@ -925,6 +1053,7 @@ var SERVICES = [
   // rAF already sleeps in a hidden tab, so there is nothing to pause by hand.
   const still = matchMedia('(prefers-reduced-motion: reduce)')
   ;(function loop(now) { if (!still.matches) draw(now); requestAnimationFrame(loop) })(t0)
+  addEventListener('scroll', () => { if (still.matches) draw(t0) }, { passive: true })   // a still still scrolls
   cv.addEventListener('webglcontextlost', e => e.preventDefault())
   cv.addEventListener('webglcontextrestored', () => location.reload())
 })()
