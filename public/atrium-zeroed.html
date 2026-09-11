@@ -1600,10 +1600,23 @@ MODEL.costLines = CL.map((r,i)=>{
   return o;
 });
 
+/* ---------------- FACILITY ROLE (FIX 2) ----------------
+   What a facility IS, chosen on its card — never inferred from its name.
+   Renaming a facility must not change how the model funds costs. A facility
+   saved before roles existed is given one from its class (and, for senior
+   debt, its name) the first time it is computed; after that the stored role
+   stands and the name is irrelevant. Only ever fills a MISSING role.        */
+const ROLES = ['Land','Construction','Mezzanine','Preferred','Sponsor'];
+const defaultRole = f => f.cls==='DEBT' ? (/land/i.test(f.name||'') ? 'Land' : 'Construction')
+                       : f.cls==='MEZZ' ? 'Mezzanine' : f.cls==='PREF' ? 'Preferred'
+                       : f.cls==='EQUITY' ? 'Sponsor' : 'Construction';
+function ensureRoles(){ (MODEL.facilities||[]).forEach(f=>{ if(!ROLES.includes(f.role)) f.role = defaultRole(f); }); }
+
 /* ---------------- COMPUTE ---------------- */
 let R = {};                                    // last computed result
 
 function compute(){
+  ensureRoles();
   const S=MODEL.settings, L=MODEL.land, n=N_MONTHS;
 
   /* --- land --- */
@@ -1821,9 +1834,10 @@ function compute(){
     const a = bySource[src] || (bySource[src] = new Array(n).fill(0));
     for(let m=0;m<n;m++) a[m] += l.profile[m];
   });
-  /* land, holding and vendor interest follow the land facility if one exists */
-  const landSrc = MODEL.facilities.some(f=>/land/i.test(f.name)) ?
-                  MODEL.facilities.find(f=>/land/i.test(f.name)).name : 'Sponsor Equity';
+  /* land, holding and vendor interest follow the land facility if one exists —
+     identified by its role (FIX 2), not by the word "land" in its name */
+  const landFacility = MODEL.facilities.find(f=>f.role==='Land');
+  const landSrc = landFacility ? landFacility.name : 'Sponsor Equity';
   const la = bySource[landSrc] || (bySource[landSrc] = new Array(n).fill(0));
   for(let m=0;m<n;m++) la[m] += landProf[m] + vendorProf[m];
   landCosts.forEach(c=>{
@@ -2694,6 +2708,7 @@ function rFin(){
       <div class="fcbody">
         <div class="fcbox">
           <div class="fcbt">Agreed terms</div>
+          <div class="lr"><div class="k">Role</div><div class="v">${sel('facilities.'+i+'.role',ROLES,M.role||defaultRole(M))}</div></div>
           <div class="lr"><div class="k">Facility limit</div><div class="v">${inp('facilities.'+i+'.limit',$(M.limit))}</div></div>
           <div class="lr"><div class="k">Interest rate</div><div class="v">${inp('facilities.'+i+'.rate',pc(M.rate,2))}</div></div>
           <div class="lr"><div class="k">Establishment</div><div class="v">${inp('facilities.'+i+'.estab',pc(M.estab,2))}</div></div>
@@ -3127,7 +3142,7 @@ function setPath(path, raw){
               'drawConvention','lineFeeBase','zone','overlays','planSource','planChecked','permitNo','permitStatus',
               'permitLodged','permitGranted','permitExpiry','permitNote','desc','date','acqFeeBasis',
               'vendorFinance','vendorGst','gstRegistered','marginScheme','name','timing','payDate','gstEntry','revEntry','funded','field','op','field2','op2','fund','pin','availFrom','expires','capMode','intModel','gst',
-              'eng','terminal','gstSaleTreat','gstAnnTreat','type','code','unit','modular','insBasis'];
+              'eng','terminal','gstSaleTreat','gstAnnTreat','type','code','unit','modular','insBasis','role'];
   /* 'exit' names two different things: a facility's exit fee (a percentage)
      and a component's exit mode (Sell or Hold). The path decides. */
   if(/^components\.\d+\.exit$/.test(path)){ o[k]=raw; return; }
