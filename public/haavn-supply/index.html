@@ -348,10 +348,12 @@ code{font-family:var(--f-mono);font-size:11.5px;color:var(--lime-txt);background
    the payoff in bold); the partners line in their live-bar voice */
 .tagline{flex:none;text-align:center;padding:clamp(30px,6vh,70px) 6vw 0}
 .tagline .q{font-family:'Oxanium',var(--f-display);font-weight:500;font-size:calc(11.2px + 1.344vw);
-  line-height:1.1;letter-spacing:-.04em;color:#292929}
+  line-height:1.1;letter-spacing:-.04em;color:rgba(41,41,41,.7)}   /* the 70% lives in the colour, not the block… */
+.tagline .q .g{color:var(--lime)}                                   /* …so the brand green reads at full strength */
 .tagline .q strong{font-weight:700}
-.tagline .by{margin-top:clamp(12px,1.6vh,18px);font-family:"Helvetica Neue",Arial,sans-serif;font-size:13px;
-  letter-spacing:4px;text-transform:uppercase;color:rgba(0,0,0,.7)}
+.tagline .by{margin-top:clamp(12px,1.6vh,18px);font-family:"Helvetica Neue",Arial,sans-serif;font-size:16.9px;
+  letter-spacing:5.2px;   /* 13px / 4px +30% (Jamie) */
+  text-transform:uppercase;color:rgba(0,0,0,.7)}
 .tagline .by i{font-style:normal;color:#8a9c08;margin:0 .25em}
 .pA .slide{position:relative;flex:1;min-height:0;width:100%;border:0;background:transparent;display:block;
   pointer-events:none}   /* nothing to click in it, and wheel/touch scroll must reach the page */
@@ -405,7 +407,7 @@ body:not(.view-inner) main{padding:0}
   .scrollcue{width:24px}
   .hvn{margin-top:0}              /* phones: the fixed burger owns the top edge; the device sits under it */
   .tagline .q{font-size:21px}
-  .tagline .by{font-size:10px;letter-spacing:3px}
+  .tagline .by{font-size:13px;letter-spacing:3.9px}
   .p2{padding:36px 7vw 40px}
   .p2s{height:auto;display:flex;flex-direction:column}
   .p2s>*{position:static}
@@ -520,7 +522,7 @@ footer{padding-bottom:20px;margin-top:auto}
            floating over the ground (glass iframe — the field shows through) -->
       <div class="pA" id="pA">
         <div class="tagline">
-          <p class="q rv" style="--o:.7">The home that arrives. <strong>Now with the hands that deliver it.</strong></p>
+          <p class="q rv"><span class="g">The home that arrives.</span> <strong>Now with the hands that deliver it.</strong></p>
           <p class="by rv f" style="--dl:.25s">HAAVN<i>×</i>Hamilton Marino</p>
         </div>
         <iframe class="slide" id="slide" src="preston-slide.html?v=2" title="Preston — modular assembly sequence"
