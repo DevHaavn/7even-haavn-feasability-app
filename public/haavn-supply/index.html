@@ -90,6 +90,8 @@ header{padding-bottom:14px}
 /* haavn.au's green HVN device, top centre — their size (33×24) and height
    (1.3vw from the top at every width), sitting over our header line */
 .hvn{display:block;width:33.1px;height:auto;margin:calc(1.3vw - 20px) auto 0}
+/* on the home view the header line sits 1.5cm lower, clear of the device (Jamie) */
+body:not(.view-inner) .kicker{margin-top:calc(12px + 1.5cm)}
 .kicker{margin-top:12px;font-family:var(--f-mono);font-size:9px;letter-spacing:.44em;
   color:var(--ink-3);text-transform:uppercase;text-align:center;white-space:nowrap}
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -329,7 +331,8 @@ code{font-family:var(--f-mono);font-size:11.5px;color:var(--lime-txt);background
 .livebar .t{font-variant-numeric:tabular-nums}
 @keyframes breathe{0%,100%{opacity:1}50%{opacity:.25}}
 /* their scroll icon — the chevrons fall through the pill on a 9s GIF loop */
-.scrollcue{position:absolute;left:50%;top:calc(88svh - var(--above,57px));transform:translate(-50%,-50%);
+.scrollcue{position:absolute;left:50%;top:calc(88svh - var(--above,57px) - 2cm);   /* 2cm above haavn.au's 88% (Jamie) */
+  transform:translate(-50%,-50%);
   width:max(21px,1.875vw);cursor:pointer;opacity:0;animation:fade 1.3s ease 5.2s forwards;transition:filter .3s}   /* haavn.au's size +50% (Jamie) */
 .scrollcue img{display:block;width:100%;height:auto;opacity:.5}   /* haavn.au runs it at 50% */
 .scrollcue:hover{filter:drop-shadow(0 0 6px rgba(168,188,16,.55))}
