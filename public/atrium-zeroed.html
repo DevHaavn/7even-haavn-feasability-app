@@ -1898,10 +1898,24 @@ function compute(){
   const ltc = allInTDC>0 ? debtDrawn/allInTDC : 0;
   const lvr = grv>0 ? debtDrawn/grv : 0;
   const C = MODEL.covenants;
-  gates.push({id:'ltc', label:`Loan to cost within ${pcRaw(C.maxLTC)}`,
-    pass: ltc <= C.maxLTC + 1e-6,
-    detail:`${pcRaw(ltc)} of $${Math.round(allInTDC).toLocaleString('en-AU')} all-in TDC`
-      + (cov.binding? ` · capped by ${cov.binding}` : '')});
+  /* FIX 5 — senior construction debt against 80% of TDC. Measured on the
+     PEAK combined balance of every Construction-role facility, capitalised
+     interest and fees included: fix 3 caps the limit when it is drawn, but
+     interest keeps compounding after the last drawdown, and a facility
+     capped at 80% on the day can drift past it later. The dollar gap is the
+     point — a percentage alone doesn't say how much to restructure.        */
+  const $a = v => (/^\$(8|11|18)/.test($(v)) ? 'an ' : 'a ') + $(v);     // "an $8,250,000 limit"
+  const peakOf = role => { const ks = wf.facilities.map((f,k)=>f.role===role?k:-1).filter(k=>k>=0);
+    let pk=0; for(let m=0;m<n;m++){ let b=0; ks.forEach(k=>b+=wf.bal[k][m]||0); if(b>pk) pk=b; } return pk; };
+  const conPeak = peakOf('Construction'), conLim = (C.maxConstrLTC||0)*allInTDC;
+  const conPass = conPeak <= conLim + 1;
+  gates.push({id:'constrLTC',
+    label: conPass ? `Senior construction debt within ${pcRaw(C.maxConstrLTC)} of TDC`
+                   : `Senior construction debt exceeds ${pcRaw(C.maxConstrLTC)} of TDC`,
+    pass: conPass,
+    detail: `${conLim>0?pcRaw(conPeak/allInTDC):'—'} — ${$(conPeak)==='—'?'$0':$(conPeak)} peak against ${$a(conLim)} limit<br>`
+      + (conPass ? `<b>${$(conLim-conPeak)}</b> of headroom`
+                 : `<b style="color:var(--red);font-size:1.15em">${$(conPeak-conLim)} over</b> — reduce senior debt or replace with equity`)});
   gates.push({id:'lvr', label:`Loan to value within ${pcRaw(C.maxLVR)}`,
     pass: lvr <= C.maxLVR + 1e-6,
     detail:`${pcRaw(lvr)} of $${Math.round(grv).toLocaleString('en-AU')} GRV`});
