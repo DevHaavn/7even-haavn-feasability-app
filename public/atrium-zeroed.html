@@ -1613,7 +1613,9 @@ function ensureRoles(){ (MODEL.facilities||[]).forEach(f=>{ if(!ROLES.includes(f
    they existed. Only a missing value is filled; an entered one is never touched. */
 function ensureCovenants(){ const c = MODEL.covenants || (MODEL.covenants = {enforce:true});
   if(c.maxConstrLTC==null) c.maxConstrLTC = 0.80;
-  if(c.maxLandLVR==null)   c.maxLandLVR   = 0.55; }
+  if(c.maxLandLVR==null)   c.maxLandLVR   = 0.55;
+  /* FIX 4 — as-is land valuation; 0 means 'not entered, use the purchase price' */
+  if(MODEL.land && MODEL.land.valuation==null) MODEL.land.valuation = 0; }
 
 /* ---------------- COMPUTE ---------------- */
 let R = {};                                    // last computed result
@@ -1849,8 +1851,12 @@ function compute(){
     for(let m=0;m<n;m++) a[m] += c.profile[m];
   });
 
+  /* FIX 4 — the land facility's base: the as-is valuation if one is entered,
+     otherwise the purchase price (and the UI says it is a fallback) */
+  const landValEntered = Number(L.valuation)>0;
+  const landVal = landValEntered ? Number(L.valuation) : (L.price||0);
   const build = (fc) => {
-    cov = ENG.applyCovenants(withWindow, MODEL.covenants, baseNow + gstSunkEst + (fc||0), grvNow, L.price||0);
+    cov = ENG.applyCovenants(withWindow, MODEL.covenants, baseNow + gstSunkEst + (fc||0), grvNow, landVal);
     return ENG.waterfall({total:costNet, bySource}, gstPaid, gstCred, revenue,
                          cov.facilities, MODEL.equityLimit, CAL, S);
   };
@@ -1939,7 +1945,7 @@ function compute(){
     detail:Math.abs(payVariance)<1 ? `${pays.length} payments, ${$(L.price)} allocated`
       : `schedule is ${$(Math.abs(payVariance))} ${payVariance>0?'over':'under'} the purchase price`});
 
-  R = {CAL,S,L,cov,landCosts,acqTotal,wctx,modStacks,opInc,saleInc,termInc,ltc,lvr,ctx,withWindow,outside,bySource,spillBy,duty,acqFee,hold,vendorInt,pays,payVariance,firstM,setM,landTotal, comps, apport, lineCalc, groups,
+  R = {CAL,S,L,cov,landVal,landValEntered,landCosts,acqTotal,wctx,modStacks,opInc,saleInc,termInc,ltc,lvr,ctx,withWindow,outside,bySource,spillBy,duty,acqFee,hold,vendorInt,pays,payVariance,firstM,setM,landTotal, comps, apport, lineCalc, groups,
        costNet, costAmt, gstPaid, gstCred, gstCredRaw, gstOnRev, revenue,
        wf, grv, devCost, baseTDC, gstSunk, allInTDC, profit,
        marginCost: allInTDC>0 ? profit/allInTDC : null,
@@ -2127,6 +2133,8 @@ function rLand(){
         <div class="st" style="margin-bottom:7px">Land &amp; Acquisition Total</div>
         <div class="frows" style="margin-bottom:0">
           <div class="frow"><div class="fl">Purchase price</div><div class="fv">${$(L.price)}</div></div>
+          <div class="frow"><div class="fl">As-is land valuation${R.landValEntered?'':'<span class="u" style="margin-left:6px">= purchase price</span>'}</div>
+            <div class="fv"><input class="ci" data-path="land.valuation" value="${R.landValEntered?$(L.valuation):''}" placeholder="${$(L.price)}" title="Leave blank to test the land facility against the purchase price"></div></div>
           <div class="frow c"><div class="fl">Acquisition &amp; holding <span class="u" style="margin-left:6px">${landCosts.length} dated line${landCosts.length===1?'':'s'}</span></div><div class="fv">${$(acqTotal)}</div></div>
           <div class="frow c"><div class="fl">Vendor interest on unpaid balance</div><div class="fv">${$(vendorInt)}</div></div>
           <div class="frow t"><div class="fl">Total land &amp; acquisition</div><div class="fv">${$(landTotal)}</div></div>
