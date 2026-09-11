@@ -20,8 +20,13 @@
      · the crane's sign plates keep their dark fill — they are lit signs and
        the white mark needs something to sit on; the HAAVN mark on the trucks,
        dumpers and read-out is the ink version;
-     · no title card, control bar or end render (a photograph can't float) —
-       it holds the finished elevation, fades, and loops;
+     · no title card or control bar. The ENDING is the source's, whole: the
+       wireframe dissolves slowly while the render fades up underneath it,
+       the line-work registering onto the render's building as it goes, then
+       the PRESTON / HAAVN SUPPLY lockup comes up on the source's dark
+       gradient; it holds 5s and replays from the dig. Only change: the render
+       and its gradient are feathered at the edges so the photograph sits
+       into the field instead of ending in a hard rectangle;
      · TWO modules to a truck — Jamie's confirmed figure (700 modules, 350
        deliveries); the source had gone back to one per truck;
      · it runs at 4× (the speed Jamie set for the previous version) and it
@@ -528,20 +533,55 @@ function flight(m,cx,cy,s,rot){
   return {x,y,w,h};
 }
 
+/* ============ THE RENDER ================================================ */
+/* The completed project, fading up under the drawing at the end. Loaded on
+   the first play, not on page load — most visitors never reach the end.
+   It is pre-composited twice, feathered at the edges: the photograph itself,
+   and the source's bottom-dark gradient the lockup sits on (confined to the
+   photograph — across the open field it would read as a dark band). */
+const RW=2200, RH=1543;
+const RBASE=Math.min(W/RW,H/RH), RDW=RW*RBASE, RDH=RH*RBASE, RX=(W-RDW)/2, RY=(H-RDH)/2;
+const RENDER=new Image(); let RDY=false, rFeather=null, rShade=null;
+function feather(c){                      // soft edges: 7% sides, 5% top, 3% bottom
+  const g=c.getContext('2d'); g.globalCompositeOperation='destination-in';
+  let lg=g.createLinearGradient(0,0,c.width,0);
+  lg.addColorStop(0,'rgba(0,0,0,0)'); lg.addColorStop(.07,'#000'); lg.addColorStop(.93,'#000'); lg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=lg; g.fillRect(0,0,c.width,c.height);
+  lg=g.createLinearGradient(0,0,0,c.height);
+  lg.addColorStop(0,'rgba(0,0,0,0)'); lg.addColorStop(.05,'#000'); lg.addColorStop(.97,'#000'); lg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=lg; g.fillRect(0,0,c.width,c.height);
+  g.globalCompositeOperation='source-over'; return c;
+}
+RENDER.onload=()=>{
+  const a=document.createElement('canvas'); a.width=RW; a.height=RH;
+  a.getContext('2d').drawImage(RENDER,0,0); rFeather=feather(a);
+  /* the source's gradient runs H-470 → H in frame units; same stops */
+  const s=document.createElement('canvas'); s.width=RW; s.height=RH; const g=s.getContext('2d');
+  const y0=(H-470-RY)/RBASE, y1=(H-RY)/RBASE, gr=g.createLinearGradient(0,y0,0,y1);
+  gr.addColorStop(0,'rgba(10,10,10,0)'); gr.addColorStop(.45,'rgba(10,10,10,.62)'); gr.addColorStop(1,'rgba(10,10,10,.96)');
+  g.fillStyle=gr; g.fillRect(0,y0,RW,y1-y0); rShade=feather(s);
+  RDY=true;
+};
+function loadRender(){ if(!RENDER.src) RENDER.src='assets/preston/preston-render.jpg'; }
+
 /* ============ STATE ===================================================== */
 let idx=0, p=0, last=0, WF=1;
-const SPEED=4;               // Jamie's 4× — the whole sequence in ~25s
+const SPEED=4;               // Jamie's 4× for the build — the sequence in ~25s
 const RATE=1.4;              // the source's build-sequence speed-up
 const INTRO=1.6;             // phase-seconds on the plan (ghost + box breakdown) before the dig
-const HOLD=6.0, OUT=1.2;     // real seconds: finished elevation held, then faded before the loop
-let phase='intro';           // intro → excavate → piling → concrete → insitu → shaft → modular → done → out
-let ep=0, cp=0, pidx=0, pp=0, pdrawn=0, sidx=0, insituT=0, holdT=0;
+/* the ending runs at the source's own pace, not 4× — it is meant to be slow */
+const DONE_HOLD=1.5;         // s — the finished wireframe on its lime ground line
+const REVEAL=26;             // s — the source's wireframe → render dissolve
+const END_HOLD=5.0;          // s — render + lockup held, then it replays (Jamie, 11 Sep)
+const OUT=1.4, IN=0.9;       // s — render out before the replay, plan in after it
+let phase='intro';           // intro → excavate → piling → concrete → insitu → shaft → modular → done → reveal → end → out
+let ep=0, cp=0, pidx=0, pp=0, pdrawn=0, sidx=0, insituT=0, holdT=0, rev=0, OUTA=1, sinceReset=0;
 const EXCAV=9.6, CONC=11.4;  // basement dig / pour, in phase-seconds
 const pdur=i=>i<3?0.96:0.408; // per pile
 const INSITU=7.0;            // seconds for the traditional ground floor
 function dur(i){ return i<3?3.0 : i<8?2.0 : i<16?1.15 : i<32?0.72 : i<64?0.5 : 0.28; }
 
-function reset(){ idx=0;sidx=0;p=0;phase='intro';insituT=0;holdT=0;WF=1;ep=0;cp=0;pidx=0;pp=0;pdrawn=0;MODS.forEach(m=>m.f=0); }
+function reset(){ idx=0;sidx=0;p=0;phase='intro';insituT=0;holdT=0;rev=0;OUTA=1;sinceReset=0;ep=0;cp=0;pidx=0;pp=0;pdrawn=0;MODS.forEach(m=>m.f=0); }
 
 /* ============ FRAME ===================================================== */
 /* It only runs while the page says the slide is on screen: the parent
@@ -549,9 +589,10 @@ function reset(){ idx=0;sidx=0;p=0;phase='intro';insituT=0;holdT=0;WF=1;ep=0;cp=
    screen starts the sequence again, so everyone arrives at the dig. Opened on
    its own (no parent), it simply plays. */
 let running = window.parent === window, raf = 0;
+if (running) loadRender();
 addEventListener('message', e => {
   const d = e.data || {};
-  if (d.preston === 'play') { if (d.restart) reset(); if (!running){ running = true; last = 0; raf = requestAnimationFrame(frame); } }
+  if (d.preston === 'play') { loadRender(); if (d.restart) reset(); if (!running){ running = true; last = 0; raf = requestAnimationFrame(frame); } }
   if (d.preston === 'pause') { running = false; cancelAnimationFrame(raf); }
 });
 
@@ -576,8 +617,13 @@ function frame(ts){
     p+=s*RATE/dur(idx);
     if(p>=1){ if(idx<NLIFT){LIFT[idx].f=1;} idx++; p=0; if(idx>=NLIFT){phase='done';holdT=0;} }
   }
-  else if(phase==='done'){ holdT+=dt; if(holdT>=HOLD){phase='out';holdT=0;} }
-  else if(phase==='out'){ holdT+=dt; WF=Math.max(0,1-holdT/OUT); if(holdT>=OUT) reset(); }
+  else if(phase==='done'){ holdT+=dt;
+    if(holdT>=DONE_HOLD && RDY){phase='reveal';holdT=0;}
+    else if(holdT>=DONE_HOLD+8){phase='out';holdT=0;} }     // render never arrived: fade out and replay
+  else if(phase==='reveal'){ rev=Math.min(1,rev+dt/REVEAL); if(rev>=1){phase='end';holdT=0;} }
+  else if(phase==='end'){ holdT+=dt; if(holdT>=END_HOLD){phase='out';holdT=0;} }
+  else if(phase==='out'){ holdT+=dt; OUTA=Math.max(0,1-holdT/OUT); if(holdT>=OUT) reset(); }
+  sinceReset+=dt;
   MODS.forEach(m=>{ if(m.f>0) m.f=Math.max(0,m.f-dt*2.2); });
   draw();
 }
@@ -586,7 +632,28 @@ function draw(){
   ctx.setTransform(SC,0,0,SC,0,0);
   ctx.clearRect(0,0,W,H);                     // glass — the page's ground shows through
   ctx.lineJoin='miter'; ctx.lineCap='butt';
+
+  /* the source's ending: the completed project fades up underneath the
+     drawing, which dissolves off it (WF) — the plan also eases in after a
+     replay (IN), and everything eases out before one (OUTA) */
+  const r=soft(rev);
+  WF=(1-soft(Math.min(1,rev/0.88))) * OUTA * Math.min(1,sinceReset/IN);
+  const kreg=ease(Math.min(1,rev/0.78));
   SHAFT.forEach(m=>{ m.na=coreAlpha(m.l); });    // modules clad over the core as they land
+  if(r>0&&rFeather){
+    ctx.save(); ctx.globalAlpha=r*OUTA;
+    ctx.drawImage(rFeather,RX,RY,RDW,RDH);
+    ctx.restore();
+  }
+
+  /* the line-work settles onto the render's building as it dissolves —
+     the source's registration, number for number */
+  ctx.save();
+  if(rev>0){
+    ctx.translate(1000+(957-1000)*kreg, 985+(1034-985)*kreg);
+    ctx.scale(1+0.45*kreg, 1+0.264*kreg);
+    ctx.translate(-1000,-985);
+  }
 
   /* ghost of the completed elevation */
   MODS.forEach(m=>{ box(m,m.x,m.y,m.w,m.h,.16*WF*(m.t==='shaft'?m.na:1),INK,1); });
@@ -708,9 +775,38 @@ function draw(){
     }
   }
 
-  if(phase==='done'||phase==='out'){
+  if(phase==='done'||phase==='reveal'||phase==='end'||phase==='out'){
     ctx.save();ctx.strokeStyle=LIME;ctx.globalAlpha=.9*WF;ctx.lineWidth=2.4;
     L(BX0-46,GROUND,bx(NB)+46,GROUND);ctx.restore();
+  }
+
+  ctx.restore();                                   // end registered line-work
+
+  /* end lockup — the source's, on its dark gradient over the render */
+  const ec=Math.max(0,Math.min(1,(rev-0.5)/0.42))*OUTA;
+  if(ec>0){
+    ctx.save();
+    if(rShade){ ctx.globalAlpha=ec; ctx.drawImage(rShade,RX,RY,RDW,RDH); }
+    const by=H-150;
+    ctx.globalAlpha=ec*.85;
+    const pw=ledWidth('PRESTON',16,11);
+    led('PRESTON', (W-pw)/2, by-62, 16, 11, 0, '#ffffff');
+
+    const mh=40, mw=mh*WMAR, gap=26;
+    const sw2=ledWidth('SUPPLY',22,10);
+    const tot=mw+gap+sw2, lx=(W-tot)/2;
+    ctx.globalAlpha=ec;
+    mark(lx, by-mh+4, mh, 12);
+    led('SUPPLY', lx+mw+gap, by, 22, 10, 9, LIME);
+
+    ctx.globalAlpha=ec*.55;
+    ctx.strokeStyle='#ffffff'; ctx.lineWidth=1;
+    L((W-tot)/2, by+30, (W+tot)/2, by+30);
+    ctx.globalAlpha=ec*.7;
+    const st='15 LEVELS · '+APTS+' APARTMENTS · '+MODULES+' MODULES · DELIVERED MODULAR';
+    const stw=ledWidth(st,12,4.2);
+    led(st, (W-stw)/2, by+58, 12.5, 4.4, 0, '#ffffff');
+    ctx.restore();
   }
 
   /* HUD — the source's read-outs, Preston's own numbers */
@@ -737,9 +833,12 @@ function draw(){
     MODULES+' MODULES · <b>'+PER_TRUCK+' PER TRUCK</b>',
     'INSTALL <b>WEEK '+Math.max(1,Math.ceil(shown/PER_WEEK))+'</b>'
   ].map(t=>'<span>'+t+'</span>').join('');
-  [tl,tr,bl,br].forEach(e=>e.style.opacity=WF);
+  /* the read-outs clear early in the dissolve, as in the source */
+  const hud=(1-Math.max(0,Math.min(1,(rev-0.05)/0.35)))*OUTA*Math.min(1,sinceReset/IN);
+  [tl,tr,bl,br].forEach(e=>e.style.opacity=hud);
 }
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const soft=t=>0.22*ease(t)+0.78*t;   // the source's: gentle ends, even middle
 const smooth=(v,a,b)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);};
 
 resize();
