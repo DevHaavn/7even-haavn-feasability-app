@@ -503,9 +503,9 @@ body.focus .present-nav{display:flex}
       <div class="footnote">Decisions are captured separately from tasks so the board has a clean record of <b>what was agreed</b>.</div>
     </div>
     <div class="card">
-      <div class="ch"><h3>Minutes &amp; General Notes</h3><div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="copyMinutes()">⧉ Copy for email</button><button class="btn btn-gold" onclick="emailMinutes()">✉ Email minutes</button></div></div>
+      <div class="ch"><h3>Minutes &amp; General Notes</h3><div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="copyMinutes()">⧉ Copy for email</button><button class="btn btn-gold" onclick="emailMinutes()">✉ Email minutes in Outlook</button></div></div>
       <textarea id="minutes" placeholder="Decisions, discussion notes, anything for the record…" oninput="onMinutes()"></textarea>
-      <div class="footnote">Emails the full agenda + minutes + decisions from your mail app — send using the <b>boardroom@7even.au</b> account. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
+      <div class="footnote">Opens Outlook with the full agenda + minutes + decisions ready to send to every attendee with an email. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
     </div>
   </div>
   </div>
@@ -715,7 +715,7 @@ function exportXLS(){var m=cur();var html='<table border="1"><tr><th>Department<
 function meetingText(m){var L=[];L.push('ATRIUM · WEEKLY COMPANY MEETING');L.push(fmtLong(m.date)+'  ·  '+m.time);L.push('Chair: '+m.chair);L.push('Present: '+(m.attendees.filter(function(a){return a.present;}).map(function(a){return a.name;}).join(', ')||'—'));L.push('');DEPTS.forEach(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return;L.push('── '+d.name.toUpperCase()+'   (Lead: '+d.lead+')');items.forEach(function(i){var a=i.assigneeId?attById(i.assigneeId):null;var who=a?a.name:(i.owner||'');L.push('  '+(i.discussed?'[x]':'[ ]')+' ['+IS_LABEL[i.status]+'] '+(i.title||'')+(i.kind?' ('+KIND_LABEL[i.kind]+')':'')+(who?' — '+who:'')+(i.due?' · due '+i.due:''));if(i.notes)L.push('        '+i.notes);});L.push('');});if((m.decisions||[]).length){L.push('DECISIONS');m.decisions.forEach(function(d,i){L.push('  '+(i+1)+'. '+d.text+'  ('+d.by+')');});L.push('');}if(m.minutes){L.push('MINUTES & GENERAL NOTES');L.push(m.minutes);L.push('');}return L.join('\n');}
 function emailMinutes(){var m=cur();var subj='ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date);window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(meetingText(m));}
 function copyMinutes(){var m=cur();var txt='Subject: ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date)+'\n\n'+meetingText(m);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Minutes + decisions copied');},function(){toast('Copy failed');});}else{toast('Copy not available');}}
-function emailItem(id){var it=itemById(id);if(!it)return;var a=it.assigneeId?attById(it.assigneeId):null;if(!a){toast('Assign this task to an attendee first');return;}if(!a.email){toast(a.name+' has no email — add it on their chip');return;}var m=cur();var subj='['+(it.kind?KIND_LABEL[it.kind]:'Agenda')+'] '+(it.title||'Action from the boardroom');var body='Hi '+a.name.split(' ')[0]+',\n\nFrom the weekly meeting ('+fmtLong(m.date)+') you have been assigned:\n\n• '+(it.title||'')+'\n  Status: '+IS_LABEL[it.status]+(it.due?'\n  Due: '+fmtLong(it.due):'')+(it.notes?'\n  Notes: '+it.notes:'')+'\n\n— ATRIUM · boardroom@7even.au\n';window.location.href='mailto:'+encodeURIComponent(a.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);}
+function emailItem(id){var it=itemById(id);if(!it)return;var a=it.assigneeId?attById(it.assigneeId):null;if(!a){toast('Assign this task to an attendee first');return;}if(!a.email){toast(a.name+' has no email — add it on their chip');return;}var m=cur();var subj='['+(it.kind?KIND_LABEL[it.kind]:'Agenda')+'] '+(it.title||'Action from the boardroom');var body='Hi '+a.name.split(' ')[0]+',\n\nFrom the weekly meeting ('+fmtLong(m.date)+') you have been assigned:\n\n• '+(it.title||'')+'\n  Status: '+IS_LABEL[it.status]+(it.due?'\n  Due: '+fmtLong(it.due):'')+(it.notes?'\n  Notes: '+it.notes:'')+'\n\n— ATRIUM · boardroom@7even.au\n';(window.openOutlook?window.openOutlook([a.email],subj,body,'task details'):(window.location.href='mailto:'+encodeURIComponent(a.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)));}
 
 function openAttModal(id){var a=id?attById(id):null;var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3)">'+(a?'Edit attendee':'Add attendee')+'</div><label class="xl">Name<input id="am_name" value="'+(a?esc(a.name):'')+'" placeholder="Full name"></label><label class="xl">Email<input id="am_email" type="email" value="'+(a?esc(a.email||''):'')+'" placeholder="name@company.com"></label><label class="xl">Role / title<input id="am_role" value="'+(a?esc(a.role||''):'')+'" placeholder="e.g. HAAVN Lead"></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">'+(a?'<button class="xbtn del" data-am="del" data-id="'+a.id+'">Remove</button>':'')+'<button class="xbtn" data-am="cancel">Cancel</button><button class="xbtn gold" data-am="save" data-id="'+(a?a.id:'')+'">Save</button></div></div>';document.body.appendChild(o);setTimeout(function(){var n=document.getElementById('am_name');if(n)n.focus();},40);o.addEventListener('click',function(ev){var b=ev.target.closest('[data-am]');if(ev.target===o){o.remove();return;}if(!b)return;var act=b.dataset.am;if(act==='cancel'){o.remove();}else if(act==='del'){rmAtt(+b.dataset.id);o.remove();}else if(act==='save'){var name=(document.getElementById('am_name').value||'').trim();if(!name){toast('Enter a name');return;}var email=(document.getElementById('am_email').value||'').trim();var role=(document.getElementById('am_role').value||'').trim();if(b.dataset.id){var at=attById(+b.dataset.id);if(at){at.name=name;at.email=email;at.role=role;}}else{cur().attendees.push({id:uid(),name:name,email:email,role:role,present:true});}o.remove();save();render();}});}
 
@@ -801,9 +801,9 @@ if(_cloudOk&&!(row&&row.value))cloudPush();if(_cloudOk)setInterval(cloudPoll,900
       cloud write lands; a failed write retries. A poll never overwrites edits
       that haven't reached the cloud yet, and unsynced minutes / notes survive
       an incoming copy from another screen (e.g. the Workflow pillar).
-   2. Email minutes / notes: opens the mail app reliably from inside the hub,
-      to every attendee with an email; long minutes are copied to the
-      clipboard so they're never cut off.
+   2. Email minutes / notes / tasks: opens Outlook (Microsoft 365) compose in a
+      new tab — not the Mac mail app — to every attendee with an email; very
+      long minutes are also copied to the clipboard.
    3. The task drawer has a Done button (back to the agenda) and the finish
       button says Complete.
    4. A ticked task stays until its celebration ends, then leaves the agenda,
@@ -868,18 +868,25 @@ if(_cloudOk&&!(row&&row.value))cloudPush();if(_cloudOk)setInterval(cloudPoll,900
 
   /* ── email: reliable from inside the hub iframe, never truncated ── */
   function fallbackCopy(txt){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}catch(e){}}
+  /* Email goes through Outlook (7EVEN's Microsoft 365), not the Mac's default
+     mail app: a new tab opens Outlook's compose window, signed in as you, with
+     the recipients, subject and full text filled in. Very long text is copied
+     to the clipboard as well, in case Outlook trims it. */
   function openMail(to,subject,body,label){
-    var url=function(b){return 'mailto:'+to.map(encodeURIComponent).join(',')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(b);};
-    var u=url(body), long=u.length>1900;
+    var url=function(b){return 'https://outlook.office.com/mail/deeplink/compose?to='+encodeURIComponent(to.join(';'))+'&subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(b);};
+    var u=url(body), long=u.length>7000;
     if(long)u=url('The full '+label+' are on your clipboard — paste them here (Cmd+V / Ctrl+V).\n\n');
-    var go=function(){var a=document.createElement('a');a.href=u;a.target='_top';document.body.appendChild(a);a.click();a.remove();};
+    var w=null;try{w=window.open(u,'_blank');}catch(e){}
+    if(!w){var a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}
     if(long){
-      var done=function(){toast('Full '+label+' copied — paste into the email');go();};
-      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(body).then(done,function(){fallbackCopy(body);done();});
-      else{fallbackCopy(body);done();}
-    }else{toast('Opening your mail app…');go();}
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(body).then(function(){},function(){fallbackCopy(body);});
+      else fallbackCopy(body);
+      toast('Opening Outlook — full '+label+' copied, paste into the email');
+    }else toast('Opening Outlook…');
+    if(!to.length)setTimeout(function(){toast('No attendee emails saved — add recipients in Outlook');},2300);
     window.save();
   }
+  window.openOutlook=openMail;
   function recipients(m){return (m.attendees||[]).map(function(a){return (a.email||'').trim();}).filter(Boolean);}
   window.emailMinutes=function(){var mi=document.getElementById('minutes');if(mi)cur().minutes=mi.value;
     var m=cur();openMail(recipients(m),'ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date),meetingText(m),'minutes');};
