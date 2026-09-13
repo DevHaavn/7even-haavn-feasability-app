@@ -1719,7 +1719,27 @@ function importBoard(){
   _importing=false;
 }
 function boardPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+BOARD_KEY+"&select=value,updated_at",{headers:SB_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){return (rows&&rows.length)?rows[0]:null;}).catch(function(){return null;});}
-function boardPush(){if(!BOARD)return;clearTimeout(_boardPushT);_boardPushT=setTimeout(function(){fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:BOARD,updated_at:new Date().toISOString()}])}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_boardTs=Date.parse(rows[0].updated_at)||Date.now();}).catch(function(){});},700);}
+function boardPush(){if(!BOARD)return;clearTimeout(_boardPushT);_boardPushT=setTimeout(function(){
+  /* Meeting-day fix (14 Sep): never write a stale copy over the meeting. Pull the
+     live doc first; the Meeting Hub owns minutes, live notes, decisions and
+     attendees, so those always come from the cloud copy, as do agenda items
+     added there since our last pull, and any item ticked complete there. */
+  boardPull().then(function(row){
+    var out=JSON.parse(JSON.stringify(BOARD));
+    if(row&&row.value&&Array.isArray(row.value.meetings)){
+      var remote=row.value, newer=(Date.parse(row.updated_at)||0)>_boardTs+400;
+      out.currentId=remote.currentId||out.currentId;
+      remote.meetings.forEach(function(rm){
+        var lm=(out.meetings||[]).find(function(x){return x.id===rm.id;});
+        if(!lm){(out.meetings=out.meetings||[]).push(rm);return;}
+        ["minutes","liveNotes","decisions","attendees","closed","targetSec","date","time","chair"].forEach(function(f){if(rm[f]!==undefined)lm[f]=rm[f];});
+        var byId={};(lm.items||[]).forEach(function(i){byId[i.id]=i;});
+        (rm.items||[]).forEach(function(ri){var li=byId[ri.id];if(!li){(lm.items=lm.items||[]).push(ri);}else if(newer&&ri.discussed&&!li.discussed){li.discussed=true;li.status=ri.status;}});
+      });
+    }
+    BOARD=out;
+    return fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates,return=representation"}),body:JSON.stringify([{key:BOARD_KEY,value:out,updated_at:new Date().toISOString()}])});
+  }).then(function(r){return r&&r.ok?r.json():null;}).then(function(rows){if(rows&&rows[0])_boardTs=Date.parse(rows[0].updated_at)||Date.now();}).catch(function(){});},700);}
 function boardPoll(){if(_busy())return;boardPull().then(function(row){if(!row||!row.value)return;var ts=Date.parse(row.updated_at)||0;if(ts>_boardTs+400){_boardTs=ts;BOARD=row.value;importBoard();reconcileWeekly();render();}});}
 function pushBoardTask(t){if(!t||!t.fromMeeting||!BOARD)return;var m=curBoardMeeting();if(!m)return;var it=(m.items||[]).find(function(x){return ""+x.id===""+t.mItem;});if(!it)return;var s=wfStatus2m(t);it.status=s.status;it.discussed=s.discussed;it.files=_mergeFiles(it.files,t.files);boardPush();}
 /* Auto-push: any weekly-flagged task with a leader is placed on the current
