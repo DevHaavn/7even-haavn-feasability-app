@@ -398,6 +398,7 @@ body.focus .present-nav{display:flex}
 .leftrail .hero-btns .btn{justify-content:center;width:100%}
 .leftrail .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px;margin-top:18px;padding-top:16px}
 .leftrail .attendees{margin-top:0}
+.leftrail>*{flex-shrink:0}   /* never squash the meeting card (it clipped Export / Close & archive) — the rail scrolls instead */
 .agenda-main{min-width:0}
 .agenda-main .grid-tiles{margin-top:0}
 .agenda-main .toolbar{margin-top:16px}
