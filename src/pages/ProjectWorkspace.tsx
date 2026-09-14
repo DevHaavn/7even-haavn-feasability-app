@@ -207,7 +207,7 @@ export default function ProjectWorkspace({ onManage, onLogout, theme = 'light' }
         )
       })()}
 
-      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} />}
+      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} onLogout={onLogout} />}
 
       <div className="fx-tabnav no-drag">
         {visibleTabs.map(t => (

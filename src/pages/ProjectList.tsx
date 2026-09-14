@@ -525,7 +525,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       </div>
 
       {/* HAAVN Management — 3-pillar hub */}
-      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} />}
+      {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} onLogout={onLogout} />}
       {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
       {/* Capital Base — admin/director only */}

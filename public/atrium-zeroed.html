@@ -3506,7 +3506,7 @@ renderAll();
   }
   window.addEventListener('message', e => {
     const d = e.data || {};
-    if(d.atriumZeroed === 'meta' && typeof d.name === 'string'){ projName = d.name; title(); }
+    if(d.atriumZeroed === 'meta' && typeof d.name === 'string'){ projName = d.name; window.__azProjName = d.name; title(); }
   });
 
   /* The 7EVEN footer (Jamie, 11 Sep) — the home page's one-line footer, at the
@@ -3550,6 +3550,312 @@ renderAll();
   placeFoot();
 })();
 </script>
+
+<script>
+/* ═══ ATRIUM ENGINE EXPORT (Jamie, 14 Sep) — additive, read-only ══════════════
+   The shell's menu asks for an export of the chosen tabs (01 Land & Terms …
+   07 Dashboard). Nothing here edits MODEL or calls renderAll, so an export can
+   never cause a save.
+
+   PDF   — the tabs exactly as they are on screen: each rendered pane is copied
+           as-is (inputs shown as their values, scroll areas opened out) onto A4
+           landscape pages between a 7EVEN cover sheet and the 7EVEN company
+           page, scaled to the page width. Cash Flow is wider than any page, so
+           its table is split into column blocks with the line names repeated.
+   Excel — the same tabs read into rows (every table, label/value row, tile and
+           check) and handed to the shell, which writes the workbook. */
+(function(){
+  var TABS = ['Land & Terms','Revenue','Cost','Finance','Cash Flow','Program','Dashboard'];
+  var PAGE_W = 1020;                 // A4 landscape less 10mm margins (1047px), with a safety gap so Chrome never shrinks the pages
+  var BUILD_W = 1400;                // the width the panes are laid out at
+  var MIN_ZOOM = 0.60;               // narrower than this and figures stop being legible
+
+  var esc = function(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  var projName = function(){ return window.__azProjName || 'Feasibility'; };
+  var address  = function(){ try { return String((MODEL.land && MODEL.land.address) || '').trim(); } catch(e){ return ''; } };
+  var money    = function(v){ try { return $m(v); } catch(e){ return String(v); } };
+  var today    = function(){ return new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}); };
+
+  /* what a control shows, as text */
+  function ctrlText(el){
+    if(el.tagName === 'SELECT'){ var o = el.options[el.selectedIndex]; return o ? o.text : ''; }
+    if(el.type === 'checkbox' || el.type === 'radio') return el.checked ? '✓' : '';
+    if(el.type === 'date'){ var v = el.value; if(!v) return ''; var p = v.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+    return el.value;
+  }
+
+  /* ── PDF ─────────────────────────────────────────────────────────────── */
+  function copyPane(i){
+    var src = document.getElementById('p'+i);
+    var c = src.cloneNode(true);
+    c.removeAttribute('id'); c.className = 'azp-pane';
+    // controls → their values (read from the live controls, which hold the real state)
+    var live = src.querySelectorAll('input,select,textarea'), copy = c.querySelectorAll('input,select,textarea');
+    for(var k=0;k<copy.length;k++){
+      var s = document.createElement('span'); s.className = 'azp-val ' + (copy[k].className||'');
+      s.textContent = live[k] ? ctrlText(live[k]) : '';
+      copy[k].parentNode.replaceChild(s, copy[k]);
+    }
+    c.querySelectorAll('button,.azfoot,.azfgap,.done-toggle,script').forEach(function(e){ e.remove(); });
+    c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+    return c;
+  }
+
+  function splitWideTables(sec){
+    sec.querySelectorAll('table').forEach(function(t){
+      if(t.scrollWidth <= PAGE_W / MIN_ZOOM) return;
+      var first = t.rows[0]; if(!first) return;
+      var widths = [].map.call(first.cells, function(c){ return c.getBoundingClientRect().width; });
+      var limit = PAGE_W / MIN_ZOOM - widths[0] - 40, chunks = [], cur = [], used = 0;
+      for(var ci=1; ci<widths.length; ci++){
+        if(cur.length && used + widths[ci] > limit){ chunks.push(cur); cur = []; used = 0; }
+        cur.push(ci); used += widths[ci];
+      }
+      if(cur.length) chunks.push(cur);
+      if(chunks.length < 2) return;
+      var frag = document.createDocumentFragment();
+      chunks.forEach(function(ch, n){
+        var nt = t.cloneNode(true);
+        [].forEach.call(nt.rows, function(r){
+          for(var x=r.cells.length-1; x>=1; x--) if(ch.indexOf(x) < 0) r.deleteCell(x);
+        });
+        var wrap = document.createElement('div'); wrap.className = 'azp-chunk';
+        var lab = document.createElement('div'); lab.className = 'azp-chunklab';
+        var h = t.rows[0].cells;
+        lab.textContent = 'Columns ' + (h[ch[0]] ? h[ch[0]].textContent.trim() : '') + ' – ' + (h[ch[ch.length-1]] ? h[ch[ch.length-1]].textContent.trim() : '') + '  ·  part ' + (n+1) + ' of ' + chunks.length;
+        wrap.appendChild(lab); wrap.appendChild(nt); frag.appendChild(wrap);
+      });
+      t.parentNode.replaceChild(frag, t);
+    });
+  }
+
+  var SEVEN = '<span class="azp-bm7" role="img" aria-label="7EVEN"></span>';
+
+  function coverHTML(tabs){
+    var gates = (R.gates||[]), pass = gates.filter(function(g){return g.pass;}).length;
+    var chips = [
+      'GRV · ' + money(R.grv), 'TDC · ' + money(R.allInTDC), 'Profit · ' + (R.gatesPass ? money(R.profit) : 'held'),
+      'Checks · ' + pass + ' / ' + gates.length + ' pass'
+    ].map(function(t){ return '<span class="azp-chip">' + esc(t) + '</span>'; }).join('')
+      + '<span class="azp-chip own">Developer &amp; data owner · ' + SEVEN + ' Capital</span>';
+    var list = tabs.map(function(i){ return '<span>' + String(i+1).padStart(2,'0') + ' ' + esc(TABS[i]) + '</span>'; }).join('');
+    return '<section class="azp-dark azp-cover"><div class="azp-photo"></div><div class="azp-scrim"></div><div class="azp-cv">'
+      + '<div class="azp-cvtop"><div class="azp-dev"><img src="/winged-device-white.png" alt="7EVEN Capital"><div>CAPITAL</div></div>'
+      + '<div class="azp-cvkick">ATRIUM Engine<br>Development Feasibility</div></div>'
+      + '<div class="azp-cvmid"><div class="azp-cvtitle">' + esc(projName()) + '</div>'
+      + '<div class="azp-cvsub">' + (address() ? esc(address()) + ' · ' : '') + 'Feasibility export · ' + esc(today()) + '</div>'
+      + '<div class="azp-chips">' + chips + '</div>'
+      + '<div class="azp-tabs">' + list + '</div></div>'
+      + '<div class="azp-cvfoot"><span>ATRIUM Engine</span><span>Confidential</span><span>7even.au</span></div>'
+      + '</div></section>';
+  }
+
+  function closingHTML(){
+    return '<section class="azp-dark azp-closing"><div class="azp-photo"></div><div class="azp-scrim"></div><div class="azp-cl">'
+      + '<img class="azp-clwings" src="/winged-device-white.png" alt="7EVEN Capital"><div class="azp-clcap">CAPITAL</div>'
+      + '<h1>PRECISION CAPITAL DEPLOYED</h1><div class="azp-ty">Thank you.</div><div class="azp-rule"></div>'
+      + '<div class="azp-conf">CONFIDENTIAL — This document and the information within it are strictly private and confidential, prepared solely for the intended recipient. ' + SEVEN + ' Capital is the developer and sole owner of this data. It must not be reproduced, distributed or disclosed, in whole or in part, without the prior written consent of ' + SEVEN + ' Capital. Figures are estimates prepared for feasibility purposes only and do not constitute financial advice or an offer of securities.</div>'
+      + '<div class="azp-addr"><b>' + SEVEN + ' CAPITAL</b><br>Level 1, Suite 2, 20–30 Mollison Street, Abbotsford VIC 3067<br>reception@7even.au · 03 9962 2877 · 7even.au</div>'
+      + '<div class="azp-cc">© ' + new Date().getFullYear() + ' ' + SEVEN + ' Capital. All rights reserved. · ATRIUM Engine</div>'
+      + '</div></section>';
+  }
+
+  function headHTML(i){
+    return '<div class="azp-rh"><img class="azp-lk" src="/brand-logo.png" alt="7EVEN | HAAVN"><span class="azp-dv"></span>'
+      + '<div><div class="azp-pj">' + esc(projName()) + '</div><div class="azp-ad">' + esc(address() || '—') + '</div></div>'
+      + '<div class="azp-rt"><div class="azp-wm">ATRIUM ENGINE</div><div class="azp-st">' + String(i+1).padStart(2,'0') + ' · ' + esc(TABS[i]) + '</div></div></div>';
+  }
+
+  function whenLoaded(root){
+    var imgs = [].slice.call(root.querySelectorAll('img')).filter(function(im){ return !im.complete; });
+    var wait = imgs.map(function(im){ return new Promise(function(res){ im.onload = im.onerror = res; }); });
+    wait.push(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+    wait.push(new Promise(function(res){ var im = new Image(); im.onload = im.onerror = res; im.src = '/renders/atrium-surface-1.jpg'; }));
+    wait.push(new Promise(function(res){ var im = new Image(); im.onload = im.onerror = res; im.src = '/seven-mark-white-hd.png'; }));
+    return Promise.all(wait);
+  }
+
+  function buildPrint(tabs){
+    var old = document.getElementById('azprint'); if(old) old.remove();
+    if(!document.getElementById('azp-font')){
+      var l = document.createElement('link'); l.id = 'azp-font'; l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap';
+      document.head.appendChild(l);
+    }
+    var root = document.createElement('div'); root.id = 'azprint';
+    root.innerHTML = coverHTML(tabs);
+    document.body.appendChild(root);
+    tabs.forEach(function(i){
+      var sec = document.createElement('section'); sec.className = 'azp-sec';
+      sec.innerHTML = headHTML(i);
+      var body = document.createElement('div'); body.className = 'azp-body';
+      body.appendChild(copyPane(i)); sec.appendChild(body); root.appendChild(sec);
+      splitWideTables(body);
+      var widest = function(){ var w = Math.max(BUILD_W, body.scrollWidth);
+        [].forEach.call(body.querySelectorAll('*'), function(e){ if(e.scrollWidth > w) w = e.scrollWidth; }); return w; };
+      var w = widest();
+      body.style.zoom = Math.max(MIN_ZOOM, Math.min(1, PAGE_W / w)).toFixed(3);
+    });
+    root.insertAdjacentHTML('beforeend', closingHTML());
+    return root;
+  }
+
+  function printPDF(tabs, name){
+    if(name) window.__azProjName = name;
+    var root = buildPrint(tabs);
+    var prevTitle = document.title;
+    document.title = projName() + ' — ATRIUM Engine feasibility';
+    document.documentElement.classList.add('az-printing');
+    var done = false;
+    var cleanup = function(){ if(done) return; done = true;
+      document.documentElement.classList.remove('az-printing'); document.title = prevTitle;
+      var r = document.getElementById('azprint'); if(r) r.remove();
+      post({atriumZeroed:'exported', kind:'pdf'}); };
+    window.addEventListener('afterprint', cleanup, {once:true});
+    return whenLoaded(root).then(function(){
+      return new Promise(function(res){ setTimeout(res, 150); });
+    }).then(function(){ window.print(); setTimeout(cleanup, 60000); });   // afterprint normally cleans up; this is only a fallback (Safari's dialog doesn't block)
+  }
+
+  /* ── Excel: rows, read straight off the rendered panes ───────────────── */
+  function textOf(el){
+    var out = [];
+    (function walk(n){
+      if(n.nodeType === 3){ out.push(n.nodeValue); return; }
+      if(n.nodeType !== 1) return;
+      var tg = n.tagName;
+      if(tg === 'BUTTON' || tg === 'SCRIPT' || tg === 'STYLE') return;
+      if(tg === 'INPUT' || tg === 'SELECT' || tg === 'TEXTAREA'){ out.push(' ' + ctrlText(n) + ' '); return; }
+      if(n.classList.contains('azfoot')) return;
+      for(var c = n.firstChild; c; c = c.nextSibling) walk(c);
+      if(/^(DIV|TR|P|LI|BR|SPAN|B|I|EM|STRONG)$/.test(tg)) out.push(' ');
+    })(el);
+    return out.join('').replace(/\s+/g, ' ').trim();
+  }
+  function extractPane(i){
+    var rows = [];
+    var pane = document.getElementById('p'+i);
+    rows.push([String(i+1).padStart(2,'0') + ' · ' + TABS[i]]);
+    (function walk(el){
+      for(var n = el.firstElementChild; n; n = n.nextElementSibling){
+        var cl = n.classList;
+        if(n.tagName === 'BUTTON' || cl.contains('azfoot') || cl.contains('azfgap') || cl.contains('done-toggle')) continue;
+        if(n.tagName === 'TABLE'){
+          rows.push([]);
+          [].forEach.call(n.rows, function(r){
+            var cells = [].map.call(r.cells, function(c){ return textOf(c); });
+            if(cells.some(function(x){ return x !== ''; })) rows.push(cells);
+          });
+          rows.push([]);
+          continue;
+        }
+        if(cl.contains('th-row')){ var note = n.querySelector('.th-note'); rows.push([]); if(note) rows.push([textOf(note)]); continue; }
+        if(cl.contains('st')){ rows.push([]); rows.push([textOf(n).toUpperCase()]); continue; }
+        if(cl.contains('frow')){ var fl = n.querySelector('.fl'), fv = n.querySelector('.fv'); rows.push([fl ? textOf(fl) : '', fv ? textOf(fv) : '']); continue; }
+        if(cl.contains('lr')){ var k = n.querySelector('.k'), v = n.querySelector('.v'); rows.push([k ? textOf(k) : '', v ? textOf(v) : '']); continue; }
+        if(cl.contains('kt')){ rows.push([textOf(n.querySelector('.kl')||n), textOf(n.querySelector('.kv')||n), n.querySelector('.ks') ? textOf(n.querySelector('.ks')) : '']); continue; }
+        if(cl.contains('alert')){ rows.push([textOf(n.querySelector('.alert-t')||n), textOf(n.querySelector('.alert-i')||n), n.querySelector('.alert-b') ? textOf(n.querySelector('.alert-b')) : '']); continue; }
+        if(cl.contains('fch')){ rows.push([]); rows.push([textOf(n)]); continue; }
+        if(cl.contains('pgr')){ var cells = [].map.call(n.children, function(c){ return textOf(c); }).filter(function(x){ return x !== ''; }); if(cells.length) rows.push(cells); continue; }
+        if(cl.contains('note') || cl.contains('pg-head')){ var t = textOf(n); if(t) rows.push([t]); continue; }
+        walk(n);
+      }
+    })(pane);
+    // tidy runs of blank rows
+    return rows.filter(function(r, x){ return r.length || (x > 0 && rows[x-1].length); });
+  }
+  function extract(tabs, name){
+    if(name) window.__azProjName = name;
+    var gates = (R.gates||[]), pass = gates.filter(function(g){return g.pass;}).length;
+    return {
+      meta: { name: projName(), address: address(), date: today(), grv: R.grv, tdc: R.allInTDC, profit: R.gatesPass ? R.profit : null,
+              checks: pass + ' / ' + gates.length + ' pass', tabs: tabs.map(function(i){ return String(i+1).padStart(2,'0') + ' ' + TABS[i]; }) },
+      sheets: tabs.map(function(i){ return { name: String(i+1).padStart(2,'0') + ' ' + TABS[i], rows: extractPane(i) }; })
+    };
+  }
+
+  var post = function(m){ try { parent !== window && parent.postMessage(m, '*'); } catch(e){} };
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if(d.atriumZeroed !== 'export') return;
+    var tabs = (d.tabs || []).filter(function(i){ return i >= 0 && i < 7; }).sort();
+    if(!tabs.length) return;
+    try {
+      if(d.kind === 'pdf') printPDF(tabs, d.name);
+      else if(d.kind === 'xlsx') post({atriumZeroed:'extracted', data: extract(tabs, d.name)});
+    } catch(err){ console.warn('[engine export]', err); post({atriumZeroed:'exported', kind:d.kind, error:String(err && err.message || err)}); }
+  });
+  window.__azExport = { printPDF: printPDF, extract: extract, buildPrint: buildPrint };
+})();
+</script>
+<style>
+/* ── ATRIUM ENGINE EXPORT — print document ─────────────────────────────── */
+#azprint{position:absolute;left:-20000px;top:0;width:1400px;background:#fff;color:#0b0b0b}
+@page{size:A4 landscape;margin:10mm 10mm 12mm;
+  @bottom-left{content:"ATRIUM Engine · Feasibility export · Confidential";font:7.5px 'JetBrains Mono',monospace;letter-spacing:.08em;color:#8a8f95}
+  @bottom-right{content:counter(page) " / " counter(pages);font:7.5px 'JetBrains Mono',monospace;color:#8a8f95}}
+@page azdark{margin:0;@bottom-left{content:none}@bottom-right{content:none}}
+@media print{
+  html.az-printing,html.az-printing body{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
+  html.az-printing body>*:not(#azprint){display:none!important}
+  html.az-printing #azprint{position:static;left:auto;width:auto}
+  html.az-printing *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#azprint .azp-bm7{display:inline-block;height:.7em;aspect-ratio:1800/280;vertical-align:-.02em;background:currentColor;
+  -webkit-mask:url('/seven-mark-white-hd.png') center/contain no-repeat;mask:url('/seven-mark-white-hd.png') center/contain no-repeat}
+#azprint .azp-dark{page:azdark;position:relative;width:297mm;height:210mm;overflow:hidden;color:#eef2f5;
+  background:linear-gradient(180deg,#0c1219,#0a0e14);break-after:page;page-break-after:always}
+#azprint .azp-photo{position:absolute;inset:0;background:url('/renders/atrium-surface-1.jpg') center/cover;opacity:.32;filter:saturate(.85)}
+#azprint .azp-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,20,.5),rgba(10,14,20,.88))}
+#azprint .azp-cv{position:relative;z-index:2;height:100%;padding:16mm 18mm;display:flex;flex-direction:column}
+#azprint .azp-cvtop{display:flex;justify-content:space-between;align-items:flex-start}
+#azprint .azp-dev{text-align:center}
+#azprint .azp-dev img{width:92px;display:block;margin:0 auto}
+#azprint .azp-dev div{font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.42em;font-size:13px;color:#cdd8e2;font-weight:600;margin-top:10px;padding-left:.42em}
+#azprint .azp-cvkick{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#93a0ad;line-height:1.8}
+#azprint .azp-cvmid{margin:auto 0}
+#azprint .azp-cvtitle{font-family:'Cormorant Garamond',Georgia,serif;font-size:58px;font-weight:600;line-height:1.02;color:#f3f6f9}
+#azprint .azp-cvsub{font-family:'Inter',sans-serif;font-size:13px;color:#9fabb6;margin-top:12px}
+#azprint .azp-chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+#azprint .azp-chip{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#cdd8e2;border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:7px 13px}
+#azprint .azp-chip.own{border-color:rgba(214,179,106,.6);color:#f4e3bd;background:rgba(214,179,106,.08)}
+#azprint .azp-tabs{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#7d8996}
+#azprint .azp-cvfoot{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#5f6c79;border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
+#azprint .azp-closing{break-after:auto;page-break-after:auto;break-before:page}
+#azprint .azp-cl{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;padding:16mm 30mm}
+#azprint .azp-clwings{width:110px;margin-top:auto;display:block}
+#azprint .azp-clcap{font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.42em;font-size:13px;color:#cdd8e2;font-weight:600;margin-top:10px;padding-left:.42em}
+#azprint .azp-cl h1{font-family:'Inter',sans-serif;font-weight:300;letter-spacing:.4em;font-size:23px;color:#eef2f5;margin-top:26px;padding-left:.4em}
+#azprint .azp-ty{font-size:14px;color:#9fabb6;margin-top:10px}
+#azprint .azp-rule{width:200px;height:1px;background:rgba(255,255,255,.18);margin:22px auto}
+#azprint .azp-conf{max-width:640px;font-size:9.5px;line-height:1.75;color:#8290a0}
+#azprint .azp-addr{margin-top:auto;font-size:11px;color:#9fabb6;line-height:1.9;letter-spacing:.04em}
+#azprint .azp-addr b{color:#cdd8e2;letter-spacing:.2em;font-weight:600}
+#azprint .azp-cc{font-size:8.5px;color:#5a6674;margin-top:12px;letter-spacing:.08em}
+#azprint .azp-sec{break-before:page;page-break-before:always}
+#azprint .azp-rh{display:flex;align-items:center;gap:14px;padding:0 0 10px;margin-bottom:12px;border-bottom:1.5px solid #0b0b0b}
+#azprint .azp-lk{height:30px;width:auto}
+#azprint .azp-dv{width:1px;height:22px;background:rgba(0,0,0,.25)}
+#azprint .azp-pj{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;font-weight:600;color:#0b0b0b}
+#azprint .azp-ad{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#4f4e4b;margin-top:2px}
+#azprint .azp-rt{margin-left:auto;text-align:right}
+#azprint .azp-wm{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;color:#0b0b0b;font-weight:500}
+#azprint .azp-st{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.18em;color:#4f4e4b;text-transform:uppercase;margin-top:3px}
+#azprint .azp-body{width:1400px}
+#azprint .azp-sec{overflow:hidden}
+#azprint .azp-pane{display:block!important;background:#fff}
+#azprint .azp-pane .scrollpad,#azprint .azp-pane .cf-wrap,#azprint .azp-pane .pg-wrap,#azprint .azp-pane .cscroll,#azprint .azp-pane .tw,#azprint .azp-pane .pad{
+  overflow:visible!important;max-height:none!important;height:auto!important;flex:none!important;display:block}
+#azprint .azp-pane .scrollpad{padding:0 0 8px!important;background:none!important}
+#azprint .azp-pane .pg-wrap{display:flex!important}
+#azprint .azp-pane th,#azprint .azp-pane td.stk,#azprint .azp-pane .pg-head,#azprint .azp-pane .pg-hl,#azprint .azp-pane .pg-l{position:static}   /* sticky → in place */
+#azprint .azp-pane .pg-wrap{width:max-content;max-width:none}   /* the timeline is fixed-width (24px a month): let its frame open to it */
+#azprint .azp-pane .azp-val{display:inline-block;padding:3px 6px;white-space:nowrap}
+#azprint .azp-pane tr,#azprint .azp-pane .kt,#azprint .azp-pane .alert,#azprint .azp-pane .frow,#azprint .azp-pane .fcard,#azprint .azp-pane .lr{break-inside:avoid;page-break-inside:avoid}
+#azprint .azp-pane .th-row,#azprint .azp-pane .bar,#azprint .azp-pane .st{break-after:avoid;page-break-after:avoid}
+#azprint .azp-chunk+.azp-chunk{margin-top:14px}
+#azprint .azp-chunklab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#4f4e4b;margin:0 0 6px}
+</style>
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
