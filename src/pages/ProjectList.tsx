@@ -262,6 +262,9 @@ const CSS = `
   .ath-plist{max-height:32vh}}
 `
 
+/** Session flag for the BASE PIN. Versioned: bump it whenever the PIN changes. */
+export const BASE_PIN_KEY = 'base_pin_ok_0808'
+
 export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onOpenHomes?: () => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
@@ -272,9 +275,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
   const [zeroedOpen, setZeroedOpen] = useState(false)
   // BASE is PIN-gated (Daniel + JB): the wider team holds the app code without
   // reaching the feasibility numbers. SHA-256 — the PIN never ships in the bundle.
-  const BASE_PIN_HASH = '2926a2731f4b312c08982cacf8061eb14bf65c1a87cc5d70e864e079c6220731'
+  // PIN changed 14 Sep 2026; the session flag is versioned so an unlock with the
+  // old PIN doesn't carry over.
+  const BASE_PIN_HASH = 'd387d8f016a1e8dd471de17fd837ce101676156ab7d2ec1e395a67d46f3472b0'
   const [baseUnlocked, setBaseUnlocked] = useState<boolean>(() => {
-    try { return sessionStorage.getItem('base_pin_ok') === '1' } catch { return false }
+    try { return sessionStorage.getItem(BASE_PIN_KEY) === '1' } catch { return false }
   })
   const [pinPrompt, setPinPrompt] = useState(false)
   const [pinVal, setPinVal] = useState('')
@@ -283,8 +288,9 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v))
     const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
     if (hex === BASE_PIN_HASH) {
-      try { sessionStorage.setItem('base_pin_ok', '1') } catch { /* ignore */ }
-      setBaseUnlocked(true); setPinPrompt(false); setPinVal(''); setPinErr(false); setBaseOpen(true)
+      try { sessionStorage.setItem(BASE_PIN_KEY, '1') } catch { /* ignore */ }
+      setBaseUnlocked(true); setPinPrompt(false); setPinVal(''); setPinErr(false)
+      setZeroedOpen(true); setMenuOpen(false)          // BASE is ATRIUM Engine now
     } else {
       setPinErr(true); setPinVal('')
       setTimeout(() => setPinErr(false), 900)
@@ -371,13 +377,15 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
             </button>
             <div className={`ath-pmenu${menuOpen ? ' on' : ''}`}>
               <div className="ath-mh">
-                <span>Projects · {live.length}</span>
+                <span>Menu</span>
 
               </div>
-              {/* BASE — 7EVEN sub-brand: press to drop down the project feasibilities */}
-              <button className={`ath-base${baseOpen ? ' on' : ''}`} title="BASE — Project Feasibilities" onClick={() => { if (baseUnlocked) { setBaseOpen(v => !v) } else { setPinPrompt(v => !v); setPinVal(''); setPinErr(false) } }}>
+              {/* BASE — 7EVEN sub-brand. Since 14 Sep 2026 BASE *is* ATRIUM Engine:
+                  the old feasibility studio's project list is switched off (its
+                  data is untouched in the store). PIN first, then straight in. */}
+              <button className="ath-base" title="BASE — ATRIUM Engine" onClick={() => { if (baseUnlocked) { setZeroedOpen(true); setMenuOpen(false) } else { setPinPrompt(v => !v); setPinVal(''); setPinErr(false) } }}>
                 <img src="/base-white.png" alt="BASE" />
-                <span className="g">{baseOpen ? '▾' : '▸'}</span>
+                <span className="g">→</span>
               </button>
               {pinPrompt && !baseUnlocked && (
                 <div className={`ath-pinrow${pinErr ? ' err' : ''}`}>
@@ -400,64 +408,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   <span className="ath-pinhint">{pinErr ? 'INCORRECT PIN' : 'AUTHORISED ACCESS ONLY'}</span>
                 </div>
               )}
-              {baseOpen && (
-                <button className="ath-newp ath-newp-row" onClick={() => { setShowNew(true); setMenuOpen(false) }}>+ New Project — Start a new feasibility</button>
-              )}
-              {baseOpen && role !== 'external' && (
-                <button className="ath-zeroed"
-                  onClick={() => { setZeroedOpen(true); setMenuOpen(false) }}>
-                  ATRIUM ENGINE
-                </button>
-              )}
-              <div className="ath-plist" style={{ display: baseOpen ? undefined : 'none' }}>
-                {live.length === 0 && (
-                  <div style={{ padding: '22px 4px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '.2em', color: 'rgba(255,255,255,.5)', textTransform: 'uppercase' }}>
-                    No projects yet — <span style={{ color: 'var(--led)', cursor: 'pointer' }} onClick={() => { setShowNew(true); setMenuOpen(false) }}>create the first</span>
-                  </div>
-                )}
-                {live.map((p, i) => {
-                  const tc = typeColor(p.type, p.status)
-                  return (
-                    <div key={p.id} className="ath-prow" onClick={() => setActiveProject(p.id)}>
-                      <span className="ath-num">{String(i + 1).padStart(2, '0')}</span>
-                      <div className="ath-pinfo">
-                        <div className="ath-pname">{p.name}</div>
-                        <div className="ath-paddr">{p.address || '—'}</div>
-                      </div>
-                      <span style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
-                        <button className="ath-ptype" title="Set status" onClick={() => setStatusFor(v => v === p.id ? null : p.id)}>
-                          <span className="d" style={{ background: tc.color }} />{tc.label}
-                        </button>
-                        {statusFor === p.id && (
-                          <div className="ath-sub" style={{ top: 'calc(100% + 6px)', right: 0 }}>
-                            {STATUS_OPTIONS.map(opt => (
-                              <button key={opt.label} onClick={() => { updateProject({ ...p, type: opt.type, status: opt.status, updatedAt: new Date().toISOString() }); setStatusFor(null) }}>
-                                <span className="d" style={{ width: 5, height: 5, borderRadius: '50%', background: opt.color, display: 'inline-block' }} />{opt.label}
-                              </button>
-                            ))}
-                            <button onClick={() => { updateProject({ ...p, status: 'archived', updatedAt: new Date().toISOString() }); setStatusFor(null) }} style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>▤ Archive</button>
-                          </div>
-                        )}
-                      </span>
-                      <span className="ath-go">→</span>
-                    </div>
-                  )
-                })}
-                {archivedProjects.length > 0 && (
-                  <>
-                    <div className="ath-arch">▤ Archived · {archivedProjects.length}</div>
-                    {archivedProjects.map(p => (
-                      <div key={p.id} className="ath-archrow">
-                        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                        <button className="a-act" style={{ border: '1px solid rgba(47,224,122,.45)', color: 'var(--led)' }}
-                          onClick={() => updateProject({ ...p, status: 'active', updatedAt: new Date().toISOString() })}>↺ LIVE</button>
-                        <button className="a-act" style={{ border: '1px solid rgba(200,80,63,.55)', color: '#e8836e' }}
-                          onClick={() => { if (confirm(`Delete "${p.name}" permanently? This cannot be undone.`)) deleteProject(p.id) }}>🗑</button>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
               {/* HORI7ON — 7EVEN sub-brand: project overview display */}
               <button className="ath-brandrow" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
                 <img style={{ height: 13 }} src="/hori7on-white.png" alt="HORI7ON" />

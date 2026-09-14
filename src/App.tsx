@@ -3,8 +3,9 @@ import { useStore } from './store'
 import { pullFromCloud, subscribeRealtime } from './db/cloud'
 import { migrateCostStackLabels, seedBaseFinanceForAll } from './db'
 import { seedProjectsIfEmpty, consolidatePreston, seedBaseCostStackForAll, migrateCatalogues } from './db/seed'
-import ProjectList from './pages/ProjectList'
 import ProjectWorkspace from './pages/ProjectWorkspace'
+import ProjectList, { BASE_PIN_KEY } from './pages/ProjectList'
+import AtriumZeroed from './pages/AtriumZeroed'
 import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
 import HaavnHomes from './pages/HaavnHomes'
@@ -19,7 +20,7 @@ import { publishFeasSnapshot } from './lib/feasBridge'
 import { onSave } from './lib/saveSignal'
 
 export default function App() {
-  const { activeProjectId, projects, loadProjects, bumpSync } = useStore()
+  const { activeProjectId, projects, loadProjects, bumpSync, setActiveProject } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
   const [role, setRole] = useState<Role>(getStoredRole())
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
@@ -132,6 +133,21 @@ export default function App() {
 
   const activeProject = projects.find(p => p.id === activeProjectId)
 
+  /* The old feasibility studio is switched off (14 Sep 2026) — ATRIUM Engine
+     replaces it. Anything that still asks to open an old project (Capital
+     Command, the studio bridge from HORI7ON etc.) lands in ATRIUM Engine
+     instead — behind the BASE PIN, so a link can't skip it. Flip to true to
+     bring the old studio back; its projects are untouched in the store. */
+  const LEGACY_STUDIO = false
+  const [engineFromLink, setEngineFromLink] = useState(false)
+  useEffect(() => {
+    if (LEGACY_STUDIO || !activeProjectId) return
+    setActiveProject(null)
+    let unlocked = false
+    try { unlocked = sessionStorage.getItem(BASE_PIN_KEY) === '1' } catch { /* ignore */ }
+    if (unlocked) setEngineFromLink(true)
+  }, [activeProjectId])
+
   function handleLogout() {
     localStorage.removeItem('7even_auth')
     clearStoredRole()
@@ -218,7 +234,8 @@ export default function App() {
             </>
           )}
 
-          {activeProjectId
+          {engineFromLink && <AtriumZeroed onClose={() => setEngineFromLink(false)} onLogout={handleLogout} />}
+          {LEGACY_STUDIO && activeProjectId
             ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
             : <ProjectList onLogout={handleLogout} onOpenHomes={() => setHomesOpen(true)} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
