@@ -1087,10 +1087,12 @@ const ENG = (() => {
   }
 
   /* ---------- aggregation for display ---------- */
-  function toQuarters(arr, cal){
+  function toQuarters(arr, cal, keyOf){
+    /* keyOf(c) picks the column a month lands in — calendar quarter by
+       default; the Cash Flow period pills pass month or year instead */
     const out=[], keys=[];
     cal.forEach((c,i)=>{
-      const k=c.q;
+      const k=keyOf ? keyOf(c) : c.q;
       let x=keys.indexOf(k);
       if(x<0){ keys.push(k); out.push(0); x=out.length-1; }
       out[x]+=arr[i]||0;
@@ -1375,8 +1377,41 @@ const ENG = (() => {
    Nothing is hard-coded downstream.
    ============================================================ */
 
-const N_MONTHS = 56;                       // Jan 2025 -> Aug 2029
-const CAL = ENG.makeCalendar(2025, 0, N_MONTHS);
+/* PROJECT DURATION (Daniel's brief, 15 Sep) — the calendar window is data on
+   the model, MODEL.settings.startMonth / endMonth ('YYYY-MM'), not a constant.
+   compute() derives the calendar from it on every pass and hands it to the
+   renderers as R.CAL; month index 0 is the start month. There is no
+   module-scope calendar any more.                                         */
+function projectWindow(S){
+  const p = v => { const m=/^(\d{4})-(\d{2})$/.exec(String(v||'')); return m ? {y:+m[1], m:+m[2]-1} : null; };
+  const a=p(S&&S.startMonth), b=p(S&&S.endMonth);
+  if(!a||!b||b.m<0||b.m>11||a.m<0||a.m>11) return {ok:false, sy:2025, sm:0, n:56, why:'Pick a start and an end month'};
+  const n=(b.y-a.y)*12+(b.m-a.m)+1;
+  if(n<2) return {ok:false, sy:a.y, sm:a.m, n:1, why:'The end month must be after the start month'};
+  return {ok:true, sy:a.y, sm:a.m, n};
+}
+/* absolute month numbers (year*12 + month) for comparing a date with the window */
+const absMon = str => { if(!str||str==='—') return null; const p=String(str).trim().split(/\s+/); if(p.length<2) return null;
+  const mi=ENG.MONTHS.findIndex(x=>x.toLowerCase()===p[0].slice(0,3).toLowerCase()); if(mi<0) return null;
+  const yy=2000+parseInt(p[1],10); return isNaN(yy) ? null : yy*12+mi; };
+const absIso = iso => { if(!iso) return null; const d=new Date(iso); return isNaN(d) ? null : d.getFullYear()*12+d.getMonth(); };
+/* every dated thing the window governs: component realisation windows, cost
+   line dates, land payments and Acquisition & Holding rows */
+function windowItems(){
+  const out=[];
+  (MODEL.components||[]).forEach((c,i)=>{ const nm=c.name||c.code||('Component '+(i+1));
+    out.push({kind:'comp', i, label:nm+' — realisation start ('+c.rs+')', a:absMon(c.rs)});
+    out.push({kind:'comp', i, label:nm+' — realisation end ('+c.re+')',   a:absMon(c.re)}); });
+  (MODEL.costLines||[]).forEach((l,i)=>{ const single=l.timing==='Single';
+    const s=single ? (l.payDate||l.start) : l.start;
+    out.push({kind:'line', i, id:l.id, label:(l.name||'Cost line')+' ('+s+')', a:absMon(s)});
+    if(!single) out.push({kind:'line', i, id:l.id, label:(l.name||'Cost line')+' ('+l.end+')', a:absMon(l.end)}); });
+  ((MODEL.land&&MODEL.land.payments)||[]).forEach((p,i)=>out.push({kind:'pay', i, label:(p.desc||'Land payment')+' ('+(p.date||'—')+')', a:absIso(p.date)}));
+  ((MODEL.land&&MODEL.land.costs)||[]).forEach((c,i)=>{ out.push({kind:'acq', i, label:(c.desc||'Acquisition row')+' ('+(c.date||'—')+')', a:absIso(c.date)});
+    if(c.timing==='Period') out.push({kind:'acq', i, label:(c.desc||'Acquisition row')+' ('+(c.end||'—')+')', a:absIso(c.end)}); });
+  return out.filter(x=>x.a!=null);
+}
+const winLabel = (y,m) => ENG.MONTHS[((m%12)+12)%12]+' '+String(y+Math.floor(m/12)).slice(2);
 
 /* ---------------- MODEL ---------------- */
 /* Build a component from its type template, then set the handful of rates
@@ -1396,7 +1431,9 @@ const MODEL = {
     gstEntry:'incl',                 // figures are typed GST-inclusive
     revEntry:'incl',                 // revenue likewise
     tolerance:1, maxIter:25, basPeriods:3,
-    groupFill:'Redistribute in group'   // when one of a concurrent pair fills
+    groupFill:'Redistribute in group',  // when one of a concurrent pair fills
+    startMonth:'2025-01',            // project window, ISO year-month
+    endMonth:'2029-08'
   },
 
   land:{
@@ -1438,7 +1475,7 @@ const MODEL = {
 
   /* Components are built from the revenue type catalogue, then filled in.
      Each carries its own income workings and its own operating cost lines. */
-  components: [ CMP('BTS','C1','Component 1', {qty:0, nsa:0, gfa:0, rs:40, re:48}) ],
+  components: [ CMP('BTS','C1','Component 1', {qty:0, nsa:0, gfa:0, rs:'May 28', re:'Jan 29'}) ],
 
   /* order = tranche number. Facilities sharing a number draw concurrently and
      split each draw by share. Distinct numbers draw in sequence.            */
@@ -1661,12 +1698,29 @@ function ensureCovenants(){ const c = MODEL.covenants || (MODEL.covenants = {enf
   /* FIX 4 — as-is land valuation; 0 means 'not entered, use the purchase price' */
   if(MODEL.land && MODEL.land.valuation==null) MODEL.land.valuation = 0; }
 
+/* Change 1 + 5 — the project window on every model, and component
+   realisation windows on the same 'Mon YY' calendar convention as cost lines.
+   Saved models stored rs / re as integer offsets from Jan 2025; they are
+   converted once, here, the first time the model is computed. */
+function ensureWindow(){
+  const S = MODEL.settings || (MODEL.settings = {});
+  if(!S.startMonth) S.startMonth = '2025-01';
+  if(!S.endMonth)   S.endMonth   = '2029-08';
+  (MODEL.components||[]).forEach(c=>{
+    ['rs','re'].forEach(k=>{ if(typeof c[k]==='number' && isFinite(c[k])) c[k] = winLabel(2025, Math.round(c[k])); });
+  });
+}
+
 /* ---------------- COMPUTE ---------------- */
 let R = {};                                    // last computed result
 
 function compute(){
-  ensureRoles(); ensureCovenants();
-  const S=MODEL.settings, L=MODEL.land, n=N_MONTHS;
+  ensureRoles(); ensureCovenants(); ensureWindow();
+  const S=MODEL.settings, L=MODEL.land;
+  /* the project window, and the calendar derived from it — month 0 is the start month */
+  const WIN = projectWindow(S);
+  const n = WIN.n;
+  const CAL = ENG.makeCalendar(WIN.sy, WIN.sm, n);
 
   /* --- land --- */
   const duty   = ENG.stampDuty(L.price, L.state, L.foreign);
@@ -1710,13 +1764,17 @@ function compute(){
   /* --- components: priced from their own workings --- */
   const comps = MODEL.components.map(c=>{
     const r = ENG.componentRevenue(c);
+    /* Realisation window on the calendar ('Mon YY', like cost lines). A month
+       outside the project window resolves to nothing, and the 'inproj' gate
+       names it — nothing is dragged onto the last month. */
+    const rs = ENG.parseM(c.rs, CAL), re = ENG.parseM(c.re, CAL);
     /* Operating income ramps over the stabilisation period, so the months
        are not all worth the same. Sum the ramp, do not assume a flat run. */
-    const start=c.rs, end=Math.min(n-1, c.re), stab=Math.max(1, c.stabMonths||1);
+    const start=rs, end=re, stab=Math.max(1, c.stabMonths||1);
     let rampMonths=0;
-    for(let m=start;m<=end;m++) rampMonths += Math.min(1,(m-start+1)/stab);
+    if(start!=null && end!=null) for(let m=start;m<=end;m++) rampMonths += Math.min(1,(m-start+1)/stab);
     const opTotal = r.noi/12*rampMonths;
-    return {...c, ...r, rampMonths, opTotal,
+    return {...c, ...r, rs, re, rsLabel:c.rs, reLabel:c.re, rampMonths, opTotal,
             netValue: r.saleNet + opTotal
                       + (c.exit==='Hold' && c.terminal!=='Hold — no terminal' ? r.holdNet : 0)};
   });
@@ -1844,8 +1902,8 @@ function compute(){
     /* Operating income runs wherever a component has a recurring stream —
        an Independent Living service fee earns whether or not the units are
        held. Only the terminal value depends on holding the asset.        */
-    if(c.noi!==0){
-      const start=c.rs, end=Math.min(n-1, c.re);
+    if(c.noi!==0 && c.rs!=null && c.re!=null){
+      const start=c.rs, end=c.re;                 // resolved in the window, never clamped
       const stab=Math.max(1, c.stabMonths||1);
       for(let m=start;m<=end;m++){
         const ramp=Math.min(1,(m-start+1)/stab);
@@ -1994,7 +2052,23 @@ function compute(){
     pass:true, detail:`revenue covers ${gfaComp.toLocaleString('en-AU')} sqm GFA across ${comps.length} components; construction is priced on the BTR tower only`});
   const gatesPass = gates.every(g=>g.pass);
 
-  const undated = lineCalc.filter(l=>l.amount>0 && (l.s==null||l.e==null));
+  /* Change 7 — the project window itself, and everything dated inside it */
+  const w0 = WIN.sy*12+WIN.sm, w1 = w0+n-1;
+  gates.push({id:'projwin', label:'Project window is valid',
+    pass: WIN.ok,
+    detail: WIN.ok ? `${CAL[0].label} → ${CAL[n-1].label} · ${n} months` : WIN.why});
+  const valued = new Set(lineCalc.filter(l=>l.amount>0).map(l=>l.id));
+  const outsideWin = windowItems().filter(x=>(x.a<w0||x.a>w1)
+    && (x.kind!=='line' || valued.has(x.id))
+    && (x.kind!=='acq' || ((landCosts[x.i]||{}).entered>0)));
+  gates.push({id:'inproj', label:'Everything dated sits inside the project window',
+    pass: outsideWin.length===0,
+    detail: outsideWin.length===0 ? `every component, cost line and land payment falls within ${CAL[0].label} → ${CAL[n-1].label}`
+      : outsideWin.slice(0,4).map(x=>x.label).join(' · ') + (outsideWin.length>4?` · and ${outsideWin.length-4} more`:'')
+        + ` — outside ${CAL[0].label} → ${CAL[n-1].label}, so left out of the cash flow`});
+  const outsideLines = new Set(outsideWin.filter(x=>x.kind==='line').map(x=>x.id));
+
+  const undated = lineCalc.filter(l=>l.amount>0 && (l.s==null||l.e==null) && !outsideLines.has(l.id));
   /* FIX 7 — LTC / LVR on DEBT balances only (peak), never total capital drawn */
   const ltc = allInTDC>0 ? wf.peakDebt/allInTDC : 0;
   const lvr = grv>0 ? wf.peakDebt/grv : 0;
@@ -2091,7 +2165,7 @@ function compute(){
        marginCost: allInTDC>0 ? profit/allInTDC : null,
        marginGrv:  grv>0      ? profit/grv      : null,
        gstRecovery: (()=>{const p=gstPaid.reduce((a,b)=>a+b,0); return p>0 ? gstCredRaw.reduce((a,b)=>a+b,0)/p : null;})(),
-       gates, gatesPass, n, cal:CAL};
+       gates, gatesPass, n, cal:CAL, win:WIN};
   return R;
 }
 
@@ -2127,6 +2201,7 @@ function sel(path, opts, val){ return `<select class="ci" data-path="${path}">${
 
 /* ---------------- 01 LAND ---------------- */
 function dinp(path, val){ return `<input type="date" class="ci dte" data-path="${path}" value="${val||''}">`; }
+function minp(path, val){ return `<input type="month" class="ci dte mon" data-path="${path}" value="${val||''}">`; }
 
 /* FIX 9 — the Acquisition & Holding 'Funded by' select. The placeholder has
    an EMPTY value, so an unset row stores '' and falls back to the land
@@ -2166,7 +2241,7 @@ function rLand(){
                     :'<span class="u">remainder</span>'}</td>
     <td class="cal">${$(p.amt)}</td>
     <td class="ctr">${dinp('land.payments.'+i+'.date',p.date)}${wmark('p'+i)}</td>
-    <td class="ctr" style="font-size:10px;color:var(--text-3)">${p.m!=null?CAL[p.m].label:'<span style="color:var(--red)">outside program</span>'}</td>
+    <td class="ctr" style="font-size:10px;color:var(--text-3)">${p.m!=null?R.CAL[p.m].label:'<span style="color:var(--red)">outside program</span>'}</td>
     <td class="ctr">${pays.length>1?`<button class="ovb" onclick="delPay(${i})">remove</button>`:''}</td></tr>`).join('');
 
   H('p0',`
@@ -2425,7 +2500,12 @@ function addComp(){
   const t=el('newType').value;
   const used=MODEL.components.map(c=>c.code);
   let code=t, i=2; while(used.includes(code)) code=t+(i++);
-  MODEL.components.push(ENG.newComponent(t, code, ENG.REV_TYPES[t].label));
+  const comp = ENG.newComponent(t, code, ENG.REV_TYPES[t].label);
+  /* realisation defaults to the old months 40–48, inside this project's window */
+  const cal = (R && R.CAL) || [];
+  if(cal.length){ const a=Math.min(40, Math.max(0, cal.length-9)), b=Math.min(cal.length-1, a+8);
+    comp.rs = cal[a].label; comp.re = cal[b].label; }
+  MODEL.components.push(comp);
   renderAll();
 }
 function delComp(i){ if(MODEL.components.length>1){ MODEL.components.splice(i,1); renderAll(); } }
@@ -2497,8 +2577,8 @@ function rRev(){
           <div class="lr"><div class="k">GFA m²</div><div class="v">${inp('components.'+i+'.gfa',num(M.gfa))}</div></div>
           ${['AC','HOT'].includes(c.type)?`<div class="lr"><div class="k">Occupancy</div><div class="v">${inp('components.'+i+'.occupancy',pc(M.occupancy,1))}</div></div>`:''}
           <div class="lr"><div class="k">Exit</div><div class="v">${sel('components.'+i+'.exit',['Sell','Hold'],M.exit)}</div></div>
-          <div class="lr"><div class="k">Realisation start</div><div class="v">${inp('components.'+i+'.rs',M.rs)}</div></div>
-          <div class="lr"><div class="k">Realisation end</div><div class="v">${inp('components.'+i+'.re',M.re)}</div></div>
+          <div class="lr"><div class="k">Realisation start</div><div class="v">${inp('components.'+i+'.rs',M.rs,'ci dtc')}</div></div>
+          <div class="lr"><div class="k">Realisation end</div><div class="v">${inp('components.'+i+'.re',M.re,'ci dtc')}</div></div>
           <div class="lr"><div class="k">Curve</div><div class="v">${sel('components.'+i+'.curve',['Linear','S-curve','Upfront','Back-loaded'],M.curve)}</div></div>
           ${split?`<div class="lr"><div class="k">GST — sale side</div><div class="v">${sel('components.'+i+'.gstSaleTreat',['Taxable','GST-free','Input taxed','Div 81'],M.gstSaleTreat)}</div></div>
                    <div class="lr"><div class="k">GST — income side</div><div class="v">${sel('components.'+i+'.gstAnnTreat',['Taxable','GST-free','Input taxed','Div 81'],M.gstAnnTreat)}</div></div>
@@ -3060,16 +3140,20 @@ function rFin(){
 
 /* ---------------- 05 CASH FLOW ---------------- */
 let CF_FAC_OPEN = true;          // FIX 8 — the per-facility section, open by default
+let CF_PERIOD = 'Q';             // Cash Flow columns: 'M' month · 'Q' calendar quarter · 'Y' calendar year
 function rCF(){
-  const q=ENG.toQuarters(R.costNet,CAL), keys=q.keys, NQ=keys.length;
-  const Q=a=>ENG.toQuarters(a,CAL).vals;
+  const CAL=R.CAL, n=R.n;
+  /* the column each month lands in — the calendar is passed, never mutated */
+  const KEY = CF_PERIOD==='M' ? (c=>c.label) : CF_PERIOD==='Y' ? (c=>String(c.y)) : (c=>c.q);
+  const q=ENG.toQuarters(R.costNet,CAL,KEY), keys=q.keys, NQ=keys.length;
+  const Q=a=>ENG.toQuarters(a,CAL,KEY).vals;
   const rev=Q(R.revenue), cost=Q(R.costNet), gp=Q(R.gstPaid), gc=Q(R.gstCred);
   /* FIX 7 — debt and equity kept apart: preferred equity is equity */
   const eqd=Q(R.wf.eqDrawAll);
   const dbd=Q(R.wf.debtDraw);
-  const intr=Q(R.wf.intr.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
-  const fee=Q(R.wf.fee.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(N_MONTHS).fill(0)));
-  const eop=m=>{const out=[];let k=-1,last='';CAL.forEach((c,i)=>{if(c.q!==last){out.push(m[i]);k++;last=c.q;}else out[k]=m[i];});return out;};
+  const intr=Q(R.wf.intr.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(n).fill(0)));
+  const fee=Q(R.wf.fee.reduce((a,d)=>a.map((v,i)=>v+d[i]),new Array(n).fill(0)));
+  const eop=m=>{const out=[];let k=-1,last='';CAL.forEach((c,i)=>{const key=KEY(c);if(key!==last){out.push(m[i]);k++;last=key;}else out[k]=m[i];});return out;};
   const bal=eop(R.wf.debtBal), ebal=eop(R.wf.eqBal);
   /* FIX 8 — which facility funded which cost. The waterfall already returns
      draw / interest / fees / balance per facility per month; this shows it
@@ -3147,7 +3231,7 @@ const PGCLASS = {'Land & Acquisition':'b-land','Acquisition / Planning':'b-plan'
                  'Revenue':'b-rev','Finance':'b-fin'};
 
 function rProg(){
-  const n=CAL.length;
+  const CAL=R.CAL, n=CAL.length;
   const W=n*PGW;
 
   /* ---- gather every dated thing in the model ---- */
@@ -3171,13 +3255,14 @@ function rProg(){
 
   /* revenue: the realisation window, and the lease-up where one exists */
   R.comps.forEach(c=>{
+    if(c.rs==null || c.re==null) return;          // outside the window — the 'inproj' gate names it
     if(c.saleNet>0) push('Revenue',{name:c.name+' — settlements', s:c.rs, e:c.re,
         amount:c.saleNet, kind:'rev'});
     if(c.exit==='Hold' && c.noi!==0){
-      const st=Math.min(n-1,c.rs), en=Math.min(n-1,Math.max(st,c.rs+(c.stabMonths||1)-1));
+      const st=c.rs, en=Math.max(st, Math.min(c.re, c.rs+(c.stabMonths||1)-1));
       push('Revenue',{name:c.name+' — lease-up to stabilised', s:st, e:en, amount:0, kind:'ramp'});
       if(c.terminal!=='Hold — no terminal' && c.holdNet>0)
-        push('Revenue',{name:c.name+' — asset sale', s:Math.min(n-1,c.re), e:Math.min(n-1,c.re),
+        push('Revenue',{name:c.name+' — asset sale', s:c.re, e:c.re,
              amount:c.holdNet, kind:'rev'});
     }
   });
@@ -3196,7 +3281,7 @@ function rProg(){
     if(!isNaN(d)){ const i=CAL.findIndex(c=>c.y===d.getFullYear()&&c.m===d.getMonth()); add('Permit granted', i<0?null:i); } }
   if(conLines.length){ add('Construction start', Math.min(...conLines.map(l=>l.s)));
                        add('Practical completion', Math.max(...conLines.map(l=>l.e))); }
-  const withRev=R.comps.filter(c=>c.netValue>0);
+  const withRev=R.comps.filter(c=>c.netValue>0 && c.rs!=null && c.re!=null);
   if(withRev.length){ add('First settlement', Math.min(...withRev.map(c=>c.rs)));
                       add('Final realisation', Math.max(...withRev.map(c=>c.re))); }
   M.sort((a,b)=>a.m-b.m);
@@ -3279,7 +3364,15 @@ function rProg(){
   const conStart=conLines.length?Math.min(...conLines.map(l=>l.s)):null;
   const conEnd  =conLines.length?Math.max(...conLines.map(l=>l.e)):null;
 
-  H('progKpi', `<div class="kpis k6">
+  const S_=MODEL.settings;
+  H('progKpi', `<div class="pdur">
+      <span class="st">Project duration</span>
+      <label>Start ${minp('settings.startMonth', S_.startMonth)}</label>
+      <span class="pdur-a">→</span>
+      <label>End ${minp('settings.endMonth', S_.endMonth)}</label>
+      <span class="pdur-n">${n} months</span>
+      <span class="u">${CAL[0].label} → ${CAL[n-1].label} · month 1 of the cash flow is ${CAL[0].label}</span>
+    </div><div class="kpis k6">
     <div class="kt"><div class="kl">Program length</div><div class="kv">${first!=null?(last-first+1)+' mo':'—'}</div>
       <div class="ks">${first!=null?CAL[first].label+' → '+CAL[last].label:'nothing dated yet'}</div></div>
     <div class="kt"><div class="kl">Construction</div><div class="kv">${conStart!=null?(conEnd-conStart+1)+' mo':'—'}</div>
@@ -3360,7 +3453,27 @@ function rDash(){
 const PCT = new Set(['capRate','disposalPct','occupancy','escalation','esc','ohPct','marginPct','insPct','supplyMarginPct','rate','estab','line','exit','vendorRate','acqFeePct','pct','maxLTC','maxSeniorLTC','maxLVR','minPresales','maxConstrLTC','maxLandLVR']);
 const parseNum = s => { const v=parseFloat(String(s).replace(/[$,%\s,]/g,'')); return isNaN(v)?0:v; };
 
+/* Change 7 — a project window change is checked before it applies: the end
+   must be after the start (blocked, never clamped), and anything that would
+   newly fall outside the window is listed and has to be confirmed. */
+function windowChangeOk(path, raw){
+  const key=path.split('.')[1], S=MODEL.settings;
+  if(!/^\d{4}-\d{2}$/.test(String(raw||''))){ alert('Pick a month for the project '+(key==='startMonth'?'start':'end')+'. Nothing was changed.'); return false; }
+  const next={startMonth:S.startMonth, endMonth:S.endMonth}; next[key]=raw;
+  const W=projectWindow(next), cur=projectWindow(S);
+  if(!W.ok){ alert(W.why+'. Nothing was changed.'); return false; }
+  const inWin=(a,w)=>a>=w.sy*12+w.sm && a<=w.sy*12+w.sm+w.n-1;
+  const lost=windowItems().filter(x=>inWin(x.a,cur) && !inWin(x.a,W)).map(x=>x.label);
+  if(lost.length){
+    const span=winLabel(W.sy,W.sm)+' → '+winLabel(W.sy,W.sm+W.n-1);
+    return confirm('Changing the project window to '+span+' ('+W.n+' months) puts these outside it. They will drop out of the cash flow and be flagged on the Dashboard:\n\n• '
+      + lost.slice(0,12).join('\n• ') + (lost.length>12?'\n• and '+(lost.length-12)+' more':'') + '\n\nApply the change?');
+  }
+  return true;
+}
+
 function setPath(path, raw){
+  if((path==='settings.startMonth' || path==='settings.endMonth') && !windowChangeOk(path, raw)) return;
   const parts=path.split('.');
   let o=MODEL; for(let i=0;i<parts.length-1;i++) o=o[parts[i]];
   const k=parts[parts.length-1];
@@ -3369,7 +3482,8 @@ function setPath(path, raw){
               'drawConvention','lineFeeBase','zone','overlays','planSource','planChecked','permitNo','permitStatus',
               'permitLodged','permitGranted','permitExpiry','permitNote','desc','date','acqFeeBasis',
               'vendorFinance','vendorGst','gstRegistered','marginScheme','name','timing','payDate','gstEntry','revEntry','funded','field','op','field2','op2','fund','pin','availFrom','expires','capMode','intModel','gst',
-              'eng','terminal','gstSaleTreat','gstAnnTreat','type','code','unit','modular','insBasis','role'];
+              'eng','terminal','gstSaleTreat','gstAnnTreat','type','code','unit','modular','insBasis','role',
+              'startMonth','endMonth','rs','re'];
   /* 'exit' names two different things: a facility's exit fee (a percentage)
      and a component's exit mode (Sell or Hold). The path decides. */
   if(/^components\.\d+\.exit$/.test(path)){ o[k]=raw; return; }
@@ -3495,6 +3609,27 @@ renderAll();
     hi.innerHTML = 'Welcome back, <b>Daniel</b><i class="hl-dv"></i><i class="hl-dot"></i>your engine is ready';
     bar.appendChild(hi);
   }
+  /* Project duration, mirrored in the header (Daniel's brief, change 6): the
+     same settings.startMonth / endMonth fields as the Program tab, bound the
+     same way, so a change here round-trips through setPath and saves. */
+  var dur = null;
+  if(bar){
+    dur = document.createElement('span'); dur.className = 'hdur';
+    dur.innerHTML = '<span class="hdur-k">Duration</span>'
+      + '<input type="month" class="ci dte mon" data-path="settings.startMonth" aria-label="Project start month">'
+      + '<span class="hdur-a">→</span>'
+      + '<input type="month" class="ci dte mon" data-path="settings.endMonth" aria-label="Project end month">'
+      + '<b class="hdur-n"></b>';
+    (pn || badge).after(dur);
+  }
+  function duration(){
+    if(!dur || typeof MODEL === 'undefined' || !MODEL.settings) return;
+    var ins = dur.querySelectorAll('input');
+    if(document.activeElement !== ins[0]) ins[0].value = MODEL.settings.startMonth || '';
+    if(document.activeElement !== ins[1]) ins[1].value = MODEL.settings.endMonth || '';
+    dur.querySelector('.hdur-n').textContent = (typeof R !== 'undefined' && R.n ? R.n : '—') + ' months';
+    if(typeof bind === 'function') bind();
+  }
   let projName = '';
   function title(){
     if(!pn) return;
@@ -3542,11 +3677,13 @@ renderAll();
     inner.apply(this, arguments);
     placeFoot();
     title();
+    duration();
     const p = document.getElementById('hdrProf'); if(!p || typeof R === 'undefined') return;
     p.classList.toggle('neg', !!R.gatesPass && R.profit < 0);
     p.classList.toggle('pos', !!R.gatesPass && R.profit > 0);
   };
   title();
+  duration();
   placeFoot();
 })();
 </script>
@@ -4164,11 +4301,10 @@ html.azz-zooming .kstrip,html.azz-panning .kstrip,html.azz-zooming .azfoot,html.
 /* ═══ ATRIUM ENGINE · CASH FLOW PERIOD (Jamie for Daniel, 15 Sep) ═════════════
    Three pills at the right of the Cash Flow title: Month · Quarter · Year.
    The engine already computes every month; its Cash Flow only groups those
-   months into quarters for display (ENG.toQuarters, keyed on each calendar
-   month's `q`). For Month and Year the grouping key is swapped for the length
-   of one render (each month's own label, or its calendar year) and put back
-   straight after, so nothing is recalculated, MODEL is never touched and no
-   save is triggered. Every total, balance and the cumulative line are the same
+   months into columns for display: ENG.toQuarters groups them on a key, and
+   rCF passes calendar quarter, month or calendar year according to CF_PERIOD.
+   Nothing is recalculated, the calendar is never mutated, MODEL is never
+   touched and no save is triggered. Every total, balance and the cumulative line are the same
    numbers regrouped; balances still show the closing figure of each period.
    The choice is kept on this computer. */
 (function(){
@@ -4177,15 +4313,9 @@ html.azz-zooming .kstrip,html.azz-panning .kstrip,html.azz-zooming .azfoot,html.
   if(['M','Q','Y'].indexOf(P) < 0) P = 'Q';
   var NOTE = { M: 'monthly · computed monthly', Q: 'quarterly · computed monthly, grouped for display', Y: 'yearly · calendar years, computed monthly' };
 
-  var inner = window.rCF;
-  if(typeof inner !== 'function') return;
-  window.rCF = function(){
-    if(P === 'Q') return inner.apply(this, arguments);
-    var saved = CAL.map(function(c){ return c.q; });
-    CAL.forEach(function(c){ c.q = P === 'M' ? c.label : String(c.y); });
-    try { return inner.apply(this, arguments); }
-    finally { CAL.forEach(function(c, i){ c.q = saved[i]; }); }
-  };
+  /* the engine's rCF reads CF_PERIOD and passes the grouping to
+     ENG.toQuarters, so nothing here touches the calendar */
+  CF_PERIOD = P;
 
   var row = document.querySelector('#p4 .th-row');
   if(!row) return;
@@ -4206,11 +4336,12 @@ html.azz-zooming .kstrip,html.azz-panning .kstrip,html.azz-zooming .azfoot,html.
     try { localStorage.setItem(KEY, P); } catch(e){}
     paint();
     var w = document.querySelector('#p4 .cf-wrap'); if(w) w.scrollLeft = 0;
-    window.rCF();
+    CF_PERIOD = P;
+    rCF();
     window.dispatchEvent(new Event('resize'));          // lets the slider re-measure the new width
   }
   paint();
-  if(P !== 'Q') window.rCF();
+  if(P !== 'Q') rCF();
 })();
 </script>
 <style>
@@ -4329,6 +4460,25 @@ html.standalone .main{border-radius:12px 0 0 0}
 .topbar .hello b{color:#ffffff;font-weight:500}
 .topbar .hello .hl-dv{width:1px;height:14px;background:rgba(255,255,255,.25);margin:0 4px}
 .topbar .hello .hl-dot{width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 10px #2fe07a;animation:afPulse 2.4s infinite}
+
+/* project duration — header mirror (on the dark island) */
+.topbar .hdur{display:flex;align-items:center;gap:7px;margin-left:16px;flex:none;font-family:'JetBrains Mono',ui-monospace,monospace}
+.topbar .hdur-k{font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.topbar .hdur input{width:128px;height:26px;padding:0 6px;border-radius:2px;border:1px solid rgba(255,255,255,.3);background:transparent;
+  color:#fff;color-scheme:dark;font:11px 'JetBrains Mono',ui-monospace,monospace;text-align:center}
+.topbar .hdur input:hover{border-color:rgba(255,255,255,.65);background:rgba(255,255,255,.06)}
+.topbar .hdur input:focus{outline:none;border-color:#d6b36a;background:rgba(214,179,106,.06)}
+.topbar .hdur-a{color:rgba(255,255,255,.5);font-size:11px}
+.topbar .hdur-n{font-size:10.5px;font-weight:500;letter-spacing:.08em;color:#f4e3bd;white-space:nowrap}
+@media(max-width:1500px){.topbar .hello{display:none}}
+@media(max-width:1180px){.topbar .pname .padr{display:none}}
+/* project duration — the Program tab control */
+.pdur{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--frame);border-radius:2px;background:var(--s1)}
+.pdur .st{margin-right:6px}
+.pdur label{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.pdur input.mon{width:150px;text-align:center;border:1px solid var(--frame);background:#fff;color:var(--text);color-scheme:light}
+.pdur-a{color:var(--text-3)}
+.pdur-n{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:600;font-size:13px;color:var(--text);padding:3px 10px;border:1px solid var(--text);border-radius:2px}
 
 /* GRV · TDC · PROFIT — a clean row at the top of the working area,
    30% bigger (11 → 14.3px), black on the grey */
