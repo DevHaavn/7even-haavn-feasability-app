@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATRIUM Engine · Slide &amp; Zoom preview</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* PREVIEW for sign-off — the ATRIUM Engine shell, with the Slide & Zoom bar in
+   the engine (atrium-engine-zoom-preview-frame.html). Opens the real projects
+   READ-ONLY behind the BASE PIN: this page never writes to the cloud, and the
+   engine copy has no parent that saves, so nothing you change here is kept. */
+body{margin:0}
+
+.azs{position:fixed;inset:0;z-index:9500;background:#d7d4ce}
+.azs-isle{position:absolute;top:10px;left:12px;right:12px;bottom:10px;border-radius:12px;overflow:hidden;
+  background:#0a0b0c;border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 18px 34px -20px rgba(0,0,0,.7)}
+.azs-isle video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.azs-dim{position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.56)}
+.azs-vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
+.azs-hl{position:absolute;left:18px;right:18px;top:46px;height:1px;background:rgba(255,255,255,.14);pointer-events:none}
+.azs-bar{position:absolute;top:10px;left:12px;right:12px;height:46px;z-index:2;padding:0 18px;
+  display:flex;align-items:center;gap:8px}
+.azs-btn{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);background:transparent;border:1px solid rgba(255,255,255,.32);border-radius:2px;
+  padding:7px 12px;cursor:pointer;transition:.25s}
+.azs-btn:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);box-shadow:0 0 26px -12px rgba(255,255,255,.5)}
+.azs-dd{position:relative}
+.azs-sel{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Inter',system-ui,sans-serif;font-size:11.5px;
+  color:#fff;background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:2px;padding:6px 10px;
+  min-width:200px;max-width:300px;cursor:pointer;transition:.25s;text-align:left}
+.azs-sel span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.azs-sel i{font-style:normal;font-size:8px;opacity:.7;transition:transform .25s}
+.azs-sel:hover,.azs-sel.open{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.azs-sel.open i{transform:rotate(180deg)}
+.azs-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:100%;max-width:360px;max-height:60vh;overflow-y:auto;z-index:20;
+  padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(14,15,17,.38);-webkit-backdrop-filter:blur(18px) saturate(1.25);backdrop-filter:blur(18px) saturate(1.25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 22px 44px -18px rgba(0,0,0,.75);animation:azsIn .18s ease-out}
+@keyframes azsIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.azs-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 6px;padding:9px 12px;cursor:pointer;
+  font-family:'Inter',system-ui,sans-serif;font-size:11.5px;color:rgba(255,255,255,.9);white-space:nowrap;
+  background:transparent;border:1px solid rgba(255,255,255,.26);border-radius:2px;transition:.25s;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.azs-menu button:last-child{margin-bottom:0}
+.azs-menu button:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
+.azs-menu button.on{color:#fff;background:rgba(214,179,106,.06);border-color:#d6b36a;
+  box-shadow:0 0 9px rgba(244,227,189,.5),0 0 22px rgba(214,179,106,.3),inset 0 0 9px rgba(214,179,106,.22)}
+.azs-menu button b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:400;font-size:8.5px;letter-spacing:.2em;color:rgba(255,255,255,.45)}
+.azs-menu button.on b{color:#d6b36a}
+.azs-t{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;
+  color:#d6b36a;padding:7px 13px;border:1px solid #d6b36a;border-radius:2px;background:rgba(214,179,106,.05);
+  text-shadow:0 0 8px rgba(244,227,189,.9),0 0 20px rgba(214,179,106,.6);
+  box-shadow:0 0 9px rgba(244,227,189,.55),0 0 26px rgba(214,179,106,.35),inset 0 0 9px rgba(214,179,106,.24)}
+.azs-dv{width:1px;height:18px;background:rgba(255,255,255,.22);margin:0 4px}
+.azs-note{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.azs-frame{position:absolute;top:56px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 56px);
+  z-index:1;border:0;display:block;background:transparent;color-scheme:light}
+
+.pv-note{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:#f4e3bd;border:1px solid rgba(214,179,106,.55);border-radius:2px;padding:6px 10px;background:rgba(214,179,106,.06)}
+.pv-dd{position:relative}
+.pv-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:100%;z-index:20;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(14,15,17,.42);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 22px 44px -18px rgba(0,0,0,.75)}
+.pv-menu button{display:flex;gap:10px;width:100%;text-align:left;margin:0 0 6px;padding:9px 12px;cursor:pointer;font:11.5px 'Inter',sans-serif;color:#fff;background:transparent;border:1px solid rgba(255,255,255,.26);border-radius:2px;white-space:nowrap}
+.pv-menu button:last-child{margin-bottom:0}
+.pv-menu button:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65)}
+.pv-menu button.on{border-color:#d6b36a;box-shadow:0 0 9px rgba(244,227,189,.5),inset 0 0 9px rgba(214,179,106,.22)}
+/* PIN */
+.pv-gate{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#050506}
+.pv-gate video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pv-gate .dim{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.pv-card{position:relative;width:min(420px,88vw);padding:34px 30px;text-align:center;color:#eef2f5;border:1px solid rgba(255,255,255,.18);border-radius:12px;
+  background:rgba(10,11,12,.35);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.pv-card .k{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.34em;color:#d6b36a;text-transform:uppercase}
+.pv-card h1{font:500 22px 'Inter',sans-serif;margin:12px 0 6px;letter-spacing:.02em}
+.pv-card p{font:12.5px/1.6 'Inter',sans-serif;color:#a9a6a9;margin:0 0 20px}
+.pv-card input{width:120px;background:transparent;border:0;border-bottom:1px solid rgba(214,179,106,.6);color:#fff;outline:none;font:20px 'JetBrains Mono',monospace;letter-spacing:.5em;text-align:center;padding:4px 0 6px;caret-color:#d6b36a}
+.pv-card .err{height:16px;margin-top:10px;font:9px 'JetBrains Mono',monospace;letter-spacing:.2em;color:#e0645c;text-transform:uppercase}
+</style></head><body>
+<div class="azs">
+  <div class="azs-isle"><video autoplay muted loop playsinline src="/haavn-black-bg.mp4"></video><div class="azs-dim"></div><div class="azs-vign"></div><div class="azs-hl"></div></div>
+  <div class="azs-bar">
+    <a class="azs-btn" href="/" style="text-decoration:none">← App</a>
+    <span class="azs-t">Atrium Engine</span><span class="azs-dv"></span>
+    <div class="pv-dd"><button class="azs-sel" id="pvSel"><span id="pvName">Loading…</span><i>▼</i></button><div class="pv-menu" id="pvMenu" hidden></div></div>
+    <span style="flex:1"></span>
+    <span class="pv-note">Preview · Slide &amp; Zoom · Cash flow periods · read only, nothing saves</span>
+  </div>
+  <iframe id="pvFrame" class="azs-frame" title="ATRIUM Engine preview"></iframe>
+</div>
+<div class="pv-gate" id="pvGate">
+  <video autoplay muted loop playsinline src="/haavn-black-bg.mp4"></video><div class="dim"></div>
+  <div class="pv-card">
+    <div class="k">ATRIUM Engine · Preview</div>
+    <h1>Slide &amp; Zoom</h1>
+    <p>Enter the BASE PIN to open the projects read only.</p>
+    <input id="pvPin" type="password" inputmode="numeric" maxlength="4" placeholder="····" autofocus>
+    <div class="err" id="pvErr"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var URL_ = 'https://vgvavmnqrdgcnledztyk.supabase.co', KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10', H = { apikey: KEY_, Authorization: 'Bearer ' + KEY_ };
+  var PIN_HASH = 'd387d8f016a1e8dd471de17fd837ce101676156ab7d2ec1e395a67d46f3472b0', PIN_KEY = 'base_pin_ok_0808';
+  var frame = document.getElementById('pvFrame'), index = null, ready = false, pending = null;
+
+  function get(key){   // read only: GET, nothing else, anywhere on this page
+    return fetch(URL_ + '/rest/v1/capital_kv?key=eq.' + encodeURIComponent(key) + '&select=value', { headers: H })
+      .then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){ return rows && rows[0] ? rows[0].value : null; });
+  }
+  function send(){ if(!ready || !pending) return;
+    frame.contentWindow.postMessage({ atriumZeroed: 'load', model: pending.model }, '*');
+    frame.contentWindow.postMessage({ atriumZeroed: 'meta', name: pending.name }, '*'); }
+  window.addEventListener('message', function(e){ var d = e.data || {}; if(d.atriumZeroed === 'ready'){ ready = true; send(); } });
+
+  function open(meta){
+    document.getElementById('pvName').textContent = meta.name;
+    get('atrium_zeroed:' + meta.id).then(function(m){ if(m){ pending = { model: m, name: meta.name }; send(); } });
+    renderMenu(meta.id);
+  }
+  function renderMenu(activeId){
+    var menu = document.getElementById('pvMenu'); menu.innerHTML = '';
+    (index.projects || []).forEach(function(p){
+      var b = document.createElement('button'); b.textContent = p.name; if(p.id === activeId) b.className = 'on';
+      b.onclick = function(){ menu.hidden = true; open(p); }; menu.appendChild(b);
+    });
+  }
+  document.getElementById('pvSel').onclick = function(e){ e.stopPropagation(); var m = document.getElementById('pvMenu'); m.hidden = !m.hidden; };
+  document.addEventListener('click', function(){ document.getElementById('pvMenu').hidden = true; });
+  window.addEventListener('blur', function(){ document.getElementById('pvMenu').hidden = true; });
+
+  function start(){
+    document.getElementById('pvGate').remove();
+    frame.src = '/atrium-engine-zoom-preview-frame.html?v=' + Date.now();
+    get('atrium_zeroed_index').then(function(ix){
+      index = ix || { projects: [] };
+      var meta = (index.projects || []).find(function(p){ return p.id === index.activeId; }) || (index.projects || [])[0];
+      if(meta) open(meta); else document.getElementById('pvName').textContent = 'No projects';
+    });
+  }
+  var unlocked = false; try { unlocked = sessionStorage.getItem(PIN_KEY) === '1'; } catch(e){}
+  if(unlocked){ start(); return; }
+  var pin = document.getElementById('pvPin');
+  pin.addEventListener('input', function(){
+    pin.value = pin.value.replace(/\D/g, '').slice(0, 4);
+    if(pin.value.length < 4) return;
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin.value)).then(function(buf){
+      var hex = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2, '0'); }).join('');
+      if(hex === PIN_HASH){ try { sessionStorage.setItem(PIN_KEY, '1'); } catch(e){} start(); }
+      else { document.getElementById('pvErr').textContent = 'Incorrect PIN'; pin.value = ''; setTimeout(function(){ document.getElementById('pvErr').textContent = ''; }, 1200); }
+    });
+  });
+})();
+</script>
+</body></html>
