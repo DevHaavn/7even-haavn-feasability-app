@@ -3857,6 +3857,356 @@ renderAll();
 #azprint .azp-chunklab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#4f4e4b;margin:0 0 6px}
 </style>
 
+<script>
+/* ═══ ATRIUM ENGINE · SLIDE & ZOOM (Jamie, 15 Sep) — look and feel only ═══════
+   EstateMaster let Daniel slide across a wide sheet and zoom into the numbers.
+   This is ours, in the working area's top row beside GRV / TDC / PROFIT:
+
+     ◀ ▬▬▬ ▶   the sideways slider for the open tab: drag the grip, click the
+               track to jump a page, hold an arrow to keep sliding
+     🔍        zoom tool: press it, then wheel over the numbers (or click) to zoom
+               in, Alt-click to zoom out. Esc puts it away
+     ✋        hand tool: press it, then click and drag to slide the sheet
+     Fit       zooms the open tab so its widest table fits the screen
+     − ─o─ + % zoom by hand, 50% to 200%. Click the % to go back to 100%
+
+   Pinch on a trackpad (or Ctrl / Cmd + wheel) zooms at any time. Each tab keeps
+   its own zoom on this computer. Nothing here touches MODEL or renderAll, so it
+   can never cause a save. */
+(function(){
+  var ZMIN = 50, ZMAX = 200, STEP = 10, KEY = 'az_zoom_v1';
+  var zooms = {}; try { zooms = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
+  var tool = '';                                   // '' | 'zoom' | 'pan'
+
+  var panes = function(){ return [].slice.call(document.querySelectorAll('.pane')); };
+  var pane  = function(){ return document.querySelector('.pane.on'); };
+  var tabNo = function(){ return panes().indexOf(pane()); };
+  var zoomOf = function(){ return +zooms[tabNo()] || 100; };
+  var clamp = function(z){ return Math.max(ZMIN, Math.min(ZMAX, Math.round(z))); };
+  var SCROLLERS = '.scrollpad,.cf-wrap,.pg-wrap,.cscroll,.tw';
+
+  /* the element that slides sideways on this tab: whichever scroll area has the most to reveal */
+  function hScroller(){
+    var p = pane(); if(!p) return null;
+    var best = null, most = 2;
+    [].forEach.call(p.querySelectorAll(SCROLLERS), function(el){
+      var more = el.scrollWidth - el.clientWidth;
+      if(more > most && el.clientWidth > 0){ most = more; best = el; }
+    });
+    return best;
+  }
+  /* the scroll area under a point (for zooming about the cursor) */
+  function scrollerAt(target){
+    var el = target && target.closest ? target.closest(SCROLLERS) : null;
+    while(el && !(el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2)) el = el.parentElement && el.parentElement.closest(SCROLLERS);
+    if(el) return el;
+    var p = pane(); return p && (p.querySelector(':scope > .scrollpad') || p.querySelector('.cf-wrap,.pg-wrap'));
+  }
+
+  function apply(){
+    panes().forEach(function(p, i){ p.style.setProperty('--azz', ((+zooms[i] || 100) / 100).toFixed(2)); });
+  }
+
+  /* Zoom, keeping whatever is under the cursor (or the middle of the sheet)
+     where it was. Measured, not calculated: find the figure under that point,
+     zoom, see where the figure went, and slide the sheet back by that much. */
+  function setZoom(z, at, ev){
+    z = clamp(z); var old = zoomOf(); if(z === old){ refresh(); return; }
+    var sc = scrollerAt(ev && ev.target) || hScroller(), anchor = null, x = 0, y = 0, fx = .5, fy = .5;
+    if(sc){
+      var r = sc.getBoundingClientRect();
+      x = at ? at.x : r.left + r.width / 2;  y = at ? at.y : r.top + Math.min(r.height, innerHeight - r.top) / 2;
+      anchor = document.elementFromPoint(x, y);
+      if(anchor && !sc.contains(anchor)) anchor = null;
+      if(anchor){ var a0 = anchor.getBoundingClientRect(); fx = a0.width ? (x - a0.left) / a0.width : .5; fy = a0.height ? (y - a0.top) / a0.height : .5; }
+    }
+    zooms[tabNo()] = z; apply();
+    if(sc && anchor && anchor.isConnected){
+      var a1 = anchor.getBoundingClientRect();
+      var dx = (a1.left + fx * a1.width) - x, dy = (a1.top + fy * a1.height) - y;
+      var per = function(axis){                       // screen px moved per unit of scroll, on this element
+        var prop = axis === 'x' ? 'scrollLeft' : 'scrollTop', s0 = sc[prop], dir = s0 > 50 ? -1 : 1;
+        sc[prop] = s0 + dir * 100; var moved = sc[prop] - s0; if(!moved){ return 0; }
+        var b = anchor.getBoundingClientRect(); var k = ((axis === 'x' ? a1.left - b.left : a1.top - b.top)) / moved;
+        sc[prop] = s0; return k;
+      };
+      var kx = per('x'), ky = per('y');
+      if(kx) sc.scrollLeft += dx / kx;
+      if(ky) sc.scrollTop += dy / ky;
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(zooms)); } catch(e){}
+    refresh();
+  }
+
+  /* screen px the sheet moves for one unit of scroll on this element (zoom changes it) */
+  function screenPerUnit(el, axis){
+    var prop = axis === 'x' ? 'scrollLeft' : 'scrollTop', probe = el.firstElementChild || el;
+    var s0 = el[prop], dir = s0 > 50 ? -1 : 1, r0 = probe.getBoundingClientRect();
+    el[prop] = s0 + dir * 100; var moved = el[prop] - s0, r1 = probe.getBoundingClientRect(); el[prop] = s0;
+    if(!moved) return 1;
+    var k = (axis === 'x' ? r0.left - r1.left : r0.top - r1.top) / moved;
+    return k > 0.05 ? k : 1;
+  }
+
+  /* ── the bar ─────────────────────────────────────────────────────────── */
+  var I = {
+    left:  '<svg viewBox="0 0 10 10"><path d="M6.5 1.5 3 5l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    right: '<svg viewBox="0 0 10 10"><path d="M3.5 1.5 7 5 3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    zoom:  '<svg viewBox="0 0 16 16"><circle cx="6.8" cy="6.8" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.3 10.3 4 4M4.8 6.8h4M6.8 4.8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    pan:   '<svg viewBox="0 0 16 16"><path d="M5.2 8.6V3.4a1 1 0 0 1 2 0v4.4-5.6a1 1 0 0 1 2 0v5.6-4.6a1 1 0 0 1 2 0v5.4-3a1 1 0 0 1 2 0v4.2c0 3-2 5.2-5 5.2-2.3 0-3.4-1-4.6-3L2.3 9.2a1 1 0 0 1 1.6-1.2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+    fit:   '<svg viewBox="0 0 16 16"><path d="M1.5 5.5v-4h4M14.5 5.5v-4h-4M1.5 10.5v4h4M14.5 10.5v4h-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  var bar = document.createElement('div'); bar.className = 'azzb';
+  bar.innerHTML =
+      '<div class="azz-h" title="Slide the sheet left and right">'
+    +   '<button class="azz-ar" data-dir="-1" aria-label="Slide left">' + I.left + '</button>'
+    +   '<div class="azz-track"><div class="azz-thumb"><i></i><i></i><i></i></div></div>'
+    +   '<button class="azz-ar" data-dir="1" aria-label="Slide right">' + I.right + '</button>'
+    + '</div>'
+    + '<span class="azz-dv"></span>'
+    + '<button class="azz-tool" data-tool="zoom" title="Zoom tool: wheel or click to zoom in, Alt click to zoom out (Esc to finish)">' + I.zoom + '</button>'
+    + '<button class="azz-tool" data-tool="pan" title="Hand tool: click and drag to slide the sheet (Esc to finish)">' + I.pan + '</button>'
+    + '<button class="azz-fit" title="Fit the widest table to the screen">' + I.fit + '<span>Fit</span></button>'
+    + '<span class="azz-dv"></span>'
+    + '<button class="azz-pm" data-step="-1" aria-label="Zoom out">−</button>'
+    + '<input class="azz-range" type="range" min="' + ZMIN + '" max="' + ZMAX + '" step="5" aria-label="Zoom">'
+    + '<button class="azz-pm" data-step="1" aria-label="Zoom in">+</button>'
+    + '<button class="azz-pct" title="Back to 100%">100%</button>';
+
+  var track = bar.querySelector('.azz-track'), thumb = bar.querySelector('.azz-thumb'),
+      range = bar.querySelector('.azz-range'), pct = bar.querySelector('.azz-pct'), hbox = bar.querySelector('.azz-h');
+
+  function mount(){
+    var strip = document.querySelector('.kstrip');
+    if(strip && bar.parentNode !== strip) strip.insertBefore(bar, strip.firstChild);
+  }
+
+  function refresh(){
+    mount();
+    var z = zoomOf();
+    range.value = z; range.style.setProperty('--fill', ((z - ZMIN) / (ZMAX - ZMIN) * 100) + '%');
+    pct.textContent = z + '%';
+    var sc = hScroller();
+    hbox.classList.toggle('off', !sc);
+    if(!sc){ thumb.style.left = '0'; thumb.style.width = '100%'; return; }
+    var tw = track.clientWidth, w = Math.max(28, tw * sc.clientWidth / sc.scrollWidth);
+    var max = sc.scrollWidth - sc.clientWidth;
+    thumb.style.width = w + 'px';
+    thumb.style.left = (max > 0 ? (tw - w) * sc.scrollLeft / max : 0) + 'px';
+  }
+
+  /* slider: arrows (hold to keep going), track (page), grip (drag) */
+  var holdT = null;
+  bar.querySelectorAll('.azz-ar').forEach(function(b){
+    var go = function(){ var sc = hScroller(); if(sc) sc.scrollLeft += +b.dataset.dir * 60; };
+    b.addEventListener('pointerdown', function(e){ e.preventDefault(); go(); clearInterval(holdT);
+      var start = setTimeout(function(){ holdT = setInterval(go, 40); }, 320);
+      var stop = function(){ clearTimeout(start); clearInterval(holdT); window.removeEventListener('pointerup', stop); };
+      window.addEventListener('pointerup', stop); });
+  });
+  track.addEventListener('pointerdown', function(e){
+    var sc = hScroller(); if(!sc) return;
+    if(e.target.closest('.azz-thumb')){
+      e.preventDefault(); thumb.classList.add('drag');
+      var x0 = e.clientX, s0 = sc.scrollLeft, ratio = (sc.scrollWidth - sc.clientWidth) / Math.max(1, track.clientWidth - thumb.offsetWidth);
+      var mv = function(ev){ sc.scrollLeft = s0 + (ev.clientX - x0) * ratio; refresh(); };
+      var up = function(){ thumb.classList.remove('drag'); window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+      return;
+    }
+    var r = thumb.getBoundingClientRect();
+    sc.scrollBy({ left: (e.clientX < r.left ? -1 : 1) * sc.clientWidth * 0.9, behavior: 'smooth' });
+  });
+
+  /* zoom controls */
+  bar.querySelectorAll('.azz-pm').forEach(function(b){
+    b.addEventListener('click', function(){ var z = zoomOf(); setZoom(+b.dataset.step > 0 ? Math.floor(z / STEP) * STEP + STEP : Math.ceil(z / STEP) * STEP - STEP); });
+  });
+  range.addEventListener('input', function(){ setZoom(+range.value); });
+  pct.addEventListener('click', function(){ setZoom(100); });
+  bar.querySelector('.azz-fit').addEventListener('click', function(){
+    var sc = hScroller(), z = zoomOf();
+    if(!sc){ setZoom(100); return; }
+    setZoom(Math.floor(z * (sc.clientWidth - 8) / sc.scrollWidth / 5) * 5);
+  });
+
+  /* tools */
+  function setTool(t){
+    tool = (tool === t) ? '' : t;
+    document.documentElement.classList.toggle('azz-zooming', tool === 'zoom');
+    document.documentElement.classList.toggle('azz-panning', tool === 'pan');
+    bar.querySelectorAll('.azz-tool').forEach(function(b){ b.classList.toggle('on', b.dataset.tool === tool); });
+  }
+  bar.querySelectorAll('.azz-tool').forEach(function(b){ b.addEventListener('click', function(){ setTool(b.dataset.tool); }); });
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && tool) setTool(tool);
+    if(e.key === 'Alt') document.documentElement.classList.add('azz-alt');
+  });
+  window.addEventListener('keyup', function(e){ if(e.key === 'Alt') document.documentElement.classList.remove('azz-alt'); });
+  var inSheet = function(t){ return t && t.closest && t.closest('.main') && !t.closest('.kstrip') && !t.closest('.azfoot'); };
+
+  /* wheel: zoom tool, or pinch / Ctrl / Cmd + wheel at any time */
+  var acc = 0;
+  window.addEventListener('wheel', function(e){
+    if(!inSheet(e.target)) return;
+    if(!(tool === 'zoom' || e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    acc += e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+    var pinch = e.ctrlKey && !e.metaKey && Math.abs(e.deltaY) < 30;   // trackpad pinch arrives as small ctrl-wheel steps
+    var unit = pinch ? 6 : 100;                                      // one mouse-wheel notch = one 10% step
+    if(Math.abs(acc) < unit) return;
+    var steps = Math.trunc(acc / unit); acc -= steps * unit;
+    setZoom(zoomOf() - steps * (pinch ? 2 : STEP), { x: e.clientX, y: e.clientY }, e);
+  }, { passive: false });
+
+  /* click with the zoom tool; drag with the hand tool */
+  window.addEventListener('pointerdown', function(e){
+    if(!tool || e.button !== 0 || !inSheet(e.target)) return;
+    e.preventDefault(); e.stopPropagation();
+    if(tool === 'zoom'){
+      var z = zoomOf(), out = e.altKey || e.shiftKey;
+      setZoom(out ? Math.ceil(z / STEP) * STEP - STEP : Math.floor(z / STEP) * STEP + STEP, { x: e.clientX, y: e.clientY }, e);
+      return;
+    }
+    var sc = scrollerAt(e.target), h = hScroller();
+    var x0 = e.clientX, y0 = e.clientY, sx = h ? h.scrollLeft : 0, sy = sc ? sc.scrollTop : 0;
+    var kx = h ? screenPerUnit(h, 'x') : 1, ky = sc ? screenPerUnit(sc, 'y') : 1;   // so the sheet stays under the hand at any zoom
+    document.documentElement.classList.add('azz-grabbing');
+    var mv = function(ev){ if(h) h.scrollLeft = sx - (ev.clientX - x0) / kx; if(sc) sc.scrollTop = sy - (ev.clientY - y0) / ky; };
+    var up = function(){ document.documentElement.classList.remove('azz-grabbing'); window.removeEventListener('pointermove', mv, true); window.removeEventListener('pointerup', up, true); };
+    window.addEventListener('pointermove', mv, true); window.addEventListener('pointerup', up, true);
+  }, true);
+  // a click with a tool out never lands on the sheet underneath
+  window.addEventListener('click', function(e){ if(tool && inSheet(e.target)){ e.preventDefault(); e.stopPropagation(); } }, true);
+
+  /* keep it in step with the sheet */
+  document.addEventListener('scroll', function(){ refresh(); }, true);
+  window.addEventListener('resize', refresh);
+  var goIn = window.go;
+  if(typeof goIn === 'function') window.go = function(){ goIn.apply(this, arguments); apply(); requestAnimationFrame(refresh); };
+  var renderIn = window.renderAll;
+  window.renderAll = function(){ renderIn.apply(this, arguments); requestAnimationFrame(refresh); };
+
+  apply(); mount(); requestAnimationFrame(refresh);
+})();
+</script>
+<style>
+/* ── ATRIUM ENGINE · SLIDE & ZOOM ─────────────────────────────────────── */
+/* zoom sits on a scroll box itself (Cash Flow, Program) or on the blocks inside the
+   page scroller, never between a scroll box and its pinned column, which is what
+   keeps the pinned line names in step with their numbers */
+.pane .scrollpad>:not(.azfoot):not(.azfgap),.pane>.pad,.pane>.foot,.pane>.cf-wrap,.pane>.pg-wrap{zoom:var(--azz,1)}
+.kstrip{align-items:center}
+.azzb{margin-right:auto;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',ui-monospace,monospace;color:#0b0b0b;user-select:none;-webkit-user-select:none}
+.azzb button{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:26px;min-width:26px;padding:0 7px;border-radius:2px;cursor:pointer;
+  background:rgba(255,255,255,.28);border:1px solid rgba(0,0,0,.34);color:#0b0b0b;font:500 10px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);transition:background .2s,border-color .2s,box-shadow .2s}
+.azzb button:hover{background:rgba(255,255,255,.6);border-color:rgba(0,0,0,.7)}
+.azzb button svg{width:13px;height:13px;display:block}
+.azzb .azz-ar{min-width:22px;width:22px;padding:0}
+.azzb .azz-ar svg{width:10px;height:10px}
+.azz-h{display:flex;align-items:center;gap:4px}
+.azz-track{position:relative;width:clamp(150px,18vw,280px);height:14px;border-radius:7px;cursor:pointer;
+  background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.03));border:1px solid rgba(0,0,0,.28);box-shadow:inset 0 1px 2px rgba(0,0,0,.12)}
+.azz-thumb{position:absolute;top:1px;bottom:1px;left:0;min-width:28px;border-radius:6px;cursor:grab;display:flex;align-items:center;justify-content:center;gap:2px;
+  background:linear-gradient(180deg,#3a3d42,#17181a);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 1px 3px rgba(0,0,0,.3);transition:background .2s}
+.azz-thumb i{width:1px;height:6px;background:rgba(255,255,255,.55)}
+.azz-thumb:hover,.azz-thumb.drag{background:linear-gradient(180deg,#4a4e54,#1f2124)}
+.azz-thumb.drag{cursor:grabbing}
+.azz-h.off .azz-track{opacity:.4;cursor:default}
+.azz-h.off .azz-thumb{background:rgba(0,0,0,.14);box-shadow:none;cursor:default}
+.azz-h.off .azz-thumb i{display:none}
+.azz-h.off .azz-ar{opacity:.4;pointer-events:none}
+.azz-dv{width:1px;height:18px;background:rgba(0,0,0,.2);margin:0 4px}
+.azzb .azz-tool.on{background:#0b0b0b;color:#f4e3bd;border-color:#0b0b0b;box-shadow:0 0 0 1px rgba(214,179,106,.55),0 0 14px -2px rgba(214,179,106,.6)}
+.azzb .azz-fit span{padding-top:1px}
+.azzb .azz-pm{width:24px;min-width:24px;padding:0;font-size:14px;letter-spacing:0}
+.azz-range{-webkit-appearance:none;appearance:none;width:clamp(110px,11vw,170px);height:14px;background:transparent;cursor:pointer;margin:0 2px;
+  --fill:33.3%}
+.azz-range::-webkit-slider-runnable-track{height:3px;border-radius:2px;
+  background:linear-gradient(90deg,#0b0b0b var(--fill),rgba(0,0,0,.2) var(--fill)),linear-gradient(90deg,transparent calc(33.33% - .5px),rgba(0,0,0,.55) calc(33.33% - .5px),rgba(0,0,0,.55) calc(33.33% + .5px),transparent calc(33.33% + .5px))}
+.azz-range::-moz-range-track{height:3px;border-radius:2px;background:rgba(0,0,0,.2)}
+.azz-range::-moz-range-progress{height:3px;background:#0b0b0b}
+.azz-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;margin-top:-4.5px;border-radius:50%;background:#fff;border:1.5px solid #0b0b0b;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.azz-range::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid #0b0b0b}
+.azzb .azz-pct{min-width:54px;font-size:12px;letter-spacing:.02em;font-weight:600;background:transparent;border-color:transparent;box-shadow:none}
+.azzb .azz-pct:hover{border-color:rgba(0,0,0,.4);background:rgba(255,255,255,.4)}
+html.azz-zooming .main{cursor:zoom-in}
+html.azz-zooming.azz-alt .main{cursor:zoom-out}
+html.azz-panning .main{cursor:grab}
+html.azz-grabbing,html.azz-grabbing *{cursor:grabbing!important}
+html.azz-zooming .main *,html.azz-panning .main *{user-select:none;-webkit-user-select:none}
+html.azz-zooming .kstrip,html.azz-panning .kstrip,html.azz-zooming .azfoot,html.azz-panning .azfoot{cursor:auto}
+@media print{.azzb{display:none!important}}
+</style>
+
+<script>
+/* ═══ ATRIUM ENGINE · CASH FLOW PERIOD (Jamie for Daniel, 15 Sep) ═════════════
+   Three pills at the right of the Cash Flow title: Month · Quarter · Year.
+   The engine already computes every month; its Cash Flow only groups those
+   months into quarters for display (ENG.toQuarters, keyed on each calendar
+   month's `q`). For Month and Year the grouping key is swapped for the length
+   of one render (each month's own label, or its calendar year) and put back
+   straight after, so nothing is recalculated, MODEL is never touched and no
+   save is triggered. Every total, balance and the cumulative line are the same
+   numbers regrouped; balances still show the closing figure of each period.
+   The choice is kept on this computer. */
+(function(){
+  var KEY = 'az_cf_period_v1', P = 'Q';
+  try { P = localStorage.getItem(KEY) || 'Q'; } catch(e){}
+  if(['M','Q','Y'].indexOf(P) < 0) P = 'Q';
+  var NOTE = { M: 'monthly · computed monthly', Q: 'quarterly · computed monthly, grouped for display', Y: 'yearly · calendar years, computed monthly' };
+
+  var inner = window.rCF;
+  if(typeof inner !== 'function') return;
+  window.rCF = function(){
+    if(P === 'Q') return inner.apply(this, arguments);
+    var saved = CAL.map(function(c){ return c.q; });
+    CAL.forEach(function(c){ c.q = P === 'M' ? c.label : String(c.y); });
+    try { return inner.apply(this, arguments); }
+    finally { CAL.forEach(function(c, i){ c.q = saved[i]; }); }
+  };
+
+  var row = document.querySelector('#p4 .th-row');
+  if(!row) return;
+  var box = document.createElement('div'); box.className = 'azcf-per'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'Cash flow period');
+  [['M','Month'],['Q','Quarter'],['Y','Year']].forEach(function(o){
+    var b = document.createElement('button'); b.type = 'button'; b.dataset.p = o[0]; b.textContent = o[1];
+    b.onclick = function(){ set(o[0]); }; box.appendChild(b);
+  });
+  row.appendChild(box);
+  var note = row.querySelector('.th-note');
+
+  function paint(){
+    box.querySelectorAll('button').forEach(function(b){ var on = b.dataset.p === P; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    if(note) note.textContent = NOTE[P];
+  }
+  function set(p){
+    if(p === P) return; P = p;
+    try { localStorage.setItem(KEY, P); } catch(e){}
+    paint();
+    var w = document.querySelector('#p4 .cf-wrap'); if(w) w.scrollLeft = 0;
+    window.rCF();
+    window.dispatchEvent(new Event('resize'));          // lets the slider re-measure the new width
+  }
+  paint();
+  if(P !== 'Q') window.rCF();
+})();
+</script>
+<style>
+/* ── Cash Flow period pills ───────────────────────────────────────────── */
+#p4 .th-row{align-items:center}
+.azcf-per{display:inline-flex;gap:6px;margin-left:16px}
+.azcf-per button{height:26px;padding:0 14px;border-radius:13px;cursor:pointer;font:500 10px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:#0b0b0b;background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);transition:background .2s,border-color .2s,box-shadow .2s,color .2s}
+.azcf-per button:hover{background:rgba(255,255,255,.62);border-color:rgba(0,0,0,.7)}
+.azcf-per button.on{background:#0b0b0b;color:#f4e3bd;border-color:#0b0b0b;box-shadow:0 0 0 1px rgba(214,179,106,.55),0 0 14px -2px rgba(214,179,106,.6)}
+/* the pinned first column: its heading stays above the other headings while
+   sliding, and a hovered row's name cell stays solid so figures never show through */
+#cftbl thead th.stk,#ctbl thead th.stk{z-index:5}
+#cftbl tr:hover td.stk{background:#e9e6e1}
+@media print{.azcf-per{display:none!important}}
+</style>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    CLEAN SKIN — added by ATRIUM (Jamie, 11 Sep). Look and feel only.
