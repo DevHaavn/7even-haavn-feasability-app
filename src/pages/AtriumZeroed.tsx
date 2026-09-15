@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabase'
 
 const IDX_KEY = 'atrium_zeroed_index'
 const rowKey = (id: string) => `atrium_zeroed:${id}`
-const SRC = '/atrium-zeroed.html?v=12'
+const SRC = '/atrium-zeroed.html?v=13'
 
 type Meta = { id: string; name: string; created: string; updated: string }
 type Index = { v: 1; activeId: string | null; projects: Meta[] }
@@ -110,6 +110,8 @@ const SHELL_CSS = `
   box-shadow:0 0 9px rgba(244,227,189,.55),0 0 26px rgba(214,179,106,.35),inset 0 0 9px rgba(214,179,106,.24)}
 .azs-dv{width:1px;height:18px;background:rgba(255,255,255,.22);margin:0 4px}
 .azs-note{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.azs.max .azs-bar,.azs.max .azs-isle{display:none}
+.azs.max .azs-frame{top:0;height:100%;z-index:40}
 .azs-frame{position:absolute;top:${ISLAND_TOP + ROW}px;left:0;right:0;bottom:0;width:100%;height:calc(100% - ${ISLAND_TOP + ROW}px);
   z-index:1;border:0;display:block;background:transparent;color-scheme:light}
 `
@@ -308,6 +310,7 @@ export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => voi
   const [navSec, setNavSec] = useState<'projects' | 'export' | null>(null)
   const [tabs, setTabs] = useState<number[]>([0, 1, 2, 3, 4, 5, 6])
   const [busy, setBusy] = useState<'' | 'pdf' | 'xlsx'>('')
+  const [max, setMax] = useState(false)     // the engine's Full screen button
   const navRef = useRef<HTMLDivElement | null>(null)
 
   /** A row actually landed in Supabase. `stamp` is false on boot, where the
@@ -383,6 +386,7 @@ export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => voi
         return
       }
       if (d.atriumZeroed === 'exported') { setBusy(''); return }
+      if (d.atriumZeroed === 'maximize') { setMax(!!(d as { on?: boolean }).on); setMenu(false); setNav(false); return }
       if (d.atriumZeroed !== 'model' || !d.model) return
       model.current = d.model
       if (idxRef.current.activeId) queue()
@@ -469,6 +473,17 @@ export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => voi
     return () => { window.removeEventListener('blur', close); window.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onDown) }
   }, [nav])
 
+  useEffect(() => {
+    if (!max) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setMax(false)
+      frame.current?.contentWindow?.postMessage({ atriumZeroed: 'maximize', on: false }, '*')
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [max])
+
   const exportAs = (kind: 'pdf' | 'xlsx') => {
     if (!tabs.length || busy) return
     setBusy(kind)
@@ -540,7 +555,7 @@ export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => voi
       + '\nClick to save now.'
 
   return (
-    <div className="azs">
+    <div className={`azs${max ? ' max' : ''}`}>
       <style>{SHELL_CSS + PILL_CSS + NAV_CSS}</style>
       {/* The island: the home-page video runs behind the header and the nav. */}
       <div className="azs-isle" aria-hidden="true">

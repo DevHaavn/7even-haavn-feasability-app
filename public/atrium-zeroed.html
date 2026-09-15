@@ -3954,7 +3954,8 @@ renderAll();
     right: '<svg viewBox="0 0 10 10"><path d="M3.5 1.5 7 5 3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     zoom:  '<svg viewBox="0 0 16 16"><circle cx="6.8" cy="6.8" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10.3 10.3 4 4M4.8 6.8h4M6.8 4.8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     pan:   '<svg viewBox="0 0 16 16"><path d="M5.2 8.6V3.4a1 1 0 0 1 2 0v4.4-5.6a1 1 0 0 1 2 0v5.6-4.6a1 1 0 0 1 2 0v5.4-3a1 1 0 0 1 2 0v4.2c0 3-2 5.2-5 5.2-2.3 0-3.4-1-4.6-3L2.3 9.2a1 1 0 0 1 1.6-1.2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
-    fit:   '<svg viewBox="0 0 16 16"><path d="M1.5 5.5v-4h4M14.5 5.5v-4h-4M1.5 10.5v4h4M14.5 10.5v4h-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    max:   '<svg viewBox="0 0 16 16"><path d="M1.5 5.5v-4h4M14.5 5.5v-4h-4M1.5 10.5v4h4M14.5 10.5v4h-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    min:   '<svg viewBox="0 0 16 16"><path d="M5.5 1.5v4h-4M10.5 1.5v4h4M5.5 14.5v-4h-4M10.5 14.5v-4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
   var bar = document.createElement('div'); bar.className = 'azzb';
   bar.innerHTML =
@@ -3966,7 +3967,7 @@ renderAll();
     + '<span class="azz-dv"></span>'
     + '<button class="azz-tool" data-tool="zoom" title="Zoom tool: wheel or click to zoom in, Alt click to zoom out (Esc to finish)">' + I.zoom + '</button>'
     + '<button class="azz-tool" data-tool="pan" title="Hand tool: click and drag to slide the sheet (Esc to finish)">' + I.pan + '</button>'
-    + '<button class="azz-fit" title="Fit the widest table to the screen">' + I.fit + '<span>Fit</span></button>'
+    + '<button class="azz-fit" title="Full screen: hide the header, side menu and footer (Esc to return)">' + I.max + '<span>Full screen</span></button>'
     + '<span class="azz-dv"></span>'
     + '<button class="azz-pm" data-step="-1" aria-label="Zoom out">−</button>'
     + '<input class="azz-range" type="range" min="' + ZMIN + '" max="' + ZMAX + '" step="5" aria-label="Zoom">'
@@ -4024,11 +4025,22 @@ renderAll();
   });
   range.addEventListener('input', function(){ setZoom(+range.value); });
   pct.addEventListener('click', function(){ setZoom(100); });
-  bar.querySelector('.azz-fit').addEventListener('click', function(){
-    var sc = hScroller(), z = zoomOf();
-    if(!sc){ setZoom(100); return; }
-    setZoom(Math.floor(z * (sc.clientWidth - 8) / sc.scrollWidth / 5) * 5);
-  });
+  /* Full screen (Jamie, 15 Sep): the working area takes the whole window. The
+     engine hides its own top bar, side menu and footer; the ATRIUM shell hides
+     its header island and lets the engine cover it. Same button, or Esc, to
+     come back. Always starts in the normal view. */
+  var maxOn = false, maxBtn = bar.querySelector('.azz-fit');
+  function setMax(on, fromShell){
+    maxOn = !!on;
+    document.documentElement.classList.toggle('azz-max', maxOn);
+    maxBtn.classList.toggle('on', maxOn);
+    maxBtn.innerHTML = (maxOn ? I.min : I.max) + '<span>' + (maxOn ? 'Exit full screen' : 'Full screen') + '</span>';
+    maxBtn.title = maxOn ? 'Back to the app (Esc)' : 'Full screen: hide the header, side menu and footer (Esc to return)';
+    if(!fromShell){ try { parent !== window && parent.postMessage({ atriumZeroed: 'maximize', on: maxOn }, '*'); } catch(e){} }
+    setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 60);
+  }
+  maxBtn.addEventListener('click', function(){ setMax(!maxOn); });
+  window.addEventListener('message', function(e){ var d = e.data || {}; if(d.atriumZeroed === 'maximize' && !!d.on !== maxOn) setMax(d.on, true); });
 
   /* tools */
   function setTool(t){
@@ -4039,7 +4051,7 @@ renderAll();
   }
   bar.querySelectorAll('.azz-tool').forEach(function(b){ b.addEventListener('click', function(){ setTool(b.dataset.tool); }); });
   window.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && tool) setTool(tool);
+    if(e.key === 'Escape'){ if(tool) setTool(tool); else if(maxOn) setMax(false); }
     if(e.key === 'Alt') document.documentElement.classList.add('azz-alt');
   });
   window.addEventListener('keyup', function(e){ if(e.key === 'Alt') document.documentElement.classList.remove('azz-alt'); });
@@ -4102,6 +4114,7 @@ renderAll();
   background:rgba(255,255,255,.28);border:1px solid rgba(0,0,0,.34);color:#0b0b0b;font:500 10px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7);transition:background .2s,border-color .2s,box-shadow .2s}
 .azzb button:hover{background:rgba(255,255,255,.6);border-color:rgba(0,0,0,.7)}
+.azzb button:focus{outline:none}.azzb button:focus-visible{outline:2px solid rgba(214,179,106,.8);outline-offset:1px}
 .azzb button svg{width:13px;height:13px;display:block}
 .azzb .azz-ar{min-width:22px;width:22px;padding:0}
 .azzb .azz-ar svg{width:10px;height:10px}
@@ -4120,6 +4133,13 @@ renderAll();
 .azz-dv{width:1px;height:18px;background:rgba(0,0,0,.2);margin:0 4px}
 .azzb .azz-tool.on{background:#0b0b0b;color:#f4e3bd;border-color:#0b0b0b;box-shadow:0 0 0 1px rgba(214,179,106,.55),0 0 14px -2px rgba(214,179,106,.6)}
 .azzb .azz-fit span{padding-top:1px}
+.azzb .azz-fit.on{background:#0b0b0b;color:#f4e3bd;border-color:#0b0b0b;box-shadow:0 0 0 1px rgba(214,179,106,.55),0 0 14px -2px rgba(214,179,106,.6)}
+/* full screen: the working area over everything */
+html.azz-max .topbar,html.azz-max .nav,html.azz-max .azfoot,html.azz-max .azfgap{display:none!important}
+html.azz-max body{background:var(--bg)!important}
+html.azz-max .main,html.azz-max .kstrip{border-radius:0}
+html.azz-max .pane,html.azz-max .scrollpad{background:var(--bg)!important}
+html.azz-max .scrollpad{padding-bottom:18px!important}
 .azzb .azz-pm{width:24px;min-width:24px;padding:0;font-size:14px;letter-spacing:0}
 .azz-range{-webkit-appearance:none;appearance:none;width:clamp(110px,11vw,170px);height:14px;background:transparent;cursor:pointer;margin:0 2px;
   --fill:33.3%}
