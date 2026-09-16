@@ -158,6 +158,9 @@ const CSS = `
 .ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
 .ath-brandrow:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
 .ath-brandrow .g{color:#d6d9dd;font-size:12px}
+.ath-rowname{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#d6d9dd;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.ath-rowname.gold{color:#d6b36a;text-shadow:0 0 8px rgba(244,227,189,.6)}
+.ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname,.ath-base:hover .ath-rowname{color:#fff}
 .ath-logoutrow{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:12px 16px;cursor:pointer;
   font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
   background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:2px;transition:.3s}
@@ -384,7 +387,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                   the old feasibility studio's project list is switched off (its
                   data is untouched in the store). PIN first, then straight in. */}
               <button className="ath-base" title="BASE — ATRIUM Engine" onClick={() => { if (baseUnlocked) { setZeroedOpen(true); setMenuOpen(false) } else { setPinPrompt(v => !v); setPinVal(''); setPinErr(false) } }}>
-                <img src="/base-white.png" alt="BASE" />
+                <span className="ath-rowname">BASE</span>
                 <span className="g">→</span>
               </button>
               {pinPrompt && !baseUnlocked && (
@@ -410,34 +413,34 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               )}
               {/* HORI7ON — 7EVEN sub-brand: project overview display */}
               <button className="ath-brandrow" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
-                <img style={{ height: 13 }} src="/hori7on-white.png" alt="HORI7ON" />
+                <span className="ath-rowname">HORI7ON</span>
                 <span className="g">→</span>
               </button>
               {/* ENTERPRISE — Capital Base / accounts administration (replaces the wings button) */}
               {role !== 'external' && (
                 <button className="ath-hor7" title="ENTERPRISE — Accounts &amp; Administration" onClick={() => { setCapitalOpen(true); setMenuOpen(false) }}>
-                  <img src="/enterprise-gold.png" alt="ENTERPRISE" />
+                  <span className="ath-rowname gold">ENTERPRISE</span>
                   <span className="g">→</span>
                 </button>
               )}
               {/* HM + HAAVN BLACK — moved in from the footer */}
               <button className="ath-brandrow" title="NAVIGATORS — Management Hub" onClick={() => { setHmOpen(true); setMenuOpen(false) }}>
-                <img style={{ height: 13 }} src="/navigators-white.png" alt="NAVIGATORS" />
+                <span className="ath-rowname">NAVIGATORS</span>
                 <span className="g">→</span>
               </button>
               {/* PROJECT 7 — the philanthropic arm of 7EVEN */}
               <button className="ath-brandrow" title="PROJECT 7 — Not for profit" onClick={() => { window.location.href = '/project-7.html' }}>
-                <img style={{ height: 13 }} src="/pro7ect-white.png" alt="PROJECT 7" />
+                <span className="ath-rowname">PROJECT 7</span>
                 <span className="g">→</span>
               </button>
               <button className="ath-brandrow" title="HAAVN BLACK — Homes" onClick={() => { onOpenHomes?.(); setMenuOpen(false) }}>
-                <img style={{ height: 12 }} src="/haavn-black-logo.png" alt="HAAVN BLACK" />
+                <span className="ath-rowname">HAAVN BLACK</span>
                 <span className="g">→</span>
               </button>
               {/* HAAVN — the supply business. Its own pillar alongside 7EVEN and
                   HAAVN BLACK: presentations, the document library, its own surface. */}
               <button className="ath-brandrow" title="HAAVN — Modular Supply" onClick={() => { window.location.href = '/haavn-supply/index.html' }}>
-                <img style={{ height: 13 }} src="/haavn-wordmark-white.png" alt="HAAVN" />
+                <span className="ath-rowname">HAAVN</span>
                 <span className="g">→</span>
               </button>
               <button className="ath-logoutrow" onClick={() => onLogout?.()}>LOG OUT</button>

@@ -23,18 +23,25 @@ export default function App() {
   const { activeProjectId, projects, loadProjects, bumpSync, setActiveProject } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
   const [role, setRole] = useState<Role>(getStoredRole())
-  const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(null)
+  /* PHONE STABILITY (Jamie, 16 Sep) — which surface is open is remembered for
+     this session. A phone can drop the page while showing the homes (rotating
+     or zooming a large render is enough), and the app used to come back on the
+     7EVEN home screen. Now it comes back where it was. */
+  const VIEW_KEY = 'atrium_surface_v1'
+  const saved: { homes?: boolean; display?: boolean; crm?: boolean; capital?: boolean; dash?: '7even' | 'haavn' | null } =
+    (() => { try { return JSON.parse(sessionStorage.getItem(VIEW_KEY) || '{}') } catch { return {} } })()
+  const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(saved.dash ?? null)
   // HAAVN HOMES — the Black Series homes company. A separate surface with its own
   // store; never shares data with the Feasibility Studio.
-  const [homesOpen, setHomesOpen] = useState(false)
+  const [homesOpen, setHomesOpen] = useState(!!saved.homes)
   // The HM CRM (Management Hub) opened from within the restricted HAAVN HOMES
   // builder view (Jeffrey Witbreuk + team).
-  const [homesCrmOpen, setHomesCrmOpen] = useState(false)
+  const [homesCrmOpen, setHomesCrmOpen] = useState(!!saved.crm)
   // Customer-facing Display Suite (DS logo, top-left of HAAVN Homes).
-  const [displaySuiteOpen, setDisplaySuiteOpen] = useState(false)
+  const [displaySuiteOpen, setDisplaySuiteOpen] = useState(!!saved.display)
   // Capital Base (accounts management) opened from the CAPITAL wings in the HAAVN
   // BLACK hero header. Admin surface only — never wired for restricted logins.
-  const [homesCapitalOpen, setHomesCapitalOpen] = useState(false)
+  const [homesCapitalOpen, setHomesCapitalOpen] = useState(!!saved.capital)
   const [manageOpen, setManageOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
@@ -43,6 +50,11 @@ export default function App() {
   const atriumTheme = useAtriumTheme()
   const theme: 'light' | 'blk' = atriumTheme === 'dark' ? 'blk' : 'light'
   const setTheme = (t: 'light' | 'blk') => setAtriumTheme(t === 'blk' ? 'dark' : 'light')
+
+  useEffect(() => {
+    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({ homes: homesOpen, display: displaySuiteOpen, crm: homesCrmOpen, capital: homesCapitalOpen, dash: dashboardBrand })) }
+    catch { /* private mode */ }
+  }, [homesOpen, displaySuiteOpen, homesCrmOpen, homesCapitalOpen, dashboardBrand])
 
   // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
   // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.
@@ -150,6 +162,7 @@ export default function App() {
 
   function handleLogout() {
     localStorage.removeItem('7even_auth')
+    try { sessionStorage.removeItem(VIEW_KEY) } catch { /* ignore */ }
     clearStoredRole()
     setAuthed(false)
     setRole('admin')

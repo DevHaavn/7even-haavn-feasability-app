@@ -241,6 +241,19 @@ footer .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
 
 <script>
 var R='/haavn-renders/';
+/* PHONE STABILITY (Jamie, 16 Sep) — the renders are up to 3326px wide, and a
+   gallery of seventeen of them decodes to hundreds of megabytes on a phone.
+   iOS then drops the page, it reloads, and the app lands back on the home
+   screen. So: thumbnails load a 1200px copy, the full-screen viewer loads a
+   2400px copy on phones (still sharp to zoom into a floor plan) and the
+   original on desktop, the viewer releases its image when you close it, and
+   where you were is remembered so a reload puts you back. */
+var PHONE = (function(){ try { return matchMedia('(max-width:900px)').matches
+  || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) <= 900); } catch(e){ return false; } })();
+function smallSrc(src){ return src ? src.replace(/\.jpg$/i, '-sm.jpg') : src; }
+function viewSrc(src){ return (PHONE && src) ? src.replace(/\.jpg$/i, '-md.jpg') : src; }
+/* every sized copy falls back to the file it was made from */
+function fb(src){ return ' onerror="this.onerror=null;this.src=\''+src+'\'"'; }
 var HM='<svg viewBox="0 0 389.3 100"><path d="M 0 0 L 25.5 0 L 25.5 40.5 L 112.5 40.5 L 112.5 0 L 138 0 L 138 100 L 112.5 100 L 112.5 66.5 L 25.5 66.5 L 25.5 100 L 0 100 Z M 145.9 0 L 146 100 L 172.4 100 L 172.4 12.4 L 263.8 100 L 299.2 100 L 262.7 62.3 L 263.2 12.8 L 353.1 100 L 389.3 100 L 288.4 0 L 237.5 0 L 236 35.4 L 198.9 0 Z"/></svg>';
 var HOMES=[
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling — a single, perfect module.',area:60.3,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
@@ -274,7 +287,7 @@ var HOMES=[
 ];
 var shortlist=0;
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function visual(h){return h.img?'<img src="'+h.img+'" alt="'+esc(h.key)+'" loading="lazy">':'<div class="mark">'+HM+'</div>';}
+function visual(h){return h.img?'<img src="'+smallSrc(h.img)+'" alt="'+esc(h.key)+'" loading="lazy" decoding="async"'+fb(h.img)+'>':'<div class="mark">'+HM+'</div>';}
 function card(h,i){
   return '<div class="card" onclick="openHome('+i+')">'+
     '<div class="visual">'+visual(h)+'<span class="series">'+(h.series==='black'?'BLACK SERIES':'ESSENTIALS')+'</span></div>'+
@@ -295,7 +308,7 @@ function openHome(i){
   var planItems=h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};});
   LBMEDIA=galleryItems.concat(planItems); var GL=galleryItems.length;
   var heroIdx=0; for(var _k=0;_k<galleryItems.length;_k++){if(galleryItems[_k].src===h.img){heroIdx=_k;break;}}
-  var hero=h.img?'<img src="'+h.img+'" alt="'+esc(h.key)+'">':'<div class="mark">'+HM+'</div>';
+  var hero=h.img?'<img src="'+(PHONE?smallSrc(h.img):h.img)+'" alt="'+esc(h.key)+'" decoding="async"'+fb(h.img)+'>':'<div class="mark">'+HM+'</div>';
   var enlarge=LBMEDIA.length?'<button class="d-enlarge" onclick="openLightbox('+heroIdx+')">⤢ Enlarge</button>':'';
   var tiles=[['Internal area',h.area.toFixed(1)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],['Storeys',h.storeys],['Modules',h.modules],['Garage','<small>'+h.garage+'</small>']]
     .map(function(t){return '<div class="t"><div class="tl">'+t[0].toUpperCase()+'</div><div class="tv">'+t[1]+'</div></div>';}).join('');
@@ -307,8 +320,8 @@ function openHome(i){
           'Factory-finished · <1mm precision']
     .map(function(x){return '<div class="h"><span class="d">◆</span><span>'+x+'</span></div>';}).join('');
   var plans=h.plans.length?('<div class="d-sec"><h3>Floor plans</h3><div class="plans">'+
-    h.plans.map(function(p,pj){return '<div class="plan"><img src="'+p[1]+'" alt="'+esc(p[0])+'" onclick="openLightbox('+(GL+pj)+')"><div class="cap">'+esc(p[0])+'</div></div>';}).join('')+'</div></div>'):'';
-   var gallery=(h.gallery&&h.gallery.length)?('<div class="d-sec"><h3>Gallery</h3><div class="plans">'+h.gallery.map(function(src,gi){return '<div class="plan"><img src="'+src+'" alt="'+esc(h.key)+' render '+(gi+1)+'" loading="lazy" onclick="openLightbox('+gi+')"><div class="cap">View '+(gi+1)+'</div></div>';}).join('')+'</div></div>'):'';
+    h.plans.map(function(p,pj){return '<div class="plan"><img src="'+smallSrc(p[1])+'" alt="'+esc(p[0])+'" loading="lazy" decoding="async"'+fb(p[1])+' onclick="openLightbox('+(GL+pj)+')"><div class="cap">'+esc(p[0])+'</div></div>';}).join('')+'</div></div>'):'';
+   var gallery=(h.gallery&&h.gallery.length)?('<div class="d-sec"><h3>Gallery</h3><div class="plans">'+h.gallery.map(function(src,gi){return '<div class="plan"><img src="'+smallSrc(src)+'" alt="'+esc(h.key)+' render '+(gi+1)+'" loading="lazy" decoding="async"'+fb(src)+' onclick="openLightbox('+gi+')"><div class="cap">View '+(gi+1)+'</div></div>';}).join('')+'</div></div>'):'';
   var el=document.getElementById('detail');
   el.innerHTML=
     '<div class="d-hero">'+hero+
@@ -334,17 +347,57 @@ function openHome(i){
         '<button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="closeHome()">← Back to the range</button></div>'+
     '</aside></div>';
   el.classList.add('on');el.scrollTop=0;document.body.style.overflow='hidden';
+  OPEN_HOME=i; remember();
 }
-function closeHome(){var el=document.getElementById('detail');el.classList.remove('on');document.body.style.overflow='';}
+function closeHome(){var el=document.getElementById('detail');el.classList.remove('on');document.body.style.overflow='';
+  OPEN_HOME=null; LBMEDIA=[]; remember();
+  setTimeout(function(){ if(!el.classList.contains('on')) el.innerHTML=''; }, 400);   // release the pictures
+}
 var LBMEDIA=[], LBIDX=0;
-function openLightbox(idx){if(!LBMEDIA.length)return;LBIDX=((idx||0)%LBMEDIA.length+LBMEDIA.length)%LBMEDIA.length;lbRender();document.getElementById('lb').classList.add('on');}
-function lbRender(){var m=LBMEDIA[LBIDX]||{};document.getElementById('lbImg').src=m.src||'';document.getElementById('lbCap').textContent=m.cap||'';document.getElementById('lbCount').textContent=(LBIDX+1)+' / '+LBMEDIA.length;}
-function lbGo(d){if(!LBMEDIA.length)return;LBIDX=(LBIDX+d+LBMEDIA.length)%LBMEDIA.length;lbRender();}
-function closeLb(){document.getElementById('lb').classList.remove('on');}
+function openLightbox(idx){if(!LBMEDIA.length)return;LBIDX=((idx||0)%LBMEDIA.length+LBMEDIA.length)%LBMEDIA.length;lbRender();document.getElementById('lb').classList.add('on');remember();}
+function lbRender(){var m=LBMEDIA[LBIDX]||{}, im=document.getElementById('lbImg');
+  var full=m.src||'';
+  im.onerror=function(){ im.onerror=null; im.src=full; };      // no sized copy, use the original
+  im.decoding='async'; im.src=viewSrc(full);
+  document.getElementById('lbCap').textContent=m.cap||'';document.getElementById('lbCount').textContent=(LBIDX+1)+' / '+LBMEDIA.length;}
+function lbGo(d){if(!LBMEDIA.length)return;LBIDX=(LBIDX+d+LBMEDIA.length)%LBMEDIA.length;lbRender();remember();}
+function closeLb(){document.getElementById('lb').classList.remove('on');
+  var im=document.getElementById('lbImg'); im.onerror=null; im.removeAttribute('src');   // free the full-size picture
+  remember();}
 function lightbox(src){LBMEDIA=[{src:src,cap:''}];openLightbox(0);}
 (function(){var lb=document.getElementById('lb');lb.addEventListener('click',function(e){if(e.target===lb)closeLb();});
 document.addEventListener('keydown',function(e){if(!lb.classList.contains('on'))return;if(e.key==='ArrowLeft')lbGo(-1);else if(e.key==='ArrowRight')lbGo(1);else if(e.key==='Escape')closeLb();});})();
 function addShort(){shortlist++;document.getElementById('slCount').textContent=shortlist;}
+
+/* Where you were, kept for this session. A phone that drops the page (rotating
+   or zooming a big picture can do it) comes back to the same home, the same
+   picture and the same place on the page instead of the front screen. */
+var OPEN_HOME=null, VIEW_KEY='haavn_display_view_v1', restoring=false;
+function remember(){ if(restoring) return;
+  try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({
+    home: OPEN_HOME,
+    lb: document.getElementById('lb').classList.contains('on') ? LBIDX : null,
+    series: (document.querySelector('#rangeToggle .seg.on')||{}).getAttribute ? document.querySelector('#rangeToggle .seg.on').getAttribute('data-series') : 'black',
+    y: OPEN_HOME!=null ? document.getElementById('detail').scrollTop : (window.scrollY||0)
+  })); } catch(e){}
+}
+(function restore(){
+  var v; try { v=JSON.parse(sessionStorage.getItem(VIEW_KEY)||'null'); } catch(e){}
+  if(!v) return;
+  restoring=true;
+  if(v.series && v.series!=='black'){ var b=document.querySelector('#rangeToggle .seg[data-series="'+v.series+'"]');
+    if(b){ document.querySelectorAll('#rangeToggle .seg').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); renderRange(v.series); } }
+  if(v.home!=null && HOMES[v.home]){
+    openHome(v.home);
+    if(v.y) setTimeout(function(){ document.getElementById('detail').scrollTop=v.y; }, 60);
+    if(v.lb!=null) openLightbox(v.lb);
+  } else if(v.y) setTimeout(function(){ window.scrollTo(0, v.y); }, 60);
+  restoring=false;
+})();
+/* keep the page position too, cheaply */
+window.addEventListener('scroll', function(){ clearTimeout(window.__rt); window.__rt=setTimeout(remember, 400); }, {passive:true});
+document.getElementById('detail').addEventListener('scroll', function(){ clearTimeout(window.__rt2); window.__rt2=setTimeout(remember, 400); }, {passive:true});
+document.getElementById('rangeToggle').addEventListener('click', function(){ setTimeout(remember, 0); });
 function enquire(k){window.location.href='mailto:design@haavn.au?bcc=jamie@haavn.au&subject='+encodeURIComponent('HAAVN Display Suite enquiry — '+k)+'&body='+encodeURIComponent('I would like to enquire about the '+k+'.\n\nName:\nPhone:\nPreferred contact:\n');}
 document.getElementById('btnBack').addEventListener('click',function(e){e.preventDefault();try{parent.postMessage('haavn-ds-close','*');}catch(err){}});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var lb=document.getElementById('lb');if(lb.classList.contains('on'))lb.classList.remove('on');else if(document.getElementById('detail').classList.contains('on'))closeHome();}});

@@ -129,7 +129,11 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   onLogout?: () => void
 }) {
   const [list, setList] = useState<HomeProject[]>(() => load())
-  const [openId, setOpenId] = useState<string | null>(null)
+  /* Which studio is open survives a page drop on a phone, like the surface
+     itself does in App.tsx. */
+  const OPEN_KEY = 'haavn_black_open_v1'
+  const [openId, setOpenId] = useState<string | null>(() => { try { return sessionStorage.getItem(OPEN_KEY) || null } catch { return null } })
+  useEffect(() => { try { openId ? sessionStorage.setItem(OPEN_KEY, openId) : sessionStorage.removeItem(OPEN_KEY) } catch { /* ignore */ } }, [openId])
   // The LED welcome intro plays once per browser session when entering HAAVN BLACK,
   // then EXPLORE reveals the main hero; subsequent entries skip straight to it.
   const [welcomed, setWelcomed] = useState<boolean>(() => {
@@ -197,7 +201,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title={welcomed ? 'HAAVN BLACK' : 'HAAVN BLACK — Welcome'}
-        src={welcomed ? '/haavn-black.html?v=26' : '/haavn-black-welcome.html'} allow="autoplay; fullscreen"
+        src={welcomed ? '/haavn-black.html?v=27' : '/haavn-black-welcome.html'} allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )
