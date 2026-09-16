@@ -9,7 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
-   HAAVN BLACK · STUDIO  (preview, Jamie 16 Sep)
+   HAAVN BLACK · STUDIO  (Jamie, 16 Sep)
+
+   The display suite. Opened from HAAVN BLACK inside the app, and openable on
+   a television's own browser with ?tv=1 for the paired remote.
 
    The product launch, not a brochure: one story told in chapters, the way a
    phone is launched. Open, why, design, the homes, how it is made, the films.
@@ -47,6 +50,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   padding:calc(14px + env(safe-area-inset-top)) clamp(16px,3vw,34px) 14px;
   background:linear-gradient(180deg,rgba(5,5,6,.92),rgba(5,5,6,0));transition:opacity .4s}
 .top .logo{height:15px;width:auto;opacity:.95}
+.top #btnBack{flex:none}
+@media(max-width:600px){.top #btnBack span{display:none}.top .logo{height:13px}}
 .top .ch{display:flex;gap:4px;margin-left:auto}
 .top .ch button{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink2);
   padding:9px 13px;border:1px solid transparent;border-radius:2px;transition:.3s}
@@ -248,6 +253,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 
 <!-- ── chrome ─────────────────────────────────────────────────────────── -->
 <header class="top" id="top">
+  <button class="btn ghost" id="btnBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Return</button>
   <img class="logo" src="/haavn-black-logo.png" alt="HAAVN BLACK">
   <nav class="ch" id="chapters"></nav>
   <div class="act">
@@ -641,6 +647,13 @@ if(TVMODE){
   var clear=setInterval(function(){ if(lastTs){ g.remove(); clearInterval(clear); } }, 300);
 }
 /* the TV screen keeps the last state, so a reload rejoins the same room code */
+/* Return to the HAAVN BLACK menu. Inside the app the shell listens for this
+   message; opened on its own (a television, a display iPad) it steps back. */
+document.getElementById('btnBack').onclick=function(){
+  try{ if(parent!==window){ parent.postMessage('haavn-ds-close','*'); return; } }catch(e){}
+  if(history.length>1) history.back(); else location.href='/';
+};
+
 var sheet=document.getElementById('tvSheet');
 document.getElementById('btnTv').onclick=function(){ sheet.classList.add('on');
   document.getElementById('tvUrl').textContent=location.origin+location.pathname+'?tv=1'; };

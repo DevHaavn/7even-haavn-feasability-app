@@ -2,12 +2,14 @@ import React, { useEffect } from 'react'
 import { useScrollLock } from '../lib/useScrollLock'
 
 /**
- * HAAVN Display Suite — the customer-facing showroom, opened from the DS logo in
- * the top-left of HAAVN Homes. Clients browse the range, floor plans and renders,
- * then send an enquiry (mailto → design@haavn.au, bcc jamie@haavn.au). Served
- * full-bleed from public/haavn-display-suite.html.
+ * HAAVN BLACK Studio — the display suite, opened from the DS logo in the
+ * top-left of HAAVN Homes. Built as a launch: the story, the design, the range
+ * with a page per home, and how it is made. It presents to a television either
+ * by pairing (the TV opens /haavn-black-studio.html?tv=1 and shows a code) or
+ * by mirroring with Present. Served full-bleed from public/haavn-black-studio.html;
+ * the previous suite stays at public/haavn-display-suite.html as a fallback.
  *
- * Its own nav "← Back" posts `haavn-ds-close`; Escape also closes.
+ * Its "← Return" posts `haavn-ds-close`; Escape also closes.
  */
 export default function HaavnDisplaySuite({ onClose }: { onClose: () => void }) {
   useScrollLock()
@@ -21,7 +23,7 @@ export default function HaavnDisplaySuite({ onClose }: { onClose: () => void }) 
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
-      <iframe title="HAAVN Display Suite" src="/haavn-display-suite.html?v=5"
+      <iframe title="HAAVN BLACK Studio" src="/haavn-black-studio.html?v=1" allow="fullscreen; autoplay"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )
