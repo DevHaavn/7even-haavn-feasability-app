@@ -236,6 +236,17 @@ body.remote-on .remote{display:flex}
 .rpad button{height:58px;border:1px solid var(--line2);border-radius:2px;font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase}
 .rpad button:active{background:rgba(47,224,122,.12);border-color:var(--led)}
 
+/* the hybrid switch on a product page: renders, or the model in their place */
+.hswitch{display:inline-flex;gap:6px;margin-top:22px;padding:6px;border:1px solid var(--line);border-radius:30px;background:rgba(10,10,11,.5);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.hsw{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:24px;cursor:pointer;
+  font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);transition:.25s}
+.hsw svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5}
+.hsw:hover{color:var(--ink)}
+.hsw.on{color:#eafff2;background:rgba(47,224,122,.14);box-shadow:inset 0 0 0 1px rgba(47,224,122,.5)}
+.heroframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3;opacity:0;transition:opacity .45s var(--out);background:#08080a}
+.heroframe.on{opacity:1}
+
 /* the live model, over the story */
 .modelwrap{position:fixed;inset:0;z-index:86;background:#08080a;opacity:0;pointer-events:none;transition:opacity .42s var(--out)}
 .modelwrap.on{opacity:1;pointer-events:auto}
@@ -430,7 +441,7 @@ var HM='<svg viewBox="0 0 389.3 100"><path d="M 0 0 L 25.5 0 L 25.5 40.5 L 112.5
 var HOMES=[
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60.3,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=2',
+  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3',
   gallery:['solum-ext-charred-01','solum-ext-stone-01','solum-ext-stone-02','solum-ext-stone-03','solum-ext-charred-02','solum-ext-charred-03','solum-ext-black-01','solum-ext-black-02','solum-ext-black-03','solum-int-01','solum-int-02','solum-int-03','solum-int-04','solum-int-05','solum-int-06','solum-int-07','solum-int-08'].map(function(n){return R+n+'.jpg';}),
   plans:[['Ground floor',R+'solum-floor-ground.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -533,9 +544,10 @@ function openHome(i, user){
   LB=h.gallery.map(function(s,gi){return {src:s,cap:h.key+' · View '+(gi+1)};})
         .concat(h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};}));
   var heroSrc=h.img?big(h.img):'';
-  var live=h.model?'<div style="margin-top:22px"><button class="btn live" id="pModel">'
-    +'<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/></svg>'
-    +'Live model</button></div>':'';
+  /* the hybrid: the render is the hero, the live model is one press away and
+     takes its place in the same frame, the way a car is shown */
+  var live=h.model?'<div class="hswitch"><button class="hsw on" data-mode="render">Renders</button>'
+    +'<button class="hsw" data-mode="live"><svg viewBox="0 0 24 24"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/></svg>Live model</button></div>':'';
   var nums=[['Internal area',h.area.toFixed(1)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],
             ['Storeys',h.storeys],['Modules',h.modules],['Minimum lot',h.frontage+'<small> × '+h.depth+' m</small>']]
     .map(function(n){return '<div class="n"><div class="k">'+n[0]+'</div><div class="v">'+n[1]+'</div></div>';}).join('');
@@ -554,9 +566,26 @@ function openHome(i, user){
   [].forEach.call(prod.querySelectorAll('img'),function(im){ var f=im.getAttribute('src').replace('-sm.jpg','.jpg'); if(im.closest('.gal')) fb(im,f); });
   [].forEach.call(prod.querySelectorAll('[data-lb]'),function(b){ b.onclick=function(){ openLb(+b.dataset.lb, true); }; });
   prod.querySelector('#pClose').onclick=function(){ closeHome(true); };
-  var mb=prod.querySelector('#pModel'); if(mb) mb.onclick=function(){ openModel(h.model, true); };
+  [].forEach.call(prod.querySelectorAll('.hsw'),function(b){
+    b.onclick=function(){
+      [].forEach.call(b.parentNode.children,function(x){x.classList.remove('on');}); b.classList.add('on');
+      if(b.dataset.mode==='live') heroLive(h, true); else heroRender(true);
+    };
+  });
   prod.classList.add('on'); prod.scrollTop=0; document.body.style.overflow='hidden';
   if(user) send({type:'home',i:i});
+}
+function heroLive(h, user){
+  var hero=prod.querySelector('.hero'); if(!hero || hero.querySelector('iframe')) return;
+  var f=document.createElement('iframe'); f.className='heroframe'; f.title=h.key+' live model';
+  f.setAttribute('allow','fullscreen'); f.src=h.model+(h.model.indexOf('?')<0?'?':'&')+'embed=1';
+  hero.appendChild(f); requestAnimationFrame(function(){ f.classList.add('on'); });
+  if(user) send({type:'heroLive', i:HOMES.indexOf(h)});
+}
+function heroRender(user){
+  var f=prod.querySelector('.heroframe'); if(!f) return;
+  f.classList.remove('on'); setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); }, 420);
+  if(user) send({type:'heroRender'});
 }
 function closeHome(user){ prod.classList.remove('on'); document.body.style.overflow='';
   openIdx=null; setTimeout(function(){ if(!prod.classList.contains('on')) prod.innerHTML=''; },500);
@@ -655,6 +684,8 @@ function apply(m){
   else if(m.type==='lb') { if(!lb.classList.contains('on')) openLb(m.i); else { LBI=m.i; paintLb(); } }
   else if(m.type==='lbClose') closeLb();
   else if(m.type==='film') playFilm(m.i);
+  else if(m.type==='heroLive'){ var hh=HOMES[m.i]; if(hh) heroLive(hh); }
+  else if(m.type==='heroRender') heroRender();
   else if(m.type==='model') openModel(m.src);
   else if(m.type==='modelClose') closeModel();
   else if(m.type==='end'){ present(false); location.reload(); }
