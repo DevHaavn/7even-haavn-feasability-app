@@ -115,7 +115,7 @@ const CSS = `
 .ath-pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .ath-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
   font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
-.ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--led);
+.ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;color:var(--led);
   border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
 .ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
 .ath-base{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin:4px 0 12px;padding:13px 16px;cursor:pointer;
@@ -127,7 +127,7 @@ const CSS = `
 /* ATRIUM ZEROED sits in the BASE list but is neither a feasibility nor a new
    project, so it takes the menu's neutral idiom: clear, and white on hover. */
 .ath-zeroed{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:12px;cursor:pointer;
-  font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;text-transform:uppercase;
   color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.32);border-radius:2px;
   padding:7px 12px;background:transparent;transition:.25s}
 .ath-zeroed:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);
@@ -158,11 +158,11 @@ const CSS = `
 .ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
 .ath-brandrow:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
 .ath-brandrow .g{color:#d6d9dd;font-size:12px}
-.ath-rowname{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#d6d9dd;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.ath-rowname{font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;text-transform:uppercase;color:#d6d9dd;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-rowname.gold{color:#d6b36a;text-shadow:0 0 8px rgba(244,227,189,.6)}
 .ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname,.ath-base:hover .ath-rowname{color:#fff}
 .ath-logoutrow{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:12px 16px;cursor:pointer;
-  font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
+  font-family:var(--mono);font-size:11.7px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
   background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:2px;transition:.3s}
 .ath-logoutrow:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
 .ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:2px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
