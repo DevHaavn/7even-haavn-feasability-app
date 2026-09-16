@@ -87,7 +87,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false, powerPreference:'high-performance' });
@@ -95,36 +94,37 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.92;
+renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled = true;
+/* Plan cuts the home at 2.2 m: the roof and anything above it comes away */
+const CUT = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
 stage.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-/* a quiet sky: the ground tone lifting into near black, so the silhouette reads */
-(function sky(){
-  const c = document.createElement('canvas'); c.width = 8; c.height = 256;
-  const g = c.getContext('2d').createLinearGradient(0, 0, 0, 256);
-  g.addColorStop(0, '#0a0d12'); g.addColorStop(0.55, '#14161a'); g.addColorStop(0.78, '#1d1f23'); g.addColorStop(1, '#0c0c0e');
-  const ctx = c.getContext('2d'); ctx.fillStyle = g; ctx.fillRect(0, 0, 8, 256);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.mapping = THREE.EquirectangularReflectionMapping;
-  scene.background = t;
-})();
-scene.fog = new THREE.Fog(0x08080a, 60, 190);
+/* the light of the place: an environment built from the project's own render,
+   so glass, metal and stone pick up the same sky and ground as the imagery */
+new THREE.TextureLoader().load('/haavn-3d/env.jpg', t => {
+  t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
+  scene.environment = t;                      // for reflections and bounced light
+  scene.background = t; scene.backgroundBlurriness = 0.92; scene.backgroundIntensity = 0.28;
+});
+const FOG = new THREE.Fog(0x24262a, 70, 240); scene.fog = FOG;
+const planLight = new THREE.DirectionalLight(0xffffff, 0); planLight.position.set(0, 40, 0); scene.add(planLight);
+let planCutY = 2.2;
 
 /* light: a soft room environment for reflections, one sun for the shadow */
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-const sun = new THREE.DirectionalLight(0xfff0dd, 1.25);   // charred timber stays charred
+const sun = new THREE.DirectionalLight(0xffe9cf, 2.2);
 sun.position.set(-14, 16, 11); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 const d = 26; Object.assign(sun.shadow.camera, { left:-d, right:d, top:d, bottom:-d, near:1, far:90 });
 sun.shadow.bias = -0.0006;
-scene.add(sun, new THREE.HemisphereLight(0x9fb4c7, 0x0b0b0c, 0.42));
+scene.add(sun, new THREE.HemisphereLight(0x9fb4c7, 0x14130f, 0.30));
 
 /* ground: a quiet plate that takes the shadow */
 const ground = new THREE.Mesh(new THREE.CircleGeometry(90, 96),
-  new THREE.MeshStandardMaterial({ color:0x121214, roughness:1, metalness:0 }));
+  new THREE.MeshStandardMaterial({ color:0x20211d, roughness:0.96, metalness:0 }));
 ground.rotation.x = -Math.PI/2; ground.position.y = -0.01; ground.receiveShadow = true;
 scene.add(ground);
 
@@ -136,12 +136,13 @@ controls.maxPolarAngle = Math.PI/2 - 0.02;
 controls.autoRotateSpeed = 0.45;
 
 /* the finishes, applied to the cladding meshes */
+/* the timber texture stays; the tint over it is the finish */
 const FINISHES = [
-  { name:'Charred', sw:'#171514', colour:0x17161a, rough:0.72, metal:0.0 },
-  { name:'Stone',   sw:'#8d8981', colour:0x8b877f, rough:0.88, metal:0.0 },
-  { name:'Black',   sw:'#0a0a0b', colour:0x0c0c0e, rough:0.55, metal:0.08 }
+  { name:'Charred', sw:'#171514', tint:0x141210, rough:0.74, metal:0.0 },
+  { name:'Stone',   sw:'#8d8981', tint:0x9a958c, rough:0.88, metal:0.0 },
+  { name:'Black',   sw:'#0a0a0b', tint:0x0b0b0c, rough:0.50, metal:0.04 }
 ];
-const cladding = [];
+const cladding = [], roof = [];
 const fbox = document.getElementById('finishes');
 FINISHES.forEach((f, i) => {
   const b = document.createElement('button');
@@ -152,16 +153,27 @@ FINISHES.forEach((f, i) => {
 });
 function setFinish(i){
   const f = FINISHES[i];
-  cladding.forEach(m => { m.color.setHex(f.colour); m.roughness = f.rough; m.metalness = f.metal; });
+  cladding.forEach(m => { m.color.setHex(f.tint); m.roughness = f.rough; m.metalness = f.metal; m.needsUpdate = true; });
   post({ type:'finish', i });
 }
 
 /* views, set from the model's own size once it is in */
 let VIEWS = {}, box = new THREE.Box3(), size = new THREE.Vector3(), mid = new THREE.Vector3();
+let MODE = 'hero', ROOM = null;        // ROOM: the box the camera stays inside when you are indoors
 function frame(name, animate = true){
   const v = VIEWS[name]; if(!v) return;
   camera.fov = (name === 'inside') ? 62 : 38; camera.updateProjectionMatrix();
-  controls.minDistance = (name === 'inside') ? 0.25 : 1.2;
+  controls.minDistance = (name === 'inside') ? 0.2 : 1.2;
+  controls.maxDistance = (name === 'inside') ? 6 : 120;
+  MODE = name;
+  const plan = (name === 'top');
+  roof.forEach(o => { o.visible = !plan; });                      // Plan lifts the lid
+  CUT.constant = planCutY;                                        // and cuts the walls at head height
+  renderer.clippingPlanes = plan ? [CUT] : [];
+  planLight.intensity = plan ? 1.5 : 0;
+  scene.fog = plan ? null : FOG;
+  controls.maxPolarAngle = (name === 'top') ? Math.PI/2 : Math.PI/2 - 0.02;
+  controls.autoRotate = (name === 'hero') && spin.classList.contains('on');
   const from = camera.position.clone(), to = v.pos.clone();
   const tFrom = controls.target.clone(), tTo = v.target.clone();
   if(!animate){ camera.position.copy(to); controls.target.copy(tTo); controls.update(); return; }
@@ -178,7 +190,7 @@ function frame(name, animate = true){
 document.querySelectorAll('#views button').forEach(b => b.onclick = () => { frame(b.dataset.view); post({ type:'view', v:b.dataset.view }); });
 document.getElementById('reset').onclick = () => frame('hero');
 const spin = document.getElementById('spin');
-spin.onclick = () => { controls.autoRotate = !controls.autoRotate; spin.classList.toggle('on', controls.autoRotate); };
+spin.onclick = () => { spin.classList.toggle('on'); controls.autoRotate = spin.classList.contains('on') && MODE !== 'inside'; };
 document.getElementById('close').onclick = () => {
   try { if(parent !== window){ parent.postMessage('haavn-3d-close','*'); return; } } catch(e){}
   history.length > 1 ? history.back() : (location.href = '/');
@@ -191,24 +203,56 @@ new GLTFLoader().load('/haavn-3d/solum.glb', gltf => {
   model.traverse(o => {
     if(!o.isMesh) return;
     o.castShadow = o.receiveShadow = true;
-    const n = (o.name || '').toUpperCase();
+    const n = (o.name || '').replace(/_/g, ' ').toUpperCase();   // the loader swaps spaces for underscores
     const m = o.material;
     if(m && m.isMeshStandardMaterial){
-      m.envMapIntensity = 0.75;
-      if(n.includes('YAKISUGI') || n.includes('CLADDING')) cladding.push(m);
-      if(n.includes('GLASS')){ m.transparent = true; m.opacity = 0.26; m.roughness = 0.05; m.metalness = 0; o.castShadow = false; }
-      if(n.includes('LED') || n.includes('LIGHT')){ m.emissive = new THREE.Color(0xffe9c9); m.emissiveIntensity = 2.4; o.castShadow = false; }
+      m.envMapIntensity = 1.15;
+      if(m.map){ m.map.anisotropy = 8; m.map.colorSpace = THREE.SRGBColorSpace; }
+      if(m.normalMap) m.normalScale.set(0.9, 0.9);
+      if(n.includes('YAKISU') || n.includes('WOOD 49')){ cladding.push(m); m.color.setHex(FINISHES[0].tint); m.roughness = FINISHES[0].rough; }
+      if(n.includes('GLASS')){ m.transparent = true; m.opacity = 0.2; m.roughness = 0.02; m.metalness = 0; m.envMapIntensity = 2.0; o.castShadow = false; }
+      if(n.includes('LED') || n === 'LIGHT'){ m.emissive = new THREE.Color(0xffe4bd); m.emissiveIntensity = 3.0; o.castShadow = false; }
+      if(n.includes('MIRROR') || n.includes('SILVER')){ m.envMapIntensity = 1.6; }
+      if(n.includes('BLACK ACE')){ m.envMapIntensity = 0.9; }
+      if(n.includes('ROOFCAP')) roof.push(o);
     }
   });
   scene.add(model);
 
   box.setFromObject(model); box.getSize(size); box.getCenter(mid);
+  /* the glazed side is the front: find where the glass sits relative to the
+     middle, so Front looks into the glass and Hero is the rear three-quarter
+     view from the images */
+  /* which way the glazing looks: add up the glass triangles' own facing,
+     weighted by their area, and take the strongest horizontal direction */
+  const face = new THREE.Vector3();
+  const a = new THREE.Vector3(), b2 = new THREE.Vector3(), c2 = new THREE.Vector3(),
+        ab = new THREE.Vector3(), ac = new THREE.Vector3(), nrm = new THREE.Vector3();
+  model.traverse(o => {
+    if(!o.isMesh || !/GLASS/i.test((o.material && o.material.name) || '')) return;
+    const g = o.geometry, pos = g.attributes.position, idx = g.index;
+    const count = idx ? idx.count : pos.count;
+    for(let k = 0; k + 2 < count; k += 3){
+      const i0 = idx ? idx.getX(k) : k, i1 = idx ? idx.getX(k+1) : k+1, i2 = idx ? idx.getX(k+2) : k+2;
+      a.fromBufferAttribute(pos, i0); b2.fromBufferAttribute(pos, i1); c2.fromBufferAttribute(pos, i2);
+      o.localToWorld(a); o.localToWorld(b2); o.localToWorld(c2);
+      ab.subVectors(b2, a); ac.subVectors(c2, a); nrm.crossVectors(ab, ac);
+      const area = nrm.length() * 0.5; if(area < 0.02) continue;
+      nrm.normalize(); nrm.y = 0;                                  // only the way it faces on plan
+      face.addScaledVector(nrm, area);
+    }
+  });
+  const faceX = Math.abs(face.x) >= Math.abs(face.z);
+  const dir = (faceX ? Math.sign(face.x) : Math.sign(face.z)) || 1;
+  window.__gdir = { face: face.toArray().map(v => +v.toFixed(2)), faceX, dir };
   /* where the rooms are: the interior linings and floor, so standing inside
      puts the camera in the room rather than in a wall */
   const ibox = new THREE.Box3(); let found = false;
   model.traverse(o => { if(o.isMesh && /INTERIOR|PLASTER|FLOORING/i.test(o.name || '')){ ibox.expandByObject(o); found = true; } });
   const iSize = new THREE.Vector3(), iMid = new THREE.Vector3();
   (found ? ibox : box).getSize(iSize); (found ? ibox : box).getCenter(iMid);
+  planCutY = ibox.min.y + 2.05;
+  if(found){ ROOM = ibox.clone(); ROOM.expandByScalar(-0.35); ROOM.min.y = ibox.min.y + 0.9; ROOM.max.y = ibox.min.y + 2.1; }
   const long = iSize.z >= iSize.x;
   /* a little warm light in the rooms, so walking inside is not a dark box */
   if(found){
@@ -223,11 +267,16 @@ new GLTFLoader().load('/haavn-3d/solum.glb', gltf => {
   }
   const r = Math.max(size.x, size.z) * 0.5, h = size.y;
   controls.target.set(mid.x, h * 0.42, mid.z);
+  /* front = looking into the glass · hero = the rear three-quarter */
+  const F = faceX ? new THREE.Vector3(dir, 0, 0) : new THREE.Vector3(0, 0, dir);      // outward, glazed side
+  const side = faceX ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
+  const eye = h * 0.62;
   VIEWS = {
-    hero:  { pos:new THREE.Vector3(mid.x + r*1.5, h*1.5, mid.z + r*1.9), target:new THREE.Vector3(mid.x, h*0.45, mid.z) },
-    front: { pos:new THREE.Vector3(mid.x, h*0.9, mid.z + r*2.5),          target:new THREE.Vector3(mid.x, h*0.45, mid.z) },
-    rear:  { pos:new THREE.Vector3(mid.x, h*0.95, mid.z - r*2.5),         target:new THREE.Vector3(mid.x, h*0.45, mid.z) },
-    top:   { pos:new THREE.Vector3(mid.x + 0.01, r*3.1, mid.z + 0.01),    target:new THREE.Vector3(mid.x, 0, mid.z) },
+    hero:  { pos:new THREE.Vector3(mid.x - F.x*r*1.9 + side.x*r*1.5, h*1.25, mid.z - F.z*r*1.9 + side.z*r*1.5),
+             target:new THREE.Vector3(mid.x, h*0.42, mid.z) },
+    front: { pos:new THREE.Vector3(mid.x + F.x*r*2.3, eye, mid.z + F.z*r*2.3),  target:new THREE.Vector3(mid.x, h*0.40, mid.z) },
+    rear:  { pos:new THREE.Vector3(mid.x - F.x*r*2.3, eye, mid.z - F.z*r*2.3),  target:new THREE.Vector3(mid.x, h*0.40, mid.z) },
+    top:   { pos:new THREE.Vector3(mid.x + 0.01, Math.max(r*2.6, 16), mid.z + 0.01), target:new THREE.Vector3(mid.x, 0, mid.z) },
     inside: long
       ? { pos:new THREE.Vector3(iMid.x, ibox.min.y + 1.6, iMid.z + iSize.z*0.34), target:new THREE.Vector3(iMid.x, ibox.min.y + 1.45, iMid.z - iSize.z*0.42) }
       : { pos:new THREE.Vector3(iMid.x + iSize.x*0.34, ibox.min.y + 1.6, iMid.z), target:new THREE.Vector3(iMid.x - iSize.x*0.42, ibox.min.y + 1.45, iMid.z) }
@@ -249,7 +298,16 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
-(function tick(){ requestAnimationFrame(tick); controls.update(); renderer.render(scene, camera); })();
+(function tick(){
+  requestAnimationFrame(tick);
+  controls.update();
+  if(MODE === 'inside' && ROOM){            // indoors stays indoors
+    const before = camera.position.clone();
+    ROOM.clampPoint(camera.position, camera.position);
+    if(!before.equals(camera.position)) controls.target.add(camera.position.clone().sub(before).multiplyScalar(0.35));
+  }
+  renderer.render(scene, camera);
+})();
 
 /* the Studio can drive this view when it is presenting to a television */
 function post(m){ try { if(parent !== window) parent.postMessage(Object.assign({ haavn3d:1 }, m), '*'); } catch(e){} }
@@ -259,7 +317,7 @@ addEventListener('message', e => {
   else if(d.type === 'finish') { const b = fbox.children[d.i]; if(b) b.click(); }
   else if(d.type === 'spin') spin.click();
 });
-window.__haavn3d = { frame, setFinish,
+window.__haavn3d = { frame, setFinish, each(fn){ scene.traverse(fn); }, glassDir(){ return window.__gdir; },
   debug(){ const b=new THREE.Box3().setFromObject(scene); const s=new THREE.Vector3(), c=new THREE.Vector3(); b.getSize(s); b.getCenter(c);
     let meshes=0, tris=0; scene.traverse(o=>{ if(o.isMesh){ meshes++; const g=o.geometry; tris+=(g.index?g.index.count:g.attributes.position.count)/3; } });
     return { size:[+s.x.toFixed(2),+s.y.toFixed(2),+s.z.toFixed(2)], centre:[+c.x.toFixed(2),+c.y.toFixed(2),+c.z.toFixed(2)],
