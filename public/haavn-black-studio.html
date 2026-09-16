@@ -236,6 +236,13 @@ body.remote-on .remote{display:flex}
 .rpad button{height:58px;border:1px solid var(--line2);border-radius:2px;font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase}
 .rpad button:active{background:rgba(47,224,122,.12);border-color:var(--led)}
 
+/* the live model, over the story */
+.modelwrap{position:fixed;inset:0;z-index:86;background:#08080a;opacity:0;pointer-events:none;transition:opacity .42s var(--out)}
+.modelwrap.on{opacity:1;pointer-events:auto}
+.modelwrap iframe{width:100%;height:100%;border:0;display:block}
+.btn.live{border-color:rgba(47,224,122,.55);color:#eafff2;background:rgba(47,224,122,.07)}
+.btn.live:hover{border-color:var(--led);box-shadow:0 0 26px -8px rgba(47,224,122,.7)}
+
 /* lightbox */
 .lb{position:fixed;inset:0;z-index:96;background:rgba(0,0,0,.95);display:none;place-items:center;padding:clamp(12px,3vw,40px)}
 .lb.on{display:grid}
@@ -423,7 +430,7 @@ var HM='<svg viewBox="0 0 389.3 100"><path d="M 0 0 L 25.5 0 L 25.5 40.5 L 112.5
 var HOMES=[
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60.3,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum-ext-charred-01.jpg',
+  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html',
   gallery:['solum-ext-charred-01','solum-ext-stone-01','solum-ext-stone-02','solum-ext-stone-03','solum-ext-charred-02','solum-ext-charred-03','solum-ext-black-01','solum-ext-black-02','solum-ext-black-03','solum-int-01','solum-int-02','solum-int-03','solum-int-04','solum-int-05','solum-int-06','solum-int-07','solum-int-08'].map(function(n){return R+n+'.jpg';}),
   plans:[['Ground floor',R+'solum-floor-ground.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -526,6 +533,9 @@ function openHome(i, user){
   LB=h.gallery.map(function(s,gi){return {src:s,cap:h.key+' · View '+(gi+1)};})
         .concat(h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};}));
   var heroSrc=h.img?big(h.img):'';
+  var live=h.model?'<div style="margin-top:22px"><button class="btn live" id="pModel">'
+    +'<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/></svg>'
+    +'Live model</button></div>':'';
   var nums=[['Internal area',h.area.toFixed(1)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],
             ['Storeys',h.storeys],['Modules',h.modules],['Minimum lot',h.frontage+'<small> × '+h.depth+' m</small>']]
     .map(function(n){return '<div class="n"><div class="k">'+n[0]+'</div><div class="v">'+n[1]+'</div></div>';}).join('');
@@ -537,19 +547,40 @@ function openHome(i, user){
     '<button class="btn pback" id="pClose">← The range</button>'+
     '<div class="hero">'+(heroSrc?'<img src="'+heroSrc+'" alt="'+h.key+'" decoding="async">':'')+'<div class="shade"></div>'+
       '<div class="wrap"><div class="eyeb"><i></i>'+(h.series==='black'?'Black Series':'Essentials')+'</div><h2>'+h.key+'</h2>'+
-      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p></div></div>'+
+      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p>'+live+'</div></div>'+
     '<div class="pnums">'+nums+'</div>'+
     '<div class="wrap" style="padding-bottom:90px">'+gal+plans+'</div>';
   if(heroSrc){ var hi=prod.querySelector('.hero img'); fb(hi,h.img); }
   [].forEach.call(prod.querySelectorAll('img'),function(im){ var f=im.getAttribute('src').replace('-sm.jpg','.jpg'); if(im.closest('.gal')) fb(im,f); });
   [].forEach.call(prod.querySelectorAll('[data-lb]'),function(b){ b.onclick=function(){ openLb(+b.dataset.lb, true); }; });
   prod.querySelector('#pClose').onclick=function(){ closeHome(true); };
+  var mb=prod.querySelector('#pModel'); if(mb) mb.onclick=function(){ openModel(h.model, true); };
   prod.classList.add('on'); prod.scrollTop=0; document.body.style.overflow='hidden';
   if(user) send({type:'home',i:i});
 }
 function closeHome(user){ prod.classList.remove('on'); document.body.style.overflow='';
   openIdx=null; setTimeout(function(){ if(!prod.classList.contains('on')) prod.innerHTML=''; },500);
   if(user) send({type:'closeHome'}); }
+
+/* ── the live model ───────────────────────────────────────────────────
+   The home as a product you can turn around and step into, built from the
+   architect's own Rhino model. It runs in its own frame so the story keeps
+   its place behind it; the viewer's Return closes it. */
+function openModel(src, user){
+  var w=document.getElementById('modelwrap');
+  if(!w){ w=document.createElement('div'); w.id='modelwrap'; w.className='modelwrap'; document.body.appendChild(w); }
+  w.innerHTML='<iframe src="'+src+'" title="Live model" allow="fullscreen"></iframe>';
+  requestAnimationFrame(function(){ w.classList.add('on'); });
+  document.body.style.overflow='hidden';
+  if(user) send({type:'model', src:src});
+}
+function closeModel(user){
+  var w=document.getElementById('modelwrap'); if(!w) return;
+  w.classList.remove('on'); document.body.style.overflow=prod.classList.contains('on')?'hidden':'';
+  setTimeout(function(){ w.innerHTML=''; }, 420);
+  if(user) send({type:'modelClose'});
+}
+addEventListener('message', function(e){ if(e.data==='haavn-3d-close') closeModel(true); });
 
 /* ── lightbox ─────────────────────────────────────────────────────────── */
 var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap');
@@ -624,6 +655,8 @@ function apply(m){
   else if(m.type==='lb') { if(!lb.classList.contains('on')) openLb(m.i); else { LBI=m.i; paintLb(); } }
   else if(m.type==='lbClose') closeLb();
   else if(m.type==='film') playFilm(m.i);
+  else if(m.type==='model') openModel(m.src);
+  else if(m.type==='modelClose') closeModel();
   else if(m.type==='end'){ present(false); location.reload(); }
 }
 function watch(){
@@ -683,7 +716,10 @@ function buildRemote(){
     list.appendChild(b); });
   HOMES.forEach(function(h,i){ var b=document.createElement('button');
     b.innerHTML='<span class="n">'+(h.series==='black'?'BS':'ES')+'</span><span class="t">'+h.key+'</span>';
-    b.onclick=function(){ openHome(i,true); }; list.appendChild(b); });
+    b.onclick=function(){ openHome(i,true); }; list.appendChild(b);
+    if(h.model){ var m=document.createElement('button');
+      m.innerHTML='<span class="n">3D</span><span class="t">'+h.key+' · live model</span>';
+      m.onclick=function(){ openModel(h.model,true); }; list.appendChild(m); } });
 }
 document.getElementById('rNext').onclick=function(){ goTo(cur+1,true); };
 document.getElementById('rPrev').onclick=function(){ goTo(cur-1,true); };
