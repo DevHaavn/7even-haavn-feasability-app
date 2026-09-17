@@ -18,7 +18,7 @@
 :root{
   --ink:#0c0c0d; --ink2:#3a3936; --ink3:#77736d; --paper:#eeeae3; --paper2:#e4dfd6;
   --white:#f6f4f0; --mute:rgba(246,244,240,.62); --line:rgba(12,12,13,.16); --lineW:rgba(246,244,240,.22);
-  --led:#2fe07a;
+  --gold:#d6b36a; --gold-lt:#e8d296; --gold-dp:#a3782a; --silver:#b4b8bd;
   --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -32,7 +32,10 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 
 /* type */
 .eyeb{font-family:var(--mono);font-weight:400;font-size:6.6pt;letter-spacing:.32em;text-transform:uppercase;display:flex;align-items:center;gap:3mm}
-.eyeb i{width:1.4mm;height:1.4mm;border-radius:50%;background:var(--led);display:inline-block;box-shadow:0 0 2.4mm rgba(47,224,122,.7)}
+.eyeb i{width:1.4mm;height:1.4mm;border-radius:50%;background:var(--gold);display:inline-block;box-shadow:0 0 2mm rgba(214,179,106,.55)}
+/* the gold: every italic emphasis, every quote mark. Bright on black, deep on paper */
+em.au{color:var(--gold-dp)}
+.dark em.au,.onimg em.au{color:var(--gold)}
 .mono{font-family:var(--mono);font-size:6.2pt;letter-spacing:.24em;text-transform:uppercase}
 .disp{font-family:var(--sans);font-weight:200;letter-spacing:-.02em;line-height:.92}
 .body{font-size:8.6pt;line-height:1.72;font-weight:300}
@@ -40,13 +43,13 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 .logo.ink{filter:brightness(0)}
 .folio{position:absolute;left:14mm;right:14mm;bottom:9mm;display:flex;justify-content:space-between;align-items:center;
   font-family:var(--mono);font-size:5.8pt;letter-spacing:.28em;text-transform:uppercase;color:var(--ink3)}
-.dark .folio,.onimg .folio{color:var(--mute)}
+.dark .folio,.onimg .folio{color:rgba(180,184,189,.75)}
 
 /* 01 cover */
-.cover .meta{position:absolute;left:16mm;right:16mm;bottom:15mm;display:flex;justify-content:space-between;align-items:flex-end;color:rgba(246,244,240,.72)}
-.cover .meta .name{font-family:var(--sans);font-weight:200;font-size:30pt;letter-spacing:.42em;color:rgba(246,244,240,.9);line-height:1}
+.cover .meta{position:absolute;left:16mm;right:16mm;bottom:15mm;display:flex;justify-content:space-between;align-items:flex-end;color:var(--silver)}
+.cover .meta .name{font-family:var(--sans);font-weight:200;font-size:30pt;letter-spacing:.42em;color:var(--gold-lt);line-height:1}
 .cover .meta .sub{margin-top:3.5mm}
-.cover .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(246,244,240,.62)}
+.cover .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:var(--silver)}
 
 /* 02 opening */
 .open .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,9,.72) 0%,rgba(8,8,9,.18) 38%,rgba(8,8,9,0) 60%),
@@ -67,21 +70,48 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 .word .pron{margin-top:4mm;color:var(--ink3)}
 .word ol{list-style:none;margin-top:12mm;border-top:.25mm solid var(--line)}
 .word li{display:grid;grid-template-columns:9mm 1fr;padding:2.8mm 0;border-bottom:.25mm solid var(--line);font-family:var(--serif);font-size:13.5pt;line-height:1.36;font-weight:400;color:var(--ink2)}
-.word li b{font-family:var(--mono);font-weight:400;font-size:6.2pt;letter-spacing:.2em;color:var(--ink3);padding-top:1.6mm}
+.word li b{font-family:var(--mono);font-weight:400;font-size:6.2pt;letter-spacing:.2em;color:var(--gold-dp);padding-top:1.6mm}
 .word .body{margin-top:8mm;max-width:124mm;color:var(--ink2);font-size:8.6pt}
 
 /* 04 the luxe */
 .luxe .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,7,.62),rgba(6,6,7,.2) 70%),radial-gradient(120% 90% at 30% 40%,rgba(10,10,11,0),rgba(6,6,7,.5))}
 .luxe .in{position:absolute;inset:0;padding:20mm 18mm;color:var(--white)}
 .luxe h2{font-size:50pt;margin-top:12mm;max-width:190mm}
-.luxe h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0}
+.luxe h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold)}
 .luxe .lead{margin-top:8mm;max-width:150mm;font-size:10pt;line-height:1.75;color:rgba(246,244,240,.94)}
 .luxe .cols{position:absolute;left:18mm;right:18mm;bottom:24mm;padding-top:0;display:grid;grid-template-columns:repeat(3,1fr);gap:9mm}
-.luxe .cols div{border-top:.25mm solid var(--lineW);padding-top:4mm}
-.luxe .cols .n{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--led)}
+.luxe .cols div{border-top:.25mm solid rgba(180,184,189,.3);padding-top:4mm}
+.luxe .cols .n{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--gold)}
 .luxe .cols h3{font-weight:300;font-size:13pt;margin-top:2.5mm;letter-spacing:-.005em}
-.luxe .cols p{font-size:7.8pt;line-height:1.7;color:rgba(246,244,240,.86);margin-top:2mm}
+.luxe .cols p{font-size:7.8pt;line-height:1.7;color:rgba(214,218,222,.86);margin-top:2mm}
 .luxe .mark{position:absolute;right:18mm;top:20mm}
+
+/* 05 the vision: Jamie Baldwin */
+.vision{background:#050506}
+.vision .ph{position:absolute;right:0;top:0;bottom:0;width:168mm}
+.vision .ph img{object-position:50% 22%}
+.vision .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#050506 0%,rgba(5,5,6,.55) 18%,rgba(5,5,6,0) 42%),linear-gradient(0deg,rgba(5,5,6,.5),rgba(5,5,6,0) 30%)}
+.vision .in{position:absolute;left:18mm;top:20mm;bottom:20mm;width:150mm;display:flex;flex-direction:column;color:var(--white)}
+.vision .q{font-family:var(--serif);font-style:italic;font-weight:300;font-size:46pt;line-height:1;letter-spacing:-.01em;margin-top:auto;color:var(--gold)}
+.vision .q::before{content:"\201C";display:block;font-size:64pt;line-height:.5;color:var(--gold);font-style:normal;margin-bottom:5mm}
+.vision .body{margin-top:8mm;max-width:118mm;font-size:9.4pt;line-height:1.78;color:rgba(246,244,240,.84)}
+.vision .who{margin-top:10mm;padding-top:4.5mm;border-top:.25mm solid rgba(214,179,106,.4);max-width:118mm;display:flex;justify-content:space-between;align-items:baseline}
+.vision .who b{font-weight:300;font-size:15pt;letter-spacing:.01em}
+.vision .who .mono{color:var(--silver)}
+
+/* 06 the design: Callum Fraser */
+.design .ph{position:absolute;left:0;top:0;bottom:0;width:118mm}
+.design .ph img{object-position:50% 50%}
+.design .in{position:absolute;left:138mm;right:18mm;top:20mm;bottom:20mm;display:flex;flex-direction:column}
+.design .q{font-family:var(--sans);font-weight:200;font-size:31pt;line-height:1.08;letter-spacing:-.018em;margin-top:auto;color:var(--ink)}
+.design .q em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold-dp)}
+.design .body{margin-top:8mm;font-size:9.2pt;line-height:1.78;color:var(--ink2);max-width:120mm}
+.design .body::before{content:"\201C";color:var(--gold-dp)}
+.design .body::after{content:"\201D";color:var(--gold-dp)}
+.design .who{margin-top:10mm;padding-top:4.5mm;border-top:.25mm solid rgba(163,120,42,.45);display:flex;justify-content:space-between;align-items:baseline}
+.design .who b{font-weight:300;font-size:15pt;letter-spacing:.01em}
+.design .who .mono{color:var(--ink3)}
+.design .tag{position:absolute;left:8mm;bottom:8mm;background:var(--paper);padding:1.6mm 2.6mm;font-family:var(--mono);font-size:5.4pt;letter-spacing:.24em;text-transform:uppercase;color:var(--ink2)}
 
 /* 05 the four facades */
 .facades{background:#070708}
@@ -91,13 +121,13 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 .facades .t .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.78),rgba(6,6,7,0) 42%)}
 .facades .t .lab{position:absolute;left:8mm;right:8mm;bottom:7mm;color:var(--white);display:flex;align-items:flex-end;gap:4mm}
 .facades .t .chip{width:9mm;height:9mm;flex:none;background-size:cover;background-position:center;border:.25mm solid rgba(246,244,240,.5)}
-.facades .t .num{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:rgba(246,244,240,.6)}
+.facades .t .num{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--gold)}
 .facades .t h3{font-weight:300;font-size:17pt;letter-spacing:.01em;line-height:1.05;margin-top:1mm}
-.facades .t .spec{font-family:var(--mono);font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,244,240,.62);margin-top:1.8mm}
+.facades .t .spec{font-family:var(--mono);font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:var(--silver);margin-top:1.8mm}
 .facades .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;color:var(--white);
-  border:.25mm solid rgba(246,244,240,.18)}
-.facades .badge .mono{color:rgba(246,244,240,.62);font-size:5.6pt}
-.facades .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em}
+  border:.25mm solid rgba(214,179,106,.45)}
+.facades .badge .mono{color:var(--silver);font-size:5.6pt}
+.facades .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em;color:var(--gold)}
 .facades .note{position:absolute;right:8mm;top:6mm;font-family:var(--mono);font-size:5pt;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,244,240,.5)}
 
 /* 06 the palette */
@@ -124,7 +154,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 .split3 .b{position:absolute;right:0;top:0;width:118mm;height:88mm}
 .split3 .c{position:absolute;right:0;bottom:0;width:118mm;height:121mm;padding:12mm 13mm 0 13mm}
 .split3 .c h2{font-size:26pt;margin-top:6mm;line-height:1.02}
-.split3 .c h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0}
+.split3 .c h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold-dp)}
 .split3 .c .body{margin-top:5mm;color:var(--ink2);font-size:8.2pt}
 .split3 .c .folio{left:13mm;right:13mm}
 .split3 .lbl{position:absolute;left:6mm;bottom:6mm;font-family:var(--mono);font-size:5.6pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(246,244,240,.86);
@@ -167,7 +197,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
 .spec .fine{position:absolute;left:18mm;right:18mm;bottom:17mm;font-size:6pt;line-height:1.6;color:var(--ink3)}
 
 /* 12 back */
-.back .in{position:absolute;left:16mm;right:16mm;bottom:14mm;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10mm;color:var(--ink);padding-top:4mm;border-top:.3mm solid rgba(12,12,13,.35)}
+.back .in{position:absolute;left:16mm;right:16mm;bottom:14mm;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10mm;color:var(--ink);padding-top:4mm;border-top:.3mm solid rgba(163,120,42,.6)}
 .back .in .k{font-family:var(--mono);font-size:5.8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(12,12,13,.72)}
 .back .in p{font-size:8.6pt;line-height:1.7;margin-top:1.6mm;font-weight:400}
 .back .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(12,12,13,.72)}
@@ -193,7 +223,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
   <div class="tx">
     <div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>Black Series · Ancillary dwelling</div>
     <div class="disp">SOLUM</div>
-    <p>One module. Complete.</p>
+    <p>One module. <em class="au" style="font-family:var(--serif);font-style:italic;font-size:15pt">Complete.</em></p>
   </div>
   <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>02</span></div>
 </section>
@@ -203,7 +233,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
   <div class="l">
     <div class="tex"></div>
     <div class="eyeb" style="color:var(--ink3)"><i></i>01 · The name</div>
-    <h2>so·lum</h2>
+    <h2>so<span style="color:var(--gold-dp)">·</span>lum</h2>
     <div class="pron mono">/ˈsəʊ.ləm/ &nbsp;·&nbsp; Latin &nbsp;·&nbsp; noun</div>
     <ol>
       <li><b>I</b><span>The ground. The floor. The base on which a thing stands.</span></li>
@@ -233,6 +263,30 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
   <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>04</span></div>
 </section>
 
+<!-- 05 · the vision ──────────────────────────────────────────────────── -->
+<section class="pg vision dark">
+  <div class="ph"><img class="bleed" src="img/jamie-baldwin.jpg" alt="Jamie Baldwin"></div>
+  <div class="in">
+    <div class="eyeb" style="color:rgba(246,244,240,.6)"><i></i>03 · The vision</div>
+    <div class="q">A home should feel like a deep breath.</div>
+    <p class="body">I dreamed of a space that speaks simply, that breathes with the land around it and still belongs to the life of the city. HAAVN BLACK is that idea, carried from the first line to the last detail, so the home you walk into is exactly the home that was imagined.</p>
+    <div class="who"><b>Jamie Baldwin</b><span class="mono">Founder · HAAVN BLACK</span></div>
+  </div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>05</span></div>
+</section>
+
+<!-- 06 · the design ──────────────────────────────────────────────────── -->
+<section class="pg design">
+  <div class="ph"><img class="bleed" src="img/callum-fraser.jpg" alt="Callum Fraser"></div>
+  <div class="in">
+    <div class="eyeb" style="color:var(--ink3)"><i></i>04 · The design</div>
+    <div class="q">Nothing is lost between the <em>drawing</em> and the home.</div>
+    <p class="body">Simplicity is the hardest thing to build. We designed SOLUM exactly as it is made, to the millimetre, so the home that arrives is the home we drew. It works from the first day, and it never stops feeling like architecture.</p>
+    <div class="who"><b>Callum Fraser</b><span class="mono">Fraser &amp; Partners</span></div>
+  </div>
+  <div class="folio" style="left:138mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>06</span></div>
+</section>
+
 <!-- 05 · the four facades ─────────────────────────────────────────────── -->
 <section class="pg facades">
   <div class="grid">
@@ -249,14 +303,14 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
       <div class="lab"><div class="chip" style="background-image:url(img/sw-fibre-cement.jpg)"></div>
         <div><div class="num">04</div><h3>Equitone</h3><div class="spec">Fibre cement cladding · Silver glazing</div></div></div></div>
   </div>
-  <div class="badge"><div class="mono">03 · The facade</div><b>SOLUM</b><div class="mono">Four finishes</div></div>
+  <div class="badge"><div class="mono">05 · The facade</div><b>SOLUM</b><div class="mono">Four finishes</div></div>
 </section>
 
 <!-- 06 · the palette ──────────────────────────────────────────────────── -->
 <section class="pg palette">
   <div class="in">
     <div class="head">
-      <div><div class="eyeb" style="color:var(--ink3)"><i></i>04 · Materials</div><h2 class="disp">Black is a discipline.</h2></div>
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>06 · Materials</div><h2 class="disp">Black is a <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">discipline.</em></h2></div>
       <p class="body">A dark, quiet envelope with warmth held inside. The palette is deliberately short: fewer materials, better ones, detailed properly. Every facade shares the same charcoal windows, flashings and trims, so the home reads as one object whichever skin it wears.</p>
     </div>
   </div>
@@ -270,7 +324,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
     <div class="sw"><div class="img" style="background-image:url(img/sw-fibre-cement.jpg)"></div><div class="num mono">04</div><h3>Equitone Fibre Cement</h3>
       <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#eef0ee"></i>Silver glazing</span></div></div>
   </div>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>06</span></div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>08</span></div>
 </section>
 
 <!-- 07 · living ───────────────────────────────────────────────────────── -->
@@ -278,11 +332,11 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
   <img class="bleed" src="img/int-lounge.jpg" alt="Living" style="object-position:50% 58%">
   <div class="shade"></div>
   <div class="cap">
-    <div class="eyeb" style="color:rgba(246,244,240,.72)"><i></i>05 · Inside</div>
-    <h2 class="disp">Timber, linen, stone.</h2>
+    <div class="eyeb" style="color:rgba(246,244,240,.72)"><i></i>07 · Inside</div>
+    <h2 class="disp">Timber, linen, <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">stone.</em></h2>
     <p>Warmth held inside a dark shell. Light comes in through full height glazing and softens through sheer linen.</p>
   </div>
-  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>07</span></div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>09</span></div>
 </section>
 
 <!-- 08 · kitchen, dining, bedroom ─────────────────────────────────────── -->
@@ -293,7 +347,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
     <div class="eyeb" style="color:var(--ink3)"><i></i>Kitchen · Dining · Bedroom</div>
     <h2 class="disp">Small, and <em>never</em> short of anything.</h2>
     <p class="body">A galley kitchen along one wall with an induction cooktop, cabinets over and open shelving, fridge, pantry and dishwasher. Dining for four sits in the light at the glass. At the far end, a bedroom with a full height robe, lined in timber and dressed in linen.</p>
-    <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>08</span></div>
+    <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>10</span></div>
   </div>
 </section>
 
@@ -302,7 +356,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
   <div class="a"><img class="bleed" src="img/int-bathroom.jpg" alt="Bathroom" style="object-position:45% 50%"></div>
   <div class="r">
     <div class="eyeb" style="color:var(--ink3)"><i></i>Bathroom · Finishes</div>
-    <h2 class="disp">Detailed properly.</h2>
+    <h2 class="disp">Detailed <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">properly.</em></h2>
     <p class="body">Stone toned tile floor to ceiling, a floating timber vanity with a stone basin, frameless glass to the shower and warm light tucked under every shelf. The same short list of materials runs through the whole home.</p>
     <ul>
       <li><b>Joinery</b><span>Timber veneer</span></li>
@@ -315,15 +369,15 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
     <img class="ph bleed" style="position:absolute;inset:auto;right:16mm;bottom:22mm;width:50mm;height:66mm" src="img/int-samples.jpg" alt="Material samples">
     <div class="phcap mono" style="position:absolute;right:16mm;bottom:17mm;width:50mm">The interior samples</div>
   </div>
-  <div class="folio" style="left:164mm;right:16mm"><span>HAAVN BLACK · SOLUM</span><span>09</span></div>
+  <div class="folio" style="left:164mm;right:16mm"><span>HAAVN BLACK · SOLUM</span><span>11</span></div>
 </section>
 
 <!-- 10 · the plan ─────────────────────────────────────────────────────── -->
 <section class="pg plan">
   <div class="l"><img src="img/plan.png" alt="SOLUM ground floor plan"></div>
   <div class="r">
-    <div class="eyeb" style="color:var(--ink3)"><i></i>06 · The plan</div>
-    <h2 class="disp">60.3 m²<small>One module. Nothing wasted.</small></h2>
+    <div class="eyeb" style="color:var(--ink3)"><i></i>08 · The plan</div>
+    <h2 class="disp">60.3 m²<small>One module. <em class="au" style="font-family:var(--serif);font-style:italic;font-size:15pt">Nothing wasted.</em></small></h2>
     <div class="nums">
       <div><div class="k">Floor area</div><div class="v">60.3<small>m²</small></div></div>
       <div><div class="k">Footprint</div><div class="v">13.4 × 4.5<small>m</small></div></div>
@@ -339,14 +393,14 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
       <p>A deck the length of the living rooms. An entry deck. An outdoor kitchen with barbecue, fridge and sink. A rear entry.</p>
     </div>
   </div>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>10</span></div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>12</span></div>
 </section>
 
 <!-- 11 · specification ────────────────────────────────────────────────── -->
 <section class="pg spec">
   <div class="in">
     <div class="head">
-      <div><div class="eyeb" style="color:var(--ink3)"><i></i>07 · Specification</div><h2 class="disp">What arrives.</h2></div>
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>09 · Specification</div><h2 class="disp">What <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">arrives.</em></h2></div>
       <p class="body" style="color:var(--ink2)">SOLUM is manufactured whole as one module and delivered complete. What follows is the home as designed.</p>
     </div>
   </div>
@@ -362,7 +416,7 @@ body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-colo
     <tr><td>Options</td><td>Deck, entry deck, outdoor kitchen with barbecue, fridge and sink, rear entry.</td></tr>
   </table>
   <p class="fine">Images and specification are indicative and may change as design is finalised. Furniture, landscaping and styling are shown for illustration and are not included. The Blackbutt facade is shown as a visualisation. Final specification is confirmed at contract. Design by Fraser &amp; Partners for HAAVN.</p>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>11</span></div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>13</span></div>
 </section>
 
 <!-- 12 · back ─────────────────────────────────────────────────────────── -->
