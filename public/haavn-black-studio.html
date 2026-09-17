@@ -244,6 +244,14 @@ body.remote-on .remote{display:flex}
 .hsw svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5}
 .hsw:hover{color:var(--ink)}
 .hsw.on{color:#eafff2;background:rgba(47,224,122,.14);box-shadow:inset 0 0 0 1px rgba(47,224,122,.5)}
+.hacts{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px}
+.hacts .hswitch{margin-top:0}
+/* the brochure: the home as a magazine, ready to send */
+.hbro{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px;border:1px solid var(--line);border-radius:30px;background:rgba(10,10,11,.5);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);text-decoration:none;transition:.25s}
+.hbro svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5}
+.hbro:hover{border-color:rgba(47,224,122,.5);background:rgba(47,224,122,.1)}
 .heroframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:3;opacity:0;transition:opacity .45s var(--out);background:#08080a}
 .heroframe.on{opacity:1}
 
@@ -441,7 +449,7 @@ var HM='<svg viewBox="0 0 389.3 100"><path d="M 0 0 L 25.5 0 L 25.5 40.5 L 112.5
 var HOMES=[
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60.3,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3',
+  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=1',
   gallery:['solum-ext-charred-01','solum-ext-stone-01','solum-ext-stone-02','solum-ext-stone-03','solum-ext-charred-02','solum-ext-charred-03','solum-ext-black-01','solum-ext-black-02','solum-ext-black-03','solum-int-01','solum-int-02','solum-int-03','solum-int-04','solum-int-05','solum-int-06','solum-int-07','solum-int-08'].map(function(n){return R+n+'.jpg';}),
   plans:[['Ground floor',R+'solum-floor-ground.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -548,6 +556,10 @@ function openHome(i, user){
      takes its place in the same frame, the way a car is shown */
   var live=h.model?'<div class="hswitch"><button class="hsw on" data-mode="render">Renders</button>'
     +'<button class="hsw" data-mode="live"><svg viewBox="0 0 24 24"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/></svg>Live model</button></div>':'';
+  /* any home with a brochure gets the export: a finished PDF, opened in its own
+     tab so it can be saved, shared or sent from the phone */
+  var bro=h.brochure?'<a class="hbro" href="'+h.brochure+'" target="_blank" rel="noopener">'
+    +'<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Export brochure</a>':'';
   var nums=[['Internal area',h.area.toFixed(1)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],
             ['Storeys',h.storeys],['Modules',h.modules],['Minimum lot',h.frontage+'<small> × '+h.depth+' m</small>']]
     .map(function(n){return '<div class="n"><div class="k">'+n[0]+'</div><div class="v">'+n[1]+'</div></div>';}).join('');
@@ -559,7 +571,7 @@ function openHome(i, user){
     '<button class="btn pback" id="pClose">← The range</button>'+
     '<div class="hero">'+(heroSrc?'<img src="'+heroSrc+'" alt="'+h.key+'" decoding="async">':'')+'<div class="shade"></div>'+
       '<div class="wrap"><div class="eyeb"><i></i>'+(h.series==='black'?'Black Series':'Essentials')+'</div><h2>'+h.key+'</h2>'+
-      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p>'+live+'</div></div>'+
+      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p>'+((live||bro)?'<div class="hacts">'+live+bro+'</div>':'')+'</div></div>'+
     '<div class="pnums">'+nums+'</div>'+
     '<div class="wrap" style="padding-bottom:90px">'+gal+plans+'</div>';
   if(heroSrc){ var hi=prod.querySelector('.hero img'); fb(hi,h.img); }

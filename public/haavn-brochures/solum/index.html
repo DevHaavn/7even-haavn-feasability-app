@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAAVN BLACK · SOLUM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   HAAVN BLACK · SOLUM · the brochure
+   Twelve A4 landscape pages, printed straight to PDF. Every page is a fixed
+   297 × 210 mm sheet, so what is set here is exactly what the customer sees.
+   Imagery is the architect's own (Fraser & Partners, Enscape); the Blackbutt
+   facade is a visualisation made from the Yakisugi render until it is rendered.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@page{size:297mm 210mm;margin:0}
+:root{
+  --ink:#0c0c0d; --ink2:#3a3936; --ink3:#77736d; --paper:#eeeae3; --paper2:#e4dfd6;
+  --white:#f6f4f0; --mute:rgba(246,244,240,.62); --line:rgba(12,12,13,.16); --lineW:rgba(246,244,240,.22);
+  --led:#2fe07a;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#2a2927}
+body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+.pg{width:297mm;height:210mm;position:relative;overflow:hidden;background:var(--paper);break-after:page;page-break-after:always}
+@media screen{body{padding:10mm 0}.pg{margin:0 auto 8mm;box-shadow:0 20px 60px rgba(0,0,0,.45)}}
+.bleed{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.dark{background:var(--ink);color:var(--white)}
+
+/* type */
+.eyeb{font-family:var(--mono);font-weight:400;font-size:6.6pt;letter-spacing:.32em;text-transform:uppercase;display:flex;align-items:center;gap:3mm}
+.eyeb i{width:1.4mm;height:1.4mm;border-radius:50%;background:var(--led);display:inline-block;box-shadow:0 0 2.4mm rgba(47,224,122,.7)}
+.mono{font-family:var(--mono);font-size:6.2pt;letter-spacing:.24em;text-transform:uppercase}
+.disp{font-family:var(--sans);font-weight:200;letter-spacing:-.02em;line-height:.92}
+.body{font-size:8.6pt;line-height:1.72;font-weight:300}
+.logo{height:3.4mm;width:auto;display:block}
+.logo.ink{filter:brightness(0)}
+.folio{position:absolute;left:14mm;right:14mm;bottom:9mm;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:5.8pt;letter-spacing:.28em;text-transform:uppercase;color:var(--ink3)}
+.dark .folio,.onimg .folio{color:var(--mute)}
+
+/* 01 cover */
+.cover .meta{position:absolute;left:16mm;right:16mm;bottom:15mm;display:flex;justify-content:space-between;align-items:flex-end;color:rgba(246,244,240,.72)}
+.cover .meta .name{font-family:var(--sans);font-weight:200;font-size:30pt;letter-spacing:.42em;color:rgba(246,244,240,.9);line-height:1}
+.cover .meta .sub{margin-top:3.5mm}
+.cover .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(246,244,240,.62)}
+
+/* 02 opening */
+.open .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,9,.72) 0%,rgba(8,8,9,.18) 38%,rgba(8,8,9,0) 60%),
+  linear-gradient(180deg,rgba(8,8,9,.35),rgba(8,8,9,0) 22%)}
+.open .hd{position:absolute;left:16mm;top:13mm}
+.open .tx{position:absolute;left:16mm;bottom:22mm;color:var(--white)}
+.open .tx .disp{font-size:92pt;letter-spacing:.06em}
+.open .tx p{margin-top:5mm;font-size:12pt;font-weight:300;letter-spacing:.01em;color:rgba(246,244,240,.86)}
+
+/* 03 the word */
+.word .l{position:absolute;left:0;top:0;bottom:0;width:170mm;padding:20mm 18mm 0 18mm}
+.word .l .tex{position:absolute;inset:0;background:url(img/ground-white-concrete.jpg) center/cover;opacity:.32;mix-blend-mode:multiply}
+.word .l>*{position:relative}
+.word .l>.folio,.word .l>.tex{position:absolute}
+.word .r{position:absolute;right:0;top:0;bottom:0;width:127mm}
+.word .r img{object-position:38% 50%}
+.word h2{font-family:var(--serif);font-style:italic;font-weight:300;font-size:104pt;line-height:.9;letter-spacing:-.01em;margin-top:24mm}
+.word .pron{margin-top:4mm;color:var(--ink3)}
+.word ol{list-style:none;margin-top:12mm;border-top:.25mm solid var(--line)}
+.word li{display:grid;grid-template-columns:9mm 1fr;padding:2.8mm 0;border-bottom:.25mm solid var(--line);font-family:var(--serif);font-size:13.5pt;line-height:1.36;font-weight:400;color:var(--ink2)}
+.word li b{font-family:var(--mono);font-weight:400;font-size:6.2pt;letter-spacing:.2em;color:var(--ink3);padding-top:1.6mm}
+.word .body{margin-top:8mm;max-width:124mm;color:var(--ink2);font-size:8.6pt}
+
+/* 04 the luxe */
+.luxe .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,7,.62),rgba(6,6,7,.2) 70%),radial-gradient(120% 90% at 30% 40%,rgba(10,10,11,0),rgba(6,6,7,.5))}
+.luxe .in{position:absolute;inset:0;padding:20mm 18mm;color:var(--white)}
+.luxe h2{font-size:50pt;margin-top:12mm;max-width:190mm}
+.luxe h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0}
+.luxe .lead{margin-top:8mm;max-width:150mm;font-size:10pt;line-height:1.75;color:rgba(246,244,240,.94)}
+.luxe .cols{position:absolute;left:18mm;right:18mm;bottom:24mm;padding-top:0;display:grid;grid-template-columns:repeat(3,1fr);gap:9mm}
+.luxe .cols div{border-top:.25mm solid var(--lineW);padding-top:4mm}
+.luxe .cols .n{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--led)}
+.luxe .cols h3{font-weight:300;font-size:13pt;margin-top:2.5mm;letter-spacing:-.005em}
+.luxe .cols p{font-size:7.8pt;line-height:1.7;color:rgba(246,244,240,.86);margin-top:2mm}
+.luxe .mark{position:absolute;right:18mm;top:20mm}
+
+/* 05 the four facades */
+.facades{background:#070708}
+.facades .grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.2mm}
+.facades .t{position:relative;overflow:hidden}
+.facades .t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.facades .t .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.78),rgba(6,6,7,0) 42%)}
+.facades .t .lab{position:absolute;left:8mm;right:8mm;bottom:7mm;color:var(--white);display:flex;align-items:flex-end;gap:4mm}
+.facades .t .chip{width:9mm;height:9mm;flex:none;background-size:cover;background-position:center;border:.25mm solid rgba(246,244,240,.5)}
+.facades .t .num{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:rgba(246,244,240,.6)}
+.facades .t h3{font-weight:300;font-size:17pt;letter-spacing:.01em;line-height:1.05;margin-top:1mm}
+.facades .t .spec{font-family:var(--mono);font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,244,240,.62);margin-top:1.8mm}
+.facades .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;color:var(--white);
+  border:.25mm solid rgba(246,244,240,.18)}
+.facades .badge .mono{color:rgba(246,244,240,.62);font-size:5.6pt}
+.facades .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em}
+.facades .note{position:absolute;right:8mm;top:6mm;font-family:var(--mono);font-size:5pt;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,244,240,.5)}
+
+/* 06 the palette */
+.palette .in{position:absolute;inset:0;padding:20mm 18mm}
+.palette .head{display:grid;grid-template-columns:96mm 1fr;gap:14mm;align-items:end}
+.palette h2{font-size:44pt;margin-top:9mm}
+.palette .head .body{color:var(--ink2);padding-bottom:1mm}
+.palette .sws{position:absolute;left:18mm;right:18mm;top:84mm;display:grid;grid-template-columns:repeat(4,1fr);gap:6mm}
+.palette .sw .img{aspect-ratio:1/1;background-size:cover;background-position:center;box-shadow:0 1.2mm 4mm rgba(0,0,0,.18)}
+.palette .sw .num{margin-top:4mm;color:var(--ink3)}
+.palette .sw h3{font-weight:400;font-size:10.5pt;margin-top:1.2mm;letter-spacing:.005em}
+.palette .sw .with{margin-top:2.6mm;display:flex;flex-direction:column;gap:1.6mm}
+.palette .sw .with span{display:flex;align-items:center;gap:2.2mm;font-size:6.8pt;color:var(--ink2)}
+.palette .sw .with i{width:3.2mm;height:3.2mm;display:inline-block;border:.2mm solid rgba(0,0,0,.18)}
+
+/* 07 living, full bleed */
+.onimg .cap{position:absolute;left:16mm;bottom:21mm;color:var(--white)}
+.onimg .cap h2{font-size:40pt;margin-top:4mm}
+.onimg .cap p{margin-top:3mm;font-size:9pt;line-height:1.6;color:rgba(246,244,240,.95);max-width:100mm}
+.onimg .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,9,.8),rgba(8,8,9,.35) 34%,rgba(8,8,9,0) 58%),linear-gradient(90deg,rgba(8,8,9,.35),rgba(8,8,9,0) 55%)}
+
+/* 08 kitchen + bedroom */
+.split3 .a{position:absolute;left:0;top:0;bottom:0;width:178mm}
+.split3 .b{position:absolute;right:0;top:0;width:118mm;height:88mm}
+.split3 .c{position:absolute;right:0;bottom:0;width:118mm;height:121mm;padding:12mm 13mm 0 13mm}
+.split3 .c h2{font-size:26pt;margin-top:6mm;line-height:1.02}
+.split3 .c h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0}
+.split3 .c .body{margin-top:5mm;color:var(--ink2);font-size:8.2pt}
+.split3 .c .folio{left:13mm;right:13mm}
+.split3 .lbl{position:absolute;left:6mm;bottom:6mm;font-family:var(--mono);font-size:5.6pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(246,244,240,.86);
+  background:rgba(8,8,9,.35);padding:1.6mm 2.4mm}
+
+/* 09 bathroom */
+.bath .a{position:absolute;left:0;top:0;bottom:0;width:150mm}
+.bath .r{position:absolute;right:0;top:0;bottom:0;width:147mm;padding:20mm 16mm 0 14mm}
+.bath .r .ph{position:absolute;right:16mm;bottom:20mm;width:50mm;height:66mm}
+.bath h2{font-size:30pt;margin-top:8mm;line-height:1.02}
+.bath .body{margin-top:6mm;color:var(--ink2);max-width:112mm}
+.bath ul{list-style:none;margin-top:7mm;max-width:62mm;border-top:.25mm solid var(--line)}
+.bath li{padding:2.4mm 0;border-bottom:.25mm solid var(--line);font-size:7.6pt;color:var(--ink2);display:flex;justify-content:space-between;gap:3mm}
+.bath li b{font-family:var(--mono);font-weight:400;font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);padding-top:.4mm}
+.bath .r .phcap{position:absolute;right:16mm;bottom:15mm;width:50mm;color:var(--ink3);font-size:5.2pt}
+
+/* 10 the plan */
+.plan .l{position:absolute;left:10mm;top:10mm;bottom:10mm;width:160mm;display:flex;align-items:center;justify-content:center}
+.plan .l img{max-width:100%;max-height:100%;mix-blend-mode:multiply}
+.plan .r{position:absolute;right:0;top:0;bottom:0;width:122mm;padding:20mm 18mm 0 4mm}
+.plan h2{font-size:40pt;margin-top:8mm}
+.plan h2 small{display:block;font-size:13pt;font-weight:300;letter-spacing:.005em;margin-top:3mm;color:var(--ink2)}
+.plan .nums{margin-top:8mm;display:grid;grid-template-columns:1fr 1fr;border-top:.25mm solid var(--line)}
+.plan .nums div{padding:3.2mm 0;border-bottom:.25mm solid var(--line)}
+.plan .nums div:nth-child(odd){padding-right:4mm}
+.plan .nums .k{font-family:var(--mono);font-size:5.6pt;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3)}
+.plan .nums .v{font-weight:300;font-size:14pt;margin-top:1mm;letter-spacing:-.01em}
+.plan .nums .v small{font-size:8pt;color:var(--ink3);margin-left:.6mm}
+.plan .opt{margin-top:7mm}
+.plan .opt p{font-size:7.8pt;line-height:1.75;color:var(--ink2);margin-top:2mm}
+
+/* 11 specification */
+.spec .in{position:absolute;inset:0;padding:20mm 18mm}
+.spec .head{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:14mm}
+.spec h2{font-size:40pt;margin-top:8mm}
+.spec table{position:absolute;left:18mm;right:18mm;top:70mm;border-collapse:collapse;width:calc(100% - 36mm)}
+.spec td{border-top:.25mm solid var(--line);padding:3.3mm 0;vertical-align:top;font-size:8pt;line-height:1.6;color:var(--ink2)}
+.spec tr:last-child td{border-bottom:.25mm solid var(--line)}
+.spec td:first-child{width:46mm;font-family:var(--mono);font-size:6pt;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);padding-top:3.9mm}
+.spec .fine{position:absolute;left:18mm;right:18mm;bottom:17mm;font-size:6pt;line-height:1.6;color:var(--ink3)}
+
+/* 12 back */
+.back .in{position:absolute;left:16mm;right:16mm;bottom:14mm;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10mm;color:var(--ink);padding-top:4mm;border-top:.3mm solid rgba(12,12,13,.35)}
+.back .in .k{font-family:var(--mono);font-size:5.8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(12,12,13,.72)}
+.back .in p{font-size:8.6pt;line-height:1.7;margin-top:1.6mm;font-weight:400}
+.back .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(12,12,13,.72)}
+</style>
+</head>
+<body>
+
+<!-- 01 · cover ─────────────────────────────────────────────────────────── -->
+<section class="pg cover dark">
+  <img class="bleed" src="img/cover-black-concrete.jpg" alt="">
+  <div class="top mono"><span>Black Series</span><span>No. 01</span></div>
+  <div class="meta">
+    <div><div class="name">SOLUM</div><div class="sub mono">The single module home</div></div>
+    <div class="mono">haavn.au</div>
+  </div>
+</section>
+
+<!-- 02 · opening ───────────────────────────────────────────────────────── -->
+<section class="pg open onimg">
+  <img class="bleed" src="img/hero-yakisugi-front.jpg" alt="SOLUM in Yakisugi">
+  <div class="shade"></div>
+  <div class="hd"><img class="logo" src="img/haavn-black-logo.png" alt="HAAVN BLACK"></div>
+  <div class="tx">
+    <div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>Black Series · Ancillary dwelling</div>
+    <div class="disp">SOLUM</div>
+    <p>One module. Complete.</p>
+  </div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>02</span></div>
+</section>
+
+<!-- 03 · the word ─────────────────────────────────────────────────────── -->
+<section class="pg word">
+  <div class="l">
+    <div class="tex"></div>
+    <div class="eyeb" style="color:var(--ink3)"><i></i>01 · The name</div>
+    <h2>so·lum</h2>
+    <div class="pron mono">/ˈsəʊ.ləm/ &nbsp;·&nbsp; Latin &nbsp;·&nbsp; noun</div>
+    <ol>
+      <li><b>I</b><span>The ground. The floor. The base on which a thing stands.</span></li>
+      <li><b>II</b><span>The soil itself, and its living layer: the upper ground where roots take hold.</span></li>
+    </ol>
+    <p class="body">We gave the smallest home in the range the oldest word for ground. SOLUM is where HAAVN BLACK begins: a single module, set lightly on its site and made to belong to the place it stands on. Nothing added for the sake of it. Everything resolved.</p>
+    <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>03</span></div>
+  </div>
+  <div class="r"><img class="bleed" src="img/standing-seam-view.jpg" alt="SOLUM on its site"></div>
+</section>
+
+<!-- 04 · the luxe of HAAVN BLACK ──────────────────────────────────────── -->
+<section class="pg luxe dark">
+  <img class="bleed" src="img/ground-leather.jpg" alt="">
+  <div class="veil"></div>
+  <div class="in">
+    <div class="eyeb" style="color:rgba(246,244,240,.6)"><i></i>02 · HAAVN BLACK</div>
+    <h2 class="disp">Luxury is <em>certainty.</em></h2>
+    <p class="lead">A house is still built the way it was a hundred years ago. On a muddy site, by hand, one at a time. HAAVN BLACK begins from the opposite idea. The home is designed as a product, resolved completely before anything is made, then manufactured in a factory where a millimetre matters and weather does not. What arrives on site is not a frame. It is the home.</p>
+  </div>
+  <img class="logo mark" src="img/haavn-black-logo.png" alt="HAAVN BLACK">
+  <div class="cols">
+    <div><div class="n">01</div><h3>Resolved, not adjusted</h3><p>Every junction, service and finish is settled in design. Nothing is decided later with a saw in hand, so nothing drifts.</p></div>
+    <div><div class="n">02</div><h3>Made under a roof</h3><p>Modules are built in a controlled factory to tolerances a building site cannot hold, then transported complete.</p></div>
+    <div><div class="n">03</div><h3>Certain on site</h3><p>Install is measured in days, not seasons. Less risk, less finance, less of the mess that makes building painful.</p></div>
+  </div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>04</span></div>
+</section>
+
+<!-- 05 · the four facades ─────────────────────────────────────────────── -->
+<section class="pg facades">
+  <div class="grid">
+    <div class="t"><img src="img/finish-yakisugi.jpg" alt=""><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-yakisugi.jpg)"></div>
+        <div><div class="num">01</div><h3>Yakisugi</h3><div class="spec">Shou sugi ban charred timber · Bronze glazing</div></div></div></div>
+    <div class="t"><img src="img/finish-blackbutt.jpg" alt=""><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-blackbutt.jpg)"></div>
+        <div><div class="num">02</div><h3>Blackbutt</h3><div class="spec">Blackbutt timber cladding · Bronze glazing</div></div></div></div>
+    <div class="t"><img src="img/finish-standing-seam.jpg" alt=""><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-standing-seam.jpg)"></div>
+        <div><div class="num">03</div><h3>Charcoal Standing Seam</h3><div class="spec">Standing seam metal · Bronze glazing</div></div></div></div>
+    <div class="t"><img src="img/finish-fibre-cement.jpg" alt=""><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-fibre-cement.jpg)"></div>
+        <div><div class="num">04</div><h3>Equitone</h3><div class="spec">Fibre cement cladding · Silver glazing</div></div></div></div>
+  </div>
+  <div class="badge"><div class="mono">03 · The facade</div><b>SOLUM</b><div class="mono">Four finishes</div></div>
+</section>
+
+<!-- 06 · the palette ──────────────────────────────────────────────────── -->
+<section class="pg palette">
+  <div class="in">
+    <div class="head">
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>04 · Materials</div><h2 class="disp">Black is a discipline.</h2></div>
+      <p class="body">A dark, quiet envelope with warmth held inside. The palette is deliberately short: fewer materials, better ones, detailed properly. Every facade shares the same charcoal windows, flashings and trims, so the home reads as one object whichever skin it wears.</p>
+    </div>
+  </div>
+  <div class="sws">
+    <div class="sw"><div class="img" style="background-image:url(img/sw-yakisugi.jpg)"></div><div class="num mono">01</div><h3>Yakisugi</h3>
+      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
+    <div class="sw"><div class="img" style="background-image:url(img/sw-blackbutt.jpg)"></div><div class="num mono">02</div><h3>Blackbutt</h3>
+      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
+    <div class="sw"><div class="img" style="background-image:url(img/sw-standing-seam.jpg)"></div><div class="num mono">03</div><h3>Charcoal Standing Seam</h3>
+      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
+    <div class="sw"><div class="img" style="background-image:url(img/sw-fibre-cement.jpg)"></div><div class="num mono">04</div><h3>Equitone Fibre Cement</h3>
+      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#eef0ee"></i>Silver glazing</span></div></div>
+  </div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>06</span></div>
+</section>
+
+<!-- 07 · living ───────────────────────────────────────────────────────── -->
+<section class="pg onimg">
+  <img class="bleed" src="img/int-lounge.jpg" alt="Living" style="object-position:50% 58%">
+  <div class="shade"></div>
+  <div class="cap">
+    <div class="eyeb" style="color:rgba(246,244,240,.72)"><i></i>05 · Inside</div>
+    <h2 class="disp">Timber, linen, stone.</h2>
+    <p>Warmth held inside a dark shell. Light comes in through full height glazing and softens through sheer linen.</p>
+  </div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>07</span></div>
+</section>
+
+<!-- 08 · kitchen, dining, bedroom ─────────────────────────────────────── -->
+<section class="pg split3">
+  <div class="a"><img class="bleed" src="img/int-kitchen.jpg" alt="Kitchen and dining" style="object-position:40% 50%"><span class="lbl">Kitchen · Dining</span></div>
+  <div class="b"><img class="bleed" src="img/int-bedroom.jpg" alt="Bedroom" style="object-position:50% 45%"><span class="lbl">Bedroom</span></div>
+  <div class="c">
+    <div class="eyeb" style="color:var(--ink3)"><i></i>Kitchen · Dining · Bedroom</div>
+    <h2 class="disp">Small, and <em>never</em> short of anything.</h2>
+    <p class="body">A galley kitchen along one wall with an induction cooktop, cabinets over and open shelving, fridge, pantry and dishwasher. Dining for four sits in the light at the glass. At the far end, a bedroom with a full height robe, lined in timber and dressed in linen.</p>
+    <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>08</span></div>
+  </div>
+</section>
+
+<!-- 09 · bathroom + finishes ──────────────────────────────────────────── -->
+<section class="pg bath">
+  <div class="a"><img class="bleed" src="img/int-bathroom.jpg" alt="Bathroom" style="object-position:45% 50%"></div>
+  <div class="r">
+    <div class="eyeb" style="color:var(--ink3)"><i></i>Bathroom · Finishes</div>
+    <h2 class="disp">Detailed properly.</h2>
+    <p class="body">Stone toned tile floor to ceiling, a floating timber vanity with a stone basin, frameless glass to the shower and warm light tucked under every shelf. The same short list of materials runs through the whole home.</p>
+    <ul>
+      <li><b>Joinery</b><span>Timber veneer</span></li>
+      <li><b>Benchtops</b><span>Stone</span></li>
+      <li><b>Floors</b><span>Timber</span></li>
+      <li><b>Wet areas</b><span>Stone toned tile</span></li>
+      <li><b>Lighting</b><span>Concealed warm LED</span></li>
+      <li><b>Windows</b><span>Sheer linen</span></li>
+    </ul>
+    <img class="ph bleed" style="position:absolute;inset:auto;right:16mm;bottom:22mm;width:50mm;height:66mm" src="img/int-samples.jpg" alt="Material samples">
+    <div class="phcap mono" style="position:absolute;right:16mm;bottom:17mm;width:50mm">The interior samples</div>
+  </div>
+  <div class="folio" style="left:164mm;right:16mm"><span>HAAVN BLACK · SOLUM</span><span>09</span></div>
+</section>
+
+<!-- 10 · the plan ─────────────────────────────────────────────────────── -->
+<section class="pg plan">
+  <div class="l"><img src="img/plan.png" alt="SOLUM ground floor plan"></div>
+  <div class="r">
+    <div class="eyeb" style="color:var(--ink3)"><i></i>06 · The plan</div>
+    <h2 class="disp">60.3 m²<small>One module. Nothing wasted.</small></h2>
+    <div class="nums">
+      <div><div class="k">Floor area</div><div class="v">60.3<small>m²</small></div></div>
+      <div><div class="k">Footprint</div><div class="v">13.4 × 4.5<small>m</small></div></div>
+      <div><div class="k">Module</div><div class="v">12.6 × 4.2<small>m</small></div></div>
+      <div><div class="k">Structural grid</div><div class="v">4.2 × 4.2<small>m</small></div></div>
+      <div><div class="k">Bedroom</div><div class="v">1</div></div>
+      <div><div class="k">Bathroom</div><div class="v">1</div></div>
+      <div><div class="k">Modules</div><div class="v">1</div></div>
+      <div><div class="k">Storeys</div><div class="v">1</div></div>
+    </div>
+    <div class="opt">
+      <div class="k mono" style="color:var(--ink3)">Add on options</div>
+      <p>A deck the length of the living rooms. An entry deck. An outdoor kitchen with barbecue, fridge and sink. A rear entry.</p>
+    </div>
+  </div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>10</span></div>
+</section>
+
+<!-- 11 · specification ────────────────────────────────────────────────── -->
+<section class="pg spec">
+  <div class="in">
+    <div class="head">
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>07 · Specification</div><h2 class="disp">What arrives.</h2></div>
+      <p class="body" style="color:var(--ink2)">SOLUM is manufactured whole as one module and delivered complete. What follows is the home as designed.</p>
+    </div>
+  </div>
+  <table>
+    <tr><td>Form</td><td>A single factory finished module, 12.6 × 4.2 m on a 4.2 m structural grid, raised on posts. 13.4 × 4.5 m overall.</td></tr>
+    <tr><td>Facade</td><td>Four finishes: Yakisugi charred timber, Blackbutt timber, Charcoal standing seam or Equitone fibre cement. Charcoal windows, flashings and trims throughout.</td></tr>
+    <tr><td>Glazing</td><td>Full height glazing to the living, dining and bedroom. Bronze tinted, or silver with the Equitone facade.</td></tr>
+    <tr><td>Kitchen</td><td>Galley kitchen with induction cooktop, cabinets over and open shelving. Fridge, pantry and dishwasher. Dining for four.</td></tr>
+    <tr><td>Living</td><td>Living room at the end of the module, opening to the deck option.</td></tr>
+    <tr><td>Bedroom</td><td>Bedroom with full height robe.</td></tr>
+    <tr><td>Bathroom</td><td>Shower, vanity and toilet.</td></tr>
+    <tr><td>Services</td><td>Dedicated install cupboard.</td></tr>
+    <tr><td>Options</td><td>Deck, entry deck, outdoor kitchen with barbecue, fridge and sink, rear entry.</td></tr>
+  </table>
+  <p class="fine">Images and specification are indicative and may change as design is finalised. Furniture, landscaping and styling are shown for illustration and are not included. The Blackbutt facade is shown as a visualisation. Final specification is confirmed at contract. Design by Fraser &amp; Partners for HAAVN.</p>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>11</span></div>
+</section>
+
+<!-- 12 · back ─────────────────────────────────────────────────────────── -->
+<section class="pg back">
+  <img class="bleed" src="img/back-white-concrete.jpg" alt="">
+  <div class="top mono"><span>SOLUM</span><span>Black Series</span></div>
+  <div class="in">
+    <div><div class="k">HAAVN HQ</div><p>Level 1, Suite 2, 20-30 Mollison Street<br>Abbotsford VIC 3067</p></div>
+    <div><div class="k">Enquiries</div><p>projects@haavn.au<br>03 9962 2888</p></div>
+    <div><div class="k">Online</div><p>haavn.au</p></div>
+  </div>
+</section>
+
+</body>
+</html>
