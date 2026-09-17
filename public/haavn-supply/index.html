@@ -484,8 +484,10 @@ footer{padding-bottom:20px;margin-top:auto}
 
 <button class="burger" id="burger" aria-label="Menu"><span></span><span></span></button>
 <div class="menu" id="menu">
+  <button class="mrow" id="mProj">Projects<span class="g">&#8594;</span></button>
+  <div class="mdrop" id="mProjDrop"></div>
   <button class="mrow" id="mPres">Presentations<span class="g">&#8594;</span></button>
-  <div class="mdrop" id="mDrop"></div>
+  <div class="mdrop" id="mPresDrop"></div>
   <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
   <button class="mrow" id="mBlack"><img src="assets/brand/haavn-black-wordmark-ink.png" alt="HAAVN BLACK"><span class="g">&#8594;</span></button>
@@ -557,9 +559,9 @@ footer{padding-bottom:20px;margin-top:auto}
         <a class="back" href="#/"><span class="a">&#8592;</span> Home</a>
         <div class="phead">
           <div>
-            <div class="pk">Presentations</div>
-            <h1>Client decks.</h1>
-            <p>Every HAAVN supply presentation, live and presentable from here. Arrow keys or space to advance, <b style="font-weight:500;color:var(--ink)">G</b> for the overview, <b style="font-weight:500;color:var(--ink)">F</b> for fullscreen, <b style="font-weight:500;color:var(--ink)">&#8984;P</b> to export the deck as a PDF.</p>
+            <div class="pk">Projects</div>
+            <h1>The projects.</h1>
+            <p>Every project HAAVN is supplying, with its presentation live and presentable from here. Arrow keys or space to advance, <b style="font-weight:500;color:var(--ink)">G</b> for the overview, <b style="font-weight:500;color:var(--ink)">F</b> for fullscreen, <b style="font-weight:500;color:var(--ink)">&#8984;P</b> to export the deck as a PDF.</p>
           </div>
           <div class="cnt" id="presCount"></div>
         </div>
@@ -567,6 +569,26 @@ footer{padding-bottom:20px;margin-top:auto}
         <div class="filenote">
           <b>Adding a presentation</b>
           A deck is a project record in <code>presentation.html</code> — copy an existing one in the <code>PROJECTS</code> block and change the details. A finished PDF (a document that is already designed) goes in as page images instead: render it to <code>assets/&lt;name&gt;/p-01.jpg</code> and describe the sections with <code>pageSlides()</code>. Then add the row to <code>DECKS</code> at the top of this page.
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PRESENTATIONS · THE COMPANY ═══════════════════════════════════ -->
+    <section class="view" id="vCompany">
+      <div class="page">
+        <a class="back" href="#/"><span class="a">&#8592;</span> Home</a>
+        <div class="phead">
+          <div>
+            <div class="pk">Presentations</div>
+            <h1>Who HAAVN is.</h1>
+            <p>The company presentations and capability documents, for anyone on the team to open and present. Arrow keys or space to advance, <b style="font-weight:500;color:var(--ink)">G</b> for the overview, <b style="font-weight:500;color:var(--ink)">F</b> for fullscreen, <b style="font-weight:500;color:var(--ink)">&#8984;P</b> to export as a PDF.</p>
+          </div>
+          <div class="cnt" id="compCount"></div>
+        </div>
+        <div class="decks" id="compList"></div>
+        <div class="filenote">
+          <b>Adding a company presentation</b>
+          Two ways, both a row in the <code>COMPANY</code> block at the top of this page. A live deck is a record in <code>presentation.html</code>: copy an existing one in its <code>PROJECTS</code> block, change the details, and give the row a <code>slug</code>. A finished document (a capability PDF, say) goes in as a file: put it in <code>documents/</code> and give the row a <code>file</code> instead of a slug.
         </div>
       </div>
     </section>
@@ -679,6 +701,25 @@ var DECKS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
+   1a. THE COMPANY — who HAAVN is: capability decks and company documents,
+       for the team to present. A row is either a live deck (slug, matching a
+       project slug in presentation.html) or a finished document (file).
+   ═════════════════════════════════════════════════════════════════════════ */
+var COMPANY = [
+  /* { slug:'capability',                          // live deck  · presentation.html?project=capability
+       file:'documents/haavn-capability.pdf',      // or a document, instead of slug
+       name:'HAAVN Capability',
+       client:'HAAVN',
+       loc:'Melbourne',
+       date:'September 2026',
+       ref:'HC-26-001',
+       sector:'Company · capability',
+       icon:'assets/icons/build-to-rent.png',
+       tag:'',
+       thumb:'assets/img/render-01.jpg' } */
+];
+
+/* ══════════════════════════════════════════════════════════════════════════
    2. THE LIBRARY — one row per document. Files live in documents/.
       Categories appear in the order listed here; a category with no rows
       still shows, with a note, so the shelf it belongs on is obvious.
@@ -723,10 +764,13 @@ var MEDIA = [
   var esc = function(v){ return String(v==null?'':v).replace(/[&<>"]/g, function(c){
     return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); };
 
-  /* ---- presentations ------------------------------------------------- */
-  $('#deckList').innerHTML = DECKS.map(function(d,i){
-    return '<a class="deck" href="presentation.html?project=' + esc(d.slug) + '">' +
-      '<span class="deck__thumb" style="background-image:url(' + d.thumb + ')"></span>' +
+  /* ---- projects and company presentations ---------------------------- */
+  /* One row, used by both lists: a live deck opens presentation.html, a
+     finished document opens the file itself. */
+  function deckHref(d){ return d.slug ? 'presentation.html?project=' + esc(d.slug) : esc(d.file || '#'); }
+  function deckRow(d, i){
+    return '<a class="deck" href="' + deckHref(d) + '"' + (d.slug ? '' : ' target="_blank" rel="noopener"') + '>' +
+      '<span class="deck__thumb" style="background-image:url(' + (d.thumb || '') + ')"></span>' +
       '<span class="deck__body">' +
         '<span class="deck__n">' + String(i+1).padStart(2,'0') + ' &nbsp;·&nbsp; ' + esc(d.ref) + '</span>' +
         '<span class="deck__t">' + esc(d.name) + '</span>' +
@@ -737,18 +781,30 @@ var MEDIA = [
           (d.tag ? '<span class="tag">' + esc(d.tag) + '</span>' : '') +
         '</span>' +
       '</span>' +
-      '<span class="deck__go"><img class="ic" src="' + d.icon + '" alt=""><span class="ar">&#8594;</span></span>' +
+      '<span class="deck__go">' + (d.icon ? '<img class="ic" src="' + d.icon + '" alt="">' : '') + '<span class="ar">&#8594;</span></span>' +
     '</a>';
-  }).join('');
-  $('#presCount').textContent = DECKS.length + (DECKS.length === 1 ? ' deck' : ' decks');
+  }
+  function dropRows(list, allHref, allLabel, empty){
+    return (list.length
+      ? list.map(function(d){
+          return '<a class="msub" href="' + deckHref(d) + '"' + (d.slug ? '' : ' target="_blank" rel="noopener"') + '>' +
+            '<span><b>' + esc(d.name) + '</b><i>' + esc(d.client) + ' &nbsp;·&nbsp; ' + esc(d.date) + '</i></span>' +
+            '<span class="g">&#8594;</span></a>';
+        }).join('')
+      : '')
+      + '<a class="msub" href="' + allHref + '"><span><b>' + allLabel + '</b><i>'
+      + (list.length ? 'The full list' : empty) + '</i></span><span class="g">&#8594;</span></a>';
+  }
 
-  /* the menu drop-down — the deck list, straight off the menu row */
-  $('#mDrop').innerHTML = DECKS.map(function(d){
-    return '<a class="msub" href="presentation.html?project=' + esc(d.slug) + '">' +
-      '<span><b>' + esc(d.name) + '</b><i>' + esc(d.client) + ' &nbsp;·&nbsp; ' + esc(d.date) + '</i></span>' +
-      '<span class="g">&#8594;</span></a>';
-  }).join('') + '<a class="msub" href="#/presentations"><span><b>All presentations</b>' +
-      '<i>The full list</i></span><span class="g">&#8594;</span></a>';
+  $('#deckList').innerHTML = DECKS.map(deckRow).join('');
+  $('#presCount').textContent = DECKS.length + (DECKS.length === 1 ? ' project' : ' projects');
+  $('#mProjDrop').innerHTML = dropRows(DECKS, '#/projects', 'All projects', 'Nothing filed yet');
+
+  $('#compList').innerHTML = COMPANY.length
+    ? COMPANY.map(deckRow).join('')
+    : '<div class="empty">Nothing filed yet &nbsp;·&nbsp; add a row to COMPANY at the top of this page</div>';
+  $('#compCount').textContent = COMPANY.length + (COMPANY.length === 1 ? ' presentation' : ' presentations');
+  $('#mPresDrop').innerHTML = dropRows(COMPANY, '#/presentations', 'All presentations', 'Nothing filed yet');
 
   /* ---- content ------------------------------------------------------- */
   $('#mediaShelves').innerHTML = MEDIA_GROUPS.map(function(g){
@@ -828,7 +884,8 @@ var MEDIA = [
   /* ---- views --------------------------------------------------------- */
   var VIEWS = {
     '#/':              { el:'#vHome', kicker:'Modular Supply &nbsp;·&nbsp; CCIST Manufacturing &nbsp;·&nbsp; Melbourne' },
-    '#/presentations': { el:'#vPres', kicker:'Presentations &nbsp;·&nbsp; Client Decks &nbsp;·&nbsp; HAAVN Supply' },
+    '#/projects':      { el:'#vPres', kicker:'Projects &nbsp;·&nbsp; Client Decks &nbsp;·&nbsp; HAAVN Supply' },
+    '#/presentations': { el:'#vCompany', kicker:'Presentations &nbsp;·&nbsp; Who HAAVN Is &nbsp;·&nbsp; Capability' },
     '#/content':       { el:'#vContent', kicker:'Content &nbsp;·&nbsp; Film, Imagery &amp; 3D Assets' },
     '#/documents':     { el:'#vDocs', kicker:'Documents &nbsp;·&nbsp; Brand &amp; Technical Library' }
   };
@@ -846,22 +903,29 @@ var MEDIA = [
   window.addEventListener('hashchange', route);
 
   /* ---- menu ---------------------------------------------------------- */
-  var burger = $('#burger'), menu = $('#menu'), drop = $('#mDrop'), presRow = $('#mPres');
+  var burger = $('#burger'), menu = $('#menu');
+  /* Projects and Presentations each open their own list under the row;
+     opening one closes the other, so the menu never runs off the screen. */
+  var DROPS = [{ row:$('#mProj'), drop:$('#mProjDrop') }, { row:$('#mPres'), drop:$('#mPresDrop') }];
+  function shut(){ DROPS.forEach(function(d){ d.row.classList.remove('open'); d.drop.style.maxHeight = '0px'; }); }
   function closeMenu(){
     burger.classList.remove('on'); menu.classList.remove('on');
     document.body.classList.remove('menu-open');
-    presRow.classList.remove('open'); drop.style.maxHeight = '0px';
+    shut();
   }
   burger.addEventListener('click', function(){
     var on = !menu.classList.contains('on');
     burger.classList.toggle('on', on); menu.classList.toggle('on', on);
     document.body.classList.toggle('menu-open', on);
-    if (!on){ presRow.classList.remove('open'); drop.style.maxHeight = '0px'; }
+    if (!on) shut();
   });
-  presRow.addEventListener('click', function(){
-    var open = !presRow.classList.contains('open');
-    presRow.classList.toggle('open', open);
-    drop.style.maxHeight = open ? (drop.scrollHeight + 20) + 'px' : '0px';
+  DROPS.forEach(function(d){
+    d.row.addEventListener('click', function(){
+      var open = !d.row.classList.contains('open');
+      shut();
+      d.row.classList.toggle('open', open);
+      d.drop.style.maxHeight = open ? (d.drop.scrollHeight + 20) + 'px' : '0px';
+    });
   });
   $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
