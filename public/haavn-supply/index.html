@@ -588,7 +588,7 @@ footer{padding-bottom:20px;margin-top:auto}
         <div class="decks" id="compList"></div>
         <div class="filenote">
           <b>Adding a company presentation</b>
-          Two ways, both a row in the <code>COMPANY</code> block at the top of this page. A live deck is a record in <code>presentation.html</code>: copy an existing one in its <code>PROJECTS</code> block, change the details, and give the row a <code>slug</code>. A finished document (a capability PDF, say) goes in as a file: put it in <code>documents/</code> and give the row a <code>file</code> instead of a slug.
+          A row in the <code>COMPANY</code> block at the top of this page. A whole HTML presentation (films, live pages and all) is copied as a folder into <code>presentations/</code> and given a <code>deck</code> path to its index.html. Or: A live deck is a record in <code>presentation.html</code>: copy an existing one in its <code>PROJECTS</code> block, change the details, and give the row a <code>slug</code>. A finished document (a capability PDF, say) goes in as a file: put it in <code>documents/</code> and give the row a <code>file</code> instead of a slug.
         </div>
       </div>
     </section>
@@ -706,8 +706,20 @@ var DECKS = [
        project slug in presentation.html) or a finished document (file).
    ═════════════════════════════════════════════════════════════════════════ */
 var COMPANY = [
+  { deck:'presentations/ccist/index.html',
+    name:'HAAVN · Presentation to CCIST',
+    client:'CCIST',
+    loc:'Melbourne',
+    date:'September 2026',
+    ref:'HC-26-001',
+    sector:'Company · capability',
+    icon:'',
+    tag:'32 slides · film & live pages',
+    thumb:'presentations/ccist-thumb.jpg' },
+
   /* { slug:'capability',                          // live deck  · presentation.html?project=capability
        file:'documents/haavn-capability.pdf',      // or a document, instead of slug
+       deck:'presentations/<folder>/index.html', // or a whole HTML deck, copied into presentations/
        name:'HAAVN Capability',
        client:'HAAVN',
        loc:'Melbourne',
@@ -771,9 +783,9 @@ var MEDIA = [
   /* ---- projects and company presentations ---------------------------- */
   /* One row, used by both lists: a live deck opens presentation.html, a
      finished document opens the file itself. */
-  function deckHref(d){ return d.slug ? 'presentation.html?project=' + esc(d.slug) : esc(d.file || '#'); }
+  function deckHref(d){ return d.slug ? 'presentation.html?project=' + esc(d.slug) : esc(d.deck || d.file || '#'); }
   function deckRow(d, i){
-    return '<a class="deck" href="' + deckHref(d) + '"' + (d.slug ? '' : ' target="_blank" rel="noopener"') + '>' +
+    return '<a class="deck" href="' + deckHref(d) + '"' + (d.file && !d.slug && !d.deck ? ' target="_blank" rel="noopener"' : '') + '>' +
       '<span class="deck__thumb" style="background-image:url(' + (d.thumb || '') + ')"></span>' +
       '<span class="deck__body">' +
         '<span class="deck__n">' + String(i+1).padStart(2,'0') + ' &nbsp;·&nbsp; ' + esc(d.ref) + '</span>' +
@@ -791,7 +803,7 @@ var MEDIA = [
   function dropRows(list, allHref, allLabel, empty){
     return (list.length
       ? list.map(function(d){
-          return '<a class="msub" href="' + deckHref(d) + '"' + (d.slug ? '' : ' target="_blank" rel="noopener"') + '>' +
+          return '<a class="msub" href="' + deckHref(d) + '"' + (d.file && !d.slug && !d.deck ? ' target="_blank" rel="noopener"' : '') + '>' +
             '<span><b>' + esc(d.name) + '</b><i>' + esc(d.client) + ' &nbsp;·&nbsp; ' + esc(d.date) + '</i></span>' +
             '<span class="g">&#8594;</span></a>';
         }).join('')

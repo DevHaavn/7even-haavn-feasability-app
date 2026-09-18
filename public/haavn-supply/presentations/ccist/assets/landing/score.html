@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en-AU"><head><meta charset="utf-8"><title>HAAVN BLACK · score</title>
+<style>html,body{margin:0;background:transparent}#snd{display:none}</style></head>
+<body>
+<!-- The HAAVN BLACK launch score on its own: the same generated music as the
+     SOLUM landing page, without the 3D scene. Used under the Preston film. -->
+<button id="snd" aria-pressed="false"></button>
+<script>
+/* ---- Original synth score, generated live in the browser. Dark electronic, in the spirit
+   of the films Jamie referenced. Nothing is sampled or streamed. Swells follow the light show. ---- */
+(() => {
+  const btn = document.getElementById('snd');
+  const mid = m => 440*Math.pow(2,(m-69)/12);
+  const CHORDS = [[45,57,60,64],[41,53,57,60],[48,55,60,64],[43,55,59,62]];   // Am, F, C, G
+  const ARP = [0,2,3,2,1,3,2,3];
+  const BPM = 92, STEP = 60/BPM/2;                                            // eighth notes
+  let ctx = null, master = null, bus = null, analyser = null, step = 0, next = 0, timer = null, on = false, armed = false;
+
+  function impulse(dur){
+    const rate = ctx.sampleRate, len = Math.floor(rate*dur), buf = ctx.createBuffer(2, len, rate);
+    for (let c = 0; c < 2; c++){
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++){ const t = i/len; d[i] = (Math.random()*2-1)*Math.pow(1-t, 2.7)*(c ? .92 : 1); }
+    }
+    return buf;
+  }
+  function noiseBuf(dur){
+    const rate = ctx.sampleRate, len = Math.floor(rate*dur), buf = ctx.createBuffer(1, len, rate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random()*2-1;
+    return buf;
+  }
+  let NOISE = null;
+
+  function build(){
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint:'playback' });
+    master = ctx.createGain(); master.gain.value = 0;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = .02; comp.release.value = .3;
+    analyser = ctx.createAnalyser(); analyser.fftSize = 512;
+    comp.connect(master); master.connect(analyser); analyser.connect(ctx.destination);
+    bus = ctx.createGain(); bus.gain.value = 1; bus.connect(comp);
+    const verb = ctx.createConvolver(); verb.buffer = impulse(4.2);
+    const wet = ctx.createGain(); wet.gain.value = .55;
+    bus.connect(verb); verb.connect(wet); wet.connect(comp);
+    NOISE = noiseBuf(2);
+
+    // deep drone under everything
+    const droneG = ctx.createGain(); droneG.gain.value = .2; droneGain = droneG;
+    const droneF = ctx.createBiquadFilter(); droneF.type = 'lowpass'; droneF.frequency.value = 160;
+    droneG.connect(droneF); droneF.connect(bus);
+    [0, 3.5, -4].forEach((det, i) => {
+      const o = ctx.createOscillator(); o.type = i ? 'sawtooth' : 'triangle';
+      o.frequency.value = mid(33); o.detune.value = det;
+      const g = ctx.createGain(); g.gain.value = i ? .25 : .7;
+      o.connect(g); g.connect(droneG); o.start();
+    });
+    const lfo = ctx.createOscillator(); lfo.frequency.value = .055;
+    const lfoG = ctx.createGain(); lfoG.gain.value = .07;
+    lfo.connect(lfoG); lfoG.connect(droneG.gain); lfo.start();
+
+    master.gain.linearRampToValueAtTime(.0001, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(.7, ctx.currentTime + 5);
+    next = ctx.currentTime + .15; step = 0;
+    timer = setInterval(schedule, 110);
+  }
+
+  function pad(t, chord){
+    const g = ctx.createGain(); g.gain.value = 0;
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 520; f.Q.value = .8;
+    g.connect(f); f.connect(bus);
+    const dur = STEP*16;
+    g.gain.linearRampToValueAtTime(.085, t + 2.4);
+    g.gain.linearRampToValueAtTime(.055, t + dur*.7);
+    g.gain.linearRampToValueAtTime(0, t + dur);
+    f.frequency.linearRampToValueAtTime(900, t + dur*.6);
+    chord.forEach((n, i) => {
+      [-6, 6].forEach(det => {
+        const o = ctx.createOscillator(); o.type = 'sawtooth';
+        o.frequency.value = mid(n + 12); o.detune.value = det + (i%2 ? 3 : -3);
+        const og = ctx.createGain(); og.gain.value = .3;
+        o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + .1);
+      });
+    });
+  }
+  function pluck(t, note, pan, level){
+    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = mid(note);
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = 6;
+    f.frequency.setValueAtTime(2600, t); f.frequency.exponentialRampToValueAtTime(700, t + .22);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(level, t + .006);
+    g.gain.exponentialRampToValueAtTime(.0001, t + .26);
+    const p = ctx.createStereoPanner(); p.pan.value = pan;
+    o.connect(f); f.connect(g); g.connect(p); p.connect(bus);
+    o.start(t); o.stop(t + .3);
+  }
+  function pulse(t, note){
+    const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = mid(note);
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 220;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(.22, t + .01);
+    g.gain.exponentialRampToValueAtTime(.0001, t + STEP*.9);
+    o.connect(f); f.connect(g); g.connect(bus);
+    o.start(t); o.stop(t + STEP);
+  }
+  function heart(t){
+    const o = ctx.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(74, t); o.frequency.exponentialRampToValueAtTime(38, t + .2);
+    const g = ctx.createGain(); g.gain.setValueAtTime(.34, t);
+    g.gain.exponentialRampToValueAtTime(.0001, t + .32);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t + .34);
+  }
+  function tick(t){
+    const src = ctx.createBufferSource(); src.buffer = NOISE;
+    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 6500;
+    const g = ctx.createGain(); g.gain.setValueAtTime(.02, t); g.gain.exponentialRampToValueAtTime(.0001, t + .05);
+    src.connect(f); f.connect(g); g.connect(bus); src.start(t); src.stop(t + .06);
+  }
+  function schedule(){
+    if (!ctx) return;
+    while (next < ctx.currentTime + .4) {
+      const bar = Math.floor(step/16), beat = step % 16;
+      const chord = CHORDS[bar % CHORDS.length];
+      if (beat === 0) pad(next, chord);
+      if (!morning) {
+        if (beat === 0 || beat === 6 || beat === 10) heart(next);
+        pulse(next, chord[0] - 12);
+        const n = chord[ARP[beat % 8]] + (beat % 4 === 3 ? 12 : 0);
+        pluck(next, n + 12, beat % 2 ? .35 : -.35, beat % 4 === 0 ? .12 : .075);
+        if (beat % 2 === 1) tick(next);
+      } else if (beat === 4 || beat === 12) {
+        pluck(next, chord[ARP[beat % 8]] + 24, beat === 4 ? -.3 : .3, .05);   // a sparse chime in the morning
+      }
+      next += STEP; step++;
+    }
+  }
+
+  // swells that follow the light show
+  function swell(kind){
+    if (!ctx || !on) return;
+    const t = ctx.currentTime;
+    if (kind === 'scan') {
+      const src = ctx.createBufferSource(); src.buffer = NOISE; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4;
+      f.frequency.setValueAtTime(240, t); f.frequency.exponentialRampToValueAtTime(5200, t + 8.5);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.075, t + 4.5); g.gain.linearRampToValueAtTime(0, t + 10);
+      src.connect(f); f.connect(g); g.connect(bus); src.start(t); src.stop(t + 10.2);
+    } else {
+      [29, 41].forEach((n, i) => {                       // a low hit as the home comes on
+        const o = ctx.createOscillator(); o.type = i ? 'triangle' : 'sine'; o.frequency.value = mid(n);
+        const g = ctx.createGain(); g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(i ? .12 : .3, t + .03);
+        g.gain.exponentialRampToValueAtTime(.0001, t + 3.2);
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + 3.3);
+      });
+    }
+  }
+  let morning = false, droneGain = null;
+  addEventListener('hb-dawn', () => {
+    morning = true;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    if (droneGain) { droneGain.gain.cancelScheduledValues(t); droneGain.gain.setValueAtTime(droneGain.gain.value, t); droneGain.gain.linearRampToValueAtTime(.06, t + 8); }
+    if (on) { master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value, t); master.gain.linearRampToValueAtTime(.45, t + 8); }
+  });
+  addEventListener('hb-scan', () => swell('scan'));
+  addEventListener('hb-home', () => swell('home'));
+
+  function setOn(v){
+    on = v; btn.setAttribute('aria-pressed', v ? 'true' : 'false');
+    if (!ctx) { if (v) { try { build(); } catch (e) { btn.style.display = 'none'; return; } } else return; }
+    ctx.resume && ctx.resume();
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(v ? .7 : 0, ctx.currentTime + (v ? 2.5 : .6));
+  }
+  // the score is on by default; the button mutes it
+  let muted = false;
+  btn.addEventListener('click', e => { e.stopPropagation(); muted = on; armed = true; setOn(!on); });
+  const kick = () => {
+    if (muted) return;
+    armed = true;
+    if (!ctx) setOn(true);
+    else if (ctx.state !== 'running') { ctx.resume(); setOn(true); }
+  };
+  kick();                                   // ask now; browsers hold it until the page is touched
+  ['pointerdown','keydown','touchstart','wheel'].forEach(ev => addEventListener(ev, kick, { passive:true }));
+  document.addEventListener('visibilitychange', () => { if (ctx) document.hidden ? ctx.suspend() : (on && ctx.resume()); });
+  const hintOn = v => document.body.classList.toggle('needsound', v);
+  setTimeout(() => hintOn(!ctx || ctx.state !== 'running'), 2500);
+  setInterval(() => { hintOn(!muted && (!ctx || ctx.state !== 'running' || window.__hbSound.level() < 2)); }, 1200);
+  window.__hbSound = { level: () => { if (!analyser) return -1; const d = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(d); let m = 0; for (const v of d) m = Math.max(m, Math.abs(v-128)); return m; }, state: () => ctx && ctx.state, on: () => on, start: () => setOn(true) };
+})();
+</script>
+</body></html>
