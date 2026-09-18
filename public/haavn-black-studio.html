@@ -259,6 +259,13 @@ body.remote-on .remote{display:flex}
 .modelwrap{position:fixed;inset:0;z-index:86;background:#08080a;opacity:0;pointer-events:none;transition:opacity .42s var(--out)}
 .modelwrap.on{opacity:1;pointer-events:auto}
 .modelwrap iframe{width:100%;height:100%;border:0;display:block}
+/* the launch film plays over everything; it has no Return of its own, so the Studio gives it one */
+.modelwrap .mwx{position:absolute;top:calc(70px + env(safe-area-inset-top));left:14px;z-index:2;height:36px;padding:0 14px;
+  border:1px solid rgba(255,255,255,.3);border-radius:2px;background:rgba(8,8,10,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:#fff;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer}
+.modelwrap .mwx:hover{border-color:rgba(255,255,255,.7)}
+.film .tagl{position:absolute;left:14px;top:14px;z-index:2;font-family:var(--mono);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:#fff;padding:5px 9px;border:1px solid rgba(255,255,255,.35);background:rgba(8,8,10,.45)}
 .btn.live{border-color:rgba(47,224,122,.55);color:#eafff2;background:rgba(47,224,122,.07)}
 .btn.live:hover{border-color:var(--led);box-shadow:0 0 26px -8px rgba(47,224,122,.7)}
 
@@ -450,7 +457,7 @@ function m2(a){ return Math.round(a*10)%10===0 ? String(Math.round(a)) : a.toFix
 var HOMES=[
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=3',
+  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=3', launch:'https://solum-black-teaser.vercel.app',
   gallery:['solum-ext-charred-01','solum-ext-stone-01','solum-ext-stone-02','solum-ext-stone-03','solum-ext-charred-02','solum-ext-charred-03','solum-ext-black-01','solum-ext-black-02','solum-ext-black-03','solum-int-01','solum-int-02','solum-int-03','solum-int-04','solum-int-05','solum-int-06','solum-int-07','solum-int-08'].map(function(n){return R+n+'.jpg';}),
   plans:[['Ground floor',R+'solum-floor-ground.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -492,6 +499,7 @@ var PALETTE=[
 ];
 
 var FILMS=[
+  {title:'SOLUM BLACK · Launch', note:'The launch film, with its score. Arriving 15 October 2026.', page:'https://solum-black-teaser.vercel.app', poster:R+'solum-launch-poster-sm.jpg', tag:'Launch'},
   {title:'Preston · Modular assembly', note:'A building set in place, module by module.', src:'/haavn-supply/content/preston-modular-build.mp4', poster:'/haavn-supply/content/preston-modular-build-video.jpg'},
   {title:'The factory', note:'Where the precision comes from.', src:'/haavn-supply/assets/video/ccist-manufacturing.mp4', poster:R+'solum-ext-charred-02.jpg'}
 ];
@@ -559,6 +567,8 @@ function openHome(i, user){
     +'<button class="hsw" data-mode="live"><svg viewBox="0 0 24 24"><path d="M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.4"/></svg>Live model</button></div>':'';
   /* any home with a brochure gets the export: a finished PDF, opened in its own
      tab so it can be saved, shared or sent from the phone */
+  var lf=h.launch?'<button class="hbro" type="button" id="pLaunch">'
+    +'<svg viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></svg>Launch film</button>':'';
   var bro=h.brochure?'<a class="hbro" href="'+h.brochure+'" target="_blank" rel="noopener">'
     +'<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Export brochure</a>':'';
   var nums=[['Internal area',m2(h.area)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],
@@ -572,13 +582,14 @@ function openHome(i, user){
     '<button class="btn pback" id="pClose">← The range</button>'+
     '<div class="hero">'+(heroSrc?'<img src="'+heroSrc+'" alt="'+h.key+'" decoding="async">':'')+'<div class="shade"></div>'+
       '<div class="wrap"><div class="eyeb"><i></i>'+(h.series==='black'?'Black Series':'Essentials')+'</div><h2>'+h.key+'</h2>'+
-      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p>'+((live||bro)?'<div class="hacts">'+live+bro+'</div>':'')+'</div></div>'+
+      '<p class="lead" style="margin-top:16px">'+h.blurb+'</p>'+((live||lf||bro)?'<div class="hacts">'+live+lf+bro+'</div>':'')+'</div></div>'+
     '<div class="pnums">'+nums+'</div>'+
     '<div class="wrap" style="padding-bottom:90px">'+gal+plans+'</div>';
   if(heroSrc){ var hi=prod.querySelector('.hero img'); fb(hi,h.img); }
   [].forEach.call(prod.querySelectorAll('img'),function(im){ var f=im.getAttribute('src').replace('-sm.jpg','.jpg'); if(im.closest('.gal')) fb(im,f); });
   [].forEach.call(prod.querySelectorAll('[data-lb]'),function(b){ b.onclick=function(){ openLb(+b.dataset.lb, true); }; });
   prod.querySelector('#pClose').onclick=function(){ closeHome(true); };
+  var pl=prod.querySelector('#pLaunch'); if(pl) pl.onclick=function(){ openModel(h.launch, true, true); };
   [].forEach.call(prod.querySelectorAll('.hsw'),function(b){
     b.onclick=function(){
       [].forEach.call(b.parentNode.children,function(x){x.classList.remove('on');}); b.classList.add('on');
@@ -608,13 +619,15 @@ function closeHome(user){ prod.classList.remove('on'); document.body.style.overf
    The home as a product you can turn around and step into, built from the
    architect's own Rhino model. It runs in its own frame so the story keeps
    its place behind it; the viewer's Return closes it. */
-function openModel(src, user){
+function openModel(src, user, ret){
   var w=document.getElementById('modelwrap');
   if(!w){ w=document.createElement('div'); w.id='modelwrap'; w.className='modelwrap'; document.body.appendChild(w); }
-  w.innerHTML='<iframe src="'+src+'" title="Live model" allow="fullscreen"></iframe>';
+  w.innerHTML=(ret?'<button class="mwx" type="button">&#8592; Return</button>':'')
+    +'<iframe src="'+src+'" title="'+(ret?'SOLUM BLACK launch film':'Live model')+'" allow="fullscreen; autoplay"></iframe>';
+  if(ret) w.querySelector('.mwx').onclick=function(){ closeModel(true); };
   requestAnimationFrame(function(){ w.classList.add('on'); });
   document.body.style.overflow='hidden';
-  if(user) send({type:'model', src:src});
+  if(user) send({type:'model', src:src, ret:!!ret});
 }
 function closeModel(user){
   var w=document.getElementById('modelwrap'); if(!w) return;
@@ -639,13 +652,14 @@ lb.addEventListener('click',function(e){ if(e.target===lb) closeLb(true); });
 var filmBox=document.getElementById('films');
 FILMS.forEach(function(f,i){
   var d=document.createElement('div');
-  d.innerHTML='<div class="film" data-film="'+i+'"><img class="poster" src="'+f.poster+'" alt="" loading="lazy" decoding="async"><span class="play"></span></div>'+
+  d.innerHTML='<div class="film" data-film="'+i+'"><img class="poster" src="'+f.poster+'" alt="" loading="lazy" decoding="async"><span class="play"></span>'+(f.tag?'<span class="tagl">'+f.tag+'</span>':'')+'</div>'+
     '<div class="fcap"><span>'+f.title+'</span><span class="mono">'+f.note+'</span></div>';
   filmBox.appendChild(d);
   d.querySelector('.film').onclick=function(){ playFilm(i, true); };
 });
 function playFilm(i, user){
   var f=FILMS[i], box=filmBox.querySelectorAll('.film')[i]; if(!f||!box) return;
+  if(f.page){ openModel(f.page, user, true); return; }   // a live film plays full screen, over everything
   if(box.querySelector('video')){ var v0=box.querySelector('video'); v0.paused?v0.play():v0.pause(); return; }
   box.innerHTML='<video src="'+f.src+'" controls playsinline autoplay preload="metadata" x-webkit-airplay="allow"></video>';
   if(user) send({type:'film',i:i});
@@ -699,7 +713,7 @@ function apply(m){
   else if(m.type==='film') playFilm(m.i);
   else if(m.type==='heroLive'){ var hh=HOMES[m.i]; if(hh) heroLive(hh); }
   else if(m.type==='heroRender') heroRender();
-  else if(m.type==='model') openModel(m.src);
+  else if(m.type==='model') openModel(m.src, false, m.ret);
   else if(m.type==='modelClose') closeModel();
   else if(m.type==='end'){ present(false); location.reload(); }
 }
