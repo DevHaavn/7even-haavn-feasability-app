@@ -23,16 +23,17 @@ const MEETING = {
 
 /* ── PARTNERS, by discipline. Straight from the consultant directory. ───── */
 const PARTNERS = [
-  ['Architect',            ['Fraser and Partners','LIFE Architecture','Cox','Architectus','FK','Parallel Workshop']],
-  ['Structural engineer',  ['EDGE Consulting Engineers','Hera','Pivot','Webber Design']],
-  ['Civil engineer',       ['Intrax','EDGE Consulting Engineers']],
-  ['Services, mechanical', ['IGS','Di Marzio Consulting',"O'Neill Group"]],
-  ['Fire engineering',     ['Red Fire Engineers']],
-  ['Acoustic',             ['Acoustic Logic']],
-  ['Building surveyor',    ['Checkpoint','SWA','JAZ','Floreancig Smith']],
-  ['Quantity surveyor',    ['Drawdown Partners']],
-  ['Builder',              ['Hamilton Marino','Ironside','HACER','Multiplex','Hutchinson Builders']],
-  ['Capital and delivery', ['7EVEN','HAAVN Management','CCIST']]
+  ['Architect',                     ['Fraser and Partners','LIFE Architecture','Cox','Architectus','FK','Parallel Workshop']],
+  ['Structural engineer',           ['EDGE Consulting Engineers','Hera','Pivot','Webber Design','Northrop']],
+  ['Civil engineer',                ['Intrax','EDGE Consulting Engineers','Northrop']],
+  ['Services engineer',             ['IGS','Di Marzio Consulting',"O'Neill Group"]],
+  ['Fire engineering',              ['Red Fire Engineers','SQR1']],
+  ['Acoustic engineer',             ['Acoustic Logic','Arup']],
+  ['Building surveyor / certifier', ['Checkpoint','SWA','JAZ','Floreancig Smith']],
+  ['Compliance',                    ['Unison Modular']],
+  ['Quantity surveyor',             ['Drawdown Partners','Slattery']],
+  ['Builder',                       ['Hamilton Marino','Ironside','HACER','Multiplex','Hutchinson Builders']],
+  ['Capital and delivery',          ['7EVEN','HAAVN Management','CCIST']]
 ];
 
 /* ── PIPELINE. Latest from Callum and James, 18 September 2026. ───────────
@@ -57,23 +58,21 @@ const PIPELINE = [
   ["7-9 Warrina Street, Chadstone", "BTS", "", 1.1, 12, 2, "Plan rework", "VIC"]
 ];
 
-/* ── CRM SNAPSHOT. From Haavn_Partner_CRM.xlsx (template example row excluded).
-   Active = Stage "Contacted". Potential = Stage "Identified"; the CRM leaves
-   the stage blank on partners not yet contacted, so blanks count here.
-   The CRM has no sector column yet: bySector holds what the records support,
-   the rest sit in toAssign until Callum and James tag them. */
+/* ── CRM SNAPSHOT. Figures from James, 18 September 2026.
+   Active = live conversations. Potential = identified, not yet approached.
+   bySector splits the active leads across the six sectors on slide 7. */
 const CRM = {
-  active: 2,
+  active: 17,
   potential: 27,
   bySector: [
-    ['build-to-rent',         'Build to rent',       0],
-    ['affordable-housing',    'Affordable housing',  0],
-    ['aged-care',             'Senior living',       0],
+    ['build-to-rent',         'Build to rent',       2],
+    ['affordable-housing',    'Affordable housing',  1],
+    ['aged-care',             'Senior living',       1],
     ['student-accommodation', 'Student living',      0],
-    ['hotels',                'Hotels',              0],
-    ['data-centre',           'Multi-residential',   2]
+    ['hotels',                'Hotels',              7],
+    ['data-centre',           'Multi-residential',   6]
   ],
-  toAssign: 27
+  toAssign: 0
 };
 
 /* ── HAAVN BLACK LAUNCH ──────────────────────────────────────────────────
@@ -164,7 +163,7 @@ const DECK = [
 
 /* 12 */ { type:'score', section:'Pipeline', title:'Pipeline in numbers', theme:'dark',
   mark:'The pipeline',
-  hero:{ pre:'$', to:500, suf:'M+', l:'Order value · AUD', n:'Committed module orders now exceed five hundred million dollars.' },
+  hero:{ pre:'$', to:500, suf:'M+', l:'Order value · AUD', n:'Module orders in our pipeline now exceed five hundred million dollars.' },
   stats:[
     { to:17,   l:'Projects in pipeline' },
     { to:6,    l:'Clients committed to HAAVN' },
@@ -176,7 +175,7 @@ const DECK = [
 /* 13 */ { type:'crm', section:'Pipeline', title:'CRM Snapshot', theme:'stone',
   mark:'Trade and channel partners',
   h:'CRM <b>Snapshot.</b>',
-  notes:'Two active conversations, twenty seven developers identified behind them. The sector split fills in as the team tags each lead.' },
+  notes:'Seventeen active leads, led by hotels and multi-residential, with twenty seven developers identified behind them.' },
 
 /* 14 */ { type:'divider', section:'Preston', title:'Case study 01', theme:'dark',
   mark:'Case study 01', n:'02',

@@ -168,6 +168,7 @@ h1,h2,h3{font-family:var(--f-d);font-weight:500;line-height:.98;letter-spacing:-
   cursor:pointer;display:grid;place-items:center;font-size:13px;transition:.18s;font-family:var(--f-b);
 }
 .nav button:hover{border-color:var(--accent);color:var(--accent)}
+.nav button.menu{width:auto;padding:0 14px;font-family:var(--f-d);font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;margin-right:6px}
 
 /* ── COVER ────────────────────────────────────────────────────────────── */
 .cover{display:grid;grid-template-rows:auto 1fr auto;height:100%}
@@ -674,6 +675,7 @@ h1,h2,h3{font-family:var(--f-d);font-weight:500;line-height:.98;letter-spacing:-
         <span class="prog"><i id="prog"></i></span>
         <span class="fol"><b id="fn">01</b> / <span id="ft">01</span></span>
         <span class="nav">
+          <button id="bMenu" class="menu" title="Back to the HAAVN menu (Esc)">Menu</button>
           <button id="bPrev" title="Previous">&#8592;</button>
           <button id="bGrid" title="All slides (G)">&#9638;</button>
           <button id="bNext" title="Next">&#8594;</button>
@@ -697,6 +699,7 @@ h1,h2,h3{font-family:var(--f-d);font-weight:500;line-height:.98;letter-spacing:-
         <div><span>Play / pause film</span><kbd>V</kbd></div>
         <div><span>Fullscreen</span><kbd>F</kbd></div>
         <div><span>Export to PDF</span><kbd>Cmd P</kbd></div>
+        <div><span>Back to the HAAVN menu</span><kbd>Esc</kbd></div>
       </div>
     </div>
 

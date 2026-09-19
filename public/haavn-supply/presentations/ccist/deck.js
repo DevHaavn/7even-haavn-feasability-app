@@ -593,9 +593,25 @@ function fit(){
 }
 window.addEventListener('resize', fit); fit();
 
+/* Leaving the deck. Inside ATRIUM (served from haavn-supply/presentations/)
+   Escape and the Menu button go back to the HAAVN Presentations menu. Escape
+   first closes whatever is open on top (the slide grid, help, black screen);
+   the next Escape leaves. Run on its own from the Mac there is nowhere to go
+   back to, so both do nothing. */
+const HOME = /\/haavn-supply\/presentations\//.test(location.pathname) ? '../../index.html#/presentations' : null;
+function leave(){
+  if (!HOME) return;
+  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  location.href = HOME;
+}
+
 function onKey(e){
   const k = e.key;
-  if (k === 'Escape'){ closeOv(); $('#black').classList.remove('on'); return; }
+  if (k === 'Escape'){
+    const open = document.querySelector('.ov.on') || $('#black').classList.contains('on');
+    if (open){ closeOv(); $('#black').classList.remove('on'); return; }
+    leave(); return;
+  }
   if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'ArrowDown'){ e.preventDefault(); next(); }
   else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'ArrowUp'){ e.preventDefault(); prev(); }
   else if (k === 'Home') go(0);
@@ -616,6 +632,8 @@ document.addEventListener('keydown', onKey);
 $('#bNext').addEventListener('click', e => { e.stopPropagation(); next(); });
 $('#bPrev').addEventListener('click', e => { e.stopPropagation(); prev(); });
 $('#bGrid').addEventListener('click', e => { e.stopPropagation(); toggleOv('#ovGrid'); });
+if (HOME) $('#bMenu').addEventListener('click', e => { e.stopPropagation(); leave(); });
+else $('#bMenu').remove();
 
 document.addEventListener('click', e => {
   if (e.target.closest('.ov') || e.target.closest('.cright') || e.target.closest('.nav') ||
