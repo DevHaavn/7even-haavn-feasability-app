@@ -24,7 +24,7 @@ const PILLARS = [
     blurb: 'Every enquiry, contract and home in delivery — the 15-step customer journey from first consult to handover, with the full sales and construction pipeline.',
   },
   {
-    id: 'ptm', src: '/haavn-path-to-market.html?v=3', num: '02', color: '#13B5EA',
+    id: 'ptm', src: '/haavn-path-to-market.html?v=4', num: '02', color: '#13B5EA',
     title: 'Shareholder · Path to Market',
     sub: 'Process · Deliverables · Gates',
     blurb: 'The route to market and the return to the partnership: revenue, cost to the business, the full group structure, and the operating directive — for HAAVN × Hamilton Marino shareholders.',
