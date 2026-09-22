@@ -23,7 +23,7 @@ export default function HaavnDisplaySuite({ onClose }: { onClose: () => void }) 
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: '#0b0b0c', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
-      <iframe title="HAAVN BLACK Studio" src="/haavn-black-studio.html?v=8" allow="fullscreen; autoplay"
+      <iframe title="HAAVN BLACK Studio" src="/haavn-black-studio.html?v=9" allow="fullscreen; autoplay"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )
