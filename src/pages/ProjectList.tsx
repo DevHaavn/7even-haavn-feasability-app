@@ -7,6 +7,7 @@ import type { PillarId } from './capital/CapitalBase'
 import HaavnManagementBase from './capital/HaavnManagementBase'
 import AtriumZeroed from './AtriumZeroed'
 import { useRole } from '../lib/role'
+import XMark from '../brand/XMark'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ATRIUM home — the 7EVEN Development Feasibility Studio landing.
@@ -110,16 +111,16 @@ const CSS = `
 .ath-burger.on::before{left:14px;clip-path:polygon(0 0,23% 0,100% 50%,23% 100%,0 100%,77% 50%)}
 .ath-burger.on::after{right:14px;clip-path:polygon(100% 0,77% 0,0 50%,77% 100%,100% 100%,23% 50%)}
 /* floating menu — centred under the eyebrow, no card */
-.ath-pmenu{position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(560px,84vw);z-index:50;max-height:calc(100vh - clamp(150px,20vh,210px) - 80px);overflow-y:auto;
+.ath-pmenu{border-radius:26px;position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(560px,84vw);z-index:50;max-height:calc(100vh - clamp(150px,20vh,210px) - 80px);overflow-y:auto;
   opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
 .ath-pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .ath-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
   font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;color:var(--led);
-  border:1px solid rgba(47,224,122,.4);border-radius:2px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
+  border:1px solid rgba(47,224,122,.4);border-radius:14px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
 .ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
 .ath-base{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin:4px 0 12px;padding:13px 16px;cursor:pointer;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.4);border-radius:2px;transition:.3s}
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.4);border-radius:14px;transition:.3s}
 .ath-base img{height:15px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(255,255,255,.4))}
 .ath-base:hover,.ath-base.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.75);box-shadow:0 0 26px -10px rgba(255,255,255,.5)}
 .ath-base .g{color:#fff;font-size:12px}
@@ -128,12 +129,12 @@ const CSS = `
    project, so it takes the menu's neutral idiom: clear, and white on hover. */
 .ath-zeroed{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:12px;cursor:pointer;
   font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;text-transform:uppercase;
-  color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.32);border-radius:2px;
+  color:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.32);border-radius:14px;
   padding:7px 12px;background:transparent;transition:.25s}
 .ath-zeroed:hover{color:#fff;border-color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);
   box-shadow:0 0 26px -12px rgba(255,255,255,.5)}
 .ath-pinrow{display:flex;align-items:center;gap:14px;width:100%;margin:2px 0 12px;padding:12px 16px;
-  border:1px solid rgba(214,179,106,.45);border-radius:2px;background:rgba(214,179,106,.04);transition:.3s}
+  border:1px solid rgba(214,179,106,.45);border-radius:14px;background:rgba(214,179,106,.04);transition:.3s}
 .ath-pinrow.err{border-color:rgba(224,100,92,.75);animation:athPinShake .4s ease}
 @keyframes athPinShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
 .ath-pinlbl{font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6b36a;text-transform:uppercase;flex:none}
@@ -143,7 +144,7 @@ const CSS = `
 .ath-pinhint{font-family:var(--mono);font-size:7.5px;letter-spacing:.22em;color:#8a8f95;text-transform:uppercase;margin-left:auto;text-align:right}
 .ath-pinrow.err .ath-pinhint{color:#e0645c}
 .ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:14px;padding:13px 16px;cursor:pointer;
-  background:rgba(214,179,106,.05);border:1px solid #d6b36a;border-radius:2px;transition:.3s;
+  background:rgba(214,179,106,.05);border:1px solid #d6b36a;border-radius:14px;transition:.3s;
   box-shadow:0 0 9px rgba(244,227,189,.7),0 0 26px rgba(214,179,106,.45),0 0 44px rgba(190,150,80,.3),inset 0 0 9px rgba(214,179,106,.28)}
 .ath-hor7 img{height:14px;width:auto;display:block;filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
 .ath-hor7:hover{background:rgba(214,179,106,.12);border-color:rgba(214,179,106,.8);box-shadow:0 0 26px -10px rgba(214,179,106,.6)}
@@ -154,7 +155,7 @@ const CSS = `
 .ath-hor7.grn:hover{background:rgba(47,224,122,.12);border-color:rgba(47,224,122,.8);box-shadow:0 0 26px -10px rgba(47,224,122,.6)}
 .ath-hor7.grn .g{color:#2fe07a}
 .ath-brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin-top:12px;padding:13px 16px;cursor:pointer;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:2px;transition:.3s}
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:14px;transition:.3s}
 .ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
 .ath-brandrow:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
 .ath-brandrow .g{color:#d6d9dd;font-size:12px}
@@ -163,9 +164,9 @@ const CSS = `
 .ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname,.ath-base:hover .ath-rowname{color:#fff}
 .ath-logoutrow{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:12px 16px;cursor:pointer;
   font-family:var(--mono);font-size:11.7px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
-  background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:2px;transition:.3s}
+  background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:14px;transition:.3s}
 .ath-logoutrow:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
-.ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:2px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
+.ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:14px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
 .ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
 .ath-plist{max-height:min(54vh,460px);overflow-y:auto}
 .ath-prow{display:flex;align-items:center;gap:14px;padding:14px 4px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.1);transition:.22s;text-shadow:0 1px 8px rgba(0,0,0,.9)}
@@ -175,18 +176,18 @@ const CSS = `
 .ath-pinfo{flex:1;min-width:0}
 .ath-pname{font-size:13px;font-weight:600;color:#f0eff0;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ath-paddr{font-family:var(--mono);font-size:9px;color:var(--grey-txt);letter-spacing:.06em;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ath-ptype{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:#cfd3d8;border:1px solid rgba(255,255,255,.22);border-radius:2px;padding:4px 8px;display:inline-flex;align-items:center;gap:6px;background:transparent;cursor:pointer;flex-shrink:0}
+.ath-ptype{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:#cfd3d8;border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:4px 8px;display:inline-flex;align-items:center;gap:6px;background:transparent;cursor:pointer;flex-shrink:0}
 .ath-ptype:hover{border-color:rgba(47,224,122,.55)}
 .ath-ptype .d{width:5px;height:5px;border-radius:50%}
 .ath-go{color:var(--led);font-size:11px;opacity:0;transform:translateX(-4px);transition:.25s;flex-shrink:0}
 .ath-prow:hover .ath-go{opacity:1;transform:none}
-.ath-sub{position:absolute;z-index:80;background:rgba(10,11,12,.92);border:1px solid rgba(255,255,255,.16);border-radius:4px;min-width:150px;overflow:hidden;
+.ath-sub{position:absolute;z-index:80;background:rgba(10,11,12,.92);border:1px solid rgba(255,255,255,.16);border-radius:18px;min-width:150px;overflow:hidden;
   -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 20px 50px -20px #000}
 .ath-sub button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:9px 12px;background:transparent;border:none;cursor:pointer;color:#cfd3d8;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
 .ath-sub button:hover{background:rgba(47,224,122,.1);color:#fff}
 .ath-arch{padding:12px 4px 4px;font-family:var(--mono);font-size:8px;letter-spacing:.26em;color:rgba(255,255,255,.35);text-transform:uppercase}
 .ath-archrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:#b9bdc4;text-shadow:0 1px 8px rgba(0,0,0,.9)}
-.ath-archrow .a-act{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:5px 10px;border-radius:2px;cursor:pointer;background:transparent}
+.ath-archrow .a-act{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:5px 10px;border-radius:14px;cursor:pointer;background:transparent}
 /* hero */
 .ath-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s, filter .35s;z-index:4;position:relative}
 .ath-root.menu-open .ath-hero{opacity:.08;filter:blur(2px)}
@@ -209,11 +210,29 @@ const CSS = `
   animation:s7toWhite 8s ease-in-out 2.9s forwards}
 @keyframes s7toWhite{to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.s7w{animation:none;opacity:1}}
+/* 7EVEN X · the reveal: the word arrives, holds, then gives way to the
+   device. The X is the V of the wordmark mirrored, the deck's locked
+   geometry, so the word does not change into something else so much as
+   close down into its own mark. */
+.ath-xstage{position:relative;display:grid;place-items:center}
+.ath-xstage > *{grid-area:1/1}
+.ath-xmark{width:clamp(132px,18vw,236px);opacity:0;transform:scale(.72);
+  animation:athXIn 2.6s cubic-bezier(.2,.7,.2,1) 7.6s forwards}
+.ath-xmark path{fill:#f6f4f0}
+@keyframes athXIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:none}}
+.ath-seven{animation:athWordOut 2.2s ease-in-out 7.8s forwards}
+@keyframes athWordOut{to{opacity:0;transform:scale(.94);filter:blur(3px)}}
+@media(prefers-reduced-motion:reduce){
+  .ath-xmark{animation:none;opacity:1;transform:none}
+  .ath-seven{animation:none;opacity:0}
+}
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
 .ath-frail{position:relative;z-index:4;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:14px 2px calc(16px + env(safe-area-inset-bottom,0px));white-space:nowrap}
 .ath-fl{display:flex;align-items:center;gap:16px;min-width:0}
+.ath-fx{width:12px;height:12px;flex:none}
+.ath-fx path{fill:rgba(255,255,255,.62)}
 .ath-atrium{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.34em;color:#c3c7cd}
 .ath-tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
 .ath-vd{width:1px;height:18px;background:var(--line)}
@@ -231,7 +250,7 @@ const CSS = `
 @keyframes athPulse{0%,100%{opacity:1}50%{opacity:.4}}
 .ath-clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em;font-family:var(--mono)}
 .ath-fr{display:flex;align-items:center;gap:8px;justify-self:end}
-.ath-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
+.ath-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:transparent;
   font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s cubic-bezier(.2,.7,.3,1);text-transform:uppercase;text-decoration:none}
 .ath-chip:hover{border-color:rgba(47,224,122,.7);color:#fff;transform:translateY(-2px);background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
 .ath-chip .ext{color:var(--led);opacity:.9;font-size:9px}
@@ -451,10 +470,13 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         {/* centre hero — the crisp 7EVEN master */}
         <div className="ath-hero">
           <div className="ath-sevenwrap">
-            <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-              <i className="s7 s7k" /><i className="s7 s7w" />
+            <div className="ath-xstage">
+              <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
+                <i className="s7 s7k" /><i className="s7 s7w" />
+              </div>
+              <XMark className="ath-xmark" />
             </div>
-            <div className="ath-herosub">Atrium &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
+            <div className="ath-herosub">7EVEN X &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
           </div>
         </div>
       </div>
@@ -464,7 +486,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">
-            <span className="ath-atrium"><span className="ath-tri" />ATRIUM</span>
+            <span className="ath-atrium"><XMark className="ath-fx" />7EVEN X</span>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
