@@ -485,6 +485,15 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
 .node[data-type="mgmt"]::before{background:#3f7d63}
 .dot.sup{background:#2a2a2c}.dot.lic{background:#6d5f8f}.dot.tech{background:#b06a52}
 .dot.ext{background:#8a897d}.dot.hm{background:#c19a3f}.dot.mgmt{background:#3f7d63}
+.jvsplit{margin-top:10px}
+.jvs-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;border:1px solid rgba(0,0,0,.12)}
+.jvs-bar i{display:block;height:100%}
+.jvs-bar .h{background:#3f5d54}.jvs-bar .m{background:#c19a3f}.jvs-bar .w{background:#6b6c5c}
+.jvs-leg{display:flex;flex-direction:column;gap:5px;margin-top:8px;font-size:10.5px;color:var(--ink);line-height:1.35}
+.jvs-leg span{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.jvs-leg b{font-weight:800;min-width:30px}
+.jvs-leg span:nth-child(1) b{color:#3f5d54}.jvs-leg span:nth-child(2) b{color:#a3782a}.jvs-leg span:nth-child(3) b{color:#6b6c5c}
+.jvs-leg em{flex-basis:100%;font-style:normal;color:var(--sage);font-size:9.5px;padding-left:36px}
 .own-line{margin-top:11px;font-size:11px;color:var(--bronze-d);font-weight:700;letter-spacing:.01em;line-height:1.45}
 .node.note{background:#f2f1ea;border-style:dashed;border-color:var(--sage)}
 .node.note::before{display:none}
@@ -617,7 +626,15 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
         <div class="cap"><img class="cardmark" src="data:image/png;base64,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" alt="HAAVN"><span class="swatch" style="background:#3f5d54"></span>Main Supply Company</div>
         <h3>HAAVN × Hamilton Marino</h3>
         <div class="sub">Main supply company — modules to all HAAVN subsidiaries &amp; external parties</div>
-        <div class="own-line">Shareholding (TBC): 40% HM Directors · 40% HAAVN Directors · 20% Other</div>
+        <div class="own-line">Shareholding</div>
+        <div class="jvsplit">
+          <div class="jvs-bar"><i class="h" style="width:50%"></i><i class="m" style="width:40%"></i><i class="w" style="width:10%"></i></div>
+          <div class="jvs-leg">
+            <span><b>50%</b> HAAVN Directors<em>Daniel Sette · Lewis Jin · Jamie Baldwin</em></span>
+            <span><b>40%</b> SMJ Housing Pty Ltd<em>Matt Green · Shaun O'Connell · Jan David Storm</em></span>
+            <span><b>10%</b> World Trade Holdings</span>
+          </div>
+        </div>
         <div class="jvboard" id="n-board">
           <div class="toggle-seats" id="seatToggle">▸ View the board (6 directors)</div>
           <div class="seats" id="seatList">
@@ -626,9 +643,9 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
             <div class="seat"><b>Lewis Jin</b><span>Director</span></div>
             <div class="seat"><b>Daniel Sette</b><span>Director</span></div>
             <div class="seat-group">Hamilton Marino</div>
-            <div class="seat"><b>Matthew Green</b><span>Director</span></div>
-            <div class="seat"><b>Jan Storm</b><span>Director</span></div>
-            <div class="seat"><b>Sean O'Connell</b><span>Director</span></div>
+            <div class="seat"><b>Matt Green</b><span>Director</span></div>
+            <div class="seat"><b>Shaun O'Connell</b><span>Director</span></div>
+            <div class="seat"><b>Jan David Storm</b><span>Director</span></div>
           </div>
         </div>
       </div>
@@ -714,8 +731,8 @@ const NODES = {
   "n-wth":{cap:"Holding · China Entities",color:"#6b6c5c",title:"World Trade Holdings",role:"Holds exclusive China agreements",
     own:"WTH holds the exclusive agreements with the China entities.",
     resp:"Secures exclusive supply from the China suppliers and grants the exclusive licence to the founders.",
-    kv:[["Type","Holding company"],["Holds","Exclusive China agreements"],["Grants","Exclusive licence"]],
-    flow:["Supplied by ← China Suppliers","Grants licence → Founders"]},
+    kv:[["Type","Holding company"],["Holds","Exclusive China agreements"],["Grants","Exclusive licence"],["Shareholding","10% of HAAVN × Hamilton Marino"]],
+    flow:["Supplied by ← China Suppliers","Grants licence → Founders","Holds 10% → HAAVN × Hamilton Marino"]},
   "n-license":{cap:"Exclusive Licence to WTH",color:"#6d5f8f",title:"Exclusive Licence",role:"Held personally by the founders",
     own:"The exclusive licence to WTH, held personally by the three founders — Lewis Jin, Jamie Baldwin and Daniel Sette.",
     resp:"Founders hold the exclusive rights, own HAAVN Pty Ltd (brand/IP) and grant a sub-licence / supply agreement directly into the JV.",
@@ -742,10 +759,10 @@ const NODES = {
     kv:[["Entity","Pty Ltd (AU)"],["Supplies","Tech products into supply chain"],["Ownership","Equal — LJ / JB / DS"]],
     flow:["Parent ← HAAVN Pty Ltd","Supplies tech → all HAAVN subsidiaries"]},
   "n-jv":{cap:"Main Supply Company",color:"#3f5d54",title:"HAAVN × Hamilton Marino",role:"Main supply company — modules to subs & external",
-    own:"The main supply company — supplies modules to all HAAVN subsidiaries and to external parties. Governed by a board of six directors. Shareholding (TBC): 40% HM Directors · 40% HAAVN Directors · 20% Other.",
+    own:"The main supply company — supplies modules to all HAAVN subsidiaries and to external parties. Governed by a board of six directors, three HAAVN and three Hamilton Marino. Owned 50% by the HAAVN directors (Daniel Sette, Lewis Jin, Jamie Baldwin), 40% by SMJ Housing Pty Ltd, the Hamilton Marino directors' company (Matt Green, Shaun O'Connell, Jan David Storm), and 10% by World Trade Holdings.",
     resp:"Manufactures / assembles and supplies modules across the group and to the external market. Engages Hamilton Marino as exclusive build partner; receives a direct supply guarantee via the sub-licence.",
-    kv:[["Entity","Pty Ltd (AU)"],["Role","Main supply company"],["Supplies","HAAVN subs & external parties"],["HM Directors","40% (TBC)"],["HAAVN Directors","40% (TBC)"],["Other","20% (TBC)"],["Board","6 directors (3 HAAVN · 3 HM)"]],
-    flow:["Parent ← HAAVN Pty Ltd","Direct guarantee ← Sub-Licence","Supplies modules → HAAVN Black","Sells → External Supply","Build partner → Hamilton Marino"]},
+    kv:[["Entity","Pty Ltd (AU)"],["Role","Main supply company"],["Supplies","HAAVN subs & external parties"],["HAAVN Directors","50%"],["","Daniel Sette · Lewis Jin · Jamie Baldwin"],["SMJ Housing Pty Ltd","40%"],["","Matt Green · Shaun O'Connell · Jan David Storm"],["SMJ Housing ABN","60 670 377 554"],["World Trade Holdings","10%"],["Board","6 directors (3 HAAVN · 3 HM)"]],
+    flow:["Parent ← HAAVN Pty Ltd","50% ← HAAVN Directors","40% ← SMJ Housing Pty Ltd (Hamilton Marino)","10% ← World Trade Holdings","Direct guarantee ← Sub-Licence","Supplies modules → HAAVN Black","Sells → External Supply","Build partner → Hamilton Marino"]},
   "n-black":{cap:"Subsidiary · Independent",color:"#c7a76a",title:"HAAVN BLACK",role:"Modular homes — Black Series",
     own:"An independent HAAVN company with its own revenue (working name: Haavn Precision Technologies Pty Ltd?). Delivers modular homes — the Black Series — in collaboration with architect Callum Fraser. Owned 75% HAAVN shareholders, 25% Fraser (TBC).",
     resp:"Runs the modular-homes Black Series line as an independent revenue business, fed by modules from the supply JV.",
