@@ -73,12 +73,28 @@ const CSS = `
 .ath-vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
 .ath-main{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;min-height:0;padding:0 clamp(18px,3.4vw,46px)}
 /* vertical LED lines — live inside ath-main so they stop at the footer hairline */
-.ath-vled{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;overflow:visible;z-index:2}
-.ath-root{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
-.ath-root.lines-white{--vl-core:#ffffff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.95);--vl-g2:rgba(255,255,255,.55);--vl-g3:rgba(190,215,235,.42)}
+/* The lines take the rake of the X itself, 30.8 degrees off vertical, and
+   lean the way the stroke nearest them leans. They are broken, in short and
+   medium runs, so they read as light along an edge rather than a drawn rule. */
+.ath-vled{position:absolute;top:-30vh;bottom:-30vh;width:2px;pointer-events:none;overflow:visible;z-index:2;transform-origin:50% 50%;opacity:.74}
+.ath-vl1,.ath-vl2{transform:rotate(-30.8deg)}
+.ath-vr1,.ath-vr2{transform:rotate(30.8deg)}
+.ath-root{--vl-core:#fff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.9);--vl-g2:rgba(255,255,255,.5);--vl-g3:rgba(190,215,235,.4)}
+.ath-root.lines-gold{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
 .ath-vled::before{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg, transparent 0%, var(--vl-soft) 7%, var(--vl-core) 50%, var(--vl-soft) 93%, transparent 100%);
-  filter:brightness(1.3) drop-shadow(0 0 9px var(--vl-g1)) drop-shadow(0 0 26px var(--vl-g2)) drop-shadow(0 0 44px var(--vl-g3))}
+  filter:brightness(1.3) drop-shadow(0 0 9px var(--vl-g1)) drop-shadow(0 0 26px var(--vl-g2)) drop-shadow(0 0 44px var(--vl-g3));
+  -webkit-mask-image:var(--vl-breaks);mask-image:var(--vl-breaks)}
+.ath-root{--vl-breaks:repeating-linear-gradient(180deg,
+  #000 0 96px, transparent 96px 104px,
+  #000 104px 152px, transparent 152px 158px,
+  #000 158px 286px, transparent 286px 300px,
+  #000 300px 352px, transparent 352px 358px,
+  #000 358px 470px, transparent 470px 482px)}
+/* each line breaks on its own rhythm, so the four never line up */
+.ath-vl2::before{-webkit-mask-position:0 -70px;mask-position:0 -70px}
+.ath-vr1::before{-webkit-mask-position:0 -190px;mask-position:0 -190px}
+.ath-vr2::before{-webkit-mask-position:0 -320px;mask-position:0 -320px}
 .ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
 .ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
@@ -213,23 +229,21 @@ const CSS = `
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
 .s7w{background:#f6f4f0;
   filter:drop-shadow(0 0 7px rgba(255,255,255,.5)) drop-shadow(0 0 26px rgba(255,255,255,.22)) drop-shadow(0 3px 18px rgba(0,0,0,.55))}
-/* the water under the word */
-.s7r{position:absolute;left:0;right:0;top:calc(100% + 4px);aspect-ratio:1800/280;background:rgba(246,244,240,.5);
-  transform:scaleY(-.6);transform-origin:top;filter:blur(3px);opacity:.5;
-  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  animation:athRipple 6s ease-in-out infinite}
-.s7r::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.9) 70%)}
-@keyframes athRipple{0%,100%{transform:scaleY(-.6) skewX(0deg);filter:blur(3px)}50%{transform:scaleY(-.56) skewX(1deg);filter:blur(5px)}}
 .ath-xline{width:clamp(300px,42vw,620px);height:1px;margin-top:clamp(14px,2vw,26px);opacity:0;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.34) 18%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.34) 82%,transparent);
   filter:blur(.4px);animation:athReflIn 2.4s ease-out .9s forwards}
 @keyframes athReflIn{to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
-  .ath-lockup,.s7r{animation:none}
+  .ath-lockup{animation:none}
   .ath-xmark{animation:none;opacity:1}
 }
-.ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
+/* the line reads across the lockup with PRECISION on the same axis as the V,
+   and the X standing over it */
+.ath-herosub{margin-top:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:clamp(10px,2vw,26px);
+  width:clamp(269px,40.3vw,576px);font-family:var(--mono);font-size:7.6px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase}
+.ath-herosub .l{text-align:right}
+.ath-herosub .c{text-align:center;color:#d7dade;letter-spacing:.5em;padding-left:.5em}
+.ath-herosub .r{text-align:left}
 /* footer */
 .ath-hair{height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);position:relative;z-index:4}
 .ath-frail{position:relative;z-index:4;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:14px 2px calc(16px + env(safe-area-inset-bottom,0px));white-space:nowrap}
@@ -462,11 +476,11 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
             <div className="ath-lockup">
               <XMark className="ath-xmark" title="7EVEN X" />
               <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-                <i className="s7 s7w" /><i className="s7r" />
+                <i className="s7 s7w" />
               </div>
             </div>
             <div className="ath-xline" />
-            <div className="ath-herosub">7EVEN X &nbsp;·&nbsp; Precision &nbsp;·&nbsp; By Invitation</div>
+            <div className="ath-herosub"><span className="l">7EVEN X</span><span className="c">Precision</span><span className="r">HAAVN X</span></div>
           </div>
         </div>
       </div>
