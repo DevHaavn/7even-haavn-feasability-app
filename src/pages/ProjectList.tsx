@@ -77,8 +77,8 @@ const CSS = `
    lean the way the stroke nearest them leans. They are broken, in short and
    medium runs, so they read as light along an edge rather than a drawn rule. */
 .ath-vled{position:absolute;top:-30vh;bottom:-30vh;width:2px;pointer-events:none;overflow:visible;z-index:2;transform-origin:50% 50%;opacity:.74}
-.ath-vl1,.ath-vl2{transform:rotate(-30.8deg)}
-.ath-vr1,.ath-vr2{transform:rotate(30.8deg)}
+.ath-vl1,.ath-vl2{transform:rotate(30.8deg)}
+.ath-vr1,.ath-vr2{transform:rotate(-30.8deg)}
 .ath-root{--vl-core:#fff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.9);--vl-g2:rgba(255,255,255,.5);--vl-g3:rgba(190,215,235,.4)}
 .ath-root.lines-gold{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
 .ath-vled::before{content:"";position:absolute;inset:0;
@@ -99,8 +99,8 @@ const CSS = `
 .ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr2{right:calc(clamp(46px,6vw,110px) + 96px)}
-.ath-vl1::before,.ath-vr1::before{animation:athDrawDown 15.6s linear infinite}
-.ath-vl2::before,.ath-vr2::before{animation:athDrawUp 15.6s linear infinite}
+.ath-vl1::before,.ath-vr1::before{animation:athDrawDown 31.2s linear infinite}
+.ath-vl2::before,.ath-vr2::before{animation:athDrawUp 31.2s linear infinite}
 @keyframes athDrawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @keyframes athDrawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
 @media(max-width:900px){.ath-vl2,.ath-vr1{display:none}.ath-vl1{left:26px}.ath-vr2{right:26px}}
