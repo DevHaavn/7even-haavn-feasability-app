@@ -8,6 +8,7 @@ import HaavnManagementBase from './capital/HaavnManagementBase'
 import AtriumZeroed from './AtriumZeroed'
 import { useRole } from '../lib/role'
 import XMark from '../brand/XMark'
+import MenuButton from '../brand/MenuButton'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ATRIUM home — the 7EVEN Development Feasibility Studio landing.
@@ -85,18 +86,32 @@ const CSS = `
 .ath-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.44em;margin-top:6px}
 /* burger */
 .ath-menuwrap{grid-column:1;justify-self:start;position:relative;z-index:60}
-.ath-burger{width:58px;height:52px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
-.ath-burger span{display:block;width:2px;height:22px;transition:.3s;border-radius:1px;
-  background:linear-gradient(180deg, transparent 0%, rgba(246,244,240,.72) 7%, #f6f4f0 50%, rgba(246,244,240,.72) 93%, transparent 100%);
-  filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 0 16px rgba(255,255,255,.4)) drop-shadow(0 0 34px rgba(200,222,245,.3))}
-.ath-burger span:nth-child(2){display:none}
-.ath-burger:hover span,.ath-burger.on span{filter:brightness(1.15) drop-shadow(0 0 7px rgba(255,255,255,.85)) drop-shadow(0 0 22px rgba(255,255,255,.5)) drop-shadow(0 0 44px rgba(200,222,245,.34))}
-.ath-burger{position:relative}
-.ath-burger.on span{opacity:0}
-.ath-burger.on::before,.ath-burger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
-  background:#f6f4f0;filter:drop-shadow(0 0 6px rgba(255,255,255,.8)) drop-shadow(0 0 20px rgba(255,255,255,.45)) drop-shadow(0 0 40px rgba(200,222,245,.3));transition:.3s}
-.ath-burger.on::before{left:14px;clip-path:polygon(0 0,23% 0,100% 50%,23% 100%,0 100%,77% 50%)}
-.ath-burger.on::after{right:14px;clip-path:polygon(100% 0,77% 0,0 50%,77% 100%,100% 100%,23% 50%)}
+/* ── the menu button, as it is on 7even.au ────────────────────────────────
+   The frame is drawn in the SVG, not with a CSS border, so the glow follows
+   the geometry. Bone white, with a soft light around it. */
+.mb{width:60px;height:60px;padding:0;border:0;background:transparent;color:#f6f4f0;cursor:pointer;display:grid;place-items:center;
+  transition:transform .42s cubic-bezier(.2,.7,.3,1);-webkit-tap-highlight-color:transparent}
+.mb svg{width:100%;height:100%;display:block;overflow:visible;
+  filter:drop-shadow(0 0 3px rgba(255,252,244,.35)) drop-shadow(0 0 10px rgba(255,255,255,.2))
+         drop-shadow(0 2px 6px rgba(0,0,0,.42)) drop-shadow(0 10px 22px rgba(0,0,0,.45));
+  transition:filter .42s cubic-bezier(.2,.7,.3,1)}
+.mb .fr{fill:none;stroke-linejoin:round}
+.mb .fr.in{stroke:rgba(255,255,255,.34);stroke-width:1.1}
+.mb .fr.rip{stroke:rgba(255,252,244,.9);stroke-width:1.3;opacity:0;transform-box:fill-box;transform-origin:center}
+.mb .mark{filter:drop-shadow(0 .6px 1.4px rgba(0,0,0,.9))}
+.mb .mbLow{transition:opacity .2s linear}
+.mb:hover{transform:translateY(-2px)}
+.mb.lit{transform:none}
+.mb:hover svg,.mb.lit svg{
+  filter:drop-shadow(0 0 4px rgba(255,252,244,.95)) drop-shadow(0 0 13px rgba(255,255,255,.6))
+         drop-shadow(0 0 28px rgba(200,222,245,.34))
+         drop-shadow(0 2px 7px rgba(0,0,0,.42)) drop-shadow(0 12px 28px rgba(0,0,0,.5))}
+.mb:hover .fr.in,.mb.lit .fr.in{stroke:rgba(255,255,255,.72)}
+.mb:hover .fr.rip{animation:mbPulse 1.6s cubic-bezier(.2,.7,.3,1) infinite}
+@keyframes mbPulse{0%{opacity:.85;transform:scale(1)}70%,100%{opacity:0;transform:scale(1.5)}}
+.mb:active{transform:translateY(-1px) scale(.94);transition-duration:.12s}
+.mb:focus-visible{outline:2px solid #d6b36a;outline-offset:5px;border-radius:50%}
+
 /* floating menu — centred under the eyebrow, no card */
 .ath-pmenu{border-radius:26px;position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(560px,84vw);z-index:50;max-height:calc(100vh - clamp(150px,20vh,210px) - 80px);overflow-y:auto;
   opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
@@ -187,11 +202,11 @@ const CSS = `
    sits on water rather than on the page. */
 .ath-lockup{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.6vw,22px);animation:athFloat 7.5s ease-in-out 1.6s infinite}
 @keyframes athFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.ath-xmark{width:clamp(150px,20vw,268px);opacity:0;animation:athXIn 4.2s cubic-bezier(.3,.6,.2,1) .7s forwards}
+.ath-xmark{width:clamp(120px,16vw,214px);opacity:0;animation:athXIn 4.2s cubic-bezier(.3,.6,.2,1) .7s forwards}
 .ath-xmark path{fill:#fff}
 .ath-xmark{filter:drop-shadow(0 0 14px rgba(255,255,255,.5)) drop-shadow(0 0 46px rgba(255,255,255,.26)) drop-shadow(0 0 100px rgba(214,232,255,.2))}
 @keyframes athXIn{from{opacity:0}to{opacity:1}}
-.ath-seven{width:clamp(269px,40.3vw,576px);position:relative}
+.ath-seven{width:clamp(228px,34vw,490px);position:relative}
 .ath-7stack{position:relative;aspect-ratio:1800/280}
 .s7{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
@@ -208,8 +223,12 @@ const CSS = `
 }
 /* the line reads across the lockup with PRECISION on the same axis as the V,
    and the X standing over it */
+/* "By design." as it is set on 7even.au: the display serif, italic, in gold */
+.ath-bydesign{margin-top:clamp(8px,1.2vw,16px);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:300;
+  font-size:clamp(26px,3.4vw,54px);line-height:1;letter-spacing:-.02em;color:#d6b36a;
+  text-shadow:0 0 18px rgba(214,179,106,.35),0 2px 10px rgba(0,0,0,.6);opacity:0;animation:athXIn 2.6s ease-out 1.5s forwards}
 .ath-herosub{margin-top:20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:clamp(10px,2vw,26px);
-  width:clamp(269px,40.3vw,576px);font-family:var(--mono);font-size:7.6px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase}
+  width:clamp(228px,34vw,490px);font-family:var(--mono);font-size:7.6px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase}
 .ath-herosub .l{text-align:right}
 .ath-herosub .c{text-align:center;color:#d7dade;letter-spacing:.5em;padding-left:.5em}
 .ath-herosub .r{text-align:left}
@@ -255,11 +274,12 @@ const CSS = `
     display:flex;justify-content:flex-start;padding:0 10px}
   .ath-tophead > div:first-child{display:none}
   .ath-menuwrap{position:relative;z-index:70}
-  .ath-burger{width:64px;height:56px}
-  .ath-xmark{width:min(168px,44vw)}
-  .ath-seven{width:min(300px,78vw)}
+  .mb{width:54px;height:54px}
+  .ath-xmark{width:min(134px,36vw)}
+  .ath-seven{width:min(268px,72vw)}
   .ath-xline{width:min(340px,86vw)}
-  .ath-herosub{font-size:8px;letter-spacing:.34em;max-width:90vw}
+  .ath-herosub{font-size:8px;letter-spacing:.34em;max-width:90vw;width:min(268px,72vw)}
+  .ath-bydesign{font-size:30px}
   .ath-pmenu{top:calc(100% + 12px)}
   .ath-footwrap{transition:transform .35s ease,opacity .35s ease}
   .ath-root.menu-open .ath-footwrap{transform:translateY(110%);opacity:0;pointer-events:none}
@@ -363,9 +383,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         <div className="ath-tophead">
           <div />
           <div className="ath-menuwrap no-drag" ref={menuRef}>
-            <button className={`ath-burger${menuOpen ? ' on' : ''}`} aria-label="Projects menu" onClick={() => setMenuOpen(v => !v)}>
-              <span /><span /><span />
-            </button>
+            <MenuButton open={menuOpen} onClick={() => setMenuOpen(v => !v)} />
             <div className={`ath-pmenu${menuOpen ? ' on' : ''}`}>
               <div className="ath-mh">
                 <span>Menu</span>
@@ -444,6 +462,7 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
                 <i className="s7 s7w" />
               </div>
+              <div className="ath-bydesign">By design.</div>
             </div>
             <div className="ath-xline" />
             <div className="ath-herosub"><span className="l">7EVEN X</span><span className="c">Precision</span><span className="r">HAAVN X</span></div>
