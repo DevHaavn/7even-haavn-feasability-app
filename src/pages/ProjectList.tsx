@@ -74,9 +74,11 @@ const CSS = `
 .ath-main{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;min-height:0;padding:0 clamp(18px,3.4vw,46px)}
 /* vertical LED lines — live inside ath-main so they stop at the footer hairline */
 .ath-vled{position:absolute;top:0;bottom:0;width:2px;pointer-events:none;overflow:visible;z-index:2}
+.ath-root{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
+.ath-root.lines-white{--vl-core:#ffffff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.95);--vl-g2:rgba(255,255,255,.55);--vl-g3:rgba(190,215,235,.42)}
 .ath-vled::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg, transparent 0%, rgba(214,179,106,.75) 7%, #d6b36a 50%, rgba(214,179,106,.75) 93%, transparent 100%);
-  filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
+  background:linear-gradient(180deg, transparent 0%, var(--vl-soft) 7%, var(--vl-core) 50%, var(--vl-soft) 93%, transparent 100%);
+  filter:brightness(1.3) drop-shadow(0 0 9px var(--vl-g1)) drop-shadow(0 0 26px var(--vl-g2)) drop-shadow(0 0 44px var(--vl-g3))}
 .ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
 .ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
@@ -189,42 +191,43 @@ const CSS = `
 .ath-archrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:#b9bdc4;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-archrow .a-act{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:5px 10px;border-radius:14px;cursor:pointer;background:transparent}
 /* hero */
-.ath-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s, filter .35s;z-index:4;position:relative}
+.ath-hero{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .35s, filter .35s;z-index:4;pointer-events:none}
 .ath-root.menu-open .ath-hero{opacity:.08;filter:blur(2px)}
-.ath-sevenwrap{display:flex;flex-direction:column;align-items:center;opacity:0;animation:athBrandIn 2.4s ease-out .5s forwards}
-@keyframes athBrandIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.ath-seven{width:clamp(269px,40.3vw,576px)}
+.ath-sevenwrap{display:flex;flex-direction:column;align-items:center}
+/* ── 7EVEN X · the lockup: the device above the word ──────────────────────
+   The word is master artwork and is not animated: it is there from the first
+   frame, crisp, bone white. The X is the device, and it is the only thing
+   that arrives, fading up slowly over the word. The pair floats, with the
+   word's own reflection and a thin line of light beneath it, so the lockup
+   sits on water rather than on the page. */
+.ath-lockup{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.6vw,22px);animation:athFloat 7.5s ease-in-out 1.6s infinite}
+@keyframes athFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ath-xmark{width:clamp(150px,20vw,268px);opacity:0;animation:athXIn 4.2s cubic-bezier(.3,.6,.2,1) .7s forwards}
+.ath-xmark path{fill:#fff}
+.ath-xmark{filter:drop-shadow(0 0 14px rgba(255,255,255,.5)) drop-shadow(0 0 46px rgba(255,255,255,.26)) drop-shadow(0 0 100px rgba(214,232,255,.2))}
+@keyframes athXIn{from{opacity:0}to{opacity:1}}
+.ath-seven{width:clamp(269px,40.3vw,576px);position:relative}
 .ath-7stack{position:relative;aspect-ratio:1800/280}
-.s7{position:absolute;inset:0;display:block;opacity:0;
+.s7{position:absolute;inset:0;display:block;
   -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
   mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
-/* Brand reveal: jet-black high-gloss logo appears, then a slow 8s cross-fade
-   to the white master, which holds. No light effects on the black. */
-.s7{opacity:1}
-.s7k{background:linear-gradient(180deg,
-    #0d0e10 0%, #020203 28%, #000 55%,
-    #000 80%, #060708 100%);
-  filter:drop-shadow(0 4px 20px rgba(0,0,0,.85))}
-.s7w{background:#fff;opacity:0;
-  filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 22px rgba(255,255,255,.28)) drop-shadow(0 3px 18px rgba(0,0,0,.6));
-  animation:s7toWhite 8s ease-in-out 2.9s forwards}
-@keyframes s7toWhite{to{opacity:1}}
-@media(prefers-reduced-motion:reduce){.s7w{animation:none;opacity:1}}
-/* 7EVEN X · the reveal: the word arrives, holds, then gives way to the
-   device. The X is the V of the wordmark mirrored, the deck's locked
-   geometry, so the word does not change into something else so much as
-   close down into its own mark. */
-.ath-xstage{position:relative;display:grid;place-items:center}
-.ath-xstage > *{grid-area:1/1}
-.ath-xmark{width:clamp(132px,18vw,236px);opacity:0;transform:scale(.72);
-  animation:athXIn 2.6s cubic-bezier(.2,.7,.2,1) 7.6s forwards}
-.ath-xmark path{fill:#f6f4f0}
-@keyframes athXIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:none}}
-.ath-seven{animation:athWordOut 2.2s ease-in-out 7.8s forwards}
-@keyframes athWordOut{to{opacity:0;transform:scale(.94);filter:blur(3px)}}
+.s7w{background:#f6f4f0;
+  filter:drop-shadow(0 0 7px rgba(255,255,255,.5)) drop-shadow(0 0 26px rgba(255,255,255,.22)) drop-shadow(0 3px 18px rgba(0,0,0,.55))}
+/* the water under the word */
+.s7r{position:absolute;left:0;right:0;top:calc(100% + 4px);aspect-ratio:1800/280;background:rgba(246,244,240,.5);
+  transform:scaleY(-.6);transform-origin:top;filter:blur(3px);opacity:.5;
+  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
+  mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
+  animation:athRipple 6s ease-in-out infinite}
+.s7r::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.9) 70%)}
+@keyframes athRipple{0%,100%{transform:scaleY(-.6) skewX(0deg);filter:blur(3px)}50%{transform:scaleY(-.56) skewX(1deg);filter:blur(5px)}}
+.ath-xline{width:clamp(300px,42vw,620px);height:1px;margin-top:clamp(14px,2vw,26px);opacity:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.34) 18%,rgba(255,255,255,.55) 50%,rgba(255,255,255,.34) 82%,transparent);
+  filter:blur(.4px);animation:athReflIn 2.4s ease-out .9s forwards}
+@keyframes athReflIn{to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
-  .ath-xmark{animation:none;opacity:1;transform:none}
-  .ath-seven{animation:none;opacity:0}
+  .ath-lockup,.s7r{animation:none}
+  .ath-xmark{animation:none;opacity:1}
 }
 .ath-herosub{margin-top:22px;font-family:var(--mono);font-size:7px;letter-spacing:.5em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.5em}
 /* footer */
@@ -264,23 +267,23 @@ const CSS = `
 }
 
 @media(max-width:600px){
-  /* ── phone-only layout (approved preview): CAPITAL block centred mid-screen,
-     burger centred under STUDIO, 7EVEN in the lower third, menu drops beneath ── */
-  .ath-tophead{position:fixed;left:0;right:0;top:34%;transform:translateY(-50%);z-index:22;
-    display:flex;flex-direction:column;align-items:center;padding:0}
+  /* ── phone: the lockup centred, the menu where a thumb reaches it ── */
+  .ath-tophead{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top,0px));z-index:22;
+    display:flex;justify-content:flex-end;padding:0 10px}
   .ath-tophead > div:first-child{display:none}
-  .ath-capwings{width:92px}
-  .ath-eyebrow{font-size:11px;line-height:1.9;max-width:22ch;margin-top:12px}
-  .ath-menuwrap{position:relative;margin-top:20px;z-index:70}
+  .ath-menuwrap{position:relative;z-index:70}
   .ath-burger{width:64px;height:56px}
-  .ath-hero{justify-content:flex-end;padding-bottom:19vh}
-  .ath-seven{width:min(300px,76vw)}
-  .ath-root.menu-open .ath-tophead > div:nth-child(2){opacity:.07;filter:blur(2px);transition:.35s}
+  .ath-xmark{width:min(168px,44vw)}
+  .ath-seven{width:min(300px,78vw)}
+  .ath-xline{width:min(340px,86vw)}
+  .ath-herosub{font-size:8px;letter-spacing:.34em;max-width:90vw}
+  .ath-pmenu{top:calc(100% + 12px)}
   .ath-footwrap{transition:transform .35s ease,opacity .35s ease}
   .ath-root.menu-open .ath-footwrap{transform:translateY(110%);opacity:0;pointer-events:none}
-  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:50%;width:88vw;
+  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:auto;right:0;transform:translateY(-10px);width:min(90vw,380px);
     max-height:calc(48vh - env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;
     padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .ath-pmenu.on{transform:none}
   .ath-plist{max-height:32vh}}
 `
 
@@ -379,20 +382,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         {/* top: CAPITAL wings → Capital Base · burger → projects */}
         <div className="ath-tophead">
           <div />
-          <div style={{ gridColumn: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {role !== 'external' ? (
-              <span className="ath-capbtn" style={{ cursor: 'default' }}>
-                <img className="ath-capwings" src="/winged-device-white.png" alt="Capital" draggable={false} />
-                <span className="ath-capword">Capital</span>
-              </span>
-            ) : (
-              <span className="ath-capbtn" style={{ cursor: 'default' }}>
-                <img className="ath-capwings" src="/winged-device-white.png" alt="" draggable={false} />
-                <span className="ath-capword">Capital</span>
-              </span>
-            )}
-            <div className="ath-eyebrow">Development Feasibility Studio</div>
-          </div>
           <div className="ath-menuwrap no-drag" ref={menuRef}>
             <button className={`ath-burger${menuOpen ? ' on' : ''}`} aria-label="Projects menu" onClick={() => setMenuOpen(v => !v)}>
               <span /><span /><span />
@@ -470,13 +459,14 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
         {/* centre hero — the crisp 7EVEN master */}
         <div className="ath-hero">
           <div className="ath-sevenwrap">
-            <div className="ath-xstage">
+            <div className="ath-lockup">
+              <XMark className="ath-xmark" title="7EVEN X" />
               <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
-                <i className="s7 s7k" /><i className="s7 s7w" />
+                <i className="s7 s7w" /><i className="s7r" />
               </div>
-              <XMark className="ath-xmark" />
             </div>
-            <div className="ath-herosub">7EVEN X &nbsp;·&nbsp; Precision Feasibility &nbsp;·&nbsp; By Invitation</div>
+            <div className="ath-xline" />
+            <div className="ath-herosub">7EVEN X &nbsp;·&nbsp; Precision &nbsp;·&nbsp; By Invitation</div>
           </div>
         </div>
       </div>
