@@ -841,7 +841,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     return q.map(function(p){var x=p[0]-CX,y=p[1]-CY;return [CX+x*co-y*si,CY+x*si+y*co]})}
   function eio(x){x=x<0?0:x>1?1:x;return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
   var pL=b.querySelector('.pL'),pR=b.querySelector('.pR'),pB=b.querySelector('.pB'),prog=0,raf=0;
-  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t), sc=S0*(1+.42*t);
+  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t), sc=S0*(1-.25*t);
     mark.setAttribute('transform','translate('+(50-CX*sc).toFixed(2)+','+(50-CY*sc).toFixed(2)+') scale('+sc.toFixed(4)+')');
     pL.setAttribute('d',quad(rot(lerp(H_L,X_L,t),ang)));
     pR.setAttribute('d',quad(rot(lerp(H_R,X_R,t),ang)));
