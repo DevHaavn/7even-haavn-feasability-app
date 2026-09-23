@@ -73,44 +73,6 @@ const CSS = `
 .ath-vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
 .ath-main{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;min-height:0;padding:0 clamp(18px,3.4vw,46px)}
 /* vertical LED lines — live inside ath-main so they stop at the footer hairline */
-/* The lines take the rake of the X itself, 30.8 degrees off vertical, and
-   lean the way the stroke nearest them leans. They are broken, in short and
-   medium runs, so they read as light along an edge rather than a drawn rule. */
-.ath-vled{position:absolute;top:-30vh;bottom:-30vh;width:2px;pointer-events:none;overflow:visible;z-index:2;transform-origin:50% 50%;opacity:.74}
-.ath-vl1,.ath-vr2{transform:rotate(30.8deg)}
-.ath-vl2,.ath-vr1{display:none}
-.ath-root{--vl-core:#fff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.9);--vl-g2:rgba(255,255,255,.5);--vl-g3:rgba(190,215,235,.4)}
-.ath-root.lines-gold{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
-.ath-vled::before{content:"";position:absolute;inset:0;
-  background:var(--vl-breaks);
-  filter:brightness(1.35)
-    drop-shadow(0 0 3px var(--vl-g1))
-    drop-shadow(0 0 10px var(--vl-g1))
-    drop-shadow(0 0 26px var(--vl-g2))
-    drop-shadow(0 0 54px var(--vl-g3));
-  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 94%,transparent 100%);
-  mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
-/* short and medium runs of light, with the gaps between them */
-.ath-root{--vl-breaks:repeating-linear-gradient(180deg,
-  var(--vl-core) 0 96px, transparent 96px 106px,
-  var(--vl-core) 106px 154px, transparent 154px 161px,
-  var(--vl-soft) 161px 208px, transparent 208px 219px,
-  var(--vl-core) 219px 347px, transparent 347px 361px,
-  var(--vl-core) 361px 413px, transparent 413px 420px,
-  var(--vl-soft) 420px 532px, transparent 532px 546px)}
-/* each line breaks on its own rhythm, so the four never line up */
-.ath-vl2::before{background-position:0 -70px}
-.ath-vr1::before{background-position:0 -190px}
-.ath-vr2::before{background-position:0 -320px}
-.ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
-.ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
-.ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
-.ath-vr2{right:calc(clamp(46px,6vw,110px) + 96px)}
-.ath-vl1::before,.ath-vr1::before{animation:athDrawDown 31.2s linear infinite}
-.ath-vl2::before,.ath-vr2::before{animation:athDrawUp 31.2s linear infinite}
-@keyframes athDrawDown{0%{transform:scaleY(0);transform-origin:top}42%{transform:scaleY(1);transform-origin:top}58%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-@keyframes athDrawUp{0%{transform:scaleY(0);transform-origin:bottom}42%{transform:scaleY(1);transform-origin:bottom}58%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:top}}
-@media(max-width:900px){.ath-vl2,.ath-vr1{display:none}.ath-vl1{left:26px}.ath-vr2{right:26px}}
 
 /* top */
 .ath-tophead{position:relative;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;padding:26px 2px 0}
@@ -396,9 +358,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
       <div className="drag-region" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 10, pointerEvents: 'none' }} />
 
       <div className="ath-main">
-        {/* LED lines — end at the footer hairline (they live inside ath-main) */}
-        <div className="ath-vled ath-vl1" /><div className="ath-vled ath-vl2" />
-        <div className="ath-vled ath-vr1" /><div className="ath-vled ath-vr2" />
 
         {/* top: CAPITAL wings → Capital Base · burger → projects */}
         <div className="ath-tophead">
