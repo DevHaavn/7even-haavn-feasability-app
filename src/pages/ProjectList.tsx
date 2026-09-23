@@ -77,7 +77,8 @@ const CSS = `
    lean the way the stroke nearest them leans. They are broken, in short and
    medium runs, so they read as light along an edge rather than a drawn rule. */
 .ath-vled{position:absolute;top:-30vh;bottom:-30vh;width:2px;pointer-events:none;overflow:visible;z-index:2;transform-origin:50% 50%;opacity:.74}
-.ath-vl1,.ath-vl2,.ath-vr1,.ath-vr2{transform:rotate(30.8deg)}
+.ath-vl1,.ath-vr2{transform:rotate(30.8deg)}
+.ath-vl2,.ath-vr1{display:none}
 .ath-root{--vl-core:#fff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.9);--vl-g2:rgba(255,255,255,.5);--vl-g3:rgba(190,215,235,.4)}
 .ath-root.lines-gold{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
 .ath-vled::before{content:"";position:absolute;inset:0;
@@ -121,17 +122,17 @@ const CSS = `
 .ath-capword{font-family:var(--mono);font-size:8px;letter-spacing:.5em;color:#cfd3d8;text-transform:uppercase;padding-left:.5em;transition:.3s}
 .ath-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.44em;color:var(--grey-txt);text-transform:uppercase;text-align:center;padding-left:.44em;margin-top:6px}
 /* burger */
-.ath-menuwrap{grid-column:3;justify-self:end;position:relative;z-index:60}
+.ath-menuwrap{grid-column:1;justify-self:start;position:relative;z-index:60}
 .ath-burger{width:58px;height:52px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:none;background:transparent;transition:.3s;padding:0}
 .ath-burger span{display:block;width:2px;height:22px;transition:.3s;border-radius:1px;
-  background:linear-gradient(180deg, transparent 0%, rgba(214,179,106,.75) 7%, #d6b36a 50%, rgba(214,179,106,.75) 93%, transparent 100%);
-  filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
+  background:linear-gradient(180deg, transparent 0%, rgba(246,244,240,.72) 7%, #f6f4f0 50%, rgba(246,244,240,.72) 93%, transparent 100%);
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 0 16px rgba(255,255,255,.4)) drop-shadow(0 0 34px rgba(200,222,245,.3))}
 .ath-burger span:nth-child(2){display:none}
-.ath-burger:hover span,.ath-burger.on span{filter:brightness(1.55) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
+.ath-burger:hover span,.ath-burger.on span{filter:brightness(1.15) drop-shadow(0 0 7px rgba(255,255,255,.85)) drop-shadow(0 0 22px rgba(255,255,255,.5)) drop-shadow(0 0 44px rgba(200,222,245,.34))}
 .ath-burger{position:relative}
 .ath-burger.on span{opacity:0}
 .ath-burger.on::before,.ath-burger.on::after{content:'';position:absolute;top:50%;width:13px;height:22px;transform:translateY(-50%);
-  background:#d6b36a;filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62));transition:.3s}
+  background:#f6f4f0;filter:drop-shadow(0 0 6px rgba(255,255,255,.8)) drop-shadow(0 0 20px rgba(255,255,255,.45)) drop-shadow(0 0 40px rgba(200,222,245,.3));transition:.3s}
 .ath-burger.on::before{left:14px;clip-path:polygon(0 0,23% 0,100% 50%,23% 100%,0 100%,77% 50%)}
 .ath-burger.on::after{right:14px;clip-path:polygon(100% 0,77% 0,0 50%,77% 100%,100% 100%,23% 50%)}
 /* floating menu — centred under the eyebrow, no card */
@@ -289,7 +290,7 @@ const CSS = `
 @media(max-width:600px){
   /* ── phone: the lockup centred, the menu where a thumb reaches it ── */
   .ath-tophead{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top,0px));z-index:22;
-    display:flex;justify-content:flex-end;padding:0 10px}
+    display:flex;justify-content:flex-start;padding:0 10px}
   .ath-tophead > div:first-child{display:none}
   .ath-menuwrap{position:relative;z-index:70}
   .ath-burger{width:64px;height:56px}
@@ -300,7 +301,7 @@ const CSS = `
   .ath-pmenu{top:calc(100% + 12px)}
   .ath-footwrap{transition:transform .35s ease,opacity .35s ease}
   .ath-root.menu-open .ath-footwrap{transform:translateY(110%);opacity:0;pointer-events:none}
-  .ath-pmenu{position:absolute;top:calc(100% + 14px);left:auto;right:0;transform:translateY(-10px);width:min(90vw,380px);
+  .ath-pmenu{position:absolute;top:calc(100% + 14px);right:auto;left:0;transform:translateY(-10px);width:min(90vw,380px);
     max-height:calc(48vh - env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;
     padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
   .ath-pmenu.on{transform:none}
