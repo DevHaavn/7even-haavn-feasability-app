@@ -136,9 +136,12 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   useEffect(() => { try { openId ? sessionStorage.setItem(OPEN_KEY, openId) : sessionStorage.removeItem(OPEN_KEY) } catch { /* ignore */ } }, [openId])
   // The LED welcome intro plays once per browser session when entering HAAVN BLACK,
   // then EXPLORE reveals the main hero; subsequent entries skip straight to it.
-  const [welcomed, setWelcomed] = useState<boolean>(() => {
-    try { return sessionStorage.getItem('haavn_black_welcomed') === '1' } catch { return false }
-  })
+  // The animated-shader welcome intro (haavn-black-welcome.html) is retired —
+  // HAAVN BLACK now opens straight to its main page, per Jamie's brief of
+  // 23 Sep 2026. 'welcomed' is kept at true so the message handler below
+  // (which still listens for 'welcome-explore', harmless if nothing sends it)
+  // and the src line don't need restructuring.
+  const welcomed = true
   const [brandMenu, setBrandMenu] = useState(false)
   const [showNew, setShowNew] = useState(false)
   // Which brand the New Project flow is creating. null = still on the brand
@@ -158,7 +161,6 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       const m = e.data && (e.data as { haavnBlack?: string }).haavnBlack
       if (!m) return
       // New HAAVN BLACK home screen (public/haavn-black.html) button actions.
-      if (m === 'welcome-explore') { try { sessionStorage.setItem('haavn_black_welcomed', '1') } catch { /* ignore */ } setWelcomed(true) }
       else if (m === 'return') { restricted ? onLogout?.() : onBack() }
       else if (m === 'display') onOpenDisplaySuite?.()
       else if (m === 'feasibility') setOpenId('black-series')
@@ -200,8 +202,8 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   //    Its buttons post messages handled by the effect above. ──────────────────
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
-      <iframe title={welcomed ? 'HAAVN BLACK' : 'HAAVN BLACK — Welcome'}
-        src={welcomed ? '/haavn-black.html?v=28' : '/haavn-black-welcome.html'} allow="autoplay; fullscreen"
+      <iframe title="HAAVN BLACK"
+        src="/haavn-black.html?v=29" allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )
