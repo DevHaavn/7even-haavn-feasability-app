@@ -77,24 +77,30 @@ const CSS = `
    lean the way the stroke nearest them leans. They are broken, in short and
    medium runs, so they read as light along an edge rather than a drawn rule. */
 .ath-vled{position:absolute;top:-30vh;bottom:-30vh;width:2px;pointer-events:none;overflow:visible;z-index:2;transform-origin:50% 50%;opacity:.74}
-.ath-vl1,.ath-vl2{transform:rotate(30.8deg)}
-.ath-vr1,.ath-vr2{transform:rotate(-30.8deg)}
+.ath-vl1,.ath-vl2,.ath-vr1,.ath-vr2{transform:rotate(30.8deg)}
 .ath-root{--vl-core:#fff;--vl-soft:rgba(255,255,255,.72);--vl-g1:rgba(255,255,255,.9);--vl-g2:rgba(255,255,255,.5);--vl-g3:rgba(190,215,235,.4)}
 .ath-root.lines-gold{--vl-core:#d6b36a;--vl-soft:rgba(214,179,106,.75);--vl-g1:rgba(244,227,189,.95);--vl-g2:rgba(214,179,106,.9);--vl-g3:rgba(190,150,80,.62)}
 .ath-vled::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg, transparent 0%, var(--vl-soft) 7%, var(--vl-core) 50%, var(--vl-soft) 93%, transparent 100%);
-  filter:brightness(1.3) drop-shadow(0 0 9px var(--vl-g1)) drop-shadow(0 0 26px var(--vl-g2)) drop-shadow(0 0 44px var(--vl-g3));
-  -webkit-mask-image:var(--vl-breaks);mask-image:var(--vl-breaks)}
+  background:var(--vl-breaks);
+  filter:brightness(1.35)
+    drop-shadow(0 0 3px var(--vl-g1))
+    drop-shadow(0 0 10px var(--vl-g1))
+    drop-shadow(0 0 26px var(--vl-g2))
+    drop-shadow(0 0 54px var(--vl-g3));
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 94%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
+/* short and medium runs of light, with the gaps between them */
 .ath-root{--vl-breaks:repeating-linear-gradient(180deg,
-  #000 0 96px, transparent 96px 104px,
-  #000 104px 152px, transparent 152px 158px,
-  #000 158px 286px, transparent 286px 300px,
-  #000 300px 352px, transparent 352px 358px,
-  #000 358px 470px, transparent 470px 482px)}
+  var(--vl-core) 0 96px, transparent 96px 106px,
+  var(--vl-core) 106px 154px, transparent 154px 161px,
+  var(--vl-soft) 161px 208px, transparent 208px 219px,
+  var(--vl-core) 219px 347px, transparent 347px 361px,
+  var(--vl-core) 361px 413px, transparent 413px 420px,
+  var(--vl-soft) 420px 532px, transparent 532px 546px)}
 /* each line breaks on its own rhythm, so the four never line up */
-.ath-vl2::before{-webkit-mask-position:0 -70px;mask-position:0 -70px}
-.ath-vr1::before{-webkit-mask-position:0 -190px;mask-position:0 -190px}
-.ath-vr2::before{-webkit-mask-position:0 -320px;mask-position:0 -320px}
+.ath-vl2::before{background-position:0 -70px}
+.ath-vr1::before{background-position:0 -190px}
+.ath-vr2::before{background-position:0 -320px}
 .ath-vl1{left:calc(clamp(46px,6vw,110px) + 96px)}
 .ath-vl2{left:calc(clamp(46px,6vw,110px) + 96px + 190px)}
 .ath-vr1{right:calc(clamp(46px,6vw,110px) + 96px + 190px)}
