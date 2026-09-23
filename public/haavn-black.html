@@ -829,9 +829,8 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
       H_R=[[280,0],[361,0],[361,128],[280,180]],
       H_B=[[80,80],[281,80],[281,131],[80,131]];
   /* the X, BLACK's stroke: 22 wide, 45 degrees, scaled to the H's 195 height, centred on it */
-  var K=195/99, SW=22*K, X0=180.5-(99*K+SW)/2, TR=99*K;
-  var X_L=[[X0,0],[X0+SW,0],[X0+SW+TR,195],[X0+TR,195]],
-      X_R=[[X0+TR,0],[X0+TR+SW,0],[X0+SW,195],[X0,195]],
+  var X_L=[[128,45],[143,45],[233,150],[218,150]],
+      X_R=[[218,45],[233,45],[143,150],[128,150]],
       X_B=[[180.5,97.5],[180.5,97.5],[180.5,97.5],[180.5,97.5]];
   var CX=180.5, CY=97.5, SWING=22, D=820, S0=.122;
   var mark=b.querySelector('.mark');
@@ -841,7 +840,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     return q.map(function(p){var x=p[0]-CX,y=p[1]-CY;return [CX+x*co-y*si,CY+x*si+y*co]})}
   function eio(x){x=x<0?0:x>1?1:x;return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
   var pL=b.querySelector('.pL'),pR=b.querySelector('.pR'),pB=b.querySelector('.pB'),prog=0,raf=0;
-  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t), sc=S0*(1-.25*t);
+  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t), sc=S0*(1+1.5*t);
     mark.setAttribute('transform','translate('+(50-CX*sc).toFixed(2)+','+(50-CY*sc).toFixed(2)+') scale('+sc.toFixed(4)+')');
     pL.setAttribute('d',quad(rot(lerp(H_L,X_L,t),ang)));
     pR.setAttribute('d',quad(rot(lerp(H_R,X_R,t),ang)));
