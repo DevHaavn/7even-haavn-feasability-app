@@ -813,28 +813,40 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
 })();
 </script>
 <script>
-/* The H turns into the X: the site's tween (820ms, cubic in-out, swing) on
-   three quads. Driven by the same 'on' class the menu toggle already sets. */
+/* The H turns into the X. Both are drawn from the wordmark's own artwork.
+   The H is the H of the HAAVN BLACK logo, traced from the artwork itself:
+   a left slab with its slanted top, the crossbar, and a right slab cut on the
+   diagonal at the foot. The X is built in the BLACK typeface: the monoline of
+   the K's arm, at 45 degrees with flat horizontal ends, two strokes crossing,
+   at the logo's proportions (22 wide on a 99 cap height). Same tween as the
+   7EVEN button: 820ms, cubic in-out, with the swing. */
 (function(){
   var b=document.getElementById('hbBurger'); if(!b) return;
   var C='M5,50 A45,45 0 1,1 95,50 A45,45 0 1,1 5,50 Z';
   b.querySelectorAll('.fr').forEach(function(p){p.setAttribute('d',C);});
-  var S=.34, W=138, H=100;
-  b.querySelector('.mark').setAttribute('transform','translate('+(50-W/2*S).toFixed(2)+','+(50-H/2*S).toFixed(2)+') scale('+S+')');
-  var H_L=[[0,0],[25.5,0],[25.5,100],[0,100]], H_R=[[112.5,0],[138,0],[138,100],[112.5,100]], H_B=[[25.5,40.5],[112.5,40.5],[112.5,66.5],[25.5,66.5]];
-  var X_L=[[0,0],[30,0],[138,100],[108,100]], X_R=[[108,0],[138,0],[30,100],[0,100]], X_B=[[69,50],[69,50],[69,50],[69,50]];
-  var CX=69, CY=50, SWING=22, D=820;
+  /* the H, in logo pixels (361 x 195) */
+  var H_L=[[0,52],[81,0],[81,195],[0,195]],
+      H_R=[[280,0],[361,0],[361,128],[280,180]],
+      H_B=[[80,80],[281,80],[281,131],[80,131]];
+  /* the X, BLACK's stroke: 22 wide, 45 degrees, scaled to the H's 195 height, centred on it */
+  var K=195/99, SW=22*K, X0=180.5-(99*K+SW)/2, TR=99*K;
+  var X_L=[[X0,0],[X0+SW,0],[X0+SW+TR,195],[X0+TR,195]],
+      X_R=[[X0+TR,0],[X0+TR+SW,0],[X0+SW,195],[X0,195]],
+      X_B=[[180.5,97.5],[180.5,97.5],[180.5,97.5],[180.5,97.5]];
+  var CX=180.5, CY=97.5, SWING=22, D=820, S0=.122;
+  var mark=b.querySelector('.mark');
   function quad(p){return 'M'+p.map(function(a){return a[0].toFixed(2)+','+a[1].toFixed(2)}).join(' L')+' Z'}
   function lerp(a,c,t){return a.map(function(p,k){return [p[0]+(c[k][0]-p[0])*t,p[1]+(c[k][1]-p[1])*t]})}
   function rot(q,deg){var a=deg*Math.PI/180,co=Math.cos(a),si=Math.sin(a);
     return q.map(function(p){var x=p[0]-CX,y=p[1]-CY;return [CX+x*co-y*si,CY+x*si+y*co]})}
   function eio(x){x=x<0?0:x>1?1:x;return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
   var pL=b.querySelector('.pL'),pR=b.querySelector('.pR'),pB=b.querySelector('.pB'),prog=0,raf=0;
-  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t);
+  function draw(t,dir){var ang=dir*SWING*Math.sin(Math.PI*t), sc=S0*(1+.42*t);
+    mark.setAttribute('transform','translate('+(50-CX*sc).toFixed(2)+','+(50-CY*sc).toFixed(2)+') scale('+sc.toFixed(4)+')');
     pL.setAttribute('d',quad(rot(lerp(H_L,X_L,t),ang)));
     pR.setAttribute('d',quad(rot(lerp(H_R,X_R,t),ang)));
     pB.setAttribute('d',quad(lerp(H_B,X_B,Math.min(1,t*1.5))));
-    pB.style.opacity=String(Math.max(0,1-t*1.6));}
+    pB.style.opacity=String(Math.max(0,1-t*1.8));}
   function tween(to){var from=prog,dir=to>from?1:-1,t0=performance.now();
     if(raf)cancelAnimationFrame(raf);
     (function loop(now){var k=Math.min(1,(now-t0)/D);prog=from+(to-from)*eio(k);draw(prog,dir);
