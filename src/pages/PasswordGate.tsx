@@ -43,9 +43,9 @@ const CSS = `
 .pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pg-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}
 .pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
-.pg-stage{--w:min(37.7vw,364px);--cy:max(calc(50% - 2in),calc(var(--w)*.2645 + 24px))}
+.pg-stage{--w:min(39.3vw,379px);--cy:max(calc(50% - 2in),calc(var(--w)*.2538 + 24px))}
 .pg-lock{width:var(--w);position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%)}
-.pg-under{position:fixed;left:0;right:0;top:calc(var(--cy) + var(--w)*.2645 + 16px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
+.pg-under{position:fixed;left:0;right:0;top:calc(var(--cy) + var(--w)*.2538 + 16px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
 .pg-lock svg{width:100%;height:auto;display:block}
 .pg-by{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(26px,3.4vw,40px);color:#d6b36a;margin:6px 0 0;letter-spacing:.02em;text-shadow:0 0 22px rgba(214,179,106,.35)}
 .pg-tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
@@ -110,15 +110,14 @@ function GateClock() {
 /* the overlap 7X: 7's leg is cut where the X crosses it */
 function SevenX({ className }: { className?: string }) {
   return (
-    <svg className={className} role="img" aria-label="7X" viewBox="-6 -6 202 101">
+    <svg className={className} role="img" aria-label="7X" viewBox="-6 -6 199 101">
       <defs>
-        <mask id="pg7" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><rect x="-5.5" y="-5.5" width="97" height="20" fill="#000" /></mask>
         <mask id="pgx" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><polygon points="0,0 11.45,0 81.45,89 70,89" fill="#000" stroke="#000" strokeWidth="11" strokeLinejoin="miter" /></mask>
       </defs>
       <g fill="#F3F2EE">
-        <g mask="url(#pg7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g>
-        <polygon points="0,0 86,0 86,9 0,9" />
-        <g transform="translate(112 0)"><g mask="url(#pgx)"><polygon points="70,0 81.45,0 11.45,89 0,89" /></g><polygon points="0,0 11.45,0 81.45,89 70,89" /></g>
+        <polygon points="0,0 94,0 87.31,8.5 0,8.5" />
+        <polygon points="74.6,14.5 59.1,14.5 16,89" />
+        <g transform="translate(109 0)"><g mask="url(#pgx)"><polygon points="70,0 81.45,0 11.45,89 0,89" /></g><polygon points="0,0 11.45,0 81.45,89 70,89" /></g>
       </g>
     </svg>
   )
@@ -130,9 +129,8 @@ function SevenXHero() {
   const back = '0,0 11.45,0 81.45,89 70,89'
   const fwd = '70,0 81.45,0 11.45,89 0,89'
   return (
-    <svg role="img" aria-label="7X" viewBox="-6 -6 191 101" overflow="visible">
+    <svg role="img" aria-label="7X" viewBox="-6 -6 199 101" overflow="visible">
       <defs>
-        <mask id="hh7" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><rect x="-5.5" y="-5.5" width="97" height="20" fill="#000" /></mask>
         <mask id="hhx" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><polygon points={back} fill="#000" stroke="#000" strokeWidth="11" strokeLinejoin="miter" /></mask>
         <linearGradient id="hhsheen" gradientUnits="userSpaceOnUse" x1="-90" y1="0" x2="-10" y2="89">
           <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".42" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fffdf2" stopOpacity=".95" /><stop offset=".58" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
@@ -150,12 +148,12 @@ function SevenXHero() {
         <filter id="hhblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" /></filter>
         <g id="hhgx"><g mask="url(#hhx)"><polygon points={fwd} /></g><polygon points={back} /></g>
       </defs>
-      <g className="pg-halo7" fill="#F3F2EE" filter="url(#hhblur)"><polygon points="0,0 86,0 86,9 0,9" /><g mask="url(#hh7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g></g>
+      <g className="pg-halo7" fill="#F3F2EE" filter="url(#hhblur)"><polygon points="0,0 94,0 87.31,8.5 0,8.5" /><polygon points="74.6,14.5 59.1,14.5 16,89" /></g>
       <g fill="#F3F2EE">
-        <g className="pg-a7leg" mask="url(#hh7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g>
-        <polygon className="pg-a7bar" points="0,0 86,0 86,9 0,9" />
+        <polygon className="pg-a7leg" points="74.6,14.5 59.1,14.5 16,89" />
+        <polygon className="pg-a7bar" points="0,0 94,0 87.31,8.5 0,8.5" />
       </g>
-      <g transform="translate(101 0)">
+      <g transform="translate(109 0)">
         <use href="#hhgx" className="pg-halo" fill="#d6b36a" filter="url(#hhblur)" />
         <g className="pg-afwd">
           <g fill="url(#hhfoil)"><g mask="url(#hhx)"><polygon points={fwd} /></g></g>
