@@ -389,10 +389,6 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
                 <span>Menu</span>
 
               </div>
-              <button className="ath-brandrow" title="7X — choose a company" onClick={() => { setMenuOpen(false); onHome?.() }}>
-                <span className="ath-rowname">7X</span>
-                <span className="g">→</span>
-              </button>
               {/* BASE — 7EVEN sub-brand. Since 14 Sep 2026 BASE *is* ATRIUM Engine:
                   the old feasibility studio's project list is switched off (its
                   data is untouched in the store). PIN first, then straight in. */}
@@ -452,14 +448,10 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
         <div className="ath-hero">
           <div className="ath-sevenwrap">
             <div className="ath-lockup">
-              <XMark className="ath-xmark" title="7EVEN X" />
               <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
                 <i className="s7 s7w" />
               </div>
-              <div className="ath-bydesign">By design.</div>
             </div>
-            <div className="ath-xline" />
-            <div className="ath-herosub"><span className="l">7EVEN X</span><span className="c">Precision</span><span className="r">HAAVN X</span></div>
           </div>
         </div>
       </div>
@@ -469,7 +461,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">
-            <span className="ath-atrium"><XMark className="ath-fx" />7EVEN X</span>
+            <button className="ath-chip" title="7X — choose a company" onClick={() => onHome?.()}>7X</button>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
