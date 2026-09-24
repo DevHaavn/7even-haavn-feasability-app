@@ -207,10 +207,10 @@ const CSS = `
 .ath-xmark{filter:drop-shadow(0 0 14px rgba(255,255,255,.5)) drop-shadow(0 0 46px rgba(255,255,255,.26)) drop-shadow(0 0 100px rgba(214,232,255,.2))}
 @keyframes athXIn{from{opacity:0}to{opacity:1}}
 .ath-seven{width:clamp(228px,34vw,490px);position:relative}
-.ath-7stack{position:relative;aspect-ratio:1800/280}
+.ath-7stack{position:relative;aspect-ratio:1800/281}
 .s7{position:absolute;inset:0;display:block;
-  -webkit-mask:url('/seven-mark-white-hd.png') center / contain no-repeat;
-  mask:url('/seven-mark-white-hd.png') center / contain no-repeat}
+  -webkit-mask:url('/seven-wordmark-new.png?v=1') center / contain no-repeat;
+  mask:url('/seven-wordmark-new.png?v=1') center / contain no-repeat}
 .s7w{background:#f6f4f0;
   filter:drop-shadow(0 0 7px rgba(255,255,255,.5)) drop-shadow(0 0 26px rgba(255,255,255,.22)) drop-shadow(0 3px 18px rgba(0,0,0,.55))}
 .ath-xline{width:clamp(300px,42vw,620px);height:1px;margin-top:clamp(14px,2vw,26px);opacity:0;
