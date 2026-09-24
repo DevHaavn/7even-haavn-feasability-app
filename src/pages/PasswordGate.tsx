@@ -43,9 +43,9 @@ const CSS = `
 .pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pg-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}
 .pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
-.pg-stage{--w:min(37.7vw,364px)}
-.pg-lock{width:var(--w);position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
-.pg-under{position:fixed;left:0;right:0;top:calc(50% + var(--w)*.2645 + 16px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
+.pg-stage{--w:min(37.7vw,364px);--cy:max(calc(50% - 2in),calc(var(--w)*.2645 + 24px))}
+.pg-lock{width:var(--w);position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%)}
+.pg-under{position:fixed;left:0;right:0;top:calc(var(--cy) + var(--w)*.2645 + 16px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
 .pg-lock svg{width:100%;height:auto;display:block}
 .pg-by{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(26px,3.4vw,40px);color:#d6b36a;margin:6px 0 0;letter-spacing:.02em;text-shadow:0 0 22px rgba(214,179,106,.35)}
 .pg-tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
