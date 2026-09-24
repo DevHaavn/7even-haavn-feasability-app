@@ -18,8 +18,8 @@ import React, { useEffect, useRef } from 'react'
 const Q7_BAR = [[0, 0], [86, 0], [78.5, 8.5], [0, 8.5]]
 const Q7_LEG = [[86, 0], [7, 84], [63, 8.5], [78.5, 8.5]]
 const QX_BACK = [[0, 0], [11.45, 0], [81.45, 89], [70, 89]]
-const QX_FWD_UP = [[81.45, 0], [52.8, 36.4], [41.4, 36.4], [70, 0]]
-const QX_FWD_LO = [[40.05, 52.6], [11.45, 89], [0, 89], [28.6, 52.6]]
+const QX_FWD_UP = [[70, 0], [81.45, 0], [49.95, 40.05], [44.23, 32.77]]
+const QX_FWD_LO = [[31.5, 48.95], [37.48, 55.9], [11.45, 89], [0, 89]]
 const Q7_LEG_UP = Q7_LEG, Q7_LEG_LO = Q7_LEG
 const CX = 43, CY = 42, SWING = 26, D = 820
 const XC = [40.7, 44.5]   // centre of the X, so it sits in the circle where the 7 did
