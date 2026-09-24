@@ -451,6 +451,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
               <div className="ath-seven ath-7stack" role="img" aria-label="7EVEN">
                 <i className="s7 s7w" />
               </div>
+              <div className="ath-bydesign">By design.</div>
             </div>
           </div>
         </div>
