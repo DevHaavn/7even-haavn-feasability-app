@@ -83,7 +83,9 @@ const CSS = `
 .pg-asheen{opacity:0;animation:pgFade 1s ease 5.6s forwards}
 .pg-halo,.pg-halo7{opacity:0;animation:pgHaloIn 1.8s ease 4.8s forwards,pgBreathe 4.6s ease-in-out 6.8s infinite}
 .pg-halo7{animation-name:pgHaloIn7,pgBreathe7}
-.pg-still .pg-a7leg,.pg-still .pg-afwd,.pg-still .pg-a7bar,.pg-still .pg-aback,.pg-still .pg-asheen,.pg-still .pg-halo,.pg-still .pg-halo7{animation-delay:0s!important;animation-duration:.01s,.01s!important}
+.pg-still .pg-a7leg,.pg-still .pg-afwd,.pg-still .pg-a7bar,.pg-still .pg-aback,.pg-still .pg-asheen{animation:none;opacity:1;transform:none}
+.pg-still .pg-halo{animation:pgBreathe 4.6s ease-in-out infinite;opacity:.55}
+.pg-still .pg-halo7{animation:pgBreathe7 4.6s ease-in-out infinite;opacity:.4}
 @keyframes pgFade{to{opacity:1}}
 @keyframes pgSlideIn{0%{opacity:0;transform:translate(-170px,-216px)}12%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes pgSlideR{0%{opacity:0;transform:translateX(-240px)}12%{opacity:1}100%{opacity:1;transform:none}}
