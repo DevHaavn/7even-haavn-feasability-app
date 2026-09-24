@@ -293,7 +293,7 @@ const CSS = `
 /** Session flag for the BASE PIN. Versioned: bump it whenever the PIN changes. */
 export const BASE_PIN_KEY = 'base_pin_ok_0808'
 
-export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onOpenHomes?: () => void }) {
+export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onHome?: () => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -389,6 +389,10 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
                 <span>Menu</span>
 
               </div>
+              <button className="ath-brandrow" title="7X — choose a company" onClick={() => { setMenuOpen(false); onHome?.() }}>
+                <span className="ath-rowname">7X</span>
+                <span className="g">→</span>
+              </button>
               {/* BASE — 7EVEN sub-brand. Since 14 Sep 2026 BASE *is* ATRIUM Engine:
                   the old feasibility studio's project list is switched off (its
                   data is untouched in the store). PIN first, then straight in. */}
@@ -437,16 +441,6 @@ export default function ProjectList({ onLogout, onDashboard, onOpenHomes }: { on
               {/* PROJECT 7 — the philanthropic arm of 7EVEN */}
               <button className="ath-brandrow" title="PROJECT 7 — Not for profit" onClick={() => { window.location.href = '/project-7.html' }}>
                 <span className="ath-rowname">PROJECT 7</span>
-                <span className="g">→</span>
-              </button>
-              <button className="ath-brandrow" title="HAAVN BLACK — Homes" onClick={() => { onOpenHomes?.(); setMenuOpen(false) }}>
-                <span className="ath-rowname">HAAVN BLACK</span>
-                <span className="g">→</span>
-              </button>
-              {/* HAAVN — the supply business. Its own pillar alongside 7EVEN and
-                  HAAVN BLACK: presentations, the document library, its own surface. */}
-              <button className="ath-brandrow" title="HAAVN — Modular Supply" onClick={() => { window.location.href = '/haavn-supply/index.html' }}>
-                <span className="ath-rowname">HAAVN</span>
                 <span className="g">→</span>
               </button>
               <button className="ath-logoutrow" onClick={() => onLogout?.()}>LOG OUT</button>

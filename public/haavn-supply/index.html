@@ -490,8 +490,7 @@ footer{padding-bottom:20px;margin-top:auto}
   <div class="mdrop" id="mPresDrop"></div>
   <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
-  <button class="mrow" id="mBlack"><img src="assets/brand/haavn-black-wordmark-ink.png" alt="HAAVN BLACK"><span class="g">&#8594;</span></button>
-  <button class="mrow" id="mSeven"><img style="height:15px" src="/seven-mark-black-hd.png" alt="7EVEN"><span class="g">&#8594;</span></button>
+  <button class="mrow" id="mSeven">7X<span class="g">&#8594;</span></button>
   <button class="mrow logout" id="mLogout">Log Out</button>
 </div>
 
@@ -945,8 +944,7 @@ var MEDIA = [
   });
   $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
-  $('#mBlack').addEventListener('click', function(){ location.href = '/?open=black'; });
-  $('#mSeven').addEventListener('click', function(){ location.href = '/'; });
+  $('#mSeven').addEventListener('click', function(){ location.href = '/?open=home'; });
   $('#mLogout').addEventListener('click', function(){
     try { localStorage.removeItem('7even_auth'); } catch(e){}
     location.href = '/';

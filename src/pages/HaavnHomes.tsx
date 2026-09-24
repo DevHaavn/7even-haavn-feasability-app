@@ -203,7 +203,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title="HAAVN BLACK"
-        src="/haavn-black.html?v=35" allow="autoplay; fullscreen"
+        src="/haavn-black.html?v=36" allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

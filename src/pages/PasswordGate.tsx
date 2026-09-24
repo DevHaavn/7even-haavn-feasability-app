@@ -31,95 +31,90 @@ function markAuthenticated() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATRIUM login — 7 x HAAVN TV animation loops black & white as the full
-// background (the video carries the brand), boxless access form floating low
-// on the render, one-line footer. Auth logic unchanged.
+// 7X login. The HAAVN BLACK animation behind the overlap 7X in bone, "By
+// design." in gold, rounded soft-white controls. After the access code the
+// screen stays put and offers the three companies; each goes straight in.
+// Auth logic unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
+export type Company = '7even' | 'haavn' | 'black'
+
 const CSS = `
-.pg-root{position:fixed;inset:0;background:#040404;color:#e8e9eb;overflow:hidden;
-  font-family:'Inter',system-ui,sans-serif}
-.pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
-.pg-scrim{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(4,4,4,.35),rgba(4,4,4,.18) 44%,rgba(4,4,4,.72))}
-.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:60px 24px 110px}
-
-.pg-welcome{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:6.4px;letter-spacing:.46em;text-transform:uppercase;color:#d6b36a;margin-top:20px;text-align:center;
-  opacity:0;animation:pg-wfade 2.6s ease-out 4.4s forwards}
-@keyframes pg-wfade{to{opacity:1}}
-
-/* boxless access form — floats clear over the render */
-.pg-card{margin-top:52px;width:min(360px,90vw)}
-.pg-card.shake{animation:pg-shake .4s ease}
+.pg-root{position:fixed;inset:0;background:#0B0D0F;color:#F3F2EE;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
+.pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pg-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}
+.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
+.pg-lock{width:min(58vw,560px);filter:drop-shadow(0 0 26px rgba(243,242,238,.22))}
+.pg-lock svg{width:100%;height:auto;display:block}
+.pg-by{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(26px,3.4vw,40px);color:#d6b36a;margin:6px 0 0;letter-spacing:.02em;text-shadow:0 0 22px rgba(214,179,106,.35)}
+.pg-tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
+.pg-panel{margin-top:calc(44px + 1.5cm);width:min(270px,100%);min-height:150px;position:relative}
+.pg-view{position:absolute;inset:0 0 auto 0;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .6s,transform .6s}
+.pg-view.on{opacity:1;transform:none;pointer-events:auto}
+.pg-view.shake{animation:pg-shake .4s ease}
 @keyframes pg-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-.pg-pa{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#d6b36a;text-align:center;margin:0 0 26px}
-.pg-lbl{display:block;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:#aab0b6;margin-bottom:10px}
-.pg-inwrap{position:relative}
-.pg-inp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(220,232,244,.3);color:#fff;
-  font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.4em;padding:8px 52px 10px 2px;outline:none;transition:.3s;box-sizing:border-box}
-.pg-inp::placeholder{color:rgba(255,255,255,.25);letter-spacing:.3em}
-.pg-inp:focus{border-bottom-color:#d6b36a;box-shadow:0 1px 0 0 rgba(214,179,106,.45)}
-.pg-inp.err{border-bottom-color:#e0645c}
-.pg-inp:-webkit-autofill,.pg-inp:-webkit-autofill:hover,.pg-inp:-webkit-autofill:focus{
-  -webkit-text-fill-color:#fff;caret-color:#fff;
-  transition:background-color 600000s 0s;
-  -webkit-box-shadow:0 0 0 1000px transparent inset}
-.pg-show{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aab0b6;
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:4px}
-.pg-enter{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#d6d9dd;
-  background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:2px;padding:13px 0;transition:.35s}
-.pg-enter:hover{border-color:rgba(214,179,106,.75);color:#fff;background:rgba(214,179,106,.07);box-shadow:0 0 28px -10px rgba(214,179,106,.65)}
-.pg-enter .tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6.5px solid #d6b36a}
-.pg-err{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#e0645c;margin-top:12px;text-align:center}
-
-/* fixed one-line footer — same as main app */
-.pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;background:linear-gradient(180deg,rgba(6,7,8,.92),#050607);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding:0 clamp(18px,3.4vw,46px)}
-.pg-hair{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16) 12%,rgba(255,255,255,.16) 88%,transparent)}
-.pg-frail{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:12px 2px calc(14px + env(safe-area-inset-bottom,0px));white-space:nowrap}
-.pg-fl{display:flex;align-items:center;gap:14px}
-.pg-atr{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.34em;color:#c3c7cd}
-.pg-tri2{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
-.pg-fc{display:flex;align-items:center;gap:9px;justify-self:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;color:#a9a6a9}
-.pg-livedot{width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 10px #2fe07a;animation:pg-pulse 2.4s infinite}
-@keyframes pg-pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.pg-clock{color:#e8e6e8;font-size:12px;letter-spacing:.12em;font-family:'JetBrains Mono',monospace}
-.pg-fr{display:flex;align-items:center;gap:8px;justify-self:end}
-.pg-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;
-  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:#b9bdc4;cursor:pointer;transition:.35s;text-transform:uppercase;text-decoration:none}
-.pg-chip:hover{border-color:rgba(214,179,106,.7);color:#fff;transform:translateY(-2px);background:rgba(214,179,106,.06)}
-.pg-chip .ext{color:#d6b36a;opacity:.9;font-size:9px}
-@media(max-width:760px){.pg-frail{grid-template-columns:1fr auto}.pg-fc{display:none}}
-@media(max-width:600px){
-  .pg-frail{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 0 9px}
-  .pg-fl{display:none}
-  .pg-chip{padding:5px 8px;font-size:8px;letter-spacing:.16em}
-  .pg-welcome{font-size:5px;letter-spacing:.34em}
-}
+.pg-lbl{font:500 10px Inter,system-ui,sans-serif;letter-spacing:.3em;color:rgba(243,242,238,.6);text-align:center}
+.pg-field{position:relative}
+.pg-inp{width:100%;height:46px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.45);color:#F3F2EE;font:400 14px Inter,system-ui,sans-serif;letter-spacing:.24em;padding:0 76px 0 24px;outline:none;transition:border-color .3s,box-shadow .3s;box-sizing:border-box}
+.pg-inp::placeholder{color:rgba(243,242,238,.35)}
+.pg-inp:focus{border-color:rgba(243,242,238,.85);box-shadow:0 0 0 1px rgba(243,242,238,.4),0 0 26px rgba(243,242,238,.22)}
+.pg-inp.err{border-color:#e0645c}
+.pg-inp:-webkit-autofill{-webkit-text-fill-color:#F3F2EE;transition:background-color 600000s 0s}
+.pg-show{position:absolute;right:8px;top:5px;height:36px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:rgba(243,242,238,.6);font:500 10px Inter,system-ui,sans-serif;letter-spacing:.2em;cursor:pointer;text-transform:uppercase}
+.pg-btn{height:44px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.5);color:#F3F2EE;font:500 12px Inter,system-ui,sans-serif;letter-spacing:.3em;padding-left:.3em;cursor:pointer;transition:border-color .3s,box-shadow .3s,background .3s;width:100%;display:flex;align-items:center;justify-content:center;gap:14px}
+.pg-btn:hover{border-color:rgba(243,242,238,.85);box-shadow:0 0 26px rgba(243,242,238,.28);background:rgba(243,242,238,.08)}
+.pg-btn.go{border-color:rgba(243,242,238,.6);box-shadow:0 0 22px rgba(243,242,238,.16)}
+.pg-x7{height:13px;width:auto;display:block}
+.pg-err{color:#e0645c;font:400 10px 'JetBrains Mono',monospace;letter-spacing:.16em;text-align:center;min-height:12px}
+.pg-co{display:grid;gap:12px}
+.pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,13,15,.72);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(243,242,238,.6)}
+.pg-foot b{font-weight:400;color:#F3F2EE}
+.pg-live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fe07a;margin-right:8px;box-shadow:0 0 8px #2fe07a}
+.pg-chips{display:flex;gap:8px;align-items:center}
+.pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
+.pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
+@media(max-width:600px){.pg-lock{width:78vw}.pg-chips{display:none}.pg-foot{justify-content:center}}
 `
 
 function GateClock() {
   const [now, setNow] = useState('--:--:--')
   useEffect(() => {
-    const tick = () => setNow(new Date().toLocaleTimeString('en-AU', { hour12: false }))
+    const tick = () => setNow(new Date().toLocaleTimeString('en-AU', { hour12: false, timeZone: 'Australia/Melbourne' }))
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [])
-  return <span className="pg-clock">{now}</span>
+  return <b>{now}</b>
 }
 
-export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
+/* the overlap 7X: 7's leg is cut where the X crosses it */
+function SevenX({ className }: { className?: string }) {
+  return (
+    <svg className={className} role="img" aria-label="7X" viewBox="-6 -6 202 101">
+      <defs>
+        <mask id="pg7" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><rect x="-5.5" y="-5.5" width="97" height="20" fill="#000" /></mask>
+        <mask id="pgx" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><polygon points="0,0 11.45,0 81.45,89 70,89" fill="#000" stroke="#000" strokeWidth="11" strokeLinejoin="miter" /></mask>
+      </defs>
+      <g fill="#F3F2EE">
+        <g mask="url(#pg7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g>
+        <polygon points="0,0 86,0 86,9 0,9" />
+        <g transform="translate(112 0)"><g mask="url(#pgx)"><polygon points="70,0 81.45,0 11.45,89 0,89" /></g><polygon points="0,0 11.45,0 81.45,89 70,89" /></g>
+      </g>
+    </svg>
+  )
+}
+
+export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: () => void; onChoose?: (c: Company) => void; chooser?: boolean }) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(false)
   const [shake, setShake] = useState(false)
   const [show, setShow] = useState(false)
+  const [stage, setStage] = useState<'login' | 'co'>(chooser ? 'co' : 'login')
 
   function attempt() {
     if (value === CORRECT) {
       markAuthenticated()
       setStoredRole('admin')
-      onAuth()
+      setStage('co') // stay on the screen and offer the three companies
     } else if (value === EXTERNAL_PASSWORD) {
       markAuthenticated()
       setStoredRole('external')
@@ -137,50 +132,63 @@ export default function PasswordGate({ onAuth }: { onAuth: () => void }) {
     }
   }
 
+  function choose(c: Company) {
+    if (!chooser) onAuth()
+    onChoose?.(c)
+  }
+
   return (
     <div className="pg-root">
       <style>{CSS}</style>
-      <video className="pg-bg" autoPlay muted loop playsInline preload="auto" src="/7even-haavn-tv.mp4" />
+      <video className="pg-bg" autoPlay muted loop playsInline preload="auto" poster="/haavn-black-bg-poster.jpg" src="/haavn-black-bg.mp4" />
       <div className="pg-scrim" />
 
       <div className="pg-stage">
-        <div className="pg-welcome">Welcome to Precision Feasibility&nbsp;&nbsp;·&nbsp;&nbsp;By Invitation</div>
+        <div className="pg-lock"><SevenX /></div>
+        <p className="pg-by">By design.</p>
+        <p className="pg-tag">ENGINE &nbsp;|&nbsp; PRECISION &nbsp;|&nbsp; INTELLIGENCE</p>
 
-        {/* boxless access form */}
-        <div className={`pg-card${shake ? ' shake' : ''}`}>
-          <p className="pg-pa">Private Access</p>
-          <label className="pg-lbl" htmlFor="pg-code">Access Code</label>
-          <div className="pg-inwrap">
-            <input
-              id="pg-code"
-              className={`pg-inp${error ? ' err' : ''}`}
-              type={show ? 'text' : 'password'}
-              autoFocus
-              value={value}
-              onChange={e => { setValue(e.target.value); setError(false) }}
-              onKeyDown={e => e.key === 'Enter' && attempt()}
-              placeholder="········"
-              autoComplete="off"
-            />
-            <button className="pg-show" onClick={() => setShow(s => !s)}>{show ? 'hide' : 'show'}</button>
+        <div className="pg-panel">
+          <div className={`pg-view${stage === 'login' ? ' on' : ''}${shake ? ' shake' : ''}`}>
+            <div className="pg-lbl">PRIVATE ACCESS</div>
+            <div className="pg-field">
+              <input
+                id="pg-code"
+                className={`pg-inp${error ? ' err' : ''}`}
+                type={show ? 'text' : 'password'}
+                autoFocus
+                value={value}
+                onChange={e => { setValue(e.target.value); setError(false) }}
+                onKeyDown={e => e.key === 'Enter' && attempt()}
+                placeholder="ACCESS CODE"
+                autoComplete="off"
+                tabIndex={stage === 'login' ? 0 : -1}
+              />
+              <button className="pg-show" type="button" onClick={() => setShow(s => !s)}>{show ? 'hide' : 'show'}</button>
+            </div>
+            <div className="pg-err">{error ? 'INCORRECT ACCESS CODE' : ''}</div>
+            <button className="pg-btn go" type="button" onClick={attempt}>ENTER <SevenX className="pg-x7" /></button>
           </div>
-          <button className="pg-enter" onClick={attempt}><span className="tri" />Enter Atrium</button>
-          {error && <p className="pg-err">Incorrect access code — try again</p>}
+
+          <div className={`pg-view${stage === 'co' ? ' on' : ''}`}>
+            <div className="pg-lbl">CHOOSE YOUR COMPANY</div>
+            <div className="pg-co">
+              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('7even')}>7EVEN</button>
+              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('haavn')}>HAAVN</button>
+              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('black')}>HAAVN BLACK</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* one-line footer */}
       <div className="pg-foot">
-        <div className="pg-hair" />
-        <div className="pg-frail">
-          <div className="pg-fl"><span className="pg-atr"><span className="pg-tri2" />ATRIUM</span></div>
-          <div className="pg-fc"><span className="pg-livedot" />LIVE&nbsp;&nbsp;<GateClock />&nbsp;·&nbsp;MELBOURNE</div>
-          <div className="pg-fr">
-            <InstallButton compact />
-            <a className="pg-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
-            <a className="pg-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span className="ext">↗</span></a>
-          </div>
-        </div>
+        <span><b>7X</b></span>
+        <span className="pg-live"><i />LIVE&nbsp;&nbsp;<GateClock />&nbsp;&nbsp;MELBOURNE</span>
+        <span className="pg-chips">
+          <InstallButton compact />
+          <a className="pg-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU</a>
+          <a className="pg-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU</a>
+        </span>
       </div>
     </div>
   )

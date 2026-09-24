@@ -7,7 +7,7 @@ import ProjectWorkspace from './pages/ProjectWorkspace'
 import ProjectList, { BASE_PIN_KEY } from './pages/ProjectList'
 import AtriumZeroed from './pages/AtriumZeroed'
 import Dashboard from './pages/Dashboard'
-import PasswordGate, { isAuthenticated } from './pages/PasswordGate'
+import PasswordGate, { isAuthenticated, type Company } from './pages/PasswordGate'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
@@ -28,8 +28,10 @@ export default function App() {
      or zooming a large render is enough), and the app used to come back on the
      7EVEN home screen. Now it comes back where it was. */
   const VIEW_KEY = 'atrium_surface_v1'
-  const saved: { homes?: boolean; display?: boolean; crm?: boolean; capital?: boolean; dash?: '7even' | 'haavn' | null } =
+  const saved: { co?: Company | null; homes?: boolean; display?: boolean; crm?: boolean; capital?: boolean; dash?: '7even' | 'haavn' | null } =
     (() => { try { return JSON.parse(sessionStorage.getItem(VIEW_KEY) || '{}') } catch { return {} } })()
+  // Which company the admin chose on the 7X screen (null = show the chooser).
+  const [company, setCompany] = useState<Company | null>(saved.co ?? null)
   const [dashboardBrand, setDashboardBrand] = useState<'7even' | 'haavn' | null>(saved.dash ?? null)
   // HAAVN HOMES — the Black Series homes company. A separate surface with its own
   // store; never shares data with the Feasibility Studio.
@@ -52,9 +54,9 @@ export default function App() {
   const setTheme = (t: 'light' | 'blk') => setAtriumTheme(t === 'blk' ? 'dark' : 'light')
 
   useEffect(() => {
-    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({ homes: homesOpen, display: displaySuiteOpen, crm: homesCrmOpen, capital: homesCapitalOpen, dash: dashboardBrand })) }
+    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({ co: company, homes: homesOpen, display: displaySuiteOpen, crm: homesCrmOpen, capital: homesCapitalOpen, dash: dashboardBrand })) }
     catch { /* private mode */ }
-  }, [homesOpen, displaySuiteOpen, homesCrmOpen, homesCapitalOpen, dashboardBrand])
+  }, [company, homesOpen, displaySuiteOpen, homesCrmOpen, homesCapitalOpen, dashboardBrand])
 
   // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
   // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.
@@ -76,7 +78,10 @@ export default function App() {
   useEffect(() => {
     const open = new URLSearchParams(window.location.search).get('open')
     if (open === 'black') {
-      setHomesOpen(true)
+      setCompany('black'); setHomesOpen(true)
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (open === 'home') {
+      goHome()
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [])
@@ -160,24 +165,37 @@ export default function App() {
     if (unlocked) setEngineFromLink(true)
   }, [activeProjectId])
 
+  function goHome() {
+    setCompany(null); setHomesOpen(false); setHomesCrmOpen(false); setDisplaySuiteOpen(false); setHomesCapitalOpen(false)
+    setDashboardBrand(null); setManageOpen(false); setEngineFromLink(false)
+  }
+
+  function chooseCompany(c: Company) {
+    if (c === 'haavn') { window.location.href = '/haavn-supply/index.html'; return }
+    setCompany(c)
+    setHomesOpen(c === 'black')
+  }
+
   function handleLogout() {
     localStorage.removeItem('7even_auth')
     try { sessionStorage.removeItem(VIEW_KEY) } catch { /* ignore */ }
     clearStoredRole()
     setAuthed(false)
+    setCompany(null)
+    setHomesOpen(false)
     setRole('admin')
     setDashboardBrand(null)
     setManageOpen(false)
   }
 
-  if (!authed) return <PasswordGate onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
+  if (!authed || (role === 'admin' && !company)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
 
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
   // The HM device button (top-right) opens the Management Hub, mounted above.
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
-      <HaavnHomes onBack={() => setHomesOpen(false)} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={() => setHomesCapitalOpen(true)} onLogout={handleLogout} />
+      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={() => setHomesCapitalOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
@@ -250,7 +268,7 @@ export default function App() {
           {engineFromLink && <AtriumZeroed onClose={() => setEngineFromLink(false)} onLogout={handleLogout} />}
           {LEGACY_STUDIO && activeProjectId
             ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
-            : <ProjectList onLogout={handleLogout} onOpenHomes={() => setHomesOpen(true)} onDashboard={(brand) => {
+            : <ProjectList onLogout={handleLogout} onHome={goHome} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return
                 setDashboardBrand(brand)
