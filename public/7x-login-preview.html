@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7X By Design · Login Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bone:#F3F2EE;--void:#0B0D0F;--gold:#d6b36a;--gold2:#f4e3bd}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--void);color:var(--bone);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.5)}
+.scrim{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
+.lock{width:min(58vw,560px);filter:drop-shadow(0 0 26px rgba(243,242,238,.22))}
+.lock svg{width:100%;height:auto;display:block}
+.by{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(26px,3.4vw,40px);color:var(--gold);margin:6px 0 0;letter-spacing:.02em;text-shadow:0 0 22px rgba(214,179,106,.35)}
+.tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}.panel{margin-top:calc(44px + 1.5cm);width:min(380px,100%);min-height:150px;position:relative}
+.view{position:absolute;inset:0 0 auto 0;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .6s,transform .6s}
+.view.on{opacity:1;transform:none;pointer-events:auto}
+.lbl{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.28em;color:rgba(243,242,238,.6);text-align:center}
+.field{position:relative}
+.field input{width:100%;height:54px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.45);color:var(--bone);font:400 16px 'JetBrains Mono',monospace;letter-spacing:.3em;padding:0 84px 0 26px;outline:none;transition:border-color .3s,box-shadow .3s;backdrop-filter:none}
+.field input:focus{border-color:rgba(243,242,238,.85);box-shadow:0 0 0 1px rgba(243,242,238,.4),0 0 26px rgba(243,242,238,.22)}
+.field button{position:absolute;right:8px;top:8px;height:38px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:rgba(243,242,238,.6);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.2em;cursor:pointer}
+.btn{height:54px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.5);color:var(--bone);font:500 11px 'JetBrains Mono',monospace;letter-spacing:.32em;cursor:pointer;transition:border-color .3s,box-shadow .3s,background .3s;width:100%}
+.btn:hover{border-color:rgba(243,242,238,.85);box-shadow:0 0 26px rgba(243,242,238,.28);background:rgba(243,242,238,.08)}
+.btn.go{border-color:rgba(243,242,238,.6);color:var(--bone);box-shadow:0 0 22px rgba(243,242,238,.16);display:flex;align-items:center;justify-content:center;gap:14px}.btn .x7{height:13px;width:auto;display:block}
+.err{color:#e08a7a;font:400 10px 'JetBrains Mono',monospace;letter-spacing:.2em;text-align:center;height:12px}
+.co{display:grid;gap:12px}
+.co .btn{display:flex;align-items:center;justify-content:center;padding:0 26px}.btn img{display:block;height:17px;width:auto;max-width:70%}.btn.hb img{height:14px}.btn.hv img{height:15px}
+.co .btn.black{letter-spacing:.32em}
+.foot{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,13,15,.72);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(243,242,238,.6)}
+.foot b{font-weight:400;color:var(--bone)}
+.foot .live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fe07a;margin-right:8px;box-shadow:0 0 8px #2fe07a}
+.chips{display:flex;gap:8px}.chips span{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px}
+/* company menu mock */
+.menu{position:fixed;top:24px;left:24px;width:min(340px,86vw);display:none;flex-direction:column;gap:10px;z-index:5}
+.menu.on{display:flex}
+.menu .btn{height:48px;display:flex;align-items:center;justify-content:center;padding:0 22px;border-radius:14px;letter-spacing:.3em}.menu .btn img{height:14px}
+.menu .btn.x{border-color:rgba(243,242,238,.6);box-shadow:0 0 20px rgba(243,242,238,.14)}.menu .btn .x7{height:14px}
+.menu .t{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.28em;color:rgba(243,242,238,.6);margin:6px 0 2px 4px}
+.toast{position:fixed;top:24px;right:24px;border:1px solid rgba(214,179,106,.5);border-radius:999px;padding:12px 20px;font:400 10px 'JetBrains Mono',monospace;letter-spacing:.2em;color:var(--gold2);background:rgba(11,13,15,.85);opacity:0;transition:opacity .4s;z-index:9}
+.toast.on{opacity:1}
+.pv{position:fixed;right:20px;bottom:70px;z-index:9;display:flex;gap:6px;font:400 9px 'JetBrains Mono',monospace;letter-spacing:.16em}
+.pv button{border-radius:999px;border:1px dashed rgba(243,242,238,.3);background:rgba(11,13,15,.7);color:rgba(243,242,238,.7);padding:7px 12px;cursor:pointer;font:inherit}
+@media(max-width:600px){.lock{width:78vw}.foot .chips{display:none}.foot{justify-content:center}.menu{top:70px}}
+</style></head><body>
+<video id="bg" autoplay muted loop playsinline preload="auto" poster="/haavn-black-bg-poster.jpg" src="/haavn-black-bg.mp4"></video>
+<div class="scrim"></div>
+
+<div class="menu" id="menu">
+  <div class="t">COMPANY MENU</div>
+  <button class="btn x" data-go="home"><svg class="x7" viewBox="-6 -6 202 101" aria-label="7X"><use href="#g7x"/></svg>&nbsp;&nbsp;HOME</button>
+  <button class="btn" data-go="7EVEN"><img src="/7x-logo-7even-bone.png" alt="7EVEN"></button>
+  <button class="btn" data-go="HAAVN"><img src="/7x-logo-haavn-bone.png" alt="HAAVN"></button>
+  <button class="btn" data-go="HAAVN BLACK"><img src="/7x-logo-haavn-black-bone.png" alt="HAAVN BLACK"></button>
+</div>
+
+<div class="stage">
+  <div class="lock">
+    <svg role="img" aria-label="7X" viewBox="-6 -6 202 101">
+      <defs>
+        <mask id="m7" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff"/><rect x="-5.5" y="-5.5" width="97" height="20" fill="#000"/></mask>
+        <mask id="mx" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff"/><polygon points="0,0 11.45,0 81.45,89 70,89" fill="#000" stroke="#000" stroke-width="11" stroke-linejoin="miter"/></mask>
+      </defs>
+      <g id="g7x" fill="#F3F2EE">
+        <g mask="url(#m7)"><polygon points="74.55,0 86,0 16,89 4.55,89"/></g>
+        <polygon points="0,0 86,0 86,9 0,9"/>
+        <g transform="translate(112 0)"><g mask="url(#mx)"><polygon points="70,0 81.45,0 11.45,89 0,89"/></g><polygon points="0,0 11.45,0 81.45,89 70,89"/></g>
+      </g>
+    </svg>
+  </div>
+  <p class="by">By design.</p>
+  <p class="tag">ENGINE &nbsp;|&nbsp; PRECISION &nbsp;|&nbsp; INTELLIGENCE</p>
+
+  <div class="panel">
+    <div class="view on" id="vLogin">
+      <div class="lbl">PRIVATE ACCESS</div>
+      <div class="field"><input id="pw" type="password" placeholder="ACCESS CODE" autocomplete="off"><button id="show" type="button">SHOW</button></div>
+      <div class="err" id="err"></div>
+      <button class="btn go" id="enter" type="button">ENTER <svg class="x7" viewBox="-6 -6 202 101" aria-label="7X"><use href="#g7x"/></svg></button>
+    </div>
+    <div class="view" id="vCo">
+      <div class="lbl">CHOOSE YOUR COMPANY</div>
+      <div class="co">
+        <button class="btn" data-go="7EVEN"><img src="/7x-logo-7even-bone.png" alt="7EVEN"></button>
+        <button class="btn" data-go="HAAVN"><img src="/7x-logo-haavn-bone.png" alt="HAAVN"></button>
+        <button class="btn black" data-go="HAAVN BLACK"><img src="/7x-logo-haavn-black-bone.png" alt="HAAVN BLACK"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pv"><button data-v="login">PREVIEW: LOGIN</button><button data-v="co">CHOOSER</button><button data-v="menu">COMPANY MENU + 7X</button></div>
+<div class="toast" id="toast"></div>
+
+<div class="foot"><span><b>7X</b></span><span class="live"><i></i>LIVE&nbsp;&nbsp;<b id="clk">00:00:00</b>&nbsp;&nbsp;MELBOURNE</span><span class="chips"><span>7EVEN.AU</span><span>HAAVN.AU</span></span></div>
+
+<script>
+var $=function(i){return document.getElementById(i)}, tt;
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('on')},2200)}
+function show(v){$('vLogin').classList.toggle('on',v==='login');$('vCo').classList.toggle('on',v==='co');$('menu').classList.toggle('on',v==='menu');if(v==='menu'){$('vLogin').classList.remove('on');$('vCo').classList.remove('on')}}
+function enter(){if(!$('pw').value){$('err').textContent='ENTER YOUR ACCESS CODE';return}$('err').textContent='';show('co')}
+$('enter').onclick=enter;$('pw').onkeydown=function(e){if(e.key==='Enter')enter()};
+$('show').onclick=function(){var p=$('pw');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'SHOW':'HIDE'};
+document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='home'){show('co');toast('BACK TO 7X: CHOOSE A COMPANY')}else toast('OPENS '+g+' STRAIGHT AWAY')}});
+document.querySelectorAll('[data-v]').forEach(function(b){b.onclick=function(){show(b.dataset.v)}});
+setInterval(function(){$('clk').textContent=new Date().toLocaleTimeString('en-GB',{timeZone:'Australia/Melbourne'})},1000);
+</script></body></html>
