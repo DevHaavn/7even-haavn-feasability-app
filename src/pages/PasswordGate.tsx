@@ -43,7 +43,7 @@ const CSS = `
 .pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .pg-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}
 .pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
-.pg-lock{width:min(58vw,560px);filter:drop-shadow(0 0 26px rgba(243,242,238,.22))}
+.pg-lock{width:min(58vw,560px)}
 .pg-lock svg{width:100%;height:auto;display:block}
 .pg-by{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(26px,3.4vw,40px);color:#d6b36a;margin:6px 0 0;letter-spacing:.02em;text-shadow:0 0 22px rgba(214,179,106,.35)}
 .pg-tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
@@ -72,6 +72,23 @@ const CSS = `
 .pg-chips{display:flex;gap:8px;align-items:center}
 .pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
 .pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
+
+.pg-lock svg{overflow:visible}
+.pg-a7leg{opacity:0;animation:pgFade 2.2s ease .3s forwards}
+.pg-afwd{opacity:0;animation:pgFade 2.2s ease .3s forwards}
+.pg-a7bar{opacity:0;animation:pgSlideR 1.7s cubic-bezier(.16,.8,.2,1) 3s forwards}
+.pg-aback{opacity:0;animation:pgSlideIn 1.7s cubic-bezier(.16,.8,.2,1) 3s forwards}
+.pg-asheen{opacity:0;animation:pgFade 1s ease 5.6s forwards}
+.pg-halo,.pg-halo7{opacity:0;animation:pgHaloIn 1.8s ease 4.8s forwards,pgBreathe 4.6s ease-in-out 6.8s infinite}
+.pg-halo7{animation-name:pgHaloIn7,pgBreathe7}
+.pg-still .pg-a7leg,.pg-still .pg-afwd,.pg-still .pg-a7bar,.pg-still .pg-aback,.pg-still .pg-asheen,.pg-still .pg-halo,.pg-still .pg-halo7{animation-delay:0s!important;animation-duration:.01s,.01s!important}
+@keyframes pgFade{to{opacity:1}}
+@keyframes pgSlideIn{0%{opacity:0;transform:translate(-170px,-216px)}12%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes pgSlideR{0%{opacity:0;transform:translateX(-240px)}12%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes pgHaloIn{to{opacity:.55}}
+@keyframes pgBreathe{0%,100%{opacity:.35}50%{opacity:.8}}
+@keyframes pgHaloIn7{to{opacity:.4}}
+@keyframes pgBreathe7{0%,100%{opacity:.25}50%{opacity:.55}}
 @media(max-width:600px){.pg-lock{width:78vw}.pg-chips{display:none}.pg-foot{justify-content:center}}
 `
 
@@ -98,6 +115,54 @@ function SevenX({ className }: { className?: string }) {
         <g mask="url(#pg7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g>
         <polygon points="0,0 86,0 86,9 0,9" />
         <g transform="translate(112 0)"><g mask="url(#pgx)"><polygon points="70,0 81.45,0 11.45,89 0,89" /></g><polygon points="0,0 11.45,0 81.45,89 70,89" /></g>
+      </g>
+    </svg>
+  )
+}
+
+
+/* the login hero: the 7 and a foil-gold X, built up in sequence */
+function SevenXHero() {
+  const back = '0,0 11.45,0 81.45,89 70,89'
+  const fwd = '70,0 81.45,0 11.45,89 0,89'
+  return (
+    <svg role="img" aria-label="7X" viewBox="-6 -6 191 101" overflow="visible">
+      <defs>
+        <mask id="hh7" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><rect x="-5.5" y="-5.5" width="97" height="20" fill="#000" /></mask>
+        <mask id="hhx" maskUnits="userSpaceOnUse" x="-30" y="-30" width="160" height="160"><rect x="-30" y="-30" width="160" height="160" fill="#fff" /><polygon points={back} fill="#000" stroke="#000" strokeWidth="11" strokeLinejoin="miter" /></mask>
+        <linearGradient id="hhsheen" gradientUnits="userSpaceOnUse" x1="-90" y1="0" x2="-10" y2="89">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".42" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fffdf2" stopOpacity=".95" /><stop offset=".58" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+          <animateTransform attributeName="gradientTransform" type="translate" values="0 0; 210 0" dur="11s" begin="5.6s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .2 1" keyTimes="0;1" />
+        </linearGradient>
+        <linearGradient id="hhfoil" gradientUnits="userSpaceOnUse" x1="4" y1="0" x2="80" y2="89">
+          <stop offset="0" stopColor="#8f6a25" /><stop offset=".14" stopColor="#e9d08f" /><stop offset=".26" stopColor="#fff3cf" />
+          <stop offset=".38" stopColor="#c79b45" /><stop offset=".5" stopColor="#7d5a1c" /><stop offset=".6" stopColor="#d9b566" />
+          <stop offset=".74" stopColor="#fff0c4" /><stop offset=".86" stopColor="#c9993f" /><stop offset="1" stopColor="#96702a" />
+        </linearGradient>
+        <linearGradient id="hhgloss" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="89">
+          <stop offset="0" stopColor="#fff" stopOpacity=".62" /><stop offset=".47" stopColor="#fff" stopOpacity=".08" />
+          <stop offset=".5" stopColor="#000" stopOpacity=".16" /><stop offset="1" stopColor="#fff" stopOpacity=".22" />
+        </linearGradient>
+        <filter id="hhblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7" /></filter>
+        <g id="hhgx"><g mask="url(#hhx)"><polygon points={fwd} /></g><polygon points={back} /></g>
+      </defs>
+      <g className="pg-halo7" fill="#F3F2EE" filter="url(#hhblur)"><polygon points="0,0 86,0 86,9 0,9" /><g mask="url(#hh7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g></g>
+      <g fill="#F3F2EE">
+        <g className="pg-a7leg" mask="url(#hh7)"><polygon points="74.55,0 86,0 16,89 4.55,89" /></g>
+        <polygon className="pg-a7bar" points="0,0 86,0 86,9 0,9" />
+      </g>
+      <g transform="translate(101 0)">
+        <use href="#hhgx" className="pg-halo" fill="#d6b36a" filter="url(#hhblur)" />
+        <g className="pg-afwd">
+          <g fill="url(#hhfoil)"><g mask="url(#hhx)"><polygon points={fwd} /></g></g>
+          <g fill="url(#hhgloss)"><g mask="url(#hhx)"><polygon points={fwd} /></g></g>
+          <g className="pg-asheen" fill="url(#hhsheen)"><g mask="url(#hhx)"><polygon points={fwd} /></g></g>
+        </g>
+        <g className="pg-aback">
+          <polygon fill="url(#hhfoil)" points={back} />
+          <polygon fill="url(#hhgloss)" points={back} />
+          <polygon className="pg-asheen" fill="url(#hhsheen)" points={back} />
+        </g>
       </g>
     </svg>
   )
@@ -138,13 +203,13 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
   }
 
   return (
-    <div className="pg-root">
+    <div className={`pg-root${chooser ? ' pg-still' : ''}`}>
       <style>{CSS}</style>
       <video className="pg-bg" autoPlay muted loop playsInline preload="auto" poster="/haavn-black-bg-poster.jpg" src="/haavn-black-bg.mp4" />
       <div className="pg-scrim" />
 
       <div className="pg-stage">
-        <div className="pg-lock"><SevenX /></div>
+        <div className="pg-lock"><SevenXHero /></div>
         <p className="pg-by">By design.</p>
         <p className="pg-tag">ENGINE &nbsp;|&nbsp; PRECISION &nbsp;|&nbsp; INTELLIGENCE</p>
 
