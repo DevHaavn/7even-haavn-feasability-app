@@ -42,6 +42,13 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--bone);font-fam
 .pv{position:fixed;right:20px;bottom:70px;z-index:9;display:flex;gap:6px;font:400 9px 'JetBrains Mono',monospace;letter-spacing:.16em}
 .pv button{border-radius:999px;border:1px dashed rgba(243,242,238,.3);background:rgba(11,13,15,.7);color:rgba(243,242,238,.7);padding:7px 12px;cursor:pointer;font:inherit}
 @media(max-width:600px){.lock{width:78vw}.foot .chips{display:none}.foot{justify-content:center}.menu{top:70px}}
+.btn,.field input{font-family:Inter,system-ui,sans-serif}
+.btn{height:44px;font-size:12px;font-weight:500;letter-spacing:.3em;padding-left:.3em}
+.field input{height:46px;font-size:14px;letter-spacing:.24em}
+.field button{top:4px;height:36px;font-family:Inter,system-ui,sans-serif;font-size:10px;font-weight:500}
+.panel{width:min(270px,100%)}
+.menu{width:min(250px,86vw)}.menu .btn{height:42px;border-radius:14px}
+.lbl{font-family:Inter,system-ui,sans-serif;font-weight:500;letter-spacing:.3em}
 </style></head><body>
 <video id="bg" autoplay muted loop playsinline preload="auto" poster="/haavn-black-bg-poster.jpg" src="/haavn-black-bg.mp4"></video>
 <div class="scrim"></div>
@@ -49,9 +56,9 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--bone);font-fam
 <div class="menu" id="menu">
   <div class="t">COMPANY MENU</div>
   <button class="btn x" data-go="home"><svg class="x7" viewBox="-6 -6 202 101" aria-label="7X"><use href="#g7x"/></svg>&nbsp;&nbsp;HOME</button>
-  <button class="btn" data-go="7EVEN"><img src="/7x-logo-7even-bone.png" alt="7EVEN"></button>
-  <button class="btn" data-go="HAAVN"><img src="/7x-logo-haavn-bone.png" alt="HAAVN"></button>
-  <button class="btn" data-go="HAAVN BLACK"><img src="/7x-logo-haavn-black-bone.png" alt="HAAVN BLACK"></button>
+  <button class="btn" data-go="7EVEN">7EVEN</button>
+  <button class="btn" data-go="HAAVN">HAAVN</button>
+  <button class="btn" data-go="HAAVN BLACK">HAAVN BLACK</button>
 </div>
 
 <div class="stage">
@@ -81,9 +88,9 @@ html,body{height:100%;margin:0;background:var(--void);color:var(--bone);font-fam
     <div class="view" id="vCo">
       <div class="lbl">CHOOSE YOUR COMPANY</div>
       <div class="co">
-        <button class="btn" data-go="7EVEN"><img src="/7x-logo-7even-bone.png" alt="7EVEN"></button>
-        <button class="btn" data-go="HAAVN"><img src="/7x-logo-haavn-bone.png" alt="HAAVN"></button>
-        <button class="btn black" data-go="HAAVN BLACK"><img src="/7x-logo-haavn-black-bone.png" alt="HAAVN BLACK"></button>
+        <button class="btn" data-go="7EVEN">7EVEN</button>
+        <button class="btn" data-go="HAAVN">HAAVN</button>
+        <button class="btn black" data-go="HAAVN BLACK">HAAVN BLACK</button>
       </div>
     </div>
   </div>
