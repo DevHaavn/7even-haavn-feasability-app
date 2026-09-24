@@ -15,13 +15,13 @@ import React, { useEffect, useRef } from 'react'
 /* the 7, and the X it becomes: the 7X device's own X. The bar turns into the
    "\" stroke; the leg turns into the "/" stroke, cut where the "\" crosses it
    (the overlap), so it arrives as two pieces. */
-const Q7_BAR = [[0, 0], [86, 0], [78.5, 8.5], [0, 8.5]]
-const Q7_LEG = [[86, 0], [7, 84], [63, 8.5], [78.5, 8.5]]
+const Q7_BAR = [[0, 0], [94, 0], [87.31, 8.5], [0, 8.5]]
+const Q7_LEG = [[59.1, 14.5], [74.6, 14.5], [16, 89], [16, 89]]   // the new pointed 7
 const QX_BACK = [[0, 0], [11.45, 0], [81.45, 89], [70, 89]]
 const QX_FWD_UP = [[70, 0], [81.45, 0], [49.95, 40.05], [44.23, 32.77]]
 const QX_FWD_LO = [[31.5, 48.95], [37.48, 55.9], [11.45, 89], [0, 89]]
 const Q7_LEG_UP = Q7_LEG, Q7_LEG_LO = Q7_LEG
-const CX = 43, CY = 42, SWING = 26, D = 820
+const CX = 47, CY = 44.5, SWING = 26, D = 820
 const XC = [40.7, 44.5]   // centre of the X, so it sits in the circle where the 7 did
 type Q = number[][]
 const quad = (p: Q) => 'M' + p.map(a => a[0].toFixed(2) + ',' + a[1].toFixed(2)).join(' L') + ' Z'
