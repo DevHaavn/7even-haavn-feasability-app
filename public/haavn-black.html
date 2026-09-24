@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HAAVN BLACK · ATRIUM</title>
+<title>HAAVN BLACK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -417,7 +417,6 @@ main,footer,header .kicker{transition:.38s}
     <button class="hbrow" id="mDisplay">Black Display<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mFeas">Black Feasibility<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
-    <button class="hbrow" id="mSeven">7X<span class="g">&#8594;</span></button>
         <button class="hbrow logout" id="mLogout">Log Out</button>
   </div>
 
@@ -454,7 +453,7 @@ main,footer,header .kicker{transition:.38s}
     <div class="hair"></div>
     <div class="frail">
       <div class="fl">
-        <div class="atrium"><span class="tri"></span>ATRIUM</div>
+        <button class="chip" id="btnHome7x" type="button" aria-label="7X — choose a company">7X</button>
         <div class="pipe"></div>
         <div class="meta">BLACK SERIES &nbsp;/&nbsp; BUILD 26.08</div>
         <a class="ret ret-foot" href="#" id="btnReturn" aria-label="Return to 7EVEN Feasibility" title="Return to 7EVEN Feasibility" style="display:none">
@@ -758,7 +757,8 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     if(bg&&mn){
       bg.addEventListener('click',function(){bg.classList.toggle('on');mn.classList.toggle('on');document.body.classList.toggle('hbmenu-open',mn.classList.contains('on'));});
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
-      var mm=[['mSeven','return'],['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
+      var h7=document.getElementById('btnHome7x');if(h7)h7.addEventListener('click',function(){post('return');});
+      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
       // HAAVN (supply) is its own pillar now, reached from the 7EVEN menu —
       // it is no longer a row in here.
@@ -827,10 +827,10 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
   var H_L=[[0,52],[81,0],[81,195],[0,195]],
       H_R=[[280,0],[361,0],[361,128],[280,180]],
       H_B=[[80,80],[281,80],[281,131],[80,131]];
-  /* the X, BLACK's stroke: 22 wide, 45 degrees, scaled to the H's 195 height, centred on it */
-  var X_L=[[128,45],[143,45],[233,150],[218,150]],
-      X_R=[[218,45],[233,45],[143,150],[128,150]],
-      X_B=[[180.5,97.5],[180.5,97.5],[180.5,97.5],[180.5,97.5]];
+  /* the X is the 7X device's own X: the overlap, so the '/' stroke is cut where the '\' crosses it */
+  var X_L=[[132.48,45.00],[145.99,45.00],[228.58,150.00],[215.07,150.00]],
+      X_R=[[215.07,45.00],[228.58,45.00],[194.78,87.94],[181.33,87.94]],
+      X_B=[[166.22,107.06],[179.73,107.06],[145.99,150.00],[132.48,150.00]];
   var CX=180.5, CY=97.5, SWING=22, D=820, S0=.122;
   var mark=b.querySelector('.mark');
   function quad(p){return 'M'+p.map(function(a){return a[0].toFixed(2)+','+a[1].toFixed(2)}).join(' L')+' Z'}
@@ -843,8 +843,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
     mark.setAttribute('transform','translate('+(50-CX*sc).toFixed(2)+','+(50-CY*sc).toFixed(2)+') scale('+sc.toFixed(4)+')');
     pL.setAttribute('d',quad(rot(lerp(H_L,X_L,t),ang)));
     pR.setAttribute('d',quad(rot(lerp(H_R,X_R,t),ang)));
-    pB.setAttribute('d',quad(lerp(H_B,X_B,Math.min(1,t*1.5))));
-    pB.style.opacity=String(Math.max(0,1-t*1.8));}
+    pB.setAttribute('d',quad(rot(lerp(H_B,X_B,t),ang)));}
   function tween(to){var from=prog,dir=to>from?1:-1,t0=performance.now();
     if(raf)cancelAnimationFrame(raf);
     (function loop(now){var k=Math.min(1,(now-t0)/D);prog=from+(to-from)*eio(k);draw(prog,dir);
