@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7X New Device · Login Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=JetBrains+Mono:wght@400&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bone:#F3F2EE;--void:#0B0D0F;--gold:#d6b36a}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--void);color:var(--bone);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
+.scrim{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.6) 80%)}
+.stage{--w:min(30vw,300px);--cy:max(calc(50% - 1.6in),calc(var(--w)*.5 + 20px));position:fixed;inset:0}
+.lock{position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%);width:var(--w)}
+.lock svg{width:100%;height:auto;display:block;overflow:visible}
+.under{position:fixed;left:0;right:0;top:calc(var(--cy) + var(--w)*.5 + 22px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
+.by{font:italic 400 clamp(26px,3.2vw,40px)/1 'Cormorant Garamond',serif;color:var(--gold);margin:0;text-shadow:0 0 22px rgba(214,179,106,.35)}
+.tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
+.panel{margin-top:calc(30px + 1cm);width:min(270px,100%)}
+.lbl{font:500 10px Inter,sans-serif;letter-spacing:.3em;color:rgba(243,242,238,.6);text-align:center;margin-bottom:14px}
+.field{position:relative}
+.field input{width:100%;height:46px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.45);color:var(--bone);font:400 14px Inter,sans-serif;letter-spacing:.24em;padding:0 76px 0 24px;outline:none}
+.field input::placeholder{color:rgba(243,242,238,.35)}
+.field button{position:absolute;right:8px;top:5px;height:36px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:rgba(243,242,238,.6);font:500 10px Inter,sans-serif;letter-spacing:.2em}
+.btn{margin-top:24px;height:44px;border-radius:999px;border:1px solid rgba(243,242,238,.6);background:rgba(11,13,15,.5);color:var(--bone);font:500 12px Inter,sans-serif;letter-spacing:.3em;width:100%;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 22px rgba(243,242,238,.16)}
+.btn svg{height:15px;width:auto}
+.foot{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,13,15,.72);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(243,242,238,.6)}
+.foot b{font-weight:400;color:var(--bone)}
+.pill{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px}
+.replay{position:fixed;left:20px;bottom:70px;border-radius:999px;border:1px dashed rgba(243,242,238,.3);background:rgba(11,13,15,.7);color:rgba(243,242,238,.7);padding:7px 12px;cursor:pointer;font:400 9px 'JetBrains Mono',monospace;letter-spacing:.16em}
+
+/* the build: the white pieces (the 7's leg and the X's cut arm) fade in, then the bar of the 7
+   and the gold arm slide in together and lock the device */
+.a-white{opacity:0;animation:fadeIn 2.4s ease .3s forwards}
+.a-bar{opacity:0;animation:slideR 1.8s cubic-bezier(.16,.8,.2,1) 3.1s forwards}
+.a-gold{opacity:0;animation:slideD 1.8s cubic-bezier(.16,.8,.2,1) 3.1s forwards}
+.a-sheen{opacity:0;animation:fadeIn 1s ease 5.9s forwards}
+.halo-w,.halo-g{opacity:0;animation:haloIn 1.8s ease 4.9s forwards,breathe 4.8s ease-in-out 6.9s infinite}
+.halo-w{animation-name:haloInW,breatheW}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes slideR{0%{opacity:0;transform:translateX(-1300px)}10%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes slideD{0%{opacity:0;transform:translate(-1000px,-1000px)}10%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes haloIn{to{opacity:.5}}
+@keyframes breathe{0%,100%{opacity:.32}50%{opacity:.75}}
+@keyframes haloInW{to{opacity:.34}}
+@keyframes breatheW{0%,100%{opacity:.2}50%{opacity:.48}}
+</style></head><body>
+<video id="bg" autoplay muted loop playsinline preload="auto" poster="/haavn-black-bg-poster.jpg" src="/haavn-black-bg.mp4"></video>
+<div class="scrim"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="dBar"><polygon points="55,55 1918,55 1785,224 55,224"/></g>
+  <g id="dUp"><polygon points="1277,343 1533,343 1141,840 1046,719"/></g>
+  <g id="dLo"><polygon points="779,1155 836,1228 372,1818"/></g>
+  <g id="dGold"><polygon points="291,343 599,343 1760,1818 1452,1818"/></g>
+</defs></svg>
+
+<div class="stage">
+  <div class="lock" id="lock">
+    <svg viewBox="30 30 1920 1810" role="img" aria-label="7X">
+      <defs>
+        <linearGradient id="foil" gradientUnits="userSpaceOnUse" x1="291" y1="343" x2="1760" y2="1818">
+          <stop offset="0" stop-color="#8f6a25"/><stop offset=".14" stop-color="#e9d08f"/><stop offset=".26" stop-color="#fff3cf"/><stop offset=".38" stop-color="#c79b45"/><stop offset=".5" stop-color="#7d5a1c"/><stop offset=".6" stop-color="#d9b566"/><stop offset=".74" stop-color="#fff0c4"/><stop offset=".86" stop-color="#c9993f"/><stop offset="1" stop-color="#96702a"/>
+        </linearGradient>
+        <linearGradient id="gloss" gradientUnits="userSpaceOnUse" x1="0" y1="343" x2="0" y2="1818">
+          <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity=".2"/>
+        </linearGradient>
+        <linearGradient id="sheen" gradientUnits="userSpaceOnUse" x1="-1500" y1="343" x2="-300" y2="1818">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fffdf2" stop-opacity=".95"/><stop offset=".58" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          <animateTransform attributeName="gradientTransform" type="translate" values="0 0; 3400 0" dur="11s" begin="5.9s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .2 1" keyTimes="0;1"/>
+        </linearGradient>
+        <filter id="halo" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="46"/></filter>
+      </defs>
+      <!-- glows -->
+      <g class="halo-w" fill="#F3F2EE" filter="url(#halo)"><use href="#dBar"/><use href="#dUp"/><use href="#dLo"/></g>
+      <use class="halo-g" href="#dGold" fill="#d6b36a" filter="url(#halo)"/>
+      <!-- the white pieces -->
+      <g class="a-white" fill="#F3F2EE"><use href="#dUp"/><use href="#dLo"/></g>
+      <!-- the bar of the 7 -->
+      <g class="a-bar" fill="#F3F2EE"><use href="#dBar"/></g>
+      <!-- the gold arm, foil -->
+      <g class="a-gold">
+        <use href="#dGold" fill="url(#foil)"/><use href="#dGold" fill="url(#gloss)"/>
+        <g class="a-sheen"><use href="#dGold" fill="url(#sheen)"/></g>
+      </g>
+    </svg>
+  </div>
+  <div class="under">
+    <p class="by">By design.</p>
+    <p class="tag">ENGINE &nbsp;|&nbsp; PRECISION &nbsp;|&nbsp; INTELLIGENCE</p>
+    <div class="panel">
+      <div class="lbl">PRIVATE ACCESS</div>
+      <div class="field"><input type="password" placeholder="ACCESS CODE"><button type="button">SHOW</button></div>
+      <button class="btn" type="button">ENTER
+        <svg viewBox="30 30 1920 1810"><use href="#dBar" fill="#F3F2EE"/><use href="#dUp" fill="#F3F2EE"/><use href="#dLo" fill="#F3F2EE"/><use href="#dGold" fill="#F3F2EE"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<button class="replay" id="replay" type="button">REPLAY INTRO</button>
+<div class="foot"><span><b>7X</b></span><span>LIVE &nbsp; MELBOURNE</span><span class="pill">7EVEN.AU</span></div>
+<script>document.getElementById('replay').onclick=function(){var l=document.getElementById('lock'),c=l.innerHTML;l.innerHTML='';void l.offsetWidth;l.innerHTML=c}</script>
+</body></html>
