@@ -44,12 +44,12 @@ export const HM_PILLARS: HMPillar[] = [
 // by a rotating LED border — green on 01, blue on 02.
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
-.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;background:#040404;display:flex;flex-direction:column;
+.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#040404;display:flex;flex-direction:column;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 .hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .hmh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
-.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
 .hmh-btn{cursor:pointer;font-family:'Chakra Petch','JetBrains Mono',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
   color:#c9cdd2;padding:10px 16px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;transition:.3s}
 .hmh-btn:hover{border-color:rgba(47,224,122,.7);color:#fff;background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.6)}
@@ -99,9 +99,17 @@ const CSS = `
 .hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
 .hmh-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
 .hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30}
-@media(max-width:640px){.hmh-body{padding:36px 20px}.hmh-pcard{min-height:auto}}
+@media(max-width:640px){.hmh-body{padding:36px 20px 110px}.hmh-pcard{min-height:auto}}
 
-@media(max-width:600px){.hmh-head{padding-top:calc(env(safe-area-inset-top,0px) + 57px)}}
+@media(max-width:600px){
+  .hmh-head{padding:16px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 57px);gap:12px}
+  .hmh-brand{margin-left:0;width:100%}
+  .hmh-brand .b{display:none}
+  .hmh-lock{flex-wrap:wrap;justify-content:center;row-gap:10px}
+  .hmh-sub{padding:0 4px}
+  .hmh-logout{position:static;display:block;margin:30px auto 44px;left:auto;bottom:auto}
+  .hmh-body{padding-bottom:24px}
+}
 `
 
 export default function HaavnManagementBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {

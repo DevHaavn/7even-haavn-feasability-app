@@ -51,7 +51,7 @@ const CSS = `
 .pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
 .pg-stage{--cy:max(calc(50% - 1.6in),150px)}
 .pg-hero{position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
-.pg-name{font:200 clamp(44px,8.2vw,112px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;text-shadow:0 0 30px rgba(243,242,238,.28),0 0 90px rgba(243,242,238,.12);opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
+.pg-name{font:100 clamp(44px,8.2vw,112px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;text-shadow:0 0 18px rgba(243,242,238,.22),0 0 60px rgba(243,242,238,.08);opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
 .pg-byrow{display:flex;align-items:center;gap:16px;opacity:0;animation:pgFade 1.6s ease 2.6s forwards}
 .pg-byrow i{font:italic 400 clamp(22px,2.6vw,32px) 'Cormorant Garamond',serif;color:#d6b36a;text-shadow:0 0 22px rgba(214,179,106,.35)}
 .pg-byrow svg{height:clamp(38px,4.2vw,54px);width:auto;overflow:visible;display:block}
