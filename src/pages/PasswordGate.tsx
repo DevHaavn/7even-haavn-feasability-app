@@ -89,6 +89,19 @@ const CSS = `
 .pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
 .pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
 
+.pg-bar-reveal{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:left top;mask-position:left top;
+  -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 82%,rgba(0,0,0,0) 100%);
+  mask-image:linear-gradient(to right,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 82%,rgba(0,0,0,0) 100%);
+  -webkit-mask-size:0% 100%;mask-size:0% 100%;
+  animation:pgBarReveal 1.2s cubic-bezier(.3,.6,.2,1) .3s both}
+@keyframes pgBarReveal{to{-webkit-mask-size:100% 100%;mask-size:100% 100%}}
+.pg-x-reveal{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:left top;mask-position:left top;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 82%,rgba(0,0,0,0) 100%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 82%,rgba(0,0,0,0) 100%);
+  -webkit-mask-size:100% 0%;mask-size:100% 0%;
+  animation:pgXReveal 3s cubic-bezier(.3,.6,.2,1) 1.8s both}
+@keyframes pgXReveal{to{-webkit-mask-size:100% 100%;mask-size:100% 100%}}
+.pg-still .pg-bar-reveal,.pg-still .pg-x-reveal{animation:none;-webkit-mask-image:none;mask-image:none}
 .pg-halo-w,.pg-halo-g{opacity:0;animation:pgHaloIn 1.6s ease 5s forwards,pgBreathe 4.8s ease-in-out 6.6s infinite}
 .pg-halo-w{animation-name:pgHaloInW,pgBreatheW}
 .pg-still .pg-name,.pg-still .pg-byrow{animation:none;opacity:1;transform:none}
@@ -121,7 +134,7 @@ const PD = {
   lo: '816,1128 874,1205 401,1806',
   gold: '360,348 543,348 1716,1839 1533,1839',
 }
-function DeviceDefs({ still }: { still: boolean }) {
+function DeviceDefs() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
       <defs>
@@ -134,22 +147,6 @@ function DeviceDefs({ still }: { still: boolean }) {
         </linearGradient>
         <linearGradient id="pdGloss" gradientUnits="userSpaceOnUse" x1="0" y1="348" x2="0" y2="1839"><stop offset="0" stopColor="#fff" stopOpacity=".5" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" /><stop offset="1" stopColor="#fff" stopOpacity=".2" /></linearGradient>
         <filter id="pdHalo" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="60" /></filter>
-        {/* reveal: the rect grows from the shape's own edge; the fade always sits at its
-            current growing edge (objectBoundingBox), so ground already revealed never reverts.
-            Driven by SMIL <animate>, not a CSS animation of raw geometry — the latter doesn't
-            reliably tick for content that only exists inside a <mask> in every browser. */}
-        <linearGradient id="pdRevH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
-        <linearGradient id="pdRevV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
-        <mask id="pdMaskBar" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-          <rect x="60" y="-2000" width={still ? 1875 : 0} height="6000" fill="url(#pdRevH)">
-            {!still && <animate attributeName="width" values="0;1875" keyTimes="0;1" calcMode="spline" keySplines=".3 .6 .2 1" begin="0.3s" dur="1.2s" fill="freeze" />}
-          </rect>
-        </mask>
-        <mask id="pdMaskX" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-          <rect x="-2000" y="348" width="6000" height={still ? 1510 : 0} fill="url(#pdRevV)">
-            {!still && <animate attributeName="height" values="0;1510" keyTimes="0;1" calcMode="spline" keySplines=".3 .6 .2 1" begin="1.8s" dur="3s" fill="freeze" />}
-          </rect>
-        </mask>
       </defs>
     </svg>
   )
@@ -163,15 +160,17 @@ function SevenX({ className }: { className?: string }) {
   )
 }
 /* the login device: the leg is always on; the bar fades left to right, then, after a
-   hold, the gold arm fades top to bottom, slowly */
+   hold, the gold arm fades top to bottom, slowly. The reveal is a plain CSS mask-image
+   (grown via mask-size) on the rendered shape itself — not an SVG <mask> referencing
+   animated <defs> content, which several browsers don't reliably animate. */
 function SevenXHero() {
   return (
     <svg role="img" aria-label="7X" viewBox="30 30 1920 1810">
       <g className="pg-halo-w" fill="#F3F2EE" filter="url(#pdHalo)"><use href="#pdBar" /><use href="#pdUp" /><use href="#pdLo" /></g>
       <use className="pg-halo-g" href="#pdGold" fill="#d6b36a" filter="url(#pdHalo)" />
       <g fill="#F3F2EE"><use href="#pdUp" /><use href="#pdLo" /></g>
-      <g mask="url(#pdMaskBar)" fill="#F3F2EE"><use href="#pdBar" /></g>
-      <g mask="url(#pdMaskX)"><use href="#pdGold" fill="url(#pdFoil)" /><use href="#pdGold" fill="url(#pdGloss)" /></g>
+      <g className="pg-bar-reveal" fill="#F3F2EE"><use href="#pdBar" /></g>
+      <g className="pg-x-reveal"><use href="#pdGold" fill="url(#pdFoil)" /><use href="#pdGold" fill="url(#pdGloss)" /></g>
     </svg>
   )
 }
@@ -218,7 +217,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
       <div className="pg-scrim" />
 
       <div className="pg-stage">
-        <DeviceDefs still={!!chooser} />
+        <DeviceDefs />
         <div className="pg-hero">
           <div className="pg-name">
             <span className="pg-a"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" strokeWidth="2.17" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
