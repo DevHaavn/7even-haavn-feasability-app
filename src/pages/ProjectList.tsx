@@ -293,7 +293,7 @@ const CSS = `
 /** Session flag for the BASE PIN. Versioned: bump it whenever the PIN changes. */
 export const BASE_PIN_KEY = 'base_pin_ok_0808'
 
-export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onHome?: () => void }) {
+export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtrium }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onHome?: () => void; autoOpenAtrium?: boolean }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -327,7 +327,10 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
   const [showNew, setShowNew] = useState(false)
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
+  // ATRIUM (Workflow + Meeting Management) has no button here any more — it's reached
+  // from the HAAVN menu, which deep-links back in with ?open=atrium.
   const [hmOpen, setHmOpen] = useState(false)
+  useEffect(() => { if (autoOpenAtrium) setHmOpen(true) }, [autoOpenAtrium])
   const [statusFor, setStatusFor] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -429,11 +432,6 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
                   <span className="g">→</span>
                 </button>
               )}
-              {/* HM + HAAVN BLACK — moved in from the footer */}
-              <button className="ath-brandrow" title="NAVIGATORS — Management Hub" onClick={() => { setHmOpen(true); setMenuOpen(false) }}>
-                <span className="ath-rowname">NAVIGATORS</span>
-                <span className="g">→</span>
-              </button>
               {/* PROJECT 7 — the philanthropic arm of 7EVEN */}
               <button className="ath-brandrow" title="PROJECT 7 — Not for profit" onClick={() => { window.location.href = '/project-7.html' }}>
                 <span className="ath-rowname">PROJECT 7</span>

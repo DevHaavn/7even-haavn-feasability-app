@@ -45,6 +45,7 @@ export default function App() {
   // BLACK hero header. Admin surface only — never wired for restricted logins.
   const [homesCapitalOpen, setHomesCapitalOpen] = useState(!!saved.capital)
   const [manageOpen, setManageOpen] = useState(false)
+  const [openAtriumOnLoad, setOpenAtriumOnLoad] = useState(false)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
   // theme store so the one light/dark button in the topbar, Manage screen, and the
@@ -82,6 +83,12 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname)
     } else if (open === 'home') {
       goHome()
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (open === 'atrium') {
+      // ATRIUM (the workflow + meeting management hub) is reached from the HAAVN
+      // menu now; it still lives inside the 7EVEN screen, just with no button
+      // there any more — this deep link is the only door in.
+      setCompany('7even'); setOpenAtriumOnLoad(true)
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [])
@@ -268,7 +275,7 @@ export default function App() {
           {engineFromLink && <AtriumZeroed onClose={() => setEngineFromLink(false)} onLogout={handleLogout} />}
           {LEGACY_STUDIO && activeProjectId
             ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
-            : <ProjectList onLogout={handleLogout} onHome={goHome} onDashboard={(brand) => {
+            : <ProjectList onLogout={handleLogout} onHome={goHome} autoOpenAtrium={openAtriumOnLoad} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return
                 setDashboardBrand(brand)

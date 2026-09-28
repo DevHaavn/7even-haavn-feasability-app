@@ -6,7 +6,7 @@
 <title>HAAVN · SUPPLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@500;700&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@500;700&family=Inter:wght@100;200;300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
    HAAVN — the third pillar.
@@ -126,6 +126,12 @@ main,footer,header .kicker{transition:.38s}
   background:transparent;border:1px solid rgba(16,16,16,.32);border-radius:14px;transition:.3s;
   font-family:var(--f-mono);font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink)}
 .mrow:hover{background:rgba(255,255,255,.14);border-color:rgba(16,16,16,.7);box-shadow:0 0 26px -10px rgba(255,255,255,.9)}
+.mrow.atrium{background:#0B0D0F;border-color:rgba(214,179,106,.55);color:#F3F2EE;box-shadow:0 0 22px -10px rgba(214,179,106,.45)}
+.mrow.atrium:hover{background:#111417;border-color:rgba(214,179,106,.85);box-shadow:0 0 26px -6px rgba(214,179,106,.65)}
+.mrow.atrium .g{color:#d6b36a}
+.mrow.atrium .atxt{display:inline-flex;align-items:center;font-family:'Inter',system-ui,sans-serif;font-weight:100;font-size:16px;letter-spacing:.28em;padding-left:.28em;text-transform:none}
+.mrow.atrium .aicon{height:.72em;width:.64em;margin-right:.28em;flex-shrink:0;overflow:visible;display:block}
+
 .mrow .g{color:var(--lime-txt);font-size:12px;transition:transform .3s}
 .mrow:hover .g{transform:translateX(3px)}
 .mrow img{height:14px;width:auto;display:block}
@@ -496,6 +502,7 @@ footer{padding-bottom:20px;margin-top:auto}
   <div class="mdrop" id="mPresDrop"></div>
   <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
+  <button class="mrow atrium" id="mAtrium"><span class="atxt"><svg class="aicon" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" stroke-width="2.17" stroke-linejoin="miter" stroke-linecap="butt"/></svg>TRIUM</span><span class="g">&#8594;</span></button>
   <button class="mrow" id="mSeven">7X<span class="g">&#8594;</span></button>
   <button class="mrow logout" id="mLogout">Log Out</button>
 </div>
@@ -950,6 +957,7 @@ var MEDIA = [
   });
   $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
+  $('#mAtrium').addEventListener('click', function(){ location.href = '/?open=atrium'; });
   $('#mSeven').addEventListener('click', function(){ location.href = '/?open=home'; });
   $('#mLogout').addEventListener('click', function(){
     try { localStorage.removeItem('7even_auth'); } catch(e){}
