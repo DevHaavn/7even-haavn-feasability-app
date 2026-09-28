@@ -84,6 +84,8 @@ const CSS = `
 .pg-co{display:grid;gap:12px}
 .pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,13,15,.72);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(243,242,238,.6)}
 .pg-foot b{font-weight:400;color:#F3F2EE}
+.pg-atriummark{width:28px;height:28px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,242,238,.35);color:#F3F2EE}
+.pg-atriummark svg{width:15px;height:15px;display:block}
 .pg-live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fe07a;margin-right:8px;box-shadow:0 0 8px #2fe07a}
 .pg-chips{display:flex;gap:8px;align-items:center}
 .pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
@@ -262,7 +264,9 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
       </div>
 
       <div className="pg-foot">
-        <span><b>7X</b></span>
+        <span className="pg-atriummark" aria-label="ATRIUM">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M29 74 L50 26 L71 74" fill="none" stroke="currentColor" strokeWidth="6.3" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
+        </span>
         <span className="pg-live"><i />LIVE&nbsp;&nbsp;<GateClock />&nbsp;&nbsp;MELBOURNE</span>
         <span className="pg-chips">
           <InstallButton compact />
