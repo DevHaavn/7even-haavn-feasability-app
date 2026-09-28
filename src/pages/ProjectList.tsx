@@ -446,7 +446,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
                 <span className="g">→</span>
               </button>
               <div className="ath-bottomrow">
-                <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M29 74 L50 26 L71 74" fill="none" stroke="currentColor" strokeWidth="6.3" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
+                <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
                 <button className="ath-logoutrow" onClick={() => onLogout?.()}><span className="dot" />LOG OUT</button>
               </div>
             </div>
@@ -471,7 +471,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">
-            <button className="ath-atriumicon ath-atriumfoot" title="ATRIUM — choose a company" onClick={() => onHome?.()}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M29 74 L50 26 L71 74" fill="none" stroke="currentColor" strokeWidth="6.3" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
+            <button className="ath-atriumicon ath-atriumfoot" title="ATRIUM — choose a company" onClick={() => onHome?.()}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>

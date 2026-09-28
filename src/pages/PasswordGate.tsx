@@ -265,7 +265,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
 
       <div className="pg-foot">
         <span className="pg-atriummark" aria-label="ATRIUM">
-          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M29 74 L50 26 L71 74" fill="none" stroke="currentColor" strokeWidth="6.3" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
         </span>
         <span className="pg-live"><i />LIVE&nbsp;&nbsp;<GateClock />&nbsp;&nbsp;MELBOURNE</span>
         <span className="pg-chips">
