@@ -266,8 +266,8 @@ const CSS = `
 .ath-chip:hover{border-color:rgba(47,224,122,.7);color:#fff;transform:translateY(-2px);background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
 .ath-chip .ext{color:var(--led);opacity:.9;font-size:9px}
 .ath-chip .ring{width:6px;height:6px;border:1px solid var(--led);border-radius:50%}
-.ath-chip .atricon{width:12px;height:12px;display:block}
-.ath-chip .atricon svg{width:100%;height:100%;display:block}
+.ath-atriumfoot{width:32px;height:32px}
+.ath-atriumfoot svg{width:16px;height:16px}
 @media(max-width:840px){
   .ath-frail{grid-template-columns:1fr;justify-items:start;gap:12px}
   .ath-fc,.ath-fr{justify-self:start}
@@ -446,7 +446,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
                 <span className="g">→</span>
               </button>
               <div className="ath-bottomrow">
-                <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt"/></svg></button>
+                <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
                 <button className="ath-logoutrow" onClick={() => onLogout?.()}><span className="dot" />LOG OUT</button>
               </div>
             </div>
@@ -471,7 +471,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">
-            <button className="ath-chip" title="ATRIUM — choose a company" onClick={() => onHome?.()}><span className="atricon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt"/></svg></span>ATRIUM</button>
+            <button className="ath-atriumicon ath-atriumfoot" title="ATRIUM — choose a company" onClick={() => onHome?.()}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>
