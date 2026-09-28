@@ -51,7 +51,11 @@ const CSS = `
 .pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
 .pg-stage{--cy:max(calc(50% - 1.6in),150px)}
 .pg-hero{position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
-.pg-name{font:100 clamp(44px,8.2vw,112px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;text-shadow:0 0 18px rgba(243,242,238,.22),0 0 60px rgba(243,242,238,.08);opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
+.pg-name{display:flex;align-items:center;font:100 clamp(44px,8.2vw,112px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;text-shadow:0 0 18px rgba(243,242,238,.22),0 0 60px rgba(243,242,238,.08);opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
+.pg-a{position:relative;display:block;width:.66em;height:.74em;margin-right:.34em;flex:none;animation:pgAGapIn 3.2s ease .3s forwards}
+.pg-a svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 18px rgba(243,242,238,.22)) drop-shadow(0 0 60px rgba(243,242,238,.08))}
+@keyframes pgAGapIn{0%{margin-right:.7em}100%{margin-right:.34em}}
+.pg-still .pg-a{animation:none;margin-right:.34em}
 .pg-byrow{display:flex;align-items:center;gap:16px;opacity:0;animation:pgFade 1.6s ease 2.6s forwards}
 .pg-byrow i{font:italic 400 clamp(22px,2.6vw,32px) 'Cormorant Garamond',serif;color:#d6b36a;text-shadow:0 0 22px rgba(214,179,106,.35)}
 .pg-byrow svg{height:clamp(38px,4.2vw,54px);width:auto;overflow:visible;display:block}
@@ -204,7 +208,9 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
       <div className="pg-stage">
         <DeviceDefs />
         <div className="pg-hero">
-          <div className="pg-name">ATRIUM</div>
+          <div className="pg-name">
+            <span className="pg-a"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" strokeWidth="2.17" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
+          </div>
           <div className="pg-byrow"><i>by</i><SevenXHero /></div>
         </div>
         <div className="pg-under">
