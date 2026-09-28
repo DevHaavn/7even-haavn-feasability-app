@@ -89,18 +89,18 @@ const CSS = `
 .pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
 .pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
 
-.pg-a-white{opacity:0;animation:pgFade 1.8s ease 3s forwards}
-.pg-a-bar{opacity:0;animation:pgSlideR 1.5s cubic-bezier(.16,.8,.2,1) 4.5s forwards}
-.pg-a-gold{opacity:0;animation:pgSlideD 1.5s cubic-bezier(.16,.8,.2,1) 4.5s forwards}
-.pg-halo-w,.pg-halo-g{opacity:0;animation:pgHaloIn 1.6s ease 6s forwards,pgBreathe 4.8s ease-in-out 7.6s infinite}
+.pg-band-bar{animation:pgRevealBar 1.2s cubic-bezier(.3,.6,.2,1) .3s both}
+.pg-band-x{animation:pgRevealX 3s cubic-bezier(.3,.6,.2,1) 1.8s both}
+.pg-halo-w,.pg-halo-g{opacity:0;animation:pgHaloIn 1.6s ease 5s forwards,pgBreathe 4.8s ease-in-out 6.6s infinite}
 .pg-halo-w{animation-name:pgHaloInW,pgBreatheW}
-.pg-still .pg-name,.pg-still .pg-byrow,.pg-still .pg-a-white,.pg-still .pg-a-bar,.pg-still .pg-a-gold{animation:none;opacity:1;transform:none}
+.pg-still .pg-name,.pg-still .pg-byrow{animation:none;opacity:1;transform:none}
+.pg-still .pg-band-bar,.pg-still .pg-band-x{animation:none}
 .pg-still .pg-halo-g{animation:pgBreathe 4.8s ease-in-out infinite;opacity:.5}
 .pg-still .pg-halo-w{animation:pgBreatheW 4.8s ease-in-out infinite;opacity:.34}
 @keyframes pgNameIn{0%{opacity:0;letter-spacing:.7em}100%{opacity:1;letter-spacing:.34em}}
 @keyframes pgFade{to{opacity:1}}
-@keyframes pgSlideR{0%{opacity:0;transform:translateX(-1300px)}10%{opacity:1}100%{opacity:1;transform:none}}
-@keyframes pgSlideD{0%{opacity:0;transform:translate(-1000px,-1000px)}10%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes pgRevealBar{from{width:0px}to{width:1875px}}
+@keyframes pgRevealX{from{height:0px}to{height:1510px}}
 @keyframes pgHaloIn{to{opacity:.5}}
 @keyframes pgBreathe{0%,100%{opacity:.32}50%{opacity:.75}}
 @keyframes pgHaloInW{to{opacity:.34}}
@@ -139,6 +139,16 @@ function DeviceDefs() {
         </linearGradient>
         <linearGradient id="pdGloss" gradientUnits="userSpaceOnUse" x1="0" y1="348" x2="0" y2="1839"><stop offset="0" stopColor="#fff" stopOpacity=".5" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" /><stop offset="1" stopColor="#fff" stopOpacity=".2" /></linearGradient>
         <filter id="pdHalo" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="60" /></filter>
+        {/* reveal: the rect grows from the shape's own edge; the fade always sits at its
+            current growing edge (objectBoundingBox), so ground already revealed never reverts */}
+        <linearGradient id="pdRevH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
+        <linearGradient id="pdRevV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
+        <mask id="pdMaskBar" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+          <rect className="pg-band-bar" x="60" y="-2000" width="1875" height="6000" fill="url(#pdRevH)" />
+        </mask>
+        <mask id="pdMaskX" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+          <rect className="pg-band-x" x="-2000" y="348" width="6000" height="1510" fill="url(#pdRevV)" />
+        </mask>
       </defs>
     </svg>
   )
@@ -151,15 +161,16 @@ function SevenX({ className }: { className?: string }) {
     </svg>
   )
 }
-/* the login device: white pieces fade in, then the bar and the gold arm slide in together */
+/* the login device: the leg is always on; the bar fades left to right, then, after a
+   hold, the gold arm fades top to bottom, slowly */
 function SevenXHero() {
   return (
     <svg role="img" aria-label="7X" viewBox="30 30 1920 1810">
       <g className="pg-halo-w" fill="#F3F2EE" filter="url(#pdHalo)"><use href="#pdBar" /><use href="#pdUp" /><use href="#pdLo" /></g>
       <use className="pg-halo-g" href="#pdGold" fill="#d6b36a" filter="url(#pdHalo)" />
-      <g className="pg-a-white" fill="#F3F2EE"><use href="#pdUp" /><use href="#pdLo" /></g>
-      <g className="pg-a-bar" fill="#F3F2EE"><use href="#pdBar" /></g>
-      <g className="pg-a-gold"><use href="#pdGold" fill="url(#pdFoil)" /><use href="#pdGold" fill="url(#pdGloss)" /></g>
+      <g fill="#F3F2EE"><use href="#pdUp" /><use href="#pdLo" /></g>
+      <g mask="url(#pdMaskBar)" fill="#F3F2EE"><use href="#pdBar" /></g>
+      <g mask="url(#pdMaskX)"><use href="#pdGold" fill="url(#pdFoil)" /><use href="#pdGold" fill="url(#pdGloss)" /></g>
     </svg>
   )
 }
