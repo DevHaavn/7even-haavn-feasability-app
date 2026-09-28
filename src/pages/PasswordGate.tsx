@@ -89,18 +89,13 @@ const CSS = `
 .pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
 .pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
 
-.pg-band-bar{animation:pgRevealBar 1.2s cubic-bezier(.3,.6,.2,1) .3s both}
-.pg-band-x{animation:pgRevealX 3s cubic-bezier(.3,.6,.2,1) 1.8s both}
 .pg-halo-w,.pg-halo-g{opacity:0;animation:pgHaloIn 1.6s ease 5s forwards,pgBreathe 4.8s ease-in-out 6.6s infinite}
 .pg-halo-w{animation-name:pgHaloInW,pgBreatheW}
 .pg-still .pg-name,.pg-still .pg-byrow{animation:none;opacity:1;transform:none}
-.pg-still .pg-band-bar,.pg-still .pg-band-x{animation:none}
 .pg-still .pg-halo-g{animation:pgBreathe 4.8s ease-in-out infinite;opacity:.5}
 .pg-still .pg-halo-w{animation:pgBreatheW 4.8s ease-in-out infinite;opacity:.34}
 @keyframes pgNameIn{0%{opacity:0;letter-spacing:.7em}100%{opacity:1;letter-spacing:.34em}}
 @keyframes pgFade{to{opacity:1}}
-@keyframes pgRevealBar{from{width:0px}to{width:1875px}}
-@keyframes pgRevealX{from{height:0px}to{height:1510px}}
 @keyframes pgHaloIn{to{opacity:.5}}
 @keyframes pgBreathe{0%,100%{opacity:.32}50%{opacity:.75}}
 @keyframes pgHaloInW{to{opacity:.34}}
@@ -126,7 +121,7 @@ const PD = {
   lo: '816,1128 874,1205 401,1806',
   gold: '360,348 543,348 1716,1839 1533,1839',
 }
-function DeviceDefs() {
+function DeviceDefs({ still }: { still: boolean }) {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
       <defs>
@@ -140,14 +135,20 @@ function DeviceDefs() {
         <linearGradient id="pdGloss" gradientUnits="userSpaceOnUse" x1="0" y1="348" x2="0" y2="1839"><stop offset="0" stopColor="#fff" stopOpacity=".5" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" /><stop offset="1" stopColor="#fff" stopOpacity=".2" /></linearGradient>
         <filter id="pdHalo" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="60" /></filter>
         {/* reveal: the rect grows from the shape's own edge; the fade always sits at its
-            current growing edge (objectBoundingBox), so ground already revealed never reverts */}
+            current growing edge (objectBoundingBox), so ground already revealed never reverts.
+            Driven by SMIL <animate>, not a CSS animation of raw geometry — the latter doesn't
+            reliably tick for content that only exists inside a <mask> in every browser. */}
         <linearGradient id="pdRevH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
         <linearGradient id="pdRevV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" /><stop offset=".82" stopColor="#fff" /><stop offset="1" stopColor="#000" /></linearGradient>
         <mask id="pdMaskBar" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-          <rect className="pg-band-bar" x="60" y="-2000" width="1875" height="6000" fill="url(#pdRevH)" />
+          <rect x="60" y="-2000" width={still ? 1875 : 0} height="6000" fill="url(#pdRevH)">
+            {!still && <animate attributeName="width" values="0;1875" keyTimes="0;1" calcMode="spline" keySplines=".3 .6 .2 1" begin="0.3s" dur="1.2s" fill="freeze" />}
+          </rect>
         </mask>
         <mask id="pdMaskX" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-          <rect className="pg-band-x" x="-2000" y="348" width="6000" height="1510" fill="url(#pdRevV)" />
+          <rect x="-2000" y="348" width="6000" height={still ? 1510 : 0} fill="url(#pdRevV)">
+            {!still && <animate attributeName="height" values="0;1510" keyTimes="0;1" calcMode="spline" keySplines=".3 .6 .2 1" begin="1.8s" dur="3s" fill="freeze" />}
+          </rect>
         </mask>
       </defs>
     </svg>
@@ -217,7 +218,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
       <div className="pg-scrim" />
 
       <div className="pg-stage">
-        <DeviceDefs />
+        <DeviceDefs still={!!chooser} />
         <div className="pg-hero">
           <div className="pg-name">
             <span className="pg-a"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" strokeWidth="2.17" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
