@@ -164,10 +164,16 @@ const CSS = `
 .ath-rowname{font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;text-transform:uppercase;color:#d6d9dd;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-rowname.gold{color:#d6b36a;text-shadow:0 0 8px rgba(244,227,189,.6)}
 .ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname,.ath-base:hover .ath-rowname{color:#fff}
-.ath-logoutrow{display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:12px 16px;cursor:pointer;
+.ath-bottomrow{display:flex;align-items:center;gap:10px;width:100%;margin-top:16px}
+.ath-atriumicon{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.3);background:transparent;cursor:pointer;color:#F3F2EE;transition:.3s;padding:0}
+.ath-atriumicon:hover{border-color:rgba(255,255,255,.8);box-shadow:0 0 22px -6px rgba(255,255,255,.6);background:rgba(255,255,255,.06)}
+.ath-atriumicon svg{width:22px;height:22px;display:block}
+.ath-logoutrow{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;cursor:pointer;
   font-family:var(--mono);font-size:11.7px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
-  background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:14px;transition:.3s}
+  background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:999px;transition:.3s}
 .ath-logoutrow:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
+.ath-logoutrow .dot{width:8px;height:8px;border-radius:50%;border:1px solid currentColor;flex-shrink:0}
 .ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:14px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
 .ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
 .ath-plist{max-height:min(54vh,460px);overflow-y:auto}
@@ -260,6 +266,8 @@ const CSS = `
 .ath-chip:hover{border-color:rgba(47,224,122,.7);color:#fff;transform:translateY(-2px);background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.5)}
 .ath-chip .ext{color:var(--led);opacity:.9;font-size:9px}
 .ath-chip .ring{width:6px;height:6px;border:1px solid var(--led);border-radius:50%}
+.ath-chip .atricon{width:12px;height:12px;display:block}
+.ath-chip .atricon svg{width:100%;height:100%;display:block}
 @media(max-width:840px){
   .ath-frail{grid-template-columns:1fr;justify-items:start;gap:12px}
   .ath-fc,.ath-fr{justify-self:start}
@@ -437,7 +445,10 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
                 <span className="ath-rowname">PROJECT 7</span>
                 <span className="g">→</span>
               </button>
-              <button className="ath-logoutrow" onClick={() => onLogout?.()}>LOG OUT</button>
+              <div className="ath-bottomrow">
+                <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt"/></svg></button>
+                <button className="ath-logoutrow" onClick={() => onLogout?.()}><span className="dot" />LOG OUT</button>
+              </div>
             </div>
           </div>
         </div>
@@ -460,7 +471,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
         <div className="ath-hair" />
         <div className="ath-frail">
           <div className="ath-fl">
-            <button className="ath-chip" title="7X — choose a company" onClick={() => onHome?.()}>7X</button>
+            <button className="ath-chip" title="ATRIUM — choose a company" onClick={() => onHome?.()}><span className="atricon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" strokeWidth="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" strokeWidth="4.2" strokeLinejoin="miter" strokeLinecap="butt"/></svg></span>ATRIUM</button>
           </div>
           <div className="ath-fc">
             <span className="ath-livewrap"><span className="ath-livedot" />LIVE&nbsp;&nbsp;<span className="ath-clock">{clock}</span>&nbsp;·&nbsp;MELBOURNE</span>

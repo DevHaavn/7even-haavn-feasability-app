@@ -131,6 +131,16 @@ main,footer,header .kicker{transition:.38s}
 .mrow.atrium .g{color:#d6b36a}
 .mrow.atrium .atxt{display:inline-flex;align-items:center;font-family:'Inter',system-ui,sans-serif;font-weight:100;font-size:16px;letter-spacing:.28em;padding-left:.28em;text-transform:none}
 .mrow.atrium .aicon{height:.72em;width:.64em;margin-right:.28em;flex-shrink:0;overflow:visible;display:block}
+.m-bottomrow{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px}
+.m-atriumicon{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(16,16,16,.32);background:transparent;cursor:pointer;color:var(--ink);transition:.3s;padding:0}
+.m-atriumicon:hover{border-color:rgba(16,16,16,.7);box-shadow:0 0 22px -10px rgba(255,255,255,.9);background:rgba(255,255,255,.14)}
+.m-atriumicon svg{width:22px;height:22px;display:block}
+.m-bottomrow .mrow.logout{margin-top:0;flex:1;gap:10px}
+.mrow.logout .dot{width:8px;height:8px;border-radius:50%;border:1px solid currentColor;flex-shrink:0}
+.pill7x .atricon{width:12px;height:12px;display:block}
+.pill7x .atricon svg{width:100%;height:100%;display:block}
+
 
 .mrow .g{color:var(--lime-txt);font-size:12px;transition:transform .3s}
 .mrow:hover .g{transform:translateX(3px)}
@@ -446,7 +456,7 @@ footer{padding-bottom:20px;margin-top:auto}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(138,156,8,.45)}70%{box-shadow:0 0 0 9px rgba(138,156,8,0)}100%{box-shadow:0 0 0 0 rgba(138,156,8,0)}}
 .fc .live{font-family:var(--f-mono);font-size:9px;letter-spacing:.30em;color:var(--lime-txt)}
 .clock{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-2);font-variant-numeric:tabular-nums}
-.pill7x{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:999px;border:1px solid rgba(16,16,16,.4);background:transparent;
+.pill7x{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 18px;border-radius:999px;border:1px solid rgba(16,16,16,.4);background:transparent;
   font-family:var(--f-mono);font-size:10px;letter-spacing:.26em;color:var(--ink);text-decoration:none;transition:.3s}
 .pill7x:hover{background:rgba(255,255,255,.18);border-color:rgba(16,16,16,.75);box-shadow:0 0 22px -8px rgba(255,255,255,.9);transform:translateY(-2px)}
 .zone{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.26em;color:var(--ink-4)}
@@ -503,8 +513,10 @@ footer{padding-bottom:20px;margin-top:auto}
   <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
   <button class="mrow atrium" id="mAtrium"><span class="atxt"><svg class="aicon" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" stroke-width="2.17" stroke-linejoin="miter" stroke-linecap="butt"/></svg>TRIUM</span><span class="g">&#8594;</span></button>
-  <button class="mrow" id="mSeven">7X<span class="g">&#8594;</span></button>
-  <button class="mrow logout" id="mLogout">Log Out</button>
+  <div class="m-bottomrow">
+    <button class="m-atriumicon" id="mAtriumHome" type="button" aria-label="ATRIUM — choose a company"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linejoin="miter" stroke-linecap="butt"/></svg></button>
+    <button class="mrow logout" id="mLogout"><span class="dot"></span>Log Out</button>
+  </div>
 </div>
 
 <div id="shell">
@@ -653,7 +665,7 @@ footer{padding-bottom:20px;margin-top:auto}
     <div class="hair"></div>
     <div class="frail">
       <div class="fl">
-        <a class="pill7x" href="/?open=home" aria-label="7X, choose a company">7X</a>
+        <a class="pill7x" href="/?open=home" aria-label="ATRIUM, choose a company"><span class="atricon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="6"/><path d="M36 66 L50 34 L64 66" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>ATRIUM</a>
         <div class="pipe"></div>
         <div class="meta">HAAVN SUPPLY &nbsp;/&nbsp; BUILD 26.09</div>
       </div>
@@ -958,7 +970,7 @@ var MEDIA = [
   $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
   $('#mAtrium').addEventListener('click', function(){ location.href = '/?open=atrium'; });
-  $('#mSeven').addEventListener('click', function(){ location.href = '/?open=home'; });
+  $('#mAtriumHome').addEventListener('click', function(){ location.href = '/?open=home'; });
   $('#mLogout').addEventListener('click', function(){
     try { localStorage.removeItem('7even_auth'); } catch(e){}
     location.href = '/';

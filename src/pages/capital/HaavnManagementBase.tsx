@@ -99,6 +99,8 @@ const CSS = `
 .hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
 .hmh-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
 .hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30}
+.hmh-logout{border-radius:999px;display:flex;align-items:center;gap:9px}
+.hmh-logout .dot{width:7px;height:7px;border-radius:50%;border:1px solid currentColor;flex-shrink:0}
 @media(max-width:640px){.hmh-body{padding:36px 20px 110px}.hmh-pcard{min-height:auto}}
 
 @media(max-width:600px){
@@ -107,7 +109,7 @@ const CSS = `
   .hmh-brand .b{display:none}
   .hmh-lock{flex-wrap:wrap;justify-content:center;row-gap:10px}
   .hmh-sub{padding:0 4px}
-  .hmh-logout{position:static;display:block;margin:30px auto 44px;left:auto;bottom:auto}
+  .hmh-logout{position:static;margin:30px auto 44px;left:auto;bottom:auto}
   .hmh-body{padding-bottom:24px}
 }
 `
@@ -174,7 +176,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
 
       <SiteLinks />
       <Project7Mark />
-      <button className="hmh-btn hmh-logout" onClick={onLogout}>Log Out</button>
+      <button className="hmh-btn hmh-logout" onClick={onLogout}><span className="dot" />Log Out</button>
     </div>
   )
 }
