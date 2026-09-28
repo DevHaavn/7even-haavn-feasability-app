@@ -117,10 +117,10 @@ function GateClock() {
 
 /* the 7X device: the 7's bar, its leg (doubling as the X's cut arm) and the gold arm */
 const PD = {
-  bar: '55,55 1918,55 1785,224 55,224',
-  up: '1277,343 1533,343 1141,840 1046,719',
-  lo: '779,1155 836,1228 372,1818',
-  gold: '291,343 599,343 1760,1818 1452,1818',
+  bar: '60,60 1935,60 1808,223 60,223',
+  up: '1293,348 1548,348 1125,888 1035,768',
+  lo: '816,1128 874,1205 401,1806',
+  gold: '360,348 543,348 1716,1839 1533,1839',
 }
 function DeviceDefs() {
   return (
@@ -130,10 +130,10 @@ function DeviceDefs() {
         <g id="pdUp"><polygon points={PD.up} /></g>
         <g id="pdLo"><polygon points={PD.lo} /></g>
         <g id="pdGold"><polygon points={PD.gold} /></g>
-        <linearGradient id="pdFoil" gradientUnits="userSpaceOnUse" x1="291" y1="343" x2="1760" y2="1818">
+        <linearGradient id="pdFoil" gradientUnits="userSpaceOnUse" x1="360" y1="348" x2="1716" y2="1839">
           <stop offset="0" stopColor="#8f6a25" /><stop offset=".14" stopColor="#e9d08f" /><stop offset=".26" stopColor="#fff3cf" /><stop offset=".38" stopColor="#c79b45" /><stop offset=".5" stopColor="#7d5a1c" /><stop offset=".6" stopColor="#d9b566" /><stop offset=".74" stopColor="#fff0c4" /><stop offset=".86" stopColor="#c9993f" /><stop offset="1" stopColor="#96702a" />
         </linearGradient>
-        <linearGradient id="pdGloss" gradientUnits="userSpaceOnUse" x1="0" y1="343" x2="0" y2="1818"><stop offset="0" stopColor="#fff" stopOpacity=".5" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" /><stop offset="1" stopColor="#fff" stopOpacity=".2" /></linearGradient>
+        <linearGradient id="pdGloss" gradientUnits="userSpaceOnUse" x1="0" y1="348" x2="0" y2="1839"><stop offset="0" stopColor="#fff" stopOpacity=".5" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" /><stop offset="1" stopColor="#fff" stopOpacity=".2" /></linearGradient>
         <filter id="pdHalo" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="60" /></filter>
       </defs>
     </svg>
