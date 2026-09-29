@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ATRIUM · Management Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   ATRIUM MANAGEMENT HUB — menu preview (rebrand pass)
+   Same layout, video backdrop and LED-ring pillar cards as the live
+   HaavnManagementBase.tsx — 7EVEN/HAAVN lockup swapped for the ATRIUM
+   wordmark (exact login treatment), "Hub" text button swapped for the
+   canonical circular ring+A device, typography moved off Chakra Petch
+   onto the house Inter/JetBrains Mono system.
+   ============================================================================ */
+:root{
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --bone:#F3F2EE; --gold:#d6b36a; --gold-hi:#f4e3bd; --gold-deep:#8f6a25;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+.pvbanner{position:fixed;top:0;left:0;right:0;z-index:500;text-align:center;padding:6px 10px;font:500 9.5px/1 var(--mono);
+  letter-spacing:.28em;text-transform:uppercase;color:#0B0D0F;background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
+
+.hmh-root{position:fixed;inset:0;top:30px;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#040404;display:flex;flex-direction:column;
+  font-family:var(--sans)}
+.hmh-bg{position:fixed;inset:0;top:30px;width:100%;height:calc(100% - 30px);object-fit:cover;z-index:0}
+.hmh-scrim{position:fixed;inset:0;top:30px;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
+
+.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:18px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+
+/* the canonical ring+A control — one stroke weight, gold halo draws on hover */
+.mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(243,242,238,.30);
+  background:rgba(11,13,15,.45);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--bone);
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1)}
+.mbtn:hover{border-color:var(--gold);box-shadow:0 0 22px rgba(214,179,106,.18)}
+.mbtn:active{transform:scale(.94)}
+.mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.mbtn .halo circle{fill:none;stroke:var(--gold);stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+
+.hmh-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
+.hmh-brand .wm{display:flex;align-items:baseline;font:100 16px/1 var(--sans);letter-spacing:.3em;color:var(--bone)}
+.hmh-brand .tag{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.24em;color:#8a8d90;white-space:nowrap;
+  border-left:1px solid rgba(255,255,255,.2);padding-left:12px;text-transform:uppercase}
+
+.hmh-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 32px 40px;max-width:1180px;width:100%;margin:0 auto}
+.hmh-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500}
+
+.hmh-wm{display:flex;align-items:center;font:100 clamp(38px,7vw,64px)/1 var(--sans);letter-spacing:.3em;padding-left:.3em;color:var(--bone);margin-top:26px;
+  text-shadow:0 0 18px rgba(243,242,238,.2),0 0 60px rgba(243,242,238,.08)}
+.hmh-wm .a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.hmh-wm .a svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 16px rgba(243,242,238,.2))}
+
+.hmh-mgmt{font-family:var(--mono);font-weight:500;font-size:clamp(12px,1.6vw,15px);letter-spacing:.5em;text-transform:uppercase;color:var(--gold-hi);margin-top:20px;padding-left:.5em}
+.hmh-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:18px;max-width:62ch;line-height:1.6}
+.hmh-faint{color:#6a6e73;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px;font-family:var(--mono)}
+.hmh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
+
+.hmh-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
+@property --hmhA{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes hmh-spin{to{--hmhA:360deg}}
+.hmh-ledbox{position:relative;border-radius:22px;padding:1.7px;isolation:isolate;transition:transform .3s}
+.hmh-ledbox::before{content:'';position:absolute;inset:0;border-radius:22px;padding:1.7px;
+  background:conic-gradient(from var(--hmhA),transparent 0deg,#d6b36a 130deg,#f4e3bd 160deg,#d6b36a 190deg,transparent 310deg,transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.45)) drop-shadow(0 0 14px rgba(214,179,106,.3));
+  animation:hmh-spin 4.6s linear infinite;z-index:1}
+.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:28px;z-index:0;opacity:.28;pointer-events:none;
+  background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(214,179,106,.3) 150deg,transparent 300deg);
+  filter:blur(16px);animation:hmh-spin 4.6s linear infinite}
+.hmh-ledbox.b2::before,.hmh-ledbox.b2::after{animation-direction:reverse}
+.hmh-ledbox:hover{transform:translateY(-4px)}
+.hmh-ledbox:hover::before,.hmh-ledbox:hover::after{animation-duration:2.4s}
+
+.hmh-pcard{position:relative;z-index:2;border-radius:20px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+  padding:30px 28px 26px;min-height:520px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
+.hmh-pnum{font-family:var(--mono);font-size:30px;font-weight:300;line-height:1;color:var(--gold-hi);
+  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3)}
+.hmh-papex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(214,179,106,.4);display:flex;align-items:center;justify-content:center;color:var(--gold-hi)}
+.hmh-papex svg{width:11px;height:11px;display:block}
+.hmh-psub{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;margin:18px 0 8px;color:var(--gold-hi);
+  text-shadow:0 0 8px rgba(244,227,189,.32)}
+.hmh-ptitle{font-family:var(--sans);font-weight:200;font-size:29px;letter-spacing:.01em;line-height:1.1;color:#fff;margin:0}
+.hmh-pline{height:1px;background:rgba(255,255,255,.1);margin:18px 0}
+.hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.65;margin:0;flex:1}
+.hmh-penter{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+
+.hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
+  cursor:pointer;color:var(--bone);border:1px solid rgba(255,255,255,.28);background:transparent;font-family:var(--mono);transition:.3s}
+.hmh-logout:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
+.hmh-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
+
+.footbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 24px 20px;flex-wrap:wrap}
+.footbar .wm{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.85);font:600 11px/1 var(--sans);letter-spacing:.28em}
+.footbar .wm svg{width:14px;height:14px}
+.footbar .div{width:1px;height:12px;background:#333}
+.footbar a{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;font:700 7.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;
+  text-decoration:none;border-radius:999px;color:rgba(255,255,255,.9)}
+
+@media(max-width:640px){.hmh-body{padding:36px 20px 110px}.hmh-pcard{min-height:auto}}
+@media(max-width:600px){
+  .hmh-head{padding:16px 18px;gap:12px}
+  .hmh-brand .tag{display:none}
+  .hmh-logout{position:static;margin:30px auto 44px;left:auto;bottom:auto}
+  .hmh-body{padding-bottom:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="pvbanner">PREVIEW BUILD · ATRIUM MANAGEMENT HUB MENU — not yet wired into the live app</div>
+
+<div class="hmh-root">
+  <video class="hmh-bg" autoplay muted loop playsinline preload="auto" src="/haavn-black-bg.mp4"></video>
+  <div class="hmh-scrim"></div>
+
+  <div class="hmh-head">
+    <button class="mbtn" title="Back to ATRIUM" aria-label="Back to ATRIUM">
+      <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
+      <svg viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
+    </button>
+    <div class="hmh-brand">
+      <div class="wm"><b>ATRIUM</b></div>
+      <span class="tag">Management Hub</span>
+    </div>
+  </div>
+
+  <div class="hmh-body">
+    <div class="hmh-eyebrow">Integrated Management Platform</div>
+    <div class="hmh-wm">
+      <span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="#F3F2EE" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM
+    </div>
+    <div class="hmh-mgmt">Management Hub</div>
+    <p class="hmh-sub">Two pillars — the team's workflow and the weekly meeting — one unified command centre.</p>
+    <div class="hmh-faint">Strategic partnerships · Operational efficiency · Market intelligence</div>
+    <div class="hmh-rule"></div>
+
+    <div class="hmh-pillars">
+      <div class="hmh-ledbox">
+        <button class="hmh-pcard">
+          <div class="hmh-prow">
+            <span class="hmh-pnum">01</span>
+            <span class="hmh-papex"><svg viewBox="0 0 240 240"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>
+          </div>
+          <div>
+            <p class="hmh-psub">Tasks · Meeting CRM · Weekly agenda</p>
+            <h2 class="hmh-ptitle">ATRIUM Workflow</h2>
+          </div>
+          <div class="hmh-pline"></div>
+          <p class="hmh-pblurb">Every person's workspace — personal tasks and team boards, department workload and workflow groups, meeting recording with live Azure transcription, and the actions that flow straight into the Weekly Company Meeting.</p>
+          <span class="hmh-penter">Enter Pillar →</span>
+        </button>
+      </div>
+      <div class="hmh-ledbox b2">
+        <button class="hmh-pcard">
+          <div class="hmh-prow">
+            <span class="hmh-pnum">02</span>
+            <span class="hmh-papex"><svg viewBox="0 0 240 240"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>
+          </div>
+          <div>
+            <p class="hmh-psub">Agenda · Actions · Minutes · Weekly cadence</p>
+            <h2 class="hmh-ptitle">Meeting Management</h2>
+          </div>
+          <div class="hmh-pline"></div>
+          <p class="hmh-pblurb">The weekly rhythm of the business — the live Company Meeting agenda, action tracking, minutes and decisions, department leads and the Meeting Console, week to week.</p>
+          <span class="hmh-penter">Enter Pillar →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footbar">
+    <span class="wm"><svg viewBox="75 64 90 112" fill="none"><path d="M79.24 172 L120 68 L160.76 172" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg> ATRIUM</span>
+    <div class="div"></div>
+    <a href="#" style="background:#111;border:1px solid rgba(214,179,106,.45);color:#d6b36a">7EVEN.AU ↗</a>
+    <a href="#" style="background:#111;border:1px solid rgba(255,255,255,.15)">HAAVN.AU ↗</a>
+  </div>
+
+  <button class="hmh-logout" aria-label="Log Out">LOG<span class="ring-o" aria-hidden="true"></span></button>
+</div>
+
+</body>
+</html>
