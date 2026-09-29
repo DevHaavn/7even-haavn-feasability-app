@@ -8,6 +8,7 @@ import ProjectList, { BASE_PIN_KEY } from './pages/ProjectList'
 import AtriumZeroed from './pages/AtriumZeroed'
 import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated, type Company } from './pages/PasswordGate'
+import SplashScreen from './pages/SplashScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
@@ -46,6 +47,8 @@ export default function App() {
   const [homesCapitalOpen, setHomesCapitalOpen] = useState(!!saved.capital)
   const [manageOpen, setManageOpen] = useState(false)
   const [openAtriumOnLoad, setOpenAtriumOnLoad] = useState(false)
+  // The boot splash — plays once on every fresh load, ahead of the login/chooser.
+  const [showSplash, setShowSplash] = useState(true)
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
   // theme store so the one light/dark button in the topbar, Manage screen, and the
@@ -194,6 +197,8 @@ export default function App() {
     setDashboardBrand(null)
     setManageOpen(false)
   }
+
+  if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />
 
   if (!authed || (role === 'admin' && !company)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
 
