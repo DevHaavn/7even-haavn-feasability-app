@@ -40,7 +40,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
         {/* flipped vertically so the dash-draw (naturally clockwise from 3 o'clock)
             reads counter-clockwise on screen: right, up and over, left, under, right */}
         <g transform={`translate(0,${CY * 2}) scale(1,-1)`}>
-          <circle className="splash-ring" cx={CX} cy={CY} r={R} fill="none" stroke="#F3F2EE" strokeWidth="26" strokeLinecap="round" />
+          <circle className="splash-ring" cx={CX} cy={CY} r={R} fill="none" stroke="#F3F2EE" strokeWidth="13" strokeLinecap="round" />
         </g>
         <path d="M418.5 639 L511.5 385 L604.5 639" fill="none" stroke="#F3F2EE" strokeWidth="17" strokeLinejoin="miter" strokeLinecap="butt" />
       </svg>
