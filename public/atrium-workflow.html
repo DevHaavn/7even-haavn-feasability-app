@@ -144,8 +144,36 @@ td.tt{color:var(--ink);font-weight:500}
 .kcard b{display:block;color:var(--ink);font-weight:500;margin-bottom:4px}
 .kcard span{display:block;font-family:var(--mono);font-size:9px;color:var(--ink-3)}
 
+/* Team Board / Weekly Review / Workload — carried over from the old workflow tool */
+.deptbar{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px}
+.deptchip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.deptchip .cdot{width:7px;height:7px;border-radius:50%;flex:none}
+.deptchip.on{border-color:var(--ink);color:var(--ink);background:var(--pill);font-weight:600}
+.tboard{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:10px;overflow-x:auto;align-items:start}
+.tbcol-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tbcol-h .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
+.tbcol-h .n{font-family:var(--mono);font-size:9px;color:var(--ink-3);background:var(--pill);border-radius:100px;padding:1px 6px}
+.tbcard{background:var(--pill);border:1px solid var(--line-2);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer;font-size:12px}
+.tbcard b{display:block;color:var(--ink);font-weight:500;margin-bottom:8px;line-height:1.35}
+.tbcard .meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tbcard .av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 8px var(--mono);color:#fff;flex:none}
+.tbcard .due{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--ink-3)}
+.tbcard .star{color:var(--gold-deep)}
+.wr-group{margin-bottom:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--glass)}
+.wr-ghead{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line-2);font-size:13px;font-weight:500}
+.wr-ghead .cdot{width:8px;height:8px;border-radius:50%;flex:none}
+.wr-ghead .spacer{flex:1}
+.wr-ghead .n{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.wr-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line-2);font-size:12.5px}
+.wr-row:last-child{border-bottom:none}
+.wr-row .av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 8.5px var(--mono);color:#fff;flex:none}
+.wr-row .tt{flex:1;color:var(--ink);cursor:pointer}
+.load-bar{width:100px;height:6px;border-radius:100px;background:var(--pill);overflow:hidden}
+.load-bar i{display:block;height:100%;border-radius:100px}
+
 input,select,textarea{font-family:var(--sans);background:var(--pill);border:1px solid var(--line);border-radius:10px;
   color:var(--ink);padding:9px 12px;font-size:12.5px;outline:none;width:100%}
+input[type=checkbox],input[type=radio]{width:auto;flex:none;padding:0}
 input:focus,select:focus,textarea:focus{border-color:var(--gold)}
 label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -180,8 +208,16 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
       </button>
       <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
     </div>
-    <div class="rail-group">Workspace</div>
+    <div class="rail-group">My Workspace</div>
     <div class="rail-item" data-tab="overview" data-icon="overview">Overview</div>
+    <div class="rail-item" data-tab="myday" data-icon="calendar">My Day</div>
+    <div class="rail-item" data-tab="mytasks" data-icon="review">My Tasks<span class="n" id="cMyTasks">0</span></div>
+    <div class="rail-item" data-tab="myagenda" data-icon="calendar">My Weekly Agenda<span class="n" id="cMyAgenda">0</span></div>
+    <div class="rail-item" data-tab="mymeetings" data-icon="people">My Meetings</div>
+    <div class="rail-group">Team &amp; Departments</div>
+    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team Board</div>
+    <div class="rail-item" data-tab="workload" data-icon="people">Workload</div>
+    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly Review<span class="n" id="cWeekly">0</span></div>
     <div class="rail-group">HAAVN · Supply &amp; Development</div>
     <div class="rail-item" data-tab="partners" data-icon="people">Partner CRM<span class="n" id="cPartners">0</span></div>
     <div class="rail-item" data-tab="supply" data-icon="folder">Supply Pipeline<span class="n" id="cSupply">0</span></div>
@@ -255,6 +291,11 @@ var LISTS={
   customerTypes:['Management','Intelligence','Precision'],
   states:['Victoria','New South Wales','Queensland','South Australia','Western Australia','Tasmania','Australian Capital Territory','Northern Territory']
 };
+var DEPT_LABELS={company:'Company','7even':'7EVEN',haavn:'HAAVN',haavnmgmt:'HAAVN Management',admin:'Administration & Accounts'};
+function deptLabel(id){return DEPT_LABELS[id]||(id?(id.charAt(0).toUpperCase()+id.slice(1)):'—');}
+var AVATAR_COLORS=['#5b8def','#5aa87a','#93A267','#a179d8','#e0644f','#5aa8a8','#c77dbb'];
+function avatarColor(n){var c=0;n=n||'';for(var i=0;i<n.length;i++)c+=n.charCodeAt(i);return AVATAR_COLORS[c%AVATAR_COLORS.length];}
+var TASK_STATUS_COLS=[['todo','To do'],['doing','In progress'],['blocked','Blocked'],['review','In review'],['done','Done']];
 var BUYER_STAGES=['Enquiry','Consultation','Feasibility','Proposal','Reservation','Contract','Won','Lost'];
 var BUYER_PROB={Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0};
 var HOME_RANGE=['To be confirmed','SOLUM LINEA','SOLUM CUBE','HAVEN','FORMA','MAGNA','MAGNA PLUS','ESSENTIALS'];
@@ -272,11 +313,21 @@ function seedIfEmpty(){
     seeded=true;
     WS.actions=REAL_TASKS.map(function(t){
       return {id:uid(),title:t.title,owner:t.owner,due:_parseDue(t.due),priority:t.prio==='high'?'High':'Normal',
-        done:t.status==='done',context:null,meetingId:'',notes:t.desc||'',dept:t.dept,project:(t.project&&t.project!=='—')?t.project:'',
+        status:t.status||'todo',done:t.status==='done',context:null,meetingId:'',notes:t.desc||'',dept:t.dept,project:(t.project&&t.project!=='—')?t.project:'',
         created:nowIso(),completedAt:t.status==='done'?nowIso():null};
     });
     WS._seededActions=true;
   }
+  /* backfill: actions seeded before the Team Board carried only done/not-done —
+     restore the real todo/doing/blocked/done status from the same migrated
+     source data, matched by title, so nothing already live loses its column. */
+  var byTitle={}; REAL_TASKS.forEach(function(t){byTitle[t.title]=t;});
+  var backfilled=false;
+  WS.actions.forEach(function(a){
+    if(!a.status){ var src=byTitle[a.title]; a.status=src?(src.status||'todo'):(a.done?'done':'todo'); backfilled=true; }
+    if(a.weekly===undefined){ a.weekly=(a.project==='Weekly Meeting'); backfilled=true; }
+  });
+  if(backfilled) seeded=true;
   if(seeded) saveWS();
 }
 function _parseDue(d){
@@ -344,10 +395,16 @@ function renderRail(){
   document.getElementById('cSupply').textContent=WS.supplyProjects.filter(function(p){return !p.archived;}).length;
   document.getElementById('cBuyers').textContent=WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';}).length;
   document.getElementById('cActions').textContent=WS.actions.filter(function(a){return !a.done;}).length;
+  document.getElementById('cMyTasks').textContent=WS.actions.filter(function(a){return !a.done&&sameName(a.owner,ME());}).length;
+  document.getElementById('cMyAgenda').textContent=WS.actions.filter(function(a){return a.weekly&&!a.done&&sameName(a.owner,ME());}).length;
+  document.getElementById('cWeekly').textContent=WS.actions.filter(function(a){return a.weekly&&!a.done;}).length;
 }
 document.querySelectorAll('.rail-item').forEach(function(el){el.addEventListener('click',function(){TAB=el.dataset.tab;location.hash=TAB;renderRail();render();});});
 
-var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
+var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
+  myday:['My Day','MY WORKSPACE'],mytasks:['My Tasks','MY WORKSPACE'],myagenda:['My Weekly Agenda','MY WORKSPACE'],mymeetings:['My Meetings','MY WORKSPACE'],
+  teamboard:['Team Board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly Review','BRIDGE → MEETING MANAGEMENT'],
+  partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
   supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action Register','OWNERS · DUE DATES · PRIORITY'],
   meetings:['Meetings & Momentum','LINKED TO PILLAR 02'],brand:['Team & Operating Lists','BRAND & WORKSPACE']};
@@ -357,6 +414,13 @@ function render(){
   document.getElementById('tbSub').textContent=t[1];
   var v=document.getElementById('view');
   if(TAB==='overview') v.innerHTML=viewOverview();
+  else if(TAB==='myday') v.innerHTML=viewMyDay();
+  else if(TAB==='mytasks') v.innerHTML=viewMyTasks();
+  else if(TAB==='myagenda') v.innerHTML=viewMyAgenda();
+  else if(TAB==='mymeetings') v.innerHTML=viewMyMeetings();
+  else if(TAB==='teamboard') v.innerHTML=viewTeamBoard();
+  else if(TAB==='workload') v.innerHTML=viewWorkload();
+  else if(TAB==='weeklyreview') v.innerHTML=viewWeeklyReview();
   else if(TAB==='partners') v.innerHTML=viewPartners();
   else if(TAB==='supply') v.innerHTML=viewSupply();
   else if(TAB==='sales') v.innerHTML=viewSales();
@@ -617,29 +681,205 @@ function viewActions(){
   h+='</tbody></table></div>';
   return h;
 }
-function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.completedAt=a.done?nowIso():null;saveWS();render();}
-function openActionModal(id){
-  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:REAL_PEOPLE[0].name,due:today(),priority:'Normal',done:false,context:null,meetingId:'',notes:'',created:nowIso()};
+function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.status=a.done?'done':'todo';a.completedAt=a.done?nowIso():null;saveWS();render();}
+function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.id===id;});a.status=status;a.done=(status==='done');a.completedAt=a.done?nowIso():null;saveWS();render();}
+function openActionModal(id,prefillDept){
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:REAL_PEOPLE[0].name,due:today(),priority:'Normal',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
   var isNew=!id;
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  var allDepts=Object.keys(DEPT_LABELS); WS.actions.forEach(function(x){if(x.dept&&allDepts.indexOf(x.dept)<0)allDepts.push(x.dept);});
+  var deptOpts=allDepts.map(function(d){return '<option value="'+d+'" '+(a.dept===d?'selected':'')+'>'+deptLabel(d)+'</option>';}).join('');
+  var statusOpts=TASK_STATUS_COLS.map(function(s){return '<option value="'+s[0]+'" '+((a.status||'todo')===s[0]?'selected':'')+'>'+s[1]+'</option>';}).join('');
   var body='<h4>'+(isNew?'New action':'Edit action')+'</h4>'+
     '<label class="f">Title<input id="af_title" value="'+esc(a.title)+'"></label>'+
     '<div class="formgrid"><label class="f">Owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Department<select id="af_dept">'+deptOpts+'</select></label><label class="f">Status<select id="af_status">'+statusOpts+'</select></label></div>'+
     '<label class="f">Priority</label><div class="row" style="margin:4px 0 10px"><label style="margin-right:14px"><input type="radio" name="af_prio" value="Normal" '+(a.priority!=='High'?'checked':'')+' style="width:auto"> Normal</label><label><input type="radio" name="af_prio" value="High" '+(a.priority==='High'?'checked':'')+' style="width:auto"> High</label></div>'+
+    '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label>'+
     '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveAction(\''+a.id+'\','+isNew+')">Save action</button></div>';
   showModal(body);
 }
 function saveAction(id,isNew){
-  var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),priority:document.querySelector('input[name=af_prio]:checked').value,notes:val('af_notes')};
+  var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),dept:val('af_dept'),status:val('af_status'),
+    priority:document.querySelector('input[name=af_prio]:checked').value,weekly:document.getElementById('af_weekly').checked,notes:val('af_notes')};
+  v.done=(v.status==='done');
   if(!v.title.trim()){toast('Title is required');return;}
-  if(isNew===true||isNew==='true'){ WS.actions.push(Object.assign({id:id,done:false,context:null,meetingId:'',created:nowIso()},v)); }
-  else { var a=WS.actions.find(function(x){return x.id===id;}); Object.assign(a,v); }
+  if(isNew===true||isNew==='true'){ WS.actions.push(Object.assign({id:id,context:null,meetingId:'',created:nowIso()},v,{completedAt:v.done?nowIso():null})); }
+  else { var a=WS.actions.find(function(x){return x.id===id;}); Object.assign(a,v,{completedAt:v.done?(a.completedAt||nowIso()):null}); }
   saveWS(); closeModal(); render(); toast('Action saved');
+}
+
+/* ===================== Team Board (carried over from the old workflow tool) ===================== */
+var STATUS_COLOR={todo:'var(--ink-3)',doing:'var(--blue)',blocked:'var(--red)',review:'var(--gold-deep)',done:'var(--green)'};
+var DEPT_COLOR={company:'#8a9099','7even':'#5b8def',haavn:'#5aa87a',haavnmgmt:'#d8a54a',admin:'#a179d8'};
+function deptColor(d){return DEPT_COLOR[d]||'#8a9099';}
+function allKnownDepts(){var out=['company','7even','haavn','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
+  WS.actions.forEach(function(a){if(a.dept&&!seen[a.dept]){out.push(a.dept);seen[a.dept]=1;}});return out;}
+function viewTeamBoard(){
+  var deptFilter=window._tbDept||'';
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,\''+(deptFilter||'company')+'\')">+ New task</button></div>';
+  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">Live status of every task in the department — this is what gets reviewed, person by person, in the weekly meeting.</p>';
+  h+='<div class="deptbar">'+allKnownDepts().map(function(d){
+    var n=WS.actions.filter(function(a){return a.dept===d;}).length;
+    return '<div class="deptchip'+(deptFilter===d?' on':'')+'" onclick="window._tbDept=\''+(deptFilter===d?'':d)+'\';render()"><span class="cdot" style="background:'+deptColor(d)+'"></span>'+deptLabel(d)+' ('+n+')</div>';
+  }).join('')+'</div>';
+  var list=WS.actions.filter(function(a){return !deptFilter||a.dept===deptFilter;});
+  h+='<div class="tboard">'+TASK_STATUS_COLS.map(function(sc){
+    var items=list.filter(function(a){return (a.status||(a.done?'done':'todo'))===sc[0];});
+    return '<div class="kcol"><div class="tbcol-h"><span class="lbl" style="color:'+STATUS_COLOR[sc[0]]+'">'+sc[1]+'</span><span class="n">'+items.length+'</span></div>'+
+      (items.length?items.map(function(a){
+        return '<div class="tbcard" onclick="openActionModal(\''+a.id+'\')"><b>'+esc(a.title)+'</b><div class="meta">'+
+          '<span class="av" style="background:'+avatarColor(a.owner)+'">'+initials(a.owner)+'</span>'+
+          '<span class="chip">'+deptLabel(a.dept)+'</span>'+
+          (a.priority==='High'?'<span class="star">★</span>':'')+
+          (a.due?'<span class="due">'+esc(a.due)+'</span>':'')+
+        '</div></div>';
+      }).join(''):'<div class="empty" style="padding:14px 4px;font-size:10.5px">Nothing here.</div>')+
+    '</div>';
+  }).join('')+'</div>';
+  return h;
+}
+
+/* ===================== Workload ===================== */
+function viewWorkload(){
+  var h='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Who\'s carrying what — spot overloaded people and stalled work before the weekly review.</p>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Person</th><th>Department</th><th>Open</th><th>Overdue</th><th>Load</th><th>Done this week</th></tr></thead><tbody>';
+  var weekAgo=new Date(Date.now()-7*86400000).toISOString();
+  h+=REAL_PEOPLE.map(function(p){
+    var mine=WS.actions.filter(function(a){return sameName(a.owner,p.name);});
+    var open=mine.filter(function(a){return !a.done;}).length;
+    var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();}).length;
+    var doneWk=mine.filter(function(a){return a.done&&a.completedAt&&a.completedAt>weekAgo;}).length;
+    var pct=Math.min(100,open*12), col=open>=8?'var(--red)':open>=4?'var(--gold-deep)':'var(--green)';
+    return '<tr><td class="tt"><span style="display:inline-flex;align-items:center;gap:8px"><span class="av" style="display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;background:'+avatarColor(p.name)+';color:#fff;font:600 8px var(--mono)">'+initials(p.name)+'</span>'+esc(p.name)+'</span></td>'+
+      '<td><span class="chip">'+deptLabel(p.dept)+'</span></td><td>'+open+'</td><td>'+(overdue?('<span class="chip red">'+overdue+'</span>'):'0')+'</td>'+
+      '<td><div class="load-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div></td><td>'+doneWk+'</td></tr>';
+  }).join('');
+  h+='</tbody></table></div>';
+  return h;
+}
+
+/* ===================== Weekly Review (bridges into the Weekly Company Meeting) ===================== */
+function viewWeeklyReview(){
+  var flagged=WS.actions.filter(function(a){return a.weekly;});
+  var open=flagged.filter(function(a){return !a.done;});
+  var closed=flagged.filter(function(a){return a.done;});
+  var blocked=flagged.filter(function(a){return !a.done&&a.status==='blocked';});
+  var overdue=flagged.filter(function(a){return !a.done&&a.due&&a.due<today();});
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="syncWeeklyToMeeting()">→ Sync all to Weekly Meeting</button></div>';
+  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Every task flagged for the weekly meeting, grouped by department with live status. Sync pushes the open set straight into the Weekly Company Meeting agenda.</p>';
+  h+='<div class="grid4" style="margin-bottom:18px">'+stat(flagged.length,'On the agenda')+stat(closed.length+'/'+flagged.length,'Closed this week')+stat(blocked.length,'Blocked')+stat(overdue.length,'Overdue')+'</div>';
+  var byDept={}; open.forEach(function(a){(byDept[a.dept]=byDept[a.dept]||[]).push(a);});
+  var depts=Object.keys(byDept);
+  h+=depts.length?depts.map(function(d){
+    var items=byDept[d];
+    return '<div class="wr-group"><div class="wr-ghead"><span class="cdot" style="background:'+deptColor(d)+'"></span>'+deptLabel(d)+'<span class="spacer"></span><span class="n">'+items.filter(function(a){return a.done;}).length+'/'+items.length+' closed</span></div>'+
+      items.map(function(a){
+        var overdue2=!a.done&&a.due&&a.due<today();
+        return '<div class="wr-row"><input type="checkbox" onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"><span class="chip" style="color:'+STATUS_COLOR[a.status||'todo']+';border-color:currentColor">'+(TASK_STATUS_COLS.find(function(s){return s[0]===(a.status||'todo');})||['',''])[1]+'</span>'+
+          '<span class="tt" onclick="openActionModal(\''+a.id+'\')">'+esc(a.title)+'</span>'+
+          (a.priority==='High'?'<span class="star">★</span>':'')+
+          '<span style="font-family:var(--mono);font-size:10px;color:'+(overdue2?'var(--red)':'var(--ink-3)')+'">'+(a.due||'—')+'</span>'+
+          '<span class="av" style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 8px var(--mono);color:#fff;background:'+avatarColor(a.owner)+'">'+initials(a.owner)+'</span></div>';
+      }).join('')+
+    '</div>';
+  }).join(''):'<div class="empty">Nothing flagged for the weekly meeting yet — flag a task from the Action Register or Team Board.</div>';
+  return h;
+}
+function syncWeeklyToMeeting(){
+  var open=WS.actions.filter(function(a){return a.weekly&&!a.done;});
+  if(!open.length){toast('Nothing open is flagged for the weekly meeting');return;}
+  kvPull(MEET_KEY,{meetings:[]}).then(function(v){
+    v=v||{meetings:[]}; if(!v.meetings) v.meetings=[];
+    var m=v.meetings.find(function(x){return (!x.kind||x.kind==='weekly')&&!x.closed;});
+    if(!m){ m={id:'m'+Date.now(),date:today(),time:'08:30',chair:ME(),attendees:REAL_PEOPLE.filter(function(p){return !p.ext;}).map(function(p,i){return {id:i+1,name:p.name,email:p.email,role:p.role,present:true};}),
+      items:[],decisions:[],minutes:'',closed:false,kind:'weekly',title:'Weekly Company Meeting',targetSec:2700,recording:{active:false,startedAt:0}}; v.meetings.push(m); }
+    var existingTitles={}; (m.items||[]).forEach(function(it){existingTitles[it.title]=it;});
+    var added=0;
+    open.forEach(function(a){
+      if(existingTitles[a.title]) return;
+      m.items.push({id:(m.items.length?Math.max.apply(null,m.items.map(function(x){return x.id;}))+1:1),dept:a.dept||'company',status:'followup',title:a.title,
+        kind:'',assigneeId:'',owner:a.owner,due:a.due||'',discussed:false,notes:a.notes||'',carried:0,reviewers:[],files:[],subs:[],comments:[],
+        navContext:{kind:'action',id:a.id,label:a.title}});
+      added++;
+    });
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; render(); toast(added+' item(s) synced to the Weekly Company Meeting'); });
+  });
+}
+
+/* ===================== My Workspace ===================== */
+function viewMyDay(){
+  var mine=WS.actions.filter(function(a){return sameName(a.owner,ME());});
+  var dueToday=mine.filter(function(a){return !a.done&&a.due===today();});
+  var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();});
+  var next=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;}).sort(function(a,b){return a.date.localeCompare(b.date);})[0];
+  var h='<div class="grid4" style="margin-bottom:18px">'+stat(mine.filter(function(a){return !a.done;}).length,'My open tasks')+stat(dueToday.length,'Due today')+stat(overdue.length,'Overdue')+stat(next?fmtDateShort(next.date):'—','Next meeting')+'</div>';
+  h+='<div class="section-h"><h3>Due today</h3></div>'+renderActionList(dueToday.concat(overdue.filter(function(a){return dueToday.indexOf(a)<0;})));
+  return h;
+}
+function fmtDateShort(d){if(!d)return '—';var dt=new Date(d+'T00:00');return isNaN(dt)?d:dt.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
+function renderActionList(list){
+  if(!list.length) return '<div class="empty">Nothing here.</div>';
+  return '<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Dept</th><th>Due</th><th>Priority</th></tr></thead><tbody>'+
+    list.map(function(a){var overdue=!a.done&&a.due&&a.due<today();
+      return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
+        '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+'</td>'+
+        '<td><span class="chip">'+deptLabel(a.dept)+'</span></td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
+        '<td>'+(a.priority==='High'?'<span class="chip red">High</span>':'<span class="chip">Normal</span>')+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function viewMyTasks(){
+  var f=window._mtf||'open';
+  var mine=WS.actions.filter(function(a){return sameName(a.owner,ME());});
+  var list=mine.filter(function(a){if(f==='open')return !a.done;if(f==='overdue')return !a.done&&a.due&&a.due<today();if(f==='completed')return a.done;return true;});
+  var h='<div class="section-h">'+['open','overdue','completed','all'].map(function(x){return '<button class="btn sm'+(f===x?' gold':'')+'" onclick="window._mtf=\''+x+'\';render()">'+x[0].toUpperCase()+x.slice(1)+'</button>';}).join(' ')+
+    '<div class="spacer"></div><button class="btn gold" onclick="openActionModal()">+ New task</button></div>';
+  h+=renderActionList(list);
+  return h;
+}
+function viewMyAgenda(){
+  var mine=WS.actions.filter(function(a){return a.weekly&&sameName(a.owner,ME());});
+  var h='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Your own items flagged for the Weekly Company Meeting.</p>';
+  h+=renderActionList(mine);
+  h+='<div style="margin-top:14px"><button class="btn gold" onclick="syncWeeklyToMeeting()">→ Sync all to Weekly Meeting</button></div>';
+  return h;
+}
+function viewMyMeetings(){
+  var mine=(MEET_CACHE.meetings||[]).filter(function(m){return sameName(m.chair,ME())||(m.attendees||[]).some(function(a){return sameName(a.name,ME());});});
+  var open=mine.filter(function(m){return !m.closed;}), closed=mine.filter(function(m){return m.closed;});
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openNewMeetingModal()">+ New meeting</button></div>';
+  h+='<div class="section-h"><h3>Upcoming</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Role</th></tr></thead><tbody>';
+  h+=open.length?open.map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(sameName(m.chair,ME())?'<span class="chip gold">Chair</span>':'<span class="chip">Attendee</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing upcoming.</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="section-h"><h3>Past</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th></tr></thead><tbody>';
+  h+=closed.length?closed.slice(-8).reverse().map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td></tr>';}).join(''):'<tr><td colspan="2" class="empty">None yet.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+function openNewMeetingModal(){
+  var body='<h4>New meeting</h4>'+
+    '<label class="f">Meeting name<input id="nm_title" placeholder="e.g. Design review"></label>'+
+    '<div class="formgrid"><label class="f">Type<select id="nm_kind"><option value="internal">Internal</option><option value="external">External</option></select></label>'+
+    '<label class="f">Duration (min)<input id="nm_dur" type="number" value="30"></label></div>'+
+    '<div class="formgrid"><label class="f">Date<input id="nm_date" type="date" value="'+today()+'"></label><label class="f">Time<input id="nm_time" value="10:00"></label></div>'+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="commitNewMeeting()">Create meeting →</button></div>';
+  showModal(body);
+}
+function commitNewMeeting(){
+  var title=val('nm_title')||'Meeting', kindv=val('nm_kind'), dur=parseInt(val('nm_dur'))||30, date=val('nm_date'), time=val('nm_time');
+  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:[{id:1,name:ME(),email:'',role:'',present:true}],
+    items:[],decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
+    sections:[{id:'s1',name:'General',sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}],recording:{active:false,startedAt:0}};
+  kvPull(MEET_KEY,{meetings:[]}).then(function(v){
+    v=v||{meetings:[]}; if(!v.meetings) v.meetings=[]; v.meetings.push(m);
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('"'+title+'" created in Meeting Management'); });
+  });
 }
 
 /* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
 function ME(){return REAL_PEOPLE[0].name;}
+function sameName(a,b){return (a||'').trim().toLowerCase()===(b||'').trim().toLowerCase();}
 function sendToMeeting(kind,recId){
   var rec, label, ownerName;
   if(kind==='partner'){rec=WS.partners.find(function(x){return x.id===recId;});label=rec.company;ownerName=rec.owner;}
