@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ATRIUM · Workflow (Navigators)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   ATRIUM WORKFLOW — "Navigators" rebuild, pillar 01 preview
+   Functional shape follows ATRIUM-Navigators-Build.md (partner CRM, supply
+   pipeline, HAAVN Black sales, shared meetings/agenda/actions). Visual shell
+   is the canonical ATRIUM system from pillar 02 — black/bone/gold, one ring
+   mark, pill controls — not the brief's own carbon/chalk palette.
+   Seeded with the REAL current team + task list from atrium_workflow so
+   nothing already entered by the team is lost; Partners/Supply/Buyers start
+   empty, ready for real data, per the brief's own "no fixture data in
+   production" rule.
+   ============================================================================ */
+:root{
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --gold:#d6b36a; --gold-hi:#f4e3bd; --gold-deep:#8f6a25;
+  --green:#5aa87a; --blue:#5b8def; --red:#e0644f; --purple:#a179d8;
+}
+[data-theme="dark"]{
+  --bg0:#0B0D0F; --bg1:#101216; --ink:#F3F2EE; --ink-2:#b7b9bf; --ink-3:#7d818b; --ink-4:#565a63;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.055); --glass:rgba(24,26,32,.62); --pill:rgba(255,255,255,.045);
+}
+[data-theme="light"]{
+  --bg0:#eceae4; --bg1:#f4f2ec; --ink:#1a1b1e; --ink-2:#4a4d54; --ink-3:#83868e; --ink-4:#a7aab1;
+  --line:rgba(20,20,25,.10); --line-2:rgba(20,20,25,.06); --glass:rgba(255,255,255,.68); --pill:rgba(20,20,25,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+
+.pvbanner{position:fixed;top:0;left:0;right:0;z-index:900;text-align:center;padding:6px 10px;font:500 9.5px/1 var(--mono);
+  letter-spacing:.28em;text-transform:uppercase;color:#0B0D0F;background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
+
+.app{padding-top:30px;min-height:100%;display:flex}
+
+/* ---- sidebar ---- */
+.rail{width:230px;flex:none;background:var(--bg1);border-right:1px solid var(--line-2);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:30px;height:calc(100vh - 30px);overflow-y:auto}
+.rail-head{display:flex;align-items:center;gap:10px;padding:0 6px 18px}
+.mbtn{position:relative;width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--ink-4);color:var(--ink);
+  background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+.mbtn:hover{border-color:var(--gold);box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
+.mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.mbtn .halo circle{fill:none;stroke:var(--gold);stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.rail-wm{display:flex;align-items:center;font:100 15px/1 var(--sans);letter-spacing:.28em;padding-left:.28em}
+.rail-wm .a{display:block;width:.62em;height:.7em;margin-right:.28em;flex:none}
+.rail-wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+.rail-group{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-4);margin:16px 8px 8px}
+.rail-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:12.5px;color:var(--ink-2);transition:.18s}
+.rail-item:hover{background:var(--pill);color:var(--ink)}
+.rail-item.on{background:rgba(214,179,106,.1);color:var(--gold-hi)}
+.rail-item .n{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--ink-4);background:var(--pill);border-radius:100px;padding:1px 7px}
+
+.main{flex:1;min-width:0}
+.topbar{position:sticky;top:30px;z-index:80;background:rgba(11,13,15,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-2);
+  padding:14px 28px;display:flex;align-items:center;gap:14px}
+[data-theme="light"] .topbar{background:rgba(236,234,228,.86)}
+.tb-title{font:300 20px/1 var(--sans);color:#fff}
+[data-theme="light"] .tb-title{color:var(--ink)}
+.tb-sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-left:2px;padding-left:14px;border-left:1px solid var(--line)}
+.tb-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
+.seg button{border:none;background:transparent;color:var(--ink-3);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg0)}
+[data-theme="dark"] .seg button.on{background:rgba(255,255,255,.9);color:#000}
+
+.wrap{max-width:1320px;margin:0 auto;padding:24px 28px 90px}
+
+.btn{border-radius:999px;border:1px solid var(--ink-4);background:var(--pill);color:var(--ink);
+  font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--ink-2);background:rgba(255,255,255,.08)}
+.btn.gold{border-color:var(--gold);color:var(--gold-hi);background:rgba(214,179,106,.08)}
+.btn.gold:hover{background:rgba(214,179,106,.18);box-shadow:0 0 22px -10px rgba(214,179,106,.7)}
+.btn.sm{padding:6px 12px;font-size:9.5px}
+.btn:disabled{opacity:.35;cursor:default}
+
+.card{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:18px 20px;backdrop-filter:blur(14px)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+.stat b{display:block;font:300 30px var(--sans);color:#fff}
+[data-theme="light"] .stat b{color:var(--ink)}
+.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+
+.section-h{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
+.section-h h3{font:300 17px var(--sans);color:#fff}
+[data-theme="light"] .section-h h3{color:var(--ink)}
+.section-h .spacer{flex:1}
+
+.entrycard{border-radius:18px;border:1px solid var(--line);padding:22px;cursor:pointer;transition:.2s;background:var(--glass)}
+.entrycard:hover{border-color:var(--gold);box-shadow:0 0 30px -16px rgba(214,179,106,.6);transform:translateY(-2px)}
+.entrycard .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--gold-hi);text-transform:uppercase}
+.entrycard h2{font:300 26px var(--sans);color:#fff;margin:8px 0 12px}
+[data-theme="light"] .entrycard h2{color:var(--ink)}
+.entrycard .row{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.entrycard .row div span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
+.entrycard .row div b{font:300 20px var(--sans);color:#fff}
+[data-theme="light"] .entrycard .row div b{color:var(--ink)}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);text-transform:uppercase;white-space:nowrap}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--line-2);color:var(--ink-2);white-space:nowrap}
+tbody tr:hover{background:var(--pill);cursor:pointer}
+td.tt{color:var(--ink);font-weight:500}
+.tablewrap{border:1px solid var(--line);border-radius:16px;overflow:auto;background:var(--glass);max-height:520px}
+
+.chip{font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);display:inline-block}
+.chip.gold{color:var(--gold-hi);border-color:rgba(214,179,106,.45);background:rgba(214,179,106,.08)}
+.chip.green{color:var(--green);border-color:rgba(90,168,122,.4);background:rgba(90,168,122,.1)}
+.chip.red{color:var(--red);border-color:rgba(224,100,79,.4);background:rgba(224,100,79,.1)}
+.chip.blue{color:var(--blue);border-color:rgba(91,141,239,.4);background:rgba(91,141,239,.1)}
+.chip.ext{color:var(--purple);border-color:rgba(161,121,216,.4);background:rgba(161,121,216,.1)}
+
+.stagestrip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.stagechip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.stagechip .n{font-family:var(--mono);background:var(--pill);border-radius:100px;padding:1px 6px;font-size:9px}
+.stagechip.on{border-color:var(--gold);color:var(--gold-hi);background:rgba(214,179,106,.1)}
+
+.kanban{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto}
+.kcol{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:200px}
+.kcol h4{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;display:flex;justify-content:space-between}
+.kcard{background:var(--pill);border:1px solid var(--line-2);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer;font-size:11.5px}
+.kcard b{display:block;color:var(--ink);font-weight:500;margin-bottom:4px}
+.kcard span{display:block;font-family:var(--mono);font-size:9px;color:var(--ink-3)}
+
+input,select,textarea{font-family:var(--sans);background:var(--pill);border:1px solid var(--line);border-radius:10px;
+  color:var(--ink);padding:9px 12px;font-size:12.5px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.empty{padding:26px;text-align:center;color:var(--ink-3);font:400 12px var(--mono);letter-spacing:.08em}
+
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;opacity:0;pointer-events:none;transition:.25s;overflow-y:auto}
+.modalbg.on{opacity:1;pointer-events:auto}
+.modal{width:min(640px,100%);background:var(--bg1);border:1px solid var(--line);border-radius:20px;padding:24px}
+.modal h4{font:300 18px var(--sans);color:#fff;margin-bottom:16px}
+[data-theme="light"] .modal h4{color:var(--ink)}
+.modal .foot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.notelog{max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.notelog .n{background:var(--pill);border:1px solid var(--line-2);border-radius:10px;padding:8px 10px;font-size:12px}
+.notelog .n .m{font-family:var(--mono);font-size:8.5px;color:var(--ink-3);margin-top:4px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg0);padding:11px 20px;border-radius:100px;font-size:12.5px;font-weight:500;z-index:400;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:900px){.rail{position:fixed;left:0;top:30px;bottom:0;z-index:70;transform:translateX(-100%);transition:.3s}.rail.on{transform:none}
+  .kanban{grid-template-columns:repeat(3,minmax(170px,1fr))}}
+</style>
+</head>
+<body>
+
+<div class="pvbanner">PREVIEW BUILD · ATRIUM WORKFLOW (NAVIGATORS) — real team &amp; tasks preserved · not yet wired into the live hub</div>
+
+<div class="app">
+  <div class="rail" id="rail">
+    <div class="rail-head">
+      <button class="mbtn" onclick="toast('This preview stands alone — wired to the real Management Hub on go-live')" title="Back to hub">
+        <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
+        <svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
+      </button>
+      <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
+    </div>
+    <div class="rail-group">Workspace</div>
+    <div class="rail-item" data-tab="overview">Overview</div>
+    <div class="rail-group">HAAVN · Supply &amp; Development</div>
+    <div class="rail-item" data-tab="partners">Partner CRM<span class="n" id="cPartners">0</span></div>
+    <div class="rail-item" data-tab="supply">Supply Pipeline<span class="n" id="cSupply">0</span></div>
+    <div class="rail-group">HAAVN Black · Home Sales</div>
+    <div class="rail-item" data-tab="sales">Sales Pipeline<span class="n" id="cBuyers">0</span></div>
+    <div class="rail-item" data-tab="buyers">Home Buyers</div>
+    <div class="rail-group">Meetings &amp; Momentum</div>
+    <div class="rail-item" data-tab="actions">Action Register<span class="n" id="cActions">0</span></div>
+    <div class="rail-item" data-tab="meetings">Meetings</div>
+    <div class="rail-group">Brand &amp; Workspace</div>
+    <div class="rail-item" data-tab="brand">Team &amp; Lists</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="tbTitle">Overview</div>
+      <div class="tb-sub" id="tbSub">01 · ATRIUM WORKFLOW</div>
+      <div class="tb-right">
+        <div class="seg" id="themeSeg"><button data-t="dark">Dark</button><button data-t="light">Light</button></div>
+      </div>
+    </div>
+    <div class="wrap" id="view"></div>
+  </div>
+</div>
+
+<div class="modalbg" id="modalbg"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== real seed data (migrated from atrium_workflow — nothing lost) ===================== */
+var REAL_PEOPLE = [{"name": "jamie baldwin", "email": "jamie@7even.au", "dept": "company", "role": "Director", "ext": false}, {"name": "Daniel Sette", "email": "daniel@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "Lewis Jin", "email": "lewis@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "James Winstanley", "email": "james@haavn.au", "dept": "haavn", "role": "Manager", "ext": false}, {"name": "Callum Macdonald", "email": "callum@haavn.au", "dept": "haavn", "role": "BDM", "ext": false}, {"name": "Christina Witbreuk", "email": "christina@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "Domenic Paolilli", "email": "domenic@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "John Dimattina", "email": "john@haavn.au", "dept": "haavnmgmt", "role": "Manager", "ext": false}, {"name": "Jeffrey Witbreuk", "email": "jeffrey@haavn.au", "dept": "haavnmgmt", "role": "Construction Manager", "ext": false}, {"name": "James Maloney", "email": "jamesm@haavn.au", "dept": "haavnmgmt", "role": "Project Manager", "ext": false}, {"name": "Amy Baldwin", "email": "accounts@7even.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Dominika Ma", "email": "accounts@haavn.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Alessia Bresciano", "email": "reception@haavn.au", "dept": "admin", "role": "Receptionist", "ext": false}, {"name": "Callum Fraser", "email": "c.fraser@fraserandpartners.com", "dept": "haavn", "role": "Consultant", "ext": true}, {"name": "Lucas Menegazzo", "email": "l.menegazzo@fraserandpartners.com", "dept": "haavnmgmt", "role": "Consultant", "ext": true}, {"name": "Bonnie Zhao", "email": "bonnie@haavn.au", "dept": "haavn", "role": "Member", "ext": false}];
+var REAL_TASKS = [{"title": "China documents & financial structure progressing", "owner": "Jamie Baldwin", "dept": "admin", "status": "doing", "prio": "med", "due": "14 Aug", "desc": "Chase status with Lewis + legal.", "project": "Structure"}, {"title": "Prep 5IVE Caloundra feasibility sign-off", "owner": "Jamie Baldwin", "dept": "company", "status": "todo", "prio": "med", "due": "Mon 24 Aug", "desc": null, "project": "5IVE Hotels"}, {"title": "Melbourne display suite \u2014 filming day", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "low", "due": "28 Aug", "desc": null, "project": "Marketing"}, {"title": "Expense tracking & reimbursement cleanup", "owner": "Dominika Ma", "dept": "admin", "status": "todo", "prio": "low", "due": "25 Aug", "desc": null, "project": "Finance Ops"}, {"title": "DFP status update", "owner": "Daniel Sette", "dept": "7even", "status": "done", "prio": "low", "due": "10 Aug", "desc": null, "project": "DFP"}, {"title": "General updates \u2014 Homes & Sky", "owner": "James Winstanley", "dept": "haavn", "status": "done", "prio": "low", "due": "10 Aug", "desc": null, "project": "Homes"}, {"title": "Preston Modular Review", "owner": "Callum Macdonald", "dept": "haavn", "status": "done", "prio": "med", "due": "2026-08-12", "desc": "Review the modular division plan for Preston. Develop a scope for modular plans moving forward", "project": "\u2014"}, {"title": "Montessori Academy - Defects", "owner": "James Maloney", "dept": "7even", "status": "todo", "prio": "med", "due": "2026-08-17", "desc": "", "project": "\u2014"}, {"title": "TIS - Pulse Check", "owner": "James Maloney", "dept": "7even", "status": "todo", "prio": "med", "due": "2026-08-21", "desc": "", "project": "\u2014"}, {"title": "Weekly board meeting prep", "owner": "Alessia Bresciano", "dept": "7even", "status": "done", "prio": "high", "due": "2026-09-14", "desc": "Please have boardroom computer set up for Monday morning meeting.\nPlease organise 5 croissants or toasted sandwiches cut up for staff.", "project": "\u2014"}, {"title": "Boardroom Setup - ATRIUM", "owner": "Alessia Bresciano", "dept": "company", "status": "done", "prio": "high", "due": "2026-08-17", "desc": "Please make sure ATRIUM through google chrome is setup on all accounts HAAVN login and 7EVEN on both board rooms.", "project": "\u2014"}, {"title": "HAAVN + HM + CSC responsibility matrix", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "2026-08-19", "desc": "", "project": "\u2014"}, {"title": "Presentation Remotes", "owner": "Alessia Bresciano", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "Arrives Today", "project": "\u2014"}, {"title": "Investigate Prefab Council Australia", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Organize delivery of Solum Display Suite", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Haavn Modular Compliance Investigation", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Market and Competitor Analysis", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Risk Register", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Granny Flat Regional Summary", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Preston Design Review With Bonnie", "owner": "Callum Macdonald", "dept": "haavn", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Chrome - ATRIUM", "owner": "Alessia Bresciano", "dept": "company", "status": "done", "prio": "low", "due": "2026-09-08", "desc": "Have chrome downloaded on both Mac's in boardrooms.", "project": "\u2014"}, {"title": "Task 1. Verify supply availability of materials in exterior package", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "2026-09-24", "desc": "Sub-tasks:\n1.1 If any Chinese alternative materials are adopted, clearly specify substitutions.\n1.2 Arrange material samples if substitutions are made.", "project": "\u2014"}, {"title": "Gather Facade Options and Confirm Technical Facade Details", "owner": "Bonnie Zhao", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-09-30", "desc": "Gather the relevant facade options the factory has already delivered, provide as much detail on waterproofing, onsite installation as possible. \n\nFollow up with the factory regarding the Preston Facade design. Is this possible, what are the potential issues with the design. Provide any detail or required onsite works and joining details", "project": "\u2014"}, {"title": "Task 2. Assess impacts from increased tiled area", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "There is a significant increase in the tiled space\nCan we flag whether this is going to be an issue for:\nWeight (what is the total impact on the module weight)\nTransport and cracking issues", "project": "\u2014"}, {"title": "Task 3. Update Solum quotation based on new interior design", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "Can you please work with the China Team to update the Solum quote based on the new interiors\nWe want this ASAP\nPlease use the Quote format that I sent through to you\n(Obviously this is only one module)\nWe will supply appliance pricing to be included for our internal records (F&P). If you have pricing from the factory for standard appliances you can include this", "project": "\u2014"}, {"title": "Task 4. Confirm timeline for CAD / Solidworks drawings", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "Can you please check with the technical team for when they will complete the CAD/Solidworks drawings for this project\nWe will want a copy of these asap so we can use them to generate assets for launch\nWe will also review any of these sections with the architect to confirm the standard of finishing and detailing", "project": "\u2014"}, {"title": "Task 5. Check smart home compatibility of all appliances", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "We want all of the appliances to be able to be controlled with a singular home management application\nWe know that F&P and Haer are both compatible with the SmartHQ\nCan you please check that the other appliances and add ons are compatible (If not please flag)", "project": "\u2014"}, {"title": "Task 6 add a home security camera system", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "We want to add a home security camera system\nPlease include a price for three cameras living and two exteriors (one front one back ) in the quote\nFrom a design perspective we want these to be discrete dome style cameras", "project": "\u2014"}, {"title": "Task 6. Collect specification sheets for all appliances", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "Can you please check all appliances that will be supplied (including aircon, condensers and hot water systems\nPlease provide the specification sheets like the one that I sent earlier from the suppliers", "project": "\u2014"}, {"title": "General Updates, Homes and Sky", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "- Good meeting for Merrimu project 13/8, next steps to get HOA in place and get clarity on client budget\n- Tarneit project to have recut by LIFE arch, update modular proposal/price from there\n- Volume projects to have modules under 3.5m width\n", "project": "Weekly Meeting"}, {"title": "General Updates", "owner": "John Dimattina", "dept": "haavnmgmt", "status": "todo", "prio": "med", "due": "", "desc": "Conversation alliance clients it will be of course I'm talking about the job coming from the supply perspective development in the future if there is 100% traditional project it won't be meant so does that mean supply would be a client haavn management how does that dynamic work in the future there's a traditional we won't talk opportunity to your point to your point is that we're one internally haavn management is a separate business to haavn is a separate business James", "project": "Weekly Meeting"}, {"title": "Accounts Updates", "owner": "Lewis Jin", "dept": "finance", "status": "todo", "prio": "med", "due": "", "desc": "Saint James house make sure is worth two things for a couple of reasons so very high-level but I grip finances Lewis and potentially Dan as well Lewis if this wins we talking about what we're doing as a company in terms of you know we're obviously fundraising when we get big wins we always will tell you once be fun that'll be fun the project will bring the window to the table and loose can talk about stuff like that but in a high-level is at Dom's hotel I'll keep you updated but anything from a group perspective finance you want to discuss all so we'll go straight to admin", "project": "Weekly Meeting"}, {"title": "New capability doc", "owner": "jamie baldwin", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-09-16", "desc": "", "project": "Weekly Meeting"}, {"title": "WEEKLY UPDATE", "owner": "jamie baldwin", "dept": "company", "status": "todo", "prio": "med", "due": "2026-09-21", "desc": "", "project": "Weekly Meeting"}, {"title": "Check freight of Solum", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "2026-09-24", "desc": "", "project": "Weekly Meeting"}, {"title": "Claude integration with database", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-10-05", "desc": "", "project": "\u2014"}, {"title": "Solum FFE Brief for Launch", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "CRM and Pipeline HTML Brief for Atrium", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Design Brief Draft", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "MIP Draft for Preston", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Solum Studio Quotation Ongoing", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Design FAQ for Solum", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Path to Market Document", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Customer Documents and Processes", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Customer Flow Chart Review and Customer Facing Elements", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Solum Competitor Investigation", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Government Housing Grants and Programs Review", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Competitor Analysis Claude Set Up", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Modular Projects Tracker Claude Set Up", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Factory Briefing Documents", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}];
+
+/* ===================== cloud (capital_kv) — same project as the rest of ATRIUM ===================== */
+var SUPA_URL='https://vgvavmnqrdgcnledztyk.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10';
+var SUPA_H={apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+var NAV_KEY='nav_workspace_preview';
+/* the same store pillar 02's preview reads — so "send to meeting" here really
+   shows up in Meeting Management, and completed-meeting outcomes really sync back */
+var MEET_KEY='haavn_boardroom_v3_preview';
+
+function kvPull(key,fallback){
+  return fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+key+'&select=value',{headers:SUPA_H})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(rows){return (rows&&rows.length)?rows[0].value:fallback;})
+    .catch(function(){return fallback;});
+}
+function kvPush(key,value){
+  var body=[{key:key,value:value,updated_at:new Date().toISOString()}];
+  return fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates'}),body:JSON.stringify(body)}).catch(function(){});
+}
+
+/* ===================== operating lists (brief §12) ===================== */
+var LISTS={
+  partnerTypes:['Builder','Developer','Financier','Real Estate Agent','Architect / Designer','Supplier','Government / Council','Other'],
+  sources:['Referral','Inbound Enquiry','Industry Event','LinkedIn','Cold Outreach','Existing Relationship','Former Client','Other'],
+  partnerStages:['Identified','Contacted','Meeting Held','Proposal Sent','Negotiating','Active Project','Active Partner','On Hold','Not Proceeding'],
+  supplyStages:['Referral','Inquiry','Concept Stage','Plans Assessed','Plan Rework','CCIST Partition Completed','CCIST Priced','PIP in Progress','Confirmed Supply'],
+  serviceTypes:['Full Service','MIP and Supply','Supply only','TBD'],
+  assetTypes:['BTR','BTS','Multi-Res (Low Rise)','Multi-Res (Mid Rise)','Student Accommodation','Hotel','Mixed Use (Commercial)','Aged Care','Affordable Housing','Temporary Accommodation'],
+  customerTypes:['Management','Intelligence','Precision'],
+  states:['Victoria','New South Wales','Queensland','South Australia','Western Australia','Tasmania','Australian Capital Territory','Northern Territory']
+};
+var BUYER_STAGES=['Enquiry','Consultation','Feasibility','Proposal','Reservation','Contract','Won','Lost'];
+var BUYER_PROB={Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0};
+var HOME_RANGE=['To be confirmed','SOLUM LINEA','SOLUM CUBE','HAVEN','FORMA','MAGNA','MAGNA PLUS','ESSENTIALS'];
+
+/* ===================== workspace state ===================== */
+var WS={partners:[],supplyProjects:[],buyers:[],actions:[],activity:[],seq:1};
+var TAB=location.hash.replace('#','')||'overview';
+var _seq=1; function uid(){return 'n'+(_seq++)+'-'+Math.random().toString(36).slice(2,6);}
+function nowIso(){return new Date().toISOString();}
+function today(){return new Date().toISOString().slice(0,10);}
+
+function seedIfEmpty(){
+  var seeded=false;
+  if(!WS.actions.length && !WS._seededActions){
+    seeded=true;
+    WS.actions=REAL_TASKS.map(function(t){
+      return {id:uid(),title:t.title,owner:t.owner,due:_parseDue(t.due),priority:t.prio==='high'?'High':'Normal',
+        done:t.status==='done',context:null,meetingId:'',notes:t.desc||'',dept:t.dept,project:(t.project&&t.project!=='—')?t.project:'',
+        created:nowIso(),completedAt:t.status==='done'?nowIso():null};
+    });
+    WS._seededActions=true;
+  }
+  if(seeded) saveWS();
+}
+function _parseDue(d){
+  if(!d) return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  return m?d:'';
+}
+
+function boot(){
+  Promise.all([kvPull(NAV_KEY,null), kvPull(MEET_KEY,{meetings:[]})]).then(function(r){
+    if(r[0]){ WS=r[0]; if(!WS.seq) WS.seq=1; }
+    MEET_CACHE=r[1]||{meetings:[]};
+    seedIfEmpty();
+    renderRail(); render();
+    setInterval(pollMeetings,6000);
+    document.getElementById('themeSeg').addEventListener('click',function(e){
+      var b=e.target.closest('[data-t]'); if(!b) return;
+      document.documentElement.setAttribute('data-theme',b.dataset.t);
+      seg(); try{localStorage.setItem('atrium_theme',b.dataset.t);}catch(e){}
+    });
+    try{var th=localStorage.getItem('atrium_theme'); if(th) document.documentElement.setAttribute('data-theme',th);}catch(e){}
+    seg();
+  });
+}
+function seg(){var t=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('#themeSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});}
+function saveWS(){kvPush(NAV_KEY,WS);}
+
+var MEET_CACHE={meetings:[]};
+function pollMeetings(){
+  kvPull(MEET_KEY,null).then(function(v){
+    if(!v) return;
+    var prevIds=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;}).map(function(m){return m.id;});
+    MEET_CACHE=v;
+    syncCompletedMeetings();
+    if(TAB==='meetings'||TAB==='overview') render();
+  });
+}
+
+/* ===================== router ===================== */
+function renderRail(){
+  document.querySelectorAll('.rail-item').forEach(function(el){el.classList.toggle('on',el.dataset.tab===TAB);});
+  document.getElementById('cPartners').textContent=WS.partners.filter(function(p){return !p.archived;}).length;
+  document.getElementById('cSupply').textContent=WS.supplyProjects.filter(function(p){return !p.archived;}).length;
+  document.getElementById('cBuyers').textContent=WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';}).length;
+  document.getElementById('cActions').textContent=WS.actions.filter(function(a){return !a.done;}).length;
+}
+document.querySelectorAll('.rail-item').forEach(function(el){el.addEventListener('click',function(){TAB=el.dataset.tab;location.hash=TAB;renderRail();render();});});
+
+var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
+  supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
+  buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action Register','OWNERS · DUE DATES · PRIORITY'],
+  meetings:['Meetings & Momentum','LINKED TO PILLAR 02'],brand:['Team & Operating Lists','BRAND & WORKSPACE']};
+function render(){
+  var t=TITLES[TAB]||['',''];
+  document.getElementById('tbTitle').textContent=t[0];
+  document.getElementById('tbSub').textContent=t[1];
+  var v=document.getElementById('view');
+  if(TAB==='overview') v.innerHTML=viewOverview();
+  else if(TAB==='partners') v.innerHTML=viewPartners();
+  else if(TAB==='supply') v.innerHTML=viewSupply();
+  else if(TAB==='sales') v.innerHTML=viewSales();
+  else if(TAB==='buyers') v.innerHTML=viewBuyers();
+  else if(TAB==='actions') v.innerHTML=viewActions();
+  else if(TAB==='meetings') v.innerHTML=viewMeetings();
+  else if(TAB==='brand') v.innerHTML=viewBrand();
+  renderRail();
+}
+window.addEventListener('hashchange',function(){TAB=location.hash.replace('#','')||'overview';render();});
+
+/* ===================== calculations (brief §6/§7) ===================== */
+function openSupply(){return WS.supplyProjects.filter(function(p){return !p.archived && p.stage!=='Confirmed Supply';});}
+function openSupplyValue(){return openSupply().reduce(function(s,p){return s+(+p.orderValue||0);},0);}
+function weightedSupply(){var missing=0,sum=0;openSupply().forEach(function(p){if(p.certainty==null){missing++;}else{sum+=(+p.orderValue||0)*(+p.certainty/100);}});return {sum:sum,missing:missing};}
+function modulesInPipeline(){return openSupply().reduce(function(s,p){return s+(+p.modules||0);},0);}
+function confirmedSupply(){return WS.supplyProjects.filter(function(p){return !p.archived&&p.stage==='Confirmed Supply';}).reduce(function(s,p){return s+(+p.orderValue||0);},0);}
+function openBuyers(){return WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';});}
+function weightedSales(){return openBuyers().reduce(function(s,b){return s+(+b.value||0)*(+b.probability||0)/100;},0);}
+function fmtM(n){return '$'+Math.round(n||0).toLocaleString('en-AU');}
+function overdueActions(){var t=today();return WS.actions.filter(function(a){return !a.done&&a.due&&a.due<t;});}
+
+/* ===================== Overview ===================== */
+function viewOverview(){
+  var openMeetings=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;});
+  var h='<div class="grid2">'+
+    '<div class="entrycard" onclick="goTab(\'partners\')"><div class="tag">HAAVN · Supply &amp; Development</div><h2>Partners &amp; Supply</h2>'+
+      '<div class="row"><div><span>Open supply</span><b>'+fmtM(openSupplyValue())+'</b></div><div><span>Weighted</span><b>'+fmtM(weightedSupply().sum)+'</b></div><div><span>Partners</span><b>'+WS.partners.filter(function(p){return !p.archived;}).length+'</b></div></div></div>'+
+    '<div class="entrycard" onclick="goTab(\'sales\')"><div class="tag">HAAVN Black · Home Sales</div><h2>Buyers &amp; Sales</h2>'+
+      '<div class="row"><div><span>Open opportunities</span><b>'+openBuyers().length+'</b></div><div><span>Weighted sales</span><b>'+fmtM(weightedSales())+'</b></div><div><span>Won (all time)</span><b>'+WS.buyers.filter(function(b){return b.stage==='Won';}).length+'</b></div></div></div>'+
+  '</div>';
+  h+='<div class="grid4" style="margin-top:16px">'+
+    stat(overdueActions().length,'Overdue actions')+stat(WS.actions.filter(function(a){return !a.done;}).length,'Open actions')+
+    stat(openMeetings.length,'Meetings open')+stat(WS.partners.filter(function(p){return p.nextActionDate&&p.nextActionDate<today();}).length,'Partners needing attention')+
+  '</div>';
+  h+='<div class="section-h"><h3>Records needing attention</h3></div><div class="tablewrap"><table><thead><tr><th>Record</th><th>Type</th><th>Next action</th><th>Due</th></tr></thead><tbody>';
+  var rows=[];
+  WS.partners.forEach(function(p){if(!p.archived&&p.nextActionDate&&p.nextActionDate<today())rows.push([p.company,'Partner',p.nextAction,p.nextActionDate]);});
+  WS.supplyProjects.forEach(function(p){if(!p.archived&&p.nextActionDate&&p.nextActionDate<today())rows.push([p.address,'Supply',p.nextAction,p.nextActionDate]);});
+  WS.buyers.forEach(function(b){if(b.stage!=='Won'&&b.stage!=='Lost'&&b.nextDue&&b.nextDue<today())rows.push([b.name,'Buyer',b.nextAction,b.nextDue]);});
+  h+=rows.length?rows.map(function(r){return '<tr><td class="tt">'+esc(r[0])+'</td><td>'+r[1]+'</td><td>'+esc(r[2]||'—')+'</td><td>'+esc(r[3])+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">Nothing overdue.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+function stat(n,l){return '<div class="card stat"><b>'+n+'</b><span>'+l+'</span></div>';}
+function goTab(t){TAB=t;location.hash=t;render();}
+
+/* ===================== Partners (HAAVN) ===================== */
+function viewPartners(){
+  var q=(window._pq||'').toLowerCase();
+  var list=WS.partners.filter(function(p){return !p.archived && (!q || (p.company+' '+p.contactName+' '+p.notes).toLowerCase().indexOf(q)>=0);});
+  var h='<div class="section-h"><input style="max-width:280px" placeholder="Search partners…" value="'+esc(window._pq||'')+'" oninput="window._pq=this.value;render()"><div class="spacer"></div><button class="btn gold" onclick="openPartnerModal()">+ New partner</button></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Type</th><th>Stage</th><th>Owner</th><th>Value</th><th>Next action</th><th>Projects</th></tr></thead><tbody>';
+  h+=list.length?list.map(function(p){
+    var linked=WS.supplyProjects.filter(function(sp){return sp.partnerId===p.id;}).length;
+    return '<tr onclick="openPartnerModal(\''+p.id+'\')"><td class="tt">'+esc(p.company)+'</td><td>'+esc(p.contactName)+'</td><td><span class="chip">'+esc(p.partnerType)+'</span></td>'+
+      '<td><span class="chip gold">'+esc(p.stage)+'</span></td><td>'+esc(p.owner)+'</td><td>'+fmtM(p.value)+'</td><td>'+esc(p.nextAction||'—')+(p.nextActionDate?' · '+esc(p.nextActionDate):'')+'</td><td>'+linked+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">No partners yet — add the first HAAVN supplier/developer relationship.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+function openPartnerModal(id){
+  var p=id?WS.partners.find(function(x){return x.id===id;}):{id:uid(),company:'',contactName:'',role:'',phone:'',email:'',partnerType:LISTS.partnerTypes[0],source:LISTS.sources[0],stage:LISTS.partnerStages[0],region:'',value:0,timeToOrder:'',sector:'',projects:[],nextAction:'',nextActionDate:'',owner:REAL_PEOPLE[0].name,notes:'',marketingOptOut:false,contactLog:[],archived:false,createdAt:nowIso(),updatedAt:nowIso()};
+  var isNew=!id;
+  var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(p.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  var linked=isNew?[]:WS.supplyProjects.filter(function(sp){return sp.partnerId===p.id;});
+  var body='<h4>'+(isNew?'New partner':esc(p.company)||'Partner')+'</h4>'+
+    '<div class="formgrid"><label class="f">Company<input id="pf_company" value="'+esc(p.company)+'"></label><label class="f">Contact name<input id="pf_contact" value="'+esc(p.contactName)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Role<input id="pf_role" value="'+esc(p.role)+'"></label><label class="f">Owner<select id="pf_owner">'+ownerOpts+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Phone<input id="pf_phone" value="'+esc(p.phone)+'"></label><label class="f">Email<input id="pf_email" value="'+esc(p.email)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Partner type<select id="pf_type">'+LISTS.partnerTypes.map(function(t){return '<option '+(p.partnerType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label>'+
+    '<label class="f">Stage<select id="pf_stage">'+LISTS.partnerStages.map(function(t){return '<option '+(p.stage===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Region<input id="pf_region" value="'+esc(p.region)+'"></label><label class="f">Sector<input id="pf_sector" value="'+esc(p.sector)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Potential value (AUD)<input id="pf_value" type="number" value="'+(p.value||0)+'"></label><label class="f">Time to order<input id="pf_tto" value="'+esc(p.timeToOrder)+'" placeholder="e.g. Q1 2027"></label></div>'+
+    '<div class="formgrid"><label class="f">Next action<input id="pf_naction" value="'+esc(p.nextAction)+'"></label><label class="f">Next action date<input id="pf_ndate" type="date" value="'+esc(p.nextActionDate)+'"></label></div>'+
+    '<label class="f">Notes<textarea id="pf_notes" rows="2">'+esc(p.notes)+'</textarea></label>'+
+    (isNew?'':'<label class="f">Log a conversation<div style="display:flex;gap:8px"><input id="pf_lognote" placeholder="What was discussed…"/><button type="button" class="btn sm" onclick="logPartnerNote(\''+p.id+'\')">Log</button></div></label>'+
+      '<div class="notelog">'+(p.contactLog||[]).slice().reverse().map(function(n){return '<div class="n">'+esc(n.text)+'<div class="m">'+esc(n.author)+' · '+esc(n.date)+'</div></div>';}).join('')+'</div>'+
+      (linked.length?('<label class="f">Linked supply projects</label>'+linked.map(function(sp){return '<div class="chip" style="margin:2px 4px 2px 0">'+esc(sp.address)+' · '+esc(sp.stage)+'</div>';}).join(''))+'</div>':'')+
+      '<div class="foot" style="justify-content:flex-start"><button type="button" class="btn sm gold" onclick="createSupplyFromPartner(\''+p.id+'\')">+ Create supply project</button>'+
+      '<button type="button" class="btn sm" onclick="sendToMeeting(\'partner\',\''+p.id+'\')">Send to meeting →</button>'+
+      '<button type="button" class="btn sm" onclick="archivePartner(\''+p.id+'\')">Archive</button></div>')+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="savePartner(\''+p.id+'\','+isNew+')">Save partner</button></div>';
+  showModal(body);
+}
+function savePartner(id,isNew){
+  var v={company:val('pf_company'),contactName:val('pf_contact'),role:val('pf_role'),owner:val('pf_owner'),phone:val('pf_phone'),email:val('pf_email'),
+    partnerType:val('pf_type'),stage:val('pf_stage'),region:val('pf_region'),sector:val('pf_sector'),value:parseFloat(val('pf_value'))||0,
+    timeToOrder:val('pf_tto'),nextAction:val('pf_naction'),nextActionDate:val('pf_ndate'),notes:val('pf_notes')};
+  if(!v.company.trim()){toast('Company name is required');return;}
+  if(isNew===true||isNew==='true'){
+    WS.partners.push(Object.assign({id:id,projects:[],marketingOptOut:false,contactLog:[],archived:false,createdAt:nowIso()},v,{updatedAt:nowIso()}));
+  } else {
+    var p=WS.partners.find(function(x){return x.id===id;}); Object.assign(p,v,{updatedAt:nowIso()});
+    WS.supplyProjects.filter(function(sp){return sp.partnerId===id;}).forEach(function(sp){sp.client=v.company;});
+  }
+  saveWS(); closeModal(); render(); toast('Partner saved');
+}
+function logPartnerNote(id){
+  var v=(document.getElementById('pf_lognote').value||'').trim(); if(!v) return;
+  var p=WS.partners.find(function(x){return x.id===id;});
+  p.contactLog.push({id:uid(),date:today(),author:ME(),text:v}); p.updatedAt=nowIso(); saveWS(); openPartnerModal(id);
+}
+function archivePartner(id){var p=WS.partners.find(function(x){return x.id===id;});p.archived=true;saveWS();closeModal();render();toast('Partner archived — reversible');}
+function createSupplyFromPartner(pid){
+  var p=WS.partners.find(function(x){return x.id===pid;});
+  closeModal();
+  openSupplyModal(null,{partnerId:p.id,client:p.company,owner:p.owner});
+}
+
+/* ===================== Supply (HAAVN) ===================== */
+function viewSupply(){
+  var filterStage=window._sstage||'';
+  var list=WS.supplyProjects.filter(function(p){return !p.archived && (!filterStage||p.stage===filterStage);});
+  var h='<div class="grid4">'+stat(fmtM(openSupplyValue()),'Open supply value')+stat(fmtM(weightedSupply().sum)+(weightedSupply().missing?(' <span style="font-size:11px;color:var(--ink-3)">('+weightedSupply().missing+' unscored)</span>'):''),'Weighted supply')+
+    stat(modulesInPipeline(),'Modules in pipeline')+stat(fmtM(confirmedSupply()),'Confirmed supply')+'</div>';
+  h+='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openSupplyModal()">+ New supply project</button></div>';
+  h+='<div class="stagestrip">'+['',].concat(LISTS.supplyStages).map(function(s){
+    var n=s?WS.supplyProjects.filter(function(p){return !p.archived&&p.stage===s;}).length:WS.supplyProjects.filter(function(p){return !p.archived;}).length;
+    return '<div class="stagechip'+(filterStage===s?' on':'')+'" onclick="window._sstage=\''+s+'\';render()">'+(s||'All')+' <span class="n">'+n+'</span></div>';
+  }).join('')+'</div>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Address</th><th>Client</th><th>Stage</th><th>Order value</th><th>Modules</th><th>Certainty</th><th>Owner</th><th>Next action</th></tr></thead><tbody>';
+  h+=list.length?list.map(function(p){
+    return '<tr onclick="openSupplyModal(\''+p.id+'\')"><td class="tt">'+esc(p.address)+'</td><td>'+esc(p.client)+'</td><td><span class="chip gold">'+esc(p.stage)+'</span></td>'+
+      '<td>'+fmtM(p.orderValue)+'</td><td>'+ (p.modules||0) +'</td><td>'+(p.certainty==null?'<span class="chip">Unknown</span>':p.certainty+'%')+'</td><td>'+esc(p.owner)+'</td><td>'+esc(p.nextAction||'—')+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">No supply projects yet.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+function openSupplyModal(id,prefill){
+  var p=id?WS.supplyProjects.find(function(x){return x.id===id;}):Object.assign({id:uid(),address:'',city:'',state:LISTS.states[0],assetTypes:[],partnerId:'',client:'',customerType:LISTS.customerTypes[0],permitStatus:'',orderValue:0,modules:0,stories:1,architect:'',serviceType:LISTS.serviceTypes[0],stage:LISTS.supplyStages[0],nextAction:'',nextActionDate:'',certainty:null,owner:REAL_PEOPLE[0].name,notes:'',archived:false,createdAt:nowIso(),updatedAt:nowIso()},prefill||{});
+  var isNew=!id;
+  var partnerOpts='<option value="">— unlinked —</option>'+WS.partners.filter(function(x){return !x.archived;}).map(function(x){return '<option value="'+x.id+'" '+(p.partnerId===x.id?'selected':'')+'>'+esc(x.company)+'</option>';}).join('');
+  var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(p.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  var body='<h4>'+(isNew?'New supply project':esc(p.address)||'Supply project')+'</h4>'+
+    '<div class="formgrid"><label class="f">Address / project name<input id="sf_address" value="'+esc(p.address)+'"></label><label class="f">Client<input id="sf_client" value="'+esc(p.client)+'" '+(p.partnerId?'disabled':'')+'></label></div>'+
+    '<div class="formgrid"><label class="f">Linked partner<select id="sf_partner">'+partnerOpts+'</select></label><label class="f">Owner<select id="sf_owner">'+ownerOpts+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">City<input id="sf_city" value="'+esc(p.city)+'"></label><label class="f">State<select id="sf_state">'+LISTS.states.map(function(s){return '<option '+(p.state===s?'selected':'')+'>'+s+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Order value (AUD)<input id="sf_value" type="number" value="'+(p.orderValue||0)+'"></label><label class="f">Certainty % (blank = unknown)<input id="sf_certainty" type="number" min="0" max="100" value="'+(p.certainty==null?'':p.certainty)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Modules<input id="sf_modules" type="number" value="'+(p.modules||0)+'"></label><label class="f">Stories<input id="sf_stories" type="number" value="'+(p.stories||1)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Customer type<select id="sf_ctype">'+LISTS.customerTypes.map(function(t){return '<option '+(p.customerType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label>'+
+    '<label class="f">Service type<select id="sf_stype">'+LISTS.serviceTypes.map(function(t){return '<option '+(p.serviceType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Stage<select id="sf_stage">'+LISTS.supplyStages.map(function(t){return '<option '+(p.stage===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label><label class="f">Architect<input id="sf_arch" value="'+esc(p.architect)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Next action<input id="sf_naction" value="'+esc(p.nextAction)+'"></label><label class="f">Next action date<input id="sf_ndate" type="date" value="'+esc(p.nextActionDate)+'"></label></div>'+
+    '<label class="f">Notes<textarea id="sf_notes" rows="2">'+esc(p.notes)+'</textarea></label>'+
+    (isNew?'':'<div class="foot" style="justify-content:flex-start"><button type="button" class="btn sm" onclick="sendToMeeting(\'project\',\''+p.id+'\')">Send to meeting →</button><button type="button" class="btn sm" onclick="archiveSupply(\''+p.id+'\')">Archive</button></div>')+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveSupply(\''+p.id+'\','+isNew+')">Save project</button></div>';
+  showModal(body);
+  document.getElementById('sf_partner').addEventListener('change',function(){var pid=this.value;var partner=WS.partners.find(function(x){return x.id===pid;});var ci=document.getElementById('sf_client');if(partner){ci.value=partner.company;ci.disabled=true;}else{ci.disabled=false;}});
+}
+function saveSupply(id,isNew){
+  var partnerId=val('sf_partner');
+  var partner=WS.partners.find(function(x){return x.id===partnerId;});
+  var certRaw=val('sf_certainty');
+  var v={address:val('sf_address'),client:partner?partner.company:val('sf_client'),partnerId:partnerId,city:val('sf_city'),state:val('sf_state'),
+    orderValue:parseFloat(val('sf_value'))||0,certainty:certRaw===''?null:Math.max(0,Math.min(100,parseFloat(certRaw))),
+    modules:parseInt(val('sf_modules'))||0,stories:parseInt(val('sf_stories'))||1,customerType:val('sf_ctype'),serviceType:val('sf_stype'),
+    stage:val('sf_stage'),architect:val('sf_arch'),owner:val('sf_owner'),nextAction:val('sf_naction'),nextActionDate:val('sf_ndate'),notes:val('sf_notes')};
+  if(!v.address.trim()){toast('Address / project name is required');return;}
+  if(isNew===true||isNew==='true'){
+    WS.supplyProjects.push(Object.assign({id:id,assetTypes:[],permitStatus:'',archived:false,createdAt:nowIso()},v,{updatedAt:nowIso()}));
+  } else {
+    var p=WS.supplyProjects.find(function(x){return x.id===id;}); Object.assign(p,v,{updatedAt:nowIso()});
+  }
+  saveWS(); closeModal(); render(); toast('Supply project saved');
+}
+function archiveSupply(id){var p=WS.supplyProjects.find(function(x){return x.id===id;});p.archived=true;saveWS();closeModal();render();toast('Project archived — reversible');}
+
+/* ===================== Sales pipeline (HAAVN Black) ===================== */
+function viewSales(){
+  var cols=BUYER_STAGES.slice(0,6);
+  var h='<div class="grid4">'+stat(openBuyers().length,'Open opportunities')+stat(fmtM(openBuyers().reduce(function(s,b){return s+(+b.value||0);},0)),'Open pipeline value')+
+    stat(fmtM(weightedSales()),'Weighted sales')+stat(WS.buyers.filter(function(b){return b.stage==='Won';}).length,'Won')+'</div>';
+  h+='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openBuyerModal()">+ New buyer</button>'+
+    '<button class="btn sm" onclick="window._salesview=\'won\';render()">Won</button><button class="btn sm" onclick="window._salesview=\'lost\';render()">Lost</button>'+
+    (window._salesview?'<button class="btn sm" onclick="window._salesview=null;render()">← Board</button>':'')+'</div>';
+  if(window._salesview){
+    var list=WS.buyers.filter(function(b){return b.stage===(window._salesview==='won'?'Won':'Lost');});
+    h+='<div class="tablewrap"><table><thead><tr><th>Buyer</th><th>Home</th><th>Value</th><th>Owner</th><th>Close date</th></tr></thead><tbody>';
+    h+=list.length?list.map(function(b){return '<tr onclick="openBuyerModal(\''+b.id+'\')"><td class="tt">'+esc(b.name)+'</td><td>'+esc(b.home)+'</td><td>'+fmtM(b.value)+'</td><td>'+esc(b.owner)+'</td><td>'+esc(b.closeDate||'—')+'</td></tr>';}).join(''):'<tr><td colspan="5" class="empty">None yet.</td></tr>';
+    h+='</tbody></table></div>';
+    return h;
+  }
+  h+='<div class="kanban">'+cols.map(function(s){
+    var items=WS.buyers.filter(function(b){return b.stage===s;});
+    return '<div class="kcol"><h4>'+s+'<span>'+items.length+'</span></h4>'+items.map(function(b){
+      return '<div class="kcard" onclick="openBuyerModal(\''+b.id+'\')"><b>'+esc(b.name)+'</b><span>'+esc(b.home)+'</span><span>'+fmtM(b.value)+' · '+b.probability+'%</span></div>';
+    }).join('')+'</div>';
+  }).join('')+'</div>';
+  return h;
+}
+function openBuyerModal(id){
+  var b=id?WS.buyers.find(function(x){return x.id===id;}):{id:uid(),name:'',brand:'HAAVN Black',home:HOME_RANGE[0],suburb:'',stage:'Enquiry',value:0,probability:BUYER_PROB['Enquiry'],owner:REAL_PEOPLE[0].name,source:LISTS.sources[0],email:'',phone:'',nextAction:'',nextDue:'',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]};
+  var isNew=!id;
+  var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(b.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  var body='<h4>'+(isNew?'New buyer':esc(b.name)||'Buyer')+'</h4>'+
+    '<div class="formgrid"><label class="f">Buyer / household<input id="bf_name" value="'+esc(b.name)+'"></label><label class="f">Home<select id="bf_home">'+HOME_RANGE.map(function(h){return '<option '+(b.home===h?'selected':'')+'>'+h+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Suburb<input id="bf_suburb" value="'+esc(b.suburb)+'"></label><label class="f">Owner<select id="bf_owner">'+ownerOpts+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Stage<select id="bf_stage" onchange="document.getElementById(\'bf_prob\').value=({Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0})[this.value]">'+BUYER_STAGES.map(function(s){return '<option '+(b.stage===s?'selected':'')+'>'+s+'</option>';}).join('')+'</select></label>'+
+    '<label class="f">Probability %<input id="bf_prob" type="number" value="'+(b.probability||0)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Value (AUD)<input id="bf_value" type="number" value="'+(b.value||0)+'"></label><label class="f">Source<select id="bf_source">'+LISTS.sources.map(function(s){return '<option '+(b.source===s?'selected':'')+'>'+s+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Email<input id="bf_email" value="'+esc(b.email)+'"></label><label class="f">Phone<input id="bf_phone" value="'+esc(b.phone)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Next action<input id="bf_naction" value="'+esc(b.nextAction)+'"></label><label class="f">Next due<input id="bf_ndue" type="date" value="'+esc(b.nextDue)+'"></label></div>'+
+    (isNew?'':'<div class="notelog">'+(b.notes||[]).slice().reverse().map(function(n){return '<div class="n">'+esc(n.text)+'<div class="m">'+esc(n.author)+' · '+esc(n.date)+'</div></div>';}).join('')+'</div>'+
+      '<label class="f">Log a conversation<div style="display:flex;gap:8px"><input id="bf_lognote" placeholder="What was discussed…"/><button type="button" class="btn sm" onclick="logBuyerNote(\''+b.id+'\')">Log</button></div></label>'+
+      '<div class="foot" style="justify-content:flex-start"><button type="button" class="btn sm" onclick="sendToMeeting(\'buyer\',\''+b.id+'\')">Send to meeting →</button></div>')+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveBuyer(\''+b.id+'\','+isNew+')">Save buyer</button></div>';
+  showModal(body);
+}
+function saveBuyer(id,isNew){
+  var v={name:val('bf_name'),home:val('bf_home'),suburb:val('bf_suburb'),owner:val('bf_owner'),stage:val('bf_stage'),probability:parseFloat(val('bf_prob'))||0,
+    value:parseFloat(val('bf_value'))||0,source:val('bf_source'),email:val('bf_email'),phone:val('bf_phone'),nextAction:val('bf_naction'),nextDue:val('bf_ndue')};
+  if(!v.name.trim()){toast('Buyer name is required');return;}
+  if(isNew===true||isNew==='true'){
+    WS.buyers.push(Object.assign({id:id,brand:'HAAVN Black',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]},v));
+  } else {
+    var b=WS.buyers.find(function(x){return x.id===id;}); Object.assign(b,v); b.lastContact=today();
+  }
+  saveWS(); closeModal(); render(); toast('Buyer saved');
+}
+function logBuyerNote(id){
+  var v=(document.getElementById('bf_lognote').value||'').trim(); if(!v) return;
+  var b=WS.buyers.find(function(x){return x.id===id;});
+  b.notes.push({id:uid(),date:today(),author:ME(),text:v}); b.lastContact=today(); saveWS(); openBuyerModal(id);
+}
+
+/* ===================== Buyers list (simple secondary view) ===================== */
+function viewBuyers(){
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openBuyerModal()">+ New buyer</button></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Buyer</th><th>Home</th><th>Suburb</th><th>Stage</th><th>Value</th><th>Owner</th><th>Last contact</th></tr></thead><tbody>';
+  h+=WS.buyers.length?WS.buyers.map(function(b){return '<tr onclick="openBuyerModal(\''+b.id+'\')"><td class="tt">'+esc(b.name)+'</td><td>'+esc(b.home)+'</td><td>'+esc(b.suburb)+'</td><td><span class="chip gold">'+esc(b.stage)+'</span></td><td>'+fmtM(b.value)+'</td><td>'+esc(b.owner)+'</td><td>'+esc(b.lastContact||'—')+'</td></tr>';}).join(''):'<tr><td colspan="7" class="empty">No buyers yet.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+
+/* ===================== Actions register (seeded with real migrated tasks) ===================== */
+function viewActions(){
+  var f=window._af||'open';
+  var t=today();
+  var list=WS.actions.filter(function(a){
+    if(f==='open') return !a.done;
+    if(f==='overdue') return !a.done && a.due && a.due<t;
+    if(f==='completed') return a.done;
+    return true;
+  });
+  var h='<div class="section-h">'+
+    ['open','overdue','completed','all'].map(function(x){return '<button class="btn sm'+(f===x?' gold':'')+'" onclick="window._af=\''+x+'\';render()">'+x[0].toUpperCase()+x.slice(1)+'</button>';}).join(' ')+
+    '<div class="spacer"></div><button class="btn gold" onclick="openActionModal()">+ New action</button></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Owner</th><th>Due</th><th>Priority</th><th>Context</th></tr></thead><tbody>';
+  h+=list.length?list.map(function(a){
+    var overdue=!a.done&&a.due&&a.due<t;
+    return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
+      '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+'</td>'+
+      '<td>'+esc(a.owner)+'</td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
+      '<td>'+(a.priority==='High'?'<span class="chip red">High</span>':'<span class="chip">Normal</span>')+'</td>'+
+      '<td>'+(a.project?esc(a.project):(a.context?esc(a.context.label||''):'—'))+'</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="empty">Nothing here.</td></tr>';
+  h+='</tbody></table></div>';
+  return h;
+}
+function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.completedAt=a.done?nowIso():null;saveWS();render();}
+function openActionModal(id){
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:REAL_PEOPLE[0].name,due:today(),priority:'Normal',done:false,context:null,meetingId:'',notes:'',created:nowIso()};
+  var isNew=!id;
+  var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  var body='<h4>'+(isNew?'New action':'Edit action')+'</h4>'+
+    '<label class="f">Title<input id="af_title" value="'+esc(a.title)+'"></label>'+
+    '<div class="formgrid"><label class="f">Owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
+    '<label class="f">Priority</label><div class="row" style="margin:4px 0 10px"><label style="margin-right:14px"><input type="radio" name="af_prio" value="Normal" '+(a.priority!=='High'?'checked':'')+' style="width:auto"> Normal</label><label><input type="radio" name="af_prio" value="High" '+(a.priority==='High'?'checked':'')+' style="width:auto"> High</label></div>'+
+    '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveAction(\''+a.id+'\','+isNew+')">Save action</button></div>';
+  showModal(body);
+}
+function saveAction(id,isNew){
+  var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),priority:document.querySelector('input[name=af_prio]:checked').value,notes:val('af_notes')};
+  if(!v.title.trim()){toast('Title is required');return;}
+  if(isNew===true||isNew==='true'){ WS.actions.push(Object.assign({id:id,done:false,context:null,meetingId:'',created:nowIso()},v)); }
+  else { var a=WS.actions.find(function(x){return x.id===id;}); Object.assign(a,v); }
+  saveWS(); closeModal(); render(); toast('Action saved');
+}
+
+/* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
+function ME(){return REAL_PEOPLE[0].name;}
+function sendToMeeting(kind,recId){
+  var rec, label, ownerName;
+  if(kind==='partner'){rec=WS.partners.find(function(x){return x.id===recId;});label=rec.company;ownerName=rec.owner;}
+  else if(kind==='project'){rec=WS.supplyProjects.find(function(x){return x.id===recId;});label=rec.address;ownerName=rec.owner;}
+  else {rec=WS.buyers.find(function(x){return x.id===recId;});label=rec.name;ownerName=rec.owner;}
+  closeModal();
+  var body='<h4>Send "'+esc(label)+'" to a meeting</h4>'+
+    '<label class="f">Meeting name<input id="mtg_title" value="'+esc(label)+' review"></label>'+
+    '<div class="formgrid"><label class="f">Type<select id="mtg_kind"><option value="internal">Internal</option><option value="external">External</option></select></label>'+
+    '<label class="f">Duration (min)<input id="mtg_dur" type="number" value="30"></label></div>'+
+    '<div class="formgrid"><label class="f">Date<input id="mtg_date" type="date" value="'+today()+'"></label><label class="f">Time<input id="mtg_time" value="10:00"></label></div>'+
+    '<p style="font-size:11.5px;color:var(--ink-3);margin-top:6px">Creates (or adds to) a meeting in Meeting Management (pillar 02), with an agenda item carrying this record\'s context — owner <b style="color:var(--ink)">'+esc(ownerName)+'</b> — so wrap-up notes and decisions flow back here automatically.</p>'+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="commitSendToMeeting(\''+kind+'\',\''+recId+'\')">Create meeting →</button></div>';
+  showModal(body);
+}
+function commitSendToMeeting(kind,recId){
+  var rec, label, ownerName, notes;
+  if(kind==='partner'){rec=WS.partners.find(function(x){return x.id===recId;});label=rec.company;ownerName=rec.owner;notes=rec.notes;}
+  else if(kind==='project'){rec=WS.supplyProjects.find(function(x){return x.id===recId;});label=rec.address;ownerName=rec.owner;notes=rec.notes;}
+  else {rec=WS.buyers.find(function(x){return x.id===recId;});label=rec.name;ownerName=rec.owner;notes='';}
+  var title=val('mtg_title'), kindv=val('mtg_kind'), dur=parseInt(val('mtg_dur'))||30, date=val('mtg_date'), time=val('mtg_time');
+  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:[{id:1,name:ownerName,email:'',role:'',present:true}],
+    items:[],decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
+    sections:[{id:'s1',name:label,sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}],
+    recording:{active:false,startedAt:0}};
+  m.items.push({id:1,dept:'s1',status:'followup',title:label+' — review',kind:'',assigneeId:'',owner:ownerName,due:'',discussed:false,
+    notes:notes||'',carried:0,reviewers:[],files:[],subs:[],comments:[],
+    navContext:{kind:kind,id:recId,label:label}});
+  kvPull(MEET_KEY,{meetings:[]}).then(function(v){
+    v=v||{meetings:[]}; if(!v.meetings) v.meetings=[];
+    v.meetings.push(m);
+    kvPush(MEET_KEY,v).then(function(){
+      MEET_CACHE=v; closeModal(); render();
+      toast('Sent to Meeting Management — "'+title+'" is now in pillar 02');
+    });
+  });
+}
+function syncCompletedMeetings(){
+  var changed=false;
+  (MEET_CACHE.meetings||[]).forEach(function(m){
+    if(!m.closed || m._navSynced) return;
+    (m.items||[]).forEach(function(it){
+      if(!it.navContext) return;
+      var ctx=it.navContext, rec=null, store=null;
+      if(ctx.kind==='partner'){store=WS.partners;} else if(ctx.kind==='project'){store=WS.supplyProjects;} else {store=WS.buyers;}
+      rec=store&&store.find(function(x){return x.id===ctx.id;});
+      if(!rec) return;
+      var summary='Meeting "'+(m.title||'Weekly Company Meeting')+'" ('+m.date+'): '+(it.notes||'no notes')+(it.decision?(' — Decision: '+it.decision):'');
+      if(ctx.kind==='buyer'){ rec.notes=rec.notes||[]; rec.notes.push({id:uid(),date:today(),author:'Meeting sync',text:summary}); rec.lastContact=today(); }
+      else { rec.notes=(rec.notes?rec.notes+'\n\n':'')+summary; rec.updatedAt=nowIso(); }
+      if(it.status==='followup'||it.status==='action'){
+        WS.actions.push({id:uid(),title:'Follow up — '+ctx.label,owner:rec.owner,due:'',priority:'Normal',done:false,
+          context:{kind:ctx.kind,id:ctx.id,label:ctx.label},meetingId:m.id,notes:summary,created:nowIso(),completedAt:null});
+      }
+      changed=true;
+    });
+    m._navSynced=true;
+  });
+  if(changed){ saveWS(); toast('Meeting outcomes synced back to Workflow records'); }
+}
+
+/* ===================== Meetings tab (read-only reflection of pillar 02) ===================== */
+function viewMeetings(){
+  var open=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;});
+  var closed=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;});
+  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Live reflection of Meeting Management (pillar 02) — use "Send to meeting →" on any Partner, Supply or Buyer record to create one from here.</p>';
+  h+='<div class="section-h"><h3>Open</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Kind</th><th>Items</th></tr></thead><tbody>';
+  h+=open.length?open.map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">No open meetings.</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="section-h"><h3>Recently completed — synced back</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Synced</th></tr></thead><tbody>';
+  h+=closed.length?closed.slice(-6).reverse().map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(m._navSynced?'<span class="chip green">Synced</span>':'<span class="chip">Pending</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div style="margin-top:14px"><button class="btn sm" onclick="pollMeetings();toast(\'Checked pillar 02 for updates\')">↻ Refresh from Meeting Management</button></div>';
+  return h;
+}
+
+/* ===================== Brand & workspace (team, real) ===================== */
+function viewBrand(){
+  var h='<div class="section-h"><h3>Team — real ATRIUM roster (read-only here)</h3></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th></tr></thead><tbody>';
+  h+=REAL_PEOPLE.map(function(p){return '<tr><td class="tt">'+esc(p.name)+'</td><td>'+esc(p.email)+'</td><td>'+esc(p.dept)+'</td><td>'+esc(p.role)+(p.ext?' <span class="chip ext">External</span>':'')+'</td></tr>';}).join('');
+  h+='</tbody></table></div>';
+  h+='<div class="section-h"><h3>Operating lists</h3></div><div class="grid2">';
+  ['partnerTypes','partnerStages','supplyStages','serviceTypes'].forEach(function(k){
+    h+='<div class="card"><h3 style="font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi);margin-bottom:10px">'+k+'</h3>'+LISTS[k].map(function(v){return '<span class="chip" style="margin:2px 4px 2px 0">'+v+'</span>';}).join('')+'</div>';
+  });
+  h+='</div>';
+  h+='<div style="margin-top:16px"><button class="btn" onclick="exportBackup()">↧ Export full workspace backup (JSON)</button></div>';
+  return h;
+}
+function exportBackup(){
+  var payload={app:'ATRIUM Workflow (Navigators)',exported:nowIso(),workspace:'preview',data:WS};
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='atrium-workflow-backup.json'; a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
+
+/* ===================== modal / util ===================== */
+function showModal(body){document.getElementById('modalBody').innerHTML=body;document.getElementById('modalbg').classList.add('on');}
+function closeModal(){document.getElementById('modalbg').classList.remove('on');}
+document.getElementById('modalbg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+function val(id){var el=document.getElementById(id);return el?el.value:'';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+var toastT; function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on');},2600);}
+
+boot();
+</script>
+</body>
+</html>
