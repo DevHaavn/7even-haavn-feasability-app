@@ -121,7 +121,7 @@ const CSS = `
 .ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;color:var(--led);
   border:1px solid rgba(47,224,122,.4);border-radius:14px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
 .ath-newp:hover{background:rgba(47,224,122,.14);color:#eafff2}
-.ath-base{display:flex;align-items:center;justify-content:space-between;gap:14px;width:fit-content;min-width:50%;max-width:90%;white-space:nowrap;margin:4px auto 12px;padding:13px 22px;cursor:pointer;
+.ath-base{display:flex;align-items:center;justify-content:space-between;gap:14px;width:200px;max-width:90%;white-space:nowrap;margin:4px auto 12px;padding:13px 16px;cursor:pointer;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.4);border-radius:999px;transition:.3s}
 .ath-base img{height:15px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(255,255,255,.4))}
 .ath-base:hover,.ath-base.on{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.75);box-shadow:0 0 26px -10px rgba(255,255,255,.5)}
@@ -145,7 +145,7 @@ const CSS = `
 .ath-pininp::placeholder{color:rgba(255,255,255,.3)}
 .ath-pinhint{font-family:var(--mono);font-size:7.5px;letter-spacing:.22em;color:#8a8f95;text-transform:uppercase;margin-left:auto;text-align:right}
 .ath-pinrow.err .ath-pinhint{color:#e0645c}
-.ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:fit-content;min-width:50%;max-width:90%;white-space:nowrap;margin:14px auto 0;padding:13px 22px;cursor:pointer;
+.ath-hor7{display:flex;align-items:center;justify-content:space-between;gap:14px;width:200px;max-width:90%;white-space:nowrap;margin:14px auto 0;padding:13px 16px;cursor:pointer;
   background:rgba(214,179,106,.05);border:1px solid #d6b36a;border-radius:999px;transition:.3s;
   box-shadow:0 0 9px rgba(244,227,189,.7),0 0 26px rgba(214,179,106,.45),0 0 44px rgba(190,150,80,.3),inset 0 0 9px rgba(214,179,106,.28)}
 .ath-hor7 img{height:14px;width:auto;display:block;filter:brightness(1.3) drop-shadow(0 0 9px rgba(244,227,189,.95)) drop-shadow(0 0 26px rgba(214,179,106,.9)) drop-shadow(0 0 44px rgba(190,150,80,.62))}
@@ -156,7 +156,7 @@ const CSS = `
 .ath-hor7.grn img{filter:drop-shadow(0 0 10px rgba(47,224,122,.4))}
 .ath-hor7.grn:hover{background:rgba(47,224,122,.12);border-color:rgba(47,224,122,.8);box-shadow:0 0 26px -10px rgba(47,224,122,.6)}
 .ath-hor7.grn .g{color:#2fe07a}
-.ath-brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:fit-content;min-width:50%;max-width:90%;white-space:nowrap;margin:12px auto 0;padding:13px 22px;cursor:pointer;
+.ath-brandrow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:200px;max-width:90%;white-space:nowrap;margin:12px auto 0;padding:13px 16px;cursor:pointer;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.3);border-radius:999px;transition:.3s}
 .ath-brandrow img{width:auto;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
 .ath-brandrow:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
