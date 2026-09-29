@@ -58,16 +58,18 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 /* the ATRIUM ring mark as a control — canonical 240-grid construction, one
    stroke weight for the ring and the A; hover draws the gold halo in 800ms */
 .mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(243,242,238,.30);
-  background:rgba(11,13,15,.45);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
   transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
 .mbtn svg.chev{display:block;overflow:visible}
-.mbtn:hover{border-color:var(--accent);box-shadow:0 0 22px rgba(214,179,106,.18)}
+.mbtn:hover{border-color:var(--accent);box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
 .mbtn:active{transform:scale(.94)}
 .mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
 .mbtn .halo circle{fill:none;stroke:var(--accent);stroke-width:1.2;opacity:0;stroke-dasharray:302}
 .mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
 @keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
-.wordmark{font-family:'Inter',system-ui,sans-serif;font-weight:100;letter-spacing:.34em;font-size:19px;padding-left:.34em;color:var(--bone,var(--ink))}
+.wordmark{display:inline-flex;align-items:center;font-family:'Inter',system-ui,sans-serif;font-weight:100;letter-spacing:.34em;font-size:19px;padding-left:.34em;color:var(--bone,var(--ink))}
+.wordmark .wm-a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.wordmark .wm-a svg{display:block;width:100%;height:100%;overflow:visible}
 .pillar-tag{color:var(--ink-3);border-left:1px solid var(--line);padding-left:16px;margin-left:2px}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .clock{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.04em}
@@ -290,7 +292,9 @@ td .st2{font-size:11px;color:var(--ink-4);margin-top:2px}
 .cmd-opt:hover,.cmd-opt.sel{background:var(--card-inner)}
 .cmd-opt .cdot{width:8px;height:8px;border-radius:50%}
 .foot{max-width:1160px;margin:60px auto 0;padding:26px 26px calc(26px + env(safe-area-inset-bottom));border-top:1px solid var(--line-2);display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:var(--ink-4);font-size:11.5px}
-.foot .fm{font-family:var(--serif);letter-spacing:.35em;color:var(--ink-2);font-size:15px;display:flex;align-items:center;gap:8px}
+.foot .fm{font-family:'Inter',system-ui,sans-serif;font-weight:100;letter-spacing:.34em;padding-left:.34em;color:var(--ink-2);font-size:15px;display:flex;align-items:center}
+.foot .fm .wm-a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.foot .fm .wm-a svg{display:block;width:100%;height:100%;overflow:visible}
 .foot a{color:var(--ink-3);text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--line);padding:6px 11px;border-radius:100px;transition:.18s;cursor:pointer}
 .foot a:hover{border-color:var(--ink-4);color:var(--ink)}
 .foot .cr{margin-left:auto;text-align:right;letter-spacing:.05em}
@@ -439,8 +443,7 @@ body.focus .present-nav{display:flex}
         <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
         <svg class="chev" viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
       </button>
-      <svg class="logo-mark" viewBox="77 65 87 110" fill="none"><path d="M79.24 172 L120 68 L160.76 172" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
-      <span class="wordmark">ATRIUM</span>
+      <span class="wordmark"><span class="wm-a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</span>
       <span class="mono pillar-tag">Pillar 02 · Meeting Management</span>
     </div>
     <div class="topbar-right">
@@ -554,7 +557,7 @@ body.focus .present-nav{display:flex}
 </section>
 </div>
 <div class="foot">
-  <span class="fm"><svg class="logo-mark" viewBox="77 65 87 110" fill="none"><path d="M79.24 172 L120 68 L160.76 172" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg> ATRIUM</span>
+  <span class="fm"><span class="wm-a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</span>
   <a onclick="doUpdate();return false">⟳ Update</a>
   <span class="cr">Meeting Management · Pillar 02</span>
 </div>

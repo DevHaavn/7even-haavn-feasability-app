@@ -40,9 +40,9 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidde
 
 /* the canonical ring+A control — one stroke weight, gold halo draws on hover */
 .mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
-  background:rgba(255,255,255,.55);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--ink);
-  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1)}
-.mbtn:hover{border-color:var(--gold);box-shadow:0 0 22px rgba(214,179,106,.18)}
+  background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:var(--ink);
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+.mbtn:hover{border-color:var(--gold);box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
 .mbtn:active{transform:scale(.94)}
 .mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
 .mbtn .halo circle{fill:none;stroke:var(--gold);stroke-width:1.2;opacity:0;stroke-dasharray:302}
@@ -50,7 +50,9 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidde
 @keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
 
 .hmh-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
-.hmh-brand .wm{display:flex;align-items:baseline;font:100 16px/1 var(--sans);letter-spacing:.3em;color:var(--ink)}
+.hmh-brand .wm{display:flex;align-items:center;font:100 16px/1 var(--sans);letter-spacing:.3em;padding-left:.3em;color:var(--ink)}
+.hmh-brand .wm .a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.hmh-brand .wm .a svg{display:block;width:100%;height:100%;overflow:visible}
 .hmh-brand .tag{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.24em;color:var(--ink3);white-space:nowrap;
   border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
 
@@ -133,7 +135,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidde
       <svg viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
     </button>
     <div class="hmh-brand">
-      <div class="wm"><b>ATRIUM</b></div>
+      <div class="wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
       <span class="tag">Management Hub</span>
     </div>
   </div>

@@ -54,16 +54,18 @@ const CSS = `
   background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.3) 42%,rgba(255,255,255,.68))}
 .hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(20,20,25,.10);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
 .mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
-  background:rgba(255,255,255,.55);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
-  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1)}
-.mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18)}
+  background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+.mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
 .mbtn:active{transform:scale(.94)}
 .mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
 .mbtn .halo circle{fill:none;stroke:#d6b36a;stroke-width:1.2;opacity:0;stroke-dasharray:302}
 .mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
 @keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
 .hmh-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
-.hmh-brand .wm{display:flex;align-items:baseline;font:100 16px/1 'Inter',sans-serif;letter-spacing:.3em;color:#1a1b1e}
+.hmh-brand .wm{display:flex;align-items:center;font:100 16px/1 'Inter',sans-serif;letter-spacing:.3em;padding-left:.3em;color:#1a1b1e}
+.hmh-brand .wm .a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.hmh-brand .wm .a svg{display:block;width:100%;height:100%;overflow:visible}
 .hmh-brand .tag{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.24em;color:#83868e;white-space:nowrap;
   border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
 .hmh-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -143,7 +145,7 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
           <svg viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="9" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
         </button>
         <div className="hmh-brand">
-          <div className="wm"><b>ATRIUM</b></div>
+          <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
           <span className="tag">Management Hub</span>
         </div>
       </div>
