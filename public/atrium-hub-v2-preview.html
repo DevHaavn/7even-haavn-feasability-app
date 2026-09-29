@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ATRIUM · Management Hub Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   ATRIUM MANAGEMENT HUB — v2 preview landing
+   A clickable entry point into the two rebuilt pillars, styled to match the
+   live hub's pillar-card language. Not wired into the real app — this page
+   only links between the two standalone preview files.
+   ============================================================================ */
+:root{
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --bg0:#060708; --bg1:#0B0D0F; --ink:#F3F2EE; --ink2:#b9bcc2; --ink3:#7a7e86;
+  --gold:#d6b36a; --gold-hi:#f4e3bd; --gold-lo:#a3782a;
+  --line:rgba(243,242,238,.14); --line2:rgba(243,242,238,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overscroll-behavior:none}
+body{background:var(--bg0);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  min-height:100%;display:flex;flex-direction:column}
+::selection{background:rgba(214,179,106,.3)}
+
+.pvbanner{padding:6px 10px;font:500 9.5px/1 var(--mono);letter-spacing:.28em;text-transform:uppercase;color:#0B0D0F;
+  background:linear-gradient(90deg,var(--gold),var(--gold-hi));text-align:center}
+
+.hdr{padding:26px 26px 0}
+.hdr-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:16px}
+.hmark{width:38px;height:38px;flex:none;border-radius:999px;border:1px solid rgba(243,242,238,.32);display:flex;align-items:center;justify-content:center}
+.hmark svg{width:18px;height:18px;display:block}
+.hword{font:100 24px/1 var(--sans);letter-spacing:.32em}
+
+.hero{max-width:900px;margin:0 auto;padding:54px 26px 10px;text-align:center}
+.eyebrow{font:500 10.5px var(--mono);letter-spacing:.38em;text-transform:uppercase;color:var(--gold-hi);margin-bottom:16px}
+.hero h1{font:200 clamp(30px,5vw,46px)/1.25 var(--sans);letter-spacing:.01em;color:#fff;margin-bottom:14px}
+.hero p{max-width:560px;margin:0 auto;color:var(--ink3);font-size:14px;line-height:1.7}
+
+.wrap{max-width:900px;margin:0 auto;padding:46px 26px 90px;flex:1;width:100%}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+.pcard{position:relative;border-radius:28px;padding:2px;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.pcard .ring{position:absolute;inset:0;border-radius:28px;padding:1px;background:conic-gradient(from var(--a,0deg),var(--gold) 0%,transparent 18%,transparent 82%,var(--gold) 100%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  opacity:.5;transition:opacity .3s;animation:pcardSpin 7s linear infinite}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes pcardSpin{to{--a:360deg}}
+.pcard:hover .ring{opacity:1;animation-duration:3s}
+.pcard .inner{position:relative;background:var(--bg1);border:1px solid var(--line2);border-radius:27px;padding:32px;height:100%;transition:.3s;display:flex;flex-direction:column;gap:14px}
+.pcard:hover .inner{border-color:rgba(214,179,106,.4);box-shadow:0 20px 50px -24px rgba(214,179,106,.35)}
+.pnum{font:400 13px var(--mono);letter-spacing:.3em;color:var(--gold-hi)}
+.ptitle{font:300 26px var(--sans);color:#fff}
+.psub{font:400 10.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
+.pblurb{font-size:13px;line-height:1.7;color:var(--ink2);flex:1}
+.penter{align-self:flex-start;margin-top:6px;padding:10px 20px;border-radius:999px;border:1px solid var(--gold);color:var(--gold-hi);
+  font:500 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;background:rgba(214,179,106,.06);transition:.25s}
+.pcard:hover .penter{background:rgba(214,179,106,.16);box-shadow:0 0 24px -10px rgba(214,179,106,.7)}
+
+.foot{text-align:center;padding:0 26px 50px;color:var(--ink3);font:400 11px var(--mono);letter-spacing:.14em}
+.foot a{color:var(--gold-hi);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="pvbanner">PREVIEW BUILD · ATRIUM MANAGEMENT HUB — pillars 01 &amp; 02, not yet wired into the live hub</div>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hmark"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="#F3F2EE" stroke-width="5.2" stroke-linejoin="miter" stroke-linecap="butt"/></svg></div>
+    <div class="hword">ATRIUM</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Management Hub · Preview</div>
+  <h1>A real CRM and meeting engine,<br/>built to your brief.</h1>
+  <p>Click into either pillar below — everything is live and shared through the same cloud store, so an item you send from Workflow shows up in Meeting Management, and anything you record or send back flows the other way. Play with it freely; nothing here touches the live app.</p>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+    <a class="pcard" href="atrium-workflow-v2-preview.html">
+      <div class="ring"></div>
+      <div class="inner">
+        <div class="pnum">01</div>
+        <div>
+          <div class="ptitle">ATRIUM Workflow</div>
+          <div class="psub">CRM · Tasks · Weekly Agenda</div>
+        </div>
+        <div class="pblurb">Companies and contacts, internal and external, shared with Meeting Management. Every task can be flagged "Weekly" — one click sends it straight into the live Weekly Company Meeting agenda.</div>
+        <span class="penter">Open Workflow →</span>
+      </div>
+    </a>
+    <a class="pcard" href="atrium-meeting-hub-v2-preview.html">
+      <div class="ring"></div>
+      <div class="inner">
+        <div class="pnum">02</div>
+        <div>
+          <div class="ptitle">Meeting Management</div>
+          <div class="psub">Create · Record · Present · Send</div>
+        </div>
+        <div class="pblurb">Name a meeting, internal or external, pull attendees from the CRM. Record it live, set the agenda and notes, present to the room, then email the outcome to everyone after.</div>
+        <span class="penter">Open Meeting Management →</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="foot">Try this: flag a task "Weekly" in <a href="atrium-workflow-v2-preview.html#agenda">01 → Weekly Agenda</a>, send it, then open <a href="atrium-meeting-hub-v2-preview.html">02</a> and start recording — leave the tab open and come back, it's still going.</div>
+
+</body>
+</html>
