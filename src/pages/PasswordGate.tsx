@@ -5,7 +5,7 @@ import { setStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD } from '../lib/role'
 const CORRECT = '7Evenhaavn!!!'
 const STORAGE_KEY = '7even_auth'
 // The 7X access code is kept as a SHA-256 hash so the code itself doesn't ship in the bundle.
-const APP_CODE_HASH = '7231733393d8f8dda3517c145a78770e3c9a1b9274968524ac440e4b51a2293b'
+const APP_CODE_HASH = 'dc735aff3785cb562ddde6b5173ba8b659e16d7e22fc9030e4ae6da331f0e4c6'
 async function sha256(t: string): Promise<string> {
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))
   return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('')
