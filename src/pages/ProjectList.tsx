@@ -113,10 +113,10 @@ const CSS = `
 .mb:focus-visible{outline:2px solid #d6b36a;outline-offset:5px;border-radius:50%}
 
 /* floating menu — centred under the eyebrow, no card */
-.ath-pmenu{border-radius:26px;position:fixed;left:50%;top:clamp(150px,20vh,210px);width:min(560px,84vw);z-index:50;max-height:calc(100vh - clamp(150px,20vh,210px) - 80px);overflow-y:auto;
-  opacity:0;transform:translate(-50%,-14px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
-.ath-pmenu.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
-.ath-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
+.ath-pmenu{border-radius:26px;position:absolute;left:0;top:calc(100% + 14px);width:min(400px,90vw);z-index:50;max-height:calc(100vh - 160px);overflow-y:auto;
+  opacity:0;transform:translateY(-10px);pointer-events:none;transition:.38s cubic-bezier(.2,.7,.3,1)}
+.ath-pmenu.on{opacity:1;transform:none;pointer-events:auto}
+.ath-mh{display:flex;justify-content:center;align-items:center;gap:10px;width:200px;max-width:90%;margin:0 auto;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.16);
   font-family:var(--mono);font-size:9px;letter-spacing:.3em;color:#d6d9dd;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-newp{display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;color:var(--led);
   border:1px solid rgba(47,224,122,.4);border-radius:14px;padding:7px 12px;background:rgba(47,224,122,.05);transition:.25s;text-transform:uppercase}
