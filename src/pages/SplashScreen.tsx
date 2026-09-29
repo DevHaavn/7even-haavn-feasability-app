@@ -19,7 +19,7 @@ const CSS = `
 .splash-root{position:fixed;inset:0;z-index:99999;background:#0B0D0F;display:flex;align-items:center;justify-content:center;
   transition:opacity ${FADE_MS}ms ease;opacity:1}
 .splash-root.out{opacity:0;pointer-events:none}
-.splash-mark{width:min(34vw,200px);height:auto;overflow:visible}
+.splash-mark{width:min(51vw,300px);height:auto;overflow:visible}
 .splash-ring{stroke-dasharray:${CIRC};stroke-dashoffset:${CIRC};animation:splashDraw ${DRAW_MS}ms cubic-bezier(.45,0,.2,1) .2s forwards}
 @keyframes splashDraw{to{stroke-dashoffset:0}}
 `
