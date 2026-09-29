@@ -4,7 +4,6 @@ import { seedProjectsIfEmpty } from '../db/seed'
 import { getDeletedProjectIds } from '../db'
 import CapitalPortal from './capital/CapitalPortal'
 import type { PillarId } from './capital/CapitalBase'
-import HaavnManagementBase from './capital/HaavnManagementBase'
 import AtriumZeroed from './AtriumZeroed'
 import { useRole } from '../lib/role'
 import XMark from '../brand/XMark'
@@ -301,7 +300,7 @@ const CSS = `
 /** Session flag for the BASE PIN. Versioned: bump it whenever the PIN changes. */
 export const BASE_PIN_KEY = 'base_pin_ok_0808'
 
-export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtrium }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onHome?: () => void; autoOpenAtrium?: boolean }) {
+export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogout?: () => void; onDashboard?: (brand: '7even' | 'haavn') => void; onHome?: () => void }) {
   const { projects, loadProjects, createProject, setActiveProject, updateProject, deleteProject } = useStore()
   const role = useRole()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -336,9 +335,8 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
   const [capitalOpen, setCapitalOpen] = useState(false)
   const [capitalStart, setCapitalStart] = useState<PillarId | undefined>(undefined)
   // ATRIUM (Workflow + Meeting Management) has no button here any more — it's reached
-  // from the HAAVN menu, which deep-links back in with ?open=atrium.
-  const [hmOpen, setHmOpen] = useState(false)
-  useEffect(() => { if (autoOpenAtrium) setHmOpen(true) }, [autoOpenAtrium])
+  // from the HAAVN menu, and opens as its own App.tsx-level overlay now (see the
+  // ?open=atrium deep link), not through this screen.
   const [statusFor, setStatusFor] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
@@ -486,7 +484,6 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
 
       {/* HAAVN Management — 3-pillar hub */}
       {zeroedOpen && <AtriumZeroed onClose={() => setZeroedOpen(false)} onLogout={onLogout} />}
-      {hmOpen && <HaavnManagementBase onClose={() => setHmOpen(false)} onLogout={onLogout} />}
 
       {/* Capital Base — admin/director only */}
       {capitalOpen && role !== 'external' && <CapitalPortal initialPillar={capitalStart} role={role} onClose={() => { setCapitalOpen(false); setCapitalStart(undefined) }} />}

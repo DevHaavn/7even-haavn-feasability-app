@@ -46,7 +46,7 @@ export default function App() {
   // BLACK hero header. Admin surface only — never wired for restricted logins.
   const [homesCapitalOpen, setHomesCapitalOpen] = useState(!!saved.capital)
   const [manageOpen, setManageOpen] = useState(false)
-  const [openAtriumOnLoad, setOpenAtriumOnLoad] = useState(false)
+  const [atriumOpen, setAtriumOpen] = useState(false)
   // The boot splash — plays once on every fresh load, ahead of the login/chooser.
   const [showSplash, setShowSplash] = useState(true)
   const [syncing, setSyncing] = useState(false)
@@ -89,9 +89,10 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname)
     } else if (open === 'atrium') {
       // ATRIUM (the workflow + meeting management hub) is reached from the HAAVN
-      // menu now; it still lives inside the 7EVEN screen, just with no button
-      // there any more — this deep link is the only door in.
-      setCompany('7even'); setOpenAtriumOnLoad(true)
+      // menu (public/haavn-supply/index.html) — it lives in HAAVN, so it opens
+      // as its own overlay here rather than inside the 7EVEN screen, and closing
+      // it returns to that same HAAVN page, not the 7EVEN project list.
+      setAtriumOpen(true)
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [])
@@ -200,8 +201,12 @@ export default function App() {
 
   if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />
 
-  if (!authed || (role === 'admin' && !company)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
+  if (!authed || (role === 'admin' && !company && !atriumOpen)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
 
+  // ATRIUM, opened from the HAAVN menu (see the ?open=atrium deep link above).
+  // Its own overlay, independent of company/role state — closing it sends the
+  // browser back to the HAAVN page it was opened from, not the 7EVEN screen.
+  if (atriumOpen) return <HaavnManagementBase onClose={() => { window.location.href = '/haavn-supply/index.html' }} onLogout={handleLogout} />
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
   // The HM device button (top-right) opens the Management Hub, mounted above.
@@ -280,7 +285,7 @@ export default function App() {
           {engineFromLink && <AtriumZeroed onClose={() => setEngineFromLink(false)} onLogout={handleLogout} />}
           {LEGACY_STUDIO && activeProjectId
             ? <ProjectWorkspace onManage={role === 'admin' ? () => setManageOpen(true) : undefined} onLogout={handleLogout} theme={theme} />
-            : <ProjectList onLogout={handleLogout} onHome={goHome} autoOpenAtrium={openAtriumOnLoad} onDashboard={(brand) => {
+            : <ProjectList onLogout={handleLogout} onHome={goHome} onDashboard={(brand) => {
                 // HAAVN portfolio dashboard is open to consultants; 7EVEN dashboard is admin-only.
                 if (brand === '7even' && role !== 'admin') return
                 setDashboardBrand(brand)
