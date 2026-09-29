@@ -26,8 +26,8 @@ export const HM_PA = {
 export const HM_PILLARS: HMPillar[] = [
   {
     id: 'workflow', num: '01', title: 'ATRIUM Workflow',
-    sub: 'Tasks · Meeting CRM · Weekly agenda',
-    blurb: 'Every person’s workspace — personal tasks and team boards, department workload and workflow groups, meeting recording with live Azure transcription, and the actions that flow straight into the Weekly Company Meeting.',
+    sub: 'Partner CRM · Supply Pipeline · Home Sales · Actions',
+    blurb: 'HAAVN’s partner and supply-project relationships, HAAVN Black’s home-buyer sales pipeline, and the shared action register — linked straight into Meeting Management, so a decision made in a meeting writes back onto the record it was about.',
     color: '#d6b36a', // LED brand gold
   },
   {

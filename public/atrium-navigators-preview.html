@@ -72,7 +72,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .rail-profile .av{width:30px;height:30px;border-radius:50%;background:var(--pill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font:600 10.5px var(--mono);color:var(--ink);flex:none}
 .rail-profile div b{display:block;font-size:12px;color:var(--ink);font-weight:500}
 .rail-profile div small{display:block;font-size:9.5px;color:var(--ink-4);letter-spacing:.02em}
-.rail-cloud{display:flex;align-items:center;gap:7px;padding:8px 10px;margin:6px 2px 0;border-radius:10px;border:1px solid rgba(147,162,103,.35);background:rgba(147,162,103,.08);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-hi)}
+.rail-cloud{display:flex;align-items:center;gap:7px;padding:8px 10px;margin:6px 2px 0;border-radius:10px;border:1px solid var(--line);background:var(--pill);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .rail-cloud .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex:none}
 
 .main{flex:1;min-width:0}
@@ -178,7 +178,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 <div class="app">
   <div class="rail" id="rail">
     <div class="rail-head">
-      <button class="mbtn" onclick="toast('This preview stands alone — wired to the real Management Hub on go-live')" title="Back to hub">
+      <button class="mbtn" onclick="hubBack()" title="Back to hub">
         <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
         <svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
       </button>
@@ -747,6 +747,7 @@ document.getElementById('modalbg').addEventListener('click',function(e){if(e.tar
 function val(id){var el=document.getElementById(id);return el?el.value:'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 var toastT; function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on');},2600);}
+function hubBack(){try{if(window.parent&&window.parent!==window)window.parent.postMessage('haavn-workflow-close','*');}catch(e){}}
 
 boot();
 </script>
