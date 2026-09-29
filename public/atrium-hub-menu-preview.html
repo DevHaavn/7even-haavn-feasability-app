@@ -84,20 +84,17 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidde
 .hmh-ledbox:hover{transform:translateY(-4px)}
 .hmh-ledbox:hover::before,.hmh-ledbox:hover::after{animation-duration:2.4s}
 
-.hmh-pcard{position:relative;z-index:2;border-radius:20px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
-  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+.hmh-pcard{position:relative;z-index:2;border-radius:20px;background:transparent;
   padding:30px 28px 26px;min-height:520px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
 .hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
-.hmh-pnum{font-family:var(--mono);font-size:30px;font-weight:300;line-height:1;color:var(--gold-hi);
-  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3)}
-.hmh-papex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(214,179,106,.4);display:flex;align-items:center;justify-content:center;color:var(--gold-hi)}
+.hmh-pnum{font-family:var(--mono);font-size:30px;font-weight:300;line-height:1;color:var(--gold-deep)}
+.hmh-papex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(143,106,37,.45);display:flex;align-items:center;justify-content:center;color:var(--gold-deep)}
 .hmh-papex svg{width:11px;height:11px;display:block}
-.hmh-psub{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;margin:18px 0 8px;color:var(--gold-hi);
-  text-shadow:0 0 8px rgba(244,227,189,.32)}
-.hmh-ptitle{font-family:var(--sans);font-weight:200;font-size:29px;letter-spacing:.01em;line-height:1.1;color:#fff;margin:0}
-.hmh-pline{height:1px;background:rgba(255,255,255,.1);margin:18px 0}
-.hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.65;margin:0;flex:1}
-.hmh-penter{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+.hmh-psub{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;margin:18px 0 8px;color:var(--gold-deep)}
+.hmh-ptitle{font-family:var(--sans);font-weight:300;font-size:29px;letter-spacing:.01em;line-height:1.1;color:var(--gold-deep);margin:0}
+.hmh-pline{height:1px;background:rgba(20,20,25,.14);margin:18px 0}
+.hmh-pblurb{color:var(--ink);font-size:13px;line-height:1.65;margin:0;flex:1}
+.hmh-penter{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
 
 .hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
