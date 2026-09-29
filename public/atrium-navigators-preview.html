@@ -68,10 +68,14 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .rail-item .ri{width:16px;height:16px;flex:none;display:block;opacity:.85}
 .rail-foot{margin-top:auto;padding-top:14px}
 .rail-rule{height:1px;background:var(--line-2);margin:6px 4px 12px}
-.rail-profile{display:flex;align-items:center;gap:10px;padding:8px 6px}
-.rail-profile .av{width:30px;height:30px;border-radius:50%;background:var(--pill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font:600 10.5px var(--mono);color:var(--ink);flex:none}
+.rail-profile{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:10px;cursor:pointer;transition:.18s;border:1px solid transparent}
+.rail-profile:hover{background:var(--pill);border-color:var(--line)}
+.rail-profile #railAvatar{width:30px;height:30px;font-size:10.5px}
 .rail-profile div b{display:block;font-size:12px;color:var(--ink);font-weight:500}
 .rail-profile div small{display:block;font-size:9.5px;color:var(--ink-4);letter-spacing:.02em}
+.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex:none}
+.swatch.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg1) inset}
+.prof-avwrap{width:64px;height:64px}
 .rail-cloud{display:flex;align-items:center;gap:7px;padding:8px 10px;margin:6px 2px 0;border-radius:10px;border:1px solid var(--line);background:var(--pill);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .rail-cloud .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex:none}
 
@@ -237,8 +241,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-foot">
       <div class="rail-rule"></div>
       <div class="rail-cloud"><span class="d"></span>ATRIUM Cloud · Synced</div>
-      <div class="rail-profile" style="margin-top:8px">
-        <span class="av" id="railAvatar">JB</span>
+      <div class="rail-profile" style="margin-top:8px" onclick="openProfile()" title="Edit your profile">
+        <span id="railAvatar"></span>
         <div><b id="railName">Jamie Baldwin</b><small>Local ATRIUM workspace</small></div>
       </div>
     </div>
@@ -295,10 +299,16 @@ var LISTS={
   customerTypes:['Management','Intelligence','Precision'],
   states:['Victoria','New South Wales','Queensland','South Australia','Western Australia','Tasmania','Australian Capital Territory','Northern Territory']
 };
-var DEPT_LABELS={company:'Company','7even':'7EVEN',haavn:'HAAVN',haavnmgmt:'HAAVN Management',admin:'Administration & Accounts'};
+var DEPT_LABELS={company:'Company','7even':'7EVEN',haavn:'HAAVN',haavnblack:'HAAVN BLACK',haavnmgmt:'HAAVN Management',admin:'Administration & Accounts'};
 function deptLabel(id){return DEPT_LABELS[id]||(id?(id.charAt(0).toUpperCase()+id.slice(1)):'—');}
 var AVATAR_COLORS=['#5b8def','#5aa87a','#93A267','#a179d8','#e0644f','#5aa8a8','#c77dbb'];
-function avatarColor(n){var c=0;n=n||'';for(var i=0;i<n.length;i++)c+=n.charCodeAt(i);return AVATAR_COLORS[c%AVATAR_COLORS.length];}
+function _defaultAvatarColor(n){var c=0;n=n||'';for(var i=0;i<n.length;i++)c+=n.charCodeAt(i);return AVATAR_COLORS[c%AVATAR_COLORS.length];}
+function profileFor(n){return (WS.profiles&&WS.profiles[(n||'').trim().toLowerCase()])||{};}
+function avatarColor(n){var pr=profileFor(n);return pr.color||_defaultAvatarColor(n);}
+function avatarPhoto(n){return profileFor(n).photo||'';}
+function avatarHtml(n,sz){sz=sz||24;var ph=avatarPhoto(n);
+  if(ph) return '<span class="av" style="display:inline-flex;width:'+sz+'px;height:'+sz+'px;border-radius:50%;flex:none;background-image:url(\''+ph+'\');background-size:cover;background-position:center"></span>';
+  return '<span class="av" style="display:inline-flex;width:'+sz+'px;height:'+sz+'px;border-radius:50%;flex:none;align-items:center;justify-content:center;font:600 '+Math.round(sz*.38)+'px var(--mono);color:#fff;background:'+avatarColor(n)+'">'+initials(n)+'</span>';}
 var TASK_STATUS_COLS=[['todo','To do'],['doing','In progress'],['blocked','Blocked'],['review','In review'],['done','Done']];
 var BUYER_STAGES=['Enquiry','Consultation','Feasibility','Proposal','Reservation','Contract','Won','Lost'];
 var BUYER_PROB={Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0};
@@ -364,9 +374,8 @@ function boot(){
     MEET_CACHE=r[1]||{meetings:[]};
     seedIfEmpty();
     injectIcons();
-    var meDisplay=ME().replace(/\w\S*/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1);});
-    document.getElementById('railAvatar').textContent=initials(meDisplay);
-    document.getElementById('railName').textContent=meDisplay;
+    if(!WS.profiles) WS.profiles={};
+    renderProfileChip();
     renderRail(); render();
     setInterval(pollMeetings,6000);
     document.getElementById('themeSeg').addEventListener('click',function(e){
@@ -716,9 +725,9 @@ function saveAction(id,isNew){
 
 /* ===================== Team Board (carried over from the old workflow tool) ===================== */
 var STATUS_COLOR={todo:'var(--ink-3)',doing:'var(--blue)',blocked:'var(--red)',review:'var(--gold-deep)',done:'var(--green)'};
-var DEPT_COLOR={company:'#8a9099','7even':'#5b8def',haavn:'#5aa87a',haavnmgmt:'#d8a54a',admin:'#a179d8'};
+var DEPT_COLOR={company:'#8a9099','7even':'#5b8def',haavn:'#5aa87a',haavnblack:'#242B27',haavnmgmt:'#d8a54a',admin:'#a179d8'};
 function deptColor(d){return DEPT_COLOR[d]||'#8a9099';}
-function allKnownDepts(){var out=['company','7even','haavn','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
+function allKnownDepts(){var out=['company','7even','haavn','haavnblack','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
   WS.actions.forEach(function(a){if(a.dept&&!seen[a.dept]){out.push(a.dept);seen[a.dept]=1;}});return out;}
 function viewTeamBoard(){
   var deptFilter=window._tbDept||'';
@@ -734,7 +743,7 @@ function viewTeamBoard(){
     return '<div class="kcol"><div class="tbcol-h"><span class="lbl" style="color:'+STATUS_COLOR[sc[0]]+'">'+sc[1]+'</span><span class="n">'+items.length+'</span></div>'+
       (items.length?items.map(function(a){
         return '<div class="tbcard" onclick="openActionModal(\''+a.id+'\')"><b>'+esc(a.title)+'</b><div class="meta">'+
-          '<span class="av" style="background:'+avatarColor(a.owner)+'">'+initials(a.owner)+'</span>'+
+          avatarHtml(a.owner,20)+
           '<span class="chip">'+deptLabel(a.dept)+'</span>'+
           (a.priority==='High'?'<span class="star">★</span>':'')+
           (a.due?'<span class="due">'+esc(a.due)+'</span>':'')+
@@ -756,7 +765,7 @@ function viewWorkload(){
     var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();}).length;
     var doneWk=mine.filter(function(a){return a.done&&a.completedAt&&a.completedAt>weekAgo;}).length;
     var pct=Math.min(100,open*12), col=open>=8?'var(--red)':open>=4?'var(--gold-deep)':'var(--green)';
-    return '<tr><td class="tt"><span style="display:inline-flex;align-items:center;gap:8px"><span class="av" style="display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;background:'+avatarColor(p.name)+';color:#fff;font:600 8px var(--mono)">'+initials(p.name)+'</span>'+esc(p.name)+'</span></td>'+
+    return '<tr><td class="tt"><span style="display:inline-flex;align-items:center;gap:8px">'+avatarHtml(p.name,20)+'<span>'+esc(p.name)+'</span></span></td>'+
       '<td><span class="chip">'+deptLabel(p.dept)+'</span></td><td>'+open+'</td><td>'+(overdue?('<span class="chip red">'+overdue+'</span>'):'0')+'</td>'+
       '<td><div class="load-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div></td><td>'+doneWk+'</td></tr>';
   }).join('');
@@ -785,7 +794,7 @@ function viewWeeklyReview(){
           '<span class="tt" onclick="openActionModal(\''+a.id+'\')">'+esc(a.title)+'</span>'+
           (a.priority==='High'?'<span class="star">★</span>':'')+
           '<span style="font-family:var(--mono);font-size:10px;color:'+(overdue2?'var(--red)':'var(--ink-3)')+'">'+(a.due||'—')+'</span>'+
-          '<span class="av" style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 8px var(--mono);color:#fff;background:'+avatarColor(a.owner)+'">'+initials(a.owner)+'</span></div>';
+          avatarHtml(a.owner,20)+'</div>';
       }).join('')+
     '</div>';
   }).join(''):'<div class="empty">Nothing flagged for the weekly meeting yet — flag a task from the Action Register or Team Board.</div>';
@@ -854,35 +863,131 @@ function viewMyMeetings(){
   var open=mine.filter(function(m){return !m.closed;}), closed=mine.filter(function(m){return m.closed;});
   var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openNewMeetingModal()">+ New meeting</button></div>';
   h+='<div class="section-h"><h3>Upcoming</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Role</th></tr></thead><tbody>';
-  h+=open.length?open.map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(sameName(m.chair,ME())?'<span class="chip gold">Chair</span>':'<span class="chip">Attendee</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing upcoming.</td></tr>';
+  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(sameName(m.chair,ME())?'<span class="chip gold">Chair</span>':'<span class="chip">Attendee</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing upcoming.</td></tr>';
   h+='</tbody></table></div>';
   h+='<div class="section-h"><h3>Past</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th></tr></thead><tbody>';
-  h+=closed.length?closed.slice(-8).reverse().map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td></tr>';}).join(''):'<tr><td colspan="2" class="empty">None yet.</td></tr>';
+  h+=closed.length?closed.slice(-8).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td></tr>';}).join(''):'<tr><td colspan="2" class="empty">None yet — close a meeting in pillar 02 and it will appear here with its notes.</td></tr>';
   h+='</tbody></table></div>';
   return h;
 }
+var MTG_SECTION_COLORS=['#5b8def','#5aa87a','#d8a54a','#a179d8','#e0644f','#5aa8a8','#c77dbb','#8a9099'];
+var _nmA=[], _nmI=[];
+function _nmRowsA(){return _nmA.map(function(r,i){return '<div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
+  '<input style="flex:1.3" placeholder="Name" value="'+esc(r.name)+'" oninput="_nmA['+i+'].name=this.value">'+
+  '<input style="flex:1.3" placeholder="Email" value="'+esc(r.email)+'" oninput="_nmA['+i+'].email=this.value">'+
+  '<input style="flex:1" placeholder="Role" value="'+esc(r.role)+'" oninput="_nmA['+i+'].role=this.value">'+
+  '<span style="cursor:pointer;color:var(--ink-3);padding:0 4px;font-size:15px" onclick="_nmA.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('');}
+function _nmSecOptions(){var seen={},out=[];_nmI.forEach(function(r){var v=(r.sec||'').trim();if(v&&!seen[v.toLowerCase()]){seen[v.toLowerCase()]=1;out.push(v);}});return out;}
+function _nmRowsI(){return _nmI.map(function(r,i){return '<div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
+  '<input style="flex:1.3" placeholder="Agenda item" value="'+esc(r.title)+'" oninput="_nmI['+i+'].title=this.value">'+
+  '<input style="flex:1" list="nm_sec_dl" placeholder="Agenda name — type to add or reuse" value="'+esc(r.sec)+'" oninput="_nmI['+i+'].sec=this.value;_nmRefreshDL()">'+
+  '<span style="cursor:pointer;color:var(--ink-3);padding:0 4px;font-size:15px" onclick="_nmI.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('')+'<datalist id="nm_sec_dl">'+_nmSecOptions().map(function(v){return '<option value="'+esc(v)+'">';}).join('')+'</datalist>';}
+function _nmAddA(){_nmA.push({name:'',email:'',role:''});_nmRefresh();}
+function _nmAddI(){_nmI.push({title:'',sec:_nmSecOptions()[0]||''});_nmRefresh();}
+function _nmRefresh(){var a=document.getElementById('nm_att_rows');if(a)a.innerHTML=_nmRowsA();var i=document.getElementById('nm_item_rows');if(i)i.innerHTML=_nmRowsI();}
+function _nmRefreshDL(){var dl=document.getElementById('nm_sec_dl');if(dl)dl.innerHTML=_nmSecOptions().map(function(v){return '<option value="'+esc(v)+'">';}).join('');}
 function openNewMeetingModal(){
+  _nmA=[{name:meDisplay(),email:'',role:''}]; _nmI=[{title:'',sec:''}];
   var body='<h4>New meeting</h4>'+
+    '<p style="font-size:11.5px;color:var(--ink-3);margin:-8px 0 14px">Same setup as Meeting Management (pillar 02) — this opens there ready to run, and syncs back here to your Past meetings when it closes.</p>'+
     '<label class="f">Meeting name<input id="nm_title" placeholder="e.g. Design review"></label>'+
     '<div class="formgrid"><label class="f">Type<select id="nm_kind"><option value="internal">Internal</option><option value="external">External</option></select></label>'+
-    '<label class="f">Duration (min)<input id="nm_dur" type="number" value="30"></label></div>'+
+    '<label class="f">Duration (min)<input id="nm_dur" type="number" min="5" value="30"></label></div>'+
     '<div class="formgrid"><label class="f">Date<input id="nm_date" type="date" value="'+today()+'"></label><label class="f">Time<input id="nm_time" value="10:00"></label></div>'+
+    '<div style="margin-top:14px"><label class="f" style="margin-bottom:6px">Attendees</label><div id="nm_att_rows">'+_nmRowsA()+'</div><button type="button" class="btn sm" onclick="_nmAddA()">+ Add attendee</button></div>'+
+    '<div style="margin-top:16px"><label class="f" style="margin-bottom:6px">Agenda</label><div style="font-size:11px;color:var(--ink-3);margin-bottom:6px">Name each agenda item — type a new agenda name or reuse one already typed.</div><div id="nm_item_rows">'+_nmRowsI()+'</div><button type="button" class="btn sm" onclick="_nmAddI()">+ Add agenda item</button></div>'+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="commitNewMeeting()">Create meeting →</button></div>';
   showModal(body);
 }
 function commitNewMeeting(){
   var title=val('nm_title')||'Meeting', kindv=val('nm_kind'), dur=parseInt(val('nm_dur'))||30, date=val('nm_date'), time=val('nm_time');
-  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:[{id:1,name:ME(),email:'',role:'',present:true}],
-    items:[],decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
-    sections:[{id:'s1',name:'General',sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}],recording:{active:false,startedAt:0}};
+  var attendees=_nmA.filter(function(r){return (r.name||'').trim();}).map(function(r){return {id:uid(),name:r.name.trim(),email:(r.email||'').trim(),role:(r.role||'').trim(),present:true};});
+  if(!attendees.some(function(a){return sameName(a.name,ME());})) attendees.unshift({id:uid(),name:meDisplay(),email:'',role:'',present:true});
+  var rows=_nmI.filter(function(r){return (r.title||'').trim();});
+  var sections=[], secIdByName={};
+  rows.forEach(function(r){var name=(r.sec||'').trim()||'General';var key=name.toLowerCase();if(!secIdByName[key]){var id='s'+uid();secIdByName[key]=id;sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:MTG_SECTION_COLORS[sections.length%MTG_SECTION_COLORS.length],tasks:[]});}});
+  if(!sections.length) sections=[{id:'s1',name:'General',sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}];
+  var items=rows.map(function(r){var name=(r.sec||'').trim()||'General';return {id:uid(),dept:secIdByName[name.toLowerCase()],status:'followup',title:r.title.trim(),kind:'',assigneeId:'',owner:'',due:'',discussed:false,notes:'',carried:0,reviewers:[],files:[],subs:[],comments:[]};});
+  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:attendees,
+    items:items,decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
+    sections:sections,recording:{active:false,startedAt:0}};
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
     v=v||{meetings:[]}; if(!v.meetings) v.meetings=[]; v.meetings.push(m);
-    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('"'+title+'" created in Meeting Management'); });
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('"'+title+'" created — open it in Meeting Management (pillar 02) to run it'); });
   });
+}
+function openMeetingDetail(id){
+  var m=(MEET_CACHE.meetings||[]).find(function(x){return ''+x.id===''+id;});
+  if(!m){toast('Meeting not found');return;}
+  var boards=(m.sections&&m.sections.length)?m.sections:[{id:'',name:'Agenda',color:'#d6b36a'}];
+  var body='<h4>'+esc(m.title||'Weekly Company Meeting')+'</h4>'+
+    '<p style="font-size:11.5px;color:var(--ink-3);margin:-8px 0 16px">'+esc(m.date)+(m.time?' · '+esc(m.time):'')+' · Chair '+esc(m.chair||'')+' · '+(m.attendees||[]).length+' attendee(s) · '+(m.closed?'Closed':'Open')+'</p>';
+  var any=false;
+  boards.forEach(function(d){
+    var items=(m.items||[]).filter(function(i){return i.dept===d.id||(!d.id&&!i.dept);});
+    if(!items.length) return;
+    any=true;
+    body+='<div style="margin-bottom:14px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:'+(d.color||'var(--ink)')+';margin-bottom:6px">'+esc(d.name)+'</div>';
+    body+=items.map(function(i){return '<div style="padding:8px 0;border-bottom:1px solid var(--line-2)"><div style="display:flex;justify-content:space-between;gap:8px"><span style="color:var(--ink)">'+(i.discussed?'✓ ':'')+esc(i.title)+'</span>'+(i.owner?'<span style="font-size:10.5px;color:var(--ink-3)">'+esc(i.owner)+'</span>':'')+'</div>'+(i.notes?'<div style="font-size:11.5px;color:var(--ink-3);margin-top:4px;white-space:pre-wrap">'+esc(i.notes)+'</div>':'')+'</div>';}).join('');
+    body+='</div>';
+  });
+  if(!any) body+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">No agenda items recorded.</p>';
+  if((m.decisions||[]).length){
+    body+='<div style="margin-bottom:14px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Decisions</div>'+
+      m.decisions.map(function(d,i){return '<div style="font-size:12px;color:var(--ink-2);padding:4px 0">'+(i+1)+'. '+esc(d.text)+'</div>';}).join('')+'</div>';
+  }
+  if(m.minutes){
+    body+='<div style="margin-bottom:8px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Minutes &amp; general notes</div><div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.minutes)+'</div></div>';
+  }
+  body+='<div class="foot"><button type="button" class="btn gold" onclick="closeModal()">Close</button></div>';
+  showModal(body);
 }
 
 /* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
 function ME(){return REAL_PEOPLE[0].name;}
+function meDisplay(){return ME().replace(/\w\S*/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1);});}
+function renderProfileChip(){
+  var me=REAL_PEOPLE[0], name=meDisplay(), pr=profileFor(ME());
+  document.getElementById('railAvatar').innerHTML=avatarHtml(ME(),30);
+  document.getElementById('railName').textContent=pr.name||name;
+  var sub=document.querySelector('.rail-profile small');
+  if(sub) sub.textContent=(pr.role||me.role||'Member')+' · '+deptLabel(me.dept).split(' ')[0];
+}
+
+/* ===================== profile editor — colour, photo, role, email ===================== */
+var PROF_PAL=['#5aa87a','#5b8def','#93A267','#a179d8','#e0644f','#4fa8a0','#c77dbb','#8a9099','#237A52','#13B5EA'];
+function _resizeImg(file,cb){var r=new FileReader();r.onload=function(e){var img=new Image();img.onload=function(){
+    var s=128,c=document.createElement('canvas');c.width=s;c.height=s;var ctx=c.getContext('2d');
+    var mn=Math.min(img.width,img.height),sx=(img.width-mn)/2,sy=(img.height-mn)/2;
+    ctx.drawImage(img,sx,sy,mn,mn,0,0,s,s);cb(c.toDataURL('image/jpeg',0.82));};img.src=e.target.result;};r.readAsDataURL(file);}
+function openProfile(){
+  var me=REAL_PEOPLE[0], key=ME().trim().toLowerCase();
+  if(!WS.profiles) WS.profiles={};
+  var existing=WS.profiles[key]||{};
+  var sel={color:existing.color||_defaultAvatarColor(ME()),photo:existing.photo||''};
+  var body='<h4>Your profile</h4>'+
+    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:18px"><span id="profAvWrap"></span>'+
+    '<div><div style="font-size:17px;color:var(--ink)">'+esc(meDisplay())+'</div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-3);margin-top:3px;text-transform:uppercase">'+esc(deptLabel(me.dept))+'</div></div></div>'+
+    '<div style="display:flex;gap:9px;margin-bottom:18px"><label class="btn sm" style="cursor:pointer">Upload photo<input id="profFile" type="file" accept="image/*" style="display:none"></label><button type="button" class="btn sm" id="profRemove">Remove photo</button></div>'+
+    '<label class="f">Avatar colour</label><div id="profSwatches" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>'+
+    '<label class="f">Position / role<input id="profRole" value="'+esc(existing.role||me.role||'')+'"></label>'+
+    '<label class="f">Work email<input id="profEmail" value="'+esc(existing.email||me.email||'')+'"></label>'+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" id="profSave">Save</button></div>';
+  showModal(body);
+  var ov=document.getElementById('modalBody');
+  function paintAv(){document.getElementById('profAvWrap').innerHTML=sel.photo
+    ?'<span class="av prof-avwrap" style="display:inline-flex;border-radius:50%;background-image:url(\''+sel.photo+'\');background-size:cover;background-position:center"></span>'
+    :'<span class="av prof-avwrap" style="display:inline-flex;border-radius:50%;align-items:center;justify-content:center;font:600 22px var(--mono);color:#fff;background:'+sel.color+'">'+initials(meDisplay())+'</span>';}
+  function paintSwatches(){document.getElementById('profSwatches').innerHTML=PROF_PAL.map(function(c){return '<span class="swatch'+(c===sel.color&&!sel.photo?' sel':'')+'" data-c="'+c+'" style="background:'+c+'"></span>';}).join('');
+    ov.querySelectorAll('.swatch').forEach(function(sw){sw.onclick=function(){sel.color=sw.getAttribute('data-c');sel.photo='';paintAv();paintSwatches();};});}
+  paintAv();paintSwatches();
+  document.getElementById('profFile').onchange=function(e){var f=e.target.files&&e.target.files[0];if(!f)return;_resizeImg(f,function(d){sel.photo=d;paintAv();paintSwatches();});};
+  document.getElementById('profRemove').onclick=function(){sel.photo='';paintAv();paintSwatches();};
+  document.getElementById('profSave').onclick=function(){
+    WS.profiles[key]={color:sel.color,photo:sel.photo,role:val('profRole'),email:val('profEmail')};
+    saveWS(); renderProfileChip(); render(); closeModal(); toast('Profile updated');
+  };
+}
 function sameName(a,b){return (a||'').trim().toLowerCase()===(b||'').trim().toLowerCase();}
 function sendToMeeting(kind,recId){
   var rec, label, ownerName;
@@ -949,12 +1054,12 @@ function syncCompletedMeetings(){
 function viewMeetings(){
   var open=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;});
   var closed=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;});
-  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Live reflection of Meeting Management (pillar 02) — use "Send to meeting →" on any Partner, Supply or Buyer record to create one from here.</p>';
+  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Live reflection of Meeting Management (pillar 02) — use "+ New meeting" in My Meetings, or "Send to meeting →" on any Partner, Supply or Buyer record, to create one from here.</p>';
   h+='<div class="section-h"><h3>Open</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Kind</th><th>Items</th></tr></thead><tbody>';
-  h+=open.length?open.map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">No open meetings.</td></tr>';
+  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">No open meetings.</td></tr>';
   h+='</tbody></table></div>';
   h+='<div class="section-h"><h3>Recently completed — synced back</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Synced</th></tr></thead><tbody>';
-  h+=closed.length?closed.slice(-6).reverse().map(function(m){return '<tr><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(m._navSynced?'<span class="chip green">Synced</span>':'<span class="chip">Pending</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>';
+  h+=closed.length?closed.slice(-6).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(m._navSynced?'<span class="chip green">Synced</span>':'<span class="chip">Pending</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>';
   h+='</tbody></table></div>';
   h+='<div style="margin-top:14px"><button class="btn sm" onclick="pollMeetings();toast(\'Checked pillar 02 for updates\')">↻ Refresh from Meeting Management</button></div>';
   return h;
