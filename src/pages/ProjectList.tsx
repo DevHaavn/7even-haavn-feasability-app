@@ -164,16 +164,16 @@ const CSS = `
 .ath-rowname{font-family:var(--mono);font-size:11.7px;letter-spacing:.22em;text-transform:uppercase;color:#d6d9dd;text-shadow:0 1px 8px rgba(0,0,0,.9)}
 .ath-rowname.gold{color:#d6b36a;text-shadow:0 0 8px rgba(244,227,189,.6)}
 .ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname,.ath-base:hover .ath-rowname{color:#fff}
-.ath-bottomrow{display:flex;align-items:center;gap:10px;width:100%;margin-top:16px}
+.ath-bottomrow{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;margin-top:16px}
 .ath-atriumicon{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,.3);background:transparent;cursor:pointer;color:#F3F2EE;transition:.3s;padding:0}
 .ath-atriumicon:hover{border-color:rgba(255,255,255,.8);box-shadow:0 0 22px -6px rgba(255,255,255,.6);background:rgba(255,255,255,.06)}
 .ath-atriumicon svg{width:22px;height:22px;display:block}
-.ath-logoutrow{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;cursor:pointer;
-  font-family:var(--mono);font-size:11.7px;letter-spacing:.28em;text-transform:uppercase;color:#b9bdc4;
+.ath-logoutrow{width:48px;height:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:0;
+  font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:#b9bdc4;
   background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:999px;transition:.3s}
 .ath-logoutrow:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08)}
-.ath-logoutrow .dot{width:8px;height:8px;border-radius:50%;border:1px solid currentColor;flex-shrink:0}
+.ath-logoutrow .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 .ath-dash{cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#cfd3d8;border:1px solid rgba(255,255,255,.24);border-radius:14px;padding:7px 12px;background:transparent;transition:.25s;text-transform:uppercase}
 .ath-dash:hover{border-color:rgba(47,224,122,.6);color:#fff}
 .ath-plist{max-height:min(54vh,460px);overflow-y:auto}
@@ -447,7 +447,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome, autoOpenAtr
               </button>
               <div className="ath-bottomrow">
                 <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
-                <button className="ath-logoutrow" onClick={() => onLogout?.()}><span className="dot" />LOG OUT</button>
+                <button className="ath-logoutrow" aria-label="Log Out" onClick={() => onLogout?.()}>LOG<span className="ring-o" aria-hidden="true" /></button>
               </div>
             </div>
           </div>

@@ -278,13 +278,13 @@ main,footer,header .kicker{transition:.38s}
 .hbrow.gold .g{color:#d6b36a}
 .hbrow.logout{justify-content:center;font-size:11px;letter-spacing:.28em;color:#b9bdc4;border-color:rgba(255,255,255,.22)}
 .hbrow.logout:hover{border-color:rgba(224,100,92,.7);color:#fff;background:rgba(224,100,92,.08);box-shadow:none}
-.hb-bottomrow{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px}
+.hb-bottomrow{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;margin-top:12px}
 .hb-atriumicon{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,.32);background:transparent;cursor:pointer;color:#f6f4f0;transition:.3s;padding:0}
 .hb-atriumicon:hover{border-color:rgba(255,255,255,.85);box-shadow:0 0 22px -6px rgba(255,255,255,.65);background:rgba(255,255,255,.08)}
 .hb-atriumicon svg{width:22px;height:22px;display:block}
-.hb-bottomrow .hbrow.logout{margin-top:0;flex:1;gap:10px}
-.hbrow.logout .dot{width:8px;height:8px;border-radius:50%;border:1px solid currentColor;flex-shrink:0}
+.hb-bottomrow .hbrow.logout{margin-top:0;width:48px;height:48px;flex-shrink:0;flex:none;padding:0;gap:3px;flex-direction:column}
+.hbrow.logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 .hb-atriumfoot{width:32px;height:32px}
 .hb-atriumfoot svg{width:16px;height:16px}
 
@@ -355,7 +355,7 @@ main,footer,header .kicker{transition:.38s}
 .hbrow:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.65);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
 .hbrow .g{color:#f6f4f0}
 .hbrow.gold{background:rgba(10,10,12,.34)}
-.hbrow.logout{border-radius:14px}
+.hbrow.logout{border-radius:999px;font-size:7.5px;letter-spacing:.16em;padding:0}
 .cta{border-radius:18px}
 .chip{border-radius:999px;padding:8px 15px}
 .chip:hover{border-color:rgba(255,255,255,.65);background:rgba(255,255,255,.07);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
@@ -429,7 +429,7 @@ main,footer,header .kicker{transition:.38s}
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
     <div class="hb-bottomrow">
       <button class="hb-atriumicon" id="btnMenuAtrium" type="button" aria-label="ATRIUM — choose a company"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/></svg></button>
-      <button class="hbrow logout" id="mLogout"><span class="dot"></span>Log Out</button>
+      <button class="hbrow logout" id="mLogout" aria-label="Log Out">LOG<span class="ring-o" aria-hidden="true"></span></button>
     </div>
   </div>
 
