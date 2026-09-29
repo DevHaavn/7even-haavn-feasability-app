@@ -6,7 +6,7 @@
 <title>ATRIUM · Meeting Management</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@100;200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ATRIUM · WEEKLY MEETING HUB — Pillar 03 · design from approved prototype · real cloud engine */
 :root{
@@ -55,7 +55,19 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .hub-btn{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);font-size:12px;cursor:pointer;transition:.2s var(--ease);font-family:var(--sans)}
 .hub-btn:hover{border-color:var(--ink-4);color:var(--ink);transform:translateX(-1px)}
 .logo-mark{width:15px;height:17px;display:inline-block}
-.wordmark{font-family:var(--serif);font-weight:500;letter-spacing:.42em;font-size:19px;padding-left:.42em}
+/* the ATRIUM ring mark as a control — canonical 240-grid construction, one
+   stroke weight for the ring and the A; hover draws the gold halo in 800ms */
+.mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(243,242,238,.30);
+  background:rgba(11,13,15,.45);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+.mbtn svg.chev{display:block;overflow:visible}
+.mbtn:hover{border-color:var(--accent);box-shadow:0 0 22px rgba(214,179,106,.18)}
+.mbtn:active{transform:scale(.94)}
+.mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.mbtn .halo circle{fill:none;stroke:var(--accent);stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.wordmark{font-family:'Inter',system-ui,sans-serif;font-weight:100;letter-spacing:.34em;font-size:19px;padding-left:.34em;color:var(--bone,var(--ink))}
 .pillar-tag{color:var(--ink-3);border-left:1px solid var(--line);padding-left:16px;margin-left:2px}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .clock{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.04em}
@@ -96,7 +108,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:9px 15px;border-radius:11px;cursor:pointer;transition:.2s var(--ease);border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 .btn-ghost{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#e7e8ec}
 .btn-ghost:hover{background:rgba(255,255,255,.1)}
-.btn-gold{background:linear-gradient(135deg,#e2b45c,#c8912f);color:#231a06;font-weight:600;box-shadow:0 8px 20px -8px rgba(216,165,74,.6)}
+.btn-gold{background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);color:#0B0D0F;font-weight:600;box-shadow:0 8px 20px -8px rgba(216,165,74,.6)}
 .btn-gold:hover{filter:brightness(1.05);transform:translateY(-1px)}
 .hero-stats{display:flex;gap:34px;flex-wrap:wrap;margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.09);position:relative}
 .stat{display:flex;flex-direction:column;gap:3px}
@@ -218,7 +230,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .mdr .mchip .x{cursor:pointer;color:var(--ink-4)}
 .mdr .dactions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
 .mdr .dbtn{font-family:var(--sans);font-size:12.5px;padding:9px 13px;border-radius:10px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer}
-.mdr .dbtn.gold{background:var(--accent);color:#231a06;border-color:transparent}
+.mdr .dbtn.gold{background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);color:#0B0D0F;border-color:transparent}
 .mdr .dbtn.dark{background:var(--ink);color:var(--bg1);border-color:transparent}
 .mdr .dbtn.del{color:var(--red)}
 .mdr .attrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px}
@@ -229,7 +241,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .att-item>span:first-child{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .att-item .x{cursor:pointer;color:var(--ink-4)}
 .row-tags{display:inline-flex;align-items:center;gap:7px;color:var(--ink-3);font-family:var(--mono);font-size:10px}
-.xbtn.gold{background:linear-gradient(135deg,#e2b45c,#c8912f);color:#231a06;border-color:transparent;font-weight:600}
+.xbtn.gold{background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);color:#0B0D0F;border-color:transparent;font-weight:600}
 .xbtn.del{color:var(--red)}.xbtn.del:hover{background:rgba(224,100,79,.1);border-color:var(--red)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 .card{background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-sm);padding:20px}
@@ -349,7 +361,7 @@ body.focus .present-nav{display:flex}
 .con-foot .mono{color:var(--ink-4);font-size:9px}
 .con-fbtn{font-family:var(--sans);font-size:11.5px;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer}
 .con-fbtn:hover{border-color:var(--ink-4);color:var(--ink)}
-.con-fbtn.go{background:linear-gradient(135deg,#e2b45c,#c8912f);color:#231a06;border-color:transparent;font-weight:600}
+.con-fbtn.go{background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);color:#0B0D0F;border-color:transparent;font-weight:600}
 .dock-card{background:var(--glass);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .dock-h{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid var(--line-2);flex:0 0 auto}
 .dock-h .dt{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
@@ -368,7 +380,7 @@ body.focus .present-nav{display:flex}
 .dock-ctrls{display:flex;gap:7px;margin-top:13px}
 .dock-ctrls button{flex:1;font-family:var(--sans);font-size:12px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer}
 .dock-ctrls button:hover{border-color:var(--ink-4);color:var(--ink)}
-.dock-ctrls .go{background:linear-gradient(135deg,#e2b45c,#c8912f);color:#231a06;border-color:transparent;font-weight:600}
+.dock-ctrls .go{background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);color:#0B0D0F;border-color:transparent;font-weight:600}
 .dock-mic{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:100px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);cursor:pointer}
 .dock-mic.live{color:var(--red);border-color:var(--red);background:rgba(224,100,79,.08)}
 .dock-mic .md{width:7px;height:7px;border-radius:50%;background:var(--ink-4)}
@@ -423,8 +435,11 @@ body.focus .present-nav{display:flex}
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <button class="hub-btn" onclick="hubBack()">← Hub</button>
-      <svg class="logo-mark" viewBox="0 0 66 74" fill="none"><path d="M4 74 L33 0 L62 74" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
+      <button class="mbtn" onclick="hubBack()" title="Back to the hub" aria-label="Back to the hub">
+        <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
+        <svg class="chev" viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
+      </button>
+      <svg class="logo-mark" viewBox="77 65 87 110" fill="none"><path d="M79.24 172 L120 68 L160.76 172" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
       <span class="wordmark">ATRIUM</span>
       <span class="mono pillar-tag">Pillar 02 · Meeting Management</span>
     </div>
@@ -438,8 +453,8 @@ body.focus .present-nav{display:flex}
 </div>
 <div class="tabs">
   <div class="tabs-inner">
-    <button class="tab on" data-tab="agenda">Agenda</button>
-    <button class="tab" data-tab="meetings">Meetings <span class="count" id="cMtg">0</span></button>
+    <button class="tab on" data-tab="meetings">Meetings <span class="count" id="cMtg">0</span></button>
+    <button class="tab" data-tab="agenda">Agenda</button>
     <button class="tab" data-tab="requests">Requests <span class="count" id="cReq">0</span></button>
     <button class="tab" data-tab="events">Events <span class="count" id="cEvt">0</span></button>
     <button class="tab" data-tab="actions">Actions <span class="count" id="cAct">0</span></button>
@@ -448,7 +463,7 @@ body.focus .present-nav{display:flex}
   </div>
 </div>
 <div class="wrap">
-<section class="panel on" id="p-agenda">
+<section class="panel" id="p-agenda">
  <div class="agenda-grid">
   <aside class="leftrail">
     <div class="hero">
@@ -514,7 +529,7 @@ body.focus .present-nav{display:flex}
   </div>
  </div>
 </section>
-<section class="panel" id="p-meetings">
+<section class="panel on" id="p-meetings">
   <div class="panel-head">
     <div><div class="mono eyebrow">Up &amp; coming · internal &amp; external</div><h2 class="serif">Meetings</h2><p>Every meeting that isn't closed yet — the recurring Weekly Company Meeting plus any one-off internal or external meeting you create. Open one to run its own agenda, attendees, timer and live notes using everything already built.</p></div>
     <button class="btn btn-gold" onclick="openNewMeetingModal()">+ New meeting</button>
@@ -539,7 +554,7 @@ body.focus .present-nav{display:flex}
 </section>
 </div>
 <div class="foot">
-  <span class="fm"><svg class="logo-mark" viewBox="0 0 66 74" fill="none"><path d="M4 74 L33 0 L62 74" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg> ATRIUM</span>
+  <span class="fm"><svg class="logo-mark" viewBox="77 65 87 110" fill="none"><path d="M79.24 172 L120 68 L160.76 172" stroke="currentColor" stroke-width="7" stroke-linejoin="miter" stroke-linecap="butt"/></svg> ATRIUM</span>
   <a onclick="doUpdate();return false">⟳ Update</a>
   <span class="cr">Meeting Management · Pillar 02</span>
 </div>
@@ -605,7 +620,14 @@ var DEPTS=[
   {id:'mgmt',name:'HAAVN Management',sub:'Development & Construction',lead:'John Dimmatina',color:'#d8a54a',tasks:[]},
   {id:'admin',name:'Administration & Accounts',sub:'Finance & Operations',lead:'Dom Ma / Amy Baldwin',color:'#a179d8',tasks:[]}
 ];
-function deptMeta(id){return DEPTS.find(function(d){return d.id===id;});}
+function deptMeta(id){var m=cur();if(m&&m.sections&&m.sections.length){var s=m.sections.find(function(x){return x.id===id;});if(s)return s;}return DEPTS.find(function(d){return d.id===id;});}
+/* ad-hoc meetings (internal/external) carry their own fully-custom agenda
+   sections instead of the fixed company departments — the weekly cycle
+   always uses DEPTS untouched. */
+var SECTION_COLORS=['#5b8def','#5aa87a','#d8a54a','#a179d8','#e0644f','#5aa8a8','#c77dbb','#8a9099'];
+function curBoards(){var m=cur();if(m&&m.kind&&m.kind!=='weekly')return m.sections||[];return DEPTS;}
+function addSection(name){var m=cur();if(!m.sections)m.sections=[];var id='s'+uid();m.sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:SECTION_COLORS[m.sections.length%SECTION_COLORS.length],tasks:[]});save();return id;}
+function findOrAddSection(name){name=(name||'').trim();if(!name)return null;var m=cur();var ex=(m.sections||[]).find(function(s){return s.name.toLowerCase()===name.toLowerCase();});if(ex)return ex.id;return addSection(name);}
 /* Departments added in Pillar 01 (Workflow) are mirrored to a shared key and
    merged in here, so new departments push through to the weekly agenda. */
 function mergeSharedDepts(){var k=(location.search.indexOf('preview')>=0)?'atrium_departments_preview':'atrium_departments';fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+k+'&select=value',{headers:SUPA_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){if(!rows||!rows.length||!Array.isArray(rows[0].value))return;var shared=rows[0].value,ids=shared.map(function(c){return c.id;}),changed=false;
@@ -618,7 +640,7 @@ var PILLCLASS={update:'s-update',action:'s-action',followup:'s-followup',trouble
 var KINDS=['','request','event','action'];
 var KIND_LABEL={'':'— none —',request:'Request',event:'Event',action:'Action'};
 var STATUS_MAP={open:'action',prog:'followup',done:'complete',block:'trouble',introuble:'trouble',update:'update',action:'action',followup:'followup',trouble:'trouble',complete:'complete'};
-var DB=null, tab='agenda', openItem=null, viewArchiveId=null, ME='Jamie Baldwin', activeFilter='all';
+var DB=null, tab='meetings', openItem=null, viewArchiveId=null, ME='Jamie Baldwin', activeFilter='all';
 var _uid=1; function uid(){return _uid++;}
 function cur(){return DB.meetings.find(function(m){return m.id===DB.currentId;});}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -640,7 +662,7 @@ function avatarColor(n){var c=['#5b8def','#5aa87a','#d8a54a','#a179d8','#e0644f'
 function attById(id){return cur().attendees.find(function(a){return ''+a.id===''+id;});}
 function itemById(id){return cur().items.find(function(i){return ''+i.id===''+id;});}
 
-function syncDeptTasks(){var m=cur();DEPTS.forEach(function(d){d.tasks=(m.items||[]).filter(function(i){return i.dept===d.id;});});}
+function syncDeptTasks(){var m=cur();curBoards().forEach(function(d){d.tasks=(m.items||[]).filter(function(i){return i.dept===d.id;});});}
 function render(){if(!DB)return;syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
 function renderHero(){var m=cur();document.getElementById('heroDate').textContent=fmtLong(m.date);document.getElementById('heroChair').innerHTML='Chair <b>'+esc(m.chair)+'</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts';var fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd&&document.activeElement!==fd)fd.value=m.date;if(ft&&document.activeElement!==ft)ft.value=m.time;
   var eb=document.getElementById('heroEyebrow');if(eb)eb.textContent='ATRIUM · '+(m.title||'Weekly Company Meeting')+(m.kind&&m.kind!=='weekly'?(' · '+m.kind.toUpperCase()):'');
@@ -649,17 +671,24 @@ function renderAtt(){var m=cur();var present=m.attendees.filter(function(a){retu
 function passFilter(t){switch(activeFilter){case 'all':return true;case 'mine':{var a=t.assigneeId?attById(t.assigneeId):null;return (a?a.name:t.owner)===ME;}case 'action':return t.kind==='action'||t.status==='action';case 'request':return t.kind==='request';case 'event':return t.kind==='event';case 'introuble':return t.status==='trouble';case 'open':return !t.discussed;default:return true;}}
 function taskRow(t,color){var hide=!passFilter(t);var a=t.assigneeId?attById(t.assigneeId):null;var who=a?a.name:(t.owner||'—');var tag=t.kind?'<span class="tag">'+esc(KIND_LABEL[t.kind].toUpperCase())+'</span>':'';var age=(t.carried||0)>0?'<span class="age">↻ '+t.carried+'w carried</span>':'';var due=t.due?'<span class="due">'+esc(fmtShort(t.due))+'</span>':'';var exp=openItem===t.id;return '<div class="task '+(t.discussed?'done':'')+'" data-id="'+t.id+'" style="--rowc:'+color+';'+(hide?'display:none':'')+'" onclick="rowClick(event,'+t.id+')"><div class="cbx '+(t.discussed?'checked':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[t.status]+'"><span class="pd"></span>'+IS_LABEL[t.status]+'</span>'+tag+'<span class="t-title">'+esc(t.title||'Untitled task')+'</span>'+age+'<span class="assignee"><span class="av" style="width:24px;height:24px;background:'+avatarColor(who)+'">'+initials(who)+'</span>'+esc(who)+'</span>'+due+(((t.files&&t.files.length)?'<span class="row-tags" title="'+t.files.length+' document(s)">📎 '+t.files.length+'</span>':'')+((t.reviewers&&t.reviewers.length)?'<span class="row-tags" title="'+t.reviewers.length+' reviewer(s)">👁 '+t.reviewers.length+'</span>':''))+'<span class="dots" onclick="event.stopPropagation();openItemDrawer('+t.id+')">⋯</span></div>';}
 function taskEditor(t){var m=cur();return '<div class="task-exp" onclick="event.stopPropagation()"><label class="xl">Status<select onchange="setField('+t.id+',\'status\',this.value)">'+ISTATUS.map(function(s){return '<option value="'+s+'" '+(t.status===s?'selected':'')+'>'+IS_LABEL[s]+'</option>';}).join('')+'</select></label><label class="xl">Classify<select onchange="setField('+t.id+',\'kind\',this.value)">'+KINDS.map(function(k){return '<option value="'+k+'" '+(t.kind===k?'selected':'')+'>'+KIND_LABEL[k]+'</option>';}).join('')+'</select></label><label class="xl">Assign to<select onchange="setAssignee('+t.id+',this.value)"><option value="">— unassigned —</option>'+m.attendees.map(function(p){return '<option value="'+p.id+'" '+(''+t.assigneeId===''+p.id?'selected':'')+'>'+esc(p.name)+(p.email?'':' (no email)')+'</option>';}).join('')+'</select></label><label class="xl">Due<input type="date" value="'+(t.due||'')+'" onchange="setField('+t.id+',\'due\',this.value)"></label><textarea placeholder="Notes / detail…" oninput="setNote('+t.id+',this.value)">'+esc(t.notes)+'</textarea><label class="xl" style="width:100%">Reviewers · attendees<div class="rev-chips">'+(t.reviewers||[]).map(function(rid){var a=attById(rid);if(!a)return '';return '<span class="revchip on"><span class="av" style="width:18px;height:18px;font-size:8px;background:'+avatarColor(a.name)+'">'+initials(a.name)+'</span>'+esc(a.name.split(' ')[0])+'<span class="x" onclick="toggleItemReviewer('+t.id+','+rid+')">×</span></span>';}).join('')+'<select class="revsel" onchange="if(this.value){toggleItemReviewer('+t.id+',+this.value);}"><option value="">+ Add reviewer…</option>'+m.attendees.filter(function(p){return (t.reviewers||[]).indexOf(p.id)<0;}).map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('')+'</select></div></label><label class="xl" style="width:100%">Attachments<div class="att-list">'+((t.files&&t.files.length)?t.files.map(function(f){return '<span class="att-item"><span onclick="openAttachment(\''+f.id+'\')">📄 '+esc(f.name)+'</span><span class="x" onclick="rmItemFile('+t.id+',\''+f.id+'\')">×</span></span>';}).join(''):'<span style="color:var(--ink-4);font-size:12px">No documents — attach one to show it in the meeting.</span>')+'</div><label class="xbtn" style="cursor:pointer;margin-top:6px;width:fit-content">📎 Attach document<input type="file" style="display:none" onchange="attachToItem('+t.id+',this)"></label></label><div class="xbtns"><button class="xbtn gold" onclick="emailItem('+t.id+')">✉ Email assignee</button><button class="xbtn del" onclick="rmItem('+t.id+')">Delete</button></div></div>';}
-function renderDepts(){document.getElementById('depts').innerHTML=DEPTS.map(function(d){var discussed=d.tasks.filter(function(t){return t.discussed;}).length;var risk=d.tasks.some(function(t){return t.status==='trouble';});var health=d.tasks.length===0?'':'<span class="health '+(risk?'risk':'ok')+'">'+(risk?'⚠ At risk':'● On track')+'</span>';var body=d.tasks.length?d.tasks.map(function(t){return taskRow(t,d.color);}).join(''):'<div class="empty">No tasks yet — add a task for this department.</div>';return '<div class="dept" data-dept="'+d.id+'"><div class="dept-head" onclick="deptClick(event,\''+d.id+'\')" title="Press to point the live notes / dictation at '+esc(d.name)+'"><span class="dept-bar" style="background:'+d.color+'"></span><div><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div><div class="dept-sub">'+d.sub+'</div></div><div class="dept-meta">'+health+'<span class="lead">Lead · <b>'+esc(d.lead)+'</b><br>'+discussed+'/'+d.tasks.length+' discussed</span><button class="addtask" onclick="quickAdd(\''+d.id+'\')">+ Task</button></div></div><div class="dept-body">'+body+'</div></div>';}).join('');}
+function renderDepts(){var m=cur();var isAdhoc=m&&m.kind&&m.kind!=='weekly';
+  var html=curBoards().map(function(d){var discussed=d.tasks.filter(function(t){return t.discussed;}).length;var risk=d.tasks.some(function(t){return t.status==='trouble';});var health=d.tasks.length===0?'':'<span class="health '+(risk?'risk':'ok')+'">'+(risk?'⚠ At risk':'● On track')+'</span>';var body=d.tasks.length?d.tasks.map(function(t){return taskRow(t,d.color);}).join(''):'<div class="empty">No tasks yet — add a task for this '+(isAdhoc?'agenda item':'department')+'.</div>';var leadRow=isAdhoc?'':'<span class="lead">Lead · <b>'+esc(d.lead)+'</b><br>'+discussed+'/'+d.tasks.length+' discussed</span>';var adhocMeta=isAdhoc?'<span class="lead">'+discussed+'/'+d.tasks.length+' discussed<br><span class="dx" style="cursor:pointer" onclick="event.stopPropagation();renameSection(\''+d.id+'\')">✎ Rename</span> · <span class="dx" style="cursor:pointer" onclick="event.stopPropagation();rmSection(\''+d.id+'\')">Remove</span></span>':'';return '<div class="dept" data-dept="'+d.id+'"><div class="dept-head" onclick="deptClick(event,\''+d.id+'\')" title="Press to point the live notes / dictation at '+esc(d.name)+'"><span class="dept-bar" style="background:'+d.color+'"></span><div><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div><div class="dept-sub">'+d.sub+'</div></div><div class="dept-meta">'+health+leadRow+adhocMeta+'<button class="addtask" onclick="quickAdd(\''+d.id+'\')">+ Task</button></div></div><div class="dept-body">'+body+'</div></div>';}).join('');
+  if(isAdhoc&&!curBoards().length)html='<div class="empty" style="margin-bottom:14px">No agenda items yet.</div>'+html;
+  if(isAdhoc)html+='<button class="btn btn-ghost" style="margin-top:4px" onclick="addSectionPrompt()">+ Add agenda item</button>';
+  document.getElementById('depts').innerHTML=html;}
+function addSectionPrompt(){var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3)">New agenda item</div><label class="xl">Name<input id="as_name" placeholder="e.g. Budget, Landscaping, Timeline…"></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="xbtn" data-as="no">Cancel</button><button class="xbtn gold" data-as="ok">Add</button></div></div>';document.body.appendChild(o);setTimeout(function(){var i=document.getElementById('as_name');if(i)i.focus();},40);o.addEventListener('click',function(ev){if(ev.target===o||ev.target.closest('[data-as="no"]')){o.remove();return;}if(!ev.target.closest('[data-as="ok"]'))return;var v=(document.getElementById('as_name').value||'').trim();if(!v){toast('Name it first');return;}addSection(v);o.remove();render();toast('Agenda item added — "'+v+'"');});}
+function renameSection(id){var s=deptMeta(id);if(!s)return;var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3)">Rename agenda item</div><label class="xl">Name<input id="rs_name" value="'+esc(s.name)+'"></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="xbtn" data-rs="no">Cancel</button><button class="xbtn gold" data-rs="ok">Save</button></div></div>';document.body.appendChild(o);setTimeout(function(){var i=document.getElementById('rs_name');if(i){i.focus();i.select();}},40);o.addEventListener('click',function(ev){if(ev.target===o||ev.target.closest('[data-rs="no"]')){o.remove();return;}if(!ev.target.closest('[data-rs="ok"]'))return;var v=(document.getElementById('rs_name').value||'').trim();if(!v){toast('Name it first');return;}s.name=v;o.remove();save();render();});}
+function rmSection(id){var m=cur();var has=(m.items||[]).some(function(i){return i.dept===id;});if(has){toast('Move or delete its items first');return;}m.sections=(m.sections||[]).filter(function(s){return s.id!==id;});save();render();}
 function renderStats(){var m=cur();var tasks=m.items||[];var total=tasks.length;var done=tasks.filter(function(t){return t.discussed;}).length;var open=total-done;var trouble=tasks.filter(function(t){return t.status==='trouble';}).length;var carried=tasks.filter(function(t){return (t.carried||0)>0;}).length;var present=m.attendees.filter(function(a){return a.present;}).length;var pct=total?Math.round(done/total*100):0;document.getElementById('heroStats').innerHTML=stat(done+'<small>/'+total+'</small>','Complete')+stat(present+'<small>/'+m.attendees.length+'</small>','Present')+stat(open,'Open tasks')+stat(trouble,'In trouble',trouble>0?'bad':'');var arc=document.getElementById('ringArc');var circ=2*Math.PI*30;arc.style.strokeDasharray=circ;arc.style.strokeDashoffset=circ*(1-pct/100);document.getElementById('ringPct').textContent=pct+'%';document.getElementById('tileComplete').textContent=done+' / '+total;document.getElementById('tileCarried').textContent=carried;document.getElementById('tileTrouble').textContent=trouble;var series=weeklyTrend();var traj=series[series.length-1]-series[0];var tr=document.getElementById('momTrend');tr.className='trend '+(traj>=0?'up':'down');tr.textContent=(traj>=0?'▲ ':'▼ ')+Math.abs(traj)+'%';var max=Math.max.apply(null,series)||1;document.getElementById('spark').innerHTML=series.map(function(v,i){var op=i===series.length-1?1:.5+.4*(i/series.length);return '<i style="height:'+(v/max*100)+'%;opacity:'+op+'"></i>';}).join('');}
 function stat(num,lbl,cls){return '<div class="stat '+(cls||'')+'"><div class="num">'+num+'</div><div class="lbl">'+lbl+'</div></div>';}
-function weeklyTrend(){var closed=(DB.meetings||[]).filter(function(m){return m.closed;}).sort(function(a,b){return a.date.localeCompare(b.date);});var arr=closed.slice(-5).map(function(m){var t=(m.items||[]).length;var d=(m.items||[]).filter(function(x){return x.discussed;}).length;return t?Math.round(d/t*100):0;});var m=cur();var t=(m.items||[]).length;arr.push(t?Math.round((m.items.filter(function(x){return x.discussed;}).length)/t*100):0);while(arr.length<6)arr.unshift(arr.length?arr[0]:0);return arr.slice(-6);}
+function weeklyTrend(){var closed=(DB.meetings||[]).filter(function(m){return m.closed&&(!m.kind||m.kind==='weekly');}).sort(function(a,b){return a.date.localeCompare(b.date);});var arr=closed.slice(-5).map(function(m){var t=(m.items||[]).length;var d=(m.items||[]).filter(function(x){return x.discussed;}).length;return t?Math.round(d/t*100):0;});var m=cur();var t=(m.items||[]).length;arr.push(t?Math.round((m.items.filter(function(x){return x.discussed;}).length)/t*100):0);while(arr.length<6)arr.unshift(arr.length?arr[0]:0);return arr.slice(-6);}
 function renderDecisions(){var m=cur();var ds=m.decisions||[];document.getElementById('decCount').textContent=ds.length+' logged';document.getElementById('decList').innerHTML=ds.map(function(d,i){return '<div class="dec"><span class="dn">'+(i+1)+'.</span><div style="flex:1"><div>'+esc(d.text)+'</div><div class="meta">'+esc(d.by)+' · '+esc(d.at||fmtShort(m.date))+'</div></div><span class="dx" onclick="rmDecision('+d.id+')">×</span></div>';}).join('');}
 function rollRow(it,m){var d=deptMeta(it.dept)||{};var a=it.assigneeId?(m.attendees.find(function(p){return ''+p.id===''+it.assigneeId;})):null;var who=a?a.name:(it.owner||'—');return '<tr><td><div class="tt">'+esc(it.title||'(untitled)')+'</div>'+(it.notes?'<div class="st2">'+esc(it.notes)+'</div>':'')+'</td><td><span class="deptdot"><span class="cdot" style="background:'+(d.color||'#999')+'"></span>'+esc(d.name||it.dept||'')+'</span></td><td>'+esc(who)+'</td><td><span class="pill '+PILLCLASS[it.status]+'"><span class="pd"></span>'+IS_LABEL[it.status]+'</span></td><td>'+(it.due?esc(fmtShort(it.due)):'—')+'</td><td class="mono" style="letter-spacing:.05em;color:var(--ink-3)">'+esc(fmtShort(m.date))+'</td></tr>';}
 function rollup(kind){var out=[];(DB.meetings||[]).forEach(function(m){(m.items||[]).forEach(function(it){if(it.kind===kind)out.push({it:it,m:m});});});return out;}
 function renderRollups(){var reqs=rollup('request'),evts=rollup('event'),acts=rollup('action');document.getElementById('tbReq').innerHTML=reqs.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('tbEvt').innerHTML=evts.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('tbAct').innerHTML=acts.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('cReq').textContent=reqs.length;document.getElementById('cEvt').textContent=evts.length;document.getElementById('cAct').textContent=acts.length;}
 function emptyRow(){return '<tr><td colspan="6" style="text-align:center;color:var(--ink-4);font-style:italic;padding:26px">Nothing here yet — classify a task on the Agenda.</td></tr>';}
 function renderArchive(){var past=(DB.meetings||[]).filter(function(m){return m.closed;}).sort(function(a,b){return b.date.localeCompare(a.date);});document.getElementById('cArch').textContent=past.length;if(viewArchiveId){var am=DB.meetings.find(function(x){return x.id===viewArchiveId;});if(am){document.getElementById('archList').innerHTML=archiveDetail(am);return;}}document.getElementById('archList').innerHTML=past.length?past.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var pct=t?Math.round(d/t*100):0;return '<div class="arch-row" onclick="viewArchiveId='+m.id+';render()"><div class="arch-date">'+fmtLong(m.date)+'</div><div class="arch-mini"><span><b>'+pct+'%</b> complete</span><span><b>'+d+'/'+t+'</b> items</span><span><b>'+(m.attendees||[]).filter(function(a){return a.present;}).length+'/'+(m.attendees||[]).length+'</b> present</span><span><b>'+((m.decisions||[]).length)+'</b> decisions</span></div><span class="go">Review →</span></div>';}).join(''):'<div class="empty">No archived meetings yet. Close the current meeting to file it here.</div>';}
-function archiveDetail(m){var body=DEPTS.map(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return '';return '<div class="dept"><div class="dept-head"><span class="dept-bar" style="background:'+d.color+'"></span><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div></div><div class="dept-body">'+items.map(function(i){var a=i.assigneeId?(m.attendees.find(function(p){return ''+p.id===''+i.assigneeId;})):null;return '<div class="task '+(i.discussed?'done':'')+'" style="--rowc:'+d.color+';cursor:default"><div class="cbx '+(i.discussed?'checked':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[i.status]+'"><span class="pd"></span>'+IS_LABEL[i.status]+'</span><span class="t-title">'+esc(i.title)+'</span><span class="assignee">'+esc(a?a.name:(i.owner||''))+'</span></div>';}).join('')+'</div></div>';}).join('');var decs=(m.decisions||[]).length?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Decisions</h3></div>'+(m.decisions.map(function(d,i){return '<div class="dec"><span class="dn">'+(i+1)+'.</span><div>'+esc(d.text)+'<div class="meta">'+esc(d.by)+'</div></div></div>';}).join(''))+'</div>':'';var mins=m.minutes?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Minutes</h3></div><div style="white-space:pre-wrap;font-size:13.5px;color:var(--ink-2)">'+esc(m.minutes)+'</div></div>':'';return '<button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line);margin-bottom:14px" onclick="viewArchiveId=null;render()">← All meetings</button><div class="panel-head" style="margin-top:0"><div><div class="mono eyebrow">Archived meeting</div><h2 class="serif">'+fmtLong(m.date)+'</h2></div><button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line)" onclick="rollForward('+m.id+')">↻ Roll unfinished forward</button></div>'+body+decs+mins;}
+function archiveDetail(m){var boards=(m.sections&&m.sections.length)?m.sections:DEPTS;var body=boards.map(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return '';return '<div class="dept"><div class="dept-head"><span class="dept-bar" style="background:'+d.color+'"></span><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div></div><div class="dept-body">'+items.map(function(i){var a=i.assigneeId?(m.attendees.find(function(p){return ''+p.id===''+i.assigneeId;})):null;return '<div class="task '+(i.discussed?'done':'')+'" style="--rowc:'+d.color+';cursor:default"><div class="cbx '+(i.discussed?'checked':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[i.status]+'"><span class="pd"></span>'+IS_LABEL[i.status]+'</span><span class="t-title">'+esc(i.title)+'</span><span class="assignee">'+esc(a?a.name:(i.owner||''))+'</span></div>';}).join('')+'</div></div>';}).join('');var decs=(m.decisions||[]).length?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Decisions</h3></div>'+(m.decisions.map(function(d,i){return '<div class="dec"><span class="dn">'+(i+1)+'.</span><div>'+esc(d.text)+'<div class="meta">'+esc(d.by)+'</div></div></div>';}).join(''))+'</div>':'';var mins=m.minutes?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Minutes</h3></div><div style="white-space:pre-wrap;font-size:13.5px;color:var(--ink-2)">'+esc(m.minutes)+'</div></div>':'';return '<button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line);margin-bottom:14px" onclick="viewArchiveId=null;render()">← All meetings</button><div class="panel-head" style="margin-top:0"><div><div class="mono eyebrow">Archived meeting</div><h2 class="serif">'+fmtLong(m.date)+'</h2></div><button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line)" onclick="rollForward('+m.id+')">↻ Roll unfinished forward</button></div>'+body+decs+mins;}
 
 function rowClick(e,id){if(e.target.closest('input,textarea,select,button,.cbx,.av,a'))return;openItemDrawer(id);}
 function toggleExp(id){openItemDrawer(id);}
@@ -727,26 +756,58 @@ function renderMeetingsList(){if(!DB)return;var open=(DB.meetings||[]).filter(fu
   document.getElementById('cMtg').textContent=open.length;
   document.getElementById('mtgList').innerHTML=open.length?open.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var active=m.id===DB.currentId;var kindLbl=(!m.kind||m.kind==='weekly')?'WEEKLY':m.kind.toUpperCase();
     return '<div class="arch-row" onclick="openMeeting('+m.id+')" style="'+(active?'border-color:var(--accent)':'')+'"><div class="arch-date">'+esc(m.title||'Weekly Company Meeting')+(active?' <span class="tag" style="border-color:var(--accent);color:var(--accent-soft)">● ACTIVE</span>':'')+'<div class="dept-sub" style="margin-top:4px">'+fmtLong(m.date)+' · '+esc(m.time||'')+' · '+kindLbl+'</div></div><div class="arch-mini"><span><b>'+Math.round((m.targetSec||2700)/60)+'</b> min</span><span><b>'+(m.attendees||[]).length+'</b> attendees</span><span><b>'+d+'/'+t+'</b> items</span>'+((m.recording&&m.recording.active)?'<span style="color:var(--red)">● recording</span>':'')+'</div><span class="go">Open →</span></div>';}).join(''):'<div class="empty">No open meetings. Start one with + New meeting.</div>';}
-function openNewMeetingModal(){var o=document.createElement('div');o.className='modal in';
-  o.innerHTML='<div class="modal-card">'+
-    '<div class="mono" style="color:var(--ink-3)">New meeting</div>'+
+/* ── full meeting set-up: name/type/time + attendees + the whole agenda in one go,
+   so opening the meeting later has everything ready ── */
+var _nmA=[], _nmI=[];
+function _nmRowsA(){return _nmA.map(function(r,i){return '<div class="row-tags" style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
+  '<input class="txt" style="flex:1.3" placeholder="Name" value="'+esc(r.name)+'" oninput="_nmA['+i+'].name=this.value">'+
+  '<input class="txt" style="flex:1.3" placeholder="Email" value="'+esc(r.email)+'" oninput="_nmA['+i+'].email=this.value">'+
+  '<input class="txt" style="flex:1" placeholder="Role" value="'+esc(r.role)+'" oninput="_nmA['+i+'].role=this.value">'+
+  '<span class="dx" style="cursor:pointer" onclick="_nmA.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('');}
+function _nmSecOptions(){var seen={},out=[];_nmI.forEach(function(r){var v=(r.sec||'').trim();if(v&&!seen[v.toLowerCase()]){seen[v.toLowerCase()]=1;out.push(v);}});return out;}
+function _nmRowsI(){return _nmI.map(function(r,i){return '<div class="row-tags" style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
+  '<input class="txt" style="flex:1.3" placeholder="Agenda item" value="'+esc(r.title)+'" oninput="_nmI['+i+'].title=this.value">'+
+  '<input class="txt" style="flex:1" list="nm_sec_dl" placeholder="Agenda name — type to add or reuse" value="'+esc(r.sec)+'" oninput="_nmI['+i+'].sec=this.value;_nmRefreshDL()">'+
+  '<span class="dx" style="cursor:pointer" onclick="_nmI.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('')+'<datalist id="nm_sec_dl">'+_nmSecOptions().map(function(v){return '<option value="'+esc(v)+'">';}).join('')+'</datalist>';}
+function _nmAddA(){_nmA.push({name:'',email:'',role:''});_nmRefresh();}
+function _nmAddI(){_nmI.push({title:'',sec:_nmSecOptions()[0]||''});_nmRefresh();}
+function _nmRefresh(){var a=document.getElementById('nm_att_rows');if(a)a.innerHTML=_nmRowsA();var i=document.getElementById('nm_item_rows');if(i)i.innerHTML=_nmRowsI();}
+function _nmRefreshDL(){var dl=document.getElementById('nm_sec_dl');if(dl)dl.innerHTML=_nmSecOptions().map(function(v){return '<option value="'+esc(v)+'">';}).join('');}
+function openNewMeetingModal(){_nmA=[{name:'',email:'',role:''}];_nmI=[{title:'',sec:''}];
+  var o=document.createElement('div');o.className='modal in';
+  o.innerHTML='<div class="modal-card" style="width:min(560px,calc(100vw - 32px));max-height:86vh;overflow-y:auto">'+
+    '<div class="mono" style="color:var(--ink-3)">New meeting — set it up fully, ready to go</div>'+
     '<label class="xl">Name<input id="nm_title" placeholder="e.g. SOLUM design review"></label>'+
-    '<label class="xl">Type<select id="nm_kind"><option value="internal">Internal</option><option value="external">External</option></select></label>'+
-    '<label class="xl">Date<input id="nm_date" type="date" value="'+ymd(new Date())+'"></label>'+
-    '<label class="xl">Time<input id="nm_time" value="10:00"></label>'+
-    '<label class="xl">Duration (minutes)<input id="nm_dur" type="number" min="5" value="30"></label>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="xbtn" data-nm="no">Cancel</button><button class="xbtn gold" data-nm="ok">Create</button></div>'+
+    '<div style="display:flex;gap:10px">'+
+    '<label class="xl" style="flex:1">Type<select id="nm_kind"><option value="internal">Internal</option><option value="external">External</option></select></label>'+
+    '<label class="xl" style="flex:1">Duration (min)<input id="nm_dur" type="number" min="5" value="30"></label>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px">'+
+    '<label class="xl" style="flex:1">Date<input id="nm_date" type="date" value="'+ymd(new Date())+'"></label>'+
+    '<label class="xl" style="flex:1">Time<input id="nm_time" value="10:00"></label>'+
+    '</div>'+
+    '<div class="dsec" style="margin-top:10px"><h4 style="font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--ink-3);margin-bottom:8px;text-transform:uppercase">Attendees</h4>'+
+    '<div id="nm_att_rows">'+_nmRowsA()+'</div><button class="xbtn" onclick="_nmAddA()" type="button">+ Add attendee</button></div>'+
+    '<div class="dsec" style="margin-top:14px"><h4 style="font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--ink-3);margin-bottom:8px;text-transform:uppercase">Agenda</h4>'+
+    '<div style="font-size:11.5px;color:var(--ink-4);margin-bottom:8px">Name each agenda item however you like — type a new name or reuse one already typed below. Add as many as this meeting needs.</div>'+
+    '<div id="nm_item_rows">'+_nmRowsI()+'</div><button class="xbtn" onclick="_nmAddI()" type="button">+ Add agenda item</button></div>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="xbtn" data-nm="no">Cancel</button><button class="xbtn gold" data-nm="ok">Create meeting</button></div>'+
   '</div>';
   document.body.appendChild(o);setTimeout(function(){var i=document.getElementById('nm_title');if(i)i.focus();},40);
   o.addEventListener('click',function(ev){if(ev.target===o||ev.target.closest('[data-nm="no"]')){o.remove();return;}if(!ev.target.closest('[data-nm="ok"]'))return;
     var title=(document.getElementById('nm_title').value||'').trim();if(!title){toast('Name the meeting first');return;}
     var nm=newAdhocMeeting({title:title,kind:document.getElementById('nm_kind').value,date:document.getElementById('nm_date').value||ymd(new Date()),time:document.getElementById('nm_time').value,durationMin:parseInt(document.getElementById('nm_dur').value)||30});
-    DB.meetings.push(nm);o.remove();save();openMeeting(nm.id);toast('Meeting created — add attendees below, then build the agenda');});}
+    nm.attendees=_nmA.filter(function(r){return (r.name||'').trim();}).map(function(r){return {id:uid(),name:r.name.trim(),email:(r.email||'').trim(),role:(r.role||'').trim(),present:true};});
+    var rows=_nmI.filter(function(r){return (r.title||'').trim();});
+    nm.sections=[];var secIdByName={};
+    rows.forEach(function(r){var name=(r.sec||'').trim()||'General';var key=name.toLowerCase();if(!secIdByName[key]){var id='s'+uid();secIdByName[key]=id;nm.sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:SECTION_COLORS[nm.sections.length%SECTION_COLORS.length],tasks:[]});}});
+    nm.items=rows.map(function(r){var name=(r.sec||'').trim()||'General';return newItem({dept:secIdByName[name.toLowerCase()],status:'followup',title:r.title.trim()});});
+    DB.meetings.push(nm);o.remove();save();openMeeting(nm.id);toast('Meeting set up — agenda and notes ready to go');});}
 
 function exportMenu(){var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3)">Export this meeting</div><div style="font-size:12px;color:var(--ink-3)">Full agenda — tasks, statuses, assignees, due dates &amp; notes.</div><div style="display:flex;gap:8px;margin-top:6px"><button class="xbtn" data-x="pdf" style="flex:1">↧ PDF</button><button class="xbtn" data-x="xls" style="flex:1">↧ Excel</button></div><div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="xbtn" data-x="no">Cancel</button></div></div>';document.body.appendChild(o);o.addEventListener('click',function(ev){var b=ev.target.closest('[data-x]');if(ev.target===o){o.remove();return;}if(!b)return;var x=b.dataset.x;o.remove();if(x==='pdf'){setTimeout(function(){window.print();},60);}else if(x==='xls'){exportXLS();}});}
-function exportXLS(){var m=cur();var html='<table border="1"><tr><th>Department</th><th>Task</th><th>Status</th><th>Type</th><th>Assignee</th><th>Due</th><th>Notes</th></tr>';DEPTS.forEach(function(d){(m.items||[]).filter(function(i){return i.dept===d.id;}).forEach(function(i){var a=i.assigneeId?attById(i.assigneeId):null;html+='<tr><td>'+esc(d.name)+'</td><td>'+esc(i.title||'')+'</td><td>'+esc(IS_LABEL[i.status])+'</td><td>'+esc(i.kind?KIND_LABEL[i.kind]:'')+'</td><td>'+esc(a?a.name:(i.owner||''))+'</td><td>'+esc(i.due||'')+'</td><td>'+esc(i.notes||'')+'</td></tr>';});});html+='</table>';var blob=new Blob(['﻿<html><head><meta charset="utf-8"></head><body>'+html+'</body></html>'],{type:'application/vnd.ms-excel'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='ATRIUM-meeting-'+m.date+'.xls';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},120);toast('Excel exported');}
+function exportXLS(){var m=cur();var html='<table border="1"><tr><th>Department</th><th>Task</th><th>Status</th><th>Type</th><th>Assignee</th><th>Due</th><th>Notes</th></tr>';curBoards().forEach(function(d){(m.items||[]).filter(function(i){return i.dept===d.id;}).forEach(function(i){var a=i.assigneeId?attById(i.assigneeId):null;html+='<tr><td>'+esc(d.name)+'</td><td>'+esc(i.title||'')+'</td><td>'+esc(IS_LABEL[i.status])+'</td><td>'+esc(i.kind?KIND_LABEL[i.kind]:'')+'</td><td>'+esc(a?a.name:(i.owner||''))+'</td><td>'+esc(i.due||'')+'</td><td>'+esc(i.notes||'')+'</td></tr>';});});html+='</table>';var blob=new Blob(['﻿<html><head><meta charset="utf-8"></head><body>'+html+'</body></html>'],{type:'application/vnd.ms-excel'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='ATRIUM-meeting-'+m.date+'.xls';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},120);toast('Excel exported');}
 
-function meetingText(m){var L=[];L.push('ATRIUM · WEEKLY COMPANY MEETING');L.push(fmtLong(m.date)+'  ·  '+m.time);L.push('Chair: '+m.chair);L.push('Present: '+(m.attendees.filter(function(a){return a.present;}).map(function(a){return a.name;}).join(', ')||'—'));L.push('');DEPTS.forEach(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return;L.push('── '+d.name.toUpperCase()+'   (Lead: '+d.lead+')');items.forEach(function(i){var a=i.assigneeId?attById(i.assigneeId):null;var who=a?a.name:(i.owner||'');L.push('  '+(i.discussed?'[x]':'[ ]')+' ['+IS_LABEL[i.status]+'] '+(i.title||'')+(i.kind?' ('+KIND_LABEL[i.kind]+')':'')+(who?' — '+who:'')+(i.due?' · due '+i.due:''));if(i.notes)L.push('        '+i.notes);});L.push('');});if((m.decisions||[]).length){L.push('DECISIONS');m.decisions.forEach(function(d,i){L.push('  '+(i+1)+'. '+d.text+'  ('+d.by+')');});L.push('');}if(m.minutes){L.push('MINUTES & GENERAL NOTES');L.push(m.minutes);L.push('');}return L.join('\n');}
+function meetingText(m){var L=[];L.push('ATRIUM · '+(m.title||'WEEKLY COMPANY MEETING').toUpperCase());L.push(fmtLong(m.date)+'  ·  '+m.time);L.push('Chair: '+m.chair);L.push('Present: '+(m.attendees.filter(function(a){return a.present;}).map(function(a){return a.name;}).join(', ')||'—'));L.push('');var boards=(m.sections&&m.sections.length)?m.sections:DEPTS;boards.forEach(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return;L.push('── '+d.name.toUpperCase()+(d.lead?'   (Lead: '+d.lead+')':''));items.forEach(function(i){var a=i.assigneeId?attById(i.assigneeId):null;var who=a?a.name:(i.owner||'');L.push('  '+(i.discussed?'[x]':'[ ]')+' ['+IS_LABEL[i.status]+'] '+(i.title||'')+(i.kind?' ('+KIND_LABEL[i.kind]+')':'')+(who?' — '+who:'')+(i.due?' · due '+i.due:''));if(i.notes)L.push('        '+i.notes);});L.push('');});if((m.decisions||[]).length){L.push('DECISIONS');m.decisions.forEach(function(d,i){L.push('  '+(i+1)+'. '+d.text+'  ('+d.by+')');});L.push('');}if(m.minutes){L.push('MINUTES & GENERAL NOTES');L.push(m.minutes);L.push('');}return L.join('\n');}
 function emailMinutes(){var m=cur();var subj='ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date);window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(meetingText(m));}
 function copyMinutes(){var m=cur();var txt='Subject: ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date)+'\n\n'+meetingText(m);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Minutes + decisions copied');},function(){toast('Copy failed');});}else{toast('Copy not available');}}
 function emailItem(id){var it=itemById(id);if(!it)return;var a=it.assigneeId?attById(it.assigneeId):null;if(!a){toast('Assign this task to an attendee first');return;}if(!a.email){toast(a.name+' has no email — add it on their chip');return;}var m=cur();var subj='['+(it.kind?KIND_LABEL[it.kind]:'Agenda')+'] '+(it.title||'Action from the boardroom');var body='Hi '+a.name.split(' ')[0]+',\n\nFrom the weekly meeting ('+fmtLong(m.date)+') you have been assigned:\n\n• '+(it.title||'')+'\n  Status: '+IS_LABEL[it.status]+(it.due?'\n  Due: '+fmtLong(it.due):'')+(it.notes?'\n  Notes: '+it.notes:'')+'\n\n— ATRIUM · boardroom@7even.au\n';(window.openOutlook?window.openOutlook([a.email],subj,body,'task details'):(window.location.href='mailto:'+encodeURIComponent(a.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)));}
@@ -808,7 +869,11 @@ function openCmd(){document.getElementById('cmdOverlay').classList.add('on');var
 function closeCmd(){document.getElementById('cmdOverlay').classList.remove('on');cmdDept=null;}
 document.getElementById('cmdHint').onclick=openCmd;
 document.getElementById('cmdOverlay').addEventListener('click',function(e){if(e.target===this)closeCmd();});
-function renderCmdOpts(){document.getElementById('cmdOpts').innerHTML=DEPTS.map(function(d){return '<div class="cmd-opt'+(cmdDept===d.id?' sel':'')+'" onclick="cmdAdd(\''+d.id+'\')"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div>';}).join('');}
+function renderCmdOpts(){var m=cur();var isAdhoc=m&&m.kind&&m.kind!=='weekly';
+  var html=curBoards().map(function(d){return '<div class="cmd-opt'+(cmdDept===d.id?' sel':'')+'" onclick="cmdAdd(\''+d.id+'\')"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div>';}).join('');
+  if(isAdhoc)html+='<div class="cmd-opt" onclick="cmdAddNewSection()" style="color:var(--accent-soft)">+ New agenda item…</div>';
+  document.getElementById('cmdOpts').innerHTML=html;}
+function cmdAddNewSection(){var v=(prompt('Name this agenda item:')||'').trim();if(!v)return;var id=findOrAddSection(v);cmdDept=id;renderCmdOpts();}
 function cmdAdd(deptId){var v=document.getElementById('cmdInput').value.trim();if(!v){toast('Type a task first');return;}var it=newItem({dept:deptId,status:'followup',title:v,owner:ME});cur().items.push(it);closeCmd();switchTab('agenda');openItem=it.id;save();render();toast('Added to '+deptMeta(deptId).name);}
 document.getElementById('cmdInput').addEventListener('keydown',function(e){if(e.key==='Enter'){cmdAdd(cmdDept||'company');}});
 document.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCmd();}if(e.key==='Escape')closeCmd();});
