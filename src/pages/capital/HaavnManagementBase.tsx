@@ -39,75 +39,82 @@ export const HM_PILLARS: HMPillar[] = [
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7EVEN | HAAVN — MANAGEMENT HUB. Exact copy of the HAAVN BLACK MANAGEMENT
-// design: moving video backdrop, brand lockup centre, and pillar cards ringed
-// by a rotating LED border — green on 01, blue on 02.
+// ATRIUM MANAGEMENT HUB. Moving video backdrop inverted into a soft white/
+// grey palette, the ATRIUM wordmark (exact login treatment) in place of the
+// old 7EVEN/HAAVN lockup, the canonical circular ring+A back control, and
+// pillar cards that stay fully transparent until hovered — held only by a
+// rotating gold LED ring border.
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
-.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#040404;display:flex;flex-direction:column;
+.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#f4f2ee;display:flex;flex-direction:column;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-.hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+  filter:invert(1) brightness(1.05) contrast(.82) saturate(.12) sepia(.05)}
 .hmh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
-.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
-.hmh-btn{cursor:pointer;font-family:'Chakra Petch','JetBrains Mono',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:#c9cdd2;padding:10px 16px;border-radius:2px;border:1px solid rgba(255,255,255,.28);background:transparent;transition:.3s}
-.hmh-btn:hover{border-color:rgba(47,224,122,.7);color:#fff;background:rgba(47,224,122,.06);box-shadow:0 0 24px -10px rgba(47,224,122,.6)}
-.hmh-brand{margin-left:auto;display:flex;align-items:center;gap:10px}
-.hmh-brand .m7{height:13px;width:auto}
-.hmh-brand .div{width:1px;height:16px;background:rgba(255,255,255,.25)}
-.hmh-brand .mh{height:15px;width:auto;filter:brightness(0) invert(1)}
-.hmh-brand .b{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:12px;letter-spacing:.18em;color:#8a8d90;white-space:nowrap}
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.3) 42%,rgba(255,255,255,.68))}
+.hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(20,20,25,.10);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
+.mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
+  background:rgba(255,255,255,.55);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1)}
+.mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18)}
+.mbtn:active{transform:scale(.94)}
+.mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.mbtn .halo circle{fill:none;stroke:#d6b36a;stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.hmh-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
+.hmh-brand .wm{display:flex;align-items:baseline;font:100 16px/1 'Inter',sans-serif;letter-spacing:.3em;color:#1a1b1e}
+.hmh-brand .tag{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.24em;color:#83868e;white-space:nowrap;
+  border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
 .hmh-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:56px 32px 40px;max-width:1180px;width:100%;margin:0 auto}
-.hmh-eyebrow{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500}
-.hmh-lock{display:flex;align-items:center;gap:20px;margin-top:22px}
-.hmh-lock .m7{height:clamp(26px,3.6vw,42px);width:auto;filter:drop-shadow(0 2px 12px rgba(0,0,0,.6))}
-.hmh-lock .div{width:1px;height:clamp(30px,4.4vw,52px);background:rgba(255,255,255,.3)}
-.hmh-lock .mh{height:clamp(24px,3.4vw,40px);width:auto;filter:brightness(0) invert(1) drop-shadow(0 2px 12px rgba(0,0,0,.6))}
-.hmh-mgmt{font-family:'Chakra Petch',sans-serif;font-weight:500;font-size:clamp(14px,1.8vw,19px);letter-spacing:.52em;text-transform:uppercase;color:#fff;margin-top:18px;padding-left:.52em}
-.hmh-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:16px;max-width:62ch;line-height:1.6}
-.hmh-faint{color:#6a6e73;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px}
-.hmh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
+.hmh-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#83868e;font-weight:500}
+.hmh-wm{display:flex;align-items:center;font:100 clamp(38px,7vw,64px)/1 'Inter',sans-serif;letter-spacing:.3em;padding-left:.3em;color:#1a1b1e;margin-top:26px}
+.hmh-wm .a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.hmh-wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+.hmh-mgmt{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:clamp(12px,1.6vw,15px);letter-spacing:.5em;text-transform:uppercase;color:#8f6a25;margin-top:20px;padding-left:.5em}
+.hmh-sub{color:#4a4d54;font-size:14px;text-align:center;margin-top:18px;max-width:62ch;line-height:1.6}
+.hmh-faint{color:#83868e;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px;font-family:'JetBrains Mono',monospace}
+.hmh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(20,20,25,.24),transparent);margin:24px auto 34px}
 .hmh-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
 @property --hmhA{syntax:'<angle>';inherits:false;initial-value:0deg}
 @keyframes hmh-spin{to{--hmhA:360deg}}
-.hmh-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
-.hmh-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
+.hmh-ledbox{position:relative;border-radius:22px;padding:1.7px;isolation:isolate;transition:transform .3s}
+.hmh-ledbox::before{content:'';position:absolute;inset:0;border-radius:22px;padding:1.7px;
   background:conic-gradient(from var(--hmhA),transparent 0deg,#d6b36a 130deg,#f4e3bd 160deg,#d6b36a 190deg,transparent 310deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
   filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.45)) drop-shadow(0 0 14px rgba(214,179,106,.3));
   animation:hmh-spin 4.6s linear infinite;z-index:1}
-.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.28;pointer-events:none;
+.hmh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:28px;z-index:0;opacity:.28;pointer-events:none;
   background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(214,179,106,.3) 150deg,transparent 300deg);
   filter:blur(16px);animation:hmh-spin 4.6s linear infinite}
 .hmh-ledbox.b2::before,.hmh-ledbox.b2::after{animation-direction:reverse}
 .hmh-ledbox:hover{transform:translateY(-4px)}
 .hmh-ledbox:hover::before,.hmh-ledbox:hover::after{animation-duration:2.4s}
-.hmh-pcard{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
-  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+.hmh-pcard{position:relative;z-index:2;border-radius:20px;background:transparent;transition:background .35s cubic-bezier(.16,1,.3,1);
   padding:30px 28px 26px;min-height:560px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.hmh-pcard:hover,.hmh-pcard:focus-visible{background:rgba(10,10,10,.35)}
 .hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
-.hmh-pnum{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1;
-  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3),0 0 34px rgba(190,150,80,.2)}
-.hmh-papex{font-size:15px;opacity:.9;line-height:1;text-shadow:0 0 8px rgba(244,227,189,.45),0 0 18px rgba(214,179,106,.28)}
-.hmh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px;
-  text-shadow:0 0 8px rgba(244,227,189,.38),0 0 18px rgba(214,179,106,.22)}
-.hmh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:27px;letter-spacing:.01em;line-height:1.06;color:#fff;margin:0}
-.hmh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
-.hmh-pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
-.hmh-penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+.hmh-pnum{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:300;line-height:1;color:#8f6a25}
+.hmh-papex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(143,106,37,.45);display:flex;align-items:center;justify-content:center;color:#8f6a25}
+.hmh-papex svg{width:11px;height:11px;display:block}
+.hmh-psub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;margin:18px 0 8px;color:#8f6a25}
+.hmh-ptitle{font-family:'Inter',sans-serif;font-weight:300;font-size:27px;letter-spacing:.01em;line-height:1.1;color:#8f6a25;margin:0}
+.hmh-pline{height:1px;background:rgba(20,20,25,.14);margin:16px 0}
+.hmh-pblurb{color:#1a1b1e;font-size:13px;line-height:1.6;margin:0;flex:1}
+.hmh-penter{margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#1a1b1e}
 .hmh-logout{position:fixed;bottom:18px;left:20px;z-index:30}
-.hmh-logout{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em}
+.hmh-logout{width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
+  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
+.hmh-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
 .hmh-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 @media(max-width:640px){.hmh-body{padding:36px 20px 110px}.hmh-pcard{min-height:auto}}
 
 @media(max-width:600px){
   .hmh-head{padding:16px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 57px);gap:12px}
   .hmh-brand{margin-left:0;width:100%}
-  .hmh-brand .b{display:none}
-  .hmh-lock{flex-wrap:wrap;justify-content:center;row-gap:10px}
+  .hmh-brand .tag{display:none}
   .hmh-sub{padding:0 4px}
   .hmh-logout{position:static;margin:30px auto 44px;left:auto;bottom:auto}
   .hmh-body{padding-bottom:24px}
@@ -131,22 +138,21 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
 
       {/* Header */}
       <div className="hmh-head">
-        <button className="hmh-btn" onClick={onClose}>&#8592; ATRIUM</button>
+        <button className="mbtn" onClick={onClose} title="Back to ATRIUM" aria-label="Back to ATRIUM">
+          <svg className="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)" /></svg>
+          <svg viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="9" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
+        </button>
         <div className="hmh-brand">
-          <img className="m7" src="/seven-mark-white-hd.png" alt="7EVEN" />
-          <span className="div" />
-          <img className="mh" src="/haavn-mark.png" alt="HAAVN" />
-          <span className="b">· MANAGEMENT HUB</span>
+          <div className="wm"><b>ATRIUM</b></div>
+          <span className="tag">Management Hub</span>
         </div>
       </div>
 
       {/* Body */}
       <div className="hmh-body">
         <div className="hmh-eyebrow">Integrated Management Platform</div>
-        <div className="hmh-lock">
-          <img className="m7" src="/seven-mark-white-hd.png" alt="7EVEN" />
-          <span className="div" />
-          <img className="mh" src="/haavn-mark.png" alt="HAAVN" />
+        <div className="hmh-wm">
+          <span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
         </div>
         <div className="hmh-mgmt">Management Hub</div>
         <p className="hmh-sub">Two pillars — the team’s workflow and the weekly meeting — one unified command centre.</p>
@@ -158,11 +164,11 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
             <div key={p.id} className={'hmh-ledbox' + (i === 1 ? ' b2' : '')}>
               <button className="hmh-pcard" onClick={() => setPillar(p.id)}>
                 <div className="hmh-prow">
-                  <span className="hmh-pnum" style={{ color: p.color }}>{p.num}</span>
-                  <span className="hmh-papex" style={{ color: p.color }}>&#9650;</span>
+                  <span className="hmh-pnum">{p.num}</span>
+                  <span className="hmh-papex"><svg viewBox="0 0 240 240"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="16" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>
                 </div>
                 <div>
-                  <p className="hmh-psub" style={{ color: p.color }}>{p.sub}</p>
+                  <p className="hmh-psub">{p.sub}</p>
                   <h2 className="hmh-ptitle">{p.title}</h2>
                 </div>
                 <div className="hmh-pline" />
@@ -174,9 +180,9 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
         </div>
       </div>
 
-      <SiteLinks />
+      <SiteLinks tone="light" />
       <Project7Mark />
-      <button className="hmh-btn hmh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
+      <button className="hmh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )
 }
