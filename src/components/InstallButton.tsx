@@ -77,7 +77,7 @@ export default function InstallButton({ compact = false }: { compact?: boolean }
             fontSize: compact ? 8 : 9.5, letterSpacing: '0.24em',
             textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap',
           }}>
-          <img src="/icons/icon-192.png?v=11" alt="" width={compact ? 12 : 14} height={compact ? 12 : 14} style={{ display: 'block', borderRadius: 3 }} />
+          <img src="/icons/icon-192.png?v=12" alt="" width={compact ? 12 : 14} height={compact ? 12 : 14} style={{ display: 'block', borderRadius: 3 }} />
           Add to Desktop
         </button>
         <span className="atrium-install-label" aria-hidden="true"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg>TRIUM</span>
@@ -98,7 +98,7 @@ function Help({ reinstall, onClose, onGotIt }: { reinstall?: boolean; onClose: (
         background: 'linear-gradient(to bottom, rgba(10,14,20,0.55), rgba(8,11,16,0.72)), url(/renders/tower-hero.jpg) center / cover no-repeat, #05070a',
       }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <img src="/icons/icon-192.png?v=11" alt="" width={64} height={64} style={{ display: 'block', borderRadius: 16, filter: 'drop-shadow(0 10px 26px rgba(0,0,0,0.4))' }} />
+        <img src="/icons/icon-192.png?v=12" alt="" width={64} height={64} style={{ display: 'block', borderRadius: 16, filter: 'drop-shadow(0 10px 26px rgba(0,0,0,0.4))' }} />
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#EEF1F2', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 100, fontSize: 22, letterSpacing: '0.30em', paddingLeft: '0.30em', textShadow: '0 2px 18px rgba(0,0,0,0.5)' }}>
           <svg viewBox="0 0 100 100" aria-hidden="true" width={16} height={17.6} style={{ display: 'block', flexShrink: 0 }}><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
           TRIUM
