@@ -257,6 +257,13 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-group">HAAVN Black · Home Sales</div>
     <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales Pipeline<span class="n" id="cBuyers">0</span></div>
     <div class="rail-item" data-tab="buyers" data-icon="people">Home Buyers</div>
+    <div class="rail-group">HAAVN Black · Team</div>
+    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team Board</div>
+    <div class="rail-item" data-tab="workload" data-icon="people">Workload</div>
+    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly Review<span class="n" id="cWeekly">0</span></div>
+    <div class="rail-group">Meetings &amp; Momentum</div>
+    <div class="rail-item" data-tab="actions" data-icon="review">Action Register<span class="n" id="cActions">0</span></div>
+    <div class="rail-item" data-tab="meetings" data-icon="calendar">Meetings</div>
 
     <div class="rail-foot">
       <div class="rail-rule"></div>
@@ -297,7 +304,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 
 <script>
 /* ===================== real seed data (migrated from atrium_workflow — nothing lost) ===================== */
-var REAL_PEOPLE = [{"name": "jamie baldwin", "email": "jamie@7even.au", "dept": "company", "role": "Director", "ext": false}, {"name": "Daniel Sette", "email": "daniel@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "Lewis Jin", "email": "lewis@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "James Winstanley", "email": "james@haavn.au", "dept": "haavn", "role": "Manager", "ext": false}, {"name": "Callum Macdonald", "email": "callum@haavn.au", "dept": "haavn", "role": "BDM", "ext": false}, {"name": "Christina Witbreuk", "email": "christina@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "Domenic Paolilli", "email": "domenic@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "John Dimattina", "email": "john@haavn.au", "dept": "haavnmgmt", "role": "Manager", "ext": false}, {"name": "Jeffrey Witbreuk", "email": "jeffrey@haavn.au", "dept": "haavnmgmt", "role": "Construction Manager", "ext": false}, {"name": "James Maloney", "email": "jamesm@haavn.au", "dept": "haavnmgmt", "role": "Project Manager", "ext": false}, {"name": "Amy Baldwin", "email": "accounts@7even.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Dominika Ma", "email": "accounts@haavn.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Alessia Bresciano", "email": "reception@haavn.au", "dept": "admin", "role": "Receptionist", "ext": false}, {"name": "Callum Fraser", "email": "c.fraser@fraserandpartners.com", "dept": "haavn", "role": "Consultant", "ext": true}, {"name": "Lucas Menegazzo", "email": "l.menegazzo@fraserandpartners.com", "dept": "haavnmgmt", "role": "Consultant", "ext": true}, {"name": "Bonnie Zhao", "email": "bonnie@haavn.au", "dept": "haavn", "role": "Member", "ext": false}];
+var REAL_PEOPLE = [{"name": "jamie baldwin", "email": "jamie@7even.au", "dept": "company", "role": "Director", "ext": false}, {"name": "Daniel Sette", "email": "daniel@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "Lewis Jin", "email": "lewis@7even.au", "dept": "7even", "role": "Director", "ext": false}, {"name": "James Winstanley", "email": "james@haavn.au", "dept": "haavn", "role": "Manager", "ext": false}, {"name": "Callum Macdonald", "email": "callum@haavn.au", "dept": "haavnblack", "role": "BDM", "ext": false}, {"name": "Mike Furniss", "email": "mike@haavn.au", "dept": "haavnblack", "role": "Sales", "ext": false}, {"name": "Christina Witbreuk", "email": "christina@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "Domenic Paolilli", "email": "domenic@haavn.au", "dept": "haavn", "role": "Member", "ext": false}, {"name": "John Dimattina", "email": "john@haavn.au", "dept": "haavnmgmt", "role": "Manager", "ext": false}, {"name": "Jeffrey Witbreuk", "email": "jeffrey@haavn.au", "dept": "haavnmgmt", "role": "Construction Manager", "ext": false}, {"name": "James Maloney", "email": "jamesm@haavn.au", "dept": "haavnmgmt", "role": "Project Manager", "ext": false}, {"name": "Amy Baldwin", "email": "accounts@7even.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Dominika Ma", "email": "accounts@haavn.au", "dept": "admin", "role": "Accounts Manager", "ext": false}, {"name": "Alessia Bresciano", "email": "reception@haavn.au", "dept": "admin", "role": "Receptionist", "ext": false}, {"name": "Callum Fraser", "email": "c.fraser@fraserandpartners.com", "dept": "haavn", "role": "Consultant", "ext": true}, {"name": "Lucas Menegazzo", "email": "l.menegazzo@fraserandpartners.com", "dept": "haavnmgmt", "role": "Consultant", "ext": true}, {"name": "Bonnie Zhao", "email": "bonnie@haavn.au", "dept": "haavn", "role": "Member", "ext": false}];
 var REAL_TASKS = [{"title": "China documents & financial structure progressing", "owner": "Jamie Baldwin", "dept": "admin", "status": "doing", "prio": "med", "due": "14 Aug", "desc": "Chase status with Lewis + legal.", "project": "Structure"}, {"title": "Prep 5IVE Caloundra feasibility sign-off", "owner": "Jamie Baldwin", "dept": "company", "status": "todo", "prio": "med", "due": "Mon 24 Aug", "desc": null, "project": "5IVE Hotels"}, {"title": "Melbourne display suite \u2014 filming day", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "low", "due": "28 Aug", "desc": null, "project": "Marketing"}, {"title": "Expense tracking & reimbursement cleanup", "owner": "Dominika Ma", "dept": "admin", "status": "todo", "prio": "low", "due": "25 Aug", "desc": null, "project": "Finance Ops"}, {"title": "DFP status update", "owner": "Daniel Sette", "dept": "7even", "status": "done", "prio": "low", "due": "10 Aug", "desc": null, "project": "DFP"}, {"title": "General updates \u2014 Homes & Sky", "owner": "James Winstanley", "dept": "haavn", "status": "done", "prio": "low", "due": "10 Aug", "desc": null, "project": "Homes"}, {"title": "Preston Modular Review", "owner": "Callum Macdonald", "dept": "haavn", "status": "done", "prio": "med", "due": "2026-08-12", "desc": "Review the modular division plan for Preston. Develop a scope for modular plans moving forward", "project": "\u2014"}, {"title": "Montessori Academy - Defects", "owner": "James Maloney", "dept": "7even", "status": "todo", "prio": "med", "due": "2026-08-17", "desc": "", "project": "\u2014"}, {"title": "TIS - Pulse Check", "owner": "James Maloney", "dept": "7even", "status": "todo", "prio": "med", "due": "2026-08-21", "desc": "", "project": "\u2014"}, {"title": "Weekly board meeting prep", "owner": "Alessia Bresciano", "dept": "7even", "status": "done", "prio": "high", "due": "2026-09-14", "desc": "Please have boardroom computer set up for Monday morning meeting.\nPlease organise 5 croissants or toasted sandwiches cut up for staff.", "project": "\u2014"}, {"title": "Boardroom Setup - ATRIUM", "owner": "Alessia Bresciano", "dept": "company", "status": "done", "prio": "high", "due": "2026-08-17", "desc": "Please make sure ATRIUM through google chrome is setup on all accounts HAAVN login and 7EVEN on both board rooms.", "project": "\u2014"}, {"title": "HAAVN + HM + CSC responsibility matrix", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "2026-08-19", "desc": "", "project": "\u2014"}, {"title": "Presentation Remotes", "owner": "Alessia Bresciano", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "Arrives Today", "project": "\u2014"}, {"title": "Investigate Prefab Council Australia", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Organize delivery of Solum Display Suite", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Haavn Modular Compliance Investigation", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Market and Competitor Analysis", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Risk Register", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Granny Flat Regional Summary", "owner": "Callum Macdonald", "dept": "7even", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Preston Design Review With Bonnie", "owner": "Callum Macdonald", "dept": "haavn", "status": "done", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Chrome - ATRIUM", "owner": "Alessia Bresciano", "dept": "company", "status": "done", "prio": "low", "due": "2026-09-08", "desc": "Have chrome downloaded on both Mac's in boardrooms.", "project": "\u2014"}, {"title": "Task 1. Verify supply availability of materials in exterior package", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "2026-09-24", "desc": "Sub-tasks:\n1.1 If any Chinese alternative materials are adopted, clearly specify substitutions.\n1.2 Arrange material samples if substitutions are made.", "project": "\u2014"}, {"title": "Gather Facade Options and Confirm Technical Facade Details", "owner": "Bonnie Zhao", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-09-30", "desc": "Gather the relevant facade options the factory has already delivered, provide as much detail on waterproofing, onsite installation as possible. \n\nFollow up with the factory regarding the Preston Facade design. Is this possible, what are the potential issues with the design. Provide any detail or required onsite works and joining details", "project": "\u2014"}, {"title": "Task 2. Assess impacts from increased tiled area", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "There is a significant increase in the tiled space\nCan we flag whether this is going to be an issue for:\nWeight (what is the total impact on the module weight)\nTransport and cracking issues", "project": "\u2014"}, {"title": "Task 3. Update Solum quotation based on new interior design", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "Can you please work with the China Team to update the Solum quote based on the new interiors\nWe want this ASAP\nPlease use the Quote format that I sent through to you\n(Obviously this is only one module)\nWe will supply appliance pricing to be included for our internal records (F&P). If you have pricing from the factory for standard appliances you can include this", "project": "\u2014"}, {"title": "Task 4. Confirm timeline for CAD / Solidworks drawings", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "Can you please check with the technical team for when they will complete the CAD/Solidworks drawings for this project\nWe will want a copy of these asap so we can use them to generate assets for launch\nWe will also review any of these sections with the architect to confirm the standard of finishing and detailing", "project": "\u2014"}, {"title": "Task 5. Check smart home compatibility of all appliances", "owner": "Bonnie Zhao", "dept": "haavn", "status": "blocked", "prio": "med", "due": "", "desc": "We want all of the appliances to be able to be controlled with a singular home management application\nWe know that F&P and Haer are both compatible with the SmartHQ\nCan you please check that the other appliances and add ons are compatible (If not please flag)", "project": "\u2014"}, {"title": "Task 6 add a home security camera system", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "We want to add a home security camera system\nPlease include a price for three cameras living and two exteriors (one front one back ) in the quote\nFrom a design perspective we want these to be discrete dome style cameras", "project": "\u2014"}, {"title": "Task 6. Collect specification sheets for all appliances", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "", "desc": "Can you please check all appliances that will be supplied (including aircon, condensers and hot water systems\nPlease provide the specification sheets like the one that I sent earlier from the suppliers", "project": "\u2014"}, {"title": "General Updates, Homes and Sky", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "- Good meeting for Merrimu project 13/8, next steps to get HOA in place and get clarity on client budget\n- Tarneit project to have recut by LIFE arch, update modular proposal/price from there\n- Volume projects to have modules under 3.5m width\n", "project": "Weekly Meeting"}, {"title": "General Updates", "owner": "John Dimattina", "dept": "haavnmgmt", "status": "todo", "prio": "med", "due": "", "desc": "Conversation alliance clients it will be of course I'm talking about the job coming from the supply perspective development in the future if there is 100% traditional project it won't be meant so does that mean supply would be a client haavn management how does that dynamic work in the future there's a traditional we won't talk opportunity to your point to your point is that we're one internally haavn management is a separate business to haavn is a separate business James", "project": "Weekly Meeting"}, {"title": "Accounts Updates", "owner": "Lewis Jin", "dept": "finance", "status": "todo", "prio": "med", "due": "", "desc": "Saint James house make sure is worth two things for a couple of reasons so very high-level but I grip finances Lewis and potentially Dan as well Lewis if this wins we talking about what we're doing as a company in terms of you know we're obviously fundraising when we get big wins we always will tell you once be fun that'll be fun the project will bring the window to the table and loose can talk about stuff like that but in a high-level is at Dom's hotel I'll keep you updated but anything from a group perspective finance you want to discuss all so we'll go straight to admin", "project": "Weekly Meeting"}, {"title": "New capability doc", "owner": "jamie baldwin", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-09-16", "desc": "", "project": "Weekly Meeting"}, {"title": "WEEKLY UPDATE", "owner": "jamie baldwin", "dept": "company", "status": "todo", "prio": "med", "due": "2026-09-21", "desc": "", "project": "Weekly Meeting"}, {"title": "Check freight of Solum", "owner": "Bonnie Zhao", "dept": "haavn", "status": "doing", "prio": "med", "due": "2026-09-24", "desc": "", "project": "Weekly Meeting"}, {"title": "Claude integration with database", "owner": "James Winstanley", "dept": "haavn", "status": "todo", "prio": "med", "due": "2026-10-05", "desc": "", "project": "\u2014"}, {"title": "Solum FFE Brief for Launch", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "CRM and Pipeline HTML Brief for Atrium", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Design Brief Draft", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "MIP Draft for Preston", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Solum Studio Quotation Ongoing", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Design FAQ for Solum", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Path to Market Document", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Customer Documents and Processes", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Customer Flow Chart Review and Customer Facing Elements", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Solum Competitor Investigation", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Government Housing Grants and Programs Review", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Competitor Analysis Claude Set Up", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Modular Projects Tracker Claude Set Up", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}, {"title": "Factory Briefing Documents", "owner": "Callum Macdonald", "dept": "haavn", "status": "todo", "prio": "med", "due": "", "desc": "", "project": "\u2014"}];
 
 /* ===================== cloud (capital_kv) — same project as the rest of ATRIUM ===================== */
@@ -424,7 +431,7 @@ function boot(){
       if(!e.target.closest('.tb-search')){ var gd=document.getElementById('gsDrop'); if(gd) gd.classList.remove('on'); }
       if(!e.target.closest('.notifwrap')){ _notifDropOpen=false; var nd=document.getElementById('notifDrop'); if(nd) nd.classList.remove('on'); }
     });
-    try{ if(!localStorage.getItem('atrium_me')) openWhoAreYou(true); }catch(e){}
+    try{ var _stored=localStorage.getItem('atrium_me'); if(!_stored||!blackPeople().some(function(p){return sameName(p.name,_stored);})) openWhoAreYou(true); }catch(e){}
   });
 }
 function seg(){var t=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('#themeSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});}
@@ -596,13 +603,17 @@ function renderRail(){
   document.getElementById('cBuyers').textContent=WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';}).length;
   document.getElementById('cMyTasks').textContent=WS.actions.filter(function(a){return !a.done&&sameName(a.owner,ME());}).length;
   document.getElementById('cMyAgenda').textContent=WS.actions.filter(function(a){return a.weekly&&!a.done&&sameName(a.owner,ME());}).length;
+  document.getElementById('cActions').textContent=blackActions().filter(function(a){return !a.done;}).length;
+  document.getElementById('cWeekly').textContent=blackActions().filter(function(a){return a.weekly&&!a.done;}).length;
 }
 document.querySelectorAll('.rail-item').forEach(function(el){el.addEventListener('click',function(){TAB=el.dataset.tab;location.hash=TAB;renderRail();render();});});
 
 var TITLES={
   myday:['My Day','MY WORKSPACE'],mytasks:['My Tasks','MY WORKSPACE'],myagenda:['My Weekly Agenda','MY WORKSPACE'],mymeetings:['My Meetings','MY WORKSPACE'],
   sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
-  buyers:['HAAVN Black Home Buyers','BUYER CRM']};
+  buyers:['HAAVN Black Home Buyers','BUYER CRM'],
+  teamboard:['Team Board','HAAVN BLACK · TEAM'],workload:['Workload','HAAVN BLACK · TEAM'],weeklyreview:['Weekly Review','HAAVN BLACK · TEAM'],
+  actions:['Action Register','MEETINGS & MOMENTUM'],meetings:['Meetings','MEETINGS & MOMENTUM']};
 function render(){
   var t=TITLES[TAB]||['',''];
   document.getElementById('tbTitle').textContent=t[0];
@@ -614,6 +625,11 @@ function render(){
   else if(TAB==='mymeetings') v.innerHTML=viewMyMeetings();
   else if(TAB==='sales') v.innerHTML=viewSales();
   else if(TAB==='buyers') v.innerHTML=viewBuyers();
+  else if(TAB==='teamboard') v.innerHTML=viewTeamBoard();
+  else if(TAB==='workload') v.innerHTML=viewWorkload();
+  else if(TAB==='weeklyreview') v.innerHTML=viewWeeklyReview();
+  else if(TAB==='actions') v.innerHTML=viewActions();
+  else if(TAB==='meetings') v.innerHTML=viewMeetings();
   renderRail();
 }
 window.addEventListener('hashchange',function(){TAB=location.hash.replace('#','')||'myday';render();});
@@ -1315,7 +1331,7 @@ function viewBuyers(){
 function viewActions(){
   var f=window._af||'open';
   var t=today();
-  var list=WS.actions.filter(function(a){
+  var list=blackActions().filter(function(a){
     if(f==='open') return !a.done;
     if(f==='overdue') return !a.done && a.due && a.due<t;
     if(f==='completed') return a.done;
@@ -1338,25 +1354,23 @@ function viewActions(){
 }
 function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.status=a.done?'done':'todo';a.completedAt=a.done?nowIso():null;saveWS();render();}
 function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.id===id;});a.status=status;a.done=(status==='done');a.completedAt=a.done?nowIso():null;saveWS();render();}
-function openActionModal(id,prefillDept){
-  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Normal',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
+function openActionModal(id){
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Normal',status:'todo',done:false,dept:'haavnblack',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
   var isNew=!id;
-  var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
-  var allDepts=Object.keys(DEPT_LABELS); WS.actions.forEach(function(x){if(x.dept&&allDepts.indexOf(x.dept)<0)allDepts.push(x.dept);});
-  var deptOpts=allDepts.map(function(d){return '<option value="'+d+'" '+(a.dept===d?'selected':'')+'>'+deptLabel(d)+'</option>';}).join('');
+  var ownerOpts=blackPeople().map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var statusOpts=TASK_STATUS_COLS.map(function(s){return '<option value="'+s[0]+'" '+((a.status||'todo')===s[0]?'selected':'')+'>'+s[1]+'</option>';}).join('');
   var body='<h4>'+(isNew?'New action':'Edit action')+'</h4>'+
     '<label class="f">Title<input id="af_title" value="'+esc(a.title)+'"></label>'+
     '<div class="formgrid"><label class="f">Owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
-    '<div class="formgrid"><label class="f">Department<select id="af_dept">'+deptOpts+'</select></label><label class="f">Status<select id="af_status">'+statusOpts+'</select></label></div>'+
+    '<label class="f">Status<select id="af_status">'+statusOpts+'</select></label>'+
     '<label class="f">Priority</label><div class="row" style="margin:4px 0 10px"><label style="margin-right:14px"><input type="radio" name="af_prio" value="Normal" '+(a.priority!=='High'?'checked':'')+' style="width:auto"> Normal</label><label><input type="radio" name="af_prio" value="High" '+(a.priority==='High'?'checked':'')+' style="width:auto"> High</label></div>'+
-    '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label>'+
+    '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the HAAVN Black Weekly Review</label>'+
     '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveAction(\''+a.id+'\','+isNew+')">Save action</button></div>';
   showModal(body);
 }
 function saveAction(id,isNew){
-  var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),dept:val('af_dept'),status:val('af_status'),
+  var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),dept:'haavnblack',status:val('af_status'),
     priority:document.querySelector('input[name=af_prio]:checked').value,weekly:document.getElementById('af_weekly').checked,notes:val('af_notes')};
   v.done=(v.status==='done');
   if(!v.title.trim()){toast('Title is required');return;}
@@ -1374,21 +1388,15 @@ function deptColor(d){return DEPT_COLOR[d]||'#8a9099';}
 function allKnownDepts(){var out=['company','7even','haavn','haavnblack','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
   WS.actions.forEach(function(a){if(a.dept&&!seen[a.dept]){out.push(a.dept);seen[a.dept]=1;}});return out;}
 function viewTeamBoard(){
-  var deptFilter=window._tbDept||'';
-  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,\''+(deptFilter||'company')+'\')">+ New task</button></div>';
-  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">Live status of every task in the department — this is what gets reviewed, person by person, in the weekly meeting.</p>';
-  h+='<div class="deptbar">'+allKnownDepts().map(function(d){
-    var n=WS.actions.filter(function(a){return a.dept===d;}).length;
-    return '<div class="deptchip'+(deptFilter===d?' on':'')+'" onclick="window._tbDept=\''+(deptFilter===d?'':d)+'\';render()"><span class="cdot" style="background:'+deptColor(d)+'"></span>'+deptLabel(d)+' ('+n+')</div>';
-  }).join('')+'</div>';
-  var list=WS.actions.filter(function(a){return !deptFilter||a.dept===deptFilter;});
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openActionModal()">+ New task</button></div>';
+  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">Live status of every HAAVN Black sales task — this is what gets reviewed, person by person, in the weekly review.</p>';
+  var list=blackActions();
   h+='<div class="tboard">'+TASK_STATUS_COLS.map(function(sc){
     var items=list.filter(function(a){return (a.status||(a.done?'done':'todo'))===sc[0];});
     return '<div class="kcol"><div class="tbcol-h"><span class="lbl" style="color:'+STATUS_COLOR[sc[0]]+'">'+sc[1]+'</span><span class="n">'+items.length+'</span></div>'+
       (items.length?items.map(function(a){
         return '<div class="tbcard" onclick="openActionModal(\''+a.id+'\')"><b>'+esc(a.title)+'</b><div class="meta">'+
           avatarHtml(a.owner,20)+
-          '<span class="chip">'+deptLabel(a.dept)+'</span>'+
           (a.priority==='High'?'<span class="star">★</span>':'')+
           (a.due?'<span class="due">'+esc(a.due)+'</span>':'')+
         '</div></div>';
@@ -1400,68 +1408,64 @@ function viewTeamBoard(){
 
 /* ===================== Workload ===================== */
 function viewWorkload(){
-  var h='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Who\'s carrying what — spot overloaded people and stalled work before the weekly review.</p>';
-  h+='<div class="tablewrap"><table><thead><tr><th>Person</th><th>Department</th><th>Open</th><th>Overdue</th><th>Load</th><th>Done this week</th></tr></thead><tbody>';
+  var h='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Who\'s carrying what on the HAAVN Black sales team — spot overloaded people and stalled work before the weekly review.</p>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Person</th><th>Role</th><th>Open</th><th>Overdue</th><th>Load</th><th>Done this week</th></tr></thead><tbody>';
   var weekAgo=new Date(Date.now()-7*86400000).toISOString();
-  h+=REAL_PEOPLE.map(function(p){
-    var mine=WS.actions.filter(function(a){return sameName(a.owner,p.name);});
+  h+=blackPeople().map(function(p){
+    var mine=blackActions().filter(function(a){return sameName(a.owner,p.name);});
     var open=mine.filter(function(a){return !a.done;}).length;
     var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();}).length;
     var doneWk=mine.filter(function(a){return a.done&&a.completedAt&&a.completedAt>weekAgo;}).length;
     var pct=Math.min(100,open*12), col=open>=8?'var(--red)':open>=4?'var(--gold-deep)':'var(--green)';
     return '<tr><td class="tt"><span style="display:inline-flex;align-items:center;gap:8px">'+avatarHtml(p.name,20)+'<span>'+esc(p.name)+'</span></span></td>'+
-      '<td><span class="chip">'+deptLabel(p.dept)+'</span></td><td>'+open+'</td><td>'+(overdue?('<span class="chip red">'+overdue+'</span>'):'0')+'</td>'+
+      '<td><span class="chip">'+esc(p.role)+'</span></td><td>'+open+'</td><td>'+(overdue?('<span class="chip red">'+overdue+'</span>'):'0')+'</td>'+
       '<td><div class="load-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div></td><td>'+doneWk+'</td></tr>';
   }).join('');
   h+='</tbody></table></div>';
   return h;
 }
 
-/* ===================== Weekly Review (bridges into the Weekly Company Meeting) ===================== */
+/* ===================== Weekly Review (bridges into HAAVN Black's own weekly sales
+   meeting — never the company-wide Weekly Company Meeting) ===================== */
 function viewWeeklyReview(){
-  var flagged=WS.actions.filter(function(a){return a.weekly;});
+  var flagged=blackActions().filter(function(a){return a.weekly;});
   var open=flagged.filter(function(a){return !a.done;});
   var closed=flagged.filter(function(a){return a.done;});
   var blocked=flagged.filter(function(a){return !a.done&&a.status==='blocked';});
   var overdue=flagged.filter(function(a){return !a.done&&a.due&&a.due<today();});
-  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="syncWeeklyToMeeting()">→ Sync all to Weekly Meeting</button></div>';
-  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Every task flagged for the weekly meeting, grouped by department with live status. Sync pushes the open set straight into the Weekly Company Meeting agenda.</p>';
+  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="syncWeeklyToMeeting()">→ Sync all to Weekly Review Meeting</button></div>';
+  h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Every HAAVN Black task flagged for review, with live status. Sync pushes the open set into the HAAVN Black Weekly Sales Review — the sales team\'s own meeting, not the company Weekly Company Meeting.</p>';
   h+='<div class="grid4" style="margin-bottom:18px">'+stat(flagged.length,'On the agenda')+stat(closed.length+'/'+flagged.length,'Closed this week')+stat(blocked.length,'Blocked')+stat(overdue.length,'Overdue')+'</div>';
-  var byDept={}; open.forEach(function(a){(byDept[a.dept]=byDept[a.dept]||[]).push(a);});
-  var depts=Object.keys(byDept);
-  h+=depts.length?depts.map(function(d){
-    var items=byDept[d];
-    return '<div class="wr-group"><div class="wr-ghead"><span class="cdot" style="background:'+deptColor(d)+'"></span>'+deptLabel(d)+'<span class="spacer"></span><span class="n">'+items.filter(function(a){return a.done;}).length+'/'+items.length+' closed</span></div>'+
-      items.map(function(a){
-        var overdue2=!a.done&&a.due&&a.due<today();
-        return '<div class="wr-row"><input type="checkbox" onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"><span class="chip" style="color:'+STATUS_COLOR[a.status||'todo']+';border-color:currentColor">'+(TASK_STATUS_COLS.find(function(s){return s[0]===(a.status||'todo');})||['',''])[1]+'</span>'+
-          '<span class="tt" onclick="openActionModal(\''+a.id+'\')">'+esc(a.title)+'</span>'+
-          (a.priority==='High'?'<span class="star">★</span>':'')+
-          '<span style="font-family:var(--mono);font-size:10px;color:'+(overdue2?'var(--red)':'var(--ink-3)')+'">'+(a.due||'—')+'</span>'+
-          avatarHtml(a.owner,20)+'</div>';
-      }).join('')+
-    '</div>';
-  }).join(''):'<div class="empty">Nothing flagged for the weekly meeting yet — flag a task from the Action Register or Team Board.</div>';
+  h+=open.length?'<div class="wr-group"><div class="wr-ghead">HAAVN Black<span class="spacer"></span><span class="n">'+closed.length+'/'+flagged.length+' closed</span></div>'+
+    open.map(function(a){
+      var overdue2=!a.done&&a.due&&a.due<today();
+      return '<div class="wr-row"><input type="checkbox" onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"><span class="chip" style="color:'+STATUS_COLOR[a.status||'todo']+';border-color:currentColor">'+(TASK_STATUS_COLS.find(function(s){return s[0]===(a.status||'todo');})||['',''])[1]+'</span>'+
+        '<span class="tt" onclick="openActionModal(\''+a.id+'\')">'+esc(a.title)+'</span>'+
+        (a.priority==='High'?'<span class="star">★</span>':'')+
+        '<span style="font-family:var(--mono);font-size:10px;color:'+(overdue2?'var(--red)':'var(--ink-3)')+'">'+(a.due||'—')+'</span>'+
+        avatarHtml(a.owner,20)+'</div>';
+    }).join('')+
+  '</div>':'<div class="empty">Nothing flagged for review yet — flag a task from the Action Register or Team Board.</div>';
   return h;
 }
 function syncWeeklyToMeeting(){
-  var open=WS.actions.filter(function(a){return a.weekly&&!a.done;});
-  if(!open.length){toast('Nothing open is flagged for the weekly meeting');return;}
+  var open=blackActions().filter(function(a){return a.weekly&&!a.done;});
+  if(!open.length){toast('Nothing open is flagged for the weekly review');return;}
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
     v=v||{meetings:[]}; if(!v.meetings) v.meetings=[];
-    var m=v.meetings.find(function(x){return (!x.kind||x.kind==='weekly')&&!x.closed;});
-    if(!m){ m={id:Date.now(),date:today(),time:'08:30',chair:ME(),attendees:REAL_PEOPLE.filter(function(p){return !p.ext;}).map(function(p,i){return {id:i+1,name:p.name,email:p.email,role:p.role,present:true};}),
-      items:[],decisions:[],minutes:'',closed:false,kind:'weekly',title:'Weekly Company Meeting',targetSec:2700,recording:{active:false,startedAt:0}}; v.meetings.push(m); }
+    var m=v.meetings.find(function(x){return x.kind==='haavnblack-weekly'&&!x.closed;});
+    if(!m){ m={id:Date.now(),date:today(),time:'08:30',chair:ME(),attendees:blackPeople().map(function(p,i){return {id:i+1,name:p.name,email:p.email,role:p.role,present:true};}),
+      items:[],decisions:[],minutes:'',closed:false,kind:'haavnblack-weekly',title:'HAAVN Black · Weekly Sales Review',targetSec:1800,recording:{active:false,startedAt:0}}; v.meetings.push(m); }
     var existingTitles={}; (m.items||[]).forEach(function(it){existingTitles[it.title]=it;});
     var added=0;
     open.forEach(function(a){
       if(existingTitles[a.title]) return;
-      m.items.push({id:(m.items.length?Math.max.apply(null,m.items.map(function(x){return x.id;}))+1:1),dept:a.dept||'company',status:'followup',title:a.title,
+      m.items.push({id:(m.items.length?Math.max.apply(null,m.items.map(function(x){return x.id;}))+1:1),dept:'haavnblack',status:'followup',title:a.title,
         kind:'',assigneeId:'',owner:a.owner,due:a.due||'',discussed:false,notes:a.notes||'',carried:0,reviewers:[],files:[],subs:[],comments:[],
         navContext:{kind:'action',id:a.id,label:a.title}});
       added++;
     });
-    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; render(); toast(added+' item(s) synced to the Weekly Company Meeting'); });
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; render(); toast(added+' item(s) synced to the HAAVN Black Weekly Sales Review'); });
   });
 }
 
@@ -1603,6 +1607,7 @@ function commitNewMeeting(){
 function openMeetingDetail(id){
   var m=(MEET_CACHE.meetings||[]).find(function(x){return ''+x.id===''+id;});
   if(!m){toast('Meeting not found');return;}
+  if(!canSeeMeeting(m)){toast('You can only open meetings you\'re chairing or attending');return;}
   var boards=(m.sections&&m.sections.length)?m.sections:[{id:'',name:'Agenda',color:'#d6b36a'}];
   var body='<h4>'+esc(m.title||'Weekly Company Meeting')+'</h4>'+
     '<p style="font-size:11.5px;color:var(--ink-3);margin:-8px 0 16px">'+esc(m.date)+(m.time?' · '+esc(m.time):'')+' · Chair '+esc(m.chair||'')+' · '+(m.attendees||[]).length+' attendee(s) · '+(m.closed?'Closed':'Open')+'</p>';
@@ -1634,8 +1639,8 @@ function openMeetingInPillar02(id){
 
 /* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
 function ME(){
-  try{ var v=localStorage.getItem('atrium_me'); if(v && REAL_PEOPLE.some(function(p){return sameName(p.name,v);})) return v; }catch(e){}
-  return REAL_PEOPLE[0].name;
+  try{ var v=localStorage.getItem('atrium_me'); if(v && blackPeople().some(function(p){return sameName(p.name,v);})) return v; }catch(e){}
+  return blackPeople()[0].name;
 }
 function setMe(name){
   try{localStorage.setItem('atrium_me',name);}catch(e){}
@@ -1644,7 +1649,7 @@ function setMe(name){
 }
 function openWhoAreYou(mandatory){
   window._whoRequired=!!mandatory;
-  var people=REAL_PEOPLE.filter(function(p){return !p.ext;});
+  var people=blackPeople();
   window._whoList=people;
   var body='<h4>Who are you?</h4>'+
     '<p style="font-size:12px;color:var(--ink-3);margin:-8px 0 14px">'+(mandatory?'Pick your name to sign in — this shows your own tasks, agenda, meetings and notifications on this device.':'Pick your name so ATRIUM shows your own tasks, agenda, meetings and notifications on this device.')+'</p>'+
@@ -1698,6 +1703,13 @@ function openProfile(){
   };
 }
 function sameName(a,b){return (a||'').trim().toLowerCase()===(b||'').trim().toLowerCase();}
+/* HAAVN Black is a restricted surface — the sales team never sees HAAVN's
+   (or 7EVEN's) own work, tasks or meetings. Everything below scopes the
+   Team & Departments / Meetings & Momentum views to dept==='haavnblack' and
+   to meetings the viewer is actually chair or attendee of. */
+function blackPeople(){return REAL_PEOPLE.filter(function(p){return p.dept==='haavnblack';});}
+function blackActions(){return WS.actions.filter(function(a){return a.dept==='haavnblack';});}
+function canSeeMeeting(m){return sameName(m.chair,ME())||(m.attendees||[]).some(function(a){return sameName(a.name,ME());});}
 function sendToMeeting(kind,recId){
   var rec, label, ownerName;
   if(kind==='partner'){rec=WS.partners.find(function(x){return x.id===recId;});label=rec.company;ownerName=rec.owner;}
@@ -1750,7 +1762,7 @@ function syncCompletedMeetings(){
       if(ctx.kind==='buyer'){ rec.notes=rec.notes||[]; rec.notes.push({id:uid(),date:today(),author:'Meeting sync',text:summary}); rec.lastContact=today(); }
       else { rec.notes=(rec.notes?rec.notes+'\n\n':'')+summary; rec.updatedAt=nowIso(); }
       if(it.status==='followup'||it.status==='action'){
-        WS.actions.push({id:uid(),title:'Follow up — '+ctx.label,owner:rec.owner,due:'',priority:'Normal',done:false,
+        WS.actions.push({id:uid(),title:'Follow up — '+ctx.label,owner:rec.owner,due:'',priority:'Normal',done:false,dept:'haavnblack',
           context:{kind:ctx.kind,id:ctx.id,label:ctx.label},meetingId:m.id,notes:summary,created:nowIso(),completedAt:null});
       }
       changed=true;
@@ -1762,9 +1774,10 @@ function syncCompletedMeetings(){
 
 /* ===================== Meetings tab (read-only reflection of pillar 02) ===================== */
 function viewMeetings(){
-  var open=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;});
-  var closed=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;});
-  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Live reflection of Meeting Management (pillar 02) — use "+ New meeting" in My Meetings, or "Send to meeting →" on any Partner, Supply or Buyer record, to create one from here.</p>';
+  var mine=(MEET_CACHE.meetings||[]).filter(canSeeMeeting);
+  var open=mine.filter(function(m){return !m.closed;});
+  var closed=mine.filter(function(m){return m.closed;});
+  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Meetings you\'re chairing or attending — a live reflection of Meeting Management (pillar 02). Use "+ New meeting" in My Meetings, or "Send to meeting →" on a Buyer record, to create one from here.</p>';
   h+='<div class="section-h"><h3>Open</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Kind</th><th>Items</th><th></th></tr></thead><tbody>';
   h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td><td>'+meetingRowMenu(m.id)+'</td></tr>';}).join(''):'<tr><td colspan="5" class="empty">No open meetings.</td></tr>';
   h+='</tbody></table></div>';
