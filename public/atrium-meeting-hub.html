@@ -643,7 +643,42 @@ var PILLCLASS={update:'s-update',action:'s-action',followup:'s-followup',trouble
 var KINDS=['','request','event','action'];
 var KIND_LABEL={'':'— none —',request:'Request',event:'Event',action:'Action'};
 var STATUS_MAP={open:'action',prog:'followup',done:'complete',block:'trouble',introuble:'trouble',update:'update',action:'action',followup:'followup',trouble:'trouble',complete:'complete'};
-var DB=null, tab='meetings', openItem=null, viewArchiveId=null, ME='Jamie Baldwin', activeFilter='all';
+/* ===================== identity — shared with ATRIUM Workflow (pillar 01) via localStorage ===================== */
+var ROSTER=[{name:'Jamie Baldwin',role:'Director',director:true},{name:'Daniel Sette',role:'Director',director:true},{name:'Lewis Jin',role:'Director',director:true},
+  {name:'James Winstanley',role:'Manager'},{name:'Callum Macdonald',role:'BDM'},{name:'Christina Witbreuk',role:'Member'},{name:'Domenic Paolilli',role:'Member'},
+  {name:'John Dimattina',role:'Manager'},{name:'Jeffrey Witbreuk',role:'Construction Manager'},{name:'James Maloney',role:'Project Manager'},
+  {name:'Amy Baldwin',role:'Accounts Manager'},{name:'Dominika Ma',role:'Accounts Manager'},{name:'Alessia Bresciano',role:'Receptionist'},{name:'Bonnie Zhao',role:'Member'}];
+function sameNameCI(a,b){return String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();}
+function _atriumMe(){try{var v=localStorage.getItem('atrium_me');if(v)return v;}catch(e){}return null;}
+function setAtriumMe(name){try{localStorage.setItem('atrium_me',name);}catch(e){}location.reload();}
+function isDirector(name){return ROSTER.some(function(p){return p.director&&sameNameCI(p.name,name);});}
+/* A meeting is visible to: its chair, anyone on its attendee list, or company leadership
+   (directors see everything for oversight). Everyone else — including a crafted
+   ?openMeeting= link or a stale currentId — must not be able to open it. */
+function canSeeMeeting(m){
+  if(!m) return false;
+  if(!ME) return false;
+  if(isDirector(ME)) return true;
+  if(sameNameCI(m.chair,ME)) return true;
+  return (m.attendees||[]).some(function(a){return sameNameCI(a.name,ME);});
+}
+function openWhoAreYou(mandatory){
+  var o=document.createElement('div');o.className='modal in';
+  var rows=ROSTER.map(function(p,i){return '<button class="xbtn" data-who="'+i+'" style="justify-content:flex-start;text-align:left;width:100%;margin-bottom:6px">'+esc(p.name)+'<span style="margin-left:auto;color:var(--ink-3);font-size:11px">'+esc(p.role||'')+'</span></button>';}).join('');
+  o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3);margin-bottom:10px">Who are you?</div>'+
+    '<div style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Pick your name to sign in — this shows only the meetings you\'re in.</div>'+
+    '<div style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column">'+rows+'</div>'+
+    (mandatory?'':'<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="xbtn" data-who="cancel">Cancel</button></div>')+
+    '</div>';
+  document.body.appendChild(o);
+  o.addEventListener('click',function(ev){
+    if(ev.target===o&&!mandatory){o.remove();return;}
+    var b=ev.target.closest('[data-who]');if(!b)return;
+    if(b.dataset.who==='cancel'){o.remove();return;}
+    setAtriumMe(ROSTER[+b.dataset.who].name);
+  });
+}
+var DB=null, tab='meetings', openItem=null, viewArchiveId=null, ME=_atriumMe(), activeFilter='all';
 var _uid=1; function uid(){return _uid++;}
 function cur(){return DB.meetings.find(function(m){return m.id===DB.currentId;});}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -693,7 +728,7 @@ function rollRow(it,m){var d=deptMeta(it.dept)||{};var a=it.assigneeId?(m.attend
 function rollup(kind){var out=[];(DB.meetings||[]).forEach(function(m){(m.items||[]).forEach(function(it){if(it.kind===kind)out.push({it:it,m:m});});});return out;}
 function renderRollups(){var reqs=rollup('request'),evts=rollup('event'),acts=rollup('action');document.getElementById('tbReq').innerHTML=reqs.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('tbEvt').innerHTML=evts.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('tbAct').innerHTML=acts.map(function(x){return rollRow(x.it,x.m);}).join('')||emptyRow();document.getElementById('cReq').textContent=reqs.length;document.getElementById('cEvt').textContent=evts.length;document.getElementById('cAct').textContent=acts.length;}
 function emptyRow(){return '<tr><td colspan="6" style="text-align:center;color:var(--ink-4);font-style:italic;padding:26px">Nothing here yet — classify a task on the Agenda.</td></tr>';}
-function renderArchive(){var past=(DB.meetings||[]).filter(function(m){return m.closed;}).sort(function(a,b){return b.date.localeCompare(a.date);});document.getElementById('cArch').textContent=past.length;if(viewArchiveId){var am=DB.meetings.find(function(x){return x.id===viewArchiveId;});if(am){document.getElementById('archList').innerHTML=archiveDetail(am);return;}}document.getElementById('archList').innerHTML=past.length?past.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var pct=t?Math.round(d/t*100):0;return '<div class="arch-row" onclick="viewArchiveId='+m.id+';render()"><div class="arch-date">'+fmtLong(m.date)+'</div><div class="arch-mini"><span><b>'+pct+'%</b> complete</span><span><b>'+d+'/'+t+'</b> items</span><span><b>'+(m.attendees||[]).filter(function(a){return a.present;}).length+'/'+(m.attendees||[]).length+'</b> present</span><span><b>'+((m.decisions||[]).length)+'</b> decisions</span></div><span class="go">Review →</span></div>';}).join(''):'<div class="empty">No archived meetings yet. Close the current meeting to file it here.</div>';}
+function renderArchive(){var past=(DB.meetings||[]).filter(function(m){return m.closed&&canSeeMeeting(m);}).sort(function(a,b){return b.date.localeCompare(a.date);});document.getElementById('cArch').textContent=past.length;if(viewArchiveId){var am=DB.meetings.find(function(x){return x.id===viewArchiveId;});if(am&&canSeeMeeting(am)){document.getElementById('archList').innerHTML=archiveDetail(am);return;}viewArchiveId=null;}document.getElementById('archList').innerHTML=past.length?past.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var pct=t?Math.round(d/t*100):0;return '<div class="arch-row" onclick="viewArchiveId='+m.id+';render()"><div class="arch-date">'+fmtLong(m.date)+'</div><div class="arch-mini"><span><b>'+pct+'%</b> complete</span><span><b>'+d+'/'+t+'</b> items</span><span><b>'+(m.attendees||[]).filter(function(a){return a.present;}).length+'/'+(m.attendees||[]).length+'</b> present</span><span><b>'+((m.decisions||[]).length)+'</b> decisions</span></div><span class="go">Review →</span></div>';}).join(''):'<div class="empty">No archived meetings yet. Close the current meeting to file it here.</div>';}
 function archiveDetail(m){var boards=(m.sections&&m.sections.length)?m.sections:DEPTS;var body=boards.map(function(d){var items=(m.items||[]).filter(function(i){return i.dept===d.id;});if(!items.length)return '';return '<div class="dept"><div class="dept-head"><span class="dept-bar" style="background:'+d.color+'"></span><div class="dept-title"><span class="cdot" style="background:'+d.color+'"></span>'+d.name+'</div></div><div class="dept-body">'+items.map(function(i){var a=i.assigneeId?(m.attendees.find(function(p){return ''+p.id===''+i.assigneeId;})):null;return '<div class="task '+(i.discussed?'done':'')+'" style="--rowc:'+d.color+';cursor:default"><div class="cbx '+(i.discussed?'checked':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[i.status]+'"><span class="pd"></span>'+IS_LABEL[i.status]+'</span><span class="t-title">'+esc(i.title)+'</span><span class="assignee">'+esc(a?a.name:(i.owner||''))+'</span></div>';}).join('')+'</div></div>';}).join('');var decs=(m.decisions||[]).length?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Decisions</h3></div>'+(m.decisions.map(function(d,i){return '<div class="dec"><span class="dn">'+(i+1)+'.</span><div>'+esc(d.text)+'<div class="meta">'+esc(d.by)+'</div></div></div>';}).join(''))+'</div>':'';var mins=m.minutes?'<div class="card" style="margin-top:16px"><div class="ch"><h3>Minutes</h3></div><div style="white-space:pre-wrap;font-size:13.5px;color:var(--ink-2)">'+esc(m.minutes)+'</div></div>':'';return '<button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line);margin-bottom:14px" onclick="viewArchiveId=null;render()">← All meetings</button><div class="panel-head" style="margin-top:0"><div><div class="mono eyebrow">Archived meeting</div><h2 class="serif">'+fmtLong(m.date)+'</h2></div><button class="btn btn-ghost" style="color:var(--ink-2);border-color:var(--line)" onclick="rollForward('+m.id+')">↻ Roll unfinished forward</button></div>'+body+decs+mins;}
 
 function rowClick(e,id){if(e.target.closest('input,textarea,select,button,.cbx,.av,a'))return;openItemDrawer(id);}
@@ -757,8 +792,8 @@ function doClose(){var m=cur();m.closed=true;var d=new Date(m.date+'T00:00');d.s
 function handleClose(){var m=cur();if(m.kind&&m.kind!=='weekly'){confirmModal('Close this meeting and file it in the Archive? It will not create a follow-up meeting.','Close & archive',doCloseAdhoc);}else{closeMeeting();}}
 function doCloseAdhoc(){var m=cur();m.closed=true;m.recording={active:false,startedAt:0};var wk=DB.meetings.find(function(x){return x.kind==='weekly'&&!x.closed;});if(wk)DB.currentId=wk.id;openItem=null;viewArchiveId=null;switchTab('meetings');save();render();toast('Meeting closed and filed in the Archive');}
 function newAdhocMeeting(o){var nm=newMeeting(o.date);nm.attendees=[];nm.title=o.title;nm.kind=o.kind;nm.time=o.time||'10:00';nm.targetSec=Math.max(300,(o.durationMin||30)*60);nm.chair=ME;return nm;}
-function openMeeting(id){DB.currentId=id;openItem=null;viewArchiveId=null;switchTab('agenda');save();render();}
-function renderMeetingsList(){if(!DB)return;var open=(DB.meetings||[]).filter(function(m){return !m.closed;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+function openMeeting(id){var m=DB.meetings.find(function(x){return x.id===id;});if(!canSeeMeeting(m)){toast('You\'re not on this meeting\'s attendee list');return;}DB.currentId=id;openItem=null;viewArchiveId=null;switchTab('agenda');save();render();}
+function renderMeetingsList(){if(!DB)return;var open=(DB.meetings||[]).filter(function(m){return !m.closed&&canSeeMeeting(m);}).sort(function(a,b){return a.date.localeCompare(b.date);});
   document.getElementById('cMtg').textContent=open.length;
   document.getElementById('mtgList').innerHTML=open.length?open.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var active=m.id===DB.currentId;var kindLbl=(!m.kind||m.kind==='weekly')?'WEEKLY':m.kind.toUpperCase();
     return '<div class="arch-row" onclick="openMeeting('+m.id+')" style="'+(active?'border-color:var(--accent)':'')+'"><div class="arch-date">'+esc(m.title||'Weekly Company Meeting')+(active?' <span class="tag" style="border-color:var(--accent);color:var(--accent-soft)">● ACTIVE</span>':'')+'<div class="dept-sub" style="margin-top:4px">'+fmtLong(m.date)+' · '+esc(m.time||'')+' · '+kindLbl+'</div></div><div class="arch-mini"><span><b>'+Math.round((m.targetSec||2700)/60)+'</b> min</span><span><b>'+(m.attendees||[]).length+'</b> attendees</span><span><b>'+d+'/'+t+'</b> items</span>'+((m.recording&&m.recording.active)?'<span style="color:var(--red)">● recording</span>':'')+'</div><span class="go">Open →</span></div>';}).join(''):'<div class="empty">No open meetings. Start one with + New meeting.</div>';}
@@ -823,7 +858,12 @@ function openAttModal(id){var a=id?attById(id):null;var o=document.createElement
 /* theme (persisted) */
 try{var _th=localStorage.getItem('atrium_theme');if(_th)document.documentElement.setAttribute('data-theme',_th);}catch(e){}
 (function(){var seg=document.getElementById('themeSeg');var t=document.documentElement.getAttribute('data-theme');seg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.themeSet===t);});seg.addEventListener('click',function(e){var b=e.target.closest('[data-theme-set]');if(!b)return;document.documentElement.setAttribute('data-theme',b.dataset.themeSet);try{localStorage.setItem('atrium_theme',b.dataset.themeSet);}catch(e){}seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');});})();
-function switchTab(name){tab=name;viewArchiveId=null;document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.tab===name);});document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name);});window.scrollTo({top:0,behavior:'smooth'});}
+function switchTab(name){
+  /* The Agenda tab always shows DB.currentId — a single field shared by everyone.
+     If this viewer isn't on that meeting, send them to the (already-filtered)
+     Meetings list instead, without ever touching the shared currentId itself. */
+  if(name==='agenda'&&!canSeeMeeting(cur())){toast('You\'re not on the current meeting\'s attendee list');name='meetings';}
+  tab=name;viewArchiveId=null;document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.tab===name);});document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name);});window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){switchTab(t.dataset.tab);};});
 document.getElementById('filters').addEventListener('click',function(e){var c=e.target.closest('.chip[data-filter]');if(!c)return;activeFilter=c.dataset.filter;this.querySelectorAll('.chip[data-filter]').forEach(function(x){x.classList.remove('on');});c.classList.add('on');renderDepts();});
 document.getElementById('fDate').addEventListener('change',function(){cur().date=this.value;save();renderHero();renderArchive();});
@@ -897,7 +937,8 @@ function celebrate(title,all,onUndo){closeCelebrate();var o=document.createEleme
 function confetti(canvas,big){if(!canvas)return;var ctx=canvas.getContext('2d');var DPR=Math.min(window.devicePixelRatio||1,2);canvas.width=canvas.clientWidth*DPR;canvas.height=canvas.clientHeight*DPR;var cols=['#d8a54a','#5aa87a','#5b8def','#a179d8','#e0644f','#e9c988'];var N=big?200:130,ps=[],cx=canvas.width/2,cy=canvas.height*0.42;for(var i=0;i<N;i++){var ang=Math.random()*Math.PI*2,sp=(4+Math.random()*9)*DPR;ps.push({x:cx,y:cy,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp-6*DPR,w:(6+Math.random()*7)*DPR,h:(9+Math.random()*9)*DPR,col:cols[i%cols.length],rot:Math.random()*6.28,vr:(Math.random()-0.5)*0.4});}var g=0.3*DPR,t0=null;function fr(ts){if(t0==null)t0=ts;var el=ts-t0;ctx.clearRect(0,0,canvas.width,canvas.height);ps.forEach(function(p){p.vy+=g;p.x+=p.vx;p.y+=p.vy;p.vx*=0.99;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=Math.max(0,1-el/4200);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});if(el<4200)requestAnimationFrame(fr);else ctx.clearRect(0,0,canvas.width,canvas.height);}requestAnimationFrame(fr);}
 
 (function boot(){cloudPull().then(function(row){if(row&&row.value){adoptCloud(row.value);_cloudTs=Date.parse(row.updated_at)||Date.now();}else{load();migrateAll();}var mm=cur();var mi=document.getElementById('minutes');if(mi)mi.value=(mm&&mm.minutes)||'';render();
-/* Deep link from ATRIUM Workflow (pillar 01): ?openMeeting=<id> jumps straight into that meeting's agenda. */
+if(!ME) openWhoAreYou(true);
+/* Deep link from ATRIUM Workflow (pillar 01): ?openMeeting=<id> jumps straight into that meeting's agenda — openMeeting() itself checks the viewer is on it. */
 try{var _om=new URLSearchParams(location.search).get('openMeeting');if(_om){var _omId=isNaN(Number(_om))?_om:Number(_om);var _omFound=(DB.meetings||[]).find(function(m){return ''+m.id===''+_omId;});if(_omFound)openMeeting(_omFound.id);}}catch(e){}
 if(window.innerWidth>=1200){document.body.classList.add('console-open');}else{var cc=document.getElementById('console');if(cc)cc.classList.add('hid');}
 window.addEventListener('scroll',function(){updateSection();},{passive:true});
