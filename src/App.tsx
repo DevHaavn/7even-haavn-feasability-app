@@ -230,8 +230,13 @@ export default function App() {
         </div>
       )}
       {/* HAAVN Black sales team's own restricted ATRIUM tool — same data as the
-          full Management Hub, a smaller pillar set (see HM_PILLARS_BLACK). */}
-      {homesAtriumOpen && <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />}
+          full Management Hub, a smaller pillar set (see HM_PILLARS_BLACK).
+          Wrapped above the hero iframe (z-index 600), same as Capital above. */}
+      {homesAtriumOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
+          <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />
+        </div>
+      )}
     </RoleContext.Provider>
   )
 
@@ -245,7 +250,11 @@ export default function App() {
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
         {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
         {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
-        {homesAtriumOpen && <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />}
+        {homesAtriumOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
+            <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />
+          </div>
+        )}
       </RoleContext.Provider>
     )
   }
