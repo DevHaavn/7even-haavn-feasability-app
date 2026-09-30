@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Project7Mark } from '../../components/ui'
 import SiteLinks from '../../components/SiteLinks'
 import HaavnManagementPillar from './HaavnManagementPillar'
 
@@ -111,6 +110,11 @@ const CSS = `
   cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
 .hmh-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
 .hmh-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
+.hmh-update{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:999px;
+  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
+.hmh-update:hover{border-color:rgba(143,106,37,.7);color:#8f6a25;background:rgba(143,106,37,.08)}
+.hmh-update .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 @media(max-width:640px){.hmh-body{padding:36px 20px 110px}.hmh-pcard{min-height:auto}}
 
 @media(max-width:600px){
@@ -118,7 +122,8 @@ const CSS = `
   .hmh-brand{margin-left:0;width:100%}
   .hmh-brand .tag{display:none}
   .hmh-sub{padding:0 4px}
-  .hmh-logout{position:static;margin:30px auto 44px;left:auto;bottom:auto}
+  .hmh-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
+  .hmh-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
   .hmh-body{padding-bottom:24px}
 }
 `
@@ -183,7 +188,9 @@ export default function HaavnManagementBase({ onClose, onLogout }: { onClose: ()
       </div>
 
       <SiteLinks tone="light" />
-      <Project7Mark />
+      <button className="hmh-update" onClick={() => window.location.reload()} title="Reload to fetch the latest version">
+        <span className="ring-o" aria-hidden="true" />Update
+      </button>
       <button className="hmh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )

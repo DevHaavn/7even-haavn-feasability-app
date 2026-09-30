@@ -399,7 +399,7 @@ function pollMeetings(){
     var prevIds=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;}).map(function(m){return m.id;});
     MEET_CACHE=v;
     syncCompletedMeetings();
-    if(TAB==='meetings'||TAB==='overview') render();
+    if(TAB==='meetings'||TAB==='overview'||TAB==='mymeetings'||TAB==='myagenda') render();
   });
 }
 
@@ -1207,7 +1207,7 @@ function syncWeeklyToMeeting(){
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
     v=v||{meetings:[]}; if(!v.meetings) v.meetings=[];
     var m=v.meetings.find(function(x){return (!x.kind||x.kind==='weekly')&&!x.closed;});
-    if(!m){ m={id:'m'+Date.now(),date:today(),time:'08:30',chair:ME(),attendees:REAL_PEOPLE.filter(function(p){return !p.ext;}).map(function(p,i){return {id:i+1,name:p.name,email:p.email,role:p.role,present:true};}),
+    if(!m){ m={id:Date.now(),date:today(),time:'08:30',chair:ME(),attendees:REAL_PEOPLE.filter(function(p){return !p.ext;}).map(function(p,i){return {id:i+1,name:p.name,email:p.email,role:p.role,present:true};}),
       items:[],decisions:[],minutes:'',closed:false,kind:'weekly',title:'Weekly Company Meeting',targetSec:2700,recording:{active:false,startedAt:0}}; v.meetings.push(m); }
     var existingTitles={}; (m.items||[]).forEach(function(it){existingTitles[it.title]=it;});
     var added=0;
@@ -1263,13 +1263,32 @@ function viewMyMeetings(){
   var mine=(MEET_CACHE.meetings||[]).filter(function(m){return sameName(m.chair,ME())||(m.attendees||[]).some(function(a){return sameName(a.name,ME());});});
   var open=mine.filter(function(m){return !m.closed;}), closed=mine.filter(function(m){return m.closed;});
   var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openNewMeetingModal()">+ New meeting</button></div>';
-  h+='<div class="section-h"><h3>Upcoming</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Role</th></tr></thead><tbody>';
-  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(sameName(m.chair,ME())?'<span class="chip gold">Chair</span>':'<span class="chip">Attendee</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing upcoming.</td></tr>';
+  h+='<div class="section-h"><h3>Upcoming</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Role</th><th></th></tr></thead><tbody>';
+  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(sameName(m.chair,ME())?'<span class="chip gold">Chair</span>':'<span class="chip">Attendee</span>')+'</td><td>'+meetingRowMenu(m.id)+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">Nothing upcoming.</td></tr>';
   h+='</tbody></table></div>';
-  h+='<div class="section-h"><h3>Past</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th></tr></thead><tbody>';
-  h+=closed.length?closed.slice(-8).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td></tr>';}).join(''):'<tr><td colspan="2" class="empty">None yet — close a meeting in pillar 02 and it will appear here with its notes.</td></tr>';
+  h+='<div class="section-h"><h3>Past</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th></th></tr></thead><tbody>';
+  h+=closed.length?closed.slice(-8).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+meetingRowMenu(m.id)+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">None yet — close a meeting in pillar 02 and it will appear here with its notes.</td></tr>';
   h+='</tbody></table></div>';
   return h;
+}
+function meetingRowMenu(id){
+  return '<select onclick="event.stopPropagation()" onchange="meetingRowAction(this.value,\''+id+'\');this.selectedIndex=0" style="width:auto;font-size:9.5px;padding:4px 6px">'+
+    '<option value="">⋯</option><option value="delete">Delete</option></select>';
+}
+function meetingRowAction(action,id){ if(action==='delete') deleteMeetingRecord(id); }
+function deleteMeetingRecord(id){
+  var m=(MEET_CACHE.meetings||[]).find(function(x){return ''+x.id===''+id;});
+  if(!m) return;
+  var body='<h4>Delete meeting?</h4>'+
+    '<p style="font-size:13px;color:var(--ink-2);margin:-8px 0 4px">Permanently delete "'+esc(m.title||'Weekly Company Meeting')+'"? This removes it from both pillars and cannot be undone.</p>'+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="commitDeleteMeeting(\''+id+'\')">Delete meeting</button></div>';
+  showModal(body);
+}
+function commitDeleteMeeting(id){
+  kvPull(MEET_KEY,{meetings:[]}).then(function(v){
+    v=v||{meetings:[]}; v.meetings=(v.meetings||[]).filter(function(x){return ''+x.id!==''+id;});
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('Meeting deleted'); });
+  });
 }
 var MTG_SECTION_COLORS=['#5b8def','#5aa87a','#d8a54a','#a179d8','#e0644f','#5aa8a8','#c77dbb','#8a9099'];
 var _nmA=[], _nmI=[];
@@ -1309,7 +1328,7 @@ function commitNewMeeting(){
   rows.forEach(function(r){var name=(r.sec||'').trim()||'General';var key=name.toLowerCase();if(!secIdByName[key]){var id='s'+uid();secIdByName[key]=id;sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:MTG_SECTION_COLORS[sections.length%MTG_SECTION_COLORS.length],tasks:[]});}});
   if(!sections.length) sections=[{id:'s1',name:'General',sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}];
   var items=rows.map(function(r){var name=(r.sec||'').trim()||'General';return {id:uid(),dept:secIdByName[name.toLowerCase()],status:'followup',title:r.title.trim(),kind:'',assigneeId:'',owner:'',due:'',discussed:false,notes:'',carried:0,reviewers:[],files:[],subs:[],comments:[]};});
-  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:attendees,
+  var m={id:Date.now(),date:date,time:time,chair:ME(),attendees:attendees,
     items:items,decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
     sections:sections,recording:{active:false,startedAt:0}};
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
@@ -1340,7 +1359,7 @@ function openMeetingDetail(id){
   if(m.minutes){
     body+='<div style="margin-bottom:8px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Minutes &amp; general notes</div><div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.minutes)+'</div></div>';
   }
-  body+='<div class="foot"><button type="button" class="btn gold" onclick="closeModal()">Close</button></div>';
+  body+='<div class="foot"><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div><button type="button" class="btn gold" onclick="closeModal()">Close</button></div>';
   showModal(body);
 }
 
@@ -1411,7 +1430,7 @@ function commitSendToMeeting(kind,recId){
   else if(kind==='project'){rec=WS.supplyProjects.find(function(x){return x.id===recId;});label=rec.address;ownerName=rec.owner;notes=rec.notes;}
   else {rec=WS.buyers.find(function(x){return x.id===recId;});label=rec.name;ownerName=rec.owner;notes='';}
   var title=val('mtg_title'), kindv=val('mtg_kind'), dur=parseInt(val('mtg_dur'))||30, date=val('mtg_date'), time=val('mtg_time');
-  var m={id:'m'+Date.now(),date:date,time:time,chair:ME(),attendees:[{id:1,name:ownerName,email:'',role:'',present:true}],
+  var m={id:Date.now(),date:date,time:time,chair:ME(),attendees:[{id:1,name:ownerName,email:'',role:'',present:true}],
     items:[],decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
     sections:[{id:'s1',name:label,sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}],
     recording:{active:false,startedAt:0}};
@@ -1456,11 +1475,11 @@ function viewMeetings(){
   var open=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;});
   var closed=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;});
   var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">Live reflection of Meeting Management (pillar 02) — use "+ New meeting" in My Meetings, or "Send to meeting →" on any Partner, Supply or Buyer record, to create one from here.</p>';
-  h+='<div class="section-h"><h3>Open</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Kind</th><th>Items</th></tr></thead><tbody>';
-  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">No open meetings.</td></tr>';
+  h+='<div class="section-h"><h3>Open</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Kind</th><th>Items</th><th></th></tr></thead><tbody>';
+  h+=open.length?open.map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td><span class="chip gold">'+(m.kind||'weekly')+'</span></td><td>'+(m.items||[]).length+'</td><td>'+meetingRowMenu(m.id)+'</td></tr>';}).join(''):'<tr><td colspan="5" class="empty">No open meetings.</td></tr>';
   h+='</tbody></table></div>';
-  h+='<div class="section-h"><h3>Recently completed — synced back</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Synced</th></tr></thead><tbody>';
-  h+=closed.length?closed.slice(-6).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(m._navSynced?'<span class="chip green">Synced</span>':'<span class="chip">Pending</span>')+'</td></tr>';}).join(''):'<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>';
+  h+='<div class="section-h"><h3>Recently completed — synced back</h3></div><div class="tablewrap"><table><thead><tr><th>Title</th><th>Date</th><th>Synced</th><th></th></tr></thead><tbody>';
+  h+=closed.length?closed.slice(-6).reverse().map(function(m){return '<tr style="cursor:pointer" onclick="openMeetingDetail(\''+m.id+'\')"><td class="tt">'+esc(m.title||'Weekly Company Meeting')+'</td><td>'+esc(m.date)+'</td><td>'+(m._navSynced?'<span class="chip green">Synced</span>':'<span class="chip">Pending</span>')+'</td><td>'+meetingRowMenu(m.id)+'</td></tr>';}).join(''):'<tr><td colspan="4" class="empty">Nothing completed yet.</td></tr>';
   h+='</tbody></table></div>';
   h+='<div style="margin-top:14px"><button class="btn sm" onclick="pollMeetings();toast(\'Checked pillar 02 for updates\')">↻ Refresh from Meeting Management</button></div>';
   return h;
