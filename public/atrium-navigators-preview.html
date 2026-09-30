@@ -143,6 +143,12 @@ td.tt{color:var(--ink);font-weight:500}
 .stagechip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center}
 .stagechip .n{font-family:var(--mono);background:var(--pill);border-radius:100px;padding:1px 6px;font-size:9px}
 .stagechip.on{border-color:transparent;color:#0B0D0F;background:linear-gradient(162deg,#e9d08f,#d6b36a 46%,#8f6a25);font-weight:700}
+.fltpanel{margin-bottom:14px;padding:16px 18px}
+.fltgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px 16px}
+.fltrange{display:flex;gap:6px}
+.fltrange input{width:100%}
+.fltchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-6px 0 14px}
+.check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);cursor:pointer}
 
 .kanban{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto}
 .kcol{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:200px}
@@ -481,17 +487,404 @@ function viewOverview(){
 function stat(n,l){return '<div class="card stat"><b>'+n+'</b><span>'+l+'</span></div>';}
 function goTab(t){TAB=t;location.hash=t;render();}
 
+/* ===================== Filters, sort, duplicates & CSV — HAAVN Supply & Development =====================
+   Field metadata + a generic filter/sort/dedupe/CSV engine shared by Partner CRM and Supply Pipeline,
+   built from the field set + filter behaviour James/Callum's team specified (see the "Navigators" build
+   package). Every field is filterable; short free-text/fixed-choice fields get an "Any" dropdown with a
+   live count per value (plus "(blank)"), other text fields filter by contains, numbers/dates filter by a
+   min–max / from–to range. Partners: dup-flagged on same email, phone, or contact+company. Pipeline:
+   dup-flagged on same address. Both import/export CSV using the exact headers of the team's spreadsheet
+   templates, so exports re-import cleanly. */
+var VALUE_ALIASES={partnerTypes:{financer:'Financier',financiers:'Financier'},customerTypes:{inteligence:'Intelligence'},
+  states:{vic:'Victoria',nsw:'New South Wales',qld:'Queensland',sa:'South Australia',wa:'Western Australia',tas:'Tasmania',act:'Australian Capital Territory',nt:'Northern Territory'}};
+function canonicalValue(listName,value){
+  var v=String(value||'').trim(); if(!v) return '';
+  var alias=(VALUE_ALIASES[listName]||{})[v.toLowerCase()]; if(alias) return alias;
+  var hit=LISTS[listName].find(function(x){return x.toLowerCase()===v.toLowerCase();});
+  return hit||v;
+}
+var PARTNER_FIELDS=[
+  {k:'company',label:'Company',kind:'text',csv:'Company'},
+  {k:'contactName',label:'Contact name',kind:'text',csv:'Contact Name'},
+  {k:'role',label:'Role / title',kind:'text',csv:'Role / Title'},
+  {k:'phone',label:'Phone',kind:'text',csv:'Phone'},
+  {k:'email',label:'Email',kind:'text',csv:'Email'},
+  {k:'partnerType',label:'Partner type',kind:'pick',list:'partnerTypes',csv:'Partner Type'},
+  {k:'source',label:'Source',kind:'pick',list:'sources',csv:'Source'},
+  {k:'stage',label:'Stage',kind:'pick',list:'partnerStages',csv:'Stage'},
+  {k:'region',label:'Region',kind:'text',csv:'Region'},
+  {k:'value',label:'Value (AUD)',kind:'range',csv:'Value'},
+  {k:'timeToOrder',label:'Anticipated time to order',kind:'text',csv:'Anticipated Time to order'},
+  {k:'sector',label:'Sector',kind:'text',csv:'Sector'},
+  {k:'projects',label:'Projects',kind:'text',csv:'Project',get:function(p){return (p.projects||[]).join(', ');}},
+  {k:'nextAction',label:'Next action',kind:'text',csv:'Next Action'},
+  {k:'nextActionDate',label:'Next action date',kind:'daterange',csv:'Next Action Date'},
+  {k:'notes',label:'Notes',kind:'text',csv:'Notes'},
+  {k:'owner',label:'Owner',kind:'pick',csv:'Owner'},
+  {k:'marketingOptOut',label:'Opted out of marketing',kind:'boolpick'},
+  {k:'createdAt',label:'Created',kind:'daterange'},
+  {k:'updatedAt',label:'Updated',kind:'daterange'}
+];
+var LEAD_FIELDS=[
+  {k:'address',label:'Address / project',kind:'text',csv:'Address'},
+  {k:'city',label:'City',kind:'pick',csv:'City'},
+  {k:'state',label:'State',kind:'pick',list:'states',csv:'State'},
+  {k:'assetTypes',label:'Asset types',kind:'pickmulti',list:'assetTypes',csv:'Asset Type/ Sector'},
+  {k:'partnerId',label:'CRM contact',kind:'partnerpick',csv:'CRM Contact'},
+  {k:'client',label:'Company',kind:'pick',csv:'Company'},
+  {k:'customerType',label:'Customer type',kind:'pick',list:'customerTypes',csv:'Customer Type'},
+  {k:'permitStatus',label:'Permit status',kind:'pick',csv:'Permit Status'},
+  {k:'orderValue',label:'Module order value (AUD)',kind:'range',csv:'Module Order Value'},
+  {k:'modules',label:'Number of modules',kind:'range',csv:'Number of Modules'},
+  {k:'stories',label:'Stories',kind:'range',csv:'Stories'},
+  {k:'architect',label:'Architect',kind:'pick',csv:'Architect'},
+  {k:'serviceType',label:'Service type',kind:'pick',list:'serviceTypes',csv:'Service Type'},
+  {k:'stage',label:'Pipeline stage',kind:'pick',list:'supplyStages',csv:'Pipeline stage'},
+  {k:'nextAction',label:'Next action',kind:'pick',csv:'Next Action'},
+  {k:'certainty',label:'Certainty (%)',kind:'range',csv:'Certainty'},
+  {k:'owner',label:'Owner',kind:'pick',csv:'Owner'},
+  {k:'notes',label:'Notes',kind:'text',csv:'Notes'},
+  {k:'createdAt',label:'Created',kind:'daterange'},
+  {k:'updatedAt',label:'Updated',kind:'daterange'}
+];
+function fieldVal(rec,d){return d.get?d.get(rec):rec[d.k];}
+function pickCounts(list,d){
+  var counts={},blank=0;
+  list.forEach(function(r){
+    var v=fieldVal(r,d);
+    if(Array.isArray(v)){ if(!v.length) blank++; else v.forEach(function(x){counts[x]=(counts[x]||0)+1;}); }
+    else { v=(v==null?'':String(v).trim()); if(!v) blank++; else counts[v]=(counts[v]||0)+1; }
+  });
+  return {counts:counts,blank:blank};
+}
+function pickOptions(list,d){
+  var pc=pickCounts(list,d);
+  var vals=d.list?LISTS[d.list].slice():Object.keys(pc.counts).sort(function(a,b){return a.localeCompare(b);});
+  var opts=vals.map(function(v){return {value:v,label:v+' ('+(pc.counts[v]||0)+')'};});
+  if(pc.blank) opts.push({value:'__blank__',label:'(blank) ('+pc.blank+')'});
+  return opts;
+}
+function filterControl(d,list,fs,prefix){
+  var v=fs[d.k], id=prefix+'_flt_'+d.k;
+  if(d.kind==='text') return '<input id="'+id+'" placeholder="Contains…" value="'+esc(v||'')+'" oninput="'+prefix+'FilterSet(\''+d.k+'\',this.value)">';
+  if(d.kind==='boolpick') return '<select id="'+id+'" onchange="'+prefix+'FilterSet(\''+d.k+'\',this.value)"><option value="">Any</option><option value="yes"'+(v==='yes'?' selected':'')+'>Yes</option><option value="no"'+(v==='no'?' selected':'')+'>No</option></select>';
+  if(d.kind==='range'){ v=v||{}; return '<div class="fltrange"><input type="number" placeholder="Min" value="'+(v.min!=null?v.min:'')+'" oninput="'+prefix+'FilterRange(\''+d.k+'\',\'min\',this.value)"><input type="number" placeholder="Max" value="'+(v.max!=null?v.max:'')+'" oninput="'+prefix+'FilterRange(\''+d.k+'\',\'max\',this.value)"></div>'; }
+  if(d.kind==='daterange'){ v=v||{}; return '<div class="fltrange"><input type="date" value="'+(v.from||'')+'" oninput="'+prefix+'FilterRange(\''+d.k+'\',\'from\',this.value)"><input type="date" value="'+(v.to||'')+'" oninput="'+prefix+'FilterRange(\''+d.k+'\',\'to\',this.value)"></div>'; }
+  if(d.kind==='partnerpick'){
+    var opts0='<option value="">Any</option>'+WS.partners.filter(function(x){return !x.archived;}).map(function(p){return '<option value="'+p.id+'"'+(v===p.id?' selected':'')+'>'+esc(p.contactName||p.company)+'</option>';}).join('')+'<option value="__blank__"'+(v==='__blank__'?' selected':'')+'>(unlinked)</option>';
+    return '<select id="'+id+'" onchange="'+prefix+'FilterSet(\''+d.k+'\',this.value)">'+opts0+'</select>';
+  }
+  var opts=pickOptions(list,d).map(function(o){return '<option value="'+esc(o.value)+'"'+(v===o.value?' selected':'')+'>'+esc(o.label)+'</option>';}).join('');
+  return '<select id="'+id+'" onchange="'+prefix+'FilterSet(\''+d.k+'\',this.value)"><option value="">Any</option>'+opts+'</select>';
+}
+function recMatches(rec,d,fv){
+  if(fv==null||fv==='') return true;
+  var raw=fieldVal(rec,d);
+  if(d.kind==='text') return String(raw||'').toLowerCase().indexOf(String(fv).toLowerCase())>=0;
+  if(d.kind==='boolpick'){ var b=!!raw; return fv==='yes'?b:!b; }
+  if(d.kind==='range'){ var n=parseFloat(raw); if(fv.min!=null&&fv.min!==''){ if(isNaN(n)||n<parseFloat(fv.min)) return false; } if(fv.max!=null&&fv.max!==''){ if(isNaN(n)||n>parseFloat(fv.max)) return false; } return true; }
+  if(d.kind==='daterange'){ var vv=raw||''; if(fv.from&&(!vv||vv<fv.from)) return false; if(fv.to&&(!vv||vv>fv.to)) return false; return true; }
+  if(d.kind==='pickmulti'){ if(fv==='__blank__') return !(raw&&raw.length); return (raw||[]).indexOf(fv)>=0; }
+  if(fv==='__blank__') return !raw;
+  return String(raw||'')===String(fv);
+}
+function applyFilters(list,defs,fs){return list.filter(function(r){return defs.every(function(d){return recMatches(r,d,fs[d.k]);});});}
+function activeFilterCount(defs,fs){return defs.filter(function(d){var v=fs[d.k];if(v==null||v==='') return false;if((d.kind==='range'||d.kind==='daterange')&&typeof v==='object'){return Object.keys(v).some(function(k){return v[k]!=null&&v[k]!=='';});}return true;}).length;}
+function sortRecords(list,defs,key,dir){
+  var d=defs.find(function(x){return x.k===key;});
+  return list.slice().sort(function(a,b){
+    var av=d?fieldVal(a,d):a[key], bv=d?fieldVal(b,d):b[key];
+    if(Array.isArray(av)) av=av.join(', '); if(Array.isArray(bv)) bv=bv.join(', ');
+    var ae=(av==null||av===''), be=(bv==null||bv==='');
+    if(ae&&be) return 0; if(ae) return 1; if(be) return -1;
+    if(typeof av==='number'||typeof bv==='number') return dir*((parseFloat(av)||0)-(parseFloat(bv)||0));
+    return dir*String(av).localeCompare(String(bv));
+  });
+}
+function emailsOfV(s){return String(s||'').toLowerCase().split(/[\s,;]+/).filter(function(e){return e.indexOf('@')>=0;});}
+function phoneKeyV(s){var d=String(s||'').replace(/\D/g,'');if(d.indexOf('61')===0&&d.length===11)d='0'+d.slice(2);return d.length>=8?d:'';}
+function nameKeyV(s){return String(s||'').trim().toLowerCase();}
+function companyKeyV(s){return String(s||'').trim().toLowerCase().replace(/\b(pty|ltd|limited|group|the)\b/g,'').replace(/[^a-z0-9]/g,'');}
+function partnerDupMap(){
+  var idx={},out={};
+  WS.partners.filter(function(p){return !p.archived;}).forEach(function(p){
+    var keys=[];
+    emailsOfV(p.email).forEach(function(e){keys.push('email:'+e);});
+    var ph=phoneKeyV(p.phone); if(ph) keys.push('phone:'+ph);
+    var n=nameKeyV(p.contactName), c=companyKeyV(p.company);
+    if(n&&c) keys.push('name:'+n+'|'+c); else if(c) keys.push('company:'+c);
+    keys.forEach(function(k){(idx[k]=idx[k]||[]).push(p.id);});
+  });
+  Object.keys(idx).forEach(function(k){var ids=idx[k];if(ids.length<2)return;ids.forEach(function(id){out[id]=true;});});
+  return out;
+}
+function addressKeyV(s){return String(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+function leadDupMap(){
+  var idx={},out={};
+  WS.supplyProjects.filter(function(p){return !p.archived;}).forEach(function(p){
+    var k=addressKeyV(p.address); if(!k) return; (idx[k]=idx[k]||[]).push(p.id);
+  });
+  Object.keys(idx).forEach(function(k){var ids=idx[k];if(ids.length<2)return;ids.forEach(function(id){out[id]=true;});});
+  return out;
+}
+window._crmUI=window._crmUI||{partners:{q:'',filters:{},showFilters:false,sort:'company',dir:1,dupOnly:false,followupOnly:false},
+  leads:{q:'',filters:{},showFilters:false,sort:'stage',dir:1,dupOnly:false}};
+function pQSet(v){window._crmUI.partners.q=v;render();}
+function pToggleFilters(){window._crmUI.partners.showFilters=!window._crmUI.partners.showFilters;render();}
+function pSortSet(v){window._crmUI.partners.sort=v;render();}
+function pDirToggle(){window._crmUI.partners.dir*=-1;render();}
+function pFilterSet(k,v){window._crmUI.partners.filters[k]=v;render();}
+function pFilterRange(k,sub,v){var f=window._crmUI.partners.filters;f[k]=f[k]||{};f[k][sub]=v;render();}
+function pFilterClear(k){delete window._crmUI.partners.filters[k];render();}
+function pClearFilters(){window._crmUI.partners.filters={};render();}
+function pDupToggle(){window._crmUI.partners.dupOnly=!window._crmUI.partners.dupOnly;render();}
+function pFollowupToggle(){window._crmUI.partners.followupOnly=!window._crmUI.partners.followupOnly;render();}
+function pImportClick(){document.getElementById('pImportFile').click();}
+function lQSet(v){window._crmUI.leads.q=v;render();}
+function lToggleFilters(){window._crmUI.leads.showFilters=!window._crmUI.leads.showFilters;render();}
+function lSortSet(v){window._crmUI.leads.sort=v;render();}
+function lDirToggle(){window._crmUI.leads.dir*=-1;render();}
+function lFilterSet(k,v){window._crmUI.leads.filters[k]=v;render();}
+function lFilterRange(k,sub,v){var f=window._crmUI.leads.filters;f[k]=f[k]||{};f[k][sub]=v;render();}
+function lFilterClear(k){delete window._crmUI.leads.filters[k];render();}
+function lClearFilters(){window._crmUI.leads.filters={};render();}
+function lDupToggle(){window._crmUI.leads.dupOnly=!window._crmUI.leads.dupOnly;render();}
+function lImportClick(){document.getElementById('lImportFile').click();}
+function toolbarHtml(o){
+  var fc=activeFilterCount(o.defs,o.ui.filters);
+  var sortOpts=o.defs.map(function(d){return '<option value="'+d.k+'"'+(o.ui.sort===d.k?' selected':'')+'>'+esc(d.label)+'</option>';}).join('');
+  var h='<div class="section-h" style="flex-wrap:wrap;row-gap:8px">'+
+    '<input style="max-width:240px" placeholder="Search…" value="'+esc(o.ui.q||'')+'" oninput="'+o.prefix+'QSet(this.value)">'+
+    '<button class="btn sm" onclick="'+o.prefix+'ToggleFilters()">Filters'+(fc?' · '+fc:'')+'</button>'+
+    '<span style="display:flex;align-items:center;gap:6px;font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)">Sort by <select onchange="'+o.prefix+'SortSet(this.value)">'+sortOpts+'</select></span>'+
+    '<button class="btn sm" onclick="'+o.prefix+'DirToggle()">'+(o.ui.dir<0?'↓ Descending':'↑ Ascending')+'</button>'+
+    (o.extraChips||'')+
+    '<div class="spacer"></div>'+
+    '<button class="btn sm" onclick="'+o.prefix+'ImportClick()">Import CSV</button>'+
+    '<input type="file" id="'+o.prefix+'ImportFile" accept=".csv" style="display:none" onchange="'+o.prefix+'ImportFileChange(this)">'+
+    '<button class="btn sm" onclick="'+o.exportFn+'()">Export</button>'+
+    '<button class="btn gold" onclick="'+o.newFn+'()">'+o.newLabel+'</button>'+
+  '</div>';
+  if(o.ui.showFilters) h+='<div class="card fltpanel">'+renderFilterGrid(o.defs,o.ui.filters,o.prefix)+'</div>';
+  var chips=activeFilterChips(o.defs,o.ui.filters,o.prefix);
+  if(chips) h+='<div class="fltchips">'+chips+'<button class="btn sm" onclick="'+o.prefix+'ClearFilters()">Clear all</button></div>';
+  return h;
+}
+function renderFilterGrid(defs,fs,prefix){
+  var list=(prefix==='p')?WS.partners.filter(function(x){return !x.archived;}):WS.supplyProjects.filter(function(x){return !x.archived;});
+  return '<div class="fltgrid">'+defs.map(function(d){return '<div><label class="f" style="margin-bottom:4px">'+esc(d.label)+'</label>'+filterControl(d,list,fs,prefix)+'</div>';}).join('')+'</div>';
+}
+function activeFilterChips(defs,fs,prefix){
+  return defs.map(function(d){
+    var v=fs[d.k]; if(v==null||v==='') return '';
+    var label;
+    if(d.kind==='range'&&typeof v==='object'){ if((v.min==null||v.min==='')&&(v.max==null||v.max==='')) return ''; label=d.label+': '+(v.min||'0')+'–'+(v.max||'∞'); }
+    else if(d.kind==='daterange'&&typeof v==='object'){ if(!v.from&&!v.to) return ''; label=d.label+': '+(v.from||'…')+' → '+(v.to||'…'); }
+    else if(d.kind==='partnerpick'){ if(v==='__blank__') label=d.label+': (unlinked)'; else { var pp=WS.partners.find(function(x){return x.id===v;}); label=d.label+': '+(pp?(pp.contactName||pp.company):v); } }
+    else label=d.label+': '+(v==='__blank__'?'(blank)':v==='yes'?'Yes':v==='no'?'No':v);
+    return '<span class="chip gold">'+esc(label)+' <span style="cursor:pointer" onclick="'+prefix+'FilterClear(\''+d.k+'\')">×</span></span>';
+  }).join('');
+}
+function visiblePartnersList(){
+  var ui=window._crmUI.partners, stageFilter=window._pstage||'';
+  var list=WS.partners.filter(function(p){return !p.archived && (!stageFilter||p.stage===stageFilter);});
+  if(ui.q){ var q=ui.q.toLowerCase(); list=list.filter(function(p){return (p.company+' '+p.contactName+' '+(p.notes||'')+' '+(p.projects||[]).join(' ')).toLowerCase().indexOf(q)>=0;}); }
+  list=applyFilters(list,PARTNER_FIELDS,ui.filters);
+  if(ui.followupOnly){ var t=today(); list=list.filter(function(p){return p.nextActionDate && p.nextActionDate<=t;}); }
+  if(ui.dupOnly){ var dm=partnerDupMap(); list=list.filter(function(p){return dm[p.id];}); }
+  return sortRecords(list,PARTNER_FIELDS,ui.sort,ui.dir);
+}
+function visibleLeadsList(){
+  var ui=window._crmUI.leads, stageFilter=window._sstage||'';
+  var list=WS.supplyProjects.filter(function(p){return !p.archived && (!stageFilter||p.stage===stageFilter);});
+  if(ui.q){ var q=ui.q.toLowerCase(); list=list.filter(function(p){return (p.address+' '+(p.client||'')+' '+(p.architect||'')+' '+(p.notes||'')).toLowerCase().indexOf(q)>=0;}); }
+  list=applyFilters(list,LEAD_FIELDS,ui.filters);
+  if(ui.dupOnly){ var dm=leadDupMap(); list=list.filter(function(p){return dm[p.id];}); }
+  return sortRecords(list,LEAD_FIELDS,ui.sort,ui.dir);
+}
+/* ---------- CSV ---------- */
+function parseCSVSimple(text){
+  text=text.replace(/^﻿/,'');
+  var rows=[],row=[],f='',q=false;
+  for(var i=0;i<text.length;i++){
+    var c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(f);f='';}
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(f);rows.push(row);row=[];f=''; }
+    else f+=c;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+function csvCellSimple(v){var s=String(v==null?'':v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function toCSVSimple(rows){return '﻿'+rows.map(function(r){return r.map(csvCellSimple).join(',');}).join('\r\n');}
+function headerKeySimple(h){return String(h||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+function csvHeaderMap(defs){var m={};defs.forEach(function(d){if(d.csv)m[headerKeySimple(d.csv)]=d.k;});return m;}
+var PARTNER_HMAP=(function(){var m=csvHeaderMap(PARTNER_FIELDS);m.contact='contactName';m.name='contactName';m.title='role';m.mobile='phone';m.type='partnerType';return m;})();
+var LEAD_HMAP=(function(){var m=csvHeaderMap(LEAD_FIELDS);m.assettype='assetTypes';m.assettypes='assetTypes';m.sector='assetTypes';m.crm='partnerId_raw';m.crmpartner='partnerId_raw';m.crmcontact='partnerId_raw';return m;})();
+function download(name,text,type){
+  var blob=new Blob([text],{type:type||'text/plain'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+}
+function toISODateSimple(v){
+  var s=String(v||'').trim(); if(!s) return '';
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  if(/^\d{4,5}(\.\d+)?$/.test(s)){ var n=Math.floor(Number(s)); if(n>20000&&n<80000){ var d=new Date(Date.UTC(1899,11,30)+n*86400000); return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); } }
+  var m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  if(m){ var y=m[3].length===2?'20'+m[3]:m[3]; return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'); }
+  var d2=new Date(s); return isNaN(d2)?'':d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+}
+function parseNumSimple(s){var t=String(s||'').trim().replace(/[$,\s]/g,'');if(!t||t==='-')return '';var n=Number(t.replace(/[^0-9.\-]/g,''));return isNaN(n)?'':Math.round(n*100)/100;}
+function parsePctSimple(s){var t=String(s||'').trim();var n=parseNumSimple(t.replace('%',''));if(n==='')return '';return (t.indexOf('%')<0&&n>0&&n<=1)?Math.round(n*1000)/10:n;}
+function parseAssetTypesSimple(text){
+  var types=[]; var parts=String(text||'').split(/\s*[,;\/&+|\n]\s*/).filter(Boolean);
+  parts.forEach(function(raw){
+    var tok=raw.trim(); if(!tok) return;
+    var hit=LISTS.assetTypes.find(function(x){return x.toLowerCase()===tok.toLowerCase();});
+    if(hit){ if(types.indexOf(hit)<0) types.push(hit); return; }
+    var t=tok.toLowerCase().replace(/mulit/g,'multi'); var hits=[];
+    if(/\bbtr\b|build to rent/.test(t)) hits.push('BTR');
+    if(/\bbts\b|build to sell/.test(t)) hits.push('BTS');
+    if(/multi ?res/.test(t)) hits.push(/mid/.test(t)?'Multi-Res (Mid Rise)':'Multi-Res (Low Rise)');
+    if(/student/.test(t)) hits.push('Student Accommodation');
+    if(/hotel/.test(t)) hits.push('Hotel');
+    if(/mixed use|commercial/.test(t)) hits.push('Mixed Use (Commercial)');
+    if(/aged/.test(t)) hits.push('Aged Care');
+    if(/affordable|social housing/.test(t)) hits.push('Affordable Housing');
+    if(/temporary|workers? accom/.test(t)) hits.push('Temporary Accommodation');
+    if(hits.length) hits.forEach(function(h){if(types.indexOf(h)<0) types.push(h);}); else if(types.indexOf(tok)<0) types.push(tok);
+  });
+  return types;
+}
+function exportPartnersCSV(){
+  var head=PARTNER_FIELDS.map(function(f){return f.csv||f.label;});
+  var rows=[head].concat(visiblePartnersList().map(function(p){return PARTNER_FIELDS.map(function(f){
+    if(f.k==='projects') return (p.projects||[]).join('; ');
+    if(f.k==='marketingOptOut') return p.marketingOptOut?'Yes':'';
+    var v=p[f.k]; return v==null?'':v;
+  });}));
+  download('haavn-partners-'+today()+'.csv',toCSVSimple(rows),'text/csv');
+  toast('Exported '+(rows.length-1)+' partner(s)');
+}
+function exportLeadsCSV(){
+  var head=LEAD_FIELDS.map(function(f){return f.csv||f.label;});
+  var rows=[head].concat(visibleLeadsList().map(function(l){return LEAD_FIELDS.map(function(f){
+    if(f.k==='assetTypes') return (l.assetTypes||[]).join(', ');
+    if(f.k==='partnerId'){ var pp=WS.partners.find(function(x){return x.id===l.partnerId;}); return pp?(pp.contactName||pp.company):''; }
+    var v=l[f.k]; return v==null?'':v;
+  });}));
+  download('haavn-pipeline-'+today()+'.csv',toCSVSimple(rows),'text/csv');
+  toast('Exported '+(rows.length-1)+' project(s)');
+}
+function pImportFileChange(inp){
+  var file=inp.files&&inp.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(e){ try{ previewPartnerImport(e.target.result); }catch(err){ toast('Import failed: '+err.message); } };
+  r.readAsText(file); inp.value='';
+}
+function previewPartnerImport(text){
+  var rows=parseCSVSimple(text).filter(function(r){return r.some(function(c){return String(c||'').trim();});});
+  var hIdx=-1;
+  for(var i=0;i<rows.length;i++){ var ks=rows[i].map(headerKeySimple); if(ks.indexOf('company')>=0 && (ks.indexOf('contactname')>=0||ks.indexOf('email')>=0)){hIdx=i;break;} }
+  if(hIdx<0){ toast('Could not find a header row with Company + Contact Name/Email columns'); return; }
+  var cols=rows[hIdx].map(function(h){return PARTNER_HMAP[headerKeySimple(h)]||null;});
+  var drafts=[];
+  rows.slice(hIdx+1).forEach(function(r){
+    var d={},filled=0;
+    cols.forEach(function(k,i){ if(!k) return; var v=String(r[i]==null?'':r[i]).trim(); if(!v) return; filled++;
+      if(k==='projects') d.projects=v.split(/\s*(?:\n|;)\s*/).filter(Boolean); else d[k]=v; });
+    if(!filled) return;
+    var isExample=/^example\b/i.test(d.company||'')||/@example\.(com|com\.au|org)$/i.test((d.email||'').split(/\s+/)[0]||'');
+    if(isExample) return;
+    drafts.push({id:uid(),company:d.company||'',contactName:d.contactName||'',role:d.role||'',phone:d.phone||'',email:d.email||'',
+      partnerType:canonicalValue('partnerTypes',d.partnerType),source:canonicalValue('sources',d.source),
+      stage:canonicalValue('partnerStages',d.stage)||LISTS.partnerStages[0],region:d.region||'',
+      value:d.value?parseNumSimple(d.value):0,timeToOrder:d.timeToOrder||'',sector:d.sector||'',projects:d.projects||[],
+      nextAction:d.nextAction||'',nextActionDate:toISODateSimple(d.nextActionDate),notes:d.notes||'',owner:d.owner||'',
+      marketingOptOut:/^(y|yes|true|1)$/i.test(d.marketingOptOut||''),contactLog:[],archived:false,createdAt:nowIso(),updatedAt:nowIso()});
+  });
+  if(!drafts.length){ toast('No importable rows found'); return; }
+  openImportPreview('partners',drafts);
+}
+function lImportFileChange(inp){
+  var file=inp.files&&inp.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(e){ try{ previewLeadImport(e.target.result); }catch(err){ toast('Import failed: '+err.message); } };
+  r.readAsText(file); inp.value='';
+}
+function previewLeadImport(text){
+  var rows=parseCSVSimple(text).filter(function(r){return r.some(function(c){return String(c||'').trim();});});
+  var hIdx=-1;
+  for(var i=0;i<rows.length;i++){ var ks=rows[i].map(headerKeySimple); if(ks.indexOf('address')>=0 && (ks.indexOf('pipelinestage')>=0||ks.indexOf('company')>=0||ks.indexOf('stage')>=0)){hIdx=i;break;} }
+  if(hIdx<0){ toast('Could not find a header row with Address + Pipeline stage/Company columns'); return; }
+  var cols=rows[hIdx].map(function(h){return LEAD_HMAP[headerKeySimple(h)]||null;});
+  var drafts=[];
+  rows.slice(hIdx+1).forEach(function(r){
+    var d={};
+    cols.forEach(function(k,i){ if(!k) return; var v=String(r[i]==null?'':r[i]).trim(); if(v) d[k]=v; });
+    if(!d.address && !d.client) return;
+    var isExample=/^example\b/i.test(d.address||'')||/^example\b/i.test(d.client||'')||/example row/i.test(d.notes||'');
+    if(isExample) return;
+    var at=parseAssetTypesSimple(d.assetTypes||'');
+    var named=d.partnerId_raw && WS.partners.find(function(p){return (companyKeyV(p.company)&&companyKeyV(p.company)===companyKeyV(d.partnerId_raw))||(nameKeyV(p.contactName)&&nameKeyV(p.contactName)===nameKeyV(d.partnerId_raw));});
+    drafts.push({id:uid(),address:d.address||'',city:d.city||'',state:canonicalValue('states',d.state),assetTypes:at,
+      partnerId:named?named.id:'',client:d.client||(named?named.company:''),
+      customerType:canonicalValue('customerTypes',d.customerType),permitStatus:d.permitStatus||'',
+      orderValue:parseNumSimple(d.orderValue),modules:parseNumSimple(d.modules),stories:parseNumSimple(d.stories),
+      architect:d.architect||'',serviceType:canonicalValue('serviceTypes',d.serviceType),
+      stage:canonicalValue('supplyStages',d.stage)||LISTS.supplyStages[0],nextAction:d.nextAction||'',
+      certainty:d.certainty?parsePctSimple(d.certainty):null,owner:d.owner||'',notes:d.notes||'',
+      archived:false,createdAt:nowIso(),updatedAt:nowIso()});
+  });
+  if(!drafts.length){ toast('No importable rows found'); return; }
+  openImportPreview('leads',drafts);
+}
+function openImportPreview(kind,drafts){
+  window._importDrafts=drafts; window._importKind=kind;
+  var cols=kind==='partners'?['Company','Contact','Stage','Owner']:['Address','Client','Stage','Owner'];
+  var body='<h4>Import preview — '+drafts.length+' record(s)</h4>'+
+    '<p style="font-size:12px;color:var(--ink-3);margin:-8px 0 14px">These will be added to your existing '+(kind==='partners'?'Partner CRM':'Supply Pipeline')+'. Nothing already there is overwritten. Review, then commit.</p>'+
+    '<div class="tablewrap" style="max-height:360px"><table><thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
+    drafts.slice(0,200).map(function(d){return kind==='partners'
+      ?'<tr><td class="tt">'+esc(d.company)+'</td><td>'+esc(d.contactName)+'</td><td>'+esc(d.stage)+'</td><td>'+esc(d.owner)+'</td></tr>'
+      :'<tr><td class="tt">'+esc(d.address)+'</td><td>'+esc(d.client)+'</td><td>'+esc(d.stage)+'</td><td>'+esc(d.owner)+'</td></tr>';
+    }).join('')+'</tbody></table></div>'+
+    (drafts.length>200?'<p style="font-size:11px;color:var(--ink-3)">Showing first 200 of '+drafts.length+'.</p>':'')+
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="commitImport()">Import '+drafts.length+' record(s)</button></div>';
+  showModal(body);
+}
+function commitImport(){
+  var drafts=window._importDrafts||[];
+  if(window._importKind==='partners') WS.partners=WS.partners.concat(drafts); else WS.supplyProjects=WS.supplyProjects.concat(drafts);
+  saveWS(); closeModal(); render(); toast(drafts.length+' record(s) imported');
+  window._importDrafts=null;
+}
+
 /* ===================== Partners (HAAVN) ===================== */
 function viewPartners(){
-  var q=(window._pq||'').toLowerCase();
-  var list=WS.partners.filter(function(p){return !p.archived && (!q || (p.company+' '+p.contactName+' '+p.notes).toLowerCase().indexOf(q)>=0);});
-  var h='<div class="section-h"><input style="max-width:280px" placeholder="Search partners…" value="'+esc(window._pq||'')+'" oninput="window._pq=this.value;render()"><div class="spacer"></div><button class="btn gold" onclick="openPartnerModal()">+ New partner</button></div>';
+  var ui=window._crmUI.partners, filterStage=window._pstage||'';
+  var all=WS.partners.filter(function(p){return !p.archived;});
+  var dm=partnerDupMap();
+  var h='<div class="stagestrip">'+[''].concat(LISTS.partnerStages).map(function(s){
+    var n=s?all.filter(function(p){return p.stage===s;}).length:all.length;
+    return '<div class="stagechip'+(filterStage===s?' on':'')+'" onclick="window._pstage=\''+s+'\';render()">'+(s||'All partners')+' <span class="n">'+n+'</span></div>';
+  }).join('')+'</div>';
+  var followDue=all.filter(function(p){return p.nextActionDate && p.nextActionDate<=today();}).length;
+  var dupCount=Object.keys(dm).length;
+  var extraChips='<button class="chip'+(ui.followupOnly?' gold':'')+'" style="cursor:pointer" onclick="pFollowupToggle()">Follow-up due · '+followDue+'</button>'+
+    '<button class="chip'+(ui.dupOnly?' red':'')+'" style="cursor:pointer" onclick="pDupToggle()">Possible duplicates · '+dupCount+'</button>';
+  h+=toolbarHtml({prefix:'p',ui:ui,defs:PARTNER_FIELDS,newLabel:'+ New partner',newFn:'openPartnerModal',extraChips:extraChips,exportFn:'exportPartnersCSV'});
+  var list=visiblePartnersList();
+  h+='<div style="font-size:11px;color:var(--ink-3);margin:-4px 0 8px">'+list.length+' of '+all.length+' shown</div>';
   h+='<div class="tablewrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Type</th><th>Stage</th><th>Owner</th><th>Value</th><th>Next action</th><th>Projects</th></tr></thead><tbody>';
   h+=list.length?list.map(function(p){
     var linked=WS.supplyProjects.filter(function(sp){return sp.partnerId===p.id;}).length;
-    return '<tr onclick="openPartnerModal(\''+p.id+'\')"><td class="tt">'+esc(p.company)+'</td><td>'+esc(p.contactName)+'</td><td><span class="chip">'+esc(p.partnerType)+'</span></td>'+
+    return '<tr onclick="openPartnerModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:rgba(224,100,79,.08)"':'')+'><td class="tt">'+esc(p.company)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Possible duplicate</span>':'')+'</td><td>'+esc(p.contactName)+'</td><td><span class="chip">'+esc(p.partnerType)+'</span></td>'+
       '<td><span class="chip gold">'+esc(p.stage)+'</span></td><td>'+esc(p.owner)+'</td><td>'+fmtM(p.value)+'</td><td>'+esc(p.nextAction||'—')+(p.nextActionDate?' · '+esc(p.nextActionDate):'')+'</td><td>'+linked+'</td></tr>';
-  }).join(''):'<tr><td colspan="8" class="empty">No partners yet — add the first HAAVN supplier/developer relationship.</td></tr>';
+  }).join(''):(all.length?'<tr><td colspan="8" class="empty">No partners match — <span style="cursor:pointer;text-decoration:underline" onclick="pClearFilters();window._pstage=\'\';render()">clear filters</span>, import a CSV, or add one by hand.</td></tr>':'<tr><td colspan="8" class="empty">No partners yet — import the partner spreadsheet as CSV, or add one by hand.</td></tr>');
   h+='</tbody></table></div>';
   return h;
 }
@@ -506,8 +899,10 @@ function openPartnerModal(id){
     '<div class="formgrid"><label class="f">Phone<input id="pf_phone" value="'+esc(p.phone)+'"></label><label class="f">Email<input id="pf_email" value="'+esc(p.email)+'"></label></div>'+
     '<div class="formgrid"><label class="f">Partner type<select id="pf_type">'+LISTS.partnerTypes.map(function(t){return '<option '+(p.partnerType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label>'+
     '<label class="f">Stage<select id="pf_stage">'+LISTS.partnerStages.map(function(t){return '<option '+(p.stage===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label></div>'+
-    '<div class="formgrid"><label class="f">Region<input id="pf_region" value="'+esc(p.region)+'"></label><label class="f">Sector<input id="pf_sector" value="'+esc(p.sector)+'"></label></div>'+
-    '<div class="formgrid"><label class="f">Potential value (AUD)<input id="pf_value" type="number" value="'+(p.value||0)+'"></label><label class="f">Time to order<input id="pf_tto" value="'+esc(p.timeToOrder)+'" placeholder="e.g. Q1 2027"></label></div>'+
+    '<div class="formgrid"><label class="f">Source<select id="pf_source">'+LISTS.sources.map(function(t){return '<option '+((p.source||LISTS.sources[0])===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label>'+
+    '<label class="f">Region<input id="pf_region" value="'+esc(p.region)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Sector<input id="pf_sector" value="'+esc(p.sector)+'"></label><label class="f">Potential value (AUD)<input id="pf_value" type="number" value="'+(p.value||0)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Time to order<input id="pf_tto" value="'+esc(p.timeToOrder)+'" placeholder="e.g. Q1 2027"></label><label class="check" style="align-self:flex-end;margin-bottom:8px"><input type="checkbox" id="pf_optout" '+(p.marketingOptOut?'checked':'')+'> Opted out of marketing</label></div>'+
     '<div class="formgrid"><label class="f">Next action<input id="pf_naction" value="'+esc(p.nextAction)+'"></label><label class="f">Next action date<input id="pf_ndate" type="date" value="'+esc(p.nextActionDate)+'"></label></div>'+
     '<label class="f">Notes<textarea id="pf_notes" rows="2">'+esc(p.notes)+'</textarea></label>'+
     (isNew?'':'<label class="f">Log a conversation<div style="display:flex;gap:8px"><input id="pf_lognote" placeholder="What was discussed…"/><button type="button" class="btn sm" onclick="logPartnerNote(\''+p.id+'\')">Log</button></div></label>'+
@@ -521,8 +916,9 @@ function openPartnerModal(id){
 }
 function savePartner(id,isNew){
   var v={company:val('pf_company'),contactName:val('pf_contact'),role:val('pf_role'),owner:val('pf_owner'),phone:val('pf_phone'),email:val('pf_email'),
-    partnerType:val('pf_type'),stage:val('pf_stage'),region:val('pf_region'),sector:val('pf_sector'),value:parseFloat(val('pf_value'))||0,
-    timeToOrder:val('pf_tto'),nextAction:val('pf_naction'),nextActionDate:val('pf_ndate'),notes:val('pf_notes')};
+    partnerType:val('pf_type'),source:val('pf_source'),stage:val('pf_stage'),region:val('pf_region'),sector:val('pf_sector'),value:parseFloat(val('pf_value'))||0,
+    timeToOrder:val('pf_tto'),marketingOptOut:!!(document.getElementById('pf_optout')&&document.getElementById('pf_optout').checked),
+    nextAction:val('pf_naction'),nextActionDate:val('pf_ndate'),notes:val('pf_notes')};
   if(!v.company.trim()){toast('Company name is required');return;}
   if(isNew===true||isNew==='true'){
     WS.partners.push(Object.assign({id:id,projects:[],marketingOptOut:false,contactLog:[],archived:false,createdAt:nowIso()},v,{updatedAt:nowIso()}));
@@ -546,20 +942,26 @@ function createSupplyFromPartner(pid){
 
 /* ===================== Supply (HAAVN) ===================== */
 function viewSupply(){
-  var filterStage=window._sstage||'';
-  var list=WS.supplyProjects.filter(function(p){return !p.archived && (!filterStage||p.stage===filterStage);});
+  var ui=window._crmUI.leads, filterStage=window._sstage||'';
+  var all=WS.supplyProjects.filter(function(p){return !p.archived;});
+  var linked=all.filter(function(p){return p.partnerId;}).length;
+  var dm=leadDupMap();
   var h='<div class="grid4">'+stat(fmtM(openSupplyValue()),'Open supply value')+stat(fmtM(weightedSupply().sum)+(weightedSupply().missing?(' <span style="font-size:11px;color:var(--ink-3)">('+weightedSupply().missing+' unscored)</span>'):''),'Weighted supply')+
-    stat(modulesInPipeline(),'Modules in pipeline')+stat(fmtM(confirmedSupply()),'Confirmed supply')+'</div>';
-  h+='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openSupplyModal()">+ New supply project</button></div>';
+    stat(modulesInPipeline(),'Modules in pipeline')+stat(linked+' / '+all.length,'Linked to CRM')+'</div>';
   h+='<div class="stagestrip">'+['',].concat(LISTS.supplyStages).map(function(s){
-    var n=s?WS.supplyProjects.filter(function(p){return !p.archived&&p.stage===s;}).length:WS.supplyProjects.filter(function(p){return !p.archived;}).length;
+    var n=s?all.filter(function(p){return p.stage===s;}).length:all.length;
     return '<div class="stagechip'+(filterStage===s?' on':'')+'" onclick="window._sstage=\''+s+'\';render()">'+(s||'All')+' <span class="n">'+n+'</span></div>';
   }).join('')+'</div>';
+  var dupCount=Object.keys(dm).length;
+  var extraChips='<button class="chip'+(ui.dupOnly?' red':'')+'" style="cursor:pointer" onclick="lDupToggle()">Same address · '+dupCount+'</button>';
+  h+=toolbarHtml({prefix:'l',ui:ui,defs:LEAD_FIELDS,newLabel:'+ New supply project',newFn:'openSupplyModal',extraChips:extraChips,exportFn:'exportLeadsCSV'});
+  var list=visibleLeadsList();
+  h+='<div style="font-size:11px;color:var(--ink-3);margin:-4px 0 8px">'+list.length+' of '+all.length+' shown</div>';
   h+='<div class="tablewrap"><table><thead><tr><th>Address</th><th>Client</th><th>Stage</th><th>Order value</th><th>Modules</th><th>Certainty</th><th>Owner</th><th>Next action</th></tr></thead><tbody>';
   h+=list.length?list.map(function(p){
-    return '<tr onclick="openSupplyModal(\''+p.id+'\')"><td class="tt">'+esc(p.address)+'</td><td>'+esc(p.client)+'</td><td><span class="chip gold">'+esc(p.stage)+'</span></td>'+
+    return '<tr onclick="openSupplyModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:rgba(224,100,79,.08)"':'')+'><td class="tt">'+esc(p.address)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Same address</span>':'')+'</td><td>'+esc(p.client)+'</td><td><span class="chip gold">'+esc(p.stage)+'</span></td>'+
       '<td>'+fmtM(p.orderValue)+'</td><td>'+ (p.modules||0) +'</td><td>'+(p.certainty==null?'<span class="chip">Unknown</span>':p.certainty+'%')+'</td><td>'+esc(p.owner)+'</td><td>'+esc(p.nextAction||'—')+'</td></tr>';
-  }).join(''):'<tr><td colspan="8" class="empty">No supply projects yet.</td></tr>';
+  }).join(''):(all.length?'<tr><td colspan="8" class="empty">No projects match — <span style="cursor:pointer;text-decoration:underline" onclick="lClearFilters();window._sstage=\'\';render()">clear filters</span>, import a CSV, or add one by hand.</td></tr>':'<tr><td colspan="8" class="empty">No supply projects yet — import the pipeline spreadsheet as CSV, or add one by hand.</td></tr>');
   h+='</tbody></table></div>';
   return h;
 }
@@ -572,12 +974,13 @@ function openSupplyModal(id,prefill){
     '<div class="formgrid"><label class="f">Address / project name<input id="sf_address" value="'+esc(p.address)+'"></label><label class="f">Client<input id="sf_client" value="'+esc(p.client)+'" '+(p.partnerId?'disabled':'')+'></label></div>'+
     '<div class="formgrid"><label class="f">Linked partner<select id="sf_partner">'+partnerOpts+'</select></label><label class="f">Owner<select id="sf_owner">'+ownerOpts+'</select></label></div>'+
     '<div class="formgrid"><label class="f">City<input id="sf_city" value="'+esc(p.city)+'"></label><label class="f">State<select id="sf_state">'+LISTS.states.map(function(s){return '<option '+(p.state===s?'selected':'')+'>'+s+'</option>';}).join('')+'</select></label></div>'+
-    '<div class="formgrid"><label class="f">Order value (AUD)<input id="sf_value" type="number" value="'+(p.orderValue||0)+'"></label><label class="f">Certainty % (blank = unknown)<input id="sf_certainty" type="number" min="0" max="100" value="'+(p.certainty==null?'':p.certainty)+'"></label></div>'+
-    '<div class="formgrid"><label class="f">Modules<input id="sf_modules" type="number" value="'+(p.modules||0)+'"></label><label class="f">Stories<input id="sf_stories" type="number" value="'+(p.stories||1)+'"></label></div>'+
-    '<div class="formgrid"><label class="f">Customer type<select id="sf_ctype">'+LISTS.customerTypes.map(function(t){return '<option '+(p.customerType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label>'+
-    '<label class="f">Service type<select id="sf_stype">'+LISTS.serviceTypes.map(function(t){return '<option '+(p.serviceType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label></div>'+
-    '<div class="formgrid"><label class="f">Stage<select id="sf_stage">'+LISTS.supplyStages.map(function(t){return '<option '+(p.stage===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label><label class="f">Architect<input id="sf_arch" value="'+esc(p.architect)+'"></label></div>'+
-    '<div class="formgrid"><label class="f">Next action<input id="sf_naction" value="'+esc(p.nextAction)+'"></label><label class="f">Next action date<input id="sf_ndate" type="date" value="'+esc(p.nextActionDate)+'"></label></div>'+
+    '<label class="f">Asset types</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">'+LISTS.assetTypes.map(function(t,i){return '<label class="check"><input type="checkbox" id="sf_asset_'+i+'" '+((p.assetTypes||[]).indexOf(t)>=0?'checked':'')+'>'+esc(t)+'</label>';}).join('')+'</div>'+
+    '<div class="formgrid"><label class="f">Permit status<input id="sf_permit" value="'+esc(p.permitStatus||'')+'" placeholder="e.g. Approved Permit"></label><label class="f">Order value (AUD)<input id="sf_value" type="number" value="'+(p.orderValue||0)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Certainty % (blank = unknown)<input id="sf_certainty" type="number" min="0" max="100" value="'+(p.certainty==null?'':p.certainty)+'"></label><label class="f">Modules<input id="sf_modules" type="number" value="'+(p.modules||0)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Stories<input id="sf_stories" type="number" value="'+(p.stories||1)+'"></label><label class="f">Customer type<select id="sf_ctype">'+LISTS.customerTypes.map(function(t){return '<option '+(p.customerType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Service type<select id="sf_stype">'+LISTS.serviceTypes.map(function(t){return '<option '+(p.serviceType===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label><label class="f">Architect<input id="sf_arch" value="'+esc(p.architect)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Stage<select id="sf_stage">'+LISTS.supplyStages.map(function(t){return '<option '+(p.stage===t?'selected':'')+'>'+t+'</option>';}).join('')+'</select></label><label class="f">Next action<input id="sf_naction" value="'+esc(p.nextAction)+'"></label></div>'+
+    '<label class="f">Next action date<input id="sf_ndate" type="date" value="'+esc(p.nextActionDate)+'"></label>'+
     '<label class="f">Notes<textarea id="sf_notes" rows="2">'+esc(p.notes)+'</textarea></label>'+
     (isNew?'':'<div class="foot" style="justify-content:flex-start"><button type="button" class="btn sm" onclick="sendToMeeting(\'project\',\''+p.id+'\')">Send to meeting →</button><button type="button" class="btn sm" onclick="archiveSupply(\''+p.id+'\')">Archive</button></div>')+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveSupply(\''+p.id+'\','+isNew+')">Save project</button></div>';
@@ -588,13 +991,15 @@ function saveSupply(id,isNew){
   var partnerId=val('sf_partner');
   var partner=WS.partners.find(function(x){return x.id===partnerId;});
   var certRaw=val('sf_certainty');
+  var assetTypes=[]; LISTS.assetTypes.forEach(function(t,i){var el=document.getElementById('sf_asset_'+i); if(el&&el.checked) assetTypes.push(t);});
   var v={address:val('sf_address'),client:partner?partner.company:val('sf_client'),partnerId:partnerId,city:val('sf_city'),state:val('sf_state'),
+    assetTypes:assetTypes,permitStatus:val('sf_permit'),
     orderValue:parseFloat(val('sf_value'))||0,certainty:certRaw===''?null:Math.max(0,Math.min(100,parseFloat(certRaw))),
     modules:parseInt(val('sf_modules'))||0,stories:parseInt(val('sf_stories'))||1,customerType:val('sf_ctype'),serviceType:val('sf_stype'),
     stage:val('sf_stage'),architect:val('sf_arch'),owner:val('sf_owner'),nextAction:val('sf_naction'),nextActionDate:val('sf_ndate'),notes:val('sf_notes')};
   if(!v.address.trim()){toast('Address / project name is required');return;}
   if(isNew===true||isNew==='true'){
-    WS.supplyProjects.push(Object.assign({id:id,assetTypes:[],permitStatus:'',archived:false,createdAt:nowIso()},v,{updatedAt:nowIso()}));
+    WS.supplyProjects.push(Object.assign({id:id,archived:false,createdAt:nowIso()},v,{updatedAt:nowIso()}));
   } else {
     var p=WS.supplyProjects.find(function(x){return x.id===id;}); Object.assign(p,v,{updatedAt:nowIso()});
   }
