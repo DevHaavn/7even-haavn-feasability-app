@@ -1617,13 +1617,18 @@ function openNewMeetingModal(){
 }
 function commitNewMeeting(){
   var title=val('nm_title')||'Meeting', kindv=val('nm_kind'), dur=parseInt(val('nm_dur'))||30, date=val('nm_date'), time=val('nm_time');
-  var attendees=_nmA.filter(function(r){return (r.name||'').trim();}).map(function(r){return {id:uid(),name:r.name.trim(),email:(r.email||'').trim(),role:(r.role||'').trim(),present:true};});
-  if(!attendees.some(function(a){return sameName(a.name,ME());})) attendees.unshift({id:uid(),name:meDisplay(),email:'',role:'',present:true});
+  /* Attendee/item ids must be plain numbers, not pillar 01's own string uid() format:
+     pillar 02 recomputes its next id as Math.max() over every nested id it finds
+     (meetings, attendees, items, decisions) — a single non-numeric id anywhere
+     poisons that to NaN, which then serialises as a null id on the next meeting
+     pillar 02 creates. */
+  var attendees=_nmA.filter(function(r){return (r.name||'').trim();}).map(function(r,i){return {id:Date.now()+i,name:r.name.trim(),email:(r.email||'').trim(),role:(r.role||'').trim(),present:true};});
+  if(!attendees.some(function(a){return sameName(a.name,ME());})) attendees.unshift({id:Date.now()-1,name:meDisplay(),email:'',role:'',present:true});
   var rows=_nmI.filter(function(r){return (r.title||'').trim();});
   var sections=[], secIdByName={};
-  rows.forEach(function(r){var name=(r.sec||'').trim()||'General';var key=name.toLowerCase();if(!secIdByName[key]){var id='s'+uid();secIdByName[key]=id;sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:MTG_SECTION_COLORS[sections.length%MTG_SECTION_COLORS.length],tasks:[]});}});
+  rows.forEach(function(r){var name=(r.sec||'').trim()||'General';var key=name.toLowerCase();if(!secIdByName[key]){var id='s'+(sections.length+1);secIdByName[key]=id;sections.push({id:id,name:name,sub:'Agenda item',lead:'',color:MTG_SECTION_COLORS[sections.length%MTG_SECTION_COLORS.length],tasks:[]});}});
   if(!sections.length) sections=[{id:'s1',name:'General',sub:'Agenda item',lead:'',color:'#d6b36a',tasks:[]}];
-  var items=rows.map(function(r){var name=(r.sec||'').trim()||'General';return {id:uid(),dept:secIdByName[name.toLowerCase()],status:'followup',title:r.title.trim(),kind:'',assigneeId:'',owner:'',due:'',discussed:false,notes:'',carried:0,reviewers:[],files:[],subs:[],comments:[]};});
+  var items=rows.map(function(r,i){var name=(r.sec||'').trim()||'General';return {id:Date.now()+1000+i,dept:secIdByName[name.toLowerCase()],status:'followup',title:r.title.trim(),kind:'',assigneeId:'',owner:'',due:'',discussed:false,notes:'',carried:0,reviewers:[],files:[],subs:[],comments:[]};});
   var m={id:Date.now(),date:date,time:time,chair:ME(),attendees:attendees,
     items:items,decisions:[],minutes:'',closed:false,kind:kindv,title:title,targetSec:dur*60,
     sections:sections,recording:{active:false,startedAt:0}};

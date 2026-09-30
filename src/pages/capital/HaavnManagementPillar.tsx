@@ -64,7 +64,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'workflow') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20260930h" allow="microphone"
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20260930i" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
@@ -75,7 +75,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'agenda') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20260930d${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
+        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20260930e${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
