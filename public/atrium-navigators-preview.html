@@ -90,6 +90,37 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
 .seg button{border:none;background:transparent;color:var(--ink-3);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
 .seg button.on{background:var(--ink);color:var(--bg0)}
+.tb-search{position:relative;flex:1;max-width:340px;margin-left:6px}
+.tb-search input{width:100%;padding:8px 14px 8px 32px;border-radius:999px;border:1px solid var(--line-2);background:var(--pill);color:var(--ink);font-size:12.5px;font-family:var(--sans)}
+.tb-search input:focus{border-color:var(--ink-4)}
+.tb-search .sic{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--ink-3);pointer-events:none}
+.searchdrop{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--bg1);border:1px solid var(--line-2);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.4);max-height:420px;overflow-y:auto;z-index:220;display:none}
+.searchdrop.on{display:block}
+.searchdrop .grp{padding:9px 14px 5px;font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.searchdrop .row{padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.searchdrop .row:hover{background:var(--pill)}
+.searchdrop .row .t{color:var(--ink);font-size:12.5px}
+.searchdrop .row .m{color:var(--ink-3);font-size:10px;font-family:var(--mono);white-space:nowrap}
+.searchdrop .empty{padding:20px;text-align:center;color:var(--ink-3);font-size:12px}
+.notifwrap{position:relative}
+.notifbtn{position:relative;background:none;border:1px solid var(--line-2);color:var(--ink-2);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.notifbtn:hover{border-color:var(--ink-4);color:var(--ink)}
+.notifbtn svg{width:16px;height:16px}
+.notifbtn .dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--red);color:#fff;font:700 9px var(--mono);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg1)}
+.notifdrop{position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--bg1);border:1px solid var(--line-2);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.4);max-height:440px;overflow-y:auto;z-index:220;display:none}
+.notifdrop.on{display:block}
+.notifdrop .nhead{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line-2);position:sticky;top:0;background:var(--bg1)}
+.notifdrop .nhead b{font:300 14px var(--sans);color:var(--ink)}
+.notifdrop .nhead button{background:none;border:0;color:var(--ink-3);font-size:10px;font-family:var(--mono);cursor:pointer;letter-spacing:.06em}
+.notifdrop .nhead button:hover{color:var(--ink)}
+.notifdrop .nitem{padding:11px 14px;border-bottom:1px solid var(--line-2);cursor:pointer;display:flex;gap:9px;align-items:flex-start}
+.notifdrop .nitem:hover{background:var(--pill)}
+.notifdrop .nitem .dot2{width:7px;height:7px;border-radius:50%;background:var(--red);flex:none;margin-top:5px}
+.notifdrop .nitem .dot2.read{background:transparent}
+.notifdrop .nitem .nt{font-size:12.5px;color:var(--ink)}
+.notifdrop .nitem .nm{font-size:11px;color:var(--ink-3);margin-top:2px}
+.notifdrop .nitem .na{font-size:9.5px;color:var(--ink-4);font-family:var(--mono);margin-top:3px}
+.notifdrop .empty{padding:26px;text-align:center;color:var(--ink-3);font-size:12px}
 [data-theme="dark"] .seg button.on{background:rgba(255,255,255,.9);color:#000}
 
 .wrap{max-width:1320px;margin:0 auto;padding:24px 28px 90px}
@@ -258,7 +289,19 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="topbar">
       <div class="tb-title" id="tbTitle">Overview</div>
       <div class="tb-sub" id="tbSub">01 · ATRIUM WORKFLOW</div>
+      <div class="tb-search">
+        <svg class="sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="gsInput" placeholder="Search customers, jobs, projects, tasks…" autocomplete="off" oninput="gsSearch(this.value)" onfocus="gsSearch(this.value)">
+        <div class="searchdrop" id="gsDrop"></div>
+      </div>
       <div class="tb-right">
+        <div class="notifwrap">
+          <button class="notifbtn" id="notifBtn" onclick="toggleNotifDrop()" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 6.5H4C4.5 14 6 12 6 8Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+            <span class="dot" id="notifDot" style="display:none">0</span>
+          </button>
+          <div class="notifdrop" id="notifDrop"></div>
+        </div>
         <div class="seg" id="themeSeg"><button data-t="dark">Dark</button><button data-t="light">Light</button></div>
       </div>
     </div>
@@ -375,15 +418,18 @@ function injectIcons(){
 function initials(n){var p=(n||'?').trim().split(/\s+/);return ((p[0]?p[0][0]:'?')+(p[1]?p[1][0]:'')).toUpperCase();}
 
 function boot(){
-  Promise.all([kvPull(NAV_KEY,null), kvPull(MEET_KEY,{meetings:[]})]).then(function(r){
+  Promise.all([kvPull(NAV_KEY,null), kvPull(MEET_KEY,{meetings:[]}), kvPull(NOTIF_KEY,null)]).then(function(r){
     if(r[0]){ WS=r[0]; if(!WS.seq) WS.seq=1; }
     MEET_CACHE=r[1]||{meetings:[]};
+    NOTIF_CACHE=r[2]||blankNotifState();
     seedIfEmpty();
     injectIcons();
     if(!WS.profiles) WS.profiles={};
     renderProfileChip();
     renderRail(); render();
+    backfillNotifIfNeeded().then(function(){ renderNotifBell(); checkAllMeetingNotifications(MEET_CACHE.meetings); });
     setInterval(pollMeetings,6000);
+    setInterval(pollNotifications,6000);
     document.getElementById('themeSeg').addEventListener('click',function(e){
       var b=e.target.closest('[data-t]'); if(!b) return;
       document.documentElement.setAttribute('data-theme',b.dataset.t);
@@ -391,6 +437,11 @@ function boot(){
     });
     try{var th=localStorage.getItem('atrium_theme'); if(th) document.documentElement.setAttribute('data-theme',th);}catch(e){}
     seg();
+    document.addEventListener('click',function(e){
+      if(!e.target.closest('.tb-search')){ var gd=document.getElementById('gsDrop'); if(gd) gd.classList.remove('on'); }
+      if(!e.target.closest('.notifwrap')){ _notifDropOpen=false; var nd=document.getElementById('notifDrop'); if(nd) nd.classList.remove('on'); }
+    });
+    try{ if(!localStorage.getItem('atrium_me')) openWhoAreYou(true); }catch(e){}
   });
 }
 function seg(){var t=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('#themeSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});}
@@ -400,11 +451,160 @@ var MEET_CACHE={meetings:[]};
 function pollMeetings(){
   kvPull(MEET_KEY,null).then(function(v){
     if(!v) return;
-    var prevIds=(MEET_CACHE.meetings||[]).filter(function(m){return m.closed;}).map(function(m){return m.id;});
     MEET_CACHE=v;
     syncCompletedMeetings();
+    checkAllMeetingNotifications(v.meetings);
     if(TAB==='meetings'||TAB==='overview'||TAB==='mymeetings'||TAB==='myagenda') render();
   });
+}
+
+/* ===================== notifications — cloud-synced, live-polled ===================== */
+var NOTIF_KEY=(location.search.indexOf('preview')>=0)?'atrium_notifications_preview':'atrium_notifications';
+function blankNotifState(){return {notifications:[],_notifiedMeetingAttendees:{},_notifiedTaskOwner:{},_initialized:true};}
+var NOTIF_CACHE=blankNotifState();
+var _notifDropOpen=false;
+function pollNotifications(){
+  kvPull(NOTIF_KEY,null).then(function(v){
+    if(v) NOTIF_CACHE=v;
+    renderNotifBell();
+    if(_notifDropOpen) renderNotifDrop();
+  });
+}
+/* One-time backfill so shipping this feature doesn't retroactively notify the whole
+   team about every existing task owner / meeting attendee — only future changes fire. */
+function backfillNotifIfNeeded(){
+  if(NOTIF_CACHE._initialized) return Promise.resolve(false);
+  var v=blankNotifState();
+  (MEET_CACHE.meetings||[]).forEach(function(m){
+    var seen={};
+    (m.attendees||[]).forEach(function(a){ if(a.name) seen[a.name.trim().toLowerCase()]=true; });
+    v._notifiedMeetingAttendees[m.id]=seen;
+  });
+  (WS.actions||[]).forEach(function(a){ if(a.owner) v._notifiedTaskOwner[a.id]=a.owner; });
+  return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; return true; });
+}
+function checkAllMeetingNotifications(meetings){
+  var open=(meetings||[]).filter(function(m){return !m.closed;});
+  if(!open.length) return;
+  kvPull(NOTIF_KEY,blankNotifState()).then(function(v){
+    v=v||blankNotifState(); v._notifiedMeetingAttendees=v._notifiedMeetingAttendees||{}; v.notifications=v.notifications||[];
+    var any=false;
+    open.forEach(function(m){
+      var seen=v._notifiedMeetingAttendees[m.id]||{};
+      (m.attendees||[]).forEach(function(a){
+        var n=a.name; if(!n||sameName(n,ME())) return;
+        var key=n.trim().toLowerCase();
+        if(!seen[key]){
+          seen[key]=true; any=true;
+          v.notifications.push({id:uid(),forName:n,type:'meeting',title:'Added to meeting: "'+(m.title||'Weekly Company Meeting')+'"',
+            detail:(m.date||'')+(m.time?' · '+m.time:''),link:{tab:'mymeetings',openFn:'openMeetingDetail',id:m.id},createdAt:nowIso(),read:false});
+        }
+      });
+      v._notifiedMeetingAttendees[m.id]=seen;
+    });
+    if(!any) return;
+    return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); if(_notifDropOpen) renderNotifDrop(); });
+  });
+}
+function notifyTaskOwner(action,prevOwner){
+  var owner=(action.owner||'').trim();
+  if(!owner || sameName(owner,prevOwner||'') || sameName(owner,ME())) return;
+  kvPull(NOTIF_KEY,blankNotifState()).then(function(v){
+    v=v||blankNotifState(); v._notifiedTaskOwner=v._notifiedTaskOwner||{}; v.notifications=v.notifications||[];
+    if(v._notifiedTaskOwner[action.id]===owner) return;
+    v._notifiedTaskOwner[action.id]=owner;
+    v.notifications.push({id:uid(),forName:owner,type:'task',title:'Assigned: "'+action.title+'"',
+      detail:'By '+meDisplay()+(action.due?' · Due '+action.due:''),link:{tab:'actions',openFn:'openActionModal',id:action.id},createdAt:nowIso(),read:false});
+    return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); if(_notifDropOpen) renderNotifDrop(); });
+  });
+}
+function myNotifications(){
+  return (NOTIF_CACHE.notifications||[]).filter(function(n){return sameName(n.forName,ME());}).sort(function(a,b){return (b.createdAt||'').localeCompare(a.createdAt||'');});
+}
+function renderNotifBell(){
+  var unread=myNotifications().filter(function(n){return !n.read;}).length;
+  var dot=document.getElementById('notifDot');
+  if(!dot) return;
+  if(unread>0){ dot.style.display='flex'; dot.textContent=unread>99?'99+':unread; } else dot.style.display='none';
+}
+function timeAgo(iso){
+  if(!iso) return '';
+  var diff=(Date.now()-new Date(iso).getTime())/1000;
+  if(diff<60) return 'Just now';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+function renderNotifDrop(){
+  var mine=myNotifications();
+  var h='<div class="nhead"><b>Notifications</b>'+(mine.some(function(n){return !n.read;})?'<button onclick="markAllNotifRead()">Mark all read</button>':'')+'</div>';
+  h+=mine.length?mine.slice(0,40).map(function(n){return '<div class="nitem" onclick="openNotification(\''+n.id+'\')"><span class="dot2'+(n.read?' read':'')+'"></span><div><div class="nt">'+esc(n.title)+'</div>'+(n.detail?'<div class="nm">'+esc(n.detail)+'</div>':'')+'<div class="na">'+timeAgo(n.createdAt)+'</div></div></div>';}).join(''):'<div class="empty">Nothing yet — you\'ll see it here when someone assigns you a task or adds you to a meeting.</div>';
+  document.getElementById('notifDrop').innerHTML=h;
+}
+function toggleNotifDrop(){
+  _notifDropOpen=!_notifDropOpen;
+  document.getElementById('notifDrop').classList.toggle('on',_notifDropOpen);
+  if(_notifDropOpen) renderNotifDrop();
+}
+function markAllNotifRead(){
+  kvPull(NOTIF_KEY,blankNotifState()).then(function(v){
+    v=v||blankNotifState();
+    (v.notifications||[]).forEach(function(n){ if(sameName(n.forName,ME())) n.read=true; });
+    return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); renderNotifDrop(); });
+  });
+}
+function openNotification(id){
+  var n=(NOTIF_CACHE.notifications||[]).find(function(x){return x.id===id;});
+  if(!n) return;
+  if(!n.read){
+    kvPull(NOTIF_KEY,blankNotifState()).then(function(v){
+      v=v||blankNotifState();
+      var rec=(v.notifications||[]).find(function(x){return x.id===id;});
+      if(rec) rec.read=true;
+      return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); });
+    });
+  }
+  _notifDropOpen=false; document.getElementById('notifDrop').classList.remove('on');
+  if(n.link){ goTab(n.link.tab); if(n.link.openFn&&window[n.link.openFn]) setTimeout(function(){ window[n.link.openFn](n.link.id); },60); }
+}
+
+/* ===================== global search — customers, jobs, projects, tasks, meetings ===================== */
+function gsBuildResults(q){
+  var out=[];
+  function add(label,list,mapFn){ list.forEach(function(r){ out.push(Object.assign({grp:label},mapFn(r))); }); }
+  add('Partners · HAAVN Supply',WS.partners.filter(function(p){return !p.archived && ((p.company||'')+' '+(p.contactName||'')).toLowerCase().indexOf(q)>=0;}).slice(0,6),
+    function(p){return {t:p.company||p.contactName||'Untitled partner',m:p.stage||'',tab:'partners',openFn:'openPartnerModal',id:p.id};});
+  add('Supply Pipeline',WS.supplyProjects.filter(function(p){return !p.archived && ((p.address||'')+' '+(p.client||'')).toLowerCase().indexOf(q)>=0;}).slice(0,6),
+    function(p){return {t:p.address||'Untitled project',m:p.stage||'',tab:'supply',openFn:'openSupplyModal',id:p.id};});
+  add('HAAVN Black · Buyers',WS.buyers.filter(function(b){return ((b.name||'')+' '+(b.email||'')).toLowerCase().indexOf(q)>=0;}).slice(0,6),
+    function(b){return {t:b.name||'Untitled buyer',m:b.stage||'',tab:'buyers',openFn:'openBuyerModal',id:b.id};});
+  add('Tasks',WS.actions.filter(function(a){return (a.title||'').toLowerCase().indexOf(q)>=0;}).slice(0,8),
+    function(a){return {t:a.title,m:a.owner||'',tab:'actions',openFn:'openActionModal',id:a.id};});
+  add('Meetings',(MEET_CACHE.meetings||[]).filter(function(m){return (m.title||'Weekly Company Meeting').toLowerCase().indexOf(q)>=0;}).slice(0,6),
+    function(m){return {t:m.title||'Weekly Company Meeting',m:m.date||'',tab:'mymeetings',openFn:'openMeetingDetail',id:m.id};});
+  return out;
+}
+function gsSearch(q){
+  q=(q||'').trim().toLowerCase();
+  var drop=document.getElementById('gsDrop');
+  if(!q){ drop.classList.remove('on'); drop.innerHTML=''; window._gsResults=[]; return; }
+  var results=gsBuildResults(q);
+  window._gsResults=results;
+  var html='', lastGrp=null;
+  if(!results.length){ html='<div class="empty">No matches for "'+esc(q)+'".</div>'; }
+  else results.forEach(function(r,i){
+    if(r.grp!==lastGrp){ html+='<div class="grp">'+esc(r.grp)+'</div>'; lastGrp=r.grp; }
+    html+='<div class="row" onclick="gsOpen('+i+')"><span class="t">'+esc(r.t)+'</span>'+(r.m?'<span class="m">'+esc(r.m)+'</span>':'')+'</div>';
+  });
+  drop.innerHTML=html;
+  drop.classList.add('on');
+}
+function gsOpen(i){
+  var r=(window._gsResults||[])[i]; if(!r) return;
+  document.getElementById('gsDrop').classList.remove('on');
+  var inp=document.getElementById('gsInput'); if(inp) inp.value='';
+  goTab(r.tab);
+  if(r.openFn&&window[r.openFn]) setTimeout(function(){ window[r.openFn](r.id); },60);
 }
 
 /* ===================== router ===================== */
@@ -889,7 +1089,7 @@ function viewPartners(){
   return h;
 }
 function openPartnerModal(id){
-  var p=id?WS.partners.find(function(x){return x.id===id;}):{id:uid(),company:'',contactName:'',role:'',phone:'',email:'',partnerType:LISTS.partnerTypes[0],source:LISTS.sources[0],stage:LISTS.partnerStages[0],region:'',value:0,timeToOrder:'',sector:'',projects:[],nextAction:'',nextActionDate:'',owner:REAL_PEOPLE[0].name,notes:'',marketingOptOut:false,contactLog:[],archived:false,createdAt:nowIso(),updatedAt:nowIso()};
+  var p=id?WS.partners.find(function(x){return x.id===id;}):{id:uid(),company:'',contactName:'',role:'',phone:'',email:'',partnerType:LISTS.partnerTypes[0],source:LISTS.sources[0],stage:LISTS.partnerStages[0],region:'',value:0,timeToOrder:'',sector:'',projects:[],nextAction:'',nextActionDate:'',owner:ME(),notes:'',marketingOptOut:false,contactLog:[],archived:false,createdAt:nowIso(),updatedAt:nowIso()};
   var isNew=!id;
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(p.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var linked=isNew?[]:WS.supplyProjects.filter(function(sp){return sp.partnerId===p.id;});
@@ -966,7 +1166,7 @@ function viewSupply(){
   return h;
 }
 function openSupplyModal(id,prefill){
-  var p=id?WS.supplyProjects.find(function(x){return x.id===id;}):Object.assign({id:uid(),address:'',city:'',state:LISTS.states[0],assetTypes:[],partnerId:'',client:'',customerType:LISTS.customerTypes[0],permitStatus:'',orderValue:0,modules:0,stories:1,architect:'',serviceType:LISTS.serviceTypes[0],stage:LISTS.supplyStages[0],nextAction:'',nextActionDate:'',certainty:null,owner:REAL_PEOPLE[0].name,notes:'',archived:false,createdAt:nowIso(),updatedAt:nowIso()},prefill||{});
+  var p=id?WS.supplyProjects.find(function(x){return x.id===id;}):Object.assign({id:uid(),address:'',city:'',state:LISTS.states[0],assetTypes:[],partnerId:'',client:'',customerType:LISTS.customerTypes[0],permitStatus:'',orderValue:0,modules:0,stories:1,architect:'',serviceType:LISTS.serviceTypes[0],stage:LISTS.supplyStages[0],nextAction:'',nextActionDate:'',certainty:null,owner:ME(),notes:'',archived:false,createdAt:nowIso(),updatedAt:nowIso()},prefill||{});
   var isNew=!id;
   var partnerOpts='<option value="">— unlinked —</option>'+WS.partners.filter(function(x){return !x.archived;}).map(function(x){return '<option value="'+x.id+'" '+(p.partnerId===x.id?'selected':'')+'>'+esc(x.company)+'</option>';}).join('');
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(p.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
@@ -1031,7 +1231,7 @@ function viewSales(){
   return h;
 }
 function openBuyerModal(id){
-  var b=id?WS.buyers.find(function(x){return x.id===id;}):{id:uid(),name:'',brand:'HAAVN Black',home:HOME_RANGE[0],suburb:'',stage:'Enquiry',value:0,probability:BUYER_PROB['Enquiry'],owner:REAL_PEOPLE[0].name,source:LISTS.sources[0],email:'',phone:'',nextAction:'',nextDue:'',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]};
+  var b=id?WS.buyers.find(function(x){return x.id===id;}):{id:uid(),name:'',brand:'HAAVN Black',home:HOME_RANGE[0],suburb:'',stage:'Enquiry',value:0,probability:BUYER_PROB['Enquiry'],owner:ME(),source:LISTS.sources[0],email:'',phone:'',nextAction:'',nextDue:'',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]};
   var isNew=!id;
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(b.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var body='<h4>'+(isNew?'New buyer':esc(b.name)||'Buyer')+'</h4>'+
@@ -1102,7 +1302,7 @@ function viewActions(){
 function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.status=a.done?'done':'todo';a.completedAt=a.done?nowIso():null;saveWS();render();}
 function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.id===id;});a.status=status;a.done=(status==='done');a.completedAt=a.done?nowIso():null;saveWS();render();}
 function openActionModal(id,prefillDept){
-  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:REAL_PEOPLE[0].name,due:today(),priority:'Normal',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Normal',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
   var isNew=!id;
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var allDepts=Object.keys(DEPT_LABELS); WS.actions.forEach(function(x){if(x.dept&&allDepts.indexOf(x.dept)<0)allDepts.push(x.dept);});
@@ -1123,9 +1323,11 @@ function saveAction(id,isNew){
     priority:document.querySelector('input[name=af_prio]:checked').value,weekly:document.getElementById('af_weekly').checked,notes:val('af_notes')};
   v.done=(v.status==='done');
   if(!v.title.trim()){toast('Title is required');return;}
-  if(isNew===true||isNew==='true'){ WS.actions.push(Object.assign({id:id,context:null,meetingId:'',created:nowIso()},v,{completedAt:v.done?nowIso():null})); }
-  else { var a=WS.actions.find(function(x){return x.id===id;}); Object.assign(a,v,{completedAt:v.done?(a.completedAt||nowIso()):null}); }
+  var prevOwner=null, saved;
+  if(isNew===true||isNew==='true'){ saved=Object.assign({id:id,context:null,meetingId:'',created:nowIso()},v,{completedAt:v.done?nowIso():null}); WS.actions.push(saved); }
+  else { saved=WS.actions.find(function(x){return x.id===id;}); prevOwner=saved.owner; Object.assign(saved,v,{completedAt:v.done?(saved.completedAt||nowIso()):null}); }
   saveWS(); closeModal(); render(); toast('Action saved');
+  notifyTaskOwner(saved,prevOwner);
 }
 
 /* ===================== Team Board (carried over from the old workflow tool) ===================== */
@@ -1337,7 +1539,7 @@ function commitNewMeeting(){
     sections:sections,recording:{active:false,startedAt:0}};
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
     v=v||{meetings:[]}; if(!v.meetings) v.meetings=[]; v.meetings.push(m);
-    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('"'+title+'" created — open it in Meeting Management (pillar 02) to run it'); });
+    kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('"'+title+'" created — open it in Meeting Management (pillar 02) to run it'); checkAllMeetingNotifications([m]); });
   });
 }
 function openMeetingDetail(id){
@@ -1368,10 +1570,30 @@ function openMeetingDetail(id){
 }
 
 /* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
-function ME(){return REAL_PEOPLE[0].name;}
+function ME(){
+  try{ var v=localStorage.getItem('atrium_me'); if(v && REAL_PEOPLE.some(function(p){return sameName(p.name,v);})) return v; }catch(e){}
+  return REAL_PEOPLE[0].name;
+}
+function setMe(name){
+  try{localStorage.setItem('atrium_me',name);}catch(e){}
+  window._whoRequired=false;
+  renderProfileChip(); renderRail(); render(); toast('Switched to '+meDisplay());
+}
+function openWhoAreYou(mandatory){
+  window._whoRequired=!!mandatory;
+  var people=REAL_PEOPLE.filter(function(p){return !p.ext;});
+  window._whoList=people;
+  var body='<h4>Who are you?</h4>'+
+    '<p style="font-size:12px;color:var(--ink-3);margin:-8px 0 14px">'+(mandatory?'Pick your name to sign in — this shows your own tasks, agenda, meetings and notifications on this device.':'Pick your name so ATRIUM shows your own tasks, agenda, meetings and notifications on this device.')+'</p>'+
+    '<div style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto">'+
+    people.map(function(p,i){return '<button type="button" class="btn" style="justify-content:flex-start;text-align:left;width:100%" onclick="setMe(window._whoList['+i+'].name);closeModal()">'+avatarHtml(p.name,22)+'<span style="margin-left:8px">'+esc(p.name)+'</span><span style="margin-left:auto;font-size:10px;color:var(--ink-3)">'+esc(p.role||'')+'</span></button>';}).join('')+
+    '</div>'+
+    (mandatory?'':'<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button></div>');
+  showModal(body);
+}
 function meDisplay(){return ME().replace(/\w\S*/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1);});}
 function renderProfileChip(){
-  var me=REAL_PEOPLE[0], name=meDisplay(), pr=profileFor(ME());
+  var me=REAL_PEOPLE.find(function(p){return sameName(p.name,ME());})||REAL_PEOPLE[0], name=meDisplay(), pr=profileFor(ME());
   document.getElementById('railAvatar').innerHTML=avatarHtml(ME(),30);
   document.getElementById('railName').textContent=pr.name||name;
   var sub=document.querySelector('.rail-profile small');
@@ -1385,7 +1607,7 @@ function _resizeImg(file,cb){var r=new FileReader();r.onload=function(e){var img
     var mn=Math.min(img.width,img.height),sx=(img.width-mn)/2,sy=(img.height-mn)/2;
     ctx.drawImage(img,sx,sy,mn,mn,0,0,s,s);cb(c.toDataURL('image/jpeg',0.82));};img.src=e.target.result;};r.readAsDataURL(file);}
 function openProfile(){
-  var me=REAL_PEOPLE[0], key=ME().trim().toLowerCase();
+  var me=REAL_PEOPLE.find(function(p){return sameName(p.name,ME());})||REAL_PEOPLE[0], key=ME().trim().toLowerCase();
   if(!WS.profiles) WS.profiles={};
   var existing=WS.profiles[key]||{};
   var sel={color:existing.color||_defaultAvatarColor(ME()),photo:existing.photo||''};
@@ -1396,7 +1618,7 @@ function openProfile(){
     '<label class="f">Avatar colour</label><div id="profSwatches" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>'+
     '<label class="f">Position / role<input id="profRole" value="'+esc(existing.role||me.role||'')+'"></label>'+
     '<label class="f">Work email<input id="profEmail" value="'+esc(existing.email||me.email||'')+'"></label>'+
-    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" id="profSave">Save</button></div>';
+    '<div class="foot"><button type="button" class="btn" onclick="openWhoAreYou()">Not you? Switch</button><div class="spacer"></div><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" id="profSave">Save</button></div>';
   showModal(body);
   var ov=document.getElementById('modalBody');
   function paintAv(){document.getElementById('profAvWrap').innerHTML=sel.photo
@@ -1447,6 +1669,7 @@ function commitSendToMeeting(kind,recId){
     kvPush(MEET_KEY,v).then(function(){
       MEET_CACHE=v; closeModal(); render();
       toast('Sent to Meeting Management — "'+title+'" is now in pillar 02');
+      checkAllMeetingNotifications([m]);
     });
   });
 }
@@ -1512,7 +1735,7 @@ function exportBackup(){
 /* ===================== modal / util ===================== */
 function showModal(body){document.getElementById('modalBody').innerHTML=body;document.getElementById('modalbg').classList.add('on');}
 function closeModal(){document.getElementById('modalbg').classList.remove('on');}
-document.getElementById('modalbg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('modalbg').addEventListener('click',function(e){if(e.target===this && !window._whoRequired)closeModal();});
 function val(id){var el=document.getElementById(id);return el?el.value:'';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 var toastT; function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on');},2600);}
