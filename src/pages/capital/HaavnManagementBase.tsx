@@ -45,12 +45,12 @@ export const HM_PILLARS: HMPillar[] = [
 // rotating gold LED ring border.
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
-.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#f4f2ee;display:flex;flex-direction:column;
+.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#aba9a7;display:flex;flex-direction:column;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 .hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
   filter:invert(1) brightness(1.05) contrast(.82) saturate(.12) sepia(.05)}
 .hmh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.3) 42%,rgba(255,255,255,.68))}
+  background:linear-gradient(180deg,rgba(255,255,255,.39),rgba(255,255,255,.21) 42%,rgba(255,255,255,.48))}
 .hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(20,20,25,.10);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
 .mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
   background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
@@ -77,7 +77,7 @@ const CSS = `
 .hmh-sub{color:#4a4d54;font-size:14px;text-align:center;margin-top:18px;max-width:62ch;line-height:1.6}
 .hmh-faint{color:#83868e;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-align:center;margin-top:8px;font-family:'JetBrains Mono',monospace}
 .hmh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(20,20,25,.24),transparent);margin:24px auto 34px}
-.hmh-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
+.hmh-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px;position:relative}
 @property --hmhA{syntax:'<angle>';inherits:false;initial-value:0deg}
 @keyframes hmh-spin{to{--hmhA:360deg}}
 .hmh-ledbox{position:relative;border-radius:22px;padding:1.7px;isolation:isolate;transition:transform .3s}
@@ -91,11 +91,17 @@ const CSS = `
   background:conic-gradient(from var(--hmhA),transparent 0deg,rgba(214,179,106,.3) 150deg,transparent 300deg);
   filter:blur(16px);animation:hmh-spin 4.6s linear infinite}
 .hmh-ledbox.b2::before,.hmh-ledbox.b2::after{animation-direction:reverse}
-.hmh-ledbox:hover{transform:translateY(-4px)}
 .hmh-ledbox:hover::before,.hmh-ledbox:hover::after{animation-duration:2.4s}
+/* Hovering one pillar draws it toward the centre and lifts it forward; the other
+   pillar eases back and slightly up, as if stepping behind it. */
+.hmh-ledbox{position:relative;z-index:2;transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .5s cubic-bezier(.16,1,.3,1)}
+.hmh-pillars:has(.hmh-ledbox:nth-child(1):hover) .hmh-ledbox:nth-child(1){transform:scale(1.055) translateX(5%);z-index:6}
+.hmh-pillars:has(.hmh-ledbox:nth-child(1):hover) .hmh-ledbox:nth-child(2){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
+.hmh-pillars:has(.hmh-ledbox:nth-child(2):hover) .hmh-ledbox:nth-child(2){transform:scale(1.055) translateX(-5%);z-index:6}
+.hmh-pillars:has(.hmh-ledbox:nth-child(2):hover) .hmh-ledbox:nth-child(1){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
 .hmh-pcard{position:relative;z-index:2;border-radius:20px;background:transparent;transition:background .35s cubic-bezier(.16,1,.3,1);
   padding:30px 28px 26px;min-height:560px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
-.hmh-pcard:hover,.hmh-pcard:focus-visible{background:rgba(10,10,10,.35)}
+.hmh-pcard:hover,.hmh-pcard:focus-visible{background:rgba(255,255,255,.3)}
 .hmh-prow{display:flex;align-items:flex-start;justify-content:space-between}
 .hmh-pnum{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:300;line-height:1;color:#8f6a25}
 .hmh-papex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(143,106,37,.45);display:flex;align-items:center;justify-content:center;color:#8f6a25}
