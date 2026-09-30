@@ -130,11 +130,17 @@ const CSS = `
 
 export default function HaavnManagementBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
+  // Set when pillar 01 asks to open a specific meeting in pillar 02 (see
+  // HaavnManagementPillar's onOpenMeeting) — carried through as a query param
+  // on pillar 02's iframe so it jumps straight into that meeting's agenda.
+  const [openMeetingId, setOpenMeetingId] = useState<string | number | null>(null)
   const visiblePillars = HM_PILLARS
 
   if (pillar) {
     const p = HM_PILLARS.find(x => x.id === pillar)!
-    return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose} />
+    return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose}
+      openMeetingId={pillar === 'agenda' ? openMeetingId : null}
+      onOpenMeeting={(id) => { setOpenMeetingId(id); setPillar('agenda') }} />
   }
 
   return (

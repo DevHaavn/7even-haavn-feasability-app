@@ -255,6 +255,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-item" data-tab="mytasks" data-icon="review">My Tasks<span class="n" id="cMyTasks">0</span></div>
     <div class="rail-item" data-tab="myagenda" data-icon="calendar">My Weekly Agenda<span class="n" id="cMyAgenda">0</span></div>
     <div class="rail-item" data-tab="mymeetings" data-icon="people">My Meetings</div>
+    <div class="rail-group">Performance</div>
+    <div class="rail-item" data-tab="dashboard" data-icon="pipeline">Growth Dashboard</div>
     <div class="rail-group">Team &amp; Departments</div>
     <div class="rail-item" data-tab="teamboard" data-icon="folder">Team Board</div>
     <div class="rail-item" data-tab="workload" data-icon="people">Workload</div>
@@ -618,6 +620,7 @@ document.querySelectorAll('.rail-item').forEach(function(el){el.addEventListener
 
 var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   myday:['My Day','MY WORKSPACE'],mytasks:['My Tasks','MY WORKSPACE'],myagenda:['My Weekly Agenda','MY WORKSPACE'],mymeetings:['My Meetings','MY WORKSPACE'],
+  dashboard:['Growth Dashboard','HAAVN SUPPLY & HAAVN BLACK · KEY INDICATORS'],
   teamboard:['Team Board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly Review','BRIDGE → MEETING MANAGEMENT'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
   supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
@@ -633,6 +636,7 @@ function render(){
   else if(TAB==='mytasks') v.innerHTML=viewMyTasks();
   else if(TAB==='myagenda') v.innerHTML=viewMyAgenda();
   else if(TAB==='mymeetings') v.innerHTML=viewMyMeetings();
+  else if(TAB==='dashboard') v.innerHTML=viewDashboard();
   else if(TAB==='teamboard') v.innerHTML=viewTeamBoard();
   else if(TAB==='workload') v.innerHTML=viewWorkload();
   else if(TAB==='weeklyreview') v.innerHTML=viewWeeklyReview();
@@ -682,6 +686,76 @@ function viewOverview(){
 }
 function stat(n,l){return '<div class="card stat"><b>'+n+'</b><span>'+l+'</span></div>';}
 function goTab(t){TAB=t;location.hash=t;render();}
+
+/* ===================== Growth Dashboard — HAAVN Supply + HAAVN Black side by side ===================== */
+function stageBarRows(rows,maxVal){
+  return rows.map(function(r){
+    var pct=maxVal>0?Math.round((r.val/maxVal)*100):0;
+    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2);margin-bottom:4px"><span>'+esc(r.label)+' <span style="color:var(--ink-3)">('+r.count+')</span></span><span style="font-family:var(--mono)">'+fmtM(r.val)+'</span></div>'+
+      '<div style="height:8px;border-radius:4px;background:var(--pill);overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#d6b36a,#f4e3bd);border-radius:4px"></div></div></div>';
+  }).join('');
+}
+function viewDashboard(){
+  var supplyAll=WS.supplyProjects.filter(function(p){return !p.archived;});
+  var supplyRows=LISTS.supplyStages.map(function(s){
+    var list=supplyAll.filter(function(p){return p.stage===s;});
+    return {label:s,count:list.length,val:list.reduce(function(a,p){return a+(+p.orderValue||0);},0)};
+  });
+  var supplyMax=Math.max.apply(null,supplyRows.map(function(r){return r.val;}).concat([1]));
+  var activePartners=WS.partners.filter(function(p){return !p.archived;}).length;
+
+  var buyersWon=WS.buyers.filter(function(b){return b.stage==='Won';});
+  var buyersLost=WS.buyers.filter(function(b){return b.stage==='Lost';});
+  var wonRevenue=buyersWon.reduce(function(s,b){return s+(+b.value||0);},0);
+  var openBuyersList=openBuyers();
+  var openBuyersValue=openBuyersList.reduce(function(s,b){return s+(+b.value||0);},0);
+  var conv=(buyersWon.length+buyersLost.length)?Math.round(buyersWon.length/(buyersWon.length+buyersLost.length)*100):null;
+  var buyerRows=BUYER_STAGES.map(function(s){
+    var list=WS.buyers.filter(function(b){return b.stage===s;});
+    return {label:s,count:list.length,val:list.reduce(function(a,b){return a+(+b.value||0);},0)};
+  });
+  var buyerMax=Math.max.apply(null,buyerRows.map(function(r){return r.val;}).concat([1]));
+
+  var h='<p style="font-size:12.5px;color:var(--ink-3);margin-bottom:20px">Live key growth indicators across both HAAVN companies — orders, future pipeline and approved sales, pulled straight from the Supply Pipeline and Home Buyers records.</p>';
+
+  h+='<div class="grid4" style="margin-bottom:20px">'+
+    stat(fmtM(confirmedSupply()+wonRevenue),'Total confirmed revenue')+
+    stat(fmtM(weightedSupply().sum+weightedSales()),'Total weighted future pipeline')+
+    stat(fmtM(openSupplyValue()+openBuyersValue),'Total open pipeline value')+
+    stat(supplyAll.length+openBuyersList.length,'Active projects + opportunities')+
+  '</div>';
+
+  h+='<div class="section-h"><h3>HAAVN · Supply &amp; Development</h3></div>';
+  h+='<div class="grid4">'+
+    stat(fmtM(confirmedSupply()),'Confirmed orders (revenue)')+
+    stat(fmtM(weightedSupply().sum),'Weighted future pipeline')+
+    stat(fmtM(openSupplyValue()),'Open pipeline value')+
+    stat(modulesInPipeline(),'Modules in pipeline')+
+  '</div>';
+  h+='<div class="grid4" style="margin-top:8px">'+
+    stat(supplyAll.length,'Active supply projects')+
+    stat(activePartners,'Partners &amp; developers')+
+    stat(supplyAll.filter(function(p){return p.certainty==null;}).length,'Projects unscored')+
+    stat(supplyAll.filter(function(p){return p.partnerId;}).length+' / '+supplyAll.length,'Linked to CRM')+
+  '</div>';
+  h+='<div class="card" style="margin-top:16px;padding:18px 20px"><div style="font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px">By pipeline stage</div>'+stageBarRows(supplyRows,supplyMax)+'</div>';
+
+  h+='<div class="section-h"><h3>HAAVN Black · Home Sales</h3></div>';
+  h+='<div class="grid4">'+
+    stat(fmtM(wonRevenue),'Approved sales (won revenue)')+
+    stat(fmtM(weightedSales()),'Weighted future pipeline')+
+    stat(fmtM(openBuyersValue),'Open pipeline value')+
+    stat(openBuyersList.length,'Open opportunities')+
+  '</div>';
+  h+='<div class="grid4" style="margin-top:8px">'+
+    stat(buyersWon.length,'Homes won (all time)')+
+    stat(buyersLost.length,'Lost')+
+    stat(conv==null?'—':conv+'%','Win rate')+
+    stat(WS.buyers.length,'Total buyer records')+
+  '</div>';
+  h+='<div class="card" style="margin-top:16px;padding:18px 20px"><div style="font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px">By sales stage</div>'+stageBarRows(buyerRows,buyerMax)+'</div>';
+  return h;
+}
 
 /* ===================== Filters, sort, duplicates & CSV — HAAVN Supply & Development =====================
    Field metadata + a generic filter/sort/dedupe/CSV engine shared by Partner CRM and Supply Pipeline,
@@ -1489,16 +1563,32 @@ function deleteMeetingRecord(id){
 function commitDeleteMeeting(id){
   kvPull(MEET_KEY,{meetings:[]}).then(function(v){
     v=v||{meetings:[]}; v.meetings=(v.meetings||[]).filter(function(x){return ''+x.id!==''+id;});
+    /* Pillar 02 keeps a currentId pointing at whichever meeting it's showing.
+       If we just deleted that one, repoint it to another open meeting (the
+       weekly one if there is one) so pillar 02 doesn't land on a dangling id
+       and show nothing. */
+    if(''+v.currentId===''+id){
+      var openWeekly=v.meetings.find(function(m){return !m.closed&&(!m.kind||m.kind==='weekly');});
+      var openAny=v.meetings.find(function(m){return !m.closed;});
+      var fallback=openWeekly||openAny||v.meetings[v.meetings.length-1];
+      v.currentId=fallback?fallback.id:v.currentId;
+    }
     kvPush(MEET_KEY,v).then(function(){ MEET_CACHE=v; closeModal(); render(); toast('Meeting deleted'); });
   });
 }
 var MTG_SECTION_COLORS=['#5b8def','#5aa87a','#d8a54a','#a179d8','#e0644f','#5aa8a8','#c77dbb','#8a9099'];
 var _nmA=[], _nmI=[];
+function personDatalistHtml(){return '<datalist id="nm_person_dl">'+REAL_PEOPLE.map(function(p){return '<option value="'+esc(p.name)+'">';}).join('')+'</datalist>';}
+function _nmPersonPick(i){
+  var v=(_nmA[i].name||'').trim().toLowerCase();
+  var p=REAL_PEOPLE.find(function(x){return x.name.trim().toLowerCase()===v;});
+  if(p){ _nmA[i].email=p.email||''; _nmA[i].role=p.role||''; _nmRefresh(); }
+}
 function _nmRowsA(){return _nmA.map(function(r,i){return '<div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
-  '<input style="flex:1.3" placeholder="Name" value="'+esc(r.name)+'" oninput="_nmA['+i+'].name=this.value">'+
+  '<input style="flex:1.3" list="nm_person_dl" placeholder="Name — pick from the company or type anyone" value="'+esc(r.name)+'" oninput="_nmA['+i+'].name=this.value" onchange="_nmPersonPick('+i+')">'+
   '<input style="flex:1.3" placeholder="Email" value="'+esc(r.email)+'" oninput="_nmA['+i+'].email=this.value">'+
   '<input style="flex:1" placeholder="Role" value="'+esc(r.role)+'" oninput="_nmA['+i+'].role=this.value">'+
-  '<span style="cursor:pointer;color:var(--ink-3);padding:0 4px;font-size:15px" onclick="_nmA.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('');}
+  '<span style="cursor:pointer;color:var(--ink-3);padding:0 4px;font-size:15px" onclick="_nmA.splice('+i+',1);_nmRefresh()">×</span></div>';}).join('')+personDatalistHtml();}
 function _nmSecOptions(){var seen={},out=[];_nmI.forEach(function(r){var v=(r.sec||'').trim();if(v&&!seen[v.toLowerCase()]){seen[v.toLowerCase()]=1;out.push(v);}});return out;}
 function _nmRowsI(){return _nmI.map(function(r,i){return '<div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">'+
   '<input style="flex:1.3" placeholder="Agenda item" value="'+esc(r.title)+'" oninput="_nmI['+i+'].title=this.value">'+
@@ -1561,8 +1651,13 @@ function openMeetingDetail(id){
   if(m.minutes){
     body+='<div style="margin-bottom:8px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Minutes &amp; general notes</div><div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.minutes)+'</div></div>';
   }
-  body+='<div class="foot"><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div><button type="button" class="btn gold" onclick="closeModal()">Close</button></div>';
+  body+='<div class="foot"><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div>'+
+    (m.closed?'':'<button type="button" class="btn gold" onclick="openMeetingInPillar02(\''+m.id+'\')">Open in Meeting Management →</button>')+
+    '<button type="button" class="btn" onclick="closeModal()">Close</button></div>';
   showModal(body);
+}
+function openMeetingInPillar02(id){
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'haavn-open-meeting',id:id},'*'); }catch(e){}
 }
 
 /* ===================== Meetings bridge — pillar 01 ↔ pillar 02 ===================== */
