@@ -4,7 +4,9 @@ import HaavnManagementPillar from './HaavnManagementPillar'
 
 // 'crm' and 'meetings' are retired from the hub listing (see HM_PILLARS) but
 // their render paths are kept in HaavnManagementPillar for easy restoration.
-export type HMPillarId = 'crm' | 'meetings' | 'agenda' | 'workflow'
+// 'workflow-black' is the HAAVN Black sales team's own restricted variant of
+// pillar 01 (see HM_PILLARS_BLACK below) — same data, a smaller tool.
+export type HMPillarId = 'crm' | 'meetings' | 'agenda' | 'workflow' | 'workflow-black'
 
 export interface HMPillar {
   id: HMPillarId
@@ -34,6 +36,26 @@ export const HM_PILLARS: HMPillar[] = [
     sub: 'Agenda · Actions · Minutes · Weekly cadence',
     blurb: 'The weekly rhythm of the business — the live Company Meeting agenda, action tracking, minutes and decisions, department leads and the Meeting Console, week to week.',
     color: '#d6b36a', // LED brand gold
+  },
+]
+
+// HAAVN Black sales team's own restricted hub — reached from the HAAVN Black
+// menu, not the HAAVN menu. Same data as HM_PILLARS (same cloud keys), just a
+// smaller pillar 01 tool (leads, own tasks, own meetings only — no 7EVEN,
+// HAAVN supply or management areas) and the same shared Meeting Management,
+// which is already scoped per-attendee.
+export const HM_PILLARS_BLACK: HMPillar[] = [
+  {
+    id: 'workflow-black', num: '01', title: 'ATRIUM · HAAVN Black',
+    sub: 'Leads · Home Buyers · Own Tasks · Meetings',
+    blurb: 'Your own deals and leads in the HAAVN Black sales pipeline, your own tasks and weekly agenda, and setting up meetings — linked straight into Meeting Management.',
+    color: '#d6b36a',
+  },
+  {
+    id: 'agenda', num: '02', title: 'Meeting Management',
+    sub: 'Agenda · Actions · Minutes · Weekly cadence',
+    blurb: 'The weekly rhythm of the business — you only see meetings you’re chairing or attending.',
+    color: '#d6b36a',
   },
 ]
 
@@ -134,16 +156,16 @@ const CSS = `
 }
 `
 
-export default function HaavnManagementBase({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
+export default function HaavnManagementBase({ onClose, onLogout, pillars }: { onClose: () => void; onLogout: () => void; pillars?: HMPillar[] }) {
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
   // Set when pillar 01 asks to open a specific meeting in pillar 02 (see
   // HaavnManagementPillar's onOpenMeeting) — carried through as a query param
   // on pillar 02's iframe so it jumps straight into that meeting's agenda.
   const [openMeetingId, setOpenMeetingId] = useState<string | number | null>(null)
-  const visiblePillars = HM_PILLARS
+  const visiblePillars = pillars ?? HM_PILLARS
 
   if (pillar) {
-    const p = HM_PILLARS.find(x => x.id === pillar)!
+    const p = visiblePillars.find(x => x.id === pillar)!
     return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose}
       openMeetingId={pillar === 'agenda' ? openMeetingId : null}
       onOpenMeeting={(id) => { setOpenMeetingId(id); setPillar('agenda') }} />

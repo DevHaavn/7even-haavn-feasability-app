@@ -10,7 +10,7 @@ import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated, type Company } from './pages/PasswordGate'
 import SplashScreen from './pages/SplashScreen'
 import HaavnHomes from './pages/HaavnHomes'
-import HaavnManagementBase from './pages/capital/HaavnManagementBase'
+import HaavnManagementBase, { HM_PILLARS_BLACK } from './pages/capital/HaavnManagementBase'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
 import HaavnDisplaySuite from './pages/HaavnDisplaySuite'
 import CapitalPortal from './pages/capital/CapitalPortal'
@@ -29,7 +29,7 @@ export default function App() {
      or zooming a large render is enough), and the app used to come back on the
      7EVEN home screen. Now it comes back where it was. */
   const VIEW_KEY = 'atrium_surface_v1'
-  const saved: { co?: Company | null; homes?: boolean; display?: boolean; crm?: boolean; capital?: boolean; dash?: '7even' | 'haavn' | null } =
+  const saved: { co?: Company | null; homes?: boolean; display?: boolean; crm?: boolean; capital?: boolean; atriumBlack?: boolean; dash?: '7even' | 'haavn' | null } =
     (() => { try { return JSON.parse(sessionStorage.getItem(VIEW_KEY) || '{}') } catch { return {} } })()
   // Which company the admin chose on the 7X screen (null = show the chooser).
   const [company, setCompany] = useState<Company | null>(saved.co ?? null)
@@ -45,6 +45,10 @@ export default function App() {
   // Capital Base (accounts management) opened from the CAPITAL wings in the HAAVN
   // BLACK hero header. Admin surface only — never wired for restricted logins.
   const [homesCapitalOpen, setHomesCapitalOpen] = useState(!!saved.capital)
+  // The HAAVN Black sales team's own restricted ATRIUM tool, opened from the
+  // HAAVN Black menu's "ATRIUM" button — distinct from atriumOpen below, which
+  // is the full hub reached from the HAAVN menu.
+  const [homesAtriumOpen, setHomesAtriumOpen] = useState(!!saved.atriumBlack)
   const [manageOpen, setManageOpen] = useState(false)
   const [atriumOpen, setAtriumOpen] = useState(false)
   // The boot splash — plays once on every fresh load, ahead of the login/chooser.
@@ -58,9 +62,9 @@ export default function App() {
   const setTheme = (t: 'light' | 'blk') => setAtriumTheme(t === 'blk' ? 'dark' : 'light')
 
   useEffect(() => {
-    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({ co: company, homes: homesOpen, display: displaySuiteOpen, crm: homesCrmOpen, capital: homesCapitalOpen, dash: dashboardBrand })) }
+    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({ co: company, homes: homesOpen, display: displaySuiteOpen, crm: homesCrmOpen, capital: homesCapitalOpen, atriumBlack: homesAtriumOpen, dash: dashboardBrand })) }
     catch { /* private mode */ }
-  }, [company, homesOpen, displaySuiteOpen, homesCrmOpen, homesCapitalOpen, dashboardBrand])
+  }, [company, homesOpen, displaySuiteOpen, homesCrmOpen, homesCapitalOpen, homesAtriumOpen, dashboardBrand])
 
   // Workspace zoom follows the window: full 1.4 design zoom on large monitors,
   // scaling down linearly to 1.0 at 1280px so laptops aren't stuck with monitor sizing.
@@ -178,6 +182,7 @@ export default function App() {
 
   function goHome() {
     setCompany(null); setHomesOpen(false); setHomesCrmOpen(false); setDisplaySuiteOpen(false); setHomesCapitalOpen(false)
+    setHomesAtriumOpen(false)
     setDashboardBrand(null); setManageOpen(false); setEngineFromLink(false)
   }
 
@@ -212,7 +217,7 @@ export default function App() {
   // The HM device button (top-right) opens the Management Hub, mounted above.
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
-      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={() => setHomesCapitalOpen(true)} onLogout={handleLogout} />
+      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={() => setHomesCapitalOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
@@ -224,6 +229,9 @@ export default function App() {
           <CapitalPortal onClose={() => setHomesCapitalOpen(false)} />
         </div>
       )}
+      {/* HAAVN Black sales team's own restricted ATRIUM tool — same data as the
+          full Management Hub, a smaller pillar set (see HM_PILLARS_BLACK). */}
+      {homesAtriumOpen && <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />}
     </RoleContext.Provider>
   )
 
@@ -233,10 +241,11 @@ export default function App() {
   if (role === 'homes') {
     return (
       <RoleContext.Provider value={role}>
-        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
+        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
         {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
         {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
+        {homesAtriumOpen && <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />}
       </RoleContext.Provider>
     )
   }

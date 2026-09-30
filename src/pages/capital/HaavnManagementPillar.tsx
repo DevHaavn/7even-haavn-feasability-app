@@ -21,12 +21,12 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   // Pillars 01 (ATRIUM Workflow) and 02 (Meeting Management) each mount a
   // self-contained tool in an iframe; their top-bar "← Hub" posts a close
   // message to return, and we pin the page on mobile.
-  const isIframeTool = pillar.id === 'agenda' || pillar.id === 'workflow'
+  const isIframeTool = pillar.id === 'agenda' || pillar.id === 'workflow' || pillar.id === 'workflow-black'
   useScrollLock(isIframeTool)
   useEffect(() => {
     if (!isIframeTool) return
     const onMsg = (e: MessageEvent) => {
-      if (e.data === 'haavn-agenda-close' || e.data === 'haavn-workflow-close') onBack()
+      if (e.data === 'haavn-agenda-close' || e.data === 'haavn-workflow-close' || e.data === 'haavn-black-atrium-close') onBack()
       // Deep link from pillar 01: "open this specific meeting in pillar 02" — jump pillars,
       // carrying the meeting id so pillar 02 opens straight into its agenda.
       else if (e.data && typeof e.data === 'object' && e.data.type === 'haavn-open-meeting' && onOpenMeeting) onOpenMeeting(e.data.id)
@@ -65,6 +65,18 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
         <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20260930i" allow="microphone"
+          style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
+      </div>
+    )
+  }
+
+  // Pillar 01 (HAAVN Black variant) · the sales team's own restricted workflow
+  // tool — same data as ATRIUM Workflow, a smaller tool. Its own top-bar "← Hub"
+  // returns (see the effect above).
+  if (pillar.id === 'workflow-black') {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
+        <iframe title="ATRIUM · HAAVN Black" src="/atrium-black.html?v=20261001a" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

@@ -115,7 +115,7 @@ function HomeClock({ handover }: { handover?: string }) {
   )
 }
 
-export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onLogout }: {
+export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onOpenAtriumBlack, onLogout }: {
   onBack: () => void
   /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
    *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
@@ -126,6 +126,9 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   /** Opens Capital Base (accounts management) — CAPITAL wings in the hero header.
    *  Only wired for the admin surface; omitted for restricted builder logins. */
   onOpenCapital?: () => void
+  /** Opens the HAAVN Black sales team's own restricted ATRIUM tool (leads, own
+   *  tasks/workflow, meetings — no 7EVEN/HAAVN/management areas). */
+  onOpenAtriumBlack?: () => void
   onLogout?: () => void
 }) {
   const [list, setList] = useState<HomeProject[]>(() => load())
@@ -167,12 +170,13 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
       else if (m === 'capital') onOpenCapital?.()
       else if (m === 'logout') (onLogout ?? onBack)?.()
       else if (m === 'crm') onOpenCrm?.()
+      else if (m === 'atrium') onOpenAtriumBlack?.()
     }
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setOpenId(null) }
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm, onOpenCapital])
+  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm, onOpenCapital, onOpenAtriumBlack])
   const open = list.find(p => p.id === openId) || null
   // Pin the parent document while the embedded studio is open — stops the iOS
   // address-bar shift + bounce that made the studio "jump around" on mobile.
@@ -203,7 +207,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title="HAAVN BLACK"
-        src="/haavn-black.html?v=38" allow="autoplay; fullscreen"
+        src="/haavn-black.html?v=39" allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

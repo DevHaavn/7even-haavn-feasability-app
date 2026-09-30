@@ -428,6 +428,7 @@ main,footer,header .kicker{transition:.38s}
     <button class="hbrow" id="mDisplay">HAAVN BLK<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mFeas">HAAVN STUDIO<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
+    <button class="hbrow gold" id="mAtrium">ATRIUM<span class="g">&#8594;</span></button>
     <div class="hb-bottomrow">
       <button class="hb-atriumicon" id="btnMenuAtrium" type="button" aria-label="ATRIUM — choose a company"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/></svg></button>
       <button class="hbrow logout" id="mLogout" aria-label="Log Out">LOG<span class="ring-o" aria-hidden="true"></span></button>
@@ -773,7 +774,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
       var h7=document.getElementById('btnHome7x');if(h7)h7.addEventListener('click',function(){post('return');});
       var ha=document.getElementById('btnMenuAtrium');if(ha)ha.addEventListener('click',function(){close();post('return');});
-      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mLogout','logout']];
+      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mAtrium','atrium'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
       // HAAVN (supply) is its own pillar now, reached from the 7EVEN menu —
       // it is no longer a row in here.
