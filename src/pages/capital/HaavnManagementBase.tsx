@@ -45,12 +45,12 @@ export const HM_PILLARS: HMPillar[] = [
 // rotating gold LED ring border.
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
-.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#aba9a7;display:flex;flex-direction:column;
+.hmh-root{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;background:#787675;display:flex;flex-direction:column;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 .hmh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
-  filter:invert(1) brightness(1.05) contrast(.82) saturate(.12) sepia(.05)}
+  filter:invert(1) brightness(.73) contrast(.82) saturate(.12) sepia(.05)}
 .hmh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.39),rgba(255,255,255,.21) 42%,rgba(255,255,255,.48))}
+  background:linear-gradient(180deg,rgba(255,255,255,.27),rgba(255,255,255,.15) 42%,rgba(255,255,255,.34))}
 .hmh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(20,20,25,.10);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
 .mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
   background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
