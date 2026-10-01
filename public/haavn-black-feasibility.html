@@ -229,6 +229,12 @@ body{background:#08090a}
   .brandband{padding:22px 20px}.brandband .bb-logo{height:24px}
   /* let wide tables/grids scroll instead of forcing the page wide */
   .gantt,.sec-b{overflow-x:auto}
+  /* the cost-line grid's 1fr label column has min-width:0 (line 138), so on a
+     narrow screen it was collapsing to near-nothing and truncating "TRAFFIC
+     MANAGEMENT" down to "TRAFFI" instead of letting the row scroll like the
+     rule above intends. Give it a real fixed width so .sec-b's scroll kicks in. */
+  .lhead,.lrow{grid-template-columns:24px 150px 76px 96px 96px 30px;min-width:502px}
+  .lrow .li{min-width:150px}
 }
 </style>
 </head>

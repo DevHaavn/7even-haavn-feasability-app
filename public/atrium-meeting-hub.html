@@ -431,6 +431,16 @@ body.focus .present-nav{display:flex}
   .pillar-tag{display:none}.dept-meta{width:100%;justify-content:flex-start;margin-left:0;margin-top:8px}.dept-head{flex-wrap:wrap}
   .clock{display:none}
 }
+@media(max-width:600px){
+  /* .brand{min-width:0} lets the flex item shrink below the wordmark's own
+     width, but nothing clips the overflow — so "TRIUM" rendered straight
+     through the Saved pill sitting next to it. Drop the wordmark here and
+     keep just the back control, which is already labelled on its own. */
+  .wordmark{display:none}
+  .topbar-right{gap:7px}
+  .saved span:not(.dot){display:none}
+  .icon-btn{display:none}
+}
 @media print{.topbar,.tabs,.grid-tiles,.pacer,.toolbar,.attendees,.foot,.present-nav,.dots,.cbx,.addtask,.hero-controls{display:none!important}}
 </style>
 </head>
