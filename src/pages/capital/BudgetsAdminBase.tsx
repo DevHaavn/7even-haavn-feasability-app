@@ -111,45 +111,48 @@ export default function BudgetsAdminBase() {
 
   const CSS = `
 .abh-wrap{position:relative;flex:1;display:flex;flex-direction:column;align-items:stretch;padding:0;width:100%;margin:0;min-height:100%;
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.abh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:0}
-.abh-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(4,4,4,.74),rgba(4,4,4,.55) 42%,rgba(4,4,4,.9))}
+  background:#787675;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.abh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:0;
+  filter:invert(1) brightness(.73) contrast(.82) saturate(.12) sepia(.05)}
+.abh-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.27),rgba(255,255,255,.15) 42%,rgba(255,255,255,.34))}
 .abh-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:48px 32px;max-width:1440px;width:100%;margin:0 auto}
-.abh-eyebrow{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7d8288;font-weight:500;text-align:center}
-.abh-title{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:clamp(28px,4.6vw,52px);letter-spacing:.08em;line-height:1;color:#fff;margin-top:16px;text-transform:uppercase;text-align:center}
-.abh-sub{color:#a7abb0;font-size:14px;text-align:center;margin-top:16px;line-height:1.6}
-.abh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);margin:24px auto 34px}
-.abh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px}
+.abh-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#83868e;font-weight:500;text-align:center}
+.abh-title{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(28px,4.6vw,52px);letter-spacing:.04em;line-height:1;color:#1a1b1e;margin-top:16px;text-transform:uppercase;text-align:center}
+.abh-sub{color:#4a4d54;font-size:14px;text-align:center;margin-top:16px;line-height:1.6}
+.abh-rule{width:230px;height:1px;background:linear-gradient(90deg,transparent,rgba(20,20,25,.24),transparent);margin:24px auto 34px}
+.abh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;width:100%;max-width:1000px;position:relative}
 @property --abhA{syntax:'<angle>';inherits:false;initial-value:0deg}
 @keyframes abh-spin{to{--abhA:360deg}}
-.abh-ledbox{position:relative;border-radius:16px;padding:1.7px;isolation:isolate;transition:transform .3s}
-.abh-ledbox::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1.7px;
+.abh-ledbox{position:relative;z-index:2;border-radius:22px;padding:1.7px;isolation:isolate;transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .5s cubic-bezier(.16,1,.3,1)}
+.abh-ledbox::before{content:'';position:absolute;inset:0;border-radius:22px;padding:1.7px;
   background:conic-gradient(from var(--abhA),transparent 0deg,var(--ring) 130deg,#f4e3bd 160deg,var(--ring) 190deg,transparent 310deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
   filter:brightness(1.3) drop-shadow(0 0 6px rgba(244,227,189,.45)) drop-shadow(0 0 14px rgba(214,179,106,.3));
   animation:abh-spin 4.6s linear infinite;z-index:1}
-.abh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:22px;z-index:0;opacity:.22;pointer-events:none;
+.abh-ledbox::after{content:'';position:absolute;inset:-8px;border-radius:28px;z-index:0;opacity:.28;pointer-events:none;
   background:conic-gradient(from var(--abhA),transparent 0deg,var(--ringGlow) 150deg,transparent 300deg);
   filter:blur(16px);animation:abh-spin 4.6s linear infinite}
 .abh-ledbox.d2::before,.abh-ledbox.d2::after{animation-direction:reverse}
-.abh-ledbox:hover{transform:translateY(-4px)}
 .abh-ledbox:hover::before,.abh-ledbox:hover::after{animation-duration:2.4s}
-.abh-card{position:relative;z-index:2;border-radius:14px;background:linear-gradient(180deg,rgba(14,16,19,.9),rgba(8,9,11,.94));
-  -webkit-backdrop-filter:blur(16px) saturate(1.1);backdrop-filter:blur(16px) saturate(1.1);
+.abh-grid:has(.abh-ledbox:nth-child(1):hover) .abh-ledbox:nth-child(1){transform:scale(1.055) translateX(5%);z-index:6}
+.abh-grid:has(.abh-ledbox:nth-child(1):hover) .abh-ledbox:nth-child(2){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
+.abh-grid:has(.abh-ledbox:nth-child(2):hover) .abh-ledbox:nth-child(2){transform:scale(1.055) translateX(-5%);z-index:6}
+.abh-grid:has(.abh-ledbox:nth-child(2):hover) .abh-ledbox:nth-child(1){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
+.abh-card{position:relative;z-index:2;border-radius:20px;background:transparent;transition:background .35s cubic-bezier(.16,1,.3,1);
   padding:30px 28px 26px;min-height:480px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.abh-card:hover,.abh-card:focus-visible{background:rgba(255,255,255,.3)}
 .abh-prow{display:flex;align-items:flex-start;justify-content:space-between}
-.abh-num{font-family:'Chakra Petch',monospace;font-size:34px;font-weight:300;line-height:1;
-  text-shadow:0 0 8px rgba(244,227,189,.45),0 0 20px rgba(214,179,106,.3),0 0 34px rgba(190,150,80,.2)}
-.abh-apex{font-size:15px;opacity:.9;line-height:1;text-shadow:0 0 8px rgba(244,227,189,.45),0 0 18px rgba(214,179,106,.28)}
-.abh-psub{font-family:'Chakra Petch',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;margin:16px 0 7px;
-  text-shadow:0 0 8px rgba(244,227,189,.38),0 0 18px rgba(214,179,106,.22)}
-.abh-ptitle{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:25px;letter-spacing:.01em;line-height:1.08;color:#fff;margin:0;display:flex;align-items:baseline;gap:.25em;flex-wrap:wrap}
-.abh-pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
-.abh-blurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
+.abh-num{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:300;line-height:1;color:#8f6a25}
+.abh-apex{width:26px;height:26px;border-radius:50%;border:1px solid rgba(143,106,37,.45);display:flex;align-items:center;justify-content:center;color:#8f6a25;font-size:13px}
+.abh-psub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;margin:18px 0 8px;color:#8f6a25}
+.abh-ptitle{font-family:'Inter',sans-serif;font-weight:300;font-size:25px;letter-spacing:.01em;line-height:1.1;color:#8f6a25;margin:0;display:flex;align-items:baseline;gap:.25em;flex-wrap:wrap}
+.abh-pline{height:1px;background:rgba(20,20,25,.14);margin:16px 0}
+.abh-blurb{color:#1a1b1e;font-size:13px;line-height:1.6;margin:0;flex:1}
 .abh-pow{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:18px}
-.abh-pow .k{color:#6a6e73;font-family:'Chakra Petch',sans-serif;font-size:8px;letter-spacing:.26em;text-transform:uppercase}
-.abh-enter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
+.abh-pow .k{color:#83868e;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.26em;text-transform:uppercase}
+.abh-enter{margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#1a1b1e}
 `
   const RING: Record<Group, { ring: string; glow: string }> = {
     '7even': { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
@@ -172,14 +175,14 @@ export default function BudgetsAdminBase() {
             <button className="abh-card" onClick={() => setGroup(b.id)}>
               <div className="abh-prow">
                 <span className="abh-num" style={{ color: b.color }}>{b.num}</span>
-                <span className="abh-apex" style={{ color: b.color }}>&#9650;</span>
+                <span className="abh-apex" style={{ color: b.color }}><svg viewBox="0 0 240 240" width="11" height="11"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="16" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>
               </div>
               <div>
                 <p className="abh-psub" style={{ color: b.color }}>{b.sub}</p>
                 <h2 className="abh-ptitle">
                   {b.id === '7even' ? (
                     <>
-                      <img src="/seven-mark-white-hd.png" alt="7EVEN" style={{ height: '0.82em', width: 'auto' }} />
+                      <img src="/seven-mark-black-hd.png" alt="7EVEN" style={{ height: '0.82em', width: 'auto' }} />
                       <span>Capital Administration</span>
                     </>
                   ) : (
