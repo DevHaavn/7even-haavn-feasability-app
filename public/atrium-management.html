@@ -667,7 +667,21 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 @media(max-width:1080px){.pmgrid{grid-template-columns:1fr}.pillars,.finkpis,.qkpis{grid-template-columns:1fr 1fr}.cadgrid{grid-template-columns:1fr}}
 
 @media(max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}.projgrid,.fgrid,.infogrid{grid-template-columns:1fr}.rail{flex-basis:64px}.rail .navitem .tx,.rail .grp,.rail .newbtn span,.rail .railfoot,.rail .navitem .ct,.rail .railbrand .railwm{display:none}.rail .navitem{justify-content:center}.rail .railbrand{justify-content:center;padding-left:0;padding-right:0}.main.dark::before{left:64px}}
-@media(max-width:680px){.topnav{display:none}.partner{display:none}.page{padding:20px 16px 60px}.pws{padding:16px 16px 0}.kpis{grid-template-columns:1fr 1fr}.wtabs{overflow-x:auto}}
+@media(max-width:680px){.topnav{display:none}.partner{display:none}.page{padding:20px 16px 60px}.pws{padding:16px 16px 0}.kpis{grid-template-columns:1fr 1fr}.wtabs{overflow-x:auto}
+  /* hiding .topnav/.partner above wasn't enough on its own — the wordmark,
+     "Autosave on" pill and the named user chip together still ran past
+     375px and clipped "ATRIUM" down to "ATRIU". Trim each to its icon. */
+  .topbar{padding:0 12px;gap:8px}
+  .atr .w{display:none}
+  .as-pill .tx{display:none}
+  .userchip .nm{display:none}
+  .userchip{padding:5px}
+  /* .phead has no wrap and its text side never shrinks, so on a narrow
+     screen the "+ New Project" button on the right was pushed straight
+     past the viewport edge instead of dropping to its own line. */
+  .phead{flex-wrap:wrap}
+  .phead>div:first-child{min-width:0;flex:1 1 100%}
+  .phead .actions{flex:none}}
 *{min-width:0}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head>
