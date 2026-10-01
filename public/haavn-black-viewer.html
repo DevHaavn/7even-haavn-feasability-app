@@ -36,8 +36,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   padding:calc(14px + env(safe-area-inset-top)) clamp(12px,3vw,28px) 14px;background:linear-gradient(180deg,rgba(8,8,10,.8),transparent)}
 .top .t{font-family:var(--mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink2)}
 .top .t b{color:var(--ink);font-weight:500}
-.top .close{margin-left:auto;height:36px;padding:0 14px;border:1px solid var(--line2);border-radius:2px;
-  font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase}
+.top .close{margin-left:auto;display:inline-flex;align-items:center;height:36px;padding:0 16px;border:1px solid var(--line2);border-radius:999px;
+  background:rgba(10,10,12,.34);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;transition:.25s}
+.top .close:hover{border-color:rgba(255,255,255,.65);background:rgba(255,255,255,.09);box-shadow:0 0 24px -10px rgba(255,255,255,.45)}
 .load{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:5;transition:opacity .6s}
 .load.gone{opacity:0;pointer-events:none}
 .load .in{text-align:center}

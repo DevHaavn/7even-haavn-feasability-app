@@ -47,8 +47,11 @@ input,select,textarea{font-family:inherit;font-size:13px;color:var(--ink)}
 /* ---------- MAIN ---------- */
 .main{flex:1;margin-left:246px;display:flex;flex-direction:column;min-width:0}
 .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;padding:0 26px;height:54px;background:var(--char);color:#E9E5DB;border-bottom:1px solid #000}
-.home-btn{font-size:12px;color:#B9B3A5;text-decoration:none;font-weight:600;white-space:nowrap}
-.home-btn:hover{color:#fff}
+.home-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 15px;font-size:11px;letter-spacing:.04em;
+  color:#B9B3A5;text-decoration:none;font-weight:600;white-space:nowrap;border:1px solid var(--charline);border-radius:999px;
+  background:var(--char2);transition:.2s}
+.home-btn:hover{color:#fff;border-color:rgba(255,255,255,.3);background:#26221A}
+.home-btn svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8}
 .crumb{font-size:12px;color:#8C8578;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em}
 .crumb b{color:#EFEBE1;font-weight:600}
 .hdr-tag{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.13em;color:#6E6858;display:none}
@@ -249,7 +252,7 @@ tbody tr:last-child td{border-bottom:none}
 
   <div class="main">
     <div class="topbar">
-      <a class="home-btn" href="https://7even-haavn-feasability-app-redux.vercel.app/" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-crm-close','*');return false;}">← Back</a>
+      <a class="home-btn" href="https://7even-haavn-feasability-app-redux.vercel.app/" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-crm-close','*');return false;}"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Return</a>
       <div class="crumb" id="crumb"></div>
       <div class="hdr-tag">PRECISION INTELLIGENCE — MANUFACTURED BY HAAVN TECHNOLOGIES</div>
       <div class="savepill" id="savePill"><span class="dot"></span><span id="saveTxt">Saved</span></div>
