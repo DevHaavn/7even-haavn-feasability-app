@@ -225,6 +225,21 @@ tbody tr:last-child td{border-bottom:none}
 .divlbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.13em;color:var(--ink3);text-transform:uppercase;margin:20px 0 10px;border-top:1px solid var(--line);padding-top:14px;font-weight:600}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:820px){.two,.frow{grid-template-columns:1fr}.board{grid-template-columns:repeat(5,240px)}}
+.sidebarToggle{display:none;flex:none;width:34px;height:34px;align-items:center;justify-content:center;border:1px solid var(--charline);border-radius:9px;background:var(--char2);color:#E9E5DB;cursor:pointer}
+.sbScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:39}
+.sbScrim.on{display:block}
+@media(max-width:760px){
+  /* the sidebar is position:fixed at a hard 246px with no phone handling at
+     all — on a 375px screen it ate two-thirds of the viewport permanently,
+     with the .main content squeezed into what was left. Slide it off-canvas
+     like the ATRIUM tools do, behind a hamburger in the topbar. */
+  .sidebar{transform:translateX(-100%);transition:.25s;z-index:41}
+  .sidebar.on{transform:none}
+  .main{margin-left:0}
+  .sidebarToggle{display:inline-flex}
+  .hdr-tag{display:none}
+  .topbar{padding:0 14px;gap:10px}
+}
 
 /* capability scoped */
 .capwrap .eyebrow{color:var(--gold)}
@@ -250,8 +265,12 @@ tbody tr:last-child td{border-bottom:none}
     <div class="sb-foot">HAAVN Homes · Black Series<br>Single source of truth · autosaved locally</div>
   </aside>
 
+  <div class="sbScrim" id="sbScrim" onclick="closeSidebar()"></div>
   <div class="main">
     <div class="topbar">
+      <button class="sidebarToggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
       <a class="home-btn" href="https://7even-haavn-feasability-app-redux.vercel.app/" onclick="if(window.parent&&window.parent!==window){window.parent.postMessage('haavn-crm-close','*');return false;}"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Return</a>
       <div class="crumb" id="crumb"></div>
       <div class="hdr-tag">PRECISION INTELLIGENCE — MANUFACTURED BY HAAVN TECHNOLOGIES</div>
@@ -530,7 +549,9 @@ function render(){
   v.innerHTML=(map[view]||vDashboard)();
   v.scrollTop=0; window.scrollTo(0,0);
 }
-function go(v){view=v;render();}
+function go(v){view=v;render();closeSidebar();}
+function toggleSidebar(){const on=$('.sidebar').classList.toggle('on');$('#sbScrim').classList.toggle('on',on);}
+function closeSidebar(){$('.sidebar').classList.remove('on');$('#sbScrim').classList.remove('on');}
 
 /* ===========================================================
    VIEWS
