@@ -371,7 +371,16 @@ function avatarHtml(n,sz){sz=sz||24;var ph=avatarPhoto(n);
 var TASK_STATUS_COLS=[['todo','To do'],['doing','In progress'],['blocked','Blocked'],['review','In review'],['done','Done']];
 var BUYER_STAGES=['Enquiry','Consultation','Feasibility','Proposal','Reservation','Contract','Won','Lost'];
 var BUYER_PROB={Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0};
-var HOME_RANGE=['To be confirmed','SOLUM LINEA','SOLUM CUBE','HAVEN','FORMA','MAGNA','MAGNA PLUS','ESSENTIALS'];
+/* Only two products are going to market first — the range in the Studio
+   itself (haavn-black-studio.html) has HAVEN/FORMA/MAGNA etc as future
+   series, not yet sellable, so the lead-intake product list is just these
+   two, smallest first. */
+var HOME_RANGE=['Undecided','SOLUM STUDIO','SOLUM'];
+/* The four facade finishes and three interior palettes from the SOLUM spec
+   (public/haavn-brochures/solum/index.html) — what a lead is asked to pick
+   between once they're past first enquiry. */
+var FACADE_OPTIONS=['Undecided','Yakisugi','Blackbutt','Charcoal standing seam','Equitone'];
+var INTERIOR_OPTIONS=['Undecided','Linen','Burgundy','Sage'];
 
 /* ===================== workspace state ===================== */
 var WS={partners:[],supplyProjects:[],buyers:[],actions:[],activity:[],seq:1};
@@ -1309,17 +1318,20 @@ function viewSales(){
   h+='<div class="kanban">'+cols.map(function(s){
     var items=WS.buyers.filter(function(b){return b.stage===s;});
     return '<div class="kcol"><h4>'+s+'<span>'+items.length+'</span></h4>'+items.map(function(b){
-      return '<div class="kcard" onclick="openBuyerModal(\''+b.id+'\')"><b>'+esc(b.name)+'</b><span>'+esc(b.home)+'</span><span>'+fmtM(b.value)+' · '+b.probability+'%</span></div>';
+      var fi=[b.facade&&b.facade!=='Undecided'?b.facade:'',b.interior&&b.interior!=='Undecided'?b.interior:''].filter(Boolean).join(' · ');
+      return '<div class="kcard" onclick="openBuyerModal(\''+b.id+'\')"><b>'+esc(b.name)+'</b><span>'+esc(b.home)+(fi?' · '+esc(fi):'')+'</span><span>'+fmtM(b.value)+' · '+b.probability+'%</span></div>';
     }).join('')+'</div>';
   }).join('')+'</div>';
   return h;
 }
 function openBuyerModal(id){
-  var b=id?WS.buyers.find(function(x){return x.id===id;}):{id:uid(),name:'',brand:'HAAVN Black',home:HOME_RANGE[0],suburb:'',stage:'Enquiry',value:0,probability:BUYER_PROB['Enquiry'],owner:ME(),source:LISTS.sources[0],email:'',phone:'',nextAction:'',nextDue:'',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]};
+  var b=id?WS.buyers.find(function(x){return x.id===id;}):{id:uid(),name:'',brand:'HAAVN Black',home:HOME_RANGE[0],facade:FACADE_OPTIONS[0],interior:INTERIOR_OPTIONS[0],suburb:'',stage:'Enquiry',value:0,probability:BUYER_PROB['Enquiry'],owner:ME(),source:LISTS.sources[0],email:'',phone:'',nextAction:'',nextDue:'',lastContact:today(),created:nowIso(),closeDate:'',siteStatus:'',financeStatus:'',risk:'',supplySigned:false,installSigned:false,depositReceived:false,notes:[]};
   var isNew=!id;
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(b.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var body='<h4>'+(isNew?'New buyer':esc(b.name)||'Buyer')+'</h4>'+
     '<div class="formgrid"><label class="f">Buyer / household<input id="bf_name" value="'+esc(b.name)+'"></label><label class="f">Home<select id="bf_home">'+HOME_RANGE.map(function(h){return '<option '+(b.home===h?'selected':'')+'>'+h+'</option>';}).join('')+'</select></label></div>'+
+    '<div class="formgrid"><label class="f">Facade<select id="bf_facade">'+FACADE_OPTIONS.map(function(h){return '<option '+((b.facade||FACADE_OPTIONS[0])===h?'selected':'')+'>'+h+'</option>';}).join('')+'</select></label>'+
+    '<label class="f">Interior palette<select id="bf_interior">'+INTERIOR_OPTIONS.map(function(h){return '<option '+((b.interior||INTERIOR_OPTIONS[0])===h?'selected':'')+'>'+h+'</option>';}).join('')+'</select></label></div>'+
     '<div class="formgrid"><label class="f">Suburb<input id="bf_suburb" value="'+esc(b.suburb)+'"></label><label class="f">Owner<select id="bf_owner">'+ownerOpts+'</select></label></div>'+
     '<div class="formgrid"><label class="f">Stage<select id="bf_stage" onchange="document.getElementById(\'bf_prob\').value=({Enquiry:10,Consultation:20,Feasibility:40,Proposal:60,Reservation:75,Contract:90,Won:100,Lost:0})[this.value]">'+BUYER_STAGES.map(function(s){return '<option '+(b.stage===s?'selected':'')+'>'+s+'</option>';}).join('')+'</select></label>'+
     '<label class="f">Probability %<input id="bf_prob" type="number" value="'+(b.probability||0)+'"></label></div>'+
@@ -1333,7 +1345,7 @@ function openBuyerModal(id){
   showModal(body);
 }
 function saveBuyer(id,isNew){
-  var v={name:val('bf_name'),home:val('bf_home'),suburb:val('bf_suburb'),owner:val('bf_owner'),stage:val('bf_stage'),probability:parseFloat(val('bf_prob'))||0,
+  var v={name:val('bf_name'),home:val('bf_home'),facade:val('bf_facade'),interior:val('bf_interior'),suburb:val('bf_suburb'),owner:val('bf_owner'),stage:val('bf_stage'),probability:parseFloat(val('bf_prob'))||0,
     value:parseFloat(val('bf_value'))||0,source:val('bf_source'),email:val('bf_email'),phone:val('bf_phone'),nextAction:val('bf_naction'),nextDue:val('bf_ndue')};
   if(!v.name.trim()){toast('Buyer name is required');return;}
   if(isNew===true||isNew==='true'){
@@ -1352,8 +1364,8 @@ function logBuyerNote(id){
 /* ===================== Buyers list (simple secondary view) ===================== */
 function viewBuyers(){
   var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openBuyerModal()">+ New buyer</button></div>';
-  h+='<div class="tablewrap"><table><thead><tr><th>Buyer</th><th>Home</th><th>Suburb</th><th>Stage</th><th>Value</th><th>Owner</th><th>Last contact</th></tr></thead><tbody>';
-  h+=WS.buyers.length?WS.buyers.map(function(b){return '<tr onclick="openBuyerModal(\''+b.id+'\')"><td class="tt">'+esc(b.name)+'</td><td>'+esc(b.home)+'</td><td>'+esc(b.suburb)+'</td><td><span class="chip gold">'+esc(b.stage)+'</span></td><td>'+fmtM(b.value)+'</td><td>'+esc(b.owner)+'</td><td>'+esc(b.lastContact||'—')+'</td></tr>';}).join(''):'<tr><td colspan="7" class="empty">No buyers yet.</td></tr>';
+  h+='<div class="tablewrap"><table><thead><tr><th>Buyer</th><th>Home</th><th>Facade</th><th>Interior</th><th>Suburb</th><th>Stage</th><th>Value</th><th>Owner</th><th>Last contact</th></tr></thead><tbody>';
+  h+=WS.buyers.length?WS.buyers.map(function(b){return '<tr onclick="openBuyerModal(\''+b.id+'\')"><td class="tt">'+esc(b.name)+'</td><td>'+esc(b.home)+'</td><td>'+esc(b.facade||'—')+'</td><td>'+esc(b.interior||'—')+'</td><td>'+esc(b.suburb)+'</td><td><span class="chip gold">'+esc(b.stage)+'</span></td><td>'+fmtM(b.value)+'</td><td>'+esc(b.owner)+'</td><td>'+esc(b.lastContact||'—')+'</td></tr>';}).join(''):'<tr><td colspan="9" class="empty">No buyers yet.</td></tr>';
   h+='</tbody></table></div>';
   return h;
 }
