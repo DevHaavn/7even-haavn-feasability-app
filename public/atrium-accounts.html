@@ -1351,15 +1351,14 @@ document.addEventListener('DOMContentLoaded', boot);
  var KEY='atrium-book02-theme';
  function apply(d){ document.body.classList.toggle('atr-dark', d); var b=document.getElementById('atr-theme'); if(b) b.textContent = d ? '\u263e DARK' : '\u2600 LIGHT'; }
  function build(){ var tb=document.querySelector('.topbar'); if(!tb||document.getElementById('atr-theme')) return;
-   // Back control lives beside the wordmark in the rail head (same place as
-   // every other ATRIUM surface), not the topbar. Posts to the parent (the
-   // Administration pillar) which closes the book.
+   // Back control is the very first thing in the top-left corner of the
+   // topbar — same corner position as every other ATRIUM screen. Posts to
+   // the parent (the Administration pillar) which closes the book.
    if(!document.getElementById('atr-back')){
      var back=document.createElement('button'); back.id='atr-back'; back.type='button';
      back.title='Back to Administration'; back.setAttribute('aria-label','Back to Administration');
      back.innerHTML='<svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>';
-     var head=document.querySelector('.rail-head');
-     if(head) head.insertBefore(back, head.firstChild); else tb.insertBefore(back, tb.firstChild);
+     tb.insertBefore(back, tb.firstChild);
      back.addEventListener('click', function(){ try{ parent.postMessage({type:'atrium:back-admin'}, location.origin); }catch(e){} });
    }
    var btn=document.createElement('button'); btn.id='atr-theme'; btn.type='button';
