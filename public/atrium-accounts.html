@@ -24,8 +24,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  --disp:'Inter Tight',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Cormorant Garamond',Georgia,serif;
  --ease:cubic-bezier(.32,.72,0,1);--r:12px;--r-m:16px;--r-l:22px;
  --sh-l:0 12px 34px -8px rgba(5,7,6,.45),0 46px 90px -26px rgba(5,7,6,.55);
- --brushed:linear-gradient(100deg,#DCE1E2,#F4F6F7 16%,#BDC5C7 40%,#EEF1F2 56%,#A6AEB0 80%,#DCE1E2);
- --sil-grad:linear-gradient(180deg,#F2F4F5,#C6CDCF 46%,#9AA2A4);
+ --brushed:linear-gradient(100deg,#D6B36A,#F4E3BD 16%,#A3782A 40%,#F4E3BD 56%,#8F6A25 80%,#D6B36A);
+ --sil-grad:linear-gradient(180deg,#F4E3BD,#D6B36A 46%,#8F6A25);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -237,42 +237,42 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--f-400);outline-o
    Light by default with a dark toggle. Chrome (topbar + rail) stays dark in
    both themes. Most of the app reskins by remapping Dom's own tokens to the new
    palette (172 var() refs); the few hardcoded backgrounds are patched to glass. */
-:root{ --cx:#131b26;--cx2:#0f1620;--cx-line:rgba(255,255,255,.09);--cx-txt:#e8edf1;--cx-dim:#9aa7b2;--cx-faint:#6c7a88;--sil-hi:#cdd8e2; }
+:root{ --cx:#17130f;--cx2:#110d0a;--cx-line:rgba(255,255,255,.09);--cx-txt:#f0ece2;--cx-dim:#a39a8c;--cx-faint:#6e6558;--sil-hi:#f4e3bd; }
 
 /* content tokens — LIGHT (default) */
 body:not(.atr-dark){
-  --ink:#232c37;--ink-2:#5b6672;--mute:#8592a0;--faint:#a6b2be;
-  --line:rgba(35,44,55,.12);--line-2:rgba(35,44,55,.07);
-  --grey-50:#eef3f8;--grey-100:#e7edf5;--grey-200:#dde5ef;
+  --ink:#1a1b1e;--ink-2:#5c5648;--mute:#8a8375;--faint:#b5ad9c;
+  --line:rgba(40,34,22,.12);--line-2:rgba(40,34,22,.07);
+  --grey-50:#f3efe6;--grey-100:#ece7dc;--grey-200:#e2dbcb;
   --f-700:#1b5e3f;--f-600:#237a52;--f-500:#2f9e6b;--f-400:#38996b;--f-300:#6fbe96;--f-100:#dcede4;--f-50:#eef7f2;
-  --sil-3:#8592a0;--sil-4:#6e7c8e;--amber:#c67d33;--red:#c8503f;
-  --green:#2f9e6b;--green-soft:rgba(47,158,107,.12);--amber-soft:rgba(198,125,51,.14);--silver-soft:rgba(110,124,142,.13);--silver-line:rgba(110,124,142,.4);--ink-3:#8592a0;
-  --glass-bg:rgba(255,255,255,.72);--glass-line:rgba(35,44,55,.10);
-  --glass-sh:0 24px 50px -30px rgba(20,30,45,.4),inset 0 1px 0 rgba(255,255,255,.7);
-  --modal-bg:#eef2f7;--input-bg:rgba(255,255,255,.9);
+  --sil-3:#a3782a;--sil-4:#8f6a25;--amber:#c67d33;--red:#c8503f;
+  --green:#2f9e6b;--green-soft:rgba(47,158,107,.12);--amber-soft:rgba(198,125,51,.14);--silver-soft:rgba(163,120,42,.13);--silver-line:rgba(163,120,42,.4);--ink-3:#8a8375;
+  --glass-bg:rgba(255,255,255,.72);--glass-line:rgba(40,34,22,.10);
+  --glass-sh:0 24px 50px -30px rgba(30,24,15,.4),inset 0 1px 0 rgba(255,255,255,.7);
+  --modal-bg:#f2ede1;--input-bg:rgba(255,255,255,.9);
 }
 /* content tokens — DARK */
 body.atr-dark{
-  --ink:#eef2f5;--ink-2:#9fabb6;--mute:#6d7a86;--faint:#525d68;
+  --ink:#f3efe6;--ink-2:#aba397;--mute:#857c6e;--faint:#5e564a;
   --line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.06);
   --grey-50:rgba(255,255,255,.05);--grey-100:rgba(255,255,255,.07);--grey-200:rgba(255,255,255,.10);
   --f-700:#1b5e3f;--f-600:#237a52;--f-500:#57c08a;--f-400:#57c08a;--f-300:#6fbe96;--f-100:#183026;--f-50:#12211a;
-  --sil-3:#9aa7b2;--sil-4:#7c8894;--amber:#d59a52;--red:#e0645c;
-  --green:#57c08a;--green-soft:rgba(87,192,138,.15);--amber-soft:rgba(213,154,82,.16);--silver-soft:rgba(154,168,182,.14);--silver-line:rgba(154,168,182,.4);--ink-3:#6d7a86;
+  --sil-3:#d6b36a;--sil-4:#c9a24b;--amber:#d59a52;--red:#e0645c;
+  --green:#57c08a;--green-soft:rgba(87,192,138,.15);--amber-soft:rgba(213,154,82,.16);--silver-soft:rgba(214,179,106,.14);--silver-line:rgba(214,179,106,.4);--ink-3:#857c6e;
   --glass-bg:rgba(255,255,255,.05);--glass-line:rgba(255,255,255,.11);
   --glass-sh:0 24px 50px -30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.13);
-  --modal-bg:#1a232f;--input-bg:rgba(255,255,255,.06);
+  --modal-bg:#171310;--input-bg:rgba(255,255,255,.06);
 }
-body{ background:#e6ebf1; }
-body.atr-dark{ background:#111823; color:var(--ink); }
+body{ background:#ece7dc; }
+body.atr-dark{ background:#171310; color:var(--ink); }
 #atrium-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; transition:.4s;
-  background:radial-gradient(120% 85% at 12% -12%, rgba(190,208,228,.6), transparent 55%),
-   radial-gradient(110% 80% at 92% 6%, rgba(206,214,226,.5), transparent 55%),
-   linear-gradient(158deg,#eaeef4,#e2e8f0 45%,#d8e0ea); }
+  background:radial-gradient(120% 85% at 12% -12%, rgba(244,227,189,.55), transparent 55%),
+   radial-gradient(110% 80% at 92% 6%, rgba(232,220,195,.5), transparent 55%),
+   linear-gradient(158deg,#efeae0,#e9e3d6 45%,#e2dbcb); }
 body.atr-dark #atrium-bg{
-  background:radial-gradient(120% 80% at 84% -10%, rgba(120,150,180,.16), transparent 55%),
-   radial-gradient(90% 70% at 8% 108%, rgba(60,85,115,.4), transparent 60%),
-   linear-gradient(180deg,#16202c,#111823 48%,#0e1621); }
+  background:radial-gradient(120% 80% at 84% -10%, rgba(214,179,106,.14), transparent 55%),
+   radial-gradient(90% 70% at 8% 108%, rgba(120,95,50,.35), transparent 60%),
+   linear-gradient(180deg,#1c1813,#171310 48%,#120f0b); }
 .app{ position:relative; z-index:1; background:transparent; }
 
 /* chrome — dark both themes */
@@ -315,43 +315,45 @@ body.atr-dark .fnode{ fill:#1a232f; }
 #atr-theme:hover{ color:var(--cx-txt); }
 </style>
 <style id="hb-reskin">
-/* ===== HAAVN × Hamilton Marino document look — warm paper, readable & functional ===== */
+/* ===== ATRIUM gold / warm-paper look — matches Capital Base + the 7EVEN book ===== */
 :root{
-  --grey-50:#f6f5f0; --grey-100:#ecebe4; --grey-200:#e4e2d8; --grey-300:#d7d5ca;
-  --line:#c9c7bd; --line-2:#dcdad0;
-  --paper:#ecebe4; --paper-2:#f6f5f0;
+  --grey-50:#f3efe6; --grey-100:#ece7dc; --grey-200:#e2dbcb; --grey-300:#d7d5ca;
+  --line:#d6cfbd; --line-2:#e2dbcb;
+  --paper:#ece7dc; --paper-2:#f3efe6;
   --body:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
   --disp:"Helvetica Neue","Helvetica","Segoe UI",Roboto,Arial,sans-serif;
-  --bronze:#a9855c; --olive:#6b6c5c;
+  --bronze:#8f6a25; --olive:#6b6c5c;
 }
-/* warm cream content canvas (was cold grey) */
-.main{background:radial-gradient(120% 80% at 50% -8%, #f5f4ee 0%, rgba(245,244,238,0) 48%), #ecebe4}
-/* white cards with the document's soft warm shadow + hairline */
+/* warm bone content canvas, theme-aware */
+.main{background:radial-gradient(120% 80% at 50% -8%, #f3efe6 0%, rgba(243,239,230,0) 48%), #ece7dc}
+body.atr-dark .main{background:radial-gradient(120% 80% at 50% -8%, #1c1813 0%, rgba(28,24,19,0) 48%), #171310}
+/* white cards with a soft warm shadow + hairline */
 .card,.scard{border:1px solid var(--line) !important;
   box-shadow:0 1px 2px rgba(28,28,30,.05),0 8px 26px rgba(28,28,30,.08) !important}
-/* headings in bold Helvetica like the document (not the serif) */
+/* headings in bold Helvetica (not the serif) */
 .vhead h1{font-family:var(--disp) !important;font-weight:700 !important;letter-spacing:-.01em !important;color:var(--ink)}
 .vhead .vk{color:var(--bronze) !important}
 h2,h3{font-family:var(--disp)}
 /* warm zebra + muted table headers for readability */
-tbody tr:nth-child(even) td{background:#f4f3ec}
+tbody tr:nth-child(even) td{background:#f1ede2}
+body.atr-dark tbody tr:nth-child(even) td{background:rgba(255,255,255,.04)}
 th{color:var(--mute)}
-/* ---- side rail + top header: warm dark grey / bronze ---- */
-.rail{background:linear-gradient(175deg,#2b2824,#211e1a 72%,#17140f) !important}
+/* ---- side rail + top header: warm charcoal / ATRIUM gold ---- */
+.rail{background:linear-gradient(175deg,#17130f,#110d0a 72%,#0c0a07) !important}
 .rail .cf{opacity:.16 !important;filter:grayscale(1) !important}
-.topbar{background:linear-gradient(180deg,#272420,#1b1815) !important;border-bottom:1px solid #000 !important}
-.rail .brand .bw,.topbar .mk .bw{color:#efe9dd !important}
+.topbar{background:linear-gradient(180deg,#17130f,#110d0a) !important;border-bottom:1px solid #000 !important}
+.rail .brand .bw,.topbar .mk .bw{color:#f0ece2 !important}
 .rgrp{color:rgba(232,224,208,.42) !important}
 .rnav{color:rgba(234,228,216,.78) !important}
 .rnav:hover{background:rgba(255,255,255,.06) !important;color:#fff !important}
-.rnav.on{background:rgba(169,133,92,.18) !important;color:#fff !important;box-shadow:inset 3px 0 0 0 #b98e54 !important}
-.rail .rdiv{background:linear-gradient(90deg,#7a5c38,#cba36c,#7a5c38) !important;opacity:.92 !important}
+.rnav.on{background:rgba(214,179,106,.18) !important;color:#fff !important;box-shadow:inset 3px 0 0 0 #d6b36a !important}
+.rail .rdiv{background:linear-gradient(90deg,#8f6a25,#d6b36a,#8f6a25) !important;opacity:.92 !important}
 .railfoot{color:rgba(232,224,208,.4) !important;border-top-color:rgba(232,224,208,.14) !important}
-/* entity switch + module number -> bronze accent */
-.ent-switch{border-color:rgba(169,133,92,.45) !important}
-.ent-switch .ec i{background:#c99f6a !important;box-shadow:0 0 8px rgba(201,159,106,.6) !important}
+/* entity switch + module number -> ATRIUM gold accent */
+.ent-switch{border-color:rgba(214,179,106,.45) !important}
+.ent-switch .ec i{background:#d6b36a !important;box-shadow:0 0 8px rgba(214,179,106,.6) !important}
 .topbar .modlbl{color:#dcd6ca !important}
-.topbar .modlbl .n{color:#c99f6a !important}
+.topbar .modlbl .n{color:#d6b36a !important}
 .topbar .partner{color:rgba(220,214,202,.6) !important}
 .topbar .partner .sep{background:rgba(220,214,202,.28) !important}
 </style>
