@@ -4,14 +4,13 @@ import { Button } from '../../components/ui/Button'
 import SiteLinks from '../../components/SiteLinks'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
-import CapitalCommand from './CapitalCommand'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAtriumTheme, atriumPalette, atriumNavPill } from '../../lib/atriumTheme'
 import { useRole } from '../../lib/role'
 import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 
-/** Pillar workspace scaffold — each Capital pillar (Budgets, Deployment, CRM)
- *  opens here. ATRIUM (Partner CRM) exits straight to the studio (never back through
+/** Pillar workspace scaffold — each Capital pillar (Budgets, CRM) opens here.
+ *  ATRIUM (Partner CRM) exits straight to the studio (never back through
  *  Capital admin) so staff stay sealed off from the other pillars. */
 export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pillar: Pillar; onBack: () => void; onLogout: () => void; onExit: () => void }) {
   const isBudgets = pillar.id === 'budgets'
@@ -22,13 +21,6 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
   // Feasibility tab in the embedded Management System can hand off to the studio.
   useOpenStudioBridge(onExit)
 
-  // Capital Command brings its own ATRIUM chrome (topbar + tab nav + theme
-  // toggle), so it renders full-bleed rather than inside the generic pillar
-  // shell — same treatment as the CRM pillar below. Nesting it would have
-  // stacked two headers.
-  if (pillar.id === 'deployment') {
-    return <CapitalCommand onBack={onBack} />
-  }
 
   // Pillar 03 now runs the full ATRIUM Management System — the SAME tool as
   // Management Hub pillar 01 — full-bleed, with all its tabs, and a back pill.

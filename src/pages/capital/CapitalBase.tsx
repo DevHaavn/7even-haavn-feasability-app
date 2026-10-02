@@ -3,9 +3,8 @@ import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
-import CapitalCommandMark from './CapitalCommandMark'
 
-export type PillarId = 'budgets' | 'deployment' | 'crm'
+export type PillarId = 'budgets' | 'crm'
 
 export interface Pillar {
   id: PillarId
@@ -32,13 +31,7 @@ export const PILLARS: Pillar[] = [
     color: '#d6b36a', // LED brand gold
   },
   {
-    id: 'deployment', num: '02', title: 'Capital Command',
-    sub: 'Raise · Investors · Calls · Returns',
-    blurb: 'The capital command centre. Every dollar across the portfolio — pulled live from the feasibility studio — plus the full investor lifecycle: intake, pipeline, capital calls and distributions.',
-    color: '#d6b36a', // LED brand gold
-  },
-  {
-    id: 'crm', num: '03', title: 'Management System',
+    id: 'crm', num: '02', title: 'Management System',
     sub: 'Projects · Files · Workflow · Contacts',
     blurb: 'The full ATRIUM Management System — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job. Mirrors the HAAVN Management command centre.',
     color: '#d6b36a', // LED brand gold
@@ -99,20 +92,14 @@ const CSS = `
   background:conic-gradient(from var(--cabA),transparent 0deg,var(--ringGlow) 150deg,transparent 300deg);
   filter:blur(16px);animation:cab-spin 4.6s linear infinite}
 .cab-ledbox.d2::before,.cab-ledbox.d2::after{animation-direction:reverse}
-.cab-ledbox.d3::before,.cab-ledbox.d3::after{animation-delay:-2.3s}
 .cab-ledbox:hover::before,.cab-ledbox:hover::after{animation-duration:2.4s}
 /* hovering one pillar draws it toward the centre and lifts it forward; the
-   other two ease back and dim, as if stepping behind it — same choreography
-   as the Management Hub, extended to three cards. */
-.cab-pillars:has(.cab-ledbox:nth-child(1):hover) .cab-ledbox:nth-child(1){transform:scale(1.045) translateY(-8px);z-index:6}
-.cab-pillars:has(.cab-ledbox:nth-child(1):hover) .cab-ledbox:nth-child(2),
-.cab-pillars:has(.cab-ledbox:nth-child(1):hover) .cab-ledbox:nth-child(3){transform:translateY(14px) scale(.95);z-index:1;opacity:.8}
-.cab-pillars:has(.cab-ledbox:nth-child(2):hover) .cab-ledbox:nth-child(2){transform:scale(1.045) translateY(-8px);z-index:6}
-.cab-pillars:has(.cab-ledbox:nth-child(2):hover) .cab-ledbox:nth-child(1),
-.cab-pillars:has(.cab-ledbox:nth-child(2):hover) .cab-ledbox:nth-child(3){transform:translateY(14px) scale(.95);z-index:1;opacity:.8}
-.cab-pillars:has(.cab-ledbox:nth-child(3):hover) .cab-ledbox:nth-child(3){transform:scale(1.045) translateY(-8px);z-index:6}
-.cab-pillars:has(.cab-ledbox:nth-child(3):hover) .cab-ledbox:nth-child(1),
-.cab-pillars:has(.cab-ledbox:nth-child(3):hover) .cab-ledbox:nth-child(2){transform:translateY(14px) scale(.95);z-index:1;opacity:.8}
+   other eases back and dims, as if stepping behind it — same choreography
+   as the Management Hub. */
+.cab-pillars:has(.cab-ledbox:nth-child(1):hover) .cab-ledbox:nth-child(1){transform:scale(1.055) translateX(5%);z-index:6}
+.cab-pillars:has(.cab-ledbox:nth-child(1):hover) .cab-ledbox:nth-child(2){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
+.cab-pillars:has(.cab-ledbox:nth-child(2):hover) .cab-ledbox:nth-child(2){transform:scale(1.055) translateX(-5%);z-index:6}
+.cab-pillars:has(.cab-ledbox:nth-child(2):hover) .cab-ledbox:nth-child(1){transform:translateY(-22px) scale(.94);z-index:1;opacity:.8}
 .cab-pcard{position:relative;z-index:2;border-radius:20px;background:transparent;transition:background .35s cubic-bezier(.16,1,.3,1);
   padding:30px 28px 26px;min-height:520px;display:flex;flex-direction:column;cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
 .cab-pcard:hover,.cab-pcard:focus-visible{background:rgba(255,255,255,.3)}
@@ -166,7 +153,6 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
 
   const RING: Record<PillarId, { ring: string; glow: string }> = {
     budgets: { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
-    deployment: { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
     crm: { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
   }
 
@@ -201,7 +187,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
 
         <div className="cab-pillars">
           {PILLARS.map((p, i) => (
-            <div key={p.id} className={`cab-ledbox${i === 1 ? ' d2' : i === 2 ? ' d3' : ''}`}
+            <div key={p.id} className={`cab-ledbox${i === 1 ? ' d2' : ''}`}
               style={{ ['--ring' as any]: RING[p.id].ring, ['--ringGlow' as any]: RING[p.id].glow }}>
               <button className="cab-pcard" onClick={() => setPillar(p.id)}>
                 <div className="cab-prow">
@@ -219,14 +205,6 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                   <div className="cab-pow">
                     <span className="k">Powered by</span>
                     <img src="/xero-logo.png" alt="Xero" draggable={false} style={{ width: 86, height: 'auto', opacity: 0.92 }} />
-                  </div>
-                )}
-                {p.id === 'deployment' && (
-                  <div className="cab-pow">
-                    <span className="k">Powered by</span>
-                    <span style={{ filter: 'grayscale(1) brightness(.4)', display: 'inline-flex' }}>
-                      <CapitalCommandMark width={165} />
-                    </span>
                   </div>
                 )}
                 {p.id === 'crm' && (
