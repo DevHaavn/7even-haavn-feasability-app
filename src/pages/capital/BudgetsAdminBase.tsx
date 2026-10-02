@@ -29,7 +29,7 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
 ]
 
 
-export default function BudgetsAdminBase() {
+export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => void; onLogout: () => void }) {
   const [group, setGroup] = useState<Group | null>(null)
 
   // The books run in an iframe, so their in-page "← Administration" control
@@ -79,12 +79,14 @@ export default function BudgetsAdminBase() {
           src="/atrium-book01-7even-capital.html"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
-        <button onClick={() => setGroup(null)}
-          style={{ position: 'fixed', top: 70, left: 78, zIndex: 501,
-            padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700,
-            color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #3A4146', borderRadius: 999,
-            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
-          ← Administration
+        <button onClick={() => setGroup(null)} title="Back to Administration" aria-label="Back to Administration"
+          style={{ position: 'fixed', top: 70, left: 78, zIndex: 501, width: 38, height: 38, borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+            color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #3A4146',
+            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)', transition: '.3s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#d6b36a'; e.currentTarget.style.boxShadow = '0 0 22px rgba(214,179,106,.25)' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#3A4146'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.45)' }}>
+          <svg viewBox="0 0 240 240" width="15" height="15"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="9" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
         </button>
       </div>
     )
@@ -110,12 +112,44 @@ export default function BudgetsAdminBase() {
   }
 
   const CSS = `
-.abh-wrap{position:relative;flex:1;display:flex;flex-direction:column;align-items:stretch;padding:0;width:100%;margin:0;min-height:100%;
+.abh-wrap{position:fixed;inset:0;z-index:400;overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;display:flex;flex-direction:column;
   background:#787675;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.abh-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:0;
+.abh-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border-radius:0;
   filter:invert(1) brightness(.73) contrast(.82) saturate(.12) sepia(.05)}
-.abh-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+.abh-scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.27),rgba(255,255,255,.15) 42%,rgba(255,255,255,.34))}
+.abh-head{position:relative;z-index:2;display:flex;align-items:center;gap:16px;padding:20px 32px;border-bottom:1px solid rgba(20,20,25,.10);flex-shrink:0;flex-wrap:wrap;row-gap:10px}
+.abh-mbtn{position:relative;width:38px;height:38px;flex:none;border-radius:50%;border:1px solid rgba(20,20,25,.30);
+  background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;color:#1a1b1e;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1)}
+.abh-mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
+.abh-mbtn:active{transform:scale(.94)}
+.abh-mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.abh-mbtn .halo circle{fill:none;stroke:#d6b36a;stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.abh-mbtn:hover .halo circle{opacity:.9;animation:abh-ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes abh-ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.abh-brand{margin-left:auto;display:flex;align-items:center;gap:12px}
+.abh-brand .wm{display:flex;align-items:center;font:100 16px/1 'Inter',sans-serif;letter-spacing:.3em;padding-left:.3em;color:#1a1b1e}
+.abh-brand .wm .a{display:block;width:.62em;height:.7em;margin-right:.3em;flex:none}
+.abh-brand .wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+.abh-brand .tag{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.24em;color:#83868e;white-space:nowrap;
+  border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
+.abh-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
+  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
+.abh-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
+.abh-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
+.abh-update{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:999px;
+  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
+.abh-update:hover{border-color:rgba(143,106,37,.7);color:#8f6a25;background:rgba(143,106,37,.08)}
+.abh-update .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
+@media(max-width:600px){
+  .abh-head{padding:16px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 57px);gap:12px}
+  .abh-brand{margin-left:0;width:100%}
+  .abh-brand .tag{display:none}
+  .abh-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
+  .abh-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
+}
 .abh-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:48px 32px;max-width:1440px;width:100%;margin:0 auto}
 .abh-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#83868e;font-weight:500;text-align:center}
 .abh-title{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(28px,4.6vw,52px);letter-spacing:.04em;line-height:1;color:#1a1b1e;margin-top:16px;text-transform:uppercase;text-align:center}
@@ -163,6 +197,18 @@ export default function BudgetsAdminBase() {
       <style>{CSS}</style>
       <video className="abh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
       <div className="abh-scrim" />
+
+      <div className="abh-head">
+        <button className="abh-mbtn" onClick={onBack} title="Back to ATRIUM" aria-label="Back to ATRIUM">
+          <svg className="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)" /></svg>
+          <svg viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="9" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
+        </button>
+        <div className="abh-brand">
+          <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
+          <span className="tag">Accounts Hub</span>
+        </div>
+      </div>
+
       <div className="abh-in">
       <div className="abh-eyebrow">Accounts · Two Sets of Books</div>
       <h1 className="abh-title">Accounts Hub</h1>
@@ -203,6 +249,11 @@ export default function BudgetsAdminBase() {
         ))}
       </div>
       </div>
+
+      <button className="abh-update" onClick={() => window.location.reload()} title="Reload to fetch the latest version">
+        <span className="ring-o" aria-hidden="true" />Update
+      </button>
+      <button className="abh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )
 }
