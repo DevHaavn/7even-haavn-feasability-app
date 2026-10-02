@@ -64,7 +64,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'workflow') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261002a" allow="microphone"
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261003b" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
@@ -76,7 +76,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'workflow-black') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · HAAVN Black" src="/atrium-black.html?v=20261001a" allow="microphone"
+        <iframe title="ATRIUM · HAAVN Black" src="/atrium-black.html?v=20261003b" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

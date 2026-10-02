@@ -222,6 +222,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold)}
 label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .empty{padding:26px;text-align:center;color:var(--ink-3);font:400 12px var(--mono);letter-spacing:.08em}
+.watchrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.memberchip{display:inline-flex;align-items:center;gap:6px;background:var(--pill);border:1px solid var(--line);border-radius:999px;padding:3px 9px 3px 3px;font-size:12px;color:var(--ink)}
+.memberchip .x{cursor:pointer;color:var(--ink-3);padding:0 2px;font-size:13px}
+.memberchip .x:hover{color:var(--red)}
+.watchrow select{width:auto;flex:none;min-width:160px}
+.subrow{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12.5px}
+.subrow .x{margin-left:auto;cursor:pointer;color:var(--ink-3);padding:0 4px}
+.subrow .x:hover{color:var(--red)}
+.attrow{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px}
+.attrow .fic{flex:none}
+.attrow .fnm{flex:1;cursor:pointer;color:var(--gold);text-decoration:underline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attrow .fsz{color:var(--ink-3);font:400 10px var(--mono);flex:none}
+.attrow .x{cursor:pointer;color:var(--ink-3);padding:0 4px;flex:none}
+.attrow .x:hover{color:var(--red)}
 
 .modalbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;opacity:0;pointer-events:none;transition:.25s;overflow-y:auto}
 .modalbg.on{opacity:1;pointer-events:auto}
@@ -352,6 +366,12 @@ var LISTS={
 };
 var DEPT_LABELS={company:'Company','7even':'7EVEN',haavn:'HAAVN',haavnblack:'HAAVN BLACK',haavnmgmt:'HAAVN Management',admin:'Administration & Accounts'};
 function deptLabel(id){return DEPT_LABELS[id]||(id?(id.charAt(0).toUpperCase()+id.slice(1)):'—');}
+/* Three levels, not two — "Normal" is pre-existing stored data (same as Low). */
+function priorityChip(p){
+  if(p==='High') return '<span class="chip red">High</span>';
+  if(p==='Medium') return '<span class="chip gold">Medium</span>';
+  return '<span class="chip">Low</span>';
+}
 var AVATAR_COLORS=['#5b8def','#5aa87a','#93A267','#a179d8','#e0644f','#5aa8a8','#c77dbb'];
 function _defaultAvatarColor(n){var c=0;n=n||'';for(var i=0;i<n.length;i++)c+=n.charCodeAt(i);return AVATAR_COLORS[c%AVATAR_COLORS.length];}
 function profileFor(n){return (WS.profiles&&WS.profiles[(n||'').trim().toLowerCase()])||{};}
@@ -517,15 +537,22 @@ function checkAllMeetingNotifications(meetings){
     return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); if(_notifDropOpen) renderNotifDrop(); });
   });
 }
-function notifyTaskOwner(action,prevOwner){
+function notifyTaskAssign(action,prevOwner,prevWatchers){
   var owner=(action.owner||'').trim();
-  if(!owner || sameName(owner,prevOwner||'') || sameName(owner,ME())) return;
+  var newWatchers=(action.watchers||[]).filter(function(n){return (prevWatchers||[]).indexOf(n)<0 && !sameName(n,ME());});
+  var ownerChanged=owner && !sameName(owner,prevOwner||'') && !sameName(owner,ME());
+  if(!ownerChanged && !newWatchers.length) return;
   kvPull(NOTIF_KEY,blankNotifState()).then(function(v){
     v=v||blankNotifState(); v._notifiedTaskOwner=v._notifiedTaskOwner||{}; v.notifications=v.notifications||[];
-    if(v._notifiedTaskOwner[action.id]===owner) return;
-    v._notifiedTaskOwner[action.id]=owner;
-    v.notifications.push({id:uid(),forName:owner,type:'task',title:'Assigned: "'+action.title+'"',
-      detail:'By '+meDisplay()+(action.due?' · Due '+action.due:''),link:{tab:'actions',openFn:'openActionModal',id:action.id},createdAt:nowIso(),read:false});
+    if(ownerChanged && v._notifiedTaskOwner[action.id]!==owner){
+      v._notifiedTaskOwner[action.id]=owner;
+      v.notifications.push({id:uid(),forName:owner,type:'task',title:'Assigned: "'+action.title+'"',
+        detail:'By '+meDisplay()+(action.due?' · Due '+action.due:''),link:{tab:'actions',openFn:'openActionModal',id:action.id},createdAt:nowIso(),read:false});
+    }
+    newWatchers.forEach(function(n){
+      v.notifications.push({id:uid(),forName:n,type:'task',title:'Added as a team member: "'+action.title+'"',
+        detail:'By '+meDisplay(),link:{tab:'actions',openFn:'openActionModal',id:action.id},createdAt:nowIso(),read:false});
+    });
     return kvPush(NOTIF_KEY,v).then(function(){ NOTIF_CACHE=v; renderNotifBell(); if(_notifDropOpen) renderNotifDrop(); });
   });
 }
@@ -1379,7 +1406,7 @@ function viewActions(){
     return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
       '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+'</td>'+
       '<td>'+esc(a.owner)+'</td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
-      '<td>'+(a.priority==='High'?'<span class="chip red">High</span>':'<span class="chip">Normal</span>')+'</td>'+
+      '<td>'+priorityChip(a.priority)+'</td>'+
       '<td>'+(a.project?esc(a.project):(a.context?esc(a.context.label||''):'—'))+'</td></tr>';
   }).join(''):'<tr><td colspan="6" class="empty">Nothing here.</td></tr>';
   h+='</tbody></table></div>';
@@ -1387,33 +1414,94 @@ function viewActions(){
 }
 function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.status=a.done?'done':'todo';a.completedAt=a.done?nowIso():null;saveWS();render();}
 function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.id===id;});a.status=status;a.done=(status==='done');a.completedAt=a.done?nowIso():null;saveWS();render();}
+/* Task leader (owner) + team members (watchers, see & get updates), subtasks
+   and attachments — carried back over from the pre-Navigators workflow tool,
+   which had all four; this rebuild had dropped them. Files are stored as
+   their own capital_kv rows (same pattern as the old tool) so the shared
+   workspace blob doesn't balloon with base64 payloads. */
+var _amId=null, _amWatchers=[], _amFiles=[], _amSubs=[];
 function openActionModal(id,prefillDept){
-  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Normal',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',created:nowIso()};
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Low',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',watchers:[],files:[],subs:[],created:nowIso()};
   var isNew=!id;
+  _amId=a.id; _amWatchers=(a.watchers||[]).slice(); _amFiles=(a.files||[]).slice(); _amSubs=(a.subs||[]).slice();
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
   var allDepts=Object.keys(DEPT_LABELS); WS.actions.forEach(function(x){if(x.dept&&allDepts.indexOf(x.dept)<0)allDepts.push(x.dept);});
   var deptOpts=allDepts.map(function(d){return '<option value="'+d+'" '+(a.dept===d?'selected':'')+'>'+deptLabel(d)+'</option>';}).join('');
   var statusOpts=TASK_STATUS_COLS.map(function(s){return '<option value="'+s[0]+'" '+((a.status||'todo')===s[0]?'selected':'')+'>'+s[1]+'</option>';}).join('');
+  var prioOpts=['Low','Medium','High'].map(function(p){return '<option value="'+p+'" '+((a.priority||'Low')===p?'selected':'')+'>'+p+'</option>';}).join('');
   var body='<h4>'+(isNew?'New action':'Edit action')+'</h4>'+
     '<label class="f">Title<input id="af_title" value="'+esc(a.title)+'"></label>'+
-    '<div class="formgrid"><label class="f">Owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
+    '<div class="formgrid"><label class="f">Task leader / owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
     '<div class="formgrid"><label class="f">Department<select id="af_dept">'+deptOpts+'</select></label><label class="f">Status<select id="af_status">'+statusOpts+'</select></label></div>'+
-    '<label class="f">Priority</label><div class="row" style="margin:4px 0 10px"><label style="margin-right:14px"><input type="radio" name="af_prio" value="Normal" '+(a.priority!=='High'?'checked':'')+' style="width:auto"> Normal</label><label><input type="radio" name="af_prio" value="High" '+(a.priority==='High'?'checked':'')+' style="width:auto"> High</label></div>'+
-    '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label>'+
+    '<div class="formgrid"><label class="f">Priority<select id="af_priority">'+prioOpts+'</select></label><label style="display:flex;align-items:flex-end;padding-bottom:10px;gap:8px;font-size:12.5px;cursor:pointer;text-transform:none;letter-spacing:0;font-family:var(--sans)"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label></div>'+
+    '<label class="f">Team members — who else can see &amp; run this task</label><div id="af_watchbox"></div>'+
     '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
+    '<label class="f">Subtasks</label><div id="af_subbox"></div>'+
+    '<label class="f">Attachments — image or document</label><div id="af_filebox"></div>'+
+    '<label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:8px;width:fit-content">📎 Attach file<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="amAttach(this)"></label>'+
+    '<span style="display:block;color:var(--ink-3);font-size:11px;margin-top:5px">Shown to everyone on the task. Max 4MB.</span>'+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveAction(\''+a.id+'\','+isNew+')">Save action</button></div>';
   showModal(body);
+  amPaintWatch(); amPaintSub(); amPaintFiles();
+}
+function amPaintWatch(){
+  var box=document.getElementById('af_watchbox'); if(!box) return;
+  var chips=_amWatchers.map(function(n){return '<span class="memberchip">'+avatarHtml(n,18)+esc(n)+' <span class="x" onclick="amRmWatcher(\''+esc(n).replace(/'/g,"\\'")+'\')">×</span></span>';}).join('');
+  var avail=REAL_PEOPLE.filter(function(p){return !p.ext && _amWatchers.indexOf(p.name)<0;});
+  var sel='<select id="af_watchsel" onchange="amAddWatcher(this.value)"><option value="">+ Add team member…</option>'+avail.map(function(p){return '<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>';}).join('')+'</select>';
+  box.innerHTML='<div class="watchrow">'+chips+sel+'</div>';
+}
+function amAddWatcher(name){ if(!name) return; if(_amWatchers.indexOf(name)<0) _amWatchers.push(name); amPaintWatch(); }
+function amRmWatcher(name){ _amWatchers=_amWatchers.filter(function(n){return n!==name;}); amPaintWatch(); }
+function amPaintSub(){
+  var box=document.getElementById('af_subbox'); if(!box) return;
+  var rows=_amSubs.map(function(s,i){return '<div class="subrow"><input type="checkbox" '+(s.done?'checked':'')+' onchange="amToggleSub('+i+')"><span style="'+(s.done?'text-decoration:line-through;opacity:.55':'')+'">'+esc(s.title)+'</span><span class="x" onclick="amRmSub('+i+')">×</span></div>';}).join('');
+  box.innerHTML=rows+'<div style="display:flex;gap:7px;margin-top:6px"><input id="af_subnew" placeholder="Add a subtask…" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();amAddSub();}"><button type="button" class="btn" onclick="amAddSub()">Add</button></div>';
+}
+function amAddSub(){var inp=document.getElementById('af_subnew');var v=(inp.value||'').trim();if(!v)return;_amSubs.push({id:uid(),title:v,done:false});inp.value='';amPaintSub();}
+function amToggleSub(i){_amSubs[i].done=!_amSubs[i].done;amPaintSub();}
+function amRmSub(i){_amSubs.splice(i,1);amPaintSub();}
+function amPaintFiles(){
+  var box=document.getElementById('af_filebox'); if(!box) return;
+  box.innerHTML=_amFiles.length?_amFiles.map(function(f){return '<div class="attrow"><span class="fic">📄</span><span class="fnm" onclick="amOpenFile(\''+f.id+'\')">'+esc(f.name)+'</span><span class="fsz">'+fileSize(f.size||0)+'</span><span class="x" onclick="amRmFile(\''+f.id+'\')">×</span></div>';}).join(''):'<div style="color:var(--ink-3);font-size:12px">No attachments yet.</div>';
+}
+function fileSize(b){return b>1048576?(b/1048576).toFixed(1)+'MB':Math.max(1,Math.round(b/1024))+'KB';}
+function amAttach(inputEl){
+  var f=inputEl.files&&inputEl.files[0]; if(!f) return;
+  if(f.size>4*1024*1024){toast('File too large — max 4MB');return;}
+  toast('Uploading '+f.name+'…');
+  var r=new FileReader();
+  r.onload=function(e){
+    var fid=uid();
+    kvPush('atrium_file_'+fid,{name:f.name,type:f.type,size:f.size,dataUrl:e.target.result,by:meDisplay(),at:nowIso()}).then(function(){
+      _amFiles.push({id:fid,name:f.name,type:f.type,size:f.size}); amPaintFiles(); toast('Attached '+f.name);
+    });
+  };
+  r.readAsDataURL(f);
+}
+function amRmFile(fid){_amFiles=_amFiles.filter(function(f){return f.id!==fid;});amPaintFiles();}
+function amOpenFile(fid){
+  kvPull('atrium_file_'+fid,null).then(function(v){
+    if(!v){toast('File not found');return;}
+    try{
+      var parts=v.dataUrl.split(','); var mime=(parts[0].match(/:(.*?);/)||[])[1]||'application/octet-stream';
+      var bin=atob(parts[1]); var n=bin.length; var u=new Uint8Array(n); for(var i=0;i<n;i++)u[i]=bin.charCodeAt(i);
+      var blob=new Blob([u],{type:mime}); var url=URL.createObjectURL(blob);
+      window.open(url,'_blank'); setTimeout(function(){URL.revokeObjectURL(url);},60000);
+    }catch(e){ var a=document.createElement('a'); a.href=v.dataUrl; a.download=v.name; a.click(); }
+  });
 }
 function saveAction(id,isNew){
   var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),dept:val('af_dept'),status:val('af_status'),
-    priority:document.querySelector('input[name=af_prio]:checked').value,weekly:document.getElementById('af_weekly').checked,notes:val('af_notes')};
+    priority:val('af_priority'),weekly:document.getElementById('af_weekly').checked,notes:val('af_notes'),
+    watchers:_amWatchers.slice(),files:_amFiles.slice(),subs:_amSubs.slice()};
   v.done=(v.status==='done');
   if(!v.title.trim()){toast('Title is required');return;}
-  var prevOwner=null, saved;
+  var prevOwner=null, prevWatchers=[], saved;
   if(isNew===true||isNew==='true'){ saved=Object.assign({id:id,context:null,meetingId:'',created:nowIso()},v,{completedAt:v.done?nowIso():null}); WS.actions.push(saved); }
-  else { saved=WS.actions.find(function(x){return x.id===id;}); prevOwner=saved.owner; Object.assign(saved,v,{completedAt:v.done?(saved.completedAt||nowIso()):null}); }
+  else { saved=WS.actions.find(function(x){return x.id===id;}); prevOwner=saved.owner; prevWatchers=(saved.watchers||[]).slice(); Object.assign(saved,v,{completedAt:v.done?(saved.completedAt||nowIso()):null}); }
   saveWS(); closeModal(); render(); toast('Action saved');
-  notifyTaskOwner(saved,prevOwner);
+  notifyTaskAssign(saved,prevOwner,prevWatchers);
 }
 
 /* ===================== Team Board (carried over from the old workflow tool) ===================== */
@@ -1424,13 +1512,20 @@ function allKnownDepts(){var out=['company','7even','haavn','haavnblack','haavnm
   WS.actions.forEach(function(a){if(a.dept&&!seen[a.dept]){out.push(a.dept);seen[a.dept]=1;}});return out;}
 function viewTeamBoard(){
   var deptFilter=window._tbDept||'';
-  var h='<div class="section-h"><div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,\''+(deptFilter||'company')+'\')">+ New task</button></div>';
+  var personFilter=window._tbPerson||'';
+  var h='<div class="section-h"><select id="tbPersonSel" style="width:auto;min-width:170px" onchange="window._tbPerson=this.value;render()"><option value="">All people</option>'+
+    REAL_PEOPLE.filter(function(p){return !p.ext;}).map(function(p){return '<option value="'+esc(p.name)+'" '+(personFilter===p.name?'selected':'')+'>'+esc(p.name)+'</option>';}).join('')+
+    '</select><div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,\''+(deptFilter||'company')+'\')">+ New task</button></div>';
   h+='<p style="font-size:12px;color:var(--ink-3);margin-bottom:12px">Live status of every task in the department — this is what gets reviewed, person by person, in the weekly meeting.</p>';
   h+='<div class="deptbar">'+allKnownDepts().map(function(d){
     var n=WS.actions.filter(function(a){return a.dept===d;}).length;
     return '<div class="deptchip'+(deptFilter===d?' on':'')+'" onclick="window._tbDept=\''+(deptFilter===d?'':d)+'\';render()"><span class="cdot" style="background:'+deptColor(d)+'"></span>'+deptLabel(d)+' ('+n+')</div>';
   }).join('')+'</div>';
-  var list=WS.actions.filter(function(a){return !deptFilter||a.dept===deptFilter;});
+  var list=WS.actions.filter(function(a){
+    if(deptFilter&&a.dept!==deptFilter) return false;
+    if(personFilter&&!sameName(a.owner,personFilter)&&!(a.watchers||[]).some(function(n){return sameName(n,personFilter);})) return false;
+    return true;
+  });
   h+='<div class="tboard">'+TASK_STATUS_COLS.map(function(sc){
     var items=list.filter(function(a){return (a.status||(a.done?'done':'todo'))===sc[0];});
     return '<div class="kcol"><div class="tbcol-h"><span class="lbl" style="color:'+STATUS_COLOR[sc[0]]+'">'+sc[1]+'</span><span class="n">'+items.length+'</span></div>'+
@@ -1515,8 +1610,9 @@ function syncWeeklyToMeeting(){
 }
 
 /* ===================== My Workspace ===================== */
+function isOnTask(a){return sameName(a.owner,ME())||(a.watchers||[]).some(function(n){return sameName(n,ME());});}
 function viewMyDay(){
-  var mine=WS.actions.filter(function(a){return sameName(a.owner,ME());});
+  var mine=WS.actions.filter(isOnTask);
   var dueToday=mine.filter(function(a){return !a.done&&a.due===today();});
   var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();});
   var next=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;}).sort(function(a,b){return a.date.localeCompare(b.date);})[0];
@@ -1525,27 +1621,29 @@ function viewMyDay(){
   return h;
 }
 function fmtDateShort(d){if(!d)return '—';var dt=new Date(d+'T00:00');return isNaN(dt)?d:dt.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
-function renderActionList(list){
+function renderActionList(list,showRole){
   if(!list.length) return '<div class="empty">Nothing here.</div>';
-  return '<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Dept</th><th>Due</th><th>Priority</th></tr></thead><tbody>'+
+  return '<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Dept</th><th>Due</th><th>Priority</th>'+(showRole?'<th>Role</th>':'')+'</tr></thead><tbody>'+
     list.map(function(a){var overdue=!a.done&&a.due&&a.due<today();
       return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
-        '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+'</td>'+
+        '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+(a.watchers&&a.watchers.length?' <span class="chip" title="'+esc(a.watchers.join(', '))+'">+'+a.watchers.length+'</span>':'')+'</td>'+
         '<td><span class="chip">'+deptLabel(a.dept)+'</span></td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
-        '<td>'+(a.priority==='High'?'<span class="chip red">High</span>':'<span class="chip">Normal</span>')+'</td></tr>';
+        '<td>'+priorityChip(a.priority)+'</td>'+
+        (showRole?'<td>'+(sameName(a.owner,ME())?'<span class="chip gold">Leader</span>':'<span class="chip">Following</span>')+'</td>':'')+
+      '</tr>';
     }).join('')+'</tbody></table></div>';
 }
 function viewMyTasks(){
   var f=window._mtf||'open';
-  var mine=WS.actions.filter(function(a){return sameName(a.owner,ME());});
+  var mine=WS.actions.filter(isOnTask);
   var list=mine.filter(function(a){if(f==='open')return !a.done;if(f==='overdue')return !a.done&&a.due&&a.due<today();if(f==='completed')return a.done;return true;});
   var h='<div class="section-h">'+['open','overdue','completed','all'].map(function(x){return '<button class="btn sm'+(f===x?' gold':'')+'" onclick="window._mtf=\''+x+'\';render()">'+x[0].toUpperCase()+x.slice(1)+'</button>';}).join(' ')+
     '<div class="spacer"></div><button class="btn gold" onclick="openActionModal()">+ New task</button></div>';
-  h+=renderActionList(list);
+  h+=renderActionList(list,true);
   return h;
 }
 function viewMyAgenda(){
-  var mine=WS.actions.filter(function(a){return a.weekly&&sameName(a.owner,ME());});
+  var mine=WS.actions.filter(function(a){return a.weekly&&isOnTask(a);});
   var h='<p style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Your own items flagged for the Weekly Company Meeting.</p>';
   h+=renderActionList(mine);
   h+='<div style="margin-top:14px"><button class="btn gold" onclick="syncWeeklyToMeeting()">→ Sync all to Weekly Meeting</button></div>';
