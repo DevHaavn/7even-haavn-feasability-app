@@ -206,7 +206,9 @@ export default function App() {
 
   if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />
 
-  if (!authed || (role === 'admin' && !company && !atriumOpen)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
+  // 'haavnonly' (Atrium!!!) goes through the same company chooser as 'admin' —
+  // PasswordGate itself hides the 7EVEN option for that role.
+  if (!authed || ((role === 'admin' || role === 'haavnonly') && !company && !atriumOpen)) return <PasswordGate chooser={authed} onChoose={chooseCompany} onAuth={() => { setAuthed(true); setRole(getStoredRole()) }} />
 
   // ATRIUM, opened from the HAAVN menu (see the ?open=atrium deep link above).
   // Its own overlay, independent of company/role state — closing it sends the
@@ -217,14 +219,18 @@ export default function App() {
   // The HM device button (top-right) opens the Management Hub, mounted above.
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
-      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={() => setHomesCapitalOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} />
+      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={role === 'admin' ? () => setHomesCapitalOpen(true) : undefined} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
       {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
-      {/* CAPITAL wings → Capital Base (accounts management), over HAAVN BLACK. Admin only.
-          Wrapped above the hero iframe (z-index 600) so it doesn't open behind it. */}
-      {homesCapitalOpen && (
+      {/* CAPITAL wings → Capital Base (accounts management), over HAAVN BLACK.
+          Admin only — it holds 7EVEN's own Capital Administration book, which
+          'haavnonly' (Atrium!!!) must never reach. onOpenCapital is undefined
+          above for that role, so the button itself doesn't render; this guard
+          is the backstop. Wrapped above the hero iframe (z-index 600) so it
+          doesn't open behind it. */}
+      {role === 'admin' && homesCapitalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
           <CapitalPortal onClose={() => setHomesCapitalOpen(false)} />
         </div>

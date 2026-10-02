@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import InstallButton from '../components/InstallButton'
-import { setStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD } from '../lib/role'
+import { setStoredRole, getStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD, HAAVN_ONLY_PASSWORD } from '../lib/role'
 
-const CORRECT = '7Evenhaavn!!!'
+// Full access to all three companies (7EVEN, HAAVN, HAAVN BLACK) — directors
+// and managers. Most of the team is on HAAVN, not 7EVEN, so general staff use
+// HAAVN_ONLY_PASSWORD ('Atrium!!!') instead, which the company chooser below
+// reflects by hiding the 7EVEN option.
+//
+// There used to be a second, hidden full-access code here — kept only as a
+// SHA-256 hash so the plaintext never shipped in the bundle. Retired: its
+// plaintext turned out to be the exact string 'Atrium!!!' now being
+// repurposed as the restricted HAAVN-only code above, so leaving it in would
+// have silently granted full access to anyone using the new restricted
+// password. If a hidden backup admin code is still wanted, it needs a new
+// (different) secret string hashed in its place.
+const CORRECT = 'Atrium7x!!!'
 const STORAGE_KEY = '7even_auth'
-// The 7X access code is kept as a SHA-256 hash so the code itself doesn't ship in the bundle.
-const APP_CODE_HASH = 'dc735aff3785cb562ddde6b5173ba8b659e16d7e22fc9030e4ae6da331f0e4c6'
-async function sha256(t: string): Promise<string> {
-  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))
-  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('')
-}
 
 // Sessions expire after this long, forcing re-entry of the access code.
 // Protects shared/public computers where the login flag would otherwise persist forever.
@@ -183,13 +189,24 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
   const [shake, setShake] = useState(false)
   const [show, setShow] = useState(false)
   const [stage, setStage] = useState<'login' | 'co'>(chooser ? 'co' : 'login')
+  // Only true when HAAVN_ONLY_PASSWORD was used — hides the 7EVEN option below.
+  // Initialised from the stored role too: when `chooser` re-opens this screen
+  // for an already-authenticated session (role set on an earlier visit, not
+  // this render), attempt() never runs, so the stored role is the only signal.
+  const [haavnOnly, setHaavnOnly] = useState(() => getStoredRole() === 'haavnonly')
 
-  async function attempt() {
-    const isAppCode = (await sha256(value)) === APP_CODE_HASH
-    if (value === CORRECT || isAppCode) {
+  function attempt() {
+    if (value === CORRECT) {
       markAuthenticated()
       setStoredRole('admin')
+      setHaavnOnly(false)
       setStage('co') // stay on the screen and offer the three companies
+    } else if (value === HAAVN_ONLY_PASSWORD) {
+      // General HAAVN staff — HAAVN + HAAVN BLACK only, never 7EVEN.
+      markAuthenticated()
+      setStoredRole('haavnonly')
+      setHaavnOnly(true)
+      setStage('co')
     } else if (value === EXTERNAL_PASSWORD) {
       markAuthenticated()
       setStoredRole('external')
@@ -254,7 +271,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
           <div className={`pg-view${stage === 'co' ? ' on' : ''}`}>
             <div className="pg-lbl">CHOOSE YOUR COMPANY</div>
             <div className="pg-co">
-              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('7even')}>7EVEN</button>
+              {!haavnOnly && <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('7even')}>7EVEN</button>}
               <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('haavn')}>HAAVN</button>
               <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('black')}>HAAVN BLACK</button>
             </div>
