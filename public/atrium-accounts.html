@@ -56,7 +56,7 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 .topbar .mk .a{display:flex;align-items:center;color:#fff}
 .topbar .mk .a svg{display:block;width:13px;height:16px;flex:none}
 .topbar .mk .bw{font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.28em;padding-left:.28em}
-.topbar .modlbl{font-family:var(--disp);font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-2);display:flex;align-items:center;gap:9px;padding-left:16px;margin-left:4px;border-left:1px solid var(--steel-2)}
+.topbar .modlbl{font-family:var(--disp);font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sil-2);display:flex;align-items:center;gap:9px}
 .topbar .modlbl .n{color:var(--f-300)}
 .topbar .partner{margin-left:auto;display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:600;letter-spacing:.2em;text-transform:uppercase;font-size:10.5px;color:var(--sil-3)}
 .topbar .partner .sep{width:1px;height:11px;background:var(--steel-2)}
@@ -313,10 +313,14 @@ body.atr-dark .fnode{ fill:#1a232f; }
 .dashp{ stroke:var(--line); stroke-width:1.4; fill:none; stroke-dasharray:5 5; }
 .dlegend span, .dsplit b{ white-space:nowrap; }
 /* theme toggle (inserted into topbar by script) */
-#atr-back{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 13px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; margin-left:4px; }
-#atr-back:hover{ color:var(--cx-txt); }
-#atr-theme{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:16px; padding:6px 12px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; }
-#atr-theme:hover{ color:var(--cx-txt); }
+#atr-back{ width:30px; height:30px; border-radius:50%; border:1px solid var(--cx-line); background:transparent; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--cx-txt); flex:none; padding:0; transition:.3s; }
+#atr-back:hover{ border-color:#d6b36a; box-shadow:0 0 14px rgba(214,179,106,.2); background:rgba(214,179,106,.08); }
+#atr-theme{ font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--cx-dim); border:1px solid var(--cx-line); border-radius:999px; padding:7px 14px; cursor:pointer; background:rgba(255,255,255,.04); white-space:nowrap; transition:.2s; }
+#atr-theme:hover{ color:var(--cx-txt); border-color:#d6b36a; }
+.rail-head{display:flex;align-items:center;gap:10px;padding:2px 8px 14px}
+.rail-head .bcol{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rail-head .brand{padding:0}
+.rail-head .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:rgba(232,224,208,.42);text-transform:uppercase}
 </style>
 <style id="hb-reskin">
 /* ===== ATRIUM gold / warm-paper look — matches Capital Base + the 7EVEN book ===== */
@@ -364,7 +368,6 @@ th{color:var(--mute)}
 </head><body><div id="atrium-bg"></div>
 <div class="app">
  <div class="topbar carbon carbon-sheen">
-  <span class="mk"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt" /></svg></span><span class="bw">TRIUM</span></span>
   <span class="modlbl"><span class="n">04</span> Accounts &amp; Settlement</span>
   <span style="margin-left:auto"></span>
   <span class="ent-switch" title="Current entity — shown on every screen">
@@ -372,15 +375,14 @@ th{color:var(--mute)}
    <span class="ec"><i></i><select id="entSel" aria-label="Current entity" onchange="setEntity(this.value)"></select></span>
   </span>
   <span class="savestate" id="saveState"><i class="sdot"></i><span class="stext"></span></span>
-  <span class="partner">7EVEN<span class="sep"></span>HAAVN</span>
  </div>
  <div class="body">
   <aside class="rail">
    <div class="cf carbon"></div>
-   <div class="brand"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt" /></svg></span><span class="bw">TRIUM</span></div>
+   <div class="rail-head"><div class="bcol"><div class="brand"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt" /></svg></span><span class="bw">TRIUM</span></div><div class="tag">Accounts &amp; Settlement</div></div></div>
    <div class="rdiv"></div>
    <nav id="railNav"></nav>
-   <div class="railfoot">Accounts &amp; Settlement<br>7EVEN | HAAVN · FY27</div>
+   <div class="railfoot">7EVEN | HAAVN · FY27</div>
   </aside>
   <main class="main" id="view"></main>
  </div>
@@ -1349,13 +1351,15 @@ document.addEventListener('DOMContentLoaded', boot);
  var KEY='atrium-book02-theme';
  function apply(d){ document.body.classList.toggle('atr-dark', d); var b=document.getElementById('atr-theme'); if(b) b.textContent = d ? '\u263e DARK' : '\u2600 LIGHT'; }
  function build(){ var tb=document.querySelector('.topbar'); if(!tb||document.getElementById('atr-theme')) return;
-   // "← Administration" back control — top-left of the header bar. Posts to
-   // the parent (the Administration pillar) which closes the book. Same message
-   // the parent already listens for; no floating pill.
+   // Back control lives beside the wordmark in the rail head (same place as
+   // every other ATRIUM surface), not the topbar. Posts to the parent (the
+   // Administration pillar) which closes the book.
    if(!document.getElementById('atr-back')){
-     var back=document.createElement('button'); back.id='atr-back'; back.type='button'; back.textContent='← Administration';
-     var anchor=tb.querySelector('.modlbl');
-     if(anchor && anchor.nextSibling) tb.insertBefore(back, anchor.nextSibling); else if(anchor) tb.appendChild(back); else tb.insertBefore(back, tb.firstChild);
+     var back=document.createElement('button'); back.id='atr-back'; back.type='button';
+     back.title='Back to Administration'; back.setAttribute('aria-label','Back to Administration');
+     back.innerHTML='<svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>';
+     var head=document.querySelector('.rail-head');
+     if(head) head.insertBefore(back, head.firstChild); else tb.insertBefore(back, tb.firstChild);
      back.addEventListener('click', function(){ try{ parent.postMessage({type:'atrium:back-admin'}, location.origin); }catch(e){} });
    }
    var btn=document.createElement('button'); btn.id='atr-theme'; btn.type='button';
