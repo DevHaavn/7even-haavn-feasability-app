@@ -690,7 +690,21 @@ function openWhoAreYou(mandatory){
 }
 var DB=null, tab='meetings', openItem=null, viewArchiveId=null, ME=_atriumMe(), activeFilter='all';
 var _uid=1; function uid(){return _uid++;}
-function cur(){return DB.meetings.find(function(m){return m.id===DB.currentId;});}
+/* DB.currentId is a single field in the SHARED cloud doc — fine for the
+   physical boardroom display (nobody there picks a meeting personally, it
+   just shows the official one), but it used to double as "which meeting
+   THIS viewer has open". Since the whole DB round-trips through the cloud
+   every ~9s (cloudPoll → adoptCloud), one person opening their own meeting
+   was silently moving every other open tab into it too. _myMeetingId is
+   local-only (never part of DB, never pushed to the cloud) so opening a
+   meeting only ever changes what YOU see. */
+var _myMeetingId=null;
+try{ _myMeetingId=localStorage.getItem('atrium_my_meeting')||null; }catch(e){}
+function setMyMeeting(id){ _myMeetingId=id; try{ id?localStorage.setItem('atrium_my_meeting',id):localStorage.removeItem('atrium_my_meeting'); }catch(e){} }
+function cur(){
+  var mine=_myMeetingId&&DB.meetings.find(function(m){return m.id===_myMeetingId;});
+  return mine||DB.meetings.find(function(m){return m.id===DB.currentId;});
+}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function ymd(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
 function upcomingMonday(){var d=new Date();var day=d.getDay();var add=(1-day+7)%7;var m=new Date(d);m.setDate(d.getDate()+add);return ymd(m);}
@@ -796,16 +810,16 @@ function rollForward(id){var am=DB.meetings.find(function(x){return x.id===id;})
 
 function confirmModal(msg,yesLabel,onYes){var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div style="font-size:14px;line-height:1.55;color:var(--ink)">'+esc(msg)+'</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="xbtn" data-cfx="no">Cancel</button><button class="xbtn gold" data-cfx="yes">'+esc(yesLabel||'Confirm')+'</button></div></div>';document.body.appendChild(o);o.addEventListener('click',function(ev){var y=ev.target.closest('[data-cfx="yes"]'),n=ev.target.closest('[data-cfx="no"]');if(ev.target===o||y||n){o.remove();if(y&&onYes)onYes();}});}
 function closeMeeting(){confirmModal('Archive this meeting and start next Monday? Open (non-complete) tasks and attendees carry forward with a carried counter; completed tasks stay in the archived copy.','Archive & start next week',doClose);}
-function doClose(){var m=cur();m.closed=true;var d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);var nm=newMeeting(ymd(d));nm.chair=m.chair;nm.attendees=m.attendees.map(function(a){return {id:uid(),name:a.name,email:a.email||'',role:a.role||'',present:true};});var idmap={};m.attendees.forEach(function(oa,ix){idmap[oa.id]=nm.attendees[ix].id;});m.items.filter(function(i){return !i.discussed;}).forEach(function(i){nm.items.push(newItem({dept:i.dept,status:i.status,title:i.title,kind:i.kind,assigneeId:idmap[i.assigneeId]||'',owner:i.owner,due:i.due,notes:i.notes,carried:(i.carried||0)+1}));});DB.meetings.push(nm);DB.currentId=nm.id;openItem=null;viewArchiveId=null;switchTab('agenda');save();render();toast('Meeting archived — new meeting for '+fmtLong(nm.date)+' created');}
+function doClose(){var m=cur();m.closed=true;var d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);var nm=newMeeting(ymd(d));nm.chair=m.chair;nm.attendees=m.attendees.map(function(a){return {id:uid(),name:a.name,email:a.email||'',role:a.role||'',present:true};});var idmap={};m.attendees.forEach(function(oa,ix){idmap[oa.id]=nm.attendees[ix].id;});m.items.filter(function(i){return !i.discussed;}).forEach(function(i){nm.items.push(newItem({dept:i.dept,status:i.status,title:i.title,kind:i.kind,assigneeId:idmap[i.assigneeId]||'',owner:i.owner,due:i.due,notes:i.notes,carried:(i.carried||0)+1}));});DB.meetings.push(nm);DB.currentId=nm.id;setMyMeeting(nm.id);openItem=null;viewArchiveId=null;switchTab('agenda');save();render();toast('Meeting archived — new meeting for '+fmtLong(nm.date)+' created');}
 
 /* ── ad-hoc meetings (internal / external) — same engine, own row in the Meetings menu ── */
 function handleClose(){var m=cur();if(m.kind&&m.kind!=='weekly'){confirmModal('Close this meeting and file it in the Archive? It will not create a follow-up meeting.','Close & archive',doCloseAdhoc);}else{closeMeeting();}}
-function doCloseAdhoc(){var m=cur();m.closed=true;m.recording={active:false,startedAt:0};var wk=DB.meetings.find(function(x){return x.kind==='weekly'&&!x.closed;});if(wk)DB.currentId=wk.id;openItem=null;viewArchiveId=null;switchTab('meetings');save();render();toast('Meeting closed and filed in the Archive');}
+function doCloseAdhoc(){var m=cur();m.closed=true;m.recording={active:false,startedAt:0};var wk=DB.meetings.find(function(x){return x.kind==='weekly'&&!x.closed;});if(wk){DB.currentId=wk.id;setMyMeeting(wk.id);}else{setMyMeeting(null);}openItem=null;viewArchiveId=null;switchTab('meetings');save();render();toast('Meeting closed and filed in the Archive');}
 function newAdhocMeeting(o){var nm=newMeeting(o.date);nm.attendees=[];nm.title=o.title;nm.kind=o.kind;nm.time=o.time||'10:00';nm.targetSec=Math.max(300,(o.durationMin||30)*60);nm.chair=ME;return nm;}
-function openMeeting(id){var m=DB.meetings.find(function(x){return x.id===id;});if(!canSeeMeeting(m)){toast('You\'re not on this meeting\'s attendee list');return;}DB.currentId=id;openItem=null;viewArchiveId=null;switchTab('agenda');save();render();}
+function openMeeting(id){var m=DB.meetings.find(function(x){return x.id===id;});if(!canSeeMeeting(m)){toast('You\'re not on this meeting\'s attendee list');return;}setMyMeeting(id);openItem=null;viewArchiveId=null;switchTab('agenda');render();}
 function renderMeetingsList(){if(!DB)return;var open=(DB.meetings||[]).filter(function(m){return !m.closed&&canSeeMeeting(m);}).sort(function(a,b){return a.date.localeCompare(b.date);});
   document.getElementById('cMtg').textContent=open.length;
-  document.getElementById('mtgList').innerHTML=open.length?open.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var active=m.id===DB.currentId;var kindLbl=(!m.kind||m.kind==='weekly')?'WEEKLY':m.kind.toUpperCase();
+  document.getElementById('mtgList').innerHTML=open.length?open.map(function(m){var t=(m.items||[]).length,d=(m.items||[]).filter(function(x){return x.discussed;}).length;var active=cur()&&m.id===cur().id;var kindLbl=(!m.kind||m.kind==='weekly')?'WEEKLY':m.kind.toUpperCase();
     return '<div class="arch-row" onclick="openMeeting('+m.id+')" style="'+(active?'border-color:var(--accent)':'')+'"><div class="arch-date">'+esc(m.title||'Weekly Company Meeting')+(active?' <span class="tag" style="border-color:var(--accent);color:var(--accent-soft)">● ACTIVE</span>':'')+'<div class="dept-sub" style="margin-top:4px">'+fmtLong(m.date)+' · '+esc(m.time||'')+' · '+kindLbl+'</div></div><div class="arch-mini"><span><b>'+Math.round((m.targetSec||2700)/60)+'</b> min</span><span><b>'+(m.attendees||[]).length+'</b> attendees</span><span><b>'+d+'/'+t+'</b> items</span>'+((m.recording&&m.recording.active)?'<span style="color:var(--red)">● recording</span>':'')+'</div><span class="go">Open →</span></div>';}).join(''):'<div class="empty">No open meetings. Start one with + New meeting.</div>';}
 /* ── full meeting set-up: name/type/time + attendees + the whole agenda in one go,
    so opening the meeting later has everything ready ── */
