@@ -74,20 +74,14 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
   if (group === '7even') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
+        {/* The back control lives IN the book's own rail header (circular icon
+            beside the wordmark), posting atrium:back-admin which the message
+            listener above handles — same pattern as Book 02. No floating pill. */}
         <iframe
           title="ATRIUM — 7EVEN Capital Administration"
-          src="/atrium-book01-7even-capital.html"
+          src="/atrium-book01-7even-capital.html?v=20261003a"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
-        <button onClick={() => setGroup(null)} title="Back to Administration" aria-label="Back to Administration"
-          style={{ position: 'fixed', top: 70, left: 78, zIndex: 501, width: 38, height: 38, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
-            color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #3A4146',
-            cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)', transition: '.3s' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#d6b36a'; e.currentTarget.style.boxShadow = '0 0 22px rgba(214,179,106,.25)' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#3A4146'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.45)' }}>
-          <svg viewBox="0 0 240 240" width="15" height="15"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="9" strokeLinejoin="miter" strokeLinecap="butt" /></svg>
-        </button>
       </div>
     )
   }
@@ -104,7 +98,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
             same pattern as Book 01. No floating pill. */}
         <iframe
           title="ATRIUM — Accounts & Settlement"
-          src="/atrium-accounts.html"
+          src="/atrium-accounts.html?v=20261003a"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
       </div>
