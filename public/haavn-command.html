@@ -15,8 +15,8 @@
   --line-soft:#e0ded4;
   --card:#ffffff;
   --green:#2f8f5b;
-  --orange:#cf8a3c;
-  --bronze-d:#8a6a44;
+  --orange:#d6b36a;
+  --bronze-d:#8f6a25;
   --charcoal:#0b0b0d;
   --shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.07);
   --shadow-lg:0 6px 14px rgba(28,28,30,.10),0 26px 60px rgba(28,28,30,.16);
@@ -165,7 +165,7 @@ footer .disc b{color:#cfcec2}
 .tbl td.neg{color:#b3402f}
 .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border-radius:999px;padding:5px 11px;border:1px solid}
 .pill .d{width:6px;height:6px;border-radius:50%}
-.pill.reimburse{background:#fbf3df;border-color:#ecdcb0;color:#8a6a1f}.pill.reimburse .d{background:#c99a2e}
+.pill.reimburse{background:#fbf3df;border-color:#ecdcb0;color:#8f6a25}.pill.reimburse .d{background:#d6b36a}
 .pill.owes{background:#fbeceb;border-color:#f0cfcb;color:#b3402f}.pill.owes .d{background:#c0503f}
 
 /* billing */
@@ -374,11 +374,11 @@ const NODES={
     own:"HAAVN is the parent company and acts as the group's internal bank — lending to the operating subsidiaries and receiving repayments plus interest. Owned 100% by the three shareholders.",
     kv:[["Role","Parent · internal bank"],["Loans out","$80,000"],["— HAAVN Management","$50,000"],["— HAAVN Technologies","$30,000"],["Interest receivable","$852"],["Rate","8.5% p.a."],["As at","2026-08-21"]],
     flow:["Owned 100% ← Shareholders","Drawdown → subsidiaries","Repay + interest ← subsidiaries"]},
-  "n-hm":{cap:"Subsidiary · Operating",color:"#cf8a3c",title:"HAAVN Management",role:"Borrower · shares group expenses",
+  "n-hm":{cap:"Subsidiary · Operating",color:"#d6b36a",title:"HAAVN Management",role:"Borrower · shares group expenses",
     own:"Operating subsidiary. Has drawn $50,000 from the internal bank, accruing $594 interest, and carries a $3,420 share of the shared expense pool (33.3333%).",
     kv:[["Loan drawn","$50,000"],["Interest accrued","$594"],["Expense share","$3,420"],["Expense split","33.3333%"],["Rate","8.5% p.a."]],
     flow:["Drawdown ← HAAVN","Repay + interest → HAAVN","Expense share → Shared pool"]},
-  "n-ht":{cap:"Subsidiary · Operating",color:"#cf8a3c",title:"HAAVN Technologies",role:"Borrower · shares group expenses",
+  "n-ht":{cap:"Subsidiary · Operating",color:"#d6b36a",title:"HAAVN Technologies",role:"Borrower · shares group expenses",
     own:"Operating subsidiary. Has drawn $30,000 from the internal bank, accruing $258 interest, and carries a $3,420 share of the shared expense pool (33.3333%).",
     kv:[["Loan drawn","$30,000"],["Interest accrued","$258"],["Expense share","$3,420"],["Expense split","33.3333%"],["Rate","8.5% p.a."]],
     flow:["Drawdown ← HAAVN","Repay + interest → HAAVN","Expense share → Shared pool"]},
@@ -386,7 +386,7 @@ const NODES={
     own:"A group subsidiary that is not yet operating — no loan, interest or expense share at this time.",
     kv:[["Status","Not yet operating"],["Loan drawn","—"],["Interest","—"],["Expense share","—"]],
     flow:["Part of → HAAVN group"]},
-  "n-pool":{cap:"Shared Costs",color:"#cf8a3c",title:"Shared expense pool",role:"$10,260 · Rent · Outgoings · Office",
+  "n-pool":{cap:"Shared Costs",color:"#d6b36a",title:"Shared expense pool",role:"$10,260 · Rent · Outgoings · Office",
     own:"The group's shared costs — rent, outgoings and office — pooled at $10,260 and split three ways between HAAVN Management, HAAVN Technologies and 7even.",
     kv:[["Total pool","$10,260"],["Covers","Rent · Outgoings · Office"],["HAAVN Management","$3,420 · 33.3333%"],["HAAVN Technologies","$3,420 · 33.3333%"],["7even","$3,420 · 33.3334%"]],
     flow:["Funded by → HAAVN Management","Funded by → HAAVN Technologies","Funded by → 7even"]},
