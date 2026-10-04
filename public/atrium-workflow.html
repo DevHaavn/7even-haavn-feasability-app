@@ -23,6 +23,7 @@
   --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --gold:#d6b36a; --gold-hi:#e6d3a3; --gold-deep:#b89a5e;
+  --at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0;
   --green:#5aa87a; --blue:#5b8def; --red:#e0644f; --purple:#a179d8;
 }
 [data-theme="dark"]{
@@ -307,8 +308,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 .rail-group{--gc:#9db8e8;display:block;padding:6px 10px;margin:18px 4px 8px;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--gc) 85%,transparent);
   background:color-mix(in srgb,var(--gc) 20%,transparent);color:color-mix(in srgb,var(--gc) 60%,var(--ink));font-weight:600}
 [data-theme="light"] .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent);color:color-mix(in srgb,var(--gc) 30%,var(--ink))}
-.rail-group.g-work{--gc:#9db8e8}.rail-group.g-perf{--gc:#c0a9e4}.rail-group.g-team{--gc:#f0bf9a}.rail-group.g-supply{--gc:#a9d4b5}
-.rail-group.g-mgmt{--gc:#eeb0c4}.rail-group.g-black{--gc:#b4bac4}.rail-group.g-meet{--gc:#e8d594}.rail-group.g-brand{--gc:#9fd3d0}
+.rail-group.g-work{--gc:var(--at-blue)}.rail-group.g-perf{--gc:var(--at-lilac)}.rail-group.g-team{--gc:var(--at-peach)}.rail-group.g-supply{--gc:var(--at-green)}
+.rail-group.g-mgmt{--gc:var(--at-pink)}.rail-group.g-black{--gc:var(--at-grey)}.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-brand{--gc:var(--at-teal)}
 </style>
 </head>
 <body>
@@ -1873,7 +1874,7 @@ function saveAction(id,isNew){
 
 /* ===================== Team Board (carried over from the old workflow tool) ===================== */
 var STATUS_COLOR={todo:'var(--ink-3)',doing:'var(--blue)',blocked:'var(--red)',review:'var(--gold-deep)',done:'var(--green)'};
-var DEPT_COLOR={company:'#8a9099','7even':'#5b8def',haavn:'#5aa87a',haavnblack:'#242B27',haavnmgmt:'#d8a54a',admin:'#a179d8'};
+var DEPT_COLOR={company:'#8a9099','7even':'#9db8e8',haavn:'#a9d4b5',haavnblack:'#b4bac4',haavnmgmt:'#eeb0c4',admin:'#c0a9e4'};
 function deptColor(d){return DEPT_COLOR[d]||'#8a9099';}
 function allKnownDepts(){var out=['company','7even','haavn','haavnblack','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
   WS.actions.forEach(function(a){if(a.dept&&!seen[a.dept]){out.push(a.dept);seen[a.dept]=1;}});return out;}
