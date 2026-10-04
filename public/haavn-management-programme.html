@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATRIUM · HAAVN Management Programme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--serif:"Newsreader",Georgia,serif;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+--accent:#d6b36a;--green:#5aa87a;--blue:#5b8def;--red:#e0644f;--orange:#e08a4f;--slate:#8a9099;--purple:#a179d8;--teal:#4fa8a0;--r:16px;--rs:11px;--ease:cubic-bezier(.22,.61,.36,1)}
+[data-theme=light]{--bg0:#eceae4;--bg1:#f4f2ec;--card:rgba(255,255,255,.72);--ink:#1a1b1e;--ink-2:#4a4d54;--ink-3:#83868e;--ink-4:#a7aab1;--line:rgba(20,20,25,.10);--line-2:rgba(20,20,25,.06);--pill:rgba(20,20,25,.045);--row:rgba(255,255,255,.5)}
+[data-theme=dark]{--bg0:#0b0c0f;--bg1:#101216;--card:rgba(24,26,32,.66);--ink:#f3f1ec;--ink-2:#b7b9bf;--ink-3:#7d818b;--ink-4:#565a63;--line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.055);--pill:rgba(255,255,255,.06);--row:rgba(255,255,255,.025)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45;font-size:13.5px}
+.mono{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:10px}
+.serif{font-family:var(--serif)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:flex;flex-direction:column;height:100vh}
+.top{display:flex;align-items:center;gap:14px;padding:0 20px;height:58px;flex:none;border-bottom:1px solid var(--line-2);background:var(--bg1)}
+.hub{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:100px;border:1px solid var(--line);background:var(--pill);color:var(--ink-2);font-size:12px;cursor:pointer}
+.hub:hover{color:var(--ink);border-color:var(--ink-4)}
+.wm{font-family:var(--serif);letter-spacing:.38em;font-size:17px;padding-left:.3em}
+.tag{color:var(--ink-3);border-left:1px solid var(--line);padding-left:14px;white-space:nowrap}
+.sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:100px;padding:3px;background:var(--pill)}
+.seg button{border:none;background:none;padding:6px 14px;border-radius:100px;cursor:pointer;font-size:12px;color:var(--ink-3)}
+.seg button.on{background:var(--ink);color:var(--bg0)}
+.ib{width:34px;height:34px;border-radius:100px;border:1px solid var(--line);background:var(--pill);cursor:pointer;display:grid;place-items:center;font-size:14px}
+.nav{display:flex;gap:4px;padding:10px 20px 0;border-bottom:1px solid var(--line-2);flex:none;overflow-x:auto;background:var(--bg1)}
+.nav button{border:none;background:none;padding:10px 16px;cursor:pointer;color:var(--ink-3);font-size:13px;border-bottom:2px solid transparent;white-space:nowrap}
+.nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.nav button:hover{color:var(--ink)}
+main{flex:1;overflow:auto;padding:22px 24px 50px}
+h1{font-family:var(--serif);font-weight:400;font-size:34px;letter-spacing:-.01em;line-height:1.1}
+h2{font-family:var(--serif);font-weight:400;font-size:22px}
+.sub{color:var(--ink-3);margin-top:5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.kpi .k{color:var(--ink-3)}
+.kpi .v{font-family:var(--serif);font-size:30px;margin-top:6px;line-height:1.1}
+.kpi .d{color:var(--ink-3);font-size:12px;margin-top:4px}
+.btn{border:1px solid var(--line);background:var(--pill);padding:7px 13px;border-radius:100px;cursor:pointer;font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.btn:hover{color:var(--ink);border-color:var(--ink-4)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#1a1b1e;font-weight:600}
+.btn.dng{color:var(--red)}
+.pill{display:inline-block;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:500;border:1px solid var(--line);background:var(--pill)}
+.st-complete{color:var(--green)}.st-delayed{color:var(--orange)}.st-critical{color:var(--red)}.st-in-progress{color:var(--accent)}.st-not-started{color:var(--ink-3)}
+.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}
+.bar-row{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.bar-row:last-child{border:none}
+.track{position:relative;height:12px;background:var(--pill);border-radius:100px;flex:1;overflow:hidden}
+.track i{position:absolute;top:0;bottom:0;border-radius:100px;opacity:.9}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);padding:8px 10px;font-weight:500;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--row)}
+tr.grp td{background:var(--pill);font-weight:600;font-family:var(--serif);font-size:15px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+input[type=text],input[type=date],input[type=number],select,textarea{background:var(--bg1);border:1px solid var(--line);border-radius:9px;padding:7px 10px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:90px;resize:vertical}
+label.f{display:block;margin-bottom:12px}
+label.f>span{display:block;color:var(--ink-3);margin-bottom:5px}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 12px}
+.tools label{display:flex;align-items:center;gap:6px;color:var(--ink-3);font-size:12px}
+.tools select{width:auto}
+/* gantt */
+.gwrap{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:auto;position:relative;max-height:calc(100vh - 290px);min-height:360px}
+.ginner{position:relative}
+.ghead{position:sticky;top:0;z-index:6;display:flex;background:var(--bg1);border-bottom:1px solid var(--line)}
+.glabel{position:sticky;left:0;z-index:5;flex:none;background:var(--bg1);border-right:1px solid var(--line)}
+.ghead .glabel{z-index:8;display:flex;align-items:flex-end;padding:0 12px 8px;color:var(--ink-4)}
+.gchart{position:relative;flex:none}
+.grow{display:flex;height:34px;border-bottom:1px solid var(--line-2)}
+.grow.ph{background:var(--pill);height:34px}
+.grow .glabel{display:flex;align-items:center;gap:8px;padding:0 12px;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;background:var(--bg1)}
+.grow.ph .glabel{font-family:var(--serif);font-size:15px;cursor:pointer}
+.grow .glabel .nm{overflow:hidden;text-overflow:ellipsis;flex:1;cursor:pointer}
+.grow .glabel .nm:hover{color:var(--accent)}
+.grow .glabel .ow{color:var(--ink-4);font-size:11px;flex:none}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.bar{position:absolute;top:7px;height:20px;border-radius:7px;cursor:grab;touch-action:none;overflow:hidden;border:1px solid rgba(0,0,0,.12)}
+.bar.ro{cursor:pointer}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.3)}
+.bar span{position:relative;font-size:10.5px;padding:0 8px;line-height:18px;color:#fff;white-space:nowrap;font-weight:500;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.bar .h{position:absolute;top:0;bottom:0;width:7px;cursor:ew-resize}.bar .h.l{left:0}.bar .h.r{right:0}
+.bar.ro .h{display:none}
+.bar.s-complete{background:var(--green)}.bar.s-in-progress{background:var(--accent)}.bar.s-in-progress span{color:#2a1f08;text-shadow:none}
+.bar.s-not-started{background:var(--slate)}.bar.s-delayed{background:var(--orange)}.bar.s-critical{background:var(--red)}
+.bar.late{outline:2px solid var(--red);outline-offset:1px}
+.psum{position:absolute;top:12px;height:10px;border-radius:2px;opacity:.85}
+.msd{position:absolute;top:8px;width:18px;height:18px;transform:rotate(45deg);border-radius:3px;cursor:grab;touch-action:none;border:1px solid rgba(0,0,0,.2)}
+.msd.ro{cursor:pointer}
+.base{position:absolute;bottom:3px;height:3px;border-radius:2px;background:var(--ink-3);opacity:.55}
+.gl{position:absolute;top:0;bottom:0;width:1px;background:var(--line-2)}
+.gl.pcg{background:var(--accent);opacity:.28;width:1px}
+.gl.today{background:var(--red);opacity:.85;width:2px;z-index:3}
+.todaylab{position:absolute;top:0;background:var(--red);color:#fff;font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:0 0 6px 6px;z-index:4;transform:translateX(-50%)}
+.hm{position:absolute;top:0;height:28px;font-weight:500;border-left:1px solid var(--line);padding:6px 6px;font-size:11px;color:var(--ink-3);white-space:nowrap}
+.hf{position:absolute;top:28px;height:28px;border-left:1px solid var(--line-2);padding:7px 4px;font-size:10px;color:var(--accent);font-family:var(--mono);white-space:nowrap}
+svg.deps{position:absolute;left:0;top:0;pointer-events:none;z-index:2}
+.tip{position:fixed;z-index:999;background:var(--ink);color:var(--bg0);padding:5px 10px;border-radius:8px;font-size:11.5px;pointer-events:none;white-space:nowrap}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--ink-3);font-size:11.5px;margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(10,10,14,.5);z-index:100;display:grid;place-items:center;backdrop-filter:blur(3px)}
+.modal{background:var(--bg1);border:1px solid var(--line);border-radius:20px;padding:24px;width:min(560px,94vw);max-height:90vh;overflow:auto}
+.modal h2{margin-bottom:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mfoot{display:flex;gap:10px;justify-content:space-between;margin-top:10px}
+.pbar{height:6px;background:var(--pill);border-radius:10px;overflow:hidden;min-width:70px}.pbar i{display:block;height:100%;background:var(--green)}
+.quote{display:grid;grid-template-columns:24px 1.5fr 1fr 1fr 100px 30px;gap:10px;align-items:center;padding:7px 0}
+.pcgwrap{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.mlist button{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:12px;margin-bottom:8px;cursor:pointer}
+.mlist button.on{border-color:var(--accent);background:rgba(214,179,106,.12)}
+.mlist button .d{font-weight:600}.mlist button .s{color:var(--ink-3);font-size:11.5px}
+.ag li{margin:0 0 6px 18px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg0);padding:10px 18px;border-radius:100px;z-index:300;font-size:13px}
+.rag{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}
+.note{color:var(--ink-3);font-size:12px}
+.client .dmonly{display:none!important}
+.hide{display:none!important}
+html.embed .hub,html.embed .wm,html.embed .tag{display:none}
+html.embed .top{height:46px}
+html.embed main{padding:16px 18px 40px}
+html.embed .gwrap{max-height:calc(100vh - 230px)}
+.bar.sup,.msd.sup{opacity:.4}
+.pathbanner{display:flex;gap:12px;align-items:center;padding:11px 16px;border-radius:12px;border:1px solid var(--line);background:var(--pill);margin-bottom:14px;color:var(--ink-2);font-size:12.5px}
+.pathbanner b{color:var(--ink)}
+@media(max-width:800px){.pcgwrap{grid-template-columns:1fr}.two{grid-template-columns:1fr}.tag{display:none}.quote{grid-template-columns:24px 1fr 1fr}main{padding:16px 14px 40px}h1{font-size:26px}}
+@media print{
+ body{background:#fff;color:#000}[data-theme=dark]{--bg0:#fff;--bg1:#fff;--card:#fff;--ink:#111;--ink-2:#333;--ink-3:#666;--ink-4:#999;--line:#ddd;--line-2:#eee;--pill:#f3f3f3;--row:#fafafa}
+ .top,.nav,.noprint{display:none!important}.app{display:block;height:auto}main{overflow:visible;padding:0}.card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+ <div class="top">
+  <button class="hub" id="hubBtn">← Workflow</button>
+  <div class="wm">ATRIUM</div><div class="tag mono">HAAVN Management · Programme</div>
+  <div class="sp"></div>
+  <div class="seg"><button id="mDM">DM view</button><button id="mCL">Client view</button></div>
+  <button class="ib" id="themeBtn" title="Light / dark">◐</button>
+ </div>
+ <div class="nav" id="nav"></div>
+ <main id="main"></main>
+</div>
+<script>
+/* =====================================================================
+   HAAVN Management · Programme, consultants and PCG tracker
+   Seeded from the St Village Preston programme and signed fee proposals.
+   Local first, shared via Supabase capital_kv (?preview=1 isolates).
+   ===================================================================== */
+var SB_URL="https://vgvavmnqrdgcnledztyk.supabase.co";
+var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZndmF2bW5xcmRnY25sZWR6dHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzIwODEsImV4cCI6MjA5OTU0ODA4MX0.hiWSzfEMXPJGs67iqiuB3hwJVxUO51uu2rygmA5wO10";
+var QS=new URLSearchParams(location.search);
+var PREVIEW=QS.has("preview"), EMBED=QS.has("embed"), PID=QS.get("project")||"preston";
+/* One programme per management project. St Village Preston keeps the original rows so nothing already entered is lost. */
+var CK=(PID==="preston"?"haavn_dm_programme":"haavn_mgmt_prog_"+PID)+(PREVIEW?"_preview":"");
+var LK=(PID==="preston"?"haavn_dm_programme_v1":"haavn_mgmt_prog_v1_"+PID)+(PREVIEW?"_preview":"");
+var META={};try{META=JSON.parse(QS.get("meta")||"{}");}catch(e){}
+var PATH=META.pathway||"Traditional";
+if(EMBED)document.documentElement.className="embed";
+var SB_H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"};
+
+/* ---------- dates ---------- */
+var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function d2n(s){var p=s.split("-");return Math.round(Date.UTC(+p[0],+p[1]-1,+p[2])/864e5);}
+function n2d(n){var d=new Date(n*864e5);return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
+function fmt(s,short){if(!s)return"";var p=s.split("-");return +p[2]+" "+MON[+p[1]-1]+(short?"":" "+p[0]);}
+var TODAY=(function(){var d=new Date();return d2n(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"));})();
+function dur(days){var m=days/30.44;if(days<45)return Math.round(days/7)+" weeks";if(m<24)return (Math.round(m*10)/10)+" months";return (Math.round(m/12*10)/10)+" years";}
+function money(n){return "$"+Math.round(n).toLocaleString("en-AU");}
+function moneyK(n){return n>=1e6?"$"+(n/1e6).toFixed(2)+"M":n>=1e3?"$"+Math.round(n/1e3)+"K":"$"+Math.round(n);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+
+/* ---------- seed ---------- */
+var PHASES=[
+ {id:"tp",label:"Town planning",c:"#a179d8"},
+ {id:"cp",label:"Consultant procurement",c:"#d6b36a"},
+ {id:"te",label:"Tender and ECI",c:"#5b8def"},
+ {id:"dd",label:"Design documentation",c:"#4fa8a0"},
+ {id:"pm",label:"Permits",c:"#e0644f"},
+ {id:"sd",label:"Site and demolition",c:"#8a9099"},
+ {id:"cn",label:"Construction",c:"#5aa87a"},
+ {id:"fo",label:"Fitout and completion",c:"#e08a4f"}
+];
+var STATUSES=[["not-started","Not started"],["in-progress","On track"],["delayed","Delayed"],["critical","Critical"],["complete","Complete"]];
+var OWNERS=["HAAVN Management","John Dimattina","James Winstanley","James Maloney","Domenic Paolilli","HAAVN Supply","Jamie Baldwin","PPP","Council / DFP","Fraser & Partners","IGS","EDGE","Consultants","Contractor","Building Surveyor","Resolve","Demo Contractor","Property Manager","7EVEN Capital"];
+/* id, name, phase, owner, start, end, progress, status, milestone, deps, note, baseline start/end (only where re-timed) */
+function T(id,name,ph,ow,s,e,p,st,ms,dp,note,bs,be){return{id:id,name:name,phase:ph,owner:ow,start:s,end:e,progress:p,status:st,ms:!!ms,deps:dp?dp.split(","):[],note:note||"",bs:bs||s,be:be||e};}
+function seedTasks(){return[
+ T("t1","Town planning documents","tp","Consultants","2025-11-01","2026-04-01",100,"complete",0,"","Full planning document set"),
+ T("t2","DA lodged","tp","PPP","2026-04-30","2026-04-30",100,"complete",1,"t1","Lodged with Darebin"),
+ T("t3","Advertising period","tp","Council / DFP","2026-06-01","2026-07-01",100,"complete",0,"t2","Statutory advertising"),
+ T("t4","Planning permit issued","tp","Council / DFP","2026-11-16","2026-11-16",0,"delayed",1,"t3","Target was 31 Aug 2026. Re-timed, confirm date with DFP.","2026-08-31","2026-08-31"),
+ T("t5","Prepare endorsement documentation","tp","Consultants","2026-11-16","2026-12-16",0,"not-started",0,"t4","","2026-09-30","2026-10-30"),
+ T("t6","Permit endorsement","tp","Council / DFP","2027-01-18","2027-02-17",0,"not-started",0,"t5","","2026-11-30","2026-12-30"),
+ T("c1","Issue briefs and request quotes (open disciplines)","cp","HAAVN Management","2026-10-05","2026-10-19",30,"in-progress",0,"","Structural, services, fire, building surveyor, interiors, QS, arborist"),
+ T("c2","Receive and compare quotes","cp","HAAVN Management","2026-10-19","2026-11-02",0,"not-started",0,"c1","Side by side comparison issued to client"),
+ T("c3","Client selects preferred consultants","cp","Jamie Baldwin","2026-11-03","2026-11-03",0,"not-started",1,"c2","Decision at PCG"),
+ T("c4","Appoint consultants and sign fee proposals","cp","HAAVN Management","2026-11-03","2026-11-17",0,"not-started",0,"c3","Novation clause included"),
+ T("r1","Request for Tender (RFT)","te","HAAVN Management","2026-09-01","2026-10-06",70,"in-progress",0,"","Issued to shortlisted builders"),
+ T("r2","Tender evaluation","te","HAAVN Management","2026-09-22","2026-10-12",20,"in-progress",0,"","Scored against price, programme, ECI approach"),
+ T("r3","Contractor negotiation","te","HAAVN Management","2026-10-21","2026-11-04",0,"not-started",0,"r2",""),
+ T("r4","Contractor award","te","Jamie Baldwin","2026-11-05","2026-11-05",0,"not-started",1,"r3","Client approval at PCG"),
+ T("r5","ECI agreement executed","te","HAAVN Management","2026-11-11","2026-11-11",0,"not-started",1,"r4",""),
+ T("r6","Value management 1","te","HAAVN Management","2026-11-13","2027-01-04",0,"not-started",0,"r5",""),
+ T("r7","Cost plan 1 review","te","HAAVN Management","2027-02-02","2027-02-07",0,"not-started",0,"r6",""),
+ T("r8","Value management 2 (structure)","te","HAAVN Management","2027-02-16","2027-03-09",0,"not-started",0,"r7","","2027-09-02","2027-09-25"),
+ T("r9","Value management 3 (finishes)","te","HAAVN Management","2027-03-16","2027-04-05",0,"not-started",0,"r8",""),
+ T("r10","Letter of intent","te","HAAVN Management","2027-04-13","2027-04-13",0,"not-started",1,"r9",""),
+ T("r11","Contract execution (D&C)","te","HAAVN Management","2027-04-14","2027-04-14",0,"not-started",1,"r10","","2027-04-05","2027-04-05"),
+ T("r12","Novate consultant team","te","HAAVN Management","2027-04-14","2027-04-24",0,"not-started",0,"r11",""),
+ T("d1","Fraser: design development to tender","dd","Fraser & Partners","2026-11-30","2027-01-09",0,"not-started",0,"c4",""),
+ T("d2","Fraser: construction documentation","dd","Fraser & Partners","2027-01-09","2027-02-08",0,"not-started",0,"d1",""),
+ T("d3","IGS: structural and services documentation","dd","IGS","2027-02-08","2027-02-28",0,"not-started",0,"d2",""),
+ T("d4","EDGE: services documentation","dd","EDGE","2027-02-28","2027-03-25",0,"not-started",0,"d3",""),
+ T("d5","Specialist reports (fire, acoustic, arborist)","dd","Consultants","2027-03-25","2027-04-24",0,"not-started",0,"d4",""),
+ T("p1","Stage 1 building permit: checklist","pm","Building Surveyor","2027-04-24","2027-05-04",0,"not-started",0,"d5",""),
+ T("p2","Stage 1 building permit: administration","pm","Building Surveyor","2027-05-04","2027-06-03",0,"not-started",0,"p1",""),
+ T("p3","Stage 1 building permit issued","pm","Building Surveyor","2027-06-13","2027-06-13",0,"not-started",1,"p2","","2027-06-03","2027-06-13"),
+ T("p4","Construction management plan","pm","Contractor","2027-06-13","2027-07-11",0,"not-started",0,"p3",""),
+ T("p5","D&C pile design","pm","Contractor","2027-07-11","2027-07-26",0,"not-started",0,"p4",""),
+ T("p6","Protection works notice","pm","Building Surveyor","2027-07-26","2027-08-25",0,"not-started",0,"p5",""),
+ T("p7","Full building permit issued","pm","Building Surveyor","2027-09-04","2027-09-04",0,"not-started",1,"p6",""),
+ T("s0","Site remediation works","sd","Resolve","2026-05-31","2027-02-05",40,"in-progress",0,"","Contamination remediation"),
+ T("s1","Engage demolition contractor","sd","HAAVN Management","2026-11-30","2027-01-06",0,"not-started",0,"r5",""),
+ T("s2","Site settlement","sd","HAAVN Management","2027-02-02","2027-02-02",0,"not-started",1,"s0","Land settlement"),
+ T("s3","Notice to vacate (tenants)","sd","HAAVN Management","2027-02-03","2027-02-23",0,"not-started",0,"s2",""),
+ T("s4","Service abolishments","sd","HAAVN Management","2027-03-16","2027-05-15",0,"not-started",0,"s3",""),
+ T("s5","Demolition permit","sd","Building Surveyor","2027-05-25","2027-06-09",0,"not-started",0,"s4",""),
+ T("s6","Demolition works","sd","Demo Contractor","2027-06-15","2027-07-05",0,"not-started",0,"s5",""),
+ T("k1","Site establishment","cn","Contractor","2027-07-05","2027-07-17",0,"not-started",0,"s6",""),
+ T("k2","Substructure: piles and footings","cn","Contractor","2027-07-17","2027-08-17",0,"not-started",0,"k1",""),
+ T("k3","Concrete structure","cn","Contractor","2027-11-17","2027-12-29",0,"not-started",0,"k2",""),
+ T("k4","Roof and plant room","cn","Contractor","2028-01-02","2028-02-16",0,"not-started",0,"k3",""),
+ T("f1","Internal fitout and apartments","fo","Contractor","2028-09-04","2029-01-19",0,"not-started",0,"k4","","2028-09-04","2029-03-13"),
+ T("f2","External works and landscaping","fo","Contractor","2028-11-23","2029-01-07",0,"not-started",0,"k4",""),
+ T("f3","Marketing launch: St Village Preston","fo","7EVEN Capital","2028-01-04","2028-01-04",0,"not-started",1,"k3",""),
+ T("f4","BTR leasing campaign","fo","Property Manager","2028-01-05","2029-03-14",0,"not-started",0,"f3",""),
+ T("f5","Handover and defects","fo","Contractor","2029-01-20","2029-02-04",0,"not-started",0,"f1",""),
+ T("f6","Practical completion","fo","7EVEN Capital","2029-02-04","2029-02-04",0,"not-started",1,"f5","")
+];}
+/* discipline, scope, fee ref, firm, signed fee (0 = quote outstanding) */
+var LINE_SEED=[
+["Architect","Feasibility design","402.6","Fraser & Partners",10000],["Architect","Master planning","402.7","Fraser & Partners",50000],["Architect","50% sketch design","402.10","Fraser & Partners",150000],["Architect","100% sketch design","402.11","Fraser & Partners",560000],["Architect","50% design development","402.12","Fraser & Partners",770000],["Architect","100% design development","402.13","Fraser & Partners",770000],["Architect","Construction drawings","402.14","Fraser & Partners",770000],["Architect","Construction services","402.15","Fraser & Partners",770000],
+["Town Planner","Strategy and approval","402.96","PPP",0],
+["Acoustic","Planning","402.1","Marshall Day",7300],["Acoustic","Schematic design","402.2","Marshall Day",0],["Acoustic","Construction","402.3","Marshall Day",0],
+["Arborist","Planning","402.4","To be invited",0],
+["Building Surveyor","BCA report","402.20","To be invited",0],["Building Surveyor","Construction","402.21","To be invited",0],
+["Civil","Services and infrastructure","402.22","DCE",9720],["Civil","Flooding and stormwater","402.23","DCE",21160],
+["DDA","Town planning","402.28","DDEG",2250],["DDA","Design development","402.29","DDEG",2500],
+["ESD","Town planning","402.33","Stantec",13100],["ESD","JV3 and Green Star","402.34","Stantec",6500],
+["Fire Engineering","Schematic","402.39","To be invited",0],["Fire Engineering","FEB","402.40","To be invited",0],["Fire Engineering","FER","402.41","To be invited",0],
+["Geotechnical","Investigation report","402.43","Melbourne Geotechnical",21650],
+["Housing Diversity","Report","402.48","ASR Research",13340],
+["Interior Design","Schematic","402.54","To be invited",0],["Interior Design","Design development","402.56","To be invited",0],
+["Land Surveyor","Feature and level survey","402.59","Land Dimensions",9000],["Land Surveyor","Title re-establishment","402.60","Land Dimensions",3900],["Land Surveyor","Plan of subdivision","402.61","Land Dimensions",3000],["Land Surveyor","Subdivision certification","402.62","Land Dimensions",11500],
+["Landscape","DPO","402.63","Spiire",19830],["Landscape","Town planning submission","402.64","Spiire",14630],["Landscape","Design development","402.65","Spiire",0],["Landscape","Contract documentation","402.66","Spiire",0],
+["Project Management","Design stage","402.71","HAAVN Management",0],["Project Management","Construction stage","402.72","HAAVN Management",0],
+["Quantity Surveyor","Initial report","402.73","Draw Down",1000],["Quantity Surveyor","Monthly claims","402.74","To be invited",0],
+["Services (M&E)","Schematic","402.85","EDGE",0],["Services (M&E)","Design development","402.86","EDGE",0],["Services (M&E)","Construction drawings","402.87","EDGE",0],
+["Structural","Schematic","402.89","IGS",0],["Structural","Design development","402.90","IGS",0],["Structural","Construction drawings","402.91","IGS",0],
+["Traffic","Town planning","402.101","Stantec",35700],["Traffic","Construction management plan","402.102","Infra Engineering",5000],
+["Urban Design","Concept and development plan","402.103","Hansen",14500],["Urban Design","Development plan preparation","402.104","Hansen",12500],["Urban Design","TP application support","402.105","Hansen",7000],
+["Waste","Town planning","402.109","MGA",2400],
+["Wind","Town planning","402.112","VIPAC",2650],["Wind","Design development","402.113","VIPAC",14500]
+];
+function seedLines(){return LINE_SEED.map(function(r,i){var signed=r[4]>0;return{id:"l"+i,disc:r[0],scope:r[1],ref:r[2],sel:"q"+i+"a",quotes:[{id:"q"+i+"a",firm:r[3],fee:r[4],status:signed?"signed":"requested",note:""}]};});}
+function seedTemplate(startISO){
+ var s=seed();var a=1e9;s.tasks.forEach(function(t){a=Math.min(a,d2n(t.start));});var dd=d2n(startISO)-a;
+ s.tasks.forEach(function(t){t.start=n2d(d2n(t.start)+dd);t.end=n2d(d2n(t.end)+dd);t.bs=t.start;t.be=t.end;t.progress=0;t.status="not-started";t.note="";});
+ s.lines.forEach(function(l){var q=l.quotes[0];q.fee=0;q.status="requested";q.firm=(l.disc==="Project Management")?"HAAVN Management":"To be invited";});
+ s.stat=[];s.meetings={};s.settings.pcgAnchor=startISO;s.settings.baselineAt=n2d(TODAY);return s;}
+function seed(){return{v:1,tasks:seedTasks(),lines:seedLines(),meetings:{},settings:{pcgAnchor:"2026-09-22",cascade:true,baselineAt:"2026-03-17"},
+ project:{name:"St Village Preston",address:"2-3 Newman Street, Preston VIC 3072",client:"Jamie Baldwin",clientCo:"7EVEN Capital",dms:["John Dimattina","James Winstanley"],type:"Build to rent"},
+ stat:[{name:"Planning application fee and MPL (City of Darebin / SRO)",fee:290358.10,status:"paid"}],_ts:0};}
+
+/* ---------- state ---------- */
+var S=null,view="overview",MODE="dm",open={},collapsed={},zoom=4,filt={status:"",phase:"",owner:""},selMeeting=null;
+try{MODE=localStorage.getItem(LK+"_mode")||"dm";}catch(e){}
+try{var th=localStorage.getItem(EMBED?"atrium_theme":"haavn_dm_theme")||localStorage.getItem("haavn_dm_theme");if(th)document.documentElement.setAttribute("data-theme",th);}catch(e){}
+try{S=JSON.parse(localStorage.getItem(LK)||"null");}catch(e){}
+if(!S||!S.tasks)S=(PID==='preston')?seed():seedTemplate(META.start||n2d(TODAY));
+applyMeta();
+var _sbOk=false,_pushT=null,_busy=false;
+function save(){S._ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S));}catch(e){}cloudPush();}
+function cloudPush(){if(!_sbOk)return;clearTimeout(_pushT);_pushT=setTimeout(function(){fetch(SB_URL+"/rest/v1/capital_kv",{method:"POST",headers:Object.assign({},SB_H,{Prefer:"resolution=merge-duplicates"}),body:JSON.stringify([{key:CK,value:S,updated_at:new Date().toISOString()}])}).then(function(){try{if(window.parent!==window)window.parent.postMessage({haavnProgSaved:PID},"*");}catch(e){}}).catch(function(){});},700);}
+function cloudPull(){return fetch(SB_URL+"/rest/v1/capital_kv?key=eq."+CK+"&select=value,updated_at",{headers:SB_H}).then(function(r){if(!r.ok)return null;_sbOk=true;return r.json();}).then(function(rows){return rows&&rows.length?rows[0]:null;}).catch(function(){return null;});}
+function cloudSync(first){cloudPull().then(function(row){if(!row){if(_sbOk&&first)cloudPush();return;}var v=row.value;if(v&&v.tasks&&(v._ts||0)>(S._ts||0)&&!_busy&&!document.querySelector(".mask")){S=v;applyMeta();try{localStorage.setItem(LK,JSON.stringify(S));}catch(e){}render(true);}else if(first&&v&&(v._ts||0)<(S._ts||0))cloudPush();});}
+setInterval(function(){cloudSync(false);},12000);
+
+function applyMeta(){var P=S.project=S.project||{};
+ if(META.name)P.name=META.name;if(META.address!=null)P.address=META.address;if(META.client!=null)P.client=META.client;if(META.clientCo!=null)P.clientCo=META.clientCo;
+ if(META.dms&&META.dms.length)P.dms=META.dms;P.pm=META.pm||P.pm||"";P.planner=META.planner||P.planner||"";P.type=META.type||P.type||"";PATH=META.pathway||PATH;
+ [P.pm,P.planner].concat(P.dms||[]).forEach(function(n){if(n&&OWNERS.indexOf(n)<0)OWNERS.push(n);});}
+window.addEventListener("message",function(e){var d=e.data||{};if(d.haavnMeta){META=d.haavnMeta;applyMeta();render(true);}});
+window.addEventListener("storage",function(e){if(e.key==="atrium_theme"&&e.newValue)document.documentElement.setAttribute("data-theme",e.newValue);});
+function supplyOwned(t){return PATH==="Modular"&&(t.phase==="cn"||t.phase==="fo");}
+function pathBanner(){if(PATH==="Modular")return'<div class="pathbanner"><span class="mono" style="color:var(--accent)">Modular</span><div><b>Delivered through HAAVN Supply.</b> Management runs planning, consultants and approvals. Construction and fitout are shown faded as the supply and install programme.</div></div>';
+ if(PATH==="Undecided")return'<div class="pathbanner"><span class="mono" style="color:var(--accent)">Pathway open</span><div><b>Client has not chosen modular or traditional yet.</b> The programme shows traditional construction as the planning baseline.</div></div>';return"";}
+/* ---------- helpers ---------- */
+function T_(id){return S.tasks.filter(function(t){return t.id===id;})[0];}
+function ph(id){return PHASES.filter(function(p){return p.id===id;})[0]||PHASES[0];}
+function isLate(t){return t.status!=="complete"&&d2n(t.end)<TODAY&&t.progress<100;}
+function projRange(){var a=1e9,b=-1e9;S.tasks.forEach(function(t){a=Math.min(a,d2n(t.start));b=Math.max(b,d2n(t.end));});return[a,b];}
+function lineFee(l){var q=l.quotes.filter(function(x){return x.id===l.sel;})[0];return q?q:{fee:0,status:"requested",firm:"",id:""};}
+function costs(){var c={signed:0,quoted:0,out:0,total:0,n:S.lines.length};S.lines.forEach(function(l){var q=lineFee(l);if(q.fee>0){c.total+=q.fee;if(q.status==="signed")c.signed+=q.fee;else c.quoted+=q.fee;}else c.out++;});return c;}
+function statTotal(){return S.stat.reduce(function(a,s){return a+s.fee;},0);}
+function phaseSpan(p){var ts=S.tasks.filter(function(t){return t.phase===p.id;});if(!ts.length)return null;var a=1e9,b=-1e9,pr=0;ts.forEach(function(t){a=Math.min(a,d2n(t.start));b=Math.max(b,d2n(t.end));pr+=t.progress;});return{a:a,b:b,pct:Math.round(pr/ts.length),n:ts.length};}
+function pcgDates(){var a=d2n(S.settings.pcgAnchor),out=[];for(var i=-4;i<40;i++)out.push(a+i*14);return out;}
+function nextPcg(){var ds=pcgDates();for(var i=0;i<ds.length;i++)if(ds[i]>=TODAY)return ds[i];return ds[ds.length-1];}
+function toast(m){var t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+function nextId(){var m=0;S.tasks.forEach(function(t){var n=+String(t.id).replace(/\D/g,"");if(n>m)m=n;});return"n"+(m+1+Math.floor(Math.random()*1000));}
+function canEdit(){return MODE==="dm";}
+function shiftTask(t,dd){t.start=n2d(d2n(t.start)+dd);t.end=n2d(d2n(t.end)+dd);}
+function pushSuccessors(id,seen){seen=seen||{};if(seen[id])return;seen[id]=1;var p=T_(id);S.tasks.forEach(function(t){if(t.deps.indexOf(id)>=0&&!seen[t.id]){var need=d2n(p.end)+(p.ms?0:0);if(d2n(t.start)<need){shiftTask(t,need-d2n(t.start));}pushSuccessors(t.id,seen);}});}
+
+/* ---------- shell ---------- */
+var VIEWS=[["overview","Overview"],["gantt","Programme"],["tasks","Tasks"],["consultants","Consultants and quotes"],["pcg","PCG meetings"],["report","Developer report"]];
+function renderNav(){document.getElementById("nav").innerHTML=VIEWS.map(function(v){return'<button data-v="'+v[0]+'" class="'+(view===v[0]?"on":"")+'">'+v[1]+"</button>";}).join("");
+ Array.prototype.forEach.call(document.querySelectorAll("#nav button"),function(b){b.onclick=function(){view=b.dataset.v;render();};});
+ document.getElementById("mDM").className=MODE==="dm"?"on":"";document.getElementById("mCL").className=MODE==="client"?"on":"";
+ document.getElementById("app").className="app"+(MODE==="client"?" client":"");}
+document.getElementById("mDM").onclick=function(){MODE="dm";try{localStorage.setItem(LK+"_mode",MODE);}catch(e){}render();};
+document.getElementById("mCL").onclick=function(){MODE="client";try{localStorage.setItem(LK+"_mode",MODE);}catch(e){}render();};
+document.getElementById("themeBtn").onclick=function(){var r=document.documentElement,n=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",n);try{localStorage.setItem("haavn_dm_theme",n);}catch(e){}};
+document.getElementById("hubBtn").onclick=function(){try{if(window.parent!==window)window.parent.postMessage("haavn-workflow-close","*");else history.back();}catch(e){}};
+function render(keepScroll){var m=document.getElementById("main"),sx=0,sy=0,g=document.getElementById("gw");if(g){sx=g.scrollLeft;sy=g.scrollTop;}var my=m.scrollTop;
+ renderNav();
+ var f={overview:vOverview,gantt:vGantt,tasks:vTasks,consultants:vConsultants,pcg:vPcg,report:vReport}[view];
+ window._fresh=!g;m.innerHTML=f();bind[view]&&bind[view]();
+ if(keepScroll||view==="gantt"){m.scrollTop=my;var g2=document.getElementById("gw");if(g2&&(sx||sy)){g2.scrollLeft=sx;g2.scrollTop=sy;}}
+}
+var bind={};
+
+/* ---------- overview (the client page) ---------- */
+function vOverview(){
+ var P=S.project,r=projRange(),c=costs(),total=r[1]-r[0],left=r[1]-TODAY,np=nextPcg();
+ var tasks=S.tasks,done=tasks.filter(function(t){return t.status==="complete";}).length;
+ var overall=Math.round(tasks.reduce(function(a,t){return a+t.progress;},0)/tasks.length);
+ function ms(id){var t=T_(id);return t?t.end:null;}
+ var key=[["Planning permit",ms("t4")],["Contractor award",ms("r4")],["Contract executed",ms("r11")],["Full building permit",ms("p7")],["Construction start",(T_("k1")||{}).start],["Practical completion",ms("f6")]];
+ var span=r[1]-r[0];
+ var strip=PHASES.map(function(p){var s=phaseSpan(p);if(!s)return"";var l=(s.a-r[0])/span*100,w=Math.max(.8,(s.b-s.a)/span*100);
+  return'<div class="bar-row"><div style="width:190px;flex:none"><div style="font-family:var(--serif);font-size:15px"><span class="dot" style="background:'+p.c+';display:inline-block;margin-right:8px"></span>'+p.label+'</div><div class="note">'+fmt(n2d(s.a),1)+" to "+fmt(n2d(s.b),1)+" · "+dur(s.b-s.a)+'</div></div><div class="track" style="height:16px"><i style="left:'+l+'%;width:'+w+'%;background:'+p.c+'"></i><span style="position:absolute;left:'+(((TODAY-r[0])/span)*100)+'%;top:0;bottom:0;width:2px;background:var(--red)"></span></div><div style="width:46px;text-align:right" class="mono">'+s.pct+'%</div></div>';}).join("");
+ var upcoming=tasks.filter(function(t){return t.ms&&t.status!=="complete";}).sort(function(a,b){return a.end<b.end?-1:1;}).slice(0,7);
+ var disc={};S.lines.forEach(function(l){var q=lineFee(l);disc[l.disc]=(disc[l.disc]||0)+q.fee;});
+ var top=Object.keys(disc).sort(function(a,b){return disc[b]-disc[a];}).filter(function(k){return disc[k]>0;}).slice(0,6);var mx=Math.max.apply(null,top.map(function(k){return disc[k];}).concat([1]));
+ return pathBanner()+'<div class="row wrap" style="align-items:flex-end"><div style="flex:1;min-width:280px"><div class="mono" style="color:var(--accent)">'+esc(P.type)+' · HAAVN Management</div><h1 style="margin-top:8px">'+esc(P.name)+'</h1><div class="sub">'+esc(P.address)+" · Client: "+esc(P.client)+" ("+esc(P.clientCo)+") · Development managers: "+P.dms.map(esc).join(" and ")+(P.pm?" · Project manager: "+esc(P.pm):"")+(P.planner?" · Planning and management: "+esc(P.planner):"")+'</div></div><div class="row noprint"><button class="btn" onclick="view=\'gantt\';render()">Open programme</button><button class="btn pri" onclick="view=\'report\';render()">Developer report</button></div></div>'+
+ '<div class="grid g4" style="margin-top:20px">'+
+ '<div class="card kpi"><div class="k mono">Programme start</div><div class="v">'+fmt(n2d(r[0]),1)+'</div><div class="d">Town planning documents begin</div></div>'+
+ '<div class="card kpi"><div class="k mono">Practical completion</div><div class="v">'+fmt(ms("f6")||n2d(r[1]),1)+'</div><div class="d">'+dur(r[1]-r[0])+' end to end · '+(left>0?dur(left)+" from today":"complete")+'</div></div>'+
+ '<div class="card kpi"><div class="k mono">Overall progress</div><div class="v">'+overall+'%</div><div class="d">'+done+" of "+tasks.length+' activities complete</div></div>'+
+ '<div class="card kpi"><div class="k mono">Consultant fees</div><div class="v">'+moneyK(c.total)+'</div><div class="d">'+moneyK(c.signed)+' signed · '+c.out+' of '+c.n+' fee lines awaiting quote</div></div></div>'+
+ '<div class="grid g2" style="margin-top:14px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">'+
+ '<div class="card"><h2>Phases and duration</h2><div class="note" style="margin:3px 0 10px">Red line is today. Full detail and drag-to-move timing on the Programme tab.</div>'+strip+'</div>'+
+ '<div class="card"><h2>Key dates</h2><div style="margin-top:8px">'+key.map(function(k){var d=k[1];var dd=d?d2n(d)-TODAY:0;return'<div class="bar-row"><div style="flex:1">'+k[0]+'</div><div style="text-align:right"><b>'+(d?fmt(d):"TBC")+'</b><div class="note">'+(d?(dd>0?"in "+dur(dd):"passed"):"")+'</div></div></div>';}).join("")+'</div></div></div>'+
+ '<div class="grid g2" style="margin-top:14px"><div class="card"><h2>Next decisions and milestones</h2><div style="margin-top:8px">'+upcoming.map(function(t){return'<div class="bar-row"><span class="dot" style="background:'+ph(t.phase).c+'"></span><div style="flex:1">'+esc(t.name)+'<div class="note">'+esc(t.owner)+'</div></div><div class="mono">'+fmt(t.end,1)+'</div></div>';}).join("")+'</div></div>'+
+ '<div class="card"><h2>Where the consultant budget sits</h2><div class="note" style="margin:3px 0 10px">Selected quote per line. Next PCG meeting: <b>'+fmt(n2d(np))+'</b></div>'+top.map(function(k){return'<div class="bar-row"><div style="width:140px">'+k+'</div><div class="track"><i style="left:0;width:'+(disc[k]/mx*100)+'%;background:var(--accent)"></i></div><div style="width:70px;text-align:right" class="mono">'+moneyK(disc[k])+'</div></div>';}).join("")+'</div></div>';
+}
+
+/* ---------- gantt ---------- */
+function vGantt(){
+ var r=projRange(),origin=r[0]-14,end=r[1]+30,W=Math.round((end-origin)*zoom),LW=300,RH=34,HH=56;
+ var rows=[];PHASES.forEach(function(p){var ts=S.tasks.filter(function(t){return t.phase===p.id;});if(!ts.length)return;rows.push({p:p});if(!collapsed[p.id])ts.sort(function(a,b){return d2n(a.start)-d2n(b.start)||d2n(a.end)-d2n(b.end);}).forEach(function(t){rows.push({t:t});});});
+ var X=function(n){return Math.round((n-origin)*zoom);};
+ /* header */
+ var hm="",hf="",gl="",cur=new Date(Date.UTC(new Date(origin*864e5).getUTCFullYear(),new Date(origin*864e5).getUTCMonth(),1));
+ while(cur.getTime()/864e5<end){var n=Math.round(cur.getTime()/864e5);hm+='<div class="hm" style="left:'+X(n)+'px">'+MON[cur.getUTCMonth()]+(cur.getUTCMonth()===0||n<=origin+31?" "+cur.getUTCFullYear():"")+'</div>';gl+='<div class="gl" style="left:'+X(n)+'px"></div>';cur=new Date(Date.UTC(cur.getUTCFullYear(),cur.getUTCMonth()+1,1));}
+ pcgDates().forEach(function(n){if(n<origin||n>end)return;gl+='<div class="gl pcg" style="left:'+X(n)+'px"></div>';if(14*zoom>=46)hf+='<div class="hf" style="left:'+X(n)+'px" title="PCG meeting '+fmt(n2d(n))+'">'+fmt(n2d(n),1)+'</div>';});
+ var H=rows.length*RH,body="",ypos={};
+ rows.forEach(function(rw,i){var y=i*RH;
+  if(rw.p){var s=phaseSpan(rw.p),l='<div class="grow ph"><div class="glabel" style="width:'+LW+'px" data-ph="'+rw.p.id+'"><span class="dot" style="background:'+rw.p.c+'"></span>'+(collapsed[rw.p.id]?"▸ ":"▾ ")+rw.p.label+' <span class="ow mono">'+s.pct+'%</span></div><div class="gchart" style="width:'+W+'px"><div class="psum" style="left:'+X(s.a)+'px;width:'+Math.max(4,(s.b-s.a)*zoom)+'px;background:'+rw.p.c+';color:'+rw.p.c+'"></div></div></div>';body+=l;ypos["ph"+rw.p.id]=y+RH/2;}
+  else{var t=rw.t,a=d2n(t.start),b=d2n(t.end),late=isLate(t),pc=ph(t.phase).c;ypos[t.id]=y+RH/2;
+   var base="";if(t.bs!==t.start||t.be!==t.end){var ba=d2n(t.bs),bb=d2n(t.be);base='<div class="base" title="Baseline '+fmt(t.bs,1)+' to '+fmt(t.be,1)+'" style="left:'+X(ba)+'px;width:'+Math.max(4,(bb-ba+1)*zoom)+'px"></div>';}
+   var el=t.ms?'<div class="msd s-'+t.status+(supplyOwned(t)?" sup":"")+(canEdit()?"":" ro")+'" data-id="'+t.id+'" style="left:'+(X(a)-9)+'px;background:'+(t.status==="complete"?"var(--green)":t.status==="delayed"?"var(--orange)":t.status==="critical"?"var(--red)":"var(--accent)")+'" title="'+esc(t.name)+'"></div>'
+    :'<div class="bar s-'+t.status+(late?" late":"")+(supplyOwned(t)?" sup":"")+(canEdit()?"":" ro")+'" data-id="'+t.id+'" style="left:'+X(a)+'px;width:'+Math.max(6,(b-a+1)*zoom)+'px"><div class="fill" style="width:'+t.progress+'%"></div><div class="h l"></div><span>'+((b-a+1)*zoom>90?esc(t.name):"")+'</span><div class="h r"></div></div>';
+   body+='<div class="grow"><div class="glabel" style="width:'+LW+'px"><span class="dot" style="background:'+pc+'"></span><span class="nm" data-open="'+t.id+'">'+esc(t.name)+'</span><span class="ow">'+(t.ms?fmt(t.end,1):esc(t.owner.split(" ")[0]))+'</span></div><div class="gchart" style="width:'+W+'px">'+base+el+'</div></div>';}
+ });
+ /* dependency lines */
+ var svg="",idx={};rows.forEach(function(rw,i){if(rw.t)idx[rw.t.id]=i;});
+ rows.forEach(function(rw){if(!rw.t)return;rw.t.deps.forEach(function(d){var p=T_(d);if(!p||idx[d]==null)return;var x1=p.ms?X(d2n(p.end))+9:X(d2n(p.end)+1),x2=rw.t.ms?X(d2n(rw.t.start))-9:X(d2n(rw.t.start)),y1=ypos[d],y2=ypos[rw.t.id],bad=d2n(rw.t.start)<d2n(p.end),col=bad?"#e0644f":"var(--ink-4)",m=Math.max(x1+7,x1+7);
+  svg+='<path d="M'+x1+" "+y1+" H"+(x2>=x1+10?x1+5:m)+" V"+y2+" H"+x2+'" fill="none" stroke="'+col+'" stroke-width="'+(bad?1.6:1)+'" opacity="'+(bad?1:.6)+'"/><path d="M'+x2+" "+y2+" l-5 -3 v6 z"+'" fill="'+col+'" opacity="'+(bad?1:.7)+'"/>';});});
+ var todayX=X(TODAY);
+ var inner='<div class="ginner" style="width:'+(LW+W)+'px"><div class="ghead" style="height:'+HH+'px"><div class="glabel mono" style="width:'+LW+'px">Activity</div><div class="gchart" style="width:'+W+'px;height:'+HH+'px">'+hm+hf+'</div></div><div style="position:relative">'+body+
+  '<div style="position:absolute;left:'+LW+'px;top:0;width:'+W+'px;height:'+H+'px;pointer-events:none">'+gl+'<div class="gl today" style="left:'+todayX+'px"></div><svg class="deps" width="'+W+'" height="'+H+'">'+svg+'</svg></div></div></div>';
+ var late=S.tasks.filter(isLate).length,moved=S.tasks.filter(function(t){return t.bs!==t.start||t.be!==t.end;}).length;
+ return pathBanner()+'<div class="row wrap" style="align-items:flex-end"><div style="flex:1;min-width:260px"><h1>Programme</h1><div class="sub">'+(canEdit()?"Drag a bar to move it, drag its ends to change duration. Click an activity name to edit.":"Read only view. Your DMs update this each fortnight.")+' <b>'+late+'</b> late · <b>'+moved+'</b> re-timed from baseline.</div></div></div>'+
+ '<div class="tools"><label>Zoom <select id="zoom">'+[[8,"Detail"],[4,"Standard"],[2,"Overview"],[1.1,"Whole project"]].map(function(z){return'<option value="'+z[0]+'"'+(zoom==z[0]?" selected":"")+'>'+z[1]+'</option>';}).join("")+'</select></label>'+
+ '<button class="btn" id="goToday">Jump to today</button><button class="btn" id="colAll">Collapse / expand all</button>'+
+ '<label class="dmonly"><input type="checkbox" id="casc"'+(S.settings.cascade?" checked":"")+'> Push dependent activities</label>'+
+ '<span class="sp"></span><button class="btn dmonly" id="addT">+ Activity</button><button class="btn dmonly" id="setBase" title="Lock the current dates as the baseline for variance">Set baseline to now</button></div>'+
+ '<div class="gwrap" id="gw">'+inner+'</div>'+
+ '<div class="legend"><span><i style="background:var(--green)"></i>Complete</span><span><i style="background:var(--accent)"></i>On track</span><span><i style="background:var(--orange)"></i>Delayed</span><span><i style="background:var(--red)"></i>Critical</span><span><i style="background:var(--slate)"></i>Not started</span><span><i style="background:var(--red);width:2px;height:12px"></i>Today</span><span><i style="background:var(--accent);opacity:.4;width:2px;height:12px"></i>PCG fortnightly meeting</span><span><i style="background:var(--ink-3);height:3px;vertical-align:2px"></i>Baseline position</span><span style="color:var(--red)">Red outline = past due</span></div>';
+}
+bind.gantt=function(){
+ var gw=document.getElementById("gw");
+ document.getElementById("zoom").onchange=function(e){zoom=+e.target.value;render();setTimeout(scrollToday,0);};
+ document.getElementById("goToday").onclick=scrollToday;
+ document.getElementById("colAll").onclick=function(){var any=PHASES.some(function(p){return!collapsed[p.id];});PHASES.forEach(function(p){collapsed[p.id]=any;});render(true);};
+ var ca=document.getElementById("casc");if(ca)ca.onchange=function(){S.settings.cascade=ca.checked;save();};
+ var ad=document.getElementById("addT");if(ad)ad.onclick=function(){editTask(null);};
+ var sb=document.getElementById("setBase");if(sb)sb.onclick=function(){if(!confirm("Lock today's dates as the new baseline? Variance will reset to zero."))return;S.tasks.forEach(function(t){t.bs=t.start;t.be=t.end;});S.settings.baselineAt=n2d(TODAY);save();render(true);toast("Baseline set");};
+ Array.prototype.forEach.call(document.querySelectorAll("[data-ph]"),function(e){e.onclick=function(){collapsed[e.dataset.ph]=!collapsed[e.dataset.ph];render(true);};});
+ Array.prototype.forEach.call(document.querySelectorAll("[data-open]"),function(e){e.onclick=function(){editTask(e.dataset.open);};});
+ /* drag */
+ var drag=null,tip=null;
+ gw.addEventListener("pointerdown",function(ev){var el=ev.target.closest(".bar,.msd");if(!el)return;ev.preventDefault();var t=T_(el.dataset.id);if(!t)return;
+  var mode=!canEdit()?"none":ev.target.classList.contains("l")?"l":ev.target.classList.contains("r")?"r":"m";
+  drag={t:t,el:el,mode:mode,x0:ev.clientX,a:d2n(t.start),b:d2n(t.end),dd:0,moved:false,left0:parseFloat(el.style.left),w0:parseFloat(el.style.width)||0};
+  try{el.setPointerCapture(ev.pointerId);}catch(e){}});
+ window.onpointermove=function(ev){if(!drag)return;if(drag.mode==="none")return;var dd=Math.round((ev.clientX-drag.x0)/zoom);if(Math.abs(ev.clientX-drag.x0)>3)drag.moved=true;if(!drag.moved)return;
+  var t=drag.t,el=drag.el;if(t.ms&&drag.mode!=="m")dd=0;
+  if(drag.mode==="l")dd=Math.min(dd,drag.b-drag.a);if(drag.mode==="r")dd=Math.max(dd,-(drag.b-drag.a));drag.dd=dd;
+  var na=drag.a,nb=drag.b;if(drag.mode==="m"){na+=dd;nb+=dd;}else if(drag.mode==="l")na+=dd;else nb+=dd;
+  el.style.left=(drag.left0+(na-drag.a)*zoom)+"px";if(!t.ms)el.style.width=Math.max(6,(nb-na+1)*zoom)+"px";
+  drag.na=na;drag.nb=nb;showTip(ev,fmt(n2d(na),1)+(t.ms?"":" to "+fmt(n2d(nb),1)+" · "+dur(nb-na+1)));};
+ window.onpointerup=function(ev){if(!drag)return;var d=drag;drag=null;hideTip();
+  if(!d.moved||d.mode==="none"){editTask(d.t.id,!canEdit());return;}
+  var t=d.t;if(d.dd===0){render(true);return;}
+  t.start=n2d(d.na);t.end=n2d(d.nb);if(t.ms)t.end=t.start;
+  if(S.settings.cascade)pushSuccessors(t.id);save();render(true);toast(esc(t.name)+": "+fmt(t.start,1)+(t.ms?"":" to "+fmt(t.end,1)));};
+ function showTip(ev,txt){if(!tip){tip=document.createElement("div");tip.className="tip";document.body.appendChild(tip);}tip.textContent=txt;tip.style.left=(ev.clientX+14)+"px";tip.style.top=(ev.clientY-34)+"px";}
+ function hideTip(){if(tip){tip.remove();tip=null;}}
+ if(window._fresh)scrollToday();
+};
+function scrollToday(){var g=document.getElementById("gw");if(!g)return;var r=projRange(),x=Math.round((TODAY-(r[0]-14))*zoom);g.scrollLeft=Math.max(0,x-260);}
+
+/* ---------- task editor ---------- */
+function editTask(id,ro){
+ var isNew=!id,t=isNew?{id:nextId(),name:"",phase:"cp",owner:"HAAVN Management",start:n2d(TODAY),end:n2d(TODAY+14),progress:0,status:"not-started",ms:false,deps:[],note:"",bs:n2d(TODAY),be:n2d(TODAY+14)}:JSON.parse(JSON.stringify(T_(id)));
+ if(!canEdit())ro=true;
+ var dis=ro?" disabled":"";
+ var depOpts=S.tasks.filter(function(x){return x.id!==t.id;}).map(function(x){return'<option value="'+x.id+'"'+(t.deps.indexOf(x.id)>=0?" selected":"")+'>'+esc(x.name)+'</option>';}).join("");
+ var m=document.createElement("div");m.className="mask";
+ m.innerHTML='<div class="modal"><h2>'+(isNew?"New activity":esc(t.name))+'</h2>'+
+ '<label class="f"><span class="mono">Activity</span><input type="text" id="e_name" value="'+esc(t.name)+'"'+dis+'></label>'+
+ '<div class="two"><label class="f"><span class="mono">Phase</span><select id="e_ph"'+dis+'>'+PHASES.map(function(p){return'<option value="'+p.id+'"'+(p.id===t.phase?" selected":"")+'>'+p.label+'</option>';}).join("")+'</select></label>'+
+ '<label class="f"><span class="mono">Owner</span><input type="text" id="e_ow" list="owl" value="'+esc(t.owner)+'"'+dis+'><datalist id="owl">'+OWNERS.map(function(o){return'<option value="'+o+'">';}).join("")+'</datalist></label></div>'+
+ '<div class="two"><label class="f"><span class="mono">Start</span><input type="date" id="e_s" value="'+t.start+'"'+dis+'></label><label class="f"><span class="mono">Finish</span><input type="date" id="e_e" value="'+t.end+'"'+dis+'></label></div>'+
+ '<div class="two"><label class="f"><span class="mono">Status</span><select id="e_st"'+dis+'>'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(s[0]===t.status?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select></label><label class="f"><span class="mono">Progress %</span><input type="number" id="e_p" min="0" max="100" value="'+t.progress+'"'+dis+'></label></div>'+
+ '<label class="f"><span class="mono">Follows (hold Cmd or Ctrl to pick several)</span><select id="e_d" multiple size="4"'+dis+'>'+depOpts+'</select></label>'+
+ '<label class="f"><span class="mono"><input type="checkbox" id="e_m"'+(t.ms?" checked":"")+dis+' style="width:auto"> Milestone (single date)</span></label>'+
+ '<label class="f"><span class="mono">Notes</span><textarea id="e_n"'+dis+'>'+esc(t.note)+'</textarea></label>'+
+ (t.bs!==t.start||t.be!==t.end?'<div class="note" style="margin-bottom:8px">Baseline: '+fmt(t.bs)+" to "+fmt(t.be)+" · now "+(d2n(t.end)-d2n(t.be)>=0?"+":"")+(d2n(t.end)-d2n(t.be))+' days</div>':'')+
+ '<div class="mfoot"><div>'+(!isNew&&!ro?'<button class="btn dng" id="e_del">Delete</button>':"")+'</div><div class="row"><button class="btn" id="e_x">'+(ro?"Close":"Cancel")+'</button>'+(ro?"":'<button class="btn pri" id="e_ok">Save</button>')+'</div></div></div>';
+ document.body.appendChild(m);_busy=true;
+ var close=function(){m.remove();_busy=false;};
+ m.onclick=function(e){if(e.target===m)close();};m.querySelector("#e_x").onclick=close;
+ var del=m.querySelector("#e_del");if(del)del.onclick=function(){if(!confirm("Delete this activity?"))return;S.tasks=S.tasks.filter(function(x){return x.id!==t.id;});S.tasks.forEach(function(x){x.deps=x.deps.filter(function(d){return d!==t.id;});});save();close();render(true);};
+ var ok=m.querySelector("#e_ok");if(ok)ok.onclick=function(){
+  var g=function(i){return m.querySelector(i);};if(!g("#e_name").value.trim()){toast("Give the activity a name");return;}
+  var nt={id:t.id,name:g("#e_name").value.trim(),phase:g("#e_ph").value,owner:g("#e_ow").value,start:g("#e_s").value,end:g("#e_e").value,status:g("#e_st").value,progress:Math.max(0,Math.min(100,+g("#e_p").value||0)),ms:g("#e_m").checked,deps:Array.prototype.map.call(g("#e_d").selectedOptions,function(o){return o.value;}),note:g("#e_n").value,bs:t.bs,be:t.be};
+  if(nt.ms)nt.end=nt.start;if(d2n(nt.end)<d2n(nt.start))nt.end=nt.start;if(nt.status==="complete")nt.progress=100;
+  if(isNew){nt.bs=nt.start;nt.be=nt.end;S.tasks.push(nt);}else S.tasks=S.tasks.map(function(x){return x.id===nt.id?nt:x;});
+  if(S.settings.cascade)pushSuccessors(nt.id);save();close();render(true);};
+}
+
+/* ---------- tasks ---------- */
+function vTasks(){
+ var ts=S.tasks.filter(function(t){return(!filt.status||t.status===filt.status)&&(!filt.phase||t.phase===filt.phase)&&(!filt.owner||t.owner===filt.owner);}).sort(function(a,b){return d2n(a.end)-d2n(b.end);});
+ var owners=Object.keys(S.tasks.reduce(function(o,t){o[t.owner]=1;return o;},{})).sort();
+ var cnt={};STATUSES.forEach(function(s){cnt[s[0]]=S.tasks.filter(function(t){return t.status===s[0];}).length;});
+ return'<h1>Task tracking</h1><div class="sub">Every programme activity with its owner, due date and status. Change status inline and the Gantt, report and PCG agenda update.</div>'+
+ '<div class="grid g4" style="margin-top:16px">'+STATUSES.map(function(s){return'<div class="card kpi" style="padding:14px 16px"><div class="k mono">'+s[1]+'</div><div class="v st-'+s[0]+'">'+cnt[s[0]]+'</div></div>';}).join("")+'</div>'+
+ '<div class="tools"><label>Status <select id="fs"><option value="">All</option>'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(filt.status===s[0]?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select></label><label>Phase <select id="fp"><option value="">All</option>'+PHASES.map(function(p){return'<option value="'+p.id+'"'+(filt.phase===p.id?" selected":"")+'>'+p.label+'</option>';}).join("")+'</select></label><label>Owner <select id="fo"><option value="">All</option>'+owners.map(function(o){return'<option'+(filt.owner===o?" selected":"")+'>'+esc(o)+'</option>';}).join("")+'</select></label><span class="sp"></span><button class="btn dmonly" id="addT2">+ Activity</button></div>'+
+ '<div class="card" style="padding:6px 10px"><table><tr><th>Activity</th><th>Phase</th><th>Owner</th><th>Start</th><th>Finish</th><th>Progress</th><th>Status</th></tr>'+
+ ts.map(function(t){var late=isLate(t);return'<tr class="click" data-id="'+t.id+'"><td><b>'+esc(t.name)+'</b>'+(t.ms?' <span class="pill">milestone</span>':"")+(late?' <span class="pill" style="color:var(--red)">past due</span>':"")+'</td><td><span class="dot" style="background:'+ph(t.phase).c+';display:inline-block;margin-right:6px"></span>'+ph(t.phase).label+'</td><td>'+esc(t.owner)+'</td><td>'+fmt(t.start,1)+'</td><td>'+fmt(t.end,1)+'</td><td><div class="pbar"><i style="width:'+t.progress+'%"></i></div></td><td>'+(canEdit()?'<select class="qs" data-id="'+t.id+'" style="width:auto;padding:4px 8px">'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(s[0]===t.status?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select>':'<span class="st-'+t.status+'">'+STATUSES.filter(function(s){return s[0]===t.status;})[0][1]+'</span>')+'</td></tr>';}).join("")+'</table></div>';
+}
+bind.tasks=function(){
+ ["fs:status","fp:phase","fo:owner"].forEach(function(p){var a=p.split(":");document.getElementById(a[0]).onchange=function(e){filt[a[1]]=e.target.value;render();};});
+ var a=document.getElementById("addT2");if(a)a.onclick=function(){editTask(null);};
+ Array.prototype.forEach.call(document.querySelectorAll("tr.click"),function(r){r.onclick=function(e){if(e.target.tagName==="SELECT")return;editTask(r.dataset.id);};});
+ Array.prototype.forEach.call(document.querySelectorAll(".qs"),function(s){s.onchange=function(){var t=T_(s.dataset.id);t.status=s.value;if(s.value==="complete")t.progress=100;save();render(true);};});
+};
+
+/* ---------- consultants and quotes ---------- */
+function vConsultants(){
+ var c=costs(),groups={},order=[];S.lines.forEach(function(l){if(!groups[l.disc]){groups[l.disc]=[];order.push(l.disc);}groups[l.disc].push(l);});
+ var rows=order.map(function(d){var ls=groups[d],sub=ls.reduce(function(a,l){return a+lineFee(l).fee;},0),out=ls.filter(function(l){return lineFee(l).fee===0;}).length;
+  var h='<tr class="grp"><td colspan="3">'+d+'</td><td class="num">'+(sub?money(sub):"")+'</td><td colspan="2" class="note">'+(out?out+" quote"+(out>1?"s":"")+" outstanding":"All priced")+'</td></tr>';
+  ls.forEach(function(l){var q=lineFee(l),o=open[l.id];
+   h+='<tr class="click" data-l="'+l.id+'"><td style="width:20px">'+(o?"▾":"▸")+'</td><td>'+esc(l.scope)+' <span class="note">'+esc(l.ref)+'</span></td><td>'+esc(q.firm)+(l.quotes.length>1?' <span class="pill">'+l.quotes.length+' quotes</span>':"")+'</td><td class="num">'+(q.fee?money(q.fee):'<span class="note">awaiting</span>')+'</td><td colspan="2"><span class="pill" style="color:'+(q.status==="signed"?"var(--green)":q.status==="quoted"?"var(--accent)":"var(--ink-3)")+'">'+({signed:"Signed",quoted:"Quoted",requested:"Requested"}[q.status])+'</span></td></tr>';
+   if(o){var low=Math.min.apply(null,l.quotes.filter(function(x){return x.fee>0;}).map(function(x){return x.fee;}).concat([Infinity]));
+    h+='<tr><td></td><td colspan="5" style="background:var(--row)"><div class="note" style="margin:4px 0 6px">'+(canEdit()?"Add each consultant's quote, then the client picks the preferred one.":"Pick the consultant you prefer. Your DMs will appoint them.")+'</div>'+
+     l.quotes.map(function(x){var diff=x.fee>0&&low<Infinity?x.fee-low:0;
+      return'<div class="quote"><input type="radio" name="r'+l.id+'" '+(l.sel===x.id?"checked":"")+' data-pick="'+l.id+'|'+x.id+'"><div>'+(canEdit()?'<input type="text" data-qf="'+l.id+'|'+x.id+'|firm" value="'+esc(x.firm)+'">':'<b>'+esc(x.firm)+'</b>')+(x.fee>0&&x.fee===low&&l.quotes.length>1?' <span class="pill" style="color:var(--green)">lowest</span>':"")+'</div>'+
+      '<div>'+(canEdit()?'<input type="number" data-qf="'+l.id+'|'+x.id+'|fee" value="'+(x.fee||"")+'" placeholder="Fee ex GST">':'<b>'+(x.fee?money(x.fee):"awaiting")+'</b>')+'</div><div class="note">'+(diff>0?"+"+money(diff)+" vs lowest":"")+'</div>'+
+      '<div>'+(canEdit()?'<select data-qf="'+l.id+'|'+x.id+'|status"><option value="requested"'+(x.status==="requested"?" selected":"")+'>Requested</option><option value="quoted"'+(x.status==="quoted"?" selected":"")+'>Quoted</option><option value="signed"'+(x.status==="signed"?" selected":"")+'>Signed</option></select>':"")+'</div>'+
+      '<div>'+(canEdit()&&l.quotes.length>1?'<button class="btn dng" data-qd="'+l.id+'|'+x.id+'" style="padding:3px 8px">×</button>':"")+'</div></div>';}).join("")+
+     (canEdit()?'<button class="btn" data-qa="'+l.id+'" style="margin:6px 0 8px">+ Add another quote</button>':"")+'</td></tr>';}
+  });return h;}).join("");
+ return'<div class="row wrap" style="align-items:flex-end"><div style="flex:1;min-width:260px"><h1>Consultants and quotes</h1><div class="sub">HAAVN Management obtains quotes for every discipline. The client chooses the preferred consultant and sees exactly what it will cost.</div></div><button class="btn noprint" id="csv">Export CSV</button></div>'+
+ '<div class="grid g4" style="margin-top:16px"><div class="card kpi"><div class="k mono">Total consultant fees</div><div class="v">'+money(c.total)+'</div><div class="d">Selected quote on each line, ex GST</div></div><div class="card kpi"><div class="k mono">Signed</div><div class="v" style="color:var(--green)">'+money(c.signed)+'</div><div class="d">Fee proposals executed</div></div><div class="card kpi"><div class="k mono">Quoted, not signed</div><div class="v" style="color:var(--accent)">'+money(c.quoted)+'</div><div class="d">Awaiting client decision</div></div><div class="card kpi"><div class="k mono">Quotes outstanding</div><div class="v" style="color:var(--orange)">'+c.out+'</div><div class="d">of '+c.n+' fee lines have no price yet</div></div></div>'+
+ '<div class="card" style="margin-top:14px;padding:6px 10px"><table><tr><th></th><th>Scope</th><th>Preferred consultant</th><th class="num">Fee</th><th colspan="2">Status</th></tr>'+rows+
+ '<tr class="grp"><td colspan="3">Statutory and council</td><td class="num">'+money(statTotal())+'</td><td colspan="2" class="note">Paid</td></tr>'+S.stat.map(function(s){return'<tr><td></td><td colspan="2">'+esc(s.name)+'</td><td class="num">'+money(s.fee)+'</td><td colspan="2"><span class="pill" style="color:var(--green)">Paid</span></td></tr>';}).join("")+
+ '<tr class="grp"><td colspan="3">Total consultants and statutory</td><td class="num">'+money(c.total+statTotal())+'</td><td colspan="2"></td></tr></table></div>'+
+ '<div class="note" style="margin-top:10px">Signed fees are from the executed fee proposals in the Preston cost stack. Lines marked awaiting have a consultant named but no price yet. Add competing quotes on any line with the + button.</div>';
+}
+bind.consultants=function(){
+ var q=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+ q("tr.click").forEach(function(r){r.onclick=function(){open[r.dataset.l]=!open[r.dataset.l];render(true);};});
+ q("[data-pick]").forEach(function(r){r.onchange=function(){var a=r.dataset.pick.split("|"),l=S.lines.filter(function(x){return x.id===a[0];})[0];l.sel=a[1];save();render(true);toast("Preferred consultant updated");};});
+ q("[data-qf]").forEach(function(i){i.onchange=function(){var a=i.dataset.qf.split("|"),l=S.lines.filter(function(x){return x.id===a[0];})[0],x=l.quotes.filter(function(z){return z.id===a[1];})[0];x[a[2]]=a[2]==="fee"?(+i.value||0):i.value;if(a[2]==="fee"&&x.fee>0&&x.status==="requested")x.status="quoted";save();render(true);};});
+ q("[data-qa]").forEach(function(b){b.onclick=function(){var l=S.lines.filter(function(x){return x.id===b.dataset.qa;})[0];l.quotes.push({id:"q"+Date.now(),firm:"New consultant",fee:0,status:"requested",note:""});save();render(true);};});
+ q("[data-qd]").forEach(function(b){b.onclick=function(){var a=b.dataset.qd.split("|"),l=S.lines.filter(function(x){return x.id===a[0];})[0];l.quotes=l.quotes.filter(function(z){return z.id!==a[1];});if(l.sel===a[1])l.sel=l.quotes[0].id;save();render(true);};});
+ document.getElementById("csv").onclick=function(){var out=[["Discipline","Scope","Fee ref","Preferred consultant","Fee ex GST","Status","Quotes received"]];S.lines.forEach(function(l){var x=lineFee(l);out.push([l.disc,l.scope,l.ref,x.firm,x.fee,x.status,l.quotes.length]);});
+  var csv=out.map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(",");}).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="preston-consultant-costs.csv";a.click();};
+};
+
+/* ---------- PCG meetings ---------- */
+function meetingFor(d){if(!S.meetings[d])S.meetings[d]={attendees:"John Dimattina, James Winstanley, Jamie Baldwin",notes:"",decisions:"",actions:[]};return S.meetings[d];}
+function vPcg(){
+ var ds=pcgDates().filter(function(n){return n>=TODAY-30;}).slice(0,14),np=nextPcg();if(!selMeeting)selMeeting=np;
+ var sel=selMeeting,m=meetingFor(n2d(sel)),w0=sel,w1=sel+14;
+ var active=S.tasks.filter(function(t){return d2n(t.start)<=w1&&d2n(t.end)>=w0&&t.status!=="complete"&&!t.ms;});
+ var starting=S.tasks.filter(function(t){return d2n(t.start)>=w0&&d2n(t.start)<w1&&t.status==="not-started";});
+ var mss=S.tasks.filter(function(t){return t.ms&&t.status!=="complete"&&d2n(t.end)>=w0&&d2n(t.end)<=w0+42;});
+ var lateT=S.tasks.filter(function(t){return isLate(t)||t.status==="delayed"||t.status==="critical";});
+ var out=S.lines.filter(function(l){return lineFee(l).fee===0;}),multi=S.lines.filter(function(l){return l.quotes.length>1&&lineFee(l).status!=="signed";});
+ var li=function(a,f){return a.length?"<ul class='ag'>"+a.slice(0,8).map(f).join("")+(a.length>8?"<li class='note'>and "+(a.length-8)+" more</li>":"")+"</ul>":'<div class="note">Nothing this fortnight.</div>';};
+ return'<h1>PCG meetings</h1><div class="sub">Project Control Group, every fortnight. Agenda is generated from the live programme, then actions flow back into tasks.</div>'+
+ '<div class="tools"><label>First meeting in series <input type="date" id="anchor" value="'+S.settings.pcgAnchor+'" '+(canEdit()?"":"disabled")+' style="width:auto"></label><span class="note">Meetings repeat every 14 days.</span></div>'+
+ '<div class="pcgwrap"><div class="mlist">'+ds.map(function(n){var mm=S.meetings[n2d(n)],na=mm?mm.actions.length:0;return'<button data-m="'+n+'" class="'+(n===sel?"on":"")+'"><div class="d">'+fmt(n2d(n))+(n===np?' <span class="pill" style="color:var(--accent)">next</span>':n<TODAY?' <span class="pill">held</span>':"")+'</div><div class="s">'+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][(n+4)%7]+(na?" · "+na+" actions":"")+'</div></button>';}).join("")+'</div>'+
+ '<div><div class="card"><div class="row wrap"><h2 style="flex:1">PCG '+fmt(n2d(sel))+'</h2><button class="btn noprint" id="mail">Email agenda</button></div>'+
+ '<div class="grid g2" style="margin-top:12px"><div><div class="mono" style="color:var(--accent);margin-bottom:6px">1. Programme this fortnight</div>'+li(active,function(t){return"<li>"+esc(t.name)+' <span class="note">'+esc(t.owner)+" · due "+fmt(t.end,1)+"</span></li>";})+
+ '<div class="mono" style="color:var(--accent);margin:12px 0 6px">2. Starting next</div>'+li(starting,function(t){return"<li>"+esc(t.name)+' <span class="note">'+fmt(t.start,1)+"</span></li>";})+
+ '<div class="mono" style="color:var(--accent);margin:12px 0 6px">3. Milestones in next 6 weeks</div>'+li(mss,function(t){return"<li>"+esc(t.name)+' <span class="note">'+fmt(t.end,1)+"</span></li>";})+'</div>'+
+ '<div><div class="mono" style="color:var(--red);margin-bottom:6px">4. Late, delayed or critical</div>'+li(lateT,function(t){return"<li>"+esc(t.name)+' <span class="note st-'+t.status+'">'+(isLate(t)?"past due "+fmt(t.end,1):t.status)+"</span></li>";})+
+ '<div class="mono" style="color:var(--accent);margin:12px 0 6px">5. Consultant quotes</div>'+(out.length?'<div class="note">'+out.length+' fee lines still awaiting a price.</div>':'<div class="note">All lines priced.</div>')+li(multi,function(l){return"<li>"+esc(l.disc+": "+l.scope)+' <span class="note">client to choose between '+l.quotes.length+" quotes</span></li>";})+'</div></div></div>'+
+ '<div class="card" style="margin-top:14px"><div class="mono" style="color:var(--accent);margin-bottom:8px">Minutes</div>'+
+ '<label class="f"><span class="mono">Attendees</span><input type="text" id="m_att" value="'+esc(m.attendees)+'"></label><label class="f"><span class="mono">Discussion</span><textarea id="m_notes">'+esc(m.notes)+'</textarea></label><label class="f"><span class="mono">Decisions</span><textarea id="m_dec" style="min-height:60px">'+esc(m.decisions)+'</textarea></label>'+
+ '<div class="mono" style="color:var(--accent);margin:4px 0 6px">Actions</div>'+m.actions.map(function(a,i){return'<div class="quote" style="grid-template-columns:24px 2fr 1.2fr 1fr 30px"><input type="checkbox" data-ad="'+i+'" '+(a.done?"checked":"")+'><input type="text" data-at="'+i+'" value="'+esc(a.text)+'"><input type="text" list="owl2" data-ao="'+i+'" value="'+esc(a.owner)+'"><input type="date" data-adt="'+i+'" value="'+(a.due||"")+'"><button class="btn dng" data-ax="'+i+'" style="padding:3px 8px">×</button></div>';}).join("")+
+ '<datalist id="owl2">'+OWNERS.map(function(o){return'<option value="'+o+'">';}).join("")+'</datalist><div class="row" style="margin-top:8px"><button class="btn" id="addA">+ Action</button><button class="btn dmonly" id="actTasks">Turn open actions into programme tasks</button></div></div></div></div>';
+}
+bind.pcg=function(){
+ var q=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));},m=meetingFor(n2d(selMeeting));
+ q("[data-m]").forEach(function(b){b.onclick=function(){selMeeting=+b.dataset.m;render();};});
+ var an=document.getElementById("anchor");an.onchange=function(){if(an.value){S.settings.pcgAnchor=an.value;selMeeting=null;save();render();}};
+ [["m_att","attendees"],["m_notes","notes"],["m_dec","decisions"]].forEach(function(p){document.getElementById(p[0]).onchange=function(e){m[p[1]]=e.target.value;save();};});
+ document.getElementById("addA").onclick=function(){m.actions.push({text:"New action",owner:"HAAVN Management",due:n2d(selMeeting+14),done:false});save();render(true);};
+ q("[data-ad]").forEach(function(e){e.onchange=function(){m.actions[+e.dataset.ad].done=e.checked;save();};});
+ q("[data-at]").forEach(function(e){e.onchange=function(){m.actions[+e.dataset.at].text=e.value;save();};});
+ q("[data-ao]").forEach(function(e){e.onchange=function(){m.actions[+e.dataset.ao].owner=e.value;save();};});
+ q("[data-adt]").forEach(function(e){e.onchange=function(){m.actions[+e.dataset.adt].due=e.value;save();};});
+ q("[data-ax]").forEach(function(e){e.onclick=function(){m.actions.splice(+e.dataset.ax,1);save();render(true);};});
+ var at=document.getElementById("actTasks");if(at)at.onclick=function(){var n=0;m.actions.forEach(function(a){if(a.done||a.task)return;S.tasks.push({id:nextId(),name:a.text,phase:"cp",owner:a.owner,start:n2d(selMeeting),end:a.due||n2d(selMeeting+14),progress:0,status:"not-started",ms:false,deps:[],note:"From PCG "+fmt(n2d(selMeeting)),bs:n2d(selMeeting),be:a.due||n2d(selMeeting+14)});a.task=true;n++;});save();render(true);toast(n+" actions added to the programme");};
+ document.getElementById("mail").onclick=function(){var P=S.project,body="PCG meeting "+fmt(n2d(selMeeting))+" · "+P.name+"\n\nProgramme and consultant status is in the HAAVN Management workflow.\nOutstanding quotes: "+S.lines.filter(function(l){return lineFee(l).fee===0;}).length+"\nLate or delayed activities: "+S.tasks.filter(function(t){return isLate(t)||t.status==="delayed"||t.status==="critical";}).map(function(t){return t.name;}).join("; ");location.href="mailto:?subject="+encodeURIComponent("PCG agenda "+fmt(n2d(selMeeting))+" · "+P.name)+"&body="+encodeURIComponent(body);};
+};
+
+/* ---------- developer report ---------- */
+function vReport(){
+ var P=S.project,r=projRange(),c=costs(),np=nextPcg(),late=S.tasks.filter(isLate),delayed=S.tasks.filter(function(t){return t.status==="delayed"||t.status==="critical";});
+ var slip=S.tasks.filter(function(t){return d2n(t.end)!==d2n(t.be);}).sort(function(a,b){return Math.abs(d2n(b.end)-d2n(b.be))-Math.abs(d2n(a.end)-d2n(a.be));});
+ var pc=T_("f6"),pcSlip=pc?d2n(pc.end)-d2n(pc.be):0;
+ var rag=late.length>3||delayed.some(function(t){return t.status==="critical";})?["var(--red)","Red"]:(late.length||delayed.length||c.out>10?["var(--orange)","Amber"]:["var(--green)","Green"]);
+ var next=S.tasks.filter(function(t){return d2n(t.end)>=TODAY&&d2n(t.start)<=TODAY+28&&t.status!=="complete";}).sort(function(a,b){return d2n(a.end)-d2n(b.end);});
+ var decs=[];S.lines.forEach(function(l){if(l.quotes.length>1&&lineFee(l).status!=="signed")decs.push("Choose consultant: "+l.disc+", "+l.scope);});S.tasks.forEach(function(t){if(t.ms&&t.owner==="Jamie Baldwin"&&t.status!=="complete")decs.push(t.name+" ("+fmt(t.end,1)+")");});
+ var ph_=PHASES.map(function(p){var s=phaseSpan(p);return s?'<tr><td><span class="dot" style="background:'+p.c+';display:inline-block;margin-right:7px"></span>'+p.label+'</td><td>'+fmt(n2d(s.a),1)+'</td><td>'+fmt(n2d(s.b),1)+'</td><td>'+dur(s.b-s.a)+'</td><td><div class="pbar"><i style="width:'+s.pct+'%"></i></div></td><td class="num">'+s.pct+'%</td></tr>':"";}).join("");
+ return'<div class="row wrap" style="align-items:flex-end"><div style="flex:1;min-width:260px"><div class="mono" style="color:var(--accent)">Developer report · fortnight to PCG '+fmt(n2d(np))+'</div><h1 style="margin-top:6px">'+esc(P.name)+'</h1><div class="sub">Prepared by HAAVN Management ('+P.dms.concat(P.pm?[P.pm]:[]).map(esc).join(", ")+') for '+esc(P.client)+', '+esc(P.clientCo)+' · '+fmt(n2d(TODAY))+'</div></div><button class="btn pri noprint" onclick="window.print()">Print or save as PDF</button></div>'+
+ '<div class="grid g4" style="margin-top:16px"><div class="card kpi"><div class="k mono">Programme health</div><div class="v"><span class="rag" style="background:'+rag[0]+'"></span>'+rag[1]+'</div><div class="d">'+late.length+' past due · '+delayed.length+' delayed or critical</div></div>'+
+ '<div class="card kpi"><div class="k mono">Practical completion</div><div class="v">'+(pc?fmt(pc.end,1):"TBC")+'</div><div class="d">'+(pcSlip?(pcSlip>0?"+":"")+pcSlip+" days vs baseline":"On baseline")+' · '+dur(r[1]-TODAY)+' to go</div></div>'+
+ '<div class="card kpi"><div class="k mono">Consultant fees</div><div class="v">'+moneyK(c.total)+'</div><div class="d">'+moneyK(c.signed)+' signed · '+c.out+' quotes outstanding</div></div>'+
+ '<div class="card kpi"><div class="k mono">Planning permit</div><div class="v">'+fmt((T_("t4")||{}).end||"",1)+'</div><div class="d">'+(((d2n(T_("t4").end)-d2n(T_("t4").be)))+" days vs baseline "+fmt(T_("t4").be,1))+'</div></div></div>'+
+ '<div class="card" style="margin-top:14px"><h2>Phases</h2><table style="margin-top:6px"><tr><th>Phase</th><th>Start</th><th>Finish</th><th>Duration</th><th>Progress</th><th class="num"></th></tr>'+ph_+'</table></div>'+
+ '<div class="grid g2" style="margin-top:14px"><div class="card"><h2>Next four weeks</h2><ul class="ag" style="margin-top:8px">'+(next.slice(0,12).map(function(t){return"<li>"+esc(t.name)+' <span class="note">'+esc(t.owner)+" · "+fmt(t.end,1)+"</span></li>";}).join("")||"<li>Nothing scheduled.</li>")+'</ul></div>'+
+ '<div class="card"><h2>Decisions needed from the client</h2><ul class="ag" style="margin-top:8px">'+(decs.slice(0,12).map(function(d){return"<li>"+esc(d)+"</li>";}).join("")||"<li>None this fortnight.</li>")+'</ul></div></div>'+
+ '<div class="grid g2" style="margin-top:14px"><div class="card"><h2>Variance to baseline</h2><div class="note" style="margin:3px 0 6px">Baseline set '+fmt(S.settings.baselineAt)+'</div>'+(slip.length?'<table>'+slip.slice(0,8).map(function(t){var v=d2n(t.end)-d2n(t.be);return'<tr><td>'+esc(t.name)+'</td><td class="num" style="color:'+(v>0?"var(--orange)":"var(--green)")+'">'+(v>0?"+":"")+v+' days</td></tr>';}).join("")+'</table>':'<div class="note">No variance.</div>')+'</div>'+
+ '<div class="card"><h2>Risks and watch items</h2><ul class="ag" style="margin-top:8px">'+(late.concat(delayed.filter(function(t){return late.indexOf(t)<0;})).slice(0,8).map(function(t){return"<li>"+esc(t.name)+' <span class="note">'+(isLate(t)?"past due "+fmt(t.end,1):t.status)+" · "+esc(t.owner)+"</span></li>";}).join("")||"<li>No open risks.</li>")+(c.out?"<li>"+c.out+" consultant fee lines have no price yet</li>":"")+'</ul></div></div>';
+}
+bind.report=function(){};
+
+/* ---------- boot ---------- */
+render();
+cloudSync(true);
+</script>
+</body>
+</html>
