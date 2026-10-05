@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HAAVN — Group Structure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{if(window.parent!==window)document.documentElement.classList.add("embed");}catch(e){document.documentElement.classList.add("embed");}</script>
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("atrium_theme")||"dark");window.addEventListener("storage",function(e){if(e.key==="atrium_theme"&&e.newValue)document.documentElement.setAttribute("data-theme",e.newValue);});}catch(e){document.documentElement.setAttribute("data-theme","dark");}</script>
 <style>
 :root{
@@ -571,12 +572,41 @@ footer .disc,footer p,footer b,footer div{color:var(--muted)}
 .dr-head h2{color:var(--ink)}.dr-head .roleline{color:var(--bronze-d)}
 .scrim{background:rgba(0,0,0,.5)}
 html[data-theme=dark]{color-scheme:dark}html[data-theme=light]{color-scheme:light}
+
+/* standalone full page: the same ATRIUM top bar, wordmark and back control as Workflow */
+.atopbar{display:flex;align-items:center;gap:14px;padding:12px 28px;position:sticky;top:0;z-index:90;background:rgba(11,13,15,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+html[data-theme=light] .atopbar{background:rgba(236,234,228,.86)}
+html.embed .atopbar{display:none}
+.atopbar .mbtn{position:relative;width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--sage);color:var(--ink);background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:border-color .3s,box-shadow .3s,background .3s}
+.atopbar .mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
+.atopbar .mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.atopbar .mbtn .halo circle{fill:none;stroke:#d6b36a;stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.atopbar .mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.atopbar .rail-wm{display:flex;align-items:center;font:100 15px/1 var(--font);letter-spacing:.28em;padding-left:.28em;color:var(--ink)}
+.atopbar .rail-wm .a{display:block;width:.62em;height:.7em;margin-right:.28em;flex:none}
+.atopbar .rail-wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+.atopbar .tb-title{font:300 20px/1 var(--font);color:var(--ink);margin-left:6px}
+.atopbar .tb-sub{font:400 10.5px var(--mono);letter-spacing:.16em;color:var(--sage);text-transform:uppercase;padding-left:14px;border-left:1px solid var(--line);white-space:nowrap}
+.atopbar .tb-right{margin-left:auto}
+.aseg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
+.aseg button{border:none;background:transparent;color:var(--sage);font:400 9.5px var(--mono);letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
+.aseg button.on{background:var(--ink);color:var(--paper)}
+html[data-theme=dark] .aseg button.on{background:rgba(255,255,255,.9);color:#000}
+@media(max-width:700px){.atopbar{padding:10px 14px}.atopbar .tb-sub{display:none}}
 </style>
 </head>
 <body>
 <button class="pageclose" id="pageClose" title="Close" aria-label="Close">
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
 </button>
+<div class="atopbar">
+  <button class="mbtn" id="aBack" type="button" title="Close" aria-label="Close"><svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg><svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg></button>
+  <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
+  <div class="tb-title">Group Structure</div>
+  <div class="tb-sub">HAAVN ADMINISTRATION · FULL PAGE</div>
+  <div class="tb-right"><div class="aseg" id="aSeg"><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div>
+</div>
 <div class="mast"><img class="mk" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="m-co">GROUP STRUCTURE</span><span class="sp"></span><span class="m-doc">Shareholder briefing</span></div>
 <header>
   <div class="title-block">
@@ -1055,6 +1085,20 @@ document.getElementById('pageClose').addEventListener('click',()=>{
     else{ alert('You can close this tab now.'); }
   },150);
 });
+</script>
+<script>
+(function(){
+ var seg=document.getElementById('aSeg');
+ function mark(){var t=document.documentElement.getAttribute('data-theme')||'dark';seg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});}
+ seg.addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(!b)return;document.documentElement.setAttribute('data-theme',b.dataset.t);try{localStorage.setItem('atrium_theme',b.dataset.t);}catch(x){}mark();});
+ window.addEventListener('storage',function(e){if(e.key==='atrium_theme')mark();});
+ mark();
+ document.getElementById('aBack').addEventListener('click',function(){
+  if(history.length>1&&document.referrer){history.back();return;}
+  try{window.close();}catch(e){}
+  setTimeout(function(){location.href='/';},150);
+ });
+})();
 </script>
 </body>
 </html>
