@@ -21,12 +21,12 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   // Pillars 01 (ATRIUM Workflow) and 02 (Meeting Management) each mount a
   // self-contained tool in an iframe; their top-bar "← Hub" posts a close
   // message to return, and we pin the page on mobile.
-  const isIframeTool = pillar.id === 'agenda' || pillar.id === 'workflow' || pillar.id === 'workflow-black'
+  const isIframeTool = pillar.id === 'agenda' || pillar.id === 'workflow' || pillar.id === 'workflow-black' || pillar.id === 'crm'
   useScrollLock(isIframeTool)
   useEffect(() => {
     if (!isIframeTool) return
     const onMsg = (e: MessageEvent) => {
-      if (e.data === 'haavn-agenda-close' || e.data === 'haavn-workflow-close' || e.data === 'haavn-black-atrium-close') onBack()
+      if (e.data === 'haavn-agenda-close' || e.data === 'haavn-workflow-close' || e.data === 'haavn-black-atrium-close' || e.data === 'haavn-crm-close') onBack()
       // Deep link from pillar 01: "open this specific meeting in pillar 02" — jump pillars,
       // carrying the meeting id so pillar 02 opens straight into its agenda.
       else if (e.data && typeof e.data === 'object' && e.data.type === 'haavn-open-meeting' && onOpenMeeting) onOpenMeeting(e.data.id)
@@ -46,15 +46,8 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
         {/* Consultants (external) get the full Management System EXCEPT the
             director-only Senior Management module (?role=consultant strips it). */}
-        <iframe title="ATRIUM — Management System" src={`/atrium-management.html${role === 'external' ? '?role=consultant' : ''}`}
+        <iframe title="ATRIUM — Management System" src={`/atrium-management.html?v=20261005a${role === 'external' ? '&role=consultant' : ''}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
-        {/* Top-left, under the Management System's own 58px topbar and clear of its
-            64px icon rail — where you look for a back control. It was bottom-right,
-            which read as a floating action rather than navigation. */}
-        <button onClick={onBack}
-          style={{ position: 'fixed', top: 70, left: 78, zIndex: 501, padding: '9px 16px', fontSize: 9, letterSpacing: '0.20em', textTransform: 'uppercase', fontWeight: 700, color: '#E8EDEF', background: 'rgba(10,13,12,0.94)', border: '1px solid #333b3f', borderRadius: 999, cursor: 'pointer', backdropFilter: 'blur(6px)', boxShadow: '0 8px 24px rgba(0,0,0,0.45)' }}>
-          ← Management Hub
-        </button>
       </div>
     )
   }
@@ -87,7 +80,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'agenda') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261005b${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
+        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261005c${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

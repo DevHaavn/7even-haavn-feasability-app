@@ -442,38 +442,77 @@ body.focus .present-nav{display:flex}
   .icon-btn{display:none}
 }
 @media print{.topbar,.tabs,.grid-tiles,.pacer,.toolbar,.attendees,.foot,.present-nav,.dots,.cbx,.addtask,.hero-controls{display:none!important}}
+
+/* ===== ATRIUM shell: identical layout to ATRIUM Workflow (tabs become the sidebar) ===== */
+:root{--serif:var(--sans);--at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0}
+.ambient{display:none!important}
+body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:auto 1fr;min-height:100vh;height:auto}
+.rail{grid-column:1;grid-row:1/4;background:var(--bg1);border-right:1px solid var(--line-2);display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:70}
+.rail-head{display:flex;align-items:center;gap:10px;padding:0 6px 18px}
+.rail .mbtn{width:34px;height:34px}
+.rail-wm{display:flex;align-items:center;font:100 15px/1 var(--sans);letter-spacing:.28em;padding-left:.28em;color:var(--ink)}
+.rail-wm .a{display:block;width:.62em;height:.7em;margin-right:.28em;flex:none}
+.rail-wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+.rail-group{--gc:var(--at-blue);display:block;font:600 9px var(--mono);letter-spacing:.24em;text-transform:uppercase;padding:6px 10px;margin:18px 4px 8px;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--gc) 85%,transparent);background:color-mix(in srgb,var(--gc) 20%,transparent);color:color-mix(in srgb,var(--gc) 60%,var(--ink))}
+[data-theme="light"] .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent);color:color-mix(in srgb,var(--gc) 30%,var(--ink))}
+.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-perf{--gc:var(--at-lilac)}.rail-group.g-brand{--gc:var(--at-teal)}
+.rail .tab{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 12px;border-radius:10px;font:400 12.5px var(--sans);color:var(--ink-2);background:none;border:none;cursor:pointer;transition:.18s}
+.rail .tab::after{display:none!important}
+.rail .tab .ri{width:16px;height:16px;flex:none;opacity:.85}
+.rail .tab:hover{background:var(--pill);color:var(--ink)}
+.rail .tab.on{background:var(--pill);color:var(--ink);font-weight:600}
+[data-theme="dark"] .rail .tab.on{box-shadow:0 0 0 1px rgba(243,242,238,.55),0 0 16px rgba(243,242,238,.18)}
+[data-theme="light"] .rail .tab.on{box-shadow:0 0 0 1px rgba(20,20,25,.55),0 0 16px rgba(20,20,25,.14)}
+.rail .tab .count{margin-left:auto;font:400 9.5px var(--mono);color:var(--ink-4);background:var(--pill);border-radius:100px;padding:1px 7px;height:auto;min-width:0}
+.rail .tab.on .count{background:var(--pill);color:var(--ink-3)}
+.rail .kbd-hint{margin:auto 4px 0;padding-top:14px}
+.topbar{grid-column:2;grid-row:1;position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;padding:14px 28px;background:rgba(11,13,15,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line-2)}
+[data-theme="light"] .topbar{background:rgba(236,234,228,.86)}
+.tb-title{font:300 20px/1 var(--sans);color:var(--ink)}
+[data-theme="dark"] .tb-title{color:#fff}
+.tb-sub{font:400 10.5px var(--mono);letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-left:2px;padding-left:14px;border-left:1px solid var(--line)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.railToggle{display:none;flex:none;width:36px;height:36px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);cursor:pointer}
+.railScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:65}
+.railScrim.on{display:block}
+.wrap{grid-column:2;grid-row:2;max-width:1320px;width:100%;margin:0 auto;padding:24px 28px 90px;min-width:0}
+@media(max-width:900px){body{grid-template-columns:1fr}.rail{position:fixed;left:0;top:0;bottom:0;width:230px;transform:translateX(-100%);transition:.3s}.rail.on{transform:none}.topbar,.wrap{grid-column:1}.railToggle{display:inline-flex}.tb-sub{display:none}.topbar{padding:12px 16px}.wrap{padding:16px 16px 90px}}
+.tb-sub,.topbar .clock,.topbar .saved{white-space:nowrap}
+@media(max-width:1180px){.tb-sub{display:none}}
 </style>
 </head>
 <body>
 <div class="ambient"></div>
+<div class="railScrim" id="railScrim" onclick="closeRail()"></div>
+<div class="rail" id="rail">
+  <div class="rail-head">
+    <button class="mbtn" onclick="hubBack()" title="Back to the hub" aria-label="Back to the hub">
+      <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
+      <svg class="chev" viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
+    </button>
+    <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
+  </div>
+  <div class="rail-group g-meet">Run the meeting</div>
+  <button class="tab on" data-tab="meetings"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/></svg>Meetings<span class="count n" id="cMtg">0</span></button>
+  <button class="tab" data-tab="agenda"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 4h6m-6 4 2 2 4-4"/></svg>Agenda</button>
+  <div class="rail-group g-perf">Track</div>
+  <button class="tab" data-tab="requests"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4v2"/></svg>Requests<span class="count n" id="cReq">0</span></button>
+  <button class="tab" data-tab="events"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/></svg>Events<span class="count n" id="cEvt">0</span></button>
+  <button class="tab" data-tab="actions"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 4h6m-6 4 2 2 4-4"/></svg>Actions<span class="count n" id="cAct">0</span></button>
+  <div class="rail-group g-brand">Record</div>
+  <button class="tab" data-tab="archive"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Archive<span class="count n" id="cArch">0</span></button>
+  <div class="kbd-hint" id="cmdHint"><span class="kbd">⌘ K</span> Quick add</div>
+</div>
 <div class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <button class="mbtn" onclick="hubBack()" title="Back to the hub" aria-label="Back to the hub">
-        <svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg>
-        <svg class="chev" viewBox="0 0 240 240" width="17" height="17"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>
-      </button>
-      <span class="wordmark"><span class="wm-a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</span>
-      <span class="mono pillar-tag">Pillar 02 · Meeting Management</span>
-    </div>
-    <div class="topbar-right">
+  <button class="railToggle" id="railToggle" onclick="toggleRail()" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="tb-title" id="tbTitle">Meetings</div>
+  <div class="tb-sub">PILLAR 02 · MEETING MANAGEMENT</div>
+  <div class="topbar-right">
       <span class="clock" id="clock">—</span>
       <span class="saved" id="savePill"><span class="dot"></span> <span id="saveTxt">Saved</span></span>
       <div class="seg" id="themeSeg"><button data-theme-set="dark">Dark</button><button data-theme-set="light" class="on">Light</button></div>
       <button class="icon-btn" id="focusBtn" title="Present / focus mode"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg></button>
     </div>
-  </div>
-</div>
-<div class="tabs">
-  <div class="tabs-inner">
-    <button class="tab on" data-tab="meetings">Meetings <span class="count" id="cMtg">0</span></button>
-    <button class="tab" data-tab="agenda">Agenda</button>
-    <button class="tab" data-tab="requests">Requests <span class="count" id="cReq">0</span></button>
-    <button class="tab" data-tab="events">Events <span class="count" id="cEvt">0</span></button>
-    <button class="tab" data-tab="actions">Actions <span class="count" id="cAct">0</span></button>
-    <button class="tab" data-tab="archive">Archive <span class="count" id="cArch">0</span></button>
-    <div class="kbd-hint" id="cmdHint"><span class="kbd">⌘ K</span> Quick add</div>
-  </div>
 </div>
 <div class="wrap">
 <section class="panel" id="p-agenda">
@@ -887,7 +926,7 @@ function switchTab(name){
      If this viewer isn't on that meeting, send them to the (already-filtered)
      Meetings list instead, without ever touching the shared currentId itself. */
   if(name==='agenda'&&!canSeeMeeting(cur())){toast('You\'re not on the current meeting\'s attendee list');name='meetings';}
-  tab=name;viewArchiveId=null;document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.tab===name);});document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name);});window.scrollTo({top:0,behavior:'smooth'});}
+  tab=name;viewArchiveId=null;try{var _T={meetings:'Meetings',agenda:'Agenda',requests:'Requests',events:'Events',actions:'Actions',archive:'Archive'};var _e=document.getElementById('tbTitle');if(_e)_e.textContent=_T[name]||name;closeRail();}catch(e){}document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.tab===name);});document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+name);});window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){switchTab(t.dataset.tab);};});
 document.getElementById('filters').addEventListener('click',function(e){var c=e.target.closest('.chip[data-filter]');if(!c)return;activeFilter=c.dataset.filter;this.querySelectorAll('.chip[data-filter]').forEach(function(x){x.classList.remove('on');});c.classList.add('on');renderDepts();});
 document.getElementById('fDate').addEventListener('change',function(){cur().date=this.value;save();renderHero();renderArchive();});
@@ -953,6 +992,8 @@ function clearSpot(){document.querySelectorAll('.dept').forEach(function(d){d.cl
 function spot(){clearSpot();var d=document.querySelectorAll('#depts .dept')[presentIdx];if(d){d.classList.add('spot');d.scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('presentLbl').textContent=DEPTS[presentIdx].name;}}
 function present(dir){presentIdx=Math.max(0,Math.min(DEPTS.length-1,presentIdx+dir));spot();}
 var toastT;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on');},2200);}
+function toggleRail(){var on=document.getElementById('rail').classList.toggle('on');document.getElementById('railScrim').classList.toggle('on',on);}
+function closeRail(){var r=document.getElementById('rail');if(r)r.classList.remove('on');var sc=document.getElementById('railScrim');if(sc)sc.classList.remove('on');}
 function hubBack(){try{if(window.parent&&window.parent!==window)window.parent.postMessage('haavn-agenda-close','*');}catch(e){}}
 function doUpdate(){try{if('caches'in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});}catch(e){}try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});});}catch(e){}var pv=location.search.indexOf('preview')>=0?'preview=1&':'';setTimeout(function(){location.replace(location.origin+location.pathname+'?'+pv+'u='+Date.now());},120);}
 var _celebT=null;
