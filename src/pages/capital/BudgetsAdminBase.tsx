@@ -98,7 +98,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
             same pattern as Book 01. No floating pill. */}
         <iframe
           title="ATRIUM — Accounts & Settlement"
-          src="/atrium-accounts.html?v=20261005c"
+          src="/atrium-accounts.html?v=20261005d"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
       </div>

@@ -730,8 +730,8 @@ const VIEWS={};
  VIEWS.structure=function(){
   return head('Group · Structure','Company structure','HAAVN × Hamilton Marino — group structure, entities and ownership.',
     '<a class="btn ghost" href="/haavn-x-hamilton-marino-structure.html" target="_blank" rel="noopener">Open full page ↗</a>')+
-  `<div class="card" style="padding:0;overflow:hidden;background:#eeece6">
-     <iframe title="HAAVN × Hamilton Marino — Group Structure" src="/haavn-x-hamilton-marino-structure.html?v=4"
+  `<div class="card" style="padding:0;overflow:hidden;background:transparent">
+     <iframe title="HAAVN × Hamilton Marino — Group Structure" src="/haavn-x-hamilton-marino-structure.html?v=20261005b"
        style="width:100%;height:calc(100vh - 210px);min-height:620px;border:0;display:block"></iframe>
    </div>`;
  };
@@ -802,7 +802,7 @@ function diagram(){
 /* ============ OVERVIEW ============ */
 VIEWS.overview=function(){
   /* Command — rebuilt consolidated-position page (fund-flows diagram, drawers, pause/reset, export). */
-  return `<iframe title="HAAVN — Consolidated Position" src="/haavn-command.html?v=20261005a" style="width:100%;height:calc(100vh - 118px);min-height:700px;border:0;display:block;background:transparent"></iframe>`;
+  return `<iframe title="HAAVN — Consolidated Position" src="/haavn-command.html?v=20261005b" style="width:100%;height:calc(100vh - 118px);min-height:700px;border:0;display:block;background:transparent"></iframe>`;
  const E=expenseSummary(), L=loanCalc();
  const contract=state.clients.reduce((s,c)=>s+contractTotal(c),0);
  const invoiced=state.clients.reduce((s,c)=>s+invoicedFor(c.id),0);

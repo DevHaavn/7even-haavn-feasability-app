@@ -4,15 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HAAVN — Group Structure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("atrium_theme")||"dark");window.addEventListener("storage",function(e){if(e.key==="atrium_theme"&&e.newValue)document.documentElement.setAttribute("data-theme",e.newValue);});}catch(e){document.documentElement.setAttribute("data-theme","dark");}</script>
 <style>
 :root{
   --paper:#eeece6;
   --paper-2:#f5f4ef;
   --ink:#1c1c1e;
-  --olive:#6b6c5c;
+  --olive:#9db8e8;
   --olive-d:#565646;
   --sage:#8f907f;
-  --bronze:#a9855c;
+  --bronze:#d6b36a;
   --bronze-d:#8a6a44;
   --line:#c9c7bd;
   --line-soft:#d9d7cd;
@@ -123,11 +125,11 @@ h1 .thin{font-weight:300;color:var(--olive)}
 .dot.hold{background:var(--olive)}
 .dot.agr{background:var(--bronze)}
 .dot.part{background:var(--sage)}
-.dot.jv{background:#3f5d54}
-.dot.mgmt{background:#9a8267}
-.dot.con{background:#6d7f88}
+.dot.jv{background:#a9d4b5}
+.dot.mgmt{background:#eeb0c4}
+.dot.con{background:#9fd3d0}
 .dot.black{background:#1b1b1d;border:1px solid #c7a76a}
-.dot.mkt{background:#b7b3a5}
+.dot.mkt{background:#b4bac4}
 /* ---------- CHART ---------- */
 .stage-wrap{
   padding:6px clamp(12px,3vw,40px) 30px;
@@ -194,10 +196,10 @@ svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z
 .node[data-type="hold"]::before{background:var(--olive)}
 .node[data-type="agr"]::before{background:var(--bronze)}
 .node[data-type="part"]::before{background:var(--sage)}
-.node[data-type="jv"]::before{background:#3f5d54}
-.node[data-type="mgmt"]::before{background:#9a8267}
-.node[data-type="con"]::before{background:#6d7f88}
-.node[data-type="mkt"]::before{background:#b7b3a5}
+.node[data-type="jv"]::before{background:#a9d4b5}
+.node[data-type="mgmt"]::before{background:#eeb0c4}
+.node[data-type="con"]::before{background:#9fd3d0}
+.node[data-type="mkt"]::before{background:#b4bac4}
 /* Black Series design-JV node (dark premium card) */
 .node.black{width:262px;background:linear-gradient(180deg,#232326,#1a1a1c);border-color:#3a3a34;color:#e8e7df}
 .node.black::before{background:#c7a76a}
@@ -215,7 +217,7 @@ svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z
 /* the JV hero node */
 .node.hero{width:360px;background:linear-gradient(180deg,#ffffff,#faf9f4);border-color:#c7c3b4}
 .node.hero h3{font-size:19px}
-.node.hero .cap{color:#3f5d54}
+.node.hero .cap{color:#a9d4b5}
 /* agreement pill node */
 .node.agreement{
   width:250px;background:#faf6ee;border:1px dashed var(--bronze);text-align:center;
@@ -230,7 +232,7 @@ svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z
 .spacer-side{flex:0 0 250px;width:250px;visibility:hidden}
 /* board card */
 .node.board{width:250px;background:#f3f4ef;border-color:#d3d5c8}
-.node.board::before{background:#3f5d54}
+.node.board::before{background:#a9d4b5}
 .seats{margin-top:10px;display:none;flex-direction:column;gap:6px}
 .node.board.open .seats{display:flex}
 .seat{
@@ -255,7 +257,7 @@ svg.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z
   padding:12px 14px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;
   transition:transform .2s,box-shadow .2s,border-color .2s,opacity .25s;text-align:left;position:relative;
 }
-.mnode::before{content:"";position:absolute;top:0;bottom:0;left:0;width:3px;background:#b7b3a5;border-radius:3px 0 0 3px}
+.mnode::before{content:"";position:absolute;top:0;bottom:0;left:0;width:3px;background:#b4bac4;border-radius:3px 0 0 3px}
 .mnode:hover{transform:translateX(3px);box-shadow:var(--shadow-lg);border-color:var(--olive)}
 .mnode.dim{opacity:.4}
 .mnode .ic{font-size:19px;line-height:1;color:var(--olive);flex:0 0 auto;width:22px;text-align:center}
@@ -375,7 +377,7 @@ h1 .thin{color:#bcbaa6}
 .mnode .mtxt h4{color:#f2f1ea}.mnode .mtxt p{color:#9d9c90}.mnode .ic{color:#bdbba7}
 .equity{color:#8f8e82}
 .equity .val{background:rgba(199,167,106,.14);color:#dcc190;border-color:#c7a76a}
-.band-title{color:#bcbaa6}.col-sub{color:#8f8e82}.tier-label{color:#8a897d}
+.band-title{color:#bcbaa6}.col-sub{color:#8f8e82}.tier-label{color:#b4bac4}
 /* black card stays dark, lift its border a touch */
 .node.black{background:linear-gradient(180deg,#212124,#161618);border-color:rgba(199,167,106,.4)}
 /* connectors */
@@ -409,7 +411,7 @@ footer{background:rgba(10,10,12,.72);backdrop-filter:blur(6px);-webkit-backdrop-
 
 /* ============ LIGHT FROM TITLE DOWN · DARK MASTHEAD ONLY ============ */
 :root{
-  --ink:#1c1c1e; --olive:#6b6c5c; --sage:#8f907f;
+  --ink:#1c1c1e; --olive:#9db8e8; --sage:#8f907f;
   --line:#c9c7bd; --line-soft:#d9d7cd; --paper:#eeece6;
 }
 body{
@@ -451,7 +453,7 @@ h1{color:var(--ink)} h1 .thin{color:var(--olive)}
 .chip{background:#eef0e9;border-color:#e0e2d8;color:var(--olive-d)}
 .chip.people{background:#f1ede6;border-color:#e6ddcf;color:var(--bronze-d)}
 .node.hero{background:linear-gradient(180deg,#ffffff,#faf9f4);border-color:#c7c3b4}
-.node.hero .cap{color:#3f5d54}
+.node.hero .cap{color:#a9d4b5}
 .node.agreement{background:#faf6ee;border-color:var(--bronze)}
 .node.agreement .cap{color:var(--bronze-d)}
 .node.board{background:#f3f4ef;border-color:#d3d5c8}
@@ -477,22 +479,22 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
 #tier-subs{gap:18px;align-items:flex-start}
 #tier-out{gap:34px;justify-content:space-between;align-items:flex-start;margin-top:54px}
 .node.subcard{width:250px}
-.node[data-type="sup"]::before{background:#2a2a2c}
-.node[data-type="lic"]::before{background:#6d5f8f}
-.node[data-type="tech"]::before{background:#b06a52}
-.node[data-type="ext"]::before{background:#8a897d}
-.node[data-type="hm"]::before{background:#c19a3f}
-.node[data-type="mgmt"]::before{background:#3f7d63}
-.dot.sup{background:#2a2a2c}.dot.lic{background:#6d5f8f}.dot.tech{background:#b06a52}
-.dot.ext{background:#8a897d}.dot.hm{background:#c19a3f}.dot.mgmt{background:#3f7d63}
+.node[data-type="sup"]::before{background:#b4bac4}
+.node[data-type="lic"]::before{background:#c0a9e4}
+.node[data-type="tech"]::before{background:#f0bf9a}
+.node[data-type="ext"]::before{background:#b4bac4}
+.node[data-type="hm"]::before{background:#e8d594}
+.node[data-type="mgmt"]::before{background:#eeb0c4}
+.dot.sup{background:#b4bac4}.dot.lic{background:#c0a9e4}.dot.tech{background:#f0bf9a}
+.dot.ext{background:#b4bac4}.dot.hm{background:#e8d594}.dot.mgmt{background:#eeb0c4}
 .jvsplit{margin-top:10px}
 .jvs-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;border:1px solid rgba(0,0,0,.12)}
 .jvs-bar i{display:block;height:100%}
-.jvs-bar .h{background:#3f5d54}.jvs-bar .m{background:#c19a3f}.jvs-bar .w{background:#6b6c5c}
+.jvs-bar .h{background:#a9d4b5}.jvs-bar .m{background:#e8d594}.jvs-bar .w{background:#9db8e8}
 .jvs-leg{display:flex;flex-direction:column;gap:5px;margin-top:8px;font-size:10.5px;color:var(--ink);line-height:1.35}
 .jvs-leg span{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
 .jvs-leg b{font-weight:800;min-width:30px}
-.jvs-leg span:nth-child(1) b{color:#3f5d54}.jvs-leg span:nth-child(2) b{color:#a3782a}.jvs-leg span:nth-child(3) b{color:#6b6c5c}
+.jvs-leg span:nth-child(1) b{color:#a9d4b5}.jvs-leg span:nth-child(2) b{color:#a3782a}.jvs-leg span:nth-child(3) b{color:#9db8e8}
 .jvs-leg em{flex-basis:100%;font-style:normal;color:var(--sage);font-size:9.5px;padding-left:36px}
 .own-line{margin-top:11px;font-size:11px;color:var(--bronze-d);font-weight:700;letter-spacing:.01em;line-height:1.45}
 .node.note{background:#f2f1ea;border-style:dashed;border-color:var(--sage)}
@@ -512,29 +514,70 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
   display:flex;align-items:center;justify-content:center;cursor:pointer;color:#232620;
   box-shadow:0 8px 20px rgba(0,0,0,.14);transition:.25s}
 .pageclose:hover{border-color:var(--bronze,#8a6a44);color:var(--bronze,#8a6a44);box-shadow:0 0 16px rgba(138,106,68,.25)}
+
+/* ===== ATRIUM look: same family as ATRIUM Workflow (overrides the moody-dark theme) ===== */
+:root{--paper:#0B0D0F;--ink:#F3F2EE;--muted:#b7b9bf;--sage:#7d818b;--olive:#b7b9bf;--olive-d:#b7b9bf;--line:rgba(255,255,255,.09);--line-soft:rgba(255,255,255,.055);--card:rgba(24,26,32,.62);--pill:rgba(255,255,255,.045);--bronze-d:#d6b36a;--bronze:#d6b36a;--font:"Inter",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;--shadow:none;--shadow-lg:0 20px 50px rgba(0,0,0,.4);--charcoal:#101216}
+html[data-theme=light]{--paper:#eceae4;--ink:#1a1b1e;--muted:#4a4d54;--sage:#83868e;--olive:#4a4d54;--olive-d:#4a4d54;--line:rgba(20,20,25,.10);--line-soft:rgba(20,20,25,.06);--card:rgba(255,255,255,.68);--pill:rgba(20,20,25,.04);--bronze-d:#8a7240;--bronze:#b89a5e;--charcoal:#f4f2ec;--shadow-lg:0 20px 50px rgba(20,20,25,.16)}
+body{background:var(--paper)!important;color:var(--ink);font-family:var(--font)}
+.pageclose{display:none!important}
+.mast{display:flex;align-items:center;gap:14px;padding:14px clamp(18px,4vw,54px);border-bottom:1px solid var(--line)}
+.mast .mk{height:15px;width:auto;display:block}
+html[data-theme=light] .mast .mk{filter:invert(1) brightness(.18)}
+.mast .m-co{font:600 10px var(--mono);letter-spacing:.24em;color:var(--sage)}
+.mast .sp{flex:1}
+.mast .m-doc{font:400 10px/1.7 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--sage)}
+header{padding-top:22px}
+h1{font-family:var(--font);font-weight:300;letter-spacing:0;color:var(--ink);font-size:clamp(26px,3.6vw,36px)}
+h1 .thin{color:var(--muted);font-weight:300}
+.subhead,.ctrl-note,.hint{color:var(--muted)}
+.hlogo{display:none}
+.cardmark{height:11px;filter:none;opacity:.9}
+html[data-theme=light] .cardmark{filter:invert(1) brightness(.18)}
+.seg{background:var(--pill);border-color:var(--line)}
+.seg button{color:var(--sage);font-weight:500;font-family:var(--mono);font-size:10px}
+.seg button.active{background:var(--ink);color:var(--paper);box-shadow:none}
+html[data-theme=dark] .seg button.active{background:rgba(255,255,255,.9);color:#000}
+.btn{background:var(--pill);border-color:var(--line);color:var(--ink);font-weight:500}
+.btn:hover{border-color:var(--sage);color:var(--ink)}
+.legend .li{color:var(--muted)}
+.node,.mnode{background:var(--card)!important;border-color:var(--line)!important;box-shadow:none!important;backdrop-filter:blur(14px)}
+.node:hover,.mnode:hover,.node.sel{border-color:var(--ink)!important;box-shadow:var(--shadow-lg)!important}
+.node h3,.mnode .mtxt h4{color:var(--ink);font-weight:500}
+.node .sub,.mnode .mtxt p{color:var(--muted)}
+.node .cap{color:var(--sage)}
+.chip{background:var(--pill);border-color:var(--line);color:var(--ink)}
+.chip.people{background:color-mix(in srgb,#d6b36a 22%,transparent);border-color:color-mix(in srgb,#d6b36a 55%,transparent);color:var(--bronze-d)}
+.node.hero{background:var(--card)!important;border-color:color-mix(in srgb,#a9d4b5 55%,transparent)!important}
+.node.hero .cap{color:var(--sage)}
+.node.agreement{background:color-mix(in srgb,#d6b36a 12%,var(--card))!important;border:1px dashed color-mix(in srgb,#d6b36a 60%,transparent)!important}
+.node.agreement .cap{color:var(--bronze-d)}
+.node.board{background:var(--pill)!important}
+.seat{background:var(--pill);border-color:var(--line)}
+.seat b{color:var(--ink)}.seat span{color:var(--sage)}
+.equity .val{background:var(--pill);border-color:var(--sage);color:var(--bronze-d)}
+.equity .val:focus{background:var(--card)}
+.wlabel{stroke:var(--paper);fill:var(--sage)}
+.wire.hot{stroke:var(--bronze)}
+.tier-label,.col-sub,.band-title{color:var(--sage)}
+footer{background:var(--pill);color:var(--muted);border-top:1px solid var(--line)}
+footer h4{color:var(--sage);border-bottom-color:var(--line)}
+footer .disc,footer p,footer b,footer div{color:var(--muted)}
+.drawer{background:var(--paper)!important;border-left:1px solid var(--line)}
+.dr-head{border-bottom-color:var(--line)}
+.dr-close{background:var(--pill);border-color:var(--line);color:var(--ink)}
+.dr-body .sec h5,.kv .k{color:var(--sage)}.dr-body .sec p{color:var(--muted)}
+.kv{border-bottom-color:var(--line)}.kv .v{color:var(--ink)}
+.flowbadge{background:var(--pill);border-color:var(--line);color:var(--bronze-d)}
+.dr-head h2{color:var(--ink)}.dr-head .roleline{color:var(--bronze-d)}
+.scrim{background:rgba(0,0,0,.5)}
+html[data-theme=dark]{color-scheme:dark}html[data-theme=light]{color-scheme:light}
 </style>
 </head>
 <body>
 <button class="pageclose" id="pageClose" title="Close" aria-label="Close">
   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
 </button>
-<div class="masthead">
-  <div class="brand-hero">
-    <div class="hero-cap"><b>HAAVN BLACK</b> — Precision Intelligence · Group Structure</div>
-  </div>
-  <div class="top-rule">
-    <div class="brand">
-      <div class="logo-wrap">
-        <div class="logo-row">
-          <img class="hlogo" src="data:image/png;base64,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" alt="HAAVN">
-        </div>
-        <span class="tagline">Partners in Precision</span>
-      </div>
-    </div>
-    <div class="top-spacer"></div>
-    <div class="doc-tag">Group Structure<br>Shareholder Briefing</div>
-  </div>
-</div>
+<div class="mast"><img class="mk" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="m-co">GROUP STRUCTURE</span><span class="sp"></span><span class="m-doc">Shareholder briefing</span></div>
 <header>
   <div class="title-block">
     <h1>Group Structure <span class="thin">&amp; Supply Chain</span></h1>
@@ -574,7 +617,7 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <!-- TIER 0 : CHINA SUPPLIERS -->
     <div class="tier">
       <div class="node" data-type="sup" id="n-suppliers">
-        <div class="cap"><span class="swatch" style="background:#2a2a2c"></span>Suppliers · Source (China)</div>
+        <div class="cap"><span class="swatch" style="background:#b4bac4"></span>Suppliers · Source (China)</div>
         <h3>China Suppliers</h3>
         <div class="sub">Precision manufacturing at source — modules &amp; building systems</div>
         <div class="chips"><span class="chip">CCIST</span><span class="chip">Sany</span><span class="chip">Zoomline</span><span class="chip">Others</span></div>
@@ -584,7 +627,7 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <!-- TIER 1 : WORLD TRADE HOLDINGS -->
     <div class="tier">
       <div class="node" data-type="hold" id="n-wth">
-        <div class="cap"><span class="swatch" style="background:#6b6c5c"></span>Holding · China Entities</div>
+        <div class="cap"><span class="swatch" style="background:#9db8e8"></span>Holding · China Entities</div>
         <h3>World Trade Holdings</h3>
         <div class="sub">Holds the exclusive agreements with the China entities (WTH)</div>
         <div class="chips"><span class="chip">Exclusive agreements</span></div>
@@ -595,7 +638,7 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <div class="tier" id="tier-lic">
       <div class="spacer-side" aria-hidden="true"></div>
       <div class="node" data-type="lic" id="n-license">
-        <div class="cap"><span class="swatch" style="background:#6d5f8f"></span>Exclusive Licence to WTH</div>
+        <div class="cap"><span class="swatch" style="background:#c0a9e4"></span>Exclusive Licence to WTH</div>
         <h3>Exclusive Licence</h3>
         <div class="sub">Held personally by the founders</div>
         <div class="chips"><span class="chip people">Lewis Jin</span><span class="chip people">Jamie Baldwin</span><span class="chip people">Daniel Sette</span></div>
@@ -610,7 +653,7 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <!-- TIER 3 : HAAVN PTY LTD (BRAND / IP HOLDCO) -->
     <div class="tier">
       <div class="node hero" data-type="lic" id="n-haavnpty">
-        <div class="cap"><img class="cardmark" src="data:image/png;base64,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" alt="HAAVN"><span class="swatch" style="background:#6d5f8f"></span>Brand / IP Holding Company</div>
+        <div class="cap"><img class="cardmark" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="swatch" style="background:#c0a9e4"></span>Brand / IP Holding Company</div>
         <h3>HAAVN PTY LTD</h3>
         <div class="sub">Branding &amp; IP company only — does not transact. Parent of the HAAVN subsidiaries (each its own company).</div>
         <div class="chips"><span class="chip">Brand &amp; IP only</span><span class="chip">Doesn't transact</span></div>
@@ -621,19 +664,19 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <!-- TIER 4 : FOUR SUBSIDIARIES -->
     <div class="tier" id="tier-subs">
       <div class="node subcard" data-type="mgmt" id="n-mgmt">
-        <div class="cap"><img class="cardmark" src="data:image/png;base64,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" alt="HAAVN"><span class="swatch" style="background:#3f7d63"></span>Subsidiary · Services</div>
+        <div class="cap"><img class="cardmark" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="swatch" style="background:#eeb0c4"></span>Subsidiary · Services</div>
         <h3>HAAVN Management</h3>
         <div class="sub">Management services to all HAAVN subsidiaries (each its own company)</div>
         <div class="own-line">Jin 33% · Baldwin 33% · Sette 33%</div>
       </div>
       <div class="node subcard" data-type="tech" id="n-tech">
-        <div class="cap"><img class="cardmark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAhoAAABiCAYAAAAWV3qjAAAOYElEQVR4nO3df6hfdR3H8ee3TTYdODF/oM3pQsVikWJo5FIyUBSLNCVEUmjDwMgfoX/MH6S0TDLQlBLFJEUo0FQSzAQduZQ2FiVlCyZNHSxQEhWWGzluf3zvYXfXfe/9nO/3fM7rvD/n9YAL+3HPeb/v9/u5n8/7+zmf8zmDZcuWY2ZmZpbDx9QJmJmZWblcaJiZmVk2LjTMzMwsGxcaZmZmlo0LDTMzM8vGhYaZmZll40LDrFsWqRMwM2vSqELjQWAqw5fNLcdr/qvE2Jdlip/j64+JP1OXjfrZds3xf8qvpn/O3F+3T5Bzn/wBbXtRtum/1cizJLn6+pFGFRoLJ/s5LKAP1QnUcAbwrjqJnpmk2FBYy/ADk9koK+lvsdGqUYVGpEHH+mkp8IE6iZ4Zp9gYAC82nUii1cDzotgWw0riFdHheI2GRbYY+J86iZ6ZAg6vecxZwAsZcklxNnC/KHYEC9QJdMQb6gRK5ksnFt1C/ImkbW+NccyXgY1NJ5LoSjyQ2NyW434kG89olC+1aNydNYv83Em0a5zX+/PAPU0nkmg58IwodpftUSfQMe5HMnChYZUS1uW4k2jXOK/3NcBzTSeS6Dy8+G82Xzr5KPcjDfNiUKuUcrnMnUS7xnm9zwVubTiPVCvxuh6bX8n9SOvju2c0ype6AVRJn2xK7iS6aAo4quYxt6ErNhbimY1KKR8wcii1H2n9PXehUT51R7JTFLfUTqKrdoxxzG3AuqYTSeTbGocOVifQcW4jDXChYZXFmc67jeFeCgp97CQGwF9FsaeAU2secwtwRYZcUvV9L5Zcv/cl6WM/0igXGlbJfenExUZ7ThHG3gwcV/OYR4Drmk8lyWL62UYq76kTCKLPbWRiLjTKl7rwJ9cljpm3zbrYaM8AeFwUexv1ZzbuZnhXiEof2wjEv629TX1tIxNzoVE+9RqN2VxstOcS4CVR7M3A12oe8yxwZvOpJOtjG7F63EbG4ELDKrk27tnfjIqLjfasAn4niv0kcFrNYzYwXKip0sc2YvW4jdQ0qtBY0moW1gW7Mp131KWbQcaYc+ljJ3E+ujUQG4Hrax7zKnBEhlxS9amNeM+k8fSpjUxsVKFxeqtZWMlWzPF/B7aWxb762EncjW777zuBH9Q85m2GT+hV6WMbsXrcRhKNKjS2t5qFlezoef5/gGblex87iWvQLbi8GXiw5jHvo7vMBv1oI37WyWT60EYmNqrQ2NpqFpaTesfPbQnfc0juJEboYyfxLHCxKPZq4IkxjnOxYV3mNjIPLwYtX+pdJ7nuTkl9pLgXiLbnN+guj17IeNt/u9iwLnMbmYMLjfJFWuw1QHM7Zh87iU3Ax0WxVwL/GOM4FxvWZW4jI7jQsEpX9ttYhaY46mMn8Q66uzs+xXjbf7vYsBSeIe0QFxrlUxcQqU+PnekA4NGmE0nQx07ibXSd8rjbf7vYsBQuNjpiVKHhlcj907VLLN9Es9HUFOMVR9FFG7yj5WsaLjY6YFShob5TwZqTWkDkKjQmGbTPB/7eVCI17AJOEsRVizZ4R8vXNFxs7Kv1D5W+dFK+1NmpXLNYk166+QywrolEatoCXCCIqxZt8I6Wr2m42BByoWG5NVE93wKsbeA8dT0NfEkQVy3a4B0tX9NwsTHU+ro9FxrlU186acodaJ7s+QLwfUFctWiDd7R8TcPFhoALjfKpN+xq0gY0G03dCnxXEFct2uAdLV/TUBYbB4liS7nQsEquBcBNr/3YBJzQ8DlT3AP8UhBXLdrgHS1f01C1k52iuFIuNKySazFojl+s19B0FFcAbwjiqkUbvKPlaxrKmY3TRLElXGiUL3XtRa4ZjZxrPxZnPPcoyxnvWR3RRRu8o+VrGqp2slEUV2JUoRHher3ZbjQdxUr6OZhEG7yj5WsantnIrO2C4qfTMWd+yq2TQ3XczGOqPy+Y/vMihgNQ9ffd+zmu+vS+Z/rP1WWD/eX1IWmXFWYfu4C9z5FYwvAppruBQxkOVC9Nn7c6/+UJMSJqo40N0HTsfwFOEcRVUr3WTMetOyhEy9c0VO1kI3A2sF4QuzWjBoFc091XZzpvRCtailPSXSdzUXQUJzP+YKIcACcVbfCOlq9pqNrJCwzHg9cFsVvhSydW2Z3pvG3uzxHtHvnIA1C0yxLR8jUNVTvZBlwrip3dqEKj65s3WTr1c2vaLlpdbLQn2uAdLV/TULWTuyh0zYbvOilf6kCvLkia5GKjPdEG72j5mobybpRrRbGzcaFRPvVlMNXsmIuN9kQbvKPlaxrKmY3rRbGzcKFhlVwbduU6bwoXG+2JNnhHy9c0VO3kTuBbotiNc6FRvpIuiYzDxUZ7og3e0fI1jQHwH0HcXwCPCeI2znedlC/1vTw4axZaLjbaE23wjpavaRwminsxcJModmN810n5Um9bzXV7a1e42GhPtME7Wr6mMQDeE8RdBzwviNsYXzqxyjvqBFoQsdjY2mQiLYo2eEfL1zQOYbirc9vOBv4kiNsIFxpW6ctajmjFxokMN/OJKNrgHS1f01gF7BLEPR34fQPnab2vd6FhlVx3h3TxMly0YuOTwHNNJtKiaIN3tHxN40Dg14K45wAfTHiO1u8EdKFRvtTqdVHWLLonWrFxLsNV6BFFG7yj5TuJvsxk5nApmssoi4HNgrhjc6FRPuU+Fl0XrdhYQ9wHE0YbvKPlO67FLcYq0SrgRUHcUwk0A+ZCw3Lr+q3S0YqNe4GrmkykRar9CMDFxiie0ZjcWcCPRLFDFBsuNMqnXiMRoSOLVmzcB5zRZCItUu1HAC42LJ8b0azZgADtxIWGVZZmOu+STOdtWrRi42Xg5AbzaNMAeFMU28WG5XIpsFoUu9PtxIWGVXLtDBppjUi0YuMVYEWTibToWOAtUWwXG3tF+v2M4CFgrSh2Z4sNFxrlS10jkavDUeykN4loxcbrDHOuviI5Es1+BOBiw/K5A7hCFLuT7cTPOrHKzkznVa8RGccATd6d7CQyOxB4XBR73GIj0kzMfCL+fkbwCMPdPBU614/4WSdWiTbzkNsBorhTwEGi2CqXEGvNxpGNZ5Gu6UGkb/vntGk98G1R7E4VG6MKjVyNb+CvkV+fm+B1bUKuGY3IVLdj7gQOF8RVOhb4uSh2n2c2PHud1wPASlHszhQbXqPRHX/OdF717FT0xWaHATsEcVWDmNJ30O1+OkX9BdFHEr/Y8AeM/F5Fdzv6/tpJZ551Uvojw/vEn1gm9wlR3M58ImnRGnTFxjiXD6NfRlF/EOmLl4Hlotiz20nrY4IXg5YvtXr1ez63AZoHm00BXxDEVVqDbvfTKeCYmscMgK0ZckkxabHh3/v2bEe35fvMdtKZQsP6J9csVoSdQVOdC2wRxFU8uEntPuBmUew3geNqHnMiutmBSYqNKBvqlWI3+pmN1m8p910n5UtdI5HrPY++RmO2TwN3CeJOAVcK4ir9EDhTFHsb9WeSDgCezJBLij5eZotqO9r9eh5uO6hnNLrji5nOq17sVdKMRuV7wK2CuPcDpwniKm1At9X6S8BlNY+5CG2xcWjNY/yhUifaBntjc6HRHepPq7mu25U2o1G5DbhOEHcjcLkgrtIr5HsWz3wepf7rfRG6y111b8dWfxDpu14UGy40uuPVTOdNnVHI9cmm5E9Md6PZ/e9h4MeCuErvo+uUHwZur3nMKrSPDj8+8XtL/SAQSfHFhguN7vinOoFMSl/Vvh44XRD3BuACQVw1Vae8luGlqzpuBJ7OkEuKrcBJothWX9HFhguN7ngq03nVn1hKntGobAKOFsR9GvitIK6aqlO+Enii5jFfZVgUKmwBThXFtvqKLTZcaJSvxMWYXfRvNB3FV4CbBHHVVJ3yhcAzNY/5CXB1hlxSbAa+Lopt9RVZbLjQKF/qpYu6q9Wbjl8KRUexDs9stOk84N2ax9wLrG4+lSSPA18Txbb6iis2XGhYxU9xbI5qZuNfgrhqqk55KfVf74fQPTr8SeBaUWyrr6hiw1uQW8XPt2mWoqNYATwmiKum6pRXUH+jrPXoio276OdltqiKKTY8o1G+1MWYLi6bp+goLqafu0QqO+Vxio0TciSSYB39uzU6siKKDW9BbhXvo5GHqqN4QxRXKVKx8RrDGRGFG4CfiWJbfeGLDX+KLV/q0wJdaOQzoP1ZhuXTMcN3UjUpXutK3df7deAI4K0s2cztKuAo4GBBbKtP2a4n5kKjfKlPZ8y134bb2JCqo3Cx0a66r/fb6PK9UBDTxhe22PAajfKlzij4cdH5KZ/Y2DeRLqNA/4pBG0/IduJCo3ypd5PkusThGY19udhoj4sNK1G4duJCo3ypBUSupzh6jcZHudhoT7RiwzOLliJUseFCo3ypMxreR6NdLjbaE6nY+C/BBhGTCdNOXGiUT72q3JdORnOx0Z5IxQYEGkRMKkQ7caFRvjPE8X3pZG4uNtrjYsNKtFSdwHxcaJRvS+L3eeZBx8VGe1xsWGnep+PtxIVG+bYnfp8fJ6/V6Y6iMNFe62j5mkZn90UZ9Sl2DfBAw7E2NXy+Es182FJ1yWEPe4uAhQwXbS6a/to5499nHrNw+s8LGT5XIcUm4Bz2LTiqBaLHACcD24D3GG6dfPx0bo9Pf8/SGcfunPG1ITG+DQeUy2b92+wCcA973//q79X7vojRG6/tmnWOvhsAnwVWJn7/zN+tmar3Z/ZrOvPfR31PHVXbWDJ9vtnnWsTw93IHw9+7mf9/EMNnqxzKcOvzHeztR6rvm32Jc3+XPPfM+v+FI76vzuXS6ueqzreIyRem57qDruueYvh6foN935uZbXbBrL/Pfq9Gvafztd053/PBsmXL5znezMzMbDy+dGJmZmbZuNAwMzOzbFxomJmZWTYuNMzMzCwbFxpmZmaWjQsNMzMzy+b/lbpPDzk/IRMAAAAASUVORK5CYII=" alt="HAAVN"><span class="swatch" style="background:#b06a52"></span>Subsidiary · Independent</div>
+        <div class="cap"><img class="cardmark" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="swatch" style="background:#f0bf9a"></span>Subsidiary · Independent</div>
         <h3>HAAVN Technologies</h3>
         <div class="sub">Independent company — supplies tech products into the HAAVN supply chain</div>
         <div class="own-line">Ownership equal: Lewis Jin · Jamie Baldwin · Daniel Sette</div>
       </div>
-      <div class="node subcard" data-type="jv" id="n-jv" style="border-color:#3f5d54">
-        <div class="cap"><img class="cardmark" src="data:image/png;base64,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" alt="HAAVN"><span class="swatch" style="background:#3f5d54"></span>Main Supply Company</div>
+      <div class="node subcard" data-type="jv" id="n-jv" style="border-color:#a9d4b5">
+        <div class="cap"><img class="cardmark" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="swatch" style="background:#a9d4b5"></span>Main Supply Company</div>
         <h3>HAAVN INTEGRATIONS PTY LTD</h3>
         <div class="sub">Main supply company — modules to all HAAVN subsidiaries &amp; external parties</div>
         <div class="own-line">Shareholding</div>
@@ -661,7 +704,7 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
       </div>
       <div class="node black" id="n-black">
         <div class="cap"><span class="swatch" style="background:#c7a76a"></span>Subsidiary · Independent</div>
-        <div class="blacklock"><img class="bl-mark" src="data:image/png;base64,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" alt="HAAVN"><span class="bl-word">BLACK</span></div>
+        <div class="blacklock"><img class="bl-mark" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="bl-word">BLACK</span></div>
         <div class="bl-ptyltd">Haavn Precision Technologies Pty Ltd?</div>
         <div class="sub">Independent company, own revenue · modular homes — Black Series</div>
         <div class="split">
@@ -675,17 +718,17 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
     <!-- TIER 5 : IP NOTE · EXTERNAL SUPPLY · DELIVERY PARTNER -->
     <div class="tier" id="tier-out">
       <div class="node note" data-type="ip" id="n-ip">
-        <div class="cap"><span class="swatch" style="background:#8a897d"></span>Open Item</div>
+        <div class="cap"><span class="swatch" style="background:#b4bac4"></span>Open Item</div>
         <h3>IP Layering</h3>
         <div class="sub">Supplier IP stays with suppliers · build partner background IP stays with the build partner · foreground / JV IP needs its own rule (open item)</div>
       </div>
       <div class="node" data-type="ext" id="n-external">
-        <div class="cap"><span class="swatch" style="background:#8a897d"></span>External · Outside Group</div>
+        <div class="cap"><span class="swatch" style="background:#b4bac4"></span>External · Outside Group</div>
         <h3>External Supply</h3>
         <div class="sub">Modules sold to external parties, outside the HAAVN group</div>
       </div>
       <div class="node" data-type="hm" id="n-hm">
-        <div class="cap"><span class="swatch" style="background:#c19a3f"></span>Separate Company · Exclusive Delivery Partner</div>
+        <div class="cap"><span class="swatch" style="background:#e8d594"></span>Separate Company · Exclusive Delivery Partner</div>
         <h3>Hamilton Marino Pty Ltd</h3>
         <div class="sub">Exclusive delivery partner to HAAVN Integrations · a separate company, outside the HAAVN group</div>
         <div class="own-line">Ownership: its own directors · not part of the HAAVN group</div>
@@ -726,42 +769,42 @@ footer{background:var(--charcoal);backdrop-filter:none;-webkit-backdrop-filter:n
 <script>
 /* ---------- DATA ---------- */
 const NODES = {
-  "n-suppliers":{cap:"Suppliers · Source (China)",color:"#2a2a2c",title:"China Suppliers",role:"Manufacturing at source",
+  "n-suppliers":{cap:"Suppliers · Source (China)",color:"#b4bac4",title:"China Suppliers",role:"Manufacturing at source",
     own:"The manufacturing sources in China — CCIST, Sany, Zoomline and others. Top of the supply chain.",
     resp:"Precision manufacturing of modules and building systems supplied into the group via World Trade Holdings.",
     kv:[["Suppliers","CCIST · Sany · Zoomline · Others"],["Territory","China"],["Role","Manufacture / OEM"]],
     flow:["Supplies → World Trade Holdings"]},
-  "n-wth":{cap:"Holding · China Entities",color:"#6b6c5c",title:"World Trade Holdings",role:"Holds exclusive China agreements",
+  "n-wth":{cap:"Holding · China Entities",color:"#9db8e8",title:"World Trade Holdings",role:"Holds exclusive China agreements",
     own:"WTH holds the exclusive agreements with the China entities.",
     resp:"Secures exclusive supply from the China suppliers and grants the exclusive licence to the founders.",
     kv:[["Type","Holding company"],["Holds","Exclusive China agreements"],["Grants","Exclusive licence"],["Shareholding","10% of HAAVN Integrations Pty Ltd"]],
     flow:["Supplied by ← China Suppliers","Grants licence → Founders","Holds 10% → HAAVN Integrations"]},
-  "n-license":{cap:"Exclusive Licence to WTH",color:"#6d5f8f",title:"Exclusive Licence",role:"Held personally by the founders",
+  "n-license":{cap:"Exclusive Licence to WTH",color:"#c0a9e4",title:"Exclusive Licence",role:"Held personally by the founders",
     own:"The exclusive licence to WTH, held personally by the three founders — Lewis Jin, Jamie Baldwin and Daniel Sette.",
     resp:"Founders hold the exclusive rights, own HAAVN Pty Ltd (brand/IP) and grant a sub-licence / supply agreement directly into the JV.",
     kv:[["Licensees","Lewis Jin"],["","Jamie Baldwin"],["","Daniel Sette"],["Grants","Sub-licence into JV"]],
     flow:["Licensed by ← World Trade Holdings","Own → HAAVN Pty Ltd","Grant → Sub-Licence / Supply Agreement"]},
-  "n-sublicense":{cap:"Sub-Licence / Supply Agreement",color:"#a9855c",title:"Sub-Licence & Supply",role:"Direct supply security into the JV",
+  "n-sublicense":{cap:"Sub-Licence / Supply Agreement",color:"#d6b36a",title:"Sub-Licence & Supply",role:"Direct supply security into the JV",
     own:"A sub-licence / supply agreement granted personally by LJ / JB / DS. Gives direct supply security into the JV; the head WTH agreement itself is untouched.",
     resp:"Provides a direct guarantee of supply into HAAVN Integrations (and HAAVN Black) without disturbing the head licence.",
     kv:[["Instrument","Sub-licence / supply agreement"],["Granted by","LJ / JB / DS (personally)"],["Secures","Direct supply into the JV"],["Head agreement","Untouched"]],
     flow:["Granted by ← Founders","Direct guarantee → HAAVN Integrations","Direct guarantee → HAAVN Black"]},
-  "n-haavnpty":{cap:"Brand / IP Holding Company",color:"#6d5f8f",title:"HAAVN Pty Ltd",role:"Branding & IP only — does not transact",
+  "n-haavnpty":{cap:"Brand / IP Holding Company",color:"#c0a9e4",title:"HAAVN Pty Ltd",role:"Branding & IP only — does not transact",
     own:"The branding and IP company only — it does not transact. It is the parent of the HAAVN subsidiaries. Owned 50% by the Jin Family, 25% Baldwin, 25% Sette.",
     resp:"Holds the HAAVN brand and IP and sits above the operating subsidiaries. It does not trade itself.",
     kv:[["Entity","Pty Ltd (AU)"],["Role","Brand / IP holdco"],["Transacts","No"],["Jin Family","50%"],["Baldwin","25%"],["Sette","25%"]],
     flow:["Owned by ← Founders","Parent of → HAAVN Management","Parent of → HAAVN Technologies","Parent of → HAAVN Integrations","Parent of → HAAVN Black"]},
-  "n-mgmt":{cap:"Subsidiary · Services",color:"#3f7d63",title:"HAAVN Management",role:"Management services to all subsidiaries",
+  "n-mgmt":{cap:"Subsidiary · Services",color:"#eeb0c4",title:"HAAVN Management",role:"Management services to all subsidiaries",
     own:"A HAAVN subsidiary (its own company) providing management services to all HAAVN subsidiaries. Shareholding split evenly.",
     resp:"Provides management services across every HAAVN subsidiary.",
     kv:[["Entity","Pty Ltd (AU)"],["Provides","Management services to all subs"],["Jin","33%"],["Baldwin","33%"],["Sette","33%"]],
     flow:["Parent ← HAAVN Pty Ltd","Services → all HAAVN subsidiaries"]},
-  "n-tech":{cap:"Subsidiary · Independent",color:"#b06a52",title:"HAAVN Technologies",role:"Supplies tech into the supply chain",
+  "n-tech":{cap:"Subsidiary · Independent",color:"#f0bf9a",title:"HAAVN Technologies",role:"Supplies tech into the supply chain",
     own:"An independent HAAVN company that supplies tech products into the HAAVN supply chain. Ownership equal between the founders.",
     resp:"Supplies technology products into the HAAVN supply chain, used across the subsidiaries.",
     kv:[["Entity","Pty Ltd (AU)"],["Supplies","Tech products into supply chain"],["Ownership","Equal — LJ / JB / DS"]],
     flow:["Parent ← HAAVN Pty Ltd","Supplies tech → all HAAVN subsidiaries"]},
-  "n-jv":{cap:"Main Supply Company",color:"#3f5d54",title:"HAAVN Integrations Pty Ltd",role:"Main supply company — modules to subs & external",
+  "n-jv":{cap:"Main Supply Company",color:"#a9d4b5",title:"HAAVN Integrations Pty Ltd",role:"Main supply company — modules to subs & external",
     own:"The main supply company — supplies modules to all HAAVN subsidiaries and to external parties. Governed by a board of six directors, three HAAVN and three SMJ Housing. Owned 50% by the HAAVN directors (Daniel Sette, Lewis Jin, Jamie Baldwin), 40% by SMJ Housing Pty Ltd (Matt Green, Shaun O'Connell, Jan David Storm), and 10% by World Trade Holdings.",
     resp:"Manufactures / assembles and supplies modules across the group and to the external market. Engages its exclusive build partner; receives a direct supply guarantee via the sub-licence.",
     kv:[["Entity","HAAVN Integrations Pty Ltd"],["Role","Main supply company"],["Supplies","HAAVN subs & external parties"],["HAAVN Directors","50%"],["","Daniel Sette · Lewis Jin · Jamie Baldwin"],["SMJ Housing Pty Ltd","40%"],["","Matt Green · Shaun O'Connell · Jan David Storm"],["SMJ Housing ABN","60 670 377 554"],["World Trade Holdings","10%"],["Board","6 directors (3 HAAVN · 3 SMJ Housing)"]],
@@ -771,17 +814,17 @@ const NODES = {
     resp:"Runs the modular-homes Black Series line as an independent revenue business, fed by modules from the supply JV.",
     kv:[["Working name","Haavn Precision Technologies Pty Ltd?"],["Product","Modular homes — Black Series"],["Revenue","Independent / own"],["HAAVN SH","75%"],["Fraser","25% (TBC)"]],
     flow:["Parent ← HAAVN Pty Ltd","Supplied modules ← HAAVN Integrations","Direct guarantee ← Sub-Licence"]},
-  "n-external":{cap:"External · Outside Group",color:"#8a897d",title:"External Supply",role:"Modules sold outside the HAAVN group",
+  "n-external":{cap:"External · Outside Group",color:"#b4bac4",title:"External Supply",role:"Modules sold outside the HAAVN group",
     own:"Modules sold to external parties, outside the HAAVN group — third-party revenue for the supply JV.",
     resp:"Third-party sales channel for modules produced by HAAVN Integrations.",
     kv:[["Channel","External / third-party"],["Product","Modules"],["Supplied by","HAAVN Integrations Pty Ltd"]],
     flow:["Supplied by ← HAAVN Integrations"]},
-  "n-hm":{cap:"Separate Company · Exclusive Delivery Partner",color:"#c19a3f",title:"Hamilton Marino Pty Ltd",role:"Exclusive delivery partner",
+  "n-hm":{cap:"Separate Company · Exclusive Delivery Partner",color:"#e8d594",title:"Hamilton Marino Pty Ltd",role:"Exclusive delivery partner",
     own:"A separate company, outside the HAAVN group: the exclusive delivery partner to HAAVN Integrations Pty Ltd. Owned by its own directors.",
     resp:"Installs and builds on the ground as the exclusive build partner — one of Australia's largest builders.",
     kv:[["Type","Head contractor / builder"],["Role","Exclusive delivery partner"],["Relationship","Separate company · not a shareholder"],["Ownership","Its own directors"],["Track record","$2B+ delivered"]],
     flow:["Engaged by ← HAAVN Integrations","Builds → group & external projects"]},
-  "n-ip":{cap:"Open Item",color:"#8a897d",title:"IP Layering",role:"IP ownership rules (open item)",
+  "n-ip":{cap:"Open Item",color:"#b4bac4",title:"IP Layering",role:"IP ownership rules (open item)",
     own:"How IP is layered across the group: supplier IP stays with the suppliers; the build partner's background IP stays with the build partner; foreground / JV IP needs its own rule — an open item for resolution.",
     resp:"Defines who owns what IP. The foreground / JV IP rule is still to be agreed.",
     kv:[["Supplier IP","Stays with suppliers"],["Build partner background IP","Stays with the build partner"],["Foreground / JV IP","Needs its own rule (open)"]],
