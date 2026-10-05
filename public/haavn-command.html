@@ -4,25 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HAAVN — Consolidated Position</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("atrium_theme")||"dark");window.addEventListener("storage",function(e){if(e.key==="atrium_theme"&&e.newValue)document.documentElement.setAttribute("data-theme",e.newValue);});}catch(e){document.documentElement.setAttribute("data-theme","dark");}</script>
 <style>
 :root{
-  --paper:#f1efe9;
-  --paper-2:#f7f6f1;
-  --ink:#1c1c1e;
-  --muted:#6d6e64;
-  --sage:#8f907f;
-  --line:#d3d1c7;
-  --line-soft:#e0ded4;
-  --card:#ffffff;
-  --green:#2f8f5b;
-  --orange:#d6b36a;
-  --bronze-d:#8f6a25;
-  --charcoal:#0b0b0d;
-  --shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.07);
-  --shadow-lg:0 6px 14px rgba(28,28,30,.10),0 26px 60px rgba(28,28,30,.16);
-  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Menlo","Consolas",monospace;
-  --font:"Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+  --paper:#0B0D0F;--paper-2:rgba(255,255,255,.045);--ink:#F3F2EE;--muted:#b7b9bf;--sage:#7d818b;
+  --line:rgba(255,255,255,.09);--line-soft:rgba(255,255,255,.055);--card:rgba(24,26,32,.62);
+  --green:#a9d4b5;--red:#f0a39b;--orange:#d6b36a;--bronze-d:#d6b36a;--charcoal:#101216;
+  --shadow:none;--shadow-lg:0 20px 50px rgba(0,0,0,.4);
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --font:"Inter",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
+html[data-theme=light]{--paper:#eceae4;--paper-2:rgba(20,20,25,.04);--ink:#1a1b1e;--muted:#4a4d54;--sage:#83868e;--line:rgba(20,20,25,.10);--line-soft:rgba(20,20,25,.06);--card:rgba(255,255,255,.68);--bronze-d:#8a7240;--charcoal:#f4f2ec;--shadow-lg:0 20px 50px rgba(20,20,25,.16)}
+:root{--green-t:color-mix(in srgb,var(--green) 45%,var(--ink));--red-t:color-mix(in srgb,var(--red) 45%,var(--ink))}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.45;overflow-x:hidden}
 
@@ -199,22 +193,61 @@ footer .disc b{color:#cfcec2}
 .kv .v{color:var(--ink);font-weight:700}
 .flowbadge{display:inline-flex;align-items:center;gap:7px;background:#f1ede4;border:1px solid #e4dbcc;color:var(--bronze-d);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;margin:3px 4px 0 0}
 @media(max-width:720px){.node.sh{width:auto}}
+
+/* ===== ATRIUM look: same family as ATRIUM Workflow ===== */
+body{background:var(--paper);font-family:var(--font)}
+.mast{display:flex;align-items:center;gap:14px;padding:14px clamp(18px,4vw,54px);border-bottom:1px solid var(--line)}
+.mast .mk{height:15px;width:auto;display:block}
+html[data-theme=light] .mast .mk{filter:invert(1) brightness(.18)}
+.mast .m-co{font:600 10px var(--mono);letter-spacing:.24em;color:var(--sage)}
+.mast .sp{flex:1}
+.mast .m-doc{font:400 10px/1.7 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--sage);text-align:right}
+.command{background:none!important}
+.cmd-title{font-family:var(--font);font-weight:300;letter-spacing:0;font-size:clamp(26px,3.6vw,36px)}
+.eyebrow{color:var(--sage)}
+.progress{background:var(--line)}
+.progress span{background:var(--orange)}
+.cmd-sub,.cmd-sub .mn,.panel-sub,.bill-note,.hint{color:var(--muted)}
+.export-btn{background:#d6b36a;color:#1a1b1e;border:none;font-weight:600;border-radius:999px;box-shadow:none;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:10px 18px}
+.kpi,.panel,.node{background:var(--card)!important;border:1px solid var(--line)!important;box-shadow:none!important;backdrop-filter:blur(14px)}
+.kpi .num{color:var(--ink);font-weight:300}
+.kpi .num.neg{color:var(--red-t)}
+.kpi.hl{border-color:color-mix(in srgb,var(--red) 50%,transparent)!important;background:color-mix(in srgb,var(--red) 14%,var(--card))!important}
+.node:hover,.node.sel{border-color:var(--ink)!important;box-shadow:var(--shadow-lg)!important}
+.node h3{font-weight:500}
+.node .fig{color:var(--muted)}
+.node .fig .g{color:var(--green-t)}.node .fig .o{color:var(--bronze-d)}
+.chip{background:var(--paper-2);border-color:var(--line);color:var(--ink)}
+.node.bank{border-color:color-mix(in srgb,var(--green) 60%,transparent)!important;background:color-mix(in srgb,var(--green) 14%,var(--card))!important}
+.node.pool{border:1.5px dashed var(--orange)!important;background:color-mix(in srgb,#d6b36a 12%,var(--card))!important}
+.node.pool h3,.node.pool .amt{color:var(--bronze-d)}
+.node.ext,.node.sh{background:var(--paper-2)!important}
+.wire.solid{stroke:var(--sage)}.wire.idle{stroke:var(--line)}
+.btn{background:var(--paper-2);border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn:hover{border-color:var(--sage)}
+.live{color:var(--green-t);border-color:color-mix(in srgb,var(--green) 60%,transparent);background:color-mix(in srgb,var(--green) 22%,transparent)}
+.live .pulse{background:var(--green)}
+.legend .li{color:var(--muted)}
+footer{background:var(--paper-2);color:var(--muted);border-top:1px solid var(--line)}footer .disc,footer .disc b{color:var(--muted)}
+.tbl th,.bill th{border-bottom:1px solid var(--line);color:var(--sage)}
+.tbl tr.hl td{background:color-mix(in srgb,#d6b36a 14%,transparent)}
+.tbl tr.total td,.bill tr.var td{background:var(--paper-2)}
+.tbl td.neg,.bill td.neg{color:var(--red-t)}
+.bill tr.var td{border-top:1px solid var(--line)}
+.bill-note b{color:var(--green-t)}
+.pill.reimburse{background:color-mix(in srgb,#d6b36a 22%,transparent);border-color:color-mix(in srgb,#d6b36a 60%,transparent);color:var(--bronze-d)}.pill.reimburse .d{background:#d6b36a}
+.pill.owes{background:color-mix(in srgb,var(--red) 24%,transparent);border-color:color-mix(in srgb,var(--red) 60%,transparent);color:var(--red-t)}.pill.owes .d{background:var(--red)}
+.drawer{background:var(--paper)!important;border-left:1px solid var(--line)}
+.dr-head{border-bottom-color:var(--line)}.dr-close{background:var(--paper-2);border-color:var(--line);color:var(--ink)}
+.dr-body .sec h5,.kv .k{color:var(--sage)}.dr-body .sec p{color:var(--muted)}.kv{border-bottom-color:var(--line)}
+.flowbadge{background:var(--paper-2);border-color:var(--line);color:var(--bronze-d)}
+.wlabel{stroke:var(--paper)}
+.scrim{background:rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
 
-<div class="masthead">
-  <div class="hero">
-    <img class="mark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAhoAAABiCAYAAAAWV3qjAAAOYElEQVR4nO3df6hfdR3H8ee3TTYdODF/oM3pQsVikWJo5FIyUBSLNCVEUmjDwMgfoX/MH6S0TDLQlBLFJEUo0FQSzAQduZQ2FiVlCyZNHSxQEhWWGzluf3zvYXfXfe/9nO/3fM7rvD/n9YAL+3HPeb/v9/u5n8/7+zmf8zmDZcuWY2ZmZpbDx9QJmJmZWblcaJiZmVk2LjTMzMwsGxcaZmZmlo0LDTMzM8vGhYaZmZll40LDrFsWqRMwM2vSqELjQWAqw5fNLcdr/qvE2Jdlip/j64+JP1OXjfrZds3xf8qvpn/O3F+3T5Bzn/wBbXtRtum/1cizJLn6+pFGFRoLJ/s5LKAP1QnUcAbwrjqJnpmk2FBYy/ADk9koK+lvsdGqUYVGpEHH+mkp8IE6iZ4Zp9gYAC82nUii1cDzotgWw0riFdHheI2GRbYY+J86iZ6ZAg6vecxZwAsZcklxNnC/KHYEC9QJdMQb6gRK5ksnFt1C/ImkbW+NccyXgY1NJ5LoSjyQ2NyW434kG89olC+1aNydNYv83Em0a5zX+/PAPU0nkmg58IwodpftUSfQMe5HMnChYZUS1uW4k2jXOK/3NcBzTSeS6Dy8+G82Xzr5KPcjDfNiUKuUcrnMnUS7xnm9zwVubTiPVCvxuh6bX8n9SOvju2c0ype6AVRJn2xK7iS6aAo4quYxt6ErNhbimY1KKR8wcii1H2n9PXehUT51R7JTFLfUTqKrdoxxzG3AuqYTSeTbGocOVifQcW4jDXChYZXFmc67jeFeCgp97CQGwF9FsaeAU2secwtwRYZcUvV9L5Zcv/cl6WM/0igXGlbJfenExUZ7ThHG3gwcV/OYR4Drmk8lyWL62UYq76kTCKLPbWRiLjTKl7rwJ9cljpm3zbrYaM8AeFwUexv1ZzbuZnhXiEof2wjEv629TX1tIxNzoVE+9RqN2VxstOcS4CVR7M3A12oe8yxwZvOpJOtjG7F63EbG4ELDKrk27tnfjIqLjfasAn4niv0kcFrNYzYwXKip0sc2YvW4jdQ0qtBY0moW1gW7Mp131KWbQcaYc+ljJ3E+ujUQG4Hrax7zKnBEhlxS9amNeM+k8fSpjUxsVKFxeqtZWMlWzPF/B7aWxb762EncjW777zuBH9Q85m2GT+hV6WMbsXrcRhKNKjS2t5qFlezoef5/gGblex87iWvQLbi8GXiw5jHvo7vMBv1oI37WyWT60EYmNqrQ2NpqFpaTesfPbQnfc0juJEboYyfxLHCxKPZq4IkxjnOxYV3mNjIPLwYtX+pdJ7nuTkl9pLgXiLbnN+guj17IeNt/u9iwLnMbmYMLjfJFWuw1QHM7Zh87iU3Ax0WxVwL/GOM4FxvWZW4jI7jQsEpX9ttYhaY46mMn8Q66uzs+xXjbf7vYsBSeIe0QFxrlUxcQqU+PnekA4NGmE0nQx07ibXSd8rjbf7vYsBQuNjpiVKHhlcj907VLLN9Es9HUFOMVR9FFG7yj5WsaLjY6YFShob5TwZqTWkDkKjQmGbTPB/7eVCI17AJOEsRVizZ4R8vXNFxs7Kv1D5W+dFK+1NmpXLNYk166+QywrolEatoCXCCIqxZt8I6Wr2m42BByoWG5NVE93wKsbeA8dT0NfEkQVy3a4B0tX9NwsTHU+ro9FxrlU186acodaJ7s+QLwfUFctWiDd7R8TcPFhoALjfKpN+xq0gY0G03dCnxXEFct2uAdLV/TUBYbB4liS7nQsEquBcBNr/3YBJzQ8DlT3AP8UhBXLdrgHS1f01C1k52iuFIuNKySazFojl+s19B0FFcAbwjiqkUbvKPlaxrKmY3TRLElXGiUL3XtRa4ZjZxrPxZnPPcoyxnvWR3RRRu8o+VrGqp2slEUV2JUoRHher3ZbjQdxUr6OZhEG7yj5WsantnIrO2C4qfTMWd+yq2TQ3XczGOqPy+Y/vMihgNQ9ffd+zmu+vS+Z/rP1WWD/eX1IWmXFWYfu4C9z5FYwvAppruBQxkOVC9Nn7c6/+UJMSJqo40N0HTsfwFOEcRVUr3WTMetOyhEy9c0VO1kI3A2sF4QuzWjBoFc091XZzpvRCtailPSXSdzUXQUJzP+YKIcACcVbfCOlq9pqNrJCwzHg9cFsVvhSydW2Z3pvG3uzxHtHvnIA1C0yxLR8jUNVTvZBlwrip3dqEKj65s3WTr1c2vaLlpdbLQn2uAdLV/TULWTuyh0zYbvOilf6kCvLkia5GKjPdEG72j5mobybpRrRbGzcaFRPvVlMNXsmIuN9kQbvKPlaxrKmY3rRbGzcKFhlVwbduU6bwoXG+2JNnhHy9c0VO3kTuBbotiNc6FRvpIuiYzDxUZ7og3e0fI1jQHwH0HcXwCPCeI2znedlC/1vTw4axZaLjbaE23wjpavaRwminsxcJModmN810n5Um9bzXV7a1e42GhPtME7Wr6mMQDeE8RdBzwviNsYXzqxyjvqBFoQsdjY2mQiLYo2eEfL1zQOYbirc9vOBv4kiNsIFxpW6ctajmjFxokMN/OJKNrgHS1f01gF7BLEPR34fQPnab2vd6FhlVx3h3TxMly0YuOTwHNNJtKiaIN3tHxN40Dg14K45wAfTHiO1u8EdKFRvtTqdVHWLLonWrFxLsNV6BFFG7yj5TuJvsxk5nApmssoi4HNgrhjc6FRPuU+Fl0XrdhYQ9wHE0YbvKPlO67FLcYq0SrgRUHcUwk0A+ZCw3Lr+q3S0YqNe4GrmkykRar9CMDFxiie0ZjcWcCPRLFDFBsuNMqnXiMRoSOLVmzcB5zRZCItUu1HAC42LJ8b0azZgADtxIWGVZZmOu+STOdtWrRi42Xg5AbzaNMAeFMU28WG5XIpsFoUu9PtxIWGVXLtDBppjUi0YuMVYEWTibToWOAtUWwXG3tF+v2M4CFgrSh2Z4sNFxrlS10jkavDUeykN4loxcbrDHOuviI5Es1+BOBiw/K5A7hCFLuT7cTPOrHKzkznVa8RGccATd6d7CQyOxB4XBR73GIj0kzMfCL+fkbwCMPdPBU614/4WSdWiTbzkNsBorhTwEGi2CqXEGvNxpGNZ5Gu6UGkb/vntGk98G1R7E4VG6MKjVyNb+CvkV+fm+B1bUKuGY3IVLdj7gQOF8RVOhb4uSh2n2c2PHud1wPASlHszhQbXqPRHX/OdF717FT0xWaHATsEcVWDmNJ30O1+OkX9BdFHEr/Y8AeM/F5Fdzv6/tpJZ551Uvojw/vEn1gm9wlR3M58ImnRGnTFxjiXD6NfRlF/EOmLl4Hlotiz20nrY4IXg5YvtXr1ez63AZoHm00BXxDEVVqDbvfTKeCYmscMgK0ZckkxabHh3/v2bEe35fvMdtKZQsP6J9csVoSdQVOdC2wRxFU8uEntPuBmUew3geNqHnMiutmBSYqNKBvqlWI3+pmN1m8p910n5UtdI5HrPY++RmO2TwN3CeJOAVcK4ir9EDhTFHsb9WeSDgCezJBLij5eZotqO9r9eh5uO6hnNLrji5nOq17sVdKMRuV7wK2CuPcDpwniKm1At9X6S8BlNY+5CG2xcWjNY/yhUifaBntjc6HRHepPq7mu25U2o1G5DbhOEHcjcLkgrtIr5HsWz3wepf7rfRG6y111b8dWfxDpu14UGy40uuPVTOdNnVHI9cmm5E9Md6PZ/e9h4MeCuErvo+uUHwZur3nMKrSPDj8+8XtL/SAQSfHFhguN7vinOoFMSl/Vvh44XRD3BuACQVw1Vae8luGlqzpuBJ7OkEuKrcBJothWX9HFhguN7ngq03nVn1hKntGobAKOFsR9GvitIK6aqlO+Enii5jFfZVgUKmwBThXFtvqKLTZcaJSvxMWYXfRvNB3FV4CbBHHVVJ3yhcAzNY/5CXB1hlxSbAa+Lopt9RVZbLjQKF/qpYu6q9Wbjl8KRUexDs9stOk84N2ax9wLrG4+lSSPA18Txbb6iis2XGhYxU9xbI5qZuNfgrhqqk55KfVf74fQPTr8SeBaUWyrr6hiw1uQW8XPt2mWoqNYATwmiKum6pRXUH+jrPXoio276OdltqiKKTY8o1G+1MWYLi6bp+goLqafu0QqO+Vxio0TciSSYB39uzU6siKKDW9BbhXvo5GHqqN4QxRXKVKx8RrDGRGFG4CfiWJbfeGLDX+KLV/q0wJdaOQzoP1ZhuXTMcN3UjUpXutK3df7deAI4K0s2cztKuAo4GBBbKtP2a4n5kKjfKlPZ8y134bb2JCqo3Cx0a66r/fb6PK9UBDTxhe22PAajfKlzij4cdH5KZ/Y2DeRLqNA/4pBG0/IduJCo3ypd5PkusThGY19udhoj4sNK1G4duJCo3ypBUSupzh6jcZHudhoT7RiwzOLliJUseFCo3ypMxreR6NdLjbaE6nY+C/BBhGTCdNOXGiUT72q3JdORnOx0Z5IxQYEGkRMKkQ7caFRvjPE8X3pZG4uNtrjYsNKtFSdwHxcaJRvS+L3eeZBx8VGe1xsWGnep+PtxIVG+bYnfp8fJ6/V6Y6iMNFe62j5mkZn90UZ9Sl2DfBAw7E2NXy+Es182FJ1yWEPe4uAhQwXbS6a/to5499nHrNw+s8LGT5XIcUm4Bz2LTiqBaLHACcD24D3GG6dfPx0bo9Pf8/SGcfunPG1ITG+DQeUy2b92+wCcA973//q79X7vojRG6/tmnWOvhsAnwVWJn7/zN+tmar3Z/ZrOvPfR31PHVXbWDJ9vtnnWsTw93IHw9+7mf9/EMNnqxzKcOvzHeztR6rvm32Jc3+XPPfM+v+FI76vzuXS6ueqzreIyRem57qDruueYvh6foN935uZbXbBrL/Pfq9Gvafztd053/PBsmXL5znezMzMbDy+dGJmZmbZuNAwMzOzbFxomJmZWTYuNMzMzCwbFxpmZmaWjQsNMzMzy+b/lbpPDzk/IRMAAAAASUVORK5CYII=" alt="HAAVN">
-    <div class="tag">Precision Intelligence</div>
-  </div>
-  <div class="mast-rule">
-    <img class="m-logo" src="data:image/png;base64,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" alt="HAAVN">
-    <span class="m-co">GROUP</span>
-    <span class="sp"></span>
-    <span class="m-doc">Fund Flows<br>Internal Bank</span>
-  </div>
-</div>
+<div class="mast"><img class="mk" src="/haavn-wordmark-white.png" alt="HAAVN"><span class="m-co">GROUP</span><span class="sp"></span><span class="m-doc">Fund flows · Internal bank</span></div>
 
 <section class="command">
   <div class="cmd-top">
@@ -366,11 +399,11 @@ footer .disc b{color:#cfcec2}
 
 <script>
 const NODES={
-  "n-sh":{cap:"Ownership",color:"#6b6c5c",title:"Shareholders",role:"Own 100% of HAAVN & the group",
+  "n-sh":{cap:"Ownership",color:"#b4bac4",title:"Shareholders",role:"Own 100% of HAAVN & the group",
     own:"The group is owned equally by its three shareholders — Lewis Jin, Jamie Baldwin and Daniel Sette — holding 100% of HAAVN between them.",
     kv:[["Lewis Jin","Shareholder"],["Jamie Baldwin","Shareholder"],["Daniel Sette","Shareholder"],["Total held","100%"]],
     flow:["Own 100% → HAAVN"]},
-  "n-haavn":{cap:"Parent · Internal Bank",color:"#2f8f5b",title:"HAAVN",role:"Parent company & internal bank",
+  "n-haavn":{cap:"Parent · Internal Bank",color:"#a9d4b5",title:"HAAVN",role:"Parent company & internal bank",
     own:"HAAVN is the parent company and acts as the group's internal bank — lending to the operating subsidiaries and receiving repayments plus interest. Owned 100% by the three shareholders.",
     kv:[["Role","Parent · internal bank"],["Loans out","$80,000"],["— HAAVN Management","$50,000"],["— HAAVN Technologies","$30,000"],["Interest receivable","$852"],["Rate","8.5% p.a."],["As at","2026-08-21"]],
     flow:["Owned 100% ← Shareholders","Drawdown → subsidiaries","Repay + interest ← subsidiaries"]},
@@ -382,7 +415,7 @@ const NODES={
     own:"Operating subsidiary. Has drawn $30,000 from the internal bank, accruing $258 interest, and carries a $3,420 share of the shared expense pool (33.3333%).",
     kv:[["Loan drawn","$30,000"],["Interest accrued","$258"],["Expense share","$3,420"],["Expense split","33.3333%"],["Rate","8.5% p.a."]],
     flow:["Drawdown ← HAAVN","Repay + interest → HAAVN","Expense share → Shared pool"]},
-  "n-hpi":{cap:"Subsidiary · Dormant",color:"#8f907f",title:"HAAVN Precision Intelligence",role:"Not yet operating",
+  "n-hpi":{cap:"Subsidiary · Dormant",color:"#b4bac4",title:"HAAVN Precision Intelligence",role:"Not yet operating",
     own:"A group subsidiary that is not yet operating — no loan, interest or expense share at this time.",
     kv:[["Status","Not yet operating"],["Loan drawn","—"],["Interest","—"],["Expense share","—"]],
     flow:["Part of → HAAVN group"]},
@@ -390,7 +423,7 @@ const NODES={
     own:"The group's shared costs — rent, outgoings and office — pooled at $10,260 and split three ways between HAAVN Management, HAAVN Technologies and 7even.",
     kv:[["Total pool","$10,260"],["Covers","Rent · Outgoings · Office"],["HAAVN Management","$3,420 · 33.3333%"],["HAAVN Technologies","$3,420 · 33.3333%"],["7even","$3,420 · 33.3334%"]],
     flow:["Funded by → HAAVN Management","Funded by → HAAVN Technologies","Funded by → 7even"]},
-  "n-7even":{cap:"Related External Co.",color:"#6d7f88",title:"7even",role:"Related external company",
+  "n-7even":{cap:"Related External Co.",color:"#9db8e8",title:"7even",role:"Related external company",
     own:"A related external company (outside the HAAVN group) that shares in the group's expense pool — a $3,420 share (33.3334%).",
     kv:[["Type","Related external company"],["In group","No (external)"],["Expense share","$3,420"],["Expense split","33.3334%"]],
     flow:["Expense share → Shared pool"]},

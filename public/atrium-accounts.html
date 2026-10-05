@@ -392,23 +392,75 @@ body{--green-t:color-mix(in srgb,var(--green) 45%,var(--ink))}
 .pill.loss{border-color:color-mix(in srgb,var(--red) 60%,transparent)}
 .runway .fill{background:linear-gradient(90deg,#a9d4b5,#a9d4b5)}
 .rail .rdiv{background:#d6b36a !important;opacity:.55 !important}
+
+/* ===== ATRIUM shell: identical layout, tokens and wordmark to ATRIUM Workflow ===== */
+body:not(.atr-dark){--bg0:#eceae4;--bg1:#f4f2ec;--pill:rgba(20,20,25,.04);--ink:#1a1b1e;--ink-2:#4a4d54;--mute:#83868e;--ink-3:#83868e;--faint:#a7aab1;--line:rgba(20,20,25,.10);--line-2:rgba(20,20,25,.06);--grey-50:rgba(255,255,255,.55);--grey-100:rgba(20,20,25,.04);--grey-200:rgba(20,20,25,.08);--glass-bg:rgba(255,255,255,.68);--glass-line:rgba(20,20,25,.10);--glass-sh:none;--modal-bg:#f4f2ec;--input-bg:rgba(255,255,255,.7);--sil-3:#b89a5e;--sil-4:#8a7240}
+body.atr-dark{--bg0:#0B0D0F;--bg1:#101216;--pill:rgba(255,255,255,.045);--ink:#F3F2EE;--ink-2:#b7b9bf;--mute:#7d818b;--ink-3:#7d818b;--faint:#565a63;--line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.055);--grey-50:rgba(255,255,255,.05);--grey-100:rgba(255,255,255,.045);--grey-200:rgba(255,255,255,.08);--glass-bg:rgba(24,26,32,.62);--glass-line:rgba(255,255,255,.09);--glass-sh:none;--modal-bg:#101216;--input-bg:rgba(255,255,255,.05);--sil-3:#d6b36a;--sil-4:#e6d3a3}
+#atrium-bg{display:none!important}
+body,body.atr-dark{background:var(--bg0)!important}
+.app{display:grid!important;grid-template-columns:230px minmax(0,1fr);grid-template-rows:auto 1fr;height:100vh;height:100dvh;overflow:hidden}
+.body{display:contents!important}
+body .rail{grid-column:1;grid-row:1/3;background:var(--bg1)!important;border-right:1px solid var(--line);padding:20px 14px;overflow-y:auto;position:relative}
+body .topbar{grid-column:2;grid-row:1;background:rgba(236,234,228,.86)!important;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)!important;padding:14px 28px;gap:14px;display:flex;align-items:center;z-index:80;min-width:0}
+body.atr-dark .topbar{background:rgba(11,13,15,.86)!important}
+body .main{grid-column:2;grid-row:2;background:var(--bg0)!important;padding:24px 28px 60px;min-width:0}
+.rail-head{display:flex;align-items:center;gap:10px;padding:0 6px 18px}
+.rail .mbtn{position:relative;width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--faint);color:var(--ink);background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:border-color .3s,box-shadow .3s,background .3s}
+.rail .mbtn:hover{border-color:#d6b36a;box-shadow:0 0 22px rgba(214,179,106,.18);background:rgba(214,179,106,.08)}
+.rail .mbtn .halo{position:absolute;inset:-1px;border-radius:50%;pointer-events:none}
+.rail .mbtn .halo circle{fill:none;stroke:#d6b36a;stroke-width:1.2;opacity:0;stroke-dasharray:302}
+.rail .mbtn:hover .halo circle{opacity:.9;animation:ringdraw .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ringdraw{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.rail-wm{display:flex;align-items:center;font:100 15px/1 var(--mono-sans,'Inter',sans-serif);letter-spacing:.28em;padding-left:.28em;color:var(--ink)}
+.rail-wm .a{display:block;width:.62em;height:.7em;margin-right:.28em;flex:none}
+.rail-wm .a svg{display:block;width:100%;height:100%;overflow:visible}
+body .rail .rgrp{--gc:var(--at-blue);display:block;font:600 9px var(--mono);letter-spacing:.24em;text-transform:uppercase;padding:6px 10px!important;margin:18px 4px 8px!important;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--gc) 85%,transparent)!important;background:color-mix(in srgb,var(--gc) 32%,transparent)!important;color:color-mix(in srgb,var(--gc) 30%,var(--ink))!important}
+body.atr-dark .rail .rgrp{background:color-mix(in srgb,var(--gc) 20%,transparent)!important;color:color-mix(in srgb,var(--gc) 60%,var(--ink))!important}
+body .rail .rnav{display:flex!important;align-items:center;gap:10px;padding:9px 12px!important;border-radius:10px!important;font-size:12.5px!important;color:var(--ink-2)!important;width:100%;text-align:left;background:none!important;border:none;margin:0 0 1px!important;box-shadow:none!important;font-family:'Inter',sans-serif;font-weight:400}
+body .rail .rnav .ri{width:16px;height:16px;flex:none;opacity:.85}
+body .rail .rnav:hover{background:var(--pill)!important;color:var(--ink)!important}
+body .rail .rnav.on{background:var(--pill)!important;color:var(--ink)!important;font-weight:600;box-shadow:0 0 0 1px rgba(20,20,25,.55),0 0 16px rgba(20,20,25,.14)!important}
+body.atr-dark .rail .rnav.on{box-shadow:0 0 0 1px rgba(243,242,238,.55),0 0 16px rgba(243,242,238,.18)!important}
+body .rail .railfoot{margin-top:auto;padding:8px 10px;margin:14px 2px 0;border:1px solid var(--line)!important;border-radius:10px;background:var(--pill);font:400 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)!important;line-height:1.7}
+.rail .rdiv{display:none!important}
+.topbar .tb-title{font:300 20px/1 'Inter',sans-serif;color:var(--ink)}
+.topbar .tb-sub{font:400 10.5px var(--mono);letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-left:2px;padding-left:14px;border-left:1px solid var(--line)}
+.topbar .rt{margin-left:auto;display:flex;gap:10px;align-items:center}
+body .ent-switch{border:1px solid var(--line)!important;background:var(--pill)!important;border-radius:100px;height:34px}
+body .ent-switch .el{color:var(--ink-3)}
+body .ent-switch select{color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:12.5px}
+body .ent-switch select option{background:var(--bg1);color:var(--ink)}
+body .ent-switch .ec i{background:var(--at-green)!important;box-shadow:0 0 8px color-mix(in srgb,var(--at-green) 70%,transparent)!important}
+body .ent-switch .ec::after{color:var(--ink-3)}
+body .savestate{border:1px solid var(--line);background:var(--pill);color:var(--ink-2)}
+.topbar .seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
+.topbar .seg button{border:none;background:transparent;color:var(--ink-3);font:400 9.5px var(--mono);letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
+.topbar .seg button.on{background:var(--ink);color:var(--bg0)}
+body.atr-dark .topbar .seg button.on{background:rgba(255,255,255,.9);color:#000}
+.sideToggle{display:none;border:1px solid var(--line);color:var(--ink);border-radius:10px;background:transparent;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer}
+.vhead h1{font-family:'Inter',sans-serif!important;font-weight:300!important;font-size:30px!important;letter-spacing:0!important}
+.vhead .vk{color:var(--ink-3)!important}
+.livery{display:none!important}
+body .card,body .scard{background:var(--glass-bg)!important;border:1px solid var(--line)!important;border-radius:18px;box-shadow:none!important;backdrop-filter:blur(14px)}
+@media(max-width:1080px){.app{grid-template-columns:1fr!important}body .topbar,body .main{grid-column:1}body .rail{display:none}body .rail.open{display:flex;position:fixed;left:0;top:0;bottom:0;width:230px;z-index:90}.sideToggle{display:inline-flex}.topbar .tb-sub{display:none}}
+#atr-back{width:34px;height:34px;border:1px solid var(--faint);color:var(--ink)}
+#atr-back:hover{border-color:#d6b36a}
+body .topbar .ent-switch select,body .topbar .savestate,body .topbar .modlbl{color:var(--ink)!important}
+body .topbar .ent-switch .el{color:var(--ink-3)!important}
+body #entSel,body .ent-switch .ec{color:var(--ink)!important}
+body .ent-switch .ec::after{color:var(--ink-3)}
+.bz{display:none!important}
 </style>
 </head><body><div id="atrium-bg"></div>
 <div class="app">
- <div class="topbar carbon carbon-sheen">
-  <span class="modlbl"><span class="n">04</span> Accounts &amp; Settlement</span>
-  <span style="margin-left:auto"></span>
-  <span class="ent-switch" title="Current entity — shown on every screen">
+ <div class="topbar"><button class="sideToggle" id="sideToggle" aria-label="Menu"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="tb-title" id="tbTitle">Command</div><div class="tb-sub">HAAVN ADMINISTRATION · FY27</div><div class="rt"><span class="ent-switch" title="Current entity — shown on every screen">
    <span class="el">Entity</span>
    <span class="ec"><i></i><select id="entSel" aria-label="Current entity" onchange="setEntity(this.value)"></select></span>
   </span>
-  <span class="savestate" id="saveState"><i class="sdot"></i><span class="stext"></span></span>
- </div>
+  <span class="savestate" id="saveState"><i class="sdot"></i><span class="stext"></span></span><div class="seg" id="themeSeg"><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div></div>
  <div class="body">
   <aside class="rail">
-   <div class="cf carbon"></div>
-   <div class="rail-head"><div class="bcol"><div class="brand"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt" /></svg></span><span class="bw">TRIUM</span></div><div class="tag">Accounts &amp; Settlement</div></div></div>
-   <div class="rdiv"></div>
+   <div class="rail-head"><button id="atr-back" class="mbtn" type="button" title="Back to Administration" aria-label="Back to Administration"><svg class="halo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" transform="rotate(-90 50 50)"/></svg><svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg></button><div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div></div>
    <nav id="railNav"></nav>
    <div class="railfoot">7EVEN | HAAVN · FY27</div>
   </aside>
@@ -664,12 +716,15 @@ const NAV=[
  {g:'FY27 budget',items:[['haavnbook','Haavn Book'],['m2book','M2 Book'],['mgranalysis','Manager analysis']]},
  {g:'System',items:[['settings','Settings']]},
 ];
+const NAV_IC={overview:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',people:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4v2"/>',folder:'<path d="M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',pipeline:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16M5 8h2m4 4h2m4-5h2"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/>',review:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 4h6m-6 4 2 2 4-4"/>',brand:'<path d="m5 20 7-17 7 17M3 21h18"/><circle cx="12" cy="3" r="1"/>'};
+const NAV_KEYIC={overview:'overview',structure:'people',clients:'people',billing:'pipeline',schedule:'calendar',invoices:'review',splits:'pipeline',profit:'pipeline',expenses:'review',loans:'folder',interco:'review',haavnbook:'folder',m2book:'folder',mgranalysis:'pipeline',settings:'brand'};
+function navIcon(k){const n=NAV_KEYIC[k]||'overview';return `<svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NAV_IC[n]}</svg>`;}
 function buildRail(){
- $('railNav').innerHTML = NAV.map((sec,i)=>`<div class="rgrp ${['g-work','g-supply','g-perf','g-team','g-meet','g-black'][i]||'g-work'}">${sec.g}</div>`+sec.items.map(([k,l])=>`<button class="rnav" data-k="${k}" onclick="go('${k}')">${l}</button>`).join('')).join('');
+ $('railNav').innerHTML = NAV.map((sec,i)=>`<div class="rgrp ${['g-work','g-supply','g-perf','g-team','g-meet','g-black'][i]||'g-work'}">${sec.g}</div>`+sec.items.map(([k,l])=>`<button class="rnav" data-k="${k}" onclick="go('${k}')">${navIcon(k)}${l}</button>`).join('')).join('');
 }
 function buildEntitySelect(){ $('entSel').innerHTML = ENTITIES.map(e=>`<option${e===state.entity?' selected':''}>${e}</option>`).join(''); }
 function setEntity(v){ state.entity=v; const s=$('entSel'); if(s&&s.value!==v)s.value=v; save(); render(); }
-function go(k){ ui.view=k; ui.editingExpenseId=null; ui.pendingDelC=null; render(); window.scrollTo?.(0,0); const m=$('view'); if(m)m.scrollTop=0; }
+function go(k){ ui.view=k; try{ const t=document.getElementById('tbTitle'); if(t){ let lab=k; NAV.forEach(sec=>sec.items.forEach(([kk,l])=>{ if(kk===k) lab=l; })); t.textContent=lab; } }catch(e){} ui.editingExpenseId=null; ui.pendingDelC=null; render(); window.scrollTo?.(0,0); const m=$('view'); if(m)m.scrollTop=0; }
 const VIEWS={};
  /* Company structure — the HAAVN × Hamilton Marino group-structure working document. */
  VIEWS.structure=function(){
@@ -747,7 +802,7 @@ function diagram(){
 /* ============ OVERVIEW ============ */
 VIEWS.overview=function(){
   /* Command — rebuilt consolidated-position page (fund-flows diagram, drawers, pause/reset, export). */
-  return `<iframe title="HAAVN — Consolidated Position" src="/haavn-command.html" style="width:100%;height:calc(100vh - 118px);min-height:700px;border:0;display:block;border-radius:14px;background:#f1efe9;box-shadow:0 1px 2px rgba(28,28,30,.05),0 10px 30px rgba(28,28,30,.08)"></iframe>`;
+  return `<iframe title="HAAVN — Consolidated Position" src="/haavn-command.html?v=20261005a" style="width:100%;height:calc(100vh - 118px);min-height:700px;border:0;display:block;background:transparent"></iframe>`;
  const E=expenseSummary(), L=loanCalc();
  const contract=state.clients.reduce((s,c)=>s+contractTotal(c),0);
  const invoiced=state.clients.reduce((s,c)=>s+invoicedFor(c.id),0);
@@ -1376,23 +1431,17 @@ document.addEventListener('DOMContentLoaded', boot);
 </script>
 <script>
 (function(){
- var KEY='atrium-book02-theme';
- function apply(d){ document.body.classList.toggle('atr-dark', d); var b=document.getElementById('atr-theme'); if(b) b.textContent = d ? '\u263e DARK' : '\u2600 LIGHT'; }
- function build(){ var tb=document.querySelector('.topbar'); if(!tb||document.getElementById('atr-theme')) return;
-   // Back control is the very first thing in the top-left corner of the
-   // topbar — same corner position as every other ATRIUM screen. Posts to
-   // the parent (the Administration pillar) which closes the book.
-   if(!document.getElementById('atr-back')){
-     var back=document.createElement('button'); back.id='atr-back'; back.type='button';
-     back.title='Back to Administration'; back.setAttribute('aria-label','Back to Administration');
-     back.innerHTML='<svg viewBox="0 0 240 240" width="14" height="14"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="9" stroke-linejoin="miter" stroke-linecap="butt"/></svg>';
-     tb.insertBefore(back, tb.firstChild);
-     back.addEventListener('click', function(){ try{ parent.postMessage({type:'atrium:back-admin'}, location.origin); }catch(e){} });
-   }
-   var btn=document.createElement('button'); btn.id='atr-theme'; btn.type='button';
-   var p=tb.querySelector('.partner'); if(p) tb.insertBefore(btn,p); else tb.appendChild(btn);
-   btn.addEventListener('click', function(){ var d=!document.body.classList.contains('atr-dark'); apply(d); try{localStorage.setItem(KEY, d?'dark':'light');}catch(e){} });
-   apply((function(){try{return localStorage.getItem(KEY)==='dark';}catch(e){return false;}})()); }
+ var KEY='atrium_theme';
+ function apply(t){ document.body.classList.toggle('atr-dark', t==='dark'); document.documentElement.setAttribute('data-theme',t); var seg=document.getElementById('themeSeg'); if(seg) seg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);}); }
+ function build(){
+   var back=document.getElementById('atr-back');
+   if(back) back.addEventListener('click', function(){ try{ parent.postMessage({type:'atrium:back-admin'}, location.origin); }catch(e){} });
+   var seg=document.getElementById('themeSeg');
+   if(seg) seg.addEventListener('click', function(e){ var b=e.target.closest('[data-t]'); if(!b) return; apply(b.dataset.t); try{localStorage.setItem(KEY,b.dataset.t);}catch(x){} });
+   var t='dark'; try{ t=localStorage.getItem(KEY)||'dark'; }catch(e){} apply(t);
+   window.addEventListener('storage',function(e){ if(e.key===KEY&&e.newValue) apply(e.newValue); });
+   var tg=document.getElementById('sideToggle'); if(tg) tg.addEventListener('click',function(){ var r=document.querySelector('.rail'); if(r) r.classList.toggle('open'); });
+ }
  if(document.readyState!=='loading') build(); else document.addEventListener('DOMContentLoaded', build);
 })();
 </script>
