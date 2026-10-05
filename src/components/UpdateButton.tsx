@@ -23,7 +23,7 @@ export default function UpdateButton({ tone = 'dark' }: { tone?: 'dark' | 'light
     if (state === 'busy') return
     setState('busy')
     ;(document.activeElement as HTMLElement | null)?.blur?.()
-    await new Promise(r => setTimeout(r, 700))   // let debounced auto-save flush to localStorage
+    await new Promise(r => setTimeout(r, 250))   // let debounced auto-save flush to localStorage
     try { if ('caches' in window) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))) } } catch { /* ignore */ }
     try { const rs = await navigator.serviceWorker?.getRegistrations?.(); if (rs) await Promise.all(rs.map(r => r.unregister())) } catch { /* ignore */ }
     const url = location.origin + location.pathname + '?u=' + Date.now()

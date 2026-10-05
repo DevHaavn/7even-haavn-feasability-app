@@ -3,6 +3,7 @@ import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
+import GatewaySeg from '../../components/GatewaySeg'
 
 export type PillarId = 'budgets' | 'crm'
 
@@ -157,7 +158,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
   }
 
   return (
-    <div className="cab-root">
+    <div className="cab-root agw">
       <style>{CSS}</style>
       <video className="cab-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
       <div className="cab-scrim" />
@@ -172,6 +173,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
           <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
           <span className="tag">Capital Base</span>
         </div>
+        <GatewaySeg />
       </div>
 
       {/* Body */}
@@ -210,7 +212,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                 {p.id === 'crm' && (
                   <div className="cab-pow">
                     <span className="k">Powered by</span>
-                    <span style={{ color: '#1a1b1e', fontFamily: "'Inter',sans-serif", fontWeight: 300, fontSize: 16, letterSpacing: '0.14em' }}>ATRIUM</span>
+                    <span style={{ color: 'var(--g-ink,#1a1b1e)', fontFamily: "'Inter',sans-serif", fontWeight: 300, fontSize: 16, letterSpacing: '0.14em' }}>ATRIUM</span>
                   </div>
                 )}
 

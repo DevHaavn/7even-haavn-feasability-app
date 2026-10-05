@@ -11,16 +11,16 @@ import React, { useEffect, useState } from 'react'
 
 const CX = 511.5, CY = 511.5, R = 303.5
 const CIRC = 2 * Math.PI * R
-const DRAW_MS = 2600
-const HOLD_MS = 500
-const FADE_MS = 550
+const DRAW_MS = 320
+const HOLD_MS = 30
+const FADE_MS = 150
 
 const CSS = `
 .splash-root{position:fixed;inset:0;z-index:99999;background:#0B0D0F;display:flex;align-items:center;justify-content:center;
   transition:opacity ${FADE_MS}ms ease;opacity:1}
 .splash-root.out{opacity:0;pointer-events:none}
 .splash-mark{width:min(51vw,300px);height:auto;overflow:visible}
-.splash-ring{stroke-dasharray:${CIRC};stroke-dashoffset:${CIRC};animation:splashDraw ${DRAW_MS}ms cubic-bezier(.45,0,.2,1) .2s forwards}
+.splash-ring{stroke-dasharray:${CIRC};stroke-dashoffset:${CIRC};animation:splashDraw ${DRAW_MS}ms cubic-bezier(.45,0,.2,1) 0s forwards}
 @keyframes splashDraw{to{stroke-dashoffset:0}}
 `
 

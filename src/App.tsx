@@ -52,7 +52,12 @@ export default function App() {
   const [manageOpen, setManageOpen] = useState(false)
   const [atriumOpen, setAtriumOpen] = useState(false)
   // The boot splash — plays once on every fresh load, ahead of the login/chooser.
-  const [showSplash, setShowSplash] = useState(true)
+  // Plays once per browser tab session (0.5s). Update / reload / coming back to
+  // the app within the same tab skips it, so there is never a black wait.
+  const [showSplash, setShowSplash] = useState(() => {
+    try { if (sessionStorage.getItem('atrium_splash_seen')) return false } catch { /* private mode */ }
+    return true
+  })
   const [syncing, setSyncing] = useState(false)
   // JB Light / JB BLK (dark-gold) studio theme — now driven by the unified ATRIUM
   // theme store so the one light/dark button in the topbar, Manage screen, and the
@@ -204,7 +209,7 @@ export default function App() {
     setManageOpen(false)
   }
 
-  if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />
+  if (showSplash) return <SplashScreen onDone={() => { try { sessionStorage.setItem('atrium_splash_seen', '1') } catch { /* ignore */ } setShowSplash(false) }} />
 
   // 'haavnonly' (Atrium!!!) goes through the same company chooser as 'admin' —
   // PasswordGate itself hides the 7EVEN option for that role.

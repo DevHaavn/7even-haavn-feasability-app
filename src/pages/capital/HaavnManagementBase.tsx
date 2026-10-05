@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import SiteLinks from '../../components/SiteLinks'
+import GatewaySeg from '../../components/GatewaySeg'
 import HaavnManagementPillar from './HaavnManagementPillar'
 
 // 'crm' and 'meetings' are retired from the hub listing (see HM_PILLARS) but
@@ -172,7 +173,7 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
   }
 
   return (
-    <div className="hmh-root">
+    <div className="hmh-root agw">
       <style>{CSS}</style>
       <video className="hmh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
       <div className="hmh-scrim" />
@@ -187,6 +188,7 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
           <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
           <span className="tag">Management Hub</span>
         </div>
+        <GatewaySeg />
       </div>
 
       {/* Body */}

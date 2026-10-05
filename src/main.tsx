@@ -6,6 +6,7 @@ import './theme/theme.css'
 import './index.css'
 import './styles/atrium-studio.css'
 import './styles/atrium-theme.css'
+import './styles/atrium-gateway.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

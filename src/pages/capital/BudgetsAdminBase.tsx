@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import BudgetsAdmin, { ensureAdminData, publishProjectCosts } from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
+import GatewaySeg from '../../components/GatewaySeg'
 
 /** Accounts Pillar 01 landing. Splits Administration into two books:
  *  01 · 7EVEN Capital Administration (ATRIUM) — the 7even / 7even Capital entity,
@@ -187,7 +188,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
     'haavn': { ring: '#d6b36a', glow: 'rgba(214,179,106,.3)' },
   }
   return (
-    <div className="abh-wrap">
+    <div className="abh-wrap agw">
       <style>{CSS}</style>
       <video className="abh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
       <div className="abh-scrim" />
@@ -201,6 +202,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
           <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
           <span className="tag">Accounts Hub</span>
         </div>
+        <GatewaySeg />
       </div>
 
       <div className="abh-in">

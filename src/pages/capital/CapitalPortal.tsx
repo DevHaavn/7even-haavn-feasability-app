@@ -26,7 +26,7 @@ export default function CapitalPortal({ onClose, initialPillar }: { onClose: () 
     let live = true
     // Reveal after the pull resolves (or a short beat, so a hung network never blocks).
     pullCapitalCloud().then(() => { if (live) setReady(true) })
-    const t = setTimeout(() => { if (live) setReady(true) }, 1500)
+    const t = setTimeout(() => { if (live) setReady(true) }, 250)
     // localStorage is refreshed by the pull inside the subscription; broadcast so
     // any open module (e.g. Budgets/Admin) can re-read and show teammates' edits live.
     const unsub = subscribeCapitalRealtime(() => { window.dispatchEvent(new CustomEvent('capital-cloud-updated')) })

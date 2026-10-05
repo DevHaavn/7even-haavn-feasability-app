@@ -20,11 +20,13 @@ function initial(): AtriumTheme {
 }
 
 let theme: AtriumTheme = initial()
+try { document.documentElement.setAttribute('data-theme', theme) } catch { /* ignore */ }
 const subs = new Set<() => void>()
 
 export function setAtriumTheme(t: AtriumTheme) {
   if (t === theme) return
   theme = t
+  try { document.documentElement.setAttribute('data-theme', t) } catch { /* ignore */ }
   try {
     localStorage.setItem(KEY, t)
     // Keep the studio's legacy key aligned so both systems read one source of truth.
