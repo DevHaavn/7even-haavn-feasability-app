@@ -115,8 +115,16 @@ function HomeClock({ handover }: { handover?: string }) {
   )
 }
 
-export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onOpenAtriumBlack, onLogout }: {
+function isPhone(): boolean {
+  try { return matchMedia('(max-width:900px)').matches || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) <= 900) } catch { return false }
+}
+
+export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onOpenAtriumBlack, onLogout }: {
   onBack: () => void
+  /** True while the Display Suite (Studio) is open on top. On a phone the home page
+   *  underneath is released so the Studio's pictures have the memory (iOS drops
+   *  the whole app when two heavy pages are alive at once). */
+  suspended?: boolean
   /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
    *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
   restricted?: boolean
@@ -207,7 +215,7 @@ export default function HaavnHomes({ onBack, restricted, onOpenCrm, onOpenDispla
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title="HAAVN BLACK"
-        src="/haavn-black.html?v=39" allow="autoplay; fullscreen"
+        src={suspended && isPhone() ? 'about:blank' : '/haavn-black.html?v=39'} allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

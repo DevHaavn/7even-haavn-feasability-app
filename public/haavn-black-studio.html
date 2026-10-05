@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>HAAVN BLACK · Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -270,14 +270,19 @@ body.remote-on .remote{display:flex}
 .btn.live{border-color:rgba(47,224,122,.55);color:#eafff2;background:rgba(47,224,122,.07)}
 .btn.live:hover{border-color:var(--led);box-shadow:0 0 26px -8px rgba(47,224,122,.7)}
 
-/* lightbox */
-.lb{position:fixed;inset:0;z-index:96;background:rgba(0,0,0,.95);display:none;place-items:center;padding:clamp(12px,3vw,40px) clamp(12px,3vw,40px) clamp(34px,5vw,54px);grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
-.lb.on{display:grid}
-.lb img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
-.lb .x{position:absolute;top:18px;right:18px;width:44px;height:44px;border:1px solid var(--line2);border-radius:50%;color:#fff}
-.lb .nav{position:absolute;top:50%;transform:translateY(-50%);width:54px;height:54px;border:1px solid var(--line2);border-radius:50%;color:#fff;font-size:20px}
-.lb .prev{left:14px}.lb .next{right:14px}
-.lb .cap{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--ink2)}
+/* lightbox: own pinch / twist / pan / double-tap viewer (never the browser's page zoom) */
+.lb{position:fixed;inset:0;z-index:96;background:rgba(0,0,0,.97);display:none;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;overscroll-behavior:contain}
+.lb.on{display:block}
+.lb .stage{position:absolute;left:clamp(10px,3vw,40px);right:clamp(10px,3vw,40px);top:clamp(10px,3vw,40px);bottom:clamp(86px,11vw,104px);display:grid;place-items:center;touch-action:none;cursor:grab}
+.lb .stage:active{cursor:grabbing}
+.lb img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;transform-origin:50% 50%;touch-action:none;-webkit-user-drag:none;user-select:none;pointer-events:none;backface-visibility:hidden}
+.lb .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;width:46px;height:46px;border:1px solid var(--line2);border-radius:50%;color:#fff;z-index:4}
+.lb .nav{position:absolute;top:calc(50% - 40px);transform:translateY(-50%);width:50px;height:50px;border:1px solid var(--line2);border-radius:50%;color:#fff;font-size:20px;z-index:4;background:rgba(0,0,0,.35)}
+.lb .prev{left:10px}.lb .next{right:10px}
+.lb .cap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 62px);text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--ink2);pointer-events:none}
+.lb .tools{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;gap:8px;z-index:4}
+.lb .tools button{min-width:46px;height:46px;padding:0 14px;border:1px solid var(--line2);border-radius:23px;color:#fff;background:rgba(20,20,22,.7);font:500 11px var(--mono);letter-spacing:.12em;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.lb .tools svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
 footer{border-top:1px solid var(--line);padding:clamp(30px,5vh,60px) 0;margin-top:clamp(40px,8vh,90px)}
 footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;color:var(--ink3);font-size:11px}
@@ -434,11 +439,18 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 
 <!-- ── lightbox ──────────────────────────────────────────────────────── -->
 <div class="lb" id="lb">
-  <button class="x" id="lbX">✕</button>
-  <button class="nav prev" id="lbPrev">‹</button>
-  <img id="lbImg" alt="">
-  <button class="nav next" id="lbNext">›</button>
+  <button class="x" id="lbX" aria-label="Close">✕</button>
+  <button class="nav prev" id="lbPrev" aria-label="Previous">‹</button>
+  <div class="stage" id="lbStage"><img id="lbImg" alt="" decoding="async" draggable="false"></div>
+  <button class="nav next" id="lbNext" aria-label="Next">›</button>
   <div class="cap" id="lbCap"></div>
+  <div class="tools">
+    <button id="lbOut" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+    <button id="lbIn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button id="lbRotL" aria-label="Rotate left"><svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M5.5 15a8 8 0 1 0 2-8.5L4 10"/></svg></button>
+    <button id="lbRotR" aria-label="Rotate right"><svg viewBox="0 0 24 24"><path d="M20 4v6h-6"/><path d="M18.5 15a8 8 0 1 1-2-8.5L20 10"/></svg></button>
+    <button id="lbReset">Reset</button>
+  </div>
 </div>
 
 <script>
@@ -644,11 +656,64 @@ function closeModel(user){
 addEventListener('message', function(e){ if(e.data==='haavn-3d-close') closeModel(true); });
 
 /* ── lightbox ─────────────────────────────────────────────────────────── */
-var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap');
-function openLb(i, user){ if(!LB.length) return; LBI=(i%LB.length+LB.length)%LB.length; paintLb(); lb.classList.add('on'); if(user) send({type:'lb',i:LBI}); }
-function paintLb(){ var m=LB[LBI]||{}; fb(lbImg,m.src); lbImg.src=big(m.src||''); lbCap.textContent=m.cap||''; }
+var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap'), lbStage=document.getElementById('lbStage');
+/* viewer state: scale, pan (screen px), rotation (deg) and the fit factor for a quarter turn */
+var LV={s:1,x:0,y:0,r:0,base:1};
+function lvApply(){ lbImg.style.transform='translate3d('+LV.x+'px,'+LV.y+'px,0) rotate('+LV.r+'deg) scale('+(LV.base*LV.s)+')'; }
+function lvAnim(on){ lbImg.style.transition=on?'transform .22s cubic-bezier(.2,.7,.2,1)':'none'; }
+function lvDims(){ var st=lbStage.getBoundingClientRect(), nw=lbImg.naturalWidth||1, nh=lbImg.naturalHeight||1;
+  var k=Math.min(st.width/nw,st.height/nh); return {sw:st.width,sh:st.height,dw:nw*k,dh:nh*k}; }
+function lvFit(){ var d=lvDims(), q=((Math.round(LV.r)%360)+360)%360;
+  LV.base=(q===90||q===270)?Math.min(d.sw/d.dh,d.sh/d.dw,1):1; }
+function lvClamp(){ var d=lvDims(), q=((Math.round(LV.r/90)*90%360)+360)%360, w=(q===90||q===270)?d.dh:d.dw, h=(q===90||q===270)?d.dw:d.dh;
+  var mx=Math.max(0,(w*LV.base*LV.s-d.sw)/2)+40, my=Math.max(0,(h*LV.base*LV.s-d.sh)/2)+40;
+  LV.x=Math.max(-mx,Math.min(mx,LV.x)); LV.y=Math.max(-my,Math.min(my,LV.y)); }
+function lvReset(anim){ lvAnim(anim); LV.s=1;LV.x=0;LV.y=0;LV.r=0;LV.base=1; lvApply(); }
+function lvRotate(d){ lvAnim(true); LV.r=Math.round(LV.r/90)*90+d; LV.s=1;LV.x=0;LV.y=0; lvFit(); lvApply(); }
+function lvZoomAt(f,cx,cy,anim){ lvAnim(anim); var ns=Math.max(1,Math.min(6,LV.s*f));
+  if(ns<=1.001){ LV.s=1;LV.x=0;LV.y=0; } else { var k=ns/LV.s; LV.x=cx-(cx-LV.x)*k; LV.y=cy-(cy-LV.y)*k; LV.s=ns; lvClamp(); }
+  lvApply(); }
+/* touch: one finger pans (and swipes between pictures at 1x), two fingers pinch and twist, double tap toggles zoom */
+var PT={}, G=null, lastTap=0, lastTapXY=null;
+function cpt(e){ var r=lbStage.getBoundingClientRect(); return {x:e.clientX-(r.left+r.width/2), y:e.clientY-(r.top+r.height/2)}; }
+function pCount(){ return Object.keys(PT).length; }
+function startG(){ var ids=Object.keys(PT), a=PT[ids[0]], b=PT[ids[1]];
+  if(ids.length>=2){ var dx=b.x-a.x, dy=b.y-a.y; G={m:'pinch',d0:Math.hypot(dx,dy)||1,a0:Math.atan2(dy,dx),s0:LV.s,r0:LV.r}; lvAnim(false); }
+  else { G={m:'pan',sx:a.x,sy:a.y,x0:LV.x,y0:LV.y,t:Date.now(),moved:0}; lvAnim(false); } }
+lbStage.addEventListener('pointerdown',function(e){ try{lbStage.setPointerCapture(e.pointerId);}catch(x){} PT[e.pointerId]={x:e.clientX,y:e.clientY}; startG(); e.preventDefault(); });
+lbStage.addEventListener('pointermove',function(e){ if(!PT[e.pointerId]||!G) return; PT[e.pointerId]={x:e.clientX,y:e.clientY};
+  var ids=Object.keys(PT);
+  if(G.m==='pinch' && ids.length>=2){ var a=PT[ids[0]], b=PT[ids[1]], dx=b.x-a.x, dy=b.y-a.y;
+    LV.s=Math.max(1,Math.min(6,G.s0*Math.hypot(dx,dy)/G.d0)); LV.r=G.r0+(Math.atan2(dy,dx)-G.a0)*180/Math.PI; lvClamp(); lvApply(); }
+  else if(G.m==='pan'){ var dx2=e.clientX-G.sx, dy2=e.clientY-G.sy; G.moved=Math.max(G.moved,Math.hypot(dx2,dy2));
+    if(LV.s>1.001){ LV.x=G.x0+dx2; LV.y=G.y0+dy2; lvClamp(); lvApply(); } }
+  e.preventDefault(); });
+function endPtr(e){ if(!PT[e.pointerId]) return; var was=G, m=was&&was.m; delete PT[e.pointerId];
+  if(m==='pinch'){ /* settle a twist onto the nearest quarter turn when close to one */
+    var q=Math.round(LV.r/90)*90; if(Math.abs(LV.r-q)<14){ lvAnim(true); LV.r=q; lvFit(); lvApply(); }
+    if(LV.s<1.02){ lvAnim(true); LV.s=1; LV.x=0; LV.y=0; lvApply(); }
+    G=null; if(pCount()===1) startG(); return; }
+  if(m==='pan'){ var dx=e.clientX-was.sx, dy=e.clientY-was.sy, dt=Date.now()-was.t;
+    if(LV.s<=1.001 && was.moved>60 && Math.abs(dx)>Math.abs(dy)*1.5 && dt<700){ lvAnim(false); lbGo(dx<0?1:-1,true); }
+    else if(was.moved<10 && dt<350){ var now=Date.now(); var c=cpt(e);
+      if(now-lastTap<320 && lastTapXY && Math.hypot(c.x-lastTapXY.x,c.y-lastTapXY.y)<40){ if(LV.s>1.05) { lvAnim(true); LV.s=1;LV.x=0;LV.y=0; lvApply(); } else lvZoomAt(2.6,c.x,c.y,true); lastTap=0; }
+      else { lastTap=now; lastTapXY=c; } } }
+  G=null; }
+lbStage.addEventListener('pointerup',endPtr); lbStage.addEventListener('pointercancel',endPtr);
+lbStage.addEventListener('wheel',function(e){ e.preventDefault(); var c=cpt(e); lvZoomAt(e.deltaY<0?1.18:1/1.18,c.x,c.y,false); },{passive:false});
+['gesturestart','gesturechange','gestureend'].forEach(function(n){ lb.addEventListener(n,function(e){ e.preventDefault(); },{passive:false}); });
+lb.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:false});
+document.getElementById('lbIn').onclick=function(){ lvZoomAt(1.6,0,0,true); };
+document.getElementById('lbOut').onclick=function(){ lvZoomAt(1/1.6,0,0,true); };
+document.getElementById('lbRotL').onclick=function(){ lvRotate(-90); };
+document.getElementById('lbRotR').onclick=function(){ lvRotate(90); };
+document.getElementById('lbReset').onclick=function(){ lvReset(true); };
+function openLb(i, user){ if(!LB.length) return;
+  [].forEach.call(document.querySelectorAll('video'),function(v){ try{v.pause();}catch(e){} });   /* nothing else decodes while a picture is open */
+  LBI=(i%LB.length+LB.length)%LB.length; paintLb(); lb.classList.add('on'); if(user) send({type:'lb',i:LBI}); }
+function paintLb(){ var m=LB[LBI]||{}; lvReset(false); fb(lbImg,m.src); lbImg.src=big(m.src||''); lbCap.textContent=m.cap||''; }
 function lbGo(d, user){ if(!LB.length) return; LBI=(LBI+d+LB.length)%LB.length; paintLb(); if(user) send({type:'lb',i:LBI}); }
-function closeLb(user){ lb.classList.remove('on'); lbImg.removeAttribute('src'); if(user) send({type:'lbClose'}); }
+function closeLb(user){ lb.classList.remove('on'); lbImg.onerror=null; lbImg.removeAttribute('src'); lbImg.style.transform=''; PT={}; G=null; if(user) send({type:'lbClose'}); }   /* release the picture */
 document.getElementById('lbX').onclick=function(){closeLb(true);};
 document.getElementById('lbPrev').onclick=function(){lbGo(-1,true);};
 document.getElementById('lbNext').onclick=function(){lbGo(1,true);};
@@ -683,7 +748,7 @@ document.getElementById('pExit').onclick=function(){ present(false); };
 document.getElementById('pNext').onclick=function(){ goTo(cur+1, true); };
 document.getElementById('pPrev').onclick=function(){ goTo(cur-1, true); };
 document.addEventListener('keydown',function(e){
-  if(lb.classList.contains('on')){ if(e.key==='ArrowRight')lbGo(1,true); else if(e.key==='ArrowLeft')lbGo(-1,true); else if(e.key==='Escape')closeLb(true); return; }
+  if(lb.classList.contains('on')){ if(e.key==='ArrowRight')lbGo(1,true); else if(e.key==='ArrowLeft')lbGo(-1,true); else if(e.key==='Escape')closeLb(true); else if(e.key==='+'||e.key==='=')lvZoomAt(1.4,0,0,true); else if(e.key==='-')lvZoomAt(1/1.4,0,0,true); else if(e.key==='r'||e.key==='R')lvRotate(90); return; }
   if(prod.classList.contains('on') && e.key==='Escape'){ closeHome(true); return; }
   if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); goTo(cur+1,true); }
   else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); goTo(cur-1,true); }
@@ -789,6 +854,18 @@ document.getElementById('rNext').onclick=function(){ goTo(cur+1,true); };
 document.getElementById('rPrev').onclick=function(){ goTo(cur-1,true); };
 document.getElementById('rPlay').onclick=function(){ playFilm(0,true); };
 document.getElementById('rEnd').onclick=function(){ send({type:'end'}); document.body.classList.remove('remote-on'); isRemote=false; };
+
+/* A phone that drops the page (iOS does this under memory pressure) comes back to the same home and the same picture, not the front screen. */
+var VIEW_KEY='haavn_studio_view_v1', _restoring=false;
+function rememberView(){ if(_restoring||TVMODE) return; try{ sessionStorage.setItem(VIEW_KEY,JSON.stringify({home:openIdx,lb:lb.classList.contains('on')?LBI:null,y:window.scrollY||0})); }catch(e){} }
+(function(){ var oH=openHome, cH=closeHome, oL=openLb, cL=closeLb;
+  openHome=function(i,u){ oH(i,u); rememberView(); }; closeHome=function(u){ cH(u); rememberView(); };
+  openLb=function(i,u){ oL(i,u); rememberView(); };    closeLb=function(u){ cL(u); rememberView(); };
+  addEventListener('pagehide',rememberView); })();
+(function(){ if(TVMODE) return; var v; try{ v=JSON.parse(sessionStorage.getItem(VIEW_KEY)||'null'); }catch(e){} if(!v) return;
+  _restoring=true;
+  try{ if(v.home!=null && HOMES[v.home]){ openHome(v.home); if(v.lb!=null) openLb(v.lb); } else if(v.y){ setTimeout(function(){ window.scrollTo(0,v.y); },60); } }catch(e){}
+  _restoring=false; })();
 </script>
 </body>
 </html>

@@ -224,7 +224,7 @@ export default function App() {
   // The HM device button (top-right) opens the Management Hub, mounted above.
   if (homesOpen) return (
     <RoleContext.Provider value={role}>
-      <HaavnHomes onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={role === 'admin' ? () => setHomesCapitalOpen(true) : undefined} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} />
+      <HaavnHomes suspended={displaySuiteOpen} onBack={goHome} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenCapital={role === 'admin' ? () => setHomesCapitalOpen(true) : undefined} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} />
       {/* HAAVN Homes' HM link opens the HAAVN Homes-exclusive CRM, NOT the shared
           Management Hub. 7EVEN + the HM Hub CRM are unchanged. */}
       {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
@@ -257,7 +257,7 @@ export default function App() {
   if (role === 'homes') {
     return (
       <RoleContext.Provider value={role}>
-        <HaavnHomes restricted onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
+        <HaavnHomes restricted suspended={displaySuiteOpen} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
         {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
         {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
