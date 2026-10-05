@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--serif:"Newsreader",Georgia,serif;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
---accent:#d6b36a;--green:#5aa87a;--blue:#5b8def;--red:#e0644f;--orange:#e08a4f;--slate:#8a9099;--purple:#a179d8;--teal:#4fa8a0;--r:16px;--rs:11px;--ease:cubic-bezier(.22,.61,.36,1)}
+--accent:#d6b36a;--green:#a9d4b5;--blue:#9db8e8;--red:#f0a39b;--orange:#f0bf9a;--slate:#b4bac4;--purple:#c0a9e4;--teal:#9fd3d0;--green-t:color-mix(in srgb,var(--green) 45%,var(--ink));--blue-t:color-mix(in srgb,var(--blue) 45%,var(--ink));--red-t:color-mix(in srgb,var(--red) 45%,var(--ink));--purple-t:color-mix(in srgb,var(--purple) 45%,var(--ink));--orange-t:color-mix(in srgb,var(--orange,#f0bf9a) 45%,var(--ink));--r:16px;--rs:11px;--ease:cubic-bezier(.22,.61,.36,1)}
 [data-theme=light]{--bg0:#eceae4;--bg1:#f4f2ec;--card:rgba(255,255,255,.72);--ink:#1a1b1e;--ink-2:#4a4d54;--ink-3:#83868e;--ink-4:#a7aab1;--line:rgba(20,20,25,.10);--line-2:rgba(20,20,25,.06);--pill:rgba(20,20,25,.045);--row:rgba(255,255,255,.5)}
 [data-theme=dark]{--bg0:#0b0c0f;--bg1:#101216;--card:rgba(24,26,32,.66);--ink:#f3f1ec;--ink-2:#b7b9bf;--ink-3:#7d818b;--ink-4:#565a63;--line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.055);--pill:rgba(255,255,255,.06);--row:rgba(255,255,255,.025)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -48,9 +48,9 @@ h2{font-family:var(--serif);font-weight:400;font-size:22px}
 .btn{border:1px solid var(--line);background:var(--pill);padding:7px 13px;border-radius:100px;cursor:pointer;font-size:12.5px;color:var(--ink-2);white-space:nowrap}
 .btn:hover{color:var(--ink);border-color:var(--ink-4)}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#1a1b1e;font-weight:600}
-.btn.dng{color:var(--red)}
+.btn.dng{color:var(--red-t)}
 .pill{display:inline-block;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:500;border:1px solid var(--line);background:var(--pill)}
-.st-complete{color:var(--green)}.st-delayed{color:var(--orange)}.st-critical{color:var(--red)}.st-in-progress{color:var(--accent)}.st-not-started{color:var(--ink-3)}
+.st-complete{color:var(--green-t)}.st-delayed{color:var(--orange-t)}.st-critical{color:var(--red-t)}.st-in-progress{color:var(--accent)}.st-not-started{color:var(--ink-3)}
 .row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}
 .bar-row{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-2)}
 .bar-row:last-child{border:none}
@@ -88,7 +88,7 @@ label.f>span{display:block;color:var(--ink-3);margin-bottom:5px}
 .bar{position:absolute;top:7px;height:20px;border-radius:7px;cursor:grab;touch-action:none;overflow:hidden;border:1px solid rgba(0,0,0,.12)}
 .bar.ro{cursor:pointer}
 .bar .fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.3)}
-.bar span{position:relative;font-size:10.5px;padding:0 8px;line-height:18px;color:#fff;white-space:nowrap;font-weight:500;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.bar span{position:relative;font-size:10.5px;padding:0 8px;line-height:18px;color:#1a1b1e;white-space:nowrap;font-weight:500}
 .bar .h{position:absolute;top:0;bottom:0;width:7px;cursor:ew-resize}.bar .h.l{left:0}.bar .h.r{right:0}
 .bar.ro .h{display:none}
 .bar.s-complete{background:var(--green)}.bar.s-in-progress{background:var(--accent)}.bar.s-in-progress span{color:#2a1f08;text-shadow:none}
@@ -101,7 +101,7 @@ label.f>span{display:block;color:var(--ink-3);margin-bottom:5px}
 .gl{position:absolute;top:0;bottom:0;width:1px;background:var(--line-2)}
 .gl.pcg{background:var(--accent);opacity:.28;width:1px}
 .gl.today{background:var(--red);opacity:.85;width:2px;z-index:3}
-.todaylab{position:absolute;top:0;background:var(--red);color:#fff;font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:0 0 6px 6px;z-index:4;transform:translateX(-50%)}
+.todaylab{position:absolute;top:0;background:var(--red);color:#2a1210;font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:0 0 6px 6px;z-index:4;transform:translateX(-50%)}
 .hm{position:absolute;top:0;height:28px;font-weight:500;border-left:1px solid var(--line);padding:6px 6px;font-size:11px;color:var(--ink-3);white-space:nowrap}
 .hf{position:absolute;top:28px;height:28px;border-left:1px solid var(--line-2);padding:7px 4px;font-size:10px;color:var(--accent);font-family:var(--mono);white-space:nowrap}
 svg.deps{position:absolute;left:0;top:0;pointer-events:none;z-index:2}
@@ -183,14 +183,14 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 
 /* ---------- seed ---------- */
 var PHASES=[
- {id:"tp",label:"Town planning",c:"#a179d8"},
+ {id:"tp",label:"Town planning",c:"#c0a9e4"},
  {id:"cp",label:"Consultant procurement",c:"#d6b36a"},
- {id:"te",label:"Tender and ECI",c:"#5b8def"},
- {id:"dd",label:"Design documentation",c:"#4fa8a0"},
- {id:"pm",label:"Permits",c:"#e0644f"},
- {id:"sd",label:"Site and demolition",c:"#8a9099"},
- {id:"cn",label:"Construction",c:"#5aa87a"},
- {id:"fo",label:"Fitout and completion",c:"#e08a4f"}
+ {id:"te",label:"Tender and ECI",c:"#9db8e8"},
+ {id:"dd",label:"Design documentation",c:"#9fd3d0"},
+ {id:"pm",label:"Permits",c:"#f0a39b"},
+ {id:"sd",label:"Site and demolition",c:"#b4bac4"},
+ {id:"cn",label:"Construction",c:"#a9d4b5"},
+ {id:"fo",label:"Fitout and completion",c:"#f0bf9a"}
 ];
 var STATUSES=[["not-started","Not started"],["in-progress","On track"],["delayed","Delayed"],["critical","Critical"],["complete","Complete"]];
 var OWNERS=["HAAVN Management","John Dimattina","James Winstanley","James Maloney","Domenic Paolilli","HAAVN Supply","Jamie Baldwin","PPP","Council / DFP","Fraser & Partners","IGS","EDGE","Consultants","Contractor","Building Surveyor","Resolve","Demo Contractor","Property Manager","7EVEN Capital"];
@@ -400,7 +400,7 @@ function vGantt(){
  '<label class="dmonly"><input type="checkbox" id="casc"'+(S.settings.cascade?" checked":"")+'> Push dependent activities</label>'+
  '<span class="sp"></span><button class="btn dmonly" id="addT">+ Activity</button><button class="btn dmonly" id="setBase" title="Lock the current dates as the baseline for variance">Set baseline to now</button></div>'+
  '<div class="gwrap" id="gw">'+inner+'</div>'+
- '<div class="legend"><span><i style="background:var(--green)"></i>Complete</span><span><i style="background:var(--accent)"></i>On track</span><span><i style="background:var(--orange)"></i>Delayed</span><span><i style="background:var(--red)"></i>Critical</span><span><i style="background:var(--slate)"></i>Not started</span><span><i style="background:var(--red);width:2px;height:12px"></i>Today</span><span><i style="background:var(--accent);opacity:.4;width:2px;height:12px"></i>PCG fortnightly meeting</span><span><i style="background:var(--ink-3);height:3px;vertical-align:2px"></i>Baseline position</span><span style="color:var(--red)">Red outline = past due</span></div>';
+ '<div class="legend"><span><i style="background:var(--green)"></i>Complete</span><span><i style="background:var(--accent)"></i>On track</span><span><i style="background:var(--orange)"></i>Delayed</span><span><i style="background:var(--red)"></i>Critical</span><span><i style="background:var(--slate)"></i>Not started</span><span><i style="background:var(--red);width:2px;height:12px"></i>Today</span><span><i style="background:var(--accent);opacity:.4;width:2px;height:12px"></i>PCG fortnightly meeting</span><span><i style="background:var(--ink-3);height:3px;vertical-align:2px"></i>Baseline position</span><span style="color:var(--red-t)">Red outline = past due</span></div>';
 }
 bind.gantt=function(){
  var gw=document.getElementById("gw");
@@ -474,7 +474,7 @@ function vTasks(){
  '<div class="grid g4" style="margin-top:16px">'+STATUSES.map(function(s){return'<div class="card kpi" style="padding:14px 16px"><div class="k mono">'+s[1]+'</div><div class="v st-'+s[0]+'">'+cnt[s[0]]+'</div></div>';}).join("")+'</div>'+
  '<div class="tools"><label>Status <select id="fs"><option value="">All</option>'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(filt.status===s[0]?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select></label><label>Phase <select id="fp"><option value="">All</option>'+PHASES.map(function(p){return'<option value="'+p.id+'"'+(filt.phase===p.id?" selected":"")+'>'+p.label+'</option>';}).join("")+'</select></label><label>Owner <select id="fo"><option value="">All</option>'+owners.map(function(o){return'<option'+(filt.owner===o?" selected":"")+'>'+esc(o)+'</option>';}).join("")+'</select></label><span class="sp"></span><button class="btn dmonly" id="addT2">+ Activity</button></div>'+
  '<div class="card" style="padding:6px 10px"><table><tr><th>Activity</th><th>Phase</th><th>Owner</th><th>Start</th><th>Finish</th><th>Progress</th><th>Status</th></tr>'+
- ts.map(function(t){var late=isLate(t);return'<tr class="click" data-id="'+t.id+'"><td><b>'+esc(t.name)+'</b>'+(t.ms?' <span class="pill">milestone</span>':"")+(late?' <span class="pill" style="color:var(--red)">past due</span>':"")+'</td><td><span class="dot" style="background:'+ph(t.phase).c+';display:inline-block;margin-right:6px"></span>'+ph(t.phase).label+'</td><td>'+esc(t.owner)+'</td><td>'+fmt(t.start,1)+'</td><td>'+fmt(t.end,1)+'</td><td><div class="pbar"><i style="width:'+t.progress+'%"></i></div></td><td>'+(canEdit()?'<select class="qs" data-id="'+t.id+'" style="width:auto;padding:4px 8px">'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(s[0]===t.status?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select>':'<span class="st-'+t.status+'">'+STATUSES.filter(function(s){return s[0]===t.status;})[0][1]+'</span>')+'</td></tr>';}).join("")+'</table></div>';
+ ts.map(function(t){var late=isLate(t);return'<tr class="click" data-id="'+t.id+'"><td><b>'+esc(t.name)+'</b>'+(t.ms?' <span class="pill">milestone</span>':"")+(late?' <span class="pill" style="color:var(--red-t)">past due</span>':"")+'</td><td><span class="dot" style="background:'+ph(t.phase).c+';display:inline-block;margin-right:6px"></span>'+ph(t.phase).label+'</td><td>'+esc(t.owner)+'</td><td>'+fmt(t.start,1)+'</td><td>'+fmt(t.end,1)+'</td><td><div class="pbar"><i style="width:'+t.progress+'%"></i></div></td><td>'+(canEdit()?'<select class="qs" data-id="'+t.id+'" style="width:auto;padding:4px 8px">'+STATUSES.map(function(s){return'<option value="'+s[0]+'"'+(s[0]===t.status?" selected":"")+'>'+s[1]+'</option>';}).join("")+'</select>':'<span class="st-'+t.status+'">'+STATUSES.filter(function(s){return s[0]===t.status;})[0][1]+'</span>')+'</td></tr>';}).join("")+'</table></div>';
 }
 bind.tasks=function(){
  ["fs:status","fp:phase","fo:owner"].forEach(function(p){var a=p.split(":");document.getElementById(a[0]).onchange=function(e){filt[a[1]]=e.target.value;render();};});
@@ -493,16 +493,16 @@ function vConsultants(){
    if(o){var low=Math.min.apply(null,l.quotes.filter(function(x){return x.fee>0;}).map(function(x){return x.fee;}).concat([Infinity]));
     h+='<tr><td></td><td colspan="5" style="background:var(--row)"><div class="note" style="margin:4px 0 6px">'+(canEdit()?"Add each consultant's quote, then the client picks the preferred one.":"Pick the consultant you prefer. Your DMs will appoint them.")+'</div>'+
      l.quotes.map(function(x){var diff=x.fee>0&&low<Infinity?x.fee-low:0;
-      return'<div class="quote"><input type="radio" name="r'+l.id+'" '+(l.sel===x.id?"checked":"")+' data-pick="'+l.id+'|'+x.id+'"><div>'+(canEdit()?'<input type="text" data-qf="'+l.id+'|'+x.id+'|firm" value="'+esc(x.firm)+'">':'<b>'+esc(x.firm)+'</b>')+(x.fee>0&&x.fee===low&&l.quotes.length>1?' <span class="pill" style="color:var(--green)">lowest</span>':"")+'</div>'+
+      return'<div class="quote"><input type="radio" name="r'+l.id+'" '+(l.sel===x.id?"checked":"")+' data-pick="'+l.id+'|'+x.id+'"><div>'+(canEdit()?'<input type="text" data-qf="'+l.id+'|'+x.id+'|firm" value="'+esc(x.firm)+'">':'<b>'+esc(x.firm)+'</b>')+(x.fee>0&&x.fee===low&&l.quotes.length>1?' <span class="pill" style="color:var(--green-t)">lowest</span>':"")+'</div>'+
       '<div>'+(canEdit()?'<input type="number" data-qf="'+l.id+'|'+x.id+'|fee" value="'+(x.fee||"")+'" placeholder="Fee ex GST">':'<b>'+(x.fee?money(x.fee):"awaiting")+'</b>')+'</div><div class="note">'+(diff>0?"+"+money(diff)+" vs lowest":"")+'</div>'+
       '<div>'+(canEdit()?'<select data-qf="'+l.id+'|'+x.id+'|status"><option value="requested"'+(x.status==="requested"?" selected":"")+'>Requested</option><option value="quoted"'+(x.status==="quoted"?" selected":"")+'>Quoted</option><option value="signed"'+(x.status==="signed"?" selected":"")+'>Signed</option></select>':"")+'</div>'+
       '<div>'+(canEdit()&&l.quotes.length>1?'<button class="btn dng" data-qd="'+l.id+'|'+x.id+'" style="padding:3px 8px">×</button>':"")+'</div></div>';}).join("")+
      (canEdit()?'<button class="btn" data-qa="'+l.id+'" style="margin:6px 0 8px">+ Add another quote</button>':"")+'</td></tr>';}
   });return h;}).join("");
  return'<div class="row wrap" style="align-items:flex-end"><div style="flex:1;min-width:260px"><h1>Consultants and quotes</h1><div class="sub">HAAVN Management obtains quotes for every discipline. The client chooses the preferred consultant and sees exactly what it will cost.</div></div><button class="btn noprint" id="csv">Export CSV</button></div>'+
- '<div class="grid g4" style="margin-top:16px"><div class="card kpi"><div class="k mono">Total consultant fees</div><div class="v">'+money(c.total)+'</div><div class="d">Selected quote on each line, ex GST</div></div><div class="card kpi"><div class="k mono">Signed</div><div class="v" style="color:var(--green)">'+money(c.signed)+'</div><div class="d">Fee proposals executed</div></div><div class="card kpi"><div class="k mono">Quoted, not signed</div><div class="v" style="color:var(--accent)">'+money(c.quoted)+'</div><div class="d">Awaiting client decision</div></div><div class="card kpi"><div class="k mono">Quotes outstanding</div><div class="v" style="color:var(--orange)">'+c.out+'</div><div class="d">of '+c.n+' fee lines have no price yet</div></div></div>'+
+ '<div class="grid g4" style="margin-top:16px"><div class="card kpi"><div class="k mono">Total consultant fees</div><div class="v">'+money(c.total)+'</div><div class="d">Selected quote on each line, ex GST</div></div><div class="card kpi"><div class="k mono">Signed</div><div class="v" style="color:var(--green-t)">'+money(c.signed)+'</div><div class="d">Fee proposals executed</div></div><div class="card kpi"><div class="k mono">Quoted, not signed</div><div class="v" style="color:var(--accent)">'+money(c.quoted)+'</div><div class="d">Awaiting client decision</div></div><div class="card kpi"><div class="k mono">Quotes outstanding</div><div class="v" style="color:var(--orange-t)">'+c.out+'</div><div class="d">of '+c.n+' fee lines have no price yet</div></div></div>'+
  '<div class="card" style="margin-top:14px;padding:6px 10px"><table><tr><th></th><th>Scope</th><th>Preferred consultant</th><th class="num">Fee</th><th colspan="2">Status</th></tr>'+rows+
- '<tr class="grp"><td colspan="3">Statutory and council</td><td class="num">'+money(statTotal())+'</td><td colspan="2" class="note">Paid</td></tr>'+S.stat.map(function(s){return'<tr><td></td><td colspan="2">'+esc(s.name)+'</td><td class="num">'+money(s.fee)+'</td><td colspan="2"><span class="pill" style="color:var(--green)">Paid</span></td></tr>';}).join("")+
+ '<tr class="grp"><td colspan="3">Statutory and council</td><td class="num">'+money(statTotal())+'</td><td colspan="2" class="note">Paid</td></tr>'+S.stat.map(function(s){return'<tr><td></td><td colspan="2">'+esc(s.name)+'</td><td class="num">'+money(s.fee)+'</td><td colspan="2"><span class="pill" style="color:var(--green-t)">Paid</span></td></tr>';}).join("")+
  '<tr class="grp"><td colspan="3">Total consultants and statutory</td><td class="num">'+money(c.total+statTotal())+'</td><td colspan="2"></td></tr></table></div>'+
  '<div class="note" style="margin-top:10px">Signed fees are from the executed fee proposals in the Preston cost stack. Lines marked awaiting have a consultant named but no price yet. Add competing quotes on any line with the + button.</div>';
 }
@@ -535,7 +535,7 @@ function vPcg(){
  '<div class="grid g2" style="margin-top:12px"><div><div class="mono" style="color:var(--accent);margin-bottom:6px">1. Programme this fortnight</div>'+li(active,function(t){return"<li>"+esc(t.name)+' <span class="note">'+esc(t.owner)+" · due "+fmt(t.end,1)+"</span></li>";})+
  '<div class="mono" style="color:var(--accent);margin:12px 0 6px">2. Starting next</div>'+li(starting,function(t){return"<li>"+esc(t.name)+' <span class="note">'+fmt(t.start,1)+"</span></li>";})+
  '<div class="mono" style="color:var(--accent);margin:12px 0 6px">3. Milestones in next 6 weeks</div>'+li(mss,function(t){return"<li>"+esc(t.name)+' <span class="note">'+fmt(t.end,1)+"</span></li>";})+'</div>'+
- '<div><div class="mono" style="color:var(--red);margin-bottom:6px">4. Late, delayed or critical</div>'+li(lateT,function(t){return"<li>"+esc(t.name)+' <span class="note st-'+t.status+'">'+(isLate(t)?"past due "+fmt(t.end,1):t.status)+"</span></li>";})+
+ '<div><div class="mono" style="color:var(--red-t);margin-bottom:6px">4. Late, delayed or critical</div>'+li(lateT,function(t){return"<li>"+esc(t.name)+' <span class="note st-'+t.status+'">'+(isLate(t)?"past due "+fmt(t.end,1):t.status)+"</span></li>";})+
  '<div class="mono" style="color:var(--accent);margin:12px 0 6px">5. Consultant quotes</div>'+(out.length?'<div class="note">'+out.length+' fee lines still awaiting a price.</div>':'<div class="note">All lines priced.</div>')+li(multi,function(l){return"<li>"+esc(l.disc+": "+l.scope)+' <span class="note">client to choose between '+l.quotes.length+" quotes</span></li>";})+'</div></div></div>'+
  '<div class="card" style="margin-top:14px"><div class="mono" style="color:var(--accent);margin-bottom:8px">Minutes</div>'+
  '<label class="f"><span class="mono">Attendees</span><input type="text" id="m_att" value="'+esc(m.attendees)+'"></label><label class="f"><span class="mono">Discussion</span><textarea id="m_notes">'+esc(m.notes)+'</textarea></label><label class="f"><span class="mono">Decisions</span><textarea id="m_dec" style="min-height:60px">'+esc(m.decisions)+'</textarea></label>'+

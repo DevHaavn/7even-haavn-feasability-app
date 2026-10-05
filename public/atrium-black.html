@@ -24,7 +24,7 @@
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --gold:#d6b36a; --gold-hi:#e6d3a3; --gold-deep:#b89a5e;
   --at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0;
-  --green:#5aa87a; --blue:#5b8def; --red:#e0644f; --purple:#a179d8;
+  --green:#a9d4b5; --blue:#9db8e8; --red:#f0a39b; --purple:#c0a9e4; --orange:#f0bf9a; --green-t:color-mix(in srgb,var(--green) 45%,var(--ink));--blue-t:color-mix(in srgb,var(--blue) 45%,var(--ink));--red-t:color-mix(in srgb,var(--red) 45%,var(--ink));--purple-t:color-mix(in srgb,var(--purple) 45%,var(--ink));--orange-t:color-mix(in srgb,var(--orange,#f0bf9a) 45%,var(--ink));
 }
 [data-theme="dark"]{
   --bg0:#0B0D0F; --bg1:#101216; --ink:#F3F2EE; --ink-2:#b7b9bf; --ink-3:#7d818b; --ink-4:#565a63;
@@ -79,7 +79,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .swatch.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg1) inset}
 .prof-avwrap{width:64px;height:64px}
 .rail-cloud{display:flex;align-items:center;gap:7px;padding:8px 10px;margin:6px 2px 0;border-radius:10px;border:1px solid var(--line);background:var(--pill);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
-.rail-cloud .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex:none}
+.rail-cloud .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px color-mix(in srgb,var(--green) 70%,transparent);flex:none}
 
 .main{flex:1;min-width:0}
 .topbar{position:sticky;top:0;z-index:80;background:rgba(11,13,15,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-2);
@@ -108,7 +108,7 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .notifbtn{position:relative;background:none;border:1px solid var(--line-2);color:var(--ink-2);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .notifbtn:hover{border-color:var(--ink-4);color:var(--ink)}
 .notifbtn svg{width:16px;height:16px}
-.notifbtn .dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--red);color:#fff;font:700 9px var(--mono);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg1)}
+.notifbtn .dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--red);color:#2a1210;font:700 9px var(--mono);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg1)}
 .notifdrop{position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--bg1);border:1px solid var(--line-2);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.4);max-height:440px;overflow-y:auto;z-index:220;display:none}
 .notifdrop.on{display:block}
 .notifdrop .nhead{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line-2);position:sticky;top:0;background:var(--bg1)}
@@ -167,10 +167,10 @@ td.tt{color:var(--ink);font-weight:500}
 
 .chip{font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);display:inline-block}
 .chip.gold{color:#1a1b1e;border-color:transparent;background:#d6b36a;font-weight:600}
-.chip.green{color:var(--green);border-color:rgba(90,168,122,.4);background:rgba(90,168,122,.1)}
-.chip.red{color:var(--red);border-color:rgba(224,100,79,.4);background:rgba(224,100,79,.1)}
-.chip.blue{color:var(--blue);border-color:rgba(91,141,239,.4);background:rgba(91,141,239,.1)}
-.chip.ext{color:var(--purple);border-color:rgba(161,121,216,.4);background:rgba(161,121,216,.1)}
+.chip.green{color:var(--green-t);border-color:color-mix(in srgb,var(--green) 70%,transparent);background:color-mix(in srgb,var(--green) 22%,transparent)}
+.chip.red{color:var(--red-t);border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 22%,transparent)}
+.chip.blue{color:var(--blue-t);border-color:color-mix(in srgb,var(--blue) 70%,transparent);background:color-mix(in srgb,var(--blue) 22%,transparent)}
+.chip.ext{color:var(--purple-t);border-color:color-mix(in srgb,var(--purple) 70%,transparent);background:color-mix(in srgb,var(--purple) 22%,transparent)}
 
 .stagestrip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
 .stagechip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center}
@@ -227,17 +227,17 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 .watchrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
 .memberchip{display:inline-flex;align-items:center;gap:6px;background:var(--pill);border:1px solid var(--line);border-radius:999px;padding:3px 9px 3px 3px;font-size:12px;color:var(--ink)}
 .memberchip .x{cursor:pointer;color:var(--ink-3);padding:0 2px;font-size:13px}
-.memberchip .x:hover{color:var(--red)}
+.memberchip .x:hover{color:var(--red-t)}
 .watchrow select{width:auto;flex:none;min-width:160px}
 .subrow{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12.5px}
 .subrow .x{margin-left:auto;cursor:pointer;color:var(--ink-3);padding:0 4px}
-.subrow .x:hover{color:var(--red)}
+.subrow .x:hover{color:var(--red-t)}
 .attrow{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px}
 .attrow .fic{flex:none}
 .attrow .fnm{flex:1;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .attrow .fsz{color:var(--ink-3);font:400 10px var(--mono);flex:none}
 .attrow .x{cursor:pointer;color:var(--ink-3);padding:0 4px;flex:none}
-.attrow .x:hover{color:var(--red)}
+.attrow .x:hover{color:var(--red-t)}
 
 .modalbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;opacity:0;pointer-events:none;transition:.25s;overflow-y:auto}
 .modalbg.on{opacity:1;pointer-events:auto}
@@ -1190,7 +1190,7 @@ function viewPartners(){
   h+='<div class="tablewrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Type</th><th>Stage</th><th>Owner</th><th>Value</th><th>Next action</th><th>Projects</th></tr></thead><tbody>';
   h+=list.length?list.map(function(p){
     var linked=WS.supplyProjects.filter(function(sp){return sp.partnerId===p.id;}).length;
-    return '<tr onclick="openPartnerModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:rgba(224,100,79,.08)"':'')+'><td class="tt">'+esc(p.company)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Possible duplicate</span>':'')+'</td><td>'+esc(p.contactName)+'</td><td><span class="chip">'+esc(p.partnerType)+'</span></td>'+
+    return '<tr onclick="openPartnerModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:color-mix(in srgb,var(--red) 18%,transparent)"':'')+'><td class="tt">'+esc(p.company)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Possible duplicate</span>':'')+'</td><td>'+esc(p.contactName)+'</td><td><span class="chip">'+esc(p.partnerType)+'</span></td>'+
       '<td><span class="chip gold">'+esc(p.stage)+'</span></td><td>'+esc(p.owner)+'</td><td>'+fmtM(p.value)+'</td><td>'+esc(p.nextAction||'—')+(p.nextActionDate?' · '+esc(p.nextActionDate):'')+'</td><td>'+linked+'</td></tr>';
   }).join(''):(all.length?'<tr><td colspan="8" class="empty">No partners match — <span style="cursor:pointer;text-decoration:underline" onclick="pClearFilters();window._pstage=\'\';render()">clear filters</span>, import a CSV, or add one by hand.</td></tr>':'<tr><td colspan="8" class="empty">No partners yet — import the partner spreadsheet as CSV, or add one by hand.</td></tr>');
   h+='</tbody></table></div>';
@@ -1267,7 +1267,7 @@ function viewSupply(){
   h+='<div style="font-size:11px;color:var(--ink-3);margin:-4px 0 8px">'+list.length+' of '+all.length+' shown</div>';
   h+='<div class="tablewrap"><table><thead><tr><th>Address</th><th>Client</th><th>Stage</th><th>Order value</th><th>Modules</th><th>Certainty</th><th>Owner</th><th>Next action</th></tr></thead><tbody>';
   h+=list.length?list.map(function(p){
-    return '<tr onclick="openSupplyModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:rgba(224,100,79,.08)"':'')+'><td class="tt">'+esc(p.address)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Same address</span>':'')+'</td><td>'+esc(p.client)+'</td><td><span class="chip gold">'+esc(p.stage)+'</span></td>'+
+    return '<tr onclick="openSupplyModal(\''+p.id+'\')"'+(dm[p.id]?' style="background:color-mix(in srgb,var(--red) 18%,transparent)"':'')+'><td class="tt">'+esc(p.address)+(dm[p.id]?' <span class="chip red" style="margin-left:6px">Same address</span>':'')+'</td><td>'+esc(p.client)+'</td><td><span class="chip gold">'+esc(p.stage)+'</span></td>'+
       '<td>'+fmtM(p.orderValue)+'</td><td>'+ (p.modules||0) +'</td><td>'+(p.certainty==null?'<span class="chip">Unknown</span>':p.certainty+'%')+'</td><td>'+esc(p.owner)+'</td><td>'+esc(p.nextAction||'—')+'</td></tr>';
   }).join(''):(all.length?'<tr><td colspan="8" class="empty">No projects match — <span style="cursor:pointer;text-decoration:underline" onclick="lClearFilters();window._sstage=\'\';render()">clear filters</span>, import a CSV, or add one by hand.</td></tr>':'<tr><td colspan="8" class="empty">No supply projects yet — import the pipeline spreadsheet as CSV, or add one by hand.</td></tr>');
   h+='</tbody></table></div>';
@@ -1501,7 +1501,7 @@ function saveAction(id,isNew){
 }
 
 /* ===================== Team Board (carried over from the old workflow tool) ===================== */
-var STATUS_COLOR={todo:'var(--ink-3)',doing:'var(--blue)',blocked:'var(--red)',review:'var(--gold-deep)',done:'var(--green)'};
+var STATUS_COLOR={todo:'var(--ink-3)',doing:'var(--blue-t)',blocked:'var(--red-t)',review:'var(--gold-deep)',done:'var(--green-t)'};
 var DEPT_COLOR={company:'#8a9099','7even':'#9db8e8',haavn:'#a9d4b5',haavnblack:'#b4bac4',haavnmgmt:'#eeb0c4',admin:'#c0a9e4'};
 function deptColor(d){return DEPT_COLOR[d]||'#8a9099';}
 function allKnownDepts(){var out=['company','7even','haavn','haavnblack','haavnmgmt','admin'],seen={};out.forEach(function(d){seen[d]=1;});
@@ -1653,7 +1653,7 @@ function deleteMeetingRecord(id){
   if(!m) return;
   var body='<h4>Delete meeting?</h4>'+
     '<p style="font-size:13px;color:var(--ink-2);margin:-8px 0 4px">Permanently delete "'+esc(m.title||'Weekly Company Meeting')+'"? This removes it from both pillars and cannot be undone.</p>'+
-    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="commitDeleteMeeting(\''+id+'\')">Delete meeting</button></div>';
+    '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn" style="color:var(--red-t);border-color:color-mix(in srgb,var(--red) 70%,transparent)" onclick="commitDeleteMeeting(\''+id+'\')">Delete meeting</button></div>';
   showModal(body);
 }
 function commitDeleteMeeting(id){
@@ -1753,7 +1753,7 @@ function openMeetingDetail(id){
   if(m.minutes){
     body+='<div style="margin-bottom:8px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Minutes &amp; general notes</div><div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.minutes)+'</div></div>';
   }
-  body+='<div class="foot"><button type="button" class="btn" style="color:var(--red);border-color:rgba(224,100,79,.4)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div>'+
+  body+='<div class="foot"><button type="button" class="btn" style="color:var(--red-t);border-color:color-mix(in srgb,var(--red) 70%,transparent)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div>'+
     (m.closed?'':'<button type="button" class="btn gold" onclick="openMeetingInPillar02(\''+m.id+'\')">Open in Meeting Management →</button>')+
     '<button type="button" class="btn" onclick="closeModal()">Close</button></div>';
   showModal(body);
