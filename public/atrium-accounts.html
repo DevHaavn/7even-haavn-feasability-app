@@ -367,6 +367,31 @@ th{color:var(--mute)}
 .topbar .modlbl .n{color:#d6b36a !important}
 .topbar .partner{color:rgba(220,214,202,.6) !important}
 .topbar .partner .sep{background:rgba(220,214,202,.28) !important}
+
+/* ===== ATRIUM pastel status palette: lights, chips, pills, matrix cells ===== */
+body:not(.atr-dark){
+  --green:#a9d4b5;--red:#f0a39b;--amber:#e8d594;
+  --green-soft:color-mix(in srgb,var(--green) 34%,transparent);--amber-soft:color-mix(in srgb,var(--amber) 38%,transparent);
+  --red-bg:color-mix(in srgb,var(--red) 30%,transparent);--amber-bg:color-mix(in srgb,var(--amber) 38%,transparent);
+  --red-tx:color-mix(in srgb,var(--red) 40%,#1a1b1e);--amber-tx:color-mix(in srgb,var(--amber) 38%,#1a1b1e);
+  --f-700:color-mix(in srgb,#a9d4b5 35%,#1a1b1e);--f-600:color-mix(in srgb,#a9d4b5 48%,#1a1b1e);--f-500:#8fc4a1;--f-400:#a9d4b5;--f-300:#a9d4b5;--f-100:#e3f1e8;--f-50:#eef7f1;
+}
+body.atr-dark{
+  --green:#a9d4b5;--red:#f0a39b;--amber:#e8d594;
+  --green-soft:color-mix(in srgb,var(--green) 22%,transparent);--amber-soft:color-mix(in srgb,var(--amber) 22%,transparent);
+  --red-bg:color-mix(in srgb,var(--red) 22%,transparent);--amber-bg:color-mix(in srgb,var(--amber) 22%,transparent);
+  --red-tx:color-mix(in srgb,var(--red) 88%,#fff);--amber-tx:color-mix(in srgb,var(--amber) 88%,#fff);
+  --f-700:#8fc4a1;--f-600:#a9d4b5;--f-500:#a9d4b5;--f-400:#a9d4b5;--f-300:#a9d4b5;--f-100:color-mix(in srgb,#a9d4b5 14%,transparent);--f-50:color-mix(in srgb,#a9d4b5 10%,transparent);
+}
+body{--green-t:color-mix(in srgb,var(--green) 45%,var(--ink))}
+.btn.green{background:#d6b36a;color:#1a1b1e;border-color:transparent;font-weight:600;box-shadow:none}
+.btn.green:hover{background:#d6b36a;filter:brightness(1.05)}
+.btn.arm{color:#2a1210}
+.pill.live{border-color:color-mix(in srgb,var(--green) 60%,transparent)}
+.pill.hold{border-color:color-mix(in srgb,var(--amber) 70%,transparent)}
+.pill.loss{border-color:color-mix(in srgb,var(--red) 60%,transparent)}
+.runway .fill{background:linear-gradient(90deg,#a9d4b5,#a9d4b5)}
+.rail .rdiv{background:#d6b36a !important;opacity:.55 !important}
 </style>
 </head><body><div id="atrium-bg"></div>
 <div class="app">
