@@ -304,6 +304,13 @@ body.remote-on .remote{display:flex}
 .scx-int .scx-side{position:sticky;top:24px}
 .scx-note{font-size:12px;line-height:1.7;color:var(--ink3);margin-top:22px;max-width:46ch}
 .scx-fine{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);line-height:1.9;margin-top:clamp(40px,7vh,80px);max-width:90ch}
+
+.scx-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 30px;border-radius:34px;background:#fff;color:#000;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;transition:.3s var(--out)}
+.scx-cta:hover{background:var(--led);box-shadow:0 0 34px -8px rgba(47,224,122,.8)}
+.scx-cta svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.scx-export{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-top:clamp(48px,8vh,96px);padding:clamp(24px,3vw,44px);border:1px solid var(--line);background:rgba(12,12,13,.5)}
+.scx-side .scx-cta{margin-top:26px;width:100%}
+.scx-full{margin-top:14px}
 @media(max-width:700px){.scx-stage .zoomh{display:none}.scx-stage .cap{font-size:8px;letter-spacing:.16em}}
 @media(max-width:900px){.scx-int{grid-template-columns:1fr}.scx-int .scx-side{position:static}.scx-tn.four{grid-template-columns:1fr 1fr}.scx-chip{flex:1 1 calc(50% - 10px)}}
 
@@ -704,8 +711,8 @@ var SC_INT=['int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-k
 var SC_FIN=[
  {k:'yakisugi',name:'Yakisugi',sub:'Charred timber',sw:'#15110f'},
  {k:'blackbutt',name:'Blackbutt',sub:'Warm timber',sw:'#a7774b'},
- {k:'seam',name:'Standing seam',sub:'Black steel',sw:'#1b1c1e'},
- {k:'mineral',name:'Mineral panels',sub:'Light, Equitone',sw:'#cbc7bd'}];
+ {k:'seam',name:'Black standing seam',sub:'Steel',sw:'#1b1c1e'},
+ {k:'mineral',name:'Light mineral panels',sub:'Equitone',sw:'#cbc7bd'}];
 var SC_VIEW={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
 var SC_ROOM=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
 var SC_TILE=[
@@ -738,6 +745,10 @@ function scSwap(box,src,capTxt){
 function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
 
+var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006a&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il; }
+function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
+  el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
 function solumShowcase(h){
   return '<div class="scx-sec" id="scxFac">'+
     '<div class="eyeb"><i></i>01 · Facade</div>'+
@@ -751,14 +762,18 @@ function solumShowcase(h){
     '<div class="eyeb"><i></i>02 · Interior</div>'+
     '<h3 class="scx-h">Four tiles.<br>Two timber schemes.</h3>'+
     '<p class="scx-lead">Choose a tile and a timber and see the room. Matching timber on the ceiling planks and the fixed joinery, morning sun or night.</p>'+
-    '<div class="scx-int"><div><div class="scx-stage" id="scxIStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div></div>'+
+    '<div class="scx-int"><div><div class="scx-stage" id="scxIStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div>'+
+    '<div class="scx-lbl scx-full" id="scxAllLbl"></div><div class="scx-tn four" id="scxAll"></div></div>'+
     '<div class="scx-side"><div class="scx-lbl" style="margin-top:0">Room</div><div class="scx-row" id="scxRooms"></div>'+
     '<div class="scx-lbl">Tile</div><div class="scx-row" id="scxTiles"></div>'+
     '<div class="scx-lbl">Timber</div><div class="scx-row" id="scxWoods"></div>'+
     '<div class="scx-lbl">Light</div><div class="scx-row">'+scSeg('scxIL',['day','Day'],['night','Night'],SC.il)+'</div>'+
-    '<p class="scx-note">Tiles are Sage (Miyako Indigo Green), Tide, Burgundy and Vine. Timber is Eveneer Raw Walnut or Dark Oak.</p></div></div>'+
+    '<p class="scx-note">Tiles are Sage (Miyako Indigo Green), Tide, Burgundy and Vine. Timber is Eveneer Raw Walnut or Dark Oak.</p>'+
+    '<button class="scx-cta" data-exp type="button">'+SC_ICO+'Export this design</button></div></div>'+
     '<div class="scx-lbl">This room across the four tiles</div><div class="scx-tn four" id="scxCmpT"></div>'+
     '<div class="scx-lbl">Timber and light</div><div class="scx-tn four" id="scxCmpW"></div></div>'+
+  '<div class="scx-export"><div><div class="eyeb"><i></i>03 · Take it with you</div><h3 class="scx-h" style="font-size:clamp(26px,3.6vw,48px)">Export this design.</h3>'+
+    '<p class="scx-lead" id="scxSum"></p></div><button class="scx-cta" data-exp type="button">'+SC_ICO+'Export mini brochure</button></div>'+
   '<p class="scx-fine">These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
 }
 function scLb(list,i){ LB=list.map(function(n){ return {src:scFull(n),cap:/^ext/.test(n)?scCapExt(n):scCapInt(n)}; }); openLb(i,true); }
@@ -774,7 +789,7 @@ function scFacade(){
   ['entrance','front','angled'].forEach(function(v){ var m=scExt(SC.fin,v,SC.fl); if(!scHas(m)) return;
     html+='<button data-v="'+v+'" class="'+(v===SC.view?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+SC_VIEW[v]+'</span></button>'; });
   box.innerHTML=html;
-  [].forEach.call(box.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.view=b.dataset.v; scFacade(); }; }); }
+  [].forEach.call(box.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.view=b.dataset.v; scFacade(); }; }); scSum(); }
 function scInterior(){
   var n=scInt(SC.room,SC.tile,SC.wood,SC.il);
   scSwap(document.getElementById('scxIStage'),scFull(n),scCapInt(n));
@@ -782,6 +797,12 @@ function scInterior(){
   [].forEach.call(document.querySelectorAll('#scxTiles .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.tile); });
   [].forEach.call(document.querySelectorAll('#scxWoods .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.wood); });
   [].forEach.call(document.querySelectorAll('#scxIL button'),function(b){ b.classList.toggle('on',b.dataset.v===SC.il); });
+  var all='';
+  SC_ROOM.forEach(function(r){ var m=scInt(r[0],SC.tile,SC.wood,SC.il); all+='<button data-r="'+r[0]+'" class="'+(r[0]===SC.room?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+r[1]+'</span></button>'; });
+  var ba=document.getElementById('scxAll'); ba.innerHTML=all;
+  document.getElementById('scxAllLbl').textContent='The full interior · '+scName(SC.tile,SC_TILE).name+' · '+scName(SC.wood,SC_WOOD).name+' · '+scLbl(SC.il);
+  [].forEach.call(ba.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.room=b.dataset.r; scInterior(); }; });
+  scSum();
   var t='', w='';
   SC_TILE.forEach(function(x){ var m=scInt(SC.room,x.k,SC.wood,SC.il); t+='<button data-k="'+x.k+'" class="'+(x.k===SC.tile?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+x.name+'</span></button>'; });
   [['walnut','day'],['walnut','night'],['oak','day'],['oak','night']].forEach(function(x){ var m=scInt(SC.room,SC.tile,x[0],x[1]);
@@ -805,6 +826,7 @@ function solumInit(h){
     var cur=scExt(SC.fin,SC.view,SC.fl); scLb(list,Math.max(0,list.indexOf(cur))); };
   document.getElementById('scxIStage').onclick=function(){
     var list=SC_ROOM.map(function(r){ return scInt(r[0],SC.tile,SC.wood,SC.il); }); scLb(list,Math.max(0,list.indexOf(scInt(SC.room,SC.tile,SC.wood,SC.il)))); };
+  [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){ b.onclick=function(){ window.open(scUrl(),'_blank'); }; });
   scFacade(); scInterior(); }
 
 /* ── lightbox ─────────────────────────────────────────────────────────── */

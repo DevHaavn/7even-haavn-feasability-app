@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAAVN BLACK · SOLUM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   HAAVN BLACK · SOLUM · the brochure
+   Twelve A4 landscape pages, printed straight to PDF. Every page is a fixed
+   297 × 210 mm sheet, so what is set here is exactly what the customer sees.
+   Imagery is the SOLUM | HAAVN BLK RENDERS collection (six October 2026): four
+   facades by day and night, four tiles, two timber schemes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@page{size:297mm 210mm;margin:0}
+:root{
+  --ink:#0c0c0d; --ink2:#3a3936; --ink3:#77736d; --paper:#eeeae3; --paper2:#e4dfd6;
+  --white:#f6f4f0; --mute:rgba(246,244,240,.62); --line:rgba(12,12,13,.16); --lineW:rgba(246,244,240,.22);
+  --gold:#d6b36a; --gold-lt:#e8d296; --gold-dp:#a3782a; --silver:#b4b8bd;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#2a2927}
+body{font-family:var(--sans);font-weight:300;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+.pg{width:297mm;height:210mm;position:relative;overflow:hidden;background:var(--paper);break-after:page;page-break-after:always}
+@media screen{body{padding:10mm 0}.pg{margin:0 auto 8mm;box-shadow:0 20px 60px rgba(0,0,0,.45)}}
+.bleed{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.dark{background:var(--ink);color:var(--white)}
+
+/* type */
+.eyeb{font-family:var(--mono);font-weight:400;font-size:6.6pt;letter-spacing:.32em;text-transform:uppercase;display:flex;align-items:center;gap:3mm}
+.eyeb i{width:1.4mm;height:1.4mm;border-radius:50%;background:var(--gold);display:inline-block;box-shadow:0 0 2mm rgba(214,179,106,.55)}
+/* the gold: every italic emphasis, every quote mark. Bright on black, deep on paper */
+em.au{color:var(--gold-dp)}
+.dark em.au,.onimg em.au{color:var(--gold)}
+.mono{font-family:var(--mono);font-size:6.2pt;letter-spacing:.24em;text-transform:uppercase}
+.disp{font-family:var(--sans);font-weight:200;letter-spacing:-.02em;line-height:.92}
+.body{font-size:8.6pt;line-height:1.72;font-weight:300}
+.logo{height:3.4mm;width:auto;display:block}
+.logo.ink{filter:brightness(0)}
+.folio{position:absolute;left:14mm;right:14mm;bottom:9mm;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:5.8pt;letter-spacing:.28em;text-transform:uppercase;color:var(--ink3)}
+.dark .folio,.onimg .folio{color:rgba(180,184,189,.75)}
+
+/* 01 cover */
+.cover .meta{position:absolute;left:16mm;right:16mm;bottom:15mm;display:flex;justify-content:space-between;align-items:flex-end;color:var(--silver)}
+.cover .meta .name{font-family:var(--sans);font-weight:200;font-size:30pt;letter-spacing:.42em;color:var(--gold-lt);line-height:1}
+.cover .meta .sub{margin-top:3.5mm}
+.cover .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:var(--silver)}
+
+/* 02 opening */
+.open .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,9,.72) 0%,rgba(8,8,9,.18) 38%,rgba(8,8,9,0) 60%),
+  linear-gradient(180deg,rgba(8,8,9,.35),rgba(8,8,9,0) 22%)}
+.open .hd{position:absolute;left:16mm;top:13mm}
+.open .tx{position:absolute;left:16mm;bottom:22mm;color:var(--white)}
+.open .tx .disp{font-size:92pt;letter-spacing:.06em}
+.open .tx p{margin-top:5mm;font-size:12pt;font-weight:300;letter-spacing:.01em;color:rgba(246,244,240,.86)}
+
+/* 03 the word */
+.word .l{position:absolute;left:0;top:0;bottom:0;width:170mm;padding:20mm 18mm 0 18mm}
+.word .l .tex{position:absolute;inset:0;background:url(img/ground-white-concrete.jpg) center/cover;opacity:.32;mix-blend-mode:multiply}
+.word .l>*{position:relative}
+.word .l>.folio,.word .l>.tex{position:absolute}
+.word .r{position:absolute;right:0;top:0;bottom:0;width:127mm}
+.word .r img{object-position:38% 50%}
+.word h2{font-family:var(--serif);font-style:italic;font-weight:300;font-size:104pt;line-height:.9;letter-spacing:-.01em;margin-top:24mm}
+.word .pron{margin-top:4mm;color:var(--ink3)}
+.word ol{list-style:none;margin-top:12mm;border-top:.25mm solid var(--line)}
+.word li{display:grid;grid-template-columns:9mm 1fr;padding:2.8mm 0;border-bottom:.25mm solid var(--line);font-family:var(--serif);font-size:13.5pt;line-height:1.36;font-weight:400;color:var(--ink2)}
+.word li b{font-family:var(--mono);font-weight:400;font-size:6.2pt;letter-spacing:.2em;color:var(--gold-dp);padding-top:1.6mm}
+.word .body{margin-top:8mm;max-width:124mm;color:var(--ink2);font-size:8.6pt}
+
+/* 04 the luxe */
+.luxe .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,7,.62),rgba(6,6,7,.2) 70%),radial-gradient(120% 90% at 30% 40%,rgba(10,10,11,0),rgba(6,6,7,.5))}
+.luxe .in{position:absolute;inset:0;padding:20mm 18mm;color:var(--white)}
+.luxe h2{font-size:50pt;margin-top:12mm;max-width:190mm}
+.luxe h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold)}
+.luxe .lead{margin-top:8mm;max-width:150mm;font-size:10pt;line-height:1.75;color:rgba(246,244,240,.94)}
+.luxe .cols{position:absolute;left:18mm;right:18mm;bottom:24mm;padding-top:0;display:grid;grid-template-columns:repeat(3,1fr);gap:9mm}
+.luxe .cols div{border-top:.25mm solid rgba(180,184,189,.3);padding-top:4mm}
+.luxe .cols .n{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--gold)}
+.luxe .cols h3{font-weight:300;font-size:13pt;margin-top:2.5mm;letter-spacing:-.005em}
+.luxe .cols p{font-size:7.8pt;line-height:1.7;color:rgba(214,218,222,.86);margin-top:2mm}
+.luxe .mark{position:absolute;right:18mm;top:20mm}
+
+/* 05 the vision: Jamie Baldwin */
+.vision{background:#050506}
+.vision .ph{position:absolute;right:0;top:0;bottom:0;width:168mm}
+.vision .ph img{object-position:50% 22%}
+.vision .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#050506 0%,rgba(5,5,6,.55) 18%,rgba(5,5,6,0) 42%),linear-gradient(0deg,rgba(5,5,6,.5),rgba(5,5,6,0) 30%)}
+.vision .in{position:absolute;left:18mm;top:20mm;bottom:20mm;width:150mm;display:flex;flex-direction:column;color:var(--white)}
+.vision .q{font-family:var(--serif);font-style:italic;font-weight:300;font-size:46pt;line-height:1;letter-spacing:-.01em;margin-top:auto;color:var(--gold)}
+.vision .q::before{content:"\201C";display:block;font-size:64pt;line-height:.5;color:var(--gold);font-style:normal;margin-bottom:5mm}
+.vision .body{margin-top:8mm;max-width:118mm;font-size:9.4pt;line-height:1.78;color:rgba(246,244,240,.84)}
+.vision .who{margin-top:10mm;padding-top:4.5mm;border-top:.25mm solid rgba(214,179,106,.4);max-width:118mm;display:flex;justify-content:space-between;align-items:baseline}
+.vision .who b{font-weight:300;font-size:15pt;letter-spacing:.01em}
+.vision .who .mono{color:var(--silver)}
+
+/* 06 the design: Callum Fraser */
+.design .ph{position:absolute;left:0;top:0;bottom:0;width:118mm}
+.design .ph img{object-position:50% 50%}
+.design .in{position:absolute;left:138mm;right:18mm;top:20mm;bottom:20mm;display:flex;flex-direction:column}
+.design .q{font-family:var(--sans);font-weight:200;font-size:31pt;line-height:1.08;letter-spacing:-.018em;margin-top:auto;color:var(--ink)}
+.design .q em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold-dp)}
+.design .body{margin-top:8mm;font-size:9.2pt;line-height:1.78;color:var(--ink2);max-width:120mm}
+.design .body::before{content:"\201C";color:var(--gold-dp)}
+.design .body::after{content:"\201D";color:var(--gold-dp)}
+.design .who{margin-top:10mm;padding-top:4.5mm;border-top:.25mm solid rgba(163,120,42,.45);display:flex;justify-content:space-between;align-items:baseline}
+.design .who b{font-weight:300;font-size:15pt;letter-spacing:.01em}
+.design .who .mono{color:var(--ink3)}
+.design .tag{position:absolute;left:8mm;bottom:8mm;background:var(--paper);padding:1.6mm 2.6mm;font-family:var(--mono);font-size:5.4pt;letter-spacing:.24em;text-transform:uppercase;color:var(--ink2)}
+
+/* 05 the four facades */
+.facades{background:#070708}
+.facades .grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.2mm}
+.facades .t{position:relative;overflow:hidden}
+.facades .t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.facades .t .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.78),rgba(6,6,7,0) 42%)}
+.facades .t .lab{position:absolute;left:8mm;right:8mm;bottom:7mm;color:var(--white);display:flex;align-items:flex-end;gap:4mm}
+.facades .t .chip{width:9mm;height:9mm;flex:none;background-size:cover;background-position:center;border:.25mm solid rgba(246,244,240,.5)}
+.facades .t .num{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--gold)}
+.facades .t h3{font-weight:300;font-size:17pt;letter-spacing:.01em;line-height:1.05;margin-top:1mm}
+.facades .t .spec{font-family:var(--mono);font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:var(--silver);margin-top:1.8mm}
+.facades .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;color:var(--white);
+  border:.25mm solid rgba(214,179,106,.45)}
+.facades .badge .mono{color:var(--silver);font-size:5.6pt}
+.facades .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em;color:var(--gold)}
+.facades .note{position:absolute;right:8mm;top:6mm;font-family:var(--mono);font-size:5pt;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,244,240,.5)}
+
+/* 06 the palette */
+.palette .in{position:absolute;inset:0;padding:20mm 18mm}
+.palette .head{display:grid;grid-template-columns:96mm 1fr;gap:14mm;align-items:end}
+.palette h2{font-size:44pt;margin-top:9mm}
+.palette .head .body{color:var(--ink2);padding-bottom:1mm}
+.palette .sws{position:absolute;left:18mm;right:18mm;top:84mm;display:grid;grid-template-columns:repeat(4,1fr);gap:6mm}
+.palette .sw .img{aspect-ratio:1/1;background-size:cover;background-position:center;box-shadow:0 1.2mm 4mm rgba(0,0,0,.18)}
+.palette .sw .num{margin-top:4mm;color:var(--ink3)}
+.palette .sw h3{font-weight:400;font-size:10.5pt;margin-top:1.2mm;letter-spacing:.005em}
+.palette .sw .with{margin-top:2.6mm;display:flex;flex-direction:column;gap:1.6mm}
+.palette .sw .with span{display:flex;align-items:center;gap:2.2mm;font-size:6.8pt;color:var(--ink2)}
+.palette .sw .with i{width:3.2mm;height:3.2mm;display:inline-block;border:.2mm solid rgba(0,0,0,.18)}
+
+/* 07 living, full bleed */
+.onimg .cap{position:absolute;left:16mm;bottom:21mm;color:var(--white)}
+.onimg .cap h2{font-size:40pt;margin-top:4mm}
+.onimg .cap p{margin-top:3mm;font-size:9pt;line-height:1.6;color:rgba(246,244,240,.95);max-width:100mm}
+.onimg .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,8,9,.8),rgba(8,8,9,.35) 34%,rgba(8,8,9,0) 58%),linear-gradient(90deg,rgba(8,8,9,.35),rgba(8,8,9,0) 55%)}
+
+/* 08 kitchen + bedroom */
+.split3 .a{position:absolute;left:0;top:0;bottom:0;width:178mm}
+.split3 .b{position:absolute;right:0;top:0;width:118mm;height:88mm}
+.split3 .c{position:absolute;right:0;bottom:0;width:118mm;height:121mm;padding:12mm 13mm 0 13mm}
+.split3 .c h2{font-size:26pt;margin-top:6mm;line-height:1.02}
+.split3 .c h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0;color:var(--gold-dp)}
+.split3 .c .body{margin-top:5mm;color:var(--ink2);font-size:8.2pt}
+.split3 .c .folio{left:13mm;right:13mm}
+.split3 .lbl{position:absolute;left:6mm;bottom:6mm;font-family:var(--mono);font-size:5.6pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(246,244,240,.86);
+  background:rgba(8,8,9,.35);padding:1.6mm 2.4mm}
+
+/* 09 bathroom */
+.bath .a{position:absolute;left:0;top:0;bottom:0;width:150mm}
+.bath .r{position:absolute;right:0;top:0;bottom:0;width:147mm;padding:20mm 16mm 0 14mm}
+.bath .r .ph{position:absolute;right:16mm;bottom:20mm;width:50mm;height:66mm}
+.bath h2{font-size:30pt;margin-top:8mm;line-height:1.02}
+.bath .body{margin-top:6mm;color:var(--ink2);max-width:112mm}
+.bath ul{list-style:none;margin-top:7mm;max-width:62mm;border-top:.25mm solid var(--line)}
+.bath li{padding:2.4mm 0;border-bottom:.25mm solid var(--line);font-size:7.6pt;color:var(--ink2);display:flex;justify-content:space-between;gap:3mm}
+.bath li b{font-family:var(--mono);font-weight:400;font-size:5.6pt;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);padding-top:.4mm}
+.bath .r .phcap{position:absolute;right:16mm;bottom:15mm;width:50mm;color:var(--ink3);font-size:5.2pt}
+
+/* 10 the plan */
+.plan .l{position:absolute;left:10mm;top:12mm;bottom:17mm;width:160mm;display:flex;align-items:center;justify-content:center}
+.plan .l img{max-width:100%;max-height:100%;mix-blend-mode:multiply}
+.plan .r{position:absolute;right:0;top:0;bottom:0;width:122mm;padding:15mm 18mm 0 4mm}
+.plan h2{font-size:36pt;margin-top:6mm}
+.plan h2 small{display:block;font-size:13pt;font-weight:300;letter-spacing:.005em;margin-top:3mm;color:var(--ink2)}
+.plan .nums{margin-top:6mm;display:grid;grid-template-columns:1fr 1fr;border-top:.25mm solid var(--line)}
+.plan .nums div{padding:2mm 0;border-bottom:.25mm solid var(--line)}
+.plan .nums div:nth-child(odd){padding-right:4mm}
+.plan .nums .k{font-family:var(--mono);font-size:5.6pt;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3)}
+.plan .nums .v{font-weight:300;font-size:12.5pt;margin-top:.8mm;letter-spacing:-.01em}
+.plan .nums .v small{font-size:8pt;color:var(--ink3);margin-left:.6mm}
+.plan .opt{margin-top:5mm}
+.plan .opt p{font-size:7.4pt;line-height:1.6;color:var(--ink2);margin-top:2mm}
+.plan .leg{list-style:none;margin-top:2mm;display:grid;grid-template-columns:1fr 1fr;gap:1mm 4mm}
+.plan .leg li{font-size:6.6pt;line-height:1.3;color:var(--ink2);display:flex;gap:2.4mm}
+.plan .leg b{font-family:var(--mono);font-weight:400;font-size:5.6pt;letter-spacing:.14em;color:var(--gold-dp);padding-top:.5mm}
+
+/* 11 specification */
+.spec .in{position:absolute;inset:0;padding:20mm 18mm}
+.spec .head{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:14mm}
+.spec h2{font-size:40pt;margin-top:8mm}
+.spec table{position:absolute;left:18mm;right:18mm;top:62mm;border-collapse:collapse;width:calc(100% - 36mm)}
+.spec td{border-top:.25mm solid var(--line);padding:2.5mm 0;vertical-align:top;font-size:7.6pt;line-height:1.55;color:var(--ink2)}
+.spec tr:last-child td{border-bottom:.25mm solid var(--line)}
+.spec td:first-child{width:44mm;font-family:var(--mono);font-size:5.8pt;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);padding-top:3mm}
+.spec .fine{position:absolute;left:18mm;right:18mm;bottom:17mm;font-size:6pt;line-height:1.6;color:var(--ink3)}
+
+/* 12 back */
+.back .in{position:absolute;left:16mm;right:16mm;bottom:14mm;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10mm;color:var(--ink);padding-top:4mm;border-top:.3mm solid rgba(163,120,42,.6)}
+.back .in .k{font-family:var(--mono);font-size:5.8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(12,12,13,.72)}
+.back .in p{font-size:8.6pt;line-height:1.7;margin-top:1.6mm;font-weight:400}
+.back .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(12,12,13,.72)}
+
+/* 10 two timber schemes */
+.timber{background:#070708;color:var(--white)}
+.timber .h{position:absolute;top:0;bottom:0;width:50%;overflow:hidden}
+.timber .h:first-of-type{left:0}.timber .h:nth-of-type(2){right:0}
+.timber .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.72),rgba(6,6,7,0) 46%)}
+.timber .lab{position:absolute;left:12mm;bottom:20mm}
+.timber .lab h3{font-weight:200;font-size:30pt;letter-spacing:.01em;margin-top:3mm}
+.timber .lab .spec{font-family:var(--mono);font-size:5.8pt;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin-top:2.4mm}
+.timber .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;border:.25mm solid rgba(214,179,106,.45)}
+.timber .badge .mono{color:var(--silver);font-size:5.6pt}
+.timber .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em;color:var(--gold)}
+
+/* ───────── custom mini brochure: one design, its facade and its interior ───────── */
+.tb{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(12,12,13,.92);color:#f6f4f0;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(246,244,240,.14)}
+.tb b{font-family:var(--mono);font-weight:400;font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:#b4b8bd;margin-right:auto}
+.tb button{height:40px;padding:0 20px;border-radius:24px;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;border:1px solid rgba(246,244,240,.3);color:#f6f4f0;background:transparent;cursor:pointer}
+.tb button.go{background:#d6b36a;border-color:#d6b36a;color:#1a1b1e;font-weight:500}
+@media screen{body{padding-top:62px}}
+@media print{.tb{display:none}body{padding:0}}
+.c-cover .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.82) 0%,rgba(6,6,7,.2) 46%,rgba(6,6,7,0) 64%),linear-gradient(180deg,rgba(6,6,7,.4),rgba(6,6,7,0) 24%)}
+.c-cover .hd{position:absolute;left:16mm;top:13mm;right:16mm;display:flex;justify-content:space-between;align-items:center;color:var(--silver)}
+.c-cover .tx{position:absolute;left:16mm;bottom:20mm;right:16mm;color:var(--white);display:flex;justify-content:space-between;align-items:flex-end;gap:10mm}
+.c-cover .tx .disp{font-size:84pt;letter-spacing:.06em}
+.c-cover .tx p{margin-top:4mm;font-size:11pt;color:rgba(246,244,240,.88)}
+.c-cover .tx p em{font-family:var(--serif);font-style:italic;font-size:14pt}
+.c-cover .sel{display:flex;flex-direction:column;gap:2.6mm;min-width:78mm;border-left:.25mm solid rgba(180,184,189,.4);padding-left:7mm}
+.c-cover .sel div{font-family:var(--mono);font-size:6.2pt;letter-spacing:.22em;text-transform:uppercase;color:var(--silver)}
+.c-cover .sel div b{display:block;font-family:var(--sans);font-weight:300;font-size:12pt;letter-spacing:.01em;text-transform:none;color:var(--white);margin-top:1mm}
+.c-fac .a{position:absolute;left:0;top:0;bottom:0;width:190mm}
+.c-fac .r{position:absolute;right:0;top:0;bottom:0;width:107mm;padding:16mm 14mm 0 12mm}
+.c-fac h2{font-size:30pt;margin-top:7mm;line-height:1.02}
+.c-fac .spec{font-family:var(--mono);font-size:6pt;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:3mm}
+.c-fac .body{margin-top:5mm;color:var(--ink2);font-size:8.2pt}
+.c-fac .pair{position:absolute;left:12mm;right:14mm;bottom:20mm;display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.c-fac .pair div{position:relative;aspect-ratio:16/10;overflow:hidden;background:#111}
+.c-fac .pair img{width:100%;height:100%;object-fit:cover;display:block}
+.c-fac .pair span{position:absolute;left:2.4mm;bottom:2mm;font-family:var(--mono);font-size:5.2pt;letter-spacing:.2em;text-transform:uppercase;color:#fff;text-shadow:0 .2mm 1.4mm #000}
+.c-fac .chip{width:11mm;height:11mm;background-size:cover;background-position:center;border:.25mm solid var(--line);margin-top:5mm}
+.c-int{background:#070708}
+.c-int .grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.2mm}
+.c-int .t{position:relative;overflow:hidden}
+.c-int .t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.c-int .t .g{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.7),rgba(6,6,7,0) 40%)}
+.c-int .t .lab{position:absolute;color:var(--white)}
+.c-int .t:nth-child(1) .lab{left:8mm;top:8mm}.c-int .t:nth-child(2) .lab{right:8mm;top:8mm;text-align:right}.c-int .t:nth-child(3) .lab{left:8mm;bottom:7mm}.c-int .t:nth-child(4) .lab{right:8mm;bottom:7mm;text-align:right}
+.c-int .t:nth-child(-n+2) .g{background:linear-gradient(180deg,rgba(6,6,7,.62),rgba(6,6,7,0) 40%)}
+.c-int .t .num{font-family:var(--mono);font-size:6pt;letter-spacing:.24em;color:var(--gold)}
+.c-int .t h3{font-weight:300;font-size:15pt;letter-spacing:.01em;margin-top:1mm}
+.c-int .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;color:var(--white);border:.25mm solid rgba(214,179,106,.45)}
+.c-int .badge .mono{color:var(--silver);font-size:5.6pt}
+.c-int .badge b{display:block;font-weight:200;font-size:12pt;letter-spacing:.3em;margin:1.4mm 0 1.2mm;padding-left:.3em;color:var(--gold);white-space:nowrap}
+.c-fin .in{position:absolute;inset:0;padding:18mm 18mm}
+.c-fin .head{display:grid;grid-template-columns:110mm 1fr;gap:12mm;align-items:end}
+.c-fin h2{font-size:38pt;margin-top:7mm}
+.c-fin .sw3{position:absolute;left:18mm;right:18mm;top:70mm;display:grid;grid-template-columns:repeat(3,1fr);gap:8mm}
+.c-fin .sw3 .box{height:34mm;border:.25mm solid var(--line);background-size:cover;background-position:center;box-shadow:0 1.2mm 4mm rgba(0,0,0,.16)}
+.c-fin .sw3 .n{margin-top:3.4mm;color:var(--ink3)}
+.c-fin .sw3 h3{font-weight:400;font-size:12pt;margin-top:1mm}
+.c-fin .sw3 p{font-size:7.4pt;line-height:1.6;color:var(--ink2);margin-top:1.6mm}
+.c-fin .oth{position:absolute;left:18mm;right:18mm;bottom:20mm}
+.c-fin .oth .k{color:var(--ink3);margin-bottom:2.4mm}
+.c-fin .oth .row{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}
+.c-fin .oth .row div{position:relative;aspect-ratio:16/10;overflow:hidden;background:#111}
+.c-fin .oth .row img{width:100%;height:100%;object-fit:cover;display:block}
+.c-fin .oth .row span{position:absolute;left:2mm;bottom:1.6mm;font-family:var(--mono);font-size:5pt;letter-spacing:.18em;text-transform:uppercase;color:#fff;text-shadow:0 .2mm 1.2mm #000}
+</style>
+</head>
+<body>
+<div class="tb"><b id="tbTitle">SOLUM · Your design</b><button id="tbBack" type="button">Close</button><button class="go" id="tbPrint" type="button">Save as PDF</button></div>
+<div id="pages"></div>
+<script>var PLAN='<!-- 10 · the plan ─────────────────────────────────────────────────────── -->\n<section class="pg plan">\n  <div class="l"><img src="img/plan.png" alt="SOLUM ground floor plan"></div>\n  <div class="r">\n    <div class="eyeb" style="color:var(--ink3)"><i></i>05 · The plan</div>\n    <h2 class="disp">60 m²<small>One module. <em class="au" style="font-family:var(--serif);font-style:italic;font-size:15pt">Nothing wasted.</em></small></h2>\n    <div class="nums">\n      <div><div class="k">Floor area</div><div class="v">60<small>m²</small></div></div>\n      <div><div class="k">Footprint</div><div class="v">13.4 × 4.5<small>m</small></div></div>\n      <div><div class="k">Module</div><div class="v">12.6 × 4.2<small>m</small></div></div>\n      <div><div class="k">Structural grid</div><div class="v">4.2 × 4.2<small>m</small></div></div>\n      <div><div class="k">Bedroom</div><div class="v">1</div></div>\n      <div><div class="k">Bathroom</div><div class="v">1</div></div>\n      <div><div class="k">Modules</div><div class="v">1</div></div>\n      <div><div class="k">Storeys</div><div class="v">1</div></div>\n    </div>\n    <div class="opt">\n      <div class="k mono" style="color:var(--ink3)">On the plan</div>\n      <ol class="leg">\n        <li><b>01</b>Cooktop and dishwasher drawer</li><li><b>02</b>Sink</li>\n        <li><b>03</b>Drawers</li><li><b>04</b>Pantry</li>\n        <li><b>05</b>Fridge</li><li><b>06</b>Washer and dryer</li>\n        <li><b>07</b>Living room joinery</li><li><b>08</b>Full height wardrobes</li>\n        <li><b>09</b>Open shelves</li><li><b>10</b>Bed niche</li>\n        <li><b>11</b>Barbecue joinery</li>\n      </ol>\n    </div>\n    <div class="opt" style="margin-top:5mm">\n      <div class="k mono" style="color:var(--ink3)">Add on options</div>\n      <p>A deck the length of the living rooms. An entry deck. An outdoor kitchen with barbecue joinery, fridge and sink. A rear entry.</p>\n    </div>\n  </div>\n  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>05</span></div>\n</section>\n\n';var BACK='<!-- 12 · back ─────────────────────────────────────────────────────────── -->\n<section class="pg back">\n  <img class="bleed" src="img/back-white-concrete.jpg" alt="">\n  <div class="top mono"><span>SOLUM</span><span>Black Series</span></div>\n  <div class="in">\n    <div><div class="k">HAAVN HQ</div><p>Level 1, Suite 2, 20-30 Mollison Street<br>Abbotsford VIC 3067</p></div>\n    <div><div class="k">Enquiries</div><p>projects@haavn.au<br>03 9962 2888</p></div>\n    <div><div class="k">Online</div><p>haavn.au</p></div>\n  </div>\n</section>\n\n';</script>
+<script>
+(function(){
+var Q=new URLSearchParams(location.search);
+function pick(k,ok,d){ var v=Q.get(k); return ok.indexOf(v)>=0?v:d; }
+var FIN=pick('fin',['yakisugi','blackbutt','seam','mineral'],'yakisugi');
+var VIEW=pick('view',['entrance','front','angled'],'entrance');
+var FL=pick('fl',['day','night'],'night');
+var TILE=pick('tile',['sage','blue','burgundy','wheat'],'sage');
+var WOOD=pick('wood',['walnut','oak'],'oak');
+var IL=pick('il',['day','night'],'day');
+var D='/haavn-renders/solum/';
+var FINS={yakisugi:{n:'Yakisugi',spec:'Shou sugi ban charred timber',sw:'sw-yakisugi.jpg'},blackbutt:{n:'Blackbutt',spec:'Blackbutt timber cladding',sw:'sw-blackbutt.jpg'},
+ seam:{n:'Black Standing Seam',spec:'Standing seam steel',sw:'sw-standing-seam.jpg'},mineral:{n:'Light Mineral Panels',spec:'Equitone fibre cement cladding',sw:'sw-fibre-cement.jpg'}};
+var VIEWN={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
+var TILES={sage:{n:'Sage',c:'#7d8f7b'},blue:{n:'Tide',c:'#5e7b8d'},burgundy:{n:'Burgundy',c:'#6c2431'},wheat:{n:'Vine',c:'#c9a96b'}};
+var WOODS={walnut:{n:'Raw Walnut',s:'Eveneer Raw Walnut',c:'#8c6340'},oak:{n:'Dark Oak',s:'Dark Oak',c:'#2b1f17'}};
+var ROOMS=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
+var HAS=EXTSET();
+function EXTSET(){ var o={}; ['yakisugi:entrance:day','yakisugi:entrance:night','yakisugi:angled:day','yakisugi:angled:night','yakisugi:front:night',
+ 'blackbutt:entrance:day','blackbutt:entrance:night','blackbutt:angled:day','blackbutt:angled:night','blackbutt:front:day','blackbutt:front:night',
+ 'seam:entrance:day','seam:entrance:night','seam:angled:day','seam:angled:night','mineral:entrance:day','mineral:entrance:night','mineral:angled:day','mineral:angled:night','mineral:front:night'].forEach(function(k){ o[k]=1; }); return o; }
+if(!HAS[FIN+':'+VIEW+':'+FL]){ ['entrance','angled','front'].some(function(v){ if(HAS[FIN+':'+v+':'+FL]){ VIEW=v; return true; } }); }
+function ext(f,v,l){ return D+'ext-'+f+'-'+v+'-'+l+'.webp'; }
+function intr(r,t,w,l){ return D+'int-'+r+'-'+t+'-'+w+'-'+l+'.webp'; }
+var f=FINS[FIN], t=TILES[TILE], w=WOODS[WOOD], other=IL==='day'?'night':'day';
+function L(x){ return x==='night'?'Night':'Morning'; }
+var designLine=f.n+' · '+t.n+' · '+w.n;
+document.title='SOLUM · '+designLine;
+document.getElementById('tbTitle').textContent='SOLUM · '+designLine;
+var P='';
+/* 1 cover */
+P+='<section class="pg c-cover dark onimg"><img class="bleed" src="'+ext(FIN,VIEW,FL)+'" alt=""><div class="shade"></div>'+
+ '<div class="hd mono"><img class="logo" src="img/haavn-black-logo.png" alt="HAAVN BLACK"><span>Your design</span></div>'+
+ '<div class="tx"><div><div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>Black Series · Ancillary dwelling</div><div class="disp">SOLUM</div><p>Your finishes. <em class="au">Chosen.</em></p></div>'+
+ '<div class="sel"><div>Facade<b>'+f.n+' · '+L(FL)+'</b></div><div>Tile<b>'+t.n+'</b></div><div>Timber<b>'+w.s+'</b></div></div></div></section>';
+/* 2 facade */
+P+='<section class="pg c-fac"><div class="a"><img class="bleed" src="'+ext(FIN,VIEW,FL)+'" alt=""></div><div class="r">'+
+ '<div class="eyeb" style="color:var(--ink3)"><i></i>01 · The facade</div><h2 class="disp">'+f.n+'</h2><div class="spec">'+f.spec+'</div>'+
+ '<div class="chip" style="background-image:url(img/'+f.sw+')"></div>'+
+ '<p class="body">Black windows, flashings and trims throughout, with narrow floor reaching windows, central double sliders and three slim black awnings.</p>'+
+ '<div class="pair">'+['day','night'].map(function(l){ var v=HAS[FIN+':'+VIEW+':'+l]?VIEW:(HAS[FIN+':entrance:'+l]?'entrance':'angled'); return '<div><img src="'+ext(FIN,v,l)+'" alt=""><span>'+L(l)+'</span></div>'; }).join('')+'</div>'+
+ '</div><div class="folio" style="left:auto;right:14mm;width:90mm;justify-content:flex-end"><span>HAAVN BLACK · SOLUM · 02</span></div></section>';
+/* 3 interior */
+P+='<section class="pg c-int"><div class="grid">'+ROOMS.map(function(r,i){ return '<div class="t"><img src="'+intr(r[0],TILE,WOOD,IL)+'" alt="'+r[1]+'"><div class="g"></div><div class="lab"><div class="num">0'+(i+1)+'</div><h3>'+r[1]+'</h3></div></div>'; }).join('')+'</div>'+
+ '<div class="badge"><div class="mono">02 · The interior</div><b>'+t.n.toUpperCase()+' · '+w.n.toUpperCase()+'</b><div class="mono">'+L(IL)+'</div></div></section>';
+/* 4 finishes */
+P+='<section class="pg c-fin"><div class="in"><div class="head"><div><div class="eyeb" style="color:var(--ink3)"><i></i>03 · Your finishes</div><h2 class="disp">'+f.n+', <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">'+t.n+'</em>.</h2></div>'+
+ '<p class="body" style="color:var(--ink2)">The design as you configured it: one facade, one tile colour and one timber scheme, carried through every room. Timber matches across the ceiling planks and the fixed joinery.</p></div></div>'+
+ '<div class="sw3">'+
+ '<div><div class="box" style="background-image:url(img/'+f.sw+')"></div><div class="n mono">Facade</div><h3>'+f.n+'</h3><p>'+f.spec+'. Black windows, flashings and trims.</p></div>'+
+ '<div><div class="box" style="background:'+t.c+'"></div><div class="n mono">Tile</div><h3>'+t.n+'</h3><p>Mosaic tile to the kitchen splashback and the bathroom, against large format stone.</p></div>'+
+ '<div><div class="box" style="background:'+w.c+'"></div><div class="n mono">Timber</div><h3>'+w.s+'</h3><p>Ceiling planks and fixed joinery in matching timber, throughout.</p></div></div>'+
+ '<div class="oth"><div class="k mono">The same rooms, '+(other==='night'?'at night':'in the morning')+'</div><div class="row">'+ROOMS.map(function(r){ return '<div><img src="'+intr(r[0],TILE,WOOD,other)+'" alt=""><span>'+r[1]+'</span></div>'; }).join('')+'</div></div>'+
+ '<div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>04</span></div></section>';
+document.getElementById('pages').innerHTML=P+PLAN+BACK;
+document.getElementById('tbPrint').onclick=function(){ window.print(); };
+document.getElementById('tbBack').onclick=function(){ if(history.length>1&&document.referrer) history.back(); else window.close(); };
+})();
+</script>
+</body>
+</html>
