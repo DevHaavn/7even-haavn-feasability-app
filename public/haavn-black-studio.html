@@ -512,7 +512,7 @@ var HOMES=[
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum/ext-yakisugi-entrance-night.webp', showcase:true, model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=5', launch:'https://solum-black-teaser.vercel.app',
+  img:R+'solum/ext-yakisugi-entrance-night.webp', showcase:true, model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=6', launch:'https://solum-black-teaser.vercel.app',
   gallery:[],
   plans:[['Ground floor',R+'solum-floor-ground.jpg'],['Cutaway axonometric',R+'solum-floor-axo.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -710,9 +710,9 @@ var SC_VIEW={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
 var SC_ROOM=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
 var SC_TILE=[
  {k:'sage',name:'Sage',sub:'Miyako Indigo Green',sw:'#7d8f7b'},
- {k:'blue',name:'Blue',sub:'Mineral Tide',sw:'#5e7b8d'},
+ {k:'blue',name:'Tide',sub:'',sw:'#5e7b8d'},
  {k:'burgundy',name:'Burgundy',sub:'',sw:'#6c2431'},
- {k:'wheat',name:'Wheat',sub:'Wheat Ember',sw:'#c9a96b'}];
+ {k:'wheat',name:'Vine',sub:'',sw:'#c9a96b'}];
 var SC_WOOD=[
  {k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},
  {k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}];
@@ -756,7 +756,7 @@ function solumShowcase(h){
     '<div class="scx-lbl">Tile</div><div class="scx-row" id="scxTiles"></div>'+
     '<div class="scx-lbl">Timber</div><div class="scx-row" id="scxWoods"></div>'+
     '<div class="scx-lbl">Light</div><div class="scx-row">'+scSeg('scxIL',['day','Day'],['night','Night'],SC.il)+'</div>'+
-    '<p class="scx-note">Sage is Miyako Indigo Green, Blue is Mineral Tide and Wheat is Wheat Ember. Timber is Eveneer Raw Walnut or Dark Oak.</p></div></div>'+
+    '<p class="scx-note">Tiles are Sage (Miyako Indigo Green), Tide, Burgundy and Vine. Timber is Eveneer Raw Walnut or Dark Oak.</p></div></div>'+
     '<div class="scx-lbl">This room across the four tiles</div><div class="scx-tn four" id="scxCmpT"></div>'+
     '<div class="scx-lbl">Timber and light</div><div class="scx-tn four" id="scxCmpW"></div></div>'+
   '<p class="scx-fine">These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';

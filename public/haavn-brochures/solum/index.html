@@ -11,8 +11,8 @@
    HAAVN BLACK · SOLUM · the brochure
    Twelve A4 landscape pages, printed straight to PDF. Every page is a fixed
    297 × 210 mm sheet, so what is set here is exactly what the customer sees.
-   Imagery is the architect's own (Fraser & Partners, Enscape); the Blackbutt
-   facade is a visualisation made from the Yakisugi render until it is rendered.
+   Imagery is the SOLUM | HAAVN BLK RENDERS collection (six October 2026): four
+   facades by day and night, four tiles, two timber schemes.
    ═══════════════════════════════════════════════════════════════════════════ */
 @page{size:297mm 210mm;margin:0}
 :root{
@@ -204,6 +204,18 @@ em.au{color:var(--gold-dp)}
 .back .in .k{font-family:var(--mono);font-size:5.8pt;letter-spacing:.24em;text-transform:uppercase;color:rgba(12,12,13,.72)}
 .back .in p{font-size:8.6pt;line-height:1.7;margin-top:1.6mm;font-weight:400}
 .back .top{position:absolute;left:16mm;right:16mm;top:13mm;display:flex;justify-content:space-between;color:rgba(12,12,13,.72)}
+
+/* 10 two timber schemes */
+.timber{background:#070708;color:var(--white)}
+.timber .h{position:absolute;top:0;bottom:0;width:50%;overflow:hidden}
+.timber .h:first-of-type{left:0}.timber .h:nth-of-type(2){right:0}
+.timber .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,7,.72),rgba(6,6,7,0) 46%)}
+.timber .lab{position:absolute;left:12mm;bottom:20mm}
+.timber .lab h3{font-weight:200;font-size:30pt;letter-spacing:.01em;margin-top:3mm}
+.timber .lab .spec{font-family:var(--mono);font-size:5.8pt;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin-top:2.4mm}
+.timber .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;border:.25mm solid rgba(214,179,106,.45)}
+.timber .badge .mono{color:var(--silver);font-size:5.6pt}
+.timber .badge b{display:block;font-weight:200;font-size:13pt;letter-spacing:.34em;margin:1.4mm 0 1.2mm;padding-left:.34em;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -220,7 +232,7 @@ em.au{color:var(--gold-dp)}
 
 <!-- 02 · opening ───────────────────────────────────────────────────────── -->
 <section class="pg open onimg">
-  <img class="bleed" src="img/hero-yakisugi-front.jpg" alt="SOLUM in Yakisugi">
+  <img class="bleed" src="img/r-ext-yakisugi-entrance-night.jpg" alt="SOLUM in Yakisugi at night">
   <div class="shade"></div>
   <div class="hd"><img class="logo" src="img/haavn-black-logo.png" alt="HAAVN BLACK"></div>
   <div class="tx">
@@ -245,7 +257,7 @@ em.au{color:var(--gold-dp)}
     <p class="body">We gave the smallest home in the range the oldest word for ground. SOLUM is where HAAVN BLACK begins: a single module, set lightly on its site and made to belong to the place it stands on. Nothing added for the sake of it. Everything resolved.</p>
     <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>03</span></div>
   </div>
-  <div class="r"><img class="bleed" src="img/standing-seam-view.jpg" alt="SOLUM on its site"></div>
+  <div class="r"><img class="bleed" src="img/r-ext-blackbutt-angled-day.jpg" alt="SOLUM in Blackbutt" style="object-position:34% 50%"></div>
 </section>
 
 <!-- 04 · the luxe of HAAVN BLACK ──────────────────────────────────────── -->
@@ -290,97 +302,145 @@ em.au{color:var(--gold-dp)}
   <div class="folio" style="left:138mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>06</span></div>
 </section>
 
-<!-- 05 · the four facades ─────────────────────────────────────────────── -->
+<!-- 05 · the four facades by day ─────────────────────────────────────────────────────────── -->
 <section class="pg facades">
   <div class="grid">
-    <div class="t"><img src="img/finish-yakisugi.jpg" alt=""><div class="g"></div>
+    <div class="t"><img src="img/r-ext-yakisugi-entrance-day.jpg" alt="Yakisugi"><div class="g"></div>
       <div class="lab"><div class="chip" style="background-image:url(img/sw-yakisugi.jpg)"></div>
-        <div><div class="num">01</div><h3>Yakisugi</h3><div class="spec">Shou sugi ban charred timber · Bronze glazing</div></div></div></div>
-    <div class="t"><img src="img/finish-blackbutt.jpg" alt=""><div class="g"></div>
+        <div><div class="num">01</div><h3>Yakisugi</h3><div class="spec">Shou sugi ban charred timber · Morning</div></div></div></div>
+    <div class="t"><img src="img/r-ext-blackbutt-entrance-day.jpg" alt="Blackbutt"><div class="g"></div>
       <div class="lab"><div class="chip" style="background-image:url(img/sw-blackbutt.jpg)"></div>
-        <div><div class="num">02</div><h3>Blackbutt</h3><div class="spec">Blackbutt timber cladding · Bronze glazing</div></div></div></div>
-    <div class="t"><img src="img/finish-standing-seam.jpg" alt=""><div class="g"></div>
+        <div><div class="num">02</div><h3>Blackbutt</h3><div class="spec">Blackbutt timber cladding · Morning</div></div></div></div>
+    <div class="t"><img src="img/r-ext-seam-entrance-day.jpg" alt="Black Standing Seam"><div class="g"></div>
       <div class="lab"><div class="chip" style="background-image:url(img/sw-standing-seam.jpg)"></div>
-        <div><div class="num">03</div><h3>Charcoal Standing Seam</h3><div class="spec">Standing seam metal · Bronze glazing</div></div></div></div>
-    <div class="t"><img src="img/finish-fibre-cement.jpg" alt=""><div class="g"></div>
+        <div><div class="num">03</div><h3>Black Standing Seam</h3><div class="spec">Standing seam steel · Morning</div></div></div></div>
+    <div class="t"><img src="img/r-ext-mineral-entrance-day.jpg" alt="Light Mineral Panels"><div class="g"></div>
       <div class="lab"><div class="chip" style="background-image:url(img/sw-fibre-cement.jpg)"></div>
-        <div><div class="num">04</div><h3>Equitone</h3><div class="spec">Fibre cement cladding · Silver glazing</div></div></div></div>
+        <div><div class="num">04</div><h3>Light Mineral Panels</h3><div class="spec">Equitone fibre cement cladding · Morning</div></div></div></div>
   </div>
   <div class="badge"><div class="mono">05 · The facade</div><b>SOLUM</b><div class="mono">Four finishes</div></div>
+</section>
+
+<!-- 06 · the four facades by night ─────────────────────────────────────────────────────────── -->
+<section class="pg facades">
+  <div class="grid">
+    <div class="t"><img src="img/r-ext-yakisugi-entrance-night.jpg" alt="Yakisugi"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-yakisugi.jpg)"></div>
+        <div><div class="num">01</div><h3>Yakisugi</h3><div class="spec">Shou sugi ban charred timber · Night</div></div></div></div>
+    <div class="t"><img src="img/r-ext-blackbutt-entrance-night.jpg" alt="Blackbutt"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-blackbutt.jpg)"></div>
+        <div><div class="num">02</div><h3>Blackbutt</h3><div class="spec">Blackbutt timber cladding · Night</div></div></div></div>
+    <div class="t"><img src="img/r-ext-seam-entrance-night.jpg" alt="Black Standing Seam"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-standing-seam.jpg)"></div>
+        <div><div class="num">03</div><h3>Black Standing Seam</h3><div class="spec">Standing seam steel · Night</div></div></div></div>
+    <div class="t"><img src="img/r-ext-mineral-entrance-night.jpg" alt="Light Mineral Panels"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background-image:url(img/sw-fibre-cement.jpg)"></div>
+        <div><div class="num">04</div><h3>Light Mineral Panels</h3><div class="spec">Equitone fibre cement cladding · Night</div></div></div></div>
+  </div>
+  <div class="badge"><div class="mono">06 · After dark</div><b>SOLUM</b><div class="mono">Four finishes</div></div>
 </section>
 
 <!-- 06 · the palette ──────────────────────────────────────────────────── -->
 <section class="pg palette">
   <div class="in">
     <div class="head">
-      <div><div class="eyeb" style="color:var(--ink3)"><i></i>06 · Materials</div><h2 class="disp">Black is a <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">discipline.</em></h2></div>
-      <p class="body">A dark, quiet envelope with warmth held inside. The palette is deliberately short: fewer materials, better ones, detailed properly. Every facade shares the same charcoal windows, flashings and trims, so the home reads as one object whichever skin it wears.</p>
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>07 · Materials</div><h2 class="disp">Black is a <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">discipline.</em></h2></div>
+      <p class="body">A dark, quiet envelope with warmth held inside. The palette is deliberately short: fewer materials, better ones, detailed properly. Every facade shares the same black windows, flashings and trims, so the home reads as one object whichever skin it wears.</p>
     </div>
   </div>
   <div class="sws">
     <div class="sw"><div class="img" style="background-image:url(img/sw-yakisugi.jpg)"></div><div class="num mono">01</div><h3>Yakisugi</h3>
-      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
+      <div class="with"><span><i style="background:#1b1b1c"></i>Black windows, flashings, trims</span><span><i style="background:#bdb7ad"></i>Matching trims throughout</span></div></div>
     <div class="sw"><div class="img" style="background-image:url(img/sw-blackbutt.jpg)"></div><div class="num mono">02</div><h3>Blackbutt</h3>
-      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
-    <div class="sw"><div class="img" style="background-image:url(img/sw-standing-seam.jpg)"></div><div class="num mono">03</div><h3>Charcoal Standing Seam</h3>
-      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#e9dcc6"></i>Bronze tinted glazing</span></div></div>
-    <div class="sw"><div class="img" style="background-image:url(img/sw-fibre-cement.jpg)"></div><div class="num mono">04</div><h3>Equitone Fibre Cement</h3>
-      <div class="with"><span><i style="background:#2c2c2c"></i>Charcoal windows, flashings, trims</span><span><i style="background:#eef0ee"></i>Silver glazing</span></div></div>
+      <div class="with"><span><i style="background:#1b1b1c"></i>Black windows, flashings, trims</span><span><i style="background:#bdb7ad"></i>Matching trims throughout</span></div></div>
+    <div class="sw"><div class="img" style="background-image:url(img/sw-standing-seam.jpg)"></div><div class="num mono">03</div><h3>Black Standing Seam</h3>
+      <div class="with"><span><i style="background:#1b1b1c"></i>Black windows, flashings, trims</span><span><i style="background:#bdb7ad"></i>Matching trims throughout</span></div></div>
+    <div class="sw"><div class="img" style="background-image:url(img/sw-fibre-cement.jpg)"></div><div class="num mono">04</div><h3>Light Mineral Panels</h3>
+      <div class="with"><span><i style="background:#1b1b1c"></i>Black windows, flashings, trims</span><span><i style="background:#bdb7ad"></i>Matching trims throughout</span></div></div>
   </div>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>08</span></div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>09</span></div>
 </section>
 
 <!-- 07 · living ───────────────────────────────────────────────────────── -->
 <section class="pg onimg">
-  <img class="bleed" src="img/int-lounge.jpg" alt="Living" style="object-position:50% 50%">
+  <img class="bleed" src="img/r-int-living-burgundy-oak-day.jpg" alt="Living" style="object-position:50% 50%">
   <div class="shade"></div>
   <div class="cap">
-    <div class="eyeb" style="color:rgba(246,244,240,.72)"><i></i>07 · Inside</div>
-    <h2 class="disp">Dark timber, stone, <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">burgundy.</em></h2>
-    <p>A dark timber ceiling and joinery, stone walls and floor, and one deep burgundy running through the home. Light comes in through full height glazing and softens through sheer linen.</p>
+    <div class="eyeb" style="color:rgba(246,244,240,.72)"><i></i>08 · Inside</div>
+    <h2 class="disp">Timber, tile, <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">light.</em></h2>
+    <p>Timber planks overhead, matching fixed joinery, and one tile colour running through the home. Light comes in through narrow floor reaching windows and softens through the day. Four tiles. Two timber schemes. Morning and night.</p>
   </div>
-  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>09</span></div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>10</span></div>
+</section>
+
+<!-- 09 · the four tiles ─────────────────────────────────────────────────── -->
+<section class="pg facades">
+  <div class="grid">
+    <div class="t"><img src="img/r-int-bathroom-sage-oak-day.jpg" alt="Sage tile"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background:#7d8f7b"></div>
+        <div><div class="num">01</div><h3>Sage</h3><div class="spec">Mosaic tile · Bathroom</div></div></div></div>
+    <div class="t"><img src="img/r-int-bathroom-blue-oak-day.jpg" alt="Tide tile"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background:#5e7b8d"></div>
+        <div><div class="num">02</div><h3>Tide</h3><div class="spec">Mosaic tile · Bathroom</div></div></div></div>
+    <div class="t"><img src="img/r-int-bathroom-burgundy-oak-day.jpg" alt="Burgundy tile"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background:#6c2431"></div>
+        <div><div class="num">03</div><h3>Burgundy</h3><div class="spec">Mosaic tile · Bathroom</div></div></div></div>
+    <div class="t"><img src="img/r-int-bathroom-wheat-oak-day.jpg" alt="Vine tile"><div class="g"></div>
+      <div class="lab"><div class="chip" style="background:#c9a96b"></div>
+        <div><div class="num">04</div><h3>Vine</h3><div class="spec">Mosaic tile · Bathroom</div></div></div></div>
+  </div>
+  <div class="badge"><div class="mono">09 · The tile</div><b>SOLUM</b><div class="mono">Four colours</div></div>
+</section>
+
+<!-- 10 · two timber schemes ──────────────────────────────────────────── -->
+<section class="pg timber">
+  <div class="h"><img class="bleed" src="img/r-int-living-burgundy-walnut-day.jpg" alt="Raw Walnut"><div class="shade"></div>
+    <div class="lab"><div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>10 · Timber · One</div><h3>Raw Walnut</h3><div class="spec">Eveneer · the lighter timber</div></div></div>
+  <div class="h"><img class="bleed" src="img/r-int-living-burgundy-oak-day.jpg" alt="Dark Oak"><div class="shade"></div>
+    <div class="lab"><div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>10 · Timber · Two</div><h3>Dark Oak</h3><div class="spec">The darker timber</div></div></div>
+  <div class="badge"><div class="mono">The timber</div><b>SOLUM</b><div class="mono">Two schemes</div></div>
+  <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>12</span></div>
 </section>
 
 <!-- 08 · kitchen, dining, bedroom ─────────────────────────────────────── -->
 <section class="pg split3">
-  <div class="a"><img class="bleed" src="img/int-kitchen.jpg" alt="Kitchen and dining" style="object-position:40% 50%"><span class="lbl">Kitchen · Dining</span></div>
-  <div class="b"><img class="bleed" src="img/int-bedroom.jpg" alt="Bedroom" style="object-position:50% 45%"><span class="lbl">Bedroom</span></div>
+  <div class="a"><img class="bleed" src="img/r-int-kitchen-burgundy-oak-day.jpg" alt="Kitchen and dining" style="object-position:40% 50%"><span class="lbl">Kitchen · Dining</span></div>
+  <div class="b"><img class="bleed" src="img/r-int-bedroom-burgundy-oak-day.jpg" alt="Bedroom" style="object-position:50% 45%"><span class="lbl">Bedroom</span></div>
   <div class="c">
     <div class="eyeb" style="color:var(--ink3)"><i></i>Kitchen · Dining · Bedroom</div>
     <h2 class="disp">Small, and <em>never</em> short of anything.</h2>
-    <p class="body">A galley kitchen along one wall in dark timber, with an induction cooktop and dishwasher drawer, integrated finger pulls, stainless steel and overhead shelving over a mosaic tile splashback, and fridge, pantry and laundry behind full height doors. At the far end, a bedroom with full height wardrobes, open shelves and a bed niche.</p>
-    <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>10</span></div>
+    <p class="body">A galley kitchen along one wall in matching timber, with an induction cooktop and dishwasher drawer, integrated finger pulls, a standalone cylindrical hood and a continuous shelf over the mosaic tile splashback, and fridge, pantry and laundry behind full height doors. At the far end, a bedroom with full height wardrobes, a bed niche and a high window.</p>
+    <div class="folio"><span>HAAVN BLACK · SOLUM</span><span>13</span></div>
   </div>
 </section>
 
 <!-- 09 · bathroom + finishes ──────────────────────────────────────────── -->
 <section class="pg bath">
-  <div class="a"><img class="bleed" src="img/int-bathroom.jpg" alt="Bathroom" style="object-position:45% 50%"></div>
+  <div class="a"><img class="bleed" src="img/r-int-bathroom-burgundy-oak-day.jpg" alt="Bathroom" style="object-position:45% 50%"></div>
   <div class="r">
     <div class="eyeb" style="color:var(--ink3)"><i></i>Bathroom · Finishes</div>
     <h2 class="disp">Detailed <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">properly.</em></h2>
-    <p class="body">Burgundy mosaic tile against large format stone, a recessed half height pedestal basin integrated into the shelf, a niche above the toilet, frameless glass to the shower and satin chrome tapware.</p>
+    <p class="body">Mosaic tile in your choice of colour against large format stone, a recessed half height pedestal basin integrated into the shelf, a niche above the toilet, a frameless mirror, a high window and a framed screen to the shower.</p>
     <ul>
-      <li><b>Ceiling</b><span>Dark timber lining</span></li>
+      <li><b>Ceiling</b><span>Timber planks, matching</span></li>
       <li><b>Walls &amp; floors</b><span>Large format stone tile</span></li>
-      <li><b>Joinery</b><span>Dark timber</span></li>
-      <li><b>Mosaic</b><span>Burgundy, or green</span></li>
-      <li><b>Tapware</b><span>Satin chrome</span></li>
+      <li><b>Joinery</b><span>Raw Walnut or Dark Oak</span></li>
+      <li><b>Mosaic</b><span>Sage, Tide, Burgundy or Vine</span></li>
+      <li><b>Tapware</b><span>Brushed silver</span></li>
       <li><b>Lighting</b><span>Concealed LED · spotlights</span></li>
       <li><b>Windows</b><span>Sheer linen</span></li>
     </ul>
     <img class="ph bleed" style="position:absolute;inset:auto;right:16mm;bottom:22mm;width:50mm;height:66mm" src="img/int-palette.jpg" alt="The interior palette">
     <div class="phcap mono" style="position:absolute;right:16mm;bottom:17mm;width:50mm">Palette 01 · ceiling, wall, mosaic, floor</div>
   </div>
-  <div class="folio" style="left:164mm;right:16mm"><span>HAAVN BLACK · SOLUM</span><span>11</span></div>
+  <div class="folio" style="left:164mm;right:16mm"><span>HAAVN BLACK · SOLUM</span><span>14</span></div>
 </section>
 
 <!-- 10 · the plan ─────────────────────────────────────────────────────── -->
 <section class="pg plan">
   <div class="l"><img src="img/plan.png" alt="SOLUM ground floor plan"></div>
   <div class="r">
-    <div class="eyeb" style="color:var(--ink3)"><i></i>08 · The plan</div>
+    <div class="eyeb" style="color:var(--ink3)"><i></i>11 · The plan</div>
     <h2 class="disp">60 m²<small>One module. <em class="au" style="font-family:var(--serif);font-style:italic;font-size:15pt">Nothing wasted.</em></small></h2>
     <div class="nums">
       <div><div class="k">Floor area</div><div class="v">60<small>m²</small></div></div>
@@ -408,31 +468,31 @@ em.au{color:var(--gold-dp)}
       <p>A deck the length of the living rooms. An entry deck. An outdoor kitchen with barbecue joinery, fridge and sink. A rear entry.</p>
     </div>
   </div>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>12</span></div>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>15</span></div>
 </section>
 
 <!-- 11 · specification ────────────────────────────────────────────────── -->
 <section class="pg spec">
   <div class="in">
     <div class="head">
-      <div><div class="eyeb" style="color:var(--ink3)"><i></i>09 · Specification</div><h2 class="disp">What <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">arrives.</em></h2></div>
+      <div><div class="eyeb" style="color:var(--ink3)"><i></i>12 · Specification</div><h2 class="disp">What <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">arrives.</em></h2></div>
       <p class="body" style="color:var(--ink2)">SOLUM is manufactured whole as one module and delivered complete. What follows is the home as designed.</p>
     </div>
   </div>
   <table>
     <tr><td>Form</td><td>A single factory finished module, 12.6 × 4.2 m on a 4.2 m structural grid, raised on posts. 13.4 × 4.5 m overall.</td></tr>
-    <tr><td>Facade</td><td>Four finishes: Yakisugi charred timber, Blackbutt timber, Charcoal standing seam or Equitone fibre cement. Charcoal windows, flashings and trims throughout.</td></tr>
-    <tr><td>Glazing</td><td>Full height glazing to the living, dining and bedroom. Bronze tinted, or silver with the Equitone facade.</td></tr>
-    <tr><td>Kitchen</td><td>Galley kitchen in dark timber with integrated finger pulls. Induction cooktop and dishwasher drawer, sink, drawers, pantry and fridge. Stainless steel and overhead shelving over a mosaic tile splashback.</td></tr>
-    <tr><td>Living</td><td>Living room at the end of the module, opening to the deck option. Dark timber joinery with a fireplace and its own joinery, full height cupboards, satin chrome accents and bespoke spotlights.</td></tr>
-    <tr><td>Bedroom</td><td>Bedroom with full height wardrobes, open shelves and a bed niche.</td></tr>
-    <tr><td>Bathroom</td><td>Walk in shower, a recessed half height pedestal basin integrated into the mosaic shelf, wall hung toilet with a niche above.</td></tr>
+    <tr><td>Facade</td><td>Four finishes: Yakisugi charred timber, Blackbutt timber, Black standing seam steel or Light mineral panels (Equitone fibre cement). Black windows, flashings and trims throughout.</td></tr>
+    <tr><td>Glazing</td><td>Narrow floor reaching windows to the living and bedroom, central double sliders and three slim black awnings.</td></tr>
+    <tr><td>Kitchen</td><td>Galley kitchen in matching timber with integrated finger pulls. Induction cooktop and dishwasher drawer, sink, drawers, pantry and fridge. Standalone cylindrical hood and a continuous shelf over a mosaic tile splashback.</td></tr>
+    <tr><td>Living</td><td>Living room at the end of the module, opening to the deck option. Matching timber ceiling planks and fixed joinery, full height cupboards and a black three blade fan.</td></tr>
+    <tr><td>Bedroom</td><td>Bedroom with full height wardrobes, a bed niche, a black fan and a high window.</td></tr>
+    <tr><td>Bathroom</td><td>Walk in shower with a framed screen, a recessed half height pedestal basin integrated into the mosaic shelf, wall hung toilet with a niche above, frameless mirror and a high window.</td></tr>
     <tr><td>Services</td><td>Washer and dryer, and a dedicated install cupboard.</td></tr>
-    <tr><td>Interior palette</td><td>Two palettes over the same dark timber ceiling, stone walls and floor: 01 burgundy mosaic, or 02 green mosaic.</td></tr>
+    <tr><td>Interior palette</td><td>Four tile colours, Sage, Tide, Burgundy and Vine, with two timber schemes, Eveneer Raw Walnut or Dark Oak, matched across the ceiling planks and fixed joinery.</td></tr>
     <tr><td>Options</td><td>Deck, entry deck, outdoor kitchen with barbecue joinery, fridge and sink, rear entry.</td></tr>
   </table>
-  <p class="fine">Images and specification are indicative and may change as design is finalised. Furniture, landscaping and styling are shown for illustration and are not included. The Blackbutt facade is shown as a visualisation. Final specification is confirmed at contract. Interiors and finishes per the Fraser &amp; Partners SOLUM Interior Design Report, 22 September 2026. Design by Fraser &amp; Partners for HAAVN.</p>
-  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>13</span></div>
+  <p class="fine">Images and specification are indicative and may change as design is finalised. Furniture, landscaping and styling are shown for illustration and are not included. Renders are image studies and are not dimensionally exact to the architectural model. Material colour changes with light, so finishes are specified from physical samples. Final specification is confirmed at contract. Design by Fraser &amp; Partners for HAAVN.</p>
+  <div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>16</span></div>
 </section>
 
 <!-- 12 · back ─────────────────────────────────────────────────────────── -->
