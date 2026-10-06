@@ -17,6 +17,17 @@ import { setStoredRole, getStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD, HAAVN_
 const CORRECT = 'Atrium7x!!!'
 const STORAGE_KEY = '7even_auth'
 
+// Mike Furniss (HAAVN BLACK sales manager, Queensland). Same locked-down
+// 'homes' role as the builder login — HAAVN BLACK and its sales ATRIUM only,
+// never 7EVEN, HAAVN or Capital Base. Kept as a SHA-256 hash so the
+// plaintext never ships in the bundle.
+const MIKE_HASH = '7b34bf632ec2bb296b6520977be17cfed9b29634188b8603898a8c974f4d5a04'
+const MIKE_NAME = 'Mike Furniss'
+async function sha256Hex(v: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
 // Sessions expire after this long, forcing re-entry of the access code.
 // Protects shared/public computers where the login flag would otherwise persist forever.
 const SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000 // 12 hours
@@ -195,8 +206,16 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
   // this render), attempt() never runs, so the stored role is the only signal.
   const [haavnOnly, setHaavnOnly] = useState(() => getStoredRole() === 'haavnonly')
 
-  function attempt() {
-    if (value === CORRECT) {
+  async function attempt() {
+    let mike = false
+    try { mike = (await sha256Hex(value)) === MIKE_HASH } catch { /* no crypto.subtle: fall through */ }
+    if (mike) {
+      // HAAVN BLACK sales manager: restricted 'homes' role, signed in as himself.
+      markAuthenticated()
+      setStoredRole('homes')
+      try { localStorage.setItem('atrium_me', MIKE_NAME) } catch { /* ignore */ }
+      onAuth()
+    } else if (value === CORRECT) {
       markAuthenticated()
       setStoredRole('admin')
       setHaavnOnly(false)
