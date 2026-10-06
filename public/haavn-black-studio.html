@@ -270,6 +270,43 @@ body.remote-on .remote{display:flex}
 .btn.live{border-color:rgba(47,224,122,.55);color:#eafff2;background:rgba(47,224,122,.07)}
 .btn.live:hover{border-color:var(--led);box-shadow:0 0 26px -8px rgba(47,224,122,.7)}
 
+/* ── SOLUM showcase ─────────────────────────────────────────────────── */
+.scx-sec{padding-top:clamp(56px,10vh,120px)}
+.scx-h{font-size:clamp(32px,5vw,66px);font-weight:200;letter-spacing:-.03em;line-height:1.04;margin-top:16px}
+.scx-lead{max-width:62ch;color:var(--ink2);line-height:1.7;margin-top:18px;font-size:clamp(14px,1.2vw,17px)}
+.scx-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.scx-lbl{font-family:var(--mono);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink3);margin-top:26px}
+.scx-lbl+.scx-row{margin-top:12px}
+.scx-chip{display:inline-flex;align-items:center;gap:11px;min-height:48px;padding:8px 20px 8px 12px;border:1px solid var(--line);border-radius:32px;background:rgba(12,12,13,.55);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);transition:.3s var(--out);text-align:left;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.scx-chip .d{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.28);flex:none;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+.scx-chip small{display:block;font-size:8px;letter-spacing:.1em;color:var(--ink3);margin-top:3px;text-transform:none;font-family:var(--f)}
+.scx-chip:hover{color:#fff;border-color:var(--line2)}
+.scx-chip.on{color:#fff;border-color:var(--led);box-shadow:inset 0 0 0 1px rgba(47,224,122,.5);background:rgba(47,224,122,.07)}
+.scx-seg{display:inline-flex;padding:5px;border:1px solid var(--line);border-radius:32px;background:rgba(12,12,13,.55)}
+.scx-seg button{height:38px;padding:0 22px;border-radius:26px;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);transition:.3s var(--out)}
+.scx-seg button.on{background:#fff;color:#000}
+.scx-stage{position:relative;aspect-ratio:16/9;margin-top:22px;background:#0a0a0b;border:1px solid var(--line);overflow:hidden;cursor:zoom-in}
+.scx-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.025);transition:opacity .8s var(--out),transform 2.6s var(--out)}
+.scx-stage img.on{opacity:1;transform:none}
+.scx-stage .shade2{position:absolute;inset:auto 0 0 0;height:34%;background:linear-gradient(0deg,rgba(0,0,0,.66),transparent);pointer-events:none;z-index:2}
+.scx-stage .cap{position:absolute;left:clamp(14px,2vw,28px);bottom:clamp(12px,1.8vw,24px);z-index:3;font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#fff;text-shadow:0 1px 10px #000;pointer-events:none}
+.scx-stage .zoomh{position:absolute;right:clamp(14px,2vw,28px);bottom:clamp(12px,1.8vw,24px);z-index:3;font-family:var(--mono);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:none}
+.scx-tn{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.scx-tn.four{grid-template-columns:repeat(4,1fr)}
+.scx-tn button{position:relative;aspect-ratio:4/3;overflow:hidden;border:1px solid var(--line);background:#0a0a0b;padding:0;transition:border-color .3s}
+.scx-tn img{width:100%;height:100%;object-fit:cover;transition:transform 1.6s var(--out),opacity .4s}
+.scx-tn button:hover img{transform:scale(1.05)}
+.scx-tn .c{position:absolute;left:9px;bottom:8px;font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#fff;text-shadow:0 1px 8px #000}
+.scx-tn button.on{border-color:var(--led);box-shadow:inset 0 0 0 1px var(--led)}
+.scx-int{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,1fr);gap:clamp(18px,3vw,48px);align-items:start;margin-top:8px}
+.scx-int .scx-stage{aspect-ratio:1.41/1;margin-top:0}
+.scx-int .scx-side{position:sticky;top:24px}
+.scx-note{font-size:12px;line-height:1.7;color:var(--ink3);margin-top:22px;max-width:46ch}
+.scx-fine{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);line-height:1.9;margin-top:clamp(40px,7vh,80px);max-width:90ch}
+@media(max-width:700px){.scx-stage .zoomh{display:none}.scx-stage .cap{font-size:8px;letter-spacing:.16em}}
+@media(max-width:900px){.scx-int{grid-template-columns:1fr}.scx-int .scx-side{position:static}.scx-tn.four{grid-template-columns:1fr 1fr}.scx-chip{flex:1 1 calc(50% - 10px)}}
+
 /* lightbox: own pinch / twist / pan / double-tap viewer (never the browser's page zoom) */
 .lb{position:fixed;inset:0;z-index:96;background:rgba(0,0,0,.97);display:none;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;overscroll-behavior:contain}
 .lb.on{display:block}
@@ -460,7 +497,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
    load the small one, the big screen the large one. */
 var R='/haavn-renders/';
 var PHONE=(function(){try{return matchMedia('(max-width:900px)').matches||(navigator.maxTouchPoints>1&&Math.min(screen.width,screen.height)<=900);}catch(e){return false;}})();
-function sm(s){return s?s.replace(/\.jpg$/i,'-sm.jpg'):s;}
+function sm(s){return s?s.replace(/\.jpg$/i,'-sm.jpg').replace(/(\/solum\/[^\/]+)\.webp$/i,'$1-t.webp'):s;}
 function md(s){return s?s.replace(/\.jpg$/i,'-md.jpg'):s;}
 function big(s){return PHONE?md(s):s;}
 function fb(el,src){el.onerror=function(){el.onerror=null;el.src=src;};}
@@ -475,8 +512,8 @@ var HOMES=[
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum-ext-charred-01.jpg', model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=5', launch:'https://solum-black-teaser.vercel.app',
-  gallery:['solum-ext-charred-01','solum-ext-stone-01','solum-ext-stone-02','solum-ext-stone-03','solum-ext-charred-02','solum-ext-charred-03','solum-ext-black-01','solum-ext-black-02','solum-ext-black-03','solum-int26-living','solum-int26-kitchen','solum-int26-bath','solum-int26-bed','solum-int-01','solum-int-02','solum-int-03','solum-int-04','solum-int-05','solum-int-06','solum-int-07','solum-int-08'].map(function(n){return R+n+'.jpg';}),
+  img:R+'solum/ext-yakisugi-entrance-night.webp', showcase:true, model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=5', launch:'https://solum-black-teaser.vercel.app',
+  gallery:[],
   plans:[['Ground floor',R+'solum-floor-ground.jpg'],['Cutaway axonometric',R+'solum-floor-axo.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
   blurb:'Double storey, six precision modules. Open living, four bedrooms and a double garage, delivered complete and weather tight.',img:null,gallery:[],plans:[]},
@@ -510,10 +547,11 @@ var HOMES=[
 ];
 
 var PALETTE=[
-  {name:'Charred',   sw:'#171514', img:R+'solum-ext-charred-01.jpg', note:'Charred timber, black steel, warm interior.'},
-  {name:'Stone',     sw:'#8d8981', img:R+'solum-ext-stone-01.jpg',   note:'Stone and pale render against dark frames.'},
-  {name:'Black',     sw:'#0a0a0b', img:R+'solum-ext-black-01.jpg',   note:'The full black envelope, matte on matte.'},
-  {name:'Interior',  sw:'#7a2c33', img:R+'solum-int26-living.jpg',   note:'Dark timber, stone and burgundy. Warmth held inside.'}
+  {name:'Yakisugi',  sw:'#171514', img:R+'solum/ext-yakisugi-entrance-night.webp', note:'Yakisugi charred timber, black steel, warm interior.'},
+  {name:'Blackbutt', sw:'#a7774b', img:R+'solum/ext-blackbutt-entrance-day.webp',  note:'Warm blackbutt against dark frames.'},
+  {name:'Seam',      sw:'#1b1c1e', img:R+'solum/ext-seam-entrance-night.webp',     note:'Black standing seam steel, matte on matte.'},
+  {name:'Mineral',   sw:'#cbc7bd', img:R+'solum/ext-mineral-entrance-day.webp',    note:'Light mineral panels with black detailing.'},
+  {name:'Interior',  sw:'#6c2431', img:R+'solum/int-living-burgundy-oak-night.webp', note:'Dark oak, tile and warm light held inside.'}
 ];
 
 var FILMS=[
@@ -592,10 +630,10 @@ function openHome(i, user){
   var nums=[['Internal area',m2(h.area)+'<small> m²</small>'],['Bedrooms',h.beds],['Bathrooms',h.baths],
             ['Storeys',h.storeys],['Modules',h.modules],['Minimum lot',h.frontage+'<small> × '+h.depth+' m</small>']]
     .map(function(n){return '<div class="n"><div class="k">'+n[0]+'</div><div class="v">'+n[1]+'</div></div>';}).join('');
-  var gal=h.gallery.length?('<div class="sec-h"><h3>Gallery</h3><span class="mono">'+h.gallery.length+' views</span></div><div class="gal">'+
+  var gal=h.showcase?solumShowcase(h):h.gallery.length?('<div class="sec-h"><h3>Gallery</h3><span class="mono">'+h.gallery.length+' views</span></div><div class="gal">'+
       h.gallery.map(function(s,gi){return '<button class="g" data-lb="'+gi+'"><img src="'+sm(s)+'" alt="" loading="lazy" decoding="async"><span class="cap">View '+(gi+1)+'</span></button>';}).join('')+'</div>'):'';
   var plans=h.plans.length?('<div class="sec-h"><h3>Floor plans</h3><span class="mono">Tap to enlarge</span></div><div class="gal">'+
-      h.plans.map(function(p,pi){return '<button class="g" data-lb="'+(h.gallery.length+pi)+'"><img src="'+sm(p[1])+'" alt="" loading="lazy" decoding="async"><span class="cap">'+p[0]+'</span></button>';}).join('')+'</div>'):'';
+      h.plans.map(function(p,pi){return '<button class="g" '+(h.showcase?'data-plan="'+pi+'"':'data-lb="'+(h.gallery.length+pi)+'"')+'><img src="'+sm(p[1])+'" alt="" loading="lazy" decoding="async"><span class="cap">'+p[0]+'</span></button>';}).join('')+'</div>'):'';
   prod.innerHTML=
     '<button class="btn pback" id="pClose">← The range</button>'+
     '<div class="hero">'+(heroSrc?'<img src="'+heroSrc+'" alt="'+h.key+'" decoding="async">':'')+'<div class="shade"></div>'+
@@ -606,6 +644,7 @@ function openHome(i, user){
   if(heroSrc){ var hi=prod.querySelector('.hero img'); fb(hi,h.img); }
   [].forEach.call(prod.querySelectorAll('img'),function(im){ var f=im.getAttribute('src').replace('-sm.jpg','.jpg'); if(im.closest('.gal')) fb(im,f); });
   [].forEach.call(prod.querySelectorAll('[data-lb]'),function(b){ b.onclick=function(){ openLb(+b.dataset.lb, true); }; });
+  if(h.showcase){ solumInit(h); [].forEach.call(prod.querySelectorAll('[data-plan]'),function(b){ b.onclick=function(){ LB=h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};}); openLb(+b.dataset.plan,true); }; }); }
   prod.querySelector('#pClose').onclick=function(){ closeHome(true); };
   var pl=prod.querySelector('#pLaunch'); if(pl) pl.onclick=function(){ openModel(h.launch, true, true); };
   [].forEach.call(prod.querySelectorAll('.hsw'),function(b){
@@ -654,6 +693,119 @@ function closeModel(user){
   if(user) send({type:'modelClose'});
 }
 addEventListener('message', function(e){ if(e.data==='haavn-3d-close') closeModel(true); });
+
+
+/* ── SOLUM showcase: every render and finish from the HAAVN BLK RENDERS pack ───
+   20 facade views (4 finishes, day and night) and 64 interiors
+   (4 rooms x 4 tiles x 2 timber schemes x day and night). */
+var SD='/haavn-renders/solum/';
+var SC_EXT=['ext-mineral-entrance-day', 'ext-mineral-entrance-night', 'ext-seam-entrance-day', 'ext-seam-entrance-night', 'ext-yakisugi-entrance-day', 'ext-yakisugi-entrance-night', 'ext-mineral-angled-night', 'ext-yakisugi-angled-night', 'ext-mineral-front-night', 'ext-yakisugi-front-night', 'ext-seam-angled-night', 'ext-mineral-angled-day', 'ext-yakisugi-angled-day', 'ext-seam-angled-day', 'ext-blackbutt-entrance-day', 'ext-blackbutt-entrance-night', 'ext-blackbutt-angled-day', 'ext-blackbutt-angled-night', 'ext-blackbutt-front-day', 'ext-blackbutt-front-night'];
+var SC_INT=['int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-kitchen-sage-walnut-day', 'int-kitchen-sage-walnut-night', 'int-bedroom-sage-walnut-day', 'int-bedroom-sage-walnut-night', 'int-bathroom-sage-walnut-day', 'int-bathroom-sage-walnut-night', 'int-living-sage-oak-day', 'int-living-sage-oak-night', 'int-kitchen-sage-oak-day', 'int-kitchen-sage-oak-night', 'int-bedroom-sage-oak-day', 'int-bedroom-sage-oak-night', 'int-bathroom-sage-oak-day', 'int-bathroom-sage-oak-night', 'int-living-blue-walnut-day', 'int-living-blue-walnut-night', 'int-kitchen-blue-walnut-day', 'int-kitchen-blue-walnut-night', 'int-bedroom-blue-walnut-day', 'int-bedroom-blue-walnut-night', 'int-bathroom-blue-walnut-day', 'int-bathroom-blue-walnut-night', 'int-living-blue-oak-day', 'int-living-blue-oak-night', 'int-kitchen-blue-oak-day', 'int-kitchen-blue-oak-night', 'int-bedroom-blue-oak-day', 'int-bedroom-blue-oak-night', 'int-bathroom-blue-oak-day', 'int-bathroom-blue-oak-night', 'int-living-burgundy-walnut-day', 'int-living-burgundy-walnut-night', 'int-kitchen-burgundy-walnut-day', 'int-kitchen-burgundy-walnut-night', 'int-bedroom-burgundy-walnut-day', 'int-bedroom-burgundy-walnut-night', 'int-bathroom-burgundy-walnut-day', 'int-bathroom-burgundy-walnut-night', 'int-living-burgundy-oak-day', 'int-living-burgundy-oak-night', 'int-kitchen-burgundy-oak-day', 'int-kitchen-burgundy-oak-night', 'int-bedroom-burgundy-oak-day', 'int-bedroom-burgundy-oak-night', 'int-bathroom-burgundy-oak-day', 'int-bathroom-burgundy-oak-night', 'int-living-wheat-walnut-day', 'int-living-wheat-walnut-night', 'int-kitchen-wheat-walnut-day', 'int-kitchen-wheat-walnut-night', 'int-bedroom-wheat-walnut-day', 'int-bedroom-wheat-walnut-night', 'int-bathroom-wheat-walnut-day', 'int-bathroom-wheat-walnut-night', 'int-living-wheat-oak-day', 'int-living-wheat-oak-night', 'int-kitchen-wheat-oak-day', 'int-kitchen-wheat-oak-night', 'int-bedroom-wheat-oak-day', 'int-bedroom-wheat-oak-night', 'int-bathroom-wheat-oak-day', 'int-bathroom-wheat-oak-night'];
+var SC_FIN=[
+ {k:'yakisugi',name:'Yakisugi',sub:'Charred timber',sw:'#15110f'},
+ {k:'blackbutt',name:'Blackbutt',sub:'Warm timber',sw:'#a7774b'},
+ {k:'seam',name:'Standing seam',sub:'Black steel',sw:'#1b1c1e'},
+ {k:'mineral',name:'Mineral panels',sub:'Light, Equitone',sw:'#cbc7bd'}];
+var SC_VIEW={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
+var SC_ROOM=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
+var SC_TILE=[
+ {k:'sage',name:'Sage',sub:'Miyako Indigo Green',sw:'#7d8f7b'},
+ {k:'blue',name:'Blue',sub:'Mineral Tide',sw:'#5e7b8d'},
+ {k:'burgundy',name:'Burgundy',sub:'',sw:'#6c2431'},
+ {k:'wheat',name:'Wheat',sub:'Wheat Ember',sw:'#c9a96b'}];
+var SC_WOOD=[
+ {k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},
+ {k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}];
+var SC={fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'};
+function scHas(n){ return SC_EXT.indexOf(n)>=0||SC_INT.indexOf(n)>=0; }
+function scExt(fin,view,l){ return 'ext-'+fin+'-'+view+'-'+l; }
+function scInt(room,tile,wood,l){ return 'int-'+room+'-'+tile+'-'+wood+'-'+l; }
+function scFull(n){ return SD+n+'.webp'; }
+function scTn(n){ return SD+n+'-t.webp'; }
+function scName(l,arr){ for(var i=0;i<arr.length;i++) if(arr[i].k===l) return arr[i]; return arr[0]; }
+function scLbl(l){ return l==='night'?'Night':'Day'; }
+function scCapExt(n){ var p=n.split('-'); return scName(p[1],SC_FIN).name+' · '+SC_VIEW[p[2]]+' · '+scLbl(p[3]); }
+function scCapInt(n){ var p=n.split('-'); var r=''; SC_ROOM.forEach(function(x){ if(x[0]===p[1]) r=x[1]; });
+  return r+' · '+scName(p[2],SC_TILE).name+' · '+scName(p[3],SC_WOOD).name+' · '+scLbl(p[4]); }
+/* cross-fade a stage to a new picture; only the current and the incoming one are ever decoded */
+function scSwap(box,src,capTxt){
+  var cur=box.querySelector('img.on'); var cap=box.querySelector('.cap'); if(cap&&capTxt) cap.textContent=capTxt;
+  if(cur&&cur.getAttribute('data-src')===src) return;
+  var n=new Image(); n.decoding='async'; n.alt=capTxt||''; n.setAttribute('data-src',src); n.draggable=false;
+  n.onload=function(){ box.insertBefore(n,box.querySelector('.shade2')); requestAnimationFrame(function(){ n.classList.add('on');
+    if(cur){ cur.classList.remove('on'); setTimeout(function(){ if(cur.parentNode) cur.parentNode.removeChild(cur); },900); } }); };
+  n.src=src; }
+function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
+function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
+
+function solumShowcase(h){
+  return '<div class="scx-sec" id="scxFac">'+
+    '<div class="eyeb"><i></i>01 · Facade</div>'+
+    '<h3 class="scx-h">Four finishes.<br>Morning and night.</h3>'+
+    '<p class="scx-lead">Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.</p>'+
+    '<div class="scx-row" id="scxFins"></div>'+
+    '<div class="scx-row" style="margin-top:14px">'+scSeg('scxFL',['day','Day'],['night','Night'],SC.fl)+'</div>'+
+    '<div class="scx-stage" id="scxFStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div>'+
+    '<div class="scx-tn" id="scxFViews"></div></div>'+
+  '<div class="scx-sec" id="scxInt">'+
+    '<div class="eyeb"><i></i>02 · Interior</div>'+
+    '<h3 class="scx-h">Four tiles.<br>Two timber schemes.</h3>'+
+    '<p class="scx-lead">Choose a tile and a timber and see the room. Matching timber on the ceiling planks and the fixed joinery, morning sun or night.</p>'+
+    '<div class="scx-int"><div><div class="scx-stage" id="scxIStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div></div>'+
+    '<div class="scx-side"><div class="scx-lbl" style="margin-top:0">Room</div><div class="scx-row" id="scxRooms"></div>'+
+    '<div class="scx-lbl">Tile</div><div class="scx-row" id="scxTiles"></div>'+
+    '<div class="scx-lbl">Timber</div><div class="scx-row" id="scxWoods"></div>'+
+    '<div class="scx-lbl">Light</div><div class="scx-row">'+scSeg('scxIL',['day','Day'],['night','Night'],SC.il)+'</div>'+
+    '<p class="scx-note">Sage is Miyako Indigo Green, Blue is Mineral Tide and Wheat is Wheat Ember. Timber is Eveneer Raw Walnut or Dark Oak.</p></div></div>'+
+    '<div class="scx-lbl">This room across the four tiles</div><div class="scx-tn four" id="scxCmpT"></div>'+
+    '<div class="scx-lbl">Timber and light</div><div class="scx-tn four" id="scxCmpW"></div></div>'+
+  '<p class="scx-fine">These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
+}
+function scLb(list,i){ LB=list.map(function(n){ return {src:scFull(n),cap:/^ext/.test(n)?scCapExt(n):scCapInt(n)}; }); openLb(i,true); }
+function scFacade(){
+  /* keep the picture valid when a finish or light does not have that view */
+  var want=scExt(SC.fin,SC.view,SC.fl);
+  if(!scHas(want)){ var o=null; ['entrance','front','angled'].forEach(function(v){ if(!o&&scHas(scExt(SC.fin,v,SC.fl))) o=v; }); if(o) SC.view=o; }
+  var n=scExt(SC.fin,SC.view,SC.fl);
+  scSwap(document.getElementById('scxFStage'),scFull(n),scCapExt(n));
+  [].forEach.call(document.querySelectorAll('#scxFins .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.fin); });
+  [].forEach.call(document.querySelectorAll('#scxFL button'),function(b){ b.classList.toggle('on',b.dataset.v===SC.fl); });
+  var box=document.getElementById('scxFViews'), html='';
+  ['entrance','front','angled'].forEach(function(v){ var m=scExt(SC.fin,v,SC.fl); if(!scHas(m)) return;
+    html+='<button data-v="'+v+'" class="'+(v===SC.view?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+SC_VIEW[v]+'</span></button>'; });
+  box.innerHTML=html;
+  [].forEach.call(box.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.view=b.dataset.v; scFacade(); }; }); }
+function scInterior(){
+  var n=scInt(SC.room,SC.tile,SC.wood,SC.il);
+  scSwap(document.getElementById('scxIStage'),scFull(n),scCapInt(n));
+  [].forEach.call(document.querySelectorAll('#scxRooms .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.room); });
+  [].forEach.call(document.querySelectorAll('#scxTiles .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.tile); });
+  [].forEach.call(document.querySelectorAll('#scxWoods .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.wood); });
+  [].forEach.call(document.querySelectorAll('#scxIL button'),function(b){ b.classList.toggle('on',b.dataset.v===SC.il); });
+  var t='', w='';
+  SC_TILE.forEach(function(x){ var m=scInt(SC.room,x.k,SC.wood,SC.il); t+='<button data-k="'+x.k+'" class="'+(x.k===SC.tile?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+x.name+'</span></button>'; });
+  [['walnut','day'],['walnut','night'],['oak','day'],['oak','night']].forEach(function(x){ var m=scInt(SC.room,SC.tile,x[0],x[1]);
+    w+='<button data-w="'+x[0]+'" data-l="'+x[1]+'" class="'+(x[0]===SC.wood&&x[1]===SC.il?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+scName(x[0],SC_WOOD).name+' · '+scLbl(x[1])+'</span></button>'; });
+  var bt=document.getElementById('scxCmpT'), bw=document.getElementById('scxCmpW'); bt.innerHTML=t; bw.innerHTML=w;
+  [].forEach.call(bt.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.tile=b.dataset.k; scInterior(); }; });
+  [].forEach.call(bw.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.wood=b.dataset.w; SC.il=b.dataset.l; scInterior(); }; }); }
+function solumInit(h){
+  var fins=document.getElementById('scxFins'); fins.innerHTML=SC_FIN.map(function(x){ return scChip('',x.k===SC.fin,x.sw,x.name,x.sub,'data-k="'+x.k+'"'); }).join('');
+  [].forEach.call(fins.querySelectorAll('.scx-chip'),function(b){ b.onclick=function(){ SC.fin=b.dataset.k; scFacade(); }; });
+  [].forEach.call(document.querySelectorAll('#scxFL button'),function(b){ b.onclick=function(){ SC.fl=b.dataset.v; scFacade(); }; });
+  document.getElementById('scxRooms').innerHTML=SC_ROOM.map(function(x){ return scChip('',x[0]===SC.room,'',x[1],'','data-k="'+x[0]+'"'); }).join('');
+  document.getElementById('scxTiles').innerHTML=SC_TILE.map(function(x){ return scChip('',x.k===SC.tile,x.sw,x.name,x.sub,'data-k="'+x.k+'"'); }).join('');
+  document.getElementById('scxWoods').innerHTML=SC_WOOD.map(function(x){ return scChip('',x.k===SC.wood,x.sw,x.name,x.sub,'data-k="'+x.k+'"'); }).join('');
+  [].forEach.call(document.querySelectorAll('#scxRooms .scx-chip'),function(b){ b.onclick=function(){ SC.room=b.dataset.k; scInterior(); }; });
+  [].forEach.call(document.querySelectorAll('#scxTiles .scx-chip'),function(b){ b.onclick=function(){ SC.tile=b.dataset.k; scInterior(); }; });
+  [].forEach.call(document.querySelectorAll('#scxWoods .scx-chip'),function(b){ b.onclick=function(){ SC.wood=b.dataset.k; scInterior(); }; });
+  [].forEach.call(document.querySelectorAll('#scxIL button'),function(b){ b.onclick=function(){ SC.il=b.dataset.v; scInterior(); }; });
+  document.getElementById('scxFStage').onclick=function(){
+    var list=[]; ['day','night'].forEach(function(l){ ['entrance','front','angled'].forEach(function(v){ var m=scExt(SC.fin,v,l); if(scHas(m)) list.push(m); }); });
+    var cur=scExt(SC.fin,SC.view,SC.fl); scLb(list,Math.max(0,list.indexOf(cur))); };
+  document.getElementById('scxIStage').onclick=function(){
+    var list=SC_ROOM.map(function(r){ return scInt(r[0],SC.tile,SC.wood,SC.il); }); scLb(list,Math.max(0,list.indexOf(scInt(SC.room,SC.tile,SC.wood,SC.il)))); };
+  scFacade(); scInterior(); }
 
 /* ── lightbox ─────────────────────────────────────────────────────────── */
 var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap'), lbStage=document.getElementById('lbStage');
@@ -864,7 +1016,7 @@ function rememberView(){ if(_restoring||TVMODE) return; try{ sessionStorage.setI
   addEventListener('pagehide',rememberView); })();
 (function(){ if(TVMODE) return; var v; try{ v=JSON.parse(sessionStorage.getItem(VIEW_KEY)||'null'); }catch(e){} if(!v) return;
   _restoring=true;
-  try{ if(v.home!=null && HOMES[v.home]){ openHome(v.home); if(v.lb!=null) openLb(v.lb); } else if(v.y){ setTimeout(function(){ window.scrollTo(0,v.y); },60); } }catch(e){}
+  try{ if(v.home!=null && HOMES[v.home]){ openHome(v.home); if(v.lb!=null && !HOMES[v.home].showcase) openLb(v.lb); } else if(v.y){ setTimeout(function(){ window.scrollTo(0,v.y); },60); } }catch(e){}
   _restoring=false; })();
 </script>
 </body>
