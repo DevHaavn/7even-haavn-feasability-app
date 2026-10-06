@@ -256,6 +256,12 @@ em.au{color:var(--gold-dp)}
 .c-int .badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#070708;padding:3.6mm 6mm;text-align:center;color:var(--white);border:.25mm solid rgba(214,179,106,.45)}
 .c-int .badge .mono{color:var(--silver);font-size:5.6pt}
 .c-int .badge b{display:block;font-weight:200;font-size:12pt;letter-spacing:.3em;margin:1.4mm 0 1.2mm;padding-left:.3em;color:var(--gold);white-space:nowrap}
+.c-int.six .grid{grid-template-columns:1fr 1fr 1fr}
+.c-int.six .t .lab{left:8mm;right:auto;text-align:left}
+.c-int.six .t:nth-child(-n+3) .lab{top:8mm;bottom:auto}
+.c-int.six .t:nth-child(n+4) .lab{bottom:7mm;top:auto}
+.c-int.six .t:nth-child(-n+3) .g{background:linear-gradient(180deg,rgba(6,6,7,.62),rgba(6,6,7,0) 40%)}
+.c-int.six .t:nth-child(n+4) .g{background:linear-gradient(0deg,rgba(6,6,7,.7),rgba(6,6,7,0) 40%)}
 .c-fin .in{position:absolute;inset:0;padding:18mm 18mm}
 .c-fin .head{display:grid;grid-template-columns:110mm 1fr;gap:12mm;align-items:end}
 .c-fin h2{font-size:38pt;margin-top:7mm}
@@ -280,27 +286,30 @@ em.au{color:var(--gold-dp)}
 (function(){
 var Q=new URLSearchParams(location.search);
 function pick(k,ok,d){ var v=Q.get(k); return ok.indexOf(v)>=0?v:d; }
-var FIN=pick('fin',['yakisugi','blackbutt','seam','mineral'],'yakisugi');
-var VIEW=pick('view',['entrance','front','angled'],'entrance');
+var HOME=pick('home',['solum','studio'],'solum'); var STU=HOME==='studio'; var HN=STU?'SOLUM STUDIO':'SOLUM';
+var FIN=pick('fin',STU?['yakisugi','blackbutt','metal','concrete']:['yakisugi','blackbutt','seam','mineral'],'yakisugi');
+var VIEW=pick('view',STU?['front','straight','frontleft','side','rear','entry']:['entrance','front','angled'],STU?'front':'entrance');
 var FL=pick('fl',['day','night'],'night');
 var TILE=pick('tile',['sage','blue','burgundy','wheat'],'sage');
 var WOOD=pick('wood',['walnut','oak'],'oak');
 var IL=pick('il',['day','night'],'day');
-var HOME=pick('home',['solum','studio'],'solum'); var HN=HOME==='studio'?'SOLUM STUDIO':'SOLUM';
-var D='/haavn-renders/solum/';
-var FINS={yakisugi:{n:'Yakisugi',spec:'Shou sugi ban charred timber',sw:'sw-yakisugi.jpg'},blackbutt:{n:'Blackbutt',spec:'Blackbutt timber cladding',sw:'sw-blackbutt.jpg'},
- seam:{n:'Black Standing Seam',spec:'Standing seam steel',sw:'sw-standing-seam.jpg'},mineral:{n:'Light Mineral Panels',spec:'Equitone fibre cement cladding',sw:'sw-fibre-cement.jpg'}};
-var VIEWN={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
+var D=STU?'/haavn-renders/solum-studio/':'/haavn-renders/solum/';
+var FINS={yakisugi:{n:'Yakisugi',spec:STU?'Black timber cladding':'Shou sugi ban charred timber',sw:'sw-yakisugi.jpg'},blackbutt:{n:'Blackbutt',spec:'Blackbutt timber cladding',sw:'sw-blackbutt.jpg'},
+ seam:{n:'Black Standing Seam',spec:'Standing seam steel',sw:'sw-standing-seam.jpg'},mineral:{n:'Light Mineral Panels',spec:'Equitone fibre cement cladding',sw:'sw-fibre-cement.jpg'},
+ metal:{n:'Black Metal',spec:'Black metal cladding',sw:'sw-standing-seam.jpg'},concrete:{n:'Light Concrete',spec:'Light concrete cladding',col:'#cbc7bd'}};
+var VIEWN={entrance:'Entrance',front:'Front facade',angled:'Angled facade',straight:'Front, straight on',frontleft:'Front left',side:'Side',rear:'Rear',entry:'Entry detail'};
 var TILES={sage:{n:'Sage',c:'#7d8f7b'},blue:{n:'Tide',c:'#5e7b8d'},burgundy:{n:'Burgundy',c:'#6c2431'},wheat:{n:'Vine',c:'#c9a96b'}};
-var WOODS={walnut:{n:'Raw Walnut',s:'Eveneer Raw Walnut',c:'#8c6340'},oak:{n:'Dark Oak',s:'Dark Oak',c:'#2b1f17'}};
-var ROOMS=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
+var WOODS={walnut:{n:'Raw Walnut',s:'Eveneer Raw Walnut',c:'#8c6340'},oak:{n:STU?'Charcoal Oak':'Dark Oak',s:STU?'Charcoal Oak':'Dark Oak',c:STU?'#2b2724':'#2b1f17'}};
+var ROOMS=STU?[['living','Living'],['balcony','Balcony'],['kitchen','Kitchen'],['dining','Dining'],['bedroom','Bedroom'],['bathroom','Bathroom']]:[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
 var HAS=EXTSET();
-function EXTSET(){ var o={}; ['yakisugi:entrance:day','yakisugi:entrance:night','yakisugi:angled:day','yakisugi:angled:night','yakisugi:front:night',
+function EXTSET(){ var o={}; if(STU){ ['yakisugi','blackbutt','metal','concrete'].forEach(function(f){ ['front','straight','frontleft','side','rear','entry'].forEach(function(v){ ['day','night'].forEach(function(l){ o[f+':'+v+':'+l]=1; }); }); }); return o; }
+ ['yakisugi:entrance:day','yakisugi:entrance:night','yakisugi:angled:day','yakisugi:angled:night','yakisugi:front:night',
  'blackbutt:entrance:day','blackbutt:entrance:night','blackbutt:angled:day','blackbutt:angled:night','blackbutt:front:day','blackbutt:front:night',
  'seam:entrance:day','seam:entrance:night','seam:angled:day','seam:angled:night','mineral:entrance:day','mineral:entrance:night','mineral:angled:day','mineral:angled:night','mineral:front:night'].forEach(function(k){ o[k]=1; }); return o; }
-if(!HAS[FIN+':'+VIEW+':'+FL]){ ['entrance','angled','front'].some(function(v){ if(HAS[FIN+':'+v+':'+FL]){ VIEW=v; return true; } }); }
+if(!HAS[FIN+':'+VIEW+':'+FL]){ Object.keys(VIEWN).some(function(v){ if(HAS[FIN+':'+v+':'+FL]){ VIEW=v; return true; } }); }
 function ext(f,v,l){ return D+'ext-'+f+'-'+v+'-'+l+'.webp'; }
 function intr(r,t,w,l){ return D+'int-'+r+'-'+t+'-'+w+'-'+l+'.webp'; }
+function swStyle(x){ return x.sw?'background-image:url(img/'+x.sw+')':'background:'+x.col; }
 var f=FINS[FIN], t=TILES[TILE], w=WOODS[WOOD], other=IL==='day'?'night':'day';
 function L(x){ return x==='night'?'Night':'Morning'; }
 var designLine=f.n+' · '+t.n+' · '+w.n;
@@ -315,21 +324,21 @@ P+='<section class="pg c-cover dark onimg"><img class="bleed" src="'+ext(FIN,VIE
 /* 2 facade */
 P+='<section class="pg c-fac"><div class="a"><img class="bleed" src="'+ext(FIN,VIEW,FL)+'" alt=""></div><div class="r">'+
  '<div class="eyeb" style="color:var(--ink3)"><i></i>01 · The facade</div><h2 class="disp">'+f.n+'</h2><div class="spec">'+f.spec+'</div>'+
- '<div class="chip" style="background-image:url(img/'+f.sw+')"></div>'+
- '<p class="body">Black windows, flashings and trims throughout, with narrow floor reaching windows, central double sliders and three slim black awnings.</p>'+
+ '<div class="chip" style="'+swStyle(f)+'"></div>'+
+ '<p class="body">'+(STU?'One module with a glass front, finished in '+f.n+'. Shown in the morning and at night.':'Black windows, flashings and trims throughout, with narrow floor reaching windows, central double sliders and three slim black awnings.')+'</p>'+
  '<div class="pair">'+['day','night'].map(function(l){ var v=HAS[FIN+':'+VIEW+':'+l]?VIEW:(HAS[FIN+':entrance:'+l]?'entrance':'angled'); return '<div><img src="'+ext(FIN,v,l)+'" alt=""><span>'+L(l)+'</span></div>'; }).join('')+'</div>'+
  '</div><div class="folio" style="left:auto;right:14mm;width:90mm;justify-content:flex-end"><span>HAAVN BLACK · '+HN+' · 02</span></div></section>';
 /* 3 interior */
-P+='<section class="pg c-int"><div class="grid">'+ROOMS.map(function(r,i){ return '<div class="t"><img src="'+intr(r[0],TILE,WOOD,IL)+'" alt="'+r[1]+'"><div class="g"></div><div class="lab"><div class="num">0'+(i+1)+'</div><h3>'+r[1]+'</h3></div></div>'; }).join('')+'</div>'+
+P+='<section class="pg c-int'+(ROOMS.length>4?' six':'')+'"><div class="grid">'+ROOMS.map(function(r,i){ return '<div class="t"><img src="'+intr(r[0],TILE,WOOD,IL)+'" alt="'+r[1]+'"><div class="g"></div><div class="lab"><div class="num">0'+(i+1)+'</div><h3>'+r[1]+'</h3></div></div>'; }).join('')+'</div>'+
  '<div class="badge"><div class="mono">02 · The interior</div><b>'+t.n.toUpperCase()+' · '+w.n.toUpperCase()+'</b><div class="mono">'+L(IL)+'</div></div></section>';
 /* 4 finishes */
 P+='<section class="pg c-fin"><div class="in"><div class="head"><div><div class="eyeb" style="color:var(--ink3)"><i></i>03 · Your finishes</div><h2 class="disp">'+f.n+', <em class="au" style="font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:0">'+t.n+'</em>.</h2></div>'+
  '<p class="body" style="color:var(--ink2)">The design as you configured it: one facade, one tile colour and one timber scheme, carried through every room. Timber matches across the ceiling planks and the fixed joinery.</p></div></div>'+
  '<div class="sw3">'+
- '<div><div class="box" style="background-image:url(img/'+f.sw+')"></div><div class="n mono">Facade</div><h3>'+f.n+'</h3><p>'+f.spec+'. Black windows, flashings and trims.</p></div>'+
+ '<div><div class="box" style="'+swStyle(f)+'"></div><div class="n mono">Facade</div><h3>'+f.n+'</h3><p>'+f.spec+(STU?'.':'. Black windows, flashings and trims.')+'</p></div>'+
  '<div><div class="box" style="background:'+t.c+'"></div><div class="n mono">Tile</div><h3>'+t.n+'</h3><p>Mosaic tile to the kitchen splashback and the bathroom, against large format stone.</p></div>'+
  '<div><div class="box" style="background:'+w.c+'"></div><div class="n mono">Timber</div><h3>'+w.s+'</h3><p>Ceiling planks and fixed joinery in matching timber, throughout.</p></div></div>'+
- '<div class="oth"><div class="k mono">The same rooms, '+(other==='night'?'at night':'in the morning')+'</div><div class="row">'+ROOMS.map(function(r){ return '<div><img src="'+intr(r[0],TILE,WOOD,other)+'" alt=""><span>'+r[1]+'</span></div>'; }).join('')+'</div></div>'+
+ '<div class="oth"><div class="k mono">The same rooms, '+(other==='night'?'at night':'in the morning')+'</div><div class="row" style="grid-template-columns:repeat('+ROOMS.length+',1fr)">'+ROOMS.map(function(r){ return '<div><img src="'+intr(r[0],TILE,WOOD,other)+'" alt=""><span>'+r[1]+'</span></div>'; }).join('')+'</div></div>'+
  '<div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · '+HN+'</span><span>04</span></div></section>';
 var PL=PLAN;
 if(HOME==='studio'){

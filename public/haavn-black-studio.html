@@ -311,6 +311,7 @@ body.remote-on .remote{display:flex}
 .scx-export{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-top:clamp(48px,8vh,96px);padding:clamp(24px,3vw,44px);border:1px solid var(--line);background:rgba(12,12,13,.5)}
 .scx-side .scx-cta{margin-top:26px;width:100%}
 .scx-full{margin-top:14px}
+.scx-tn.six{grid-template-columns:repeat(3,1fr)}
 @media(max-width:700px){.scx-stage .zoomh{display:none}.scx-stage .cap{font-size:8px;letter-spacing:.16em}}
 @media(max-width:900px){.scx-int{grid-template-columns:1fr}.scx-int .scx-side{position:static}.scx-tn.four{grid-template-columns:1fr 1fr}.scx-chip{flex:1 1 calc(50% - 10px)}}
 
@@ -514,8 +515,7 @@ function m2(a){ return Math.round(a*10)%10===0 ? String(Math.round(a)) : a.toFix
 var HOMES=[
  {key:'SOLUM STUDIO',series:'black',tag:'The compact studio. One module, complete.',area:35,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:3.5,depth:10,
   blurb:'A 3.5 by 10 metre studio, 35 square metres gross. One factory finished module with a glass front, a bedroom, a bathroom and a full kitchen, delivered complete.',
-  img:R+'solum/ext-blackbutt-entrance-night.webp', showcase:true,
-  scLead:'The same four finishes, in daylight and after dark.', scNote:'Renders shown are SOLUM, with the finishes, tiles and timber schemes shared with SOLUM STUDIO.',
+  img:R+'solum-studio/ext-blackbutt-front-night.webp', showcase:true,
   gallery:[],
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
@@ -703,28 +703,38 @@ function closeModel(user){
 addEventListener('message', function(e){ if(e.data==='haavn-3d-close') closeModel(true); });
 
 
-/* ── SOLUM showcase: every render and finish from the HAAVN BLK RENDERS pack ───
-   20 facade views (4 finishes, day and night) and 64 interiors
-   (4 rooms x 4 tiles x 2 timber schemes x day and night). */
-var SD='/haavn-renders/solum/';
-var SC_EXT=['ext-mineral-entrance-day', 'ext-mineral-entrance-night', 'ext-seam-entrance-day', 'ext-seam-entrance-night', 'ext-yakisugi-entrance-day', 'ext-yakisugi-entrance-night', 'ext-mineral-angled-night', 'ext-yakisugi-angled-night', 'ext-mineral-front-night', 'ext-yakisugi-front-night', 'ext-seam-angled-night', 'ext-mineral-angled-day', 'ext-yakisugi-angled-day', 'ext-seam-angled-day', 'ext-blackbutt-entrance-day', 'ext-blackbutt-entrance-night', 'ext-blackbutt-angled-day', 'ext-blackbutt-angled-night', 'ext-blackbutt-front-day', 'ext-blackbutt-front-night'];
-var SC_INT=['int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-kitchen-sage-walnut-day', 'int-kitchen-sage-walnut-night', 'int-bedroom-sage-walnut-day', 'int-bedroom-sage-walnut-night', 'int-bathroom-sage-walnut-day', 'int-bathroom-sage-walnut-night', 'int-living-sage-oak-day', 'int-living-sage-oak-night', 'int-kitchen-sage-oak-day', 'int-kitchen-sage-oak-night', 'int-bedroom-sage-oak-day', 'int-bedroom-sage-oak-night', 'int-bathroom-sage-oak-day', 'int-bathroom-sage-oak-night', 'int-living-blue-walnut-day', 'int-living-blue-walnut-night', 'int-kitchen-blue-walnut-day', 'int-kitchen-blue-walnut-night', 'int-bedroom-blue-walnut-day', 'int-bedroom-blue-walnut-night', 'int-bathroom-blue-walnut-day', 'int-bathroom-blue-walnut-night', 'int-living-blue-oak-day', 'int-living-blue-oak-night', 'int-kitchen-blue-oak-day', 'int-kitchen-blue-oak-night', 'int-bedroom-blue-oak-day', 'int-bedroom-blue-oak-night', 'int-bathroom-blue-oak-day', 'int-bathroom-blue-oak-night', 'int-living-burgundy-walnut-day', 'int-living-burgundy-walnut-night', 'int-kitchen-burgundy-walnut-day', 'int-kitchen-burgundy-walnut-night', 'int-bedroom-burgundy-walnut-day', 'int-bedroom-burgundy-walnut-night', 'int-bathroom-burgundy-walnut-day', 'int-bathroom-burgundy-walnut-night', 'int-living-burgundy-oak-day', 'int-living-burgundy-oak-night', 'int-kitchen-burgundy-oak-day', 'int-kitchen-burgundy-oak-night', 'int-bedroom-burgundy-oak-day', 'int-bedroom-burgundy-oak-night', 'int-bathroom-burgundy-oak-day', 'int-bathroom-burgundy-oak-night', 'int-living-wheat-walnut-day', 'int-living-wheat-walnut-night', 'int-kitchen-wheat-walnut-day', 'int-kitchen-wheat-walnut-night', 'int-bedroom-wheat-walnut-day', 'int-bedroom-wheat-walnut-night', 'int-bathroom-wheat-walnut-day', 'int-bathroom-wheat-walnut-night', 'int-living-wheat-oak-day', 'int-living-wheat-oak-night', 'int-kitchen-wheat-oak-day', 'int-kitchen-wheat-oak-night', 'int-bedroom-wheat-oak-day', 'int-bedroom-wheat-oak-night', 'int-bathroom-wheat-oak-day', 'int-bathroom-wheat-oak-night'];
-var SC_FIN=[
- {k:'yakisugi',name:'Yakisugi',sub:'Charred timber',sw:'#15110f'},
- {k:'blackbutt',name:'Blackbutt',sub:'Warm timber',sw:'#a7774b'},
- {k:'seam',name:'Black standing seam',sub:'Steel',sw:'#1b1c1e'},
- {k:'mineral',name:'Light mineral panels',sub:'Equitone',sw:'#cbc7bd'}];
-var SC_VIEW={entrance:'Entrance',front:'Front facade',angled:'Angled facade'};
-var SC_ROOM=[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
+/* ── SOLUM and SOLUM STUDIO showcase, driven by the two render packs ─────────
+   SOLUM:         20 facade views and 64 interiors (4 rooms x 4 tiles x 2 timbers x day and night)
+   SOLUM STUDIO:  48 facade views (4 finishes x 6 cameras) and 96 interiors (6 views x 4 tiles x 2 timbers x day and night) */
 var SC_TILE=[
  {k:'sage',name:'Sage',sub:'Miyako Indigo Green',sw:'#7d8f7b'},
  {k:'blue',name:'Tide',sub:'',sw:'#5e7b8d'},
  {k:'burgundy',name:'Burgundy',sub:'',sw:'#6c2431'},
  {k:'wheat',name:'Vine',sub:'',sw:'#c9a96b'}];
-var SC_WOOD=[
- {k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},
- {k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}];
+var SC_CFG={
+ solum:{dir:'/haavn-renders/solum/',ext:['ext-mineral-entrance-day', 'ext-mineral-entrance-night', 'ext-seam-entrance-day', 'ext-seam-entrance-night', 'ext-yakisugi-entrance-day', 'ext-yakisugi-entrance-night', 'ext-mineral-angled-night', 'ext-yakisugi-angled-night', 'ext-mineral-front-night', 'ext-yakisugi-front-night', 'ext-seam-angled-night', 'ext-mineral-angled-day', 'ext-yakisugi-angled-day', 'ext-seam-angled-day', 'ext-blackbutt-entrance-day', 'ext-blackbutt-entrance-night', 'ext-blackbutt-angled-day', 'ext-blackbutt-angled-night', 'ext-blackbutt-front-day', 'ext-blackbutt-front-night'],int:['int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-kitchen-sage-walnut-day', 'int-kitchen-sage-walnut-night', 'int-bedroom-sage-walnut-day', 'int-bedroom-sage-walnut-night', 'int-bathroom-sage-walnut-day', 'int-bathroom-sage-walnut-night', 'int-living-sage-oak-day', 'int-living-sage-oak-night', 'int-kitchen-sage-oak-day', 'int-kitchen-sage-oak-night', 'int-bedroom-sage-oak-day', 'int-bedroom-sage-oak-night', 'int-bathroom-sage-oak-day', 'int-bathroom-sage-oak-night', 'int-living-blue-walnut-day', 'int-living-blue-walnut-night', 'int-kitchen-blue-walnut-day', 'int-kitchen-blue-walnut-night', 'int-bedroom-blue-walnut-day', 'int-bedroom-blue-walnut-night', 'int-bathroom-blue-walnut-day', 'int-bathroom-blue-walnut-night', 'int-living-blue-oak-day', 'int-living-blue-oak-night', 'int-kitchen-blue-oak-day', 'int-kitchen-blue-oak-night', 'int-bedroom-blue-oak-day', 'int-bedroom-blue-oak-night', 'int-bathroom-blue-oak-day', 'int-bathroom-blue-oak-night', 'int-living-burgundy-walnut-day', 'int-living-burgundy-walnut-night', 'int-kitchen-burgundy-walnut-day', 'int-kitchen-burgundy-walnut-night', 'int-bedroom-burgundy-walnut-day', 'int-bedroom-burgundy-walnut-night', 'int-bathroom-burgundy-walnut-day', 'int-bathroom-burgundy-walnut-night', 'int-living-burgundy-oak-day', 'int-living-burgundy-oak-night', 'int-kitchen-burgundy-oak-day', 'int-kitchen-burgundy-oak-night', 'int-bedroom-burgundy-oak-day', 'int-bedroom-burgundy-oak-night', 'int-bathroom-burgundy-oak-day', 'int-bathroom-burgundy-oak-night', 'int-living-wheat-walnut-day', 'int-living-wheat-walnut-night', 'int-kitchen-wheat-walnut-day', 'int-kitchen-wheat-walnut-night', 'int-bedroom-wheat-walnut-day', 'int-bedroom-wheat-walnut-night', 'int-bathroom-wheat-walnut-day', 'int-bathroom-wheat-walnut-night', 'int-living-wheat-oak-day', 'int-living-wheat-oak-night', 'int-kitchen-wheat-oak-day', 'int-kitchen-wheat-oak-night', 'int-bedroom-wheat-oak-day', 'int-bedroom-wheat-oak-night', 'int-bathroom-wheat-oak-day', 'int-bathroom-wheat-oak-night'],
+  fin:[{k:'yakisugi',name:'Yakisugi',sub:'Charred timber',sw:'#15110f'},{k:'blackbutt',name:'Blackbutt',sub:'Warm timber',sw:'#a7774b'},
+       {k:'seam',name:'Black standing seam',sub:'Steel',sw:'#1b1c1e'},{k:'mineral',name:'Light mineral panels',sub:'Equitone',sw:'#cbc7bd'}],
+  view:{entrance:'Entrance',front:'Front facade',angled:'Angled facade'},
+  rooms:[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']],
+  wood:[{k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},{k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}],
+  def:{fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'},
+  lead:'Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.',
+  note:''},
+ studio:{dir:'/haavn-renders/solum-studio/',ext:['ext-blackbutt-front-day', 'ext-blackbutt-front-night', 'ext-blackbutt-straight-day', 'ext-blackbutt-straight-night', 'ext-blackbutt-side-day', 'ext-blackbutt-side-night', 'ext-blackbutt-rear-day', 'ext-blackbutt-rear-night', 'ext-blackbutt-entry-day', 'ext-blackbutt-entry-night', 'ext-blackbutt-frontleft-day', 'ext-blackbutt-frontleft-night', 'ext-concrete-front-day', 'ext-concrete-front-night', 'ext-concrete-straight-day', 'ext-concrete-straight-night', 'ext-concrete-side-day', 'ext-concrete-side-night', 'ext-concrete-rear-day', 'ext-concrete-rear-night', 'ext-concrete-entry-day', 'ext-concrete-entry-night', 'ext-concrete-frontleft-day', 'ext-concrete-frontleft-night', 'ext-metal-front-day', 'ext-metal-front-night', 'ext-metal-straight-day', 'ext-metal-straight-night', 'ext-metal-side-day', 'ext-metal-side-night', 'ext-metal-rear-day', 'ext-metal-rear-night', 'ext-metal-entry-day', 'ext-metal-entry-night', 'ext-metal-frontleft-day', 'ext-metal-frontleft-night', 'ext-yakisugi-front-day', 'ext-yakisugi-front-night', 'ext-yakisugi-straight-day', 'ext-yakisugi-straight-night', 'ext-yakisugi-side-day', 'ext-yakisugi-side-night', 'ext-yakisugi-rear-day', 'ext-yakisugi-rear-night', 'ext-yakisugi-entry-day', 'ext-yakisugi-entry-night', 'ext-yakisugi-frontleft-day', 'ext-yakisugi-frontleft-night'],int:['int-living-sage-oak-day', 'int-living-sage-oak-night', 'int-balcony-sage-oak-day', 'int-balcony-sage-oak-night', 'int-kitchen-sage-oak-day', 'int-kitchen-sage-oak-night', 'int-bedroom-sage-oak-day', 'int-bedroom-sage-oak-night', 'int-bathroom-sage-oak-day', 'int-bathroom-sage-oak-night', 'int-dining-sage-oak-day', 'int-dining-sage-oak-night', 'int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-balcony-sage-walnut-day', 'int-balcony-sage-walnut-night', 'int-kitchen-sage-walnut-day', 'int-kitchen-sage-walnut-night', 'int-bedroom-sage-walnut-day', 'int-bedroom-sage-walnut-night', 'int-bathroom-sage-walnut-day', 'int-bathroom-sage-walnut-night', 'int-dining-sage-walnut-day', 'int-dining-sage-walnut-night', 'int-living-blue-oak-day', 'int-living-blue-oak-night', 'int-balcony-blue-oak-day', 'int-balcony-blue-oak-night', 'int-kitchen-blue-oak-day', 'int-kitchen-blue-oak-night', 'int-bedroom-blue-oak-day', 'int-bedroom-blue-oak-night', 'int-bathroom-blue-oak-day', 'int-bathroom-blue-oak-night', 'int-dining-blue-oak-day', 'int-dining-blue-oak-night', 'int-living-blue-walnut-day', 'int-living-blue-walnut-night', 'int-balcony-blue-walnut-day', 'int-balcony-blue-walnut-night', 'int-kitchen-blue-walnut-day', 'int-kitchen-blue-walnut-night', 'int-bedroom-blue-walnut-day', 'int-bedroom-blue-walnut-night', 'int-bathroom-blue-walnut-day', 'int-bathroom-blue-walnut-night', 'int-dining-blue-walnut-day', 'int-dining-blue-walnut-night', 'int-living-burgundy-oak-day', 'int-living-burgundy-oak-night', 'int-balcony-burgundy-oak-day', 'int-balcony-burgundy-oak-night', 'int-kitchen-burgundy-oak-day', 'int-kitchen-burgundy-oak-night', 'int-bedroom-burgundy-oak-day', 'int-bedroom-burgundy-oak-night', 'int-bathroom-burgundy-oak-day', 'int-bathroom-burgundy-oak-night', 'int-dining-burgundy-oak-day', 'int-dining-burgundy-oak-night', 'int-living-burgundy-walnut-day', 'int-living-burgundy-walnut-night', 'int-balcony-burgundy-walnut-day', 'int-balcony-burgundy-walnut-night', 'int-kitchen-burgundy-walnut-day', 'int-kitchen-burgundy-walnut-night', 'int-bedroom-burgundy-walnut-day', 'int-bedroom-burgundy-walnut-night', 'int-bathroom-burgundy-walnut-day', 'int-bathroom-burgundy-walnut-night', 'int-dining-burgundy-walnut-day', 'int-dining-burgundy-walnut-night', 'int-living-wheat-oak-day', 'int-living-wheat-oak-night', 'int-balcony-wheat-oak-day', 'int-balcony-wheat-oak-night', 'int-kitchen-wheat-oak-day', 'int-kitchen-wheat-oak-night', 'int-bedroom-wheat-oak-day', 'int-bedroom-wheat-oak-night', 'int-bathroom-wheat-oak-day', 'int-bathroom-wheat-oak-night', 'int-dining-wheat-oak-day', 'int-dining-wheat-oak-night', 'int-living-wheat-walnut-day', 'int-living-wheat-walnut-night', 'int-balcony-wheat-walnut-day', 'int-balcony-wheat-walnut-night', 'int-kitchen-wheat-walnut-day', 'int-kitchen-wheat-walnut-night', 'int-bedroom-wheat-walnut-day', 'int-bedroom-wheat-walnut-night', 'int-bathroom-wheat-walnut-day', 'int-bathroom-wheat-walnut-night', 'int-dining-wheat-walnut-day', 'int-dining-wheat-walnut-night'],
+  fin:[{k:'yakisugi',name:'Yakisugi',sub:'Black timber',sw:'#15110f'},{k:'blackbutt',name:'Blackbutt',sub:'Timber',sw:'#a7774b'},
+       {k:'metal',name:'Black metal',sub:'Cladding',sw:'#1b1c1e'},{k:'concrete',name:'Light concrete',sub:'',sw:'#cbc7bd'}],
+  view:{front:'Front',straight:'Front, straight on',frontleft:'Front left',side:'Side',rear:'Rear',entry:'Entry detail'},
+  rooms:[['living','Living'],['balcony','Balcony'],['kitchen','Kitchen'],['dining','Dining'],['bedroom','Bedroom'],['bathroom','Bathroom']],
+  wood:[{k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},{k:'oak',name:'Charcoal Oak',sub:'The darker timber',sw:'#2b2724'}],
+  def:{fin:'yakisugi',view:'front',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'},
+  lead:'One module with a glass front. Four finishes, six cameras, in daylight and after dark.',
+  note:'Exterior views show the burgundy interior.'}};
+var SD='', SC_EXT=[], SC_INT=[], SC_FIN=[], SC_VIEW={}, SC_VORDER=[], SC_ROOM=[], SC_WOOD=[], SC_CUR=null;
 var SC={home:'solum',fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'};
+function scUse(home){ var c=SC_CFG[home]||SC_CFG.solum; SC_CUR=c; SD=c.dir; SC_EXT=c.ext; SC_INT=c.int; SC_FIN=c.fin; SC_VIEW=c.view; SC_VORDER=Object.keys(c.view); SC_ROOM=c.rooms; SC_WOOD=c.wood;
+  if(SC.home!==home || !SC_VIEW[SC.view]){ SC={home:home,fin:c.def.fin,view:c.def.view,fl:c.def.fl,room:c.def.room,tile:c.def.tile,wood:c.def.wood,il:c.def.il}; } }
+scUse('solum');
 function scHas(n){ return SC_EXT.indexOf(n)>=0||SC_INT.indexOf(n)>=0; }
 function scExt(fin,view,l){ return 'ext-'+fin+'-'+view+'-'+l; }
 function scInt(room,tile,wood,l){ return 'int-'+room+'-'+tile+'-'+wood+'-'+l; }
@@ -745,17 +755,18 @@ function scSwap(box,src,capTxt){
   n.src=src; }
 function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
-
 var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
-function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006b&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+SC.home; }
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006c&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
 function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
   el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
+
 function solumShowcase(h){
-  SC.home=(h.key==='SOLUM STUDIO')?'studio':'solum';
+  scUse(h.key==='SOLUM STUDIO'?'studio':'solum');
+  var c=SC_CUR;
   return '<div class="scx-sec" id="scxFac">'+
     '<div class="eyeb"><i></i>01 · Facade</div>'+
     '<h3 class="scx-h">Four finishes.<br>Morning and night.</h3>'+
-    '<p class="scx-lead">'+(h.scLead||'Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.')+'</p>'+
+    '<p class="scx-lead">'+c.lead+'</p>'+
     '<div class="scx-row" id="scxFins"></div>'+
     '<div class="scx-row" style="margin-top:14px">'+scSeg('scxFL',['day','Day'],['night','Night'],SC.fl)+'</div>'+
     '<div class="scx-stage" id="scxFStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div>'+
@@ -765,30 +776,30 @@ function solumShowcase(h){
     '<h3 class="scx-h">Four tiles.<br>Two timber schemes.</h3>'+
     '<p class="scx-lead">Choose a tile and a timber and see the room. Matching timber on the ceiling planks and the fixed joinery, morning sun or night.</p>'+
     '<div class="scx-int"><div><div class="scx-stage" id="scxIStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div>'+
-    '<div class="scx-lbl scx-full" id="scxAllLbl"></div><div class="scx-tn four" id="scxAll"></div></div>'+
+    '<div class="scx-lbl scx-full" id="scxAllLbl"></div><div class="scx-tn" id="scxAll"></div></div>'+
     '<div class="scx-side"><div class="scx-lbl" style="margin-top:0">Room</div><div class="scx-row" id="scxRooms"></div>'+
     '<div class="scx-lbl">Tile</div><div class="scx-row" id="scxTiles"></div>'+
     '<div class="scx-lbl">Timber</div><div class="scx-row" id="scxWoods"></div>'+
     '<div class="scx-lbl">Light</div><div class="scx-row">'+scSeg('scxIL',['day','Day'],['night','Night'],SC.il)+'</div>'+
-    '<p class="scx-note">Tiles are Sage (Miyako Indigo Green), Tide, Burgundy and Vine. Timber is Eveneer Raw Walnut or Dark Oak.</p>'+
+    '<p class="scx-note">Tiles are Sage (Miyako Indigo Green), Tide, Burgundy and Vine. Timber is Eveneer Raw Walnut or '+c.wood[1].name+'.</p>'+
     '<button class="scx-cta" data-exp type="button">'+SC_ICO+'Export this design</button></div></div>'+
     '<div class="scx-lbl">This room across the four tiles</div><div class="scx-tn four" id="scxCmpT"></div>'+
     '<div class="scx-lbl">Timber and light</div><div class="scx-tn four" id="scxCmpW"></div></div>'+
   '<div class="scx-export"><div><div class="eyeb"><i></i>03 · Take it with you</div><h3 class="scx-h" style="font-size:clamp(26px,3.6vw,48px)">Export this design.</h3>'+
     '<p class="scx-lead" id="scxSum"></p></div><button class="scx-cta" data-exp type="button">'+SC_ICO+'Export mini brochure</button></div>'+
-  '<p class="scx-fine">'+(h.scNote?h.scNote+' ':'')+'These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
+  '<p class="scx-fine">'+(h.scNote?h.scNote+' ':'')+(c.note?c.note+' ':'')+'These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
 }
 function scLb(list,i){ LB=list.map(function(n){ return {src:scFull(n),cap:/^ext/.test(n)?scCapExt(n):scCapInt(n)}; }); openLb(i,true); }
 function scFacade(){
   /* keep the picture valid when a finish or light does not have that view */
   var want=scExt(SC.fin,SC.view,SC.fl);
-  if(!scHas(want)){ var o=null; ['entrance','front','angled'].forEach(function(v){ if(!o&&scHas(scExt(SC.fin,v,SC.fl))) o=v; }); if(o) SC.view=o; }
+  if(!scHas(want)){ var o=null; SC_VORDER.forEach(function(v){ if(!o&&scHas(scExt(SC.fin,v,SC.fl))) o=v; }); if(o) SC.view=o; }
   var n=scExt(SC.fin,SC.view,SC.fl);
   scSwap(document.getElementById('scxFStage'),scFull(n),scCapExt(n));
   [].forEach.call(document.querySelectorAll('#scxFins .scx-chip'),function(b){ b.classList.toggle('on',b.dataset.k===SC.fin); });
   [].forEach.call(document.querySelectorAll('#scxFL button'),function(b){ b.classList.toggle('on',b.dataset.v===SC.fl); });
   var box=document.getElementById('scxFViews'), html='';
-  ['entrance','front','angled'].forEach(function(v){ var m=scExt(SC.fin,v,SC.fl); if(!scHas(m)) return;
+  SC_VORDER.forEach(function(v){ var m=scExt(SC.fin,v,SC.fl); if(!scHas(m)) return;
     html+='<button data-v="'+v+'" class="'+(v===SC.view?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+SC_VIEW[v]+'</span></button>'; });
   box.innerHTML=html;
   [].forEach.call(box.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.view=b.dataset.v; scFacade(); }; }); scSum(); }
@@ -801,14 +812,14 @@ function scInterior(){
   [].forEach.call(document.querySelectorAll('#scxIL button'),function(b){ b.classList.toggle('on',b.dataset.v===SC.il); });
   var all='';
   SC_ROOM.forEach(function(r){ var m=scInt(r[0],SC.tile,SC.wood,SC.il); all+='<button data-r="'+r[0]+'" class="'+(r[0]===SC.room?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+r[1]+'</span></button>'; });
-  var ba=document.getElementById('scxAll'); ba.innerHTML=all;
+  var ba=document.getElementById('scxAll'); ba.className='scx-tn '+(SC_ROOM.length>4?'six':'four'); ba.innerHTML=all;
   document.getElementById('scxAllLbl').textContent='The full interior · '+scName(SC.tile,SC_TILE).name+' · '+scName(SC.wood,SC_WOOD).name+' · '+scLbl(SC.il);
   [].forEach.call(ba.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.room=b.dataset.r; scInterior(); }; });
   scSum();
   var t='', w='';
   SC_TILE.forEach(function(x){ var m=scInt(SC.room,x.k,SC.wood,SC.il); t+='<button data-k="'+x.k+'" class="'+(x.k===SC.tile?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+x.name+'</span></button>'; });
-  [['walnut','day'],['walnut','night'],['oak','day'],['oak','night']].forEach(function(x){ var m=scInt(SC.room,SC.tile,x[0],x[1]);
-    w+='<button data-w="'+x[0]+'" data-l="'+x[1]+'" class="'+(x[0]===SC.wood&&x[1]===SC.il?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+scName(x[0],SC_WOOD).name+' · '+scLbl(x[1])+'</span></button>'; });
+  SC_WOOD.forEach(function(wd){ ['day','night'].forEach(function(l){ var m=scInt(SC.room,SC.tile,wd.k,l);
+    w+='<button data-w="'+wd.k+'" data-l="'+l+'" class="'+(wd.k===SC.wood&&l===SC.il?'on':'')+'"><img src="'+scTn(m)+'" alt="" loading="lazy" decoding="async"><span class="c">'+wd.name+' · '+scLbl(l)+'</span></button>'; }); });
   var bt=document.getElementById('scxCmpT'), bw=document.getElementById('scxCmpW'); bt.innerHTML=t; bw.innerHTML=w;
   [].forEach.call(bt.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.tile=b.dataset.k; scInterior(); }; });
   [].forEach.call(bw.querySelectorAll('button'),function(b){ b.onclick=function(){ SC.wood=b.dataset.w; SC.il=b.dataset.l; scInterior(); }; }); }
@@ -824,7 +835,7 @@ function solumInit(h){
   [].forEach.call(document.querySelectorAll('#scxWoods .scx-chip'),function(b){ b.onclick=function(){ SC.wood=b.dataset.k; scInterior(); }; });
   [].forEach.call(document.querySelectorAll('#scxIL button'),function(b){ b.onclick=function(){ SC.il=b.dataset.v; scInterior(); }; });
   document.getElementById('scxFStage').onclick=function(){
-    var list=[]; ['day','night'].forEach(function(l){ ['entrance','front','angled'].forEach(function(v){ var m=scExt(SC.fin,v,l); if(scHas(m)) list.push(m); }); });
+    var list=[]; ['day','night'].forEach(function(l){ SC_VORDER.forEach(function(v){ var m=scExt(SC.fin,v,l); if(scHas(m)) list.push(m); }); });
     var cur=scExt(SC.fin,SC.view,SC.fl); scLb(list,Math.max(0,list.indexOf(cur))); };
   document.getElementById('scxIStage').onclick=function(){
     var list=SC_ROOM.map(function(r){ return scInt(r[0],SC.tile,SC.wood,SC.il); }); scLb(list,Math.max(0,list.indexOf(scInt(SC.room,SC.tile,SC.wood,SC.il)))); };
