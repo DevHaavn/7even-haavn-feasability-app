@@ -303,9 +303,9 @@ var WOODS={walnut:{n:'Raw Walnut',s:'Eveneer Raw Walnut',c:'#8c6340'},oak:{n:STU
 var ROOMS=STU?[['living','Living'],['balcony','Balcony'],['kitchen','Kitchen'],['dining','Dining'],['bedroom','Bedroom'],['bathroom','Bathroom']]:[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
 var HAS=EXTSET();
 function EXTSET(){ var o={}; if(STU){ ['yakisugi','blackbutt','metal','concrete'].forEach(function(f){ ['front','straight','frontleft','side','rear','entry'].forEach(function(v){ ['day','night'].forEach(function(l){ o[f+':'+v+':'+l]=1; }); }); }); return o; }
- ['yakisugi:entrance:day','yakisugi:entrance:night','yakisugi:angled:day','yakisugi:angled:night','yakisugi:front:night',
+ ['yakisugi:entrance:day','yakisugi:entrance:night','yakisugi:angled:day','yakisugi:angled:night','yakisugi:front:day','yakisugi:front:night',
  'blackbutt:entrance:day','blackbutt:entrance:night','blackbutt:angled:day','blackbutt:angled:night','blackbutt:front:day','blackbutt:front:night',
- 'seam:entrance:day','seam:entrance:night','seam:angled:day','seam:angled:night','mineral:entrance:day','mineral:entrance:night','mineral:angled:day','mineral:angled:night','mineral:front:night'].forEach(function(k){ o[k]=1; }); return o; }
+ 'seam:entrance:day','seam:entrance:night','seam:angled:day','seam:angled:night','seam:front:day','seam:front:night','mineral:entrance:day','mineral:entrance:night','mineral:angled:day','mineral:angled:night','mineral:front:day','mineral:front:night'].forEach(function(k){ o[k]=1; }); return o; }
 if(!HAS[FIN+':'+VIEW+':'+FL]){ Object.keys(VIEWN).some(function(v){ if(HAS[FIN+':'+v+':'+FL]){ VIEW=v; return true; } }); }
 function ext(f,v,l){ return D+'ext-'+f+'-'+v+'-'+l+'.webp'; }
 function intr(r,t,w,l){ return D+'int-'+r+'-'+t+'-'+w+'-'+l+'.webp'; }
