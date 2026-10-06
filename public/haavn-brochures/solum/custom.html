@@ -288,7 +288,7 @@ var Q=new URLSearchParams(location.search);
 function pick(k,ok,d){ var v=Q.get(k); return ok.indexOf(v)>=0?v:d; }
 var HOME=pick('home',['solum','studio'],'solum'); var STU=HOME==='studio'; var HN=STU?'SOLUM STUDIO':'SOLUM';
 var FIN=pick('fin',STU?['yakisugi','blackbutt','metal','concrete']:['yakisugi','blackbutt','seam','mineral'],'yakisugi');
-var VIEW=pick('view',STU?['front','straight','frontleft','side','rear','entry']:['entrance','front','angled'],STU?'front':'entrance');
+var VIEW=pick('view',STU?['side','front','straight','frontleft','rear','entry']:['entrance','front','angled'],STU?'side':'entrance');
 var FL=pick('fl',['day','night'],'night');
 var TILE=pick('tile',['sage','blue','burgundy','wheat'],'sage');
 var WOOD=pick('wood',['walnut','oak'],'oak');
@@ -297,7 +297,7 @@ var D=STU?'/haavn-renders/solum-studio/':'/haavn-renders/solum/';
 var FINS={yakisugi:{n:'Yakisugi',spec:STU?'Black timber cladding':'Shou sugi ban charred timber',sw:'sw-yakisugi.jpg'},blackbutt:{n:'Blackbutt',spec:'Blackbutt timber cladding',sw:'sw-blackbutt.jpg'},
  seam:{n:'Black Standing Seam',spec:'Standing seam steel',sw:'sw-standing-seam.jpg'},mineral:{n:'Light Mineral Panels',spec:'Equitone fibre cement cladding',sw:'sw-fibre-cement.jpg'},
  metal:{n:'Black Metal',spec:'Black metal cladding',sw:'sw-standing-seam.jpg'},concrete:{n:'Light Concrete',spec:'Light concrete cladding',col:'#cbc7bd'}};
-var VIEWN={entrance:'Entrance',front:'Front facade',angled:'Angled facade',straight:'Front, straight on',frontleft:'Front left',side:'Side',rear:'Rear',entry:'Entry detail'};
+var VIEWN={entrance:'Entrance',front:'Front facade',angled:'Angled facade',straight:'Front, straight on',frontleft:'Front left',side:'Side elevation',rear:'Rear',entry:'Entry detail'};
 var TILES={sage:{n:'Sage',c:'#7d8f7b'},blue:{n:'Tide',c:'#5e7b8d'},burgundy:{n:'Burgundy',c:'#6c2431'},wheat:{n:'Vine',c:'#c9a96b'}};
 var WOODS={walnut:{n:'Raw Walnut',s:'Eveneer Raw Walnut',c:'#8c6340'},oak:{n:STU?'Charcoal Oak':'Dark Oak',s:STU?'Charcoal Oak':'Dark Oak',c:STU?'#2b2724':'#2b1f17'}};
 var ROOMS=STU?[['living','Living'],['balcony','Balcony'],['kitchen','Kitchen'],['dining','Dining'],['bedroom','Bedroom'],['bathroom','Bathroom']]:[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']];
