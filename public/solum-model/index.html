@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SOLUM | Revised plan &amp; 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>if(/[?&]embed\b/.test(location.search))document.addEventListener("DOMContentLoaded",function(){document.body.classList.add("embed");});</script>
+<style>
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:#050506;color:#f3f2ee;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;overflow:hidden}
+header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.12);background:#08090a}
+h1{font-weight:200;font-size:22px;letter-spacing:.34em;margin:0;padding-left:.34em}
+header p{font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.26em;margin:8px 0 0 .34em;color:#7b787b;text-transform:uppercase}
+.header-links{display:flex;gap:10px}.header-links a{font:400 9.5px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:#f3f2ee;text-decoration:none;border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:11px 16px}
+.header-links a:hover{border-color:#2fe07a}
+.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 72px);min-height:560px}
+body.embed header{display:none}body.embed .layout{height:100vh}body.embed aside{padding-top:78px}body.embed .view-label{left:26px}@media(max-width:700px){body.embed .stage{height:60vh}}
+aside{padding:24px 22px;background:#08090a;overflow:auto;border-right:1px solid rgba(255,255,255,.12)}
+h2{font-weight:200;font-size:28px;letter-spacing:-.02em;margin:0 0 12px;line-height:1.1}
+.intro{font-size:12px;line-height:1.7;color:#a9a6a9}
+.eyebrow{font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.3em;color:#7b787b;margin:0 0 12px;text-transform:uppercase}
+fieldset{border:0;border-top:1px solid rgba(255,255,255,.12);padding:20px 0 14px;margin:14px 0 0}
+legend{font:400 8.5px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.28em;padding:0 8px 0 0;color:#7b787b}
+button,select{font:inherit}
+button{background:transparent;color:#f3f2ee;border:1px solid rgba(255,255,255,.22);padding:10px 15px;cursor:pointer;border-radius:22px;font:400 9.5px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}
+button:hover{border-color:#2fe07a}
+.buttons{display:flex;gap:7px;flex-wrap:wrap}
+button.active{background:#fff;color:#000;border-color:#fff}
+select{width:100%;padding:11px 10px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:#0d0e0f;color:#f3f2ee;font-size:12px;margin-top:6px}
+label{display:block;font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#a9a6a9;margin-bottom:12px}
+label.check{display:flex;gap:10px;align-items:center;font-size:10px}
+input{accent-color:#2fe07a}
+dl{font-size:11px;margin:0}dt{font-weight:400;margin:12px 0 4px;color:#f3f2ee}dd{margin:0;color:#a9a6a9;line-height:1.55}
+.status{font-size:10.5px;line-height:1.7;color:#7b787b;border-top:1px solid rgba(255,255,255,.12);padding-top:17px}
+.stage{position:relative;min-width:0;overflow:hidden;background:#e8ece2}
+.viewport{width:100%;height:100%;min-height:520px}.viewport canvas{display:block;width:100%;height:100%;touch-action:none}
+.view-label{position:absolute;top:22px;left:26px;pointer-events:none}
+.view-label strong{display:block;font-weight:200;font-size:30px;color:#14161a;letter-spacing:-.02em}
+.view-label small{display:block;margin-top:7px;font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.22em;color:#6d7168}
+.stage-footer{position:absolute;bottom:18px;left:26px;right:26px;display:flex;justify-content:space-between;gap:20px;font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6d7168;pointer-events:none}
+.loader{position:absolute;inset:0;background:#08090a;display:grid;place-content:center;text-align:center;z-index:5}.loader.hidden{display:none}.loader p{font:400 10px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.2em;color:#a9a6a9;text-transform:uppercase}
+.loader h2{font-size:44px;letter-spacing:.34em;padding-left:.34em}
+.window-label{position:absolute;transform:translate(-50%,-50%);font:500 9.5px 'JetBrains Mono',ui-monospace,monospace;color:#0a0a0b;background:#fff;border:1px solid #14161a;border-radius:3px;padding:3px 6px;pointer-events:none}
+@media(max-width:900px){.layout{grid-template-columns:240px 1fr}header{padding:0 16px}}
+@media(max-width:700px){body{overflow:auto}header{height:auto;padding:14px 16px;gap:12px;flex-wrap:wrap}.layout{display:flex;flex-direction:column-reverse;height:auto}.stage{height:62vh;min-height:420px}.viewport{min-height:420px}aside{border:0;border-top:1px solid rgba(255,255,255,.12)}.view-label strong{font-size:22px}#export,#export-status{display:none}}
+</style><script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/":"./vendor/jsm/"}}</script></head><body>
+<header><div><h1>SOLUM</h1><p>HAAVN BLACK · Plan &amp; 3D · Concept C1</p></div><nav class="header-links"><a href="../haavn-renders/solum-plan/SOLUM-Revised-Plan.pdf" target="_blank" rel="noopener">Dimensioned plan ↓</a><a href="./solum-revised.glb" download>3D model ↓</a></nav></header>
+<div class="layout"><aside><div><p class="eyebrow">DESIGN DEVELOPMENT / C1</p><h2>A quieter façade.</h2><p class="intro">More privacy, three considered front openings and high windows bringing light into the bedroom and shower.</p></div>
+<fieldset><legend>VIEW</legend><div class="buttons"><button data-view="cutaway" class="active">Cutaway</button><button data-view="plan">Plan</button><button data-view="front">Front</button><button data-view="rear">Rear</button><button data-view="bedroom">Bedroom end</button></div></fieldset>
+<fieldset><legend>FINISHES</legend><label>Ceiling & joinery<select id="timber"><option value="light">Raw Walnut</option><option value="dark">Dark Oak</option></select></label><label>Tile colour<select id="tile"><option value="sage">Sage</option><option value="blue">Tide</option><option value="burgundy">Burgundy</option><option value="wheat">Vine</option></select></label><label>Exterior<select id="cladding"><option value="timber">Charred timber</option><option value="concrete">Light concrete</option></select></label></fieldset>
+<fieldset><legend>DETAIL</legend><label class="check"><input id="full-walls" type="checkbox"> Full-height walls</label><label class="check"><input id="roof" type="checkbox"> Show roof</label><label class="check"><input id="labels" type="checkbox" checked> Window labels</label><button id="export">Save 4K model view</button><p id="export-status" class="intro"></p></fieldset>
+<fieldset><legend>WINDOW SIZES / W x H mm</legend><dl><dt>W01 / Living & W02 / Bedroom</dt><dd>1,800 x 2,400 · proposed<br>Full-height fixed glass, no daybeds</dd><dt>D01 / Main walk-out</dt><dd>3,950 x 2,400<br>Original opening width retained</dd><dt>W03 / Bedroom high window</dt><dd>2,000 x 400 · proposed</dd><dt>W04 / Shower high window</dt><dd>1,000 x 400 · proposed</dd></dl></fieldset>
+<p class="status">13.4 x 4.5 m footprint retained.<br>Proposed sizes are for architect coordination. The model is a new concept study based on the supplied plan, not an issued construction model.</p></aside>
+<main class="stage"><div class="view-label"><strong id="view-title">The spaces within.</strong><small id="view-subtitle">ROOF REMOVED / PROPOSED WINDOWS</small></div><div id="viewport" class="viewport" aria-label="Interactive SOLUM architectural model"></div><div id="labels-layer"></div><div class="stage-footer"><span>Drag to rotate · Scroll to zoom</span><span>CONCEPT C1 / 06 OCT 2026</span></div><div id="loader" class="loader"><div><h2>SOLUM</h2><p id="load-progress">Preparing the revised model…</p></div></div></main></div>
+<script type="module" src="./viewer.js"></script></body></html>

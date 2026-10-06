@@ -1,0 +1,119 @@
+{
+  "revision": "Concept C1 - 6 October 2026",
+  "units": "mm",
+  "length": 13400,
+  "depth": 4500,
+  "wall": 250,
+  "ceiling": 2700,
+  "roofTop": 3275,
+  "dimensionsStatus": "Existing figured dimensions retained where available; new windows and heights proposed as noted. Not a construction or fabrication issue.",
+  "windows": [
+    {
+      "id": "W01",
+      "room": "Living",
+      "wall": "front",
+      "start": 950,
+      "width": 1800,
+      "height": 2400,
+      "sill": 0,
+      "type": "Fixed full-height picture window",
+      "basis": "Proposed to match approved narrower facade; preceding preview width was not dimensioned."
+    },
+    {
+      "id": "D01",
+      "room": "Kitchen / dining",
+      "wall": "front",
+      "start": 4725,
+      "width": 3950,
+      "height": 2400,
+      "sill": 0,
+      "type": "Double sliding glazed doors",
+      "basis": "3950 opening retained from Fraser GA. Height, panel split and frame set-out proposed."
+    },
+    {
+      "id": "W02",
+      "room": "Bedroom",
+      "wall": "front",
+      "start": 10750,
+      "width": 1800,
+      "height": 2400,
+      "sill": 0,
+      "type": "Fixed full-height picture window",
+      "basis": "Proposed to match approved narrower facade; preceding preview width was not dimensioned."
+    },
+    {
+      "id": "W03",
+      "room": "Bedroom",
+      "wall": "right",
+      "start": 950,
+      "width": 2000,
+      "height": 400,
+      "sill": 2025,
+      "type": "High-level window",
+      "basis": "2000 x 400 proposed from red-box proportions. 950 front-corner offset and 850 roof-top-to-head from marked elevation 2."
+    },
+    {
+      "id": "W04",
+      "room": "Shower",
+      "wall": "rear",
+      "start": 8880,
+      "width": 1000,
+      "height": 400,
+      "sill": 2025,
+      "type": "High-level privacy window",
+      "basis": "1000 x 400 proposed from red-box proportions. 750 gap to service opening and 850 roof-top-to-head from marked elevation 3."
+    }
+  ],
+  "existingOpenings": [
+    {
+      "id": "D02",
+      "wall": "rear",
+      "start": 3475,
+      "width": 1000,
+      "height": 2100,
+      "sill": 0,
+      "type": "Existing optional rear entry retained"
+    },
+    {
+      "id": "S01",
+      "wall": "rear",
+      "start": 7380,
+      "width": 750,
+      "height": 2100,
+      "sill": 0,
+      "type": "Service cupboard access; coordination allowance"
+    }
+  ],
+  "rooms": {
+    "bedroom": [
+      10150,
+      250,
+      3000,
+      4000
+    ],
+    "bathroom": [
+      8230,
+      1360,
+      1820,
+      2890
+    ],
+    "hall": [
+      8130,
+      250,
+      2020,
+      1010
+    ]
+  },
+  "sources": [
+    "SOLUM-floor-plan.pdf (nominal marketing plan, 2 pages)",
+    "Fraser & Partners A-AA-0100 Rev A, 02.10.26 (figured GA)",
+    "User-marked A-AA-0901 / A-AA-0902 elevation images",
+    "Approved facade and interior changes in this conversation"
+  ],
+  "assumptions": [
+    "Front window widths are proposed because the approved render is not dimensioned. Do not treat 1800 as a measured render dimension.",
+    "High-window head above FFL = 3050 + 350 - 125 - 850 = 2425. With a proposed 400 opening, sill = 2025.",
+    "Frame-envelope dimensions, not clear glass or rough structural openings. Shop-drawing tolerances and frame deductions are not assigned.",
+    "Concept wall build-ups, ceiling height, awning projection, window operation and furniture geometry require design coordination."
+  ]
+}

@@ -312,6 +312,17 @@ body.remote-on .remote{display:flex}
 .scx-side .scx-cta{margin-top:26px;width:100%}
 .scx-full{margin-top:14px}
 .scx-tn.six{grid-template-columns:repeat(3,1fr)}
+.scx-tbl{width:100%;border-collapse:collapse;margin-top:22px;font-size:12.5px}
+.scx-tbl th{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);text-align:left;font-weight:400;padding:10px 12px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.scx-tbl td{padding:12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+.scx-tbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+.scx-tblw{overflow-x:auto}
+.scx-plan{aspect-ratio:1.414/1;margin-top:22px;background:#fbfbf6;border:1px solid var(--line);position:relative;overflow:hidden;cursor:zoom-in}
+.scx-plan img{width:100%;height:100%;object-fit:contain;display:block}
+.scx-tn.fourb{grid-template-columns:repeat(4,1fr)}
+.scx-link{display:inline-flex;align-items:center;gap:9px;min-height:54px;padding:0 26px;border:1px solid var(--line2);border-radius:34px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#fff;text-decoration:none;transition:.3s var(--out)}
+.scx-link:hover{border-color:var(--led)}
+@media(max-width:900px){.scx-tn.fourb{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.scx-stage .zoomh{display:none}.scx-stage .cap{font-size:8px;letter-spacing:.16em}}
 @media(max-width:900px){.scx-int{grid-template-columns:1fr}.scx-int .scx-side{position:static}.scx-tn.four{grid-template-columns:1fr 1fr}.scx-chip{flex:1 1 calc(50% - 10px)}}
 
@@ -520,9 +531,9 @@ var HOMES=[
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum/ext-yakisugi-entrance-night.webp', showcase:true, model:'/haavn-black-viewer.html?v=3', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=6', launch:'https://solum-black-teaser.vercel.app',
+  img:R+'solum/ext-yakisugi-entrance-day.webp', showcase:true, plan3d:true, model:'/solum-model/index.html?v=20261006a', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=7', launch:'https://solum-black-teaser.vercel.app',
   gallery:[],
-  plans:[['Ground floor',R+'solum-floor-ground.jpg'],['Cutaway axonometric',R+'solum-floor-axo.jpg']]},
+  plans:[['Revised ground floor plan',R+'solum-plan/plan-1.jpg'],['Window schedule and elevation',R+'solum-plan/plan-2.jpg'],['High window elevations',R+'solum-plan/plan-3.jpg'],['3D cutaway',R+'solum-plan/plan-4.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
   blurb:'Double storey, six precision modules. Open living, four bedrooms and a double garage, delivered complete and weather tight.',img:null,gallery:[],plans:[]},
  {key:'FORMA',series:'black',tag:'Eight modules for the architectural site.',area:338.2,storeys:2,modules:8,beds:4,baths:3,garage:'Double',frontage:8.4,depth:18.9,
@@ -555,7 +566,7 @@ var HOMES=[
 ];
 
 var PALETTE=[
-  {name:'Yakisugi',  sw:'#171514', img:R+'solum/ext-yakisugi-entrance-night.webp', note:'Yakisugi charred timber, black steel, warm interior.'},
+  {name:'Yakisugi',  sw:'#171514', img:R+'solum/ext-yakisugi-entrance-day.webp', note:'Yakisugi charred timber, black steel, warm interior.'},
   {name:'Blackbutt', sw:'#a7774b', img:R+'solum/ext-blackbutt-entrance-day.webp',  note:'Warm blackbutt against dark frames.'},
   {name:'Seam',      sw:'#1b1c1e', img:R+'solum/ext-seam-entrance-night.webp',     note:'Black standing seam steel, matte on matte.'},
   {name:'Mineral',   sw:'#cbc7bd', img:R+'solum/ext-mineral-entrance-day.webp',    note:'Light mineral panels with black detailing.'},
@@ -640,7 +651,7 @@ function openHome(i, user){
     .map(function(n){return '<div class="n"><div class="k">'+n[0]+'</div><div class="v">'+n[1]+'</div></div>';}).join('');
   var gal=h.showcase?solumShowcase(h):h.gallery.length?('<div class="sec-h"><h3>Gallery</h3><span class="mono">'+h.gallery.length+' views</span></div><div class="gal">'+
       h.gallery.map(function(s,gi){return '<button class="g" data-lb="'+gi+'"><img src="'+sm(s)+'" alt="" loading="lazy" decoding="async"><span class="cap">View '+(gi+1)+'</span></button>';}).join('')+'</div>'):'';
-  var plans=h.plans.length?('<div class="sec-h"><h3>Floor plans</h3><span class="mono">Tap to enlarge</span></div><div class="gal">'+
+  var plans=h.plan3d?solumPlan(h):h.plans.length?('<div class="sec-h"><h3>Floor plans</h3><span class="mono">Tap to enlarge</span></div><div class="gal">'+
       h.plans.map(function(p,pi){return '<button class="g" '+(h.showcase?'data-plan="'+pi+'"':'data-lb="'+(h.gallery.length+pi)+'"')+'><img src="'+sm(p[1])+'" alt="" loading="lazy" decoding="async"><span class="cap">'+p[0]+'</span></button>';}).join('')+'</div>'):'';
   prod.innerHTML=
     '<button class="btn pback" id="pClose">← The range</button>'+
@@ -652,6 +663,7 @@ function openHome(i, user){
   if(heroSrc){ var hi=prod.querySelector('.hero img'); fb(hi,h.img); }
   [].forEach.call(prod.querySelectorAll('img'),function(im){ var f=im.getAttribute('src').replace('-sm.jpg','.jpg'); if(im.closest('.gal')) fb(im,f); });
   [].forEach.call(prod.querySelectorAll('[data-lb]'),function(b){ b.onclick=function(){ openLb(+b.dataset.lb, true); }; });
+  if(h.plan3d) solumPlanInit(h);
   if(h.showcase){ solumInit(h); [].forEach.call(prod.querySelectorAll('[data-plan]'),function(b){ b.onclick=function(){ LB=h.plans.map(function(p){return {src:p[1],cap:h.key+' · '+p[0]};}); openLb(+b.dataset.plan,true); }; }); }
   prod.querySelector('#pClose').onclick=function(){ closeHome(true); };
   var pl=prod.querySelector('#pLaunch'); if(pl) pl.onclick=function(){ openModel(h.launch, true, true); };
@@ -718,7 +730,7 @@ var SC_CFG={
   view:{entrance:'Entrance',front:'Front facade',angled:'Angled facade'},
   rooms:[['living','Living'],['kitchen','Kitchen'],['bedroom','Bedroom'],['bathroom','Bathroom']],
   wood:[{k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},{k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}],
-  def:{fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'},
+  def:{fin:'yakisugi',view:'entrance',fl:'day',room:'living',tile:'sage',wood:'oak',il:'day'},
   lead:'Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.',
   note:''},
  studio:{dir:'/haavn-renders/solum-studio/',ext:['ext-blackbutt-front-day', 'ext-blackbutt-front-night', 'ext-blackbutt-straight-day', 'ext-blackbutt-straight-night', 'ext-blackbutt-side-day', 'ext-blackbutt-side-night', 'ext-blackbutt-rear-day', 'ext-blackbutt-rear-night', 'ext-blackbutt-entry-day', 'ext-blackbutt-entry-night', 'ext-blackbutt-frontleft-day', 'ext-blackbutt-frontleft-night', 'ext-concrete-front-day', 'ext-concrete-front-night', 'ext-concrete-straight-day', 'ext-concrete-straight-night', 'ext-concrete-side-day', 'ext-concrete-side-night', 'ext-concrete-rear-day', 'ext-concrete-rear-night', 'ext-concrete-entry-day', 'ext-concrete-entry-night', 'ext-concrete-frontleft-day', 'ext-concrete-frontleft-night', 'ext-metal-front-day', 'ext-metal-front-night', 'ext-metal-straight-day', 'ext-metal-straight-night', 'ext-metal-side-day', 'ext-metal-side-night', 'ext-metal-rear-day', 'ext-metal-rear-night', 'ext-metal-entry-day', 'ext-metal-entry-night', 'ext-metal-frontleft-day', 'ext-metal-frontleft-night', 'ext-yakisugi-front-day', 'ext-yakisugi-front-night', 'ext-yakisugi-straight-day', 'ext-yakisugi-straight-night', 'ext-yakisugi-side-day', 'ext-yakisugi-side-night', 'ext-yakisugi-rear-day', 'ext-yakisugi-rear-night', 'ext-yakisugi-entry-day', 'ext-yakisugi-entry-night', 'ext-yakisugi-frontleft-day', 'ext-yakisugi-frontleft-night'],int:['int-living-sage-oak-day', 'int-living-sage-oak-night', 'int-balcony-sage-oak-day', 'int-balcony-sage-oak-night', 'int-kitchen-sage-oak-day', 'int-kitchen-sage-oak-night', 'int-bedroom-sage-oak-day', 'int-bedroom-sage-oak-night', 'int-bathroom-sage-oak-day', 'int-bathroom-sage-oak-night', 'int-dining-sage-oak-day', 'int-dining-sage-oak-night', 'int-living-sage-walnut-day', 'int-living-sage-walnut-night', 'int-balcony-sage-walnut-day', 'int-balcony-sage-walnut-night', 'int-kitchen-sage-walnut-day', 'int-kitchen-sage-walnut-night', 'int-bedroom-sage-walnut-day', 'int-bedroom-sage-walnut-night', 'int-bathroom-sage-walnut-day', 'int-bathroom-sage-walnut-night', 'int-dining-sage-walnut-day', 'int-dining-sage-walnut-night', 'int-living-blue-oak-day', 'int-living-blue-oak-night', 'int-balcony-blue-oak-day', 'int-balcony-blue-oak-night', 'int-kitchen-blue-oak-day', 'int-kitchen-blue-oak-night', 'int-bedroom-blue-oak-day', 'int-bedroom-blue-oak-night', 'int-bathroom-blue-oak-day', 'int-bathroom-blue-oak-night', 'int-dining-blue-oak-day', 'int-dining-blue-oak-night', 'int-living-blue-walnut-day', 'int-living-blue-walnut-night', 'int-balcony-blue-walnut-day', 'int-balcony-blue-walnut-night', 'int-kitchen-blue-walnut-day', 'int-kitchen-blue-walnut-night', 'int-bedroom-blue-walnut-day', 'int-bedroom-blue-walnut-night', 'int-bathroom-blue-walnut-day', 'int-bathroom-blue-walnut-night', 'int-dining-blue-walnut-day', 'int-dining-blue-walnut-night', 'int-living-burgundy-oak-day', 'int-living-burgundy-oak-night', 'int-balcony-burgundy-oak-day', 'int-balcony-burgundy-oak-night', 'int-kitchen-burgundy-oak-day', 'int-kitchen-burgundy-oak-night', 'int-bedroom-burgundy-oak-day', 'int-bedroom-burgundy-oak-night', 'int-bathroom-burgundy-oak-day', 'int-bathroom-burgundy-oak-night', 'int-dining-burgundy-oak-day', 'int-dining-burgundy-oak-night', 'int-living-burgundy-walnut-day', 'int-living-burgundy-walnut-night', 'int-balcony-burgundy-walnut-day', 'int-balcony-burgundy-walnut-night', 'int-kitchen-burgundy-walnut-day', 'int-kitchen-burgundy-walnut-night', 'int-bedroom-burgundy-walnut-day', 'int-bedroom-burgundy-walnut-night', 'int-bathroom-burgundy-walnut-day', 'int-bathroom-burgundy-walnut-night', 'int-dining-burgundy-walnut-day', 'int-dining-burgundy-walnut-night', 'int-living-wheat-oak-day', 'int-living-wheat-oak-night', 'int-balcony-wheat-oak-day', 'int-balcony-wheat-oak-night', 'int-kitchen-wheat-oak-day', 'int-kitchen-wheat-oak-night', 'int-bedroom-wheat-oak-day', 'int-bedroom-wheat-oak-night', 'int-bathroom-wheat-oak-day', 'int-bathroom-wheat-oak-night', 'int-dining-wheat-oak-day', 'int-dining-wheat-oak-night', 'int-living-wheat-walnut-day', 'int-living-wheat-walnut-night', 'int-balcony-wheat-walnut-day', 'int-balcony-wheat-walnut-night', 'int-kitchen-wheat-walnut-day', 'int-kitchen-wheat-walnut-night', 'int-bedroom-wheat-walnut-day', 'int-bedroom-wheat-walnut-night', 'int-bathroom-wheat-walnut-day', 'int-bathroom-wheat-walnut-night', 'int-dining-wheat-walnut-day', 'int-dining-wheat-walnut-night'],
@@ -731,7 +743,7 @@ var SC_CFG={
   lead:'One module with a glass front. Four finishes, six cameras, in daylight and after dark.',
   note:'Exterior views show the burgundy interior.'}};
 var SD='', SC_EXT=[], SC_INT=[], SC_FIN=[], SC_VIEW={}, SC_VORDER=[], SC_ROOM=[], SC_WOOD=[], SC_CUR=null;
-var SC={home:'solum',fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'};
+var SC={home:'',fin:'yakisugi',view:'entrance',fl:'day',room:'living',tile:'sage',wood:'oak',il:'day'};
 function scUse(home){ var c=SC_CFG[home]||SC_CFG.solum; SC_CUR=c; SD=c.dir; SC_EXT=c.ext; SC_INT=c.int; SC_FIN=c.fin; SC_VIEW=c.view; SC_VORDER=Object.keys(c.view); SC_ROOM=c.rooms; SC_WOOD=c.wood;
   if(SC.home!==home || !SC_VIEW[SC.view]){ SC={home:home,fin:c.def.fin,view:c.def.view,fl:c.def.fl,room:c.def.room,tile:c.def.tile,wood:c.def.wood,il:c.def.il}; } }
 scUse('solum');
@@ -756,7 +768,7 @@ function scSwap(box,src,capTxt){
 function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
 var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
-function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006d&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006e&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
 function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
   el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
 
@@ -841,6 +853,35 @@ function solumInit(h){
     var list=SC_ROOM.map(function(r){ return scInt(r[0],SC.tile,SC.wood,SC.il); }); scLb(list,Math.max(0,list.indexOf(scInt(SC.room,SC.tile,SC.wood,SC.il)))); };
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){ b.onclick=function(){ window.open(scUrl(),'_blank'); }; });
   scFacade(); scInterior(); }
+
+
+/* ── SOLUM plan and 3D: the revised plan, window schedule, four model views and the interactive model ─── */
+var SP='/haavn-renders/solum-plan/';
+var SP_WIN=[['W01','Living','Fixed full height picture window','1,800 × 2,400','0'],['D01','Kitchen / dining','Double sliding glazed doors','3,950 × 2,400','0'],['W02','Bedroom','Fixed full height picture window','1,800 × 2,400','0'],['W03','Bedroom','High level window','2,000 × 400','2,025'],['W04','Shower','High level privacy window','1,000 × 400','2,025']];
+var SP_3D=[['front','Front'],['rear','Rear'],['plan','Plan'],['cutaway','Cutaway']];
+function solumPlan(h){
+  var t='<div class="scx-sec" id="scxPlan"><div class="eyeb"><i></i>03 · Plan &amp; 3D</div><h3 class="scx-h">The plan.<br>The model.</h3>'+
+    '<p class="scx-lead">The revised ground floor plan, the window schedule and a 3D model you can turn around. Review the home, room by room, before you decide.</p>'+
+    '<div class="scx-row"><button class="scx-cta" type="button" id="spModel">'+SC_ICO.replace('M12 3v12M7 10l5 5 5-5M4 20h16','M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4zM3 7.4 12 12l9-4.6M12 12v9.4')+'Explore the 3D model</button>'+
+    '<a class="scx-link" href="'+SP+'SOLUM-Revised-Plan.pdf" target="_blank" rel="noopener">Dimensioned plan · PDF</a></div>'+
+    '<div class="scx-plan" id="spStage"><img src="'+SP+'plan-1-md.jpg" alt="SOLUM revised ground floor plan" decoding="async"></div>'+
+    '<div class="scx-tn fourb" id="spSheets">'+[['Floor plan','plan-1'],['Window schedule','plan-2'],['High windows','plan-3'],['Cutaway','plan-4']].map(function(x,i){ return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'"><img src="'+SP+x[1]+'-t.jpg" alt="" loading="lazy" decoding="async"><span class="c">'+x[0]+'</span></button>'; }).join('')+'</div>'+
+    '<div class="scx-lbl">The model in four views</div><div class="scx-tn fourb" id="sp3d">'+SP_3D.map(function(x,i){ return '<button data-i="'+i+'"><img src="'+SP+'3d-'+x[0]+'-t.webp" alt="" loading="lazy" decoding="async"><span class="c">'+x[1]+'</span></button>'; }).join('')+'</div>'+
+    '<div class="scx-lbl">Window schedule · width × height, mm</div><div class="scx-tblw"><table class="scx-tbl"><thead><tr><th>ID</th><th>Room</th><th>Type</th><th>Size</th><th>Sill above floor</th></tr></thead><tbody>'+
+    SP_WIN.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('')+'</tbody></table></div>'+
+    '<p class="scx-fine">Concept C1, 6 October 2026. The 13.4 × 4.5 m footprint and the principal rooms are retained. Proposed window sizes are for coordination and are not a construction issue. The model is a concept reconstruction and furniture is indicative.</p></div>';
+  return t;
+}
+function solumPlanInit(h){
+  var sheets=[1,2,3,4].map(function(i){ return {src:SP+'plan-'+i+'.jpg',cap:['Revised ground floor plan','Window schedule and elevation','High window elevations','3D cutaway'][i-1]}; });
+  var threeD=SP_3D.map(function(x){ return {src:SP+'3d-'+x[0]+'.webp',cap:'SOLUM · 3D · '+x[1]}; });
+  var stage=document.getElementById('spStage'), img=stage.querySelector('img'), cur=0;
+  stage.onclick=function(){ LB=sheets.slice(); openLb(cur,true); };
+  [].forEach.call(document.querySelectorAll('#spSheets button'),function(b){ b.onclick=function(){ cur=+b.dataset.i; img.src=SP+'plan-'+(cur+1)+'-md.jpg';
+    [].forEach.call(document.querySelectorAll('#spSheets button'),function(x){ x.classList.toggle('on',x===b); }); }; });
+  [].forEach.call(document.querySelectorAll('#sp3d button'),function(b){ b.onclick=function(){ LB=threeD.slice(); openLb(+b.dataset.i,true); }; });
+  document.getElementById('spModel').onclick=function(){ openModel(h.model+(h.model.indexOf('?')<0?'?':'&')+'embed=1', true, true); };
+}
 
 /* ── lightbox ─────────────────────────────────────────────────────────── */
 var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'), lbCap=document.getElementById('lbCap'), lbStage=document.getElementById('lbStage');
