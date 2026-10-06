@@ -531,7 +531,7 @@ var HOMES=[
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
-  img:R+'solum/ext-yakisugi-entrance-day.webp', showcase:true, plan3d:true, model:'/solum-model/index.html?v=20261006a', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=8', launch:'https://solum-black-teaser.vercel.app',
+  img:R+'solum/ext-yakisugi-entrance-day.webp', showcase:true, plan3d:true, model:'/solum-model/index.html?v=20261006a', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=9', launch:'https://solum-black-teaser.vercel.app',
   gallery:[],
   plans:[['Revised ground floor plan',R+'solum-plan/plan-1.jpg'],['Window schedule and elevation',R+'solum-plan/plan-2.jpg'],['High window elevations',R+'solum-plan/plan-3.jpg'],['3D cutaway',R+'solum-plan/plan-4.jpg']]},
  {key:'HAVEN',series:'black',tag:'The six module family home.',area:267.7,storeys:2,modules:6,beds:4,baths:2,garage:'Double',frontage:8.4,depth:16.8,
@@ -768,7 +768,7 @@ function scSwap(box,src,capTxt){
 function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
 var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
-function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261007a&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261007b&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
 function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
   el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
 
