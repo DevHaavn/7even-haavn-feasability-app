@@ -514,8 +514,9 @@ function m2(a){ return Math.round(a*10)%10===0 ? String(Math.round(a)) : a.toFix
 var HOMES=[
  {key:'SOLUM STUDIO',series:'black',tag:'The compact studio. One module, complete.',area:35,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:3.5,depth:10,
   blurb:'A 3.5 by 10 metre studio, 35 square metres gross. One factory finished module with a glass front, a bedroom, a bathroom and a full kitchen, delivered complete.',
-  img:R+'solum-ext-charred-02.jpg',
-  gallery:['solum-int26-living','solum-int26-kitchen','solum-int26-bath','solum-int26-bed'].map(function(n){return R+n+'.jpg';}),
+  img:R+'solum/ext-blackbutt-entrance-night.webp', showcase:true,
+  scLead:'The same four finishes, in daylight and after dark.', scNote:'Renders shown are SOLUM, with the finishes, tiles and timber schemes shared with SOLUM STUDIO.',
+  gallery:[],
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
   blurb:'The most efficient home HAAVN makes. One factory finished module, complete: a rear of block residence, a studio, a downsizer.',
@@ -723,7 +724,7 @@ var SC_TILE=[
 var SC_WOOD=[
  {k:'walnut',name:'Raw Walnut',sub:'Eveneer · the lighter timber',sw:'#8c6340'},
  {k:'oak',name:'Dark Oak',sub:'The darker timber',sw:'#2b1f17'}];
-var SC={fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'};
+var SC={home:'solum',fin:'yakisugi',view:'entrance',fl:'night',room:'living',tile:'sage',wood:'oak',il:'day'};
 function scHas(n){ return SC_EXT.indexOf(n)>=0||SC_INT.indexOf(n)>=0; }
 function scExt(fin,view,l){ return 'ext-'+fin+'-'+view+'-'+l; }
 function scInt(room,tile,wood,l){ return 'int-'+room+'-'+tile+'-'+wood+'-'+l; }
@@ -746,14 +747,15 @@ function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?'
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
 
 var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
-function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006a&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il; }
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006b&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+SC.home; }
 function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
   el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
 function solumShowcase(h){
+  SC.home=(h.key==='SOLUM STUDIO')?'studio':'solum';
   return '<div class="scx-sec" id="scxFac">'+
     '<div class="eyeb"><i></i>01 · Facade</div>'+
     '<h3 class="scx-h">Four finishes.<br>Morning and night.</h3>'+
-    '<p class="scx-lead">Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.</p>'+
+    '<p class="scx-lead">'+(h.scLead||'Narrow floor reaching windows, central double sliders and three slim black awnings. The same home, in four finishes, in daylight and after dark.')+'</p>'+
     '<div class="scx-row" id="scxFins"></div>'+
     '<div class="scx-row" style="margin-top:14px">'+scSeg('scxFL',['day','Day'],['night','Night'],SC.fl)+'</div>'+
     '<div class="scx-stage" id="scxFStage"><div class="shade2"></div><div class="cap"></div><div class="zoomh">Tap to enlarge</div></div>'+
@@ -774,7 +776,7 @@ function solumShowcase(h){
     '<div class="scx-lbl">Timber and light</div><div class="scx-tn four" id="scxCmpW"></div></div>'+
   '<div class="scx-export"><div><div class="eyeb"><i></i>03 · Take it with you</div><h3 class="scx-h" style="font-size:clamp(26px,3.6vw,48px)">Export this design.</h3>'+
     '<p class="scx-lead" id="scxSum"></p></div><button class="scx-cta" data-exp type="button">'+SC_ICO+'Export mini brochure</button></div>'+
-  '<p class="scx-fine">These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
+  '<p class="scx-fine">'+(h.scNote?h.scNote+' ':'')+'These are indicative renders. Material colour changes with light, so specify from the physical samples. Not dimensionally exact to the architectural model.</p>';
 }
 function scLb(list,i){ LB=list.map(function(n){ return {src:scFull(n),cap:/^ext/.test(n)?scCapExt(n):scCapInt(n)}; }); openLb(i,true); }
 function scFacade(){

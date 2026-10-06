@@ -286,6 +286,7 @@ var FL=pick('fl',['day','night'],'night');
 var TILE=pick('tile',['sage','blue','burgundy','wheat'],'sage');
 var WOOD=pick('wood',['walnut','oak'],'oak');
 var IL=pick('il',['day','night'],'day');
+var HOME=pick('home',['solum','studio'],'solum'); var HN=HOME==='studio'?'SOLUM STUDIO':'SOLUM';
 var D='/haavn-renders/solum/';
 var FINS={yakisugi:{n:'Yakisugi',spec:'Shou sugi ban charred timber',sw:'sw-yakisugi.jpg'},blackbutt:{n:'Blackbutt',spec:'Blackbutt timber cladding',sw:'sw-blackbutt.jpg'},
  seam:{n:'Black Standing Seam',spec:'Standing seam steel',sw:'sw-standing-seam.jpg'},mineral:{n:'Light Mineral Panels',spec:'Equitone fibre cement cladding',sw:'sw-fibre-cement.jpg'}};
@@ -303,13 +304,13 @@ function intr(r,t,w,l){ return D+'int-'+r+'-'+t+'-'+w+'-'+l+'.webp'; }
 var f=FINS[FIN], t=TILES[TILE], w=WOODS[WOOD], other=IL==='day'?'night':'day';
 function L(x){ return x==='night'?'Night':'Morning'; }
 var designLine=f.n+' · '+t.n+' · '+w.n;
-document.title='SOLUM · '+designLine;
-document.getElementById('tbTitle').textContent='SOLUM · '+designLine;
+document.title=HN+' · '+designLine;
+document.getElementById('tbTitle').textContent=HN+' · '+designLine;
 var P='';
 /* 1 cover */
 P+='<section class="pg c-cover dark onimg"><img class="bleed" src="'+ext(FIN,VIEW,FL)+'" alt=""><div class="shade"></div>'+
  '<div class="hd mono"><img class="logo" src="img/haavn-black-logo.png" alt="HAAVN BLACK"><span>Your design</span></div>'+
- '<div class="tx"><div><div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>Black Series · Ancillary dwelling</div><div class="disp">SOLUM</div><p>Your finishes. <em class="au">Chosen.</em></p></div>'+
+ '<div class="tx"><div><div class="eyeb" style="color:rgba(246,244,240,.7)"><i></i>Black Series · Ancillary dwelling</div><div class="disp"'+(HOME==='studio'?' style="font-size:56pt"':'')+'>'+HN+'</div><p>Your finishes. <em class="au">Chosen.</em></p></div>'+
  '<div class="sel"><div>Facade<b>'+f.n+' · '+L(FL)+'</b></div><div>Tile<b>'+t.n+'</b></div><div>Timber<b>'+w.s+'</b></div></div></div></section>';
 /* 2 facade */
 P+='<section class="pg c-fac"><div class="a"><img class="bleed" src="'+ext(FIN,VIEW,FL)+'" alt=""></div><div class="r">'+
@@ -317,7 +318,7 @@ P+='<section class="pg c-fac"><div class="a"><img class="bleed" src="'+ext(FIN,V
  '<div class="chip" style="background-image:url(img/'+f.sw+')"></div>'+
  '<p class="body">Black windows, flashings and trims throughout, with narrow floor reaching windows, central double sliders and three slim black awnings.</p>'+
  '<div class="pair">'+['day','night'].map(function(l){ var v=HAS[FIN+':'+VIEW+':'+l]?VIEW:(HAS[FIN+':entrance:'+l]?'entrance':'angled'); return '<div><img src="'+ext(FIN,v,l)+'" alt=""><span>'+L(l)+'</span></div>'; }).join('')+'</div>'+
- '</div><div class="folio" style="left:auto;right:14mm;width:90mm;justify-content:flex-end"><span>HAAVN BLACK · SOLUM · 02</span></div></section>';
+ '</div><div class="folio" style="left:auto;right:14mm;width:90mm;justify-content:flex-end"><span>HAAVN BLACK · '+HN+' · 02</span></div></section>';
 /* 3 interior */
 P+='<section class="pg c-int"><div class="grid">'+ROOMS.map(function(r,i){ return '<div class="t"><img src="'+intr(r[0],TILE,WOOD,IL)+'" alt="'+r[1]+'"><div class="g"></div><div class="lab"><div class="num">0'+(i+1)+'</div><h3>'+r[1]+'</h3></div></div>'; }).join('')+'</div>'+
  '<div class="badge"><div class="mono">02 · The interior</div><b>'+t.n.toUpperCase()+' · '+w.n.toUpperCase()+'</b><div class="mono">'+L(IL)+'</div></div></section>';
@@ -329,8 +330,18 @@ P+='<section class="pg c-fin"><div class="in"><div class="head"><div><div class=
  '<div><div class="box" style="background:'+t.c+'"></div><div class="n mono">Tile</div><h3>'+t.n+'</h3><p>Mosaic tile to the kitchen splashback and the bathroom, against large format stone.</p></div>'+
  '<div><div class="box" style="background:'+w.c+'"></div><div class="n mono">Timber</div><h3>'+w.s+'</h3><p>Ceiling planks and fixed joinery in matching timber, throughout.</p></div></div>'+
  '<div class="oth"><div class="k mono">The same rooms, '+(other==='night'?'at night':'in the morning')+'</div><div class="row">'+ROOMS.map(function(r){ return '<div><img src="'+intr(r[0],TILE,WOOD,other)+'" alt=""><span>'+r[1]+'</span></div>'; }).join('')+'</div></div>'+
- '<div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · SOLUM</span><span>04</span></div></section>';
-document.getElementById('pages').innerHTML=P+PLAN+BACK;
+ '<div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · '+HN+'</span><span>04</span></div></section>';
+var PL=PLAN;
+if(HOME==='studio'){
+  PL='<section class="pg plan"><div class="l"><img src="/haavn-renders/solum-studio-floor-ground.jpg" alt="SOLUM STUDIO ground floor plan"></div><div class="r">'+
+   '<div class="eyeb" style="color:var(--ink3)"><i></i>05 · The plan</div><h2 class="disp">35 m²<small>One module. <em class="au" style="font-family:var(--serif);font-style:italic;font-size:15pt">Complete.</em></small></h2>'+
+   '<div class="nums"><div><div class="k">Gross area</div><div class="v">35<small>m²</small></div></div><div><div class="k">Footprint</div><div class="v">10 × 3.5<small>m</small></div></div>'+
+   '<div><div class="k">Bedroom</div><div class="v">1</div></div><div><div class="k">Bathroom</div><div class="v">1</div></div><div><div class="k">Modules</div><div class="v">1</div></div><div><div class="k">Storeys</div><div class="v">1</div></div></div>'+
+   '<div class="opt"><div class="k mono" style="color:var(--ink3)">The studio</div><p>A 3.5 by 10 metre studio, 35 square metres gross. One factory finished module with a glass front, a bedroom, a bathroom and a full kitchen, delivered complete.</p></div></div>'+
+   '<div class="folio" style="left:18mm;right:18mm"><span>HAAVN BLACK · '+HN+'</span><span>05</span></div></section>';
+}
+var BK=BACK.replace('<span>SOLUM</span>','<span>'+HN+'</span>');
+document.getElementById('pages').innerHTML=P+PL+BK;
 document.getElementById('tbPrint').onclick=function(){ window.print(); };
 document.getElementById('tbBack').onclick=function(){ if(history.length>1&&document.referrer) history.back(); else window.close(); };
 })();
