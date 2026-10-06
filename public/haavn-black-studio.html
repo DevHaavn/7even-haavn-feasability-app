@@ -526,7 +526,7 @@ function m2(a){ return Math.round(a*10)%10===0 ? String(Math.round(a)) : a.toFix
 var HOMES=[
  {key:'SOLUM STUDIO',series:'black',tag:'The compact studio. One module, complete.',area:35,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:3.5,depth:10,
   blurb:'A 3.5 by 10 metre studio, 35 square metres gross. One factory finished module with a glass front, a bedroom, a bathroom and a full kitchen, delivered complete.',
-  img:R+'solum-studio/ext-yakisugi-side-day.webp', showcase:true, brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM-STUDIO.pdf?v=2',
+  img:R+'solum-studio/ext-yakisugi-side-day.webp', showcase:true, plan3d:true, model:'/solum-studio-model/index.html?v=20261006a', brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM-STUDIO.pdf?v=3',
   gallery:[],
   plans:[['Ground floor',R+'solum-studio-floor-ground.jpg'],['Cutaway axonometric',R+'solum-studio-floor-axo.jpg']]},
  {key:'SOLUM',series:'black',tag:'Ancillary dwelling. A single, perfect module.',area:60,storeys:1,modules:1,beds:1,baths:1,garage:'—',frontage:4.5,depth:13.4,
@@ -768,7 +768,7 @@ function scSwap(box,src,capTxt){
 function scChip(cls,on,sw,name,sub,attr){ return '<button class="scx-chip'+(on?' on':'')+'" '+attr+'>'+(sw?'<span class="d" style="background:'+sw+'"></span>':'')+'<span>'+name+(sub?'<small>'+sub+'</small>':'')+'</span></button>'; }
 function scSeg(id,a,b,val){ return '<div class="scx-seg" id="'+id+'"><button data-v="'+a[0]+'" class="'+(val===a[0]?'on':'')+'">'+a[1]+'</button><button data-v="'+b[0]+'" class="'+(val===b[0]?'on':'')+'">'+b[1]+'</button></div>'; }
 var SC_ICO='<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>';
-function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006e&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
+function scUrl(){ return '/haavn-brochures/solum/custom.html?v=20261006f&fin='+SC.fin+'&view='+SC.view+'&fl='+SC.fl+'&tile='+SC.tile+'&wood='+SC.wood+'&il='+SC.il+'&home='+(SC.home==='studio'?'studio':'solum'); }
 function scSum(){ var el=document.getElementById('scxSum'); if(!el) return;
   el.textContent=scName(SC.fin,SC_FIN).name+' facade, '+scLbl(SC.fl).toLowerCase()+'. '+scName(SC.tile,SC_TILE).name+' tile with '+scName(SC.wood,SC_WOOD).name+', '+scLbl(SC.il).toLowerCase()+'. A six page brochure of exactly this facade and interior. Open it and choose Save as PDF.'; }
 
@@ -856,28 +856,43 @@ function solumInit(h){
 
 
 /* ── SOLUM plan and 3D: the revised plan, window schedule, four model views and the interactive model ─── */
-var SP='/haavn-renders/solum-plan/';
-var SP_WIN=[['W01','Living','Fixed full height picture window','1,800 × 2,400','0'],['D01','Kitchen / dining','Double sliding glazed doors','3,950 × 2,400','0'],['W02','Bedroom','Fixed full height picture window','1,800 × 2,400','0'],['W03','Bedroom','High level window','2,000 × 400','2,025'],['W04','Shower','High level privacy window','1,000 × 400','2,025']];
 var SP_3D=[['front','Front'],['rear','Rear'],['plan','Plan'],['cutaway','Cutaway']];
+var SPC={
+ solum:{name:'SOLUM',dir:'/haavn-renders/solum-plan/',pdf:'SOLUM-Revised-Plan.pdf',
+  sheets:[['Floor plan','plan-1','Revised ground floor plan'],['Window schedule','plan-2','Window schedule and elevation'],['High windows','plan-3','High window elevations'],['Cutaway','plan-4','3D cutaway']],
+  views:SP_3D,
+  win:[['W01','Living','Fixed full height picture window','1,800 × 2,400','0'],['D01','Kitchen / dining','Double sliding glazed doors','3,950 × 2,400','0'],['W02','Bedroom','Fixed full height picture window','1,800 × 2,400','0'],['W03','Bedroom','High level window','2,000 × 400','2,025'],['W04','Shower','High level privacy window','1,000 × 400','2,025']],
+  lead:'The revised ground floor plan, the window schedule and a 3D model you can turn around. Review the home, room by room, before you decide.',
+  fine:'Concept C1, 6 October 2026. The 13.4 × 4.5 m footprint and the principal rooms are retained. Proposed window sizes are for coordination and are not a construction issue. The model is a concept reconstruction and furniture is indicative.'},
+ studio:{name:'SOLUM STUDIO',dir:'/haavn-renders/solum-studio-plan/',pdf:'SOLUM-STUDIO-Plan.pdf',
+  sheets:[['Floor plan','plan-1','The Studio plan'],['Entry and balcony','plan-2','The entry and the front living balcony'],['Cutaway','plan-3','3D cutaway']],
+  views:[['front','Balcony'],['entry','Side entry'],['plan','Plan'],['cutaway','Cutaway']],
+  win:[['W01','Bedroom, entry side','Full height window','1,400 × 3,000','0'],['W02','Dining, entry side','Full height window','1,200 × 3,000','0'],['D01','Living, balcony','Glazed sliding doors','3,100 × 3,000','0'],['D02','Side entry','Solid matte black door','800 × 3,000','0'],['D03','Bedroom','Hinged door','800 × 2,400','0'],['D04','Bathroom','Hinged door','800 × 2,400','0'],['S01','External services','Service access','800 × 2,400','0']],
+  lead:'The Studio plan from the rear bedroom to the front balcony, the opening schedule and a 3D model you can cut open and turn around. One bedroom, one bathroom and a front living balcony.',
+  fine:'Revision C1, 6 October 2026. 3,500 × 10,000 mm external footprint with a 1,900 mm deep balcony. Dimensions are nominal design values for coordination, not for construction or fabrication. The 3D views are schematic model exports and furniture is indicative.'}
+};
+function spc(h){ return SPC[h.key==='SOLUM STUDIO'?'studio':'solum']; }
 function solumPlan(h){
+  var c=spc(h), SP=c.dir, nm=c.sheets.length;
   var t='<div class="scx-sec" id="scxPlan"><div class="eyeb"><i></i>03 · Plan &amp; 3D</div><h3 class="scx-h">The plan.<br>The model.</h3>'+
-    '<p class="scx-lead">The revised ground floor plan, the window schedule and a 3D model you can turn around. Review the home, room by room, before you decide.</p>'+
+    '<p class="scx-lead">'+c.lead+'</p>'+
     '<div class="scx-row"><button class="scx-cta" type="button" id="spModel">'+SC_ICO.replace('M12 3v12M7 10l5 5 5-5M4 20h16','M12 2.6 21 7.4v9.2L12 21.4 3 16.6V7.4zM3 7.4 12 12l9-4.6M12 12v9.4')+'Explore the 3D model</button>'+
-    '<a class="scx-link" href="'+SP+'SOLUM-Revised-Plan.pdf" target="_blank" rel="noopener">Dimensioned plan · PDF</a></div>'+
-    '<div class="scx-plan" id="spStage"><img src="'+SP+'plan-1-md.jpg" alt="SOLUM revised ground floor plan" decoding="async"></div>'+
-    '<div class="scx-tn fourb" id="spSheets">'+[['Floor plan','plan-1'],['Window schedule','plan-2'],['High windows','plan-3'],['Cutaway','plan-4']].map(function(x,i){ return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'"><img src="'+SP+x[1]+'-t.jpg" alt="" loading="lazy" decoding="async"><span class="c">'+x[0]+'</span></button>'; }).join('')+'</div>'+
-    '<div class="scx-lbl">The model in four views</div><div class="scx-tn fourb" id="sp3d">'+SP_3D.map(function(x,i){ return '<button data-i="'+i+'"><img src="'+SP+'3d-'+x[0]+'-t.webp" alt="" loading="lazy" decoding="async"><span class="c">'+x[1]+'</span></button>'; }).join('')+'</div>'+
-    '<div class="scx-lbl">Window schedule · width × height, mm</div><div class="scx-tblw"><table class="scx-tbl"><thead><tr><th>ID</th><th>Room</th><th>Type</th><th>Size</th><th>Sill above floor</th></tr></thead><tbody>'+
-    SP_WIN.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('')+'</tbody></table></div>'+
-    '<p class="scx-fine">Concept C1, 6 October 2026. The 13.4 × 4.5 m footprint and the principal rooms are retained. Proposed window sizes are for coordination and are not a construction issue. The model is a concept reconstruction and furniture is indicative.</p></div>';
+    '<a class="scx-link" href="'+SP+c.pdf+'" target="_blank" rel="noopener">Dimensioned plan · PDF</a></div>'+
+    '<div class="scx-plan" id="spStage"><img src="'+SP+c.sheets[0][1]+'-md.jpg" alt="'+c.name+' floor plan" decoding="async"></div>'+
+    '<div class="scx-tn '+(nm===4?'fourb':'')+'" id="spSheets"'+(nm===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+c.sheets.map(function(x,i){ return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'"><img src="'+SP+x[1]+'-t.jpg" alt="" loading="lazy" decoding="async"><span class="c">'+x[0]+'</span></button>'; }).join('')+'</div>'+
+    '<div class="scx-lbl">The model in four views</div><div class="scx-tn fourb" id="sp3d">'+c.views.map(function(x,i){ return '<button data-i="'+i+'"><img src="'+SP+'3d-'+x[0]+'-t.webp" alt="" loading="lazy" decoding="async"><span class="c">'+x[1]+'</span></button>'; }).join('')+'</div>'+
+    '<div class="scx-lbl">'+(c.name==='SOLUM'?'Window schedule':'Opening schedule')+' · width × height, mm</div><div class="scx-tblw"><table class="scx-tbl"><thead><tr><th>ID</th><th>Room</th><th>Type</th><th>Size</th><th>Sill above floor</th></tr></thead><tbody>'+
+    c.win.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('')+'</tbody></table></div>'+
+    '<p class="scx-fine">'+c.fine+'</p></div>';
   return t;
 }
 function solumPlanInit(h){
-  var sheets=[1,2,3,4].map(function(i){ return {src:SP+'plan-'+i+'.jpg',cap:['Revised ground floor plan','Window schedule and elevation','High window elevations','3D cutaway'][i-1]}; });
-  var threeD=SP_3D.map(function(x){ return {src:SP+'3d-'+x[0]+'.webp',cap:'SOLUM · 3D · '+x[1]}; });
+  var c=spc(h), SP=c.dir;
+  var sheets=c.sheets.map(function(x){ return {src:SP+x[1]+'.jpg',cap:x[2]}; });
+  var threeD=c.views.map(function(x){ return {src:SP+'3d-'+x[0]+'.webp',cap:c.name+' · 3D · '+x[1]}; });
   var stage=document.getElementById('spStage'), img=stage.querySelector('img'), cur=0;
   stage.onclick=function(){ LB=sheets.slice(); openLb(cur,true); };
-  [].forEach.call(document.querySelectorAll('#spSheets button'),function(b){ b.onclick=function(){ cur=+b.dataset.i; img.src=SP+'plan-'+(cur+1)+'-md.jpg';
+  [].forEach.call(document.querySelectorAll('#spSheets button'),function(b){ b.onclick=function(){ cur=+b.dataset.i; img.src=SP+c.sheets[cur][1]+'-md.jpg';
     [].forEach.call(document.querySelectorAll('#spSheets button'),function(x){ x.classList.toggle('on',x===b); }); }; });
   [].forEach.call(document.querySelectorAll('#sp3d button'),function(b){ b.onclick=function(){ LB=threeD.slice(); openLb(+b.dataset.i,true); }; });
   document.getElementById('spModel').onclick=function(){ openModel(h.model+(h.model.indexOf('?')<0?'?':'&')+'embed=1', true, true); };
