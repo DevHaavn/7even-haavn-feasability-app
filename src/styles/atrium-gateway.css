@@ -14,8 +14,11 @@ html[data-theme="light"]{--g-bg0:#eceae4;--g-bg1:#f4f2ec;--g-ink:#1a1b1e;--g-ink
 html[data-theme="dark"] .agw-seg button.on{background:rgba(255,255,255,.9);color:#000}
 
 /* ---- cab-root ---- */
-.agw.cab-root{background:var(--g-bg0)!important;color:var(--g-ink)}
-.agw .cab-bg,.agw .cab-scrim{display:none!important}
+/* the moving white/grey video stays: inverted in light, left dark in dark */
+.agw.cab-root{color:var(--g-ink)}
+html[data-theme="dark"] .agw.cab-root{background:var(--g-bg0)}
+html[data-theme="dark"] .agw .cab-bg{filter:brightness(.55) saturate(.4)}
+html[data-theme="dark"] .agw .cab-scrim{background:linear-gradient(180deg,rgba(11,13,15,.35),rgba(11,13,15,.2) 42%,rgba(11,13,15,.5))}
 .agw .cab-head{position:sticky;top:0;z-index:20;background:var(--g-top);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--g-line);padding:14px 28px;gap:14px;flex-wrap:nowrap}
 .agw .cab-mbtn{width:34px;height:34px;border-color:var(--g-ink4);color:var(--g-ink)}
 .agw .cab-mbtn:hover{border-color:#d6b36a}
@@ -49,8 +52,11 @@ html[data-theme="dark"] .agw-seg button.on{background:rgba(255,255,255,.9);color
 .agw .cab-title{color:var(--g-ink3)!important;font-size:11px;letter-spacing:.34em;margin-top:14px}
 
 /* ---- hmh-root ---- */
-.agw.hmh-root{background:var(--g-bg0)!important;color:var(--g-ink)}
-.agw .hmh-bg,.agw .hmh-scrim{display:none!important}
+/* the moving white/grey video stays: inverted in light, left dark in dark */
+.agw.hmh-root{color:var(--g-ink)}
+html[data-theme="dark"] .agw.hmh-root{background:var(--g-bg0)}
+html[data-theme="dark"] .agw .hmh-bg{filter:brightness(.55) saturate(.4)}
+html[data-theme="dark"] .agw .hmh-scrim{background:linear-gradient(180deg,rgba(11,13,15,.35),rgba(11,13,15,.2) 42%,rgba(11,13,15,.5))}
 .agw .hmh-head{position:sticky;top:0;z-index:20;background:var(--g-top);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--g-line);padding:14px 28px;gap:14px;flex-wrap:nowrap}
 .agw .mbtn{width:34px;height:34px;border-color:var(--g-ink4);color:var(--g-ink)}
 .agw .mbtn:hover{border-color:#d6b36a}
