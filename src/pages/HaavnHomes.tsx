@@ -119,7 +119,7 @@ function isPhone(): boolean {
   try { return matchMedia('(max-width:900px)').matches || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) <= 900) } catch { return false }
 }
 
-export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onOpenAtriumBlack, onLogout }: {
+export default function HaavnHomes({ onBack, restricted, salesOnly, suspended, onOpenCrm, onOpenDisplaySuite, onOpenCapital, onOpenAtriumBlack, onLogout }: {
   onBack: () => void
   /** True while the Display Suite (Studio) is open on top. On a phone the home page
    *  underneath is released so the Studio's pictures have the memory (iOS drops
@@ -128,6 +128,8 @@ export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, o
   /** Builder login (Jeffrey Witbreuk): no route back to the 7EVEN studio; the
    *  brand dropdown is hidden and an HM CRM entry + Log Out are shown instead. */
   restricted?: boolean
+  /** HAAVN BLACK sales login: hides CRM, feasibility and Enterprise on the home screen. */
+  salesOnly?: boolean
   onOpenCrm?: () => void
   /** Opens the customer-facing Display Suite (DS logo, top-left). */
   onOpenDisplaySuite?: () => void
@@ -174,7 +176,7 @@ export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, o
       // New HAAVN BLACK home screen (public/haavn-black.html) button actions.
       else if (m === 'return') { restricted ? onLogout?.() : onBack() }
       else if (m === 'display') onOpenDisplaySuite?.()
-      else if (m === 'feasibility') setOpenId('black-series')
+      else if (m === 'feasibility') { if (!salesOnly) setOpenId('black-series') }
       else if (m === 'capital') onOpenCapital?.()
       else if (m === 'logout') (onLogout ?? onBack)?.()
       else if (m === 'crm') onOpenCrm?.()
@@ -184,7 +186,7 @@ export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, o
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [restricted, onBack, onLogout, onOpenDisplaySuite, onOpenCrm, onOpenCapital, onOpenAtriumBlack])
+  }, [restricted, salesOnly, onBack, onLogout, onOpenDisplaySuite, onOpenCrm, onOpenCapital, onOpenAtriumBlack])
   const open = list.find(p => p.id === openId) || null
   // Pin the parent document while the embedded studio is open — stops the iOS
   // address-bar shift + bounce that made the studio "jump around" on mobile.
@@ -215,7 +217,7 @@ export default function HaavnHomes({ onBack, restricted, suspended, onOpenCrm, o
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title="HAAVN BLACK"
-        src={suspended && isPhone() ? 'about:blank' : '/haavn-black.html?v=39'} allow="autoplay; fullscreen"
+        src={suspended && isPhone() ? 'about:blank' : (salesOnly ? '/haavn-black.html?v=40&sales=1' : '/haavn-black.html?v=40')} allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

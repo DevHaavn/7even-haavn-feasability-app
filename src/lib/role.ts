@@ -1,12 +1,16 @@
 import React from 'react'
 
-export type Role = 'admin' | 'external' | 'homes' | 'haavnonly'
+export type Role = 'admin' | 'external' | 'homes' | 'haavnonly' | 'blacksales'
 
 export const EXTERNAL_PASSWORD = '7EvenConsult!!!'
 
 // HAAVN HOMES builder login (Jeffrey Witbreuk + team). Locked to the HAAVN
 // Homes / Black Series feasibility studio and the ATRIUM (HM) CRM only — no
 // access to the 7EVEN feasibility studio or Capital Base.
+// HAAVN BLACK sales team (e.g. Mike Furniss, QLD): the BLACK home screen with
+// Display (client presentations) and the sales ATRIUM only. No CRM, feasibility
+// studio, Capital Base or any other company. Login hash lives in PasswordGate.
+
 export const HOMES_PASSWORD = 'HaavnHomes!!!'
 
 // General HAAVN staff login (most of the team). Full access to HAAVN and

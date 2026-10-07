@@ -17,9 +17,9 @@ import { setStoredRole, getStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD, HAAVN_
 const CORRECT = 'Atrium7x!!!'
 const STORAGE_KEY = '7even_auth'
 
-// Mike Furniss (HAAVN BLACK sales manager, Queensland). Same locked-down
-// 'homes' role as the builder login — HAAVN BLACK and its sales ATRIUM only,
-// never 7EVEN, HAAVN or Capital Base. Kept as a SHA-256 hash so the
+// Mike Furniss (HAAVN BLACK sales manager, Queensland). 'blacksales' role:
+// HAAVN BLACK Display and the sales ATRIUM only. No CRM, feasibility studio,
+// 7EVEN, HAAVN or Capital Base. Kept as a SHA-256 hash so the
 // plaintext never ships in the bundle.
 const MIKE_HASH = '7b34bf632ec2bb296b6520977be17cfed9b29634188b8603898a8c974f4d5a04'
 const MIKE_NAME = 'Mike Furniss'
@@ -210,9 +210,9 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
     let mike = false
     try { mike = (await sha256Hex(value)) === MIKE_HASH } catch { /* no crypto.subtle: fall through */ }
     if (mike) {
-      // HAAVN BLACK sales manager: restricted 'homes' role, signed in as himself.
+      // HAAVN BLACK sales manager: sales-only role, signed in as himself.
       markAuthenticated()
-      setStoredRole('homes')
+      setStoredRole('blacksales')
       try { localStorage.setItem('atrium_me', MIKE_NAME) } catch { /* ignore */ }
       onAuth()
     } else if (value === CORRECT) {

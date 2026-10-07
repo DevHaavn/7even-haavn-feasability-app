@@ -254,10 +254,10 @@ export default function App() {
   // HAAVN HOMES builder login (Jeffrey Witbreuk + team) — locked to the HAAVN
   // Homes / Black Series feasibility studio and the ATRIUM (HM) CRM. Never the
   // 7EVEN Feasibility Studio, Capital Base or the project list.
-  if (role === 'homes') {
+  if (role === 'homes' || role === 'blacksales') {
     return (
       <RoleContext.Provider value={role}>
-        <HaavnHomes restricted suspended={displaySuiteOpen} onOpenCrm={() => setHomesCrmOpen(true)} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
+        <HaavnHomes restricted salesOnly={role === 'blacksales'} suspended={displaySuiteOpen} onOpenCrm={role === 'homes' ? () => setHomesCrmOpen(true) : undefined} onOpenDisplaySuite={() => setDisplaySuiteOpen(true)} onOpenAtriumBlack={() => setHomesAtriumOpen(true)} onLogout={handleLogout} onBack={handleLogout} />
         {/* Above HAAVN HOMES (z-index 600) — the HAAVN Homes-exclusive CRM. */}
         {homesCrmOpen && <HaavnHomesCrm onClose={() => setHomesCrmOpen(false)} onLogout={handleLogout} />}
         {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
