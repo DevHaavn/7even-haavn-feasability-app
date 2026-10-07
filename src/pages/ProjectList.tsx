@@ -295,7 +295,46 @@ const CSS = `
     padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
   .ath-pmenu.on{transform:none}
   .ath-plist{max-height:32vh}}
+/* ── 7EVEN menu, quieter ─────────────────────────────────────────────
+   The stack of stadium pills becomes an index: name left, what it is on
+   the right, a hairline between, the row lifting and indenting on hover.
+   Same component as the company chooser on the access screen, so the whole
+   entry sequence is one idea. Gold is kept, but only as the hover state,
+   which honours the menu card rule without colouring every row.
+   Appended deliberately: these override the rules above rather than
+   editing twenty of them.                                              */
+.ath-root.menu-open .ath-dim{background:
+  linear-gradient(90deg,rgba(10,11,12,.97) 0%,rgba(10,11,12,.90) 38%,rgba(10,11,12,.66) 72%,rgba(10,11,12,.48) 100%),
+  radial-gradient(145% 115% at 0% 100%,rgba(6,7,8,.92),transparent 66%)}
+.ath-dim{transition:background .55s cubic-bezier(.16,1,.3,1)}
+.ath-root.menu-open .ath-vign{opacity:0;transition:opacity .55s cubic-bezier(.16,1,.3,1)}
+
+.ath-pmenu{width:min(430px,92vw);border-radius:0}
+.ath-mh{justify-content:flex-start;width:100%;max-width:none;margin:0;padding:0 0 8px;border-bottom:0;
+  font-family:'Inter',system-ui,sans-serif;font-size:12px;letter-spacing:0;text-transform:none;
+  color:rgba(243,242,238,.6);text-shadow:none}
+.ath-base,.ath-brandrow,.ath-hor7{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:baseline;
+  width:100%;max-width:none;margin:0;padding:13px 0;white-space:normal;text-align:left;
+  background:transparent;border:0;border-top:1px solid rgba(243,242,238,.2);border-radius:0;box-shadow:none;
+  transition:padding .35s cubic-bezier(.16,1,.3,1),border-color .35s}
+.ath-hor7{border-top:1px solid rgba(243,242,238,.2)}
+.ath-hor7 img,.ath-base img{filter:none}
+.ath-base:hover,.ath-brandrow:hover,.ath-hor7:hover,
+.ath-base.on{padding-left:12px;background:transparent;border-top-color:rgba(214,179,106,.6);box-shadow:none}
+.ath-rowname{font-family:'Inter',system-ui,sans-serif;font-size:18px;font-weight:300;letter-spacing:0;
+  text-transform:none;color:rgba(243,242,238,.72);text-shadow:none;transition:color .35s}
+.ath-rowname.gold{color:rgba(243,242,238,.72)}
+.ath-base:hover .ath-rowname,.ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname{color:#d6b36a}
+.ath-rowdesc{font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:300;letter-spacing:0;
+  color:rgba(243,242,238,.42);transition:color .35s;white-space:nowrap}
+.ath-base:hover .ath-rowdesc,.ath-brandrow:hover .ath-rowdesc,.ath-hor7:hover .ath-rowdesc{color:rgba(243,242,238,.7)}
+.ath-brandrow:last-of-type{border-bottom:1px solid rgba(243,242,238,.2)}
+.ath-bottomrow{justify-content:flex-start;margin-top:22px}
+.ath-pinrow{width:100%;margin:0 0 2px;border-radius:0;border:0;border-top:1px solid rgba(214,179,106,.45);background:transparent;padding:12px 0}
+.ath-pinlbl,.ath-pinhint{font-family:'Inter',system-ui,sans-serif;letter-spacing:0;text-transform:none;font-size:11px}
+.ath-pininp{font-family:'Inter',system-ui,sans-serif;letter-spacing:.4em}
 `
+
 
 /** Session flag for the BASE PIN. Versioned: bump it whenever the PIN changes. */
 export const BASE_PIN_KEY = 'base_pin_ok_0808'
@@ -402,8 +441,8 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
                   the old feasibility studio's project list is switched off (its
                   data is untouched in the store). PIN first, then straight in. */}
               <button className="ath-base" title="BASE — ATRIUM Engine" onClick={() => { if (baseUnlocked) { setZeroedOpen(true); setMenuOpen(false) } else { setPinPrompt(v => !v); setPinVal(''); setPinErr(false) } }}>
-                <span className="ath-rowname">BASE</span>
-                <span className="g">→</span>
+                <span className="ath-rowname">Base</span>
+                <span className="ath-rowdesc">Feasibility engine</span>
               </button>
               {pinPrompt && !baseUnlocked && (
                 <div className={`ath-pinrow${pinErr ? ' err' : ''}`}>
@@ -428,20 +467,20 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
               )}
               {/* HORI7ON — 7EVEN sub-brand: project overview display */}
               <button className="ath-brandrow" title="HORI7ON — Project Overview Display" onClick={() => { window.location.href = '/hori7on.html' }}>
-                <span className="ath-rowname">HORI7ON</span>
-                <span className="g">→</span>
+                <span className="ath-rowname">Hori7on</span>
+                <span className="ath-rowdesc">Investor showcase</span>
               </button>
               {/* ENTERPRISE — Capital Base / accounts administration (replaces the wings button) */}
               {role !== 'external' && (
                 <button className="ath-hor7" title="ENTERPRISE — Accounts &amp; Administration" onClick={() => { setCapitalOpen(true); setMenuOpen(false) }}>
-                  <span className="ath-rowname gold">ENTERPRISE</span>
-                  <span className="g">→</span>
+                  <span className="ath-rowname gold">Enterprise</span>
+                  <span className="ath-rowdesc">The company</span>
                 </button>
               )}
               {/* PROJECT 7 — the philanthropic arm of 7EVEN */}
               <button className="ath-brandrow" title="PROJECT 7 — Not for profit" onClick={() => { window.location.href = '/project-7.html' }}>
-                <span className="ath-rowname">PROJECT 7</span>
-                <span className="g">→</span>
+                <span className="ath-rowname">Project 7</span>
+                <span className="ath-rowdesc">Not for profit</span>
               </button>
               <div className="ath-bottomrow">
                 <button className="ath-atriumicon" title="ATRIUM — choose a company" onClick={() => { onHome?.(); setMenuOpen(false) }}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22.7 81.2 L50 18.8 L77.3 81.2" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="miter" strokeLinecap="butt" /></svg></button>
