@@ -30,19 +30,6 @@ html[data-theme="dark"] .agw .cab-scrim{background:linear-gradient(180deg,rgba(1
 .agw .cab-sub{color:var(--g-ink2)}
 .agw .cab-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .cab-pillars{gap:18px;max-width:1000px}
-.agw .cab-ledbox:nth-child(1){--pc:var(--at-teal)}
-.agw .cab-ledbox:nth-child(2){--pc:var(--at-pink)}
-.agw .cab-pcard{background:var(--g-glass)!important;border:0!important;border-radius:20px;padding:26px 24px 22px;min-height:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:border-color .2s,box-shadow .2s,transform .2s}
-.agw .cab-pcard::before{content:"";position:absolute;top:0;left:22px;right:22px;height:3px;border-radius:0 0 3px 3px;background:var(--pc,#d6b36a)}
-.agw .cab-pcard:hover,.agw .cab-pcard:focus-visible{background:var(--g-glass)!important;box-shadow:0 0 30px -16px rgba(214,179,106,.6);}
-.agw .cab-pnum{color:var(--g-ink3)!important}
-.agw .cab-papex{border-color:var(--g-line)!important;color:var(--g-ink3)!important}
-.agw .cab-psub{display:inline-block;align-self:flex-start;padding:5px 10px;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--pc,#d6b36a) 85%,transparent);background:color-mix(in srgb,var(--pc,#d6b36a) 22%,transparent);color:color-mix(in srgb,var(--pc,#d6b36a) 55%,var(--g-ink))!important;font-size:9px;font-weight:600;letter-spacing:.2em}
-.agw .cab-ptitle{color:var(--g-ink)!important;font-weight:300}
-.agw .cab-pline{background:var(--g-line)}
-.agw .cab-pblurb{color:var(--g-ink2)}
-.agw .cab-pow .k{color:var(--g-ink3)}
-.agw .cab-penter{color:var(--g-ink2)}
 .agw .cab-logout,.agw .cab-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
 .agw .cab-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .cab-wm{color:var(--g-ink);font-size:clamp(34px,5vw,48px);margin-top:18px}
@@ -66,19 +53,6 @@ html[data-theme="dark"] .agw .hmh-scrim{background:linear-gradient(180deg,rgba(1
 .agw .hmh-sub{color:var(--g-ink2)}
 .agw .hmh-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .hmh-pillars{gap:18px;max-width:1000px}
-.agw .hmh-ledbox:nth-child(1){--pc:var(--at-blue)}
-.agw .hmh-ledbox:nth-child(2){--pc:var(--at-yellow)}
-.agw .hmh-pcard{background:var(--g-glass)!important;border:0!important;border-radius:20px;padding:26px 24px 22px;min-height:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:border-color .2s,box-shadow .2s,transform .2s}
-.agw .hmh-pcard::before{content:"";position:absolute;top:0;left:22px;right:22px;height:3px;border-radius:0 0 3px 3px;background:var(--pc,#d6b36a)}
-.agw .hmh-pcard:hover,.agw .hmh-pcard:focus-visible{background:var(--g-glass)!important;box-shadow:0 0 30px -16px rgba(214,179,106,.6);}
-.agw .hmh-pnum{color:var(--g-ink3)!important}
-.agw .hmh-papex{border-color:var(--g-line)!important;color:var(--g-ink3)!important}
-.agw .hmh-psub{display:inline-block;align-self:flex-start;padding:5px 10px;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--pc,#d6b36a) 85%,transparent);background:color-mix(in srgb,var(--pc,#d6b36a) 22%,transparent);color:color-mix(in srgb,var(--pc,#d6b36a) 55%,var(--g-ink))!important;font-size:9px;font-weight:600;letter-spacing:.2em}
-.agw .hmh-ptitle{color:var(--g-ink)!important;font-weight:300}
-.agw .hmh-pline{background:var(--g-line)}
-.agw .hmh-pblurb{color:var(--g-ink2)}
-.agw .hmh-pow .k{color:var(--g-ink3)}
-.agw .hmh-penter{color:var(--g-ink2)}
 .agw .hmh-logout,.agw .hmh-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
 .agw .hmh-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .hmh-wm{color:var(--g-ink);font-size:clamp(34px,5vw,48px);margin-top:18px}
@@ -99,19 +73,6 @@ html[data-theme="dark"] .agw .hmh-scrim{background:linear-gradient(180deg,rgba(1
 .agw .abh-sub{color:var(--g-ink2)}
 .agw .abh-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .abh-grid{gap:18px;max-width:1000px}
-.agw .abh-ledbox:nth-child(1){--pc:var(--at-blue)}
-.agw .abh-ledbox:nth-child(2){--pc:var(--at-green)}
-.agw .abh-card{background:var(--g-glass)!important;border:0!important;border-radius:20px;padding:26px 24px 22px;min-height:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:border-color .2s,box-shadow .2s,transform .2s}
-.agw .abh-card::before{content:"";position:absolute;top:0;left:22px;right:22px;height:3px;border-radius:0 0 3px 3px;background:var(--pc,#d6b36a)}
-.agw .abh-card:hover,.agw .abh-card:focus-visible{background:var(--g-glass)!important;box-shadow:0 0 30px -16px rgba(214,179,106,.6)}
-.agw .abh-num{color:var(--g-ink3)!important}
-.agw .abh-apex{border-color:var(--g-line)!important;color:var(--g-ink3)!important}
-.agw .abh-psub{display:inline-block;align-self:flex-start;padding:5px 10px;border-radius:8px;border-left:3px solid color-mix(in srgb,var(--pc,#d6b36a) 85%,transparent);background:color-mix(in srgb,var(--pc,#d6b36a) 22%,transparent);color:color-mix(in srgb,var(--pc,#d6b36a) 55%,var(--g-ink))!important;font-size:9px;font-weight:600;letter-spacing:.2em}
-.agw .abh-ptitle{color:var(--g-ink)!important;font-weight:300}
-.agw .abh-pline{background:var(--g-line)}
-.agw .abh-blurb{color:var(--g-ink2)}
-.agw .abh-pow .k{color:var(--g-ink3)}
-.agw .abh-enter{color:var(--g-ink2)}
 .agw .abh-logout,.agw .abh-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
 .agw .abh-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .abh-title{color:var(--g-ink);font-size:clamp(26px,3.6vw,38px);letter-spacing:.06em}
@@ -121,4 +82,13 @@ html[data-theme="light"] .agw .cab-pow img,html[data-theme="light"] .agw .abh-po
 @media(max-width:700px){.agw .cab-head,.agw .hmh-head,.agw .abh-head{padding:12px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 12px)}.agw .cab-brand .tag,.agw .hmh-brand .tag,.agw .abh-brand .tag{display:none}}
 
 .agw .cab-ledbox,.agw .hmh-ledbox,.agw .abh-ledbox{display:flex}
-.agw .cab-pcard,.agw .hmh-pcard,.agw .abh-card{flex:1}
+
+/* ---- pillar cards: the original ATRIUM menu cards (transparent, rotating soft
+   gold LED ring + glow, fold-over hover). No pastel bars or chips. Rule for every
+   ATRIUM menu and admin / management hub. Only the text tones follow the theme. */
+html[data-theme="dark"] .agw .cab-pcard,html[data-theme="dark"] .agw .hmh-pcard,html[data-theme="dark"] .agw .abh-card{color:var(--g-ink)}
+html[data-theme="dark"] .agw .cab-pcard:hover,html[data-theme="dark"] .agw .hmh-pcard:hover,html[data-theme="dark"] .agw .abh-card:hover,html[data-theme="dark"] .agw .cab-pcard:focus-visible,html[data-theme="dark"] .agw .hmh-pcard:focus-visible,html[data-theme="dark"] .agw .abh-card:focus-visible{background:rgba(255,255,255,.07)}
+html[data-theme="dark"] .agw :is(.cab-pnum,.hmh-pnum,.abh-num,.cab-psub,.hmh-psub,.abh-psub,.cab-ptitle,.hmh-ptitle){color:#d6b36a}
+html[data-theme="dark"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){border-color:rgba(214,179,106,.5);color:#d6b36a}
+html[data-theme="dark"] .agw :is(.cab-pblurb,.hmh-pblurb,.abh-blurb,.cab-penter,.hmh-penter,.abh-enter){color:var(--g-ink2)}
+html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rgba(255,255,255,.12)}
