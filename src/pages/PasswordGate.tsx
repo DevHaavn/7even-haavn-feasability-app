@@ -64,49 +64,72 @@ export type Company = '7even' | 'haavn' | 'black'
 const CSS = `
 .pg-root{position:fixed;inset:0;background:#0B0D0F;color:#F3F2EE;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
 .pg-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.pg-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(11,13,15,.1),rgba(11,13,15,.55) 80%)}
-.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 56px}
-.pg-stage{--cy:max(calc(50% - 1.6in),150px)}
-.pg-hero{position:fixed;left:50%;top:var(--cy);transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}
-.pg-name{display:flex;align-items:center;font:100 clamp(44px,8.2vw,112px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;text-shadow:0 0 18px rgba(243,242,238,.22),0 0 60px rgba(243,242,238,.08);opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
+.pg-scrim{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(11,13,15,.94),rgba(11,13,15,.70) 62%,rgba(11,13,15,.56)),
+    radial-gradient(120% 90% at 0% 100%,rgba(11,13,15,.80),transparent 62%)}
+.pg-stage{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:flex-end;padding:0 clamp(26px,5vw,72px) clamp(96px,13vh,140px)}
+.pg-hero{display:flex;flex-direction:column;align-items:flex-start;gap:13px}
+.pg-name{display:flex;align-items:center;font:100 clamp(32px,5.2vw,64px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;padding-left:.34em;color:#F3F2EE;opacity:0;animation:pgNameIn 3.2s ease .3s forwards}
 .pg-a{position:relative;display:block;width:.66em;height:.74em;margin-right:.34em;flex:none;animation:pgAGapIn 3.2s ease .3s forwards}
-.pg-a svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 18px rgba(243,242,238,.22)) drop-shadow(0 0 60px rgba(243,242,238,.08))}
+.pg-a svg{display:block;width:100%;height:100%;overflow:visible}
 @keyframes pgAGapIn{0%{margin-right:.7em}100%{margin-right:.34em}}
 .pg-still .pg-a{animation:none;margin-right:.34em}
-.pg-byrow{display:flex;align-items:center;gap:16px;opacity:0;animation:pgFade 1.6s ease 2.6s forwards}
-.pg-byrow i{font:italic 400 clamp(22px,2.6vw,32px) 'Cormorant Garamond',serif;color:#d6b36a;text-shadow:0 0 22px rgba(214,179,106,.35)}
-.pg-byrow svg{height:clamp(38px,4.2vw,54px);width:auto;overflow:visible;display:block}
-.pg-under{position:fixed;left:0;right:0;top:calc(var(--cy) + 122px);display:flex;flex-direction:column;align-items:center;padding:0 24px}
+.pg-byrow{display:flex;align-items:center;gap:10px;opacity:0;animation:pgFade 1.6s ease 2.6s forwards}
+.pg-byrow i{font:italic 400 clamp(15px,1.7vw,20px) 'Cormorant Garamond',serif;color:#B5B5B2}
+.pg-byrow svg{height:clamp(19px,2.2vw,26px);width:auto;overflow:visible;display:block}
+.pg-under{display:flex;flex-direction:column;align-items:flex-start;width:min(440px,100%)}
 
 
-.pg-tag{font:400 10px 'JetBrains Mono',monospace;letter-spacing:.34em;color:rgba(243,242,238,.62);margin:14px 0 0;text-align:center}
-.pg-panel{margin-top:calc(44px + 1.5cm);width:min(270px,100%);min-height:150px;position:relative}
+.pg-tag{font:300 15px Inter,system-ui,sans-serif;letter-spacing:0;color:#B5B5B2;margin:24px 0 0;text-align:left;max-width:32ch;line-height:1.66}
+.pg-panel{margin-top:30px;width:100%;min-height:236px;position:relative}
 .pg-view{position:absolute;inset:0 0 auto 0;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .6s,transform .6s}
 .pg-view.on{opacity:1;transform:none;pointer-events:auto}
 .pg-view.shake{animation:pg-shake .4s ease}
 @keyframes pg-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-.pg-lbl{font:500 10px Inter,system-ui,sans-serif;letter-spacing:.3em;color:rgba(243,242,238,.6);text-align:center}
+.pg-lbl{font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;color:#9A9A97;text-align:left}
 .pg-field{position:relative}
-.pg-inp{width:100%;height:46px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.45);color:#F3F2EE;font:400 14px Inter,system-ui,sans-serif;letter-spacing:.24em;padding:0 76px 0 24px;outline:none;transition:border-color .3s,box-shadow .3s;box-sizing:border-box}
-.pg-inp::placeholder{color:rgba(243,242,238,.35)}
-.pg-inp:focus{border-color:rgba(243,242,238,.85);box-shadow:0 0 0 1px rgba(243,242,238,.4),0 0 26px rgba(243,242,238,.22)}
+.pg-inp{width:100%;height:38px;border:0;border-bottom:1px solid rgba(243,242,238,.34);background:transparent;color:#F3F2EE;font:300 15px Inter,system-ui,sans-serif;letter-spacing:0;padding:0 58px 9px 0;outline:none;transition:border-color .3s;box-sizing:border-box}
+.pg-inp::placeholder{color:#9A9A97}
+.pg-inp:focus{border-bottom-color:#F3F2EE}
 .pg-inp.err{border-color:#e0645c}
 .pg-inp:-webkit-autofill{-webkit-text-fill-color:#F3F2EE;transition:background-color 600000s 0s}
-.pg-show{position:absolute;right:8px;top:5px;height:36px;padding:0 14px;border-radius:999px;border:0;background:transparent;color:rgba(243,242,238,.6);font:500 10px Inter,system-ui,sans-serif;letter-spacing:.2em;cursor:pointer;text-transform:uppercase}
-.pg-btn{height:44px;border-radius:999px;border:1px solid rgba(243,242,238,.3);background:rgba(11,13,15,.5);color:#F3F2EE;font:500 12px Inter,system-ui,sans-serif;letter-spacing:.3em;padding-left:.3em;cursor:pointer;transition:border-color .3s,box-shadow .3s,background .3s;width:100%;display:flex;align-items:center;justify-content:center;gap:14px}
-.pg-btn:hover{border-color:rgba(243,242,238,.85);box-shadow:0 0 26px rgba(243,242,238,.28);background:rgba(243,242,238,.08)}
-.pg-btn.go{border-color:rgba(243,242,238,.6);box-shadow:0 0 22px rgba(243,242,238,.16)}
-.pg-x7{height:15px;width:auto;display:block}
-.pg-err{color:#e0645c;font:400 10px 'JetBrains Mono',monospace;letter-spacing:.16em;text-align:center;min-height:12px}
-.pg-co{display:grid;gap:12px}
-.pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,13,15,.72);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.22em;color:rgba(243,242,238,.6)}
+.pg-show{position:absolute;right:0;top:4px;height:28px;padding:0;border:0;background:transparent;color:#9A9A97;font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;cursor:pointer}
+.pg-show:hover{color:#F3F2EE}
+.pg-btn{border:0;border-bottom:1px solid rgba(243,242,238,.34);background:transparent;color:#F3F2EE;
+  font:300 15px Inter,system-ui,sans-serif;letter-spacing:0;cursor:pointer;transition:border-color .3s;
+  display:inline-flex;align-items:center;gap:9px;padding:0 0 6px;align-self:flex-start}
+.pg-btn:hover{border-bottom-color:#F3F2EE}
+/* the chooser is an index, not three buttons */
+.pg-cobtn{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:baseline;width:100%;
+  padding:17px 0;border:0;border-top:1px solid rgba(243,242,238,.20);background:transparent;cursor:pointer;
+  text-align:left;font-family:inherit;transition:padding .35s cubic-bezier(.16,1,.3,1),border-color .35s}
+.pg-cobtn:last-child{border-bottom:1px solid rgba(243,242,238,.20)}
+.pg-cobtn .n{font:300 20px Inter,system-ui,sans-serif;color:#B5B5B2;transition:color .35s}
+.pg-cobtn .d{font:300 12.5px Inter,system-ui,sans-serif;color:#9A9A97;transition:color .35s}
+.pg-cobtn:hover{padding-left:12px;border-top-color:rgba(243,242,238,.34)}
+.pg-cobtn:hover .n{color:#F3F2EE}
+.pg-cobtn:hover .d{color:#B5B5B2}
+.pg-cobtn:focus-visible{outline:1px solid rgba(243,242,238,.5);outline-offset:4px}
+.pg-x7{height:11px;width:auto;display:block}
+.pg-err{color:#e0645c;font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;text-align:left;min-height:14px}
+.pg-co{display:flex;flex-direction:column}
+.pg-foot{position:absolute;left:0;right:0;bottom:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(26px,5vw,72px);background:transparent;font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;color:#9A9A97}
 .pg-foot b{font-weight:400;color:#F3F2EE}
 .pg-atriummark{width:28px;height:28px;flex-shrink:0;border-radius:999px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,242,238,.35);color:#F3F2EE}
 .pg-atriummark svg{width:15px;height:15px;display:block}
-.pg-live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fe07a;margin-right:8px;box-shadow:0 0 8px #2fe07a}
-.pg-chips{display:flex;gap:8px;align-items:center}
-.pg-chip{border:1px solid rgba(243,242,238,.28);border-radius:999px;padding:8px 14px;color:inherit;text-decoration:none;transition:.3s}
-.pg-chip:hover{border-color:rgba(243,242,238,.8);color:#fff}
+/* status is a word, not a blinking light */
+.pg-live i{display:none}
+.pg-chips{display:flex;gap:20px;align-items:center}
+/* the install control is a shared component with inline styles and a gold glass
+   skin. scoped to this footer only, so every other screen keeps its own look. */
+.pg-foot .glass-btn-gold{background:none!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;padding:0!important;color:#9A9A97!important;font:300 12px Inter,system-ui,sans-serif!important;
+  letter-spacing:0!important;text-transform:none!important;gap:0!important}
+.pg-foot .glass-btn-gold:hover{color:#F3F2EE!important}
+.pg-foot .glass-btn-gold img{display:none!important}
+.pg-chip{border:0;border-radius:0;padding:0;color:inherit;text-decoration:none;transition:color .3s}
+.pg-chip:hover{color:#F3F2EE}
 
 .pg-bar-reveal{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:left top;mask-position:left top;
   -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 82%,rgba(0,0,0,0) 100%);
@@ -132,7 +155,17 @@ const CSS = `
 @keyframes pgBreathe{0%,100%{opacity:.32}50%{opacity:.75}}
 @keyframes pgHaloInW{to{opacity:.34}}
 @keyframes pgBreatheW{0%,100%{opacity:.2}50%{opacity:.48}}
-@media(max-width:600px){.pg-name{font-size:clamp(36px,11vw,60px)}.pg-chips{display:none}.pg-foot{justify-content:center}}
+@media(max-width:600px){
+  .pg-name{font-size:clamp(30px,9vw,48px)}
+  .pg-stage{padding:0 22px clamp(84px,11vh,112px)}
+  .pg-tag{font-size:14px;margin-top:20px}
+  /* the install control is the one thing that matters most on a phone, so the
+     two .au links go and it stays. centring the row collided the ring mark
+     with the clock, so the footer keeps its ends and just tightens. */
+  .pg-foot{padding:0 22px;font-size:11px;gap:14px}
+  .pg-foot .pg-chip{display:none}
+  .pg-live{white-space:nowrap}
+}
 `
 
 function GateClock() {
@@ -263,11 +296,11 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
           <div className="pg-byrow"><i>by</i><SevenXHero /></div>
         </div>
         <div className="pg-under">
-        <p className="pg-tag">ENGINE &nbsp;|&nbsp; PRECISION &nbsp;|&nbsp; INTELLIGENCE</p>
+        <p className="pg-tag">Engine, precision and intelligence.</p>
 
         <div className="pg-panel">
           <div className={`pg-view${stage === 'login' ? ' on' : ''}${shake ? ' shake' : ''}`}>
-            <div className="pg-lbl">PRIVATE ACCESS</div>
+            <div className="pg-lbl">Private access</div>
             <div className="pg-field">
               <input
                 id="pg-code"
@@ -277,22 +310,30 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
                 value={value}
                 onChange={e => { setValue(e.target.value); setError(false) }}
                 onKeyDown={e => e.key === 'Enter' && attempt()}
-                placeholder="ACCESS CODE"
+                placeholder="Access code"
                 autoComplete="off"
                 tabIndex={stage === 'login' ? 0 : -1}
               />
               <button className="pg-show" type="button" onClick={() => setShow(s => !s)}>{show ? 'hide' : 'show'}</button>
             </div>
-            <div className="pg-err">{error ? 'INCORRECT ACCESS CODE' : ''}</div>
-            <button className="pg-btn go" type="button" onClick={attempt}>ENTER <SevenX className="pg-x7" /></button>
+            <div className="pg-err">{error ? 'Incorrect access code' : ''}</div>
+            <button className="pg-btn" type="button" onClick={attempt}>Enter <SevenX className="pg-x7" /></button>
           </div>
 
           <div className={`pg-view${stage === 'co' ? ' on' : ''}`}>
-            <div className="pg-lbl">CHOOSE YOUR COMPANY</div>
+            <div className="pg-lbl">Choose your company</div>
             <div className="pg-co">
-              {!haavnOnly && <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('7even')}>7EVEN</button>}
-              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('haavn')}>HAAVN</button>
-              <button className="pg-btn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('black')}>HAAVN BLACK</button>
+              {!haavnOnly && (
+                <button className="pg-cobtn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('7even')}>
+                  <span className="n">7EVEN</span><span className="d">Developments</span>
+                </button>
+              )}
+              <button className="pg-cobtn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('haavn')}>
+                <span className="n">HAAVN</span><span className="d">Precision</span>
+              </button>
+              <button className="pg-cobtn" type="button" tabIndex={stage === 'co' ? 0 : -1} onClick={() => choose('black')}>
+                <span className="n">HAAVN BLACK</span><span className="d">Homes</span>
+              </button>
             </div>
           </div>
         </div>
