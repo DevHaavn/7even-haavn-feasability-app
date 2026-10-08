@@ -12,7 +12,7 @@ const CRM_ALLOWED_EMAILS = ['jamie@7even.au', 'daniel@7even.au', 'lewis@7even.au
 const CRM_AUTH_KEY = 'capital_crm_email'
 
 const GATE_CSS = `
-.ceg-wrap{position:fixed;inset:0;z-index:500;overflow:hidden;display:flex;flex-direction:column;background:#eceae4;
+.ceg-wrap{position:fixed;inset:0;z-index:500;overflow:hidden;display:flex;flex-direction:column;background:#787675;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .ceg-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
   filter:invert(1) brightness(.73) contrast(.82) saturate(.12) sepia(.05)}
@@ -86,6 +86,9 @@ function CrmEmailGate({ onPass, onBack, onLogout }: { onPass: (email: string) =>
   return (
     <div className="ceg-wrap">
       <style>{GATE_CSS}</style>
+
+      <video className="ceg-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="ceg-scrim" />
 
       <div className="ceg-head">
         <button className="ceg-mbtn" onClick={onBack} title="Back to Capital Base" aria-label="Back to Capital Base">

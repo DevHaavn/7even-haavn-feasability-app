@@ -5,7 +5,6 @@ import { useStore } from '../../store'
 import * as db from '../../db'
 import CapitalPillar from './CapitalPillar'
 import GatewaySeg from '../../components/GatewaySeg'
-import { useAtriumTheme } from '../../lib/atriumTheme'
 
 export type PillarId = 'budgets' | 'crm'
 
@@ -139,8 +138,6 @@ const CSS = `
 `
 
 export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly }: { onClose: () => void; onLogout: () => void; initialPillar?: PillarId; crmOnly?: boolean }) {
-  // The moving video belongs to the dark theme. Light is a flat bone ground.
-  const theme = useAtriumTheme()
   const { projects } = useStore()
   const [pillar, setPillar] = useState<PillarId | null>(initialPillar ?? null)
 
@@ -164,10 +161,8 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
   return (
     <div className="cab-root agw">
       <style>{CSS}</style>
-      {theme === 'dark' && <>
-        <video className="cab-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
-        <div className="cab-scrim" />
-      </>}
+      <video className="cab-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="cab-scrim" />
 
       {/* Header */}
       <div className="cab-head">

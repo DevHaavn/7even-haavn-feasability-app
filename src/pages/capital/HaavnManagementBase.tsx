@@ -2,7 +2,6 @@ import RefreshButton from '../../components/RefreshButton'
 import React, { useState } from 'react'
 import SiteLinks from '../../components/SiteLinks'
 import GatewaySeg from '../../components/GatewaySeg'
-import { useAtriumTheme } from '../../lib/atriumTheme'
 import HaavnManagementPillar from './HaavnManagementPillar'
 
 // 'crm' and 'meetings' are retired from the hub listing (see HM_PILLARS) but
@@ -160,8 +159,6 @@ const CSS = `
 `
 
 export default function HaavnManagementBase({ onClose, onLogout, pillars }: { onClose: () => void; onLogout: () => void; pillars?: HMPillar[] }) {
-  // The moving video belongs to the dark theme. Light is a flat bone ground.
-  const theme = useAtriumTheme()
   const [pillar, setPillar] = useState<HMPillarId | null>(null)
   // Set when pillar 01 asks to open a specific meeting in pillar 02 (see
   // HaavnManagementPillar's onOpenMeeting) — carried through as a query param
@@ -184,10 +181,8 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
   return (
     <div className="hmh-root agw">
       <style>{CSS}</style>
-      {theme === 'dark' && <>
-        <video className="hmh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
-        <div className="hmh-scrim" />
-      </>}
+      <video className="hmh-bg" autoPlay muted loop playsInline preload="auto" src="/haavn-black-bg.mp4" />
+      <div className="hmh-scrim" />
 
       {/* Header */}
       <div className="hmh-head">

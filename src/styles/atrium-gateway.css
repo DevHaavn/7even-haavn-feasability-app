@@ -61,7 +61,8 @@ html[data-theme="dark"] .agw .hmh-scrim{background:linear-gradient(180deg,rgba(1
 
 /* ---- abh-wrap ---- */
 .agw.abh-wrap{background:var(--g-bg0)!important;color:var(--g-ink)}
-.agw .abh-bg,.agw .abh-scrim{display:none!important}
+html[data-theme="dark"] .agw .abh-bg{filter:brightness(.55) saturate(.4)}
+html[data-theme="dark"] .agw .abh-scrim{background:linear-gradient(180deg,rgba(11,13,15,.35),rgba(11,13,15,.2) 42%,rgba(11,13,15,.5))}
 .agw .abh-head{position:sticky;top:0;z-index:20;background:var(--g-top);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--g-line);padding:14px 28px;gap:14px;flex-wrap:nowrap}
 .agw .abh-mbtn{width:34px;height:34px;border-color:var(--g-ink4);color:var(--g-ink)}
 .agw .abh-mbtn:hover{border-color:#d6b36a}
@@ -134,13 +135,14 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
    best), the tertiary grey #83868e (3.0:1) and the brand tag and Dark/Light
    switch used it. The body text also sat straight on the moving video, which
    darkens in places. So:
-   - the moving video is dark theme only (see the components), so light is a flat
-     bone ground and every text colour below is measured against that
+   - the moving video stays in both themes. Text no longer relies on the video
+     being pale: the header block sits on a soft bone wash and each card is frosted
+     bone glass, so every colour below is measured against a known pale and the
+     video still moves, at full strength, around and behind them
    - card gold goes to a deeper bronze #6f5217 (5.0:1 on #d9d7d0)
    - the tertiary grey token goes to #575b63 (4.6:1 or better)
    - the brand tag and switch use the secondary ink
    The gold hue, the rotating ring and the menu card rule are untouched. */
-html[data-theme="light"] .agw:is(.cab-root,.hmh-root){background:var(--g-bg0)}
 html[data-theme="light"] .agw :is(.cab-psub,.hmh-psub,.abh-psub,.cab-pnum,.hmh-pnum,.abh-num,.cab-ptitle,.hmh-ptitle,.abh-ptitle){color:#6f5217!important}
 html[data-theme="light"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){color:#6f5217!important;border-color:rgba(111,82,23,.55)!important}
 .agw :is(.cab-brand,.hmh-brand,.abh-brand,.ceg-brand) .tag{color:var(--g-ink2)}
@@ -159,3 +161,11 @@ html[data-theme="light"] .agw .abh-ledbox::before{
   background:conic-gradient(from var(--abhA),transparent 0deg,#a8802c 130deg,#c9a041 160deg,#a8802c 190deg,transparent 310deg,transparent 360deg);
   filter:drop-shadow(0 0 5px rgba(168,128,44,.35))}
 html[data-theme="light"] .agw :is(.cab-ledbox,.hmh-ledbox,.abh-ledbox)::after{opacity:.4}
+
+/* Light theme, the video at full strength with text on frosted bone. */
+html[data-theme="light"] .agw :is(.cab-body,.hmh-body,.abh-in)::before{content:'';position:absolute;top:8px;left:50%;
+  width:min(820px,96%);height:310px;transform:translateX(-50%);z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(244,242,236,.9),rgba(244,242,236,.62) 62%,rgba(244,242,236,0))}
+html[data-theme="light"] .agw :is(.cab-pcard,.hmh-pcard,.abh-card){background:rgba(244,242,236,.6);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html[data-theme="light"] .agw :is(.cab-pcard,.hmh-pcard,.abh-card):is(:hover,:focus-visible){background:rgba(244,242,236,.74)}
