@@ -1,0 +1,125 @@
+/* ATRIUM Workflow and Meeting Management, the look.
+   Linked last in <head> of atrium-workflow.html and atrium-meeting-hub.html,
+   after atrium-language.css. Removing the <link> puts both pages back exactly.
+
+   Quiet base: the menu is labels over a hairline, one primary action per view
+   in solid ink (gold only on hover), status as a dot and a word, tabs as an
+   underline, flat hairline cards, the meeting header as a flat title block.
+   Accents: every header is a tinted label with a 3px edge in full-strength ink,
+   and the colour means where you are. --gc is the colour each menu group already
+   carries, --acc is set from the active menu item by atrium-workflow-look.js.
+   Contrast: secondary text is ink at 82%, tertiary 66%; ink on a 30% tint of the
+   group colours measures above 9:1 in light and above 8:1 in dark. */
+html body{--p2:color-mix(in srgb,var(--ink) 82%,transparent);--p3:color-mix(in srgb,var(--ink) 66%,transparent);
+  --ph:color-mix(in srgb,var(--ink) 14%,transparent);--pg:#d6b36a}
+html[data-theme="light"] body{--pg:#8a6a22}
+
+/* ── rail ─────────────────────────────────────────────────────────── */
+html body .rail{padding:24px 16px 18px}
+html body .rail-group{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:14px 0 0!important;margin:20px 10px 4px!important;border-top:1px solid var(--ph)!important;
+  font:400 12px/1.2 var(--sans)!important;color:var(--p3)!important}
+html body .rail-head+.rail-group,html body .rail>.rail-group:first-of-type{border-top:0!important;padding-top:0!important;margin-top:6px!important}
+html body .rail-item{border-radius:0;padding:8px 10px;font-size:13px;color:var(--p2);gap:12px}
+html body .rail-item:hover{background:none;color:var(--ink)}
+html[data-theme] body .rail-item.on{background:none!important;border:0!important;box-shadow:inset 2px 0 0 var(--ink)!important;color:var(--ink);font-weight:400}
+html body .rail-item .n{background:none;padding:0;font-size:12px;color:var(--p3)}
+html body .rail-item .ri{opacity:.6}
+/* Meeting Management builds its menu from .tab instead of .rail-item */
+html body .rail .tab{border-radius:0;padding:8px 10px;font-size:13px;color:var(--p2);gap:12px}
+html body .rail .tab:hover{background:none;color:var(--ink)}
+html[data-theme] body .rail .tab.on{background:none!important;border:0!important;box-shadow:inset 2px 0 0 var(--ink)!important;color:var(--ink);font-weight:400}
+html body .rail .tab .count,html body .rail .tab.on .count{background:none;padding:0;font-size:12px;color:var(--p3)}
+html body .rail .tab .ri{opacity:.6}
+html body .rail-cloud{background:none;border:0;padding:8px 10px;font-size:12px;color:var(--p3)}
+
+/* ── top bar ─────────────────────────────────────────────────────── */
+html body .tb-sub,html body .topbar .tb-sub{display:none}
+html body .tb-title{font-size:18px}
+html body .tb-search input{border-radius:8px;background:transparent;border:1px solid var(--ph)}
+html body .seg{border:0;background:none;padding:0;gap:6px}
+html body .seg button{background:none!important;color:var(--p3);padding:4px 6px;font-size:12.5px;border-radius:0}
+html body .seg button.on{color:var(--ink)!important;box-shadow:inset 0 -1px 0 var(--ink)}
+html body .saved{background:none;border:0;padding:0;color:var(--p3);font-size:12.5px}
+html body .saved .dot{box-shadow:none}
+
+/* ── buttons: one primary per view, solid ink, gold on hover only ── */
+html body .btn,html body .btn-ghost{border-radius:8px;border:1px solid var(--ph);background:transparent;color:var(--ink);
+  font:400 13px var(--sans);padding:8px 14px}
+html body .btn:hover,html body .btn-ghost:hover{border-color:var(--ink);background:transparent}
+html body .btn.gold,html body .btn-gold{background:var(--ink)!important;color:var(--bg0)!important;border-color:var(--ink);
+  font-weight:400;filter:none;transform:none}
+html body .btn.gold:hover,html body .btn-gold:hover{background:var(--pg)!important;border-color:var(--pg);color:#151515!important}
+html body .btn.sm{padding:5px 11px;font-size:12.5px}
+html body .addtask{border-radius:8px;border:1px solid var(--ph);background:transparent;color:var(--p2)}
+
+/* ── status and tags: a dot and a word, not a filled pill ────────── */
+html body table .chip,html body .row-chip{background:none;border:0;padding:0;color:var(--p2);font-size:13px;border-radius:0}
+html body table .chip.gold{color:var(--ink);background:none!important;border:0!important}
+html body table .chip.gold::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pg);margin-right:8px;vertical-align:middle}
+html body .pill{background:none!important;color:var(--p2)!important;padding:0;font-size:12.5px;border-radius:0}
+html body .health{background:none!important;border:0;padding:0;color:var(--p2)!important;font-size:12.5px}
+
+/* ── tabs: an underline, not a row of pills ─────────────────────── */
+html body .stagestrip{gap:22px;border-bottom:1px solid var(--ph);margin-bottom:14px;flex-wrap:wrap}
+html body .stagechip{background:none!important;border:0!important;border-radius:0!important;padding:8px 0!important;
+  color:var(--p3)!important;font-size:13px!important;box-shadow:none!important}
+html body .stagechip.on{color:var(--ink)!important;box-shadow:inset 0 -1px 0 var(--ink)!important;font-weight:400}
+html body .stagechip .n{background:none;padding:0 0 0 6px;color:var(--p3);font-size:12px}
+html body .toolbar .chip{border:0;background:none;border-radius:0;padding:6px 0;color:var(--p3);font-size:13px}
+html body .toolbar .chip.on{background:none;color:var(--ink);box-shadow:inset 0 -1px 0 var(--ink)}
+html body .toolbar .chip:hover{color:var(--ink)}
+/* a row of small buttons where one is gold is a filter, so it becomes tabs */
+html body .section-h:has(> .btn.sm.gold) > .btn.sm{border:0;background:none!important;border-radius:0;padding:6px 14px 6px 0;color:var(--p3)!important}
+html body .section-h:has(> .btn.sm.gold) > .btn.sm.gold{color:var(--ink)!important;box-shadow:inset 0 -1px 0 var(--ink)}
+
+/* ── cards: flat, hairline, no shadow, no blur ──────────────────── */
+html body .card,html body .tile,html body .dept{background:transparent!important;border:1px solid var(--ph);border-radius:10px;
+  box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+html body .tablewrap{border-radius:10px;box-shadow:none;border:1px solid var(--ph);background:transparent}
+html body table th{font-weight:400;font-size:12px;color:var(--p3)}
+html body .stat span,html body .tile .tl,html body .stat .lbl{color:var(--p3);font-size:12px}
+html body .dept-title{font-size:18px;font-weight:300}
+html body .dept-sub{color:var(--p3);font-size:12px}
+html body .dept-meta{color:var(--p3)}
+
+/* ── meeting header: a flat title block, not a black card ───────── */
+html body .hero{background:transparent!important;color:var(--ink);border:0;border-bottom:1px solid var(--ph);border-radius:0;
+  box-shadow:none;padding:4px 0 22px}
+html body .hero::after{display:none}
+html body .hero h1{font-size:26px;font-weight:300;margin:6px 0 4px}
+html body .hero .chair,html body .hero .eyebrow{color:var(--p3)}
+html body .hero .chair b{color:var(--ink)}
+html body .hero-stats{border-top:0;padding-top:12px;margin-top:12px;gap:40px}
+html body .hero .stat .num{color:var(--ink);font-size:24px}
+html body .hero .stat .num small,html body .hero .stat .lbl{color:var(--p3)}
+html body .hero .btn-ghost{background:transparent;border-color:var(--ph);color:var(--ink)}
+html body .hero input{background:transparent;color:var(--ink);border:1px solid var(--ph);border-radius:8px}
+
+/* ── the console: out of the way until it is needed ────────────── */
+html body .console .btn-gold,html body .console .btn.gold{background:var(--ink)!important}
+
+/* ── accented headers ─────────────────────────────────────────────── */
+html body{--acc:#9db8e8}
+
+/* the menu: group labels as tinted bars */
+html body .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent)!important;border:0!important;
+  border-left:3px solid var(--gc)!important;border-radius:4px!important;padding:7px 10px!important;margin:16px 0 6px!important;
+  color:var(--ink)!important;font:500 12px/1.25 var(--sans)!important}
+html body .rail-head+.rail-group,html body .rail>.rail-group:first-of-type{margin-top:6px!important}
+html[data-theme] body .rail-item.on,html[data-theme] body .rail .tab.on{
+  background:color-mix(in srgb,var(--acc) 16%,transparent)!important;box-shadow:inset 3px 0 0 var(--acc)!important;color:var(--ink)}
+
+/* the page: title marker, section headings, eyebrows */
+html body .tb-title{border-left:3px solid var(--acc);padding-left:12px;line-height:1.3}
+html body .section-h h3,html body .eyebrow{display:inline-block;background:color-mix(in srgb,var(--acc) 26%,transparent);
+  border-left:3px solid var(--acc);border-radius:4px;padding:4px 10px;color:var(--ink);font:500 13px/1.3 var(--sans)}
+html body .hero .eyebrow{color:var(--ink)}
+html body .dept-title{font-weight:500}
+html body .stagechip.on,html body .toolbar .chip.on,html body .seg button.on{box-shadow:inset 0 -2px 0 var(--acc)!important}
+html body .section-h:has(> .btn.sm.gold) > .btn.sm.gold{box-shadow:inset 0 -2px 0 var(--acc)}
+
+/* tables: a tinted header row in ink, not small grey type */
+html body table thead th{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--ink);font-weight:500;font-size:12.5px;
+  border-bottom:1px solid var(--acc)}
+html body .tablewrap{border-color:color-mix(in srgb,var(--acc) 40%,transparent)}

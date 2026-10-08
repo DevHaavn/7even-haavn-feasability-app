@@ -144,7 +144,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
     if (!crmEmail) return <CrmEmailGate onPass={setCrmEmail} onBack={onBack} onLogout={onLogout} />
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261008f" allow="microphone"
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261008h" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

@@ -480,7 +480,11 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
 .tb-sub,.topbar .clock,.topbar .saved{white-space:nowrap}
 @media(max-width:1180px){.tb-sub{display:none}}
 </style>
+<link rel="stylesheet" href="/atrium-refresh.css">
+<script src="/atrium-refresh.js" defer></script>
 <link rel="stylesheet" href="/atrium-language.css">
+<link rel="stylesheet" href="/atrium-workflow-look.css?v=2">
+<script src="/atrium-workflow-look.js" defer></script>
 </head>
 <body>
 <div class="ambient"></div>
@@ -608,7 +612,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
 </div>
 <div class="foot">
   <span class="fm"><span class="wm-a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</span>
-  <a onclick="doUpdate();return false">⟳ Update</a>
+  <button class="rb" data-refresh type="button" style="--s:24px;--rb-c:var(--ink-3);--rb-h:var(--ink);--rb-g:#8a6a22"></button>
   <span class="cr">Meeting Management · Pillar 02</span>
 </div>
 <div class="present-nav"><button onclick="present(-1)">‹</button><span class="pn" id="presentLbl">Company</span><button onclick="present(1)">›</button><button onclick="document.getElementById('focusBtn').click()" title="Exit" style="margin-left:6px">✕</button></div>
