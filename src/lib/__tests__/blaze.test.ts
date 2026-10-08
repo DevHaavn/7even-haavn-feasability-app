@@ -117,7 +117,25 @@ describe('safe read-modify-write', () => {
     const titles = rows.nav_workspace.value.actions.map((a: any) => a.title)
     expect(titles).toContain('Theirs'); expect(titles).toContain('Mine')
   })
-  it('gives up with nothing written after two lost races', async () => {
+  it('a staff edit to a buyer at the same moment as a Blaze task change is not lost, and neither is Blaze\'s', async () => {
+    const rows: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
+    const staffEdit = () => { rows.nav_workspace = { value: { ...ws(), buyers: [{ id: 'keep-me', stage: 'Contract' }] }, updated_at: 't1' } }
+    const store = B.kv(env, fakeSupabase(rows, { beforePatch: staffEdit }))
+    await store.update('nav_workspace', (v: any) => B.updateTask(v, { id: 'n1-aaaa', status: 'doing' }))
+    const v = rows.nav_workspace.value
+    expect(v.buyers[0].stage).toBe('Contract')                                   // staff's edit kept
+    expect(v.actions.find((a: any) => a.id === 'n1-aaaa').status).toBe('doing')  // Blaze's change applied on top
+  })
+  it('retries up to three times, then stops with nothing written', async () => {
+    const rows: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
+    let patches = 0
+    const f = fakeSupabase(rows)
+    const racing = async (url: string, init: any = {}) => { if (init.method === 'PATCH') { patches++; rows.nav_workspace = { value: rows.nav_workspace.value, updated_at: 'r' + patches } } return f(url, init) }
+    await expect(B.kv(env, racing).update('nav_workspace', (v: any) => B.addTask(v, { title: 'Mine', owner: 'mike' }))).rejects.toThrow(/Nothing was written/)
+    expect(patches).toBe(4)  // first try + 3 retries
+    expect(rows.nav_workspace.value.actions).toHaveLength(3)
+  })
+  it('gives up with nothing written after repeated lost races', async () => {
     const rows: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
     let n = 0
     const f = fakeSupabase(rows); 
@@ -125,6 +143,28 @@ describe('safe read-modify-write', () => {
     const store = B.kv(env, racing)
     await expect(store.update('nav_workspace', (v: any) => B.addTask(v, { title: 'Mine', owner: 'mike' }))).rejects.toThrow(/same moment/)
     expect(rows.nav_workspace.value.actions).toHaveLength(3)
+  })
+})
+
+describe('notes append and before/after', () => {
+  it('appends notes with a Blaze prefix and never replaces them', () => {
+    const w: any = ws(); w.actions[0].notes = 'Original note'
+    const r = B.updateTask(w, { id: 'n1-aaaa', notes: 'Chased on Friday' })
+    const n = r.next.actions[0].notes
+    expect(n.startsWith('Original note\n\nBlaze, ')).toBe(true)
+    expect(n).toMatch(/Blaze, \d{4}-\d{2}-\d{2}: Chased on Friday$/)
+    expect(r.audit.before.notes).toBe('Original note')   // enough to put it back
+    const again = B.updateTask(r.next, { id: 'n1-aaaa', notes: 'Second' }).next.actions[0].notes
+    expect(again).toContain('Chased on Friday'); expect(again).toContain('Second')
+    expect(() => B.updateTask(w, { id: 'n1-aaaa', notes: '   ' })).toThrow(/empty/)
+    expect(B.updateTask(ws(), { id: 'n1-aaaa', notes: 'First' }).next.actions[0].notes).toMatch(/^Blaze, .*First$/)
+  })
+  it('records only the fields that changed, before and after', () => {
+    const r = B.updateTask(ws(), { id: 'n1-aaaa', status: 'done', owner: 'daniel' })
+    expect(r.audit.before).toMatchObject({ status: 'todo', done: false, owner: 'Mike Furniss' })
+    expect(r.audit.after).toMatchObject({ status: 'done', done: true, owner: 'Daniel Sette' })
+    expect(r.audit.before.due).toBeUndefined()
+    expect(B.addTask(ws(), { title: 'T', owner: 'mike' }).audit.before).toBeNull()
   })
 })
 
@@ -142,6 +182,9 @@ describe('audit log', () => {
     expect(e[1].note).toBe('added: Book flights'); expect(e[2].taskId).toBe('n1-aaaa'); expect(e[2].note).toBe('changed: status')
     expect(e.every((x: any) => typeof x.at === 'string')).toBe(true)
     expect(Object.keys(r).sort()).toEqual(['blaze_audit', 'nav_workspace']) // nothing else touched
+    expect(e[1].before).toBeNull(); expect(e[1].after.title).toBe('Book flights')
+    expect(e[2].before).toMatchObject({ status: 'todo', done: false }); expect(e[2].after).toMatchObject({ status: 'done', done: true })
+    expect(e[0].before).toBeUndefined()
   })
   it('keeps the log capped', async () => {
     const entries = Array.from({ length: 1000 }, (_, i) => ({ at: 'x', tool: 'list_tasks', ok: true, taskId: '', note: String(i) }))

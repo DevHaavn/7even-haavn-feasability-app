@@ -93,7 +93,7 @@ function addTask(ws, a) {
     created: nowIso(), completedAt: null, createdBy: BY,
   }
   next.actions.push(t)
-  return { next, result: compactTask(t) }
+  return { next, result: compactTask(t), audit: { before: null, after: clone(t) } }
 }
 
 function updateTask(ws, a) {
@@ -101,6 +101,7 @@ function updateTask(ws, a) {
   const t = (next.actions || []).find((x) => x.id === a.id)
   if (!t) throw new UserError(`No task with id "${a.id}"`)
   const changed = []
+  const prev = { status: t.status, done: t.done, completedAt: t.completedAt || null, owner: t.owner, due: t.due, notes: t.notes }
   if (a.status !== undefined) {
     checkEnum(a.status, STATUSES, 'status')
     t.status = a.status; t.done = a.status === 'done'
@@ -109,10 +110,21 @@ function updateTask(ws, a) {
   }
   if (a.owner !== undefined) { t.owner = resolveOwner(a.owner); changed.push('owner') }
   if (a.due !== undefined) { t.due = checkDate(a.due, 'due'); changed.push('due') }
-  if (a.notes !== undefined) { t.notes = String(a.notes); changed.push('notes') }
+  if (a.notes !== undefined) {
+    // Notes are only ever added to, never replaced: "Blaze, 2026-10-09: ..." under what is already there.
+    const line = `Blaze, ${today()}: ${String(a.notes).trim()}`
+    if (!String(a.notes).trim()) throw new UserError('notes is empty')
+    t.notes = t.notes ? `${t.notes}\n\n${line}` : line
+    changed.push('notes')
+  }
   if (!changed.length) throw new UserError('Nothing to change: give status, owner, due or notes')
   t.updatedBy = BY; t.updatedAt = nowIso()
-  return { next, result: { ...compactTask(t), changed } }
+  const before = {}, after = {}
+  ;['status', 'done', 'completedAt', 'owner', 'due', 'notes'].forEach((k) => {
+    const nv = k === 'completedAt' ? (t.completedAt || null) : t[k]
+    if (JSON.stringify(prev[k]) !== JSON.stringify(nv)) { before[k] = prev[k] === undefined ? null : prev[k]; after[k] = nv }
+  })
+  return { next, result: { ...compactTask(t), changed }, audit: { before, after } }
 }
 
 // What moved since a time (default the last 24 hours). Counts only changes that carry a
@@ -147,7 +159,7 @@ function kv(env = process.env, fetchImpl = fetch) {
   }
   // fn(value) -> { next, result }. Writes only if updated_at has not moved.
   async function update(k, fn) {
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 4; attempt++) { // first try + up to 3 retries, each on a fresh read
       const row = await read(k)
       const { next, result } = fn(row ? row.value : null)
       const stamp = nowIso()
@@ -163,7 +175,7 @@ function kv(env = process.env, fetchImpl = fetch) {
       const out = await r.json()
       if (Array.isArray(out) && out.length) return result
     }
-    throw new UserError('Someone else changed this at the same moment. Nothing was written. Please try again.')
+    throw new UserError('Someone else kept changing this at the same moment. Nothing was written. Please try again.')
   }
   return { read, update }
 }
@@ -182,12 +194,18 @@ const SCHEMAS = {
   whats_new: { description: 'The latest feed: tasks created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
 }
 
+// Runs one task change and hands back its result plus the before/after values for the audit log.
+async function write(store, fn) {
+  let cap = null
+  const result = await store.update(KEYS.workflow, (ws) => { const r = fn(ws); cap = r.audit; return r })
+  return { result, audit: cap }
+}
 async function callTool(name, args, store) {
   args = args || {}
   switch (name) {
     case 'list_tasks': return listTasks((await store.read(KEYS.workflow) || {}).value, args)
-    case 'add_task': return store.update(KEYS.workflow, (ws) => addTask(ws, args))
-    case 'update_task': return store.update(KEYS.workflow, (ws) => updateTask(ws, args))
+    case 'add_task': return write(store, (ws) => addTask(ws, args))
+    case 'update_task': return write(store, (ws) => updateTask(ws, args))
     case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
     default: throw new UserError(`Unknown tool ${name}`)
   }
@@ -202,6 +220,7 @@ async function audit(store, tool, args, outcome) {
     : tool === 'update_task' ? 'changed: ' + ((outcome.out && outcome.out.changed) || []).join(', ')
     : 'read' + (outcome.out && typeof outcome.out.total === 'number' ? ` (${outcome.out.total})` : '')
   const entry = { at: nowIso(), tool, ok: !outcome.error, taskId: String(taskId), note }
+  if (outcome.trail) { entry.before = outcome.trail.before; entry.after = outcome.trail.after }
   try {
     await store.update(KEYS.audit, (v) => {
       const entries = Array.isArray(v && v.entries) ? v.entries.slice(-(AUDIT_MAX - 1)) : []
@@ -228,8 +247,9 @@ async function handleRpc(msg, store) {
       const args = msg.params && msg.params.arguments
       const st = store()
       try {
-        const out = await callTool(name, args, st)
-        await audit(st, name, args, { out })
+        const raw = await callTool(name, args, st)
+        const out = raw && raw.audit !== undefined && raw.result !== undefined ? raw.result : raw
+        await audit(st, name, args, { out, trail: raw && raw.audit })
         return ok({ content: [{ type: 'text', text: JSON.stringify(out) }] })
       } catch (e) {
         if (e instanceof UserError) { await audit(st, name, args, { error: e.message }); return ok({ isError: true, content: [{ type: 'text', text: e.message }] }) }

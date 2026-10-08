@@ -354,6 +354,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-item" data-tab="meetings" data-icon="calendar">Meetings</div>
     <div class="rail-item" data-tab="actions" data-icon="review">Action register<span class="n" id="cActions">0</span></div>
 
+    <div class="rail-item blaze-only" data-tab="blaze" data-icon="review" style="display:none">Blaze activity</div>
+
     <div class="rail-foot">
       <div class="rail-item" data-tab="brand" data-icon="brand" data-acc="#b4bac4">Team &amp; lists</div>
       <div class="rail-rule"></div>
@@ -729,6 +731,7 @@ function gsOpen(i){
 
 /* ===================== router ===================== */
 function renderRail(){
+  var _cb=canBlaze(); document.querySelectorAll('.blaze-only').forEach(function(el){el.style.display=_cb?'':'none';});
   var _cm=canMgmt(); document.querySelectorAll('.mgmt-only').forEach(function(el){el.style.display=_cm?'':'none';});
   document.querySelectorAll('.rail-item').forEach(function(el){el.classList.toggle('on',el.dataset.tab===TAB);});
   document.getElementById('cPartners').textContent=WS.partners.filter(function(p){return !p.archived;}).length;
@@ -753,9 +756,10 @@ var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
   supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
-  meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],brand:['Team & lists','BRAND & WORKSPACE']};
+  meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANT DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
   if(TAB.indexOf('mgmt')===0&&!canMgmt()){TAB='overview';location.hash='overview';}
+  if(TAB==='blaze'&&!canBlaze()){TAB='overview';location.hash='overview';}
   var t=TITLES[TAB]||['',''];
   document.getElementById('tbTitle').textContent=t[0];
   document.getElementById('tbSub').textContent=t[1];
@@ -779,6 +783,7 @@ function render(){
   else if(TAB==='buyers') v.innerHTML=viewBuyers();
   else if(TAB==='actions') v.innerHTML=viewActions();
   else if(TAB==='meetings') v.innerHTML=viewMeetings();
+  else if(TAB==='blaze') v.innerHTML=viewBlaze();
   else if(TAB==='brand') v.innerHTML=viewBrand();
   renderRail();
 }
@@ -1795,6 +1800,67 @@ function viewActions(){
   }).join(''):'<tr><td colspan="6" class="empty">Nothing here.</td></tr>';
   h+='</tbody></table></div>';
   return h;
+}
+
+/* ===================== Blaze activity (directors only) =====================
+   Everything Blaze (Jamie's assistant) did through the connector. The server writes one
+   line per call to capital_kv 'blaze_audit', with the before and after values of any change.
+   This page only reads it. Undo puts a changed task back the way it was; the undone mark is
+   kept in this workspace (WS.blazeUndone), never written into the audit log. */
+var BLAZE_DIRECTORS=['Jamie Baldwin','Daniel Sette','Lewis Jin'];
+function canBlaze(){var me=ME();return BLAZE_DIRECTORS.some(function(n){return sameName(n,me);});}
+var BLAZE_LOG=null, _blazeLoading=false;
+function blazeLoad(){
+  if(_blazeLoading)return; _blazeLoading=true;
+  kvPull('blaze_audit',{entries:[]}).then(function(v){BLAZE_LOG=(v&&v.entries)||[];_blazeLoading=false;if(TAB==='blaze')render();});
+}
+function blazeKey(e){return e.at+'|'+e.tool+'|'+e.taskId;}
+function blazeVal(k,v){if(v===null||v===undefined||v==='')return '<i>empty</i>';if(k==='done')return v?'yes':'no';if(k==='completedAt')return esc(String(v).slice(0,10));var t=String(v);return esc(t.length>80?t.slice(0,80)+'…':t);}
+var BLAZE_LABEL={status:'Status',owner:'Owner',due:'Due',notes:'Notes',done:'Done',completedAt:'Completed'};
+function blazeWhat(e){
+  if(!e.ok)return '<span class="chip red">Refused</span> '+esc(e.note||'');
+  if(e.tool==='add_task')return 'Added task <b>'+esc((e.after&&e.after.title)||'')+'</b>'+(e.after?' · '+esc(e.after.owner||'')+(e.after.due?' · due '+esc(e.after.due):''):'');
+  if(e.tool==='update_task'&&e.before){
+    var ks=Object.keys(e.before).filter(function(k){return k!=='done'&&k!=='completedAt';});
+    return ks.map(function(k){return '<div>'+(BLAZE_LABEL[k]||k)+': '+blazeVal(k,e.before[k])+' → <b>'+blazeVal(k,e.after&&e.after[k])+'</b></div>';}).join('')||'Updated';
+  }
+  return '<span style="opacity:.6">Read tasks '+esc((e.note||'').replace('read','').trim())+'</span>';
+}
+function viewBlaze(){
+  if(BLAZE_LOG===null){blazeLoad();return '<div class="empty">Loading what Blaze has done…</div>';}
+  var undone=WS.blazeUndone||{};
+  var rows=BLAZE_LOG.slice().reverse().slice(0,200);
+  var h='<div class="section-h"><span style="opacity:.7;font-size:12px">'+BLAZE_LOG.length+' calls logged. Reads, additions and changes are all here; changes can be undone.</span><div class="spacer"></div><button class="btn sm" onclick="BLAZE_LOG=null;render()">Refresh</button></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th>When</th><th>Tool</th><th>Task</th><th>What happened</th></tr></thead><tbody>';
+  h+=rows.length?rows.map(function(e){
+    var t=WS.actions.find(function(a){return a.id===e.taskId;});
+    var when=new Date(e.at).toLocaleString('en-AU',{timeZone:'Australia/Melbourne',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    var k=blazeKey(e), can=e.ok&&(e.tool==='add_task'||(e.tool==='update_task'&&e.before));
+    var act=!can?'':(undone[k]?'<span class="chip">Undone by '+esc(undone[k].by)+'</span>':'<button class="btn sm" onclick="blazeUndo(\''+encodeURIComponent(k)+'\')">Undo</button>');
+    return '<tr><td>'+esc(when)+'</td><td>'+esc(e.tool.replace('_',' '))+'</td><td>'+(t?esc(t.title):(e.taskId?'<span style="opacity:.5">'+esc(e.taskId)+'</span>':'—'))+'</td><td>'+blazeWhat(e)+(act?'<div style="margin-top:6px">'+act+'</div>':'')+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" class="empty">Blaze has not done anything yet.</td></tr>';
+  return h+'</tbody></table></div>';
+}
+function blazeUndo(enc){
+  var k=decodeURIComponent(enc), e=(BLAZE_LOG||[]).find(function(x){return blazeKey(x)===k;}); if(!e||!canBlaze())return;
+  WS.blazeUndone=WS.blazeUndone||{}; if(WS.blazeUndone[k])return;
+  var t=WS.actions.find(function(a){return a.id===e.taskId;});
+  if(!t){toast('That task no longer exists');return;}
+  if(e.tool==='add_task'){
+    if(!confirm('Remove the task Blaze added: "'+t.title+'"?'))return;
+    WS.actions=WS.actions.filter(function(a){return a.id!==t.id;});
+  } else {
+    var kept=[], skipped=[];
+    Object.keys(e.before).forEach(function(f){
+      if(JSON.stringify(t[f]===undefined?null:t[f])===JSON.stringify(e.after[f]===undefined?null:e.after[f])){t[f]=e.before[f];kept.push(f);}
+      else skipped.push(f);
+    });
+    if(!kept.length){toast('Nothing to undo: it was changed again since');return;}
+    if(skipped.length)toast('Undone, except '+skipped.join(', ')+' (changed again since)');window._blazeSkipped=skipped.length;
+  }
+  WS.blazeUndone[k]={by:ME(),at:nowIso()};
+  saveWS(); render();
+  if(!window._blazeSkipped)toast('Undone');window._blazeSkipped=0;
 }
 function toggleAction(id){var a=WS.actions.find(function(x){return x.id===id;});a.done=!a.done;a.status=a.done?'done':'todo';a.completedAt=a.done?nowIso():null;saveWS();render();}
 function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.id===id;});a.status=status;a.done=(status==='done');a.completedAt=a.done?nowIso():null;saveWS();render();}
