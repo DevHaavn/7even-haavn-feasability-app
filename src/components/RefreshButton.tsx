@@ -22,7 +22,7 @@ export async function getLatest() {
   try { location.replace(url) } catch { window.location.href = url }
 }
 
-export default function RefreshButton({ size = 30, className = '', style }: { size?: number; className?: string; style?: React.CSSProperties }) {
+export default function RefreshButton({ size = 24, className = '', style }: { size?: number; className?: string; style?: React.CSSProperties }) {
   const [busy, setBusy] = useState(false)
   return (
     <button

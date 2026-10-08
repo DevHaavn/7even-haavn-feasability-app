@@ -490,7 +490,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
               {role !== 'external' && (
                 <button className="ath-hor7" title="ENTERPRISE — Accounts &amp; Administration" onClick={() => { setCapitalOpen(true); setMenuOpen(false) }}>
                   <span className="ath-rowname gold">Enterprise</span>
-                  <span className="ath-rowdesc">The company</span>
+                  <span className="ath-rowdesc">Accounts and capital</span>
                 </button>
               )}
               {/* PROJECT 7 — the philanthropic arm of 7EVEN */}

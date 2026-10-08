@@ -2,7 +2,7 @@
    Shared by the React app (linked from index.html) and every static page.
    Colour comes from three custom properties so each surface can tune it:
    --rb-c rest, --rb-h hover, --rb-g the gold the arc takes on hover.      */
-.rb{--s:30px;--rb-c:rgba(243,242,238,.6);--rb-h:#F3F2EE;--rb-g:#d6b36a;
+.rb{--s:24px;--rb-c:rgba(243,242,238,.6);--rb-h:#F3F2EE;--rb-g:#d6b36a;
   position:relative;width:var(--s);height:var(--s);min-width:var(--s);padding:0;margin:0;border:0;border-radius:50%;background:none;
   box-shadow:none;cursor:pointer;color:var(--rb-c);display:inline-flex;align-items:center;justify-content:center;flex:none;
   font:300 11.5px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;transition:color .3s;-webkit-tap-highlight-color:transparent}
