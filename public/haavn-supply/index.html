@@ -1255,11 +1255,15 @@ var MEDIA = [
    Same index as 7EVEN and BLACK, but HAAVN is the light brand so there
    is no deep ground. The menu gets a soft bone base instead, and the
    accent stays the HAAVN green.                                       */
-body.menu-deep::before{content:'';position:fixed;inset:0;z-index:500;pointer-events:none;
+/* The wash lives inside the menu's own stacking context, not on body. As a
+   body pseudo-element it can paint over the menu, because .menu sits in a
+   container with its own context and its z-index never competes with it.
+   This cost HAAVN BLACK its menu once; same pattern, same fix. */
+.menu::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:linear-gradient(90deg,rgba(226,226,220,.96) 0%,rgba(226,226,220,.88) 38%,rgba(226,226,220,.6) 72%,rgba(226,226,220,.4) 100%),
     radial-gradient(145% 115% at 0% 100%,rgba(216,216,210,.9),transparent 66%);
   opacity:0;transition:opacity .55s cubic-bezier(.16,1,.3,1)}
-body.menu-deep.on::before{opacity:1}
+.menu.on::before{opacity:1}
 .menu{z-index:9500!important;width:min(430px,90vw)!important}
 .mrow{display:grid!important;grid-template-columns:1fr auto!important;gap:16px;align-items:baseline;
   width:100%!important;max-width:none!important;margin:0!important;padding:13px 0!important;
@@ -1296,10 +1300,6 @@ body.menu-deep.on::before{opacity:1}
       var label=t.charAt(0)+t.slice(1).toLowerCase();
       r.innerHTML='<span class="n">'+label+'</span><span class="d">'+D[k]+'</span>';
     });
-    document.body.classList.add('menu-deep');
-    new MutationObserver(function(){
-      document.body.classList.toggle('on', m.classList.contains('on'));
-    }).observe(m,{attributes:true,attributeFilter:['class']});
   }
   if(document.readyState!=='loading') go(); else document.addEventListener('DOMContentLoaded',go);
 })();
