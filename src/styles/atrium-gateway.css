@@ -103,3 +103,28 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
 .agw .hub-rb{--rb-c:var(--g-ink2);--rb-h:var(--g-ink);--rb-g:#d6b36a;background:var(--g-pill)}
 .agw .hub-rb:hover{background:var(--g-pill)}
 @media(max-width:640px){.hub-rb{position:static;display:flex;margin:30px auto 0}}
+
+/* ── ATRIUM language, stage 2: the hub family ─────────────────────────────
+   Capital Base, Administration, HAAVN Management and the Capital pillar.
+   One typeface (Inter 300), tracking zero, sentence case, hierarchy by value.
+   The ATRIUM wordmark (.wm, .cab-wm) keeps its tracking, it is the mark. The
+   menu card rule is untouched: video, rotating gold ring, gold card text and
+   the fold-over hover all stay. Appended, so nothing above is edited. */
+.agw :is(.tag,.cab-eyebrow,.hmh-eyebrow,.abh-eyebrow,.cab-title,.hmh-mgmt,.abh-title,.cab-faint,.hmh-faint,.abh-faint,
+  .cab-psub,.hmh-psub,.abh-psub,.cab-penter,.hmh-penter,.abh-enter,.cab-pnum,.hmh-pnum,.abh-num,.cab-pow .k,.hmh-pow .k,.abh-pow .k,
+  .cab-ptitle,.hmh-ptitle,.abh-ptitle,.cab-sub,.hmh-sub,.abh-sub,.cab-pblurb,.hmh-pblurb,.abh-blurb){
+  font-family:'Inter',system-ui,sans-serif!important;font-weight:300!important;letter-spacing:0!important;
+  text-transform:none!important;font-variant-numeric:tabular-nums}
+.agw-seg button{font:300 12px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important;padding:6px 13px}
+.agw .tag{font-size:12.5px;color:var(--g-ink2)}
+.agw :is(.cab-eyebrow,.hmh-eyebrow,.abh-eyebrow){font-size:13px;color:var(--g-ink2)}
+.agw :is(.cab-title,.hmh-mgmt,.abh-title){font-size:15px!important;color:var(--g-ink)!important;margin-top:14px;padding-left:0!important}
+.agw :is(.cab-faint,.hmh-faint,.abh-faint){font-size:12.5px;color:var(--g-ink2)}
+.agw :is(.cab-sub,.hmh-sub,.abh-sub){font-size:14.5px}
+.agw :is(.cab-psub,.hmh-psub,.abh-psub){font-size:12.5px}
+.agw :is(.cab-pblurb,.hmh-pblurb,.abh-blurb){font-size:13.5px;line-height:1.6}
+.agw :is(.cab-penter,.hmh-penter,.abh-enter){font-size:13px}
+.agw :is(.cab-pow .k,.hmh-pow .k,.abh-pow .k){font-size:11.5px;color:var(--g-ink3)}
+.agw :is(.cab-ptitle,.hmh-ptitle,.abh-ptitle){font-size:24px}
+/* the LOG circle, same device as the other menus */
+.agw :is(.cab-logout,.hmh-logout,.abh-logout,.ceg-logout){font:300 8.5px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important}

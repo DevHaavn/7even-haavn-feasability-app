@@ -62,6 +62,27 @@ const CSS = `
 .cg-atr{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.34em;color:#c3c7cd}
 .cg-tri2{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
 .cg-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;color:#8a8f95;text-transform:uppercase}
+
+/* ATRIUM language, stage 2: the Capital Base door, in the access screen's
+   voice. Inter 300, tracking zero, sentence case, no glow, a hairline input,
+   a text button. Appended so nothing above is edited. */
+.cg-back,.cg-title,.cg-sub,.cg-lbl,.cg-inp,.cg-show,.cg-enter,.cg-err,.cg-atr,.cg-tag{
+  font-family:'Inter',system-ui,sans-serif!important;font-weight:300!important;letter-spacing:0!important;text-transform:none!important}
+.cg-back{border:0;border-radius:0;padding:9px 0;font-size:12.5px;color:rgba(243,242,238,.6)}
+.cg-back:hover{background:transparent;color:#F3F2EE;border:0}
+.cg-title{font-size:15px;color:#F3F2EE;text-shadow:none;padding-left:0;margin-top:22px}
+.cg-sub{font-size:12.5px;color:#B5B5B2;margin-top:8px}
+.cg-lbl{font-size:12px;color:#9A9A97;margin-bottom:6px}
+.cg-inp{font-size:18px;box-shadow:none;border-bottom:1px solid rgba(243,242,238,.34)}
+.cg-inp,.cg-inp::placeholder{letter-spacing:.2em!important}
+.cg-inp:focus{box-shadow:none;border-bottom-color:#F3F2EE}
+.cg-show{font-size:12px;color:#9A9A97}
+.cg-enter{border:0;border-radius:0;justify-content:flex-start;gap:8px;width:auto;padding:10px 0;font-size:13.5px;color:#F3F2EE}
+.cg-enter:hover{background:transparent;box-shadow:none;color:#d6b36a;border:0}
+.cg-enter .tri{filter:none}
+.cg-err{font-size:12px}
+.cg-atr{font-size:12px;color:rgba(243,242,238,.6)}
+.cg-tag{font-size:12px;color:rgba(243,242,238,.6)}
 `
 
 export default function CapitalGate({ onAuth, onClose }: { onAuth: () => void; onClose: () => void }) {

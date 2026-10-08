@@ -1,5 +1,6 @@
 <title>ATRIUM Engine</title>
 <link rel="stylesheet" href="/atrium-refresh.css">
+<link rel="stylesheet" href="/atrium-language.css">
 <script src="/atrium-refresh.js" defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -3654,7 +3655,7 @@ renderAll();
      change) the one footer is put back at the end of the open page. */
   const foot = document.createElement('div'); foot.className = 'azfoot';
   foot.innerHTML =
-      '<div class="af-l"><span class="af-atrium"><i class="af-tri"></i>ATRIUM</span></div>'
+      '<div class="af-l"><span class="af-ring" aria-label="ATRIUM"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" style="stroke-width:1px" vector-effect="non-scaling-stroke"/><path d="M33 68 L50 31 L67 68" fill="none" stroke="currentColor" style="stroke-width:1.2px" vector-effect="non-scaling-stroke"/></svg></span></div>'
     + '<div class="af-c"><span class="af-live"><i class="af-dot"></i>LIVE&nbsp;&nbsp;<span class="af-clock">--:--:--</span>&nbsp;·&nbsp;MELBOURNE</span></div>'
     + '<div class="af-r"><a class="af-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span class="ext">↗</span></a>'
     + '<a class="af-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span class="ext">↗</span></a>'
@@ -4522,6 +4523,8 @@ html.standalone .azfoot::before,html.standalone .azfoot::after{display:none}
 .af-l{display:flex;align-items:center;min-width:0}
 .af-atrium{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.34em;color:#c3c7cd}
 .af-tri{width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-bottom:7px solid rgba(255,255,255,.55);transform:translateY(-1px)}
+.af-ring{display:inline-flex;width:24px;height:24px;color:rgba(243,242,238,.6)}
+.af-ring svg{width:100%;height:100%;display:block}
 .af-c{display:flex;align-items:center;justify-self:center}
 .af-live{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.22em;color:#a9a6a9}
 .af-dot{width:6px;height:6px;border-radius:50%;background:#2fe07a;box-shadow:0 0 10px #2fe07a;animation:afPulse 2.4s infinite}

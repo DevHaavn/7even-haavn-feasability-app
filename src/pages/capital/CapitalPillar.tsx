@@ -57,6 +57,17 @@ const GATE_CSS = `
   .ceg-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
   .ceg-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
 }
+
+/* ATRIUM language, stage 2: the pillar's email door. Inter 300, tracking
+   zero, sentence case, a text button in place of the gold pill. */
+.ceg-eyebrow,.ceg-brand .tag,.ceg-submit,.ceg-err{font-family:'Inter',system-ui,sans-serif!important;font-weight:300!important;
+  letter-spacing:0!important;text-transform:none!important}
+.ceg-eyebrow{font-size:13px;color:#4a4d54}
+.ceg-brand .tag{font-size:12.5px;color:#4a4d54}
+.ceg-submit{background:transparent;border:0;border-radius:0;padding:10px 0;font-size:13.5px;color:#1a1b1e;text-align:left}
+.ceg-submit:hover{background:transparent;color:#8f6a25}
+.ceg-form input{border-radius:0;border:0;border-bottom:1px solid rgba(20,20,25,.34);background:transparent;padding:10px 0}
+.ceg-form input:focus{border-bottom-color:#1a1b1e}
 `
 
 function CrmEmailGate({ onPass, onBack, onLogout }: { onPass: (email: string) => void; onBack: () => void; onLogout: () => void }) {
@@ -133,7 +144,7 @@ export default function CapitalPillar({ pillar, onBack, onLogout, onExit }: { pi
     if (!crmEmail) return <CrmEmailGate onPass={setCrmEmail} onBack={onBack} onLogout={onLogout} />
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261005f" allow="microphone"
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261008f" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

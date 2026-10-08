@@ -1,0 +1,16 @@
+/* ATRIUM language for the work apps.
+   One typeface (Inter), tracking zero, sentence case, tabular figures so
+   columns still stack without a monospace. Linked last in <head> so it wins
+   over each page's own tokens, and it only ever sits on the ATRIUM app family
+   (Management, Workflow, Meetings, Administration books, Accounts).
+   The ATRIUM wordmark (.rail-wm) keeps its tracking, it is the mark.
+   Removing the <link> from a page puts that page back exactly as it was.   */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+html:root{--mono:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;--mono-sans:'Inter',system-ui,sans-serif;--serif:'Inter',system-ui,sans-serif}
+html body,html body *,html body input,html body select,html body textarea,html body button{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif!important;font-variant-numeric:tabular-nums}
+html body *:not(.rail-wm):not(.rail-wm *):not(.logo):not(.azp-wm){letter-spacing:0!important;text-transform:none!important}
+html body *::before,html body *::after{letter-spacing:0!important;text-transform:none!important}
+html body svg text,html body svg tspan{font-family:'Inter',system-ui,sans-serif!important;letter-spacing:0!important}
+html body .rail-wm,html body .rail-wm *{letter-spacing:.28em!important}
+html body .logo,html body .azp-wm{letter-spacing:.12em!important;text-transform:none!important}

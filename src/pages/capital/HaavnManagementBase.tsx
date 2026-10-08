@@ -29,13 +29,13 @@ export const HM_PA = {
 export const HM_PILLARS: HMPillar[] = [
   {
     id: 'workflow', num: '01', title: 'ATRIUM Workflow',
-    sub: 'Partner CRM · Supply Pipeline · Home Sales · Actions',
+    sub: 'Partner CRM · supply pipeline · home sales · actions',
     blurb: 'HAAVN’s partner and supply-project relationships, HAAVN Black’s home-buyer sales pipeline, and the shared action register — linked straight into Meeting Management, so a decision made in a meeting writes back onto the record it was about.',
     color: '#d6b36a', // LED brand gold
   },
   {
     id: 'agenda', num: '02', title: 'Meeting Management',
-    sub: 'Agenda · Actions · Minutes · Weekly cadence',
+    sub: 'Agenda · actions · minutes · weekly cadence',
     blurb: 'The weekly rhythm of the business — the live Company Meeting agenda, action tracking, minutes and decisions, department leads and the Meeting Console, week to week.',
     color: '#d6b36a', // LED brand gold
   },
@@ -49,13 +49,13 @@ export const HM_PILLARS: HMPillar[] = [
 export const HM_PILLARS_BLACK: HMPillar[] = [
   {
     id: 'workflow-black', num: '01', title: 'ATRIUM · HAAVN Black',
-    sub: 'Leads · Home Buyers · Own Tasks · Meetings',
+    sub: 'Leads · home buyers · own tasks · meetings',
     blurb: 'Your own deals and leads in the HAAVN Black sales pipeline, your own tasks and weekly agenda, and setting up meetings — linked straight into Meeting Management.',
     color: '#d6b36a',
   },
   {
     id: 'agenda', num: '02', title: 'Meeting Management',
-    sub: 'Agenda · Actions · Minutes · Weekly cadence',
+    sub: 'Agenda · actions · minutes · weekly cadence',
     blurb: 'The weekly rhythm of the business — you only see meetings you’re chairing or attending.',
     color: '#d6b36a',
   },
@@ -187,20 +187,20 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
         </button>
         <div className="hmh-brand">
           <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
-          <span className="tag">Management Hub</span>
+          <span className="tag">Management hub</span>
         </div>
         <GatewaySeg />
       </div>
 
       {/* Body */}
       <div className="hmh-body">
-        <div className="hmh-eyebrow">Integrated Management Platform</div>
+        <div className="hmh-eyebrow">Integrated management platform</div>
         <div className="hmh-wm">
           <span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
         </div>
-        <div className="hmh-mgmt">Management Hub</div>
+        <div className="hmh-mgmt">Management hub</div>
         <p className="hmh-sub">Two pillars — the team’s workflow and the weekly meeting — one unified command centre.</p>
-        <div className="hmh-faint">Strategic partnerships · Operational efficiency · Market intelligence</div>
+        <div className="hmh-faint">Strategic partnerships · operational efficiency · market intelligence</div>
         <div className="hmh-rule" />
 
         <div className="hmh-pillars">
@@ -217,7 +217,7 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
                 </div>
                 <div className="hmh-pline" />
                 <p className="hmh-pblurb">{p.blurb}</p>
-                <span className="hmh-penter">Enter Pillar &#8594;</span>
+                <span className="hmh-penter">Enter pillar &#8594;</span>
               </button>
             </div>
           ))}

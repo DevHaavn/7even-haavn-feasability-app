@@ -23,7 +23,7 @@ import { supabase } from '../lib/supabase'
 
 const IDX_KEY = 'atrium_zeroed_index'
 const rowKey = (id: string) => `atrium_zeroed:${id}`
-const SRC = '/atrium-zeroed.html?v=16'
+const SRC = '/atrium-zeroed.html?v=17'
 
 type Meta = { id: string; name: string; created: string; updated: string }
 type Index = { v: 1; activeId: string | null; projects: Meta[] }
@@ -287,6 +287,16 @@ const PILL: Record<SaveState, { cls: string; label: string }> = {
   saved:   { cls: 'az-saved',   label: 'Cloud saved' },
   offline: { cls: 'az-offline', label: 'Offline · device only' },
 }
+
+/* ATRIUM language, stage 2: the engine's controls row. One typeface (Inter 300),
+   tracking zero, sentence case, nothing under 11px. Appended after the three
+   sheets above so none of them is edited. */
+const LANG_CSS = `
+.azs,.azs *{font-family:'Inter',system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;
+  font-variant-numeric:tabular-nums}
+.azs-btn,.azs-note,.az-pill,.azs-t,.azs-menu button b,.azn-row .t,.azn-new,.azn-prow .n,.azn-prow .d,.azn-prow .open,.azn-lbl,.azn-tab .n{
+  font-size:11.5px!important;font-weight:300!important}
+`
 
 export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => void; onLogout?: () => void }) {
   const frame = useRef<HTMLIFrameElement | null>(null)
@@ -556,7 +566,7 @@ export default function AtriumZeroed({ onClose, onLogout }: { onClose: () => voi
 
   return (
     <div className={`azs${max ? ' max' : ''}`}>
-      <style>{SHELL_CSS + PILL_CSS + NAV_CSS}</style>
+      <style>{SHELL_CSS + PILL_CSS + NAV_CSS + LANG_CSS}</style>
       {/* The island: the home-page video runs behind the header and the nav. */}
       <div className="azs-isle" aria-hidden="true">
         <video autoPlay muted loop playsInline preload="metadata" src="/haavn-black-bg.mp4" />

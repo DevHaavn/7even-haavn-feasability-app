@@ -16,7 +16,7 @@ type Group = '7even' | 'haavn'
 const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string; color: string }[] = [
   {
     id: '7even', num: '01', title: '7EVEN Capital Administration',
-    sub: 'Dashboards · Projects · Budgets',
+    sub: 'Dashboards · projects · budgets',
     blurb: '7EVEN & 7EVEN Capital books — project-linked budgets tracked live against the feasibility studio, invoice register and dashboards.',
     // Was the retired gold #C4973A. Xero blue — this book IS the Xero-backed
     // 7EVEN set, and it matches pillar 01 on the gateway it sits under.
@@ -24,7 +24,7 @@ const BOOKS: { id: Group; num: string; title: string; sub: string; blurb: string
   },
   {
     id: 'haavn', num: '02', title: 'HAAVN Administration',
-    sub: 'Accounts & Settlement · Client revenue · FY27',
+    sub: 'Accounts & settlement · client revenue · FY27',
     blurb: 'The full ATRIUM Accounts & Settlement surface — client revenue, manager splits, group settlement, inter-co loans and the FY27 budget across every HAAVN entity, consolidated.',
     color: '#d6b36a',
   },
@@ -81,7 +81,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
             listener above handles — same pattern as Book 02. No floating pill. */}
         <iframe
           title="ATRIUM — 7EVEN Capital Administration"
-          src="/atrium-book01-7even-capital.html?v=20261005c"
+          src="/atrium-book01-7even-capital.html?v=20261008c"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
       </div>
@@ -100,7 +100,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
             same pattern as Book 01. No floating pill. */}
         <iframe
           title="ATRIUM — Accounts & Settlement"
-          src="/atrium-accounts.html?v=20261005e"
+          src="/atrium-accounts.html?v=20261008e"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }}
         />
       </div>
@@ -201,14 +201,14 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
         </button>
         <div className="abh-brand">
           <div className="wm"><span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM</div>
-          <span className="tag">Accounts Hub</span>
+          <span className="tag">Accounts hub</span>
         </div>
         <GatewaySeg />
       </div>
 
       <div className="abh-in">
-      <div className="abh-eyebrow">Accounts · Two Sets of Books</div>
-      <h1 className="abh-title">Accounts Hub</h1>
+      <div className="abh-eyebrow">Accounts · two sets of books</div>
+      <h1 className="abh-title">Accounts hub</h1>
       <p className="abh-sub">Choose a set of books — 7EVEN Capital and HAAVN are kept separate.</p>
       <div className="abh-rule" />
       <div className="abh-grid">
@@ -240,7 +240,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
                 <img src="/xero-logo.png" alt="Xero" draggable={false}
                   style={{ width: 86, height: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 12px rgba(19,181,234,0.25))' }} />
               </div>
-              <span className="abh-enter">Enter Books &#8594;</span>
+              <span className="abh-enter">Enter books &#8594;</span>
             </button>
           </div>
         ))}

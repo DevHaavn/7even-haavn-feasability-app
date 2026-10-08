@@ -28,13 +28,13 @@ export const PA = {
 export const PILLARS: Pillar[] = [
   {
     id: 'budgets', num: '01', title: 'Budgets / Administration',
-    sub: 'Accounts · Budgets · Invoices · Approvals',
+    sub: 'Accounts · budgets · invoices · approvals',
     blurb: 'Project budgets, cost tracking against feasibility, invoice register, approvals and the accounts backbone.',
     color: '#d6b36a', // LED brand gold
   },
   {
     id: 'crm', num: '02', title: 'Management System',
-    sub: 'Projects · Files · Workflow · Contacts',
+    sub: 'Projects · files · workflow · contacts',
     blurb: 'The full ATRIUM Management System — project delivery from job start to completion, SharePoint file management, end-to-end workflow, and the partner & contact relationships behind every job. Mirrors the HAAVN Management command centre.',
     color: '#d6b36a', // LED brand gold
   },
@@ -179,11 +179,11 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
 
       {/* Body */}
       <div className="cab-body">
-        <div className="cab-eyebrow">Precision Capital Deployed</div>
+        <div className="cab-eyebrow">Precision capital deployed</div>
         <div className="cab-wm">
           <span className="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" strokeWidth="8" strokeLinejoin="miter" strokeLinecap="butt" /></svg></span>TRIUM
         </div>
-        <div className="cab-title">Administration Base</div>
+        <div className="cab-title">Administration base</div>
         <p className="cab-sub">Three pillars for the accounts, capital and partner teams — linked to the feasibility studio.</p>
         <div className="cab-faint">{projects.length} live project{projects.length !== 1 ? 's' : ''} · {fmtM(totalTDC)} land committed</div>
         <div className="cab-rule" />
@@ -217,7 +217,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
                   </div>
                 )}
 
-                <span className="cab-penter">Enter Pillar &#8594;</span>
+                <span className="cab-penter">Enter pillar &#8594;</span>
               </button>
             </div>
           ))}
