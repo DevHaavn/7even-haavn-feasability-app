@@ -42,6 +42,9 @@ input,select{font-family:inherit;font-size:13px;color:var(--ink)}
 .side .lbl{font-family:var(--f-d);font-size:9px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;padding:16px 20px 8px}
 .side .nav{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:#b7bab8;cursor:pointer;border-left:2px solid transparent}
 .side .nav:hover{background:var(--char2);color:#fff}
+.side .nav{justify-content:space-between}
+.side .nav .ds{font-size:11.5px;font-weight:300;color:#9aa09e;white-space:nowrap}
+.side .nav:hover .ds,.side .nav.on .ds{color:#c2c7c5}
 .side .nav.on{background:var(--char2);color:#fff;border-left-color:#fff;font-weight:500}
 .side .rng{margin:0 14px 6px;padding:11px 13px;border:1px solid var(--charline);border-radius:9px;cursor:pointer}
 .side .rng.on{background:#fff;color:#000;border-color:#fff}
@@ -221,6 +224,7 @@ body{background:#08090a}
   .side .nav.on{border-color:#fff;background:var(--char2)}
   .side .rng{margin:0;white-space:nowrap;padding:8px 13px}
   .side .rng .rs{display:none}
+  .side .nav .ds{display:none}
   .main{width:100%;min-width:0}
   .wrap{padding:18px 14px 64px;max-width:100%}
   .h-row{gap:12px}
@@ -353,9 +357,11 @@ function blockTotals(){let cost=0,sale2=0,area=0,units=0;DB.block.forEach(b=>{co
 
 /* ================= SHELL ================= */
 const NAV=[['range','Range'],['feas','Feasibility'],['mix','Project Mix'],['program','Program'],['dash','Dashboard'],['cap','Capability']];
+/* what each view is, shown right of the name like the other ATRIUM menus */
+const NAV_DESC={range:'The homes',feas:'Cost one home',mix:'Homes on a block',program:'Delivery and cashflow',dash:'Range and block totals',cap:'Company story'};
 const RANGES=[['black','HAAVN Black Series','Signature homes'],['ess','Essentials','Developer stock']];
 function renderShell(){
-  document.getElementById('navList').innerHTML=NAV.map(([k,l])=>`<div class="nav ${view===k?'on':''}" data-act="nav" data-view="${k}">${l}</div>`).join('');
+  document.getElementById('navList').innerHTML=NAV.map(([k,l])=>`<div class="nav ${view===k?'on':''}" data-act="nav" data-view="${k}"><span class="nm">${l}</span><span class="ds">${NAV_DESC[k]||''}</span></div>`).join('');
   document.getElementById('rngList').innerHTML=RANGES.map(([k,n,s])=>`<div class="rng ${rangeSel===k?'on':''}" data-act="range" data-r="${k}"><div class="rn">${n}</div><div class="rs">${s}</div></div>`).join('');
   document.getElementById('crumb').textContent=(NAV.find(n=>n[0]===view)||['','RANGE'])[1].toUpperCase();
 }
