@@ -489,6 +489,35 @@ footer{padding-bottom:20px;margin-top:auto}
   .fl,.fr{justify-self:center;justify-content:center;flex-wrap:wrap}
   .legal{flex-direction:column;gap:6px}
 }
+
+/* ═══ HOME IS ONE PAGE ══════════════════════════════════════════════════
+   The HAAVN landing is a single brand screen: the menu H, the wordmark and
+   pillar line on the ground, and the footer in the access screen language
+   (Jessica's). No scroll. The LIVE · time · MELBOURNE bar now lives in the
+   footer. The Preston build and haavn.au's second section are parked (still in
+   the file, not shown, iframe not loaded). The inner pages scroll as before. */
+html:has(body:not(.view-inner)),body:not(.view-inner){height:100%;overflow:hidden}
+body:not(.view-inner) #shell{height:100svh;min-height:0}
+body:not(.view-inner) main{min-height:0}
+body:not(.view-inner) #vHome .pA,body:not(.view-inner) #vHome .p2,
+body:not(.view-inner) #vHome .scrollcue,body:not(.view-inner) #vHome .livebar{display:none!important}
+body:not(.view-inner) .p1{height:calc(100svh - var(--above,57px) - var(--foot,70px));min-height:0}
+/* footer: one line, Inter 300 at 12, tracking zero, plain links, no pulse */
+footer .fl,footer .fc,footer .fr,footer .fl *,footer .fc *,footer .fr *{font-family:'Inter',system-ui,sans-serif!important;
+  font-size:12px!important;font-weight:300!important;letter-spacing:0!important;text-transform:none!important}
+footer .fl,footer .fc,footer .fr{color:rgba(16,16,16,.62)}
+footer .meta,footer .fc .live,footer .clock,footer .zone{color:rgba(16,16,16,.62)!important}
+.dot-live{display:none!important}
+.fc{gap:10px}
+.fc .clock::before,.fc .zone::before{content:"\00b7";margin-right:10px;opacity:.5}
+.chip{border:0!important;border-image:none!important;border-radius:0!important;padding:0!important;background:transparent!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important;color:rgba(16,16,16,.62)!important;
+  transition:color .3s!important}
+.chip:hover{color:#101010!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+.chip .ext,.chip.upd .ring{display:none!important}
+.fr{gap:22px}
+footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important;font-size:11px!important;font-weight:300!important;
+  letter-spacing:0!important;text-transform:none!important;color:rgba(16,16,16,.4)!important}
 </style>
 </head>
 <body>
@@ -552,7 +581,7 @@ footer{padding-bottom:20px;margin-top:auto}
           <p class="q rv"><span class="g">The home that arrives.</span> <strong>Now with the hands that deliver it.</strong></p>
           <p class="by rv f" style="--dl:.25s">HAAVN<i>×</i>Hamilton Marino</p>
         </div>
-        <iframe class="slide" id="slide" src="preston-slide.html?v=2" title="Preston — modular assembly sequence"
+        <iframe class="slide" id="slide" data-src="preston-slide.html?v=2" src="about:blank" title="Preston — modular assembly sequence"
                 tabindex="-1" scrolling="no"></iframe>
       </div>
 
@@ -667,8 +696,8 @@ footer{padding-bottom:20px;margin-top:auto}
         <div class="meta">HAAVN SUPPLY &nbsp;/&nbsp; BUILD 26.09</div>
       </div>
       <div class="fc">
-        <span class="dot-live"></span><span class="live">LIVE</span>
-        <span class="clock" id="clock">--:--:--</span><span class="zone">MELBOURNE</span>
+        <span class="dot-live"></span><span class="live">Live</span>
+        <span class="clock" id="clock">--:--:--</span><span class="zone">Melbourne</span>
       </div>
       <div class="fr">
         <a class="chip" href="https://haavn.au" target="_blank" rel="noopener">HAAVN.AU <span class="ext">&#8599;</span></a>
@@ -985,7 +1014,7 @@ var MEDIA = [
         timeZone:'Australia/Melbourne', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
       }).format(new Date());
     } catch(e){ t = new Date().toLocaleTimeString(); }
-    $('#clock').textContent = t; $('#liveTime').textContent = t;
+    $('#clock').textContent = t; var lt = $('#liveTime'); if (lt) lt.textContent = t;
   }
   tick(); setInterval(tick, 1000);
   $('#btnUpdate').addEventListener('click', function(){ location.reload(); });
