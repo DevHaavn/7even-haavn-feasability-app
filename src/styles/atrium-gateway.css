@@ -7,7 +7,7 @@
    ========================================================================== */
 :root{--at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0;
  --g-bg0:#0B0D0F;--g-bg1:#101216;--g-ink:#F3F2EE;--g-ink2:#b7b9bf;--g-ink3:#7d818b;--g-ink4:#565a63;--g-line:rgba(255,255,255,.09);--g-pill:rgba(255,255,255,.045);--g-glass:rgba(24,26,32,.62);--g-top:rgba(11,13,15,.86)}
-html[data-theme="light"]{--g-bg0:#eceae4;--g-bg1:#f4f2ec;--g-ink:#1a1b1e;--g-ink2:#4a4d54;--g-ink3:#83868e;--g-ink4:#a7aab1;--g-line:rgba(20,20,25,.10);--g-pill:rgba(20,20,25,.04);--g-glass:rgba(255,255,255,.68);--g-top:rgba(236,234,228,.86)}
+html[data-theme="light"]{--g-bg0:#eceae4;--g-bg1:#f4f2ec;--g-ink:#1a1b1e;--g-ink2:#4a4d54;--g-ink3:#5b5f67;--g-ink4:#a7aab1;--g-line:rgba(20,20,25,.10);--g-pill:rgba(20,20,25,.04);--g-glass:rgba(255,255,255,.68);--g-top:rgba(236,234,228,.86)}
 .agw-seg{margin-left:auto;display:flex;padding:3px;border-radius:100px;border:1px solid var(--g-line);background:var(--g-pill)}
 .agw-seg button{border:none;background:transparent;color:var(--g-ink3);font:400 9.5px 'JetBrains Mono',monospace;letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
 .agw-seg button.on{background:var(--g-ink);color:var(--g-bg0)}
@@ -128,3 +128,35 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
 .agw :is(.cab-ptitle,.hmh-ptitle,.abh-ptitle){font-size:24px}
 /* the LOG circle, same device as the other menus */
 .agw :is(.cab-logout,.hmh-logout,.abh-logout,.ceg-logout){font:300 8.5px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important}
+
+/* ── light theme contrast ─────────────────────────────────────────────────
+   Measured, not eyeballed. In light the gold card text was #8f6a25 (4.0:1 at
+   best), the tertiary grey #83868e (3.0:1) and the brand tag and Dark/Light
+   switch used it. The body text also sat straight on the moving video, which
+   darkens in places. So:
+   - the light scrim is raised so the backdrop under any text is a known pale
+     (about 0.7 relative luminance or lighter), the video still moves behind it
+   - card gold goes to a deeper bronze #6f5217 (5.0:1 or better on that pale)
+   - the tertiary grey token goes to #5b5f67 (5.5:1 or better)
+   - the brand tag and switch use the secondary ink
+   The gold hue, the rotating ring and the menu card rule are untouched. */
+html[data-theme="light"] .agw :is(.cab-scrim,.hmh-scrim){
+  background:linear-gradient(180deg,rgba(244,242,236,.68),rgba(244,242,236,.6) 42%,rgba(244,242,236,.72))!important}
+html[data-theme="light"] .agw :is(.cab-psub,.hmh-psub,.abh-psub,.cab-pnum,.hmh-pnum,.abh-num,.cab-ptitle,.hmh-ptitle,.abh-ptitle){color:#6f5217!important}
+html[data-theme="light"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){color:#6f5217!important;border-color:rgba(111,82,23,.55)!important}
+.agw :is(.cab-brand,.hmh-brand,.abh-brand,.ceg-brand) .tag{color:var(--g-ink2)}
+html[data-theme="light"] .agw-seg button{color:var(--g-ink2)}
+html[data-theme="light"] .agw-seg button.on{color:var(--g-bg0)}
+/* The rotating ring was drawn for a dark backdrop (pale champagne, brightened),
+   so on the paler light ground it disappeared. Same ring, same speed, same
+   fold-over hover, in a deeper gold with a softer shadow. */
+html[data-theme="light"] .agw .cab-ledbox::before{
+  background:conic-gradient(from var(--cabA),transparent 0deg,#a8802c 130deg,#c9a041 160deg,#a8802c 190deg,transparent 310deg,transparent 360deg);
+  filter:drop-shadow(0 0 5px rgba(168,128,44,.35))}
+html[data-theme="light"] .agw .hmh-ledbox::before{
+  background:conic-gradient(from var(--hmhA),transparent 0deg,#a8802c 130deg,#c9a041 160deg,#a8802c 190deg,transparent 310deg,transparent 360deg);
+  filter:drop-shadow(0 0 5px rgba(168,128,44,.35))}
+html[data-theme="light"] .agw .abh-ledbox::before{
+  background:conic-gradient(from var(--abhA),transparent 0deg,#a8802c 130deg,#c9a041 160deg,#a8802c 190deg,transparent 310deg,transparent 360deg);
+  filter:drop-shadow(0 0 5px rgba(168,128,44,.35))}
+html[data-theme="light"] .agw :is(.cab-ledbox,.hmh-ledbox,.abh-ledbox)::after{opacity:.4}
