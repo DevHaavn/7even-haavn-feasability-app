@@ -453,6 +453,23 @@ body .topbar .ent-switch select,body .topbar .savestate,body .topbar .modlbl{col
 body .topbar .ent-switch .el{color:var(--ink-3)!important}
 body #entSel,body .ent-switch .ec{color:var(--ink)!important}
 body .ent-switch .ec::after{color:var(--ink-3)}
+/* entity switcher: no pill, no dot, plain words; the menu is a flat list in the page's colours */
+body .topbar{overflow:visible!important}
+body .ent-switch{overflow:visible!important;height:auto!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:none!important;gap:8px}
+body .ent-switch .ec{position:relative}
+body .ent-switch .ec::after,body .ent-switch .ec i{display:none!important}
+body .ent-switch .ent-native{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.ent-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:6px 2px;font:400 13px 'Inter',system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.ent-btn svg{opacity:.7;transition:transform .2s}
+.ent-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.ent-menu{position:absolute;top:calc(100% + 10px);right:0;z-index:300;min-width:260px;padding:6px 0;background:var(--bg1);border:1px solid var(--line);
+  border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.2)}
+.ent-menu[hidden]{display:none}
+.ent-opt{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 16px;font:400 14px 'Inter',system-ui,sans-serif;
+  color:color-mix(in srgb,var(--ink) 82%,transparent);cursor:pointer;transition:background .15s,color .15s}
+.ent-opt:hover{background:var(--pill);color:var(--ink)}
+.ent-opt.on{color:var(--ink);box-shadow:inset 2px 0 0 var(--ink)}
+.ent-sep{height:1px;background:var(--line);margin:6px 0}
 .bz{display:none!important}
 </style>
 <link rel="stylesheet" href="/atrium-language.css">
@@ -460,7 +477,7 @@ body .ent-switch .ec::after{color:var(--ink-3)}
 <div class="app">
  <div class="topbar"><button class="sideToggle" id="sideToggle" aria-label="Menu"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="tb-title" id="tbTitle">Command</div><div class="tb-sub">HAAVN ADMINISTRATION · FY27</div><div class="rt"><span class="ent-switch" title="Current entity — shown on every screen">
    <span class="el">Entity</span>
-   <span class="ec"><i></i><select id="entSel" aria-label="Current entity" onchange="setEntity(this.value)"></select></span>
+   <span class="ec"><select id="entSel" class="ent-native" aria-hidden="true" tabindex="-1" onchange="setEntity(this.value)"></select><button type="button" id="entBtn" class="ent-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Current entity"><span id="entLbl"></span><svg class="chev" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button><div class="ent-menu" id="entMenu" role="listbox" hidden></div></span>
   </span>
   <span class="savestate" id="saveState"><i class="sdot"></i><span class="stext"></span></span><div class="seg" id="themeSeg"><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div></div>
  <div class="body">
@@ -731,8 +748,21 @@ function navIcon(k){const n=NAV_KEYIC[k]||'overview';return `<svg class="ri" vie
 function buildRail(){
  $('railNav').innerHTML = NAV.map((sec,i)=>`<div class="rgrp ${['g-work','g-supply','g-perf','g-team','g-meet','g-black'][i]||'g-work'}">${sec.g}</div>`+sec.items.map(([k,l])=>`<button class="rnav" data-k="${k}" onclick="go('${k}')">${navIcon(k)}<span class="tx"><span class="nm">${l}</span><span class="ds">${NAV_DESC[k]||''}</span></span></button>`).join('')).join('');
 }
-function buildEntitySelect(){ $('entSel').innerHTML = ENTITIES.map(e=>`<option${e===state.entity?' selected':''}>${e}</option>`).join(''); }
-function setEntity(v){ state.entity=v; const s=$('entSel'); if(s&&s.value!==v)s.value=v; save(); render(); }
+function buildEntitySelect(){ $('entSel').innerHTML = ENTITIES.map(e=>`<option${e===state.entity?' selected':''}>${e}</option>`).join(''); buildEntMenu(); }
+/* the entity switcher: plain words in the page font, a flat menu in the page's own colours (the native select could not be styled) */
+function closeEnt(){ const m=$('entMenu'),b=$('entBtn'); if(m)m.hidden=true; if(b)b.setAttribute('aria-expanded','false'); }
+function buildEntMenu(){
+  const m=$('entMenu'); if(!m) return; wireEnt();
+  $('entLbl').textContent=state.entity;
+  m.innerHTML = ENTITIES.map((e,i)=>`<button type="button" role="option" class="ent-opt${e===state.entity?' on':''}" aria-selected="${e===state.entity}" data-i="${i}">${esc(e)}</button>${i===0?'<div class="ent-sep"></div>':''}`).join('');
+  [].forEach.call(m.querySelectorAll('.ent-opt'),b=>b.onclick=ev=>{ ev.stopPropagation(); setEntity(ENTITIES[+b.dataset.i]); });
+}
+function wireEnt(){ const b=$('entBtn'); if(!b||b._wired) return; b._wired=true;
+  b.onclick=ev=>{ ev.stopPropagation(); const m=$('entMenu'); const open=m.hidden; m.hidden=!open; b.setAttribute('aria-expanded',String(open)); };
+  document.addEventListener('click',closeEnt);
+  document.addEventListener('keydown',ev=>{ if(ev.key==='Escape') closeEnt(); });
+}
+function setEntity(v){ state.entity=v; const s=$('entSel'); if(s&&s.value!==v)s.value=v; save(); buildEntMenu(); closeEnt(); render(); }
 function go(k){ ui.view=k; try{ const t=document.getElementById('tbTitle'); if(t){ let lab=k; NAV.forEach(sec=>sec.items.forEach(([kk,l])=>{ if(kk===k) lab=l; })); t.textContent=lab; } }catch(e){} ui.editingExpenseId=null; ui.pendingDelC=null; render(); window.scrollTo?.(0,0); const m=$('view'); if(m)m.scrollTop=0; }
 const VIEWS={};
  /* Company structure — the HAAVN × Hamilton Marino group-structure working document. */
