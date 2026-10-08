@@ -333,6 +333,21 @@ const CSS = `
 .ath-pinrow{width:100%;margin:0 0 2px;border-radius:0;border:0;border-top:1px solid rgba(214,179,106,.45);background:transparent;padding:12px 0}
 .ath-pinlbl,.ath-pinhint{font-family:'Inter',system-ui,sans-serif;letter-spacing:0;text-transform:none;font-size:11px}
 .ath-pininp{font-family:'Inter',system-ui,sans-serif;letter-spacing:.4em}
+/* ── 7EVEN footer, matching the access screen ────────────────────────
+   One line, Inter 300 at 12 and tracking zero. The gold bordered pills
+   become plain links, the green pulse goes, the ring mark stays.       */
+.ath-livewrap{font-family:'Inter',system-ui,sans-serif!important;font-size:12px!important;
+  font-weight:300!important;letter-spacing:0!important;text-transform:none!important;
+  color:rgba(243,242,238,.6)!important;gap:8px!important}
+.ath-livedot{display:none!important}
+.ath-clock{font-family:'Inter',system-ui,sans-serif!important;letter-spacing:0!important}
+.ath-chip{border:0!important;border-radius:0!important;padding:0!important;background:transparent!important;
+  box-shadow:none!important;font-family:'Inter',system-ui,sans-serif!important;font-size:12px!important;
+  font-weight:300!important;letter-spacing:0!important;text-transform:none!important;
+  color:rgba(243,242,238,.6)!important;transition:color .3s!important}
+.ath-chip:hover{color:#F3F2EE!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+.ath-chip .ext,.ath-chip .ring{display:none!important}
+
 `
 
 

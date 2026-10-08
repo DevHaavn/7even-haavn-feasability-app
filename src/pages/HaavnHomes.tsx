@@ -217,7 +217,7 @@ export default function HaavnHomes({ onBack, restricted, salesOnly, suspended, o
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 600, background: '#000', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', overflow: 'hidden', overscrollBehavior: 'none' }}>
       <iframe title="HAAVN BLACK"
-        src={suspended && isPhone() ? 'about:blank' : (salesOnly ? '/haavn-black.html?v=42&sales=1' : '/haavn-black.html?v=42')} allow="autoplay; fullscreen"
+        src={suspended && isPhone() ? 'about:blank' : (salesOnly ? '/haavn-black.html?v=43&sales=1' : '/haavn-black.html?v=43')} allow="autoplay; fullscreen"
         style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
   )

@@ -874,6 +874,25 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
 })();
 </script>
 <style id="atrium-menu">
+/* ── footer, matching the access screen ──────────────────────────────
+   One line, Inter 300 at 12 and tracking zero. Chips become plain
+   links, the green pulse goes, the ring mark stays.                   */
+.fl,.fc,.fr{font-family:'Inter',system-ui,sans-serif!important;font-size:12px!important;
+  font-weight:300!important;letter-spacing:0!important;color:rgba(243,242,238,.6)!important}
+.fl *,.fc *,.fr *{font-family:'Inter',system-ui,sans-serif!important;font-size:12px!important;
+  font-weight:300!important;letter-spacing:0!important;text-transform:none!important}
+.dot-live{display:none!important}
+.fc .chip,.fr .chip{border:0!important;border-radius:0!important;padding:0!important;
+  background:transparent!important;box-shadow:none!important;color:rgba(243,242,238,.6)!important;
+  transition:color .3s!important}
+.fc .chip:hover,.fr .chip:hover{color:#F3F2EE!important;background:transparent!important;
+  box-shadow:none!important;transform:none!important}
+.fc .chip .go,.fr .chip .ext,.fr .chip .ring,.fc .chip .ring{display:none!important}
+.vis{color:rgba(243,242,238,.38)!important}
+.legal,.legal *{font-family:'Inter',system-ui,sans-serif!important;font-size:11px!important;
+  font-weight:300!important;letter-spacing:0!important;text-transform:none!important;
+  color:rgba(243,242,238,.3)!important}
+
 /* ── HAAVN BLACK menu, quieter ───────────────────────────────────────
    The pills become an index: name left, what it is right, a hairline
    between, the row indenting on hover. Deep ground fades in behind it,
@@ -904,13 +923,25 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
 .hbrow .g{display:none!important}
 .hbrow .d{font-size:12.5px;color:rgba(243,242,238,.42);transition:color .35s;white-space:nowrap}
 .hbrow:hover .d{color:rgba(243,242,238,.72)}
-.hbrow.logout{display:flex!important;width:48px!important;height:48px!important;border:1px solid rgba(243,242,238,.3)!important;
-  border-radius:999px!important;padding:0!important;font-size:7.5px!important;color:rgba(243,242,238,.6)!important}
+/* Log out stays the round device. The index rule above turns every row
+   into a two column grid on a baseline, which pushed the ring out of the
+   circle, so the button is put back to a centred column here.          */
+.hbrow.logout{display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:3px!important;width:48px!important;height:48px!important;
+  flex:none!important;grid-template-columns:none!important;border:1px solid rgba(243,242,238,.3)!important;
+  border-radius:999px!important;padding:0!important;font-size:7.5px!important;line-height:1!important;
+  letter-spacing:.16em!important;color:rgba(243,242,238,.55)!important;
+  transition:color .35s,border-color .35s!important}
+.hbrow.logout:hover{padding:0!important;color:#F3F2EE!important;
+  border-color:rgba(243,242,238,.55)!important;background:transparent!important;box-shadow:none!important}
+.hbrow.logout .ring-o{width:11px!important;height:11px!important;border-radius:50%!important;
+  border:1.4px solid currentColor!important;flex-shrink:0!important}
 .hb-bottomrow{justify-content:flex-start!important;margin-top:22px}
 </style>
 <script>
 (function(){
-  var D={'HAAVN BLK':'The homes','HAAVN STUDIO':'Display suite','PARTNERS':'Shareholders','ATRIUM':'Management'};
+  var D={'HAAVN BLK':'Display suite','HAAVN STUDIO':'Feasibility','PARTNERS':'Shareholders','ATRIUM':'Management'};
+  var N={'HAAVN BLK':'HAAVN BLK','HAAVN STUDIO':'HAAVN Studio','PARTNERS':'Partners','ATRIUM':'ATRIUM'};
   function go(){
     var m=document.getElementById('hbMenu'); if(!m) return setTimeout(go,300);
     [].slice.call(m.querySelectorAll('.hbrow')).forEach(function(r){
@@ -921,7 +952,7 @@ document.getElementById('btnUpdate').addEventListener('click',function(){
       var g=r.querySelector('.g'); if(g) g.remove();
       if(isA){ if(!r.querySelector('.d')){var s=document.createElement('span');s.className='d';s.textContent=D['ATRIUM'];r.appendChild(s);} return; }
       if(!k) return;
-      r.innerHTML='<span class="n">'+t+'</span><span class="d">'+D[k]+'</span>';
+      r.innerHTML='<span class="n">'+(N[k]||t)+'</span><span class="d">'+D[k]+'</span>';
     });
   }
   if(document.readyState!=='loading') go(); else document.addEventListener('DOMContentLoaded',go);
