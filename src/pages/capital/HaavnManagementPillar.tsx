@@ -82,7 +82,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'agenda') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261008k&shell=hm${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
+        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261008m&shell=hm${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
