@@ -327,8 +327,8 @@ const CSS = `
 .ath-rowname.gold{color:rgba(243,242,238,.72)}
 .ath-base:hover .ath-rowname,.ath-brandrow:hover .ath-rowname,.ath-hor7:hover .ath-rowname{color:#d6b36a}
 .ath-rowdesc{font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:300;letter-spacing:0;
-  color:rgba(243,242,238,.42);transition:color .35s;white-space:nowrap}
-.ath-base:hover .ath-rowdesc,.ath-brandrow:hover .ath-rowdesc,.ath-hor7:hover .ath-rowdesc{color:rgba(243,242,238,.7)}
+  color:rgba(243,242,238,.62);transition:color .35s;white-space:nowrap}
+.ath-base:hover .ath-rowdesc,.ath-brandrow:hover .ath-rowdesc,.ath-hor7:hover .ath-rowdesc{color:rgba(243,242,238,.88)}
 .ath-brandrow:last-of-type{border-bottom:1px solid rgba(243,242,238,.2)}
 .ath-bottomrow{justify-content:flex-start;margin-top:22px}
 .ath-pinrow{width:100%;margin:0 0 2px;border-radius:0;border:0;border-top:1px solid rgba(214,179,106,.45);background:transparent;padding:12px 0}

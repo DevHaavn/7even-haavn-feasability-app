@@ -1317,12 +1317,26 @@ var MEDIA = [
 .mrow:hover{padding-left:12px!important;background:transparent!important;
   border-top-color:rgba(90,150,60,.6)!important;color:#0E100C!important;box-shadow:none!important}
 .mrow .g{display:none!important}
-.mrow .d{font-size:12.5px;color:rgba(20,22,18,.44);transition:color .35s;white-space:nowrap}
-.mrow:hover .d{color:rgba(20,22,18,.72)}
+.mrow .d{font-size:12.5px;color:rgba(20,22,18,.66);transition:color .35s;white-space:nowrap}
+.mrow:hover .d{color:rgba(20,22,18,.86)}
 .mrow.atrium .atxt{letter-spacing:0!important;padding-left:0!important;font-size:18px!important}
 .mrow.logout{display:flex!important;width:48px!important;height:48px!important;
   border:1px solid rgba(20,22,18,.28)!important;border-radius:999px!important;padding:0!important}
 .m-bottomrow{justify-content:flex-start!important;margin-top:22px}
+/* the drop-downs under Projects and Presentations, in the same index: the name,
+   and the client and date as its descriptor on the right (or beneath it when the
+   name is long). Hairline between, the row indenting on hover. */
+.mdrop .msub{display:flex!important;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 16px;
+  width:100%!important;margin:0!important;padding:11px 0 11px 14px!important;border:0!important;
+  border-top:1px solid rgba(20,22,18,.14)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  transition:padding .35s cubic-bezier(.16,1,.3,1),border-color .35s!important}
+.mdrop .msub:hover{padding-left:26px!important;border-top-color:rgba(90,150,60,.6)!important;background:transparent!important}
+.mdrop .msub>span:first-child{display:contents}
+.mdrop .msub b{font:300 15px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:rgba(20,22,18,.84)}
+.mdrop .msub i{display:block;font:300 12px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;
+  color:rgba(20,22,18,.66);margin:0 0 0 auto!important;white-space:nowrap;transition:color .35s}
+.mdrop .msub:hover b{color:#0E100C}.mdrop .msub:hover i{color:rgba(20,22,18,.86)}
+.mdrop .msub .g{display:none!important}
 </style>
 <script>
 (function(){
