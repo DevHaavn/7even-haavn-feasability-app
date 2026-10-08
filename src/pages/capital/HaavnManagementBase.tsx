@@ -170,7 +170,12 @@ export default function HaavnManagementBase({ onClose, onLogout, pillars }: { on
     const p = visiblePillars.find(x => x.id === pillar)!
     return <HaavnManagementPillar pillar={p} onBack={() => setPillar(null)} onLogout={onLogout} onExit={onClose}
       openMeetingId={pillar === 'agenda' ? openMeetingId : null}
-      onOpenMeeting={(id) => { setOpenMeetingId(id); setPillar('agenda') }} />
+      onOpenMeeting={(id) => { setOpenMeetingId(id); setPillar('agenda') }}
+      onSwitchPillar={(to) => {
+        // "workflow" means this user's workflow tool (the Black sales variant for sales staff).
+        const target = to === 'workflow' ? visiblePillars.find(x => x.id.startsWith('workflow'))?.id : visiblePillars.find(x => x.id === to)?.id
+        if (target) { setOpenMeetingId(null); setPillar(target) }
+      }} />
   }
 
   return (

@@ -11,7 +11,7 @@ import { useOpenStudioBridge } from '../../lib/useOpenStudioBridge'
 import { useRole } from '../../lib/role'
 import { useScrollLock } from '../../lib/useScrollLock'
 
-export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit, openMeetingId, onOpenMeeting }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void; openMeetingId?: string | number | null; onOpenMeeting?: (id: string | number) => void }) {
+export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit, openMeetingId, onOpenMeeting, onSwitchPillar }: { pillar: HMPillar; onBack: () => void; onLogout: () => void; onExit: () => void; openMeetingId?: string | number | null; onOpenMeeting?: (id: string | number) => void; onSwitchPillar?: (to: string) => void }) {
   const isCRM = pillar.id === 'crm'
   const role = useRole()
   const theme = useAtriumTheme()
@@ -30,12 +30,14 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       // Deep link from pillar 01: "open this specific meeting in pillar 02" — jump pillars,
       // carrying the meeting id so pillar 02 opens straight into its agenda.
       else if (e.data && typeof e.data === 'object' && e.data.type === 'haavn-open-meeting' && onOpenMeeting) onOpenMeeting(e.data.id)
+      // The Workflow | Meetings switch in either tool's menu: jump between the two pillars.
+      else if (e.data && typeof e.data === 'object' && e.data.type === 'haavn-switch-pillar' && onSwitchPillar) onSwitchPillar(String(e.data.to))
     }
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onBack() }
     window.addEventListener('message', onMsg)
     window.addEventListener('keydown', onKey)
     return () => { window.removeEventListener('message', onMsg); window.removeEventListener('keydown', onKey) }
-  }, [isIframeTool, onBack, onOpenMeeting])
+  }, [isIframeTool, onBack, onOpenMeeting, onSwitchPillar])
 
   // HAAVN Management System — the full ATRIUM Management prototype (Today, Senior
   // Management, Portfolio, Projects, project workspace, Client Portal, Meetings,
@@ -57,7 +59,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'workflow') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261008h" allow="microphone"
+        <iframe title="ATRIUM · Workflow" src="/atrium-workflow.html?v=20261008j&shell=hm" allow="microphone"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )
@@ -80,7 +82,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
   if (pillar.id === 'agenda') {
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#eceae4', display: 'flex', flexDirection: 'column', overflow: 'hidden', overscrollBehavior: 'none' }}>
-        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261008i${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
+        <iframe title="ATRIUM · Meeting Management" src={`/atrium-meeting-hub.html?v=20261008k&shell=hm${openMeetingId ? `&openMeeting=${encodeURIComponent(openMeetingId)}` : ''}`} allow="microphone; clipboard-write"
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

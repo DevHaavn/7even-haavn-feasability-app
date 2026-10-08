@@ -19,7 +19,7 @@ html body .rail{padding:24px 16px 18px}
 html body .rail-group{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
   padding:14px 0 0!important;margin:20px 10px 4px!important;border-top:1px solid var(--ph)!important;
   font:400 12px/1.2 var(--sans)!important;color:var(--p3)!important}
-html body .rail-head+.rail-group,html body .rail>.rail-group:first-of-type{border-top:0!important;padding-top:0!important;margin-top:6px!important}
+html body .rail-head+.rail-group,html body .rail-switch+.rail-group{border-top:0!important;padding-top:0!important;margin-top:6px!important}
 html body .rail-item{border-radius:0;padding:8px 10px;font-size:13px;color:var(--p2);gap:12px}
 html body .rail-item:hover{background:none;color:var(--ink)}
 html[data-theme] body .rail-item.on{background:none!important;border:0!important;box-shadow:inset 2px 0 0 var(--ink)!important;color:var(--ink);font-weight:400}
@@ -106,7 +106,7 @@ html body{--acc:#9db8e8}
 html body .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent)!important;border:0!important;
   border-left:3px solid var(--gc)!important;border-radius:4px!important;padding:7px 10px!important;margin:16px 0 6px!important;
   color:var(--ink)!important;font:500 12px/1.25 var(--sans)!important}
-html body .rail-head+.rail-group,html body .rail>.rail-group:first-of-type{margin-top:6px!important}
+html body .rail-head+.rail-group,html body .rail-switch+.rail-group{margin-top:6px!important}
 html[data-theme] body .rail-item.on,html[data-theme] body .rail .tab.on{
   background:color-mix(in srgb,var(--acc) 16%,transparent)!important;box-shadow:inset 3px 0 0 var(--acc)!important;color:var(--ink)}
 
@@ -123,3 +123,10 @@ html body .section-h:has(> .btn.sm.gold) > .btn.sm.gold{box-shadow:inset 0 -2px 
 html body table thead th{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--ink);font-weight:500;font-size:12.5px;
   border-bottom:1px solid var(--acc)}
 html body .tablewrap{border-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+
+/* ── Workflow | Meetings, the one menu for the two tools ───────────── */
+html body .rail-switch{display:none;gap:20px;margin:0 10px 12px;padding:0 0 8px;border-bottom:1px solid var(--ph)}
+html.in-app body .rail-switch{display:flex}
+html body .rail-switch>*{background:none;border:0;padding:4px 0;font:400 13px var(--sans);color:var(--p3);cursor:pointer}
+html body .rail-switch>.on{color:var(--ink);cursor:default;box-shadow:inset 0 -2px 0 var(--acc)}
+html body .rail-switch>button:hover{color:var(--ink)}

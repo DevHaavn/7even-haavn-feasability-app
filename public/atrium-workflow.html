@@ -312,8 +312,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 .rail-group.g-mgmt{--gc:var(--at-pink)}.rail-group.g-black{--gc:var(--at-grey)}.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-brand{--gc:var(--at-teal)}
 </style>
 <link rel="stylesheet" href="/atrium-language.css">
-<link rel="stylesheet" href="/atrium-workflow-look.css?v=2">
-<script src="/atrium-workflow-look.js" defer></script>
+<link rel="stylesheet" href="/atrium-workflow-look.css?v=3">
+<script src="/atrium-workflow-look.js?v=2" defer></script>
 </head>
 <body>
 
@@ -328,36 +328,34 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
       </button>
       <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
     </div>
-    <div class="rail-group g-work">My Workspace</div>
+    <div class="rail-switch" aria-label="ATRIUM"><span class="on">Workflow</span><button type="button" data-switch="agenda">Meetings</button></div>
+    <div class="rail-group g-work">My work</div>
     <div class="rail-item" data-tab="overview" data-icon="overview">Overview</div>
-    <div class="rail-item" data-tab="myday" data-icon="calendar">My Day</div>
-    <div class="rail-item" data-tab="mytasks" data-icon="review">My Tasks<span class="n" id="cMyTasks">0</span></div>
-    <div class="rail-item" data-tab="myagenda" data-icon="calendar">My Weekly Agenda<span class="n" id="cMyAgenda">0</span></div>
-    <div class="rail-item" data-tab="mymeetings" data-icon="people">My Meetings</div>
-    <div class="rail-group g-perf">Performance</div>
-    <div class="rail-item" data-tab="dashboard" data-icon="pipeline">Growth Dashboard</div>
-    <div class="rail-group g-team">Team &amp; Departments</div>
-    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team Board</div>
+    <div class="rail-item" data-tab="myday" data-icon="calendar">My day</div>
+    <div class="rail-item" data-tab="mytasks" data-icon="review">My tasks<span class="n" id="cMyTasks">0</span></div>
+    <div class="rail-item" data-tab="myagenda" data-icon="calendar">My weekly agenda<span class="n" id="cMyAgenda">0</span></div>
+    <div class="rail-item" data-tab="mymeetings" data-icon="people">My meetings</div>
+    <div class="rail-group g-team">Team</div>
+    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team board</div>
     <div class="rail-item" data-tab="workload" data-icon="people">Workload</div>
-    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly Review<span class="n" id="cWeekly">0</span></div>
-    <div class="rail-group g-supply">HAAVN · Supply &amp; Development</div>
+    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly review<span class="n" id="cWeekly">0</span></div>
+    <div class="rail-item" data-tab="dashboard" data-icon="pipeline">Growth dashboard</div>
+    <div class="rail-group g-supply">Pipelines</div>
     <div class="rail-item" data-tab="partners" data-icon="people">Partner CRM<span class="n" id="cPartners">0</span></div>
-    <div class="rail-item" data-tab="supply" data-icon="folder">Supply Pipeline<span class="n" id="cSupply">0</span></div>
-    <div class="rail-group g-mgmt mgmt-only">HAAVN Management · Project Delivery</div>
-    <div class="rail-item mgmt-only" data-tab="mgmt" data-icon="overview">Management Overview</div>
+    <div class="rail-item" data-tab="supply" data-icon="folder">Supply pipeline<span class="n" id="cSupply">0</span></div>
+    <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales pipeline<span class="n" id="cBuyers">0</span></div>
+    <div class="rail-item" data-tab="buyers" data-icon="people">Home buyers</div>
+    <div class="rail-group g-mgmt mgmt-only">Projects</div>
+    <div class="rail-item mgmt-only" data-tab="mgmt" data-icon="overview">Management overview</div>
     <div class="rail-item mgmt-only" data-tab="mgmtprojects" data-icon="folder">Projects<span class="n" id="cMgmtProj">0</span></div>
     <div class="rail-item mgmt-only" data-tab="mgmttimeline" data-icon="calendar">Timelines</div>
-    <div class="rail-item mgmt-only" data-tab="mgmthandoffs" data-icon="people">Supply Handoffs<span class="n" id="cMgmtReq">0</span></div>
-    <div class="rail-group g-black">HAAVN Black · Home Sales</div>
-    <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales Pipeline<span class="n" id="cBuyers">0</span></div>
-    <div class="rail-item" data-tab="buyers" data-icon="people">Home Buyers</div>
-    <div class="rail-group g-meet">Meetings &amp; Momentum</div>
-    <div class="rail-item" data-tab="actions" data-icon="review">Action Register<span class="n" id="cActions">0</span></div>
+    <div class="rail-item mgmt-only" data-tab="mgmthandoffs" data-icon="people">Supply handoffs<span class="n" id="cMgmtReq">0</span></div>
+    <div class="rail-group g-meet">Meetings</div>
     <div class="rail-item" data-tab="meetings" data-icon="calendar">Meetings</div>
-    <div class="rail-group g-brand">Brand &amp; Workspace</div>
-    <div class="rail-item" data-tab="brand" data-icon="brand">Team &amp; Lists</div>
+    <div class="rail-item" data-tab="actions" data-icon="review">Action register<span class="n" id="cActions">0</span></div>
 
     <div class="rail-foot">
+      <div class="rail-item" data-tab="brand" data-icon="brand" data-acc="#b4bac4">Team &amp; lists</div>
       <div class="rail-rule"></div>
       <div class="rail-cloud"><span class="d"></span>ATRIUM Cloud · Synced</div>
       <div class="rail-profile" style="margin-top:8px" onclick="openProfile()" title="Edit your profile">
@@ -748,14 +746,14 @@ function toggleRail(){var on=document.getElementById('rail').classList.toggle('o
 function closeRail(){document.getElementById('rail').classList.remove('on');document.getElementById('railScrim').classList.remove('on');}
 
 var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
-  myday:['My Day','MY WORKSPACE'],mytasks:['My Tasks','MY WORKSPACE'],myagenda:['My Weekly Agenda','MY WORKSPACE'],mymeetings:['My Meetings','MY WORKSPACE'],
-  dashboard:['Growth Dashboard','HAAVN SUPPLY & HAAVN BLACK · KEY INDICATORS'],
-  teamboard:['Team Board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly Review','BRIDGE → MEETING MANAGEMENT'],
-  mgmt:['HAAVN Management','PROJECT DELIVERY · SEPARATE FROM SUPPLY'],mgmtprojects:['Management Projects','DEVELOPER, CLIENT & SUPPLY PROJECTS · MODULAR OR NOT'],mgmttimeline:['Project Timelines','ALL PROJECTS · PHASES & MILESTONES'],mgmthandoffs:['Supply ↔ Management','HANDOFFS & REQUESTS BETWEEN THE TWO TEAMS'],
+  myday:['My day','MY WORKSPACE'],mytasks:['My tasks','MY WORKSPACE'],myagenda:['My weekly agenda','MY WORKSPACE'],mymeetings:['My meetings','MY WORKSPACE'],
+  dashboard:['Growth dashboard','HAAVN SUPPLY & HAAVN BLACK · KEY INDICATORS'],
+  teamboard:['Team board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly review','BRIDGE → MEETING MANAGEMENT'],
+  mgmt:['HAAVN Management','PROJECT DELIVERY · SEPARATE FROM SUPPLY'],mgmtprojects:['Management Projects','DEVELOPER, CLIENT & SUPPLY PROJECTS · MODULAR OR NOT'],mgmttimeline:['Project timelines','ALL PROJECTS · PHASES & MILESTONES'],mgmthandoffs:['Supply ↔ Management','HANDOFFS & REQUESTS BETWEEN THE TWO TEAMS'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
   supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
-  buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action Register','OWNERS · DUE DATES · PRIORITY'],
-  meetings:['Meetings & Momentum','LINKED TO PILLAR 02'],brand:['Team & Operating Lists','BRAND & WORKSPACE']};
+  buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
+  meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
   if(TAB.indexOf('mgmt')===0&&!canMgmt()){TAB='overview';location.hash='overview';}
   var t=TITLES[TAB]||['',''];

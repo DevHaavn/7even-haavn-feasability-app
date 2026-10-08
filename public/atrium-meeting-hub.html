@@ -483,8 +483,8 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
 <link rel="stylesheet" href="/atrium-refresh.css">
 <script src="/atrium-refresh.js" defer></script>
 <link rel="stylesheet" href="/atrium-language.css">
-<link rel="stylesheet" href="/atrium-workflow-look.css?v=2">
-<script src="/atrium-workflow-look.js" defer></script>
+<link rel="stylesheet" href="/atrium-workflow-look.css?v=3">
+<script src="/atrium-workflow-look.js?v=2" defer></script>
 </head>
 <body>
 <div class="ambient"></div>
@@ -497,6 +497,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
     </button>
     <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
   </div>
+  <div class="rail-switch" aria-label="ATRIUM"><button type="button" data-switch="workflow">Workflow</button><span class="on">Meetings</span></div>
   <div class="rail-group g-meet">Run the meeting</div>
   <button class="tab on" data-tab="meetings"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18M7 15h2m6 0h2m-10 3h2"/></svg>Meetings<span class="count n" id="cMtg">0</span></button>
   <button class="tab" data-tab="agenda"><svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 4h6m-6 4 2 2 4-4"/></svg>Agenda</button>
@@ -536,7 +537,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
       <div class="hero-btns">
         <button class="btn btn-ghost" onclick="exportMenu()">↧ Export</button>
         <button class="btn btn-ghost" onclick="switchTab('meetings')">☰ All meetings</button>
-        <button class="btn btn-gold" id="closeBtn" onclick="handleClose()">Close &amp; archive →</button>
+        <button class="btn btn-gold" id="closeBtn" onclick="handleClose()">Close meeting</button>
       </div>
       <div class="hero-stats" id="heroStats"></div>
     </div>
@@ -580,7 +581,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
     <div class="card">
       <div class="ch"><h3>Minutes &amp; General Notes</h3><div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="copyMinutes()">⧉ Copy for email</button><button class="btn btn-gold" onclick="emailMinutes()">✉ Email minutes in Outlook</button></div></div>
       <textarea id="minutes" placeholder="Decisions, discussion notes, anything for the record…" oninput="onMinutes()"></textarea>
-      <div class="footnote">Opens Outlook with the full agenda + minutes + decisions ready to send to every attendee with an email. Each week's notes are saved to the <b>Archive</b> when you Close &amp; archive.</div>
+      <div class="footnote">Opens Outlook with the full agenda + minutes + decisions ready to send to every attendee with an email. Each week's notes are saved to the <b>Archive</b> when you close the meeting.</div>
     </div>
   </div>
   </div>
@@ -588,13 +589,13 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
 </section>
 <section class="panel on" id="p-meetings">
   <div class="panel-head">
-    <div><div class="mono eyebrow">Up &amp; coming · internal &amp; external</div><h2 class="serif">Meetings</h2><p>Every meeting that isn't closed yet — the recurring Weekly Company Meeting plus any one-off internal or external meeting you create. Open one to run its own agenda, attendees, timer and live notes using everything already built.</p></div>
+    <div><div class="mono eyebrow">Up &amp; coming · internal &amp; external</div><h2 class="serif">Meetings</h2><p>Open a meeting to run its agenda, timer and notes.</p></div>
     <button class="btn btn-gold" onclick="openNewMeetingModal()">+ New meeting</button>
   </div>
   <div class="arch" id="mtgList"></div>
 </section>
 <section class="panel" id="p-requests">
-  <div class="panel-head"><div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Requests</h2><p>Every agenda item classified as a Request — from any meeting.</p></div><button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button></div>
+  <div class="panel-head"><div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Requests</h2><p>Every agenda item classified as a request, from any meeting.</p></div><button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button></div>
   <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbReq"></tbody></table></div>
 </section>
 <section class="panel" id="p-events">
@@ -602,7 +603,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
   <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbEvt"></tbody></table></div>
 </section>
 <section class="panel" id="p-actions">
-  <div class="panel-head"><div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Actions</h2><p>Every action assigned in a meeting — owner, status and due date.</p></div><button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button></div>
+  <div class="panel-head"><div><div class="mono eyebrow">Roll-up · built from agenda items</div><h2 class="serif">Actions</h2><p>Every action assigned in a meeting, with owner, status and due date.</p></div><button class="btn btn-ghost" onclick="switchTab('agenda')">← Add on the Agenda</button></div>
   <div class="tablewrap"><table><thead><tr><th>Task</th><th>Dept</th><th>Assignee</th><th>Status</th><th>Due</th><th>Meeting</th></tr></thead><tbody id="tbAct"></tbody></table></div>
 </section>
 <section class="panel" id="p-archive">
@@ -647,8 +648,8 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
   <div class="con-foot">
     <span class="mono" id="noteCount">0 notes</span>
     <div style="display:flex;gap:8px">
-      <button class="con-fbtn" onclick="pushToMinutes()">↦ Push to minutes</button>
-      <button class="con-fbtn go" onclick="emailNotes()">✉ Send</button>
+      <button class="con-fbtn" onclick="pushToMinutes()">↦ Add to minutes</button>
+      <button class="con-fbtn go" onclick="emailNotes()">✉ Email notes</button>
     </div>
   </div>
 </div>
@@ -775,7 +776,7 @@ function syncDeptTasks(){var m=cur();curBoards().forEach(function(d){d.tasks=(m.
 function render(){if(!DB)return;syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
 function renderHero(){var m=cur();document.getElementById('heroDate').textContent=fmtLong(m.date);document.getElementById('heroChair').innerHTML='Chair <b>'+esc(m.chair)+'</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts';var fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd&&document.activeElement!==fd)fd.value=m.date;if(ft&&document.activeElement!==ft)ft.value=m.time;
   var eb=document.getElementById('heroEyebrow');if(eb)eb.textContent='ATRIUM · '+(m.title||'Weekly Company Meeting')+(m.kind&&m.kind!=='weekly'?(' · '+m.kind.toUpperCase()):'');
-  var cb=document.getElementById('closeBtn');if(cb)cb.textContent=(m.kind&&m.kind!=='weekly')?'Close meeting →':'Close & archive →';}
+  var cb=document.getElementById('closeBtn');if(cb)cb.textContent='Close meeting';}
 function renderAtt(){var m=cur();var present=m.attendees.filter(function(a){return a.present;}).length;document.getElementById('attCount').textContent=present+'/'+m.attendees.length;document.getElementById('attList').innerHTML=m.attendees.map(function(a){return '<span class="att '+(a.present?'':'absent')+'" title="'+esc(a.name)+(a.role?' · '+esc(a.role):'')+(a.email?' · '+esc(a.email):' · no email')+'"><span class="av" style="background:'+avatarColor(a.name)+'" onclick="event.stopPropagation();togAtt('+a.id+')">'+initials(a.name)+'</span><span onclick="openAttModal('+a.id+')">'+esc(a.name)+'</span> <span class="st" onclick="event.stopPropagation();togAtt('+a.id+')"></span><span class="axr" onclick="event.stopPropagation();rmAtt('+a.id+')">×</span></span>';}).join('');}
 function passFilter(t){switch(activeFilter){case 'all':return true;case 'mine':{var a=t.assigneeId?attById(t.assigneeId):null;return (a?a.name:t.owner)===ME;}case 'action':return t.kind==='action'||t.status==='action';case 'request':return t.kind==='request';case 'event':return t.kind==='event';case 'introuble':return t.status==='trouble';case 'open':return !t.discussed;default:return true;}}
 function taskRow(t,color){var hide=!passFilter(t);var a=t.assigneeId?attById(t.assigneeId):null;var who=a?a.name:(t.owner||'—');var tag=t.kind?'<span class="tag">'+esc(KIND_LABEL[t.kind].toUpperCase())+'</span>':'';var age=(t.carried||0)>0?'<span class="age">↻ '+t.carried+'w carried</span>':'';var due=t.due?'<span class="due">'+esc(fmtShort(t.due))+'</span>':'';var exp=openItem===t.id;return '<div class="task '+(t.discussed?'done':'')+'" data-id="'+t.id+'" style="--rowc:'+color+';'+(hide?'display:none':'')+'" onclick="rowClick(event,'+t.id+')"><div class="cbx '+(t.discussed?'checked':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[t.status]+'"><span class="pd"></span>'+IS_LABEL[t.status]+'</span>'+tag+'<span class="t-title">'+esc(t.title||'Untitled task')+'</span>'+age+'<span class="assignee"><span class="av" style="width:24px;height:24px;background:'+avatarColor(who)+'">'+initials(who)+'</span>'+esc(who)+'</span>'+due+(((t.files&&t.files.length)?'<span class="row-tags" title="'+t.files.length+' document(s)">📎 '+t.files.length+'</span>':'')+((t.reviewers&&t.reviewers.length)?'<span class="row-tags" title="'+t.reviewers.length+' reviewer(s)">👁 '+t.reviewers.length+'</span>':''))+'<span class="dots" onclick="event.stopPropagation();openItemDrawer('+t.id+')">⋯</span></div>';}
@@ -857,7 +858,7 @@ function closeMeeting(){confirmModal('Archive this meeting and start next Monday
 function doClose(){var m=cur();m.closed=true;var d=new Date(m.date+'T00:00');d.setDate(d.getDate()+7);var nm=newMeeting(ymd(d));nm.chair=m.chair;nm.attendees=m.attendees.map(function(a){return {id:uid(),name:a.name,email:a.email||'',role:a.role||'',present:true};});var idmap={};m.attendees.forEach(function(oa,ix){idmap[oa.id]=nm.attendees[ix].id;});m.items.filter(function(i){return !i.discussed;}).forEach(function(i){nm.items.push(newItem({dept:i.dept,status:i.status,title:i.title,kind:i.kind,assigneeId:idmap[i.assigneeId]||'',owner:i.owner,due:i.due,notes:i.notes,carried:(i.carried||0)+1}));});DB.meetings.push(nm);DB.currentId=nm.id;setMyMeeting(nm.id);openItem=null;viewArchiveId=null;switchTab('agenda');save();render();toast('Meeting archived — new meeting for '+fmtLong(nm.date)+' created');}
 
 /* ── ad-hoc meetings (internal / external) — same engine, own row in the Meetings menu ── */
-function handleClose(){var m=cur();if(m.kind&&m.kind!=='weekly'){confirmModal('Close this meeting and file it in the Archive? It will not create a follow-up meeting.','Close & archive',doCloseAdhoc);}else{closeMeeting();}}
+function handleClose(){var m=cur();if(m.kind&&m.kind!=='weekly'){confirmModal('Close this meeting and file it in the Archive? It will not create a follow-up meeting.','Close meeting',doCloseAdhoc);}else{closeMeeting();}}
 function doCloseAdhoc(){var m=cur();m.closed=true;m.recording={active:false,startedAt:0};var wk=DB.meetings.find(function(x){return x.kind==='weekly'&&!x.closed;});if(wk){DB.currentId=wk.id;setMyMeeting(wk.id);}else{setMyMeeting(null);}openItem=null;viewArchiveId=null;switchTab('meetings');save();render();toast('Meeting closed and filed in the Archive');}
 function newAdhocMeeting(o){var nm=newMeeting(o.date);nm.attendees=[];nm.title=o.title;nm.kind=o.kind;nm.time=o.time||'10:00';nm.targetSec=Math.max(300,(o.durationMin||30)*60);nm.chair=ME;return nm;}
 function openMeeting(id){var m=DB.meetings.find(function(x){return x.id===id;});if(!canSeeMeeting(m)){toast('You\'re not on this meeting\'s attendee list');return;}setMyMeeting(id);openItem=null;viewArchiveId=null;switchTab('agenda');render();}
@@ -970,7 +971,7 @@ function renderNotes(){var ns=(cur()&&cur().liveNotes)||[];var el=document.getEl
 function editTarget(){var cs=Math.round(targetSec()/60);var o=document.createElement('div');o.className='modal in';o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3)">Meeting target</div><label class="xl">Minutes<input id="tgtIn" type="number" min="5" value="'+cs+'"></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px"><button class="xbtn" data-t="no">Cancel</button><button class="xbtn gold" data-t="ok">Set</button></div></div>';document.body.appendChild(o);setTimeout(function(){var i=document.getElementById('tgtIn');if(i){i.focus();i.select();}},40);o.addEventListener('click',function(ev){if(ev.target===o||ev.target.closest('[data-t="no"]')){o.remove();return;}if(ev.target.closest('[data-t="ok"]')){var v=parseInt(document.getElementById('tgtIn').value)||45;cur().targetSec=Math.max(300,v*60);save();updTimer();o.remove();}});}
 function pushToMinutes(){var ns=(cur().liveNotes)||[];if(!ns.length){toast('No notes to push');return;}var by={};ns.forEach(function(n){var k=n.section||'company';(by[k]=by[k]||[]).push(n);});var lines=[];Object.keys(by).forEach(function(k){var dm=deptMeta(k)||{};lines.push((dm.name||k).toUpperCase());by[k].forEach(function(n){lines.push('  · '+n.text+' ('+n.at+')');});lines.push('');});var m=cur();m.minutes=(m.minutes?m.minutes+'\n\n':'')+'— LIVE NOTES —\n'+lines.join('\n').trim();syncNotes();save();toast('Notes pushed to Minutes');}
 function notesText(m){var ns=(m.liveNotes)||[];var by={};ns.forEach(function(n){var k=n.section||'company';(by[k]=by[k]||[]).push(n);});var out='ATRIUM · Weekly Company Meeting — Meeting Notes\n'+fmtLong(m.date)+' · Chair '+m.chair+'\n\n';Object.keys(by).forEach(function(k){var dm=deptMeta(k)||{};out+=(dm.name||k).toUpperCase()+'\n';by[k].forEach(function(n){out+='  · '+n.text+' ('+n.at+')\n';});out+='\n';});if(m.minutes)out+='MINUTES & GENERAL NOTES\n'+m.minutes+'\n\n';if((m.decisions||[]).length){out+='DECISIONS\n';m.decisions.forEach(function(d,i){out+='  '+(i+1)+'. '+d.text+'\n';});}return out;}
-function emailNotes(){var m=cur();var to=(m.attendees||[]).map(function(a){return a.email;}).filter(Boolean);to.push('boardroom@7even.au');window.location.href='mailto:'+encodeURIComponent(to.join(','))+'?subject='+encodeURIComponent('ATRIUM Weekly Meeting notes — '+fmtLong(m.date))+'&body='+encodeURIComponent(notesText(m));}
+function emailNotes(){var m=cur();var to=(m.attendees||[]).map(function(a){return a.email;}).filter(Boolean);to.push('boardroom@7even.au');window.location.href='mailto:'+encodeURIComponent(to.join(','))+'?subject='+encodeURIComponent('ATRIUM Weekly Meeting notes, '+fmtLong(m.date))+'&body='+encodeURIComponent(notesText(m));}
 function setRec(on){var s=document.getElementById('conStatus');if(s){s.classList.toggle('rec',on);s.innerHTML='<span class="cs-dot"></span>'+(on?'Recording':'Idle');}var ab=document.getElementById('azureBadge');if(ab)ab.classList.toggle('rec',on);var mb=document.getElementById('micBtn');if(mb)mb.classList.toggle('live',on);var td=document.getElementById('tabDot');if(td)td.classList.toggle('rec',on);
   var m=cur();if(m){m.recording=on?{active:true,startedAt:Date.now()}:{active:false,startedAt:0};save();renderMeetingsList();}}
 /* live notes — browser Web Speech now; Azure Speech SDK swaps in for production (token endpoint + key/region) */
@@ -1110,7 +1111,7 @@ if(_cloudOk&&!(row&&row.value))cloudPush();if(_cloudOk)setInterval(cloudPoll,900
   window.emailMinutes=function(){var mi=document.getElementById('minutes');if(mi)cur().minutes=mi.value;
     var m=cur();openMail(recipients(m),'ATRIUM Weekly Meeting — Minutes — '+fmtLong(m.date),meetingText(m),'minutes');};
   window.emailNotes=function(){var m=cur();var to=recipients(m);if(to.indexOf('boardroom@7even.au')<0)to.push('boardroom@7even.au');
-    openMail(to,'ATRIUM Weekly Meeting notes — '+fmtLong(m.date),notesText(m),'meeting notes');};
+    openMail(to,'ATRIUM Weekly Meeting notes, '+fmtLong(m.date),notesText(m),'meeting notes');};
 
   /* ── ticked tasks leave the agenda once the celebration ends ── */
   var _toggle=window.toggleTask;

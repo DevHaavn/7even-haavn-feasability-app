@@ -12,8 +12,8 @@
     return g}
   function set(){
     var on=active();if(!on||!document.body)return;
-    var g=groupOf(on);if(!g)return;
-    var c=getComputedStyle(g).getPropertyValue('--gc').trim();
+    var c=on.getAttribute('data-acc');          // an item can carry its own colour (Team & lists)
+    if(!c){var g=groupOf(on);if(!g)return;c=getComputedStyle(g).getPropertyValue('--gc').trim()}
     if(c&&document.body.style.getPropertyValue('--acc')!==c)document.body.style.setProperty('--acc',c)}
   var q=0;
   function start(){
@@ -21,4 +21,14 @@
     try{new MutationObserver(function(){if(q)return;q=requestAnimationFrame(function(){q=0;set()})})
       .observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}catch(e){}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+
+/* The Workflow | Meetings switch in the menu. Only inside the HAAVN Management
+   shell (?shell=hm), which owns pillar switching; the shell maps "workflow" to
+   the right variant for the signed in user. */
+(function(){
+  if(/[?&]shell=hm\b/.test(location.search)&&window.parent!==window)document.documentElement.classList.add('in-app');
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('[data-switch]');if(!b)return;
+    try{window.parent.postMessage({type:'haavn-switch-pillar',to:b.getAttribute('data-switch')},'*')}catch(x){}});
 })();
