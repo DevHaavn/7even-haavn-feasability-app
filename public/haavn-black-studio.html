@@ -57,6 +57,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   padding:9px 13px;border:1px solid transparent;border-radius:999px;transition:.3s}
 .top .ch button:hover{color:var(--ink);border-color:var(--line2);background:rgba(255,255,255,.07)}
 .top .ch button.on{color:var(--led);border-color:rgba(47,224,122,.5);background:rgba(47,224,122,.06)}
+/* menu descriptors: the name over what the chapter is, in the same quiet voice as the other ATRIUM menus */
+.top .ch button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:7px 14px;border-radius:12px;text-align:left;line-height:1.2;
+  font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:300;letter-spacing:0;text-transform:none}
+.top .ch button .ds{font-size:11.5px;font-weight:300;color:rgba(243,242,238,.62);transition:color .3s}
+.top .ch button:hover .ds,.top .ch button.on .ds{color:rgba(243,242,238,.85)}
 .top .act{display:flex;gap:8px;margin-left:10px}
 .btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 15px;border:1px solid var(--line2);border-radius:999px;
   font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);transition:.3s;
@@ -231,6 +236,7 @@ body.remote-on .remote{display:flex}
   border-radius:16px;text-align:left;transition:.25s}
 .rlist button .n{font-family:var(--mono);font-size:9px;color:var(--ink3);width:20px}
 .rlist button .t{font-size:15px}
+.rlist button .d{margin-left:auto;font-size:12px;font-weight:300;color:rgba(243,242,238,.62);text-align:right}
 .rlist button.on{border-color:var(--led);background:rgba(47,224,122,.07)}
 .rlist button.on .t{color:#eafff2}
 .rpad{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
@@ -358,7 +364,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 </header>
 
 <!-- ── 00 open ───────────────────────────────────────────────────────── -->
-<section class="ch-sec open" id="s-open" data-title="Open">
+<section class="ch-sec open" id="s-open" data-title="Open" data-desc="The idea">
   <video class="bgv" autoplay muted loop playsinline preload="metadata" src="/haavn-black-bg.mp4"></video>
   <div class="shade"></div>
   <div class="wrap">
@@ -373,7 +379,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 </section>
 
 <!-- ── 01 why ────────────────────────────────────────────────────────── -->
-<section class="ch-sec" id="s-why" data-title="Why">
+<section class="ch-sec" id="s-why" data-title="Why" data-desc="The problem">
   <div class="wrap">
     <div class="eyeb rv"><i></i>01 · The why</div>
     <p class="stmt rv">A house is still built the way it was<br>a hundred years ago. <b>On a muddy site,<br>by hand, one at a time.</b></p>
@@ -392,7 +398,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 </section>
 
 <!-- ── 02 design ─────────────────────────────────────────────────────── -->
-<section class="ch-sec" id="s-design" data-title="Design">
+<section class="ch-sec" id="s-design" data-title="Design" data-desc="Design language">
   <div class="wrap">
     <div class="eyeb rv"><i></i>02 · Design &amp; materials</div>
     <div class="split">
@@ -414,7 +420,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 </section>
 
 <!-- ── 03 the homes ──────────────────────────────────────────────────── -->
-<section class="ch-sec" id="s-homes" data-title="The homes">
+<section class="ch-sec" id="s-homes" data-title="The homes" data-desc="Ten homes">
   <div class="wrap">
     <div class="eyeb rv"><i></i>03 · The range</div>
     <h2 class="rv">Ten homes.<br>One system.</h2>
@@ -429,7 +435,7 @@ footer .row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-cont
 </section>
 
 <!-- ── 04 how it is made ─────────────────────────────────────────────── -->
-<section class="ch-sec" id="s-made" data-title="How it is made">
+<section class="ch-sec" id="s-made" data-title="How it is made" data-desc="Factory process">
   <div class="wrap">
     <div class="eyeb rv"><i></i>04 · How it is made</div>
     <h2 class="rv">Built inside.<br>Finished outside.</h2>
@@ -582,7 +588,8 @@ var FILMS=[
 /* ── chapters ─────────────────────────────────────────────────────────── */
 var SECS=[].slice.call(document.querySelectorAll('.ch-sec'));
 var nav=document.getElementById('chapters');
-SECS.forEach(function(s,i){ var b=document.createElement('button'); b.textContent=s.dataset.title;
+SECS.forEach(function(s,i){ var b=document.createElement('button');
+  b.innerHTML='<span class="nm">'+s.dataset.title+'</span><span class="ds">'+(s.dataset.desc||'')+'</span>';
   b.onclick=function(){ goTo(i, true); }; nav.appendChild(b); });
 var cur=0;
 function paintNav(){ [].forEach.call(nav.children,function(b,i){ b.classList.toggle('on', i===cur); });
@@ -1083,7 +1090,7 @@ document.getElementById('optHdmi').onclick=function(){ sheet.classList.remove('o
 function buildRemote(){
   var list=document.getElementById('rList'); list.innerHTML='';
   SECS.forEach(function(s,i){ var b=document.createElement('button');
-    b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span><span class="t">'+s.dataset.title+'</span>';
+    b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span><span class="t">'+s.dataset.title+'</span><span class="d">'+(s.dataset.desc||'')+'</span>';
     b.onclick=function(){ [].forEach.call(list.children,function(x){x.classList.remove('on');}); b.classList.add('on'); goTo(i,true); };
     list.appendChild(b); });
   HOMES.forEach(function(h,i){ var b=document.createElement('button');
