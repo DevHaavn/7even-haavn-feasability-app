@@ -65,68 +65,15 @@ describe('tasks', () => {
   })
 })
 
-const bd = () => ({ meetings: [
-  { id: 'm0', title: 'Old', date: '2026-09-28', closed: true, kind: 'weekly', items: [{ id: 1, title: 'x' }] },
-  { id: 'm1', title: 'Weekly Company Meeting', date: '2099-01-05', closed: false, kind: 'weekly', items: [{ id: 1, title: 'A', status: 'action', owner: 'Jamie Baldwin', dept: 'company' }, { id: 4, title: 'B', status: 'trouble', owner: 'Daniel Sette' }] },
-] })
-
-describe('boardroom', () => {
-  it('lists items on open meetings only', () => {
-    const r = B.listBoardroomItems(bd(), {})
-    expect(r.total).toBe(2); expect(r.items[0].meeting).toBe('Weekly Company Meeting')
-    expect(B.listBoardroomItems(bd(), { status: 'trouble' }).items).toHaveLength(1)
-  })
-  it('adds an item to the next open weekly meeting with the next numeric id', () => {
-    const { next, result } = B.addBoardroomItem(bd(), { title: 'Mike QLD update', assignee: 'mike' })
-    const m = next.meetings.find((x: any) => x.id === 'm1')
-    expect(m.items).toHaveLength(3)
-    expect(m.items[2]).toMatchObject({ id: 5, title: 'Mike QLD update', owner: 'Mike Furniss', status: 'action', createdBy: 'Blaze' })
-    expect(result.title).toBe('Mike QLD update')
-    expect(next.meetings[0].items).toHaveLength(1)
-  })
-  it('does not invent a meeting', () => {
-    expect(() => B.addBoardroomItem({ meetings: [] }, { title: 'x' })).toThrow(/no open weekly meeting/)
-    expect(() => B.addBoardroomItem({ meetings: [{ id: 'c', closed: true, items: [] }] }, { title: 'x' })).toThrow(/no open weekly meeting/)
-  })
-})
-
-describe('boardroom updates and the feed', () => {
-  it('updates one meeting item and stamps it', () => {
-    const { next, result } = B.updateBoardroomItem(bd(), { id: 4, status: 'complete', discussed: true, assignee: 'daniel' })
-    const it = next.meetings[1].items[1]
-    expect(it).toMatchObject({ status: 'complete', discussed: true, owner: 'Daniel Sette', updatedBy: 'Blaze' })
-    expect(result.changed).toEqual(['status', 'owner', 'discussed'])
-    expect(next.meetings[1].items[0]).toEqual(bd().meetings[1].items[0])
-  })
-  it('refuses unknown, ambiguous or empty updates and never touches closed meetings', () => {
-    expect(() => B.updateBoardroomItem(bd(), { id: 99, status: 'complete' })).toThrow(/No open meeting item/)
-    expect(() => B.updateBoardroomItem(bd(), { id: 1, status: 'complete' })).not.toThrow() // id 1 only exists on the open meeting
-    expect(() => B.updateBoardroomItem(bd(), { id: 4 })).toThrow(/Nothing to change/)
-    const two = bd(); two.meetings.push({ id: 'm2', date: '2099-01-12', closed: false, kind: 'weekly', items: [{ id: 1, title: 'C' }] })
-    expect(() => B.updateBoardroomItem(two, { id: 1, status: 'complete' })).toThrow(/more than one/)
-    expect(B.updateBoardroomItem(two, { id: 1, status: 'complete', meeting_date: '2099-01-12' }).next.meetings[2].items[0].status).toBe('complete')
-  })
-  it('reports what changed since a time', () => {
+describe('the feed', () => {
+  it('reports tasks created, completed or edited since a time', () => {
     const w: any = ws(); w.actions[0].created = '2026-10-08T01:00:00.000Z'; w.actions[2].completedAt = '2026-10-07T01:00:00.000Z'
-    const r = B.whatsNew(w, bd(), { since: '2026-10-08T00:00:00Z' })
+    const r = B.whatsNew(w, { since: '2026-10-08T00:00:00Z' })
     expect(r.tasks.map((t: any) => t.id)).toEqual(['n1-aaaa'])
     expect(r.tasks[0].events).toEqual(['created'])
-    const { next } = B.addBoardroomItem(bd(), { title: 'Fresh' })
-    expect(B.whatsNew(w, next, { since: new Date(Date.now() - 60000).toISOString() }).meetingItems[0].events[0]).toMatch(/added by Blaze/)
-    expect(() => B.whatsNew(w, bd(), { since: 'garbage' })).toThrow(/since/)
-  })
-})
-
-describe('meetings', () => {
-  it('returns upcoming meetings and recent record actions', () => {
-    const data = { bundles: [
-      { meeting: { id: 'a', title: 'Future', startsAt: '2099-01-01T00:00:00Z', durationMin: 30, status: 'scheduled' }, attendees: [{ displayName: 'X' }], agenda: [{ title: 'Item' }], record: null },
-      { meeting: { id: 'b', title: 'Done', startsAt: '2026-01-01T00:00:00Z', status: 'sent' }, record: { decisions: ['Go'], actions: [{ text: 'Do it', dueLabel: 'Fri' }] } },
-    ] }
-    const r = B.listMeetings(data, {})
-    expect(r.upcoming).toHaveLength(1); expect(r.upcoming[0].agenda).toEqual(['Item'])
-    expect(r.recent[0]).toMatchObject({ meeting: 'Done', decisions: ['Go'] })
-    expect(B.listMeetings(null, {})).toEqual({ upcoming: [], recent: [] })
+    const edited = B.updateTask(w, { id: 'n3-cccc', notes: 'x' }).next
+    expect(B.whatsNew(edited, { since: new Date(Date.now() - 60000).toISOString() }).tasks[0].events[0]).toMatch(/updated by Blaze/)
+    expect(() => B.whatsNew(w, { since: 'garbage' })).toThrow(/since/)
   })
 })
 
@@ -182,15 +129,15 @@ describe('safe read-modify-write', () => {
 })
 
 describe('MCP protocol', () => {
-  const rows = () => ({ nav_workspace: { value: ws(), updated_at: 't0' }, haavn_boardroom: { value: bd(), updated_at: 't0' } })
+  const rows = () => ({ nav_workspace: { value: ws(), updated_at: 't0' }, })
   it('handles initialize, tools/list, tools/call and notifications', async () => {
     const r = rows(); const store = () => B.kv(env, fakeSupabase(r))
     const init = await B.handleRpc({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26' } }, store)
     expect(init.result.serverInfo.name).toBe('ATRIUM')
     expect(await B.handleRpc({ jsonrpc: '2.0', method: 'notifications/initialized' }, store)).toBeNull()
     const list = await B.handleRpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, store)
-    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_boardroom_item', 'add_task', 'list_boardroom_items', 'list_meetings', 'list_tasks', 'update_boardroom_item', 'update_task', 'whats_new'])
-    expect(list.result.tools.find((t: any) => /delete/.test(t.name))).toBeUndefined()
+    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_task', 'list_tasks', 'update_task', 'whats_new'])
+    expect(list.result.tools.find((t: any) => /delete|meeting|boardroom/.test(t.name))).toBeUndefined()
     const call = await B.handleRpc({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'list_tasks', arguments: { owner: 'mike' } } }, store)
     expect(JSON.parse(call.result.content[0].text).tasks[0].id).toBe('n1-aaaa')
     const bad = await B.handleRpc({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'add_task', arguments: { title: 'x', owner: 'zzz' } } }, store)

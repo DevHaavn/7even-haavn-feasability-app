@@ -1,3 +1,5 @@
+> **Scope change (2026-10-09, Jamie):** Blaze is Jamie's EA/PA. The connector is **tasks only**: `list_tasks`, `add_task`, `update_task`, `whats_new`. No boardroom, meeting or any other ATRIUM tools. Changing ATRIUM itself is the gatekeeper's job, not Blaze's. The tool table below is the original brief.
+
 # Build: ATRIUM connector for Blaze (JB's Claude assistant)
 
 **Goal:** let Blaze (Claude, in claude.ai) read and update ATRIUM tasks, boardroom items and meetings, so JB's morning brief reports them and JB can say "Blaze, add a task…" and it lands in ATRIUM.

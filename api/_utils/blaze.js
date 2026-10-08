@@ -7,16 +7,15 @@
 const SUPA_URL = process.env.SUPABASE_URL || 'https://vgvavmnqrdgcnledztyk.supabase.co'
 const BY = 'Blaze'
 
+// Blaze (Jamie's EA) works on tasks only. It does not touch meetings, the boardroom,
+// CRM, capital or anything else in ATRIUM; that is the gatekeeper's job.
 const KEYS = {
   workflow: 'nav_workspace',        // ATRIUM Workflow workspace; tasks live in .actions
-  boardroom: 'haavn_boardroom',     // Meeting Management; { meetings: [{ items: [...] }] }
-  meetings: 'atrium_meetings_v1',   // HM meetings module; { bundles: [...] }
 }
 
 const STATUSES = ['todo', 'doing', 'blocked', 'review', 'done']
 const PRIORITIES = ['Low', 'Normal', 'Medium', 'High']
 const DEPTS = ['company', '7even', 'haavn', 'haavnblack', 'haavnmgmt', 'admin', 'finance']
-const ITEM_STATUSES = ['update', 'action', 'followup', 'trouble', 'complete']
 const ROSTER = [
   'Jamie Baldwin', 'Daniel Sette', 'Lewis Jin', 'James Winstanley', 'Callum Macdonald', 'Mike Furniss',
   'Christina Witbreuk', 'Domenic Paolilli', 'John Dimattina', 'Jeffrey Witbreuk', 'James Maloney',
@@ -114,72 +113,9 @@ function updateTask(ws, a) {
   return { next, result: { ...compactTask(t), changed } }
 }
 
-// ---------- Boardroom (Meeting Management) ----------
-const compactItem = (it, m) => ({
-  id: it.id, meeting: m.title || 'Meeting', meetingDate: m.date || '', title: it.title,
-  dept: it.dept || '', status: it.status || '', owner: it.owner || '', due: it.due || '', discussed: !!it.discussed,
-})
-const openMeetings = (bd) => ((bd && bd.meetings) || []).filter((m) => !m.closed)
-
-function listBoardroomItems(bd, f = {}) {
-  const ms = openMeetings(bd).sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')))
-  let rows = []
-  ms.forEach((m) => (m.items || []).forEach((it) => rows.push(compactItem(it, m))))
-  if (f.status) { checkEnum(f.status, ITEM_STATUSES, 'status'); rows = rows.filter((r) => r.status === f.status) }
-  if (f.assignee) { const q = String(f.assignee).toLowerCase(); rows = rows.filter((r) => r.owner.toLowerCase().includes(q)) }
-  if (f.due_before) { checkDate(f.due_before, 'due_before'); rows = rows.filter((r) => r.due && r.due < f.due_before) }
-  const limit = Math.min(Math.max(parseInt(f.limit, 10) || 50, 1), 200)
-  return { meetings: ms.map((m) => ({ title: m.title || 'Meeting', date: m.date || '', items: (m.items || []).length })), total: rows.length, items: rows.slice(0, limit) }
-}
-
-// Goes into the next open weekly meeting (earliest date from today). It never creates
-// a meeting: meetings are made in ATRIUM, so a missing one is reported instead.
-// Departments a meeting accepts: the company ones plus any section ids already used on it.
-const meetingDepts = (m) => [...new Set([...DEPTS, ...(m.sections || []).map((x) => x.id), ...(m.items || []).map((x) => x.dept).filter(Boolean)])]
-function addBoardroomItem(bd, a) {
-  const next = clone(bd && typeof bd === 'object' ? bd : { meetings: [] })
-  const t = today()
-  const cands = (next.meetings || []).filter((m) => !m.closed && (!m.kind || m.kind === 'weekly'))
-    .sort((x, y) => String(x.date || '').localeCompare(String(y.date || '')))
-  const m = cands.find((x) => String(x.date || '') >= t) || cands[cands.length - 1]
-  if (!m) throw new UserError('There is no open weekly meeting to add to. Create the meeting in ATRIUM first.')
-  if (!Array.isArray(m.items)) m.items = []
-  const nums = m.items.map((x) => x.id).filter((n) => typeof n === 'number')
-  const it = {
-    id: nums.length ? Math.max(...nums) + 1 : 1, dept: a.dept ? checkEnum(a.dept, meetingDepts(m), 'dept') : 'company',
-    status: a.status ? checkEnum(a.status, ITEM_STATUSES, 'status') : 'action', title: requireTitle(a.title), kind: '',
-    assigneeId: '', owner: a.assignee ? resolveOwner(a.assignee) : '', due: checkDate(a.due, 'due'), discussed: false,
-    notes: String(a.notes || ''), carried: 0, reviewers: [], files: [], subs: [], comments: [], createdBy: BY, createdAt: nowIso(),
-  }
-  m.items.push(it)
-  return { next, result: compactItem(it, m) }
-}
-
-// Change one item on an open meeting by id (the id is unique within a meeting; give the
-// meeting date when the same number could appear on more than one open meeting).
-function updateBoardroomItem(bd, a) {
-  const next = clone(bd && typeof bd === 'object' ? bd : { meetings: [] })
-  const hits = []
-  openMeetings(next).forEach((m) => (m.items || []).forEach((it) => {
-    if (String(it.id) === String(a.id) && (!a.meeting_date || m.date === a.meeting_date)) hits.push([m, it])
-  }))
-  if (!hits.length) throw new UserError(`No open meeting item with id "${a.id}"`)
-  if (hits.length > 1) throw new UserError(`Item id ${a.id} is on more than one open meeting. Give meeting_date (YYYY-MM-DD).`)
-  const [m, it] = hits[0]
-  const changed = []
-  if (a.status !== undefined) { it.status = checkEnum(a.status, ITEM_STATUSES, 'status'); changed.push('status') }
-  if (a.assignee !== undefined) { it.owner = resolveOwner(a.assignee); changed.push('owner') }
-  if (a.due !== undefined) { it.due = checkDate(a.due, 'due'); changed.push('due') }
-  if (a.notes !== undefined) { it.notes = String(a.notes); changed.push('notes') }
-  if (a.discussed !== undefined) { it.discussed = !!a.discussed; changed.push('discussed') }
-  if (!changed.length) throw new UserError('Nothing to change: give status, assignee, due, notes or discussed')
-  it.updatedBy = BY; it.updatedAt = nowIso()
-  return { next, result: { ...compactItem(it, m), changed } }
-}
-
 // What moved since a time (default the last 24 hours). Counts only changes that carry a
-// timestamp: task created / completed / Blaze edits, and meeting items Blaze touched.
-function whatsNew(ws, bd, f = {}) {
+// timestamp: task created, completed, or edited by Blaze.
+function whatsNew(ws, f = {}) {
   const since = f.since ? new Date(f.since) : new Date(Date.now() - 24 * 3600 * 1000)
   if (isNaN(since.getTime())) throw new UserError('since must be an ISO date or time')
   const cut = since.toISOString()
@@ -192,30 +128,7 @@ function whatsNew(ws, bd, f = {}) {
     if (after(a.updatedAt)) ev.push('updated by ' + (a.updatedBy || 'someone'))
     if (ev.length) tasks.push({ ...compactTask(a), events: ev })
   })
-  const items = []
-  openMeetings(bd).forEach((m) => (m.items || []).forEach((it) => {
-    const ev = []
-    if (after(it.createdAt)) ev.push('added by ' + (it.createdBy || 'someone'))
-    if (after(it.updatedAt)) ev.push('updated by ' + (it.updatedBy || 'someone'))
-    if (ev.length) items.push({ ...compactItem(it, m), events: ev })
-  }))
-  return { since: cut, tasks, meetingItems: items }
-}
-
-// ---------- Meetings module (read only) ----------
-function listMeetings(data, f = {}) {
-  const bundles = (data && data.bundles) || []
-  const now = nowIso()
-  const upcoming = bundles.filter((b) => b.meeting && b.meeting.status === 'scheduled' && String(b.meeting.startsAt || '') >= now)
-    .sort((a, b) => a.meeting.startsAt.localeCompare(b.meeting.startsAt))
-    .map((b) => ({ id: b.meeting.id, title: b.meeting.title, startsAt: b.meeting.startsAt, durationMin: b.meeting.durationMin,
-      location: b.meeting.locationLabel || '', attendees: (b.attendees || []).map((x) => x.displayName), agenda: (b.agenda || []).map((x) => x.title) }))
-  const records = bundles.filter((b) => b.record && ((b.record.actions || []).length || (b.record.decisions || []).length))
-    .sort((a, b) => String(b.meeting.startsAt || '').localeCompare(String(a.meeting.startsAt || '')))
-    .slice(0, Math.min(Math.max(parseInt(f.recent, 10) || 5, 1), 20))
-    .map((b) => ({ meeting: b.meeting.title, startsAt: b.meeting.startsAt, decisions: b.record.decisions || [],
-      actions: (b.record.actions || []).map((x) => ({ text: x.text, due: x.dueLabel || '' })) }))
-  return { upcoming, recent: records }
+  return { since: cut, tasks }
 }
 
 // ---------- capital_kv client ----------
@@ -264,16 +177,7 @@ const SCHEMAS = {
     dept: { type: 'string', enum: DEPTS }, notes: { type: 'string' }, priority: { type: 'string', enum: PRIORITIES } } } },
   update_task: { description: 'Change status, owner, due or notes on one task by id.', inputSchema: { type: 'object', required: ['id'], properties: {
     id: { type: 'string' }, status: { type: 'string', enum: STATUSES }, owner: { type: 'string' }, due: { type: 'string' }, notes: { type: 'string' } } } },
-  list_boardroom_items: { description: 'Items on the open weekly meetings (agenda, assignee, status, due).', inputSchema: { type: 'object', properties: {
-    status: { type: 'string', enum: ITEM_STATUSES }, assignee: { type: 'string' }, due_before: { type: 'string' }, limit: { type: 'number' } } } },
-  add_boardroom_item: { description: 'Add an item to the upcoming weekly meeting. Does not create meetings.', inputSchema: { type: 'object', required: ['title'], properties: {
-    title: { type: 'string' }, assignee: { type: 'string' }, due: { type: 'string' }, dept: { type: 'string', enum: DEPTS },
-    status: { type: 'string', enum: ITEM_STATUSES }, notes: { type: 'string' } } } },
-  update_boardroom_item: { description: 'Change status, assignee, due, notes or discussed on one item of an open weekly meeting, by id.', inputSchema: { type: 'object', required: ['id'], properties: {
-    id: { type: ['number', 'string'] }, meeting_date: { type: 'string', description: 'YYYY-MM-DD, only if the id is on several open meetings' }, status: { type: 'string', enum: ITEM_STATUSES },
-    assignee: { type: 'string' }, due: { type: 'string' }, notes: { type: 'string' }, discussed: { type: 'boolean' } } } },
-  whats_new: { description: 'The latest feed: tasks and meeting items created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
-  list_meetings: { description: 'Upcoming scheduled meetings, plus decisions and actions from recent meeting records.', inputSchema: { type: 'object', properties: { recent: { type: 'number' } } } },
+  whats_new: { description: 'The latest feed: tasks created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
 }
 
 async function callTool(name, args, store) {
@@ -282,11 +186,7 @@ async function callTool(name, args, store) {
     case 'list_tasks': return listTasks((await store.read(KEYS.workflow) || {}).value, args)
     case 'add_task': return store.update(KEYS.workflow, (ws) => addTask(ws, args))
     case 'update_task': return store.update(KEYS.workflow, (ws) => updateTask(ws, args))
-    case 'list_boardroom_items': return listBoardroomItems((await store.read(KEYS.boardroom) || {}).value, args)
-    case 'add_boardroom_item': return store.update(KEYS.boardroom, (bd) => addBoardroomItem(bd, args))
-    case 'update_boardroom_item': return store.update(KEYS.boardroom, (bd) => updateBoardroomItem(bd, args))
-    case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, (await store.read(KEYS.boardroom) || {}).value, args)
-    case 'list_meetings': return listMeetings((await store.read(KEYS.meetings) || {}).value, args)
+    case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
     default: throw new UserError(`Unknown tool ${name}`)
   }
 }
@@ -318,4 +218,4 @@ async function handleRpc(msg, store) {
   }
 }
 
-module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, listBoardroomItems, addBoardroomItem, updateBoardroomItem, whatsNew, listMeetings, kv, handleRpc, SCHEMAS, ROSTER }
+module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, whatsNew, kv, handleRpc, SCHEMAS, ROSTER }
