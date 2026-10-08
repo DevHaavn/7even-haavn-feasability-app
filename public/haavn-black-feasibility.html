@@ -358,7 +358,7 @@ function blockTotals(){let cost=0,sale2=0,area=0,units=0;DB.block.forEach(b=>{co
 /* ================= SHELL ================= */
 const NAV=[['range','Range'],['feas','Feasibility'],['mix','Project Mix'],['program','Program'],['dash','Dashboard'],['cap','Capability']];
 /* what each view is, shown right of the name like the other ATRIUM menus */
-const NAV_DESC={range:'The homes',feas:'Cost one home',mix:'Homes on a block',program:'Delivery and cashflow',dash:'Range and block totals',cap:'Company story'};
+const NAV_DESC={range:'The homes',feas:'Cost one home',mix:'Homes on a block',program:'Delivery and cashflow',dash:'Range and block totals',cap:'Capability story'};
 const RANGES=[['black','HAAVN Black Series','Signature homes'],['ess','Essentials','Developer stock']];
 function renderShell(){
   document.getElementById('navList').innerHTML=NAV.map(([k,l])=>`<div class="nav ${view===k?'on':''}" data-act="nav" data-view="${k}"><span class="nm">${l}</span><span class="ds">${NAV_DESC[k]||''}</span></div>`).join('');
