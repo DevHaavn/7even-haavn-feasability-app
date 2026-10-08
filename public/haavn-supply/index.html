@@ -518,6 +518,16 @@ footer .meta,footer .fc .live,footer .clock,footer .zone{color:rgba(16,16,16,.62
 .fr{gap:22px}
 footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important;font-size:11px!important;font-weight:300!important;
   letter-spacing:0!important;text-transform:none!important;color:rgba(16,16,16,.4)!important}
+
+/* ═══ THE WORDMARK STANDS STILL ═════════════════════════════════════════
+   No flying in, no colour flick. HAAVN is solid black from the first frame,
+   lit from behind by an LED: a tight white edge light and a wide, soft,
+   diffused glow bleeding out round the letters. Static. */
+.mark .h,.mark .m,.mark .n{transform:none!important;animation:none!important;background:var(--ink)!important;filter:none}
+/* the glow is drop-shadow on the whole mark (a filter on a masked layer is cut back
+   to the letters by its own mask, so the blur lives on the container) */
+.mark{filter:drop-shadow(0 0 5px rgba(255,255,255,.95)) drop-shadow(0 0 16px rgba(255,255,255,.8)) drop-shadow(0 0 38px rgba(214,236,110,.9)) drop-shadow(0 0 80px rgba(214,236,110,.55))}
+.subline{opacity:1!important;animation:none!important}
 </style>
 <link rel="stylesheet" href="/atrium-refresh.css">
 <script src="/atrium-refresh.js" defer></script>
