@@ -1,4 +1,6 @@
 <title>ATRIUM Engine</title>
+<link rel="stylesheet" href="/atrium-refresh.css">
+<script src="/atrium-refresh.js" defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
   :root{--bg:#0C0C0C;--s1:#111;--s2:#171717;--s3:#1F1F1F;--border:#282828;
@@ -3656,8 +3658,7 @@ renderAll();
     + '<div class="af-c"><span class="af-live"><i class="af-dot"></i>LIVE&nbsp;&nbsp;<span class="af-clock">--:--:--</span>&nbsp;·&nbsp;MELBOURNE</span></div>'
     + '<div class="af-r"><a class="af-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span class="ext">↗</span></a>'
     + '<a class="af-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span class="ext">↗</span></a>'
-    + '<button class="af-chip" type="button" title="Get the latest version"><i class="ring"></i>UPDATE</button></div>';
-  foot.querySelector('button').onclick = () => { try { top.location.reload(); } catch(e){ location.reload(); } };
+    + '<button class="rb" data-refresh type="button" style="--s:26px;--rb-c:#b9bdc4;--rb-h:#fff"></button></div>';
   const clock = foot.querySelector('.af-clock');
   const tick = () => { clock.textContent = new Date().toLocaleTimeString('en-AU', { hour12:false }); };
   tick(); setInterval(tick, 1000);

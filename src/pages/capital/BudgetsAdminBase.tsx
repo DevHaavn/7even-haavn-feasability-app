@@ -1,3 +1,4 @@
+import RefreshButton from '../../components/RefreshButton'
 import React, { useState, useEffect } from 'react'
 import BudgetsAdmin, { ensureAdminData, publishProjectCosts } from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
@@ -246,9 +247,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
       </div>
       </div>
 
-      <button className="abh-update" onClick={() => window.location.reload()} title="Reload to fetch the latest version">
-        <span className="ring-o" aria-hidden="true" />Update
-      </button>
+      <RefreshButton size={48} className="hub-rb" />
       <button className="abh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )

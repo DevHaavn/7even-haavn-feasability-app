@@ -1,3 +1,4 @@
+import RefreshButton from '../components/RefreshButton'
 import React, { useEffect, useState, useRef } from 'react'
 import { useStore } from '../store'
 import { seedProjectsIfEmpty } from '../db/seed'
@@ -531,7 +532,7 @@ export default function ProjectList({ onLogout, onDashboard, onHome }: { onLogou
           <div className="ath-fr">
             <a className="ath-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU <span className="ext">↗</span></a>
             <a className="ath-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU <span className="ext">↗</span></a>
-            <button className="ath-chip" title="Get the latest version" onClick={() => window.location.reload()}><span className="ring" />UPDATE</button>
+            <RefreshButton />
           </div>
         </div>
       </div>

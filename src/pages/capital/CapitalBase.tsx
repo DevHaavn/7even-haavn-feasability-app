@@ -1,3 +1,4 @@
+import RefreshButton from '../../components/RefreshButton'
 import React, { useState } from 'react'
 import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
@@ -224,9 +225,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
       </div>
 
       <SiteLinks tone="light" />
-      <button className="cab-update" onClick={() => window.location.reload()} title="Reload to fetch the latest version">
-        <span className="ring-o" aria-hidden="true" />Update
-      </button>
+      <RefreshButton size={48} className="hub-rb" />
       <button className="cab-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )

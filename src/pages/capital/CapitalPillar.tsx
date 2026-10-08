@@ -1,3 +1,4 @@
+import RefreshButton from '../../components/RefreshButton'
 import React, { useEffect, useState } from 'react'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
@@ -99,9 +100,7 @@ function CrmEmailGate({ onPass, onBack, onLogout }: { onPass: (email: string) =>
         </form>
       </div>
 
-      <button className="ceg-update" onClick={() => window.location.reload()} title="Reload to fetch the latest version">
-        <span className="ring-o" aria-hidden="true" />Update
-      </button>
+      <RefreshButton size={48} className="hub-rb" />
       <button className="ceg-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
     </div>
   )

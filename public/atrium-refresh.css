@@ -1,0 +1,24 @@
+/* ATRIUM footer refresh button. One circle, no word.
+   Shared by the React app (linked from index.html) and every static page.
+   Colour comes from three custom properties so each surface can tune it:
+   --rb-c rest, --rb-h hover, --rb-g the gold the arc takes on hover.      */
+.rb{--s:30px;--rb-c:rgba(243,242,238,.6);--rb-h:#F3F2EE;--rb-g:#d6b36a;
+  position:relative;width:var(--s);height:var(--s);min-width:var(--s);padding:0;margin:0;border:0;border-radius:50%;background:none;
+  box-shadow:none;cursor:pointer;color:var(--rb-c);display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font:300 11.5px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;transition:color .3s;-webkit-tap-highlight-color:transparent}
+.rb svg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none}
+.rb .rb-ring{fill:none;stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke;transition:stroke .3s}
+.rb .rb-ink{fill:none;stroke:currentColor;stroke-width:1.15;stroke-linecap:butt;stroke-linejoin:miter;vector-effect:non-scaling-stroke;transition:stroke .3s}
+.rb:hover{color:var(--rb-h);background:none;box-shadow:none;transform:none}
+.rb:hover .rb-ink{stroke:var(--rb-g)}
+.rb:focus-visible{outline:1px solid var(--rb-g);outline-offset:4px}
+.rb .rb-arc{transform-origin:16px 16px;transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.rb:hover .rb-arc{transform:rotate(180deg)}
+.rb.go .rb-arc{animation:rb-spin .9s cubic-bezier(.65,0,.25,1) forwards}
+@keyframes rb-spin{to{transform:rotate(360deg)}}
+/* the pointer label, never a word on the button itself */
+.rb::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);right:0;white-space:nowrap;color:var(--rb-h);
+  opacity:0;transform:translateY(3px);transition:opacity .3s,transform .3s;pointer-events:none}
+.rb:hover::after{opacity:.85;transform:none}
+.rb.go::after{opacity:0}
+@media(prefers-reduced-motion:reduce){.rb .rb-arc,.rb.go .rb-arc{transition:none;animation:none}}

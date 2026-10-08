@@ -46,7 +46,7 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
       <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#050706', display: 'flex', flexDirection: 'column' }}>
         {/* Consultants (external) get the full Management System EXCEPT the
             director-only Senior Management module (?role=consultant strips it). */}
-        <iframe title="ATRIUM — Management System" src={`/atrium-management.html?v=20261005a${role === 'external' ? '&role=consultant' : ''}`}
+        <iframe title="ATRIUM — Management System" src={`/atrium-management.html?v=20261008a${role === 'external' ? '&role=consultant' : ''}`}
           style={{ flex: 1, width: '100%', height: '100%', border: 0, display: 'block' }} />
       </div>
     )

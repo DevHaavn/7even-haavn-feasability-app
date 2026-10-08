@@ -519,6 +519,8 @@ footer .meta,footer .fc .live,footer .clock,footer .zone{color:rgba(16,16,16,.62
 footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important;font-size:11px!important;font-weight:300!important;
   letter-spacing:0!important;text-transform:none!important;color:rgba(16,16,16,.4)!important}
 </style>
+<link rel="stylesheet" href="/atrium-refresh.css">
+<script src="/atrium-refresh.js" defer></script>
 </head>
 <body>
 
@@ -702,7 +704,7 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
       <div class="fr">
         <a class="chip" href="https://haavn.au" target="_blank" rel="noopener">HAAVN.AU <span class="ext">&#8599;</span></a>
         <a class="chip" href="https://7even.au" target="_blank" rel="noopener">7EVEN.AU <span class="ext">&#8599;</span></a>
-        <button class="chip upd" id="btnUpdate"><span class="ring"></span> UPDATE</button>
+        <button class="rb" data-refresh type="button" style="--rb-c:rgba(16,16,16,.55);--rb-h:#101010;--rb-g:#8a6a22"></button>
       </div>
     </div>
     <div class="legal">
@@ -1017,7 +1019,6 @@ var MEDIA = [
     $('#clock').textContent = t; var lt = $('#liveTime'); if (lt) lt.textContent = t;
   }
   tick(); setInterval(tick, 1000);
-  $('#btnUpdate').addEventListener('click', function(){ location.reload(); });
 
   /* ---- the three home screens ----------------------------------------
      1 hero · 2 the Preston build · 3 haavn.au's section + the footer.

@@ -92,3 +92,14 @@ html[data-theme="dark"] .agw :is(.cab-pnum,.hmh-pnum,.abh-num,.cab-psub,.hmh-psu
 html[data-theme="dark"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){border-color:rgba(214,179,106,.5);color:#d6b36a}
 html[data-theme="dark"] .agw :is(.cab-pblurb,.hmh-pblurb,.abh-blurb,.cab-penter,.hmh-penter,.abh-enter){color:var(--g-ink2)}
 html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rgba(255,255,255,.12)}
+
+/* ── hub refresh circle ────────────────────────────────────────────────
+   Replaces the Update pill on Capital Base, Administration Base, HAAVN
+   Management and the Capital pillar. 48px to pair with the LOG circle on
+   the other side. The circle itself is public/atrium-refresh.css. */
+.hub-rb{position:fixed;bottom:18px;right:20px;z-index:30;
+  --rb-c:rgba(26,27,30,.7);--rb-h:#1a1b1e;--rb-g:#8f6a25;background:rgba(255,255,255,.55)}
+.hub-rb:hover{background:rgba(255,255,255,.55)}
+.agw .hub-rb{--rb-c:var(--g-ink2);--rb-h:var(--g-ink);--rb-g:#d6b36a;background:var(--g-pill)}
+.agw .hub-rb:hover{background:var(--g-pill)}
+@media(max-width:640px){.hub-rb{position:static;display:flex;margin:30px auto 0}}

@@ -401,6 +401,8 @@ main,footer,header .kicker{transition:.38s}
 .pw-card{border-radius:22px}
 .pw-card input,.pw-cancel,.pw-go{border-radius:14px}
 </style>
+<link rel="stylesheet" href="/atrium-refresh.css">
+<script src="/atrium-refresh.js" defer></script>
 </head>
 <body>
 
@@ -484,7 +486,7 @@ main,footer,header .kicker{transition:.38s}
         <span class="vis">VISIT</span>
         <a class="chip" href="https://7even.au" target="_blank" rel="noopener">7EVEN.AU <span class="ext">&#8599;</span></a>
         <a class="chip" href="https://haavn.au" target="_blank" rel="noopener">HAAVN.AU <span class="ext">&#8599;</span></a>
-        <button class="chip upd" id="btnUpdate"><span class="ring"></span> UPDATE</button>
+        <button class="rb" data-refresh type="button"></button>
       </div>
     </div>
     <div class="legal">
@@ -739,11 +741,6 @@ stub('btnCapital','→ Capital');
 stub('btnHM','→ HM');
 stub('btnDisplay','→ Black Display suite');
 stub('btnFeas','→ Black Feasibility studio');
-document.getElementById('btnUpdate').addEventListener('click',function(){
-  var b=this;b.style.opacity=.5;b.innerHTML='<span class="ring"></span> SYNCING';
-  setTimeout(function(){b.style.opacity=1;b.innerHTML='<span class="ring"></span> UPDATED';
-    setTimeout(function(){b.innerHTML='<span class="ring"></span> UPDATE';},1800);},900);
-});
 </script>
 <div class="pw-scrim" id="pwScrim"><div class="pw-card">
   <div class="pw-brand">HAAVN BLACK</div>

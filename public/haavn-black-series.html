@@ -656,6 +656,8 @@ input,select,textarea{font-family:inherit}
 }
 html,body{overscroll-behavior:none;-webkit-overflow-scrolling:touch}
 </style>
+<link rel="stylesheet" href="/atrium-refresh.css">
+<script src="/atrium-refresh.js" defer></script>
 </head>
 <body>
 
@@ -976,7 +978,7 @@ html,body{overscroll-behavior:none;-webkit-overflow-scrolling:touch}
       <span class="atr-visit">Visit Us</span>
       <a class="atr-fpill" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU &#8599;</a>
       <a class="atr-fpill" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU &#8599;</a>
-      <button class="atr-fpill" id="atrUpdate" type="button" title="Get the latest version — reloads if a new update has shipped. Your saved work is kept.">&#8635; Update</button>
+      <button class="rb" data-refresh type="button" style="--s:24px"></button>
     </div>
     <div class="atr-copy">Design &amp; Interface © 2026 JB Design × Studio · All Rights Reserved</div>
   </div>
@@ -2372,6 +2374,5 @@ window.addEventListener('hashchange', openFromHash);
     <div class="lb-count" id="lbCount"></div>
   </div>
 </div>
-<script>(function(){var b=document.getElementById('atrUpdate');if(!b)return;b.onclick=async function(){if(b.dataset.busy)return;b.dataset.busy='1';b.textContent='⟳ Updating…';try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();}catch(e){}await new Promise(function(r){setTimeout(r,900);});try{if(window.caches){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}}catch(e){}try{if(navigator.serviceWorker){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(function(r){return r.unregister();}));}}catch(e){}try{(window.top||window).location.reload();}catch(e){location.reload();}};})();</script>
 </body>
 </html>

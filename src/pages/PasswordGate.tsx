@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import InstallButton from '../components/InstallButton'
+import RefreshButton from '../components/RefreshButton'
 import { setStoredRole, getStoredRole, EXTERNAL_PASSWORD, HOMES_PASSWORD, HAAVN_ONLY_PASSWORD } from '../lib/role'
 
 // Full access to all three companies (7EVEN, HAAVN, HAAVN BLACK) — directors
@@ -349,6 +350,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
           <InstallButton compact />
           <a className="pg-chip" href="https://7even.au" target="_blank" rel="noopener noreferrer">7EVEN.AU</a>
           <a className="pg-chip" href="https://www.haavn.au" target="_blank" rel="noopener noreferrer">HAAVN.AU</a>
+          <RefreshButton />
         </span>
       </div>
     </div>
