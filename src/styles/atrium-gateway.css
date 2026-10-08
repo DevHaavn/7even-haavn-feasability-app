@@ -7,7 +7,7 @@
    ========================================================================== */
 :root{--at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0;
  --g-bg0:#0B0D0F;--g-bg1:#101216;--g-ink:#F3F2EE;--g-ink2:#b7b9bf;--g-ink3:#7d818b;--g-ink4:#565a63;--g-line:rgba(255,255,255,.09);--g-pill:rgba(255,255,255,.045);--g-glass:rgba(24,26,32,.62);--g-top:rgba(11,13,15,.86)}
-html[data-theme="light"]{--g-bg0:#eceae4;--g-bg1:#f4f2ec;--g-ink:#1a1b1e;--g-ink2:#4a4d54;--g-ink3:#5b5f67;--g-ink4:#a7aab1;--g-line:rgba(20,20,25,.10);--g-pill:rgba(20,20,25,.04);--g-glass:rgba(255,255,255,.68);--g-top:rgba(236,234,228,.86)}
+html[data-theme="light"]{--g-bg0:#eceae4;--g-bg1:#f4f2ec;--g-ink:#1a1b1e;--g-ink2:#4a4d54;--g-ink3:#575b63;--g-ink4:#a7aab1;--g-line:rgba(20,20,25,.10);--g-pill:rgba(20,20,25,.04);--g-glass:rgba(255,255,255,.68);--g-top:rgba(236,234,228,.86)}
 .agw-seg{margin-left:auto;display:flex;padding:3px;border-radius:100px;border:1px solid var(--g-line);background:var(--g-pill)}
 .agw-seg button{border:none;background:transparent;color:var(--g-ink3);font:400 9.5px 'JetBrains Mono',monospace;letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer}
 .agw-seg button.on{background:var(--g-ink);color:var(--g-bg0)}
@@ -136,8 +136,8 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
    darkens in places. So:
    - the light scrim is raised so the backdrop under any text is a known pale
      (about 0.7 relative luminance or lighter), the video still moves behind it
-   - card gold goes to a deeper bronze #6f5217 (5.0:1 or better on that pale)
-   - the tertiary grey token goes to #5b5f67 (5.5:1 or better)
+   - card gold goes to a deeper bronze #6f5217 (5.0:1 on #d9d7d0)
+   - the tertiary grey token goes to #575b63 (4.6:1 or better)
    - the brand tag and switch use the secondary ink
    The gold hue, the rotating ring and the menu card rule are untouched. */
 html[data-theme="light"] .agw :is(.cab-scrim,.hmh-scrim){
