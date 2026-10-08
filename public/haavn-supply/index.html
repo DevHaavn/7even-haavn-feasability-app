@@ -526,7 +526,9 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
 .mark .h,.mark .m,.mark .n{transform:none!important;animation:none!important;background:var(--ink)!important;filter:none}
 /* the glow is drop-shadow on the whole mark (a filter on a masked layer is cut back
    to the letters by its own mask, so the blur lives on the container) */
-.mark{filter:drop-shadow(0 0 5px rgba(255,255,255,.95)) drop-shadow(0 0 16px rgba(255,255,255,.8)) drop-shadow(0 0 38px rgba(214,236,110,.9)) drop-shadow(0 0 80px rgba(214,236,110,.55))}
+.mark{filter:drop-shadow(0 0 6px rgba(255,255,255,.95)) drop-shadow(0 0 20px rgba(255,255,255,.85)) drop-shadow(0 0 46px rgba(255,255,255,.7)) drop-shadow(0 0 90px rgba(255,255,255,.5))}
+/* no light behind the menu H, just the ring */
+.mb svg,.mb:hover svg,.mb.lit svg{filter:none!important}
 .subline{opacity:1!important;animation:none!important}
 </style>
 <link rel="stylesheet" href="/atrium-refresh.css">
