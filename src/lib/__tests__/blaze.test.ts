@@ -128,6 +128,29 @@ describe('safe read-modify-write', () => {
   })
 })
 
+describe('audit log', () => {
+  it('records every call, reads and writes, successes and refusals', async () => {
+    const r: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
+    const store = () => B.kv(env, fakeSupabase(r))
+    const call = (id: number, name: string, args: any) => B.handleRpc({ jsonrpc: '2.0', id, method: 'tools/call', params: { name, arguments: args } }, store)
+    await call(1, 'list_tasks', {})
+    await call(2, 'add_task', { title: 'Book flights', owner: 'jamie' })
+    await call(3, 'update_task', { id: 'n1-aaaa', status: 'done' })
+    await call(4, 'add_task', { title: 'x', owner: 'nobody' })
+    const e = r.blaze_audit.value.entries
+    expect(e.map((x: any) => [x.tool, x.ok])).toEqual([['list_tasks', true], ['add_task', true], ['update_task', true], ['add_task', false]])
+    expect(e[1].note).toBe('added: Book flights'); expect(e[2].taskId).toBe('n1-aaaa'); expect(e[2].note).toBe('changed: status')
+    expect(e.every((x: any) => typeof x.at === 'string')).toBe(true)
+    expect(Object.keys(r).sort()).toEqual(['blaze_audit', 'nav_workspace']) // nothing else touched
+  })
+  it('keeps the log capped', async () => {
+    const entries = Array.from({ length: 1000 }, (_, i) => ({ at: 'x', tool: 'list_tasks', ok: true, taskId: '', note: String(i) }))
+    const r: any = { nav_workspace: { value: ws(), updated_at: 't0' }, blaze_audit: { value: { entries }, updated_at: 't0' } }
+    await B.handleRpc({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'list_tasks', arguments: {} } }, () => B.kv(env, fakeSupabase(r)))
+    expect(r.blaze_audit.value.entries).toHaveLength(1000); expect(r.blaze_audit.value.entries[0].note).toBe('1')
+  })
+})
+
 describe('MCP protocol', () => {
   const rows = () => ({ nav_workspace: { value: ws(), updated_at: 't0' }, })
   it('handles initialize, tools/list, tools/call and notifications', async () => {

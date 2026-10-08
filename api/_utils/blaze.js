@@ -11,7 +11,9 @@ const BY = 'Blaze'
 // CRM, capital or anything else in ATRIUM; that is the gatekeeper's job.
 const KEYS = {
   workflow: 'nav_workspace',        // ATRIUM Workflow workspace; tasks live in .actions
+  audit: 'blaze_audit',             // { entries: [{ at, tool, ok, taskId, note }] }, newest last, capped
 }
+const AUDIT_MAX = 1000
 
 const STATUSES = ['todo', 'doing', 'blocked', 'review', 'done']
 const PRIORITIES = ['Low', 'Normal', 'Medium', 'High']
@@ -191,6 +193,24 @@ async function callTool(name, args, store) {
   }
 }
 
+// One line per call Blaze makes: when, which tool, which task, whether it worked. Written
+// after the call; a failure to log is reported on the server but never hides the result.
+async function audit(store, tool, args, outcome) {
+  const taskId = (outcome.out && outcome.out.id) || (args && args.id) || ''
+  const note = outcome.error ? String(outcome.error).slice(0, 160)
+    : tool === 'add_task' ? 'added: ' + String((outcome.out && outcome.out.title) || '').slice(0, 80)
+    : tool === 'update_task' ? 'changed: ' + ((outcome.out && outcome.out.changed) || []).join(', ')
+    : 'read' + (outcome.out && typeof outcome.out.total === 'number' ? ` (${outcome.out.total})` : '')
+  const entry = { at: nowIso(), tool, ok: !outcome.error, taskId: String(taskId), note }
+  try {
+    await store.update(KEYS.audit, (v) => {
+      const entries = Array.isArray(v && v.entries) ? v.entries.slice(-(AUDIT_MAX - 1)) : []
+      entries.push(entry)
+      return { next: { entries }, result: null }
+    })
+  } catch (e) { console.error('blaze audit write failed', e && e.message) }
+}
+
 const PROTOCOL = '2025-03-26'
 // Returns a JSON-RPC response object, or null for notifications.
 async function handleRpc(msg, store) {
@@ -205,12 +225,16 @@ async function handleRpc(msg, store) {
     case 'tools/list': return ok({ tools: Object.entries(SCHEMAS).map(([name, s]) => ({ name, ...s })) })
     case 'tools/call': {
       const name = msg.params && msg.params.name
+      const args = msg.params && msg.params.arguments
+      const st = store()
       try {
-        const out = await callTool(name, msg.params && msg.params.arguments, store())
+        const out = await callTool(name, args, st)
+        await audit(st, name, args, { out })
         return ok({ content: [{ type: 'text', text: JSON.stringify(out) }] })
       } catch (e) {
-        if (e instanceof UserError) return ok({ isError: true, content: [{ type: 'text', text: e.message }] })
+        if (e instanceof UserError) { await audit(st, name, args, { error: e.message }); return ok({ isError: true, content: [{ type: 'text', text: e.message }] }) }
         console.error('blaze tool error', name, e && e.message)
+        await audit(st, name, args, { error: 'failed' })
         return ok({ isError: true, content: [{ type: 'text', text: 'ATRIUM could not complete that. Nothing was changed.' }] })
       }
     }
