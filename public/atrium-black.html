@@ -264,6 +264,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
   .tb-title{font-size:16px}}
 </style>
 <link rel="stylesheet" href="/atrium-language.css">
+<link rel="stylesheet" href="/atrium-workflow-look.css?v=3">
+<script src="/atrium-workflow-look.js?v=2" defer></script>
 </head>
 <body>
 
@@ -278,21 +280,22 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
       </button>
       <div class="rail-wm"><span class="a"><svg viewBox="75 64 90 112"><path d="M79.24 172 L120 68 L160.76 172" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="miter" stroke-linecap="butt"/></svg></span>TRIUM</div>
     </div>
-    <div class="rail-group g-work">My Workspace</div>
-    <div class="rail-item" data-tab="myday" data-icon="calendar">My Day</div>
-    <div class="rail-item" data-tab="mytasks" data-icon="review">My Tasks<span class="n" id="cMyTasks">0</span></div>
-    <div class="rail-item" data-tab="myagenda" data-icon="calendar">My Weekly Agenda<span class="n" id="cMyAgenda">0</span></div>
-    <div class="rail-item" data-tab="mymeetings" data-icon="people">My Meetings</div>
-    <div class="rail-group g-black">HAAVN Black · Home Sales</div>
-    <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales Pipeline<span class="n" id="cBuyers">0</span></div>
-    <div class="rail-item" data-tab="buyers" data-icon="people">Home Buyers</div>
-    <div class="rail-group g-team">HAAVN Black · Team</div>
-    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team Board</div>
+    <div class="rail-switch" aria-label="ATRIUM"><span class="on">Workflow</span><button type="button" data-switch="agenda">Meetings</button></div>
+    <div class="rail-group g-work">My work</div>
+    <div class="rail-item" data-tab="myday" data-icon="calendar">My day</div>
+    <div class="rail-item" data-tab="mytasks" data-icon="review">My tasks<span class="n" id="cMyTasks">0</span></div>
+    <div class="rail-item" data-tab="myagenda" data-icon="calendar">My weekly agenda<span class="n" id="cMyAgenda">0</span></div>
+    <div class="rail-item" data-tab="mymeetings" data-icon="people">My meetings</div>
+    <div class="rail-group g-team">Team</div>
+    <div class="rail-item" data-tab="teamboard" data-icon="folder">Team board</div>
     <div class="rail-item" data-tab="workload" data-icon="people">Workload</div>
-    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly Review<span class="n" id="cWeekly">0</span></div>
-    <div class="rail-group g-meet">Meetings &amp; Momentum</div>
-    <div class="rail-item" data-tab="actions" data-icon="review">Action Register<span class="n" id="cActions">0</span></div>
+    <div class="rail-item" data-tab="weeklyreview" data-icon="review">Weekly review<span class="n" id="cWeekly">0</span></div>
+    <div class="rail-group g-supply">Pipelines</div>
+    <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales pipeline<span class="n" id="cBuyers">0</span></div>
+    <div class="rail-item" data-tab="buyers" data-icon="people">Home buyers</div>
+    <div class="rail-group g-meet">Meetings</div>
     <div class="rail-item" data-tab="meetings" data-icon="calendar">Meetings</div>
+    <div class="rail-item" data-tab="actions" data-icon="review">Action register<span class="n" id="cActions">0</span></div>
 
     <div class="rail-foot">
       <div class="rail-rule"></div>
@@ -680,11 +683,11 @@ function toggleRail(){var on=document.getElementById('rail').classList.toggle('o
 function closeRail(){document.getElementById('rail').classList.remove('on');document.getElementById('railScrim').classList.remove('on');}
 
 var TITLES={
-  myday:['My Day','MY WORKSPACE'],mytasks:['My Tasks','MY WORKSPACE'],myagenda:['My Weekly Agenda','MY WORKSPACE'],mymeetings:['My Meetings','MY WORKSPACE'],
+  myday:['My day','MY WORKSPACE'],mytasks:['My tasks','MY WORKSPACE'],myagenda:['My weekly agenda','MY WORKSPACE'],mymeetings:['My meetings','MY WORKSPACE'],
   sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],
-  teamboard:['Team Board','HAAVN BLACK · TEAM'],workload:['Workload','HAAVN BLACK · TEAM'],weeklyreview:['Weekly Review','HAAVN BLACK · TEAM'],
-  actions:['Action Register','MEETINGS & MOMENTUM'],meetings:['Meetings','MEETINGS & MOMENTUM']};
+  teamboard:['Team board','HAAVN BLACK · TEAM'],workload:['Workload','HAAVN BLACK · TEAM'],weeklyreview:['Weekly review','HAAVN BLACK · TEAM'],
+  actions:['Action register','MEETINGS & MOMENTUM'],meetings:['Meetings','MEETINGS & MOMENTUM']};
 function render(){
   var t=TITLES[TAB]||['',''];
   document.getElementById('tbTitle').textContent=t[0];

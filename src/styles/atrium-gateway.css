@@ -134,14 +134,13 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
    best), the tertiary grey #83868e (3.0:1) and the brand tag and Dark/Light
    switch used it. The body text also sat straight on the moving video, which
    darkens in places. So:
-   - the light scrim is raised so the backdrop under any text is a known pale
-     (about 0.7 relative luminance or lighter), the video still moves behind it
+   - the moving video is dark theme only (see the components), so light is a flat
+     bone ground and every text colour below is measured against that
    - card gold goes to a deeper bronze #6f5217 (5.0:1 on #d9d7d0)
    - the tertiary grey token goes to #575b63 (4.6:1 or better)
    - the brand tag and switch use the secondary ink
    The gold hue, the rotating ring and the menu card rule are untouched. */
-html[data-theme="light"] .agw :is(.cab-scrim,.hmh-scrim){
-  background:linear-gradient(180deg,rgba(244,242,236,.68),rgba(244,242,236,.6) 42%,rgba(244,242,236,.72))!important}
+html[data-theme="light"] .agw:is(.cab-root,.hmh-root){background:var(--g-bg0)}
 html[data-theme="light"] .agw :is(.cab-psub,.hmh-psub,.abh-psub,.cab-pnum,.hmh-pnum,.abh-num,.cab-ptitle,.hmh-ptitle,.abh-ptitle){color:#6f5217!important}
 html[data-theme="light"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){color:#6f5217!important;border-color:rgba(111,82,23,.55)!important}
 .agw :is(.cab-brand,.hmh-brand,.abh-brand,.ceg-brand) .tag{color:var(--g-ink2)}
