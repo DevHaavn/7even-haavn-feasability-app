@@ -142,6 +142,12 @@ body.on-project #project{display:block}
 .pts .pt .d{margin-top:6px;color:var(--ink2);max-width:46ch}
 .why li{list-style:none;border-top:1px solid var(--line);padding:18px 0;color:var(--ink2);max-width:50ch}
 .why li:first-child{border-top:0;padding-top:0}
+.decks .dk{display:grid;grid-template-columns:minmax(0,1.6fr) 110px auto;gap:28px;align-items:center;border-top:1px solid var(--line);padding:26px 0}
+.decks .dk:last-child{border-bottom:1px solid var(--line)}
+.decks .t{font-size:clamp(21px,2vw,30px);line-height:1.2}
+.decks .d{margin-top:6px;color:var(--ink2);max-width:56ch}
+.decks .m{font-size:15px;color:var(--ink3)}
+.decks .a{display:flex;align-items:center;gap:26px}
 .pfoot{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:30px var(--pad) 36px;border-top:1px solid var(--line);font-size:15px;color:var(--ink3)}
 .pfoot a{color:var(--ink2);transition:color .25s}.pfoot a:hover{color:var(--ac)}
 
@@ -195,6 +201,7 @@ body.on-project #project{display:block}
   .gi .im,.gi.f .im{height:auto;aspect-ratio:3/2}
   .plans{grid-template-columns:repeat(2,minmax(0,1fr))}
   .stats{grid-template-columns:1fr 1fr}
+  .decks .dk{grid-template-columns:1fr;gap:14px}
   #bar .pn{gap:16px}
 }
 @media (prefers-reduced-motion:reduce){#hub .film{display:none}*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
@@ -264,6 +271,8 @@ window.proj=proj;              /* im.js looks projects up here */
 
 function norm(p){
   p.cat=LABEL[p.type]||p.type;
+  if(!p.decks&&p.deck)p.decks=[{key:'',label:'Presentation',slides:0,path:p.deck}];
+  p.decks=p.decks||[];
   if(!p.groups){
     var im=p.imgs||[],cp=p.imgcaps||[];
     p.groups=[{name:'The project',note:p.addr+', '+p.city+'.',items:im.map(function(s,i){return{src:s,thumb:s,cap:cp[i]||''}})}];
@@ -322,8 +331,9 @@ function buildProject(p){
   $('#prv').setAttribute('href','#/'+pv.id);$('#nxt').setAttribute('href','#/'+nx.id);
   var brand=(p.devimg?'<img class="dev" src="'+p.devimg+'" alt="">':'');
   var title=p.brandimg?'<img class="bi" src="'+p.brandimg+'" alt="'+esc(p.n)+'">':esc(p.n);
-  var acts=p.deck
-    ? '<a class="btn" href="#/'+p.id+'/present">Present'+ARROW+'</a><a class="lnk" href="'+p.deck+'?print" target="_blank" rel="noopener">Print as PDF</a>'
+  var D=p.decks,acts=D.length
+    ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.label):'Present')+ARROW+'</a>'}).join('')
+      +(D.length===1?'<a class="lnk" href="'+D[0].path+'?print" target="_blank" rel="noopener">Print as PDF</a>':'')
     : '<span class="lnk dim">Presentation in build</span><a class="lnk" href="#" data-im="'+p.id+'">Investment memorandum</a>';
   var h='<div class="phero"><img class="bg" src="'+p.hero+'" alt="" style="object-position:'+(p.heroPos||'50% 50%')+'">'
    +brand+'<div class="kind">'+esc(p.place)+' · '+esc(p.cat)+'</div><h1>'+title+'</h1>'
@@ -355,6 +365,11 @@ function buildProject(p){
   h+='<div class="sec"><div class="two"><div class="pts"><div class="lbl" style="margin-bottom:22px">Why this project</div>'
    +(p.points||[]).map(function(x,k){return'<div class="pt"><span class="k">0'+(k+1)+'</span><div><div class="t">'+esc(x[0])+'</div><div class="d">'+esc(x[1])+'</div></div></div>'}).join('')+'</div>'
    +'<div><div class="lbl" style="margin-bottom:22px">The case</div><ul class="why">'+(p.why||[]).map(function(w){return'<li>'+esc(w)+'</li>'}).join('')+'</ul></div></div></div>';
+  if(p.decks.length){
+    h+='<div class="sec"><div class="lbl" style="margin-bottom:26px">Presentations</div><div class="decks">'+p.decks.map(function(d){
+      return '<div class="dk"><div><div class="t">'+esc(d.label)+'</div><div class="d">'+esc(d.note||'')+'</div></div><div class="m">'+(d.slides?d.slides+' slides':'')+'</div>'
+        +'<div class="a"><a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">Present'+ARROW+'</a><a class="lnk" href="'+d.path+'?print" target="_blank" rel="noopener">Print as PDF</a></div></div>'}).join('')+'</div></div>';
+  }
   h+='<div class="pfoot"><span>7even.au</span><a href="#/'+nx.id+'">Next: '+esc(nx.n)+'</a></div>';
   var el=$('#project');el.innerHTML=h;el.scrollTop=0;
   Array.prototype.forEach.call(el.querySelectorAll('.gi'),function(f){f.addEventListener('click',function(){lbOpen(all,+f.dataset.k)})});
@@ -372,10 +387,10 @@ $('#lb').addEventListener('click',function(e){if(e.target===this)lbClose()});
 
 /* ── presenter ───────────────────────────────────────── */
 var hideT=null;
-function presOpen(p){
-  var fr=$('#pframe');
-  if(fr.getAttribute('data-id')!==p.id){fr.setAttribute('data-id',p.id);fr.src=p.deck+'#1'}
-  $('#ptitle').textContent=p.n+' · Presentation';
+function presOpen(p,d){
+  var fr=$('#pframe'),k=p.id+'/'+d.key;
+  if(fr.getAttribute('data-id')!==k){fr.setAttribute('data-id',k);fr.src=d.path+'#1'}
+  $('#ptitle').textContent=p.n+' · '+(d.label==='Presentation'?'Presentation':d.label);
   $('#pres').classList.add('on');document.body.classList.add('on-present');
   var c=$('#pctl');c.classList.add('show');clearTimeout(hideT);hideT=setTimeout(function(){c.classList.remove('show')},2800);
   var hook=function(){try{var w=fr.contentWindow;w.focus();w.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.fullscreenElement)closePres()});}catch(e){}};
@@ -391,13 +406,14 @@ $('#pfs').addEventListener('click',function(){var e=$('#pres');if(document.fulls
 
 /* ── routing ─────────────────────────────────────────── */
 function route(){
-  var m=(location.hash||'').replace(/^#\/?/,'').split('/');var id=m[0],sub=m[1];var p=id?proj(id):null;
+  var m=(location.hash||'').replace(/^#\/?/,'').split('/');var id=m[0],sub=m[1],dk=m[2]||'';var p=id?proj(id):null;
   lbClose();
   if(!p){cur=null;document.body.classList.remove('on-project');presClose();document.title='HORI7ON · 7EVEN';return}
   if(cur!==p){cur=p;buildProject(p)}
   document.body.classList.add('on-project');document.title=p.n+' · HORI7ON';
   $('#bar').classList.toggle('solid',$('#project').scrollTop>40);
-  if(sub==='present'&&p.deck)presOpen(p);else presClose();
+  var deck=(p.decks||[]).filter(function(x){return x.key===dk})[0];
+  if(sub==='present'&&deck)presOpen(p,deck);else presClose();
 }
 window.addEventListener('hashchange',route);
 $('#project').addEventListener('scroll',function(){$('#bar').classList.toggle('solid',this.scrollTop>40)});

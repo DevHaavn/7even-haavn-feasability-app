@@ -130,7 +130,16 @@
     "cap": "Section \u00b7 esplanade to Leeding Tce"
    }
   ],
-  "deck": "/hori7on-next/decks/5ive/index.html"
+  "deck": "/hori7on-next/decks/5ive/index.html",
+  "decks": [
+   {
+    "key": "",
+    "label": "Project presentation",
+    "slides": 14,
+    "note": "The project, the numbers, the place, the plans and the case.",
+    "path": "/hori7on-next/decks/5ive/index.html"
+   }
+  ]
  },
  {
   "id": "cunningham",
@@ -263,7 +272,23 @@
     "cap": "Building section"
    }
   ],
-  "deck": "/hori7on-next/decks/cunningham/index.html"
+  "deck": "/hori7on-next/decks/cunningham/index.html",
+  "decks": [
+   {
+    "key": "",
+    "label": "Project presentation",
+    "slides": 14,
+    "note": "The project, the numbers, the place, the plans and the case.",
+    "path": "/hori7on-next/decks/cunningham/index.html"
+   },
+   {
+    "key": "acts",
+    "label": "Partnership memorandum",
+    "slides": 41,
+    "note": "Prepared for ACTS Global, the landowner: the mission, the market, the scheme, the numbers, and the choice to sell or stay in.",
+    "path": "/hori7on-next/decks/cunningham-acts/index.html"
+   }
+  ]
  },
  {
   "id": "stvillage",
@@ -567,7 +592,16 @@
     "cap": "Development summary \u2014 compliant scheme vs masterplan"
    }
   ],
-  "deck": "/hori7on-next/decks/waurnvale/index.html"
+  "deck": "/hori7on-next/decks/waurnvale/index.html",
+  "decks": [
+   {
+    "key": "",
+    "label": "Project presentation",
+    "slides": 17,
+    "note": "The project, the numbers, the place, the plans and the case.",
+    "path": "/hori7on-next/decks/waurnvale/index.html"
+   }
+  ]
  },
  {
   "id": "derrimut",
@@ -697,6 +731,15 @@
     "cap": "Development summary \u2014 Sections 1\u20133 \u00b7 fl\u014ddesign"
    }
   ],
-  "deck": "/hori7on-next/decks/derrimut/index.html"
+  "deck": "/hori7on-next/decks/derrimut/index.html",
+  "decks": [
+   {
+    "key": "",
+    "label": "Project presentation",
+    "slides": 14,
+    "note": "The project, the numbers, the place, the plans and the case.",
+    "path": "/hori7on-next/decks/derrimut/index.html"
+   }
+  ]
  }
 ]

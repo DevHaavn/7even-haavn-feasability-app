@@ -205,5 +205,14 @@
  "hero": "/hori7on-next/img/preston/arches-golden.jpg",
  "heroPos": "50% 82%",
  "deck": "/hori7on-next/preston-deck/index.html",
- "hl": "Home on the park."
+ "hl": "Home on the park.",
+ "decks": [
+  {
+   "key": "",
+   "label": "Investor presentation",
+   "slides": 45,
+   "note": "Investment memorandum, equity raise: the company, the market, the site, the approval, the delivery and the deal.",
+   "path": "/hori7on-next/preston-deck/index.html"
+  }
+ ]
 }
