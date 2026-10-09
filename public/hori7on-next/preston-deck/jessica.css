@@ -1,0 +1,153 @@
+/* Saint Village Preston, the ATRIUM Deep look.
+   One typeface (Inter 300), tracking zero, sentence case, hierarchy by value not
+   by colour or italic. Near black ground, bone type, hairlines. Gold survives in
+   one place per slide. Layered over the original deck, so the content, the
+   numbers and the build are untouched. Removing the link restores the old look. */
+:root{--bg:#0b0b0c;--ink:#F3F2EE;--ink2:#B5B5B2;--ink3:#9A9A97;--dim:#8d8d8a;
+  --line:rgba(243,242,238,.14);--line2:rgba(243,242,238,.26);
+  --gold:#F3F2EE;--gold2:#F3F2EE;--goldd:#B5B5B2;--ac:#d6b36a;
+  --f-d:'Inter',system-ui,sans-serif;--f-b:'Inter',system-ui,sans-serif;--f-m:'Inter',system-ui,sans-serif;--f-n:'Inter',system-ui,sans-serif;--f-btn:'Inter',system-ui,sans-serif}
+html,body{background:#050506}
+body{font-variant-numeric:tabular-nums}
+#stage{background:#0b0b0c}
+::selection{background:#F3F2EE;color:#0b0b0c}
+
+/* rails: sentence case, grey, no tracking */
+.rail{font:300 17px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;color:var(--ink3)}
+.rail.bot{color:var(--ink3)}
+.rail b{color:var(--ink);font-weight:400}
+.rail .l i{background:var(--line2)}
+
+/* type */
+.eb,.lbl{font:300 17px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;color:var(--ink3)}
+.mast{font-family:Inter,system-ui,sans-serif;font-weight:300;letter-spacing:-.02em;line-height:1.04;color:var(--ink)}
+.mast i,.mast .it{font-style:normal;font-weight:300;color:var(--ink2)}
+.lead{font:300 30px/1.45 Inter,system-ui,sans-serif;color:var(--ink)}
+.lead i{font-style:normal;color:var(--ink2)}
+.body{font-size:21px;font-weight:300;line-height:1.62;color:var(--ink2)}
+.body b{color:var(--ink);font-weight:400}
+.fn{font-size:16px;line-height:1.6;color:var(--ink3)}
+.num{font-family:Inter,system-ui,sans-serif;font-weight:200;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.num.w{color:var(--ink)}
+.gold{color:var(--ink)}
+.stat{border-top:1px solid var(--line2)}
+
+/* ── one rule for the whole deck: no tracking, no capitals typed by CSS ── */
+#stage *{letter-spacing:0!important;text-transform:none!important}
+#stage .mast{letter-spacing:-.02em!important}
+#stage .num{letter-spacing:-.03em!important}
+
+/* ── headlines: smaller, a sentence, hierarchy by value ── */
+.mast{font-size:78px}.mast.m{font-size:66px}.mast.s{font-size:54px}.mast.xl{font-size:104px}
+.mast .it{display:block}
+
+/* ── nothing under 16px on a 1920 stage ── */
+.cap,.meta b,.lt th,.stg .tag,.stg .k,.stg .st,.path .end span,.clock .tk em,.atrlock .tg,.js em,.vbars span,.th i,.ov .hint,#notes h5,#toast{
+  font-family:Inter,system-ui,sans-serif;font-weight:300;font-size:16px;color:var(--ink3)}
+.lt th{font-size:16px;padding:12px 8px}
+.meta b{color:var(--ink);font-weight:400}
+.stg .tag{background:none;color:var(--ink);padding:0}
+.stg .k{color:var(--ink3)}
+.stg .st,.js em{border:0;padding:0;color:var(--ink3)}
+.btn{border-radius:0;border:0;border-bottom:1px solid var(--line2);height:auto;padding:10px 0;font:300 22px Inter,system-ui,sans-serif;color:var(--ink)}
+.btn:hover{color:var(--ac);border-color:var(--ac);background:none}
+html.print .slide{background:#0b0b0c!important}
+html.print,html.print body{background:#0b0b0c}
+
+/* ── photography: full bleed, the Deep wash from the left and a pool bottom-left ── */
+.bleed.side{left:0!important}
+.bleed::after{background:linear-gradient(90deg,rgba(11,11,12,.97) 0%,rgba(11,11,12,.9) 34%,rgba(11,11,12,.5) 72%,rgba(11,11,12,.6) 100%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.9),transparent 66%)}
+.bleed.side::after{background:linear-gradient(90deg,#0b0b0c 0%,rgba(11,11,12,.96) 30%,rgba(11,11,12,.6) 48%,rgba(11,11,12,0) 74%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.92),transparent 62%)}
+.bleed.lite::after{background:linear-gradient(90deg,rgba(11,11,12,.94) 0%,rgba(11,11,12,.7) 30%,rgba(11,11,12,0) 58%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.85),transparent 62%)}
+.bleed.dk::after{background:linear-gradient(0deg,rgba(11,11,12,.97) 0%,rgba(11,11,12,.82) 45%,rgba(11,11,12,.6) 100%)}
+
+/* italics are a colour in disguise; hierarchy is value now */
+#stage i,#stage em,#stage blockquote{font-style:normal}
+
+/* the wash again, stronger where type sits on bright photography, and a top and bottom
+   shade so the rails and the stat rows stay legible */
+.bleed::after{background:linear-gradient(90deg,rgba(11,11,12,.97) 0%,rgba(11,11,12,.9) 44%,rgba(11,11,12,.55) 72%,rgba(11,11,12,.62) 100%),
+  linear-gradient(0deg,rgba(11,11,12,.88) 0%,transparent 36%),linear-gradient(180deg,rgba(11,11,12,.72) 0%,transparent 17%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.9),transparent 66%)}
+.bleed.side::after{background:linear-gradient(90deg,#0b0b0c 0%,rgba(11,11,12,.96) 32%,rgba(11,11,12,.62) 50%,rgba(11,11,12,0) 76%),
+  linear-gradient(0deg,rgba(11,11,12,.82) 0%,transparent 34%),linear-gradient(180deg,rgba(11,11,12,.7) 0%,transparent 16%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.92),transparent 62%)}
+.bleed.lite::after{background:linear-gradient(90deg,rgba(11,11,12,.94) 0%,rgba(11,11,12,.72) 32%,rgba(11,11,12,0) 60%),
+  linear-gradient(0deg,rgba(11,11,12,.8) 0%,transparent 36%),linear-gradient(180deg,rgba(11,11,12,.7) 0%,transparent 16%),
+  radial-gradient(145% 115% at 0% 100%,rgba(5,5,6,.85),transparent 62%)}
+.slide .bleed~.pad .mast,.slide .bleed~.pad .lead{text-shadow:0 2px 28px rgba(0,0,0,.55)}
+
+/* one number carries the slide, and it is the only gold on it */
+.num.ac{color:var(--ac)}
+/* a table over photography needs a heavier floor */
+.bleed.dk::after{background:linear-gradient(0deg,rgba(11,11,12,.985) 0%,rgba(11,11,12,.95) 55%,rgba(11,11,12,.72) 100%)}
+
+/* ── grounds: four kinds, so the deck breathes ───────────────────────────────
+   still  the ATRIUM ground, held deep under the type so it is there and not noticed
+   bw     the render, black and white and faded, where a slide had one behind it
+   photo  the render in colour, under the ATRIUM wash (cover, hero slides)
+   flat   the dense numbers pages: nothing behind the figures                  */
+.slide[data-bg="still"]::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(7,7,8,.93) 0%,rgba(7,7,8,.84) 42%,rgba(7,7,8,.6) 100%),
+    radial-gradient(145% 115% at 0% 100%,rgba(4,4,5,.9),transparent 66%),url(assets/atrium-ground.jpg) center/cover no-repeat}
+.slide[data-bg="bw"] .bleed img{filter:grayscale(1) contrast(.92) brightness(.82);opacity:.5}
+.slide[data-bg="bw"] .bleed.dk::after{background:linear-gradient(0deg,rgba(11,11,12,.9) 0%,rgba(11,11,12,.8) 55%,rgba(11,11,12,.55) 100%)}
+.slide[data-bg="flat"] .bleed{display:none}
+
+/* ── the cover: the golden hour render, the whole render. Not cropped: shown at full height
+   (nothing cut top or bottom), set to the right, its left edge dissolving into the Deep ground
+   so the type sits on top of it. No slow zoom either, that is a crop. */
+.slide[data-title="Saint Village Preston"] .bleed.side{left:0!important;background:#0b0b0c}
+.slide[data-title="Saint Village Preston"] .bleed img{object-fit:contain;object-position:right center;transform:none!important;transition:none!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.6) 8%,#000 24%);mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.6) 8%,#000 24%)}
+.slide[data-title="Saint Village Preston"] .bleed::after{
+  background:linear-gradient(90deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.5) 28%,rgba(11,11,12,.12) 52%,transparent 66%),
+    linear-gradient(0deg,rgba(11,11,12,.8) 0%,rgba(11,11,12,.3) 22%,transparent 40%)}
+.slide[data-title="Saint Village Preston"] .mast,.slide[data-title="Saint Village Preston"] .lead{text-shadow:0 2px 30px rgba(0,0,0,.6)}
+
+/* ── page 39: the autumn render in full colour, fading up out of the Deep ground.
+   Alive at the top, gone by the table, so the figures sit on near black. */
+.slide[data-bg="grad"] .bleed img{filter:none;opacity:1;object-position:center 12%}
+.slide[data-bg="grad"] .bleed::after{
+  background:linear-gradient(0deg,rgba(11,11,12,1) 0%,rgba(11,11,12,.97) 36%,rgba(11,11,12,.62) 52%,rgba(11,11,12,.12) 72%,rgba(11,11,12,0) 100%),
+    linear-gradient(90deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.3) 34%,transparent 58%)}
+
+
+/* the cover image is set right with an inline object-position; make the layout rule win */
+.slide[data-title="Saint Village Preston"] .bleed img{object-position:right center!important}
+
+/* photo slides: the render is the point, so the wash is lighter on the right and heavier only under the type */
+.slide[data-bg="photo"] .bleed::after{background:linear-gradient(90deg,rgba(11,11,12,.95) 0%,rgba(11,11,12,.82) 36%,rgba(11,11,12,.34) 70%,rgba(11,11,12,.4) 100%),
+  linear-gradient(0deg,rgba(11,11,12,.85) 0%,transparent 36%),linear-gradient(180deg,rgba(11,11,12,.65) 0%,transparent 16%)}
+/* the cover and the close: the same open wash, left only */
+.slide[data-title="Saint Village Preston"] .bleed::after,.slide[data-title="The next chapter"] .bleed::after{
+  background:linear-gradient(90deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.5) 28%,rgba(11,11,12,.12) 52%,transparent 66%),
+    linear-gradient(0deg,rgba(11,11,12,.8) 0%,rgba(11,11,12,.3) 22%,transparent 40%)}
+.slide[data-title="The next chapter"] .mast,.slide[data-title="The next chapter"] .lead{text-shadow:0 2px 30px rgba(0,0,0,.6)}
+
+/* the cover render starts 19.7% in (it is shown whole at full height), so the fade has to start there */
+.slide[data-title="Saint Village Preston"] .bleed img{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,transparent 19.7%,rgba(0,0,0,.55) 25%,#000 38%)!important;
+  mask-image:linear-gradient(90deg,transparent 0,transparent 19.7%,rgba(0,0,0,.55) 25%,#000 38%)!important}
+.slide[data-title="The next chapter"] .bleed::after{
+  background:linear-gradient(90deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.5) 28%,rgba(11,11,12,.12) 52%,transparent 66%),
+    linear-gradient(0deg,rgba(11,11,12,.92) 0%,rgba(11,11,12,.55) 20%,transparent 42%)}
+
+/* page 39: keep the render alive on the right, but give the headline a floor on the left */
+.slide[data-bg="grad"] .bleed::after{
+  background:linear-gradient(0deg,rgba(11,11,12,1) 0%,rgba(11,11,12,.97) 36%,rgba(11,11,12,.62) 52%,rgba(11,11,12,.12) 72%,rgba(11,11,12,0) 100%),
+    linear-gradient(90deg,rgba(11,11,12,.9) 0%,rgba(11,11,12,.72) 30%,rgba(11,11,12,.3) 52%,transparent 70%),
+    linear-gradient(180deg,rgba(11,11,12,.45) 0%,transparent 14%)}
+.slide[data-bg="grad"] .mast,.slide[data-bg="grad"] .lead{text-shadow:0 2px 30px rgba(0,0,0,.7)}
+
+/* the very big 7: the brand's blade 7 from the wordmark artwork, bone, same soft glow the numeral had */
+.big7{line-height:0!important;text-shadow:none!important}
+.big7 .dev7{display:block;height:560px;width:auto;fill:var(--ink);filter:drop-shadow(0 0 40px rgba(214,179,106,.3))}
+
+/* mono: a photo slide whose image is black and white (page 8, HAAVN), same wash and layout as the colour photo slides */
+.slide[data-mono] .bleed img{filter:grayscale(1) contrast(1.06) brightness(1.35)}
+/* page 8 uses the SOLUM render: its SOLUM sign would sit under the HAAVN logo, so the image fades out in that small patch (the cladding there is black anyway) */
+.slide[data-solum] .bleed img{filter:brightness(1.18);-webkit-mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%);mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%)}

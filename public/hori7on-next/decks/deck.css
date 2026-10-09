@@ -1,0 +1,57 @@
+/* Project decks (Cunningham, Waurnvale, 575 Derrimut, 5IVE): the Preston engine and the ATRIUM Deep look,
+   plus the few slide types the Preston deck did not need. Loaded after jessica.css. */
+
+/* cover: the hero render shown whole at full height, set right, its left edge dissolving into the Deep ground.
+   --mx is where the picture starts (set per deck from the image's aspect). */
+.slide[data-cover] .bleed.side{left:0!important;background:#0b0b0c}
+.slide[data-cover] .bleed img{object-fit:contain;object-position:right center!important;transform:none!important;transition:none!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,transparent var(--mx,19.7%),rgba(0,0,0,.55) calc(var(--mx,19.7%) + 5.3%),#000 calc(var(--mx,19.7%) + 18.3%))!important;
+  mask-image:linear-gradient(90deg,transparent 0,transparent var(--mx,19.7%),rgba(0,0,0,.55) calc(var(--mx,19.7%) + 5.3%),#000 calc(var(--mx,19.7%) + 18.3%))!important}
+.slide[data-cover] .bleed::after,.slide[data-close] .bleed::after{
+  background:linear-gradient(90deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.5) 28%,rgba(11,11,12,.12) 52%,transparent 66%),
+    linear-gradient(0deg,rgba(11,11,12,.92) 0%,rgba(11,11,12,.55) 20%,transparent 42%),
+    linear-gradient(180deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.3) 9%,transparent 18%)}
+.slide[data-cover] .mast,.slide[data-cover] .lead,.slide[data-close] .mast,.slide[data-close] .lead{text-shadow:0 2px 30px rgba(0,0,0,.6)}
+
+/* full: a render at full bleed, lighter wash, the caption sits bottom left */
+.slide[data-bg="full"] .bleed::after{
+  background:linear-gradient(0deg,rgba(11,11,12,.92) 0%,rgba(11,11,12,.55) 18%,rgba(11,11,12,0) 44%),
+    linear-gradient(90deg,rgba(11,11,12,.5) 0%,rgba(11,11,12,0) 42%),
+    linear-gradient(180deg,rgba(11,11,12,.62) 0%,transparent 15%)}
+.slide[data-bg="full"] .mast{text-shadow:0 2px 30px rgba(0,0,0,.65)}
+.slide[data-bg="full"] .plate-no{font-size:18px;color:var(--ink2);margin-top:18px}
+
+/* project overview: headline, two columns of copy, the first four numbers along the bottom */
+.ov2{column-count:2;column-gap:72px;max-width:1380px}
+.ov2 p{font-size:23px;line-height:1.58;color:var(--ink2);font-weight:300}
+.fig4{display:grid;grid-template-columns:repeat(4,1fr);gap:48px;margin-top:auto}
+
+/* the numbers: eight, in a grid, hairline over each */
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:64px 48px;margin-top:auto}
+.nums .stat .num{font-size:64px;display:block}
+.nums .stat .sub{font-size:17px;color:var(--ink3);margin-top:8px;line-height:1.45}
+
+/* image rows (gallery and plans) */
+.irow{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:auto}
+.irow .im{height:560px;overflow:hidden;background:#141416}
+.irow .im img{width:100%;height:100%;object-fit:cover}
+.irow.pl .im{background:#f4f3ef;padding:14px}
+.irow.pl .im img{object-fit:contain}
+.irow .c{margin-top:14px;font-size:18px;line-height:1.45;color:var(--ink2)}
+.irow.two{grid-template-columns:repeat(2,1fr)}.irow.two .im{height:600px}
+.irow.one{grid-template-columns:1fr}.irow.one .im{height:640px}
+
+/* why this project: points as open columns, hairline over each */
+.pts6{display:grid;grid-template-columns:repeat(6,1fr);gap:56px 44px;margin-top:auto}
+.pts6 .pt{grid-column:span 2;border-top:1px solid var(--line2);padding-top:22px}
+.pts6.n5 .pt:nth-child(n+4),.pts6.n4 .pt{grid-column:span 3}
+.pts6 .pt .k{font-size:18px;color:var(--ink3)}
+.pts6 .pt h3{font-weight:300;font-size:34px;line-height:1.15;margin:12px 0 12px;color:var(--ink)}
+.pts6 .pt p{font-size:19px;line-height:1.6;color:var(--ink2);font-weight:300;max-width:34ch}
+
+/* the case: a numbered list of statements */
+.cs{margin-top:auto}
+.cs .r{display:grid;grid-template-columns:76px 1fr;align-items:baseline;border-top:1px solid var(--line2);padding:22px 0 24px}
+.cs .r:last-child{border-bottom:1px solid var(--line2)}
+.cs .r .k{font-size:20px;color:var(--ink3)}
+.cs .r p{font-size:30px;line-height:1.35;font-weight:300;color:var(--ink)}

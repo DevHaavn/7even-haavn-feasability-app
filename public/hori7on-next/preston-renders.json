@@ -1,0 +1,107 @@
+[
+ {
+  "slug": "arches-golden",
+  "cap": "The arches at golden hour. Cafe 7, the 5V door and 7X at street level.",
+  "group": "The address",
+  "w": 1498,
+  "h": 1050
+ },
+ {
+  "slug": "street-day",
+  "cap": "Saint Village from the street, midday.",
+  "group": "The address",
+  "w": 2400,
+  "h": 1682
+ },
+ {
+  "slug": "street-autumn",
+  "cap": "Autumn on the park edge.",
+  "group": "The address",
+  "w": 1232,
+  "h": 864
+ },
+ {
+  "slug": "park-corner",
+  "cap": "The corner, and the park that keeps the view.",
+  "group": "The address",
+  "w": 1232,
+  "h": 864
+ },
+ {
+  "slug": "aerial-blue",
+  "cap": "Seven kilometres from the CBD, at blue hour.",
+  "group": "The place",
+  "w": 1726,
+  "h": 911
+ },
+ {
+  "slug": "aerial-morning",
+  "cap": "The precinct from above, morning.",
+  "group": "The place",
+  "w": 1726,
+  "h": 911
+ },
+ {
+  "slug": "court-morning",
+  "cap": "The court on the podium, morning.",
+  "group": "Saints Row",
+  "w": 1498,
+  "h": 1050
+ },
+ {
+  "slug": "court-night",
+  "cap": "The court under lights.",
+  "group": "Saints Row",
+  "w": 1498,
+  "h": 1050
+ },
+ {
+  "slug": "court-stair-morning",
+  "cap": "The court and the stair down to the laneway.",
+  "group": "Saints Row",
+  "w": 1491,
+  "h": 1055
+ },
+ {
+  "slug": "court-mural-morning",
+  "cap": "The signature mural, from the stair.",
+  "group": "Saints Row",
+  "w": 1491,
+  "h": 1055
+ },
+ {
+  "slug": "court-mural-night",
+  "cap": "The mural at night.",
+  "group": "Saints Row",
+  "w": 1491,
+  "h": 1055
+ },
+ {
+  "slug": "court-club",
+  "cap": "The court and the club above the park.",
+  "group": "Saints Row",
+  "w": 1491,
+  "h": 1055
+ },
+ {
+  "slug": "bath-day",
+  "cap": "The bath house, daylight.",
+  "group": "5IVE wellness",
+  "w": 1448,
+  "h": 1086
+ },
+ {
+  "slug": "bath-evening",
+  "cap": "The bath house, evening.",
+  "group": "5IVE wellness",
+  "w": 1448,
+  "h": 1086
+ },
+ {
+  "slug": "bath-timber",
+  "cap": "Timber, brick and still water.",
+  "group": "5IVE wellness",
+  "w": 1232,
+  "h": 864
+ }
+]

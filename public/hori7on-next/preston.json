@@ -1,0 +1,209 @@
+{
+ "id": "stvillage",
+ "n": "Saint Village Preston",
+ "addr": "56 to 58 Oakover Road and 1 to 3 Newman Street",
+ "city": "Preston VIC 3072",
+ "type": "BTR",
+ "raise": true,
+ "gv": "$325m",
+ "gdv": "$325m",
+ "keys": "400 homes",
+ "status": "Lodged with the Minister for Planning, 15 Sep 2026",
+ "complete": "2029",
+ "tag": "On the park, seven kilometres from the city.",
+ "overview": "Saint Village is 400 homes built to rent at full market rent, over a ground plane of retail, co-working, a members club and a wellness precinct. One owner. One operator. One standard. It sits on the park, 900 metres from Bell Station, in a tightly controlled planning precinct where new rental stock at this scale is genuinely rare.",
+ "facts": [
+  [
+   "End value",
+   "$325m"
+  ],
+  [
+   "Homes",
+   "400"
+  ],
+  [
+   "To the CBD",
+   "7 km"
+  ],
+  [
+   "Planning, 15 Sep 2026",
+   "Lodged"
+  ]
+ ],
+ "stats": [
+  [
+   "End value",
+   "$325m",
+   "Stabilised, fully leased"
+  ],
+  [
+   "Total cost",
+   "$228m",
+   "Including finance"
+  ],
+  [
+   "Homes",
+   "400",
+   "All market rent, one owner"
+  ],
+  [
+   "Net lettable area",
+   "21,373 m²",
+   "Residential"
+  ],
+  [
+   "5IVE gym and wellness",
+   "1,771 m²",
+   "Bath house, studios, gym"
+  ],
+  [
+   "7X co-working",
+   "589 m²",
+   "Plus a 141 m² residents’ work lounge"
+  ],
+  [
+   "Retail",
+   "1,098 m²",
+   "12 tenancies"
+  ],
+  [
+   "Invested to date",
+   "$7m",
+   "Land deposit and pre-approval"
+  ]
+ ],
+ "points": [
+  [
+   "Seven kilometres to the city",
+   "Podium-up views across the park to the city skyline."
+  ],
+  [
+   "900 metres to Bell Station",
+   "Trams on St Georges Road, buses and bike lanes at the door."
+  ],
+  [
+   "Planning that makes scale rare",
+   "A tightly controlled precinct. New rental stock at this scale is genuinely rare."
+  ],
+  [
+   "A park that keeps the view",
+   "Newman Reserve. An outlook that cannot be built out."
+  ],
+  [
+   "Already moving",
+   "$7m invested in pre-approval. Lodged with the Minister for Planning on 15 September 2026."
+  ]
+ ],
+ "why": [
+  "National vacancy is 1.3 per cent and Melbourne 1.8, against a balanced market of 2.5 to 3.5",
+  "One building, one owner, one operator, with the State’s 50 per cent land tax concession for up to 30 years",
+  "A ground plane that earns: retail, 5IVE wellness, 7X co-working and a members club on the podium",
+  "Build price fixed at $160m by Hamilton Marino and checked by DrawDown Partners",
+  "Three ways in: development equity, a forward purchase, or co-investment"
+ ],
+ "groups": [
+  {
+   "name": "The address",
+   "note": "56 to 58 Oakover Road and 1 to 3 Newman Street, on the park.",
+   "items": [
+    {
+     "src": "/hori7on-next/img/preston/arches-golden.jpg",
+     "thumb": "/hori7on-next/img/preston/arches-golden-t.jpg",
+     "cap": "The arches at golden hour. Cafe 7, the 5V door and 7X at street level."
+    },
+    {
+     "src": "/hori7on-next/img/preston/street-day.jpg",
+     "thumb": "/hori7on-next/img/preston/street-day-t.jpg",
+     "cap": "Saint Village from the street, midday."
+    },
+    {
+     "src": "/hori7on-next/img/preston/street-autumn.jpg",
+     "thumb": "/hori7on-next/img/preston/street-autumn-t.jpg",
+     "cap": "Autumn on the park edge."
+    },
+    {
+     "src": "/hori7on-next/img/preston/park-corner.jpg",
+     "thumb": "/hori7on-next/img/preston/park-corner-t.jpg",
+     "cap": "The corner, and the park that keeps the view."
+    }
+   ]
+  },
+  {
+   "name": "The place",
+   "note": "Inner north Melbourne, seven kilometres from the CBD and 900 metres from Bell Station.",
+   "items": [
+    {
+     "src": "/hori7on-next/img/preston/aerial-blue.jpg",
+     "thumb": "/hori7on-next/img/preston/aerial-blue-t.jpg",
+     "cap": "Seven kilometres from the CBD, at blue hour."
+    },
+    {
+     "src": "/hori7on-next/img/preston/aerial-morning.jpg",
+     "thumb": "/hori7on-next/img/preston/aerial-morning-t.jpg",
+     "cap": "The precinct from above, morning."
+    }
+   ]
+  },
+  {
+   "name": "Saints Row",
+   "note": "The members club: the court on the podium, 5IVE gym and wellness, 7X co-working.",
+   "items": [
+    {
+     "src": "/hori7on-next/img/preston/court-morning.jpg",
+     "thumb": "/hori7on-next/img/preston/court-morning-t.jpg",
+     "cap": "The court on the podium, morning."
+    },
+    {
+     "src": "/hori7on-next/img/preston/court-night.jpg",
+     "thumb": "/hori7on-next/img/preston/court-night-t.jpg",
+     "cap": "The court under lights."
+    },
+    {
+     "src": "/hori7on-next/img/preston/court-stair-morning.jpg",
+     "thumb": "/hori7on-next/img/preston/court-stair-morning-t.jpg",
+     "cap": "The court and the stair down to the laneway."
+    },
+    {
+     "src": "/hori7on-next/img/preston/court-mural-morning.jpg",
+     "thumb": "/hori7on-next/img/preston/court-mural-morning-t.jpg",
+     "cap": "The signature mural, from the stair."
+    },
+    {
+     "src": "/hori7on-next/img/preston/court-mural-night.jpg",
+     "thumb": "/hori7on-next/img/preston/court-mural-night-t.jpg",
+     "cap": "The mural at night."
+    },
+    {
+     "src": "/hori7on-next/img/preston/court-club.jpg",
+     "thumb": "/hori7on-next/img/preston/court-club-t.jpg",
+     "cap": "The court and the club above the park."
+    }
+   ]
+  },
+  {
+   "name": "5IVE wellness",
+   "note": "1,771 m² of gym and wellness, with a bath house on the ground floor.",
+   "items": [
+    {
+     "src": "/hori7on-next/img/preston/bath-day.jpg",
+     "thumb": "/hori7on-next/img/preston/bath-day-t.jpg",
+     "cap": "The bath house, daylight."
+    },
+    {
+     "src": "/hori7on-next/img/preston/bath-evening.jpg",
+     "thumb": "/hori7on-next/img/preston/bath-evening-t.jpg",
+     "cap": "The bath house, evening."
+    },
+    {
+     "src": "/hori7on-next/img/preston/bath-timber.jpg",
+     "thumb": "/hori7on-next/img/preston/bath-timber-t.jpg",
+     "cap": "Timber, brick and still water."
+    }
+   ]
+  }
+ ],
+ "hero": "/hori7on-next/img/preston/arches-golden.jpg",
+ "heroPos": "50% 82%",
+ "deck": "/hori7on-next/preston-deck/index.html",
+ "hl": "Home on the park."
+}

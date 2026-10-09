@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>575 Derrimut Road · Project presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@400;500&family=Jost:wght@400&family=Monoton&display=swap" rel="stylesheet">
+<style>
+/* ══ HORI7ON issue language (from the 7EVEN Marketing IM) on the HAAVN presentation engine ══ */
+:root{
+  --bg:#0A0A0B;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.18);
+  --ink:#FFFFFF;--ink2:#E3E1DA;--ink3:#A6A39B;--dim:#6A6862;
+  --gold:#d6b36a;--gold2:#e8d296;--goldd:#b8933f;
+  --f-d:'Cormorant Garamond',Georgia,serif;--f-b:'Inter',system-ui,sans-serif;--f-m:'JetBrains Mono',ui-monospace,monospace;--f-n:'Monoton','Cormorant Garamond',serif;--f-btn:'Jost','Inter',sans-serif;
+  --out:cubic-bezier(.16,1,.3,1);--s:1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#040405;overflow:hidden}
+body{font-family:var(--f-b);color:var(--ink);-webkit-font-smoothing:antialiased;cursor:default}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:#0a0a0b}
+
+/* ── stage: 1920 × 1080, scaled to fit ── */
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--s));transform-origin:center;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(0,0,0,.35) 100%),url('/hori7on-next/preston-deck/a/field.jpg') center/cover no-repeat #060607}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .7s ease}
+.pad{position:absolute;left:112px;right:112px;top:128px;bottom:124px;display:flex;flex-direction:column}
+
+/* rails (injected per slide) */
+.rail{position:absolute;left:112px;right:112px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--f-m);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#AFB3B6;z-index:5}
+.rail.top{top:52px}
+.rail.bot{bottom:48px;color:#9a9e9a}
+.rail .wm{height:17px;width:auto;opacity:.95}
+.rail .l{display:flex;align-items:center;gap:22px}
+.rail .l i{width:1px;height:14px;background:rgba(255,255,255,.3)}
+.rail .no{margin-right:318px}
+.rail b{color:var(--gold);font-weight:500}
+
+/* type */
+.eb{font-family:var(--f-m);font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.mast{font-family:var(--f-d);font-weight:500;line-height:.94;letter-spacing:-.015em;color:var(--ink);font-size:104px}
+.mast i{font-style:italic;font-weight:300;color:var(--gold)}
+.mast .it{display:block;font-style:italic;font-weight:300;color:var(--gold)}
+.mast.m{font-size:84px}.mast.s{font-size:68px}.mast.xl{font-size:148px}
+.lead{font-family:var(--f-d);font-size:32px;line-height:1.42;color:#F2F0EA;font-weight:400}
+.lead i{color:var(--gold)}
+.body{font-size:19px;line-height:1.72;color:var(--ink2);font-weight:300}
+.body b{color:var(--ink);font-weight:500}
+.lbl{font-family:var(--f-m);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#BCB9B1}
+.fn{font-size:13px;line-height:1.6;color:#8f8c85}
+.num{font-family:var(--f-n);font-weight:400;line-height:1.08;letter-spacing:.03em;color:var(--gold);font-size:72px;white-space:nowrap}
+.num.xl{font-size:150px}.num.l{font-size:100px}.num.s{font-size:54px}
+.num.w{color:#fff}
+.gold{color:var(--gold)}
+.row{display:flex}.col{display:flex;flex-direction:column}
+.g{display:grid}
+.stat{border-top:1px solid var(--line2);padding-top:20px}
+.stat .lbl{margin-top:10px;line-height:1.6}
+.stat p.body{font-size:17px;margin-top:8px;color:var(--ink3)}
+
+/* plates: edges dissolve into the field */
+.plate{position:relative;overflow:hidden}
+.plate img{width:100%;height:100%;object-fit:cover;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%),linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%),linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.cap b{color:var(--ink2);font-weight:500}
+.cap{display:flex;justify-content:space-between;gap:18px;margin-top:12px;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9CA09A}
+
+/* full-bleed plate for cover and chapter slides */
+.bleed{position:absolute;inset:0;z-index:0;overflow:hidden}
+.bleed img{width:100%;height:100%;object-fit:cover}
+.bleed::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,6,7,.96) 0%,rgba(6,6,7,.82) 34%,rgba(6,6,7,.25) 72%,rgba(6,6,7,.35) 100%),linear-gradient(0deg,rgba(6,6,7,.9) 0%,transparent 34%)}
+.bleed.side::after{background:linear-gradient(90deg,rgba(6,6,7,1) 0%,rgba(6,6,7,.55) 22%,rgba(6,6,7,0) 55%),linear-gradient(0deg,rgba(6,6,7,.75) 0%,transparent 30%)}
+.bleed.lite::after{background:linear-gradient(90deg,rgba(6,6,7,.9) 0%,rgba(6,6,7,.55) 30%,rgba(6,6,7,0) 55%),linear-gradient(0deg,rgba(6,6,7,.7) 0%,transparent 35%)}
+.bleed.dk::after{background:linear-gradient(0deg,rgba(6,6,7,.97) 0%,rgba(6,6,7,.8) 45%,rgba(6,6,7,.55) 100%)}
+.slide>.pad,.slide>.rail{z-index:3}
+
+/* vertical serif caption (sits in the left margin, clear of the copy) */
+.vert{position:absolute;left:40px;bottom:150px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--f-d);font-weight:500;font-size:40px;line-height:1;color:var(--ink);z-index:4}
+.vert i{font-style:italic;font-weight:300;color:var(--gold)}
+
+/* meta blocks, chips, pull quote, cards */
+.meta{display:flex;gap:48px}
+.meta div{border-left:1px solid rgba(255,255,255,.4);padding-left:16px;font-size:16px;color:#DBD9D2;line-height:1.5}
+.meta b{display:block;font-family:var(--f-m);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#fff;font-weight:500;margin-bottom:6px}
+.pq{border-left:2px solid var(--gold);padding-left:26px;font-family:var(--f-d);font-style:italic;font-size:38px;line-height:1.35;color:#F2F0EA;font-weight:300}
+.card{border:1px solid var(--line2);padding:30px 30px 32px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));backdrop-filter:blur(8px)}
+.card.gl{border-color:rgba(214,179,106,.6);background:linear-gradient(180deg,rgba(214,179,106,.10),rgba(214,179,106,.02))}
+.card h3{font-family:var(--f-d);font-weight:500;font-size:34px;line-height:1.05;margin:14px 0 12px}
+.card h3 i{font-style:italic;font-weight:300;color:var(--gold)}
+.card .body{font-size:17px}
+
+/* ledger tables */
+table{width:100%;border-collapse:collapse}
+.lt th{font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#BCB9B1;text-align:right;padding:10px 6px;border-bottom:1px solid var(--line2)}
+.lt td{padding:13px 6px;border-bottom:1px solid var(--line);font-size:18px;color:var(--ink2);text-align:right;font-weight:300}
+.lt td:first-child,.lt th:first-child{text-align:left}
+.lt td.n{font-family:var(--f-m);font-size:17px;color:#fff}
+.lt tr.tot td{border-top:2px solid var(--gold);border-bottom:3px double var(--gold);color:var(--gold);font-weight:500}
+.lt tr.tot td.n{color:var(--gold)}
+
+/* bars */
+.bar{display:grid;grid-template-columns:300px 1fr 170px;gap:22px;align-items:center;margin:14px 0}
+.bar span{font-size:17px;color:var(--ink2)}
+.bar .t{height:10px;background:rgba(255,255,255,.07);position:relative}
+.bar .t i{position:absolute;left:0;top:0;bottom:0;width:var(--w);background:linear-gradient(90deg,#77756f,#d6d3cb)}
+.bar .t i.gd{background:linear-gradient(90deg,var(--goldd),var(--gold2))}
+.bar .v{font-family:var(--f-m);font-size:17px;text-align:right;color:#fff}
+
+/* people */
+.person .plate{aspect-ratio:4/5}
+.person .plate img{filter:grayscale(1) contrast(1.06)}
+.person h4{font-family:var(--f-d);font-weight:500;font-size:34px;margin-top:18px;line-height:1}
+.person .lbl{color:var(--gold);margin-top:10px}
+.person p{font-size:16px;line-height:1.6;color:var(--ink3);margin-top:12px}
+
+/* brand button (7even.au) */
+.btn{display:inline-flex;align-items:center;gap:18px;height:58px;padding:0 28px;border:1px solid rgba(255,255,255,.3);border-radius:20px;font-family:var(--f-btn);font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink);transition:.3s;cursor:pointer;background:rgba(6,6,7,.35)}
+.btn .ar{transition:transform .3s var(--out);color:#d6d9dd}
+.btn:hover{background:rgba(214,179,106,.07);border-color:rgba(214,179,106,.85);color:var(--gold);box-shadow:0 0 12px rgba(214,179,106,.25)}
+.btn:hover .ar{color:var(--gold);transform:translateX(5px)}
+
+/* ── build-in animation: every .a waits for its slide ── */
+.a{opacity:0;transform:translateY(26px);transition:opacity 1s ease,transform 1.1s var(--out);transition-delay:var(--d,0s)}
+.a.r{transform:translateX(34px)}
+.a.f{transform:none}
+.a.w{transform:none;clip-path:inset(0 100% 0 0);transition:opacity .2s ease,clip-path 1.5s var(--out);transition-delay:var(--d,0s)}
+.slide.on .a{opacity:1;transform:none;clip-path:inset(0 0 0 0)}
+.slide:not(.on) .a{transition:none}
+.kb img{transform:scale(1.08);transition:transform 12s ease-out}
+.slide.on .kb img{transform:scale(1)}
+.slide:not(.on) .kb img{transition:none}
+.bar .t i{transform:scaleX(0);transform-origin:left;transition:transform 1.6s var(--out);transition-delay:var(--d,.4s)}
+.slide.on .bar .t i{transform:none}
+.slide:not(.on) .bar .t i{transition:none}
+.grow{transform:scaleX(0);transform-origin:left;transition:transform 1.6s var(--out);transition-delay:var(--d,.4s)}
+.slide.on .grow{transform:none}
+.slide:not(.on) .grow{transition:none}
+
+/* ── the planning pathway ── */
+.path{position:relative;height:340px;margin-top:84px}
+.path .base{position:absolute;left:14px;right:14px;top:59px;height:2px;background:rgba(255,255,255,.14)}
+.path .next{position:absolute;right:14px;top:59px;height:2px;width:calc((100% - 28px) * .17);background:repeating-linear-gradient(90deg,rgba(214,179,106,.55) 0 8px,transparent 8px 16px)}
+.path .fill{position:absolute;left:14px;top:58px;height:4px;width:calc((100% - 28px) * .829);background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 14px rgba(214,179,106,.7),0 0 34px rgba(214,179,106,.35);transform:scaleX(0);transform-origin:left;transition:transform 3.6s cubic-bezier(.45,0,.2,1) .6s}
+.slide.on .path .fill{transform:none}
+.slide:not(.on) .path .fill{transition:none}
+.stages{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);gap:30px}
+.stg{position:relative;display:flex;flex-direction:column;align-items:flex-start}
+.stg .dot{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;margin-top:45px;position:relative;transition:all .6s ease;transition-delay:var(--d)}
+.slide.on .stg.done .dot{border-color:var(--gold);background:var(--gold);box-shadow:0 0 16px rgba(214,179,106,.8)}
+.slide:not(.on) .stg .dot,.slide:not(.on) .stg .dot::after,.slide:not(.on) .stg .dot::before,.slide:not(.on) .stg .tag{transition:none}
+.stg.done .dot::after{content:"";position:absolute;left:9px;top:4px;width:7px;height:13px;border:solid #0b0b0c;border-width:0 2px 2px 0;transform:rotate(45deg);opacity:0;transition:opacity .3s;transition-delay:var(--d)}
+.slide.on .stg.done .dot::after{opacity:1}
+.stg.now .dot{border-color:var(--gold)}
+.slide.on .stg.now .dot{animation:now 2.2s ease-out 4.4s infinite}
+.stg.now .dot::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--gold);opacity:0;transition:opacity .4s;transition-delay:4.2s}
+.slide.on .stg.now .dot::before{opacity:1}
+@keyframes now{0%{box-shadow:0 0 0 0 rgba(214,179,106,.75)}100%{box-shadow:0 0 0 32px rgba(214,179,106,0)}}
+.stg .tag{position:absolute;top:0;left:0;font-family:var(--f-m);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#0b0b0c;background:var(--gold);padding:6px 10px;opacity:0;transition:opacity .5s;transition-delay:4.6s}
+.slide.on .stg.now .tag{opacity:1}
+.stg .k{font-family:var(--f-m);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-top:30px}
+.stg h4{font-family:var(--f-d);font-weight:500;font-size:36px;line-height:1.02;margin-top:10px}
+.stg h4 i{font-style:italic;font-weight:300;color:var(--gold)}
+.stg p{font-size:16px;line-height:1.55;color:var(--ink3);margin-top:12px}
+.stg .st{margin-top:16px;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:7px 10px;border:1px solid var(--line2);color:var(--ink3)}
+.stg.done .st{border-color:rgba(214,179,106,.5);color:var(--gold)}
+.stg.now .st{background:rgba(214,179,106,.12);border-color:var(--gold);color:var(--gold2)}
+.path .end{position:absolute;right:14px;top:0;display:flex;flex-direction:column;align-items:flex-end}
+.path .end span{font-family:var(--f-m);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);padding:6px 0}
+.path .end::after{content:"";width:16px;height:16px;border:2px solid var(--gold);transform:rotate(45deg);background:#0b0b0c;margin:17px 0 0}
+/* time comparison */
+.clock{display:grid;grid-template-columns:250px 1fr;row-gap:20px;column-gap:28px;align-items:center}
+.clock .tk{height:36px;position:relative;display:flex;align-items:center}
+.clock .tk i{position:absolute;left:0;top:0;bottom:0;width:var(--w);transform:scaleX(0);transform-origin:left;transition:transform 1.8s var(--out);transition-delay:var(--d)}
+.clock .tk.d i{background:linear-gradient(90deg,rgba(214,179,106,.2),rgba(214,179,106,.5));border:1px solid rgba(214,179,106,.6)}
+.clock .tk.n i{background:repeating-linear-gradient(135deg,rgba(214,179,106,.95) 0 10px,rgba(214,179,106,.55) 10px 20px)}
+.slide.on .clock .tk i{transform:none}
+.slide:not(.on) .clock .tk i{transition:none}
+.clock .tk em{position:relative;z-index:1;font-style:normal;font-family:var(--f-m);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#fff;padding-left:16px;white-space:nowrap}
+.clock .tk.n em{margin-left:var(--w);color:var(--gold2)}
+
+
+/* seven principles */
+.prin{display:grid;grid-template-columns:1.25fr 1.25fr repeat(5,1fr);gap:26px;align-items:stretch}
+.pc:not(.big) p{font-size:17px}
+.pc{border-top:1px solid var(--line2);padding-top:22px}
+.pc.big{border-top:2px solid var(--gold)}
+.pc .k{font-family:var(--f-n);color:var(--gold);font-size:40px;line-height:1.1}
+.pc h4{font-family:var(--f-d);font-weight:500;font-size:32px;line-height:1.05;margin-top:14px}
+.pc.big h4{font-size:40px}
+.pc h4 i{display:block;font-style:italic;font-weight:300;color:var(--gold)}
+.pc p{font-size:16px;line-height:1.6;color:var(--ink3);margin-top:14px}
+/* engines */
+.eng{display:flex;flex-direction:column}
+.er{display:grid;grid-template-columns:70px 380px 440px 1fr;align-items:center;gap:30px;padding:17px 18px;border-top:1px solid var(--line2)}
+.er:last-child{border-bottom:1px solid var(--line2)}
+.er .k{font-family:var(--f-n);color:var(--gold);font-size:34px}
+.er img{height:28px;width:auto;max-width:360px;object-fit:contain;object-position:left}
+.er b{font-family:var(--f-d);font-weight:500;font-size:34px;line-height:1}
+.er b i{font-style:italic;font-weight:300;color:var(--gold)}
+.er p{font-size:16px;color:var(--ink3);line-height:1.55}
+.er.hz{background:linear-gradient(90deg,rgba(214,179,106,.12),rgba(214,179,106,0) 70%);border-top-color:rgba(214,179,106,.6)}
+/* lifecycle */
+.life{position:relative}
+.life ol{list-style:none;display:grid;grid-template-columns:repeat(8,1fr);gap:20px;position:relative}
+.life .lbase{position:absolute;left:0;right:0;top:14px;height:2px;background:rgba(255,255,255,.14)}
+.life .lfill{position:absolute;left:0;right:calc(100%/8 - 20px);top:13px;height:4px;background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 14px rgba(214,179,106,.7);transform:scaleX(0);transform-origin:left;transition:transform 2.8s linear .55s}
+.slide.on .life .lfill{transform:none}
+.life li i{display:block;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;position:relative;transition:all .5s;transition-delay:var(--d)}
+.slide.on .life li i{border-color:var(--gold);background:var(--gold);box-shadow:0 0 16px rgba(214,179,106,.8)}
+.life li b{display:block;font-family:var(--f-n);font-weight:400;color:var(--gold);font-size:38px;margin-top:22px}
+.life li span{display:block;font-family:var(--f-d);font-size:27px;line-height:1.08;margin-top:10px;min-height:58px}
+.life li em{display:block;font-style:normal;font-size:15px;line-height:1.5;color:var(--ink3);margin-top:10px}
+.life li b,.life li span,.life li em{opacity:0;transform:translateY(14px);transition:opacity .8s ease,transform .9s var(--out);transition-delay:var(--d)}
+.slide.on .life li b,.slide.on .life li span,.slide.on .life li em{opacity:1;transform:none}
+.slide:not(.on) .life *{transition:none!important}
+html.print .life .lfill,html.print .life li *{opacity:1!important;transform:none!important;transition:none!important}
+html.print .life li i{border-color:var(--gold);background:var(--gold)}
+
+
+/* 7X device and the ATRIUM lockup (geometry from the live app) */
+.x7{height:96px;width:auto;display:block}
+.atrlock{display:flex;align-items:center;gap:26px;border-left:1px solid var(--line2);padding-left:40px}
+.aring{width:92px;height:92px;flex:none}
+.atr{display:inline-flex;align-items:baseline;gap:.1em;white-space:nowrap;font-family:'Inter',sans-serif;font-weight:100;font-size:44px;letter-spacing:.34em;color:#F3F2EE;line-height:1}
+.atr svg{height:.727em;width:auto;align-self:baseline;display:inline-block;vertical-align:baseline;overflow:visible}
+.atri{display:inline-flex;align-items:baseline;gap:.08em;font-family:'Inter',sans-serif;font-weight:200;letter-spacing:.3em;margin:0 .02em 0 .06em;white-space:nowrap;color:#F3F2EE}
+.atri>span{margin-right:-.3em}
+.atr>span{margin-right:-.34em}
+.atri svg{height:.727em;width:auto;display:inline-block;vertical-align:baseline;overflow:visible}
+.atrlock .by{display:flex;align-items:center;gap:10px;margin-top:10px}
+.atrlock .by i{font-family:var(--f-d);font-style:italic;font-size:22px;color:var(--gold)}
+.atrlock .by .x7{height:20px}
+.atrlock .tg{white-space:nowrap;font-family:var(--f-m);font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#9CA09A;margin-top:10px}
+/* the 7EVEN wordmark, set inline wherever the name appears */
+.x7i{display:inline-block;height:.78em;width:auto;vertical-align:-.04em;margin:0 .08em}
+.bm{display:inline-block;height:var(--h,.7em);aspect-ratio:var(--ar);background:currentColor;vertical-align:baseline;margin:0 .07em;
+  -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.bmp{display:inline-block;height:var(--h,.7em);width:auto;vertical-align:baseline;margin:0 .07em}
+.w7p{display:inline-block;height:.7em;width:auto;vertical-align:baseline;margin:0 .06em}
+.w7{display:inline-block;height:.7em;aspect-ratio:1400/217;background:currentColor;vertical-align:baseline;margin:0 .06em;
+  -webkit-mask:url('/hori7on-next/preston-deck/a/7even-wm.png') center/contain no-repeat;mask:url('/hori7on-next/preston-deck/a/7even-wm.png') center/contain no-repeat}
+
+
+/* the journey: done, now, next */
+.journey{display:grid;grid-template-columns:1fr 1fr;gap:70px}
+.jc{list-style:none;display:flex;flex-direction:column}
+.js{display:grid;grid-template-columns:34px 1fr auto;gap:20px;align-items:start;position:relative;padding:12px 0 14px}
+.js:not(:last-child)::before{content:"";position:absolute;left:14px;top:42px;bottom:-8px;width:2px;background:rgba(255,255,255,.14)}
+.js.done:not(:last-child)::after{content:"";position:absolute;left:14px;top:42px;bottom:-8px;width:2px;background:var(--gold);transform:scaleY(0);transform-origin:top;transition:transform .5s ease;transition-delay:calc(var(--d) + .25s)}
+.slide.on .js.done::after{transform:none}
+.jd{display:block;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:#0b0b0c;position:relative;transition:all .5s;transition-delay:var(--d)}
+.slide.on .js.done .jd{border-color:var(--gold);background:var(--gold);box-shadow:0 0 14px rgba(214,179,106,.7)}
+.js.done .jd::after{content:"";position:absolute;left:9px;top:4px;width:7px;height:13px;border:solid #0b0b0c;border-width:0 2px 2px 0;transform:rotate(45deg);opacity:0;transition:opacity .3s;transition-delay:var(--d)}
+.slide.on .js.done .jd::after{opacity:1}
+.js.now .jd{border-color:var(--gold)}
+.js.now .jd::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--gold)}
+.slide.on .js.now .jd{animation:now 2.2s ease-out infinite;animation-delay:var(--d)}
+.js b{display:block;font-family:var(--f-d);font-weight:500;font-size:27px;line-height:1.1}
+.js span{display:block;font-size:15px;line-height:1.5;color:var(--ink3);margin-top:4px}
+.js em{font-style:normal;font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line2);color:var(--ink3);white-space:nowrap;margin-top:4px}
+.js.done em{border-color:rgba(214,179,106,.5);color:var(--gold)}
+.js.now em{background:rgba(214,179,106,.14);border-color:var(--gold);color:var(--gold2)}
+.js.next b{color:#cfcbc2}
+.js>div,.js>em{opacity:0;transform:translateY(12px);transition:opacity .7s ease,transform .8s var(--out);transition-delay:var(--d)}
+.slide.on .js>div,.slide.on .js>em{opacity:1;transform:none}
+.slide:not(.on) .js *,.slide:not(.on) .js::after{transition:none!important}
+html.print .js>div,html.print .js>em{opacity:1;transform:none}
+html.print .js.done .jd{border-color:var(--gold);background:var(--gold)}html.print .js.done .jd::after{opacity:1}html.print .js.done::after{transform:none}
+/* route comparison */
+.cmp{list-style:none;margin-top:18px}
+.cmp li{font-size:19px;line-height:1.5;color:var(--ink3);padding:11px 0 11px 30px;border-top:1px solid var(--line);position:relative}
+.cmp li::before{content:"";position:absolute;left:4px;top:24px;width:12px;height:1px;background:#77756f}
+.cmp.g2 li{color:var(--ink2)}
+.cmp.g2 li::before{content:"✓";color:var(--gold)}
+.cmp b{color:var(--ink);font-weight:500}
+
+
+.gantt .gr{display:grid;grid-template-columns:230px 1fr;gap:20px;align-items:center;margin:10px 0}
+.gantt .gr span{font-size:16px;color:var(--ink2)}
+.gantt .gr>div{position:relative;height:18px;background:rgba(255,255,255,.05)}
+.gantt .gr i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,#77756f,#d6d3cb);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--out);transition-delay:var(--d)}
+.gantt .gr i.gd{background:linear-gradient(90deg,var(--goldd),var(--gold2))}
+.slide.on .gantt .gr i{transform:none}
+.gantt .ax>div{background:none;height:20px}
+.gantt .ax b{position:absolute;font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.2em;color:var(--ink3)}
+.vbars{display:grid;grid-template-columns:repeat(5,1fr);gap:26px;height:340px;align-items:end}
+.vbars>div{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.vbars i{display:block;height:calc(var(--p) * 250px);background:linear-gradient(0deg,#4a4945,#bdb9b0);transform:scaleY(0);transform-origin:bottom;transition:transform 1.3s var(--out);transition-delay:var(--d)}
+.vbars .g1 i{background:linear-gradient(0deg,var(--goldd),var(--gold2))}
+.slide.on .vbars i{transform:none}
+.vbars b{font-family:var(--f-m);font-weight:400;font-size:15px;color:#fff;margin-bottom:10px}
+.vbars .g1 b{color:var(--gold)}
+.vbars span{font-family:var(--f-m);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+.slide:not(.on) .gantt *,.slide:not(.on) .vbars *{transition:none!important}
+html.print .gantt .gr i,html.print .vbars i{transform:none!important;transition:none!important}
+.lt.risk td{font-size:14.5px;padding:6px 6px;vertical-align:top}
+.lt.risk td:first-child{font-family:var(--f-d);font-size:21px;color:var(--ink);width:260px;white-space:nowrap}
+.lt.risk td:last-child{text-align:left}
+.lt.risk th:last-child{text-align:left}
+
+
+.lt.sm td{font-size:15px;padding:7px 6px}.lt.sm th{padding:6px}
+.wfall .wf{display:grid;grid-template-columns:330px 1fr 64px 70px;gap:14px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.wf span{font-size:15px;color:var(--ink2);line-height:1.3}
+.wf .t{position:relative;height:20px}
+.wf .t i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--goldd),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform .9s var(--out);transition-delay:var(--d)}
+.wf.base .t i{background:linear-gradient(90deg,#55534e,#a9a59c)}
+.wf.sum .t i{background:linear-gradient(90deg,#55534e,#a9a59c);opacity:.55}
+.wf.inc2 .t i{background:repeating-linear-gradient(135deg,rgba(214,179,106,.95) 0 8px,rgba(214,179,106,.55) 8px 16px)}
+.wf.sum span,.wf.tot span{font-family:var(--f-d);font-size:20px;color:var(--ink)}
+.wf.tot{border-top:1px solid var(--gold);border-bottom:3px double var(--gold)}
+.wf.tot b{color:var(--gold)}
+.wf em{font-style:normal;font-family:var(--f-m);font-size:14px;color:var(--gold);text-align:right}
+.wf b{font-family:var(--f-m);font-weight:400;font-size:15px;color:#fff;text-align:right}
+.slide.on .wf .t i{transform:none}
+.slide:not(.on) .wf .t i{transition:none}
+html.print .wf .t i{transform:none!important;transition:none!important}
+
+.lt.su td{font-size:13.5px;padding:5px 6px}
+.lt.su td:nth-child(3){text-align:left;padding-left:22px;border-left:1px solid var(--line)}
+/* ── presenter chrome ── */
+#chrome{position:absolute;right:112px;bottom:36px;display:flex;align-items:center;gap:10px;z-index:20}
+#chrome button{font-family:var(--f-m);font-size:13px;color:#cfcac0;background:rgba(10,10,11,.6);border:1px solid rgba(255,255,255,.22);height:40px;min-width:48px;padding:0 14px;cursor:pointer;transition:.25s}
+#chrome button:hover{border-color:var(--gold);color:var(--gold)}
+#prog{position:absolute;left:0;right:0;bottom:0;height:3px;z-index:20;background:rgba(255,255,255,.05)}
+#prog i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--goldd),var(--gold2));box-shadow:0 0 10px rgba(214,179,106,.6);transition:width .7s var(--out)}
+.ov{position:absolute;inset:0;z-index:40;background:rgba(4,4,5,.95);backdrop-filter:blur(10px);padding:90px 112px;opacity:0;visibility:hidden;transition:.35s}
+.ov.on{opacity:1;visibility:visible}
+.ov h3{font-family:var(--f-d);font-weight:500;font-size:60px}
+.ov h3 i{font-style:italic;font-weight:300;color:var(--gold)}
+.ov .hint{font-family:var(--f-m);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+#thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:40px}
+.th{border:1px solid var(--line2);padding:16px 18px;cursor:pointer;transition:.25s;min-height:122px}
+.th:hover,.th.cur{border-color:var(--gold);background:rgba(214,179,106,.07)}
+.th b{font-family:var(--f-n);font-weight:400;color:var(--gold);font-size:30px}
+.th span{display:block;font-family:var(--f-d);font-size:22px;margin-top:6px;line-height:1.1}
+.th i{display:block;font-style:normal;font-family:var(--f-m);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:8px}
+.keys{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 80px;margin-top:50px;max-width:1100px}
+.keys div{display:flex;gap:22px;align-items:center;font-size:20px;color:var(--ink2);border-bottom:1px solid var(--line);padding-bottom:16px}
+.keys kbd{font-family:var(--f-m);font-size:14px;color:var(--gold);border:1px solid rgba(214,179,106,.5);padding:6px 12px;min-width:130px;text-align:center}
+#notes{position:absolute;left:112px;right:112px;bottom:96px;z-index:30;background:rgba(8,8,9,.95);border:1px solid rgba(214,179,106,.4);padding:26px 32px;display:none}
+#notes.on{display:block}
+#notes h5{font-family:var(--f-m);font-weight:400;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+#notes p{font-size:21px;line-height:1.6;color:var(--ink2);margin-top:10px}
+#black{position:absolute;inset:0;background:#000;z-index:60;display:none}
+#black.on{display:block}
+#toast{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:25;font-family:var(--f-m);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#cfcac0;background:rgba(10,10,11,.88);border:1px solid var(--line2);padding:12px 20px;transition:opacity 1s}
+#toast.gone{opacity:0;pointer-events:none}
+
+/* ── print / PDF: every slide, one per page ── */
+html.print,html.print body{overflow:visible;height:auto;background:#060607}
+html.print #stage{position:static;transform:none;width:1920px;height:auto;background:none;overflow:visible}
+html.print .slide{position:relative;width:1920px;height:1080px;opacity:1;visibility:visible;break-after:page;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(0,0,0,.35) 100%),url('/hori7on-next/preston-deck/a/field.jpg') center/cover no-repeat #060607}
+html.print .a,html.print .kb img,html.print .bar .t i,html.print .grow,html.print .path .fill,html.print .clock .tk i{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important}
+html.print .stg.done .dot{border-color:var(--gold);background:var(--gold)}
+html.print .stg.done .dot::after,html.print .stg.now .dot::before,html.print .stg.now .tag{opacity:1;transition:none}
+html.print #chrome,html.print #prog,html.print .ov,html.print #notes,html.print #toast,html.print #black{display:none!important}
+html.print .rail .no{margin-right:0}
+@page{size:1920px 1080px;margin:0}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media(prefers-reduced-motion:reduce){.a,.bar .t i,.grow,.path .fill,.clock .tk i{transition-duration:.01s!important;transition-delay:0s!important}}
+</style>
+<script>if(/[?&](print|all)\b/.test(location.search))document.documentElement.classList.add('print')</script>
+<link rel="stylesheet" href="/hori7on-next/preston-deck/jessica.css?v=22"><link rel="stylesheet" href="/hori7on-next/decks/deck.css?v=3">
+</head>
+<body>
+<div id="stage">
+
+<!-- ═════ 01 COVER ═════ -->
+<section class="slide" data-sec="Cover" data-title="575 Derrimut Road" data-bg="photo" data-cover data-notes="Let the cover sit. The town centre of Australia&#x27;s fastest-growing corridor. 575 Derrimut Road, cnr Leakes Road, Tarneit VIC 3029. Status: Town planning · flōdesign.">
+<div class="bleed side kb" style="--mx:0.0%"><img src="/hori7on-next/img/derrimut/05.jpg" alt="" style="object-position:50% 50%"></div>
+<div class="pad" style="justify-content:flex-end;padding-bottom:10px">
+<img class="a f" src="/hori7on-next/preston-deck/a/hori7on-gold.png" alt="HORI7ON" style="height:24px;width:auto;align-self:flex-start;margin-bottom:auto;--d:.2s">
+<p class="eb a" style="--d:.4s">Project presentation</p>
+<h1 class="mast xl a" style="margin-top:26px;--d:.55s">575 Derrimut<span class="it">Road.</span></h1>
+<p class="lead a" style="max-width:780px;margin-top:34px;--d:.8s">The town centre of Australia's fastest-growing corridor.</p>
+<div class="meta a" style="margin-top:48px;--d:1s"><div><b>Address</b>575 Derrimut Road, cnr Leakes Road<br>Tarneit VIC 3029</div><div><b>Strategy</b>Mixed use<br>1,000 apartments</div><div><b>The numbers</b>$500M project value<br>120,870 m² gross floor area</div><div><b>Status</b>Town planning · flōdesign<br>Target completion 2032+</div></div>
+</div>
+</section>
+<section class="slide" data-sec="01 · The project" data-title="The project" data-bg="still"  data-notes="The project in one slide. Town planning · flōdesign. Target completion 2032+.">
+<div class="pad">
+<p class="eb a">01 · The project</p>
+<h2 class="mast m a" style="margin-top:22px;max-width:1380px;--d:.12s">The town centre of Australia's fastest-growing corridor.</h2>
+<div class="ov2 a" style="margin-top:44px;--d:.3s"><p>575 Derrimut Road is a $500 million, 1,000-apartment master plan on 6.4 hectares at the corner of Leakes Road, Tarneit, the largest development in the area, in one of Australia's fastest-growing growth corridors. Sections 1 to 3 deliver six buildings and more than 120,000 m²: a Novotel hotel with 188 keys, function centre, restaurant, gym and pool; a dedicated health building pairing a doctors surgery and medical care with 150 aged-care suites; and four mixed-use buildings layering commercial offices, retail, food &amp; beverage and apartments over an activated main-street ground plane. Tarneit railway station is minutes away, 25 minutes to Melbourne CBD, with Tarneit Central, schools and the recreation precinct at the doorstep.</p></div>
+<div class="fig4"><div class="stat a" style="--d:0.45s"><span class="num" style="font-size:64px">$500M</span><p class="lbl">End value</p></div><div class="stat a" style="--d:0.57s"><span class="num" style="font-size:64px">1,000 apartments</span><p class="lbl">Scale</p></div><div class="stat a" style="--d:0.69s"><span class="num" style="font-size:64px">6.4 ha</span><p class="lbl">Land</p></div><div class="stat a" style="--d:0.81s"><span class="num" style="font-size:64px">2032+</span><p class="lbl">Target completion</p></div></div>
+</div>
+</section>
+<section class="slide" data-sec="01 · The project" data-title="The numbers" data-bg="flat"  data-notes="Walk the eight numbers, left to right. Source: flōdesign development summary.">
+<div class="pad">
+<p class="eb a">01 · The project</p>
+<h2 class="mast m a" style="margin-top:22px;--d:.12s">The numbers.</h2>
+<div class="nums"><div class="stat a" style="--d:0.30s"><span class="num" style="font-size:64px">$500M</span><p class="lbl">End value</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">GDV · master-planned town centre</p></div><div class="stat a" style="--d:0.38s"><span class="num" style="font-size:64px">1,000</span><p class="lbl">Apartments</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Master plan · staged delivery</p></div><div class="stat a" style="--d:0.46s"><span class="num" style="font-size:64px">188</span><p class="lbl">Novotel hotel</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Keys + 1,247 m² function centre</p></div><div class="stat a" style="--d:0.54s"><span class="num" style="font-size:64px">20,058 m²</span><p class="lbl">Health &amp; aged care</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Doctors surgery · 150 aged-care suites</p></div><div class="stat a" style="--d:0.62s"><span class="num" style="font-size:64px">120,870 m²</span><p class="lbl">Sections 1 to 3 GFA</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Six buildings · hotel to 14 levels</p></div><div class="stat a" style="--d:0.70s"><span class="num" style="font-size:64px">6,900 m²+</span><p class="lbl">Commercial &amp; retail</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Offices, retail &amp; F&amp;B tenancies</p></div><div class="stat a" style="--d:0.78s"><span class="num" style="font-size:64px">6.4 ha</span><p class="lbl">Site</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Corner Derrimut &amp; Leakes Road</p></div><div class="stat a" style="--d:0.86s"><span class="num" style="font-size:64px">25 min</span><p class="lbl">To Melbourne CBD</p><p class="body" style="font-size:17px;color:var(--ink3);margin-top:6px">Tarneit station · Geelong 35 min</p></div></div>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="The Novotel corner, gateway from Leakes Road" data-bg="full"  data-notes="The Novotel corner, gateway from Leakes Road">
+<div class="bleed kb"><img src="/hori7on-next/img/derrimut/01.jpg" alt="" style="object-position:center 55%"></div>
+<div class="pad" style="justify-content:flex-end">
+<p class="eb a" style="margin-bottom:auto">02 · The place</p>
+<h2 class="mast s a" style="max-width:1200px;--d:.2s">The Novotel corner, gateway from Leakes Road</h2>
+<p class="plate-no a" style="--d:.35s">1 of 7 · 575 Derrimut Road</p>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="The masterplan from above, six buildings, one main street" data-bg="full"  data-notes="The masterplan from above, six buildings, one main street">
+<div class="bleed kb"><img src="/hori7on-next/img/derrimut/02.jpg" alt="" style="object-position:center 55%"></div>
+<div class="pad" style="justify-content:flex-end">
+<p class="eb a" style="margin-bottom:auto">02 · The place</p>
+<h2 class="mast s a" style="max-width:1200px;--d:.2s">The masterplan from above, six buildings, one main street</h2>
+<p class="plate-no a" style="--d:.35s">2 of 7 · 575 Derrimut Road</p>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="The western aerial, solar roofs over the corridor" data-bg="full"  data-notes="The western aerial, solar roofs over the corridor">
+<div class="bleed kb"><img src="/hori7on-next/img/derrimut/03.jpg" alt="" style="object-position:center 55%"></div>
+<div class="pad" style="justify-content:flex-end">
+<p class="eb a" style="margin-bottom:auto">02 · The place</p>
+<h2 class="mast s a" style="max-width:1200px;--d:.2s">The western aerial, solar roofs over the corridor</h2>
+<p class="plate-no a" style="--d:.35s">3 of 7 · 575 Derrimut Road</p>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="The Novotel, 188 keys over the podium" data-bg="full"  data-notes="The Novotel, 188 keys over the podium">
+<div class="bleed kb"><img src="/hori7on-next/img/derrimut/04.jpg" alt="" style="object-position:center 55%"></div>
+<div class="pad" style="justify-content:flex-end">
+<p class="eb a" style="margin-bottom:auto">02 · The place</p>
+<h2 class="mast s a" style="max-width:1200px;--d:.2s">The Novotel, 188 keys over the podium</h2>
+<p class="plate-no a" style="--d:.35s">4 of 7 · 575 Derrimut Road</p>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="More of the place" data-bg="still"  data-notes="More of the place.">
+<div class="pad">
+<p class="eb a">02 · The place</p>
+<div class="irow "><figure class="a" style="--d:0.25s"><div class="im"><img src="/hori7on-next/img/derrimut/06.jpg" alt=""></div><figcaption class="c">Main street, offices over F&amp;B</figcaption></figure><figure class="a" style="--d:0.37s"><div class="im"><img src="/hori7on-next/img/derrimut/07.jpg" alt=""></div><figcaption class="c">The street canyon, tree-lined addresses</figcaption></figure><figure class="a" style="--d:0.49s"><div class="im"><img src="/hori7on-next/img/derrimut/08.jpg" alt=""></div><figcaption class="c">The crossing, between the residential buildings</figcaption></figure></div>
+</div>
+</section>
+<section class="slide" data-sec="02 · The place" data-title="The plans" data-bg="flat"  data-notes="The drawings. The full sheets are in the project file.">
+<div class="pad">
+<p class="eb a">02 · The plans</p>
+<div class="irow pl "><figure class="a" style="--d:0.25s"><div class="im"><img src="/hori7on-next/img/derrimut/plan-01.jpg" alt=""></div><figcaption class="c">Context, Tarneit station, schools &amp; Tarneit Central</figcaption></figure><figure class="a" style="--d:0.37s"><div class="im"><img src="/hori7on-next/img/derrimut/plan-02.jpg" alt=""></div><figcaption class="c">The subject site, Leakes Road &amp; Derrimut Road</figcaption></figure><figure class="a" style="--d:0.49s"><div class="im"><img src="/hori7on-next/img/derrimut/plan-03.jpg" alt=""></div><figcaption class="c">Development summary, Sections 1 to 3 · flōdesign</figcaption></figure></div>
+</div>
+</section>
+<section class="slide" data-sec="03 · The case" data-title="Why this project" data-bg="still"  data-notes="Take the points in order. Each one is a reason a bank or a buyer gives weight to.">
+<div class="pad">
+<p class="eb a">03 · The case</p>
+<h2 class="mast m a" style="margin-top:22px;--d:.12s">Why this project.</h2>
+<div class="pts6 "><div class="pt a" style="--d:0.30s"><span class="k">01</span><h3>The largest development in the area</h3><p>A $500M, 1,000-apartment town centre, unmatched scale in Melbourne's west.</p></div><div class="pt a" style="--d:0.40s"><span class="k">02</span><h3>Australia's fastest-growing corridor</h3><p>Tarneit's population growth leads the nation, demand runs decades ahead of supply.</p></div><div class="pt a" style="--d:0.50s"><span class="k">03</span><h3>A Novotel anchor</h3><p>188 keys, function centre, restaurant and pool, the area's first branded hotel.</p></div><div class="pt a" style="--d:0.60s"><span class="k">04</span><h3>An integrated health precinct</h3><p>Doctors surgery, medical care and 150 aged-care suites in a dedicated building.</p></div><div class="pt a" style="--d:0.70s"><span class="k">05</span><h3>Main-street living</h3><p>Four mixed-use buildings with offices, retail and F&amp;B under 1,000 new homes.</p></div><div class="pt a" style="--d:0.80s"><span class="k">06</span><h3>25 minutes to the CBD</h3><p>Tarneit station, Tarneit Central and schools within walking distance.</p></div></div>
+</div>
+</section>
+<section class="slide" data-sec="03 · The case" data-title="The case" data-bg="still"  data-notes="The case in five lines. Say the first and the last out loud.">
+<div class="pad">
+<div class="g" style="grid-template-columns:.7fr 1.5fr;gap:100px;flex:1;min-height:0">
+<div class="col"><p class="eb a">03 · The case</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">The case,<span class="it">in five lines.</span></h2></div>
+<div class="col" style="justify-content:center"><div class="cs"><div class="r a" style="--d:0.30s"><span class="k">01</span><p>Scale monopoly, the area's largest development, first to market with hotel, health and town-centre amenity</p></div><div class="r a" style="--d:0.40s"><span class="k">02</span><p>1,000 apartments into a nation-leading growth corridor</p></div><div class="r a" style="--d:0.50s"><span class="k">03</span><p>Diversified income, hotel, medical, aged care, commercial, retail and residential</p></div><div class="r a" style="--d:0.60s"><span class="k">04</span><p>Staged sections de-risk delivery and fund forward phases</p></div><div class="r a" style="--d:0.70s"><span class="k">05</span><p>Transport-anchored, 25 minutes to Melbourne CBD from Tarneit station</p></div></div></div>
+</div></div>
+</section>
+<section class="slide" data-sec="04 · 7EVEN" data-title="7EVEN is completeness" data-notes="Before the project, the company. 7EVEN is built on ideas, and on a name that is a promise: seven means complete. The offer is whole, the process is finished, nothing is left for someone else to pick up.">
+  <div class="a f" style="position:absolute;right:120px;top:120px;z-index:2;font-family:var(--f-n);font-size:760px;line-height:.9;color:var(--gold);text-shadow:0 0 40px rgba(214,179,106,.35);--d:.6s;transition-duration:2.4s">7</div>
+  <div class="pad">
+    <p class="eb a">01 · 7EVEN</p>
+    <h2 class="mast a" style="margin-top:70px;--d:.2s">7EVEN is<span class="it">completeness.</span></h2>
+    <p class="lead a" style="max-width:780px;margin-top:34px;--d:.5s">Not a lucky number. A finished one. A company built on ideas, and on a promise: <i>the offer is whole, the work is finished, and nothing is left for someone else to pick up.</i></p>
+    <div class="g" style="grid-template-columns:repeat(4,1fr);gap:48px;margin-top:auto;max-width:1300px">
+      <div class="stat a" style="--d:.7s"><span class="num" data-count="4">$4<small style="font-size:.45em">B+</small></span><p class="lbl">Pipeline</p></div>
+      <div class="stat a" style="--d:.8s"><span class="num w" data-count="3,000">3,000</span><p class="lbl">Homes in the pipeline</p></div>
+      <div class="stat a" style="--d:.9s"><span class="num w" data-count="7">7</span><p class="lbl">Precincts in design</p></div>
+      <div class="stat a" style="--d:1s"><span class="num" data-count="5">5</span><p class="lbl">Engines · one team</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-sec="04 · 7EVEN" data-title="Five engines, one team" data-notes="Five engines under one name. Not five companies chasing five margins, but five ways of carrying the same standard, so a client never has to negotiate the gap between them. HORI7ON is where every project lives and is built.">
+  <div class="pad">
+    <div class="row" style="justify-content:space-between;align-items:flex-end;gap:80px">
+      <div><p class="eb a">01 · 7EVEN</p><h2 class="mast m a" style="margin-top:22px;--d:.12s">Five engines.<span class="it">One standard.</span></h2></div>
+      <p class="body a" style="max-width:560px;--d:.3s">Not five companies chasing five margins. Five ways of carrying the same standard, so a client never has to negotiate the gap between them.</p>
+    </div>
+    <div class="eng" style="margin-top:auto">
+      <div class="er a r" style="--d:.4s"><span class="k">01</span><img src="/hori7on-next/preston-deck/a/b-enterprise.png" alt="Enterprise"><b>Precincts,<i> not buildings.</i></b><p>Development. Build to rent, build to sell and mixed-use precincts, from the feasibility to the front door.</p></div>
+      <div class="er a r" style="--d:.52s"><span class="k">02</span><img src="/hori7on-next/preston-deck/a/b-5ive.png" alt="5IVE" style="height:40px"><b>Arrive.<i> Stay. Return.</i></b><p>Hotels and wellness. A luxury Australian brand, with Marriott Bonvoy's Autograph Collection.</p></div>
+      <div class="er a r" style="--d:.64s"><span class="k">03</span><img src="/hori7on-next/preston-deck/a/b-haavn.png" alt="HAAVN" style="height:34px"><b>Made with<i> precision.</i></b><p>Precision manufactured supply, finance and construction. Consult, supply, deliver.</p></div>
+      <div class="er a r" style="--d:.76s"><span class="k">04</span><img src="/hori7on-next/preston-deck/a/b-hm.png" alt="HM" style="height:40px"><b>One partner.<i> Every stage.</i></b><p>HAAVN Management. Feasibility to practical completion, and for the life of the asset.</p></div>
+      <div class="er a r" style="--d:.88s"><span class="k">05</span><img src="/hori7on-next/preston-deck/a/b-pro7ect.png" alt="PRO7ECT"><b>Success,<i> returned.</i></b><p>The not-for-profit arm. Lasting answers to the housing crisis, and backing young talent.</p></div>
+      <div class="er hz a r" style="--d:1.05s"><span class="k">∞</span><img src="/hori7on-next/preston-deck/a/b-hori7on.png" alt="HORI7ON"><b>Where every project<i> lives.</i></b><p>The platform where each project is designed, costed, funded and built, one engine and one set of numbers.</p></div>
+    </div>
+  </div>
+</section>
+<section class="slide" data-sec="Close" data-title="The next chapter" data-bg="photo" data-close data-notes="Close on the invitation. Leave the contact details on screen.">
+<div class="bleed kb"><img src="/hori7on-next/img/derrimut/02.jpg" alt="" style="object-position:center 60%"></div>
+<div class="pad" style="justify-content:flex-end">
+<img class="a f" src="/hori7on-next/preston-deck/a/7EVEN-wordmark-white.png" alt="7EVEN" style="height:40px;width:auto;align-self:flex-start;margin-bottom:auto;--d:.2s">
+<p class="eb a" style="--d:.3s">7EVEN Capital</p>
+<h2 class="mast xl a" style="margin-top:24px;--d:.45s">Build the next<span class="it">chapter with us.</span></h2>
+<p class="lead a" style="margin-top:30px;--d:.6s">Daniel Sette and Jamie Baldwin, Directors.</p>
+<div class="row a" style="gap:18px;margin-top:40px;--d:.75s"><a class="btn" href="mailto:reception@7even.au?subject=575%20Derrimut%20Road">reception@7even.au <span class="ar">→</span></a><a class="btn" href="tel:0399622877">03 9962 2877 <span class="ar">→</span></a><a class="btn" href="https://7even.au" target="_blank" rel="noopener">7even.au <span class="ar">→</span></a></div>
+<p class="fn a" style="max-width:1300px;margin-top:40px;--d:.9s">Indicative only. Figures are subject to due diligence, planning and statutory approvals and do not constitute an offer or financial advice. Schemes illustrated are possible development solutions prepared for preliminary feasibility purposes only and are subject to council approval. Recipients must rely on their own enquiries. Draft for comment.</p>
+</div>
+</section>
+
+
+<div id="prog"><i></i></div>
+<div id="chrome"><button id="bPrev" title="Previous">←</button><button id="bGrid" title="All slides (G)">▦</button><button id="bNext" title="Next">→</button></div>
+<div class="ov" id="ovGrid"><h3>All <i>slides.</i></h3><p class="hint">Click to jump · G or Esc to close</p><div id="thumbs"></div></div>
+<div class="ov" id="ovHelp"><h3>Presenter <i>controls.</i></h3><p class="hint">? or Esc to close</p>
+  <div class="keys">
+    <div><kbd>→ Space</kbd>Next slide</div><div><kbd>←</kbd>Previous slide</div>
+    <div><kbd>G</kbd>All slides</div><div><kbd>N</kbd>Presenter notes</div>
+    <div><kbd>F</kbd>Full screen</div><div><kbd>B</kbd>Black screen</div>
+    <div><kbd>R</kbd>Replay this slide</div><div><kbd>P</kbd>Print or save PDF</div>
+    <div><kbd>Home End</kbd>First or last</div><div><kbd>Swipe</kbd>Phone or tablet</div>
+  </div></div>
+<div id="notes"><h5>Presenter notes</h5><p id="notesBody"></p></div>
+<div id="black"></div>
+<div id="toast">← → to move · G all slides · N notes · F full screen · ? help</div>
+</div>
+
+<script>
+const $=q=>document.querySelector(q);
+const SL=[...document.querySelectorAll('.slide')], N=SL.length, p2=n=>String(n).padStart(2,'0');
+const PRINT=document.documentElement.classList.contains('print');
+let idx=-1;
+
+/* the IM's mono header rail and folio, on every slide */
+SL.forEach((s,i)=>{
+  s.insertAdjacentHTML('afterbegin',
+   `<div class="rail top"><span class="l"><img class="wm" src="/hori7on-next/preston-deck/a/7EVEN-wordmark-white.png" alt="7EVEN"><i></i>Project presentation</span><span>575 Derrimut Road</span></div>`+
+   `<div class="rail bot"><span>7even.au · ${s.dataset.sec}</span><span class="no">${p2(i+1)} / ${p2(N)}</span></div>`);
+});
+
+/* brand names are always their artwork, never typed: 7EVEN, 5IVE, 5V, HAAVN, HORI7ON, PRO7ECT, ENTERPRISE, ATRIUM, 7X */
+const ATRI='<span class="atri" role="img" aria-label="ATRIUM"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="miter" stroke-miterlimit="10"/></svg><span>TRIUM</span></span>';
+const X7I='<svg class="x7i" viewBox="30 30 1920 1810" role="img" aria-label="7X"><polygon points="60,60 1935,60 1808,223 60,223" fill="currentColor"/><polygon points="1293,348 1548,348 1125,888 1035,768" fill="currentColor"/><polygon points="816,1128 874,1205 401,1806" fill="currentColor"/><polygon points="360,348 543,348 1716,1839 1533,1839" fill="#d6b36a"/></svg>';
+const MARKS={ '7EVEN':['/hori7on-next/preston-deck/a/7even-wm.png','/hori7on-next/preston-deck/a/7even-wm-gold.png',1400/216,0.7], '5IVE':['/hori7on-next/preston-deck/a/wm-5ive.png','/hori7on-next/preston-deck/a/wm-5ive-gold.png',700/191,0.74], 'HAAVN':['/hori7on-next/preston-deck/a/wm-haavn.png','/hori7on-next/preston-deck/a/wm-haavn-gold.png',1400/164,0.64], 'HORI7ON':['/hori7on-next/preston-deck/a/wm-hori7on.png','/hori7on-next/preston-deck/a/wm-hori7on-gold.png',1400/128,0.66], 'PRO7ECT':['/hori7on-next/preston-deck/a/wm-pro7ect.png','/hori7on-next/preston-deck/a/wm-pro7ect-gold.png',1400/127,0.66], 'ENTERPRISE':['/hori7on-next/preston-deck/a/wm-enterprise.png','/hori7on-next/preston-deck/a/wm-enterprise-gold.png',1400/94,0.6], '5V':['/hori7on-next/preston-deck/a/5v-white.png','/hori7on-next/preston-deck/a/5v-gold.png',612/845,1.05] };
+const BRAND=/(7EVEN|5IVE|HAAVN|HORI7ON|PRO7ECT|ENTERPRISE|\bATRIUM\b|\b7X\b|\b5V\b)/;
+SL.forEach(sl=>{
+  const walk=document.createTreeWalker(sl,NodeFilter.SHOW_TEXT,{acceptNode:n=>BRAND.test(n.nodeValue)&&!n.parentElement.closest('script,style,.rail,.atr')?1:2});
+  const hits=[];while(walk.nextNode())hits.push(walk.currentNode);
+  hits.forEach(n=>{
+    const f=document.createDocumentFragment(), c=getComputedStyle(n.parentElement).color.match(/\d+/g)||[255,255,255], gold=(c[0]-c[2]>40);
+    n.nodeValue.split(BRAND).forEach(part=>{
+      if(MARKS[part]){const [w,gw,ar,h]=MARKS[part];let el;
+        if(PRINT){el=document.createElement('img');el.src=gold?gw:w;el.className='bmp'}
+        else{el=document.createElement('span');el.className='bm';el.style.setProperty('--m',`url('${w}')`)}
+        el.style.setProperty('--ar',ar);el.style.setProperty('--h',h+'em');el.setAttribute('role','img');el.setAttribute('aria-label',part);el.alt=part;f.appendChild(el)}
+      else if(part==='ATRIUM'){const t=document.createElement('template');t.innerHTML=ATRI;f.appendChild(t.content.firstChild)}
+      else if(part==='7X'){const t=document.createElement('template');t.innerHTML=X7I;f.appendChild(t.content.firstChild)}
+      else if(part)f.appendChild(document.createTextNode(part))});
+    n.parentNode.replaceChild(f,n)});
+});
+$('#thumbs').innerHTML=SL.map((s,i)=>`<div class="th" data-i="${i}"><b>${p2(i+1)}</b><span>${s.dataset.title}</span><i>${s.dataset.sec}</i></div>`).join('');
+
+const fit=()=>document.documentElement.style.setProperty('--s',Math.min(innerWidth/1920,innerHeight/1080));
+
+/* numbers roll up as their line arrives */
+function countUp(s){
+  s.querySelectorAll('[data-count]').forEach(el=>{
+    const raw=el.dataset.count,target=parseFloat(raw.replace(/,/g,'')),dec=(raw.split('.')[1]||'').length,node=el.firstChild;
+    if(isNaN(target)||!node||node.nodeType!==3)return;
+    const pre=(node.nodeValue.match(/^[^0-9]*/)||[''])[0];
+    const host=el.closest('.a'), d0=host?(parseFloat(getComputedStyle(host).getPropertyValue('--d'))||0)*1000:0;
+    const t0=performance.now()+d0, dur=1500, fmt=v=>raw.includes(',')?Math.round(v).toLocaleString('en-AU'):v.toFixed(dec);
+    node.nodeValue=pre+fmt(0);
+    const tick=now=>{const k=Math.max(0,Math.min(1,(now-t0)/dur)),v=target*(1-Math.pow(1-k,4));
+      node.nodeValue=pre+fmt(v); if(k<1)requestAnimationFrame(tick); else node.nodeValue=pre+raw};
+    requestAnimationFrame(tick);
+  });
+}
+
+function go(n,replay){
+  n=Math.max(0,Math.min(n,N-1));
+  if(n===idx&&!replay)return;
+  idx=n;
+  if(replay){SL[idx].classList.remove('on');void SL[idx].offsetWidth}
+  SL.forEach((s,i)=>s.classList.toggle('on',i===idx));
+  $('#prog i').style.width=(idx/(N-1)*100)+'%';
+  $('#notesBody').textContent=SL[idx].dataset.notes||'';
+  document.querySelectorAll('.th').forEach((t,i)=>t.classList.toggle('cur',i===idx));
+  countUp(SL[idx]);
+  history.replaceState(null,'','#'+(idx+1));
+}
+const next=()=>go(idx+1), prev=()=>go(idx-1);
+const closeOv=()=>document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));
+const toggleOv=id=>{const o=$(id),w=o.classList.contains('on');closeOv();if(!w)o.classList.add('on')};
+
+if(!PRINT){
+  fit(); addEventListener('resize',fit);
+  document.querySelectorAll('.th').forEach(t=>t.addEventListener('click',e=>{e.stopPropagation();go(+t.dataset.i);closeOv()}));
+  addEventListener('keydown',e=>{
+    const k=e.key;
+    if(k==='Escape'){closeOv();$('#black').classList.remove('on');return}
+    if(['ArrowRight',' ','PageDown','ArrowDown','Enter'].includes(k)){e.preventDefault();next()}
+    else if(['ArrowLeft','PageUp','ArrowUp','Backspace'].includes(k)){e.preventDefault();prev()}
+    else if(k==='Home')go(0); else if(k==='End')go(N-1);
+    else if(k==='g'||k==='G')toggleOv('#ovGrid');
+    else if(k==='?'||k==='/')toggleOv('#ovHelp');
+    else if(k==='n'||k==='N')$('#notes').classList.toggle('on');
+    else if(k==='b'||k==='B')$('#black').classList.toggle('on');
+    else if(k==='r'||k==='R')go(idx,true);
+    else if(k==='p'||k==='P')window.open(location.pathname+'?print','_blank');
+    else if(k==='f'||k==='F')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
+  });
+  $('#bNext').onclick=e=>{e.stopPropagation();next()};
+  $('#bPrev').onclick=e=>{e.stopPropagation();prev()};
+  $('#bGrid').onclick=e=>{e.stopPropagation();toggleOv('#ovGrid')};
+  document.addEventListener('click',e=>{if(e.target.closest('a,button,.ov,#notes'))return;next()});
+  let tx=0;
+  addEventListener('touchstart',e=>tx=e.changedTouches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)dx<0?next():prev()},{passive:true});
+  const start=parseInt(location.hash.slice(1),10);
+  go(start>0?start-1:0);
+  setTimeout(()=>$('#toast').classList.add('gone'),5200);
+}
+</script>
+<script src="/hori7on-next/decks/deck.js?v=2"></script>
+</body>
+</html>
