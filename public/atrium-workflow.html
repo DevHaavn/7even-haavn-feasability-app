@@ -310,6 +310,18 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
 [data-theme="light"] .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent);color:color-mix(in srgb,var(--gc) 30%,var(--ink))}
 .rail-group.g-work{--gc:var(--at-blue)}.rail-group.g-perf{--gc:var(--at-lilac)}.rail-group.g-team{--gc:var(--at-peach)}.rail-group.g-supply{--gc:var(--at-green)}
 .rail-group.g-mgmt{--gc:var(--at-pink)}.rail-group.g-black{--gc:var(--at-grey)}.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-brand{--gc:var(--at-teal)}
+
+/* Blaze activity on a phone: each entry is a card, so what happened and Undo are never off screen */
+@media(max-width:700px){
+  .blaze-tbl,.blaze-tbl tbody,.blaze-tbl tr,.blaze-tbl td{display:block;width:100%}
+  .blaze-tbl thead{display:none}
+  .blaze-tbl tr{padding:12px 14px;border-bottom:1px solid var(--line,rgba(255,255,255,.1))}
+  .blaze-tbl td{padding:2px 0;border:0;white-space:normal}
+  .blaze-tbl td:nth-child(1){font-size:11px;opacity:.6}
+  .blaze-tbl td:nth-child(2){display:inline-block;width:auto;font-size:11px;opacity:.6;margin-right:8px}
+  .blaze-tbl td:nth-child(3){display:inline-block;width:auto;font-weight:500}
+  .blaze-tbl td:nth-child(4){margin-top:6px}
+}
 </style>
 <link rel="stylesheet" href="/atrium-language.css">
 <link rel="stylesheet" href="/atrium-workflow-look.css?v=3">
@@ -1831,7 +1843,7 @@ function viewBlaze(){
   var undone=WS.blazeUndone||{};
   var rows=BLAZE_LOG.slice().reverse().slice(0,200);
   var h='<div class="section-h"><span style="opacity:.7;font-size:12px">'+BLAZE_LOG.length+' calls logged. Reads, additions and changes are all here; changes can be undone.</span><div class="spacer"></div><button class="btn sm" onclick="BLAZE_LOG=null;render()">Refresh</button></div>';
-  h+='<div class="tablewrap"><table><thead><tr><th>When</th><th>Tool</th><th>Task</th><th>What happened</th></tr></thead><tbody>';
+  h+='<div class="tablewrap"><table class="blaze-tbl"><thead><tr><th>When</th><th>Tool</th><th>Task</th><th>What happened</th></tr></thead><tbody>';
   h+=rows.length?rows.map(function(e){
     var t=WS.actions.find(function(a){return a.id===e.taskId;});
     var when=new Date(e.at).toLocaleString('en-AU',{timeZone:'Australia/Melbourne',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
