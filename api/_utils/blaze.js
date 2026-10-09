@@ -5,7 +5,30 @@
 // Never overwrites a blob from a stale copy, because people edit these live.
 
 const SUPA_URL = process.env.SUPABASE_URL || 'https://vgvavmnqrdgcnledztyk.supabase.co'
-const BY = 'Blaze'
+const DEFAULT_BY = 'Blaze'
+
+// Agents are Jamie's and the directors' assistants. Each has its own secret in its own
+// Vercel setting: BLAZE_SECRET for Blaze, AGENT_SECRET_<NAME> for any other (AGENT_SECRET_JULIO
+// makes "Julio"). The secret in the connector URL says who is calling, so every change is stamped
+// with, and logged under, the right agent.
+const crypto = require('crypto')
+const hash = (v) => crypto.createHash('sha256').update(String(v)).digest()
+function agentRegistry(env = process.env) {
+  const list = []
+  if (env.BLAZE_SECRET && env.BLAZE_SECRET.length >= 24) list.push({ name: 'Blaze', secret: env.BLAZE_SECRET })
+  Object.keys(env).forEach((k) => {
+    const m = k.match(/^AGENT_SECRET_([A-Z0-9]+)$/)
+    if (m && env[k] && env[k].length >= 24) list.push({ name: m[1][0] + m[1].slice(1).toLowerCase(), secret: env[k] })
+  })
+  return list
+}
+// Returns the agent's name for a matching secret, or null. Checks every agent so timing does not reveal which.
+function identifyAgent(given, env = process.env) {
+  if (typeof given !== 'string' || !given) return null
+  const g = hash(given); let found = null
+  agentRegistry(env).forEach((a) => { if (crypto.timingSafeEqual(g, hash(a.secret))) found = a.name })
+  return found
+}
 
 // Blaze (Jamie's EA) works on tasks only. It does not touch meetings, the boardroom,
 // CRM, capital or anything else in ATRIUM; that is the gatekeeper's job.
@@ -61,9 +84,18 @@ function checkEnum(v, list, field) {
   return v
 }
 
+// The agent a task is handed to ('' = none). Must be a configured agent.
+function resolveAgent(input, agents) {
+  const q = String(input || '').trim().toLowerCase()
+  if (!q) return ''
+  const hit = (agents || []).find((n) => n.toLowerCase() === q)
+  if (!hit) throw new UserError(`Unknown agent "${input}". Agents: ${(agents || []).join(', ') || 'none configured'}.`)
+  return hit
+}
 const compactTask = (a) => ({
   id: a.id, title: a.title, owner: a.owner || '', status: a.status || 'todo', due: a.due || '',
-  dept: a.dept || '', priority: a.priority || '', ...(a.notes ? { notes: a.notes } : {}),
+  dept: a.dept || '', priority: a.priority || '', ...(a.agent ? { agent: a.agent } : {}),
+  ...((a.comments || []).length ? { comments: a.comments.length } : {}), ...(a.notes ? { notes: a.notes } : {}),
 })
 
 // ---------- Workflow tasks ----------
@@ -77,12 +109,13 @@ function listTasks(ws, f = {}) {
   else if (!f.include_done) rows = rows.filter((a) => !a.done && a.status !== 'done')
   if (f.due_before) { checkDate(f.due_before, 'due_before'); rows = rows.filter((a) => a.due && a.due < f.due_before) }
   if (f.dept) rows = rows.filter((a) => a.dept === f.dept)
+  if (f.agent) { const q = String(f.agent).toLowerCase(); rows = rows.filter((a) => String(a.agent || '').toLowerCase() === q) }
   rows = rows.slice().sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'))
   const limit = Math.min(Math.max(parseInt(f.limit, 10) || 50, 1), 200)
   return { total: rows.length, tasks: rows.slice(0, limit).map(compactTask) }
 }
 
-function addTask(ws, a) {
+function addTask(ws, a, by = DEFAULT_BY, agents = []) {
   const next = clone(ws && typeof ws === 'object' ? ws : {})
   if (!Array.isArray(next.actions)) next.actions = []
   const dept = a.dept ? checkEnum(a.dept, DEPTS, 'dept') : 'company'
@@ -90,18 +123,19 @@ function addTask(ws, a) {
     id: newId(), title: requireTitle(a.title), owner: resolveOwner(a.owner), due: checkDate(a.due, 'due') || today(),
     priority: a.priority ? checkEnum(a.priority, PRIORITIES, 'priority') : 'Low', status: 'todo', done: false, dept,
     weekly: false, context: null, meetingId: '', notes: String(a.notes || ''), watchers: [], files: [], subs: [],
-    created: nowIso(), completedAt: null, createdBy: BY,
+    created: nowIso(), completedAt: null, createdBy: by, comments: [],
+    agent: resolveAgent(a.agent, agents),
   }
   next.actions.push(t)
   return { next, result: compactTask(t), audit: { before: null, after: clone(t) } }
 }
 
-function updateTask(ws, a) {
+function updateTask(ws, a, by = DEFAULT_BY, agents = []) {
   const next = clone(ws && typeof ws === 'object' ? ws : {})
   const t = (next.actions || []).find((x) => x.id === a.id)
   if (!t) throw new UserError(`No task with id "${a.id}"`)
   const changed = []
-  const prev = { status: t.status, done: t.done, completedAt: t.completedAt || null, owner: t.owner, due: t.due, notes: t.notes }
+  const prev = { status: t.status, done: t.done, completedAt: t.completedAt || null, owner: t.owner, due: t.due, notes: t.notes, agent: t.agent || '' }
   if (a.status !== undefined) {
     checkEnum(a.status, STATUSES, 'status')
     t.status = a.status; t.done = a.status === 'done'
@@ -110,21 +144,42 @@ function updateTask(ws, a) {
   }
   if (a.owner !== undefined) { t.owner = resolveOwner(a.owner); changed.push('owner') }
   if (a.due !== undefined) { t.due = checkDate(a.due, 'due'); changed.push('due') }
+  if (a.agent !== undefined) { t.agent = resolveAgent(a.agent, agents); changed.push('agent') }
   if (a.notes !== undefined) {
-    // Notes are only ever added to, never replaced: "Blaze, 2026-10-09: ..." under what is already there.
-    const line = `Blaze, ${today()}: ${String(a.notes).trim()}`
+    // Notes are only ever added to, never replaced: "<agent>, 2026-10-09: ..." under what is already there.
+    const line = `${by}, ${today()}: ${String(a.notes).trim()}`
     if (!String(a.notes).trim()) throw new UserError('notes is empty')
     t.notes = t.notes ? `${t.notes}\n\n${line}` : line
     changed.push('notes')
   }
   if (!changed.length) throw new UserError('Nothing to change: give status, owner, due or notes')
-  t.updatedBy = BY; t.updatedAt = nowIso()
+  t.updatedBy = by; t.updatedAt = nowIso()
   const before = {}, after = {}
-  ;['status', 'done', 'completedAt', 'owner', 'due', 'notes'].forEach((k) => {
+  ;['status', 'done', 'completedAt', 'owner', 'due', 'notes', 'agent'].forEach((k) => {
     const nv = k === 'completedAt' ? (t.completedAt || null) : t[k]
     if (JSON.stringify(prev[k]) !== JSON.stringify(nv)) { before[k] = prev[k] === undefined ? null : prev[k]; after[k] = nv }
   })
   return { next, result: { ...compactTask(t), changed }, audit: { before, after } }
+}
+
+// One task in full, with its comments.
+function getTask(ws, a) {
+  const t = ((ws && ws.actions) || []).find((x) => x.id === a.id)
+  if (!t) throw new UserError(`No task with id "${a.id}"`)
+  return { ...compactTask(t), notes: t.notes || '', comments: (t.comments || []).map((c) => ({ id: c.id, by: c.by, at: c.at, text: c.text })) }
+}
+// A comment is a new line under the task: who, when, what. Never edits or removes another.
+function addComment(ws, a, by = DEFAULT_BY) {
+  const next = clone(ws && typeof ws === 'object' ? ws : {})
+  const t = (next.actions || []).find((x) => x.id === a.id)
+  if (!t) throw new UserError(`No task with id "${a.id}"`)
+  const text = String(a.text || '').trim()
+  if (!text) throw new UserError('text is required')
+  if (text.length > 2000) throw new UserError('comment is too long (2000 characters max)')
+  if (!Array.isArray(t.comments)) t.comments = []
+  const c = { id: newId(), by, at: nowIso(), text }
+  t.comments.push(c)
+  return { next, result: { taskId: t.id, comment: c, comments: t.comments.length }, audit: { before: null, after: { comment: c } } }
 }
 
 // What moved since a time (default the last 24 hours). Counts only changes that carry a
@@ -140,6 +195,7 @@ function whatsNew(ws, f = {}) {
     if (after(a.created)) ev.push('created')
     if (after(a.completedAt)) ev.push('completed')
     if (after(a.updatedAt)) ev.push('updated by ' + (a.updatedBy || 'someone'))
+    ;(a.comments || []).forEach((c) => { if (after(c.at)) ev.push('comment by ' + c.by) })
     if (ev.length) tasks.push({ ...compactTask(a), events: ev })
   })
   return { since: cut, tasks }
@@ -185,27 +241,32 @@ const SCHEMAS = {
   list_tasks: { description: 'List ATRIUM Workflow tasks. Open tasks by default, soonest due first.', inputSchema: { type: 'object', properties: {
     owner: { type: 'string', description: 'Part of the owner name' }, status: { type: 'string', enum: STATUSES },
     due_before: { type: 'string', description: 'YYYY-MM-DD, tasks due before this date' }, dept: { type: 'string', enum: DEPTS },
-    include_done: { type: 'boolean' }, limit: { type: 'number' } } } },
+    agent: { type: 'string', description: 'Only tasks handed to this agent' }, include_done: { type: 'boolean' }, limit: { type: 'number' } } } },
   add_task: { description: 'Create a Workflow task. Owner must be a team member.', inputSchema: { type: 'object', required: ['title', 'owner'], properties: {
-    title: { type: 'string' }, owner: { type: 'string' }, due: { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
+    title: { type: 'string' }, owner: { type: 'string', description: 'The person it is for' }, agent: { type: 'string', description: 'Optional: hand it to another agent, e.g. Blaze' }, due: { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
     dept: { type: 'string', enum: DEPTS }, notes: { type: 'string' }, priority: { type: 'string', enum: PRIORITIES } } } },
   update_task: { description: 'Change status, owner, due or notes on one task by id.', inputSchema: { type: 'object', required: ['id'], properties: {
-    id: { type: 'string' }, status: { type: 'string', enum: STATUSES }, owner: { type: 'string' }, due: { type: 'string' }, notes: { type: 'string' } } } },
+    id: { type: 'string' }, status: { type: 'string', enum: STATUSES }, owner: { type: 'string' }, agent: { type: 'string', description: 'Hand to an agent, or empty to clear' }, due: { type: 'string' }, notes: { type: 'string', description: 'Added under existing notes, never replaces them' } } } },
+  get_task: { description: 'One task in full, including every comment.', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } } },
+  add_comment: { description: 'Add a comment to a task, stamped with your name. Agents reply to each other this way.', inputSchema: { type: 'object', required: ['id', 'text'], properties: { id: { type: 'string' }, text: { type: 'string' } } } },
   whats_new: { description: 'The latest feed: tasks created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
 }
 
 // Runs one task change and hands back its result plus the before/after values for the audit log.
-async function write(store, fn) {
+async function write(store, fn) { // fn(ws) -> { next, result, audit }
   let cap = null
   const result = await store.update(KEYS.workflow, (ws) => { const r = fn(ws); cap = r.audit; return r })
   return { result, audit: cap }
 }
-async function callTool(name, args, store) {
+async function callTool(name, args, store, ctx = {}) {
+  const by = ctx.agent || DEFAULT_BY, agents = ctx.agents || []
   args = args || {}
   switch (name) {
     case 'list_tasks': return listTasks((await store.read(KEYS.workflow) || {}).value, args)
-    case 'add_task': return write(store, (ws) => addTask(ws, args))
-    case 'update_task': return write(store, (ws) => updateTask(ws, args))
+    case 'add_task': return write(store, (ws) => addTask(ws, args, by, agents))
+    case 'update_task': return write(store, (ws) => updateTask(ws, args, by, agents))
+    case 'add_comment': return write(store, (ws) => addComment(ws, args, by))
+    case 'get_task': return getTask((await store.read(KEYS.workflow) || {}).value, args)
     case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
     default: throw new UserError(`Unknown tool ${name}`)
   }
@@ -213,13 +274,14 @@ async function callTool(name, args, store) {
 
 // One line per call Blaze makes: when, which tool, which task, whether it worked. Written
 // after the call; a failure to log is reported on the server but never hides the result.
-async function audit(store, tool, args, outcome) {
+async function audit(store, tool, args, outcome, agent = DEFAULT_BY) {
   const taskId = (outcome.out && outcome.out.id) || (args && args.id) || ''
   const note = outcome.error ? String(outcome.error).slice(0, 160)
     : tool === 'add_task' ? 'added: ' + String((outcome.out && outcome.out.title) || '').slice(0, 80)
     : tool === 'update_task' ? 'changed: ' + ((outcome.out && outcome.out.changed) || []).join(', ')
+    : tool === 'add_comment' ? 'commented: ' + String((outcome.out && outcome.out.comment && outcome.out.comment.text) || '').slice(0, 80)
     : 'read' + (outcome.out && typeof outcome.out.total === 'number' ? ` (${outcome.out.total})` : '')
-  const entry = { at: nowIso(), tool, ok: !outcome.error, taskId: String(taskId), note }
+  const entry = { at: nowIso(), agent, tool, ok: !outcome.error, taskId: String(taskId), note }
   if (outcome.trail) { entry.before = outcome.trail.before; entry.after = outcome.trail.after }
   try {
     await store.update(KEYS.audit, (v) => {
@@ -232,14 +294,14 @@ async function audit(store, tool, args, outcome) {
 
 const PROTOCOL = '2025-03-26'
 // Returns a JSON-RPC response object, or null for notifications.
-async function handleRpc(msg, store) {
+async function handleRpc(msg, store, ctx = {}) {
   const id = msg && msg.id
   const ok = (result) => ({ jsonrpc: '2.0', id, result })
   const err = (code, message) => ({ jsonrpc: '2.0', id: id === undefined ? null : id, error: { code, message } })
   if (!msg || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return err(-32600, 'Invalid request')
   if (id === undefined) return null
   switch (msg.method) {
-    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.0.0' } })
+    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.1.0' } })
     case 'ping': return ok({})
     case 'tools/list': return ok({ tools: Object.entries(SCHEMAS).map(([name, s]) => ({ name, ...s })) })
     case 'tools/call': {
@@ -247,14 +309,14 @@ async function handleRpc(msg, store) {
       const args = msg.params && msg.params.arguments
       const st = store()
       try {
-        const raw = await callTool(name, args, st)
+        const raw = await callTool(name, args, st, ctx)
         const out = raw && raw.audit !== undefined && raw.result !== undefined ? raw.result : raw
-        await audit(st, name, args, { out, trail: raw && raw.audit })
+        await audit(st, name, args, { out, trail: raw && raw.audit }, ctx.agent)
         return ok({ content: [{ type: 'text', text: JSON.stringify(out) }] })
       } catch (e) {
-        if (e instanceof UserError) { await audit(st, name, args, { error: e.message }); return ok({ isError: true, content: [{ type: 'text', text: e.message }] }) }
+        if (e instanceof UserError) { await audit(st, name, args, { error: e.message }, ctx.agent); return ok({ isError: true, content: [{ type: 'text', text: e.message }] }) }
         console.error('blaze tool error', name, e && e.message)
-        await audit(st, name, args, { error: 'failed' })
+        await audit(st, name, args, { error: 'failed' }, ctx.agent)
         return ok({ isError: true, content: [{ type: 'text', text: 'ATRIUM could not complete that. Nothing was changed.' }] })
       }
     }
@@ -262,4 +324,4 @@ async function handleRpc(msg, store) {
   }
 }
 
-module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, whatsNew, kv, handleRpc, SCHEMAS, ROSTER }
+module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }

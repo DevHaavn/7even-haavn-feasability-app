@@ -768,7 +768,7 @@ var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
   supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
-  meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANT DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
+  meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANTS DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
   if(TAB.indexOf('mgmt')===0&&!canMgmt()){TAB='overview';location.hash='overview';}
   if(TAB==='blaze'&&!canBlaze()){TAB='overview';location.hash='overview';}
@@ -1832,6 +1832,7 @@ var BLAZE_LABEL={status:'Status',owner:'Owner',due:'Due',notes:'Notes',done:'Don
 function blazeWhat(e){
   if(!e.ok)return '<span class="chip red">Refused</span> '+esc(e.note||'');
   if(e.tool==='add_task')return 'Added task <b>'+esc((e.after&&e.after.title)||'')+'</b>'+(e.after?' · '+esc(e.after.owner||'')+(e.after.due?' · due '+esc(e.after.due):''):'');
+  if(e.tool==='add_comment'&&e.after&&e.after.comment)return 'Commented: <b>'+esc(e.after.comment.text.length>120?e.after.comment.text.slice(0,120)+'…':e.after.comment.text)+'</b>';
   if(e.tool==='update_task'&&e.before){
     var ks=Object.keys(e.before).filter(function(k){return k!=='done'&&k!=='completedAt';});
     return ks.map(function(k){return '<div>'+(BLAZE_LABEL[k]||k)+': '+blazeVal(k,e.before[k])+' → <b>'+blazeVal(k,e.after&&e.after[k])+'</b></div>';}).join('')||'Updated';
@@ -1849,7 +1850,7 @@ function viewBlaze(){
     var when=new Date(e.at).toLocaleString('en-AU',{timeZone:'Australia/Melbourne',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
     var k=blazeKey(e), can=e.ok&&(e.tool==='add_task'||(e.tool==='update_task'&&e.before));
     var act=!can?'':(undone[k]?'<span class="chip">Undone by '+esc(undone[k].by)+'</span>':'<button class="btn sm" onclick="blazeUndo(\''+encodeURIComponent(k)+'\')">Undo</button>');
-    return '<tr><td>'+esc(when)+'</td><td>'+esc(e.tool.replace('_',' '))+'</td><td>'+(t?esc(t.title):(e.taskId?'<span style="opacity:.5">'+esc(e.taskId)+'</span>':'—'))+'</td><td>'+blazeWhat(e)+(act?'<div style="margin-top:6px">'+act+'</div>':'')+'</td></tr>';
+    return '<tr><td>'+esc(when)+'</td><td>'+(e.agent?'<b>'+esc(e.agent)+'</b> · ':'')+esc(e.tool.replace('_',' '))+'</td><td>'+(t?esc(t.title):(e.taskId?'<span style="opacity:.5">'+esc(e.taskId)+'</span>':'—'))+'</td><td>'+blazeWhat(e)+(act?'<div style="margin-top:6px">'+act+'</div>':'')+'</td></tr>';
   }).join(''):'<tr><td colspan="4" class="empty">Blaze has not done anything yet.</td></tr>';
   return h+'</tbody></table></div>';
 }
@@ -1882,6 +1883,16 @@ function setActionStatus(id,status){var a=WS.actions.find(function(x){return x.i
    their own capital_kv rows (same pattern as the old tool) so the shared
    workspace blob doesn't balloon with base64 payloads. */
 var _amId=null, _amWatchers=[], _amFiles=[], _amSubs=[];
+/* Agent hand-off and comments on a task (written by the assistants through the connector; read only here) */
+function taskAgentBlock(a){
+  var cs=a.comments||[]; if(!cs.length&&!a.agent) return '';
+  var h='<div class="f" style="margin-top:6px">'+(a.agent?'<div style="font-size:12px;opacity:.7;margin-bottom:6px">Handed to agent: <b>'+esc(a.agent)+'</b></div>':'');
+  if(cs.length) h+='<div style="font-size:11px;opacity:.6;margin-bottom:4px">Comments</div>'+cs.map(function(c){
+    var when=new Date(c.at).toLocaleString('en-AU',{timeZone:'Australia/Melbourne',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return '<div style="padding:8px 10px;margin-bottom:6px;border-left:2px solid var(--gold,#d6b36a);background:var(--pill,rgba(255,255,255,.04));border-radius:6px"><div style="font-size:11px;opacity:.6">'+esc(c.by)+' · '+esc(when)+'</div><div style="font-size:13px;margin-top:2px;white-space:pre-wrap">'+esc(c.text)+'</div></div>';
+  }).join('');
+  return h+'</div>';
+}
 function openActionModal(id,prefillDept){
   var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Low',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',watchers:[],files:[],subs:[],created:nowIso()};
   var isNew=!id;
@@ -1898,6 +1909,7 @@ function openActionModal(id,prefillDept){
     '<div class="formgrid"><label class="f">Priority<select id="af_priority">'+prioOpts+'</select></label><label style="display:flex;align-items:flex-end;padding-bottom:10px;gap:8px;font-size:12.5px;cursor:pointer;text-transform:none;letter-spacing:0;font-family:var(--sans)"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label></div>'+
     '<label class="f">Team members — who else can see &amp; run this task</label><div id="af_watchbox"></div>'+
     '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
+    taskAgentBlock(a)+
     '<label class="f">Subtasks</label><div id="af_subbox"></div>'+
     '<label class="f">Attachments — image or document</label><div id="af_filebox"></div>'+
     '<label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:8px;width:fit-content">📎 Attach file<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="amAttach(this)"></label>'+

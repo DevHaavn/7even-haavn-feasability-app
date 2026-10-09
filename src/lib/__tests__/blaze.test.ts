@@ -202,12 +202,59 @@ describe('MCP protocol', () => {
     expect(init.result.serverInfo.name).toBe('ATRIUM')
     expect(await B.handleRpc({ jsonrpc: '2.0', method: 'notifications/initialized' }, store)).toBeNull()
     const list = await B.handleRpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, store)
-    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_task', 'list_tasks', 'update_task', 'whats_new'])
+    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_comment', 'add_task', 'get_task', 'list_tasks', 'update_task', 'whats_new'])
     expect(list.result.tools.find((t: any) => /delete|meeting|boardroom/.test(t.name))).toBeUndefined()
     const call = await B.handleRpc({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'list_tasks', arguments: { owner: 'mike' } } }, store)
     expect(JSON.parse(call.result.content[0].text).tasks[0].id).toBe('n1-aaaa')
     const bad = await B.handleRpc({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'add_task', arguments: { title: 'x', owner: 'zzz' } } }, store)
     expect(bad.result.isError).toBe(true)
     expect((await B.handleRpc({ jsonrpc: '2.0', id: 5, method: 'nope' }, store)).error.code).toBe(-32601)
+  })
+})
+
+
+describe('several agents', () => {
+  const E = { BLAZE_SECRET: 'b'.repeat(30), AGENT_SECRET_JULIO: 'j'.repeat(30), AGENT_SECRET_SHORT: 'tooshort', OTHER: 'x' }
+  it('each secret is its own agent; wrong, empty or too-short secrets are nobody', () => {
+    expect(B.identifyAgent('b'.repeat(30), E)).toBe('Blaze')
+    expect(B.identifyAgent('j'.repeat(30), E)).toBe('Julio')
+    expect(B.identifyAgent('nope', E)).toBeNull()
+    expect(B.identifyAgent('', E)).toBeNull()
+    expect(B.identifyAgent('tooshort', E)).toBeNull()
+    expect(B.agentRegistry(E).map((a: any) => a.name).sort()).toEqual(['Blaze', 'Julio'])
+    expect(B.agentRegistry({})).toEqual([])
+  })
+  it('stamps changes with the calling agent and hands tasks to a named agent', () => {
+    const r = B.addTask(ws(), { title: 'Draft the Corio note', owner: 'daniel', agent: 'blaze' }, 'Julio', ['Blaze', 'Julio'])
+    const t = r.next.actions[3]
+    expect(t).toMatchObject({ createdBy: 'Julio', agent: 'Blaze', owner: 'Daniel Sette' })
+    expect(() => B.addTask(ws(), { title: 'x', owner: 'daniel', agent: 'ghost' }, 'Julio', ['Blaze', 'Julio'])).toThrow(/Unknown agent/)
+    const u = B.updateTask(r.next, { id: t.id, notes: 'Over to you' }, 'Julio', ['Blaze', 'Julio'])
+    expect(u.next.actions[3].notes).toMatch(/^Julio, \d{4}-\d{2}-\d{2}: Over to you$/)
+    expect(B.listTasks(u.next, { agent: 'blaze' }).tasks.map((x: any) => x.id)).toEqual([t.id])
+  })
+  it('agents talk through comments: Julio hands over, Blaze replies', async () => {
+    const rows: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
+    const store = () => B.kv(env, fakeSupabase(rows))
+    const call = (agent: string, id: number, name: string, args: any) => B.handleRpc({ jsonrpc: '2.0', id, method: 'tools/call', params: { name, arguments: args } }, store, { agent, agents: ['Blaze', 'Julio'] })
+    const added = JSON.parse((await call('Julio', 1, 'add_task', { title: 'Prep Lewis briefing', owner: 'lewis', agent: 'blaze' })).result.content[0].text)
+    await call('Blaze', 2, 'add_comment', { id: added.id, text: 'On it. Need the Geelong numbers.' })
+    await call('Julio', 3, 'add_comment', { id: added.id, text: 'Sent to the shared folder.' })
+    const t = JSON.parse((await call('Blaze', 4, 'get_task', { id: added.id })).result.content[0].text)
+    expect(t.comments.map((c: any) => [c.by, c.text])).toEqual([['Blaze', 'On it. Need the Geelong numbers.'], ['Julio', 'Sent to the shared folder.']])
+    expect(t.agent).toBe('Blaze')
+    const log = rows.blaze_audit.value.entries
+    expect(log.map((e: any) => [e.agent, e.tool])).toEqual([['Julio', 'add_task'], ['Blaze', 'add_comment'], ['Julio', 'add_comment'], ['Blaze', 'get_task']])
+    expect(log[1].note).toMatch(/^commented: On it/)
+    const nw = JSON.parse((await call('Julio', 5, 'whats_new', { since: new Date(Date.now() - 60000).toISOString() })).result.content[0].text)
+    expect(nw.tasks[0].events.join()).toMatch(/comment by Blaze/)
+  })
+  it('refuses empty or oversize comments and unknown tasks', () => {
+    expect(() => B.addComment(ws(), { id: 'n1-aaaa', text: '  ' })).toThrow(/text is required/)
+    expect(() => B.addComment(ws(), { id: 'n1-aaaa', text: 'x'.repeat(2001) })).toThrow(/too long/)
+    expect(() => B.addComment(ws(), { id: 'nope', text: 'hi' })).toThrow(/No task/)
+    const c = B.addComment(ws(), { id: 'n1-aaaa', text: 'hello' }, 'Julio')
+    expect(c.next.actions[0].comments[0]).toMatchObject({ by: 'Julio', text: 'hello' })
+    expect(ws().actions[0].comments).toBeUndefined() // input untouched
   })
 })
