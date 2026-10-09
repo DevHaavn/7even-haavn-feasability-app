@@ -129,11 +129,8 @@ export default function HaavnManagementPillar({ pillar, onBack, onLogout, onExit
         </div>
       )}
 
-      <SiteLinks />
+      <SiteLinks onLogout={onLogout} />
       <Project7Mark />
-
-      {/* Quick exit */}
-      <button onClick={onLogout} style={{ ...atriumNavPill, position: 'fixed', bottom: 18, left: 20, zIndex: 30, fontSize: 11  }}>Log Out</button>
     </div>
   )
 }

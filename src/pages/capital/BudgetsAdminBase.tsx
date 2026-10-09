@@ -1,4 +1,4 @@
-import RefreshButton from '../../components/RefreshButton'
+import SiteLinks from '../../components/SiteLinks'
 import React, { useState, useEffect } from 'react'
 import BudgetsAdmin, { ensureAdminData, publishProjectCosts } from './BudgetsAdmin'
 import { AtriumApex } from '../../components/AtriumMark'
@@ -130,10 +130,6 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
 .abh-brand .wm .a svg{display:block;width:100%;height:100%;overflow:visible}
 .abh-brand .tag{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.24em;color:#83868e;white-space:nowrap;
   border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
-.abh-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
-  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
-.abh-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
-.abh-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 .abh-update{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:999px;
   cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;
   font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
@@ -143,7 +139,6 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
   .abh-head{padding:16px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 57px);gap:12px}
   .abh-brand{margin-left:0;width:100%}
   .abh-brand .tag{display:none}
-  .abh-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
   .abh-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
 }
 .abh-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:48px 32px;max-width:1440px;width:100%;margin:0 auto}
@@ -247,8 +242,7 @@ export default function BudgetsAdminBase({ onBack, onLogout }: { onBack: () => v
       </div>
       </div>
 
-      <RefreshButton size={48} className="hub-rb" />
-      <button className="abh-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
+      <SiteLinks tone="light" onLogout={onLogout} />
     </div>
   )
 }

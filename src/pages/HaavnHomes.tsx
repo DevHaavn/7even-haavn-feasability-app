@@ -422,9 +422,11 @@ export default function HaavnHomes({ onBack, restricted, salesOnly, suspended, o
 
       {/* Same footer as the main ATRIUM app — brand, VISIT US links + copyright,
           Log Out bottom-left, P7 mark bottom-right. */}
-      <SiteLinks tone="glass" />
-      <button onClick={restricted ? onLogout : onBack} className="glass-btn glass-btn-grey hh-corner-btn"
-        style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 320, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>{restricted ? 'Log Out' : '← Home'}</button>
+      <SiteLinks tone="glass" onLogout={restricted ? onLogout : undefined} />
+      {!restricted && (
+        <button onClick={onBack} className="glass-btn glass-btn-grey hh-corner-btn"
+          style={{ position: 'fixed', bottom: 18, left: 20, zIndex: 320, fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '7px 16px' }}>← Home</button>
+      )}
       <Project7Mark />
     </div>
   )

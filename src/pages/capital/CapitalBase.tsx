@@ -1,4 +1,3 @@
-import RefreshButton from '../../components/RefreshButton'
 import React, { useState } from 'react'
 import SiteLinks from '../../components/SiteLinks'
 import { useStore } from '../../store'
@@ -115,10 +114,6 @@ const CSS = `
 .cab-pow{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:18px}
 .cab-pow .k{color:#83868e;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.26em;text-transform:uppercase}
 .cab-penter{margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#1a1b1e}
-.cab-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
-  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
-.cab-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
-.cab-logout .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 .cab-update{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:999px;
   cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;
   font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
@@ -131,7 +126,6 @@ const CSS = `
   .cab-brand{margin-left:0;width:100%}
   .cab-brand .tag{display:none}
   .cab-sub{padding:0 4px}
-  .cab-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
   .cab-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
   .cab-body{padding-bottom:24px}
 }
@@ -224,9 +218,7 @@ export default function CapitalBase({ onClose, onLogout, initialPillar, crmOnly 
         </div>
       </div>
 
-      <SiteLinks tone="light" />
-      <RefreshButton size={48} className="hub-rb" />
-      <button className="cab-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
+      <SiteLinks tone="light" onLogout={onLogout} />
     </div>
   )
 }

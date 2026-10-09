@@ -1,4 +1,4 @@
-import RefreshButton from '../../components/RefreshButton'
+import SiteLinks from '../../components/SiteLinks'
 import React, { useEffect, useState } from 'react'
 import type { Pillar } from './CapitalBase'
 import BudgetsAdminBase from './BudgetsAdminBase'
@@ -34,6 +34,11 @@ const GATE_CSS = `
 .ceg-brand .wm .a svg{display:block;width:100%;height:100%;overflow:visible}
 .ceg-brand .tag{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:10px;letter-spacing:.24em;color:#83868e;white-space:nowrap;
   border-left:1px solid rgba(20,20,25,.16);padding-left:12px;text-transform:uppercase}
+.ceg-wrap .site-footer{position:relative;z-index:3;background:transparent!important;border-top:1px solid rgba(20,20,25,.16)!important}
+.ceg-wrap .site-footer a,.ceg-wrap .site-footer span,.ceg-wrap .site-footer button:not(.rb){color:#33363c!important}
+.ceg-wrap .site-footer a:hover,.ceg-wrap .site-footer button:not(.rb):hover{color:#101010!important}
+.ceg-wrap .site-footer p{color:#4d5158!important}
+.ceg-wrap .site-footer .rb{--rb-c:#33363c!important;--rb-h:#101010!important}
 .ceg-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:22px}
 .ceg-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8f6a25;font-weight:500;text-align:center}
 .ceg-form{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px}
@@ -42,20 +47,10 @@ const GATE_CSS = `
 .ceg-err{color:#c0392b;font-size:11px;text-align:center}
 .ceg-submit{padding:13px 16px;border-radius:999px;border:1px solid rgba(143,106,37,.4);background:rgba(143,106,37,.1);color:#8f6a25;font-weight:700;letter-spacing:.1em;font-size:11px;text-transform:uppercase;cursor:pointer;transition:.3s;font-family:'JetBrains Mono',monospace}
 .ceg-submit:hover{border-color:#8f6a25;background:rgba(143,106,37,.18)}
-.ceg-logout{position:fixed;bottom:18px;left:20px;z-index:30;width:48px;height:48px;flex-shrink:0;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;font-size:7.5px;letter-spacing:.16em;
-  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;transition:.3s}
-.ceg-logout:hover{border-color:rgba(224,100,92,.7);color:#c0392b;background:rgba(224,100,92,.08)}
-.ceg-update{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;border-radius:999px;
-  cursor:pointer;color:#1a1b1e;border:1px solid rgba(20,20,25,.24);background:rgba(255,255,255,.55);font-family:'JetBrains Mono',monospace;
-  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
-.ceg-update:hover{border-color:rgba(143,106,37,.7);color:#8f6a25;background:rgba(143,106,37,.08)}
-.ceg-logout .ring-o,.ceg-update .ring-o{width:11px;height:11px;border-radius:50%;border:1.6px solid currentColor;flex-shrink:0}
 @media(max-width:600px){
   .ceg-head{padding:16px 18px;padding-top:calc(env(safe-area-inset-top,0px) + 57px);gap:12px}
   .ceg-brand{margin-left:0;width:100%}
   .ceg-brand .tag{display:none}
-  .ceg-logout{position:static;margin:12px auto 0;left:auto;bottom:auto}
-  .ceg-update{position:static;margin:30px auto 0;right:auto;bottom:auto}
 }
 
 /* ATRIUM language, stage 2: the pillar's email door. Inter 300, tracking
@@ -112,8 +107,7 @@ function CrmEmailGate({ onPass, onBack, onLogout }: { onPass: (email: string) =>
         </form>
       </div>
 
-      <RefreshButton size={48} className="hub-rb" />
-      <button className="ceg-logout" aria-label="Log Out" onClick={onLogout}>LOG<span className="ring-o" aria-hidden="true" /></button>
+      <SiteLinks tone="light" onLogout={onLogout} />
     </div>
   )
 }

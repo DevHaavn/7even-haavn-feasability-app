@@ -30,8 +30,6 @@ html[data-theme="dark"] .agw .cab-scrim{background:linear-gradient(180deg,rgba(1
 .agw .cab-sub{color:var(--g-ink2)}
 .agw .cab-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .cab-pillars{gap:18px;max-width:1000px}
-.agw .cab-logout,.agw .cab-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
-.agw .cab-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .cab-wm{color:var(--g-ink);font-size:clamp(34px,5vw,48px);margin-top:18px}
 .agw .cab-faint{color:var(--g-ink3)}
 .agw .cab-title{color:var(--g-ink3)!important;font-size:11px;letter-spacing:.34em;margin-top:14px}
@@ -53,8 +51,6 @@ html[data-theme="dark"] .agw .hmh-scrim{background:linear-gradient(180deg,rgba(1
 .agw .hmh-sub{color:var(--g-ink2)}
 .agw .hmh-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .hmh-pillars{gap:18px;max-width:1000px}
-.agw .hmh-logout,.agw .hmh-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
-.agw .hmh-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .hmh-wm{color:var(--g-ink);font-size:clamp(34px,5vw,48px);margin-top:18px}
 .agw .hmh-faint{color:var(--g-ink3)}
 .agw .hmh-mgmt{color:var(--g-ink3)!important;font-size:11px;letter-spacing:.34em;margin-top:14px}
@@ -74,8 +70,6 @@ html[data-theme="dark"] .agw .abh-scrim{background:linear-gradient(180deg,rgba(1
 .agw .abh-sub{color:var(--g-ink2)}
 .agw .abh-rule{background:var(--g-line);width:100%;max-width:230px}
 .agw .abh-grid{gap:18px;max-width:1000px}
-.agw .abh-logout,.agw .abh-update{background:var(--g-pill);border-color:var(--g-line);color:var(--g-ink2)}
-.agw .abh-update:hover{border-color:#d6b36a;color:var(--g-ink);background:var(--g-pill)}
 .agw .abh-title{color:var(--g-ink);font-size:clamp(26px,3.6vw,38px);letter-spacing:.06em}
 
 html[data-theme="dark"] .agw .abh-ptitle img{filter:invert(1) brightness(2)}
@@ -94,16 +88,6 @@ html[data-theme="dark"] .agw :is(.cab-papex,.hmh-papex,.abh-apex){border-color:r
 html[data-theme="dark"] .agw :is(.cab-pblurb,.hmh-pblurb,.abh-blurb,.cab-penter,.hmh-penter,.abh-enter){color:var(--g-ink2)}
 html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rgba(255,255,255,.12)}
 
-/* ── hub refresh circle ────────────────────────────────────────────────
-   Replaces the Update pill on Capital Base, Administration Base, HAAVN
-   Management and the Capital pillar. 48px to pair with the LOG circle on
-   the other side. The circle itself is public/atrium-refresh.css. */
-.hub-rb{position:fixed;bottom:18px;right:20px;z-index:30;
-  --rb-c:rgba(26,27,30,.7);--rb-h:#1a1b1e;--rb-g:#8f6a25;background:rgba(255,255,255,.55)}
-.hub-rb:hover{background:rgba(255,255,255,.55)}
-.agw .hub-rb{--rb-c:var(--g-ink2);--rb-h:var(--g-ink);--rb-g:#d6b36a;background:var(--g-pill)}
-.agw .hub-rb:hover{background:var(--g-pill)}
-@media(max-width:640px){.hub-rb{position:static;display:flex;margin:30px auto 0}}
 
 /* ── ATRIUM language, stage 2: the hub family ─────────────────────────────
    Capital Base, Administration, HAAVN Management and the Capital pillar.
@@ -128,7 +112,6 @@ html[data-theme="dark"] .agw :is(.cab-pline,.hmh-pline,.abh-pline){background:rg
 .agw :is(.cab-pow .k,.hmh-pow .k,.abh-pow .k){font-size:11.5px;color:var(--g-ink3)}
 .agw :is(.cab-ptitle,.hmh-ptitle,.abh-ptitle){font-size:24px}
 /* the LOG circle, same device as the other menus */
-.agw :is(.cab-logout,.hmh-logout,.abh-logout,.ceg-logout){font:300 8.5px 'Inter',system-ui,sans-serif!important;letter-spacing:0!important}
 
 /* ── light theme contrast ─────────────────────────────────────────────────
    Measured, not eyeballed. In light the gold card text was #8f6a25 (4.0:1 at
@@ -172,8 +155,8 @@ html[data-theme="light"] .agw :is(.cab-pcard,.hmh-pcard,.abh-card):is(:hover,:fo
 
 /* footer inside the gateway screens follows the screen's own light or dark tones */
 .agw .site-footer{position:relative;z-index:3;background:transparent!important;border-top:1px solid var(--g-line)!important}
-.agw .site-footer a,.agw .site-footer span{color:var(--g-ink3)!important}
-.agw .site-footer a:hover{color:var(--g-ink)!important}
+.agw .site-footer a,.agw .site-footer span,.agw .site-footer button:not(.rb){color:var(--g-ink3)!important}
+.agw .site-footer a:hover,.agw .site-footer button:not(.rb):hover{color:var(--g-ink)!important}
 .agw .site-footer p{color:var(--g-ink4)!important}
 .agw .site-footer div[style*="width: 1px"]{background:var(--g-line)!important}
 .agw .site-footer .rb{--rb-c:var(--g-ink3)!important;--rb-h:var(--g-ink)!important}

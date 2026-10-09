@@ -82,7 +82,6 @@ const CSS = `
 .pcard .pline{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
 .pcard .pblurb{color:#a7abb0;font-size:13px;line-height:1.6;margin:0;flex:1}
 .pcard .penter{margin-top:22px;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#c9cdd2}
-.hbm-logout{position:fixed;bottom:18px;left:20px;z-index:30}
 @media(max-width:640px){.hbm-body{padding:36px 20px}.pcard{min-height:auto}}
 `
 
@@ -157,9 +156,8 @@ export default function HaavnHomesCrm({ onClose, onLogout }: { onClose: () => vo
       </div>
 
       {/* Footer */}
-      <SiteLinks />
+      <SiteLinks onLogout={onLogout} />
       <Project7Mark />
-      <button className="hbm-btn hbm-logout" onClick={onLogout}>Log Out</button>
     </div>
   )
 }

@@ -21,7 +21,8 @@ function AtriumRing({ color }: { color: string }) {
   )
 }
 
-export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' | 'glass' }) {
+// onLogout puts one small Log out link in the footer row, so a screen never needs its own corner button.
+export default function SiteLinks({ tone = 'dark', onLogout }: { tone?: 'dark' | 'light' | 'glass'; onLogout?: () => void }) {
   const light = tone === 'light'
   const glass = tone === 'glass'
   // Three surfaces: dark Capital screens, the light ATRIUM studio, and the
@@ -52,6 +53,10 @@ export default function SiteLinks({ tone = 'dark' }: { tone?: 'dark' | 'light' |
         <a href="https://www.haavn.au" target="_blank" rel="noopener noreferrer" style={link} onMouseEnter={e => over(e, true)} onMouseLeave={e => over(e, false)}>haavn.au</a>
         {/* Get-latest: the single refresh circle. */}
         <UpdateButton tone={tone} />
+        {onLogout && (
+          <button type="button" onClick={onLogout} aria-label="Log out" style={{ ...link, background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.color = hoverCol }} onMouseLeave={e => { e.currentTarget.style.color = textCol }}>Log out</button>
+        )}
       </div>
       <DesignCredit style={light ? { color: '#9AA2A4' } : glass ? { color: 'rgba(255,255,255,0.44)' } : undefined} />
     </div>
