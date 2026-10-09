@@ -14,7 +14,12 @@ function secretOk(given) {
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store')
-  if (!process.env.BLAZE_SECRET || !process.env.SUPABASE_SERVICE_ROLE_KEY) { res.status(503).json({ error: 'Connector is not configured' }); return }
+  // Say which setting is missing (names only, never values) so a bad deploy is easy to fix.
+  const miss = []
+  if (!process.env.BLAZE_SECRET) miss.push('BLAZE_SECRET')
+  else if (process.env.BLAZE_SECRET.length < 24) miss.push('BLAZE_SECRET (shorter than 24 characters)')
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) miss.push('SUPABASE_SERVICE_ROLE_KEY')
+  if (miss.length) { res.status(503).json({ error: 'Connector is not configured. Missing: ' + miss.join(', ') }); return }
   if (!secretOk(req.query && req.query.secret)) { res.status(401).json({ error: 'Unauthorized' }); return }
   if (req.method === 'GET' || req.method === 'DELETE') { res.status(405).setHeader('Allow', 'POST').json({ error: 'Method not allowed' }); return }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return }
