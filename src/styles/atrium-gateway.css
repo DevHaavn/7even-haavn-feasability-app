@@ -169,3 +169,11 @@ html[data-theme="light"] .agw :is(.cab-body,.hmh-body,.abh-in)::before{content:'
 html[data-theme="light"] .agw :is(.cab-pcard,.hmh-pcard,.abh-card){background:rgba(244,242,236,.6);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 html[data-theme="light"] .agw :is(.cab-pcard,.hmh-pcard,.abh-card):is(:hover,:focus-visible){background:rgba(244,242,236,.74)}
+
+/* footer inside the gateway screens follows the screen's own light or dark tones */
+.agw .site-footer{position:relative;z-index:3;background:transparent!important;border-top:1px solid var(--g-line)!important}
+.agw .site-footer a,.agw .site-footer span{color:var(--g-ink3)!important}
+.agw .site-footer a:hover{color:var(--g-ink)!important}
+.agw .site-footer p{color:var(--g-ink4)!important}
+.agw .site-footer div[style*="width: 1px"]{background:var(--g-line)!important}
+.agw .site-footer .rb{--rb-c:var(--g-ink3)!important;--rb-h:var(--g-ink)!important}

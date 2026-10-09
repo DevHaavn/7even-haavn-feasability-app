@@ -39,11 +39,11 @@ export function Wordmark({ size = 'md', tone = 'white' }: { size?: 'sm' | 'md' |
 export function DesignCredit({ style }: { style?: React.CSSProperties }) {
   return (
     <p style={{
-      color: 'rgba(255,255,255,0.30)', fontSize: 7, letterSpacing: '0.24em',
-      textTransform: 'uppercase', fontWeight: 400, textAlign: 'center',
+      color: 'rgba(255,255,255,0.30)', fontFamily: "'Inter', system-ui, sans-serif", fontSize: 11, letterSpacing: 0,
+      textTransform: 'none', fontWeight: 300, textAlign: 'center',
       padding: '0 12px', lineHeight: 1.7, margin: 0, ...style,
     }}>
-      Design &amp; Interface © {new Date().getFullYear()} JB Design × Studio · All Rights Reserved
+      Design &amp; interface © {new Date().getFullYear()} JB Design × Studio. All rights reserved.
     </p>
   )
 }

@@ -527,6 +527,8 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
 /* the glow is drop-shadow on the whole mark (a filter on a masked layer is cut back
    to the letters by its own mask, so the blur lives on the container) */
 .mark{filter:drop-shadow(0 0 6px rgba(255,255,255,.95)) drop-shadow(0 0 20px rgba(255,255,255,.85)) drop-shadow(0 0 46px rgba(255,255,255,.7)) drop-shadow(0 0 90px rgba(255,255,255,.5))}
+/* phones: the kicker stays on one line, no orphaned MELBOURNE */
+@media(max-width:600px){.kicker{white-space:nowrap!important;font-size:7.5px!important;letter-spacing:.18em!important}}
 /* no light behind the menu H, just the ring */
 .mb svg,.mb:hover svg,.mb.lit svg{filter:none!important}
 .subline{opacity:1!important;animation:none!important}
