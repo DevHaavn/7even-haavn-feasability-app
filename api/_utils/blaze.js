@@ -34,6 +34,7 @@ function identifyAgent(given, env = process.env) {
 // CRM, capital or anything else in ATRIUM; that is the gatekeeper's job.
 const KEYS = {
   workflow: 'nav_workspace',        // ATRIUM Workflow workspace; tasks live in .actions
+  boardroom: 'haavn_boardroom',     // Meeting Management: { meetings: [...], currentId, ... }
   audit: 'blaze_audit',             // { entries: [{ at, tool, ok, taskId, note }] }, newest last, capped
 }
 const AUDIT_MAX = 1000
@@ -46,6 +47,16 @@ const ROSTER = [
   'Christina Witbreuk', 'Domenic Paolilli', 'John Dimattina', 'Jeffrey Witbreuk', 'James Maloney',
   'Amy Baldwin', 'Dominika Ma', 'Alessia Bresciano', 'Bonnie Zhao', 'Callum Fraser', 'Lucas Menegazzo',
 ]
+
+const ITEM_STATUSES = ['update', 'action', 'followup', 'trouble', 'complete']
+const MEETING_KINDS = ['weekly', 'internal', 'external']
+const EMAILS = {
+  'Jamie Baldwin': 'jamie@7even.au', 'Daniel Sette': 'daniel@7even.au', 'Lewis Jin': 'lewis@7even.au', 'James Winstanley': 'james@haavn.au',
+  'Callum Macdonald': 'callum@haavn.au', 'Mike Furniss': 'mike@haavn.au', 'Christina Witbreuk': 'christina@haavn.au', 'Domenic Paolilli': 'domenic@haavn.au',
+  'John Dimattina': 'john@haavn.au', 'Jeffrey Witbreuk': 'jeffrey@haavn.au', 'James Maloney': 'jamesm@haavn.au', 'Amy Baldwin': 'accounts@7even.au',
+  'Dominika Ma': 'accounts@haavn.au', 'Alessia Bresciano': 'reception@haavn.au', 'Callum Fraser': 'c.fraser@fraserandpartners.com',
+  'Lucas Menegazzo': 'l.menegazzo@fraserandpartners.com', 'Bonnie Zhao': 'bonnie@haavn.au',
+}
 
 class UserError extends Error {}
 
@@ -201,6 +212,180 @@ function whatsNew(ws, f = {}) {
   return { since: cut, tasks }
 }
 
+// ---------- Meeting Management (key haavn_boardroom) ----------
+// Same shapes the Meeting Management page reads and writes. Agents never delete: meetings are
+// created, filled in and closed; people are added or marked present, never removed.
+let _mid = 0
+const meetingId = () => Date.now() * 1000 + (_mid++ % 1000)
+const nextMonday = () => { const d = new Date(); d.setUTCDate(d.getUTCDate() + ((8 - d.getUTCDay()) % 7 || 7)); return d.toISOString().slice(0, 10) }
+const meetingDepts = (m) => [...new Set([...DEPTS, ...(m.sections || []).map((x) => x.id), ...(m.items || []).map((x) => x.dept).filter(Boolean)])]
+const checkTime = (t) => { if (t === undefined || t === '') return ''; if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(t))) throw new UserError('time must be HH:MM (24 hour)'); return t }
+const compactMeeting = (m) => ({
+  id: m.id, title: m.title || 'Weekly Company Meeting', kind: m.kind || 'weekly', date: m.date || '', time: m.time || '', chair: m.chair || '',
+  closed: !!m.closed, attendees: (m.attendees || []).length, present: (m.attendees || []).filter((a) => a.present).length, items: (m.items || []).length,
+  open: (m.items || []).filter((i) => !i.discussed && i.status !== 'complete').length,
+})
+const compactItem = (it, m) => ({
+  id: it.id, meeting: m.title || 'Weekly Company Meeting', meetingDate: m.date || '', title: it.title, dept: it.dept || '', status: it.status || '',
+  owner: it.owner || '', due: it.due || '', discussed: !!it.discussed, ...(it.carried ? { carried: it.carried } : {}),
+  ...(it.notes ? { notes: it.notes } : {}),
+})
+// A meeting by id; with no id, the next open weekly meeting from today (never creates one).
+function pickMeeting(bd, id, { allowClosed = false } = {}) {
+  const ms = (bd && bd.meetings) || []
+  let m
+  if (id !== undefined && id !== null && id !== '') {
+    m = ms.find((x) => String(x.id) === String(id))
+    if (!m) throw new UserError(`No meeting with id "${id}"`)
+  } else {
+    const t = today()
+    const c = ms.filter((x) => !x.closed && (!x.kind || x.kind === 'weekly')).sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')))
+    m = c.find((x) => String(x.date || '') >= t) || c[c.length - 1]
+    if (!m) throw new UserError('There is no open weekly meeting. Create one with create_meeting.')
+  }
+  if (m.closed && !allowClosed) throw new UserError('That meeting is closed and filed in the Archive, so it cannot be changed.')
+  return m
+}
+function attendeeFrom(x) {
+  const obj = typeof x === 'string' ? { name: x } : (x || {})
+  const name = String(obj.name || '').trim()
+  if (!name) throw new UserError('Each attendee needs a name')
+  let person = null
+  try { person = resolveOwner(name) } catch (e) { person = null }
+  const full = person || name
+  return { id: meetingId(), name: full, email: String(obj.email || (person && EMAILS[person]) || '').trim(), role: String(obj.role || ''), present: obj.present === undefined ? true : !!obj.present }
+}
+function listMeetings(bd, f = {}) {
+  const st = f.status || 'open'
+  checkEnum(st, ['open', 'closed', 'all'], 'status')
+  let ms = ((bd && bd.meetings) || []).slice()
+  if (st === 'open') ms = ms.filter((m) => !m.closed); else if (st === 'closed') ms = ms.filter((m) => m.closed)
+  if (f.kind) { checkEnum(f.kind, MEETING_KINDS, 'kind'); ms = ms.filter((m) => (m.kind || 'weekly') === f.kind) }
+  if (f.from) { checkDate(f.from, 'from'); ms = ms.filter((m) => m.date >= f.from) }
+  if (f.to) { checkDate(f.to, 'to'); ms = ms.filter((m) => m.date <= f.to) }
+  ms.sort((a, b) => st === 'closed' ? String(b.date).localeCompare(String(a.date)) : String(a.date).localeCompare(String(b.date)))
+  const limit = Math.min(Math.max(parseInt(f.limit, 10) || 20, 1), 100)
+  return { total: ms.length, meetings: ms.slice(0, limit).map(compactMeeting) }
+}
+function getMeeting(bd, a) {
+  const m = pickMeeting(bd, a.id, { allowClosed: true })
+  return { ...compactMeeting(m),
+    attendeeList: (m.attendees || []).map((x) => ({ name: x.name, role: x.role || '', present: !!x.present, email: x.email || '' })),
+    agenda: (m.items || []).map((it) => compactItem(it, m)),
+    decisions: (m.decisions || []).map((d) => ({ id: d.id, text: d.text, by: d.by, at: d.at })),
+    liveNotes: (m.liveNotes || []).map((n) => ({ text: n.text, at: n.at })), minutes: m.minutes || '' }
+}
+function createMeeting(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd && typeof bd === 'object' ? bd : { meetings: [] })
+  if (!Array.isArray(next.meetings)) next.meetings = []
+  const kind = a.kind ? checkEnum(a.kind, MEETING_KINDS, 'kind') : 'weekly'
+  const date = checkDate(a.date, 'date') || (kind === 'weekly' ? nextMonday() : '')
+  if (!date) throw new UserError('date is required (YYYY-MM-DD) for internal and external meetings')
+  if (kind === 'weekly' && next.meetings.some((m) => !m.closed && (m.kind || 'weekly') === 'weekly' && m.date === date)) throw new UserError(`There is already an open weekly meeting on ${date}.`)
+  const names = Array.isArray(a.attendees) && a.attendees.length ? a.attendees : (kind === 'weekly' ? ['Jamie Baldwin', 'James Winstanley', 'John Dimattina', 'Daniel Sette', 'Dominika Ma', 'Amy Baldwin', 'Lewis Jin'] : ['Jamie Baldwin'])
+  const attendees = names.map(attendeeFrom)
+  const chair = a.chair ? resolveOwner(a.chair) : 'Jamie Baldwin'
+  const m = { id: meetingId(), date, time: checkTime(a.time) || (kind === 'weekly' ? '08:30' : '10:00'), chair, attendees, items: [], decisions: [], minutes: '', closed: false,
+    kind, title: String(a.title || (kind === 'weekly' ? 'Weekly Company Meeting' : '')).trim(), liveNotes: [], recording: { active: false, startedAt: 0 },
+    targetSec: Math.max(300, (parseInt(a.durationMin, 10) || (kind === 'weekly' ? 45 : 60)) * 60), createdBy: by, createdAt: nowIso() }
+  if (!m.title) throw new UserError('title is required for internal and external meetings')
+  next.meetings.push(m)
+  if (!next.currentId) next.currentId = m.id
+  return { next, result: { ...compactMeeting(m), summary: `created ${kind} meeting ${m.date}` } }
+}
+function updateMeeting(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd); const m = pickMeeting(next, a.id)
+  const changed = []
+  if (a.title !== undefined) { m.title = String(a.title).trim() || m.title; changed.push('title') }
+  if (a.date !== undefined) { m.date = checkDate(a.date, 'date') || m.date; changed.push('date') }
+  if (a.time !== undefined) { m.time = checkTime(a.time) || m.time; changed.push('time') }
+  if (a.chair !== undefined) { m.chair = resolveOwner(a.chair); changed.push('chair') }
+  if (Array.isArray(a.add_attendees) && a.add_attendees.length) {
+    if (!Array.isArray(m.attendees)) m.attendees = []
+    a.add_attendees.map(attendeeFrom).forEach((n) => { if (!m.attendees.some((x) => String(x.name).toLowerCase() === n.name.toLowerCase())) m.attendees.push(n) })
+    changed.push('attendees')
+  }
+  if (Array.isArray(a.set_present) && a.set_present.length) {
+    a.set_present.forEach((p) => {
+      const nm = String(p.name || '').toLowerCase()
+      const hit = (m.attendees || []).find((x) => String(x.name).toLowerCase() === nm || String(x.name).toLowerCase().split(/\s+/).includes(nm))
+      if (!hit) throw new UserError(`"${p.name}" is not on this meeting's attendee list. Add them with add_attendees first.`)
+      hit.present = !!p.present
+    })
+    changed.push('attendance')
+  }
+  if (!changed.length) throw new UserError('Nothing to change: give title, date, time, chair, add_attendees or set_present')
+  m.updatedBy = by; m.updatedAt = nowIso()
+  return { next, result: { ...compactMeeting(m), changed, summary: 'updated ' + changed.join(', ') } }
+}
+function addAgendaItem(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd); const m = pickMeeting(next, a.meeting_id)
+  if (!Array.isArray(m.items)) m.items = []
+  const it = { id: meetingId(), dept: a.dept ? checkEnum(a.dept, meetingDepts(m), 'dept') : 'company',
+    status: a.status ? checkEnum(a.status, ITEM_STATUSES, 'status') : 'action', title: requireTitle(a.title), kind: '', assigneeId: '',
+    owner: a.assignee ? resolveOwner(a.assignee) : '', due: checkDate(a.due, 'due'), discussed: false, notes: String(a.notes || ''), carried: 0,
+    reviewers: [], files: [], subs: [], comments: [], createdBy: by, createdAt: nowIso() }
+  const att = it.owner && (m.attendees || []).find((x) => String(x.name).toLowerCase() === it.owner.toLowerCase())
+  if (att) it.assigneeId = att.id
+  m.items.push(it)
+  return { next, result: { ...compactItem(it, m), summary: 'added agenda item: ' + it.title.slice(0, 60) } }
+}
+function updateAgendaItem(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd)
+  const hits = []
+  ;(next.meetings || []).filter((m) => !m.closed && (a.meeting_id === undefined || String(m.id) === String(a.meeting_id))).forEach((m) =>
+    (m.items || []).forEach((it) => { if (String(it.id) === String(a.id)) hits.push([m, it]) }))
+  if (!hits.length) throw new UserError(`No agenda item with id "${a.id}" on an open meeting`)
+  if (hits.length > 1) throw new UserError('That item id is on more than one open meeting. Give meeting_id.')
+  const [m, it] = hits[0]; const changed = []
+  if (a.status !== undefined) { it.status = checkEnum(a.status, ITEM_STATUSES, 'status'); changed.push('status') }
+  if (a.assignee !== undefined) { it.owner = resolveOwner(a.assignee); const at = (m.attendees || []).find((x) => String(x.name).toLowerCase() === it.owner.toLowerCase()); it.assigneeId = at ? at.id : ''; changed.push('owner') }
+  if (a.due !== undefined) { it.due = checkDate(a.due, 'due'); changed.push('due') }
+  if (a.discussed !== undefined) { it.discussed = !!a.discussed; changed.push('discussed') }
+  if (a.notes !== undefined) {
+    const t = String(a.notes).trim(); if (!t) throw new UserError('notes is empty')
+    const line = `${by}, ${today()}: ${t}`
+    it.notes = it.notes ? `${it.notes}\n\n${line}` : line; changed.push('notes')
+  }
+  if (!changed.length) throw new UserError('Nothing to change: give status, assignee, due, discussed or notes')
+  it.updatedBy = by; it.updatedAt = nowIso()
+  return { next, result: { ...compactItem(it, m), changed, summary: 'updated agenda item (' + changed.join(', ') + '): ' + String(it.title).slice(0, 50) } }
+}
+function addDecision(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd); const m = pickMeeting(next, a.meeting_id)
+  const text = String(a.text || '').trim(); if (!text) throw new UserError('text is required')
+  if (!Array.isArray(m.decisions)) m.decisions = []
+  const d = { id: meetingId(), text, by, at: m.date || today() }
+  m.decisions.push(d)
+  return { next, result: { meetingId: m.id, decision: d, summary: 'logged decision: ' + text.slice(0, 60) } }
+}
+// Minutes are added to, never replaced: each call appends a paragraph signed with the agent and date.
+function addMinutes(bd, a, by = DEFAULT_BY) {
+  const next = clone(bd); const m = pickMeeting(next, a.meeting_id)
+  const text = String(a.text || '').trim(); if (!text) throw new UserError('text is required')
+  const block = `${by}, ${today()}:\n${text}`
+  m.minutes = m.minutes ? `${m.minutes}\n\n${block}` : block
+  return { next, result: { meetingId: m.id, minutesLength: m.minutes.length, summary: 'added to minutes: ' + text.slice(0, 60) } }
+}
+// Same as the page's Close meeting: weekly meetings roll their undiscussed items into next week's meeting.
+function closeMeeting(bd, a, by = DEFAULT_BY) {
+  if (a.confirm !== true) throw new UserError('Closing files the meeting in the Archive and cannot be undone by an agent. Call again with confirm: true.')
+  const next = clone(bd); const m = pickMeeting(next, a.id)
+  m.closed = true; m.recording = { active: false, startedAt: 0 }; m.closedBy = by; m.closedAt = nowIso()
+  let created = null
+  if ((m.kind || 'weekly') === 'weekly') {
+    const d = new Date(m.date + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 7)
+    const attendees = (m.attendees || []).map((x) => ({ id: meetingId(), name: x.name, email: x.email || '', role: x.role || '', present: true }))
+    const idmap = {}; (m.attendees || []).forEach((oa, i) => { idmap[oa.id] = attendees[i].id })
+    const nm = { id: meetingId(), date: d.toISOString().slice(0, 10), time: m.time || '08:30', chair: m.chair, attendees, items: [], decisions: [], minutes: '', closed: false, kind: 'weekly',
+      title: m.title || 'Weekly Company Meeting', liveNotes: [], recording: { active: false, startedAt: 0 }, targetSec: m.targetSec || 2700, createdBy: by, createdAt: nowIso() }
+    ;(m.items || []).filter((i) => !i.discussed).forEach((i) => nm.items.push({ ...clone(i), id: meetingId(), assigneeId: idmap[i.assigneeId] || '', carried: (i.carried || 0) + 1, discussed: false }))
+    next.meetings.push(nm); created = nm
+    if (String(next.currentId) === String(m.id)) next.currentId = nm.id
+  }
+  return { next, result: { closed: compactMeeting(m), ...(created ? { nextMeeting: compactMeeting(created) } : {}), summary: 'closed meeting ' + m.date + (created ? ', created ' + created.date : '') } }
+}
+
 // ---------- capital_kv client ----------
 function kv(env = process.env, fetchImpl = fetch) {
   const key = env.SUPABASE_SERVICE_ROLE_KEY
@@ -247,16 +432,25 @@ const SCHEMAS = {
     dept: { type: 'string', enum: DEPTS }, notes: { type: 'string' }, priority: { type: 'string', enum: PRIORITIES } } } },
   update_task: { description: 'Change status, owner, due or notes on one task by id.', inputSchema: { type: 'object', required: ['id'], properties: {
     id: { type: 'string' }, status: { type: 'string', enum: STATUSES }, owner: { type: 'string' }, agent: { type: 'string', description: 'Hand to an agent, or empty to clear' }, due: { type: 'string' }, notes: { type: 'string', description: 'Added under existing notes, never replaces them' } } } },
+  list_meetings: { description: 'Meetings from Meeting Management. Open ones by default, soonest first.', inputSchema: { type: 'object', properties: { status: { type: 'string', enum: ['open', 'closed', 'all'] }, kind: { type: 'string', enum: MEETING_KINDS }, from: { type: 'string' }, to: { type: 'string' }, limit: { type: 'number' } } } },
+  get_meeting: { description: 'One meeting in full: attendees and who is present, the whole agenda, decisions, live notes and minutes. No id means the next open weekly meeting.', inputSchema: { type: 'object', properties: { id: { type: ['number', 'string'] } } } },
+  create_meeting: { description: 'Create a meeting. Weekly defaults to next Monday 08:30 with the usual attendees; internal and external need a title and date. Attendees are team names, or {name, email, role} for outside guests.', inputSchema: { type: 'object', properties: { title: { type: 'string' }, kind: { type: 'string', enum: MEETING_KINDS }, date: { type: 'string', description: 'YYYY-MM-DD' }, time: { type: 'string', description: 'HH:MM' }, chair: { type: 'string' }, durationMin: { type: 'number' }, attendees: { type: 'array', items: { type: ['string', 'object'] } } } } },
+  update_meeting: { description: 'Change an open meeting: title, date, time, chair, add attendees, or mark people present or absent. People are never removed.', inputSchema: { type: 'object', properties: { id: { type: ['number', 'string'] }, title: { type: 'string' }, date: { type: 'string' }, time: { type: 'string' }, chair: { type: 'string' }, add_attendees: { type: 'array', items: { type: ['string', 'object'] } }, set_present: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, present: { type: 'boolean' } } } } } } },
+  add_agenda_item: { description: 'Put an item on a meeting agenda. No meeting_id means the next open weekly meeting.', inputSchema: { type: 'object', required: ['title'], properties: { meeting_id: { type: ['number', 'string'] }, title: { type: 'string' }, assignee: { type: 'string' }, due: { type: 'string' }, dept: { type: 'string' }, status: { type: 'string', enum: ITEM_STATUSES }, notes: { type: 'string' } } } },
+  update_agenda_item: { description: 'Change an agenda item on an open meeting: status, assignee, due, discussed, or add to its notes (notes are added under existing ones, never replaced).', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: ['number', 'string'] }, meeting_id: { type: ['number', 'string'] }, status: { type: 'string', enum: ITEM_STATUSES }, assignee: { type: 'string' }, due: { type: 'string' }, discussed: { type: 'boolean' }, notes: { type: 'string' } } } },
+  add_decision: { description: 'Log a decision on a meeting (adds one line, stamped with you).', inputSchema: { type: 'object', required: ['text'], properties: { meeting_id: { type: ['number', 'string'] }, text: { type: 'string' } } } },
+  add_minutes: { description: 'Add to a meeting\'s minutes. Each call appends a paragraph signed with your name and the date; existing minutes are never replaced.', inputSchema: { type: 'object', required: ['text'], properties: { meeting_id: { type: ['number', 'string'] }, text: { type: 'string' } } } },
+  close_meeting: { description: 'Close a meeting and file it in the Archive. A weekly meeting rolls its undiscussed items into next week\'s meeting. Needs confirm: true. Cannot be undone by an agent.', inputSchema: { type: 'object', required: ['id', 'confirm'], properties: { id: { type: ['number', 'string'] }, confirm: { type: 'boolean' } } } },
   get_task: { description: 'One task in full, including every comment.', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } } },
   add_comment: { description: 'Add a comment to a task, stamped with your name. Agents reply to each other this way.', inputSchema: { type: 'object', required: ['id', 'text'], properties: { id: { type: 'string' }, text: { type: 'string' } } } },
   whats_new: { description: 'The latest feed: tasks created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
 }
 
 // Runs one task change and hands back its result plus the before/after values for the audit log.
-async function write(store, fn) { // fn(ws) -> { next, result, audit }
+async function write(store, fn, key = KEYS.workflow) { // fn(value) -> { next, result, audit }
   let cap = null
-  const result = await store.update(KEYS.workflow, (ws) => { const r = fn(ws); cap = r.audit; return r })
-  return { result, audit: cap }
+  const result = await store.update(key, (v) => { const r = fn(v); cap = r.audit; return r })
+  return { result, audit: cap || null }
 }
 async function callTool(name, args, store, ctx = {}) {
   const by = ctx.agent || DEFAULT_BY, agents = ctx.agents || []
@@ -266,6 +460,15 @@ async function callTool(name, args, store, ctx = {}) {
     case 'add_task': return write(store, (ws) => addTask(ws, args, by, agents))
     case 'update_task': return write(store, (ws) => updateTask(ws, args, by, agents))
     case 'add_comment': return write(store, (ws) => addComment(ws, args, by))
+    case 'list_meetings': return listMeetings((await store.read(KEYS.boardroom) || {}).value, args)
+    case 'get_meeting': return getMeeting((await store.read(KEYS.boardroom) || {}).value, args)
+    case 'create_meeting': return write(store, (bd) => createMeeting(bd, args, by), KEYS.boardroom)
+    case 'update_meeting': return write(store, (bd) => updateMeeting(bd, args, by), KEYS.boardroom)
+    case 'add_agenda_item': return write(store, (bd) => addAgendaItem(bd, args, by), KEYS.boardroom)
+    case 'update_agenda_item': return write(store, (bd) => updateAgendaItem(bd, args, by), KEYS.boardroom)
+    case 'add_decision': return write(store, (bd) => addDecision(bd, args, by), KEYS.boardroom)
+    case 'add_minutes': return write(store, (bd) => addMinutes(bd, args, by), KEYS.boardroom)
+    case 'close_meeting': return write(store, (bd) => closeMeeting(bd, args, by), KEYS.boardroom)
     case 'get_task': return getTask((await store.read(KEYS.workflow) || {}).value, args)
     case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
     default: throw new UserError(`Unknown tool ${name}`)
@@ -279,6 +482,7 @@ async function audit(store, tool, args, outcome, agent = DEFAULT_BY) {
   const note = outcome.error ? String(outcome.error).slice(0, 160)
     : tool === 'add_task' ? 'added: ' + String((outcome.out && outcome.out.title) || '').slice(0, 80)
     : tool === 'update_task' ? 'changed: ' + ((outcome.out && outcome.out.changed) || []).join(', ')
+    : (outcome.out && outcome.out.summary) ? String(outcome.out.summary).slice(0, 160)
     : tool === 'add_comment' ? 'commented: ' + String((outcome.out && outcome.out.comment && outcome.out.comment.text) || '').slice(0, 80)
     : 'read' + (outcome.out && typeof outcome.out.total === 'number' ? ` (${outcome.out.total})` : '')
   const entry = { at: nowIso(), agent, tool, ok: !outcome.error, taskId: String(taskId), note }
@@ -301,7 +505,7 @@ async function handleRpc(msg, store, ctx = {}) {
   if (!msg || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return err(-32600, 'Invalid request')
   if (id === undefined) return null
   switch (msg.method) {
-    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.1.0' } })
+    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.2.0' } })
     case 'ping': return ok({})
     case 'tools/list': return ok({ tools: Object.entries(SCHEMAS).map(([name, s]) => ({ name, ...s })) })
     case 'tools/call': {
@@ -324,4 +528,4 @@ async function handleRpc(msg, store, ctx = {}) {
   }
 }
 
-module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }
+module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, listMeetings, getMeeting, createMeeting, updateMeeting, addAgendaItem, updateAgendaItem, addDecision, addMinutes, closeMeeting, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }

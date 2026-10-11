@@ -1837,7 +1837,8 @@ function blazeWhat(e){
     var ks=Object.keys(e.before).filter(function(k){return k!=='done'&&k!=='completedAt';});
     return ks.map(function(k){return '<div>'+(BLAZE_LABEL[k]||k)+': '+blazeVal(k,e.before[k])+' → <b>'+blazeVal(k,e.after&&e.after[k])+'</b></div>';}).join('')||'Updated';
   }
-  return '<span style="opacity:.6">Read tasks '+esc((e.note||'').replace('read','').trim())+'</span>';
+  if(/^(list_|get_|whats_)/.test(e.tool))return '<span style="opacity:.6">Read '+(/meeting/.test(e.tool)?'meetings':'tasks')+' '+esc((e.note||'').replace('read','').trim())+'</span>';
+  return esc(e.note||e.tool);   /* meeting changes: the note says what was done */
 }
 function viewBlaze(){
   if(BLAZE_LOG===null){blazeLoad();return '<div class="empty">Loading what Blaze has done…</div>';}

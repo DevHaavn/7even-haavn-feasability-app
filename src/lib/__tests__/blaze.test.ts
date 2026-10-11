@@ -202,8 +202,8 @@ describe('MCP protocol', () => {
     expect(init.result.serverInfo.name).toBe('ATRIUM')
     expect(await B.handleRpc({ jsonrpc: '2.0', method: 'notifications/initialized' }, store)).toBeNull()
     const list = await B.handleRpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, store)
-    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_comment', 'add_task', 'get_task', 'list_tasks', 'update_task', 'whats_new'])
-    expect(list.result.tools.find((t: any) => /delete|meeting|boardroom/.test(t.name))).toBeUndefined()
+    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_agenda_item', 'add_comment', 'add_decision', 'add_minutes', 'add_task', 'close_meeting', 'create_meeting', 'get_meeting', 'get_task', 'list_meetings', 'list_tasks', 'update_agenda_item', 'update_meeting', 'update_task', 'whats_new'])
+    expect(list.result.tools.find((t: any) => /delete|remove/.test(t.name))).toBeUndefined()
     const call = await B.handleRpc({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'list_tasks', arguments: { owner: 'mike' } } }, store)
     expect(JSON.parse(call.result.content[0].text).tasks[0].id).toBe('n1-aaaa')
     const bad = await B.handleRpc({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'add_task', arguments: { title: 'x', owner: 'zzz' } } }, store)
@@ -256,5 +256,87 @@ describe('several agents', () => {
     const c = B.addComment(ws(), { id: 'n1-aaaa', text: 'hello' }, 'Julio')
     expect(c.next.actions[0].comments[0]).toMatchObject({ by: 'Julio', text: 'hello' })
     expect(ws().actions[0].comments).toBeUndefined() // input untouched
+  })
+})
+
+describe('meetings (Meeting Management)', () => {
+  const att = (id: number, name: string, present = true) => ({ id, name, email: '', role: '', present })
+  const week = (over: any = {}) => ({ id: 111, date: '2099-01-05', time: '08:30', chair: 'Jamie Baldwin', kind: 'weekly', title: 'Weekly Company Meeting', closed: false, minutes: '', decisions: [], liveNotes: [], targetSec: 2700,
+    attendees: [att(1, 'Jamie Baldwin'), att(2, 'Daniel Sette', false)], items: [{ id: 10, dept: 'company', status: 'action', title: 'A', owner: 'Jamie Baldwin', assigneeId: 1, due: '', discussed: false, notes: '', carried: 0 }, { id: 11, dept: 'haavn', status: 'update', title: 'B', owner: '', assigneeId: '', due: '', discussed: true, notes: '', carried: 2 }], ...over })
+  const board = (...ms: any[]) => ({ meetings: ms.length ? ms : [week()], currentId: 111, events: [], actions: [], requests: [] })
+
+  it('lists and reads meetings', () => {
+    const b = board(week(), week({ id: 99, date: '2026-09-01', closed: true }))
+    expect(B.listMeetings(b, {}).meetings.map((m: any) => m.id)).toEqual([111])
+    expect(B.listMeetings(b, { status: 'closed' }).meetings.map((m: any) => m.id)).toEqual([99])
+    expect(B.listMeetings(b, { status: 'all' }).total).toBe(2)
+    const g = B.getMeeting(b, {})
+    expect(g.id).toBe(111); expect(g.present).toBe(1); expect(g.agenda).toHaveLength(2); expect(g.attendeeList[1]).toMatchObject({ name: 'Daniel Sette', present: false })
+    expect(B.getMeeting(b, { id: 99 }).closed).toBe(true)
+    expect(() => B.getMeeting(b, { id: 5 })).toThrow(/No meeting/)
+  })
+  it('creates meetings: weekly defaults, outside guests, and no duplicates', () => {
+    const r = B.createMeeting({ meetings: [] }, {}, 'Blaze')
+    const m = r.next.meetings[0]
+    expect(m).toMatchObject({ kind: 'weekly', time: '08:30', closed: false, createdBy: 'Blaze' }); expect(m.attendees.length).toBe(7); expect(m.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(new Date(m.date + 'T00:00:00Z').getUTCDay()).toBe(1)  // a Monday
+    expect(() => B.createMeeting(r.next, { date: m.date }, 'Blaze')).toThrow(/already an open weekly/)
+    const ext = B.createMeeting(board(), { kind: 'external', title: 'Fraser sync', date: '2099-02-02', time: '11:00', attendees: ['mike', { name: 'Callum Fraser', email: 'c.fraser@fraserandpartners.com' }, { name: 'Guest Person', email: 'g@x.com', role: 'Client' }] }, 'Blaze').next.meetings[1]
+    expect(ext.attendees.map((a: any) => a.name)).toEqual(['Mike Furniss', 'Callum Fraser', 'Guest Person']); expect(ext.attendees[0].email).toBe('mike@haavn.au'); expect(ext.attendees[2].role).toBe('Client')
+    expect(() => B.createMeeting(board(), { kind: 'external', date: '2099-02-02' }, 'Blaze')).toThrow(/title/)
+    expect(() => B.createMeeting(board(), { kind: 'internal', title: 'x' }, 'Blaze')).toThrow(/date is required/)
+    expect(() => B.createMeeting(board(), { time: '8am' }, 'Blaze')).toThrow(/HH:MM/)
+  })
+  it('updates a meeting, adds people, marks attendance, never removes anyone', () => {
+    const r = B.updateMeeting(board(), { time: '09:00', add_attendees: ['lewis', 'Daniel Sette'], set_present: [{ name: 'daniel', present: true }, { name: 'Lewis Jin', present: false }] }, 'Blaze')
+    const m = r.next.meetings[0]
+    expect(m.time).toBe('09:00'); expect(m.attendees.map((a: any) => a.name)).toEqual(['Jamie Baldwin', 'Daniel Sette', 'Lewis Jin'])
+    expect(m.attendees[1].present).toBe(true); expect(m.attendees[2].present).toBe(false)
+    expect(() => B.updateMeeting(board(), { set_present: [{ name: 'Stranger', present: true }] }, 'Blaze')).toThrow(/not on this meeting/)
+    expect(() => B.updateMeeting(board(), {}, 'Blaze')).toThrow(/Nothing to change/)
+    expect(() => B.updateMeeting(board(week({ closed: true })), { id: 111, time: '09:00' }, 'Blaze')).toThrow(/closed/)
+  })
+  it('agenda items: add to the next weekly, update, append notes, mark discussed', () => {
+    const a = B.addAgendaItem(board(), { title: 'Mike QLD update', assignee: 'mike', dept: 'haavn' }, 'Blaze')
+    const it = a.next.meetings[0].items[2]
+    expect(it).toMatchObject({ title: 'Mike QLD update', owner: 'Mike Furniss', status: 'action', dept: 'haavn', createdBy: 'Blaze' })
+    expect(() => B.addAgendaItem(board(), { title: 'x', dept: 'nope' }, 'Blaze')).toThrow(/dept/)
+    const u = B.updateAgendaItem(board(), { id: 10, status: 'complete', discussed: true, assignee: 'daniel', notes: 'Done in the room' }, 'Blaze').next.meetings[0].items[0]
+    expect(u).toMatchObject({ status: 'complete', discussed: true, owner: 'Daniel Sette', assigneeId: 2 }); expect(u.notes).toMatch(/^Blaze, \d{4}-\d{2}-\d{2}: Done in the room$/)
+    const again = B.updateAgendaItem({ meetings: [{ ...week(), items: [{ ...week().items[0], notes: 'Original' }] }] }, { id: 10, notes: 'More' }, 'Julio').next.meetings[0].items[0].notes
+    expect(again.startsWith('Original\n\nJulio, ')).toBe(true)
+    expect(() => B.updateAgendaItem(board(), { id: 999, status: 'update' }, 'Blaze')).toThrow(/No agenda item/)
+  })
+  it('decisions and minutes are only ever added to', () => {
+    const d = B.addDecision(board(), { text: 'Proceed with Preston' }, 'Blaze').next.meetings[0].decisions
+    expect(d).toHaveLength(1); expect(d[0]).toMatchObject({ text: 'Proceed with Preston', by: 'Blaze' })
+    const m1 = B.addMinutes(board(week({ minutes: 'Existing minutes' })), { text: 'Item 1 agreed' }, 'Blaze').next.meetings[0].minutes
+    expect(m1.startsWith('Existing minutes\n\nBlaze, ')).toBe(true); expect(m1).toContain('Item 1 agreed')
+    expect(() => B.addMinutes(board(), { text: ' ' }, 'Blaze')).toThrow(/text is required/)
+  })
+  it('closing needs confirm, files the meeting and rolls undiscussed items into next week', () => {
+    expect(() => B.closeMeeting(board(), { id: 111 }, 'Blaze')).toThrow(/confirm: true/)
+    const r = B.closeMeeting(board(), { id: 111, confirm: true }, 'Blaze')
+    const [old, nxt] = r.next.meetings
+    expect(old.closed).toBe(true); expect(nxt).toMatchObject({ kind: 'weekly', date: '2099-01-12', closed: false })
+    expect(nxt.items.map((i: any) => [i.title, i.carried])).toEqual([['A', 1]])        // B was discussed, so it stays behind
+    expect(nxt.attendees.every((a: any) => a.present)).toBe(true); expect(nxt.items[0].assigneeId).toBe(nxt.attendees[0].id)
+    expect(r.next.currentId).toBe(nxt.id)
+    const adhoc = B.closeMeeting(board(week({ id: 5, kind: 'external', title: 'X' }), week()), { id: 5, confirm: true }, 'Blaze')
+    expect(adhoc.next.meetings).toHaveLength(2)     // no new meeting for one-off meetings
+    expect(() => B.closeMeeting(r.next, { id: 111, confirm: true }, 'Blaze')).toThrow(/closed/)
+  })
+  it('runs end to end through the connector, writes to the boardroom key only, and logs it', async () => {
+    const rows: any = { haavn_boardroom: { value: board(), updated_at: 't0' }, nav_workspace: { value: ws(), updated_at: 't0' } }
+    const store = () => B.kv(env, fakeSupabase(rows))
+    const call = async (name: string, args: any) => JSON.parse((await B.handleRpc({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }, store, { agent: 'Blaze', agents: ['Blaze'] })).result.content[0].text)
+    await call('add_agenda_item', { title: 'Brisbane launch plan', assignee: 'mike' })
+    await call('add_decision', { text: 'Launch 15 Oct' })
+    await call('add_minutes', { text: 'Reviewed pipeline.' })
+    const g = await call('get_meeting', {})
+    expect(g.agenda.map((i: any) => i.title)).toContain('Brisbane launch plan'); expect(g.decisions[0].text).toBe('Launch 15 Oct'); expect(g.minutes).toContain('Reviewed pipeline.')
+    expect(rows.nav_workspace.value).toEqual(ws())   // tasks untouched
+    expect(rows.blaze_audit.value.entries.map((e: any) => e.tool)).toEqual(['add_agenda_item', 'add_decision', 'add_minutes', 'get_meeting'])
+    expect(rows.blaze_audit.value.entries[0].note).toMatch(/^added agenda item/)
   })
 })
