@@ -151,3 +151,19 @@ html.print,html.print body{background:#0b0b0c}
 .slide[data-mono] .bleed img{filter:grayscale(1) contrast(1.06) brightness(1.35)}
 /* page 8 uses the SOLUM render: its SOLUM sign would sit under the HAAVN logo, so the image fades out in that small patch (the cladding there is black anyway) */
 .slide[data-solum] .bleed img{filter:brightness(1.18);-webkit-mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%);mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%)}
+
+/* ── page 39: the returns table with its IRR columns and the three cases grouped ── */
+.irrt{font-variant-numeric:tabular-nums}
+.irrt th,.irrt td{padding:7px 8px;white-space:nowrap}
+.irrt td{font-size:19px}
+.irrt thead tr.grp th{padding-bottom:6px;color:var(--ink)}
+.irrt thead tr.grp th.gc{text-align:center;border-bottom:1px solid var(--line2)}
+.irrt thead tr.grp th.gc.base{border-bottom-color:var(--ac)}
+.irrt .base{background:rgba(243,242,238,.055)}
+.irrt td.irr{color:var(--ink)}
+.irrt tr.sum td{font-size:19px;border-bottom:0;color:var(--ink)}
+.irrt tr.sum td:first-child{color:var(--ink3)}
+.irrt tr.late td{color:var(--ink3)}
+.slide[data-title="Your share"] .kp .lbl{white-space:nowrap}
+.slide[data-title="Your share"] .kp{background:rgba(11,11,12,.8);border-top:1px solid var(--line2);padding:20px 32px 18px;gap:44px!important}
+.slide[data-bg="grad"] .rail.top{text-shadow:0 1px 14px rgba(0,0,0,.85)}
