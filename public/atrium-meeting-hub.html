@@ -147,15 +147,33 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .toolbar .spacer{margin-left:auto}
 .attendees{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius-sm);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:16px 18px;box-shadow:var(--shadow-sm)}
 .attendees .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.att-list{display:flex;flex-wrap:wrap;gap:8px}
-.att{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:100px;border:1px solid var(--line);background:var(--pill);font-size:12.5px;cursor:pointer;transition:.18s var(--ease);user-select:none}
-.att:hover{border-color:var(--ink-4)}
-.att.absent{opacity:.45}.att.absent .av{filter:grayscale(1)}
 .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;font-weight:600;color:#fff;background:#333}
-.att .st{width:7px;height:7px;border-radius:50%;background:var(--green)}
-.att.absent .st{background:var(--ink-4)}
-.att .axr{color:var(--ink-4);font-size:14px;line-height:1;margin-left:1px}
-.att .axr:hover{color:var(--red-t)}
+.attendees .head{margin-bottom:0}
+.att-toggle{display:inline-flex;align-items:center;gap:9px;background:none;border:0;padding:2px 0;cursor:pointer;color:inherit;font:inherit}
+.att-chev{width:12px;height:12px;color:var(--ink-3);transition:transform .25s var(--ease)}
+.att-toggle[aria-expanded="true"] .att-chev{transform:rotate(180deg)}
+/* the snapshot: a few short lines of initials, who is in the room at a glance */
+.att-snap{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.att-snap .av{width:26px;height:26px;font-size:10px;position:relative;cursor:pointer;transition:transform .18s var(--ease),opacity .18s;box-shadow:0 0 0 2px var(--glass)}
+.att-snap .av:hover{transform:translateY(-2px)}
+.att-snap .av.out{opacity:.35;filter:grayscale(1)}
+.att-snap .av.in::after{content:"";position:absolute;right:-1px;bottom:-1px;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 1.5px var(--glass)}
+/* the drop-down: full names, one per row, scrolls inside the card */
+.att-drop{display:none;margin-top:12px;border-top:1px solid var(--line);max-height:280px;overflow-y:auto}
+.attendees.open .att-drop{display:block}
+.attendees.open .att-snap{display:none}
+.att-row{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.att-row:last-child{border-bottom:0}
+.att-row .av{width:24px;height:24px;font-size:9.5px;flex:none;cursor:pointer}
+.att-row.absent .av{opacity:.4;filter:grayscale(1)}
+.att-row .nm{flex:1;min-width:0;cursor:pointer}
+.att-row .nm b{display:block;font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-row .nm i{display:block;font-style:normal;font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-row.absent .nm b{color:var(--ink-3)}
+.att-row .pres{flex:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--green-t,var(--green));cursor:pointer;border:1px solid var(--line);border-radius:100px;padding:3px 8px;background:var(--pill)}
+.att-row.absent .pres{color:var(--ink-4)}
+.att-row .axr{flex:none;color:var(--ink-4);font-size:15px;line-height:1;cursor:pointer;padding:0 2px}
+.att-row .axr:hover{color:var(--red-t)}
 .dept{margin-top:16px;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-sm);overflow:hidden}
 .dept-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer}
 .dept-head:hover .dept-title{color:var(--accent-soft)}
@@ -541,9 +559,10 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
       </div>
       <div class="hero-stats" id="heroStats"></div>
     </div>
-    <div class="attendees">
-      <div class="head"><span class="mono" style="color:var(--ink-3)">Attendance · <span id="attCount">0/0</span></span><button class="addtask" onclick="openAttModal()">+ Add</button></div>
-      <div class="att-list" id="attList"></div>
+    <div class="attendees" id="attBox">
+      <div class="head"><button class="att-toggle" type="button" onclick="toggleAtt()" aria-expanded="false" id="attToggle"><span class="mono" style="color:var(--ink-3)">Attendance · <span id="attCount">0/0</span></span><svg class="att-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="addtask" onclick="openAttModal()">+ Add</button></div>
+      <div class="att-snap" id="attSnap"></div>
+      <div class="att-drop" id="attList"></div>
     </div>
   </aside>
   <div class="agenda-main">
@@ -777,7 +796,12 @@ function render(){if(!DB)return;syncDeptTasks();renderHero();renderAtt();renderD
 function renderHero(){var m=cur();document.getElementById('heroDate').textContent=fmtLong(m.date);document.getElementById('heroChair').innerHTML='Chair <b>'+esc(m.chair)+'</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts';var fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd&&document.activeElement!==fd)fd.value=m.date;if(ft&&document.activeElement!==ft)ft.value=m.time;
   var eb=document.getElementById('heroEyebrow');if(eb)eb.textContent='ATRIUM · '+(m.title||'Weekly Company Meeting')+(m.kind&&m.kind!=='weekly'?(' · '+m.kind.toUpperCase()):'');
   var cb=document.getElementById('closeBtn');if(cb)cb.textContent='Close meeting';}
-function renderAtt(){var m=cur();var present=m.attendees.filter(function(a){return a.present;}).length;document.getElementById('attCount').textContent=present+'/'+m.attendees.length;document.getElementById('attList').innerHTML=m.attendees.map(function(a){return '<span class="att '+(a.present?'':'absent')+'" title="'+esc(a.name)+(a.role?' · '+esc(a.role):'')+(a.email?' · '+esc(a.email):' · no email')+'"><span class="av" style="background:'+avatarColor(a.name)+'" onclick="event.stopPropagation();togAtt('+a.id+')">'+initials(a.name)+'</span><span onclick="openAttModal('+a.id+')">'+esc(a.name)+'</span> <span class="st" onclick="event.stopPropagation();togAtt('+a.id+')"></span><span class="axr" onclick="event.stopPropagation();rmAtt('+a.id+')">×</span></span>';}).join('');}
+function renderAtt(){var m=cur();var present=m.attendees.filter(function(a){return a.present;}).length;document.getElementById('attCount').textContent=present+'/'+m.attendees.length;
+  var tip=function(a){return esc(a.name)+(a.role?' · '+esc(a.role):'')+(a.email?' · '+esc(a.email):' · no email')+(a.present?' · present':' · absent');};
+  document.getElementById('attSnap').innerHTML=m.attendees.map(function(a){return '<span class="av '+(a.present?'in':'out')+'" style="background:'+avatarColor(a.name)+'" title="'+tip(a)+'" onclick="togAtt('+a.id+')">'+initials(a.name)+'</span>';}).join('')||'<span style="font-size:12px;color:var(--ink-3)">No attendees yet</span>';
+  document.getElementById('attList').innerHTML=m.attendees.map(function(a){return '<div class="att-row '+(a.present?'':'absent')+'" title="'+tip(a)+'"><span class="av" style="background:'+avatarColor(a.name)+'" onclick="togAtt('+a.id+')">'+initials(a.name)+'</span><span class="nm" onclick="openAttModal('+a.id+')"><b>'+esc(a.name)+'</b>'+(a.role?'<i>'+esc(a.role)+'</i>':'')+'</span><span class="pres" onclick="togAtt('+a.id+')">'+(a.present?'Present':'Absent')+'</span><span class="axr" title="Remove" onclick="rmAtt('+a.id+')">×</span></div>';}).join('');
+  var box=document.getElementById('attBox'); if(box){box.classList.toggle('open',!!window._attOpen);document.getElementById('attToggle').setAttribute('aria-expanded',window._attOpen?'true':'false');}}
+function toggleAtt(){window._attOpen=!window._attOpen;renderAtt();}
 function passFilter(t){switch(activeFilter){case 'all':return true;case 'mine':{var a=t.assigneeId?attById(t.assigneeId):null;return (a?a.name:t.owner)===ME;}case 'action':return t.kind==='action'||t.status==='action';case 'request':return t.kind==='request';case 'event':return t.kind==='event';case 'introuble':return t.status==='trouble';case 'open':return !t.discussed;default:return true;}}
 function taskRow(t,color){var hide=!passFilter(t);var a=t.assigneeId?attById(t.assigneeId):null;var who=a?a.name:(t.owner||'—');var tag=t.kind?'<span class="tag">'+esc(KIND_LABEL[t.kind].toUpperCase())+'</span>':'';var age=(t.carried||0)>0?'<span class="age">↻ '+t.carried+'w carried</span>':'';var due=t.due?'<span class="due">'+esc(fmtShort(t.due))+'</span>':'';var exp=openItem===t.id;return '<div class="task '+(t.discussed?'done':'')+'" data-id="'+t.id+'" style="--rowc:'+color+';'+(hide?'display:none':'')+'" onclick="rowClick(event,'+t.id+')"><div class="cbx '+(t.discussed?'checked':'')+'" onclick="event.stopPropagation();toggleTask('+t.id+')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#231a06" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><span class="pill '+PILLCLASS[t.status]+'"><span class="pd"></span>'+IS_LABEL[t.status]+'</span>'+tag+'<span class="t-title">'+esc(t.title||'Untitled task')+'</span>'+age+'<span class="assignee"><span class="av" style="width:24px;height:24px;background:'+avatarColor(who)+'">'+initials(who)+'</span>'+esc(who)+'</span>'+due+(((t.files&&t.files.length)?'<span class="row-tags" title="'+t.files.length+' document(s)">📎 '+t.files.length+'</span>':'')+((t.reviewers&&t.reviewers.length)?'<span class="row-tags" title="'+t.reviewers.length+' reviewer(s)">👁 '+t.reviewers.length+'</span>':''))+'<span class="dots" onclick="event.stopPropagation();openItemDrawer('+t.id+')">⋯</span></div>';}
 function taskEditor(t){var m=cur();return '<div class="task-exp" onclick="event.stopPropagation()"><label class="xl">Status<select onchange="setField('+t.id+',\'status\',this.value)">'+ISTATUS.map(function(s){return '<option value="'+s+'" '+(t.status===s?'selected':'')+'>'+IS_LABEL[s]+'</option>';}).join('')+'</select></label><label class="xl">Classify<select onchange="setField('+t.id+',\'kind\',this.value)">'+KINDS.map(function(k){return '<option value="'+k+'" '+(t.kind===k?'selected':'')+'>'+KIND_LABEL[k]+'</option>';}).join('')+'</select></label><label class="xl">Assign to<select onchange="setAssignee('+t.id+',this.value)"><option value="">— unassigned —</option>'+m.attendees.map(function(p){return '<option value="'+p.id+'" '+(''+t.assigneeId===''+p.id?'selected':'')+'>'+esc(p.name)+(p.email?'':' (no email)')+'</option>';}).join('')+'</select></label><label class="xl">Due<input type="date" value="'+(t.due||'')+'" onchange="setField('+t.id+',\'due\',this.value)"></label><textarea placeholder="Notes / detail…" oninput="setNote('+t.id+',this.value)">'+esc(t.notes)+'</textarea><label class="xl" style="width:100%">Reviewers · attendees<div class="rev-chips">'+(t.reviewers||[]).map(function(rid){var a=attById(rid);if(!a)return '';return '<span class="revchip on"><span class="av" style="width:18px;height:18px;font-size:8px;background:'+avatarColor(a.name)+'">'+initials(a.name)+'</span>'+esc(a.name.split(' ')[0])+'<span class="x" onclick="toggleItemReviewer('+t.id+','+rid+')">×</span></span>';}).join('')+'<select class="revsel" onchange="if(this.value){toggleItemReviewer('+t.id+',+this.value);}"><option value="">+ Add reviewer…</option>'+m.attendees.filter(function(p){return (t.reviewers||[]).indexOf(p.id)<0;}).map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('')+'</select></div></label><label class="xl" style="width:100%">Attachments<div class="att-list">'+((t.files&&t.files.length)?t.files.map(function(f){return '<span class="att-item"><span onclick="openAttachment(\''+f.id+'\')">📄 '+esc(f.name)+'</span><span class="x" onclick="rmItemFile('+t.id+',\''+f.id+'\')">×</span></span>';}).join(''):'<span style="color:var(--ink-4);font-size:12px">No documents — attach one to show it in the meeting.</span>')+'</div><label class="xbtn" style="cursor:pointer;margin-top:6px;width:fit-content">📎 Attach document<input type="file" style="display:none" onchange="attachToItem('+t.id+',this)"></label></label><div class="xbtns"><button class="xbtn gold" onclick="emailItem('+t.id+')">✉ Email assignee</button><button class="xbtn del" onclick="rmItem('+t.id+')">Delete</button></div></div>';}
