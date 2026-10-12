@@ -126,29 +126,7 @@ html.print,html.print body{background:#0b0b0c}
 .big7{line-height:0!important;text-shadow:none!important}
 .big7 .dev7{display:block;height:560px;width:auto;fill:var(--ink);filter:drop-shadow(0 0 40px rgba(214,179,106,.3))}
 
-/* ── no boxes: a card is an open column with a hairline over it; the highlighted one takes the gold line */
-.card{border:0;border-top:1px solid var(--line2);background:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:22px 0 0}
-.card.gl{border-top-color:var(--ac);background:none}
-.card h3{font-weight:300;font-size:34px;line-height:1.15}
-.card h3 i{font-style:normal;color:var(--ink2)}
-
 /* the HAAVN page: the SOLUM night render in colour; its own SOLUM sign would sit under the HAAVN logo, so the image fades out in that small patch */
 .slide[data-solum] .bleed img{filter:brightness(1.18);-webkit-mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%);mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%)}
 
-/* ── the bar charts: bone on the ground, rising in value, no gold fills. The last bar carries the most weight. */
-.lad .lb i,.stairs .st1 .sb i{background:linear-gradient(0deg,rgba(243,242,238,.08),rgba(243,242,238,.34));box-shadow:inset 0 1px 0 rgba(243,242,238,.5);border:0}
-.lad.stay .lb i,.stairs .st1.gl .sb i{background:linear-gradient(0deg,rgba(243,242,238,.16),rgba(243,242,238,.66));box-shadow:inset 0 1px 0 rgba(243,242,238,.8)}
-
-/* ── the pull-quote is a sentence, upright; its line is the only mark */
-#stage .pq{font-style:normal;font-family:Inter,system-ui,sans-serif;font-weight:300;border-left:1px solid var(--ac)}
-
-/* ── tables read across a room: larger type, the room is there */
-.lt td{font-size:21px;padding:14px 8px}
-.lt td.n{font-size:20px}
-.lt th{font-size:17px}
-.lt.sm td{font-size:20px;padding:9px 8px}
-.lt.sm th{font-size:16px}
-
-/* ── the founder's line is a sentence: upright, sized to the headlines, not a poster */
-#stage [style*="italic"]{font-style:normal!important}
-#stage [style*="font-size:118px"]{font-size:88px!important;line-height:1.1!important;letter-spacing:-.02em!important}
+.slide[data-bg="grad"] .rail.top{text-shadow:0 1px 14px rgba(0,0,0,.85)}
