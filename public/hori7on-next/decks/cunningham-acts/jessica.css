@@ -130,3 +130,9 @@ html.print,html.print body{background:#0b0b0c}
 .slide[data-solum] .bleed img{filter:brightness(1.18);-webkit-mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%);mask-image:radial-gradient(ellipse 13% 9% at 18.5% 22.5%,transparent 45%,#000 100%)}
 
 .slide[data-bg="grad"] .rail.top{text-shadow:0 1px 14px rgba(0,0,0,.85)}
+
+/* ── Corio Quarter: the cover lockup (one line, two values, the lit quarter is the only gold) */
+.cq{display:flex;align-items:center;gap:.34em;font-weight:300;font-size:112px;line-height:1;letter-spacing:-.028em;color:var(--ink);white-space:nowrap}
+.cq .cqdev{width:1.02em;height:1.02em;flex:none;margin-top:.02em;color:var(--ink)}
+.cq .co{opacity:.6}
+.slide[data-cover] .cq{text-shadow:0 2px 30px rgba(0,0,0,.6)}
