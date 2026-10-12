@@ -272,20 +272,13 @@
     "cap": "Building section"
    }
   ],
-  "deck": "/hori7on-next/decks/cunningham/index.html",
+  "deck": "/hori7on-next/decks/cunningham-acts/index.html",
   "decks": [
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 14,
-    "note": "The project, the numbers, the place, the plans and the case.",
-    "path": "/hori7on-next/decks/cunningham/index.html"
-   },
-   {
-    "key": "acts",
-    "label": "Partnership memorandum",
     "slides": 41,
-    "note": "Prepared for ACTS Global, the landowner: the mission, the market, the scheme, the numbers, and the choice to sell or stay in.",
+    "note": "The full presentation: the company, the mission, the market, the scheme, the numbers and the partnership options.",
     "path": "/hori7on-next/decks/cunningham-acts/index.html"
    }
   ]
