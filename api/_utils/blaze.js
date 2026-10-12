@@ -58,6 +58,8 @@ const EMAILS = {
   'Lucas Menegazzo': 'l.menegazzo@fraserandpartners.com', 'Bonnie Zhao': 'bonnie@haavn.au',
 }
 
+const files = require('./files')
+
 class UserError extends Error {}
 
 const nowIso = () => new Date().toISOString()
@@ -441,6 +443,8 @@ const SCHEMAS = {
   add_decision: { description: 'Log a decision on a meeting (adds one line, stamped with you).', inputSchema: { type: 'object', required: ['text'], properties: { meeting_id: { type: ['number', 'string'] }, text: { type: 'string' } } } },
   add_minutes: { description: 'Add to a meeting\'s minutes. Each call appends a paragraph signed with your name and the date; existing minutes are never replaced.', inputSchema: { type: 'object', required: ['text'], properties: { meeting_id: { type: ['number', 'string'] }, text: { type: 'string' } } } },
   close_meeting: { description: 'Close a meeting and file it in the Archive. A weekly meeting rolls its undiscussed items into next week\'s meeting. Needs confirm: true. Cannot be undone by an agent.', inputSchema: { type: 'object', required: ['id', 'confirm'], properties: { id: { type: ['number', 'string'] }, confirm: { type: 'boolean' } } } },
+  list_files: { description: 'List presentations, documents, brochures and plans you can download for 7EVEN, HAAVN and HAAVN BLACK. Images and data files are left out unless you ask for them.', inputSchema: { type: 'object', properties: { area: { type: 'string', enum: ['7even', 'haavn', 'haavn-black'] }, kind: { type: 'string', enum: ['presentation', 'document', 'brochure', 'plan', 'page', 'image', 'video', 'model', 'data'] }, query: { type: 'string', description: 'Part of a name or path' }, include_images: { type: 'boolean' }, limit: { type: 'number' }, offset: { type: 'number' } } } },
+  get_file: { description: 'Download one file from the list. Text and HTML come back as text, images as images, PDFs and everything else as base64. Big files arrive in pieces: call again with offset = nextOffset until it is absent. The url field is the public address if you can fetch it directly.', inputSchema: { type: 'object', required: ['path'], properties: { path: { type: 'string', description: 'A path from list_files' }, offset: { type: 'number' } } } },
   get_task: { description: 'One task in full, including every comment.', inputSchema: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } } },
   add_comment: { description: 'Add a comment to a task, stamped with your name. Agents reply to each other this way.', inputSchema: { type: 'object', required: ['id', 'text'], properties: { id: { type: 'string' }, text: { type: 'string' } } } },
   whats_new: { description: 'The latest feed: tasks created, completed or changed since a time (default last 24 hours).', inputSchema: { type: 'object', properties: { since: { type: 'string', description: 'ISO date or time' } } } },
@@ -452,6 +456,7 @@ async function write(store, fn, key = KEYS.workflow) { // fn(value) -> { next, r
   const result = await store.update(key, (v) => { const r = fn(v); cap = r.audit; return r })
   return { result, audit: cap || null }
 }
+const fileErr = (e) => { throw e instanceof files.FileError ? new UserError(e.message) : e }
 async function callTool(name, args, store, ctx = {}) {
   const by = ctx.agent || DEFAULT_BY, agents = ctx.agents || []
   args = args || {}
@@ -469,6 +474,8 @@ async function callTool(name, args, store, ctx = {}) {
     case 'add_decision': return write(store, (bd) => addDecision(bd, args, by), KEYS.boardroom)
     case 'add_minutes': return write(store, (bd) => addMinutes(bd, args, by), KEYS.boardroom)
     case 'close_meeting': return write(store, (bd) => closeMeeting(bd, args, by), KEYS.boardroom)
+    case 'list_files': return files.listFiles(args).catch(fileErr)
+    case 'get_file': return files.getFile(args).catch(fileErr)
     case 'get_task': return getTask((await store.read(KEYS.workflow) || {}).value, args)
     case 'whats_new': return whatsNew((await store.read(KEYS.workflow) || {}).value, args)
     default: throw new UserError(`Unknown tool ${name}`)
@@ -505,7 +512,7 @@ async function handleRpc(msg, store, ctx = {}) {
   if (!msg || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return err(-32600, 'Invalid request')
   if (id === undefined) return null
   switch (msg.method) {
-    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.2.0' } })
+    case 'initialize': return ok({ protocolVersion: (msg.params && msg.params.protocolVersion) || PROTOCOL, capabilities: { tools: {} }, serverInfo: { name: 'ATRIUM', version: '1.3.0' } })
     case 'ping': return ok({})
     case 'tools/list': return ok({ tools: Object.entries(SCHEMAS).map(([name, s]) => ({ name, ...s })) })
     case 'tools/call': {
@@ -516,6 +523,7 @@ async function handleRpc(msg, store, ctx = {}) {
         const raw = await callTool(name, args, st, ctx)
         const out = raw && raw.audit !== undefined && raw.result !== undefined ? raw.result : raw
         await audit(st, name, args, { out, trail: raw && raw.audit }, ctx.agent)
+        if (out && out.__content) return ok({ content: out.__content })
         return ok({ content: [{ type: 'text', text: JSON.stringify(out) }] })
       } catch (e) {
         if (e instanceof UserError) { await audit(st, name, args, { error: e.message }, ctx.agent); return ok({ isError: true, content: [{ type: 'text', text: e.message }] }) }
@@ -528,4 +536,4 @@ async function handleRpc(msg, store, ctx = {}) {
   }
 }
 
-module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, listMeetings, getMeeting, createMeeting, updateMeeting, addAgendaItem, updateAgendaItem, addDecision, addMinutes, closeMeeting, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }
+module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, listMeetings, getMeeting, createMeeting, updateMeeting, addAgendaItem, updateAgendaItem, addDecision, addMinutes, closeMeeting, files, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }

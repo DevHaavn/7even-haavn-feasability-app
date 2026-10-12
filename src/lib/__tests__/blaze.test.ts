@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -202,7 +202,7 @@ describe('MCP protocol', () => {
     expect(init.result.serverInfo.name).toBe('ATRIUM')
     expect(await B.handleRpc({ jsonrpc: '2.0', method: 'notifications/initialized' }, store)).toBeNull()
     const list = await B.handleRpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, store)
-    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_agenda_item', 'add_comment', 'add_decision', 'add_minutes', 'add_task', 'close_meeting', 'create_meeting', 'get_meeting', 'get_task', 'list_meetings', 'list_tasks', 'update_agenda_item', 'update_meeting', 'update_task', 'whats_new'])
+    expect(list.result.tools.map((t: any) => t.name).sort()).toEqual(['add_agenda_item', 'add_comment', 'add_decision', 'add_minutes', 'add_task', 'close_meeting', 'create_meeting', 'get_file', 'get_meeting', 'get_task', 'list_files', 'list_meetings', 'list_tasks', 'update_agenda_item', 'update_meeting', 'update_task', 'whats_new'])
     expect(list.result.tools.find((t: any) => /delete|remove/.test(t.name))).toBeUndefined()
     const call = await B.handleRpc({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'list_tasks', arguments: { owner: 'mike' } } }, store)
     expect(JSON.parse(call.result.content[0].text).tasks[0].id).toBe('n1-aaaa')
@@ -338,5 +338,81 @@ describe('meetings (Meeting Management)', () => {
     expect(rows.nav_workspace.value).toEqual(ws())   // tasks untouched
     expect(rows.blaze_audit.value.entries.map((e: any) => e.tool)).toEqual(['add_agenda_item', 'add_decision', 'add_minutes', 'get_meeting'])
     expect(rows.blaze_audit.value.entries[0].note).toMatch(/^added agenda item/)
+  })
+})
+
+describe('files for agents', () => {
+  const F = B.files
+  const cat = { generatedAt: 'x', count: 5, files: [
+    { path: '/haavn-supply/documents/haavn-colour-codes.pdf', area: 'haavn', kind: 'document', type: 'application/pdf', bytes: 3_200_000, title: 'haavn colour codes' },
+    { path: '/hori7on-next/decks/derrimut/index.html', area: '7even', kind: 'presentation', type: 'text/html', bytes: 700_000, title: 'index' },
+    { path: '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf', area: 'haavn-black', kind: 'brochure', type: 'application/pdf', bytes: 10, title: 'HAAVN BLACK SOLUM' },
+    { path: '/haavn-renders/solum-plan/plan-1.jpg', area: 'haavn-black', kind: 'image', type: 'image/jpeg', bytes: 5, title: 'plan 1' },
+    { path: '/hori7on-next/projects.json', area: '7even', kind: 'data', type: 'application/json', bytes: 9, title: 'projects' },
+  ] }
+  const bytes: Record<string, Buffer> = {
+    '/haavn-supply/documents/haavn-colour-codes.pdf': Buffer.alloc(3_200_000, 7),
+    '/hori7on-next/decks/derrimut/index.html': Buffer.from('<h1>' + 'x'.repeat(700_000) + '</h1>'),
+    '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf': Buffer.from('%PDF-small'),
+    '/haavn-renders/solum-plan/plan-1.jpg': Buffer.from([1, 2, 3, 4, 5]),
+  }
+  const fetched: string[] = []
+  const f = async (url: string) => {
+    fetched.push(url)
+    const u = new URL(url)
+    if (u.pathname === '/agent-files.json') return { ok: true, status: 200, json: async () => cat }
+    const b = bytes[decodeURIComponent(u.pathname)]
+    return b ? { ok: true, status: 200, arrayBuffer: async () => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) } : { ok: false, status: 404 }
+  }
+  beforeEach(() => { F._reset(); fetched.length = 0 })
+
+  it('lists presentations and documents first, filterable by company and kind', async () => {
+    const all = await F.listFiles({}, f)
+    expect(all.files.map((x: any) => x.kind).sort()).toEqual(['brochure', 'document', 'presentation'])   // images and data are left out by default
+    expect((await F.listFiles({ area: 'haavn-black' }, f)).files.map((x: any) => x.path)).toEqual(['/haavn-brochures/HAAVN-BLACK-SOLUM.pdf'])
+    expect((await F.listFiles({ kind: 'image' }, f)).total).toBe(1)
+    expect((await F.listFiles({ include_images: true }, f)).total).toBe(5)
+    expect((await F.listFiles({ query: 'colour' }, f)).files[0].title).toBe('haavn colour codes')
+    expect(all.files[0].url).toMatch(/^https:\/\/.*\/(haavn-supply|hori7on-next|haavn-brochures)\//)
+    await expect(F.listFiles({ area: 'nope' }, f)).rejects.toThrow(/area must be/)
+  })
+  it('downloads a big PDF in pieces that join back to the exact file', async () => {
+    const parts: Buffer[] = []; let off: number | undefined = 0; let calls = 0
+    while (off !== undefined) { const r: any = await F.getFile({ path: '/haavn-supply/documents/haavn-colour-codes.pdf', offset: off }, f); parts.push(Buffer.from(r.data, 'base64')); off = r.nextOffset; calls++ }
+    expect(calls).toBe(3); expect(Buffer.concat(parts).equals(bytes['/haavn-supply/documents/haavn-colour-codes.pdf'])).toBe(true)
+  })
+  it('reads HTML presentations as text, in pieces', async () => {
+    const r: any = await F.getFile({ path: '/hori7on-next/decks/derrimut/index.html' }, f)
+    expect(r.encoding).toBe('text'); expect(r.data.startsWith('<h1>')).toBe(true); expect(r.nextOffset).toBe(300000)
+    const r2: any = await F.getFile({ path: '/hori7on-next/decks/derrimut/index.html', offset: 600000 }, f)
+    expect(r2.nextOffset).toBeUndefined(); expect(r2.data.endsWith('</h1>')).toBe(true)
+  })
+  it('returns small images as images', async () => {
+    const r: any = await F.getFile({ path: '/haavn-renders/solum-plan/plan-1.jpg' }, f)
+    expect(r.__content[0]).toMatchObject({ type: 'image', mimeType: 'image/jpeg' })
+  })
+  it('only serves what is in the catalogue, only from this site', async () => {
+    for (const bad of ['/etc/passwd', '../secret', '/api/mcp/x', 'https://evil.example/x.pdf', '/haavn-supply/documents/../../package.json', '/atrium-workflow.html', '']) {
+      await expect(F.getFile({ path: bad }, f)).rejects.toThrow(/No such file/)
+    }
+    expect(fetched.every((u) => u.startsWith(F.ORIGIN + '/'))).toBe(true)
+    expect(fetched.some((u) => /passwd|evil|package\.json|atrium-workflow/.test(u))).toBe(false)
+    await expect(F.getFile({ path: '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf', offset: 999 }, f)).rejects.toThrow(/past the end/)
+  })
+  it('works through the connector and is logged', async () => {
+    const realFetch = globalThis.fetch
+    ;(globalThis as any).fetch = async (url: any, init: any) => String(url).startsWith(F.ORIGIN) ? f(String(url)) : realFetch(url, init)
+    try {
+      const rows: any = { nav_workspace: { value: ws(), updated_at: 't0' } }
+      const call = (name: string, args: any) => B.handleRpc({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }, () => B.kv(env, fakeSupabase(rows)), { agent: 'Julio', agents: ['Julio'] })
+      const l = await call('list_files', { area: 'haavn' }); expect(JSON.parse(l.result.content[0].text).files[0].path).toContain('haavn-colour-codes')
+      const d = await call('get_file', { path: '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf' }); expect(JSON.parse(d.result.content[0].text).data).toBe(Buffer.from('%PDF-small').toString('base64'))
+      const i = await call('get_file', { path: '/haavn-renders/solum-plan/plan-1.jpg' }); expect(i.result.content[0].type).toBe('image')
+      const bad = await call('get_file', { path: '/atrium-workflow.html' }); expect(bad.result.isError).toBe(true)
+      const log = rows.blaze_audit.value.entries
+      expect(log.map((e: any) => [e.agent, e.tool, e.ok])).toEqual([['Julio', 'list_files', true], ['Julio', 'get_file', true], ['Julio', 'get_file', true], ['Julio', 'get_file', false]])
+      expect(log[1].note).toMatch(/^downloaded \/haavn-brochures/)
+      expect(rows.nav_workspace.value).toEqual(ws())  // read only: nothing else touched
+    } finally { (globalThis as any).fetch = realFetch }
   })
 })

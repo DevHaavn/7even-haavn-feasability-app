@@ -9,3 +9,4 @@ node_modules/
 dist/
 .vercel
 Cost_Stack_Grouped.xlsx
+public/agent-files.json
