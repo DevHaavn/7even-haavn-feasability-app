@@ -539,8 +539,8 @@
   "heroPos": "50% 0%",
   "groups": [
    {
-    "name": "The gate and the estate",
-    "note": "48 Waurnvale Drive, Belmont. Day and dusk.",
+    "name": "The estate by day",
+    "note": "The gate, the streets and the parks, in daylight.",
     "items": [
      {
       "src": "/hori7on-next/img/belmont/gate.jpg",
@@ -548,14 +548,24 @@
       "cap": "The gate. Black slatted leaves with the BE cut in copper, between concrete piers."
      },
      {
+      "src": "/hori7on-next/img/belmont/avenue.jpg",
+      "thumb": "/hori7on-next/img/belmont/avenue-t.jpg",
+      "cap": "Townhouse street, with the gate and the park beyond."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/colac.jpg",
+      "thumb": "/hori7on-next/img/belmont/colac-t.jpg",
+      "cap": "Colac Road, with native planting and the hall beyond."
+     },
+     {
       "src": "/hori7on-next/img/belmont/aerial.jpg",
       "thumb": "/hori7on-next/img/belmont/aerial-t.jpg",
       "cap": "Belmont Estate from above, with the church and convention centre at the Colac Road corner."
      },
      {
-      "src": "/hori7on-next/img/belmont/aerial-dusk.jpg",
-      "thumb": "/hori7on-next/img/belmont/aerial-dusk-t.jpg",
-      "cap": "The estate at dusk."
+      "src": "/hori7on-next/img/belmont/across.jpg",
+      "thumb": "/hori7on-next/img/belmont/across-t.jpg",
+      "cap": "Homes across the road in the afternoon light."
      },
      {
       "src": "/hori7on-next/img/belmont/backgate.jpg",
@@ -563,9 +573,55 @@
       "cap": "The street to the second gate."
      },
      {
-      "src": "/hori7on-next/img/belmont/frontage.jpg",
-      "thumb": "/hori7on-next/img/belmont/frontage-t.jpg",
-      "cap": "Colac Road frontage, with native planting."
+      "src": "/hori7on-next/img/belmont/park.jpg",
+      "thumb": "/hori7on-next/img/belmont/park-t.jpg",
+      "cap": "One of two private parks, with timber play structures and shade sails."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/ramp.jpg",
+      "thumb": "/hori7on-next/img/belmont/ramp-t.jpg",
+      "cap": "The basement entry beside the park."
+     }
+    ]
+   },
+   {
+    "name": "The estate at dusk",
+    "note": "The same cameras after dark.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/aerial-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/aerial-dusk-t.jpg",
+      "cap": "The estate at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/park-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/park-dusk-t.jpg",
+      "cap": "The park at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/street-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/street-dusk-t.jpg",
+      "cap": "The townhouse street at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/across-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/across-dusk-t.jpg",
+      "cap": "Homes across the road at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/frontage-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/frontage-dusk-t.jpg",
+      "cap": "Colac Road frontage at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/backgate-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/backgate-dusk-t.jpg",
+      "cap": "The street to the second gate at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/ramp-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/ramp-dusk-t.jpg",
+      "cap": "The basement entry and the park at dusk."
      }
     ]
    },
@@ -589,30 +645,30 @@
       "cap": "ALTA, three storeys with a double garage."
      },
      {
-      "src": "/hori7on-next/img/belmont/street.jpg",
-      "thumb": "/hori7on-next/img/belmont/street-t.jpg",
-      "cap": "Townhouse street, black frames and timber battens."
-     },
-     {
-      "src": "/hori7on-next/img/belmont/across.jpg",
-      "thumb": "/hori7on-next/img/belmont/across-t.jpg",
-      "cap": "Homes across the road in the afternoon light."
-     },
-     {
       "src": "/hori7on-next/img/belmont/alta-aura-2.jpg",
       "thumb": "/hori7on-next/img/belmont/alta-aura-2-t.jpg",
       "cap": "AURA and ALTA from the street, garage level and planting."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/alta-aura-3.jpg",
+      "thumb": "/hori7on-next/img/belmont/alta-aura-3-t.jpg",
+      "cap": "AURA and ALTA, the street frontage."
      }
     ]
    },
    {
-    "name": "The community and the parks",
-    "note": "Open to Belmont: the hall, the cafe and the day care. Private to residents: the two parks.",
+    "name": "The church and convention centre",
+    "note": "800 seats, open to Belmont. Concept images.",
     "items": [
+     {
+      "src": "/hori7on-next/img/belmont/hall-sunset.jpg",
+      "thumb": "/hori7on-next/img/belmont/hall-sunset-t.jpg",
+      "cap": "The entrance at golden hour, reached on foot from Colac Road."
+     },
      {
       "src": "/hori7on-next/img/belmont/hall.jpg",
       "thumb": "/hori7on-next/img/belmont/hall-t.jpg",
-      "cap": "The church and convention centre, reached on foot from Colac Road."
+      "cap": "The walkway to the entrance."
      },
      {
       "src": "/hori7on-next/img/belmont/hall-dusk.jpg",
@@ -620,24 +676,46 @@
       "cap": "The same walkway at dusk."
      },
      {
-      "src": "/hori7on-next/img/belmont/foyer.jpg",
-      "thumb": "/hori7on-next/img/belmont/foyer-t.jpg",
-      "cap": "The foyer and cafe. Interior concept."
+      "src": "/hori7on-next/img/belmont/auditorium.jpg",
+      "thumb": "/hori7on-next/img/belmont/auditorium-t.jpg",
+      "cap": "The auditorium: flat floor seating and two raised side banks, with the stage at the left."
      },
      {
-      "src": "/hori7on-next/img/belmont/park.jpg",
-      "thumb": "/hori7on-next/img/belmont/park-t.jpg",
-      "cap": "One of two private parks, with timber play structures and shade sails."
+      "src": "/hori7on-next/img/belmont/lobby.jpg",
+      "thumb": "/hori7on-next/img/belmont/lobby-t.jpg",
+      "cap": "The foyer: reception, lounges and the cafe beyond."
+     }
+    ]
+   },
+   {
+    "name": "The cafe",
+    "note": "150 seats, in the hall lobby and open to Belmont. Concept images.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/cafe.jpg",
+      "thumb": "/hori7on-next/img/belmont/cafe-t.jpg",
+      "cap": "The cafe: coffee bar, lounge seating and tall glazing to the garden."
      },
      {
-      "src": "/hori7on-next/img/belmont/park-dusk.jpg",
-      "thumb": "/hori7on-next/img/belmont/park-dusk-t.jpg",
-      "cap": "The park at dusk."
+      "src": "/hori7on-next/img/belmont/lobby.jpg",
+      "thumb": "/hori7on-next/img/belmont/lobby-t.jpg",
+      "cap": "The foyer with the cafe beyond."
+     }
+    ]
+   },
+   {
+    "name": "The day care centre",
+    "note": "100 places. Siting to be confirmed on the master plan. Concept images.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/childcare-yard.jpg",
+      "thumb": "/hori7on-next/img/belmont/childcare-yard-t.jpg",
+      "cap": "The play yard, with shade sails, natural play and a fenced edge."
      },
      {
-      "src": "/hori7on-next/img/belmont/ramp.jpg",
-      "thumb": "/hori7on-next/img/belmont/ramp-t.jpg",
-      "cap": "The basement entry beside the park."
+      "src": "/hori7on-next/img/belmont/childcare-room.jpg",
+      "thumb": "/hori7on-next/img/belmont/childcare-room-t.jpg",
+      "cap": "A playroom opening to the yard."
      }
     ]
    }
@@ -670,13 +748,13 @@
   "imgcaps": [
    "The gate"
   ],
-  "images": 23,
+  "images": 28,
   "deck": "/hori7on-next/decks/belmont/index.html",
   "decks": [
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 18,
+    "slides": 23,
     "note": "The place, the master plan, the four homes, the hall, the parks and what comes next.",
     "path": "/hori7on-next/decks/belmont/index.html"
    }
