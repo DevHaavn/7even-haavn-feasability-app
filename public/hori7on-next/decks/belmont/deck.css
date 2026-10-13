@@ -77,9 +77,9 @@ img{display:block}
 @keyframes gopen{to{clip-path:inset(0 0 0 0)}}
 html.print .opn{clip-path:inset(0 0 0 0);animation:none!important}
 .slide.on .gate .opn,.slide.on.gate .opn{animation-duration:1.9s;animation-delay:.3s}
-.cover .wmk{position:absolute;left:984px;top:704px;width:790px}
-.cover .say{position:absolute;left:984px;top:900px;font-size:42px;letter-spacing:-.02em;line-height:1.1}
-.cover .desc{position:absolute;left:984px;width:790px;top:962px;font-size:21px;line-height:1.35;color:var(--stone2);text-align:left}
+.cover .wmk{position:absolute;left:700px;top:690px;width:780px}
+.cover .say{position:absolute;left:700px;top:884px;font-size:42px;letter-spacing:-.02em;line-height:1.1}
+.cover .desc{position:absolute;left:700px;width:780px;top:950px;font-size:21px;line-height:1.35;color:var(--stone2);text-align:left}
 .cover .desc b{display:inline;font-weight:300;color:var(--bone);font-size:21px}
 .cover .shB{background:linear-gradient(0deg,rgba(18,16,15,.94) 0%,rgba(18,16,15,.55) 30%,rgba(18,16,15,0) 55%),linear-gradient(180deg,rgba(18,16,15,.6) 0%,rgba(18,16,15,0) 14%)}
 
@@ -288,3 +288,11 @@ html.print .air .ld{stroke-dashoffset:0;animation:none!important}html.print .air
 
 .gate .gimg .bgimg{width:1620px;height:1080px;left:-180px;top:0;object-fit:cover;max-width:none}
 .gate .gimg .seam{z-index:6}
+
+/* cover: the intro film, then the title builds over the last frame */
+.cover video.film,.cover img.film{position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover;max-width:none;background:#0b0a09}
+.slide.cover:not(.fin) .wmk .wb,.slide.cover:not(.fin) .wmk .ws,.slide.cover:not(.fin) .wmk .we{animation:none!important}
+.slide.cover:not(.fin) .a{opacity:0!important;transform:translateY(18px)}
+.csnd{position:absolute;left:96px;top:92px;z-index:30;padding:10px 22px;border:1px solid var(--line2);font:inherit;font-size:19px;color:var(--bone);background:rgba(18,16,15,.4);backdrop-filter:blur(6px);cursor:pointer;transition:border-color .3s,color .3s}
+.csnd:hover,.csnd[aria-pressed=true]{border-color:var(--cu);color:var(--cu)}
+html.print .csnd{display:none}

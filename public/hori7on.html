@@ -457,6 +457,11 @@ function initIntro(el,p){
     var pr=v.play();if(pr&&pr.catch)pr.catch(function(){finish(true)});
     if(want){try{snd.currentTime=0}catch(e){}sndStart()}
   }
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden||done||v.ended||!document.contains(v)||document.querySelector('.phero.vid video')!==v)return;
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){finish(true,false)});
+    if(want&&snd){try{snd.currentTime=v.currentTime}catch(e){}var q=snd.play();if(q&&q.catch)q.catch(function(){})}
+  });
   v.addEventListener('ended',function(){finish(true,false)});
   v.addEventListener('error',function(){finish(false,false)});
   v.addEventListener('timeupdate',function(){
