@@ -443,7 +443,7 @@
   "arch": "Fraser & Partners (homes) \u00b7 Life Architecture (yield plan)",
   "tag": "A gate for the homes. A door for Belmont.",
   "hl": "Ninety four luxury townhomes behind one gate.",
-  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, Belmont Hall, a community church and convention centre, seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and built in modules.",
+  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, Belmont Hall, a community church and convention centre, seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and precision manufactured by HAAVN in modules, with world class finishes and fully integrated automation, appliances and security in every home.",
   "facts": [
    [
     "Homes",
@@ -510,12 +510,20 @@
     "Two gates on Waurnvale Drive open to 94 luxury townhomes and two private parks. Everything behind them is private."
    ],
    [
+    "Security comes first",
+    "A private, exclusive estate with controlled access. Waste and garden management are handled inside the gates, with private access only."
+   ],
+   [
     "A door for Belmont",
     "Belmont Hall, the cafe and the day care centre sit at the Colac Road corner with their own walking entry."
    ],
    [
     "800 seats for the suburb",
     "A hall for worship, community events, weddings and conferences, four kilometres from the centre of Geelong."
+   ],
+   [
+    "Precision manufactured by HAAVN",
+    "Four home types people can buy, with world class finishes and fully integrated automation, appliances and security in every home."
    ],
    [
     "Four homes built in modules",
@@ -528,7 +536,7 @@
   ],
   "why": [
    "A private estate with a public heart: the hall, cafe and day care bring daily activity to the Colac Road corner while the homes stay behind the gate",
-   "Four repeatable home types built from standard modules",
+   "Four home types precision manufactured by HAAVN in standard modules, each with integrated automation, appliances and security",
    "Two frontages, two gates, and a separate walking entry for the community buildings",
    "An owner-occupier suburb: 61% of households are families and 63% own their home (2021 census)",
    "A brand built from the gate itself, ready for the hoarding, the film and the sales suite"
@@ -537,6 +545,7 @@
   "brandwide": true,
   "hero": "/hori7on-next/img/belmont/gate-hero.jpg",
   "heroPos": "50% 0%",
+  "heroright": true,
   "groups": [
    {
     "name": "The estate by day",
@@ -545,7 +554,12 @@
      {
       "src": "/hori7on-next/img/belmont/gate.jpg",
       "thumb": "/hori7on-next/img/belmont/gate-t.jpg",
-      "cap": "The gate. Black slatted leaves with the BE cut in copper, between concrete piers."
+      "cap": "The gate, closed. Black slatted leaves with the BE cut in copper, between concrete piers."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/gate-open.jpg",
+      "thumb": "/hori7on-next/img/belmont/gate-open-t.jpg",
+      "cap": "The gate, open to the estate avenue and Belmont Hall beyond."
      },
      {
       "src": "/hori7on-next/img/belmont/avenue.jpg",
@@ -589,6 +603,16 @@
     "note": "The same cameras after dark.",
     "items": [
      {
+      "src": "/hori7on-next/img/belmont/gate-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/gate-dusk-t.jpg",
+      "cap": "The gate at night, closed."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/gate-open-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/gate-open-dusk-t.jpg",
+      "cap": "The gate at night, open to the avenue."
+     },
+     {
       "src": "/hori7on-next/img/belmont/aerial-dusk.jpg",
       "thumb": "/hori7on-next/img/belmont/aerial-dusk-t.jpg",
       "cap": "The estate at dusk."
@@ -599,19 +623,9 @@
       "cap": "The park at dusk."
      },
      {
-      "src": "/hori7on-next/img/belmont/street-dusk.jpg",
-      "thumb": "/hori7on-next/img/belmont/street-dusk-t.jpg",
-      "cap": "The townhouse street at dusk."
-     },
-     {
       "src": "/hori7on-next/img/belmont/across-dusk.jpg",
       "thumb": "/hori7on-next/img/belmont/across-dusk-t.jpg",
       "cap": "Homes across the road at dusk."
-     },
-     {
-      "src": "/hori7on-next/img/belmont/frontage-dusk.jpg",
-      "thumb": "/hori7on-next/img/belmont/frontage-dusk-t.jpg",
-      "cap": "Colac Road frontage at dusk."
      },
      {
       "src": "/hori7on-next/img/belmont/backgate-dusk.jpg",
@@ -661,6 +675,11 @@
     "note": "The church and convention centre. 800 seats, open to Belmont. Concept images.",
     "items": [
      {
+      "src": "/hori7on-next/img/belmont/hall-estate.jpg",
+      "thumb": "/hori7on-next/img/belmont/hall-estate-t.jpg",
+      "cap": "The entrance to Belmont Hall from inside the estate."
+     },
+     {
       "src": "/hori7on-next/img/belmont/hall-sunset.jpg",
       "thumb": "/hori7on-next/img/belmont/hall-sunset-t.jpg",
       "cap": "The entrance at golden hour, reached on foot from Colac Road."
@@ -709,7 +728,7 @@
      {
       "src": "/hori7on-next/img/belmont/foyer-cafe.jpg",
       "thumb": "/hori7on-next/img/belmont/foyer-cafe-t.jpg",
-      "cap": "The cafe and the auditorium entrance. Signage in this image is placeholder text."
+      "cap": "The cafe and the auditorium entrance. Interior concept."
      },
      {
       "src": "/hori7on-next/img/belmont/lobby.jpg",
@@ -763,13 +782,13 @@
   "imgcaps": [
    "The gate"
   ],
-  "images": 32,
+  "images": 33,
   "deck": "/hori7on-next/decks/belmont/index.html",
   "decks": [
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 24,
+    "slides": 28,
     "note": "The place, the master plan, the four homes, the hall, the parks and what comes next.",
     "path": "/hori7on-next/decks/belmont/index.html"
    }

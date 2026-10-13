@@ -96,6 +96,10 @@ body.on-project #project{display:block}
 .phero h1 .bi.wide{height:auto;width:min(88vw,820px);aspect-ratio:1000/222;display:block}
 .phero h1 object.bi{pointer-events:none}
 .phero h1:has(.bi.wide){max-width:none;font-size:0;line-height:0}
+.phero.right{align-items:flex-end;text-align:right}
+.phero.right::after{background:linear-gradient(270deg,rgba(7,7,8,.82) 0%,rgba(7,7,8,.5) 36%,rgba(7,7,8,.04) 70%),linear-gradient(0deg,#0b0b0c 0%,#0b0b0c 17%,rgba(11,11,12,.55) 28%,rgba(11,11,12,0) 50%),linear-gradient(180deg,rgba(7,7,8,.55) 0,rgba(7,7,8,0) 18%)}
+.phero.right h1 .bi.wide{width:min(88vw,690px)}
+.phero.right .acts{justify-content:flex-end}.phero.right .hf{margin-left:auto}.phero.right .tag{margin-left:auto}
 .phero .kind{font-size:15px;color:var(--ink2);margin-bottom:14px}
 .phero h1{font-weight:300;font-size:clamp(44px,6.4vw,100px);line-height:1.0;letter-spacing:0;max-width:11ch}
 .phero .tag{margin-top:22px;font-size:clamp(18px,1.6vw,24px);line-height:1.4;color:var(--ink2);max-width:30ch}
@@ -338,7 +342,7 @@ function buildProject(p){
     ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.label):'Present')+ARROW+'</a>'}).join('')
       +(D.length===1?'<a class="lnk" href="'+D[0].path+'?print" target="_blank" rel="noopener">Print as PDF</a>':'')
     : '<span class="lnk dim">Presentation in build</span><a class="lnk" href="#" data-im="'+p.id+'">Investment memorandum</a>';
-  var h='<div class="phero"><img class="bg" src="'+p.hero+'" alt="" style="object-position:'+(p.heroPos||'50% 50%')+'">'
+  var h='<div class="phero'+(p.heroright?' right':'')+'"><img class="bg" src="'+p.hero+'" alt="" style="object-position:'+(p.heroPos||'50% 50%')+'">'
    +brand+'<div class="kind">'+esc(p.place)+' · '+esc(p.cat)+'</div><h1>'+title+'</h1>'
    +'<p class="tag">'+(p.tag||'')+'</p><div class="acts">'+acts+'</div>'
    +'<div class="hf">'+p.facts.map(function(f){return'<div><div class="lbl">'+esc(f[0])+'</div><div class="v">'+esc(f[1])+'</div></div>'}).join('')+'</div></div>';
