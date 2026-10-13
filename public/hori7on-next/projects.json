@@ -443,7 +443,7 @@
   "arch": "Fraser & Partners (homes) \u00b7 Life Architecture (yield plan)",
   "tag": "A gate for the homes. A door for Belmont.",
   "hl": "Ninety four luxury townhomes behind one gate.",
-  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, a community church and convention centre seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and built in modules.",
+  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, Belmont Hall, a community church and convention centre, seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and built in modules.",
   "facts": [
    [
     "Homes",
@@ -454,7 +454,7 @@
     "24,550 m\u00b2"
    ],
    [
-    "Church and convention centre",
+    "Belmont Hall",
     "800 seats"
    ],
    [
@@ -474,9 +474,9 @@
     "Between Colac Road and Waurnvale Drive"
    ],
    [
-    "Church and convention centre",
+    "Belmont Hall",
     "800 seats",
-    "On a 3,000 m\u00b2 site at the Colac Road corner"
+    "Church and convention centre, on a 3,000 m\u00b2 site at the Colac Road corner"
    ],
    [
     "Cafe",
@@ -511,7 +511,7 @@
    ],
    [
     "A door for Belmont",
-    "The church and convention centre, the cafe and the day care centre sit at the Colac Road corner with their own walking entry."
+    "Belmont Hall, the cafe and the day care centre sit at the Colac Road corner with their own walking entry."
    ],
    [
     "800 seats for the suburb",
@@ -560,7 +560,7 @@
      {
       "src": "/hori7on-next/img/belmont/aerial.jpg",
       "thumb": "/hori7on-next/img/belmont/aerial-t.jpg",
-      "cap": "Belmont Estate from above, with the church and convention centre at the Colac Road corner."
+      "cap": "Belmont Estate from above, with Belmont Hall at the Colac Road corner."
      },
      {
       "src": "/hori7on-next/img/belmont/across.jpg",
@@ -657,8 +657,8 @@
     ]
    },
    {
-    "name": "The church and convention centre",
-    "note": "800 seats, open to Belmont. Concept images.",
+    "name": "Belmont Hall",
+    "note": "The church and convention centre. 800 seats, open to Belmont. Concept images.",
     "items": [
      {
       "src": "/hori7on-next/img/belmont/hall-sunset.jpg",
@@ -699,7 +699,7 @@
    },
    {
     "name": "The cafe",
-    "note": "150 seats, in the hall lobby and open to Belmont. Concept images.",
+    "note": "150 seats, in the Belmont Hall lobby and open to Belmont. Concept images.",
     "items": [
      {
       "src": "/hori7on-next/img/belmont/cafe.jpg",
