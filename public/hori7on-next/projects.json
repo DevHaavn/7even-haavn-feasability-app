@@ -544,8 +544,11 @@
   "brandimg": "/hori7on-next/img/belmont/wordmark-anim.svg",
   "brandwide": true,
   "hero": "/hori7on-next/img/belmont/gate-hero.jpg",
-  "heroPos": "50% 0%",
+  "heroPos": "50% 50%",
   "heroright": true,
+  "introvideo": "/hori7on-next/video/belmont-intro.mp4",
+  "introposter": "/hori7on-next/video/belmont-intro-poster.jpg",
+  "introaudio": "/hori7on-next/video/belmont-intro.mp3",
   "groups": [
    {
     "name": "The estate by day",

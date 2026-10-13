@@ -85,7 +85,20 @@ body.on-project #hub,body.on-present #hub{visibility:hidden}
 #project{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);display:none;scroll-behavior:smooth}
 body.on-project #project{display:block}
 .phero{position:relative;height:100vh;min-height:660px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--pad) 56px;overflow:hidden}
-.phero>img.bg{position:absolute;top:0;left:0;width:100%;height:86%;object-fit:cover}
+.phero>img.bg,.phero>video.bg{position:absolute;top:0;left:0;width:100%;height:86%;object-fit:cover;background:#0b0b0c}
+@property --sk{syntax:'<number>';inherits:true;initial-value:1}
+.phero.vid{--sk:0;transition:--sk 1.4s ease}
+.phero.vid.done{--sk:1}
+.phero.vid.right::after{background:linear-gradient(270deg,rgba(7,7,8,calc(.82*var(--sk))) 0%,rgba(7,7,8,calc(.5*var(--sk))) 36%,rgba(7,7,8,calc(.04*var(--sk))) 70%),linear-gradient(0deg,#0b0b0c 0%,#0b0b0c 17%,rgba(11,11,12,.55) 28%,rgba(11,11,12,0) 50%),linear-gradient(180deg,rgba(7,7,8,.55) 0,rgba(7,7,8,0) 18%)}
+.phero.vid .kind,.phero.vid h1,.phero.vid .tag,.phero.vid .acts,.phero.vid .hf{opacity:0;transform:translateY(14px);transition:opacity 1.2s ease,transform 1.2s ease}
+.phero.vid .h1{}
+.phero.vid.done .kind,.phero.vid.done h1,.phero.vid.done .tag,.phero.vid.done .acts,.phero.vid.done .hf{opacity:1;transform:none}
+.phero.vid.done .tag{transition-delay:.5s}.phero.vid.done .acts{transition-delay:.7s}.phero.vid.done .hf{transition-delay:.9s}
+.phero>.vbar{position:absolute!important;left:var(--pad);top:88px;z-index:4;display:flex;gap:10px;flex-wrap:wrap}
+.phero .vbar button{padding:10px 22px;border:1px solid var(--line2);font-size:15px;color:var(--ink);background:rgba(11,11,12,.35);backdrop-filter:blur(6px);transition:border-color .3s,color .3s}
+.phero .vbar button:hover{border-color:var(--ac);color:var(--ac)}
+.phero .vbar .sctl[aria-pressed=true]{border-color:var(--ac);color:var(--ac)}
+@media(prefers-reduced-motion:reduce){.phero.vid .kind,.phero.vid h1,.phero.vid .tag,.phero.vid .acts,.phero.vid .hf{transition:none}}
 .phero::after{content:"";position:absolute;inset:0;pointer-events:none;background:
   linear-gradient(90deg,rgba(7,7,8,.82) 0%,rgba(7,7,8,.5) 36%,rgba(7,7,8,.04) 70%),
   linear-gradient(0deg,#0b0b0c 0%,#0b0b0c 17%,rgba(11,11,12,.55) 28%,rgba(11,11,12,0) 50%),
@@ -342,7 +355,10 @@ function buildProject(p){
     ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.label):'Present')+ARROW+'</a>'}).join('')
       +(D.length===1?'<a class="lnk" href="'+D[0].path+'?print" target="_blank" rel="noopener">Print as PDF</a>':'')
     : '<span class="lnk dim">Presentation in build</span><a class="lnk" href="#" data-im="'+p.id+'">Investment memorandum</a>';
-  var h='<div class="phero'+(p.heroright?' right':'')+'"><img class="bg" src="'+p.hero+'" alt="" style="object-position:'+(p.heroPos||'50% 50%')+'">'
+  var bgel=p.introvideo
+    ? '<video class="bg" src="'+p.introvideo+'" data-audio="'+(p.introaudio||'')+'" poster="'+(p.introposter||p.hero)+'" muted playsinline preload="auto" aria-label="Introduction film" style="object-position:'+(p.heroPos||'50% 50%')+'"></video>'
+    : '<img class="bg" src="'+p.hero+'" alt="" style="object-position:'+(p.heroPos||'50% 50%')+'">';
+  var h='<div class="phero'+(p.heroright?' right':'')+(p.introvideo?' vid':'')+'">'+bgel+(p.introvideo?'<div class="vbar"><button type="button" class="vctl" aria-label="Skip the introduction film">Skip intro</button>'+(p.introaudio?'<button type="button" class="sctl" aria-pressed="false" aria-label="Play the music with the film">Sound on</button>':'')+'</div>':'')
    +brand+'<div class="kind">'+esc(p.place)+' · '+esc(p.cat)+'</div><h1>'+title+'</h1>'
    +'<p class="tag">'+(p.tag||'')+'</p><div class="acts">'+acts+'</div>'
    +'<div class="hf">'+p.facts.map(function(f){return'<div><div class="lbl">'+esc(f[0])+'</div><div class="v">'+esc(f[1])+'</div></div>'}).join('')+'</div></div>';
@@ -379,6 +395,7 @@ function buildProject(p){
   }
   h+='<div class="pfoot"><span>7even.au</span><a href="#/'+nx.id+'">Next: '+esc(nx.n)+'</a></div>';
   var el=$('#project');el.innerHTML=h;el.scrollTop=0;
+  initIntro(el,p);
   Array.prototype.forEach.call(el.querySelectorAll('.gi'),function(f){f.addEventListener('click',function(){lbOpen(all,+f.dataset.k)})});
   var im=el.querySelector('[data-im]');if(im)im.addEventListener('click',function(e){e.preventDefault();if(window.exportIM)exportIM(p.id)});
 }
@@ -411,16 +428,63 @@ function closePres(){if(cur)location.hash='#/'+cur.id;else location.hash='#/'}
 $('#pclose').addEventListener('click',closePres);
 $('#pfs').addEventListener('click',function(){var e=$('#pres');if(document.fullscreenElement)document.exitFullscreen();else if(e.requestFullscreen)e.requestFullscreen()});
 
+/* ── intro film ──────────────────────────────────────── */
+function initIntro(el,p){
+  var hero=el.querySelector('.phero.vid');if(!hero)return;
+  var v=hero.querySelector('video'),btn=hero.querySelector('.vctl'),sbtn=hero.querySelector('.sctl'),done=false,want=false,snd=null;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var src=v.getAttribute('data-audio');
+  if(src){snd=new Audio(src);snd.preload='auto';snd.volume=0.85;window.__introSnd=snd}
+  function fadeOut(ms){
+    if(!snd||snd.paused)return;var s0=snd.volume,t0=Date.now();
+    (function step(){var k=Math.min(1,(Date.now()-t0)/ms);snd.volume=s0*(1-k);if(k<1)requestAnimationFrame(step);else{snd.pause();snd.volume=0.85}})();
+  }
+  function sndStart(){
+    if(!snd||!want)return;snd.volume=0.85;try{snd.currentTime=Math.min(v.currentTime||0,20)}catch(e){}
+    var pr=snd.play();if(pr&&pr.catch)pr.catch(function(){want=false;setSbtn()});
+  }
+  function setSbtn(){if(sbtn){sbtn.textContent=want?'Sound off':'Sound on';sbtn.setAttribute('aria-pressed',want?'true':'false')}}
+  function restartMark(){var o=hero.querySelector('h1 object');if(o&&o.data){var d=o.data.split('?')[0];o.data=d+'?r='+Date.now()}}
+  function finish(replayable,skipped){
+    if(done)return;done=true;hero.classList.add('done');restartMark();
+    if(skipped)fadeOut(700);
+    if(btn){btn.textContent=replayable?'Replay intro':'';btn.setAttribute('aria-label','Replay the introduction film');btn.style.display=replayable?'':'none'}
+  }
+  function play(){
+    done=false;hero.classList.remove('done');
+    if(btn){btn.textContent='Skip intro';btn.style.display='';btn.setAttribute('aria-label','Skip the introduction film')}
+    try{v.currentTime=0}catch(e){}
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){finish(true)});
+    if(want){try{snd.currentTime=0}catch(e){}sndStart()}
+  }
+  v.addEventListener('ended',function(){finish(true,false)});
+  v.addEventListener('error',function(){finish(false,false)});
+  v.addEventListener('timeupdate',function(){
+    if(snd&&want&&!snd.paused&&!done&&Math.abs(snd.currentTime-v.currentTime)>0.4){try{snd.currentTime=v.currentTime}catch(e){}}
+  });
+  if(btn)btn.addEventListener('click',function(){
+    if(done){play()}else{try{v.currentTime=Math.max(0,(v.duration||16)-0.05)}catch(e){}v.pause();finish(true,true)}
+  });
+  if(sbtn)sbtn.addEventListener('click',function(){
+    if(want){want=false;setSbtn();fadeOut(500);return}
+    want=true;setSbtn();
+    if(done){play()}else{sndStart()}
+  });
+  if(reduce){try{v.currentTime=Math.max(0,(v.duration||16)-0.05)}catch(e){}finish(true,false);v.addEventListener('loadedmetadata',function(){try{v.currentTime=v.duration-0.05}catch(e){}})}
+  else{play()}
+}
+function introPause(on){var v=document.querySelector('.phero.vid video'),sn=window.__introSnd;if(!v)return;if(on){v.pause();if(sn)sn.pause()}else if(!v.ended&&!document.querySelector('.phero.vid.done')){var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});if(sn&&document.querySelector('.sctl[aria-pressed=true]')){try{sn.currentTime=v.currentTime}catch(e){}var q=sn.play();if(q&&q.catch)q.catch(function(){})}}}
+
 /* ── routing ─────────────────────────────────────────── */
 function route(){
   var m=(location.hash||'').replace(/^#\/?/,'').split('/');var id=m[0],sub=m[1],dk=m[2]||'';var p=id?proj(id):null;
   lbClose();
-  if(!p){cur=null;document.body.classList.remove('on-project');presClose();document.title='HORI7ON · 7EVEN';return}
+  if(!p){cur=null;introPause(true);document.body.classList.remove('on-project');presClose();document.title='HORI7ON · 7EVEN';return}
   if(cur!==p){cur=p;buildProject(p)}
   document.body.classList.add('on-project');document.title=p.n+' · HORI7ON';
   $('#bar').classList.toggle('solid',$('#project').scrollTop>40);
   var deck=(p.decks||[]).filter(function(x){return x.key===dk})[0];
-  if(sub==='present'&&deck)presOpen(p,deck);else presClose();
+  if(sub==='present'&&deck){introPause(true);presOpen(p,deck)}else{presClose();introPause(false)}
 }
 window.addEventListener('hashchange',route);
 $('#project').addEventListener('scroll',function(){$('#bar').classList.toggle('solid',this.scrollTop>40)});
