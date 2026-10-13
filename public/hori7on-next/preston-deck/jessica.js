@@ -38,12 +38,16 @@
   setTimeout(run,600);
 
   /* which kind of ground each slide gets (1-based slide numbers) */
+  /* every slide carries data-old, its page number in the original 45 page deck, so the grounds survive reordering.
+     New pages (no data-old) take the default ground. */
   var PHOTO=[1,7,8,10,17,22,25,45], BW=[4,14,19,31,44], GRAD=[39],
       FLAT=[29,33,34,35,36,37,38,40,41,42];
   function grounds(){
-    document.querySelectorAll('.slide').forEach(function(sl,i){
-      var n=i+1, k='still';
-      if(PHOTO.indexOf(n)>=0) k='photo'; else if(GRAD.indexOf(n)>=0) k='grad'; else if(BW.indexOf(n)>=0) k='bw'; else if(FLAT.indexOf(n)>=0) k='flat';
+    document.querySelectorAll('.slide').forEach(function(sl){
+      var n=parseInt(sl.getAttribute('data-old'),10), k='still';
+      if(n){
+        if(PHOTO.indexOf(n)>=0) k='photo'; else if(GRAD.indexOf(n)>=0) k='grad'; else if(BW.indexOf(n)>=0) k='bw'; else if(FLAT.indexOf(n)>=0) k='flat';
+      }
       sl.setAttribute('data-bg',k);
     });
   }
@@ -53,12 +57,11 @@
   function mono(){ document.querySelectorAll('.slide').forEach(function(sl,i){ if(MONO.indexOf(i+1)>=0) sl.setAttribute('data-mono','1'); }); }
   mono();
   /* the two renders Jamie chose: the golden hour render is the cover, the autumn render fades up behind the share table */
+  function byOld(n){return document.querySelector('.slide[data-old="'+n+'"]')}
   function renders(){
-    var sl=document.querySelectorAll('.slide');
-    var a=sl[0]&&sl[0].querySelector('.bleed img'); if(a) a.setAttribute('src','assets/hero-render.jpg');
-    var b=sl[38]&&sl[38].querySelector('.bleed img'); if(b) b.setAttribute('src','assets/render-autumn-grad.jpg');
-    var h=sl[7]&&sl[7].querySelector('.bleed img'); if(h){ h.setAttribute('src','assets/solum-night.jpg'); sl[7].setAttribute('data-solum','1'); }  /* page 8 (HAAVN): the SOLUM night render, in colour (data-solum) */
-    var c=sl[44]&&sl[44].querySelector('.bleed img'); if(c){ c.setAttribute('src','a/r-corner.jpg'); c.style.objectPosition='48% 60%'; }  /* the park corner render closes the deck */
+    var a=byOld(1)&&byOld(1).querySelector('.bleed img'); if(a) a.setAttribute('src','assets/hero-render.jpg');
+    var b=byOld(39)&&byOld(39).querySelector('.bleed img'); if(b) b.setAttribute('src','assets/render-autumn-grad.jpg');
+    var c=byOld(45)&&byOld(45).querySelector('.bleed img'); if(c){ c.setAttribute('src','a/r-corner.jpg'); c.style.objectPosition='48% 60%'; }  /* the park corner render closes the deck */
   }
   renders();
 

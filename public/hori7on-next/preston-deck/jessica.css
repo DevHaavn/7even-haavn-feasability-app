@@ -167,3 +167,37 @@ html.print,html.print body{background:#0b0b0c}
 .slide[data-title="Your share"] .kp .lbl{white-space:nowrap}
 .slide[data-title="Your share"] .kp{background:rgba(11,11,12,.8);border-top:1px solid var(--line2);padding:20px 32px 18px;gap:44px!important}
 .slide[data-bg="grad"] .rail.top{text-shadow:0 1px 14px rgba(0,0,0,.85)}
+
+/* ── the short version: pages 3 and 4 (one team, how we work) ── */
+.svt{display:grid;grid-template-columns:repeat(5,1fr);gap:34px}
+.sv-t{border-top:1px solid var(--line2);padding-top:26px;display:flex;flex-direction:column;min-height:520px}
+.sv-t.gold{border-top-color:var(--ac)}
+.sv-t .k{font:300 17px Inter,system-ui,sans-serif;color:var(--ink3)}
+.sv-t h3{font:300 42px/1.1 Inter,system-ui,sans-serif;letter-spacing:-.02em!important;color:var(--ink);margin-top:34px;min-height:94px}
+.sv-t .d{font:300 22px/1.5 Inter,system-ui,sans-serif;color:var(--ink2);margin-top:16px;min-height:170px}
+.sv-t .sv{margin-top:auto;border-top:1px solid var(--line);padding-top:20px;min-height:150px}
+.sv-t .sv .lbl{font-size:16px;color:var(--ink3)}
+.sv-t .sv p{font:300 22px/1.45 Inter,system-ui,sans-serif;color:var(--ink);margin-top:8px}
+.sv-t.quiet h3,.sv-t.quiet .sv p{color:var(--ink2)}
+.sv-t.quiet .d{color:var(--ink3)}
+.svp{display:flex;flex-direction:column}
+.sv-p{display:grid;grid-template-columns:64px 600px 1fr;align-items:baseline;gap:30px;padding:19px 0 19px;border-top:1px solid var(--line2)}
+.sv-p:last-child{border-bottom:1px solid var(--line2)}
+.sv-p.gold{border-top-color:var(--ac)}
+.sv-p .k{font:300 17px Inter,system-ui,sans-serif;color:var(--ink3)}
+.sv-p h3{font:300 38px/1.1 Inter,system-ui,sans-serif;letter-spacing:-.02em!important;color:var(--ink)}
+.sv-p h3 i{font-style:normal;color:var(--ink2)}
+.sv-p p{font:300 22px/1.45 Inter,system-ui,sans-serif;color:var(--ink2)}
+
+/* section break */
+.brk{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
+.brk>div{border-top:1px solid var(--line2);padding-top:22px}
+.brk .k{font:300 17px Inter,system-ui,sans-serif;color:var(--ink3)}
+.brk h3{font:300 38px/1.1 Inter,system-ui,sans-serif;letter-spacing:-.02em!important;color:var(--ink);margin-top:14px}
+.brk p{font:300 22px/1.45 Inter,system-ui,sans-serif;color:var(--ink2);margin-top:12px;max-width:520px}
+
+/* the three pillars: the active one lights gold, the others step back */
+.pil .card{opacity:.62;transition:opacity .6s ease}
+.pil .card.gl{opacity:1;border-color:var(--ac);background:linear-gradient(180deg,rgba(214,179,106,.12),rgba(214,179,106,.03))}
+.pil .card.gl .lbl,.pil .card.gl h3 i{color:var(--ac)}
+html.print .pil .card{opacity:.62!important}html.print .pil .card.gl{opacity:1!important}
