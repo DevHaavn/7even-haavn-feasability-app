@@ -430,169 +430,255 @@
   ]
  },
  {
-  "id": "waurnvale",
-  "n": "Waurnvale Drive",
+  "id": "belmont",
+  "n": "Belmont Estate",
   "addr": "48 Waurnvale Drive",
   "city": "Belmont, Geelong VIC 3216",
   "type": "BTS",
   "art": "artD",
   "feat": true,
-  "gv": "$250M+",
-  "gdv": "$250M+",
-  "land": "7.5 acres",
-  "gfa": "32,590 m\u00b2",
-  "keys": "400 homes",
-  "status": "Fraser & Partners master plan",
-  "complete": "2030",
-  "arch": "Callum Fraser \u00b7 Fraser & Partners",
-  "tag": "A village with a soul. Australia's first church-partnered master-planned community.",
-  "overview": "Waurnvale Drive is a 7.5-acre master-planned village in Belmont, Geelong's established outer south \u2014 delivered in partnership with the local church, with an end value of more than $250 million. 7EVEN Developments and the congregation are building a genuine town centre together: a world-class convention centre and community church at the heart of the site, 400 new homes rising from garden buildings to 7-storey towers around a water-led central green, and more than 3,000 m\u00b2 of wellness, co-working, medical suites, cafes and restaurants at the ground plane. Inspired by the historic chain of ponds, the landscape weaves swales, ponds and indigenous planting through every street \u2014 minutes from Deakin University, Waurn Ponds Shopping Centre and the recreation precinct.",
+  "land": "24,550 m\u00b2",
+  "keys": "94 luxury townhomes",
+  "status": "Concept master plan, revision 4. Yield plan draft of 2 October 2026.",
+  "arch": "Fraser & Partners (homes) \u00b7 Life Architecture (yield plan)",
+  "tag": "A gate for the homes. A door for Belmont.",
+  "hl": "Ninety four luxury townhomes behind one gate.",
+  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, a community church and convention centre seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and built in modules.",
+  "facts": [
+   [
+    "Homes",
+    "94 luxury townhomes"
+   ],
+   [
+    "Site",
+    "24,550 m\u00b2"
+   ],
+   [
+    "Church and convention centre",
+    "800 seats"
+   ],
+   [
+    "Status",
+    "Concept master plan"
+   ]
+  ],
   "stats": [
    [
-    "End value",
-    "$250M+",
-    "GDV \u00b7 master-planned village"
+    "Homes",
+    "94",
+    "Luxury townhomes, two to four bedrooms"
    ],
    [
-    "New homes",
-    "400",
-    "Masterplan 310 apartments \u00b7 3\u20137 levels"
+    "Site",
+    "24,550 m\u00b2",
+    "Between Colac Road and Waurnvale Drive"
    ],
    [
-    "Total GBA",
-    "34,110 m\u00b2",
-    "Excl. basement \u00b7 Total GFA 31,630 m\u00b2"
+    "Church and convention centre",
+    "800 seats",
+    "On a 3,000 m\u00b2 site at the Colac Road corner"
    ],
    [
-    "Residential NSA",
-    "24,304 m\u00b2",
-    "Residential GFA 29,150 m\u00b2"
+    "Cafe",
+    "150 seats",
+    "In the hall lobby, open to Belmont"
    ],
    [
-    "Convention centre",
-    "1,520 m\u00b2",
-    "Community church GBA \u00b7 2 levels"
+    "Day care centre",
+    "100 places",
+    "Siting to be confirmed on the master plan"
    ],
    [
-    "Childcare",
-    "960 m\u00b2",
-    "GBA + 825 m\u00b2 outdoor play"
+    "Private parks",
+    "2",
+    "Play 1 and Play 2, for residents"
    ],
    [
-    "Car parking",
-    "410",
-    "315 residential + 95 public"
+    "Density",
+    "38 per hectare",
+    "94 homes on 2.455 hectares"
    ],
    [
-    "Wellness & lifestyle",
-    "3,000 m\u00b2+",
-    "Wellness, co-working, doctors & dining"
+    "Home types",
+    "4",
+    "NOVA, AURA, ALTA and VIDA, built in modules"
    ]
   ],
   "points": [
    [
-    "A community with a built-in heart",
-    "Australia's first church-partnered master-planned village \u2014 the congregation and convention centre anchor the neighbourhood from day one."
+    "A gate for the homes",
+    "Two gates on Waurnvale Drive open to 94 luxury townhomes and two private parks. Everything behind them is private."
    ],
    [
-    "400 new homes on 7.5 acres",
-    "From 3-storey garden buildings to 7-storey towers across four parcels, wrapped around a central park and playground."
+    "A door for Belmont",
+    "The church and convention centre, the cafe and the day care centre sit at the Colac Road corner with their own walking entry."
    ],
    [
-    "A world-class convention centre",
-    "A 1,520 m\u00b2, 2-level venue delivering conferences, worship and community programs \u2014 activation other projects can't buy."
+    "800 seats for the suburb",
+    "A hall for worship, community events, weddings and conferences, four kilometres from the centre of Geelong."
    ],
    [
-    "3,000 m\u00b2+ of daily life",
-    "Wellness centre, co-working, medical suites, childcare, cafes and restaurants at the ground plane."
+    "Four homes built in modules",
+    "NOVA, AURA, ALTA and VIDA, from two or three 4.2 by 12.6 metre modules, 150 to 194 square metres including the garage. VIDA is still being drawn."
    ],
    [
-    "Water-led landscape",
-    "Swales, ponds and indigenous planting recall the historic chain of ponds \u2014 biodiversity as amenity."
-   ],
-   [
-    "The Deakin corridor",
-    "Minutes from Deakin University, Waurn Ponds Shopping Centre and the aquatic & recreation precinct."
+    "An established suburb",
+    "A settled family suburb on the Barwon River, near Deakin University, Waurn Ponds and the Barwon Valley parklands."
    ]
   ],
   "why": [
-   "The USP \u2014 a partnered church & convention anchor delivers a captive community, weekday-and-weekend activation and pre-committed demand no competitor can replicate",
-   "$250M+ end value across staged build-to-sell releases \u2014 early capital velocity",
-   "7.5-acre landholding in supply-constrained, owner-occupier Belmont",
-   "Amenity depth \u2014 wellness, co-working, medical and dining drive premiums",
-   "Geelong growth corridor \u2014 Deakin, health and infrastructure investment"
+   "A private estate with a public heart: the hall, cafe and day care bring daily activity to the Colac Road corner while the homes stay behind the gate",
+   "Four repeatable home types built from standard modules",
+   "Two frontages, two gates, and a separate walking entry for the community buildings",
+   "An owner-occupier suburb: 61% of households are families and 63% own their home (2021 census)",
+   "A brand built from the gate itself, ready for the hoarding, the film and the sales suite"
   ],
-  "imgcaps": [
-   "The convention centre \u2014 the village heart on the fountain plaza",
-   "Garden buildings at dusk \u2014 homes over the ground plane",
-   "The boulevard \u2014 water-led streets under river gums",
-   "Corner arrival \u2014 cafes & daily life",
-   "Belmont from above \u2014 7.5 acres beside the recreation precinct",
-   "The colonnade \u2014 arrival at the convention centre",
-   "The masterplan from above \u2014 solar roofs & the church",
-   "Sunset over the village \u2014 the Princes Highway edge",
-   "The church from the roundabout \u2014 village heart",
-   "Courtyard homes \u2014 timber balconies over the gardens"
-  ],
-  "images": 10,
-  "imgs": [
-   "/hori7on-next/img/waurnvale/01.jpg",
-   "/hori7on-next/img/waurnvale/02.jpg",
-   "/hori7on-next/img/waurnvale/03.jpg",
-   "/hori7on-next/img/waurnvale/04.jpg",
-   "/hori7on-next/img/waurnvale/05.jpg",
-   "/hori7on-next/img/waurnvale/06.jpg",
-   "/hori7on-next/img/waurnvale/07.jpg",
-   "/hori7on-next/img/waurnvale/08.jpg",
-   "/hori7on-next/img/waurnvale/09.jpg",
-   "/hori7on-next/img/waurnvale/10.jpg"
+  "brandimg": "/hori7on-next/img/belmont/wordmark-anim.svg",
+  "brandwide": true,
+  "hero": "/hori7on-next/img/belmont/gate-hero.jpg",
+  "heroPos": "50% 0%",
+  "groups": [
+   {
+    "name": "The gate and the estate",
+    "note": "48 Waurnvale Drive, Belmont. Day and dusk.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/gate.jpg",
+      "thumb": "/hori7on-next/img/belmont/gate-t.jpg",
+      "cap": "The gate. Black slatted leaves with the BE cut in copper, between concrete piers."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/aerial.jpg",
+      "thumb": "/hori7on-next/img/belmont/aerial-t.jpg",
+      "cap": "Belmont Estate from above, with the church and convention centre at the Colac Road corner."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/aerial-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/aerial-dusk-t.jpg",
+      "cap": "The estate at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/backgate.jpg",
+      "thumb": "/hori7on-next/img/belmont/backgate-t.jpg",
+      "cap": "The street to the second gate."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/frontage.jpg",
+      "thumb": "/hori7on-next/img/belmont/frontage-t.jpg",
+      "cap": "Colac Road frontage, with native planting."
+     }
+    ]
+   },
+   {
+    "name": "The homes",
+    "note": "NOVA, AURA and ALTA, two and three storeys. VIDA to be drawn.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/nova.jpg",
+      "thumb": "/hori7on-next/img/belmont/nova-t.jpg",
+      "cap": "NOVA, two storeys with a double garage."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/aura.jpg",
+      "thumb": "/hori7on-next/img/belmont/aura-t.jpg",
+      "cap": "AURA, three storeys with a single garage."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/alta.jpg",
+      "thumb": "/hori7on-next/img/belmont/alta-t.jpg",
+      "cap": "ALTA, three storeys with a double garage."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/street.jpg",
+      "thumb": "/hori7on-next/img/belmont/street-t.jpg",
+      "cap": "Townhouse street, black frames and timber battens."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/across.jpg",
+      "thumb": "/hori7on-next/img/belmont/across-t.jpg",
+      "cap": "Homes across the road in the afternoon light."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/alta-aura-2.jpg",
+      "thumb": "/hori7on-next/img/belmont/alta-aura-2-t.jpg",
+      "cap": "AURA and ALTA from the street, garage level and planting."
+     }
+    ]
+   },
+   {
+    "name": "The community and the parks",
+    "note": "Open to Belmont: the hall, the cafe and the day care. Private to residents: the two parks.",
+    "items": [
+     {
+      "src": "/hori7on-next/img/belmont/hall.jpg",
+      "thumb": "/hori7on-next/img/belmont/hall-t.jpg",
+      "cap": "The church and convention centre, reached on foot from Colac Road."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/hall-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/hall-dusk-t.jpg",
+      "cap": "The same walkway at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/foyer.jpg",
+      "thumb": "/hori7on-next/img/belmont/foyer-t.jpg",
+      "cap": "The foyer and cafe. Interior concept."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/park.jpg",
+      "thumb": "/hori7on-next/img/belmont/park-t.jpg",
+      "cap": "One of two private parks, with timber play structures and shade sails."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/park-dusk.jpg",
+      "thumb": "/hori7on-next/img/belmont/park-dusk-t.jpg",
+      "cap": "The park at dusk."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/ramp.jpg",
+      "thumb": "/hori7on-next/img/belmont/ramp-t.jpg",
+      "cap": "The basement entry beside the park."
+     }
+    ]
+   }
   ],
   "plans": [
    {
-    "src": "/hori7on-next/img/waurnvale/plan-01.jpg",
-    "cap": "Masterplan \u2014 parcels, church & central green"
+    "src": "/hori7on-next/img/belmont/master-plan.jpg",
+    "cap": "Estate master plan, 94 homes. Concept site and footprint plan by 7EVEN. Lot type allocation pending. Not for construction."
    },
    {
-    "src": "/hori7on-next/img/waurnvale/plan-02.jpg",
-    "cap": "Compliant scheme \u2014 ten garden buildings"
+    "src": "/hori7on-next/img/belmont/nova-plan.jpg",
+    "cap": "NOVA, type A.1. Two storeys, 3 bed, double garage. House 114 m\u00b2, 150 m\u00b2 with the garage."
    },
    {
-    "src": "/hori7on-next/img/waurnvale/plan-03.jpg",
-    "cap": "Typical floor \u2014 studio to 3-bed mix"
+    "src": "/hori7on-next/img/belmont/aura-plan.jpg",
+    "cap": "AURA, type A.2. Three storeys, 3 bed, single garage. House 159 m\u00b2, 185 m\u00b2 with the garage."
    },
    {
-    "src": "/hori7on-next/img/waurnvale/plan-04.jpg",
-    "cap": "Massing \u2014 Princes Highway edge"
+    "src": "/hori7on-next/img/belmont/alta-plan.jpg",
+    "cap": "ALTA, type B. Three storeys, 4 bed, double garage. House 159 m\u00b2, 194 m\u00b2 with the garage."
    },
    {
-    "src": "/hori7on-next/img/waurnvale/plan-05.jpg",
-    "cap": "Massing \u2014 Waurnvale Drive & the church"
-   },
-   {
-    "src": "/hori7on-next/img/waurnvale/plan-06.jpg",
-    "cap": "Site location \u2014 Waurnvale Drive & the recreation precinct"
-   },
-   {
-    "src": "/hori7on-next/img/waurnvale/plan-07.jpg",
-    "cap": "Site context \u2014 the 7.5-acre holding outlined"
-   },
-   {
-    "src": "/hori7on-next/img/waurnvale/plan-08.jpg",
-    "cap": "Planning context \u2014 site dimensions & zones"
-   },
-   {
-    "src": "/hori7on-next/img/waurnvale/plan-09.jpg",
-    "cap": "Development summary \u2014 compliant scheme vs masterplan"
+    "src": "/hori7on-next/img/belmont/vida-plan.jpg",
+    "cap": "VIDA, type C. Three storeys, 2 bed, single garage. Areas to be confirmed."
    }
   ],
-  "deck": "/hori7on-next/decks/waurnvale/index.html",
+  "imgs": [
+   "/hori7on-next/img/belmont/gate.jpg"
+  ],
+  "imgcaps": [
+   "The gate"
+  ],
+  "images": 23,
+  "deck": "/hori7on-next/decks/belmont/index.html",
   "decks": [
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 17,
-    "note": "The project, the numbers, the place, the plans and the case.",
-    "path": "/hori7on-next/decks/waurnvale/index.html"
+    "slides": 18,
+    "note": "The place, the master plan, the four homes, the hall, the parks and what comes next.",
+    "path": "/hori7on-next/decks/belmont/index.html"
    }
   ]
  },

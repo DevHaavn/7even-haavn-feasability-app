@@ -93,6 +93,9 @@ body.on-project #project{display:block}
 .phero>*:not(.bg){position:relative;z-index:2}
 .phero .dev{height:clamp(64px,8vw,104px);width:auto;align-self:flex-start;margin-bottom:22px;filter:drop-shadow(0 2px 12px rgba(0,0,0,.5))}
 .phero h1 .bi{height:clamp(54px,7vw,104px);width:auto;max-width:100%;filter:drop-shadow(0 2px 14px rgba(0,0,0,.5))}
+.phero h1 .bi.wide{height:auto;width:min(88vw,820px);aspect-ratio:1000/222;display:block}
+.phero h1 object.bi{pointer-events:none}
+.phero h1:has(.bi.wide){max-width:none;font-size:0;line-height:0}
 .phero .kind{font-size:15px;color:var(--ink2);margin-bottom:14px}
 .phero h1{font-weight:300;font-size:clamp(44px,6.4vw,100px);line-height:1.0;letter-spacing:0;max-width:11ch}
 .phero .tag{margin-top:22px;font-size:clamp(18px,1.6vw,24px);line-height:1.4;color:var(--ink2);max-width:30ch}
@@ -254,8 +257,8 @@ body.on-project #project{display:block}
 'use strict';
 var $=function(s,r){return (r||document).querySelector(s)};
 var LABEL={Hotel:'Hotel',BTR:'Build to rent',BTS:'Build to sell',Mixed:'Mixed use'};
-var ORDER=['stvillage','cunningham','waurnvale','derrimut','5ive'];
-var HERO={cunningham:[0,'50% 50%'],waurnvale:[0,'50% 60%'],derrimut:[4,'50% 50%'],'5ive':[0,'50% 55%']};
+var ORDER=['stvillage','cunningham','belmont','derrimut','5ive'];
+var HERO={cunningham:[0,'50% 50%'],belmont:[0,'50% 62%'],derrimut:[4,'50% 50%'],'5ive':[0,'50% 55%']};
 var P=[],cur=null,hubIdx=0;
 
 /* no em or en dashes in anything we show */
@@ -330,7 +333,7 @@ function buildProject(p){
   var i=P.indexOf(p),nx=P[(i+1)%P.length],pv=P[(i+P.length-1)%P.length];
   $('#prv').setAttribute('href','#/'+pv.id);$('#nxt').setAttribute('href','#/'+nx.id);
   var brand=(p.devimg?'<img class="dev" src="'+p.devimg+'" alt="">':'');
-  var title=p.brandimg?'<img class="bi" src="'+p.brandimg+'" alt="'+esc(p.n)+'">':esc(p.n);
+  var title=p.brandimg?(/\.svg$/.test(p.brandimg)?'<object class="bi'+(p.brandwide?' wide':'')+'" data="'+p.brandimg+'" type="image/svg+xml" aria-label="'+esc(p.n)+'"></object>':'<img class="bi'+(p.brandwide?' wide':'')+'" src="'+p.brandimg+'" alt="'+esc(p.n)+'">'):esc(p.n);
   var D=p.decks,acts=D.length
     ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.label):'Present')+ARROW+'</a>'}).join('')
       +(D.length===1?'<a class="lnk" href="'+D[0].path+'?print" target="_blank" rel="noopener">Print as PDF</a>':'')
