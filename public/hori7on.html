@@ -224,6 +224,38 @@ body.on-project #project{display:block}
   .decks .dk{grid-template-columns:1fr;gap:14px}
   #bar .pn{gap:16px}
 }
+/* ── doors: one move per project on the index picture, one sound for ATRIUM ── */
+#hub .still.dr{overflow:hidden}
+#hub .still .pa,#hub .still .pb{position:absolute;inset:0}
+/* belmont: two slat leaves part on a gold seam */
+#hub .still .leaf{position:absolute;top:0;bottom:0;width:50%;background:repeating-linear-gradient(90deg,#141210 0 13px,transparent 13px 25px);transition:transform 2.2s cubic-bezier(.65,0,.2,1)}
+#hub .still .leaf.l{left:0}#hub .still .leaf.r{right:0}
+#hub .still .seam{position:absolute;top:0;bottom:0;left:calc(50% - 3px);width:6px;background:var(--ac);box-shadow:0 0 50px 10px rgba(214,179,106,.5);transition:opacity 1.6s .4s,transform 2.2s}
+#hub .still.dopen .leaf.l{transform:translateX(-102%)}
+#hub .still.dopen .leaf.r{transform:translateX(102%)}
+#hub .still.dopen .seam{opacity:0;transform:scaleX(8)}
+/* saint village: the arch opens. 5ive: the same arch turned over */
+#hub .still.d-p img,#hub .still.d-h img{transition:clip-path 2.2s cubic-bezier(.65,0,.2,1)}
+#hub .still.d-p img{clip-path:inset(0 33% 0 33% round 999px 999px 0 0)}
+#hub .still.d-h img{clip-path:inset(0 33% 0 33% round 0 0 999px 999px)}
+#hub .still.d-p.dopen img,#hub .still.d-h.dopen img{clip-path:inset(0 0 0 0 round 0)}
+#hub .still .arch{position:absolute;left:33%;right:33%;top:0;bottom:0;border:1px solid var(--line2);border-bottom:0;border-radius:999px 999px 0 0;transition:opacity 1s}
+#hub .still .arch.inv{border:1px solid var(--line2);border-top:0;border-radius:0 0 999px 999px}
+#hub .still.dopen .arch{opacity:0}
+/* cunningham: the two towers part */
+#hub .still.d-c img{transition:clip-path 2.2s cubic-bezier(.65,0,.2,1)}
+#hub .still.d-c .pa{clip-path:inset(0 62% 0 6%)}
+#hub .still.d-c .pb{clip-path:inset(0 6% 0 62%)}
+#hub .still.d-c.dopen .pa,#hub .still.d-c.dopen .pb{clip-path:inset(0 0 0 0)}
+/* derrimut: the horizon line opens */
+#hub .still.d-r img{clip-path:inset(49.6% 0 49.6% 0);transition:clip-path 2.2s cubic-bezier(.65,0,.2,1)}
+#hub .still.d-r.dopen img{clip-path:inset(0 0 0 0)}
+#hub .still .hz{position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;background:linear-gradient(90deg,transparent,var(--ac) 18%,var(--ac) 82%,transparent);box-shadow:0 0 40px 8px rgba(214,179,106,.45);transition:opacity 1.4s .5s}
+#hub .still.d-r.dopen .hz{opacity:0}
+/* a door that has left the screen goes back to closed without being seen */
+#hub .still.snap,#hub .still.snap *{transition:none!important}
+#hub .foot .snd{pointer-events:auto;font-size:14px;color:var(--ink2);border:1px solid var(--line2);padding:5px 14px;transition:color .25s,border-color .25s}
+#hub .foot .snd:hover,#hub .foot .snd.on{color:var(--ac);border-color:var(--ac)}
 @media (prefers-reduced-motion:reduce){#hub .film{display:none}*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
@@ -249,7 +281,7 @@ body.on-project #project{display:block}
     <nav class="list" id="list"></nav>
   </div>
   <div class="facts" id="facts"></div>
-  <div class="foot"><span></span><span id="cnt"></span></div>
+  <div class="foot"><span><button type="button" class="snd" id="snd" aria-pressed="false">Sound off</button></span><span id="cnt"></span></div>
 </main>
 
 <section id="project" aria-label="Project"></section>
@@ -316,12 +348,58 @@ function total(){
   P.forEach(function(p){var m=(p.gv||'').match(/\$([\d.,]+)\s*([MmBb])?/);if(!m)return;var n=parseFloat(m[1].replace(/,/g,''));var u=(m[2]||'M').toUpperCase();t+=u==='B'?n*1000:n;if(/\+/.test(p.gv))plus=true});
   return (t>=1000?'$'+(t/1000).toFixed(2)+'bn':'$'+Math.round(t)+'m')+(plus?'+':'');
 }
+/* ── doors: one move per project, the same three note motif for all ── */
+var DOOR={stvillage:'d-p',cunningham:'d-c',belmont:'d-b','5ive':'d-h',derrimut:'d-r'};
+var doorIdx=-1,doorTm={},sndOn=false,ac=null;
+var reduceMotion=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function stillHTML(p,i){
+  var d=DOOR[p.id],pos=p.heroPos||'50% 50%';
+  var im=function(c){return '<img'+(c?' class="'+c+'"':'')+' src="'+p.hero+'" alt="'+(c==='pb'?'':esc(p.n))+'" style="object-position:'+pos+'">'};
+  var inner=im();
+  if(d==='d-b')inner+='<div class="leaf l"></div><div class="leaf r"></div><div class="seam"></div>';
+  else if(d==='d-p')inner+='<div class="arch"></div>';
+  else if(d==='d-h')inner+='<div class="arch inv"></div>';
+  else if(d==='d-r')inner+='<div class="hz"></div>';
+  else if(d==='d-c')inner=im('pa')+im('pb');
+  return '<div class="still'+(d?' dr '+d:'')+'" data-i="'+i+'">'+inner+'</div>';
+}
+function stillOf(i){return document.querySelector('#stills .still[data-i="'+i+'"]')}
+function doorClose(i){var s=stillOf(i);if(!s)return;s.classList.add('snap');s.classList.remove('dopen');void s.offsetWidth;s.classList.remove('snap')}
+function doorPlay(i,delay){
+  var p=P[i];if(!p||!DOOR[p.id])return;
+  clearTimeout(doorTm[i]);doorClose(i);
+  doorTm[i]=setTimeout(function(){var s=stillOf(i);if(s&&hubIdx===i&&!cur){s.classList.add('dopen');motif()}},delay);
+}
+function motif(){ /* A, then D, then F sharp: from the original ATRIUM score. Only when Sound is on. */
+  if(!sndOn)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+    var out=ac.createGain();out.gain.value=0.5;out.connect(ac.destination);
+    var dl=ac.createDelay(1);dl.delayTime.value=0.27;var fb=ac.createGain();fb.gain.value=0.38;var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600;
+    dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(out);
+    [[440,0],[587.33,0.62],[739.99,1.24]].forEach(function(n){
+      var t0=ac.currentTime+n[1]+0.03;
+      [[1,.55],[2,.18],[3,.07],[4,.03]].forEach(function(h){
+        var o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=n[0]*h[0];
+        g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(h[1]*0.5,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+3.2/h[0]+0.6);
+        o.connect(g);g.connect(out);g.connect(dl);o.start(t0);o.stop(t0+4);
+      });
+    });
+  }catch(e){}
+}
+$('#snd').addEventListener('click',function(){
+  sndOn=!sndOn;this.textContent=sndOn?'Sound on':'Sound off';this.classList.toggle('on',sndOn);this.setAttribute('aria-pressed',sndOn?'true':'false');
+  if(sndOn)motif();
+});
+/* a tab that was hidden freezes the transition: when it is back on the index, play the door again */
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&!cur)doorPlay(hubIdx,0)});
+
 function buildHub(){
   $('#hubsub').textContent=P.length+' projects across Victoria and Queensland. '+total()+' of value.';
   $('#cnt').textContent='01 / 0'+P.length;
   var st='',ls='';
   P.forEach(function(p,i){
-    st+='<div class="still" data-i="'+i+'"><img src="'+p.hero+'" alt="'+esc(p.n)+'" style="object-position:'+(p.heroPos||'50% 50%')+'"></div>';
+    st+=stillHTML(p,i);
     ls+='<a class="row" href="#/'+p.id+'" data-i="'+i+'"><span class="n">0'+(i+1)+'</span><span><span class="nm">'+esc(p.n)+'</span><span class="meta" style="display:block">'+esc(p.place)+(p.keys?' · '+esc(p.keys):'')+'</span></span><span class="cat">'+esc(p.cat)+(p.raise?'<b>This raise</b>':'')+'</span></a>';
   });
   $('#stills').innerHTML=st;$('#list').innerHTML=ls;
@@ -342,6 +420,12 @@ function sel(i){
   $('#facts').innerHTML=f.filter(function(x){return x[1]}).map(function(x){return'<div><div class="lbl">'+esc(x[0])+'</div><div class="v">'+esc(x[1])+'</div></div>'}).join('');
   $('#open').setAttribute('href','#/'+p.id);
   $('#cnt').textContent='0'+(i+1)+' / 0'+P.length;
+  if(i!==doorIdx){
+    var prev=doorIdx;doorIdx=i;
+    /* the door we leave is closed again once its picture has faded out */
+    if(prev>=0){clearTimeout(doorTm[prev]);setTimeout(function(){if(doorIdx!==prev)doorClose(prev)},1000)}
+    doorPlay(i,reduceMotion?0:450);
+  }
 }
 
 /* ── project ─────────────────────────────────────────── */
@@ -484,7 +568,7 @@ function introPause(on){var v=document.querySelector('.phero.vid video'),sn=wind
 function route(){
   var m=(location.hash||'').replace(/^#\/?/,'').split('/');var id=m[0],sub=m[1],dk=m[2]||'';var p=id?proj(id):null;
   lbClose();
-  if(!p){cur=null;introPause(true);document.body.classList.remove('on-project');presClose();document.title='HORI7ON · 7EVEN';return}
+  if(!p){var was=cur;cur=null;introPause(true);document.body.classList.remove('on-project');presClose();document.title='HORI7ON · 7EVEN';if(was)doorPlay(hubIdx,reduceMotion?0:450);return}
   if(cur!==p){cur=p;buildProject(p)}
   document.body.classList.add('on-project');document.title=p.n+' · HORI7ON';
   $('#bar').classList.toggle('solid',$('#project').scrollTop>40);
