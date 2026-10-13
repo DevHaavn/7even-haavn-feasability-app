@@ -676,9 +676,19 @@
       "cap": "The same walkway at dusk."
      },
      {
+      "src": "/hori7on-next/img/belmont/auditorium-stage.jpg",
+      "thumb": "/hori7on-next/img/belmont/auditorium-stage-t.jpg",
+      "cap": "The auditorium from the rear aisle: flat floor seating and two raised side banks."
+     },
+     {
       "src": "/hori7on-next/img/belmont/auditorium.jpg",
       "thumb": "/hori7on-next/img/belmont/auditorium-t.jpg",
-      "cap": "The auditorium: flat floor seating and two raised side banks, with the stage at the left."
+      "cap": "The auditorium from the stage: flat floor seating and two raised side banks."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/foyer-doors.jpg",
+      "thumb": "/hori7on-next/img/belmont/foyer-doors-t.jpg",
+      "cap": "Through the entry doors into the foyer."
      },
      {
       "src": "/hori7on-next/img/belmont/lobby.jpg",
@@ -695,6 +705,11 @@
       "src": "/hori7on-next/img/belmont/cafe.jpg",
       "thumb": "/hori7on-next/img/belmont/cafe-t.jpg",
       "cap": "The cafe: coffee bar, lounge seating and tall glazing to the garden."
+     },
+     {
+      "src": "/hori7on-next/img/belmont/foyer-cafe.jpg",
+      "thumb": "/hori7on-next/img/belmont/foyer-cafe-t.jpg",
+      "cap": "The cafe and the auditorium entrance. Signage in this image is placeholder text."
      },
      {
       "src": "/hori7on-next/img/belmont/lobby.jpg",
@@ -748,13 +763,13 @@
   "imgcaps": [
    "The gate"
   ],
-  "images": 28,
+  "images": 32,
   "deck": "/hori7on-next/decks/belmont/index.html",
   "decks": [
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 23,
+    "slides": 24,
     "note": "The place, the master plan, the four homes, the hall, the parks and what comes next.",
     "path": "/hori7on-next/decks/belmont/index.html"
    }
