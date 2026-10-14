@@ -15,7 +15,7 @@ import React, { useEffect, useRef } from 'react'
 /* the 7, and the X it becomes: the 7X device's own X. The bar turns into the
    "\" stroke; the leg turns into the "/" stroke, cut where the "\" crosses it
    (the overlap), so it arrives as two pieces. */
-const Q7_BAR = [[0, 0], [94, 0], [89.5, 4.5], [0, 4.5]]   // the approved 7's hairline bar, reinforced to ~1px at a 25px mark
+const Q7_BAR = [[0, 0], [94, 0], [92.1, 1.87], [0, 1.87]]   // the approved 7: the exact 1.9 hairline bar
 const Q7_LEG = [[59.4, 14.5], [74.5, 14.5], [17.3, 87.4], [17.3, 87.4]]   // the approved 7: the pointed blade
 const QX_BACK = [[0, 0], [11.45, 0], [81.45, 89], [70, 89]]
 const QX_FWD_UP = [[70, 0], [81.45, 0], [49.95, 40.05], [44.23, 32.77]]
