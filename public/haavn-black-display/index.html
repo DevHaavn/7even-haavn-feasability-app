@@ -348,6 +348,41 @@ body.tv #homeBtn,body.tv #serw,body.tv #retBtn{display:none!important}
   .tile::after{background:linear-gradient(0deg,rgba(5,5,6,.97) 0%,rgba(5,5,6,.86) 36%,rgba(5,5,6,.34) 64%,rgba(5,5,6,0) 100%),linear-gradient(180deg,rgba(5,5,6,.6) 0,rgba(5,5,6,0) 18%)}
   .tile .ph{top:calc(var(--top) + 6px)}
 }
+
+/* ── Seth's buttons: the one cut corner, small capitals, glass ───────────────────────────────────────── */
+a{color:inherit;text-decoration:none}
+.btn,.chip,.views button{--notch:10px;--notch-edge:rgba(117,113,116,.55);position:relative;border:1px solid rgba(117,113,116,.55);border-radius:4px 4px 0;
+ clip-path:polygon(0 0,100% 0,100% calc(100% - var(--notch)),calc(100% - var(--notch)) 100%,0 100%);
+ background:linear-gradient(-45deg,transparent 50%,var(--notch-edge) 50% calc(50% + 1.5px),transparent calc(50% + 1.5px)) bottom right/var(--notch) var(--notch) no-repeat border-box,rgba(8,12,16,.3);
+ -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+ text-transform:uppercase;letter-spacing:.2em;font-size:13px;font-weight:500;color:#fff;text-align:center;
+ transition:border-color .45s,color .45s,box-shadow .45s,background-color .45s}
+.btn{padding:0 26px;min-height:46px}
+.btn:hover,.chip:hover,.views button:hover{--notch-edge:rgba(220,235,255,.5);border-color:rgba(220,235,255,.5);color:#fff;background-color:rgba(8,12,16,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 34px -12px rgba(180,210,255,.3)}
+.chip{padding:0 16px 0 12px;min-height:40px}
+.chip[aria-pressed=true],.views button[aria-pressed=true]{--notch-edge:rgba(255,255,255,.85);border-color:rgba(255,255,255,.85);color:#fff;background-color:rgba(255,255,255,.1)}
+.chip[disabled]{border-style:solid;opacity:.4}
+.views button{width:44px;min-height:40px;padding:0}
+.acts .btn{padding:0 24px;font-size:13px}
+#solact{display:none;gap:24px;align-items:center}
+body.sol #solact{display:flex}
+body.sol #bar,body.sol #dots{display:none}
+#sc-solum{background:#000}
+#sc-solum iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+body.sol #top{background:linear-gradient(180deg,rgba(5,5,6,.7),rgba(5,5,6,0))}
+@media print{#solact{display:none!important}}
+body.tv #solact{display:none!important}
+body.sol{--top:56px}
+body.sol #top{transition:background .5s,backdrop-filter .5s,border-color .5s;border-bottom:1px solid transparent}
+body.sol.sc #top{background:rgba(5,5,6,.78);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom-color:rgba(241,241,238,.12)}
+body.sol #logo{width:clamp(118px,11vw,170px)}
+@media(max-width:760px){body.sol #solact{display:none!important}#top{white-space:nowrap}}
+
+/* ── the Essentials range: ESSENTIALS above, the five homes below, as the Black Series has SOLUM above ── */
+.tiles.es{grid-template-columns:repeat(5,1fr);grid-template-rows:1.55fr 1fr}
+.tiles.es .tile.master{grid-column:1/-1}
+.tiles.es .tile.master h2{font-size:clamp(34px,4vw,64px)}
+.tiles.es .tile.master .p{font-size:16px;margin-top:14px}
 </style>
 </head>
 <body>
@@ -357,6 +392,7 @@ body.tv #homeBtn,body.tv #serw,body.tv #retBtn{display:none!important}
   <div id="serw" role="group" aria-label="Series"><button data-sr="black" aria-pressed="true">Black<span class="x"> Series</span></button><button data-sr="ess" aria-pressed="false">Essentials</button></div>
   <button class="tb" id="homeBtn" aria-expanded="false" aria-controls="homes">Homes<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
   <span class="sp"></span>
+  <span id="solact"></span>
   <button class="tb" id="retBtn">Return</button>
   <button class="tb" id="presentBtn" aria-expanded="false" aria-controls="present">Present</button>
 </header>
@@ -389,14 +425,14 @@ if(Q.has('still'))document.body.classList.add('still');
 var RB='/haavn-renders/';          /* where the other homes' pictures live: /haavn-renders/ in the app, img/homes/ in the review copy */
 var APP=/^https?:/.test(location.protocol), EMBED=false; try{EMBED=(window.parent!==window)}catch(e){EMBED=true}
 var HOMES={
- studio:{n:'SOLUM Studio',short:'Studio',series:'black',solum:true,internal:'29.8',gross:'35.0',foot:'3.5 × 10 m',
+ studio:{n:'SOLUM Studio',short:'Studio',series:'black',solum:true,page:'solum.html',internal:'29.8',gross:'35.0',foot:'3.5 × 10 m',
   tag:'A complete one-bedroom home in 29.8 m².',
   blurb:'A complete one-bedroom home in 29.8 square metres, everything in its place along a single bar of rooms. The same materials, the same detail and the same standard as the Plus, in a smaller footprint.',
   line:'One bar, one level. The bedroom at one end, living at the other, the bathroom between them.',
   views:['The open front, over its stone terrace','The entry, up its stone steps','The long side, through gum trees'],
   brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM-STUDIO.pdf?v=4',model:'/solum-studio-model/index.html?v=20261006a',
   plans:[{l:'Ground floor',s:'img/plans/studio.svg'},{l:'Plan sheet with legend',s:RB+'solum-studio-floor-ground-md.jpg',light:1},{l:'Cutaway axonometric',s:RB+'solum-studio-floor-axo-md.jpg'}]},
- plus:{n:'SOLUM Plus',short:'Plus',series:'black',solum:true,internal:'51.6',gross:'60.3',foot:'4.5 × 13.4 m',
+ plus:{n:'SOLUM Plus',short:'Plus',series:'black',solum:true,page:'solum.html',internal:'51.6',gross:'60.3',foot:'4.5 × 13.4 m',
   tag:'A full one-bedroom home in 51.6 m².',
   blurb:'A full one-bedroom home across 51.6 square metres, with a living, dining and kitchen space more than seven metres long. Room to spread out, built to the same standard and delivered finished.',
   line:'One bar, one level. Living at one end, the bedroom at the other, the bathroom between them.',
@@ -404,6 +440,9 @@ var HOMES={
   brochure:'/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=10',model:'/solum-model/index.html?v=20261006a',launch:'https://solum-black-teaser.vercel.app',
   plans:[{l:'Ground floor',s:'img/plans/plus.png'},{l:'Design sheet: ground floor',s:RB+'solum-plan/plan-1-md.jpg',light:1},{l:'3D cutaway',s:RB+'solum-plan/plan-4-md.jpg',light:1},{l:'Window and glazing schedule',s:RB+'solum-plan/plan-2-md.jpg',light:1},{l:'High window elevations',s:RB+'solum-plan/plan-3-md.jpg',light:1}]}
 };
+/* ESSENTIALS: the series page, built from the same engine as SOLUM's. It is a home in the Homes menu and a tile on the range. */
+HOMES.essentials={n:'ESSENTIALS',short:'Essentials',series:'ess',page:'essentials.html',master:true,tag:'Five homes for the standard lot.',
+ blurb:'HAAVN Essentials brings the same manufacturing to standard land lots. Five homes, from a four and a half metre frontage to a ten and a half metre lot.',hero:'',gallery:[],plans:[]};
 /* the other homes. Data as held in the previous Studio; pictures from /haavn-renders. */
 var MAGNA_G=['magna-render-01','magna-render-02','magna-render-03','magna-render-04','magna-render-05','magna-render-06','magna-render-07'];
 var OTHER={
@@ -428,11 +467,26 @@ var OTHER={
  terra:{n:'TERRA',series:'ess',tag:'Type D · 10.5 × 25.0 m lot.',area:'247.7',storeys:2,modules:6,beds:3,baths:3,garage:'Double',lot:'10.5 × 25.0 m',
   blurb:'Six modules for the wider lot. Three bedrooms, three bathrooms and generous shared living.',hero:'merrimu-terra-vista-1',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-d-md.jpg',light:1}]}
 };
+var EI='img/ess/';
+var EX={t:[{l:'terra-front-light',d:'terra-front-dark',c:'Front'},{l:'terra-garden-light',d:'terra-garden-dark',c:'Garden'}],
+ n:[{l:'nova-front-light',d:'nova-front-dark',c:'Street'}],
+ a:[{l:'alta-front-light',d:'alta-front-dark',c:'Street'},{l:'alta-rear-light',d:'alta-rear-dark',c:'Lane side'}],
+ au:[{s:'aura-1',c:'Street'},{s:'aura-2',c:'Lane side'},{s:'aura-3',c:'Street'}],
+ v:[{s:'vela-1',c:'Street'}]};
+var EIN=[{s:'kitchen',c:'Kitchen'},{s:'living',c:'Living'},{s:'lounge',c:'Lounge'},{s:'bedroom',c:'Bedroom'},{s:'bench',c:'Stone'},{s:'bedside',c:'Bedside'}];
+function ep(p){return p.map(function(x){var o={c:x.c};if(x.s)o.s=EI+x.s+'.jpg';else{o.l=EI+x.l+'.jpg';o.d=EI+x.d+'.jpg'}return o})}
+OTHER.nova.pics=ep(EX.n.concat([{s:'nova-living',c:'Living'}],EIN.filter(function(x){return x.s!=='living'})));OTHER.nova.plans=[{l:'Floor plans',s:EI+'nova-plan.jpg',light:1}];
+OTHER.aura.pics=ep(EX.au.concat(EIN));OTHER.aura.plans=[{l:'Floor plans',s:EI+'aura-plan.jpg',light:1}];
+OTHER.alta.pics=ep(EX.a.concat([{s:'alta-living',c:'Kitchen and living'}],EIN));OTHER.alta.plans=[{l:'Floor plans',s:EI+'alta-plan.jpg',light:1}];
+OTHER.vela.pics=ep(EX.v.concat(EIN));OTHER.vela.plans=[{l:'Floor plans',s:EI+'vela-plan.jpg',light:1}];
+OTHER.terra.pics=ep(EX.t.concat(EIN));OTHER.terra.plans=[{l:'Floor plans',s:EI+'terra-plan.jpg',light:1}];
 var ALLH={};Object.keys(HOMES).forEach(function(k){ALLH[k]=HOMES[k]});Object.keys(OTHER).forEach(function(k){ALLH[k]=OTHER[k]});
-var BLACK=['studio','plus','haven','forma','magna','magnaplus'],ESS=['nova','aura','alta','vela','terra'];
+var BLACK=['studio','plus','haven','forma','magna','magnaplus'],ESS=['essentials','nova','aura','alta','vela','terra'];
 function isSolum(h){return h==='studio'||h==='plus'}
-function heroOf(H,sm){return H.hero?RB+H.hero+(sm?'-sm':'-md')+'.jpg':''}
-function galOf(H){var g=(H.gallery&&H.gallery.length)?H.gallery:(H.hero?[H.hero]:[]);return g}
+function isPage(h){return !!(ALLH[h]&&ALLH[h].page)}
+function gs(e,th){if(typeof e==='string')return RB+e+(th?'-sm':'-md')+'.jpg';var s=e.s||(S.t==='night'?(e.d||e.l):(e.l||e.d));return th?s.replace('.jpg','-t.jpg'):s}
+function heroOf(H,sm){if(H.pics&&H.pics.length)return gs(H.pics[0],sm);return H.hero?RB+H.hero+(sm?'-sm':'-md')+'.jpg':''}
+function galOf(H){if(H.pics&&H.pics.length)return H.pics;var g=(H.gallery&&H.gallery.length)?H.gallery:(H.hero?[H.hero]:[]);return g}
 var CL=[
  {k:'obsidian',n:'Obsidian',sw:'#34383d',d:'Fibre cement in its darkest tone, behind bronze-tinted glass and black frames. The quietest of the claddings, it lets SOLUM recede into shadow and tree line.',s:['Equitone fibre cement','Bronze-tinted, low-E glazing']},
  {k:'ivory',n:'Ivory',sw:'#d9d3c3',d:'The same fibre cement in the pale of limestone, set against black frames. Ivory takes the first and last light of the day and holds on to it.',s:['Equitone fibre cement','Bronze-tinted, low-E glazing']},
@@ -471,19 +525,22 @@ var DEL=[
 var STEPS=[['open','HAAVN BLACK'],['range','The range'],['overview','Overview'],['outside','In the landscape'],['inside','An inside look'],['plan','The ground floor'],['way','The way home'],['mine','My SOLUM']];
 var STEPS_OTHER=[['open','HAAVN BLACK'],['range','The range'],['overview','Overview'],['renders','Renders'],['plan','Plans']];
 var HOMEY={overview:1,outside:1,inside:1,plan:1,way:1,mine:1,renders:1};
-function stepsFor(){var H=ALLH[S.h];if(S.s==='range'&&H&&H.series!==S.sr)H=null;if(!H)return S.sr==='ess'?STEPS_OTHER:STEPS;if(isSolum(S.h))return STEPS;return STEPS_OTHER.filter(function(x){return x[0]==='renders'?galOf(H).length>0:x[0]==='plan'?H.plans.length>0:true})}
+function stepsFor(){var H=ALLH[S.h];if(S.s==='range'&&H&&H.series!==S.sr)H=null;if(!H)return S.sr==='ess'?STEPS_OTHER:STEPS;if(isPage(S.h))return STEPS;return STEPS_OTHER.filter(function(x){return x[0]==='renders'?galOf(H).length>0:x[0]==='plan'?H.plans.length>0:true})}
 var DISC='Renders are indicative design visualisations. Floor plans and dimensions are indicative and may change as we finalise compliance with Australian standards.';
 
 /* ── state ──────────────────────────────────────────────────────────────── */
-var S={s:'open',h:'',cl:'obsidian',v:0,r:'living',p:'burgundy',m:'dark',t:'day',d:'supply',sr:'black',pl:0,g:0};
-var FIELDS=['s','h','cl','v','r','p','m','t','d','sr','pl','g'],NUMF={v:1,pl:1,g:1};
-function save(){try{sessionStorage.setItem('hb_display_v2',JSON.stringify(S))}catch(e){} var h='#'+FIELDS.map(function(k){return k+'='+encodeURIComponent(S[k])}).join('&');try{history.replaceState(null,'',location.pathname+location.search+h)}catch(e){}}
+var S={s:'open',h:'',cl:'obsidian',v:0,r:'living',p:'burgundy',m:'dark',t:'day',it:'day',d:'supply',sr:'black',pl:0,g:0,sy:0,em:'terra'};
+var FIELDS=['s','h','cl','v','r','p','m','t','it','d','sr','pl','g','sy','em'],NUMF={v:1,pl:1,g:1,sy:1};
+function save(){try{sessionStorage.setItem('hb_display_v2',JSON.stringify(S))}catch(e){} var h='#'+FIELDS.filter(function(k){return k!=='sy'}).map(function(k){return k+'='+encodeURIComponent(S[k])}).join('&');try{history.replaceState(null,'',location.pathname+location.search+h)}catch(e){}}
 function merge(o){FIELDS.forEach(function(k){if(o&&o[k]!==undefined&&o[k]!=='')S[k]=NUMF[k]?(+o[k]||0):o[k]})}
 (function(){var o=null;try{o=JSON.parse(sessionStorage.getItem('hb_display_v2')||'null')}catch(e){} if(o)merge(o);
  if(location.hash.length>2){var q=new URLSearchParams(location.hash.slice(1)),h={};FIELDS.forEach(function(k){if(q.has(k))h[k]=q.get(k)}); merge(h)}
  if(TV&&!location.hash)S.s='open'})();
 function validate(){
  if(S.p==='wheat')S.p='vine';
+ if(S.it!=='night')S.it='day';
+ if(['nova','aura','alta','vela','terra'].indexOf(S.em)<0)S.em='terra';
+ if(['supply','delivered','installed'].indexOf(S.d)<0)S.d='supply';
  if(S.sr!=='black'&&S.sr!=='ess')S.sr='black';
  if(S.h&&!ALLH[S.h])S.h='';
  if(HOMEY[S.s]&&(!S.h||ALLH[S.h].series!==S.sr))S.h=S.sr==='ess'?'nova':'plus';
@@ -493,6 +550,8 @@ function validate(){
    if(S.s==='renders')S.s='overview';
    if(!hasExt(S.h,S.cl,0,'day')){var alt=CL.filter(function(c){return hasExt(S.h,c.k,0,'day')})[0];if(alt)S.cl=alt.k}
    if(!hasExt(S.h,S.cl,S.v,S.t)){S.v=0}
+  }else if(isPage(S.h)){
+   if(S.s==='renders')S.s='overview';
   }else{
    if(S.s==='outside'||S.s==='inside'||S.s==='way'||S.s==='mine')S.s='overview';
    if(S.s==='renders'&&!galOf(H).length)S.s='overview';
@@ -586,6 +645,48 @@ scene('plan','<div class="pl"><div class="hd"><div><p class="eb" id="pl-eb"></p>
 scene('way','<div class="wy"><div><p class="eb">The way home</p><h2>From the first conversation to the keys.</h2><p class="p">Every SOLUM is built the same way. How it reaches you depends on your site, and how much you would like us to handle.</p><div class="tabs chips" id="wy-t"></div><p class="fn" style="margin-top:22px;font-size:13px;color:var(--ink3)">An indicative process. Stages may vary from project to project.</p></div><div class="steps" id="wy-s"></div></div>');
 scene('mine','<div class="mn"><div class="pics"><div class="a">'+bgHTML()+'<span class="ph">Placeholder render</span></div><div class="b">'+bgHTML()+'</div></div><div><p class="eb">My SOLUM</p><h2 id="mn-h"></h2><div class="rows" id="mn-r"></div><div class="acts"><button class="btn" id="mn-print">Print this SOLUM</button><button class="btn" id="mn-link">Copy a link</button></div><p class="fn">'+DISC+' Registering interest is free and does not commit you to anything.</p></div></div>');
 
+scene('solum','<iframe id="sf" title="SOLUM" allow="fullscreen; autoplay" tabindex="-1"></iframe>');
+
+/* ── SOLUM: Seth's page, working as he built it, inside the display ──────────
+   The page scrolls, steps and builds a SOLUM exactly as his does. The display only starts it, tells it which
+   home was chosen, and listens: what is on show comes back up here so a TV can follow. */
+var SF=null,sfReady=false,sfLastSec='',sfWas=false,sfModel='',sfPage='',SOLV='20261015c';
+function sf(){return SF||(SF=document.getElementById('sf'))}
+function sfPost(m){var f=sf();if(f&&f.contentWindow){try{f.contentWindow.postMessage(Object.assign({hbs:1},m),'*')}catch(e){}}}
+function pageOf(h){return (ALLH[h]&&ALLH[h].page)||''}
+function pagePicks(){return S.h==='essentials'?{em:S.em,cl:S.cl,d:S.d,sy:S.sy}:{h:S.h,cl:S.cl,p:S.p,m:S.m,t:S.t,it:S.it,d:S.d,sy:S.sy}}
+function solumUnload(){var f=sf();if(f&&f.getAttribute('src')){f.removeAttribute('src');f.src='about:blank';f.removeAttribute('src')}sfReady=false;sfWas=false;sfLastSec='';sfPage='';try{sessionStorage.removeItem('haavn-my-solum')}catch(e){}}
+function resetPicks(){S.cl='obsidian';S.p='burgundy';S.m='dark';S.t='day';S.it='day';S.d='supply';S.sy=0;S.v=0;S.r='living';S.pl=0;S.g=0;S.em='terra'}
+function onSolum(){return !!(HOMEY[S.s]&&isPage(S.h))}
+function solumSync(SOL){
+ var f=sf(); if(!f)return;
+ if(S.s==='open'){solumUnload();return}
+ if(!SOL){sfWas=false;return}
+ var want=pageOf(S.h);
+ if(!f.getAttribute('src')||sfPage!==want){sfPage=want;try{sessionStorage.removeItem('haavn-my-solum')}catch(e){}f.src=want+'?v='+SOLV+(TV?'&tv=1':'');sfReady=false;sfWas=true;return}
+ if(!sfReady)return;
+ if(TV){sfPost({type:'apply',st:pagePicks(),scroll:true})}
+ else{
+  if(S.h!=='essentials'&&S.h!==sfModel){sfModel=S.h;sfPost({type:'apply',st:{h:S.h}})}
+  if(S.s!==sfLastSec){sfLastSec=S.s;sfPost({type:'goto',sec:S.s,instant:!sfWas})}
+ }
+ sfWas=true;
+}
+window.addEventListener('message',function(e){
+ var m=e.data; if(!m||!m.hbs)return; var f=sf(); if(!f||e.source!==f.contentWindow)return;
+ if(m.type==='ready'){sfReady=true;sfModel=S.h;sfLastSec=S.s;
+  if(TV){sfPost({type:'apply',st:pagePicks(),scroll:true})}
+  else{sfPost({type:'apply',st:pagePicks()});sfPost({type:'goto',sec:S.s,instant:true});try{f.contentWindow.focus()}catch(x){}}
+  return}
+ if(m.type==='key'){if(m.key==='Escape')closeMenus();else fs();return}
+ if(m.type==='open'&&!TV&&ALLH[m.h]){set({h:m.h,s:'overview'});return}
+ if(m.type==='state'&&!TV&&onSolum()){
+  var st=m.st; sfLastSec=st.sec;
+  if(st.h==='essentials'){if(S.h==='essentials')set({s:st.sec,em:st.em,cl:st.cl,d:st.d,sy:st.sy})}
+  else{sfModel=st.h;set({h:st.h,s:st.sec,cl:st.cl,p:st.p,m:st.m,t:st.t,it:st.it,d:st.d,sy:st.sy})}
+ }
+});
+
 /* ── render ─────────────────────────────────────────────────────────────── */
 function el(id){return document.getElementById(id)}
 function chip(label,sw,pressed,attrs,cls){return '<button class="'+(cls||'chip')+'" aria-pressed="'+pressed+'" '+(attrs||'')+'>'+(sw?'<i style="background:'+sw+'"></i>':'')+label+'</button>'}
@@ -594,11 +695,11 @@ function m2(a){return String(a)}
 var rgSig='',barSig='';
 function nums(a){return a.map(function(n){return '<div><div class="v">'+n[0]+'</div><div class="l">'+n[1]+'</div></div>'}).join('')}
 function tileHTML(h){
- var H=ALLH[h],big=isSolum(h),ph=PH[h]?'<span class="ph">Placeholder render</span>':'';
- var eb=H.series==='black'?(big?'Series 01':'Black Series'):'Essentials';
- var meta=big?'<div class="nums"><div><div class="v">'+H.internal+' m²</div><div class="l">Internal area</div></div><div><div class="v">'+H.gross+' m²</div><div class="l">Gross area</div></div><div><div class="v">'+H.foot+'</div><div class="l">Footprint</div></div></div>'
+ var H=ALLH[h],big=isPage(h),ph=PH[h]?'<span class="ph">Placeholder render</span>':'';
+ var eb=H.series==='black'?(big?'Series 01':'Black Series'):H.master?'The range':'Essentials';
+ var meta=H.master?'<p class="meta">150 to 248 m² · NOVA, AURA, ALTA, VELA, TERRA</p>':big?'<div class="nums"><div><div class="v">'+H.internal+' m²</div><div class="l">Internal area</div></div><div><div class="v">'+H.gross+' m²</div><div class="l">Gross area</div></div><div><div class="v">'+H.foot+'</div><div class="l">Footprint</div></div></div>'
   :'<p class="meta">'+H.area+' m² · '+H.beds+' bed · '+H.baths+' bath · '+H.modules+' modules</p>';
- return '<button class="tile'+(big?' lg':' sm')+'" data-h="'+h+'">'+bgHTML()+ph+'<div class="tc"><p class="eb">'+eb+'</p><h2>'+H.n+'.</h2><p class="p">'+(big?H.blurb.split('. ')[0]+'.':H.tag)+'</p>'+meta+'</div></button>';
+ return '<button class="tile'+(big?' lg':' sm')+(H.master?' master':'')+'" data-h="'+h+'">'+bgHTML()+ph+'<div class="tc"><p class="eb">'+eb+'</p><h2>'+H.n+'.</h2><p class="p">'+(H.master?H.tag:big?H.blurb.split('. ')[0]+'.':H.tag)+'</p>'+meta+'</div></button>';
 }
 function buildRange(){
  if(S.sr!==rgSig){
@@ -609,7 +710,7 @@ function buildRange(){
    :'HAAVN BLACK is a series of houses engineered rather than assembled, built complete, delivered finished. SOLUM is the first, with the larger homes of the Black Series below it.';
  }
  $$('#rg-t .tile').forEach(function(t){var h=t.dataset.h,H=ALLH[h];
-  var src=isSolum(h)?ext(h,h==='studio'?'ivory':'obsidian',h==='studio'?0:2,S.t):heroOf(H,true);
+  var src=isSolum(h)?ext(h,h==='studio'?'ivory':'obsidian',h==='studio'?0:2,S.t):H.master?EI+'terra-front-'+(S.t==='night'?'dark':'light')+'.jpg':heroOf(H,true);
   bgSet($('.bg',t),src,H.n,'Renders in progress.')});
 }
 function paintBar(stp){
@@ -621,6 +722,7 @@ function paintBar(stp){
 function render(fromRemote){
  validate();
  var H=ALLH[S.h]||null,STP=stepsFor(),solum=H&&isSolum(S.h);
+ var SOL=!!(H&&isPage(S.h)&&HOMEY[S.s]); document.body.classList.toggle('sol',SOL); document.body.classList.toggle('sc',SOL&&S.sy>0.012);
  document.body.classList.toggle('hh',!!HOMEY[S.s]);
  document.body.classList.toggle('rgs',S.s==='range');
  paintBar(STP);
@@ -629,17 +731,19 @@ function render(fromRemote){
  $$('#serw button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.sr===S.sr)});
  $$('#tod button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===S.t)});
  var idx=STP.map(function(x){return x[0]}).indexOf(S.s); el('dotsI').style.width=((Math.max(idx,0)+1)/STP.length*100)+'%';
- $$('.scene').forEach(function(s){s.classList.toggle('on',s.dataset.s===S.s)});
+ $$('.scene').forEach(function(s){s.classList.toggle('on',s.dataset.s===(SOL?'solum':S.s))});
+ var sa=$('#solact'); if(sa){sa.innerHTML=(SOL&&APP&&solum)?'<a class="tb" href="'+H.brochure+'" target="_blank" rel="noopener">Brochure</a><button class="tb" data-model="'+H.model+'">3D model</button>'+(H.launch?'<button class="tb" data-model="'+H.launch+'">Launch film</button>':''):''}
+ $$('#tod button').forEach(function(b){var e=(H?H.series==='ess':S.sr==='ess');b.textContent=e?(b.dataset.t==='day'?'Light':'Dark'):(b.dataset.t==='day'?'Morning':'After dark')});
  var where=$('#where'); if(where)where.textContent=H&&HOMEY[S.s]?H.n:'Display';
  /* open */
  bgSet($('#sc-open .bg'),ext('plus','obsidian',0,'night'),'SOLUM Plus in Obsidian, after dark');
  /* range */
  buildRange();
- if(!H)return save();
+ if(!H){solumSync(false);return save()}
  ['overview','outside','mine'].forEach(function(id){var sc=$('#sc-'+id);if(sc)sc.classList.toggle('isph',!!PH[S.h])});
  var ci=solum?cur(CL,S.cl):null;
  /* overview */
- if(S.s==='overview'){
+ if(S.s==='overview'&&!SOL){
   var acts='';
   if(solum){
    bgSet($('#sc-overview .bg'),ext(S.h,S.cl,0,S.t),H.n+' in '+ci.n);
@@ -658,14 +762,14 @@ function render(fromRemote){
  /* renders (the other homes) */
  if(S.s==='renders'){
   var gl=galOf(H),gi=S.g;
-  bgSet($('#sc-renders .bg'),RB+gl[gi]+'-md.jpg',H.n+', view '+(gi+1));
-  el('rd-eb').textContent=(H.series==='black'?'Black Series':'Essentials')+' · Renders'; el('rd-h').textContent=H.n+'.'; el('rd-p').textContent='View '+(gi+1)+' of '+gl.length;
-  el('rd-t').innerHTML=gl.length>1?gl.map(function(n,i){return '<button data-g="'+i+'" aria-label="View '+(i+1)+'" aria-current="'+(i===gi)+'"><img src="'+RB+n+'-sm.jpg" alt=""></button>'}).join(''):'';
+  bgSet($('#sc-renders .bg'),gs(gl[gi]),H.n+', view '+(gi+1));
+  el('rd-eb').textContent=(H.series==='black'?'Black Series':'Essentials')+' · Renders'; el('rd-h').textContent=H.n+'.'; el('rd-p').textContent=(gl[gi].c?gl[gi].c+' · ':'')+'View '+(gi+1)+' of '+gl.length;
+  el('rd-t').innerHTML=gl.length>1?gl.map(function(n,i){return '<button data-g="'+i+'" aria-label="View '+(i+1)+'" aria-current="'+(i===gi)+'"><img src="'+gs(n,true)+'" alt=""></button>'}).join(''):'';
   $$('.arw').forEach(function(b){b.style.display=gl.length>1?'':'none'});
-  preload([RB+gl[(gi+1)%gl.length]+'-md.jpg']);
+  preload([gs(gl[(gi+1)%gl.length])]);
  }
 /* outside */
- if(S.s==='outside'){
+ if(S.s==='outside'&&!SOL){
   bgSet($('#sc-outside .bg'),ext(S.h,S.cl,S.v,S.t),H.n+' in '+ci.n+': '+H.views[S.v],H.n+' in '+ci.n+': render in progress.');
   el('ou-eb').textContent='Outside · '+H.views[S.v]; el('ou-h').textContent=ci.n+'.'; el('ou-p').textContent=ci.d;
   el('ou-s').innerHTML=ci.s.join('<br>')+'<br>Double glazing, black matt metalwork and outdoor LED feature lighting.';
@@ -674,7 +778,7 @@ function render(fromRemote){
   preload([ext(S.h,S.cl,S.v,S.t==='day'?'night':'day')]);
  }
  /* inside */
- if(S.s==='inside'){
+ if(S.s==='inside'&&!SOL){
   var pa=cur(PAL,S.p),ti=cur(TIM,S.m),ro=ROOMS.filter(function(r){return r[0]===S.r})[0];
   el('in-r').innerHTML=ROOMS.map(function(r){return '<button data-r="'+r[0]+'" aria-current="'+(r[0]===S.r)+'">'+r[1]+'</button>'}).join('');
   el('in-p').innerHTML=PAL.map(function(p){return chip(p.n,p.sw,p.k===S.p,'data-p="'+p.k+'"')}).join('');
@@ -687,7 +791,7 @@ function render(fromRemote){
  }
  
  /* plan */
- if(S.s==='plan'){
+ if(S.s==='plan'&&!SOL){
   var pls=H.plans,P=pls[S.pl]||pls[0];
   el('pl-eb').textContent='Plan · '+H.n+(P?' · '+P.l:''); el('pl-h').textContent=solum?H.line:H.tag;
   el('pl-t').innerHTML=pls.length>1?pls.map(function(p,i){return chip(p.l,'',i===S.pl,'data-pl="'+i+'"')}).join(''):'';
@@ -698,13 +802,13 @@ function render(fromRemote){
  }
 
  /* way */
- if(S.s==='way'){
+ if(S.s==='way'&&!SOL){
   var dl=cur(DEL,S.d);
   el('wy-t').innerHTML=DEL.map(function(d){return chip(d.n+' · '+d.note,'',d.k===S.d,'data-d="'+d.k+'"')}).join('');
   el('wy-s').innerHTML=dl.steps.map(function(s,i){return '<div class="st"><div class="n">'+(i<9?'0':'')+(i+1)+'</div><div><div class="t">'+s[0]+(s[2]?'<span class="o">'+s[2]+'</span>':'')+'</div><div class="d">'+s[1]+'</div></div></div>'}).join('');
  }
  /* mine */
- if(S.s==='mine'){
+ if(S.s==='mine'&&!SOL){
   var pa2=cur(PAL,S.p),ti2=cur(TIM,S.m),dl2=cur(DEL,S.d);
   bgSet($('#sc-mine .a .bg'),ext(S.h,S.cl,0,S.t),H.n+' in '+ci.n);
   bgSet($('#sc-mine .b .bg'),hasInt('living',S.m,S.p,S.t)?intr('living',S.m,S.p,S.t):'',pa2.n+' interior','');
@@ -712,14 +816,15 @@ function render(fromRemote){
   el('mn-r').innerHTML=[['Model',H.n,'overview'],['Cladding',ci.n+' · '+ci.s[0],'outside'],['Interior',pa2.n+' with '+ti2.n.toLowerCase(),'inside'],['Delivery',dl2.n+' · '+dl2.note,'way']].map(function(r){return '<div class="row"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div><button class="c" data-go="'+r[2]+'">Change</button></div>'}).join('');
  }
 
+ solumSync(SOL);
  save(); if(!fromRemote)broadcast();
 }
 function set(o){ if(o.h&&ALLH[o.h]&&!o.sr)o.sr=ALLH[o.h].series; if(o.h&&o.h!==S.h){if(o.g===undefined)o.g=0;if(o.pl===undefined)o.pl=0} merge(o);render()}
-function go(s){set({s:s})}
+function go(s){if(s==='open'&&S.s!=='open')resetPicks();set({s:s})}
 function step(d){var a=stepsFor().map(function(x){return x[0]}),i=a.indexOf(S.s)+d; if(i<0||i>=a.length)return; go(a[i])}
 
 /* ── the chrome ─────────────────────────────────────────────────────────── */
-function homeBtnHTML(h){var H=ALLH[h];return '<button data-hm="'+h+'" aria-current="false">'+H.n+'<small>'+(isSolum(h)?H.internal+' m² internal':H.area+' m² · '+H.beds+' bed')+'</small></button>'}
+function homeBtnHTML(h){var H=ALLH[h];return '<button data-hm="'+h+'" aria-current="false">'+H.n+'<small>'+(H.master?'The range':isSolum(h)?H.internal+' m² internal':H.area+' m² · '+H.beds+' bed')+'</small></button>'}
 $('#homes').innerHTML='<p class="gl">Black Series</p>'+BLACK.map(homeBtnHTML).join('')+'<p class="gl">Essentials</p>'+ESS.map(homeBtnHTML).join('');
 function closeMenus(){$('#present').classList.remove('on');$('#homes').classList.remove('on');$('#presentBtn').setAttribute('aria-expanded','false');$('#homeBtn').setAttribute('aria-expanded','false')}
 function openModal(src){var m=$('#modal');m.innerHTML='<button class="mx" id="mdX">Return</button><iframe src="'+src+'" title="Model" allow="fullscreen; autoplay"></iframe>';m.classList.add('on')}
@@ -767,12 +872,23 @@ document.addEventListener('keydown',function(e){
  if(e.metaKey||e.ctrlKey||e.altKey)return; if(e.target&&e.target.tagName==='INPUT')return; var k=e.key;
  if(k==='ArrowRight'||k===' '||k==='PageDown'){e.preventDefault();step(1)}
  else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();step(-1)}
- else if(k==='d'||k==='D'){set({t:S.t==='day'?'night':'day'})}
+ else if(k==='d'||k==='D'){var nt=S.t==='day'?'night':'day';set({t:nt,it:nt});if(onSolum()&&S.h!=='essentials')sfPost({type:'apply',st:{t:nt,it:nt}})}
  else if(k==='f'||k==='F'){fs()}
  else if(k==='Escape'){closeMenus();closeModal()}
  else if(S.s==='renders'&&(k==='ArrowUp'||k==='ArrowDown')){e.preventDefault();set({g:S.g+(k==='ArrowDown'?1:-1)})}
  else if(S.s==='outside'&&(k==='ArrowUp'||k==='ArrowDown')){e.preventDefault();var i=(CL.map(function(c){return c.k}).indexOf(S.cl)+(k==='ArrowDown'?1:-1)+CL.length)%CL.length;var tries=0;while(!hasExt(S.h,CL[i].k,0,'day')&&tries++<6)i=(i+(k==='ArrowDown'?1:-1)+CL.length)%CL.length;set({cl:CL[i].k})}
 });
+/* the mouse wheel moves through a home, one page a gesture; SOLUM's own page does its scrolling itself */
+(function(){var lock=0,last=0,acc=0;
+ function scrolls(el,dy){while(el&&el!==document.body){var cs=getComputedStyle(el);if((cs.overflowY==='auto'||cs.overflowY==='scroll')&&el.scrollHeight>el.clientHeight+2){if(dy>0?el.scrollTop+el.clientHeight<el.scrollHeight-1:el.scrollTop>0)return true}el=el.parentElement}return false}
+ document.addEventListener('wheel',function(e){
+  if(TV||onSolum()||e.ctrlKey)return; if(e.target.closest&&e.target.closest('#present,#homes,#modal'))return;
+  var now=Date.now(),dy=e.deltaY; if(Math.abs(dy)<2)return; if(scrolls(e.target,dy))return;
+  if(now-last>260)acc=0; last=now; if(now<lock)return;
+  acc+=dy; if(Math.abs(acc)<60)return;
+  var d=acc>0?1:-1; acc=0; lock=now+950; step(d);
+ },{passive:true});
+})();
 var tx=0,ty=0;
 document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
 document.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){if(e.target.closest('.steps,.in .l,.wy,.mn,.tiles,.pl'))return;step(dx<0?1:-1)}},{passive:true});
