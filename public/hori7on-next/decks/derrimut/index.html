@@ -244,7 +244,7 @@ html.print .life li i{border-color:var(--gold);background:var(--gold)}
   -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
 .bmp{display:inline-block;height:var(--h,.7em);width:auto;vertical-align:baseline;margin:0 .07em}
 .w7p{display:inline-block;height:.7em;width:auto;vertical-align:baseline;margin:0 .06em}
-.w7{display:inline-block;height:.7em;aspect-ratio:1400/217;background:currentColor;vertical-align:baseline;margin:0 .06em;
+.w7{display:inline-block;height:.7em;aspect-ratio:1400/223;background:currentColor;vertical-align:baseline;margin:0 .06em;
   -webkit-mask:url('/hori7on-next/preston-deck/a/7even-wm.png') center/contain no-repeat;mask:url('/hori7on-next/preston-deck/a/7even-wm.png') center/contain no-repeat}
 
 
@@ -532,8 +532,8 @@ SL.forEach((s,i)=>{
 
 /* brand names are always their artwork, never typed: 7EVEN, 5IVE, 5V, HAAVN, HORI7ON, PRO7ECT, ENTERPRISE, ATRIUM, 7X */
 const ATRI='<span class="atri" role="img" aria-label="ATRIUM"><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="miter" stroke-miterlimit="10"/></svg><span>TRIUM</span></span>';
-const X7I='<svg class="x7i" viewBox="30 30 1920 1810" role="img" aria-label="7X"><polygon points="60,60 1935,60 1808,223 60,223" fill="currentColor"/><polygon points="1293,348 1548,348 1125,888 1035,768" fill="currentColor"/><polygon points="816,1128 874,1205 401,1806" fill="currentColor"/><polygon points="360,348 543,348 1716,1839 1533,1839" fill="#d6b36a"/></svg>';
-const MARKS={ '7EVEN':['/hori7on-next/preston-deck/a/7even-wm.png','/hori7on-next/preston-deck/a/7even-wm-gold.png',1400/216,0.7], '5IVE':['/hori7on-next/preston-deck/a/wm-5ive.png','/hori7on-next/preston-deck/a/wm-5ive-gold.png',700/191,0.74], 'HAAVN':['/hori7on-next/preston-deck/a/wm-haavn.png','/hori7on-next/preston-deck/a/wm-haavn-gold.png',1400/164,0.64], 'HORI7ON':['/hori7on-next/preston-deck/a/wm-hori7on.png','/hori7on-next/preston-deck/a/wm-hori7on-gold.png',1400/128,0.66], 'PRO7ECT':['/hori7on-next/preston-deck/a/wm-pro7ect.png','/hori7on-next/preston-deck/a/wm-pro7ect-gold.png',1400/127,0.66], 'ENTERPRISE':['/hori7on-next/preston-deck/a/wm-enterprise.png','/hori7on-next/preston-deck/a/wm-enterprise-gold.png',1400/94,0.6], '5V':['/hori7on-next/preston-deck/a/5v-white.png','/hori7on-next/preston-deck/a/5v-gold.png',612/845,1.05] };
+const X7I='<svg class="x7i" viewBox="30 30 1920 1810" role="img" aria-label="7X"><polygon points="60,60 1935,60 1845,150 60,150" fill="currentColor"/><polygon points="1293,348 1548,348 1125,888 1035,768" fill="currentColor"/><polygon points="816,1128 874,1205 401,1806" fill="currentColor"/><polygon points="360,348 543,348 1716,1839 1533,1839" fill="#d6b36a"/></svg>';
+const MARKS={ '7EVEN':['/hori7on-next/preston-deck/a/7even-wm.png','/hori7on-next/preston-deck/a/7even-wm-gold.png',1400/223,0.7], '5IVE':['/hori7on-next/preston-deck/a/wm-5ive.png','/hori7on-next/preston-deck/a/wm-5ive-gold.png',700/191,0.74], 'HAAVN':['/hori7on-next/preston-deck/a/wm-haavn.png','/hori7on-next/preston-deck/a/wm-haavn-gold.png',1400/164,0.64], 'HORI7ON':['/hori7on-next/preston-deck/a/wm-hori7on.png','/hori7on-next/preston-deck/a/wm-hori7on-gold.png',1400/128,0.66], 'PRO7ECT':['/hori7on-next/preston-deck/a/wm-pro7ect.png','/hori7on-next/preston-deck/a/wm-pro7ect-gold.png',1400/127,0.66], 'ENTERPRISE':['/hori7on-next/preston-deck/a/wm-enterprise.png','/hori7on-next/preston-deck/a/wm-enterprise-gold.png',1400/94,0.6], '5V':['/hori7on-next/preston-deck/a/5v-white.png','/hori7on-next/preston-deck/a/5v-gold.png',612/845,1.05] };
 const BRAND=/(7EVEN|5IVE|HAAVN|HORI7ON|PRO7ECT|ENTERPRISE|\bATRIUM\b|\b7X\b|\b5V\b)/;
 SL.forEach(sl=>{
   const walk=document.createTreeWalker(sl,NodeFilter.SHOW_TEXT,{acceptNode:n=>BRAND.test(n.nodeValue)&&!n.parentElement.closest('script,style,.rail,.atr')?1:2});

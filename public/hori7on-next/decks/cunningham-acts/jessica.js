@@ -69,7 +69,7 @@
   if(h){ h.setAttribute('src','assets/solum-night.jpg'); document.querySelectorAll('.slide')[7].setAttribute('data-solum','1'); }
 
   /* the very big 7 is the brand's blade 7 from the wordmark artwork, never a typeset numeral */
-  var SEVEN='<svg class="dev7" viewBox="0 0 94 89" aria-label="7" role="img"><polygon points="0,0 94,0 87.31,8.5 0,8.5"/><polygon points="74.6,14.5 59.1,14.5 16,89"/></svg>';
+  var SEVEN='<svg class="dev7" viewBox="0 0 94 89" aria-label="7" role="img"><polygon points="0,0 94,0 92.1,1.87 0,1.87"/><polygon points="74.5,14.5 59.4,14.5 17.3,87.4"/></svg>';
   function sevens(){
     document.querySelectorAll('.slide div').forEach(function(d){
       if(d.children.length||d.textContent.trim()!=='7') return;

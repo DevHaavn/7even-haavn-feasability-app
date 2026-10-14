@@ -182,7 +182,7 @@ function GateClock() {
 
 /* the 7X device: the 7's bar, its leg (doubling as the X's cut arm) and the gold arm */
 const PD = {
-  bar: '60,60 1935,60 1808,223 60,223',
+  bar: '60,60 1935,60 1845,150 60,150',   // the approved 7's hairline bar, reinforced to ~4.5 units: every use of this device is small
   up: '1293,348 1548,348 1125,888 1035,768',
   lo: '816,1128 874,1205 401,1806',
   gold: '360,348 543,348 1716,1839 1533,1839',
