@@ -41,12 +41,17 @@
      photo  the render in colour under the wash      bw    the render in black and white, faded
      grad   the render fading up out of the ground    flat  nothing behind the figures
      still  (everything else) the ATRIUM ground held deep under the type */
-  var PHOTO=[7,8,10,19,41], BW=[4,13,15], GRAD=[39],
+  var PHOTO=[19,41], BW=[13,15], GRAD=[39],
       FLAT=[14,16,27,28,29,30,31,32,36];
+  /* every slide carries data-old, its page number in the original 41 page deck, so the grounds survive reordering.
+     New pages (no data-old) take the default ground unless they carry data-g. */
   function grounds(){
-    document.querySelectorAll('.slide').forEach(function(sl,i){
-      var n=i+1,k='still';
-      if(PHOTO.indexOf(n)>=0) k='photo'; else if(GRAD.indexOf(n)>=0) k='grad'; else if(BW.indexOf(n)>=0) k='bw'; else if(FLAT.indexOf(n)>=0) k='flat';
+    document.querySelectorAll('.slide').forEach(function(sl){
+      var n=parseInt(sl.getAttribute('data-old'),10),k='still';
+      if(sl.getAttribute('data-g')) k=sl.getAttribute('data-g');
+      else if(n){
+        if(PHOTO.indexOf(n)>=0) k='photo'; else if(GRAD.indexOf(n)>=0) k='grad'; else if(BW.indexOf(n)>=0) k='bw'; else if(FLAT.indexOf(n)>=0) k='flat';
+      }
       sl.setAttribute('data-bg',k);
     });
     var sl=document.querySelectorAll('.slide');
@@ -63,10 +68,6 @@
     if(im.complete) set(); else im.addEventListener('load',set);
   }
   cover();
-
-  /* the HAAVN page uses the SOLUM night render, in colour */
-  var h=document.querySelectorAll('.slide')[7]&&document.querySelectorAll('.slide')[7].querySelector('.bleed img');
-  if(h){ h.setAttribute('src','assets/solum-night.jpg'); document.querySelectorAll('.slide')[7].setAttribute('data-solum','1'); }
 
   /* the very big 7 is the brand's blade 7 from the wordmark artwork, never a typeset numeral */
   var SEVEN='<svg class="dev7" viewBox="0 0 94 89" aria-label="7" role="img"><polygon points="0,0 94,0 92.1,1.87 0,1.87"/><polygon points="74.5,14.5 59.4,14.5 17.3,87.4"/></svg>';
