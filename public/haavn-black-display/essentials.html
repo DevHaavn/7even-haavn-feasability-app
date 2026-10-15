@@ -11255,7 +11255,7 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     var l = f.querySelector('.interior__label'); if (l) return l.textContent.trim();
     var i = shownImg(f); return i ? (i.getAttribute('alt') || '') : '';
   }
-  function clockOf(f) { var s = f.closest('section'); return s ? s.querySelector('button[data-clock]') : null }
+  function clockOf(f) { return f.querySelector('button[data-clock]') }
 
   function paint(instant) {
     var f = st.list[st.i], i = shownImg(f), s = srcOf(i); if (!s) return;
@@ -11374,7 +11374,7 @@ window.HB_PAGE = 'essentials';
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
-  function model() { var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
+  function model() { if (PAGE === 'concept') return 'concept'; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',

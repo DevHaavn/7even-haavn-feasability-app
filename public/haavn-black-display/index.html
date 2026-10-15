@@ -787,8 +787,9 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
 #gate .st { color: var(--faint); font-size: 12.5px; }
 
 /* ---- smaller screens ---- */
-@media (max-width: 40rem) { #top { padding-inline: 1rem; gap: 0.6rem; } #menus { margin-left: 0.4rem; gap: 0.9rem; } #nav { gap: 0.8rem; } #menus .mn, #nav button { font-size: 14px; } #logo { width: 6rem; }
+@media (max-width: 40rem) { #top { padding-inline: 1rem; gap: 0.6rem; } #menus { margin-left: 0.2rem; gap: 0.8rem; } #nav { gap: 0.8rem; } #menus .mn, #nav button { font-size: 14px; } #menus .mn { gap: 0.3rem; } #logo { width: 5rem; }
   .menu { left: 1rem; right: 1rem; width: auto; } .menu .mi .ln { display: none; } #present { right: 1rem; left: 1rem; width: auto; } }
+@media (max-width: 26rem) { #top { padding-inline: 0.75rem; gap: 0.5rem; } #menus { gap: 0.6rem; margin-left: 0; } #menus .mn, #nav button { font-size: 13px; } #menus .mn svg { display: none; } #logo { width: 4.4rem; } }
 @media print { #top, #present, .menu, #wash { display: none !important; } }
 </style>
 </head>
@@ -798,6 +799,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   <nav id="menus" aria-label="Homes">
     <button type="button" class="mn" id="mnBlack" data-menu="black" aria-expanded="false" aria-controls="menuBlack">Black Series<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
     <button type="button" class="mn" id="mnEss" data-menu="ess" aria-expanded="false" aria-controls="menuEss">Essentials<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
+    <button type="button" class="mn" id="mnConcept" data-menu="concept" aria-expanded="false" aria-controls="menuConcept">Concepts<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
   </nav>
   <nav id="nav" aria-label="Display">
     <button type="button" id="presentBtn" aria-expanded="false" aria-controls="present">Present</button>
@@ -807,6 +809,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
 <div id="wash"></div>
 <div class="menu" id="menuBlack" role="menu" aria-label="Black Series"></div>
 <div class="menu" id="menuEss" role="menu" aria-label="Essentials"></div>
+<div class="menu" id="menuConcept" role="menu" aria-label="Concepts"></div>
 <main id="stage">
   <section class="scene" data-s="home" id="sc-home" aria-label="Home">
     <iframe id="sf" title="HAAVN BLACK" allow="fullscreen; autoplay"></iframe>
@@ -834,7 +837,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261015k';
+  var SOLV = '20261015l';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -852,9 +855,10 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     alta: { n: 'ALTA', series: 'ess', page: 'essentials.html', line: '194.3 m² · 4 bed' },
     vela: { n: 'VELA', series: 'ess', page: 'essentials.html', line: '165.1 m² · 3 bed' },
     terra: { n: 'TERRA', series: 'ess', page: 'essentials.html', line: '247.2 m² · 3 bed' },
-    vista: { n: 'VISTA', series: 'ess', page: 'essentials.html', line: '317.8 m² · 5 bed' }
+    vista: { n: 'VISTA', series: 'ess', page: 'essentials.html', line: '317.8 m² · 5 bed' },
+    concept: { n: 'Studio concept', series: 'concept', page: 'concept.html', line: 'Heavy · Light' }
   };
-  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'] };
+  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['concept'] };
 
   /* ── where we are ────────────────────────────────────────────────────── */
   var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };
@@ -933,14 +937,16 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   function menuHTML(list) {
     return list.map(function (h) { var H = HOMES[h]; return '<button class="mi" type="button" role="menuitem" data-open="' + h + '" aria-current="false"><span class="nm">' + H.n + '</span><span class="ln">' + H.line + '</span></button>' }).join('');
   }
-  $('#menuBlack').innerHTML = menuHTML(LISTS.black); $('#menuEss').innerHTML = menuHTML(LISTS.ess);
+  $('#menuBlack').innerHTML = menuHTML(LISTS.black); $('#menuEss').innerHTML = menuHTML(LISTS.ess); $('#menuConcept').innerHTML = menuHTML(LISTS.concept);
   function wash() { document.body.classList.toggle('mo', !!$('.menu.on') || $('#present').classList.contains('on')) }
+  var MENUS = { black: 'Black', ess: 'Ess', concept: 'Concept' };
   function closeMenus() {
-    ['black', 'ess'].forEach(function (k) { var m = $(k === 'black' ? '#menuBlack' : '#menuEss'), t = $(k === 'black' ? '#mnBlack' : '#mnEss'); m.classList.remove('on'); t.setAttribute('aria-expanded', 'false') });
+    Object.keys(MENUS).forEach(function (k) { $('#menu' + MENUS[k]).classList.remove('on'); $('#mn' + MENUS[k]).setAttribute('aria-expanded', 'false') });
     $('#present').classList.remove('on'); $('#presentBtn').setAttribute('aria-expanded', 'false'); wash();
   }
   function toggleMenu(which) {
-    var id = which === 'black' ? 'Black' : 'Ess', m = $('#menu' + id), t = $('#mn' + id), on = !m.classList.contains('on');
+    var id = MENUS[which]; if (!id) return;
+    var m = $('#menu' + id), t = $('#mn' + id), on = !m.classList.contains('on');
     closeMenus();
     if (on) { var r = t.getBoundingClientRect(); m.style.left = innerWidth <= 640 ? '0.6rem' : Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px'; m.classList.add('on'); t.setAttribute('aria-expanded', 'true') }
     wash();
@@ -950,6 +956,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     $$('.menu .mi').forEach(function (b) { b.setAttribute('aria-current', String(b.dataset.open === cur)) });
     $('#mnBlack').classList.toggle('is-on', !!cur && HOMES[cur].series === 'black');
     $('#mnEss').classList.toggle('is-on', !!cur && HOMES[cur].series === 'ess');
+    $('#mnConcept').classList.toggle('is-on', !!cur && HOMES[cur].series === 'concept');
   }
 
   /* ── the home: Seth's page in one frame ──────────────────────────────── */
