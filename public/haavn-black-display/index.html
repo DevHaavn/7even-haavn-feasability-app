@@ -456,15 +456,15 @@ var OTHER={
  magnaplus:{n:'MAGNA PLUS',series:'black',tag:'The fourteen module flagship.',area:'549.9',storeys:2,modules:14,beds:5,baths:4,garage:'Double',lot:'12.6 × 21.0 m',
   blurb:'The flagship of the Black Series. Fourteen modules of uncompromising space and specification.',
   hero:'magna-render-02',gallery:MAGNA_G,plans:[{l:'Type F ground',s:RB+'magna-plus-typef-ground-md.jpg',light:1},{l:'Type F first',s:RB+'magna-plus-typef-first-md.jpg',light:1},{l:'Type FA ground',s:RB+'magna-plus-typefa-ground-md.jpg',light:1},{l:'Type FA first',s:RB+'magna-plus-typefa-first-md.jpg',light:1}]},
- nova:{n:'NOVA',series:'ess',tag:'Type A.1 · 6.0 × 26.0 m lot.',area:'150.0',storeys:2,modules:2,beds:3,baths:2,garage:'Double',lot:'6.0 × 26.0 m',
+ nova:{n:'NOVA',series:'ess',tag:'Type A.1 · 6.0 × 26.0 m lot.',area:'149.7',storeys:2,modules:2,beds:3,baths:2,garage:'Double',lot:'6.0 × 26.0 m',
   blurb:'Essentials brings HAAVN precision to standard land lots. Three bedrooms across two efficient modules.',hero:'merrimu-nova-vela',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-a1-md.jpg',light:1}]},
- aura:{n:'AURA',series:'ess',tag:'Type A.2 · 4.5 m narrow lot, three storey.',area:'185.8',storeys:3,modules:3,beds:3,baths:3,garage:'Single',lot:'4.5 × 19.0 m',
+ aura:{n:'AURA',series:'ess',tag:'Type A.2 · 4.5 m narrow lot, three storey.',area:'184.6',storeys:3,modules:3,beds:3,baths:3,garage:'Single',lot:'4.5 × 19.0 m',
   blurb:'A three storey answer to narrow frontages. Three bedrooms and three bathrooms stacked for tight urban infill.',hero:'merrimu-aura-alta-1',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-a2-md.jpg',light:1}]},
- alta:{n:'ALTA',series:'ess',tag:'Type B · 6.0 × 19.0 m lot, three storey.',area:'194.8',storeys:3,modules:3,beds:4,baths:3,garage:'Double',lot:'6.0 × 19.0 m',
+ alta:{n:'ALTA',series:'ess',tag:'Type B · 6.0 × 19.0 m lot, three storey.',area:'194.3',storeys:3,modules:3,beds:4,baths:3,garage:'Double',lot:'6.0 × 19.0 m',
   blurb:'Four bedrooms over three storeys on a six metre frontage, without giving up space.',hero:'merrimu-aura-alta-1',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-b-md.jpg',light:1}]},
  vela:{n:'VELA',series:'ess',tag:'Type C · 8.5 × 25.0 m lot.',area:'165.1',storeys:2,modules:4,beds:3,baths:2,garage:'Single',lot:'8.5 × 25.0 m',
   blurb:'Double storey, four modules, for the standard suburban lot. Three bedrooms and flexible living.',hero:'merrimu-nova-vela',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-c-md.jpg',light:1}]},
- terra:{n:'TERRA',series:'ess',tag:'Type D · 10.5 × 25.0 m lot.',area:'247.7',storeys:2,modules:6,beds:3,baths:3,garage:'Double',lot:'10.5 × 25.0 m',
+ terra:{n:'TERRA',series:'ess',tag:'Type D · 10.5 × 25.0 m lot.',area:'247.2',storeys:2,modules:6,beds:3,baths:3,garage:'Double',lot:'10.5 × 25.0 m',
   blurb:'Six modules for the wider lot. Three bedrooms, three bathrooms and generous shared living.',hero:'merrimu-terra-vista-1',gallery:[],plans:[{l:'Floor plan',s:RB+'merrimu-d-md.jpg',light:1}]}
 };
 var EI='img/ess/';
@@ -654,7 +654,7 @@ scene('solum','<iframe id="sf" title="SOLUM" allow="fullscreen; autoplay" tabind
 /* ── SOLUM: Seth's page, working as he built it, inside the display ──────────
    The page scrolls, steps and builds a SOLUM exactly as his does. The display only starts it, tells it which
    home was chosen, and listens: what is on show comes back up here so a TV can follow. */
-var SF=null,sfReady=false,sfLastSec='',sfWas=false,sfModel='',sfPage='',SOLV='20261015d';
+var SF=null,sfReady=false,sfLastSec='',sfWas=false,sfModel='',sfPage='',SOLV='20261015e';
 function sf(){return SF||(SF=document.getElementById('sf'))}
 function sfPost(m){var f=sf();if(f&&f.contentWindow){try{f.contentWindow.postMessage(Object.assign({hbs:1},m),'*')}catch(e){}}}
 function pageOf(h){return (ALLH[h]&&ALLH[h].page)||''}
