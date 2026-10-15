@@ -705,15 +705,20 @@ html, body { height: 100%; overflow: hidden; background: var(--c-black); }
 body { font-weight: 300; }
 [hidden] { display: none !important; }
 
-/* ---- the one header ---- */
-#top { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; align-items: center; justify-content: space-between;
-  gap: var(--space-4); padding: 1.15rem var(--gutter); transition: background 0.5s ease, border-color 0.5s ease; border-bottom: 1px solid transparent; }
+/* ---- the one header: ATRIUM's language. Inter 300, sentence case, no tracking, bone on a quiet ground ---- */
+:root { --bone: #F3F2EE; --soft: rgba(243, 242, 238, 0.72); --faint: rgba(243, 242, 238, 0.62); --rule: rgba(243, 242, 238, 0.2); --atrium-gold: #d6b36a; --ease-atrium: cubic-bezier(0.16, 1, 0.3, 1); }
+#top { position: fixed; top: 0; left: 0; right: 0; z-index: 70; display: flex; align-items: center; gap: var(--space-4); padding: 1.15rem var(--gutter);
+  transition: background 0.5s ease, border-color 0.5s ease; border-bottom: 1px solid transparent; }
 #logo { width: clamp(8rem, 13vw, 12.5rem); }
 #nav { display: flex; gap: clamp(1.25rem, 2.6vw, 2.5rem); }
-#nav button { padding: 0.6rem 0; font-family: var(--font-mono); font-weight: 300; font-size: var(--fs-micro); letter-spacing: var(--track-mono);
-  text-transform: uppercase; color: var(--c-ink-2); transition: color 0.35s ease; }
-#nav button:hover, #nav button[aria-expanded="true"] { color: var(--c-ink); }
+#menus { display: flex; gap: clamp(1.25rem, 2.6vw, 2.5rem); margin-right: auto; margin-left: clamp(1.5rem, 4vw, 4rem); }
+#menus .mn, #nav button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0; white-space: nowrap;
+  font: 300 15px Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none; color: var(--soft); transition: color 0.35s; }
+#menus .mn svg { width: 8px; height: 5px; opacity: 0.55; transition: rotate 0.35s var(--ease-atrium); }
+#menus .mn:hover, #nav button:hover, #menus .mn[aria-expanded="true"], #nav button[aria-expanded="true"], #menus .mn.is-on { color: var(--bone); }
+#menus .mn[aria-expanded="true"] svg { rotate: 180deg; }
 body.sc #top { background: rgb(0 0 0 / 0.74); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: var(--c-hairline); }
+body.mo #top { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom-color: transparent; }
 body.tv #top { display: none; }
 
 /* ---- scenes ---- */
@@ -722,62 +727,67 @@ body.tv #top { display: none; }
 .scene.on { opacity: 1; visibility: visible; transition: opacity 0.6s var(--ease-out), visibility 0s; }
 #sc-home iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
 
-/* ---- the two menus: Black Series and Essentials, each a list of homes ---- */
-#menus { display: flex; gap: clamp(1.25rem, 2.6vw, 2.5rem); margin-right: auto; margin-left: clamp(1.5rem, 4vw, 4rem); }
-#menus .mn { white-space: nowrap; display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0; font-family: var(--font-mono); font-weight: 300; font-size: var(--fs-micro);
-  letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-2); transition: color 0.35s ease; }
-#menus .mn svg { width: 10px; height: 6px; transition: rotate 0.35s var(--ease-out); }
-#menus .mn:hover, #menus .mn[aria-expanded="true"], #menus .mn.is-on { color: var(--c-ink); }
-#menus .mn[aria-expanded="true"] svg { rotate: 180deg; }
-#menus .mn.is-on::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--c-led-core); box-shadow: 0 0 8px 1px var(--c-led-glow); }
-.menu { position: fixed; z-index: 65; top: 4.3rem; left: var(--gutter); min-width: 22rem; padding: 0.5rem 0; display: none;
-  background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--c-border);
-  clip-path: var(--notch-clip); box-shadow: var(--glass-highlight); }
-.menu.on { display: block; }
-.menu .mi { display: flex; align-items: baseline; justify-content: space-between; gap: 2rem; width: 100%; padding: 0.85rem 1.4rem; text-align: left;
-  border-bottom: 1px solid var(--c-hairline); transition: background 0.3s ease; }
-.menu .mi:last-child { border-bottom: 0; }
-.menu .mi .nm { font-family: var(--font-serif); font-weight: 400; font-size: 1.6rem; line-height: 1.1; color: var(--c-ink-2); transition: color 0.3s ease; }
-.menu .mi .ln { font-family: var(--font-mono); font-weight: 300; font-size: var(--fs-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-3); white-space: nowrap; }
-.menu .mi:hover { background: rgb(255 255 255 / 0.05); }
-.menu .mi:hover .nm, .menu .mi[aria-current="true"] .nm { color: var(--c-ink); }
-.menu .mi[aria-current="true"] .nm::after { content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 0.7rem; vertical-align: middle; border-radius: 50%; background: var(--c-led-core); box-shadow: 0 0 8px 1px var(--c-led-glow); }
+/* ---- the two menus: ATRIUM's index. Name left, size right, a hairline between, the row lifting and indenting on hover.
+   No box. The ground darkens from the left behind it, as it does in ATRIUM, and the list sits straight on that. ---- */
+#wash { position: fixed; inset: 0; z-index: 62; opacity: 0; pointer-events: none; transition: opacity 0.55s var(--ease-atrium);
+  background: linear-gradient(90deg, rgba(10, 11, 12, 0.97) 0%, rgba(10, 11, 12, 0.9) 38%, rgba(10, 11, 12, 0.66) 72%, rgba(10, 11, 12, 0.48) 100%),
+    radial-gradient(145% 115% at 0% 100%, rgba(6, 7, 8, 0.92), transparent 66%); }
+body.mo #wash { opacity: 1; pointer-events: auto; }
+.menu { position: fixed; z-index: 66; top: 4.4rem; left: var(--gutter); width: min(430px, 92vw); display: none; }
+.menu.on { display: block; animation: menu-in 0.45s var(--ease-atrium) both; }
+@keyframes menu-in { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: 0 0; } }
+.menu .mi { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline; width: 100%; padding: 13px 0; text-align: left;
+  border: 0; border-top: 1px solid var(--rule); background: transparent; transition: padding 0.35s var(--ease-atrium), border-color 0.35s; }
+.menu .mi:last-child { border-bottom: 1px solid var(--rule); }
+.menu .mi .nm { font: 300 18px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--soft); transition: color 0.35s; }
+.menu .mi .ln { font: 300 12.5px Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none; color: var(--faint); white-space: nowrap; transition: color 0.35s; }
+.menu .mi:hover { padding-left: 12px; border-top-color: rgba(214, 179, 106, 0.6); }
+.menu .mi:hover .nm { color: var(--atrium-gold); }
+.menu .mi:hover .ln { color: rgba(243, 242, 238, 0.88); }
+.menu .mi[aria-current="true"] .nm { color: var(--bone); }
+.menu .mi:focus-visible { outline: 1px solid rgba(243, 242, 238, 0.5); outline-offset: 4px; }
 
-/* ---- present ---- */
-#present { position: fixed; z-index: 70; right: var(--gutter); top: 4.4rem; width: min(25rem, calc(100vw - 2 * var(--gutter))); padding: 1.4rem; display: none;
-  background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--c-border);
-  clip-path: var(--notch-clip); box-shadow: var(--glass-highlight); }
-#present.on { display: block; }
-.pr__t { margin: 0 0 1rem; font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-3); }
-.pr__row { padding: 1rem 0; border-top: 1px solid var(--c-hairline); }
-.pr__row--end { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-.pr__l { margin: 0 0 0.3rem; color: var(--c-ink); font-size: var(--fs-body); }
-.pr__n { margin: 0.7rem 0 0; font-size: var(--fs-small); line-height: 1.55; color: var(--c-ink-3); }
-.pr__row .button { width: auto; }
-.pr__code { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.8rem; }
-#pairIn { width: 5.6rem; padding: 0.6rem 0.7rem; border: 1px solid var(--c-border); background: rgb(0 0 0 / 0.4); text-transform: uppercase; letter-spacing: 0.4em; text-align: center;
-  font-family: var(--font-mono); font-size: 0.85rem; color: var(--c-ink); }
-.pr__stop { font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-3); padding: 0.6rem 0.2rem; }
-.pr__stop:hover { color: var(--c-ink); }
-.pr__live { display: flex; align-items: center; gap: 0.6rem; margin: 0.6rem 0 0; font-size: var(--fs-small); color: var(--c-ink-3); }
-.pr__live i { width: 6px; height: 6px; border-radius: 50%; background: var(--c-ink-4); }
-.pr__live.on i { background: #2fe07a; box-shadow: 0 0 8px 1px rgb(47 224 122 / 0.6); }
+/* ---- present: the same index, on the right ---- */
+#present { position: fixed; z-index: 66; right: var(--gutter); top: 4.4rem; width: min(380px, 92vw); display: none; }
+#present.on { display: block; animation: menu-in 0.45s var(--ease-atrium) both; }
+.pr__t { margin: 0 0 8px; font: 300 12px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--faint); }
+.pr__row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline; width: 100%; padding: 13px 0; text-align: left;
+  border: 0; border-top: 1px solid var(--rule); background: transparent; transition: padding 0.35s var(--ease-atrium), border-color 0.35s; }
+button.pr__row:hover { padding-left: 12px; border-top-color: rgba(214, 179, 106, 0.6); }
+.pr__row .n { font: 300 18px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--soft); transition: color 0.35s; }
+.pr__row .d { font: 300 12.5px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--faint); white-space: nowrap; }
+button.pr__row:hover .n { color: var(--atrium-gold); }
+.pr__code { display: block; }
+.pr__code .top { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline; }
+.pr__n { margin: 0.6rem 0 0; font: 300 12.5px/1.55 Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--faint); }
+.pr__n b { font-weight: 300; color: var(--soft); }
+.pr__in { display: flex; gap: 18px; align-items: center; margin-top: 0.8rem; }
+#pairIn { width: 5.4rem; padding: 0.35rem 0; border: 0; border-bottom: 1px solid rgba(243, 242, 238, 0.34); background: transparent; text-transform: uppercase; letter-spacing: 0.3em; text-align: left;
+  font: 300 15px Inter, system-ui, sans-serif; color: var(--bone); }
+#pairIn:focus { outline: 0; border-bottom-color: var(--bone); }
+.pr__link { font: 300 15px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--bone); border-bottom: 1px solid rgba(243, 242, 238, 0.34); padding: 0 0 4px; transition: border-color 0.3s; }
+.pr__link:hover { border-bottom-color: var(--bone); }
+.pr__link.quiet { color: var(--faint); border-bottom-color: transparent; }
+.pr__live { display: flex; align-items: center; gap: 0.6rem; margin: 0.9rem 0 0; padding-top: 13px; border-top: 1px solid var(--rule); font: 300 12.5px Inter, system-ui, sans-serif; color: var(--faint); }
+.pr__live i { width: 6px; height: 6px; border-radius: 50%; background: rgba(243, 242, 238, 0.3); }
+.pr__live.on i { background: #2fe07a; }
 
 /* ---- the viewer (3D model, film) and the TV gate ---- */
 #modal { position: fixed; inset: 0; z-index: 90; display: none; background: #000; }
 #modal.on { display: block; }
 #modal iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-#modal .note { position: absolute; inset: 0; display: grid; place-content: center; gap: 1rem; text-align: center; color: var(--c-ink-2); }
-#modal .mx { position: absolute; z-index: 2; top: 1rem; right: var(--gutter); width: auto; }
+#modal .note { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; font: 300 15px Inter, system-ui, sans-serif; color: var(--soft); }
+#modal .mx { position: absolute; z-index: 2; top: 1.2rem; right: var(--gutter); font: 300 15px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--bone); border-bottom: 1px solid rgba(243, 242, 238, 0.34); padding: 0 0 4px; }
 #gate { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #000; text-align: center; }
-#gate .eb { font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-3); }
-#gate .code { margin: 1.6rem 0; font-family: var(--font-serif); font-size: clamp(5rem, 14vw, 12rem); line-height: 1; letter-spacing: 0.12em; color: var(--c-ink); }
-#gate p { max-width: 30rem; margin: 0 auto 0.8rem; color: var(--c-ink-2); font-size: var(--fs-body); line-height: 1.6; }
-#gate .st { color: var(--c-ink-3); font-size: var(--fs-small); }
+#gate .eb { font: 300 12px Inter, system-ui, sans-serif; letter-spacing: 0; color: var(--faint); }
+#gate .code { margin: 1.6rem 0; font: 300 clamp(5rem, 14vw, 12rem)/1 Inter, system-ui, sans-serif; letter-spacing: 0.1em; color: var(--bone); }
+#gate p { max-width: 30rem; margin: 0 auto 0.8rem; color: var(--soft); font: 300 15px/1.6 Inter, system-ui, sans-serif; }
+#gate .st { color: var(--faint); font-size: 12.5px; }
 
 /* ---- smaller screens ---- */
-@media (max-width: 40rem) { #top { padding-inline: 1rem; gap: 0.6rem; } #menus .mn, #nav button { letter-spacing: 0.12em; } .menu .mi .ln { display: none; } #logo { width: 6rem; } #menus { margin-left: 0.4rem; gap: 0.8rem; } #nav { gap: 0.7rem; } .menu { left: 0.6rem; right: 0.6rem; min-width: 0; } .menu .mi .nm { font-size: 1.35rem; } }
-@media print { #top, #present, .menu { display: none !important; } }
+@media (max-width: 40rem) { #top { padding-inline: 1rem; gap: 0.6rem; } #menus { margin-left: 0.4rem; gap: 0.9rem; } #nav { gap: 0.8rem; } #menus .mn, #nav button { font-size: 14px; } #logo { width: 6rem; }
+  .menu { left: 1rem; right: 1rem; width: auto; } .menu .mi .ln { display: none; } #present { right: 1rem; left: 1rem; width: auto; } }
+@media print { #top, #present, .menu, #wash { display: none !important; } }
 </style>
 </head>
 <body>
@@ -792,6 +802,7 @@ body.tv #top { display: none; }
     <button type="button" id="retBtn">Return</button>
   </nav>
 </header>
+<div id="wash"></div>
 <div class="menu" id="menuBlack" role="menu" aria-label="Black Series"></div>
 <div class="menu" id="menuEss" role="menu" aria-label="Essentials"></div>
 <main id="stage">
@@ -801,16 +812,15 @@ body.tv #top { display: none; }
 </main>
 <div id="present" role="dialog" aria-label="Present">
   <p class="pr__t">Present</p>
-  <div class="pr__row"><button class="button button--glass button--sm" type="button" id="tvOpen"><span class="button__label">Open a TV window</span><span class="button__arrow" aria-hidden="true">&rarr;</span></button>
-    <p class="pr__n">The same display with no controls. Drag it to the big screen. It follows whatever you do here.</p></div>
-  <div class="pr__row"><p class="pr__l">Or show it on a TV with a code</p>
+  <button class="pr__row" type="button" id="tvOpen"><span class="n">Open a TV window</span><span class="d">Follows what you do</span></button>
+  <div class="pr__row pr__code">
+    <div class="top"><span class="n">Show it on a TV with a code</span><span class="d" id="pairT">Not paired</span></div>
     <p class="pr__n">On the TV's browser open <b id="pairUrl"></b>. It shows four letters. Type them here.</p>
-    <div class="pr__code"><input id="pairIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD" aria-label="TV code">
-      <button class="button button--glass button--sm" type="button" id="pairGo"><span class="button__label">Pair</span></button>
-      <button class="pr__stop" type="button" id="pairStop">Stop</button></div>
-    <p class="pr__n" id="pairT">Not paired</p></div>
-  <div class="pr__row pr__row--end"><button class="button button--glass button--sm" type="button" id="fsBtn"><span class="button__label">Full screen</span></button>
-    <button class="button button--glass button--sm" type="button" id="prevStudio"><span class="button__label">Films and 3D</span></button></div>
+    <div class="pr__in"><input id="pairIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD" aria-label="TV code">
+      <button class="pr__link" type="button" id="pairGo">Pair</button><button class="pr__link quiet" type="button" id="pairStop">Stop</button></div>
+  </div>
+  <button class="pr__row" type="button" id="fsBtn"><span class="n">Full screen</span><span class="d">F</span></button>
+  <button class="pr__row" type="button" id="prevStudio"><span class="n">Films and 3D</span><span class="d">The previous Studio</span></button>
   <p class="pr__live" id="live"><i></i><span id="liveT">No TV window open</span></p>
 </div>
 <div id="modal" role="dialog" aria-label="Viewer"></div>
@@ -822,7 +832,7 @@ body.tv #top { display: none; }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261015g';
+  var SOLV = '20261015h';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -922,14 +932,16 @@ body.tv #top { display: none; }
     return list.map(function (h) { var H = HOMES[h]; return '<button class="mi" type="button" role="menuitem" data-open="' + h + '" aria-current="false"><span class="nm">' + H.n + '</span><span class="ln">' + H.line + '</span></button>' }).join('');
   }
   $('#menuBlack').innerHTML = menuHTML(LISTS.black); $('#menuEss').innerHTML = menuHTML(LISTS.ess);
+  function wash() { document.body.classList.toggle('mo', !!$('.menu.on') || $('#present').classList.contains('on')) }
   function closeMenus() {
     ['black', 'ess'].forEach(function (k) { var m = $(k === 'black' ? '#menuBlack' : '#menuEss'), t = $(k === 'black' ? '#mnBlack' : '#mnEss'); m.classList.remove('on'); t.setAttribute('aria-expanded', 'false') });
-    $('#present').classList.remove('on'); $('#presentBtn').setAttribute('aria-expanded', 'false');
+    $('#present').classList.remove('on'); $('#presentBtn').setAttribute('aria-expanded', 'false'); wash();
   }
   function toggleMenu(which) {
     var id = which === 'black' ? 'Black' : 'Ess', m = $('#menu' + id), t = $('#mn' + id), on = !m.classList.contains('on');
     closeMenus();
     if (on) { var r = t.getBoundingClientRect(); m.style.left = innerWidth <= 640 ? '0.6rem' : Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px'; m.classList.add('on'); t.setAttribute('aria-expanded', 'true') }
+    wash();
   }
   function paintMenus() {
     var cur = S.s === 'home' ? S.h : '';
@@ -988,7 +1000,7 @@ body.tv #top { display: none; }
   /* ── the resources of a SOLUM: brochure, 3D model, launch film ───────── */
   function openModal(src) {
     var m = $('#modal');
-    m.innerHTML = '<button class="button button--glass button--sm mx" id="mdX" type="button"><span class="button__label">Return</span></button>' +
+    m.innerHTML = '<button class="mx" id="mdX" type="button">Return</button>' +
       (src ? '<iframe src="' + src + '" title="Viewer" allow="fullscreen; autoplay"></iframe>' : '<div class="note"><p>The brochure, 3D model and launch film open from ATRIUM.</p></div>');
     m.classList.add('on');
   }
@@ -1013,7 +1025,7 @@ body.tv #top { display: none; }
     if (t.dataset.open) { open(t.dataset.open); return }
     if (t.id === 'retBtn') { try { parent.postMessage('haavn-ds-close', '*') } catch (x) {} return }
     if (t.id === 'mdX') { closeModal(); return }
-    if (t.id === 'presentBtn') { var p = $('#present'), on = !p.classList.contains('on'); closeMenus(); p.classList.toggle('on', on); t.setAttribute('aria-expanded', on); return }
+    if (t.id === 'presentBtn') { var p = $('#present'), on = !p.classList.contains('on'); closeMenus(); p.classList.toggle('on', on); t.setAttribute('aria-expanded', on); wash(); return }
     if (t.id === 'tvOpen') { var w = window.open(location.pathname + '?tv=1', 'hb-tv', 'width=1280,height=720'); if (w) { wins.push(w); setTimeout(broadcast, 900) } return }
     if (t.id === 'pairGo') { var c = ($('#pairIn').value || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); if (c.length !== 4) { pairStatus('Type the four letters shown on the TV'); return } ROOM = c; paired = true; pairStatus('Connecting to TV ' + c); relay(); return }
     if (t.id === 'pairStop') { paired = false; ROOM = null; pairStatus('Not paired'); return }
