@@ -284,7 +284,7 @@ body.tv #homeBtn,body.tv #serw,body.tv #retBtn{display:none!important}
 .strip{height:66px;grid-template-columns:1fr;align-items:center;padding:0 var(--pad)}
 .tiles.bk{grid-template-columns:repeat(4,1fr);grid-template-rows:1.55fr 1fr}
 .tiles.bk .tile.lg{grid-column:span 2}
-.tiles.es{grid-template-columns:repeat(5,1fr);grid-template-rows:1fr}
+.tiles.es{grid-template-columns:repeat(6,1fr);grid-template-rows:1fr}
 .tile .meta{margin-top:12px;font-size:15px;color:var(--ink2)}
 .tile.sm h2{font-size:clamp(24px,2.4vw,40px)}
 .tile.sm .tc{bottom:22px}
@@ -379,7 +379,7 @@ body.sol #logo{width:clamp(118px,11vw,170px)}
 @media(max-width:760px){body.sol #solact{display:none!important}#top{white-space:nowrap}}
 
 /* ── the Essentials range: ESSENTIALS above, the five homes below, as the Black Series has SOLUM above ── */
-.tiles.es{grid-template-columns:repeat(5,1fr);grid-template-rows:1.55fr 1fr}
+.tiles.es{grid-template-columns:repeat(6,1fr);grid-template-rows:1.55fr 1fr}
 .tiles.es .tile.master{grid-column:1/-1}
 .tiles.es .tile.master h2{font-size:clamp(34px,4vw,64px)}
 .tiles.es .tile.master .p{font-size:16px;margin-top:14px}
@@ -441,8 +441,8 @@ var HOMES={
   plans:[{l:'Ground floor',s:'img/plans/plus.png'},{l:'Design sheet: ground floor',s:RB+'solum-plan/plan-1-md.jpg',light:1},{l:'3D cutaway',s:RB+'solum-plan/plan-4-md.jpg',light:1},{l:'Window and glazing schedule',s:RB+'solum-plan/plan-2-md.jpg',light:1},{l:'High window elevations',s:RB+'solum-plan/plan-3-md.jpg',light:1}]}
 };
 /* ESSENTIALS: the series page, built from the same engine as SOLUM's. It is a home in the Homes menu and a tile on the range. */
-HOMES.essentials={n:'ESSENTIALS',short:'Essentials',series:'ess',page:'essentials.html',master:true,tag:'Five homes for the standard lot.',
- blurb:'HAAVN Essentials brings the same manufacturing to standard land lots. Five homes, from a four and a half metre frontage to a ten and a half metre lot.',hero:'',gallery:[],plans:[]};
+HOMES.essentials={n:'ESSENTIALS',short:'Essentials',series:'ess',page:'essentials.html',master:true,tag:'Six homes for the standard lot.',
+ blurb:'HAAVN Essentials brings the same manufacturing to standard land lots. Six homes, from a four and a half metre frontage to a twelve and a half metre lot.',hero:'',gallery:[],plans:[]};
 /* the other homes. Data as held in the previous Studio; pictures from /haavn-renders. */
 var MAGNA_G=['magna-render-01','magna-render-02','magna-render-03','magna-render-04','magna-render-05','magna-render-06','magna-render-07'];
 var OTHER={
@@ -472,7 +472,8 @@ var EX={t:[{l:'terra-front-light',d:'terra-front-dark',c:'Front'},{l:'terra-gard
  n:[{l:'nova-front-light',d:'nova-front-dark',c:'Street'}],
  a:[{l:'alta-front-light',d:'alta-front-dark',c:'Street'},{l:'alta-rear-light',d:'alta-rear-dark',c:'Lane side'}],
  au:[{s:'aura-1',c:'Street'},{s:'aura-2',c:'Lane side'},{s:'aura-3',c:'Street'}],
- v:[{s:'vela-1',c:'Street'}]};
+ v:[{s:'vela-1',c:'Street'}],
+ vi:[{s:'vista-1',c:'Garden side'}]};
 var EIN=[{s:'kitchen',c:'Kitchen'},{s:'living',c:'Living'},{s:'lounge',c:'Lounge'},{s:'bedroom',c:'Bedroom'},{s:'bench',c:'Stone'},{s:'bedside',c:'Bedside'}];
 function ep(p){return p.map(function(x){var o={c:x.c};if(x.s)o.s=EI+x.s+'.jpg';else{o.l=EI+x.l+'.jpg';o.d=EI+x.d+'.jpg'}return o})}
 OTHER.nova.pics=ep(EX.n.concat([{s:'nova-living',c:'Living'}],EIN.filter(function(x){return x.s!=='living'})));OTHER.nova.plans=[{l:'Floor plans',s:EI+'nova-plan.jpg',light:1}];
@@ -480,8 +481,11 @@ OTHER.aura.pics=ep(EX.au.concat(EIN));OTHER.aura.plans=[{l:'Floor plans',s:EI+'a
 OTHER.alta.pics=ep(EX.a.concat([{s:'alta-living',c:'Kitchen and living'}],EIN));OTHER.alta.plans=[{l:'Floor plans',s:EI+'alta-plan.jpg',light:1}];
 OTHER.vela.pics=ep(EX.v.concat(EIN));OTHER.vela.plans=[{l:'Floor plans',s:EI+'vela-plan.jpg',light:1}];
 OTHER.terra.pics=ep(EX.t.concat(EIN));OTHER.terra.plans=[{l:'Floor plans',s:EI+'terra-plan.jpg',light:1}];
+OTHER.vista={n:'VISTA',series:'ess',tag:'Type E · 12.5 × 25.0 m lot.',area:'317.8',storeys:2,modules:8,beds:5,baths:3,garage:'Double',lot:'12.5 × 25.0 m',
+  blurb:'Eight modules for the widest lot in the range. Five bedrooms, three bathrooms, a study and two living areas, with room for the whole family.',hero:'',gallery:[],plans:[]};
+OTHER.vista.pics=ep(EX.vi.concat(EIN));OTHER.vista.plans=[{l:'Floor plans',s:EI+'vista-plan.jpg',light:1}];
 var ALLH={};Object.keys(HOMES).forEach(function(k){ALLH[k]=HOMES[k]});Object.keys(OTHER).forEach(function(k){ALLH[k]=OTHER[k]});
-var BLACK=['studio','plus','haven','forma','magna','magnaplus'],ESS=['essentials','nova','aura','alta','vela','terra'];
+var BLACK=['studio','plus','haven','forma','magna','magnaplus'],ESS=['essentials','nova','aura','alta','vela','terra','vista'];
 function isSolum(h){return h==='studio'||h==='plus'}
 function isPage(h){return !!(ALLH[h]&&ALLH[h].page)}
 function gs(e,th){if(typeof e==='string')return RB+e+(th?'-sm':'-md')+'.jpg';var s=e.s||(S.t==='night'?(e.d||e.l):(e.l||e.d));return th?s.replace('.jpg','-t.jpg'):s}
@@ -539,7 +543,7 @@ function merge(o){FIELDS.forEach(function(k){if(o&&o[k]!==undefined&&o[k]!=='')S
 function validate(){
  if(S.p==='wheat')S.p='vine';
  if(S.it!=='night')S.it='day';
- if(['nova','aura','alta','vela','terra'].indexOf(S.em)<0)S.em='terra';
+ if(['nova','aura','alta','vela','terra','vista'].indexOf(S.em)<0)S.em='terra';
  if(['supply','delivered','installed'].indexOf(S.d)<0)S.d='supply';
  if(S.sr!=='black'&&S.sr!=='ess')S.sr='black';
  if(S.h&&!ALLH[S.h])S.h='';
@@ -650,7 +654,7 @@ scene('solum','<iframe id="sf" title="SOLUM" allow="fullscreen; autoplay" tabind
 /* ── SOLUM: Seth's page, working as he built it, inside the display ──────────
    The page scrolls, steps and builds a SOLUM exactly as his does. The display only starts it, tells it which
    home was chosen, and listens: what is on show comes back up here so a TV can follow. */
-var SF=null,sfReady=false,sfLastSec='',sfWas=false,sfModel='',sfPage='',SOLV='20261015c';
+var SF=null,sfReady=false,sfLastSec='',sfWas=false,sfModel='',sfPage='',SOLV='20261015d';
 function sf(){return SF||(SF=document.getElementById('sf'))}
 function sfPost(m){var f=sf();if(f&&f.contentWindow){try{f.contentWindow.postMessage(Object.assign({hbs:1},m),'*')}catch(e){}}}
 function pageOf(h){return (ALLH[h]&&ALLH[h].page)||''}
@@ -697,7 +701,7 @@ function nums(a){return a.map(function(n){return '<div><div class="v">'+n[0]+'</
 function tileHTML(h){
  var H=ALLH[h],big=isPage(h),ph=PH[h]?'<span class="ph">Placeholder render</span>':'';
  var eb=H.series==='black'?(big?'Series 01':'Black Series'):H.master?'The range':'Essentials';
- var meta=H.master?'<p class="meta">150 to 248 m² · NOVA, AURA, ALTA, VELA, TERRA</p>':big?'<div class="nums"><div><div class="v">'+H.internal+' m²</div><div class="l">Internal area</div></div><div><div class="v">'+H.gross+' m²</div><div class="l">Gross area</div></div><div><div class="v">'+H.foot+'</div><div class="l">Footprint</div></div></div>'
+ var meta=H.master?'<p class="meta">150 to 318 m² · NOVA, AURA, ALTA, VELA, TERRA, VISTA</p>':big?'<div class="nums"><div><div class="v">'+H.internal+' m²</div><div class="l">Internal area</div></div><div><div class="v">'+H.gross+' m²</div><div class="l">Gross area</div></div><div><div class="v">'+H.foot+'</div><div class="l">Footprint</div></div></div>'
   :'<p class="meta">'+H.area+' m² · '+H.beds+' bed · '+H.baths+' bath · '+H.modules+' modules</p>';
  return '<button class="tile'+(big?' lg':' sm')+(H.master?' master':'')+'" data-h="'+h+'">'+bgHTML()+ph+'<div class="tc"><p class="eb">'+eb+'</p><h2>'+H.n+'.</h2><p class="p">'+(H.master?H.tag:big?H.blurb.split('. ')[0]+'.':H.tag)+'</p>'+meta+'</div></button>';
 }
@@ -706,7 +710,7 @@ function buildRange(){
   rgSig=S.sr; var list=S.sr==='ess'?ESS:BLACK;
   el('rg-t').className='tiles '+(S.sr==='ess'?'es':'bk');
   el('rg-t').innerHTML=list.map(tileHTML).join('');
-  el('rg-s').textContent=S.sr==='ess'?'Essentials brings the same manufacturing to standard land lots. Five homes, from a four and a half metre frontage to a ten and a half metre lot.'
+  el('rg-s').textContent=S.sr==='ess'?'Essentials brings the same manufacturing to standard land lots. Six homes, from a four and a half metre frontage to a twelve and a half metre lot.'
    :'HAAVN BLACK is a series of houses engineered rather than assembled, built complete, delivered finished. SOLUM is the first, with the larger homes of the Black Series below it.';
  }
  $$('#rg-t .tile').forEach(function(t){var h=t.dataset.h,H=ALLH[h];

@@ -1332,7 +1332,8 @@ html:not([data-model="nova"]) .models__copy[data-model="nova"],
 html:not([data-model="aura"]) .models__copy[data-model="aura"],
 html:not([data-model="alta"]) .models__copy[data-model="alta"],
 html:not([data-model="vela"]) .models__copy[data-model="vela"],
-html:not([data-model="terra"]) .models__copy[data-model="terra"] {
+html:not([data-model="terra"]) .models__copy[data-model="terra"],
+html:not([data-model="vista"]) .models__copy[data-model="vista"] {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7126,19 +7127,20 @@ html.privacy-open, html.privacy-open body { overflow: hidden; }
 .swatch[data-variant="dark"]  { --swatch-colour: var(--c-dark); }
 .finish__copy[data-variant="light"] { --finish: var(--c-light); }
 .finish__copy[data-variant="dark"]  { --finish: var(--c-dark); }
-.models__toggle:not(.journey__toggle) { grid-template-columns: repeat(5, 1fr); width: min(100%, 40rem); }
-.models__toggle:not(.journey__toggle)::before { width: calc((100% - 8px) / 5); }
+.models__toggle:not(.journey__toggle) { grid-template-columns: repeat(6, 1fr); width: min(100%, 46rem); }
+.models__toggle:not(.journey__toggle)::before { width: calc((100% - 8px) / 6); }
 
 :root[data-model="nova"] .models__toggle:not(.journey__toggle)::before { translate: 000% 0; }
 :root[data-model="aura"] .models__toggle:not(.journey__toggle)::before { translate: 100% 0; }
 :root[data-model="alta"] .models__toggle:not(.journey__toggle)::before { translate: 200% 0; }
 :root[data-model="vela"] .models__toggle:not(.journey__toggle)::before { translate: 300% 0; }
 :root[data-model="terra"] .models__toggle:not(.journey__toggle)::before { translate: 400% 0; }
+:root[data-model="vista"] .models__toggle:not(.journey__toggle)::before { translate: 500% 0; }
 .models__toggle:not(.journey__toggle) .models__option { padding-inline: 0.4rem; letter-spacing: 0.3em; text-indent: 0.3em; }
 .interior--lounge, .interior--stone, .interior--bedside { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .ess-soon { display: none; margin: 0; color: var(--c-ink-3); font-size: var(--fs-small); line-height: 1.6; max-width: 26rem; }
-html[data-model="aura"] .exteriors .ess-soon, html[data-model="vela"] .exteriors .ess-soon { display: block; }
-html[data-model="aura"] .exteriors .finish__copy, html[data-model="vela"] .exteriors .finish__copy { display: none; }
+html[data-model="aura"] .exteriors .ess-soon, html[data-model="vela"] .exteriors .ess-soon, html[data-model="vista"] .exteriors .ess-soon { display: block; }
+html[data-model="aura"] .exteriors .finish__copy, html[data-model="vela"] .exteriors .finish__copy, html[data-model="vista"] .exteriors .finish__copy { display: none; }
 .ess-plan .plan__stage { aspect-ratio: 2200 / 1555; width: 100%; max-height: 64vh; background: #fff; overflow: hidden; }
 .ess-plan .plan__stage img { width: 100% !important; height: 100%; object-fit: contain; display: block; filter: none; opacity: 1; transform: none !important; translate: none !important; position: static; }
 .ess-plan .plan__drawing::before, .ess-plan .plan__drawing::after, .ess-plan .plan__stage::before, .ess-plan .plan__stage::after { display: none !important; }
@@ -7220,7 +7222,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
              one. Replace with the real
              words. -->
         <div class="launch__about" data-reveal>
-          <p>HAAVN Essentials brings the same manufacturing to standard land lots. Five homes, from a four and a half metre frontage to a ten and a half metre lot.</p>
+          <p>HAAVN Essentials brings the same manufacturing to standard land lots. Six homes, from a four and a half metre frontage to a twelve and a half metre lot.</p>
         </div>
 
         <h1 class="hero" id="hero-title">
@@ -7249,16 +7251,17 @@ html.tv-mode, html.tv-mode body { cursor: none; }
     <div class="models__intro">
       <p class="eyebrow models__eyebrow" id="models-title">Choose your home</p>
       <h2 class="models__headline">
-        <span class="models__headline-line">NOVA. AURA. ALTA. VELA. TERRA.</span>
-        <span class="models__headline-line">Five homes. One standard.</span>
+        <span class="models__headline-line">NOVA. AURA. ALTA. VELA. TERRA. VISTA.</span>
+        <span class="models__headline-line">Six homes. One standard.</span>
       </h2>
-      <p class="models__lede">From 150 to 248&nbsp;m&sup2;, built complete<br class="break-wide"> and delivered finished.</p>
+      <p class="models__lede">From 150 to 318&nbsp;m&sup2;, built complete<br class="break-wide"> and delivered finished.</p>
       <div class="models__body">
         <p class="models__copy" data-model="nova">NOVA is two efficient modules across 150 square metres: three bedrooms, two bathrooms and a double garage. <strong>Built complete</strong> and delivered finished to a six metre lot.</p>
         <p class="models__copy" data-model="aura">AURA is the three storey answer to a narrow 4.5 metre frontage: three bedrooms and three bathrooms stacked across three modules. <strong>Precision made</strong> for tight urban infill.</p>
         <p class="models__copy" data-model="alta">ALTA puts four bedrooms over three storeys on a six metre frontage, without giving up space. <strong>Three modules, built complete</strong> and delivered finished.</p>
         <p class="models__copy" data-model="vela">VELA is four modules over two storeys for the standard suburban lot: three bedrooms and flexible living. <strong>Built complete</strong> and delivered finished.</p>
         <p class="models__copy" data-model="terra">TERRA is six precision modules for the wider lot: three bedrooms, three bathrooms and generous shared living. <strong>The same standard as every Essentials home</strong>, built complete and delivered finished.</p>
+        <p class="models__copy" data-model="vista">VISTA is eight modules over two storeys for the widest lot in the range: five bedrooms, three bathrooms, a study and two living areas. <strong>Room for the whole family</strong>, built complete and delivered finished.</p>
       </div>    </div>
     <p class="models__note">Everything below follows your choice.</p>
     <div class="models__toggle" role="group" aria-label="Home">
@@ -7272,6 +7275,8 @@ html.tv-mode, html.tv-mode body { cursor: none; }
               data-model-choice="vela" aria-pressed="false">VELA</button>
       <button class="models__option is-selected" type="button"
               data-model-choice="terra" aria-pressed="true">TERRA</button>
+      <button class="models__option" type="button"
+              data-model-choice="vista" aria-pressed="false">VISTA</button>
     </div>
     <p class="models__more"><span>Scroll to learn more about <span data-model-name>TERRA</span></span><span class="models__cue" aria-hidden="true"></span></p>
   </section>
@@ -7309,6 +7314,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <img class="exterior__img" data-model="vela" data-src="img/ess/vela-1.jpg" alt="VELA: the street, at dusk" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img is-shown" data-model="terra" data-variant="light" src="img/ess/terra-front-light.jpg" alt="TERRA with a light facade: the front, in autumn" width="1672" height="941" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="terra" data-variant="dark" data-src="img/ess/terra-front-dark.jpg" alt="TERRA with a dark facade: the front, in autumn" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="vista" data-src="img/ess/vista-1.jpg" alt="VISTA: the garden side" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7324,6 +7330,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <img class="exterior__img" data-model="vela" data-src="img/ess/living.jpg" alt="VELA: the living room" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img is-shown" data-model="terra" data-variant="light" src="img/ess/terra-garden-light.jpg" alt="TERRA with a light facade: the garden side, in autumn" width="1672" height="941" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="terra" data-variant="dark" data-src="img/ess/terra-garden-dark.jpg" alt="TERRA with a dark facade: the garden side, in autumn" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="vista" data-src="img/ess/kitchen.jpg" alt="VISTA: the kitchen" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7337,6 +7344,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <img class="exterior__img" data-model="alta" data-src="img/ess/alta-living.jpg" alt="ALTA: the kitchen and living" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="vela" data-src="img/ess/lounge.jpg" alt="VELA: the lounge" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="terra" data-src="img/ess/kitchen.jpg" alt="TERRA: the kitchen" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="vista" data-src="img/ess/lounge.jpg" alt="VISTA: the lounge" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7357,7 +7365,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">The dark facade. Deep charcoal panels that bring up the glazing and the timber screens, and let the planting do the talking.</p>
         <p class="finish__key"><span>Dark facade panels</span><span>Black frames, timber screens</span></p>
       </div>
-      <p class="ess-soon">The autumn renders for AURA and VELA are on their way. Their dusk renders are shown until then.</p>
+      <p class="ess-soon">The autumn renders for AURA, VELA and VISTA are on their way. Their earlier renders are shown until then.</p>
     </aside>
 
     <p class="finish__standard">Every Essentials home is built complete in the factory and delivered finished.</p>
@@ -7512,7 +7520,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
        ===================================================================== -->
   <section class="plan rule-top" id="plan" aria-labelledby="plan-title">
     <div class="plan__intro">
-      <p class="plan__line">Five plans on one idea: <strong>precision modules built in the factory</strong>, stacked to suit your lot.</p>
+      <p class="plan__line">Six plans on one idea: <strong>precision modules built in the factory</strong>, stacked to suit your lot.</p>
       <p class="plan__line">Planned to the centimetre, so <strong>every square metre is put to use</strong>.</p>
     </div>
     <div class="section-head">
@@ -7529,6 +7537,8 @@ html.tv-mode, html.tv-mode body { cursor: none; }
                 data-model-choice="vela" aria-pressed="false">VELA</button>
         <button class="swatch is-selected" type="button"
                 data-model-choice="terra" aria-pressed="true">TERRA</button>
+        <button class="swatch" type="button"
+                data-model-choice="vista" aria-pressed="false">VISTA</button>
       </div>
     </div>
     <div class="plan__models">
@@ -7677,6 +7687,36 @@ html.tv-mode, html.tv-mode body { cursor: none; }
               </button>
               <button class="button button--glass button--sm enquire__link ess-open" type="button" data-open-home="terra">
                 <span class="button__label">All TERRA renders</span>
+                <span class="button__arrow" aria-hidden="true">&rarr;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="plan__model ess-plan" data-model="vista">
+          <div class="plan__body">
+            <figure class="plan__drawing">
+              <div class="plan__stage">
+                <img src="img/ess/vista-plan.jpg" alt="Floor plans of VISTA, Type E: every level, on the architect's sheet." loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <p class="plan__blurb">Type E, a 2 storey home of 8 modules for a 12.5 &times; 25.0 m lot.</p>
+            <dl class="plan__facts">
+              <div class="plan__figure plan__figure--count"><dt>Bedrooms</dt><dd>5</dd></div>
+              <div class="plan__figure plan__figure--count"><dt>Bathrooms</dt><dd>3</dd></div>
+              <div class="plan__figure plan__figure--count"><dt>Storeys</dt><dd>2</dd></div>
+              <div class="plan__figure plan__figure--area"><dt>Modules</dt><dd>8</dd></div>
+              <div class="plan__figure plan__figure--area"><dt>Minimum lot</dt><dd>12.5 &times; 25.0 m</dd></div>
+              <div class="plan__figure plan__figure--area"><dt>Area</dt><dd>317.8 <span class="plan__unit">m&sup2;</span></dd></div>
+            </dl>
+            <div class="enquire">
+              <p class="enquire__prompt">Settled on <span data-model-name>VISTA</span>? Select it.</p>
+              <button class="button button--glass button--sm enquire__link" type="button"
+                      data-enquire="model" data-next="#journey" aria-pressed="false">
+                <span class="button__label">Select VISTA</span>
+                <span class="button__arrow" aria-hidden="true">+</span>
+              </button>
+              <button class="button button--glass button--sm enquire__link ess-open" type="button" data-open-home="vista">
+                <span class="button__label">All VISTA renders</span>
                 <span class="button__arrow" aria-hidden="true">&rarr;</span>
               </button>
             </div>
@@ -8020,6 +8060,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
 <option value="alta">ALTA</option>
 <option value="vela">VELA</option>
 <option value="terra">TERRA</option>
+<option value="vista">VISTA</option>
 </select>
           </div>
 
@@ -8717,7 +8758,7 @@ Object.assign(modules, { initConveyor });
  *
  * Without JavaScript the first model, the Studio, stands.
  */
-const NAMES = { nova: 'NOVA', aura: 'AURA', alta: 'ALTA', vela: 'VELA', terra: 'TERRA' };
+const NAMES = { nova: 'NOVA', aura: 'AURA', alta: 'ALTA', vela: 'VELA', terra: 'TERRA', vista: 'VISTA' };
 
 function currentModel() {
   // the Studio leads: it is the one on show until another is chosen
