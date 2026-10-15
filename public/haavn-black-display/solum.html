@@ -1834,7 +1834,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .has-scene .scene--palettes .interior[data-slot="1"],
 .has-scene .scene--palettes .interior[data-slot="2"],
 .has-scene .scene--palettes .interior[data-slot="3"],
-.has-scene .scene--palettes .interior[data-slot="4"] {
+.has-scene .scene--palettes .interior[data-slot="4"],
+.has-scene .scene--palettes .interior[data-slot="5"] {
   opacity: var(--arrive);
 }
 
@@ -2989,7 +2990,6 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interior--living   { --focus: 52%; --focus-lead: 46%; --win: 0.52; }
 .interior--bedroom  { --focus: 74%; --focus-lead: 58%; --win: 0.74; }
 .interior--bathroom { --focus: 56%; --focus-lead: 50%; --win: 0.56; }
-.interior--laundry  { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .interior--kitchen  { --focus: 48%; --focus-lead: 45%; --win: 0.48; }
 
 /* The caption is only a wrapper for the room name, in the top corner. */
@@ -3088,53 +3088,100 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
       opacity var(--conveyor-dur) var(--ease-out);
   }
 
-  /* five panels: the open one and four queued (the laundry is the fifth room) */
-    .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 11.85%; }
-    .interior:not([data-slot]):nth-child(3) { left: 61.65%; width: 11.85%; }
-    .interior:not([data-slot]):nth-child(4) { left: 74.9%; width: 11.85%; }
-    .interior:not([data-slot]):nth-child(5) { left: 88.15%; width: 11.85%; }
-    .interior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
-  
-    .interiors__track { --w-lead: 47%; --w-queue: 11.85%; --x-1: 48.4%; --x-2: 61.65%; --x-3: 74.9%; --x-4: 88.15%; --conveyor-dur: 0.9s; }
-  
-    .interior[data-slot="0"], .interior[data-slot="1"], .interior[data-slot="2"], .interior[data-slot="3"], .interior[data-slot="4"] { opacity: 1; }
-  
-    .interiors__track:not([data-open]) .interior[data-slot="0"],
-  .interiors__track[data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
-    .interiors__track:not([data-open]) .interior[data-slot="1"],
-  .interiors__track[data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 11.85%; }
-    .interiors__track:not([data-open]) .interior[data-slot="2"],
-  .interiors__track[data-open="0"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
-    .interiors__track:not([data-open]) .interior[data-slot="3"],
-  .interiors__track[data-open="0"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-    .interiors__track:not([data-open]) .interior[data-slot="4"],
-  .interiors__track[data-open="0"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-    .interiors__track[data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-    .interiors__track[data-open="1"] .interior[data-slot="1"] { left: 13.25%; width: 47.0%; }
-    .interiors__track[data-open="1"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
-    .interiors__track[data-open="1"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-    .interiors__track[data-open="1"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-    .interiors__track[data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-    .interiors__track[data-open="2"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-    .interiors__track[data-open="2"] .interior[data-slot="2"] { left: 26.5%; width: 47.0%; }
-    .interiors__track[data-open="2"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-    .interiors__track[data-open="2"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-    .interiors__track[data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-    .interiors__track[data-open="3"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-    .interiors__track[data-open="3"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
-    .interiors__track[data-open="3"] .interior[data-slot="3"] { left: 39.75%; width: 47.0%; }
-    .interiors__track[data-open="3"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-    .interiors__track[data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-    .interiors__track[data-open="4"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-    .interiors__track[data-open="4"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
-    .interiors__track[data-open="4"] .interior[data-slot="3"] { left: 39.75%; width: 11.85%; }
-    .interiors__track[data-open="4"] .interior[data-slot="4"] { left: 53.0%; width: 47.0%; }
-  
-    .interior[data-slot="5"], .interior[data-slot="6"], .interior[data-slot="7"], .interior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
-    .interior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
-    .interior[data-slot="8"] { transition: none; }
-  
-    /* The open panel pans out to its wider framing and names itself.
+  /* the interiors row, written for each panel count in use (Seth wrote it for four) */
+  .interiors__track { --w-lead: 47%; --conveyor-dur: 0.9s; }
+  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 11.85%; }
+  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(3) { left: 61.65%; width: 11.85%; }
+  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(4) { left: 74.9%; width: 11.85%; }
+  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(5) { left: 88.15%; width: 11.85%; }
+  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="5"] .interior[data-slot="0"], .interiors__track[data-n="5"] .interior[data-slot="1"], .interiors__track[data-n="5"] .interior[data-slot="2"], .interiors__track[data-n="5"] .interior[data-slot="3"], .interiors__track[data-n="5"] .interior[data-slot="4"] { opacity: 1; }
+  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
+  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 11.85%; }
+  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
+  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
+  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="4"],
+  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="1"] { left: 13.25%; width: 47.0%; }
+  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="2"] { left: 26.5%; width: 47.0%; }
+  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="3"] { left: 39.75%; width: 47.0%; }
+  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="3"] { left: 39.75%; width: 11.85%; }
+  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="4"] { left: 53.0%; width: 47.0%; }
+  .interiors__track[data-n="5"] .interior[data-slot="5"], .interiors__track[data-n="5"] .interior[data-slot="6"], .interiors__track[data-n="5"] .interior[data-slot="7"], .interiors__track[data-n="5"] .interior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="5"] .interior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
+  .interiors__track[data-n="5"] .interior[data-slot="8"] { transition: none; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(3) { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(4) { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(5) { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(6) { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(n + 7) { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="0"], .interiors__track[data-n="6"] .interior[data-slot="1"], .interiors__track[data-n="6"] .interior[data-slot="2"], .interiors__track[data-n="6"] .interior[data-slot="3"], .interiors__track[data-n="6"] .interior[data-slot="4"], .interiors__track[data-n="6"] .interior[data-slot="5"] { opacity: 1; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="4"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="5"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="1"] { left: 10.6%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="2"] { left: 21.2%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="3"] { left: 31.8%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="4"] { left: 42.4%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="4"] { left: 42.4%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="5"] { left: 53.0%; width: 47.0%; }
+  .interiors__track[data-n="6"] .interior[data-slot="6"], .interiors__track[data-n="6"] .interior[data-slot="7"], .interiors__track[data-n="6"] .interior[data-slot="8"], .interiors__track[data-n="6"] .interior[data-slot="9"], .interiors__track[data-n="6"] .interior[data-slot="10"] { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="11"] { left: 0; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="10"] { transition: none; }
+  /* The open panel pans out to its wider framing and names itself.
      Whichever panel that is: the lead by default, the hovered one while
      the pointer is over the row. */
   .interior__label {
@@ -3148,6 +3195,7 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="2"] .interior[data-slot="2"] .interior__label,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .interior__label,
   .interiors__track[data-open="4"] .interior[data-slot="4"] .interior__label,
+  .interiors__track[data-open="5"] .interior[data-slot="5"] .interior__label,
   .interior:not([data-slot]):first-child .interior__label {
     opacity: 1;
     transition-delay: 0.35s;
@@ -3183,6 +3231,7 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="2"] .interior[data-slot="2"] .peek,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .peek,
   .interiors__track[data-open="4"] .interior[data-slot="4"] .peek,
+  .interiors__track[data-open="5"] .interior[data-slot="5"] .peek,
   .interior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -3667,6 +3716,10 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="kitchen"] .finish__standard:not([data-room="kitchen"]),
 .interiors[data-room="bathroom"] .finish__standard:not([data-room="bathroom"]),
 .interiors[data-room="bedroom"] .finish__standard:not([data-room="bedroom"]),
+.interiors[data-room="balcony"] .finish__copy:not([data-room="balcony"]),
+.interiors[data-room="balcony"] .finish__standard:not([data-room="balcony"]),
+.interiors[data-room="dining"] .finish__copy:not([data-room="dining"]),
+.interiors[data-room="dining"] .finish__standard:not([data-room="dining"]),
 .interiors[data-room="laundry"] .finish__copy:not([data-room="laundry"]),
 .interiors[data-room="laundry"] .finish__standard:not([data-room="laundry"]) {
   opacity: 0;
@@ -7106,6 +7159,11 @@ html.privacy-open, html.privacy-open body { overflow: hidden; }
 
 /* ---- the display: what is added to Seth's page ---- */
 .site-header, .announce, .register, .faq, .site-footer, #client-privacy { display: none !important; }
+html.tv-mode, html.tv-mode body { cursor: none; }
+.eyebrow__model { margin-left: 0.8em; }
+html:not([data-model="standard"]) .interiors__track[data-for="standard"],
+html[data-model="standard"] .interiors__track[data-for="studio"] { display: none !important; }
+
 .swatch[data-timber-choice="dark"]  { --swatch-colour: #7d6247; }
 .swatch[data-timber-choice="light"] { --swatch-colour: #c29a6a; }
 .swatches--timber { margin-top: var(--space-3); }
@@ -7116,10 +7174,10 @@ html.privacy-open, html.privacy-open body { overflow: hidden; }
     grid-template-areas: "intro intro" "eyebrow eyebrow" "track swatches" "track timber" "track finish" "enquire standard"; }
   .interiors .swatches--timber { grid-area: timber; margin-top: var(--space-4); }
 }
-.ph-note { display: none; }
-html[data-model="studio"] .ph-note { display: block; }
-.ph-note { position: absolute; z-index: 5; right: var(--gutter-safe, 24px); top: 0; font: 300 0.62rem/1 var(--font-mono, monospace); letter-spacing: 0.2em; text-transform: uppercase; color: rgb(255 255 255 / 0.42); pointer-events: none; }
-html.tv-mode, html.tv-mode body { cursor: none; }
+.interior--balcony, .interior--dining, .interior--laundry { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
+.ess-res { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-5); }
+.ess-res .button { width: auto; }
+html[data-model="studio"] [data-res="film"] { display: none; }
 </style>
 
   <script>document.documentElement.classList.replace('no-js', 'js');</script>
@@ -7275,7 +7333,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       </div>
     </div>
 
-    <div class="ph-note" aria-hidden="true">Studio exterior: placeholder renders</div><div class="exteriors__track" id="exteriors-track">
+    <div class="exteriors__track" id="exteriors-track">
       <figure class="exterior exterior--front">
         <!-- SOLUM Plus: front -->
         <img class="exterior__img"
@@ -7785,24 +7843,24 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       </div>
     </div>
 
-    <div class="interiors__track" id="interiors-track">
+    <div class="interiors__track" id="interiors-track-studio" data-n="6" data-for="studio">
       <figure class="interior interior--living">
-        <img class="interior__img is-shown" data-variant="burgundy" data-timber="dark" data-time="day" src="img/int/living-dark-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/living-dark-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/living-dark-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/living-dark-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/living-dark-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/living-dark-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/living-dark-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/living-dark-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/living-light-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/living-light-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/living-light-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/living-light-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/living-light-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/living-light-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/living-light-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/living-light-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img is-shown" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" src="img/int/studio-living-dark-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-living-dark-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-living-dark-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-living-dark-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-living-dark-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-living-dark-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-living-dark-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-living-dark-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-living-light-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-living-light-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-living-light-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-living-light-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-living-light-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-living-light-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-living-light-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-living-light-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Living</span>
         </figcaption>
@@ -7819,23 +7877,89 @@ html.tv-mode, html.tv-mode body { cursor: none; }
           </svg>
         </button>
       </figure>
+      <figure class="interior interior--balcony">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-burgundy-day.jpg" alt="The living room, towards the balcony in the Burgundy palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-burgundy-night.jpg" alt="The living room, towards the balcony in the Burgundy palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-sage-day.jpg" alt="The living room, towards the balcony in the Sage palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-sage-night.jpg" alt="The living room, towards the balcony in the Sage palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-tide-day.jpg" alt="The living room, towards the balcony in the Tide palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-tide-night.jpg" alt="The living room, towards the balcony in the Tide palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-wheat-day.jpg" alt="The living room, towards the balcony in the Vine palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-wheat-night.jpg" alt="The living room, towards the balcony in the Vine palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-balcony-light-burgundy-day.jpg" alt="The living room, towards the balcony in the Burgundy palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-balcony-light-burgundy-night.jpg" alt="The living room, towards the balcony in the Burgundy palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-balcony-light-sage-day.jpg" alt="The living room, towards the balcony in the Sage palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-balcony-light-sage-night.jpg" alt="The living room, towards the balcony in the Sage palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-balcony-light-tide-day.jpg" alt="The living room, towards the balcony in the Tide palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-balcony-light-tide-night.jpg" alt="The living room, towards the balcony in the Tide palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-balcony-light-wheat-day.jpg" alt="The living room, towards the balcony in the Vine palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-balcony-light-wheat-night.jpg" alt="The living room, towards the balcony in the Vine palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Balcony</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--kitchen">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-kitchen-dark-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-kitchen-dark-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-kitchen-dark-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-kitchen-dark-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-kitchen-dark-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-kitchen-dark-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-kitchen-dark-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-kitchen-dark-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-kitchen-light-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-kitchen-light-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-kitchen-light-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-kitchen-light-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-kitchen-light-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-kitchen-light-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-kitchen-light-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-kitchen-light-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Kitchen</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
       <figure class="interior interior--bedroom">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/bedroom-light-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/bedroom-light-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/bedroom-light-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/bedroom-light-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/bedroom-light-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/bedroom-light-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/bedroom-light-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/bedroom-light-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-bedroom-dark-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-bedroom-dark-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-bedroom-dark-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-bedroom-dark-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-bedroom-dark-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-bedroom-dark-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-bedroom-dark-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-bedroom-dark-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-bedroom-light-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-bedroom-light-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-bedroom-light-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-bedroom-light-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-bedroom-light-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-bedroom-light-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-bedroom-light-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-bedroom-light-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Bedroom</span>
         </figcaption>
@@ -7853,22 +7977,156 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         </button>
       </figure>
       <figure class="interior interior--bathroom">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/bathroom-light-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/bathroom-light-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/bathroom-light-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/bathroom-light-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/bathroom-light-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/bathroom-light-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/bathroom-light-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/bathroom-light-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-bathroom-dark-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-bathroom-dark-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-bathroom-dark-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-bathroom-dark-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-bathroom-dark-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-bathroom-dark-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-bathroom-dark-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-bathroom-dark-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-bathroom-light-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-bathroom-light-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-bathroom-light-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-bathroom-light-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-bathroom-light-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-bathroom-light-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-bathroom-light-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-bathroom-light-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bathroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--dining">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-dining-dark-burgundy-day.jpg" alt="The dining table in the Burgundy palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-dining-dark-burgundy-night.jpg" alt="The dining table in the Burgundy palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-dining-dark-sage-day.jpg" alt="The dining table in the Sage palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-dining-dark-sage-night.jpg" alt="The dining table in the Sage palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/studio-dining-dark-tide-day.jpg" alt="The dining table in the Tide palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/studio-dining-dark-tide-night.jpg" alt="The dining table in the Tide palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/studio-dining-dark-wheat-day.jpg" alt="The dining table in the Vine palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/studio-dining-dark-wheat-night.jpg" alt="The dining table in the Vine palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/studio-dining-light-burgundy-day.jpg" alt="The dining table in the Burgundy palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/studio-dining-light-burgundy-night.jpg" alt="The dining table in the Burgundy palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/studio-dining-light-sage-day.jpg" alt="The dining table in the Sage palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/studio-dining-light-sage-night.jpg" alt="The dining table in the Sage palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/studio-dining-light-tide-day.jpg" alt="The dining table in the Tide palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/studio-dining-light-tide-night.jpg" alt="The dining table in the Tide palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/studio-dining-light-wheat-day.jpg" alt="The dining table in the Vine palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="studio" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/studio-dining-light-wheat-night.jpg" alt="The dining table in the Vine palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Dining</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="interiors__track" id="interiors-track-standard" data-n="5" data-for="standard">
+      <figure class="interior interior--living">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/living-dark-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/living-dark-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/living-dark-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/living-dark-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/living-dark-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/living-dark-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/living-dark-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/living-dark-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/living-light-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/living-light-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/living-light-sage-day.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/living-light-sage-night.jpg" alt="The living room in the Sage palette: muted green joinery, the garden beyond, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/living-light-tide-day.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/living-light-tide-night.jpg" alt="The living room in the Tide palette: oak joinery, a window seat and a rug, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/living-light-wheat-day.jpg" alt="The living room, looking out through sheer curtains to the garden (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/living-light-wheat-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Living</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bedroom">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/bedroom-dark-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/bedroom-dark-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/bedroom-light-burgundy-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/bedroom-light-burgundy-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/bedroom-light-sage-day.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/bedroom-light-sage-night.jpg" alt="The bedroom in the Sage palette: soft green walls and low morning light, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/bedroom-light-tide-day.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/bedroom-light-tide-night.jpg" alt="The bedroom in the Tide palette: oak walls, linen bedding and a window to the trees, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/bedroom-light-wheat-day.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/bedroom-light-wheat-night.jpg" alt="The bedroom, with the bed against a joinery wall in dark timber, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bedroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bathroom">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/bathroom-dark-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/bathroom-dark-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/bathroom-light-burgundy-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/bathroom-light-burgundy-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/bathroom-light-sage-day.jpg" alt="The bathroom in the Sage palette: green tile and warm stone (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/bathroom-light-sage-night.jpg" alt="The bathroom in the Sage palette: green tile and warm stone, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/bathroom-light-tide-day.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/bathroom-light-tide-night.jpg" alt="The bathroom in the Tide palette: a stone basin, oak drawers and a lit recess, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/bathroom-light-wheat-day.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/bathroom-light-wheat-night.jpg" alt="The bathroom, with a stone basin against a deep red mosaic wall, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Bathroom</span>
         </figcaption>
@@ -7886,22 +8144,22 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         </button>
       </figure>
       <figure class="interior interior--kitchen">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/kitchen-light-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/kitchen-light-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/kitchen-light-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/kitchen-light-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/kitchen-light-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/kitchen-light-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/kitchen-light-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/kitchen-light-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/kitchen-dark-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/kitchen-dark-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/kitchen-light-burgundy-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/kitchen-light-burgundy-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/kitchen-light-sage-day.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/kitchen-light-sage-night.jpg" alt="The kitchen in the Sage palette: handleless joinery in a muted green, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/kitchen-light-tide-day.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/kitchen-light-tide-night.jpg" alt="The kitchen in the Tide palette: oak joinery, a stone bench and a round dining table, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/kitchen-light-wheat-day.jpg" alt="The kitchen, its bench set against a red mosaic splashback (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/kitchen-light-wheat-night.jpg" alt="The kitchen, its bench set against a red mosaic splashback, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Kitchen</span>
         </figcaption>
@@ -7919,22 +8177,22 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         </button>
       </figure>
       <figure class="interior interior--laundry">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-burgundy-day.jpg" alt="The laundry in the Burgundy palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-burgundy-night.jpg" alt="The laundry in the Burgundy palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-sage-day.jpg" alt="The laundry in the Sage palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-sage-night.jpg" alt="The laundry in the Sage palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-tide-day.jpg" alt="The laundry in the Tide palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-tide-night.jpg" alt="The laundry in the Tide palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-wheat-day.jpg" alt="The laundry in the Vine palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-wheat-night.jpg" alt="The laundry in the Vine palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/laundry-light-burgundy-day.jpg" alt="The laundry in the Burgundy palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/laundry-light-burgundy-night.jpg" alt="The laundry in the Burgundy palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/laundry-light-sage-day.jpg" alt="The laundry in the Sage palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/laundry-light-sage-night.jpg" alt="The laundry in the Sage palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/laundry-light-tide-day.jpg" alt="The laundry in the Tide palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/laundry-light-tide-night.jpg" alt="The laundry in the Tide palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/laundry-light-wheat-day.jpg" alt="The laundry in the Vine palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="interior__img" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/laundry-light-wheat-night.jpg" alt="The laundry in the Vine palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-burgundy-day.jpg" alt="The laundry in the Burgundy palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-burgundy-night.jpg" alt="The laundry in the Burgundy palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-sage-day.jpg" alt="The laundry in the Sage palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-sage-night.jpg" alt="The laundry in the Sage palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-tide-day.jpg" alt="The laundry in the Tide palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-tide-night.jpg" alt="The laundry in the Tide palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="day" data-src="img/int/laundry-dark-wheat-day.jpg" alt="The laundry in the Vine palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="dark" data-time="night" data-src="img/int/laundry-dark-wheat-night.jpg" alt="The laundry in the Vine palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="day" data-src="img/int/laundry-light-burgundy-day.jpg" alt="The laundry in the Burgundy palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="light" data-time="night" data-src="img/int/laundry-light-burgundy-night.jpg" alt="The laundry in the Burgundy palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="day" data-src="img/int/laundry-light-sage-day.jpg" alt="The laundry in the Sage palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="sage" data-timber="light" data-time="night" data-src="img/int/laundry-light-sage-night.jpg" alt="The laundry in the Sage palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="day" data-src="img/int/laundry-light-tide-day.jpg" alt="The laundry in the Tide palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="tide" data-timber="light" data-time="night" data-src="img/int/laundry-light-tide-night.jpg" alt="The laundry in the Tide palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="day" data-src="img/int/laundry-light-wheat-day.jpg" alt="The laundry in the Vine palette (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-model="standard" data-variant="vine" data-timber="light" data-time="night" data-src="img/int/laundry-light-wheat-night.jpg" alt="The laundry in the Vine palette, after dark (walnut timber)" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Laundry</span>
         </figcaption>
@@ -7966,6 +8224,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">Burgundy mosaic against limewashed walls, under a battened timber ceiling. A good red held up to low light.</p>
         <p class="finish__key"><span>Burgundy mosaic ledge</span><span>Battened timber ceiling</span></p>
       </div>
+      <div class="finish__copy" data-variant="burgundy" data-room="balcony">
+        <p class="finish__name">Burgundy &middot; Living, towards the balcony</p>
+        <p class="finish__story">Burgundy mosaic against limewashed walls, under a battened timber ceiling. A good red held up to low light.</p>
+        <p class="finish__key"><span>Burgundy mosaic ledge</span><span>Battened timber ceiling</span></p>
+      </div>
       <div class="finish__copy" data-variant="burgundy" data-room="kitchen">
         <p class="finish__name">Burgundy &middot; Kitchen &amp; dining</p>
         <p class="finish__story">Burgundy mosaic from splashback to kickboard, against brushed stainless benches: a cellar-door red in the room you will use most.</p>
@@ -7981,6 +8244,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">Limewashed walls, timber joinery and light kept low: the quietest room in the house, with Burgundy&rsquo;s warmth carried through.</p>
         <p class="finish__key"><span>Limewashed walls</span><span>Stainless open shelving</span></p>
       </div>
+      <div class="finish__copy" data-variant="burgundy" data-room="dining">
+        <p class="finish__name">Burgundy &middot; Dining</p>
+        <p class="finish__story">Burgundy mosaic from splashback to kickboard, against brushed stainless benches: a cellar-door red in the room you will use most.</p>
+        <p class="finish__key"><span>Burgundy mosaic splashback</span><span>Brushed stainless benchtops</span></p>
+      </div>
       <div class="finish__copy" data-variant="burgundy" data-room="laundry">
         <p class="finish__name">Burgundy &middot; Laundry</p>
         <p class="finish__story">The washer and dryer behind a full height door, with the same Burgundy tile carried along the kickboard.</p>
@@ -7988,6 +8256,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       </div>
       <div class="finish__copy" data-variant="sage" data-room="living">
         <p class="finish__name">Sage &middot; Living</p>
+        <p class="finish__story">Sage mosaic against limewashed walls, under a battened timber ceiling. Saltbush and eucalypt in shade, quiet enough to let the view do the talking.</p>
+        <p class="finish__key"><span>Sage mosaic ledge</span><span>Battened timber ceiling</span></p>
+      </div>
+      <div class="finish__copy" data-variant="sage" data-room="balcony">
+        <p class="finish__name">Sage &middot; Living, towards the balcony</p>
         <p class="finish__story">Sage mosaic against limewashed walls, under a battened timber ceiling. Saltbush and eucalypt in shade, quiet enough to let the view do the talking.</p>
         <p class="finish__key"><span>Sage mosaic ledge</span><span>Battened timber ceiling</span></p>
       </div>
@@ -8006,6 +8279,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">Limewashed walls, timber joinery and light kept low: the quietest room in the house, with Sage&rsquo;s calm carried through.</p>
         <p class="finish__key"><span>Limewashed walls</span><span>Stainless open shelving</span></p>
       </div>
+      <div class="finish__copy" data-variant="sage" data-room="dining">
+        <p class="finish__name">Sage &middot; Dining</p>
+        <p class="finish__story">Sage mosaic from splashback to kickboard, against brushed stainless benches: the grey-green of the bush, cool and easy to cook in.</p>
+        <p class="finish__key"><span>Sage mosaic splashback</span><span>Brushed stainless benchtops</span></p>
+      </div>
       <div class="finish__copy" data-variant="sage" data-room="laundry">
         <p class="finish__name">Sage &middot; Laundry</p>
         <p class="finish__story">The washer and dryer behind a full height door, with the same Sage tile carried along the kickboard.</p>
@@ -8013,6 +8291,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       </div>
       <div class="finish__copy" data-variant="tide" data-room="living">
         <p class="finish__name">Tide &middot; Living</p>
+        <p class="finish__story">Tide mosaic against limewashed walls, under a battened timber ceiling. The colour of shallow water over sand, calm and clear from first light.</p>
+        <p class="finish__key"><span>Tide mosaic ledge</span><span>Battened timber ceiling</span></p>
+      </div>
+      <div class="finish__copy" data-variant="tide" data-room="balcony">
+        <p class="finish__name">Tide &middot; Living, towards the balcony</p>
         <p class="finish__story">Tide mosaic against limewashed walls, under a battened timber ceiling. The colour of shallow water over sand, calm and clear from first light.</p>
         <p class="finish__key"><span>Tide mosaic ledge</span><span>Battened timber ceiling</span></p>
       </div>
@@ -8031,6 +8314,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">Limewashed walls, timber joinery and light kept low: the quietest room in the house, with Tide&rsquo;s clarity carried through.</p>
         <p class="finish__key"><span>Limewashed walls</span><span>Stainless open shelving</span></p>
       </div>
+      <div class="finish__copy" data-variant="tide" data-room="dining">
+        <p class="finish__name">Tide &middot; Dining</p>
+        <p class="finish__story">Tide mosaic from splashback to kickboard, against brushed stainless benches: clear as shallow water, bright from the first coffee.</p>
+        <p class="finish__key"><span>Tide mosaic splashback</span><span>Brushed stainless benchtops</span></p>
+      </div>
       <div class="finish__copy" data-variant="tide" data-room="laundry">
         <p class="finish__name">Tide &middot; Laundry</p>
         <p class="finish__story">The washer and dryer behind a full height door, with the same Tide tile carried along the kickboard.</p>
@@ -8038,6 +8326,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       </div>
       <div class="finish__copy" data-variant="vine" data-room="living">
         <p class="finish__name">Vine &middot; Living</p>
+        <p class="finish__story">Vine mosaic against limewashed walls, under a battened timber ceiling.</p>
+        <p class="finish__key"><span>Vine mosaic ledge</span><span>Battened timber ceiling</span></p>
+      </div>
+      <div class="finish__copy" data-variant="vine" data-room="balcony">
+        <p class="finish__name">Vine &middot; Living, towards the balcony</p>
         <p class="finish__story">Vine mosaic against limewashed walls, under a battened timber ceiling.</p>
         <p class="finish__key"><span>Vine mosaic ledge</span><span>Battened timber ceiling</span></p>
       </div>
@@ -8056,6 +8349,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <p class="finish__story">Limewashed walls, timber joinery and light kept low.</p>
         <p class="finish__key"><span>Limewashed walls</span><span>Stainless open shelving</span></p>
       </div>
+      <div class="finish__copy" data-variant="vine" data-room="dining">
+        <p class="finish__name">Vine &middot; Dining</p>
+        <p class="finish__story">Vine mosaic from splashback to kickboard, against brushed stainless benches.</p>
+        <p class="finish__key"><span>Vine mosaic splashback</span><span>Brushed stainless benchtops</span></p>
+      </div>
       <div class="finish__copy" data-variant="vine" data-room="laundry">
         <p class="finish__name">Vine &middot; Laundry</p>
         <p class="finish__story">The washer and dryer behind a full height door, with the same Vine tile carried along the kickboard.</p>
@@ -8069,6 +8367,8 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       <p class="finish__standard" data-room="living">Joinery and ceiling battens in dark timber or a classic walnut look, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
       <p class="finish__standard" data-room="kitchen">Hot water and heating and cooling come standard. Appliances, including a washer dryer, and a four-seat dining table are available as options.</p>
       <p class="finish__standard" data-room="bathroom">Brushed nickel tapware, porcelain tiles to floor and walls, linear LED lighting and a polished nickel flush plate.</p>
+      <p class="finish__standard" data-room="balcony">Joinery and ceiling battens in dark timber or a classic walnut look, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
+      <p class="finish__standard" data-room="dining">Hot water and heating and cooling come standard. Appliances, including a washer dryer, and a four-seat dining table are available as options.</p>
       <p class="finish__standard" data-room="laundry">Appliances, including a washer dryer, are available as options.</p>
       <p class="finish__standard" data-room="bedroom">Joinery in dark timber or a classic walnut look, porcelain floors and a fully fitted wardrobe, included. A queen bed is available as an option.</p>
     </div>
@@ -8568,7 +8868,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       <div class="mysolum__print">
         <figure class="mysolum__interior is-preview">
           <img data-mysolum-img="interior"
-               src="img/int/living-dark-burgundy-day.jpg"
+               src="img/int/studio-living-dark-burgundy-day.jpg"
                alt="" loading="lazy" decoding="async">
         </figure>
         <p class="mysolum__caption"><span>Inside</span><span data-mysolum-caption="palette"></span></p>
@@ -8606,6 +8906,11 @@ html.tv-mode, html.tv-mode body { cursor: none; }
         <span class="button__label">Print my SOLUM</span>
         <span class="button__arrow" aria-hidden="true">&darr;</span>
       </button>
+      <div class="ess-res">
+        <button class="button button--glass button--sm enquire__link" type="button" data-res="brochure"><span class="button__label">Brochure</span><span class="button__arrow" aria-hidden="true">&darr;</span></button>
+        <button class="button button--glass button--sm enquire__link" type="button" data-res="model"><span class="button__label">3D model</span><span class="button__arrow" aria-hidden="true">&rarr;</span></button>
+        <button class="button button--glass button--sm enquire__link" type="button" data-res="film"><span class="button__label">Launch film</span><span class="button__arrow" aria-hidden="true">&rarr;</span></button>
+      </div>
       <p class="mysolum__fine">Change anything here and the page above follows. Your choices are kept for this visit.</p>
     </div>
   </section>
@@ -9563,7 +9868,7 @@ function initVariants(section) {
       tb.classList.toggle('is-selected', on);
       tb.setAttribute('aria-pressed', String(on));
     }
-    document.documentElement.dataset.timber = timber;
+    if (timbers.length) document.documentElement.dataset.timber = timber;
 
     let name = variant;
     for (const swatch of swatches) {
@@ -10592,7 +10897,11 @@ function buildPaletteScene() {
     intro: section?.querySelector('.palettes__intro'),
     id: 'palettes-scene',
     modifier: 'scene--palettes',
-    hold: section?.querySelector('.interiors__track'),
+    hold: (() => {
+      const ts = [...(section?.querySelectorAll('.interiors__track') ?? [])];
+      if (ts.length < 2) return ts[0];
+      return { dataset: new Proxy({}, { get: (o, k) => ts[0].dataset[k], set: (o, k, v) => { ts.forEach((t) => { t.dataset[k] = v; }); return true; } }) };
+    })(),
   });
   if (!scene) return null;
 
@@ -11684,24 +11993,21 @@ const roomOf = (panel) => [...panel.classList]
   .find((name) => name.startsWith('interior--'))?.slice('interior--'.length);
 
 function initRoomCopy(section) {
-  const track = section?.querySelector('.interiors__track');
-  if (!track) return;
+  const tracks = [...(section?.querySelectorAll('.interiors__track') ?? [])];
+  if (!tracks.length) return;
+  const live = () => tracks.find((t) => t.offsetParent !== null) ?? tracks[0];
 
   const current = () => {
+    const track = live();
     const open = track.querySelector(`.interior[data-slot="${track.dataset.open ?? '0'}"]`);
     if (open) return roomOf(open);
-
-    // no conveyor: the card with the most of itself inside the row
     const row = track.getBoundingClientRect();
     let best = null;
     let most = -1;
     for (const panel of track.querySelectorAll('.interior')) {
       const box = panel.getBoundingClientRect();
       const seen = Math.min(box.right, row.right) - Math.max(box.left, row.left);
-      if (seen > most) {
-        most = seen;
-        best = panel;
-      }
+      if (seen > most) { most = seen; best = panel; }
     }
     return best && roomOf(best);
   };
@@ -11711,10 +12017,11 @@ function initRoomCopy(section) {
     if (room && section.dataset.room !== room) section.dataset.room = room;
   };
 
-  new MutationObserver(apply).observe(track, {
-    subtree: true, attributes: true, attributeFilter: ['data-slot', 'data-open'],
-  });
-  track.addEventListener('scroll', apply, { passive: true });
+  for (const track of tracks) {
+    new MutationObserver(apply).observe(track, { subtree: true, attributes: true, attributeFilter: ['data-slot', 'data-open'] });
+    track.addEventListener('scroll', apply, { passive: true });
+  }
+  document.addEventListener('modelchange', () => setTimeout(apply, 0));
   window.addEventListener('resize', apply);
   apply();
 }
@@ -11754,7 +12061,7 @@ const $ = (selector) => document.querySelector(selector);
 startClock($('#clock'), CLOCK_TIME_ZONE);
 startCountdown($('#countdown'), LAUNCH_AT);
 initRegister({ root: $('#register'), endpoint: REGISTER_ENDPOINT, simulate: IS_LOCAL });
-initConveyor($('#interiors-track'));
+document.querySelectorAll('.interiors__track').forEach((t) => initConveyor(t));
 initConveyor($('#exteriors-track'), { hold: 5200 });
 // The model first: the sections below read it as they set themselves up.
 initModel();
@@ -11810,11 +12117,12 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !layer.hidden) open(false); });
 })();
 </script>
-<script>/* The bridge between Seth's page and the display around it.
-   The page is Seth's, working exactly as he built it. This only does three things:
-   it tells the display what is being shown (so the TV can follow), it does what the display asks
-   (jump to a section, take a choice), and it hands a few keys back up. */
+<script>window.HB_PAGE = 'solum';
+/* The bridge between one of Seth's pages and the display around it (window.HB_PAGE says which page this is).
+   The page itself is Seth's and works as he built it. This only does a few things: tells the display what is on show
+   (so a TV can follow), does what the display asks (a home, a choice, a scroll), and hands a couple of keys back up. */
 (function () {
+  var PAGE = window.HB_PAGE;
   var P = null; try { if (window.parent !== window) P = window.parent } catch (e) {}
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var root = document.documentElement;
@@ -11823,12 +12131,15 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   function $$(s, r) { return [].slice.call((r || document).querySelectorAll(s)) }
   function post(m) { if (P) { try { P.postMessage(Object.assign({ hbs: 1 }, m), '*') } catch (e) {} } }
 
-  var MODEL = { standard: 'plus', studio: 'studio' }, MODELR = { plus: 'standard', studio: 'studio' };
+  // SOLUM's page calls the Plus 'standard'; the display calls it 'plus'
+  var TOPAGE = PAGE === 'solum' ? { plus: 'standard', studio: 'studio' } : null;
+  var FROMPAGE = PAGE === 'solum' ? { standard: 'plus', studio: 'studio' } : null;
   var DELS = { supply: 'supply', delivery: 'delivered', install: 'installed' }, DELR = { supply: 'supply', delivered: 'delivery', installed: 'install' };
   var SECS = [['.launch', 'overview'], ['#models', 'overview'], ['#exteriors', 'outside'], ['#interiors', 'inside'], ['#plan', 'plan'], ['#journey', 'way'], ['#my-solum', 'mine']];
+  var TARGET = { outside: 'exteriors', inside: 'interiors', plan: 'plan', way: 'journey', mine: 'my-solum' };
 
-  function selected(sec, attr) { var b = sec && $('.swatch.is-selected[' + attr + ']', sec); return b ? b.getAttribute(attr) : '' }
   function night(sec) { var b = sec && $('button[data-clock]', sec); return b && b.getAttribute('aria-pressed') === 'true' ? 'night' : 'day' }
+  function selected(sec) { var b = sec && $('.swatch.is-selected[data-variant]', sec); return b ? b.dataset.variant : '' }
   function section() {
     var mid = innerHeight * 0.5, best = 'overview';
     SECS.forEach(function (p) {
@@ -11839,17 +12150,12 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
+  function model() { var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
-    return {
-      h: MODEL[root.dataset.model || 'studio'] || 'studio',
-      cl: selected($('.exteriors'), 'data-variant'),
-      p: selected($('.interiors'), 'data-variant'),
-      m: root.dataset.timber || 'dark',
-      t: night($('.exteriors')), it: night($('.interiors')),
-      d: jv ? (DELS[jv.dataset.variant] || 'supply') : 'supply',
-      sec: section(), sy: ratio()
-    };
+    return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
+      t: night($('.exteriors')), it: night($('.interiors')), d: jv ? (DELS[jv.dataset.variant] || 'supply') : 'supply',
+      sec: section(), sy: ratio() };
   }
 
   var last = '', timer = null, dirty = false;
@@ -11865,23 +12171,25 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   addEventListener('scenesettle', soon);
   addEventListener('resize', soon);
 
-  function click(el) { if (el) el.click() }
-  function pickSwatch(sec, attr, val) {
-    if (!val) return;
-    var b = $('.swatch[' + attr + '="' + val + '"]', sec);
+  function pickSwatch(sec, val) {
+    if (!val || !sec) return;
+    var b = $('.swatch[data-variant="' + val + '"]', sec);
     if (b && !b.classList.contains('is-selected') && !b.classList.contains('is-pending')) b.click();
   }
   function setClock(sec, want) {
-    var b = $('button[data-clock]', sec); if (!b || b.classList.contains('is-pending')) return;
+    var b = sec && $('button[data-clock]', sec); if (!b || b.classList.contains('is-pending')) return;
     if ((b.getAttribute('aria-pressed') === 'true') !== (want === 'night')) b.click();
   }
   function apply(st, withScroll) {
     if (!st) return;
-    if (st.h && MODELR[st.h] && root.dataset.model !== MODELR[st.h]) click($('.models__toggle [data-model-choice="' + MODELR[st.h] + '"]'));
+    if (st.h) {
+      var want = TOPAGE ? TOPAGE[st.h] : st.h;
+      if (want && root.dataset.model !== want) { var b = $('.models__toggle [data-model-choice="' + want + '"]'); if (b) b.click() }
+    }
     var ex = $('.exteriors'), it = $('.interiors'), jr = $('.journey');
-    pickSwatch(ex, 'data-variant', st.cl);
-    pickSwatch(it, 'data-variant', st.p);
-    if (st.m && (root.dataset.timber || 'dark') !== st.m) click($('[data-timber-choice="' + st.m + '"]', it));
+    pickSwatch(ex, st.cl);
+    pickSwatch(it, st.p);
+    if (st.m && it && (root.dataset.timber || 'dark') !== st.m) { var tb = $('[data-timber-choice="' + st.m + '"]', it); if (tb) tb.click() }
     if (st.t) setClock(ex, st.t);
     if (st.it) setClock(it, st.it);
     if (st.d && DELR[st.d] && jr) { var jb = $('button[data-variant="' + DELR[st.d] + '"]:not([data-enquire])', jr); if (jb && !jb.classList.contains('is-selected')) jb.click() }
@@ -11890,11 +12198,9 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
       scrollTo({ top: Math.round(st.sy * m), behavior: 'instant' });
     }
   }
-  var TARGET = { outside: 'exteriors', inside: 'interiors', plan: 'plan', way: 'journey', mine: 'my-solum' };
   function goto(sec, instant) {
     var id = TARGET[sec];
     if (!id) { scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' }); return }
-    // the page's own links (the tray's) already know how to arrive at a stage
     var a = document.createElement('a'); a.href = '#' + id; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
   }
 
@@ -11902,18 +12208,28 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     var m = e.data; if (!m || !m.hbs) return;
     if (m.type === 'apply') apply(m.st, !!m.scroll);
     else if (m.type === 'goto') goto(m.sec, !!m.instant);
-    else if (m.type === 'reset') { try { sessionStorage.removeItem('haavn-my-solum') } catch (er) {} location.reload() }
-    else if (m.type === 'print') window.print();
   });
-
-  // keys the display owns: F for full screen, Escape for leaving a home
   addEventListener('keydown', function (e) {
     if (e.target && e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
     if (e.key === 'f' || e.key === 'F' || e.key === 'Escape') post({ type: 'key', key: e.key });
   });
-  // "Print my SOLUM": a clean one page summary of what is in My SOLUM, not the whole scrolling page
+
+  // the brochure, 3D model and launch film (SOLUM's end page)
+  document.addEventListener('click', function (e) {
+    var mn = e.target.closest('[data-menu]'); if (mn) { post({ type: 'menu', which: mn.dataset.menu }); return }
+    var r = e.target.closest('[data-res]'); if (r) { e.preventDefault(); post({ type: 'res', kind: r.dataset.res, h: model() }); return }
+    // plan sheets, where a home has more than one
+    var s = e.target.closest('[data-sheet]');
+    if (s) {
+      var fig = s.closest('.plan__drawing');
+      $$('.ess-sheet', fig).forEach(function (n, i) { n.hidden = String(i) !== s.dataset.sheet });
+      $$('[data-sheet]', fig).forEach(function (x) { var on = x === s; x.classList.toggle('is-selected', on); x.setAttribute('aria-pressed', String(on)) });
+    }
+  });
+
+  // "Print": a one page summary of what the visitor chose
   function printSummary() {
-    var name = ($('[data-mysolum-name]') || {}).textContent || 'SOLUM', sent = ($('[data-mysolum-sentence]') || {}).textContent || '';
+    var name = ($('[data-mysolum-name]') || {}).textContent || 'home', sent = ($('[data-mysolum-sentence]') || {}).textContent || '';
     var rows = $$('.mysolum__row').map(function (r) { return '<tr><th>' + r.querySelector('dt').textContent + '</th><td>' + r.querySelector('.mysolum__value-text').textContent + '</td></tr>' }).join('');
     var ex = $('[data-mysolum-img="exterior"]'), inn = $('[data-mysolum-img="interior"]');
     var caps = $$('.mysolum__caption').map(function (c) { return c.textContent.replace(/\s+/g, ' ').trim() });

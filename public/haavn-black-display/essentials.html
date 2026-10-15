@@ -1837,7 +1837,9 @@ html:not([data-model="vista"]) .models__copy[data-model="vista"] {
 .has-scene .scene--palettes .interior[data-slot="0"],
 .has-scene .scene--palettes .interior[data-slot="1"],
 .has-scene .scene--palettes .interior[data-slot="2"],
-.has-scene .scene--palettes .interior[data-slot="3"] {
+.has-scene .scene--palettes .interior[data-slot="3"],
+.has-scene .scene--palettes .interior[data-slot="4"],
+.has-scene .scene--palettes .interior[data-slot="5"] {
   opacity: var(--arrive);
 }
 
@@ -3090,60 +3092,60 @@ html:not([data-model="vista"]) .models__copy[data-model="vista"] {
       opacity var(--conveyor-dur) var(--ease-out);
   }
 
-  /* six panels: the open one and five queued */
-  .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 9.2%; }
-  .interior:not([data-slot]):nth-child(3) { left: 59.0%; width: 9.2%; }
-  .interior:not([data-slot]):nth-child(4) { left: 69.6%; width: 9.2%; }
-  .interior:not([data-slot]):nth-child(5) { left: 80.2%; width: 9.2%; }
-  .interior:not([data-slot]):nth-child(6) { left: 90.8%; width: 9.2%; }
-  .interior:not([data-slot]):nth-child(n + 7) { left: 100%; width: 0; opacity: 0; }
-  .interiors__track { --w-lead: 47%; --w-queue: 9.2%; --conveyor-dur: 0.9s; }
-  .interior[data-slot="0"], .interior[data-slot="1"], .interior[data-slot="2"], .interior[data-slot="3"], .interior[data-slot="4"], .interior[data-slot="5"] { opacity: 1; }
-  .interiors__track:not([data-open]) .interior[data-slot="0"],
-  .interiors__track[data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
-  .interiors__track:not([data-open]) .interior[data-slot="1"],
-  .interiors__track[data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 9.2%; }
-  .interiors__track:not([data-open]) .interior[data-slot="2"],
-  .interiors__track[data-open="0"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
-  .interiors__track:not([data-open]) .interior[data-slot="3"],
-  .interiors__track[data-open="0"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
-  .interiors__track:not([data-open]) .interior[data-slot="4"],
-  .interiors__track[data-open="0"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
-  .interiors__track:not([data-open]) .interior[data-slot="5"],
-  .interiors__track[data-open="0"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
-  .interiors__track[data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
-  .interiors__track[data-open="1"] .interior[data-slot="1"] { left: 10.6%; width: 47.0%; }
-  .interiors__track[data-open="1"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
-  .interiors__track[data-open="1"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
-  .interiors__track[data-open="1"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
-  .interiors__track[data-open="1"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
-  .interiors__track[data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
-  .interiors__track[data-open="2"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
-  .interiors__track[data-open="2"] .interior[data-slot="2"] { left: 21.2%; width: 47.0%; }
-  .interiors__track[data-open="2"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
-  .interiors__track[data-open="2"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
-  .interiors__track[data-open="2"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
-  .interiors__track[data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
-  .interiors__track[data-open="3"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
-  .interiors__track[data-open="3"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
-  .interiors__track[data-open="3"] .interior[data-slot="3"] { left: 31.8%; width: 47.0%; }
-  .interiors__track[data-open="3"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
-  .interiors__track[data-open="3"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
-  .interiors__track[data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
-  .interiors__track[data-open="4"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
-  .interiors__track[data-open="4"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
-  .interiors__track[data-open="4"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
-  .interiors__track[data-open="4"] .interior[data-slot="4"] { left: 42.4%; width: 47.0%; }
-  .interiors__track[data-open="4"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="4"] { left: 42.4%; width: 9.2%; }
-  .interiors__track[data-open="5"] .interior[data-slot="5"] { left: 53.0%; width: 47.0%; }
-  .interior[data-slot="6"], .interior[data-slot="7"], .interior[data-slot="8"], .interior[data-slot="9"], .interior[data-slot="10"] { left: 100%; width: 0; opacity: 0; }
-  .interior[data-slot="11"] { left: 0; width: 0; opacity: 0; }
-  .interior[data-slot="10"] { transition: none; }
+  /* the interiors row, written for each panel count in use (Seth wrote it for four) */
+  .interiors__track { --w-lead: 47%; --conveyor-dur: 0.9s; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(3) { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(4) { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(5) { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(6) { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"] .interior:not([data-slot]):nth-child(n + 7) { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="0"], .interiors__track[data-n="6"] .interior[data-slot="1"], .interiors__track[data-n="6"] .interior[data-slot="2"], .interiors__track[data-n="6"] .interior[data-slot="3"], .interiors__track[data-n="6"] .interior[data-slot="4"], .interiors__track[data-n="6"] .interior[data-slot="5"] { opacity: 1; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="4"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"]:not([data-open]) .interior[data-slot="5"],
+  .interiors__track[data-n="6"][data-open="0"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="1"] { left: 10.6%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="2"] { left: 59.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="1"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="2"] { left: 21.2%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="3"] { left: 69.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="2"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="3"] { left: 31.8%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="4"] { left: 80.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="3"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="4"] { left: 42.4%; width: 47.0%; }
+  .interiors__track[data-n="6"][data-open="4"] .interior[data-slot="5"] { left: 90.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="0"] { left: 0.0%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="1"] { left: 10.6%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="2"] { left: 21.2%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="3"] { left: 31.8%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="4"] { left: 42.4%; width: 9.2%; }
+  .interiors__track[data-n="6"][data-open="5"] .interior[data-slot="5"] { left: 53.0%; width: 47.0%; }
+  .interiors__track[data-n="6"] .interior[data-slot="6"], .interiors__track[data-n="6"] .interior[data-slot="7"], .interiors__track[data-n="6"] .interior[data-slot="8"], .interiors__track[data-n="6"] .interior[data-slot="9"], .interiors__track[data-n="6"] .interior[data-slot="10"] { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="11"] { left: 0; width: 0; opacity: 0; }
+  .interiors__track[data-n="6"] .interior[data-slot="10"] { transition: none; }
   /* The open panel pans out to its wider framing and names itself.
      Whichever panel that is: the lead by default, the hovered one while
      the pointer is over the row. */
@@ -7120,8 +7122,13 @@ html:not([data-model="vista"]) .models__copy[data-model="vista"] {
 html.privacy-open, html.privacy-open body { overflow: hidden; }
 
 
-/* ---- the Essentials page: what is added to Seth's page ---- */
+/* ---- the display: what is added to Seth's page ---- */
 .site-header, .announce, .register, .faq, .site-footer, #client-privacy { display: none !important; }
+html.tv-mode, html.tv-mode body { cursor: none; }
+.eyebrow__model { margin-left: 0.8em; }
+
+/* ---- the Essentials page: what is added to Seth's page ---- */
+
 :root { --c-light: #e4dbc6; --c-dark: #9fb4c8; }
 .swatch[data-variant="light"] { --swatch-colour: var(--c-light); }
 .swatch[data-variant="dark"]  { --swatch-colour: var(--c-dark); }
@@ -7158,8 +7165,6 @@ html[data-model="aura"] .exteriors .finish__copy, html[data-model="vela"] .exter
   .ess-plan .plan__figure--area dt::after { display: none !important; }
   .ess-plan .plan__body > .enquire { grid-column: 2 !important; grid-row: 3 !important; margin-top: 0 !important; }
 }
-.eyebrow__model { margin-left: 0.8em; }
-html.tv-mode, html.tv-mode body { cursor: none; }
 </style>
 
   <script>document.documentElement.classList.replace('no-js', 'js');</script>
@@ -7394,7 +7399,7 @@ html.tv-mode, html.tv-mode body { cursor: none; }
       <p class="eyebrow" id="interiors-title">An inside look<span class="eyebrow__model">Essentials</span></p>
     </div>
 
-    <div class="interiors__track" id="interiors-track">
+    <div class="interiors__track" id="interiors-track" data-n="6">
       <figure class="interior interior--living">
         <img class="interior__img is-shown" src="img/ess/living.jpg" alt="Living" decoding="async">
         <figcaption class="interior__caption">
@@ -11159,9 +11164,12 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !layer.hidden) open(false); });
 })();
 </script>
-<script>/* The bridge between the Essentials page and the display around it. The page is Seth's engine; this only
-   tells the display what is on show (so a TV can follow), does what the display asks, and hands up a few keys. */
+<script>window.HB_PAGE = 'essentials';
+/* The bridge between one of Seth's pages and the display around it (window.HB_PAGE says which page this is).
+   The page itself is Seth's and works as he built it. This only does a few things: tells the display what is on show
+   (so a TV can follow), does what the display asks (a home, a choice, a scroll), and hands a couple of keys back up. */
 (function () {
+  var PAGE = window.HB_PAGE;
   var P = null; try { if (window.parent !== window) P = window.parent } catch (e) {}
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var root = document.documentElement;
@@ -11170,9 +11178,15 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   function $$(s, r) { return [].slice.call((r || document).querySelectorAll(s)) }
   function post(m) { if (P) { try { P.postMessage(Object.assign({ hbs: 1 }, m), '*') } catch (e) {} } }
 
+  // SOLUM's page calls the Plus 'standard'; the display calls it 'plus'
+  var TOPAGE = PAGE === 'solum' ? { plus: 'standard', studio: 'studio' } : null;
+  var FROMPAGE = PAGE === 'solum' ? { standard: 'plus', studio: 'studio' } : null;
   var DELS = { supply: 'supply', delivery: 'delivered', install: 'installed' }, DELR = { supply: 'supply', delivered: 'delivery', installed: 'install' };
   var SECS = [['.launch', 'overview'], ['#models', 'overview'], ['#exteriors', 'outside'], ['#interiors', 'inside'], ['#plan', 'plan'], ['#journey', 'way'], ['#my-solum', 'mine']];
+  var TARGET = { outside: 'exteriors', inside: 'interiors', plan: 'plan', way: 'journey', mine: 'my-solum' };
 
+  function night(sec) { var b = sec && $('button[data-clock]', sec); return b && b.getAttribute('aria-pressed') === 'true' ? 'night' : 'day' }
+  function selected(sec) { var b = sec && $('.swatch.is-selected[data-variant]', sec); return b ? b.dataset.variant : '' }
   function section() {
     var mid = innerHeight * 0.5, best = 'overview';
     SECS.forEach(function (p) {
@@ -11183,15 +11197,18 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
+  function model() { var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
-    var ex = $('.exteriors'), cl = ex && $('.swatch.is-selected[data-variant]', ex), jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
-    return { h: 'essentials', em: root.dataset.model || 'terra', cl: cl ? cl.dataset.variant : '', d: jv ? (DELS[jv.dataset.variant] || 'supply') : 'supply', sec: section(), sy: ratio() };
+    var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
+    return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
+      t: night($('.exteriors')), it: night($('.interiors')), d: jv ? (DELS[jv.dataset.variant] || 'supply') : 'supply',
+      sec: section(), sy: ratio() };
   }
 
   var last = '', timer = null, dirty = false;
   function send(force) {
     dirty = false;
-    var s = snapshot(), key = JSON.stringify([s.em, s.cl, s.d, s.sec, Math.round(s.sy * 400)]);
+    var s = snapshot(), key = JSON.stringify([s.h, s.cl, s.p, s.m, s.t, s.it, s.d, s.sec, Math.round(s.sy * 400)]);
     if (!force && key === last) return; last = key;
     post({ type: 'state', st: s });
   }
@@ -11201,19 +11218,33 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   addEventListener('scenesettle', soon);
   addEventListener('resize', soon);
 
+  function pickSwatch(sec, val) {
+    if (!val || !sec) return;
+    var b = $('.swatch[data-variant="' + val + '"]', sec);
+    if (b && !b.classList.contains('is-selected') && !b.classList.contains('is-pending')) b.click();
+  }
+  function setClock(sec, want) {
+    var b = sec && $('button[data-clock]', sec); if (!b || b.classList.contains('is-pending')) return;
+    if ((b.getAttribute('aria-pressed') === 'true') !== (want === 'night')) b.click();
+  }
   function apply(st, withScroll) {
     if (!st) return;
-    if (st.em && root.dataset.model !== st.em) { var b = $('.models__toggle [data-model-choice="' + st.em + '"]'); if (b) b.click() }
-    var ex = $('.exteriors');
-    if (st.cl && ex) { var s = $('.swatch[data-variant="' + st.cl + '"]', ex); if (s && !s.classList.contains('is-selected') && !s.classList.contains('is-pending')) s.click() }
-    var jr = $('.journey');
+    if (st.h) {
+      var want = TOPAGE ? TOPAGE[st.h] : st.h;
+      if (want && root.dataset.model !== want) { var b = $('.models__toggle [data-model-choice="' + want + '"]'); if (b) b.click() }
+    }
+    var ex = $('.exteriors'), it = $('.interiors'), jr = $('.journey');
+    pickSwatch(ex, st.cl);
+    pickSwatch(it, st.p);
+    if (st.m && it && (root.dataset.timber || 'dark') !== st.m) { var tb = $('[data-timber-choice="' + st.m + '"]', it); if (tb) tb.click() }
+    if (st.t) setClock(ex, st.t);
+    if (st.it) setClock(it, st.it);
     if (st.d && DELR[st.d] && jr) { var jb = $('button[data-variant="' + DELR[st.d] + '"]:not([data-enquire])', jr); if (jb && !jb.classList.contains('is-selected')) jb.click() }
     if (withScroll && st.sy != null) {
       var m = document.documentElement.scrollHeight - innerHeight;
       scrollTo({ top: Math.round(st.sy * m), behavior: 'instant' });
     }
   }
-  var TARGET = { outside: 'exteriors', inside: 'interiors', plan: 'plan', way: 'journey', mine: 'my-solum' };
   function goto(sec, instant) {
     var id = TARGET[sec];
     if (!id) { scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' }); return }
@@ -11229,18 +11260,28 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     if (e.target && e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
     if (e.key === 'f' || e.key === 'F' || e.key === 'Escape') post({ type: 'key', key: e.key });
   });
-  // a home's own pages in the display
+
+  // the brochure, 3D model and launch film (SOLUM's end page)
   document.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-open-home]'); if (b) post({ type: 'open', h: b.dataset.openHome });
+    var mn = e.target.closest('[data-menu]'); if (mn) { post({ type: 'menu', which: mn.dataset.menu }); return }
+    var r = e.target.closest('[data-res]'); if (r) { e.preventDefault(); post({ type: 'res', kind: r.dataset.res, h: model() }); return }
+    // plan sheets, where a home has more than one
+    var s = e.target.closest('[data-sheet]');
+    if (s) {
+      var fig = s.closest('.plan__drawing');
+      $$('.ess-sheet', fig).forEach(function (n, i) { n.hidden = String(i) !== s.dataset.sheet });
+      $$('[data-sheet]', fig).forEach(function (x) { var on = x === s; x.classList.toggle('is-selected', on); x.setAttribute('aria-pressed', String(on)) });
+    }
   });
 
-  // "Print my Essentials": a one page summary
+  // "Print": a one page summary of what the visitor chose
   function printSummary() {
     var name = ($('[data-mysolum-name]') || {}).textContent || 'home', sent = ($('[data-mysolum-sentence]') || {}).textContent || '';
     var rows = $$('.mysolum__row').map(function (r) { return '<tr><th>' + r.querySelector('dt').textContent + '</th><td>' + r.querySelector('.mysolum__value-text').textContent + '</td></tr>' }).join('');
     var ex = $('[data-mysolum-img="exterior"]'), inn = $('[data-mysolum-img="interior"]');
+    var caps = $$('.mysolum__caption').map(function (c) { return c.textContent.replace(/\s+/g, ' ').trim() });
     var w = window.open('', '_blank'); if (!w) { window.print(); return }
-    w.document.write('<!doctype html><meta charset="utf-8"><title>My ' + name + '</title><style>body{font:300 16px/1.55 Inter,Arial,sans-serif;margin:44px;color:#111}h1{font-weight:300;font-size:36px;margin:0 0 6px}p{margin:0 0 18px;color:#444}.pics{display:flex;gap:18px;margin:22px 0}.pics figure{flex:1;margin:0}.pics img{width:100%;display:block}table{border-collapse:collapse;width:100%;margin-top:6px}th,td{text-align:left;padding:10px 0;border-bottom:1px solid #ccc;font-weight:300}th{width:140px;color:#555}small{display:block;margin-top:28px;color:#666;font-size:12px}</style><h1>My ' + name + '</h1><p>' + sent + '</p><div class="pics"><figure><img src="' + (ex ? ex.src : '') + '"></figure><figure><img src="' + (inn ? inn.src : '') + '"></figure></div><table>' + rows + '</table><small>Renders are indicative design visualisations. Floor plans and dimensions are indicative and may change as we finalise compliance with Australian standards.</small>');
+    w.document.write('<!doctype html><meta charset="utf-8"><title>My ' + name + '</title><style>body{font:300 16px/1.55 Inter,Arial,sans-serif;margin:44px;color:#111}h1{font-weight:300;font-size:36px;margin:0 0 6px}p{margin:0 0 18px;color:#444}.pics{display:flex;gap:18px;margin:22px 0}.pics figure{flex:1;margin:0}.pics img{width:100%;display:block}figcaption{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#555;margin-top:6px}table{border-collapse:collapse;width:100%;margin-top:6px}th,td{text-align:left;padding:10px 0;border-bottom:1px solid #ccc;font-weight:300}th{width:140px;color:#555}small{display:block;margin-top:28px;color:#666;font-size:12px}</style><h1>My ' + name + '</h1><p>' + sent + '</p><div class="pics"><figure><img src="' + (ex ? ex.src : '') + '"><figcaption>' + (caps[0] || 'Outside') + '</figcaption></figure><figure><img src="' + (inn ? inn.src : '') + '"><figcaption>' + (caps[1] || 'Inside') + '</figcaption></figure></div><table>' + rows + '</table><small>Renders are indicative design visualisations. Floor plans and dimensions are indicative and may change as we finalise compliance with Australian standards.</small>');
     w.document.close(); setTimeout(function () { w.focus(); w.print() }, 500);
   }
   var pr = $('#solum-print'); if (pr) pr.addEventListener('click', printSummary);
