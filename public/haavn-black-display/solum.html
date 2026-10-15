@@ -1717,7 +1717,10 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 }
 
 .has-scene .scene__pin .exterior[data-slot="1"],
-.has-scene .scene__pin .exterior[data-slot="2"] {
+.has-scene .scene__pin .exterior[data-slot="2"],
+.has-scene .scene__pin .exterior[data-slot="3"],
+.has-scene .scene__pin .exterior[data-slot="4"],
+.has-scene .scene__pin .exterior[data-slot="5"] {
   opacity: var(--arrive);
   translate: calc((1 - var(--arrive)) * 3rem) 0;
 }
@@ -3461,51 +3464,81 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
       opacity var(--conveyor-dur) var(--ease-out);
   }
 
-  /* The resting row before JS takes over, and if it never does. */
-  .exterior:not([data-slot]):nth-child(2) { left: 65.4%; width: 16.6%; }
-  .exterior:not([data-slot]):nth-child(3) { left: 83.4%; width: 16.6%; }
-  .exterior:not([data-slot]):nth-child(n + 4) { left: 100%; width: 0; opacity: 0; }
-
-  .exterior[data-slot="0"],
-  .exterior[data-slot="1"],
-  .exterior[data-slot="2"] {
-    opacity: 1;
-  }
-
-  /* Which of the three is open, and where that leaves the other two.
-     One layout solved three times over, so the row fills its width exactly
-     whichever panel is open. */
-
-  /* the open panel */
-  .exteriors__track:not([data-open]) .exterior[data-slot="0"],
-  .exteriors__track[data-open="0"] .exterior[data-slot="0"] { left: 0%; width: 64%; }
-  .exteriors__track:not([data-open]) .exterior[data-slot="1"],
-  .exteriors__track[data-open="0"] .exterior[data-slot="1"] { left: 65.4%; width: 16.6%; }
-  .exteriors__track:not([data-open]) .exterior[data-slot="2"],
-  .exteriors__track[data-open="0"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
-
-  /* the second panel */
-  .exteriors__track[data-open="1"] .exterior[data-slot="0"] { left: 0%; width: 16.6%; }
-  .exteriors__track[data-open="1"] .exterior[data-slot="1"] { left: 18%; width: 64%; }
-  .exteriors__track[data-open="1"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
-
-  /* the third panel */
-  .exteriors__track[data-open="2"] .exterior[data-slot="0"] { left: 0%; width: 16.6%; }
-  .exteriors__track[data-open="2"] .exterior[data-slot="1"] { left: 18%; width: 16.6%; }
-  .exteriors__track[data-open="2"] .exterior[data-slot="2"] { left: 36%; width: 64%; }
-
-  /* Wings: waiting off the right edge at no width. */
-  .exterior[data-slot="3"],
-  .exterior[data-slot="4"] { left: 100%; width: 0; opacity: 0; }
-
-  /* Exit: the departing panel closes against the left edge. */
-  .exterior[data-slot="5"] { left: 0; width: 0; opacity: 0; }
-
-  /* Crossing from the exit back round to the wings happens at no width and
-     no opacity, so it is moved rather than flown. */
-  .exterior[data-slot="4"] {
-    transition: none;
-  }
+  /* the exteriors row, written for each panel count in use (Seth wrote it for three) */
+  .exteriors__track[data-n="3"] .exterior__img { width: 64.0cqw; left: calc((100% - 64.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(2) { left: 65.4%; width: 16.6%; }
+  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(3) { left: 83.4%; width: 16.6%; }
+  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(n + 4) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="3"] .exterior[data-slot="0"], .exteriors__track[data-n="3"] .exterior[data-slot="1"], .exteriors__track[data-n="3"] .exterior[data-slot="2"] { opacity: 1; }
+  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 64.0%; }
+  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="1"] { left: 65.4%; width: 16.6%; }
+  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
+  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 16.6%; }
+  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="1"] { left: 18.0%; width: 64.0%; }
+  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
+  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 16.6%; }
+  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="1"] { left: 18.0%; width: 16.6%; }
+  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="2"] { left: 36.0%; width: 64.0%; }
+  .exteriors__track[data-n="3"] .exterior[data-slot="3"], .exteriors__track[data-n="3"] .exterior[data-slot="4"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="3"] .exterior[data-slot="5"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="3"] .exterior[data-slot="4"] { transition: none; }
+  .exteriors__track[data-n="6"] .exterior__img { width: 56.0cqw; left: calc((100% - 56.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(2) { left: 57.4%; width: 7.4%; }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(3) { left: 66.2%; width: 7.4%; }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(4) { left: 75.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(5) { left: 83.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(6) { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(n + 7) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="6"] .exterior[data-slot="0"], .exteriors__track[data-n="6"] .exterior[data-slot="1"], .exteriors__track[data-n="6"] .exterior[data-slot="2"], .exteriors__track[data-n="6"] .exterior[data-slot="3"], .exteriors__track[data-n="6"] .exterior[data-slot="4"], .exteriors__track[data-n="6"] .exterior[data-slot="5"] { opacity: 1; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 56.0%; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="1"] { left: 57.4%; width: 7.4%; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="2"] { left: 66.2%; width: 7.4%; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="3"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="3"] { left: 75.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="4"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="4"] { left: 83.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"]:not([data-open]) .exterior[data-slot="5"],
+  .exteriors__track[data-n="6"][data-open="0"] .exterior[data-slot="5"] { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="1"] { left: 8.8%; width: 56.0%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="2"] { left: 66.2%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="3"] { left: 75.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="4"] { left: 83.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="1"] .exterior[data-slot="5"] { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="1"] { left: 8.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="2"] { left: 17.6%; width: 56.0%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="3"] { left: 75.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="4"] { left: 83.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="2"] .exterior[data-slot="5"] { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="1"] { left: 8.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="2"] { left: 17.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="3"] { left: 26.4%; width: 56.0%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="4"] { left: 83.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="3"] .exterior[data-slot="5"] { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="1"] { left: 8.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="2"] { left: 17.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="3"] { left: 26.4%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="4"] { left: 35.2%; width: 56.0%; }
+  .exteriors__track[data-n="6"][data-open="4"] .exterior[data-slot="5"] { left: 92.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="0"] { left: 0.0%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="1"] { left: 8.8%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="2"] { left: 17.6%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="3"] { left: 26.4%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="4"] { left: 35.2%; width: 7.4%; }
+  .exteriors__track[data-n="6"][data-open="5"] .exterior[data-slot="5"] { left: 44.0%; width: 56.0%; }
+  .exteriors__track[data-n="6"] .exterior[data-slot="6"], .exteriors__track[data-n="6"] .exterior[data-slot="7"], .exteriors__track[data-n="6"] .exterior[data-slot="8"], .exteriors__track[data-n="6"] .exterior[data-slot="9"], .exteriors__track[data-n="6"] .exterior[data-slot="10"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="6"] .exterior[data-slot="11"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="6"] .exterior[data-slot="10"] { transition: none; }
+  
 }
 
 /* ---- Phones: the same band as the interiors ----
@@ -3543,6 +3576,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .exteriors__track[data-open="0"] .exterior[data-slot="0"] .peek,
   .exteriors__track[data-open="1"] .exterior[data-slot="1"] .peek,
   .exteriors__track[data-open="2"] .exterior[data-slot="2"] .peek,
+  .exteriors__track[data-open="3"] .exterior[data-slot="3"] .peek,
+  .exteriors__track[data-open="4"] .exterior[data-slot="4"] .peek,
+  .exteriors__track[data-open="5"] .exterior[data-slot="5"] .peek,
   .exterior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -7285,6 +7321,14 @@ html[data-model="standard"] .interiors__track[data-for="studio"] { display: none
     grid-template-areas: "intro intro" "eyebrow eyebrow" "track swatches" "track timber" "track finish" "enquire standard"; }
   .interiors .swatches--timber { grid-area: timber; margin-top: var(--space-4); }
 }
+
+html:not([data-model="standard"]) .exteriors__track[data-for="standard"],
+html[data-model="standard"] .exteriors__track[data-for="studio"] { display: none !important; }
+.exterior--frontleft, .exterior--straight, .exterior--rear { --focus: 50%; --win: 0.5; }
+.exterior--frontleft { --win: 0.42; }
+/* the Studio's own picture for the large first stage fades into the real front panel rather than cutting to it */
+.has-scene .scene__hero { transition: opacity 0.8s ease; }
+html[data-model="studio"].has-scene .scene.is-arrived .scene__hero { opacity: 0; transition: opacity 0.8s ease, visibility 0s linear 0.8s; }
 .interior--balcony, .interior--dining, .interior--laundry, .interior--bedroom2 { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .ess-res { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); margin-top: var(--space-5); }
 .ess-res .button { width: auto; }
@@ -7444,135 +7488,16 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       </div>
     </div>
 
-    <div class="exteriors__track" id="exteriors-track">
+    <div class="exteriors__track" id="exteriors-track-studio" data-n="6" data-for="studio">
       <figure class="exterior exterior--front">
-        <!-- SOLUM Plus: front -->
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="day"
-             data-src="img/ext/plus-obsidian-a-day.jpg"
-             alt="SOLUM Plus in Obsidian: the front, across a creek bed, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="night"
-             data-src="img/ext/plus-obsidian-a-night.jpg"
-             alt="SOLUM Plus in Obsidian: the front, across a creek bed, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="day"
-             data-src="img/ext/plus-ivory-a-day.jpg"
-             alt="SOLUM Plus in Ivory: the front, across a creek bed, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="night"
-             data-src="img/ext/plus-ivory-a-night.jpg"
-             alt="SOLUM Plus in Ivory: the front, across a creek bed, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="day"
-             data-src="img/ext/plus-forge-a-day.jpg"
-             alt="SOLUM Plus in Forge: the front, across a creek bed, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="night"
-             data-src="img/ext/plus-forge-a-night.jpg"
-             alt="SOLUM Plus in Forge: the front, across a creek bed, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="day"
-             data-src="img/ext/plus-char-a-day.jpg"
-             alt="SOLUM Plus in Char: the front, across a creek bed, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="night"
-             data-src="img/ext/plus-char-a-night.jpg"
-             alt="SOLUM Plus in Char: the front, across a creek bed, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="day"
-             data-src="img/ext/plus-amber-a-day.jpg"
-             alt="SOLUM Plus in Blackbutt: the front, across a creek bed, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="night"
-             data-src="img/ext/plus-amber-a-night.jpg"
-             alt="SOLUM Plus in Blackbutt: the front, across a creek bed, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <!-- SOLUM Studio: front -->
-        <img class="exterior__img is-shown"
-             data-model="studio" data-variant="ivory" data-time="day"
-             src="img/ext/studio-ivory-a-day.jpg"
-             alt="SOLUM Studio in Ivory: the open front, over its stone terrace, in morning light"
-             width="1672" height="941"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="ivory" data-time="night"
-             data-src="img/ext/studio-ivory-a-night.jpg"
-             alt="SOLUM Studio in Ivory: the open front, over its stone terrace, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="day"
-             data-src="img/ext/studio-forge-a-day.jpg"
-             alt="SOLUM Studio in Forge: the open front, over its stone terrace, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="night"
-             data-src="img/ext/studio-forge-a-night.jpg"
-             alt="SOLUM Studio in Forge: the open front, over its stone terrace, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="day"
-             data-src="img/ext/studio-char-a-day.jpg"
-             alt="SOLUM Studio in Char: the open front, over its stone terrace, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="night"
-             data-src="img/ext/studio-char-a-night.jpg"
-             alt="SOLUM Studio in Char: the open front, over its stone terrace, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="day"
-             data-src="img/ext/studio-amber-a-day.jpg"
-             alt="SOLUM Studio in Blackbutt: the open front, over its stone terrace, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="night"
-             data-src="img/ext/studio-amber-a-night.jpg"
-             alt="SOLUM Studio in Blackbutt: the open front, over its stone terrace, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
+        <img class="exterior__img is-shown" data-model="studio" data-variant="ivory" data-time="day" src="img/ext/studio-ivory-a-day.jpg" alt="SOLUM Studio in Ivory: the open front, over its stone terrace, in morning light" width="1672" height="941" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-a-night.jpg" alt="SOLUM Studio in Ivory: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-a-day.jpg" alt="SOLUM Studio in Forge: the open front, over its stone terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-a-night.jpg" alt="SOLUM Studio in Forge: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-a-day.jpg" alt="SOLUM Studio in Char: the open front, over its stone terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-a-night.jpg" alt="SOLUM Studio in Char: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-a-day.jpg" alt="SOLUM Studio in Blackbutt: the open front, over its stone terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-a-night.jpg" alt="SOLUM Studio in Blackbutt: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek peek--clock" type="button" data-clock="view"
                 aria-pressed="false" aria-label="Show this view after dark">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7586,135 +7511,15 @@ html[data-model="studio"] [data-res="film"] { display: none; }
           </svg>
         </button>
       </figure>
-
       <figure class="exterior exterior--entrance">
-        <!-- SOLUM Plus: entrance -->
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="day"
-             data-src="img/ext/plus-obsidian-b-day.jpg"
-             alt="SOLUM Plus in Obsidian: the entrance, across the grass to the hills, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="night"
-             data-src="img/ext/plus-obsidian-b-night.jpg"
-             alt="SOLUM Plus in Obsidian: the entrance, across the grass to the hills, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="day"
-             data-src="img/ext/plus-ivory-b-day.jpg"
-             alt="SOLUM Plus in Ivory: the entrance, across the grass to the hills, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="night"
-             data-src="img/ext/plus-ivory-b-night.jpg"
-             alt="SOLUM Plus in Ivory: the entrance, across the grass to the hills, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="day"
-             data-src="img/ext/plus-forge-b-day.jpg"
-             alt="SOLUM Plus in Forge: the entrance, across the grass to the hills, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="night"
-             data-src="img/ext/plus-forge-b-night.jpg"
-             alt="SOLUM Plus in Forge: the entrance, across the grass to the hills, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="day"
-             data-src="img/ext/plus-char-b-day.jpg"
-             alt="SOLUM Plus in Char: the entrance, across the grass to the hills, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="night"
-             data-src="img/ext/plus-char-b-night.jpg"
-             alt="SOLUM Plus in Char: the entrance, across the grass to the hills, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="day"
-             data-src="img/ext/plus-amber-b-day.jpg"
-             alt="SOLUM Plus in Blackbutt: the entrance, across the grass to the hills, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="night"
-             data-src="img/ext/plus-amber-b-night.jpg"
-             alt="SOLUM Plus in Blackbutt: the entrance, across the grass to the hills, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <!-- SOLUM Studio: entrance -->
-        <img class="exterior__img is-shown"
-             data-model="studio" data-variant="ivory" data-time="day"
-             src="img/ext/studio-ivory-b-day.jpg"
-             alt="SOLUM Studio in Ivory: the entry, up its stone steps, in morning light"
-             width="1672" height="941"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="ivory" data-time="night"
-             data-src="img/ext/studio-ivory-b-night.jpg"
-             alt="SOLUM Studio in Ivory: the entry, up its stone steps, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="day"
-             data-src="img/ext/studio-forge-b-day.jpg"
-             alt="SOLUM Studio in Forge: the entry, up its stone steps, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="night"
-             data-src="img/ext/studio-forge-b-night.jpg"
-             alt="SOLUM Studio in Forge: the entry, up its stone steps, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="day"
-             data-src="img/ext/studio-char-b-day.jpg"
-             alt="SOLUM Studio in Char: the entry, up its stone steps, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="night"
-             data-src="img/ext/studio-char-b-night.jpg"
-             alt="SOLUM Studio in Char: the entry, up its stone steps, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="day"
-             data-src="img/ext/studio-amber-b-day.jpg"
-             alt="SOLUM Studio in Blackbutt: the entry, up its stone steps, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="night"
-             data-src="img/ext/studio-amber-b-night.jpg"
-             alt="SOLUM Studio in Blackbutt: the entry, up its stone steps, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-b-day.jpg" alt="SOLUM Studio in Ivory: the entry, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-b-night.jpg" alt="SOLUM Studio in Ivory: the entry, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-b-day.jpg" alt="SOLUM Studio in Forge: the entry, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-b-night.jpg" alt="SOLUM Studio in Forge: the entry, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-b-day.jpg" alt="SOLUM Studio in Char: the entry, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-b-night.jpg" alt="SOLUM Studio in Char: the entry, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-b-day.jpg" alt="SOLUM Studio in Blackbutt: the entry, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-b-night.jpg" alt="SOLUM Studio in Blackbutt: the entry, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek peek--clock" type="button" data-clock="view"
                 aria-pressed="false" aria-label="Show this view after dark">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7728,135 +7533,155 @@ html[data-model="studio"] [data-res="film"] { display: none; }
           </svg>
         </button>
       </figure>
-
       <figure class="exterior exterior--angled">
-        <!-- SOLUM Plus: angled -->
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="day"
-             data-src="img/ext/plus-obsidian-c-day.jpg"
-             alt="SOLUM Plus in Obsidian: the angled view, above the creek, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="obsidian" data-time="night"
-             data-src="img/ext/plus-obsidian-c-night.jpg"
-             alt="SOLUM Plus in Obsidian: the angled view, above the creek, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="day"
-             data-src="img/ext/plus-ivory-c-day.jpg"
-             alt="SOLUM Plus in Ivory: the angled view, above the creek, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="ivory" data-time="night"
-             data-src="img/ext/plus-ivory-c-night.jpg"
-             alt="SOLUM Plus in Ivory: the angled view, above the creek, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="day"
-             data-src="img/ext/plus-forge-c-day.jpg"
-             alt="SOLUM Plus in Forge: the angled view, above the creek, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="forge" data-time="night"
-             data-src="img/ext/plus-forge-c-night.jpg"
-             alt="SOLUM Plus in Forge: the angled view, above the creek, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="day"
-             data-src="img/ext/plus-char-c-day.jpg"
-             alt="SOLUM Plus in Char: the angled view, above the creek, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="char" data-time="night"
-             data-src="img/ext/plus-char-c-night.jpg"
-             alt="SOLUM Plus in Char: the angled view, above the creek, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="day"
-             data-src="img/ext/plus-amber-c-day.jpg"
-             alt="SOLUM Plus in Blackbutt: the angled view, above the creek, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="standard" data-variant="amber" data-time="night"
-             data-src="img/ext/plus-amber-c-night.jpg"
-             alt="SOLUM Plus in Blackbutt: the angled view, above the creek, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <!-- SOLUM Studio: side -->
-        <img class="exterior__img is-shown"
-             data-model="studio" data-variant="ivory" data-time="day"
-             src="img/ext/studio-ivory-c-day.jpg"
-             alt="SOLUM Studio in Ivory: the long side, through gum trees, in morning light"
-             width="1672" height="941"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="ivory" data-time="night"
-             data-src="img/ext/studio-ivory-c-night.jpg"
-             alt="SOLUM Studio in Ivory: the long side, through gum trees, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="day"
-             data-src="img/ext/studio-forge-c-day.jpg"
-             alt="SOLUM Studio in Forge: the long side, through gum trees, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="forge" data-time="night"
-             data-src="img/ext/studio-forge-c-night.jpg"
-             alt="SOLUM Studio in Forge: the long side, through gum trees, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="day"
-             data-src="img/ext/studio-char-c-day.jpg"
-             alt="SOLUM Studio in Char: the long side, through gum trees, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="char" data-time="night"
-             data-src="img/ext/studio-char-c-night.jpg"
-             alt="SOLUM Studio in Char: the long side, through gum trees, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="day"
-             data-src="img/ext/studio-amber-c-day.jpg"
-             alt="SOLUM Studio in Blackbutt: the long side, through gum trees, in morning light"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
-        <img class="exterior__img"
-             data-model="studio" data-variant="amber" data-time="night"
-             data-src="img/ext/studio-amber-c-night.jpg"
-             alt="SOLUM Studio in Blackbutt: the long side, through gum trees, after dark"
-             width="1672" height="941"
-             aria-hidden="true"
-             loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-c-day.jpg" alt="SOLUM Studio in Ivory: the long side, through gum trees, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-c-night.jpg" alt="SOLUM Studio in Ivory: the long side, through gum trees, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-c-day.jpg" alt="SOLUM Studio in Forge: the long side, through gum trees, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-c-night.jpg" alt="SOLUM Studio in Forge: the long side, through gum trees, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-c-day.jpg" alt="SOLUM Studio in Char: the long side, through gum trees, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-c-night.jpg" alt="SOLUM Studio in Char: the long side, through gum trees, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-c-day.jpg" alt="SOLUM Studio in Blackbutt: the long side, through gum trees, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-c-night.jpg" alt="SOLUM Studio in Blackbutt: the long side, through gum trees, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--frontleft">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-f-day.jpg" alt="SOLUM Studio in Ivory: the front left, across the terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-f-night.jpg" alt="SOLUM Studio in Ivory: the front left, across the terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-f-day.jpg" alt="SOLUM Studio in Forge: the front left, across the terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-f-night.jpg" alt="SOLUM Studio in Forge: the front left, across the terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-f-day.jpg" alt="SOLUM Studio in Char: the front left, across the terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-f-night.jpg" alt="SOLUM Studio in Char: the front left, across the terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-f-day.jpg" alt="SOLUM Studio in Blackbutt: the front left, across the terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-f-night.jpg" alt="SOLUM Studio in Blackbutt: the front left, across the terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--straight">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-d-day.jpg" alt="SOLUM Studio in Ivory: the front, straight on, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-d-night.jpg" alt="SOLUM Studio in Ivory: the front, straight on, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-d-day.jpg" alt="SOLUM Studio in Forge: the front, straight on, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-d-night.jpg" alt="SOLUM Studio in Forge: the front, straight on, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-d-day.jpg" alt="SOLUM Studio in Char: the front, straight on, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-d-night.jpg" alt="SOLUM Studio in Char: the front, straight on, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-d-day.jpg" alt="SOLUM Studio in Blackbutt: the front, straight on, up its stone steps, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-d-night.jpg" alt="SOLUM Studio in Blackbutt: the front, straight on, up its stone steps, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--rear">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-e-day.jpg" alt="SOLUM Studio in Ivory: the rear, past the door and the bedroom window, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-e-night.jpg" alt="SOLUM Studio in Ivory: the rear, past the door and the bedroom window, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-e-day.jpg" alt="SOLUM Studio in Forge: the rear, past the door and the bedroom window, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-e-night.jpg" alt="SOLUM Studio in Forge: the rear, past the door and the bedroom window, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="day" data-src="img/ext/studio-char-e-day.jpg" alt="SOLUM Studio in Char: the rear, past the door and the bedroom window, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="char" data-time="night" data-src="img/ext/studio-char-e-night.jpg" alt="SOLUM Studio in Char: the rear, past the door and the bedroom window, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="day" data-src="img/ext/studio-amber-e-day.jpg" alt="SOLUM Studio in Blackbutt: the rear, past the door and the bedroom window, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="amber" data-time="night" data-src="img/ext/studio-amber-e-night.jpg" alt="SOLUM Studio in Blackbutt: the rear, past the door and the bedroom window, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="exteriors__track" id="exteriors-track-standard" data-n="3" data-for="standard">
+      <figure class="exterior exterior--front">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="day" data-src="img/ext/plus-obsidian-a-day.jpg" alt="SOLUM Plus in Obsidian: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="night" data-src="img/ext/plus-obsidian-a-night.jpg" alt="SOLUM Plus in Obsidian: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="day" data-src="img/ext/plus-ivory-a-day.jpg" alt="SOLUM Plus in Ivory: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="night" data-src="img/ext/plus-ivory-a-night.jpg" alt="SOLUM Plus in Ivory: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="day" data-src="img/ext/plus-forge-a-day.jpg" alt="SOLUM Plus in Forge: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="night" data-src="img/ext/plus-forge-a-night.jpg" alt="SOLUM Plus in Forge: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="day" data-src="img/ext/plus-char-a-day.jpg" alt="SOLUM Plus in Char: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="night" data-src="img/ext/plus-char-a-night.jpg" alt="SOLUM Plus in Char: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="day" data-src="img/ext/plus-amber-a-day.jpg" alt="SOLUM Plus in Blackbutt: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="night" data-src="img/ext/plus-amber-a-night.jpg" alt="SOLUM Plus in Blackbutt: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--entrance">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="day" data-src="img/ext/plus-obsidian-b-day.jpg" alt="SOLUM Plus in Obsidian: the entrance, across the grass to the hills, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="night" data-src="img/ext/plus-obsidian-b-night.jpg" alt="SOLUM Plus in Obsidian: the entrance, across the grass to the hills, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="day" data-src="img/ext/plus-ivory-b-day.jpg" alt="SOLUM Plus in Ivory: the entrance, across the grass to the hills, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="night" data-src="img/ext/plus-ivory-b-night.jpg" alt="SOLUM Plus in Ivory: the entrance, across the grass to the hills, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="day" data-src="img/ext/plus-forge-b-day.jpg" alt="SOLUM Plus in Forge: the entrance, across the grass to the hills, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="night" data-src="img/ext/plus-forge-b-night.jpg" alt="SOLUM Plus in Forge: the entrance, across the grass to the hills, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="day" data-src="img/ext/plus-char-b-day.jpg" alt="SOLUM Plus in Char: the entrance, across the grass to the hills, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="night" data-src="img/ext/plus-char-b-night.jpg" alt="SOLUM Plus in Char: the entrance, across the grass to the hills, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="day" data-src="img/ext/plus-amber-b-day.jpg" alt="SOLUM Plus in Blackbutt: the entrance, across the grass to the hills, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="night" data-src="img/ext/plus-amber-b-night.jpg" alt="SOLUM Plus in Blackbutt: the entrance, across the grass to the hills, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--angled">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="day" data-src="img/ext/plus-obsidian-c-day.jpg" alt="SOLUM Plus in Obsidian: the angled view, above the creek, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="night" data-src="img/ext/plus-obsidian-c-night.jpg" alt="SOLUM Plus in Obsidian: the angled view, above the creek, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="day" data-src="img/ext/plus-ivory-c-day.jpg" alt="SOLUM Plus in Ivory: the angled view, above the creek, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="ivory" data-time="night" data-src="img/ext/plus-ivory-c-night.jpg" alt="SOLUM Plus in Ivory: the angled view, above the creek, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="day" data-src="img/ext/plus-forge-c-day.jpg" alt="SOLUM Plus in Forge: the angled view, above the creek, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="forge" data-time="night" data-src="img/ext/plus-forge-c-night.jpg" alt="SOLUM Plus in Forge: the angled view, above the creek, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="day" data-src="img/ext/plus-char-c-day.jpg" alt="SOLUM Plus in Char: the angled view, above the creek, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="char" data-time="night" data-src="img/ext/plus-char-c-night.jpg" alt="SOLUM Plus in Char: the angled view, above the creek, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="day" data-src="img/ext/plus-amber-c-day.jpg" alt="SOLUM Plus in Blackbutt: the angled view, above the creek, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="standard" data-variant="amber" data-time="night" data-src="img/ext/plus-amber-c-night.jpg" alt="SOLUM Plus in Blackbutt: the angled view, above the creek, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek peek--clock" type="button" data-clock="view"
                 aria-pressed="false" aria-label="Show this view after dark">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -10739,6 +10564,7 @@ function track(scene, pin, count) {
 // ======================================================================
 // Choose your SOLUM
 // ======================================================================
+const HERO = {"studio": "img/ext/studio-hero.jpg"};
 function buildModelScene() {
   const models = document.querySelector('.models');
   const exteriors = document.querySelector('#exteriors');
@@ -10746,7 +10572,9 @@ function buildModelScene() {
   const note = models?.querySelector('.models__note');
   const more = models?.querySelector('.models__more');
   const body = models?.querySelector('.models__body');
-  const row = exteriors?.querySelector('.exteriors__track');
+  const rows = [...(exteriors?.querySelectorAll('.exteriors__track') ?? [])];
+  const rowOf = () => rows.find((r) => r.offsetParent !== null) ?? rows[0];
+  const row = rows[0];
   if (!models || !exteriors || !toggle || !body || !row) return null;
 
   // ---- Build the stage out of the page's own pieces ----
@@ -10778,10 +10606,10 @@ function buildModelScene() {
   models.append(scene);
 
   // The gallery holds still until the picture has landed in its front slot.
-  row.dataset.hold = 'true';
+  rows.forEach((r) => { r.dataset.hold = 'true'; });
 
-  const lead = () => row.querySelector('.exterior[data-slot="0"]')
-    ?? row.querySelector('.exterior');
+  const lead = () => rowOf().querySelector('.exterior[data-slot="0"]')
+    ?? rowOf().querySelector('.exterior');
 
   const within = (el) => {
     const r = el.getBoundingClientRect();
@@ -10809,7 +10637,7 @@ function buildModelScene() {
   function balance(needAbove) {
     const t = within(toggle);
     const ex = within(exteriors);
-    const tr = within(row);
+    const tr = within(rowOf());
     const above = ex.y - (t.y + t.h);
     const below = innerHeight - (ex.y + ex.h);
     const lift = Math.max(0, Math.min((above - below) / 2, tr.y - needAbove));
@@ -10821,7 +10649,7 @@ function buildModelScene() {
     exteriors.style.removeProperty('--conveyor-h');
     exteriors.style.setProperty('--scene-lift', '0px');
     blurb.style.setProperty('--blurb-fit', '1');
-    const natural = row.getBoundingClientRect().height;
+    const natural = rowOf().getBoundingClientRect().height;
     const t = within(toggle);
     const toggleFoot = t.y + t.h;
     const air = airAround();
@@ -10829,7 +10657,7 @@ function buildModelScene() {
 
     const holds = (needAbove) => {
       const ex = within(exteriors);
-      const tr = within(row);
+      const tr = within(rowOf());
       return ex.y >= toggleFoot + AIR_UNDER_TOGGLE
         && tr.y >= needAbove
         && ex.y + ex.h <= foot;
@@ -10933,7 +10761,7 @@ function buildModelScene() {
 
     // the picture is whichever render the front slot is showing
     const shown = lead()?.querySelector('.exterior__img.is-shown');
-    const src = shown?.currentSrc || shown?.getAttribute('src') || shown?.dataset.src;
+    const src = HERO[document.documentElement.dataset.model] || shown?.currentSrc || shown?.getAttribute('src') || shown?.dataset.src;
     if (src && picture.getAttribute('src') !== src) picture.src = src;
 
     // the paragraph arrives only as the picture finishes shrinking — over
@@ -10952,7 +10780,7 @@ function buildModelScene() {
     scene.classList.toggle('is-reading', a > 0.9 && b < 0.4);
     scene.classList.toggle('is-arrived', arrived);
     const hold = arrived ? 'false' : 'true';
-    if (row.dataset.hold !== hold) row.dataset.hold = hold;
+    rows.forEach((r) => { if (r.dataset.hold !== hold) r.dataset.hold = hold; });
   }
 
   // the cue to carry on waits under stage 2 — under the picture, as the
@@ -12227,7 +12055,7 @@ startClock($('#clock'), CLOCK_TIME_ZONE);
 startCountdown($('#countdown'), LAUNCH_AT);
 initRegister({ root: $('#register'), endpoint: REGISTER_ENDPOINT, simulate: IS_LOCAL });
 document.querySelectorAll('.interiors__track').forEach((t) => initConveyor(t));
-initConveyor($('#exteriors-track'), { hold: 5200 });
+document.querySelectorAll('.exteriors__track').forEach((t) => initConveyor(t, { hold: 5200 }));
 // The model first: the sections below read it as they set themselves up.
 initModel();
 initVariants($('.interiors'));
