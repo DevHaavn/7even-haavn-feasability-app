@@ -7129,6 +7129,45 @@ html.privacy-open, html.privacy-open body { overflow: hidden; }
 html.tv-mode, html.tv-mode body { cursor: none; }
 .eyebrow__model { margin-left: 0.8em; }
 
+/* ---- the lightbox: the eye button, opened. Seth's glass chip, his cut corner, his black ---- */
+.lb { position: fixed; inset: 0; z-index: 2000; background: rgb(0 0 0 / 0.985); opacity: 0; visibility: hidden; touch-action: none;
+  transition: opacity 0.4s var(--ease-out), visibility 0s linear 0.4s; }
+.lb.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
+.lb__fig { position: absolute; inset: 4.8rem clamp(3.5rem, 7vw, 6.5rem) 4.4rem; margin: 0; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; }
+.lb__img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; opacity: 0;
+  border-radius: var(--img-radius) var(--img-radius) 0 var(--img-radius); clip-path: var(--img-notch-clip); transition: opacity 0.17s ease; }
+.lb__cap { pointer-events: none; position: absolute; left: clamp(3.5rem, 7vw, 6.5rem); right: clamp(3.5rem, 7vw, 6.5rem); bottom: 1.5rem; margin: 0; display: flex; justify-content: space-between; gap: var(--space-4);
+  font-family: var(--font-mono); font-weight: 300; font-size: var(--fs-micro); letter-spacing: var(--track-mono); text-transform: uppercase; color: var(--c-ink-3); }
+.lb__count { white-space: nowrap; flex: none; }
+.lb__name { color: var(--c-ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb__btn { position: absolute; z-index: 2; display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; color: var(--c-white);
+  --notch-edge: rgb(255 255 255 / 0.22); background: var(--notch-line), rgb(255 255 255 / 0.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3); backdrop-filter: blur(12px) saturate(1.3);
+  border: 1px solid rgb(255 255 255 / 0.22); border-radius: var(--notch-corners); clip-path: var(--notch-clip); cursor: pointer;
+  transition: border-color 0.4s var(--ease-out), background 0.4s var(--ease-out); }
+.lb__btn[hidden] { display: none; }
+.lb__btn svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; pointer-events: none; }
+.lb__btn:hover { --notch-edge: rgb(255 255 255 / 0.5); border-color: rgb(255 255 255 / 0.5); background: var(--notch-line), rgb(220 240 255 / 0.14); }
+.lb__btn:hover svg { opacity: 1; }
+.lb__btn:focus-visible { outline: 2px solid var(--c-gold); outline-offset: 2px; }
+.lb__close { top: 1.1rem; right: clamp(1rem, 3vw, 2.5rem); }
+.lb__prev, .lb__next { top: 50%; translate: 0 -50%; }
+.lb__prev { left: clamp(0.6rem, 2vw, 1.8rem); }
+.lb__next { right: clamp(0.6rem, 2vw, 1.8rem); }
+.lb__clock { top: 1.1rem; right: calc(clamp(1rem, 3vw, 2.5rem) + 2.75rem + 0.5rem); border-radius: 4px; clip-path: none; background: rgb(255 255 255 / 0.08); }
+.lb__clock[aria-pressed="true"] .peek__moon { fill: currentColor; opacity: 1; }
+.lb__clock.is-pending { cursor: default; }
+.lb__clock.is-pending svg { opacity: 0.32; }
+html.lb-open, html.lb-open body { overflow: hidden; }
+html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
+@media (max-width: 47.99rem) {
+  .lb__fig { inset: 4.4rem 0.8rem 5.6rem; }
+  .lb__cap { left: 0.8rem; right: 0.8rem; bottom: 4.2rem; }
+  .lb__prev, .lb__next { top: auto; bottom: 0.9rem; translate: 0 0; }
+  .lb__prev { left: 0.8rem; } .lb__next { right: 0.8rem; }
+}
+@media (prefers-reduced-motion: reduce) { .lb, .lb__img { transition: none; } }
+
 .daylight { display: none !important; }
 .models__toggle { grid-template-columns: repeat(4, 1fr); width: min(100%, 38rem); }
 .models__toggle::before { width: calc((100% - 8px) / 4); }
@@ -10664,7 +10703,145 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !layer.hidden) open(false); });
 })();
 </script>
-<script>window.HB_PAGE = 'black';
+<script>/* The picture lightbox. Seth drew the eye button on every picture (aria-label "View this render larger") and no script behind it:
+   this is that script. It opens the picture of the panel the button sits on, as large as the screen allows, and steps through
+   the other panels of the same row with the arrows, the keys or a swipe. Pictures follow the choices on the page (cladding, palette,
+   timber, morning or after dark), and the moon in the lightbox flips that row's light, the same switch as on the picture.
+   Whatever is open is reported (hbLightbox.src) so a TV window can show it too. */
+(function () {
+  var root = document.documentElement;
+  var el = null, imgEl, nameEl, countEl, clockEl, prevEl, nextEl, closeEl;
+  var st = { list: [], i: 0, from: null, section: null }, open = false, token = 0;
+
+  var NS = 'http://www.w3.org/2000/svg';
+  function icon(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>' }
+  var MOON = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>';
+
+  function build() {
+    if (el) return;
+    el = document.createElement('div');
+    el.className = 'lb'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Render, larger');
+    el.innerHTML =
+      '<figure class="lb__fig"><img class="lb__img" alt="" decoding="async"></figure>' +
+      '<p class="lb__cap"><span class="lb__name"></span><span class="lb__count"></span></p>' +
+      '<button class="lb__btn lb__close" type="button" aria-label="Close">' + icon('M6 6l12 12M18 6L6 18') + '</button>' +
+      '<button class="lb__btn lb__prev" type="button" aria-label="Previous picture">' + icon('M15 5l-7 7 7 7') + '</button>' +
+      '<button class="lb__btn lb__next" type="button" aria-label="Next picture">' + icon('M9 5l7 7-7 7') + '</button>' +
+      '<button class="lb__btn lb__clock" type="button" aria-pressed="false" aria-label="Show this picture after dark">' + MOON + '</button>';
+    document.body.appendChild(el);
+    imgEl = el.querySelector('.lb__img'); nameEl = el.querySelector('.lb__name'); countEl = el.querySelector('.lb__count');
+    closeEl = el.querySelector('.lb__close'); prevEl = el.querySelector('.lb__prev'); nextEl = el.querySelector('.lb__next'); clockEl = el.querySelector('.lb__clock');
+    closeEl.addEventListener('click', close);
+    prevEl.addEventListener('click', function () { go(-1) });
+    nextEl.addEventListener('click', function () { go(1) });
+    clockEl.addEventListener('click', flipLight);
+    // a click on the black beside the picture closes it; the picture itself does not
+    el.addEventListener('click', function (e) { if (e.target === el || e.target.classList.contains('lb__fig')) close() });
+    el.addEventListener('wheel', function (e) { e.preventDefault(); e.stopPropagation() }, { passive: false });
+    var tx = 0, ty = 0;
+    el.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY }, { passive: true });
+    el.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
+      else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.4) close();
+    }, { passive: true });
+  }
+
+  function key(f) { return [].slice.call(f.classList).filter(function (c) { return /^(interior|exterior)--/.test(c) })[0] || '' }
+  function originals(track) { return [].slice.call(track.children).filter(function (n) { return n.tagName === 'FIGURE' && !n.hasAttribute('aria-hidden') }) }
+  function shownImg(f) { return f.querySelector('img.is-shown') || f.querySelector('img[src]') }
+  function srcOf(i) { return i ? (i.getAttribute('src') || i.getAttribute('data-src') || '') : '' }
+  function nameOf(f) {
+    var l = f.querySelector('.interior__label'); if (l) return l.textContent.trim();
+    var i = shownImg(f); return i ? (i.getAttribute('alt') || '') : '';
+  }
+  function clockOf(f) { var s = f.closest('section'); return s ? s.querySelector('button[data-clock]') : null }
+
+  function paint(instant) {
+    var f = st.list[st.i], i = shownImg(f), s = srcOf(i); if (!s) return;
+    var mine = ++token;
+    nameEl.textContent = nameOf(f);
+    countEl.textContent = st.list.length > 1 ? (st.i + 1) + ' / ' + st.list.length : '';
+    prevEl.hidden = nextEl.hidden = st.list.length < 2;
+    var c = clockOf(f);
+    clockEl.hidden = !c;
+    if (c) {
+      var night = c.getAttribute('aria-pressed') === 'true', dead = c.classList.contains('is-pending');
+      clockEl.setAttribute('aria-pressed', String(night)); clockEl.classList.toggle('is-pending', dead);
+      clockEl.setAttribute('aria-label', night ? 'Show this picture in daylight' : 'Show this picture after dark');
+    }
+    if (imgEl.getAttribute('src') === s) { imgEl.style.opacity = 1; return }
+    var swap = function () {
+      var pre = new Image();
+      pre.onload = pre.onerror = function () { if (mine !== token) return; imgEl.src = s; imgEl.alt = i.getAttribute('alt') || ''; imgEl.style.opacity = 1 };
+      pre.src = s;
+    };
+    if (instant) swap(); else { imgEl.style.opacity = 0; setTimeout(swap, 170) }
+  }
+  function go(d) { if (!open || st.list.length < 2) return; st.i = (st.i + d + st.list.length) % st.list.length; paint(false); changed() }
+  function flipLight() {
+    var f = st.list[st.i], c = clockOf(f); if (!c || c.classList.contains('is-pending')) return;
+    c.click();
+    // the page has switched its pictures; read them again
+    setTimeout(function () { if (open) { paint(false); changed() } }, 60);
+  }
+  function changed() { document.dispatchEvent(new CustomEvent('lbchange')) }
+
+  function openFrom(fig, from) {
+    var track = fig.parentElement, list = originals(track), k = key(fig), idx = 0;
+    list.forEach(function (f, n) { if (key(f) === k) idx = n });
+    st = { list: list, i: idx, from: from || null, section: fig.closest('section') };
+    build();
+    imgEl.removeAttribute('src');
+    open = true; root.classList.add('lb-open');
+    paint(true);
+    requestAnimationFrame(function () { el.classList.add('is-open'); try { closeEl.focus({ preventScroll: true }) } catch (e) {} });
+    changed();
+  }
+  function close() {
+    if (!open) return;
+    open = false; el.classList.remove('is-open'); root.classList.remove('lb-open');
+    var f = st.from; st.from = null;
+    if (f) { try { f.focus({ preventScroll: true }) } catch (e) {} }
+    changed();
+  }
+  function openSrc(src) {
+    if (!src) { close(); return }
+    var figs = [].slice.call(document.querySelectorAll('figure.exterior, figure.interior'));
+    var hit = figs.filter(function (f) { return !f.hasAttribute('aria-hidden') && srcOf(shownImg(f)) === src })[0];
+    if (!hit) { close(); return }
+    if (open && st.list[st.i] === hit) return;
+    if (open) { st.i = st.list.indexOf(hit); if (st.i < 0) { close(); openFrom(hit, null) } else paint(false); changed(); return }
+    openFrom(hit, null);
+  }
+
+  // the eye
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button.peek');
+    if (!b || b.hasAttribute('data-clock')) return;
+    var fig = b.closest('figure.exterior, figure.interior'); if (!fig) return;
+    e.preventDefault(); openFrom(fig, b);
+  });
+  // keys: while it is open the page behind must not hear them (it steps its scenes on the arrows and space)
+  window.addEventListener('keydown', function (e) {
+    if (!open) return;
+    var k = e.key, used = true;
+    if (k === 'Escape') close();
+    else if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown') go(1);
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') go(-1);
+    else if (k === ' ' && e.target === document.body) go(1);
+    else if (k === 'Tab') {
+      var b = [].slice.call(el.querySelectorAll('.lb__btn')).filter(function (x) { return !x.hidden });
+      var at = b.indexOf(document.activeElement), n = e.shiftKey ? at - 1 : at + 1;
+      b[(n + b.length) % b.length].focus(); used = true;
+    } else used = false;
+    if (used) { e.preventDefault(); e.stopImmediatePropagation() }
+  }, true);
+
+  window.hbLightbox = { isOpen: function () { return open }, src: function () { return open ? srcOf(shownImg(st.list[st.i])) : '' }, openSrc: openSrc, close: close };
+})();
+
+window.HB_PAGE = 'black';
 /* The bridge between one of Seth's pages and the display around it (window.HB_PAGE says which page this is).
    The page itself is Seth's and works as he built it. This only does a few things: tells the display what is on show
    (so a TV can follow), does what the display asks (a home, a choice, a scroll), and hands a couple of keys back up. */
@@ -10702,18 +10879,18 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
       t: night($('.exteriors')), it: night($('.interiors')), d: jv ? (DELS[jv.dataset.variant] || 'supply') : 'supply',
-      sec: section(), sy: ratio() };
+      sec: section(), sy: ratio(), lb: window.hbLightbox ? window.hbLightbox.src() : '' };
   }
 
   var last = '', timer = null, dirty = false;
   function send(force) {
     dirty = false;
-    var s = snapshot(), key = JSON.stringify([s.h, s.cl, s.p, s.m, s.t, s.it, s.d, s.sec, Math.round(s.sy * 400)]);
+    var s = snapshot(), key = JSON.stringify([s.h, s.cl, s.p, s.m, s.t, s.it, s.d, s.sec, Math.round(s.sy * 400), s.lb]);
     if (!force && key === last) return; last = key;
     post({ type: 'state', st: s });
   }
   function soon() { if (dirty) return; dirty = true; clearTimeout(timer); timer = setTimeout(function () { send(false) }, 90) }
-  ['variantchange', 'modelchange', 'solumpicks'].forEach(function (e) { document.addEventListener(e, soon) });
+  ['variantchange', 'modelchange', 'solumpicks', 'lbchange'].forEach(function (e) { document.addEventListener(e, soon) });
   addEventListener('scroll', soon, { passive: true });
   addEventListener('scenesettle', soon);
   addEventListener('resize', soon);
@@ -10740,6 +10917,7 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     if (st.t) setClock(ex, st.t);
     if (st.it) setClock(it, st.it);
     if (st.d && DELR[st.d] && jr) { var jb = $('button[data-variant="' + DELR[st.d] + '"]:not([data-enquire])', jr); if (jb && !jb.classList.contains('is-selected')) jb.click() }
+    if (withScroll && window.hbLightbox && st.lb !== undefined) setTimeout(function () { window.hbLightbox.openSrc(st.lb) }, 80);
     if (withScroll && st.sy != null) {
       var m = document.documentElement.scrollHeight - innerHeight;
       scrollTo({ top: Math.round(st.sy * m), behavior: 'instant' });

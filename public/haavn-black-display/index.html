@@ -720,6 +720,8 @@ body { font-weight: 300; }
 body.sc #top { background: rgb(0 0 0 / 0.74); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: var(--c-hairline); }
 body.mo #top { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom-color: transparent; }
 body.tv #top { display: none; }
+body.lbx #top { opacity: 0; pointer-events: none; }
+body.lbx #wash { opacity: 0; pointer-events: none; }
 
 /* ---- scenes ---- */
 #stage { position: fixed; inset: 0; }
@@ -832,7 +834,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261015i';
+  var SOLV = '20261015j';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -855,12 +857,12 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'] };
 
   /* ── where we are ────────────────────────────────────────────────────── */
-  var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview' };
-  var FIELDS = ['s', 'h', 'cl', 'p', 'm', 't', 'it', 'd', 'sy', 'sec'], NUMF = { sy: 1 };
+  var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };
+  var FIELDS = ['s', 'h', 'cl', 'p', 'm', 't', 'it', 'd', 'sy', 'sec', 'lb'], NUMF = { sy: 1 };
   function merge(o) { FIELDS.forEach(function (k) { if (o && o[k] !== undefined && o[k] !== null) S[k] = NUMF[k] ? (+o[k] || 0) : o[k] }) }
   function save() {
     try { sessionStorage.setItem('hb_display_v3', JSON.stringify(S)) } catch (e) {}
-    var h = '#' + FIELDS.filter(function (k) { return k !== 'sy' }).map(function (k) { return k + '=' + encodeURIComponent(S[k]) }).join('&');
+    var h = '#' + FIELDS.filter(function (k) { return k !== 'sy' && k !== 'lb' }).map(function (k) { return k + '=' + encodeURIComponent(S[k]) }).join('&');
     try { history.replaceState(null, '', location.pathname + location.search + h) } catch (e) {}
   }
   (function () {
@@ -877,8 +879,8 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (S.it !== 'night') S.it = 'day';
     if (['supply', 'delivered', 'installed'].indexOf(S.d) < 0) S.d = 'supply';
   }
-  function resetPicks() { S.cl = ''; S.p = 'burgundy'; S.m = 'dark'; S.t = 'day'; S.it = 'day'; S.d = 'supply'; S.sy = 0; S.sec = 'overview' }
-  function picks() { return { h: S.h, cl: S.cl, p: S.p, m: S.m, t: S.t, it: S.it, d: S.d, sy: S.sy } }
+  function resetPicks() { S.lb = ''; S.cl = ''; S.p = 'burgundy'; S.m = 'dark'; S.t = 'day'; S.it = 'day'; S.d = 'supply'; S.sy = 0; S.sec = 'overview' }
+  function picks() { return { h: S.h, cl: S.cl, p: S.p, m: S.m, t: S.t, it: S.it, d: S.d, sy: S.sy, lb: S.lb } }
 
   /* ── the sync: a TV window on this computer, or a TV anywhere by code ───────────────────────────────────
      The television opens this page with ?tv=1. If a presenter window is open on the same computer it simply follows it.
@@ -980,7 +982,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (m.type === 'menu') { toggleMenu(m.which); return }
     if (m.type === 'state' && !TV && S.s === 'home') {
       var st = m.st; if (st.h && HOMES[st.h]) S.h = st.h;
-      ['cl', 'p', 'm', 't', 'it', 'd', 'sy', 'sec'].forEach(function (k) { if (st[k] !== undefined) S[k] = st[k] });
+      ['cl', 'p', 'm', 't', 'it', 'd', 'sy', 'sec', 'lb'].forEach(function (k) { if (st[k] !== undefined) S[k] = st[k] });
       render();
     }
   });
@@ -990,6 +992,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     validate();
     var home = S.s === 'home';
     document.body.classList.toggle('sc', home && S.sy > 0.012);
+    document.body.classList.toggle('lbx', home && !!S.lb);
     $('#sc-home').classList.add('on');
     paintMenus();
     ensure();
