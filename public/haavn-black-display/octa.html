@@ -548,7 +548,7 @@ b {
 .backdrop__still {
   position: absolute;
   background-image: image-set(
-    url("img/octa/front-day.jpg") 1x);
+    url("img/octa/hero.jpg") 1x);
   background-size: cover;
   background-position: 50% 62%;
   /* held a moment while the video rises under it, so the handover has no
@@ -582,7 +582,7 @@ b {
 .backdrop__night {
   position: absolute;
   background-image: image-set(
-    url("img/octa/front-night.jpg") 1x);
+    url("img/octa/hero.jpg") 1x);
   background-size: cover;
   background-position: 50% 62%;
   opacity: 0;
@@ -594,7 +594,7 @@ b {
 @media (min-width: 64rem) {
   .backdrop__night {
     background-image: image-set(
-      url("img/octa/front-night.jpg") 1x);
+      url("img/octa/hero.jpg") 1x);
   }
 }
 
@@ -673,7 +673,7 @@ b {
 @media (min-width: 64rem) {
   .backdrop__still {
     background-image: image-set(
-      url("img/octa/front-day.jpg") 1x);
+      url("img/octa/hero.jpg") 1x);
   }
 }
 
@@ -7262,10 +7262,9 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .lb, .lb__img { transition: none; } }
 
-/* the hero is the main facade with the Porsche: the box is the screen itself (not grown 20% above it), so the whole front shows, and the crop on narrower screens keeps the living pavilion, the garage and the car */
-.backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 72% 55%; }
-@media (max-width: 63.99rem) { .backdrop__still, .backdrop__night { background-position: 90% 50%; } }
-@media (max-width: 39.99rem) { .backdrop__still, .backdrop__night { background-position: 94% 50%; } }
+/* the hero is the aerial sunset shot of the whole home: the box is the screen itself (not grown 20% above it) so the whole picture shows at 16:9; on narrower screens the crop keeps the two pavilions, the glass link between them and the sea */
+.backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 50% 50%; }
+@media (max-width: 63.99rem) { .backdrop__still, .backdrop__night { background-position: 48% 50%; } }
 .interior--dining, .interior--bedroom2 { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .swatch[data-variant="octa"] { --swatch-colour: var(--c-burgundy); }
 .finish__copy[data-variant="octa"] { --finish: var(--c-burgundy); }
