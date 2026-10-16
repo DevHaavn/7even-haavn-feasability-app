@@ -392,11 +392,11 @@ main,footer,header .kicker{transition:.38s}
 @keyframes mbPulse{0%{opacity:.85;transform:scale(1)}70%,100%{opacity:0;transform:scale(1.5)}}
 .mb:active{transform:translateY(-1px) scale(.94);transition-duration:.12s}
 .mb:focus-visible{outline:2px solid #d6b36a;outline-offset:5px;border-radius:50%}
-/* desktop: menu top left, dropping from under the button. phone: top right. */
+/* menu top left, dropping from under the button, on desktop and on phones (same as the 7EVEN and HAAVN homes) */
 .hbmenu{top:calc(env(safe-area-inset-top,0px) + 86px);left:22px;right:auto}
 @media(max-width:700px){
-  .mb{left:auto;right:16px;width:52px;height:52px}
-  .hbmenu{left:auto;right:16px}
+  .mb{left:16px;right:auto;width:52px;height:52px}
+  .hbmenu{left:16px;right:auto}
 }
 .pw-card{border-radius:22px}
 .pw-card input,.pw-cancel,.pw-go{border-radius:14px}

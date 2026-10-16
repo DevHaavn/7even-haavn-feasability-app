@@ -738,7 +738,7 @@ function canSeeMeeting(m){
 }
 function openWhoAreYou(mandatory){
   var o=document.createElement('div');o.className='modal in';
-  var rows=ROSTER.map(function(p,i){return '<button class="xbtn" data-who="'+i+'" style="justify-content:flex-start;text-align:left;width:100%;margin-bottom:6px">'+esc(p.name)+'<span style="margin-left:auto;color:var(--ink-3);font-size:11px">'+esc(p.role||'')+'</span></button>';}).join('');
+  var rows=ROSTER.map(function(p,i){return '<button class="xbtn" data-who="'+i+'" style="display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:left;width:100%;margin-bottom:6px">'+esc(p.name)+'<span style="margin-left:auto;color:var(--ink-3);font-size:11px">'+esc(p.role||'')+'</span></button>';}).join('');
   o.innerHTML='<div class="modal-card"><div class="mono" style="color:var(--ink-3);margin-bottom:10px">Who are you?</div>'+
     '<div style="font-size:12px;color:var(--ink-3);margin-bottom:14px">Pick your name to sign in — this shows only the meetings you\'re in.</div>'+
     '<div style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column">'+rows+'</div>'+

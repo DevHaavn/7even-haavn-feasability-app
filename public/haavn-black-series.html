@@ -659,6 +659,17 @@ html,body{overscroll-behavior:none;-webkit-overflow-scrolling:touch}
 <link rel="stylesheet" href="/atrium-refresh.css">
 <script src="/atrium-refresh.js" defer></script>
 <link rel="stylesheet" href="/atrium-language.css">
+<style id="phone-topbar">
+/* phones: the top bar fits one line (Home, menu, name, Saved), nothing runs past the screen */
+@media(max-width:640px){
+  .topbar{gap:8px;padding-left:12px!important;padding-right:12px!important}
+  .home-btn{padding:6px 11px;letter-spacing:.08em}
+  .crumb{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;letter-spacing:.06em}
+  .crumb .cr-pre{display:none}
+  .topright{gap:8px;flex:none}
+  .atrium-tag{display:none}
+}
+</style>
 </head>
 <body>
 
