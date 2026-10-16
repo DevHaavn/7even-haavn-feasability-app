@@ -837,7 +837,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261016c';
+  var SOLV = '20261016d';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -858,9 +858,10 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     vista: { n: 'VISTA', series: 'ess', page: 'essentials.html', line: '317.8 m² · 5 bed' },
     octa: { n: 'Octa', series: 'concept', page: 'octa.html', line: 'Two pavilions' },
     pod: { n: 'Wellness pod', series: 'concept', page: 'pod.html', line: 'Sauna · steam · spa' },
+    hubs: { n: 'Wellness hubs', series: 'concept', page: 'hubs.html', line: 'Four looks' },
     concept: { n: 'Studio concept', series: 'concept', page: 'concept.html', line: 'Heavy · Light' }
   };
-  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['octa', 'pod', 'concept'] };
+  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['octa', 'pod', 'hubs', 'concept'] };
 
   /* ── where we are ────────────────────────────────────────────────────── */
   var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };

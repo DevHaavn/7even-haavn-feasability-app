@@ -1717,7 +1717,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 }
 
 .has-scene .scene__pin .exterior[data-slot="1"],
-.has-scene .scene__pin .exterior[data-slot="2"] {
+.has-scene .scene__pin .exterior[data-slot="2"],
+.has-scene .scene__pin .exterior[data-slot="3"],
+.has-scene .scene__pin .exterior[data-slot="4"] {
   opacity: var(--arrive);
   translate: calc((1 - var(--arrive)) * 3rem) 0;
 }
@@ -3365,26 +3367,46 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   }
 
   /* the exteriors row, written for each panel count in use (Seth wrote it for three) */
-  .exteriors__track[data-n="3"] .exterior__img { width: 64.0cqw; left: calc((100% - 64.0cqw) * var(--win, 0.5)); }
-  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(2) { left: 65.4%; width: 16.6%; }
-  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(3) { left: 83.4%; width: 16.6%; }
-  .exteriors__track[data-n="3"] .exterior:not([data-slot]):nth-child(n + 4) { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="3"] .exterior[data-slot="0"], .exteriors__track[data-n="3"] .exterior[data-slot="1"], .exteriors__track[data-n="3"] .exterior[data-slot="2"] { opacity: 1; }
-  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="0"],
-  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 64.0%; }
-  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="1"],
-  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="1"] { left: 65.4%; width: 16.6%; }
-  .exteriors__track[data-n="3"]:not([data-open]) .exterior[data-slot="2"],
-  .exteriors__track[data-n="3"][data-open="0"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
-  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 16.6%; }
-  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="1"] { left: 18.0%; width: 64.0%; }
-  .exteriors__track[data-n="3"][data-open="1"] .exterior[data-slot="2"] { left: 83.4%; width: 16.6%; }
-  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 16.6%; }
-  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="1"] { left: 18.0%; width: 16.6%; }
-  .exteriors__track[data-n="3"][data-open="2"] .exterior[data-slot="2"] { left: 36.0%; width: 64.0%; }
-  .exteriors__track[data-n="3"] .exterior[data-slot="3"], .exteriors__track[data-n="3"] .exterior[data-slot="4"] { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="3"] .exterior[data-slot="5"] { left: 0; width: 0; opacity: 0; }
-  .exteriors__track[data-n="3"] .exterior[data-slot="4"] { transition: none; }
+  .exteriors__track[data-n="5"] .exterior__img { width: 58.0cqw; left: calc((100% - 58.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(2) { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(3) { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(4) { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(5) { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="0"], .exteriors__track[data-n="5"] .exterior[data-slot="1"], .exteriors__track[data-n="5"] .exterior[data-slot="2"], .exteriors__track[data-n="5"] .exterior[data-slot="3"], .exteriors__track[data-n="5"] .exterior[data-slot="4"] { opacity: 1; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="1"] { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="3"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="4"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="1"] { left: 10.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="2"] { left: 21.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="3"] { left: 31.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="3"] { left: 31.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="4"] { left: 42.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="5"], .exteriors__track[data-n="5"] .exterior[data-slot="6"], .exteriors__track[data-n="5"] .exterior[data-slot="7"], .exteriors__track[data-n="5"] .exterior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="8"] { transition: none; }
   
 }
 
@@ -3423,6 +3445,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .exteriors__track[data-open="0"] .exterior[data-slot="0"] .peek,
   .exteriors__track[data-open="1"] .exterior[data-slot="1"] .peek,
   .exteriors__track[data-open="2"] .exterior[data-slot="2"] .peek,
+  .exteriors__track[data-open="3"] .exterior[data-slot="3"] .peek,
+  .exteriors__track[data-open="4"] .exterior[data-slot="4"] .peek,
   .exterior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -7149,6 +7173,10 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .lb, .lb__img { transition: none; } }
 
+/* the hero is the main facade with the Porsche: the box is the screen itself (not grown 20% above it), so the whole front shows, and the crop on narrower screens keeps the living pavilion, the garage and the car */
+.backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 72% 55%; }
+@media (max-width: 63.99rem) { .backdrop__still, .backdrop__night { background-position: 90% 50%; } }
+@media (max-width: 39.99rem) { .backdrop__still, .backdrop__night { background-position: 94% 50%; } }
 .interior--dining, .interior--bedroom2 { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .swatch[data-variant="octa"] { --swatch-colour: var(--c-burgundy); }
 .finish__copy[data-variant="octa"] { --finish: var(--c-burgundy); }
@@ -7268,7 +7296,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         <button class="swatch is-selected" type="button" data-variant="octa" aria-pressed="true">Octa</button>
       </div>
     </div>
-    <div class="exteriors__track" id="exteriors-track" data-n="3">
+    <div class="exteriors__track" id="exteriors-track" data-n="5">
       <figure class="exterior exterior--front">
         <img class="exterior__img is-shown" data-variant="octa" data-time="day" src="img/octa/front-day.jpg" alt="Octa, the front with the glass entry, the garage and the car, in morning light" width="1672" height="941" loading="lazy" decoding="async">
         <img class="exterior__img" data-variant="octa" data-time="night" data-src="img/octa/front-night.jpg" alt="Octa, the front with the glass entry, the garage and the car, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
@@ -7303,12 +7331,30 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
           </svg>
         </button>
       </figure>
+      <figure class="exterior exterior--yard">
+        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/yard.jpg" alt="Octa, the back yard at sunset, with the wellness pavilion, its sauna, daybed and burgundy spa, and the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--terrace">
+        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/terrace.jpg" alt="Octa, from the wellness terrace looking back across the garden to the two pavilions and the glass entry" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
     </div>
 
     <aside class="finish" aria-label="About the exterior">
       <div class="finish__copy is-shown" data-variant="octa">
         <p class="finish__name">Two pavilions, one entry</p>
-        <p class="finish__story">A bedroom pavilion and a living pavilion in off-form, board-formed concrete and charcoal timber, joined by a glazed entry with a single glass pivot door, and a double garage linked by a glass walkway.</p>
+        <p class="finish__story">A bedroom pavilion and a larger living pavilion in off-form, board-formed concrete and charcoal timber, joined by a glazed entry with a single glass pivot door, a double garage linked by a glass walkway, and a wellness pavilion in the back yard.</p>
         <p class="finish__key"><span>Off-form concrete</span><span>Glass pivot entry, gold handle</span></p>
       </div>
     </aside>
@@ -10794,7 +10840,7 @@ window.HB_PAGE = 'octa';
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
-  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'pod') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
+  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'pod' || PAGE === 'hubs') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
