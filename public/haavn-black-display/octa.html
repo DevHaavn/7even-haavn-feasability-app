@@ -1719,7 +1719,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .has-scene .scene__pin .exterior[data-slot="1"],
 .has-scene .scene__pin .exterior[data-slot="2"],
 .has-scene .scene__pin .exterior[data-slot="3"],
-.has-scene .scene__pin .exterior[data-slot="4"] {
+.has-scene .scene__pin .exterior[data-slot="4"],
+.has-scene .scene__pin .exterior[data-slot="5"],
+.has-scene .scene__pin .exterior[data-slot="6"] {
   opacity: var(--arrive);
   translate: calc((1 - var(--arrive)) * 3rem) 0;
 }
@@ -3367,46 +3369,74 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   }
 
   /* the exteriors row, written for each panel count in use (Seth wrote it for three) */
-  .exteriors__track[data-n="5"] .exterior__img { width: 58.0cqw; left: calc((100% - 58.0cqw) * var(--win, 0.5)); }
-  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(2) { left: 59.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(3) { left: 69.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(4) { left: 80.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(5) { left: 90.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="5"] .exterior[data-slot="0"], .exteriors__track[data-n="5"] .exterior[data-slot="1"], .exteriors__track[data-n="5"] .exterior[data-slot="2"], .exteriors__track[data-n="5"] .exterior[data-slot="3"], .exteriors__track[data-n="5"] .exterior[data-slot="4"] { opacity: 1; }
-  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="0"],
-  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 58.0%; }
-  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="1"],
-  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="1"] { left: 59.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="2"],
-  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="3"],
-  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="4"],
-  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="1"] { left: 10.5%; width: 58.0%; }
-  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="2"] { left: 21.0%; width: 58.0%; }
-  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="3"] { left: 31.5%; width: 58.0%; }
-  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="3"] { left: 31.5%; width: 9.1%; }
-  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="4"] { left: 42.0%; width: 58.0%; }
-  .exteriors__track[data-n="5"] .exterior[data-slot="5"], .exteriors__track[data-n="5"] .exterior[data-slot="6"], .exteriors__track[data-n="5"] .exterior[data-slot="7"], .exteriors__track[data-n="5"] .exterior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="5"] .exterior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
-  .exteriors__track[data-n="5"] .exterior[data-slot="8"] { transition: none; }
+  .exteriors__track[data-n="7"] .exterior__img { width: 52.0cqw; left: calc((100% - 52.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(2) { left: 53.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(3) { left: 61.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(4) { left: 69.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(5) { left: 77.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(6) { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(7) { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"] .exterior:not([data-slot]):nth-child(n + 8) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="7"] .exterior[data-slot="0"], .exteriors__track[data-n="7"] .exterior[data-slot="1"], .exteriors__track[data-n="7"] .exterior[data-slot="2"], .exteriors__track[data-n="7"] .exterior[data-slot="3"], .exteriors__track[data-n="7"] .exterior[data-slot="4"], .exteriors__track[data-n="7"] .exterior[data-slot="5"], .exteriors__track[data-n="7"] .exterior[data-slot="6"] { opacity: 1; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="1"] { left: 53.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="2"] { left: 61.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="3"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="3"] { left: 69.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="4"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="4"] { left: 77.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="5"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="5"] { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"]:not([data-open]) .exterior[data-slot="6"],
+  .exteriors__track[data-n="7"][data-open="0"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="1"] { left: 8.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="2"] { left: 61.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="3"] { left: 69.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="4"] { left: 77.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="5"] { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="1"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="1"] { left: 8.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="2"] { left: 16.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="3"] { left: 69.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="4"] { left: 77.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="5"] { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="2"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="1"] { left: 8.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="2"] { left: 16.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="3"] { left: 24.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="4"] { left: 77.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="5"] { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="3"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="1"] { left: 8.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="2"] { left: 16.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="3"] { left: 24.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="4"] { left: 32.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="5"] { left: 85.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="4"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="1"] { left: 8.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="2"] { left: 16.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="3"] { left: 24.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="4"] { left: 32.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="5"] { left: 40.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"][data-open="5"] .exterior[data-slot="6"] { left: 93.4%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="0"] { left: 0.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="1"] { left: 8.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="2"] { left: 16.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="3"] { left: 24.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="4"] { left: 32.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="5"] { left: 40.0%; width: 6.6%; }
+  .exteriors__track[data-n="7"][data-open="6"] .exterior[data-slot="6"] { left: 48.0%; width: 52.0%; }
+  .exteriors__track[data-n="7"] .exterior[data-slot="7"], .exteriors__track[data-n="7"] .exterior[data-slot="8"], .exteriors__track[data-n="7"] .exterior[data-slot="9"], .exteriors__track[data-n="7"] .exterior[data-slot="10"], .exteriors__track[data-n="7"] .exterior[data-slot="11"], .exteriors__track[data-n="7"] .exterior[data-slot="12"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="7"] .exterior[data-slot="13"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="7"] .exterior[data-slot="12"] { transition: none; }
   
 }
 
@@ -3447,6 +3477,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .exteriors__track[data-open="2"] .exterior[data-slot="2"] .peek,
   .exteriors__track[data-open="3"] .exterior[data-slot="3"] .peek,
   .exteriors__track[data-open="4"] .exterior[data-slot="4"] .peek,
+  .exteriors__track[data-open="5"] .exterior[data-slot="5"] .peek,
+  .exteriors__track[data-open="6"] .exterior[data-slot="6"] .peek,
   .exterior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -3692,8 +3724,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="bedroom"] .finish__standard:not([data-room="bedroom"]),
 .interiors[data-room="dining"] .finish__copy:not([data-room="dining"]),
 .interiors[data-room="dining"] .finish__standard:not([data-room="dining"]),
-.interiors[data-room="bedroom2"] .finish__copy:not([data-room="bedroom2"]),
-.interiors[data-room="bedroom2"] .finish__standard:not([data-room="bedroom2"]) {
+.interiors[data-room="walkthrough"] .finish__copy:not([data-room="walkthrough"]),
+.interiors[data-room="walkthrough"] .finish__standard:not([data-room="walkthrough"]) {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7252,7 +7284,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
              one. Replace with the real
              words. -->
         <div class="launch__about" data-reveal>
-          <p>HAAVN BLACK Octa. A bedroom pavilion and a larger living pavilion, joined by a glass entry. Concept renders, indicative only.</p>
+          <p>HAAVN BLACK Octa. A 3 bedroom, 2 bathroom home of around 100 m², with a glass welcome pod and a double garage pod. Concept renders, indicative only.</p>
         </div>
 
         <h1 class="hero" id="hero-title">
@@ -7296,10 +7328,10 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         <button class="swatch is-selected" type="button" data-variant="octa" aria-pressed="true">Octa</button>
       </div>
     </div>
-    <div class="exteriors__track" id="exteriors-track" data-n="5">
+    <div class="exteriors__track" id="exteriors-track" data-n="7">
       <figure class="exterior exterior--front">
-        <img class="exterior__img is-shown" data-variant="octa" data-time="day" src="img/octa/front-day.jpg" alt="Octa, the front with the glass entry, the garage and the car, in morning light" width="1672" height="941" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="octa" data-time="night" data-src="img/octa/front-night.jpg" alt="Octa, the front with the glass entry, the garage and the car, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img is-shown" data-variant="octa" data-time="day" src="img/octa/front-day.jpg" alt="Octa, the front with the glass welcome pod, the garage pod and the car, in morning light" width="1672" height="941" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-time="night" data-src="img/octa/front-night.jpg" alt="Octa, the front with the glass welcome pod, the garage pod and the car, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek peek--clock" type="button" data-clock="view"
                 aria-pressed="false" aria-label="Show this view after dark">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7314,7 +7346,14 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--entrance">
-        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/entry.jpg" alt="Octa, the glass pivot entry between the two pavilions, looking through to the sea" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/entry.jpg" alt="Octa, the glass welcome pod and its pivot door, looking through to the wellness pod and the sea" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-time="night" data-src="img/octa/entry-night.jpg" alt="Octa, the glass welcome pod and its pivot door after dark, with the wellness pod lit beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7322,8 +7361,17 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
           </svg>
         </button>
       </figure>
-      <figure class="exterior exterior--aerial">
-        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/aerial.jpg" alt="Octa, from above, the two pavilions, the glass link to the garage and the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+      <figure class="exterior exterior--garage">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/garage.jpg" alt="Octa, the garage pod and the walk-through glass pod from the driveway, with the home on the left and the silver Porsche outside" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--walk">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/walk.jpg" alt="Octa, the back yard at sunset, seen from the main bedroom: a woman in a white robe walks the deck and garden path to the wellness pod, with the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7332,7 +7380,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--yard">
-        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/yard.jpg" alt="Octa, the back yard at sunset, with the wellness pavilion, its sauna, daybed and burgundy spa, and the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/yard.jpg" alt="Octa, the wellness pavilion in the back yard at sunset, with its sauna, daybed and burgundy spa, and the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7341,7 +7389,16 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--terrace">
-        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/terrace.jpg" alt="Octa, from the wellness terrace looking back across the garden to the two pavilions and the glass entry" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/terrace.jpg" alt="Octa, from the wellness terrace looking back across the garden to the two pavilions and the glass welcome pod" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--aerial">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/aerial.jpg" alt="Octa, from above, the two pavilions, the glass welcome pod, the walk-through glass pod to the garage pod and the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7353,9 +7410,9 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
     <aside class="finish" aria-label="About the exterior">
       <div class="finish__copy is-shown" data-variant="octa">
-        <p class="finish__name">Two pavilions, one entry</p>
-        <p class="finish__story">A bedroom pavilion and a larger living pavilion in off-form, board-formed concrete and charcoal timber, joined by a glazed entry with a single glass pivot door, a double garage linked by a glass walkway, and a wellness pavilion in the back yard.</p>
-        <p class="finish__key"><span>Off-form concrete</span><span>Glass pivot entry, gold handle</span></p>
+        <p class="finish__name">Glass welcome pod, garage pod</p>
+        <p class="finish__story">A 3 bedroom, 2 bathroom home with a powder room, around 100 m², in off-form concrete and charcoal timber. You arrive through a 15 m² glass welcome pod with a single glass pivot door, and a 15 m² walk-through glass pod links the home to a 6 by 7 metre double garage pod. Shown with the HAAVN BLACK wellness pod in the back yard.</p>
+        <p class="finish__key"><span>3 bed, 2 bath, powder room</span><span>Glass pods 15 m² each, garage pod 6&nbsp;by&nbsp;7&nbsp;m</span></p>
       </div>
     </aside>
   </section>
@@ -7370,7 +7427,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
        new names. -->
   <section class="interiors rule-top" id="interiors" aria-labelledby="interiors-title">
     <div class="palettes__intro">
-      <p class="palettes__line">One home in <strong>two pavilions</strong>, a place to sleep and a larger place to live.</p>
+      <p class="palettes__line"><strong>3 bedrooms, 2 bathrooms and a powder room</strong>, with the kitchen, living and dining in one room.</p>
       <p class="palettes__line">Concrete, <strong>blackened timber</strong>, burgundy and bronze glass, open to the garden and the sea.</p>
     </div>
     <div class="section-head">
@@ -7382,9 +7439,9 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
     <div class="interiors__track" id="interiors-track-octa" data-n="5" data-for="octa">
       <figure class="interior interior--living">
-        <img class="interior__img is-shown" data-variant="octa" src="img/octa/living.jpg" alt="The larger home: living, kitchen and dining in one room, looking back from the sofa" loading="lazy" decoding="async">
+        <img class="interior__img is-shown" data-variant="octa" src="img/octa/living.jpg" alt="The kitchen, living and dining in one room, looking back from the sofa" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
-          <span class="interior__label">Living, kitchen and dining</span>
+          <span class="interior__label">Kitchen, living and dining</span>
         </figcaption>
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7418,9 +7475,9 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="interior interior--bedroom">
-        <img class="interior__img" data-variant="octa" data-src="img/octa/bedroom.jpg" alt="The bedroom pavilion, looking out to the garden and the sea" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-variant="octa" data-src="img/octa/bedroom.jpg" alt="The main bedroom, looking out to the garden and the sea" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
-          <span class="interior__label">Bedroom</span>
+          <span class="interior__label">Main bedroom</span>
         </figcaption>
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7429,10 +7486,10 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
           </svg>
         </button>
       </figure>
-      <figure class="interior interior--bedroom2">
-        <img class="interior__img" data-variant="octa" data-src="img/octa/bedroom2.jpg" alt="The bedroom, looking across the garden to the wellness pod at sunset" aria-hidden="true" loading="lazy" decoding="async">
+      <figure class="interior interior--walkthrough">
+        <img class="interior__img" data-variant="octa" data-src="img/octa/walkthrough.jpg" alt="The walk-through glass pod from the home to the garage pod, looking in at the car" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
-          <span class="interior__label">Bedroom, to the wellness pod</span>
+          <span class="interior__label">Walk-through glass pod</span>
         </figcaption>
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -7445,8 +7502,8 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
     <aside class="finish" aria-label="About this room">
       <div class="finish__copy is-shown" data-variant="octa" data-room="living">
-        <p class="finish__name">Living, kitchen and dining</p>
-        <p class="finish__story">Living, kitchen and dining in one open room under a black timber batten ceiling, a white boucle sofa on a burgundy rug, a stone dining table and the island kitchen beyond.</p>
+        <p class="finish__name">Kitchen, living and dining</p>
+        <p class="finish__story">Kitchen, living and dining in one open room under a black timber batten ceiling, a white boucle sofa on a burgundy rug, a stone dining table and the island kitchen beyond.</p>
         <p class="finish__key"><span>White boucle and burgundy</span><span>Black timber batten ceiling</span></p>
       </div>
       <div class="finish__copy" data-variant="octa" data-room="kitchen">
@@ -7460,14 +7517,14 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         <p class="finish__key"><span>Stone dining table</span><span>Burgundy upholstered chairs</span></p>
       </div>
       <div class="finish__copy" data-variant="octa" data-room="bedroom">
-        <p class="finish__name">Bedroom</p>
-        <p class="finish__story">A bedroom that opens to the garden and the sea, with a burgundy headboard and throw, blackened timber wardrobes with a lit display bay and a black batten ceiling.</p>
+        <p class="finish__name">Main bedroom</p>
+        <p class="finish__story">The main bedroom opens to the garden and the sea, with a burgundy headboard and throw, blackened timber wardrobes with a lit display bay and a black batten ceiling.</p>
         <p class="finish__key"><span>Blackened timber wardrobes</span><span>Burgundy headboard and throw</span></p>
       </div>
-      <div class="finish__copy" data-variant="octa" data-room="bedroom2">
-        <p class="finish__name">Bedroom, to the wellness pod</p>
-        <p class="finish__story">The bedroom doors open across the garden to the wellness pod, a sauna, a steam room, a daybed and a raised spa, at sunset.</p>
-        <p class="finish__key"><span>Garden path to the wellness pod</span><span>Sunset outlook</span></p>
+      <div class="finish__copy" data-variant="octa" data-room="walkthrough">
+        <p class="finish__name">Walk-through glass pod</p>
+        <p class="finish__story">A 15 m² walk-through glass pod links the home to the garage pod: glass walls, a black timber ceiling and a concrete floor with no steps, ending at a pivot door into the garage.</p>
+        <p class="finish__key"><span>Walk-through glass pod, 15 m²</span><span>Garage pod, 6 by 7 m</span></p>
       </div>
     </aside>
   </section>
