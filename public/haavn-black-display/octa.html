@@ -7346,7 +7346,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--entrance">
-        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/entry.jpg" alt="Octa, the glass welcome pod and its pivot door, looking through to the wellness pod and the sea" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-time="day" data-src="img/octa/entry.jpg" alt="Octa, the glass welcome pod and its pivot door, looking through to the wellness pavilion and the sea" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-variant="octa" data-time="night" data-src="img/octa/entry-night.jpg" alt="Octa, the glass welcome pod and its pivot door after dark, with the wellness pod lit beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek peek--clock" type="button" data-clock="view"
                 aria-pressed="false" aria-label="Show this view after dark">
@@ -7371,7 +7371,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--walk">
-        <img class="exterior__img" data-variant="octa" data-src="img/octa/walk.jpg" alt="Octa, the back yard at sunset, seen from the main bedroom: a woman in a white robe walks the deck and garden path to the wellness pod, with the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="octa" data-src="img/octa/walk.jpg" alt="Octa, the back yard at sunset, seen from the main bedroom: a woman in a white robe walks the deck and garden path to the wellness pavilion, with the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7411,7 +7411,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
     <aside class="finish" aria-label="About the exterior">
       <div class="finish__copy is-shown" data-variant="octa">
         <p class="finish__name">Glass welcome pod, garage pod</p>
-        <p class="finish__story">A 3 bedroom, 2 bathroom home with a powder room, around 100 m², in off-form concrete and charcoal timber. You arrive through a 15 m² glass welcome pod with a single glass pivot door, and a 15 m² walk-through glass pod links the home to a 6 by 7 metre double garage pod. Shown with the HAAVN BLACK wellness pod in the back yard.</p>
+        <p class="finish__story">A 3 bedroom, 2 bathroom home with a powder room, around 100 m², in off-form concrete and charcoal timber. You arrive through a 15 m² glass welcome pod with a single glass pivot door, and a 15 m² walk-through glass pod links the home to a 6 by 7 metre double garage pod. Shown with HAAVN BLACK Wellness in the back yard.</p>
         <p class="finish__key"><span>3 bed, 2 bath, powder room</span><span>Glass pods 15 m² each, garage pod 6&nbsp;by&nbsp;7&nbsp;m</span></p>
       </div>
     </aside>
@@ -10897,7 +10897,7 @@ window.HB_PAGE = 'octa';
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
-  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'pod' || PAGE === 'hubs') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
+  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'wellness') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',

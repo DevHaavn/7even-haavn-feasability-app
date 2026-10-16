@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>HAAVN BLACK Wellness pod</title>
+  <title>HAAVN BLACK Wellness</title>
   <meta name="description" content="SOLUM by HAAVN BLACK. The first home of the HAAVN BLACK series, arriving 15 October 2026.">
   <meta name="theme-color" content="#000000">
   <meta name="color-scheme" content="dark">
@@ -548,7 +548,7 @@ b {
 .backdrop__still {
   position: absolute;
   background-image: image-set(
-    url("img/pod/exterior.jpg") 1x);
+    url("img/pod/fleet-day.jpg") 1x);
   background-size: cover;
   background-position: 50% 62%;
   /* held a moment while the video rises under it, so the handover has no
@@ -582,7 +582,7 @@ b {
 .backdrop__night {
   position: absolute;
   background-image: image-set(
-    url("img/pod/exterior.jpg") 1x);
+    url("img/pod/fleet-dusk.jpg") 1x);
   background-size: cover;
   background-position: 50% 62%;
   opacity: 0;
@@ -594,7 +594,7 @@ b {
 @media (min-width: 64rem) {
   .backdrop__night {
     background-image: image-set(
-      url("img/pod/exterior.jpg") 1x);
+      url("img/pod/fleet-dusk.jpg") 1x);
   }
 }
 
@@ -673,7 +673,7 @@ b {
 @media (min-width: 64rem) {
   .backdrop__still {
     background-image: image-set(
-      url("img/pod/exterior.jpg") 1x);
+      url("img/pod/fleet-day.jpg") 1x);
   }
 }
 
@@ -1716,7 +1716,10 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   translate: 0 calc((1 - var(--arrive)) * 1rem);
 }
 
-.has-scene .scene__pin .exterior[data-slot="1"] {
+.has-scene .scene__pin .exterior[data-slot="1"],
+.has-scene .scene__pin .exterior[data-slot="2"],
+.has-scene .scene__pin .exterior[data-slot="3"],
+.has-scene .scene__pin .exterior[data-slot="4"] {
   opacity: var(--arrive);
   translate: calc((1 - var(--arrive)) * 3rem) 0;
 }
@@ -1833,7 +1836,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .has-scene .scene--palettes .interior[data-slot="1"],
 .has-scene .scene--palettes .interior[data-slot="2"],
 .has-scene .scene--palettes .interior[data-slot="3"],
-.has-scene .scene--palettes .interior[data-slot="4"] {
+.has-scene .scene--palettes .interior[data-slot="4"],
+.has-scene .scene--palettes .interior[data-slot="5"],
+.has-scene .scene--palettes .interior[data-slot="6"] {
   opacity: var(--arrive);
 }
 
@@ -2115,7 +2120,7 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   position: relative;
   display: block;
   width: min(100%, var(--hero-width));
-  aspect-ratio: 909.00 / 318.49;   /* the artwork's own viewBox */
+  aspect-ratio: 2684.25 / 318.49;   /* the artwork's own viewBox */
   /* about half as strong as it was, fill, light and rim alike, so
      the name sits more quietly on the picture */
   background: linear-gradient(180deg,
@@ -2128,12 +2133,12 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
      foot, and the unveil — a soft edge, a quarter of the mark wide, that
      travels left to right as --unveil runs up from nothing. */
   -webkit-mask:
-    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDkuMDAgMzE4LjQ5Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMC4wMCAwLjAwTDM5LjEwIDAuMDBMMzkuMTAgMzE4LjQ5TDAuMDAgMzE4LjQ5Wk0wLjAwIDAuMDBMMjU1LjAwIDAuMDBMMjU1LjAwIDM5LjEwTDAuMDAgMzkuMTBaTTIxNS45MCAwLjAwTDI1NS4wMCAwLjAwTDI1NS4wMCAxNzguODBMMjE1LjkwIDE3OC44MFpNMC4wMCAxMzkuNjlMMjU1LjAwIDEzOS42OUwyNTUuMDAgMTc4LjgwTDAuMDAgMTc4LjgwWk0zOTcuMDAgMC4wMEw1ODIuMDAgMC4wMEw1ODIuMDAgMzkuMTBMMzk3LjAwIDM5LjEwWk0zMjcuMDAgMjc5LjM5TDUxMi4wMCAyNzkuMzlMNTEyLjAwIDMxOC40OUwzMjcuMDAgMzE4LjQ5Wk0zMjcuMDAgNzAuMDBMMzY2LjEwIDcwLjAwTDM2Ni4xMCAzMTguNDlMMzI3LjAwIDMxOC40OVpNNTQyLjkwIDAuMDBMNTgyLjAwIDAuMDBMNTgyLjAwIDI0OC40OUw1NDIuOTAgMjQ4LjQ5Wk0zMjcuMDAgNzAuMDBMMzk3LjAwIDAuMDBMNDUyLjMwIDAuMDBMMzI3LjAwIDEyNS4zMFpNNTgyLjAwIDI0OC40OUw1MTIuMDAgMzE4LjQ5TDQ1Ni43MCAzMTguNDlMNTgyLjAwIDE5My4xOVpNNjU0LjAwIDAuMDBMNjkzLjEwIDAuMDBMNjkzLjEwIDMxOC40OUw2NTQuMDAgMzE4LjQ5Wk02NTQuMDAgMC4wMEw4MzkuMDAgMC4wMEw4MzkuMDAgMzkuMTBMNjU0LjAwIDM5LjEwWk02NTQuMDAgMjc5LjM5TDgzOS4wMCAyNzkuMzlMODM5LjAwIDMxOC40OUw2NTQuMDAgMzE4LjQ5Wk04NjkuOTAgNzAuMDBMOTA5LjAwIDcwLjAwTDkwOS4wMCAyNDguNDlMODY5LjkwIDI0OC40OVpNOTA5LjAwIDEyNS4zMEw3ODMuNzAgMC4wMEw4MzkuMDAgMC4wMEw5MDkuMDAgNzAuMDBaTTkwOS4wMCAyNDguNDlMODM5LjAwIDMxOC40OUw3ODMuNzAgMzE4LjQ5TDkwOS4wMCAxOTMuMTlaIi8+PC9zdmc+") left center / contain no-repeat,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNjg0LjI1IDMxOC40OSI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAuMDAgMC4wMEw1OC4wMCAwLjAwTDEzMy44MSAzMTguNDlMNjMuODEgMzE4LjQ5Wk0xNjguNjIgMTA4LjI5TDIyNi42MiAxMDguMjlMMTMzLjgxIDMxOC40OUw2My44MSAzMTguNDlaTTE2OC42MiAxMDguMjlMMjI2LjYyIDEwOC4yOUwzMzEuNDQgMzE4LjQ5TDI2MS40NCAzMTguNDlaTTMzMS40NCAzMTguNDlMMjYxLjQ0IDMxOC40OUwzMzcuMjUgMC4wMEwzOTUuMjUgMC4wMFpNNDY3LjI1IDAuMDBMNTA2LjM1IDAuMDBMNTA2LjM1IDMxOC40OUw0NjcuMjUgMzE4LjQ5Wk00NjcuMjUgMC4wMEw3MjIuMjUgMC4wMEw3MjIuMjUgMzkuMTBMNDY3LjI1IDM5LjEwWk00NjcuMjUgMTM5LjY5TDY5Ni43NSAxMzkuNjlMNjk2Ljc1IDE3OC44MEw0NjcuMjUgMTc4LjgwWk00NjcuMjUgMjc5LjM5TDcyMi4yNSAyNzkuMzlMNzIyLjI1IDMxOC40OUw0NjcuMjUgMzE4LjQ5Wk03OTQuMjUgMC4wMEw4MzMuMzUgMC4wMEw4MzMuMzUgMjQ4LjQ5TDc5NC4yNSAyNDguNDlaTTg2NC4yNSAyNzkuMzlMMTA0OS4yNSAyNzkuMzlMMTA0OS4yNSAzMTguNDlMODY0LjI1IDMxOC40OVpNNzk0LjI1IDE5My4xOUw5MTkuNTUgMzE4LjQ5TDg2NC4yNSAzMTguNDlMNzk0LjI1IDI0OC40OVpNMTEyMS4yNSAwLjAwTDExNjAuMzUgMC4wMEwxMTYwLjM1IDI0OC40OUwxMTIxLjI1IDI0OC40OVpNMTE5MS4yNSAyNzkuMzlMMTM3Ni4yNSAyNzkuMzlMMTM3Ni4yNSAzMTguNDlMMTE5MS4yNSAzMTguNDlaTTExMjEuMjUgMTkzLjE5TDEyNDYuNTUgMzE4LjQ5TDExOTEuMjUgMzE4LjQ5TDExMjEuMjUgMjQ4LjQ5Wk0xNDQ4LjI1IDAuMDBMMTQ4Ny4zNSAwLjAwTDE0ODcuMzUgMzE4LjQ5TDE0NDguMjUgMzE4LjQ5Wk0xNjY0LjE1IDAuMDBMMTcwMy4yNSAwLjAwTDE3MDMuMjUgMzE4LjQ5TDE2NjQuMTUgMzE4LjQ5Wk0xNDQ4LjI1IDAuMDBMMTUxMC44MSAwLjAwTDE3MDMuMjUgMzE4LjQ5TDE2NDAuNjkgMzE4LjQ5Wk0xNzc1LjI1IDAuMDBMMTgxNC4zNSAwLjAwTDE4MTQuMzUgMzE4LjQ5TDE3NzUuMjUgMzE4LjQ5Wk0xNzc1LjI1IDAuMDBMMjAzMC4yNSAwLjAwTDIwMzAuMjUgMzkuMTBMMTc3NS4yNSAzOS4xMFpNMTc3NS4yNSAxMzkuNjlMMjAwNC43NSAxMzkuNjlMMjAwNC43NSAxNzguODBMMTc3NS4yNSAxNzguODBaTTE3NzUuMjUgMjc5LjM5TDIwMzAuMjUgMjc5LjM5TDIwMzAuMjUgMzE4LjQ5TDE3NzUuMjUgMzE4LjQ5Wk0yMTAyLjI1IDAuMDBMMjM1Ny4yNSAwLjAwTDIzNTcuMjUgMzkuMTBMMjEwMi4yNSAzOS4xMFpNMjEwMi4yNSAwLjAwTDIxNDEuMzUgMC4wMEwyMTQxLjM1IDE3OC44MEwyMTAyLjI1IDE3OC44MFpNMjEwMi4yNSAxMzkuNjlMMjM1Ny4yNSAxMzkuNjlMMjM1Ny4yNSAxNzguODBMMjEwMi4yNSAxNzguODBaTTIzMTguMTUgMTM5LjY5TDIzNTcuMjUgMTM5LjY5TDIzNTcuMjUgMzE4LjQ5TDIzMTguMTUgMzE4LjQ5Wk0yMTAyLjI1IDI3OS4zOUwyMzU3LjI1IDI3OS4zOUwyMzU3LjI1IDMxOC40OUwyMTAyLjI1IDMxOC40OVpNMjQyOS4yNSAwLjAwTDI2ODQuMjUgMC4wMEwyNjg0LjI1IDM5LjEwTDI0MjkuMjUgMzkuMTBaTTI0MjkuMjUgMC4wMEwyNDY4LjM1IDAuMDBMMjQ2OC4zNSAxNzguODBMMjQyOS4yNSAxNzguODBaTTI0MjkuMjUgMTM5LjY5TDI2ODQuMjUgMTM5LjY5TDI2ODQuMjUgMTc4LjgwTDI0MjkuMjUgMTc4LjgwWk0yNjQ1LjE1IDEzOS42OUwyNjg0LjI1IDEzOS42OUwyNjg0LjI1IDMxOC40OUwyNjQ1LjE1IDMxOC40OVpNMjQyOS4yNSAyNzkuMzlMMjY4NC4yNSAyNzkuMzlMMjY4NC4yNSAzMTguNDlMMjQyOS4yNSAzMTguNDlaIi8+PC9zdmc+") left center / contain no-repeat,
     linear-gradient(180deg, #000 45%, rgb(0 0 0 / 0.78) 100%),
     linear-gradient(90deg, #000 calc(var(--unveil) - 25%), transparent var(--unveil));
   -webkit-mask-composite: source-in, source-in;
   mask:
-    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDkuMDAgMzE4LjQ5Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMC4wMCAwLjAwTDM5LjEwIDAuMDBMMzkuMTAgMzE4LjQ5TDAuMDAgMzE4LjQ5Wk0wLjAwIDAuMDBMMjU1LjAwIDAuMDBMMjU1LjAwIDM5LjEwTDAuMDAgMzkuMTBaTTIxNS45MCAwLjAwTDI1NS4wMCAwLjAwTDI1NS4wMCAxNzguODBMMjE1LjkwIDE3OC44MFpNMC4wMCAxMzkuNjlMMjU1LjAwIDEzOS42OUwyNTUuMDAgMTc4LjgwTDAuMDAgMTc4LjgwWk0zOTcuMDAgMC4wMEw1ODIuMDAgMC4wMEw1ODIuMDAgMzkuMTBMMzk3LjAwIDM5LjEwWk0zMjcuMDAgMjc5LjM5TDUxMi4wMCAyNzkuMzlMNTEyLjAwIDMxOC40OUwzMjcuMDAgMzE4LjQ5Wk0zMjcuMDAgNzAuMDBMMzY2LjEwIDcwLjAwTDM2Ni4xMCAzMTguNDlMMzI3LjAwIDMxOC40OVpNNTQyLjkwIDAuMDBMNTgyLjAwIDAuMDBMNTgyLjAwIDI0OC40OUw1NDIuOTAgMjQ4LjQ5Wk0zMjcuMDAgNzAuMDBMMzk3LjAwIDAuMDBMNDUyLjMwIDAuMDBMMzI3LjAwIDEyNS4zMFpNNTgyLjAwIDI0OC40OUw1MTIuMDAgMzE4LjQ5TDQ1Ni43MCAzMTguNDlMNTgyLjAwIDE5My4xOVpNNjU0LjAwIDAuMDBMNjkzLjEwIDAuMDBMNjkzLjEwIDMxOC40OUw2NTQuMDAgMzE4LjQ5Wk02NTQuMDAgMC4wMEw4MzkuMDAgMC4wMEw4MzkuMDAgMzkuMTBMNjU0LjAwIDM5LjEwWk02NTQuMDAgMjc5LjM5TDgzOS4wMCAyNzkuMzlMODM5LjAwIDMxOC40OUw2NTQuMDAgMzE4LjQ5Wk04NjkuOTAgNzAuMDBMOTA5LjAwIDcwLjAwTDkwOS4wMCAyNDguNDlMODY5LjkwIDI0OC40OVpNOTA5LjAwIDEyNS4zMEw3ODMuNzAgMC4wMEw4MzkuMDAgMC4wMEw5MDkuMDAgNzAuMDBaTTkwOS4wMCAyNDguNDlMODM5LjAwIDMxOC40OUw3ODMuNzAgMzE4LjQ5TDkwOS4wMCAxOTMuMTlaIi8+PC9zdmc+") left center / contain no-repeat,
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNjg0LjI1IDMxOC40OSI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTAuMDAgMC4wMEw1OC4wMCAwLjAwTDEzMy44MSAzMTguNDlMNjMuODEgMzE4LjQ5Wk0xNjguNjIgMTA4LjI5TDIyNi42MiAxMDguMjlMMTMzLjgxIDMxOC40OUw2My44MSAzMTguNDlaTTE2OC42MiAxMDguMjlMMjI2LjYyIDEwOC4yOUwzMzEuNDQgMzE4LjQ5TDI2MS40NCAzMTguNDlaTTMzMS40NCAzMTguNDlMMjYxLjQ0IDMxOC40OUwzMzcuMjUgMC4wMEwzOTUuMjUgMC4wMFpNNDY3LjI1IDAuMDBMNTA2LjM1IDAuMDBMNTA2LjM1IDMxOC40OUw0NjcuMjUgMzE4LjQ5Wk00NjcuMjUgMC4wMEw3MjIuMjUgMC4wMEw3MjIuMjUgMzkuMTBMNDY3LjI1IDM5LjEwWk00NjcuMjUgMTM5LjY5TDY5Ni43NSAxMzkuNjlMNjk2Ljc1IDE3OC44MEw0NjcuMjUgMTc4LjgwWk00NjcuMjUgMjc5LjM5TDcyMi4yNSAyNzkuMzlMNzIyLjI1IDMxOC40OUw0NjcuMjUgMzE4LjQ5Wk03OTQuMjUgMC4wMEw4MzMuMzUgMC4wMEw4MzMuMzUgMjQ4LjQ5TDc5NC4yNSAyNDguNDlaTTg2NC4yNSAyNzkuMzlMMTA0OS4yNSAyNzkuMzlMMTA0OS4yNSAzMTguNDlMODY0LjI1IDMxOC40OVpNNzk0LjI1IDE5My4xOUw5MTkuNTUgMzE4LjQ5TDg2NC4yNSAzMTguNDlMNzk0LjI1IDI0OC40OVpNMTEyMS4yNSAwLjAwTDExNjAuMzUgMC4wMEwxMTYwLjM1IDI0OC40OUwxMTIxLjI1IDI0OC40OVpNMTE5MS4yNSAyNzkuMzlMMTM3Ni4yNSAyNzkuMzlMMTM3Ni4yNSAzMTguNDlMMTE5MS4yNSAzMTguNDlaTTExMjEuMjUgMTkzLjE5TDEyNDYuNTUgMzE4LjQ5TDExOTEuMjUgMzE4LjQ5TDExMjEuMjUgMjQ4LjQ5Wk0xNDQ4LjI1IDAuMDBMMTQ4Ny4zNSAwLjAwTDE0ODcuMzUgMzE4LjQ5TDE0NDguMjUgMzE4LjQ5Wk0xNjY0LjE1IDAuMDBMMTcwMy4yNSAwLjAwTDE3MDMuMjUgMzE4LjQ5TDE2NjQuMTUgMzE4LjQ5Wk0xNDQ4LjI1IDAuMDBMMTUxMC44MSAwLjAwTDE3MDMuMjUgMzE4LjQ5TDE2NDAuNjkgMzE4LjQ5Wk0xNzc1LjI1IDAuMDBMMTgxNC4zNSAwLjAwTDE4MTQuMzUgMzE4LjQ5TDE3NzUuMjUgMzE4LjQ5Wk0xNzc1LjI1IDAuMDBMMjAzMC4yNSAwLjAwTDIwMzAuMjUgMzkuMTBMMTc3NS4yNSAzOS4xMFpNMTc3NS4yNSAxMzkuNjlMMjAwNC43NSAxMzkuNjlMMjAwNC43NSAxNzguODBMMTc3NS4yNSAxNzguODBaTTE3NzUuMjUgMjc5LjM5TDIwMzAuMjUgMjc5LjM5TDIwMzAuMjUgMzE4LjQ5TDE3NzUuMjUgMzE4LjQ5Wk0yMTAyLjI1IDAuMDBMMjM1Ny4yNSAwLjAwTDIzNTcuMjUgMzkuMTBMMjEwMi4yNSAzOS4xMFpNMjEwMi4yNSAwLjAwTDIxNDEuMzUgMC4wMEwyMTQxLjM1IDE3OC44MEwyMTAyLjI1IDE3OC44MFpNMjEwMi4yNSAxMzkuNjlMMjM1Ny4yNSAxMzkuNjlMMjM1Ny4yNSAxNzguODBMMjEwMi4yNSAxNzguODBaTTIzMTguMTUgMTM5LjY5TDIzNTcuMjUgMTM5LjY5TDIzNTcuMjUgMzE4LjQ5TDIzMTguMTUgMzE4LjQ5Wk0yMTAyLjI1IDI3OS4zOUwyMzU3LjI1IDI3OS4zOUwyMzU3LjI1IDMxOC40OUwyMTAyLjI1IDMxOC40OVpNMjQyOS4yNSAwLjAwTDI2ODQuMjUgMC4wMEwyNjg0LjI1IDM5LjEwTDI0MjkuMjUgMzkuMTBaTTI0MjkuMjUgMC4wMEwyNDY4LjM1IDAuMDBMMjQ2OC4zNSAxNzguODBMMjQyOS4yNSAxNzguODBaTTI0MjkuMjUgMTM5LjY5TDI2ODQuMjUgMTM5LjY5TDI2ODQuMjUgMTc4LjgwTDI0MjkuMjUgMTc4LjgwWk0yNjQ1LjE1IDEzOS42OUwyNjg0LjI1IDEzOS42OUwyNjg0LjI1IDMxOC40OUwyNjQ1LjE1IDMxOC40OVpNMjQyOS4yNSAyNzkuMzlMMjY4NC4yNSAyNzkuMzlMMjY4NC4yNSAzMTguNDlMMjQyOS4yNSAzMTguNDlaIi8+PC9zdmc+") left center / contain no-repeat,
     linear-gradient(180deg, #000 45%, rgb(0 0 0 / 0.78) 100%),
     linear-gradient(90deg, #000 calc(var(--unveil) - 25%), transparent var(--unveil));
   mask-composite: intersect, intersect;
@@ -3155,6 +3160,73 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-n="5"] .interior[data-slot="5"], .interiors__track[data-n="5"] .interior[data-slot="6"], .interiors__track[data-n="5"] .interior[data-slot="7"], .interiors__track[data-n="5"] .interior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
   .interiors__track[data-n="5"] .interior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
   .interiors__track[data-n="5"] .interior[data-slot="8"] { transition: none; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(3) { left: 57.23%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(4) { left: 66.06%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(5) { left: 74.89%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(6) { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(7) { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"] .interior:not([data-slot]):nth-child(n + 8) { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="7"] .interior[data-slot="0"], .interiors__track[data-n="7"] .interior[data-slot="1"], .interiors__track[data-n="7"] .interior[data-slot="2"], .interiors__track[data-n="7"] .interior[data-slot="3"], .interiors__track[data-n="7"] .interior[data-slot="4"], .interiors__track[data-n="7"] .interior[data-slot="5"], .interiors__track[data-n="7"] .interior[data-slot="6"] { opacity: 1; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 7.43%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="2"] { left: 57.23%; width: 7.43%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="3"] { left: 66.06%; width: 7.43%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="4"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="4"] { left: 74.89%; width: 7.43%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="5"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="5"] { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"]:not([data-open]) .interior[data-slot="6"],
+  .interiors__track[data-n="7"][data-open="0"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="1"] { left: 8.83%; width: 47.0%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="2"] { left: 57.23%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="3"] { left: 66.06%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="4"] { left: 74.89%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="5"] { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="1"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="1"] { left: 8.83%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="2"] { left: 17.66%; width: 47.0%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="3"] { left: 66.06%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="4"] { left: 74.89%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="5"] { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="2"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="1"] { left: 8.83%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="2"] { left: 17.66%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="3"] { left: 26.49%; width: 47.0%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="4"] { left: 74.89%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="5"] { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="3"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="1"] { left: 8.83%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="2"] { left: 17.66%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="3"] { left: 26.49%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="4"] { left: 35.32%; width: 47.0%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="5"] { left: 83.72%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="4"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="1"] { left: 8.83%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="2"] { left: 17.66%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="3"] { left: 26.49%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="4"] { left: 35.32%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="5"] { left: 44.15%; width: 47.0%; }
+  .interiors__track[data-n="7"][data-open="5"] .interior[data-slot="6"] { left: 92.55%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="0"] { left: 0.0%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="1"] { left: 8.83%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="2"] { left: 17.66%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="3"] { left: 26.49%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="4"] { left: 35.32%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="5"] { left: 44.15%; width: 7.43%; }
+  .interiors__track[data-n="7"][data-open="6"] .interior[data-slot="6"] { left: 52.98%; width: 47.0%; }
+  .interiors__track[data-n="7"] .interior[data-slot="7"], .interiors__track[data-n="7"] .interior[data-slot="8"], .interiors__track[data-n="7"] .interior[data-slot="9"], .interiors__track[data-n="7"] .interior[data-slot="10"], .interiors__track[data-n="7"] .interior[data-slot="11"], .interiors__track[data-n="7"] .interior[data-slot="12"] { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="7"] .interior[data-slot="13"] { left: 0; width: 0; opacity: 0; }
+  .interiors__track[data-n="7"] .interior[data-slot="12"] { transition: none; }
   /* The open panel pans out to its wider framing and names itself.
      Whichever panel that is: the lead by default, the hovered one while
      the pointer is over the row. */
@@ -3169,6 +3241,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="2"] .interior[data-slot="2"] .interior__label,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .interior__label,
   .interiors__track[data-open="4"] .interior[data-slot="4"] .interior__label,
+  .interiors__track[data-open="5"] .interior[data-slot="5"] .interior__label,
+  .interiors__track[data-open="6"] .interior[data-slot="6"] .interior__label,
   .interior:not([data-slot]):first-child .interior__label {
     opacity: 1;
     transition-delay: 0.35s;
@@ -3204,6 +3278,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="2"] .interior[data-slot="2"] .peek,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .peek,
   .interiors__track[data-open="4"] .interior[data-slot="4"] .peek,
+  .interiors__track[data-open="5"] .interior[data-slot="5"] .peek,
+  .interiors__track[data-open="6"] .interior[data-slot="6"] .peek,
   .interior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -3364,19 +3440,46 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   }
 
   /* the exteriors row, written for each panel count in use (Seth wrote it for three) */
-  .exteriors__track[data-n="2"] .exterior__img { width: 64.0cqw; left: calc((100% - 64.0cqw) * var(--win, 0.5)); }
-  .exteriors__track[data-n="2"] .exterior:not([data-slot]):nth-child(2) { left: 65.4%; width: 34.6%; }
-  .exteriors__track[data-n="2"] .exterior:not([data-slot]):nth-child(n + 3) { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="2"] .exterior[data-slot="0"], .exteriors__track[data-n="2"] .exterior[data-slot="1"] { opacity: 1; }
-  .exteriors__track[data-n="2"]:not([data-open]) .exterior[data-slot="0"],
-  .exteriors__track[data-n="2"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 64.0%; }
-  .exteriors__track[data-n="2"]:not([data-open]) .exterior[data-slot="1"],
-  .exteriors__track[data-n="2"][data-open="0"] .exterior[data-slot="1"] { left: 65.4%; width: 34.6%; }
-  .exteriors__track[data-n="2"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 34.6%; }
-  .exteriors__track[data-n="2"][data-open="1"] .exterior[data-slot="1"] { left: 36.0%; width: 64.0%; }
-  .exteriors__track[data-n="2"] .exterior[data-slot="2"] { left: 100%; width: 0; opacity: 0; }
-  .exteriors__track[data-n="2"] .exterior[data-slot="3"] { left: 0; width: 0; opacity: 0; }
-  .exteriors__track[data-n="2"] .exterior[data-slot="2"] { transition: none; }
+  .exteriors__track[data-n="5"] .exterior__img { width: 58.0cqw; left: calc((100% - 58.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(2) { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(3) { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(4) { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(5) { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="0"], .exteriors__track[data-n="5"] .exterior[data-slot="1"], .exteriors__track[data-n="5"] .exterior[data-slot="2"], .exteriors__track[data-n="5"] .exterior[data-slot="3"], .exteriors__track[data-n="5"] .exterior[data-slot="4"] { opacity: 1; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="1"] { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="3"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="4"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="1"] { left: 10.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="2"] { left: 21.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="3"] { left: 31.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="3"] { left: 31.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="4"] { left: 42.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="5"], .exteriors__track[data-n="5"] .exterior[data-slot="6"], .exteriors__track[data-n="5"] .exterior[data-slot="7"], .exteriors__track[data-n="5"] .exterior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="8"] { transition: none; }
   
 }
 
@@ -3415,6 +3518,8 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .exteriors__track[data-open="0"] .exterior[data-slot="0"] .peek,
   .exteriors__track[data-open="1"] .exterior[data-slot="1"] .peek,
   .exteriors__track[data-open="2"] .exterior[data-slot="2"] .peek,
+  .exteriors__track[data-open="3"] .exterior[data-slot="3"] .peek,
+  .exteriors__track[data-open="4"] .exterior[data-slot="4"] .peek,
   .exterior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -3665,7 +3770,21 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="daybed"] .finish__copy:not([data-room="daybed"]),
 .interiors[data-room="daybed"] .finish__standard:not([data-room="daybed"]),
 .interiors[data-room="spa3"] .finish__copy:not([data-room="spa3"]),
-.interiors[data-room="spa3"] .finish__standard:not([data-room="spa3"]) {
+.interiors[data-room="spa3"] .finish__standard:not([data-room="spa3"]),
+.interiors[data-room="thermal"] .finish__copy:not([data-room="thermal"]),
+.interiors[data-room="thermal"] .finish__standard:not([data-room="thermal"]),
+.interiors[data-room="rest"] .finish__copy:not([data-room="rest"]),
+.interiors[data-room="rest"] .finish__standard:not([data-room="rest"]),
+.interiors[data-room="pool"] .finish__copy:not([data-room="pool"]),
+.interiors[data-room="pool"] .finish__standard:not([data-room="pool"]),
+.interiors[data-room="golden"] .finish__copy:not([data-room="golden"]),
+.interiors[data-room="golden"] .finish__standard:not([data-room="golden"]),
+.interiors[data-room="coast"] .finish__copy:not([data-room="coast"]),
+.interiors[data-room="coast"] .finish__standard:not([data-room="coast"]),
+.interiors[data-room="dusk"] .finish__copy:not([data-room="dusk"]),
+.interiors[data-room="dusk"] .finish__standard:not([data-room="dusk"]),
+.interiors[data-room="rainforest"] .finish__copy:not([data-room="rainforest"]),
+.interiors[data-room="rainforest"] .finish__standard:not([data-room="rainforest"]) {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7145,8 +7264,14 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .lb, .lb__img { transition: none; } }
 
-.swatch[data-variant="pod"] { --swatch-colour: var(--c-burgundy); }
-.finish__copy[data-variant="pod"] { --finish: var(--c-burgundy); }
+.swatch[data-variant="inside"] { --swatch-colour: var(--c-burgundy); }
+.swatch[data-variant="settings"] { --swatch-colour: #d9c3a3; }
+.finish__copy[data-variant="inside"] { --finish: var(--c-burgundy); }
+.finish__copy[data-variant="settings"] { --finish: #d9c3a3; }
+.finish__copy[data-variant="wellness"] { --finish: var(--c-ink-2); }
+html:not([data-scheme="settings"]) .interiors__track[data-for="settings"],
+html[data-scheme="settings"] .interiors__track[data-for="inside"] { display: none !important; }
+.interiors .swatches { grid-template-columns: repeat(2, minmax(6.25rem, 10rem)); }
 </style>
 
   <script>document.documentElement.classList.replace('no-js', 'js');</script>
@@ -7219,17 +7344,17 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
              one. Replace with the real
              words. -->
         <div class="launch__about" data-reveal>
-          <p>HAAVN BLACK Wellness pod. A sauna, a steam room, a built-in daybed and a raised spa in one 12 by 4 metre pavilion. Concept renders, indicative only.</p>
+          <p>HAAVN BLACK Wellness. A sauna, a steam room, a built-in daybed and a raised spa in one 12 by 4 metre pavilion, in four settings. Concept renders, indicative only.</p>
         </div>
 
         <h1 class="hero" id="hero-title">
-          <span class="visually-hidden">POD</span>
+          <span class="visually-hidden">WELLNESS</span>
           <span class="hero__mark" aria-hidden="true"></span>
         </h1>
 
         <div class="launch__cta">
           <a class="button button--glass button--down" href="#exteriors" data-reveal>
-            <span class="button__label">Explore the pod</span>
+            <span class="button__label">Explore Wellness</span>
             <span class="button__arrow" aria-hidden="true">&darr;</span>
           </a>
         </div>
@@ -7258,14 +7383,48 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
        Sand's, until their own arrive. Obsidian is its own. -->
   <section class="exteriors" id="exteriors" aria-labelledby="exteriors-title">
     <div class="section-head">
-      <p class="eyebrow" id="exteriors-title">The pavilion<span class="eyebrow__model">Wellness pod</span></p>
-      <div class="swatches" role="group" aria-label="Wellness pod" hidden>
-        <button class="swatch is-selected" type="button" data-variant="pod" aria-pressed="true">Wellness pod</button>
+      <p class="eyebrow" id="exteriors-title">The pavilion<span class="eyebrow__model">Wellness</span></p>
+      <div class="swatches" role="group" aria-label="Wellness" hidden>
+        <button class="swatch is-selected" type="button" data-variant="wellness" aria-pressed="true">Wellness</button>
       </div>
     </div>
-    <div class="exteriors__track" id="exteriors-track" data-n="2">
+    <div class="exteriors__track" id="exteriors-track" data-n="5">
       <figure class="exterior exterior--front">
-        <img class="exterior__img is-shown" data-variant="pod" data-time="day" src="img/pod/exterior.jpg" alt="The wellness pod at dusk: sauna and steam room, the daybed and the raised spa, in a forest clearing" width="1672" height="941" loading="lazy" decoding="async">
+        <img class="exterior__img is-shown" data-variant="wellness" data-time="day" src="img/pod/fleet-day.jpg" alt="The wellness pavilion in daylight: cedar, bronze glass, a sauna, a steam room, a daybed and a raised spa with a waterfall edge" width="1672" height="941" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="wellness" data-time="night" data-src="img/pod/fleet-dusk.jpg" alt="The wellness pavilion at dusk, lit from within" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--forest">
+        <img class="exterior__img" data-variant="wellness" data-src="img/pod/exterior.jpg" alt="The wellness pavilion at dusk in a forest clearing: sauna and steam room, the daybed and the raised spa" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--garden">
+        <img class="exterior__img" data-variant="wellness" data-src="img/pod/garden.jpg" alt="The wellness pavilion in the garden beside the Octa home at sunset, with the sea beyond" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--cutaway">
+        <img class="exterior__img" data-variant="wellness" data-src="img/pod/cutaway.jpg" alt="The wellness pavilion with the roof removed, showing the sauna, steam room, daybed and spa from above" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7274,7 +7433,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="exterior exterior--plan">
-        <img class="exterior__img" data-variant="pod" data-time="day" data-src="img/pod/plan.jpg" alt="The wellness pod plan, 12 metres by 4 metres with a 1.5 metre front balcony" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="wellness" data-src="img/pod/plan.jpg" alt="The wellness pavilion plan, 12 metres by 4 metres with a 1.5 metre front balcony" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7285,9 +7444,9 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
     </div>
 
     <aside class="finish" aria-label="About the exterior">
-      <div class="finish__copy is-shown" data-variant="pod">
+      <div class="finish__copy is-shown" data-variant="wellness">
         <p class="finish__name">Sauna, steam, daybed and spa</p>
-        <p class="finish__story">A 12 by 4 metre pavilion with a 1.5 metre front balcony. Left to right: a sauna, a steam room, a rest area with shower and a built-in daybed, and a raised spa with a waterfall edge. Concept plan, not construction documentation.</p>
+        <p class="finish__story">A 12 by 4 metre pavilion with a 1.5 metre front balcony. Left to right: a sauna, a steam room, a rest area with shower and a built-in daybed, and a raised spa with a waterfall edge. Concept plan, not construction documentation. The renders are material and atmosphere studies from the approved model, so no new dimensions should be read from them.</p>
         <p class="finish__key"><span>Timber, bronze glass, matte black tile</span><span>Raised spa, 1 metre coping</span></p>
       </div>
     </aside>
@@ -7304,18 +7463,20 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
   <section class="interiors rule-top" id="interiors" aria-labelledby="interiors-title">
     <div class="palettes__intro">
       <p class="palettes__line">A <strong>sauna, a steam room and a raised spa</strong>, in one pavilion.</p>
-      <p class="palettes__line">Warm timber, <strong>bronze glass</strong> and glossy tile, open to the forest.</p>
+      <p class="palettes__line">Warm timber, <strong>bronze glass</strong> and glossy tile, inside and in <strong>four settings</strong>.</p>
     </div>
     <div class="section-head">
-      <p class="eyebrow" id="interiors-title">An inside look<span class="eyebrow__model">Wellness pod</span></p>
-      <div class="swatches" role="group" aria-label="Wellness pod" hidden>
-        <button class="swatch is-selected" type="button" data-variant="pod" aria-pressed="true">Wellness pod</button>
+      <p class="eyebrow" id="interiors-title">An inside look<span class="eyebrow__model">Wellness</span></p>
+      <div class="swatches" role="group" aria-labelledby="palette-label">
+        <span class="swatches__label" id="palette-label">View:</span>
+        <button class="swatch is-selected" type="button" data-variant="inside" aria-pressed="true">Inside</button>
+        <button class="swatch" type="button" data-variant="settings" aria-pressed="false">Four settings</button>
       </div>
     </div>
 
-    <div class="interiors__track" id="interiors-track-pod" data-n="4" data-for="pod">
+    <div class="interiors__track" id="interiors-track-inside" data-n="7" data-for="inside">
       <figure class="interior interior--spa">
-        <img class="interior__img is-shown" data-variant="pod" src="img/pod/pool-green.jpg" alt="The raised spa in green tile with a waterfall edge, looking out to the forest at sunset" loading="lazy" decoding="async">
+        <img class="interior__img is-shown" data-variant="inside" src="img/pod/pool-green.jpg" alt="The raised spa in green tile with a waterfall edge, looking out to the forest at sunset" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">The spa, green tile</span>
         </figcaption>
@@ -7327,7 +7488,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="interior interior--spa2">
-        <img class="interior__img" data-variant="pod" data-src="img/pod/pool-burgundy.jpg" alt="The same raised spa in burgundy tile, looking out to the forest at sunset" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/pool-burgundy.jpg" alt="The same raised spa in burgundy tile, looking out to the forest at sunset" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">The spa, burgundy tile</span>
         </figcaption>
@@ -7339,7 +7500,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="interior interior--daybed">
-        <img class="interior__img" data-variant="pod" data-src="img/pod/daybed-pool.jpg" alt="The built-in daybed in the foreground, looking along the spa to the forest" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/daybed-pool.jpg" alt="The built-in daybed in the foreground, looking along the spa to the forest" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">Daybed to the spa</span>
         </figcaption>
@@ -7351,7 +7512,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
         </button>
       </figure>
       <figure class="interior interior--spa3">
-        <img class="interior__img" data-variant="pod" data-src="img/pod/pool-daybed.jpg" alt="The spa seen from the corner, with the daybed and breeze screen behind" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/pool-daybed.jpg" alt="The spa seen from the corner, with the daybed and breeze screen behind" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">The spa, from the lounge</span>
         </figcaption>
@@ -7362,28 +7523,149 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
           </svg>
         </button>
       </figure>
+      <figure class="interior interior--thermal">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/fleet-thermal.jpg" alt="The sauna with its tiered cedar benches and the steam room beside it, each behind bronze tinted glass" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Sauna and steam</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--rest">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/fleet-daybed.jpg" alt="The built-in daybed against the timber breeze screen, with the bronze shower at the left" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">The daybed</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--pool">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/fleet-pool.jpg" alt="The raised spa in green tile, with its dry steps and waterfall edge" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">The raised spa</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="interiors__track" id="interiors-track-settings" data-n="4" data-for="settings">
+      <figure class="interior interior--golden">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/golden.jpg" alt="The wellness pavilion at golden hour: cedar and travertine, a green tile spa with a waterfall edge, and the sun setting over the hills" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Golden hour</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--coast">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/coast.jpg" alt="The wellness pavilion on the coast: pale limestone and light timber, with the ocean beyond" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Coast</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--dusk">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/dusk.jpg" alt="The wellness pavilion at dusk: terracotta and rust tones, a reflecting pond in front and olive trees behind" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Terracotta dusk</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--rainforest">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/rainforest.jpg" alt="The wellness pavilion in the rainforest, in the rain, with dark stone paving and a green tile spa" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Rainforest</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
     </div>
 
-    <aside class="finish" aria-label="About this room">
-      <div class="finish__copy is-shown" data-variant="pod" data-room="spa">
+    <aside class="finish" aria-label="About this view">
+      <div class="finish__copy is-shown" data-variant="inside" data-room="spa">
         <p class="finish__name">The spa, green tile</p>
         <p class="finish__story">A raised spa with a waterfall edge, dry steps up beside it, warm strip lighting and full height glass open to the forest.</p>
         <p class="finish__key"><span>Green tile, waterfall edge</span><span>Dry steps to the coping</span></p>
       </div>
-      <div class="finish__copy" data-variant="pod" data-room="spa2">
+      <div class="finish__copy" data-variant="inside" data-room="spa2">
         <p class="finish__name">The spa, burgundy tile</p>
         <p class="finish__story">The same spa in burgundy tile, a warmer option with the same waterfall edge and lit steps.</p>
         <p class="finish__key"><span>Burgundy tile option</span><span>Waterfall edge, lit steps</span></p>
       </div>
-      <div class="finish__copy" data-variant="pod" data-room="daybed">
+      <div class="finish__copy" data-variant="inside" data-room="daybed">
         <p class="finish__name">Daybed to the spa</p>
         <p class="finish__story">A built-in daybed beside the spa, with a timber breeze screen and a bronze shower, walking straight through to the water.</p>
         <p class="finish__key"><span>Built-in daybed</span><span>Timber breeze screen</span></p>
       </div>
-      <div class="finish__copy" data-variant="pod" data-room="spa3">
+      <div class="finish__copy" data-variant="inside" data-room="spa3">
         <p class="finish__name">The spa, from the lounge</p>
         <p class="finish__story">The spa from the front corner, with the waterfall edge, the daybed and the breeze screen behind and the forest beyond.</p>
         <p class="finish__key"><span>Matte black tile floor</span><span>Bronze tinted glazing</span></p>
+      </div>
+      <div class="finish__copy" data-variant="inside" data-room="thermal">
+        <p class="finish__name">Sauna and steam</p>
+        <p class="finish__story">A sauna with tiered cedar benches and a steam room with a tiled bench, each behind transparent bronze tinted glass with its own door to the terrace.</p>
+        <p class="finish__key"><span>Bronze tinted glass, a door each</span><span>Cedar benches, tiled steam bench</span></p>
+      </div>
+      <div class="finish__copy" data-variant="inside" data-room="rest">
+        <p class="finish__name">The daybed</p>
+        <p class="finish__story">A built-in daybed, 2.6 by 1.7 metres, against an angular timber breeze screen, with a bronze shower at the front left and the spa open to the right.</p>
+        <p class="finish__key"><span>Daybed 2.6 by 1.7 m</span><span>Timber breeze screen, bronze shower</span></p>
+      </div>
+      <div class="finish__copy" data-variant="inside" data-room="pool">
+        <p class="finish__name">The raised spa</p>
+        <p class="finish__story">A raised spa in green tile with a 1 metre coping, dry steps up at its left and a waterfall edge falling into a narrow catchment.</p>
+        <p class="finish__key"><span>Green tile, 1 m coping</span><span>Dry steps, waterfall edge</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="golden">
+        <p class="finish__name">Golden hour</p>
+        <p class="finish__story">Warm cedar and a travertine terrace, a built-in daybed behind a timber breeze screen and a raised spa in green tile with a waterfall edge, open to a sunset over the hills.</p>
+        <p class="finish__key"><span>Cedar, travertine, green tile</span><span>Sunset over the hills</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="coast">
+        <p class="finish__name">Coast</p>
+        <p class="finish__story">Pale limestone and light timber under a broad flat roof, a glass-fronted sauna and steam room, the daybed and a limestone spa with a glass waterfall, with the ocean beyond.</p>
+        <p class="finish__key"><span>Limestone and light timber</span><span>Glass waterfall spa</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="dusk">
+        <p class="finish__name">Terracotta dusk</p>
+        <p class="finish__story">A terracotta daybed behind a square breeze screen, a rust tile spa with a waterfall edge and a still reflecting pond along the front, at dusk.</p>
+        <p class="finish__key"><span>Terracotta and rust</span><span>Reflecting pond</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="rainforest">
+        <p class="finish__name">Rainforest</p>
+        <p class="finish__story">Dark stone paving and green tile in the rain, a cedar ceiling and a lit breeze screen, with the sauna, steam room, daybed and spa under one roof.</p>
+        <p class="finish__key"><span>Dark stone and green tile</span><span>Cedar ceiling, rainforest setting</span></p>
       </div>
     </aside>
   </section>
@@ -7673,7 +7955,8 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
 
 <div class="client-privacy" id="client-privacy" hidden></div>
-<script>
+<script>document.addEventListener('variantchange', (e) => { if (e.target.classList && e.target.classList.contains('interiors')) document.documentElement.dataset.scheme = e.detail.variant; });
+
 /* SOLUM BLACK — preview build. Generated by scripts/package.py.
    The source of truth is src/js/, one module per file. */
 (function () {
@@ -10723,7 +11006,7 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
   window.hbLightbox = { isOpen: function () { return open }, src: function () { return open ? srcOf(shownImg(st.list[st.i])) : '' }, openSrc: openSrc, close: close };
 })();
 
-window.HB_PAGE = 'pod';
+window.HB_PAGE = 'wellness';
 /* The bridge between one of Seth's pages and the display around it (window.HB_PAGE says which page this is).
    The page itself is Seth's and works as he built it. This only does a few things: tells the display what is on show
    (so a TV can follow), does what the display asks (a home, a choice, a scroll), and hands a couple of keys back up. */
@@ -10756,7 +11039,7 @@ window.HB_PAGE = 'pod';
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
-  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'pod' || PAGE === 'hubs') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
+  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'wellness') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
