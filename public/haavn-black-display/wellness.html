@@ -7269,8 +7269,8 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 .finish__copy[data-variant="inside"] { --finish: var(--c-burgundy); }
 .finish__copy[data-variant="settings"] { --finish: #d9c3a3; }
 .finish__copy[data-variant="wellness"] { --finish: var(--c-ink-2); }
-html:not([data-scheme="settings"]) .interiors__track[data-for="settings"],
-html[data-scheme="settings"] .interiors__track[data-for="inside"] { display: none !important; }
+html:not([data-scheme="inside"]) .interiors__track[data-for="inside"],
+html[data-scheme="inside"] .interiors__track[data-for="settings"] { display: none !important; }
 .interiors .swatches { grid-template-columns: repeat(2, minmax(6.25rem, 10rem)); }
 </style>
 
@@ -7469,14 +7469,64 @@ html[data-scheme="settings"] .interiors__track[data-for="inside"] { display: non
       <p class="eyebrow" id="interiors-title">An inside look<span class="eyebrow__model">Wellness</span></p>
       <div class="swatches" role="group" aria-labelledby="palette-label">
         <span class="swatches__label" id="palette-label">View:</span>
-        <button class="swatch is-selected" type="button" data-variant="inside" aria-pressed="true">Inside</button>
-        <button class="swatch" type="button" data-variant="settings" aria-pressed="false">Four settings</button>
+        <button class="swatch is-selected" type="button" data-variant="settings" aria-pressed="true">Four settings</button>
+        <button class="swatch" type="button" data-variant="inside" aria-pressed="false">Inside</button>
       </div>
     </div>
 
+    <div class="interiors__track" id="interiors-track-settings" data-n="4" data-for="settings">
+      <figure class="interior interior--golden">
+        <img class="interior__img is-shown" data-variant="settings" src="img/hubs/golden.jpg" alt="The wellness pavilion at golden hour: cedar and travertine, a green tile spa with a waterfall edge, and the sun setting over the hills" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Golden hour</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--coast">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/coast.jpg" alt="The wellness pavilion on the coast: pale limestone and light timber, with the ocean beyond" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Coast</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--dusk">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/dusk.jpg" alt="The wellness pavilion at dusk: terracotta and rust tones, a reflecting pond in front and olive trees behind" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Terracotta dusk</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--rainforest">
+        <img class="interior__img" data-variant="settings" data-src="img/hubs/rainforest.jpg" alt="The wellness pavilion in the rainforest, in the rain, with dark stone paving and a green tile spa" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Rainforest</span>
+        </figcaption>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
     <div class="interiors__track" id="interiors-track-inside" data-n="7" data-for="inside">
       <figure class="interior interior--spa">
-        <img class="interior__img is-shown" data-variant="inside" src="img/pod/pool-green.jpg" alt="The raised spa in green tile with a waterfall edge, looking out to the forest at sunset" loading="lazy" decoding="async">
+        <img class="interior__img" data-variant="inside" data-src="img/pod/pool-green.jpg" alt="The raised spa in green tile with a waterfall edge, looking out to the forest at sunset" aria-hidden="true" loading="lazy" decoding="async">
         <figcaption class="interior__caption">
           <span class="interior__label">The spa, green tile</span>
         </figcaption>
@@ -7560,59 +7610,29 @@ html[data-scheme="settings"] .interiors__track[data-for="inside"] { display: non
         </button>
       </figure>
     </div>
-    <div class="interiors__track" id="interiors-track-settings" data-n="4" data-for="settings">
-      <figure class="interior interior--golden">
-        <img class="interior__img" data-variant="settings" data-src="img/hubs/golden.jpg" alt="The wellness pavilion at golden hour: cedar and travertine, a green tile spa with a waterfall edge, and the sun setting over the hills" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Golden hour</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-      <figure class="interior interior--coast">
-        <img class="interior__img" data-variant="settings" data-src="img/hubs/coast.jpg" alt="The wellness pavilion on the coast: pale limestone and light timber, with the ocean beyond" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Coast</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-      <figure class="interior interior--dusk">
-        <img class="interior__img" data-variant="settings" data-src="img/hubs/dusk.jpg" alt="The wellness pavilion at dusk: terracotta and rust tones, a reflecting pond in front and olive trees behind" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Terracotta dusk</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-      <figure class="interior interior--rainforest">
-        <img class="interior__img" data-variant="settings" data-src="img/hubs/rainforest.jpg" alt="The wellness pavilion in the rainforest, in the rain, with dark stone paving and a green tile spa" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Rainforest</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-    </div>
 
     <aside class="finish" aria-label="About this view">
-      <div class="finish__copy is-shown" data-variant="inside" data-room="spa">
+      <div class="finish__copy is-shown" data-variant="settings" data-room="golden">
+        <p class="finish__name">Golden hour</p>
+        <p class="finish__story">Warm cedar and a travertine terrace, a built-in daybed behind a timber breeze screen and a raised spa in green tile with a waterfall edge, open to a sunset over the hills.</p>
+        <p class="finish__key"><span>Cedar, travertine, green tile</span><span>Sunset over the hills</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="coast">
+        <p class="finish__name">Coast</p>
+        <p class="finish__story">Pale limestone and light timber under a broad flat roof, a glass-fronted sauna and steam room, the daybed and a limestone spa with a glass waterfall, with the ocean beyond.</p>
+        <p class="finish__key"><span>Limestone and light timber</span><span>Glass waterfall spa</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="dusk">
+        <p class="finish__name">Terracotta dusk</p>
+        <p class="finish__story">A terracotta daybed behind a square breeze screen, a rust tile spa with a waterfall edge and a still reflecting pond along the front, at dusk.</p>
+        <p class="finish__key"><span>Terracotta and rust</span><span>Reflecting pond</span></p>
+      </div>
+      <div class="finish__copy" data-variant="settings" data-room="rainforest">
+        <p class="finish__name">Rainforest</p>
+        <p class="finish__story">Dark stone paving and green tile in the rain, a cedar ceiling and a lit breeze screen, with the sauna, steam room, daybed and spa under one roof.</p>
+        <p class="finish__key"><span>Dark stone and green tile</span><span>Cedar ceiling, rainforest setting</span></p>
+      </div>
+      <div class="finish__copy" data-variant="inside" data-room="spa">
         <p class="finish__name">The spa, green tile</p>
         <p class="finish__story">A raised spa with a waterfall edge, dry steps up beside it, warm strip lighting and full height glass open to the forest.</p>
         <p class="finish__key"><span>Green tile, waterfall edge</span><span>Dry steps to the coping</span></p>
@@ -7646,26 +7666,6 @@ html[data-scheme="settings"] .interiors__track[data-for="inside"] { display: non
         <p class="finish__name">The raised spa</p>
         <p class="finish__story">A raised spa in green tile with a 1 metre coping, dry steps up at its left and a waterfall edge falling into a narrow catchment.</p>
         <p class="finish__key"><span>Green tile, 1 m coping</span><span>Dry steps, waterfall edge</span></p>
-      </div>
-      <div class="finish__copy" data-variant="settings" data-room="golden">
-        <p class="finish__name">Golden hour</p>
-        <p class="finish__story">Warm cedar and a travertine terrace, a built-in daybed behind a timber breeze screen and a raised spa in green tile with a waterfall edge, open to a sunset over the hills.</p>
-        <p class="finish__key"><span>Cedar, travertine, green tile</span><span>Sunset over the hills</span></p>
-      </div>
-      <div class="finish__copy" data-variant="settings" data-room="coast">
-        <p class="finish__name">Coast</p>
-        <p class="finish__story">Pale limestone and light timber under a broad flat roof, a glass-fronted sauna and steam room, the daybed and a limestone spa with a glass waterfall, with the ocean beyond.</p>
-        <p class="finish__key"><span>Limestone and light timber</span><span>Glass waterfall spa</span></p>
-      </div>
-      <div class="finish__copy" data-variant="settings" data-room="dusk">
-        <p class="finish__name">Terracotta dusk</p>
-        <p class="finish__story">A terracotta daybed behind a square breeze screen, a rust tile spa with a waterfall edge and a still reflecting pond along the front, at dusk.</p>
-        <p class="finish__key"><span>Terracotta and rust</span><span>Reflecting pond</span></p>
-      </div>
-      <div class="finish__copy" data-variant="settings" data-room="rainforest">
-        <p class="finish__name">Rainforest</p>
-        <p class="finish__story">Dark stone paving and green tile in the rain, a cedar ceiling and a lit breeze screen, with the sauna, steam room, daybed and spa under one roof.</p>
-        <p class="finish__key"><span>Dark stone and green tile</span><span>Cedar ceiling, rainforest setting</span></p>
       </div>
     </aside>
   </section>

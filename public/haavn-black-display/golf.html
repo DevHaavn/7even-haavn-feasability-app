@@ -1832,8 +1832,7 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .has-scene .scene--palettes .interior[data-slot="0"],
 .has-scene .scene--palettes .interior[data-slot="1"],
 .has-scene .scene--palettes .interior[data-slot="2"],
-.has-scene .scene--palettes .interior[data-slot="3"],
-.has-scene .scene--palettes .interior[data-slot="4"] {
+.has-scene .scene--palettes .interior[data-slot="3"] {
   opacity: var(--arrive);
 }
 
@@ -3086,94 +3085,76 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
       opacity var(--conveyor-dur) var(--ease-out);
   }
 
-  /* the interiors row, written for each panel count in use (Seth wrote it for four) */
-  .interiors__track { --w-lead: 47%; --conveyor-dur: 0.9s; }
-  .interiors__track[data-n="3"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 25.1%; }
-  .interiors__track[data-n="3"] .interior:not([data-slot]):nth-child(3) { left: 74.9%; width: 25.1%; }
-  .interiors__track[data-n="3"] .interior:not([data-slot]):nth-child(n + 4) { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="3"] .interior[data-slot="0"], .interiors__track[data-n="3"] .interior[data-slot="1"], .interiors__track[data-n="3"] .interior[data-slot="2"] { opacity: 1; }
-  .interiors__track[data-n="3"]:not([data-open]) .interior[data-slot="0"],
-  .interiors__track[data-n="3"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
-  .interiors__track[data-n="3"]:not([data-open]) .interior[data-slot="1"],
-  .interiors__track[data-n="3"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 25.1%; }
-  .interiors__track[data-n="3"]:not([data-open]) .interior[data-slot="2"],
-  .interiors__track[data-n="3"][data-open="0"] .interior[data-slot="2"] { left: 74.9%; width: 25.1%; }
-  .interiors__track[data-n="3"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 25.1%; }
-  .interiors__track[data-n="3"][data-open="1"] .interior[data-slot="1"] { left: 26.5%; width: 47.0%; }
-  .interiors__track[data-n="3"][data-open="1"] .interior[data-slot="2"] { left: 74.9%; width: 25.1%; }
-  .interiors__track[data-n="3"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 25.1%; }
-  .interiors__track[data-n="3"][data-open="2"] .interior[data-slot="1"] { left: 26.5%; width: 25.1%; }
-  .interiors__track[data-n="3"][data-open="2"] .interior[data-slot="2"] { left: 53.0%; width: 47.0%; }
-  .interiors__track[data-n="3"] .interior[data-slot="3"], .interiors__track[data-n="3"] .interior[data-slot="4"] { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="3"] .interior[data-slot="5"] { left: 0; width: 0; opacity: 0; }
-  .interiors__track[data-n="3"] .interior[data-slot="4"] { transition: none; }
-  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 16.27%; }
-  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(3) { left: 66.07%; width: 16.27%; }
-  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(4) { left: 83.74%; width: 16.27%; }
-  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(n + 5) { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="4"] .interior[data-slot="0"], .interiors__track[data-n="4"] .interior[data-slot="1"], .interiors__track[data-n="4"] .interior[data-slot="2"], .interiors__track[data-n="4"] .interior[data-slot="3"] { opacity: 1; }
-  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="0"],
-  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
-  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="1"],
-  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 16.27%; }
-  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="2"],
-  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
-  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="3"],
-  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="1"] { left: 17.67%; width: 47.0%; }
-  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="2"] { left: 35.34%; width: 47.0%; }
-  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="2"] { left: 35.34%; width: 16.27%; }
-  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="3"] { left: 53.01%; width: 47.0%; }
-  .interiors__track[data-n="4"] .interior[data-slot="4"], .interiors__track[data-n="4"] .interior[data-slot="5"], .interiors__track[data-n="4"] .interior[data-slot="6"] { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="4"] .interior[data-slot="7"] { left: 0; width: 0; opacity: 0; }
-  .interiors__track[data-n="4"] .interior[data-slot="6"] { transition: none; }
-  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 11.85%; }
-  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(3) { left: 61.65%; width: 11.85%; }
-  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(4) { left: 74.9%; width: 11.85%; }
-  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(5) { left: 88.15%; width: 11.85%; }
-  .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="5"] .interior[data-slot="0"], .interiors__track[data-n="5"] .interior[data-slot="1"], .interiors__track[data-n="5"] .interior[data-slot="2"], .interiors__track[data-n="5"] .interior[data-slot="3"], .interiors__track[data-n="5"] .interior[data-slot="4"] { opacity: 1; }
-  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="0"],
-  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
-  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="1"],
-  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 11.85%; }
-  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="2"],
-  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
-  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="3"],
-  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-  .interiors__track[data-n="5"]:not([data-open]) .interior[data-slot="4"],
-  .interiors__track[data-n="5"][data-open="0"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="1"] { left: 13.25%; width: 47.0%; }
-  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="2"] { left: 61.65%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="1"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="2"] { left: 26.5%; width: 47.0%; }
-  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="3"] { left: 74.9%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="2"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="3"] { left: 39.75%; width: 47.0%; }
-  .interiors__track[data-n="5"][data-open="3"] .interior[data-slot="4"] { left: 88.15%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="0"] { left: 0.0%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="1"] { left: 13.25%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="2"] { left: 26.5%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="3"] { left: 39.75%; width: 11.85%; }
-  .interiors__track[data-n="5"][data-open="4"] .interior[data-slot="4"] { left: 53.0%; width: 47.0%; }
-  .interiors__track[data-n="5"] .interior[data-slot="5"], .interiors__track[data-n="5"] .interior[data-slot="6"], .interiors__track[data-n="5"] .interior[data-slot="7"], .interiors__track[data-n="5"] .interior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
-  .interiors__track[data-n="5"] .interior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
-  .interiors__track[data-n="5"] .interior[data-slot="8"] { transition: none; }
+  /* The no-JS / pre-JS resting row: one open, three queued. */
+  .interior:not([data-slot]):nth-child(2) { left: var(--x-1); width: var(--w-queue); }
+  .interior:not([data-slot]):nth-child(3) { left: var(--x-2); width: var(--w-queue); }
+  .interior:not([data-slot]):nth-child(4) { left: var(--x-3); width: var(--w-queue); }
+  .interior:not([data-slot]):nth-child(n + 5) { left: 100%; width: 0; opacity: 0; }
+
+  /* Once JS is driving, the slot is authoritative. */
+  .interiors__track {
+    --w-lead: 47%;
+    --w-queue: 16.27%;
+    --x-1: 48.4%;
+    --x-2: 66.07%;
+    --x-3: 83.73%;
+    --conveyor-dur: 0.9s;
+  }
+
+  .interior[data-slot="0"],
+  .interior[data-slot="1"],
+  .interior[data-slot="2"],
+  .interior[data-slot="3"] {
+    opacity: 1;
+  }
+
+  /* Which of the four is open, and where that leaves the other three.
+     By default it is the lead; hovering a sliver hands it the open width
+     and the row closes up around it. One layout solved four times over,
+     so the row fills its width exactly whichever panel is open. */
+
+  /* the lead is open */
+  .interiors__track:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-open="0"] .interior[data-slot="0"] { left: 0%; width: 47%; }
+  .interiors__track:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 16.27%; }
+  .interiors__track:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-open="0"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
+  .interiors__track:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-open="0"] .interior[data-slot="3"] { left: 83.73%; width: 16.27%; }
+
+  /* the second panel is open */
+  .interiors__track[data-open="1"] .interior[data-slot="0"] { left: 0%; width: 16.27%; }
+  .interiors__track[data-open="1"] .interior[data-slot="1"] { left: 17.67%; width: 47%; }
+  .interiors__track[data-open="1"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
+  .interiors__track[data-open="1"] .interior[data-slot="3"] { left: 83.73%; width: 16.27%; }
+
+  /* the third panel is open */
+  .interiors__track[data-open="2"] .interior[data-slot="0"] { left: 0%; width: 16.27%; }
+  .interiors__track[data-open="2"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
+  .interiors__track[data-open="2"] .interior[data-slot="2"] { left: 35.33%; width: 47%; }
+  .interiors__track[data-open="2"] .interior[data-slot="3"] { left: 83.73%; width: 16.27%; }
+
+  /* the fourth panel is open */
+  .interiors__track[data-open="3"] .interior[data-slot="0"] { left: 0%; width: 16.27%; }
+  .interiors__track[data-open="3"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
+  .interiors__track[data-open="3"] .interior[data-slot="2"] { left: 35.33%; width: 16.27%; }
+  .interiors__track[data-open="3"] .interior[data-slot="3"] { left: 53%; width: 47%; }
+
+  /* Wings: waiting off the right edge at no width. */
+  .interior[data-slot="4"],
+  .interior[data-slot="5"],
+  .interior[data-slot="6"] { left: 100%; width: 0; opacity: 0; }
+
+  /* Exit: the departing lead closes against the left edge. */
+  .interior[data-slot="7"] { left: 0; width: 0; opacity: 0; }
+
+  /* A panel crossing from the exit back round to the wings has no width and
+     no opacity, so it is moved without a transition rather than flown. */
+  .interior[data-slot="6"] {
+    transition: none;
+  }
+
   /* The open panel pans out to its wider framing and names itself.
      Whichever panel that is: the lead by default, the hovered one while
      the pointer is over the row. */
@@ -3187,7 +3168,6 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="1"] .interior[data-slot="1"] .interior__label,
   .interiors__track[data-open="2"] .interior[data-slot="2"] .interior__label,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .interior__label,
-  .interiors__track[data-open="4"] .interior[data-slot="4"] .interior__label,
   .interior:not([data-slot]):first-child .interior__label {
     opacity: 1;
     transition-delay: 0.35s;
@@ -3222,7 +3202,6 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .interiors__track[data-open="1"] .interior[data-slot="1"] .peek,
   .interiors__track[data-open="2"] .interior[data-slot="2"] .peek,
   .interiors__track[data-open="3"] .interior[data-slot="3"] .peek,
-  .interiors__track[data-open="4"] .interior[data-slot="4"] .peek,
   .interior:not([data-slot]):first-child .peek {
     opacity: 1;
     visibility: visible;
@@ -3676,13 +3655,7 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="living"] .finish__standard:not([data-room="living"]),
 .interiors[data-room="kitchen"] .finish__standard:not([data-room="kitchen"]),
 .interiors[data-room="bathroom"] .finish__standard:not([data-room="bathroom"]),
-.interiors[data-room="bedroom"] .finish__standard:not([data-room="bedroom"]),
-.interiors[data-room="black"] .finish__copy:not([data-room="black"]),
-.interiors[data-room="black"] .finish__standard:not([data-room="black"]),
-.interiors[data-room="oak"] .finish__copy:not([data-room="oak"]),
-.interiors[data-room="oak"] .finish__standard:not([data-room="oak"]),
-.interiors[data-room="graphite"] .finish__copy:not([data-room="graphite"]),
-.interiors[data-room="graphite"] .finish__standard:not([data-room="graphite"]) {
+.interiors[data-room="bedroom"] .finish__standard:not([data-room="bedroom"]) {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7162,16 +7135,15 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .lb, .lb__img { transition: none; } }
 
-.swatch[data-variant="black"] { --swatch-colour: #2a2622; }
-.finish__copy[data-variant="black"] { --finish: #2a2622; }
+.swatch[data-variant="black"] { --swatch-colour: #9a7240; }
+.finish__copy[data-variant="black"] { --finish: #9a7240; }
 .swatch[data-variant="oak"] { --swatch-colour: #d9c3a3; }
 .finish__copy[data-variant="oak"] { --finish: #d9c3a3; }
 .swatch[data-variant="emerald"] { --swatch-colour: #1e5b43; }
 .finish__copy[data-variant="emerald"] { --finish: #1e5b43; }
 .swatch[data-variant="graphite"] { --swatch-colour: #7d7f84; }
 .finish__copy[data-variant="graphite"] { --finish: #7d7f84; }
-.swatch[data-variant="golf"] { --swatch-colour: #2a2622; }
-.finish__copy[data-variant="golf"] { --finish: #2a2622; }
+
 .exteriors .swatches { grid-template-columns: repeat(4, minmax(6.5rem, 11rem)); }
 /* the hero is one wide picture: the golfer and the bar are on the left, so narrower screens crop to the left of centre */
 .backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 50% 50%; }
@@ -7289,21 +7261,21 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
        Sand's, until their own arrive. Obsidian is its own. -->
   <section class="exteriors" id="exteriors" aria-labelledby="exteriors-title">
     <div class="section-head">
-      <p class="eyebrow" id="exteriors-title">The pavilion<span class="eyebrow__model">Golf hub</span></p>
+      <p class="eyebrow" id="exteriors-title">The pavilion<span class="eyebrow__model">Golf hub, outside and in</span></p>
       <div class="swatches" role="group" aria-labelledby="finish-label">
         <span class="swatches__label" id="finish-label">Finish:</span>
-        <button class="swatch is-selected" type="button" data-variant="black" aria-pressed="true">Black</button>
-        <button class="swatch" type="button" data-variant="oak" aria-pressed="false">Oak</button>
-        <button class="swatch" type="button" data-variant="emerald" aria-pressed="false">Emerald</button>
+        <button class="swatch is-selected" type="button" data-variant="black" aria-pressed="true">Bronze</button>
+        <button class="swatch" type="button" data-variant="oak" aria-pressed="false">Travertine</button>
+        <button class="swatch" type="button" data-variant="emerald" aria-pressed="false">Cedar</button>
         <button class="swatch" type="button" data-variant="graphite" aria-pressed="false">Graphite</button>
       </div>
     </div>
     <div class="exteriors__track" id="exteriors-track" data-n="2">
       <figure class="exterior exterior--use">
-        <img class="exterior__img is-shown" data-variant="black" src="img/golf/black.jpg" alt="Black clubhouse in use: the golfer in the simulator bay, four friends at the bar and the lounge beyond" width="1569" height="1003" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="oak" data-src="img/golf/oak.jpg" alt="Oak resort in use: the golfer in the simulator bay, four friends at the travertine bar and the cream lounge beyond" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="emerald" data-src="img/golf/emerald.jpg" alt="Emerald speakeasy in use: the golfer in the simulator bay, four friends at the green bar and the dark lounge beyond" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="graphite" data-src="img/golf/graphite.jpg" alt="Graphite modern in use: the golfer in the simulator bay, four friends at the steel bar and the cream lounge beyond" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img is-shown" data-variant="black" src="img/golf/black.jpg" alt="Bronze club in use: the golfer at the simulator screen on the left, four friends at the bar and the lounge on the right" width="1569" height="1003" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="oak" data-src="img/golf/oak.jpg" alt="Travertine retreat in use: the golfer at the simulator screen on the left, four friends at the bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="emerald" data-src="img/golf/emerald.jpg" alt="Cedar emerald in use: the golfer at the simulator screen on the left, four friends at the bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="graphite" data-src="img/golf/graphite.jpg" alt="Graphite modern in use: the golfer at the simulator screen on the left, four friends at the bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7311,11 +7283,11 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
           </svg>
         </button>
       </figure>
-      <figure class="exterior exterior--lawn">
-        <img class="exterior__img" data-variant="black" data-src="img/golf/black-lawn.jpg" alt="Black clubhouse from the lawn, the simulator bay on the left, the bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="oak" data-src="img/golf/oak-lawn.jpg" alt="Oak resort from the lawn, the simulator bay on the left, the travertine bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="emerald" data-src="img/golf/emerald-lawn.jpg" alt="Emerald speakeasy from the lawn, the simulator bay on the left, the green bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
-        <img class="exterior__img" data-variant="graphite" data-src="img/golf/graphite-lawn.jpg" alt="Graphite modern from the lawn, the simulator bay on the left, the steel bar and the lounge on the right" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+      <figure class="exterior exterior--inside">
+        <img class="exterior__img" data-variant="black" data-src="img/golf/in-black.jpg" alt="Inside the bronze club: the golfer at the simulator screen, four friends at the black marble bar and the dark leather lounge in the foreground" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="oak" data-src="img/golf/in-oak.jpg" alt="Inside the travertine retreat: the golfer at the simulator screen, four friends at the stone bar and the off-white lounge in the foreground" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="emerald" data-src="img/golf/in-emerald.jpg" alt="Inside the cedar emerald pavilion: the golfer at the simulator screen, four friends at the emerald and green marble bar and the olive lounge in the foreground" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="exterior__img" data-variant="graphite" data-src="img/golf/in-graphite.jpg" alt="Inside the graphite modern pavilion: the golfer at the simulator screen, four friends at the brushed stainless steel bar and the cream lounge in the foreground" width="1569" height="1003" aria-hidden="true" loading="lazy" decoding="async">
         <button class="peek" type="button" aria-label="View this render larger">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
@@ -7327,24 +7299,24 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
     <aside class="finish" aria-label="About this finish">
       <div class="finish__copy is-shown" data-variant="black">
-        <p class="finish__name">Black clubhouse</p>
-        <p class="finish__story">Charred black timber outside and smoked walnut inside: a dark acoustic simulator bay with emerald turf, a black stone bar with backlit bronze shelves, cognac leather stools and a charcoal leather lounge, at blue hour.</p>
-        <p class="finish__key"><span>Charred black timber, smoked walnut</span><span>Black stone bar, cognac leather</span></p>
+        <p class="finish__name">Bronze club</p>
+        <p class="finish__story">A sculptural bronze portal with rounded outer corners and black timber side walls. Inside, smoked walnut slats, a black marble bar, cognac leather stools, bronze shelves and a dark leather sofa. Blue hour, warm and moody: a private clubhouse.</p>
+        <p class="finish__key"><span>Bronze portal, black timber</span><span>Smoked walnut, black marble bar</span></p>
       </div>
       <div class="finish__copy" data-variant="oak">
-        <p class="finish__name">Oak resort</p>
-        <p class="finish__story">Pale warm oak and ivory travertine: the bar, the floor and the cream modular lounge in light stone and linen, with bronze framed glazing, in a sunlit coastal backyard.</p>
-        <p class="finish__key"><span>Pale oak, ivory travertine</span><span>Bronze framed glazing, linen lounge</span></p>
+        <p class="finish__name">Travertine retreat</p>
+        <p class="finish__story">A deep cream travertine portal with an oak soffit and bronze frames. Inside, pale oak cabinetry, a creamy stone bar, sand suede stools and an off-white lounge. Warm late afternoon light, airy and luxurious.</p>
+        <p class="finish__key"><span>Cream travertine, oak soffit</span><span>Pale oak, creamy stone bar</span></p>
       </div>
       <div class="finish__copy" data-variant="emerald">
-        <p class="finish__name">Emerald speakeasy</p>
-        <p class="finish__story">Black vertical timber outside, a walnut ceiling and a deep bottle green fluted bar with a green marble top, aged brass and oxblood leather stools, with a dark, moody lounge, at dusk.</p>
-        <p class="finish__key"><span>Green fluted bar, marble top</span><span>Oxblood leather, aged brass</span></p>
+        <p class="finish__name">Cedar emerald</p>
+        <p class="finish__story">Rhythmic warm cedar fins on the fascia and end piers, under a slim black roof. Inside, deep emerald fluted cabinetry, a green marble bar, aged brass, walnut walls, oxblood leather stools and a rich olive lounge. Dusk, a private speakeasy.</p>
+        <p class="finish__key"><span>Cedar fins, slim black roof</span><span>Emerald fluted bar, green marble</span></p>
       </div>
       <div class="finish__copy" data-variant="graphite">
         <p class="finish__name">Graphite modern</p>
-        <p class="finish__story">Matte graphite metal and black timber outside, a sculptural brushed stainless steel bar with a dark stone top, black leather stools and a minimal cream lounge, in bright light.</p>
-        <p class="finish__key"><span>Graphite metal, black timber</span><span>Brushed stainless steel bar</span></p>
+        <p class="finish__story">A thin graphite metal roof blade cantilevering over charcoal board-formed concrete end piers and slender black posts. Inside, a brushed stainless steel bar with a black stone top, an oak slat ceiling, black leather stools and a cream sculptural sofa. Crisp contemporary daylight.</p>
+        <p class="finish__key"><span>Graphite roof blade, concrete piers</span><span>Stainless steel bar, oak slats</span></p>
       </div>
     </aside>
   </section>
@@ -7357,75 +7329,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
        a copy of Burgundy's, until their own arrive. Replace the files and
        the paths below; the swatches, captions and form already use the
        new names. -->
-  <section class="interiors rule-top" id="interiors" aria-labelledby="interiors-title">
-    <div class="palettes__intro">
-      <p class="palettes__line">A <strong>golf simulator, a built-in bar and a lounge</strong>, in one pavilion.</p>
-      <p class="palettes__line">The same layout in <strong>four finishes</strong>, from charred black timber to pale oak and travertine.</p>
-    </div>
-    <div class="section-head">
-      <p class="eyebrow" id="interiors-title">An inside look<span class="eyebrow__model">Golf hub</span></p>
-      <div class="swatches" role="group" aria-label="Golf hub" hidden>
-        <button class="swatch is-selected" type="button" data-variant="golf" aria-pressed="true">Golf hub</button>
-      </div>
-    </div>
-
-    <div class="interiors__track" id="interiors-track-golf" data-n="3" data-for="golf">
-      <figure class="interior interior--black">
-        <img class="interior__img is-shown" data-variant="golf" src="img/golf/in-black.jpg" alt="Inside the black clubhouse: the golfer at the simulator screen, four friends at the black stone bar and the leather lounge in the foreground" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Black clubhouse</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-      <figure class="interior interior--oak">
-        <img class="interior__img" data-variant="golf" data-src="img/golf/in-oak.jpg" alt="Inside the oak resort: the golfer at the simulator screen, four friends at the travertine bar and the cream lounge in the foreground" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Oak resort</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-      <figure class="interior interior--graphite">
-        <img class="interior__img" data-variant="golf" data-src="img/golf/in-graphite.jpg" alt="Inside the graphite modern pavilion: the golfer at the simulator screen, four friends at the brushed stainless steel bar and the cream lounge in the foreground" aria-hidden="true" loading="lazy" decoding="async">
-        <figcaption class="interior__caption">
-          <span class="interior__label">Graphite modern</span>
-        </figcaption>
-        <button class="peek" type="button" aria-label="View this render larger">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
-            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
-          </svg>
-        </button>
-      </figure>
-    </div>
-
-    <aside class="finish" aria-label="About this finish">
-      <div class="finish__copy is-shown" data-variant="golf" data-room="black">
-        <p class="finish__name">Black clubhouse</p>
-        <p class="finish__story">The simulator bay on the left with its full height screen, a black stone bar with cognac leather stools, backlit bronze shelves and a wine fridge, and a charcoal leather lounge, under a smoked walnut ceiling.</p>
-        <p class="finish__key"><span>Smoked walnut, black stone bar</span><span>Wine fridge, leather lounge</span></p>
-      </div>
-      <div class="finish__copy" data-variant="golf" data-room="oak">
-        <p class="finish__name">Oak resort</p>
-        <p class="finish__story">The simulator bay on the left, a travertine bar with sand upholstered stools and pale oak shelves, and a cream linen lounge, under a pale oak ceiling.</p>
-        <p class="finish__key"><span>Pale oak, travertine bar</span><span>Cream linen lounge</span></p>
-      </div>
-      <div class="finish__copy" data-variant="golf" data-room="graphite">
-        <p class="finish__name">Graphite modern</p>
-        <p class="finish__story">The simulator bay on the left, a sculptural brushed stainless steel bar with a dark stone top and a wine fridge, black leather stools and a minimal cream lounge, under a warm oak slat ceiling.</p>
-        <p class="finish__key"><span>Brushed stainless steel bar</span><span>Oak slat ceiling, cream lounge</span></p>
-      </div>
-    </aside>
-  </section>
+  
 
 
   <!-- =====================================================================
@@ -10568,7 +10472,7 @@ const $ = (selector) => document.querySelector(selector);
 startClock($('#clock'), CLOCK_TIME_ZONE);
 startCountdown($('#countdown'), LAUNCH_AT);
 initRegister({ root: $('#register'), endpoint: REGISTER_ENDPOINT, simulate: IS_LOCAL });
-document.querySelectorAll('.interiors__track').forEach((t) => initConveyor(t));
+initConveyor($('#interiors-track'));
 initConveyor($('#exteriors-track'), { hold: 5200 });
 // The model first: the sections below read it as they set themselves up.
 initModel();
