@@ -149,46 +149,46 @@
   "type": "BTR",
   "art": "artB",
   "feat": true,
-  "gv": "$455M",
-  "gdv": "$455M",
+  "gv": "$389M",
+  "gdv": "$389M",
   "land": "4,868 m\u00b2",
-  "gfa": "44,350 m\u00b2",
-  "keys": "452 homes",
+  "gfa": "46,600 m\u00b2",
+  "keys": "400 homes",
   "status": "Concept design by Fraser & Partners. Land stewarded by ACTS Global.",
-  "complete": "Q4 2029",
+  "complete": "2029 to 2030",
   "arch": "Callum Fraser \u00b7 Fraser & Partners",
   "tag": "Land for mission. A new quarter for Geelong.",
-  "overview": "Corio Quarter is 452 homes built to rent at 35 Corio Street, two hundred metres from Geelong Station. Two garden towers rise from a glass pavilion that holds ACTS Arena, a community sport hall with two courts and twenty four shooting bays, and a ground floor of retail, ACTS Lane, the 5IVE wellness precinct and co-working. It is designed by Callum Fraser of Fraser & Partners, on land stewarded by ACTS Global, a non-profit Christian organisation, with 7EVEN as the developer.",
+  "overview": "Corio Quarter is 400 homes built to rent, and 20 premium homes for sale, at 35 Corio Street, two hundred metres from Geelong Station. Two garden towers rise from a glass pavilion that holds ACTS Arena, a community sport hall with two courts and twenty four shooting bays, and a ground floor of grocery, food and beverage on ACTS Lane, the 5IVE wellness club and co-working. It is designed by Callum Fraser of Fraser & Partners, on land stewarded by ACTS Global, a non-profit Christian organisation, with 7EVEN as the developer.",
   "stats": [
    [
     "End value",
-    "$455.2m",
-    "Completed and fully leased, 7EVEN case"
+    "$388.9m",
+    "Completed and fully leased, Board Pack v3"
    ],
    [
     "Homes",
-    "452",
-    "154 studios, 167 one bedroom, 131 two bedroom"
+    "400",
+    "136 studios, 148 one bedroom, 116 two bedroom, plus 20 premium homes for sale"
    ],
    [
     "Total development cost",
-    "$338.9m",
-    "22 month build, with land and finance"
+    "$266.0m",
+    "About 30 month build, excluding land"
    ],
    [
     "Gross building area",
-    "44,350 m\u00b2",
-    "Two towers over the glass pavilion"
+    "46,600 m\u00b2",
+    "Two towers over the glass pavilion, about"
    ],
    [
     "ACTS Arena",
     "2 courts",
-    "24 shooting bays, with raised seating"
+    "24 shooting bays, about 300 seats"
    ],
    [
-    "Modular option",
-    "$298.3m",
-    "Total cost if built modular, in 19 months. Upside, not in the base case."
+    "Profit pool",
+    "$86.9m",
+    "At completion: $26.6m cash and a $60.3m podium, before any split"
    ]
   ],
   "points": [
@@ -216,7 +216,7 @@
   "why": [
    "A site beside the station, in the middle of Geelong's CBD",
    "A sport hall at the heart of the podium that gives the community a home court, and the quarter a reason to arrive",
-   "A modular option that shortens the build to 19 months and saves $40.6m, held as upside only",
+   "A profit pool of $86.9m at completion, or hold the whole precinct for the long term",
    "Whichever path ACTS Global chooses, the mission is built in"
   ],
   "imgcaps": [
@@ -257,11 +257,11 @@
   "facts": [
    [
     "End value",
-    "$455M"
+    "$389M"
    ],
    [
     "Homes",
-    "452 built to rent"
+    "400 built to rent, 20 for sale"
    ],
    [
     "ACTS Arena",
@@ -269,7 +269,7 @@
    ],
    [
     "Target completion",
-    "Q4 2029"
+    "2029 to 2030"
    ]
   ],
   "hero": "/hori7on-next/img/cunningham/hero.jpg",
