@@ -837,7 +837,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261016k';
+  var SOLV = '20261019a';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -859,10 +859,11 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     octa: { n: 'Octa', series: 'concept', page: 'octa.html', line: '3 bed · 2 bath' },
     golf: { n: 'Golf hub', series: 'concept', page: 'golf.html', line: 'Simulator · bar · lounge' },
     octaplus: { n: 'Octa Plus', series: 'concept', page: 'octaplus.html', line: '6 bed · 4 living' },
+    octaurban: { n: 'Octa Urban', series: 'concept', page: 'octaurban.html', line: 'Two storey courtyard' },
     wellness: { n: 'Wellness', series: 'concept', page: 'wellness.html', line: 'Sauna · steam · spa' },
     concept: { n: 'Studio concept', series: 'concept', page: 'concept.html', line: 'Heavy · Light' }
   };
-  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['octa', 'octaplus', 'wellness', 'golf', 'concept'] };
+  var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['octa', 'octaplus', 'octaurban', 'wellness', 'golf', 'concept'] };
 
   /* ── where we are ────────────────────────────────────────────────────── */
   var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };

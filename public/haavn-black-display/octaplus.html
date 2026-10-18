@@ -3783,7 +3783,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="guest"] .finish__copy:not([data-room="guest"]),
 .interiors[data-room="guest"] .finish__standard:not([data-room="guest"]),
 .interiors[data-room="tv"] .finish__copy:not([data-room="tv"]),
-.interiors[data-room="tv"] .finish__standard:not([data-room="tv"]) {
+.interiors[data-room="tv"] .finish__standard:not([data-room="tv"]),
+.interiors[data-room="kitchen-down"] .finish__copy:not([data-room="kitchen-down"]),
+.interiors[data-room="kitchen-down"] .finish__standard:not([data-room="kitchen-down"]) {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7266,7 +7268,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 /* the hero is the front of the home: the box is the screen itself (not grown 20% above it) so the whole picture shows at 16:9 */
 .backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 50% 50%; }
 @media (max-width: 63.99rem) { .backdrop__still, .backdrop__night { background-position: 52% 50%; } }
-.interior--atelier, .interior--dining, .interior--master, .interior--stair-dining, .interior--ensuite, .interior--guest { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
+.interior--kitchen-down, .interior--atelier, .interior--dining, .interior--master, .interior--stair-dining, .interior--ensuite, .interior--guest { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .swatch[data-variant="octaplus"] { --swatch-colour: var(--c-burgundy); }
 .finish__copy[data-variant="octaplus"] { --finish: var(--c-burgundy); }
 </style>
@@ -10964,7 +10966,7 @@ window.HB_PAGE = 'octaplus';
     return best;
   }
   function ratio() { var m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? Math.round(scrollY / m * 10000) / 10000 : 0 }
-  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'octaplus' || PAGE === 'wellness' || PAGE === 'golf') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
+  function model() { if (PAGE === 'concept' || PAGE === 'octa' || PAGE === 'octaplus' || PAGE === 'octaurban' || PAGE === 'wellness' || PAGE === 'golf') return PAGE; var m = root.dataset.model || ''; return FROMPAGE ? (FROMPAGE[m] || m) : m }
   function snapshot() {
     var jr = $('.journey'), jv = jr && $('button[data-variant].is-selected:not([data-enquire])', jr);
     return { h: model(), cl: selected($('.exteriors')), p: selected($('.interiors')), m: root.dataset.timber || 'dark',
