@@ -3673,7 +3673,9 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 .interiors[data-room="master"] .finish__copy:not([data-room="master"]),
 .interiors[data-room="master"] .finish__standard:not([data-room="master"]),
 .interiors[data-room="kitchen"] .finish__copy:not([data-room="kitchen"]),
-.interiors[data-room="kitchen"] .finish__standard:not([data-room="kitchen"]) {
+.interiors[data-room="kitchen"] .finish__standard:not([data-room="kitchen"]),
+.interiors[data-room="kitchen-down"] .finish__copy:not([data-room="kitchen-down"]),
+.interiors[data-room="kitchen-down"] .finish__standard:not([data-room="kitchen-down"]) {
   opacity: 0;
   visibility: hidden;
   transition:
@@ -7155,7 +7157,7 @@ html.lb-open .tray, html.lb-open .scene-cue { visibility: hidden; }
 
 /* the hero is the front of the home: the box is the screen itself (not grown 20% above it) so the whole picture shows at 16:9 */
 .backdrop__still, .backdrop__night { top: 0; height: 100%; background-position: 50% 50%; }
-.interior--entry, .interior--office, .interior--master, .interior--kitchen { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
+.interior--kitchen-down, .interior--entry, .interior--office, .interior--master, .interior--kitchen { --focus: 50%; --focus-lead: 50%; --win: 0.5; }
 .swatch[data-variant="octaurban"] { --swatch-colour: #6b7350; }
 .finish__copy[data-variant="octaurban"] { --finish: #6b7350; }
 </style>

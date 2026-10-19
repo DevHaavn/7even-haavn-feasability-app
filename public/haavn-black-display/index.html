@@ -837,14 +837,14 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv');
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261019a';
+  var SOLV = '20261019b';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
   var HOMES = {
-    studio: { n: 'SOLUM Studio', series: 'black', page: 'solum.html', line: '29.8 m² · 1 bed',
+    studio: { n: 'SOLUM Studio', series: 'black', page: 'solum.html', line: '42 m² · 1 bed',
       brochure: '/haavn-brochures/HAAVN-BLACK-SOLUM-STUDIO.pdf?v=4', model: '/solum-studio-model/index.html?v=20261006a' },
-    plus: { n: 'SOLUM Plus', series: 'black', page: 'solum.html', line: '51.6 m² · 1 bed',
+    plus: { n: 'SOLUM Plus', series: 'black', page: 'solum.html', line: '63 m² · 1 bed',
       brochure: '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=10', model: '/solum-model/index.html?v=20261006a', launch: 'https://solum-black-teaser.vercel.app' },
     haven: { n: 'HAVEN', series: 'black', page: 'black.html', line: '267.7 m² · 4 bed' },
     forma: { n: 'FORMA', series: 'black', page: 'black.html', line: '338.2 m² · 4 bed' },
@@ -866,7 +866,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var LISTS = { black: ['studio', 'plus', 'haven', 'forma', 'magna', 'magnaplus'], ess: ['nova', 'aura', 'alta', 'vela', 'terra', 'vista'], concept: ['octa', 'octaplus', 'octaurban', 'wellness', 'golf', 'concept'] };
 
   /* ── where we are ────────────────────────────────────────────────────── */
-  var S = { s: 'landing', h: '', cl: '', p: 'burgundy', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };
+  var S = { s: 'landing', h: '', cl: '', p: '', m: 'dark', t: 'day', it: 'day', d: 'supply', sy: 0, sec: 'overview', lb: '' };
   var FIELDS = ['s', 'h', 'cl', 'p', 'm', 't', 'it', 'd', 'sy', 'sec', 'lb'], NUMF = { sy: 1 };
   function merge(o) { FIELDS.forEach(function (k) { if (o && o[k] !== undefined && o[k] !== null) S[k] = NUMF[k] ? (+o[k] || 0) : o[k] }) }
   function save() {
@@ -888,7 +888,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (S.it !== 'night') S.it = 'day';
     if (['supply', 'delivered', 'installed'].indexOf(S.d) < 0) S.d = 'supply';
   }
-  function resetPicks() { S.lb = ''; S.cl = ''; S.p = 'burgundy'; S.m = 'dark'; S.t = 'day'; S.it = 'day'; S.d = 'supply'; S.sy = 0; S.sec = 'overview' }
+  function resetPicks() { S.lb = ''; S.cl = ''; S.p = ''; S.m = 'dark'; S.t = 'day'; S.it = 'day'; S.d = 'supply'; S.sy = 0; S.sec = 'overview' }
   function picks() { return { h: S.h, cl: S.cl, p: S.p, m: S.m, t: S.t, it: S.it, d: S.d, sy: S.sy, lb: S.lb } }
 
   /* ── the sync: a TV window on this computer, or a TV anywhere by code ───────────────────────────────────
@@ -978,7 +978,11 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
       f.src = want + '?v=' + SOLV + (TV ? '&tv=1' : '');
     }
   }
-  function open(h) { closeMenus(); resetPicks(); unload(); S.s = 'home'; S.h = h; S.sec = 'overview'; render() }
+  function open(h) {
+    closeMenus(); resetPicks(); unload(); S.s = 'home'; S.h = h; S.sec = 'overview';
+    if (HOMES[h] && HOMES[h].page === 'solum.html') { S.cl = 'urban'; S.p = 'urban' }      // Urban Earth is the opening exterior and interior of SOLUM Studio and SOLUM Plus
+    render()
+  }
   function toLanding() { closeMenus(); unload(); S.s = 'landing'; S.h = ''; S.sy = 0; render() }
 
   window.addEventListener('message', function (e) {

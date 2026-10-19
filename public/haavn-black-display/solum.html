@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-AU" class="no-js">
+<html lang="en-AU" class="no-js" data-extv="urban" data-intv="urban">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -3093,6 +3093,34 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
 
   /* the interiors row, written for each panel count in use (Seth wrote it for four) */
   .interiors__track { --w-lead: 47%; --conveyor-dur: 0.9s; }
+  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 16.27%; }
+  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(3) { left: 66.07%; width: 16.27%; }
+  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(4) { left: 83.74%; width: 16.27%; }
+  .interiors__track[data-n="4"] .interior:not([data-slot]):nth-child(n + 5) { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="4"] .interior[data-slot="0"], .interiors__track[data-n="4"] .interior[data-slot="1"], .interiors__track[data-n="4"] .interior[data-slot="2"], .interiors__track[data-n="4"] .interior[data-slot="3"] { opacity: 1; }
+  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="0"],
+  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="0"] { left: 0.0%; width: 47.0%; }
+  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="1"],
+  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="1"] { left: 48.4%; width: 16.27%; }
+  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="2"],
+  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
+  .interiors__track[data-n="4"]:not([data-open]) .interior[data-slot="3"],
+  .interiors__track[data-n="4"][data-open="0"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="1"] { left: 17.67%; width: 47.0%; }
+  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="2"] { left: 66.07%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="1"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="2"] { left: 35.34%; width: 47.0%; }
+  .interiors__track[data-n="4"][data-open="2"] .interior[data-slot="3"] { left: 83.74%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="0"] { left: 0.0%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="1"] { left: 17.67%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="2"] { left: 35.34%; width: 16.27%; }
+  .interiors__track[data-n="4"][data-open="3"] .interior[data-slot="3"] { left: 53.01%; width: 47.0%; }
+  .interiors__track[data-n="4"] .interior[data-slot="4"], .interiors__track[data-n="4"] .interior[data-slot="5"], .interiors__track[data-n="4"] .interior[data-slot="6"] { left: 100%; width: 0; opacity: 0; }
+  .interiors__track[data-n="4"] .interior[data-slot="7"] { left: 0; width: 0; opacity: 0; }
+  .interiors__track[data-n="4"] .interior[data-slot="6"] { transition: none; }
   .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(2) { left: 48.4%; width: 11.85%; }
   .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(3) { left: 61.65%; width: 11.85%; }
   .interiors__track[data-n="5"] .interior:not([data-slot]):nth-child(4) { left: 74.9%; width: 11.85%; }
@@ -3415,6 +3443,46 @@ html[data-model="standard"] .models__copy[data-model="studio"] {
   .exteriors__track[data-n="3"] .exterior[data-slot="3"], .exteriors__track[data-n="3"] .exterior[data-slot="4"] { left: 100%; width: 0; opacity: 0; }
   .exteriors__track[data-n="3"] .exterior[data-slot="5"] { left: 0; width: 0; opacity: 0; }
   .exteriors__track[data-n="3"] .exterior[data-slot="4"] { transition: none; }
+  .exteriors__track[data-n="5"] .exterior__img { width: 58.0cqw; left: calc((100% - 58.0cqw) * var(--win, 0.5)); }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(2) { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(3) { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(4) { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(5) { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"] .exterior:not([data-slot]):nth-child(n + 6) { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="0"], .exteriors__track[data-n="5"] .exterior[data-slot="1"], .exteriors__track[data-n="5"] .exterior[data-slot="2"], .exteriors__track[data-n="5"] .exterior[data-slot="3"], .exteriors__track[data-n="5"] .exterior[data-slot="4"] { opacity: 1; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="0"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="0"] { left: 0.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="1"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="1"] { left: 59.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="2"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="3"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"]:not([data-open]) .exterior[data-slot="4"],
+  .exteriors__track[data-n="5"][data-open="0"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="1"] { left: 10.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="2"] { left: 69.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="1"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="2"] { left: 21.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="3"] { left: 80.4%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="2"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="3"] { left: 31.5%; width: 58.0%; }
+  .exteriors__track[data-n="5"][data-open="3"] .exterior[data-slot="4"] { left: 90.9%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="0"] { left: 0.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="1"] { left: 10.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="2"] { left: 21.0%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="3"] { left: 31.5%; width: 9.1%; }
+  .exteriors__track[data-n="5"][data-open="4"] .exterior[data-slot="4"] { left: 42.0%; width: 58.0%; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="5"], .exteriors__track[data-n="5"] .exterior[data-slot="6"], .exteriors__track[data-n="5"] .exterior[data-slot="7"], .exteriors__track[data-n="5"] .exterior[data-slot="8"] { left: 100%; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="9"] { left: 0; width: 0; opacity: 0; }
+  .exteriors__track[data-n="5"] .exterior[data-slot="8"] { transition: none; }
   .exteriors__track[data-n="6"] .exterior__img { width: 56.0cqw; left: calc((100% - 56.0cqw) * var(--win, 0.5)); }
   .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(2) { left: 57.4%; width: 7.4%; }
   .exteriors__track[data-n="6"] .exterior:not([data-slot]):nth-child(3) { left: 66.2%; width: 7.4%; }
@@ -7254,6 +7322,17 @@ html[data-model="standard"] .interiors__track[data-for="studio"] { display: none
   .interiors .swatches--timber { grid-area: timber; margin-top: var(--space-4); }
 }
 
+/* URBAN EARTH: the colour of the finish, on the swatch, the words and My SOLUM's chip and dot */
+:root { --c-urban: #bfae7a; }
+.swatch[data-variant="urban"] { --swatch-colour: var(--c-urban); }
+.finish__copy[data-variant="urban"] { --finish: var(--c-urban); }
+/* two sets of rows: Urban Earth's, shown when it is the finish picked in that section, and the others */
+html[data-extv="urban"] .exteriors__track[data-set="std"], html:not([data-extv="urban"]) .exteriors__track[data-set="urban"],
+html[data-intv="urban"] .interiors__track[data-set="std"], html:not([data-intv="urban"]) .interiors__track[data-set="urban"],
+html[data-intv="urban"] .swatches--timber,
+html:not([data-intv="urban"]) .finish__standard[data-variant="urban"],
+html[data-intv="urban"] .finish__standard[data-room="living"]:not([data-variant]), html[data-intv="urban"] .finish__standard[data-room="balcony"]:not([data-variant]),
+html[data-intv="urban"] .finish__standard[data-room="bedroom"]:not([data-variant]), html[data-intv="urban"] .finish__standard[data-room="bathroom"]:not([data-variant]) { display: none !important; }
 html:not([data-model="standard"]) .exteriors__track[data-for="standard"],
 html[data-model="standard"] .exteriors__track[data-for="studio"] { display: none !important; }
 .exterior--frontleft, .exterior--straight, .exterior--rear { --focus: 50%; --win: 0.5; }
@@ -7372,12 +7451,12 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         <span class="models__headline-line">SOLUM Studio. SOLUM Plus.</span>
         <span class="models__headline-line">Two sizes. One standard.</span>
       </h2>
-      <p class="models__lede">From 29.8 to 51.6&nbsp;m&sup2;, built complete<br class="break-wide"> and delivered finished.</p>
+      <p class="models__lede">From 42 to 63&nbsp;m&sup2;, built complete<br class="break-wide"> and delivered finished.</p>
       <!-- One paragraph per model, stacked in one place: the toggle below
            chooses which is read (models.css, from data-model on <html>). -->
       <div class="models__body">
-        <p class="models__copy" data-model="studio">SOLUM Studio is a complete one-bedroom home in 29.8 square metres, everything in its place along a single bar of rooms. <strong>The same materials, the same detail and the same standard</strong> as the Plus, in a smaller footprint.</p>
-        <p class="models__copy" data-model="standard">SOLUM Plus is a full one-bedroom home across 51.6 square metres, with a living, dining and kitchen space more than seven metres long. <strong>Room to spread out</strong>, built to the same standard and delivered finished.</p>
+        <p class="models__copy" data-model="studio">SOLUM Studio is a complete one-bedroom home in 42 square metres, everything in its place along a single bar of rooms. <strong>The same materials, the same detail and the same standard</strong> as the Plus, in a smaller footprint.</p>
+        <p class="models__copy" data-model="standard">SOLUM Plus is a full one-bedroom home across 63 square metres, with a living, dining and kitchen space more than seven metres long. <strong>Room to spread out</strong>, built to the same standard and delivered finished.</p>
       </div>    </div>
 
     <p class="models__note">Everything below follows your choice.</p>
@@ -7409,7 +7488,9 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <div class="swatches" role="group" aria-labelledby="cladding-label">
         <span class="swatches__label" id="cladding-label">Cladding:</span>
         <button class="swatch is-selected" type="button"
-                data-variant="obsidian" aria-pressed="true">Obsidian</button>
+                data-variant="urban" aria-pressed="true">Urban Earth</button>
+        <button class="swatch" type="button"
+                data-variant="obsidian" aria-pressed="false">Obsidian</button>
         <button class="swatch" type="button"
                 data-variant="ivory" aria-pressed="false">Ivory</button>
         <button class="swatch" type="button"
@@ -7421,9 +7502,163 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       </div>
     </div>
 
-    <div class="exteriors__track" id="exteriors-track-studio" data-n="6" data-for="studio">
+    <div class="exteriors__track" id="exteriors-track-urban-studio" data-n="5" data-for="studio" data-set="urban">
+      <figure class="exterior exterior--ux-front">
+        <img class="exterior__img is-shown" data-model="studio" data-variant="urban" src="img/ext/urban-studio-a.jpg" alt="SOLUM Studio in Urban Earth: the open front, over its walnut deck" width="1672" height="941" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-entry">
+        <img class="exterior__img" data-model="studio" data-variant="urban" data-src="img/ext/urban-studio-b.jpg" alt="SOLUM Studio in Urban Earth: the entry, a matte black door in its ivory concrete portal" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-street">
+        <img class="exterior__img" data-model="studio" data-variant="urban" data-src="img/ext/urban-studio-c.jpg" alt="SOLUM Studio in Urban Earth: on a quiet urban street" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-courtyard">
+        <img class="exterior__img" data-model="studio" data-variant="urban" data-src="img/ext/urban-studio-d.jpg" alt="SOLUM Studio in Urban Earth: from the courtyard garden" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-dusk">
+        <img class="exterior__img" data-model="studio" data-variant="urban" data-src="img/ext/urban-studio-e.jpg" alt="SOLUM Studio in Urban Earth: at dusk, with the deck and garden lit" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="exteriors__track" id="exteriors-track-urban-standard" data-n="5" data-for="standard" data-set="urban">
+      <figure class="exterior exterior--ux-front">
+        <img class="exterior__img is-shown" data-model="standard" data-variant="urban" src="img/ext/urban-plus-a.jpg" alt="SOLUM Plus in Urban Earth: the long front, over the creek" width="1672" height="941" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-entry">
+        <img class="exterior__img" data-model="standard" data-variant="urban" data-src="img/ext/urban-plus-b.jpg" alt="SOLUM Plus in Urban Earth: the entry door, in its ivory concrete portal" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-street">
+        <img class="exterior__img" data-model="standard" data-variant="urban" data-src="img/ext/urban-plus-c.jpg" alt="SOLUM Plus in Urban Earth: on a quiet urban lane" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-terrace">
+        <img class="exterior__img" data-model="standard" data-variant="urban" data-src="img/ext/urban-plus-d.jpg" alt="SOLUM Plus in Urban Earth: along the deck, towards the terrace" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="exterior exterior--ux-dusk">
+        <img class="exterior__img" data-model="standard" data-variant="urban" data-src="img/ext/urban-plus-e.jpg" alt="SOLUM Plus in Urban Earth: at dusk, from the lane" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
+        <button class="peek peek--clock" type="button" data-clock="view"
+                aria-pressed="false" aria-label="Show this view after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="exteriors__track" id="exteriors-track-studio" data-n="6" data-for="studio" data-set="std">
       <figure class="exterior exterior--front">
-        <img class="exterior__img is-shown" data-model="studio" data-variant="ivory" data-time="day" src="img/ext/studio-ivory-a-day.jpg" alt="SOLUM Studio in Ivory: the open front, over its stone terrace, in morning light" width="1672" height="941" loading="lazy" decoding="async">
+        <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="day" data-src="img/ext/studio-ivory-a-day.jpg" alt="SOLUM Studio in Ivory: the open front, over its stone terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="studio" data-variant="ivory" data-time="night" data-src="img/ext/studio-ivory-a-night.jpg" alt="SOLUM Studio in Ivory: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="studio" data-variant="forge" data-time="day" data-src="img/ext/studio-forge-a-day.jpg" alt="SOLUM Studio in Forge: the open front, over its stone terrace, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="studio" data-variant="forge" data-time="night" data-src="img/ext/studio-forge-a-night.jpg" alt="SOLUM Studio in Forge: the open front, over its stone terrace, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
@@ -7555,7 +7790,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         </button>
       </figure>
     </div>
-    <div class="exteriors__track" id="exteriors-track-standard" data-n="3" data-for="standard">
+    <div class="exteriors__track" id="exteriors-track-standard" data-n="3" data-for="standard" data-set="std">
       <figure class="exterior exterior--front">
         <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="day" data-src="img/ext/plus-obsidian-a-day.jpg" alt="SOLUM Plus in Obsidian: the front, across a creek bed, in morning light" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
         <img class="exterior__img" data-model="standard" data-variant="obsidian" data-time="night" data-src="img/ext/plus-obsidian-a-night.jpg" alt="SOLUM Plus in Obsidian: the front, across a creek bed, after dark" width="1672" height="941" aria-hidden="true" loading="lazy" decoding="async">
@@ -7633,7 +7868,12 @@ html[data-model="studio"] [data-res="film"] { display: none; }
     <!-- The claddings, from the Exterior Materials Brief (October 2026).
          The key lines take the finish's own colour. -->
     <aside class="finish" aria-label="About this cladding">
-      <div class="finish__copy is-shown" data-variant="obsidian">
+      <div class="finish__copy is-shown" data-variant="urban">
+        <p class="finish__name">Urban Earth</p>
+        <p class="finish__story">Ivory board-formed concrete around every opening, walnut fins and soffits, and smoked olive satin metal for the walls. Warm and grounded, it sits as easily on a suburban street as in the bush, and the walnut glows when the lights come on at dusk.</p>
+        <p class="finish__key"><span>Ivory board-formed concrete</span><span>Walnut fins, smoked olive metal</span></p>
+      </div>
+      <div class="finish__copy" data-variant="obsidian">
         <p class="finish__name">Obsidian</p>
         <p class="finish__story">Fibre cement in its darkest tone, behind bronze-tinted glass and black frames. The quietest of the claddings, it lets SOLUM recede into shadow and tree line.</p>
         <p class="finish__key"><span>Equitone fibre cement</span><span>Bronze-tinted, low-E glazing</span></p>
@@ -7667,7 +7907,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <p class="enquire__prompt">Settled on a cladding? Select it for your <span data-model-name>SOLUM Studio</span>.</p>
       <button class="button button--glass button--sm enquire__link" type="button"
               data-enquire="cladding" data-next="#interiors" aria-pressed="false">
-        <span class="button__label">Select Obsidian</span>
+        <span class="button__label">Select Urban Earth</span>
         <span class="button__arrow" aria-hidden="true">+</span>
       </button>
     </div>
@@ -7687,7 +7927,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
          this is the first stage of the palette scene (src/js/ui/scene.js);
          elsewhere it simply introduces the section. -->
     <div class="palettes__intro">
-      <p class="palettes__line">Inspired by the Australian landscape, we&rsquo;ve painstakingly designed <strong>four interior palettes</strong>.</p>
+      <p class="palettes__line">Inspired by the Australian landscape, we&rsquo;ve painstakingly designed <strong>five interior palettes</strong>.</p>
       <p class="palettes__line">Each is engineered as a complete composition, so every finish belongs and <strong>nothing is left to chance</strong>.</p>
     </div>
 
@@ -7697,7 +7937,9 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <div class="swatches" role="group" aria-labelledby="palette-label">
         <span class="swatches__label" id="palette-label">Finishes:</span>
         <button class="swatch is-selected" type="button"
-                data-variant="burgundy" aria-pressed="true">Burgundy</button>
+                data-variant="urban" aria-pressed="true">Urban Earth</button>
+        <button class="swatch" type="button"
+                data-variant="burgundy" aria-pressed="false">Burgundy</button>
         <button class="swatch" type="button"
                 data-variant="sage" aria-pressed="false">Sage</button>
         <button class="swatch" type="button"
@@ -7712,9 +7954,157 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       </div>
     </div>
 
-    <div class="interiors__track" id="interiors-track-studio" data-n="6" data-for="studio">
+    <div class="interiors__track" id="interiors-track-urban-studio" data-n="4" data-for="studio" data-set="urban">
       <figure class="interior interior--balcony">
-        <img class="interior__img is-shown" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" src="img/int/studio-balcony-dark-burgundy-day.jpg" alt="The living room, towards the balcony in the Burgundy palette (dark timber)" loading="lazy" decoding="async">
+        <img class="interior__img is-shown" data-model="studio" data-variant="urban" src="img/int/urban-studio-balcony.jpg" alt="The living room, towards the deck in Urban Earth" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Living to deck</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--studiokitchen">
+        <img class="interior__img" data-model="studio" data-variant="urban" data-src="img/int/urban-studio-kitchen.jpg" alt="The kitchen in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Kitchen</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bedroom">
+        <img class="interior__img" data-model="studio" data-variant="urban" data-src="img/int/urban-studio-bedroom.jpg" alt="The bedroom in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bedroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bathroom">
+        <img class="interior__img" data-model="studio" data-variant="urban" data-src="img/int/urban-studio-bathroom.jpg" alt="The bathroom in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bathroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="interiors__track" id="interiors-track-urban-plus" data-n="4" data-for="standard" data-set="urban">
+      <figure class="interior interior--living">
+        <img class="interior__img" data-model="standard" data-variant="urban" data-src="img/int/urban-plus-living.jpg" alt="The living room in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Living</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--kitchen">
+        <img class="interior__img" data-model="standard" data-variant="urban" data-src="img/int/urban-plus-kitchen.jpg" alt="The kitchen in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Kitchen</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bedroom">
+        <img class="interior__img" data-model="standard" data-variant="urban" data-src="img/int/urban-plus-bedroom.jpg" alt="The bedroom in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bedroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+      <figure class="interior interior--bathroom">
+        <img class="interior__img" data-model="standard" data-variant="urban" data-src="img/int/urban-plus-bathroom.jpg" alt="The bathroom in Urban Earth" aria-hidden="true" loading="lazy" decoding="async">
+        <figcaption class="interior__caption">
+          <span class="interior__label">Bathroom</span>
+        </figcaption>
+        <button class="peek peek--clock" type="button" data-clock="room"
+                aria-pressed="false" aria-label="Show this room after dark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="peek__moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+          </svg>
+        </button>
+        <button class="peek" type="button" aria-label="View this render larger">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.7-6 10-6 10 6 10 6-3.7 6-10 6-10-6-10-6Z"/>
+            <circle class="peek__pupil" cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </figure>
+    </div>
+    <div class="interiors__track" id="interiors-track-studio" data-n="6" data-for="studio" data-set="std">
+      <figure class="interior interior--balcony">
+        <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-burgundy-day.jpg" alt="The living room, towards the balcony in the Burgundy palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
         <img class="interior__img" data-model="studio" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-burgundy-night.jpg" alt="The living room, towards the balcony in the Burgundy palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
         <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="day" data-src="img/int/studio-balcony-dark-sage-day.jpg" alt="The living room, towards the balcony in the Sage palette (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
         <img class="interior__img" data-model="studio" data-variant="sage" data-timber="dark" data-time="night" data-src="img/int/studio-balcony-dark-sage-night.jpg" alt="The living room, towards the balcony in the Sage palette, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
@@ -7912,7 +8302,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         </button>
       </figure>
     </div>
-    <div class="interiors__track" id="interiors-track-standard" data-n="5" data-for="standard">
+    <div class="interiors__track" id="interiors-track-standard" data-n="5" data-for="standard" data-set="std">
       <figure class="interior interior--living">
         <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="day" data-src="img/int/living-dark-burgundy-day.jpg" alt="The living room, looking out through sheer curtains to the garden (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
         <img class="interior__img" data-model="standard" data-variant="burgundy" data-timber="dark" data-time="night" data-src="img/int/living-dark-burgundy-night.jpg" alt="The living room, looking out through sheer curtains to the garden, after dark (dark timber)" aria-hidden="true" loading="lazy" decoding="async">
@@ -8093,7 +8483,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         <p class="finish__story">Burgundy mosaic against limewashed walls, under a battened timber ceiling. A good red held up to low light.</p>
         <p class="finish__key"><span>Burgundy mosaic ledge</span><span>Battened timber ceiling</span></p>
       </div>
-      <div class="finish__copy is-shown" data-variant="burgundy" data-room="balcony">
+      <div class="finish__copy" data-variant="burgundy" data-room="balcony">
         <p class="finish__name">Burgundy &middot; Living, towards the balcony</p>
         <p class="finish__story">Burgundy mosaic on the kitchen splashback, against limewashed walls, under a battened timber ceiling. A good red held up to low light.</p>
         <p class="finish__key"><span>Burgundy mosaic splashback</span><span>Battened timber ceiling</span></p>
@@ -8268,6 +8658,36 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         <p class="finish__story">The Vine mosaic carries round the corner of the kitchen to the washer, then the hall runs on to the bedroom and the bathroom.</p>
         <p class="finish__key"><span>Vine mosaic splashback</span><span>Hall to bedroom and bathroom</span></p>
       </div>
+      <div class="finish__copy is-shown" data-variant="urban" data-room="balcony">
+        <p class="finish__name">Urban Earth &middot; Living to deck</p>
+        <p class="finish__story">Ivory board-formed concrete, a walnut slatted ceiling and smoked olive joinery, with the sliding glass wall open to the deck and the trees beyond.</p>
+        <p class="finish__key"><span>Ivory board-formed concrete</span><span>Walnut slatted ceiling</span></p>
+      </div>
+      <div class="finish__copy" data-variant="urban" data-room="living">
+        <p class="finish__name">Urban Earth &middot; Living</p>
+        <p class="finish__story">Walnut battens overhead, ivory concrete walls, and a walnut media wall over a long olive sideboard, lit low. A boucle sofa and a leather chair make it a room to stay in.</p>
+        <p class="finish__key"><span>Walnut slatted ceiling</span><span>Smoked olive joinery</span></p>
+      </div>
+      <div class="finish__copy" data-variant="urban" data-room="studiokitchen">
+        <p class="finish__name">Urban Earth &middot; Kitchen</p>
+        <p class="finish__story">Smoked olive cabinets under a honed stone bench, a travertine splashback and a walnut tall unit, with bronze tapware and a round steel rangehood.</p>
+        <p class="finish__key"><span>Smoked olive cabinetry</span><span>Honed stone and bronze</span></p>
+      </div>
+      <div class="finish__copy" data-variant="urban" data-room="kitchen">
+        <p class="finish__name">Urban Earth &middot; Kitchen</p>
+        <p class="finish__story">Walnut tall units and smoked olive cabinets along one wall, a stone splashback with a lit shelf, and a round steel rangehood overhead.</p>
+        <p class="finish__key"><span>Smoked olive cabinetry</span><span>Walnut tall units</span></p>
+      </div>
+      <div class="finish__copy" data-variant="urban" data-room="bedroom">
+        <p class="finish__name">Urban Earth &middot; Bedroom</p>
+        <p class="finish__story">A walnut ceiling over ivory concrete walls, with olive wardrobe doors and bronze pulls. Warm, quiet and well lit.</p>
+        <p class="finish__key"><span>Smoked olive wardrobes</span><span>Walnut slatted ceiling</span></p>
+      </div>
+      <div class="finish__copy" data-variant="urban" data-room="bathroom">
+        <p class="finish__name">Urban Earth &middot; Bathroom</p>
+        <p class="finish__story">Olive mosaic tile with bronze tapware, a round stone basin and a walnut ceiling. Ivory concrete walls and a frameless glass screen keep it light.</p>
+        <p class="finish__key"><span>Olive mosaic tile</span><span>Bronze tapware</span></p>
+      </div>
     </aside>
 
     <!-- What comes with each room, whichever palette: it changes with the
@@ -8276,6 +8696,10 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <p class="finish__standard" data-room="living">Joinery and ceiling battens in dark timber or a classic walnut look, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
       <p class="finish__standard" data-room="kitchen">Hot water and heating and cooling come standard. Appliances, including a washer dryer, and a four-seat dining table are available as options.</p>
       <p class="finish__standard" data-room="bathroom">Brushed nickel tapware, porcelain tiles to floor and walls, linear LED lighting and a polished nickel flush plate.</p>
+      <p class="finish__standard" data-variant="urban" data-room="living">Walnut look joinery and ceiling battens, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
+      <p class="finish__standard" data-variant="urban" data-room="balcony">Walnut look joinery and ceiling battens, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
+      <p class="finish__standard" data-variant="urban" data-room="bedroom">Smoked olive joinery with a fully fitted wardrobe, a walnut look ceiling and porcelain floors, included. A queen bed is available as an option.</p>
+      <p class="finish__standard" data-variant="urban" data-room="bathroom">Bronze tapware, porcelain tiles to floor and walls, linear LED lighting and a bronze flush plate.</p>
       <p class="finish__standard" data-room="bedroom2">Joinery in dark timber or a classic walnut look, porcelain floors and a fully fitted wardrobe, included. A queen bed is available as an option.</p>
       <p class="finish__standard" data-room="balcony">Joinery and ceiling battens in dark timber or a classic walnut look, porcelain floors, spotlights and feature LEDs. Sofa, coffee table and rug available as options.</p>
       <p class="finish__standard" data-room="laundry">Appliances, including a washer dryer, are available as options.</p>
@@ -8327,12 +8751,12 @@ html[data-model="studio"] [data-res="film"] { display: none; }
         <div class="plan__model" data-model="standard">
           <div class="plan__body">
             <figure class="plan__drawing">
-              <!-- On its side at every width. Upright, a 4.5 by 13.4 metre
+              <!-- On its side at every width. Upright, a 4.5 by 14 metre
                    building fills the height of a phone with a sliver of
                    drawing, which reads as a mistake rather than a plan. -->
               <div class="plan__stage">
                 <img data-src="img/plans/plus.png"
-                     alt="Ground floor plan of SOLUM: a single 4.5 by 13.4 metre bar, with the kitchen, dining and living space at one end, the bathroom and utility joinery through the middle, and the bedroom at the far end."
+                     alt="Ground floor plan of SOLUM: a single 4.5 by 14 metre bar, with the kitchen, dining and living space at one end, the bathroom and utility joinery through the middle, and the bedroom at the far end."
                      width="2012" height="708" loading="lazy" decoding="async">
               </div>
 
@@ -8410,16 +8834,16 @@ html[data-model="studio"] [data-res="film"] { display: none; }
                 <dd>1</dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Footprint</dt>
-                <dd>4.5 &times; 13.4 m</dd>
+                <dt>Depth</dt>
+                <dd>4.5 <span class="plan__unit">m</span></dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Internal area</dt>
-                <dd>51.6 <span class="plan__unit">m&sup2;</span></dd>
+                <dt>Length</dt>
+                <dd>14 <span class="plan__unit">m</span></dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Gross area</dt>
-                <dd>60.3 <span class="plan__unit">m&sup2;</span></dd>
+                <dt>Area</dt>
+                <dd>63 <span class="plan__unit">m&sup2;</span></dd>
               </div>
             </dl>
 
@@ -8445,7 +8869,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
               <!-- As above: on its side at every width. -->
               <div class="plan__stage">
                 <img src="img/plans/studio.svg"
-                     alt="Ground floor plan of SOLUM Studio: a single 3.5 by 10 metre bar, with the bedroom at one end, the bathroom through the middle, and the kitchen, dining and living space at the far end."
+                     alt="Ground floor plan of SOLUM Studio: a single 3.5 by 12 metre bar, with the bedroom at one end, the bathroom through the middle, and the kitchen, dining and living space at the far end."
                      width="742" height="291" loading="lazy" decoding="async">
               </div>
 
@@ -8523,16 +8947,16 @@ html[data-model="studio"] [data-res="film"] { display: none; }
                 <dd>1</dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Footprint</dt>
-                <dd>3.5 &times; 10 m</dd>
+                <dt>Depth</dt>
+                <dd>3.5 <span class="plan__unit">m</span></dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Internal area</dt>
-                <dd>29.8 <span class="plan__unit">m&sup2;</span></dd>
+                <dt>Length</dt>
+                <dd>12 <span class="plan__unit">m</span></dd>
               </div>
               <div class="plan__figure plan__figure--area">
-                <dt>Gross area</dt>
-                <dd>35.0 <span class="plan__unit">m&sup2;</span></dd>
+                <dt>Area</dt>
+                <dd>42 <span class="plan__unit">m&sup2;</span></dd>
               </div>
             </dl>
 
@@ -8771,7 +9195,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <div class="mysolum__print">
         <figure class="mysolum__exterior is-preview">
           <img data-mysolum-img="exterior"
-               src="img/ext/studio-ivory-a-day.jpg"
+               src="img/ext/urban-studio-a.jpg"
                alt="" width="1672" height="941" loading="lazy" decoding="async">
         </figure>
         <p class="mysolum__caption"><span>Outside</span><span data-mysolum-caption="cladding"></span></p>
@@ -8779,7 +9203,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
       <div class="mysolum__print">
         <figure class="mysolum__interior is-preview">
           <img data-mysolum-img="interior"
-               src="img/int/studio-balcony-dark-burgundy-day.jpg"
+               src="img/int/urban-studio-balcony.jpg"
                alt="" loading="lazy" decoding="async">
         </figure>
         <p class="mysolum__caption"><span>Inside</span><span data-mysolum-caption="palette"></span></p>
@@ -8905,6 +9329,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
             <label class="field__label" for="reg-cladding">Cladding</label>
             <select class="field__input field__input--select" id="reg-cladding" name="cladding">
               <option value="">No preference</option>
+              <option value="urban">Urban Earth</option>
               <option value="obsidian">Obsidian</option>
               <option value="ivory">Ivory</option>
               <option value="forge">Forge</option>
@@ -8917,6 +9342,7 @@ html[data-model="studio"] [data-res="film"] { display: none; }
             <label class="field__label" for="reg-palette">Palette</label>
             <select class="field__input field__input--select" id="reg-palette" name="palette">
               <option value="">No preference</option>
+              <option value="urban">Urban Earth</option>
               <option value="burgundy">Burgundy</option>
               <option value="sage">Sage</option>
               <option value="tide">Tide</option>
@@ -10113,7 +10539,7 @@ function initMySolum() {
     showPicture(summary.querySelector('[data-mysolum-img="exterior"]'),
       pictureOf(`.exteriors .exterior:first-child img.exterior__img[data-variant="${cladding}"]:not([data-time="night"])`, model));
     showPicture(summary.querySelector('[data-mysolum-img="interior"]'),
-      pictureOf(`.interiors .interior:first-child img.interior__img[data-variant="${palette}"][data-timber="${document.documentElement.dataset.timber || 'dark'}"]:not([data-time="night"])`, model));
+      pictureOf(`.interiors .interior:first-child img.interior__img[data-variant="${palette}"]:is([data-timber="${document.documentElement.dataset.timber || 'dark'}"], :not([data-timber])):not([data-time="night"])`, model));
 
     summary.querySelector('.mysolum__exterior')?.classList.toggle('is-preview', !picks.cladding);
     summary.querySelector('.mysolum__interior')?.classList.toggle('is-preview', !picks.palette);
@@ -10485,7 +10911,6 @@ function track(scene, pin, count) {
 // ======================================================================
 // Choose your SOLUM
 // ======================================================================
-const HERO = {"studio": "img/ext/studio-hero.jpg"};
 function buildModelScene() {
   const models = document.querySelector('.models');
   const exteriors = document.querySelector('#exteriors');
@@ -10682,7 +11107,7 @@ function buildModelScene() {
 
     // the picture is whichever render the front slot is showing
     const shown = lead()?.querySelector('.exterior__img.is-shown');
-    const src = HERO[document.documentElement.dataset.model] || shown?.currentSrc || shown?.getAttribute('src') || shown?.dataset.src;
+    const src = shown?.currentSrc || shown?.getAttribute('src') || shown?.dataset.src;
     if (src && picture.getAttribute('src') !== src) picture.src = src;
 
     // the paragraph arrives only as the picture finishes shrinking — over
@@ -12029,6 +12454,18 @@ lightBackdrop($('.backdrop')).then(() => playReveal(REVEAL_BEATS));
     else if (e.target.closest('[data-close-privacy]')) { e.preventDefault(); open(false); }
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !layer.hidden) open(false); });
+})();
+
+;(function () {
+  var root = document.documentElement, ex = document.querySelector('.exteriors'), it = document.querySelector('.interiors');
+  function sel(sec) { var b = sec && sec.querySelector('.swatch.is-selected[data-variant]'); return b ? b.dataset.variant : ''; }
+  function sync() {
+    var e = sel(ex) === 'urban' ? 'urban' : 'std', i = sel(it) === 'urban' ? 'urban' : 'std', changed = root.dataset.extv !== e || root.dataset.intv !== i;
+    root.dataset.extv = e; root.dataset.intv = i;
+    if (changed) setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 30);
+  }
+  [ex, it].forEach(function (sec) { if (sec) sec.addEventListener('variantchange', sync); });
+  sync();
 })();
 </script>
 <script>/* The picture lightbox. Seth drew the eye button on every picture (aria-label "View this render larger") and no script behind it:
