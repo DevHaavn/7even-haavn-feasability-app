@@ -988,25 +988,37 @@
    "Transport-anchored \u2014 25 minutes to Melbourne CBD from Tarneit station"
   ],
   "imgcaps": [
-   "The Novotel corner \u2014 gateway from Leakes Road",
-   "The masterplan from above \u2014 six buildings, one main street",
-   "The western aerial \u2014 solar roofs over the corridor",
-   "The Novotel \u2014 188 keys over the podium",
-   "The retail corner \u2014 supermarket & daily needs",
-   "Main street \u2014 offices over F&B",
-   "The street canyon \u2014 tree-lined addresses",
-   "The crossing \u2014 between the residential buildings"
+   "The towers at sunset, along the main road",
+   "The residential entry and lobby",
+   "The podium terrace at sunset: barbecue, dining and lounge",
+   "The buildings from above, over the retail podium",
+   "The podium terrace by day",
+   "Living, dining and kitchen",
+   "A bedroom with a view over the trees",
+   "The bathroom",
+   "The street frontage at sunset: medical and wellness, gym, cafe and convenience",
+   "The street frontage at dusk",
+   "The street frontage by day, with medical and wellness at the corner",
+   "Gym, cafe and convenience on the corner",
+   "The walkway through the retail street, gym and cafe either side",
+   "The whole frontage by day"
   ],
-  "images": 8,
+  "images": 14,
   "imgs": [
-   "/hori7on-next/img/derrimut/01.jpg",
-   "/hori7on-next/img/derrimut/02.jpg",
-   "/hori7on-next/img/derrimut/03.jpg",
-   "/hori7on-next/img/derrimut/04.jpg",
-   "/hori7on-next/img/derrimut/05.jpg",
-   "/hori7on-next/img/derrimut/06.jpg",
-   "/hori7on-next/img/derrimut/07.jpg",
-   "/hori7on-next/img/derrimut/08.jpg"
+   "/hori7on-next/img/derrimut/r01.jpg",
+   "/hori7on-next/img/derrimut/r02.jpg",
+   "/hori7on-next/img/derrimut/r03.jpg",
+   "/hori7on-next/img/derrimut/r04.jpg",
+   "/hori7on-next/img/derrimut/r05.jpg",
+   "/hori7on-next/img/derrimut/r06.jpg",
+   "/hori7on-next/img/derrimut/r07.jpg",
+   "/hori7on-next/img/derrimut/r08.jpg",
+   "/hori7on-next/img/derrimut/r09.jpg",
+   "/hori7on-next/img/derrimut/r10.jpg",
+   "/hori7on-next/img/derrimut/r11.jpg",
+   "/hori7on-next/img/derrimut/r12.jpg",
+   "/hori7on-next/img/derrimut/r13.jpg",
+   "/hori7on-next/img/derrimut/r14.jpg"
   ],
   "plans": [
    {
@@ -1027,7 +1039,7 @@
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 14,
+    "slides": 20,
     "note": "The project, the numbers, the place, the plans and the case.",
     "path": "/hori7on-next/decks/derrimut/index.html"
    }
