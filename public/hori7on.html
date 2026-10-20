@@ -446,7 +446,7 @@ function buildProject(p){
   var brand=(p.devimg?'<img class="dev" src="'+p.devimg+'" alt="">':'');
   var title=p.brandimg?(/\.svg$/.test(p.brandimg)?'<object class="bi'+(p.brandwide?' wide':'')+'" data="'+p.brandimg+'" type="image/svg+xml" aria-label="'+esc(p.brandalt||p.n)+'"></object>':'<img class="bi'+(p.brandwide?' wide':'')+'" src="'+p.brandimg+'" alt="'+esc(p.brandalt||p.n)+'">'):esc(p.n);
   var D=p.decks,acts=D.length
-    ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.label):'Present')+ARROW+'</a>'}).join('')
+    ? D.map(function(d){return '<a class="btn" href="#/'+p.id+'/present'+(d.key?'/'+d.key:'')+'">'+(D.length>1?esc(d.short||d.label):'Present')+ARROW+'</a>'}).join('')
       +(D.length===1?'<a class="lnk" href="'+D[0].path+'?print" target="_blank" rel="noopener">Print as PDF</a>':'')
     : '<span class="lnk dim">Presentation in build</span><a class="lnk" href="#" data-im="'+p.id+'">Investment memorandum</a>';
   var bgel=p.introvideo

@@ -212,7 +212,16 @@
    "label": "Investor presentation",
    "slides": 40,
    "note": "Investment memorandum, equity raise: the company, the market, the site, the approval, the delivery and the deal.",
-   "path": "/hori7on-next/preston-deck/index.html"
+   "path": "/hori7on-next/preston-deck/index.html",
+   "short": "Presentation"
+  },
+  {
+   "key": "equity",
+   "label": "Equity presentation",
+   "short": "Equity",
+   "slides": 24,
+   "note": "The equity pitch: Preston, what is being built, the approval, the delivery and the deal on one page.",
+   "path": "/hori7on-next/decks/preston-equity/index.html"
   }
  ]
 }
