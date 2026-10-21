@@ -296,3 +296,87 @@ html.print .air .ld{stroke-dashoffset:0;animation:none!important}html.print .air
 .csnd{position:absolute;left:96px;top:92px;z-index:30;padding:10px 22px;border:1px solid var(--line2);font:inherit;font-size:19px;color:var(--bone);background:rgba(18,16,15,.4);backdrop-filter:blur(6px);cursor:pointer;transition:border-color .3s,color .3s}
 .csnd:hover,.csnd[aria-pressed=true]{border-color:var(--cu);color:var(--cu)}
 html.print .csnd{display:none}
+
+/* ── WPCC viability pages: three numbers pages on the Belmont engine ── */
+.wp .h2{position:absolute;left:96px;top:146px;max-width:22ch;font-size:62px}
+.wp .eb.t{position:absolute;left:96px;top:112px}
+.wp .sub{position:absolute;left:96px;top:326px;width:1500px;font-size:22px;color:var(--stone);line-height:1.4}
+.wp .col{position:absolute}
+.wp .lbl{font-size:19px;color:var(--stone);margin-bottom:12px}
+.wp .vt{position:absolute;left:96px;right:96px;bottom:96px;border-top:1px solid rgba(211,164,108,.55);padding-top:12px;font-size:21px;line-height:1.4;color:var(--stone2);display:flex;justify-content:space-between;gap:48px}
+.wp .vt>span:first-child{max-width:1180px}
+.wp .vt b{font-weight:400;color:var(--cu)}
+.wp .vt span.n{font-size:17px;color:var(--stone);max-width:520px;text-align:right}
+/* slide 1 */
+.wp .msg{list-style:none;counter-reset:m}
+.wp .msg li{counter-increment:m;position:relative;padding:11px 0 11px 56px;border-top:1px solid var(--line);font-size:23px;line-height:1.36;color:var(--stone2)}
+.wp .msg li::before{content:"0" counter(m);position:absolute;left:0;top:14px;font-size:18px;color:var(--cu)}
+.wp .msg li b{font-weight:300;color:var(--cu)}
+.wp .kv{width:100%;border-collapse:collapse}
+.wp .kv td{padding:11px 0;border-top:1px solid var(--line);font-size:21px;line-height:1.38;color:var(--stone2);vertical-align:top}
+.wp .kv td:first-child{width:130px;color:var(--stone);font-size:19px;padding-top:15px}
+.wp .px{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.wp .px div{border-top:1px solid var(--line2);padding-top:14px}
+.wp .px b{display:block;font-weight:300;font-size:54px;line-height:1;letter-spacing:-.04em;color:var(--bone)}
+.wp .px span{display:block;margin-top:8px;font-size:20px;color:var(--stone2)}
+.wp .px div.av b{color:var(--cu)}
+/* slide 2 */
+.wp .tb{width:100%;border-collapse:collapse}
+.wp .tb td{padding:7px 0;border-bottom:1px solid var(--line);font-size:21px;line-height:1.25;color:var(--stone2)}
+.wp .tb td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--bone);padding-left:20px;width:150px}
+.wp .tb tr.tot td{color:var(--bone);border-bottom:2px solid var(--cu);border-top:1px solid var(--line2)}
+.wp .tb tr.tot td.n{color:var(--cu)}
+.wp .tb .bar{display:block;height:4px;background:var(--stone);opacity:.7;margin-top:5px}
+.wp .tb .bar.c{background:var(--cu);opacity:1}
+.wp .big{font-weight:300;font-size:118px;line-height:1;letter-spacing:-.045em;color:var(--cu)}
+.wp .scale{position:relative;height:44px;display:flex}
+.wp .scale i{display:block;height:44px;font-style:normal}
+.wp .scale i.c{background:#5a554e}
+.wp .scale i.p{background:var(--cu)}
+.wp .scl{display:flex;justify-content:space-between;margin-top:10px;font-size:19px;color:var(--stone2)}
+/* slide 3 */
+.wp .gp{position:absolute;left:96px;top:296px;width:1230px}
+.wp .gp .row{display:grid;grid-template-columns:110px 1fr;gap:20px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.wp .gp .row .k{font-size:21px;color:var(--bone)}
+.wp .gp .bars{position:relative}
+.wp .gp .tg, .wp .gp .ev{height:22px;position:relative;white-space:nowrap}
+.wp .gp .tg{background:var(--cu)}
+.wp .gp .ev{margin-top:6px;background:#6a665f}
+.wp .gp .tg em, .wp .gp .ev em{position:absolute;left:calc(100% + 14px);top:0;font-style:normal;font-size:19px;line-height:22px}
+.wp .gp .ev .best{position:absolute;left:100%;top:0;height:22px;border:1px solid var(--stone2);border-left:0;box-sizing:border-box}
+.wp .gp .tg em{color:var(--cu)}
+.wp .gp .ev em{color:var(--stone2)}
+.wp .gp .ev.none{background:none;border:1px dashed #6a665f;width:100%;opacity:.9;box-sizing:border-box}
+.wp .gp .ev.none em{left:14px;color:var(--stone2)}
+.wp .gp .key{display:flex;gap:34px;font-size:18px;color:var(--stone2);margin-bottom:8px}
+.wp .gp .key i{display:inline-block;width:26px;height:12px;margin-right:10px;vertical-align:middle}
+.wp .loss{position:absolute;left:1390px;top:316px;width:434px}
+.wp .loss .big{font-size:128px;color:var(--bone)}
+.wp .loss p{font-size:24px;line-height:1.35;color:var(--stone2);margin-bottom:6px}
+.wp .loss p b{font-weight:300;color:var(--cu)}
+.wp .c3{position:absolute;left:96px;right:96px;top:640px;display:grid;grid-template-columns:repeat(3,1fr);gap:56px}
+.wp .c3 h3{font-weight:300;font-size:20px;color:var(--cu);margin-bottom:6px}
+.wp .c3 ol, .wp .c3 ul{list-style:none;counter-reset:q}
+.wp .c3 li{counter-increment:q;position:relative;padding:4px 0 4px 32px;border-top:1px solid var(--line);font-size:18px;line-height:1.28;color:var(--stone2)}
+.wp .c3 ol li::before{content:counter(q);position:absolute;left:0;top:5px;font-size:16px;color:var(--cu)}
+.wp .c3 ul li::before{content:"";position:absolute;left:4px;top:15px;width:12px;height:1px;background:var(--cu)}
+
+/* slide: what the development makes at an average of $875,000 */
+.wp .dv{position:absolute;left:960px;top:296px;width:864px}
+.wp .dv .r{position:relative;padding:12px 0 18px;border-top:1px solid var(--line)}
+.wp .dv .r .t{font-size:20px;color:var(--stone2);margin-bottom:9px}
+.wp .dv .r.hl .t{color:var(--bone)}
+.wp .dv .trk{position:relative;height:32px}
+.wp .dv .zero{position:absolute;left:456px;top:0;bottom:0;width:1px;background:var(--bone);opacity:.7}
+.wp .dv .bar{position:absolute;top:0;height:32px}
+.wp .dv .bar.pos{background:var(--cu)}
+.wp .dv .bar.neg{background:#6a665f}
+.wp .dv .r.hl .bar.neg{background:var(--bone)}
+.wp .dv .vl{position:absolute;top:0;line-height:32px;font-size:22px;font-variant-numeric:tabular-nums}
+.wp .dv .vl.n{left:472px;color:var(--bone)}
+.wp .dv .vl.p{left:470px;color:#1b1917;font-weight:400}
+.wp .dvband{position:absolute;left:96px;right:96px;top:668px;display:grid;grid-template-columns:600px 1fr;gap:56px;align-items:end}
+.wp .dvband .big{color:var(--bone)}
+.wp .dvband p{font-size:22px;line-height:1.4;color:var(--stone2)}
+.wp .dvband p b{font-weight:300;color:var(--cu)}
+.wp .dvband .fine{margin-top:12px;font-size:18px;color:var(--stone);line-height:1.4}
