@@ -540,7 +540,7 @@
   "arch": "Fraser & Partners (homes) \u00b7 Life Architecture (yield plan)",
   "tag": "A gate for the homes. A door for Belmont.",
   "hl": "Ninety four luxury townhomes behind one gate.",
-  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, Belmont Hall, a community church and convention centre, seats 800, with a 150 seat cafe and a 100 place day care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and precision manufactured by HAAVN in modules, with world class finishes and fully integrated automation, appliances and security in every home.",
+  "overview": "Belmont Estate is 94 luxury townhomes, from two to four bedrooms, behind a gated private entry at 48 Waurnvale Drive, Belmont, four kilometres from the centre of Geelong. Two private parks sit inside the gates. At the Colac Road corner, Belmont Hall, a community church and convention centre, seats 500, with a 150 seat cafe and a 110 place child care centre, open to the suburb through their own walking entry. The homes are four types, NOVA, AURA, ALTA and VIDA, designed by Fraser & Partners and precision manufactured by HAAVN in modules, with world class finishes and fully integrated automation, appliances and security in every home.",
   "facts": [
    [
     "Homes",
@@ -552,7 +552,7 @@
    ],
    [
     "Belmont Hall",
-    "800 seats"
+    "500 seats"
    ],
    [
     "Status",
@@ -572,7 +572,7 @@
    ],
    [
     "Belmont Hall",
-    "800 seats",
+    "500 seats",
     "Church and convention centre, on a 3,000 m\u00b2 site at the Colac Road corner"
    ],
    [
@@ -581,8 +581,8 @@
     "In the hall lobby, open to Belmont"
    ],
    [
-    "Day care centre",
-    "100 places",
+    "Child care centre",
+    "110 places",
     "Siting to be confirmed on the master plan"
    ],
    [
@@ -612,10 +612,10 @@
    ],
    [
     "A door for Belmont",
-    "Belmont Hall, the cafe and the day care centre sit at the Colac Road corner with their own walking entry."
+    "Belmont Hall, the cafe and the child care centre sit at the Colac Road corner with their own walking entry."
    ],
    [
-    "800 seats for the suburb",
+    "500 seats for the suburb",
     "A hall for worship, community events, weddings and conferences, four kilometres from the centre of Geelong."
    ],
    [
@@ -632,7 +632,7 @@
    ]
   ],
   "why": [
-   "A private estate with a public heart: the hall, cafe and day care bring daily activity to the Colac Road corner while the homes stay behind the gate",
+   "A private estate with a public heart: the hall, cafe and child care centre bring daily activity to the Colac Road corner while the homes stay behind the gate",
    "Four home types precision manufactured by HAAVN in standard modules, each with integrated automation, appliances and security",
    "Two frontages, two gates, and a separate walking entry for the community buildings",
    "An owner-occupier suburb: 61% of households are families and 63% own their home (2021 census)",
@@ -772,7 +772,7 @@
    },
    {
     "name": "Belmont Hall",
-    "note": "The church and convention centre. 800 seats, open to Belmont. Concept images.",
+    "note": "The church and convention centre. 500 seats, open to Belmont. Concept images.",
     "items": [
      {
       "src": "/hori7on-next/img/belmont/hall-estate.jpg",
@@ -838,8 +838,8 @@
     ]
    },
    {
-    "name": "The day care centre",
-    "note": "100 places. Siting to be confirmed on the master plan. Concept images.",
+    "name": "The child care centre",
+    "note": "110 places. Siting to be confirmed on the master plan. Concept images.",
     "items": [
      {
       "src": "/hori7on-next/img/belmont/childcare-yard.jpg",
@@ -888,10 +888,10 @@
    {
     "key": "",
     "label": "Project presentation",
-    "slides": 32,
-    "note": "The place, the master plan, the four homes, the hall, the parks, what it takes to build the church, and what comes next.",
-    "path": "/hori7on-next/decks/belmont/index.html",
-    "short": "Presentation"
+    "short": "Presentation",
+    "slides": 28,
+    "note": "The place, the master plan, the hall, the parks, what it takes to build the church, and what comes next.",
+    "path": "/hori7on-next/decks/belmont/index.html"
    },
    {
     "key": "viability",
