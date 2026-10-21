@@ -890,7 +890,16 @@
     "label": "Project presentation",
     "slides": 28,
     "note": "The place, the master plan, the four homes, the hall, the parks and what comes next.",
-    "path": "/hori7on-next/decks/belmont/index.html"
+    "path": "/hori7on-next/decks/belmont/index.html",
+    "short": "Presentation"
+   },
+   {
+    "key": "viability",
+    "label": "Viability numbers",
+    "short": "Viability",
+    "slides": 4,
+    "note": "What the project must achieve to be viable with the church included: the feasibility, the target prices against today's evidence, and what has to be true.",
+    "path": "/hori7on-next/decks/belmont-wpcc/index.html"
    }
   ]
  },
