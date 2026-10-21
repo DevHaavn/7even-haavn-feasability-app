@@ -905,13 +905,11 @@
   "gv": "$500M",
   "gdv": "$500M",
   "land": "6.4 ha",
-  "gfa": "120,870 m\u00b2",
   "keys": "1,000 apartments",
   "status": "Town planning \u00b7 fl\u014ddesign",
   "complete": "2032+",
-  "arch": "fl\u014ddesign",
   "tag": "The town centre of Australia's fastest-growing corridor.",
-  "overview": "575 Derrimut Road is a $500 million, 1,000-apartment master plan on 6.4 hectares at the corner of Leakes Road, Tarneit \u2014 the largest development in the area, in one of Australia's fastest-growing growth corridors. Sections 1\u20133 deliver six buildings and more than 120,000 m\u00b2: a Novotel hotel with 188 keys, function centre, restaurant, gym and pool; a dedicated health building pairing a doctors surgery and medical care with 150 aged-care suites; and four mixed-use buildings layering commercial offices, retail, food & beverage and apartments over an activated main-street ground plane. Tarneit railway station is minutes away \u2014 25 minutes to Melbourne CBD \u2014 with Tarneit Central, schools and the recreation precinct at the doorstep.",
+  "overview": "575 Derrimut Road is a $500 million, 1,000-apartment master plan on 6.4 hectares at the corner of Derrimut and Leakes Roads, Tarneit: the largest development in the area, in one of Australia's fastest-growing growth corridors. A row of apartment towers rises over a continuous retail podium, with an activated main street at the base: medical and wellness, a gym, cafes and convenience retail. Landscaped terraces on the podium roof give residents dining, barbecue and lounge space, and a tree-lined walkway cuts through between the buildings. Tarneit railway station is minutes away, 25 minutes to Melbourne CBD, with Tarneit Central, schools and the recreation precinct at the doorstep.",
   "stats": [
    [
     "End value",
@@ -921,27 +919,7 @@
    [
     "Apartments",
     "1,000",
-    "Master plan \u00b7 staged delivery"
-   ],
-   [
-    "Novotel hotel",
-    "188",
-    "Keys + 1,247 m\u00b2 function centre"
-   ],
-   [
-    "Health & aged care",
-    "20,058 m\u00b2",
-    "Doctors surgery \u00b7 150 aged-care suites"
-   ],
-   [
-    "Sections 1\u20133 GFA",
-    "120,870 m\u00b2",
-    "Six buildings \u00b7 hotel to 14 levels"
-   ],
-   [
-    "Commercial & retail",
-    "6,900 m\u00b2+",
-    "Offices, retail & F&B tenancies"
+    "Master plan \u00b7 towers over a retail podium"
    ],
    [
     "Site",
@@ -952,28 +930,38 @@
     "To Melbourne CBD",
     "25 min",
     "Tarneit station \u00b7 Geelong 35 min"
+   ],
+   [
+    "Ground plane",
+    "Retail",
+    "Medical and wellness, gym, cafe and convenience"
+   ],
+   [
+    "Podium roof",
+    "Terraces",
+    "Landscaped, with dining, barbecue and lounge"
    ]
   ],
   "points": [
    [
     "The largest development in the area",
-    "A $500M, 1,000-apartment town centre \u2014 unmatched scale in Melbourne's west."
+    "A $500M, 1,000-apartment town centre, unmatched in scale in Melbourne's west."
    ],
    [
     "Australia's fastest-growing corridor",
-    "Tarneit's population growth leads the nation \u2014 demand runs decades ahead of supply."
+    "Tarneit's population growth leads the nation, and demand runs decades ahead of supply."
    ],
    [
-    "A Novotel anchor",
-    "188 keys, function centre, restaurant and pool \u2014 the area's first branded hotel."
+    "A retail street at the door",
+    "Medical and wellness, a gym, cafes and convenience retail at street level, under the towers."
    ],
    [
-    "An integrated health precinct",
-    "Doctors surgery, medical care and 150 aged-care suites in a dedicated building."
+    "Terraces above the street",
+    "Landscaped podium roofs with dining, barbecue and lounge space for residents."
    ],
    [
     "Main-street living",
-    "Four mixed-use buildings with offices, retail and F&B under 1,000 new homes."
+    "A row of apartment towers over an activated ground plane: 1,000 new homes."
    ],
    [
     "25 minutes to the CBD",
@@ -981,11 +969,11 @@
    ]
   ],
   "why": [
-   "Scale monopoly \u2014 the area's largest development, first to market with hotel, health and town-centre amenity",
+   "Scale: the area's largest development, first to market with town-centre amenity",
    "1,000 apartments into a nation-leading growth corridor",
-   "Diversified income \u2014 hotel, medical, aged care, commercial, retail and residential",
+   "Diversified income: residential, retail, medical and wellness",
    "Staged sections de-risk delivery and fund forward phases",
-   "Transport-anchored \u2014 25 minutes to Melbourne CBD from Tarneit station"
+   "Transport-anchored: 25 minutes to Melbourne CBD from Tarneit station"
   ],
   "imgcaps": [
    "The towers at sunset, along the main road",
