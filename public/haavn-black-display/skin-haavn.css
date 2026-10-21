@@ -1,0 +1,90 @@
+/* ═══ HAAVN skin: the display in the HAAVN supply hub's own light design (html.skin-haavn) ═══
+   Paper ground, tablet panels, ink type, lime hairlines; photographs stay as they are. Chakra Petch for the big words,
+   JetBrains Mono for labels, Inter for the rest, as in the hub. */
+html.skin-haavn{
+  --paper:#cfccc6; --tablet:#fafbfa; --ink:#101010; --lime:#a8bc10; --lime-dp:#687808;
+  --c-black:#cfccc6;
+  --c-ink:#101010; --c-ink-2:#2c2c2c; --c-ink-3:#54564F; --c-ink-4:#6a6c6a;
+  --c-hairline:rgb(16 16 16 / .16); --c-border:rgb(16 16 16 / .34); --c-border-hover:#687808;
+  --c-led:#a8bc10; --c-led-core:#687808; --c-led-glow:rgb(168 188 16 / .45);
+  --c-gold:#687808; --c-gold-glow:rgb(168 188 16 / .4);
+  --glass-bg:rgb(250 251 250 / .86); --glass-highlight:inset 0 1px 0 rgb(255 255 255 / .7);
+  --notch-edge:rgb(16 16 16 / .3);
+  --c-day-ink:#101010; --c-day-ink-2:#2c2c2c; --c-day-gold:#687808; --c-day-signal:#8e2418;
+  --fade-out:linear-gradient(100deg,#101010 0%,#2c2c2c 40%,#54564F 74%,#6a6c6a 100%);
+  --fade-gold:linear-gradient(100deg,#101010 0%,#2c2c2c 40%,#4f5a0a 76%,#687808 100%);
+  --font-serif:'Chakra Petch','Inter',system-ui,sans-serif;
+  --c-burgundy:#8c3f46; --c-sage:#566b3d; --c-tide:#3d6a8c; --c-vine:#4c7a58;
+  --c-obsidian:#4d6378; --c-ivory:#8a7a55; --c-forge:#8c5a3e; --c-char:#54504b; --c-amber:#a45a1c; --c-urban:#687808;
+}
+html.skin-haavn,html.skin-haavn body{background:#cfccc6;color:#101010}
+html.skin-haavn body{font-family:'Inter',system-ui,sans-serif}
+/* big words in the hub's display face */
+html.skin-haavn :is(h1,h2,h3,.models__headline,.finish__story,.statement,.mysolum__title,.journey__title){font-family:'Chakra Petch','Inter',sans-serif;font-weight:500;letter-spacing:-.005em}
+
+/* the hero stays a photograph: light type on its dark foot */
+html.skin-haavn .launch,html.skin-haavn .backdrop{--c-ink:#fff;--c-ink-2:#e3e1da;--c-ink-3:#c8c6bf;--c-ink-4:#b9b7b0}
+html.skin-haavn .backdrop{background:#101010}
+html.skin-haavn .backdrop__scrim{background:
+  linear-gradient(0deg,rgb(16 16 16 / 1) 0%,rgb(16 16 16 / .95) 4%,rgb(16 16 16 / .7) 12%,rgb(16 16 16 / .42) 22%,rgb(16 16 16 / .16) 36%,transparent 56%),
+  linear-gradient(90deg,rgb(16 16 16 / .62) 0%,rgb(16 16 16 / .22) 34%,transparent 62%),linear-gradient(180deg,rgb(16 16 16 / .7) 0%,transparent 22%)}
+
+/* sections sit on paper; the pinned pictures fade into paper, not black */
+html.skin-haavn :is(.announce,.models,.interiors,.exteriors,.plan,.journey,.mysolum,.register,.faq){background:#cfccc6}
+html.skin-haavn .interior,html.skin-haavn .exterior{background:#b9b6b0}
+html.skin-haavn.has-scene .scene__hero::after,html.skin-haavn .has-scene .scene__hero::after{background:linear-gradient(180deg,#cfccc6 0%,rgb(207 204 198 / .96) 8%,rgb(207 204 198 / .9) 16%,rgb(207 204 198 / .82) 23%,rgb(207 204 198 / .7) 30%,rgb(207 204 198 / .55) 38%,rgb(207 204 198 / .38) 46%,rgb(207 204 198 / .22) 54%,rgb(207 204 198 / .1) 62%,rgb(207 204 198 / .03) 70%,transparent 78%)}
+html.skin-haavn .rule-top{border-top-color:rgb(16 16 16 / .2)}
+
+/* glass controls become tablets */
+html.skin-haavn :is(.button--glass,.swatch,.models__toggle,.scene-cue,.journey__arrow,.tray,.plan__chip,.mysolum__options-inner,.register__panel,.faq__panel){
+  background:rgb(250 251 250 / .74)!important;border-color:rgb(16 16 16 / .3)!important;color:#101010;box-shadow:0 10px 26px -20px rgb(16 16 16 / .6)!important;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html.skin-haavn .button{color:#101010}
+html.skin-haavn .button--glass:hover,html.skin-haavn .swatch:not(.is-pending):hover{background:#fff!important;border-color:#687808!important}
+html.skin-haavn .swatch.is-selected,html.skin-haavn .models__option.is-selected{background:#fff!important;border-color:#101010!important;box-shadow:inset 3px 0 0 #a8bc10, 0 10px 26px -20px rgb(16 16 16 / .6)!important;color:#101010}
+html.skin-haavn .tray__item,html.skin-haavn .tray__item:hover{color:#101010}
+html.skin-haavn .swatch{--swatch-colour:#101010}
+html.skin-haavn .swatch[data-variant="urban"]{--swatch-colour:#687808}
+/* buttons that sit on pictures keep the dark glass */
+html.skin-haavn :is(.peek,.peek--clock,.lb__btn,.lb__clock,.daylight__thumb){background:rgb(16 16 16 / .5)!important;border-color:rgb(255 255 255 / .55)!important;color:#fff}
+html.skin-haavn .interior__label,html.skin-haavn .exterior__caption{color:#fff}
+
+/* the room words and the key lines */
+html.skin-haavn .finish__key span,html.skin-haavn .finish__name{color:#687808}
+html.skin-haavn .eyebrow,html.skin-haavn .swatches__label{color:#54564F}
+
+/* the pale text-gradient headlines become solid ink */
+html.skin-haavn :is(.models__headline,.models__lede,.journey__headline,.mysolum__headline,.register__headline,.faq__headline,.legal__title){
+  background:none!important;-webkit-text-fill-color:currentColor!important;color:#101010!important}
+html.skin-haavn :is(.teaser__dim){background:none!important;-webkit-text-fill-color:currentColor!important;color:#54564F!important}
+html.skin-haavn :is(.teaser__lit){background:none!important;-webkit-text-fill-color:currentColor!important;color:#687808!important}
+
+html.skin-haavn :is(.finish__story,.palettes__line,.models__copy,.interior__caption){font-weight:400}
+html.skin-haavn .finish__story{font-size:inherit}
+
+/* ═══ the shell: header, menus, Present, the TV code screen ═══ */
+html.skin-haavn{--bone:#101010;--soft:rgba(16,16,16,.74);--faint:rgba(16,16,16,.6);--rule:rgba(16,16,16,.22);--atrium-gold:#687808}
+html.skin-haavn,html.skin-haavn body{background:#cfccc6}
+/* over the hero photograph the header is light; once the page scrolls it is a paper bar with ink type */
+html.skin-haavn body:not(.sc):not(.mo) #top{--bone:#fff;--soft:rgba(255,255,255,.86);--faint:rgba(255,255,255,.7)}
+html.skin-haavn body.sc #top{background:rgb(207 204 198 / .88);border-bottom-color:rgba(16,16,16,.2)}
+html.skin-haavn #logo .wordmark__mark{aspect-ratio:2400 / 281;background:#101010;
+  -webkit-mask:url(img/skin/haavn-wordmark.png) center / contain no-repeat;mask:url(img/skin/haavn-wordmark.png) center / contain no-repeat}
+html.skin-haavn body:not(.sc):not(.mo) #logo .wordmark__mark{background:#fff}
+html.skin-haavn #wash{background:linear-gradient(90deg,rgba(207,204,198,.97) 0%,rgba(207,204,198,.9) 38%,rgba(207,204,198,.66) 72%,rgba(207,204,198,.5) 100%)}
+html.skin-haavn .menu .mi,html.skin-haavn .pr__row{border-top-color:rgba(16,16,16,.22)}
+html.skin-haavn .menu .mi .nm,html.skin-haavn .pr__row .n{font-family:'Chakra Petch','Inter',sans-serif;font-weight:500;letter-spacing:.01em}
+html.skin-haavn .menu .mi:hover,html.skin-haavn button.pr__row:hover{border-top-color:#a8bc10}
+html.skin-haavn .menu .mi:hover .nm,html.skin-haavn button.pr__row:hover .n{color:#687808}
+html.skin-haavn .menu .mi:hover .ln{color:#2c2c2c}
+html.skin-haavn .menu .mi[aria-current="true"] .nm{color:#101010}
+html.skin-haavn .pr__live.on i{background:#687808}
+html.skin-haavn #pairIn{color:#101010}
+html.skin-haavn #gate{background:#cfccc6}
+html.skin-haavn #gate .code{font-family:'Chakra Petch','Inter',sans-serif;font-weight:600;color:#101010}
+
+html.skin-haavn .is-preview img{filter:brightness(.82) saturate(.7)}
+
+/* the SOLUM floor plans are white line drawings for a dark slab: on paper they are drawn in ink, with no glow under them */
+html.skin-haavn img[src*="img/plans/"]{filter:invert(1);opacity:.88}
+html.skin-haavn .plan__drawing::before,html.skin-haavn .plan__stage::after{display:none}

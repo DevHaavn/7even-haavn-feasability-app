@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <title>HAAVN BLACK</title>
+<script>(function(){if(/[?&]skin=haavn\b/.test(location.search)){document.documentElement.classList.add("skin-haavn");document.write('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="skin-haavn.css?v=20261021a">')}})()</script>
 <style>/* ---- src/css/tokens.css ---- */
 /* =========================================================================
    Design tokens
@@ -835,9 +836,9 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
 (function () {
   'use strict';
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
-  var Q = new URLSearchParams(location.search), TV = Q.has('tv');
+  var Q = new URLSearchParams(location.search), TV = Q.has('tv'), SKIN = Q.get('skin') === 'haavn';
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261020a';
+  var SOLV = '20261021a';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -929,7 +930,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (ROOM) return;
     ROOM = (Math.random().toString(36).replace(/[^a-z]/g, '') + 'xyzw').slice(0, 4).toUpperCase();
     var g = document.createElement('div'); g.id = 'gate';
-    g.innerHTML = '<div><div class="eb">HAAVN BLACK</div><div class="code">' + ROOM + '</div><p>On your phone, iPad or laptop, open the display, press <b>Present</b> and type this code.<br>This screen then follows you.</p><p class="st">Waiting for a device</p></div>';
+    g.innerHTML = '<div><div class="eb">' + (SKIN ? 'HAAVN DISPLAY' : 'HAAVN BLACK') + '</div><div class="code">' + ROOM + '</div><p>On your phone, iPad or laptop, open the display, press <b>Present</b> and type this code.<br>This screen then follows you.</p><p class="st">Waiting for a device</p></div>';
     document.body.appendChild(g); watchT = setInterval(watch, 1000);
   }
   function hideGate() { var g = $('#gate'); if (g) g.remove() }
@@ -975,7 +976,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (loaded !== want) {
       loaded = want; ready = false;
       try { sessionStorage.removeItem('haavn-my-solum') } catch (e) {}
-      f.src = want + '?v=' + SOLV + (TV ? '&tv=1' : '');
+      f.src = want + '?v=' + SOLV + (TV ? '&tv=1' : '') + (SKIN ? '&skin=haavn' : '');
     }
   }
   function open(h) {
@@ -1045,7 +1046,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (t.id === 'retBtn') { try { parent.postMessage('haavn-ds-close', '*') } catch (x) {} return }
     if (t.id === 'mdX') { closeModal(); return }
     if (t.id === 'presentBtn') { var p = $('#present'), on = !p.classList.contains('on'); closeMenus(); p.classList.toggle('on', on); t.setAttribute('aria-expanded', on); wash(); return }
-    if (t.id === 'tvOpen') { var w = window.open(location.pathname + '?tv=1', 'hb-tv', 'width=1280,height=720'); if (w) { wins.push(w); setTimeout(broadcast, 900) } return }
+    if (t.id === 'tvOpen') { var w = window.open(location.pathname + '?tv=1' + (SKIN ? '&skin=haavn' : ''), 'hb-tv', 'width=1280,height=720'); if (w) { wins.push(w); setTimeout(broadcast, 900) } return }
     if (t.id === 'pairGo') { var c = ($('#pairIn').value || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); if (c.length !== 4) { pairStatus('Type the four letters shown on the TV'); return } ROOM = c; paired = true; pairStatus('Connecting to TV ' + c); relay(); return }
     if (t.id === 'pairStop') { paired = false; ROOM = null; pairStatus('Not paired'); return }
     if (t.id === 'fsBtn') { fs(); return }
@@ -1053,7 +1054,8 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     if (!t.closest('#present') && !t.closest('.menu')) closeMenus();
   });
   $('#pairIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#pairGo').click(); e.stopPropagation() });
-  $('#pairUrl').textContent = (APP ? location.origin + location.pathname + '?tv=1' : 'the address of this page, with ?tv=1 on the end');
+  $('#pairUrl').textContent = (APP ? location.origin + location.pathname + '?tv=1' + (SKIN ? '&skin=haavn' : '') : 'the address of this page, with ?tv=1 on the end');
+  if (SKIN) document.title = 'HAAVN DISPLAY'
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return; if (e.target && e.target.tagName === 'INPUT') return;
     if (e.key === 'f' || e.key === 'F') fs(); else if (e.key === 'Escape') { closeMenus(); closeModal() }

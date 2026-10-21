@@ -960,7 +960,7 @@ var MEDIA = [
     { id:'octa', r:'concept', n:'Octa', l:'3 bed · 2 bath' }, { id:'octaplus', r:'concept', n:'Octa Plus', l:'6 bed · 4 living' }, { id:'octaurban', r:'concept', n:'Octa Urban', l:'Two storey courtyard' },
     { id:'wellness', r:'concept', n:'Wellness', l:'Sauna · steam · spa' }, { id:'golf', r:'concept', n:'Golf hub', l:'Simulator · bar · lounge' }, { id:'concept', r:'concept', n:'Studio concept', l:'Heavy · Light' }
   ];
-  var HD_URL = '/haavn-black-display/index.html?v=20261020a';   /* the display suite; bump v= with the display */
+  var HD_URL = '/haavn-black-display/index.html?v=20261021a&skin=haavn';   /* the display suite in the HAAVN skin; bump v= with the display */
   function hdCard(m, i){
     return '<button class="dsp" data-id="' + m.id + '">' +
       (m.soon ? '<span class="dsp__f soon"><img src="assets/haavnau/hvn-device-green.png" alt=""><span class="tag">Renders in progress</span></span>' : '<span class="dsp__f" style="background-image:url(assets/display/' + m.id + '.jpg)"></span>') +
