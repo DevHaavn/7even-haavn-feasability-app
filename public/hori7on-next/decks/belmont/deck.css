@@ -380,3 +380,37 @@ html.print .csnd{display:none}
 .wp .dvband p{font-size:22px;line-height:1.4;color:var(--stone2)}
 .wp .dvband p b{font-weight:300;color:var(--cu)}
 .wp .dvband .fine{margin-top:12px;font-size:18px;color:var(--stone);line-height:1.4}
+
+/* ── Church income (23 Oct): your return as landlord, two pages after the numbers ── */
+.wp .ci-sub{position:absolute;left:96px;top:226px;width:1600px;font-size:22px;line-height:1.4;color:var(--stone)}
+.wp .ci-kp{position:absolute;left:96px;right:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:56px}
+.wp .ci-kp>div{border-top:1px solid var(--line2);padding-top:18px}
+.wp .ci-kp b{display:block;font-weight:300;font-size:44px;line-height:1.05;letter-spacing:-.04em;white-space:nowrap;color:var(--bone)}
+.wp .ci-kp>div.cu b{color:var(--cu)}
+.wp .ci-kp span{display:block;margin-top:10px;font-size:22px;line-height:1.3;color:var(--stone2)}
+.wp .ci-t{width:100%;border-collapse:collapse}
+.wp .ci-t th{font-weight:300;font-size:18px;line-height:1.25;color:var(--stone);text-align:left;padding:0 16px 9px 0;border-bottom:1px solid var(--line2);vertical-align:bottom}
+.wp .ci-t td{padding:8px 16px 8px 0;border-bottom:1px solid var(--line);font-size:21px;line-height:1.3;color:var(--stone2);vertical-align:middle}
+.wp .ci-t th.r,.wp .ci-t td.r{text-align:right;padding-right:0}
+.wp .ci-t td.r{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--bone)}
+.wp .ci-t tr.tot td{border-top:1px solid var(--line2);border-bottom:2px solid var(--cu);color:var(--bone)}
+.wp .ci-t tr.tot td.r{color:var(--cu)}
+.wp .ci-t td.r+td,.wp .ci-t th.r+th{padding-left:26px}
+.wp .ci-ch .ci-r{padding:12px 0 14px;border-top:1px solid var(--line)}
+.wp .ci-ch .ci-n{font-size:23px;color:var(--bone);margin-bottom:8px}
+.wp .ci-ch .ci-l{display:grid;grid-template-columns:90px 560px 1fr;align-items:center;gap:14px;height:30px}
+.wp .ci-ch .ci-l .g{font-size:18px;color:var(--stone)}
+.wp .ci-ch .ci-l .trk{position:relative;height:14px;background:rgba(243,242,238,.07)}
+.wp .ci-ch .ci-l .trk i{position:absolute;top:0;bottom:0;background:var(--cu)}
+.wp .ci-ch .ci-l.y10 .trk i{background:#a5a39e}
+.wp .ci-ch .ci-l .v{font-size:20px;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--bone)}
+.wp .ci-ch .ci-r.hl .ci-n{color:var(--cu)}
+.wp .ci-ch .ci-ax{display:grid;grid-template-columns:90px 560px 1fr;gap:14px;margin-top:8px;font-size:16px;color:var(--stone)}
+.wp .ci-ch .ci-ax div{position:relative;height:20px}
+.wp .ci-ch .ci-ax span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.wp .ci-ch .ci-ax span:first-child{transform:none}
+.wp .ci-ch .ci-ax span:last-child{transform:translateX(-100%)}
+.wp .ci-mean{font-size:23px;line-height:1.5;color:var(--stone2)}
+.wp .ci-mean b{font-weight:300;color:var(--bone)}
+.wp .ci-mean b.c{color:var(--cu)}
+.wp .ci-fn{position:absolute;left:96px;width:1728px;font-size:18px;line-height:1.42;color:var(--stone)}
