@@ -971,7 +971,8 @@ var MEDIA = [
   ];
   /* concept types we show developers in the HAAVN business: one waiting tile each until the first concept is supplied */
   var HD_DEV = [
-    { k:'hotel',       h:'#/display/hotel',                kick:'HOTEL',                 t:'Hotel',                 l:'First hotel coming',  d:'A concept type to show developers. The first hotel is coming soon.' },
+    { k:'hotel',       h:'#/display/hotel',                kick:'HOTEL',                 t:'Hotel',                 l:'First hotel coming',  d:'A concept type to show developers. Hotel and apartment hotel projects.',
+      homes:[{ id:'better-living', n:'Better Living Hotel Project', l:'Mildura · 33 suites · 66 keys', deck:'presentations/better-living/index.html' }] },
     { k:'student',     h:'#/display/student-accommodation', kick:'STUDENT ACCOMMODATION', t:'Student accommodation', l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
     { k:'aged',        h:'#/display/aged-care',            kick:'AGED CARE',             t:'Aged care',             l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
     { k:'independent', h:'#/display/independent-living',   kick:'INDEPENDENT LIVING',    t:'Independent living',    l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' }
@@ -998,26 +999,28 @@ var MEDIA = [
       return '<div class="hdsec"><div class="hdsec__h"><div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div>' +
         '<div class="hdsec__n">' + homes.length + ' homes</div></div><div class="hdgrid">' + homes.map(hdCard).join('') + '</div></div>';
     }).join('') + (dev.length ? '<div class="hdgrp"><span>For developers</span><i>Concepts we show developers in the HAAVN business</i></div>' + dev.map(function(r){
+      var hs = (r.homes || []).map(function(m){ m.rk = r.kick; return m; });
       return '<div class="hdsec"><div class="hdsec__h"><div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div>' +
-        '<div class="hdsec__n">First concept coming</div></div><div class="hdgrid">' + hdSoon(r) + '</div></div>';
+        '<div class="hdsec__n">' + (hs.length ? hs.length + (hs.length === 1 ? ' project' : ' projects') : 'First concept coming') + '</div></div><div class="hdgrid">' + (hs.length ? hs.map(hdCard).join('') : hdSoon(r)) + '</div></div>';
     }).join('') : '');
     $('#hdSw').innerHTML = [{ k:'all', t:'All', n:HD_HOMES.length, h:'#/display' }].concat(HD_RANGES.map(function(r){
       return { k:r.k, t:r.t, n:HD_HOMES.filter(function(m){ return m.r === r.k; }).length, h:r.h };
-    })).concat(HD_DEV.map(function(r){ return { k:r.k, t:r.t, n:'soon', h:r.h }; })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
+    })).concat(HD_DEV.map(function(r){ return { k:r.k, t:r.t, n:(r.homes ? r.homes.length : 'soon'), h:r.h }; })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
     $('#hdCount').textContent = HD_HOMES.length + ' homes · 3 ranges · ' + HD_DEV.length + ' developer concepts';
   }
   window.hdShow = function(r){ hdRange = r; hdRender(); };
   hdRender();
   $('#hdShelves').addEventListener('click', function(e){
     var b = e.target.closest('.dsp'); if (!b || !b.dataset.id) return;
-    var m = HD_HOMES.filter(function(x){ return x.id === b.dataset.id; })[0];
-    openLb({ kind:'page', src: HD_URL + '#s=home&h=' + m.id, t:'HAAVN Display · ' + m.n });
+    var pool = HD_HOMES.slice(); HD_DEV.forEach(function(r){ (r.homes || []).forEach(function(h){ pool.push(h); }); });
+    var m = pool.filter(function(x){ return x.id === b.dataset.id; })[0];
+    openLb({ kind:'page', src: m.deck ? m.deck : HD_URL + '#s=home&h=' + m.id, t:'HAAVN Display · ' + m.n });
   });
   /* the display's own Return button asks its host to close it */
   window.addEventListener('message', function(e){ if (e.data === 'haavn-ds-close') closeLb(); });
   $('#mDispDrop').innerHTML = [{ h:'#/display', t:'All homes', s:HD_HOMES.length + ' homes' }].concat(HD_RANGES.map(function(r){
     return { h:r.h, t:r.t, s:HD_HOMES.filter(function(m){ return m.r === r.k; }).length + ' homes' };
-  })).concat([{ label:'For developers' }]).concat(HD_DEV.map(function(r){ return { h:r.h, t:r.t, s:r.l }; })).map(function(x){
+  })).concat([{ label:'For developers' }]).concat(HD_DEV.map(function(r){ return { h:r.h, t:r.t, s:(r.homes ? r.homes.length + (r.homes.length === 1 ? ' project' : ' projects') : r.l) }; })).map(function(x){
     return x.label ? '<div class="msubh">' + x.label + '</div>' : '<a class="msub" href="' + x.h + '"><span><b>' + x.t + '</b><i>' + x.s + '</i></span><span class="g">&#8594;</span></a>';
   }).join('');
 
