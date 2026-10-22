@@ -567,6 +567,15 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
   font-size:12.5px;line-height:1.7;color:var(--ink-2)}
 .hdnote b{display:block;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--lime-txt);font-weight:400;margin-bottom:6px}
 .hdnote kbd{font-family:var(--f-mono);font-size:10px;padding:1px 6px;border:1px solid var(--hair);border-radius:2px;background:#fff;color:var(--ink)}
+/* developer concepts: a group under the ranges, one waiting tile each until the first concept arrives */
+.hdgrp{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.hdgrp span{font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2vw,22px);letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.hdgrp i{font-style:normal;font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-4)}
+.hdgrp+.hdsec{margin-top:26px}
+.dsp--ghost{cursor:default}
+.dsp--ghost:hover{transform:none;border-color:var(--hair);background:var(--tablet);box-shadow:0 12px 30px -26px rgba(16,16,16,.65)}
+.dsp--ghost:hover .dsp__f::after{background:rgba(16,16,16,.06)}
+.mdrop .msubh{padding:16px 0 7px 14px;border-top:1px solid rgba(20,22,18,.14);font:400 9px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.32em;text-transform:uppercase;color:var(--lime-txt)}
 </style>
 <link rel="stylesheet" href="/atrium-refresh.css">
 <script src="/atrium-refresh.js" defer></script>
@@ -665,7 +674,7 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
           <div>
             <div class="pk">HAAVN Display</div>
             <h1>The display.</h1>
-            <p>Every HAAVN home at full size, built to show a client: the Black Series, Essentials and Concepts. Choose a range, then a home. Inside a home, Present puts it on a TV.</p>
+            <p>Every HAAVN home at full size, built to show a client: the Black Series, Essentials and Concepts. Choose a range, then a home. Inside a home, Present puts it on a TV. For developers: Hotel, Student accommodation, Aged care and Independent living, the first concepts coming.</p>
           </div>
           <div class="cnt" id="hdCount"></div>
         </div>
@@ -960,6 +969,13 @@ var MEDIA = [
     { id:'octa', r:'concept', n:'Octa', l:'3 bed · 2 bath' }, { id:'octaplus', r:'concept', n:'Octa Plus', l:'6 bed · 4 living' }, { id:'octaurban', r:'concept', n:'Octa Urban', l:'Two storey courtyard' },
     { id:'wellness', r:'concept', n:'Wellness', l:'Sauna · steam · spa' }, { id:'golf', r:'concept', n:'Golf hub', l:'Simulator · bar · lounge' }, { id:'concept', r:'concept', n:'Studio concept', l:'Heavy · Light' }
   ];
+  /* concept types we show developers in the HAAVN business: one waiting tile each until the first concept is supplied */
+  var HD_DEV = [
+    { k:'hotel',       h:'#/display/hotel',                kick:'HOTEL',                 t:'Hotel',                 l:'First hotel coming',  d:'A concept type to show developers. The first hotel is coming soon.' },
+    { k:'student',     h:'#/display/student-accommodation', kick:'STUDENT ACCOMMODATION', t:'Student accommodation', l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
+    { k:'aged',        h:'#/display/aged-care',            kick:'AGED CARE',             t:'Aged care',             l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
+    { k:'independent', h:'#/display/independent-living',   kick:'INDEPENDENT LIVING',    t:'Independent living',    l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' }
+  ];
   var HD_URL = '/haavn-black-display/index.html?v=20261021a&skin=haavn';   /* the display suite in the HAAVN skin; bump v= with the display */
   function hdCard(m, i){
     return '<button class="dsp" data-id="' + m.id + '">' +
@@ -968,23 +984,32 @@ var MEDIA = [
       '<span class="dsp__t">' + esc(m.n) + '</span>' +
       '<span class="dsp__m"><span>' + esc(m.l) + '</span><span class="ar">&#8594;</span></span></span></button>';
   }
+  function hdSoon(r){
+    return '<div class="dsp dsp--ghost"><span class="dsp__f soon"><img src="assets/haavnau/hvn-device-green.png" alt=""><span class="tag">First concept coming</span></span>' +
+      '<span class="dsp__b"><span class="dsp__k"><span>01</span><span>' + esc(r.kick) + '</span></span><span class="dsp__t">' + esc(r.t) + '</span>' +
+      '<span class="dsp__m"><span>' + esc(r.l) + '</span></span></span></div>';
+  }
   var hdRange = 'all';
   function hdRender(){
     var shown = HD_RANGES.filter(function(r){ return hdRange === 'all' || hdRange === r.k; });
+    var dev = HD_DEV.filter(function(r){ return hdRange === 'all' || hdRange === r.k; });
     $('#hdShelves').innerHTML = shown.map(function(r){
       var homes = HD_HOMES.filter(function(m){ return m.r === r.k; }).map(function(m){ m.rk = r.kick; return m; });
       return '<div class="hdsec"><div class="hdsec__h"><div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div>' +
         '<div class="hdsec__n">' + homes.length + ' homes</div></div><div class="hdgrid">' + homes.map(hdCard).join('') + '</div></div>';
-    }).join('');
+    }).join('') + (dev.length ? '<div class="hdgrp"><span>For developers</span><i>Concepts we show developers in the HAAVN business</i></div>' + dev.map(function(r){
+      return '<div class="hdsec"><div class="hdsec__h"><div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div>' +
+        '<div class="hdsec__n">First concept coming</div></div><div class="hdgrid">' + hdSoon(r) + '</div></div>';
+    }).join('') : '');
     $('#hdSw').innerHTML = [{ k:'all', t:'All', n:HD_HOMES.length, h:'#/display' }].concat(HD_RANGES.map(function(r){
       return { k:r.k, t:r.t, n:HD_HOMES.filter(function(m){ return m.r === r.k; }).length, h:r.h };
-    })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
-    $('#hdCount').textContent = HD_HOMES.length + ' homes · 3 ranges';
+    })).concat(HD_DEV.map(function(r){ return { k:r.k, t:r.t, n:'soon', h:r.h }; })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
+    $('#hdCount').textContent = HD_HOMES.length + ' homes · 3 ranges · ' + HD_DEV.length + ' developer concepts';
   }
   window.hdShow = function(r){ hdRange = r; hdRender(); };
   hdRender();
   $('#hdShelves').addEventListener('click', function(e){
-    var b = e.target.closest('.dsp'); if (!b) return;
+    var b = e.target.closest('.dsp'); if (!b || !b.dataset.id) return;
     var m = HD_HOMES.filter(function(x){ return x.id === b.dataset.id; })[0];
     openLb({ kind:'page', src: HD_URL + '#s=home&h=' + m.id, t:'HAAVN Display · ' + m.n });
   });
@@ -992,7 +1017,9 @@ var MEDIA = [
   window.addEventListener('message', function(e){ if (e.data === 'haavn-ds-close') closeLb(); });
   $('#mDispDrop').innerHTML = [{ h:'#/display', t:'All homes', s:HD_HOMES.length + ' homes' }].concat(HD_RANGES.map(function(r){
     return { h:r.h, t:r.t, s:HD_HOMES.filter(function(m){ return m.r === r.k; }).length + ' homes' };
-  })).map(function(x){ return '<a class="msub" href="' + x.h + '"><span><b>' + x.t + '</b><i>' + x.s + '</i></span><span class="g">&#8594;</span></a>'; }).join('');
+  })).concat([{ label:'For developers' }]).concat(HD_DEV.map(function(r){ return { h:r.h, t:r.t, s:r.l }; })).map(function(x){
+    return x.label ? '<div class="msubh">' + x.label + '</div>' : '<a class="msub" href="' + x.h + '"><span><b>' + x.t + '</b><i>' + x.s + '</i></span><span class="g">&#8594;</span></a>';
+  }).join('');
 
   /* ---- content ------------------------------------------------------- */
   $('#mediaShelves').innerHTML = MEDIA_GROUPS.map(function(g){
@@ -1074,10 +1101,14 @@ var MEDIA = [
     '#/':              { el:'#vHome', kicker:'Modular Supply &nbsp;·&nbsp; CCIST Manufacturing &nbsp;·&nbsp; Melbourne' },
     '#/projects':      { el:'#vPres', kicker:'Projects &nbsp;·&nbsp; Client Decks &nbsp;·&nbsp; HAAVN Supply' },
     '#/presentations': { el:'#vCompany', kicker:'Presentations &nbsp;·&nbsp; Who HAAVN Is &nbsp;·&nbsp; Capability' },
-    '#/display':       { el:'#vDisplay', range:'all', kicker:'HAAVN Display &nbsp;·&nbsp; Black Series &nbsp;·&nbsp; Essentials &nbsp;·&nbsp; Concepts' },
+    '#/display':       { el:'#vDisplay', range:'all', kicker:'HAAVN Display &nbsp;·&nbsp; Black Series &nbsp;·&nbsp; Essentials &nbsp;·&nbsp; Concepts &nbsp;·&nbsp; For developers' },
     '#/display/black': { el:'#vDisplay', range:'black', kicker:'HAAVN Display &nbsp;·&nbsp; Black Series' },
     '#/display/essentials': { el:'#vDisplay', range:'ess', kicker:'HAAVN Display &nbsp;·&nbsp; Essentials' },
     '#/display/concepts': { el:'#vDisplay', range:'concept', kicker:'HAAVN Display &nbsp;·&nbsp; Concepts' },
+    '#/display/hotel': { el:'#vDisplay', range:'hotel', kicker:'HAAVN Display &nbsp;·&nbsp; For developers &nbsp;·&nbsp; Hotel' },
+    '#/display/student-accommodation': { el:'#vDisplay', range:'student', kicker:'HAAVN Display &nbsp;·&nbsp; For developers &nbsp;·&nbsp; Student accommodation' },
+    '#/display/aged-care': { el:'#vDisplay', range:'aged', kicker:'HAAVN Display &nbsp;·&nbsp; For developers &nbsp;·&nbsp; Aged care' },
+    '#/display/independent-living': { el:'#vDisplay', range:'independent', kicker:'HAAVN Display &nbsp;·&nbsp; For developers &nbsp;·&nbsp; Independent living' },
     '#/content':       { el:'#vContent', kicker:'Content &nbsp;·&nbsp; Film, Imagery &amp; 3D Assets' },
     '#/documents':     { el:'#vDocs', kicker:'Documents &nbsp;·&nbsp; Brand &amp; Technical Library' }
   };
