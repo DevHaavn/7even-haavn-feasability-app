@@ -572,6 +572,11 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
 .hdgrp span{font-family:var(--f-display);font-weight:600;font-size:clamp(18px,2vw,22px);letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
 .hdgrp i{font-style:normal;font-family:var(--f-mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-4)}
 .hdgrp+.hdsec{margin-top:26px}
+.hdt{display:flex;gap:20px;align-items:flex-start}.hdico{width:58px;height:58px;flex:none;margin-top:2px}
+.hdchip .chico{width:15px;height:15px;margin:-2px 0 -2px -2px}
+.mdrop .msico{width:15px;height:15px;margin-right:9px;vertical-align:-2px}
+.dsp__ic{position:absolute;right:12px;top:12px;z-index:2;width:44px;height:44px;display:grid;place-items:center;background:rgba(250,251,250,.94)}
+.dsp__ic img{width:30px;height:30px}
 .dsp--ghost{cursor:default}
 .dsp--ghost:hover{transform:none;border-color:var(--hair);background:var(--tablet);box-shadow:0 12px 30px -26px rgba(16,16,16,.65)}
 .dsp--ghost:hover .dsp__f::after{background:rgba(16,16,16,.06)}
@@ -971,8 +976,8 @@ var MEDIA = [
   ];
   /* concept types we show developers in the HAAVN business: one waiting tile each until the first concept is supplied */
   var HD_DEV = [
-    { k:'hotel',       h:'#/display/hotel',                kick:'HOTEL',                 t:'Hotel',                 l:'First hotel coming',  d:'A concept type to show developers. Hotel and apartment hotel projects.',
-      homes:[{ id:'better-living', n:'Better Living Hotel Project', l:'Mildura · 33 suites · 66 keys', deck:'presentations/better-living/index.html' }] },
+    { k:'hotel',       h:'#/display/hotel',  icon:'assets/display/hotels-icon.png',                kick:'HOTEL',                 t:'Hotel',                 l:'First hotel coming',  d:'A concept type to show developers. Hotel and apartment hotel projects.',
+      homes:[{ id:'better-living', n:'Better Living Hotel Project', l:'Mildura · 33 suites · 66 keys', deck:'presentations/better-living/index.html', icon:'assets/display/hotels-icon.png' }] },
     { k:'student',     h:'#/display/student-accommodation', kick:'STUDENT ACCOMMODATION', t:'Student accommodation', l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
     { k:'aged',        h:'#/display/aged-care',            kick:'AGED CARE',             t:'Aged care',             l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' },
     { k:'independent', h:'#/display/independent-living',   kick:'INDEPENDENT LIVING',    t:'Independent living',    l:'First one coming',    d:'A concept type to show developers. The first concept is coming.' }
@@ -980,7 +985,7 @@ var MEDIA = [
   var HD_URL = '/haavn-black-display/index.html?v=20261021a&skin=haavn';   /* the display suite in the HAAVN skin; bump v= with the display */
   function hdCard(m, i){
     return '<button class="dsp" data-id="' + m.id + '">' +
-      (m.soon ? '<span class="dsp__f soon"><img src="assets/haavnau/hvn-device-green.png" alt=""><span class="tag">Renders in progress</span></span>' : '<span class="dsp__f" style="background-image:url(assets/display/' + m.id + '.jpg)"></span>') +
+      (m.soon ? '<span class="dsp__f soon"><img src="assets/haavnau/hvn-device-green.png" alt=""><span class="tag">Renders in progress</span></span>' : '<span class="dsp__f" style="background-image:url(assets/display/' + m.id + '.jpg)">' + (m.icon ? '<span class="dsp__ic"><img src="' + m.icon + '" alt="HAAVN Hotels"></span>' : '') + '</span>') +
       '<span class="dsp__b"><span class="dsp__k"><span>' + String(i + 1).padStart(2, '0') + '</span><span>' + esc(m.rk) + '</span></span>' +
       '<span class="dsp__t">' + esc(m.n) + '</span>' +
       '<span class="dsp__m"><span>' + esc(m.l) + '</span><span class="ar">&#8594;</span></span></span></button>';
@@ -1000,12 +1005,12 @@ var MEDIA = [
         '<div class="hdsec__n">' + homes.length + ' homes</div></div><div class="hdgrid">' + homes.map(hdCard).join('') + '</div></div>';
     }).join('') + (dev.length ? '<div class="hdgrp"><span>For developers</span><i>Concepts we show developers in the HAAVN business</i></div>' + dev.map(function(r){
       var hs = (r.homes || []).map(function(m){ m.rk = r.kick; return m; });
-      return '<div class="hdsec"><div class="hdsec__h"><div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div>' +
+      return '<div class="hdsec"><div class="hdsec__h"><div class="hdt">' + (r.icon ? '<img class="hdico" src="' + r.icon + '" alt="HAAVN ' + esc(r.t) + ' icon">' : '') + '<div><div class="pk">' + r.kick + '</div><h2>' + r.t + '</h2><p>' + esc(r.d) + '</p></div></div>' +
         '<div class="hdsec__n">' + (hs.length ? hs.length + (hs.length === 1 ? ' project' : ' projects') : 'First concept coming') + '</div></div><div class="hdgrid">' + (hs.length ? hs.map(hdCard).join('') : hdSoon(r)) + '</div></div>';
     }).join('') : '');
     $('#hdSw').innerHTML = [{ k:'all', t:'All', n:HD_HOMES.length, h:'#/display' }].concat(HD_RANGES.map(function(r){
       return { k:r.k, t:r.t, n:HD_HOMES.filter(function(m){ return m.r === r.k; }).length, h:r.h };
-    })).concat(HD_DEV.map(function(r){ return { k:r.k, t:r.t, n:(r.homes ? r.homes.length : 'soon'), h:r.h }; })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
+    })).concat(HD_DEV.map(function(r){ return { k:r.k, t:r.t, n:(r.homes ? r.homes.length : 'soon'), h:r.h, icon:r.icon }; })).map(function(c){ return '<a class="hdchip' + (hdRange === c.k ? ' on' : '') + '" href="' + c.h + '">' + (c.icon ? '<img class="chico" src="' + c.icon + '" alt="">' : '') + c.t + ' <i>' + c.n + '</i></a>'; }).join('');
     $('#hdCount').textContent = HD_HOMES.length + ' homes · 3 ranges · ' + HD_DEV.length + ' developer concepts';
   }
   window.hdShow = function(r){ hdRange = r; hdRender(); };
@@ -1020,8 +1025,8 @@ var MEDIA = [
   window.addEventListener('message', function(e){ if (e.data === 'haavn-ds-close') closeLb(); });
   $('#mDispDrop').innerHTML = [{ h:'#/display', t:'All homes', s:HD_HOMES.length + ' homes' }].concat(HD_RANGES.map(function(r){
     return { h:r.h, t:r.t, s:HD_HOMES.filter(function(m){ return m.r === r.k; }).length + ' homes' };
-  })).concat([{ label:'For developers' }]).concat(HD_DEV.map(function(r){ return { h:r.h, t:r.t, s:(r.homes ? r.homes.length + (r.homes.length === 1 ? ' project' : ' projects') : r.l) }; })).map(function(x){
-    return x.label ? '<div class="msubh">' + x.label + '</div>' : '<a class="msub" href="' + x.h + '"><span><b>' + x.t + '</b><i>' + x.s + '</i></span><span class="g">&#8594;</span></a>';
+  })).concat([{ label:'For developers' }]).concat(HD_DEV.map(function(r){ return { h:r.h, t:r.t, icon:r.icon, s:(r.homes ? r.homes.length + (r.homes.length === 1 ? ' project' : ' projects') : r.l) }; })).map(function(x){
+    return x.label ? '<div class="msubh">' + x.label + '</div>' : '<a class="msub" href="' + x.h + '"><span><b>' + (x.icon ? '<img class="msico" src="' + x.icon + '" alt="">' : '') + x.t + '</b><i>' + x.s + '</i></span><span class="g">&#8594;</span></a>';
   }).join('');
 
   /* ---- content ------------------------------------------------------- */

@@ -6,7 +6,7 @@
   if(print)root.classList.add('print');
   if(framed)root.classList.add('framed');
   var stage=document.getElementById('stage'),S=[].slice.call(document.querySelectorAll('.slide')),N=S.length,cur=-1,prog=[];
-  var WM=document.getElementById('stage').getAttribute('data-wm');
+  var WM=document.getElementById('stage').getAttribute('data-wm'),ICO=document.getElementById('stage').getAttribute('data-ico');
   function pad(n){return n<10?'0'+n:''+n}
   function fit(){if(print)return;stage.style.setProperty('--sc',Math.min(innerWidth/1920,innerHeight/1080))}
   function rails(){
@@ -14,7 +14,7 @@
       var sec=sl.getAttribute('data-sec')||'';
       if(!sl.classList.contains('cover')){
         var t=document.createElement('div');t.className='rail top';
-        t.innerHTML='<span class="l"><img class="wm" src="'+WM+'" alt="HAAVN"><span>Hotels</span></span><span><span class="tag">Better Living Group</span> <span class="x tag" data-x>Close</span></span>';
+        t.innerHTML='<span class="l"><img class="wm" src="'+WM+'" alt="HAAVN"><img class="ico" src="'+ICO+'" alt="HAAVN Hotels icon"><span>Hotels</span></span><span><span class="tag">Better Living Group</span> <span class="x tag" data-x>Close</span></span>';
         sl.appendChild(t);
       } else {
         var t2=document.createElement('div');t2.className='rail top';
@@ -25,23 +25,15 @@
       sl.appendChild(b);prog.push(b.querySelector('.prog i'));
     });
   }
-  /* assembly stepper: auto-advances while its slide is showing, or click a step */
-  var asm=document.querySelector('.slide[data-asm]'),asmT=null,asmI=0;
-  function asmShow(k){
-    if(!asm)return;asmI=k;
-    [].forEach.call(asm.querySelectorAll('.steps li'),function(li,j){li.classList.toggle('on',j===k)});
-    [].forEach.call(asm.querySelectorAll('.asmp img'),function(im,j){im.classList.toggle('on',j===k)});
-    var li=asm.querySelectorAll('.steps li')[k];var c=asm.querySelector('.asmc');if(li&&c)c.textContent=li.getAttribute('data-sub');
-  }
-  function asmStart(){if(!asm||print)return;asmStop();asmShow(0);asmT=setInterval(function(){asmShow((asmI+1)%7)},3400)}
-  function asmStop(){if(asmT){clearInterval(asmT);asmT=null}}
-  if(asm){[].forEach.call(asm.querySelectorAll('.steps li'),function(li,j){li.addEventListener('click',function(e){e.stopPropagation();asmStop();asmShow(j)})});asmShow(6)}
+  /* the 3D build animation plays while its slide is showing */
+  var asmEl=document.getElementById('asm3d'),asmSlide=asmEl&&asmEl.closest('.slide'),asmCtl=null;
+  if(asmEl&&window.AsmUI)asmCtl=window.AsmUI.mount(asmEl);
   function go(n,quiet){
     n=Math.max(0,Math.min(N-1,n));if(n===cur)return;
     S.forEach(function(s,i){s.classList.toggle('on',i===n)});
     cur=n;prog.forEach(function(p,i){if(i===n)p.style.width=Math.round((n+1)/N*100)+'%'});
     document.title=(S[n].getAttribute('data-title')||'Better Living Hotel Project')+' · HAAVN';
-    if(S[n]===asm)asmStart();else asmStop();
+    if(asmCtl&&!print){if(S[n]===asmSlide){asmCtl.restart();asmCtl.start()}else asmCtl.stop()}
     if(!quiet&&history.replaceState)history.replaceState(null,'','#'+(n+1));
   }
   function next(){go(cur+1)}function prev(){go(cur-1)}
@@ -59,7 +51,7 @@
   });
   document.addEventListener('click',function(e){
     if(e.target.closest('[data-x]')){closeMe();return}
-    if(e.target.closest('a,button,.steps'))return;
+    if(e.target.closest('a,button,.asmx'))return;
     if(e.clientX<innerWidth*.22)prev();else next();
   });
   var x0=null;

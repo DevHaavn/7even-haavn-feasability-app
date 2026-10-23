@@ -181,3 +181,46 @@ html.print .kb{animation:none!important;transform:none!important}
 html.print .asmp img{opacity:0}html.print .asmp img:last-child{opacity:1}html.print .steps li{opacity:1}html.print .steps li:last-child{background:rgba(168,188,16,.1);box-shadow:inset 3px 0 0 var(--lime)}
 @page{size:1920px 1080px;margin:0}
 @media(prefers-reduced-motion:reduce){.a{opacity:1;transform:none}.slide.on .kb{animation:none}}
+
+/* the build animation (3D, live) */
+.asmx{position:absolute;left:96px;top:236px;width:1728px;height:662px;background:#cfd8d6;overflow:hidden;border:1px solid var(--hair-d)}
+.asm-cv{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.asm-poster{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none}
+.asm-fin{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none}
+html.print .asm-poster,.asmx.nogl .asm-poster{opacity:1}html.print .asm-cv,.asmx.nogl .asm-cv{display:none}html.print .asm-bar,html.print .asm-ins{display:none}
+.asm-meta{position:absolute;left:22px;top:20px;display:flex;gap:10px}
+.asm-meta span{padding:8px 15px;background:rgba(28,29,26,.8);color:var(--bone);font:500 13px var(--f-d);letter-spacing:.24em;text-transform:uppercase}
+.asm-meta .m2{color:var(--lime-b)}
+.asm-cap{position:absolute;left:22px;bottom:76px;width:620px;padding:16px 22px 18px;background:rgba(28,29,26,.84);color:var(--bone);border-left:3px solid var(--lime)}
+.asm-cap .n{font:700 38px/1 var(--f-d);color:var(--lime);margin-right:14px;vertical-align:middle}
+.asm-cap .t{font:600 24px var(--f-d);letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+.asm-cap .x{font:300 18px/1.45 var(--f-b);margin-top:8px;color:rgba(242,237,233,.9)}
+.asm-ins{position:absolute;right:22px;top:20px;width:352px;display:flex;gap:10px;padding:12px 12px 8px;background:rgba(250,251,250,.94)}
+.asm-ins>div{flex:1}.asm-ins em{display:block;font:500 10.5px/1.25 var(--f-d);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:#4b4d46;min-height:28px}
+.asm-ins svg{width:100%;height:auto;display:block}.asm-ins .pin,.asm-ins .lk{transition:none}
+.asm-bar{position:absolute;left:0;right:0;bottom:0;height:60px;display:flex;align-items:center;gap:18px;padding:0 22px;background:linear-gradient(0deg,rgba(18,19,16,.9),rgba(18,19,16,.6))}
+.asm-bar .pl{width:36px;height:36px;flex:none;border:1px solid rgba(242,237,233,.65);border-radius:50%;background:transparent;cursor:pointer;position:relative}
+.asm-bar .pl::before{content:"";position:absolute;left:14px;top:10px;border-left:11px solid var(--bone);border-top:7px solid transparent;border-bottom:7px solid transparent}
+.asm-bar .pl.on::before{left:11px;top:11px;width:5px;height:14px;border:0;background:var(--bone);box-shadow:8px 0 0 var(--bone)}
+.asm-bar .tr{position:relative;flex:1;height:38px;cursor:pointer;touch-action:none;border-top:1px solid rgba(242,237,233,.28)}
+.asm-bar .fl{position:absolute;left:0;top:-2px;height:3px;background:var(--lime);width:0}
+.asm-bar .ph{position:absolute;left:0;right:0;top:0;bottom:0}
+.asm-bar .ph>span{position:absolute;top:7px;bottom:0;font:500 11px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:rgba(242,237,233,.55);white-space:nowrap;overflow:hidden;padding-left:9px;border-left:1px solid rgba(242,237,233,.28)}
+.asm-bar .ph>span.on{color:var(--lime-b)}.asm-bar .ph>span b{margin-right:8px;font-weight:600}
+.asm-bar .tm{flex:none;font:500 13px var(--f-d);letter-spacing:.14em;color:rgba(242,237,233,.82);min-width:118px;text-align:right}
+.asmx.endcard .asm-ins,.asmx.endcard .asm-meta{opacity:0}
+/* connections */
+.cn{position:absolute;top:290px;width:560px}
+.cn .tabx{height:330px;background:#fafbfa}.cn svg{display:block;width:100%;height:100%}
+.cn svg text{font:400 13px var(--f-b);fill:#3b3d38}.cn svg .lb{font:600 12px var(--f-d);letter-spacing:.14em;text-transform:uppercase;fill:#292929}
+.cn .capx{position:static;margin-top:16px;width:auto}
+
+/* the HAAVN Hotels icon */
+.rail .ico{height:30px;width:30px;margin-left:-6px}
+.lt .rail .ico{filter:none}.dk .rail .ico,.ph .rail .ico,.cover .rail .ico{filter:invert(1) brightness(1.6)}
+.cover .bigtag{position:absolute;left:96px;top:152px;display:flex;align-items:center;gap:16px;color:var(--bone)}
+.cover .bigtag img{width:54px;height:54px;filter:invert(1) brightness(1.6)}
+.cover .bigtag b{font:500 17px var(--f-d);letter-spacing:.34em;text-transform:uppercase}
+.asm-bar .ph>span.sm b{margin:0}.asm-bar .ph>span.sm .tx{display:none}
+
+html.print .asm-cap,html.print .asm-meta{display:none}
