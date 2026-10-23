@@ -7,7 +7,7 @@
 'use strict';
 var T=THREE, DUR=82;
 var PODTOP=8.9, LVL=3.2, NL=28, TOPZ=PODTOP+NL*LVL;          // 98.5 m top of the 28 guest levels
-var CORE={x:17.5,w:7,y:0,d:22,top:TOPZ+3};                   // one central core, 7 x 22 m
+var CORE={x:17.5,w:7,y:0,d:10,top:TOPZ+3};                   // ONE compact central lift core, 7 x 10 m (the north side of bays 5 and 6)
 var CRX=-16,CRY=8, JIB=64, CJIB=20, SEC=2.4, MAXSEC=47;      // tower crane base and sizes
 var LANE={x:-12,y:-26};                                      // delivery lane
 var SLING=4.2;
@@ -101,10 +101,11 @@ function create(canvas,opts){
   var mCassTop=mat(0x8a8d86,.8,.1),mCassSide=mat(0xb59b74,.85,0,{map:tex(timberCanvas(),1,1)}),mCassEnd=mat(0x6d726b,.7,.3);
   var matsC=[mCassEnd,mCassEnd,mCassTop,mPodUnder,mCassSide,mCassSide];
   var roomG=new T.BoxGeometry(3.5,LVL,10),cassG=new T.BoxGeometry(3.5,LVL,2);
-  var iN=new T.InstancedMesh(roomG,matsN,280),iS=new T.InstancedMesh(roomG,matsS,280),iC=new T.InstancedMesh(cassG,matsC,280);
+  var iN=new T.InstancedMesh(roomG,matsN,NL*12),iS=new T.InstancedMesh(roomG,matsS,NL*12),iC=new T.InstancedMesh(cassG,matsC,NL*12);
   [iN,iS,iC].forEach(function(m){m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;scene.add(m)});
-  // 840 pieces: 28 floors x 10 bays x (north room, south room, corridor cassette)
-  var items=[];for(var f=0;f<NL;f++)BAYS.forEach(function(b){['N','S','C'].forEach(function(ty){items.push({f:f,b:b,t:ty})})});
+  // 28 floors x (10 north rooms, 12 south modules, 12 corridor cassettes) = 952 pieces
+  var items=[];for(var f=0;f<NL;f++)for(var b=0;b<12;b++){if(b!==5&&b!==6)items.push({f:f,b:b,t:'N'});items.push({f:f,b:b,t:'S'});items.push({f:f,b:b,t:'C'})}   // the core takes the north side of bays 5 and 6; the south side holds service modules and the corridor runs through
+  var TOTAL=items.length;
   function pose(it){var x=it.b*3.5+1.75,z=PODTOP+it.f*LVL+LVL/2;var y=it.t==='N'?5:it.t==='S'?17:11;return {x:x,y:y,z:z}}
   // order: the two slow lifts first (floor 0 and floor 1 of bay 0, north), then floor by floor
   function key(f,b,t){return f+'|'+b+'|'+t}
@@ -123,7 +124,7 @@ function create(canvas,opts){
       dmy.rotation.set(Math.PI/2,0,0);dmy.scale.setScalar(on&&it.f>=1?1:.0001);dmy.updateMatrix();iCol.setMatrixAt(idx,dmy.matrix)})});
     iPin.instanceMatrix.needsUpdate=true;iCol.instanceMatrix.needsUpdate=true;
   }
-  function placedAt(t){if(t<40)return 0;if(t<52)return 1;if(t<54)return 2;if(t<70)return Math.floor(2+838*ease((t-54)/16));return 840}
+  function placedAt(t){if(t<40)return 0;if(t<52)return 1;if(t<54)return 2;if(t<70)return Math.floor(2+(TOTAL-2)*ease((t-54)/16));return TOTAL}
   // the carried piece
   var carried=mesh(roomG,matsN,true,true);scene.add(carried);carried.visible=false;
   var mPinCar=mat(C.lime,.4,.4,{emissive:0x4d5a00});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(c){var pn=cyl(.27,1.1,mPinCar,c[0]*1.45,-LVL/2-.2,c[1]*5,carried,10);pn.castShadow=false});
@@ -237,14 +238,14 @@ function create(canvas,opts){
         return {x:px,y:py,z:pz,carry:{item:L.item,rot:rot}}}}
     if(t>=40&&t<44){var L1=lifts[0];return arc(t,40,44,{x:L1.tgt.x,y:L1.tgt.y,z:seatOf(L1)},{x:pickPt.x,y:pickPt.y,z:PICKZ+4})}
     if(t>52&&t<54){var L2=lifts[1];return arc(t,52,54,{x:L2.tgt.x,y:L2.tgt.y,z:seatOf(L2)},{x:pickPt.x,y:pickPt.y,z:PICKZ})}
-    if(t>=54&&t<=70){var n=placedAt(t),ci=order[Math.min(839,n)],ps=pose(ci),cyc=((t-54)/CYC)%1,seat2=pieceTop(ps.z)+SLING,high2=Math.max(seat2+9,TRAV+8),px2,py2,pz2,rot2;
+    if(t>=54&&t<=70){var n=placedAt(t),ci=order[Math.min(TOTAL-1,n)],ps=pose(ci),cyc=((t-54)/CYC)%1,seat2=pieceTop(ps.z)+SLING,high2=Math.max(seat2+9,TRAV+8),px2,py2,pz2,rot2;
       if(t>=70-.001){cyc=1}
       if(cyc<.25){px2=pickPt.x;py2=pickPt.y;pz2=lerp(PICKZ,high2,ease(cyc/.25));rot2=Math.PI/2}
       else if(cyc<.7){var w3=ease((cyc-.25)/.45);px2=lerp(pickPt.x,ps.x,w3);py2=lerp(pickPt.y,ps.y,w3);pz2=high2;rot2=lerp(Math.PI/2,0,w3)}
       else{var w4=ease((cyc-.7)/.3);px2=ps.x;py2=ps.y;pz2=lerp(high2,seat2,w4);rot2=0}
       return {x:px2,y:py2,z:pz2,carry:{item:ci,rot:rot2}}}
     // after the time-lapse the hook rises and rests over the finished tower
-    var lastp=pose(order[839]),from={x:lastp.x,y:lastp.y,z:pieceTop(lastp.z)+SLING},to={x:CORE.x+3.5,y:11,z:TOPZ+8};
+    var lastp=pose(order[TOTAL-1]),from={x:lastp.x,y:lastp.y,z:pieceTop(lastp.z)+SLING},to={x:CORE.x+3.5,y:11,z:TOPZ+8};
     var u3=ease((t-70)/3);return {x:lerp(from.x,to.x,u3),y:lerp(from.y,to.y,u3),z:lerp(from.z,to.z,u3),carry:null}
   }
   /* camera */
@@ -294,7 +295,7 @@ function create(canvas,opts){
   }
   function resize(w,h){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
   resize(W,H);placePieces(0);
-  return {render:render,resize:resize,renderer:renderer,scene:scene,camera:camera,info:{duration:DUR,placedAt:placedAt,total:840,perFloor:30,lifts:[lifts[0].t1,lifts[1].t1]}};
+  return {render:render,resize:resize,renderer:renderer,scene:scene,camera:camera,info:{duration:DUR,placedAt:placedAt,total:TOTAL,perFloor:Math.round(TOTAL/NL),lifts:[lifts[0].t1,lifts[1].t1]}};
 }
 window.HotelScene={create:create,DUR:DUR};
 })();

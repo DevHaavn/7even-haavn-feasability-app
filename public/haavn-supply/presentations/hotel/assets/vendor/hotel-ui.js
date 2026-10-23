@@ -34,7 +34,7 @@ function mount(host){
   var S=null,t=0,playing=false,last=0,raf=0,bad=false,sized='',PH=null,marks=[];
   var PHASES=[
     {n:'01',a:0,t:'Concrete podium',x:'Concrete columns, beams and transfer slabs establish the two podium levels. The HAAVN tower crane is already on site.'},
-    {n:'02',a:14,t:'One central core',x:'A single concrete lift and service core rises through the middle of the tower, in traditional concrete construction.'},
+    {n:'02',a:14,t:'One central core',x:'A single compact concrete lift core, 7 \u00d7 10 m, rises through the middle of the tower. Rooms, corridor and service modules wrap around it.'},
     {n:'03',a:24,t:'Modules by truck',x:'Factory-completed room boxes queue beside the tower crane.'},
     {n:'04',a:31,t:'The first lift',x:'The crane lowers the first room box onto the podium slab. Four locating pins, one at each corner, receive it.'},
     {n:'05',a:44,t:'Box to box',x:'The next box lowers onto the four corner pins of the box below, and a locking collar secures each joint. It repeats at every level.'},
