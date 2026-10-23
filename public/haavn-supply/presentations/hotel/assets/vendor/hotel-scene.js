@@ -118,19 +118,28 @@ function create(canvas,opts){
     [[iN,idxN],[iS,idxS],[iC,idxC]].forEach(function(p){var m=p[0],list=p[1];list.forEach(function(it,j){var ps=pose(it);
       if(it.order<n){dmy.position.set(ps.x,ps.z,ps.y);dmy.scale.set(1,1,1)}else{dmy.position.set(ps.x,ps.z,ps.y);dmy.scale.set(.0001,.0001,.0001)}
       dmy.rotation.set(0,0,0);dmy.updateMatrix();m.setMatrixAt(j,dmy.matrix)});m.instanceMatrix.needsUpdate=true});
+    podItemsArr.forEach(function(it,j){var ps=pose(it),on=it.order<n;CORN.forEach(function(c,k){var idx=j*4+k;
+      dmy.position.set(ps.x+c[0]*PX,ps.z-LVL/2,ps.y+c[1]*PY);dmy.rotation.set(0,0,0);dmy.scale.setScalar(on?1:.0001);dmy.updateMatrix();iPin.setMatrixAt(idx,dmy.matrix);
+      dmy.rotation.set(Math.PI/2,0,0);dmy.scale.setScalar(on&&it.f>=1?1:.0001);dmy.updateMatrix();iCol.setMatrixAt(idx,dmy.matrix)})});
+    iPin.instanceMatrix.needsUpdate=true;iCol.instanceMatrix.needsUpdate=true;
   }
   function placedAt(t){if(t<40)return 0;if(t<52)return 1;if(t<54)return 2;if(t<70)return Math.floor(2+838*ease((t-54)/16));return 840}
   // the carried piece
   var carried=mesh(roomG,matsN,true,true);scene.add(carried);carried.visible=false;
+  var mPinCar=mat(C.lime,.4,.4,{emissive:0x4d5a00});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(c){var pn=cyl(.27,1.1,mPinCar,c[0]*1.45,-LVL/2-.2,c[1]*5,carried,10);pn.castShadow=false});
   var carriedC=mesh(cassG,matsC,true,true);scene.add(carriedC);carriedC.visible=false;
 
-  /* ---------- the two pins (podium) and the single pin + locking collar (module to module), drawn large enough to read ---------- */
-  var pins=new T.Group();scene.add(pins);pins.visible=false;
-  var sockets=[],pinMeshes=[];
-  [[1.0,2.2],[2.5,2.2]].forEach(function(p){ // two pins in the podium slab under the first box
-    var s=box(.5,.12,.5,socketM,p[0],PODTOP+.06,p[1],pins);var pm=cyl(.12,.9,pinM,p[0],PODTOP+.45,p[1],pins,12);pinMeshes.push(pm);sockets.push(s)});
-  var pin1=cyl(.11,.8,pinM,1.75,PODTOP+LVL+.4,5,pins,12);var collarM=mesh(new T.TorusGeometry(.2,.06,8,20),mGold,true,false);collarM.rotation.x=Math.PI/2;collarM.position.set(1.75,PODTOP+LVL+.2,5);collarM.visible=false;pins.add(collarM);
-
+  /* ---------- four locating pins per room box, one at each corner, at every level ---------- */
+  var mPinC=mat(C.lime,.4,.4,{emissive:0x4d5a00}),mSock=mat(0x4f5550,.6,.4);
+  var PX=1.45,PY=5;                                  // pin offsets from a box centre (x across, y along the 10 m depth)
+  var CORN=[[-1,-1],[1,-1],[-1,1],[1,1]];
+  var podItemsArr=items.filter(function(it){return it.t!=='C'});
+  var iPin=new T.InstancedMesh(new T.CylinderGeometry(.27,.27,1.1,10),mPinC,podItemsArr.length*4),iCol=new T.InstancedMesh(new T.TorusGeometry(.4,.1,6,14),mGold,podItemsArr.length*4);
+  [iPin,iCol].forEach(function(m){m.castShadow=false;m.receiveShadow=false;m.frustumCulled=false;scene.add(m)});
+  // the first lifts show their pins standing ready: four on the podium slab, then four on the roof of the first box
+  var readyPins=new T.Group();scene.add(readyPins);var rp=[],rs=[];
+  for(var q=0;q<4;q++){rs.push(box(.8,.1,.8,mSock,0,0,0,readyPins));rp.push(cyl(.27,1.1,mPinC,0,0,0,readyPins,10))}
+  function setReadyPins(ps,zBase,on){readyPins.visible=on;if(!on)return;CORN.forEach(function(c,i){rs[i].position.set(ps.x+c[0]*PX,zBase+.05,ps.y+c[1]*PY);rp[i].position.set(ps.x+c[0]*PX,zBase+.6,ps.y+c[1]*PY)})}
   /* ---------- the HAAVN tower crane ---------- */
   var crane=new T.Group();crane.position.set(CRX,0,CRY);scene.add(crane);
   var mastChords=new T.InstancedMesh(new T.BoxGeometry(.2,SEC,.2),mLime,MAXSEC*4),mastDiag=new T.InstancedMesh(new T.BoxGeometry(.1,Math.sqrt(2*2+SEC*SEC),.1),mChar,MAXSEC*4);
@@ -243,7 +252,7 @@ function create(canvas,opts){
     {t:0,p:[-150,62,-140],g:[16,12,11],f:34},{t:8,p:[-120,46,-120],g:[18,8,11],f:34},{t:14,p:[-130,66,-150],g:[19,22,11],f:34},
     {t:22,p:[-150,92,-175],g:[20,52,11],f:36},{t:28,p:[-75,34,-90],g:[-4,12,-8],f:34},{t:32,p:[-30,30,-44],g:[-7,18,-6],f:34},
     {t:39,p:[-9,17,-9],g:[1.75,10,3],f:28},{t:43,p:[-30,34,-46],g:[0,16,5],f:34},{t:48,p:[-8,22,-14],g:[1.75,14,4],f:28},
-    {t:54,p:[-155,70,-170],g:[20,42,11],f:36},{t:63,p:[-190,98,-215],g:[20,56,11],f:36},{t:70,p:[-170,86,-235],g:[20,52,11],f:36},
+    {t:54,p:[-155,70,-170],g:[20,42,11],f:36},{t:58,p:[-72,58,-92],g:[14,34,6],f:32},{t:64,p:[-6,54,-66],g:[21,42,3],f:32},{t:69,p:[-170,88,-232],g:[20,52,11],f:36},
     {t:75,p:[60,46,-190],g:[21,50,11],f:34},{t:82,p:[40,44,-170],g:[21,50,11],f:34}];
   function camAt(t){var n=camKeys.length,i=0;while(i<n-2&&t>camKeys[i+1].t)i++;var a=camKeys[i],b=camKeys[i+1],u=clamp((t-a.t)/(b.t-a.t),0,1),p0=camKeys[Math.max(0,i-1)],p3=camKeys[Math.min(n-1,i+2)];
     function cr(get){var v0=get(p0),v1=get(a),v2=get(b),v3=get(p3);var m1=(v2-v0)*.5*(b.t-a.t)/Math.max(1e-6,(b.t-p0.t)||1),m2=(v3-v1)*.5*(b.t-a.t)/Math.max(1e-6,(p3.t-a.t)||1);var u2=u*u,u3=u2*u;return (2*u3-3*u2+1)*v1+(u3-2*u2+u)*m1+(-2*u3+3*u2)*v2+(u3-u2)*m2}
@@ -276,9 +285,9 @@ function create(canvas,opts){
       var half=it.t==='C'?[1.75,1]:[1.75,5],ca2=Math.cos(hs.carry.rot),sa2=Math.sin(hs.carry.rot);
       [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(c){var lx=c[0]*half[0],lz=c[1]*half[1];var wx=cm.position.x+lx*ca2+lz*sa2,wz=cm.position.z-lx*sa2+lz*ca2;sl.push(hook.position.x,hook.position.y-.3,hook.position.z,wx,cm.position.y+LVL/2,wz)})}
     slings.geometry.setAttribute('position',new T.BufferAttribute(new Float32Array(sl.length?sl:[0,0,0,0,0,0]),3));
-    // the first lifts show their pins
-    var inPins=t>=33&&t<60;pins.visible=inPins;
-    if(inPins){pinMeshes.forEach(function(pm,i){pm.visible=true});var l2=t>=46;pin1.visible=l2;collarM.visible=t>=52}
+    // the first two lifts show their four corner pins standing ready: on the podium slab, then on the roof of the first box
+    if(t>=30&&t<40)setReadyPins(pose(order[0]),PODTOP,true);else if(t>=40&&t<52)setReadyPins(pose(order[1]),PODTOP+LVL,true);else setReadyPins(null,0,false);
+    carried.children.forEach(function(ch){ch.visible=carried.visible});
     // camera
     var c=camAt(t);camera.position.set(c.p[0],c.p[1],c.p[2]);camera.lookAt(c.g[0],c.g[1],c.g[2]);if(Math.abs(camera.fov-c.f)>.01){camera.fov=c.f;camera.updateProjectionMatrix()}
     renderer.render(scene,camera);

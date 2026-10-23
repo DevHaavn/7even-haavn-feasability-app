@@ -27,11 +27,15 @@
       sl.appendChild(b);prog.push(b.querySelector('.prog i'));
     });
   }
+  /* the 3D construction sequence plays while its slide is showing */
+  var asmEl=document.getElementById('asm3d'),asmSlide=asmEl&&asmEl.closest('.slide'),asmCtl=null;
+  if(asmEl&&window.StudentUI)asmCtl=window.StudentUI.mount(asmEl);
   function go(n,quiet){
     n=Math.max(0,Math.min(N-1,n));if(n===cur)return;
     S.forEach(function(s,i){s.classList.toggle('on',i===n)});
     cur=n;prog.forEach(function(p,i){if(i===n)p.style.width=Math.round((n+1)/N*100)+'%'});
     document.title=(S[n].getAttribute('data-title')||document.title)+' · HAAVN';
+    if(asmCtl&&!print){if(S[n]===asmSlide){asmCtl.restart();asmCtl.start()}else asmCtl.stop()}
     if(!quiet&&history.replaceState)history.replaceState(null,'','#'+(n+1));
   }
   function next(){go(cur+1)}function prev(){go(cur-1)}
