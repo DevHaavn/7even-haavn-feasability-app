@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <title>HAAVN BLACK</title>
-<script>(function(){if(/[?&]skin=haavn\b/.test(location.search)){document.documentElement.classList.add("skin-haavn");document.write('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="skin-haavn.css?v=20261023a">')}})()</script>
+<script>(function(){if(/[?&]skin=haavn\b/.test(location.search)){document.documentElement.classList.add("skin-haavn");document.write('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="skin-haavn.css?v=20261023b">')}})()</script>
 <style>/* ---- src/css/tokens.css ---- */
 /* =========================================================================
    Design tokens
@@ -729,6 +729,8 @@ body.lbx #wash { opacity: 0; pointer-events: none; }
 .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 0.6s var(--ease-out), visibility 0s linear 0.6s; }
 .scene.on { opacity: 1; visibility: visible; transition: opacity 0.6s var(--ease-out), visibility 0s; }
 #sc-home iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+body.pg-under #sc-home iframe { top: var(--hh, 0); height: calc(100% - var(--hh, 0px)); }
+body.pg-under #top { background: #000; border-bottom-color: var(--c-hairline); }
 
 /* ---- the two menus: ATRIUM's index. Name left, size right, a hairline between, the row lifting and indenting on hover.
    No box. The ground darkens from the left behind it, as it does in ATRIUM, and the list sits straight on that. ---- */
@@ -838,7 +840,7 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv'), SKIN = Q.get('skin') === 'haavn';
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261023a';
+  var SOLV = '20261023b';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
@@ -1005,12 +1007,18 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
     }
   });
 
+  window.addEventListener('resize', function () { if (document.body.classList.contains('pg-under')) document.documentElement.style.setProperty('--hh', $('#top').offsetHeight + 'px') });
+
   /* ── render ──────────────────────────────────────────────────────────── */
   function render(fromRemote) {
     validate();
     var home = S.s === 'home';
     document.body.classList.toggle('sc', home && S.sy > 0.012);
     document.body.classList.toggle('lbx', home && !!S.lb);
+    // SOLUM and SOLUM Studio (Seth's framed page): the page sits under the header, not behind it, so the tray's notch at the top of each card is seen
+    var under = home && !TV && HOMES[S.h] && HOMES[S.h].page === 'solum.html';
+    document.body.classList.toggle('pg-under', !!under);
+    document.documentElement.style.setProperty('--hh', under ? ($('#top').offsetHeight + 'px') : '0px');
     $('#sc-home').classList.add('on');
     paintMenus();
     ensure();
