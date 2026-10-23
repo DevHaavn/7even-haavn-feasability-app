@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="color-scheme" content="dark">
 <title>HAAVN BLACK</title>
-<script>(function(){if(/[?&]skin=haavn\b/.test(location.search)){document.documentElement.classList.add("skin-haavn");document.write('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="skin-haavn.css?v=20261021a">')}})()</script>
+<script>(function(){if(/[?&]skin=haavn\b/.test(location.search)){document.documentElement.classList.add("skin-haavn");document.write('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="skin-haavn.css?v=20261023a">')}})()</script>
 <style>/* ---- src/css/tokens.css ---- */
 /* =========================================================================
    Design tokens
@@ -838,14 +838,14 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var $ = function (s, r) { return (r || document).querySelector(s) }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)) };
   var Q = new URLSearchParams(location.search), TV = Q.has('tv'), SKIN = Q.get('skin') === 'haavn';
   var APP = /^https?:/.test(location.protocol), EMBED = false; try { EMBED = (window.parent !== window) } catch (e) { EMBED = true }
-  var SOLV = '20261021a';
+  var SOLV = '20261023a';
   if (TV) document.body.classList.add('tv');
 
   /* ── the homes ───────────────────────────────────────────────────────── */
   var HOMES = {
     studio: { n: 'SOLUM Studio', series: 'black', page: 'solum.html', line: '42 m² · 1 bed',
       brochure: '/haavn-brochures/HAAVN-BLACK-SOLUM-STUDIO.pdf?v=4', model: '/solum-studio-model/index.html?v=20261006a' },
-    plus: { n: 'SOLUM Plus', series: 'black', page: 'solum.html', line: '63 m² · 1 bed',
+    plus: { n: 'SOLUM Plus', series: 'black', page: 'solum.html', line: '60.3 m² · 1 bed',
       brochure: '/haavn-brochures/HAAVN-BLACK-SOLUM.pdf?v=10', model: '/solum-model/index.html?v=20261006a', launch: 'https://solum-black-teaser.vercel.app' },
     haven: { n: 'HAVEN', series: 'black', page: 'black.html', line: '267.7 m² · 4 bed' },
     forma: { n: 'FORMA', series: 'black', page: 'black.html', line: '338.2 m² · 4 bed' },
@@ -969,7 +969,8 @@ button.pr__row:hover .n { color: var(--atrium-gold); }
   var SF = null, loaded = '', ready = false;
   function sf() { return SF || (SF = $('#sf')) }
   function toPage(m) { var f = sf(); if (f && f.contentWindow) { try { f.contentWindow.postMessage(Object.assign({ hbs: 1 }, m), '*') } catch (e) {} } }
-  function pageOf(h) { return S.s === 'landing' ? 'landing.html' : (h && HOMES[h] ? HOMES[h].page : '') }
+  var SOLUM2 = /[?&]solum=2\b/.test(location.search);      // preview: SOLUM and SOLUM Studio on Seth's 23 Oct audit page (solum2.html)
+  function pageOf(h) { var p = S.s === 'landing' ? 'landing.html' : (h && HOMES[h] ? HOMES[h].page : ''); return SOLUM2 && p === 'solum.html' ? 'solum2.html' : p }
   function unload() { var f = sf(); if (f && f.getAttribute('src')) { f.src = 'about:blank'; f.removeAttribute('src') } loaded = ''; ready = false }
   function ensure() {
     var want = pageOf(S.h), f = sf(); if (!want) { unload(); return }
