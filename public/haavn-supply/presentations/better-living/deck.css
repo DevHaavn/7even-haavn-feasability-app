@@ -224,3 +224,5 @@ html.print .asm-poster,.asmx.nogl .asm-poster{opacity:1}html.print .asm-cv,.asmx
 .asm-bar .ph>span.sm b{margin:0}.asm-bar .ph>span.sm .tx{display:none}
 
 html.print .asm-cap,html.print .asm-meta{display:none}
+
+.rail .l[data-home]{pointer-events:auto;cursor:pointer}

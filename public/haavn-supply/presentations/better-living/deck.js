@@ -39,6 +39,8 @@
   function next(){go(cur+1)}function prev(){go(cur-1)}
   function closeMe(){try{window.parent.postMessage('haavn-ds-close','*')}catch(e){}}
   rails();fit();window.addEventListener('resize',fit);
+  /* opened as its own page from the hub's Projects list: the HAAVN mark goes back to the list */
+  if(!framed&&/\/presentations\/better-living\//.test(location.pathname)){[].forEach.call(document.querySelectorAll('.rail.top .l'),function(l){l.setAttribute('data-home','1');l.title='Back to HAAVN projects'})}
   if(print){S.forEach(function(s){s.classList.add('on')});return}
   var h=parseInt((location.hash||'').replace('#',''),10);go(isNaN(h)?0:h-1,true);
   document.addEventListener('keydown',function(e){
@@ -50,6 +52,7 @@
     else if(k==='Escape'&&framed&&!document.fullscreenElement)closeMe();
   });
   document.addEventListener('click',function(e){
+    if(e.target.closest('[data-home]')){location.href='../../index.html#/projects';return}
     if(e.target.closest('[data-x]')){closeMe();return}
     if(e.target.closest('a,button,.asmx'))return;
     if(e.clientX<innerWidth*.22)prev();else next();
