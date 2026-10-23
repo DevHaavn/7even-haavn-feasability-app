@@ -37,7 +37,7 @@ img{display:block}
 .lt .rail.bot .prog i{background:var(--lime-d)}
 .rail.bot span{opacity:.85;font-size:12.5px}
 .rail .x{pointer-events:auto;cursor:pointer;display:none}
-html.framed .rail .x{display:inline-block}
+html.canclose .rail .x{display:inline-block}
 .shade{position:absolute;inset:0;pointer-events:none}
 .sh-b{background:linear-gradient(0deg,rgba(14,15,12,.88) 0%,rgba(14,15,12,.5) 26%,rgba(14,15,12,0) 55%),linear-gradient(180deg,rgba(14,15,12,.55) 0%,rgba(14,15,12,0) 16%)}
 .sh-c{background:linear-gradient(0deg,rgba(14,15,12,.92) 0%,rgba(14,15,12,.55) 34%,rgba(14,15,12,.1) 62%),linear-gradient(90deg,rgba(14,15,12,.55) 0%,rgba(14,15,12,0) 60%)}
@@ -226,3 +226,9 @@ html.print .asm-poster,.asmx.nogl .asm-poster{opacity:1}html.print .asm-cv,.asmx
 html.print .asm-cap,html.print .asm-meta{display:none}
 
 .rail .l[data-home]{pointer-events:auto;cursor:pointer}
+
+/* Close: always visible when the deck can go back to the hub */
+.rail .x.tag{opacity:1;padding:9px 18px;font-size:13px;background:rgba(28,29,26,.55);color:var(--bone);border-color:rgba(242,237,233,.75);transition:.25s}
+.lt .rail .x.tag{background:rgba(250,251,250,.8);color:var(--char);border-color:rgba(41,41,41,.7)}
+.rail .x.tag:hover,.rail .x.tag:focus-visible{background:var(--lime);border-color:var(--lime);color:#1c1d1a;outline:none}
+html.print .rail .x{display:none!important}

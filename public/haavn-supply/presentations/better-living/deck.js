@@ -4,7 +4,9 @@
   try{framed=window.parent!==window}catch(e){framed=true}
   var root=document.documentElement;
   if(print)root.classList.add('print');
+  var fromHub=/\/presentations\/better-living\//.test(location.pathname);
   if(framed)root.classList.add('framed');
+  if(framed||fromHub)root.classList.add('canclose');
   var stage=document.getElementById('stage'),S=[].slice.call(document.querySelectorAll('.slide')),N=S.length,cur=-1,prog=[];
   var WM=document.getElementById('stage').getAttribute('data-wm'),ICO=document.getElementById('stage').getAttribute('data-ico');
   function pad(n){return n<10?'0'+n:''+n}
@@ -14,11 +16,11 @@
       var sec=sl.getAttribute('data-sec')||'';
       if(!sl.classList.contains('cover')){
         var t=document.createElement('div');t.className='rail top';
-        t.innerHTML='<span class="l"><img class="wm" src="'+WM+'" alt="HAAVN"><img class="ico" src="'+ICO+'" alt="HAAVN Hotels icon"><span>Hotels</span></span><span><span class="tag">Better Living Group</span> <span class="x tag" data-x>Close</span></span>';
+        t.innerHTML='<span class="l"><img class="wm" src="'+WM+'" alt="HAAVN"><img class="ico" src="'+ICO+'" alt="HAAVN Hotels icon"><span>Hotels</span></span><span><span class="tag">Better Living Group</span> <span class="x tag" data-x role="button" tabindex="0" aria-label="Close and go back to the HAAVN presentations">&#10005;&nbsp; Close</span></span>';
         sl.appendChild(t);
       } else {
         var t2=document.createElement('div');t2.className='rail top';
-        t2.innerHTML='<span></span><span><span class="x tag" data-x>Close</span></span>';sl.appendChild(t2);
+        t2.innerHTML='<span></span><span><span class="x tag" data-x role="button" tabindex="0" aria-label="Close and go back to the HAAVN presentations">&#10005;&nbsp; Close</span></span>';sl.appendChild(t2);
       }
       var b=document.createElement('div');b.className='rail bot';
       b.innerHTML='<span>HAAVN // Better Living Hotel Project // '+sec+'</span><span class="prog"><i></i></span><span>'+pad(i+1)+' / '+pad(N)+'</span>';
@@ -37,22 +39,23 @@
     if(!quiet&&history.replaceState)history.replaceState(null,'','#'+(n+1));
   }
   function next(){go(cur+1)}function prev(){go(cur-1)}
-  function closeMe(){try{window.parent.postMessage('haavn-ds-close','*')}catch(e){}}
+  function closeMe(){if(framed){try{window.parent.postMessage('haavn-ds-close','*')}catch(e){}}else if(fromHub){location.href='../../index.html#/presentations'}}
   rails();fit();window.addEventListener('resize',fit);
-  /* opened as its own page from the hub's Projects list: the HAAVN mark goes back to the list */
-  if(!framed&&/\/presentations\/better-living\//.test(location.pathname)){[].forEach.call(document.querySelectorAll('.rail.top .l'),function(l){l.setAttribute('data-home','1');l.title='Back to HAAVN projects'})}
+  /* opened as its own page from the hub's Presentations list: the HAAVN mark goes back to the list */
+  if(!framed&&fromHub){[].forEach.call(document.querySelectorAll('.rail.top .l'),function(l){l.setAttribute('data-home','1');l.title='Back to HAAVN presentations'})}
   if(print){S.forEach(function(s){s.classList.add('on')});return}
   var h=parseInt((location.hash||'').replace('#',''),10);go(isNaN(h)?0:h-1,true);
   document.addEventListener('keydown',function(e){
     var k=e.key;
+    if((k==='Enter'||k===' ')&&e.target.closest&&e.target.closest('[data-x]')){e.preventDefault();closeMe();return}
     if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();next()}
     else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev()}
     else if(k==='Home')go(0);else if(k==='End')go(N-1);
     else if(k==='f'||k==='F'){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()}
-    else if(k==='Escape'&&framed&&!document.fullscreenElement)closeMe();
+    else if(k==='Escape'&&!document.fullscreenElement&&(framed||fromHub))closeMe();
   });
   document.addEventListener('click',function(e){
-    if(e.target.closest('[data-home]')){location.href='../../index.html#/projects';return}
+    if(e.target.closest('[data-home]')){location.href='../../index.html#/presentations';return}
     if(e.target.closest('[data-x]')){closeMe();return}
     if(e.target.closest('a,button,.asmx'))return;
     if(e.clientX<innerWidth*.22)prev();else next();
