@@ -145,6 +145,41 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 .ck input{accent-color:var(--gold)}
 #demo{position:fixed;left:calc(50% + 90px);bottom:104px;translate:-50% 0;z-index:60;display:flex;gap:8px;padding:7px;border-radius:26px;background:rgba(80,82,90,.7);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 36px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 #demo .mono{align-self:center;padding:0 8px}
+/* files, menu, members */
+#pend{display:flex;flex-wrap:wrap;gap:8px;margin:0 20px 8px}
+#pend:empty{display:none}
+.pc{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 6px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.1);font-size:12.5px;max-width:240px}
+.pc img{width:34px;height:34px;border-radius:10px;object-fit:cover}
+.pc .ft{width:34px;height:34px}
+.pc span.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc button{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.14);line-height:1}
+.ft{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font:500 10px 'JetBrains Mono',monospace;letter-spacing:.06em;color:#fff;background:linear-gradient(180deg,#7a7d87,#5a5d66)}
+.ft.pdf{background:linear-gradient(180deg,#ff7a6e,#e0463b)}.ft.doc{background:linear-gradient(180deg,#6ea6ff,#3b73e0)}.ft.xls{background:linear-gradient(180deg,#5fd28c,#2fa05f)}.ft.ppt{background:linear-gradient(180deg,#ffa468,#e0743b)}
+.atts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.att-img{border:0;padding:0;border-radius:18px;overflow:hidden;display:block;box-shadow:0 6px 24px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2)}
+.att-img img{display:block;max-width:260px;max-height:200px;object-fit:cover}
+.att-file{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);min-width:260px;max-width:340px}
+.att-file b{font-weight:400;display:block;font-size:13.5px;word-break:break-all}.att-file span.sz{font-size:11.5px;color:var(--faint)}
+.att-file .acts{margin-left:auto;display:flex;gap:6px}
+.att-file .acts button,.att-file .acts a{padding:5px 12px;border-radius:14px;border:1px solid var(--line);font-size:12px;color:#fff;text-decoration:none;background:rgba(255,255,255,.08)}
+.sysm{align-self:center;margin:6px 0;font-size:12.5px;color:var(--faint)}
+.drop{position:absolute;inset:8px;border-radius:24px;border:2px dashed rgba(255,255,255,.5);background:rgba(255,255,255,.1);display:none;place-items:center;font-size:18px;z-index:9;pointer-events:none}
+#thread{position:relative}#thread.dragging .drop{display:grid}
+.mem{display:flex;gap:10px;align-items:center;padding:6px 0}
+.mem .d{flex:1;font-size:14px}.mem .d span{display:block;font-size:12px;color:var(--faint)}
+.mem button{padding:3px 10px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--soft)}
+.fl{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.09);margin-bottom:8px}
+.fl img{width:40px;height:40px;border-radius:12px;object-fit:cover}
+.fl .d{flex:1;min-width:0;font-size:13.5px}.fl .d b{font-weight:400;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fl .d span{font-size:11.5px;color:var(--faint)}
+#menu{position:fixed;z-index:85;min-width:230px;padding:8px;border-radius:22px;background:rgba(78,80,88,.82);-webkit-backdrop-filter:blur(30px) saturate(1.4);backdrop-filter:blur(30px) saturate(1.4);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 24px 60px rgba(0,0,0,.35);display:none}
+#menu.on{display:block}
+#menu button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 14px;border-radius:14px;font-size:14px;color:#fff}
+#menu button:hover{background:rgba(255,255,255,.12)}
+#menu button.red{color:#ff9a9a}
+#menu hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
+#view{width:min(920px,100%)}#view img{max-width:100%;max-height:74dvh;border-radius:18px;display:block;margin:0 auto}#view iframe{width:100%;height:74dvh;border:0;border-radius:18px;background:#fff}
+.archh{display:flex;align-items:center;gap:8px;width:100%;padding:14px 12px 6px;text-align:left}
+.g .mutei{width:13px;height:13px;stroke:var(--faint);fill:none;stroke-width:1.5;flex:none}
 /* inside ATRIUM: the app's own drawer supplies the rail, a close button and the alerts */
 body:not(.embed) #xBtn{display:none}
 #tabbar{display:none}
@@ -209,19 +244,25 @@ body.embed #demo{left:calc(50% + 150px)}
       <div><h2 id="gT"></h2><div class="sub" id="gS"></div></div>
       <div class="sp"></div>
       <div class="pills" id="gP"></div>
+      <button class="ib" id="addBtn" title="Add people"><svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 19c.6-3.5 3.3-5 6.5-5s5.9 1.5 6.5 5M18 8v6M15 11h6"/></svg></button>
+      <button class="ib" id="moreBtn" title="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
       <button class="ib" id="sidebtn" style="display:none" title="Tasks and meeting"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></button>
     </div>
     <div id="msgs"></div>
+    <div class="drop">Drop files to share them in this chat</div>
     <div class="typing" id="typing"></div>
+    <div id="pend"></div>
     <div id="comp">
       <textarea id="inp" rows="1" placeholder="Type a message. Use @ to mention, or /task to set a task"></textarea>
+      <button class="cb" id="attBtn" title="Attach files" style="padding:0 12px"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L14 7"/></svg></button>
+      <input type="file" id="file" multiple hidden accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.dwg,.zip">
       <button class="cb" id="taskBtn">＋ Task</button>
       <button class="cb go" id="sendBtn">Send</button>
     </div>
   </section>
 
   <aside id="side">
-    <div id="tabs"><button class="on" data-p="tasks">Group tasks</button><button data-p="meet">Meeting</button><button data-p="files">About</button></div>
+    <div id="tabs"><button class="on" data-p="tasks">Tasks</button><button data-p="files">Files</button><button data-p="meet">Meeting</button><button data-p="about">About</button></div>
     <div id="pane"></div>
   </aside>
 </div>
@@ -257,6 +298,15 @@ body.embed #demo{left:calc(50% + 150px)}
   <div class="row" style="margin-top:12px"><button class="cb" id="gCancel">Cancel</button><button class="cb go" id="gSave">Create group</button></div>
 </div></div>
 
+<div class="ov" id="ovAdd"><div class="sheet">
+  <h3>Add people</h3><div class="lead">They see the whole chat from the start, and every file shared in it.</div>
+  <div class="f"><label class="mono">Who</label><div class="ck" id="addWho"></div></div>
+  <div class="f"><label class="mono">Or invite by email (any HAAVN or 7EVEN address)</label><input id="addMail" placeholder="name@7even.au"></div>
+  <div class="row"><button class="cb" id="addCancel">Cancel</button><button class="cb go" id="addSave">Add to chat</button></div>
+</div></div>
+<div class="ov" id="ovConf"><div class="sheet"><h3 id="cT"></h3><div class="lead" id="cB"></div><div class="row"><button class="cb" id="cNo">Cancel</button><button class="cb go" id="cYes" style="background:linear-gradient(180deg,#ff7a7a,#ef4444);color:#fff;border-color:#ef4444">Confirm</button></div></div></div>
+<div class="ov" id="ovView"><div class="sheet" id="view"><div class="row" style="margin-bottom:12px;align-items:center"><h3 id="vT" style="flex:1;font-size:17px"></h3><button class="cb" id="vX" style="flex:none">Close</button></div><div id="vB"></div></div></div>
+<div id="menu"></div>
 <div class="ov" id="ovSet"><div class="sheet">
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
   <div class="sw" style="border:0"><div class="l"><b>Alert sound</b><span>A soft two-note chime when a message lands</span></div><button class="tg on" id="sSnd"></button></div>
@@ -305,6 +355,7 @@ const SEED={
  msgs:[
   {id:1,g:'g1',u:'ds',t:mins(300),x:'Church package is the problem. $18.7m takes the residual negative at 20%. Need to look at staging it.'},
   {id:2,g:'g1',u:'jw',t:mins(240),x:'Agree. @Jamie can we get WPCC to confirm the hall is 800 seats before we go back to them?'},
+  {id:30,g:'g1',u:'ds',t:mins(280),x:'Staging options draft attached.',files:[{name:'Belmont staging options v1.pdf',type:'application/pdf',size:842000}]},
   {id:3,g:'g1',u:'jb',t:mins(200),x:'Yes. I will call Monday. Daniel can you put the three staging options on one page?',task:{title:'Three staging options on one page',own:'ds',due:'2026-10-28',pri:'High',proj:'Belmont Estate',wf:1,ag:1,done:false}},
   {id:4,g:'g2',u:'bn',t:mins(150),x:'Seth is sending the Studio plan drawing today. Do we hold the brochure until it lands?'},
   {id:5,g:'g2',u:'mf',t:mins(120),x:'Customers on the weekend keep asking for the Plus price. Can I say from $399k yet?'},
@@ -319,6 +370,8 @@ const SEED={
 };
 let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
+S.arch=S.arch||{}; S.gone=S.gone||{};
+S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 let cur='g1', view='chat', pane='tasks', actx=null;
 
@@ -339,12 +392,15 @@ function chime(){
 
 /* ---- data helpers ---- */
 const me=()=>P[S.me];
-const mine=()=>S.groups.filter(g=>g.m.includes(S.me));
+const mine=()=>S.groups.filter(g=>g.m.includes(S.me)&&!S.gone[S.me+g.id]);
+const isArch=id=>!!S.arch[S.me+id];
+const active=()=>mine().filter(g=>!isArch(g.id));
+let showArch=false;
 const gm=g=>S.msgs.filter(m=>m.g===g).sort((a,b)=>a.t-b.t);
 const lastRead=(g)=> (S.read[S.me]||{})[g]||0;
 const unread=g=>gm(g).filter(m=>m.id>lastRead(g)&&m.u!==S.me).length;
 const mentioned=(g)=>gm(g).some(m=>m.id>lastRead(g)&&m.u!==S.me&&(m.x.includes('@'+me().n.split(' ')[0])||(m.task&&m.task.own===S.me)));
-const totalUnread=()=>mine().filter(g=>!S.muted[S.me+g.id]||(S.men&&mentioned(g.id))).reduce((a,g)=>a+unread(g.id),0);
+const totalUnread=()=>active().filter(g=>!S.muted[S.me+g.id]||(S.men&&mentioned(g.id))).reduce((a,g)=>a+unread(g.id),0);
 const openTasks=()=>S.msgs.filter(m=>m.task&&!m.task.done&&m.task.own===S.me).length;
 const gname=g=>g.dm? P[g.m.find(x=>x!==S.me)].n : g.n;
 const fmt=t=>{const d=new Date(t),n=new Date();const hm=d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'});return d.toDateString()===n.toDateString()?hm:d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' '+hm};
@@ -356,14 +412,17 @@ const lock='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx
 /* ---- render ---- */
 function renderList(){
   const q=$('#search').value.toLowerCase();
-  const gs=mine().filter(g=>gname(g).toLowerCase().includes(q));
+  const gs=active().filter(g=>gname(g).toLowerCase().includes(q));
+  const ar=mine().filter(g=>isArch(g.id)&&gname(g).toLowerCase().includes(q));
   const row=g=>{const ms=gm(g.id),l=ms[ms.length-1],u=unread(g.id),mu=S.muted[S.me+g.id];
     const who=g.dm?P[g.m.find(x=>x!==S.me)]:null;
     return `<button class="g ${g.id===cur?'on':''} ${u?'unread':''} ${mu?'muted':''}" data-g="${g.id}">
       ${who?av(who):`<span class="av sq" style="background:${COL[(g.id.charCodeAt(1))%7]}">${ini(g.n)}</span>`}
-      <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}</span><span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
+      <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}${mu?'<svg class="mutei" viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2.5V10a4.5 4.5 0 0 0-9 0v4.5zM10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>':''}</span><span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
       <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`};
-  $('#groups').innerHTML=`<div class="sec mono">Groups</div>`+gs.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+gs.filter(g=>g.dm).map(row).join('');
+  $('#groups').innerHTML=`<div class="sec mono">Groups</div>`+gs.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+gs.filter(g=>g.dm).map(row).join('')
+    +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'');
+  const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
   document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
@@ -374,14 +433,16 @@ function renderList(){
 function taskCard(m){const t=m.task;return `<div class="card"><div class="tt"><button class="chk ${t.done?'done':''}" data-done="${m.id}"></button><b>${esc(t.title)}</b>${t.pri==='High'?'<span class="chip r">High</span>':''}</div>
   <div class="meta"><span class="chip">${av(P[t.own],'').replace('class="av ','class="av ').replace('<span','<span style="width:16px;height:16px;font-size:8px;"')} ${P[t.own].n}</span><span class="chip">Due ${new Date(t.due).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>${t.proj!=='No project'?`<span class="chip g2">CRM · ${t.proj}</span>`:''}${t.wf?'<span class="chip g1">In Workflow</span>':''}${t.ag?'<span class="chip g1">On Monday agenda</span>':''}</div></div>`}
 function renderThread(newId){
-  const g=S.groups.find(x=>x.id===cur); if(!g) return;
+  const g=S.groups.find(x=>x.id===cur&&x.m.includes(S.me)&&!S.gone[S.me+x.id]);
+  if(!g){ const f=active()[0]; if(f){cur=f.id;return renderThread(newId)} $('#gT').textContent='No chat open';$('#gS').textContent='';$('#gP').innerHTML='';$('#msgs').innerHTML='<div class="empty" style="margin:auto">Pick a chat, or start a new group with the + button.</div>';$('#pane').innerHTML='';return }
   $('#gT').innerHTML=(g.priv?lock:'')+esc(gname(g));
   $('#gS').textContent=g.dm?'Direct message':(g.priv?'Private group':'Group')+' · '+g.m.length+' people';
   $('#gP').innerHTML=g.m.map(id=>av(P[id])).join('');
   let last='',out='';
   gm(cur).forEach(m=>{const d=dayL(m.t); if(d!==last){out+=`<div class="day mono">${d}</div>`;last=d}
+    if(m.sys){out+=`<div class="sysm">${esc(m.x)}</div>`;return}
     const p=P[m.u], dom=p.e[0].split('@')[1];
-    out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${dom}</em></div><div class="x">${rich(m.x)}</div>${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
+    out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${dom}</em></div><div class="x">${rich(m.x)}</div>${filesHtml(m)}${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
     <div class="tools"><button data-rx="${m.id}">👍</button><button data-mt="${m.id}">Make task</button><button data-rp="${m.id}">Reply</button></div></div>`});
   $('#msgs').innerHTML=out; $('#msgs').scrollTop=$('#msgs').scrollHeight;
   renderPane();
@@ -398,10 +459,16 @@ function renderPane(){
     const ag=S.msgs.filter(m=>m.task&&m.task.ag&&!m.task.done);
     h=`<div class="mt"><div class="mono">Monday 27 Oct · 9:30</div><h4>Weekly meeting</h4>${ag.length?'<ul>'+ag.map(m=>`<li>${esc(m.task.title)} <span style="color:var(--faint)">· ${P[m.task.own].n.split(' ')[0]}</span></li>`).join('')+'</ul>':'<div class="empty" style="padding:0">Nothing on the agenda from chat yet.</div>'}</div>
     <div class="mt"><div class="mono">Meeting hub</div><h4>Start a meeting from this group</h4><div class="empty" style="padding:0 0 10px">Opens the ATRIUM meeting hub with this group as attendees, and the agenda filled from its tasks. Minutes and decisions post back here.</div><button class="cb go" onclick="this.textContent='Opens in the meeting hub (preview)'">Start meeting</button></div>`;
+  }else if(pane==='files'){
+    const fs=[]; gm(cur).forEach(m=>(m.files||[]).forEach((f,i)=>fs.push({m,f,i})));
+    h=fs.length?fs.reverse().map(({m,f,i})=>`<div class="fl">${f.type.startsWith('image/')&&f.url?`<img src="${f.url}" alt="">`:`<span class="ft ${ext(f)}">${ext(f).toUpperCase()}</span>`}<div class="d"><b>${esc(f.name)}</b><span>${P[m.u].n.split(' ')[0]} · ${fmt(m.t)} · ${size(f.size)}</span></div><button class="cb" data-view="${m.id}:${i}" style="height:30px;padding:0 12px">View</button></div>`).join(''):'<div class="empty">No files shared in this chat yet. Press the paperclip, drag files in, or paste an image.</div>';
+    h+='<div class="empty" style="padding:8px 0 0">Everyone in the chat can open every file. People you add later see them too.</div>';
   }else{
-    h=`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="acc" style="border:0;padding:6px 0">${av(P[id])}<div class="d">${P[id].n}<span>${P[id].e.join(' · ')}</span></div></div>`).join('')}</div>
+    const own=g.dm?null:(g.owner||g.m[0]);
+    h=`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
     <div class="mt"><div class="mono">CRM project</div><h4>${g.proj}</h4><div class="empty" style="padding:0">Tasks set in this group are filed to this project.</div></div>
-    <div class="mt"><div class="mono">Alerts</div><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute this group':'Mute this group'}</button></div>`;
+    <div class="mt"><div class="mono">This chat</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute':'Mute'}</button><button class="cb" data-arch="${g.id}">${isArch(g.id)?'Restore':'Archive'}</button><button class="cb" data-del="${g.id}" style="color:#ff9a9a">${g.dm||own!==S.me?'Remove from my list':'Delete for everyone'}</button></div></div>`;
+    setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg},0);
   }
   $('#pane').innerHTML=h;
 }
@@ -425,6 +492,7 @@ function toast(m,g){
 function incoming(m){
   m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); save();
   const g=S.groups.find(x=>x.id===m.g);
+  if(m.u!==S.me&&S.arch[S.me+m.g]) delete S.arch[S.me+m.g];
   const visible=OPEN&&cur===m.g&&document.visibilityState==='visible'&&(window.innerWidth>760||document.body.classList.contains('in-thread'));
   if(m.u!==S.me&&g.m.includes(S.me)){
     const hit=mentioned(m.g)&&S.men, mu=S.muted[S.me+m.g]&&!hit;
@@ -453,10 +521,74 @@ document.addEventListener('click',e=>{
   const mu=e.target.closest('[data-mute]'); if(mu){const k=S.me+mu.dataset.mute;S.muted[k]=!S.muted[k];save();paintAll();return}
   if(e.target.classList.contains('ov')) e.target.classList.remove('on');
 });
+
+/* ---- files ---- */
+let pend=[];
+const ext=f=>{const n=f.name.toLowerCase();return f.type.startsWith('image/')?'img':n.endsWith('.pdf')?'pdf':/\.docx?$/.test(n)?'doc':/\.(xlsx?|csv)$/.test(n)?'xls':/\.pptx?$/.test(n)?'ppt':(n.split('.').pop()||'file').slice(0,4)};
+const size=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+function toFile(f){return new Promise(res=>{
+  const o={name:f.name,type:f.type||'application/octet-stream',size:f.size};
+  if(f.size<=900*1024){const r=new FileReader();r.onload=()=>{o.url=r.result;res(o)};r.onerror=()=>res(o);r.readAsDataURL(f)}
+  else{o.url=URL.createObjectURL(f);o.tmp=1;res(o)}})}
+async function addFiles(list){for(const f of list){pend.push(await toFile(f))} renderPend()}
+function renderPend(){$('#pend').innerHTML=pend.map((f,i)=>`<div class="pc">${f.type.startsWith('image/')&&f.url?`<img src="${f.url}" alt="">`:`<span class="ft ${ext(f)}">${ext(f).toUpperCase()}</span>`}<span class="nm">${esc(f.name)}</span><button data-px="${i}">×</button></div>`).join('')}
+function filesHtml(m){ if(!m.files||!m.files.length) return '';
+  return '<div class="atts">'+m.files.map((f,i)=>f.type.startsWith('image/')&&f.url
+    ?`<button class="att-img" data-view="${m.id}:${i}"><img src="${f.url}" alt="${esc(f.name)}"></button>`
+    :`<div class="att-file"><span class="ft ${ext(f)}">${ext(f).toUpperCase()}</span><div><b>${esc(f.name)}</b><span class="sz">${size(f.size)}</span></div><div class="acts"><button data-view="${m.id}:${i}">View</button>${f.url?`<a href="${f.url}" download="${esc(f.name)}">Save</a>`:''}</div></div>`).join('')+'</div>'}
+async function viewFile(id,i){
+  const m=S.msgs.find(x=>x.id==id), f=m&&m.files&&m.files[i]; if(!f) return;
+  $('#vT').textContent=f.name; let h='';
+  if(!f.url) h='<div class="empty">This sample file is only a placeholder in the preview. In the real build every file is stored securely and everyone in the chat can open it.</div>';
+  else if(f.type.startsWith('image/')) h=`<img src="${f.url}" alt="">`;
+  else if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')){ try{const b=await (await fetch(f.url)).blob();h=`<iframe src="${URL.createObjectURL(b)}"></iframe>`}catch(e){h=`<a class="cb go" href="${f.url}" target="_blank">Open PDF</a>`} }
+  else h=`<div class="empty">${esc(f.name)} (${size(f.size)}). Word, Excel and PowerPoint files open in their own app once saved.</div><a class="cb go" style="display:inline-flex;margin-top:10px" href="${f.url}" download="${esc(f.name)}">Save a copy</a>`;
+  $('#vB').innerHTML=h; $('#ovView').classList.add('on');
+}
+$('#vX').onclick=()=>{$('#ovView').classList.remove('on');$('#vB').innerHTML=''};
+$('#attBtn').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
+$('#inp').addEventListener('paste',e=>{const fs=[...(e.clipboardData?e.clipboardData.files:[])];if(fs.length){e.preventDefault();addFiles(fs)}});
+['dragenter','dragover'].forEach(t=>$('#thread').addEventListener(t,e=>{if([...(e.dataTransfer?e.dataTransfer.types:[])].includes('Files')){e.preventDefault();$('#thread').classList.add('dragging')}}));
+['dragleave','drop'].forEach(t=>$('#thread').addEventListener(t,e=>{if(t==='drop'){e.preventDefault();addFiles([...e.dataTransfer.files])}if(t==='drop'||e.target===$('#thread'))$('#thread').classList.remove('dragging')}));
+
+/* ---- people, menu, archive, delete ---- */
+function sys(g,x){const m={g,u:S.me,sys:1,x};m.id=S.nid++;m.t=Date.now();S.msgs.push(m);S.read[S.me][g]=m.id}
+function addDlg(){const g=S.groups.find(x=>x.id===cur); if(!g||g.dm) return;
+  const rest=PEOPLE.filter(p=>!g.m.includes(p.id));
+  $('#addWho').innerHTML=rest.length?rest.map(p=>`<label><input type="checkbox" value="${p.id}"> ${p.n.split(' ')[0]} <span style="color:var(--faint)">${p.e[0].split('@')[1].split('.')[0]}</span></label>`).join(''):'<span class="empty" style="padding:0">Everyone on the team is already in.</span>';
+  $('#addMail').value=''; $('#ovAdd').classList.add('on')}
+let conf=null;
+function ask(t,b,yes,fn){$('#cT').textContent=t;$('#cB').textContent=b;$('#cYes').style.display='';$('#cYes').textContent=yes;$('#cNo').textContent='Cancel';conf=fn;$('#ovConf').classList.add('on')}
+$('#addBtn').onclick=()=>{const g=S.groups.find(x=>x.id===cur); if(g&&g.dm){ $('#cT').textContent='Add people to a direct message?'; $('#cB').textContent='A direct message is between two people. Start a new group with both of them and anyone else you want to add.'; $('#cYes').style.display='none'; $('#cNo').textContent='OK'; conf=null; $('#ovConf').classList.add('on'); return } addDlg()};
+$('#addCancel').onclick=()=>$('#ovAdd').classList.remove('on');
+$('#addSave').onclick=()=>{const g=S.groups.find(x=>x.id===cur); const ids=$$('#addWho input:checked').map(i=>i.value); const em=$('#addMail').value.trim().toLowerCase(); const names=[];
+  ids.forEach(id=>{g.m.push(id);S.read[id]=S.read[id]||{};S.read[id][g.id]=0;names.push(P[id].n)});
+  if(em&&/^\S+@(7even|haavn)\.au$/.test(em)){const who=PEOPLE.find(p=>p.e.includes(em)); if(who&&!g.m.includes(who.id)){g.m.push(who.id);names.push(who.n)} else if(!who){names.push(em+' (invited)')}}
+  if(names.length){sys(g.id,me().n.split(' ')[0]+' added '+names.join(', ')+' to the chat. They can see everything shared in it.');} save(); $('#ovAdd').classList.remove('on'); paintAll()};
+$('#cNo').onclick=()=>{$('#ovConf').classList.remove('on')};
+$('#cYes').onclick=()=>{$('#ovConf').classList.remove('on');if(conf)conf();conf=null};
+function doArchive(id){S.arch[S.me+id]=!S.arch[S.me+id]; save(); if(cur===id&&S.arch[S.me+id]){const f=active()[0];cur=f?f.id:null} document.body.classList.remove('in-thread'); paintAll()}
+function doDelete(id){const g=S.groups.find(x=>x.id===id); const own=!g.dm&&(g.owner||g.m[0])===S.me;
+  if(own) ask('Delete this chat for everyone?','"'+gname(g)+'" and every message and file in it will be removed for all '+g.m.length+' people. Tasks already in Workflow stay there.','Delete for everyone',()=>{S.groups=S.groups.filter(x=>x.id!==id);S.msgs=S.msgs.filter(m=>m.g!==id);if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()});
+  else ask('Remove this chat from your list?',g.dm?'The conversation stays with '+P[g.m.find(x=>x!==S.me)].n.split(' ')[0]+'.':'You leave the group. Everyone else keeps it, and anyone can add you back.','Remove',()=>{S.gone[S.me+id]=1;if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()})}
+$('#moreBtn').onclick=e=>{e.stopPropagation();const g=S.groups.find(x=>x.id===cur); if(!g) return; const own=!g.dm&&(g.owner||g.m[0])===S.me; const mu=S.muted[S.me+g.id];
+  const m=$('#menu'); m.innerHTML=`${g.dm?'':'<button data-mn="add">＋ Add people</button>'}<button data-mn="mute">${mu?'Unmute this chat':'Mute this chat'}</button><button data-mn="files">Files in this chat</button><button data-mn="arch">${isArch(g.id)?'Restore from archive':'Archive'}</button><hr><button class="red" data-mn="del">${g.dm||!own?'Remove from my list':'Delete for everyone'}</button>`;
+  const r=e.currentTarget.getBoundingClientRect(); m.style.top=(r.bottom+8)+'px'; m.style.right=Math.max(12,innerWidth-r.right)+'px'; m.classList.add('on')};
+document.addEventListener('click',e=>{const t=e.target.closest('#menu [data-mn]'); if(t){const a=t.dataset.mn; $('#menu').classList.remove('on');
+    if(a==='add')addDlg(); if(a==='mute'){const k=S.me+cur;S.muted[k]=!S.muted[k];save();paintAll()} if(a==='files'){pane='files';$('#side').classList.add('open');renderPane()} if(a==='arch')doArchive(cur); if(a==='del')doDelete(cur); return}
+  if(!e.target.closest('#menu')) $('#menu').classList.remove('on');
+  const v=e.target.closest('[data-view]'); if(v){const [id,i]=v.dataset.view.split(':');viewFile(id,+i);return}
+  const px=e.target.closest('[data-px]'); if(px){pend.splice(+px.dataset.px,1);renderPend();return}
+  const rm=e.target.closest('[data-rm]'); if(rm){const g=S.groups.find(x=>x.id===cur);g.m=g.m.filter(x=>x!==rm.dataset.rm);sys(g.id,me().n.split(' ')[0]+' removed '+P[rm.dataset.rm].n+' from the chat.');save();paintAll();return}
+  const ar=e.target.closest('[data-arch]'); if(ar){doArchive(ar.dataset.arch);return}
+  const dl=e.target.closest('[data-del]'); if(dl){doDelete(dl.dataset.del);return}
+});
+
 function send(){
-  const v=$('#inp').value.trim(); if(!v) return;
+  const v=$('#inp').value.trim(); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
-  const m={g:cur,u:S.me,x:v}; m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
+  const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; paintAll(m.id);
 }
 $('#sendBtn').onclick=send;
