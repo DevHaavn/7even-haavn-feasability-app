@@ -1,0 +1,135 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { isAuthenticated } from '../pages/PasswordGate'
+
+/**
+ * ATRIUM Chat, HIDDEN PREVIEW. Nothing here renders unless the preview is switched on in this browser:
+ * open ATRIUM once with ?chat=1 (and ?chat=0 to switch it off again). It carries made-up data only, in
+ * /atrium-chat.html; no real message, task or alert goes anywhere yet.
+ *
+ * One dock for the whole app: a small chat circle (and, where a screen has no footer circle, a floating
+ * one), the red count, a red banner and a soft chime when a message lands, and a glass drawer holding the chat.
+ * The chat page lives in an iframe that stays loaded while the preview is on, so alerts arrive on any screen.
+ */
+export const CHAT_FLAG = 'atrium_chat_preview'
+const EVT_TOGGLE = 'atrium-chat-toggle'
+const EVT_COUNT = 'atrium-chat-count'
+
+export function chatPreviewOn(): boolean {
+  try {
+    const q = new URLSearchParams(location.search)
+    if (q.get('chat') === '1') localStorage.setItem(CHAT_FLAG, '1')
+    if (q.get('chat') === '0') localStorage.removeItem(CHAT_FLAG)
+    return localStorage.getItem(CHAT_FLAG) === '1'
+  } catch { return false }
+}
+
+// The small circle for a footer row. Renders nothing when the preview is off.
+export function ChatButton({ color }: { color: string }) {
+  const [on] = useState(chatPreviewOn)
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    const h = (e: Event) => setN((e as CustomEvent).detail?.n || 0)
+    window.addEventListener(EVT_COUNT, h)
+    return () => window.removeEventListener(EVT_COUNT, h)
+  }, [])
+  if (!on) return null
+  return (
+    <button type="button" data-chat-btn aria-label="ATRIUM Chat" onClick={() => window.dispatchEvent(new Event(EVT_TOGGLE))}
+      style={{ position: 'relative', width: 24, height: 24, borderRadius: 999, border: `1px solid ${color}`, color, background: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 13, height: 13, fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}><path d="M4 5h16v11H9l-5 4z" /></svg>
+      {n > 0 && <span style={{ position: 'absolute', top: -6, right: -7, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#ef4444', color: '#fff', font: '500 10px/16px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 10px rgba(239,68,68,.6)' }}>{n}</span>}
+    </button>
+  )
+}
+
+function chime() {
+  try {
+    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const ctx = new Ctx(); const t = ctx.currentTime
+    ;[[880, 0], [1318, 0.13]].forEach(([f, d]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain()
+      o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(ctx.destination)
+      g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(0.16, t + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.5)
+      o.start(t + d); o.stop(t + d + 0.55)
+    })
+    setTimeout(() => ctx.close().catch(() => {}), 1200)
+  } catch { /* no audio */ }
+}
+
+type Toast = { id: number; title: string; body: string; gid: string }
+
+export default function ChatDock() {
+  const [on] = useState(chatPreviewOn)
+  const [authed, setAuthed] = useState(false)   // never on the access screen, only once signed in
+  const [open, setOpen] = useState(false)
+  const [n, setN] = useState(0)
+  const [toasts, setToasts] = useState<Toast[]>([])
+  const [floating, setFloating] = useState(true)
+  const frame = useRef<HTMLIFrameElement>(null)
+  const seq = useRef(0)
+
+  const tell = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage({ atriumChat: m.k, ...m }, '*')
+
+  useEffect(() => {
+    if (!on) return
+    const toggle = () => setOpen(o => !o)
+    const msg = (e: MessageEvent) => {
+      const d = e.data
+      if (!d || !d.atriumChat || e.source !== frame.current?.contentWindow) return
+      if (d.atriumChat === 'count') { setN(d.n || 0); window.dispatchEvent(new CustomEvent(EVT_COUNT, { detail: { n: d.n || 0 } })) }
+      if (d.atriumChat === 'close') setOpen(false)
+      if (d.atriumChat === 'alert') {
+        if (d.snd) chime()
+        if (d.red === 0) return
+        const id = ++seq.current
+        setToasts(t => [{ id, title: d.title, body: d.body, gid: d.gid }, ...t].slice(0, 3))
+        setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 7000)
+      }
+    }
+    window.addEventListener(EVT_TOGGLE, toggle); window.addEventListener('message', msg)
+    // a floating circle only where the screen has no footer circle of its own
+    const probe = setInterval(() => { setFloating(!document.querySelector('[data-chat-btn]')); setAuthed(isAuthenticated()) }, 800)
+    setAuthed(isAuthenticated())
+    return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); clearInterval(probe) }
+  }, [on])
+
+  useEffect(() => { tell({ k: 'visible', open }) }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!on) return
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k)
+  }, [on])
+
+  if (!on || !authed) return null
+  const glass: React.CSSProperties = { background: 'rgba(66,68,75,.62)', WebkitBackdropFilter: 'blur(30px) saturate(1.4)', backdropFilter: 'blur(30px) saturate(1.4)', border: '1px solid rgba(255,255,255,.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.22), 0 24px 70px rgba(0,0,0,.4)' }
+  return (
+    <>
+      {floating && !open && (
+        <button type="button" aria-label="ATRIUM Chat" onClick={() => setOpen(true)}
+          style={{ ...glass, position: 'fixed', right: 16, bottom: 'calc(16px + env(safe-area-inset-bottom))', zIndex: 9400, width: 38, height: 38, borderRadius: 999, color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0 }}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 17, height: 17, fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}><path d="M4 5h16v11H9l-5 4z" /></svg>
+          {n > 0 && <span style={{ position: 'absolute', top: -5, right: -5, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#ef4444', color: '#fff', font: '500 11px/18px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 12px rgba(239,68,68,.65)' }}>{n}</span>}
+        </button>
+      )}
+      <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
+      <aside aria-label="ATRIUM Chat" aria-hidden={!open}
+        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026a" onLoad={() => tell({ k: 'visible', open })}
+          style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
+      </aside>
+      <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>
+        {toasts.map(t => (
+          <div key={t.id} onClick={() => { setOpen(true); tell({ k: 'open-group', gid: t.gid }); setToasts(x => x.filter(y => y.id !== t.id)) }}
+            style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '15px 18px', borderRadius: 24, cursor: 'pointer', background: 'rgba(88,52,56,.78)', border: '1px solid rgba(255,120,120,.55)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.25), 0 14px 40px rgba(0,0,0,.35), 0 0 26px rgba(239,68,68,.45)', WebkitBackdropFilter: 'blur(26px) saturate(1.4)', backdropFilter: 'blur(26px) saturate(1.4)', color: '#fff', fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', marginTop: 6, flex: 'none', boxShadow: '0 0 10px #ef4444' }} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 400 }}>{t.title}</div>
+              <div style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,.86)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{t.body}</div>
+              <div style={{ fontSize: 11, fontWeight: 300, color: 'rgba(255,255,255,.6)', marginTop: 2 }}>ATRIUM Chat · now</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}

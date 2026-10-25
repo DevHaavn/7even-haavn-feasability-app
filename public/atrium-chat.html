@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATRIUM Chat</title>
+<meta name="theme-color" content="#3a3c42">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2d2f34;--panel:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.09);--line:rgba(255,255,255,.15);--bone:#fff;--soft:rgba(255,255,255,.88);--faint:rgba(255,255,255,.62);--glass:blur(28px) saturate(1.35);--hi:inset 0 1px 0 rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.22);--gold:#d6b36a;--red:#ef4444;--redglow:rgba(239,68,68,.45);--green:#2fe07a;--mine:#1b1a16;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:radial-gradient(1200px 700px at 15% -10%,#5a5d66 0%,transparent 60%),radial-gradient(900px 700px at 100% 110%,#464952 0%,transparent 60%),linear-gradient(160deg,#42444b,#2b2d32 70%) fixed;color:var(--bone);font:300 15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit;background:none;border:0;outline:0}
+.mono{font:300 11px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+#app{display:grid;grid-template-columns:72px 310px minmax(0,1fr) 350px;gap:12px;padding:12px;height:100dvh}
+#rail,#list,#thread,#side{border-radius:28px;background:var(--panel);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);box-shadow:var(--hi)}
+/* rail */
+#rail{display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+#rail .logo{width:38px;height:38px;margin-bottom:12px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.08);color:var(--gold);font-weight:400}
+.rb{position:relative;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:var(--faint);transition:.3s}
+.rb:hover,.rb.on{background:rgba(255,255,255,.14);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.rb.on::before{content:"";position:absolute;left:-9px;top:12px;bottom:12px;width:2px;background:var(--gold);border-radius:2px}
+.rb svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.badge{position:absolute;top:3px;right:2px;min-width:19px;height:19px;padding:0 6px;border-radius:10px;background:linear-gradient(180deg,#ff6a6a,#ef4444);color:#fff;font:500 11px/19px Inter;text-align:center;box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 16px var(--redglow)}
+.badge[hidden]{display:none}
+.badge.pulse{animation:pulse 1.6s ease-out 2}
+@keyframes pulse{0%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 0 var(--redglow)}70%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 12px rgba(239,68,68,0)}100%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 0 rgba(239,68,68,0)}}
+#rail .sp{flex:1}
+/* list */
+#list{display:flex;overflow:hidden;flex-direction:column;min-height:0}
+#list header{padding:16px 18px 10px;display:flex;align-items:center;gap:10px}
+#list h1{font-weight:300;font-size:20px;flex:1}
+.ib{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;color:var(--soft);border:1px solid var(--line);position:relative}
+.ib:hover{color:var(--bone);border-color:rgba(243,242,238,.25)}
+.ib svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.ib.off{color:var(--faint)}
+.ib.off::after{content:"";position:absolute;width:20px;height:1px;background:var(--red);rotate:-45deg}
+#search{margin:2px 16px 8px;padding:10px 16px;border:1px solid var(--line);border-radius:22px;font-size:13.5px;background:rgba(255,255,255,.08);color:#fff}
+#search::placeholder{color:var(--faint)}
+#groups{overflow:auto;flex:1;padding:4px 8px 16px}
+.sec{padding:14px 12px 6px}
+.g{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;border-radius:20px;position:relative;transition:background .25s}
+.g:hover{background:rgba(255,255,255,.07)}
+.g.on{background:rgba(255,255,255,.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:500 12px Inter;color:#2a2c30;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.av.sq{border-radius:14px}
+.g .gt{flex:1;min-width:0}
+.g .n{display:flex;gap:6px;align-items:center;font-size:14.5px;color:var(--soft)}
+.g .n b{font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g .n svg{width:12px;height:12px;stroke:var(--faint);fill:none;stroke-width:1.5;flex:none}
+.g .p{display:block;font-size:12.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.g.unread .n,.g.unread .n b{color:var(--bone);font-weight:400}.g.unread .p{color:var(--soft)}
+.g .m{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:11px;color:var(--faint)}
+.g .badge{position:static;box-shadow:0 0 12px var(--redglow)}
+.g.muted .n{opacity:.55}
+/* thread */
+#thread{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+#thead{display:flex;align-items:center;gap:14px;padding:12px 24px;border-bottom:1px solid var(--line);min-height:72px;background:rgba(255,255,255,.04)}
+#thead .back{display:none}
+#thead h2{font-weight:300;font-size:18px;display:flex;gap:8px;align-items:center}
+#thead h2 svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:1.5}
+#thead .sub{font-size:12.5px;color:var(--faint)}
+#thead .sp{flex:1}
+.pills{display:flex;gap:-6px}
+.pills .av{width:30px;height:30px;font-size:10px;margin-left:-8px;border:2px solid rgba(70,72,79,.95)}
+#msgs{flex:1;overflow:auto;padding:18px 22px 8px;display:flex;flex-direction:column;gap:2px}
+.day{align-self:center;margin:14px 0 8px;padding:3px 12px;border:1px solid var(--line);border-radius:20px}
+.msg{display:flex;gap:12px;padding:8px 10px;border-radius:20px;position:relative;max-width:760px}
+.msg:hover{background:rgba(255,255,255,.06)}
+.msg .av{width:34px;height:34px;margin-top:2px}
+.msg .b{min-width:0;flex:1}
+.msg .h{display:flex;gap:10px;align-items:baseline}
+.msg .h b{font-weight:400;font-size:14px}
+.msg .h span{font-size:11.5px;color:var(--faint)}
+.msg .h em{font-style:normal;font-size:10.5px;color:var(--faint);border:1px solid var(--line);padding:0 6px;border-radius:8px}
+.msg .x{color:#fff;word-wrap:break-word;white-space:pre-wrap}
+.men{color:var(--gold);background:rgba(214,179,106,.12);padding:0 4px;border-radius:5px}
+.msg.new{animation:newmsg 2.4s var(--ease)}
+@keyframes newmsg{0%{background:rgba(239,68,68,.16)}100%{background:transparent}}
+.tools{position:absolute;right:8px;top:-16px;display:none;gap:2px;background:rgba(70,72,79,.85);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:16px;padding:4px}
+.msg:hover .tools{display:flex}
+.tools button{padding:4px 11px;font-size:12px;color:var(--soft);border-radius:12px}
+.tools button:hover{background:rgba(243,242,238,.08);color:var(--bone)}
+.rx{display:flex;gap:6px;margin-top:4px}
+.rx span{font-size:12px;padding:1px 8px;border:1px solid var(--line);border-radius:12px;color:var(--soft)}
+.card{margin-top:8px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.25);border-radius:22px;padding:12px 14px;display:grid;gap:8px;max-width:460px}
+.card .tt{display:flex;gap:10px;align-items:center}
+.card .tt b{font-weight:400;flex:1}
+.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid #fff;display:grid;place-items:center;flex:none}
+.chk.done{background:#fff}.chk.done::after{content:"✓";color:#33353a;font-size:12px;line-height:1}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11.5px;padding:2px 10px;border-radius:12px;border:1px solid var(--line);color:var(--soft);display:inline-flex;gap:6px;align-items:center}
+.chip.g1{border-color:rgba(47,224,122,.35);color:#7be9ab}.chip.g2{border-color:rgba(214,179,106,.4);color:var(--gold)}.chip.r{border-color:rgba(239,68,68,.45);color:#ff8f8f}
+.typing{height:22px;padding:0 28px;font-size:12px;color:var(--faint)}
+#comp{margin:0 20px 20px;border:1px solid rgba(255,255,255,.2);border-radius:26px;background:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.22);padding:8px 10px 8px 20px;display:flex;align-items:flex-end;gap:8px}
+#comp textarea{flex:1;resize:none;max-height:120px;padding:9px 0;color:var(--bone)}
+#comp textarea::placeholder{color:var(--faint)}
+.cb{height:38px;padding:0 16px;border-radius:19px;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:13px;color:var(--soft);display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.cb:hover{color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.14)}
+.cb.go{background:linear-gradient(180deg,#e6c887,#d6b36a);color:#2a2418;border-color:var(--gold);font-weight:400}
+/* side panel */
+#side{overflow:hidden;display:flex;flex-direction:column;min-height:0}
+#tabs{display:flex;gap:4px;padding:14px 16px 0;border-bottom:1px solid var(--line);background:rgba(255,255,255,.04)}
+#tabs button{padding:8px 12px 12px;font-size:13.5px;color:var(--faint);position:relative}
+#tabs button.on{color:var(--bone)}
+#tabs button.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--gold)}
+#pane{flex:1;overflow:auto;padding:16px}
+.t{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:14px;border:1px solid var(--line);border-radius:22px;margin-bottom:10px;background:rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.t .chk{margin-top:2px;cursor:pointer}
+.t b{font-weight:400;display:block}
+.t.done b{text-decoration:line-through;color:var(--faint)}
+.t .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.empty{color:var(--faint);padding:20px 4px;font-size:13.5px}
+.mt{border:1px solid var(--line);border-radius:22px;padding:16px;background:rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.16);margin-bottom:12px}
+.mt h4{font-weight:400;font-size:15px;margin:4px 0 8px}
+.mt li{margin:0 0 6px 16px;font-size:13.5px;color:var(--soft)}
+/* toast */
+#toasts{position:fixed;top:16px;right:16px;display:grid;gap:10px;z-index:80;width:min(380px,calc(100vw - 32px))}
+.toast{display:flex;gap:12px;align-items:flex-start;padding:15px 18px;border-radius:24px;background:rgba(88,52,56,.72);border:1px solid rgba(255,120,120,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 14px 40px rgba(0,0,0,.35),0 0 26px var(--redglow);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);animation:in .5s var(--ease);cursor:pointer}
+.toast .dot{width:10px;height:10px;border-radius:50%;background:var(--red);margin-top:6px;flex:none;box-shadow:0 0 10px var(--red)}
+.toast b{font-weight:400;display:block;font-size:14px}.toast p{font-size:13px;color:var(--soft);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.toast small{color:var(--faint);font-size:11px}
+@keyframes in{from{opacity:0;translate:30px 0}to{opacity:1;translate:0 0}}
+/* sheets */
+.ov{position:fixed;inset:0;background:rgba(30,31,36,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:none;place-items:center;z-index:90;padding:16px}
+.ov.on{display:grid}
+.sheet{width:min(540px,100%);max-height:92dvh;overflow:auto;background:rgba(78,80,88,.78);-webkit-backdrop-filter:blur(34px) saturate(1.4);backdrop-filter:blur(34px) saturate(1.4);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 30px 80px rgba(0,0,0,.35);border-radius:30px;padding:26px}
+.sheet h3{font-weight:300;font-size:21px;margin-bottom:4px}
+.sheet .lead{color:var(--faint);font-size:13.5px;margin-bottom:16px}
+.f{display:grid;gap:6px;margin-bottom:14px}
+.f input,.f select,.f textarea{padding:11px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.1);color:#fff}
+.f select option{background:#44464d;color:#fff}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.sw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.sw .l{flex:1}.sw .l b{font-weight:400;display:block}.sw .l span{font-size:12.5px;color:var(--faint)}
+.tg{width:44px;height:26px;border-radius:13px;background:rgba(255,255,255,.2);position:relative;transition:.3s;flex:none}
+.tg::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#ddd;transition:.3s}
+.tg.on{background:#d6b36a}.tg.on::after{left:21px;background:#fff}
+.acc{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.acc .d{flex:1}.acc .d span{display:block;font-size:12px;color:var(--faint)}
+.ck{display:flex;flex-wrap:wrap;gap:8px}
+.ck label{display:flex;gap:7px;align-items:center;padding:7px 14px;border:1px solid var(--line);background:rgba(255,255,255,.07);border-radius:20px;font-size:13px;cursor:pointer}
+.ck input{accent-color:var(--gold)}
+#demo{position:fixed;left:calc(50% + 90px);bottom:104px;translate:-50% 0;z-index:60;display:flex;gap:8px;padding:7px;border-radius:26px;background:rgba(80,82,90,.7);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 36px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+#demo .mono{align-self:center;padding:0 8px}
+/* inside ATRIUM: the app's own drawer supplies the rail, a close button and the alerts */
+body:not(.embed) #xBtn{display:none}
+#tabbar{display:none}
+@media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:310px minmax(0,1fr) 350px}}
+@media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:310px minmax(0,1fr)}}
+body.embed #demo{left:calc(50% + 150px)}
+@media(max-width:760px){body.embed #demo{left:50%}}
+/* phone */
+@media(max-width:1180px){#app{grid-template-columns:64px 280px minmax(0,1fr)}#side{position:fixed;right:0;top:0;bottom:0;width:min(360px,100vw);z-index:50;transform:translateX(100%);transition:transform .45s var(--ease)}#side.open{transform:none}#sidebtn{display:grid!important}}
+@media(max-width:760px){
+ #app{display:block;position:relative;padding:0;gap:0}
+ #rail,#list,#thread,#side{border-radius:0;border:0;box-shadow:none}
+ #list{background:rgba(52,54,60,.35)}
+ #thread{background:rgba(52,54,60,.78)}
+ #rail{display:none}
+ #list,#thread{position:absolute;inset:0 0 calc(58px + env(safe-area-inset-bottom)) 0;width:100%;border:0}
+ #thread{z-index:5;transform:translateX(100%);transition:transform .4s var(--ease)}
+ body.in-thread #thread{transform:none}
+ body.in-thread #tabbar{display:none}
+ #thead{padding:10px 12px;min-height:60px}#thead .back{display:grid}
+ #thread{inset:0}
+ #msgs{padding:12px 10px 6px}#comp{margin:0 10px calc(10px + env(safe-area-inset-bottom))}
+ .tools{display:none!important}
+ #tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(70,72,79,.82);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border-top:1px solid var(--line);z-index:20}
+ #tabbar button{flex:1;display:grid;place-items:center;gap:0;position:relative;color:var(--faint);font-size:11px}
+ #tabbar button.on{color:var(--bone)}
+ #tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+ #tabbar .badge{top:4px;right:calc(50% - 22px)}
+ #toasts{top:calc(10px + env(safe-area-inset-top));right:10px;left:10px;width:auto}
+ #demo{left:50%;top:auto;bottom:calc(66px + env(safe-area-inset-bottom));flex-wrap:wrap;justify-content:center;width:calc(100vw - 20px)}
+ body.in-thread #demo{display:none}
+ #side{width:100vw}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav id="rail" aria-label="ATRIUM">
+    <div class="logo">A</div>
+    <button class="rb on" data-v="chat" title="Chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="badge" id="bChat" hidden></span></button>
+    <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
+    <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
+    <div class="sp"></div>
+    <button class="rb" id="meBtn" title="Account"><span class="av" id="meAv" style="width:34px;height:34px"></span></button>
+  </nav>
+
+  <section id="list">
+    <header>
+      <h1 id="listT">Chat</h1>
+      <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
+      <button class="ib" id="setBtn" title="Alerts and accounts"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button>
+      <button class="ib" id="newBtn" title="New group"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </header>
+    <input id="search" placeholder="Search chats and people">
+    <div id="groups"></div>
+  </section>
+
+  <section id="thread">
+    <div id="thead">
+      <button class="ib back" id="backBtn"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button>
+      <div><h2 id="gT"></h2><div class="sub" id="gS"></div></div>
+      <div class="sp"></div>
+      <div class="pills" id="gP"></div>
+      <button class="ib" id="sidebtn" style="display:none" title="Tasks and meeting"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></button>
+    </div>
+    <div id="msgs"></div>
+    <div class="typing" id="typing"></div>
+    <div id="comp">
+      <textarea id="inp" rows="1" placeholder="Type a message. Use @ to mention, or /task to set a task"></textarea>
+      <button class="cb" id="taskBtn">＋ Task</button>
+      <button class="cb go" id="sendBtn">Send</button>
+    </div>
+  </section>
+
+  <aside id="side">
+    <div id="tabs"><button class="on" data-p="tasks">Group tasks</button><button data-p="meet">Meeting</button><button data-p="files">About</button></div>
+    <div id="pane"></div>
+  </aside>
+</div>
+
+<nav id="tabbar">
+  <button class="on" data-v="chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Chat<span class="badge" id="bChat2" hidden></span></button>
+  <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Tasks<span class="badge" id="bTask2" hidden></span></button>
+  <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Meetings</button>
+  <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg>You</button>
+</nav>
+
+<div id="toasts"></div>
+<div id="demo"><span class="mono">Preview</span>
+  <button class="cb" id="dPhone">Message from phone</button>
+  <button class="cb" id="dDesk">Task from desktop</button>
+  <button class="cb" id="dMention">@mention me</button>
+</div>
+
+<div class="ov" id="ovTask"><div class="sheet">
+  <h3>New task</h3><div class="lead">Sets a task in this group and in ATRIUM Workflow.</div>
+  <div class="f"><label class="mono">Task</label><input id="tTitle" placeholder="What needs doing"></div>
+  <div class="row"><div class="f"><label class="mono">Owner</label><select id="tOwner"></select></div><div class="f"><label class="mono">Due</label><input type="date" id="tDue"></div></div>
+  <div class="row"><div class="f"><label class="mono">Priority</label><select id="tPri"><option>Normal</option><option>High</option><option>Low</option></select></div><div class="f"><label class="mono">Project (CRM)</label><select id="tProj"></select></div></div>
+  <div class="f"><label class="mono">Also send to</label><div class="ck"><label><input type="checkbox" id="tWf" checked> Workflow</label><label><input type="checkbox" id="tAg"> Monday meeting agenda</label></div></div>
+  <div class="row"><button class="cb" id="tCancel">Cancel</button><button class="cb go" id="tSave">Set task</button></div>
+</div></div>
+
+<div class="ov" id="ovGroup"><div class="sheet">
+  <h3>New group</h3><div class="lead">Private groups are only seen by the people you add.</div>
+  <div class="f"><label class="mono">Name</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
+  <div class="f"><label class="mono">Who</label><div class="ck" id="gWho"></div></div>
+  <div class="sw"><div class="l"><b>Private</b><span>Hidden from everyone not in the group</span></div><button class="tg on" id="gPriv"></button></div>
+  <div class="row" style="margin-top:12px"><button class="cb" id="gCancel">Cancel</button><button class="cb go" id="gSave">Create group</button></div>
+</div></div>
+
+<div class="ov" id="ovSet"><div class="sheet">
+  <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
+  <div class="sw" style="border:0"><div class="l"><b>Alert sound</b><span>A soft two-note chime when a message lands</span></div><button class="tg on" id="sSnd"></button></div>
+  <div class="sw"><div class="l"><b>Red alert on this device</b><span>Banner and badge while ATRIUM is open</span></div><button class="tg on" id="sRed"></button></div>
+  <div class="sw"><div class="l"><b>Push to your phone</b><span>Needs ATRIUM added to your Home Screen, then one tap on Allow</span></div><button class="tg" id="sPush"></button></div>
+  <div class="sw"><div class="l"><b>Email me if unread after 10 minutes</b><span>A safety net, to every address you have added</span></div><button class="tg on" id="sMail"></button></div>
+  <div class="sw"><div class="l"><b>Mentions and tasks always alert</b><span>Even in a muted group</span></div><button class="tg on" id="sMen"></button></div>
+  <div class="f" style="margin-top:16px"><label class="mono">Preview only: view ATRIUM as</label><select id="asWho"></select></div>
+  <h3 style="margin-top:22px;font-size:17px">Your accounts</h3>
+  <div class="lead" style="margin-bottom:6px">One ATRIUM you, whichever email you sign in with.</div>
+  <div id="accs"></div>
+  <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
+</div></div>
+
+<script>
+(function(){
+'use strict';
+const EMB=/[?&]embed=1/.test(location.search); let OPEN=!EMB;
+if(EMB) document.body.classList.add('embed');
+const $=(s,r)=> (r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const COL=['#d6b36a','#8fb4d9','#b58fd9','#7ed3a5','#e39a55','#d98f9a','#9fb4c8'];
+const PEOPLE=[
+ {id:'jb',n:'Jamie Baldwin',e:['jamie@7even.au','jamie@haavn.au'],c:0},
+ {id:'ds',n:'Daniel Sette',e:['daniel@7even.au'],c:1},
+ {id:'jw',n:'James Winstanley',e:['james@haavn.au'],c:2},
+ {id:'lj',n:'Lewis Jin',e:['lewis@7even.au','lewis@haavn.au'],c:3},
+ {id:'bn',n:'Ben Ormond',e:['ben@haavn.au'],c:4},
+ {id:'mf',n:'Mike Furniss',e:['mike@haavn.au'],c:5}
+];
+const P=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
+const av=(p,cls)=>`<span class="av ${cls||''}" style="background:${COL[p.c]}">${ini(p.n)}</span>`;
+const PROJECTS=['Belmont Estate','Corio Quarter','Preston','HAAVN BLACK','Palmerston Crescent','No project'];
+const now=Date.now(), mins=m=>now-m*60000;
+const KEY='atrium-chat-preview-v1';
+const SEED={
+ me:'jb',
+ groups:[
+  {id:'g1',n:'Belmont Estate',priv:true,m:['jb','ds','jw','lj'],proj:'Belmont Estate'},
+  {id:'g2',n:'HAAVN BLACK launch',priv:false,m:['jb','ds','jw','bn','mf'],proj:'HAAVN BLACK'},
+  {id:'g3',n:'Directors',priv:true,m:['jb','ds','lj'],proj:'No project'},
+  {id:'g4',n:'Preston IM',priv:true,m:['jb','ds','jw'],proj:'Preston'},
+  {id:'g5',n:'Daniel Sette',dm:true,m:['jb','ds'],proj:'No project'},
+  {id:'g6',n:'James Winstanley',dm:true,m:['jb','jw'],proj:'No project'}
+ ],
+ msgs:[
+  {id:1,g:'g1',u:'ds',t:mins(300),x:'Church package is the problem. $18.7m takes the residual negative at 20%. Need to look at staging it.'},
+  {id:2,g:'g1',u:'jw',t:mins(240),x:'Agree. @Jamie can we get WPCC to confirm the hall is 800 seats before we go back to them?'},
+  {id:3,g:'g1',u:'jb',t:mins(200),x:'Yes. I will call Monday. Daniel can you put the three staging options on one page?',task:{title:'Three staging options on one page',own:'ds',due:'2026-10-28',pri:'High',proj:'Belmont Estate',wf:1,ag:1,done:false}},
+  {id:4,g:'g2',u:'bn',t:mins(150),x:'Seth is sending the Studio plan drawing today. Do we hold the brochure until it lands?'},
+  {id:5,g:'g2',u:'mf',t:mins(120),x:'Customers on the weekend keep asking for the Plus price. Can I say from $399k yet?'},
+  {id:6,g:'g3',u:'lj',t:mins(1400),x:'Board pack goes out Thursday. Anything for the Corio paper?'},
+  {id:7,g:'g4',u:'jw',t:mins(2000),x:'Equity deck v3 is in SharePoint.'},
+  {id:8,g:'g5',u:'ds',t:mins(60),x:'Cash flow for Belmont is updated. Two minutes when you are free.'},
+  {id:9,g:'g6',u:'jw',t:mins(35),x:'Workflow V1 fixes are live. Can you check the meeting hub on your phone?'}
+ ],
+ read:{jb:{g1:3,g2:3,g3:6,g4:7,g5:7,g6:8},ds:{},jw:{},lj:{},bn:{},mf:{}},
+ muted:{},
+ snd:1, red:1, push:0, mail:1, men:1, nid:20, tid:1
+};
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let cur='g1', view='chat', pane='tasks', actx=null;
+
+/* ---- sound: two soft notes, made in the browser ---- */
+function chime(){
+  if(!S.snd||EMB) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const t=actx.currentTime;
+    [[880,0],[1318,.13]].forEach(([f,d])=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0,t+d); g.gain.linearRampToValueAtTime(.16,t+d+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d+.5);
+      o.start(t+d); o.stop(t+d+.55);
+    });
+  }catch(e){}
+}
+
+/* ---- data helpers ---- */
+const me=()=>P[S.me];
+const mine=()=>S.groups.filter(g=>g.m.includes(S.me));
+const gm=g=>S.msgs.filter(m=>m.g===g).sort((a,b)=>a.t-b.t);
+const lastRead=(g)=> (S.read[S.me]||{})[g]||0;
+const unread=g=>gm(g).filter(m=>m.id>lastRead(g)&&m.u!==S.me).length;
+const mentioned=(g)=>gm(g).some(m=>m.id>lastRead(g)&&m.u!==S.me&&(m.x.includes('@'+me().n.split(' ')[0])||(m.task&&m.task.own===S.me)));
+const totalUnread=()=>mine().filter(g=>!S.muted[S.me+g.id]||(S.men&&mentioned(g.id))).reduce((a,g)=>a+unread(g.id),0);
+const openTasks=()=>S.msgs.filter(m=>m.task&&!m.task.done&&m.task.own===S.me).length;
+const gname=g=>g.dm? P[g.m.find(x=>x!==S.me)].n : g.n;
+const fmt=t=>{const d=new Date(t),n=new Date();const hm=d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'});return d.toDateString()===n.toDateString()?hm:d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' '+hm};
+const dayL=t=>{const d=new Date(t),n=new Date();return d.toDateString()===n.toDateString()?'Today':d.toDateString()===new Date(n-864e5).toDateString()?'Yesterday':d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'})};
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const rich=s=>esc(s).replace(/@([A-Z][a-z]+)/g,'<span class="men">@$1</span>');
+const lock='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+
+/* ---- render ---- */
+function renderList(){
+  const q=$('#search').value.toLowerCase();
+  const gs=mine().filter(g=>gname(g).toLowerCase().includes(q));
+  const row=g=>{const ms=gm(g.id),l=ms[ms.length-1],u=unread(g.id),mu=S.muted[S.me+g.id];
+    const who=g.dm?P[g.m.find(x=>x!==S.me)]:null;
+    return `<button class="g ${g.id===cur?'on':''} ${u?'unread':''} ${mu?'muted':''}" data-g="${g.id}">
+      ${who?av(who):`<span class="av sq" style="background:${COL[(g.id.charCodeAt(1))%7]}">${ini(g.n)}</span>`}
+      <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}</span><span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
+      <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`};
+  $('#groups').innerHTML=`<div class="sec mono">Groups</div>`+gs.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+gs.filter(g=>g.dm).map(row).join('');
+  const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
+  const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
+  document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
+  if(EMB) try{parent.postMessage({atriumChat:'count',n:tu,t:ot},'*')}catch(e){}
+  $('#meAv').outerHTML=`<span class="av" id="meAv" style="width:34px;height:34px;background:${COL[me().c]}">${ini(me().n)}</span>`;
+  $('#sndBtn').classList.toggle('off',!S.snd);
+}
+function taskCard(m){const t=m.task;return `<div class="card"><div class="tt"><button class="chk ${t.done?'done':''}" data-done="${m.id}"></button><b>${esc(t.title)}</b>${t.pri==='High'?'<span class="chip r">High</span>':''}</div>
+  <div class="meta"><span class="chip">${av(P[t.own],'').replace('class="av ','class="av ').replace('<span','<span style="width:16px;height:16px;font-size:8px;"')} ${P[t.own].n}</span><span class="chip">Due ${new Date(t.due).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>${t.proj!=='No project'?`<span class="chip g2">CRM · ${t.proj}</span>`:''}${t.wf?'<span class="chip g1">In Workflow</span>':''}${t.ag?'<span class="chip g1">On Monday agenda</span>':''}</div></div>`}
+function renderThread(newId){
+  const g=S.groups.find(x=>x.id===cur); if(!g) return;
+  $('#gT').innerHTML=(g.priv?lock:'')+esc(gname(g));
+  $('#gS').textContent=g.dm?'Direct message':(g.priv?'Private group':'Group')+' · '+g.m.length+' people';
+  $('#gP').innerHTML=g.m.map(id=>av(P[id])).join('');
+  let last='',out='';
+  gm(cur).forEach(m=>{const d=dayL(m.t); if(d!==last){out+=`<div class="day mono">${d}</div>`;last=d}
+    const p=P[m.u], dom=p.e[0].split('@')[1];
+    out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${dom}</em></div><div class="x">${rich(m.x)}</div>${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
+    <div class="tools"><button data-rx="${m.id}">👍</button><button data-mt="${m.id}">Make task</button><button data-rp="${m.id}">Reply</button></div></div>`});
+  $('#msgs').innerHTML=out; $('#msgs').scrollTop=$('#msgs').scrollHeight;
+  renderPane();
+}
+function renderPane(){
+  const g=S.groups.find(x=>x.id===cur);
+  $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===pane));
+  let h='';
+  if(pane==='tasks'){
+    const ts=gm(cur).filter(m=>m.task);
+    h=ts.length?ts.map(m=>`<div class="t ${m.task.done?'done':''}"><button class="chk ${m.task.done?'done':''}" data-done="${m.id}"></button><div><b>${esc(m.task.title)}</b><div class="meta"><span class="chip">${P[m.task.own].n.split(' ')[0]}</span><span class="chip ${m.task.pri==='High'?'r':''}">Due ${new Date(m.task.due).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>${m.task.wf?'<span class="chip g1">Workflow</span>':''}${m.task.ag?'<span class="chip g1">Agenda</span>':''}</div></div></div>`).join(''):'<div class="empty">No tasks in this group yet. Press ＋ Task, or hover a message and choose Make task.</div>';
+    h+=`<div class="mono" style="margin:16px 2px 6px">How a task travels</div><div class="empty" style="padding:0">Set here, it appears in ATRIUM Workflow under the owner, on the project in the CRM, and, if you tick it, on the Monday meeting agenda. Tick it done in any of those and it ticks here.</div>`;
+  }else if(pane==='meet'){
+    const ag=S.msgs.filter(m=>m.task&&m.task.ag&&!m.task.done);
+    h=`<div class="mt"><div class="mono">Monday 27 Oct · 9:30</div><h4>Weekly meeting</h4>${ag.length?'<ul>'+ag.map(m=>`<li>${esc(m.task.title)} <span style="color:var(--faint)">· ${P[m.task.own].n.split(' ')[0]}</span></li>`).join('')+'</ul>':'<div class="empty" style="padding:0">Nothing on the agenda from chat yet.</div>'}</div>
+    <div class="mt"><div class="mono">Meeting hub</div><h4>Start a meeting from this group</h4><div class="empty" style="padding:0 0 10px">Opens the ATRIUM meeting hub with this group as attendees, and the agenda filled from its tasks. Minutes and decisions post back here.</div><button class="cb go" onclick="this.textContent='Opens in the meeting hub (preview)'">Start meeting</button></div>`;
+  }else{
+    h=`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="acc" style="border:0;padding:6px 0">${av(P[id])}<div class="d">${P[id].n}<span>${P[id].e.join(' · ')}</span></div></div>`).join('')}</div>
+    <div class="mt"><div class="mono">CRM project</div><h4>${g.proj}</h4><div class="empty" style="padding:0">Tasks set in this group are filed to this project.</div></div>
+    <div class="mt"><div class="mono">Alerts</div><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute this group':'Mute this group'}</button></div>`;
+  }
+  $('#pane').innerHTML=h;
+}
+function paintAll(newId){renderList();renderThread(newId);setView()}
+function setView(){
+  const t=view==='tasks'||view==='meet';
+  $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  $('#listT').textContent={chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view];
+  if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
+}
+
+/* ---- notifications ---- */
+function toast(m,g){
+  if(EMB){ try{parent.postMessage({atriumChat:'alert',title:P[m.u].n+' · '+gname(g),body:m.task?'Set you a task: '+m.task.title:m.x,gid:g.id,red:S.red,snd:S.snd},'*')}catch(e){} return }
+  if(!S.red) return;
+  const p=P[m.u], el=document.createElement('div');
+  el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Chat · now</small></div>`;
+  el.onclick=()=>{open(g.id);el.remove()};
+  $('#toasts').prepend(el); setTimeout(()=>el.remove(),7000);
+}
+function incoming(m){
+  m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); save();
+  const g=S.groups.find(x=>x.id===m.g);
+  const visible=OPEN&&cur===m.g&&document.visibilityState==='visible'&&(window.innerWidth>760||document.body.classList.contains('in-thread'));
+  if(m.u!==S.me&&g.m.includes(S.me)){
+    const hit=mentioned(m.g)&&S.men, mu=S.muted[S.me+m.g]&&!hit;
+    if(visible){ S.read[S.me][m.g]=m.id; }
+    else if(!mu){ toast(m,g); chime(); $$('.badge').forEach(b=>{b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')}); }
+  }
+  paintAll(visible?m.id:null);
+}
+function open(id){
+  cur=id; const ms=gm(id); if(ms.length){S.read[S.me]=S.read[S.me]||{};S.read[S.me][id]=ms[ms.length-1].id}
+  save(); document.body.classList.add('in-thread'); view='chat'; paintAll();
+}
+
+/* ---- wiring ---- */
+$('#groups').onclick=e=>{const b=e.target.closest('[data-g]'); if(b) open(b.dataset.g)};
+$('#search').oninput=renderList;
+$('#backBtn').onclick=()=>{document.body.classList.remove('in-thread');renderList()};
+$$('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.body.classList.remove('in-thread');setView();if(view!=='chat'&&innerWidth<=760){$('#side').classList.add('open')}});
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pane=b.dataset.p;renderPane()}};
+$('#sidebtn').onclick=()=>$('#side').classList.toggle('open');
+document.addEventListener('click',e=>{
+  const d=e.target.closest('[data-done]'); if(d){const m=S.msgs.find(x=>x.id==d.dataset.done);m.task.done=!m.task.done;save();paintAll();return}
+  const r=e.target.closest('[data-rx]'); if(r){const m=S.msgs.find(x=>x.id==r.dataset.rx);m.rx=(m.rx||[]).concat('👍 '+me().n.split(' ')[0]);save();renderThread();return}
+  const mt=e.target.closest('[data-mt]'); if(mt){const m=S.msgs.find(x=>x.id==mt.dataset.mt);taskDlg(m.x);return}
+  const rp=e.target.closest('[data-rp]'); if(rp){const m=S.msgs.find(x=>x.id==rp.dataset.rp);$('#inp').value='@'+P[m.u].n.split(' ')[0]+' ';$('#inp').focus();return}
+  const mu=e.target.closest('[data-mute]'); if(mu){const k=S.me+mu.dataset.mute;S.muted[k]=!S.muted[k];save();paintAll();return}
+  if(e.target.classList.contains('ov')) e.target.classList.remove('on');
+});
+function send(){
+  const v=$('#inp').value.trim(); if(!v) return;
+  if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
+  const m={g:cur,u:S.me,x:v}; m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
+  S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; paintAll(m.id);
+}
+$('#sendBtn').onclick=send;
+$('#inp').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
+$('#inp').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(120,e.target.scrollHeight)+'px'};
+/* task dialog */
+function taskDlg(text){
+  const g=S.groups.find(x=>x.id===cur);
+  $('#tTitle').value=text||''; $('#tOwner').innerHTML=g.m.map(id=>`<option value="${id}">${P[id].n}</option>`).join('');
+  $('#tProj').innerHTML=PROJECTS.map(p=>`<option ${p===g.proj?'selected':''}>${p}</option>`).join('');
+  const d=new Date(Date.now()+3*864e5);$('#tDue').value=d.toISOString().slice(0,10);
+  $('#ovTask').classList.add('on'); setTimeout(()=>$('#tTitle').focus(),50);
+}
+$('#taskBtn').onclick=()=>taskDlg($('#inp').value.trim());
+$('#tCancel').onclick=()=>$('#ovTask').classList.remove('on');
+$('#tSave').onclick=()=>{
+  const title=$('#tTitle').value.trim(); if(!title) return;
+  const m={g:cur,u:S.me,x:'Set a task for '+P[$('#tOwner').value].n.split(' ')[0]+'.',task:{title,own:$('#tOwner').value,due:$('#tDue').value,pri:$('#tPri').value,proj:$('#tProj').value,wf:$('#tWf').checked?1:0,ag:$('#tAg').checked?1:0,done:false}};
+  m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); S.read[S.me][cur]=m.id; $('#inp').value='';save();
+  $('#ovTask').classList.remove('on'); pane='tasks'; paintAll(m.id);
+};
+/* new group */
+$('#newBtn').onclick=()=>{ $('#gWho').innerHTML=PEOPLE.filter(p=>p.id!==S.me).map(p=>`<label><input type="checkbox" value="${p.id}"> ${p.n.split(' ')[0]} <span style="color:var(--faint)">${p.e[0].split('@')[1].split('.')[0]}</span></label>`).join(''); $('#gName').value=''; $('#gPriv').classList.add('on'); $('#ovGroup').classList.add('on'); };
+$('#gPriv').onclick=e=>e.target.classList.toggle('on');
+$('#gCancel').onclick=()=>$('#ovGroup').classList.remove('on');
+$('#gSave').onclick=()=>{const n=$('#gName').value.trim(); if(!n) return; const who=$$('#gWho input:checked').map(i=>i.value);
+  const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...who],proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); open(g.id)};
+/* settings */
+const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
+function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',!!S[k]));
+  $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
+Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime()});
+$('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on')};
+$('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};
+$('#sDone').onclick=()=>$('#ovSet').classList.remove('on');
+$('#addAcc').onclick=()=>{const em=prompt('Preview: the real button opens Microsoft sign in. Type an email to add:','jamie@newcompany.com.au'); if(em){me().e.push(em);paintSet()}};
+$('#sndBtn').onclick=()=>{S.snd=S.snd?0:1;save();renderList();if(S.snd)chime()};
+/* demo */
+function away(){ // move off the open group so the alert shows
+  if(cur==='g2'&&document.body.classList.contains('in-thread')||true){}
+}
+$('#dPhone').onclick=()=>{ const g=mine().find(x=>x.id==='g2')||mine()[0]; incoming({g:g.id,u:'mf',x:'Just got off site. Customer at the display wants a quote on the Plus today, are we sending one?'}) };
+$('#dDesk').onclick=()=>{ const g=mine().find(x=>x.id==='g1'); incoming({g:g.id,u:'jw',x:'Setting this now.',task:{title:'Call WPCC to confirm hall seating (800)',own:S.me,due:new Date(Date.now()+864e5).toISOString().slice(0,10),pri:'High',proj:'Belmont Estate',wf:1,ag:1,done:false}}) };
+$('#dMention').onclick=()=>{ const g=mine().find(x=>x.id==='g3')||mine()[0]; incoming({g:g.id,u:'lj',x:'@Jamie the Corio paper needs your sign off before Thursday.'}) };
+// the other people: switch who you are, to see their unread
+document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.me=PEOPLE[e.key-1].id;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintAll()} });
+window.addEventListener('message',e=>{const d=e.data; if(!d||!d.atriumChat) return;
+  if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
+  if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
+$('#xBtn').onclick=()=>{try{parent.postMessage({atriumChat:'close'},'*')}catch(e){}};
+paintAll(); setView();
+if(innerWidth>760){ // open the first group on desktop without clearing the others
+  S.read[S.me].g1=3;
+}
+})();
+</script>
+</body>
+</html>

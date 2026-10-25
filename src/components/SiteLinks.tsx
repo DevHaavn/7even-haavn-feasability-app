@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { DesignCredit } from './ui'
 import UpdateButton from './UpdateButton'
+import { ChatButton } from './ChatDock'
 
 // Melbourne time, ticking, for the footer's Live line.
 function FootClock() {
@@ -53,6 +54,8 @@ export default function SiteLinks({ tone = 'dark', onLogout }: { tone?: 'dark' |
         <a href="https://www.haavn.au" target="_blank" rel="noopener noreferrer" style={link} onMouseEnter={e => over(e, true)} onMouseLeave={e => over(e, false)}>haavn.au</a>
         {/* Get-latest: the single refresh circle. */}
         <UpdateButton tone={tone} />
+        {/* ATRIUM Chat (hidden preview): renders only where ?chat=1 has switched it on */}
+        <ChatButton color={textCol} />
         {onLogout && (
           <button type="button" onClick={onLogout} aria-label="Log out" style={{ ...link, background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
             onMouseEnter={e => { e.currentTarget.style.color = hoverCol }} onMouseLeave={e => { e.currentTarget.style.color = textCol }}>Log out</button>

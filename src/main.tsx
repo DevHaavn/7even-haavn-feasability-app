@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App'
+import ChatDock from './components/ChatDock'
 import './theme/theme.css'
 import './index.css'
 import './styles/atrium-studio.css'
@@ -12,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HashRouter>
       <App />
+      <ChatDock />
     </HashRouter>
   </React.StrictMode>
 )
