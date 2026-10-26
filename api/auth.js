@@ -72,7 +72,14 @@ module.exports = async (req, res) => {
       const body = new URLSearchParams({ client_id: clientId, client_secret: secret, grant_type: 'authorization_code', code: String(req.query.code),
         redirect_uri: origin(req) + '/api/auth/callback', code_verifier: flow.verifier })
       const tr = await fetch('https://login.microsoftonline.com/organizations/oauth2/v2.0/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body })
-      if (!tr.ok) throw new Error('Microsoft refused the sign-in (' + tr.status + ')')
+      if (!tr.ok) {
+        let j = {}; try { j = await tr.json() } catch { /* not JSON */ }
+        const codes = String(j.error_description || '').match(/AADSTS\d+/)
+        const bad = j.error === 'invalid_client' || (codes && ['AADSTS7000215', 'AADSTS7000222', 'AADSTS7000218'].includes(codes[0]))
+        throw new Error(bad
+          ? 'Microsoft does not accept the app secret saved in Vercel (' + (codes ? codes[0] : 'invalid_client') + '). The secret must be the Value of a current client secret, not its Secret ID, and it must not have expired. Make a new secret in Entra and save its Value as MS_AUTH_CLIENT_SECRET.'
+          : 'Microsoft refused the sign-in (' + tr.status + (j.error ? ', ' + j.error : '') + (codes ? ', ' + codes[0] : '') + ')')
+      }
       const { id_token } = await tr.json()
       const who = A.readIdToken(id_token, { clientId, nonce: flow.nonce })
       const person = A.personByEmail(who.email, await linked(env), env)
