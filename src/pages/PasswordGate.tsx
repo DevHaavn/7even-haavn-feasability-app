@@ -61,6 +61,8 @@ function markAuthenticated() {
 // Auth logic unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 export type Company = '7even' | 'haavn' | 'black'
+// Set when someone logs out, so the Microsoft session is not picked straight back up on the next screen.
+export const SIGNED_OUT = 'atrium_signed_out'
 
 const CSS = `
 .pg-root{position:fixed;inset:0;background:#0B0D0F;color:#F3F2EE;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
@@ -84,6 +86,7 @@ const CSS = `
 
 .pg-tag{font:300 15px Inter,system-ui,sans-serif;letter-spacing:0;color:#B5B5B2;margin:24px 0 0;text-align:left;max-width:32ch;line-height:1.66}
 .pg-panel{margin-top:30px;width:100%;min-height:236px;position:relative}
+.pg-panel.ms{min-height:288px}
 .pg-view{position:absolute;inset:0 0 auto 0;display:flex;flex-direction:column;gap:14px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .6s,transform .6s}
 .pg-view.on{opacity:1;transform:none;pointer-events:auto}
 .pg-view.shake{animation:pg-shake .4s ease}
@@ -112,6 +115,11 @@ const CSS = `
 .pg-cobtn:hover .n{color:#F3F2EE}
 .pg-cobtn:hover .d{color:#B5B5B2}
 .pg-cobtn:focus-visible{outline:1px solid rgba(243,242,238,.5);outline-offset:4px}
+.pg-ms{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;margin-top:6px;padding:0 0 6px;border:0;border-bottom:1px solid rgba(243,242,238,.2);background:transparent;color:#B5B5B2;
+  font:300 14px Inter,system-ui,sans-serif;letter-spacing:0;text-decoration:none;cursor:pointer;transition:color .3s,border-color .3s}
+.pg-ms:hover{color:#F3F2EE;border-bottom-color:#F3F2EE}
+.pg-ms svg{width:13px;height:13px;display:block;flex:none}
+.pg-or{font:300 12px Inter,system-ui,sans-serif;color:#9A9A97;margin-top:4px}
 .pg-x7{height:11px;width:auto;display:block}
 .pg-err{color:#e0645c;font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;text-align:left;min-height:14px}
 .pg-co{display:flex;flex-direction:column}
@@ -239,6 +247,28 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
   // for an already-authenticated session (role set on an earlier visit, not
   // this render), attempt() never runs, so the stored role is the only signal.
   const [haavnOnly, setHaavnOnly] = useState(() => getStoredRole() === 'haavnonly')
+  // Sign in with Microsoft: the button shows only once the server says it is set up (?ms=1 shows it anyway, to look at it).
+  const [ms, setMs] = useState(false)
+  useEffect(() => {
+    let off = false
+    const forced = /[?&]ms=1\b/.test(location.search)
+    fetch('/api/auth/config', { credentials: 'same-origin' }).then(r => (r.ok ? r.json() : null)).then(j => { if (!off) setMs(!!(j && j.microsoft) || forced) }).catch(() => { if (!off) setMs(forced) })
+    // A Microsoft session from an earlier visit signs this screen in again by itself, to the same screen the person's access code gives.
+    let signedOut = false
+    try { signedOut = !!sessionStorage.getItem(SIGNED_OUT) } catch { /* ignore */ }
+    if (!chooser && !signedOut) {
+      fetch('/api/auth/me', { credentials: 'same-origin' }).then(r => (r.ok ? r.json() : null)).then(j => {
+        if (off || !j || !j.ok) return
+        const app = j.person.app as 'admin' | 'haavnonly' | 'homes' | 'external' | 'blacksales'
+        markAuthenticated()
+        setStoredRole(app)
+        try { localStorage.setItem('atrium_me', j.person.name) } catch { /* ignore */ }
+        if (app === 'admin' || app === 'haavnonly') { setHaavnOnly(app === 'haavnonly'); setStage('co') } else onAuth()
+      }).catch(() => { /* not signed in with Microsoft: the access code works as before */ })
+    }
+    return () => { off = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function attempt() {
     let mike = false
@@ -299,7 +329,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
         <div className="pg-under">
         <p className="pg-tag">Engine, precision and intelligence.</p>
 
-        <div className="pg-panel">
+        <div className={`pg-panel${ms ? ' ms' : ''}`}>
           <div className={`pg-view${stage === 'login' ? ' on' : ''}${shake ? ' shake' : ''}`}>
             <div className="pg-lbl">Private access</div>
             <div className="pg-field">
@@ -319,6 +349,15 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
             </div>
             <div className="pg-err">{error ? 'Incorrect access code' : ''}</div>
             <button className="pg-btn" type="button" onClick={attempt}>Enter <SevenX className="pg-x7" /></button>
+            {ms && (
+              <>
+                <div className="pg-or">or</div>
+                <a className="pg-ms" href="/api/auth/login?return=%2F" tabIndex={stage === 'login' ? 0 : -1} onClick={() => { try { sessionStorage.removeItem(SIGNED_OUT) } catch { /* ignore */ } }}>
+                  <svg viewBox="0 0 13 13" aria-hidden="true"><path d="M.5.5h5.5v5.5H.5zM7 .5h5.5v5.5H7zM.5 7h5.5v5.5H.5zM7 7h5.5v5.5H7z" fill="none" stroke="currentColor" strokeWidth="1" /></svg>
+                  Sign in with Microsoft
+                </a>
+              </>
+            )}
           </div>
 
           <div className={`pg-view${stage === 'co' ? ' on' : ''}`}>

@@ -12,28 +12,29 @@ const FLOW_COOKIE = 'atrium_auth_flow'
 const SESSION_DAYS = 14
 
 // The team, from the same roster the Blaze connector uses. Role decides what the server will let a person read or write.
-//   admin     directors and the head of HAAVN Management: everything
+//   admin     the three directors: everything
 //   staff     the team: Workflow, meetings, chat, HAAVN work
 //   blacksales  the HAAVN BLACK sales login: display and sales tools only
 //   external  consultants and designers: chat they are added to, nothing else
+// `app` is the role the ATRIUM screens already know (admin, haavnonly, homes, blacksales, external) so signing in with Microsoft lands where the same person's access code does.
 const PEOPLE = [
-  { id: 'jb', name: 'Jamie Baldwin', role: 'admin', emails: ['jamie@7even.au'] },
-  { id: 'ds', name: 'Daniel Sette', role: 'admin', emails: ['daniel@7even.au'] },
-  { id: 'lj', name: 'Lewis Jin', role: 'admin', emails: ['lewis@7even.au'] },
-  { id: 'jw', name: 'James Winstanley', role: 'admin', emails: ['james@haavn.au'] },
-  { id: 'cm', name: 'Callum Macdonald', role: 'staff', emails: ['callum@haavn.au'] },
-  { id: 'mf', name: 'Mike Furniss', role: 'blacksales', emails: ['mike@haavn.au'] },
-  { id: 'cw', name: 'Christina Witbreuk', role: 'staff', emails: ['christina@haavn.au'] },
-  { id: 'dp', name: 'Domenic Paolilli', role: 'staff', emails: ['domenic@haavn.au'] },
-  { id: 'jd', name: 'John Dimattina', role: 'staff', emails: ['john@haavn.au'] },
-  { id: 'jwi', name: 'Jeffrey Witbreuk', role: 'staff', emails: ['jeffrey@haavn.au'] },
-  { id: 'jm', name: 'James Maloney', role: 'staff', emails: ['jamesm@haavn.au'] },
-  { id: 'ab', name: 'Amy Baldwin', role: 'staff', emails: ['accounts@7even.au'] },
-  { id: 'dm', name: 'Dominika Ma', role: 'staff', emails: ['accounts@haavn.au'] },
-  { id: 'ar', name: 'Alessia Bresciano', role: 'staff', emails: ['reception@haavn.au'] },
-  { id: 'bz', name: 'Bonnie Zhao', role: 'staff', emails: ['bonnie@haavn.au'] },
-  { id: 'cf', name: 'Callum Fraser', role: 'external', emails: ['c.fraser@fraserandpartners.com'] },
-  { id: 'lm', name: 'Lucas Menegazzo', role: 'external', emails: ['l.menegazzo@fraserandpartners.com'] },
+  { id: 'jb', name: 'Jamie Baldwin', role: 'admin', app: 'admin', emails: ['jamie@7even.au'] },
+  { id: 'ds', name: 'Daniel Sette', role: 'admin', app: 'admin', emails: ['daniel@7even.au'] },
+  { id: 'lj', name: 'Lewis Jin', role: 'admin', app: 'admin', emails: ['lewis@7even.au'] },
+  { id: 'jw', name: 'James Winstanley', role: 'staff', app: 'haavnonly', emails: ['james@haavn.au'] },
+  { id: 'cm', name: 'Callum Macdonald', role: 'staff', app: 'haavnonly', emails: ['callum@haavn.au'] },
+  { id: 'mf', name: 'Mike Furniss', role: 'blacksales', app: 'blacksales', emails: ['mike@haavn.au'] },
+  { id: 'cw', name: 'Christina Witbreuk', role: 'staff', app: 'homes', emails: ['christina@haavn.au'] },
+  { id: 'dp', name: 'Domenic Paolilli', role: 'staff', app: 'haavnonly', emails: ['domenic@haavn.au'] },
+  { id: 'jd', name: 'John Dimattina', role: 'staff', app: 'haavnonly', emails: ['john@haavn.au'] },
+  { id: 'jwi', name: 'Jeffrey Witbreuk', role: 'staff', app: 'homes', emails: ['jeffrey@haavn.au'] },
+  { id: 'jm', name: 'James Maloney', role: 'staff', app: 'haavnonly', emails: ['jamesm@haavn.au'] },
+  { id: 'ab', name: 'Amy Baldwin', role: 'staff', app: 'haavnonly', emails: ['accounts@7even.au'] },
+  { id: 'dm', name: 'Dominika Ma', role: 'staff', app: 'haavnonly', emails: ['accounts@haavn.au'] },
+  { id: 'ar', name: 'Alessia Bresciano', role: 'staff', app: 'haavnonly', emails: ['reception@haavn.au'] },
+  { id: 'bz', name: 'Bonnie Zhao', role: 'staff', app: 'haavnonly', emails: ['bonnie@haavn.au'] },
+  { id: 'cf', name: 'Callum Fraser', role: 'external', app: 'external', emails: ['c.fraser@fraserandpartners.com'] },
+  { id: 'lm', name: 'Lucas Menegazzo', role: 'external', app: 'external', emails: ['l.menegazzo@fraserandpartners.com'] },
 ]
 const norm = (e) => String(e || '').trim().toLowerCase()
 
@@ -46,7 +47,7 @@ function personByEmail(email, extra = [], env = process.env) {
   if (!p) return null
   const admins = String(env.ATRIUM_ADMINS || '').split(',').map(norm).filter(Boolean)
   const role = admins.includes(e) ? 'admin' : p.role
-  return { id: p.id, name: p.name, role, emails: [...new Set([...p.emails, ...extra.filter((x) => x.person_id === p.id).map((x) => norm(x.email))])] }
+  return { id: p.id, name: p.name, role, app: role === 'admin' && p.app !== 'admin' ? 'admin' : p.app, emails: [...new Set([...p.emails, ...extra.filter((x) => x.person_id === p.id).map((x) => norm(x.email))])] }
 }
 
 // ---------- the session: payload.signature, HMAC-SHA256 with a key derived from SESSION_SECRET ----------
@@ -73,7 +74,7 @@ function verify(token, env = process.env, nowSec = Math.floor(Date.now() / 1000)
   return p
 }
 function newSession(person, via, env = process.env, nowSec = Math.floor(Date.now() / 1000)) {
-  return sign({ v: 1, sub: person.id, name: person.name, role: person.role, emails: person.emails, via, iat: nowSec, exp: nowSec + SESSION_DAYS * 86400 }, env)
+  return sign({ v: 1, sub: person.id, name: person.name, role: person.role, app: person.app, emails: person.emails, via, iat: nowSec, exp: nowSec + SESSION_DAYS * 86400 }, env)
 }
 function parseCookies(req) {
   const out = {}

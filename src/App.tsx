@@ -7,7 +7,7 @@ import ProjectWorkspace from './pages/ProjectWorkspace'
 import ProjectList, { BASE_PIN_KEY } from './pages/ProjectList'
 import AtriumZeroed from './pages/AtriumZeroed'
 import Dashboard from './pages/Dashboard'
-import PasswordGate, { isAuthenticated, type Company } from './pages/PasswordGate'
+import PasswordGate, { isAuthenticated, SIGNED_OUT, type Company } from './pages/PasswordGate'
 import SplashScreen from './pages/SplashScreen'
 import HaavnHomes from './pages/HaavnHomes'
 import HaavnManagementBase, { HM_PILLARS_BLACK } from './pages/capital/HaavnManagementBase'
@@ -199,6 +199,9 @@ export default function App() {
 
   function handleLogout() {
     localStorage.removeItem('7even_auth')
+    // end the Microsoft session too, or the next screen would sign straight back in
+    try { sessionStorage.setItem(SIGNED_OUT, '1') } catch { /* ignore */ }
+    try { void fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', keepalive: true }) } catch { /* ignore */ }
     try { sessionStorage.removeItem(VIEW_KEY) } catch { /* ignore */ }
     clearStoredRole()
     setAuthed(false)

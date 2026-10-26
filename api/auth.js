@@ -1,6 +1,7 @@
 // /api/auth/login   start Microsoft sign-in           (?return=/path, ?hint=email)
 // /api/auth/callback Microsoft sends the person back here
 // /api/auth/me      who is signed in (JSON)
+// /api/auth/config  is Microsoft sign-in set up (JSON, so the button only shows when it will work)
 // /api/auth/logout  end the session
 // Routed by vercel.json: /api/auth/:action -> /api/auth?action=:action
 const A = require('./_utils/atriumAuth')
@@ -31,9 +32,10 @@ module.exports = async (req, res) => {
     let s = null
     try { s = A.sessionFrom(req, env) } catch { /* no secret set */ }
     if (!s) { res.status(401).json({ ok: false }); return }
-    res.status(200).json({ ok: true, person: { id: s.sub, name: s.name, role: s.role, emails: s.emails }, via: s.via, expires: s.exp })
+    res.status(200).json({ ok: true, person: { id: s.sub, name: s.name, role: s.role, app: s.app || 'haavnonly', emails: s.emails }, via: s.via, expires: s.exp })
     return
   }
+  if (action === 'config') { res.status(200).json({ microsoft: !!(env.MS_AUTH_CLIENT_ID && env.MS_AUTH_CLIENT_SECRET && env.SESSION_SECRET) }); return }
   if (action === 'logout') {
     res.setHeader('Set-Cookie', A.cookie(A.COOKIE, '', 0))
     if ((req.headers.accept || '').includes('text/html')) { res.redirect(302, '/'); return }
