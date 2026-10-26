@@ -390,9 +390,9 @@ body.embed #demo{left:calc(50% + 150px)}
 #setBtn:hover .gear,#setBtn:focus-visible .gear{transform:rotate(60deg)}
 #setBtn.spin .gear{animation:cogspin .9s cubic-bezier(.45,.05,.2,1)}
 @keyframes cogspin{to{transform:rotate(180deg)}}
-#newBtn{color:#fff;border:1.5px solid rgba(239,68,68,.9);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);animation:newpulse 2.6s ease-in-out infinite}
+#newBtn{color:#fff;border:1.5px solid #A8BC10;background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);animation:newpulse 2.6s ease-in-out infinite}
 #newBtn:hover{background:rgba(255,255,255,.14)}
-@keyframes newpulse{0%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 11px rgba(239,68,68,0)}100%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 0 rgba(239,68,68,0)}}
+@keyframes newpulse{0%{box-shadow:0 0 6px rgba(168,188,16,.35),0 0 0 0 rgba(168,188,16,.55)}70%{box-shadow:0 0 6px rgba(168,188,16,.35),0 0 0 11px rgba(168,188,16,0)}100%{box-shadow:0 0 6px rgba(168,188,16,.35),0 0 0 0 rgba(168,188,16,0)}}
 @media(prefers-reduced-motion:reduce){#newBtn{animation:none}#setBtn .gear,#setBtn.spin .gear{transition:none;animation:none}}
 /* chat list: pinned rows, edit mode, style tabs, name field */
 .lh{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0}
