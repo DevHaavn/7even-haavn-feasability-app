@@ -6,7 +6,14 @@ const firstName = (n) => String(n || '').split(' ')[0]
 // Is this message for that person even in a muted chat: an @mention of their first name, or a task set for them.
 function isForThem(msg, member, personName) {
   const body = String(msg.body || '')
-  if (personName && body.toLowerCase().includes('@' + firstName(personName).toLowerCase())) return true
+  if (personName) {
+    const low = body.toLowerCase()
+    if (low.includes('@' + String(personName).toLowerCase())) return true
+    // take out every full-name tag (they were for someone specific), then a bare @First still reaches everyone called that
+    let rest = low
+    for (const p of A.PEOPLE) rest = rest.split('@' + p.name.toLowerCase()).join('')
+    if (rest.includes('@' + firstName(personName).toLowerCase())) return true
+  }
   return !!(msg.task && msg.task.own === member)
 }
 

@@ -58,3 +58,15 @@ describe('the 10 minute email', () => {
     expect(P.nudges({ messages: msgs, members: [{ ...base, member: 'jb', muted: true, archived: false }, { ...base, member: 'lj', muted: false, archived: true }, { ...base, member: 'x:a@b.com', muted: false, archived: false }], groups, now }).length).toBe(0)
   })
 })
+
+describe('tagging people', () => {
+  it('a full-name tag is for that person only, a bare first name reaches every one called that', () => {
+    const full = { body: 'Can you look @James Winstanley' }
+    expect(P.isForThem(full, 'jw', 'James Winstanley')).toBe(true)
+    expect(P.isForThem(full, 'jm', 'James Maloney')).toBe(false)
+    const bare = { body: 'Can you look @James' }
+    expect(P.isForThem(bare, 'jw', 'James Winstanley')).toBe(true)
+    expect(P.isForThem(bare, 'jm', 'James Maloney')).toBe(true)
+    expect(P.isForThem({ body: 'hello' }, 'jw', 'James Winstanley')).toBe(false)
+  })
+})

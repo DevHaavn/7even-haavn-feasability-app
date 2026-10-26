@@ -340,9 +340,9 @@ body.embed #demo{left:calc(50% + 150px)}
 #who .wwt button{display:inline-flex;gap:5px;align-items:center;min-height:34px;padding:0 11px;border-radius:999px;font-size:16px;background:rgba(255,255,255,.08)}
 #who .wwt button.on{background:rgba(255,255,255,.22)}
 #who .wwt small{font:400 12px Inter;opacity:.85}
-#who .wwp{display:flex;gap:10px;align-items:center;padding:7px 8px;border-radius:14px;font-size:14.5px}
+#who .wwp{display:flex;gap:10px;align-items:center;justify-content:flex-start;text-align:left;flex-direction:row;padding:7px 8px;border-radius:14px;font-size:14.5px}
 #who .wwp .av{width:30px;height:30px;font-size:10px}
-#who .wwp span{color:rgba(255,255,255,.6);font-size:12px;margin-left:auto}
+#who .wwp .you{color:rgba(255,255,255,.6);font-size:12px;margin-left:auto}
 #who .wwf{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.14)}
 #who .wwf button{width:100%;height:44px;border-radius:22px;background:rgba(255,255,255,.12);font-size:14px}
 @media(max-width:760px){#who{left:10px!important;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));top:auto!important;width:auto;max-height:55dvh}}
@@ -1066,7 +1066,7 @@ function whoRender(){
   if(!r[whoEmoji]) whoEmoji=emojis[0];
   const list=r[whoEmoji]||[], mineOn=list.includes(S.me);
   w.innerHTML=`<div class="wwt">${emojis.map(e=>`<button type="button" data-we="${e}" class="${e===whoEmoji?'on':''}">${e}<small>${r[e].length}</small></button>`).join('')}</div>`+
-    list.map(u=>`<div class="wwp">${P[u]?av(P[u]):''}<b style="font-weight:400">${esc(P[u]?P[u].n:'Someone')}</b>${u===S.me?'<span>you</span>':''}</div>`).join('')+
+    list.map(u=>`<div class="wwp">${P[u]?av(P[u]):''}<b style="font-weight:400">${esc(P[u]?P[u].n:'Someone')}</b>${u===S.me?'<span class="you">you</span>':''}</div>`).join('')+
     `<div class="wwf"><button type="button" data-wr="${whoEmoji}">${mineOn?'Take back my '+whoEmoji:'React with '+whoEmoji}</button></div>`;
 }
 function openWho(mid,emoji,anchor){
