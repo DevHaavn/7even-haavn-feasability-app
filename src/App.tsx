@@ -199,6 +199,7 @@ export default function App() {
 
   function handleLogout() {
     localStorage.removeItem('7even_auth')
+    try { localStorage.removeItem('atrium_chat_ms') } catch { /* ignore */ }
     // end the Microsoft session too, or the next screen would sign straight back in
     try { sessionStorage.setItem(SIGNED_OUT, '1') } catch { /* ignore */ }
     try { void fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', keepalive: true }) } catch { /* ignore */ }

@@ -262,6 +262,7 @@ export default function PasswordGate({ onAuth, onChoose, chooser }: { onAuth: ()
         const app = j.person.app as 'admin' | 'haavnonly' | 'homes' | 'external' | 'blacksales'
         markAuthenticated()
         setStoredRole(app)
+        try { localStorage.setItem('atrium_chat_ms', '1') } catch { /* ignore */ }
         try { localStorage.setItem('atrium_me', j.person.name) } catch { /* ignore */ }
         if (app === 'admin' || app === 'haavnonly') { setHaavnOnly(app === 'haavnonly'); setStage('co') } else onAuth()
       }).catch(() => { /* not signed in with Microsoft: the access code works as before */ })

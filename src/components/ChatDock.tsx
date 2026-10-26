@@ -12,8 +12,18 @@ import { isAuthenticated } from '../pages/PasswordGate'
  * The chat page lives in an iframe that stays loaded while the preview is on, so alerts arrive on any screen.
  */
 export const CHAT_FLAG = 'atrium_chat_preview'
+export const MS_KEY = 'atrium_chat_ms'          // set while a Microsoft session is known, cleared at log out
 const EVT_TOGGLE = 'atrium-chat-toggle'
 const EVT_COUNT = 'atrium-chat-count'
+const EVT_STATE = 'atrium-chat-state'
+// Is there a Microsoft session? If so the chat shows for that person, whatever their access level.
+export async function learnMicrosoft(): Promise<void> {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'same-origin' })
+    if (r.ok) localStorage.setItem(MS_KEY, '1'); else localStorage.removeItem(MS_KEY)
+  } catch { /* offline */ }
+  window.dispatchEvent(new Event(EVT_STATE))
+}
 
 export function chatPreviewOn(): boolean {
   try {
@@ -23,18 +33,20 @@ export function chatPreviewOn(): boolean {
     const f = localStorage.getItem(CHAT_FLAG)
     if (f === '1') return true
     if (f === '0') return false
+    if (localStorage.getItem(MS_KEY) === '1') return true               // anyone signed in with Microsoft has a real chat identity
     return localStorage.getItem('7even_role') === 'admin'            // the director login is the test group, no switch needed
   } catch { return false }
 }
 
 // The small circle for a footer row. Renders nothing when the preview is off.
 export function ChatButton({ color }: { color: string }) {
-  const [on] = useState(chatPreviewOn)
+  const [on, setOn] = useState(chatPreviewOn)
   const [n, setN] = useState(0)
   useEffect(() => {
     const h = (e: Event) => setN((e as CustomEvent).detail?.n || 0)
-    window.addEventListener(EVT_COUNT, h)
-    return () => window.removeEventListener(EVT_COUNT, h)
+    const st = () => setOn(chatPreviewOn())
+    window.addEventListener(EVT_COUNT, h); window.addEventListener(EVT_STATE, st)
+    return () => { window.removeEventListener(EVT_COUNT, h); window.removeEventListener(EVT_STATE, st) }
   }, [])
   if (!on) return null
   return (
@@ -73,7 +85,7 @@ function footerButtonShown(): boolean {
 type Toast = { id: number; title: string; body: string; gid: string }
 
 export default function ChatDock() {
-  const [on] = useState(chatPreviewOn)
+  const [on, setOn] = useState(chatPreviewOn)
   const [authed, setAuthed] = useState(false)   // never on the access screen, only once signed in
   const [open, setOpen] = useState(false)
   const [n, setN] = useState(0)
@@ -128,6 +140,13 @@ export default function ChatDock() {
     return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); clearInterval(probe) }
   }, [on])
 
+  useEffect(() => {
+    const st = () => setOn(chatPreviewOn())
+    window.addEventListener(EVT_STATE, st)
+    void learnMicrosoft()
+    return () => window.removeEventListener(EVT_STATE, st)
+  }, [])
+
   useEffect(() => { tell({ k: 'visible', open }) }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!on) return
@@ -149,7 +168,7 @@ export default function ChatDock() {
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026e" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026f" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
           style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>
