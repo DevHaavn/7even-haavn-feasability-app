@@ -447,6 +447,19 @@ describe('polls and icon shapes', () => {
     expect((await run('setIcon', { gid, icon: { id: 'wm7', tile: 'black', shape: 'triangle' } })).icon).toEqual({ id: 'wm7', tile: 'black' })
     expect((await run('setIcon', { gid, icon: { img: 'data:image/jpeg;base64,/9j/4AAQ', shape: 'round' } })).icon).toEqual({ img: 'data:image/jpeg;base64,/9j/4AAQ', shape: 'round' })
   })
+
+  it('a chat can carry your own text as its icon, like JB or St Village', async () => {
+    const gid = await mk()
+    expect((await run('setIcon', { gid, icon: { txt: 'JB', tile: 'gold' } })).icon).toEqual({ txt: 'JB', tile: 'gold' })
+    expect((await run('setIcon', { gid, icon: { txt: '  St   Village ', tile: 'graphite', shape: 'wide' } })).icon).toEqual({ txt: 'St Village', tile: 'graphite', shape: 'wide' })
+    expect((await run('setIcon', { gid, icon: { txt: 'St Village', tile: 'graphite', shape: 'triangle' } })).icon).toEqual({ txt: 'St Village', tile: 'graphite' })
+    expect((await run('setIcon', { gid, icon: { txt: 'Hi\n\tthere', tile: 'sage' } })).icon).toEqual({ txt: 'Hi there', tile: 'sage' })
+    expect((await run('setIcon', { gid, icon: { txt: 'A'.repeat(14), tile: 'lime' } })).icon.txt).toHaveLength(14)
+    await expect(run('setIcon', { gid, icon: { txt: 'A'.repeat(15), tile: 'lime' } })).rejects.toThrow(/1 to 14/)
+    await expect(run('setIcon', { gid, icon: { txt: '   ', tile: 'lime' } })).rejects.toThrow(/1 to 14/)
+    await expect(run('setIcon', { gid, icon: { txt: 'JB', tile: 'pink' } })).rejects.toThrow(/not one of/)
+    expect((await run('init', {}, jamie)).style.icons[gid]).toEqual({ txt: 'A'.repeat(14), tile: 'lime' })
+  })
 })
 
 describe('direct messages without a group', () => {

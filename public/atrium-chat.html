@@ -337,6 +337,8 @@ body.embed #demo{left:calc(50% + 150px)}
 .ti.sq i{width:70%;height:70%}.ti.fr i{width:106%;height:106%}.ti.wd i{width:76%}
 .ti.x7 svg{width:62%;height:62%}
 .ti.ini{font:500 calc(var(--s)*.34) Inter;color:#1d1f22}.ti.dm{border-radius:50%}
+.ti.tx .tl{display:block;font-family:Inter,sans-serif;font-weight:600;line-height:1.08;text-align:center;white-space:nowrap}
+.gtx{margin-bottom:10px}.gtx input{width:100%;min-width:0;padding:10px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.1);color:#fff;font:400 14px Inter,sans-serif}.gtx input::placeholder{color:var(--faint)}
 #msgs{position:relative;z-index:2;flex:1;overflow:auto;padding:14px 18px 10px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .day{align-self:center;margin:14px 0 8px;padding:4px 13px;border-radius:999px;background:var(--day);color:var(--dayTx);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:0}
 .sysm{align-self:center;margin:8px 0;font-size:12.5px;color:var(--dayTx);background:var(--day);border-radius:999px;padding:4px 12px;text-align:center;max-width:90%}
@@ -357,6 +359,7 @@ body.embed #demo{left:calc(50% + 150px)}
 .mr:not(.l):not(.mine) .bub{border-bottom-left-radius:7px}.mr:not(.l).mine .bub{border-bottom-right-radius:7px}
 .bub .tx{white-space:pre-wrap}
 .bub .tm{display:inline-block;margin-left:10px;font:400 10.5px Inter;opacity:.6;float:right;margin-top:6px;margin-right:-2px;letter-spacing:.02em;white-space:nowrap}
+.bub a.lnk,.pq a.lnk{color:inherit;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere;word-break:break-word;cursor:pointer}
 .bub .men{color:var(--gold);background:rgba(214,179,106,.16);padding:0 4px;border-radius:5px}
 .mr.mine .bub .men{color:inherit;background:rgba(0,0,0,.12);text-decoration:none}
 #thread.lt .mr:not(.mine) .bub .men{color:#7a5a16}
@@ -710,6 +713,7 @@ body.embed #demo{left:calc(50% + 150px)}
   <div class="seg" data-seg><button type="button" data-sty="wall" class="">Wallpaper</button><button type="button" data-sty="icon" class="on">Icon</button></div>
   <h3>Chat icon</h3><div class="lead">Everyone in the chat sees it.</div>
   <div class="iprev"><span id="iPrev"></span><div id="iName" style="font-size:16px"></div></div>
+  <div class="f"><label class="mono" for="iTxt">Or type your own text</label><input id="iTxt" maxlength="14" placeholder="e.g. JB or St Village" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></div>
   <div class="mono gl">Nineteen icons from the HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT and ATRIUM brands</div>
   <div class="ig6" id="iGrid"></div>
   <div class="mono gl">Shape</div><div class="shp" id="iShape"></div>
@@ -860,7 +864,20 @@ const dayL=t=>{const d=new Date(t),n=new Date();return d.toDateString()===n.toDa
 const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const rich=s=>{ const names=Object.values(P).map(p=>p.n).filter(n=>n&&!n.includes('@')).sort((a,b)=>b.length-a.length).map(n=>esc(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
   const re=new RegExp('@('+(names.length?names.join('|')+'|':'')+'[A-Z][a-z]+)','gi');
-  return esc(s).replace(re,'<span class="men">@$1</span>') };
+  const men=t=>esc(t).replace(re,'<span class="men">@$1</span>');
+  // web addresses and emails become links; everything else is escaped text with the @mentions marked
+  const LINK=/(https?:\/\/[^\s<>"]+|www\.[^\s<>"]+|[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,})/g;
+  const str=String(s==null?'':s); let out='', last=0, m;
+  while((m=LINK.exec(str))){
+    let raw=m[0], tail='';
+    const t=/[.,;:!?'"\]]+$/.exec(raw); if(t){ tail=t[0]; raw=raw.slice(0,-tail.length) }
+    if(raw.endsWith(')')&&!raw.includes('(')){ tail=')'+tail; raw=raw.slice(0,-1) }
+    if(!raw){ continue }
+    const isMail=!/^(https?:\/\/|www\.)/i.test(raw);
+    const href=isMail?'mailto:'+raw:/^www\./i.test(raw)?'https://'+raw:raw;
+    out+=men(str.slice(last,m.index))+`<a class="lnk" href="${esc(href)}"${isMail?'':' target="_blank" rel="noopener noreferrer"'}>${esc(raw)}</a>`;
+    last=m.index+raw.length; LINK.lastIndex=last }
+  return out+men(str.slice(last)) };
 const lock='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
 /* ================= the look: brand tile icons, wallpapers, emoji, reactions ================= */
@@ -980,9 +997,20 @@ const saveSty=()=>{try{localStorage.setItem(STYKEY,JSON.stringify(STY))}catch(e)
 
 /* a tile: a brand icon on a coloured square, or your own picture, or initials */
 const shapeCls=(shape,defWide)=>{ const sh=shape||(defWide?'wide':'square'); return sh==='round'?'rnd':sh==='wide'?'wide':'' };
+/* your own words as an icon, like JB or St Village: sized to fit the tile, long text goes on a rectangle */
+const txtShape=ic=>ic.shape||(Array.from(ic.txt||'').length>4?'wide':'square');
+const cleanTxt=v=>Array.from(String(v||'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim()).slice(0,14).join('');
+function txtTile(ic,s,extra){
+  const t=TILES[ic.tile]||TILES.graphite, sh=txtShape(ic), wide=sh==='wide', words=ic.txt.split(' ');
+  const lines=(!wide&&words.length>1&&Array.from(ic.txt).length>5)?words.slice(0,3):[ic.txt];
+  const longest=lines.reduce((a,b)=>Array.from(b).length>Array.from(a).length?b:a,'');
+  const n=Math.max(1,Array.from(longest).length), cw=/[a-z]/.test(longest)?.58:.7, boxW=wide?s*1.8:s;
+  const fs=Math.max(5,Math.min(s*(lines.length>1?.3:.42),boxW*(sh==='round'?(lines.length>1?.82:.72):.84)/(n*cw),s*.82/(lines.length*1.1)));
+  return `<span class="ti tx ${shapeCls(sh,false)} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}"><span class="tl" style="font-size:${fs.toFixed(1)}px">${lines.map(esc).join('<br>')}</span></span>`}
 function tile(ic,size,extra){
   const s=size||46;
   if(ic&&ic.img) return `<span class="ti ${shapeCls(ic.shape,false)} ${extra||''}" style="--s:${s}px;background-image:url(${ic.img})"></span>`;
+  if(ic&&ic.txt) return txtTile(ic,s,extra);
   const d=ic&&IC[ic.id]; if(!d) return '';
   const t=TILES[ic.tile||d.def]||TILES.graphite, sc=shapeCls(ic.shape,d.wide);
   if(d.kind==='x7') return `<span class="ti x7 ${sc} ${extra||''}" style="--s:${s}px;background:${t.bg}">${AI.x7_dark?uniq(t.dark?AI.x7_dark:AI.x7_light):''}</span>`;
@@ -1335,7 +1363,7 @@ function renderPane(){
   }else{
     const own=g.dm?null:(g.owner||g.m[0]);
     const sic=S.icons[g.id], wl=wallOf(g.id), go='<svg class="go" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>';
-    const rows=(g.dm?'':`<button type="button" class="kv2" data-open="icon">${gIcon(g,40)}<span class="tx"><b>Chat icon</b><span class="s">${sic?(sic.img?'Your picture':(IC[sic.id]||{}).n):'Initials'}</span></span>${go}</button>`)+`<button type="button" class="kv2" data-open="wall"><span class="sw36" style="${wallSwatch(wl,g.id)}"></span><span class="tx"><b>Wallpaper</b><span class="s">${esc(wallName(wl))}${STY.wallAll?' · all my chats':''}</span></span>${go}</button>`;
+    const rows=(g.dm?'':`<button type="button" class="kv2" data-open="icon">${gIcon(g,40)}<span class="tx"><b>Chat icon</b><span class="s">${sic?iconName(sic):'Initials'}</span></span>${go}</button>`)+`<button type="button" class="kv2" data-open="wall"><span class="sw36" style="${wallSwatch(wl,g.id)}"></span><span class="tx"><b>Wallpaper</b><span class="s">${esc(wallName(wl))}${STY.wallAll?' · all my chats':''}</span></span>${go}</button>`;
     const nameBox=g.dm?'':`<div class="mt"><div class="mono">Chat name</div><div class="nm"><input id="nmIn" maxlength="60" value="${esc(g.n)}" autocomplete="off" enterkeyhint="done" aria-label="Chat name"><button class="cb go" id="nmSave" type="button">Save</button></div></div>`;
     h=nameBox+rows+`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(REAL&&id!==S.me&&!P[id].ext)?`<button data-dm="${id}">Message</button>`:''}${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
     <div class="mt"><div class="mono">CRM project</div><h4>${g.proj}</h4><div class="empty" style="padding:0">Tasks set in this group are filed to this project.</div></div>
@@ -1769,18 +1797,27 @@ function iconGridHtml(curIcon){
   return ICONS.map(d=>`<button type="button" class="it ${d.wide?'wide':''} ${curIcon&&curIcon.id===d.id&&!curIcon.img?'on':''}" data-i="${d.id}" title="${esc(d.n)}" aria-label="${esc(d.n)}">${tile({id:d.id,tile:(curIcon&&curIcon.id===d.id&&curIcon.tile)?curIcon.tile:d.def},46)}</button>`).join('')+`<button type="button" class="it up ${curIcon&&curIcon.img?'on':''}" data-i="img" title="Your picture" aria-label="Your own picture"><span class="ti" style="--s:100%;${curIcon&&curIcon.img?`background-image:url(${curIcon.img});border:0`:''}">${curIcon&&curIcon.img?'':up}</span></button>` }
 function tileDotsHtml(curIcon){ return Object.entries(TILES).map(([k,t])=>`<button type="button" class="dot ${curIcon&&curIcon.tile===k&&!curIcon.img?'on':''}" data-t="${k}" style="background:${t.bg}" aria-label="${t.n}"><span style="display:block;width:12px;height:12px;border-radius:50%;background:${t.fg}"></span></button>`).join('') }
 function pickIconImage(cb){ const f=document.createElement('input'); f.type='file'; f.accept='image/*'; f.onchange=()=>{ const file=f.files[0]; if(file) squareIcon(file,160,.72,u=>cb({img:u})) }; f.click() }
+const iconName=ic=>ic.img?'Your picture':ic.txt?'Your text':(IC[ic.id]||{}).n;
 const SHAPES=[['round','Round'],['square','Soft square'],['wide','Rectangle']];
-function shapeRowHtml(ic){ if(!ic) return '<span class="ddst">Pick an icon first</span>'; const cur=ic.shape||((IC[ic.id]||{}).wide?'wide':'square'); return SHAPES.map(([k,n])=>`<button type="button" data-sh="${k}" class="${cur===k?'on':''}">${tile(Object.assign({},ic,{shape:k}),40)}<span>${n}</span></button>`).join('') }
+function shapeRowHtml(ic){ if(!ic) return '<span class="ddst">Pick an icon first</span>'; const cur=ic.txt?txtShape(ic):(ic.shape||((IC[ic.id]||{}).wide?'wide':'square')); return SHAPES.map(([k,n])=>`<button type="button" data-sh="${k}" class="${cur===k?'on':''}">${tile(Object.assign({},ic,{shape:k}),40)}<span>${n}</span></button>`).join('') }
 function openIcon(){ const g=S.groups.find(x=>x.id===cur); if(!g||g.dm) return; closeMenu(); $('#ovIcon').classList.add('on'); paintIcon() }
 function paintIcon(){ const g=S.groups.find(x=>x.id===cur); if(!g) return; const ic=S.icons[g.id]||null;
-  $('#iPrev').innerHTML=gIcon(g,72); $('#iName').textContent=gname(g); $('#iGrid').innerHTML=iconGridHtml(ic); $('#iTiles').innerHTML=tileDotsHtml(ic); $('#iShape').innerHTML=shapeRowHtml(ic) }
+  $('#iPrev').innerHTML=gIcon(g,72); $('#iName').textContent=gname(g); $('#iGrid').innerHTML=iconGridHtml(ic); $('#iTiles').innerHTML=tileDotsHtml(ic); $('#iShape').innerHTML=shapeRowHtml(ic); const tx=$('#iTxt'); if(document.activeElement!==tx) tx.value=ic&&ic.txt?ic.txt:'' }
 $('#iGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-i]'); if(!b) return; const gid=cur;
   const keep=(S.icons[gid]||{}).shape;
   if(b.dataset.i==='img'){ pickIconImage(ic=>{ setIcon(gid,keep?Object.assign(ic,{shape:keep}):ic); paintIcon() }); return }
   setIcon(gid,keep?{id:b.dataset.i,tile:IC[b.dataset.i].def,shape:keep}:{id:b.dataset.i,tile:IC[b.dataset.i].def}); paintIcon() });
-$('#iTiles').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const ic=S.icons[cur]||{}; setIcon(cur,ic.shape?{id:ic.id||'haavn',tile:b.dataset.t,shape:ic.shape}:{id:ic.id||'haavn',tile:b.dataset.t}); paintIcon() });
+$('#iTiles').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const ic=S.icons[cur]||{}; const n=ic.txt?{txt:ic.txt,tile:b.dataset.t}:{id:ic.id||'haavn',tile:b.dataset.t}; if(ic.shape) n.shape=ic.shape; setIcon(cur,n); paintIcon() });
 $('#iShape').addEventListener('click',e=>{ const b=e.target.closest('[data-sh]'); const ic=S.icons[cur]; if(!b||!ic) return; setIcon(cur,Object.assign({},ic,{shape:b.dataset.sh})); paintIcon() });
-$('#iDone').onclick=()=>$('#ovIcon').classList.remove('on');
+/* typed text: shows at once, goes to the server when you pause or finish, so a word is one change not twelve */
+let itxT=null;
+function txtIconFrom(v,ic){ const txt=cleanTxt(v); if(!txt) return null; const n={txt,tile:(ic&&ic.tile)||'graphite'}; if(ic&&ic.shape) n.shape=ic.shape; return n }
+function commitTxt(gid){ itxT=null; paintAll(); const ic=S.icons[gid]; if(REAL&&ic&&ic.txt) api('setIcon',{gid,icon:ic}).catch(e=>flash(e.message)) }
+function flushTxt(){ if(itxT){ clearTimeout(itxT); commitTxt(cur) } }
+$('#iTxt').addEventListener('input',e=>{ const g=cur, n=txtIconFrom(e.target.value,S.icons[g]); if(!n) return; S.icons[g]=n; save(); paintIcon(); clearTimeout(itxT); itxT=setTimeout(()=>commitTxt(g),700) });
+$('#iTxt').addEventListener('change',flushTxt);
+$('#iTxt').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); e.target.blur() } });
+$('#iDone').onclick=()=>{ flushTxt(); $('#ovIcon').classList.remove('on') };
 
 /* ---- new group: icon and wallpaper as drop-downs ---- */
 let ng={icon:null,wall:null};
@@ -1794,15 +1831,19 @@ function placeDD(which){ const p=$('#'+which+'P'), pair=$('#gPair').getBoundingC
 function toggleDD(which){ const p=$('#'+which+'P'), b=$('#'+which+'B'), was=!p.hidden; closeDD(); if(!was){ p.hidden=false; b.setAttribute('aria-expanded','true'); placeDD(which) } }
 function ngRender(){
   const ic=ng.icon, wl=ng.wall||{id:'atrium'};
-  $('#gIconT').innerHTML=ic?tile(ic,36):`<span class="ti ini" style="--s:36px;background:#9a9c92">Aa</span>`; $('#gIconN').textContent=ic?(ic.img?'Your picture':(IC[ic.id]||{}).n):'Initials';
+  $('#gIconT').innerHTML=ic?tile(ic,36):`<span class="ti ini" style="--s:36px;background:#9a9c92">Aa</span>`; $('#gIconN').textContent=ic?iconName(ic):'Initials';
   $('#gWallT').setAttribute('style',wl.id==='custom'&&wl.img?`background:url(${wl.img}) center/cover`:wallSwatch(wl,null)); $('#gWallN').textContent=wallName(wl);
-  $('#gIconP').innerHTML=`<div class="ig6"><button type="button" class="it ${!ic?'on':''}" data-i="" title="Initials" aria-label="Initials"><span class="ti ini" style="--s:100%;background:#9a9c92;font-size:15px">Aa</span></button>${iconGridHtml(ic)}</div><div class="mono gl">Shape</div><div class="shp">${shapeRowHtml(ic)}</div><div class="mono gl">Tile colour</div><div class="dots">${tileDotsHtml(ic)}</div><div class="ddst" id="gIconSt">${esc(ic?(ic.img?'Your picture':(IC[ic.id]||{}).n):'Initials until you choose')}</div>`;
+  if(!$('#gTxt')) $('#gIconP').innerHTML='<div class="gtx"><input id="gTxt" maxlength="14" placeholder="Type your own: JB or St Village" aria-label="Icon text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div><div id="gIconIn"></div>';
+  if(document.activeElement!==$('#gTxt')) $('#gTxt').value=ic&&ic.txt?ic.txt:'';
+  $('#gIconIn').innerHTML=`<div class="ig6"><button type="button" class="it ${!ic?'on':''}" data-i="" title="Initials" aria-label="Initials"><span class="ti ini" style="--s:100%;background:#9a9c92;font-size:15px">Aa</span></button>${iconGridHtml(ic)}</div><div class="mono gl">Shape</div><div class="shp">${shapeRowHtml(ic)}</div><div class="mono gl">Tile colour</div><div class="dots">${tileDotsHtml(ic)}</div><div class="ddst" id="gIconSt">${esc(ic?iconName(ic):'Initials until you choose')}</div>`;
   const up='<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.4"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>';
   $('#gWallP').innerHTML=`<div class="wg6">${WALLS.map(w=>`<button type="button" class="wt ${wl.id===w.id?'on':''}" data-w="${w.id}" title="${esc(w.g+': '+w.n)}" aria-label="${esc(w.n)}" style="${wallSwatch(w,null)}">${w.dim?`<span style="position:absolute;inset:0;background:rgba(0,0,0,${(w.dim*.0085).toFixed(2)})"></span>`:''}</button>`).join('')}<button type="button" class="wt up ${wl.id==='custom'?'on':''}" data-w="custom" title="Your picture" aria-label="Your own picture" style="${wl.id==='custom'&&wl.img?`background:url(${wl.img}) center/cover`:''}">${wl.id==='custom'?'':up}</button><button type="button" class="wt up ${wl.id==='color'?'on':''}" data-w="color" title="A solid colour" aria-label="A solid colour" style="${wl.id==='color'?wallSwatch(wl,null):''}">${wl.id==='color'?'':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg>'}</button></div><div class="ddst" id="gWallSt">${esc(wallName(wl))}</div>` }
 $('#gIconB').onclick=e=>{ e.stopPropagation(); toggleDD('gIcon') }; $('#gWallB').onclick=e=>{ e.stopPropagation(); toggleDD('gWall') };
+$('#gIconP').addEventListener('keydown',e=>{ if(e.target.id==='gTxt'&&e.key==='Enter'){ e.preventDefault(); e.target.blur(); closeDD() } });
+$('#gIconP').addEventListener('input',e=>{ if(e.target.id!=='gTxt') return; const n=txtIconFrom(e.target.value,ng.icon); ng.icon=n||(ng.icon&&ng.icon.txt?null:ng.icon); ngRender() });
 $('#gIconP').addEventListener('click',e=>{
   const sh=e.target.closest('[data-sh]'); if(sh&&ng.icon){ ng.icon=Object.assign({},ng.icon,{shape:sh.dataset.sh}); ngRender(); return }
-  const t=e.target.closest('[data-t]'); if(t){ ng.icon=Object.assign({id:(ng.icon&&ng.icon.id)||'haavn'},ng.icon&&ng.icon.shape?{shape:ng.icon.shape}:{},{tile:t.dataset.t}); ngRender(); return }
+  const t=e.target.closest('[data-t]'); if(t){ ng.icon=Object.assign(ng.icon&&ng.icon.txt?{txt:ng.icon.txt}:{id:(ng.icon&&ng.icon.id)||'haavn'},ng.icon&&ng.icon.shape?{shape:ng.icon.shape}:{},{tile:t.dataset.t}); ngRender(); return }
   const b=e.target.closest('[data-i]'); if(!b) return; const id=b.dataset.i;
   if(id===''){ ng.icon=null; ngRender(); return }
   const keepS=ng.icon&&ng.icon.shape;
@@ -1814,8 +1855,8 @@ $('#gWallP').addEventListener('click',e=>{ const b=e.target.closest('[data-w]');
   ng.wall={id,acc:'auto'}; ngRender(); closeDD() });
 [['#gIconP','#gIconSt'],['#gWallP','#gWallSt']].forEach(([pn,st])=>{ const Pn=$(pn); const h=e=>{ const b=e.target.closest('[title]'); if(b&&b.title){ const s=$(st); if(s) s.textContent=b.title.replace(/^[^:]*: /,'') } }; Pn.addEventListener('pointerover',h); Pn.addEventListener('focusin',h) });
 document.addEventListener('click',e=>{ if(ddOpen()&&!e.target.closest('.ddp')&&!e.target.closest('.ddb')) closeDD() });
-window.addEventListener('resize',()=>{ if(ddOpen()) closeDD() });
-$('#ovGroup .sheet').addEventListener('scroll',()=>{ if(ddOpen()) closeDD() });
+window.addEventListener('resize',()=>{ if(!ddOpen()) return; if(document.activeElement&&document.activeElement.id==='gTxt'){ placeDD(!$('#gIconP').hidden?'gIcon':'gWall'); return } closeDD() }); // a phone keyboard resizes the page: keep the list open while typing
+$('#ovGroup .sheet').addEventListener('scroll',()=>{ if(ddOpen()&&!(document.activeElement&&document.activeElement.id==='gTxt')) closeDD() });
 $('#ovGroup').addEventListener('animationend',()=>{ if(!$('#gIconP').hidden) placeDD('gIcon'); if(!$('#gWallP').hidden) placeDD('gWall') });
 /* a chat with a new icon or wallpaper: apply the choices to it once it exists */
 function applyNewStyle(gid){ if(ng.icon&&!(S.groups.find(x=>x.id===gid)||{}).dm) setIcon(gid,ng.icon); if(ng.wall&&ng.wall.id!=='atrium'){ const w=Object.assign({},ng.wall); setWall(gid,w) } }

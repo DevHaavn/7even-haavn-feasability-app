@@ -46,7 +46,14 @@ const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze', 'black', 'graphite', 
 const TACC_IDS = ['auto', 'glass', 'white', 'black', 'crystal', 'sage', 'grey']
 const MAX_ICON_IMG = 24000
 const SHAPE_IDS = ['round', 'square', 'wide']
+const MAX_ICON_TXT = 14
 function cleanIcon(i) {
+  if (i && typeof i.txt === 'string') {
+    const txt = i.txt.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim()
+    if (!txt || Array.from(txt).length > MAX_ICON_TXT) throw new ChatError('Icon text must be 1 to ' + MAX_ICON_TXT + ' characters.')
+    if (!TILE_IDS.includes(i.tile)) throw new ChatError('That is not one of the chat icons.')
+    return SHAPE_IDS.includes(i.shape) ? { txt, tile: i.tile, shape: i.shape } : { txt, tile: i.tile }
+  }
   if (i && typeof i.img === 'string') {
     if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(i.img) || i.img.length > MAX_ICON_IMG) throw new ChatError('That icon image is too large. Pick a smaller picture.')
     return SHAPE_IDS.includes(i.shape) ? { img: i.img, shape: i.shape } : { img: i.img }
