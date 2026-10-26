@@ -348,7 +348,7 @@ body.embed #demo{left:calc(50% + 150px)}
   <h3 style="margin-top:22px;font-size:17px">Your accounts</h3>
   <div class="lead" style="margin-bottom:6px">One ATRIUM you, whichever email you sign in with.</div>
   <div id="accs"></div>
-  <div class="sw"><div class="l"><b>Test an alert now</b><span>Asks your browser to allow notifications, then sends one. On iPhone, add ATRIUM to the Home Screen first.</span></div><button class="cb" id="sTest">Send test</button></div>
+  <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -792,7 +792,15 @@ function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}"
   $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
 Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{ if(k==='push'&&REAL){ toggleAlerts(); return } S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
 $('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on'); if(REAL) refreshAlerts()};
-$('#sTest').onclick=()=>{ const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
+$('#sTest').onclick=()=>{
+  if(REAL){ // the real test: the server sends one to every device that has alerts on, after a short wait so ATRIUM can be closed first
+    pushNote('Sending in 8 seconds. Close ATRIUM or lock your phone now, then watch for the banner.');
+    api('pushTest',{delay:8}).then(r=>{
+      if(!r.enabled) return pushNote('The alert sender is not switched on at the server (VAPID_PRIVATE_KEY).');
+      if(!r.devices) return pushNote('No device has alerts on yet. Switch on Alerts on this device first, on each phone and computer.');
+      pushNote(r.results.map(x=>x.device+': '+(x.ok?'sent':'refused ('+x.status+(x.why?' '+x.why:'')+')')).join('. '));
+    }).catch(e=>pushNote('The test could not run: '+e.message)); return }
+  const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
   if(emb){ try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){} setTimeout(()=>{try{parent.postMessage(Object.assign({atriumChat:'alert',red:1,snd:S.snd},note),'*')}catch(e){}},900) }
   else { const go=()=>{ chime(); if(window.Notification&&Notification.permission==='granted') new Notification(note.title,{body:note.body}) }; if(window.Notification&&Notification.permission==='default') Notification.requestPermission().then(go); else go() } };
 $('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};

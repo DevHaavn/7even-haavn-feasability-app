@@ -160,3 +160,16 @@ describe('files', () => {
     expect(s.msgs[0].files[0].url).toBe('https://dl/' + up.path)
   })
 })
+
+describe('alert test', () => {
+  it('says what each device answered, forgets a gone one, and does nothing without the key', async () => {
+    const subs = [{ endpoint: 'ok', p256dh: 'k', auth: 'a', ua: 'Mozilla iPhone' }, { endpoint: 'gone', p256dh: 'k', auth: 'a', ua: 'Macintosh' }, { endpoint: 'bad', p256dh: 'k', auth: 'a', ua: 'Windows' }]
+    const removed: string[] = []
+    const store = { async pushSubsFor() { return subs }, async deletePush(e: string) { removed.push(e) } }
+    const wp = { async send(s: any) { if (s.endpoint === 'gone') throw Object.assign(new Error('x'), { statusCode: 410 }); if (s.endpoint === 'bad') throw Object.assign(new Error('x'), { statusCode: 403, body: 'VapidPkHashMismatch' }) } }
+    const r = await C.run('pushTest', {}, jamie, { store, files: {}, kv: null, wp })
+    expect(r.devices).toBe(3); expect(r.results.find((x: any) => x.device === 'iPhone').ok).toBe(true)
+    expect(r.results.find((x: any) => x.device === 'Windows PC').why).toMatch(/VapidPkHash/); expect(removed).toEqual(['gone'])
+    expect((await C.run('pushTest', {}, jamie, { store, files: {}, kv: null, wp: null })).enabled).toBe(false)
+  })
+})

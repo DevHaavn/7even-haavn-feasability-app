@@ -214,6 +214,21 @@ async function pushStatus(store, me, a, wp) {
   return { key: P.PUBLIC_KEY, enabled: !!wp, devices: mine.length, thisDevice: mine.some((x) => x.endpoint === a.endpoint) }
 }
 
+// Sends a test alert to every device this person has switched alerts on for, and says what each one answered. After an optional wait, so the app can be closed first.
+async function pushTest(store, me, a, wp) {
+  if (!wp) return { enabled: false, devices: 0, results: [] }
+  const wait = Math.min(Math.max(Number(a.delay) || 0, 0), 8) * 1000
+  if (wait) await new Promise((r) => setTimeout(r, wait))
+  const subs = await store.pushSubsFor([me.sub])
+  const results = []
+  const kind = (ua) => (/iPhone|iPad/.test(ua || '') ? 'iPhone' : /Android/.test(ua || '') ? 'Android phone' : /Macintosh/.test(ua || '') ? 'Mac' : /Windows/.test(ua || '') ? 'Windows PC' : 'a device')
+  await Promise.all(subs.map(async (s) => {
+    try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title: 'ATRIUM Chat', body: 'Test alert. If you can read this, alerts reach this device.', tag: 'test', url: '/' })); results.push({ device: kind(s.ua), ok: true }) }
+    catch (e) { results.push({ device: kind(s.ua), ok: false, status: e.statusCode || 0, why: String(e.body || e.message || '').slice(0, 120) }); if (e.statusCode === 404 || e.statusCode === 410) { try { await store.deletePush(s.endpoint) } catch { /* ignore */ } } }
+  }))
+  return { enabled: true, devices: subs.length, results }
+}
+
 // the one entry point the handler calls
 async function run(action, a, me, deps) {
   const { store, files, kv, wp } = deps
@@ -222,6 +237,7 @@ async function run(action, a, me, deps) {
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0)
     case 'send': return send(store, kv, me, a, wp)
     case 'pushStatus': return pushStatus(store, me, a, wp)
+    case 'pushTest': return pushTest(store, me, a, wp)
     case 'subscribe': return subscribe(store, me, a)
     case 'unsubscribe': return unsubscribe(store, me, a)
     case 'read': return markRead(store, me, a)
