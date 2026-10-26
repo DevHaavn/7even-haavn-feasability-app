@@ -424,7 +424,7 @@ describe('polls and icon shapes', () => {
     const { msg } = await run('createPoll', { gid, question: 'Venue?', options: ['Office', 'Cafe'] })
     await expect(run('editPoll', { mid: msg.id, question: 'Hijack' }, daniel)).rejects.toThrow(/Only the person who asked/)
     const e = await run('editPoll', { mid: msg.id, question: 'Venue for Monday?', options: ['Office', 'Cafe', 'Site'], multi: true })
-    expect(e.def).toEqual({ q: 'Venue for Monday?', opts: ['Office', 'Cafe', 'Site'], multi: true, closed: false })
+    expect(e.def).toEqual({ q: 'Venue for Monday?', opts: ['Office', 'Cafe', 'Site'], multi: true, closed: false, theme: null })
     await expect(run('editPoll', { mid: msg.id, options: ['Office', 'Cafe'] })).rejects.toThrow(/not removed/)
     await run('vote', { mid: msg.id, choices: [2, 0] }, daniel)
     await run('editPoll', { mid: msg.id, closed: true })
@@ -479,5 +479,26 @@ describe('direct messages without a group', () => {
   it('a group is never hidden from the people in it', async () => {
     const { gid } = await run('newGroup', { name: 'G', ids: ['ds', 'lj'] })
     expect((await run('init', {}, daniel)).groups.map((g: any) => g.id)).toEqual([gid])
+  })
+})
+
+describe('poll backgrounds', () => {
+  const mk = async () => (await run('newGroup', { name: 'G', ids: ['ds'] })).gid
+  it('a poll can carry PARTY, CHILL or ROCK, and anything else is a normal poll', async () => {
+    const gid = await mk()
+    for (const theme of ['party', 'chill', 'rock']) expect((await run('createPoll', { gid, question: 'Q', options: ['A', 'B'], theme })).msg.poll).toEqual({ opts: ['A', 'B'], multi: false, theme })
+    expect((await run('createPoll', { gid, question: 'Q', options: ['A', 'B'], theme: 'neon' })).msg.poll).toEqual({ opts: ['A', 'B'], multi: false })
+    expect((await run('createPoll', { gid, question: 'Q', options: ['A', 'B'] })).msg.poll.theme).toBeUndefined()
+  })
+  it('only the person who asked changes or removes the background, with or without other edits', async () => {
+    const gid = await mk()
+    const { msg } = await run('createPoll', { gid, question: 'Q', options: ['A', 'B'], theme: 'party' })
+    await expect(run('editPoll', { mid: msg.id, theme: 'rock' }, daniel)).rejects.toThrow(/Only the person who asked/)
+    expect((await run('editPoll', { mid: msg.id, theme: 'rock' })).def.theme).toBe('rock')
+    expect((await run('editPoll', { mid: msg.id, question: 'Q2' })).def).toMatchObject({ q: 'Q2', theme: 'rock' })
+    expect((await run('editPoll', { mid: msg.id, theme: null })).def.theme).toBeNull()
+    expect((await run('editPoll', { mid: msg.id, theme: 'nope' })).def.theme).toBeNull()
+    const p = await run('poll', { since: 0 }, daniel)
+    expect(p.msgs.filter((m: any) => m.k === 'pollup').map((m: any) => m.def.theme)).toEqual(['rock', 'rock', null, null])
   })
 })

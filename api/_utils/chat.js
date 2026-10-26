@@ -360,17 +360,20 @@ async function taskDone(store, kv, me, a) {
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
 // wins, an empty list takes it back); the person who asked can change the wording, add answers and close it with 'pollup' rows (the newest wins).
 const POLL_MAX_OPTS = 12
+const POLL_THEMES = ['party', 'chill', 'rock']   // an optional background for a poll; anything else is a normal poll
 function cleanPollDef(a) {
   const q = String(a.question || '').trim().slice(0, 200)
   if (!q) throw new ChatError('Ask a question first.')
   const opts = (Array.isArray(a.options) ? a.options : []).map((o) => String(o == null ? '' : o).trim().slice(0, 80)).filter(Boolean).slice(0, POLL_MAX_OPTS)
   if (opts.length < 2) throw new ChatError('A poll needs at least two answers.')
-  return { q, opts, multi: !!a.multi }
+  const d = { q, opts, multi: !!a.multi }
+  if (POLL_THEMES.includes(a.theme)) d.theme = a.theme
+  return d
 }
 async function createPoll(store, me, a, wp) {
   const { rows } = await mustBeMember(store, a.gid, me)
   const d = cleanPollDef(a)
-  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'poll', body: d.q, task: { poll: { opts: d.opts, multi: d.multi } }, files: [] })
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'poll', body: d.q, task: { poll: { opts: d.opts, multi: d.multi, ...(d.theme ? { theme: d.theme } : {}) } }, files: [] })
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
   await bringBackDm(store, rows, a.gid, me)
   await store.unarchiveOthers(a.gid, me.sub)
@@ -385,7 +388,7 @@ async function pollOf(store, me, mid) {
   const m = await store.getMessage(mid)
   if (!m || m.kind !== 'poll') throw new ChatError('No such poll.', 404)
   await mustBeMember(store, m.group_id, me)
-  let def = { q: m.body || '', opts: (m.task && m.task.poll && m.task.poll.opts) || [], multi: !!(m.task && m.task.poll && m.task.poll.multi), closed: false }
+  let def = { q: m.body || '', opts: (m.task && m.task.poll && m.task.poll.opts) || [], multi: !!(m.task && m.task.poll && m.task.poll.multi), closed: false, theme: (m.task && m.task.poll && m.task.poll.theme) || null }
   const up = store.latestPollUp ? await store.latestPollUp(m.id) : null
   if (up && up.task && up.task.def) def = { ...def, ...up.task.def }
   return { m, def }
@@ -408,6 +411,7 @@ async function editPoll(store, me, a) {
     next.q = d.q; next.opts = d.opts; next.multi = d.multi
   } else if (a.multi !== undefined) next.multi = !!a.multi
   if (a.closed !== undefined) next.closed = !!a.closed
+  if (a.theme !== undefined) next.theme = POLL_THEMES.includes(a.theme) ? a.theme : null   // null takes the background off
   const row = await store.insertMessage({ group_id: m.group_id, sender: me.sub, kind: 'pollup', body: '', task: { poll: m.id, def: next }, files: [] })
   return { ok: true, id: row.id, def: next }
 }
