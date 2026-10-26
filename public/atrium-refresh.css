@@ -22,3 +22,8 @@
 .rb:hover::after{opacity:.85;transform:none}
 .rb.go::after{opacity:0}
 @media(prefers-reduced-motion:reduce){.rb .rb-arc,.rb.go .rb-arc{transition:none;animation:none}}
+
+/* the chat circle beside it (hidden preview) */
+.rb[data-chat-btn]{margin-right:10px}
+.rb .rb-badge{position:absolute;top:-6px;right:-7px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ef4444;color:#fff;font:500 10px/16px Inter,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 10px rgba(239,68,68,.6)}
+.rb .rb-badge[hidden]{display:none}

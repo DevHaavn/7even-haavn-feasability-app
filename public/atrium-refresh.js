@@ -15,6 +15,25 @@
       b.removeAttribute('title');
       if(!b.classList.contains('rb'))b.classList.add('rb');}
   }
+  /* ATRIUM Chat (hidden preview): a chat circle beside the refresh circle, only inside the app and only where the preview is on. */
+  var CHAT='<svg viewBox="0 0 32 32" aria-hidden="true"><circle class="rb-ring" cx="16" cy="16" r="15"/><path class="rb-ink" d="M9.5 11h13v8.5h-8l-5 3.5z"/></svg><i class="rb-badge" hidden></i>';
+  var chatCount=0;
+  function chatOn(){try{return localStorage.getItem('atrium_chat_preview')==='1'&&window.parent!==window}catch(e){return false}}
+  function paintChat(){var l=document.querySelectorAll('[data-chat-btn] .rb-badge');for(var i=0;i<l.length;i++){l[i].hidden=!chatCount;l[i].textContent=chatCount}}
+  function addChat(){
+    if(!chatOn())return;
+    var list=document.querySelectorAll('[data-refresh]');
+    for(var i=0;i<list.length;i++){var r=list[i];
+      if(r.previousElementSibling&&r.previousElementSibling.hasAttribute('data-chat-btn'))continue;
+      var b=document.createElement('button');b.type='button';b.className='rb';b.setAttribute('data-chat-btn','');b.setAttribute('data-tip','Chat');b.setAttribute('aria-label','ATRIUM Chat');b.innerHTML=CHAT;
+      r.parentNode.insertBefore(b,r);}
+    paintChat();
+  }
+  if(chatOn()){
+    document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-chat-btn]');if(b){e.preventDefault();try{window.parent.postMessage({atriumChat:'toggle'},'*')}catch(x){}}},true);
+    window.addEventListener('message',function(e){var d=e.data;if(d&&d.atriumChat==='count'){chatCount=d.n||0;paintChat()}});
+    try{window.parent.postMessage({atriumChat:'hello'},'*')}catch(e){}
+  }
   async function go(b){
     if(b.dataset.busy)return;b.dataset.busy='1';b.classList.add('go');
     try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();}catch(e){}
@@ -26,6 +45,6 @@
     catch(e){try{T.location.reload();}catch(e2){location.reload();}}
   }
   document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-refresh]');if(b){e.preventDefault();go(b);}},true);
-  function start(){fill();var q=0;try{new MutationObserver(function(){if(q)return;q=requestAnimationFrame(function(){q=0;fill();});}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}}
+  function start(){fill();addChat();var q=0;try{new MutationObserver(function(){if(q)return;q=requestAnimationFrame(function(){q=0;fill();addChat();});}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();

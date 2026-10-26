@@ -145,6 +145,22 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 .ck input{accent-color:var(--gold)}
 #demo{position:fixed;left:calc(50% + 90px);bottom:104px;translate:-50% 0;z-index:60;display:flex;gap:8px;padding:7px;border-radius:26px;background:rgba(80,82,90,.7);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 36px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 #demo .mono{align-self:center;padding:0 8px}
+/* people picker */
+.pk{position:relative;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.1);padding:8px 10px}
+.pk .chips{display:flex;flex-wrap:wrap;gap:6px}
+.pk .chips:empty{display:none}
+.pk .chip2{display:flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:14px;background:rgba(255,255,255,.16);font-size:13px}
+.pk .chip2.ext{background:rgba(214,179,106,.25)}
+.pk .chip2 button{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.15);line-height:1;font-size:13px}
+.pk input{width:100%;padding:8px 4px;border:0!important;background:none!important}
+.pk .dd{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;max-height:280px;overflow:auto;border-radius:18px;background:rgba(84,86,94,.96);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.24);box-shadow:0 20px 50px rgba(0,0,0,.35);padding:6px;display:none}
+.pk.open .dd{display:block}
+.pk .dd h5{font:300 10.5px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);padding:10px 10px 4px}
+.pk .dd button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:7px 10px;border-radius:12px}
+.pk .dd button:hover,.pk .dd button.hl{background:rgba(255,255,255,.14)}
+.pk .dd .av{width:28px;height:28px;font-size:10px}
+.pk .dd span.e{display:block;font-size:11.5px;color:var(--faint)}
+.pk .dd .none{padding:12px;color:var(--faint);font-size:13px}
 /* files, menu, members */
 #pend{display:flex;flex-wrap:wrap;gap:8px;margin:0 20px 8px}
 #pend:empty{display:none}
@@ -293,15 +309,14 @@ body.embed #demo{left:calc(50% + 150px)}
 <div class="ov" id="ovGroup"><div class="sheet">
   <h3>New group</h3><div class="lead">Private groups are only seen by the people you add.</div>
   <div class="f"><label class="mono">Name</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
-  <div class="f"><label class="mono">Who</label><div class="ck" id="gWho"></div></div>
+  <div class="f"><label class="mono">Who</label><div class="pk" id="gWho"></div></div>
   <div class="sw"><div class="l"><b>Private</b><span>Hidden from everyone not in the group</span></div><button class="tg on" id="gPriv"></button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="gCancel">Cancel</button><button class="cb go" id="gSave">Create group</button></div>
 </div></div>
 
 <div class="ov" id="ovAdd"><div class="sheet">
   <h3>Add people</h3><div class="lead">They see the whole chat from the start, and every file shared in it.</div>
-  <div class="f"><label class="mono">Who</label><div class="ck" id="addWho"></div></div>
-  <div class="f"><label class="mono">Or invite by email (any HAAVN or 7EVEN address)</label><input id="addMail" placeholder="name@7even.au"></div>
+  <div class="f"><label class="mono">Who</label><div class="pk" id="addWho"></div></div>
   <div class="row"><button class="cb" id="addCancel">Cancel</button><button class="cb go" id="addSave">Add to chat</button></div>
 </div></div>
 <div class="ov" id="ovConf"><div class="sheet"><h3 id="cT"></h3><div class="lead" id="cB"></div><div class="row"><button class="cb" id="cNo">Cancel</button><button class="cb go" id="cYes" style="background:linear-gradient(180deg,#ff7a7a,#ef4444);color:#fff;border-color:#ef4444">Confirm</button></div></div></div>
@@ -329,24 +344,36 @@ if(EMB) document.body.classList.add('embed');
 const $=(s,r)=> (r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
 const COL=['#d6b36a','#8fb4d9','#b58fd9','#7ed3a5','#e39a55','#d98f9a','#9fb4c8'];
 const PEOPLE=[
- {id:'jb',n:'Jamie Baldwin',e:['jamie@7even.au','jamie@haavn.au'],c:0},
+ {id:'jb',n:'Jamie Baldwin',e:['jamie@7even.au'],c:0},
  {id:'ds',n:'Daniel Sette',e:['daniel@7even.au'],c:1},
- {id:'jw',n:'James Winstanley',e:['james@haavn.au'],c:2},
- {id:'lj',n:'Lewis Jin',e:['lewis@7even.au','lewis@haavn.au'],c:3},
- {id:'bn',n:'Ben Ormond',e:['ben@haavn.au'],c:4},
- {id:'mf',n:'Mike Furniss',e:['mike@haavn.au'],c:5}
+ {id:'lj',n:'Lewis Jin',e:['lewis@7even.au'],c:2},
+ {id:'jw',n:'James Winstanley',e:['james@haavn.au'],c:3},
+ {id:'cm',n:'Callum Macdonald',e:['callum@haavn.au'],c:4},
+ {id:'mf',n:'Mike Furniss',e:['mike@haavn.au'],c:5},
+ {id:'cw',n:'Christina Witbreuk',e:['christina@haavn.au'],c:6},
+ {id:'dp',n:'Domenic Paolilli',e:['domenic@haavn.au'],c:0},
+ {id:'jd',n:'John Dimattina',e:['john@haavn.au'],c:1},
+ {id:'jwi',n:'Jeffrey Witbreuk',e:['jeffrey@haavn.au'],c:2},
+ {id:'jm',n:'James Maloney',e:['jamesm@haavn.au'],c:3},
+ {id:'ab',n:'Amy Baldwin',e:['accounts@7even.au'],c:4},
+ {id:'dm',n:'Dominika Ma',e:['accounts@haavn.au'],c:5},
+ {id:'ar',n:'Alessia Bresciano',e:['reception@haavn.au'],c:6},
+ {id:'bz',n:'Bonnie Zhao',e:['bonnie@haavn.au'],c:0},
+ {id:'cf',n:'Callum Fraser',e:['c.fraser@fraserandpartners.com'],c:1},
+ {id:'lm',n:'Lucas Menegazzo',e:['l.menegazzo@fraserandpartners.com'],c:2}
 ];
 const P=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+const coOf=p=>p.ext?'External':p.e[0].endsWith('@7even.au')?'7EVEN':p.e[0].endsWith('@haavn.au')?'HAAVN':'External';
 const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
 const av=(p,cls)=>`<span class="av ${cls||''}" style="background:${COL[p.c]}">${ini(p.n)}</span>`;
 const PROJECTS=['Belmont Estate','Corio Quarter','Preston','HAAVN BLACK','Palmerston Crescent','No project'];
 const now=Date.now(), mins=m=>now-m*60000;
-const KEY='atrium-chat-preview-v1';
+const KEY='atrium-chat-preview-v2';
 const SEED={
  me:'jb',
  groups:[
   {id:'g1',n:'Belmont Estate',priv:true,m:['jb','ds','jw','lj'],proj:'Belmont Estate'},
-  {id:'g2',n:'HAAVN BLACK launch',priv:false,m:['jb','ds','jw','bn','mf'],proj:'HAAVN BLACK'},
+  {id:'g2',n:'HAAVN BLACK launch',priv:false,m:['jb','ds','jw','cm','mf'],proj:'HAAVN BLACK'},
   {id:'g3',n:'Directors',priv:true,m:['jb','ds','lj'],proj:'No project'},
   {id:'g4',n:'Preston IM',priv:true,m:['jb','ds','jw'],proj:'Preston'},
   {id:'g5',n:'Daniel Sette',dm:true,m:['jb','ds'],proj:'No project'},
@@ -357,7 +384,7 @@ const SEED={
   {id:2,g:'g1',u:'jw',t:mins(240),x:'Agree. @Jamie can we get WPCC to confirm the hall is 800 seats before we go back to them?'},
   {id:30,g:'g1',u:'ds',t:mins(280),x:'Staging options draft attached.',files:[{name:'Belmont staging options v1.pdf',type:'application/pdf',size:842000}]},
   {id:3,g:'g1',u:'jb',t:mins(200),x:'Yes. I will call Monday. Daniel can you put the three staging options on one page?',task:{title:'Three staging options on one page',own:'ds',due:'2026-10-28',pri:'High',proj:'Belmont Estate',wf:1,ag:1,done:false}},
-  {id:4,g:'g2',u:'bn',t:mins(150),x:'Seth is sending the Studio plan drawing today. Do we hold the brochure until it lands?'},
+  {id:4,g:'g2',u:'cm',t:mins(150),x:'Seth is sending the Studio plan drawing today. Do we hold the brochure until it lands?'},
   {id:5,g:'g2',u:'mf',t:mins(120),x:'Customers on the weekend keep asking for the Plus price. Can I say from $399k yet?'},
   {id:6,g:'g3',u:'lj',t:mins(1400),x:'Board pack goes out Thursday. Anything for the Corio paper?'},
   {id:7,g:'g4',u:'jw',t:mins(2000),x:'Equity deck v3 is in SharePoint.'},
@@ -370,7 +397,7 @@ const SEED={
 };
 let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
-S.arch=S.arch||{}; S.gone=S.gone||{};
+S.arch=S.arch||{}; S.gone=S.gone||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
 S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 let cur='g1', view='chat', pane='tasks', actx=null;
@@ -442,7 +469,7 @@ function renderThread(newId){
   gm(cur).forEach(m=>{const d=dayL(m.t); if(d!==last){out+=`<div class="day mono">${d}</div>`;last=d}
     if(m.sys){out+=`<div class="sysm">${esc(m.x)}</div>`;return}
     const p=P[m.u], dom=p.e[0].split('@')[1];
-    out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${dom}</em></div><div class="x">${rich(m.x)}</div>${filesHtml(m)}${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
+    out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${p.ext?'outside':dom}</em></div><div class="x">${rich(m.x)}</div>${filesHtml(m)}${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
     <div class="tools"><button data-rx="${m.id}">👍</button><button data-mt="${m.id}">Make task</button><button data-rp="${m.id}">Reply</button></div></div>`});
   $('#msgs').innerHTML=out; $('#msgs').scrollTop=$('#msgs').scrollHeight;
   renderPane();
@@ -552,19 +579,48 @@ $('#inp').addEventListener('paste',e=>{const fs=[...(e.clipboardData?e.clipboard
 ['dragenter','dragover'].forEach(t=>$('#thread').addEventListener(t,e=>{if([...(e.dataTransfer?e.dataTransfer.types:[])].includes('Files')){e.preventDefault();$('#thread').classList.add('dragging')}}));
 ['dragleave','drop'].forEach(t=>$('#thread').addEventListener(t,e=>{if(t==='drop'){e.preventDefault();addFiles([...e.dataTransfer.files])}if(t==='drop'||e.target===$('#thread'))$('#thread').classList.remove('dragging')}));
 
+
+/* ---- people picker: the whole team in a drop down (HAAVN, 7EVEN), search, and any outside email ---- */
+function picker(root, exclude){
+  const sel={ids:[],ext:[]}; root.classList.remove('open');
+  root.innerHTML='<div class="chips"></div><input placeholder="Pick from the team, or type an outside email" autocomplete="off"><div class="dd"></div>';
+  const chips=$('.chips',root), inp=$('input',root), dd=$('.dd',root);
+  const taken=()=>new Set([...(exclude||[]),...sel.ids]);
+  const isMail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  function paint(){
+    chips.innerHTML=sel.ids.map(id=>`<span class="chip2">${esc(P[id].n)}<button data-rm="${id}" type="button">×</button></span>`).join('')+sel.ext.map(e=>`<span class="chip2 ext">${esc(e)} · outside<button data-rx="${esc(e)}" type="button">×</button></span>`).join('');
+    const q=inp.value.trim().toLowerCase(), t=taken(); let h='';
+    ['HAAVN','7EVEN','External'].forEach(co=>{
+      const list=PEOPLE.concat(S.ext).filter(p=>coOf(p)===co&&!t.has(p.id)&&(!q||p.n.toLowerCase().includes(q)||p.e[0].includes(q)));
+      if(list.length) h+=`<h5>${co==='External'?'Outside the companies':co}</h5>`+list.map(p=>`<button type="button" data-add="${p.id}">${av(p)}<span>${esc(p.n)}<span class="e">${esc(p.e[0])}</span></span></button>`).join('')});
+    if(isMail(q)&&!PEOPLE.some(p=>p.e.includes(q))&&!sel.ext.includes(q)) h=`<h5>Outside email</h5><button type="button" data-ext="${esc(q)}"><span class="av" style="background:#d6b36a">@</span><span>Add ${esc(q)}<span class="e">They get an invite by email</span></span></button>`+h;
+    dd.innerHTML=h||'<div class="none">Everyone is already in. Type an email to invite someone outside.</div>';
+  }
+  const open=()=>{root.classList.add('open');paint()};
+  inp.addEventListener('focus',open); inp.addEventListener('input',open);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();const b=$('.dd button',root); if(b) b.click()} if(e.key==='Backspace'&&!inp.value){ if(sel.ext.length)sel.ext.pop(); else sel.ids.pop(); paint() } });
+  root.addEventListener('mousedown',e=>{ const a=e.target.closest('[data-add],[data-ext],[data-rm],[data-rx]'); if(!a) return; e.preventDefault();
+    if(a.dataset.add) sel.ids.push(a.dataset.add); if(a.dataset.ext) sel.ext.push(a.dataset.ext);
+    if(a.dataset.rm) sel.ids=sel.ids.filter(x=>x!==a.dataset.rm); if(a.dataset.rx) sel.ext=sel.ext.filter(x=>x!==a.dataset.rx);
+    inp.value=''; paint(); if(a.dataset.add||a.dataset.ext) inp.focus() });
+  document.addEventListener('mousedown',e=>{ if(!root.contains(e.target)) root.classList.remove('open') });
+  paint(); root.classList.remove('open');
+  return {get:()=>({ids:[...sel.ids],ext:[...sel.ext]})};
+}
+function ensureExt(email){ const e=email.toLowerCase(); let x=S.ext.find(y=>y.e[0]===e); if(!x){ x={id:'x'+(S.nid++),n:e.split('@')[0],e:[e],c:7%7,ext:true}; S.ext.push(x); P[x.id]=x } return x.id }
+let gPk=null, aPk=null;
+
 /* ---- people, menu, archive, delete ---- */
 function sys(g,x){const m={g,u:S.me,sys:1,x};m.id=S.nid++;m.t=Date.now();S.msgs.push(m);S.read[S.me][g]=m.id}
 function addDlg(){const g=S.groups.find(x=>x.id===cur); if(!g||g.dm) return;
-  const rest=PEOPLE.filter(p=>!g.m.includes(p.id));
-  $('#addWho').innerHTML=rest.length?rest.map(p=>`<label><input type="checkbox" value="${p.id}"> ${p.n.split(' ')[0]} <span style="color:var(--faint)">${p.e[0].split('@')[1].split('.')[0]}</span></label>`).join(''):'<span class="empty" style="padding:0">Everyone on the team is already in.</span>';
-  $('#addMail').value=''; $('#ovAdd').classList.add('on')}
+  aPk=picker($('#addWho'),g.m); $('#ovAdd').classList.add('on')}
 let conf=null;
 function ask(t,b,yes,fn){$('#cT').textContent=t;$('#cB').textContent=b;$('#cYes').style.display='';$('#cYes').textContent=yes;$('#cNo').textContent='Cancel';conf=fn;$('#ovConf').classList.add('on')}
 $('#addBtn').onclick=()=>{const g=S.groups.find(x=>x.id===cur); if(g&&g.dm){ $('#cT').textContent='Add people to a direct message?'; $('#cB').textContent='A direct message is between two people. Start a new group with both of them and anyone else you want to add.'; $('#cYes').style.display='none'; $('#cNo').textContent='OK'; conf=null; $('#ovConf').classList.add('on'); return } addDlg()};
 $('#addCancel').onclick=()=>$('#ovAdd').classList.remove('on');
-$('#addSave').onclick=()=>{const g=S.groups.find(x=>x.id===cur); const ids=$$('#addWho input:checked').map(i=>i.value); const em=$('#addMail').value.trim().toLowerCase(); const names=[];
-  ids.forEach(id=>{g.m.push(id);S.read[id]=S.read[id]||{};S.read[id][g.id]=0;names.push(P[id].n)});
-  if(em&&/^\S+@(7even|haavn)\.au$/.test(em)){const who=PEOPLE.find(p=>p.e.includes(em)); if(who&&!g.m.includes(who.id)){g.m.push(who.id);names.push(who.n)} else if(!who){names.push(em+' (invited)')}}
+$('#addSave').onclick=()=>{const g=S.groups.find(x=>x.id===cur); const r=aPk.get(); const names=[];
+  r.ids.forEach(id=>{g.m.push(id);S.read[id]=S.read[id]||{};S.read[id][g.id]=0;names.push(P[id].n)});
+  r.ext.forEach(em=>{const id=ensureExt(em); g.m.push(id); S.read[id]={}; names.push(em+' (outside, invited by email)')});
   if(names.length){sys(g.id,me().n.split(' ')[0]+' added '+names.join(', ')+' to the chat. They can see everything shared in it.');} save(); $('#ovAdd').classList.remove('on'); paintAll()};
 $('#cNo').onclick=()=>{$('#ovConf').classList.remove('on')};
 $('#cYes').onclick=()=>{$('#ovConf').classList.remove('on');if(conf)conf();conf=null};
@@ -611,16 +667,16 @@ $('#tSave').onclick=()=>{
   $('#ovTask').classList.remove('on'); pane='tasks'; paintAll(m.id);
 };
 /* new group */
-$('#newBtn').onclick=()=>{ $('#gWho').innerHTML=PEOPLE.filter(p=>p.id!==S.me).map(p=>`<label><input type="checkbox" value="${p.id}"> ${p.n.split(' ')[0]} <span style="color:var(--faint)">${p.e[0].split('@')[1].split('.')[0]}</span></label>`).join(''); $('#gName').value=''; $('#gPriv').classList.add('on'); $('#ovGroup').classList.add('on'); };
+$('#newBtn').onclick=()=>{ gPk=picker($('#gWho'),[S.me]); $('#gName').value=''; $('#gPriv').classList.add('on'); $('#ovGroup').classList.add('on'); };
 $('#gPriv').onclick=e=>e.target.classList.toggle('on');
 $('#gCancel').onclick=()=>$('#ovGroup').classList.remove('on');
-$('#gSave').onclick=()=>{const n=$('#gName').value.trim(); if(!n) return; const who=$$('#gWho input:checked').map(i=>i.value);
-  const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...who],proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); open(g.id)};
+$('#gSave').onclick=()=>{const n=$('#gName').value.trim(); if(!n) return; const r=gPk.get(); const ext=r.ext.map(ensureExt);
+  const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...r.ids,...ext],owner:S.me,proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); open(g.id)};
 /* settings */
 const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
 function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',!!S[k]));
   $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
-Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime()});
+Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
 $('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on')};
 $('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};
 $('#sDone').onclick=()=>$('#ovSet').classList.remove('on');

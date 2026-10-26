@@ -56,6 +56,16 @@ function chime() {
   } catch { /* no audio */ }
 }
 
+// every frame under the page, however deep, so a footer button inside a static page hears the count
+function frames(win: Window, out: Window[] = []): Window[] {
+  for (let i = 0; i < win.frames.length; i++) { try { const f = win.frames[i]; out.push(f); frames(f, out) } catch { /* cross origin */ } }
+  return out
+}
+function footerButtonShown(): boolean {
+  if (document.querySelector('[data-chat-btn]')) return true
+  return frames(window).some(f => { try { return !!f.document.querySelector('[data-chat-btn]') } catch { return false } })
+}
+
 type Toast = { id: number; title: string; body: string; gid: string }
 
 export default function ChatDock() {
@@ -67,16 +77,28 @@ export default function ChatDock() {
   const [floating, setFloating] = useState(true)
   const frame = useRef<HTMLIFrameElement>(null)
   const seq = useRef(0)
+  const count = useRef(0)
+  const wantGroup = useRef<string | null>(null)
 
   const tell = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage({ atriumChat: m.k, ...m }, '*')
+  const goTo = (gid: string) => { setOpen(true); wantGroup.current = gid; tell({ k: 'open-group', gid }) }
+  const shout = (n: number) => frames(window).forEach(f => { try { f.postMessage({ atriumChat: 'count', n }, '*') } catch { /* gone */ } })
 
   useEffect(() => {
     if (!on) return
     const toggle = () => setOpen(o => !o)
     const msg = (e: MessageEvent) => {
       const d = e.data
-      if (!d || !d.atriumChat || e.source !== frame.current?.contentWindow) return
-      if (d.atriumChat === 'count') { setN(d.n || 0); window.dispatchEvent(new CustomEvent(EVT_COUNT, { detail: { n: d.n || 0 } })) }
+      if (!d || !d.atriumChat) return
+      // a footer button in any ATRIUM page: open or close the chat, or ask how many are waiting
+      if (e.origin === location.origin && e.source !== frame.current?.contentWindow) {
+        if (d.atriumChat === 'toggle') setOpen(o => !o)
+        if (d.atriumChat === 'hello') (e.source as Window | null)?.postMessage({ atriumChat: 'count', n: count.current }, '*')
+        return
+      }
+      if (e.source !== frame.current?.contentWindow) return
+      if (d.atriumChat === 'count') { count.current = d.n || 0; setN(d.n || 0); shout(d.n || 0); window.dispatchEvent(new CustomEvent(EVT_COUNT, { detail: { n: d.n || 0 } })) }
+      if (d.atriumChat === 'ask-notify' && typeof Notification !== 'undefined' && Notification.permission === 'default') void Notification.requestPermission()
       if (d.atriumChat === 'close') setOpen(false)
       if (d.atriumChat === 'alert') {
         if (d.snd) chime()
@@ -84,12 +106,21 @@ export default function ChatDock() {
         const id = ++seq.current
         setToasts(t => [{ id, title: d.title, body: d.body, gid: d.gid }, ...t].slice(0, 3))
         setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 7000)
+        // the system notification, when the tab is in the background: tapping it comes straight back to this chat
+        try {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
+            const nt = new Notification(d.title, { body: d.body, tag: d.gid })
+            nt.onclick = () => { window.focus(); goTo(d.gid); nt.close() }
+          }
+        } catch { /* not allowed here */ }
       }
     }
     window.addEventListener(EVT_TOGGLE, toggle); window.addEventListener('message', msg)
     // a floating circle only where the screen has no footer circle of its own
-    const probe = setInterval(() => { setFloating(!document.querySelector('[data-chat-btn]')); setAuthed(isAuthenticated()) }, 800)
+    const probe = setInterval(() => { setFloating(!footerButtonShown()); setAuthed(isAuthenticated()) }, 800)
     setAuthed(isAuthenticated())
+    // a link from a notification: ?chatopen=<chat id> opens the chat on that conversation
+    try { const g = new URLSearchParams(location.search).get('chatopen'); if (g) { wantGroup.current = g; setOpen(true) } } catch { /* ignore */ }
     return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); clearInterval(probe) }
   }, [on])
 
@@ -114,12 +145,12 @@ export default function ChatDock() {
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026b" onLoad={() => tell({ k: 'visible', open })}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026c" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
           style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>
         {toasts.map(t => (
-          <div key={t.id} onClick={() => { setOpen(true); tell({ k: 'open-group', gid: t.gid }); setToasts(x => x.filter(y => y.id !== t.id)) }}
+          <div key={t.id} onClick={() => { goTo(t.gid); setToasts(x => x.filter(y => y.id !== t.id)) }}
             style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '15px 18px', borderRadius: 24, cursor: 'pointer', background: 'rgba(88,52,56,.78)', border: '1px solid rgba(255,120,120,.55)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.25), 0 14px 40px rgba(0,0,0,.35), 0 0 26px rgba(239,68,68,.45)', WebkitBackdropFilter: 'blur(26px) saturate(1.4)', backdropFilter: 'blur(26px) saturate(1.4)', color: '#fff', fontFamily: 'Inter, system-ui, sans-serif' }}>
             <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', marginTop: 6, flex: 'none', boxShadow: '0 0 10px #ef4444' }} />
             <div style={{ minWidth: 0 }}>
