@@ -35,7 +35,11 @@ module.exports = async (req, res) => {
     res.status(200).json({ ok: true, person: { id: s.sub, name: s.name, role: s.role, app: s.app || 'haavnonly', emails: s.emails }, via: s.via, expires: s.exp })
     return
   }
-  if (action === 'config') { res.status(200).json({ microsoft: !!(env.MS_AUTH_CLIENT_ID && env.MS_AUTH_CLIENT_SECRET && env.SESSION_SECRET) }); return }
+  if (action === 'config') {
+    // names only, never values: which of the three settings the server can see
+    const missing = ['MS_AUTH_CLIENT_ID', 'MS_AUTH_CLIENT_SECRET', 'SESSION_SECRET'].filter((k) => !env[k])
+    res.status(200).json(missing.length ? { microsoft: false, missing } : { microsoft: true }); return
+  }
   if (action === 'logout') {
     res.setHeader('Set-Cookie', A.cookie(A.COOKIE, '', 0))
     if ((req.headers.accept || '').includes('text/html')) { res.redirect(302, '/'); return }
