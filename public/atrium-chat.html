@@ -341,7 +341,7 @@ body.embed #demo{left:calc(50% + 150px)}
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
   <div class="sw" style="border:0"><div class="l"><b>Alert sound</b><span>A soft two-note chime when a message lands</span></div><button class="tg on" id="sSnd"></button></div>
   <div class="sw"><div class="l"><b>Red alert on this device</b><span>Banner and badge while ATRIUM is open</span></div><button class="tg on" id="sRed"></button></div>
-  <div class="sw"><div class="l"><b>Push to your phone</b><span>Needs ATRIUM added to your Home Screen, then one tap on Allow</span></div><button class="tg" id="sPush"></button></div>
+  <div class="sw"><div class="l"><b>Alerts on this device</b><span>Messages reach this phone or computer even when ATRIUM is closed. Tap, allow, done. On iPhone, add ATRIUM to the Home Screen first and open it from there.</span><span id="pushMsg" style="color:var(--gold);margin-top:4px"></span></div><button class="tg" id="sPush"></button></div>
   <div class="sw"><div class="l"><b>Email me if unread after 10 minutes</b><span>A safety net, to every address you have added</span></div><button class="tg on" id="sMail"></button></div>
   <div class="sw"><div class="l"><b>Mentions and tasks always alert</b><span>Even in a muted group</span></div><button class="tg on" id="sMen"></button></div>
   <div class="f" style="margin-top:16px"><label class="mono">Preview only: view ATRIUM as</label><select id="asWho"></select></div>
@@ -666,6 +666,32 @@ document.addEventListener('click',e=>{const t=e.target.closest('#menu [data-mn]'
   const dl=e.target.closest('[data-del]'); if(dl){doDelete(dl.dataset.del);return}
 });
 
+
+/* ---- alerts on this device: a push subscription, saved against the person (real chat only) ---- */
+let pushOn=false;
+const urlB64=b=>{const p='='.repeat((4-b.length%4)%4),r=(b+p).replace(/-/g,'+').replace(/_/g,'/'),raw=atob(r);return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))};
+const pushNote=t=>{const e=$('#pushMsg'); if(e) e.textContent=t||''};
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent), isStandalone=(window.navigator.standalone===true)||matchMedia('(display-mode: standalone)').matches;
+async function currentSub(){ try{ const reg=await navigator.serviceWorker.getRegistration('/atrium-push-sw.js'); const regs=await navigator.serviceWorker.getRegistrations(); const r=regs.find(x=>((x.active||x.waiting||x.installing||{}).scriptURL||'').includes('atrium-push-sw')); return r?await r.pushManager.getSubscription():null }catch(e){ return null } }
+async function refreshAlerts(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){ pushNote(isIOS&&!isStandalone?'On iPhone, add ATRIUM to the Home Screen and open it from there to get alerts.':'This browser cannot receive alerts when ATRIUM is closed.'); return }
+  try{ const sub=await currentSub(); const st=await api('pushStatus',{endpoint:sub&&sub.endpoint||''}); pushOn=!!(sub&&st.thisDevice&&Notification.permission==='granted');
+    pushNote(!st.enabled?'The alert sender is not switched on at the server yet.':pushOn?'On for this device.':(Notification.permission==='denied'?'Blocked in your browser settings: allow notifications for ATRIUM, then try again.':(isIOS&&!isStandalone?'On iPhone, add ATRIUM to the Home Screen and open it from there first.':'')));
+  }catch(e){} paintSet();
+}
+async function toggleAlerts(){
+  try{
+    if(pushOn){ const sub=await currentSub(); if(sub){ await api('unsubscribe',{endpoint:sub.endpoint}); await sub.unsubscribe() } pushOn=false; pushNote('Off for this device.'); paintSet(); return }
+    if(isIOS&&!isStandalone){ pushNote('On iPhone, first add ATRIUM to the Home Screen (Share, then Add to Home Screen) and open it from the new icon.'); return }
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)){ pushNote('This browser cannot receive alerts when ATRIUM is closed.'); return }
+    const perm=await Notification.requestPermission(); if(perm!=='granted'){ pushNote('Alerts are blocked. Allow notifications for ATRIUM in your browser or phone settings, then try again.'); return }
+    const st=await api('pushStatus',{endpoint:''}); if(!st.enabled){ pushNote('The alert sender is not switched on at the server yet.'); return }
+    const reg=await navigator.serviceWorker.register('/atrium-push-sw.js'); await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription(); if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64(st.key)});
+    await api('subscribe',{sub:sub.toJSON(),ua:navigator.userAgent}); pushOn=true; pushNote('On for this device. Try Send test.'); paintSet();
+  }catch(e){ pushNote('Could not turn alerts on: '+(e.message||e)); }
+}
+
 /* ---- the real chat: the same screen on the server's data, once you are signed in with Microsoft and the tables exist ---- */
 async function api(a,args){
   const r=await fetch('/api/chat',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({a},args||{}))});
@@ -762,10 +788,10 @@ $('#gSave').onclick=()=>{const n=$('#gName').value.trim(); const r=gPk.get();
   const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...r.ids,...ext],owner:S.me,proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); open(g.id)};
 /* settings */
 const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
-function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',!!S[k]));
+function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',k==='push'&&REAL?pushOn:!!S[k]));
   $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
-Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
-$('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on')};
+Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{ if(k==='push'&&REAL){ toggleAlerts(); return } S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
+$('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on'); if(REAL) refreshAlerts()};
 $('#sTest').onclick=()=>{ const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
   if(emb){ try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){} setTimeout(()=>{try{parent.postMessage(Object.assign({atriumChat:'alert',red:1,snd:S.snd},note),'*')}catch(e){}},900) }
   else { const go=()=>{ chime(); if(window.Notification&&Notification.permission==='granted') new Notification(note.title,{body:note.body}) }; if(window.Notification&&Notification.permission==='default') Notification.requestPermission().then(go); else go() } };

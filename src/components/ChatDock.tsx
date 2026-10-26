@@ -113,7 +113,7 @@ export default function ChatDock() {
         return
       }
       if (e.source !== frame.current?.contentWindow) return
-      if (d.atriumChat === 'count') { count.current = d.n || 0; setN(d.n || 0); shout(d.n || 0); window.dispatchEvent(new CustomEvent(EVT_COUNT, { detail: { n: d.n || 0 } })) }
+      if (d.atriumChat === 'count') { count.current = d.n || 0; setN(d.n || 0); shout(d.n || 0); try { const nv = navigator as Navigator & { setAppBadge?: (n: number) => Promise<void>; clearAppBadge?: () => Promise<void> }; if (d.n) void nv.setAppBadge?.(d.n); else void nv.clearAppBadge?.() } catch { /* not on this device */ } window.dispatchEvent(new CustomEvent(EVT_COUNT, { detail: { n: d.n || 0 } })) }
       if (d.atriumChat === 'ask-notify' && typeof Notification !== 'undefined' && Notification.permission === 'default') void Notification.requestPermission()
       if (d.atriumChat === 'close') setOpen(false)
       if (d.atriumChat === 'alert') {
@@ -132,12 +132,15 @@ export default function ChatDock() {
       }
     }
     window.addEventListener(EVT_TOGGLE, toggle); window.addEventListener('message', msg)
+    // a tap on a phone or computer notification: the alert service tells the open window which chat to show
+    const swMsg = (e: MessageEvent) => { if (e.data && e.data.atriumChat === 'goto' && e.data.gid) goTo(e.data.gid) }
+    navigator.serviceWorker?.addEventListener('message', swMsg)
     // a floating circle only where the screen has no footer circle of its own
     const probe = setInterval(() => { setFloating(!footerButtonShown()); setAuthed(isAuthenticated()) }, 800)
     setAuthed(isAuthenticated())
     // a link from a notification: ?chatopen=<chat id> opens the chat on that conversation
     try { const g = new URLSearchParams(location.search).get('chatopen'); if (g) { wantGroup.current = g; setOpen(true) } } catch { /* ignore */ }
-    return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); clearInterval(probe) }
+    return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); navigator.serviceWorker?.removeEventListener('message', swMsg); clearInterval(probe) }
   }, [on])
 
   useEffect(() => {
@@ -168,7 +171,7 @@ export default function ChatDock() {
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026f" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026g" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
           style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

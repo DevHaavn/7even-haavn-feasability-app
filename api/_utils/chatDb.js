@@ -31,6 +31,13 @@ function supa(env = process.env, fetchImpl = fetch) {
     deleteGroup: (id) => rest('DELETE', `chat_groups?id=eq.${id}`),
     async findDm(key) { return (await rest('GET', `chat_groups?dm_key=eq.${encodeURIComponent(key)}&select=*`))[0] || null },
     unarchiveOthers: (gid, me) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=neq.${encodeURIComponent(me)}&archived=eq.true`, { archived: false }, 'return=minimal'),
+    async pushSubsFor(ids) { return ids.length ? rest('GET', `chat_push?person_id=in.${inList(ids)}&select=*`) : [] },
+    savePush: (row) => rest('POST', 'chat_push?on_conflict=endpoint', row, 'resolution=merge-duplicates,return=minimal'),
+    deletePush: (endpoint) => rest('DELETE', `chat_push?endpoint=eq.${encodeURIComponent(endpoint)}`),
+    // for the email nudge
+    recentMessages: (sinceIso) => rest('GET', `chat_messages?kind=neq.system&created_at=gte.${encodeURIComponent(sinceIso)}&order=id.asc&limit=1000&select=id,group_id,sender,body,task,files,created_at`),
+    allGroups: (ids) => ids.length ? rest('GET', `chat_groups?id=in.${inList(ids)}&select=*`) : [],
+    markEmailed: (gid, member, upto) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=eq.${encodeURIComponent(member)}`, { last_emailed: upto }, 'return=minimal'),
     async filePaths(gid) { const ms = await rest('GET', `chat_messages?group_id=eq.${gid}&kind=neq.system&select=files`); return ms.flatMap((m) => (m.files || []).map((f) => f.path).filter(Boolean)) },
   }
   async function storage(method, path, body) {

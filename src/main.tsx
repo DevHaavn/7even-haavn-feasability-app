@@ -24,6 +24,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // deploy. Belt-and-braces: if an old worker is still controlling this page,
 // unregister it now.
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations?.().then(regs => regs.forEach(r => r.unregister())).catch(() => {})
+  navigator.serviceWorker.getRegistrations?.().then(regs => regs.filter(r => !(((r.active||r.waiting||r.installing||{}).scriptURL)||'').includes('atrium-push-sw')).forEach(r => r.unregister())).catch(() => {})
   if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {})
 }

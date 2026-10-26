@@ -8,5 +8,11 @@
       "source": "/api/auth/:action",
       "destination": "/api/auth?action=:action"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/chat-nudge",
+      "schedule": "*/5 * * * *"
+    }
   ]
 }

@@ -17,7 +17,7 @@ export async function getLatest() {
   ;(document.activeElement as HTMLElement | null)?.blur?.()
   await new Promise(r => setTimeout(r, 900))   // the turn of the arrow, and the auto-save flush
   try { if ('caches' in window) { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))) } } catch { /* ignore */ }
-  try { const rs = await navigator.serviceWorker?.getRegistrations?.(); if (rs) await Promise.all(rs.map(r => r.unregister())) } catch { /* ignore */ }
+  try { const rs = await navigator.serviceWorker?.getRegistrations?.(); if (rs) await Promise.all(rs.filter(r => !(((r.active||r.waiting||r.installing||{}).scriptURL)||'').includes('atrium-push-sw')).map(r => r.unregister())) } catch { /* ignore */ }
   const url = location.origin + location.pathname + '?u=' + Date.now() + location.hash
   try { location.replace(url) } catch { window.location.href = url }
 }

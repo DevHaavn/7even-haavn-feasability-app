@@ -39,7 +39,7 @@
     try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();}catch(e){}
     await new Promise(function(r){setTimeout(r,900);});
     try{if(window.caches){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}}catch(e){}
-    try{if(navigator.serviceWorker){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(function(r){return r.unregister();}));}}catch(e){}
+    try{if(navigator.serviceWorker){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.filter(function(r){return !(((r.active||r.waiting||r.installing||{}).scriptURL)||'').includes('atrium-push-sw');}).map(function(r){return r.unregister();}));}}catch(e){}
     var T=window;try{if(window.top&&window.top.location.origin===location.origin)T=window.top;}catch(e){}
     try{var u=new URL(T.location.href);u.searchParams.set('u',Date.now());T.location.replace(u.toString());}
     catch(e){try{T.location.reload();}catch(e2){location.reload();}}

@@ -617,7 +617,7 @@ function exportXLS(){const m=cur();let html='<table border="1"><tr><th>Departmen
 async function doUpdate(){
   var b=document.querySelector('[data-act="siteUpdate"]');if(b)b.textContent='⟳ Updating…';
   try{if('caches'in window){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}}catch(e){}
-  try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(function(r){return r.unregister();}));}}catch(e){}
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){var rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.filter(function(r){return !(((r.active||r.waiting||r.installing||{}).scriptURL)||'').includes('atrium-push-sw');}).map(function(r){return r.unregister();}));}}catch(e){}
   var pv=location.search.indexOf('preview')>=0?'preview=1&':'';
   location.replace(location.origin+location.pathname+'?'+pv+'u='+Date.now());
 }

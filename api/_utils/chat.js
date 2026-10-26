@@ -2,6 +2,7 @@
 // Who you are always comes from the signed session, never from the request. You only ever see groups you are a member of.
 const A = require('./atriumAuth')
 const B = require('./blaze')
+const P = require('./chatPush')
 
 const BUCKET = 'chat-files'
 const MAX_BODY = 8000, MAX_NAME = 80, MAX_FILES = 8, MAX_FILE_BYTES = 50 * 1024 * 1024
@@ -149,7 +150,7 @@ async function filterTask(kv, me, t, text) {
   return task
 }
 
-async function send(store, kv, me, a) {
+async function send(store, kv, me, a, wp) {
   const { rows } = await mustBeMember(store, a.gid, me)
   const body = String(a.body || '').slice(0, MAX_BODY)
   const filesIn = (Array.isArray(a.files) ? a.files : []).slice(0, MAX_FILES)
@@ -167,6 +168,12 @@ async function send(store, kv, me, a) {
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
   // a new message brings an archived chat back for everyone else
   await store.unarchiveOthers(a.gid, me.sub)
+  // alert everyone else's phones and computers; a failure here never loses the message
+  try {
+    const group = (await store.groupsByIds([a.gid]))[0]
+    const others = rows.filter((r) => r.member !== me.sub)
+    if (group && others.length) await P.notify({ store, sender: me, msg: row, group, memberRows: others, groupName: group.name }, wp)
+  } catch { /* ignore */ }
   return { msg: shapeMsg(row) }
 }
 
@@ -191,13 +198,32 @@ async function signUpload(store, files, me, a) {
   return { path, ...(await files.signUpload(path)) }
 }
 
+async function subscribe(store, me, a) {
+  const s = a.sub || {}
+  if (typeof s.endpoint !== 'string' || !/^https:\/\//.test(s.endpoint) || s.endpoint.length > 600 || !s.keys || typeof s.keys.p256dh !== 'string' || typeof s.keys.auth !== 'string') throw new ChatError('That device could not be saved.')
+  await store.savePush({ endpoint: s.endpoint, person_id: me.sub, p256dh: s.keys.p256dh, auth: s.keys.auth, ua: String(a.ua || '').slice(0, 160) })
+  return { ok: true }
+}
+async function unsubscribe(store, me, a) {
+  const mine = await store.pushSubsFor([me.sub])
+  if (mine.some((x) => x.endpoint === a.endpoint)) await store.deletePush(a.endpoint)
+  return { ok: true }
+}
+async function pushStatus(store, me, a, wp) {
+  const mine = await store.pushSubsFor([me.sub])
+  return { key: P.PUBLIC_KEY, enabled: !!wp, devices: mine.length, thisDevice: mine.some((x) => x.endpoint === a.endpoint) }
+}
+
 // the one entry point the handler calls
 async function run(action, a, me, deps) {
-  const { store, files, kv } = deps
+  const { store, files, kv, wp } = deps
   switch (action) {
     case 'init': return snapshot(store, files, me, 0)
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0)
-    case 'send': return send(store, kv, me, a)
+    case 'send': return send(store, kv, me, a, wp)
+    case 'pushStatus': return pushStatus(store, me, a, wp)
+    case 'subscribe': return subscribe(store, me, a)
+    case 'unsubscribe': return unsubscribe(store, me, a)
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
     case 'addMembers': return addMembers(store, me, a)
