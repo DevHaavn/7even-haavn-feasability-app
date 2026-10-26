@@ -135,7 +135,7 @@ function addTask(ws, a, by = DEFAULT_BY, agents = []) {
   const t = {
     id: newId(), title: requireTitle(a.title), owner: resolveOwner(a.owner), due: checkDate(a.due, 'due') || today(),
     priority: a.priority ? checkEnum(a.priority, PRIORITIES, 'priority') : 'Low', status: 'todo', done: false, dept,
-    weekly: false, context: null, meetingId: '', notes: String(a.notes || ''), watchers: [], files: [], subs: [],
+    weekly: false, context: null, meetingId: '', notes: String(a.notes || ''), project: String(a.project || '').trim().slice(0, 60), watchers: [], files: [], subs: [],
     created: nowIso(), completedAt: null, createdBy: by, comments: [],
     agent: resolveAgent(a.agent, agents),
   }

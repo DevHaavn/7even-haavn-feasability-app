@@ -31,6 +31,7 @@ function shapeMsg(m) {
   if (m.kind === 'icon') return { ...base, k: 'icon', icon: (m.task && m.task.icon) || null }
   if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
   if (m.kind === 'avatar') return { ...base, k: 'avatar' }
+  if (m.kind === 'wfupdate') return { ...base, x: m.body || '', sys: 0, wf: (m.task && m.task.ref) || undefined, files: (m.files && m.files.length) ? m.files : undefined }
   return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
 }
 
@@ -143,6 +144,32 @@ async function setOrder(store, kv, me, a) {
   return { ok: true, order }
 }
 
+// My group chats, light: just enough to pick one from a task.
+async function myGroups(store, me) {
+  const mine = (await store.memberRowsFor(me.sub)).filter((r) => !r.hidden)
+  if (!mine.length) return { groups: [] }
+  const gs = await store.groupsByIds(mine.map((r) => r.group_id))
+  return { groups: gs.filter((g) => !g.is_dm).map((g) => ({ id: g.id, n: g.name, proj: g.project || '' })) }
+}
+// The chat for a project, made from a task: found by its project name, or created with the task's team. People on the task who are not in it yet are added.
+async function groupForProject(store, me, a) {
+  const project = String(a.project || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME)
+  if (!project) throw new ChatError('Give the task a project first.')
+  const names = new Set((Array.isArray(a.names) ? a.names : []).map((n) => String(n).trim().toLowerCase()))
+  const ids = A.PEOPLE.filter((p) => names.has(p.name.toLowerCase()) && p.id !== me.sub).map((p) => p.id)
+  const mine = (await store.memberRowsFor(me.sub)).filter((r) => !r.hidden)
+  const gs = mine.length ? await store.groupsByIds(mine.map((r) => r.group_id)) : []
+  const found = gs.find((g) => !g.is_dm && String(g.project || '').toLowerCase() === project.toLowerCase())
+  if (found) {
+    let added = []
+    if (ids.length) added = (await addMembers(store, me, { gid: found.id, ids })).added
+    return { gid: found.id, existing: true, added }
+  }
+  if (!ids.length) throw new ChatError('Add a team member to the task first, then start its chat.')
+  const r = await newGroup(store, me, { name: project, ids, proj: project, priv: true })
+  return { gid: r.gid, existing: false }
+}
+
 async function newGroup(store, me, a) {
   const name = String(a.name || '').trim().slice(0, MAX_NAME)
   const ids = [...new Set((a.ids || []).filter((id) => byId(id) && id !== me.sub))]
@@ -237,7 +264,7 @@ async function filterTask(kv, me, t, text) {
   const by = `${me.name} (chat)`
   if (task.wf && kv) {
     try {
-      const res = await kv.update(B.KEYS.workflow, (ws) => B.addTask(ws, { title, owner: own.name, due, priority: PRIORITY[task.pri], dept: DEPT[task.proj] || 'company', notes: text ? `From chat: ${text}` : '' }, by))
+      const res = await kv.update(B.KEYS.workflow, (ws) => B.addTask(ws, { title, owner: own.name, due, priority: PRIORITY[task.pri], dept: DEPT[task.proj] || 'company', project: task.proj && task.proj !== 'No project' ? task.proj : '', notes: text ? `From chat: ${text}` : '' }, by))
       task.wfId = res.id
     } catch (e) { task.wf = 0; task.wfError = String(e.message || e).slice(0, 120) }
   }
@@ -257,12 +284,22 @@ async function send(store, kv, me, a, wp) {
     return { name: String(f.name || 'file').slice(0, 160), type: String(f.type || 'application/octet-stream').slice(0, 100), size: Math.min(Number(f.size) || 0, MAX_FILE_BYTES), path: f.path }
   })
   if (!body.trim() && !files.length && !a.task) throw new ChatError('Nothing to send.')
+  // a message that is about a Workflow task: it carries the task, and the words are also filed on the task as a comment
+  let wf = null
+  if (a.wf && !a.task) {
+    if (!kv || !kv.read) throw new ChatError('Tasks are not linked right now. Try again shortly.', 503)
+    const row = await kv.read(B.KEYS.workflow)
+    const t = row && row.value && (row.value.actions || []).find((x) => x.id === String(a.wf))
+    if (!t) throw new ChatError('That task no longer exists.', 404)
+    wf = { id: t.id, t: String(t.title || '').slice(0, 160), p: String(t.project || '').slice(0, 60) }
+  }
   let task = null
   if (a.task) {
     if (!rows.some((r) => r.member === a.task.own) && !byId(a.task.own)) throw new ChatError('The owner must be someone on the team.')
     task = await filterTask(kv, me, a.task, body)
   }
-  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: task ? 'task' : 'text', body, task, files })
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: task ? 'task' : wf ? 'wfupdate' : 'text', body, task: task || (wf ? { ref: wf } : null), files })
+  if (wf && body.trim() && kv) { try { await kv.update(B.KEYS.workflow, (ws) => B.addComment(ws, { id: wf.id, text: body.trim().slice(0, 2000) }, `${me.name} (chat)`)) } catch { /* the message is sent; the task note is best effort */ } }
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
   // a new message brings an archived chat back for everyone else
   await store.unarchiveOthers(a.gid, me.sub)
@@ -414,6 +451,8 @@ async function run(action, a, me, deps) {
     case 'unsubscribe': return unsubscribe(store, me, a)
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
+    case 'myGroups': return myGroups(store, me)
+    case 'groupForProject': return groupForProject(store, me, a)
     case 'addMembers': return addMembers(store, me, a)
     case 'renameGroup': return renameGroup(store, me, a)
     case 'setOrder': return setOrder(store, kv, me, a)

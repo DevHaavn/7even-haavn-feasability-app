@@ -345,6 +345,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-item" data-tab="overview" data-icon="overview">Overview</div>
     <div class="rail-item" data-tab="myday" data-icon="calendar">My day</div>
     <div class="rail-item" data-tab="mytasks" data-icon="review">My tasks<span class="n" id="cMyTasks">0</span></div>
+    <div class="rail-item" data-tab="byproject" data-icon="folder">Tasks by project</div>
     <div class="rail-item" data-tab="myagenda" data-icon="calendar">My weekly agenda<span class="n" id="cMyAgenda">0</span></div>
     <div class="rail-item" data-tab="mymeetings" data-icon="people">My meetings</div>
     <div class="rail-group g-team">Team</div>
@@ -781,7 +782,7 @@ function toggleRail(){var on=document.getElementById('rail').classList.toggle('o
 function closeRail(){document.getElementById('rail').classList.remove('on');document.getElementById('railScrim').classList.remove('on');}
 
 var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
-  myday:['My day','MY WORKSPACE'],mytasks:['My tasks','MY WORKSPACE'],myagenda:['My weekly agenda','MY WORKSPACE'],mymeetings:['My meetings','MY WORKSPACE'],
+  myday:['My day','MY WORKSPACE'],mytasks:['My tasks','MY WORKSPACE'],byproject:['Tasks by project','EVERY PROJECT · EVERY TASK SET FOR IT'],myagenda:['My weekly agenda','MY WORKSPACE'],mymeetings:['My meetings','MY WORKSPACE'],
   dashboard:['Growth dashboard','HAAVN SUPPLY & HAAVN BLACK · KEY INDICATORS'],
   teamboard:['Team board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly review','BRIDGE → MEETING MANAGEMENT'],
   mgmt:['HAAVN Management','PROJECT DELIVERY · SEPARATE FROM SUPPLY'],mgmtprojects:['Management Projects','DEVELOPER, CLIENT & SUPPLY PROJECTS · MODULAR OR NOT'],mgmttimeline:['Project timelines','ALL PROJECTS · PHASES & MILESTONES'],mgmthandoffs:['Supply ↔ Management','HANDOFFS & REQUESTS BETWEEN THE TWO TEAMS'],
@@ -799,6 +800,7 @@ function render(){
   if(TAB==='overview') v.innerHTML=viewOverview();
   else if(TAB==='myday') v.innerHTML=viewMyDay();
   else if(TAB==='mytasks') v.innerHTML=viewMyTasks();
+  else if(TAB==='byproject') v.innerHTML=viewByProject();
   else if(TAB==='myagenda') v.innerHTML=viewMyAgenda();
   else if(TAB==='mymeetings') v.innerHTML=viewMyMeetings();
   else if(TAB==='dashboard') v.innerHTML=viewDashboard();
@@ -1809,28 +1811,60 @@ function viewBuyers(){
 }
 
 /* ===================== Actions register (seeded with real migrated tasks) ===================== */
+function projectChip(a){return a.project?'<span class="chip gold">'+esc(a.project)+'</span>':'<span style="opacity:.4">—</span>';}
+function projectFilterOpts(sel){
+  return '<option value="">All projects</option>'+projectNames().map(function(n){return '<option value="'+esc(n)+'" '+(n===sel?'selected':'')+'>'+esc(n)+'</option>';}).join('')+'<option value="__none" '+(sel==='__none'?'selected':'')+'>No project</option>';
+}
 function viewActions(){
-  var f=window._af||'open';
+  var f=window._af||'open', fp=window._ap||'', grp=!!window._agp;
   var t=today();
   var list=WS.actions.filter(function(a){
+    if(fp==='__none'&&a.project) return false;
+    if(fp&&fp!=='__none'&&a.project!==fp) return false;
     if(f==='open') return !a.done;
     if(f==='overdue') return !a.done && a.due && a.due<t;
     if(f==='completed') return a.done;
     return true;
   });
+  if(grp) list=list.slice().sort(function(x,y){var px=(x.project||'~').toLowerCase(),py=(y.project||'~').toLowerCase();return px<py?-1:px>py?1:(x.due||'9')<(y.due||'9')?-1:1;});
   var h='<div class="section-h">'+
     ['open','overdue','completed','all'].map(function(x){return '<button class="btn sm'+(f===x?' gold':'')+'" onclick="window._af=\''+x+'\';render()">'+x[0].toUpperCase()+x.slice(1)+'</button>';}).join(' ')+
-    '<div class="spacer"></div><button class="btn gold" onclick="openActionModal()">+ New action</button></div>';
-  h+='<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Owner</th><th>Due</th><th>Priority</th><th>Context</th></tr></thead><tbody>';
+    '<select onchange="window._ap=this.value;render()" style="margin-left:8px;max-width:190px" aria-label="Filter by project">'+projectFilterOpts(fp)+'</select>'+
+    '<button class="btn sm'+(grp?' gold':'')+'" onclick="window._agp=!window._agp;render()">Group by project</button>'+
+    '<div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,null,'+(fp&&fp!=='__none'?"'"+esc(fp).replace(/'/g,"\\'")+"'":"''")+')">+ New action</button></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Project</th><th>Owner</th><th>Due</th><th>Priority</th><th>Context</th></tr></thead><tbody>';
+  var last=null;
   h+=list.length?list.map(function(a){
-    var overdue=!a.done&&a.due&&a.due<t;
-    return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
+    var overdue=!a.done&&a.due&&a.due<t, head='';
+    if(grp&&(a.project||'')!==last){ last=a.project||''; var n=list.filter(function(x){return (x.project||'')===last;}).length; head='<tr><td colspan="7" class="gt-proj">'+(last?esc(last):'No project')+' <span style="opacity:.55;font-weight:400">· '+n+' task'+(n===1?'':'s')+'</span></td></tr>'; }
+    return head+'<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
       '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+'</td>'+
+      '<td>'+projectChip(a)+'</td>'+
       '<td>'+esc(a.owner)+'</td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
       '<td>'+priorityChip(a.priority)+'</td>'+
-      '<td>'+(a.project?esc(a.project):(a.context?esc(a.context.label||''):'—'))+'</td></tr>';
-  }).join(''):'<tr><td colspan="6" class="empty">Nothing here.</td></tr>';
+      '<td>'+(a.context?esc(a.context.label||''):'—')+'</td></tr>';
+  }).join(''):'<tr><td colspan="7" class="empty">Nothing here.</td></tr>';
   h+='</tbody></table></div>';
+  return h;
+}
+
+/* ===================== Tasks by project: every project, and everything set for it ===================== */
+function viewByProject(){
+  var t=today(), names=projectNames(), sel=window._bp;
+  function stats(n){var l=WS.actions.filter(function(a){return n==='__none'?!a.project:a.project===n;}); return {all:l,open:l.filter(function(a){return !a.done;}),late:l.filter(function(a){return !a.done&&a.due&&a.due<t;}),done:l.filter(function(a){return a.done;})};}
+  var cards=names.concat(['__none']).map(function(n){
+    var st=stats(n); if(n==='__none'&&!st.all.length) return '';
+    var on=(sel===n);
+    return '<div class="card" onclick="window._bp=\''+(on?'':esc(n).replace(/'/g,"\\'"))+'\';render()" style="cursor:pointer;min-width:170px;flex:1 1 170px;'+(on?'outline:1.5px solid var(--gold-deep,#d6b36a)':'')+'">'+
+      '<div style="font:500 13px var(--sans)">'+(n==='__none'?'No project':esc(n))+'</div>'+
+      '<div style="margin-top:8px;font:400 12px var(--sans);color:var(--ink-2)">'+st.open.length+' open'+(st.late.length?' · <span style="color:var(--red-t)">'+st.late.length+' overdue</span>':'')+(st.done.length?' · '+st.done.length+' done':'')+'</div></div>';
+  }).join('');
+  var h='<div class="section-h"><div style="font-size:12.5px;color:var(--ink-2)">Pick a project to see every task set for it. Message its team from any task.</div><div class="spacer"></div><button class="btn gold" onclick="openActionModal(null,null,\''+(sel&&sel!=='__none'?esc(sel).replace(/'/g,"\\'"):'')+'\')">+ New task</button></div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px">'+cards+'</div>';
+  if(sel){
+    var st=stats(sel), list=st.all.slice().sort(function(a,b){return (a.done?1:0)-(b.done?1:0)||((a.due||'9')<(b.due||'9')?-1:1);});
+    h+='<div class="section-h"><h3>'+(sel==='__none'?'No project':esc(sel))+'</h3><div class="spacer"></div><span style="font-size:12px;color:var(--ink-3)">'+st.open.length+' open · '+st.done.length+' done</span></div>'+renderActionList(list,false);
+  }
   return h;
 }
 
@@ -1908,14 +1942,42 @@ var _amId=null, _amWatchers=[], _amFiles=[], _amSubs=[];
 function taskAgentBlock(a){
   var cs=a.comments||[]; if(!cs.length&&!a.agent) return '';
   var h='<div class="f" style="margin-top:6px">'+(a.agent?'<div style="font-size:12px;opacity:.7;margin-bottom:6px">Handed to agent: <b>'+esc(a.agent)+'</b></div>':'');
-  if(cs.length) h+='<div style="font-size:11px;opacity:.6;margin-bottom:4px">Comments</div>'+cs.map(function(c){
+  if(cs.length) h+='<div style="font-size:11px;opacity:.6;margin-bottom:4px">Comments and team chat updates</div>'+cs.map(function(c){
     var when=new Date(c.at).toLocaleString('en-AU',{timeZone:'Australia/Melbourne',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
     return '<div style="padding:8px 10px;margin-bottom:6px;border-left:2px solid var(--gold,#d6b36a);background:var(--pill,rgba(255,255,255,.04));border-radius:6px"><div style="font-size:11px;opacity:.6">'+esc(c.by)+' · '+esc(when)+'</div><div style="font-size:13px;margin-top:2px;white-space:pre-wrap">'+esc(c.text)+'</div></div>';
   }).join('');
   return h+'</div>';
 }
-function openActionModal(id,prefillDept){
-  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Low',status:'todo',done:false,dept:prefillDept||'company',weekly:false,context:null,meetingId:'',notes:'',watchers:[],files:[],subs:[],created:nowIso()};
+/* ===================== project tags on tasks ===================== */
+var DEFAULT_PROJECTS=['Preston','Caloundra','Geelong Corio','Geelong Belmont','SOLUM Plus','SOLUM Studio'];
+function projectNames(){
+  var out=[],seen={};
+  function add(n){n=String(n||'').replace(/\s+/g,' ').trim(); if(!n||n==='—'||n==='Weekly Meeting'||seen[n.toLowerCase()]) return; seen[n.toLowerCase()]=1; out.push(n);}
+  DEFAULT_PROJECTS.forEach(add); (WS.projectList||[]).forEach(add); (WS.mgmtProjects||[]).forEach(function(p){add(p.name);}); WS.actions.forEach(function(a){add(a.project);});
+  return out;
+}
+function projectOpts(sel){
+  return '<option value="">No project</option>'+projectNames().map(function(n){return '<option value="'+esc(n)+'" '+(n===sel?'selected':'')+'>'+esc(n)+'</option>';}).join('')+'<option value="__new">＋ Add a project…</option>';
+}
+function amProjectChange(el){
+  var box=document.getElementById('af_projadd'); if(!box) return;
+  box.style.display=(el.value==='__new')?'flex':'none';
+  if(el.value==='__new'){var i=document.getElementById('af_projnew'); if(i) i.focus();}
+  amChatRefresh();
+}
+function amProjectAdd(){
+  var i=document.getElementById('af_projnew'), n=(i.value||'').replace(/\s+/g,' ').trim().slice(0,60);
+  if(!n){toast('Type the project name');return;}
+  var have=projectNames().filter(function(x){return x.toLowerCase()===n.toLowerCase();})[0];
+  if(have){n=have;} else {WS.projectList=(WS.projectList||[]).concat([n]);}
+  var sel=document.getElementById('af_project'); sel.innerHTML=projectOpts(n); sel.value=n;
+  document.getElementById('af_projadd').style.display='none'; i.value='';
+  toast(have?'Project selected':'Project added: '+n); amChatRefresh();
+}
+function chosenProject(){var v=val('af_project'); return v==='__new'?'':v;}
+
+function openActionModal(id,prefillDept,prefillProject){
+  var a=id?WS.actions.find(function(x){return x.id===id;}):{id:uid(),title:'',owner:ME(),due:today(),priority:'Low',status:'todo',done:false,dept:prefillDept||'company',project:prefillProject||'',weekly:false,context:null,meetingId:'',notes:'',watchers:[],files:[],subs:[],created:nowIso()};
   var isNew=!id;
   _amId=a.id; _amWatchers=(a.watchers||[]).slice(); _amFiles=(a.files||[]).slice(); _amSubs=(a.subs||[]).slice();
   var ownerOpts=REAL_PEOPLE.map(function(u){return '<option '+(a.owner===u.name?'selected':'')+'>'+esc(u.name)+'</option>';}).join('');
@@ -1925,19 +1987,78 @@ function openActionModal(id,prefillDept){
   var prioOpts=['Low','Medium','High'].map(function(p){return '<option value="'+p+'" '+((a.priority||'Low')===p?'selected':'')+'>'+p+'</option>';}).join('');
   var body='<h4>'+(isNew?'New action':'Edit action')+'</h4>'+
     '<label class="f">Title<input id="af_title" value="'+esc(a.title)+'"></label>'+
+    '<label class="f">Project<select id="af_project" onchange="amProjectChange(this)">'+projectOpts(a.project||'')+'</select></label>'+
+    '<div id="af_projadd" style="display:none;gap:7px;margin:-4px 0 10px"><input id="af_projnew" placeholder="New project name" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();amProjectAdd();}"><button type="button" class="btn gold" onclick="amProjectAdd()">Add project</button></div>'+
     '<div class="formgrid"><label class="f">Task leader / owner<select id="af_owner">'+ownerOpts+'</select></label><label class="f">Due<input id="af_due" type="date" value="'+esc(a.due)+'"></label></div>'+
     '<div class="formgrid"><label class="f">Department<select id="af_dept">'+deptOpts+'</select></label><label class="f">Status<select id="af_status">'+statusOpts+'</select></label></div>'+
     '<div class="formgrid"><label class="f">Priority<select id="af_priority">'+prioOpts+'</select></label><label style="display:flex;align-items:flex-end;padding-bottom:10px;gap:8px;font-size:12.5px;cursor:pointer;text-transform:none;letter-spacing:0;font-family:var(--sans)"><input type="checkbox" id="af_weekly" '+(a.weekly?'checked':'')+' style="width:auto"> Flag for the Weekly Company Meeting</label></div>'+
     '<label class="f">Team members — who else can see &amp; run this task</label><div id="af_watchbox"></div>'+
     '<label class="f">Notes<textarea id="af_notes" rows="2">'+esc(a.notes||'')+'</textarea></label>'+
-    taskAgentBlock(a)+
+    '<div id="af_comments">'+taskAgentBlock(a)+'</div>'+
+    (isNew?'<div style="color:var(--ink-3);font-size:11.5px;margin:6px 0 2px">Save the task first, then you can message the team about it from here.</div>':amChatBlock(a))+
     '<label class="f">Subtasks</label><div id="af_subbox"></div>'+
     '<label class="f">Attachments — image or document</label><div id="af_filebox"></div>'+
     '<label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-top:8px;width:fit-content">📎 Attach file<input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="amAttach(this)"></label>'+
     '<span style="display:block;color:var(--ink-3);font-size:11px;margin-top:5px">Shown to everyone on the task. Max 4MB.</span>'+
     '<div class="foot"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn gold" onclick="saveAction(\''+a.id+'\','+isNew+')">Save action</button></div>';
   showModal(body);
-  amPaintWatch(); amPaintSub(); amPaintFiles();
+  amPaintWatch(); amPaintSub(); amPaintFiles(); if(!isNew) amChatLoad();
+}
+/* ---- message the team about this task: goes to a chat, is filed on the task, and replies from the chat land back on it ---- */
+var _chatGroups=null, _chatErr='';
+function chatApi(a,args){
+  return fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(Object.assign({a:a,v:2},args||{}))})
+    .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok){var e=new Error(j.error||'The chat could not be reached.');e.status=r.status;throw e;}return j;});});
+}
+function amChatBlock(a){
+  return '<div class="f" style="margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px">'+
+    '<div style="font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.7;margin-bottom:8px">Message the team about this task</div>'+
+    '<div id="af_chatnote" style="font-size:12px;color:var(--ink-3);margin-bottom:6px">Loading your chats…</div>'+
+    '<select id="af_chatsel" style="display:none"></select>'+
+    '<textarea id="af_chattext" rows="2" placeholder="Update the team. It goes to the chat and is filed on this task." style="margin-top:8px;display:none"></textarea>'+
+    '<div style="margin-top:8px"><button type="button" class="btn gold" id="af_chatsend" style="display:none" onclick="amSendChat()">Send to chat</button></div></div>';
+}
+function amChatLoad(){
+  chatApi('myGroups').then(function(j){_chatGroups=j.groups||[];_chatErr='';amChatRefresh();})
+    .catch(function(e){_chatGroups=null;_chatErr=(e.status===401)?'Sign in with Microsoft in ATRIUM to message from a task.':(e.message||'The chat could not be reached.');amChatRefresh();});
+}
+function amChatRefresh(){
+  var note=document.getElementById('af_chatnote'), sel=document.getElementById('af_chatsel'); if(!note||!sel) return;
+  var tx=document.getElementById('af_chattext'), bt=document.getElementById('af_chatsend');
+  if(_chatGroups===null){ note.textContent=_chatErr||'Loading your chats…'; sel.style.display=tx.style.display=bt.style.display='none'; return; }
+  var proj=chosenProject(), pl=proj.toLowerCase(), keep=sel.value;
+  var match=_chatGroups.filter(function(g){return proj&&((g.proj||'').toLowerCase()===pl);});
+  var opts=_chatGroups.map(function(g){return '<option value="'+esc(g.id)+'">'+esc(g.n)+(g.proj?' · '+esc(g.proj):'')+'</option>';});
+  if(proj&&!match.length) opts.unshift('<option value="__proj">＋ Start the '+esc(proj)+' chat with this task\'s team</option>');
+  if(!opts.length){ note.textContent='You are not in any group chats yet. Pick a project and a team member, then start its chat here.'; }
+  else { note.textContent=proj&&match.length?'Sending to the '+proj+' chat. People on this task who are not in it are added.':'Pick the chat to send to.'; }
+  sel.innerHTML=opts.join('')||'<option value="">No chats</option>';
+  var want=keep&&Array.prototype.some.call(sel.options,function(o){return o.value===keep;})?keep:(match[0]?match[0].id:(proj&&!match.length?'__proj':(sel.options[0]?sel.options[0].value:'')));
+  sel.value=want; sel.style.display=tx.style.display=bt.style.display='';
+}
+function amTeamNames(){
+  var a=WS.actions.find(function(x){return x.id===_amId;}), names=[];
+  var o=val('af_owner')||(a&&a.owner); if(o) names.push(o);
+  _amWatchers.forEach(function(n){ if(names.indexOf(n)<0) names.push(n); });
+  return names;
+}
+function amSendChat(){
+  var text=(val('af_chattext')||'').trim(); if(!text){toast('Type your update first');return;}
+  var sel=document.getElementById('af_chatsel'), bt=document.getElementById('af_chatsend'), gid=sel.value, proj=chosenProject();
+  if(!gid){toast('Pick a chat');return;}
+  bt.disabled=true;
+  var step=(gid==='__proj')?chatApi('groupForProject',{project:proj,names:amTeamNames()}).then(function(r){return r.gid;}):
+    (proj&&_chatGroups.some(function(g){return g.id===gid&&(g.proj||'').toLowerCase()===proj.toLowerCase();})?chatApi('groupForProject',{project:proj,names:amTeamNames()}).then(function(r){return r.gid;}):Promise.resolve(gid));
+  step.then(function(g){ return chatApi('send',{gid:g,body:text,wf:_amId}); })
+    .then(function(){
+      toast('Sent to the chat and filed on the task'); document.getElementById('af_chattext').value='';
+      return kvPull(NAV_KEY,null).then(function(remote){
+        var r=remote&&(remote.actions||[]).find(function(x){return x.id===_amId;}), l=WS.actions.find(function(x){return x.id===_amId;});
+        if(r&&l){ l.comments=r.comments||[]; var c=document.getElementById('af_comments'); if(c) c.innerHTML=taskAgentBlock(l); }
+      });
+    })
+    .catch(function(e){ toast(e.status===401?'Sign in with Microsoft in ATRIUM first':(e.message||'Could not send')); })
+    .then(function(){ bt.disabled=false; if(_chatGroups) chatApi('myGroups').then(function(j){_chatGroups=j.groups||[];amChatRefresh();}).catch(function(){}); });
 }
 function amPaintWatch(){
   var box=document.getElementById('af_watchbox'); if(!box) return;
@@ -1988,7 +2109,7 @@ function amOpenFile(fid){
 }
 function saveAction(id,isNew){
   var v={title:val('af_title'),owner:val('af_owner'),due:val('af_due'),dept:val('af_dept'),status:val('af_status'),
-    priority:val('af_priority'),weekly:document.getElementById('af_weekly').checked,notes:val('af_notes'),
+    priority:val('af_priority'),project:chosenProject(),weekly:document.getElementById('af_weekly').checked,notes:val('af_notes'),
     watchers:_amWatchers.slice(),files:_amFiles.slice(),subs:_amSubs.slice()};
   v.done=(v.status==='done');
   if(!v.title.trim()){toast('Title is required');return;}
@@ -2118,11 +2239,11 @@ function viewMyDay(){
 function fmtDateShort(d){if(!d)return '—';var dt=new Date(d+'T00:00');return isNaN(dt)?d:dt.toLocaleDateString('en-AU',{day:'2-digit',month:'short'});}
 function renderActionList(list,showRole){
   if(!list.length) return '<div class="empty">Nothing here.</div>';
-  return '<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Dept</th><th>Due</th><th>Priority</th>'+(showRole?'<th>Role</th>':'')+'</tr></thead><tbody>'+
+  return '<div class="tablewrap"><table><thead><tr><th></th><th>Title</th><th>Project</th><th>Dept</th><th>Due</th><th>Priority</th>'+(showRole?'<th>Role</th>':'')+'</tr></thead><tbody>'+
     list.map(function(a){var overdue=!a.done&&a.due&&a.due<today();
       return '<tr><td><input type="checkbox" '+(a.done?'checked':'')+' onclick="event.stopPropagation();toggleAction(\''+a.id+'\')"></td>'+
         '<td class="tt" onclick="openActionModal(\''+a.id+'\')" style="'+(a.done?'text-decoration:line-through;opacity:.5':'')+'">'+esc(a.title)+(a.watchers&&a.watchers.length?' <span class="chip" title="'+esc(a.watchers.join(', '))+'">+'+a.watchers.length+'</span>':'')+'</td>'+
-        '<td><span class="chip">'+deptLabel(a.dept)+'</span></td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
+        '<td>'+projectChip(a)+'</td><td><span class="chip">'+deptLabel(a.dept)+'</span></td><td>'+(a.due?('<span class="chip '+(overdue?'red':'')+'">'+esc(a.due)+'</span>'):'—')+'</td>'+
         '<td>'+priorityChip(a.priority)+'</td>'+
         (showRole?'<td>'+(sameName(a.owner,ME())?'<span class="chip gold">Leader</span>':'<span class="chip">Following</span>')+'</td>':'')+
       '</tr>';

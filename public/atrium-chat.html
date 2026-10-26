@@ -397,6 +397,16 @@ body.embed #demo{left:calc(50% + 150px)}
 #micBtn.rec{color:#fff;background:rgba(239,68,68,.9);animation:micp 1.3s ease-in-out infinite;opacity:1}
 @keyframes micp{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 0 10px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
 #comp .box.listening textarea::placeholder{color:#ff9a9a}
+/* a message that is about a Workflow task */
+.wfchip{display:flex;align-items:center;gap:7px;max-width:100%;margin:0 0 6px;padding:5px 10px;border-radius:999px;background:rgba(214,179,106,.2);border:1px solid rgba(214,179,106,.5);color:inherit;font:400 12px Inter;text-align:left}
+.wfchip span{font:500 9.5px var(--mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:#d6b36a}
+.mr.mine .wfchip span{color:#7a5a12}
+.wfchip i{font-style:normal;opacity:.65}
+#wfbar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;margin:0 12px 6px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(214,179,106,.2);border:1px solid rgba(214,179,106,.5);font-size:13px}
+#wfbar[hidden]{display:none}
+#wfbar .wl{font:500 9.5px var(--mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:#d6b36a;flex:none}
+#wfbar b{font-weight:400;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#wfbar button{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);flex:none}
 #amenu{position:fixed;z-index:86;display:none;flex-direction:column;gap:6px;align-items:flex-start;max-width:calc(100vw - 20px)}
 #amenu.on{display:flex;animation:pop .22s var(--ease)}
 #amenu .rbar,#amenu .abar{display:flex;gap:2px;padding:5px 6px;border-radius:26px;background:rgba(48,50,56,.94);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);box-shadow:0 14px 40px rgba(0,0,0,.4);color:#fff}
@@ -560,6 +570,7 @@ body.embed #demo{left:calc(50% + 150px)}
     <div class="typing" id="typing"></div>
     <div id="pend"></div>
     <div id="attach"><button type="button" data-at="file"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>Photo or file</button><button type="button" data-at="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Set a task</button></div>
+    <div id="wfbar" hidden><span class="wl">Replying on task</span><b id="wfT"></b><button type="button" id="wfX" aria-label="Stop replying on the task">✕</button></div>
     <div id="comp">
       <div class="box">
         <button class="cib" id="plusBtn" type="button" aria-label="Add a photo, file or task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1066,7 +1077,8 @@ function bubbleHtml(m,pop){
   const hasfile=(m.files||[]).some(f=>!f.type.startsWith('image/')||!f.url);
   const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',pop?'pop':''].filter(Boolean).join(' ');
   const tm=`<span class="tm">${tmf(m.t)}</span>`;
-  const body=(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
+  const wfc=m.wf?`<button type="button" class="wfchip" data-wf="${esc(m.wf.id)}"><span>Task</span> ${esc(m.wf.t)}${m.wf.p?` <i>${esc(m.wf.p)}</i>`:''}</button>`:'';
+  const body=wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
   return `<div class="${cls}" data-bub="${m.id}">${body}${(plain&&!imgs&&!hasfile&&!hasTask&&!emo)?'':tm}</div>` }
 function renderThread(newId){
   const g=S.groups.find(x=>x.id===cur&&x.m.includes(S.me)&&!S.gone[S.me+x.id]);
@@ -1099,7 +1111,7 @@ function openMenuFor(id,anchor){
   const mine=((m.u===S.me)), have=Object.entries(S.rx[id]||{}).filter(([e,a])=>a.includes(S.me)).map(x=>x[0]);
   const am=$('#amenu');
   am.innerHTML=`<div class="rbar">${QUICK.map(e=>`<button type="button" data-q="${e}" class="${have.includes(e)?'me':''}" aria-label="React ${e}">${e}</button>`).join('')}<button type="button" data-q="+" aria-label="More emoji"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
+   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${m.wf?'<button type="button" data-a="wf"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply on task</button>':''}${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
   am.classList.add('on'); am.style.alignItems=mine?'flex-end':'flex-start';
   const r=anchor.getBoundingClientRect(), w=am.offsetWidth, h=am.offsetHeight, top0=($('#thead').getBoundingClientRect().bottom)+6;
   let top=r.top-h-8; if(top<top0) top=Math.min(r.bottom+8,innerHeight-h-8);
@@ -1112,6 +1124,7 @@ $('#amenu').addEventListener('click',e=>{
   const q=e.target.closest('[data-q]'), a=e.target.closest('[data-a]'); const id=amFor; if(!id) return;
   if(q){ closeMenu(); if(q.dataset.q==='+') openEmoji(em=>reactTo(id,em)); else reactTo(id,q.dataset.q); return }
   if(a){ const m=S.msgs.find(x=>x.id==id); closeMenu(); if(!m) return;
+    if(a.dataset.a==='wf'){ setWf(m.wf,m.g) }
     if(a.dataset.a==='reply'){ const t=$('#inp'); t.value='@'+(P[m.u]?P[m.u].n:'')+' '+t.value; t.dispatchEvent(new Event('input')); t.focus() }
     if(a.dataset.a==='task') taskDlg(m.x&&!/^Set a task for /.test(m.x)?m.x:'');
     if(a.dataset.a==='copy'){ try{ navigator.clipboard.writeText(m.x); flash('Copied') }catch(er){ const t=document.createElement('textarea'); t.value=m.x; document.body.appendChild(t); t.select(); try{document.execCommand('copy');flash('Copied')}catch(x){} t.remove() } } }
@@ -1253,6 +1266,7 @@ function incoming(m){
   paintAll(visible?m.id:null);
 }
 function open(id){
+  if(typeof clearWf==='function'&&wfRef&&wfRef.g!==id) clearWf();
   cur=id; const ms=gm(id); if(ms.length){S.read[S.me]=S.read[S.me]||{};S.read[S.me][id]=ms[ms.length-1].id}
   save(); pushRead(id); document.body.classList.add('in-thread'); view='chat'; paintAll();
 }
@@ -1476,12 +1490,18 @@ paintAll(); setView(); poll();
   finally{ document.documentElement.classList.remove('booting'); try{ paintAll() }catch(e){} }
 }
 
+/* ---- reply on a Workflow task: the next messages here are filed on that task as well ---- */
+let wfRef=null;
+function setWf(wf,gid){ if(!wf||!REAL) return; wfRef={id:wf.id,t:wf.t,g:gid||cur}; $('#wfT').textContent=wf.t+(wf.p?' · '+wf.p:''); $('#wfbar').hidden=false; $('#inp').focus() }
+function clearWf(){ wfRef=null; const b=$('#wfbar'); if(b) b.hidden=true }
+$('#wfX').onclick=clearWf;
+$('#msgs').addEventListener('click',e=>{ const c=e.target.closest('[data-wf]'); if(!c) return; const m=S.msgs.find(x=>x.wf&&x.wf.id===c.dataset.wf&&x.g===cur); setWf(m?m.wf:{id:c.dataset.wf,t:c.textContent.replace(/^Task\s*/,'').trim()},cur) });
 function send(){
   micStop(); const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
   if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend();
     (async()=>{ try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
-      const out=await api('send',{gid,body:v,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local}); ingestOwn(m) }
+      const wfId=wfRef&&wfRef.g===gid?wfRef.id:undefined; const out=await api('send',{gid,body:v,wf:wfId,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local}); ingestOwn(m) }
       catch(e){ flash(e.message); $('#inp').value=v; pend=files; renderPend() } finally{ syncSend() } })(); return }
   const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(m.id);

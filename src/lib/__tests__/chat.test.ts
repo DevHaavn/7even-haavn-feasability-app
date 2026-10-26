@@ -34,7 +34,7 @@ function fake() {
   const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
-  const kv = { async read(k: string) { return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
+  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   return { t, objs, deps: { store, files, kv }, db }
 }
 let F: ReturnType<typeof fake>
@@ -152,6 +152,33 @@ describe('people in a chat', () => {
     await expect(run('deleteGroup', { gid }, daniel)).rejects.toThrow(/owner/)
     await run('deleteGroup', { gid }, jamie)
     expect((await run('init', {}, daniel)).groups).toEqual([]); expect(F.t.msgs.length).toBe(0)
+  })
+})
+
+describe('tasks and project chats', () => {
+  it('a chat task carries its project to the Workflow task', async () => {
+    const { gid } = await run('newGroup', { name: 'P', ids: ['ds'] })
+    await run('send', { gid, task: { title: 'Do it', own: 'ds', proj: 'Preston', wf: 1, ag: 0 } })
+    expect(F.db.workflow.actions[0].project).toBe('Preston')
+  })
+  it('a message about a task is filed on the task as a comment and carries the task', async () => {
+    const { gid } = await run('newGroup', { name: 'Preston', ids: ['ds'] })
+    F.db.workflow.actions.push({ id: 't1', title: 'Facade package', project: 'Preston', owner: 'Daniel Sette', comments: [] })
+    const { msg } = await run('send', { gid, body: 'Revised facade is with the architect', wf: 't1' })
+    expect(msg.wf).toEqual({ id: 't1', t: 'Facade package', p: 'Preston' })
+    expect(F.db.workflow.actions[0].comments[0]).toMatchObject({ by: 'Jamie Baldwin (chat)', text: 'Revised facade is with the architect' })
+    const s = await run('init', {}, daniel)
+    expect(s.msgs.find((m: any) => m.id === msg.id).wf.t).toBe('Facade package')
+    await expect(run('send', { gid, body: 'x', wf: 'gone' })).rejects.toThrow(/no longer exists/)
+  })
+  it('lists my group chats, and makes or finds the project chat with the task team', async () => {
+    const a = await run('groupForProject', { project: 'Preston', names: ['Daniel Sette', 'Jamie Baldwin'] })
+    expect(a.existing).toBe(false)
+    expect((await run('myGroups', {}, daniel)).groups.map((g: any) => g.n)).toEqual(['Preston'])
+    const b = await run('groupForProject', { project: 'preston', names: ['Daniel Sette', 'Lewis Jin'] })
+    expect(b.existing).toBe(true); expect(b.gid).toBe(a.gid); expect(b.added).toEqual(['Lewis Jin'])
+    await expect(run('groupForProject', { project: 'Caloundra', names: [] })).rejects.toThrow(/team member/)
+    await expect(run('groupForProject', { project: '', names: ['Daniel Sette'] })).rejects.toThrow(/project/)
   })
 })
 
