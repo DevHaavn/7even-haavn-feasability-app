@@ -111,6 +111,38 @@ async function snapshot(store, files, me, after, clientV) {
   return out
 }
 
+// Any member can rename a group (not a direct message, which is just the two people). The change is logged in the chat so nobody is surprised.
+async function renameGroup(store, me, a) {
+  await mustBeMember(store, a.gid, me)
+  const g = (await store.groupsByIds([a.gid]))[0]
+  if (!g || g.is_dm) throw new ChatError('A direct message takes the other person\'s name.')
+  const name = String(a.name || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME)
+  if (!name) throw new ChatError('Give the chat a name.')
+  if (name === g.name) return { ok: true, name }
+  await store.updateGroup(a.gid, { name })
+  await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'system', body: `${me.name.split(' ')[0]} renamed the chat to \u201c${name}\u201d.`, task: null, files: [] })
+  return { ok: true, name }
+}
+
+// Chats a person has pinned to the top of their own list, in their own order. One small row per person; chats they are no longer in are dropped.
+const orderKey = (id) => 'atrium_chat_order_' + id
+async function readOrder(store, kv, me) {
+  if (!kv || !kv.read) return []
+  try {
+    const row = await kv.read(orderKey(me.sub))
+    const list = row && row.value && Array.isArray(row.value.order) ? row.value.order : []
+    const mine = new Set((await store.memberRowsFor(me.sub)).filter((r) => !r.hidden).map((r) => r.group_id))
+    return list.filter((g) => mine.has(g))
+  } catch { return [] }
+}
+async function setOrder(store, kv, me, a) {
+  if (!kv || !kv.update) throw new ChatError('Saving your order is not available right now.', 503)
+  const mine = new Set((await store.memberRowsFor(me.sub)).map((r) => r.group_id))
+  const order = [...new Set((Array.isArray(a.order) ? a.order : []).map(String))].filter((g) => mine.has(g)).slice(0, 80)
+  await kv.update(orderKey(me.sub), () => ({ next: { order }, result: null }))
+  return { ok: true, order }
+}
+
 async function newGroup(store, me, a) {
   const name = String(a.name || '').trim().slice(0, MAX_NAME)
   const ids = [...new Set((a.ids || []).filter((id) => byId(id) && id !== me.sub))]
@@ -373,7 +405,7 @@ async function pushTest(store, me, a, wp) {
 async function run(action, a, me, deps) {
   const { store, files, kv, wp } = deps
   switch (action) {
-    case 'init': return snapshot(store, files, me, 0, a.v)
+    case 'init': { const out = await snapshot(store, files, me, 0, a.v); out.order = await readOrder(store, kv, me); return out }
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
     case 'send': return send(store, kv, me, a, wp)
     case 'pushStatus': return pushStatus(store, me, a, wp)
@@ -383,6 +415,8 @@ async function run(action, a, me, deps) {
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
     case 'addMembers': return addMembers(store, me, a)
+    case 'renameGroup': return renameGroup(store, me, a)
+    case 'setOrder': return setOrder(store, kv, me, a)
     case 'addToGroups': return addToGroups(store, me, a)
     case 'removeMember': return removeMember(store, me, a)
     case 'setMine': return setMine(store, me, a)

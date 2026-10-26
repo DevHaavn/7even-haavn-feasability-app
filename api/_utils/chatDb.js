@@ -23,6 +23,7 @@ function supa(env = process.env, fetchImpl = fetch) {
       return (await rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=not.in.(icon,wall,avatar)&order=id.desc&limit=${limit}&select=*`)).reverse()
     },
     latestStyle: (ids) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=in.(icon,wall)&order=id.desc&limit=600&select=id,group_id,sender,kind,task`),
+    updateGroup: (id, patch) => rest('PATCH', `chat_groups?id=eq.${id}`, patch, 'return=minimal'),
     async insertGroup(g) { return (await rest('POST', 'chat_groups', g, 'return=representation'))[0] },
     insertMembers: (rows) => rest('POST', 'chat_members?on_conflict=group_id,member', rows, 'resolution=ignore-duplicates,return=minimal'),
     updateMember: (gid, member, patch) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=eq.${encodeURIComponent(member)}`, patch, 'return=minimal'),

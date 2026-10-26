@@ -363,6 +363,35 @@ body.embed #demo{left:calc(50% + 150px)}
 #mpick button.sel,#mpick button:hover{background:rgba(255,255,255,.14)}
 #mpick .av{width:30px;height:30px;font-size:10px;flex:none}
 #mpick small{display:block;font-size:11.5px;color:rgba(255,255,255,.6);margin-top:1px}
+/* the settings cog turns when you touch it, and the new-chat plus breathes a soft red */
+#setBtn .gear{transition:transform .7s cubic-bezier(.16,1,.3,1)}
+#setBtn:hover .gear,#setBtn:focus-visible .gear{transform:rotate(60deg)}
+#setBtn.spin .gear{animation:cogspin .9s cubic-bezier(.45,.05,.2,1)}
+@keyframes cogspin{to{transform:rotate(180deg)}}
+#newBtn{color:#fff;border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.16);animation:newpulse 2.6s ease-in-out infinite}
+#newBtn:hover{background:rgba(239,68,68,.26)}
+@keyframes newpulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}70%{box-shadow:0 0 0 11px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+@media(prefers-reduced-motion:reduce){#newBtn{animation:none}#setBtn .gear,#setBtn.spin .gear{transition:none;animation:none}}
+/* chat list: pinned rows, edit mode, style tabs, name field */
+.lh{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0}
+.lh button{font:400 12px Inter;color:var(--soft);padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.08);min-height:32px}
+.lh button.on{background:var(--gold);color:#1b1a16;border-color:transparent}
+.ge{display:flex;align-items:center;gap:4px}
+.ge>.g{flex:1;min-width:0}
+.ge .ctl{display:flex;gap:4px;flex:none}
+.ge .ctl button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--soft)}
+.ge .ctl button.pin.on{background:var(--gold);color:#1b1a16;border-color:transparent}
+.ge .ctl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ge .ctl button[disabled]{opacity:.3}
+.pinned-i{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-left:5px;vertical-align:-1px}
+.seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);margin:0 52px 14px 0}
+.seg button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
+.seg button.on{background:rgba(255,255,255,.22);color:#fff}
+.nm{display:flex;gap:8px;margin-top:8px}
+.nm input{flex:1;min-width:0;height:44px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:#fff;padding:0 16px;font:400 15px Inter}
+.pen{display:inline-grid;vertical-align:middle;margin-left:8px;width:22px;height:22px;place-items:center;border-radius:50%;background:rgba(255,255,255,.12);color:var(--soft)}
+.pen svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#hIcon,#hTitle{cursor:pointer}
 #amenu{position:fixed;z-index:86;display:none;flex-direction:column;gap:6px;align-items:flex-start;max-width:calc(100vw - 20px)}
 #amenu.on{display:flex;animation:pop .22s var(--ease)}
 #amenu .rbar,#amenu .abar{display:flex;gap:2px;padding:5px 6px;border-radius:26px;background:rgba(48,50,56,.94);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);box-shadow:0 14px 40px rgba(0,0,0,.4);color:#fff}
@@ -500,8 +529,8 @@ body.embed #demo{left:calc(50% + 150px)}
       <h1 id="listT">Chat</h1>
       <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
-      <button class="ib" id="setBtn" title="Alerts and accounts"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button>
-      <button class="ib" id="newBtn" title="New group"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.51 L21.52 10.76 L21.52 13.24 L19.35 13.49 L18.25 16.14 L19.61 17.85 L17.85 19.61 L16.14 18.25 L13.49 19.35 L13.24 21.52 L10.76 21.52 L10.51 19.35 L7.86 18.25 L6.15 19.61 L4.39 17.85 L5.75 16.14 L4.65 13.49 L2.48 13.24 L2.48 10.76 L4.65 10.51 L5.75 7.86 L4.39 6.15 L6.15 4.39 L7.86 5.75 L10.51 4.65 L10.76 2.48 L13.24 2.48 L13.49 4.65 L16.14 5.75 L17.85 4.39 L19.61 6.15 L18.25 7.86Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></button>
+      <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     </header>
     <input id="search" placeholder="Search chats and people">
     <div id="banner"></div>
@@ -516,7 +545,7 @@ body.embed #demo{left:calc(50% + 150px)}
       <div class="tt" id="hTitle"><h2 id="gT"></h2><div class="sub" id="gS"></div></div>
       <div class="sp"></div>
       <div class="pills" id="gP"></div>
-      <button class="ib" id="wpBtn" title="Wallpaper" aria-label="Change wallpaper"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.3 0 2-.8 2-1.7 0-1.1-.9-1.4-.9-2.4 0-.9.7-1.4 1.6-1.4H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/></svg></button>
+      <button class="ib" id="wpBtn" title="Wallpaper and icon" aria-label="Change wallpaper and icon"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.3 0 2-.8 2-1.7 0-1.1-.9-1.4-.9-2.4 0-.9.7-1.4 1.6-1.4H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/></svg></button>
       <button class="ib" id="addBtn" title="Add people"><svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 19c.6-3.5 3.3-5 6.5-5s5.9 1.5 6.5 5M18 8v6M15 11h6"/></svg></button>
       <button class="ib" id="moreBtn" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
       <button class="ib" id="sidebtn" style="display:none" title="Tasks and meeting" aria-label="Tasks and meeting"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></button>
@@ -594,6 +623,7 @@ body.embed #demo{left:calc(50% + 150px)}
 <div class="ov" id="ovConf"><div class="sheet"><h3 id="cT"></h3><div class="lead" id="cB"></div><div class="row"><button class="cb" id="cNo">Cancel</button><button class="cb go" id="cYes" style="background:linear-gradient(180deg,#ff7a7a,#ef4444);color:#fff;border-color:#ef4444">Confirm</button></div></div></div>
 <div class="ov" id="ovView"><div class="sheet" id="view"><div class="row" style="margin-bottom:12px;align-items:center"><h3 id="vT" style="flex:1;font-size:17px"></h3><button class="cb" id="vX" style="flex:none">Close</button></div><div id="vB"></div></div></div>
 <div class="ov" id="ovWall"><div class="sheet wide">
+  <div class="seg" data-seg><button type="button" data-sty="wall" class="on">Wallpaper</button><button type="button" data-sty="icon" class="">Icon</button></div>
   <h3>Wallpaper</h3><div class="lead">Twenty-four designs from HAAVN, the HAAVN device in eight colours, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT, HORI7ON, ENTERPRISE and ATRIUM, or your own. Only you see your wallpaper.</div>
   <div class="wgs" id="wGrid"></div>
   <div class="mono gl" style="margin-top:16px">Adjust</div>
@@ -605,6 +635,7 @@ body.embed #demo{left:calc(50% + 150px)}
   <div class="row" style="margin-top:12px"><button class="cb" id="wReset" type="button">Reset</button><button class="cb go" id="wDone" type="button">Done</button></div>
 </div></div>
 <div class="ov" id="ovIcon"><div class="sheet wide">
+  <div class="seg" data-seg><button type="button" data-sty="wall" class="">Wallpaper</button><button type="button" data-sty="icon" class="on">Icon</button></div>
   <h3>Chat icon</h3><div class="lead">Everyone in the chat sees it.</div>
   <div class="iprev"><span id="iPrev"></span><div id="iName" style="font-size:16px"></div></div>
   <div class="mono gl">Nineteen icons from the HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT and ATRIUM brands</div>
@@ -696,7 +727,7 @@ const SEED={
 };
 let S; try{ if(EMB){ localStorage.removeItem(KEY) } else S=JSON.parse(localStorage.getItem(KEY)) }catch(e){}   // inside ATRIUM the page never reads cached practice chats
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
-S.arch=S.arch||{}; S.gone=S.gone||{}; S.icons=S.icons||{}; S.walls=S.walls||{}; S.rx=S.rx||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
+S.order=S.order||[]; S.arch=S.arch||{}; S.gone=S.gone||{}; S.icons=S.icons||{}; S.walls=S.walls||{}; S.rx=S.rx||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
 S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
 let REAL=false, cursor=0, lastSig='';
 const isOpen=()=>typeof OPEN==='undefined'?true:OPEN;
@@ -981,17 +1012,28 @@ function emojiCount(x){ x=(x||'').trim(); if(!x||x.length>40||!EMOJI_ONLY.test(x
 
 
 /* ---- render ---- */
+let editOrd=false;
+const lastT=g=>{const ms=gm(g.id);return ms.length?ms[ms.length-1].t:0};
+function saveOrder(){ S.order=(S.order||[]).filter(id=>mine().some(g=>g.id===id)); if(REAL){ clearTimeout(saveOrder.t); saveOrder.t=setTimeout(()=>api('setOrder',{order:S.order}).catch(()=>{}),400) } else save(); renderList() }
+function moveOrder(id,d){ const vis=(S.order||[]).filter(x=>active().some(g=>g.id===x)), k=vis.indexOf(id), j=k+d; if(k<0||j<0||j>=vis.length) return; [vis[k],vis[j]]=[vis[j],vis[k]]; S.order=vis.concat((S.order||[]).filter(x=>!vis.includes(x))); saveOrder() }
 function renderList(){
   const q=$('#search').value.toLowerCase();
   const gs=active().filter(g=>gname(g).toLowerCase().includes(q));
   const ar=mine().filter(g=>isArch(g.id)&&gname(g).toLowerCase().includes(q));
+  const ord=S.order||[], pinned=ord.map(id=>gs.find(g=>g.id===id)).filter(Boolean);
+  const rest=gs.filter(g=>!ord.includes(g.id)).sort((x,y)=>lastT(y)-lastT(x));   // newest message first
   const row=g=>{const ms=gm(g.id),l=ms[ms.length-1],u=unread(g.id),mu=S.muted[S.me+g.id];
     const who=g.dm?P[g.m.find(x=>x!==S.me)]:null;
-    return `<button class="g ${g.id===cur?'on':''} ${u?'unread':''} ${mu?'muted':''}" data-g="${g.id}">
+    const btn=`<button class="g ${g.id===cur&&!editOrd?'on':''} ${u?'unread':''} ${mu?'muted':''}" data-g="${g.id}">
       ${gIcon(g,44)}
-      <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}${mu?'<svg class="mutei" viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2.5V10a4.5 4.5 0 0 0-9 0v4.5zM10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>':''}</span><span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
-      <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`};
-  $('#groups').innerHTML=`<div class="sec mono">Groups</div>`+gs.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+gs.filter(g=>g.dm).map(row).join('')
+      <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}${mu?'<svg class="mutei" viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2.5V10a4.5 4.5 0 0 0-9 0v4.5zM10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>':''}</span>
+      <span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
+      <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`;
+    if(!editOrd) return btn;
+    const k=pinned.findIndex(x=>x.id===g.id), isP=k>=0;
+    return `<div class="ge">${btn}<div class="ctl"><button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}" aria-label="${isP?'Unpin':'Pin to top'}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg></button>${isP?`<button type="button" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
+  const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
+  $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+rest.filter(g=>g.dm).map(row).join('')
     +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'');
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
@@ -1022,7 +1064,7 @@ function bubbleHtml(m,pop){
 function renderThread(newId){
   const g=S.groups.find(x=>x.id===cur&&x.m.includes(S.me)&&!S.gone[S.me+x.id]);
   if(!g){ const f=active()[0]; if(f){cur=f.id;return renderThread(newId)} $('#gT').textContent='No chat open';$('#gS').textContent='';$('#gP').innerHTML='';$('#hIcon').innerHTML='';$('#msgs').innerHTML='<div class="sysm" style="margin:auto">Pick a chat, or start a new group with the + button.</div>';$('#pane').innerHTML='';applyWall(null);return }
-  $('#gT').innerHTML=(g.priv?lock:'')+'<b>'+esc(gname(g))+'</b>';
+  $('#gT').innerHTML=(g.priv?lock:'')+'<b>'+esc(gname(g))+'</b>'+(g.dm?'':'<span class="pen" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg></span>');
   $('#gS').textContent=g.dm?'Direct message':(g.priv?'Private group':'Group')+' · '+g.m.length+' people';
   $('#gP').innerHTML=g.m.slice(0,4).map(id=>av(P[id])).join('');
   $('#hIcon').innerHTML=gIcon(g,44);
@@ -1138,7 +1180,13 @@ function closeWho(){ const w=$('#who'); if(w) w.classList.remove('on'); whoFor=n
   box.addEventListener('scroll',()=>{ if(amFor) closeMenu() },{passive:true});
   document.addEventListener('click',e=>{ if(amFor&&!e.target.closest('#amenu')&&!e.target.closest('[data-bub]')) closeMenu() });
 })();
+function bindName(g){ const sv=$('#nmSave'), inp=$('#nmIn'); if(!sv||!inp) return;
+  const go=()=>{ const v=inp.value.replace(/\s+/g,' ').trim(); if(!v){ flash('Give the chat a name.'); return } if(v===g.n){ flash('That is already its name.'); return } inp.blur(); sv.disabled=true;
+    if(REAL) api('renameGroup',{gid:g.id,name:v}).then(()=>{ g.n=v; flash('Renamed.'); return refresh(true) }).catch(e=>{ flash(e.message); sv.disabled=false }).finally(()=>{ sv.disabled=false; renderPane() });
+    else { g.n=v; sys(g.id,me().n.split(' ')[0]+' renamed the chat to \u201c'+v+'\u201d.'); save(); paintAll(); flash('Renamed.'); renderPane() } };
+  sv.onclick=go; inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); go() } } }
 function renderPane(){
+  if(pane==='about'&&document.activeElement&&document.activeElement.id==='nmIn') return;   // never wipe a name being typed
   const g=S.groups.find(x=>x.id===cur);
   $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===pane));
   let h='';
@@ -1158,10 +1206,11 @@ function renderPane(){
     const own=g.dm?null:(g.owner||g.m[0]);
     const sic=S.icons[g.id], wl=wallOf(g.id), go='<svg class="go" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>';
     const rows=(g.dm?'':`<button type="button" class="kv2" data-open="icon">${gIcon(g,40)}<span class="tx"><b>Chat icon</b><span class="s">${sic?(sic.img?'Your picture':(IC[sic.id]||{}).n):'Initials'}</span></span>${go}</button>`)+`<button type="button" class="kv2" data-open="wall"><span class="sw36" style="${wallSwatch(wl,g.id)}"></span><span class="tx"><b>Wallpaper</b><span class="s">${esc(wallName(wl))}${STY.wallAll?' · all my chats':''}</span></span>${go}</button>`;
-    h=rows+`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(REAL&&id!==S.me&&!P[id].ext)?`<button data-dm="${id}">Message</button>`:''}${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
+    const nameBox=g.dm?'':`<div class="mt"><div class="mono">Chat name</div><div class="nm"><input id="nmIn" maxlength="60" value="${esc(g.n)}" autocomplete="off" enterkeyhint="done" aria-label="Chat name"><button class="cb go" id="nmSave" type="button">Save</button></div></div>`;
+    h=nameBox+rows+`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(REAL&&id!==S.me&&!P[id].ext)?`<button data-dm="${id}">Message</button>`:''}${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
     <div class="mt"><div class="mono">CRM project</div><h4>${g.proj}</h4><div class="empty" style="padding:0">Tasks set in this group are filed to this project.</div></div>
     <div class="mt"><div class="mono">This chat</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute':'Mute'}</button><button class="cb" data-arch="${g.id}">${isArch(g.id)?'Restore':'Archive'}</button><button class="cb" data-del="${g.id}" style="color:#ff9a9a">${g.dm||own!==S.me?'Remove from my list':'Delete for everyone'}</button></div></div>`;
-    setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg},0);
+    setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg; bindName(g)},0);
   }
   $('#pane').innerHTML=h;
 }
@@ -1202,7 +1251,13 @@ function open(id){
 }
 
 /* ---- wiring ---- */
-$('#groups').onclick=e=>{const b=e.target.closest('[data-g]'); if(b) open(b.dataset.g)};
+$('#groups').onclick=e=>{
+  if(e.target.closest('#ordBtn')){ editOrd=!editOrd; renderList(); return }
+  if(e.target.closest('#ordReset')){ S.order=[]; saveOrder(); return }
+  const pn=e.target.closest('[data-pin]'); if(pn){ const id=pn.dataset.pin, o=S.order||(S.order=[]); const k=o.indexOf(id); if(k>=0) o.splice(k,1); else o.push(id); saveOrder(); return }
+  const up=e.target.closest('[data-up]'); if(up){ moveOrder(up.dataset.up,-1); return }
+  const dn=e.target.closest('[data-dn]'); if(dn){ moveOrder(dn.dataset.dn,1); return }
+  const b=e.target.closest('[data-g]'); if(b){ if(editOrd) return; open(b.dataset.g) } };
 $('#search').oninput=renderList;
 $('#backBtn').onclick=()=>{document.body.classList.remove('in-thread');renderList()};
 $$('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.body.classList.remove('in-thread');setView();if(view!=='chat'&&innerWidth<=760){$('#side').classList.add('open')}});
@@ -1311,10 +1366,10 @@ function doDelete(id){const g=S.groups.find(x=>x.id===id); const own=!g.dm&&(g.o
   if(own) ask('Delete this chat for everyone?','"'+gname(g)+'" and every message and file in it will be removed for all '+g.m.length+' people. Tasks already in Workflow stay there.','Delete for everyone',()=>{if(REAL){api('deleteGroup',{gid:id}).catch(e=>{flash(e.message);refresh(true)})}S.groups=S.groups.filter(x=>x.id!==id);S.msgs=S.msgs.filter(m=>m.g!==id);if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()});
   else ask('Remove this chat from your list?',g.dm?'The conversation stays with '+P[g.m.find(x=>x!==S.me)].n.split(' ')[0]+'.':'You leave the group. Everyone else keeps it, and anyone can add you back.','Remove',()=>{if(REAL){api('setMine',{gid:id,hidden:true}).catch(e=>{flash(e.message);refresh(true)})}S.gone[S.me+id]=1;if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()})}
 $('#moreBtn').onclick=e=>{e.stopPropagation();const g=S.groups.find(x=>x.id===cur); if(!g) return; const own=!g.dm&&(g.owner||g.m[0])===S.me; const mu=S.muted[S.me+g.id];
-  const m=$('#menu'); m.innerHTML=`${g.dm?'':'<button data-mn="add">＋ Add people</button>'}<button data-mn="wall">Wallpaper</button>${g.dm?'':'<button data-mn="icon">Chat icon</button>'}<button data-mn="mute">${mu?'Unmute this chat':'Mute this chat'}</button><button data-mn="files">Files in this chat</button><button data-mn="arch">${isArch(g.id)?'Restore from archive':'Archive'}</button><hr><button class="red" data-mn="del">${g.dm||!own?'Remove from my list':'Delete for everyone'}</button>`;
+  const m=$('#menu'); m.innerHTML=`${g.dm?'':'<button data-mn="add">＋ Add people</button>'}<button data-mn="info">${g.dm?'Chat info':'Rename, icon and members'}</button><button data-mn="wall">Wallpaper</button>${g.dm?'':'<button data-mn="icon">Chat icon</button>'}<button data-mn="mute">${mu?'Unmute this chat':'Mute this chat'}</button><button data-mn="files">Files in this chat</button><button data-mn="arch">${isArch(g.id)?'Restore from archive':'Archive'}</button><hr><button class="red" data-mn="del">${g.dm||!own?'Remove from my list':'Delete for everyone'}</button>`;
   const r=e.currentTarget.getBoundingClientRect(); m.style.top=(r.bottom+8)+'px'; m.style.right=Math.max(12,innerWidth-r.right)+'px'; m.classList.add('on')};
 document.addEventListener('click',e=>{const t=e.target.closest('#menu [data-mn]'); if(t){const a=t.dataset.mn; $('#menu').classList.remove('on');
-    if(a==='add')addDlg(); if(a==='mute')toggleMute(cur); if(a==='files'){pane='files';$('#side').classList.add('open');renderPane()} if(a==='wall')openWall(); if(a==='icon')openIcon(); if(a==='arch')doArchive(cur); if(a==='del')doDelete(cur); return}
+    if(a==='add')addDlg(); if(a==='mute')toggleMute(cur); if(a==='files'){pane='files';$('#side').classList.add('open');renderPane()} if(a==='info')openInfo(); if(a==='wall')openWall(); if(a==='icon')openIcon(); if(a==='arch')doArchive(cur); if(a==='del')doDelete(cur); return}
   if(!e.target.closest('#menu')) $('#menu').classList.remove('on');
   const v=e.target.closest('[data-view]'); if(v){const [id,i]=v.dataset.view.split(':');viewFile(id,+i);return}
   const px=e.target.closest('[data-px]'); if(px){pend.splice(+px.dataset.px,1);renderPend();return}
@@ -1399,7 +1454,7 @@ async function bootReal(){
     REAL=true; document.documentElement.classList.add('rm-real'); banner('');
     try{ localStorage.removeItem(KEY) }catch(e){}   // the old practice chats cached in this browser, never shown again
     let prefs={}; try{ prefs=JSON.parse(localStorage.getItem('atrium-chat-prefs'))||{} }catch(e){}
-    S={me:j.me.id,groups:[],msgs:[],read:{},muted:{},arch:{},gone:{},ext:[],icons:{},walls:{},rx:{},snd:1,red:1,push:0,mail:1,men:1,nid:1,...prefs};
+    S={me:j.me.id,order:j.order||[],groups:[],msgs:[],read:{},muted:{},arch:{},gone:{},ext:[],icons:{},walls:{},rx:{},snd:1,red:1,push:0,mail:1,men:1,nid:1,...prefs};
     applyReal(j); j.msgs.forEach(m=>{ if(!routeStyle(m)) S.msgs.push(m) }); cursor=j.cursor||0; lastSig=''; const f=active()[0]; cur=f?f.id:null;
     const asw=$('#asWho'); if(asw&&asw.closest('.f')) asw.closest('.f').style.display='none';
     if(cur) pushRead(cur);
@@ -1521,7 +1576,7 @@ function closeTransient(){ // Escape and outside taps close the smallest open th
 
 /* ---- wallpaper sheet ---- */
 function wallThumb(w,on,gid){ return `<button type="button" class="wt3 ${on?'on':''}" data-w="${w.id}" style="${wallSwatch(w,gid)}" aria-label="${esc(w.n)}">${w.dim?`<span style="position:absolute;inset:0;background:rgba(0,0,0,${(w.dim*.0085).toFixed(2)})"></span>`:''}<span class="mb"><i style="background:${w.theirs};box-shadow:0 0 0 1px rgba(127,127,127,.25)"></i><i class="m" style="background:${w.mine}"></i><i style="background:${w.theirs};width:40%"></i></span><span class="nm2">${esc(w.n)}<small>${esc(w.s)}</small></span></button>` }
-function openWall(){ if(!cur) return; closeMenu(); $('#ovWall').classList.add('on'); paintWall() }
+function openWall(){ if(!cur) return; closeMenu(); const g=S.groups.find(x=>x.id===cur); $$('#ovWall [data-sty="icon"]').forEach(b=>{b.style.display=g&&g.dm?'none':''}); $('#ovWall').classList.add('on'); paintWall() }
 function paintWall(){
   const gid=cur, w=wallOf(gid), base=WL[w.id], order=[]; WALLS.forEach(x=>{ if(!order.includes(x.g)) order.push(x.g) });
   let h=order.map(gr=>`<div class="mono gl">${gr}</div><div class="wg3">${WALLS.filter(x=>x.g===gr).map(x=>wallThumb(x,w.id===x.id,gid)).join('')}</div>`).join('');
@@ -1597,8 +1652,11 @@ function applyNewStyle(gid){ if(ng.icon&&!(S.groups.find(x=>x.id===gid)||{}).dm)
 
 /* ---- header and about panel entry points ---- */
 $('#wpBtn').onclick=openWall;
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-sty]'); if(!t) return; if(t.dataset.sty==='icon'){ $('#ovWall').classList.remove('on'); openIcon() } else { $('#ovIcon').classList.remove('on'); openWall() } });
+$('#setBtn').addEventListener('click',()=>{ const b=$('#setBtn'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin') });
 $('#hIcon').onclick=()=>{ const g=S.groups.find(x=>x.id===cur); if(g&&!g.dm) openIcon() };
-$('#hTitle').onclick=()=>{ pane='about'; $('#side').classList.add('open'); document.body.classList.add('side-on'); renderPane(); const st=$('#sideT'); if(st) st.textContent='This chat' };
+function openInfo(){ if(!cur) return; closeMenu(); pane='about'; $('#side').classList.add('open'); document.body.classList.add('side-on'); renderPane(); const st=$('#sideT'); if(st) st.textContent='This chat' }
+$('#hTitle').onclick=openInfo; $('#hIcon').onclick=openInfo;
 
 /* ---- your picture ---- */
 $('#picChoose').onclick=()=>$('#picFile').click();

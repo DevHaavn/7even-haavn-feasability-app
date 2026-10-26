@@ -17,6 +17,7 @@ function fake() {
     async membersByGroups(ids: string[]) { return t.members.filter((r) => ids.includes(r.group_id)).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall', 'avatar'].includes(m.kind))) },
     async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
+    async updateGroup(id: string, p: any) { Object.assign(t.groups.find((g) => g.id === id), p) },
     async insertGroup(g: any) { const r = { id: 'g' + ++t.gseq, ...g }; t.groups.push(r); return r },
     async insertMembers(rows: any[]) { rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
     async updateMember(g: string, m: string, p: any) { Object.assign(t.members.find((x) => x.group_id === g && x.member === m), p) },
@@ -32,7 +33,8 @@ function fake() {
   const objs: any[] = []
   const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
-  const kv = { async update(k: string, fn: any) { const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
+  const other: any = {}
+  const kv = { async read(k: string) { return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   return { t, objs, deps: { store, files, kv }, db }
 }
 let F: ReturnType<typeof fake>
@@ -120,6 +122,26 @@ describe('people in a chat', () => {
     const s = await run('init', {}, lewis)
     expect(s.groups.length).toBe(2)
     await expect(run('addToGroups', { gids: [], ids: ['lj'] })).rejects.toThrow(/chat/)
+  })
+  it('any member renames a group, a direct message cannot be renamed, and it is logged', async () => {
+    const { gid } = await run('newGroup', { name: 'Old', ids: ['ds'] })
+    await run('renameGroup', { gid, name: '  New   name ' }, daniel)
+    const s = await run('init', {}, jamie)
+    expect(s.groups[0].n).toBe('New name')
+    expect(s.msgs.some((m: any) => m.sys && /renamed the chat/.test(m.x))).toBe(true)
+    await expect(run('renameGroup', { gid, name: '' })).rejects.toThrow(/name/)
+    await expect(run('renameGroup', { gid, name: 'x' }, lewis)).rejects.toThrow(/not in/)
+    const dm = (await run('newGroup', { ids: ['ds'] })).gid
+    await expect(run('renameGroup', { gid: dm, name: 'x' })).rejects.toThrow(/direct message/)
+  })
+  it('keeps my pinned order, only of chats I am in, and hands it back at init', async () => {
+    const a = (await run('newGroup', { name: 'A', ids: ['ds'] })).gid
+    const b = (await run('newGroup', { name: 'B', ids: ['ds'] })).gid
+    const only = (await run('newGroup', { name: 'C', ids: ['lj'] })).gid
+    const r = await run('setOrder', { order: [b, a, only, 'nope', b] }, daniel)
+    expect(r.order).toEqual([b, a])
+    expect((await run('init', {}, daniel)).order).toEqual([b, a])
+    expect((await run('init', {}, jamie)).order).toEqual([])
   })
   it('does not add people to a direct message', async () => {
     const { gid } = await run('newGroup', { ids: ['ds'] })
