@@ -5,6 +5,7 @@ import { isAuthenticated } from '../pages/PasswordGate'
  * ATRIUM Chat, HIDDEN PREVIEW. Nothing here renders unless the preview is switched on in this browser:
  * open ATRIUM once with ?chat=1 (and ?chat=0 to switch it off again). It carries made-up data only, in
  * /atrium-chat.html; no real message, task or alert goes anywhere yet.
+ * Shown automatically to the director (admin) login; anyone else can switch it on with ?chat=1.
  *
  * One dock for the whole app: a small chat circle (and, where a screen has no footer circle, a floating
  * one), the red count, a red banner and a soft chime when a message lands, and a glass drawer holding the chat.
@@ -18,8 +19,11 @@ export function chatPreviewOn(): boolean {
   try {
     const q = new URLSearchParams(location.search)
     if (q.get('chat') === '1') localStorage.setItem(CHAT_FLAG, '1')
-    if (q.get('chat') === '0') localStorage.removeItem(CHAT_FLAG)
-    return localStorage.getItem(CHAT_FLAG) === '1'
+    if (q.get('chat') === '0') localStorage.setItem(CHAT_FLAG, '0')   // an explicit off beats the director default below
+    const f = localStorage.getItem(CHAT_FLAG)
+    if (f === '1') return true
+    if (f === '0') return false
+    return localStorage.getItem('7even_role') === 'admin'            // the director login is the test group, no switch needed
   } catch { return false }
 }
 
