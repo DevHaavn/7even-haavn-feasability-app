@@ -38,6 +38,23 @@ export function chatPreviewOn(): boolean {
   } catch { return false }
 }
 
+// The ATRIUM chat icon: the A in a ring with a speech tail, one stroke weight throughout. Under 20px the ring drops away and the bare A stands in.
+export function ChatIcon({ size }: { size: number }) {
+  const sw = Math.max(4, (1.2 * 240) / size)
+  const f = (n: number) => n.toFixed(1)
+  if (size <= 20) return <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ display: 'block' }}><path d="M44 200 L120 28 L196 200" fill="none" stroke="currentColor" strokeWidth={f(sw * 1.1)} strokeLinejoin="miter" /></svg>
+  const P = (d: number, r: number) => [120 + r * Math.cos((d * Math.PI) / 180), 120 + r * Math.sin((d * Math.PI) / 180)]
+  const a = P(154, 110), b = P(110, 110), ap = P(132, 152), k = size < 32 ? 1.08 : 1
+  const S = (x: number, y: number) => [120 + (x - 120) * k, 120 + (y - 120) * k]
+  const l = S(79.24, 172), t = S(120, 68), r = S(160.76, 172)
+  return (
+    <svg viewBox="0 0 240 240" width={size} height={size} aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
+      <path d={`M${f(a[0])} ${f(a[1])} A110 110 0 1 1 ${f(b[0])} ${f(b[1])} L${f(ap[0])} ${f(ap[1])} Z`} fill="none" stroke="currentColor" strokeWidth={f(sw)} strokeLinejoin="miter" strokeMiterlimit={6} />
+      <path d={`M${f(l[0])} ${f(l[1])} L${f(t[0])} ${f(t[1])} L${f(r[0])} ${f(r[1])}`} fill="none" stroke="currentColor" strokeWidth={f(sw)} strokeLinejoin="miter" strokeMiterlimit={8} />
+    </svg>
+  )
+}
+
 // The small circle for a footer row. Renders nothing when the preview is off.
 export function ChatButton({ color }: { color: string }) {
   const [on, setOn] = useState(chatPreviewOn)
@@ -51,8 +68,8 @@ export function ChatButton({ color }: { color: string }) {
   if (!on) return null
   return (
     <button type="button" data-chat-btn aria-label="ATRIUM Chat" onClick={() => window.dispatchEvent(new Event(EVT_TOGGLE))}
-      style={{ position: 'relative', width: 24, height: 24, borderRadius: 999, border: `1px solid ${color}`, color, background: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-      <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 13, height: 13, fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}><path d="M4 5h16v11H9l-5 4z" /></svg>
+      style={{ position: 'relative', width: 26, height: 26, borderRadius: 999, border: 0, color, background: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+      <ChatIcon size={26} />
       {n > 0 && <span style={{ position: 'absolute', top: -6, right: -7, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#ef4444', color: '#fff', font: '500 10px/16px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 10px rgba(239,68,68,.6)' }}>{n}</span>}
     </button>
   )
@@ -166,7 +183,7 @@ export default function ChatDock() {
       {floating && !open && (
         <button type="button" aria-label="ATRIUM Chat" onClick={() => setOpen(true)}
           style={{ ...glass, position: 'fixed', right: 16, bottom: 'calc(16px + env(safe-area-inset-bottom))', zIndex: 9400, width: 38, height: 38, borderRadius: 999, color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0 }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 17, height: 17, fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}><path d="M4 5h16v11H9l-5 4z" /></svg>
+          <ChatIcon size={24} />
           {n > 0 && <span style={{ position: 'absolute', top: -5, right: -5, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#ef4444', color: '#fff', font: '500 11px/18px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 12px rgba(239,68,68,.65)' }}>{n}</span>}
         </button>
       )}
@@ -175,12 +192,12 @@ export default function ChatDock() {
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', paddingTop: phone ? 'env(safe-area-inset-top)' : 0, paddingBottom: phone ? 'env(safe-area-inset-bottom)' : 0, background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
         {phone && (
           <div style={{ flex: 'none', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px 0 18px', borderBottom: '1px solid rgba(255,255,255,.14)', color: '#fff', font: '300 15px Inter, system-ui, sans-serif' }}>
-            <span>ATRIUM Chat</span>
+            <span role="img" aria-label="ATRIUM Chat" style={{ display: 'inline-flex' }}><ChatIcon size={24} /></span>
             <button type="button" aria-label="Close chat" onClick={() => setOpen(false)}
               style={{ width: 44, height: 44, borderRadius: 999, border: 0, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 17, cursor: 'pointer' }}>✕</button>
           </div>
         )}
-        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027i" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027j" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

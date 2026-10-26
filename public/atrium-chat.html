@@ -2,13 +2,13 @@
 <html lang="en-AU">
 <head>
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("booting"),setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
-<style>html.booting body{visibility:hidden}</style>
+<style>html.booting body>*:not(#boot){visibility:hidden}#boot{display:none}html.booting #boot{display:grid;position:fixed;inset:0;place-items:center;pointer-events:none;color:rgba(243,242,238,.85)}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATRIUM Chat</title>
 <meta name="theme-color" content="#3a3c42">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#2d2f34;--panel:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.09);--line:rgba(255,255,255,.15);--bone:#fff;--soft:rgba(255,255,255,.88);--faint:rgba(255,255,255,.62);--glass:blur(28px) saturate(1.35);--hi:inset 0 1px 0 rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.22);--gold:#d6b36a;--red:#ef4444;--redglow:rgba(239,68,68,.45);--green:#2fe07a;--mine:#1b1a16;--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -584,13 +584,67 @@ body.embed #demo{left:calc(50% + 150px)}
   .g .ti{--s:48px}
 }
 .g .ti{--s:44px}
+/* ---- ATRIUM Chat look and feel: the A leads, hairlines over cards, the A in the small moments ---- */
+svg.A{display:inline-block;overflow:visible;flex:none}
+svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:butt}
+.lk{display:inline-flex;align-items:baseline;gap:.46em;line-height:1;white-space:nowrap}
+.lk svg.A{height:.73em;width:auto}
+#list h1{display:flex;align-items:baseline;font-size:23px;letter-spacing:0}
+.rb svg.ci,#tabbar svg.ci{width:25px;height:25px}
+#tabbar svg.ci{width:25px;height:25px}
+@media(prefers-reduced-motion:no-preference){
+ .lk.play svg.A path{stroke-dasharray:1 2;stroke-dashoffset:1;animation:adraw .9s var(--ease) .1s forwards}
+ .lk.play .lw{animation:aclose 1.3s var(--ease) .45s both}
+ #boot svg path{stroke-dasharray:1 2;stroke-dashoffset:1;animation:aload 2.4s var(--ease) infinite}
+ .td circle{fill:currentColor;transform-box:fill-box;transform-origin:center;animation:atp 1.2s ease-in-out infinite}.td circle:nth-child(3){animation-delay:.15s}.td circle:nth-child(4){animation-delay:.3s}
+}
+.td circle{fill:currentColor}
+@keyframes adraw{to{stroke-dashoffset:0}}
+@keyframes aclose{from{letter-spacing:.3em;opacity:0}to{letter-spacing:0;opacity:1}}
+@keyframes aload{0%{stroke-dashoffset:1;opacity:1}50%,80%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes atp{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+/* the list: the ATRIUM ground behind it, a hairline search, chats separated by lines */
+#list{background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover}
+#search{margin:2px 20px 6px;padding:11px 2px 11px 28px;border:0;border-bottom:1px solid rgba(255,255,255,.3);border-radius:0;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239A9A97' stroke-width='1.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m16 16 4 4'/%3E%3C/svg%3E") 2px 50%/17px no-repeat;font-size:14px}
+#groups{padding:4px 12px 12px}
+#groups .sec.mono,#groups .lh .mono,#groups .archh.mono{font:300 12.5px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;color:var(--faint)}
+#groups .sec{padding:16px 6px 6px}
+.lh{padding:10px 6px 0}
+.lh button{background:none;border:0;padding:6px 8px;color:var(--soft)}
+.lh button.on{background:var(--gold);color:#1b1a16;padding:6px 14px}
+.g{border-radius:0;padding:14px 6px;border-top:1px solid rgba(255,255,255,.14)}
+.sec+.g,#groups>.g:first-child,.lh+.g{border-top:0}
+.g:hover{background:rgba(255,255,255,.04)}
+.g.on{background:rgba(255,255,255,.07);box-shadow:none;border-radius:14px;border-top-color:transparent}
+.g.on+.g{border-top-color:transparent}
+.g .badge{background:#e0645c;box-shadow:none}
+#byline{flex:none;display:flex;justify-content:center;align-items:center;gap:8px;padding:8px 0 12px;color:var(--faint);font-size:11.5px}
+#byline .tr{font-weight:100;letter-spacing:.34em;margin-right:-.1em}
+#byline em{font:italic 400 14px 'Cormorant Garamond',serif;color:var(--gold)}
+/* the thread: day marker, receipts, empty chat, waiting, the send ring */
+.day.mono{display:flex;align-items:center;gap:0;align-self:stretch;margin:16px 0 10px;padding:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--dayTx);font:300 12px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none}
+.day.mono::before,.day.mono::after{content:"";flex:1;height:1px;background:currentColor;opacity:.22}
+.day.mono svg.A{margin:0 8px 0 14px}.day.mono span{margin-right:14px}
+.seen{display:flex;gap:7px;align-items:center;margin:6px 6px 0 0;padding:0;background:none;font:300 11.5px Inter,system-ui,sans-serif;color:var(--dayTx)}
+.seen.sent svg.A{color:var(--dayTx);opacity:.6}
+.emptyA{margin:auto;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:34ch;text-align:center;font-size:14px;color:var(--dayTx)}
+.emptyA svg.A{color:currentColor;opacity:.4}
+.typing.me{justify-content:flex-end;padding-right:22px}
+.typing .wt{display:inline-flex;align-items:center;gap:8px;color:var(--dayTx);font-size:12px}
+#thread:not(.lt) .mr:not(.mine) .bub:not([class*="th-"]){box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+#sendBtn{background:rgba(11,13,15,.5);color:var(--gold);border:1.5px solid var(--gold)}
+#sendBtn svg{stroke-width:1.7}
+#sendBtn:disabled{background:rgba(11,13,15,.35);color:var(--compTx);border-color:rgba(255,255,255,.2);opacity:.6}
+#thread.lt #sendBtn{background:rgba(255,255,255,.75);color:#8f6a25;border-color:#a3782a}
+#thread.lt #sendBtn:disabled{background:rgba(255,255,255,.5);color:var(--compTx);border-color:rgba(0,0,0,.15)}
 </style>
 </head>
 <body>
+<div id="boot" aria-hidden="true"><svg viewBox="0 0 66 74" style="height:54px;width:auto;overflow:visible"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="miter" pathLength="1"/></svg></div>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <div class="logo">A</div>
-    <button class="rb on" data-v="chat" title="Chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="badge" id="bChat" hidden></span></button>
+    <button class="rb on" data-v="chat" title="Chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
     <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
     <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <div class="sp"></div>
@@ -599,7 +653,7 @@ body.embed #demo{left:calc(50% + 150px)}
 
   <section id="list">
     <header>
-      <h1 id="listT">Chat</h1>
+      <h1 id="listT"><span class="lk play"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
       <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
       <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.51 L21.52 10.76 L21.52 13.24 L19.35 13.49 L18.25 16.14 L19.61 17.85 L17.85 19.61 L16.14 18.25 L13.49 19.35 L13.24 21.52 L10.76 21.52 L10.51 19.35 L7.86 18.25 L6.15 19.61 L4.39 17.85 L5.75 16.14 L4.65 13.49 L2.48 13.24 L2.48 10.76 L4.65 10.51 L5.75 7.86 L4.39 6.15 L6.15 4.39 L7.86 5.75 L10.51 4.65 L10.76 2.48 L13.24 2.48 L13.49 4.65 L16.14 5.75 L17.85 4.39 L19.61 6.15 L18.25 7.86Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></button>
@@ -608,6 +662,7 @@ body.embed #demo{left:calc(50% + 150px)}
     <input id="search" placeholder="Search chats and people">
     <div id="banner"></div>
     <div id="groups"></div>
+    <div id="byline"><svg class="A" viewBox="0 0 66 74" style="height:11px;width:auto" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="7" pathLength="1"/></svg><span class="tr">TRIUM</span><em>by</em><svg viewBox="30 30 1920 1810" style="height:11px;width:auto" aria-hidden="true"><polygon fill="currentColor" points="60,60 1935,60 1808,223 60,223"/><polygon fill="currentColor" points="1293,348 1548,348 1125,888 1035,768"/><polygon fill="currentColor" points="816,1128 874,1205 401,1806"/><polygon fill="#d6b36a" points="360,348 543,348 1716,1839 1533,1839"/></svg></div>
   </section>
 
   <section id="thread">
@@ -655,7 +710,7 @@ body.embed #demo{left:calc(50% + 150px)}
 
 <div id="shade"></div>
 <nav id="tabbar">
-  <button class="on" data-v="chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Chat<span class="badge" id="bChat2" hidden></span></button>
+  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg>Chat<span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Tasks<span class="badge" id="bTask2" hidden></span></button>
   <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Meetings</button>
   <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg>You</button>
@@ -902,7 +957,7 @@ const WALLS=[
  {g:'HAAVN',id:'black',n:'HAAVN Graphite',s:'Graphite and lime grid',dark:true,mine:'#A8BC10',mineTx:'#161713',theirs:'rgba(255,255,255,.1)',theirsTx:'#f2ede9',meta:'rgba(242,237,233,.62)',dim:0,blur:0},
  {g:'7EVEN',id:'seven',n:'7EVEN Gold',s:'Void black, 7X pattern',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
  {g:'ATRIUM',id:'atrium',n:'ATRIUM Glass',s:'Grey glass, A pattern',dark:true,mine:'#f1ede4',mineTx:'#23252a',theirs:'rgba(255,255,255,.13)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
- {g:'ATRIUM',id:'atrg',n:'ATRIUM Ground',s:'The dark ATRIUM terrain',dark:true,mine:'#f1ede4',mineTx:'#23252a',theirs:'rgba(255,255,255,.12)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:0,blur:0},
+ {g:'ATRIUM',id:'atrg',n:'ATRIUM Ground',s:'The dark ATRIUM terrain',dark:true,mine:'#f1ede4',mineTx:'#23252a',theirs:'rgba(255,255,255,.12)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:58,blur:0},
  {g:'ATRIUM',id:'atrl',n:'ATRIUM Ground light',s:'The same terrain in light grey',dark:false,mine:'#2b2d32',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#4b4d45',dim:0,blur:0},
  {g:'HAAVN',id:'park',n:'Parkside',s:'HAAVN Hotels at dusk',dark:true,mine:'#8a5a2b',mineTx:'#ffffff',theirs:'rgba(22,20,18,.55)',theirsTx:'#fff',meta:'rgba(255,255,255,.7)',dim:38,blur:2},
  {g:'7EVEN',id:'seven7',n:'The 7',s:'One big 7, void and gold',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
@@ -995,6 +1050,15 @@ let STY={}; try{STY=JSON.parse(localStorage.getItem(STYKEY))||{}}catch(e){}
 STY.walls=STY.walls||{}; STY.img=STY.img||{}; STY.recent=STY.recent||[]; STY.skin=STY.skin||0; STY.wallAll=STY.wallAll||null;
 const saveSty=()=>{try{localStorage.setItem(STYKEY,JSON.stringify(STY))}catch(e){flash('Your wallpaper picture is too big for this device to keep. Pick a smaller one.')}};
 
+/* the ATRIUM A, drawn from the app's own path, and the small moments built from it */
+function aMark(h,color){ const sw=Math.max(2.17,1.15*74/h); return `<svg class="A" viewBox="0 0 66 74" style="height:${h}px;width:${(h*66/74).toFixed(1)}px${color?';color:'+color:''}" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="${sw.toFixed(2)}" pathLength="1"/></svg>` }
+function typingA(h){ const sw=Math.max(2.17,1.2*74/h), r=h<30?5:4.6; return `<svg class="A td" viewBox="0 0 66 74" style="height:${h}px;width:${(h*66/74).toFixed(1)}px" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="${sw.toFixed(2)}"/><circle cx="21.5" cy="52" r="${r}"/><circle cx="33" cy="52" r="${r}"/><circle cx="44.5" cy="52" r="${r}"/></svg>` }
+const lockupHtml=(w,play)=>`<span class="lk${play?' play':''}"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">${w}</span></span>`;
+function replayLock(){ const l=document.querySelector('#listT .lk'); if(!l) return; l.classList.remove('play'); void l.offsetWidth; l.classList.add('play') }
+window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumChat==='visible'&&d.open) replayLock() });
+function waitOn(t){ const el=document.getElementById('typing'); if(!el) return; el.classList.add('me'); el.innerHTML=`<span class="wt">${typingA(22)}<span>${t}</span></span>` }
+function waitOff(){ const el=document.getElementById('typing'); if(!el) return; el.classList.remove('me'); el.innerHTML='' }
+
 /* a tile: a brand icon on a coloured square, or your own picture, or initials */
 const shapeCls=(shape,defWide)=>{ const sh=shape||(defWide?'wide':'square'); return sh==='round'?'rnd':sh==='wide'?'wide':'' };
 /* your own words as an icon, like JB or St Village: sized to fit the tile, long text goes on a rectangle */
@@ -1024,10 +1088,11 @@ function gIcon(g,size){ // a chat's icon: the other person for a direct message,
   return `<span class="ti ini" style="--s:${s}px;background:${COL[(g.id.charCodeAt(1)||0)%7]}">${ini(g.n)}</span>`}
 
 /* wallpapers: a chosen one per chat, or one for every chat on this device */
-const wallOf=gid=>STY.wallAll||S.walls[gid]||STY.walls[gid]||{id:'atrium'};
+const DEFW='atrg'; // the standard scheme: the dark ATRIUM ground, bone bubbles. Everyone can still choose any wallpaper and colours.
+const wallOf=gid=>STY.wallAll||S.walls[gid]||STY.walls[gid]||{id:DEFW};
 function applyWall(gid){
   let w=wallOf(gid),img=null;
-  if(w.id==='custom'){ img=STY.wallAll?STY.img.all:STY.img[gid]; if(!img) w={id:'atrium'} }
+  if(w.id==='custom'){ img=STY.wallAll?STY.img.all:STY.img[gid]; if(!img) w={id:DEFW} }
   const base=WL[w.id], th=$('#thread'), w1=$('#w1');
   let tk,css;
   if(w.id==='custom'||w.id==='color'){
@@ -1177,8 +1242,9 @@ function taskCard(m){const t=m.task;return `<div class="card"><div class="k"><sv
 function seenLine(g,ms){ // "Seen" under my last message, from what the others have read
   if(!g.rd) return ''; let li=-1; for(let i=ms.length-1;i>=0;i--) if(!ms[i].sys){li=i;break} if(li<0||ms[li].u!==S.me) return '';   // like a text: under my last message, until someone answers
   const others=g.m.filter(x=>x!==S.me&&!String(x).startsWith('x:')); if(!others.length) return '';
-  const n=others.filter(o=>(g.rd[o]||0)>=ms[li].id).length; if(!n) return '';
-  return `<div class="seen">${g.dm?'Seen':(n===others.length?'Seen by everyone':'Seen by '+n)}</div>`}
+  const n=others.filter(o=>(g.rd[o]||0)>=ms[li].id).length;
+  if(!n) return li===ms.length-1?`<div class="seen sent">${aMark(10)}Sent</div>`:'';
+  return `<div class="seen">${aMark(10,'#d6b36a')}${g.dm?'Seen':(n===others.length?'Seen by everyone':'Seen by '+n)}</div>`}
 function rxHtml(m){ const r=S.rx[m.id]; if(!r) return ''; return `<div class="rxs">${Object.entries(r).map(([e,a])=>`<button type="button" data-rxb="${m.id}" data-e="${e}" class="${a.includes(S.me)?'me':''}" aria-label="${e} ${a.length}">${e}${a.length>1?`<small>${a.length}</small>`:''}</button>`).join('')}</div>` }
 /* ---- poll backgrounds: PARTY, CHILL, ROCK, drawn in code (SVG), so there are no picture files ---- */
 const prng=seed=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
@@ -1222,7 +1288,7 @@ function renderThread(newId){
   $('#hIcon').innerHTML=gIcon(g,44);
   applyWall(g.id);
   const ms=gm(cur); let last='',out='',prev=null;
-  ms.forEach((m,i)=>{const d=dayL(m.t); if(d!==last){out+=`<div class="day mono">${d}</div>`;last=d;prev=null}
+  ms.forEach((m,i)=>{const d=dayL(m.t); if(d!==last){out+=`<div class="day mono">${aMark(11,'#d6b36a')}<span>${d}</span></div>`;last=d;prev=null}
     if(m.sys){out+=`<div class="sysm">${esc(m.x)}</div>`;prev=null;return}
     const p=P[m.u]||{n:'Someone',c:0,e:['']}, mine=m.u===S.me, next=ms[i+1];
     const first=!prev||prev.u!==m.u||(m.t-prev.t)>300000;
@@ -1231,7 +1297,7 @@ function renderThread(newId){
     const avt=(!mine&&!g.dm)?(lastIn?av(p):'<span class="gap"></span>'):'';
     out+=`<div class="mr ${mine?'mine':''} ${first?'f':''} ${lastIn?'l':''} ${m.id===newId?'new':''}" data-m="${m.id}">${avt}<div class="stk">${who}${bubbleHtml(m,false)}${rxHtml(m)}</div></div>`;
     prev=m});
-  if(!ms.length) out+=`<div class="sysm" style="margin:auto">${g.dm?'Say hello. Only you and '+esc(gname(g).split(' ')[0])+' are in this chat.':'No messages yet.'}</div>`;
+  if(!ms.length) out+=`<div class="emptyA">${aMark(60)}<span>${g.dm?'Say hello. Only you and '+esc(gname(g).split(' ')[0])+' are in this chat.':'Say hello.'}</span></div>`;
   out+=seenLine(g,ms);
   const box=$('#msgs'), keep=box.scrollTop, atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<140||!!newId||box.dataset.g!==cur;
   box.innerHTML=out; box.dataset.g=cur; box.scrollTop=atEnd?box.scrollHeight:keep;
@@ -1376,7 +1442,7 @@ function paintAll(newId){renderList();renderThread(newId);setView()}
 function setView(){
   const t=view==='tasks'||view==='meet';
   $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
-  $('#listT').textContent={chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view];
+  $('#listT').innerHTML=lockupHtml({chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view],!setView.shown); setView.shown=1;   // the A draws in once; switching tabs does not replay it
   if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
   document.body.classList.toggle('side-on',$('#side').classList.contains('open'));
   const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',meet:'Meeting'}[pane]||'This chat';
@@ -1648,10 +1714,10 @@ $('#msgs').addEventListener('click',e=>{ const c=e.target.closest('[data-wf]'); 
 function send(){
   micStop(); const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
-  if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend();
+  if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); waitOn(files.length?'Uploading':'Sending'); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend();
     (async()=>{ try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
       const wfId=wfRef&&wfRef.g===gid?wfRef.id:undefined; const out=await api('send',{gid,body:v,wf:wfId,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local}); ingestOwn(m) }
-      catch(e){ flash(e.message); $('#inp').value=v; pend=files; renderPend() } finally{ syncSend() } })(); return }
+      catch(e){ flash(e.message); $('#inp').value=v; pend=files; renderPend() } finally{ syncSend(); waitOff() } })(); return }
   const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(m.id);
 }
@@ -1788,7 +1854,7 @@ $('#sBlur').oninput=e=>{ setWall(cur,Object.assign({},wallOf(cur),{blur:+e.targe
 $('#wAcc').addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b) return; setWall(cur,Object.assign({},wallOf(cur),{acc:b.dataset.a})); paintWall() });
 $('#wTacc').addEventListener('click',e=>{ const b=e.target.closest('[data-ta]'); if(!b) return; setWall(cur,Object.assign({},wallOf(cur),{tacc:b.dataset.ta})); paintWall() });
 $('#wAll').onclick=()=>{ if(STY.wallAll){ delete STY.img.all; STY.wallAll=null } else { STY.wallAll=Object.assign({},wallOf(cur)); if(STY.wallAll.id==='custom') STY.img.all=STY.img[cur] } saveSty(); paintWall(); applyWall(cur); flash(STY.wallAll?'This wallpaper is on all your chats on this device':'Back to a wallpaper for each chat') };
-$('#wReset').onclick=()=>{ STY.wallAll=null; setWall(cur,{id:'atrium',acc:'auto'}); paintWall() };
+$('#wReset').onclick=()=>{ STY.wallAll=null; setWall(cur,{id:DEFW,acc:'auto'}); paintWall() };
 $('#wDone').onclick=()=>$('#ovWall').classList.remove('on');
 
 /* ---- icon sheet: the chat's icon, sixteen brand icons, any picture ---- */
@@ -1830,7 +1896,7 @@ function placeDD(which){ const p=$('#'+which+'P'), pair=$('#gPair').getBoundingC
   else { p.style.top='auto'; p.style.bottom=(innerHeight-b.top+6)+'px'; p.style.maxHeight=Math.max(160,Math.min(292,above))+'px' } }
 function toggleDD(which){ const p=$('#'+which+'P'), b=$('#'+which+'B'), was=!p.hidden; closeDD(); if(!was){ p.hidden=false; b.setAttribute('aria-expanded','true'); placeDD(which) } }
 function ngRender(){
-  const ic=ng.icon, wl=ng.wall||{id:'atrium'};
+  const ic=ng.icon, wl=ng.wall||{id:DEFW};
   $('#gIconT').innerHTML=ic?tile(ic,36):`<span class="ti ini" style="--s:36px;background:#9a9c92">Aa</span>`; $('#gIconN').textContent=ic?iconName(ic):'Initials';
   $('#gWallT').setAttribute('style',wl.id==='custom'&&wl.img?`background:url(${wl.img}) center/cover`:wallSwatch(wl,null)); $('#gWallN').textContent=wallName(wl);
   if(!$('#gTxt')) $('#gIconP').innerHTML='<div class="gtx"><input id="gTxt" maxlength="14" placeholder="Type your own: JB or St Village" aria-label="Icon text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div><div id="gIconIn"></div>';
@@ -1859,7 +1925,7 @@ window.addEventListener('resize',()=>{ if(!ddOpen()) return; if(document.activeE
 $('#ovGroup .sheet').addEventListener('scroll',()=>{ if(ddOpen()&&!(document.activeElement&&document.activeElement.id==='gTxt')) closeDD() });
 $('#ovGroup').addEventListener('animationend',()=>{ if(!$('#gIconP').hidden) placeDD('gIcon'); if(!$('#gWallP').hidden) placeDD('gWall') });
 /* a chat with a new icon or wallpaper: apply the choices to it once it exists */
-function applyNewStyle(gid){ if(ng.icon&&!(S.groups.find(x=>x.id===gid)||{}).dm) setIcon(gid,ng.icon); if(ng.wall&&ng.wall.id!=='atrium'){ const w=Object.assign({},ng.wall); setWall(gid,w) } }
+function applyNewStyle(gid){ if(ng.icon&&!(S.groups.find(x=>x.id===gid)||{}).dm) setIcon(gid,ng.icon); if(ng.wall&&ng.wall.id!==DEFW){ const w=Object.assign({},ng.wall); setWall(gid,w) } }
 
 /* ---- header and about panel entry points ---- */
 $('#wpBtn').onclick=openWall;
