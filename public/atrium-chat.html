@@ -214,7 +214,7 @@ body:not(.embed) #xBtn{display:none}
 @media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:310px minmax(0,1fr) 350px}}
 @media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:310px minmax(0,1fr)}}
 body.embed #demo{left:calc(50% + 150px)}
-@media(max-width:760px){body.embed #demo{left:50%}}
+@media(max-width:760px){body.embed #demo{left:50%}body.embed #xBtn{display:none}}
 /* phone */
 @media(max-width:1180px){#app{grid-template-columns:64px 280px minmax(0,1fr)}#side{position:fixed;right:0;top:0;bottom:0;width:min(360px,100vw);z-index:50;transform:translateX(100%);transition:transform .45s var(--ease)}#side.open{transform:none}#sidebtn{display:grid!important}}
 @media(max-width:760px){
@@ -241,6 +241,65 @@ body.embed #demo{left:calc(50% + 150px)}
  body.in-thread #demo{display:none}
  #side{width:100vw}
 }
+
+/* ---- the phone, properly: touch sizes, safe areas, sheets from the bottom, no zoom on tap, nothing hidden under a notch ---- */
+@media(max-width:760px){
+  html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
+  *{-webkit-tap-highlight-color:transparent}
+  button,.g,.rb,.ib,.cb{touch-action:manipulation}
+  input,textarea,select{font-size:16px!important}
+  /* the list: header with room, 44 px buttons, rows with a comfortable tap */
+  #list header{padding:calc(12px + env(safe-area-inset-top)) 14px 8px;gap:8px}
+  #list h1{font-size:22px}
+  .ib{width:44px;height:44px}
+  .ib svg{width:19px;height:19px}
+  #search{margin:2px 14px 8px;padding:12px 16px}
+  #groups{padding:2px 6px calc(72px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+  .g{padding:12px;min-height:64px}
+  #banner{margin:0 14px 8px}
+  /* the thread: a header that fits, no avatars crowding it */
+  #thead{padding:calc(8px + env(safe-area-inset-top)) 10px 8px;min-height:calc(60px + env(safe-area-inset-top));gap:8px}
+  #thead h2{font-size:17px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #thead .sub{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #gP,#thead .sp{display:none}
+  #thead>div:first-of-type{min-width:0;flex:1}
+  #msgs{padding:10px 10px 6px;overscroll-behavior:contain}
+  .msg{max-width:100%;padding:8px 6px}
+  .msg .x{font-size:15.5px}
+  .att-img img{max-width:min(260px,70vw)}
+  .att-file{min-width:0;width:100%;max-width:100%}
+  .card{max-width:100%}
+  /* the composer: attach, task, send, all within a thumb, task as a plus */
+  #comp{margin:0 10px calc(10px + env(safe-area-inset-bottom));padding:6px 6px 6px 14px;border-radius:24px;gap:6px}
+  #taskBtn{width:44px;padding:0;justify-content:center;font-size:0}
+  #taskBtn::before{content:"＋";font-size:20px;line-height:1}
+  .cb{height:44px;border-radius:22px}
+  #attBtn{width:44px;padding:0!important;justify-content:center}
+  #pend{margin:0 10px 6px}
+  /* sheets rise from the bottom, scroll inside, clear the home bar */
+  .ov{place-items:end center;padding:0}
+  .sheet{width:100%;max-height:92dvh;border-radius:28px 28px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+  .sheet h3{padding-right:44px}
+  .sx{top:14px;right:14px;width:40px;height:40px}
+  .pk .dd{max-height:38dvh}
+  .row{flex-wrap:wrap}.row>*{min-width:0;flex:1 1 calc(50% - 6px)}
+  .f input,.f select,.f textarea{width:100%;min-width:0;max-width:100%}
+  html,body{overflow:hidden}#app{overflow:hidden}
+  .sw{gap:10px}
+  /* the three-dot menu as a bottom sheet */
+  #menu{left:10px!important;right:10px!important;top:auto!important;bottom:calc(10px + env(safe-area-inset-bottom));padding:8px;border-radius:26px}
+  #menu button{padding:15px 16px;font-size:16px;border-radius:16px}
+  /* the side panel: full screen with its own clear close */
+  #side{width:100vw}
+  #sideHead{padding:calc(12px + env(safe-area-inset-top)) 14px 6px}
+  #tabs{padding:10px 10px 0;overflow-x:auto}
+  #pane{padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
+  /* the bar along the bottom */
+  #tabbar button{font-size:11px;padding-top:4px}
+  #tabbar svg{width:22px;height:22px}
+}
+@media(max-width:430px){ #addBtn{display:none} }
+@media(max-width:380px){ .cb{padding:0 12px} #comp{padding-left:12px} }
 </style>
 </head>
 <body>
@@ -618,7 +677,7 @@ function picker(root, exclude){
     if(isMail(q)&&!PEOPLE.some(p=>p.e.includes(q))&&!sel.ext.includes(q)) h=`<h5>Outside email</h5><button type="button" data-ext="${esc(q)}"><span class="av" style="background:#d6b36a">@</span><span>Add ${esc(q)}<span class="e">They get an invite by email</span></span></button>`+h;
     dd.innerHTML=h||'<div class="none">Everyone is already in. Type an email to invite someone outside.</div>';
   }
-  const open=()=>{root.classList.add('open');paint()};
+  const open=()=>{root.classList.add('open');paint(); if(window.matchMedia('(max-width:760px)').matches) setTimeout(()=>{try{root.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}},60)};
   inp.addEventListener('focus',open); inp.addEventListener('input',open);
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();const b=$('.dd button',root); if(b) b.click()} if(e.key==='Backspace'&&!inp.value){ if(sel.ext.length)sel.ext.pop(); else sel.ids.pop(); paint() } });
   root.addEventListener('mousedown',e=>{ const a=e.target.closest('[data-add],[data-ext],[data-rm],[data-rx]'); if(!a) return; e.preventDefault();
@@ -816,6 +875,7 @@ $('#dDesk').onclick=()=>{ const g=mine().find(x=>x.id==='g1'); incoming({g:g.id,
 $('#dMention').onclick=()=>{ const g=mine().find(x=>x.id==='g3')||mine()[0]; incoming({g:g.id,u:'lj',x:'@Jamie the Corio paper needs your sign off before Thursday.'}) };
 // the other people: switch who you are, to see their unread
 document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.me=PEOPLE[e.key-1].id;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintAll()} });
+if(window.matchMedia('(max-width:760px)').matches) $('#inp').placeholder='Message';
 /* ---- closing, everywhere ---- */
 function closeSide(){ view='chat'; $('#side').classList.remove('open'); document.body.classList.remove('side-on'); setView() }
 $('#sideX').onclick=closeSide; $('#shade').onclick=closeSide;

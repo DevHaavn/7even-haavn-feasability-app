@@ -91,6 +91,7 @@ export default function ChatDock() {
   const [n, setN] = useState(0)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [floating, setFloating] = useState(true)
+  const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia('(max-width: 760px)').matches)
   const frame = useRef<HTMLIFrameElement>(null)
   const seq = useRef(0)
   const count = useRef(0)
@@ -136,11 +137,12 @@ export default function ChatDock() {
     const swMsg = (e: MessageEvent) => { if (e.data && e.data.atriumChat === 'goto' && e.data.gid) goTo(e.data.gid) }
     navigator.serviceWorker?.addEventListener('message', swMsg)
     // a floating circle only where the screen has no footer circle of its own
+    const mq = matchMedia('(max-width: 760px)'); const onMq = () => setPhone(mq.matches); mq.addEventListener('change', onMq)
     const probe = setInterval(() => { setFloating(!footerButtonShown()); setAuthed(isAuthenticated()) }, 800)
     setAuthed(isAuthenticated())
     // a link from a notification: ?chatopen=<chat id> opens the chat on that conversation
     try { const g = new URLSearchParams(location.search).get('chatopen'); if (g) { wantGroup.current = g; setOpen(true) } } catch { /* ignore */ }
-    return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); navigator.serviceWorker?.removeEventListener('message', swMsg); clearInterval(probe) }
+    return () => { window.removeEventListener(EVT_TOGGLE, toggle); window.removeEventListener('message', msg); navigator.serviceWorker?.removeEventListener('message', swMsg); mq.removeEventListener('change', onMq); clearInterval(probe) }
   }, [on])
 
   useEffect(() => {
@@ -170,9 +172,16 @@ export default function ChatDock() {
       )}
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
-        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026h" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
-          style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
+        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', paddingTop: phone ? 'env(safe-area-inset-top)' : 0, paddingBottom: phone ? 'env(safe-area-inset-bottom)' : 0, background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
+        {phone && (
+          <div style={{ flex: 'none', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px 0 18px', borderBottom: '1px solid rgba(255,255,255,.14)', color: '#fff', font: '300 15px Inter, system-ui, sans-serif' }}>
+            <span>ATRIUM Chat</span>
+            <button type="button" aria-label="Close chat" onClick={() => setOpen(false)}
+              style={{ width: 44, height: 44, borderRadius: 999, border: 0, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 17, cursor: 'pointer' }}>✕</button>
+          </div>
+        )}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026j" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+          style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>
         {toasts.map(t => (
