@@ -15,7 +15,8 @@ function fake() {
     async memberRowsFor(m: string) { return t.members.filter((r) => r.member === m).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
     async membersByGroups(ids: string[]) { return t.members.filter((r) => ids.includes(r.group_id)).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
-    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0)) },
+    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall'].includes(m.kind))) },
+    async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
     async insertGroup(g: any) { const r = { id: 'g' + ++t.gseq, ...g }; t.groups.push(r); return r },
     async insertMembers(rows: any[]) { rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
     async updateMember(g: string, m: string, p: any) { Object.assign(t.members.find((x) => x.group_id === g && x.member === m), p) },
@@ -34,7 +35,7 @@ function fake() {
   return { t, deps: { store, files, kv }, db }
 }
 let F: ReturnType<typeof fake>
-const run = (a: string, args: any, who = jamie) => C.run(a, args, who, F.deps)
+const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
 beforeEach(() => { F = fake() })
 
 describe('groups and who sees them', () => {
@@ -171,5 +172,86 @@ describe('alert test', () => {
     expect(r.devices).toBe(3); expect(r.results.find((x: any) => x.device === 'iPhone').ok).toBe(true)
     expect(r.results.find((x: any) => x.device === 'Windows PC').why).toMatch(/VapidPkHash/); expect(removed).toEqual(['gone'])
     expect((await C.run('pushTest', {}, jamie, { store, files: {}, kv: null, wp: null })).enabled).toBe(false)
+  })
+})
+
+describe('reactions, chat icons and wallpapers', () => {
+  it('a reaction is a row that travels with the stream; turning it off is another row', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    const { msg } = await run('send', { gid, body: 'Good news' })
+    const first = await run('init', {}, daniel)
+    await run('react', { mid: msg.id, emoji: '👍' }, daniel)
+    await run('react', { mid: msg.id, emoji: '😂' }, jamie)
+    const p = await run('poll', { since: first.cursor }, jamie)
+    expect(p.msgs.map((m: any) => [m.k, m.re, m.e, m.on, m.u])).toEqual([['react', msg.id, '👍', true, 'ds'], ['react', msg.id, '😂', true, 'jb']])
+    expect(p.msgs[0].x).toBeUndefined()
+    await run('react', { mid: msg.id, emoji: '👍', on: false }, daniel)
+    const q = await run('poll', { since: p.cursor }, jamie)
+    expect(q.msgs[0]).toMatchObject({ k: 'react', e: '👍', on: false })
+  })
+  it('only people in the chat react, only to real messages, only with an emoji', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    const { msg } = await run('send', { gid, body: 'hi' })
+    await expect(run('react', { mid: msg.id, emoji: '👍' }, lewis)).rejects.toThrow(/not in that chat/)
+    await expect(run('react', { mid: msg.id, emoji: 'hello' }, daniel)).rejects.toThrow(/not an emoji/)
+    await expect(run('react', { mid: msg.id, emoji: '' }, daniel)).rejects.toThrow(/not an emoji/)
+    await expect(run('react', { mid: 9999, emoji: '👍' }, daniel)).rejects.toThrow(/No such message/)
+    const r = await run('react', { mid: msg.id, emoji: '🇦🇺' }, daniel); expect(r.ok).toBe(true)
+    await expect(run('react', { mid: r.id, emoji: '👍' }, daniel)).rejects.toThrow(/No such message/)
+  })
+  it('the icon belongs to the chat: everyone sees the newest one, direct messages have none', async () => {
+    const { gid } = await run('newGroup', { name: 'Hotels', ids: ['ds'] })
+    await run('setIcon', { gid, icon: { id: 'hotels', tile: 'graphite' } })
+    await run('setIcon', { gid, icon: { id: 'p7', tile: 'silver' } }, daniel)
+    expect((await run('init', {}, jamie)).style.icons[gid]).toEqual({ id: 'p7', tile: 'silver' })
+    expect((await run('init', {}, daniel)).style.icons[gid]).toEqual({ id: 'p7', tile: 'silver' })
+    expect((await run('init', {}, jamie)).msgs.some((m: any) => m.k === 'icon')).toBe(false)   // not part of the first-load history
+    const img = 'data:image/jpeg;base64,/9j/4AAQ'
+    expect((await run('setIcon', { gid, icon: { img } })).icon).toEqual({ img })
+    await expect(run('setIcon', { gid, icon: { img: 'data:image/jpeg;base64,' + 'A'.repeat(30000) } })).rejects.toThrow(/too large/)
+    await expect(run('setIcon', { gid, icon: { img: 'https://evil/x.png' } })).rejects.toThrow(/too large|not one of/)
+    await expect(run('setIcon', { gid, icon: { id: 'nope', tile: 'gold' } })).rejects.toThrow(/not one of/)
+    await expect(run('setIcon', { gid, icon: { id: 'hotels', tile: 'pink' } })).rejects.toThrow(/not one of/)
+    await expect(run('setIcon', { gid, icon: { id: 'hotels', tile: 'gold' } }, lewis)).rejects.toThrow(/not in that chat/)
+    const dm = await run('newGroup', { ids: ['ds'] })
+    await expect(run('setIcon', { gid: dm.gid, icon: { id: 'hotels', tile: 'gold' } })).rejects.toThrow(/direct message/)
+  })
+  it('a wallpaper is one person\'s own: it follows them, and nobody else ever receives it', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    await run('send', { gid, body: 'first' })
+    await run('setWall', { gid, wall: { id: 'hori', dim: 20, blur: 99, acc: 'gold', junk: 1 } })
+    await run('setWall', { gid, wall: { id: 'color', color: '#2d4a3a', dark: true } })
+    await run('setWall', { gid, wall: { id: 'custom', img: 'data:big', dark: false } })
+    const mine = await run('init', {}, jamie)
+    expect(mine.style.walls[gid]).toEqual({ id: 'custom', dark: false })
+    expect((await run('init', {}, daniel)).style.walls[gid]).toBeUndefined()
+    await run('setWall', { gid, wall: { id: 'hori', dim: 20, blur: 99, acc: 'gold' } })
+    expect((await run('init', {}, jamie)).style.walls[gid]).toEqual({ id: 'hori', dim: 20, blur: 14, acc: 'gold' })
+    const first = await run('init', {}, daniel)
+    await run('setWall', { gid, wall: { id: 'ent' } })
+    expect((await run('poll', { since: first.cursor }, daniel)).msgs.some((m: any) => m.k === 'wall')).toBe(false)
+    expect((await run('poll', { since: first.cursor }, jamie)).msgs.some((m: any) => m.k === 'wall')).toBe(true)
+    await expect(run('setWall', { gid, wall: { id: 'color', color: 'red' } })).rejects.toThrow(/colour/)
+    await expect(run('setWall', { gid, wall: { id: 'moon' } })).rejects.toThrow(/not one of/)
+    await expect(run('setWall', { gid, wall: { id: 'hori' } }, lewis)).rejects.toThrow(/not in that chat/)
+  })
+  it('shows who has read up to where, for Seen', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    const { msg } = await run('send', { gid, body: 'hello' })
+    await run('read', { gid, upto: msg.id }, daniel)
+    expect((await run('init', {}, jamie)).groups[0].rd).toEqual({ jb: msg.id, ds: msg.id })
+  })
+})
+
+describe('a screen from before reactions existed', () => {
+  it('is never sent rows it cannot read', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    const { msg } = await run('send', { gid, body: 'hello' })
+    await run('react', { mid: msg.id, emoji: '👍' }, daniel)
+    await run('setIcon', { gid, icon: { id: 'hotels', tile: 'gold' } })
+    const old = await C.run('poll', { since: 0 }, jamie, F.deps)
+    expect(old.msgs.every((m: any) => !m.k)).toBe(true); expect(old.msgs.length).toBe(1)
+    const now = await C.run('poll', { since: 0, v: 2 }, jamie, F.deps)
+    expect(now.msgs.some((m: any) => m.k === 'react')).toBe(true)
   })
 })

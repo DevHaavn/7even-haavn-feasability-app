@@ -22,7 +22,43 @@ function person(id) {
   if (String(id).startsWith('x:')) { const e = id.slice(2); return { id, n: e.split('@')[0], e: [e], c: 0, ext: true } }
   return { id, n: id, e: [''], c: 0 }
 }
-const shapeMsg = (m) => ({ id: m.id, g: m.group_id, u: m.sender, t: Date.parse(m.created_at), x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined })
+// Rows that are not messages: a reaction, a chat icon, one person's wallpaper. They live in the same table (no schema change needed) and travel in the same
+// stream, so a poll brings them to everyone; the screen folds them into the chat and never lists them as messages.
+const STYLE_KINDS = ['react', 'icon', 'wall']
+function shapeMsg(m) {
+  const base = { id: m.id, g: m.group_id, u: m.sender, t: Date.parse(m.created_at) }
+  if (m.kind === 'react') return { ...base, k: 'react', re: Number(m.task && m.task.re) || 0, e: m.body || '', on: !(m.task && m.task.on === false) }
+  if (m.kind === 'icon') return { ...base, k: 'icon', icon: (m.task && m.task.icon) || null }
+  if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
+  return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
+}
+
+// What a chat icon, a wallpaper and a reaction may hold. Checked here, so nothing odd is ever stored.
+const ICON_IDS = ['haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
+const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon']
+const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'color', 'custom']
+const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze']
+const MAX_ICON_IMG = 24000
+function cleanIcon(i) {
+  if (i && typeof i.img === 'string') {
+    if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(i.img) || i.img.length > MAX_ICON_IMG) throw new ChatError('That icon image is too large. Pick a smaller picture.')
+    return { img: i.img }
+  }
+  if (i && ICON_IDS.includes(i.id) && TILE_IDS.includes(i.tile)) return { id: i.id, tile: i.tile }
+  throw new ChatError('That is not one of the chat icons.')
+}
+function cleanWall(w) {
+  if (!w || !WALL_IDS.includes(w.id)) throw new ChatError('That is not one of the wallpapers.')
+  const out = { id: w.id }
+  if (w.id === 'color') { if (!/^#[0-9a-fA-F]{6}$/.test(w.color || '')) throw new ChatError('Pick a colour.'); out.color = w.color; out.dark = !!w.dark }
+  if (w.id === 'custom') out.dark = !!w.dark   // the picture itself stays on the device it was chosen on
+  const n = (v, lo, hi) => { v = Number(v); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : undefined }
+  const dim = n(w.dim, 0, 80), blur = n(w.blur, 0, 14)
+  if (dim !== undefined) out.dim = dim
+  if (blur !== undefined) out.blur = blur
+  if (ACC_IDS.includes(w.acc)) out.acc = w.acc
+  return out
+}
 
 async function mustBeMember(store, gid, me) {
   const rows = await store.membersByGroups([gid])
@@ -32,20 +68,33 @@ async function mustBeMember(store, gid, me) {
 }
 
 // Everything the screen needs about my chats. `after` = only messages newer than that id (a poll); none = the recent history (first load).
-async function snapshot(store, files, me, after) {
+async function snapshot(store, files, me, after, clientV) {
   const mine = await store.memberRowsFor(me.sub)
   const live = mine.filter((r) => !r.hidden)
   const ids = live.map((r) => r.group_id)
   const out = { me: { id: me.sub, n: me.name, e: me.emails, role: me.role }, groups: [], msgs: [], state: { muted: {}, arch: {}, gone: {} }, read: {}, people: PEOPLE.map((p) => person(p.id)) }
   mine.forEach((r) => { const k = me.sub + r.group_id; if (r.muted) out.state.muted[k] = 1; if (r.archived) out.state.arch[k] = 1; if (r.hidden) out.state.gone[k] = 1; out.read[r.group_id] = Number(r.last_read) || 0 })
   if (!ids.length) { out.cursor = Number(after) || 0; return out }
-  const [groups, members, msgs] = await Promise.all([store.groupsByIds(ids), store.membersByGroups(ids), store.messagesFor(ids, { after: after || 0, limit: after ? 300 : 500 })])
+  const [groups, members, msgs] = await Promise.all([store.groupsByIds(ids), store.membersByGroups(ids), store.messagesFor(ids, { after: after || 0, limit: after ? 400 : 700 })])
   const memberOf = {}
   members.forEach((r) => { (memberOf[r.group_id] = memberOf[r.group_id] || []).push(r.member) })
   const seen = new Set(out.people.map((p) => p.id))
   members.forEach((r) => { if (!seen.has(r.member)) { seen.add(r.member); out.people.push(person(r.member)) } })
-  out.groups = groups.map((g) => ({ id: g.id, n: g.name, dm: !!g.is_dm, priv: !!g.is_private, owner: g.owner, proj: g.project || 'No project', m: memberOf[g.id] || [] }))
-  let list = msgs.map(shapeMsg)
+  const readBy = {}
+  members.forEach((r) => { (readBy[r.group_id] = readBy[r.group_id] || {})[r.member] = Number(r.last_read) || 0 })
+  out.groups = groups.map((g) => ({ id: g.id, n: g.name, dm: !!g.is_dm, priv: !!g.is_private, owner: g.owner, proj: g.project || 'No project', m: memberOf[g.id] || [], rd: readBy[g.id] || {} }))
+  // a wallpaper is one person's own view: never send anyone else's
+  // a wallpaper is one person's own; and a screen from before reactions and icons existed (no v) is never sent rows it could not read
+  let list = msgs.filter((m) => !(m.kind === 'wall' && m.sender !== me.sub) && (Number(clientV) >= 2 || !STYLE_KINDS.includes(m.kind))).map(shapeMsg)
+  if (!after && store.latestStyle) {
+    // first load: the current icon of each chat and my own wallpaper, however long ago they were set
+    out.style = { icons: {}, walls: {} }
+    const rows = await store.latestStyle(ids)
+    for (const r of rows) {   // newest first
+      if (r.kind === 'icon' && !out.style.icons[r.group_id] && r.task && r.task.icon) out.style.icons[r.group_id] = r.task.icon
+      if (r.kind === 'wall' && r.sender === me.sub && !out.style.walls[r.group_id] && r.task && r.task.wall) out.style.walls[r.group_id] = r.task.wall
+    }
+  }
   const paths = []
   list.forEach((m) => (m.files || []).forEach((f) => { if (f.path) paths.push(f.path) }))
   if (paths.length) {
@@ -53,7 +102,7 @@ async function snapshot(store, files, me, after) {
     list.forEach((m) => (m.files || []).forEach((f) => { if (f.path && urls[f.path]) f.url = urls[f.path] }))
   }
   out.msgs = list
-  out.cursor = list.reduce((a, m) => Math.max(a, m.id), Number(after) || 0)
+  out.cursor = msgs.reduce((a, m) => Math.max(a, m.id), Number(after) || 0)   // counts the rows left out of the list too, so they are not fetched again
   return out
 }
 
@@ -189,6 +238,33 @@ async function taskDone(store, kv, me, a) {
   return { ok: true, task }
 }
 
+// A reaction is a tiny row of its own. Turning it off is another row, so the stream stays append-only and every device ends up with the same picture.
+async function react(store, me, a) {
+  const m = await store.getMessage(a.mid)
+  if (!m || m.kind === 'system' || STYLE_KINDS.includes(m.kind)) throw new ChatError('No such message.', 404)
+  await mustBeMember(store, m.group_id, me)
+  const e = String(a.emoji || '').trim()
+  if (!e || e.length > 24 || !/\p{Extended_Pictographic}|\p{Regional_Indicator}|[#*0-9]\uFE0F?\u20E3/u.test(e)) throw new ChatError('That is not an emoji.')
+  const row = await store.insertMessage({ group_id: m.group_id, sender: me.sub, kind: 'react', body: e, task: { re: m.id, on: a.on !== false }, files: [] })
+  return { ok: true, id: row.id }
+}
+// The chat's icon belongs to the chat (everyone sees it), so only people in a group can change it. Direct messages keep the person's initial.
+async function setIcon(store, me, a) {
+  await mustBeMember(store, a.gid, me)
+  const g = (await store.groupsByIds([a.gid]))[0]
+  if (!g || g.is_dm) throw new ChatError('A direct message shows the other person, not an icon.')
+  const icon = cleanIcon(a.icon)
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'icon', body: '', task: { icon }, files: [] })
+  return { ok: true, id: row.id, icon }
+}
+// A wallpaper belongs to the person (only they ever receive it), so it follows them from phone to computer.
+async function setWall(store, me, a) {
+  await mustBeMember(store, a.gid, me)
+  const wall = cleanWall(a.wall)
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'wall', body: '', task: { wall }, files: [] })
+  return { ok: true, id: row.id, wall }
+}
+
 async function signUpload(store, files, me, a) {
   await mustBeMember(store, a.gid, me)
   const size = Number(a.size) || 0
@@ -233,8 +309,8 @@ async function pushTest(store, me, a, wp) {
 async function run(action, a, me, deps) {
   const { store, files, kv, wp } = deps
   switch (action) {
-    case 'init': return snapshot(store, files, me, 0)
-    case 'poll': return snapshot(store, files, me, Number(a.since) || 0)
+    case 'init': return snapshot(store, files, me, 0, a.v)
+    case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
     case 'send': return send(store, kv, me, a, wp)
     case 'pushStatus': return pushStatus(store, me, a, wp)
     case 'pushTest': return pushTest(store, me, a, wp)
@@ -248,8 +324,11 @@ async function run(action, a, me, deps) {
     case 'deleteGroup': return deleteGroup(store, files, me, a)
     case 'taskDone': return taskDone(store, kv, me, a)
     case 'signUpload': return signUpload(store, files, me, a)
+    case 'react': return react(store, me, a)
+    case 'setIcon': return setIcon(store, me, a)
+    case 'setWall': return setWall(store, me, a)
     default: throw new ChatError('Unknown action.', 404)
   }
 }
 
-module.exports = { run, ChatError, person, shapeMsg, BUCKET, DEPT }
+module.exports = { run, ChatError, person, shapeMsg, cleanIcon, cleanWall, STYLE_KINDS, BUCKET, DEPT }
