@@ -24,13 +24,16 @@ function person(id) {
 }
 // Rows that are not messages: a reaction, a chat icon, one person's wallpaper. They live in the same table (no schema change needed) and travel in the same
 // stream, so a poll brings them to everyone; the screen folds them into the chat and never lists them as messages.
-const STYLE_KINDS = ['react', 'icon', 'wall', 'avatar']
+const STYLE_KINDS = ['react', 'icon', 'wall', 'avatar', 'vote', 'pollup']
 function shapeMsg(m) {
   const base = { id: m.id, g: m.group_id, u: m.sender, t: Date.parse(m.created_at) }
   if (m.kind === 'react') return { ...base, k: 'react', re: Number(m.task && m.task.re) || 0, e: m.body || '', on: !(m.task && m.task.on === false) }
   if (m.kind === 'icon') return { ...base, k: 'icon', icon: (m.task && m.task.icon) || null }
   if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
   if (m.kind === 'avatar') return { ...base, k: 'avatar' }
+  if (m.kind === 'poll') return { ...base, x: m.body || '', sys: 0, poll: (m.task && m.task.poll) || { opts: [], multi: false } }
+  if (m.kind === 'vote') return { ...base, k: 'vote', pm: Number(m.task && m.task.poll) || 0, c: Array.isArray(m.task && m.task.c) ? m.task.c : [] }
+  if (m.kind === 'pollup') return { ...base, k: 'pollup', pm: Number(m.task && m.task.poll) || 0, def: (m.task && m.task.def) || null }
   if (m.kind === 'wfupdate') return { ...base, x: m.body || '', sys: 0, wf: (m.task && m.task.ref) || undefined, files: (m.files && m.files.length) ? m.files : undefined }
   return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
 }
@@ -38,16 +41,17 @@ function shapeMsg(m) {
 // What a chat icon, a wallpaper and a reaction may hold. Checked here, so nothing odd is ever stored.
 const ICON_IDS = ['blk', 'blkw', 'haavnw', 'haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
 const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon', 'glass', 'frost', 'crystal', 'bluegl', 'sagegl']
-const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'blkg', 'blkw', 'blks', 'blkn', 'dvsage', 'dvmist', 'dvstone', 'dvblush', 'dvlime', 'dvcobalt', 'dvsun', 'dvcoral', 'color', 'custom']
+const WALL_IDS = ['atrg', 'atrl', 'field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'blkg', 'blkw', 'blks', 'blkn', 'dvsage', 'dvmist', 'dvstone', 'dvblush', 'dvlime', 'dvcobalt', 'dvsun', 'dvcoral', 'color', 'custom']
 const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze', 'black', 'graphite', 'grey', 'crystal', 'blue', 'sage', 'sagedeep']
 const TACC_IDS = ['auto', 'glass', 'white', 'black', 'crystal', 'sage', 'grey']
 const MAX_ICON_IMG = 24000
+const SHAPE_IDS = ['round', 'square', 'wide']
 function cleanIcon(i) {
   if (i && typeof i.img === 'string') {
     if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(i.img) || i.img.length > MAX_ICON_IMG) throw new ChatError('That icon image is too large. Pick a smaller picture.')
-    return { img: i.img }
+    return SHAPE_IDS.includes(i.shape) ? { img: i.img, shape: i.shape } : { img: i.img }
   }
-  if (i && ICON_IDS.includes(i.id) && TILE_IDS.includes(i.tile)) return { id: i.id, tile: i.tile }
+  if (i && ICON_IDS.includes(i.id) && TILE_IDS.includes(i.tile)) return SHAPE_IDS.includes(i.shape) ? { id: i.id, tile: i.tile, shape: i.shape } : { id: i.id, tile: i.tile }
   throw new ChatError('That is not one of the chat icons.')
 }
 function cleanWall(w) {
@@ -186,9 +190,11 @@ async function newGroup(store, me, a) {
   if (!name && ids.length === 1 && !ext.length) {
     const key = [me.sub, ids[0]].sort().join('|')
     const found = await store.findDm(key)
-    if (found) return { gid: found.id, existing: true }
+    // a conversation I took off my list comes straight back
+    if (found) { try { await store.updateMember(found.id, me.sub, { hidden: false, archived: false }) } catch { /* the row may not exist for me; the chat is returned anyway */ } return { gid: found.id, existing: true } }
     const g = await store.insertGroup({ name: '', is_dm: true, is_private: true, owner: me.sub, project: null, dm_key: key })
-    await store.insertMembers([me.sub, ids[0]].map((m) => ({ group_id: g.id, member: m, is_outside: false, added_by: me.sub })))
+    // the other person sees it only once there is a message: an empty direct message never lands in their list
+    await store.insertMembers([{ group_id: g.id, member: me.sub, is_outside: false, added_by: me.sub }, { group_id: g.id, member: ids[0], is_outside: false, hidden: true, added_by: me.sub }])
     return { gid: g.id }
   }
   if (!name) throw new ChatError('Give the group a name.')
@@ -282,6 +288,16 @@ async function filterTask(kv, me, t, text) {
   return task
 }
 
+// A message in a direct message puts the conversation in front of the other person, even if they had taken it off their list, and alerts them.
+async function bringBackDm(store, rows, gid, me) {
+  const g = (await store.groupsByIds([gid]))[0]
+  if (!g || !g.is_dm) return
+  if (rows.some((r) => r.member !== me.sub && r.hidden)) {
+    await store.unhideOthers(gid, me.sub)
+    rows.forEach((r) => { if (r.member !== me.sub) r.hidden = false })
+  }
+}
+
 async function send(store, kv, me, a, wp) {
   const { rows } = await mustBeMember(store, a.gid, me)
   const body = String(a.body || '').slice(0, MAX_BODY)
@@ -308,6 +324,7 @@ async function send(store, kv, me, a, wp) {
   const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: task ? 'task' : wf ? 'wfupdate' : 'text', body, task: task || (wf ? { ref: wf } : null), files })
   if (wf && body.trim() && kv) { try { await kv.update(B.KEYS.workflow, (ws) => B.addComment(ws, { id: wf.id, text: body.trim().slice(0, 2000) }, `${me.name} (chat)`)) } catch { /* the message is sent; the task note is best effort */ } }
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
+  await bringBackDm(store, rows, a.gid, me)
   // a new message brings an archived chat back for everyone else
   await store.unarchiveOthers(a.gid, me.sub)
   // alert everyone else's phones and computers; a failure here never loses the message
@@ -321,7 +338,7 @@ async function send(store, kv, me, a, wp) {
 
 async function taskDone(store, kv, me, a) {
   const m = await store.getMessage(a.mid)
-  if (!m || !m.task) throw new ChatError('No such task.', 404)
+  if (!m || !m.task || m.kind === 'poll') throw new ChatError('No such task.', 404)
   await mustBeMember(store, m.group_id, me)
   const task = { ...m.task, done: !!a.done }
   await store.updateMessage(m.id, { task })
@@ -329,6 +346,61 @@ async function taskDone(store, kv, me, a) {
     try { await kv.update(B.KEYS.workflow, (ws) => B.updateTask(ws, { id: task.wfId, status: task.done ? 'done' : 'todo' }, `${me.name} (chat)`)) } catch { /* Workflow task may have been removed */ }
   }
   return { ok: true, task }
+}
+
+// A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
+// wins, an empty list takes it back); the person who asked can change the wording, add answers and close it with 'pollup' rows (the newest wins).
+const POLL_MAX_OPTS = 12
+function cleanPollDef(a) {
+  const q = String(a.question || '').trim().slice(0, 200)
+  if (!q) throw new ChatError('Ask a question first.')
+  const opts = (Array.isArray(a.options) ? a.options : []).map((o) => String(o == null ? '' : o).trim().slice(0, 80)).filter(Boolean).slice(0, POLL_MAX_OPTS)
+  if (opts.length < 2) throw new ChatError('A poll needs at least two answers.')
+  return { q, opts, multi: !!a.multi }
+}
+async function createPoll(store, me, a, wp) {
+  const { rows } = await mustBeMember(store, a.gid, me)
+  const d = cleanPollDef(a)
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'poll', body: d.q, task: { poll: { opts: d.opts, multi: d.multi } }, files: [] })
+  await store.updateMember(a.gid, me.sub, { last_read: row.id })
+  await bringBackDm(store, rows, a.gid, me)
+  await store.unarchiveOthers(a.gid, me.sub)
+  try {
+    const group = (await store.groupsByIds([a.gid]))[0]
+    const others = rows.filter((r) => r.member !== me.sub)
+    if (group && others.length) await P.notify({ store, sender: me, msg: { ...row, body: 'Poll: ' + d.q }, group, memberRows: others, groupName: group.name }, wp)
+  } catch { /* ignore */ }
+  return { msg: shapeMsg(row) }
+}
+async function pollOf(store, me, mid) {
+  const m = await store.getMessage(mid)
+  if (!m || m.kind !== 'poll') throw new ChatError('No such poll.', 404)
+  await mustBeMember(store, m.group_id, me)
+  let def = { q: m.body || '', opts: (m.task && m.task.poll && m.task.poll.opts) || [], multi: !!(m.task && m.task.poll && m.task.poll.multi), closed: false }
+  const up = store.latestPollUp ? await store.latestPollUp(m.id) : null
+  if (up && up.task && up.task.def) def = { ...def, ...up.task.def }
+  return { m, def }
+}
+async function votePoll(store, me, a) {
+  const { m, def } = await pollOf(store, me, a.mid)
+  if (def.closed) throw new ChatError('This poll is closed.')
+  const c = [...new Set((Array.isArray(a.choices) ? a.choices : []).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n < def.opts.length))].sort((x, y) => x - y)
+  if (!def.multi && c.length > 1) throw new ChatError('Pick one answer.')
+  const row = await store.insertMessage({ group_id: m.group_id, sender: me.sub, kind: 'vote', body: '', task: { poll: m.id, c }, files: [] })
+  return { ok: true, id: row.id }
+}
+async function editPoll(store, me, a) {
+  const { m, def } = await pollOf(store, me, a.mid)
+  if (m.sender !== me.sub) throw new ChatError('Only the person who asked can change this poll.', 403)
+  const next = { ...def }
+  if (a.question !== undefined || a.options !== undefined) {
+    const d = cleanPollDef({ question: a.question !== undefined ? a.question : def.q, options: a.options !== undefined ? a.options : def.opts, multi: a.multi !== undefined ? a.multi : def.multi })
+    if (d.opts.length < def.opts.length) throw new ChatError('Answers can be reworded or added, not removed, so nobody\'s answer moves.')
+    next.q = d.q; next.opts = d.opts; next.multi = d.multi
+  } else if (a.multi !== undefined) next.multi = !!a.multi
+  if (a.closed !== undefined) next.closed = !!a.closed
+  const row = await store.insertMessage({ group_id: m.group_id, sender: me.sub, kind: 'pollup', body: '', task: { poll: m.id, def: next }, files: [] })
+  return { ok: true, id: row.id, def: next }
 }
 
 // A reaction is a tiny row of its own. Turning it off is another row, so the stream stays append-only and every device ends up with the same picture.
@@ -474,6 +546,9 @@ async function run(action, a, me, deps) {
     case 'signAvatar': return signAvatar(files, me)
     case 'setAvatar': return setAvatar(store, files, me, a)
     case 'clearAvatar': return clearAvatar(store, files, me)
+    case 'createPoll': return createPoll(store, me, a, wp)
+    case 'vote': return votePoll(store, me, a)
+    case 'editPoll': return editPoll(store, me, a)
     case 'react': return react(store, me, a)
     case 'setIcon': return setIcon(store, me, a)
     case 'setWall': return setWall(store, me, a)

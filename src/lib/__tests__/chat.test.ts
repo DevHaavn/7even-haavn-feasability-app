@@ -16,6 +16,7 @@ function fake() {
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
     async membersByGroups(ids: string[]) { return t.members.filter((r) => ids.includes(r.group_id)).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall', 'avatar'].includes(m.kind))) },
+    async latestPollUp(mid: number) { return t.msgs.filter((m) => m.kind === 'pollup' && m.task && m.task.poll === Number(mid)).sort((x, y) => y.id - x.id)[0] || null },
     async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
     async updateGroup(id: string, p: any) { Object.assign(t.groups.find((g) => g.id === id), p) },
     async insertGroup(g: any) { const r = { id: 'g' + ++t.gseq, ...g }; t.groups.push(r); return r },
@@ -27,6 +28,7 @@ function fake() {
     async updateMessage(id: number, p: any) { Object.assign(t.msgs.find((m) => m.id === Number(id)), p) },
     async deleteGroup(id: string) { t.groups = t.groups.filter((g) => g.id !== id); t.members = t.members.filter((m) => m.group_id !== id); t.msgs = t.msgs.filter((m) => m.group_id !== id) },
     async findDm(key: string) { return t.groups.find((g) => g.dm_key === key) || null },
+    async unhideOthers(g: string, me: string) { t.members.filter((r) => r.group_id === g && r.member !== me && r.hidden).forEach((r) => { r.hidden = false }) },
     async unarchiveOthers(g: string, me: string) { t.members.filter((r) => r.group_id === g && r.member !== me).forEach((r) => { r.archived = false }) },
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
   }
@@ -329,7 +331,7 @@ describe('the HAAVN BLACK icons and wallpapers', () => {
     const { gid } = await run('newGroup', { name: 'BLACK', ids: ['ds'] })
     expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'glass' } })).icon).toEqual({ id: 'blk', tile: 'glass' })
     expect((await run('setIcon', { gid, icon: { id: 'blkw', tile: 'frost' } })).icon).toEqual({ id: 'blkw', tile: 'frost' })
-    for (const id of ['blkg', 'blkw', 'blks', 'blkn', 'hori', 'p7']) expect((await run('setWall', { gid, wall: { id } })).wall).toEqual({ id })
+    for (const id of ['blkg', 'blkw', 'blks', 'blkn', 'hori', 'p7', 'atrg', 'atrl']) expect((await run('setWall', { gid, wall: { id } })).wall).toEqual({ id })
   })
 })
 
@@ -371,5 +373,95 @@ describe('people\'s pictures and the new bubble colours', () => {
     expect((await run('setIcon', { gid, icon: { id: 'haavnw', tile: 'crystal' } })).icon).toEqual({ id: 'haavnw', tile: 'crystal' })
     expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'bluegl' } })).icon).toEqual({ id: 'blk', tile: 'bluegl' })
     expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'sagegl' } })).icon).toEqual({ id: 'blk', tile: 'sagegl' })
+  })
+})
+
+describe('polls and icon shapes', () => {
+  const mk = async () => { const { gid } = await run('newGroup', { name: 'G', ids: ['ds', 'lj'] }); return gid }
+  it('a poll is a message with its answers, and needs a question and two answers', async () => {
+    const gid = await mk()
+    await expect(run('createPoll', { gid, question: '', options: ['Yes', 'No'] })).rejects.toThrow(/question/)
+    await expect(run('createPoll', { gid, question: 'Monday?', options: ['Yes'] })).rejects.toThrow(/two answers/)
+    await expect(run('createPoll', { gid, question: 'Monday?', options: ['Yes', 'No'] }, me('zz', 'Outsider'))).rejects.toThrow(/not in that chat/)
+    const { msg } = await run('createPoll', { gid, question: ' Who is coming Monday? ', options: ['Yes', ' No ', '', 'Maybe'], multi: false })
+    expect(msg).toMatchObject({ x: 'Who is coming Monday?', poll: { opts: ['Yes', 'No', 'Maybe'], multi: false } }); expect(msg.task).toBeUndefined()
+    const s = await run('init', {}, daniel)
+    expect(s.msgs.find((m: any) => m.id === msg.id).poll.opts.length).toBe(3)
+  })
+  it('votes: one answer for a single poll, several for a multiple poll, the newest wins, empty takes it back', async () => {
+    const gid = await mk()
+    const one = (await run('createPoll', { gid, question: 'Q', options: ['A', 'B', 'C'] })).msg
+    const many = (await run('createPoll', { gid, question: 'Q2', options: ['A', 'B', 'C'], multi: true })).msg
+    const first = await run('init', {}, lewis)
+    await expect(run('vote', { mid: one.id, choices: [0, 1] }, daniel)).rejects.toThrow(/one answer/)
+    await run('vote', { mid: one.id, choices: [1, 9, -1] }, daniel)
+    await run('vote', { mid: many.id, choices: [2, 0, 0] }, daniel)
+    await run('vote', { mid: one.id, choices: [] }, daniel)
+    const p = await run('poll', { since: first.cursor }, lewis)
+    expect(p.msgs.map((m: any) => [m.k, m.pm, m.c, m.u])).toEqual([['vote', one.id, [1], 'ds'], ['vote', many.id, [0, 2], 'ds'], ['vote', one.id, [], 'ds']])
+    await expect(run('vote', { mid: one.id, choices: [0] }, me('zz', 'Outsider'))).rejects.toThrow(/not in that chat/)
+    const t = (await run('send', { gid, body: 'plain' })).msg
+    await expect(run('vote', { mid: t.id, choices: [0] }, daniel)).rejects.toThrow(/No such poll/)
+  })
+  it('only the person who asked edits it: reword, add answers, change several or one, close and reopen; answers are never removed', async () => {
+    const gid = await mk()
+    const { msg } = await run('createPoll', { gid, question: 'Venue?', options: ['Office', 'Cafe'] })
+    await expect(run('editPoll', { mid: msg.id, question: 'Hijack' }, daniel)).rejects.toThrow(/Only the person who asked/)
+    const e = await run('editPoll', { mid: msg.id, question: 'Venue for Monday?', options: ['Office', 'Cafe', 'Site'], multi: true })
+    expect(e.def).toEqual({ q: 'Venue for Monday?', opts: ['Office', 'Cafe', 'Site'], multi: true, closed: false })
+    await expect(run('editPoll', { mid: msg.id, options: ['Office', 'Cafe'] })).rejects.toThrow(/not removed/)
+    await run('vote', { mid: msg.id, choices: [2, 0] }, daniel)
+    await run('editPoll', { mid: msg.id, closed: true })
+    await expect(run('vote', { mid: msg.id, choices: [1] }, daniel)).rejects.toThrow(/closed/)
+    expect((await run('editPoll', { mid: msg.id, closed: false })).def.closed).toBe(false)
+    expect((await run('vote', { mid: msg.id, choices: [1] }, daniel)).ok).toBe(true)
+    const p = await run('poll', { since: 0 }, lewis)
+    expect(p.msgs.filter((m: any) => m.k === 'pollup').length).toBe(3)
+  })
+  it('a screen from before polls sees the question as a message and never the vote rows', async () => {
+    const gid = await mk()
+    const { msg } = await run('createPoll', { gid, question: 'Q', options: ['A', 'B'] })
+    await run('vote', { mid: msg.id, choices: [0] }, daniel)
+    const old = await C.run('init', {}, lewis, F.deps)
+    expect(old.msgs.map((m: any) => m.x)).toEqual(['Q']); expect(old.msgs.every((m: any) => !m.k)).toBe(true)
+  })
+  it('icons keep their shape: round, soft square or wide, and nothing else', async () => {
+    const gid = await mk()
+    for (const shape of ['round', 'square', 'wide']) expect((await run('setIcon', { gid, icon: { id: 'wm7', tile: 'black', shape } })).icon).toEqual({ id: 'wm7', tile: 'black', shape })
+    expect((await run('setIcon', { gid, icon: { id: 'wm7', tile: 'black', shape: 'triangle' } })).icon).toEqual({ id: 'wm7', tile: 'black' })
+    expect((await run('setIcon', { gid, icon: { img: 'data:image/jpeg;base64,/9j/4AAQ', shape: 'round' } })).icon).toEqual({ img: 'data:image/jpeg;base64,/9j/4AAQ', shape: 'round' })
+  })
+})
+
+describe('direct messages without a group', () => {
+  it('starting one shows it to me at once and to them only when there is a message', async () => {
+    const { gid } = await run('newGroup', { ids: ['ds'] })
+    expect((await run('init', {}, jamie)).groups.map((g: any) => g.id)).toEqual([gid])
+    expect((await run('init', {}, daniel)).groups).toEqual([])
+    await run('send', { gid, body: 'Quick one, Daniel' })
+    const d = await run('init', {}, daniel)
+    expect(d.groups.map((g: any) => [g.id, g.dm, g.m.sort()])).toEqual([[gid, true, ['ds', 'jb']]])
+    expect(d.msgs.map((m: any) => m.x)).toEqual(['Quick one, Daniel'])
+  })
+  it('starting it again opens the same one, and brings back a conversation they took off their list', async () => {
+    const a = await run('newGroup', { ids: ['ds'] })
+    await run('send', { gid: a.gid, body: 'hi' })
+    await run('setMine', { gid: a.gid, hidden: true }, daniel)
+    expect((await run('init', {}, daniel)).groups).toEqual([])
+    const b = await run('newGroup', { ids: ['jb'] }, daniel)
+    expect(b).toEqual({ gid: a.gid, existing: true })
+    expect((await run('init', {}, daniel)).groups.length).toBe(1)
+    await run('setMine', { gid: a.gid, hidden: true }, daniel)
+    await run('send', { gid: a.gid, body: 'are you there' })
+    expect((await run('init', {}, daniel)).groups.length).toBe(1)
+  })
+  it('a poll in a direct message also puts it in front of the other person', async () => {
+    const { gid } = await run('newGroup', { ids: ['lj'] })
+    await run('createPoll', { gid, question: 'Lunch?', options: ['Yes', 'No'] })
+    expect((await run('init', {}, lewis)).groups.length).toBe(1)
+  })
+  it('a group is never hidden from the people in it', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds', 'lj'] })
+    expect((await run('init', {}, daniel)).groups.map((g: any) => g.id)).toEqual([gid])
   })
 })

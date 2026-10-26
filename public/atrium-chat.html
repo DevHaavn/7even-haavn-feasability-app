@@ -268,8 +268,30 @@ body.embed #demo{left:calc(50% + 150px)}
 #hIcon{flex:none;cursor:pointer}
 .pills{display:flex}
 .pills .av{width:28px;height:28px;font-size:10px;margin-left:-8px;border:2px solid rgba(70,72,79,.95)}
+/* polls */
+.bub.poll{width:min(340px,100%);min-width:min(270px,100%);padding:12px 12px 8px}
+.bub.poll .pq{font-size:16px;font-weight:400;line-height:1.3;margin:0 2px 2px;overflow-wrap:anywhere}
+.bub.poll .psub{font:400 10.5px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;opacity:.62;margin:0 2px 10px}
+.bub.poll .tm{display:block;float:none;text-align:right;margin:2px 4px 0}
+.po{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0 0 6px;padding:8px 12px 8px 42px;border-radius:14px;border:1px solid rgba(127,127,127,.4);overflow:hidden;text-align:left;color:inherit;background:rgba(127,127,127,.08)}
+.po .pb{position:absolute;left:0;top:0;bottom:0;background:rgba(127,127,127,.26);transition:width .35s var(--ease)}
+.po::before{content:"";position:absolute;left:12px;top:50%;width:20px;height:20px;margin-top:-10px;border-radius:50%;border:1.5px solid currentColor;opacity:.65}
+.po.me{border-color:var(--gold)}.po.me::before{background:var(--lime,#A8BC10);border-color:var(--lime,#A8BC10);opacity:1}
+.po.me::after{content:"";position:absolute;left:18px;top:50%;width:5px;height:9px;margin-top:-6px;border:solid #161713;border-width:0 2px 2px 0;transform:rotate(40deg)}
+.po .pt{flex:1;min-width:0;position:relative;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.po .pw{position:relative;display:flex;padding-left:5px}.po .pw .av{width:18px;height:18px;margin-left:-5px;border:1.5px solid rgba(0,0,0,.25);box-shadow:none}
+.po .pn{position:relative;font:400 13px Inter;min-width:16px;text-align:right}
+.po:disabled{opacity:.7}
+.bub.poll .pf{margin-top:2px;text-align:center}.bub.poll .pf button{padding:8px 14px;font-size:13px;opacity:.8;min-height:36px;color:inherit}
+.pr{display:flex;gap:8px;margin-bottom:8px}.pr input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.1);color:#fff}
+.pr button{width:44px;flex:none;border-radius:14px;background:rgba(255,255,255,.1);font-size:20px;line-height:1}
+.pre{display:flex;flex-wrap:wrap;gap:8px}.pre button{padding:9px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;background:rgba(255,255,255,.07);min-height:40px}
+.vrow{padding:10px 0;border-top:1px solid var(--line)}.vrow:first-child{border-top:0}.vrow h5{display:flex;gap:8px;font-weight:400;font-size:14.5px;margin-bottom:6px}.vrow h5 span{margin-left:auto;color:var(--faint)}
+.vrow .none{font-size:12.5px;color:var(--faint)}
 /* tile icons (a chat's icon) */
 .ti.wide{width:calc(var(--s)*1.8)}
+.ti.rnd{border-radius:50%}
+.shp{display:flex;gap:10px;flex-wrap:wrap}.shp button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 10px;border-radius:16px;border:2px solid transparent;font-size:11.5px;color:var(--faint);min-width:84px}.shp button.on{border-color:var(--gold);background:rgba(255,255,255,.06);color:#fff}.shp .ti{--s:40px}
 .ti.gl{box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(0,0,0,.28)}
 .ti.gl::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.08) 42%,rgba(255,255,255,0) 52%);pointer-events:none}
 .ti .gw{display:grid;place-items:center;width:100%;height:100%;filter:drop-shadow(0 0 .7px rgba(255,255,255,.95)) drop-shadow(0 2px 4px rgba(0,0,0,.4))}
@@ -569,7 +591,7 @@ body.embed #demo{left:calc(50% + 150px)}
     <div class="drop">Drop files to share them in this chat</div>
     <div class="typing" id="typing"></div>
     <div id="pend"></div>
-    <div id="attach"><button type="button" data-at="file"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>Photo or file</button><button type="button" data-at="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Set a task</button></div>
+    <div id="attach"><button type="button" data-at="file"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>Photo or file</button><button type="button" data-at="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Set a task</button><button type="button" data-at="poll"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Poll</button></div>
     <div id="wfbar" hidden><span class="wl">Replying on task</span><b id="wfT"></b><button type="button" id="wfX" aria-label="Stop replying on the task">✕</button></div>
     <div id="comp">
       <div class="box">
@@ -621,7 +643,7 @@ body.embed #demo{left:calc(50% + 150px)}
 
 <div class="ov" id="ovGroup"><div class="sheet">
   <h3>New group</h3><div class="lead">Private groups are only seen by the people you add.</div>
-  <div class="f"><label class="mono">Name (leave empty for a direct message with one person)</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
+  <div class="f"><label class="mono">Name (leave empty to message one person directly)</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
   <div class="pair" id="gPair">
     <div class="dd2"><span class="mono">Icon</span><button class="ddb" id="gIconB" type="button" aria-haspopup="true" aria-expanded="false"><span id="gIconT"></span><span class="ddn" id="gIconN"></span><svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
     <div class="dd2"><span class="mono">Wallpaper</span><button class="ddb" id="gWallB" type="button" aria-haspopup="true" aria-expanded="false"><span class="sw36" id="gWallT"></span><span class="ddn" id="gWallN"></span><svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
@@ -641,7 +663,7 @@ body.embed #demo{left:calc(50% + 150px)}
 <div class="ov" id="ovView"><div class="sheet" id="view"><div class="row" style="margin-bottom:12px;align-items:center"><h3 id="vT" style="flex:1;font-size:17px"></h3><button class="cb" id="vX" style="flex:none">Close</button></div><div id="vB"></div></div></div>
 <div class="ov" id="ovWall"><div class="sheet wide">
   <div class="seg" data-seg><button type="button" data-sty="wall" class="on">Wallpaper</button><button type="button" data-sty="icon" class="">Icon</button></div>
-  <h3>Wallpaper</h3><div class="lead">Twenty-four designs from HAAVN, the HAAVN device in eight colours, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT, HORI7ON, ENTERPRISE and ATRIUM, or your own. Only you see your wallpaper.</div>
+  <h3>Wallpaper</h3><div class="lead">Twenty-six designs from HAAVN, the HAAVN device in eight colours, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT, HORI7ON, ENTERPRISE and ATRIUM, or your own. Only you see your wallpaper.</div>
   <div class="wgs" id="wGrid"></div>
   <div class="mono gl" style="margin-top:16px">Adjust</div>
   <div class="sl"><label>Dim</label><input type="range" id="sDim" min="0" max="80" value="0" aria-label="Dim"></div>
@@ -657,9 +679,20 @@ body.embed #demo{left:calc(50% + 150px)}
   <div class="iprev"><span id="iPrev"></span><div id="iName" style="font-size:16px"></div></div>
   <div class="mono gl">Nineteen icons from the HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT and ATRIUM brands</div>
   <div class="ig6" id="iGrid"></div>
+  <div class="mono gl">Shape</div><div class="shp" id="iShape"></div>
   <div class="mono gl">Tile colour</div><div class="dots" id="iTiles"></div>
   <div class="row" style="margin-top:14px"><button class="cb go" id="iDone" type="button">Done</button></div>
 </div></div>
+<div class="ov" id="ovPoll"><div class="sheet">
+  <h3 id="pT">New poll</h3><div class="lead" id="pLead">Ask the chat a question. Everyone in it can answer, and change their answer.</div>
+  <div class="f"><label class="mono">Question</label><input id="pQ" maxlength="200" placeholder="e.g. Who can make Monday 9:30?" autocomplete="off"></div>
+  <div id="pPreW"><div class="mono gl">Quick answers</div><div class="pre" id="pPre"></div></div>
+  <div class="mono gl">Answers</div><div id="pOpts"></div>
+  <button class="cb" id="pAdd" type="button" style="margin-top:2px">＋ Add an answer</button>
+  <div class="sw"><div class="l"><b>Allow several answers</b><span>People can tick more than one</span></div><button class="tg" id="pMulti" type="button" aria-label="Allow several answers"></button></div>
+  <div class="row" style="margin-top:12px"><button class="cb" id="pCancel" type="button">Cancel</button><button class="cb go" id="pSave" type="button">Send poll</button></div>
+</div></div>
+<div class="ov" id="ovVotes"><div class="sheet"><h3 id="vtT">Votes</h3><div class="lead" id="vtS"></div><div id="vtB"></div></div></div>
 <div id="amenu"></div>
 <div class="ddp" id="gIconP" hidden></div><div class="ddp" id="gWallP" hidden></div>
 <div id="menu"></div>
@@ -712,7 +745,7 @@ const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
 const av=(p,cls,size)=>{ const sz=size?`width:${size}px;height:${size}px;font-size:${Math.round(size*.34)}px;`:''; return p.img?`<span class="av ${cls||''}" style="${sz}background:url(${p.img}) center/cover"></span>`:`<span class="av ${cls||''}" style="${sz}background:${COL[p.c]}">${ini(p.n)}</span>` };
 const PROJECTS=['Belmont Estate','Corio Quarter','Preston','HAAVN BLACK','Palmerston Crescent','No project'];
 const now=Date.now(), mins=m=>now-m*60000;
-const KEY='atrium-chat-preview-v3';
+const KEY='atrium-chat-preview-v4';
 const SEED={
  me:'jb',
  groups:[
@@ -731,6 +764,7 @@ const SEED={
   {id:4,g:'g2',u:'cm',t:mins(150),x:'Seth is sending the Studio plan drawing today. Do we hold the brochure until it lands?'},
   {id:5,g:'g2',u:'mf',t:mins(120),x:'Customers on the weekend keep asking for the Plus price. Can I say from $399k yet?'},
   {id:6,g:'g3',u:'lj',t:mins(1400),x:'Board pack goes out Thursday. Anything for the Corio paper?'},
+  {id:31,g:'g3',u:'lj',t:mins(900),x:'Which day should we meet to sign it off?',poll:{opts:['Wednesday','Thursday','Friday'],multi:false}},
   {id:7,g:'g4',u:'jw',t:mins(2000),x:'Equity deck v3 is in SharePoint.'},
   {id:8,g:'g5',u:'ds',t:mins(60),x:'Cash flow for Belmont is updated. Two minutes when you are free.'},
   {id:9,g:'g6',u:'jw',t:mins(35),x:'Workflow V1 fixes are live. Can you check the meeting hub on your phone?'}
@@ -739,12 +773,13 @@ const SEED={
  icons:{g1:{id:'x7',tile:'black'},g2:{id:'student',tile:'lime'},g3:{id:'seven',tile:'black'},g4:{id:'btr',tile:'graphite'}},
  walls:{g1:{id:'seven'},g2:{id:'black'},g3:{id:'atrium'},g4:{id:'wmbone'}},
  rx:{2:{'👍':['jb','ds']},3:{'🔥':['ds'],'😂':['jw','jb']},5:{'😮':['cm']}},
+ pv:{31:{jb:[1],ds:[1],lj:[0]}}, pdef:{},
  muted:{},
  snd:1, red:1, push:0, mail:1, men:1, nid:20, tid:1
 };
 let S; try{ if(EMB){ localStorage.removeItem(KEY) } else S=JSON.parse(localStorage.getItem(KEY)) }catch(e){}   // inside ATRIUM the page never reads cached practice chats
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
-S.order=S.order||[]; S.arch=S.arch||{}; S.gone=S.gone||{}; S.icons=S.icons||{}; S.walls=S.walls||{}; S.rx=S.rx||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
+S.order=S.order||[]; S.arch=S.arch||{}; S.gone=S.gone||{}; S.icons=S.icons||{}; S.walls=S.walls||{}; S.rx=S.rx||{}; S.pv=S.pv||{}; S.pdef=S.pdef||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
 S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
 let REAL=false, cursor=0, lastSig='';
 const isOpen=()=>typeof OPEN==='undefined'?true:OPEN;
@@ -814,6 +849,8 @@ const WALLS=[
  {g:'HAAVN',id:'black',n:'HAAVN Graphite',s:'Graphite and lime grid',dark:true,mine:'#A8BC10',mineTx:'#161713',theirs:'rgba(255,255,255,.1)',theirsTx:'#f2ede9',meta:'rgba(242,237,233,.62)',dim:0,blur:0},
  {g:'7EVEN',id:'seven',n:'7EVEN Gold',s:'Void black, 7X pattern',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
  {g:'ATRIUM',id:'atrium',n:'ATRIUM Glass',s:'Grey glass, A pattern',dark:true,mine:'#f1ede4',mineTx:'#23252a',theirs:'rgba(255,255,255,.13)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
+ {g:'ATRIUM',id:'atrg',n:'ATRIUM Ground',s:'The dark ATRIUM terrain',dark:true,mine:'#f1ede4',mineTx:'#23252a',theirs:'rgba(255,255,255,.12)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:0,blur:0},
+ {g:'ATRIUM',id:'atrl',n:'ATRIUM Ground light',s:'The same terrain in light grey',dark:false,mine:'#2b2d32',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#4b4d45',dim:0,blur:0},
  {g:'HAAVN',id:'park',n:'Parkside',s:'HAAVN Hotels at dusk',dark:true,mine:'#8a5a2b',mineTx:'#ffffff',theirs:'rgba(22,20,18,.55)',theirsTx:'#fff',meta:'rgba(255,255,255,.7)',dim:38,blur:2},
  {g:'7EVEN',id:'seven7',n:'The 7',s:'One big 7, void and gold',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.6)',dim:0,blur:0},
  {g:'7EVEN',id:'wmbone',n:'7EVEN Bone',s:'Wordmark on bone, light',dark:false,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#5f5a4e',dim:0,blur:0},
@@ -875,6 +912,8 @@ function wallCSS(id){
    case 'black':return {bg:`url(${BG}haavn-grid.jpg)`,size:'cover',base:'#161714'};
    case 'seven':return {bg:`url(${x7Tile()}), radial-gradient(900px 600px at 85% 105%,rgba(214,179,106,.22),transparent 65%), radial-gradient(700px 500px at 0% 0%,rgba(214,179,106,.08),transparent 60%)`,size:'180px 180px,auto,auto',tsize:'100px 100px,auto,auto',repeat:'repeat,no-repeat,no-repeat',base:'#070808'};
    case 'atrium':return {bg:`url(${aTile()}), radial-gradient(1100px 700px at 15% -10%,#5a5d66 0%,transparent 60%), radial-gradient(900px 700px at 100% 110%,#464952 0%,transparent 60%), linear-gradient(160deg,#42444b,#2b2d32 70%)`,size:'170px 170px,auto,auto,auto',tsize:'90px 90px,auto,auto,auto',repeat:'repeat,no-repeat,no-repeat,no-repeat',base:'#2b2d32'};
+   case 'atrg':return {bg:`url(${BG}atrium-dark.jpg)`,size:'cover',pos:'center',base:'#1c1d20'};
+   case 'atrl':return {bg:`url(${BG}atrium-light.jpg)`,size:'cover',pos:'center',base:'#d3d3d2'};
    case 'park':return {bg:`url(${BG}parkside.jpg)`,size:'cover',base:'#2a1d16'};
    case 'seven7':return {bg:`url(${seven7()}), radial-gradient(760px 520px at 78% 58%,rgba(214,179,106,.17),transparent 66%)`,size:'min(104%,720px) auto,auto',tsize:'auto 118%,auto',repeat:'no-repeat,no-repeat',pos:'90% 52%,0 0',base:'#060708'};
    case 'wmbone':return {bg:`url(${AS.t_wm7}), linear-gradient(180deg,#f4f0e8,#e5dfd3)`,size:'330px 200px,auto',tsize:'190px 115px,auto',repeat:'repeat,no-repeat',pos:'0 0,0 0',base:'#ece7df'};
@@ -904,15 +943,16 @@ STY.walls=STY.walls||{}; STY.img=STY.img||{}; STY.recent=STY.recent||[]; STY.ski
 const saveSty=()=>{try{localStorage.setItem(STYKEY,JSON.stringify(STY))}catch(e){flash('Your wallpaper picture is too big for this device to keep. Pick a smaller one.')}};
 
 /* a tile: a brand icon on a coloured square, or your own picture, or initials */
+const shapeCls=(shape,defWide)=>{ const sh=shape||(defWide?'wide':'square'); return sh==='round'?'rnd':sh==='wide'?'wide':'' };
 function tile(ic,size,extra){
   const s=size||46;
-  if(ic&&ic.img) return `<span class="ti ${extra||''}" style="--s:${s}px;background-image:url(${ic.img})"></span>`;
+  if(ic&&ic.img) return `<span class="ti ${shapeCls(ic.shape,false)} ${extra||''}" style="--s:${s}px;background-image:url(${ic.img})"></span>`;
   const d=ic&&IC[ic.id]; if(!d) return '';
-  const t=TILES[ic.tile||d.def]||TILES.graphite;
-  if(d.kind==='x7') return `<span class="ti x7 ${extra||''}" style="--s:${s}px;background:${t.bg}">${AI.x7_dark?uniq(t.dark?AI.x7_dark:AI.x7_light):''}</span>`;
-  const m=AI[d.id]; if(!m) return `<span class="ti ini ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${esc(d.n.slice(0,2))}</span>`;
+  const t=TILES[ic.tile||d.def]||TILES.graphite, sc=shapeCls(ic.shape,d.wide);
+  if(d.kind==='x7') return `<span class="ti x7 ${sc} ${extra||''}" style="--s:${s}px;background:${t.bg}">${AI.x7_dark?uniq(t.dark?AI.x7_dark:AI.x7_light):''}</span>`;
+  const m=AI[d.id]; if(!m) return `<span class="ti ini ${sc} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${esc(d.n.slice(0,2))}</span>`;
   const gi=`<i style="${t.fgbg?`background:${t.fgbg};`:''}-webkit-mask-image:url(${m.uri});mask-image:url(${m.uri});${d.wd?`width:${d.wp||76}%;aspect-ratio:${m.w}/${m.h};height:auto`:''}"></i>`;
-  return `<span class="ti ${d.fr?'fr':d.wd?'wd':'sq'} ${d.wide?'wide':''} ${t.gl?'gl':''} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${t.gl?`<span class="gw">${gi}</span>`:gi}</span>`}
+  return `<span class="ti ${d.fr?'fr':d.wd?'wd':'sq'} ${sc} ${t.gl?'gl':''} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${t.gl?`<span class="gw">${gi}</span>`:gi}</span>`}
 function gIcon(g,size){ // a chat's icon: the other person for a direct message, the chosen icon for a group, initials until one is chosen
   const s=size||44;
   if(g.dm){const w=P[g.m.find(x=>x!==S.me)]||me(); return w.img?`<span class="ti dm" style="--s:${s}px;background:url(${w.img}) center/cover"></span>`:`<span class="ti ini dm" style="--s:${s}px;background:${COL[w.c]}">${ini(w.n)}</span>`}
@@ -969,6 +1009,8 @@ function routeStyle(m){ // rows that are not messages: reactions, icons, a perso
   else if(m.k==='icon'){ if(m.icon) S.icons[m.g]=m.icon }
   else if(m.k==='wall'){ if(m.wall&&m.u===S.me){ S.walls[m.g]=m.wall; STY.walls[m.g]=m.wall } }
   else if(m.k==='avatar') needAv=true;
+  else if(m.k==='vote'){ const v=(S.pv[m.pm]=S.pv[m.pm]||{}); if(m.c&&m.c.length) v[m.u]=m.c; else delete v[m.u] }
+  else if(m.k==='pollup'){ if(m.def) S.pdef[m.pm]=m.def }
   styleTick++; return true }
 let styleTick=0, needAv=false, AVMAP={};
 /* people's pictures: stored privately, signed links handed out with the people list, refreshed when someone changes theirs */
@@ -1037,6 +1079,10 @@ function renderList(){
   const q=$('#search').value.toLowerCase();
   const gs=active().filter(g=>gname(g).toLowerCase().includes(q));
   const ar=mine().filter(g=>isArch(g.id)&&gname(g).toLowerCase().includes(q));
+  // the search also finds the people: staff and anyone on the chat network, one tap to message them directly
+  const qq=q.trim(), ppl=qq?PEOPLE.filter(p=>p.id!==S.me&&!p.ext&&!gs.some(g=>g.dm&&g.m.includes(p.id))&&((p.n||'')+' '+((p.e||[]).join(' '))).toLowerCase().includes(qq)):[];
+  const pRow=p=>`<button class="g" type="button" data-dmp="${p.id}">${p.img?`<span class="ti dm" style="--s:44px;background:url(${p.img}) center/cover"></span>`:`<span class="ti ini dm" style="--s:44px;background:${COL[p.c]}">${ini(p.n)}</span>`}<span class="gt"><span class="n"><b>${esc(p.n)}</b></span><span class="p">${esc((p.e&&p.e[0])||'')} · ${coOf(p)}</span></span><span class="m"><span class="mono" style="font-size:10.5px;letter-spacing:.08em">Message</span></span></button>`;
+  const pplHtml=qq?`<div class="sec mono">People</div>`+(ppl.length?ppl.map(pRow).join(''):`<div class="empty" style="padding:6px 14px">${gs.some(g=>g.dm)?'Everyone who matches is already in your chats above.':'No one on the chat network matches.'}</div>`):'';
   const ord=S.order||[], pinned=ord.map(id=>gs.find(g=>g.id===id)).filter(Boolean);
   const rest=gs.filter(g=>!ord.includes(g.id)).sort((x,y)=>lastT(y)-lastT(x));   // newest message first
   const row=g=>{const ms=gm(g.id),l=ms[ms.length-1],u=unread(g.id),mu=S.muted[S.me+g.id];
@@ -1044,15 +1090,15 @@ function renderList(){
     const btn=`<button class="g ${g.id===cur&&!editOrd?'on':''} ${u?'unread':''} ${mu?'muted':''}" data-g="${g.id}">
       ${gIcon(g,44)}
       <span class="gt"><span class="n"><b>${esc(gname(g))}</b>${g.priv?lock:''}${mu?'<svg class="mutei" viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2.5V10a4.5 4.5 0 0 0-9 0v4.5zM10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>':''}</span>
-      <span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.x):'No messages yet'}</span></span>
+      <span class="p">${l?(l.u===S.me?'You: ':(g.dm?'':P[l.u].n.split(' ')[0]+': '))+esc(l.task?'Task: '+l.task.title:l.poll?'Poll: '+l.x:l.x):'No messages yet'}</span></span>
       <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`;
     if(!editOrd) return btn;
     const k=pinned.findIndex(x=>x.id===g.id), isP=k>=0;
     const ar=isArch(g.id);
     return `<div class="ge">${btn}<div class="ctl">${ar?'':`<button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>${isP?'Unpin':'Pin'}</button>`}<button type="button" data-arc="${g.id}"><svg viewBox="0 0 24 24"><path d="M4 7h16v3H4zM6 10v9h12v-9M10 14h4"/></svg>${ar?'Restore':'Archive'}</button><button type="button" class="del" data-rem="${g.id}"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>Delete</button>${isP?`<button type="button" class="mv" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" class="mv" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
   const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
-  $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+rest.filter(g=>g.dm).map(row).join('')
-    +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'');
+  $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+((!qq||rest.some(g=>!g.dm))?`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join(''):'')+((!qq||rest.some(g=>g.dm))?`<div class="sec mono">Direct</div>`:'')+rest.filter(g=>g.dm).map(row).join('')
+    +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'')+pplHtml;
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
@@ -1070,7 +1116,14 @@ function seenLine(g,ms){ // "Seen" under my last message, from what the others h
   const n=others.filter(o=>(g.rd[o]||0)>=ms[li].id).length; if(!n) return '';
   return `<div class="seen">${g.dm?'Seen':(n===others.length?'Seen by everyone':'Seen by '+n)}</div>`}
 function rxHtml(m){ const r=S.rx[m.id]; if(!r) return ''; return `<div class="rxs">${Object.entries(r).map(([e,a])=>`<button type="button" data-rxb="${m.id}" data-e="${e}" class="${a.includes(S.me)?'me':''}" aria-label="${e} ${a.length}">${e}${a.length>1?`<small>${a.length}</small>`:''}</button>`).join('')}</div>` }
+const pollDef=m=>Object.assign({q:m.x,opts:(m.poll&&m.poll.opts)||[],multi:!!(m.poll&&m.poll.multi),closed:false},S.pdef[m.id]||{});
+function pollHtml(m){ const d=pollDef(m), v=S.pv[m.id]||{}, tot=Object.keys(v).length, mine=v[S.me]||[];
+  const counts=d.opts.map((_,i)=>Object.values(v).filter(c=>c.includes(i)).length);
+  return `<div class="pq">${rich(d.q)}</div><div class="psub">${d.closed?'Poll closed':d.multi?'Choose one or more':'Choose one'} · ${tot} ${tot===1?'vote':'votes'}</div>`+d.opts.map((o,i)=>{ const n=counts[i], pct=tot?Math.round(n/tot*100):0, who=Object.entries(v).filter(([u,c])=>c.includes(i)).slice(0,4).map(([u])=>av(P[u]||{n:'?',c:0},'',18)).join('');
+    return `<button type="button" class="po ${mine.includes(i)?'me':''}" data-pv="${m.id}" data-i="${i}" ${d.closed?'disabled':''}><span class="pb" style="width:${pct}%"></span><span class="pt">${esc(o)}</span><span class="pw">${who}</span><span class="pn">${n}</span></button>` }).join('')
+    +`<div class="pf"><button type="button" data-pw="${m.id}">${tot?'View votes':'No votes yet'}</button></div>` }
 function bubbleHtml(m,pop){
+  if(m.poll) return `<div class="bub poll${pop?' pop':''}" data-bub="${m.id}">${pollHtml(m)}<span class="tm">${tmf(m.t)}</span></div>`;
   const p=P[m.u]; const hasTask=!!m.task, plain=hasTask&&/^Set a task for /.test(m.x||'')?'':(m.x||'');
   const emo=!hasTask&&!(m.files&&m.files.length)?emojiCount(plain):0;
   const imgs=(m.files||[]).length&&m.files.every(f=>f.type.startsWith('image/')&&f.url)&&!plain;
@@ -1098,6 +1151,7 @@ function renderThread(newId){
     const avt=(!mine&&!g.dm)?(lastIn?av(p):'<span class="gap"></span>'):'';
     out+=`<div class="mr ${mine?'mine':''} ${first?'f':''} ${lastIn?'l':''} ${m.id===newId?'new':''}" data-m="${m.id}">${avt}<div class="stk">${who}${bubbleHtml(m,false)}${rxHtml(m)}</div></div>`;
     prev=m});
+  if(!ms.length) out+=`<div class="sysm" style="margin:auto">${g.dm?'Say hello. Only you and '+esc(gname(g).split(' ')[0])+' are in this chat.':'No messages yet.'}</div>`;
   out+=seenLine(g,ms);
   const box=$('#msgs'), keep=box.scrollTop, atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<140||!!newId||box.dataset.g!==cur;
   box.innerHTML=out; box.dataset.g=cur; box.scrollTop=atEnd?box.scrollHeight:keep;
@@ -1111,7 +1165,7 @@ function openMenuFor(id,anchor){
   const mine=((m.u===S.me)), have=Object.entries(S.rx[id]||{}).filter(([e,a])=>a.includes(S.me)).map(x=>x[0]);
   const am=$('#amenu');
   am.innerHTML=`<div class="rbar">${QUICK.map(e=>`<button type="button" data-q="${e}" class="${have.includes(e)?'me':''}" aria-label="React ${e}">${e}</button>`).join('')}<button type="button" data-q="+" aria-label="More emoji"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${m.wf?'<button type="button" data-a="wf"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply on task</button>':''}${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
+   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${m.wf?'<button type="button" data-a="wf"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply on task</button>':''}${(m.poll&&m.u===S.me)?`<button type="button" data-a="pedit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>Edit poll</button><button type="button" data-a="pclose"><svg viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/></svg>${pollDef(m).closed?'Reopen poll':'Close poll'}</button>`:''}${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
   am.classList.add('on'); am.style.alignItems=mine?'flex-end':'flex-start';
   const r=anchor.getBoundingClientRect(), w=am.offsetWidth, h=am.offsetHeight, top0=($('#thead').getBoundingClientRect().bottom)+6;
   let top=r.top-h-8; if(top<top0) top=Math.min(r.bottom+8,innerHeight-h-8);
@@ -1125,6 +1179,8 @@ $('#amenu').addEventListener('click',e=>{
   if(q){ closeMenu(); if(q.dataset.q==='+') openEmoji(em=>reactTo(id,em)); else reactTo(id,q.dataset.q); return }
   if(a){ const m=S.msgs.find(x=>x.id==id); closeMenu(); if(!m) return;
     if(a.dataset.a==='wf'){ setWf(m.wf,m.g) }
+    if(a.dataset.a==='pedit') openPoll(m);
+    if(a.dataset.a==='pclose') savePollEdit(m,{closed:!pollDef(m).closed});
     if(a.dataset.a==='reply'){ const t=$('#inp'); t.value='@'+(P[m.u]?P[m.u].n:'')+' '+t.value; t.dispatchEvent(new Event('input')); t.focus() }
     if(a.dataset.a==='task') taskDlg(m.x&&!/^Set a task for /.test(m.x)?m.x:'');
     if(a.dataset.a==='copy'){ try{ navigator.clipboard.writeText(m.x); flash('Copied') }catch(er){ const t=document.createElement('textarea'); t.value=m.x; document.body.appendChild(t); t.select(); try{document.execCommand('copy');flash('Copied')}catch(x){} t.remove() } } }
@@ -1192,6 +1248,8 @@ function closeWho(){ const w=$('#who'); if(w) w.classList.remove('on'); whoFor=n
   const box=$('#msgs'); let timer=null, held=false, sx=0, sy=0;
   const target=e=>{ const b=e.target.closest('[data-bub]'); return (b&&!e.target.closest('button,a,.att-img,.att-file'))?b:null };
   box.addEventListener('click',e=>{ if(held){held=false;return} const rxb=e.target.closest('[data-rxb]'); if(rxb){ openWho(+rxb.dataset.rxb,rxb.dataset.e,rxb); return }
+    const pvb=e.target.closest('[data-pv]'); if(pvb){ castVote(+pvb.dataset.pv,+pvb.dataset.i); return }
+    const pwb=e.target.closest('[data-pw]'); if(pwb){ openVotes(+pwb.dataset.pw); return }
     const b=target(e); if(!b) return; const id=b.dataset.bub; if(amFor==id){closeMenu();return} openMenuFor(id,b) });
   box.addEventListener('contextmenu',e=>{ const b=e.target.closest('[data-bub]'); if(b){ e.preventDefault(); openMenuFor(b.dataset.bub,b) } });
   box.addEventListener('touchstart',e=>{ const b=target(e); if(!b) return; const t=e.touches[0]; sx=t.clientX; sy=t.clientY; held=false; clearTimeout(timer); timer=setTimeout(()=>{ held=true; try{navigator.vibrate&&navigator.vibrate(12)}catch(x){} openMenuFor(b.dataset.bub,b) },430) },{passive:true});
@@ -1280,8 +1338,19 @@ $('#groups').onclick=e=>{
   const rm=e.target.closest('[data-rem]'); if(rm){ doDelete(rm.dataset.rem); return }
   const up=e.target.closest('[data-up]'); if(up){ moveOrder(up.dataset.up,-1); return }
   const dn=e.target.closest('[data-dn]'); if(dn){ moveOrder(dn.dataset.dn,1); return }
+  const dp=e.target.closest('[data-dmp]'); if(dp){ startDm(dp.dataset.dmp); return }
   const b=e.target.closest('[data-g]'); if(b){ if(editOrd) return; open(b.dataset.g) } };
 $('#search').oninput=renderList;
+$('#search').onkeydown=e=>{ if(e.key==='Enter'){ const first=$('#groups [data-g],#groups [data-dmp]'); if(first){ e.preventDefault(); first.click() } } };
+/* a direct message with one person: opens the one you already have, or starts one (they see it once you send something) */
+function startDm(pid){
+  const p=P[pid]; if(!p) return;
+  const clear=()=>{ $('#search').value='' };
+  const ex=S.groups.find(g=>g.dm&&g.m.includes(pid)&&g.m.includes(S.me)&&!S.gone[S.me+g.id]);
+  if(ex){ if(isArch(ex.id)){ S.arch[S.me+ex.id]=false; if(REAL) api('setMine',{gid:ex.id,archived:false}).catch(()=>{}) } clear(); open(ex.id); return }
+  if(REAL){ api('newGroup',{ids:[pid]}).then(async o=>{ await refresh(true); clear(); open(o.gid); if(!COARSE) $('#inp').focus() }).catch(er=>flash(er.message)); return }
+  const g={id:'g'+(S.nid++),n:'',dm:true,priv:true,m:[S.me,pid],owner:S.me,proj:'No project'};
+  S.groups.push(g); S.read[S.me]=S.read[S.me]||{}; S.read[S.me][g.id]=0; save(); clear(); open(g.id); if(!COARSE) $('#inp').focus() }
 $('#backBtn').onclick=()=>{document.body.classList.remove('in-thread');renderList()};
 $$('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.body.classList.remove('in-thread');setView();if(view!=='chat'&&innerWidth<=760){$('#side').classList.add('open')}});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pane=b.dataset.p;renderPane();const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',files:'Files',meet:'Meeting',about:'This chat'}[pane]}};
@@ -1477,7 +1546,7 @@ async function bootReal(){
     REAL=true; document.documentElement.classList.add('rm-real'); banner('');
     try{ localStorage.removeItem(KEY) }catch(e){}   // the old practice chats cached in this browser, never shown again
     let prefs={}; try{ prefs=JSON.parse(localStorage.getItem('atrium-chat-prefs'))||{} }catch(e){}
-    S={me:j.me.id,order:j.order||[],groups:[],msgs:[],read:{},muted:{},arch:{},gone:{},ext:[],icons:{},walls:{},rx:{},snd:1,red:1,push:0,mail:1,men:1,nid:1,...prefs};
+    S={me:j.me.id,order:j.order||[],groups:[],msgs:[],read:{},muted:{},arch:{},gone:{},ext:[],icons:{},walls:{},rx:{},pv:{},pdef:{},snd:1,red:1,push:0,mail:1,men:1,nid:1,...prefs};
     applyReal(j); j.msgs.forEach(m=>{ if(!routeStyle(m)) S.msgs.push(m) }); cursor=j.cursor||0; lastSig=''; const f=active()[0]; cur=f?f.id:null;
     const asw=$('#asWho'); if(asw&&asw.closest('.f')) asw.closest('.f').style.display='none';
     if(cur) pushRead(cur);
@@ -1566,7 +1635,7 @@ document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.
 /* ---- closing, everywhere ---- */
 function closeSide(){ view='chat'; $('#side').classList.remove('open'); document.body.classList.remove('side-on'); setView() }
 $('#sideX').onclick=closeSide; $('#shade').onclick=closeSide;
-const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon'];
+const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon','ovPoll','ovVotes'];
 $$('.sheet').forEach(sh=>{const b=document.createElement('button');b.type='button';b.className='sx';b.setAttribute('aria-label','Close');b.textContent='✕';b.onclick=()=>{const ov=sh.closest('.ov');ov.classList.remove('on'); if(ov.id==='ovView')$('#vB').innerHTML=''; if(ov.id==='ovConf')conf=null};sh.prepend(b)});
 document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
   if(closeTransient()) return;
@@ -1586,7 +1655,7 @@ inp.oninput=()=>{ // a texting shortcut turns into its emoji as soon as the spac
 inp.onkeydown=e=>{ if(mpKey(e)) return; if(e.key==='Enter'&&!e.shiftKey&&!COARSE&&!e.isComposing){ e.preventDefault(); send() } };
 inp.addEventListener('focus',()=>{ if(COARSE&&$('#emo').classList.contains('on')&&!EMO.cb) closeEmoji(); setTimeout(()=>{ const m=$('#msgs'); m.scrollTop=m.scrollHeight },250) });
 $('#plusBtn').onclick=e=>{ e.stopPropagation(); closeEmoji(); $('#attach').classList.toggle('on') };
-$('#attach').addEventListener('click',e=>{ const b=e.target.closest('[data-at]'); if(!b) return; $('#attach').classList.remove('on'); if(b.dataset.at==='file') $('#file').click(); if(b.dataset.at==='task') taskDlg(inp.value.trim()) });
+$('#attach').addEventListener('click',e=>{ const b=e.target.closest('[data-at]'); if(!b) return; $('#attach').classList.remove('on'); if(b.dataset.at==='file') $('#file').click(); if(b.dataset.at==='task') taskDlg(inp.value.trim()); if(b.dataset.at==='poll') openPoll(null,inp.value.trim()) });
 document.addEventListener('click',e=>{ if(!e.target.closest('#attach')&&!e.target.closest('#plusBtn')) $('#attach').classList.remove('on') });
 /* ---- voice typing: speak, and the words land in the message box to read and send ---- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let rec=null, recOn=false;
@@ -1648,13 +1717,17 @@ function iconGridHtml(curIcon){
   return ICONS.map(d=>`<button type="button" class="it ${d.wide?'wide':''} ${curIcon&&curIcon.id===d.id&&!curIcon.img?'on':''}" data-i="${d.id}" title="${esc(d.n)}" aria-label="${esc(d.n)}">${tile({id:d.id,tile:(curIcon&&curIcon.id===d.id&&curIcon.tile)?curIcon.tile:d.def},46)}</button>`).join('')+`<button type="button" class="it up ${curIcon&&curIcon.img?'on':''}" data-i="img" title="Your picture" aria-label="Your own picture"><span class="ti" style="--s:100%;${curIcon&&curIcon.img?`background-image:url(${curIcon.img});border:0`:''}">${curIcon&&curIcon.img?'':up}</span></button>` }
 function tileDotsHtml(curIcon){ return Object.entries(TILES).map(([k,t])=>`<button type="button" class="dot ${curIcon&&curIcon.tile===k&&!curIcon.img?'on':''}" data-t="${k}" style="background:${t.bg}" aria-label="${t.n}"><span style="display:block;width:12px;height:12px;border-radius:50%;background:${t.fg}"></span></button>`).join('') }
 function pickIconImage(cb){ const f=document.createElement('input'); f.type='file'; f.accept='image/*'; f.onchange=()=>{ const file=f.files[0]; if(file) squareIcon(file,160,.72,u=>cb({img:u})) }; f.click() }
+const SHAPES=[['round','Round'],['square','Soft square'],['wide','Rectangle']];
+function shapeRowHtml(ic){ if(!ic) return '<span class="ddst">Pick an icon first</span>'; const cur=ic.shape||((IC[ic.id]||{}).wide?'wide':'square'); return SHAPES.map(([k,n])=>`<button type="button" data-sh="${k}" class="${cur===k?'on':''}">${tile(Object.assign({},ic,{shape:k}),40)}<span>${n}</span></button>`).join('') }
 function openIcon(){ const g=S.groups.find(x=>x.id===cur); if(!g||g.dm) return; closeMenu(); $('#ovIcon').classList.add('on'); paintIcon() }
 function paintIcon(){ const g=S.groups.find(x=>x.id===cur); if(!g) return; const ic=S.icons[g.id]||null;
-  $('#iPrev').innerHTML=gIcon(g,72); $('#iName').textContent=gname(g); $('#iGrid').innerHTML=iconGridHtml(ic); $('#iTiles').innerHTML=tileDotsHtml(ic) }
+  $('#iPrev').innerHTML=gIcon(g,72); $('#iName').textContent=gname(g); $('#iGrid').innerHTML=iconGridHtml(ic); $('#iTiles').innerHTML=tileDotsHtml(ic); $('#iShape').innerHTML=shapeRowHtml(ic) }
 $('#iGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-i]'); if(!b) return; const gid=cur;
-  if(b.dataset.i==='img'){ pickIconImage(ic=>{ setIcon(gid,ic); paintIcon() }); return }
-  setIcon(gid,{id:b.dataset.i,tile:IC[b.dataset.i].def}); paintIcon() });
-$('#iTiles').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const ic=S.icons[cur]; setIcon(cur,{id:(ic&&ic.id)||'haavn',tile:b.dataset.t}); paintIcon() });
+  const keep=(S.icons[gid]||{}).shape;
+  if(b.dataset.i==='img'){ pickIconImage(ic=>{ setIcon(gid,keep?Object.assign(ic,{shape:keep}):ic); paintIcon() }); return }
+  setIcon(gid,keep?{id:b.dataset.i,tile:IC[b.dataset.i].def,shape:keep}:{id:b.dataset.i,tile:IC[b.dataset.i].def}); paintIcon() });
+$('#iTiles').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const ic=S.icons[cur]||{}; setIcon(cur,ic.shape?{id:ic.id||'haavn',tile:b.dataset.t,shape:ic.shape}:{id:ic.id||'haavn',tile:b.dataset.t}); paintIcon() });
+$('#iShape').addEventListener('click',e=>{ const b=e.target.closest('[data-sh]'); const ic=S.icons[cur]; if(!b||!ic) return; setIcon(cur,Object.assign({},ic,{shape:b.dataset.sh})); paintIcon() });
 $('#iDone').onclick=()=>$('#ovIcon').classList.remove('on');
 
 /* ---- new group: icon and wallpaper as drop-downs ---- */
@@ -1671,16 +1744,18 @@ function ngRender(){
   const ic=ng.icon, wl=ng.wall||{id:'atrium'};
   $('#gIconT').innerHTML=ic?tile(ic,36):`<span class="ti ini" style="--s:36px;background:#9a9c92">Aa</span>`; $('#gIconN').textContent=ic?(ic.img?'Your picture':(IC[ic.id]||{}).n):'Initials';
   $('#gWallT').setAttribute('style',wl.id==='custom'&&wl.img?`background:url(${wl.img}) center/cover`:wallSwatch(wl,null)); $('#gWallN').textContent=wallName(wl);
-  $('#gIconP').innerHTML=`<div class="ig6"><button type="button" class="it ${!ic?'on':''}" data-i="" title="Initials" aria-label="Initials"><span class="ti ini" style="--s:100%;background:#9a9c92;font-size:15px">Aa</span></button>${iconGridHtml(ic)}</div><div class="mono gl">Tile colour</div><div class="dots">${tileDotsHtml(ic)}</div><div class="ddst" id="gIconSt">${esc(ic?(ic.img?'Your picture':(IC[ic.id]||{}).n):'Initials until you choose')}</div>`;
+  $('#gIconP').innerHTML=`<div class="ig6"><button type="button" class="it ${!ic?'on':''}" data-i="" title="Initials" aria-label="Initials"><span class="ti ini" style="--s:100%;background:#9a9c92;font-size:15px">Aa</span></button>${iconGridHtml(ic)}</div><div class="mono gl">Shape</div><div class="shp">${shapeRowHtml(ic)}</div><div class="mono gl">Tile colour</div><div class="dots">${tileDotsHtml(ic)}</div><div class="ddst" id="gIconSt">${esc(ic?(ic.img?'Your picture':(IC[ic.id]||{}).n):'Initials until you choose')}</div>`;
   const up='<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.4"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>';
   $('#gWallP').innerHTML=`<div class="wg6">${WALLS.map(w=>`<button type="button" class="wt ${wl.id===w.id?'on':''}" data-w="${w.id}" title="${esc(w.g+': '+w.n)}" aria-label="${esc(w.n)}" style="${wallSwatch(w,null)}">${w.dim?`<span style="position:absolute;inset:0;background:rgba(0,0,0,${(w.dim*.0085).toFixed(2)})"></span>`:''}</button>`).join('')}<button type="button" class="wt up ${wl.id==='custom'?'on':''}" data-w="custom" title="Your picture" aria-label="Your own picture" style="${wl.id==='custom'&&wl.img?`background:url(${wl.img}) center/cover`:''}">${wl.id==='custom'?'':up}</button><button type="button" class="wt up ${wl.id==='color'?'on':''}" data-w="color" title="A solid colour" aria-label="A solid colour" style="${wl.id==='color'?wallSwatch(wl,null):''}">${wl.id==='color'?'':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg>'}</button></div><div class="ddst" id="gWallSt">${esc(wallName(wl))}</div>` }
 $('#gIconB').onclick=e=>{ e.stopPropagation(); toggleDD('gIcon') }; $('#gWallB').onclick=e=>{ e.stopPropagation(); toggleDD('gWall') };
 $('#gIconP').addEventListener('click',e=>{
-  const t=e.target.closest('[data-t]'); if(t){ ng.icon={id:(ng.icon&&ng.icon.id)||'haavn',tile:t.dataset.t}; ngRender(); return }
+  const sh=e.target.closest('[data-sh]'); if(sh&&ng.icon){ ng.icon=Object.assign({},ng.icon,{shape:sh.dataset.sh}); ngRender(); return }
+  const t=e.target.closest('[data-t]'); if(t){ ng.icon=Object.assign({id:(ng.icon&&ng.icon.id)||'haavn'},ng.icon&&ng.icon.shape?{shape:ng.icon.shape}:{},{tile:t.dataset.t}); ngRender(); return }
   const b=e.target.closest('[data-i]'); if(!b) return; const id=b.dataset.i;
   if(id===''){ ng.icon=null; ngRender(); return }
-  if(id==='img'){ pickIconImage(ic=>{ ng.icon=ic; ngRender() }); return }
-  ng.icon={id,tile:IC[id].def}; ngRender() });
+  const keepS=ng.icon&&ng.icon.shape;
+  if(id==='img'){ pickIconImage(ic=>{ ng.icon=keepS?Object.assign(ic,{shape:keepS}):ic; ngRender() }); return }
+  ng.icon=keepS?{id,tile:IC[id].def,shape:keepS}:{id,tile:IC[id].def}; ngRender() });
 $('#gWallP').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; const id=b.dataset.w;
   if(id==='custom'){ const f=document.createElement('input'); f.type='file'; f.accept='image/*'; f.onchange=()=>{ const file=f.files[0]; if(!file) return; downscale(file,1500,.78,(u,cv)=>{ const br=brightness(cv); ng.wall={id:'custom',img:u,dark:br<140,dim:br>=140?0:18,blur:0,acc:'auto'}; ngRender(); closeDD() }) }; f.click(); return }
   if(id==='color'){ const f=document.createElement('input'); f.type='color'; f.value='#2d4a3a'; f.oninput=()=>{ const v=f.value,r=parseInt(v.slice(1,3),16),g=parseInt(v.slice(3,5),16),bb=parseInt(v.slice(5,7),16); ng.wall={id:'color',color:v,dark:(.299*r+.587*g+.114*bb)<140,acc:'auto'}; ngRender() }; f.onchange=closeDD; f.click(); return }
@@ -1713,6 +1788,60 @@ $('#picFile').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(!f)
 $('#picRemove').onclick=async()=>{ try{ if(REAL){ await api('clearAvatar'); await fetchAvatars() } else { if(S.avatar) delete S.avatar[S.me]; save(); applyAvatars(S.avatar||{}); paintAll() } paintSet() }catch(er){ flash(er.message) } };
 setInterval(()=>{ if(REAL) fetchAvatars() },25*60*1000);
 if(!REAL&&S.avatar) applyAvatars(S.avatar);
+/* ================= polls ================= */
+const PRESETS=[['Yes, No, Maybe',['Yes','No','Maybe']],['Yes, No',['Yes','No']],['Attending, Not attending, Maybe',['Attending','Not attending','Maybe']],['Agree, Disagree, Unsure',['Agree','Disagree','Unsure']],['👍 Yes, 👎 No, 🤷 Not sure',['👍 Yes','👎 No','🤷 Not sure']],['Option A, B, C',['Option A','Option B','Option C']]];
+let PL={mid:null,q:'',opts:['Yes','No','Maybe'],multi:false,min:2,gid:null,pre:''};
+function openPoll(edit,prefill){
+  closeMenu();
+  if(edit){ const d=pollDef(edit); PL={mid:edit.id,q:d.q,opts:d.opts.slice(),multi:d.multi,min:d.opts.length,gid:edit.g,pre:''} }
+  else PL={mid:null,q:prefill||'',opts:['Yes','No','Maybe'],multi:false,min:2,gid:cur,pre:prefill||''};
+  $('#pT').textContent=edit?'Edit poll':'New poll';
+  $('#pLead').textContent=edit?'Reword it, add answers, or switch several answers on. Answers can be added but not removed, so nobody\'s answer moves.':'Ask the chat a question. Everyone in it can answer, and change their answer.';
+  $('#pSave').textContent=edit?'Save changes':'Send poll'; $('#pPreW').style.display=edit?'none':'';
+  paintPoll(); $('#ovPoll').classList.add('on'); setTimeout(()=>{ if(!COARSE) $('#pQ').focus() },60) }
+function paintPoll(){
+  $('#pQ').value=PL.q;
+  $('#pPre').innerHTML=PRESETS.map(([n],i)=>`<button type="button" data-pre="${i}">${esc(n)}</button>`).join('');
+  $('#pOpts').innerHTML=PL.opts.map((o,i)=>`<div class="pr"><input data-pi="${i}" value="${esc(o)}" maxlength="80" placeholder="Answer ${i+1}" autocomplete="off">${(PL.opts.length>2&&(!PL.mid||i>=PL.min))?`<button type="button" data-prm="${i}" aria-label="Remove answer ${i+1}">×</button>`:''}</div>`).join('');
+  $('#pAdd').style.display=PL.opts.length>=12?'none':''; $('#pMulti').classList.toggle('on',PL.multi) }
+$('#pQ').addEventListener('input',e=>{ PL.q=e.target.value });
+$('#pOpts').addEventListener('input',e=>{ const i=e.target.dataset.pi; if(i!==undefined) PL.opts[+i]=e.target.value });
+$('#pOpts').addEventListener('click',e=>{ const b=e.target.closest('[data-prm]'); if(!b) return; PL.opts.splice(+b.dataset.prm,1); paintPoll() });
+$('#pAdd').onclick=()=>{ if(PL.opts.length<12){ PL.opts.push(''); paintPoll(); const ins=$$('#pOpts input'); ins[ins.length-1].focus() } };
+$('#pPre').addEventListener('click',e=>{ const b=e.target.closest('[data-pre]'); if(!b) return; PL.opts=PRESETS[+b.dataset.pre][1].slice(); paintPoll() });
+$('#pMulti').onclick=()=>{ PL.multi=!PL.multi; $('#pMulti').classList.toggle('on',PL.multi) };
+$('#pCancel').onclick=()=>$('#ovPoll').classList.remove('on');
+$('#pSave').onclick=async()=>{
+  const q=PL.q.trim(), opts=PL.opts.map(o=>o.trim()).filter(Boolean);
+  if(!q){ flash('Ask a question first'); return } if(opts.length<2){ flash('A poll needs at least two answers'); return }
+  if(PL.mid){ const m=S.msgs.find(x=>x.id==PL.mid); if(m) await savePollEdit(m,{q,opts,multi:PL.multi}); $('#ovPoll').classList.remove('on'); return }
+  const btn=$('#pSave'); btn.disabled=true;
+  try{
+    if(REAL){ const out=await api('createPoll',{gid:PL.gid,question:q,options:opts,multi:PL.multi}); ingestOwn(out.msg) }
+    else { const m={g:PL.gid,u:S.me,x:q,poll:{opts,multi:PL.multi}}; m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); S.read[S.me][PL.gid]=m.id; save(); paintAll(m.id) }
+    if(PL.pre&&inp.value.trim()===PL.pre){ inp.value=''; grow() }
+    $('#ovPoll').classList.remove('on') }
+  catch(er){ flash(er.message) } finally{ btn.disabled=false } };
+async function savePollEdit(m,patch){
+  const d=pollDef(m), next=Object.assign({},d,patch), prev=S.pdef[m.id];
+  S.pdef[m.id]=next; save(); renderThread();
+  if(!REAL) return;
+  try{ const args={mid:m.id}; if(patch.q!==undefined) args.question=patch.q; if(patch.opts!==undefined) args.options=patch.opts; if(patch.multi!==undefined) args.multi=patch.multi; if(patch.closed!==undefined) args.closed=patch.closed;
+    const out=await api('editPoll',args); if(out.def) S.pdef[m.id]=out.def; renderThread() }
+  catch(er){ if(prev) S.pdef[m.id]=prev; else delete S.pdef[m.id]; renderThread(); flash(er.message) } }
+function castVote(mid,i){
+  const m=S.msgs.find(x=>x.id==mid); if(!m||!m.poll) return; const d=pollDef(m); if(d.closed){ flash('This poll is closed'); return }
+  const v=(S.pv[mid]=S.pv[mid]||{}), had=(v[S.me]||[]).slice(); let c;
+  if(d.multi) c=had.includes(i)?had.filter(x=>x!==i):had.concat(i).sort((a,b)=>a-b); else c=had.includes(i)?[]:[i];
+  if(c.length) v[S.me]=c; else delete v[S.me];
+  save(); renderThread();
+  if(REAL) api('vote',{mid,choices:c}).catch(er=>{ if(had.length) v[S.me]=had; else delete v[S.me]; renderThread(); flash(er.message) }) }
+function openVotes(mid){
+  const m=S.msgs.find(x=>x.id==mid); if(!m) return; const d=pollDef(m), v=S.pv[mid]||{}, tot=Object.keys(v).length;
+  $('#vtT').textContent=d.q; $('#vtS').textContent=tot+(tot===1?' person has':' people have')+' answered'+(d.closed?' · closed':'');
+  $('#vtB').innerHTML=d.opts.map((o,i)=>{ const who=Object.entries(v).filter(([u,c])=>c.includes(i)).map(x=>x[0]);
+    return `<div class="vrow"><h5>${esc(o)}<span>${who.length}</span></h5>${who.length?who.map(u=>`<div class="mem">${av(P[u]||{n:'?',c:0})}<div class="d">${esc(P[u]?P[u].n:'Someone')}${u===S.me?' <span style="display:inline;color:var(--gold)">· you</span>':''}</div></div>`).join(''):'<div class="none">No votes</div>'}</div>` }).join('');
+  $('#ovVotes').classList.add('on') }
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
