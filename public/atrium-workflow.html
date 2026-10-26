@@ -429,9 +429,11 @@ function kvPull(key,fallback){
     .then(function(rows){if(rows&&rows.length){lsKvSet(key,rows[0].value);return rows[0].value;}return fallback;})
     .catch(function(){return fallback;});
 }
+var _navStamp=0,_navJson='';
 function kvPush(key,value){
   lsKvSet(key,value);
   var body=[{key:key,value:value,updated_at:new Date().toISOString()}];
+  if(key===NAV_KEY){_navStamp=Date.parse(body[0].updated_at);_navJson=JSON.stringify(value);}
   return fetch(SUPA_URL+'/rest/v1/capital_kv',{method:'POST',headers:Object.assign({},SUPA_H,{Prefer:'resolution=merge-duplicates'}),body:JSON.stringify(body)}).catch(function(){});
 }
 
@@ -541,11 +543,13 @@ function bootApply(r,first){
     if(first) injectIcons();
     if(!WS.profiles) WS.profiles={};
     renderProfileChip();
+    _navJson=JSON.stringify(WS);
     renderRail(); render(); if(first && typeof mgmtLoadProgs==='function') mgmtLoadProgs();
   if(first) window.__atriumPaintMs=Math.round(performance.now());
   if(!first) return;
     backfillNotifIfNeeded().then(function(){ renderNotifBell(); checkAllMeetingNotifications(MEET_CACHE.meetings); });
     setInterval(pollMeetings,6000);
+    setInterval(pollWorkspace,6000);
     setInterval(pollNotifications,6000);
     document.getElementById('themeSeg').addEventListener('click',function(e){
       var b=e.target.closest('[data-t]'); if(!b) return;
@@ -574,6 +578,22 @@ function boot(){
 function seg(){var t=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('#themeSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});}
 function saveWS(){_dirty=true;kvPush(NAV_KEY,WS);}
 
+/* Tasks added from elsewhere (ATRIUM Chat, the Blaze connector, someone else) appear without a reload. Only when the page is idle:
+   no dialog open and nobody typing. A change this page made itself is skipped, so it never overwrites its own latest save. */
+function pollWorkspace(){
+  if(document.hidden) return;
+  var mb=document.getElementById('modalbg'); if(mb&&mb.classList.contains('on')) return;
+  var ae=document.activeElement; if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+  fetch(SUPA_URL+'/rest/v1/capital_kv?key=eq.'+NAV_KEY+'&select=value,updated_at',{headers:SUPA_H}).then(function(r){return r.ok?r.json():null;}).then(function(rows){
+    if(!rows||!rows.length) return;
+    var t=Date.parse(rows[0].updated_at); if(!(t>_navStamp)) return;
+    var j=JSON.stringify(rows[0].value);
+    if(j===_navJson){_navStamp=t;return;}
+    var ae2=document.activeElement; if(ae2&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae2.tagName)) return;
+    lsKvSet(NAV_KEY,rows[0].value); WS=rows[0].value; if(!WS.seq) WS.seq=1; if(!WS.profiles) WS.profiles={};
+    _navJson=j; _navStamp=t; renderRail(); render();
+  }).catch(function(){});
+}
 var MEET_CACHE={meetings:[]};
 function pollMeetings(){
   kvPull(MEET_KEY,null).then(function(v){
