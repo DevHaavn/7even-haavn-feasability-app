@@ -151,6 +151,13 @@ async function myGroups(store, me) {
   const gs = await store.groupsByIds(mine.map((r) => r.group_id))
   return { groups: gs.filter((g) => !g.is_dm).map((g) => ({ id: g.id, n: g.name, proj: g.project || '' })) }
 }
+// The people on a task (by name) are put into the chat the update is going to, so it reaches the whole team. Anyone already in it is left alone.
+async function addTeamToGroup(store, me, a) {
+  const names = new Set((Array.isArray(a.names) ? a.names : []).map((n) => String(n).trim().toLowerCase()))
+  const ids = A.PEOPLE.filter((p) => names.has(p.name.toLowerCase()) && p.id !== me.sub).map((p) => p.id)
+  if (!ids.length) { await mustBeMember(store, a.gid, me); return { added: [] } }
+  return addMembers(store, me, { gid: a.gid, ids })
+}
 // The chat for a project, made from a task: found by its project name, or created with the task's team. People on the task who are not in it yet are added.
 async function groupForProject(store, me, a) {
   const project = String(a.project || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME)
@@ -452,6 +459,7 @@ async function run(action, a, me, deps) {
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
     case 'myGroups': return myGroups(store, me)
+    case 'addTeamToGroup': return addTeamToGroup(store, me, a)
     case 'groupForProject': return groupForProject(store, me, a)
     case 'addMembers': return addMembers(store, me, a)
     case 'renameGroup': return renameGroup(store, me, a)

@@ -171,6 +171,14 @@ describe('tasks and project chats', () => {
     expect(s.msgs.find((m: any) => m.id === msg.id).wf.t).toBe('Facade package')
     await expect(run('send', { gid, body: 'x', wf: 'gone' })).rejects.toThrow(/no longer exists/)
   })
+  it('puts the task team into the chat it is sent to, and leaves people already in it alone', async () => {
+    const { gid } = await run('newGroup', { name: 'Anything', ids: ['ds'] })
+    const r = await run('addTeamToGroup', { gid, names: ['Daniel Sette', 'Lewis Jin', 'Jamie Baldwin', 'Nobody Here'] })
+    expect(r.added).toEqual(['Lewis Jin'])
+    expect((await run('addTeamToGroup', { gid, names: ['Lewis Jin'] })).added).toEqual([])
+    await expect(run('addTeamToGroup', { gid, names: ['Seth Bean'] }, lewis)).resolves.toBeTruthy()
+    await expect(run('addTeamToGroup', { gid: 'nope', names: [] })).rejects.toThrow(/not in/)
+  })
   it('lists my group chats, and makes or finds the project chat with the task team', async () => {
     const a = await run('groupForProject', { project: 'Preston', names: ['Daniel Sette', 'Jamie Baldwin'] })
     expect(a.existing).toBe(false)
