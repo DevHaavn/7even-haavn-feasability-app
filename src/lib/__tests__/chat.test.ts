@@ -152,6 +152,15 @@ describe('people in a chat', () => {
     const s = await run('init', {}, daniel)
     expect(s.groups.map((g: any) => g.dm)).toEqual([true]); expect(s.msgs.map((m: any) => m.x)).toEqual(['Hi Daniel'])
   })
+  it('repairs a direct message shell left behind with nobody in it', async () => {
+    F.t.groups.push({ id: 'gx', name: '', is_dm: true, is_private: true, owner: 'jb', dm_key: 'ds|jb' })
+    const r = await run('newGroup', { ids: ['ds'] })
+    expect(r.gid).toBe('gx'); expect(r.existing).toBe(true)
+    expect((await run('init', {}, jamie)).groups.map((g: any) => g.id)).toEqual(['gx'])
+    expect((await run('init', {}, daniel)).groups).toEqual([])
+    await run('send', { gid: 'gx', body: 'hi' })
+    expect((await run('init', {}, daniel)).groups.length).toBe(1)
+  })
   it('does not add people to a direct message', async () => {
     const { gid } = await run('newGroup', { ids: ['ds'] })
     await expect(run('addMembers', { gid, ids: ['lj'] })).rejects.toThrow(/group/)

@@ -116,6 +116,10 @@ async function snapshot(store, files, me, after, clientV) {
   return out
 }
 
+// The two people of a direct message. Both rows carry the same fields: the database rejects a batch whose rows differ (PGRST102).
+// The other person's row starts hidden: an empty direct message never lands in their list.
+const dmRows = (gid, me, other) => [{ group_id: gid, member: me, is_outside: false, hidden: false, added_by: me }, { group_id: gid, member: other, is_outside: false, hidden: true, added_by: me }]
+
 // Any member can rename a group (not a direct message, which is just the two people). The change is logged in the chat so nobody is surprised.
 async function renameGroup(store, me, a) {
   await mustBeMember(store, a.gid, me)
@@ -191,11 +195,15 @@ async function newGroup(store, me, a) {
     const key = [me.sub, ids[0]].sort().join('|')
     const found = await store.findDm(key)
     // a conversation I took off my list comes straight back
-    if (found) { try { await store.updateMember(found.id, me.sub, { hidden: false, archived: false }) } catch { /* the row may not exist for me; the chat is returned anyway */ } return { gid: found.id, existing: true } }
+    if (found) {
+      try { await store.updateMember(found.id, me.sub, { hidden: false, archived: false }) } catch { /* the row may not exist for me; repaired just below */ }
+      // a chat shell left behind by a failed start has no members: put both people in (rows that exist are left as they are)
+      try { await store.insertMembers(dmRows(found.id, me.sub, ids[0])) } catch { /* the chat is returned anyway */ }
+      return { gid: found.id, existing: true }
+    }
     const g = await store.insertGroup({ name: '', is_dm: true, is_private: true, owner: me.sub, project: null, dm_key: key })
     // the other person sees it only once there is a message: an empty direct message never lands in their list
-    // both rows carry the same fields: the database rejects a batch whose rows differ (PGRST102)
-    await store.insertMembers([{ group_id: g.id, member: me.sub, is_outside: false, hidden: false, added_by: me.sub }, { group_id: g.id, member: ids[0], is_outside: false, hidden: true, added_by: me.sub }])
+    try { await store.insertMembers(dmRows(g.id, me.sub, ids[0])) } catch (e) { try { await store.deleteGroup(g.id) } catch { /* nothing more to do */ } throw e }   // never leave an empty shell
     return { gid: g.id }
   }
   if (!name) throw new ChatError('Give the group a name.')
