@@ -194,7 +194,8 @@ async function newGroup(store, me, a) {
     if (found) { try { await store.updateMember(found.id, me.sub, { hidden: false, archived: false }) } catch { /* the row may not exist for me; the chat is returned anyway */ } return { gid: found.id, existing: true } }
     const g = await store.insertGroup({ name: '', is_dm: true, is_private: true, owner: me.sub, project: null, dm_key: key })
     // the other person sees it only once there is a message: an empty direct message never lands in their list
-    await store.insertMembers([{ group_id: g.id, member: me.sub, is_outside: false, added_by: me.sub }, { group_id: g.id, member: ids[0], is_outside: false, hidden: true, added_by: me.sub }])
+    // both rows carry the same fields: the database rejects a batch whose rows differ (PGRST102)
+    await store.insertMembers([{ group_id: g.id, member: me.sub, is_outside: false, hidden: false, added_by: me.sub }, { group_id: g.id, member: ids[0], is_outside: false, hidden: true, added_by: me.sub }])
     return { gid: g.id }
   }
   if (!name) throw new ChatError('Give the group a name.')

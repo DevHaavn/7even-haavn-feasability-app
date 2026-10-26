@@ -20,7 +20,7 @@ function fake() {
     async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
     async updateGroup(id: string, p: any) { Object.assign(t.groups.find((g) => g.id === id), p) },
     async insertGroup(g: any) { const r = { id: 'g' + ++t.gseq, ...g }; t.groups.push(r); return r },
-    async insertMembers(rows: any[]) { rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
+    async insertMembers(rows: any[]) { const keys = (r: any) => Object.keys(r).sort().join(','); if (rows.some((r) => keys(r) !== keys(rows[0]))) throw new Error('db 400 PGRST102: All object keys must match'); rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
     async updateMember(g: string, m: string, p: any) { Object.assign(t.members.find((x) => x.group_id === g && x.member === m), p) },
     async deleteMember(g: string, m: string) { t.members = t.members.filter((x) => !(x.group_id === g && x.member === m)) },
     async insertMessage(m: any) { const r = { id: ++t.seq, created_at: new Date().toISOString(), ...m }; t.msgs.push(r); return r },
@@ -144,6 +144,13 @@ describe('people in a chat', () => {
     expect(r.order).toEqual([b, a])
     expect((await run('init', {}, daniel)).order).toEqual([b, a])
     expect((await run('init', {}, jamie)).order).toEqual([])
+  })
+  it('a direct message started from search lands with the other person only once a message is sent', async () => {
+    const { gid } = await run('newGroup', { ids: ['ds'] })
+    expect((await run('init', {}, daniel)).groups).toEqual([])
+    await run('send', { gid, body: 'Hi Daniel' })
+    const s = await run('init', {}, daniel)
+    expect(s.groups.map((g: any) => g.dm)).toEqual([true]); expect(s.msgs.map((m: any) => m.x)).toEqual(['Hi Daniel'])
   })
   it('does not add people to a direct message', async () => {
     const { gid } = await run('newGroup', { ids: ['ds'] })
