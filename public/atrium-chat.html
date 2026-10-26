@@ -267,6 +267,13 @@ body.embed #demo{left:calc(50% + 150px)}
 .pills{display:flex}
 .pills .av{width:28px;height:28px;font-size:10px;margin-left:-8px;border:2px solid rgba(70,72,79,.95)}
 /* tile icons (a chat's icon) */
+.ti.wide{width:calc(var(--s)*1.8)}
+.ti.gl{box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 12px rgba(0,0,0,.12),0 6px 16px rgba(0,0,0,.28)}
+.ti.gl::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.08) 42%,rgba(255,255,255,0) 52%);pointer-events:none}
+.ti .gw{display:grid;place-items:center;width:100%;height:100%;filter:drop-shadow(0 0 .7px rgba(255,255,255,.95)) drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.ti.wide .gw,.ti.wide>i{width:100%}
+.it.wide{grid-column:span 2;aspect-ratio:auto;min-width:0}.it.wide .ti{aspect-ratio:2.1/1;width:100%;height:auto;--s:100%}
+.mypic{display:flex;align-items:center;gap:14px;padding:4px 0 16px;flex-wrap:wrap}.mypic .tx{flex:1;min-width:150px}.mypic .tx b{font-weight:400;display:block}.mypic .tx span{display:block;font-size:12.5px;color:var(--faint)}.mypic .btns{display:flex;gap:8px}
 .bub .card .meta{display:flex;flex-wrap:wrap;gap:6px}
 .ti{--s:46px;position:relative;flex:none;display:inline-grid;place-items:center;width:var(--s);height:var(--s);border-radius:calc(var(--s)*.27);overflow:hidden;background-size:cover;background-position:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 4px 14px rgba(0,0,0,.22)}
 .ti i{display:block;background:currentColor;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
@@ -411,7 +418,7 @@ body.embed #demo{left:calc(50% + 150px)}
 .sw36{flex:none;width:36px;height:36px;border-radius:11px;background-size:cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 1px rgba(255,255,255,.16)}
 .ddp{position:fixed;z-index:95;max-height:292px;overflow:auto;padding:12px;border-radius:22px;background:rgba(40,42,47,.985);border:1px solid rgba(255,255,255,.22);box-shadow:0 22px 60px rgba(0,0,0,.55);animation:pop .22s var(--ease);-webkit-overflow-scrolling:touch}
 .ddp[hidden]{display:none}
-.ig6,.wg6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.ig6,.wg6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .it{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px;border-radius:15px;border:2px solid transparent;font-size:10.5px;color:var(--faint);aspect-ratio:1;justify-content:center}
 .it .ti{--s:100%;width:100%;height:auto;aspect-ratio:1;border-radius:27%}
 .it.on{border-color:var(--gold);background:rgba(255,255,255,.06)}
@@ -444,7 +451,7 @@ body.embed #demo{left:calc(50% + 150px)}
 .sheet .iprev{display:flex;align-items:center;gap:16px;padding:6px 0 4px}.sheet .iprev .ti{--s:72px}
 @media(max-width:760px){
  .pair{grid-template-columns:1fr}
- .ig6,.wg6{grid-template-columns:repeat(5,1fr)}
+ .ig6,.wg6{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
 
 .mono.gl{display:block;margin:14px 0 8px}
@@ -585,19 +592,20 @@ body.embed #demo{left:calc(50% + 150px)}
 <div class="ov" id="ovConf"><div class="sheet"><h3 id="cT"></h3><div class="lead" id="cB"></div><div class="row"><button class="cb" id="cNo">Cancel</button><button class="cb go" id="cYes" style="background:linear-gradient(180deg,#ff7a7a,#ef4444);color:#fff;border-color:#ef4444">Confirm</button></div></div></div>
 <div class="ov" id="ovView"><div class="sheet" id="view"><div class="row" style="margin-bottom:12px;align-items:center"><h3 id="vT" style="flex:1;font-size:17px"></h3><button class="cb" id="vX" style="flex:none">Close</button></div><div id="vB"></div></div></div>
 <div class="ov" id="ovWall"><div class="sheet wide">
-  <h3>Wallpaper</h3><div class="lead">Sixteen designs from HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT, HORI7ON, ENTERPRISE and ATRIUM, or your own. Only you see your wallpaper.</div>
+  <h3>Wallpaper</h3><div class="lead">Twenty-four designs from HAAVN, the HAAVN device in eight colours, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT, HORI7ON, ENTERPRISE and ATRIUM, or your own. Only you see your wallpaper.</div>
   <div class="wgs" id="wGrid"></div>
   <div class="mono gl" style="margin-top:16px">Adjust</div>
   <div class="sl"><label>Dim</label><input type="range" id="sDim" min="0" max="80" value="0" aria-label="Dim"></div>
   <div class="sl"><label>Blur</label><input type="range" id="sBlur" min="0" max="14" value="0" aria-label="Blur"></div>
-  <div class="mono gl">Bubble colour</div><div class="dots" id="wAcc"></div>
+  <div class="mono gl">My bubbles</div><div class="dots" id="wAcc"></div>
+  <div class="mono gl">Their bubbles</div><div class="dots" id="wTacc"></div>
   <div class="sw"><div class="l"><b>Use for all my chats on this device</b><span>Only changes how you see them. Others keep their own.</span></div><button class="tg" id="wAll" type="button" aria-label="Use for all my chats"></button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="wReset" type="button">Reset</button><button class="cb go" id="wDone" type="button">Done</button></div>
 </div></div>
 <div class="ov" id="ovIcon"><div class="sheet wide">
   <h3>Chat icon</h3><div class="lead">Everyone in the chat sees it.</div>
   <div class="iprev"><span id="iPrev"></span><div id="iName" style="font-size:16px"></div></div>
-  <div class="mono gl">Eighteen icons from the HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT and ATRIUM brands</div>
+  <div class="mono gl">Nineteen icons from the HAAVN, HAAVN BLACK, 7EVEN, 5IVE, PRO7ECT and ATRIUM brands</div>
   <div class="ig6" id="iGrid"></div>
   <div class="mono gl">Tile colour</div><div class="dots" id="iTiles"></div>
   <div class="row" style="margin-top:14px"><button class="cb go" id="iDone" type="button">Done</button></div>
@@ -607,6 +615,7 @@ body.embed #demo{left:calc(50% + 150px)}
 <div id="menu"></div>
 <div class="ov" id="ovSet"><div class="sheet">
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
+  <div class="mypic"><span id="myPic"></span><div class="tx"><b>Your picture</b><span>Shown beside your messages and on your direct chats</span></div><div class="btns"><button class="cb" id="picChoose" type="button">Choose</button><button class="cb" id="picRemove" type="button">Remove</button></div></div><input type="file" id="picFile" accept="image/*" hidden>
   <div class="sw" style="border:0"><div class="l"><b>Alert sound</b><span>A soft two-note chime when a message lands</span></div><button class="tg on" id="sSnd"></button></div>
   <div class="sw"><div class="l"><b>Red alert on this device</b><span>Banner and badge while ATRIUM is open</span></div><button class="tg on" id="sRed"></button></div>
   <div class="sw"><div class="l"><b>Alerts on this device</b><span>Messages reach this phone or computer even when ATRIUM is closed. Tap, allow, done. On iPhone, add ATRIUM to the Home Screen first and open it from there.</span><span id="pushMsg" style="color:var(--gold);margin-top:4px"></span></div><button class="tg" id="sPush"></button></div>
@@ -650,7 +659,7 @@ const PEOPLE=[
 const P=Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
 const coOf=p=>p.ext?'External':p.e[0].endsWith('@7even.au')?'7EVEN':p.e[0].endsWith('@haavn.au')?'HAAVN':'External';
 const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
-const av=(p,cls)=>`<span class="av ${cls||''}" style="background:${COL[p.c]}">${ini(p.n)}</span>`;
+const av=(p,cls,size)=>{ const sz=size?`width:${size}px;height:${size}px;font-size:${Math.round(size*.34)}px;`:''; return p.img?`<span class="av ${cls||''}" style="${sz}background:url(${p.img}) center/cover"></span>`:`<span class="av ${cls||''}" style="${sz}background:${COL[p.c]}">${ini(p.n)}</span>` };
 const PROJECTS=['Belmont Estate','Corio Quarter','Preston','HAAVN BLACK','Palmerston Crescent','No project'];
 const now=Date.now(), mins=m=>now-m*60000;
 const KEY='atrium-chat-preview-v3';
@@ -738,13 +747,16 @@ const AS=window.ATRIUM_CHAT_ASSETS||{icons:{}}; const AI=AS.icons||{};
 const BG='/atrium-chat-bg/';
 const COARSE=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
 const TILES={lime:{bg:'#A8BC10',fg:'#161713',n:'Lime'},graphite:{bg:'#2c2e2a',fg:'#A8BC10',dark:1,n:'Graphite'},bone:{bg:'#ece7df',fg:'#161713',n:'Bone'},gold:{bg:'#d6b36a',fg:'#1a1408',n:'Gold'},black:{bg:'#0b0b0a',fg:'#d6b36a',dark:1,n:'Black'},sage:{bg:'#7E8076',fg:'#ffffff',dark:1,n:'Sage'},silver:{bg:'#c9cbcf',fg:'#121315',n:'Silver'},carbon:{bg:'#17181a',fg:'#d6d8db',dark:1,n:'Carbon'},
- glass:{bg:'linear-gradient(145deg,#585a61 0%,#1e1f23 52%,#08080a 100%)',fg:'#fafcfb',fgbg:'linear-gradient(160deg,#ffffff 0%,#cfd4d9 48%,#8f959c 100%)',dark:1,n:'Liquid glass'},
- frost:{bg:'linear-gradient(145deg,#ffffff 0%,#dfe3e6 55%,#b6bcc2 100%)',fg:'#202225',fgbg:'linear-gradient(160deg,#5b5f65 0%,#2a2c30 55%,#111214 100%)',n:'Frost'}};
+ glass:{bg:'linear-gradient(145deg,#585a61 0%,#1e1f23 52%,#08080a 100%)',fg:'#fafcfb',fgbg:'linear-gradient(165deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.62) 42%,rgba(255,255,255,.3) 62%,rgba(255,255,255,.8) 100%)',gl:1,dark:1,n:'Smoke glass'},
+ frost:{bg:'linear-gradient(145deg,#ffffff 0%,#dfe3e6 55%,#b6bcc2 100%)',fg:'#202225',fgbg:'linear-gradient(165deg,#6a6e75 0%,#2a2c30 48%,#111214 100%)',gl:1,n:'Frost'},
+ crystal:{bg:'linear-gradient(145deg,#eef8ff 0%,#bde0f7 52%,#82bde6 100%)',fg:'#ffffff',fgbg:'linear-gradient(165deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.62) 42%,rgba(255,255,255,.3) 62%,rgba(255,255,255,.8) 100%)',gl:1,n:'Crystal blue'},
+ bluegl:{bg:'linear-gradient(145deg,#6a9bf7 0%,#3466dc 52%,#1b3a9a 100%)',fg:'#ffffff',fgbg:'linear-gradient(165deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.62) 42%,rgba(255,255,255,.3) 62%,rgba(255,255,255,.8) 100%)',gl:1,dark:1,n:'Blue glass'},
+ sagegl:{bg:'linear-gradient(145deg,#c6d8c5 0%,#8fa98f 52%,#587358 100%)',fg:'#ffffff',fgbg:'linear-gradient(165deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.62) 42%,rgba(255,255,255,.3) 62%,rgba(255,255,255,.8) 100%)',gl:1,n:'Sage glass'}};
 const ICONS=[
  {id:'haavn',n:'HAAVN',def:'graphite'},{id:'hotels',n:'Hotels',fr:1,def:'graphite'},{id:'student',n:'Student',fr:1,def:'lime'},{id:'aged',n:'Aged care',fr:1,def:'bone'},
  {id:'btr',n:'Build to rent',fr:1,def:'graphite'},{id:'afford',n:'Affordable',fr:1,def:'sage'},{id:'data',n:'Data centre',fr:1,def:'black'},{id:'hm',n:'Management',wd:1,wp:76,def:'graphite'},
- {id:'blk',n:'BLACK',def:'glass'},{id:'blkw',n:'BLACK name',wd:1,wp:88,def:'glass'},
- {id:'seven',n:'The 7',def:'black'},{id:'wm7',n:'7EVEN',wd:1,wp:86,def:'black'},{id:'x7',n:'7X',kind:'x7',def:'black'},{id:'five',n:'5IVE',wd:1,wp:80,def:'black'},
+ {id:'blk',n:'BLACK',def:'glass'},{id:'blkw',n:'BLACK name',wd:1,wide:1,wp:84,def:'glass'},{id:'haavnw',n:'HAAVN name',wd:1,wide:1,wp:84,def:'graphite'},
+ {id:'seven',n:'The 7',def:'black'},{id:'wm7',n:'7EVEN name',wd:1,wide:1,wp:84,def:'black'},{id:'x7',n:'7X',kind:'x7',def:'black'},{id:'five',n:'5IVE name',wd:1,wide:1,wp:78,def:'black'},
  {id:'fivev',n:'5IVE V',def:'black'},{id:'five5v',n:'5V',wd:1,wp:66,def:'black'},{id:'p7',n:'PRO7ECT',wd:1,wp:68,def:'carbon'},{id:'atrium',n:'ATRIUM',def:'gold'}];
 const IC={}; ICONS.forEach(i=>IC[i.id]=i);
 const WALLS=[
@@ -759,14 +771,26 @@ const WALLS=[
  {g:'5IVE',id:'five2',n:'5IVE Sunset',s:'Rooftop pool at dusk',dark:true,mine:'#ecd3a0',mineTx:'#2a1d0a',theirs:'rgba(26,19,12,.55)',theirsTx:'#fff',meta:'rgba(255,255,255,.7)',dim:26,blur:0},
  {g:'HORI7ON',id:'hori',n:'HORI7ON',s:'Night sky, gold horizon',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:0,blur:0},
  {g:'ENTERPRISE',id:'ent',n:'ENTERPRISE',s:'Gold E on warm black',dark:true,mine:'linear-gradient(180deg,#e4c887,#c9a255)',mineTx:'#1a1408',theirs:'rgba(255,255,255,.09)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvsage',n:'Soft sage',s:'The HAAVN device, soft',dark:false,mine:'#23252a',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#5a5d56',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvmist',n:'Soft mist',s:'The HAAVN device, soft',dark:false,mine:'#23252a',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#5a5d56',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvstone',n:'Soft stone',s:'The HAAVN device, soft',dark:false,mine:'#23252a',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#5a5d56',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvblush',n:'Soft blush',s:'The HAAVN device, soft',dark:false,mine:'#23252a',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'#5a5d56',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvlime',n:'Bright lime',s:'The HAAVN device, bright',dark:false,mine:'#161713',mineTx:'#A8BC10',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'rgba(255,255,255,.85)',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvcobalt',n:'Bright cobalt',s:'The HAAVN device, bright',dark:false,mine:'#14161a',mineTx:'#ffffff',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'rgba(255,255,255,.85)',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvsun',n:'Bright sun',s:'The HAAVN device, bright',dark:false,mine:'#1d1208',mineTx:'#ffd7a3',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'rgba(255,255,255,.85)',dim:0,blur:0},
+ {g:'HAAVN Device',id:'dvcoral',n:'Bright coral',s:'The HAAVN device, bright',dark:false,mine:'#2a0f0b',mineTx:'#ffd9d3',theirs:'#ffffff',theirsTx:'#1b1c19',meta:'rgba(255,255,255,.85)',dim:0,blur:0},
  {g:'HAAVN BLACK',id:'blkg',n:'Liquid glass H',s:'The BLACK device in glass',dark:true,mine:'#eef1f3',mineTx:'#101113',theirs:'rgba(255,255,255,.1)',theirsTx:'#f4f6f7',meta:'rgba(244,246,247,.62)',dim:0,blur:0},
  {g:'HAAVN BLACK',id:'blkw',n:'BLACK wordmark',s:'The HAAVN BLACK name, tiled',dark:true,mine:'#eef1f3',mineTx:'#101113',theirs:'rgba(255,255,255,.1)',theirsTx:'#f4f6f7',meta:'rgba(244,246,247,.62)',dim:0,blur:0},
  {g:'HAAVN BLACK',id:'blks',n:'BLACK sunset',s:'The display opening, at sunset',dark:true,mine:'#f1f3f4',mineTx:'#101113',theirs:'rgba(14,15,17,.58)',theirsTx:'#fff',meta:'rgba(255,255,255,.72)',dim:24,blur:0},
  {g:'HAAVN BLACK',id:'blkn',n:'BLACK night',s:'The same house after dark',dark:true,mine:'#f1f3f4',mineTx:'#101113',theirs:'rgba(14,15,17,.58)',theirsTx:'#fff',meta:'rgba(255,255,255,.72)',dim:14,blur:0},
  {g:'PRO7ECT',id:'p7',n:'PRO7ECT',s:'Carbon weave, silver P7',dark:true,mine:'linear-gradient(180deg,#eceef0,#b4b8bd)',mineTx:'#121315',theirs:'rgba(18,19,21,.62)',theirsTx:'#fff',meta:'rgba(255,255,255,.62)',dim:0,blur:0}];
-const GO=['HAAVN','HAAVN BLACK','7EVEN','ATRIUM','5IVE','HORI7ON','ENTERPRISE','PRO7ECT']; WALLS.sort((x,y)=>GO.indexOf(x.g)-GO.indexOf(y.g));
+const GO=['HAAVN','HAAVN Device','HAAVN BLACK','7EVEN','ATRIUM','5IVE','HORI7ON','ENTERPRISE','PRO7ECT']; WALLS.sort((x,y)=>GO.indexOf(x.g)-GO.indexOf(y.g));
 const WL={}; WALLS.forEach(w=>WL[w.id]=w);
-const ACC={auto:{n:'Auto'},lime:{c:'#A8BC10',t:'#161713',n:'Lime'},gold:{c:'#d6b36a',t:'#1a1408',n:'Gold'},bone:{c:'#f1ede4',t:'#23252a',n:'Bone'},bronze:{c:'#8f5f33',t:'#ffffff',n:'Bronze'}};
+const ACC={auto:{n:'Auto'},lime:{c:'#A8BC10',t:'#161713',n:'Lime'},gold:{c:'#d6b36a',t:'#1a1408',n:'Gold'},bone:{c:'#f1ede4',t:'#23252a',n:'Bone'},bronze:{c:'#8f5f33',t:'#ffffff',n:'Bronze'},
+ black:{c:'#0f1012',t:'#ffffff',n:'Black'},graphite:{c:'#46484e',t:'#ffffff',n:'Graphite'},grey:{c:'#d9dbde',t:'#1b1c1f',n:'Grey'},
+ crystal:{c:'linear-gradient(180deg,#e3f3ff,#b5dbf6)',t:'#0b2236',n:'Crystal blue'},blue:{c:'linear-gradient(180deg,#3b70e8,#2552c8)',t:'#ffffff',n:'Blue'},
+ sage:{c:'#b9cdb9',t:'#142018',n:'Sage'},sagedeep:{c:'#5e7a62',t:'#ffffff',n:'Deep sage'}};
+const TACC={auto:{n:'Auto'},glass:{c:'rgba(255,255,255,.16)',t:'#ffffff',n:'Glass'},white:{c:'#ffffff',t:'#1b1c19',n:'White'},black:{c:'#16171a',t:'#f4f5f6',n:'Black'},crystal:{c:'#d6ecfc',t:'#0b2236',n:'Crystal blue'},sage:{c:'#cfdccf',t:'#142018',n:'Sage'},grey:{c:'#dee0e4',t:'#1b1c1f',n:'Grey'}};
 const cache={}; let uq=0;
 const uniq=v=>{const n=++uq;return v.replace(/\b(dv|dw)(\d+)\b/g,'$1$2u'+n)};
 const svgUri=t=>'data:image/svg+xml;utf8,'+encodeURIComponent(t).replace(/[!'()*]/g,c=>'%'+c.charCodeAt(0).toString(16).toUpperCase());
@@ -808,6 +832,14 @@ function wallCSS(id){
    case 'five2':return {bg:`url(${BG}five-pool.jpg)`,size:'cover',base:'#2a1c12'};
    case 'hori':return {bg:`linear-gradient(180deg,transparent calc(74% - .5px),rgba(214,179,106,.6) 74%,transparent calc(74% + 1.5px)), radial-gradient(1100px 360px at 50% 74%,rgba(214,179,106,.30),transparent 70%), url(${AS.t_hori}), linear-gradient(180deg,#07080a 0%,#0d0e11 52%,#1b160d 74%,#0a0908 74.3%,#050505 100%)`,size:'auto,auto,580px 300px,auto',tsize:'auto,auto,290px 150px,auto',repeat:'no-repeat,no-repeat,repeat,no-repeat',pos:'0 0,0 0,0 0,0 0',base:'#07080a'};
    case 'ent':return {bg:`url(${AS.e_glyph}), radial-gradient(800px 520px at 8% 108%,rgba(214,179,106,.20),transparent 66%), url(${AS.t_ent}), linear-gradient(160deg,#18150f,#0a0908 70%)`,size:'min(74%,460px) auto,auto,580px 220px,auto',tsize:'80% auto,auto,290px 110px,auto',repeat:'no-repeat,no-repeat,repeat,no-repeat',pos:'92% 58%,0 0,0 0,0 0',base:'#0d0b08'};
+   case 'dvsage':return {bg:`url(${AS.t_dvsage})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#e3e9df'};
+   case 'dvmist':return {bg:`url(${AS.t_dvmist})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#e4edf5'};
+   case 'dvstone':return {bg:`url(${AS.t_dvstone})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#ece8e1'};
+   case 'dvblush':return {bg:`url(${AS.t_dvblush})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#f4e8e5'};
+   case 'dvlime':return {bg:`url(${AS.t_dvlime})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#A8BC10'};
+   case 'dvcobalt':return {bg:`url(${AS.t_dvcobalt})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#2f5fd7'};
+   case 'dvsun':return {bg:`url(${AS.t_dvsun})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#f08a24'};
+   case 'dvcoral':return {bg:`url(${AS.t_dvcoral})`,size:'300px 240px',tsize:'150px 120px',repeat:'repeat',pos:'0 0',base:'#e5533f'};
    case 'blkg':return {bg:`url(${AS.blk_glass}), radial-gradient(900px 650px at 72% 52%,rgba(255,255,255,.07),transparent 66%), linear-gradient(160deg,#18191c,#060607 72%)`,size:'min(520px,68%) auto,auto,auto',tsize:'auto 112%,auto,auto',repeat:'no-repeat,no-repeat,no-repeat',pos:'94% 54%,0 0,0 0',base:'#09090a'};
    case 'blkw':return {bg:`url(${AS.t_blkw}), radial-gradient(900px 600px at 20% 110%,rgba(255,255,255,.06),transparent 65%), linear-gradient(170deg,#141517,#050506)`,size:'620px 230px,auto,auto',tsize:'310px 115px,auto,auto',repeat:'repeat,no-repeat,no-repeat',pos:'0 0,0 0,0 0',base:'#09090a'};
    case 'blks':return {bg:`url(${BG}blk-sunset.jpg)`,size:'cover',pos:'38% 50%',base:'#1b1510'};
@@ -829,10 +861,11 @@ function tile(ic,size,extra){
   const t=TILES[ic.tile||d.def]||TILES.graphite;
   if(d.kind==='x7') return `<span class="ti x7 ${extra||''}" style="--s:${s}px;background:${t.bg}">${AI.x7_dark?uniq(t.dark?AI.x7_dark:AI.x7_light):''}</span>`;
   const m=AI[d.id]; if(!m) return `<span class="ti ini ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${esc(d.n.slice(0,2))}</span>`;
-  return `<span class="ti ${d.fr?'fr':d.wd?'wd':'sq'} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}"><i style="${t.fgbg?`background:${t.fgbg};`:''}-webkit-mask-image:url(${m.uri});mask-image:url(${m.uri});${d.wd?`width:${d.wp||76}%;aspect-ratio:${m.w}/${m.h};height:auto`:''}"></i></span>`}
+  const gi=`<i style="${t.fgbg?`background:${t.fgbg};`:''}-webkit-mask-image:url(${m.uri});mask-image:url(${m.uri});${d.wd?`width:${d.wp||76}%;aspect-ratio:${m.w}/${m.h};height:auto`:''}"></i>`;
+  return `<span class="ti ${d.fr?'fr':d.wd?'wd':'sq'} ${d.wide?'wide':''} ${t.gl?'gl':''} ${extra||''}" style="--s:${s}px;background:${t.bg};color:${t.fg}">${t.gl?`<span class="gw">${gi}</span>`:gi}</span>`}
 function gIcon(g,size){ // a chat's icon: the other person for a direct message, the chosen icon for a group, initials until one is chosen
   const s=size||44;
-  if(g.dm){const w=P[g.m.find(x=>x!==S.me)]||me(); return `<span class="ti ini dm" style="--s:${s}px;background:${COL[w.c]}">${ini(w.n)}</span>`}
+  if(g.dm){const w=P[g.m.find(x=>x!==S.me)]||me(); return w.img?`<span class="ti dm" style="--s:${s}px;background:url(${w.img}) center/cover"></span>`:`<span class="ti ini dm" style="--s:${s}px;background:${COL[w.c]}">${ini(w.n)}</span>`}
   const ic=S.icons[g.id]; if(ic){const t=tile(ic,s); if(t) return t}
   return `<span class="ti ini" style="--s:${s}px;background:${COL[(g.id.charCodeAt(1)||0)%7]}">${ini(g.n)}</span>`}
 
@@ -851,10 +884,11 @@ function applyWall(gid){
   w1.style.background=css.bg; w1.style.backgroundSize=css.size; w1.style.backgroundRepeat=css.repeat||'no-repeat'; w1.style.backgroundPosition=css.pos||'center'; w1.style.backgroundColor=css.base; w1.style.filter=blur?`blur(${blur}px)`:'none';
   $('#dim').style.opacity=dim/100; $('#wall').style.background=css.base;
   let mine=tk.mine,mineTx=tk.mineTx; if(w.acc&&ACC[w.acc]&&w.acc!=='auto'){mine=ACC[w.acc].c;mineTx=ACC[w.acc].t}
+  const tacc=(w.tacc&&TACC[w.tacc]&&w.tacc!=='auto')?TACC[w.tacc]:null;
   const dark=tk.dark||dim>=45, st=th.style; th.classList.toggle('lt',!dark);
   st.setProperty('--mine',mine); st.setProperty('--mineTx',mineTx);
   const dd=dark&&!tk.dark; // a light wallpaper dimmed dark
-  st.setProperty('--theirs',dd?'rgba(22,20,18,.55)':tk.theirs); st.setProperty('--theirsTx',dd?'#fff':tk.theirsTx); st.setProperty('--meta',dd?'rgba(255,255,255,.7)':tk.meta);
+  st.setProperty('--theirs',tacc?tacc.c:(dd?'rgba(22,20,18,.55)':tk.theirs)); st.setProperty('--theirsTx',tacc?tacc.t:(dd?'#fff':tk.theirsTx)); st.setProperty('--meta',dd?'rgba(255,255,255,.7)':tk.meta);
   if(dark) st.setProperty('--hdr','rgba(28,30,34,.58)'); else st.removeProperty('--hdr');
 }
 function wallSwatch(w,gid){
@@ -884,8 +918,12 @@ function routeStyle(m){ // rows that are not messages: reactions, icons, a perso
   if(m.k==='react') applyRx(m.re,m.u,m.e,m.on);
   else if(m.k==='icon'){ if(m.icon) S.icons[m.g]=m.icon }
   else if(m.k==='wall'){ if(m.wall&&m.u===S.me){ S.walls[m.g]=m.wall; STY.walls[m.g]=m.wall } }
+  else if(m.k==='avatar') needAv=true;
   styleTick++; return true }
-let styleTick=0;
+let styleTick=0, needAv=false, AVMAP={};
+/* people's pictures: stored privately, signed links handed out with the people list, refreshed when someone changes theirs */
+function applyAvatars(map){ if(map) AVMAP=map; PEOPLE.forEach(p=>{ if(AVMAP[p.id]) p.img=AVMAP[p.id]; else delete p.img }) }
+async function fetchAvatars(){ if(!REAL) return; try{ const j=await api('avatars'); AVMAP=j.avatars||{}; applyAvatars(); paintAll() }catch(e){} }
 function reactTo(mid,e){
   const had=((S.rx[mid]||{})[e]||[]).includes(S.me), on=!had;
   applyRx(mid,S.me,e,on); recentEmoji(e); save(); renderThread();
@@ -958,7 +996,7 @@ function renderList(){
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
   document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
   if(EMB) try{parent.postMessage({atriumChat:'count',n:tu,t:ot},'*')}catch(e){}
-  $('#meAv').outerHTML=`<span class="av" id="meAv" style="width:34px;height:34px;background:${COL[me().c]}">${ini(me().n)}</span>`;
+  $('#meAv').outerHTML=av(me(),'',34).replace('<span ','<span id="meAv" ');
   $('#sndBtn').classList.toggle('off',!S.snd);
 }
 const tmf=t=>new Date(t).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'}).replace(/\s/g,'').toLowerCase();
@@ -1321,6 +1359,7 @@ function flash(t){ const el=document.createElement('div'); el.className='toast';
 function applyReal(j){
   if(j.style){ Object.assign(S.icons,j.style.icons||{}); Object.entries(j.style.walls||{}).forEach(([g,w])=>{ S.walls[g]=w; STY.walls[g]=w }) }
   PEOPLE.length=0; j.people.forEach(p=>PEOPLE.push(p)); Object.keys(P).forEach(k=>delete P[k]); PEOPLE.forEach(p=>{P[p.id]=p});
+  if(j.avatars) AVMAP=j.avatars; applyAvatars();
   S.me=j.me.id; S.groups=j.groups; S.muted=j.state.muted; S.arch=j.state.arch; S.gone=j.state.gone; S.ext=[];
   S.read[S.me]=S.read[S.me]||{}; Object.keys(j.read).forEach(g=>{S.read[S.me][g]=Math.max(S.read[S.me][g]||0,j.read[g])});
 }
@@ -1340,6 +1379,7 @@ function ingestOwn(m){ if(!S.msgs.some(x=>x.id===m.id)) S.msgs.push(m); S.read[S
 async function refresh(force){
   const j=await api('poll',{since:cursor}); if(j.setup===false) return;
   const st0=styleTick; applyReal(j); let fresh=0; j.msgs.forEach(m=>{ if(ingestReal(m)) fresh++ }); cursor=Math.max(cursor,j.cursor||0);
+  if(needAv){ needAv=false; fetchAvatars() }
   const sig=JSON.stringify([j.groups,j.state,j.people.length]);
   if(force||fresh||sig!==lastSig||styleTick!==st0){ lastSig=sig; if(!active().some(g=>g.id===cur)&&!mine().some(g=>g.id===cur)){const f=active()[0];cur=f?f.id:null} paintAll() }
 }
@@ -1405,7 +1445,8 @@ $('#gSave').onclick=()=>{const n=$('#gName').value.trim(); const r=gPk.get();
   const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...r.ids,...ext],owner:S.me,proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); closeDD(); applyNewStyle(g.id); open(g.id)};
 /* settings */
 const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
-function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',k==='push'&&REAL?pushOn:!!S[k]));
+function paintSet(){ if($('#myPic')) $('#myPic').innerHTML=av(me(),'',56);
+  $('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',k==='push'&&REAL?pushOn:!!S[k]));
   $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
 Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{ if(k==='push'&&REAL){ toggleAlerts(); return } S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
 $('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on'); if(REAL) refreshAlerts()};
@@ -1483,7 +1524,8 @@ function paintWall(){
   h+=`<div class="mono gl">Yours</div><div class="wg3"><button type="button" class="wt3 up ${w.id==='custom'?'on':''}" data-w="custom" style="${w.id==='custom'?wallSwatch(w,gid):''}">${w.id==='custom'?'Your picture':up+'Add your own<br>picture'}</button><button type="button" class="wt3 up ${w.id==='color'?'on':''}" data-w="color" style="${w.id==='color'?wallSwatch(w):''}">${w.id==='color'?'':'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg>A solid<br>colour'}</button></div>`;
   $('#wGrid').innerHTML=h;
   $('#sDim').value=w.dim!=null?w.dim:(base?base.dim:(w.id==='custom'?18:0)); $('#sBlur').value=w.blur!=null?w.blur:(base?base.blur:0);
-  $('#wAcc').innerHTML=Object.entries(ACC).map(([k,a])=>`<button type="button" class="dot ${(w.acc||'auto')===k?'on':''}" data-a="${k}" style="background:${a.c||'linear-gradient(135deg,#d6b36a,#A8BC10)'}" aria-label="${a.n}"></button>`).join('');
+  $('#wAcc').innerHTML=Object.entries(ACC).map(([k,a])=>`<button type="button" class="dot ${(w.acc||'auto')===k?'on':''}" data-a="${k}" style="background:${a.c||'linear-gradient(135deg,#d6b36a,#A8BC10)'}" aria-label="${a.n}" title="${a.n}"></button>`).join('');
+  $('#wTacc').innerHTML=Object.entries(TACC).map(([k,a])=>`<button type="button" class="dot ${(w.tacc||'auto')===k?'on':''}" data-ta="${k}" style="background:${a.c||'linear-gradient(135deg,#7a7d85,#e8e9eb)'};${k==='white'||k==='crystal'||k==='grey'||k==='sage'?'':'box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)'}" aria-label="${a.n}" title="${a.n}"></button>`).join('');
   $('#wAll').classList.toggle('on',!!STY.wallAll) }
 $('#wGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(!b) return; const id=b.dataset.w, gid=cur;
   if(id==='custom'){ const f=document.createElement('input'); f.type='file'; f.accept='image/*'; f.onchange=()=>{ const file=f.files[0]; if(!file) return; downscale(file,1500,.78,(u,cv)=>{ const br=brightness(cv); setWall(gid,{id:'custom',img:u,dark:br<140,dim:br>=140?0:18,blur:0,acc:'auto'}); paintWall() }) }; f.click(); return }
@@ -1492,6 +1534,7 @@ $('#wGrid').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); 
 $('#sDim').oninput=e=>{ setWall(cur,Object.assign({},wallOf(cur),{dim:+e.target.value})) };
 $('#sBlur').oninput=e=>{ setWall(cur,Object.assign({},wallOf(cur),{blur:+e.target.value})) };
 $('#wAcc').addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(!b) return; setWall(cur,Object.assign({},wallOf(cur),{acc:b.dataset.a})); paintWall() });
+$('#wTacc').addEventListener('click',e=>{ const b=e.target.closest('[data-ta]'); if(!b) return; setWall(cur,Object.assign({},wallOf(cur),{tacc:b.dataset.ta})); paintWall() });
 $('#wAll').onclick=()=>{ if(STY.wallAll){ delete STY.img.all; STY.wallAll=null } else { STY.wallAll=Object.assign({},wallOf(cur)); if(STY.wallAll.id==='custom') STY.img.all=STY.img[cur] } saveSty(); paintWall(); applyWall(cur); flash(STY.wallAll?'This wallpaper is on all your chats on this device':'Back to a wallpaper for each chat') };
 $('#wReset').onclick=()=>{ STY.wallAll=null; setWall(cur,{id:'atrium',acc:'auto'}); paintWall() };
 $('#wDone').onclick=()=>$('#ovWall').classList.remove('on');
@@ -1499,7 +1542,7 @@ $('#wDone').onclick=()=>$('#ovWall').classList.remove('on');
 /* ---- icon sheet: the chat's icon, sixteen brand icons, any picture ---- */
 function iconGridHtml(curIcon){
   const up='<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.4"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg>';
-  return ICONS.map(d=>`<button type="button" class="it ${curIcon&&curIcon.id===d.id&&!curIcon.img?'on':''}" data-i="${d.id}" title="${esc(d.n)}" aria-label="${esc(d.n)}">${tile({id:d.id,tile:(curIcon&&curIcon.id===d.id&&curIcon.tile)?curIcon.tile:d.def},46)}</button>`).join('')+`<button type="button" class="it up ${curIcon&&curIcon.img?'on':''}" data-i="img" title="Your picture" aria-label="Your own picture"><span class="ti" style="--s:100%;${curIcon&&curIcon.img?`background-image:url(${curIcon.img});border:0`:''}">${curIcon&&curIcon.img?'':up}</span></button>` }
+  return ICONS.map(d=>`<button type="button" class="it ${d.wide?'wide':''} ${curIcon&&curIcon.id===d.id&&!curIcon.img?'on':''}" data-i="${d.id}" title="${esc(d.n)}" aria-label="${esc(d.n)}">${tile({id:d.id,tile:(curIcon&&curIcon.id===d.id&&curIcon.tile)?curIcon.tile:d.def},46)}</button>`).join('')+`<button type="button" class="it up ${curIcon&&curIcon.img?'on':''}" data-i="img" title="Your picture" aria-label="Your own picture"><span class="ti" style="--s:100%;${curIcon&&curIcon.img?`background-image:url(${curIcon.img});border:0`:''}">${curIcon&&curIcon.img?'':up}</span></button>` }
 function tileDotsHtml(curIcon){ return Object.entries(TILES).map(([k,t])=>`<button type="button" class="dot ${curIcon&&curIcon.tile===k&&!curIcon.img?'on':''}" data-t="${k}" style="background:${t.bg}" aria-label="${t.n}"><span style="display:block;width:12px;height:12px;border-radius:50%;background:${t.fg}"></span></button>`).join('') }
 function pickIconImage(cb){ const f=document.createElement('input'); f.type='file'; f.accept='image/*'; f.onchange=()=>{ const file=f.files[0]; if(file) squareIcon(file,160,.72,u=>cb({img:u})) }; f.click() }
 function openIcon(){ const g=S.groups.find(x=>x.id===cur); if(!g||g.dm) return; closeMenu(); $('#ovIcon').classList.add('on'); paintIcon() }
@@ -1552,6 +1595,18 @@ $('#wpBtn').onclick=openWall;
 $('#hIcon').onclick=()=>{ const g=S.groups.find(x=>x.id===cur); if(g&&!g.dm) openIcon() };
 $('#hTitle').onclick=()=>{ pane='about'; $('#side').classList.add('open'); document.body.classList.add('side-on'); renderPane(); const st=$('#sideT'); if(st) st.textContent='This chat' };
 
+/* ---- your picture ---- */
+$('#picChoose').onclick=()=>$('#picFile').click();
+$('#picFile').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  squareIcon(f,192,.8,async u=>{
+    try{
+      if(REAL){ const blob=await (await fetch(u)).blob(); const s1=await api('signAvatar'); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:blob}); if(!r.ok) throw new Error('The picture did not upload. Try again.'); await api('setAvatar',{path:s1.path}); await fetchAvatars() }
+      else { S.avatar=S.avatar||{}; S.avatar[S.me]=u; save(); applyAvatars(S.avatar); paintAll() }
+      paintSet(); flash('Your picture is set') }
+    catch(er){ flash(er.message||'The picture could not be saved') } }) };
+$('#picRemove').onclick=async()=>{ try{ if(REAL){ await api('clearAvatar'); await fetchAvatars() } else { if(S.avatar) delete S.avatar[S.me]; save(); applyAvatars(S.avatar||{}); paintAll() } paintSet() }catch(er){ flash(er.message) } };
+setInterval(()=>{ if(REAL) fetchAvatars() },25*60*1000);
+if(!REAL&&S.avatar) applyAvatars(S.avatar);
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;

@@ -24,20 +24,22 @@ function person(id) {
 }
 // Rows that are not messages: a reaction, a chat icon, one person's wallpaper. They live in the same table (no schema change needed) and travel in the same
 // stream, so a poll brings them to everyone; the screen folds them into the chat and never lists them as messages.
-const STYLE_KINDS = ['react', 'icon', 'wall']
+const STYLE_KINDS = ['react', 'icon', 'wall', 'avatar']
 function shapeMsg(m) {
   const base = { id: m.id, g: m.group_id, u: m.sender, t: Date.parse(m.created_at) }
   if (m.kind === 'react') return { ...base, k: 'react', re: Number(m.task && m.task.re) || 0, e: m.body || '', on: !(m.task && m.task.on === false) }
   if (m.kind === 'icon') return { ...base, k: 'icon', icon: (m.task && m.task.icon) || null }
   if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
+  if (m.kind === 'avatar') return { ...base, k: 'avatar' }
   return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
 }
 
 // What a chat icon, a wallpaper and a reaction may hold. Checked here, so nothing odd is ever stored.
-const ICON_IDS = ['blk', 'blkw', 'haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
-const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon', 'glass', 'frost']
-const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'blkg', 'blkw', 'blks', 'blkn', 'color', 'custom']
-const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze']
+const ICON_IDS = ['blk', 'blkw', 'haavnw', 'haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
+const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon', 'glass', 'frost', 'crystal', 'bluegl', 'sagegl']
+const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'blkg', 'blkw', 'blks', 'blkn', 'dvsage', 'dvmist', 'dvstone', 'dvblush', 'dvlime', 'dvcobalt', 'dvsun', 'dvcoral', 'color', 'custom']
+const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze', 'black', 'graphite', 'grey', 'crystal', 'blue', 'sage', 'sagedeep']
+const TACC_IDS = ['auto', 'glass', 'white', 'black', 'crystal', 'sage', 'grey']
 const MAX_ICON_IMG = 24000
 function cleanIcon(i) {
   if (i && typeof i.img === 'string') {
@@ -57,6 +59,7 @@ function cleanWall(w) {
   if (dim !== undefined) out.dim = dim
   if (blur !== undefined) out.blur = blur
   if (ACC_IDS.includes(w.acc)) out.acc = w.acc
+  if (TACC_IDS.includes(w.tacc)) out.tacc = w.tacc
   return out
 }
 
@@ -74,7 +77,8 @@ async function snapshot(store, files, me, after, clientV) {
   const ids = live.map((r) => r.group_id)
   const out = { me: { id: me.sub, n: me.name, e: me.emails, role: me.role }, groups: [], msgs: [], state: { muted: {}, arch: {}, gone: {} }, read: {}, people: PEOPLE.map((p) => person(p.id)) }
   mine.forEach((r) => { const k = me.sub + r.group_id; if (r.muted) out.state.muted[k] = 1; if (r.archived) out.state.arch[k] = 1; if (r.hidden) out.state.gone[k] = 1; out.read[r.group_id] = Number(r.last_read) || 0 })
-  if (!ids.length) { out.cursor = Number(after) || 0; return out }
+  if (!ids.length) { out.cursor = Number(after) || 0; if (!after) out.avatars = await avatarUrls(files).catch(() => ({})); return out }
+  const avatarsP = !after ? avatarUrls(files).catch(() => ({})) : null
   const [groups, members, msgs] = await Promise.all([store.groupsByIds(ids), store.membersByGroups(ids), store.messagesFor(ids, { after: after || 0, limit: after ? 400 : 700 })])
   const memberOf = {}
   members.forEach((r) => { (memberOf[r.group_id] = memberOf[r.group_id] || []).push(r.member) })
@@ -102,6 +106,7 @@ async function snapshot(store, files, me, after, clientV) {
     list.forEach((m) => (m.files || []).forEach((f) => { if (f.path && urls[f.path]) f.url = urls[f.path] }))
   }
   out.msgs = list
+  if (avatarsP) out.avatars = await avatarsP
   out.cursor = msgs.reduce((a, m) => Math.max(a, m.id), Number(after) || 0)   // counts the rows left out of the list too, so they are not fetched again
   return out
 }
@@ -277,6 +282,53 @@ async function setWall(store, me, a) {
   return { ok: true, id: row.id, wall }
 }
 
+// A person's picture: a small JPEG in the private store, one per person (the newest wins), handed out as short-lived links with the people list.
+const AVATAR_RE = /^([a-z0-9]+)-(\d+)\.jpg$/
+const MAX_AVATAR_BYTES = 600 * 1024
+async function avatarUrls(files) {
+  const rows = await files.list('avatars')
+  const latest = {}
+  for (const o of rows || []) {
+    const m = AVATAR_RE.exec(o.name || ''); if (!m) continue
+    if (o.metadata && Number(o.metadata.size) > MAX_AVATAR_BYTES) continue
+    const t = Number(m[2]); if (!latest[m[1]] || t > latest[m[1]].t) latest[m[1]] = { t, path: 'avatars/' + o.name }
+  }
+  const paths = Object.values(latest).map((x) => x.path)
+  const urls = paths.length ? await files.signDownloads(paths) : {}
+  const out = {}
+  Object.entries(latest).forEach(([id, x]) => { if (urls[x.path]) out[id] = urls[x.path] })
+  return out
+}
+async function signAvatar(files, me) {
+  const path = `avatars/${me.sub}-${Date.now()}.jpg`
+  return { path, ...(await files.signUpload(path)) }
+}
+// Tell the people in my chats that my picture changed (a tiny row in each, so their screens fetch the new one).
+async function announceAvatar(store, me) {
+  const mine = (await store.memberRowsFor(me.sub)).filter((r) => !r.hidden).slice(0, 40)
+  for (const r of mine) { try { await store.insertMessage({ group_id: r.group_id, sender: me.sub, kind: 'avatar', body: '', task: null, files: [] }) } catch { /* a missed announcement only delays the picture */ } }
+}
+async function setAvatar(store, files, me, a) {
+  const path = String(a.path || '')
+  if (!path.startsWith(`avatars/${me.sub}-`) || !AVATAR_RE.test(path.slice('avatars/'.length))) throw new ChatError('That picture is not yours to set.', 403)
+  const rows = await files.list('avatars')
+  const mineRows = (rows || []).filter((o) => String(o.name || '').startsWith(me.sub + '-'))
+  const me_ = mineRows.find((o) => 'avatars/' + o.name === path)
+  if (!me_) throw new ChatError('The picture did not arrive. Try again.')
+  if (me_.metadata && Number(me_.metadata.size) > MAX_AVATAR_BYTES) { await files.remove([path]); throw new ChatError('That picture is too large. Pick a smaller one.') }
+  const old = mineRows.filter((o) => 'avatars/' + o.name !== path).map((o) => 'avatars/' + o.name)
+  if (old.length) { try { await files.remove(old) } catch { /* older ones are only clutter */ } }
+  await announceAvatar(store, me)
+  return { ok: true }
+}
+async function clearAvatar(store, files, me) {
+  const rows = await files.list('avatars')
+  const mine = (rows || []).filter((o) => String(o.name || '').startsWith(me.sub + '-')).map((o) => 'avatars/' + o.name)
+  if (mine.length) await files.remove(mine)
+  await announceAvatar(store, me)
+  return { ok: true }
+}
+
 async function signUpload(store, files, me, a) {
   await mustBeMember(store, a.gid, me)
   const size = Number(a.size) || 0
@@ -337,6 +389,10 @@ async function run(action, a, me, deps) {
     case 'deleteGroup': return deleteGroup(store, files, me, a)
     case 'taskDone': return taskDone(store, kv, me, a)
     case 'signUpload': return signUpload(store, files, me, a)
+    case 'avatars': return { avatars: await avatarUrls(files) }
+    case 'signAvatar': return signAvatar(files, me)
+    case 'setAvatar': return setAvatar(store, files, me, a)
+    case 'clearAvatar': return clearAvatar(store, files, me)
     case 'react': return react(store, me, a)
     case 'setIcon': return setIcon(store, me, a)
     case 'setWall': return setWall(store, me, a)

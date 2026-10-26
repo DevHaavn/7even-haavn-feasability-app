@@ -15,7 +15,7 @@ function fake() {
     async memberRowsFor(m: string) { return t.members.filter((r) => r.member === m).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
     async membersByGroups(ids: string[]) { return t.members.filter((r) => ids.includes(r.group_id)).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
-    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall'].includes(m.kind))) },
+    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall', 'avatar'].includes(m.kind))) },
     async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
     async insertGroup(g: any) { const r = { id: 'g' + ++t.gseq, ...g }; t.groups.push(r); return r },
     async insertMembers(rows: any[]) { rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
@@ -29,10 +29,11 @@ function fake() {
     async unarchiveOthers(g: string, me: string) { t.members.filter((r) => r.group_id === g && r.member !== me).forEach((r) => { r.archived = false }) },
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
   }
-  const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove() {} }
+  const objs: any[] = []
+  const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const kv = { async update(k: string, fn: any) { const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
-  return { t, deps: { store, files, kv }, db }
+  return { t, objs, deps: { store, files, kv }, db }
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
@@ -272,5 +273,46 @@ describe('the HAAVN BLACK icons and wallpapers', () => {
     expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'glass' } })).icon).toEqual({ id: 'blk', tile: 'glass' })
     expect((await run('setIcon', { gid, icon: { id: 'blkw', tile: 'frost' } })).icon).toEqual({ id: 'blkw', tile: 'frost' })
     for (const id of ['blkg', 'blkw', 'blks', 'blkn', 'hori', 'p7']) expect((await run('setWall', { gid, wall: { id } })).wall).toEqual({ id })
+  })
+})
+
+describe('people\'s pictures and the new bubble colours', () => {
+  it('a picture is uploaded to my own path, set, announced to my chats, and signed for everyone', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    await run('send', { gid, body: 'hello' })
+    const first = await run('init', {}, daniel)
+    const up = await run('signAvatar', {})
+    expect(up.path).toMatch(/^avatars\/jb-\d+\.jpg$/); expect(up.uploadUrl).toContain(up.path)
+    await expect(run('setAvatar', { path: up.path })).rejects.toThrow(/did not arrive/)
+    await expect(run('setAvatar', { path: 'avatars/ds-1.jpg' })).rejects.toThrow(/not yours/)
+    await expect(run('setAvatar', { path: '../x.jpg' })).rejects.toThrow(/not yours/)
+    F.objs.push({ name: up.path.slice(8), metadata: { size: 20000 } })
+    expect((await run('setAvatar', { path: up.path })).ok).toBe(true)
+    expect((await run('init', {}, daniel)).avatars).toEqual({ jb: 'https://dl/' + up.path })
+    const p = await run('poll', { since: first.cursor }, daniel)
+    expect(p.msgs.map((m: any) => [m.k, m.u])).toEqual([['avatar', 'jb']])
+    expect(gid).toBeTruthy()
+  })
+  it('a newer picture replaces the older one, a huge one is refused, and removing clears it', async () => {
+    await run('newGroup', { name: 'G', ids: ['ds'] })
+    F.objs.push({ name: 'jb-100.jpg', metadata: { size: 1000 } })
+    F.objs.push({ name: 'jb-200.jpg', metadata: { size: 1000 } })
+    await run('setAvatar', { path: 'avatars/jb-200.jpg' })
+    expect(F.objs.map((o: any) => o.name)).toEqual(['jb-200.jpg'])
+    F.objs.push({ name: 'jb-300.jpg', metadata: { size: 5 * 1024 * 1024 } })
+    await expect(run('setAvatar', { path: 'avatars/jb-300.jpg' })).rejects.toThrow(/too large/)
+    expect(F.objs.map((o: any) => o.name)).toEqual(['jb-200.jpg'])
+    await run('clearAvatar', {})
+    expect(F.objs.length).toBe(0)
+    expect((await run('avatars', {})).avatars).toEqual({})
+  })
+  it('accepts the new bubble colours and rejects anything else', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    for (const acc of ['black', 'crystal', 'blue', 'sage', 'sagedeep', 'grey', 'graphite']) expect((await run('setWall', { gid, wall: { id: 'dvmist', acc } })).wall).toEqual({ id: 'dvmist', acc })
+    expect((await run('setWall', { gid, wall: { id: 'dvcoral', acc: 'blue', tacc: 'crystal' } })).wall).toEqual({ id: 'dvcoral', acc: 'blue', tacc: 'crystal' })
+    expect((await run('setWall', { gid, wall: { id: 'hori', acc: 'hotpink', tacc: 'neon' } })).wall).toEqual({ id: 'hori' })
+    expect((await run('setIcon', { gid, icon: { id: 'haavnw', tile: 'crystal' } })).icon).toEqual({ id: 'haavnw', tile: 'crystal' })
+    expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'bluegl' } })).icon).toEqual({ id: 'blk', tile: 'bluegl' })
+    expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'sagegl' } })).icon).toEqual({ id: 'blk', tile: 'sagegl' })
   })
 })

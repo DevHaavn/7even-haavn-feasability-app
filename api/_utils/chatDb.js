@@ -20,7 +20,7 @@ function supa(env = process.env, fetchImpl = fetch) {
     async messagesFor(ids, { after = 0, limit = 500 } = {}) {
       if (after) return rest('GET', `chat_messages?group_id=in.${inList(ids)}&id=gt.${Number(after)}&order=id.asc&limit=${limit}&select=*`)
       // first load: messages and reactions; icons and wallpapers come from latestStyle, so they never crowd the history out
-      return (await rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=not.in.(icon,wall)&order=id.desc&limit=${limit}&select=*`)).reverse()
+      return (await rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=not.in.(icon,wall,avatar)&order=id.desc&limit=${limit}&select=*`)).reverse()
     },
     latestStyle: (ids) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=in.(icon,wall)&order=id.desc&limit=600&select=id,group_id,sender,kind,task`),
     async insertGroup(g) { return (await rest('POST', 'chat_groups', g, 'return=representation'))[0] },
@@ -37,7 +37,7 @@ function supa(env = process.env, fetchImpl = fetch) {
     savePush: (row) => rest('POST', 'chat_push?on_conflict=endpoint', row, 'resolution=merge-duplicates,return=minimal'),
     deletePush: (endpoint) => rest('DELETE', `chat_push?endpoint=eq.${encodeURIComponent(endpoint)}`),
     // for the email nudge
-    recentMessages: (sinceIso) => rest('GET', `chat_messages?kind=not.in.(system,react,icon,wall)&created_at=gte.${encodeURIComponent(sinceIso)}&order=id.asc&limit=1000&select=id,group_id,sender,body,task,files,created_at`),
+    recentMessages: (sinceIso) => rest('GET', `chat_messages?kind=not.in.(system,react,icon,wall,avatar)&created_at=gte.${encodeURIComponent(sinceIso)}&order=id.asc&limit=1000&select=id,group_id,sender,body,task,files,created_at`),
     allGroups: (ids) => ids.length ? rest('GET', `chat_groups?id=in.${inList(ids)}&select=*`) : [],
     markEmailed: (gid, member, upto) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=eq.${encodeURIComponent(member)}`, { last_emailed: upto }, 'return=minimal'),
     async filePaths(gid) { const ms = await rest('GET', `chat_messages?group_id=eq.${gid}&kind=neq.system&select=files`); return ms.flatMap((m) => (m.files || []).map((f) => f.path).filter(Boolean)) },
@@ -67,6 +67,11 @@ function supa(env = process.env, fetchImpl = fetch) {
       const out = {}
       if (r.ok && Array.isArray(r.json)) r.json.forEach((x) => { if (x && x.signedURL && x.path) out[x.path] = root + '/storage/v1' + x.signedURL })
       return out
+    },
+    async list(prefix) {
+      await this.ensureBucket()
+      const r = await storage('POST', `object/list/${BUCKET}`, { prefix, limit: 1000, sortBy: { column: 'name', order: 'asc' } })
+      return r.ok && Array.isArray(r.json) ? r.json : []
     },
     async remove(paths) { await storage('DELETE', `object/${BUCKET}`, { prefixes: paths }) },
   }
