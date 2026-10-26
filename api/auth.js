@@ -38,7 +38,9 @@ module.exports = async (req, res) => {
   if (action === 'config') {
     // names only, never values: which of the three settings the server can see
     const missing = ['MS_AUTH_CLIENT_ID', 'MS_AUTH_CLIENT_SECRET', 'SESSION_SECRET'].filter((k) => !env[k])
-    res.status(200).json(missing.length ? { microsoft: false, missing } : { microsoft: true }); return
+    // the shape of the saved secret and id, never the values: enough to spot a pasted Secret ID, a stray space or a cut-off paste
+    const shape = (v) => (v ? { length: v.length, looksLikeGuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v), hasSpaceOrNewline: /\s/.test(v), hasTilde: v.includes('~') } : null)
+    res.status(200).json(missing.length ? { microsoft: false, missing } : { microsoft: true, secret: shape(env.MS_AUTH_CLIENT_SECRET), clientId: shape(env.MS_AUTH_CLIENT_ID) }); return
   }
   if (action === 'logout') {
     res.setHeader('Set-Cookie', A.cookie(A.COOKIE, '', 0))
