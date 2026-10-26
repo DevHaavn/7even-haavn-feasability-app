@@ -110,6 +110,16 @@ describe('people in a chat', () => {
     await run('removeMember', { gid, member: 'lj' }, jamie)
     expect((await run('init', {}, lewis)).groups).toEqual([])
   })
+  it('adds people to several chats at once and reports what it skipped', async () => {
+    const g1 = (await run('newGroup', { name: 'A', ids: ['ds'] })).gid
+    const g2 = (await run('newGroup', { name: 'B', ids: ['ds'] })).gid
+    const dm = (await run('newGroup', { ids: ['ds'] })).gid
+    const r = await run('addToGroups', { gids: [g1, g2, dm, 'nope'], ids: ['lj'] })
+    expect(r.done.length).toBe(2); expect(r.skipped.length).toBe(2)
+    const s = await run('init', {}, lewis)
+    expect(s.groups.length).toBe(2)
+    await expect(run('addToGroups', { gids: [], ids: ['lj'] })).rejects.toThrow(/chat/)
+  })
   it('does not add people to a direct message', async () => {
     const { gid } = await run('newGroup', { ids: ['ds'] })
     await expect(run('addMembers', { gid, ids: ['lj'] })).rejects.toThrow(/group/)
@@ -253,5 +263,14 @@ describe('a screen from before reactions existed', () => {
     expect(old.msgs.every((m: any) => !m.k)).toBe(true); expect(old.msgs.length).toBe(1)
     const now = await C.run('poll', { since: 0, v: 2 }, jamie, F.deps)
     expect(now.msgs.some((m: any) => m.k === 'react')).toBe(true)
+  })
+})
+
+describe('the HAAVN BLACK icons and wallpapers', () => {
+  it('are accepted, and the old ones still are', async () => {
+    const { gid } = await run('newGroup', { name: 'BLACK', ids: ['ds'] })
+    expect((await run('setIcon', { gid, icon: { id: 'blk', tile: 'glass' } })).icon).toEqual({ id: 'blk', tile: 'glass' })
+    expect((await run('setIcon', { gid, icon: { id: 'blkw', tile: 'frost' } })).icon).toEqual({ id: 'blkw', tile: 'frost' })
+    for (const id of ['blkg', 'blkw', 'blks', 'blkn', 'hori', 'p7']) expect((await run('setWall', { gid, wall: { id } })).wall).toEqual({ id })
   })
 })

@@ -34,9 +34,9 @@ function shapeMsg(m) {
 }
 
 // What a chat icon, a wallpaper and a reaction may hold. Checked here, so nothing odd is ever stored.
-const ICON_IDS = ['haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
-const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon']
-const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'color', 'custom']
+const ICON_IDS = ['blk', 'blkw', 'haavn', 'hotels', 'student', 'aged', 'btr', 'afford', 'data', 'hm', 'seven', 'wm7', 'x7', 'five', 'fivev', 'five5v', 'p7', 'atrium']
+const TILE_IDS = ['lime', 'graphite', 'bone', 'gold', 'black', 'sage', 'silver', 'carbon', 'glass', 'frost']
+const WALL_IDS = ['field', 'black', 'seven', 'atrium', 'park', 'seven7', 'wmbone', 'five', 'five2', 'hori', 'ent', 'p7', 'blkg', 'blkw', 'blks', 'blkn', 'color', 'custom']
 const ACC_IDS = ['auto', 'lime', 'gold', 'bone', 'bronze']
 const MAX_ICON_IMG = 24000
 function cleanIcon(i) {
@@ -138,6 +138,18 @@ async function addMembers(store, me, a) {
   const names = [...ids.map((id) => byId(id).name), ...ext.map((e) => e + ' (outside, invited by email)')]
   await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'system', body: `${me.name.split(' ')[0]} added ${names.join(', ')} to the chat. They can see everything shared in it.`, task: null, files: [] })
   return { added: names }
+}
+
+// One person (or several) into many chats at once. Each chat is checked on its own: you must be in it, and it must be a group. A chat that cannot be done is reported, the rest still go through.
+async function addToGroups(store, me, a) {
+  const gids = [...new Set(Array.isArray(a.gids) ? a.gids : [])].slice(0, 60)
+  if (!gids.length) throw new ChatError('Pick at least one chat.')
+  const done = [], skipped = []
+  for (const gid of gids) {
+    try { const r = await addMembers(store, me, { gid, ids: a.ids, ext: a.ext }); done.push({ gid, added: r.added }) }
+    catch (e) { skipped.push({ gid, why: String(e.message || e).slice(0, 100) }) }
+  }
+  return { done, skipped }
 }
 
 async function removeMember(store, me, a) {
@@ -319,6 +331,7 @@ async function run(action, a, me, deps) {
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
     case 'addMembers': return addMembers(store, me, a)
+    case 'addToGroups': return addToGroups(store, me, a)
     case 'removeMember': return removeMember(store, me, a)
     case 'setMine': return setMine(store, me, a)
     case 'deleteGroup': return deleteGroup(store, files, me, a)
