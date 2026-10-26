@@ -112,7 +112,7 @@ export default function ChatDock() {
         setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 7000)
         // the system notification, when the tab is in the background: tapping it comes straight back to this chat
         try {
-          if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.hidden) {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && (document.hidden || d.test)) {
             const nt = new Notification(d.title, { body: d.body, tag: d.gid })
             nt.onclick = () => { window.focus(); goTo(d.gid); nt.close() }
           }
@@ -149,7 +149,7 @@ export default function ChatDock() {
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026c" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" src="/atrium-chat.html?embed=1&v=20261026d" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
           style={{ width: '100%', height: '100%', border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

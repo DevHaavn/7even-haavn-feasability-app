@@ -145,6 +145,14 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 .ck input{accent-color:var(--gold)}
 #demo{position:fixed;left:calc(50% + 90px);bottom:104px;translate:-50% 0;z-index:60;display:flex;gap:8px;padding:7px;border-radius:26px;background:rgba(80,82,90,.7);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 36px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 #demo .mono{align-self:center;padding:0 8px}
+/* closing: every sheet has a close, the side panel has a header with one, and a shade behind it where it overlays */
+.sheet{position:relative}
+.sx{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:15px;line-height:1;z-index:2}
+.sx:hover{background:rgba(255,255,255,.26)}
+#sideHead{display:none;align-items:center;gap:10px;padding:14px 16px 4px}
+#sideHead b{flex:1;font-weight:300;font-size:17px}
+#shade{display:none;position:fixed;inset:0;z-index:48;background:rgba(20,21,24,.4)}
+@media(max-width:1180px){#sideHead{display:flex}body.side-on #shade{display:block}#side{background:rgba(58,60,67,.97)}}
 /* people picker */
 .pk{position:relative;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.1);padding:8px 10px}
 .pk .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -278,11 +286,13 @@ body.embed #demo{left:calc(50% + 150px)}
   </section>
 
   <aside id="side">
+    <div id="sideHead"><b id="sideT">Group</b><button class="ib" id="sideX" aria-label="Close">✕</button></div>
     <div id="tabs"><button class="on" data-p="tasks">Tasks</button><button data-p="files">Files</button><button data-p="meet">Meeting</button><button data-p="about">About</button></div>
     <div id="pane"></div>
   </aside>
 </div>
 
+<div id="shade"></div>
 <nav id="tabbar">
   <button class="on" data-v="chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Chat<span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Tasks<span class="badge" id="bTask2" hidden></span></button>
@@ -333,6 +343,7 @@ body.embed #demo{left:calc(50% + 150px)}
   <h3 style="margin-top:22px;font-size:17px">Your accounts</h3>
   <div class="lead" style="margin-bottom:6px">One ATRIUM you, whichever email you sign in with.</div>
   <div id="accs"></div>
+  <div class="sw"><div class="l"><b>Test an alert now</b><span>Asks your browser to allow notifications, then sends one. On iPhone, add ATRIUM to the Home Screen first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -505,6 +516,8 @@ function setView(){
   $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
   $('#listT').textContent={chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view];
   if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
+  document.body.classList.toggle('side-on',$('#side').classList.contains('open'));
+  const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',meet:'Meeting'}[pane]||'This chat';
 }
 
 /* ---- notifications ---- */
@@ -538,8 +551,8 @@ $('#groups').onclick=e=>{const b=e.target.closest('[data-g]'); if(b) open(b.data
 $('#search').oninput=renderList;
 $('#backBtn').onclick=()=>{document.body.classList.remove('in-thread');renderList()};
 $$('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.body.classList.remove('in-thread');setView();if(view!=='chat'&&innerWidth<=760){$('#side').classList.add('open')}});
-$('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pane=b.dataset.p;renderPane()}};
-$('#sidebtn').onclick=()=>$('#side').classList.toggle('open');
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pane=b.dataset.p;renderPane();const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',files:'Files',meet:'Meeting',about:'This chat'}[pane]}};
+$('#sidebtn').onclick=()=>{ if($('#side').classList.contains('open')) closeSide(); else { $('#side').classList.add('open'); document.body.classList.add('side-on'); renderPane() } };
 document.addEventListener('click',e=>{
   const d=e.target.closest('[data-done]'); if(d){const m=S.msgs.find(x=>x.id==d.dataset.done);m.task.done=!m.task.done;save();paintAll();return}
   const r=e.target.closest('[data-rx]'); if(r){const m=S.msgs.find(x=>x.id==r.dataset.rx);m.rx=(m.rx||[]).concat('👍 '+me().n.split(' ')[0]);save();renderThread();return}
@@ -678,6 +691,9 @@ function paintSet(){$('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}"
   $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
 Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
 $('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on')};
+$('#sTest').onclick=()=>{ const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
+  if(emb){ try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){} setTimeout(()=>{try{parent.postMessage(Object.assign({atriumChat:'alert',red:1,snd:S.snd},note),'*')}catch(e){}},900) }
+  else { const go=()=>{ chime(); if(window.Notification&&Notification.permission==='granted') new Notification(note.title,{body:note.body}) }; if(window.Notification&&Notification.permission==='default') Notification.requestPermission().then(go); else go() } };
 $('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};
 $('#sDone').onclick=()=>$('#ovSet').classList.remove('on');
 $('#addAcc').onclick=()=>{const em=prompt('Preview: the real button opens Microsoft sign in. Type an email to add:','jamie@newcompany.com.au'); if(em){me().e.push(em);paintSet()}};
@@ -691,6 +707,16 @@ $('#dDesk').onclick=()=>{ const g=mine().find(x=>x.id==='g1'); incoming({g:g.id,
 $('#dMention').onclick=()=>{ const g=mine().find(x=>x.id==='g3')||mine()[0]; incoming({g:g.id,u:'lj',x:'@Jamie the Corio paper needs your sign off before Thursday.'}) };
 // the other people: switch who you are, to see their unread
 document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.me=PEOPLE[e.key-1].id;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintAll()} });
+/* ---- closing, everywhere ---- */
+function closeSide(){ view='chat'; $('#side').classList.remove('open'); document.body.classList.remove('side-on'); setView() }
+$('#sideX').onclick=closeSide; $('#shade').onclick=closeSide;
+const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet'];
+$$('.sheet').forEach(sh=>{const b=document.createElement('button');b.type='button';b.className='sx';b.setAttribute('aria-label','Close');b.textContent='✕';b.onclick=()=>{const ov=sh.closest('.ov');ov.classList.remove('on'); if(ov.id==='ovView')$('#vB').innerHTML=''; if(ov.id==='ovConf')conf=null};sh.prepend(b)});
+document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
+  const top=OVS.map(id=>$('#'+id)).find(o=>o.classList.contains('on')); if(top){top.classList.remove('on'); if(top.id==='ovView')$('#vB').innerHTML=''; return}
+  if($('#menu').classList.contains('on')){$('#menu').classList.remove('on');return}
+  if($('#side').classList.contains('open')&&innerWidth<=1180){closeSide();return}
+  if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'close'},'*')}catch(x){}} });
 window.addEventListener('message',e=>{const d=e.data; if(!d||!d.atriumChat) return;
   if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
   if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
