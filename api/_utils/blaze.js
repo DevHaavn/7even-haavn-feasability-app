@@ -45,7 +45,7 @@ const DEPTS = ['company', '7even', 'haavn', 'haavnblack', 'haavnmgmt', 'admin', 
 const ROSTER = [
   'Jamie Baldwin', 'Daniel Sette', 'Lewis Jin', 'James Winstanley', 'Callum Macdonald', 'Mike Furniss',
   'Christina Witbreuk', 'Domenic Paolilli', 'John Dimattina', 'Jeffrey Witbreuk', 'James Maloney',
-  'Amy Baldwin', 'Dominika Ma', 'Alessia Bresciano', 'Bonnie Zhao', 'Callum Fraser', 'Lucas Menegazzo',
+  'Amy Baldwin', 'Dominika Ma', 'Alessia Bresciano', 'Bonnie Zhao', 'Callum Fraser', 'Lucas Menegazzo', 'Seth Bean',
 ]
 
 const ITEM_STATUSES = ['update', 'action', 'followup', 'trouble', 'complete']
@@ -55,7 +55,7 @@ const EMAILS = {
   'Callum Macdonald': 'callum@haavn.au', 'Mike Furniss': 'mike@haavn.au', 'Christina Witbreuk': 'christina@haavn.au', 'Domenic Paolilli': 'domenic@haavn.au',
   'John Dimattina': 'john@haavn.au', 'Jeffrey Witbreuk': 'jeffrey@haavn.au', 'James Maloney': 'jamesm@haavn.au', 'Amy Baldwin': 'accounts@7even.au',
   'Dominika Ma': 'accounts@haavn.au', 'Alessia Bresciano': 'reception@haavn.au', 'Callum Fraser': 'c.fraser@fraserandpartners.com',
-  'Lucas Menegazzo': 'l.menegazzo@fraserandpartners.com', 'Bonnie Zhao': 'bonnie@haavn.au',
+  'Lucas Menegazzo': 'l.menegazzo@fraserandpartners.com', 'Seth Bean': 'hello@identityx.com.au', 'Bonnie Zhao': 'bonnie@haavn.au',
 }
 
 const files = require('./files')

@@ -22,6 +22,10 @@ describe('people', () => {
     expect(p.emails).toEqual(expect.arrayContaining(['jamie@7even.au', 'jamie@haavn.au']))
     expect(A.personByEmail('jamie@haavn.au', [], env)).toBeNull()
   })
+  it('knows Seth Bean as part of the HAAVN team', () => {
+    const p = A.personByEmail('Hello@identityx.com.au', [], env)
+    expect(p.name).toBe('Seth Bean'); expect(p.app).toBe('haavnonly'); expect(p.role).toBe('staff')
+  })
   it('lands each person on the screen their access code gives', () => {
     const app = (e: string) => A.personByEmail(e, [], env).app
     expect(app('jamie@7even.au')).toBe('admin'); expect(app('james@haavn.au')).toBe('haavnonly'); expect(app('mike@haavn.au')).toBe('blacksales')
@@ -59,6 +63,16 @@ describe('microsoft id token', () => {
   const tok = (c: object) => 'x.' + Buffer.from(JSON.stringify(c)).toString('base64url') + '.y'
   const good = { aud: 'cid', tid: 't1', iss: 'https://login.microsoftonline.com/t1/v2.0', nonce: 'n', exp: 5000, preferred_username: 'Jamie@7even.au', name: 'Jamie' }
   it('reads a good one', () => { expect(A.readIdToken(tok(good), { clientId: 'cid', nonce: 'n' }, 4000).email).toBe('jamie@7even.au') })
+  it('trusts the sign-in name, never the email claim, for a work account', () => {
+    const fake = tok({ ...good, preferred_username: 'attacker@other.com', email: 'jamie@7even.au' })
+    expect(A.readIdToken(fake, { clientId: 'cid', nonce: 'n' }, 4000).email).toBe('attacker@other.com')
+    expect(A.personByEmail(A.readIdToken(fake, { clientId: 'cid', nonce: 'n' }, 4000).email, [], env)).toBeNull()
+  })
+  it('takes the verified email of a personal Microsoft account', () => {
+    const P = '9188040d-6c67-4c5b-b112-36a304b66dad'
+    const personal = tok({ aud: 'cid', tid: P, iss: 'https://login.microsoftonline.com/' + P + '/v2.0', nonce: 'n', exp: 5000, email: 'Hello@IdentityX.com.au' })
+    expect(A.readIdToken(personal, { clientId: 'cid', nonce: 'n' }, 4000).email).toBe('hello@identityx.com.au')
+  })
   it('refuses wrong audience, issuer, nonce, expiry', () => {
     expect(() => A.readIdToken(tok({ ...good, aud: 'other' }), { clientId: 'cid', nonce: 'n' }, 4000)).toThrow(/not issued/)
     expect(() => A.readIdToken(tok({ ...good, iss: 'https://evil.example/t1' }), { clientId: 'cid', nonce: 'n' }, 4000)).toThrow(/unexpected/)

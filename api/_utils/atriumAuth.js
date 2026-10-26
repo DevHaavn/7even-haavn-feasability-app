@@ -35,6 +35,8 @@ const PEOPLE = [
   { id: 'bz', name: 'Bonnie Zhao', role: 'staff', app: 'haavnonly', emails: ['bonnie@haavn.au'] },
   { id: 'cf', name: 'Callum Fraser', role: 'external', app: 'external', emails: ['c.fraser@fraserandpartners.com'] },
   { id: 'lm', name: 'Lucas Menegazzo', role: 'external', app: 'external', emails: ['l.menegazzo@fraserandpartners.com'] },
+  // Seth Bean, designer for HAAVN BLACK (identityx): part of the team. His mail is Google, so he signs in with a Microsoft account made with that address.
+  { id: 'sb', name: 'Seth Bean', role: 'staff', app: 'haavnonly', emails: ['hello@identityx.com.au'] },
 ]
 const norm = (e) => String(e || '').trim().toLowerCase()
 
@@ -96,7 +98,7 @@ function authorizeUrl({ clientId, redirectUri, state, nonce, challenge, hint }) 
   const q = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri, response_mode: 'query', scope: 'openid profile email',
     state, nonce, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account' })
   if (hint) q.set('login_hint', hint)
-  return 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?' + q
+  return 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' + q
 }
 // The id_token comes straight from Microsoft's token endpoint over TLS, so it is read, not re-verified against the keys; every claim that matters is checked.
 function readIdToken(idToken, { clientId, nonce }, nowSec = Math.floor(Date.now() / 1000)) {
@@ -106,7 +108,11 @@ function readIdToken(idToken, { clientId, nonce }, nowSec = Math.floor(Date.now(
   if (!c.tid || !String(c.iss || '').startsWith('https://login.microsoftonline.com/' + c.tid)) throw new Error('That sign-in came from an unexpected place')
   if (c.nonce !== nonce) throw new Error('That sign-in does not match the one we started')
   if (!c.exp || c.exp < nowSec - 60) throw new Error('That sign-in has expired')
-  const email = norm(c.email || c.preferred_username || c.upn)
+  // Who it is: the account's own sign-in name. The `email` claim is NOT trusted for work accounts: in a multi-company app another company's
+  // administrator can set it to anything. A work account's sign-in name (UPN) must be on a domain that company has proven it owns, so it cannot be
+  // faked. A personal Microsoft account's email is verified by Microsoft, so there it is fine.
+  const PERSONAL = '9188040d-6c67-4c5b-b112-36a304b66dad'
+  const email = norm(c.preferred_username || c.upn || (c.tid === PERSONAL ? c.email : ''))
   if (!email || !email.includes('@')) throw new Error('Microsoft did not share an email address for that account')
   return { email, name: c.name || '', tid: c.tid }
 }

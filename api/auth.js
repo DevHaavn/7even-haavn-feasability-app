@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
     try {
       const body = new URLSearchParams({ client_id: clientId, client_secret: secret, grant_type: 'authorization_code', code: String(req.query.code),
         redirect_uri: origin(req) + '/api/auth/callback', code_verifier: flow.verifier })
-      const tr = await fetch('https://login.microsoftonline.com/organizations/oauth2/v2.0/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body })
+      const tr = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body })
       if (!tr.ok) {
         let j = {}; try { j = await tr.json() } catch { /* not JSON */ }
         const codes = String(j.error_description || '').match(/AADSTS\d+/)
