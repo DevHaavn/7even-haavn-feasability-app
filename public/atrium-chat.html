@@ -368,21 +368,23 @@ body.embed #demo{left:calc(50% + 150px)}
 #setBtn:hover .gear,#setBtn:focus-visible .gear{transform:rotate(60deg)}
 #setBtn.spin .gear{animation:cogspin .9s cubic-bezier(.45,.05,.2,1)}
 @keyframes cogspin{to{transform:rotate(180deg)}}
-#newBtn{color:#fff;border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.16);animation:newpulse 2.6s ease-in-out infinite}
-#newBtn:hover{background:rgba(239,68,68,.26)}
-@keyframes newpulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}70%{box-shadow:0 0 0 11px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+#newBtn{color:#fff;border:1.5px solid rgba(239,68,68,.9);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);animation:newpulse 2.6s ease-in-out infinite}
+#newBtn:hover{background:rgba(255,255,255,.14)}
+@keyframes newpulse{0%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 11px rgba(239,68,68,0)}100%{box-shadow:0 0 6px rgba(239,68,68,.35),0 0 0 0 rgba(239,68,68,0)}}
 @media(prefers-reduced-motion:reduce){#newBtn{animation:none}#setBtn .gear,#setBtn.spin .gear{transition:none;animation:none}}
 /* chat list: pinned rows, edit mode, style tabs, name field */
 .lh{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0}
 .lh button{font:400 12px Inter;color:var(--soft);padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.08);min-height:32px}
 .lh button.on{background:var(--gold);color:#1b1a16;border-color:transparent}
-.ge{display:flex;align-items:center;gap:4px}
-.ge>.g{flex:1;min-width:0}
-.ge .ctl{display:flex;gap:4px;flex:none}
-.ge .ctl button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--soft)}
+.ge{display:flex;flex-wrap:wrap;align-items:center}
+.ge>.g{flex:1 1 100%;min-width:0}
+.ge .ctl{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px;padding:0 6px 10px 14px}
+.ge .ctl button{height:36px;padding:0 11px;border-radius:999px;display:inline-flex;gap:5px;align-items:center;background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--soft);font:400 12.5px Inter}
 .ge .ctl button.pin.on{background:var(--gold);color:#1b1a16;border-color:transparent}
-.ge .ctl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ge .ctl button.del{color:#ff9a9a;border-color:rgba(255,154,154,.4)}
+.ge .ctl svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .ge .ctl button[disabled]{opacity:.3}
+.ge .ctl .mv{width:36px;padding:0;justify-content:center}
 .pinned-i{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-left:5px;vertical-align:-1px}
 .seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);margin:0 52px 14px 0}
 .seg button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
@@ -392,6 +394,9 @@ body.embed #demo{left:calc(50% + 150px)}
 .pen{display:inline-grid;vertical-align:middle;margin-left:8px;width:22px;height:22px;place-items:center;border-radius:50%;background:rgba(255,255,255,.12);color:var(--soft)}
 .pen svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #hIcon,#hTitle{cursor:pointer}
+#micBtn.rec{color:#fff;background:rgba(239,68,68,.9);animation:micp 1.3s ease-in-out infinite;opacity:1}
+@keyframes micp{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 0 10px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+#comp .box.listening textarea::placeholder{color:#ff9a9a}
 #amenu{position:fixed;z-index:86;display:none;flex-direction:column;gap:6px;align-items:flex-start;max-width:calc(100vw - 20px)}
 #amenu.on{display:flex;animation:pop .22s var(--ease)}
 #amenu .rbar,#amenu .abar{display:flex;gap:2px;padding:5px 6px;border-radius:26px;background:rgba(48,50,56,.94);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);box-shadow:0 14px 40px rgba(0,0,0,.4);color:#fff}
@@ -559,6 +564,7 @@ body.embed #demo{left:calc(50% + 150px)}
       <div class="box">
         <button class="cib" id="plusBtn" type="button" aria-label="Add a photo, file or task"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
         <textarea id="inp" rows="1" placeholder="Message" enterkeyhint="send" autocomplete="off" autocapitalize="sentences"></textarea>
+        <button class="cib" id="micBtn" type="button" aria-label="Voice typing" title="Voice typing"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
         <button class="cib" id="emoBtn" type="button" aria-label="Emoji"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14c.9 1.3 2 1.9 3.5 1.9s2.6-.6 3.5-1.9"/><circle cx="9.2" cy="10" r=".7" fill="currentColor"/><circle cx="14.8" cy="10" r=".7" fill="currentColor"/></svg></button>
       </div>
       <input type="file" id="file" multiple hidden accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.dwg,.zip">
@@ -1031,7 +1037,8 @@ function renderList(){
       <span class="m"><span>${l?fmt(l.t).replace(/ \d.*$/,m=>m):''}</span>${u?`<span class="badge">${u}</span>`:''}</span></button>`;
     if(!editOrd) return btn;
     const k=pinned.findIndex(x=>x.id===g.id), isP=k>=0;
-    return `<div class="ge">${btn}<div class="ctl"><button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}" aria-label="${isP?'Unpin':'Pin to top'}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg></button>${isP?`<button type="button" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
+    const ar=isArch(g.id);
+    return `<div class="ge">${btn}<div class="ctl">${ar?'':`<button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>${isP?'Unpin':'Pin'}</button>`}<button type="button" data-arc="${g.id}"><svg viewBox="0 0 24 24"><path d="M4 7h16v3H4zM6 10v9h12v-9M10 14h4"/></svg>${ar?'Restore':'Archive'}</button><button type="button" class="del" data-rem="${g.id}"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>Delete</button>${isP?`<button type="button" class="mv" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" class="mv" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
   const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
   $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join('')+`<div class="sec mono">Direct</div>`+rest.filter(g=>g.dm).map(row).join('')
     +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'');
@@ -1255,6 +1262,8 @@ $('#groups').onclick=e=>{
   if(e.target.closest('#ordBtn')){ editOrd=!editOrd; renderList(); return }
   if(e.target.closest('#ordReset')){ S.order=[]; saveOrder(); return }
   const pn=e.target.closest('[data-pin]'); if(pn){ const id=pn.dataset.pin, o=S.order||(S.order=[]); const k=o.indexOf(id); if(k>=0) o.splice(k,1); else o.push(id); saveOrder(); return }
+  const ac=e.target.closest('[data-arc]'); if(ac){ doArchive(ac.dataset.arc); return }
+  const rm=e.target.closest('[data-rem]'); if(rm){ doDelete(rm.dataset.rem); return }
   const up=e.target.closest('[data-up]'); if(up){ moveOrder(up.dataset.up,-1); return }
   const dn=e.target.closest('[data-dn]'); if(dn){ moveOrder(dn.dataset.dn,1); return }
   const b=e.target.closest('[data-g]'); if(b){ if(editOrd) return; open(b.dataset.g) } };
@@ -1468,7 +1477,7 @@ paintAll(); setView(); poll();
 }
 
 function send(){
-  const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
+  micStop(); const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
   if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend();
     (async()=>{ try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
@@ -1559,6 +1568,20 @@ inp.addEventListener('focus',()=>{ if(COARSE&&$('#emo').classList.contains('on')
 $('#plusBtn').onclick=e=>{ e.stopPropagation(); closeEmoji(); $('#attach').classList.toggle('on') };
 $('#attach').addEventListener('click',e=>{ const b=e.target.closest('[data-at]'); if(!b) return; $('#attach').classList.remove('on'); if(b.dataset.at==='file') $('#file').click(); if(b.dataset.at==='task') taskDlg(inp.value.trim()) });
 document.addEventListener('click',e=>{ if(!e.target.closest('#attach')&&!e.target.closest('#plusBtn')) $('#attach').classList.remove('on') });
+/* ---- voice typing: speak, and the words land in the message box to read and send ---- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let rec=null, recOn=false;
+function micStop(){ if(rec&&recOn){ try{ rec.stop() }catch(e){} } }
+function micDone(){ recOn=false; $('#micBtn').classList.remove('rec'); $('#micBtn').setAttribute('aria-label','Voice typing'); const bx=$('#comp .box'); if(bx) bx.classList.remove('listening'); inp.placeholder='Message' }
+$('#micBtn').onclick=e=>{ e.stopPropagation();
+  if(!SR){ flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.'); return }
+  if(recOn){ micStop(); return }
+  if($('#emo').classList.contains('on')) closeEmoji();
+  const base=inp.value.replace(/\s+$/,''); rec=new SR(); rec.continuous=true; rec.interimResults=true;
+  rec.lang=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
+  rec.onresult=ev=>{ let t=''; for(let i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; inp.value=(base?base+' ':'')+t.trim(); grow() };
+  rec.onerror=ev=>{ if(ev.error==='not-allowed'||ev.error==='service-not-allowed') flash('Allow the microphone for ATRIUM to use voice typing.'); else if(ev.error==='network') flash('Voice typing needs an internet connection.') };
+  rec.onend=micDone;
+  try{ rec.start(); recOn=true; $('#micBtn').classList.add('rec'); $('#micBtn').setAttribute('aria-label','Stop voice typing'); $('#comp .box').classList.add('listening'); inp.placeholder='Listening…' }catch(er){ micDone(); flash('Voice typing could not start. Try again.') } };
 $('#emoBtn').onclick=e=>{ e.stopPropagation(); $('#attach').classList.remove('on'); if($('#emo').classList.contains('on')&&!EMO.cb){ closeEmoji(); return } if(COARSE) inp.blur(); openEmoji() };
 $('#emoX').onclick=closeEmoji;
 $('#emoCats').addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if(!b) return; EMO.cat=+b.dataset.c; EMO.q=''; $('#emoQ').value=''; paintEmoji(); $('#emoGrid').scrollTop=0 });
