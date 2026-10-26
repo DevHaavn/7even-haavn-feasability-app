@@ -16,6 +16,7 @@ create table if not exists chat_groups (
   is_private  boolean not null default true,
   owner       text not null,                   -- person id
   project     text,                            -- CRM project name
+  dm_key      text unique,                     -- for a direct message: the two person ids, sorted, so there is only ever one
   created_at  timestamptz not null default now()
 );
 

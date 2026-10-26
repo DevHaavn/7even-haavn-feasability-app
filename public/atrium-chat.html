@@ -145,6 +145,10 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 .ck input{accent-color:var(--gold)}
 #demo{position:fixed;left:calc(50% + 90px);bottom:104px;translate:-50% 0;z-index:60;display:flex;gap:8px;padding:7px;border-radius:26px;background:rgba(80,82,90,.7);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 36px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 #demo .mono{align-self:center;padding:0 8px}
+#banner{margin:0 16px 8px;padding:9px 14px;border-radius:16px;background:rgba(214,179,106,.2);border:1px solid rgba(214,179,106,.45);font-size:12.5px;line-height:1.4}
+#banner a{color:#fff;text-decoration:underline}
+#banner:empty{display:none}
+.rm-real #demo{display:none!important}
 /* closing: every sheet has a close, the side panel has a header with one, and a shade behind it where it overlays */
 .sheet{position:relative}
 .sx{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:15px;line-height:1;z-index:2}
@@ -259,6 +263,7 @@ body.embed #demo{left:calc(50% + 150px)}
       <button class="ib" id="newBtn" title="New group"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     </header>
     <input id="search" placeholder="Search chats and people">
+    <div id="banner"></div>
     <div id="groups"></div>
   </section>
 
@@ -318,7 +323,7 @@ body.embed #demo{left:calc(50% + 150px)}
 
 <div class="ov" id="ovGroup"><div class="sheet">
   <h3>New group</h3><div class="lead">Private groups are only seen by the people you add.</div>
-  <div class="f"><label class="mono">Name</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
+  <div class="f"><label class="mono">Name (leave empty for a direct message with one person)</label><input id="gName" placeholder="e.g. Belmont landowner"></div>
   <div class="f"><label class="mono">Who</label><div class="pk" id="gWho"></div></div>
   <div class="sw"><div class="l"><b>Private</b><span>Hidden from everyone not in the group</span></div><button class="tg on" id="gPriv"></button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="gCancel">Cancel</button><button class="cb go" id="gSave">Create group</button></div>
@@ -410,7 +415,9 @@ let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
 S.arch=S.arch||{}; S.gone=S.gone||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
 S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let REAL=false, cursor=0, lastSig='';
+const isOpen=()=>typeof OPEN==='undefined'?true:OPEN;
+const save=()=>{try{ if(REAL) localStorage.setItem('atrium-chat-prefs',JSON.stringify({snd:S.snd,red:S.red,push:S.push,mail:S.mail,men:S.men})); else localStorage.setItem(KEY,JSON.stringify(S)) }catch(e){}};
 let cur='g1', view='chat', pane='tasks', actx=null;
 
 /* ---- sound: two soft notes, made in the browser ---- */
@@ -481,8 +488,9 @@ function renderThread(newId){
     if(m.sys){out+=`<div class="sysm">${esc(m.x)}</div>`;return}
     const p=P[m.u], dom=p.e[0].split('@')[1];
     out+=`<div class="msg ${m.id===newId?'new':''}" data-m="${m.id}">${av(p)}<div class="b"><div class="h"><b>${p.n}</b><span>${fmt(m.t)}</span><em>${p.ext?'outside':dom}</em></div><div class="x">${rich(m.x)}</div>${filesHtml(m)}${m.task?taskCard(m):''}${m.rx?`<div class="rx">${m.rx.map(r=>`<span>${r}</span>`).join('')}</div>`:''}</div>
-    <div class="tools"><button data-rx="${m.id}">👍</button><button data-mt="${m.id}">Make task</button><button data-rp="${m.id}">Reply</button></div></div>`});
-  $('#msgs').innerHTML=out; $('#msgs').scrollTop=$('#msgs').scrollHeight;
+    <div class="tools">${REAL?'':`<button data-rx="${m.id}">👍</button>`}<button data-mt="${m.id}">Make task</button><button data-rp="${m.id}">Reply</button></div></div>`});
+  const box=$('#msgs'), keep=box.scrollTop, atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<140||!!newId||box.dataset.g!==cur;
+  box.innerHTML=out; box.dataset.g=cur; box.scrollTop=atEnd?box.scrollHeight:keep;
   renderPane();
 }
 function renderPane(){
@@ -503,7 +511,7 @@ function renderPane(){
     h+='<div class="empty" style="padding:8px 0 0">Everyone in the chat can open every file. People you add later see them too.</div>';
   }else{
     const own=g.dm?null:(g.owner||g.m[0]);
-    h=`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
+    h=`<div class="mt"><div class="mono">Group</div><h4>${esc(gname(g))}</h4><div class="empty" style="padding:0 0 10px">${g.dm?'Direct message':g.priv?'Private. Only the people below can see it.':'Open to everyone you add.'}</div>${g.m.map(id=>`<div class="mem">${av(P[id])}<div class="d">${P[id].n}${id===own?' <span style="display:inline;color:var(--gold)">· owner</span>':''}<span>${P[id].e.join(' · ')}</span></div>${(REAL&&id!==S.me&&!P[id].ext)?`<button data-dm="${id}">Message</button>`:''}${(!g.dm&&own===S.me&&id!==S.me)?`<button data-rm="${id}">Remove</button>`:''}</div>`).join('')}${g.dm?'':'<button class="cb" id="addBtn2" style="margin-top:8px">＋ Add people</button>'}</div>
     <div class="mt"><div class="mono">CRM project</div><h4>${g.proj}</h4><div class="empty" style="padding:0">Tasks set in this group are filed to this project.</div></div>
     <div class="mt"><div class="mono">This chat</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute':'Mute'}</button><button class="cb" data-arch="${g.id}">${isArch(g.id)?'Restore':'Archive'}</button><button class="cb" data-del="${g.id}" style="color:#ff9a9a">${g.dm||own!==S.me?'Remove from my list':'Delete for everyone'}</button></div></div>`;
     setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg},0);
@@ -543,7 +551,7 @@ function incoming(m){
 }
 function open(id){
   cur=id; const ms=gm(id); if(ms.length){S.read[S.me]=S.read[S.me]||{};S.read[S.me][id]=ms[ms.length-1].id}
-  save(); document.body.classList.add('in-thread'); view='chat'; paintAll();
+  save(); pushRead(id); document.body.classList.add('in-thread'); view='chat'; paintAll();
 }
 
 /* ---- wiring ---- */
@@ -554,11 +562,12 @@ $$('[data-v]').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.body.classLis
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){pane=b.dataset.p;renderPane();const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',files:'Files',meet:'Meeting',about:'This chat'}[pane]}};
 $('#sidebtn').onclick=()=>{ if($('#side').classList.contains('open')) closeSide(); else { $('#side').classList.add('open'); document.body.classList.add('side-on'); renderPane() } };
 document.addEventListener('click',e=>{
-  const d=e.target.closest('[data-done]'); if(d){const m=S.msgs.find(x=>x.id==d.dataset.done);m.task.done=!m.task.done;save();paintAll();return}
+  const d=e.target.closest('[data-done]'); if(d){const m=S.msgs.find(x=>x.id==d.dataset.done);m.task.done=!m.task.done;save();paintAll(); if(REAL) api('taskDone',{mid:m.id,done:m.task.done}).catch(er=>{m.task.done=!m.task.done;paintAll();flash(er.message)}); return}
   const r=e.target.closest('[data-rx]'); if(r){const m=S.msgs.find(x=>x.id==r.dataset.rx);m.rx=(m.rx||[]).concat('👍 '+me().n.split(' ')[0]);save();renderThread();return}
   const mt=e.target.closest('[data-mt]'); if(mt){const m=S.msgs.find(x=>x.id==mt.dataset.mt);taskDlg(m.x);return}
   const rp=e.target.closest('[data-rp]'); if(rp){const m=S.msgs.find(x=>x.id==rp.dataset.rp);$('#inp').value='@'+P[m.u].n.split(' ')[0]+' ';$('#inp').focus();return}
-  const mu=e.target.closest('[data-mute]'); if(mu){const k=S.me+mu.dataset.mute;S.muted[k]=!S.muted[k];save();paintAll();return}
+  const mu=e.target.closest('[data-mute]'); if(mu){toggleMute(mu.dataset.mute);return}
+  const dm=e.target.closest('[data-dm]'); if(dm){ api('newGroup',{ids:[dm.dataset.dm]}).then(async o=>{await refresh(true);open(o.gid)}).catch(er=>flash(er.message)); return }
   if(e.target.classList.contains('ov')) e.target.classList.remove('on');
 });
 
@@ -567,7 +576,7 @@ let pend=[];
 const ext=f=>{const n=f.name.toLowerCase();return f.type.startsWith('image/')?'img':n.endsWith('.pdf')?'pdf':/\.docx?$/.test(n)?'doc':/\.(xlsx?|csv)$/.test(n)?'xls':/\.pptx?$/.test(n)?'ppt':(n.split('.').pop()||'file').slice(0,4)};
 const size=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
 function toFile(f){return new Promise(res=>{
-  const o={name:f.name,type:f.type||'application/octet-stream',size:f.size};
+  const o={name:f.name,type:f.type||'application/octet-stream',size:f.size,file:f};
   if(f.size<=900*1024){const r=new FileReader();r.onload=()=>{o.url=r.result;res(o)};r.onerror=()=>res(o);r.readAsDataURL(f)}
   else{o.url=URL.createObjectURL(f);o.tmp=1;res(o)}})}
 async function addFiles(list){for(const f of list){pend.push(await toFile(f))} renderPend()}
@@ -632,31 +641,93 @@ function ask(t,b,yes,fn){$('#cT').textContent=t;$('#cB').textContent=b;$('#cYes'
 $('#addBtn').onclick=()=>{const g=S.groups.find(x=>x.id===cur); if(g&&g.dm){ $('#cT').textContent='Add people to a direct message?'; $('#cB').textContent='A direct message is between two people. Start a new group with both of them and anyone else you want to add.'; $('#cYes').style.display='none'; $('#cNo').textContent='OK'; conf=null; $('#ovConf').classList.add('on'); return } addDlg()};
 $('#addCancel').onclick=()=>$('#ovAdd').classList.remove('on');
 $('#addSave').onclick=()=>{const g=S.groups.find(x=>x.id===cur); const r=aPk.get(); const names=[];
+  if(REAL){ api('addMembers',{gid:cur,ids:r.ids,ext:r.ext}).then(()=>{$('#ovAdd').classList.remove('on');return refresh(true)}).catch(er=>flash(er.message)); return }
   r.ids.forEach(id=>{g.m.push(id);S.read[id]=S.read[id]||{};S.read[id][g.id]=0;names.push(P[id].n)});
   r.ext.forEach(em=>{const id=ensureExt(em); g.m.push(id); S.read[id]={}; names.push(em+' (outside, invited by email)')});
   if(names.length){sys(g.id,me().n.split(' ')[0]+' added '+names.join(', ')+' to the chat. They can see everything shared in it.');} save(); $('#ovAdd').classList.remove('on'); paintAll()};
 $('#cNo').onclick=()=>{$('#ovConf').classList.remove('on')};
 $('#cYes').onclick=()=>{$('#ovConf').classList.remove('on');if(conf)conf();conf=null};
-function doArchive(id){S.arch[S.me+id]=!S.arch[S.me+id]; save(); if(cur===id&&S.arch[S.me+id]){const f=active()[0];cur=f?f.id:null} document.body.classList.remove('in-thread'); paintAll()}
+function toggleMute(id){const k=S.me+id;S.muted[k]=!S.muted[k];save();paintAll(); if(REAL) api('setMine',{gid:id,muted:!!S.muted[k]}).catch(e=>{flash(e.message);refresh(true)})}
+function doArchive(id){S.arch[S.me+id]=!S.arch[S.me+id]; if(REAL) api('setMine',{gid:id,archived:!!S.arch[S.me+id]}).catch(e=>{flash(e.message);refresh(true)}); save(); if(cur===id&&S.arch[S.me+id]){const f=active()[0];cur=f?f.id:null} document.body.classList.remove('in-thread'); paintAll()}
 function doDelete(id){const g=S.groups.find(x=>x.id===id); const own=!g.dm&&(g.owner||g.m[0])===S.me;
-  if(own) ask('Delete this chat for everyone?','"'+gname(g)+'" and every message and file in it will be removed for all '+g.m.length+' people. Tasks already in Workflow stay there.','Delete for everyone',()=>{S.groups=S.groups.filter(x=>x.id!==id);S.msgs=S.msgs.filter(m=>m.g!==id);if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()});
-  else ask('Remove this chat from your list?',g.dm?'The conversation stays with '+P[g.m.find(x=>x!==S.me)].n.split(' ')[0]+'.':'You leave the group. Everyone else keeps it, and anyone can add you back.','Remove',()=>{S.gone[S.me+id]=1;if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()})}
+  if(own) ask('Delete this chat for everyone?','"'+gname(g)+'" and every message and file in it will be removed for all '+g.m.length+' people. Tasks already in Workflow stay there.','Delete for everyone',()=>{if(REAL){api('deleteGroup',{gid:id}).catch(e=>{flash(e.message);refresh(true)})}S.groups=S.groups.filter(x=>x.id!==id);S.msgs=S.msgs.filter(m=>m.g!==id);if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()});
+  else ask('Remove this chat from your list?',g.dm?'The conversation stays with '+P[g.m.find(x=>x!==S.me)].n.split(' ')[0]+'.':'You leave the group. Everyone else keeps it, and anyone can add you back.','Remove',()=>{if(REAL){api('setMine',{gid:id,hidden:true}).catch(e=>{flash(e.message);refresh(true)})}S.gone[S.me+id]=1;if(cur===id){const f=active()[0];cur=f?f.id:null}document.body.classList.remove('in-thread');save();paintAll()})}
 $('#moreBtn').onclick=e=>{e.stopPropagation();const g=S.groups.find(x=>x.id===cur); if(!g) return; const own=!g.dm&&(g.owner||g.m[0])===S.me; const mu=S.muted[S.me+g.id];
   const m=$('#menu'); m.innerHTML=`${g.dm?'':'<button data-mn="add">＋ Add people</button>'}<button data-mn="mute">${mu?'Unmute this chat':'Mute this chat'}</button><button data-mn="files">Files in this chat</button><button data-mn="arch">${isArch(g.id)?'Restore from archive':'Archive'}</button><hr><button class="red" data-mn="del">${g.dm||!own?'Remove from my list':'Delete for everyone'}</button>`;
   const r=e.currentTarget.getBoundingClientRect(); m.style.top=(r.bottom+8)+'px'; m.style.right=Math.max(12,innerWidth-r.right)+'px'; m.classList.add('on')};
 document.addEventListener('click',e=>{const t=e.target.closest('#menu [data-mn]'); if(t){const a=t.dataset.mn; $('#menu').classList.remove('on');
-    if(a==='add')addDlg(); if(a==='mute'){const k=S.me+cur;S.muted[k]=!S.muted[k];save();paintAll()} if(a==='files'){pane='files';$('#side').classList.add('open');renderPane()} if(a==='arch')doArchive(cur); if(a==='del')doDelete(cur); return}
+    if(a==='add')addDlg(); if(a==='mute')toggleMute(cur); if(a==='files'){pane='files';$('#side').classList.add('open');renderPane()} if(a==='arch')doArchive(cur); if(a==='del')doDelete(cur); return}
   if(!e.target.closest('#menu')) $('#menu').classList.remove('on');
   const v=e.target.closest('[data-view]'); if(v){const [id,i]=v.dataset.view.split(':');viewFile(id,+i);return}
   const px=e.target.closest('[data-px]'); if(px){pend.splice(+px.dataset.px,1);renderPend();return}
-  const rm=e.target.closest('[data-rm]'); if(rm){const g=S.groups.find(x=>x.id===cur);g.m=g.m.filter(x=>x!==rm.dataset.rm);sys(g.id,me().n.split(' ')[0]+' removed '+P[rm.dataset.rm].n+' from the chat.');save();paintAll();return}
+  const rm=e.target.closest('[data-rm]'); if(rm&&REAL){api('removeMember',{gid:cur,member:rm.dataset.rm}).then(()=>refresh(true)).catch(er=>flash(er.message));return}
+  if(rm){const g=S.groups.find(x=>x.id===cur);g.m=g.m.filter(x=>x!==rm.dataset.rm);sys(g.id,me().n.split(' ')[0]+' removed '+P[rm.dataset.rm].n+' from the chat.');save();paintAll();return}
   const ar=e.target.closest('[data-arch]'); if(ar){doArchive(ar.dataset.arch);return}
   const dl=e.target.closest('[data-del]'); if(dl){doDelete(dl.dataset.del);return}
 });
 
+/* ---- the real chat: the same screen on the server's data, once you are signed in with Microsoft and the tables exist ---- */
+async function api(a,args){
+  const r=await fetch('/api/chat',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({a},args||{}))});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw Object.assign(new Error(j.error||'Something went wrong'),{status:r.status});
+  return j;
+}
+function flash(t){ const el=document.createElement('div'); el.className='toast'; el.style.borderColor='rgba(255,255,255,.35)'; el.innerHTML='<div><b>'+esc(t)+'</b></div>'; $('#toasts').prepend(el); setTimeout(()=>el.remove(),5000) }
+function applyReal(j){
+  PEOPLE.length=0; j.people.forEach(p=>PEOPLE.push(p)); Object.keys(P).forEach(k=>delete P[k]); PEOPLE.forEach(p=>{P[p.id]=p});
+  S.me=j.me.id; S.groups=j.groups; S.muted=j.state.muted; S.arch=j.state.arch; S.gone=j.state.gone; S.ext=[];
+  S.read[S.me]=S.read[S.me]||{}; Object.keys(j.read).forEach(g=>{S.read[S.me][g]=Math.max(S.read[S.me][g]||0,j.read[g])});
+}
+function pushRead(gid){ if(!REAL) return; const ms=gm(gid); if(ms.length) api('read',{gid,upto:ms[ms.length-1].id}).catch(()=>{}) }
+function ingestReal(m){
+  if(S.msgs.some(x=>x.id===m.id)) return false;
+  S.msgs.push(m);
+  const g=S.groups.find(x=>x.id===m.g); if(!g||m.u===S.me||m.sys) return true;
+  const visible=isOpen()&&cur===m.g&&document.visibilityState==='visible'&&(window.innerWidth>760||document.body.classList.contains('in-thread'));
+  const hit=mentioned(m.g)&&S.men, mu=S.muted[S.me+m.g]&&!hit;
+  if(visible){ S.read[S.me][m.g]=m.id; pushRead(m.g) }
+  else if(!mu){ toast(m,g); chime(); $$('.badge').forEach(b=>{b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')}) }
+  return true;
+}
+function ingestOwn(m){ if(!S.msgs.some(x=>x.id===m.id)) S.msgs.push(m); S.read[S.me][m.g]=Math.max(S.read[S.me][m.g]||0,m.id); paintAll(m.id) }
+async function refresh(force){
+  const j=await api('poll',{since:cursor}); if(j.setup===false) return;
+  applyReal(j); let fresh=0; j.msgs.forEach(m=>{ if(ingestReal(m)) fresh++ }); cursor=Math.max(cursor,j.cursor||0);
+  const sig=JSON.stringify([j.groups,j.state,j.people.length]);
+  if(force||fresh||sig!==lastSig){ lastSig=sig; if(!active().some(g=>g.id===cur)&&!mine().some(g=>g.id===cur)){const f=active()[0];cur=f?f.id:null} paintAll() }
+}
+function poll(){ setTimeout(async()=>{ try{ await refresh() }catch(e){} poll() }, document.visibilityState==='hidden'?20000:(isOpen()?4000:8000)) }
+function banner(kind){
+  const t={signin:'Practice data. <a href="/api/auth/login?return=%2F" target="_top">Sign in with Microsoft</a> to use the real chat.',setup:'Practice data. The chat tables are not created yet: one step in Supabase.',offline:'Practice data. The chat server could not be reached.'}[kind];
+  $('#banner').innerHTML=t||'';
+}
+async function bootReal(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  try{
+    const j=await api('init');
+    if(j.setup===false){ banner('setup'); return }
+    REAL=true; document.documentElement.classList.add('rm-real'); banner('');
+    let prefs={}; try{ prefs=JSON.parse(localStorage.getItem('atrium-chat-prefs'))||{} }catch(e){}
+    S={me:j.me.id,groups:[],msgs:j.msgs,read:{},muted:{},arch:{},gone:{},ext:[],snd:1,red:1,push:0,mail:1,men:1,nid:1,...prefs};
+    applyReal(j); cursor=j.cursor||0; lastSig=''; const f=active()[0]; cur=f?f.id:null;
+    const asw=$('#asWho'); if(asw&&asw.closest('.f')) asw.closest('.f').style.display='none';
+    if(cur) pushRead(cur);
+    window.addEventListener('message',e=>{const d=e.data; if(!d||!d.atriumChat) return;
+  if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
+  if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
+$('#xBtn').onclick=()=>{try{parent.postMessage({atriumChat:'close'},'*')}catch(e){}};
+paintAll(); setView(); poll();
+  }catch(e){ banner(e.status===401?'signin':'offline') }
+}
+
 function send(){
   const v=$('#inp').value.trim(); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
+  if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto';
+    (async()=>{ try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
+      const out=await api('send',{gid,body:v,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local}); ingestOwn(m) }
+      catch(e){ flash(e.message); $('#inp').value=v; pend=files; renderPend() } finally{ btn.disabled=false } })(); return }
   const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; paintAll(m.id);
 }
@@ -675,6 +746,8 @@ $('#taskBtn').onclick=()=>taskDlg($('#inp').value.trim());
 $('#tCancel').onclick=()=>$('#ovTask').classList.remove('on');
 $('#tSave').onclick=()=>{
   const title=$('#tTitle').value.trim(); if(!title) return;
+  if(REAL){ const t={title,own:$('#tOwner').value,due:$('#tDue').value,pri:$('#tPri').value,proj:$('#tProj').value,wf:$('#tWf').checked?1:0,ag:$('#tAg').checked?1:0}; const btn=$('#tSave'); btn.disabled=true;
+    api('send',{gid:cur,body:'Set a task for '+P[t.own].n.split(' ')[0]+'.',task:t}).then(out=>{ $('#ovTask').classList.remove('on'); pane='tasks'; ingestOwn(out.msg); const k=out.msg.task; if(k&&t.wf&&!k.wf) flash('Saved in the chat, but it could not reach Workflow.'); if(k&&t.ag&&!k.ag) flash('Saved, but there is no open weekly meeting for the agenda.') }).catch(e=>flash(e.message)).finally(()=>{btn.disabled=false}); return }
   const m={g:cur,u:S.me,x:'Set a task for '+P[$('#tOwner').value].n.split(' ')[0]+'.',task:{title,own:$('#tOwner').value,due:$('#tDue').value,pri:$('#tPri').value,proj:$('#tProj').value,wf:$('#tWf').checked?1:0,ag:$('#tAg').checked?1:0,done:false}};
   m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); S.read[S.me][cur]=m.id; $('#inp').value='';save();
   $('#ovTask').classList.remove('on'); pane='tasks'; paintAll(m.id);
@@ -683,7 +756,9 @@ $('#tSave').onclick=()=>{
 $('#newBtn').onclick=()=>{ gPk=picker($('#gWho'),[S.me]); $('#gName').value=''; $('#gPriv').classList.add('on'); $('#ovGroup').classList.add('on'); };
 $('#gPriv').onclick=e=>e.target.classList.toggle('on');
 $('#gCancel').onclick=()=>$('#ovGroup').classList.remove('on');
-$('#gSave').onclick=()=>{const n=$('#gName').value.trim(); if(!n) return; const r=gPk.get(); const ext=r.ext.map(ensureExt);
+$('#gSave').onclick=()=>{const n=$('#gName').value.trim(); const r=gPk.get();
+  if(REAL){ api('newGroup',{name:n,priv:$('#gPriv').classList.contains('on'),ids:r.ids,ext:r.ext}).then(async o=>{$('#ovGroup').classList.remove('on');await refresh(true);open(o.gid)}).catch(er=>flash(er.message)); return }
+  if(!n) return; const ext=r.ext.map(ensureExt);
   const g={id:'g'+(S.nid++),n,priv:$('#gPriv').classList.contains('on'),m:[S.me,...r.ids,...ext],owner:S.me,proj:'No project'}; S.groups.push(g); S.read[S.me][g.id]=0; save(); $('#ovGroup').classList.remove('on'); open(g.id)};
 /* settings */
 const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
@@ -717,11 +792,7 @@ document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
   if($('#menu').classList.contains('on')){$('#menu').classList.remove('on');return}
   if($('#side').classList.contains('open')&&innerWidth<=1180){closeSide();return}
   if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'close'},'*')}catch(x){}} });
-window.addEventListener('message',e=>{const d=e.data; if(!d||!d.atriumChat) return;
-  if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
-  if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
-$('#xBtn').onclick=()=>{try{parent.postMessage({atriumChat:'close'},'*')}catch(e){}};
-paintAll(); setView();
+paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
 }

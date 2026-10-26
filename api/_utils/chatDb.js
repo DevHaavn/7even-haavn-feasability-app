@@ -1,0 +1,66 @@
+// The chat's database and file store: Supabase REST and Storage, with the service key. Server only.
+const BUCKET = 'chat-files'
+
+function supa(env = process.env, fetchImpl = fetch) {
+  const key = env.SUPABASE_SERVICE_ROLE_KEY
+  if (!key) throw Object.assign(new Error('SUPABASE_SERVICE_ROLE_KEY is not set'), { status: 503 })
+  const root = env.SUPABASE_URL || 'https://vgvavmnqrdgcnledztyk.supabase.co'
+  const H = { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }
+  async function rest(method, path, body, prefer) {
+    const r = await fetchImpl(`${root}/rest/v1/${path}`, { method, headers: { ...H, ...(prefer ? { Prefer: prefer } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) })
+    const text = await r.text()
+    if (!r.ok) { let code = ''; try { code = JSON.parse(text).code } catch { /* not json */ } throw Object.assign(new Error(`db ${r.status} ${code}`), { status: r.status, code }) }
+    return text ? JSON.parse(text) : null
+  }
+  const inList = (ids) => '(' + ids.map((i) => encodeURIComponent(i)).join(',') + ')'
+  const store = {
+    memberRowsFor: (member) => rest('GET', `chat_members?member=eq.${encodeURIComponent(member)}&select=*`),
+    groupsByIds: (ids) => rest('GET', `chat_groups?id=in.${inList(ids)}&select=*`),
+    membersByGroups: (ids) => rest('GET', `chat_members?group_id=in.${inList(ids)}&select=*`),
+    async messagesFor(ids, { after = 0, limit = 500 } = {}) {
+      if (after) return rest('GET', `chat_messages?group_id=in.${inList(ids)}&id=gt.${Number(after)}&order=id.asc&limit=${limit}&select=*`)
+      return (await rest('GET', `chat_messages?group_id=in.${inList(ids)}&order=id.desc&limit=${limit}&select=*`)).reverse()
+    },
+    async insertGroup(g) { return (await rest('POST', 'chat_groups', g, 'return=representation'))[0] },
+    insertMembers: (rows) => rest('POST', 'chat_members?on_conflict=group_id,member', rows, 'resolution=ignore-duplicates,return=minimal'),
+    updateMember: (gid, member, patch) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=eq.${encodeURIComponent(member)}`, patch, 'return=minimal'),
+    deleteMember: (gid, member) => rest('DELETE', `chat_members?group_id=eq.${gid}&member=eq.${encodeURIComponent(member)}`),
+    async insertMessage(m) { return (await rest('POST', 'chat_messages', m, 'return=representation'))[0] },
+    async getMessage(id) { return (await rest('GET', `chat_messages?id=eq.${Number(id)}&select=*`))[0] || null },
+    updateMessage: (id, patch) => rest('PATCH', `chat_messages?id=eq.${Number(id)}`, patch, 'return=minimal'),
+    deleteGroup: (id) => rest('DELETE', `chat_groups?id=eq.${id}`),
+    async findDm(key) { return (await rest('GET', `chat_groups?dm_key=eq.${encodeURIComponent(key)}&select=*`))[0] || null },
+    unarchiveOthers: (gid, me) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=neq.${encodeURIComponent(me)}&archived=eq.true`, { archived: false }, 'return=minimal'),
+    async filePaths(gid) { const ms = await rest('GET', `chat_messages?group_id=eq.${gid}&kind=neq.system&select=files`); return ms.flatMap((m) => (m.files || []).map((f) => f.path).filter(Boolean)) },
+  }
+  async function storage(method, path, body) {
+    const r = await fetchImpl(`${root}/storage/v1/${path}`, { method, headers: H, body: body === undefined ? undefined : JSON.stringify(body) })
+    const text = await r.text()
+    return { ok: r.ok, status: r.status, json: text ? (() => { try { return JSON.parse(text) } catch { return null } })() : null }
+  }
+  let ensured = false
+  const files = {
+    async ensureBucket() {
+      if (ensured) return
+      const r = await storage('POST', 'bucket', { id: BUCKET, name: BUCKET, public: false, file_size_limit: 50 * 1024 * 1024 })
+      if (!r.ok && !/exist|duplicate/i.test(JSON.stringify(r.json))) throw new Error('Could not create the file store (' + r.status + ')')
+      ensured = true
+    },
+    async signUpload(path) {
+      await this.ensureBucket()
+      const r = await storage('POST', `object/upload/sign/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`, {})
+      if (!r.ok || !r.json || !r.json.url) throw new Error('Could not prepare the upload (' + r.status + ')')
+      return { uploadUrl: root + '/storage/v1' + r.json.url }
+    },
+    async signDownloads(paths) {
+      await this.ensureBucket()
+      const r = await storage('POST', `object/sign/${BUCKET}`, { expiresIn: 3600, paths })
+      const out = {}
+      if (r.ok && Array.isArray(r.json)) r.json.forEach((x) => { if (x && x.signedURL && x.path) out[x.path] = root + '/storage/v1' + x.signedURL })
+      return out
+    },
+    async remove(paths) { await storage('DELETE', `object/${BUCKET}`, { prefixes: paths }) },
+  }
+  return { store, files }
+}
+module.exports = { supa, BUCKET }
