@@ -23,7 +23,7 @@ html,body{height:100%;background:radial-gradient(1200px 700px at 15% -10%,#5a5d6
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,textarea,select{font:inherit;color:inherit;background:none;border:0;outline:0}
 .mono{font:300 11px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
-#app{display:grid;grid-template-columns:72px 310px minmax(0,1fr) 350px;gap:12px;padding:12px;height:100dvh}
+#app{display:grid;grid-template-columns:72px var(--wL,310px) minmax(0,1fr) var(--wS,350px);gap:12px;padding:12px;height:100dvh}
 #rail,#list,#thread,#side{border-radius:28px;background:var(--panel);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);box-shadow:var(--hi)}
 /* rail */
 #rail{display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
@@ -38,7 +38,29 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 @keyframes pulse{0%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 0 var(--redglow)}70%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 12px rgba(239,68,68,0)}100%{box-shadow:0 0 0 2px rgba(60,62,68,.9),0 0 0 0 rgba(239,68,68,0)}}
 #rail .sp{flex:1}
 /* list */
-#list{display:flex;overflow:hidden;flex-direction:column;min-height:0}
+#list{display:flex;overflow:hidden;flex-direction:column;min-height:0;position:relative}
+
+/* drag the edges of the three windows: wider to read every title, narrower or hidden to give the conversation room */
+.rz{position:fixed;z-index:60;width:16px;cursor:col-resize;touch-action:none;display:none}
+.rz::after{content:'';position:absolute;left:6px;top:calc(50% - 22px);width:4px;height:44px;border-radius:3px;background:rgba(255,255,255,.18);transition:background .2s,height .2s}
+.rz:hover::after,.rz.drag::after,.rz:focus-visible::after{background:var(--gold,#d6b36a);height:64px;top:calc(50% - 32px)}
+.rz:focus-visible{outline:none}
+body.resizing{cursor:col-resize;user-select:none;-webkit-user-select:none}
+body.resizing iframe{pointer-events:none}
+#app.side-min #side{display:none}
+#list.mini header{flex-direction:column;align-items:center;gap:10px;padding:14px 0 6px}
+#list.mini header h1 .lw,#list.mini #search,#list.mini #banner,#list.mini .lh,#list.mini .sec,#list.mini .archh,#list.mini #byline,#list.mini #dock,#list.mini header .ib:not(#newBtn){display:none!important}
+#list.mini #groups{padding:2px 4px 12px}
+#list.mini .g{justify-content:center;padding:10px 0;min-height:60px}
+#list.mini .g .gt{display:none}
+#list.mini .g .m{position:absolute;top:4px;right:6px;display:block}
+#list.mini .g .m>span:not(.badge){display:none}
+.lh .mono{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 0}
+.lh .calq{padding:5px 10px 5px 8px;gap:5px}
+#tabs #popBtn{margin-left:auto;width:34px;height:34px;flex:none;align-self:center;margin-right:6px;padding:0;display:grid;place-items:center;border-radius:50%}
+#tabs #popBtn::after{display:none}
+#dock{display:none}
+@media(min-width:761px){#dock{display:flex;gap:8px;position:absolute;left:14px;bottom:12px;z-index:4}#dock .ib{width:38px;height:38px}}
 #list header{padding:16px 18px 10px;display:flex;align-items:center;gap:10px}
 #list h1{font-weight:300;font-size:20px;flex:1}
 .ib{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;color:var(--soft);border:1px solid var(--line);position:relative}
@@ -183,12 +205,12 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 /* inside ATRIUM: the app's own drawer supplies the rail, a close button and the alerts */
 body:not(.embed) #xBtn{display:none}
 #tabbar{display:none}
-@media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:310px minmax(0,1fr) 350px}}
-@media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:310px minmax(0,1fr)}}
+@media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:var(--wL,310px) minmax(0,1fr) var(--wS,350px)}}
+@media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:var(--wL,310px) minmax(0,1fr)}}
 body.embed #demo{left:calc(50% + 150px)}
 @media(max-width:760px){body.embed #demo{left:50%}}
 /* phone */
-@media(max-width:1180px){#app{grid-template-columns:64px 280px minmax(0,1fr)}#side{position:fixed;right:0;top:0;bottom:0;width:min(360px,100vw);z-index:50;transform:translateX(100%);transition:transform .45s var(--ease)}#side.open{transform:none}#sidebtn{display:grid!important}}
+@media(max-width:1180px){#app{grid-template-columns:64px var(--wL,280px) minmax(0,1fr)}#side{position:fixed;right:0;top:0;bottom:0;width:min(var(--wS,360px),100vw);z-index:50;transform:translateX(100%);transition:transform .45s var(--ease)}#side.open{transform:none}#sidebtn{display:grid!important}}
 @media(max-width:760px){
  #app{display:block;position:relative;padding:0;gap:0}
  #rail,#list,#thread,#side{border-radius:0;border:0;box-shadow:none}
@@ -758,13 +780,13 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
       <button class="ib" id="popBtn" title="Open Chat in its own window" aria-label="Open Chat in its own window" style="display:none"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
       <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
-      <button class="ib" id="notesBtn" title="Notes" aria-label="Notes" type="button"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></button>
       <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
       <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.51 L21.52 10.76 L21.52 13.24 L19.35 13.49 L18.25 16.14 L19.61 17.85 L17.85 19.61 L16.14 18.25 L13.49 19.35 L13.24 21.52 L10.76 21.52 L10.51 19.35 L7.86 18.25 L6.15 19.61 L4.39 17.85 L5.75 16.14 L4.65 13.49 L2.48 13.24 L2.48 10.76 L4.65 10.51 L5.75 7.86 L4.39 6.15 L6.15 4.39 L7.86 5.75 L10.51 4.65 L10.76 2.48 L13.24 2.48 L13.49 4.65 L16.14 5.75 L17.85 4.39 L19.61 6.15 L18.25 7.86Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></button>
     </header>
     <input id="search" placeholder="Search chats and people">
     <div id="banner"></div>
     <div id="groups"></div>
+    <div id="dock" aria-label="More"></div>
     <div id="byline"><svg class="A" viewBox="0 0 66 74" style="height:11px;width:auto" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="7" pathLength="1"/></svg><span class="tr">TRIUM</span><em>by</em><svg viewBox="30 30 1920 1810" style="height:11px;width:auto" aria-hidden="true"><polygon fill="currentColor" points="60,60 1935,60 1808,223 60,223"/><polygon fill="currentColor" points="1293,348 1548,348 1125,888 1035,768"/><polygon fill="currentColor" points="816,1128 874,1205 401,1806"/><polygon fill="#d6b36a" points="360,348 543,348 1716,1839 1533,1839"/></svg></div>
   </section>
 
@@ -816,6 +838,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Chat</span><span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="tl">Tasks</span><span class="badge" id="bTask2" hidden></span></button>
   <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span class="tl">Meetings</span></button>
+  <button id="notesTab" type="button" data-notes="open"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg><span class="tl">Notes</span></button>
   <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg><span class="tl">You</span></button>
 </nav>
 <div id="arrive" role="status" aria-live="polite"></div>
@@ -1362,7 +1385,7 @@ function renderList(){
     const k=pinned.findIndex(x=>x.id===g.id), isP=k>=0;
     const ar=isArch(g.id);
     return `<div class="ge">${btn}<div class="ctl">${ar?'':`<button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>${isP?'Unpin':'Pin'}</button>`}<button type="button" data-arc="${g.id}"><svg viewBox="0 0 24 24"><path d="M4 7h16v3H4zM6 10v9h12v-9M10 14h4"/></svg>${ar?'Restore':'Archive'}</button><button type="button" class="del" data-rem="${g.id}"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>Delete</button>${isP?`<button type="button" class="mv" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" class="mv" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
-  const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}${editOrd?'':'<button type="button" class="calq" data-cal="open" aria-label="Open my calendar" title="My calendar"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>Calendar</button>'}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
+  const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}${editOrd?'':'<button type="button" class="calq" data-cal="open" aria-label="Open my calendar" title="My calendar"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>Calendar</button><button type="button" class="calq" data-notes="open" aria-label="Open my notes" title="My notes"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg>Notes</button>'}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
   $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+((!qq||rest.some(g=>!g.dm))?`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join(''):'')+((!qq||rest.some(g=>g.dm))?`<div class="sec mono">Direct</div>`:'')+rest.filter(g=>g.dm).map(row).join('')
     +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'')+pplHtml;
   $('#list').classList.toggle('calmode',listCal()); if(listCal()) $('#groups').innerHTML=calListHtml();
@@ -2338,6 +2361,9 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   let deferred=null;
   window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; const g=$('#insGo'); if(g&&$('#ovInstall').classList.contains('on')) g.style.display='' });
   window.addEventListener('appinstalled',()=>{ deferred=null; const r=$('#appRow'); if(r) r.style.display='none'; $('#ovInstall').classList.remove('on') });
+  // the two extra icons (Notes, open as its own app) sit bottom left of the chat list on a computer, so the header keeps its own buttons uncrowded
+  // the open-as-app button sits at the far right of the top bar of the right-hand window, so the chat list header keeps its own buttons uncrowded
+  const tabs=$('#tabs'); if(tabs&&window.matchMedia('(min-width: 761px)').matches){ const b=$('#popBtn'); if(b) tabs.appendChild(b) }
   // pop out: inside ATRIUM on a computer, a button that opens the chat in a window of its own
   const pop=$('#popBtn');
   if(pop&&EMB&&window.matchMedia('(min-width: 761px)').matches&&!/iPad|iPhone|Android/.test(navigator.userAgent)){
@@ -2351,7 +2377,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=1'; nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
-  const nb=$('#notesBtn'); if(nb) nb.onclick=()=>openNotes();
+  document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
   window.addEventListener('message',e=>{ const d=e.data; if(!d) return;
     if(d.atriumNotes==='close'&&e.source===nFr.contentWindow){ nOv.hidden=true; return }
     if(d.atriumChat==='open-notes') openNotes(d.meetingId) });
@@ -2377,6 +2403,61 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   if(!EMB&&!standalone&&/[?&]install=1/.test(location.search)) setTimeout(showInstall,900);
   // inside the Chat app a tapped alert arrives from the service worker: open that chat
   if(!EMB&&'serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumChat==='goto'&&d.gid) window.postMessage({atriumChat:'open-group',gid:d.gid},'*') });
+})();
+</script>
+
+<script>
+/* Resize the windows on a computer: drag the edge of the chat list or the side panel. Remembered on this device; double-click an edge to put it back. */
+(function(){
+  'use strict';
+  const KEY='atrium-chat-widths-v1', $=s=>document.querySelector(s), app=$('#app'), list=$('#list'), side=$('#side');
+  if(!app||!list||!side) return;
+  const DEF={l:/[?&]embed=1/.test(location.search)?310:310,s:350}, MINL=84, MAXL=560, MINS=260, MAXS=560, MINTHREAD=380;
+  let W={l:null,s:null,sMin:false}; try{ W=Object.assign(W,JSON.parse(localStorage.getItem(KEY)||'{}')) }catch(e){}
+  const wide=()=>window.matchMedia('(min-width: 761px)').matches, sideIsColumn=()=>window.matchMedia('(min-width: 1181px)').matches;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const mk=(id,label)=>{ const h=document.createElement('div'); h.className='rz'; h.id=id; h.tabIndex=0; h.setAttribute('role','separator'); h.setAttribute('aria-orientation','vertical'); h.setAttribute('aria-label',label); h.title='Drag to resize. Double-click to reset.'; document.body.appendChild(h); return h };
+  const hL=mk('rzL','Resize the chat list'), hS=mk('rzS','Resize the side panel');
+  function apply(){
+    if(!wide()){ app.style.removeProperty('--wL'); app.style.removeProperty('--wS'); list.classList.remove('mini'); app.classList.remove('side-min'); hL.style.display=hS.style.display='none'; return }
+    if(W.l!=null) app.style.setProperty('--wL',W.l+'px'); else app.style.removeProperty('--wL');
+    list.classList.toggle('mini',W.l!=null&&W.l<=MINL+6);
+    const collapsed=W.sMin&&sideIsColumn(); app.classList.toggle('side-min',collapsed);
+    if(collapsed) app.style.setProperty('--wS','0px'); else if(W.s!=null) app.style.setProperty('--wS',W.s+'px'); else app.style.removeProperty('--wS');
+    requestAnimationFrame(place) }
+  function place(){
+    if(!wide()){ hL.style.display=hS.style.display='none'; return }
+    const l=list.getBoundingClientRect();
+    hL.style.cssText='display:block;left:'+(l.right+6-8)+'px;top:'+l.top+'px;height:'+l.height+'px';
+    const sr=side.getBoundingClientRect(), shown=sr.width>20&&sr.right>0&&sr.left<innerWidth-1&&getComputedStyle(side).display!=='none';
+    if(shown){ hS.style.cssText='display:block;left:'+(sr.left-6-8)+'px;top:'+sr.top+'px;height:'+sr.height+'px' }
+    else if(sideIsColumn()&&app.classList.contains('side-min')){ hS.style.cssText='display:block;left:'+(innerWidth-22)+'px;top:'+l.top+'px;height:'+l.height+'px' }
+    else hS.style.display='none' }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(W)) }catch(e){} }
+  function drag(h,which){
+    h.addEventListener('pointerdown',e=>{ if(e.button!==0) return; e.preventDefault(); h.setPointerCapture(e.pointerId); h.classList.add('drag'); document.body.classList.add('resizing');
+      const x0=e.clientX, l0=list.getBoundingClientRect().width, s0=side.getBoundingClientRect().width, total=app.getBoundingClientRect().width;
+      const move=ev=>{ const dx=ev.clientX-x0;
+        if(which==='l'){ const room=total-(sideIsColumn()&&!app.classList.contains('side-min')?s0:0)-MINTHREAD-60; let v=l0+dx; W.l=v<MINL+60?MINL:clamp(Math.round(v),150,Math.max(200,Math.min(MAXL,room))) }
+        else { let v=s0-dx; if(v<MINS-40){ if(sideIsColumn()){ W.sMin=true } else { const x=$('#sideX'); if(x&&side.classList.contains('open')) x.click(); ev.target.releasePointerCapture&&0 } }
+               else { W.sMin=false; W.s=clamp(Math.round(v),MINS,Math.min(MAXS,total-(W.l||l0)-MINTHREAD-60)) } }
+        apply() };
+      const up=()=>{ h.classList.remove('drag'); document.body.classList.remove('resizing'); h.removeEventListener('pointermove',move); h.removeEventListener('pointerup',up); h.removeEventListener('pointercancel',up); save(); place() };
+      h.addEventListener('pointermove',move); h.addEventListener('pointerup',up); h.addEventListener('pointercancel',up) });
+    h.addEventListener('dblclick',()=>{ if(which==='l') W.l=null; else { W.s=null; W.sMin=false } save(); apply() });
+    h.addEventListener('keydown',e=>{ const step=e.shiftKey?64:16; if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'&&e.key!=='Enter'&&e.key!=='Home') return; e.preventDefault();
+      const dir=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(e.key==='Home'||e.key==='Enter'){ if(which==='l') W.l=null; else { W.s=null; W.sMin=false } }
+      else if(which==='l'){ const cur=list.getBoundingClientRect().width; W.l=clamp(Math.round(cur+dir*step),MINL,MAXL) }
+      else { const cur=side.getBoundingClientRect().width; if(W.sMin){ W.sMin=false; W.s=DEF.s } else W.s=clamp(Math.round(cur-dir*step),MINS,MAXS) }
+      save(); apply() }) }
+  drag(hL,'l'); drag(hS,'s');
+  // asking for a panel that is hidden brings it back
+  document.addEventListener('click',e=>{ if(W.sMin&&e.target.closest('[data-v],#sidebtn,[data-p],[data-open]')){ W.sMin=false; save(); apply() } },true);
+  window.addEventListener('resize',apply);
+  try{ new ResizeObserver(()=>requestAnimationFrame(place)).observe(app) }catch(e){}
+  new MutationObserver(()=>requestAnimationFrame(place)).observe(side,{attributes:true,attributeFilter:['class']});
+  apply(); setTimeout(apply,400);
 })();
 </script>
 </body>

@@ -23,4 +23,19 @@ function mailboxAllowed(me, address, env = process.env) {
   const [local, domain] = a.split('@')
   return COMPANY_DOMAINS.includes(domain) && ((me && me.emails) || []).some((e) => String(e).toLowerCase().split('@')[0] === local)
 }
-module.exports = { signedIn, mailboxAllowed, isMail }
+// Sending mail: from a shared company mailbox (named here, plus MAIL_SHARED_MAILBOXES), or from the person's own mailbox. Never as anyone else.
+const SHARED_SENDERS = ['boardroom@haavn.au', 'boardroom@7even.au', 'accounts@haavn.au', 'reception@7even.au', 'reception@haavn.au']
+function senderAllowed(me, address, env = process.env) {
+  const a = String(address || '').trim().toLowerCase()
+  if (!isMail(a)) return false
+  const shared = [...SHARED_SENDERS, ...String(env.MAIL_SHARED_MAILBOXES || '').split(','), env.NOTES_MAIL_FROM, env.BOARDROOM_SENDER].map((x) => String(x || '').trim().toLowerCase()).filter(Boolean)
+  return shared.includes(a) || mailboxAllowed(me, a, env)
+}
+// A list of addresses, tidied: only real ones, no repeats, never more than max (more than max is an error for the caller to report).
+function addresses(list, max) {
+  const out = [...new Set((Array.isArray(list) ? list : []).map((x) => String(x == null ? '' : x).trim().toLowerCase()).filter(Boolean))]
+  if (out.length > max) return { error: `At most ${max} addresses.` }
+  const bad = out.find((x) => !isMail(x)); if (bad) return { error: `"${bad.slice(0, 60)}" is not an email address.` }
+  return { list: out }
+}
+module.exports = { signedIn, mailboxAllowed, senderAllowed, addresses, isMail }
