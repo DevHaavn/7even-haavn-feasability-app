@@ -735,6 +735,7 @@ async function run(action, a, me, deps) {
     case 'chatMeetings': return chatMeetings(store, kv, me, a)
     case 'myCalendar': return myCalendar(me, a, cal)
     case 'speechToken': return speechToken(speech)
+    case 'speechCheck': return speech && speech.check ? speech.check() : { configured: false }
     case 'createCalEvent': return createCalEvent(me, a, cal, site)
     case 'addToMeeting': return addToMeeting(store, kv, me, a)
     case 'postMinutes': return postMinutes(store, kv, me, a, wp)

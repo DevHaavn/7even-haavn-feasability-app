@@ -9,6 +9,8 @@ const G = require('../../../api/_utils/msGuard.js')
 const calendar = require('../../../api/calendar.js')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const calendarList = require('../../../api/calendar-list.js')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const azureToken = require('../../../api/azure-token.js')
 
 const env = { SESSION_SECRET: 'a-test-secret-of-sufficient-length' }
 const person = (id: string) => A.PEOPLE.find((p: any) => p.id === id)
@@ -42,6 +44,12 @@ describe('the calendar endpoints are locked', () => {
     expect((await call(calendar, { cookie: me, body: { ...good, organizer: 'boardroom@haavn.au' } })).status).toBe(501)
     expect((await call(calendar, { cookie: me, body: { ...good, organizer: 'jamie@haavn.au' } })).status).toBe(501)
     expect((await call(calendarList, { method: 'GET', cookie: me, query: { mailbox: 'jamie@7even.au' } })).status).toBe(501)
+  })
+  it('the speech token endpoint needs sign-in too, and is refused to outside consultants', async () => {
+    expect((await call(azureToken, { method: 'POST' })).status).toBe(401)
+    expect((await call(azureToken, { method: 'GET', cookie: cookieFor('cf') })).status).toBe(403)
+    delete process.env.AZURE_SPEECH_KEY; delete process.env.AZURE_SPEECH_REGION
+    expect((await call(azureToken, { method: 'POST', cookie: cookieFor('jb') })).status).toBe(501)
   })
   it('wrong methods are still refused first, and answers are never cached', async () => {
     expect((await call(calendar, { method: 'GET' })).status).toBe(405)
