@@ -2,7 +2,7 @@
 <html lang="en-AU">
 <head>
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("booting"),setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
-<style>html.booting body>*:not(#boot){visibility:hidden}#boot{display:none}html.booting #boot{display:grid;position:fixed;inset:0;place-items:center;pointer-events:none;color:rgba(243,242,238,.85)}</style>
+<style>html.booting body>*{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATRIUM Chat</title>
@@ -605,15 +605,9 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .rb svg.ci,#tabbar svg.ci{width:25px;height:25px}
 #tabbar svg.ci{width:25px;height:25px}
 @media(prefers-reduced-motion:no-preference){
- .lk.play svg.A path{stroke-dasharray:1 2;stroke-dashoffset:1;animation:adraw .9s var(--ease) .1s forwards}
- .lk.play .lw{animation:aclose 1.3s var(--ease) .45s both}
- #boot svg path{stroke-dasharray:1 2;stroke-dashoffset:1;animation:aload 2.4s var(--ease) infinite}
  .td circle{fill:currentColor;transform-box:fill-box;transform-origin:center;animation:atp 1.2s ease-in-out infinite}.td circle:nth-child(3){animation-delay:.15s}.td circle:nth-child(4){animation-delay:.3s}
 }
 .td circle{fill:currentColor}
-@keyframes adraw{to{stroke-dashoffset:0}}
-@keyframes aclose{from{letter-spacing:.3em;opacity:0}to{letter-spacing:0;opacity:1}}
-@keyframes aload{0%{stroke-dashoffset:1;opacity:1}50%,80%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
 @keyframes atp{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
 /* the list: the ATRIUM ground behind it, a hairline search, chats separated by lines */
 #list{background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover}
@@ -711,7 +705,6 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 </style>
 </head>
 <body>
-<div id="boot" aria-hidden="true"><svg viewBox="0 0 66 74" style="height:54px;width:auto;overflow:visible"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="miter" pathLength="1"/></svg></div>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <div class="logo">A</div>
@@ -724,7 +717,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
   <section id="list">
     <header>
-      <h1 id="listT"><span class="lk play"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
+      <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
       <div class="cap2">
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
@@ -1140,10 +1133,8 @@ const saveSty=()=>{try{localStorage.setItem(STYKEY,JSON.stringify(STY))}catch(e)
 /* the ATRIUM A, drawn from the app's own path, and the small moments built from it */
 function aMark(h,color){ const sw=Math.max(2.17,1.15*74/h); return `<svg class="A" viewBox="0 0 66 74" style="height:${h}px;width:${(h*66/74).toFixed(1)}px${color?';color:'+color:''}" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="${sw.toFixed(2)}" pathLength="1"/></svg>` }
 function typingA(h){ const sw=Math.max(2.17,1.2*74/h), r=h<30?5:4.6; return `<svg class="A td" viewBox="0 0 66 74" style="height:${h}px;width:${(h*66/74).toFixed(1)}px" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="${sw.toFixed(2)}"/><circle cx="21.5" cy="52" r="${r}"/><circle cx="33" cy="52" r="${r}"/><circle cx="44.5" cy="52" r="${r}"/></svg>` }
-const lockupHtml=(w,play)=>`<span class="lk${play?' play':''}"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">${w}</span></span>`;
-function replayLock(){ const l=document.querySelector('#listT .lk'); if(!l) return; l.classList.remove('play'); void l.offsetWidth; l.classList.add('play') }
+const lockupHtml=w=>`<span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">${w}</span></span>`;
 window.addEventListener('message',e=>{ const d=e.data; if(!d||!d.atriumChat) return;
-  if(d.atriumChat==='visible'&&d.open) replayLock();
   if(d.atriumChat==='insets'){ const r=document.documentElement.style; r.setProperty('--sat',(+d.top||0)+'px'); r.setProperty('--sab',(+d.bottom||0)+'px') } });   // the dock measures the phone's notch and home bar, the iframe cannot always
 function waitOn(t){ const el=document.getElementById('typing'); if(!el) return; el.classList.add('me'); el.innerHTML=`<span class="wt">${typingA(22)}<span>${t}</span></span>` }
 function waitOff(){ const el=document.getElementById('typing'); if(!el) return; el.classList.remove('me'); el.innerHTML='' }
@@ -1550,7 +1541,7 @@ function paintAll(newId){renderList();renderThread(newId);setView()}
 function setView(){
   const t=view==='tasks'||view==='meet';
   $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
-  $('#listT').innerHTML=lockupHtml({chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view],!setView.shown); setView.shown=1;   // the A draws in once; switching tabs does not replay it
+  $('#listT').innerHTML=lockupHtml({chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view]);
   if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
   document.body.classList.toggle('side-on',$('#side').classList.contains('open'));
   const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',meet:'Meeting'}[pane]||'This chat';
