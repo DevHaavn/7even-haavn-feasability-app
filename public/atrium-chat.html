@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATRIUM Chat</title>
 <meta name="theme-color" content="#1b1c1f">
-<link rel="manifest" href="/chat.webmanifest?v=2">
+<link rel="manifest" href="/chat.webmanifest?v=3">
 <link rel="apple-touch-icon" href="/icons/chat-apple-touch-180.png?v=2">
 <link rel="icon" type="image/png" sizes="96x96" href="/icons/chat-icon-96.png?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -57,7 +57,12 @@ body.resizing iframe{pointer-events:none}
 #list.mini .g .m>span:not(.badge){display:none}
 .lh .mono{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 0}
 .lh .calq{padding:5px 10px 5px 8px;gap:5px}
-#tabs #popBtn{margin-left:auto;width:34px;height:34px;flex:none;align-self:center;margin-right:6px;padding:0;display:grid;place-items:center;border-radius:50%}
+#tabs{padding:14px 12px 0 14px;gap:0;overflow:hidden}
+#tabs button{padding:8px 9px 12px;font-size:13px;min-width:0;flex:0 1 auto}
+#tabs button.on::after{left:9px;right:9px}
+#tabs #popBtn{margin-left:auto;width:30px;height:30px;flex:none;align-self:center;margin-right:0;padding:0;display:grid;place-items:center;border-radius:50%}
+#rfBtn svg{width:22px;height:22px;transition:transform .6s var(--ease)}
+#rfBtn.go svg{transform:rotate(360deg)}
 #tabs #popBtn::after{display:none}
 #installBar{position:fixed;bottom:14px;left:14px;z-index:90;display:flex;align-items:center;gap:10px;padding:6px 8px 6px 16px;border-radius:999px;background:rgba(30,31,34,.94);border:1px solid rgba(214,179,106,.6);font:400 13px Inter,sans-serif;color:#f3f2ee;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
 #installBar button{height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.1);font:400 13px Inter,sans-serif;color:inherit}
@@ -775,6 +780,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
     <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
     <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <div class="sp"></div>
+    <button class="rb" id="rfBtn" type="button" title="Refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4.5h-4.5"/></svg></button>
     <button class="rb" id="meBtn" title="Account"><span class="av" id="meAv" style="width:34px;height:34px"></span></button>
   </nav>
 
@@ -2376,7 +2382,11 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const pop=$('#popBtn');
   if(pop&&EMB&&window.matchMedia('(min-width: 761px)').matches&&!/iPad|iPhone|Android/.test(navigator.userAgent)){
     pop.style.display='';
-    pop.onclick=()=>{ const w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800'); if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } };
+    // the installed Chat app answers to web+atriumchat:. If it does not take over, open the chat in a window of its own instead.
+    pop.onclick=()=>{ let left=false; const gone=()=>{ left=true }; window.addEventListener('blur',gone,{once:true}); document.addEventListener('visibilitychange',gone,{once:true});
+      try{ const a=document.createElement('a'); a.href='web+atriumchat:open'; a.target='_top'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove() }catch(e){}
+      setTimeout(()=>{ if(left){ try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} return }
+        const w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800'); if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } },1600) };
   }
   // Notes: a full panel over the chat, in this window, so it works in the drawer and in the Chat app alike
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
@@ -2389,6 +2399,8 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   window.addEventListener('message',e=>{ const d=e.data; if(!d) return;
     if(d.atriumNotes==='close'&&e.source===nFr.contentWindow){ nOv.hidden=true; return }
     if(d.atriumChat==='open-notes') openNotes(d.meetingId) });
+  // refresh: in the Chat app's left rail. Reloads the screen so it has the newest chats and the newest version.
+  const rf=$('#rfBtn'); if(rf) rf.onclick=()=>{ rf.classList.add('go'); setTimeout(()=>location.reload(),450) };
   // the install row in Settings
   const row=$('#appRow'), btn=$('#appBtn');
   if(row&&btn){
@@ -2429,7 +2441,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   'use strict';
   const KEY='atrium-chat-widths-v1', $=s=>document.querySelector(s), app=$('#app'), list=$('#list'), side=$('#side');
   if(!app||!list||!side) return;
-  const DEF={l:/[?&]embed=1/.test(location.search)?310:310,s:350}, MINL=84, MAXL=560, MINS=260, MAXS=560, MINTHREAD=380;
+  const DEF={l:/[?&]embed=1/.test(location.search)?310:310,s:350}, MINL=84, MAXL=560, MINS=312, MAXS=560, MINTHREAD=380;
   let W={l:null,s:null,sMin:false}; try{ W=Object.assign(W,JSON.parse(localStorage.getItem(KEY)||'{}')) }catch(e){}
   const wide=()=>window.matchMedia('(min-width: 761px)').matches, sideIsColumn=()=>window.matchMedia('(min-width: 1181px)').matches;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
