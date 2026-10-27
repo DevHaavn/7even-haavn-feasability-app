@@ -116,6 +116,16 @@ export default function ChatDock() {
   const wantMeeting = useRef<string | number | null>(null)
 
   const tell = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage({ atriumChat: m.k, ...m }, '*')
+  // On a phone the chat fills the whole screen and draws under the notch and the home bar, so it needs to know how big they are. Measured here, where env() is reliable, and handed to the chat.
+  const sendInsets = () => {
+    let top = 0, bottom = 0
+    if (phone) {
+      const p = document.createElement('div')
+      p.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)'
+      document.body.appendChild(p); const cs = getComputedStyle(p); top = parseFloat(cs.paddingTop) || 0; bottom = parseFloat(cs.paddingBottom) || 0; p.remove()
+    }
+    tell({ k: 'insets', top, bottom })
+  }
   const goTo = (gid: string) => { setOpen(true); wantGroup.current = gid; tell({ k: 'open-group', gid }) }
   const shout = (n: number) => frames(window).forEach(f => { try { f.postMessage({ atriumChat: 'count', n }, '*') } catch { /* gone */ } })
 
@@ -174,6 +184,12 @@ export default function ChatDock() {
   useEffect(() => { tell({ k: 'visible', open }) }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!on) return
+    const h = () => sendInsets()
+    window.addEventListener('resize', h); window.addEventListener('orientationchange', h); h()
+    return () => { window.removeEventListener('resize', h); window.removeEventListener('orientationchange', h) }
+  }, [on, phone]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!on) return
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k)
   }, [on])
@@ -191,15 +207,8 @@ export default function ChatDock() {
       )}
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
-        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', paddingTop: phone ? 'env(safe-area-inset-top)' : 0, paddingBottom: phone ? 'env(safe-area-inset-bottom)' : 0, background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        {phone && (
-          <div style={{ flex: 'none', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px 0 18px', borderBottom: '1px solid rgba(255,255,255,.14)', color: '#fff', font: '300 15px Inter, system-ui, sans-serif' }}>
-            <span role="img" aria-label="ATRIUM Chat" style={{ display: 'inline-flex' }}><ChatIcon size={24} /></span>
-            <button type="button" aria-label="Close chat" onClick={() => setOpen(false)}
-              style={{ width: 44, height: 44, borderRadius: 999, border: 0, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 17, cursor: 'pointer' }}>✕</button>
-          </div>
-        )}
-        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027n" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
+        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
+        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027o" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

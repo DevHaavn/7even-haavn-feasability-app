@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#2d2f34;--panel:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.09);--line:rgba(255,255,255,.15);--bone:#fff;--soft:rgba(255,255,255,.88);--faint:rgba(255,255,255,.62);--glass:blur(28px) saturate(1.35);--hi:inset 0 1px 0 rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.22);--gold:#d6b36a;--red:#ef4444;--redglow:rgba(239,68,68,.45);--green:#2fe07a;--mine:#1b1a16;--ease:cubic-bezier(.16,1,.3,1)}
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--bg:#2d2f34;--panel:rgba(255,255,255,.08);--panel2:rgba(255,255,255,.09);--line:rgba(255,255,255,.15);--bone:#fff;--soft:rgba(255,255,255,.88);--faint:rgba(255,255,255,.62);--glass:blur(28px) saturate(1.35);--hi:inset 0 1px 0 rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.22);--gold:#d6b36a;--red:#ef4444;--redglow:rgba(239,68,68,.45);--green:#2fe07a;--mine:#1b1a16;--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:radial-gradient(1200px 700px at 15% -10%,#5a5d66 0%,transparent 60%),radial-gradient(900px 700px at 100% 110%,#464952 0%,transparent 60%),linear-gradient(160deg,#42444b,#2b2d32 70%) fixed;color:var(--bone);font:300 15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -179,7 +179,7 @@ body:not(.embed) #xBtn{display:none}
 @media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:310px minmax(0,1fr) 350px}}
 @media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:310px minmax(0,1fr)}}
 body.embed #demo{left:calc(50% + 150px)}
-@media(max-width:760px){body.embed #demo{left:50%}body.embed #xBtn{display:none}}
+@media(max-width:760px){body.embed #demo{left:50%}}
 /* phone */
 @media(max-width:1180px){#app{grid-template-columns:64px 280px minmax(0,1fr)}#side{position:fixed;right:0;top:0;bottom:0;width:min(360px,100vw);z-index:50;transform:translateX(100%);transition:transform .45s var(--ease)}#side.open{transform:none}#sidebtn{display:grid!important}}
 @media(max-width:760px){
@@ -188,18 +188,18 @@ body.embed #demo{left:calc(50% + 150px)}
  #list{background:rgba(52,54,60,.35)}
  #thread{background:rgba(52,54,60,.78)}
  #rail{display:none}
- #list,#thread{position:absolute;inset:0 0 calc(58px + env(safe-area-inset-bottom)) 0;width:100%;border:0}
+ #list,#thread{position:absolute;inset:0 0 calc(58px + var(--sab)) 0;width:100%;border:0}
  #thread{z-index:5;transform:translateX(100%);transition:transform .4s var(--ease)}
  body.in-thread #thread{transform:none}
  body.in-thread #tabbar{display:none}
  #thread{inset:0}
- #tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(70,72,79,.82);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border-top:1px solid var(--line);z-index:20}
+ #tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;height:calc(58px + var(--sab));padding-bottom:var(--sab);background:rgba(70,72,79,.82);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border-top:1px solid var(--line);z-index:20}
  #tabbar button{flex:1;display:grid;place-items:center;gap:0;position:relative;color:var(--faint);font-size:11px}
  #tabbar button.on{color:var(--bone)}
  #tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
  #tabbar .badge{top:4px;right:calc(50% - 22px)}
- #toasts{top:calc(10px + env(safe-area-inset-top));right:10px;left:10px;width:auto}
- #demo{left:50%;top:auto;bottom:calc(66px + env(safe-area-inset-bottom));flex-wrap:wrap;justify-content:center;width:calc(100vw - 20px)}
+ #toasts{top:calc(10px + var(--sat));right:10px;left:10px;width:auto}
+ #demo{left:50%;top:auto;bottom:calc(66px + var(--sab));flex-wrap:wrap;justify-content:center;width:calc(100vw - 20px)}
  body.in-thread #demo{display:none}
  #side{width:100vw}
 }
@@ -211,12 +211,12 @@ body.embed #demo{left:calc(50% + 150px)}
   button,.g,.rb,.ib,.cb{touch-action:manipulation}
   input,textarea,select{font-size:16px!important}
   /* the list: header with room, 44 px buttons, rows with a comfortable tap */
-  #list header{padding:calc(12px + env(safe-area-inset-top)) 14px 8px;gap:8px}
+  #list header{padding:calc(12px + var(--sat)) 14px 8px;gap:8px}
   #list h1{font-size:22px}
   .ib{width:44px;height:44px}
   .ib svg{width:19px;height:19px}
   #search{margin:2px 14px 8px;padding:12px 16px}
-  #groups{padding:2px 6px calc(72px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+  #groups{padding:2px 6px calc(72px + var(--sab));overscroll-behavior:contain}
   .g{padding:12px;min-height:64px}
   #banner{margin:0 14px 8px}
   /* the thread: a header that fits, no avatars crowding it */
@@ -228,7 +228,7 @@ body.embed #demo{left:calc(50% + 150px)}
   #pend{margin:0 10px 6px}
   /* sheets rise from the bottom, scroll inside, clear the home bar */
   .ov{place-items:end center;padding:0}
-  .sheet{width:100%;max-height:92dvh;border-radius:28px 28px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+  .sheet{width:100%;max-height:92dvh;border-radius:28px 28px 0 0;padding:22px 18px calc(22px + var(--sab));-webkit-overflow-scrolling:touch}
   .sheet h3{padding-right:44px}
   .sx{top:14px;right:14px;width:40px;height:40px}
   .pk .dd{max-height:38dvh}
@@ -237,13 +237,13 @@ body.embed #demo{left:calc(50% + 150px)}
   html,body{overflow:hidden}#app{overflow:hidden}
   .sw{gap:10px}
   /* the three-dot menu as a bottom sheet */
-  #menu{left:10px!important;right:10px!important;top:auto!important;bottom:calc(10px + env(safe-area-inset-bottom));padding:8px;border-radius:26px}
+  #menu{left:10px!important;right:10px!important;top:auto!important;bottom:calc(10px + var(--sab));padding:8px;border-radius:26px}
   #menu button{padding:15px 16px;font-size:16px;border-radius:16px}
   /* the side panel: full screen with its own clear close */
   #side{width:100vw}
-  #sideHead{padding:calc(12px + env(safe-area-inset-top)) 14px 6px}
+  #sideHead{padding:calc(12px + var(--sat)) 14px 6px}
   #tabs{padding:10px 10px 0;overflow-x:auto}
-  #pane{padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
+  #pane{padding:14px 14px calc(24px + var(--sab))}
   /* the bar along the bottom */
   #tabbar button{font-size:11px;padding-top:4px}
   #tabbar svg{width:22px;height:22px}
@@ -424,7 +424,7 @@ body.embed #demo{left:calc(50% + 150px)}
 #who .wwp .you{color:rgba(255,255,255,.6);font-size:12px;margin-left:auto}
 #who .wwf{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.14)}
 #who .wwf button{width:100%;height:44px;border-radius:22px;background:rgba(255,255,255,.12);font-size:14px}
-@media(max-width:760px){#who{left:10px!important;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));top:auto!important;width:auto;max-height:55dvh}}
+@media(max-width:760px){#who{left:10px!important;right:10px;bottom:calc(10px + var(--sab));top:auto!important;width:auto;max-height:55dvh}}
 
 /* @mention picker: type @ in the message bar to tag someone in this chat */
 #mpick{position:fixed;z-index:85;display:none;flex-direction:column;padding:6px;border-radius:22px;background:rgba(48,50,56,.96);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);box-shadow:0 14px 40px rgba(0,0,0,.45);max-height:min(46dvh,320px);overflow:auto;color:#fff}
@@ -577,7 +577,7 @@ body.embed #demo{left:calc(50% + 150px)}
 @media(max-width:1399px){#gP{display:none}}
 /* ---- phone: the thread first ---- */
 @media(max-width:760px){
-  #thead{padding:calc(8px + env(safe-area-inset-top)) 10px 8px;min-height:calc(62px + env(safe-area-inset-top));gap:8px}
+  #thead{padding:calc(8px + var(--sat)) 10px 8px;min-height:calc(62px + var(--sat));gap:8px}
   #thead h2{font-size:16.5px}
   #thead .back{display:grid}
   #gP,#wpBtn{display:none}
@@ -585,12 +585,12 @@ body.embed #demo{left:calc(50% + 150px)}
   #msgs{padding:10px 10px 6px}
   .stk{max-width:84%}
   .bub{font-size:16px}
-  #comp{padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
+  #comp{padding:6px 8px calc(8px + var(--sab))}
   #comp .box{min-height:50px}
   #comp .cib{width:44px;height:44px}
   #sendBtn{width:50px;height:50px}
-  #attach{left:8px;bottom:calc(66px + env(safe-area-inset-bottom))}
-  #emo{height:min(340px,42dvh);padding-bottom:env(safe-area-inset-bottom)}
+  #attach{left:8px;bottom:calc(66px + var(--sab))}
+  #emo{height:min(340px,42dvh);padding-bottom:var(--sab)}
   #emo .grid{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
   #amenu .rbar button{width:44px;height:44px}
   .g .ti{--s:48px}
@@ -653,6 +653,61 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 #sendBtn:disabled{background:rgba(11,13,15,.35);color:var(--compTx);border-color:rgba(255,255,255,.2);opacity:.6}
 #thread.lt #sendBtn{background:rgba(255,255,255,.75);color:#8f6a25;border-color:#a3782a}
 #thread.lt #sendBtn:disabled{background:rgba(255,255,255,.5);color:var(--compTx);border-color:rgba(0,0,0,.15)}
+
+/* ---- phone: the chat is the screen, the rest floats. A rounded island for the tabs, a header that is light on top of the chat, the chat running edge to edge underneath ---- */
+@media(min-width:761px){#list .cap2{display:contents}#list .cap2 i{display:none}#xBtn{order:1}#sndBtn{order:2}#setBtn{order:3}#newBtn{order:4}}
+#arrive{display:none}
+@media(max-width:760px){
+ /* the list scrolls under a sticky header */
+ #list{position:absolute;inset:0;z-index:1;display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;-webkit-backdrop-filter:none;backdrop-filter:none}
+ #list header{position:sticky;top:0;z-index:20;padding:calc(var(--sat) + 8px) 14px 6px 18px;min-height:calc(var(--sat) + 62px);background:none;gap:8px;transition:min-height .45s var(--ease)}
+ #list header::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-30px;z-index:-1;background:linear-gradient(180deg,rgba(13,14,16,.95) 0%,rgba(13,14,16,.84) 58%,rgba(13,14,16,0) 100%);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent);pointer-events:none}
+ #list h1{font-size:25px;transition:font-size .45s var(--ease)}
+ #sndBtn,#setBtn{display:none}
+ /* New chat and Close, together in one capsule; the capsule is what pulses lime */
+ #list .cap2{display:flex;align-items:center;height:44px;border-radius:22px;border:1.5px solid #A8BC10;background:rgba(36,38,42,.55);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);animation:newpulse 2.6s ease-in-out infinite;transition:height .45s var(--ease),border-radius .45s var(--ease)}
+ #list .cap2 .ib{width:46px;height:100%;border:0;border-radius:0;background:none;animation:none;box-shadow:none;color:var(--bone);-webkit-backdrop-filter:none;backdrop-filter:none}
+ #list .cap2 #newBtn{color:#A8BC10}
+ #list .cap2 i{display:block;width:1px;height:18px;background:rgba(255,255,255,.22)}
+ body.cmp #list header{min-height:calc(var(--sat) + 48px);padding-top:calc(var(--sat) + 4px);padding-bottom:2px}
+ body.cmp #list h1{font-size:19px}
+ body.cmp #list .cap2{height:36px;border-radius:18px}
+ body.cmp #list .cap2 .ib{width:40px}
+ #search{display:block;width:calc(100% - 40px);margin:6px 20px 4px}
+ #groups{overflow:visible;flex:none;padding:2px 12px calc(var(--sab) + 110px)}
+ #byline{padding-bottom:calc(var(--sab) + 96px)}
+ /* the island */
+ #tabbar{display:flex;position:fixed;left:50%;bottom:calc(var(--sab) + 12px);right:auto;transform:translateX(-50%);width:min(358px,calc(100vw - 32px));height:66px;padding:0 8px;align-items:center;justify-content:space-around;border-radius:33px;background:rgba(38,40,45,.7);-webkit-backdrop-filter:blur(24px) saturate(1.5);backdrop-filter:blur(24px) saturate(1.5);border:1px solid rgba(255,255,255,.18);box-shadow:0 16px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2);z-index:20;transition:width .5s var(--ease),height .5s var(--ease),border-radius .5s var(--ease),opacity .35s,transform .5s var(--ease)}
+ #tabbar button{flex:1;min-width:0;height:52px;border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;font-size:11.5px;color:var(--faint);position:relative;transition:height .5s var(--ease),background .3s,color .3s}
+ #tabbar button.on{color:var(--bone);background:rgba(255,255,255,.1)}
+ #tabbar .tl{display:block;max-height:16px;opacity:1;overflow:hidden;transition:max-height .4s var(--ease),opacity .25s}
+ #tabbar .badge{top:0;right:calc(50% - 30px)}
+ body.cmp #tabbar{width:244px;height:50px;border-radius:25px}
+ body.cmp #tabbar button{height:38px;border-radius:19px}
+ body.cmp #tabbar .tl{max-height:0;opacity:0}
+ body.cmp #tabbar .badge{top:-3px;right:calc(50% - 22px)}
+ body.in-thread #tabbar,body.in-thread #arrive{display:flex;opacity:0;transform:translateX(-50%) translateY(40px);pointer-events:none}
+ /* a message arrives: the island opens to say who, then settles */
+ #arrive{display:flex;position:fixed;left:50%;bottom:calc(var(--sab) + 12px);transform:translateX(-50%) scale(.62);transform-origin:50% 100%;width:min(358px,calc(100vw - 32px));height:80px;border-radius:34px;z-index:22;align-items:center;gap:12px;padding:0 18px 0 14px;background:rgba(44,46,52,.88);-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);border:1px solid rgba(255,255,255,.22);box-shadow:0 18px 48px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.22);opacity:0;pointer-events:none;transition:transform .55s var(--ease),opacity .3s;text-align:left;color:var(--bone)}
+ #arrive.on{opacity:1;transform:translateX(-50%) scale(1);pointer-events:auto;cursor:pointer}
+ #arrive .av{width:44px;height:44px}
+ #arrive .tx{min-width:0;flex:1}
+ #arrive .tx b{display:block;font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #arrive .tx span{display:block;font-size:13.5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #arrive small{font-size:11px;color:var(--faint);align-self:flex-start;margin-top:16px}
+ body.arr #tabbar{opacity:0;transform:translateX(-50%) translateY(14px) scale(.9);pointer-events:none}
+ body.in-thread.arr #tabbar{transform:translateX(-50%) translateY(40px)}
+ /* the thread: a header with no bar, the messages running under it and under the message bar */
+ #thead{position:absolute;left:0;right:0;top:0;z-index:5;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;padding:calc(var(--sat) + 8px) 12px 6px;min-height:calc(var(--sat) + 62px);transition:min-height .45s var(--ease)}
+ #thead::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-30px;z-index:-1;background:linear-gradient(180deg,rgba(13,14,16,.92) 0%,rgba(13,14,16,.78) 58%,rgba(13,14,16,0) 100%);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-mask-image:linear-gradient(#000 62%,transparent);mask-image:linear-gradient(#000 62%,transparent);pointer-events:none}
+ #thread.lt #thead::before{background:linear-gradient(180deg,rgba(250,250,247,.92) 0%,rgba(250,250,247,.78) 58%,rgba(250,250,247,0) 100%)}
+ #thead .sub{max-height:18px;overflow:hidden;transition:max-height .4s var(--ease),opacity .3s}
+ #thread.cmp2 #thead{min-height:calc(var(--sat) + 50px);padding-top:calc(var(--sat) + 4px);padding-bottom:2px}
+ #thread.cmp2 #thead .sub{max-height:0;opacity:0}
+ #thread.cmp2 #hIcon .ti{--s:32px!important}
+ #msgs{padding:calc(var(--sat) + 72px) 10px calc(var(--sab) + 104px);margin-bottom:calc(-1*(var(--sab) + 92px))}
+ #comp{padding:6px 12px calc(var(--sab) + 12px)}
+}
 </style>
 </head>
 <body>
@@ -670,10 +725,13 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <section id="list">
     <header>
       <h1 id="listT"><span class="lk play"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
+      <div class="cap2">
+      <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <i></i>
       <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
       <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
       <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.51 L21.52 10.76 L21.52 13.24 L19.35 13.49 L18.25 16.14 L19.61 17.85 L17.85 19.61 L16.14 18.25 L13.49 19.35 L13.24 21.52 L10.76 21.52 L10.51 19.35 L7.86 18.25 L6.15 19.61 L4.39 17.85 L5.75 16.14 L4.65 13.49 L2.48 13.24 L2.48 10.76 L4.65 10.51 L5.75 7.86 L4.39 6.15 L6.15 4.39 L7.86 5.75 L10.51 4.65 L10.76 2.48 L13.24 2.48 L13.49 4.65 L16.14 5.75 L17.85 4.39 L19.61 6.15 L18.25 7.86Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></button>
-      <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     </header>
     <input id="search" placeholder="Search chats and people">
     <div id="banner"></div>
@@ -726,11 +784,12 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
 <div id="shade"></div>
 <nav id="tabbar">
-  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg>Chat<span class="badge" id="bChat2" hidden></span></button>
-  <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Tasks<span class="badge" id="bTask2" hidden></span></button>
-  <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Meetings</button>
-  <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg>You</button>
+  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Chat</span><span class="badge" id="bChat2" hidden></span></button>
+  <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="tl">Tasks</span><span class="badge" id="bTask2" hidden></span></button>
+  <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span class="tl">Meetings</span></button>
+  <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg><span class="tl">You</span></button>
 </nav>
+<div id="arrive" role="status" aria-live="polite"></div>
 
 <div id="toasts"></div>
 <div id="demo"><span class="mono">Preview</span>
@@ -1083,7 +1142,9 @@ function aMark(h,color){ const sw=Math.max(2.17,1.15*74/h); return `<svg class="
 function typingA(h){ const sw=Math.max(2.17,1.2*74/h), r=h<30?5:4.6; return `<svg class="A td" viewBox="0 0 66 74" style="height:${h}px;width:${(h*66/74).toFixed(1)}px" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="${sw.toFixed(2)}"/><circle cx="21.5" cy="52" r="${r}"/><circle cx="33" cy="52" r="${r}"/><circle cx="44.5" cy="52" r="${r}"/></svg>` }
 const lockupHtml=(w,play)=>`<span class="lk${play?' play':''}"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">${w}</span></span>`;
 function replayLock(){ const l=document.querySelector('#listT .lk'); if(!l) return; l.classList.remove('play'); void l.offsetWidth; l.classList.add('play') }
-window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumChat==='visible'&&d.open) replayLock() });
+window.addEventListener('message',e=>{ const d=e.data; if(!d||!d.atriumChat) return;
+  if(d.atriumChat==='visible'&&d.open) replayLock();
+  if(d.atriumChat==='insets'){ const r=document.documentElement.style; r.setProperty('--sat',(+d.top||0)+'px'); r.setProperty('--sab',(+d.bottom||0)+'px') } });   // the dock measures the phone's notch and home bar, the iframe cannot always
 function waitOn(t){ const el=document.getElementById('typing'); if(!el) return; el.classList.add('me'); el.innerHTML=`<span class="wt">${typingA(22)}<span>${t}</span></span>` }
 function waitOff(){ const el=document.getElementById('typing'); if(!el) return; el.classList.remove('me'); el.innerHTML='' }
 
@@ -1496,9 +1557,18 @@ function setView(){
 }
 
 /* ---- notifications ---- */
+let arrT=null;
+function hideArrive(){ const el=$('#arrive'); el.classList.remove('on'); document.body.classList.remove('arr') }
+function arriveBanner(m,g){ const p=P[m.u], el=$('#arrive'); el.dataset.g=g.id;
+  el.innerHTML=`${av(p)}<div class="tx"><b>${esc(g.dm?p.n:p.n+' · '+gname(g))}</b><span>${esc(m.task?'Set you a task: '+m.task.title:(m.x||'Sent a file'))}</span></div><small>now</small>`;
+  el.classList.add('on'); document.body.classList.add('arr'); clearTimeout(arrT); arrT=setTimeout(hideArrive,3600) }
+$('#arrive').onclick=()=>{ const g=$('#arrive').dataset.g; hideArrive(); if(g) open(g) };
 function toast(m,g){
-  if(EMB){ try{parent.postMessage({atriumChat:'alert',title:P[m.u].n+' · '+gname(g),body:m.task?'Set you a task: '+m.task.title:m.x,gid:g.id,red:S.red,snd:S.snd},'*')}catch(e){} return }
-  if(!S.red) return;
+  // on a phone, in the list: the island opens to show who and what; anywhere else, the red banner as before
+  const banner=innerWidth<=760&&view==='chat'&&!document.body.classList.contains('in-thread')&&document.visibilityState==='visible'&&!!S.red;
+  if(banner) arriveBanner(m,g);
+  if(EMB){ try{parent.postMessage({atriumChat:'alert',title:P[m.u].n+' · '+gname(g),body:m.task?'Set you a task: '+m.task.title:m.x,gid:g.id,red:banner?0:S.red,snd:S.snd},'*')}catch(e){} return }
+  if(!S.red||banner) return;
   const p=P[m.u], el=document.createElement('div');
   el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Chat · now</small></div>`;
   el.onclick=()=>{open(g.id);el.remove()};
@@ -1730,6 +1800,12 @@ function banner(kind){
   const t={signin:'Practice data. <a href="/api/auth/login?return=%2F" target="_top">Sign in with Microsoft</a> to use the real chat.',setup:'Practice data. The chat tables are not created yet: one step in Supabase.',offline:'Practice data. The chat server could not be reached.'}[kind];
   $('#banner').innerHTML=t||'';
 }
+/* phone: the header and the island shrink as you scroll and grow back going up; a swipe down on the header closes the chat */
+$('#list').addEventListener('scroll',()=>{ document.body.classList.toggle('cmp',innerWidth<=760&&$('#list').scrollTop>36) },{passive:true});
+$('#msgs').addEventListener('scroll',()=>{ $('#thread').classList.toggle('cmp2',innerWidth<=760&&$('#msgs').scrollTop>30) },{passive:true});
+(function(){ const h=$('#list header'); let y0=null,x0=0;
+  h.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; x0=e.touches[0].clientX },{passive:true});
+  h.addEventListener('touchend',e=>{ if(y0===null) return; const t=e.changedTouches[0], dy=t.clientY-y0, dx=Math.abs(t.clientX-x0); y0=null; if(EMB&&innerWidth<=760&&dy>80&&dx<60){ try{parent.postMessage({atriumChat:'close'},'*')}catch(x){} } },{passive:true}) })();
 async function bootReal(){
   setTimeout(()=>document.documentElement.classList.remove('booting'),8000);   // never leave the page hidden
   if(!/^https?:$/.test(location.protocol)){ document.documentElement.classList.remove('booting'); return }
