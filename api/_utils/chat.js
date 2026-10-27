@@ -357,7 +357,26 @@ async function send(store, kv, me, a, wp) {
 // ---------- meetings from a chat: the CRM owns meetings (they live in Meeting Management); a chat is just another front door, like it is for tasks ----------
 const cleanLine = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n)
 const fmtMeetingDate = (d) => { const t = new Date(d + 'T12:00:00Z'); return isNaN(t) ? d : t.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) }
-async function createChatMeeting(store, kv, me, a, wp) {
+const lowerN = (v) => String(v || '').toLowerCase()
+const onMeeting = (me, m) => (m.attendees || []).some((x) => lowerN(x.name) === lowerN(me.name)) || lowerN(m.chair) === lowerN(me.name) || me.role === 'admin'
+// the addresses to invite: the attendee's own if the meeting holds one, else their ATRIUM address
+const emailsOf = (m) => (m.attendees || []).map((x) => x.email || ((A.PEOPLE.find((p) => lowerN(p.name) === lowerN(x.name)) || {}).emails || [])[0]).filter(Boolean)
+// An Outlook invite (with a Teams link) for a meeting. Sent again, it moves the same event. The ids are kept on the meeting.
+async function inviteMeeting(kv, cal, me, a, site) {
+  if (!cal || !cal.configured) throw new ChatError('Outlook invites are not set up yet.', 503)
+  if (!kv || !kv.read || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const row = await kv.read(B.KEYS.boardroom)
+  const m = ((row && row.value && row.value.meetings) || []).find((x) => String(x.id) === String(a.meetingId))
+  if (!m) throw new ChatError('No such meeting.', 404)
+  if (!onMeeting(me, m)) throw new ChatError('You are not on this meeting.', 403)
+  if (!m.date) throw new ChatError('Give the meeting a date first.')
+  let r
+  try { r = await cal.upsert(m, { minutes: Math.max(15, Math.round((Number(m.targetSec) || 3600) / 60)), emails: emailsOf(m), by: me.name, site, teams: a.teams !== false }) }
+  catch (e) { throw new ChatError(String((e && e.message) || e).slice(0, 160), 502) }
+  try { await kv.update(B.KEYS.boardroom, (bd) => { const next = JSON.parse(JSON.stringify(bd || { meetings: [] })); const t = (next.meetings || []).find((x) => String(x.id) === String(m.id)); if (t) { t.calendarEventId = r.id; t.teamsJoinUrl = r.joinUrl || undefined; t.webLink = r.webLink || undefined; t.invitedAt = new Date().toISOString(); t.invitedBy = me.name } return { next, result: null } }) } catch { /* the invite is sent; remembering it is best effort */ }
+  return { ok: true, updated: !!r.updated, joinUrl: r.joinUrl || null, webLink: r.webLink || null, people: emailsOf(m).length }
+}
+async function createChatMeeting(store, kv, me, a, wp, cal, site) {
   const { rows } = await mustBeMember(store, a.gid, me)
   if (!kv || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
   const group = (await store.groupsByIds([a.gid]))[0]
@@ -379,13 +398,18 @@ async function createChatMeeting(store, kv, me, a, wp) {
       return { next, result: { ...c.result, items: agenda.length } }
     })
   } catch (e) { if (e instanceof B.UserError) throw new ChatError(e.message); throw e }
-  const meeting = { id: made.id, t: made.title, d: made.date, tm: made.time, a: made.attendees, n: agenda.length }
+  let invite = { ok: false, skipped: true }
+  if (a.invite !== false && cal && cal.configured) {
+    try { invite = { ...(await inviteMeeting(kv, cal, me, { meetingId: made.id, teams: a.teams !== false }, site)), ok: true } }
+    catch (e) { invite = { ok: false, error: String((e && e.message) || e).slice(0, 160) } }
+  }
+  const meeting = { id: made.id, t: made.title, d: made.date, tm: made.time, a: made.attendees, n: agenda.length, ...(invite.ok ? { inv: 1 } : {}) }
   const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'meeting', body: cleanLine(a.note, 500), task: { meeting }, files: [] })
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
   await bringBackDm(store, rows, a.gid, me)
   await store.unarchiveOthers(a.gid, me.sub)
   try { const others = rows.filter((r) => r.member !== me.sub); if (group && others.length) await P.notify({ store, sender: me, msg: row, group, memberRows: others, groupName: group.name }, wp) } catch { /* the meeting is made; an alert failing never undoes it */ }
-  return { msg: shapeMsg(row), meeting: made }
+  return { msg: shapeMsg(row), meeting: made, invite }
 }
 // The chat of a meeting: one private chat per meeting, with its attendees in it, so the meeting itself can talk and share information.
 // A meeting that came from a chat uses that chat. Otherwise the chat is made the first time anyone opens it, and remembered on the meeting.
@@ -395,7 +419,7 @@ async function meetingChat(store, kv, me, a, wp) {
   const m = ((row && row.value && row.value.meetings) || []).find((x) => String(x.id) === String(a.meetingId))
   if (!m) throw new ChatError('No such meeting.', 404)
   const lower = (v) => String(v || '').toLowerCase()
-  const onIt = (m.attendees || []).some((x) => lower(x.name) === lower(me.name)) || lower(m.chair) === lower(me.name) || me.role === 'admin'
+  const onIt = onMeeting(me, m)
   if (!onIt) throw new ChatError('You are not on this meeting.', 403)
   const joinMe = async (gid) => {
     const rows = await store.membersByGroups([gid])
@@ -423,7 +447,7 @@ async function chatMeetings(store, kv, me, a) {
   const row = await kv.read(B.KEYS.boardroom)
   const ms = ((row && row.value && row.value.meetings) || []).filter((m) => m.chatGid === a.gid)
   ms.sort((x, y) => String(x.date).localeCompare(String(y.date)))
-  return { meetings: ms.map((m) => ({ id: m.id, title: m.title || 'Meeting', date: m.date || '', time: m.time || '', closed: !!m.closed, items: (m.items || []).length, decisions: (m.decisions || []).length, minutes: !!(m.minutes && String(m.minutes).trim()), attendees: (m.attendees || []).length })) }
+  return { meetings: ms.map((m) => ({ id: m.id, title: m.title || 'Meeting', date: m.date || '', time: m.time || '', closed: !!m.closed, invited: !!m.calendarEventId, joinUrl: m.teamsJoinUrl || '', items: (m.items || []).length, decisions: (m.decisions || []).length, minutes: !!(m.minutes && String(m.minutes).trim()), attendees: (m.attendees || []).length })) }
 }
 // A message from the chat becomes an agenda item on the next open meeting that came from this chat.
 async function addToMeeting(store, kv, me, a) {
@@ -644,7 +668,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 async function run(action, a, me, deps) {
-  const { store, files, kv, wp } = deps
+  const { store, files, kv, wp, cal, site } = deps
   switch (action) {
     case 'init': { const out = await snapshot(store, files, me, 0, a.v); out.order = await readOrder(store, kv, me); return out }
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
@@ -655,7 +679,8 @@ async function run(action, a, me, deps) {
     case 'unsubscribe': return unsubscribe(store, me, a)
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
-    case 'createMeeting': return createChatMeeting(store, kv, me, a, wp)
+    case 'createMeeting': return createChatMeeting(store, kv, me, a, wp, cal, site)
+    case 'inviteMeeting': return inviteMeeting(kv, cal, me, a, site)
     case 'meetingChat': return meetingChat(store, kv, me, a, wp)
     case 'chatMeetings': return chatMeetings(store, kv, me, a)
     case 'addToMeeting': return addToMeeting(store, kv, me, a)

@@ -5,6 +5,7 @@ const C = require('./_utils/chat')
 const D = require('./_utils/chatDb')
 const B = require('./_utils/blaze')
 const PUSH = require('./_utils/chatPush')
+const OUTLOOK = require('./_utils/outlook')
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store')
@@ -19,7 +20,8 @@ module.exports = async (req, res) => {
     const { store, files } = D.supa()
     let kv = null
     try { kv = B.kv() } catch { /* Workflow link needs the service key too; without it tasks stay in chat */ }
-    res.status(200).json(await C.run(b.a, b, me, { store, files, kv, wp: PUSH.makeSender() }))
+    const site = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host || '7even-haavn-feasability-app-redux.vercel.app')
+    res.status(200).json(await C.run(b.a, b, me, { store, files, kv, wp: PUSH.makeSender(), cal: OUTLOOK.make(), site }))
   } catch (e) {
     if (e && (e.code === 'PGRST205' || e.code === '42P01' || (e.status === 404 && /^db 404/.test(e.message || '')))) {
       res.status(200).json({ setup: false, message: 'The chat tables are not created yet. Run supabase/2026-10-26_signin_and_chat.sql in the Supabase SQL editor.' }); return

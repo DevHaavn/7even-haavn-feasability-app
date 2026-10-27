@@ -366,6 +366,7 @@ body.embed #demo{left:calc(50% + 150px)}
 .mtcard .mm{font-size:12.5px;opacity:.85}
 .mtcard .sub{font-size:11px;opacity:.6}
 .mtrow .cb{margin-top:2px}
+#pane a.lnk{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
 .bub.pending{opacity:.62}
 .bub.failed{opacity:.8;outline:1px solid rgba(255,154,154,.6)}
 .seen.fail{color:#ff9a9a}
@@ -755,6 +756,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div class="f"><label class="mono">Who comes</label><div class="ck" id="mWho"></div></div>
   <div class="f"><label class="mono">Agenda, one item per line</label><textarea id="mAgenda" rows="5" placeholder="Facade package&#10;Council RFI"></textarea></div>
   <div class="f"><label class="mono">Message to the chat (optional)</label><input id="mNote" maxlength="300" placeholder="e.g. Please bring the drawings"></div>
+  <div class="sw" style="border:0;padding-top:4px"><div class="l"><b>Send Outlook invites</b><span>Everyone who comes gets a calendar invite with a Teams link</span></div><button class="tg on" id="mInv" type="button" aria-label="Send Outlook invites"></button></div>
   <div class="row"><button class="cb" id="mCancel" type="button">Cancel</button><button class="cb go" id="mSave" type="button">Create meeting</button></div>
 </div></div>
 
@@ -1309,7 +1311,7 @@ function bubbleHtml(m,pop){
   const hasfile=(m.files||[]).some(f=>!f.type.startsWith('image/')||!f.url);
   const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',m.pending?'pending':'',m.failed?'failed':'',pop?'pop':''].filter(Boolean).join(' ');
   const tm=`<span class="tm">${tmf(m.t)}</span>`;
-  const mtc=m.mt?`<div class="mtcard"><span class="k">Meeting</span><b>${esc(m.mt.t)}</b><span class="mm">${esc(fmtMtgDate(m.mt.d))}${m.mt.tm?' \u00b7 '+esc(fmtMtgTime(m.mt.tm)):''} \u00b7 ${m.mt.a} people${m.mt.n?` \u00b7 ${m.mt.n} agenda item${m.mt.n===1?'':'s'}`:''}</span><span class="sub">In Meeting Management</span></div>`:'';
+  const mtc=m.mt?`<div class="mtcard"><span class="k">Meeting</span><b>${esc(m.mt.t)}</b><span class="mm">${esc(fmtMtgDate(m.mt.d))}${m.mt.tm?' \u00b7 '+esc(fmtMtgTime(m.mt.tm)):''} \u00b7 ${m.mt.a} people${m.mt.n?` \u00b7 ${m.mt.n} agenda item${m.mt.n===1?'':'s'}`:''}</span><span class="sub">${m.mt.inv?'Outlook invite sent \u00b7 ':''}In Meeting Management</span></div>`:'';
   const wfc=m.wf?`<button type="button" class="wfchip" data-wf="${esc(m.wf.id)}"><span>Task</span> ${esc(m.wf.t)}${m.wf.p?` <i>${esc(m.wf.p)}</i>`:''}</button>`:'';
   const body=mtc+wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
   return `<div class="${cls}" data-bub="${m.id}">${body}${(plain&&!imgs&&!hasfile&&!hasTask&&!emo)?'':tm}</div>` }
@@ -1459,7 +1461,7 @@ function renderPane(){
   }else if(pane==='meet'){
     const ag=S.msgs.filter(m=>m.g===cur&&m.task&&m.task.ag&&!m.task.done);
     const lst=REAL?MT[cur]:null; if(REAL&&!lst&&!MTL[cur]) loadMeetings(cur);
-    const row=m=>`<div class="mt mtrow"><div class="mono">${esc(fmtMtgDate(m.date))}${m.time?' · '+esc(fmtMtgTime(m.time)):''}</div><h4>${esc(m.title)}</h4><div class="empty" style="padding:0 0 8px">${m.attendees} people · ${m.items} agenda item${m.items===1?'':'s'}${m.decisions?` · ${m.decisions} decision${m.decisions===1?'':'s'}`:''}${m.closed?' · closed':''}</div>${(m.decisions||m.minutes)?`<button class="cb" data-pm="${m.id}" style="height:34px">Post minutes to chat</button>`:''}</div>`;
+    const row=m=>`<div class="mt mtrow"><div class="mono">${esc(fmtMtgDate(m.date))}${m.time?' · '+esc(fmtMtgTime(m.time)):''}</div><h4>${esc(m.title)}</h4><div class="empty" style="padding:0 0 8px">${m.attendees} people · ${m.items} agenda item${m.items===1?'':'s'}${m.decisions?` · ${m.decisions} decision${m.decisions===1?'':'s'}`:''}${m.closed?' · closed':''}</div>${m.invited?`<div class="empty" style="padding:0 0 8px">Outlook invite sent${m.joinUrl?` \u00b7 <a class="lnk" href="${esc(m.joinUrl)}" target="_blank" rel="noopener noreferrer">Join on Teams</a>`:''}</div>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap">${m.closed?'':`<button class="cb" data-inv="${m.id}" style="height:34px">${m.invited?'Update Outlook invite':'Send Outlook invite'}</button>`}${(m.decisions||m.minutes)?`<button class="cb" data-pm="${m.id}" style="height:34px">Post minutes to chat</button>`:''}</div></div>`;
     const up=(lst||[]).filter(m=>!m.closed), done=(lst||[]).filter(m=>m.closed);
     h=`<div class="mt"><div class="mono">Meeting Management</div><h4>Meet about this chat</h4><div class="empty" style="padding:0 0 10px">Creates the meeting in ATRIUM Meeting Management with the people in this chat as attendees and an agenda from the chat. A card lands here so everyone knows. Decisions and minutes can be posted back.</div><button class="cb go" id="mtNew" type="button" ${REAL?'':'disabled'}>Create a meeting from this chat</button>${REAL?'':'<div class="empty" style="padding:8px 0 0">Meetings need the real chat. Sign in with Microsoft first.</div>'}</div>`
       +(REAL?(lst?(up.length?`<div class="mono" style="margin:16px 2px 6px">From this chat</div>`+up.map(row).join(''):''):'<div class="empty" style="padding:12px 2px">Loading this chat’s meetings…</div>')+(done.length?`<div class="mono" style="margin:16px 2px 6px">Done</div>`+done.map(row).join(''):''):'')
@@ -1480,6 +1482,7 @@ function renderPane(){
   }
   $('#pane').innerHTML=h;
   const mn=$('#mtNew'); if(mn) mn.onclick=()=>openMeetSheet([]);
+  $$('#pane [data-inv]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('inviteMeeting',{meetingId:b.dataset.inv}).then(o=>{ MT[cur]=null; MTL[cur]=0; flash(o.updated?'Outlook invite updated.':'Outlook invite sent to '+o.people+' '+(o.people===1?'person':'people')+'.'); renderPane() }).catch(e=>{ flash(e.message); b.disabled=false }) });
   $$('#pane [data-pm]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('postMinutes',{gid:cur,meetingId:b.dataset.pm}).then(o=>{ ingestOwn(o.msg); flash('Minutes posted to the chat.') }).catch(e=>{ flash(e.message); b.disabled=false }) });
 }
 function paintAll(newId){renderList();renderThread(newId);setView()}
@@ -1790,18 +1793,19 @@ function loadMeetings(gid){ MTL[gid]=1; api('chatMeetings',{gid}).then(o=>{ MT[g
 function nextWorkday(){ const d=new Date(); d.setDate(d.getDate()+1); while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1); const z=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()) }
 function openMeetSheet(pre){
   const g=S.groups.find(x=>x.id===cur); if(!g||!REAL) return; closeMenu();
-  $('#mTitle').value=g.dm?'':gname(g)+' meeting'; $('#mDate').value=nextWorkday(); $('#mTime').value='10:00'; $('#mDur').value='60'; $('#mNote').value='';
+  $('#mInv').classList.add('on'); $('#mTitle').value=g.dm?'':gname(g)+' meeting'; $('#mDate').value=nextWorkday(); $('#mTime').value='10:00'; $('#mDur').value='60'; $('#mNote').value='';
   $('#mWho').innerHTML=g.m.filter(id=>id!==S.me&&P[id]&&!P[id].ext).map(id=>`<label><input type="checkbox" value="${esc(P[id].n)}" checked> ${esc(P[id].n)}</label>`).join('')||'<span class="empty" style="padding:0">Just you so far. Add people to the chat first.</span>';
   const tasks=S.msgs.filter(m=>m.g===g.id&&m.task&&!m.task.done&&m.task.title).map(m=>m.task.title).slice(0,6);
   $('#mAgenda').value=[...(pre||[]),...tasks.filter(t=>!(pre||[]).includes(t))].join('\n');
   $('#ovMeet').classList.add('on'); setTimeout(()=>{ if(!COARSE) $('#mTitle').focus() },60) }
 $('#mCancel').onclick=()=>$('#ovMeet').classList.remove('on');
+$('#mInv').onclick=()=>$('#mInv').classList.toggle('on');
 $('#mSave').onclick=()=>{
   const title=$('#mTitle').value.trim(); if(!title){ flash('Give the meeting a title.'); return }
   if(!$('#mDate').value){ flash('Pick a date.'); return }
   const btn=$('#mSave'); btn.disabled=true; const gid=cur;
-  api('createMeeting',{gid,title,date:$('#mDate').value,time:$('#mTime').value||'10:00',durationMin:+$('#mDur').value,attendees:$$('#mWho input:checked').map(i=>i.value),agenda:$('#mAgenda').value.split(/\n+/).map(x=>x.trim()).filter(Boolean),note:$('#mNote').value.trim()})
-    .then(o=>{ $('#ovMeet').classList.remove('on'); ingestOwn(o.msg); MT[gid]=null; MTL[gid]=0; if(pane==='meet') renderPane(); flash('Meeting created in Meeting Management.') })
+  api('createMeeting',{gid,title,date:$('#mDate').value,time:$('#mTime').value||'10:00',durationMin:+$('#mDur').value,attendees:$$('#mWho input:checked').map(i=>i.value),agenda:$('#mAgenda').value.split(/\n+/).map(x=>x.trim()).filter(Boolean),note:$('#mNote').value.trim(),invite:$('#mInv').classList.contains('on')})
+    .then(o=>{ $('#ovMeet').classList.remove('on'); ingestOwn(o.msg); MT[gid]=null; MTL[gid]=0; if(pane==='meet') renderPane(); const iv=o.invite||{}; flash(iv.ok?'Meeting created. Outlook invites sent to '+iv.people+' '+(iv.people===1?'person':'people')+'.':iv.error?'Meeting created. The Outlook invite could not be sent: '+iv.error:'Meeting created in Meeting Management.') })
     .catch(e=>flash(e.message)).finally(()=>{ btn.disabled=false }) }
 async function addToAgenda(m){
   try{ const r=await api('addToMeeting',{gid:m.g,mid:m.id}); MT[m.g]=null; MTL[m.g]=0; flash('Added to the agenda of \u201c'+r.meeting.title+'\u201d.'); if(pane==='meet') renderPane() }

@@ -37,7 +37,9 @@ function fake() {
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
   const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
-  return { t, objs, deps: { store, files, kv }, db }
+  const calls: any[] = []
+  const cal: any = { configured: true, calls, fail: false, async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } } }
+  return { t, objs, deps: { store, files, kv, cal, site: 'https://atrium.example' }, db, cal }
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
@@ -211,6 +213,44 @@ describe('meetings from a chat', () => {
     await expect(run('postMinutes', { gid: b, meetingId: mA.id })).rejects.toThrow(/not from this chat/)
     F.db.board.meetings.find((x: any) => x.title === 'Meeting A').closed = true
     await expect(run('addToMeeting', { gid: a, mid: msg.id })).rejects.toThrow(/No meeting from this chat/)
+  })
+})
+
+describe('Outlook invites for meetings', () => {
+  it('a meeting made from a chat is invited to Outlook, and the invite is remembered on the meeting', async () => {
+    const { gid } = await run('newGroup', { name: 'Preston', ids: ['ds', 'lj'] })
+    const r = await run('createMeeting', { gid, title: 'Facade review', date: '2026-11-04', time: '10:30', durationMin: 45, attendees: ['Daniel Sette'], agenda: ['Facade'] })
+    expect(r.invite).toMatchObject({ ok: true, joinUrl: 'https://teams.example/join', people: 2 })
+    expect(r.msg.mt.inv).toBe(1)
+    const c = F.cal.calls[0]
+    expect(c.o.emails.sort()).toEqual(['daniel@7even.au', 'jamie@7even.au']); expect(c.o.minutes).toBe(45); expect(c.o.by).toBe('Jamie Baldwin'); expect(c.o.site).toBe('https://atrium.example')
+    const m = F.db.board.meetings.find((x: any) => x.title === 'Facade review')
+    expect(m).toMatchObject({ calendarEventId: 'ev1', teamsJoinUrl: 'https://teams.example/join', invitedBy: 'Jamie Baldwin' })
+    expect((await run('chatMeetings', { gid })).meetings[0]).toMatchObject({ invited: true, joinUrl: 'https://teams.example/join' })
+  })
+  it('can be switched off, and a failing Outlook never loses the meeting', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    const off = await run('createMeeting', { gid, title: 'No invite', date: '2026-11-04', invite: false })
+    expect(off.invite.skipped).toBe(true); expect(F.cal.calls.length).toBe(0); expect(off.msg.mt.inv).toBeUndefined()
+    F.cal.fail = true
+    const bad = await run('createMeeting', { gid, title: 'Outlook down', date: '2026-11-05' })
+    expect(bad.invite).toMatchObject({ ok: false, error: 'Outlook refused' })
+    expect(F.db.board.meetings.some((m: any) => m.title === 'Outlook down')).toBe(true)
+  })
+  it('sends or moves the invite for an existing meeting, for people on it only', async () => {
+    F.db.board.meetings.push({ id: 5, title: 'Board', kind: 'internal', date: '2026-11-10', time: '09:00', chair: 'Jamie Baldwin', closed: false, targetSec: 5400, items: [], attendees: [{ id: 1, name: 'Jamie Baldwin' }, { id: 2, name: 'Daniel Sette', email: 'dan@example.com' }] })
+    const first = await run('inviteMeeting', { meetingId: 5 })
+    expect(first).toMatchObject({ ok: true, updated: false, people: 2 }); expect(F.cal.calls[0].o.minutes).toBe(90); expect(F.cal.calls[0].o.emails).toContain('dan@example.com')
+    expect((await run('inviteMeeting', { meetingId: '5' }, daniel)).updated).toBe(true)
+    await expect(run('inviteMeeting', { meetingId: 5 }, lewis)).rejects.toThrow(/not on this meeting/)
+    await expect(run('inviteMeeting', { meetingId: 99 })).rejects.toThrow(/No such meeting/)
+    F.db.board.meetings.push({ id: 6, title: 'Undated', attendees: [{ name: 'Jamie Baldwin' }] })
+    await expect(run('inviteMeeting', { meetingId: 6 })).rejects.toThrow(/date/)
+  })
+  it('says plainly when Outlook is not set up', async () => {
+    F.cal.configured = false
+    F.db.board.meetings.push({ id: 8, title: 'X', date: '2026-11-10', attendees: [{ name: 'Jamie Baldwin' }] })
+    await expect(run('inviteMeeting', { meetingId: 8 })).rejects.toThrow(/not set up/)
   })
 })
 
