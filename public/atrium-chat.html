@@ -840,7 +840,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 </div></div>
 
 <div class="ov" id="ovMic"><div class="sheet">
-  <h3>The microphone is off for ATRIUM</h3><div class="lead">Your phone remembers the No you tapped. Switch the microphone back on for this site and voice typing works again.</div>
+  <h3>The microphone is off for ATRIUM</h3><div class="lead" id="micLead"></div>
   <div class="msteps" id="micSteps"></div>
   <div class="row"><button class="cb" id="micClose" type="button">Close</button><button class="cb go" id="micRetry" type="button">Try again</button></div>
 </div></div>
@@ -2059,35 +2059,58 @@ inp.addEventListener('focus',()=>{ if(COARSE&&$('#emo').classList.contains('on')
 $('#plusBtn').onclick=e=>{ e.stopPropagation(); closeEmoji(); $('#attach').classList.toggle('on') };
 $('#attach').addEventListener('click',e=>{ const b=e.target.closest('[data-at]'); if(!b) return; $('#attach').classList.remove('on'); if(b.dataset.at==='file') $('#file').click(); if(b.dataset.at==='task') taskDlg(inp.value.trim()); if(b.dataset.at==='poll') openPoll(null,inp.value.trim()) });
 document.addEventListener('click',e=>{ if(!e.target.closest('#attach')&&!e.target.closest('#plusBtn')) $('#attach').classList.remove('on') });
-/* ---- voice typing: speak, and the words land in the message box to read and send ---- */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let rec=null, recOn=false;
+/* ---- voice typing: speak, and the words land in the message box to read and send ----
+   Two ways in, so it works wherever the phone allows it: the phone's own recogniser (Safari, Chrome), and ATRIUM's speech service through the
+   microphone (the only one that works from an iPhone home screen icon, which has no access to the phone's recogniser). */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let mic=null, recOn=false;
+const isIos=()=>/iPhone|iPad|iPod/.test(navigator.userAgent||'')||(/Macintosh/.test(navigator.userAgent||'')&&navigator.maxTouchPoints>1);
+const isHomeApp=()=>navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
 function micUi(on){ recOn=on; const b=$('#micBtn'); b.classList.toggle('rec',on); b.setAttribute('aria-label',on?'Stop voice typing':'Voice typing'); const bx=$('#comp .box'); if(bx) bx.classList.toggle('listening',on); inp.placeholder=on?'Listening…':'Message' }
 // Switching it off always works at once. A phone can be slow to report that listening has ended, or never report it, so the button never waits for that.
-function micStop(){ const r=rec; rec=null; micUi(false); if(r){ try{ r.stop() }catch(e){} setTimeout(()=>{ try{ r.abort() }catch(e){} },1200) } }
+function micStop(){ const m=mic; mic=null; micUi(false); if(m){ try{ m.stop() }catch(e){} } }
 function micBlocked(){
-  const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), android=/Android/.test(ua);
-  const steps=ios?['Open the Settings app, then Safari, then Microphone, and choose Ask or Allow. On newer iPhones it is Settings, Apps, Safari, Microphone.','Or in Safari, tap the aA in the address bar, then Website Settings, then Microphone, then Allow.','If ATRIUM is on your home screen, close it completely and open it again, then tap the microphone. If it still will not ask, delete the icon and add it again from Safari.','Voice typing also needs Dictation switched on: Settings, General, Keyboard, Enable Dictation.']
+  const ios=isIos(), home=ios&&isHomeApp(), android=/Android/.test(navigator.userAgent||'');
+  $('#micLead').textContent=home?'An iPhone home screen icon has no microphone setting of its own, so the usual Settings steps are not there for it. These work instead.':'Your phone remembers the No you tapped. Switch the microphone back on for this site and voice typing works again.';
+  const steps=home?['Tap the small microphone on your keyboard, next to the space bar, to talk into the message box. It works everywhere and needs no setting.','Or open ATRIUM in Safari instead of the icon. In Safari, tap the aA in the address bar, then Website Settings, then Microphone, then Allow.','To make the icon ask again: delete the ATRIUM icon and add it again from Safari (Share, then Add to Home Screen). The next time you tap the microphone, the iPhone asks again. Tap Allow.']
+    :ios?['Open the Settings app, then Safari, then Microphone, and choose Ask or Allow. On newer iPhones it is Settings, Apps, Safari, Microphone.','Or in Safari, tap the aA in the address bar, then Website Settings, then Microphone, then Allow.','Voice typing also needs Dictation switched on: Settings, General, Keyboard, Enable Dictation.']
     :android?['Tap the lock or settings icon next to the web address, then Permissions, then Microphone, then Allow.','Or open the browser menu, then Settings, Site settings, Microphone, and allow this site.','Then come back here and tap Try again.']
     :['Click the lock icon next to the web address, then Site settings, then Microphone, then Allow.','Then reload the page and tap the microphone again.'];
   $('#micSteps').innerHTML=steps.map((t,i)=>`<div class="ms"><b>${i+1}</b><span>${esc(t)}</span></div>`).join('');
   $('#ovMic').classList.add('on') }
+// the phone's own recogniser
+function webStart(base){
+  const r=new SR(); r.continuous=true; r.interimResults=true; r.lang=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
+  const me={ stop(){ try{ r.stop() }catch(e){} setTimeout(()=>{ try{ r.abort() }catch(e){} },1200) } }; mic=me;
+  r.onresult=ev=>{ if(mic!==me) return; let t=''; for(let i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; inp.value=(base?base+' ':'')+t.trim(); grow() };
+  r.onerror=ev=>{ if(mic!==me) return;
+    if(ev.error==='not-allowed'||ev.error==='service-not-allowed'||ev.error==='language-not-supported'){ micStop(); if(REAL) azureStart(base); else micBlocked() }   // the phone said no: try ATRIUM's own route
+    else if(ev.error==='audio-capture'){ micStop(); flash('No microphone was found on this device.') }
+    else if(ev.error==='network'){ micStop(); if(REAL) azureStart(base); else flash('Voice typing needs an internet connection.') } };
+  r.onend=()=>{ if(mic===me){ mic=null; micUi(false) } };
+  try{ r.start(); micUi(true) }catch(er){ mic=null; micUi(false); if(REAL) azureStart(base); else flash('Voice typing could not start. Try again.') } }
+// ATRIUM's speech service, through the microphone the browser gives the page
+function loadSpeechSdk(){ return window.SpeechSDK?Promise.resolve():new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='/atrium-speech/sdk.js?v=1'; sc.onload=ok; sc.onerror=()=>no(new Error('The voice typing helper did not load. Check your connection.')); document.head.appendChild(sc) }) }
+async function azureStart(base){
+  let stopped=false, rec=null;
+  const me={ stop(){ stopped=true; if(rec){ const r=rec; rec=null; const shut=()=>{ try{ r.close() }catch(e){} }; try{ r.stopContinuousRecognitionAsync(shut,shut) }catch(e){ shut() } } } };
+  mic=me; micUi(true);
+  try{
+    const t=await api('speechToken'); await loadSpeechSdk(); if(stopped||mic!==me) return;
+    const SDK=window.SpeechSDK, cfg=SDK.SpeechConfig.fromAuthorizationToken(t.token,t.region); cfg.speechRecognitionLanguage=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
+    rec=new SDK.SpeechRecognizer(cfg,SDK.AudioConfig.fromDefaultMicrophoneInput()); let done='';
+    rec.recognizing=(s,e)=>{ if(mic!==me) return; inp.value=(base?base+' ':'')+(done?done+' ':'')+e.result.text; grow() };
+    rec.recognized=(s,e)=>{ if(mic!==me) return; if(e.result.reason===SDK.ResultReason.RecognizedSpeech&&e.result.text){ done=(done?done+' ':'')+e.result.text; inp.value=(base?base+' ':'')+done; grow() } };
+    rec.canceled=(s,e)=>{ if(mic!==me) return; micStop(); if(e.errorCode===SDK.CancellationErrorCode.ConnectionFailure) flash('Voice typing needs an internet connection.'); else if(e.reason===SDK.CancellationReason.Error) flash('Voice typing stopped. Try again.') };
+    await new Promise((ok,no)=>rec.startContinuousRecognitionAsync(ok,no));
+  }catch(er){ if(mic===me){ micStop(); const msg=String((er&&er.message)||er||'');
+    if(/permission|denied|NotAllowed|not allowed|dismissed/i.test(msg)) micBlocked(); else if(/not set up|could not start|did not load|connection/i.test(msg)) flash(msg); else flash('Voice typing could not start. Try again.') } } }
 function micStart(){
-  if(!SR){ flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.'); return }
   if($('#emo').classList.contains('on')) closeEmoji();
-  const base=inp.value.replace(/\s+$/,''), r=new SR(); rec=r; r.continuous=true; r.interimResults=true;
-  r.lang=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
-  r.onresult=ev=>{ if(rec!==r) return; let t=''; for(let i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; inp.value=(base?base+' ':'')+t.trim(); grow() };
-  r.onerror=ev=>{ if(rec!==r) return;
-    if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){ micStop(); micBlocked() }
-    else if(ev.error==='network') flash('Voice typing needs an internet connection.') };
-  r.onend=()=>{ if(rec===r){ rec=null; micUi(false) } };
-  try{ r.start(); micUi(true) }catch(er){ rec=null; micUi(false); flash('Voice typing could not start. Try again.') } }
-$('#micBtn').onclick=e=>{ e.stopPropagation();
-  if(recOn){ micStop(); return }
-  if(!SR){ flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.'); return }
-  // if the phone already says No, show how to switch it back on instead of failing quietly
-  let ask=null; try{ ask=navigator.permissions&&navigator.permissions.query({name:'microphone'}) }catch(er){ ask=null }
-  if(ask&&ask.then) ask.then(st=>{ if(st&&st.state==='denied') micBlocked(); else micStart() },()=>micStart()); else micStart() };
+  const base=inp.value.replace(/\s+$/,'');
+  if(SR&&!(isIos()&&isHomeApp()&&REAL)) return webStart(base);       // an iPhone home screen icon cannot use the phone's recogniser
+  if(REAL) return azureStart(base);
+  flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.') }
+$('#micBtn').onclick=e=>{ e.stopPropagation(); if(recOn){ micStop(); return } micStart() };
 $('#micClose').onclick=()=>$('#ovMic').classList.remove('on');
 $('#micRetry').onclick=()=>{ $('#ovMic').classList.remove('on'); micStart() };
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&recOn) micStop() });

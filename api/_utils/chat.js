@@ -376,6 +376,12 @@ async function inviteMeeting(kv, cal, me, a, site) {
   try { await kv.update(B.KEYS.boardroom, (bd) => { const next = JSON.parse(JSON.stringify(bd || { meetings: [] })); const t = (next.meetings || []).find((x) => String(x.id) === String(m.id)); if (t) { t.calendarEventId = r.id; t.teamsJoinUrl = r.joinUrl || undefined; t.webLink = r.webLink || undefined; t.invitedAt = new Date().toISOString(); t.invitedBy = me.name } return { next, result: null } }) } catch { /* the invite is sent; remembering it is best effort */ }
   return { ok: true, updated: !!r.updated, joinUrl: r.joinUrl || null, webLink: r.webLink || null, people: emailsOf(m).length }
 }
+// A short-lived key for voice typing from the phone's own microphone. Only for a signed-in person (the handler already checked), and the Azure key never leaves the server.
+async function speechToken(speech) {
+  if (!speech || !speech.configured) throw new ChatError('Voice typing through ATRIUM is not set up yet.', 503)
+  try { return await speech.token() } catch (e) { throw new ChatError('Voice typing could not start. Try again in a moment.', 502) }
+}
+
 // ---- My calendar: what is coming up in the person's own Outlook, and a way to add a meeting to it. Only ever their own mailbox. ----
 const CAL_DOMAINS = ['haavn.au', '7even.au']
 const goodMail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim())
@@ -709,7 +715,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 async function run(action, a, me, deps) {
-  const { store, files, kv, wp, cal, site } = deps
+  const { store, files, kv, wp, cal, speech, site } = deps
   switch (action) {
     case 'init': { const out = await snapshot(store, files, me, 0, a.v); out.order = await readOrder(store, kv, me); return out }
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
@@ -725,6 +731,7 @@ async function run(action, a, me, deps) {
     case 'meetingChat': return meetingChat(store, kv, me, a, wp)
     case 'chatMeetings': return chatMeetings(store, kv, me, a)
     case 'myCalendar': return myCalendar(me, a, cal)
+    case 'speechToken': return speechToken(speech)
     case 'createCalEvent': return createCalEvent(me, a, cal, site)
     case 'addToMeeting': return addToMeeting(store, kv, me, a)
     case 'postMinutes': return postMinutes(store, kv, me, a, wp)

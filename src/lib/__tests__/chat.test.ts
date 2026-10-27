@@ -42,7 +42,8 @@ function fake() {
     async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } },
     async listFor(mb: string) { cal.asked.push(mb); if (cal.forbid) throw Object.assign(new Error('denied'), { status: 403 }); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); return [{ id: 'e1', subject: 'Weekly meeting', allDay: false, start: '2026-10-28T09:30:00', end: '2026-10-28T10:30:00', location: 'Teams', joinUrl: 'https://teams.example/j', webLink: '', organizer: 'Lewis Jin', people: 4 }] },
     async createOn(mb: string, m: any, o: any) { cal.asked.push(mb); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); cal.made.push({ mb, m, o }); return { id: 'new1', joinUrl: 'https://teams.example/new', webLink: 'https://outlook.example/new' } } }
-  return { t, objs, deps: { store, files, kv, cal, site: 'https://atrium.example' }, db, cal }
+  const speech: any = { configured: true, fail: false, async token() { if (speech.fail) throw new Error('refused'); return { token: 'tok123', region: 'australiaeast' } } }
+  return { t, objs, deps: { store, files, kv, cal, speech, site: 'https://atrium.example' }, db, cal, speech }
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
@@ -657,5 +658,15 @@ describe('my calendar', () => {
     await expect(run('createCalEvent', { title: '', date: '2026-10-29' })).rejects.toThrow(/title/)
     await expect(run('createCalEvent', { title: 'x', date: 'soon' })).rejects.toThrow(/date/)
     expect((await run('createCalEvent', { title: 'x', date: '2026-10-29', durationMin: 99999 })).ok).toBe(true); expect(F.cal.made[2].o.minutes).toBe(480)
+  })
+})
+
+describe('voice typing from the phone\'s microphone', () => {
+  it('hands a signed-in person a short-lived speech token, and says plainly when it cannot', async () => {
+    expect(await run('speechToken', {})).toEqual({ token: 'tok123', region: 'australiaeast' })
+    F.speech.fail = true
+    await expect(run('speechToken', {})).rejects.toThrow(/could not start/)
+    F.speech.fail = false; F.speech.configured = false
+    await expect(run('speechToken', {})).rejects.toThrow(/not set up/)
   })
 })
