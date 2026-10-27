@@ -67,8 +67,9 @@ function cleanWall(w) {
   if (w.id === 'color') { if (!/^#[0-9a-fA-F]{6}$/.test(w.color || '')) throw new ChatError('Pick a colour.'); out.color = w.color; out.dark = !!w.dark }
   if (w.id === 'custom') out.dark = !!w.dark   // the picture itself stays on the device it was chosen on
   const n = (v, lo, hi) => { v = Number(v); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : undefined }
-  const dim = n(w.dim, 0, 80), blur = n(w.blur, 0, 14)
+  const dim = n(w.dim, 0, 80), blur = n(w.blur, 0, 14), lite = n(w.lite, 0, 60)
   if (dim !== undefined) out.dim = dim
+  if (lite !== undefined) out.lite = lite
   if (blur !== undefined) out.blur = blur
   if (ACC_IDS.includes(w.acc)) out.acc = w.acc
   if (TACC_IDS.includes(w.tacc)) out.tacc = w.tacc

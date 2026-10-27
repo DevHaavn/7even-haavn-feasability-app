@@ -302,6 +302,15 @@ describe('reactions, chat icons and wallpapers', () => {
     const dm = await run('newGroup', { ids: ['ds'] })
     await expect(run('setIcon', { gid: dm.gid, icon: { id: 'hotels', tile: 'gold' } })).rejects.toThrow(/direct message/)
   })
+  it('plain pastel colours keep their brightness: darker or lighter, within limits', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
+    await run('setWall', { gid, wall: { id: 'color', color: '#f4d9de', dark: false, dim: 0, blur: 0, lite: 30 } })
+    expect((await run('init', {}, jamie)).style.walls[gid]).toEqual({ id: 'color', color: '#f4d9de', dark: false, dim: 0, blur: 0, lite: 30 })
+    await run('setWall', { gid, wall: { id: 'color', color: '#f4d9de', dark: false, lite: 999, dim: 999 } })
+    expect((await run('init', {}, jamie)).style.walls[gid]).toEqual({ id: 'color', color: '#f4d9de', dark: false, dim: 80, lite: 60 })
+    await run('setWall', { gid, wall: { id: 'atrg', lite: 'bright' } })
+    expect((await run('init', {}, jamie)).style.walls[gid]).toEqual({ id: 'atrg' })
+  })
   it('a wallpaper is one person\'s own: it follows them, and nobody else ever receives it', async () => {
     const { gid } = await run('newGroup', { name: 'G', ids: ['ds'] })
     await run('send', { gid, body: 'first' })
