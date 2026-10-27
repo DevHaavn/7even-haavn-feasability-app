@@ -5,7 +5,7 @@
 <style>html.booting body>*{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ATRIUM Crew</title>
+<title>ATRIUM Chat</title>
 <meta name="theme-color" content="#3a3c42">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
@@ -735,7 +735,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <div class="logo">A</div>
-    <button class="rb on" data-v="chat" title="Crew"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
+    <button class="rb on" data-v="chat" title="Chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
     <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
     <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <div class="sp"></div>
@@ -744,7 +744,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
   <section id="list">
     <header>
-      <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Crew</span></span></h1>
+      <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
       <div class="cap2">
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
@@ -804,7 +804,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
 <div id="shade"></div>
 <nav id="tabbar">
-  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Crew</span><span class="badge" id="bChat2" hidden></span></button>
+  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Chat</span><span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="tl">Tasks</span><span class="badge" id="bTask2" hidden></span></button>
   <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span class="tl">Meetings</span></button>
   <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg><span class="tl">You</span></button>
@@ -1359,7 +1359,7 @@ function renderList(){
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
-  document.title=(tu?`(${tu}) `:'')+'ATRIUM Crew';
+  document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
   if(EMB&&(REAL||!document.documentElement.classList.contains('booting'))) try{parent.postMessage({atriumChat:'count',n:REAL?tu:0,t:REAL?ot:0},'*')}catch(e){}
   $('#meAv').outerHTML=av(me(),'',34).replace('<span ','<span id="meAv" ');
   $('#sndBtn').classList.toggle('off',!S.snd);
@@ -1587,7 +1587,7 @@ function paintAll(newId){renderList();renderThread(newId);setView()}
 function setView(){
   const t=view==='tasks'||view==='meet';
   $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
-  $('#listT').innerHTML=lockupHtml({chat:'Crew',tasks:'Tasks',meet:'Meetings'}[view]);
+  $('#listT').innerHTML=lockupHtml({chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view]);
   if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
   document.body.classList.toggle('side-on',$('#side').classList.contains('open'));
   const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',meet:'Meeting'}[pane]||'This chat';
@@ -1607,7 +1607,7 @@ function toast(m,g){
   if(EMB){ try{parent.postMessage({atriumChat:'alert',title:P[m.u].n+' · '+gname(g),body:m.task?'Set you a task: '+m.task.title:m.x,gid:g.id,red:banner?0:S.red,snd:S.snd},'*')}catch(e){} return }
   if(!S.red||banner) return;
   const p=P[m.u], el=document.createElement('div');
-  el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Crew · now</small></div>`;
+  el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Chat · now</small></div>`;
   el.onclick=()=>{open(g.id);el.remove()};
   $('#toasts').prepend(el); setTimeout(()=>el.remove(),7000);
 }
@@ -2018,7 +2018,7 @@ $('#sTest').onclick=()=>{
       if(!r.devices) return pushNote('No device has alerts on yet. Switch on Alerts on this device first, on each phone and computer.');
       pushNote(r.results.map(x=>x.device+': '+(x.ok?'sent':'refused ('+x.status+(x.why?' '+x.why:'')+')')).join('. '));
     }).catch(e=>pushNote('The test could not run: '+e.message)); return }
-  const note={title:'ATRIUM Crew',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
+  const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
   if(emb){ try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){} setTimeout(()=>{try{parent.postMessage(Object.assign({atriumChat:'alert',red:1,snd:S.snd},note),'*')}catch(e){}},900) }
   else { const go=()=>{ chime(); if(window.Notification&&Notification.permission==='granted') new Notification(note.title,{body:note.body}) }; if(window.Notification&&Notification.permission==='default') Notification.requestPermission().then(go); else go() } };
 $('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};
@@ -2103,7 +2103,7 @@ async function azureStart(base){
     rec.canceled=(s,e)=>{ if(mic!==me) return; micStop(); if(e.errorCode===SDK.CancellationErrorCode.ConnectionFailure) flash('Voice typing needs an internet connection.'); else if(e.reason===SDK.CancellationReason.Error) flash('Voice typing stopped. Try again.') };
     await new Promise((ok,no)=>rec.startContinuousRecognitionAsync(ok,no));
   }catch(er){ if(mic===me){ micStop(); const msg=String((er&&er.message)||er||'');
-    if(/permission|denied|NotAllowed|not allowed|dismissed/i.test(msg)) micBlocked(); else if(/not set up|could not start|did not load|connection/i.test(msg)) flash(msg); else flash('Voice typing could not start. Try again.') } } }
+    if(/permission|denied|NotAllowed|not allowed|dismissed/i.test(msg)) micBlocked(); else if((er&&er.status>=500)||/not set up|could not start|did not load|connection/i.test(msg)) flash(msg); else flash('Voice typing could not start. Try again.') } } }
 function micStart(){
   if($('#emo').classList.contains('on')) closeEmoji();
   const base=inp.value.replace(/\s+$/,'');

@@ -84,7 +84,7 @@ function nudges({ messages, members, groups, now = Date.now(), waitMin = 10 }) {
 }
 function emailFor(n, site) {
   const rows = n.items.map((i) => `<tr><td style="padding:6px 0"><b>${esc(i.name)}</b><br><span style="color:#555">${i.count} unread, latest: ${esc(String(i.last.body || (i.last.task && i.last.task.title) || 'a file').slice(0, 120))}</span><br><a href="${site}/?chatopen=${encodeURIComponent(i.gid)}">Open this chat</a></td></tr>`).join('')
-  return { to: n.person.emails[0], subject: `Unread in ATRIUM Crew (${n.items.reduce((a, i) => a + i.count, 0)})`, html: `<div style="font:15px/1.5 Arial,sans-serif;color:#111"><p>${esc(firstName(n.person.name))}, you have messages waiting in ATRIUM Crew.</p><table>${rows}</table><p style="color:#777;font-size:12px">You are emailed only when a message has been unread for 10 minutes. Mute a chat in ATRIUM to stop these.</p></div>` }
+  return { to: n.person.emails[0], subject: `Unread in ATRIUM Chat (${n.items.reduce((a, i) => a + i.count, 0)})`, html: `<div style="font:15px/1.5 Arial,sans-serif;color:#111"><p>${esc(firstName(n.person.name))}, you have messages waiting in ATRIUM Chat.</p><table>${rows}</table><p style="color:#777;font-size:12px">You are emailed only when a message has been unread for 10 minutes. Mute a chat in ATRIUM to stop these.</p></div>` }
 }
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 

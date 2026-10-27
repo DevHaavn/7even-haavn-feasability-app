@@ -1,4 +1,4 @@
-// A short-lived Azure Speech token for voice typing in ATRIUM Crew, from the same Azure Speech resource the Meetings live transcript uses.
+// A short-lived Azure Speech token for voice typing in ATRIUM Chat, from the same Azure Speech resource the Meetings live transcript uses.
 // The key stays on the server; the phone gets a token that expires in about ten minutes. Needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION.
 function make(env = process.env, fetchImpl = fetch) {
   const ok = !!(env.AZURE_SPEECH_KEY && env.AZURE_SPEECH_REGION)

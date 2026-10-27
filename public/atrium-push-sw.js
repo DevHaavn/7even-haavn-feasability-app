@@ -5,12 +5,12 @@ self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))
 
 self.addEventListener('push', (event) => {
   let d = {}
-  try { d = event.data ? event.data.json() : {} } catch { d = { title: 'ATRIUM Crew', body: event.data ? event.data.text() : '' } }
+  try { d = event.data ? event.data.json() : {} } catch { d = { title: 'ATRIUM Chat', body: event.data ? event.data.text() : '' } }
   event.waitUntil((async () => {
     // when ATRIUM is already open and in front, the page shows its own banner and chime: this one stays silent
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
     const seen = wins.some((c) => c.visibilityState === 'visible')
-    await self.registration.showNotification(d.title || 'ATRIUM Crew', {
+    await self.registration.showNotification(d.title || 'ATRIUM Chat', {
       body: d.body || '',
       tag: d.tag || 'atrium-chat',          // one notification per chat, the newest replaces the last
       renotify: !seen,

@@ -67,7 +67,7 @@ export function ChatButton({ color }: { color: string }) {
   }, [])
   if (!on) return null
   return (
-    <button type="button" data-chat-btn aria-label="ATRIUM Crew" onClick={() => window.dispatchEvent(new Event(EVT_TOGGLE))}
+    <button type="button" data-chat-btn aria-label="ATRIUM Chat" onClick={() => window.dispatchEvent(new Event(EVT_TOGGLE))}
       style={{ position: 'relative', width: 26, height: 26, borderRadius: 999, border: 0, color, background: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
       <ChatIcon size={26} />
       {n > 0 && <span style={{ position: 'absolute', top: -6, right: -7, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#ef4444', color: '#fff', font: '500 10px/16px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 10px rgba(239,68,68,.6)' }}>{n}</span>}
@@ -199,16 +199,16 @@ export default function ChatDock() {
   return (
     <>
       {floating && !open && (
-        <button type="button" aria-label="ATRIUM Crew" onClick={() => setOpen(true)}
+        <button type="button" aria-label="ATRIUM Chat" onClick={() => setOpen(true)}
           style={{ ...glass, position: 'fixed', right: 16, bottom: 'calc(54px + env(safe-area-inset-bottom))', zIndex: 9400, width: 38, height: 38, borderRadius: 999, color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0 }}>
           <ChatIcon size={24} />
           {n > 0 && <span style={{ position: 'absolute', top: -5, right: -5, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#ef4444', color: '#fff', font: '500 11px/18px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 12px rgba(239,68,68,.65)' }}>{n}</span>}
         </button>
       )}
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
-      <aside aria-label="ATRIUM Crew" aria-hidden={!open}
+      <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Crew (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027t" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027u" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>
@@ -219,7 +219,7 @@ export default function ChatDock() {
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 14, fontWeight: 400 }}>{t.title}</div>
               <div style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,.86)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{t.body}</div>
-              <div style={{ fontSize: 11, fontWeight: 300, color: 'rgba(255,255,255,.6)', marginTop: 2 }}>ATRIUM Crew · now</div>
+              <div style={{ fontSize: 11, fontWeight: 300, color: 'rgba(255,255,255,.6)', marginTop: 2 }}>ATRIUM Chat · now</div>
             </div>
           </div>
         ))}

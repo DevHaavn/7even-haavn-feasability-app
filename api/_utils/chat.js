@@ -379,7 +379,10 @@ async function inviteMeeting(kv, cal, me, a, site) {
 // A short-lived key for voice typing from the phone's own microphone. Only for a signed-in person (the handler already checked), and the Azure key never leaves the server.
 async function speechToken(speech) {
   if (!speech || !speech.configured) throw new ChatError('Voice typing through ATRIUM is not set up yet.', 503)
-  try { return await speech.token() } catch (e) { throw new ChatError('Voice typing could not start. Try again in a moment.', 502) }
+  try { return await speech.token() } catch (e) {
+    if (e && (e.status === 401 || e.status === 403)) throw new ChatError('Voice typing through ATRIUM needs its speech key renewed. Tell an admin.', 502)
+    throw new ChatError('Voice typing could not start. Try again in a moment.', 502)
+  }
 }
 
 // ---- My calendar: what is coming up in the person's own Outlook, and a way to add a meeting to it. Only ever their own mailbox. ----
@@ -707,7 +710,7 @@ async function pushTest(store, me, a, wp) {
   const results = []
   const kind = (ua) => (/iPhone|iPad/.test(ua || '') ? 'iPhone' : /Android/.test(ua || '') ? 'Android phone' : /Macintosh/.test(ua || '') ? 'Mac' : /Windows/.test(ua || '') ? 'Windows PC' : 'a device')
   await Promise.all(subs.map(async (s) => {
-    try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title: 'ATRIUM Crew', body: 'Test alert. If you can read this, alerts reach this device.', tag: 'test', url: '/' })); results.push({ device: kind(s.ua), ok: true }) }
+    try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title: 'ATRIUM Chat', body: 'Test alert. If you can read this, alerts reach this device.', tag: 'test', url: '/' })); results.push({ device: kind(s.ua), ok: true }) }
     catch (e) { results.push({ device: kind(s.ua), ok: false, status: e.statusCode || 0, why: String(e.body || e.message || '').slice(0, 120) }); if (e.statusCode === 404 || e.statusCode === 410) { try { await store.deletePush(s.endpoint) } catch { /* ignore */ } } }
   }))
   return { enabled: true, devices: subs.length, results }
