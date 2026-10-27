@@ -18,13 +18,19 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 select option{background:#1b1c1f;color:#f3f2ee}
 .mono{font:300 10.5px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
 #app{height:100dvh;display:grid;grid-template-columns:320px 1fr;padding-top:env(safe-area-inset-top)}
-#list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+/* the left bar feels like the ATRIUM chat: the same black marble, drifting very slowly */
+#list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover;animation:drift 60s ease-in-out infinite alternate}
+@keyframes drift{from{background-position:0 0,62% 40%}to{background-position:0 0,36% 64%}}
+@media(prefers-reduced-motion:reduce){#list{animation:none}}
+.hd h1{display:flex;align-items:center;gap:10px}
+.hd h1 svg{height:22px;width:auto;fill:none;stroke:currentColor;stroke-width:6;stroke-linejoin:miter;stroke-miterlimit:8}
 .hd{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
 .hd h1{font:300 22px Inter;margin:0;flex:1}
 .ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.07);display:grid;place-items:center;color:var(--soft);flex:none}
 .ib svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .ib.gold{background:var(--gold);border-color:transparent;color:#1a1408}
-#q{margin:0 16px 8px;width:calc(100% - 32px);border-radius:999px;padding:9px 16px}
+#q{margin:0 16px 8px;width:calc(100% - 32px);border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:10px 4px}
+#q:focus{border-color:rgba(214,179,106,.7)}
 #modes{display:flex;gap:4px;margin:0 16px 8px;padding:4px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
 #modes button{flex:1;height:32px;border-radius:999px;font-size:13px;color:var(--faint)}
 #modes button.on{background:rgba(255,255,255,.16);color:#fff}
@@ -53,7 +59,8 @@ select option{background:#1b1c1f;color:#f3f2ee}
 .tg::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
 .tg.on{background:var(--gold)}.tg.on::after{transform:translateX(16px);background:#1a1408}
 #wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 16px}
-#body{flex:1;min-height:160px;resize:none;border-radius:20px;padding:16px 18px;font-size:16px;line-height:1.6}
+/* the page: faint dotted ruled lines that scroll with the text, so it feels like a notebook */
+#body{flex:1;min-height:160px;resize:none;border-radius:20px;padding:12px 24px;font-size:16px;line-height:32px;background-color:rgba(255,255,255,.03);background-image:radial-gradient(circle at 6px 28px,rgba(255,255,255,.22) 1px,transparent 1.7px);background-size:12px 32px;background-position:0 12px;background-attachment:local;border-color:rgba(255,255,255,.1)}
 #live{min-height:22px;padding:6px 6px 0;color:var(--gold);font-size:13.5px;font-style:italic}
 #foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px calc(12px + env(safe-area-inset-bottom))}
 #mic{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid var(--gold);display:grid;place-items:center;flex:none;color:#fff;transition:background .2s}
@@ -98,7 +105,7 @@ select option{background:#1b1c1f;color:#f3f2ee}
 <body>
 <div id="app">
   <aside id="list">
-    <div class="hd"><h1>Notes</h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="hd"><h1><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74"/></svg>Notes</h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <input id="q" type="search" placeholder="Search notes" autocomplete="off">
     <div id="modes" role="tablist" aria-label="Browse notes"><button type="button" data-mode="recent" class="on">Recent</button><button type="button" data-mode="title">Title</button><button type="button" data-mode="meeting">Meeting</button></div>
     <div id="items"></div>

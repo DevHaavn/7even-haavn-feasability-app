@@ -2382,7 +2382,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
   function openNotes(meetingId){
     nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=2'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=3'; nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
