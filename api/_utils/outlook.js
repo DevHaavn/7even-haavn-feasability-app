@@ -54,6 +54,33 @@ function make(env = process.env, fetchImpl = fetch) {
     if (r.status === 201) return { id: j.id, joinUrl: (j.onlineMeeting && j.onlineMeeting.joinUrl) || null, webLink: j.webLink || null, updated: false }
     throw new Error(r.status === 403 ? `Outlook refused: the ATRIUM app needs Calendars.ReadWrite, and ${organizer} must be a real mailbox.` : `Outlook invite failed (${r.status}).`)
   }
-  return { configured: ok, organizer, upsert }
+  // one person's calendar, from `fromISO` to `toISO`, in Melbourne time: what the Meetings tab shows. Never called with an address the caller did not prove is theirs.
+  async function listFor(mailbox, fromISO, toISO) {
+    if (!ok) { const e = new Error('Outlook is not set up yet.'); e.code = 'notset'; throw e }
+    const t = await token()
+    const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(mailbox)}/calendarView?startDateTime=${encodeURIComponent(fromISO)}&endDateTime=${encodeURIComponent(toISO)}`
+      + '&$orderby=start/dateTime&$top=100&$select=id,subject,start,end,isAllDay,isCancelled,location,onlineMeeting,attendees,organizer,webLink'
+    const r = await fetchImpl(url, { headers: { Authorization: 'Bearer ' + t, Prefer: `outlook.timezone="${TZ}"` } })
+    const j = await r.json().catch(() => ({}))
+    if (!r.ok) { const e = new Error((j.error && j.error.message) || `Outlook answered ${r.status}`); e.status = r.status; throw e }
+    return (j.value || []).filter((e) => !e.isCancelled).map((e) => ({
+      id: e.id, subject: e.subject || '(no subject)', allDay: !!e.isAllDay,
+      start: String((e.start && e.start.dateTime) || '').slice(0, 19), end: String((e.end && e.end.dateTime) || '').slice(0, 19),
+      location: (e.location && e.location.displayName) || (e.onlineMeeting ? 'Teams' : ''),
+      joinUrl: (e.onlineMeeting && e.onlineMeeting.joinUrl) || '', webLink: e.webLink || '',
+      organizer: (e.organizer && e.organizer.emailAddress && (e.organizer.emailAddress.name || e.organizer.emailAddress.address)) || '',
+      people: (e.attendees || []).length,
+    }))
+  }
+  // a new event on one person's own calendar, with the invitations Exchange sends to the attendees
+  async function createOn(mailbox, meeting, opts = {}) {
+    if (!ok) { const e = new Error('Outlook is not set up yet.'); e.code = 'notset'; throw e }
+    const ev = eventFor(meeting, opts), t = await token()
+    const r = await fetchImpl(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(mailbox)}/events`, { method: 'POST', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify(ev) })
+    const j = await r.json().catch(() => ({}))
+    if (r.status === 201) return { id: j.id, joinUrl: (j.onlineMeeting && j.onlineMeeting.joinUrl) || null, webLink: j.webLink || null }
+    const e = new Error((j.error && j.error.message) || `Outlook refused (${r.status})`); e.status = r.status; throw e
+  }
+  return { configured: ok, organizer, upsert, listFor, createOn }
 }
 module.exports = { make, eventFor, span }

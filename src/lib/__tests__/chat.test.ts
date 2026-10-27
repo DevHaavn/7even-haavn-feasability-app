@@ -38,7 +38,10 @@ function fake() {
   const other: any = {}
   const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   const calls: any[] = []
-  const cal: any = { configured: true, calls, fail: false, async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } } }
+  const cal: any = { configured: true, calls, fail: false, asked: [] as string[], made: [] as any[], missing: new Set<string>(), forbid: false,
+    async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } },
+    async listFor(mb: string) { cal.asked.push(mb); if (cal.forbid) throw Object.assign(new Error('denied'), { status: 403 }); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); return [{ id: 'e1', subject: 'Weekly meeting', allDay: false, start: '2026-10-28T09:30:00', end: '2026-10-28T10:30:00', location: 'Teams', joinUrl: 'https://teams.example/j', webLink: '', organizer: 'Lewis Jin', people: 4 }] },
+    async createOn(mb: string, m: any, o: any) { cal.asked.push(mb); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); cal.made.push({ mb, m, o }); return { id: 'new1', joinUrl: 'https://teams.example/new', webLink: 'https://outlook.example/new' } } }
   return { t, objs, deps: { store, files, kv, cal, site: 'https://atrium.example' }, db, cal }
 }
 let F: ReturnType<typeof fake>
@@ -625,5 +628,34 @@ describe('poll backgrounds', () => {
     expect((await run('editPoll', { mid: msg.id, theme: 'nope' })).def.theme).toBeNull()
     const p = await run('poll', { since: 0 }, daniel)
     expect(p.msgs.filter((m: any) => m.k === 'pollup').map((m: any) => m.def.theme)).toEqual(['rock', 'rock', null, null])
+  })
+})
+
+describe('my calendar', () => {
+  it('shows the person\'s own Outlook, trying the other company address when the first is not found', async () => {
+    F.cal.missing.add('jamie@7even.au')
+    const r = await run('myCalendar', { days: 14 })
+    expect(r.mailbox).toBe('jamie@haavn.au'); expect(r.events[0]).toMatchObject({ subject: 'Weekly meeting', joinUrl: 'https://teams.example/j' })
+    expect(F.cal.asked).toEqual(['jamie@7even.au', 'jamie@haavn.au'])
+    F.cal.asked.length = 0
+    expect((await run('myCalendar', {})).mailbox).toBe('jamie@haavn.au'); expect(F.cal.asked).toEqual(['jamie@haavn.au'])   // remembered
+  })
+  it('only ever reads the caller\'s own mailbox, and says plainly when it cannot', async () => {
+    await run('myCalendar', {}, daniel)
+    expect(F.cal.asked.every((a: string) => a.startsWith('daniel@'))).toBe(true)
+    F.cal.forbid = true
+    await expect(run('myCalendar', {}, lewis)).rejects.toThrow(/not allowed to use your calendar/)
+    F.cal.forbid = false; F.cal.configured = false
+    await expect(run('myCalendar', {}, lewis)).rejects.toThrow(/not connected/)
+  })
+  it('adds a meeting to their own calendar with a Teams link and the invited people', async () => {
+    const r = await run('createCalEvent', { title: '  Belmont   catch up ', date: '2026-10-29', time: '14:30', durationMin: 45, attendees: ['dan@example.com', 'bad', 'DAN@example.com', 'lewis@7even.au'], note: 'Staging options' }, daniel)
+    expect(r).toMatchObject({ ok: true, id: 'new1', joinUrl: 'https://teams.example/new', people: 2 })
+    const m = F.cal.made[0]; expect(m.mb).toMatch(/^daniel@/); expect(m.m).toMatchObject({ title: 'Belmont catch up', date: '2026-10-29', time: '14:30' })
+    expect(m.o).toMatchObject({ minutes: 45, emails: ['dan@example.com', 'lewis@7even.au'], teams: true })
+    await run('createCalEvent', { title: 'No Teams', date: '2026-10-29', teams: false }, daniel); expect(F.cal.made[1].o.teams).toBe(false)
+    await expect(run('createCalEvent', { title: '', date: '2026-10-29' })).rejects.toThrow(/title/)
+    await expect(run('createCalEvent', { title: 'x', date: 'soon' })).rejects.toThrow(/date/)
+    expect((await run('createCalEvent', { title: 'x', date: '2026-10-29', durationMin: 99999 })).ok).toBe(true); expect(F.cal.made[2].o.minutes).toBe(480)
   })
 })

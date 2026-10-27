@@ -376,6 +376,47 @@ async function inviteMeeting(kv, cal, me, a, site) {
   try { await kv.update(B.KEYS.boardroom, (bd) => { const next = JSON.parse(JSON.stringify(bd || { meetings: [] })); const t = (next.meetings || []).find((x) => String(x.id) === String(m.id)); if (t) { t.calendarEventId = r.id; t.teamsJoinUrl = r.joinUrl || undefined; t.webLink = r.webLink || undefined; t.invitedAt = new Date().toISOString(); t.invitedBy = me.name } return { next, result: null } }) } catch { /* the invite is sent; remembering it is best effort */ }
   return { ok: true, updated: !!r.updated, joinUrl: r.joinUrl || null, webLink: r.webLink || null, people: emailsOf(m).length }
 }
+// ---- My calendar: what is coming up in the person's own Outlook, and a way to add a meeting to it. Only ever their own mailbox. ----
+const CAL_DOMAINS = ['haavn.au', '7even.au']
+const goodMail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v || '').trim())
+const mailboxMemo = new Map()   // person -> the address Outlook answered to last time, so most requests make one call, not two
+function myMailboxes(me) {
+  const own = [...new Set([...(person(me.sub).e || []), ...((me && me.emails) || [])].map((x) => String(x).trim().toLowerCase()).filter((x) => goodMail(x) && CAL_DOMAINS.includes(x.split('@')[1])))]
+  const out = [...own]
+  for (const l of [...new Set(own.map((x) => x.split('@')[0]))]) for (const d of CAL_DOMAINS) if (!out.includes(l + '@' + d)) out.push(l + '@' + d)
+  const memo = mailboxMemo.get(me.sub); if (memo && out.includes(memo)) { out.splice(out.indexOf(memo), 1); out.unshift(memo) }
+  return out
+}
+async function onMyMailbox(me, cal, fn) {
+  if (!cal || !cal.configured || !cal.listFor) throw new ChatError('Your calendar is not connected yet. ATRIUM needs its Microsoft 365 settings first.', 503)
+  const boxes = myMailboxes(me)
+  if (!boxes.length) throw new ChatError('Your Outlook calendar is only available with a company email address.', 403)
+  let last = null
+  for (const mb of boxes) {
+    try { const out = await fn(mb); mailboxMemo.set(me.sub, mb); return Object.assign({ mailbox: mb }, out) }
+    catch (e) { last = e; if (e && e.status && e.status !== 404 && e.status !== 400) break }
+  }
+  if (last && last.status === 403) throw new ChatError('ATRIUM is not allowed to use your calendar yet. An admin needs to grant it calendar access.', 502)
+  throw new ChatError('Your Outlook calendar could not be found. Ask an admin to check your mailbox.', 502)
+}
+async function myCalendar(me, a, cal) {
+  const days = Math.min(60, Math.max(1, Math.round(Number(a.days) || 14)))
+  const from = new Date(Date.now() - 12 * 3600e3).toISOString(), to = new Date(Date.now() + days * 86400e3).toISOString()
+  return onMyMailbox(me, cal, async (mb) => ({ events: await cal.listFor(mb, from, to) }))
+}
+async function createCalEvent(me, a, cal, site) {
+  const title = String(a.title || '').replace(/\s+/g, ' ').trim().slice(0, 200)
+  if (!title) throw new ChatError('Give the meeting a title.')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(a.date || ''))) throw new ChatError('Pick a date.')
+  const time = /^\d{2}:\d{2}$/.test(String(a.time || '')) ? a.time : '10:00'
+  const minutes = Math.min(480, Math.max(15, Math.round(Number(a.durationMin) || 60)))
+  const emails = [...new Set((Array.isArray(a.attendees) ? a.attendees : []).map((x) => String(x).trim().toLowerCase()).filter(goodMail))].slice(0, 30)
+  const note = String(a.note || '').trim().slice(0, 2000)
+  const meeting = { title, date: a.date, time, items: note ? [{ title: note }] : [] }
+  const out = await onMyMailbox(me, cal, async (mb) => ({ event: await cal.createOn(mb, meeting, { minutes, emails, teams: a.teams !== false, by: person(me.sub).n, site }) }))
+  return { ok: true, mailbox: out.mailbox, id: out.event.id, joinUrl: out.event.joinUrl, webLink: out.event.webLink, people: emails.length }
+}
+
 async function createChatMeeting(store, kv, me, a, wp, cal, site) {
   const { rows } = await mustBeMember(store, a.gid, me)
   if (!kv || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
@@ -683,6 +724,8 @@ async function run(action, a, me, deps) {
     case 'inviteMeeting': return inviteMeeting(kv, cal, me, a, site)
     case 'meetingChat': return meetingChat(store, kv, me, a, wp)
     case 'chatMeetings': return chatMeetings(store, kv, me, a)
+    case 'myCalendar': return myCalendar(me, a, cal)
+    case 'createCalEvent': return createCalEvent(me, a, cal, site)
     case 'addToMeeting': return addToMeeting(store, kv, me, a)
     case 'postMinutes': return postMinutes(store, kv, me, a, wp)
     case 'myGroups': return myGroups(store, me)

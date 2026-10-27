@@ -702,6 +702,22 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
  #msgs{padding:calc(var(--sat) + 72px) 10px calc(var(--sab) + 104px);margin-bottom:calc(-1*(var(--sab) + 92px))}
  #comp{padding:6px 12px calc(var(--sab) + 12px)}
 }
+
+/* ---- Meetings tab: my calendar ---- */
+.seg2{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);margin:0 0 14px}
+.seg2 button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
+.seg2 button.on{background:rgba(255,255,255,.22);color:#fff}
+.calh{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.calh .tx{flex:1;min-width:0}.calh b{display:block;font-weight:400;font-size:16px}.calh .s{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#calRef.spin svg{animation:calspin .9s linear infinite}
+@keyframes calspin{to{transform:rotate(360deg)}}
+.cday{font:400 12.5px Inter,system-ui,sans-serif;color:var(--faint);margin:20px 2px 4px}
+.cev{display:flex;gap:12px;align-items:flex-start;padding:12px 2px;border-top:1px solid var(--line)}
+.cev .ct{width:62px;flex:none;font-size:14px;color:var(--bone);line-height:1.3}.cev .ct small{display:block;color:var(--faint);font-size:12px}
+.cev .cb2{flex:1;min-width:0}.cev .cb2 b{display:block;font-weight:400;font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.cev .cm{font-size:12.5px;color:var(--faint);margin-top:2px;line-height:1.4}
+.cev .soon{color:var(--gold)}
+.cev.ended{opacity:.45}.cev.live .ct{color:var(--gold)}
+.cev .cj{height:36px;padding:0 16px;display:inline-grid;place-items:center;text-decoration:none;font-size:13px;flex:none;border-radius:18px;min-height:36px}
 </style>
 </head>
 <body>
@@ -810,6 +826,17 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div class="f"><label class="mono">Message to the chat (optional)</label><input id="mNote" maxlength="300" placeholder="e.g. Please bring the drawings"></div>
   <div class="sw" style="border:0;padding-top:4px"><div class="l"><b>Send Outlook invites</b><span>Everyone who comes gets a calendar invite with a Teams link</span></div><button class="tg on" id="mInv" type="button" aria-label="Send Outlook invites"></button></div>
   <div class="row"><button class="cb" id="mCancel" type="button">Cancel</button><button class="cb go" id="mSave" type="button">Create meeting</button></div>
+</div></div>
+
+<div class="ov" id="ovCal"><div class="sheet wide">
+  <h3>New meeting</h3><div class="lead">Goes straight into your Outlook calendar. The people you pick get an invite.</div>
+  <div class="f"><label class="mono">Title</label><input id="cTitle" maxlength="120" placeholder="e.g. Belmont landowner call" autocomplete="off"></div>
+  <div class="row"><div class="f"><label class="mono">Date</label><input type="date" id="cDate"></div><div class="f"><label class="mono">Time</label><input type="time" id="cTime" value="10:00"></div></div>
+  <div class="row"><div class="f"><label class="mono">Length</label><select id="cDur"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></div><div class="f"></div></div>
+  <div class="f"><label class="mono">Who</label><div class="pk" id="cWho"></div></div>
+  <div class="f"><label class="mono">Note (optional)</label><input id="cNote" maxlength="300" placeholder="e.g. Please bring the staging options"></div>
+  <div class="sw" style="border:0;padding-top:4px"><div class="l"><b>Teams link</b><span>Adds an online meeting to the invite</span></div><button class="tg on" id="cTeams" type="button" aria-label="Add a Teams link"></button></div>
+  <div class="row"><button class="cb" id="cCancel" type="button">Cancel</button><button class="cb go" id="cSave" type="button">Add to my calendar</button></div>
 </div></div>
 
 <div class="ov" id="ovGroup"><div class="sheet">
@@ -1532,7 +1559,12 @@ function renderPane(){
     <div class="mt"><div class="mono">This chat</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="cb" data-mute="${g.id}">${S.muted[S.me+g.id]?'Unmute':'Mute'}</button><button class="cb" data-arch="${g.id}">${isArch(g.id)?'Restore':'Archive'}</button><button class="cb" data-del="${g.id}" style="color:#ff9a9a">${g.dm||own!==S.me?'Remove from my list':'Delete for everyone'}</button></div></div>`;
     setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg; bindName(g)},0);
   }
+  if(pane==='meet') h=`<div class="seg2"><button type="button" data-ms="cal" class="${meetSeg==='cal'?'on':''}">My calendar</button><button type="button" data-ms="chat" class="${meetSeg==='chat'?'on':''}">This chat</button></div>`+(meetSeg==='cal'?calHtml():h);
   $('#pane').innerHTML=h;
+  $$('#pane [data-ms]').forEach(b=>b.onclick=()=>{ meetSeg=b.dataset.ms; renderPane() });
+  const cr=$('#calRef'); if(cr) cr.onclick=()=>{ cr.classList.add('spin'); loadCal(true) };
+  const cn=$('#calNew'); if(cn) cn.onclick=openCalSheet;
+  const ct=$('#calRetry'); if(ct) ct.onclick=()=>{ CAL.err=''; loadCal(true); renderPane() };
   const mn=$('#mtNew'); if(mn) mn.onclick=()=>openMeetSheet([]);
   $$('#pane [data-inv]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('inviteMeeting',{meetingId:b.dataset.inv}).then(o=>{ MT[cur]=null; MTL[cur]=0; flash(o.updated?'Outlook invite updated.':'Outlook invite sent to '+o.people+' '+(o.people===1?'person':'people')+'.'); renderPane() }).catch(e=>{ flash(e.message); b.disabled=false }) });
   $$('#pane [data-pm]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('postMinutes',{gid:cur,meetingId:b.dataset.pm}).then(o=>{ ingestOwn(o.msg); flash('Minutes posted to the chat.') }).catch(e=>{ flash(e.message); b.disabled=false }) });
@@ -1854,12 +1886,58 @@ $('#sendBtn').onclick=send;
 /* task dialog */
 /* ---- meetings from a chat ---- */
 const MT={}, MTL={};
+/* ---- Meetings tab: my live calendar from Outlook and Teams, and a way to add a meeting to it ---- */
+let meetSeg='cal'; const CAL={events:null,mailbox:'',err:'',loading:false,at:0};
+const melNow=()=>{ const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Australia/Melbourne',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{}); return p.year+'-'+p.month+'-'+p.day+'T'+p.hour+':'+p.minute+':00' };
+const dayPlus=(d,k)=>{ const t=new Date(d+'T12:00:00'); t.setDate(t.getDate()+k); const z=n=>String(n).padStart(2,'0'); return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()) };
+const t12=s=>fmtMtgTime((s||'').slice(11,16));
+function calSample(){ const today=melNow().slice(0,10), d=k=>dayPlus(today,k);
+  return [{id:'s1',subject:'Weekly meeting',start:d(0)+'T09:30:00',end:d(0)+'T10:30:00',location:'Teams',joinUrl:'https://teams.microsoft.com/',organizer:'Lewis Jin',people:6},
+   {id:'s2',subject:'Belmont landowner call',start:d(0)+'T14:00:00',end:d(0)+'T14:45:00',location:'Teams',joinUrl:'https://teams.microsoft.com/',organizer:'You',people:3},
+   {id:'s3',subject:'Corio board pack review',start:d(1)+'T10:00:00',end:d(1)+'T11:00:00',location:'Boardroom',joinUrl:'',organizer:'Daniel Sette',people:4},
+   {id:'s4',subject:'Preston site visit',start:d(2)+'T00:00:00',end:d(3)+'T00:00:00',allDay:true,location:'',joinUrl:'',organizer:'You',people:0},
+   {id:'s5',subject:'HAAVN BLACK launch planning',start:d(3)+'T15:30:00',end:d(3)+'T16:30:00',location:'Teams',joinUrl:'https://teams.microsoft.com/',organizer:'Mike Furniss',people:5}] }
+function loadCal(force){
+  if(CAL.loading) return; if(!force&&(CAL.err||(CAL.events&&Date.now()-CAL.at<120000))) return;
+  CAL.loading=true; CAL.err='';
+  const done=()=>{ CAL.loading=false; CAL.at=Date.now(); if(pane==='meet'&&meetSeg==='cal') renderPane() };
+  if(!REAL){ setTimeout(()=>{ CAL.events=CAL.events||calSample(); CAL.mailbox='practice'; done() },350); return }
+  api('myCalendar',{days:14}).then(o=>{ CAL.events=o.events||[]; CAL.mailbox=o.mailbox||''; done() }).catch(e=>{ CAL.err=e.message||'Your calendar could not be loaded.'; done() }) }
+function calHtml(){
+  loadCal(false);
+  const now=melNow(), today=now.slice(0,10), tomorrow=dayPlus(today,1);
+  const head=`<div class="calh"><div class="tx"><b>My calendar</b><span class="s">${CAL.mailbox==='practice'?'Practice data. Sign in to see your own Outlook.':CAL.mailbox?'Live from Outlook and Teams · '+esc(CAL.mailbox):'Live from Outlook and Teams'}</span></div><button type="button" class="ib" id="calRef" aria-label="Refresh my calendar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button></div><button type="button" class="cb go" id="calNew" style="width:100%;margin:2px 0 6px">New meeting</button>`;
+  if(CAL.err) return head+`<div class="empty">${esc(CAL.err)}</div><button type="button" class="cb" id="calRetry">Try again</button>`;
+  if(!CAL.events) return head+'<div class="empty">Loading your calendar…</div>';
+  const evs=CAL.events.filter(e=>(e.start||'').slice(0,10)>=today&&(e.start||'').slice(0,10)<=dayPlus(today,14)).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+  if(!evs.length) return head+'<div class="empty">Nothing in the next two weeks.</div>';
+  let out='',last='';
+  evs.forEach(e=>{ const d=e.start.slice(0,10); if(d!==last){ out+=`<div class="cday">${d===today?'Today':d===tomorrow?'Tomorrow':esc(fmtMtgDate(d))}</div>`; last=d }
+    const ended=!e.allDay&&(e.end||e.start)<now, live=!e.allDay&&e.start<=now&&(e.end||'')>now, mins=Math.round((Date.parse(e.start+'Z')-Date.parse(now+'Z'))/60000);
+    const meta=[e.location?esc(e.location):'',e.people?e.people+' '+(e.people===1?'person':'people'):'',e.organizer&&e.organizer!=='You'?esc(e.organizer):''].filter(Boolean).join(' · ');
+    const join=/^https:\/\//.test(e.joinUrl||'')&&!ended?`<a class="cb go cj" href="${esc(e.joinUrl)}" target="_blank" rel="noopener">${live?'Join now':'Join'}</a>`:'';
+    out+=`<div class="cev ${ended?'ended':''} ${live?'live':''}"><div class="ct">${e.allDay?'All day':t12(e.start)+'<small>'+t12(e.end)+'</small>'}</div><div class="cb2"><b>${esc(e.subject)}</b><div class="cm">${meta}${!live&&!ended&&mins>0&&mins<=60?` <span class="soon">${meta?'· ':''}in ${mins} min</span>`:''}${live?` <span class="soon">${meta?'· ':''}on now</span>`:''}</div></div>${join}</div>` });
+  return head+out }
+let cPk=null;
+function openCalSheet(){ closeMenu(); $('#cTitle').value=''; $('#cDate').value=nextWorkday(); $('#cTime').value='10:00'; $('#cDur').value='60'; $('#cNote').value=''; $('#cTeams').classList.add('on'); cPk=picker($('#cWho'),[S.me]); $('#ovCal').classList.add('on'); setTimeout(()=>{ if(!COARSE) $('#cTitle').focus() },60) }
+$('#cCancel').onclick=()=>$('#ovCal').classList.remove('on');
+$('#cTeams').onclick=()=>$('#cTeams').classList.toggle('on');
+$('#cSave').onclick=()=>{
+  const title=$('#cTitle').value.trim(); if(!title){ flash('Give the meeting a title.'); return } if(!$('#cDate').value){ flash('Pick a date.'); return }
+  const sel=cPk?cPk.get():{ids:[],ext:[]}, emails=[...sel.ids.map(id=>(P[id]&&P[id].e&&P[id].e[0])||'').filter(Boolean),...sel.ext];
+  const body={title,date:$('#cDate').value,time:$('#cTime').value||'10:00',durationMin:+$('#cDur').value,attendees:emails,note:$('#cNote').value.trim(),teams:$('#cTeams').classList.contains('on')};
+  const btn=$('#cSave'); btn.disabled=true;
+  if(!REAL){ const st=new Date(body.date+'T'+body.time+':00Z'), en=new Date(st.getTime()+body.durationMin*60000), iso=t=>t.toISOString().slice(0,19);
+    CAL.events=(CAL.events||calSample()).concat([{id:'n'+Date.now(),subject:title,start:iso(st),end:iso(en),location:body.teams?'Teams':'',joinUrl:body.teams?'https://teams.microsoft.com/':'',organizer:'You',people:emails.length}]); CAL.mailbox='practice';
+    $('#ovCal').classList.remove('on'); btn.disabled=false; flash('Practice data: added to the sample calendar.'); renderPane(); return }
+  api('createCalEvent',body).then(o=>{ $('#ovCal').classList.remove('on'); flash('Added to your calendar'+(o.people?'. Invites sent to '+o.people+' '+(o.people===1?'person':'people')+'.':'.')); loadCal(true) }).catch(e=>flash(e.message)).finally(()=>{ btn.disabled=false }) };
+setInterval(()=>{ if(document.visibilityState==='visible'&&(innerWidth>760||$('#side').classList.contains('open'))&&pane==='meet'&&meetSeg==='cal') loadCal(true) },300000);
 const fmtMtgDate=d=>{ const t=new Date(d+'T12:00:00'); return isNaN(t)?d:t.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) };
 const fmtMtgTime=t=>{ const m=/^(\d\d):(\d\d)$/.exec(t||''); if(!m) return t||''; let h=+m[1]; const ap=h>=12?'pm':'am'; h=h%12||12; return h+(m[2]==='00'?'':':'+m[2])+ap };
 function loadMeetings(gid){ MTL[gid]=1; api('chatMeetings',{gid}).then(o=>{ MT[gid]=o.meetings||[]; MTL[gid]=0; if(gid===cur&&pane==='meet') renderPane() }).catch(()=>{ MTL[gid]=0; MT[gid]=MT[gid]||[]; if(gid===cur&&pane==='meet') renderPane() }) }
 function nextWorkday(){ const d=new Date(); d.setDate(d.getDate()+1); while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1); const z=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()) }
 function openMeetSheet(pre){
-  const g=S.groups.find(x=>x.id===cur); if(!g||!REAL) return; closeMenu();
+  const g=S.groups.find(x=>x.id===cur); if(!g||!REAL) return; closeMenu(); meetSeg='chat';
   $('#mInv').classList.add('on'); $('#mTitle').value=g.dm?'':gname(g)+' meeting'; $('#mDate').value=nextWorkday(); $('#mTime').value='10:00'; $('#mDur').value='60'; $('#mNote').value='';
   $('#mWho').innerHTML=g.m.filter(id=>id!==S.me&&P[id]&&!P[id].ext).map(id=>`<label><input type="checkbox" value="${esc(P[id].n)}" checked> ${esc(P[id].n)}</label>`).join('')||'<span class="empty" style="padding:0">Just you so far. Add people to the chat first.</span>';
   const tasks=S.msgs.filter(m=>m.g===g.id&&m.task&&!m.task.done&&m.task.title).map(m=>m.task.title).slice(0,6);
@@ -1935,7 +2013,7 @@ document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.
 /* ---- closing, everywhere ---- */
 function closeSide(){ view='chat'; $('#side').classList.remove('open'); document.body.classList.remove('side-on'); setView() }
 $('#sideX').onclick=closeSide; $('#shade').onclick=closeSide;
-const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon','ovPoll','ovVotes'];
+const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon','ovPoll','ovVotes','ovCal','ovMeet'];
 $$('.sheet').forEach(sh=>{const b=document.createElement('button');b.type='button';b.className='sx';b.setAttribute('aria-label','Close');b.textContent='✕';b.onclick=()=>{const ov=sh.closest('.ov');ov.classList.remove('on'); if(ov.id==='ovView')$('#vB').innerHTML=''; if(ov.id==='ovConf')conf=null};sh.prepend(b)});
 document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
   if(closeTransient()) return;
