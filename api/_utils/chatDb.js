@@ -33,6 +33,7 @@ function supa(env = process.env, fetchImpl = fetch) {
     async getMessage(id) { return (await rest('GET', `chat_messages?id=eq.${Number(id)}&select=*`))[0] || null },
     updateMessage: (id, patch) => rest('PATCH', `chat_messages?id=eq.${Number(id)}`, patch, 'return=minimal'),
     deleteGroup: (id) => rest('DELETE', `chat_groups?id=eq.${id}`),
+    deleteMessage: (id) => rest('DELETE', `chat_messages?id=eq.${Number(id)}`),
     async findDm(key) { return (await rest('GET', `chat_groups?dm_key=eq.${encodeURIComponent(key)}&select=*`))[0] || null },
     unhideOthers: (gid, me) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=neq.${encodeURIComponent(me)}&hidden=eq.true`, { hidden: false }, 'return=minimal'),
     unarchiveOthers: (gid, me) => rest('PATCH', `chat_members?group_id=eq.${gid}&member=neq.${encodeURIComponent(me)}&archived=eq.true`, { archived: false }, 'return=minimal'),

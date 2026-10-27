@@ -556,6 +556,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
         <button class="btn btn-ghost" onclick="exportMenu()">↧ Export</button>
         <button class="btn btn-ghost" onclick="switchTab('meetings')">☰ All meetings</button>
         <button class="btn" id="mtgChatBtn" type="button" onclick="openMeetingChat()" style="display:none">Meeting chat</button>
+        <button class="btn" id="mtgNotesBtn" type="button" onclick="openMeetingNotes()" style="display:none">Notes</button>
         <button class="btn" id="mtgInviteBtn" type="button" onclick="sendOutlookInvite()" style="display:none">Outlook invite</button>
         <button class="btn btn-gold" id="closeBtn" onclick="handleClose()">Close meeting</button>
       </div>
@@ -799,8 +800,9 @@ function chatAvailable(){try{var f=localStorage.getItem('atrium_chat_preview');r
 function sendOutlookInvite(){var m=cur();if(!m)return;var b=document.getElementById('mtgInviteBtn');if(b)b.disabled=true;
   fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({a:'inviteMeeting',meetingId:m.id})}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok)throw new Error(j.error||'Could not send the invite.');return j;});})
     .then(function(j){toast(j.updated?'Outlook invite updated':'Outlook invite sent to '+j.people+' people');}).catch(function(e){toast(e.message);}).then(function(){if(b)b.disabled=false;});}
+function openMeetingNotes(){var m=cur();if(!m)return;try{window.parent.postMessage({atriumChat:'notes',meetingId:m.id},'*')}catch(e){}}
 function openMeetingChat(){var m=cur();if(!m)return;try{window.parent.postMessage({atriumChat:'meeting',meetingId:m.id},'*')}catch(e){}}
-function render(){if(!DB)return;var cb2=document.getElementById('mtgChatBtn');if(cb2)cb2.style.display=chatAvailable()?'':'none';var ib2=document.getElementById('mtgInviteBtn');if(ib2)ib2.style.display=chatAvailable()?'':'none';syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
+function render(){if(!DB)return;var cb2=document.getElementById('mtgChatBtn');if(cb2)cb2.style.display=chatAvailable()?'':'none';var nb2=document.getElementById('mtgNotesBtn');if(nb2)nb2.style.display=chatAvailable()?'':'none';var ib2=document.getElementById('mtgInviteBtn');if(ib2)ib2.style.display=chatAvailable()?'':'none';syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
 function renderHero(){var m=cur();document.getElementById('heroDate').textContent=fmtLong(m.date);document.getElementById('heroChair').innerHTML='Chair <b>'+esc(m.chair)+'</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts';var fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd&&document.activeElement!==fd)fd.value=m.date;if(ft&&document.activeElement!==ft)ft.value=m.time;
   var eb=document.getElementById('heroEyebrow');if(eb)eb.textContent='ATRIUM · '+(m.title||'Weekly Company Meeting')+(m.kind&&m.kind!=='weekly'?(' · '+m.kind.toUpperCase()):'');
   var cb=document.getElementById('closeBtn');if(cb)cb.textContent='Close meeting';}

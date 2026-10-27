@@ -25,6 +25,7 @@ function fake() {
     async deleteMember(g: string, m: string) { t.members = t.members.filter((x) => !(x.group_id === g && x.member === m)) },
     async insertMessage(m: any) { const r = { id: ++t.seq, created_at: new Date().toISOString(), ...m }; t.msgs.push(r); return r },
     async getMessage(id: number) { return t.msgs.find((m) => m.id === Number(id)) || null },
+    async deleteMessage(id: number) { t.msgs = t.msgs.filter((m) => m.id !== Number(id)) },
     async updateMessage(id: number, p: any) { Object.assign(t.msgs.find((m) => m.id === Number(id)), p) },
     async deleteGroup(id: string) { t.groups = t.groups.filter((g) => g.id !== id); t.members = t.members.filter((m) => m.group_id !== id); t.msgs = t.msgs.filter((m) => m.group_id !== id) },
     async findDm(key: string) { return t.groups.find((g) => g.dm_key === key) || null },
@@ -42,8 +43,10 @@ function fake() {
     async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } },
     async listFor(mb: string) { cal.asked.push(mb); if (cal.forbid) throw Object.assign(new Error('denied'), { status: 403 }); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); return [{ id: 'e1', subject: 'Weekly meeting', allDay: false, start: '2026-10-28T09:30:00', end: '2026-10-28T10:30:00', location: 'Teams', joinUrl: 'https://teams.example/j', webLink: '', organizer: 'Lewis Jin', people: 4 }] },
     async createOn(mb: string, m: any, o: any) { cal.asked.push(mb); if (cal.missing.has(mb)) throw Object.assign(new Error('no such user'), { status: 404 }); cal.made.push({ mb, m, o }); return { id: 'new1', joinUrl: 'https://teams.example/new', webLink: 'https://outlook.example/new' } } }
+  const sentMail: any[] = []
+  const mail: any = { configured: true, sent: sentMail, fail: false, async send(m: any) { if (mail.fail) throw new Error('Email refused'); sentMail.push(m); return { ok: true } } }
   const speech: any = { configured: true, fail: false, async token() { if (speech.fail) throw Object.assign(new Error('refused'), { status: speech.fail === true ? undefined : speech.fail }); return { token: 'tok123', region: 'australiaeast' } } }
-  return { t, objs, deps: { store, files, kv, cal, speech, site: 'https://atrium.example' }, db, cal, speech }
+  return { t, objs, deps: { store, files, kv, cal, speech, mail, site: 'https://atrium.example' }, db, cal, speech, mail }
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
@@ -217,6 +220,69 @@ describe('meetings from a chat', () => {
     await expect(run('postMinutes', { gid: b, meetingId: mA.id })).rejects.toThrow(/not from this chat/)
     F.db.board.meetings.find((x: any) => x.title === 'Meeting A').closed = true
     await expect(run('addToMeeting', { gid: a, mid: msg.id })).rejects.toThrow(/No meeting from this chat/)
+  })
+})
+
+describe('meeting notes', () => {
+  it('are saved, listed newest first, edited in place, and deleted, and never show up as a chat', async () => {
+    const one = (await run('noteSave', { title: 'Corio board', body: 'Agreed the numbers', lang: 'en-AU' })).note
+    await new Promise((r) => setTimeout(r, 5))
+    const two = (await run('noteSave', { title: 'Second', body: '你好' , lang: 'zh-CN' })).note
+    expect((await run('noteList', {})).notes.map((n: any) => n.title)).toEqual(['Second', 'Corio board'])
+    const edited = (await run('noteSave', { id: one.id, title: 'Corio board v2', body: 'Agreed the numbers and dates' })).note
+    expect(edited.body).toBe('Agreed the numbers and dates'); expect((await run('noteList', {})).notes[0].id).toBe(one.id)
+    expect((await run('init', {})).groups).toEqual([]); expect((await run('myGroups', {})).groups).toEqual([])
+    await run('noteDelete', { id: two.id }); expect((await run('noteList', {})).notes.length).toBe(1)
+  })
+  it('are private to their author', async () => {
+    const n = (await run('noteSave', { title: 'Mine', body: 'secret' })).note
+    expect((await run('noteList', {}, daniel)).notes).toEqual([])
+    await expect(run('noteSave', { id: n.id, body: 'hijack' }, daniel)).rejects.toThrow(/No such note/)
+    await expect(run('noteDelete', { id: n.id }, daniel)).rejects.toThrow(/No such note/)
+    await expect(run('noteEmail', { id: n.id, to: ['a@b.com'] }, daniel)).rejects.toThrow(/No such note/)
+  })
+  it('are emailed to anyone, with the person as reply-to and a blind copy, and the sending is remembered', async () => {
+    const n = (await run('noteSave', { title: 'Board', body: 'Line <one>\nLine two', meetingTitle: 'Corio board' })).note
+    const r = await run('noteEmail', { id: n.id, to: 'Client@Example.com; second@example.org', subject: 'Notes from today', message: 'Hi all' })
+    expect(r.sent).toBe(2)
+    const m = F.mail.sent[0]
+    expect(m.to).toEqual(['client@example.com', 'second@example.org']); expect(m.subject).toBe('Notes from today')
+    expect(m.replyTo).toBe('jb@x'); expect(m.bcc).toBe('jb@x'); expect(m.html).toContain('Line &lt;one&gt;'); expect(m.html).toContain('Sent from ATRIUM by Jamie Baldwin'); expect(m.html).toContain('Hi all')
+    expect((await run('noteList', {})).notes[0].emailed[0].to).toEqual(['client@example.com', 'second@example.org'])
+    await expect(run('noteEmail', { id: n.id, to: [] })).rejects.toThrow(/at least one/)
+    await expect(run('noteEmail', { id: n.id, to: ['nope'] })).rejects.toThrow(/not an email/)
+    await expect(run('noteEmail', { id: n.id, to: Array.from({ length: 11 }, (_, i) => `p${i}@b.com`) })).rejects.toThrow(/Ten/)
+    F.mail.fail = true; await expect(run('noteEmail', { id: n.id, to: ['a@b.com'] })).rejects.toThrow(/Email refused/)
+    const empty = (await run('noteSave', { title: 'Empty', body: '  ' })).note
+    F.mail.fail = false; await expect(run('noteEmail', { id: empty.id, to: ['a@b.com'] })).rejects.toThrow(/nothing in this note/)
+  })
+  it('become internal tasks in Workflow, kept on the note', async () => {
+    const n = (await run('noteSave', { title: 'Board', body: 'Daniel to send the cash flow', meetingTitle: 'Corio board' })).note
+    const r = await run('noteTask', { id: n.id, title: 'Send the cash flow', owner: 'Daniel Sette', due: '2026-11-06', priority: 'High', project: 'Corio', line: 'Daniel to send the cash flow' })
+    expect(r.task.owner).toBe('Daniel Sette')
+    const w = F.db.workflow.actions[0]
+    expect(w).toMatchObject({ title: 'Send the cash flow', owner: 'Daniel Sette', due: '2026-11-06', priority: 'High', project: 'Corio', createdBy: 'Jamie Baldwin (notes)' }); expect(w.notes).toContain('Corio board')
+    expect((await run('noteList', {})).notes[0].tasks[0].title).toBe('Send the cash flow')
+    await expect(run('noteTask', { id: n.id, title: '' })).rejects.toThrow(/title/)
+    await expect(run('noteTask', { id: n.id, title: 'x', owner: 'Nobody Here' })).rejects.toThrow()
+  })
+  it('go into a meeting\'s minutes, only for people on it, and offer the right meetings and people', async () => {
+    F.db.board.meetings.push({ id: 31, title: 'Corio board', date: '2026-11-10', chair: 'Jamie Baldwin', attendees: [{ name: 'Jamie Baldwin' }, { name: 'Daniel Sette' }], items: [], minutes: '' })
+    F.db.board.meetings.push({ id: 32, title: 'Private', date: '2026-11-11', chair: 'Lewis Jin', attendees: [{ name: 'Lewis Jin' }], items: [], minutes: '' })
+    const n = (await run('noteSave', { title: 'Board', body: 'We agreed to proceed' }, daniel)).note
+    const opt = await run('noteOptions', {}, daniel)
+    expect(opt.meetings.map((m: any) => m.title)).toEqual(['Corio board']); expect(opt.people).toContain('Seth Bean'); expect(opt.people).not.toContain('Callum Fraser')
+    const r = await run('noteToMeeting', { id: n.id, meetingId: 31 }, daniel)
+    expect(r.meeting.title).toBe('Corio board'); expect(F.db.board.meetings.find((m: any) => m.id === 31).minutes).toContain('We agreed to proceed')
+    await expect(run('noteToMeeting', { id: n.id, meetingId: 32 }, daniel)).rejects.toThrow(/not on this meeting/)
+    await expect(run('noteToMeeting', { id: n.id, meetingId: 999 }, daniel)).rejects.toThrow(/No such meeting/)
+    expect((await run('noteList', {}, daniel)).notes[0]).toMatchObject({ minutes: true, meetingTitle: 'Corio board' })
+  })
+  it('can be shared into a chat', async () => {
+    const { gid } = await run('newGroup', { name: 'Team', ids: ['ds'] })
+    const n = (await run('noteSave', { title: 'Board', body: 'We agreed' })).note
+    const r = await run('noteToChat', { id: n.id, gid })
+    expect(r.msg.x).toBe('Notes: Board\n\nWe agreed')
   })
 })
 

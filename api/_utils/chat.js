@@ -2,6 +2,7 @@
 // Who you are always comes from the signed session, never from the request. You only ever see groups you are a member of.
 const A = require('./atriumAuth')
 const B = require('./blaze')
+const N = require('./notes')
 const P = require('./chatPush')
 
 const BUCKET = 'chat-files'
@@ -718,7 +719,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 async function run(action, a, me, deps) {
-  const { store, files, kv, wp, cal, speech, site } = deps
+  const { store, files, kv, wp, cal, speech, site, mail } = deps
   switch (action) {
     case 'init': { const out = await snapshot(store, files, me, 0, a.v); out.order = await readOrder(store, kv, me); return out }
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
@@ -733,6 +734,14 @@ async function run(action, a, me, deps) {
     case 'inviteMeeting': return inviteMeeting(kv, cal, me, a, site)
     case 'meetingChat': return meetingChat(store, kv, me, a, wp)
     case 'chatMeetings': return chatMeetings(store, kv, me, a)
+    case 'noteList': return N.list(store, me)
+    case 'noteSave': return N.save(store, me, a)
+    case 'noteDelete': return N.remove(store, me, a)
+    case 'noteOptions': return N.options(kv, me)
+    case 'noteEmail': return N.email(store, me, a, mail)
+    case 'noteTask': return N.makeTask(store, kv, me, a)
+    case 'noteToMeeting': return N.toMeeting(store, kv, me, a)
+    case 'noteToChat': { const { n } = await N.note(store, kv, me, a.id); if (!n.body.trim()) throw new ChatError('There is nothing in this note yet.'); return send(store, kv, me, { gid: a.gid, body: `Notes: ${n.title || 'Untitled'}\n\n${n.body}` }, wp) }
     case 'myCalendar': return myCalendar(me, a, cal)
     case 'speechToken': return speechToken(speech)
     case 'speechCheck': return speech && speech.check ? speech.check() : { configured: false }

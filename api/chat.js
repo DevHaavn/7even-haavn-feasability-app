@@ -6,6 +6,7 @@ const D = require('./_utils/chatDb')
 const B = require('./_utils/blaze')
 const PUSH = require('./_utils/chatPush')
 const OUTLOOK = require('./_utils/outlook')
+const MAILER = require('./_utils/mailer')
 const SPEECH = require('./_utils/speech')
 
 module.exports = async (req, res) => {
@@ -22,12 +23,12 @@ module.exports = async (req, res) => {
     let kv = null
     try { kv = B.kv() } catch { /* Workflow link needs the service key too; without it tasks stay in chat */ }
     const site = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host || '7even-haavn-feasability-app-redux.vercel.app')
-    res.status(200).json(await C.run(b.a, b, me, { store, files, kv, wp: PUSH.makeSender(), cal: OUTLOOK.make(), speech: SPEECH.make(), site }))
+    res.status(200).json(await C.run(b.a, b, me, { store, files, kv, wp: PUSH.makeSender(), cal: OUTLOOK.make(), speech: SPEECH.make(), mail: MAILER.make(), site }))
   } catch (e) {
     if (e && (e.code === 'PGRST205' || e.code === '42P01' || (e.status === 404 && /^db 404/.test(e.message || '')))) {
       res.status(200).json({ setup: false, message: 'The chat tables are not created yet. Run supabase/2026-10-26_signin_and_chat.sql in the Supabase SQL editor.' }); return
     }
-    if (e instanceof C.ChatError || (e && e.status && e.status < 500 && e.status !== 404)) { res.status(e.status || 400).json({ error: e.message }); return }
+    if (e instanceof C.ChatError || (e && e.name === 'NoteError') || (e && e.status && e.status < 500 && e.status !== 404)) { res.status(e.status || 400).json({ error: e.message }); return }
     res.status(502).json({ error: 'Chat could not complete that.', detail: String((e && e.message) || e).slice(0, 140) })
   }
 }

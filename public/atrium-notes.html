@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATRIUM Notes</title>
+<meta name="theme-color" content="#141517">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#141517;--panel:#1b1c1f;--line:rgba(255,255,255,.14);--tx:#f3f2ee;--soft:rgba(243,242,238,.78);--faint:rgba(243,242,238,.5);--gold:#d6b36a;--red:#ef4444;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:300 15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input,select,textarea{font:400 16px/1.45 Inter,system-ui,sans-serif;color:var(--tx);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:10px 14px;width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:rgba(214,179,106,.7)}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
+select option{background:#1b1c1f;color:#f3f2ee}
+.mono{font:300 10.5px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+#app{height:100dvh;display:grid;grid-template-columns:320px 1fr;padding-top:env(safe-area-inset-top)}
+#list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.hd{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.hd h1{font:300 22px Inter;margin:0;flex:1}
+.ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.07);display:grid;place-items:center;color:var(--soft);flex:none}
+.ib svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ib.gold{background:var(--gold);border-color:transparent;color:#1a1408}
+#q{margin:0 16px 8px;width:calc(100% - 32px);border-radius:999px;padding:9px 16px}
+#items{flex:1;overflow:auto;padding:4px 8px calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.it{display:block;width:100%;text-align:left;padding:12px 12px;border-radius:16px}
+.it:hover{background:rgba(255,255,255,.05)}
+.it.on{background:rgba(255,255,255,.1)}
+.it b{display:block;font-weight:400;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .s{display:block;color:var(--faint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .m{display:flex;gap:8px;color:var(--faint);font-size:11.5px;margin-top:2px}
+.it .m i{font-style:normal;color:var(--gold)}
+.empty{padding:28px 18px;color:var(--faint);text-align:center}
+#ed{display:flex;flex-direction:column;min-height:0;min-width:0}
+#edh{display:flex;align-items:center;gap:8px;padding:12px 16px 8px}
+#back{display:none}
+#title{border:0;background:none;font:300 22px Inter;padding:6px 4px;flex:1;min-width:0;border-radius:8px}
+#title:focus{border:0;background:rgba(255,255,255,.04)}
+#bar{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px}
+#bar>*{flex:1 1 170px;min-width:0}
+#bar select{border-radius:999px;padding:8px 36px 8px 14px;font-size:14px}
+.tr{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--soft);flex:0 1 auto!important;padding:0 6px}
+.tg{width:42px;height:26px;border-radius:999px;background:rgba(255,255,255,.14);position:relative;flex:none;transition:background .25s}
+.tg::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
+.tg.on{background:var(--gold)}.tg.on::after{transform:translateX(16px);background:#1a1408}
+#wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 16px}
+#body{flex:1;min-height:160px;resize:none;border-radius:20px;padding:16px 18px;font-size:16px;line-height:1.6}
+#live{min-height:22px;padding:6px 6px 0;color:var(--gold);font-size:13.5px;font-style:italic}
+#foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px calc(12px + env(safe-area-inset-bottom))}
+#mic{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid var(--gold);display:grid;place-items:center;flex:none;color:#fff;transition:background .2s}
+#mic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#mic.rec{background:var(--red);border-color:var(--red);animation:rec 1.4s ease-in-out infinite}
+#mic.wait{opacity:.6}
+@keyframes rec{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 0 14px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+#micl{font-size:13px;color:var(--soft);min-width:84px}
+#acts{display:flex;gap:6px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+.pill{height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.07);font-size:13.5px;color:var(--soft);display:inline-flex;align-items:center;gap:7px}
+.pill:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.pill.del{color:#ff9a9a}
+.pill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#meta{padding:0 18px;color:var(--faint);font-size:12px;min-height:18px;display:flex;gap:12px;flex-wrap:wrap}
+#none{margin:auto;text-align:center;color:var(--faint);padding:30px}
+#none b{display:block;font:300 20px Inter;color:var(--soft);margin-bottom:6px}
+.ov{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ov.on{display:flex}
+.sheet{width:min(520px,100%);max-height:92dvh;overflow:auto;background:#1d1e22;border:1px solid var(--line);border-radius:28px 28px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));animation:up .3s var(--ease)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media(min-width:700px){.ov{align-items:center}.sheet{border-radius:28px;padding-bottom:20px}}
+.sheet h3{font:300 20px Inter;margin:0 0 4px}.sheet .lead{color:var(--faint);font-size:13.5px;margin-bottom:14px}
+.f{margin-bottom:12px}.f label{display:block;margin-bottom:6px}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.cb{height:46px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:15px;padding:0 20px}
+.cb.go{background:var(--gold);color:#1a1408;border-color:transparent}
+.cb:disabled{opacity:.5}
+#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;z-index:99;max-width:min(92vw,460px);padding:12px 18px;border-radius:999px;background:rgba(40,41,46,.96);border:1px solid var(--line);font-size:14px;pointer-events:none;transition:all .3s var(--ease)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast.bad{border-color:rgba(255,154,154,.6);color:#ffb3b3}
+@media(max-width:760px){
+  #app{grid-template-columns:1fr}
+  #ed{display:none}
+  body.in-note #list{display:none}
+  body.in-note #ed{display:flex}
+  #back{display:grid}
+  #acts{justify-content:flex-start;flex:1 1 100%;order:3}
+}
+@media(prefers-reduced-motion:reduce){#mic.rec{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="list">
+    <div class="hd"><h1>Notes</h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <input id="q" type="search" placeholder="Search notes" autocomplete="off">
+    <div id="items"></div>
+  </aside>
+  <main id="ed">
+    <div id="edh"><button class="ib" id="back" type="button" aria-label="All notes"><svg viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg></button><input id="title" placeholder="Title, for example Corio board" maxlength="140" autocomplete="off"></div>
+    <div id="none" style="display:none"><b>Your meeting notes</b>Write them, or press the microphone and speak. Save them, email them, or turn a line into a task.<br><br><button class="cb go" id="startBtn" type="button">New note</button></div>
+    <div id="edwrap" style="display:contents">
+      <div id="bar">
+        <select id="meeting" aria-label="Meeting"><option value="">No meeting</option></select>
+        <select id="lang" aria-label="Language spoken"></select>
+        <label class="tr" id="trRow" style="display:none"><button class="tg" id="trTg" type="button" aria-label="Translate to English"></button>Also give me English</label>
+      </div>
+      <div id="wrap"><textarea id="body" placeholder="Write your notes here, or press the microphone and speak."></textarea><div id="live" aria-live="polite"></div></div>
+      <div id="meta"><span id="saved"></span><span id="made"></span></div>
+      <div id="foot">
+        <button id="mic" type="button" aria-label="Dictate with the microphone"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><span id="micl">Dictate</span>
+        <div id="acts">
+          <button class="pill" id="aEmail" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>Email</button>
+          <button class="pill" id="aTask" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Task</button>
+          <button class="pill" id="aMeet" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>To meeting</button>
+          <button class="pill" id="aChat" type="button"><svg viewBox="0 0 24 24"><path d="M5 6h14v9H10l-5 4z"/></svg>To chat</button>
+          <button class="pill del" id="aDel" type="button"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>Delete</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="ov" id="ovEmail"><div class="sheet">
+  <h3>Email these notes</h3><div class="lead">To anyone, inside or outside. Replies come to you, and you get a blind copy.</div>
+  <div class="f"><label class="mono">To (separate with commas)</label><input id="eTo" type="email" multiple placeholder="name@company.com, other@company.com" autocomplete="off"></div>
+  <div class="f"><label class="mono">Subject</label><input id="eSub" maxlength="200"></div>
+  <div class="f"><label class="mono">Message above the notes (optional)</label><textarea id="eMsg" rows="3" maxlength="2000" placeholder="Hi all, notes from today."></textarea></div>
+  <div class="row"><button class="cb" data-close type="button">Cancel</button><button class="cb go" id="eSend" type="button">Send</button></div>
+</div></div>
+
+<div class="ov" id="ovTask"><div class="sheet">
+  <h3>Make a task</h3><div class="lead">Goes into ATRIUM Workflow under the person you pick. Select a line in the note first to use it.</div>
+  <div class="f"><label class="mono">Task</label><input id="tTitle" maxlength="160" placeholder="What needs doing"></div>
+  <div class="row"><div class="f"><label class="mono">Owner</label><select id="tOwner"></select></div><div class="f"><label class="mono">Due</label><input id="tDue" type="date"></div></div>
+  <div class="row"><div class="f"><label class="mono">Priority</label><select id="tPri"><option value="Low">Normal</option><option value="Medium">Medium</option><option value="High">High</option></select></div><div class="f"><label class="mono">Project</label><input id="tProj" maxlength="60" placeholder="e.g. Preston"></div></div>
+  <div class="row"><button class="cb" data-close type="button">Cancel</button><button class="cb go" id="tSave" type="button">Create task</button></div>
+</div></div>
+
+<div class="ov" id="ovMeet"><div class="sheet">
+  <h3>Add to a meeting</h3><div class="lead">The note is added to that meeting's minutes in Meeting Management.</div>
+  <div class="f"><label class="mono">Meeting</label><select id="mPick"></select></div>
+  <div class="row"><button class="cb" data-close type="button">Cancel</button><button class="cb go" id="mSave" type="button">Add to minutes</button></div>
+</div></div>
+
+<div class="ov" id="ovChat"><div class="sheet">
+  <h3>Share to a chat</h3><div class="lead">Posts the title and the notes as a message.</div>
+  <div class="f"><label class="mono">Chat</label><select id="cPick"></select></div>
+  <div class="row"><button class="cb" data-close type="button">Cancel</button><button class="cb go" id="cSave" type="button">Send to chat</button></div>
+</div></div>
+
+<div class="ov" id="ovDel"><div class="sheet">
+  <h3>Delete this note?</h3><div class="lead">It is removed for good. Tasks already made from it stay in Workflow.</div>
+  <div class="row"><button class="cb" data-close type="button">Keep it</button><button class="cb" id="dYes" type="button" style="color:#ff9a9a;border-color:rgba(255,154,154,.5)">Delete</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+const EMB=/[?&]embed=1/.test(location.search), Q=new URLSearchParams(location.search);
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LANGS=[['en-AU','English (Australia)'],['en-GB','English (UK)'],['en-US','English (US)'],['zh-CN','Mandarin Chinese'],['zh-HK','Cantonese'],['vi-VN','Vietnamese'],['it-IT','Italian'],['el-GR','Greek'],['hi-IN','Hindi'],['ar-SA','Arabic'],['es-ES','Spanish'],['fr-FR','French'],['de-DE','German'],['ja-JP','Japanese'],['ko-KR','Korean'],['id-ID','Indonesian'],['th-TH','Thai']];
+let notes=[], cur=null, opts={meetings:[],people:[],me:{}}, dirty=false, saving=Promise.resolve(), timer=null, translate=false, rec=null, recOn=false, caret=null;
+
+async function api(a,args){
+  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(Object.assign({a,v:2},args||{}))});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){ const e=new Error(r.status===401?'Sign in with Microsoft in ATRIUM to use Notes.':(j.error||j.message||'Something went wrong. Try again.')); e.status=r.status; throw e }
+  return j }
+let tt; function toast(m,bad){ const t=$('#toast'); t.textContent=m; t.className='on'+(bad?' bad':''); clearTimeout(tt); tt=setTimeout(()=>{t.className=''},3400) }
+const fmt=ms=>{ const d=new Date(ms), n=new Date(); const same=d.toDateString()===n.toDateString(); return same?d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'}).replace(/\s/g,'').toLowerCase():d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}) };
+
+/* ---- the list ---- */
+function renderList(){
+  const q=$('#q').value.trim().toLowerCase();
+  const l=notes.filter(n=>!q||((n.title||'')+' '+n.body+' '+(n.meetingTitle||'')).toLowerCase().includes(q));
+  $('#items').innerHTML=l.length?l.map(n=>`<button class="it ${cur&&cur.id===n.id?'on':''}" data-id="${n.id}"><b>${esc(n.title||firstLine(n.body)||'Untitled')}</b><span class="s">${esc(n.body.replace(/\s+/g,' ').slice(0,90)||'No text yet')}</span><span class="m"><span>${fmt(n.updated)}</span>${n.meetingTitle?`<span>${esc(n.meetingTitle)}</span>`:''}${n.emailed&&n.emailed.length?'<i>emailed</i>':''}${n.tasks&&n.tasks.length?`<i>${n.tasks.length} task${n.tasks.length>1?'s':''}</i>`:''}</span></button>`).join(''):`<div class="empty">${q?'No notes match.':'No notes yet. Press + to start one.'}</div>`;
+}
+const firstLine=t=>String(t||'').split(/\n/).map(x=>x.trim()).find(Boolean)||'';
+$('#items').onclick=e=>{ const b=e.target.closest('[data-id]'); if(b){ flush().then(()=>openNote(notes.find(n=>String(n.id)===b.dataset.id))) } };
+$('#q').oninput=renderList;
+
+/* ---- one note ---- */
+function fillMeetings(sel){
+  const keep=sel.value;
+  sel.innerHTML=(sel.id==='meeting'?'<option value="">No meeting</option>':'')+opts.meetings.map(m=>`<option value="${esc(m.id)}">${esc(m.title)} · ${esc(m.date||'')}${m.closed?' (closed)':''}</option>`).join('');
+  if(keep) sel.value=keep }
+function showNone(none){ $('#none').style.display=none?'':'none'; $('#edwrap').style.display=none?'none':'contents'; $('#title').style.display=none?'none':'' }
+function openNote(n){
+  stopDictation(); cur=n||null; dirty=false;
+  if(!cur){ showNone(true); renderList(); document.body.classList.remove('in-note'); return }
+  showNone(false);
+  $('#title').value=cur.title||''; $('#body').value=cur.body||''; $('#lang').value=cur.lang||'en-AU'; fillMeetings($('#meeting')); $('#meeting').value=cur.meetingId==null?'':String(cur.meetingId);
+  syncTranslate(); meta(); renderList(); document.body.classList.add('in-note'); setTimeout(()=>{ if(!cur.id&&!matchMedia('(pointer:coarse)').matches) $('#body').focus() },60) }
+function newNote(pre){
+  return flush().then(()=>{ const n=Object.assign({id:null,title:'',body:'',meetingId:'',meetingTitle:'',lang:$('#lang').value||'en-AU',updated:Date.now(),emailed:[],tasks:[]},pre||{}); openNote(n); if(pre&&(pre.title||pre.body)){ dirty=true; schedule() } }) }
+function meta(){
+  $('#saved').textContent=cur&&cur.id?('Saved '+fmt(cur.updated)):'';
+  $('#made').textContent=cur&&cur.tasks&&cur.tasks.length?cur.tasks.length+' task'+(cur.tasks.length>1?'s':'')+' made from this note':'' }
+function syncTranslate(){ const non=!/^en/i.test($('#lang').value); $('#trRow').style.display=non?'':'none'; $('#trTg').classList.toggle('on',non&&translate) }
+
+/* ---- saving: as you type, one request at a time ---- */
+function schedule(){ dirty=true; $('#saved').textContent='Saving…'; clearTimeout(timer); timer=setTimeout(()=>{ save() },900) }
+function flush(){ clearTimeout(timer); return dirty?save():saving }
+function save(){
+  if(!cur) return saving;
+  saving=saving.then(async()=>{
+    if(!dirty) return; dirty=false; clearTimeout(timer);
+    const body=$('#body').value, title=$('#title').value, mid=$('#meeting').value, mt=mid?(opts.meetings.find(m=>String(m.id)===mid)||{}).title||'':'';
+    if(!cur.id&&!body.trim()&&!title.trim()) return;
+    try{
+      const j=await api('noteSave',{id:cur.id||undefined,title,body,meetingId:mid,meetingTitle:mt,lang:$('#lang').value});
+      const n=j.note; Object.assign(cur,n); const k=notes.findIndex(x=>x.id===n.id); if(k>=0) notes[k]=cur; else notes.unshift(cur);
+      notes.sort((a,b)=>b.updated-a.updated); meta(); renderList();
+    }catch(e){ dirty=true; $('#saved').textContent='Not saved'; toast(e.message,true) }
+  });
+  return saving }
+['#title','#body'].forEach(s=>$(s).addEventListener('input',()=>{ if(cur) schedule() }));
+$('#meeting').onchange=()=>{ if(cur) schedule() };
+$('#lang').onchange=()=>{ syncTranslate(); if(cur) schedule() };
+$('#trTg').onclick=()=>{ translate=!translate; syncTranslate() };
+$('#body').addEventListener('blur',()=>{ caret=$('#body').selectionStart });
+window.addEventListener('pagehide',()=>{ if(dirty) save() });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'&&dirty) save() });
+
+/* ---- dictation: Azure Speech, in the language spoken, with English alongside if asked ---- */
+function loadSdk(){ return window.SpeechSDK?Promise.resolve():new Promise((ok,no)=>{ const s=document.createElement('script'); s.src='/atrium-speech/sdk.js?v=1'; s.onload=ok; s.onerror=()=>no(new Error('The speech tools did not load. Check your connection.')); document.head.appendChild(s) }) }
+function micUi(state){ const m=$('#mic'); m.classList.toggle('rec',state==='on'); m.classList.toggle('wait',state==='wait'); $('#micl').textContent=state==='on'?'Listening… tap to stop':state==='wait'?'Starting…':'Dictate'; m.setAttribute('aria-label',state==='on'?'Stop dictating':'Dictate with the microphone') }
+function put(text){
+  const t=$('#body'); let v=t.value, pos=(caret==null||caret>v.length)?v.length:caret;
+  const before=v.slice(0,pos), after=v.slice(pos);
+  const sep=!before||/\s$/.test(before)?'':(/\n/.test(text)?'\n':' ');
+  const ins=sep+text+(/\n$/.test(text)?'':' ');
+  t.value=before+ins+after; caret=pos+ins.length; t.scrollTop=t.scrollHeight; if(cur) schedule() }
+let refresher=null;
+async function startDictation(){
+  if(recOn){ stopDictation(); return }
+  if(!cur){ await newNote() }
+  micUi('wait');
+  try{
+    await loadSdk(); const tk=await api('speechToken'); const SDK=window.SpeechSDK, lang=$('#lang').value;
+    const audio=SDK.AudioConfig.fromDefaultMicrophoneInput(), both=translate&&!/^en/i.test(lang); let r;
+    if(both){ const cfg=SDK.SpeechTranslationConfig.fromAuthorizationToken(tk.token,tk.region); cfg.speechRecognitionLanguage=lang; cfg.addTargetLanguage('en'); r=new SDK.TranslationRecognizer(cfg,audio) }
+    else { const cfg=SDK.SpeechConfig.fromAuthorizationToken(tk.token,tk.region); cfg.speechRecognitionLanguage=lang; r=new SDK.SpeechRecognizer(cfg,audio) }
+    r.recognizing=(s,e)=>{ const t=e.result.text||''; const en=both&&e.result.translations?e.result.translations.get('en'):''; $('#live').textContent=both&&en?t+'  →  '+en:t };
+    r.recognized=(s,e)=>{ $('#live').textContent=''; const rs=e.result.reason, R=SDK.ResultReason; if((rs===R.RecognizedSpeech||rs===R.TranslatedSpeech)&&e.result.text){ if(both){ const en=e.result.translations?e.result.translations.get('en'):''; put(e.result.text+(en?'\nEnglish: '+en+'\n':'')) } else put(e.result.text) } };
+    r.canceled=(s,e)=>{ if(e.reason===SDK.CancellationReason.Error){ toast(e.errorCode===SDK.CancellationErrorCode.AuthenticationFailure?'Voice dictation needs its speech key renewed. Tell an admin.':'Dictation stopped: '+(e.errorDetails||'try again'),true) } stopDictation() };
+    await new Promise((ok,no)=>r.startContinuousRecognitionAsync(ok,no)); rec=r; recOn=true; micUi('on');
+    refresher=setInterval(async()=>{ try{ const t=await api('speechToken'); r.authorizationToken=t.token }catch(e){} },8*60*1000);
+  }catch(e){ rec=null; recOn=false; micUi('off'); toast(/Permission|denied|NotAllowed/i.test(e&&e.message||'')?'Allow the microphone for ATRIUM, then try again.':(e.message||'Dictation could not start.'),true) } }
+function stopDictation(){ clearInterval(refresher); $('#live').textContent=''; const r=rec; rec=null; recOn=false; micUi('off'); if(r){ try{ r.stopContinuousRecognitionAsync(()=>{ try{r.close()}catch(e){} },()=>{}) }catch(e){} } }
+$('#mic').onclick=()=>{ $('#body').blur(); startDictation() };
+
+/* ---- the actions ---- */
+const sheets=['#ovEmail','#ovTask','#ovMeet','#ovChat','#ovDel'];
+const open=id=>{ $(id).classList.add('on') }, close=()=>sheets.forEach(s=>$(s).classList.remove('on'));
+$$('[data-close]').forEach(b=>b.onclick=close); sheets.forEach(s=>$(s).addEventListener('click',e=>{ if(e.target.id===s.slice(1)) close() }));
+async function need(){ await flush(); if(!cur||!cur.id){ toast('Write something first.',true); return false } if(!cur.body.trim()&&!$('#body').value.trim()){ toast('There is nothing in this note yet.',true); return false } return true }
+$('#aEmail').onclick=async()=>{ if(!await need()) return; $('#eTo').value=''; $('#eSub').value=cur.title||firstLine(cur.body)||'Meeting notes'; $('#eMsg').value=''; open('#ovEmail'); setTimeout(()=>$('#eTo').focus(),80) };
+$('#eSend').onclick=async()=>{ const b=$('#eSend'); b.disabled=true; try{ const r=await api('noteEmail',{id:cur.id,to:$('#eTo').value,subject:$('#eSub').value,message:$('#eMsg').value}); close(); const k=notes.findIndex(n=>n.id===cur.id); const j=await api('noteList'); notes=j.notes; cur=notes.find(n=>n.id===cur.id)||cur; renderList(); toast('Sent to '+r.sent+' '+(r.sent===1?'person':'people')+'. You have a blind copy.') }catch(e){ toast(e.message,true) } b.disabled=false };
+$('#aTask').onclick=async()=>{ if(!await need()) return;
+  const ta=$('#body'), sel=ta.value.slice(ta.selectionStart,ta.selectionEnd).trim()||ta.value.slice(caret!=null?Math.max(0,ta.value.lastIndexOf('\n',caret-1)+1):0).split(/\n/)[0].trim();
+  $('#tTitle').value=(sel||firstLine(ta.value)).slice(0,120); $('#tOwner').innerHTML=opts.people.map(p=>`<option ${p===opts.me.name?'selected':''}>${esc(p)}</option>`).join(''); $('#tDue').value=''; $('#tPri').value='Low'; $('#tProj').value=''; open('#ovTask'); window._line=sel };
+$('#tSave').onclick=async()=>{ const b=$('#tSave'); b.disabled=true; try{ const r=await api('noteTask',{id:cur.id,title:$('#tTitle').value,owner:$('#tOwner').value,due:$('#tDue').value,priority:$('#tPri').value,project:$('#tProj').value,line:window._line||''}); close(); cur.tasks=(cur.tasks||[]).concat([{id:r.task.id,title:$('#tTitle').value}]); meta(); renderList(); toast('Task created for '+r.task.owner+'.') }catch(e){ toast(e.message,true) } b.disabled=false };
+$('#aMeet').onclick=async()=>{ if(!await need()) return; if(!opts.meetings.length){ toast('You are not on any meetings yet.',true); return } fillMeetings($('#mPick')); $('#mPick').value=$('#meeting').value||String(opts.meetings[0].id); open('#ovMeet') };
+$('#mSave').onclick=async()=>{ const b=$('#mSave'); b.disabled=true; try{ const r=await api('noteToMeeting',{id:cur.id,meetingId:$('#mPick').value}); close(); $('#meeting').value=String(r.meeting.id); cur.meetingId=r.meeting.id; cur.meetingTitle=r.meeting.title; cur.minutes=true; renderList(); toast('Added to the minutes of “'+r.meeting.title+'”.') }catch(e){ toast(e.message,true) } b.disabled=false };
+$('#aChat').onclick=async()=>{ if(!await need()) return; try{ const j=await api('myGroups'); if(!j.groups.length){ toast('You are not in any group chats yet.',true); return } $('#cPick').innerHTML=j.groups.map(g=>`<option value="${esc(g.id)}">${esc(g.n)}</option>`).join(''); open('#ovChat') }catch(e){ toast(e.message,true) } };
+$('#cSave').onclick=async()=>{ const b=$('#cSave'); b.disabled=true; try{ await api('noteToChat',{id:cur.id,gid:$('#cPick').value}); close(); toast('Posted to the chat.') }catch(e){ toast(e.message,true) } b.disabled=false };
+$('#aDel').onclick=()=>{ if(!cur) return; if(!cur.id&&!$('#body').value.trim()){ openNote(null); return } open('#ovDel') };
+$('#dYes').onclick=async()=>{ try{ if(cur&&cur.id){ await api('noteDelete',{id:cur.id}); notes=notes.filter(n=>n.id!==cur.id) } close(); dirty=false; cur=null; openNote(null); renderList(); toast('Deleted.') }catch(e){ toast(e.message,true) } };
+
+/* ---- coming and going ---- */
+$('#newBtn').onclick=()=>newNote(); $('#startBtn').onclick=()=>newNote();
+$('#back').onclick=()=>flush().then(()=>{ stopDictation(); document.body.classList.remove('in-note') });
+function leave(){ flush().then(()=>{ stopDictation(); if(EMB){ try{ parent.postMessage({atriumNotes:'close'},'*') }catch(e){} } else location.href='/atrium-chat.html?app=1' }) }
+$('#xBtn').onclick=leave;
+if(!EMB) $('#xBtn').title='Back to chat';
+async function forMeeting(id){
+  const m=opts.meetings.find(x=>String(x.id)===String(id)); const have=notes.find(n=>String(n.meetingId)===String(id));
+  if(have) return openNote(have);
+  return newNote({title:m?m.title+' notes':'Meeting notes',meetingId:m?m.id:id,meetingTitle:m?m.title:''}) }
+window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumNotes==='open'){ if(d.meetingId!=null&&d.meetingId!=='') forMeeting(d.meetingId); else if(!cur) openNote(null) } });
+$('#lang').innerHTML=LANGS.map(l=>`<option value="${l[0]}">${l[1]}</option>`).join('');
+(async function boot(){
+  $('#xBtn').style.display=EMB||!/[?&]app=1/.test(location.search)?'':'';
+  try{ const [l,o]=await Promise.all([api('noteList'),api('noteOptions')]); notes=l.notes; opts=o; fillMeetings($('#meeting')) }
+  catch(e){ $('#items').innerHTML=`<div class="empty">${esc(e.message)}</div>`; if(e.status===401) return }
+  renderList();
+  const mid=Q.get('meeting'); if(mid) await forMeeting(mid); else if(notes.length&&matchMedia('(min-width:761px)').matches) openNote(notes[0]); else openNote(null);
+})();
+})();
+</script>
+</body>
+</html>

@@ -114,6 +114,7 @@ export default function ChatDock() {
   const count = useRef(0)
   const wantGroup = useRef<string | null>(null)
   const wantMeeting = useRef<string | number | null>(null)
+  const wantNotes = useRef<string | number | null | undefined>(undefined)
 
   const tell = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage({ atriumChat: m.k, ...m }, '*')
   // On a phone the chat fills the whole screen and draws under the notch and the home bar, so it needs to know how big they are. Measured here, where env() is reliable, and handed to the chat.
@@ -138,6 +139,7 @@ export default function ChatDock() {
       // a footer button in any ATRIUM page: open or close the chat, or ask how many are waiting
       if (e.origin === location.origin && e.source !== frame.current?.contentWindow) {
         if (d.atriumChat === 'toggle') setOpen(o => !o)
+        if (d.atriumChat === 'notes') { setOpen(true); wantNotes.current = d.meetingId == null ? null : d.meetingId; tell({ k: 'open-notes', meetingId: d.meetingId == null ? null : d.meetingId }); setTimeout(() => { wantNotes.current = undefined }, 8000) }
         if (d.atriumChat === 'meeting' && d.meetingId != null) { setOpen(true); wantMeeting.current = d.meetingId; tell({ k: 'open-meeting', meetingId: d.meetingId }); setTimeout(() => { wantMeeting.current = null }, 8000) }
         if (d.atriumChat === 'hello') (e.source as Window | null)?.postMessage({ atriumChat: 'count', n: count.current }, '*')
         return
@@ -208,7 +210,7 @@ export default function ChatDock() {
       <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
         style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
-        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027u" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027v" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }); if (wantNotes.current !== undefined) tell({ k: 'open-notes', meetingId: wantNotes.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

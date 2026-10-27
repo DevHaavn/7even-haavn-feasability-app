@@ -12,6 +12,8 @@ self.addEventListener('push', (event) => {
     const seen = wins.some((c) => c.visibilityState === 'visible')
     await self.registration.showNotification(d.title || 'ATRIUM Chat', {
       body: d.body || '',
+      icon: '/icons/chat-icon-192.png?v=2',
+      badge: '/icons/chat-icon-96.png?v=2',
       tag: d.tag || 'atrium-chat',          // one notification per chat, the newest replaces the last
       renotify: !seen,
       silent: seen,
@@ -26,6 +28,8 @@ self.addEventListener('notificationclick', (event) => {
   const { url, gid } = event.notification.data || {}
   event.waitUntil((async () => {
     const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    // the ATRIUM Chat app window, if it is open, answers first: that is where people read their chat
+    list.sort((a, b) => (/atrium-chat\.html/.test(b.url) ? 1 : 0) - (/atrium-chat\.html/.test(a.url) ? 1 : 0))
     for (const c of list) {
       if ('focus' in c) { c.postMessage({ atriumChat: 'goto', gid }); try { await c.focus() } catch { /* ignore */ } return }
     }

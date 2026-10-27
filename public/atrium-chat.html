@@ -6,7 +6,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATRIUM Chat</title>
-<meta name="theme-color" content="#3a3c42">
+<meta name="theme-color" content="#1b1c1f">
+<link rel="manifest" href="/chat.webmanifest?v=2">
+<link rel="apple-touch-icon" href="/icons/chat-apple-touch-180.png?v=2">
+<link rel="icon" type="image/png" sizes="96x96" href="/icons/chat-icon-96.png?v=2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chat">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
 <style>
@@ -748,8 +755,10 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
       <div class="cap2">
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
+      <button class="ib" id="popBtn" title="Open Chat in its own window" aria-label="Open Chat in its own window" style="display:none"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
       <button class="ib" id="xBtn" title="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </div>
+      <button class="ib" id="notesBtn" title="Notes" aria-label="Notes" type="button"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></button>
       <button class="ib" id="sndBtn" title="Alert sound"><svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9z"/><path d="M17.5 9a4 4 0 0 1 0 6"/></svg></button>
       <button class="ib" id="setBtn" title="Settings" aria-label="Settings"><svg class="gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.51 L21.52 10.76 L21.52 13.24 L19.35 13.49 L18.25 16.14 L19.61 17.85 L17.85 19.61 L16.14 18.25 L13.49 19.35 L13.24 21.52 L10.76 21.52 L10.51 19.35 L7.86 18.25 L6.15 19.61 L4.39 17.85 L5.75 16.14 L4.65 13.49 L2.48 13.24 L2.48 10.76 L4.65 10.51 L5.75 7.86 L4.39 6.15 L6.15 4.39 L7.86 5.75 L10.51 4.65 L10.76 2.48 L13.24 2.48 L13.49 4.65 L16.14 5.75 L17.85 4.39 L19.61 6.15 L18.25 7.86Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.1"/></svg></button>
     </header>
@@ -927,6 +936,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div class="lead" style="margin-bottom:6px">One ATRIUM you, whichever email you sign in with.</div>
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
+  <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -1557,7 +1567,7 @@ function renderPane(){
   }else if(pane==='meet'){
     const ag=S.msgs.filter(m=>m.g===cur&&m.task&&m.task.ag&&!m.task.done);
     const lst=REAL?MT[cur]:null; if(REAL&&!lst&&!MTL[cur]) loadMeetings(cur);
-    const row=m=>`<div class="mt mtrow"><div class="mono">${esc(fmtMtgDate(m.date))}${m.time?' · '+esc(fmtMtgTime(m.time)):''}</div><h4>${esc(m.title)}</h4><div class="empty" style="padding:0 0 8px">${m.attendees} people · ${m.items} agenda item${m.items===1?'':'s'}${m.decisions?` · ${m.decisions} decision${m.decisions===1?'':'s'}`:''}${m.closed?' · closed':''}</div>${m.invited?`<div class="empty" style="padding:0 0 8px">Outlook invite sent${m.joinUrl?` \u00b7 <a class="lnk" href="${esc(m.joinUrl)}" target="_blank" rel="noopener noreferrer">Join on Teams</a>`:''}</div>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap">${m.closed?'':`<button class="cb" data-inv="${m.id}" style="height:34px">${m.invited?'Update Outlook invite':'Send Outlook invite'}</button>`}${(m.decisions||m.minutes)?`<button class="cb" data-pm="${m.id}" style="height:34px">Post minutes to chat</button>`:''}</div></div>`;
+    const row=m=>`<div class="mt mtrow"><div class="mono">${esc(fmtMtgDate(m.date))}${m.time?' · '+esc(fmtMtgTime(m.time)):''}</div><h4>${esc(m.title)}</h4><div class="empty" style="padding:0 0 8px">${m.attendees} people · ${m.items} agenda item${m.items===1?'':'s'}${m.decisions?` · ${m.decisions} decision${m.decisions===1?'':'s'}`:''}${m.closed?' · closed':''}</div>${m.invited?`<div class="empty" style="padding:0 0 8px">Outlook invite sent${m.joinUrl?` \u00b7 <a class="lnk" href="${esc(m.joinUrl)}" target="_blank" rel="noopener noreferrer">Join on Teams</a>`:''}</div>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cb" data-nt="${m.id}" style="height:34px">Notes</button>${m.closed?'':`<button class="cb" data-inv="${m.id}" style="height:34px">${m.invited?'Update Outlook invite':'Send Outlook invite'}</button>`}${(m.decisions||m.minutes)?`<button class="cb" data-pm="${m.id}" style="height:34px">Post minutes to chat</button>`:''}</div></div>`;
     const up=(lst||[]).filter(m=>!m.closed), done=(lst||[]).filter(m=>m.closed);
     h=`<div class="mt"><div class="mono">Meeting Management</div><h4>Meet about this chat</h4><div class="empty" style="padding:0 0 10px">Creates the meeting in ATRIUM Meeting Management with the people in this chat as attendees and an agenda from the chat. A card lands here so everyone knows. Decisions and minutes can be posted back.</div><button class="cb go" id="mtNew" type="button" ${REAL?'':'disabled'}>Create a meeting from this chat</button>${REAL?'':'<div class="empty" style="padding:8px 0 0">Meetings need the real chat. Sign in with Microsoft first.</div>'}</div>`
       +(REAL?(lst?(up.length?`<div class="mono" style="margin:16px 2px 6px">From this chat</div>`+up.map(row).join(''):''):'<div class="empty" style="padding:12px 2px">Loading this chat’s meetings…</div>')+(done.length?`<div class="mono" style="margin:16px 2px 6px">Done</div>`+done.map(row).join(''):''):'')
@@ -1580,6 +1590,7 @@ function renderPane(){
   $('#pane').innerHTML=h;
   $$('#pane [data-ms]').forEach(b=>b.onclick=()=>{ meetSeg=b.dataset.ms; renderPane() });
   const mn=$('#mtNew'); if(mn) mn.onclick=()=>openMeetSheet([]);
+  $$('#pane [data-nt]').forEach(b=>b.onclick=()=>{ if(window.openAtriumNotes) window.openAtriumNotes(b.dataset.nt) });
   $$('#pane [data-inv]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('inviteMeeting',{meetingId:b.dataset.inv}).then(o=>{ MT[cur]=null; MTL[cur]=0; flash(o.updated?'Outlook invite updated.':'Outlook invite sent to '+o.people+' '+(o.people===1?'person':'people')+'.'); renderPane() }).catch(e=>{ flash(e.message); b.disabled=false }) });
   $$('#pane [data-pm]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('postMinutes',{gid:cur,meetingId:b.dataset.pm}).then(o=>{ ingestOwn(o.msg); flash('Minutes posted to the chat.') }).catch(e=>{ flash(e.message); b.disabled=false }) });
 }
@@ -1834,7 +1845,7 @@ async function refresh(force){
 }
 function poll(){ setTimeout(async()=>{ try{ await refresh() }catch(e){} poll() }, document.visibilityState==='hidden'?20000:(isOpen()?4000:8000)) }
 function banner(kind){
-  const t={signin:'Practice data. <a href="/api/auth/login?return=%2F" target="_top">Sign in with Microsoft</a> to use the real chat.',setup:'Practice data. The chat tables are not created yet: one step in Supabase.',offline:'Practice data. The chat server could not be reached.'}[kind];
+  const t={signin:'Practice data. <a href="/api/auth/login?return='+(EMB?'%2F':encodeURIComponent(location.pathname+location.search))+'" target="_top">Sign in with Microsoft</a> to use the real chat.',setup:'Practice data. The chat tables are not created yet: one step in Supabase.',offline:'Practice data. The chat server could not be reached.'}[kind];
   $('#banner').innerHTML=t||'';
 }
 /* phone: the header and the island shrink as you scroll and grow back going up; a swipe down on the header closes the chat */
@@ -2308,6 +2319,64 @@ syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
 }
+})();
+</script>
+
+<div id="notesOv" hidden><iframe id="notesFr" title="ATRIUM Notes" allow="microphone" loading="lazy"></iframe></div>
+<style>#notesOv{position:fixed;inset:0;z-index:200;background:#141517}#notesOv[hidden]{display:none}#notesOv iframe{width:100%;height:100%;border:0;display:block;background:#141517}</style>
+<div class="ov" id="ovInstall"><div class="sheet">
+  <h3>Install ATRIUM Chat</h3><div class="lead" id="insLead">Its own icon and its own window, beside ATRIUM.</div>
+  <div class="f" id="insSteps" style="line-height:1.55;font-size:14px"></div>
+  <div class="row"><button class="cb" id="insClose" type="button">Close</button><button class="cb go" id="insGo" type="button" style="display:none">Install now</button></div>
+</div></div>
+<script>
+/* ATRIUM Chat as its own app: pop out from ATRIUM, install help, and alert taps inside the app. Kept apart from the chat itself. */
+(function(){
+  'use strict';
+  const EMB=/[?&]embed=1/.test(location.search), $=s=>document.querySelector(s);
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  let deferred=null;
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; const g=$('#insGo'); if(g&&$('#ovInstall').classList.contains('on')) g.style.display='' });
+  window.addEventListener('appinstalled',()=>{ deferred=null; const r=$('#appRow'); if(r) r.style.display='none'; $('#ovInstall').classList.remove('on') });
+  // pop out: inside ATRIUM on a computer, a button that opens the chat in a window of its own
+  const pop=$('#popBtn');
+  if(pop&&EMB&&window.matchMedia('(min-width: 761px)').matches&&!/iPad|iPhone|Android/.test(navigator.userAgent)){
+    pop.style.display='';
+    pop.onclick=()=>{ const w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800'); if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } };
+  }
+  // Notes: a full panel over the chat, in this window, so it works in the drawer and in the Chat app alike
+  const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
+  function openNotes(meetingId){
+    nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=1'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+  function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
+  window.openAtriumNotes=openNotes;
+  const nb=$('#notesBtn'); if(nb) nb.onclick=()=>openNotes();
+  window.addEventListener('message',e=>{ const d=e.data; if(!d) return;
+    if(d.atriumNotes==='close'&&e.source===nFr.contentWindow){ nOv.hidden=true; return }
+    if(d.atriumChat==='open-notes') openNotes(d.meetingId) });
+  // the install row in Settings
+  const row=$('#appRow'), btn=$('#appBtn');
+  if(row&&btn){
+    if(standalone) row.style.display='none';
+    else if(!EMB) btn.textContent='Install';
+    else btn.textContent='Open as app';
+    btn.onclick=()=>{ if(EMB){ window.open('/atrium-chat.html?app=1&install=1','_blank'); return } showInstall() };
+  }
+  function showInstall(){
+    const ua=navigator.userAgent, ios=/iPhone|iPad/.test(ua), android=/Android/.test(ua), mac=/Macintosh/.test(ua)&&!ios, safari=/Safari/.test(ua)&&!/Chrome|Chromium|Edg|CriOS|FxiOS/.test(ua);
+    let steps;
+    if(ios) steps='<ol style="margin:0;padding-left:20px"><li>Tap the <b>Share</b> button at the bottom of Safari.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. The gold Chat icon appears beside ATRIUM.</li><li>Open it from the Home Screen and sign in with Microsoft once. Then turn on <b>Alerts on this device</b> in Settings.</li></ol>';
+    else if(android) steps='<ol style="margin:0;padding-left:20px"><li>Tap the <b>menu</b> (three dots) in Chrome.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Open Chat from the new gold icon.</li></ol>';
+    else if(mac&&safari) steps='<ol style="margin:0;padding-left:20px"><li>In the Safari menu bar choose <b>File</b>, then <b>Add to Dock</b>.</li><li>Open Chat from the Dock.</li></ol>';
+    else steps='<ol style="margin:0;padding-left:20px"><li>Click the <b>install</b> icon at the right end of the address bar, or press the button below.</li><li>Chat opens in its own window with its own icon on your dock or taskbar.</li></ol>';
+    $('#insSteps').innerHTML=steps; $('#insGo').style.display=deferred?'':'none'; $('#ovInstall').classList.add('on');
+  }
+  $('#insClose').onclick=()=>$('#ovInstall').classList.remove('on');
+  $('#insGo').onclick=async()=>{ if(!deferred) return; deferred.prompt(); try{ await deferred.userChoice }catch(e){} deferred=null; $('#insGo').style.display='none' };
+  if(!EMB&&!standalone&&/[?&]install=1/.test(location.search)) setTimeout(showInstall,900);
+  // inside the Chat app a tapped alert arrives from the service worker: open that chat
+  if(!EMB&&'serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumChat==='goto'&&d.gid) window.postMessage({atriumChat:'open-group',gid:d.gid},'*') });
 })();
 </script>
 </body>
