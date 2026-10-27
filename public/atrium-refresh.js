@@ -25,7 +25,7 @@
     var list=document.querySelectorAll('[data-refresh]');
     for(var i=0;i<list.length;i++){var r=list[i];
       if(r.previousElementSibling&&r.previousElementSibling.hasAttribute('data-chat-btn'))continue;
-      var b=document.createElement('button');b.type='button';b.className='rb';b.setAttribute('data-chat-btn','');b.setAttribute('data-tip','Chat');b.setAttribute('aria-label','ATRIUM Chat');b.innerHTML=CHAT;
+      var b=document.createElement('button');b.type='button';b.className='rb';b.setAttribute('data-chat-btn','');b.setAttribute('data-tip','Crew');b.setAttribute('aria-label','ATRIUM Crew');b.innerHTML=CHAT;
       r.parentNode.insertBefore(b,r);}
     paintChat();
   }

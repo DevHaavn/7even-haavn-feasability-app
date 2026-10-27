@@ -5,7 +5,7 @@
 <style>html.booting body>*{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ATRIUM Chat</title>
+<title>ATRIUM Crew</title>
 <meta name="theme-color" content="#3a3c42">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@1,400&display=swap" rel="stylesheet">
@@ -725,13 +725,17 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 #list.calmode #search{display:none}
 .calcol{padding:0 6px}
 @media(max-width:760px){.lh .calq{display:none}}
+
+.msteps{display:grid;gap:10px;margin:4px 0 16px}
+.msteps .ms{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--soft);line-height:1.45}
+.msteps .ms b{flex:none;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:400 12px Inter,sans-serif;color:var(--faint)}
 </style>
 </head>
 <body>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <div class="logo">A</div>
-    <button class="rb on" data-v="chat" title="Chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
+    <button class="rb on" data-v="chat" title="Crew"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
     <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
     <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <div class="sp"></div>
@@ -740,7 +744,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
   <section id="list">
     <header>
-      <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
+      <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Crew</span></span></h1>
       <div class="cap2">
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
@@ -800,7 +804,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 
 <div id="shade"></div>
 <nav id="tabbar">
-  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Chat</span><span class="badge" id="bChat2" hidden></span></button>
+  <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Crew</span><span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="tl">Tasks</span><span class="badge" id="bTask2" hidden></span></button>
   <button data-v="meet"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span class="tl">Meetings</span></button>
   <button id="meBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 4-5 7-5s6 1 7 5"/></svg><span class="tl">You</span></button>
@@ -835,6 +839,11 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div class="row"><button class="cb" id="mCancel" type="button">Cancel</button><button class="cb go" id="mSave" type="button">Create meeting</button></div>
 </div></div>
 
+<div class="ov" id="ovMic"><div class="sheet">
+  <h3>The microphone is off for ATRIUM</h3><div class="lead">Your phone remembers the No you tapped. Switch the microphone back on for this site and voice typing works again.</div>
+  <div class="msteps" id="micSteps"></div>
+  <div class="row"><button class="cb" id="micClose" type="button">Close</button><button class="cb go" id="micRetry" type="button">Try again</button></div>
+</div></div>
 <div class="ov" id="ovCal"><div class="sheet wide">
   <h3>New meeting</h3><div class="lead">Goes straight into your Outlook calendar. The people you pick get an invite.</div>
   <div class="f"><label class="mono">Title</label><input id="cTitle" maxlength="120" placeholder="e.g. Belmont landowner call" autocomplete="off"></div>
@@ -1350,7 +1359,7 @@ function renderList(){
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
-  document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
+  document.title=(tu?`(${tu}) `:'')+'ATRIUM Crew';
   if(EMB&&(REAL||!document.documentElement.classList.contains('booting'))) try{parent.postMessage({atriumChat:'count',n:REAL?tu:0,t:REAL?ot:0},'*')}catch(e){}
   $('#meAv').outerHTML=av(me(),'',34).replace('<span ','<span id="meAv" ');
   $('#sndBtn').classList.toggle('off',!S.snd);
@@ -1578,7 +1587,7 @@ function paintAll(newId){renderList();renderThread(newId);setView()}
 function setView(){
   const t=view==='tasks'||view==='meet';
   $$('#rail .rb[data-v],#tabbar button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
-  $('#listT').innerHTML=lockupHtml({chat:'Chat',tasks:'Tasks',meet:'Meetings'}[view]);
+  $('#listT').innerHTML=lockupHtml({chat:'Crew',tasks:'Tasks',meet:'Meetings'}[view]);
   if(t){pane=view; $('#side').classList.add('open'); renderPane()} else $('#side').classList.remove('open');
   document.body.classList.toggle('side-on',$('#side').classList.contains('open'));
   const st=$('#sideT'); if(st) st.textContent={tasks:'Tasks',meet:'Meeting'}[pane]||'This chat';
@@ -1598,7 +1607,7 @@ function toast(m,g){
   if(EMB){ try{parent.postMessage({atriumChat:'alert',title:P[m.u].n+' · '+gname(g),body:m.task?'Set you a task: '+m.task.title:m.x,gid:g.id,red:banner?0:S.red,snd:S.snd},'*')}catch(e){} return }
   if(!S.red||banner) return;
   const p=P[m.u], el=document.createElement('div');
-  el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Chat · now</small></div>`;
+  el.className='toast'; el.innerHTML=`<span class="dot"></span><div><b>${p.n} · ${esc(gname(g))}</b><p>${esc(m.task?'Set you a task: '+m.task.title:m.x)}</p><small>ATRIUM Crew · now</small></div>`;
   el.onclick=()=>{open(g.id);el.remove()};
   $('#toasts').prepend(el); setTimeout(()=>el.remove(),7000);
 }
@@ -2009,7 +2018,7 @@ $('#sTest').onclick=()=>{
       if(!r.devices) return pushNote('No device has alerts on yet. Switch on Alerts on this device first, on each phone and computer.');
       pushNote(r.results.map(x=>x.device+': '+(x.ok?'sent':'refused ('+x.status+(x.why?' '+x.why:'')+')')).join('. '));
     }).catch(e=>pushNote('The test could not run: '+e.message)); return }
-  const note={title:'ATRIUM Chat',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
+  const note={title:'ATRIUM Crew',body:'Test alert. If you can read this, alerts reach you.',gid:cur,test:1}; const emb=typeof EMB!=='undefined'&&EMB;
   if(emb){ try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){} setTimeout(()=>{try{parent.postMessage(Object.assign({atriumChat:'alert',red:1,snd:S.snd},note),'*')}catch(e){}},900) }
   else { const go=()=>{ chime(); if(window.Notification&&Notification.permission==='granted') new Notification(note.title,{body:note.body}) }; if(window.Notification&&Notification.permission==='default') Notification.requestPermission().then(go); else go() } };
 $('#asWho').onchange=e=>{S.me=e.target.value;S.read[S.me]=S.read[S.me]||{};save();cur=mine()[0].id;paintSet();paintAll()};
@@ -2028,7 +2037,7 @@ document.addEventListener('keydown',e=>{ if(e.altKey&&e.key>='1'&&e.key<='6'){S.
 /* ---- closing, everywhere ---- */
 function closeSide(){ view='chat'; $('#side').classList.remove('open'); document.body.classList.remove('side-on'); setView() }
 $('#sideX').onclick=closeSide; $('#shade').onclick=closeSide;
-const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon','ovPoll','ovVotes','ovCal','ovMeet'];
+const OVS=['ovView','ovConf','ovAdd','ovTask','ovGroup','ovSet','ovWall','ovIcon','ovPoll','ovVotes','ovCal','ovMeet','ovMic'];
 $$('.sheet').forEach(sh=>{const b=document.createElement('button');b.type='button';b.className='sx';b.setAttribute('aria-label','Close');b.textContent='✕';b.onclick=()=>{const ov=sh.closest('.ov');ov.classList.remove('on'); if(ov.id==='ovView')$('#vB').innerHTML=''; if(ov.id==='ovConf')conf=null};sh.prepend(b)});
 document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
   if(closeTransient()) return;
@@ -2052,18 +2061,36 @@ $('#attach').addEventListener('click',e=>{ const b=e.target.closest('[data-at]')
 document.addEventListener('click',e=>{ if(!e.target.closest('#attach')&&!e.target.closest('#plusBtn')) $('#attach').classList.remove('on') });
 /* ---- voice typing: speak, and the words land in the message box to read and send ---- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition; let rec=null, recOn=false;
-function micStop(){ if(rec&&recOn){ try{ rec.stop() }catch(e){} } }
-function micDone(){ recOn=false; $('#micBtn').classList.remove('rec'); $('#micBtn').setAttribute('aria-label','Voice typing'); const bx=$('#comp .box'); if(bx) bx.classList.remove('listening'); inp.placeholder='Message' }
-$('#micBtn').onclick=e=>{ e.stopPropagation();
+function micUi(on){ recOn=on; const b=$('#micBtn'); b.classList.toggle('rec',on); b.setAttribute('aria-label',on?'Stop voice typing':'Voice typing'); const bx=$('#comp .box'); if(bx) bx.classList.toggle('listening',on); inp.placeholder=on?'Listening…':'Message' }
+// Switching it off always works at once. A phone can be slow to report that listening has ended, or never report it, so the button never waits for that.
+function micStop(){ const r=rec; rec=null; micUi(false); if(r){ try{ r.stop() }catch(e){} setTimeout(()=>{ try{ r.abort() }catch(e){} },1200) } }
+function micBlocked(){
+  const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), android=/Android/.test(ua);
+  const steps=ios?['Open the Settings app, then Safari, then Microphone, and choose Ask or Allow. On newer iPhones it is Settings, Apps, Safari, Microphone.','Or in Safari, tap the aA in the address bar, then Website Settings, then Microphone, then Allow.','If ATRIUM is on your home screen, close it completely and open it again, then tap the microphone. If it still will not ask, delete the icon and add it again from Safari.','Voice typing also needs Dictation switched on: Settings, General, Keyboard, Enable Dictation.']
+    :android?['Tap the lock or settings icon next to the web address, then Permissions, then Microphone, then Allow.','Or open the browser menu, then Settings, Site settings, Microphone, and allow this site.','Then come back here and tap Try again.']
+    :['Click the lock icon next to the web address, then Site settings, then Microphone, then Allow.','Then reload the page and tap the microphone again.'];
+  $('#micSteps').innerHTML=steps.map((t,i)=>`<div class="ms"><b>${i+1}</b><span>${esc(t)}</span></div>`).join('');
+  $('#ovMic').classList.add('on') }
+function micStart(){
   if(!SR){ flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.'); return }
-  if(recOn){ micStop(); return }
   if($('#emo').classList.contains('on')) closeEmoji();
-  const base=inp.value.replace(/\s+$/,''); rec=new SR(); rec.continuous=true; rec.interimResults=true;
-  rec.lang=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
-  rec.onresult=ev=>{ let t=''; for(let i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; inp.value=(base?base+' ':'')+t.trim(); grow() };
-  rec.onerror=ev=>{ if(ev.error==='not-allowed'||ev.error==='service-not-allowed') flash('Allow the microphone for ATRIUM to use voice typing.'); else if(ev.error==='network') flash('Voice typing needs an internet connection.') };
-  rec.onend=micDone;
-  try{ rec.start(); recOn=true; $('#micBtn').classList.add('rec'); $('#micBtn').setAttribute('aria-label','Stop voice typing'); $('#comp .box').classList.add('listening'); inp.placeholder='Listening…' }catch(er){ micDone(); flash('Voice typing could not start. Try again.') } };
+  const base=inp.value.replace(/\s+$/,''), r=new SR(); rec=r; r.continuous=true; r.interimResults=true;
+  r.lang=/^en/i.test(navigator.language||'')?navigator.language:'en-AU';
+  r.onresult=ev=>{ if(rec!==r) return; let t=''; for(let i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; inp.value=(base?base+' ':'')+t.trim(); grow() };
+  r.onerror=ev=>{ if(rec!==r) return;
+    if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){ micStop(); micBlocked() }
+    else if(ev.error==='network') flash('Voice typing needs an internet connection.') };
+  r.onend=()=>{ if(rec===r){ rec=null; micUi(false) } };
+  try{ r.start(); micUi(true) }catch(er){ rec=null; micUi(false); flash('Voice typing could not start. Try again.') } }
+$('#micBtn').onclick=e=>{ e.stopPropagation();
+  if(recOn){ micStop(); return }
+  if(!SR){ flash('Voice typing is not available in this browser. Use the microphone on your keyboard instead.'); return }
+  // if the phone already says No, show how to switch it back on instead of failing quietly
+  let ask=null; try{ ask=navigator.permissions&&navigator.permissions.query({name:'microphone'}) }catch(er){ ask=null }
+  if(ask&&ask.then) ask.then(st=>{ if(st&&st.state==='denied') micBlocked(); else micStart() },()=>micStart()); else micStart() };
+$('#micClose').onclick=()=>$('#ovMic').classList.remove('on');
+$('#micRetry').onclick=()=>{ $('#ovMic').classList.remove('on'); micStart() };
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&recOn) micStop() });
 $('#emoBtn').onclick=e=>{ e.stopPropagation(); $('#attach').classList.remove('on'); if($('#emo').classList.contains('on')&&!EMO.cb){ closeEmoji(); return } if(COARSE) inp.blur(); openEmoji() };
 $('#emoX').onclick=closeEmoji;
 $('#emoCats').addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if(!b) return; EMO.cat=+b.dataset.c; EMO.q=''; $('#emoQ').value=''; paintEmoji(); $('#emoGrid').scrollTop=0 });

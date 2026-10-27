@@ -701,7 +701,7 @@ async function pushTest(store, me, a, wp) {
   const results = []
   const kind = (ua) => (/iPhone|iPad/.test(ua || '') ? 'iPhone' : /Android/.test(ua || '') ? 'Android phone' : /Macintosh/.test(ua || '') ? 'Mac' : /Windows/.test(ua || '') ? 'Windows PC' : 'a device')
   await Promise.all(subs.map(async (s) => {
-    try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title: 'ATRIUM Chat', body: 'Test alert. If you can read this, alerts reach this device.', tag: 'test', url: '/' })); results.push({ device: kind(s.ua), ok: true }) }
+    try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ title: 'ATRIUM Crew', body: 'Test alert. If you can read this, alerts reach this device.', tag: 'test', url: '/' })); results.push({ device: kind(s.ua), ok: true }) }
     catch (e) { results.push({ device: kind(s.ua), ok: false, status: e.statusCode || 0, why: String(e.body || e.message || '').slice(0, 120) }); if (e.statusCode === 404 || e.statusCode === 410) { try { await store.deletePush(s.endpoint) } catch { /* ignore */ } } }
   }))
   return { enabled: true, devices: subs.length, results }
