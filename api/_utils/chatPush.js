@@ -26,7 +26,7 @@ function recipients(msg, senderId, memberRows) {
 }
 
 function payloadFor(msg, sender, group, groupName) {
-  const body = msg.kind === 'task' && msg.task ? `Set you a task: ${msg.task.title}` : msg.kind === 'wfupdate' && msg.task && msg.task.ref ? `${msg.task.ref.t}: ${msg.body || ''}` : (msg.body || (msg.files && msg.files.length ? 'Sent a file' : ''))
+  const body = msg.kind === 'task' && msg.task ? `Set you a task: ${msg.task.title}` : msg.kind === 'meeting' && msg.task && msg.task.meeting ? `Meeting: ${msg.task.meeting.t}, ${msg.task.meeting.d} ${msg.task.meeting.tm}` : msg.kind === 'wfupdate' && msg.task && msg.task.ref ? `${msg.task.ref.t}: ${msg.body || ''}` : (msg.body || (msg.files && msg.files.length ? 'Sent a file' : ''))
   return {
     title: group.is_dm ? sender.name : `${sender.name} · ${groupName}`,
     body: String(body).slice(0, 140),

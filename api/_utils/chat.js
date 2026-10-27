@@ -34,6 +34,7 @@ function shapeMsg(m) {
   if (m.kind === 'poll') return { ...base, x: m.body || '', sys: 0, poll: (m.task && m.task.poll) || { opts: [], multi: false } }
   if (m.kind === 'vote') return { ...base, k: 'vote', pm: Number(m.task && m.task.poll) || 0, c: Array.isArray(m.task && m.task.c) ? m.task.c : [] }
   if (m.kind === 'pollup') return { ...base, k: 'pollup', pm: Number(m.task && m.task.poll) || 0, def: (m.task && m.task.def) || null }
+  if (m.kind === 'meeting') return { ...base, x: m.body || '', sys: 0, mt: (m.task && m.task.meeting) || undefined }
   if (m.kind === 'wfupdate') return { ...base, x: m.body || '', sys: 0, wf: (m.task && m.task.ref) || undefined, files: (m.files && m.files.length) ? m.files : undefined }
   return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
 }
@@ -353,6 +354,109 @@ async function send(store, kv, me, a, wp) {
   return { msg: shapeMsg(row) }
 }
 
+// ---------- meetings from a chat: the CRM owns meetings (they live in Meeting Management); a chat is just another front door, like it is for tasks ----------
+const cleanLine = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n)
+const fmtMeetingDate = (d) => { const t = new Date(d + 'T12:00:00Z'); return isNaN(t) ? d : t.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) }
+async function createChatMeeting(store, kv, me, a, wp) {
+  const { rows } = await mustBeMember(store, a.gid, me)
+  if (!kv || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const group = (await store.groupsByIds([a.gid]))[0]
+  const title = cleanLine(a.title, 100)
+  if (!title) throw new ChatError('Give the meeting a title.')
+  const inChat = rows.map((r) => byId(r.member)).filter(Boolean)
+  const want = new Set((Array.isArray(a.attendees) ? a.attendees : []).map((n) => String(n).toLowerCase()))
+  const people = want.size ? inChat.filter((p) => want.has(p.name.toLowerCase()) || p.id === me.sub) : inChat
+  const names = [...new Set([me.name, ...people.map((p) => p.name)])]
+  const agenda = (Array.isArray(a.agenda) ? a.agenda : []).map((l) => cleanLine(l, 160)).filter(Boolean).slice(0, 30)
+  const by = `${me.name} (chat)`
+  let made
+  try {
+    made = await kv.update(B.KEYS.boardroom, (bd) => {
+      const c = B.createMeeting(bd, { kind: 'internal', title, date: a.date, time: a.time, attendees: names, chair: me.name, durationMin: a.durationMin }, by)
+      let next = c.next
+      for (const line of agenda) next = B.addAgendaItem(next, { meeting_id: c.result.id, title: line, notes: `From the chat "${(group && group.name) || 'direct message'}"` }, by).next
+      const m = next.meetings.find((x) => String(x.id) === String(c.result.id)); m.chatGid = a.gid; m.chatName = (group && group.name) || ''
+      return { next, result: { ...c.result, items: agenda.length } }
+    })
+  } catch (e) { if (e instanceof B.UserError) throw new ChatError(e.message); throw e }
+  const meeting = { id: made.id, t: made.title, d: made.date, tm: made.time, a: made.attendees, n: agenda.length }
+  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: 'meeting', body: cleanLine(a.note, 500), task: { meeting }, files: [] })
+  await store.updateMember(a.gid, me.sub, { last_read: row.id })
+  await bringBackDm(store, rows, a.gid, me)
+  await store.unarchiveOthers(a.gid, me.sub)
+  try { const others = rows.filter((r) => r.member !== me.sub); if (group && others.length) await P.notify({ store, sender: me, msg: row, group, memberRows: others, groupName: group.name }, wp) } catch { /* the meeting is made; an alert failing never undoes it */ }
+  return { msg: shapeMsg(row), meeting: made }
+}
+// The chat of a meeting: one private chat per meeting, with its attendees in it, so the meeting itself can talk and share information.
+// A meeting that came from a chat uses that chat. Otherwise the chat is made the first time anyone opens it, and remembered on the meeting.
+async function meetingChat(store, kv, me, a, wp) {
+  if (!kv || !kv.read || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const row = await kv.read(B.KEYS.boardroom)
+  const m = ((row && row.value && row.value.meetings) || []).find((x) => String(x.id) === String(a.meetingId))
+  if (!m) throw new ChatError('No such meeting.', 404)
+  const lower = (v) => String(v || '').toLowerCase()
+  const onIt = (m.attendees || []).some((x) => lower(x.name) === lower(me.name)) || lower(m.chair) === lower(me.name) || me.role === 'admin'
+  if (!onIt) throw new ChatError('You are not on this meeting.', 403)
+  const joinMe = async (gid) => {
+    const rows = await store.membersByGroups([gid])
+    const mine = rows.find((r) => r.member === me.sub)
+    if (!mine) await store.insertMembers([{ group_id: gid, member: me.sub, is_outside: false, hidden: false, added_by: me.sub }])
+    else if (mine.hidden || mine.archived) await store.updateMember(gid, me.sub, { hidden: false, archived: false })
+  }
+  let gid = m.chatGid && (await store.groupsByIds([m.chatGid]))[0] ? m.chatGid : ''
+  if (!gid) { const found = await store.findDm('mtg:' + m.id); if (found) gid = found.id }
+  if (gid) { await joinMe(gid); return { gid, created: false } }
+  const title = cleanLine(m.title || 'Meeting', 100)
+  const g = await store.insertGroup({ name: title, is_dm: false, is_private: true, owner: me.sub, project: null, dm_key: 'mtg:' + m.id })
+  const ids = [...new Set([me.sub, ...(m.attendees || []).map((x) => (A.PEOPLE.find((p) => lower(p.name) === lower(x.name)) || {}).id).filter(Boolean)])]
+  try { await store.insertMembers(ids.map((id) => ({ group_id: g.id, member: id, is_outside: false, hidden: false, added_by: me.sub }))) } catch (e) { try { await store.deleteGroup(g.id) } catch { /* nothing more to do */ } throw e }
+  try { await kv.update(B.KEYS.boardroom, (bd) => { const next = JSON.parse(JSON.stringify(bd || { meetings: [] })); const t = (next.meetings || []).find((x) => String(x.id) === String(m.id)); if (t) { t.chatGid = g.id; t.chatName = title } return { next, result: null } }) } catch { /* the chat works without the link; it is found again by its key */ }
+  const meeting = { id: m.id, t: title, d: m.date || '', tm: m.time || '', a: (m.attendees || []).length, n: (m.items || []).length }
+  const card = await store.insertMessage({ group_id: g.id, sender: me.sub, kind: 'meeting', body: 'Chat for this meeting. Share what people need before, during and after.', task: { meeting }, files: [] })
+  await store.updateMember(g.id, me.sub, { last_read: card.id })
+  try { const others = (await store.membersByGroups([g.id])).filter((r) => r.member !== me.sub); if (others.length) await P.notify({ store, sender: me, msg: card, group: g, memberRows: others, groupName: g.name }, wp) } catch { /* ignore */ }
+  return { gid: g.id, created: true }
+}
+async function chatMeetings(store, kv, me, a) {
+  await mustBeMember(store, a.gid, me)
+  if (!kv || !kv.read) return { meetings: [] }
+  const row = await kv.read(B.KEYS.boardroom)
+  const ms = ((row && row.value && row.value.meetings) || []).filter((m) => m.chatGid === a.gid)
+  ms.sort((x, y) => String(x.date).localeCompare(String(y.date)))
+  return { meetings: ms.map((m) => ({ id: m.id, title: m.title || 'Meeting', date: m.date || '', time: m.time || '', closed: !!m.closed, items: (m.items || []).length, decisions: (m.decisions || []).length, minutes: !!(m.minutes && String(m.minutes).trim()), attendees: (m.attendees || []).length })) }
+}
+// A message from the chat becomes an agenda item on the next open meeting that came from this chat.
+async function addToMeeting(store, kv, me, a) {
+  await mustBeMember(store, a.gid, me)
+  if (!kv || !kv.update) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const m = await store.getMessage(a.mid)
+  if (!m || m.group_id !== a.gid || m.kind === 'system' || STYLE_KINDS.includes(m.kind)) throw new ChatError('No such message.', 404)
+  const sender = (byId(m.sender) || { name: 'Someone' }).name
+  const text = String(m.body || (m.task && m.task.title) || (m.task && m.task.meeting && m.task.meeting.t) || 'A message from the chat').trim()
+  const group = (await store.groupsByIds([a.gid]))[0]
+  const by = `${me.name} (chat)`
+  const out = await kv.update(B.KEYS.boardroom, (bd) => {
+    const open = ((bd && bd.meetings) || []).filter((x) => x.chatGid === a.gid && !x.closed && (!a.meetingId || String(x.id) === String(a.meetingId))).sort((x, y) => String(x.date).localeCompare(String(y.date)))
+    if (!open.length) throw new B.UserError('NO_MEETING')
+    const r = B.addAgendaItem(bd, { meeting_id: open[0].id, title: cleanLine(text, 160), notes: `From the chat "${(group && group.name) || 'direct message'}", ${sender}: ${text.slice(0, 1500)}` }, by)
+    return { next: r.next, result: { title: open[0].title, date: open[0].date } }
+  }).catch((e) => { if (e instanceof B.UserError) throw new ChatError(e.message === 'NO_MEETING' ? 'No meeting from this chat yet.' : e.message, e.message === 'NO_MEETING' ? 404 : 400); throw e })
+  return { ok: true, meeting: out }
+}
+// What was decided, back into the chat for everyone who was not in the room.
+async function postMinutes(store, kv, me, a, wp) {
+  await mustBeMember(store, a.gid, me)
+  if (!kv || !kv.read) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const row = await kv.read(B.KEYS.boardroom)
+  const m = ((row && row.value && row.value.meetings) || []).find((x) => String(x.id) === String(a.meetingId) && x.chatGid === a.gid)
+  if (!m) throw new ChatError('That meeting is not from this chat.', 404)
+  const dec = (m.decisions || []).map((d) => '\u2022 ' + String(d.text || '').trim()).filter((l) => l.length > 2)
+  const mins = String(m.minutes || '').trim()
+  if (!dec.length && !mins) throw new ChatError('No decisions or minutes have been recorded yet.')
+  const body = [`Minutes: ${m.title || 'Meeting'} (${fmtMeetingDate(m.date)})`, dec.length ? 'Decisions\n' + dec.join('\n') : '', mins ? mins.slice(0, 1200) : ''].filter(Boolean).join('\n\n')
+  return send(store, kv, me, { gid: a.gid, body }, wp)
+}
+
 async function taskDone(store, kv, me, a) {
   const m = await store.getMessage(a.mid)
   if (!m || !m.task || m.kind === 'poll') throw new ChatError('No such task.', 404)
@@ -551,6 +655,11 @@ async function run(action, a, me, deps) {
     case 'unsubscribe': return unsubscribe(store, me, a)
     case 'read': return markRead(store, me, a)
     case 'newGroup': return newGroup(store, me, a)
+    case 'createMeeting': return createChatMeeting(store, kv, me, a, wp)
+    case 'meetingChat': return meetingChat(store, kv, me, a, wp)
+    case 'chatMeetings': return chatMeetings(store, kv, me, a)
+    case 'addToMeeting': return addToMeeting(store, kv, me, a)
+    case 'postMinutes': return postMinutes(store, kv, me, a, wp)
     case 'myGroups': return myGroups(store, me)
     case 'addTeamToGroup': return addTeamToGroup(store, me, a)
     case 'groupForProject': return groupForProject(store, me, a)

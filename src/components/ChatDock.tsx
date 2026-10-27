@@ -113,6 +113,7 @@ export default function ChatDock() {
   const seq = useRef(0)
   const count = useRef(0)
   const wantGroup = useRef<string | null>(null)
+  const wantMeeting = useRef<string | number | null>(null)
 
   const tell = (m: Record<string, unknown>) => frame.current?.contentWindow?.postMessage({ atriumChat: m.k, ...m }, '*')
   const goTo = (gid: string) => { setOpen(true); wantGroup.current = gid; tell({ k: 'open-group', gid }) }
@@ -127,6 +128,7 @@ export default function ChatDock() {
       // a footer button in any ATRIUM page: open or close the chat, or ask how many are waiting
       if (e.origin === location.origin && e.source !== frame.current?.contentWindow) {
         if (d.atriumChat === 'toggle') setOpen(o => !o)
+        if (d.atriumChat === 'meeting' && d.meetingId != null) { setOpen(true); wantMeeting.current = d.meetingId; tell({ k: 'open-meeting', meetingId: d.meetingId }); setTimeout(() => { wantMeeting.current = null }, 8000) }
         if (d.atriumChat === 'hello') (e.source as Window | null)?.postMessage({ atriumChat: 'count', n: count.current }, '*')
         return
       }
@@ -197,7 +199,7 @@ export default function ChatDock() {
               style={{ width: 44, height: 44, borderRadius: 999, border: 0, background: 'rgba(255,255,255,.12)', color: '#fff', fontSize: 17, cursor: 'pointer' }}>✕</button>
           </div>
         )}
-        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027l" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }) }}
+        <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261027m" onLoad={() => { tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>
       <div style={{ position: 'fixed', top: 'calc(14px + env(safe-area-inset-top))', right: 14, zIndex: 9800, display: 'grid', gap: 10, width: 'min(380px, calc(100vw - 28px))' }}>

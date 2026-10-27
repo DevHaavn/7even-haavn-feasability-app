@@ -555,6 +555,7 @@ body{display:grid;grid-template-columns:230px minmax(0,1fr);grid-template-rows:a
       <div class="hero-btns">
         <button class="btn btn-ghost" onclick="exportMenu()">↧ Export</button>
         <button class="btn btn-ghost" onclick="switchTab('meetings')">☰ All meetings</button>
+        <button class="btn" id="mtgChatBtn" type="button" onclick="openMeetingChat()" style="display:none">Meeting chat</button>
         <button class="btn btn-gold" id="closeBtn" onclick="handleClose()">Close meeting</button>
       </div>
       <div class="hero-stats" id="heroStats"></div>
@@ -792,7 +793,10 @@ function attById(id){return cur().attendees.find(function(a){return ''+a.id===''
 function itemById(id){return cur().items.find(function(i){return ''+i.id===''+id;});}
 
 function syncDeptTasks(){var m=cur();curBoards().forEach(function(d){d.tasks=(m.items||[]).filter(function(i){return i.dept===d.id;});});}
-function render(){if(!DB)return;syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
+/* a chat for this meeting, made the first time: opens in the ATRIUM chat so the meeting can talk and share information */
+function chatAvailable(){try{var f=localStorage.getItem('atrium_chat_preview');return window.parent!==window&&(f==='1'||(f!=='0'&&(localStorage.getItem('atrium_chat_ms')==='1'||localStorage.getItem('7even_role')==='admin')))}catch(e){return false}}
+function openMeetingChat(){var m=cur();if(!m)return;try{window.parent.postMessage({atriumChat:'meeting',meetingId:m.id},'*')}catch(e){}}
+function render(){if(!DB)return;var cb2=document.getElementById('mtgChatBtn');if(cb2)cb2.style.display=chatAvailable()?'':'none';syncDeptTasks();renderHero();renderAtt();renderDepts();renderStats();renderDecisions();renderRollups();renderArchive();renderMeetingsList();renderCmdOpts();syncNotes();updTimer();renderNotes();updateSection();}
 function renderHero(){var m=cur();document.getElementById('heroDate').textContent=fmtLong(m.date);document.getElementById('heroChair').innerHTML='Chair <b>'+esc(m.chair)+'</b> · 7EVEN · HAAVN · HAAVN Management · Administration &amp; Accounts';var fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd&&document.activeElement!==fd)fd.value=m.date;if(ft&&document.activeElement!==ft)ft.value=m.time;
   var eb=document.getElementById('heroEyebrow');if(eb)eb.textContent='ATRIUM · '+(m.title||'Weekly Company Meeting')+(m.kind&&m.kind!=='weekly'?(' · '+m.kind.toUpperCase()):'');
   var cb=document.getElementById('closeBtn');if(cb)cb.textContent='Close meeting';}

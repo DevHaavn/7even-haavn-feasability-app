@@ -36,7 +36,7 @@ function fake() {
   const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
-  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
+  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   return { t, objs, deps: { store, files, kv }, db }
 }
 let F: ReturnType<typeof fake>
@@ -170,6 +170,69 @@ describe('people in a chat', () => {
     await expect(run('deleteGroup', { gid }, daniel)).rejects.toThrow(/owner/)
     await run('deleteGroup', { gid }, jamie)
     expect((await run('init', {}, daniel)).groups).toEqual([]); expect(F.t.msgs.length).toBe(0)
+  })
+})
+
+describe('meetings from a chat', () => {
+  it('creates the meeting in Meeting Management with the chat as attendees and agenda, and posts a card', async () => {
+    const { gid } = await run('newGroup', { name: 'Preston', ids: ['ds', 'lj'] })
+    const r = await run('createMeeting', { gid, title: 'Preston facade review', date: '2026-11-04', time: '10:30', durationMin: 45, agenda: ['Facade package', '  ', 'Council RFI'], note: 'Please bring the drawings' })
+    expect(r.msg.mt).toMatchObject({ t: 'Preston facade review', d: '2026-11-04', tm: '10:30', n: 2 })
+    const m = F.db.board.meetings.find((x: any) => x.title === 'Preston facade review')
+    expect(m.kind).toBe('internal'); expect(m.chatGid).toBe(gid); expect(m.chair).toBe('Jamie Baldwin')
+    expect(m.attendees.map((x: any) => x.name).sort()).toEqual(['Daniel Sette', 'Jamie Baldwin', 'Lewis Jin'])
+    expect(m.items.map((i: any) => i.title)).toEqual(['Facade package', 'Council RFI'])
+    const seen = await run('init', {}, daniel)
+    expect(seen.msgs.find((x: any) => x.mt).x).toBe('Please bring the drawings')
+  })
+  it('only chosen attendees come when some are picked, and bad input is refused plainly', async () => {
+    const { gid } = await run('newGroup', { name: 'G', ids: ['ds', 'lj'] })
+    await run('createMeeting', { gid, title: 'Small one', date: '2026-11-05', attendees: ['Daniel Sette'] })
+    expect(F.db.board.meetings.find((x: any) => x.title === 'Small one').attendees.map((x: any) => x.name).sort()).toEqual(['Daniel Sette', 'Jamie Baldwin'])
+    await expect(run('createMeeting', { gid, title: '', date: '2026-11-05' })).rejects.toThrow(/title/)
+    await expect(run('createMeeting', { gid, title: 'X', date: 'tomorrow' })).rejects.toThrow(/YYYY-MM-DD/)
+    await expect(run('createMeeting', { gid, title: 'X', date: '2026-11-05' }, lewis)).resolves.toBeTruthy()
+    await expect(run('createMeeting', { gid: 'nope', title: 'X', date: '2026-11-05' })).rejects.toThrow(/not in/)
+  })
+  it('lists the meetings of this chat only, adds a message to the agenda, and posts the minutes back', async () => {
+    const a = (await run('newGroup', { name: 'A', ids: ['ds'] })).gid, b = (await run('newGroup', { name: 'B', ids: ['ds'] })).gid
+    await run('createMeeting', { gid: a, title: 'Meeting A', date: '2026-11-04' }); await run('createMeeting', { gid: b, title: 'Meeting B', date: '2026-11-04' })
+    expect((await run('chatMeetings', { gid: a })).meetings.map((m: any) => m.title)).toEqual(['Meeting A'])
+    const { msg } = await run('send', { gid: a, body: 'We need a decision on the car park layout' })
+    const r = await run('addToMeeting', { gid: a, mid: msg.id })
+    expect(r.meeting.title).toBe('Meeting A')
+    const mA = F.db.board.meetings.find((x: any) => x.title === 'Meeting A')
+    expect(mA.items[0].title).toBe('We need a decision on the car park layout'); expect(mA.items[0].notes).toMatch(/Jamie Baldwin|From the chat/)
+    await expect(run('addToMeeting', { gid: b, mid: msg.id })).rejects.toThrow(/No such message/)
+    await expect(run('postMinutes', { gid: a, meetingId: mA.id })).rejects.toThrow(/No decisions/)
+    mA.decisions = [{ id: 1, text: 'Car park goes to the north side' }]; mA.minutes = 'Agreed to proceed.'
+    const p = await run('postMinutes', { gid: a, meetingId: mA.id })
+    expect(p.msg.x).toMatch(/Minutes: Meeting A/); expect(p.msg.x).toMatch(/Car park goes to the north side/)
+    await expect(run('postMinutes', { gid: b, meetingId: mA.id })).rejects.toThrow(/not from this chat/)
+    F.db.board.meetings.find((x: any) => x.title === 'Meeting A').closed = true
+    await expect(run('addToMeeting', { gid: a, mid: msg.id })).rejects.toThrow(/No meeting from this chat/)
+  })
+})
+
+describe('the chat of a meeting', () => {
+  it('is made once for a meeting, with its attendees, and found again by anyone on it', async () => {
+    F.db.board.meetings.push({ id: 77, title: 'Corio board', kind: 'internal', date: '2026-11-10', time: '09:00', chair: 'Jamie Baldwin', closed: false, items: [{ id: 1 }], attendees: [{ id: 1, name: 'Jamie Baldwin' }, { id: 2, name: 'Daniel Sette' }, { id: 3, name: 'Outside Consultant' }] })
+    const a = await run('meetingChat', { meetingId: 77 })
+    expect(a.created).toBe(true)
+    expect(F.db.board.meetings.find((m: any) => m.id === 77).chatGid).toBe(a.gid)
+    const d = await run('init', {}, daniel)
+    expect(d.groups.map((g: any) => g.n)).toEqual(['Corio board']); expect(d.msgs.find((m: any) => m.mt).mt.t).toBe('Corio board')
+    const again = await run('meetingChat', { meetingId: '77' }, daniel)
+    expect(again).toEqual({ gid: a.gid, created: false })
+    await expect(run('meetingChat', { meetingId: 77 }, lewis)).rejects.toThrow(/not on this meeting/)
+    await expect(run('meetingChat', { meetingId: 999 })).rejects.toThrow(/No such meeting/)
+  })
+  it('brings an attendee into the chat a meeting came from, and uses that chat', async () => {
+    const { gid } = await run('newGroup', { name: 'Origin', ids: ['ds'] })
+    await run('createMeeting', { gid, title: 'From chat', date: '2026-11-04', attendees: ['Daniel Sette'] })
+    const id = F.db.board.meetings.find((m: any) => m.title === 'From chat').id
+    const r = await run('meetingChat', { meetingId: id }, daniel)
+    expect(r).toEqual({ gid, created: false })
   })
 })
 

@@ -359,6 +359,13 @@ body.embed #demo{left:calc(50% + 150px)}
 .mr:not(.l):not(.mine) .bub{border-bottom-left-radius:7px}.mr:not(.l).mine .bub{border-bottom-right-radius:7px}
 .bub .tx{white-space:pre-wrap}
 .bub .tm{display:inline-block;margin-left:10px;font:400 10.5px Inter;opacity:.6;float:right;margin-top:6px;margin-right:-2px;letter-spacing:.02em;white-space:nowrap}
+.mtcard{display:flex;flex-direction:column;gap:3px;margin:0 0 8px;padding:10px 14px;border-radius:18px;background:rgba(214,179,106,.16);border:1px solid rgba(214,179,106,.5);min-width:210px}
+.mtcard .k{font:500 9.5px var(--mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:#d6b36a}
+.mr.mine .mtcard .k{color:#7a5a12}
+.mtcard b{font-weight:500;font-size:15px}
+.mtcard .mm{font-size:12.5px;opacity:.85}
+.mtcard .sub{font-size:11px;opacity:.6}
+.mtrow .cb{margin-top:2px}
 .bub.pending{opacity:.62}
 .bub.failed{opacity:.8;outline:1px solid rgba(255,154,154,.6)}
 .seen.fail{color:#ff9a9a}
@@ -738,6 +745,17 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div class="row"><div class="f"><label class="mono">Priority</label><select id="tPri"><option>Normal</option><option>High</option><option>Low</option></select></div><div class="f"><label class="mono">Project (CRM)</label><select id="tProj"></select></div></div>
   <div class="f"><label class="mono">Also send to</label><div class="ck"><label><input type="checkbox" id="tWf" checked> Workflow</label><label><input type="checkbox" id="tAg"> Monday meeting agenda</label></div></div>
   <div class="row"><button class="cb" id="tCancel">Cancel</button><button class="cb go" id="tSave">Set task</button></div>
+</div></div>
+
+<div class="ov" id="ovMeet"><div class="sheet wide">
+  <h3>Meeting from this chat</h3><div class="lead">Created in ATRIUM Meeting Management. Everyone in the chat gets a card and an alert.</div>
+  <div class="f"><label class="mono">Title</label><input id="mTitle" maxlength="100" placeholder="e.g. Preston facade review"></div>
+  <div class="row"><div class="f"><label class="mono">Date</label><input type="date" id="mDate"></div><div class="f"><label class="mono">Time</label><input type="time" id="mTime" value="10:00"></div></div>
+  <div class="row"><div class="f"><label class="mono">Length</label><select id="mDur"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></div><div class="f"></div></div>
+  <div class="f"><label class="mono">Who comes</label><div class="ck" id="mWho"></div></div>
+  <div class="f"><label class="mono">Agenda, one item per line</label><textarea id="mAgenda" rows="5" placeholder="Facade package&#10;Council RFI"></textarea></div>
+  <div class="f"><label class="mono">Message to the chat (optional)</label><input id="mNote" maxlength="300" placeholder="e.g. Please bring the drawings"></div>
+  <div class="row"><button class="cb" id="mCancel" type="button">Cancel</button><button class="cb go" id="mSave" type="button">Create meeting</button></div>
 </div></div>
 
 <div class="ov" id="ovGroup"><div class="sheet">
@@ -1291,8 +1309,9 @@ function bubbleHtml(m,pop){
   const hasfile=(m.files||[]).some(f=>!f.type.startsWith('image/')||!f.url);
   const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',m.pending?'pending':'',m.failed?'failed':'',pop?'pop':''].filter(Boolean).join(' ');
   const tm=`<span class="tm">${tmf(m.t)}</span>`;
+  const mtc=m.mt?`<div class="mtcard"><span class="k">Meeting</span><b>${esc(m.mt.t)}</b><span class="mm">${esc(fmtMtgDate(m.mt.d))}${m.mt.tm?' \u00b7 '+esc(fmtMtgTime(m.mt.tm)):''} \u00b7 ${m.mt.a} people${m.mt.n?` \u00b7 ${m.mt.n} agenda item${m.mt.n===1?'':'s'}`:''}</span><span class="sub">In Meeting Management</span></div>`:'';
   const wfc=m.wf?`<button type="button" class="wfchip" data-wf="${esc(m.wf.id)}"><span>Task</span> ${esc(m.wf.t)}${m.wf.p?` <i>${esc(m.wf.p)}</i>`:''}</button>`:'';
-  const body=wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
+  const body=mtc+wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
   return `<div class="${cls}" data-bub="${m.id}">${body}${(plain&&!imgs&&!hasfile&&!hasTask&&!emo)?'':tm}</div>` }
 function renderThread(newId){
   const g=S.groups.find(x=>x.id===cur&&x.m.includes(S.me)&&!S.gone[S.me+x.id]);
@@ -1326,7 +1345,7 @@ function openMenuFor(id,anchor){
   const mine=((m.u===S.me)), have=Object.entries(S.rx[id]||{}).filter(([e,a])=>a.includes(S.me)).map(x=>x[0]);
   const am=$('#amenu');
   am.innerHTML=`<div class="rbar">${QUICK.map(e=>`<button type="button" data-q="${e}" class="${have.includes(e)?'me':''}" aria-label="React ${e}">${e}</button>`).join('')}<button type="button" data-q="+" aria-label="More emoji"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${m.wf?'<button type="button" data-a="wf"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply on task</button>':''}${(m.poll&&m.u===S.me)?`<button type="button" data-a="pedit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>Edit poll</button><button type="button" data-a="pclose"><svg viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/></svg>${pollDef(m).closed?'Reopen poll':'Close poll'}</button>`:''}${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
+   <div class="abar"><button type="button" data-a="reply"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply</button><button type="button" data-a="task"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Make a task</button>${REAL&&(m.x||m.task)?'<button type="button" data-a="mtg"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>Add to meeting agenda</button>':''}${m.wf?'<button type="button" data-a="wf"><svg viewBox="0 0 24 24"><path d="M10 7 4 12l6 5M4 12h10a6 6 0 0 1 6 6"/></svg>Reply on task</button>':''}${(m.poll&&m.u===S.me)?`<button type="button" data-a="pedit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>Edit poll</button><button type="button" data-a="pclose"><svg viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="M9 11V8a3 3 0 0 1 6 0v3"/></svg>${pollDef(m).closed?'Reopen poll':'Close poll'}</button>`:''}${m.x&&!/^Set a task for /.test(m.x)?'<button type="button" data-a="copy"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>Copy text</button>':''}</div>`;
   am.classList.add('on'); am.style.alignItems=mine?'flex-end':'flex-start';
   const r=anchor.getBoundingClientRect(), w=am.offsetWidth, h=am.offsetHeight, top0=($('#thead').getBoundingClientRect().bottom)+6;
   let top=r.top-h-8; if(top<top0) top=Math.min(r.bottom+8,innerHeight-h-8);
@@ -1340,6 +1359,7 @@ $('#amenu').addEventListener('click',e=>{
   if(q){ closeMenu(); if(q.dataset.q==='+') openEmoji(em=>reactTo(id,em)); else reactTo(id,q.dataset.q); return }
   if(a){ const m=S.msgs.find(x=>x.id==id); closeMenu(); if(!m) return;
     if(a.dataset.a==='wf'){ setWf(m.wf,m.g) }
+    if(a.dataset.a==='mtg'){ addToAgenda(m) }
     if(a.dataset.a==='pedit') openPoll(m);
     if(a.dataset.a==='pclose') savePollEdit(m,{closed:!pollDef(m).closed});
     if(a.dataset.a==='reply'){ const t=$('#inp'); t.value='@'+(P[m.u]?P[m.u].n:'')+' '+t.value; t.dispatchEvent(new Event('input')); t.focus() }
@@ -1437,9 +1457,13 @@ function renderPane(){
     h=ts.length?ts.map(m=>`<div class="t ${m.task.done?'done':''}"><button class="chk ${m.task.done?'done':''}" data-done="${m.id}"></button><div><b>${esc(m.task.title)}</b><div class="meta"><span class="chip">${P[m.task.own].n.split(' ')[0]}</span><span class="chip ${m.task.pri==='High'?'r':''}">Due ${new Date(m.task.due).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>${m.task.wf?'<span class="chip g1">Workflow</span>':''}${m.task.ag?'<span class="chip g1">Agenda</span>':''}</div></div></div>`).join(''):'<div class="empty">No tasks in this group yet. Press ＋ Task, or hover a message and choose Make task.</div>';
     h+=`<div class="mono" style="margin:16px 2px 6px">How a task travels</div><div class="empty" style="padding:0">Set here, it appears in ATRIUM Workflow under the owner, on the project in the CRM, and, if you tick it, on the Monday meeting agenda. Tick it done in any of those and it ticks here.</div>`;
   }else if(pane==='meet'){
-    const ag=S.msgs.filter(m=>m.task&&m.task.ag&&!m.task.done);
-    h=`<div class="mt"><div class="mono">Monday 27 Oct · 9:30</div><h4>Weekly meeting</h4>${ag.length?'<ul>'+ag.map(m=>`<li>${esc(m.task.title)} <span style="color:var(--faint)">· ${P[m.task.own].n.split(' ')[0]}</span></li>`).join('')+'</ul>':'<div class="empty" style="padding:0">Nothing on the agenda from chat yet.</div>'}</div>
-    <div class="mt"><div class="mono">Meeting hub</div><h4>Start a meeting from this group</h4><div class="empty" style="padding:0 0 10px">Opens the ATRIUM meeting hub with this group as attendees, and the agenda filled from its tasks. Minutes and decisions post back here.</div><button class="cb go" onclick="this.textContent='Opens in the meeting hub (preview)'">Start meeting</button></div>`;
+    const ag=S.msgs.filter(m=>m.g===cur&&m.task&&m.task.ag&&!m.task.done);
+    const lst=REAL?MT[cur]:null; if(REAL&&!lst&&!MTL[cur]) loadMeetings(cur);
+    const row=m=>`<div class="mt mtrow"><div class="mono">${esc(fmtMtgDate(m.date))}${m.time?' · '+esc(fmtMtgTime(m.time)):''}</div><h4>${esc(m.title)}</h4><div class="empty" style="padding:0 0 8px">${m.attendees} people · ${m.items} agenda item${m.items===1?'':'s'}${m.decisions?` · ${m.decisions} decision${m.decisions===1?'':'s'}`:''}${m.closed?' · closed':''}</div>${(m.decisions||m.minutes)?`<button class="cb" data-pm="${m.id}" style="height:34px">Post minutes to chat</button>`:''}</div>`;
+    const up=(lst||[]).filter(m=>!m.closed), done=(lst||[]).filter(m=>m.closed);
+    h=`<div class="mt"><div class="mono">Meeting Management</div><h4>Meet about this chat</h4><div class="empty" style="padding:0 0 10px">Creates the meeting in ATRIUM Meeting Management with the people in this chat as attendees and an agenda from the chat. A card lands here so everyone knows. Decisions and minutes can be posted back.</div><button class="cb go" id="mtNew" type="button" ${REAL?'':'disabled'}>Create a meeting from this chat</button>${REAL?'':'<div class="empty" style="padding:8px 0 0">Meetings need the real chat. Sign in with Microsoft first.</div>'}</div>`
+      +(REAL?(lst?(up.length?`<div class="mono" style="margin:16px 2px 6px">From this chat</div>`+up.map(row).join(''):''):'<div class="empty" style="padding:12px 2px">Loading this chat’s meetings…</div>')+(done.length?`<div class="mono" style="margin:16px 2px 6px">Done</div>`+done.map(row).join(''):''):'')
+      +`<div class="mt"><div class="mono">Weekly meeting</div><h4>Agenda items set from this chat</h4>${ag.length?'<ul>'+ag.map(m=>`<li>${esc(m.task.title)} <span style="color:var(--faint)">· ${P[m.task.own]?P[m.task.own].n.split(' ')[0]:''}</span></li>`).join('')+'</ul>':'<div class="empty" style="padding:0">Nothing yet. Tick “Monday meeting agenda” when you set a task here, or hold a message and choose Add to meeting agenda.</div>'}</div>`;
   }else if(pane==='files'){
     const fs=[]; gm(cur).forEach(m=>(m.files||[]).forEach((f,i)=>fs.push({m,f,i})));
     h=fs.length?fs.reverse().map(({m,f,i})=>`<div class="fl">${f.type.startsWith('image/')&&f.url?`<img src="${f.url}" alt="">`:`<span class="ft ${ext(f)}">${ext(f).toUpperCase()}</span>`}<div class="d"><b>${esc(f.name)}</b><span>${P[m.u].n.split(' ')[0]} · ${fmt(m.t)} · ${size(f.size)}</span></div><button class="cb" data-view="${m.id}:${i}" style="height:30px;padding:0 12px">View</button></div>`).join(''):'<div class="empty">No files shared in this chat yet. Press the paperclip, drag files in, or paste an image.</div>';
@@ -1455,6 +1479,8 @@ function renderPane(){
     setTimeout(()=>{const b=$('#addBtn2');if(b)b.onclick=addDlg; bindName(g)},0);
   }
   $('#pane').innerHTML=h;
+  const mn=$('#mtNew'); if(mn) mn.onclick=()=>openMeetSheet([]);
+  $$('#pane [data-pm]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('postMinutes',{gid:cur,meetingId:b.dataset.pm}).then(o=>{ ingestOwn(o.msg); flash('Minutes posted to the chat.') }).catch(e=>{ flash(e.message); b.disabled=false }) });
 }
 function paintAll(newId){renderList();renderThread(newId);setView()}
 function setView(){
@@ -1718,7 +1744,7 @@ async function bootReal(){
   if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur).filter(m=>m.id>0);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
   if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
 $('#xBtn').onclick=()=>{try{parent.postMessage({atriumChat:'close'},'*')}catch(e){}};
-paintAll(); setView(); poll();
+paintAll(); setView(); poll(); if(pendingMeeting!=null){ const id=pendingMeeting; pendingMeeting=null; runMeeting(id) }
   }catch(e){ banner(e.status===401?'signin':'offline') }
   finally{ document.documentElement.classList.remove('booting'); try{ paintAll() }catch(e){} }
 }
@@ -1729,6 +1755,10 @@ function setWf(wf,gid){ if(!wf||!REAL) return; wfRef={id:wf.id,t:wf.t,g:gid||cur
 function clearWf(){ wfRef=null; const b=$('#wfbar'); if(b) b.hidden=true }
 $('#wfX').onclick=clearWf;
 $('#msgs').addEventListener('click',e=>{ const c=e.target.closest('[data-wf]'); if(!c) return; const m=S.msgs.find(x=>x.wf&&x.wf.id===c.dataset.wf&&x.g===cur); setWf(m?m.wf:{id:c.dataset.wf,t:c.textContent.replace(/^Task\s*/,'').trim()},cur) });
+/* a meeting page asks for its chat (made the first time): wait for the real chat, then open it */
+let pendingMeeting=null;
+function runMeeting(id){ if(!REAL){ pendingMeeting=id; return } api('meetingChat',{meetingId:id}).then(async o=>{ await refresh(true); open(o.gid) }).catch(er=>flash(er.message)) }
+window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumChat==='open-meeting'&&d.meetingId!=null) runMeeting(d.meetingId) });
 let pseq=0;
 async function sendNow(pm){
   const gid=pm.g, files=pm._files||[]; if(files.length) waitOn('Uploading');
@@ -1752,6 +1782,30 @@ function send(){
 }
 $('#sendBtn').onclick=send;
 /* task dialog */
+/* ---- meetings from a chat ---- */
+const MT={}, MTL={};
+const fmtMtgDate=d=>{ const t=new Date(d+'T12:00:00'); return isNaN(t)?d:t.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) };
+const fmtMtgTime=t=>{ const m=/^(\d\d):(\d\d)$/.exec(t||''); if(!m) return t||''; let h=+m[1]; const ap=h>=12?'pm':'am'; h=h%12||12; return h+(m[2]==='00'?'':':'+m[2])+ap };
+function loadMeetings(gid){ MTL[gid]=1; api('chatMeetings',{gid}).then(o=>{ MT[gid]=o.meetings||[]; MTL[gid]=0; if(gid===cur&&pane==='meet') renderPane() }).catch(()=>{ MTL[gid]=0; MT[gid]=MT[gid]||[]; if(gid===cur&&pane==='meet') renderPane() }) }
+function nextWorkday(){ const d=new Date(); d.setDate(d.getDate()+1); while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1); const z=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()) }
+function openMeetSheet(pre){
+  const g=S.groups.find(x=>x.id===cur); if(!g||!REAL) return; closeMenu();
+  $('#mTitle').value=g.dm?'':gname(g)+' meeting'; $('#mDate').value=nextWorkday(); $('#mTime').value='10:00'; $('#mDur').value='60'; $('#mNote').value='';
+  $('#mWho').innerHTML=g.m.filter(id=>id!==S.me&&P[id]&&!P[id].ext).map(id=>`<label><input type="checkbox" value="${esc(P[id].n)}" checked> ${esc(P[id].n)}</label>`).join('')||'<span class="empty" style="padding:0">Just you so far. Add people to the chat first.</span>';
+  const tasks=S.msgs.filter(m=>m.g===g.id&&m.task&&!m.task.done&&m.task.title).map(m=>m.task.title).slice(0,6);
+  $('#mAgenda').value=[...(pre||[]),...tasks.filter(t=>!(pre||[]).includes(t))].join('\n');
+  $('#ovMeet').classList.add('on'); setTimeout(()=>{ if(!COARSE) $('#mTitle').focus() },60) }
+$('#mCancel').onclick=()=>$('#ovMeet').classList.remove('on');
+$('#mSave').onclick=()=>{
+  const title=$('#mTitle').value.trim(); if(!title){ flash('Give the meeting a title.'); return }
+  if(!$('#mDate').value){ flash('Pick a date.'); return }
+  const btn=$('#mSave'); btn.disabled=true; const gid=cur;
+  api('createMeeting',{gid,title,date:$('#mDate').value,time:$('#mTime').value||'10:00',durationMin:+$('#mDur').value,attendees:$$('#mWho input:checked').map(i=>i.value),agenda:$('#mAgenda').value.split(/\n+/).map(x=>x.trim()).filter(Boolean),note:$('#mNote').value.trim()})
+    .then(o=>{ $('#ovMeet').classList.remove('on'); ingestOwn(o.msg); MT[gid]=null; MTL[gid]=0; if(pane==='meet') renderPane(); flash('Meeting created in Meeting Management.') })
+    .catch(e=>flash(e.message)).finally(()=>{ btn.disabled=false }) }
+async function addToAgenda(m){
+  try{ const r=await api('addToMeeting',{gid:m.g,mid:m.id}); MT[m.g]=null; MTL[m.g]=0; flash('Added to the agenda of \u201c'+r.meeting.title+'\u201d.'); if(pane==='meet') renderPane() }
+  catch(e){ if(/No meeting from this chat/.test(e.message)){ openMeetSheet([String(m.x||(m.task&&m.task.title)||'').slice(0,160)].filter(Boolean)); flash('No meeting from this chat yet. Create one and this goes on its agenda.') } else flash(e.message) } }
 function taskDlg(text){
   const g=S.groups.find(x=>x.id===cur);
   $('#tTitle').value=text||''; $('#tOwner').innerHTML=g.m.map(id=>`<option value="${id}">${P[id].n}</option>`).join('');

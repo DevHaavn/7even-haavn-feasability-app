@@ -393,6 +393,10 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
         <div class="searchdrop" id="gsDrop"></div>
       </div>
       <div class="tb-right">
+        <button class="notifbtn" id="chatBtn" type="button" onclick="toggleAtriumChat()" aria-label="ATRIUM Chat" title="Chat" style="display:none">
+          <svg viewBox="0 0 240 240" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2"/></svg>
+          <span class="dot" id="chatDot" style="display:none">0</span>
+        </button>
         <div class="notifwrap">
           <button class="notifbtn" id="notifBtn" onclick="toggleNotifDrop()" aria-label="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 6.5H4C4.5 14 6 12 6 8Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
@@ -2388,10 +2392,21 @@ function openMeetingDetail(id){
     body+='<div style="margin-bottom:8px"><div style="font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px">Minutes &amp; general notes</div><div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap">'+esc(m.minutes)+'</div></div>';
   }
   body+='<div class="foot"><button type="button" class="btn" style="color:var(--red-t);border-color:color-mix(in srgb,var(--red) 70%,transparent)" onclick="deleteMeetingRecord(\''+m.id+'\')">Delete meeting</button><div class="spacer"></div>'+
+    (chatAvailable()?'<button type="button" class="btn" onclick="openMeetingChat(\''+m.id+'\')">Meeting chat</button>':'')+
     (m.closed?'':'<button type="button" class="btn gold" onclick="openMeetingInPillar02(\''+m.id+'\')">Open in Meeting Management →</button>')+
     '<button type="button" class="btn" onclick="closeModal()">Close</button></div>';
   showModal(body);
 }
+/* ATRIUM Chat from this page: the chat circle in the top bar, and a chat for each meeting (made the first time it is opened) */
+function chatAvailable(){try{var f=localStorage.getItem('atrium_chat_preview');return window.parent!==window&&(f==='1'||(f!=='0'&&(localStorage.getItem('atrium_chat_ms')==='1'||localStorage.getItem('7even_role')==='admin')))}catch(e){return false}}
+function toggleAtriumChat(){try{window.parent.postMessage({atriumChat:'toggle'},'*')}catch(e){}}
+function openMeetingChat(id){closeModal();try{window.parent.postMessage({atriumChat:'meeting',meetingId:id},'*')}catch(e){}}
+(function(){
+  if(!chatAvailable()) return;
+  var b=document.getElementById('chatBtn'); if(b) b.style.display='flex';
+  window.addEventListener('message',function(e){var d=e.data; if(d&&d.atriumChat==='count'){var dot=document.getElementById('chatDot'); if(dot){dot.textContent=d.n||0; dot.style.display=d.n?'flex':'none';}}});
+  try{window.parent.postMessage({atriumChat:'hello'},'*');}catch(e){}
+})();
 function openMeetingInPillar02(id){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'haavn-open-meeting',id:id},'*'); }catch(e){}
 }
