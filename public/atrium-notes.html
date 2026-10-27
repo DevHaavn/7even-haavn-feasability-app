@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ATRIUM Notes</title>
+<title>A Notes</title>
 <meta name="theme-color" content="#141517">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -22,8 +22,11 @@ select option{background:#1b1c1f;color:#f3f2ee}
 #list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover;animation:drift 60s ease-in-out infinite alternate}
 @keyframes drift{from{background-position:0 0,62% 40%}to{background-position:0 0,36% 64%}}
 @media(prefers-reduced-motion:reduce){#list{animation:none}}
-.hd h1{display:flex;align-items:center;gap:10px}
-.hd h1 svg{height:22px;width:auto;fill:none;stroke:currentColor;stroke-width:6;stroke-linejoin:miter;stroke-miterlimit:8}
+/* the A leads, exactly as in the chat: A Notes */
+.hd h1{display:flex;align-items:baseline;font-size:23px;letter-spacing:0;font-weight:300}
+.lk{display:inline-flex;align-items:baseline;gap:.46em;line-height:1;white-space:nowrap}
+svg.A{display:inline-block;overflow:visible;flex:none;height:.73em;width:auto}
+svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:butt}
 .hd{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
 .hd h1{font:300 22px Inter;margin:0;flex:1}
 .ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.07);display:grid;place-items:center;color:var(--soft);flex:none}
@@ -105,7 +108,7 @@ select option{background:#1b1c1f;color:#f3f2ee}
 <body>
 <div id="app">
   <aside id="list">
-    <div class="hd"><h1><svg viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74"/></svg>Notes</h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="hd"><h1><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Notes</span></span></h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <input id="q" type="search" placeholder="Search notes" autocomplete="off">
     <div id="modes" role="tablist" aria-label="Browse notes"><button type="button" data-mode="recent" class="on">Recent</button><button type="button" data-mode="title">Title</button><button type="button" data-mode="meeting">Meeting</button></div>
     <div id="items"></div>

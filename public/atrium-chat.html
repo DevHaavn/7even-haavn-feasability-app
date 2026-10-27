@@ -27,7 +27,7 @@ input,textarea,select{font:inherit;color:inherit;background:none;border:0;outlin
 #rail,#list,#thread,#side{border-radius:28px;background:var(--panel);-webkit-backdrop-filter:var(--glass);backdrop-filter:var(--glass);border:1px solid var(--line);box-shadow:var(--hi)}
 /* rail */
 #rail{display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
-#rail .logo{width:38px;height:38px;margin-bottom:12px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.08);color:var(--gold);font-weight:400}
+#rail .logo{width:44px;height:44px;margin-bottom:12px;display:block;border-radius:22.37%;object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 .rb{position:relative;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:var(--faint);transition:.3s}
 .rb:hover,.rb.on{background:rgba(255,255,255,.14);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
 .rb.on::before{content:"";position:absolute;left:-9px;top:12px;bottom:12px;width:2px;background:var(--gold);border-radius:2px}
@@ -69,8 +69,9 @@ body.resizing iframe{pointer-events:none}
 #installBar #ibGo{background:#d6b36a;color:#1a1408}
 #installBar #ibX{width:32px;padding:0}
 @media(max-width:760px){#installBar{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 92px);white-space:nowrap}}
-#list.narrow .lh:has(.calq) .mono{display:none}
-#list.narrow .lh{justify-content:flex-end}
+body.embed #list.narrow .lh:has(.calq) .mono{display:none}
+body.embed #list.narrow .lh{justify-content:flex-end}
+@media(min-width:761px){body:not(.embed) .lh .calq[data-cal="open"],body:not(.embed) .lh .calq[data-notes]{display:none}}
 #dock{display:none}
 @media(min-width:761px){#dock{display:flex;gap:8px;position:absolute;left:14px;bottom:12px;z-index:4}#dock .ib{width:38px;height:38px}}
 #list header{padding:16px 18px 10px;display:flex;align-items:center;gap:10px}
@@ -775,10 +776,12 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 <body>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
-    <div class="logo">A</div>
+    <img class="logo" src="/icons/chat-icon-96.png?v=2" width="44" height="44" alt="ATRIUM Chat">
     <button class="rb on" data-v="chat" title="Chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="badge" id="bChat" hidden></span></button>
     <button class="rb" data-v="tasks" title="Tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="badge" id="bTask" hidden></span></button>
-    <button class="rb" data-v="meet" title="Meetings"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
+    <button class="rb" id="railCal" type="button" data-cal="open" title="Calendar" aria-label="Calendar"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
+    <button class="rb" id="railNotes" type="button" data-notes="open" title="Notes" aria-label="Notes"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></button>
+    <button class="rb" id="railFiles" type="button" data-p="files" title="Files" aria-label="Files"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
     <div class="sp"></div>
     <button class="rb" id="rfBtn" type="button" title="Refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4.5h-4.5"/></svg></button>
     <button class="rb" id="meBtn" title="Account"><span class="av" id="meAv" style="width:34px;height:34px"></span></button>
@@ -2392,7 +2395,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
   function openNotes(meetingId){
     nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=3'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=4'; nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
@@ -2401,6 +2404,21 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     if(d.atriumChat==='open-notes') openNotes(d.meetingId) });
   // refresh: in the Chat app's left rail. Reloads the screen so it has the newest chats and the newest version.
   const rf=$('#rfBtn'); if(rf) rf.onclick=()=>{ rf.classList.add('go'); setTimeout(()=>location.reload(),450) };
+  // the left rail in the desktop Chat app: Chat, Tasks, Calendar, Notes, Files
+  const rail=$('#rail');
+  if(rail){
+    rail.addEventListener('click',e=>{
+      if(e.target.closest('[data-v="chat"]')){ const back=document.querySelector('[data-cal="chats"]'); if(back) back.click() }   // Chat brings the chat list back from the calendar
+      const f=e.target.closest('#railFiles'); if(f){ const side=$('#side'); if(matchMedia('(max-width: 1180px)').matches&&side&&!side.classList.contains('open')){ const sb=$('#sidebtn'); if(sb) sb.click() } const t=document.querySelector('#tabs [data-p="files"]'); if(t) t.click() }
+      setTimeout(syncRail,80) });
+    const rc=$('#railCal'), rn=$('#railNotes'), rfl=$('#railFiles');
+    function syncRail(){
+      const cal=$('#list').classList.contains('calmode'), nOpen=!$('#notesOv').hidden, filesOn=!!document.querySelector('#tabs [data-p="files"].on');
+      if(rc) rc.classList.toggle('on',cal); if(rn) rn.classList.toggle('on',nOpen); if(rfl) rfl.classList.toggle('on',filesOn&&!cal&&!nOpen);
+      const chat=rail.querySelector('[data-v="chat"]'), tasks=rail.querySelector('[data-v="tasks"]');
+      if(chat){ if(cal||nOpen||filesOn) chat.classList.remove('on'); else if(!(tasks&&tasks.classList.contains('on'))) chat.classList.add('on') } }
+    try{ const mo=new MutationObserver(()=>setTimeout(syncRail,0)); mo.observe($('#list'),{attributes:true,attributeFilter:['class']}); mo.observe($('#tabs'),{attributes:true,subtree:true,attributeFilter:['class']}); mo.observe($('#notesOv'),{attributes:true,attributeFilter:['hidden']}) }catch(e){}
+    syncRail() }
   // the install row in Settings
   const row=$('#appRow'), btn=$('#appBtn');
   if(row&&btn){
