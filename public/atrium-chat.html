@@ -708,7 +708,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .seg2 button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
 .seg2 button.on{background:rgba(255,255,255,.22);color:#fff}
 .calh{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.calh .tx{flex:1;min-width:0}.calh b{display:block;font-weight:400;font-size:16px}.calh .s{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#calRef.spin svg{animation:calspin .9s linear infinite}
+.calref.spin svg{animation:calspin .9s linear infinite}
 @keyframes calspin{to{transform:rotate(360deg)}}
 .cday{font:400 12.5px Inter,system-ui,sans-serif;color:var(--faint);margin:20px 2px 4px}
 .cev{display:flex;gap:12px;align-items:flex-start;padding:12px 2px;border-top:1px solid var(--line)}
@@ -718,6 +718,13 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .cev .soon{color:var(--gold)}
 .cev.ended{opacity:.45}.cev.live .ct{color:var(--gold)}
 .cev .cj{height:36px;padding:0 16px;display:inline-grid;place-items:center;text-decoration:none;font-size:13px;flex:none;border-radius:18px;min-height:36px}
+
+.lh .calq{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);padding:5px 12px 5px 10px}
+.lh .calq svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.lh .calq:hover{border-color:rgba(243,242,238,.4);color:var(--bone)}
+#list.calmode #search{display:none}
+.calcol{padding:0 6px}
+@media(max-width:760px){.lh .calq{display:none}}
 </style>
 </head>
 <body>
@@ -1336,9 +1343,10 @@ function renderList(){
     const k=pinned.findIndex(x=>x.id===g.id), isP=k>=0;
     const ar=isArch(g.id);
     return `<div class="ge">${btn}<div class="ctl">${ar?'':`<button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>${isP?'Unpin':'Pin'}</button>`}<button type="button" data-arc="${g.id}"><svg viewBox="0 0 24 24"><path d="M4 7h16v3H4zM6 10v9h12v-9M10 14h4"/></svg>${ar?'Restore':'Archive'}</button><button type="button" class="del" data-rem="${g.id}"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>Delete</button>${isP?`<button type="button" class="mv" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" class="mv" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
-  const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
+  const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Your chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}${editOrd?'':'<button type="button" class="calq" data-cal="open" aria-label="Open my calendar" title="My calendar"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>Calendar</button>'}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
   $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+((!qq||rest.some(g=>!g.dm))?`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join(''):'')+((!qq||rest.some(g=>g.dm))?`<div class="sec mono">Direct</div>`:'')+rest.filter(g=>g.dm).map(row).join('')
     +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'')+pplHtml;
+  $('#list').classList.toggle('calmode',listCal()); if(listCal()) $('#groups').innerHTML=calListHtml();
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
@@ -1562,9 +1570,6 @@ function renderPane(){
   if(pane==='meet') h=`<div class="seg2"><button type="button" data-ms="cal" class="${meetSeg==='cal'?'on':''}">My calendar</button><button type="button" data-ms="chat" class="${meetSeg==='chat'?'on':''}">This chat</button></div>`+(meetSeg==='cal'?calHtml():h);
   $('#pane').innerHTML=h;
   $$('#pane [data-ms]').forEach(b=>b.onclick=()=>{ meetSeg=b.dataset.ms; renderPane() });
-  const cr=$('#calRef'); if(cr) cr.onclick=()=>{ cr.classList.add('spin'); loadCal(true) };
-  const cn=$('#calNew'); if(cn) cn.onclick=openCalSheet;
-  const ct=$('#calRetry'); if(ct) ct.onclick=()=>{ CAL.err=''; loadCal(true); renderPane() };
   const mn=$('#mtNew'); if(mn) mn.onclick=()=>openMeetSheet([]);
   $$('#pane [data-inv]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('inviteMeeting',{meetingId:b.dataset.inv}).then(o=>{ MT[cur]=null; MTL[cur]=0; flash(o.updated?'Outlook invite updated.':'Outlook invite sent to '+o.people+' '+(o.people===1?'person':'people')+'.'); renderPane() }).catch(e=>{ flash(e.message); b.disabled=false }) });
   $$('#pane [data-pm]').forEach(b=>b.onclick=()=>{ b.disabled=true; api('postMinutes',{gid:cur,meetingId:b.dataset.pm}).then(o=>{ ingestOwn(o.msg); flash('Minutes posted to the chat.') }).catch(e=>{ flash(e.message); b.disabled=false }) });
@@ -1887,7 +1892,17 @@ $('#sendBtn').onclick=send;
 /* ---- meetings from a chat ---- */
 const MT={}, MTL={};
 /* ---- Meetings tab: my live calendar from Outlook and Teams, and a way to add a meeting to it ---- */
-let meetSeg='cal'; const CAL={events:null,mailbox:'',err:'',loading:false,at:0};
+let meetSeg='cal', listMode='chats'; const CAL={events:null,mailbox:'',err:'',loading:false,at:0};
+const listCal=()=>listMode==='cal'&&innerWidth>760;   // desktop: the chats on the left can turn into the live calendar
+const redrawCal=()=>{ if(pane==='meet'&&meetSeg==='cal') renderPane(); if(listCal()) renderList() };
+function calListHtml(){ const un=totalUnread();
+  return `<div class="lh"><span class="mono">Next 14 days</span><span style="display:flex;gap:6px"><button type="button" class="calq" data-cal="chats" aria-label="Back to my chats">${'<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>'}Chats${un?` <span class="badge" style="position:static;display:inline-block;margin-left:2px">${un}</span>`:''}</button></span></div><div class="calcol">${calHtml()}</div>` }
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-cal]'); if(!b) return; const a=b.dataset.cal;
+  if(a==='open'){ listMode='cal'; renderList() }
+  else if(a==='chats'){ listMode='chats'; renderList() }
+  else if(a==='ref'){ b.classList.add('spin'); loadCal(true) }
+  else if(a==='new') openCalSheet()
+  else if(a==='retry'){ CAL.err=''; loadCal(true); redrawCal() } });
 const melNow=()=>{ const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Australia/Melbourne',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{}); return p.year+'-'+p.month+'-'+p.day+'T'+p.hour+':'+p.minute+':00' };
 const dayPlus=(d,k)=>{ const t=new Date(d+'T12:00:00'); t.setDate(t.getDate()+k); const z=n=>String(n).padStart(2,'0'); return t.getFullYear()+'-'+z(t.getMonth()+1)+'-'+z(t.getDate()) };
 const t12=s=>fmtMtgTime((s||'').slice(11,16));
@@ -1900,14 +1915,14 @@ function calSample(){ const today=melNow().slice(0,10), d=k=>dayPlus(today,k);
 function loadCal(force){
   if(CAL.loading) return; if(!force&&(CAL.err||(CAL.events&&Date.now()-CAL.at<120000))) return;
   CAL.loading=true; CAL.err='';
-  const done=()=>{ CAL.loading=false; CAL.at=Date.now(); if(pane==='meet'&&meetSeg==='cal') renderPane() };
+  const done=()=>{ CAL.loading=false; CAL.at=Date.now(); redrawCal() };
   if(!REAL){ setTimeout(()=>{ CAL.events=CAL.events||calSample(); CAL.mailbox='practice'; done() },350); return }
   api('myCalendar',{days:14}).then(o=>{ CAL.events=o.events||[]; CAL.mailbox=o.mailbox||''; done() }).catch(e=>{ CAL.err=e.message||'Your calendar could not be loaded.'; done() }) }
 function calHtml(){
   loadCal(false);
   const now=melNow(), today=now.slice(0,10), tomorrow=dayPlus(today,1);
-  const head=`<div class="calh"><div class="tx"><b>My calendar</b><span class="s">${CAL.mailbox==='practice'?'Practice data. Sign in to see your own Outlook.':CAL.mailbox?'Live from Outlook and Teams · '+esc(CAL.mailbox):'Live from Outlook and Teams'}</span></div><button type="button" class="ib" id="calRef" aria-label="Refresh my calendar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button></div><button type="button" class="cb go" id="calNew" style="width:100%;margin:2px 0 6px">New meeting</button>`;
-  if(CAL.err) return head+`<div class="empty">${esc(CAL.err)}</div><button type="button" class="cb" id="calRetry">Try again</button>`;
+  const head=`<div class="calh"><div class="tx"><b>My calendar</b><span class="s">${CAL.mailbox==='practice'?'Practice data. Sign in to see your own Outlook.':CAL.mailbox?'Live from Outlook and Teams · '+esc(CAL.mailbox):'Live from Outlook and Teams'}</span></div><button type="button" class="ib calref" data-cal="ref" aria-label="Refresh my calendar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button></div><button type="button" class="cb go" data-cal="new" style="width:100%;margin:2px 0 6px">New meeting</button>`;
+  if(CAL.err) return head+`<div class="empty">${esc(CAL.err)}</div><button type="button" class="cb" data-cal="retry">Try again</button>`;
   if(!CAL.events) return head+'<div class="empty">Loading your calendar…</div>';
   const evs=CAL.events.filter(e=>(e.start||'').slice(0,10)>=today&&(e.start||'').slice(0,10)<=dayPlus(today,14)).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
   if(!evs.length) return head+'<div class="empty">Nothing in the next two weeks.</div>';
@@ -1929,9 +1944,9 @@ $('#cSave').onclick=()=>{
   const btn=$('#cSave'); btn.disabled=true;
   if(!REAL){ const st=new Date(body.date+'T'+body.time+':00Z'), en=new Date(st.getTime()+body.durationMin*60000), iso=t=>t.toISOString().slice(0,19);
     CAL.events=(CAL.events||calSample()).concat([{id:'n'+Date.now(),subject:title,start:iso(st),end:iso(en),location:body.teams?'Teams':'',joinUrl:body.teams?'https://teams.microsoft.com/':'',organizer:'You',people:emails.length}]); CAL.mailbox='practice';
-    $('#ovCal').classList.remove('on'); btn.disabled=false; flash('Practice data: added to the sample calendar.'); renderPane(); return }
+    $('#ovCal').classList.remove('on'); btn.disabled=false; flash('Practice data: added to the sample calendar.'); redrawCal(); return }
   api('createCalEvent',body).then(o=>{ $('#ovCal').classList.remove('on'); flash('Added to your calendar'+(o.people?'. Invites sent to '+o.people+' '+(o.people===1?'person':'people')+'.':'.')); loadCal(true) }).catch(e=>flash(e.message)).finally(()=>{ btn.disabled=false }) };
-setInterval(()=>{ if(document.visibilityState==='visible'&&(innerWidth>760||$('#side').classList.contains('open'))&&pane==='meet'&&meetSeg==='cal') loadCal(true) },300000);
+setInterval(()=>{ if(document.visibilityState==='visible'&&(innerWidth>760||$('#side').classList.contains('open'))&&((pane==='meet'&&meetSeg==='cal')||listCal())) loadCal(true) },300000);
 const fmtMtgDate=d=>{ const t=new Date(d+'T12:00:00'); return isNaN(t)?d:t.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) };
 const fmtMtgTime=t=>{ const m=/^(\d\d):(\d\d)$/.exec(t||''); if(!m) return t||''; let h=+m[1]; const ap=h>=12?'pm':'am'; h=h%12||12; return h+(m[2]==='00'?'':':'+m[2])+ap };
 function loadMeetings(gid){ MTL[gid]=1; api('chatMeetings',{gid}).then(o=>{ MT[gid]=o.meetings||[]; MTL[gid]=0; if(gid===cur&&pane==='meet') renderPane() }).catch(()=>{ MTL[gid]=0; MT[gid]=MT[gid]||[]; if(gid===cur&&pane==='meet') renderPane() }) }
