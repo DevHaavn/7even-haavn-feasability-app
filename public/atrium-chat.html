@@ -359,6 +359,10 @@ body.embed #demo{left:calc(50% + 150px)}
 .mr:not(.l):not(.mine) .bub{border-bottom-left-radius:7px}.mr:not(.l).mine .bub{border-bottom-right-radius:7px}
 .bub .tx{white-space:pre-wrap}
 .bub .tm{display:inline-block;margin-left:10px;font:400 10.5px Inter;opacity:.6;float:right;margin-top:6px;margin-right:-2px;letter-spacing:.02em;white-space:nowrap}
+.bub.pending{opacity:.62}
+.bub.failed{opacity:.8;outline:1px solid rgba(255,154,154,.6)}
+.seen.fail{color:#ff9a9a}
+.seen.fail button{color:inherit;text-decoration:underline;text-underline-offset:2px;padding:4px 2px;min-height:28px}
 .bub a.lnk,.pq a.lnk{color:inherit;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere;word-break:break-word;cursor:pointer}
 .bub .men{color:var(--gold);background:rgba(214,179,106,.16);padding:0 4px;border-radius:5px}
 .mr.mine .bub .men{color:inherit;background:rgba(0,0,0,.12);text-decoration:none}
@@ -1248,7 +1252,10 @@ const tmf=t=>new Date(t).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-di
 function taskCard(m){const t=m.task;return `<div class="card"><div class="k"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Task${t.wf?' · ATRIUM Workflow':''}</div><div class="tt"><button class="chk ${t.done?'done':''}" data-done="${m.id}" aria-label="Done"></button><b>${esc(t.title)}</b>${t.pri==='High'?'<span class="chip r">High</span>':''}</div>
   <div class="meta"><span class="chip">${P[t.own]?P[t.own].n:'Someone'}</span>${t.due?`<span class="chip">Due ${new Date(t.due).toLocaleDateString('en-AU',{day:'numeric',month:'short'})}</span>`:''}${t.proj&&t.proj!=='No project'?`<span class="chip g2">CRM · ${esc(t.proj)}</span>`:''}${t.wf?'<span class="chip g1">In Workflow</span>':''}${t.ag?'<span class="chip g1">On Monday agenda</span>':''}</div></div>`}
 function seenLine(g,ms){ // "Seen" under my last message, from what the others have read
-  if(!g.rd) return ''; let li=-1; for(let i=ms.length-1;i>=0;i--) if(!ms[i].sys){li=i;break} if(li<0||ms[li].u!==S.me) return '';   // like a text: under my last message, until someone answers
+  let li=-1; for(let i=ms.length-1;i>=0;i--) if(!ms[i].sys){li=i;break} if(li<0||ms[li].u!==S.me) return '';
+  if(ms[li].pending) return `<div class="seen sent">Sending…</div>`;
+  if(ms[li].failed) return `<div class="seen fail">Not sent · <button type="button" data-retry="${ms[li].id}">Retry</button> · <button type="button" data-discard="${ms[li].id}">Delete</button></div>`;
+  if(!g.rd) return '';   // like a text: under my last message, until someone answers
   const others=g.m.filter(x=>x!==S.me&&!String(x).startsWith('x:')); if(!others.length) return '';
   const n=others.filter(o=>(g.rd[o]||0)>=ms[li].id).length;
   if(!n) return li===ms.length-1?`<div class="seen sent">${aMark(10)}Sent</div>`:'';
@@ -1282,7 +1289,7 @@ function bubbleHtml(m,pop){
   const emo=!hasTask&&!(m.files&&m.files.length)?emojiCount(plain):0;
   const imgs=(m.files||[]).length&&m.files.every(f=>f.type.startsWith('image/')&&f.url)&&!plain;
   const hasfile=(m.files||[]).some(f=>!f.type.startsWith('image/')||!f.url);
-  const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',pop?'pop':''].filter(Boolean).join(' ');
+  const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',m.pending?'pending':'',m.failed?'failed':'',pop?'pop':''].filter(Boolean).join(' ');
   const tm=`<span class="tm">${tmf(m.t)}</span>`;
   const wfc=m.wf?`<button type="button" class="wfchip" data-wf="${esc(m.wf.id)}"><span>Task</span> ${esc(m.wf.t)}${m.wf.p?` <i>${esc(m.wf.p)}</i>`:''}</button>`:'';
   const body=wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
@@ -1315,7 +1322,7 @@ function renderThread(newId){
 const QUICK=['👍','👎','❤️','😂','😮','😢','🙏'];
 let amFor=null;
 function openMenuFor(id,anchor){
-  const m=S.msgs.find(x=>x.id==id); if(!m||m.sys) return; amFor=id;
+  const m=S.msgs.find(x=>x.id==id); if(!m||m.sys||m.pending||m.failed) return; amFor=id;
   const mine=((m.u===S.me)), have=Object.entries(S.rx[id]||{}).filter(([e,a])=>a.includes(S.me)).map(x=>x[0]);
   const am=$('#amenu');
   am.innerHTML=`<div class="rbar">${QUICK.map(e=>`<button type="button" data-q="${e}" class="${have.includes(e)?'me':''}" aria-label="React ${e}">${e}</button>`).join('')}<button type="button" data-q="+" aria-label="More emoji"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button></div>
@@ -1401,7 +1408,10 @@ function closeWho(){ const w=$('#who'); if(w) w.classList.remove('on'); whoFor=n
 (function(){
   const box=$('#msgs'); let timer=null, held=false, sx=0, sy=0;
   const target=e=>{ const b=e.target.closest('[data-bub]'); return (b&&!e.target.closest('button,a,.att-img,.att-file'))?b:null };
-  box.addEventListener('click',e=>{ if(held){held=false;return} const rxb=e.target.closest('[data-rxb]'); if(rxb){ openWho(+rxb.dataset.rxb,rxb.dataset.e,rxb); return }
+  box.addEventListener('click',e=>{ if(held){held=false;return}
+    const rt=e.target.closest('[data-retry]'); if(rt){ const pm=S.msgs.find(x=>x.id==rt.dataset.retry); if(pm){ pm.failed=0; pm.pending=1; paintAll(); sendNow(pm) } return }
+    const ds=e.target.closest('[data-discard]'); if(ds){ S.msgs=S.msgs.filter(x=>x.id!=ds.dataset.discard); paintAll(); return }
+    const rxb=e.target.closest('[data-rxb]'); if(rxb){ openWho(+rxb.dataset.rxb,rxb.dataset.e,rxb); return }
     const pvb=e.target.closest('[data-pv]'); if(pvb){ castVote(+pvb.dataset.pv,+pvb.dataset.i); return }
     const pwb=e.target.closest('[data-pw]'); if(pwb){ openVotes(+pwb.dataset.pw); return }
     const b=target(e); if(!b) return; const id=b.dataset.bub; if(amFor==id){closeMenu();return} openMenuFor(id,b) });
@@ -1479,7 +1489,7 @@ function incoming(m){
 }
 function open(id){
   if(typeof clearWf==='function'&&wfRef&&wfRef.g!==id) clearWf();
-  cur=id; const ms=gm(id); if(ms.length){S.read[S.me]=S.read[S.me]||{};S.read[S.me][id]=ms[ms.length-1].id}
+  cur=id; const ms=gm(id).filter(m=>m.id>0); if(ms.length){S.read[S.me]=S.read[S.me]||{};S.read[S.me][id]=ms[ms.length-1].id}
   save(); pushRead(id); document.body.classList.add('in-thread'); view='chat'; paintAll();
 }
 
@@ -1666,7 +1676,7 @@ function applyReal(j){
   S.me=j.me.id; S.groups=j.groups; S.muted=j.state.muted; S.arch=j.state.arch; S.gone=j.state.gone; S.ext=[];
   S.read[S.me]=S.read[S.me]||{}; Object.keys(j.read).forEach(g=>{S.read[S.me][g]=Math.max(S.read[S.me][g]||0,j.read[g])});
 }
-function pushRead(gid){ if(!REAL) return; const ms=gm(gid); if(ms.length) api('read',{gid,upto:ms[ms.length-1].id}).catch(()=>{}) }
+function pushRead(gid){ if(!REAL) return; const ms=gm(gid).filter(m=>m.id>0); if(ms.length) api('read',{gid,upto:ms[ms.length-1].id}).catch(()=>{}) }
 function ingestReal(m){
   if(routeStyle(m)) return false;
   if(S.msgs.some(x=>x.id===m.id)) return false;
@@ -1705,7 +1715,7 @@ async function bootReal(){
     const asw=$('#asWho'); if(asw&&asw.closest('.f')) asw.closest('.f').style.display='none';
     if(cur) pushRead(cur);
     window.addEventListener('message',e=>{const d=e.data; if(!d||!d.atriumChat) return;
-  if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
+  if(d.atriumChat==='visible'){OPEN=!!d.open; if(OPEN&&cur){const ms=gm(cur).filter(m=>m.id>0);if(ms.length){S.read[S.me][cur]=ms[ms.length-1].id;save()}} paintAll()}
   if(d.atriumChat==='open-group'&&mine().some(g=>g.id===d.gid)){open(d.gid)}});
 $('#xBtn').onclick=()=>{try{parent.postMessage({atriumChat:'close'},'*')}catch(e){}};
 paintAll(); setView(); poll();
@@ -1719,13 +1729,24 @@ function setWf(wf,gid){ if(!wf||!REAL) return; wfRef={id:wf.id,t:wf.t,g:gid||cur
 function clearWf(){ wfRef=null; const b=$('#wfbar'); if(b) b.hidden=true }
 $('#wfX').onclick=clearWf;
 $('#msgs').addEventListener('click',e=>{ const c=e.target.closest('[data-wf]'); if(!c) return; const m=S.msgs.find(x=>x.wf&&x.wf.id===c.dataset.wf&&x.g===cur); setWf(m?m.wf:{id:c.dataset.wf,t:c.textContent.replace(/^Task\s*/,'').trim()},cur) });
+let pseq=0;
+async function sendNow(pm){
+  const gid=pm.g, files=pm._files||[]; if(files.length) waitOn('Uploading');
+  try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
+    const out=await api('send',{gid,body:pm.x,wf:pm._wf,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local});
+    S.msgs=S.msgs.filter(x=>x.id!==pm.id); if(!S.msgs.some(x=>x.id===m.id)) S.msgs.push(m);
+    S.read[S.me][m.g]=Math.max(S.read[S.me][m.g]||0,m.id); paintAll() }
+  catch(e){ pm.pending=0; pm.failed=1; flash(e.message||'Could not send. Try again.'); paintAll() }
+  finally{ waitOff() } }
 function send(){
   micStop(); const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
-  if(REAL){ if(!cur) return; const btn=$('#sendBtn'); btn.disabled=true; const gid=cur, files=pend.slice(); waitOn(files.length?'Uploading':'Sending'); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend();
-    (async()=>{ try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
-      const wfId=wfRef&&wfRef.g===gid?wfRef.id:undefined; const out=await api('send',{gid,body:v,wf:wfId,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local}); ingestOwn(m) }
-      catch(e){ flash(e.message); $('#inp').value=v; pend=files; renderPend() } finally{ syncSend(); waitOff() } })(); return }
+  if(REAL){ if(!cur) return; const gid=cur, files=pend.slice();
+    // on screen at once, marked Sending; it becomes Sent when the server has it, or offers a retry if it could not go
+    const pm={id:-(++pseq),g:gid,u:S.me,t:Date.now(),x:v,pending:1,_files:files,_wf:(wfRef&&wfRef.g===gid)?wfRef.id:undefined};
+    if(pm._wf) pm.wf={id:wfRef.id,t:wfRef.t,p:''};
+    if(files.length) pm.files=files.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url}));
+    S.msgs.push(pm); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(pm.id); sendNow(pm); return }
   const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(m.id);
 }
