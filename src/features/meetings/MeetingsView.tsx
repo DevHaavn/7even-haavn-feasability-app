@@ -302,6 +302,7 @@ function MeetingScreen({ bundle, persist, onBack }: { bundle: MeetingBundle; per
       const j = await r.json().catch(() => ({}))
       if (r.status === 200) { setMeeting({ calendarEventId: j.id, teamsJoinUrl: j.joinUrl || undefined, webLink: j.webLink || undefined }); setCal(`✓ In Outlook · boardroom@haavn.au${j.joinUrl ? ' · Teams link created' : ''}`) }
       else if (r.status === 501) setCal('Calendar not connected yet (needs Calendars.ReadWrite on the app).')
+      else if (r.status === 401 || r.status === 403) setCal(j.error || 'Sign in with Microsoft in ATRIUM to schedule in Outlook.')
       else setCal(`Couldn't schedule — ${j.error || 'error ' + r.status}`)
     } catch (e: any) { setCal(`Failed: ${String(e?.message || e)}`) }
     setCalBusy(false)

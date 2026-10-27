@@ -1,6 +1,8 @@
 // Creates an Outlook calendar event (with a Teams online-meeting link) via Graph,
 // on the organizer's calendar (default boardroom@haavn.au), inviting attendees.
 // Env: MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET. App perm: Calendars.ReadWrite.
+// Needs a signed-in ATRIUM person (Microsoft sign-in), and only the shared boardroom calendar or that person's own mailbox can be used.
+const G = require('./_utils/msGuard')
 async function graphToken(tenant, clientId, secret) {
   const body = new URLSearchParams({
     client_id: clientId, client_secret: secret,
@@ -15,25 +17,29 @@ async function graphToken(tenant, clientId, secret) {
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return }
+  res.setHeader('Cache-Control', 'no-store')
+  const me = G.signedIn(req, res); if (!me) return
+  let b = req.body
+  if (typeof b === 'string') { try { b = JSON.parse(b) } catch { b = null } }
+  if (!b || !b.subject || !b.start || !b.end) { res.status(400).json({ error: 'subject, start and end are required' }); return }
+  const organizer = String(b.organizer || 'boardroom@haavn.au').trim()
+  if (!G.mailboxAllowed(me, organizer)) { res.status(403).json({ error: 'That calendar cannot be used. Use the boardroom calendar or your own.' }); return }
+  const people = (Array.isArray(b.attendees) ? b.attendees : []).filter(G.isMail).slice(0, 30)
+  const tz = b.timeZone || 'Australia/Melbourne'
   const tenant = process.env.MS_TENANT_ID, clientId = process.env.MS_CLIENT_ID, secret = process.env.MS_CLIENT_SECRET
   if (!tenant || !clientId || !secret) {
     res.status(501).json({ error: 'Microsoft 365 not configured — set MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET and grant the Entra app Calendars.ReadWrite.' })
     return
   }
-  let b = req.body
-  if (typeof b === 'string') { try { b = JSON.parse(b) } catch { b = null } }
-  if (!b || !b.subject || !b.start || !b.end) { res.status(400).json({ error: 'subject, start and end are required' }); return }
-  const organizer = b.organizer || 'boardroom@haavn.au'
-  const tz = b.timeZone || 'Australia/Melbourne'
   try {
     const token = await graphToken(tenant, clientId, secret)
     const event = {
-      subject: b.subject,
-      body: { contentType: 'HTML', content: b.body || '' },
+      subject: String(b.subject).slice(0, 200),
+      body: { contentType: 'HTML', content: String(b.body || '').slice(0, 20000) },
       start: { dateTime: b.start, timeZone: tz },
       end: { dateTime: b.end, timeZone: tz },
-      location: b.location ? { displayName: b.location } : undefined,
-      attendees: (b.attendees || []).filter(Boolean).map(a => ({ emailAddress: { address: a }, type: 'required' })),
+      location: b.location ? { displayName: String(b.location).slice(0, 200) } : undefined,
+      attendees: people.map(a => ({ emailAddress: { address: a }, type: 'required' })),
       isOnlineMeeting: true,
       onlineMeetingProvider: 'teamsForBusiness',
     }

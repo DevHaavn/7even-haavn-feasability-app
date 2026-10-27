@@ -1266,6 +1266,7 @@ async function importOutlook(){
   const r=await fetch('/api/calendar-list?days=30');
   const j=await r.json().catch(()=>({}));
   if(r.status===501){ toast('Outlook not connected yet — the Entra app needs Calendars.ReadWrite.'); return; }
+  if(r.status===401||r.status===403){ toast(j.error||'Sign in with Microsoft in ATRIUM to read Outlook.'); return; }
   if(!r.ok){ toast("Couldn't read Outlook — "+(j.error||('error '+r.status))); return; }
   const evs=j.events||[]; let added=0, updated=0;
   evs.forEach(e=>{
@@ -1376,7 +1377,8 @@ function bindMeeting(){
  const save=$('#mtgSave');if(save)save.onclick=()=>{const m=M();if(m){m.minutes=$('#mtgMin').value;mtgMinute(m.id);toast('Minutes saved.');}};
  $('#main').querySelectorAll('[data-mkact]').forEach(b=>b.onclick=()=>mtgAddActionFromAgenda(route.pid,+b.dataset.mkact));
  const circ=$('#mtgCirc');if(circ)circ.onclick=()=>mtgCircularise(route.pid);
- const cal=$('#mtgCal');if(cal)cal.onclick=()=>{const m=M();const p=mtgProject(m);toast('Outlook invite created for '+esc(p.name)+'.');fetch('/api/calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:p.id+' · '+m.type+' — '+p.name,start:m.at,location:m.loc})}).catch(()=>{});};
+ const cal=$('#mtgCal');if(cal)cal.onclick=()=>{const m=M();const p=mtgProject(m);const st=String(m.at||'').slice(0,16);const d=new Date(st);const z=n=>String(n).padStart(2,'0');const en=isNaN(d)?'':new Date(d.getTime()+3600000);const end=en?en.getFullYear()+'-'+z(en.getMonth()+1)+'-'+z(en.getDate())+'T'+z(en.getHours())+':'+z(en.getMinutes()):'';
+  fetch('/api/calendar',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({subject:p.id+' · '+m.type+' — '+p.name,start:st,end:end,location:m.loc})}).then(r=>r.json().catch(()=>({})).then(j=>{if(r.status===200)toast('Outlook invite created for '+esc(p.name)+'.');else if(r.status===501)toast('Outlook is not connected yet.');else toast("Couldn't create the invite — "+(j.error||('error '+r.status)));})).catch(()=>toast("Couldn't reach Outlook."));};
  const tx=$('#mtgTx');if(tx)tx.onclick=()=>toast('Live Mandarin→English transcription runs in the Meetings pillar (Azure Speech). File-upload transcription is the next step.');
 }
 

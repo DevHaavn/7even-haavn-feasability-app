@@ -15,14 +15,20 @@ async function graphToken(tenant, clientId, secret) {
   return (await r.json()).access_token
 }
 
+// Needs a signed-in ATRIUM person; only the shared boardroom calendar or that person's own mailbox can be read.
+const G = require('./_utils/msGuard')
+
 module.exports = async (req, res) => {
   if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return }
+  res.setHeader('Cache-Control', 'no-store')
+  const me = G.signedIn(req, res); if (!me) return
+  const mailbox = String((req.query && req.query.mailbox) || 'boardroom@haavn.au').trim()
+  if (!G.mailboxAllowed(me, mailbox)) { res.status(403).json({ error: 'That calendar cannot be read. Use the boardroom calendar or your own.' }); return }
   const tenant = process.env.MS_TENANT_ID, clientId = process.env.MS_CLIENT_ID, secret = process.env.MS_CLIENT_SECRET
   if (!tenant || !clientId || !secret) {
     res.status(501).json({ error: 'Microsoft 365 not configured — set MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET and grant the Entra app Calendars.ReadWrite.' })
     return
   }
-  const mailbox = (req.query && req.query.mailbox) || 'boardroom@haavn.au'
   const days = Math.min(parseInt((req.query && req.query.days) || '30', 10) || 30, 120)
   const start = new Date(Date.now() - 24 * 3600e3).toISOString()
   const end = new Date(Date.now() + days * 24 * 3600e3).toISOString()
