@@ -1,6 +1,7 @@
 /* HAAVN, Better Living Hotel Project: the modular build, as a live 3D scene.
-   Screw piles, glass portal first, ten paired bays craned straight down by a mobile crane, downward pins, top-corner locks, finishes.
-   Concept animation only: piles, pins, locks, slings and connections are schematic. Plan coordinates: x across the building (west -12 to east +10),
+   Screw piles with baseplates and upward locating pins, glass portal first, ten paired bays craned straight down onto the baseplates by a mobile crane,
+   top-corner locks, roof flashings and cappings, finishes. Plant and equipment are installed on site too but are left out to keep it simple.
+   Concept animation only: piles, pins, locks, slings, cappings and connections are schematic. Plan coordinates: x across the building (west -12 to east +10),
    y along it (0 to 44), z up; three.js axes: X = x, Z = y, Y up. Deterministic: AsmScene.render(t) draws any second of the sequence. */
 (function(){
 'use strict';
@@ -92,14 +93,14 @@ function create(canvas,opts){
   var extTex=tex(facadeExtCanvas()),entTex=tex(facadeEntryCanvas());
   var mExt=mat(0xffffff,.55,0,{map:extTex,emissive:0xffb45a,emissiveMap:extTex,emissiveIntensity:.06}),mEnt=mat(0xffffff,.7,0,{map:entTex});
 
-  /* screw piles: shaft + cap + receiver, instanced */
+  /* screw piles: shaft + baseplate + upward locating pin, instanced. The module is lifted onto the baseplate and the pin enters its underside. */
   var BAYY=[];for(var j=0;j<10;j++)BAYY.push(j<5?j*4:24+(j-5)*4);
-  var pilePts=[];BAYY.forEach(function(y0){[-11.9,-7,-2.1,.1,5,9.9].forEach(function(x){[.1,3.9].forEach(function(dy){pilePts.push([x,y0+dy])})})});
+  var pilePts=[];BAYY.forEach(function(y0){[-11.9,-7,-2.1,.1,5,9.9].forEach(function(x){[.35,3.65].forEach(function(dy){pilePts.push([x,y0+dy])})})});
   [-11.9,-6,-1,4,9.9].forEach(function(x){[20.1,23.9].forEach(function(y){pilePts.push([x,y])})});
-  var shaftG=new T.CylinderGeometry(.085,.085,2.0,10),capG=new T.CylinderGeometry(.27,.27,.07,16),recG=new T.CylinderGeometry(.11,.11,.03,12);
+  var shaftG=new T.CylinderGeometry(.085,.085,2.35,10),capG=new T.BoxGeometry(.32,.05,.32),recG=new T.CylinderGeometry(.032,.05,.2,12);
   var shafts=new T.InstancedMesh(shaftG,mat(0x6d7471,.6,.5),pilePts.length),caps=new T.InstancedMesh(capG,mat(0x868d89,.55,.55),pilePts.length),recs=new T.InstancedMesh(recG,mPin,pilePts.length);
   shafts.castShadow=caps.castShadow=true;shafts.receiveShadow=caps.receiveShadow=true;var dm=new T.Object3D();
-  pilePts.forEach(function(p,i){dm.position.set(p[0],-.5,p[1]);dm.updateMatrix();shafts.setMatrixAt(i,dm.matrix);dm.position.set(p[0],.465,p[1]);dm.updateMatrix();caps.setMatrixAt(i,dm.matrix);dm.position.set(p[0],.51,p[1]);dm.updateMatrix();recs.setMatrixAt(i,dm.matrix)});
+  pilePts.forEach(function(p,i){dm.position.set(p[0],-.575,p[1]);dm.updateMatrix();shafts.setMatrixAt(i,dm.matrix);dm.position.set(p[0],.625,p[1]);dm.updateMatrix();caps.setMatrixAt(i,dm.matrix);dm.position.set(p[0],.75,p[1]);dm.updateMatrix();recs.setMatrixAt(i,dm.matrix)});
   scene.add(shafts,caps,recs);
 
   /* a module (apartment bay): A carries the 2 m corridor, B has none */
@@ -109,9 +110,8 @@ function create(canvas,opts){
     box(9.96,.32,3.96,mSteel,0,.16,0,g);
     var body=mesh(new T.BoxGeometry(9.96,3.4,3.96),isA?sideA:sideB);body.position.set(0,.32+1.7,0);g.add(body);
     box(10.12,.22,4.1,mRoof,0,3.83,0,g);
-    // pins under the chassis, top-corner locks (hidden until seated)
-    var xs=isA?[-4.9,0,4.9,-6.9]:[-4.9,0,4.9];g.userData.pins=[];
-    xs.forEach(function(x){[-1.9,1.9].forEach(function(z){var p=cyl(.05,.3,mPin,x,-.15,z,g,10);g.userData.pins.push(p)})});
+    // the pins are on the pile baseplates now (they enter sockets in the chassis underside); top-corner locks are hidden until seated
+    g.userData.pins=[];
     g.userData.locks=[];[[-4.95,-1.95],[-4.95,1.95],[4.95,-1.95],[4.95,1.95]].forEach(function(p){var k=box(.5,.16,.14,mGold,p[0],3.99,p[1],g);k.scale.set(.001,.001,.001);g.userData.locks.push(k)});
     if(isA){ // factory-attached 2 m corridor: floor, posts, timber-soffit roof
       box(2,.3,3.96,mSteel,-6,.15,0,g);
@@ -236,6 +236,13 @@ function create(canvas,opts){
   for(var ri=0;ri<70;ri++){var an=ri/70*6.2832+R()*.08,rr2=300+R()*60;rm.position.set(Math.cos(an)*rr2,6+R()*8,22+Math.sin(an)*rr2);rm.scale.set(1+R()*1.1,.7+R()*.5,1+R()*1.1);rm.rotation.y=R()*3;rm.updateMatrix();ring.setMatrixAt(ri,rm.matrix)}scene.add(ring);
   var shrubs=[];BAYY.forEach(function(y0,j){[-1,1].forEach(function(sd){for(var q=0;q<2;q++){var b=mesh(new T.IcosahedronGeometry(.55+R()*.4,1),R()>.5?mLeaf:mLeaf2);b.scale.y=.6;b.position.set((sd<0?-14.6:12.6)+(R()-.5)*.8,.3,y0+.9+q*2.2);fin.add(b);shrubs.push(b)}})});
   fin.visible=false;
+  /* roof flashings and cappings: a capping over every roof joint between modules (and the portal), step flashings along both sides of the 2 m corridor roof */
+  var caps2=new T.Group();scene.add(caps2);var capItems=[];var mCap=mat(0xdadcd8,.45,.12),mFlash=mat(0xb9bdb9,.5,.12);
+  function capStrip(w,h,d,m,x,y,z,t0,dur,axis){var o=box(w,h,d,m,x,y,z,caps2);o.castShadow=false;o.scale.set(.001,1,.001);capItems.push({o:o,t0:t0,dur:dur,axis:axis});return o}
+  var capT0=tEnd+1.2,joints=[4,8,12,16,20,24,28,32,36,40];
+  joints.forEach(function(y,i){var a0=capT0+i*.24;capStrip(10.04,.05,.36,mCap,-7,4.625,y,a0,.9,'x');capStrip(2.1,.05,.36,mCap,-1,4.465,y,a0+.06,.5,'x');capStrip(10.04,.05,.36,mCap,5,4.625,y,a0+.12,.9,'x')});
+  [[-1.8,0,20],[-1.8,24,44],[-.2,0,20],[-.2,24,44]].forEach(function(f,i){var L=f[2]-f[1];capStrip(.24,.05,L,mFlash,f[0],4.465,f[1]+L/2,capT0+.3+i*.15,2.4,'z')});
+  caps2.visible=false;
   /* the glass portal gets its own entry canopy line: nothing extra, stays honest */
 
   /* ---------- camera keys ---------- */
@@ -307,6 +314,8 @@ function create(canvas,opts){
     var tf=tEnd+.5,fu=clamp((t-tf)/3.2,0,1);fin.visible=fu>0;
     finItems.forEach(function(f,i){var u=ease(clamp((fu*1.4)-(i%10)*.04,0,1));f.o.scale.set(u||.001,1,u||.001)});
     shrubs.forEach(function(b,i){var u=ease(clamp(fu*1.5-(i%12)*.03,0,1));b.scale.setScalar(Math.max(.001,u))});
+    // flashings and cappings
+    caps2.visible=t>capT0;capItems.forEach(function(c){var u=ease(clamp((t-c.t0)/c.dur,0,1));if(c.axis==='x')c.o.scale.set(u||.001,1,1);else c.o.scale.set(1,1,u||.001)});
     mExt.emissiveIntensity=.06+.2*ease(clamp((t-tEnd)/6,0,1));
     // camera
     var c=camAt(t);camera.position.set(c.p[0],c.p[1],c.p[2]);camera.lookAt(c.g[0],c.g[1],c.g[2]);if(Math.abs(camera.fov-c.f)>.01){camera.fov=c.f;camera.updateProjectionMatrix()}
@@ -314,7 +323,7 @@ function create(canvas,opts){
   }
   function resize(w,h){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
   var landings=sched.filter(function(s){return s.kind==='mod'}).map(function(s){return s.t0+s.d});
-  var info={duration:DUR,tEnd:tEnd,landings:landings,sched:sched.map(function(s){return {kind:s.kind,t0:s.t0,d:s.d,pair:s.pair,isA:s.isA}}),pairOrder:pairOrder};
+  var info={duration:DUR,tEnd:tEnd,capT0:capT0,landings:landings,sched:sched.map(function(s){return {kind:s.kind,t0:s.t0,d:s.d,pair:s.pair,isA:s.isA}}),pairOrder:pairOrder};
   resize(W,H);
   return {render:render,resize:resize,renderer:renderer,scene:scene,camera:camera,info:info};
 }
