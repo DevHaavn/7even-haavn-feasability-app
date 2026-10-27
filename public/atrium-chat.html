@@ -59,6 +59,13 @@ body.resizing iframe{pointer-events:none}
 .lh .calq{padding:5px 10px 5px 8px;gap:5px}
 #tabs #popBtn{margin-left:auto;width:34px;height:34px;flex:none;align-self:center;margin-right:6px;padding:0;display:grid;place-items:center;border-radius:50%}
 #tabs #popBtn::after{display:none}
+#installBar{position:fixed;bottom:14px;left:14px;z-index:90;display:flex;align-items:center;gap:10px;padding:6px 8px 6px 16px;border-radius:999px;background:rgba(30,31,34,.94);border:1px solid rgba(214,179,106,.6);font:400 13px Inter,sans-serif;color:#f3f2ee;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#installBar button{height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.1);font:400 13px Inter,sans-serif;color:inherit}
+#installBar #ibGo{background:#d6b36a;color:#1a1408}
+#installBar #ibX{width:32px;padding:0}
+@media(max-width:760px){#installBar{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 92px);white-space:nowrap}}
+#list.narrow .lh:has(.calq) .mono{display:none}
+#list.narrow .lh{justify-content:flex-end}
 #dock{display:none}
 @media(min-width:761px){#dock{display:flex;gap:8px;position:absolute;left:14px;bottom:12px;z-index:4}#dock .ib{width:38px;height:38px}}
 #list header{padding:16px 18px 10px;display:flex;align-items:center;gap:10px}
@@ -1386,7 +1393,7 @@ function renderList(){
     const ar=isArch(g.id);
     return `<div class="ge">${btn}<div class="ctl">${ar?'':`<button type="button" class="pin ${isP?'on':''}" data-pin="${g.id}"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>${isP?'Unpin':'Pin'}</button>`}<button type="button" data-arc="${g.id}"><svg viewBox="0 0 24 24"><path d="M4 7h16v3H4zM6 10v9h12v-9M10 14h4"/></svg>${ar?'Restore':'Archive'}</button><button type="button" class="del" data-rem="${g.id}"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>Delete</button>${isP?`<button type="button" class="mv" data-up="${g.id}" aria-label="Move up" ${k===0?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg></button><button type="button" class="mv" data-dn="${g.id}" aria-label="Move down" ${k===pinned.length-1?'disabled':''}><svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg></button>`:''}</div></div>`};
   const head=`<div class="lh"><span class="mono">${editOrd?'Pin and order your chats':'Chats'}</span><span style="display:flex;gap:6px">${editOrd&&ord.length?'<button type="button" id="ordReset">Unpin all</button>':''}${editOrd?'':'<button type="button" class="calq" data-cal="open" aria-label="Open my calendar" title="My calendar"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>Calendar</button><button type="button" class="calq" data-notes="open" aria-label="Open my notes" title="My notes"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg>Notes</button>'}<button type="button" id="ordBtn" class="${editOrd?'on':''}">${editOrd?'Done':'Edit'}</button></span></div>`;
-  $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+((!qq||rest.some(g=>!g.dm))?`<div class="sec mono">Groups</div>`+rest.filter(g=>!g.dm).map(row).join(''):'')+((!qq||rest.some(g=>g.dm))?`<div class="sec mono">Direct</div>`:'')+rest.filter(g=>g.dm).map(row).join('')
+  $('#groups').innerHTML=head+(pinned.length?`<div class="sec mono">Pinned</div>`+pinned.map(row).join(''):'')+(pinned.length&&rest.length?`<div class="sec mono">Recent</div>`:'')+rest.map(row).join('')   /* one list, newest message first: a new direct message sits above the group chats, like a phone */
     +(ar.length?`<button class="archh mono" id="archT">${showArch?'▾':'▸'} Archived (${ar.length})</button>`+(showArch?ar.map(row).join(''):''):'')+pplHtml;
   $('#list').classList.toggle('calmode',listCal()); if(listCal()) $('#groups').innerHTML=calListHtml();
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
@@ -2350,7 +2357,8 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 <div class="ov" id="ovInstall"><div class="sheet">
   <h3>Install ATRIUM Chat</h3><div class="lead" id="insLead">Its own icon and its own window, beside ATRIUM.</div>
   <div class="f" id="insSteps" style="line-height:1.55;font-size:14px"></div>
-  <div class="row"><button class="cb" id="insClose" type="button">Close</button><button class="cb go" id="insGo" type="button" style="display:none">Install now</button></div>
+  <div class="f" style="font-size:13px;color:var(--faint);line-height:1.5">Inside the ATRIUM app window there is no address bar to install from. Open the link below in Chrome or Edge instead.</div>
+  <div class="row"><button class="cb" id="insClose" type="button">Close</button><button class="cb" id="insCopy" type="button">Copy link</button><button class="cb go" id="insGo" type="button" style="display:none">Install now</button></div>
 </div></div>
 <script>
 /* ATRIUM Chat as its own app: pop out from ATRIUM, install help, and alert taps inside the app. Kept apart from the chat itself. */
@@ -2374,7 +2382,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
   function openNotes(meetingId){
     nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=1'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=2'; nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
@@ -2399,6 +2407,14 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     $('#insSteps').innerHTML=steps; $('#insGo').style.display=deferred?'':'none'; $('#ovInstall').classList.add('on');
   }
   $('#insClose').onclick=()=>$('#ovInstall').classList.remove('on');
+  $('#insCopy').onclick=async()=>{ const u=location.origin+'/atrium-chat.html?app=1&install=1'; try{ await navigator.clipboard.writeText(u); $('#insCopy').textContent='Copied' }catch(e){ window.prompt('Copy this link',u) } };
+  // a visible Install button when the page is open in an ordinary browser tab
+  (function(){ if(EMB||standalone) return; let gone=false; try{ gone=localStorage.getItem('atrium-chat-install-x')==='1' }catch(e){} if(gone) return;
+    const bar=document.createElement('div'); bar.id='installBar'; bar.innerHTML='<span>Install ATRIUM Chat as its own app</span><button type="button" id="ibGo">Install</button><button type="button" id="ibX" aria-label="Hide">\u2715</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('#ibGo').onclick=async()=>{ if(deferred){ deferred.prompt(); try{ await deferred.userChoice }catch(e){} deferred=null } else showInstall() };
+    bar.querySelector('#ibX').onclick=()=>{ bar.remove(); try{ localStorage.setItem('atrium-chat-install-x','1') }catch(e){} };
+    window.addEventListener('appinstalled',()=>bar.remove()) })();
   $('#insGo').onclick=async()=>{ if(!deferred) return; deferred.prompt(); try{ await deferred.userChoice }catch(e){} deferred=null; $('#insGo').style.display='none' };
   if(!EMB&&!standalone&&/[?&]install=1/.test(location.search)) setTimeout(showInstall,900);
   // inside the Chat app a tapped alert arrives from the service worker: open that chat
@@ -2434,6 +2450,9 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     else if(sideIsColumn()&&app.classList.contains('side-min')){ hS.style.cssText='display:block;left:'+(innerWidth-22)+'px;top:'+l.top+'px;height:'+l.height+'px' }
     else hS.style.display='none' }
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify(W)) }catch(e){} }
+  // a narrow list drops its small label so the Calendar and Notes buttons always fit
+  const narrow=()=>list.classList.toggle('narrow',list.getBoundingClientRect().width<340);
+  try{ new ResizeObserver(narrow).observe(list) }catch(e){} narrow();
   function drag(h,which){
     h.addEventListener('pointerdown',e=>{ if(e.button!==0) return; e.preventDefault(); h.setPointerCapture(e.pointerId); h.classList.add('drag'); document.body.classList.add('resizing');
       const x0=e.clientX, l0=list.getBoundingClientRect().width, s0=side.getBoundingClientRect().width, total=app.getBoundingClientRect().width;

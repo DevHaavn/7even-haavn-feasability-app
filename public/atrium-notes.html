@@ -25,6 +25,12 @@ select option{background:#1b1c1f;color:#f3f2ee}
 .ib svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .ib.gold{background:var(--gold);border-color:transparent;color:#1a1408}
 #q{margin:0 16px 8px;width:calc(100% - 32px);border-radius:999px;padding:9px 16px}
+#modes{display:flex;gap:4px;margin:0 16px 8px;padding:4px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+#modes button{flex:1;height:32px;border-radius:999px;font-size:13px;color:var(--faint)}
+#modes button.on{background:rgba(255,255,255,.16);color:#fff}
+.gh{padding:14px 12px 4px;color:var(--faint)}
+.gh b{font-weight:400;color:var(--soft);font-size:13px;text-transform:none;letter-spacing:0;font-family:Inter}
+.gh span{margin-left:6px}
 #items{flex:1;overflow:auto;padding:4px 8px calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
 .it{display:block;width:100%;text-align:left;padding:12px 12px;border-radius:16px}
 .it:hover{background:rgba(255,255,255,.05)}
@@ -94,6 +100,7 @@ select option{background:#1b1c1f;color:#f3f2ee}
   <aside id="list">
     <div class="hd"><h1>Notes</h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <input id="q" type="search" placeholder="Search notes" autocomplete="off">
+    <div id="modes" role="tablist" aria-label="Browse notes"><button type="button" data-mode="recent" class="on">Recent</button><button type="button" data-mode="title">Title</button><button type="button" data-mode="meeting">Meeting</button></div>
     <div id="items"></div>
   </aside>
   <main id="ed">
@@ -101,7 +108,7 @@ select option{background:#1b1c1f;color:#f3f2ee}
     <div id="none" style="display:none"><b>Your meeting notes</b>Write them, or press the microphone and speak. Save them, email them, or turn a line into a task.<br><br><button class="cb go" id="startBtn" type="button">New note</button></div>
     <div id="edwrap" style="display:contents">
       <div id="bar">
-        <select id="meeting" aria-label="Meeting"><option value="">No meeting</option></select>
+        <select id="meeting" aria-label="Meeting this note is for"><option value="">No meeting</option></select>
         <select id="lang" aria-label="Language spoken"></select>
         <label class="tr" id="trRow" style="display:none"><button class="tg" id="trTg" type="button" aria-label="Translate to English"></button>Also give me English</label>
       </div>
@@ -173,11 +180,22 @@ let tt; function toast(m,bad){ const t=$('#toast'); t.textContent=m; t.className
 const fmt=ms=>{ const d=new Date(ms), n=new Date(); const same=d.toDateString()===n.toDateString(); return same?d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'}).replace(/\s/g,'').toLowerCase():d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}) };
 
 /* ---- the list ---- */
+let mode='recent'; try{ mode=localStorage.getItem('atrium-notes-mode')||'recent' }catch(e){}
+const nm=n=>(n.title||firstLine(n.body)||'Untitled');
+function row(n){ return `<button class="it ${cur&&cur.id===n.id?'on':''}" data-id="${n.id}"><b>${esc(n.title||firstLine(n.body)||'Untitled')}</b><span class="s">${esc(n.body.replace(/\s+/g,' ').slice(0,90)||'No text yet')}</span><span class="m"><span>${fmt(n.updated)}</span>${n.meetingTitle?`<span>${esc(n.meetingTitle)}</span>`:''}${n.emailed&&n.emailed.length?'<i>emailed</i>':''}${n.tasks&&n.tasks.length?`<i>${n.tasks.length} task${n.tasks.length>1?'s':''}</i>`:''}</span></button>`}
 function renderList(){
   const q=$('#q').value.trim().toLowerCase();
   const l=notes.filter(n=>!q||((n.title||'')+' '+n.body+' '+(n.meetingTitle||'')).toLowerCase().includes(q));
-  $('#items').innerHTML=l.length?l.map(n=>`<button class="it ${cur&&cur.id===n.id?'on':''}" data-id="${n.id}"><b>${esc(n.title||firstLine(n.body)||'Untitled')}</b><span class="s">${esc(n.body.replace(/\s+/g,' ').slice(0,90)||'No text yet')}</span><span class="m"><span>${fmt(n.updated)}</span>${n.meetingTitle?`<span>${esc(n.meetingTitle)}</span>`:''}${n.emailed&&n.emailed.length?'<i>emailed</i>':''}${n.tasks&&n.tasks.length?`<i>${n.tasks.length} task${n.tasks.length>1?'s':''}</i>`:''}</span></button>`).join(''):`<div class="empty">${q?'No notes match.':'No notes yet. Press + to start one.'}</div>`;
+  $$('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+  if(!l.length){ $('#items').innerHTML=`<div class="empty">${q?'No notes match.':'No notes yet. Press + to start one.'}</div>`; return }
+  if(mode==='title'){ $('#items').innerHTML=l.slice().sort((a,b)=>nm(a).localeCompare(nm(b),undefined,{sensitivity:'base'})).map(row).join('') }
+  else if(mode==='meeting'){
+    const groups=new Map(); l.forEach(n=>{ const k=n.meetingTitle?String(n.meetingId)+'|'+n.meetingTitle:''; if(!groups.has(k)) groups.set(k,{title:n.meetingTitle||'No meeting',date:(opts.meetings.find(m=>String(m.id)===String(n.meetingId))||{}).date||'',notes:[],latest:0}); const g=groups.get(k); g.notes.push(n); g.latest=Math.max(g.latest,n.updated) });
+    const order=[...groups.entries()].sort((a,b)=>(a[0]===''?1:0)-(b[0]===''?1:0)||String(b[1].date||'').localeCompare(String(a[1].date||''))||b[1].latest-a[1].latest);
+    $('#items').innerHTML=order.map(([k,g])=>`<div class="gh mono"><b>${esc(g.title)}</b><span>${g.date?esc(g.date)+' · ':''}${g.notes.length}</span></div>`+g.notes.map(row).join('')).join('') }
+  else $('#items').innerHTML=l.map(row).join('')
 }
+$('#modes').onclick=e=>{ const b=e.target.closest('[data-mode]'); if(!b) return; mode=b.dataset.mode; try{ localStorage.setItem('atrium-notes-mode',mode) }catch(x){} renderList() };
 const firstLine=t=>String(t||'').split(/\n/).map(x=>x.trim()).find(Boolean)||'';
 $('#items').onclick=e=>{ const b=e.target.closest('[data-id]'); if(b){ flush().then(()=>openNote(notes.find(n=>String(n.id)===b.dataset.id))) } };
 $('#q').oninput=renderList;
@@ -193,7 +211,7 @@ function openNote(n){
   if(!cur){ showNone(true); renderList(); document.body.classList.remove('in-note'); return }
   showNone(false);
   $('#title').value=cur.title||''; $('#body').value=cur.body||''; $('#lang').value=cur.lang||'en-AU'; fillMeetings($('#meeting')); $('#meeting').value=cur.meetingId==null?'':String(cur.meetingId);
-  syncTranslate(); meta(); renderList(); document.body.classList.add('in-note'); setTimeout(()=>{ if(!cur.id&&!matchMedia('(pointer:coarse)').matches) $('#body').focus() },60) }
+  syncTranslate(); meta(); renderList(); document.body.classList.add('in-note'); setTimeout(()=>{ if(!cur.id) $('#title').focus() },60) }
 function newNote(pre){
   return flush().then(()=>{ const n=Object.assign({id:null,title:'',body:'',meetingId:'',meetingTitle:'',lang:$('#lang').value||'en-AU',updated:Date.now(),emailed:[],tasks:[]},pre||{}); openNote(n); if(pre&&(pre.title||pre.body)){ dirty=true; schedule() } }) }
 function meta(){
