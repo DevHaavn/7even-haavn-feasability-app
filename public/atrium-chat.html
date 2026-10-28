@@ -779,9 +779,18 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
  html.booting{background:#141517}
  #app{position:fixed;inset:0;height:auto;width:100%}
 }
+/* the ATRIUM moving ground: the same film as ATRIUM's own background sits behind the whole chat, so the list, the strips by the status bar and home bar and the desktop gaps are all that ground (the ATRIUM drawer keeps ATRIUM's own behind it) */
+#atBg,#atScrim{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#atBg{object-fit:cover;background:transparent}
+#atScrim{background:rgba(12,13,15,.34)}
+body.embed #atBg,body.embed #atScrim{display:none}
+@media(min-width:761px){#app{position:relative;z-index:1}}
+@media(max-width:760px){#app{z-index:1}}
+body:not(.embed) #list{background:rgba(14,15,17,.42)}
 </style>
 </head>
 <body>
+<video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atScrim"></div>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <img class="logo" src="/icons/chat-icon-96.png?v=2" width="44" height="44" alt="ATRIUM Chat">
@@ -984,7 +993,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-phone-ground</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-moving-ground</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -2522,5 +2531,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   apply(); setTimeout(apply,400);
 })();
 </script>
+<script>(function(){var v=document.getElementById('atBg'); if(!v) return; try{ if(/[?&]embed=1/.test(location.search)||matchMedia('(prefers-reduced-motion: reduce)').matches){ v.removeAttribute('autoplay'); v.pause(); v.style.display='none'; return } v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(e){} document.addEventListener('visibilitychange',function(){ if(!document.hidden&&v.paused){ try{ v.play() }catch(e){} } }) })()</script>
 </body>
 </html>
