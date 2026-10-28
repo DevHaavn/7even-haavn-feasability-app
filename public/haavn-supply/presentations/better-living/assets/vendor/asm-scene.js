@@ -110,6 +110,8 @@ function create(canvas,opts){
     box(9.96,.32,3.96,mSteel,0,.16,0,g);
     var body=mesh(new T.BoxGeometry(9.96,3.4,3.96),isA?sideA:sideB);body.position.set(0,.32+1.7,0);g.add(body);
     box(10.12,.22,4.1,mRoof,0,3.83,0,g);
+    // the concrete-look facade is on the module from the factory: a pier at each end of the outer face and the fascia beam along its top
+    var fx=isA?5.18:-5.18;[-1,1].forEach(function(sd){box(.46,4.0,.31,mConc,fx,1.6,sd*1.825,g)});box(.5,.46,3.98,mConc,fx,3.63,0,g);
     // the pins are on the pile baseplates now (they enter sockets in the chassis underside); top-corner locks are hidden until seated
     g.userData.pins=[];
     g.userData.locks=[];[[-4.95,-1.95],[-4.95,1.95],[4.95,-1.95],[4.95,1.95]].forEach(function(p){var k=box(.5,.16,.14,mGold,p[0],3.99,p[1],g);k.scale.set(.001,.001,.001);g.userData.locks.push(k)});
@@ -220,12 +222,11 @@ function create(canvas,opts){
   /* trucks, one per op, drive in and out */
   sched.forEach(function(s){var tr=makeTruck();tr.visible=false;scene.add(tr);s.truck=tr;var ta=Math.min(1.0,s.d*.9);s.arr0=s.t0-ta;s.arr1=s.t0;s.dep0=s.t0+.5*s.d;s.dep1=s.dep0+Math.min(1.0,s.d*.9)+.4;
     if(s.kind==='portal'){s.ride=new T.Group();s.ride.visible=false}});
-  /* the finishing touches: terraces, fascia, trees, planters */
+  /* the on-site finishing touches: terraces, trees, planters (the facade is already on the modules) */
   var fin=new T.Group();scene.add(fin);var finItems=[];
   var mDeck=mat(0x9b6c3f,.75);
   BAYY.forEach(function(y0){[-1,1].forEach(function(sd){var x=sd<0?-12.75:10.75;var dk=box(1.5,.12,3.9,mDeck,x,.62,y0+2,fin);finItems.push({o:dk,s:[1,1,1],t:0,from:sd<0?'w':'e'})})});
   var bounds=[];BAYY.forEach(function(y0){bounds.push(y0)});bounds.push(20,24,44);
-  [-12.18,10.18].forEach(function(x){bounds.forEach(function(y){var pr=box(.46,4.0,.62,mConc,x,2.25,y,fin);finItems.push({o:pr,s:[1,1,1],t:1})});var fa=box(.5,.46,44.6,mConc,x,4.28,22,fin);finItems.push({o:fa,s:[1,1,1],t:2})});
   var R=seeded(42),mLeaf=mat(0x66794a,.95,0,{flatShading:true}),mLeaf2=mat(0x56693f,.95,0,{flatShading:true}),mLeaf3=mat(0x748656,.95,0,{flatShading:true}),mTrunk=mat(0x8a7f6c,.95);
   function tree(x,z,sc){var g=new T.Group();var lean=(R()-.5)*.18;var trunk=cyl(.26*sc,6.4*sc,mTrunk,0,3.1*sc,0,g,7);trunk.rotation.z=lean;
     var n=9;for(var i=0;i<n;i++){var s=(1.3+R()*1.5)*sc,m=i%3===0?mLeaf3:(i%2?mLeaf:mLeaf2);var bl=mesh(new T.IcosahedronGeometry(s,0),m);var a=R()*6.28,rd=R()*2.6*sc;bl.position.set(Math.cos(a)*rd+lean*8,(5.2+R()*4.4)*sc,Math.sin(a)*rd);bl.scale.set(1,.72,1);bl.rotation.set(R()*3,R()*3,R()*3);g.add(bl)}
