@@ -787,6 +787,7 @@ body.embed #atBg,body.embed #atScrim{display:none}
 @media(min-width:761px){#app{position:relative;z-index:1}}
 @media(max-width:760px){#app{z-index:1}}
 body:not(.embed) #list{background:rgba(14,15,17,.42)}
+@media(max-width:760px){#thread.film{background:transparent!important}}
 </style>
 </head>
 <body>
@@ -993,7 +994,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-moving-ground</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-film-everywhere</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -1303,6 +1304,10 @@ function applyWall(gid){
   const dd=dark&&!tk.dark; // a light wallpaper dimmed dark
   st.setProperty('--theirs',tacc?tacc.c:(dd?'rgba(22,20,18,.55)':tk.theirs)); st.setProperty('--theirsTx',tacc?tacc.t:(dd?'#fff':tk.theirsTx)); st.setProperty('--meta',dd?'rgba(255,255,255,.7)':tk.meta);
   if(dark) st.setProperty('--hdr','rgba(28,30,34,.58)'); else st.removeProperty('--hdr');
+  // the standard ATRIUM ground is the moving film behind the whole chat: a chat on that ground lets it through; a chat with a wallpaper of its own keeps it
+  const film=w.id==='atrg'&&!document.body.classList.contains('embed')&&$('#atBg')&&$('#atBg').style.display!=='none';
+  th.classList.toggle('film',!!film);
+  if(film){ w1.style.background='none'; w1.style.backgroundColor='transparent'; w1.style.filter='none'; $('#wall').style.background='transparent'; $('#dim').style.background='#0c0d0f'; $('#dim').style.opacity=.3 }
 }
 function wallSwatch(w,gid){
   if(w.id==='custom'){const im=STY.wallAll?STY.img.all:STY.img[gid];return im?`background:url(${im}) center/cover`:'background:#333'}
