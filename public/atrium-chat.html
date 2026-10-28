@@ -771,11 +771,12 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .msteps{display:grid;gap:10px;margin:4px 0 16px}
 .msteps .ms{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--soft);line-height:1.45}
 .msteps .ms b{flex:none;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:400 12px Inter,sans-serif;color:var(--faint)}
-/* phone: the screen runs edge to edge as an app. A solid colour under the gradient, no fixed-attachment gradient (iPhone leaves the bottom strip bare), and the app pinned to the real screen so nothing white shows under the home bar */
+/* phone: the screen runs edge to edge as an app. The dark ATRIUM ground (the same picture as the chat list) is the page itself, so the strips above and below the app, and the status bar and home bar areas, are that ground and never a grey bar */
 @media(max-width:760px){
- html{background-color:#2b2d32;min-height:100%;min-height:-webkit-fill-available}
+ html{background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover no-repeat #141517;min-height:100%;min-height:-webkit-fill-available}
  html,body{background-attachment:scroll!important;width:100%}
- body{min-height:100vh;min-height:-webkit-fill-available;background-color:#2b2d32}
+ body{background:none;min-height:100vh;min-height:-webkit-fill-available}
+ html.booting{background:#141517}
  #app{position:fixed;inset:0;height:auto;width:100%}
 }
 </style>
@@ -983,7 +984,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-phone-fullscreen</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-phone-ground</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
