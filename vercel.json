@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "atrium-chat-7x.vercel.app" }],
+      "destination": "/atrium-chat.html?app=1",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/mcp/:secret",

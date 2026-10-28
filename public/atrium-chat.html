@@ -976,7 +976,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-28-0252</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-chat-address</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -2375,6 +2375,8 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 (function(){
   'use strict';
   const EMB=/[?&]embed=1/.test(location.search), $=s=>document.querySelector(s);
+  // ATRIUM Chat has its own address, so Chrome can install it as an app of its own (on ATRIUM's address it counts as part of ATRIUM)
+  const CHAT_HOME='https://atrium-chat-7x.vercel.app';
   const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
   let deferred=null;
   window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; const g=$('#insGo'); if(g&&$('#ovInstall').classList.contains('on')) g.style.display='' });
@@ -2387,7 +2389,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   if(pop&&EMB&&window.matchMedia('(min-width: 761px)').matches&&!/iPad|iPhone|Android/.test(navigator.userAgent)){
     pop.style.display='';
     // open the chat in a window of its own (the installed Chat app takes it over when it owns the link). Never navigates this window, so ATRIUM stays where it is.
-    pop.onclick=()=>{ let w=null; try{ w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800') }catch(e){}
+    pop.onclick=()=>{ let w=null; try{ w=window.open(CHAT_HOME+'/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800') }catch(e){}
       if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } };
   }
   // Notes: a full panel over the chat, in this window, so it works in the drawer and in the Chat app alike
@@ -2424,7 +2426,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     if(standalone&&!EMB) row.style.display='none';   // only inside the Chat app itself: ATRIUM's own app window is also 'standalone', and must still offer the install
     else if(!EMB) btn.textContent='Install';
     else btn.textContent='Install Chat as an app';
-    btn.onclick=()=>{ if(EMB&&!standalone){ window.open('/atrium-chat.html?app=1&install=1','_blank'); return } showInstall() };
+    btn.onclick=()=>{ if(EMB&&!standalone){ window.open(CHAT_HOME+'/atrium-chat.html?app=1&install=1','_blank'); return } showInstall() };
   }
   function showInstall(){
     const ua=navigator.userAgent, ios=/iPhone|iPad/.test(ua), android=/Android/.test(ua), mac=/Macintosh/.test(ua)&&!ios, safari=/Safari/.test(ua)&&!/Chrome|Chromium|Edg|CriOS|FxiOS/.test(ua);
@@ -2436,11 +2438,11 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     const win=/Windows/.test(ua), dl=$('#insDl'); let dlName='';
     if(standalone||(!ios&&!android&&!safari)){ dlName=win?'ATRIUM-Chat.url':'ATRIUM-Chat.webloc' }
     if(standalone) steps='<ol style="margin:0;padding-left:20px"><li>You are inside the <b>ATRIUM app window</b>, which cannot install another app.</li><li>Press <b>Download Chat shortcut</b> below.</li><li>Open the file it downloads (check your Downloads). It opens the Chat page in your browser.</li><li>Click <b>Install</b> at the bottom left of that page.</li></ol><div style="margin-top:10px;opacity:.7">If the file opens the wrong browser, use Copy link and paste it into Chrome.</div>';
-    if(dl){ dl.style.display=(standalone&&dlName)?'':'none'; dl.onclick=()=>{ const a=document.createElement('a'); a.href='/'+dlName; a.download=dlName; document.body.appendChild(a); a.click(); a.remove() } }
+    if(dl){ dl.style.display=(standalone&&dlName)?'':'none'; dl.onclick=()=>{ const a=document.createElement('a'); a.href=CHAT_HOME+'/'+dlName; a.download=dlName; document.body.appendChild(a); a.click(); a.remove() } }
     $('#insSteps').innerHTML=steps; $('#insGo').style.display=deferred?'':'none'; $('#ovInstall').classList.add('on');
   }
   $('#insClose').onclick=()=>$('#ovInstall').classList.remove('on');
-  $('#insCopy').onclick=async()=>{ const u=location.origin+'/atrium-chat.html?app=1&install=1'; try{ await navigator.clipboard.writeText(u); $('#insCopy').textContent='Copied' }catch(e){ window.prompt('Copy this link',u) } };
+  $('#insCopy').onclick=async()=>{ const u=CHAT_HOME+'/atrium-chat.html?app=1&install=1'; try{ await navigator.clipboard.writeText(u); $('#insCopy').textContent='Copied' }catch(e){ window.prompt('Copy this link',u) } };
   // a visible Install button when the page is open in an ordinary browser tab
   (function(){ const forced=/[?&]install=1/.test(location.search); if(EMB||(standalone&&!forced)) return; let gone=false; try{ gone=localStorage.getItem('atrium-chat-install-x')==='1' }catch(e){} if(gone&&!forced) return;
     const bar=document.createElement('div'); bar.id='installBar'; bar.innerHTML='<span>Install ATRIUM Chat as its own app</span><button type="button" id="ibGo">Install</button><button type="button" id="ibX" aria-label="Hide">\u2715</button>';
