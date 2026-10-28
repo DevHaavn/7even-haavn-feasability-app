@@ -976,7 +976,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-28-0207</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-28-0231</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -2386,11 +2386,9 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const pop=$('#popBtn');
   if(pop&&EMB&&window.matchMedia('(min-width: 761px)').matches&&!/iPad|iPhone|Android/.test(navigator.userAgent)){
     pop.style.display='';
-    // the installed Chat app answers to web+atriumchat:. If it does not take over, open the chat in a window of its own instead.
-    pop.onclick=()=>{ let left=false; const gone=()=>{ left=true }; window.addEventListener('blur',gone,{once:true}); document.addEventListener('visibilitychange',gone,{once:true});
-      try{ const a=document.createElement('a'); a.href='web+atriumchat:open'; a.target='_top'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove() }catch(e){}
-      setTimeout(()=>{ if(left){ try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} return }
-        const w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800'); if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } },1600) };
+    // open the chat in a window of its own (the installed Chat app takes it over when it owns the link). Never navigates this window, so ATRIUM stays where it is.
+    pop.onclick=()=>{ let w=null; try{ w=window.open('/atrium-chat.html?app=1','atrium-chat-window','popup=yes,width=470,height=800') }catch(e){}
+      if(w){ try{ w.focus() }catch(e){} try{ parent.postMessage({atriumChat:'close'},'*') }catch(e){} } };
   }
   // Notes: a full panel over the chat, in this window, so it works in the drawer and in the Chat app alike
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
