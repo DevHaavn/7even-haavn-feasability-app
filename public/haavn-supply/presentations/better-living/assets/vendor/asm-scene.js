@@ -87,6 +87,7 @@ function create(canvas,opts){
   /* shared materials */
   var timberT=tex(timberCanvas(),2,1),concT=tex(concreteCanvas(),3,2);
   var mTimber=mat(0xffffff,.82,0,{map:timberT}),mConc=mat(0xffffff,.92,0,{map:concT});
+  var mTimberDeck=mat(0x9b6c3f,.75);
   var mSteel=mat(0x77807c,.55,.4),mDark=mat(0x3f4543,.65,.3),mRoof=mat(0x5d605c,.9),mTimberRoof=mat(0xa4764a,.7),mBronze=mat(C.bronze,.4,.8),mGold=mat(C.gold,.35,.8);
   var mLime=mat(C.lime,.5,.2),mPin=mat(C.lime,.4,.4,{emissive:0x5d6b00,emissiveIntensity:.35});
   var mGlassClear=new T.MeshStandardMaterial({color:0xc4e0e6,roughness:.08,metalness:.2,transparent:true,opacity:.38,side:T.DoubleSide});
@@ -112,6 +113,8 @@ function create(canvas,opts){
     box(10.12,.22,4.1,mRoof,0,3.83,0,g);
     // the concrete-look facade is on the module from the factory: a pier at each end of the outer face and the fascia beam along its top
     var fx=isA?5.18:-5.18;[-1,1].forEach(function(sd){box(.46,4.0,.31,mConc,fx,1.6,sd*1.825,g)});box(.5,.46,3.98,mConc,fx,3.63,0,g);
+    // the timber terrace is fitted at the factory too, on the outer face of the module
+    box(1.5,.12,3.9,mTimberDeck,isA?5.75:-5.75,-.03,0,g);
     // the pins are on the pile baseplates now (they enter sockets in the chassis underside); top-corner locks are hidden until seated
     g.userData.pins=[];
     g.userData.locks=[];[[-4.95,-1.95],[-4.95,1.95],[4.95,-1.95],[4.95,1.95]].forEach(function(p){var k=box(.5,.16,.14,mGold,p[0],3.99,p[1],g);k.scale.set(.001,.001,.001);g.userData.locks.push(k)});
@@ -222,10 +225,8 @@ function create(canvas,opts){
   /* trucks, one per op, drive in and out */
   sched.forEach(function(s){var tr=makeTruck();tr.visible=false;scene.add(tr);s.truck=tr;var ta=Math.min(1.0,s.d*.9);s.arr0=s.t0-ta;s.arr1=s.t0;s.dep0=s.t0+.5*s.d;s.dep1=s.dep0+Math.min(1.0,s.d*.9)+.4;
     if(s.kind==='portal'){s.ride=new T.Group();s.ride.visible=false}});
-  /* the on-site finishing touches: terraces, trees, planters (the facade is already on the modules) */
-  var fin=new T.Group();scene.add(fin);var finItems=[];
-  var mDeck=mat(0x9b6c3f,.75);
-  BAYY.forEach(function(y0){[-1,1].forEach(function(sd){var x=sd<0?-12.75:10.75;var dk=box(1.5,.12,3.9,mDeck,x,.62,y0+2,fin);finItems.push({o:dk,s:[1,1,1],t:0,from:sd<0?'w':'e'})})});
+  /* the on-site finishing touches: trees and planters (the facade and the terraces are already on the modules) */
+  var fin=new T.Group();scene.add(fin);
   var bounds=[];BAYY.forEach(function(y0){bounds.push(y0)});bounds.push(20,24,44);
   var R=seeded(42),mLeaf=mat(0x66794a,.95,0,{flatShading:true}),mLeaf2=mat(0x56693f,.95,0,{flatShading:true}),mLeaf3=mat(0x748656,.95,0,{flatShading:true}),mTrunk=mat(0x8a7f6c,.95);
   function tree(x,z,sc){var g=new T.Group();var lean=(R()-.5)*.18;var trunk=cyl(.26*sc,6.4*sc,mTrunk,0,3.1*sc,0,g,7);trunk.rotation.z=lean;
@@ -313,7 +314,6 @@ function create(canvas,opts){
     cr.cable.geometry.setAttribute('position',new T.BufferAttribute(arr,3));cr.cable.geometry.attributes.position.needsUpdate=true;
     // finishes
     var tf=tEnd+.5,fu=clamp((t-tf)/3.2,0,1);fin.visible=fu>0;
-    finItems.forEach(function(f,i){var u=ease(clamp((fu*1.4)-(i%10)*.04,0,1));f.o.scale.set(u||.001,1,u||.001)});
     shrubs.forEach(function(b,i){var u=ease(clamp(fu*1.5-(i%12)*.03,0,1));b.scale.setScalar(Math.max(.001,u))});
     // flashings and cappings
     caps2.visible=t>capT0;capItems.forEach(function(c){var u=ease(clamp((t-c.t0)/c.dur,0,1));if(c.axis==='x')c.o.scale.set(u||.001,1,1);else c.o.scale.set(1,1,u||.001)});

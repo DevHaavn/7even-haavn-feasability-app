@@ -35,7 +35,7 @@ function mount(host){
       {n:'01',a:0,t:'Screw piles set',x:'Screw piles and their baseplates, each with an upward locating pin, are set out first. A mobile crane and the delivery trucks arrive on site.'},
       {n:'02',a:4.2,t:'Glass portal first',x:'The glass-roof portal is craned in first. It connects both corridor wings.'},
       {n:'03',a:9.2,t:'Ten paired bays',x:'Every module arrives from the factory with its facade already fitted. It is craned straight down and lifted onto the baseplates on its screw piles. An upward locating pin on each baseplate locates it, then it locks at the top corners. Module A carries the 2 m corridor; module B sits opposite.'},
-      {n:'04',a:te+.2,t:'Roof cappings and landscaping',x:'Flashings and cappings are fitted to the roof connections. Terraces and landscaping follow, and the crane leaves site. Plant and equipment are installed on site too, not shown here.'},
+      {n:'04',a:te+.2,t:'Roof cappings and landscaping',x:'Flashings and cappings are fitted to the roof connections. Landscaping follows, and the crane leaves site. Plant and equipment are installed on site too, not shown here.'},
       {n:'05',a:48.4,t:'The finished building',x:'Urban Earth. A concept render of the finished building, not an exact model of this ten bay demonstration.'}];
     var ph=host.querySelector('.ph');PH.forEach(function(p,i){var nx=i<PH.length-1?PH[i+1].a:S.info.duration;var s=document.createElement('span');s.style.left=(p.a/S.info.duration*100)+'%';s.style.width=((nx-p.a)/S.info.duration*100)+'%';s.innerHTML='<b>'+p.n+'</b><span class="tx">'+p.t+'</span>';s.setAttribute('data-i',i);ph.appendChild(s)});marks=[].slice.call(ph.children);
     fit();narrow();
