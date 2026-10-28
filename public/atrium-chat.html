@@ -976,7 +976,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-28-0231</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-28-0252</div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -2368,7 +2368,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   <h3>Install ATRIUM Chat</h3><div class="lead" id="insLead">Its own icon and its own window, beside ATRIUM.</div>
   <div class="f" id="insSteps" style="line-height:1.55;font-size:14px"></div>
   <div class="f" style="font-size:13px;color:var(--faint);line-height:1.5">Inside the ATRIUM app window there is no address bar to install from. Open the link below in Chrome or Edge instead.</div>
-  <div class="row"><button class="cb" id="insClose" type="button">Close</button><button class="cb" id="insCopy" type="button">Copy link</button><button class="cb go" id="insGo" type="button" style="display:none">Install now</button></div>
+  <div class="row"><button class="cb" id="insClose" type="button">Close</button><button class="cb" id="insCopy" type="button">Copy link</button><button class="cb go" id="insDl" type="button" style="display:none">Download Chat shortcut</button><button class="cb go" id="insGo" type="button" style="display:none">Install now</button></div>
 </div></div>
 <script>
 /* ATRIUM Chat as its own app: pop out from ATRIUM, install help, and alert taps inside the app. Kept apart from the chat itself. */
@@ -2424,7 +2424,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     if(standalone&&!EMB) row.style.display='none';   // only inside the Chat app itself: ATRIUM's own app window is also 'standalone', and must still offer the install
     else if(!EMB) btn.textContent='Install';
     else btn.textContent='Install Chat as an app';
-    btn.onclick=()=>{ if(EMB){ window.open('/atrium-chat.html?app=1&install=1','_blank'); return } showInstall() };
+    btn.onclick=()=>{ if(EMB&&!standalone){ window.open('/atrium-chat.html?app=1&install=1','_blank'); return } showInstall() };
   }
   function showInstall(){
     const ua=navigator.userAgent, ios=/iPhone|iPad/.test(ua), android=/Android/.test(ua), mac=/Macintosh/.test(ua)&&!ios, safari=/Safari/.test(ua)&&!/Chrome|Chromium|Edg|CriOS|FxiOS/.test(ua);
@@ -2433,7 +2433,10 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
     else if(android) steps='<ol style="margin:0;padding-left:20px"><li>Tap the <b>menu</b> (three dots) in Chrome.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Open Chat from the new gold icon.</li></ol>';
     else if(mac&&safari) steps='<ol style="margin:0;padding-left:20px"><li>In the Safari menu bar choose <b>File</b>, then <b>Add to Dock</b>.</li><li>Open Chat from the Dock.</li></ol>';
     else steps='<ol style="margin:0;padding-left:20px"><li>Click the <b>install</b> icon at the right end of the address bar, or press the button below.</li><li>Chat opens in its own window with its own icon on your dock or taskbar.</li></ol>';
-    if(standalone) steps='<ol style="margin:0;padding-left:20px"><li>You are inside the <b>ATRIUM app window</b>, which cannot install another app.</li><li>Press <b>Copy link</b> below.</li><li>Open <b>Chrome</b> (or Edge), paste the link into the address bar and press Enter.</li><li>Click the <b>Install</b> button at the bottom left of that page, or the install icon at the right end of the address bar.</li></ol>';
+    const win=/Windows/.test(ua), dl=$('#insDl'); let dlName='';
+    if(standalone||(!ios&&!android&&!safari)){ dlName=win?'ATRIUM-Chat.url':'ATRIUM-Chat.webloc' }
+    if(standalone) steps='<ol style="margin:0;padding-left:20px"><li>You are inside the <b>ATRIUM app window</b>, which cannot install another app.</li><li>Press <b>Download Chat shortcut</b> below.</li><li>Open the file it downloads (check your Downloads). It opens the Chat page in your browser.</li><li>Click <b>Install</b> at the bottom left of that page.</li></ol><div style="margin-top:10px;opacity:.7">If the file opens the wrong browser, use Copy link and paste it into Chrome.</div>';
+    if(dl){ dl.style.display=(standalone&&dlName)?'':'none'; dl.onclick=()=>{ const a=document.createElement('a'); a.href='/'+dlName; a.download=dlName; document.body.appendChild(a); a.click(); a.remove() } }
     $('#insSteps').innerHTML=steps; $('#insGo').style.display=deferred?'':'none'; $('#ovInstall').classList.add('on');
   }
   $('#insClose').onclick=()=>$('#ovInstall').classList.remove('on');
