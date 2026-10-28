@@ -994,7 +994,8 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-film-everywhere</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-diag</div>
+  <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
 </div></div>
 
@@ -2537,5 +2538,10 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 })();
 </script>
 <script>(function(){var v=document.getElementById('atBg'); if(!v) return; try{ if(/[?&]embed=1/.test(location.search)||matchMedia('(prefers-reduced-motion: reduce)').matches){ v.removeAttribute('autoplay'); v.pause(); v.style.display='none'; return } v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}) }catch(e){} document.addEventListener('visibilitychange',function(){ if(!document.hidden&&v.paused){ try{ v.play() }catch(e){} } }) })()</script>
+<script>
+/* a one-line readout of what this phone gives the app (Settings, bottom): window, screen, safe areas, app mode. Used to find out why a phone shows a bare strip. */
+(function(){ function f(){ var el=document.getElementById('viewStamp'); if(!el) return; var pr=document.createElement('div'); pr.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.body.appendChild(pr); var cs=getComputedStyle(pr); var st=cs.paddingTop, sb=cs.paddingBottom; pr.remove(); var vv=window.visualViewport; var a=document.getElementById('app'); var ab=a?Math.round(a.getBoundingClientRect().height):0; var sa=(window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches)?'app':'browser'; el.textContent='window '+innerWidth+'x'+innerHeight+' · visual '+(vv?Math.round(vv.height):'-')+' · screen '+screen.width+'x'+screen.height+' · app '+ab+' · safe top '+st+' bottom '+sb+' · '+sa }
+  window.addEventListener('resize',f); setTimeout(f,1200); document.addEventListener('click',function(){ setTimeout(f,400) },true) })()
+</script>
 </body>
 </html>
