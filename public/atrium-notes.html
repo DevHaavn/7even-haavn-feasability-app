@@ -17,6 +17,7 @@ input:focus,select:focus,textarea:focus{border-color:rgba(214,179,106,.7)}
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
 select option{background:#1b1c1f;color:#f3f2ee}
 .mono{font:300 10.5px 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+body.loading #ed,body.loading #items{visibility:hidden}
 #app{height:100dvh;display:grid;grid-template-columns:320px 1fr;padding-top:env(safe-area-inset-top)}
 /* the left bar feels like the ATRIUM chat: the same black marble, drifting very slowly */
 #list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:linear-gradient(180deg,rgba(21,21,21,.86),rgba(21,21,21,.76) 45%,rgba(21,21,21,.86)),url(/atrium-chat-bg/atrium-dark.jpg) 62% 40%/cover;animation:drift 60s ease-in-out infinite alternate}
@@ -105,7 +106,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 @media(prefers-reduced-motion:reduce){#mic.rec{animation:none}}
 </style>
 </head>
-<body>
+<body class="loading">
 <div id="app">
   <aside id="list">
     <div class="hd"><h1><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Notes</span></span></h1><button class="ib gold" id="newBtn" type="button" aria-label="New note"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="ib" id="xBtn" type="button" aria-label="Back to chat" title="Back to chat"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
@@ -314,8 +315,8 @@ $('#lang').innerHTML=LANGS.map(l=>`<option value="${l[0]}">${l[1]}</option>`).jo
 (async function boot(){
   $('#xBtn').style.display=EMB||!/[?&]app=1/.test(location.search)?'':'';
   try{ const [l,o]=await Promise.all([api('noteList'),api('noteOptions')]); notes=l.notes; opts=o; fillMeetings($('#meeting')) }
-  catch(e){ $('#items').innerHTML=`<div class="empty">${esc(e.message)}</div>`; if(e.status===401) return }
-  renderList();
+  catch(e){ document.body.classList.remove('loading'); $('#items').innerHTML=`<div class="empty">${esc(e.message)}</div>`; if(e.status===401) return }
+  renderList(); document.body.classList.remove('loading');
   const mid=Q.get('meeting'); if(mid) await forMeeting(mid); else if(notes.length&&matchMedia('(min-width:761px)').matches) openNote(notes[0]); else openNote(null);
 })();
 })();

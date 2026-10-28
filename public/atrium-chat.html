@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en-AU">
 <head>
-<script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("booting"),setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
-<style>html.booting body>*{visibility:hidden}</style>
+<script>document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
+<style>html.booting{background:#141517}html.booting body>*{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ATRIUM Chat</title>
@@ -1044,7 +1044,7 @@ const SEED={
  muted:{},
  snd:1, red:1, push:0, mail:1, men:1, nid:20, tid:1
 };
-let S; try{ if(EMB){ localStorage.removeItem(KEY) } else S=JSON.parse(localStorage.getItem(KEY)) }catch(e){}   // inside ATRIUM the page never reads cached practice chats
+let S; try{ localStorage.removeItem(KEY) }catch(e){}   // the page never reads cached practice chats, in ATRIUM or in the Chat app: the screen stays blank until the real chat answers
 if(!S||!S.groups) S=JSON.parse(JSON.stringify(SEED));
 S.order=S.order||[]; S.arch=S.arch||{}; S.gone=S.gone||{}; S.icons=S.icons||{}; S.walls=S.walls||{}; S.rx=S.rx||{}; S.pv=S.pv||{}; S.pdef=S.pdef||{}; S.ext=S.ext||[]; S.ext.forEach(x=>{P[x.id]=x});
 S.groups.forEach(g=>{ if(!g.dm&&!g.owner) g.owner=g.m[0] });
@@ -1408,7 +1408,7 @@ function renderList(){
   const at=$('#archT'); if(at) at.onclick=()=>{showArch=!showArch;renderList()};
   const tu=totalUnread(); [$('#bChat'),$('#bChat2')].forEach(b=>{b.hidden=!tu;b.textContent=tu});
   const ot=openTasks(); [$('#bTask'),$('#bTask2')].forEach(b=>{b.hidden=!ot;b.textContent=ot});
-  document.title=(tu?`(${tu}) `:'')+'ATRIUM Chat';
+  document.title=(tu&&(REAL||!document.documentElement.classList.contains('booting'))?`(${tu}) `:'')+'ATRIUM Chat';
   if(EMB&&(REAL||!document.documentElement.classList.contains('booting'))) try{parent.postMessage({atriumChat:'count',n:REAL?tu:0,t:REAL?ot:0},'*')}catch(e){}
   $('#meAv').outerHTML=av(me(),'',34).replace('<span ','<span id="meAv" ');
   $('#sndBtn').classList.toggle('off',!S.snd);
@@ -2395,7 +2395,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
   function openNotes(meetingId){
     nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=4'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=5'; nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
