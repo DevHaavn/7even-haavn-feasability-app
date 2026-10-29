@@ -2,7 +2,13 @@
 <html lang="en-AU">
 <head>
 <script>document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
-<script>try{ if(localStorage.getItem('atrium-chat-tall')==='1'&&!/[?&]embed=1/.test(location.search)){ var d=document.documentElement; d.style.setProperty('--sh',screen.height+'px'); d.classList.add('tallfix') } }catch(e){}</script>
+<script>
+/* iPhone home-screen app: iOS can hand the page a window shorter than the screen (the top safe area is taken off the bottom). Detected here, the page is made as tall as the screen. The switch in Settings can force it on or off. */
+try{ var d=document.documentElement, sv=null; try{ sv=localStorage.getItem('atrium-chat-tall') }catch(e){}
+  if(!/[?&]embed=1/.test(location.search)&&sv!=='0'){ var on=sv==='1';
+    if(!on&&(window.navigator.standalone===true||matchMedia('(display-mode: standalone)').matches)&&innerWidth<761&&innerHeight>innerWidth){ var pr=document.createElement('div'); pr.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px)'; d.appendChild(pr); var st=parseFloat(getComputedStyle(pr).paddingTop)||0; pr.remove(); if(st>0&&Math.abs(screen.height-innerHeight-st)<=6) on=true }
+    if(on){ d.style.setProperty('--sh',screen.height+'px'); d.classList.add('tallfix') } } }catch(e){}
+</script>
 <style>html.booting{background:#141517}html.booting body>*{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -794,6 +800,12 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
  html.tallfix{height:var(--sh)!important;min-height:var(--sh)!important}
  html.tallfix body{position:absolute;top:0;left:0;right:0;width:100%;height:var(--sh)!important;min-height:var(--sh)!important;overflow:hidden;transform:translateZ(0)}
 }
+#camBtn,#camSep{display:none}
+@media(max-width:760px){#camBtn{display:grid}#camSep{display:block}}
+#camBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#camPrev{display:block;width:100%;max-height:30dvh;object-fit:contain;border-radius:18px;background:rgba(0,0,0,.25);margin:4px 0 12px}
+#camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
+#camList .g{width:100%}
 </style>
 </head>
 <body>
@@ -815,6 +827,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
     <header>
       <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
       <div class="cap2">
+      <button class="ib" id="camBtn" title="Take a photo" aria-label="Take a photo"><svg viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.2-1.8A1 1 0 0 1 9.7 4.7h4.6a1 1 0 0 1 .8.5L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg></button><i id="camSep"></i>
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
       <button class="ib" id="popBtn" title="Open Chat in its own window" aria-label="Open Chat in its own window" style="display:none"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
@@ -986,6 +999,15 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
 <div id="amenu"></div>
 <div class="ddp" id="gIconP" hidden></div><div class="ddp" id="gWallP" hidden></div>
 <div id="menu"></div>
+<div class="ov" id="ovCam"><div class="sheet">
+  <h3>Send this photo</h3><div class="lead">Pick the chat or person to send it to.</div>
+  <img id="camPrev" alt="">
+  <div class="f"><input id="camCap" placeholder="Add a caption (optional)" autocomplete="off"></div>
+  <div class="f"><input id="camFind" placeholder="Search chats and people" autocomplete="off"></div>
+  <div id="camList"></div>
+  <div class="row"><button class="cb" id="camRetake" type="button">Retake</button><button class="cb go" id="camCancel" type="button">Cancel</button></div>
+</div></div>
+<input type="file" id="camIn" accept="image/*" capture="environment" hidden>
 <div class="ov" id="ovSet"><div class="sheet">
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
   <div class="mypic"><span id="myPic"></span><div class="tx"><b>Your picture</b><span>Shown beside your messages and on your direct chats</span></div><div class="btns"><button class="cb" id="picChoose" type="button">Choose</button><button class="cb" id="picRemove" type="button">Remove</button></div></div><input type="file" id="picFile" accept="image/*" hidden>
@@ -1000,7 +1022,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-fullscreen-test</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-camera</div>
   <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div style="padding:8px 0 0"><button class="cb" id="tallBtn" type="button">Try full-screen fix: off</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
@@ -2385,6 +2407,23 @@ function openVotes(mid){
   $('#vtB').innerHTML=d.opts.map((o,i)=>{ const who=Object.entries(v).filter(([u,c])=>c.includes(i)).map(x=>x[0]);
     return `<div class="vrow"><h5>${esc(o)}<span>${who.length}</span></h5>${who.length?who.map(u=>`<div class="mem">${av(P[u]||{n:'?',c:0})}<div class="d">${esc(P[u]?P[u].n:'Someone')}${u===S.me?' <span style="display:inline;color:var(--gold)">· you</span>':''}</div></div>`).join(''):'<div class="none">No votes</div>'}</div>` }).join('');
   $('#ovVotes').classList.add('on') }
+/* Camera: a button beside the plus on a phone. Take a photo, then pick the chat or person to send it to. */
+{ var camB=document.getElementById('camBtn'), camI=document.getElementById('camIn'); if(camB&&camI){
+  var camOv=document.getElementById('ovCam'), camPrev=document.getElementById('camPrev'), camCap=document.getElementById('camCap'), camFind=document.getElementById('camFind'), camList=document.getElementById('camList'), camFile=null, camUrl=null;
+  function camShrink(f){ return new Promise(function(res){ try{ var im=new Image(), u=URL.createObjectURL(f); im.onload=function(){ var k=Math.min(1,2000/Math.max(im.naturalWidth,im.naturalHeight)), c=document.createElement('canvas'); c.width=Math.round(im.naturalWidth*k); c.height=Math.round(im.naturalHeight*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u); c.toBlob(function(b){ if(!b) return res(f); var d=new Date(), n='Photo '+d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)+' '+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2)+'.jpg'; res(new File([b],n,{type:'image/jpeg'})) },'image/jpeg',.84) }; im.onerror=function(){ URL.revokeObjectURL(u); res(f) }; im.src=u }catch(e){ res(f) } }) }
+  function camPaint(){ var q=(camFind.value||'').trim().toLowerCase(), gs=[]; try{ gs=active() }catch(e){} gs=gs.filter(function(g){ return !q||gname(g).toLowerCase().indexOf(q)>=0 });
+    camList.innerHTML=gs.length?gs.map(function(g){ return '<button class="g" type="button" data-cg="'+g.id+'">'+gIcon(g,40)+'<span class="gt"><span class="n"><b>'+esc(gname(g))+'</b></span></span><span class="m"><span>Send</span></span></button>' }).join(''):'<div class="empty">No chats match.</div>' }
+  function camClose(){ camOv.classList.remove('on'); if(camUrl){ URL.revokeObjectURL(camUrl); camUrl=null } camFile=null; camPrev.removeAttribute('src') }
+  camB.onclick=function(){ camI.click() };
+  camI.onchange=async function(){ var f=camI.files&&camI.files[0]; camI.value=''; if(!f) return; camFile=await camShrink(f); camUrl=URL.createObjectURL(camFile); camPrev.src=camUrl; camCap.value=''; camFind.value=''; camPaint(); camOv.classList.add('on') };
+  camFind.oninput=camPaint;
+  document.getElementById('camCancel').onclick=camClose;
+  document.getElementById('camRetake').onclick=function(){ camClose(); setTimeout(function(){ camI.click() },80) };
+  camList.addEventListener('click',async function(e){ var b=e.target.closest('[data-cg]'); if(!b||!camFile) return; var gid=b.dataset.cg, f=camFile, x=(camCap.value||'').trim(); camClose();
+    if(!REAL){ flash('This is practice data. Sign in with Microsoft to send photos.'); return }
+    var o=await toFile(f), pm={id:-(++pseq),g:gid,u:S.me,t:Date.now(),x:x,pending:1,_files:[o]}; pm.files=[{name:o.name,type:o.type,size:o.size,url:o.url}];
+    S.msgs.push(pm); open(gid); paintAll(pm.id); sendNow(pm) })
+} }
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
