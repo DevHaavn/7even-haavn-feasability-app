@@ -1,7 +1,7 @@
 {
   "redirects": [
     {
-      "source": "/((?!(?:atrium-chat\\.html|atrium-notes\\.html|atrium-chat-assets\\.js|atrium-scheme\\.js|atrium-push-sw\\.js|atrium-speech/.*|atrium-chat-bg/.*|chat\\.webm|chat\\.webmanifest|haavn-black-bg\\.mp4|haavn-black-bg-poster\\.jpg|icons/.*|api/chat.*|api/auth/.*|favicon\\.ico)$).*)",
+      "source": "/((?!(?:atrium-chat\\.html|atrium-notes\\.html|atrium-chat-[a-z0-9-]+\\.(?:js|css)|atrium-live-[a-z0-9-]+\\.js|atrium-scheme\\.js|atrium-push-sw\\.js|atrium-speech/.*|atrium-chat-bg/.*|chat\\.webm|chat\\.webmanifest|haavn-black-bg\\.mp4|haavn-black-bg-poster\\.jpg|icons/.*|api/chat.*|api/auth/.*|favicon\\.ico)$).*)",
       "has": [
         {
           "type": "host",
