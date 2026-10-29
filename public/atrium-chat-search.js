@@ -62,7 +62,6 @@ var snd=$('#sndBtn'); if(snd&&snd.parentNode) snd.parentNode.insertBefore(hb,snd
 hb.addEventListener('click',function(){ open?hide():show() });
 D.addEventListener('keydown',function(e){
   var k=e.key, t=e.target, typing=t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable);
-  if((e.metaKey||e.ctrlKey)&&(k==='k'||k==='K')&&!e.shiftKey&&!e.altKey){ e.preventDefault(); show(); return }
   if(k==='/'&&!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&!D.querySelector('.ov.on')){ e.preventDefault(); show() } });
 /* under the chat list search: once two letters are typed, a row that carries the words to everything else */
 var glist=$('#groups'), srcIn=$('#search');

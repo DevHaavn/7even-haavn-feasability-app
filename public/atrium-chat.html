@@ -899,7 +899,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
 </style>
-<link rel="stylesheet" href="/atrium-chat-next.css?v=11">
+<link rel="stylesheet" href="/atrium-chat-next.css?v=12">
 </head>
 <body>
 <video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
@@ -2583,7 +2583,7 @@ window.AtriumChat={ api:api, flash:flash, open:function(id){ open(id) }, real:fu
   hasGroup:function(id){ return S.groups.some(function(g){ return g.id===id }) },
   localTasks:function(){ return S.msgs.filter(function(m){ return m.task }).map(function(m){ var g=S.groups.find(function(x){ return x.id===m.g }); return {mid:m.id,gid:m.g,g:g?gname(g):'',title:m.task.title,own:m.task.own,by:m.u,due:m.task.due||'',pri:m.task.pri||'Normal',proj:m.task.proj||'No project',done:!!m.task.done,wf:!!m.task.wf,ag:!!m.task.ag,t:m.t||0} }) },
   msg:function(id){ return S.msgs.find(function(x){ return x.id==id }) }, msgsIn:function(gid){ return S.msgs.filter(function(x){ return x.g===gid&&!x.sys }) }, cur:function(){ return cur }, group:function(id){ return S.groups.find(function(g){ return g.id===id }) }, activeGroups:function(){ return active() }, gname:function(g){ return gname(g) },
-  repaint:function(){ save(); paintAll() }, mop:applyMop, cal:function(){ loadCal(false); return CAL }, unread:function(g){ return unread(g) }, mentioned:function(g){ return mentioned(g) }, ingest:function(list){ var n=0; (list||[]).forEach(function(m){ if(routeStyle(m)) return; if(S.msgs.some(function(x){ return x.id===m.id })) return; S.msgs.push(m); n++ }); if(n) paintAll(); return n }, addLocal:function(m){ m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); save(); return m },
+  repaint:function(){ save(); paintAll() }, mop:applyMop, cal:function(){ loadCal(false); return CAL }, taskDialog:function(t){ taskDlg(t) }, meetSheet:function(pre){ openMeetSheet(pre||[]) }, unread:function(g){ return unread(g) }, mentioned:function(g){ return mentioned(g) }, ingest:function(list){ var n=0; (list||[]).forEach(function(m){ if(routeStyle(m)) return; if(S.msgs.some(function(x){ return x.id===m.id })) return; S.msgs.push(m); n++ }); if(n) paintAll(); return n }, addLocal:function(m){ m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); save(); return m },
   tick:async function(mid,done){ var m=S.msgs.find(function(x){ return x.id==mid }), was=m&&m.task?m.task.done:null; if(m&&m.task){ m.task.done=done; save(); paintAll() }
     try{ if(window.AtriumChat.real()) await window.AtriumChat.api('taskDone',{mid:mid,done:done}) }catch(er){ if(m&&m.task){ m.task.done=was; save(); paintAll() } throw er } } };
 syncSend(); paintAll(); setView(); bootReal();
@@ -2766,5 +2766,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 <script src="/atrium-chat-room.js?v=1"></script>
 <script src="/atrium-chat-morning.js?v=1"></script>
 <script src="/atrium-chat-project.js?v=1"></script>
+<script src="/atrium-chat-findtime.js?v=1"></script>
 </body>
 </html>

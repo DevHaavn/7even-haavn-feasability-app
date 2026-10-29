@@ -247,3 +247,9 @@ html[data-scheme=light] #nxProj .nxk{color:#8a6420}
  body.nx-proj #nxPinBar{top:calc(60px + var(--sat) + 46px)}
  body.nx-proj.nx-pin #msgs{padding-top:calc(72px + var(--sat) + 90px)}
 }
+
+/* ---------- Find a time ---------- */
+.nx-ftslot{display:block;width:100%;text-align:left;padding:11px 4px;background:none;border:0;border-top:1px solid var(--line);color:var(--bone);font:inherit;font-size:15px;cursor:pointer}
+.nx-ftslot:hover{color:var(--gold)}
+#nxFT .nx-chips{margin:8px -14px 6px;flex-wrap:wrap;overflow:visible;gap:6px}
+.nx-ft{margin-top:20px;display:inline-flex;width:auto;align-self:flex-start}
