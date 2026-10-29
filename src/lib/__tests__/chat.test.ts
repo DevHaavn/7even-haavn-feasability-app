@@ -12,12 +12,12 @@ const me = (sub: string, name: string) => ({ sub, name, role: 'staff', emails: [
 const jamie = me('jb', 'Jamie Baldwin'), daniel = me('ds', 'Daniel Sette'), lewis = me('lj', 'Lewis Jin')
 
 function fake() {
-  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], seq: 0, gseq: 0 }
+  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], rem: [] as any[], seq: 0, gseq: 0, noCols: false }
   const store = {
     async memberRowsFor(m: string) { return t.members.filter((r) => r.member === m).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
     async membersByGroups(ids: string[]) { return t.members.filter((r) => ids.includes(r.group_id)).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
-    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall', 'avatar'].includes(m.kind))) },
+    async messagesFor(ids: string[], o: any) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.id > (o.after || 0) && (o.after || !['icon', 'wall', 'avatar', 'mop'].includes(m.kind))) },
     async latestPollUp(mid: number) { return t.msgs.filter((m) => m.kind === 'pollup' && m.task && m.task.poll === Number(mid)).sort((x, y) => y.id - x.id)[0] || null },
     async latestStyle(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && ['icon', 'wall'].includes(m.kind)).sort((x, y) => y.id - x.id) },
     async updateGroup(id: string, p: any) { Object.assign(t.groups.find((g) => g.id === id), p) },
@@ -25,7 +25,16 @@ function fake() {
     async insertMembers(rows: any[]) { const keys = (r: any) => Object.keys(r).sort().join(','); if (rows.some((r) => keys(r) !== keys(rows[0]))) throw new Error('db 400 PGRST102: All object keys must match'); rows.forEach((r) => { if (!t.members.some((x) => x.group_id === r.group_id && x.member === r.member)) t.members.push({ last_read: 0, muted: false, archived: false, hidden: false, ...r }) }) },
     async updateMember(g: string, m: string, p: any) { Object.assign(t.members.find((x) => x.group_id === g && x.member === m), p) },
     async deleteMember(g: string, m: string) { t.members = t.members.filter((x) => !(x.group_id === g && x.member === m)) },
-    async insertMessage(m: any) { const r = { id: ++t.seq, created_at: new Date().toISOString(), ...m }; t.msgs.push(r); return r },
+    async insertMessage(m: any) { if (t.noCols && ('reply_to' in m || 'fwd_from' in m)) throw Object.assign(new Error('db 400 PGRST204'), { status: 400, code: 'PGRST204' }); const r = { id: ++t.seq, created_at: new Date().toISOString(), ...m }; t.msgs.push(r); return r },
+    async getMessages(ids: number[]) { return t.msgs.filter((m) => ids.includes(m.id)) },
+    async pinsFor(g: string) { if (t.noCols) throw Object.assign(new Error('db 400 42703'), { status: 400, code: '42703' }); return t.msgs.filter((m) => m.group_id === g && m.pinned_at).sort((x, y) => String(y.pinned_at).localeCompare(String(x.pinned_at))) },
+    async addReminder(r: any) { t.rem.push({ id: t.rem.length + 1, sent_at: null, ...r }) },
+    async cancelReminder(p: string, mid: number) { t.rem = t.rem.filter((r) => !(r.person_id === p && r.message_id === Number(mid) && !r.sent_at)) },
+    async remindersFor(p: string) { return t.rem.filter((r) => r.person_id === p && !r.sent_at) },
+    async dueReminders(nowIso: string) { return t.rem.filter((r) => !r.sent_at && r.remind_at <= nowIso) },
+    async markReminderSent(id: number) { t.rem.find((r) => r.id === id).sent_at = new Date().toISOString() },
+    async pushSubsFor() { return [{ endpoint: 'e1', p256dh: 'p', auth: 'a' }] },
+    async deletePush() {},
     async getMessage(id: number) { return t.msgs.find((m) => m.id === Number(id)) || null },
     async deleteMessage(id: number) { t.msgs = t.msgs.filter((m) => m.id !== Number(id)) },
     async updateMessage(id: number, p: any) { Object.assign(t.msgs.find((m) => m.id === Number(id)), p) },
@@ -39,7 +48,8 @@ function fake() {
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
   }
   const objs: any[] = []
-  const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
+  const removed: string[] = []
+  const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { removed.push(...ps); ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
   const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_') || k === 'atrium_outside_people') { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
@@ -51,7 +61,7 @@ function fake() {
   const sentMail: any[] = []
   const mail: any = { configured: true, sent: sentMail, fail: false, async send(m: any) { if (mail.fail) throw new Error('Email refused'); sentMail.push(m); return { ok: true } } }
   const speech: any = { configured: true, fail: false, async token() { if (speech.fail) throw Object.assign(new Error('refused'), { status: speech.fail === true ? undefined : speech.fail }); return { token: 'tok123', region: 'australiaeast' } } }
-  return { t, objs, deps: { store, files, kv, cal, speech, mail, site: 'https://atrium.example' }, db, cal, speech, mail }
+  return { t, objs, removed, deps: { store, files, kv, cal, speech, mail, site: 'https://atrium.example' }, db, cal, speech, mail }
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
@@ -845,3 +855,73 @@ describe('My Tasks, quick add and search', () => {
     expect((await run('search', { q: 'x' })).results).toEqual([])
   })
 })
+
+describe('message operations', () => {
+  const R = require('../../../api/_utils/chatReminders.js')
+  async function chat() { const { gid } = await run('newGroup', { name: 'Belmont', ids: ['ds'] }); return gid }
+  it('edit: only your own text, tells everyone through a mop row, and a first load carries the edit', async () => {
+    const gid = await chat(); const { msg } = await run('send', { gid, body: 'Meet at nine' })
+    await expect(run('editMessage', { mid: msg.id, body: 'x' }, daniel)).rejects.toThrow(/own messages/)
+    const r = await run('editMessage', { mid: msg.id, body: 'Meet at ten' }); expect(r.msg.x).toBe('Meet at ten'); expect(r.msg.ed).toBeGreaterThan(0)
+    const poll = await run('poll', { since: msg.id, v: 2 }, daniel)
+    expect(poll.msgs.find((m: any) => m.k === 'mop')).toMatchObject({ mid: msg.id, op: 'edit', x: 'Meet at ten' })
+    const first = await run('init', { v: 2 }, daniel)
+    expect(first.msgs.find((m: any) => m.id === msg.id)).toMatchObject({ x: 'Meet at ten' }); expect(first.msgs.find((m: any) => m.id === msg.id).ed).toBeGreaterThan(0)
+    expect(first.msgs.some((m: any) => m.k === 'mop')).toBe(false)
+    await expect(run('editMessage', { mid: msg.id, body: '  ' })).rejects.toThrow(/empty/)
+  })
+  it('delete for everyone: the sender or the chat owner, words and own files cleared, forwarded files kept', async () => {
+    const gid = await chat()
+    const { msg } = await run('send', { gid, body: 'secret', files: [{ name: 'a.pdf', type: 'application/pdf', size: 1, path: gid + '/a.pdf' }] })
+    await expect(run('deleteMessage', { mid: msg.id }, daniel)).rejects.toThrow(/sender or the chat owner/)
+    await run('deleteMessage', { mid: msg.id }, boss2())
+    const seen = (await run('init', { v: 2 }, daniel)).msgs.find((m: any) => m.id === msg.id)
+    expect(seen).toMatchObject({ del: 1, x: '' }); expect(seen.files).toBeUndefined()
+    expect(F.removed).toEqual([gid + '/a.pdf'])
+    await expect(run('editMessage', { mid: msg.id, body: 'y' })).rejects.toThrow(/cannot be edited/)
+  })
+  it('pin and unpin: any member, listed newest first, and gone when deleted', async () => {
+    const gid = await chat(); const a = (await run('send', { gid, body: 'one' })).msg, b = (await run('send', { gid, body: 'two' })).msg
+    await run('pinMessage', { mid: a.id, pinned: true }, daniel); await new Promise((r) => setTimeout(r, 3)); await run('pinMessage', { mid: b.id })
+    expect((await run('pins', { gid }, daniel)).pins.map((m: any) => m.x)).toEqual(['two', 'one'])
+    await run('pinMessage', { mid: a.id, pinned: false }); await run('deleteMessage', { mid: b.id })
+    expect((await run('pins', { gid })).pins).toEqual([])
+  })
+  it('quoted reply: the quote travels with the reply, and a reply to another chat is refused', async () => {
+    const gid = await chat(); const other = await run('newGroup', { name: 'Other', ids: ['lj'] })
+    const q = (await run('send', { gid, body: 'Where are the plans for the car park?' })).msg
+    const r = (await run('send', { gid, body: 'On SharePoint', reply_to: q.id }, daniel)).msg
+    expect(r.rt).toBe(q.id); expect(r.rq).toMatchObject({ u: 'jb', x: 'Where are the plans for the car park?' })
+    expect((await run('init', { v: 2 })).msgs.find((m: any) => m.id === r.id).rq.x).toMatch(/^Where are the plans/)
+    await expect(run('send', { gid: other.gid, body: 'x', reply_to: q.id })).rejects.toThrow(/not in this chat/)
+  })
+  it('forward: a marked copy in each chat you are in, others reported', async () => {
+    const gid = await chat(); const two = await run('newGroup', { name: 'Two', ids: ['lj'] }); const theirs = await run('newGroup', { name: 'Theirs', ids: ['jw'] }, daniel)
+    const m = (await run('send', { gid, body: 'Plans attached' })).msg
+    const r = await run('forwardMessage', { mid: m.id, gids: [two.gid, theirs.gid] })
+    expect(r.done.map((d: any) => d.gid)).toEqual([two.gid]); expect(r.skipped.map((d: any) => d.gid)).toEqual([theirs.gid])
+    const copy = (await run('init', { v: 2 })).msgs.find((x: any) => x.g === two.gid && x.fw)
+    expect(copy).toMatchObject({ x: 'Plans attached', fw: { gn: 'Belmont', u: 'jb', mid: m.id } })
+  })
+  it('remind me: a time in the future, one per message, cancel, and the cron sends it once', async () => {
+    const gid = await chat(); const m = (await run('send', { gid, body: 'Call the council' })).msg
+    await expect(run('remindMe', { mid: m.id, when: Date.now() - 1000 })).rejects.toThrow(/future/)
+    await run('remindMe', { mid: m.id, when: Date.now() + 120000 }); await run('remindMe', { mid: m.id, when: Date.now() + 240000 })
+    expect((await run('myReminders', {})).reminders).toHaveLength(1)
+    const sent: string[] = []; const wp = { send: async (_s: any, d: string) => { sent.push(JSON.parse(d).body) } }
+    expect(await R.sendDue(F.deps.store, wp, Date.now())).toBe(0)
+    expect(await R.sendDue(F.deps.store, wp, Date.now() + 300000)).toBe(1); expect(sent).toEqual(['Call the council'])
+    expect(await R.sendDue(F.deps.store, wp, Date.now() + 400000)).toBe(0)
+    await run('remindMe', { mid: m.id, when: Date.now() + 120000 }); await run('remindMe', { mid: m.id, cancel: true })
+    expect((await run('myReminders', {})).reminders).toEqual([])
+  })
+  it('until the SQL is run only these operations say so, ordinary chat is untouched', async () => {
+    const gid = await chat(); const m = (await run('send', { gid, body: 'hello' })).msg
+    F.t.noCols = true
+    expect((await run('send', { gid, body: 'still works' })).msg.x).toBe('still works')
+    await expect(run('send', { gid, body: 'q', reply_to: m.id })).rejects.toThrow(/run supabase\/2026-10-29/)
+    await expect(run('pins', { gid })).rejects.toThrow(/run supabase/)
+    expect((await run('init', { v: 2 })).groups).toHaveLength(1)
+  })
+})
+function boss2() { return { sub: 'jb', name: 'Jamie Baldwin', role: 'staff', emails: ['jamie@7even.au'] } }

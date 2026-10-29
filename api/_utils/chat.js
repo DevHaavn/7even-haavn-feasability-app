@@ -26,19 +26,31 @@ function person(id) {
 }
 // Rows that are not messages: a reaction, a chat icon, one person's wallpaper. They live in the same table (no schema change needed) and travel in the same
 // stream, so a poll brings them to everyone; the screen folds them into the chat and never lists them as messages.
-const STYLE_KINDS = ['react', 'icon', 'wall', 'avatar', 'vote', 'pollup']
+const STYLE_KINDS = ['react', 'icon', 'wall', 'avatar', 'vote', 'pollup', 'mop']
 function shapeMsg(m) {
   const base = { id: m.id, g: m.group_id, u: m.sender, t: Date.parse(m.created_at) }
   if (m.kind === 'react') return { ...base, k: 'react', re: Number(m.task && m.task.re) || 0, e: m.body || '', on: !(m.task && m.task.on === false) }
   if (m.kind === 'icon') return { ...base, k: 'icon', icon: (m.task && m.task.icon) || null }
   if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
   if (m.kind === 'avatar') return { ...base, k: 'avatar' }
+  // an edit, a delete or a pin, as it happens: the screen applies it to the message it names (the message row itself holds the same state for a first load)
+  if (m.kind === 'mop') return { ...base, k: 'mop', mid: Number(m.task && m.task.mid) || 0, op: (m.task && m.task.op) || '', ...(m.task && m.task.op === 'edit' ? { x: m.task.body || '', ed: base.t } : {}) }
+  if (m.deleted_at) return { ...base, x: '', sys: 0, del: 1 }
   if (m.kind === 'poll') return { ...base, x: m.body || '', sys: 0, poll: (m.task && m.task.poll) || { opts: [], multi: false } }
   if (m.kind === 'vote') return { ...base, k: 'vote', pm: Number(m.task && m.task.poll) || 0, c: Array.isArray(m.task && m.task.c) ? m.task.c : [] }
   if (m.kind === 'pollup') return { ...base, k: 'pollup', pm: Number(m.task && m.task.poll) || 0, def: (m.task && m.task.def) || null }
   if (m.kind === 'meeting') return { ...base, x: m.body || '', sys: 0, mt: (m.task && m.task.meeting) || undefined }
   if (m.kind === 'wfupdate') return { ...base, x: m.body || '', sys: 0, wf: (m.task && m.task.ref) || undefined, files: (m.files && m.files.length) ? m.files : undefined }
-  return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined }
+  return { ...base, x: m.body || '', sys: m.kind === 'system' ? 1 : 0, task: m.task || undefined, files: (m.files && m.files.length) ? m.files : undefined, ...opsFields(m) }
+}
+// What the message operations add to a message: edited (ed, ms), pinned (pin, ms, and pb who), a quoted reply (rt, the id it answers) and forwarded (fw).
+function opsFields(m) {
+  const o = {}
+  if (m.edited_at) o.ed = Date.parse(m.edited_at)
+  if (m.pinned_at) { o.pin = Date.parse(m.pinned_at); o.pb = m.pinned_by || '' }
+  if (m.reply_to) o.rt = Number(m.reply_to)
+  if (m.fwd_from) o.fw = m.fwd_from
+  return o
 }
 
 // What a chat icon, a wallpaper and a reaction may hold. Checked here, so nothing odd is ever stored.
@@ -115,6 +127,7 @@ async function snapshot(store, files, me, after, clientV) {
       if (r.kind === 'wall' && r.sender === me.sub && !out.style.walls[r.group_id] && r.task && r.task.wall) out.style.walls[r.group_id] = r.task.wall
     }
   }
+  await addQuotes(store, list)
   const paths = []
   list.forEach((m) => (m.files || []).forEach((f) => { if (f.path) paths.push(f.path) }))
   if (paths.length) {
@@ -341,7 +354,14 @@ async function send(store, kv, me, a, wp) {
     if (!rows.some((r) => r.member === a.task.own) && !byId(a.task.own)) throw new ChatError('The owner must be someone on the team.')
     task = await filterTask(kv, me, a.task, body)
   }
-  const row = await store.insertMessage({ group_id: a.gid, sender: me.sub, kind: task ? 'task' : wf ? 'wfupdate' : 'text', body, task: task || (wf ? { ref: wf } : null), files })
+  // a quoted reply: the message must be in this chat. The column is only written when there is one, so ordinary messages never depend on the new SQL.
+  let quote = null
+  if (a.reply_to) {
+    const q = await store.getMessage(a.reply_to)
+    if (!q || q.group_id !== a.gid || q.kind === 'mop' || STYLE_KINDS.includes(q.kind)) throw new ChatError('The message you are replying to is not in this chat.')
+    quote = q
+  }
+  const row = await opsWrite(() => store.insertMessage({ group_id: a.gid, sender: me.sub, kind: task ? 'task' : wf ? 'wfupdate' : 'text', body, task: task || (wf ? { ref: wf } : null), files, ...(quote ? { reply_to: quote.id } : {}) }))
   if (wf && body.trim() && kv) { try { await kv.update(B.KEYS.workflow, (ws) => B.addComment(ws, { id: wf.id, text: body.trim().slice(0, 2000) }, `${me.name} (chat)`)) } catch { /* the message is sent; the task note is best effort */ } }
   await store.updateMember(a.gid, me.sub, { last_read: row.id })
   await bringBackDm(store, rows, a.gid, me)
@@ -353,7 +373,7 @@ async function send(store, kv, me, a, wp) {
     const others = rows.filter((r) => r.member !== me.sub)
     if (group && others.length) await P.notify({ store, sender: me, msg: row, group, memberRows: others, groupName: group.name }, wp)
   } catch { /* ignore */ }
-  return { msg: shapeMsg(row) }
+  return { msg: { ...shapeMsg(row), ...(quote ? { rq: quoteOf(quote) } : {}) } }
 }
 
 // ---------- meetings from a chat: the CRM owns meetings (they live in Meeting Management); a chat is just another front door, like it is for tasks ----------
@@ -613,12 +633,12 @@ async function search(store, kv, files, me, a) {
     const rows = await store.searchMessages(ids, q.replace(/[,()*%\\]/g, ' '), SEARCH_MAX)
     const withFiles = await store.recentWithFiles(ids, 400)
     const seen = new Set()
-    for (const m of rows) {
+    for (const m of rows.filter((x) => !x.deleted_at)) {
       seen.add(m.id)
       const isTask = m.kind === 'task' && m.task
       out.push({ kind: isTask ? 'task' : 'message', gid: m.group_id, g: gname[m.group_id], mid: m.id, title: isTask ? (m.task.title || '') : '', snip: snippet(isTask && has(m.task.title) ? m.task.title : m.body, q), u: m.sender, t: Date.parse(m.created_at) })
     }
-    for (const m of withFiles) for (const f of (m.files || [])) if (has(f.name)) out.push({ kind: 'file', gid: m.group_id, g: gname[m.group_id], mid: m.id, title: f.name, snip: f.name, u: m.sender, t: Date.parse(m.created_at), path: f.path })
+    for (const m of withFiles.filter((x) => !x.deleted_at)) for (const f of (m.files || [])) if (has(f.name)) out.push({ kind: 'file', gid: m.group_id, g: gname[m.group_id], mid: m.id, title: f.name, snip: f.name, u: m.sender, t: Date.parse(m.created_at), path: f.path })
   }
   try {
     const { notes } = await N.list(store, me)
@@ -641,6 +661,121 @@ async function search(store, kv, files, me, a) {
   const paths = page.filter((x) => x.kind === 'file' && x.path).map((x) => x.path)
   if (paths.length && files) { try { const urls = await files.signDownloads(paths); page.forEach((x) => { if (x.path && urls[x.path]) x.url = urls[x.path] }) } catch { /* the row still opens its chat */ } }
   return { results: page, next: off + lim < out.length ? off + lim : null, total: out.length }
+}
+
+// ---------- message operations: edit, delete for everyone, forward, pin, quoted reply, remind me ----------
+// State lives in real columns on chat_messages (supabase/2026-10-29_chat_message_ops.sql). Each change also drops a tiny 'mop' row in the same table, so
+// everyone's next poll hears about it (the screen applies it to the message it names). Until that SQL has been run, only these operations say so; the rest of Chat is untouched.
+const SQL_NEEDED = 'Message editing, pins, forwarding, replies and reminders need one database update first. Ask Jamie to run supabase/2026-10-29_chat_message_ops.sql in Supabase.'
+const needsSql = (e) => !!e && (e.code === 'PGRST204' || e.code === '42703' || e.code === 'PGRST205' || e.code === '42P01')
+async function opsWrite(fn) { try { return await fn() } catch (e) { if (needsSql(e)) throw new ChatError(SQL_NEEDED, 503); throw e } }
+const quoteOf = (m) => ({ u: m.sender, x: m.deleted_at ? '' : String(m.body || '').replace(/\s+/g, ' ').trim().slice(0, 140), ...(m.deleted_at ? { del: 1 } : {}) })
+// A reply names the message it answers; hand the screen a short quote of it too, found in the list or fetched.
+async function addQuotes(store, list) {
+  const want = [...new Set(list.map((m) => m.rt).filter(Boolean))]
+  if (!want.length || !store.getMessages) return
+  const have = new Map(list.map((m) => [m.id, m]))
+  const missing = want.filter((id) => !have.has(id))
+  let more = []
+  if (missing.length) { try { more = await store.getMessages(missing) } catch { more = [] } }
+  const by = new Map(more.map((r) => [r.id, r]))
+  for (const m of list) {
+    if (!m.rt) continue
+    const o = have.get(m.rt), r = by.get(m.rt)
+    if (o) m.rq = { u: o.u, x: o.del ? '' : String(o.x || '').replace(/\s+/g, ' ').trim().slice(0, 140), ...(o.del ? { del: 1 } : {}) }
+    else if (r) m.rq = quoteOf(r)
+  }
+}
+const mop = (store, gid, me, op, mid, extra) => store.insertMessage({ group_id: gid, sender: me.sub, kind: 'mop', body: '', task: { mid, op, ...(extra || {}) }, files: [] })
+async function ownMessage(store, me, mid) {
+  const m = await store.getMessage(mid)
+  if (!m || m.kind === 'mop' || STYLE_KINDS.includes(m.kind)) throw new ChatError('No such message.', 404)
+  const { rows } = await mustBeMember(store, m.group_id, me)
+  return { m, rows }
+}
+
+// editMessage { mid, body } -> { ok, msg }   your own text messages only
+async function editMessage(store, me, a) {
+  const { m } = await ownMessage(store, me, a.mid)
+  if (m.sender !== me.sub) throw new ChatError('You can only edit your own messages.', 403)
+  if (m.kind !== 'text' || m.deleted_at) throw new ChatError('That message cannot be edited.')
+  const body = String(a.body || '').slice(0, MAX_BODY)
+  if (!body.trim()) throw new ChatError('A message cannot be empty. Delete it instead.')
+  if (body === m.body) return { ok: true, msg: shapeMsg(m) }
+  const at = new Date().toISOString()
+  await opsWrite(async () => { await store.updateMessage(m.id, { body, edited_at: at }); await mop(store, m.group_id, me, 'edit', m.id, { body }) })
+  return { ok: true, msg: shapeMsg({ ...m, body, edited_at: at }) }
+}
+
+// deleteMessage { mid } -> { ok }   delete for everyone: yours, or any message in a chat you own. The words and this chat's own files are cleared; a grey "deleted" note stays.
+async function deleteMessage(store, files, me, a) {
+  const { m, rows } = await ownMessage(store, me, a.mid)
+  const g = (await store.groupsByIds([m.group_id]))[0]
+  const owner = g && g.owner === me.sub
+  if (m.sender !== me.sub && !owner && me.role !== 'admin') throw new ChatError('Only the sender or the chat owner can delete a message.', 403)
+  if (!['text', 'wfupdate'].includes(m.kind)) throw new ChatError('That message cannot be deleted here.')
+  if (m.deleted_at) return { ok: true }
+  const own = (m.files || []).map((f) => f.path).filter((p) => p && String(p).startsWith(m.group_id + '/'))   // only this chat's own files: a forwarded message points at another chat's file, which must stay
+  await opsWrite(async () => { await store.updateMessage(m.id, { body: '', files: [], deleted_at: new Date().toISOString(), pinned_at: null, pinned_by: null }); await mop(store, m.group_id, me, 'del', m.id) })
+  if (own.length && files && files.remove) { try { await files.remove(own) } catch { /* the message is gone either way */ } }
+  return { ok: true }
+}
+
+// pinMessage { mid, pinned:true|false } -> { ok }   any member. pins { gid } -> { pins:[message] } newest pin first.
+async function pinMessage(store, me, a) {
+  const { m } = await ownMessage(store, me, a.mid)
+  if (m.deleted_at || m.kind === 'system') throw new ChatError('That message cannot be pinned.')
+  const on = a.pinned !== false
+  await opsWrite(async () => { await store.updateMessage(m.id, { pinned_at: on ? new Date().toISOString() : null, pinned_by: on ? me.sub : null }); await mop(store, m.group_id, me, on ? 'pin' : 'unpin', m.id) })
+  return { ok: true }
+}
+async function pinsOf(store, files, me, a) {
+  await mustBeMember(store, a.gid, me)
+  const rows = (await opsWrite(() => store.pinsFor(a.gid))).filter((m) => !m.deleted_at)
+  const list = rows.map(shapeMsg)
+  const paths = []
+  list.forEach((m) => (m.files || []).forEach((f) => { if (f.path) paths.push(f.path) }))
+  if (paths.length && files) { try { const urls = await files.signDownloads(paths); list.forEach((m) => (m.files || []).forEach((f) => { if (f.path && urls[f.path]) f.url = urls[f.path] })) } catch { /* links are best effort */ } }
+  return { pins: list }
+}
+
+// forwardMessage { mid, gids:[...] } -> { done:[{gid, mid}], skipped:[{gid, why}] }   a copy in each chat you are in, marked as forwarded
+async function forwardMessage(store, me, a, wp) {
+  const { m } = await ownMessage(store, me, a.mid)
+  if (m.deleted_at || !['text', 'wfupdate'].includes(m.kind)) throw new ChatError('That message cannot be forwarded.')
+  const gids = [...new Set(Array.isArray(a.gids) ? a.gids : [])].filter((g) => g !== m.group_id).slice(0, 10)
+  if (!gids.length) throw new ChatError('Pick at least one chat to forward to.')
+  const src = (await store.groupsByIds([m.group_id]))[0]
+  const fw = { g: m.group_id, gn: src ? (src.is_dm ? 'a direct message' : src.name) : '', u: m.sender, mid: m.id }
+  const done = [], skipped = []
+  for (const gid of gids) {
+    try {
+      const { rows } = await mustBeMember(store, gid, me)
+      const row = await opsWrite(() => store.insertMessage({ group_id: gid, sender: me.sub, kind: 'text', body: m.body || '', task: null, files: m.files || [], fwd_from: fw }))
+      await store.updateMember(gid, me.sub, { last_read: row.id })
+      await bringBackDm(store, rows, gid, me)
+      await store.unarchiveOthers(gid, me.sub)
+      try { const group = (await store.groupsByIds([gid]))[0]; const others = rows.filter((r) => r.member !== me.sub); if (group && others.length) await P.notify({ store, sender: me, msg: row, group, memberRows: others, groupName: group.name }, wp) } catch { /* the copy is sent either way */ }
+      done.push({ gid, mid: row.id })
+    } catch (e) { if (e instanceof ChatError && e.status === 503) throw e; skipped.push({ gid, why: String((e && e.message) || e).slice(0, 100) }) }
+  }
+  return { done, skipped }
+}
+
+// remindMe { mid, when (ISO text or ms), cancel? } -> { ok, at }   an alert on your devices at that time (to within five minutes). myReminders -> { reminders:[{ mid, gid, at }] }
+async function remindMe(store, me, a) {
+  const { m } = await ownMessage(store, me, a.mid)
+  await opsWrite(() => store.cancelReminder(me.sub, m.id))   // one reminder per person per message: a new time replaces the old
+  if (a.cancel) return { ok: true, at: null }
+  const at = typeof a.when === 'number' || /^\d+$/.test(String(a.when)) ? Number(a.when) : Date.parse(a.when)
+  if (!at || at < Date.now() + 30000) throw new ChatError('Pick a time in the future.')
+  if (at > Date.now() + 366 * 86400000) throw new ChatError('Pick a time within the next year.')
+  await opsWrite(() => store.addReminder({ person_id: me.sub, message_id: m.id, group_id: m.group_id, remind_at: new Date(at).toISOString() }))
+  return { ok: true, at }
+}
+async function myReminders(store, me) {
+  const rows = await opsWrite(() => store.remindersFor(me.sub))
+  return { reminders: rows.map((r) => ({ mid: Number(r.message_id), gid: r.group_id, at: Date.parse(r.remind_at) })) }
 }
 
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
@@ -881,6 +1016,13 @@ async function run(action, a, me, deps) {
     case 'setMine': return setMine(store, me, a)
     case 'deleteGroup': return deleteGroup(store, files, me, a)
     case 'taskDone': return taskDone(store, kv, me, a)
+    case 'editMessage': return editMessage(store, me, a)
+    case 'deleteMessage': return deleteMessage(store, files, me, a)
+    case 'pinMessage': return pinMessage(store, me, a)
+    case 'pins': return pinsOf(store, files, me, a)
+    case 'forwardMessage': return forwardMessage(store, me, a, wp)
+    case 'remindMe': return remindMe(store, me, a)
+    case 'myReminders': return myReminders(store, me)
     case 'myTasks': return myTasks(store, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
     case 'search': return search(store, kv, files, me, a)
