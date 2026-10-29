@@ -899,6 +899,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
 </style>
+<link rel="stylesheet" href="/atrium-chat-next.css?v=4">
 </head>
 <body>
 <video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
@@ -1439,9 +1440,10 @@ function applyWall(gid){
   st.setProperty('--theirs',tacc?tacc.c:(dd?'rgba(22,20,18,.55)':tk.theirs)); st.setProperty('--theirsTx',tacc?tacc.t:(dd?'#fff':tk.theirsTx)); st.setProperty('--meta',dd?'rgba(255,255,255,.7)':tk.meta);
   if(dark) st.setProperty('--hdr','rgba(28,30,34,.58)'); else st.removeProperty('--hdr');
   // the standard ATRIUM ground is the moving film behind the whole chat: a chat on that ground lets it through; a chat with a wallpaper of its own keeps it
-  const film=w.id==='atrg'&&!document.body.classList.contains('embed')&&!(window.AtriumScheme&&AtriumScheme.get()==='light')&&$('#atBg')&&$('#atBg').style.display!=='none';
+  const live=!!(window.AtriumLive&&AtriumLive.on()), lightS=!!(window.AtriumScheme&&AtriumScheme.get()==='light');
+  const film=(w.id==='atrg'||(live&&w.id==='atrl'))&&!document.body.classList.contains('embed')&&(live||!lightS)&&$('#atBg')&&$('#atBg').style.display!=='none';
   th.classList.toggle('film',!!film);
-  if(film){ w1.style.background='none'; w1.style.backgroundColor='transparent'; w1.style.filter='none'; $('#wall').style.background='transparent'; $('#dim').style.background='#0c0d0f'; $('#dim').style.opacity=.3 }
+  if(film){ w1.style.background='none'; w1.style.backgroundColor='transparent'; w1.style.filter='none'; $('#wall').style.background='transparent'; $('#dim').style.background=lightS?'#fff':'#0c0d0f'; $('#dim').style.opacity=lightS?.1:(live?.1:.3) }
 }
 function wallSwatch(w,gid){
   if(w.id==='custom'){const im=STY.wallAll?STY.img.all:STY.img[gid];return im?`background:url(${im}) center/cover`:'background:#333'}
@@ -2559,6 +2561,7 @@ function openVotes(mid){
       if(match) match.addEventListener('click',()=>{ AS.set(AS.pref()==='auto'?AS.get():'auto'); sync() });
       AS.onChange(sync); sync();
     } }
+window.AtriumChatRepaint=function(){ try{ if(cur) applyWall(cur) }catch(e){} };
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
@@ -2730,5 +2733,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   b.onclick=function(){ var on=!document.documentElement.classList.contains('tallfix'); try{ localStorage.setItem('atrium-chat-tall',on?'1':'0') }catch(e){} var d=document.documentElement; if(on){ d.style.setProperty('--sh',screen.height+'px'); d.classList.add('tallfix') } else { d.classList.remove('tallfix') } lab(); setTimeout(function(){ window.dispatchEvent(new Event('resize')) },300) };
   lab() })()
 </script>
+<script src="/atrium-live-wall.js?v=2"></script>
 </body>
 </html>
