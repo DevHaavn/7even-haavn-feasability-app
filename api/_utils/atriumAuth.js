@@ -23,7 +23,8 @@ const PEOPLE = [
   { id: 'lj', name: 'Lewis Jin', role: 'admin', app: 'admin', emails: ['lewis@7even.au'] },
   { id: 'jw', name: 'James Winstanley', role: 'staff', app: 'haavnonly', emails: ['james@haavn.au'] },
   { id: 'cm', name: 'Callum Macdonald', role: 'staff', app: 'haavnonly', emails: ['callum@haavn.au'] },
-  { id: 'mf', name: 'Mike Furniss', role: 'blacksales', app: 'blacksales', emails: ['mike@haavn.au'] },
+  // Mike Furniss, HAAVN BLACK sales manager: the HAAVN team login (HAAVN + HAAVN BLACK, never 7EVEN or Capital), like the rest of the HAAVN team. Was the sales-only login until 2026-10-30.
+  { id: 'mf', name: 'Mike Furniss', role: 'staff', app: 'haavnonly', emails: ['mike@haavn.au'] },
   { id: 'cw', name: 'Christina Witbreuk', role: 'staff', app: 'homes', emails: ['christina@haavn.au'] },
   { id: 'dp', name: 'Domenic Paolilli', role: 'staff', app: 'haavnonly', emails: ['domenic@haavn.au'] },
   { id: 'jd', name: 'John Dimattina', role: 'staff', app: 'haavnonly', emails: ['john@haavn.au'] },

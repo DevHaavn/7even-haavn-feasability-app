@@ -28,7 +28,7 @@ describe('people', () => {
   })
   it('lands each person on the screen their access code gives', () => {
     const app = (e: string) => A.personByEmail(e, [], env).app
-    expect(app('jamie@7even.au')).toBe('admin'); expect(app('james@haavn.au')).toBe('haavnonly'); expect(app('mike@haavn.au')).toBe('blacksales')
+    expect(app('jamie@7even.au')).toBe('admin'); expect(app('james@haavn.au')).toBe('haavnonly'); expect(app('mike@haavn.au')).toBe('haavnonly')
     expect(app('jeffrey@haavn.au')).toBe('homes'); expect(app('c.fraser@fraserandpartners.com')).toBe('external')
     expect(A.verify(A.newSession(jamie(), 'x', env, 1000), env, 1001).app).toBe('admin')
   })
