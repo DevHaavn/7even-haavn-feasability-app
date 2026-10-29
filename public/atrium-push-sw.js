@@ -12,8 +12,8 @@ self.addEventListener('push', (event) => {
     const seen = wins.some((c) => c.visibilityState === 'visible')
     await self.registration.showNotification(d.title || 'ATRIUM Chat', {
       body: d.body || '',
-      icon: '/icons/chat-icon-192.png?v=2',
-      badge: '/icons/chat-icon-96.png?v=2',
+      icon: '/icons/chat-icon-192.png?v=3',
+      badge: '/icons/chat-badge-96.png?v=3',
       tag: d.tag || 'atrium-chat',          // one notification per chat, the newest replaces the last
       renotify: !seen,
       silent: seen,
