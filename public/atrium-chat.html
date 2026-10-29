@@ -79,7 +79,7 @@ body.resizing iframe{pointer-events:none}
 @media(max-width:760px){#installBar{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 92px);white-space:nowrap}}
 body.embed #list.narrow .lh:has(.calq) .mono{display:none}
 body.embed #list.narrow .lh{justify-content:flex-end}
-@media(min-width:761px){body:not(.embed) .lh .calq[data-cal="open"],body:not(.embed) .lh .calq[data-notes]{display:none}}
+@media(min-width:761px){.lh .calq[data-cal="open"],.lh .calq[data-notes]{display:none}}
 #dock{display:none}
 @media(min-width:761px){#dock{display:flex;gap:8px;position:absolute;left:14px;bottom:12px;z-index:4}#dock .ib{width:38px;height:38px}}
 #list header{padding:16px 18px 10px;display:flex;align-items:center;gap:10px}
@@ -223,11 +223,9 @@ body.embed #list.narrow .lh{justify-content:flex-end}
 #view{width:min(920px,100%)}#view img{max-width:100%;max-height:74dvh;border-radius:18px;display:block;margin:0 auto}#view iframe{width:100%;height:74dvh;border:0;border-radius:18px;background:#fff}
 .archh{display:flex;align-items:center;gap:8px;width:100%;padding:14px 12px 6px;text-align:left}
 .g .mutei{width:13px;height:13px;stroke:var(--faint);fill:none;stroke-width:1.5;flex:none}
-/* inside ATRIUM: the app's own drawer supplies the rail, a close button and the alerts */
+/* inside ATRIUM: the drawer shows the same left rail as the Chat app (Chat, Tasks, Calendar, Notes, Files, the Dark / Light switch, refresh, account); the close button and alerts stay with the drawer */
 body:not(.embed) #xBtn{display:none}
 #tabbar{display:none}
-@media(min-width:761px){body.embed #rail{display:none}body.embed #app{grid-template-columns:var(--wL,310px) minmax(0,1fr) var(--wS,350px)}}
-@media(min-width:761px) and (max-width:1180px){body.embed #app{grid-template-columns:var(--wL,310px) minmax(0,1fr)}}
 body.embed #demo{left:calc(50% + 150px)}
 @media(max-width:760px){body.embed #demo{left:50%}}
 /* phone */
@@ -857,6 +855,7 @@ html[data-scheme=light] #list .cap2 #newBtn{color:#6a7a00}
 html[data-scheme=light] #sideHead,html[data-scheme=light] #sideHead b{color:#151515}
 html[data-scheme=light] body.embed #list{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.55)),url(/atrium-chat-bg/atrium-light.jpg) 62% 40%/cover}
 html[data-scheme=light] body.embed #list .cap2,html[data-scheme=light] body.embed .calq{color:#151515}
+html[data-scheme=light] body.embed #rail{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.55)),url(/atrium-chat-bg/atrium-light.jpg) 40% 40%/cover}
 /* sheets, buttons, switches, chips */
 html[data-scheme=light] .ov{background:rgba(20,20,25,.28)}
 html[data-scheme=light] .sheet{background:rgba(248,247,244,.92);border-color:rgba(20,20,25,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 30px 80px rgba(20,20,30,.22);color:#151515}
