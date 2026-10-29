@@ -15,7 +15,7 @@ async function sendDue(store, wp, now = Date.now()) {
       const m = by.get(Number(r.message_id))
       if (wp) {
         const subs = await store.pushSubsFor([r.person_id])
-        const data = JSON.stringify({ title: 'Reminder', body: snippet(m && m.body) || 'A message you asked to be reminded about', tag: 'remind-' + r.id, url: '/?chatopen=' + encodeURIComponent(r.group_id) })
+        const data = JSON.stringify({ title: 'Reminder', body: snippet(m && m.body) || (m && m.task && m.task.title ? 'Task: ' + snippet(m.task.title) : '') || 'A message you asked to be reminded about', tag: 'remind-' + r.id, url: '/?chatopen=' + encodeURIComponent(r.group_id) })
         await Promise.allSettled(subs.map(async (s) => {
           try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, data) }
           catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) { try { await store.deletePush(s.endpoint) } catch { /* ignore */ } } }

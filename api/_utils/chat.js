@@ -34,7 +34,7 @@ function shapeMsg(m) {
   if (m.kind === 'wall') return { ...base, k: 'wall', wall: (m.task && m.task.wall) || null }
   if (m.kind === 'avatar') return { ...base, k: 'avatar' }
   // an edit, a delete or a pin, as it happens: the screen applies it to the message it names (the message row itself holds the same state for a first load)
-  if (m.kind === 'mop') return { ...base, k: 'mop', mid: Number(m.task && m.task.mid) || 0, op: (m.task && m.task.op) || '', ...(m.task && m.task.op === 'edit' ? { x: m.task.body || '', ed: base.t } : {}) }
+  if (m.kind === 'mop') return { ...base, k: 'mop', mid: Number(m.task && m.task.mid) || 0, op: (m.task && m.task.op) || '', ...(m.task && m.task.op === 'edit' ? { x: m.task.body || '', ed: base.t } : {}), ...(m.task && m.task.op === 'task' ? { tk: m.task.task || null } : {}) }
   if (m.deleted_at) return { ...base, x: '', sys: 0, del: 1 }
   if (m.kind === 'poll') return { ...base, x: m.body || '', sys: 0, poll: (m.task && m.task.poll) || { opts: [], multi: false } }
   if (m.kind === 'vote') return { ...base, k: 'vote', pm: Number(m.task && m.task.poll) || 0, c: Array.isArray(m.task && m.task.c) ? m.task.c : [] }
@@ -306,7 +306,7 @@ async function filterTask(kv, me, t, text) {
   const title = String(t.title || '').trim().slice(0, 300)
   if (!title) throw new ChatError('The task needs a title.')
   const due = /^\d{4}-\d{2}-\d{2}$/.test(t.due || '') ? t.due : undefined
-  const task = { title, own: own.id, due: due || '', pri: PRIORITY[t.pri] ? t.pri : 'Normal', proj: t.proj || 'No project', wf: t.wf ? 1 : 0, ag: t.ag ? 1 : 0, done: false }
+  const task = { title, own: own.id, due: due || '', pri: PRIORITY[t.pri] ? t.pri : 'Normal', proj: t.proj || 'No project', wf: t.wf ? 1 : 0, ag: t.ag ? 1 : 0, done: false, st: 'todo' }
   const by = `${me.name} (chat)`
   if (task.wf && kv) {
     try {
@@ -557,7 +557,8 @@ async function taskDone(store, kv, me, a) {
   const m = await store.getMessage(a.mid)
   if (!m || !m.task || m.kind === 'poll') throw new ChatError('No such task.', 404)
   await mustBeMember(store, m.group_id, me)
-  const task = { ...m.task, done: !!a.done }
+  const task = { ...m.task, done: !!a.done, st: a.done ? 'done' : (m.task.st && m.task.st !== 'done' ? m.task.st : 'todo') }
+  if (task.done) task.rem = 0
   await store.updateMessage(m.id, { task })
   if (task.wfId && kv) {
     try { await kv.update(B.KEYS.workflow, (ws) => B.updateTask(ws, { id: task.wfId, status: task.done ? 'done' : 'todo' }, `${me.name} (chat)`)) } catch { /* Workflow task may have been removed */ }
@@ -577,7 +578,7 @@ async function myTasks(store, me, a) {
   const out = rows
     .filter((m) => m.task && m.kind === 'task' && (m.task.own === me.sub || m.sender === me.sub) && (wantDone || !m.task.done))
     .map((m) => ({ mid: m.id, gid: m.group_id, g: gname[m.group_id] || 'Chat', title: m.task.title || '', own: m.task.own, by: m.sender, due: m.task.due || '', pri: m.task.pri || 'Normal',
-      proj: m.task.proj || 'No project', done: !!m.task.done, wf: !!m.task.wfId, ag: !!m.task.ag, t: Date.parse(m.created_at) }))
+      proj: m.task.proj || 'No project', done: !!m.task.done, st: m.task.st || (m.task.done ? 'done' : 'todo'), cl: m.task.cl || [], rem: m.task.rem || 0, nudged: m.task.nudged || 0, wf: !!m.task.wfId, ag: !!m.task.ag, t: Date.parse(m.created_at) }))
   return { tasks: out.slice(0, 400) }
 }
 
@@ -778,6 +779,254 @@ async function myReminders(store, me) {
   return { reminders: rows.map((r) => ({ mid: Number(r.message_id), gid: r.group_id, at: Date.parse(r.remind_at) })) }
 }
 
+// ---------- task fields: status, checklist, reminder time and a nudge ----------
+// They live on the task itself (chat_messages.task), so there is no new table. A task with a Workflow twin keeps status, checklist, due and priority in step with it.
+// st: todo | doing | blocked | done (done also sets the old `done` flag). cl: [{ id, t, d }]. rem: when the owner is reminded (ms), 0 for none. nudged: ms of the last nudge.
+const TASK_STATUS = ['todo', 'doing', 'blocked', 'done']
+const MAX_CHECK = 30
+const cleanCheck = (list) => {
+  if (!Array.isArray(list)) throw new ChatError('The checklist must be a list.')
+  return list.map((c) => ({ id: cleanLine((c && c.id) || 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), 24), t: cleanLine(c && (c.t != null ? c.t : c.title), 160), d: !!(c && c.d) })).filter((c) => c.t).slice(0, MAX_CHECK)
+}
+async function taskMessage(store, me, mid) {
+  const m = await store.getMessage(mid)
+  if (!m || m.kind !== 'task' || !m.task) throw new ChatError('No such task.', 404)
+  const { rows } = await mustBeMember(store, m.group_id, me)
+  return { m, rows }
+}
+// A change to a task, as it happens, to everyone in the chat: a `mop` row with op 'task' that carries the task as it now is (`tk` on the stream).
+const tellTask = (store, m, me, task) => store.insertMessage({ group_id: m.group_id, sender: me.sub, kind: 'mop', body: '', task: { mid: m.id, op: 'task', task }, files: [] }).catch(() => null)
+
+// taskUpdate { mid, st?, cl?, rem?, due?, pri? } -> { ok, task }   only what is given changes. rem: a time in ms or ISO text, or 0 / null to clear. Allowed for the person it is for and the person who set it.
+async function taskUpdate(store, kv, me, a) {
+  const { m } = await taskMessage(store, me, a.mid)
+  const t = m.task
+  if (t.own !== me.sub && m.sender !== me.sub && me.role !== 'admin') throw new ChatError('Only the person a task is for, or the person who set it, can change it.', 403)
+  const task = { ...t }
+  const wf = {}
+  if (a.st !== undefined) {
+    if (!TASK_STATUS.includes(a.st)) throw new ChatError('Status must be todo, doing, blocked or done.')
+    task.st = a.st; task.done = a.st === 'done'; wf.status = a.st
+  }
+  if (a.cl !== undefined) { task.cl = cleanCheck(a.cl); wf.subs = task.cl.map((c) => ({ id: c.id, title: c.t, done: c.d })) }
+  if (a.due !== undefined) {
+    if (a.due && !/^\d{4}-\d{2}-\d{2}$/.test(a.due)) throw new ChatError('The due date must look like 2026-11-05.')
+    task.due = a.due || ''; if (task.due) wf.due = task.due
+  }
+  if (a.pri !== undefined) {
+    if (!PRIORITY[a.pri]) throw new ChatError('Priority must be Low, Normal, Medium or High.')
+    task.pri = a.pri; wf.priority = PRIORITY[a.pri]
+  }
+  let remAt = null
+  if (a.rem !== undefined) {
+    if (!a.rem) task.rem = 0
+    else {
+      remAt = typeof a.rem === 'number' || /^\d+$/.test(String(a.rem)) ? Number(a.rem) : Date.parse(a.rem)
+      if (!remAt || remAt < Date.now() + 30000) throw new ChatError('Pick a reminder time in the future.')
+      if (remAt > Date.now() + 366 * 86400000) throw new ChatError('Pick a reminder time within the next year.')
+      task.rem = remAt
+    }
+    wf.remindAt = remAt ? new Date(remAt).toISOString() : null
+  }
+  if (task.done) { task.rem = 0; if (wf.remindAt === undefined) wf.remindAt = null }   // a finished task has nothing left to remind
+  if (!Object.keys(wf).length) throw new ChatError('Nothing to change.')
+  // the reminder is a normal remind-me for the person the task is for, so the five-minute job sends it
+  if (a.rem !== undefined || task.done) {
+    await opsWrite(() => store.cancelReminder(task.own, m.id))
+    if (remAt && !task.done) await opsWrite(() => store.addReminder({ person_id: task.own, message_id: m.id, group_id: m.group_id, remind_at: new Date(remAt).toISOString() }))
+  }
+  await store.updateMessage(m.id, { task })
+  if (task.wfId && kv && kv.update) {
+    try { await kv.update(B.KEYS.workflow, (ws) => B.patchTaskFields(ws, { id: task.wfId, status: wf.status, subs: wf.subs, remindAt: wf.remindAt, due: wf.due, priority: wf.priority }, `${me.name} (chat)`)) } catch { /* the chat task stands; Workflow catches up on the next change */ }
+  }
+  await tellTask(store, m, me, task)
+  return { ok: true, task }
+}
+
+// taskNudge { mid } -> { ok, sent, at }   a push to the person a task is for, from whoever set it. Once a day per task. sent is how many of their devices it reached (0 means they have no alerts on, and nothing is recorded).
+async function taskNudge(store, me, a, wp) {
+  const { m, rows } = await taskMessage(store, me, a.mid)
+  const t = m.task
+  if (t.done) throw new ChatError('That task is already done.')
+  if (t.own === me.sub) throw new ChatError('A nudge goes to the person the task is for, and this one is yours.')
+  if (m.sender !== me.sub && me.role !== 'admin') throw new ChatError('Only the person who set a task can nudge for it.', 403)
+  if (!rows.some((r) => r.member === t.own)) throw new ChatError('They are not in this chat any more.')
+  if (t.nudged && Date.now() - t.nudged < 86400000) throw new ChatError('You nudged them about this task in the last day.', 429)
+  let sent = 0
+  if (wp) {
+    const subs = await store.pushSubsFor([t.own])
+    const data = JSON.stringify({ title: `${me.name} nudged you`, body: String(t.title || 'A task').slice(0, 120) + (t.due ? ` (due ${fmtMeetingDate(t.due)})` : ''), tag: 'nudge-' + m.id, url: '/?chatopen=' + encodeURIComponent(m.group_id) })
+    await Promise.allSettled(subs.map(async (s) => {
+      try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, data); sent++ }
+      catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) { try { await store.deletePush(s.endpoint) } catch { /* ignore */ } } }
+    }))
+  }
+  if (!sent) return { ok: true, sent: 0, at: null }
+  const task = { ...t, nudged: Date.now() }
+  await store.updateMessage(m.id, { task })
+  await tellTask(store, m, me, task)
+  return { ok: true, sent, at: task.nudged }
+}
+
+// ---------- the live meeting room ----------
+// While a meeting runs, anyone on it types decisions, actions, questions and notes. Ending the meeting files them: actions become real tasks in the meeting chat,
+// decisions go to the meeting's decisions log, questions and notes go into the minutes, the minutes are posted to the chat and emailed to the people on the meeting.
+const ITEM_KINDS = ['decision', 'action', 'question', 'note']
+const MAX_ITEMS = 300
+const ROOM_SQL = 'The live meeting room needs one database update first. Ask Jamie to run supabase/2026-10-30_chat_meeting_room.sql in Supabase.'
+async function roomWrite(fn) { try { return await fn() } catch (e) { if (needsSql(e)) throw new ChatError(ROOM_SQL, 503); throw e } }
+const shapeItem = (r) => ({ id: r.id, k: r.kind, x: r.body, own: r.owner || '', due: r.due || '', by: r.author, t: Date.parse(r.created_at), ...(r.task_mid ? { tm: Number(r.task_mid) } : {}), ...(r.filed_at ? { filed: Date.parse(r.filed_at) } : {}) })
+async function meetingOf(kv, me, id) {
+  if (!kv || !kv.read) throw new ChatError('Meetings are not linked right now. Try again shortly.', 503)
+  const row = await kv.read(B.KEYS.boardroom)
+  const m = ((row && row.value && row.value.meetings) || []).find((x) => String(x.id) === String(id))
+  if (!m) throw new ChatError('No such meeting.', 404)
+  if (!onMeeting(me, m)) throw new ChatError('You are not on this meeting.', 403)
+  return m
+}
+const chairOf = (me, m) => me.role === 'admin' || lowerN(m.chair) === lowerN(me.name)
+const cleanOwner = (v) => {
+  if (!v) return ''
+  const p = byId(v) || PEOPLE.find((x) => lowerN(x.name) === lowerN(v))
+  if (!p) throw new ChatError('The owner must be someone on the team.')
+  return p.id
+}
+const cleanDay = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v || '') ? v : '')
+
+// meetingRoom { meetingId } -> { meeting:{ id, title, date, time, closed, gid, chair, attendees[], canEnd }, agenda:[{ id, t, s, o, d }], items:[{ id, k, x, own, due, by, t, tm?, filed? }] }
+async function meetingRoom(store, kv, me, a) {
+  const m = await meetingOf(kv, me, a.meetingId)
+  const items = await roomWrite(() => store.meetingItems(String(m.id)))
+  return {
+    meeting: { id: m.id, title: m.title || 'Meeting', date: m.date || '', time: m.time || '', closed: !!m.closed, gid: m.chatGid || '', chair: m.chair || '', attendees: (m.attendees || []).map((x) => x.name), canEnd: chairOf(me, m) && !m.closed },
+    agenda: (m.items || []).map((i) => ({ id: i.id, t: i.title || '', s: i.status || '', o: i.owner || '', d: !!i.discussed })),
+    items: items.map(shapeItem),
+  }
+}
+// meetingItemAdd { meetingId, kind, text, own?, due? } -> { item }   an action with no owner is the person who typed it
+async function meetingItemAdd(store, kv, me, a) {
+  const m = await meetingOf(kv, me, a.meetingId)
+  if (m.closed) throw new ChatError('That meeting is closed.')
+  const kind = String(a.kind || '')
+  if (!ITEM_KINDS.includes(kind)) throw new ChatError('Choose decision, action, question or note.')
+  const text = cleanLine(a.text, 500)
+  if (!text) throw new ChatError('Type what was said.')
+  const have = await roomWrite(() => store.meetingItems(String(m.id)))
+  if (have.length >= MAX_ITEMS) throw new ChatError('That is the most one meeting holds. End the meeting to file them.')
+  const own = kind === 'action' ? (cleanOwner(a.own) || me.sub) : ''
+  const row = await roomWrite(() => store.addMeetingItem({ meeting_id: String(m.id), kind, body: text, owner: own || null, due: kind === 'action' ? cleanDay(a.due) || null : null, author: me.sub }))
+  return { item: shapeItem(row) }
+}
+async function itemFor(store, kv, me, id) {
+  const it = await roomWrite(() => store.getMeetingItem(id))
+  if (!it) throw new ChatError('No such item.', 404)
+  const m = await meetingOf(kv, me, it.meeting_id)
+  if (m.closed) throw new ChatError('That meeting is closed.')
+  if (it.filed_at) throw new ChatError('That item has already been filed.')
+  if (it.author !== me.sub && !chairOf(me, m)) throw new ChatError('Only the person who added it, or the chair, can change it.', 403)
+  return it
+}
+// meetingItemEdit { id, text?, kind?, own?, due? } -> { item }      meetingItemRemove { id } -> { ok }
+async function meetingItemEdit(store, kv, me, a) {
+  const it = await itemFor(store, kv, me, a.id)
+  const patch = {}
+  if (a.kind !== undefined) { if (!ITEM_KINDS.includes(a.kind)) throw new ChatError('Choose decision, action, question or note.'); patch.kind = a.kind }
+  if (a.text !== undefined) { const text = cleanLine(a.text, 500); if (!text) throw new ChatError('Type what was said.'); patch.body = text }
+  const kind = patch.kind || it.kind
+  if (kind !== 'action') { patch.owner = null; patch.due = null }
+  else {
+    if (a.own !== undefined || it.kind !== 'action') patch.owner = cleanOwner(a.own !== undefined ? a.own : it.owner) || it.author
+    if (a.due !== undefined) patch.due = cleanDay(a.due) || null
+  }
+  if (!Object.keys(patch).length) throw new ChatError('Nothing to change.')
+  await roomWrite(() => store.updateMeetingItem(it.id, patch))
+  return { item: shapeItem({ ...it, ...patch }) }
+}
+async function meetingItemRemove(store, kv, me, a) {
+  const it = await itemFor(store, kv, me, a.id)
+  await roomWrite(() => store.deleteMeetingItem(it.id))
+  return { ok: true }
+}
+
+const escHtml = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const nameOf = (id) => (byId(id) || { name: id || '' }).name
+// endMeeting { meetingId, email?: true, close?: false } -> { ok, gid, msg, tasks, decisions, emailed, skipped[], closed }
+// The chair or a director only. It can be run again: items already filed are never filed twice, so a half-finished run is finished by running it again.
+async function endMeeting(store, kv, me, a, wp, mail) {
+  const m = await meetingOf(kv, me, a.meetingId)
+  if (!chairOf(me, m)) throw new ChatError('Only the chair, or a director, can end the meeting.', 403)
+  if (m.closed) throw new ChatError('That meeting is already closed.')
+  const all = await roomWrite(() => store.meetingItems(String(m.id)))
+  const todo = all.filter((r) => !r.filed_at)
+  if (!todo.length && !a.close) throw new ChatError('Nothing new has been added to this meeting yet.')
+  const by = `${me.name} (chat)`
+  let gid = m.chatGid
+  if (!gid || !(await store.groupsByIds([gid]))[0]) gid = (await meetingChat(store, kv, me, { meetingId: m.id }, wp)).gid
+  const group = (await store.groupsByIds([gid]))[0]
+  const inChat = new Set((await store.membersByGroups([gid])).map((r) => r.member))
+  const stamp = () => new Date().toISOString()
+  const skipped = []
+  const filed = []
+  // 1. actions become real tasks in the meeting chat, exactly like a task set from a chat (Workflow task, alert to the owner)
+  let tasks = 0
+  for (const it of todo.filter((r) => r.kind === 'action')) {
+    const own = byId(it.owner) || byId(it.author) || me
+    if (!inChat.has(own.id)) { skipped.push({ id: it.id, why: `${own.name} is not in the meeting chat, so this action was left open.` }); continue }
+    try {
+      const r = await send(store, kv, me, { gid, body: 'From the meeting: ' + (m.title || 'Meeting'), task: { title: it.body, own: own.id, due: it.due || '', pri: 'Normal', proj: (group && group.project) || 'No project', wf: true } }, wp)
+      await store.updateMeetingItem(it.id, { filed_at: stamp(), task_mid: r.msg.id })
+      filed.push({ ...it, owner: own.id }); tasks++
+    } catch (e) { skipped.push({ id: it.id, why: String((e && e.message) || e).slice(0, 100) }) }
+  }
+  const rest = todo.filter((r) => r.kind !== 'action')
+  const decisions = rest.filter((r) => r.kind === 'decision')
+  const questions = rest.filter((r) => r.kind === 'question')
+  const notes = rest.filter((r) => r.kind === 'note')
+  const line = (r) => '• ' + r.body
+  const actionLine = (r) => '• ' + r.body + ` (${nameOf(r.owner)}${r.due ? ', due ' + fmtMeetingDate(r.due) : ''})`
+  const sections = [
+    ['Actions', filed.map(actionLine)],
+    ['Open questions', questions.map(line)],
+    ['Notes', notes.map(line)],
+  ].filter(([, ls]) => ls.length).map(([h, ls]) => h + '\n' + ls.join('\n'))
+  // 2. decisions into the decisions log, the rest into the minutes, on the meeting itself
+  if (decisions.length || sections.length) {
+    try {
+      await kv.update(B.KEYS.boardroom, (bd) => {
+        let next = bd
+        for (const d of decisions) next = B.addDecision(next, { meeting_id: m.id, text: d.body }, by).next
+        if (sections.length) next = B.addMinutes(next, { meeting_id: m.id, text: sections.join('\n\n') }, by).next
+        return { next, result: null }
+      })
+    } catch (e) { throw new ChatError('The actions were filed as tasks, but the decisions could not be saved on the meeting. Press End meeting again.' + (e instanceof B.UserError ? ' ' + e.message : ''), 502) }
+  }
+  // 3. the minutes to the meeting chat, for everyone who was not in the room
+  const head = `Minutes: ${m.title || 'Meeting'} (${fmtMeetingDate(m.date)})`
+  const text = [head, decisions.length ? 'Decisions\n' + decisions.map(line).join('\n') : '', ...sections].filter(Boolean).join('\n\n')
+  let msg = null
+  if (decisions.length || sections.length) msg = (await send(store, kv, me, { gid, body: text }, wp)).msg
+  // 4. everything just filed is marked, so ending again never files it twice
+  for (const r of [...decisions, ...questions, ...notes]) await store.updateMeetingItem(r.id, { filed_at: stamp() })
+  // 5. the summary by email to the people on the meeting. A failure here never undoes the filing.
+  let emailed = 0, emailError = ''
+  if (msg && a.email !== false) {
+    const to = [...new Set(emailsOf(m).filter(goodMail).map((e) => e.toLowerCase()))].slice(0, 25)
+    if (!mail || !mail.configured) emailError = 'Email is not set up yet.'
+    else if (to.length) {
+      const html = `<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.55;color:#111"><h2 style="font-size:18px;margin:0 0 4px">${escHtml(head)}</h2><div style="white-space:pre-wrap;margin-top:12px">${escHtml(text.slice(head.length).trim())}</div><p style="color:#888;font-size:12px;margin-top:24px">Sent from ATRIUM by ${escHtml(me.name)}.</p></div>`
+      try { await mail.send({ to, subject: head, html, replyTo: (me.emails || [])[0], replyName: me.name, bcc: (me.emails || [])[0] }); emailed = to.length }
+      catch (e) { emailError = String((e && e.message) || e).slice(0, 140) }
+    }
+  }
+  // 6. only if asked: file the meeting in the Archive (a weekly meeting rolls its undiscussed items on)
+  let closed = false
+  if (a.close) {
+    try { await kv.update(B.KEYS.boardroom, (bd) => ({ next: B.closeMeeting(bd, { id: m.id, confirm: true }, by).next, result: null })); closed = true }
+    catch (e) { skipped.push({ id: 0, why: 'The meeting could not be closed: ' + String((e && e.message) || e).slice(0, 100) }) }
+  }
+  return { ok: true, gid, msg, tasks, decisions: decisions.length, emailed, ...(emailError ? { emailError } : {}), skipped, closed }
+}
+
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
 // wins, an empty list takes it back); the person who asked can change the wording, add answers and close it with 'pollup' rows (the newest wins).
 const POLL_MAX_OPTS = 12
@@ -953,7 +1202,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 // What an outside person (role external) may not do: anything that reaches past the chats they are in.
-const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'outsideList', 'outsideAdd', 'outsideRemove'])
+const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'taskNudge', 'meetingRoom', 'meetingItemAdd', 'meetingItemEdit', 'meetingItemRemove', 'endMeeting', 'outsideList', 'outsideAdd', 'outsideRemove'])
 // The people an outside person already shares a chat with: the only people they can add to a new chat.
 async function knownTo(store, me) {
   const mine = (await store.memberRowsFor(me.sub)).map((r) => r.group_id)
@@ -1023,6 +1272,13 @@ async function run(action, a, me, deps) {
     case 'forwardMessage': return forwardMessage(store, me, a, wp)
     case 'remindMe': return remindMe(store, me, a)
     case 'myReminders': return myReminders(store, me)
+    case 'taskUpdate': return taskUpdate(store, kv, me, a)
+    case 'taskNudge': return taskNudge(store, me, a, wp)
+    case 'meetingRoom': return meetingRoom(store, kv, me, a)
+    case 'meetingItemAdd': return meetingItemAdd(store, kv, me, a)
+    case 'meetingItemEdit': return meetingItemEdit(store, kv, me, a)
+    case 'meetingItemRemove': return meetingItemRemove(store, kv, me, a)
+    case 'endMeeting': return endMeeting(store, kv, me, a, wp, mail)
     case 'myTasks': return myTasks(store, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
     case 'search': return search(store, kv, files, me, a)

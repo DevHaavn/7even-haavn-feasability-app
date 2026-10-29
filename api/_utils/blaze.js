@@ -175,6 +175,21 @@ function updateTask(ws, a, by = DEFAULT_BY, agents = []) {
   return { next, result: { ...compactTask(t), changed }, audit: { before, after } }
 }
 
+// One call for the fields a chat task shares with its Workflow task: status, checklist (Workflow calls it subs), reminder time, due, priority.
+// Only what is given changes. A missing task is not an error here: the chat task still stands if someone removed the Workflow one.
+function patchTaskFields(ws, a, by = DEFAULT_BY) {
+  const next = clone(ws && typeof ws === 'object' ? ws : {})
+  const t = (next.actions || []).find((x) => x.id === a.id)
+  if (!t) return { next, result: { found: false } }
+  if (a.status !== undefined) { checkEnum(a.status, STATUSES, 'status'); t.status = a.status; t.done = a.status === 'done'; t.completedAt = t.done ? (t.completedAt || nowIso()) : null }
+  if (Array.isArray(a.subs)) t.subs = a.subs.map((s) => ({ id: String(s.id || newId()), title: String(s.title || '').slice(0, 160), done: !!s.done }))
+  if (a.remindAt !== undefined) t.remindAt = a.remindAt || null
+  if (a.due !== undefined && isDate(a.due)) t.due = a.due
+  if (a.priority !== undefined && PRIORITIES.includes(a.priority)) t.priority = a.priority
+  t.updatedBy = by; t.updatedAt = nowIso()
+  return { next, result: { found: true } }
+}
+
 // One task in full, with its comments.
 function getTask(ws, a) {
   const t = ((ws && ws.actions) || []).find((x) => x.id === a.id)
@@ -536,4 +551,4 @@ async function handleRpc(msg, store, ctx = {}) {
   }
 }
 
-module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, addComment, getTask, whatsNew, listMeetings, getMeeting, createMeeting, updateMeeting, addAgendaItem, updateAgendaItem, addDecision, addMinutes, closeMeeting, files, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }
+module.exports = { KEYS, UserError, resolveOwner, listTasks, addTask, updateTask, patchTaskFields, addComment, getTask, whatsNew, listMeetings, getMeeting, createMeeting, updateMeeting, addAgendaItem, updateAgendaItem, addDecision, addMinutes, closeMeeting, files, agentRegistry, identifyAgent, kv, handleRpc, SCHEMAS, ROSTER }

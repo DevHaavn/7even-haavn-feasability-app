@@ -12,7 +12,7 @@ const me = (sub: string, name: string) => ({ sub, name, role: 'staff', emails: [
 const jamie = me('jb', 'Jamie Baldwin'), daniel = me('ds', 'Daniel Sette'), lewis = me('lj', 'Lewis Jin')
 
 function fake() {
-  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], rem: [] as any[], seq: 0, gseq: 0, noCols: false }
+  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], rem: [] as any[], items: [] as any[], seq: 0, gseq: 0, noCols: false, noRoom: false }
   const store = {
     async memberRowsFor(m: string) { return t.members.filter((r) => r.member === m).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
@@ -46,6 +46,11 @@ function fake() {
     async searchMessages(ids: string[], q: string) { const l = q.toLowerCase(); return t.msgs.filter((m) => ids.includes(m.group_id) && ['text', 'task', 'wfupdate', 'meeting'].includes(m.kind) && (String(m.body || '').toLowerCase().includes(l) || String(m.task && m.task.title || '').toLowerCase().includes(l))).sort((x, y) => y.id - x.id) },
     async recentWithFiles(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && (m.files || []).length).sort((x, y) => y.id - x.id) },
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
+    async meetingItems(id: string) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.filter((r) => r.meeting_id === id) },
+    async addMeetingItem(r: any) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); const x = { id: t.items.length + 1, created_at: new Date().toISOString(), filed_at: null, task_mid: null, ...r }; t.items.push(x); return x },
+    async getMeetingItem(id: number) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.find((r) => r.id === Number(id)) || null },
+    async updateMeetingItem(id: number, p: any) { Object.assign(t.items.find((r) => r.id === Number(id)), p) },
+    async deleteMeetingItem(id: number) { t.items = t.items.filter((r) => r.id !== Number(id)) },
   }
   const objs: any[] = []
   const removed: string[] = []
@@ -925,3 +930,167 @@ describe('message operations', () => {
   })
 })
 function boss2() { return { sub: 'jb', name: 'Jamie Baldwin', role: 'staff', emails: ['jamie@7even.au'] } }
+
+describe('task fields: status, checklist, reminder and nudge', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const R = require('../../../api/_utils/chatReminders.js')
+  const sent: any[] = []; const wp = { send: async (_s: any, d: string) => { sent.push(JSON.parse(d)) } }
+  const runWp = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, { ...F.deps, wp })
+  const setup = async () => {
+    const gid = (await run('newGroup', { name: 'Belmont', ids: ['ds'] })).gid
+    const msg = (await run('send', { gid, body: '', task: { title: 'Lodge the RFI', own: 'ds', due: '2026-11-05', pri: 'High', wf: true } })).msg
+    return { gid, mid: msg.id, wfId: msg.task.wfId }
+  }
+  beforeEach(() => { sent.length = 0 })
+  it('a new task starts as todo and My Tasks carries status, checklist, reminder and nudge', async () => {
+    const { mid } = await setup()
+    expect((await run('myTasks', {}, daniel)).tasks[0]).toMatchObject({ mid, st: 'todo', cl: [], rem: 0, nudged: 0 })
+  })
+  it('status keeps done in step, and Workflow follows', async () => {
+    const { mid, wfId } = await setup()
+    const r = await run('taskUpdate', { mid, st: 'doing' }, daniel)
+    expect(r.task).toMatchObject({ st: 'doing', done: false })
+    expect(F.db.workflow.actions.find((x: any) => x.id === wfId).status).toBe('doing')
+    await run('taskUpdate', { mid, st: 'done' }, daniel)
+    expect((await run('myTasks', { include: 'all' }, daniel)).tasks[0]).toMatchObject({ st: 'done', done: true })
+    expect(F.db.workflow.actions.find((x: any) => x.id === wfId)).toMatchObject({ status: 'done', done: true })
+    await run('taskDone', { mid, done: false }, daniel)
+    expect((await run('myTasks', {}, daniel)).tasks[0]).toMatchObject({ st: 'todo', done: false })
+    await expect(run('taskUpdate', { mid, st: 'later' }, daniel)).rejects.toThrow(/Status must be/)
+  })
+  it('a checklist is cleaned, capped and mirrored to Workflow as subs', async () => {
+    const { mid, wfId } = await setup()
+    const items = [{ t: 'Draft RFI' }, { t: '  ' }, { t: 'Send to council', d: true }, ...Array.from({ length: 40 }, (_, i) => ({ t: 'x' + i }))]
+    const r = await run('taskUpdate', { mid, cl: items }, daniel)
+    expect(r.task.cl).toHaveLength(30); expect(r.task.cl[0]).toMatchObject({ t: 'Draft RFI', d: false }); expect(r.task.cl[1]).toMatchObject({ t: 'Send to council', d: true })
+    const subs = F.db.workflow.actions.find((x: any) => x.id === wfId).subs
+    expect(subs).toHaveLength(30); expect(subs[1]).toMatchObject({ title: 'Send to council', done: true })
+    await expect(run('taskUpdate', { mid, cl: 'nope' }, daniel)).rejects.toThrow(/list/)
+  })
+  it('a reminder goes to the person it is for, once, and finishing the task clears it', async () => {
+    const { mid } = await setup()
+    await expect(run('taskUpdate', { mid, rem: Date.now() - 5000 }, daniel)).rejects.toThrow(/future/)
+    const at = Date.now() + 120000
+    await run('taskUpdate', { mid, rem: at })   // Jamie set it; Daniel owns it
+    expect((await run('myReminders', {}, daniel)).reminders).toEqual([{ mid, gid: expect.any(String), at }])
+    expect((await run('myReminders', {})).reminders).toEqual([])
+    await run('taskUpdate', { mid, rem: at + 60000 })
+    expect((await run('myReminders', {}, daniel)).reminders).toHaveLength(1)
+    expect(await R.sendDue(F.deps.store, wp, at + 400000)).toBe(1); expect(sent[0].body).toBe('Task: Lodge the RFI')
+    await run('taskUpdate', { mid, rem: Date.now() + 120000 }); await run('taskUpdate', { mid, st: 'done' }, daniel)
+    expect((await run('myReminders', {}, daniel)).reminders).toEqual([])
+    expect((await run('myTasks', { include: 'all' }, daniel)).tasks[0].rem).toBe(0)
+  })
+  it('only the owner, the setter or a director can change it, and everyone in the chat sees the change', async () => {
+    const { gid, mid } = await setup()
+    await run('addMembers', { gid, ids: ['lj'] })
+    await expect(run('taskUpdate', { mid, st: 'doing' }, lewis)).rejects.toThrow(/Only the person/)
+    await expect(run('taskUpdate', { mid, st: 'doing' }, me('zz', 'Nobody'))).rejects.toThrow(/not in that chat/)
+    await run('taskUpdate', { mid, st: 'blocked', due: '2026-12-01' }, daniel)
+    const seen = (await run('poll', { since: mid }, lewis)).msgs.filter((m: any) => m.k === 'mop' && m.op === 'task')
+    expect(seen).toHaveLength(1); expect(seen[0]).toMatchObject({ mid, tk: { st: 'blocked', due: '2026-12-01' } })
+    await expect(run('taskUpdate', { mid }, daniel)).rejects.toThrow(/Nothing to change/)
+  })
+  it('a nudge goes to the owner from the setter, once a day, and only counts when it reached a device', async () => {
+    const { mid } = await setup()
+    await expect(runWp('taskNudge', { mid }, daniel)).rejects.toThrow(/yours/)
+    await expect(runWp('taskNudge', { mid }, lewis)).rejects.toThrow(/not in that chat/)
+    const r = await runWp('taskNudge', { mid })
+    expect(r).toMatchObject({ ok: true, sent: 1 }); expect(sent[0]).toMatchObject({ title: 'Jamie Baldwin nudged you' }); expect(sent[0].body).toContain('Lodge the RFI')
+    await expect(runWp('taskNudge', { mid })).rejects.toThrow(/last day/)
+    expect((await run('myTasks', {}, daniel)).tasks[0].nudged).toBeGreaterThan(0)
+    const g2 = (await run('newGroup', { name: 'Two', ids: ['ds'] })).gid
+    const m2 = (await run('send', { gid: g2, body: '', task: { title: 'Second', own: 'ds' } })).msg
+    expect(await run('taskNudge', { mid: m2.id })).toMatchObject({ ok: true, sent: 0, at: null })   // no push sender: nobody reached, nothing recorded
+    expect((await run('myTasks', {}, daniel)).tasks.find((t: any) => t.mid === m2.id).nudged).toBe(0)
+  })
+})
+
+describe('the live meeting room', () => {
+  const addMeeting = (extra: any = {}) => F.db.board.meetings.push({ id: 77, title: 'Corio board', kind: 'internal', date: '2026-11-10', time: '09:00', chair: 'Jamie Baldwin', closed: false, items: [{ id: 1, title: 'Budget', status: 'action' }], decisions: [], minutes: '', attendees: [{ id: 1, name: 'Jamie Baldwin' }, { id: 2, name: 'Daniel Sette' }], ...extra })
+  const room = async () => { addMeeting(); return (await run('meetingChat', { meetingId: 77 })).gid }
+  it('anyone on the meeting adds items, and the room shows them with the agenda', async () => {
+    await room()
+    const a = await run('meetingItemAdd', { meetingId: 77, kind: 'decision', text: '  Go with option 5 ' }, daniel)
+    expect(a.item).toMatchObject({ k: 'decision', x: 'Go with option 5', by: 'ds', own: '' })
+    const b = await run('meetingItemAdd', { meetingId: 77, kind: 'action', text: 'Send the term sheet', due: '2026-11-12' })
+    expect(b.item).toMatchObject({ k: 'action', own: 'jb', due: '2026-11-12' })
+    const r = await run('meetingRoom', { meetingId: 77 }, daniel)
+    expect(r.meeting).toMatchObject({ id: 77, title: 'Corio board', closed: false, canEnd: false, chair: 'Jamie Baldwin' })
+    expect(r.agenda).toEqual([{ id: 1, t: 'Budget', s: 'action', o: '', d: false }]); expect(r.items.map((i: any) => i.k)).toEqual(['decision', 'action'])
+    expect((await run('meetingRoom', { meetingId: 77 })).meeting.canEnd).toBe(true)
+    await expect(run('meetingItemAdd', { meetingId: 77, kind: 'joke', text: 'x' })).rejects.toThrow(/Choose/)
+    await expect(run('meetingItemAdd', { meetingId: 77, kind: 'note', text: '   ' })).rejects.toThrow(/Type what/)
+    await expect(run('meetingItemAdd', { meetingId: 77, kind: 'action', text: 'x', own: 'Nobody' })).rejects.toThrow(/team/)
+    await expect(run('meetingRoom', { meetingId: 77 }, lewis)).rejects.toThrow(/not on this meeting/)
+  })
+  it('edit and remove: the author or the chair, never someone else, never once filed', async () => {
+    addMeeting({ attendees: [{ id: 1, name: 'Jamie Baldwin' }, { id: 2, name: 'Daniel Sette' }, { id: 3, name: 'Lewis Jin' }] })
+    const { item } = await run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'Draft' }, daniel)
+    await expect(run('meetingItemEdit', { id: item.id, text: 'Mine now' }, lewis)).rejects.toThrow(/Only the person/)
+    const e = await run('meetingItemEdit', { id: item.id, kind: 'action', text: 'Chase the valuer' }, daniel)
+    expect(e.item).toMatchObject({ k: 'action', x: 'Chase the valuer', own: 'ds' })
+    expect((await run('meetingItemEdit', { id: item.id, kind: 'note' }, jamie)).item).toMatchObject({ k: 'note', own: '' })   // the chair can change it
+    await run('meetingItemRemove', { id: item.id }, daniel)
+    expect((await run('meetingRoom', { meetingId: 77 })).items).toEqual([])
+    await run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'Keep' }); F.t.items[0].filed_at = new Date().toISOString()
+    await expect(run('meetingItemRemove', { id: F.t.items[0].id })).rejects.toThrow(/already been filed/)
+  })
+  it('ending the meeting makes tasks, logs decisions, writes minutes, posts them and emails the room', async () => {
+    const gid = await room()
+    await run('meetingItemAdd', { meetingId: 77, kind: 'decision', text: 'Go with option 5' })
+    await run('meetingItemAdd', { meetingId: 77, kind: 'action', text: 'Send the term sheet', own: 'Daniel Sette', due: '2026-11-12' })
+    await run('meetingItemAdd', { meetingId: 77, kind: 'question', text: 'Who signs for ACTS?' }, daniel)
+    await run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'Church wants Sundays clear' }, daniel)
+    await expect(run('endMeeting', { meetingId: 77 }, daniel)).rejects.toThrow(/Only the chair/)
+    const r = await run('endMeeting', { meetingId: 77 })
+    expect(r).toMatchObject({ ok: true, gid, tasks: 1, decisions: 1, emailed: 2, skipped: [], closed: false })
+    const task = (await run('myTasks', {}, daniel)).tasks[0]
+    expect(task).toMatchObject({ title: 'Send the term sheet', own: 'ds', due: '2026-11-12', st: 'todo', wf: true })
+    expect(F.db.workflow.actions).toHaveLength(1)
+    const m = F.db.board.meetings.find((x: any) => x.id === 77)
+    expect(m.decisions.map((d: any) => d.text)).toEqual(['Go with option 5'])
+    expect(m.minutes).toContain('Who signs for ACTS?'); expect(m.minutes).toContain('Church wants Sundays clear'); expect(m.minutes).toContain('Send the term sheet'); expect(m.closed).toBe(false)
+    expect(r.msg.x).toMatch(/^Minutes: Corio board/); expect(r.msg.x).toContain('Decisions\n\u2022 Go with option 5')
+    expect(F.mail.sent).toHaveLength(1); expect(F.mail.sent[0].to.sort()).toEqual(['daniel@7even.au', 'jamie@7even.au']); expect(F.mail.sent[0].subject).toMatch(/^Minutes: Corio board/)
+    const items = (await run('meetingRoom', { meetingId: 77 })).items
+    expect(items.every((i: any) => i.filed)).toBe(true); expect(items.find((i: any) => i.k === 'action').tm).toBe(task.mid)
+  })
+  it('ending again files nothing twice, and a new item is filed on its own', async () => {
+    await room()
+    await run('meetingItemAdd', { meetingId: 77, kind: 'action', text: 'One', own: 'Daniel Sette' })
+    await run('endMeeting', { meetingId: 77, email: false })
+    expect(F.mail.sent).toHaveLength(0)
+    await expect(run('endMeeting', { meetingId: 77 })).rejects.toThrow(/Nothing new/)
+    await run('meetingItemAdd', { meetingId: 77, kind: 'decision', text: 'Two' })
+    const r = await run('endMeeting', { meetingId: 77, email: false })
+    expect(r).toMatchObject({ tasks: 0, decisions: 1 })
+    expect(F.db.workflow.actions).toHaveLength(1); expect(F.db.board.meetings.find((x: any) => x.id === 77).decisions).toHaveLength(1)
+  })
+  it('an action for someone not in the meeting chat is left open and reported, not given away', async () => {
+    await room()
+    await run('meetingItemAdd', { meetingId: 77, kind: 'action', text: 'Ring the architect', own: 'Lewis Jin' })
+    await run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'A note' })
+    const r = await run('endMeeting', { meetingId: 77 })
+    expect(r.tasks).toBe(0); expect(r.skipped).toHaveLength(1); expect(r.skipped[0].why).toMatch(/Lewis Jin is not in the meeting chat/)
+    expect((await run('myTasks', {}, lewis)).tasks).toEqual([])
+    expect((await run('meetingRoom', { meetingId: 77 })).items.find((i: any) => i.k === 'action').filed).toBeUndefined()
+  })
+  it('email trouble never undoes the filing, and close:true files the meeting', async () => {
+    await room(); F.mail.fail = true
+    await run('meetingItemAdd', { meetingId: 77, kind: 'decision', text: 'Done' })
+    const r = await run('endMeeting', { meetingId: 77, close: true })
+    expect(r).toMatchObject({ ok: true, emailed: 0, closed: true }); expect(r.emailError).toMatch(/refused/)
+    expect(F.db.board.meetings.find((x: any) => x.id === 77).closed).toBe(true)
+    await expect(run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'late' })).rejects.toThrow(/closed/)
+    await expect(run('endMeeting', { meetingId: 77 })).rejects.toThrow(/already closed/)
+  })
+  it('until the SQL is run the room says so, and outside people never get in', async () => {
+    await room(); F.t.noRoom = true
+    await expect(run('meetingRoom', { meetingId: 77 })).rejects.toThrow(/run supabase\/2026-10-30/)
+    await expect(run('meetingItemAdd', { meetingId: 77, kind: 'note', text: 'x' })).rejects.toThrow(/2026-10-30_chat_meeting_room/)
+    expect((await run('init', { v: 2 })).groups).toHaveLength(1)
+    const ext = { sub: 'cf', name: 'Callum Fraser', role: 'external', emails: ['c.fraser@fraserandpartners.com'] }
+    for (const a of ['meetingRoom', 'meetingItemAdd', 'endMeeting', 'taskNudge']) await expect(run(a, { meetingId: 77, mid: 1 }, ext)).rejects.toThrow(/not available to outside/)
+  })
+})
