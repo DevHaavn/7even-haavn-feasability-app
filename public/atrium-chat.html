@@ -1115,9 +1115,18 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
   <h3 style="margin-top:22px;font-size:17px">Your accounts</h3>
   <div class="lead" style="margin-bottom:6px">One ATRIUM you, whichever email you sign in with.</div>
   <div id="accs"></div>
+  <div id="outBox" style="display:none">
+    <h3 style="margin-top:22px;font-size:17px">Outside people</h3>
+    <div class="lead" style="margin-bottom:6px">Consultants and designers. They sign in with a Microsoft account, see only the chats you add them to, and nothing else in ATRIUM.</div>
+    <div id="outList"></div>
+    <div class="f"><label class="mono">Name</label><input id="outName" autocomplete="off" placeholder="Their name"></div>
+    <div class="f"><label class="mono">Microsoft email</label><input id="outMail" type="email" autocomplete="off" placeholder="name@theircompany.com"></div>
+    <div class="row" style="margin-top:8px"><button class="cb" id="outCopy" type="button">Copy the chat link</button><button class="cb go" id="outAdd" type="button">Add outside person</button></div>
+    <div class="empty" style="padding:6px 0 0;font-size:11px;opacity:.7">After you add them, send them the chat link. They open it, sign in with that email, and can be added to chats from the people picker.</div>
+  </div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-dark-light-you</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-outside-people</div>
   <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div style="padding:8px 0 0"><button class="cb" id="tallBtn" type="button">Try full-screen fix: off</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
@@ -1905,7 +1914,7 @@ function picker(root, exclude){
     ['HAAVN','7EVEN','External'].forEach(co=>{
       const list=PEOPLE.concat(S.ext).filter(p=>coOf(p)===co&&!t.has(p.id)&&(!q||p.n.toLowerCase().includes(q)||p.e[0].includes(q)));
       if(list.length) h+=`<h5>${co==='External'?'Outside the companies':co}</h5>`+list.map(p=>`<button type="button" data-add="${p.id}">${av(p)}<span>${esc(p.n)}<span class="e">${esc(p.e[0])}</span></span></button>`).join('')});
-    if(isMail(q)&&!PEOPLE.some(p=>p.e.includes(q))&&!sel.ext.includes(q)) h=`<h5>Outside email</h5><button type="button" data-ext="${esc(q)}"><span class="av" style="background:#d6b36a">@</span><span>Add ${esc(q)}<span class="e">They get an invite by email</span></span></button>`+h;
+    if(isMail(q)&&S.role!=='external'&&!PEOPLE.some(p=>p.e.includes(q))&&!sel.ext.includes(q)) h=`<h5>Outside email</h5><button type="button" data-ext="${esc(q)}"><span class="av" style="background:#d6b36a">@</span><span>Add ${esc(q)}<span class="e">Only joins once a director adds them in Settings</span></span></button>`+h;
     dd.innerHTML=h||'<div class="none">Everyone is already in. Type an email to invite someone outside.</div>';
   }
   const open=()=>{root.classList.add('open');paint(); if(window.matchMedia('(max-width:760px)').matches) setTimeout(()=>{try{root.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}},60)};
@@ -2007,7 +2016,7 @@ function applyReal(j){
   if(j.style){ Object.assign(S.icons,j.style.icons||{}); Object.entries(j.style.walls||{}).forEach(([g,w])=>{ S.walls[g]=w; STY.walls[g]=w }) }
   PEOPLE.length=0; j.people.forEach(p=>PEOPLE.push(p)); Object.keys(P).forEach(k=>delete P[k]); PEOPLE.forEach(p=>{P[p.id]=p});
   if(j.avatars) AVMAP=j.avatars; applyAvatars();
-  S.me=j.me.id; S.groups=j.groups; S.muted=j.state.muted; S.arch=j.state.arch; S.gone=j.state.gone; S.ext=[];
+  S.me=j.me.id; S.role=j.me.role; S.groups=j.groups; S.muted=j.state.muted; S.arch=j.state.arch; S.gone=j.state.gone; S.ext=[];
   S.read[S.me]=S.read[S.me]||{}; Object.keys(j.read).forEach(g=>{S.read[S.me][g]=Math.max(S.read[S.me][g]||0,j.read[g])});
 }
 function pushRead(gid){ if(!REAL) return; const ms=gm(gid).filter(m=>m.id>0); if(ms.length) api('read',{gid,upto:ms[ms.length-1].id}).catch(()=>{}) }
@@ -2205,7 +2214,14 @@ $('#gSave').onclick=()=>{const n=$('#gName').value.trim(); const r=gPk.get();
 const tgs={sSnd:'snd',sRed:'red',sPush:'push',sMail:'mail',sMen:'men'};
 function paintSet(){ if($('#myPic')) $('#myPic').innerHTML=av(me(),'',56);
   $('#asWho').innerHTML=PEOPLE.map(p=>`<option value="${p.id}" ${p.id===S.me?'selected':''}>${p.n} · ${p.e[0]}</option>`).join('');Object.entries(tgs).forEach(([id,k])=>$('#'+id).classList.toggle('on',k==='push'&&REAL?pushOn:!!S[k]));
-  $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('')}
+  $('#accs').innerHTML=me().e.map(e=>`<div class="acc"><span class="av" style="background:${COL[me().c]};width:30px;height:30px">${e[0].toUpperCase()}</span><div class="d">${e}<span>${e.endsWith('haavn.au')?'HAAVN':'7EVEN'} Microsoft account · connected</span></div><span class="chip g1">Live</span></div>`).join('');paintOut()}
+function paintOut(){ const box=$('#outBox'); if(!box) return; const on=REAL&&S.role==='admin'; box.style.display=on?'':'none'; if(!on) return;
+  api('outsideList').then(r=>{ $('#outList').innerHTML=r.people.length?r.people.map(o=>`<div class="acc"><span class="av" style="background:#8a8f98;width:30px;height:30px">${esc((o.name[0]||'?').toUpperCase())}</span><div class="d">${esc(o.name)}<span>${esc(o.email)}</span></div><button class="cb" data-orm="${esc(o.email)}" type="button">Remove</button></div>`).join(''):'<div class="empty" style="padding:6px 0">No outside people yet.</div>' }).catch(e=>{ $('#outList').textContent=e.message }) }
+$('#outList').onclick=e=>{ const b=e.target.closest('[data-orm]'); if(!b) return; const em=b.dataset.orm; if(!confirm('Remove '+em+'? They can no longer sign in or open any chat.')) return;
+  api('outsideRemove',{email:em}).then(()=>{ flash('Removed '+em); paintOut() }).catch(er=>flash(er.message)) };
+$('#outAdd').onclick=()=>{ const name=$('#outName').value.trim(), email=$('#outMail').value.trim(); if(!name||!email) return flash('Enter their name and Microsoft email.');
+  api('outsideAdd',{name,email}).then(r=>{ $('#outName').value=''; $('#outMail').value=''; flash(name+' can now sign in'+(r.moved?' and is back in '+r.moved+' chat'+(r.moved>1?'s':''):'')+'. Send them the chat link.'); paintOut() }).catch(er=>flash(er.message)) };
+$('#outCopy').onclick=()=>{ const u='https://atrium-chat-7x.vercel.app/atrium-chat.html?app=1&install=1'; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>flash('Chat link copied'),()=>prompt('Copy this link:',u)) };
 Object.entries(tgs).forEach(([id,k])=>$('#'+id).onclick=()=>{ if(k==='push'&&REAL){ toggleAlerts(); return } S[k]=S[k]?0:1;save();paintSet();renderList();if(k==='snd'&&S.snd)chime();if(k==='push'&&S.push){ if(typeof EMB!=='undefined'&&EMB){try{parent.postMessage({atriumChat:'ask-notify'},'*')}catch(e){}} else if(window.Notification&&Notification.permission==='default'){Notification.requestPermission()} }});
 $('#setBtn').onclick=$('#meBtn').onclick=$('#meBtn2').onclick=()=>{paintSet();$('#ovSet').classList.add('on'); if(REAL) refreshAlerts()};
 $('#sTest').onclick=()=>{

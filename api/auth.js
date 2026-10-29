@@ -5,6 +5,8 @@
 // /api/auth/logout  end the session
 // Routed by vercel.json: /api/auth/:action -> /api/auth?action=:action
 const A = require('./_utils/atriumAuth')
+const O = require('./_utils/outside')
+const B = require('./_utils/blaze')
 
 const origin = (req) => `https://${req.headers['x-forwarded-host'] || req.headers.host}`
 const page = (res, status, title, body) => {
@@ -84,6 +86,8 @@ module.exports = async (req, res) => {
       }
       const { id_token } = await tr.json()
       const who = A.readIdToken(id_token, { clientId, nonce: flow.nonce })
+      let okv = null; try { okv = B.kv(env) } catch { /* no service key: the roster in code only */ }
+      await O.sync(okv, true)
       const person = A.personByEmail(who.email, await linked(env), env)
       if (!person) { page(res, 403, 'This account is not on the ATRIUM team list', `${who.email} is not on the list yet. Ask Jamie to add it, then sign in again.`); return }
       res.setHeader('Set-Cookie', [A.cookie(A.FLOW_COOKIE, '', 0), A.cookie(A.COOKIE, A.newSession(person, who.email, env), A.SESSION_DAYS * 86400)])

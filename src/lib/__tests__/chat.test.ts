@@ -5,6 +5,8 @@ const require = createRequire(import.meta.url)
 const C = require('../../../api/_utils/chat.js')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const B = require('../../../api/_utils/blaze.js')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const O = require('../../../api/_utils/outside.js')
 
 const me = (sub: string, name: string) => ({ sub, name, role: 'staff', emails: [sub + '@x'] })
 const jamie = me('jb', 'Jamie Baldwin'), daniel = me('ds', 'Daniel Sette'), lewis = me('lj', 'Lewis Jin')
@@ -37,7 +39,7 @@ function fake() {
   const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
-  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_')) { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
+  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_') || k === 'atrium_outside_people') { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   const calls: any[] = []
   const cal: any = { configured: true, calls, fail: false, asked: [] as string[], made: [] as any[], missing: new Set<string>(), forbid: false,
     async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } },
@@ -50,7 +52,7 @@ function fake() {
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who = jamie) => C.run(a, { v: 2, ...args }, who, F.deps)
-beforeEach(() => { F = fake() })
+beforeEach(() => { F = fake(); O.reset() })
 
 describe('groups and who sees them', () => {
   it('a new group is seen by its members and nobody else', async () => {
@@ -736,5 +738,53 @@ describe('voice typing from the phone\'s microphone', () => {
     await expect(run('speechToken', {})).rejects.toThrow(/key renewed/)
     F.speech.fail = false; F.speech.configured = false
     await expect(run('speechToken', {})).rejects.toThrow(/not set up/)
+  })
+})
+
+describe('outside people', () => {
+  const boss = { sub: 'jb', name: 'Jamie Baldwin', role: 'admin', emails: ['jamie@7even.au'] }
+  const addOutside = (name = 'Pat Planner', email = 'pat@consult.com.au') => run('outsideAdd', { name, email }, boss)
+  const asOutside = () => { const p = O.list()[0]; return { sub: p.id, name: p.name, role: 'external', emails: [p.email] } }
+
+  it('a director adds them, they can be put in a chat, and they see only that chat and the people in it', async () => {
+    const r = await addOutside(); expect(r.people).toHaveLength(1)
+    const pat = asOutside()
+    const { gid } = await run('newGroup', { name: 'Fit-out', ids: [pat.sub, 'ds'] }, boss)
+    await run('newGroup', { name: 'Directors only', ids: ['ds', 'lj'] }, boss)
+    const s = await run('init', {}, pat)
+    expect(s.groups.map((g: any) => g.n)).toEqual(['Fit-out'])
+    expect(s.people.map((p: any) => p.id).sort()).toEqual([pat.sub, 'ds', 'jb'].sort())
+    await run('send', { gid, body: 'Plans attached' }, pat)
+  })
+
+  it('only a director adds or removes, and a removed person is locked out at once', async () => {
+    await expect(run('outsideAdd', { name: 'X', email: 'x@y.com' }, jamie)).rejects.toThrow(/director/)
+    await addOutside(); const pat = asOutside()
+    await expect(run('outsideList', {}, pat)).rejects.toThrow(/not available|director/)
+    await run('outsideRemove', { email: 'pat@consult.com.au' }, boss)
+    await expect(run('init', {}, pat)).rejects.toThrow(/signin/)
+  })
+
+  it('cannot reach tasks, meetings or the rest of the team, and cannot invite by email', async () => {
+    await addOutside(); const pat = asOutside()
+    const { gid } = await run('newGroup', { name: 'Fit-out', ids: [pat.sub, 'ds'] }, boss)
+    await expect(run('send', { gid, body: 'x', task: { title: 't', own: 'ds' } }, pat)).rejects.toThrow(/not available/)
+    await expect(run('createMeeting', { gid }, pat)).rejects.toThrow(/not available/)
+    await expect(run('addTeamToGroup', { gid }, pat)).rejects.toThrow(/not available/)
+    const r = await run('addMembers', { gid, ids: ['lj'], ext: ['someone@else.com'] }, pat)
+    expect(r.added).toEqual([])
+  })
+
+  it('email invites made earlier move onto the person when they are added', async () => {
+    const { gid } = await run('newGroup', { name: 'Fit-out', ids: ['ds'], ext: ['pat@consult.com.au'] }, boss)
+    const r = await addOutside()
+    expect(r.moved).toBe(1)
+    expect(F.t.members.some((m: any) => m.group_id === gid && m.member === 'x:pat@consult.com.au')).toBe(false)
+    expect(F.t.members.some((m: any) => m.group_id === gid && m.member === O.list()[0].id)).toBe(true)
+  })
+
+  it('refuses a team address and a bad email', async () => {
+    await expect(run('outsideAdd', { name: 'Dan', email: 'daniel@7even.au' }, boss)).rejects.toThrow(/already/)
+    await expect(run('outsideAdd', { name: 'Dan', email: 'nope' }, boss)).rejects.toThrow(/email/)
   })
 })

@@ -4,6 +4,7 @@ const A = require('./atriumAuth')
 const B = require('./blaze')
 const N = require('./notes')
 const P = require('./chatPush')
+const O = require('./outside')
 
 const BUCKET = 'chat-files'
 const MAX_BODY = 8000, MAX_NAME = 80, MAX_FILES = 8, MAX_FILE_BYTES = 50 * 1024 * 1024
@@ -90,7 +91,7 @@ async function snapshot(store, files, me, after, clientV) {
   const mine = await store.memberRowsFor(me.sub)
   const live = mine.filter((r) => !r.hidden)
   const ids = live.map((r) => r.group_id)
-  const out = { me: { id: me.sub, n: me.name, e: me.emails, role: me.role }, groups: [], msgs: [], state: { muted: {}, arch: {}, gone: {} }, read: {}, people: PEOPLE.map((p) => person(p.id)) }
+  const out = { me: { id: me.sub, n: me.name, e: me.emails, role: me.role }, groups: [], msgs: [], state: { muted: {}, arch: {}, gone: {} }, read: {}, people: me.role === 'external' ? [person(me.sub)] : PEOPLE.map((p) => person(p.id)) }
   mine.forEach((r) => { const k = me.sub + r.group_id; if (r.muted) out.state.muted[k] = 1; if (r.archived) out.state.arch[k] = 1; if (r.hidden) out.state.gone[k] = 1; out.read[r.group_id] = Number(r.last_read) || 0 })
   if (!ids.length) { out.cursor = Number(after) || 0; if (!after) out.avatars = await avatarUrls(files).catch(() => ({})); return out }
   const avatarsP = !after ? avatarUrls(files).catch(() => ({})) : null
@@ -718,9 +719,32 @@ async function pushTest(store, me, a, wp) {
 }
 
 // the one entry point the handler calls
+// What an outside person (role external) may not do: anything that reaches past the chats they are in.
+const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'outsideList', 'outsideAdd', 'outsideRemove'])
+// The people an outside person already shares a chat with: the only people they can add to a new chat.
+async function knownTo(store, me) {
+  const mine = (await store.memberRowsFor(me.sub)).map((r) => r.group_id)
+  if (!mine.length) return new Set()
+  return new Set((await store.membersByGroups(mine)).map((r) => r.member))
+}
+
 async function run(action, a, me, deps) {
   const { store, files, kv, wp, cal, speech, site, mail } = deps
+  await O.sync(kv)
+  // someone taken off the outside list stops working at once, even with a signed session still in hand
+  if (String(me.sub).startsWith('o_') && !byId(me.sub)) throw new ChatError('signin', 401)
+  if (me.role === 'external') {
+    if (EXTERNAL_BLOCKED.has(action)) throw new ChatError('That is not available to outside people.', 403)
+    if (action === 'send' && (a.task || a.wf)) throw new ChatError('Tasks are not available to outside people.', 403)
+    if (['newGroup', 'addMembers', 'addToGroups'].includes(action)) {
+      const known = await knownTo(store, me)
+      a = { ...a, ids: (a.ids || []).filter((id) => known.has(id)), ext: [] }
+    }
+  }
   switch (action) {
+    case 'outsideList': if (me.role !== 'admin') throw new ChatError('Only a director can manage outside people.', 403); return { people: O.list() }
+    case 'outsideAdd': if (me.role !== 'admin') throw new ChatError('Only a director can add outside people.', 403); return O.add(kv, store, me, a)
+    case 'outsideRemove': if (me.role !== 'admin') throw new ChatError('Only a director can remove outside people.', 403); return O.remove(kv, me, a)
     case 'init': { const out = await snapshot(store, files, me, 0, a.v); out.order = await readOrder(store, kv, me); return out }
     case 'poll': return snapshot(store, files, me, Number(a.since) || 0, a.v)
     case 'send': return send(store, kv, me, a, wp)
