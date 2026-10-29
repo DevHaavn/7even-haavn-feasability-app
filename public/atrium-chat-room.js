@@ -109,5 +109,5 @@ function decorate(){ if(!on()) return;
 new MutationObserver(function(){ clearTimeout(decorate.t); decorate.t=setTimeout(decorate,60) }).observe($('#msgs'),{childList:true});
 D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-room]'); if(!b) return; e.stopPropagation(); e.preventDefault(); var row=b.closest('.mr'), m=row&&C.msg(row.getAttribute('data-m')); openRoom(b.getAttribute('data-room'),m&&m.mt,m&&m.g) },true);
 setTimeout(probe,2000); setTimeout(decorate,600);
-window.AtriumRoom={ open:openRoom };
+window.AtriumRoom={ open:openRoom, current:function(){ return data?{id:mid,meeting:data.meeting}:null } };
 })();

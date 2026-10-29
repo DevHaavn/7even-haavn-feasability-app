@@ -305,3 +305,15 @@ html[data-scheme=light] .nx-pk b{color:#8a6420}
 #nxSug span{flex:1;min-width:0}
 #nxSug b{font-weight:500}
 #nxSug .nx-rx{font-size:18px;line-height:1;padding:0 2px}
+
+/* ---------- Transcript ---------- */
+#nxRecBar{display:none;position:fixed;left:50%;transform:translateX(-50%);top:calc(8px + env(safe-area-inset-top,0px));z-index:9999;align-items:center;gap:10px;padding:7px 8px 7px 14px;border-radius:999px;background:rgba(40,12,14,.92);border:1px solid rgba(255,110,110,.6);color:#fff;font-size:13px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+body.nx-rec #nxRecBar{display:flex}
+#nxRecBar .nxd{width:9px;height:9px;border-radius:50%;background:#ff5a5a;animation:nxrec 1.2s ease-in-out infinite}
+@keyframes nxrec{0%,100%{opacity:1}50%{opacity:.3}}
+#nxRecBar b{font-weight:500}
+#nxRecBar .nxn{opacity:.7;font-size:12px}
+#nxRecBar button{height:28px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:12.5px;cursor:pointer}
+.nx-rcl{margin:6px 0 10px;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--soft)}
+.nx-rcerr{margin-top:10px;padding:9px 12px;border:1px solid rgba(255,110,110,.5);border-radius:12px;color:#ff8f8f;font-size:13px}
+html[data-scheme=light] .nx-rcerr{color:#b3261e}
