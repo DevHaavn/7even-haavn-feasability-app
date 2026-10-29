@@ -600,7 +600,7 @@ const snippet = (text, q) => {
   const from = Math.max(0, i - 40)
   return (from ? '…' : '') + t.slice(from, from + 140) + (from + 140 < t.length ? '…' : '')
 }
-async function search(store, kv, me, a) {
+async function search(store, kv, files, me, a) {
   const q = String(a.q || '').replace(/\s+/g, ' ').trim().slice(0, 80)
   if (q.length < 2) return { results: [], next: null }
   const lq = q.toLowerCase(), has = (v) => String(v || '').toLowerCase().includes(lq)
@@ -636,7 +636,11 @@ async function search(store, kv, me, a) {
   }
   out.sort((x, y) => (y.t || 0) - (x.t || 0))
   const off = Math.max(0, Number(a.offset) || 0), lim = Math.min(60, Math.max(1, Number(a.limit) || 30))
-  return { results: out.slice(off, off + lim), next: off + lim < out.length ? off + lim : null, total: out.length }
+  const page = out.slice(off, off + lim)
+  // a file result carries a ready download link (short lived), like the files in a chat
+  const paths = page.filter((x) => x.kind === 'file' && x.path).map((x) => x.path)
+  if (paths.length && files) { try { const urls = await files.signDownloads(paths); page.forEach((x) => { if (x.path && urls[x.path]) x.url = urls[x.path] }) } catch { /* the row still opens its chat */ } }
+  return { results: page, next: off + lim < out.length ? off + lim : null, total: out.length }
 }
 
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
@@ -879,7 +883,7 @@ async function run(action, a, me, deps) {
     case 'taskDone': return taskDone(store, kv, me, a)
     case 'myTasks': return myTasks(store, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
-    case 'search': return search(store, kv, me, a)
+    case 'search': return search(store, kv, files, me, a)
     case 'signUpload': return signUpload(store, files, me, a)
     case 'avatars': return { avatars: await avatarUrls(files) }
     case 'signAvatar': return signAvatar(files, me)

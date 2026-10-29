@@ -840,6 +840,7 @@ describe('My Tasks, quick add and search', () => {
     const r = await run('search', { q: 'car park' })
     expect(r.results.map((x: any) => x.kind).sort()).toEqual(['file', 'message', 'note', 'task'].sort())
     expect(r.results.every((x: any) => x.g !== 'Directors')).toBe(true)
+    expect(r.results.find((x: any) => x.kind === 'file').url).toMatch(/^https:\/\/dl\//)
     expect((await run('search', { q: 'car park', limit: 2 })).next).toBe(2)
     expect((await run('search', { q: 'x' })).results).toEqual([])
   })
