@@ -899,7 +899,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
 </style>
-<link rel="stylesheet" href="/atrium-chat-next.css?v=6">
+<link rel="stylesheet" href="/atrium-chat-next.css?v=7">
 </head>
 <body>
 <video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
@@ -2623,10 +2623,11 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   }
   // Notes: a full panel over the chat, in this window, so it works in the drawer and in the Chat app alike
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
-  function openNotes(meetingId){
-    nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=6&sch='+(window.AtriumScheme?AtriumScheme.get():'dark'); nFr.onload=()=>{ nReady=true; send() } } else send() }
-  function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
+  let nNote=null;
+  function openNotes(meetingId,noteId){
+    nWant=(meetingId==null||meetingId==='')?null:meetingId; nNote=(noteId==null||noteId==='')?null:noteId; nOv.hidden=false;
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=7&sch='+(window.AtriumScheme?AtriumScheme.get():'dark'); nFr.onload=()=>{ nReady=true; send() } } else send() }
+  function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant,noteId:nNote},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
   window.addEventListener('message',e=>{ const d=e.data; if(!d) return;
@@ -2758,5 +2759,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 <script src="/atrium-live-wall.js?v=2"></script>
 <script src="/atrium-chat-tasks.js?v=4"></script>
 <script src="/atrium-chat-msgops.js?v=1"></script>
+<script src="/atrium-chat-search.js?v=1"></script>
 </body>
 </html>

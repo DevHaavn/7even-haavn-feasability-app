@@ -517,7 +517,7 @@ async function forMeeting(id){
   const m=opts.meetings.find(x=>String(x.id)===String(id)); const have=notes.find(n=>String(n.meetingId)===String(id));
   if(have) return openNote(have);
   return newNote({title:m?m.title+' notes':'Meeting notes',meetingId:m?m.id:id,meetingTitle:m?m.title:''}) }
-window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumNotes==='open'){ if(d.meetingId!=null&&d.meetingId!=='') forMeeting(d.meetingId); else if(!cur) openNote(null) } });
+window.addEventListener('message',e=>{ const d=e.data; if(d&&d.atriumNotes==='open'){ if(d.noteId!=null&&d.noteId!==''){ const want=()=>notes.find(x=>String(x.id)===String(d.noteId)); const n=want(); if(n){ openNote(n); return } setTimeout(()=>{ const n2=want(); if(n2) openNote(n2) },900) } if(d.meetingId!=null&&d.meetingId!=='') forMeeting(d.meetingId); else if(!cur) openNote(null) } });
 
 /* ---- the new look: icons, a quiet menu, a bar for a selected line, keys, the film ---- */
 let selTxt=''; function selHide(){ $('#sel').classList.remove('on'); selTxt='' }
