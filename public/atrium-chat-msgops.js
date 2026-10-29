@@ -20,6 +20,12 @@ function when(ms){ var d=new Date(ms), n=new Date(), same=d.toDateString()===n.t
 /* ---------- the composer bar: Replying to, or Editing ---------- */
 var thread=$('#thread'), comp=$('#comp'), bar=D.createElement('div'); bar.id='nxMsgBar'; bar.innerHTML='<small></small><span></span><button type="button" aria-label="Cancel">&times;</button>'; comp.parentNode.insertBefore(bar,comp);
 var reply=null, edit=null;
+/* Switched on only once the server knows these operations. A server that does not answers 404, and then the menu stays as it was (Reply puts @name in the box).
+   Any other answer, a 503 before the database update included, counts as known. Practice data always has it. */
+var SUP=null, supAt=0, supBusy=false;
+function on(){ return !C.real()||SUP===true }
+function probe(){ if(!C.real()||SUP===true||supBusy||Date.now()-supAt<60000) return; supBusy=true; supAt=Date.now();
+  C.api('myReminders').then(function(){ SUP=true }).catch(function(er){ var s=er&&er.status; if(s===404) SUP=false; else if(s&&s!==401&&s!==403) SUP=true }).then(function(){ supBusy=false; if(SUP===true){ pinsGid=''; loadPins(); drawPins() } }) }
 function barDraw(){ var on=reply||edit; bar.classList.toggle('on',!!on); if(!on) return; $('small',bar).textContent=edit?'Editing':'Replying to '+first(reply.rq.u); $('span',bar).textContent=clip(edit?edit.orig:reply.rq.x,120) }
 function clearAll(){ reply=null; edit=null; barDraw() }
 $('button',bar).addEventListener('click',function(){ if(edit){ var i=$('#inp'); i.value=''; i.dispatchEvent(new Event('input',{bubbles:true})) } clearAll() });
@@ -88,7 +94,7 @@ var PINS={}, pinsGid='';
 function pinsFor(gid){ var seen={}, out=[]; C.msgsIn(gid).filter(function(m){ return m.pin&&!m.del }).concat(PINS[gid]||[]).forEach(function(m){ if(seen[m.id]) return; seen[m.id]=1; var cur=C.msg(m.id); if(cur&&!cur.pin) return; out.push(cur||m) }); return out.sort(function(a,b){ return (b.pin||0)-(a.pin||0) }) }
 function drawPins(){ var gid=C.cur(), list=gid?pinsFor(gid):[]; document.body.classList.toggle('nx-pin',!!list.length); pinBar.classList.toggle('on',!!list.length); if(!list.length) return;
   var m=list[0]; $('.nxt',pinBar).textContent=first(m.u)+': '+clip(m.x||(m.files&&m.files.length?'Photo or file':''),90); $('.nxn',pinBar).textContent=list.length>1?list.length+' pinned':'Pinned' }
-function loadPins(){ var gid=C.cur(); if(!gid||gid===pinsGid) return; pinsGid=gid; if(!C.real()) return; C.api('pins',{gid:gid}).then(function(j){ PINS[gid]=(j&&j.pins)||[]; drawPins() }).catch(function(){ pinsGid='' }) }
+function loadPins(){ var gid=C.cur(); if(!gid||gid===pinsGid) return; if(!on()){ probe(); return } pinsGid=gid; if(!C.real()) return; C.api('pins',{gid:gid}).then(function(j){ PINS[gid]=(j&&j.pins)||[]; drawPins() }).catch(function(){ pinsGid='' }) }
 new MutationObserver(function(){ loadPins(); drawPins() }).observe($('#msgs'),{childList:true});
 new MutationObserver(function(){ drawPins() }).observe($('#hTitle'),{childList:true,subtree:true});
 function jumpTo(mid){ var row=$('.mr[data-m="'+mid+'"]'); if(!row){ C.flash('That message is further back in the chat.'); return } row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.add('nx-hl'); setTimeout(function(){ row.classList.remove('nx-hl') },1400) }
@@ -104,7 +110,7 @@ var am=$('#amenu');
 function icon(d){ return '<svg viewBox="0 0 24 24"><path d="'+d+'"/></svg>' }
 function caps(m){ var g=C.group(m.g), me=C.me(), owner=g&&(g.owner||(g.m&&g.m[0]))===me, dir=C.role()==='admin', mine=m.u===me, special=m.task||m.poll||m.mt||m.wf, hasFiles=m.files&&m.files.length;
   return { edit:mine&&!special&&!hasFiles&&!!m.x, del:(mine||owner||dir)&&!special, fwd:!special&&(!!m.x||hasFiles) } }
-new MutationObserver(function(){ if(!am.classList.contains('on')) return; var bar2=$('.abar',am); if(!bar2||bar2.getAttribute('data-nxm')) return; bar2.setAttribute('data-nxm','1');
+new MutationObserver(function(){ if(!am.classList.contains('on')) return; var bar2=$('.abar',am); if(!bar2||bar2.getAttribute('data-nxm')) return; bar2.setAttribute('data-nxm','1'); if(!on()){ probe(); return }
   var row=$('.mr.sel'); if(!row) return; var m=C.msg(row.getAttribute('data-m')); if(!m) return; var c=caps(m), items=[];
   if(c.edit) items.push(['edit','Edit','M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4']);
   if(c.fwd) items.push(['fwd','Forward','M13 5l7 7-7 7M4 12h16']);
@@ -113,9 +119,10 @@ new MutationObserver(function(){ if(!am.classList.contains('on')) return; var ba
   if(c.del) items.push(['del','Delete for everyone','M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3']);
   items.forEach(function(it){ var b=D.createElement('button'); b.type='button'; b.setAttribute('data-nxa',it[0]); if(it[0]==='del') b.className='nx-danger-item'; b.innerHTML=icon(it[2])+it[1]; bar2.appendChild(b) });
   var over=am.getBoundingClientRect().bottom-(innerHeight-8); if(over>0) am.style.top=Math.max(8,parseFloat(am.style.top)-over)+'px' }).observe(am,{attributes:true,attributeFilter:['class']});
-am.addEventListener('click',function(e){ var b=e.target.closest('[data-nxa]'), rp=e.target.closest('[data-a="reply"]'); if(!b&&!rp) return; var row=$('.mr.sel'); var m=row&&C.msg(row.getAttribute('data-m')); if(!m) return;
+am.addEventListener('click',function(e){ if(!on()) return; var b=e.target.closest('[data-nxa]'), rp=e.target.closest('[data-a="reply"]'); if(!b&&!rp) return; var row=$('.mr.sel'); var m=row&&C.msg(row.getAttribute('data-m')); if(!m) return;
   e.stopPropagation(); e.preventDefault(); am.classList.remove('on'); $$('.mr.sel').forEach(function(x){ x.classList.remove('sel') });
   if(rp) return startReply(m); var a=b.getAttribute('data-nxa');
   if(a==='edit') startEdit(m); else if(a==='fwd') askForward(m); else if(a==='pin') togglePin(m,true); else if(a==='unpin') togglePin(m,false); else if(a==='rem') askRemind(m); else if(a==='del') askDelete(m) },true);
 drawPins();
+setTimeout(probe,1500);
 })();
