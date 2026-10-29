@@ -1,7 +1,7 @@
 /* ATRIUM Chat: message operations. Quote reply, edit, delete for everyone, forward, pin and remind me, in the message menu, plus the composer bar for replying and editing and the
    pinned bar under the chat's header. The messages themselves (the edited tag, the quote block, "Forwarded from", the deleted line, the pin mark) are drawn by the page.
    Server calls (ATRIUM item 5): editMessage { mid, body }, deleteMessage { mid }, pinMessage { mid, pinned }, pins { gid }, forwardMessage { mid, gids }, remindMe { mid, when | cancel },
-   myReminders, and send with reply_to. Until the database update is run, those calls answer 503 with a plain message, which is shown as it is.
+   myReminders, and send with reply_to. Until the database update is run, those calls answer 503, and this layer stays off.
    On practice data every operation works on the practice chats in memory. Needs window.AtriumChat (see atrium-chat-tasks.js). window.AtriumMsgOps is what the page's send() calls. */
 (function(){
 'use strict';
@@ -20,12 +20,12 @@ function when(ms){ var d=new Date(ms), n=new Date(), same=d.toDateString()===n.t
 /* ---------- the composer bar: Replying to, or Editing ---------- */
 var thread=$('#thread'), comp=$('#comp'), bar=D.createElement('div'); bar.id='nxMsgBar'; bar.innerHTML='<small></small><span></span><button type="button" aria-label="Cancel">&times;</button>'; comp.parentNode.insertBefore(bar,comp);
 var reply=null, edit=null;
-/* Switched on only once the server knows these operations. A server that does not answers 404, and then the menu stays as it was (Reply puts @name in the box).
-   Any other answer, a 503 before the database update included, counts as known. Practice data always has it. */
+/* Switched on only once the server knows these operations AND the database update has been run. A server that does not know them answers 404, and a database without the update answers 503;
+   either way the menu stays as it was (Reply puts @name in the box), so nobody can start a quoted reply that cannot be sent. It switches on by itself once the check succeeds. Practice data always has it. */
 var SUP=null, supAt=0, supBusy=false;
 function on(){ return !C.real()||SUP===true }
 function probe(){ if(!C.real()||SUP===true||supBusy||Date.now()-supAt<60000) return; supBusy=true; supAt=Date.now();
-  C.api('myReminders').then(function(){ SUP=true }).catch(function(er){ var s=er&&er.status; if(s===404) SUP=false; else if(s&&s!==401&&s!==403) SUP=true }).then(function(){ supBusy=false; if(SUP===true){ pinsGid=''; loadPins(); drawPins() } }) }
+  C.api('myReminders').then(function(){ SUP=true }).catch(function(er){ var s=er&&er.status; if(s===404||s===503) SUP=false }).then(function(){ supBusy=false; if(SUP===true){ pinsGid=''; loadPins(); drawPins() } }) }
 function barDraw(){ var on=reply||edit; bar.classList.toggle('on',!!on); if(!on) return; $('small',bar).textContent=edit?'Editing':'Replying to '+first(reply.rq.u); $('span',bar).textContent=clip(edit?edit.orig:reply.rq.x,120) }
 function clearAll(){ reply=null; edit=null; barDraw() }
 $('button',bar).addEventListener('click',function(){ if(edit){ var i=$('#inp'); i.value=''; i.dispatchEvent(new Event('input',{bubbles:true})) } clearAll() });
