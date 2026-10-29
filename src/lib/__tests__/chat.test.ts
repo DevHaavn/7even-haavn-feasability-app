@@ -12,7 +12,7 @@ const me = (sub: string, name: string) => ({ sub, name, role: 'staff', emails: [
 const jamie = me('jb', 'Jamie Baldwin'), daniel = me('ds', 'Daniel Sette'), lewis = me('lj', 'Lewis Jin')
 
 function fake() {
-  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], rem: [] as any[], items: [] as any[], seq: 0, gseq: 0, noCols: false, noRoom: false }
+  const t = { groups: [] as any[], members: [] as any[], msgs: [] as any[], rem: [] as any[], items: [] as any[], projects: [] as any[], seq: 0, gseq: 0, noCols: false, noRoom: false }
   const store = {
     async memberRowsFor(m: string) { return t.members.filter((r) => r.member === m).map((r) => ({ last_read: 0, muted: false, archived: false, hidden: false, ...r })) },
     async groupsByIds(ids: string[]) { return t.groups.filter((g) => ids.includes(g.id)) },
@@ -49,6 +49,8 @@ function fake() {
     async messagesAround(g: string, mid: number, n: number) { const ok = (m: any) => m.group_id === g && !['icon', 'wall', 'avatar', 'mop', 'react', 'vote', 'pollup'].includes(m.kind); const b = t.msgs.filter((m) => ok(m) && m.id <= mid).sort((x, y) => y.id - x.id).slice(0, n + 1).reverse(); return [...b, ...t.msgs.filter((m) => ok(m) && m.id > mid).sort((x, y) => x.id - y.id).slice(0, n)] },
     async styleFor(g: string, mids: number[]) { return t.msgs.filter((m) => m.group_id === g && ['react', 'vote', 'pollup'].includes(m.kind) && mids.includes(Number(m.task && (m.task.re || m.task.poll)))) },
     async meetingCards(g: string) { return t.msgs.filter((m) => m.group_id === g && m.kind === 'meeting') },
+    async allProjects() { return t.projects.map((p: any) => ({ id: p.project.id, name: p.project.name, updated_at: p.project.updated_at })) },
+    async projectRows(id: string) { const p = t.projects.find((x: any) => x.project.id === id); return p || null },
     async meetingItems(id: string) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.filter((r) => r.meeting_id === id) },
     async addMeetingItem(r: any) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); const x = { id: t.items.length + 1, created_at: new Date().toISOString(), filed_at: null, task_mid: null, ...r }; t.items.push(x); return x },
     async getMeetingItem(id: number) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.find((r) => r.id === Number(id)) || null },
@@ -60,7 +62,7 @@ function fake() {
   const files = { async signUpload(p: string) { return { uploadUrl: 'https://up/' + p } }, async signDownloads(ps: string[]) { return Object.fromEntries(ps.map((p) => [p, 'https://dl/' + p])) }, async remove(ps: string[]) { removed.push(...ps); ps.forEach((p) => { const i = objs.findIndex((o) => 'avatars/' + o.name === p); if (i >= 0) objs.splice(i, 1) }) }, async list(prefix: string) { return prefix === 'avatars' ? objs.slice() : [] } }
   const db: any = { workflow: { seq: 1, actions: [] }, board: { meetings: [{ id: 1, kind: 'weekly', date: '2099-01-01', closed: false, items: [], attendees: [] }] } }
   const other: any = {}
-  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_') || k === 'atrium_outside_people') { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
+  const kv = { async read(k: string) { if (k === B.KEYS.workflow) return { value: db.workflow }; if (k === B.KEYS.boardroom) return { value: db.board }; return other[k] ? { value: other[k] } : null }, async update(k: string, fn: any) { if (k.startsWith('atrium_chat_order_') || k === 'atrium_outside_people' || k === 'atrium_project_links') { const { next, result } = fn(other[k] || null); other[k] = next; return result } const key = k === B.KEYS.workflow ? 'workflow' : 'board'; const { next, result } = fn(db[key]); db[key] = next; return result } }
   const calls: any[] = []
   const cal: any = { configured: true, calls, fail: false, asked: [] as string[], made: [] as any[], missing: new Set<string>(), forbid: false,
     async upsert(m: any, o: any) { if (cal.fail) throw new Error('Outlook refused'); calls.push({ m, o }); return { id: 'ev1', joinUrl: 'https://teams.example/join', webLink: 'https://outlook.example/ev', updated: !!m.calendarEventId } },
@@ -1124,5 +1126,101 @@ describe('jump to an old message and meeting search hits', () => {
     const hits = (await run('search', { q: 'corio' })).results.filter((r: any) => r.kind === 'meeting')
     expect(hits.find((r: any) => r.id === 77)).toMatchObject({ gid, mid: card, g: 'Corio board' })
     expect(hits.find((r: any) => r.id === 78).gid).toBeUndefined()
+  })
+})
+
+describe('project room: the four numbers, directors only', () => {
+  const admin = { sub: 'jb', name: 'Jamie Baldwin', role: 'admin', emails: ['jamie@7even.au'] }
+  let calls = 0
+  const engine = { projectNumbers: (rows: any) => { calls++; if (rows.project.id === 'boom') throw new Error('engine fell over'); return rows.scenarios.length ? { tdc: 100e6, gdv: 130e6, profit: 30e6, marginOnCost: 0.3, marginOnGdv: 30 / 130, scenarios: rows.scenarios.length } : { tdc: 5e6, gdv: 0, profit: -5e6, marginOnCost: -1, marginOnGdv: 0, scenarios: 0 } } }
+  const runE = (a: string, args: any, who: any = admin) => C.run(a, { v: 2, ...args }, who, { ...F.deps, engine })
+  const proj = (id: string, name: string, scen = true) => F.t.projects.push({ project: { id, name, updated_at: '2026-10-20T00:00:00Z' }, data: { updated_at: '2026-10-25T00:00:00Z' }, scenarios: scen ? [{ id: 's1' }] : [], scenarioData: [] })
+  const chatFor = async (project: string | null, priv = true) => { const g = (await run('newGroup', { name: 'Belmont room', ids: ['ds'] })).gid; const row = F.t.groups.find((x: any) => x.id === g); row.project = project; row.is_private = priv; return g }
+  beforeEach(() => { calls = 0 })
+  it('is refused to anyone who is not a director before anything is worked out', async () => {
+    proj('p1', 'Belmont Estate'); const gid = await chatFor('Belmont Estate')
+    await expect(runE('projectRoom', { gid }, daniel)).rejects.toThrow(/directors only/)
+    await expect(runE('projectRoom', { gid }, { sub: 'cf', name: 'Callum Fraser', role: 'external', emails: [] })).rejects.toThrow(/not available to outside/)
+    await expect(runE('projectLinks', {}, daniel)).rejects.toThrow(/Only a director/); await expect(runE('projectLinkSet', { proj: 'X', projectId: 'p1' }, daniel)).rejects.toThrow(/Only a director/)
+    expect(calls).toBe(0)
+  })
+  it('gives a director the numbers for a private project chat, found by name', async () => {
+    proj('p1', 'Belmont Estate'); const gid = await chatFor('belmont estate')
+    const r = await runE('projectRoom', { gid })
+    expect(r.room).toEqual({ proj: 'belmont estate', source: { id: 'p1', name: 'Belmont Estate' }, tdc: 100000000, gdv: 130000000, profit: 30000000, margin: 0.3, marginGdv: 0.2308, asAt: Date.parse('2026-10-25T00:00:00Z') })
+  })
+  it('says why there is nothing: not private, no project, not linked, no feasibility yet, engine trouble', async () => {
+    proj('p1', 'Belmont Estate'); proj('p2', 'Palmerston', false); proj('boom', 'Corio')
+    expect(await runE('projectRoom', { gid: await chatFor('Belmont Estate', false) })).toEqual({ room: null, why: 'private' })
+    expect(await runE('projectRoom', { gid: await chatFor('No project') })).toEqual({ room: null, why: 'no project' })
+    expect(await runE('projectRoom', { gid: await chatFor('Somewhere else') })).toEqual({ room: null, why: 'not linked' })
+    expect(await runE('projectRoom', { gid: await chatFor('Palmerston') })).toEqual({ room: null, why: 'no feasibility' })
+    expect(await runE('projectRoom', { gid: await chatFor('Corio') })).toEqual({ room: null, why: 'unavailable' })
+    const dm = (await run('newGroup', { ids: ['ds'] })).gid
+    expect(await runE('projectRoom', { gid: dm })).toEqual({ room: null, why: 'private' })
+    await expect(runE('projectRoom', { gid: 'nope' })).rejects.toThrow(/not in that chat/)
+  })
+  it('a director can link a chat project to a feasibility project, and take the link away', async () => {
+    proj('p1', 'St Village Preston'); const gid = await chatFor('Preston')
+    expect((await runE('projectRoom', { gid })).why).toBe('not linked')
+    const l = await runE('projectLinkSet', { proj: 'Preston', projectId: 'p1' })
+    expect(l.links).toEqual({ Preston: 'p1' }); expect((await runE('projectLinks', {})).projects).toEqual([{ id: 'p1', name: 'St Village Preston' }])
+    expect((await runE('projectRoom', { gid })).room.source.name).toBe('St Village Preston')
+    await expect(runE('projectLinkSet', { proj: 'Preston', projectId: 'missing' })).rejects.toThrow(/No such feasibility/)
+    expect((await runE('projectLinkSet', { proj: 'Preston', projectId: null })).links).toEqual({})
+  })
+  it('the bundled server engine loads, runs on an empty project and says there is no feasibility', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const E = require('../../../api/_utils/engineBundle.cjs')
+    const n = E.projectNumbers({ project: { id: 'x1', name: 'Empty', created_at: '2026-01-01', updated_at: '2026-01-01' }, data: null, scenarios: [], scenarioData: [] })
+    expect(Number.isFinite(n.tdc)).toBe(true); expect(n.gdv).toBe(0)
+    proj('x1', 'Empty', false); F.t.projects[0].project = { id: 'x1', name: 'Empty', created_at: '2026-01-01', updated_at: '2026-01-01' }
+    expect(await C.run('projectRoom', { gid: await chatFor('Empty') }, admin, F.deps)).toEqual({ room: null, why: 'no feasibility' })
+  })
+  it('the committed server engine is the one built from the current engine source', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require('fs'); const { rolldown } = await import('rolldown')
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cfg = (await import('../../../scripts/engine-server/rolldown.config.mjs')).default
+    const b = await rolldown({ input: cfg.input, platform: cfg.platform, plugins: cfg.plugins })
+    const out = await b.generate({ format: 'cjs', minify: false, banner: cfg.output.banner })
+    expect(out.output[0].code.trim()).toBe(fs.readFileSync('api/_utils/engineBundle.cjs', 'utf8').trim())   // if this fails: run `npm run build:engine` and commit api/_utils/engineBundle.cjs
+  })
+})
+
+describe('find a time: free or busy only', () => {
+  const MON = Date.parse('2099-01-04T13:00:00Z')   // Monday 00:00 in Melbourne (AEDT)
+  const at = (hhmm: string) => Date.parse('2099-01-05T' + hhmm + ':00+11:00')
+  const setup = async () => {
+    const gid = (await run('newGroup', { name: 'Corio', ids: ['ds', 'lj'] })).gid
+    F.cal.schedule = async (_mb: string, emails: string[]) => { F.cal.asked.push(emails.join(',')); return emails.map((e: string) => ({ email: e, error: e.startsWith('lewis') && F.cal.lewisDown, busy: e.startsWith('daniel') ? [{ s: at('09:00'), e: at('10:00') }] : e.startsWith('jamie') ? [{ s: at('10:00'), e: at('10:30') }] : [] })) }
+    return gid
+  }
+  it('finds the half hours when everyone is free, inside working hours, and shows only busy blocks', async () => {
+    const gid = await setup()
+    const r = await run('findTime', { gid, from: MON, to: MON + 86400000, durationMin: 60 })
+    expect(r.people.map((p: any) => p.n).sort()).toEqual(['Daniel Sette', 'Jamie Baldwin', 'Lewis Jin'])
+    expect(r.people.every((p: any) => Object.keys(p).sort().join() === 'busy,id,n,ok')).toBe(true)
+    const starts = r.slots.map((s: any) => s.s)
+    expect(starts[0]).toBe(at('08:00')); expect(starts).not.toContain(at('08:30')); expect(starts).not.toContain(at('09:30')); expect(starts).not.toContain(at('10:00'))
+    expect(starts).toContain(at('10:30')); expect(starts.every((s: number) => s >= at('08:00') && s + 3600000 <= at('18:00'))).toBe(true)
+    expect(r.partial).toBe(false)
+  })
+  it('weekends are skipped, and someone who cannot be read is reported, not guessed at', async () => {
+    const gid = await setup(); F.cal.lewisDown = true
+    const sat = Date.parse('2099-01-10T00:00:00+11:00')
+    expect((await run('findTime', { gid, from: sat, to: sat + 86400000 })).slots).toEqual([])
+    const r = await run('findTime', { gid, from: MON, to: MON + 86400000 })
+    expect(r.partial).toBe(true); expect(r.people.find((p: any) => p.n === 'Lewis Jin').ok).toBe(false)
+  })
+  it('only people in the chat, never an outside person, and the calendar must be connected', async () => {
+    const gid = await setup()
+    const r = await run('findTime', { gid, ids: ['ds', 'cw'], from: MON, to: MON + 86400000 })
+    expect(r.people.map((p: any) => p.id).sort()).toEqual(['ds', 'jb'])
+    await expect(run('findTime', { gid, from: MON }, me('zz', 'Nobody'))).rejects.toThrow(/not in that chat/)
+    const ext = { sub: 'cf', name: 'Callum Fraser', role: 'external', emails: ['c.fraser@fraserandpartners.com'] }
+    await expect(run('findTime', { gid }, ext)).rejects.toThrow(/not available to outside/)
+    F.cal.configured = false
+    await expect(run('findTime', { gid, from: MON })).rejects.toThrow(/calendar is not connected/)
   })
 })

@@ -81,6 +81,23 @@ function make(env = process.env, fetchImpl = fetch) {
     if (r.status === 201) return { id: j.id, joinUrl: (j.onlineMeeting && j.onlineMeeting.joinUrl) || null, webLink: j.webLink || null }
     const e = new Error((j.error && j.error.message) || `Outlook refused (${r.status})`); e.status = r.status; throw e
   }
-  return { configured: ok, organizer, upsert, listFor, createOn }
+  // Free or busy for several people, and NOTHING else: no titles, places or attendees ever leave this function. One call, from one mailbox the caller proved is theirs.
+  // Needs only the Calendars.Read (or ReadWrite) application permission the app already has. Times come back as ms; busy = busy, tentative or away.
+  async function schedule(mailbox, emails, fromISO, toISO) {
+    if (!ok) { const e = new Error('Outlook is not set up yet.'); e.code = 'notset'; throw e }
+    const t = await token()
+    const r = await fetchImpl(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(mailbox)}/calendar/getSchedule`, { method: 'POST',
+      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json', Prefer: 'outlook.timezone="UTC"' },
+      body: JSON.stringify({ schedules: emails, startTime: { dateTime: fromISO.slice(0, 19), timeZone: 'UTC' }, endTime: { dateTime: toISO.slice(0, 19), timeZone: 'UTC' }, availabilityViewInterval: 30 }) })
+    const j = await r.json().catch(() => ({}))
+    if (!r.ok) { const e = new Error((j.error && j.error.message) || `Outlook answered ${r.status}`); e.status = r.status; throw e }
+    const ms = (x) => Date.parse(String((x && x.dateTime) || '').slice(0, 19) + 'Z')
+    return (j.value || []).map((v) => ({
+      email: String(v.scheduleId || '').toLowerCase(),
+      error: v.error ? true : false,
+      busy: (v.scheduleItems || []).filter((i) => ['busy', 'tentative', 'oof'].includes(String(i.status || '').toLowerCase())).map((i) => ({ s: ms(i.start), e: ms(i.end) })).filter((i) => i.s && i.e),
+    }))
+  }
+  return { configured: ok, organizer, upsert, listFor, createOn, schedule }
 }
 module.exports = { make, eventFor, span }

@@ -4,6 +4,7 @@
   "description": "7EVEN Capital Development Feasibility Dashboard",
   "main": "dist-electron/main.js",
   "scripts": {
+    "build:engine": "rolldown -c scripts/engine-server/rolldown.config.mjs",
     "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build",
     "test": "vitest run",

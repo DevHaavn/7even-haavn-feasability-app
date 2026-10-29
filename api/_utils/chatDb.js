@@ -43,6 +43,16 @@ function supa(env = process.env, fetchImpl = fetch) {
     },
     styleFor: (gid, mids) => rest('GET', `chat_messages?group_id=eq.${gid}&kind=in.(react,vote,pollup)&or=(task-%3E%3Ere.in.(${mids.map(Number).join(',')}),task-%3E%3Epoll.in.(${mids.map(Number).join(',')}))&order=id.asc&limit=1000&select=*`),
     meetingCards: (gid) => rest('GET', `chat_messages?group_id=eq.${gid}&kind=eq.meeting&order=id.asc&limit=100&select=id,task`),
+    // the feasibility projects (the old studio's tables, read-only here) for the project room
+    async projectRows(id) {
+      const e = encodeURIComponent(id)
+      const p = (await rest('GET', `projects?id=eq.${e}&select=*`))[0]
+      if (!p) return null
+      const [data, scenarios] = await Promise.all([rest('GET', `project_data?project_id=eq.${e}&select=*`), rest('GET', `mix_scenarios?project_id=eq.${e}&select=*`)])
+      const scenarioData = scenarios.length ? await rest('GET', `scenario_data?scenario_id=in.${inList(scenarios.map((x) => x.id))}&select=*`) : []
+      return { project: p, data: data[0] || null, scenarios, scenarioData }
+    },
+    allProjects: () => rest('GET', 'projects?select=id,name,updated_at&order=name.asc&limit=200'),
     // the live meeting room (supabase/2026-10-30_chat_meeting_room.sql)
     meetingItems: (meetingId) => rest('GET', `chat_meeting_items?meeting_id=eq.${encodeURIComponent(meetingId)}&order=id.asc&limit=500&select=*`),
     async addMeetingItem(row) { return (await rest('POST', 'chat_meeting_items', row, 'return=representation'))[0] },

@@ -1055,6 +1055,89 @@ async function endMeeting(store, kv, me, a, wp, mail) {
   return { ok: true, gid, msg, tasks, decisions: decisions.length, emailed, ...(emailError ? { emailError } : {}), skipped, closed }
 }
 
+// ---------- project room: the four numbers of a project, for directors, in private project chats only ----------
+// The numbers come from the real feasibility engine (src/engine + src/db), bundled for the server as engineBundle.cjs by `npm run build:engine`; they are never
+// worked out anywhere else. They are built only after the caller has been checked as a director AND the chat has been checked as private with a project, so for
+// anyone else nothing is read, worked out or sent. A chat is tied to a feasibility project by name, or by a link a director sets (capital_kv `atrium_project_links`).
+const LINKS_KEY = 'atrium_project_links'
+async function projectLinks(kv) {
+  try { const row = kv && kv.read ? await kv.read(LINKS_KEY) : null; return (row && row.value && row.value.links) || {} } catch { return {} }
+}
+const exactName = (v) => String(v || '').replace(/[*%\\]/g, ' ').trim()
+// projectRoom { gid } -> { room:{ proj, source:{id,name}, tdc, gdv, profit, margin, marginGdv, asAt } } | { room:null, why }
+// why: 'private' (not a private chat), 'no project', 'not linked' (no feasibility project of that name or link), 'no feasibility' (linked, but no sales value yet), 'unavailable'
+async function projectRoom(store, kv, me, a, engine) {
+  if (me.role !== 'admin') throw new ChatError('Project numbers are for directors only.', 403)
+  await mustBeMember(store, a.gid, me)
+  const g = (await store.groupsByIds([a.gid]))[0]
+  if (!g || g.is_dm || !g.is_private) return { room: null, why: 'private' }
+  const proj = String(g.project || '').trim()
+  if (!proj || proj === 'No project') return { room: null, why: 'no project' }
+  const links = await projectLinks(kv)
+  let rows = null
+  try {
+    if (links[proj]) rows = await store.projectRows(links[proj])
+    else { const hit = (await store.allProjects()).find((p) => lowerN(p.name) === lowerN(exactName(proj))); if (hit) rows = await store.projectRows(hit.id) }
+  } catch { return { room: null, why: 'unavailable' } }
+  if (!rows) return { room: null, why: 'not linked' }
+  let n
+  try { n = (engine || require('./engineBundle.cjs')).projectNumbers(rows) } catch { return { room: null, why: 'unavailable' } }
+  if (!n || !(n.gdv > 0) || !Number.isFinite(n.tdc)) return { room: null, why: 'no feasibility' }
+  const stamps = [rows.project.updated_at, rows.data && rows.data.updated_at].map((x) => Date.parse(x)).filter(Boolean)
+  const r = (v) => Math.round(v), pc = (v) => Math.round(v * 10000) / 10000
+  return { room: { proj, source: { id: rows.project.id, name: rows.project.name }, tdc: r(n.tdc), gdv: r(n.gdv), profit: r(n.profit), margin: pc(n.marginOnCost), marginGdv: pc(n.marginOnGdv), asAt: stamps.length ? Math.max(...stamps) : 0 } }
+}
+// projectLinks -> { links, projects:[{id,name}] }      projectLinkSet { proj, projectId|null } -> { links }      directors only
+async function projectLinksList(store, kv, me) {
+  if (me.role !== 'admin') throw new ChatError('Only a director can see project links.', 403)
+  return { links: await projectLinks(kv), projects: (await store.allProjects()).map((p) => ({ id: p.id, name: p.name })) }
+}
+async function projectLinkSet(store, kv, me, a) {
+  if (me.role !== 'admin') throw new ChatError('Only a director can link a project.', 403)
+  if (!kv || !kv.update) throw new ChatError('Saving is not available right now.', 503)
+  const proj = cleanLine(a.proj, MAX_NAME)
+  if (!proj) throw new ChatError('Say which project chat this is for.')
+  const id = a.projectId ? String(a.projectId) : ''
+  if (id && !(await store.projectRows(id))) throw new ChatError('No such feasibility project.', 404)
+  await kv.update(LINKS_KEY, (v) => { const links = { ...((v && v.links) || {}) }; if (id) links[proj] = id; else delete links[proj]; return { next: { links }, result: null } })
+  return { links: await projectLinks(kv) }
+}
+
+// ---------- find a time: free or busy only, never what the meeting is ----------
+// findTime { gid, ids?, from?, to?, durationMin? } -> { range:{from,to}, people:[{ id, n, ok, busy:[{s,e}] }], slots:[{s,e}], partial }
+// Only people in the chat can be looked up, and only people on a company calendar (HAAVN or 7EVEN). Slots are 08:00 to 18:00 Melbourne time, Monday to Friday, every half hour,
+// when everyone who could be read is free; at most 20.
+const MEL = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Melbourne', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+function melbourne(ms) { const o = {}; for (const p of MEL.formatToParts(new Date(ms))) o[p.type] = p.value; return { wd: o.weekday, min: Number(o.hour) * 60 + Number(o.minute) } }
+function workable(startMs, endMs) {
+  const a = melbourne(startMs), b = melbourne(endMs)
+  return !['Sat', 'Sun'].includes(a.wd) && a.wd === b.wd && a.min >= 480 && b.min <= 1080 && b.min > a.min
+}
+async function findTime(store, me, a, cal) {
+  const { rows } = await mustBeMember(store, a.gid, me)
+  const inChat = new Set(rows.map((r) => r.member))
+  const want = [...new Set([me.sub, ...(Array.isArray(a.ids) && a.ids.length ? a.ids : rows.map((r) => r.member))])].filter((id) => inChat.has(id) && byId(id)).slice(0, 12)
+  const dur = Math.min(480, Math.max(15, Math.round(Number(a.durationMin) || 60))) * 60000
+  const from = Math.max(Number(a.from) || Date.now(), Date.now()), to = Math.min(Number(a.to) || from + 7 * 86400000, from + 14 * 86400000)
+  if (!(to > from)) throw new ChatError('Pick a time range that is ahead of now.')
+  const mailOf = (id) => ((byId(id) || {}).emails || []).find((e) => goodMail(e) && CAL_DOMAINS.includes(e.split('@')[1])) || ''
+  const people = want.map((id) => ({ id, n: person(id).n, ok: false, busy: [], email: mailOf(id) }))
+  const askable = people.filter((p) => p.email)
+  if (askable.length) {
+    const got = await onMyMailbox(me, cal, async (mb) => ({ items: await cal.schedule(mb, askable.map((p) => p.email), new Date(from).toISOString(), new Date(to).toISOString()) }))
+    for (const p of askable) { const v = got.items.find((x) => x.email === p.email); if (v && !v.error) { p.ok = true; p.busy = v.busy } }
+  }
+  const reading = people.filter((p) => p.ok)
+  const slots = []
+  if (reading.length) {
+    const step = 30 * 60000
+    for (let s = Math.ceil(from / step) * step; s + dur <= to && slots.length < 20; s += step) {
+      if (workable(s, s + dur) && reading.every((p) => !p.busy.some((b) => b.s < s + dur && b.e > s))) slots.push({ s, e: s + dur })
+    }
+  }
+  return { range: { from, to }, people: people.map(({ id, n, ok, busy }) => ({ id, n, ok, busy })), slots, partial: people.some((p) => !p.ok) }
+}
+
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
 // wins, an empty list takes it back); the person who asked can change the wording, add answers and close it with 'pollup' rows (the newest wins).
 const POLL_MAX_OPTS = 12
@@ -1230,7 +1313,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 // What an outside person (role external) may not do: anything that reaches past the chats they are in.
-const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'taskNudge', 'meetingRoom', 'meetingItemAdd', 'meetingItemEdit', 'meetingItemRemove', 'endMeeting', 'outsideList', 'outsideAdd', 'outsideRemove'])
+const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'taskNudge', 'projectRoom', 'projectLinks', 'projectLinkSet', 'findTime', 'meetingRoom', 'meetingItemAdd', 'meetingItemEdit', 'meetingItemRemove', 'endMeeting', 'outsideList', 'outsideAdd', 'outsideRemove'])
 // The people an outside person already shares a chat with: the only people they can add to a new chat.
 async function knownTo(store, me) {
   const mine = (await store.memberRowsFor(me.sub)).map((r) => r.group_id)
@@ -1239,7 +1322,7 @@ async function knownTo(store, me) {
 }
 
 async function run(action, a, me, deps) {
-  const { store, files, kv, wp, cal, speech, site, mail } = deps
+  const { store, files, kv, wp, cal, speech, site, mail, engine } = deps
   await O.sync(kv)
   // someone taken off the outside list stops working at once, even with a signed session still in hand
   if (String(me.sub).startsWith('o_') && !byId(me.sub)) throw new ChatError('signin', 401)
@@ -1300,6 +1383,10 @@ async function run(action, a, me, deps) {
     case 'forwardMessage': return forwardMessage(store, me, a, wp)
     case 'remindMe': return remindMe(store, me, a)
     case 'myReminders': return myReminders(store, me)
+    case 'projectRoom': return projectRoom(store, kv, me, a, engine)
+    case 'projectLinks': return projectLinksList(store, kv, me)
+    case 'projectLinkSet': return projectLinkSet(store, kv, me, a)
+    case 'findTime': return findTime(store, me, a, cal)
     case 'taskUpdate': return taskUpdate(store, kv, me, a)
     case 'taskNudge': return taskNudge(store, me, a, wp)
     case 'meetingRoom': return meetingRoom(store, kv, me, a)
