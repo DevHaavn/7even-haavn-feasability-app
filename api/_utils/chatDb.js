@@ -35,6 +35,14 @@ function supa(env = process.env, fetchImpl = fetch) {
     remindersFor: (person) => rest('GET', `chat_reminders?person_id=eq.${encodeURIComponent(person)}&sent_at=is.null&order=remind_at.asc&limit=200&select=*`),
     dueReminders: (nowIso) => rest('GET', `chat_reminders?sent_at=is.null&remind_at=lte.${encodeURIComponent(nowIso)}&order=remind_at.asc&limit=200&select=*`),
     markReminderSent: (id) => rest('PATCH', `chat_reminders?id=eq.${Number(id)}`, { sent_at: new Date().toISOString() }, 'return=minimal'),
+    // jump to an old message (search), and the meeting cards of a chat
+    async messagesAround(gid, mid, n) {
+      const base = `chat_messages?group_id=eq.${gid}&kind=not.in.(icon,wall,avatar,mop,react,vote,pollup)`
+      const [before, after] = await Promise.all([rest('GET', `${base}&id=lte.${Number(mid)}&order=id.desc&limit=${n + 1}&select=*`), rest('GET', `${base}&id=gt.${Number(mid)}&order=id.asc&limit=${n}&select=*`)])
+      return [...before.reverse(), ...after]
+    },
+    styleFor: (gid, mids) => rest('GET', `chat_messages?group_id=eq.${gid}&kind=in.(react,vote,pollup)&or=(task-%3E%3Ere.in.(${mids.map(Number).join(',')}),task-%3E%3Epoll.in.(${mids.map(Number).join(',')}))&order=id.asc&limit=1000&select=*`),
+    meetingCards: (gid) => rest('GET', `chat_messages?group_id=eq.${gid}&kind=eq.meeting&order=id.asc&limit=100&select=id,task`),
     // the live meeting room (supabase/2026-10-30_chat_meeting_room.sql)
     meetingItems: (meetingId) => rest('GET', `chat_meeting_items?meeting_id=eq.${encodeURIComponent(meetingId)}&order=id.asc&limit=500&select=*`),
     async addMeetingItem(row) { return (await rest('POST', 'chat_meeting_items', row, 'return=representation'))[0] },

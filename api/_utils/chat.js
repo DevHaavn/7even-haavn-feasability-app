@@ -613,6 +613,27 @@ async function taskAdd(store, kv, me, a, wp) {
   return { gid, msg: r.msg, task: r.msg.task }
 }
 
+// messagesAround { gid, mid, n?: 30 } -> { msgs, at }   the messages either side of one old message, shaped like the history in init/poll (quotes, edits, pins, forwards,
+// signed file links), plus the reactions and votes on them. Members only. For a search hit older than the newest ~700 messages that the screen holds.
+async function messagesAround(store, files, me, a) {
+  await mustBeMember(store, a.gid, me)
+  const n = Math.min(60, Math.max(1, Number(a.n) || 30))
+  const hit = await store.getMessage(a.mid)
+  if (!hit || hit.group_id !== a.gid || STYLE_KINDS.includes(hit.kind)) throw new ChatError('No such message.', 404)
+  const rows = await store.messagesAround(a.gid, hit.id, n)
+  let style = []
+  if (Number(a.v) >= 2 && rows.length) { try { style = await store.styleFor(a.gid, rows.map((r) => r.id)) } catch { /* the messages still come; reactions arrive with the next full load */ } }
+  const list = [...rows, ...style].sort((x, y) => x.id - y.id).map(shapeMsg)
+  await addQuotes(store, list)
+  const paths = []
+  list.forEach((m) => (m.files || []).forEach((f) => { if (f.path) paths.push(f.path) }))
+  if (paths.length) {
+    const urls = await files.signDownloads(paths)
+    list.forEach((m) => (m.files || []).forEach((f) => { if (f.path && urls[f.path]) f.url = urls[f.path] }))
+  }
+  return { msgs: list, at: hit.id }
+}
+
 // search { q, offset?, limit? }  Messages and task titles in my groups, file names, my notes, meetings I am on. Newest first; `next` is the offset for the following page, or null.
 const SEARCH_MAX = 200
 const snippet = (text, q) => {
@@ -651,9 +672,16 @@ async function search(store, kv, files, me, a) {
       for (const m of ((row && row.value && row.value.meetings) || [])) {
         if (!onMeeting(me, m)) continue
         const hit = has(m.title) || (m.items || []).some((i) => has(i.title)) || (m.decisions || []).some((d) => has(d.text))
-        if (hit) out.push({ kind: 'meeting', id: m.id, title: m.title || 'Meeting', snip: [m.date, m.time].filter(Boolean).join(' '), t: Date.parse((m.date || '') + 'T12:00:00Z') || 0 })
+        if (hit) out.push({ kind: 'meeting', id: m.id, title: m.title || 'Meeting', snip: [m.date, m.time].filter(Boolean).join(' '), t: Date.parse((m.date || '') + 'T12:00:00Z') || 0, ...(m.chatGid && ids.includes(m.chatGid) ? { gid: m.chatGid, g: gname[m.chatGid] } : {}) })
       }
     } catch { /* meetings are best effort */ }
+  }
+  // a meeting with a chat I am in: the card in that chat (mid), so a tap lands on it
+  const cardsOf = {}
+  for (const x of out.filter((r) => r.kind === 'meeting' && r.gid).slice(0, 30)) {
+    if (!(x.gid in cardsOf)) { try { cardsOf[x.gid] = store.meetingCards ? await store.meetingCards(x.gid) : [] } catch { cardsOf[x.gid] = [] } }
+    const card = cardsOf[x.gid].find((c) => c.task && c.task.meeting && String(c.task.meeting.id) === String(x.id))
+    if (card) x.mid = card.id
   }
   out.sort((x, y) => (y.t || 0) - (x.t || 0))
   const off = Math.max(0, Number(a.offset) || 0), lim = Math.min(60, Math.max(1, Number(a.limit) || 30))
@@ -1281,6 +1309,7 @@ async function run(action, a, me, deps) {
     case 'endMeeting': return endMeeting(store, kv, me, a, wp, mail)
     case 'myTasks': return myTasks(store, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
+    case 'messagesAround': return messagesAround(store, files, me, a)
     case 'search': return search(store, kv, files, me, a)
     case 'signUpload': return signUpload(store, files, me, a)
     case 'avatars': return { avatars: await avatarUrls(files) }

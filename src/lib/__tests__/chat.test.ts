@@ -46,6 +46,9 @@ function fake() {
     async searchMessages(ids: string[], q: string) { const l = q.toLowerCase(); return t.msgs.filter((m) => ids.includes(m.group_id) && ['text', 'task', 'wfupdate', 'meeting'].includes(m.kind) && (String(m.body || '').toLowerCase().includes(l) || String(m.task && m.task.title || '').toLowerCase().includes(l))).sort((x, y) => y.id - x.id) },
     async recentWithFiles(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && (m.files || []).length).sort((x, y) => y.id - x.id) },
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
+    async messagesAround(g: string, mid: number, n: number) { const ok = (m: any) => m.group_id === g && !['icon', 'wall', 'avatar', 'mop', 'react', 'vote', 'pollup'].includes(m.kind); const b = t.msgs.filter((m) => ok(m) && m.id <= mid).sort((x, y) => y.id - x.id).slice(0, n + 1).reverse(); return [...b, ...t.msgs.filter((m) => ok(m) && m.id > mid).sort((x, y) => x.id - y.id).slice(0, n)] },
+    async styleFor(g: string, mids: number[]) { return t.msgs.filter((m) => m.group_id === g && ['react', 'vote', 'pollup'].includes(m.kind) && mids.includes(Number(m.task && (m.task.re || m.task.poll)))) },
+    async meetingCards(g: string) { return t.msgs.filter((m) => m.group_id === g && m.kind === 'meeting') },
     async meetingItems(id: string) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.filter((r) => r.meeting_id === id) },
     async addMeetingItem(r: any) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); const x = { id: t.items.length + 1, created_at: new Date().toISOString(), filed_at: null, task_mid: null, ...r }; t.items.push(x); return x },
     async getMeetingItem(id: number) { if (t.noRoom) throw Object.assign(new Error('db 404 PGRST205'), { status: 404, code: 'PGRST205' }); return t.items.find((r) => r.id === Number(id)) || null },
@@ -1092,5 +1095,34 @@ describe('the live meeting room', () => {
     expect((await run('init', { v: 2 })).groups).toHaveLength(1)
     const ext = { sub: 'cf', name: 'Callum Fraser', role: 'external', emails: ['c.fraser@fraserandpartners.com'] }
     for (const a of ['meetingRoom', 'meetingItemAdd', 'endMeeting', 'taskNudge']) await expect(run(a, { meetingId: 77, mid: 1 }, ext)).rejects.toThrow(/not available to outside/)
+  })
+})
+
+describe('jump to an old message and meeting search hits', () => {
+  it('messagesAround returns the window, with quotes, reactions and signed file links; members only', async () => {
+    const gid = (await run('newGroup', { name: 'Belmont', ids: ['ds'] })).gid
+    const ids: number[] = []
+    for (let i = 0; i < 10; i++) ids.push((await run('send', { gid, body: 'm' + i })).msg.id)
+    const q = (await run('send', { gid, body: 'reply', reply_to: ids[2] })).msg
+    await run('react', { mid: ids[4], emoji: '\u{1F44D}', on: true })
+    await run('send', { gid, body: '', files: [{ name: 'a.pdf', type: 'application/pdf', size: 1, path: gid + '/a.pdf' }] })
+    const r = await run('messagesAround', { gid, mid: ids[4], n: 2 }, daniel)
+    expect(r.at).toBe(ids[4]); expect(r.msgs.filter((m: any) => !m.k).map((m: any) => m.x)).toEqual(['m2', 'm3', 'm4', 'm5', 'm6'])
+    expect(r.msgs.some((m: any) => m.k === 'react' && m.re === ids[4])).toBe(true)
+    const wide = await run('messagesAround', { gid, mid: ids[2], n: 60 })
+    expect(wide.msgs.find((m: any) => m.id === q.id).rq).toMatchObject({ x: 'm2' })
+    expect(wide.msgs.find((m: any) => m.files).files[0].url).toBe('https://dl/' + gid + '/a.pdf')
+    await expect(run('messagesAround', { gid, mid: ids[4] }, lewis)).rejects.toThrow(/not in that chat/)
+    const other = (await run('newGroup', { name: 'Other', ids: ['ds'] })).gid
+    await expect(run('messagesAround', { gid: other, mid: ids[4] })).rejects.toThrow(/No such message/)
+  })
+  it('a meeting search hit carries its chat and its card in that chat', async () => {
+    F.db.board.meetings.push({ id: 77, title: 'Corio board', kind: 'internal', date: '2026-11-10', time: '09:00', chair: 'Jamie Baldwin', closed: false, items: [], decisions: [], attendees: [{ id: 1, name: 'Jamie Baldwin' }, { id: 2, name: 'Daniel Sette' }] })
+    F.db.board.meetings.push({ id: 78, title: 'Corio kickoff', kind: 'internal', date: '2026-11-11', time: '09:00', chair: 'Jamie Baldwin', closed: false, items: [], decisions: [], attendees: [{ id: 1, name: 'Jamie Baldwin' }] })
+    const gid = (await run('meetingChat', { meetingId: 77 })).gid
+    const card = (await run('init', {})).msgs.find((m: any) => m.mt).id
+    const hits = (await run('search', { q: 'corio' })).results.filter((r: any) => r.kind === 'meeting')
+    expect(hits.find((r: any) => r.id === 77)).toMatchObject({ gid, mid: card, g: 'Corio board' })
+    expect(hits.find((r: any) => r.id === 78).gid).toBeUndefined()
   })
 })
