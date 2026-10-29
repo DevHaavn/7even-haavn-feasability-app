@@ -800,9 +800,9 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
  html.tallfix{height:var(--sh)!important;min-height:var(--sh)!important}
  html.tallfix body{position:absolute;top:0;left:0;right:0;width:100%;height:var(--sh)!important;min-height:var(--sh)!important;overflow:hidden;transform:translateZ(0)}
 }
-#camBtn,#camSep,#libBtn,#libSep{display:none}
-@media(max-width:760px){#camBtn,#libBtn{display:grid}#camSep,#libSep{display:block}}
-#camBtn svg,#libBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#camBtn,#camSep{display:none}
+@media(max-width:760px){#camBtn{display:grid}#camSep{display:block}}
+#camBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 #camPrev{display:block;width:100%;max-height:30dvh;object-fit:contain;border-radius:18px;background:rgba(0,0,0,.25);margin:4px 0 12px}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
@@ -828,7 +828,6 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
       <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
       <div class="cap2">
       <button class="ib" id="camBtn" title="Take a photo" aria-label="Take a photo"><svg viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.2-1.8A1 1 0 0 1 9.7 4.7h4.6a1 1 0 0 1 .8.5L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg></button><i id="camSep"></i>
-      <button class="ib" id="libBtn" title="Choose a photo" aria-label="Choose a photo from your photos"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17 4.6-4.6a1 1 0 0 1 1.4 0L14 16l2-2a1 1 0 0 1 1.4 0l2.1 2.1"/></svg></button><i id="libSep"></i>
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <i></i>
       <button class="ib" id="popBtn" title="Open Chat in its own window" aria-label="Open Chat in its own window" style="display:none"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
@@ -1009,7 +1008,6 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div class="row"><button class="cb" id="camRetake" type="button">Retake</button><button class="cb go" id="camCancel" type="button">Cancel</button></div>
 </div></div>
 <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
-<input type="file" id="libIn" accept="image/*" hidden>
 <div class="ov" id="ovSet"><div class="sheet">
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
   <div class="mypic"><span id="myPic"></span><div class="tx"><b>Your picture</b><span>Shown beside your messages and on your direct chats</span></div><div class="btns"><button class="cb" id="picChoose" type="button">Choose</button><button class="cb" id="picRemove" type="button">Remove</button></div></div><input type="file" id="picFile" accept="image/*" hidden>
@@ -1024,7 +1022,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-camera-photos</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-camera-only</div>
   <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div style="padding:8px 0 0"><button class="cb" id="tallBtn" type="button">Try full-screen fix: off</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
@@ -2416,11 +2414,10 @@ function openVotes(mid){
   function camPaint(){ var q=(camFind.value||'').trim().toLowerCase(), gs=[]; try{ gs=active() }catch(e){} gs=gs.filter(function(g){ return !q||gname(g).toLowerCase().indexOf(q)>=0 });
     camList.innerHTML=gs.length?gs.map(function(g){ return '<button class="g" type="button" data-cg="'+g.id+'">'+gIcon(g,40)+'<span class="gt"><span class="n"><b>'+esc(gname(g))+'</b></span></span><span class="m"><span>Send</span></span></button>' }).join(''):'<div class="empty">No chats match.</div>' }
   function camClose(){ camOv.classList.remove('on'); if(camUrl){ URL.revokeObjectURL(camUrl); camUrl=null } camFile=null; camPrev.removeAttribute('src') }
-  var camSrc=camI, libI=document.getElementById('libIn'), libB=document.getElementById('libBtn');
+  var camSrc=camI;
   camB.onclick=function(){ camSrc=camI; camI.click() };
-  if(libB&&libI) libB.onclick=function(){ camSrc=libI; libI.click() };
   var camTake=async function(src){ var f=src.files&&src.files[0]; src.value=''; if(!f) return; camFile=await camShrink(f); camUrl=URL.createObjectURL(camFile); camPrev.src=camUrl; camCap.value=''; camFind.value=''; camPaint(); camOv.classList.add('on')  };
-  camI.onchange=function(){ camTake(camI) }; if(libI) libI.onchange=function(){ camTake(libI) };
+  camI.onchange=function(){ camTake(camI) };
   camFind.oninput=camPaint;
   document.getElementById('camCancel').onclick=camClose;
   document.getElementById('camRetake').onclick=function(){ camClose(); setTimeout(function(){ camSrc.click() },80) };
