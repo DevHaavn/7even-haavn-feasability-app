@@ -29,16 +29,24 @@ function probe(){ if(!C.real()||SUP===true||supBusy||Date.now()-supAt<60000) ret
 var ov=D.createElement('div'); ov.className='ov nx'; ov.id='nxRoom';
 ov.innerHTML='<div class="sheet nx-roomsheet"><div class="nx-rh"><div><h3 id="nxRT"></h3><div class="lead" id="nxRL"></div></div><button type="button" class="nx-rx" data-x aria-label="Close">&times;</button></div><div class="nx-rb" id="nxRB"></div><div class="nx-radd" id="nxRA"></div></div>';
 D.body.appendChild(ov); ov.addEventListener('click',function(e){ if(e.target===ov||e.target.closest('[data-x]')) close() });
-var mid=null, data=null, kind='decision', LOCAL={}, timer=0, busy=false, editing=null, ending=false;
+var mid=null, data=null, kind='decision', LOCAL={}, timer=0, busy=false, editing=null, ending=false, fromGid='';
 function close(){ ov.classList.remove('on'); clearInterval(timer); timer=0; mid=null; data=null; editing=null; ending=false }
 function practiceRoom(card){ var items=LOCAL[mid]||(LOCAL[mid]=[]); return {meeting:{id:mid,title:card.t||'Meeting',date:card.d||'',time:card.tm||'',closed:false,gid:'',chair:C.me(),attendees:[],canEnd:true},agenda:[],items:items} }
 async function load(card){ if(busy) return; busy=true;
   try{ var j=C.real()?await C.api('meetingRoom',{meetingId:mid}):practiceRoom(card||{}); data=j; draw() }
   catch(er){ if(!data) { $('#nxRB').innerHTML='<div class="nx-empty">'+esc((er&&er.message)||'The room could not open.')+'</div>'; $('#nxRA').innerHTML='' } }
   busy=false }
-function openRoom(meetingId,card){ mid=String(meetingId); data=null; editing=null; ending=false; kind='decision'; $('#nxRT').textContent=(card&&card.t)||'Meeting'; $('#nxRL').textContent='Opening the room...'; $('#nxRB').innerHTML=''; $('#nxRA').innerHTML='';
+function openRoom(meetingId,card,gid){ mid=String(meetingId); fromGid=gid||C.cur()||''; data=null; editing=null; ending=false; kind='decision'; $('#nxRT').textContent=(card&&card.t)||'Meeting'; $('#nxRL').textContent='Opening the room...'; $('#nxRB').innerHTML=''; $('#nxRA').innerHTML='';
   $$('.ov.nx.on').forEach(function(x){ x.classList.remove('on') }); ov.classList.add('on'); load(card); clearInterval(timer); timer=setInterval(function(){ var a=D.activeElement; if(ov.classList.contains('on')&&!ending&&!editing&&!(a&&ov.contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))) load(card) },5000) }
 function statusLine(m){ if(m.closed) return 'Closed'; var d=dayOf(m.date), n=new Date(), same=d&&d.toDateString()===n.toDateString(); return (same?'Today':(d?DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]:'No date'))+(m.time?', '+m.time:'')+' · '+(m.attendees||[]).length+' people'+(m.chair?' · Chair '+esc(first(m.chair)):'') }
+/* before it starts: what is open in the chat, and what the last meeting decided */
+function packHtml(m){ var gid=m.gid||fromGid; if(m.closed||!gid||!C.hasGroup(gid)) return ''; var ms=C.msgsIn(gid).filter(function(x){ return !x.del });
+  var tasks=ms.filter(function(x){ return x.task&&!x.task.done&&x.task.title }).slice(-5).reverse(), mins=ms.filter(function(x){ return x.x&&/^Minutes: /.test(x.x) }).pop();
+  if(!tasks.length&&!mins) return '';
+  var h='<div class="mono nx-tkh">Before you start</div>';
+  if(mins){ var lines=String(mins.x).split('\n').map(function(l){ return l.trim() }).filter(Boolean); h+='<div class="nx-pk"><b>Last minutes</b><span>'+esc(lines[0].replace(/^Minutes:\s*/,''))+'</span>'+lines.slice(1,4).filter(function(l){ return l!=='Decisions' }).map(function(l){ return '<small>'+esc(l)+'</small>' }).join('')+'</div>' }
+  if(tasks.length) h+='<div class="nx-pk"><b>Open tasks in this chat</b>'+tasks.map(function(t){ return '<span>'+esc(t.task.title)+'<small>'+esc(first(t.task.own))+(t.task.due?' \u00b7 due '+esc(dueText(t.task.due)):'')+'</small></span>' }).join('')+'</div>';
+  return h }
 function itemHtml(it){ var me=C.me(), mine=it.by===me||(data&&data.meeting&&data.meeting.canEnd), ed=editing===it.id&&!it.filed;
   var who=it.k==='action'?'<span class="nx-ri">'+(it.own?esc(first(it.own)):'No owner')+(it.due?' · due '+esc(dueText(it.due)):'')+'</span>':'';
   var body=ed?'<div class="nx-ckadd"><input id="nxRE" type="text" value="'+esc(it.x)+'" maxlength="500"></div><div class="nx-rowbtns"><button type="button" class="chip nx-ro" data-esave="'+it.id+'">Save</button><button type="button" class="chip nx-ro" data-ecancel>Cancel</button></div>':'<div class="nx-rt">'+esc(it.x)+'</div>';
@@ -49,6 +57,7 @@ function ownerOptions(){ var att=(data.meeting.attendees||[]).map(function(n){ r
 function draw(){ if(!data) return; var m=data.meeting; $('#nxRT').textContent=m.title; $('#nxRL').innerHTML=statusLine(m);
   var h='';
   if(data.agenda&&data.agenda.length) h+='<div class="mono nx-tkh">Agenda</div>'+data.agenda.map(function(a){ return '<div class="nx-ag'+(a.d?' done':'')+'"><span>'+esc(a.t)+'</span>'+(a.o?'<small>'+esc(first(a.o))+'</small>':'')+'</div>' }).join('');
+  h+=packHtml(m);
   var items=data.items||[]; h+='<div class="mono nx-tkh">In the room'+(items.length?' · '+items.length:'')+'</div>';
   h+=items.length?items.map(itemHtml).join(''):'<div class="nx-empty">Nothing yet. Decisions, actions, questions and notes you type here are filed when the meeting ends.</div>';
   if(ending) h+=endHtml(items);
@@ -98,7 +107,7 @@ function decorate(){ if(!on()) return;
   $$('#msgs .mr[data-m]').forEach(function(r){ var card=$('.mtcard',r); if(!card||$('.nx-room',card)) return; var m=C.msg(r.getAttribute('data-m')); if(!m||!m.mt||m.del) return;
     var b=D.createElement('button'); b.type='button'; b.className='chip nx-room'; b.setAttribute('data-room',m.mt.id); b.textContent='Open room'; card.appendChild(b) }) }
 new MutationObserver(function(){ clearTimeout(decorate.t); decorate.t=setTimeout(decorate,60) }).observe($('#msgs'),{childList:true});
-D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-room]'); if(!b) return; e.stopPropagation(); e.preventDefault(); var row=b.closest('.mr'), m=row&&C.msg(row.getAttribute('data-m')); openRoom(b.getAttribute('data-room'),m&&m.mt) },true);
+D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-room]'); if(!b) return; e.stopPropagation(); e.preventDefault(); var row=b.closest('.mr'), m=row&&C.msg(row.getAttribute('data-m')); openRoom(b.getAttribute('data-room'),m&&m.mt,m&&m.g) },true);
 setTimeout(probe,2000); setTimeout(decorate,600);
 window.AtriumRoom={ open:openRoom };
 })();

@@ -276,3 +276,32 @@ html[data-scheme=light] #nxProj .nxk{color:#8a6420}
 .nx-slrow b{font-weight:500;color:var(--gold);flex:none}
 .nx-slrow span{color:var(--soft);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html[data-scheme=light] .nx-slrow b{color:#8a6420}
+
+/* ---------- Status rings and message look ---------- */
+#groups .g.unread:not(.muted) .ti{box-shadow:0 0 0 2px rgba(214,179,106,.5)}
+#groups .g.nx-men .ti{box-shadow:0 0 0 2px var(--gold),0 0 12px rgba(214,179,106,.55)}
+html[data-scheme=light] #groups .g.unread:not(.muted) .ti{box-shadow:0 0 0 2px rgba(163,120,42,.5)}
+html[data-scheme=light] #groups .g.nx-men .ti{box-shadow:0 0 0 2px #a3782a,0 0 10px rgba(163,120,42,.4)}
+#nxLook{margin:12px 0 4px}
+#nxLook .nx-lkh{margin:0 2px 6px}
+#nxLook .nx-lkl{margin:8px 2px 4px;font-size:12.5px;color:var(--faint)}
+body.nx-compact .mr{margin-top:1px}
+body.nx-compact .mr.f{margin-top:6px}
+body.nx-compact .bub{padding:5px 11px 4px;font-size:14.5px;line-height:1.32}
+body.nx-compact .mr .av{width:26px;height:26px}
+body.nx-compact .mr .gap{width:26px}
+body.nx-sq .bub,body.nx-sq .mr .bub{border-radius:8px!important}
+body.nx-quiet .bub,body.nx-quiet .mr .bub{border-radius:10px!important;background:rgba(127,127,127,.16)!important;box-shadow:none!important;border:1px solid var(--line);color:var(--bone)}
+body.nx-quiet .mr.mine .bub{border-color:rgba(214,179,106,.55);background:rgba(214,179,106,.12)!important;color:var(--bone)}
+.nx-pk{padding:8px 2px;border-top:1px solid var(--line);font-size:14px;color:var(--bone)}
+.nx-pk b{display:block;font-weight:400;font-size:12px;color:var(--gold);margin-bottom:2px}
+.nx-pk span{display:block;padding:2px 0}
+.nx-pk small{display:block;font-size:12.5px;color:var(--faint)}
+html[data-scheme=light] .nx-pk b{color:#8a6420}
+
+/* ---------- Looks like a task ---------- */
+#nxSug{display:none;align-items:center;gap:10px;margin:0 12px 6px;padding:7px 12px;border:1px solid rgba(214,179,106,.5);border-radius:14px;background:rgba(214,179,106,.1);font-size:13px;color:var(--bone)}
+#nxSug.on{display:flex}
+#nxSug span{flex:1;min-width:0}
+#nxSug b{font-weight:500}
+#nxSug .nx-rx{font-size:18px;line-height:1;padding:0 2px}
