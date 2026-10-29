@@ -33,6 +33,7 @@ module.exports = async (req, res) => {
   if (action === 'me') {
     let s = null
     try { s = A.sessionFrom(req, env) } catch { /* no secret set */ }
+    if (s) { let okv = null; try { okv = B.kv(env) } catch { /* no service key */ } if (!(await O.stillAllowed(s, okv))) { res.setHeader('Set-Cookie', A.cookie(A.COOKIE, '', 0)); s = null } }
     if (!s) { res.status(401).json({ ok: false }); return }
     res.status(200).json({ ok: true, person: { id: s.sub, name: s.name, role: s.role, app: s.app || 'haavnonly', emails: s.emails }, via: s.via, expires: s.exp })
     return

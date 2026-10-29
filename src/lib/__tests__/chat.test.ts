@@ -765,6 +765,14 @@ describe('outside people', () => {
     await expect(run('init', {}, pat)).rejects.toThrow(/signin/)
   })
 
+  it('a removed person fails the session check everywhere, a director and the team always pass', async () => {
+    await addOutside(); const pat = asOutside()
+    expect(await O.stillAllowed({ sub: pat.sub }, F.deps.kv)).toBe(true)
+    await run('outsideRemove', { email: 'pat@consult.com.au' }, boss)
+    expect(await O.stillAllowed({ sub: pat.sub }, F.deps.kv)).toBe(false)
+    expect(await O.stillAllowed({ sub: 'jb' }, F.deps.kv)).toBe(true)
+  })
+
   it('cannot reach tasks, meetings or the rest of the team, and cannot invite by email', async () => {
     await addOutside(); const pat = asOutside()
     const { gid } = await run('newGroup', { name: 'Fit-out', ids: [pat.sub, 'ds'] }, boss)

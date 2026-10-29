@@ -10,6 +10,7 @@ const MAX_PEOPLE = 200
 const isMail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.length <= 120
 
 let loadedAt = 0
+let loadedOnce = false   // a read has worked at least once on this instance
 let current = []   // the saved entries last applied: { id, name, email, by, at }
 
 const idFor = (email) => 'o_' + crypto.createHash('sha1').update(A.norm(email)).digest('hex').slice(0, 8)
@@ -35,7 +36,7 @@ async function sync(kv, force = false) {
   try {
     const row = await kv.read(KEY)
     apply(row && row.value && row.value.people)
-    loadedAt = Date.now()
+    loadedAt = Date.now(); loadedOnce = true
   } catch { /* keep what we had; a failed read must never lock the team out */ }
   return current
 }
@@ -77,6 +78,14 @@ async function remove(kv, me, a) {
   return { people: list() }
 }
 
+// Is this signed session still good? Everyone on the roster in code always is. An outside person must still be on the saved list, so removing them
+// ends their session on the next request, not 14 days later. If the list has never been read here, fail open: a database blip must not lock people out.
+async function stillAllowed(session, kv) {
+  if (!session || !String(session.sub).startsWith('o_')) return true
+  await sync(kv)
+  return !loadedOnce || A.PEOPLE.some((p) => p.id === session.sub)
+}
+
 const reset = () => { loadedAt = 0 }   // tests: forget the cached list
 
-module.exports = { KEY, idFor, sync, list, add, remove, reset, isMail }
+module.exports = { KEY, idFor, sync, list, add, remove, stillAllowed, reset, isMail }
