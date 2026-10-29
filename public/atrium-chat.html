@@ -977,9 +977,9 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
     <div id="tabs"><button class="on" data-p="tasks">Tasks</button><button data-p="files">Files</button><button data-p="meet">Meeting</button><button data-p="about">About</button></div>
     <div id="pane"></div>
   </aside>
+  <div id="shade"></div>
 </div>
 
-<div id="shade"></div>
 <nav id="tabbar">
   <button class="on" data-v="chat"><svg class="ci " viewBox="0 0 240 240" aria-hidden="true" style="overflow:visible"><path d="M21.1 168.2 A110 110 0 1 1 82.4 223.4 L18.3 233.0 Z" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M76.0 176.2 L120.0 63.8 L164.0 176.2" fill="none" stroke="currentColor" stroke-width="11.5" stroke-linejoin="miter" stroke-miterlimit="8"/></svg><span class="tl">Chat</span><span class="badge" id="bChat2" hidden></span></button>
   <button data-v="tasks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="tl">Tasks</span><span class="badge" id="bTask2" hidden></span></button>
@@ -1126,7 +1126,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
   </div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-outside-people</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-phone-tools-fix</div>
   <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div style="padding:8px 0 0"><button class="cb" id="tallBtn" type="button">Try full-screen fix: off</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
@@ -1923,8 +1923,14 @@ function picker(root, exclude){
   root.addEventListener('mousedown',e=>{ const a=e.target.closest('[data-add],[data-ext],[data-rm],[data-rx]'); if(!a) return; e.preventDefault();
     if(a.dataset.add) sel.ids.push(a.dataset.add); if(a.dataset.ext) sel.ext.push(a.dataset.ext);
     if(a.dataset.rm) sel.ids=sel.ids.filter(x=>x!==a.dataset.rm); if(a.dataset.rx) sel.ext=sel.ext.filter(x=>x!==a.dataset.rx);
-    inp.value=''; paint(); if(a.dataset.add||a.dataset.ext) inp.focus() });
-  document.addEventListener('mousedown',e=>{ if(!root.contains(e.target)) root.classList.remove('open') });
+    inp.value=''; paint();
+    // a phone: close the list and the keyboard after a pick, so Create / Add to chat is in reach; tap the box again for the next person
+    if((a.dataset.add||a.dataset.ext)&&matchMedia('(pointer:coarse)').matches){ root.classList.remove('open'); inp.blur() }
+    else if(a.dataset.add||a.dataset.ext) inp.focus() });
+  // a pick re-draws the list, so the tapped button is already gone when this runs: that is not an outside tap
+  document.addEventListener('mousedown',e=>{ if(e.target.isConnected&&!root.contains(e.target)) root.classList.remove('open') });
+  // the box keeps focus after a pick, so a second tap never fires focus: open the list on tap too (phone and computer)
+  inp.addEventListener('click',open); inp.addEventListener('touchend',()=>{ if(!root.classList.contains('open')) open() },{passive:true});
   paint(); root.classList.remove('open');
   return {get:()=>({ids:[...sel.ids],ext:[...sel.ext]})};
 }
