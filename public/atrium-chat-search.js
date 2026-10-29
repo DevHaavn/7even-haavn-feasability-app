@@ -133,15 +133,18 @@ function draw(){ drawChips(); var q=Q.trim();
 function flashRow(row){ row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.remove('nx-hl'); void row.offsetWidth; row.classList.add('nx-hl'); setTimeout(function(){ row.classList.remove('nx-hl') },1600) }
 function openMsg(gid,mid){
   if(!gid||!C.hasGroup(gid)){ C.flash('That chat is not on this screen.'); return }
-  if(PHONE()) hide(); C.open(gid); var tries=0;
-  (function seek(){ var row=mid?$('.mr[data-m="'+mid+'"]'):null; if(row){ flashRow(row); return } if(!mid) return;
-    if(++tries<14) setTimeout(seek,120); else C.flash('That message is older than what Chat has loaded. The chat is open at its latest.') })() }
+  if(PHONE()) hide(); C.open(gid); if(!mid) return; var tries=0, loaded=false;
+  (function seek(){ var row=$('.mr[data-m="'+mid+'"]'); if(row){ flashRow(row); return }
+    if(++tries<8){ setTimeout(seek,120); return }
+    /* older than the newest messages Chat holds: fetch the ones around it, then look again */
+    if(!loaded&&C.real()&&C.ingest){ loaded=true; tries=0; C.api('messagesAround',{gid:gid,mid:mid,n:30}).then(function(j){ C.ingest((j&&j.msgs)||[]); setTimeout(seek,150) }).catch(function(er){ C.flash((er&&er.message)||'That message could not be loaded.') }); return }
+    C.flash('That message could not be found in the chat.') })() }
 function openResult(r){ remember(Q); var k=r.kind;
   if(k==='message'||k==='task') return openMsg(r.gid,r.mid);
   if(k==='file'){ if(r.url){ window.open(r.url,'_blank','noopener'); return } return openMsg(r.gid,r.mid) }
   if(k==='note'){ if(PHONE()) hide(); if(window.openAtriumNotes) window.openAtriumNotes(null,r.id); else C.flash('Notes are not available here.'); return }
   if(k==='meeting'){ var hit=null; C.activeGroups().some(function(g){ return C.msgsIn(g.id).some(function(m){ if(m.mt&&String(m.mt.id)===String(r.id)){ hit={gid:g.id,mid:m.id}; return true } }) });
-    if(hit) return openMsg(hit.gid,hit.mid); var cal=$('#groups [data-cal="open"]'); hide(); if(cal){ cal.click(); C.flash('This meeting is in your calendar.') } else C.flash('Open this meeting from your calendar.') } }
+    if(hit) return openMsg(hit.gid,hit.mid); if(r.gid&&C.hasGroup(r.gid)){ if(PHONE()) hide(); C.open(r.gid); return } var cal=$('#groups [data-cal="open"]'); hide(); if(cal){ cal.click(); C.flash('This meeting is in your calendar.') } else C.flash('Open this meeting from your calendar.') } }
 
 /* ---------- wiring ---------- */
 inp.addEventListener('input',function(){ Q=inp.value; syncX(); run(false) });
