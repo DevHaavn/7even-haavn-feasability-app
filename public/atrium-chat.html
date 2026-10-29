@@ -899,7 +899,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
 </style>
-<link rel="stylesheet" href="/atrium-chat-next.css?v=5">
+<link rel="stylesheet" href="/atrium-chat-next.css?v=6">
 </head>
 <body>
 <video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
@@ -1475,7 +1475,14 @@ function routeStyle(m){ // rows that are not messages: reactions, icons, a perso
   else if(m.k==='avatar') needAv=true;
   else if(m.k==='vote'){ const v=(S.pv[m.pm]=S.pv[m.pm]||{}); if(m.c&&m.c.length) v[m.u]=m.c; else delete v[m.u] }
   else if(m.k==='pollup'){ if(m.def) S.pdef[m.pm]=m.def }
+  else if(m.k==='mop') applyMop(m);
   styleTick++; return true }
+/* message operations from the stream (and from my own taps): edit sets the words and the edited time, delete clears the words, pin and unpin set or clear the pin */
+function applyMop(m){ const t=S.msgs.find(x=>x.id==m.mid); if(!t) return;
+  if(m.op==='edit'){ if(m.x!=null) t.x=m.x; t.ed=m.ed||m.t||Date.now() }
+  else if(m.op==='del'){ t.del=1; t.x=''; t.files=[]; delete t.task; delete t.pin; delete t.pb; S.msgs.forEach(x=>{ if(x.rt==m.mid&&x.rq){ x.rq.del=1; x.rq.x='' } }) }
+  else if(m.op==='pin'){ t.pin=m.t||Date.now(); t.pb=m.u }
+  else if(m.op==='unpin'){ delete t.pin; delete t.pb } }
 let styleTick=0, needAv=false, AVMAP={};
 /* people's pictures: stored privately, signed links handed out with the people list, refreshed when someone changes theirs */
 function applyAvatars(map){ if(map) AVMAP=map; PEOPLE.forEach(p=>{ if(AVMAP[p.id]) p.img=AVMAP[p.id]; else delete p.img }) }
@@ -1607,17 +1614,22 @@ function pollHtml(m){ const d=pollDef(m), v=S.pv[m.id]||{}, tot=Object.keys(v).l
   return tag+`<div class="pq">${rich(d.q)}</div><div class="psub">${d.closed?'Poll closed':d.multi?'Choose one or more':'Choose one'} · ${tot} ${tot===1?'vote':'votes'}</div>`+d.opts.map((o,i)=>{ const n=counts[i], pct=tot?Math.round(n/tot*100):0, who=Object.entries(v).filter(([u,c])=>c.includes(i)).slice(0,4).map(([u])=>av(P[u]||{n:'?',c:0},'',18)).join('');
     return `<button type="button" class="po ${mine.includes(i)?'me':''}" data-pv="${m.id}" data-i="${i}" ${d.closed?'disabled':''}><span class="pb" style="width:${pct}%"></span><span class="pt">${esc(o)}</span><span class="pw">${who}</span><span class="pn">${n}</span></button>` }).join('')
     +`<div class="pf"><button type="button" data-pw="${m.id}">${tot?'View votes':'No votes yet'}</button></div>` }
+/* edited, replied-to, forwarded and deleted messages (server fields: ed, rt + rq, fw, del, pin) */
+const nxQuote=m=>{ try{ return m.rq?`<div class="nx-rq${m.rq.del?' gone':''}" data-rt="${esc(String(m.rt))}"><b>${esc(String((P[m.rq.u]||{}).n||'Someone').split(' ')[0])}</b><span>${m.rq.del?'Deleted message':esc(String(m.rq.x||''))}</span></div>`:'' }catch(e){ return '' } };
+const nxFwd=m=>{ try{ return m.fw?`<div class="nx-fwl">Forwarded from <b>${esc(String(m.fw.gn||'another chat'))}</b></div>`:'' }catch(e){ return '' } };
+const nxMeta=m=>(m.pin?'<svg class="nx-pn" viewBox="0 0 24 24" aria-label="Pinned"><path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z"/></svg>':'')+(m.ed?'edited ':'');
 function bubbleHtml(m,pop){
+  if(m.del) return `<div class="bub nx-deleted${pop?' pop':''}" data-bub="${m.id}"><div class="tx"><i>This message was deleted</i><span class="tm">${tmf(m.t)}</span></div></div>`;
   if(m.poll){ const th=pollDef(m).theme; return `<div class="bub poll${th?' th-'+th:''}${pop?' pop':''}" data-bub="${m.id}">${pollHtml(m)}<span class="tm">${tmf(m.t)}</span></div>` }
   const p=P[m.u]; const hasTask=!!m.task, plain=hasTask&&/^Set a task for /.test(m.x||'')?'':(m.x||'');
   const emo=!hasTask&&!(m.files&&m.files.length)?emojiCount(plain):0;
   const imgs=(m.files||[]).length&&m.files.every(f=>f.type.startsWith('image/')&&f.url)&&!plain;
   const hasfile=(m.files||[]).some(f=>!f.type.startsWith('image/')||!f.url);
   const cls=['bub',emo?'emo e'+emo:'',imgs?'hasimg':'',hasfile?'hasfile':'',hasTask?'task'+(m.task.done?' done':''):'',m.pending?'pending':'',m.failed?'failed':'',pop?'pop':''].filter(Boolean).join(' ');
-  const tm=`<span class="tm">${tmf(m.t)}</span>`;
+  const tm=`<span class="tm">${nxMeta(m)}${tmf(m.t)}</span>`;
   const mtc=m.mt?`<div class="mtcard"><span class="k">Meeting</span><b>${esc(m.mt.t)}</b><span class="mm">${esc(fmtMtgDate(m.mt.d))}${m.mt.tm?' \u00b7 '+esc(fmtMtgTime(m.mt.tm)):''} \u00b7 ${m.mt.a} people${m.mt.n?` \u00b7 ${m.mt.n} agenda item${m.mt.n===1?'':'s'}`:''}</span><span class="sub">${m.mt.inv?'Outlook invite sent \u00b7 ':''}In Meeting Management</span></div>`:'';
   const wfc=m.wf?`<button type="button" class="wfchip" data-wf="${esc(m.wf.id)}"><span>Task</span> ${esc(m.wf.t)}${m.wf.p?` <i>${esc(m.wf.p)}</i>`:''}</button>`:'';
-  const body=mtc+wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
+  const body=nxFwd(m)+nxQuote(m)+mtc+wfc+(plain?`<div class="tx">${rich(plain)}${(imgs||hasfile||hasTask||emo)?'':tm}</div>`:'')+filesHtml(m)+(hasTask?taskCard(m):'');
   return `<div class="${cls}" data-bub="${m.id}">${body}${(plain&&!imgs&&!hasfile&&!hasTask&&!emo)?'':tm}</div>` }
 function renderThread(newId){
   const g=S.groups.find(x=>x.id===cur&&x.m.includes(S.me)&&!S.gone[S.me+x.id]);
@@ -1647,7 +1659,7 @@ function renderThread(newId){
 const QUICK=['👍','👎','❤️','😂','😮','😢','🙏'];
 let amFor=null;
 function openMenuFor(id,anchor){
-  const m=S.msgs.find(x=>x.id==id); if(!m||m.sys||m.pending||m.failed) return; amFor=id;
+  const m=S.msgs.find(x=>x.id==id); if(!m||m.sys||m.pending||m.failed||m.del) return; amFor=id;
   const mine=((m.u===S.me)), have=Object.entries(S.rx[id]||{}).filter(([e,a])=>a.includes(S.me)).map(x=>x[0]);
   const am=$('#amenu');
   am.innerHTML=`<div class="rbar">${QUICK.map(e=>`<button type="button" data-q="${e}" class="${have.includes(e)?'me':''}" aria-label="React ${e}">${e}</button>`).join('')}<button type="button" data-q="+" aria-label="More emoji"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></button></div>
@@ -2094,21 +2106,23 @@ let pseq=0;
 async function sendNow(pm){
   const gid=pm.g, files=pm._files||[]; if(files.length) waitOn('Uploading');
   try{ const up=[]; for(const f of files){ const s1=await api('signUpload',{gid,name:f.name,type:f.type,size:f.size}); const r=await fetch(s1.uploadUrl,{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f.file}); if(!r.ok) throw new Error('A file did not upload. Try again.'); up.push({name:f.name,type:f.type,size:f.size,path:s1.path,local:f.url}) }
-    const out=await api('send',{gid,body:pm.x,wf:pm._wf,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local});
+    const out=await api('send',{gid,body:pm.x,wf:pm._wf,reply_to:pm._rt,files:up.map(({local,...x})=>x)}); const m=out.msg; if(m.files) m.files.forEach((f,i)=>{f.url=up[i]&&up[i].local});
     S.msgs=S.msgs.filter(x=>x.id!==pm.id); if(!S.msgs.some(x=>x.id===m.id)) S.msgs.push(m);
     S.read[S.me][m.g]=Math.max(S.read[S.me][m.g]||0,m.id); paintAll() }
   catch(e){ pm.pending=0; pm.failed=1; flash(e.message||'Could not send. Try again.'); paintAll() }
   finally{ waitOff() } }
 function send(){
   micStop(); const v=emojify($('#inp').value.trim()); if(!v&&!pend.length) return;
+  if(window.AtriumMsgOps&&AtriumMsgOps.editing()){ AtriumMsgOps.commitEdit(v); return }
   if(v.startsWith('/task')){ $('#inp').value=''; taskDlg(v.replace('/task','').trim()); return }
   if(REAL){ if(!cur) return; const gid=cur, files=pend.slice();
     // on screen at once, marked Sending; it becomes Sent when the server has it, or offers a retry if it could not go
     const pm={id:-(++pseq),g:gid,u:S.me,t:Date.now(),x:v,pending:1,_files:files,_wf:(wfRef&&wfRef.g===gid)?wfRef.id:undefined};
     if(pm._wf) pm.wf={id:wfRef.id,t:wfRef.t,p:''};
+    { const rp=window.AtriumMsgOps&&AtriumMsgOps.takeReply(gid); if(rp){ pm._rt=rp.mid; pm.rt=rp.mid; pm.rq=rp.rq } }
     if(files.length) pm.files=files.map(f=>({name:f.name,type:f.type,size:f.size,url:f.url}));
     S.msgs.push(pm); pend=[]; renderPend(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(pm.id); sendNow(pm); return }
-  const m={g:cur,u:S.me,x:v}; if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
+  const m={g:cur,u:S.me,x:v}; { const rp=window.AtriumMsgOps&&AtriumMsgOps.takeReply(cur); if(rp){ m.rt=rp.mid; m.rq=rp.rq } } if(pend.length){m.files=pend;pend=[];renderPend()} m.id=S.nid++; m.t=Date.now(); S.msgs.push(m);
   S.read[S.me][cur]=m.id; save(); $('#inp').value=''; $('#inp').style.height='auto'; syncSend(); paintAll(m.id);
 }
 $('#sendBtn').onclick=send;
@@ -2566,6 +2580,8 @@ window.AtriumChatRepaint=function(){ try{ if(cur) applyWall(cur) }catch(e){} };
 window.AtriumChat={ api:api, flash:flash, open:function(id){ open(id) }, real:function(){ return REAL }, me:function(){ return S.me }, role:function(){ return S.role }, people:function(){ return PEOPLE }, person:function(id){ return P[id]||{id:id,n:'Someone'} }, projects:function(){ return PROJECTS },
   hasGroup:function(id){ return S.groups.some(function(g){ return g.id===id }) },
   localTasks:function(){ return S.msgs.filter(function(m){ return m.task }).map(function(m){ var g=S.groups.find(function(x){ return x.id===m.g }); return {mid:m.id,gid:m.g,g:g?gname(g):'',title:m.task.title,own:m.task.own,by:m.u,due:m.task.due||'',pri:m.task.pri||'Normal',proj:m.task.proj||'No project',done:!!m.task.done,wf:!!m.task.wf,ag:!!m.task.ag,t:m.t||0} }) },
+  msg:function(id){ return S.msgs.find(function(x){ return x.id==id }) }, msgsIn:function(gid){ return S.msgs.filter(function(x){ return x.g===gid&&!x.sys }) }, cur:function(){ return cur }, group:function(id){ return S.groups.find(function(g){ return g.id===id }) }, activeGroups:function(){ return active() }, gname:function(g){ return gname(g) },
+  repaint:function(){ save(); paintAll() }, mop:applyMop, addLocal:function(m){ m.id=S.nid++; m.t=Date.now(); S.msgs.push(m); save(); return m },
   tick:async function(mid,done){ var m=S.msgs.find(function(x){ return x.id==mid }), was=m&&m.task?m.task.done:null; if(m&&m.task){ m.task.done=done; save(); paintAll() }
     try{ if(window.AtriumChat.real()) await window.AtriumChat.api('taskDone',{mid:mid,done:done}) }catch(er){ if(m&&m.task){ m.task.done=was; save(); paintAll() } throw er } } };
 syncSend(); paintAll(); setView(); bootReal();
@@ -2741,5 +2757,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
 </script>
 <script src="/atrium-live-wall.js?v=2"></script>
 <script src="/atrium-chat-tasks.js?v=4"></script>
+<script src="/atrium-chat-msgops.js?v=1"></script>
 </body>
 </html>
