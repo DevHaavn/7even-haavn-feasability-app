@@ -63,6 +63,26 @@ const GATE_CSS = `
 .ceg-submit:hover{background:transparent;color:#8f6a25}
 .ceg-form input{border-radius:0;border:0;border-bottom:1px solid rgba(20,20,25,.34);background:transparent;padding:10px 0}
 .ceg-form input:focus{border-bottom-color:#1a1b1e}
+
+/* follows the ATRIUM theme like the hubs: the dark animation in dark, the pale one in light */
+html[data-theme="dark"] .ceg-wrap{background:var(--g-bg0,#0B0D0F)}
+html[data-theme="dark"] .ceg-bg{filter:brightness(.55) saturate(.4)}
+html[data-theme="dark"] .ceg-scrim{background:linear-gradient(180deg,rgba(11,13,15,.35),rgba(11,13,15,.2) 42%,rgba(11,13,15,.5))}
+html[data-theme="dark"] .ceg-head{border-bottom-color:var(--g-line,rgba(255,255,255,.09))}
+html[data-theme="dark"] .ceg-mbtn{border-color:var(--g-ink4,#565a63);color:var(--g-ink,#F3F2EE)}
+html[data-theme="dark"] .ceg-brand .wm{color:var(--g-ink,#F3F2EE)}
+html[data-theme="dark"] .ceg-brand .tag{color:var(--g-ink2,#b7b9bf);border-left-color:var(--g-line,rgba(255,255,255,.09))}
+html[data-theme="dark"] .ceg-eyebrow{color:var(--g-ink2,#b7b9bf)}
+html[data-theme="dark"] .ceg-submit{color:var(--g-ink,#F3F2EE)}
+html[data-theme="dark"] .ceg-submit:hover{color:#d6b36a}
+html[data-theme="dark"] .ceg-form input{border-bottom-color:rgba(255,255,255,.34);color:var(--g-ink,#F3F2EE)}
+html[data-theme="dark"] .ceg-form input:focus{border-bottom-color:var(--g-ink,#F3F2EE)}
+html[data-theme="dark"] .ceg-err{color:#ee8f88}
+html[data-theme="dark"] .ceg-wrap .site-footer{border-top-color:var(--g-line,rgba(255,255,255,.09))!important}
+html[data-theme="dark"] .ceg-wrap .site-footer a,html[data-theme="dark"] .ceg-wrap .site-footer span,html[data-theme="dark"] .ceg-wrap .site-footer button:not(.rb){color:var(--g-ink3,#7d818b)!important}
+html[data-theme="dark"] .ceg-wrap .site-footer a:hover,html[data-theme="dark"] .ceg-wrap .site-footer button:not(.rb):hover{color:var(--g-ink,#F3F2EE)!important}
+html[data-theme="dark"] .ceg-wrap .site-footer p{color:var(--g-ink4,#565a63)!important}
+html[data-theme="dark"] .ceg-wrap .site-footer .rb{--rb-c:var(--g-ink3,#7d818b)!important;--rb-h:var(--g-ink,#F3F2EE)!important}
 `
 
 function CrmEmailGate({ onPass, onBack, onLogout }: { onPass: (email: string) => void; onBack: () => void; onLogout: () => void }) {
