@@ -545,6 +545,100 @@ async function taskDone(store, kv, me, a) {
   return { ok: true, task }
 }
 
+// ---------- My Tasks, a quick add with no chat, and search ----------
+// Every task I own or set, across all my groups (including my private "My tasks" group, which is not in the chat list).
+async function myTasks(store, me, a) {
+  const mine = await store.memberRowsFor(me.sub)
+  const ids = mine.map((r) => r.group_id)
+  if (!ids.length) return { tasks: [] }
+  const [rows, groups] = await Promise.all([store.tasksIn(ids), store.groupsByIds(ids)])
+  const gname = Object.fromEntries(groups.map((g) => [g.id, g.name || (g.is_dm ? 'Direct message' : 'Chat')]))
+  const wantDone = a.done === true || a.include === 'all'
+  const out = rows
+    .filter((m) => m.task && m.kind === 'task' && (m.task.own === me.sub || m.sender === me.sub) && (wantDone || !m.task.done))
+    .map((m) => ({ mid: m.id, gid: m.group_id, g: gname[m.group_id] || 'Chat', title: m.task.title || '', own: m.task.own, by: m.sender, due: m.task.due || '', pri: m.task.pri || 'Normal',
+      proj: m.task.proj || 'No project', done: !!m.task.done, wf: !!m.task.wfId, ag: !!m.task.ag, t: Date.parse(m.created_at) }))
+  return { tasks: out.slice(0, 400) }
+}
+
+// The group a quick-added task is filed in: the project's chat if I have one, a new private one if not, or a private "My tasks" group (not in the chat list) for a task with no project.
+async function taskGroup(store, me, own, project) {
+  const mine = await store.memberRowsFor(me.sub)
+  if (project && project !== 'No project') {
+    const gs = mine.length ? await store.groupsByIds(mine.filter((r) => !r.hidden).map((r) => r.group_id)) : []
+    const found = gs.find((g) => !g.is_dm && String(g.project || '').toLowerCase() === project.toLowerCase())
+    if (found) { if (own.id !== me.sub && !(await store.membersByGroups([found.id])).some((r) => r.member === own.id)) await addMembers(store, me, { gid: found.id, ids: [own.id] }); return found.id }
+    const g = await store.insertGroup({ name: project.slice(0, MAX_NAME), is_dm: false, is_private: true, owner: me.sub, project, dm_key: null })
+    const ids = [...new Set([me.sub, own.id])]
+    try { await store.insertMembers(ids.map((m) => ({ group_id: g.id, member: m, is_outside: false, added_by: me.sub }))) } catch (e) { try { await store.deleteGroup(g.id) } catch { /* nothing more to do */ } throw e }
+    return g.id
+  }
+  if (own.id !== me.sub) return (await newGroup(store, me, { ids: [own.id] })).gid   // a task for someone, no project: it lands in our direct message
+  const key = 'mytasks:' + me.sub
+  let g = await store.findDm(key)
+  if (!g) {
+    try { g = await store.insertGroup({ name: 'My tasks', is_dm: false, is_private: true, owner: me.sub, project: null, dm_key: key }) } catch (e) { g = await store.findDm(key); if (!g) throw e }
+    try { await store.insertMembers([{ group_id: g.id, member: me.sub, is_outside: false, hidden: true, added_by: me.sub }]) } catch (e) { try { await store.deleteGroup(g.id) } catch { /* nothing more to do */ } throw e }
+  }
+  return g.id
+}
+// taskAdd { title, own?, due?, proj?, pri?, ag? }  Same record, Workflow task and alert as a task set from a chat; Workflow is on unless wf:false.
+async function taskAdd(store, kv, me, a, wp) {
+  const own = byId(a.own || me.sub)
+  if (!own) throw new ChatError('The task needs an owner from the team.')
+  const project = String(a.proj || '').replace(/\s+/g, ' ').trim().slice(0, MAX_NAME)
+  const gid = await taskGroup(store, me, own, project)
+  const r = await send(store, kv, me, { gid, body: '', task: { title: a.title, own: own.id, due: a.due, pri: a.pri, proj: project || 'No project', wf: a.wf !== false, ag: !!a.ag } }, wp)
+  return { gid, msg: r.msg, task: r.msg.task }
+}
+
+// search { q, offset?, limit? }  Messages and task titles in my groups, file names, my notes, meetings I am on. Newest first; `next` is the offset for the following page, or null.
+const SEARCH_MAX = 200
+const snippet = (text, q) => {
+  const t = String(text || '').replace(/\s+/g, ' ').trim(), i = t.toLowerCase().indexOf(q.toLowerCase())
+  if (i < 0) return t.slice(0, 120)
+  const from = Math.max(0, i - 40)
+  return (from ? '…' : '') + t.slice(from, from + 140) + (from + 140 < t.length ? '…' : '')
+}
+async function search(store, kv, me, a) {
+  const q = String(a.q || '').replace(/\s+/g, ' ').trim().slice(0, 80)
+  if (q.length < 2) return { results: [], next: null }
+  const lq = q.toLowerCase(), has = (v) => String(v || '').toLowerCase().includes(lq)
+  const mine = (await store.memberRowsFor(me.sub)).filter((r) => !r.hidden)
+  const ids = mine.map((r) => r.group_id)
+  const groups = ids.length ? await store.groupsByIds(ids) : []
+  const gname = Object.fromEntries(groups.map((g) => [g.id, g.is_dm ? 'Direct message' : (g.name || 'Chat')]))
+  const out = []
+  if (ids.length) {
+    const rows = await store.searchMessages(ids, q.replace(/[,()*%\\]/g, ' '), SEARCH_MAX)
+    const withFiles = await store.recentWithFiles(ids, 400)
+    const seen = new Set()
+    for (const m of rows) {
+      seen.add(m.id)
+      const isTask = m.kind === 'task' && m.task
+      out.push({ kind: isTask ? 'task' : 'message', gid: m.group_id, g: gname[m.group_id], mid: m.id, title: isTask ? (m.task.title || '') : '', snip: snippet(isTask && has(m.task.title) ? m.task.title : m.body, q), u: m.sender, t: Date.parse(m.created_at) })
+    }
+    for (const m of withFiles) for (const f of (m.files || [])) if (has(f.name)) out.push({ kind: 'file', gid: m.group_id, g: gname[m.group_id], mid: m.id, title: f.name, snip: f.name, u: m.sender, t: Date.parse(m.created_at), path: f.path })
+  }
+  try {
+    const { notes } = await N.list(store, me)
+    for (const n of notes) if (has(n.title) || has(n.body)) out.push({ kind: 'note', id: n.id, title: n.title || 'Untitled', snip: snippet(has(n.title) ? n.title : n.body, q), t: n.updated })
+  } catch { /* notes are best effort */ }
+  if (kv && kv.read) {
+    try {
+      const row = await kv.read(B.KEYS.boardroom)
+      for (const m of ((row && row.value && row.value.meetings) || [])) {
+        if (!onMeeting(me, m)) continue
+        const hit = has(m.title) || (m.items || []).some((i) => has(i.title)) || (m.decisions || []).some((d) => has(d.text))
+        if (hit) out.push({ kind: 'meeting', id: m.id, title: m.title || 'Meeting', snip: [m.date, m.time].filter(Boolean).join(' '), t: Date.parse((m.date || '') + 'T12:00:00Z') || 0 })
+      }
+    } catch { /* meetings are best effort */ }
+  }
+  out.sort((x, y) => (y.t || 0) - (x.t || 0))
+  const off = Math.max(0, Number(a.offset) || 0), lim = Math.min(60, Math.max(1, Number(a.limit) || 30))
+  return { results: out.slice(off, off + lim), next: off + lim < out.length ? off + lim : null, total: out.length }
+}
+
 // A poll is a message (kind 'poll', the question in the body, the answers in task.poll). An answer is a tiny 'vote' row (the newest from a person
 // wins, an empty list takes it back); the person who asked can change the wording, add answers and close it with 'pollup' rows (the newest wins).
 const POLL_MAX_OPTS = 12
@@ -720,7 +814,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 // What an outside person (role external) may not do: anything that reaches past the chats they are in.
-const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'outsideList', 'outsideAdd', 'outsideRemove'])
+const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'outsideList', 'outsideAdd', 'outsideRemove'])
 // The people an outside person already shares a chat with: the only people they can add to a new chat.
 async function knownTo(store, me) {
   const mine = (await store.memberRowsFor(me.sub)).map((r) => r.group_id)
@@ -783,6 +877,9 @@ async function run(action, a, me, deps) {
     case 'setMine': return setMine(store, me, a)
     case 'deleteGroup': return deleteGroup(store, files, me, a)
     case 'taskDone': return taskDone(store, kv, me, a)
+    case 'myTasks': return myTasks(store, me, a)
+    case 'taskAdd': return taskAdd(store, kv, me, a, wp)
+    case 'search': return search(store, kv, me, a)
     case 'signUpload': return signUpload(store, files, me, a)
     case 'avatars': return { avatars: await avatarUrls(files) }
     case 'signAvatar': return signAvatar(files, me)

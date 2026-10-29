@@ -33,6 +33,9 @@ function fake() {
     async findDm(key: string) { return t.groups.find((g) => g.dm_key === key) || null },
     async unhideOthers(g: string, me: string) { t.members.filter((r) => r.group_id === g && r.member !== me && r.hidden).forEach((r) => { r.hidden = false }) },
     async unarchiveOthers(g: string, me: string) { t.members.filter((r) => r.group_id === g && r.member !== me).forEach((r) => { r.archived = false }) },
+    async tasksIn(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && m.kind === 'task').sort((x, y) => y.id - x.id) },
+    async searchMessages(ids: string[], q: string) { const l = q.toLowerCase(); return t.msgs.filter((m) => ids.includes(m.group_id) && ['text', 'task', 'wfupdate', 'meeting'].includes(m.kind) && (String(m.body || '').toLowerCase().includes(l) || String(m.task && m.task.title || '').toLowerCase().includes(l))).sort((x, y) => y.id - x.id) },
+    async recentWithFiles(ids: string[]) { return t.msgs.filter((m) => ids.includes(m.group_id) && (m.files || []).length).sort((x, y) => y.id - x.id) },
     async filePaths(g: string) { return t.msgs.filter((m) => m.group_id === g).flatMap((m) => (m.files || []).map((f: any) => f.path)) },
   }
   const objs: any[] = []
@@ -794,5 +797,50 @@ describe('outside people', () => {
   it('refuses a team address and a bad email', async () => {
     await expect(run('outsideAdd', { name: 'Dan', email: 'daniel@7even.au' }, boss)).rejects.toThrow(/already/)
     await expect(run('outsideAdd', { name: 'Dan', email: 'nope' }, boss)).rejects.toThrow(/email/)
+  })
+})
+
+describe('My Tasks, quick add and search', () => {
+  it('quick add with no project lands in a private My tasks group that is not in the chat list, and My Tasks reads it back', async () => {
+    const r = await run('taskAdd', { title: 'Call the surveyor', own: 'jb', due: '2026-11-02', pri: 'High' })
+    expect(r.task.title).toBe('Call the surveyor'); expect(r.task.wf).toBe(1)
+    expect(F.db.workflow.actions).toHaveLength(1)
+    const s = await run('init', {}); expect(s.groups).toHaveLength(0)
+    const t = (await run('myTasks', {})).tasks
+    expect(t).toHaveLength(1); expect(t[0]).toMatchObject({ title: 'Call the surveyor', own: 'jb', by: 'jb', due: '2026-11-02', pri: 'High', done: false, wf: true, g: 'My tasks' })
+  })
+
+  it('a task for someone else with a project is filed to the project chat, and shows for both people', async () => {
+    const { gid } = await run('newGroup', { name: 'Belmont', ids: ['ds'], proj: 'Belmont Estate', priv: true })
+    const r = await run('taskAdd', { title: 'Send the survey', own: 'ds', proj: 'Belmont Estate' })
+    expect(r.gid).toBe(gid)
+    expect((await run('myTasks', {})).tasks.map((x: any) => x.title)).toEqual(['Send the survey'])
+    expect((await run('myTasks', {}, daniel)).tasks.map((x: any) => x.own)).toEqual(['ds'])
+    await run('taskDone', { mid: r.msg.id, done: true }, daniel)
+    expect((await run('myTasks', {})).tasks).toHaveLength(0)
+    expect((await run('myTasks', { include: 'all' })).tasks[0].done).toBe(true)
+  })
+
+  it('a project with no chat yet gets a private one; no project for another person lands in your direct message', async () => {
+    const r = await run('taskAdd', { title: 'Draft term sheet', own: 'lj', proj: 'Corio Quarter' })
+    const s = await run('init', {}); expect(s.groups.map((g: any) => g.n)).toEqual(['Corio Quarter'])
+    expect(r.task.proj).toBe('Corio Quarter')
+    const d = await run('taskAdd', { title: 'Ring me', own: 'ds' })
+    expect((await run('init', {})).groups.some((g: any) => g.dm && g.id === d.gid)).toBe(true)
+  })
+
+  it('searches messages, task titles, file names, notes and meetings, only in my own chats, newest first and in pages', async () => {
+    const { gid } = await run('newGroup', { name: 'Belmont', ids: ['ds'] })
+    const other = await run('newGroup', { name: 'Directors', ids: ['lj'] }, daniel)
+    await run('send', { gid, body: 'The car park layout needs a decision' })
+    await run('send', { gid: other.gid, body: 'car park secret' }, daniel)
+    await run('taskAdd', { title: 'Check car park levels', own: 'jb', proj: 'Belmont' })
+    await run('send', { gid, body: 'plans', files: [{ name: 'Car park plan.pdf', type: 'application/pdf', size: 10, path: gid + '/a.pdf' }] })
+    await run('noteSave', { title: 'Car park thoughts', body: 'x' })
+    const r = await run('search', { q: 'car park' })
+    expect(r.results.map((x: any) => x.kind).sort()).toEqual(['file', 'message', 'note', 'task'].sort())
+    expect(r.results.every((x: any) => x.g !== 'Directors')).toBe(true)
+    expect((await run('search', { q: 'car park', limit: 2 })).next).toBe(2)
+    expect((await run('search', { q: 'x' })).results).toEqual([])
   })
 })

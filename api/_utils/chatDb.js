@@ -23,6 +23,10 @@ function supa(env = process.env, fetchImpl = fetch) {
       return (await rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=not.in.(icon,wall,avatar)&order=id.desc&limit=${limit}&select=*`)).reverse()
     },
     latestStyle: (ids) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=in.(icon,wall)&order=id.desc&limit=600&select=id,group_id,sender,kind,task`),
+    // My Tasks and search
+    tasksIn: (ids) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=eq.task&order=id.desc&limit=800&select=id,group_id,sender,kind,task,created_at`),
+    searchMessages: (ids, q, limit) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&kind=in.(text,task,wfupdate,meeting)&or=(body.ilike.${encodeURIComponent('*' + q + '*')},task-%3E%3Etitle.ilike.${encodeURIComponent('*' + q + '*')})&order=id.desc&limit=${limit}&select=id,group_id,sender,kind,body,task,created_at`),
+    recentWithFiles: (ids, limit) => rest('GET', `chat_messages?group_id=in.${inList(ids)}&files=neq.%5B%5D&kind=in.(text,task,wfupdate)&order=id.desc&limit=${limit}&select=id,group_id,sender,files,created_at`),
     updateGroup: (id, patch) => rest('PATCH', `chat_groups?id=eq.${id}`, patch, 'return=minimal'),
     async latestPollUp(mid) { return (await rest('GET', `chat_messages?kind=eq.pollup&task->>poll=eq.${Number(mid)}&order=id.desc&limit=1&select=*`))[0] || null },
     async insertGroup(g) { return (await rest('POST', 'chat_groups', g, 'return=representation'))[0] },
