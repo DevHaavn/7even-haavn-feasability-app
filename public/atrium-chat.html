@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en-AU">
 <head>
+<script src="/atrium-scheme.js?v=1"></script>
 <script>document.documentElement.classList.add("booting");setTimeout(function(){document.documentElement.classList.remove("booting")},9000)</script>
 <script>
 /* iPhone home-screen app: iOS can hand the page a window shorter than the screen (the top safe area is taken off the bottom). Detected here, the page is made as tall as the screen. The switch in Settings can force it on or off. */
@@ -795,6 +796,101 @@ body.embed #atBg,body.embed #atScrim{display:none}
 @media(max-width:760px){#app{z-index:1}}
 body:not(.embed) #list{background:rgba(14,15,17,.42)}
 @media(max-width:760px){#thread.film{background:transparent!important}}
+/* ---- Dark / Light scheme. One button on the main screen (a pill in the rail on a computer, in the list header on a phone), Settings has Dark / Light / Auto.
+   Dark is the Chat as it was. Light uses ATRIUM's own light terrain. Inside ATRIUM's drawer the Chat follows ATRIUM's own switch, so the button is hidden there. ---- */
+html.sch-follow .schp,html.sch-follow #schSet{display:none!important}
+.schp{position:relative;flex:none;cursor:pointer;color:var(--faint);-webkit-appearance:none;appearance:none;outline:0;--k:32px;width:76px;height:38px;border-radius:19px;border:1px solid var(--line);background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:border-color .3s,background .3s}
+.schp .schk{position:absolute;left:2px;top:2px;width:32px;height:32px;border-radius:50%;background:linear-gradient(162deg,#ecd596,#d6b36a 55%,#a07a2c);box-shadow:0 4px 12px -3px rgba(214,179,106,.55),inset 0 1px 0 rgba(255,255,255,.45);transition:transform .5s var(--ease),width .3s var(--ease),box-shadow .3s}
+.schp[aria-checked=false] .schk{transform:translateX(38px)}
+.schp svg{position:absolute;top:10.5px;width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:color .35s}
+.schp .ss{left:10px}.schp .sm{left:49px}
+.schp[aria-checked=true] .ss,.schp[aria-checked=false] .sm{color:#16110a}
+.schp:hover .schk{box-shadow:0 6px 18px -3px rgba(214,179,106,.75),inset 0 1px 0 rgba(255,255,255,.5)}
+.schp:active .schk{width:38px}
+.schp:focus-visible{box-shadow:0 0 0 2px rgba(214,179,106,.85)}
+/* the rail: a vertical pill above Refresh. The header one is for a phone. */
+#rail .schp{display:block;width:44px;height:88px;border-radius:22px;margin:2px 0 6px}
+#rail .schp .schk{left:3px;top:3px;width:36px;height:36px}
+#rail .schp[aria-checked=false] .schk{transform:translateY(43px)}
+#rail .schp svg{left:13.5px}
+#rail .schp .ss{top:12.5px}#rail .schp .sm{top:56.5px;left:13.5px}
+#rail .schp:active .schk{width:36px;height:42px}
+#list header .schp{display:none}
+@media(max-width:760px){#list header .schp{display:block;margin-left:auto}#list header h1{flex:0 1 auto}#rail .schp{display:none}}
+@media(prefers-reduced-motion:reduce){.schp,.schp .schk,.schp svg{transition:none!important}}
+/* Settings: Dark / Light / Auto */
+.schseg{display:flex;padding:3px;border-radius:999px;border:1px solid var(--line);flex:none}
+.schseg button{height:32px;padding:0 15px;border-radius:999px;font:400 13px Inter;color:var(--faint);transition:background .25s,color .25s}
+.schseg button.on{background:var(--bone);color:#16110a}
+/* the light ground: ATRIUM's light terrain, a slow drift. It replaces the film. */
+#atBgL{position:fixed;inset:-4%;z-index:0;pointer-events:none;background:url(/atrium-chat-bg/atrium-light.jpg) 50% 50%/cover #d3d3d2;display:none;animation:driftL 90s ease-in-out infinite alternate}
+@keyframes driftL{from{transform:translate3d(-1.5%,0,0) scale(1.04)}to{transform:translate3d(1.5%,-1%,0) scale(1.08)}}
+body.embed #atBgL{display:none!important}
+@media(prefers-reduced-motion:reduce){#atBgL{animation:none}}
+/* ---- the light scheme ---- */
+html[data-scheme=light]{--bg:#e6e5e1;--panel:rgba(255,255,255,.52);--panel2:rgba(255,255,255,.62);--line:rgba(20,20,25,.13);--bone:#151515;--soft:rgba(21,21,21,.86);--faint:rgba(21,21,21,.6);--hi:inset 0 1px 0 rgba(255,255,255,.9),0 18px 50px rgba(30,30,40,.13);--mine:#e9e6dc;--red:#d63a3a;--redglow:rgba(214,58,58,.35)}
+html[data-scheme=light].booting{background:#e6e5e1}
+html[data-scheme=light],html[data-scheme=light] body{background:radial-gradient(1200px 700px at 15% -10%,#fbfaf7 0%,transparent 60%),radial-gradient(900px 700px at 100% 110%,#d9d8d3 0%,transparent 60%),linear-gradient(160deg,#e9e8e3,#d4d3ce 70%) fixed;color:#151515}
+html[data-scheme=light] #atBg{display:none}
+html[data-scheme=light] body:not(.embed) #atBgL{display:block}
+html[data-scheme=light] #atScrim{background:rgba(255,255,255,.2)}
+html[data-scheme=light] body:not(.embed) #list{background:rgba(255,255,255,.46)}
+html[data-scheme=light] .rb:hover,html[data-scheme=light] .rb.on{background:rgba(20,20,25,.07);color:#151515;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+html[data-scheme=light] .ib{background:rgba(20,20,25,.05);color:var(--soft)}
+html[data-scheme=light] .schp{background:rgba(255,255,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+html[data-scheme=light] .badge{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 16px var(--redglow)}
+html[data-scheme=light] #list header::before{background:linear-gradient(180deg,rgba(238,237,233,.96) 0%,rgba(238,237,233,.86) 58%,rgba(238,237,233,0) 100%)}
+html[data-scheme=light] #tabbar{background:rgba(255,255,255,.74);border-top-color:rgba(20,20,25,.1)}
+html[data-scheme=light] #search{color:#151515;border-bottom-color:rgba(20,20,25,.28)}
+html[data-scheme=light] #search::placeholder{color:rgba(21,21,21,.55)}
+html[data-scheme=light] #tabbar button.on{background:rgba(20,20,25,.07)}
+html[data-scheme=light] #list .cap2{background:rgba(255,255,255,.55)}
+html[data-scheme=light] #list .cap2 i{background:rgba(20,20,25,.18)}
+html[data-scheme=light] #list .cap2 .ib{color:#151515}
+html[data-scheme=light] #list .cap2{border-color:#8a9c0d}
+html[data-scheme=light] #list .cap2 #newBtn{color:#6a7a00}
+/* iPhone home-screen app: the status bar text is always white, so on the light scheme the strip behind it is a soft dark band (zero height wherever there is no safe area) */
+#sbBand{display:none}
+@media(max-width:760px){html[data-scheme=light] #sbBand{display:block;position:fixed;left:0;right:0;top:0;height:var(--sat);z-index:96;pointer-events:none;background:linear-gradient(180deg,rgba(30,32,38,.78),rgba(30,32,38,.62));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}}
+@media(max-width:1180px){html[data-scheme=light] #side{background:rgba(247,246,243,.97)}html[data-scheme=light] #shade{background:rgba(20,20,25,.22)}}
+@media(max-width:760px){html[data-scheme=light] #shade{background:transparent}}
+html[data-scheme=light] #sideHead,html[data-scheme=light] #sideHead b{color:#151515}
+html[data-scheme=light] body.embed #list{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.55)),url(/atrium-chat-bg/atrium-light.jpg) 62% 40%/cover}
+html[data-scheme=light] body.embed #list .cap2,html[data-scheme=light] body.embed .calq{color:#151515}
+/* sheets, buttons, switches, chips */
+html[data-scheme=light] .ov{background:rgba(20,20,25,.28)}
+html[data-scheme=light] .sheet{background:rgba(248,247,244,.92);border-color:rgba(20,20,25,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 30px 80px rgba(20,20,30,.22);color:#151515}
+html[data-scheme=light] .cb{background:rgba(20,20,25,.05);color:#151515}
+html[data-scheme=light] .cb:hover{color:#000;border-color:rgba(20,20,25,.32);background:rgba(20,20,25,.09)}
+html[data-scheme=light] .cb.go{color:#2a2418}
+html[data-scheme=light] .tg{background:rgba(20,20,25,.18)}
+html[data-scheme=light] .tg::after{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+html[data-scheme=light] .tg.on{background:#d6b36a}
+html[data-scheme=light] .chip.g1{border-color:rgba(29,122,71,.45);color:#1d7a47}
+html[data-scheme=light] .chip.g2{border-color:rgba(163,120,42,.5);color:#85601d}
+html[data-scheme=light] .chip.r{border-color:rgba(192,57,43,.5);color:#b3261e}
+html[data-scheme=light] .schseg button.on{color:#fff}
+/* popovers, menus, fields, segments */
+html[data-scheme=light] #who,html[data-scheme=light] #mpick,html[data-scheme=light] #amenu .rbar,html[data-scheme=light] #amenu .abar,html[data-scheme=light] #attach{background:rgba(250,249,246,.96);border-color:rgba(20,20,25,.14);box-shadow:0 14px 40px rgba(20,20,30,.22);color:#151515}
+html[data-scheme=light] #emo{background:rgba(248,247,244,.98);border-top-color:rgba(20,20,25,.12);color:#151515}
+html[data-scheme=light] #emo .es{border-color:rgba(20,20,25,.16);background-color:rgba(20,20,25,.05);color:#151515}
+html[data-scheme=light] #menu button{color:#151515}
+html[data-scheme=light] #mpick button.sel,html[data-scheme=light] #mpick button:hover,html[data-scheme=light] #amenu .abar button:hover,html[data-scheme=light] #amenu .rbar button:hover,html[data-scheme=light] #attach button:hover,html[data-scheme=light] #menu button:hover,html[data-scheme=light] #who button:hover{background:rgba(20,20,25,.07)}
+html[data-scheme=light] #menu{background:rgba(250,249,246,.96);border-color:rgba(20,20,25,.14);color:#151515}
+html[data-scheme=light] #emo .es::placeholder{color:rgba(21,21,21,.5)}
+html[data-scheme=light] #emo .etone:hover,html[data-scheme=light] #emo .eclose:hover,html[data-scheme=light] #emo .grid button:hover,html[data-scheme=light] #emo .grid button:active{background:rgba(20,20,25,.08)}
+html[data-scheme=light] #emo .ecats button.on{background:rgba(20,20,25,.1)}
+html[data-scheme=light] #emo .eg h6,html[data-scheme=light] #emo .none{color:rgba(21,21,21,.6)}
+html[data-scheme=light] #emo .es{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23151515a0' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m16 16 4 4'/%3E%3C/svg%3E")}
+html[data-scheme=light] .f input,html[data-scheme=light] .f select,html[data-scheme=light] .f textarea,html[data-scheme=light] .pr input,html[data-scheme=light] .gtx input,html[data-scheme=light] .nm input{background:rgba(255,255,255,.7);color:#151515}
+html[data-scheme=light] .f select option{background:#fbfaf7;color:#151515}
+html[data-scheme=light] .f input::placeholder,html[data-scheme=light] .f textarea::placeholder,html[data-scheme=light] .pr input::placeholder,html[data-scheme=light] .nm input::placeholder{color:rgba(21,21,21,.45)}
+html[data-scheme=light] .seg button.on,html[data-scheme=light] .seg2 button.on{background:#151515;color:#fff}
+html[data-scheme=light] .sx{background:rgba(20,20,25,.08);color:#151515}
+html[data-scheme=light] .shp button.on{background:rgba(20,20,25,.06);color:#151515}
+html[data-scheme=light] #banner a{color:#151515}
+html[data-scheme=light] .att-file .acts button,html[data-scheme=light] .att-file .acts a{color:#151515;background:rgba(20,20,25,.05)}
+html[data-scheme=light] .sheet .iprev{color:#151515}
 /* iPhone home-screen app whose window is shorter than the screen (innerHeight = screen minus the top safe area): a switch in Settings makes the page as tall as the screen; the transform makes every fixed piece measure from this taller body */
 @media(max-width:760px){
  html.tallfix{height:var(--sh)!important;min-height:var(--sh)!important}
@@ -809,7 +905,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
 </style>
 </head>
 <body>
-<video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atScrim"></div>
+<video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
 <div id="app">
   <nav id="rail" aria-label="ATRIUM">
     <img class="logo" src="/icons/chat-icon-96.png?v=2" width="44" height="44" alt="ATRIUM Chat">
@@ -819,6 +915,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
     <button class="rb" id="railNotes" type="button" data-notes="open" title="Notes" aria-label="Notes"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></button>
     <button class="rb" id="railFiles" type="button" data-p="files" title="Files" aria-label="Files"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
     <div class="sp"></div>
+    <button class="schp" id="schRail" type="button" role="switch" aria-checked="false" aria-label="Colour scheme" title="Dark and Light"><span class="schk"></span><svg class="ss" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg><svg class="sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.2 8.2 0 1 0 20 14.2z"/></svg></button>
     <button class="rb" id="rfBtn" type="button" title="Refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v4.5h-4.5"/></svg></button>
     <button class="rb" id="meBtn" title="Account"><span class="av" id="meAv" style="width:34px;height:34px"></span></button>
   </nav>
@@ -826,6 +923,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <section id="list">
     <header>
       <h1 id="listT"><span class="lk"><svg class="A" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" stroke-width="6" pathLength="1"/></svg><span class="lw">Chat</span></span></h1>
+      <button class="schp" id="schHead" type="button" role="switch" aria-checked="false" aria-label="Colour scheme" title="Dark and Light"><span class="schk"></span><svg class="ss" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg><svg class="sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.2 8.2 0 1 0 20 14.2z"/></svg></button>
       <div class="cap2">
       <button class="ib" id="camBtn" title="Take a photo" aria-label="Take a photo"><svg viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.2-1.8A1 1 0 0 1 9.7 4.7h4.6a1 1 0 0 1 .8.5L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg></button><i id="camSep"></i>
       <button class="ib" id="newBtn" title="New chat" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1012,6 +1110,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <h3>Alerts and accounts</h3><div class="lead">What reaches you, and where.</div>
   <div class="mypic"><span id="myPic"></span><div class="tx"><b>Your picture</b><span>Shown beside your messages and on your direct chats</span></div><div class="btns"><button class="cb" id="picChoose" type="button">Choose</button><button class="cb" id="picRemove" type="button">Remove</button></div></div><input type="file" id="picFile" accept="image/*" hidden>
   <div class="sw" style="border:0"><div class="l"><b>Alert sound</b><span>A soft two-note chime when a message lands</span></div><button class="tg on" id="sSnd"></button></div>
+  <div class="sw" id="schSet"><div class="l"><b>Colour scheme</b><span>Dark, Light, or Auto to match this device. The button on the main screen flips it too.</span></div><div class="schseg" id="schSeg" role="group" aria-label="Colour scheme"><button type="button" data-p="dark">Dark</button><button type="button" data-p="light">Light</button><button type="button" data-p="auto">Auto</button></div></div>
   <div class="sw"><div class="l"><b>Red alert on this device</b><span>Banner and badge while ATRIUM is open</span></div><button class="tg on" id="sRed"></button></div>
   <div class="sw"><div class="l"><b>Alerts on this device</b><span>Messages reach this phone or computer even when ATRIUM is closed. Tap, allow, done. On iPhone, add ATRIUM to the Home Screen first and open it from there.</span><span id="pushMsg" style="color:var(--gold);margin-top:4px"></span></div><button class="tg" id="sPush"></button></div>
   <div class="sw"><div class="l"><b>Email me if unread after 10 minutes</b><span>A safety net, to every address you have added</span></div><button class="tg on" id="sMail"></button></div>
@@ -1022,7 +1121,7 @@ body:not(.embed) #list{background:rgba(14,15,17,.42)}
   <div id="accs"></div>
   <div class="sw"><div class="l"><b>Test an alert now</b><span>Sends one to every device you have alerts on for, after 8 seconds so you can close ATRIUM first.</span></div><button class="cb" id="sTest">Send test</button></div>
   <div class="sw" id="appRow"><div class="l"><b>ATRIUM Chat as its own app</b><span>Its own icon and window, so you can work in ATRIUM with Chat beside it</span></div><button class="cb" id="appBtn" type="button">Install</button></div>
-  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-camera-only</div>
+  <div class="empty" id="buildStamp" style="padding:10px 0 0;font-size:11px;opacity:.55">ATRIUM Chat, version 2026-10-29-dark-light</div>
   <div class="empty" id="viewStamp" style="padding:2px 0 0;font-size:11px;opacity:.55"></div>
   <div style="padding:8px 0 0"><button class="cb" id="tallBtn" type="button">Try full-screen fix: off</button></div>
   <div class="row" style="margin-top:12px"><button class="cb" id="addAcc">Sign in with Microsoft to add an email</button><button class="cb go" id="sDone">Done</button></div>
@@ -1309,7 +1408,7 @@ function gIcon(g,size){ // a chat's icon: the other person for a direct message,
   return `<span class="ti ini" style="--s:${s}px;background:${COL[(g.id.charCodeAt(1)||0)%7]}">${ini(g.n)}</span>`}
 
 /* wallpapers: a chosen one per chat, or one for every chat on this device */
-const DEFW='atrg'; // the standard scheme: the dark ATRIUM ground, bone bubbles. Everyone can still choose any wallpaper and colours.
+let DEFW=(window.AtriumScheme&&AtriumScheme.get()==='light')?'atrl':'atrg'; // the standard scheme: the dark ATRIUM ground, bone bubbles. Everyone can still choose any wallpaper and colours.
 /* plain colours: twelve pastels and four neutrals. Brightness and the bubble colours work on them like on any wallpaper. */
 const PLAIN=[['Blush','#f4d9de'],['Peach','#f7dfcc'],['Butter','#f6eec8'],['Pistachio','#e1ecc8'],['Sage','#d3e3cd'],['Mint','#cdeade'],['Aqua','#cfeaee'],['Sky','#d3e4f4'],['Periwinkle','#d9dff5'],['Lilac','#e4daf1'],['Orchid','#efd8ec'],['Sand','#ece4d4'],['Snow','#f7f6f3'],['Stone','#d6d4ce'],['Graphite','#3a3c41'],['Black','#101113']];
 const plainWall=hex=>{ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return {id:'color',color:hex,dark:(.299*r+.587*g+.114*b)<140,dim:0,blur:0,lite:0,acc:'auto'} };
@@ -1335,7 +1434,7 @@ function applyWall(gid){
   st.setProperty('--theirs',tacc?tacc.c:(dd?'rgba(22,20,18,.55)':tk.theirs)); st.setProperty('--theirsTx',tacc?tacc.t:(dd?'#fff':tk.theirsTx)); st.setProperty('--meta',dd?'rgba(255,255,255,.7)':tk.meta);
   if(dark) st.setProperty('--hdr','rgba(28,30,34,.58)'); else st.removeProperty('--hdr');
   // the standard ATRIUM ground is the moving film behind the whole chat: a chat on that ground lets it through; a chat with a wallpaper of its own keeps it
-  const film=w.id==='atrg'&&!document.body.classList.contains('embed')&&$('#atBg')&&$('#atBg').style.display!=='none';
+  const film=w.id==='atrg'&&!document.body.classList.contains('embed')&&!(window.AtriumScheme&&AtriumScheme.get()==='light')&&$('#atBg')&&$('#atBg').style.display!=='none';
   th.classList.toggle('film',!!film);
   if(film){ w1.style.background='none'; w1.style.backgroundColor='transparent'; w1.style.filter='none'; $('#wall').style.background='transparent'; $('#dim').style.background='#0c0d0f'; $('#dim').style.opacity=.3 }
 }
@@ -2426,6 +2525,22 @@ function openVotes(mid){
     var o=await toFile(f), pm={id:-(++pseq),g:gid,u:S.me,t:Date.now(),x:x,pending:1,_files:[o]}; pm.files=[{name:o.name,type:o.type,size:o.size,url:o.url}];
     S.msgs.push(pm); open(gid); paintAll(pm.id); sendNow(pm) })
 } }
+  // Dark / Light: the buttons, the default wallpaper, the film, Settings and Notes all follow AtriumScheme (see /atrium-scheme.js)
+  { const AS=window.AtriumScheme;
+    if(AS){
+      const btns=$$('.schp'), seg=$('#schSeg');
+      if(AS.follows()) document.documentElement.classList.add('sch-follow');
+      const sync=()=>{ const s=AS.get(), light=s==='light';
+        btns.forEach(b=>{ b.setAttribute('aria-checked',light?'true':'false'); b.setAttribute('aria-label',light?'Light scheme. Switch to dark':'Dark scheme. Switch to light'); b.title=light?'Light. Tap for dark':'Dark. Tap for light' });
+        DEFW=light?'atrl':'atrg';
+        const v=$('#atBg'); if(v){ try{ if(light) v.pause(); else if(!matchMedia('(prefers-reduced-motion: reduce)').matches){ const p=v.play(); if(p&&p.catch) p.catch(()=>{}) } }catch(e){} }
+        try{ if(cur) applyWall(cur) }catch(e){}
+        const nf=document.getElementById('notesFr'); if(nf&&nf.contentWindow){ try{ nf.contentWindow.postMessage({atriumScheme:s},'*') }catch(e){} }
+        if(seg) $$('button',seg).forEach(b=>b.classList.toggle('on',b.dataset.p===AS.pref())) };
+      btns.forEach(b=>b.addEventListener('click',()=>{ AS.toggle() }));
+      if(seg) seg.addEventListener('click',e=>{ const b=e.target.closest('[data-p]'); if(b){ AS.set(b.dataset.p); sync() } });
+      AS.onChange(sync); sync();
+    } }
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
@@ -2467,7 +2582,7 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   const nOv=$('#notesOv'), nFr=$('#notesFr'); let nReady=false, nWant=null;
   function openNotes(meetingId){
     nWant=(meetingId==null||meetingId==='')?null:meetingId; nOv.hidden=false;
-    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=5'; nFr.onload=()=>{ nReady=true; send() } } else send() }
+    if(!nFr.getAttribute('src')){ nFr.src='/atrium-notes.html?embed=1&v=6&sch='+(window.AtriumScheme?AtriumScheme.get():'dark'); nFr.onload=()=>{ nReady=true; send() } } else send() }
   function send(){ if(!nReady||!nFr.contentWindow) return; nFr.contentWindow.postMessage({atriumNotes:'open',meetingId:nWant},'*') }
   window.openAtriumNotes=openNotes;
   document.addEventListener('click',e=>{ if(e.target.closest('[data-notes]')) openNotes() });
