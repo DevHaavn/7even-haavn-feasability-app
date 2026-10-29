@@ -212,3 +212,19 @@ html[data-scheme=light] .nx-tkc.bl{color:#b3261e}
 .nx-chk{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13.5px;color:var(--soft)}
 .nx-room{cursor:pointer;margin-top:8px;background:none;color:var(--gold);border-color:rgba(214,179,106,.6)}
 html[data-scheme=light] .nx-it.k-decision .nx-kd,html[data-scheme=light] .nx-room{color:#8a6420}
+
+/* ---------- Morning card ---------- */
+.nx-morn{margin:6px 16px 10px;padding:12px 14px 8px;border:1px solid var(--line);border-radius:16px;background:rgba(127,127,127,.1)}
+.nx-mhd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+.nx-mhd b{display:block;font-weight:400;font-size:17px;color:var(--bone)}
+.nx-mhd span{display:block;font-size:12.5px;color:var(--faint);margin-top:1px}
+.nx-mhd .nx-rx{font-size:20px;line-height:1;padding:0 2px;margin-top:-2px}
+.nx-mh{margin:10px 0 2px;color:var(--gold)}
+.nx-mr{display:flex;gap:10px;align-items:baseline;width:100%;padding:6px 0;background:none;border:0;border-top:1px solid var(--line);text-align:left;color:var(--bone);font:inherit;font-size:14px;cursor:pointer}
+.nx-mh+.nx-mr{border-top:0}
+.nx-mr:hover .nx-mx{color:var(--gold)}
+.nx-mt{flex:none;min-width:56px;font-size:12.5px;color:var(--soft)}
+.nx-mx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nx-mr.nx-more{color:var(--faint);font-size:12.5px}
+.nx-mn{padding:8px 0 6px;font-size:14px;color:var(--soft)}
+html[data-scheme=light] .nx-mh{color:#8a6420}
