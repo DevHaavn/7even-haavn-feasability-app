@@ -899,7 +899,7 @@ html[data-scheme=light] .sheet .iprev{color:#151515}
 #camList{max-height:34dvh;overflow:auto;margin:6px -6px 0;-webkit-overflow-scrolling:touch}
 #camList .g{width:100%}
 </style>
-<link rel="stylesheet" href="/atrium-chat-next.css?v=4">
+<link rel="stylesheet" href="/atrium-chat-next.css?v=5">
 </head>
 <body>
 <video id="atBg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"><source src="/haavn-black-bg.mp4" type="video/mp4"></video><div id="atBgL"></div><div id="atScrim"></div><div id="sbBand" aria-hidden="true"></div>
@@ -2562,6 +2562,12 @@ function openVotes(mid){
       AS.onChange(sync); sync();
     } }
 window.AtriumChatRepaint=function(){ try{ if(cur) applyWall(cur) }catch(e){} };
+/* a small door for the add-on scripts (My Tasks, the live ground): the page's own api, people, projects and tasks, read-only except tick */
+window.AtriumChat={ api:api, flash:flash, open:function(id){ open(id) }, real:function(){ return REAL }, me:function(){ return S.me }, role:function(){ return S.role }, people:function(){ return PEOPLE }, person:function(id){ return P[id]||{id:id,n:'Someone'} }, projects:function(){ return PROJECTS },
+  hasGroup:function(id){ return S.groups.some(function(g){ return g.id===id }) },
+  localTasks:function(){ return S.msgs.filter(function(m){ return m.task }).map(function(m){ var g=S.groups.find(function(x){ return x.id===m.g }); return {mid:m.id,gid:m.g,g:g?gname(g):'',title:m.task.title,own:m.task.own,by:m.u,due:m.task.due||'',pri:m.task.pri||'Normal',proj:m.task.proj||'No project',done:!!m.task.done,wf:!!m.task.wf,ag:!!m.task.ag,t:m.t||0} }) },
+  tick:async function(mid,done){ var m=S.msgs.find(function(x){ return x.id==mid }), was=m&&m.task?m.task.done:null; if(m&&m.task){ m.task.done=done; save(); paintAll() }
+    try{ if(window.AtriumChat.real()) await window.AtriumChat.api('taskDone',{mid:mid,done:done}) }catch(er){ if(m&&m.task){ m.task.done=was; save(); paintAll() } throw er } } };
 syncSend(); paintAll(); setView(); bootReal();
 if(innerWidth>760){ // open the first group on desktop without clearing the others
   S.read[S.me].g1=3;
@@ -2734,5 +2740,6 @@ if(innerWidth>760){ // open the first group on desktop without clearing the othe
   lab() })()
 </script>
 <script src="/atrium-live-wall.js?v=2"></script>
+<script src="/atrium-chat-tasks.js?v=4"></script>
 </body>
 </html>
