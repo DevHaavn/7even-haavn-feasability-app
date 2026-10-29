@@ -103,7 +103,7 @@ mark{background:none;color:var(--goldl);box-shadow:inset 0 -1px 0 var(--goldl)}
 .acts{display:flex;align-items:center;gap:2px}
 .ab{height:36px;padding:0 13px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;font:300 13.5px Inter;color:var(--mid);transition:background .25s,color .25s}
 .ab:hover{background:var(--hov);color:var(--bone)}
-.ab.more{padding:0 10px}
+.ab.more,.ab.trash{padding:0 10px}
 .menu{position:absolute;right:28px;top:60px;z-index:20;min-width:190px;padding:6px;border-radius:12px;background:var(--glass2);border:1px solid var(--h2);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);display:none;box-shadow:0 24px 60px -20px #000}
 .menu.on{display:block;animation:swap .3s var(--ease)}
 .menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;height:40px;padding:0 12px;border-radius:8px;font:300 14px Inter;color:var(--body)}
@@ -220,8 +220,8 @@ mark{background:none;color:var(--goldl);box-shadow:inset 0 -1px 0 var(--goldl)}
   #page{border-radius:0;border:0;background:var(--pagebg)}
   .pt{padding:12px 12px 0 8px;min-height:52px}
   #back{display:grid}
-  .acts .ab:not(.send){display:none}
-  .acts .send{display:inline-flex}
+  .acts .ab:not(.send):not(.trash){display:none}
+  .acts .send,.acts .trash{display:inline-flex}
   .doc{padding:10px 24px 170px}
   #title{font-size:30px}
   .rule{margin:20px 0 24px}
@@ -266,6 +266,7 @@ html[data-scheme=light] .rec-note{display:none}
           <button class="ab" id="aTask" type="button"></button>
           <button class="ab" id="aMeet" type="button"></button>
           <button class="ab" id="aChat" type="button"></button>
+          <button class="ab trash" id="aTrash" type="button" aria-label="Delete note" title="Delete note"></button>
           <button class="ab more" id="aMore" type="button" aria-label="More"></button>
           <button class="ab send" id="aSend" type="button"></button>
         </div>
@@ -350,7 +351,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const IC={plus:'<path d="M12 5v14M5 12h14"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',back:'<path d="m14 6-6 6 6 6"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>',check:'<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/>',chat:'<path d="M5 6h14v9H10l-5 4z"/>',trash:'<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/>',dots:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',chev:'<path d="m6 9 6 6 6-6"/>',send:'<path d="M4 12 20 4l-4 16-4-7z"/>',tick:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',stop:'<rect x="7" y="7" width="10" height="10" rx="2"/>',alert:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v5M12 16v.5"/>'};
 const ic=(n,c)=>'<svg class="i '+(c||'')+'" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>';
 { const put2=(sel,n,label)=>{ const e=$(sel); e.innerHTML=ic(n)+(label?'<span>'+label+'</span>':'') };
-  put2('#newBtn','plus'); put2('#xBtn','x'); put2('#i-search','search'); put2('#qx','x'); put2('#back','back'); put2('#aEmail','mail','Email'); put2('#aTask','check','Task'); put2('#aMeet','cal','To meeting'); put2('#aChat','chat','To chat'); put2('#aMore','dots'); put2('#aSend','send','Send'); put2('#aDel','trash','Delete note'); put2('#mic','mic'); put2('#i-c1','chev'); put2('#i-c2','chev');
+  put2('#newBtn','plus'); put2('#xBtn','x'); put2('#i-search','search'); put2('#qx','x'); put2('#back','back'); put2('#aEmail','mail','Email'); put2('#aTask','check','Task'); put2('#aMeet','cal','To meeting'); put2('#aChat','chat','To chat'); put2('#aMore','dots'); put2('#aTrash','trash'); put2('#aSend','send','Send'); put2('#aDel','trash','Delete note'); put2('#mic','mic'); put2('#i-c1','chev'); put2('#i-c2','chev');
   $$('.xx').forEach(b=>b.innerHTML=ic('x'));
   const wv=$('#wv'); wv.innerHTML=new Array(31).join('<i></i>');
   $('#aDel').classList.add('del') }
@@ -504,6 +505,7 @@ $('#aMeet').onclick=async()=>{ if(!await need()) return; if(!opts.meetings.lengt
 $('#mSave').onclick=async()=>{ const b=$('#mSave'); b.disabled=true; try{ const r=await api('noteToMeeting',{id:cur.id,meetingId:$('#mPick').value}); close(); $('#meeting').value=String(r.meeting.id); cur.meetingId=r.meeting.id; cur.meetingTitle=r.meeting.title; cur.minutes=true; renderList(); toast('Added to the minutes of “'+r.meeting.title+'”.') }catch(e){ toast(e.message,true) } b.disabled=false };
 $('#aChat').onclick=async()=>{ if(!await need()) return; try{ const j=await api('myGroups'); if(!j.groups.length){ toast('You are not in any group chats yet.',true); return } $('#cPick').innerHTML=j.groups.map(g=>`<option value="${esc(g.id)}">${esc(g.n)}</option>`).join(''); open('#ovChat') }catch(e){ toast(e.message,true) } };
 $('#cSave').onclick=async()=>{ const b=$('#cSave'); b.disabled=true; try{ await api('noteToChat',{id:cur.id,gid:$('#cPick').value}); close(); toast('Posted to the chat.') }catch(e){ toast(e.message,true) } b.disabled=false };
+$('#aTrash').onclick=()=>{ $('#aDel').click() };
 $('#aDel').onclick=()=>{ if(!cur) return; if(!cur.id&&!$('#body').value.trim()){ openNote(null); return } open('#ovDel') };
 $('#dYes').onclick=async()=>{ try{ if(cur&&cur.id){ await api('noteDelete',{id:cur.id}); notes=notes.filter(n=>n.id!==cur.id) } close(); dirty=false; cur=null; openNote(null); renderList(); toast('Deleted.') }catch(e){ toast(e.message,true) } };
 
