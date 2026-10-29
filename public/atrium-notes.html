@@ -80,6 +80,12 @@ html[data-scheme=light] #atBg{display:none}html[data-scheme=light] #atBgL{displa
 .gh span{font:300 11.5px Inter;color:var(--dim)}
 .it{display:block;width:100%;text-align:left;position:relative;padding:15px 24px 16px;border-bottom:1px solid var(--h1);transition:background .25s}
 .it:hover{background:var(--hov2)}
+.it .rdel{position:absolute;right:14px;bottom:10px;width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;color:var(--dim);opacity:0;transition:opacity .2s,background .2s,color .2s}
+.it .rdel svg{width:16px;height:16px}
+.it:hover .rdel,.it:focus-visible .rdel,.it.on .rdel{opacity:.8}
+.it .rdel:hover{background:var(--hov);color:#e28a8a;opacity:1}
+.it .s,.it .m{padding-right:34px}
+@media(hover:none){.it .rdel{opacity:.7}}
 .it.on{background:var(--hov3)}
 .it.on::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:2px;background:var(--gold)}
 .it .t{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
@@ -380,7 +386,7 @@ function row(n,q){
   let m=''; if(n.meetingTitle) m+='<span><i class="dot"></i>'+hl(n.meetingTitle,q)+'</span>';
   if(n.tasks&&n.tasks.length) m+='<span>'+ic('check')+n.tasks.length+(n.tasks.length>1?' tasks':' task')+'</span>';
   if(emails(n).length) m+='<span>'+ic('mail')+'Emailed</span>';
-  return '<button class="it'+(cur&&cur.id===n.id?' on':'')+'" data-id="'+n.id+'"><span class="t"><b>'+hl(nm(n),q)+'</b><time>'+when(n.updated)+'</time></span><span class="s">'+hl((n.body||'').replace(/\s+/g,' ').slice(0,160)||'No text yet',q)+'</span>'+(m?'<span class="m">'+m+'</span>':'')+'</button>' }
+  return '<button class="it'+(cur&&cur.id===n.id?' on':'')+'" data-id="'+n.id+'"><span class="t"><b>'+hl(nm(n),q)+'</b><time>'+when(n.updated)+'</time></span><span class="s">'+hl((n.body||'').replace(/\s+/g,' ').slice(0,160)||'No text yet',q)+'</span>'+(m?'<span class="m">'+m+'</span>':'')+'<span class="rdel" role="button" tabindex="-1" data-del="'+n.id+'" aria-label="Delete note" title="Delete note">'+ic('trash')+'</span></button>' }
 function renderList(){
   const q=$('#q').value.trim().toLowerCase(); $('#srch').classList.toggle('has',!!q);
   const l=notes.filter(n=>!q||((n.title||'')+' '+n.body+' '+(n.meetingTitle||'')).toLowerCase().includes(q));
@@ -396,7 +402,8 @@ function renderList(){
   $('#items').innerHTML=out }
 $('#tabs').onclick=e=>{ const b=e.target.closest('[data-mode]'); if(!b) return; mode=b.dataset.mode; try{ localStorage.setItem('atrium-notes-mode',mode) }catch(x){} renderList() };
 const firstLine=t=>String(t||'').split(/\n/).map(x=>x.trim()).find(Boolean)||'';
-$('#items').onclick=e=>{ const b=e.target.closest('[data-id]'); if(b){ flush().then(()=>openNote(notes.find(n=>String(n.id)===b.dataset.id))) } };
+let delId=null;
+$('#items').onclick=e=>{ const d=e.target.closest('[data-del]'); if(d){ e.stopPropagation(); delId=d.dataset.del; open('#ovDel'); return } const b=e.target.closest('[data-id]'); if(b){ flush().then(()=>openNote(notes.find(n=>String(n.id)===b.dataset.id))) } };
 $('#q').oninput=renderList; $('#qx').onclick=()=>{ $('#q').value=''; renderList(); $('#q').focus() };
 
 /* ---- one note ---- */
@@ -506,8 +513,8 @@ $('#mSave').onclick=async()=>{ const b=$('#mSave'); b.disabled=true; try{ const 
 $('#aChat').onclick=async()=>{ if(!await need()) return; try{ const j=await api('myGroups'); if(!j.groups.length){ toast('You are not in any group chats yet.',true); return } $('#cPick').innerHTML=j.groups.map(g=>`<option value="${esc(g.id)}">${esc(g.n)}</option>`).join(''); open('#ovChat') }catch(e){ toast(e.message,true) } };
 $('#cSave').onclick=async()=>{ const b=$('#cSave'); b.disabled=true; try{ await api('noteToChat',{id:cur.id,gid:$('#cPick').value}); close(); toast('Posted to the chat.') }catch(e){ toast(e.message,true) } b.disabled=false };
 $('#aTrash').onclick=()=>{ $('#aDel').click() };
-$('#aDel').onclick=()=>{ if(!cur) return; if(!cur.id&&!$('#body').value.trim()){ openNote(null); return } open('#ovDel') };
-$('#dYes').onclick=async()=>{ try{ if(cur&&cur.id){ await api('noteDelete',{id:cur.id}); notes=notes.filter(n=>n.id!==cur.id) } close(); dirty=false; cur=null; openNote(null); renderList(); toast('Deleted.') }catch(e){ toast(e.message,true) } };
+$('#aDel').onclick=()=>{ delId=null; if(!cur) return; if(!cur.id&&!$('#body').value.trim()){ openNote(null); return } open('#ovDel') };
+$('#dYes').onclick=async()=>{ try{ const other=delId!=null&&!(cur&&String(cur.id)===String(delId)); const target=other?notes.find(n=>String(n.id)===String(delId)):cur; if(target&&target.id){ await api('noteDelete',{id:target.id}); notes=notes.filter(n=>String(n.id)!==String(target.id)) } delId=null; close(); if(!other){ dirty=false; cur=null; openNote(null) } renderList(); toast('Deleted.') }catch(e){ toast(e.message,true) } };
 
 /* ---- coming and going ---- */
 $('#newBtn').onclick=()=>newNote(); $('#startBtn').onclick=()=>newNote();
