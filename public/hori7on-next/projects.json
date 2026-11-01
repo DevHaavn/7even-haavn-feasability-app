@@ -250,7 +250,17 @@
     "label": "Project presentation",
     "slides": 39,
     "note": "Corio Quarter in full: who 7EVEN is, the mission, the market, the design, ACTS Arena and ACTS Lane, the numbers and the partnership options.",
-    "path": "/hori7on-next/decks/cunningham-acts/index.html"
+    "path": "/hori7on-next/decks/cunningham-acts/index.html",
+    "short": "Presentation"
+   },
+   {
+    "key": "brochure",
+    "label": "Mini brochure",
+    "short": "Mini brochure",
+    "slides": 18,
+    "unit": "pages",
+    "note": "Geelong and Corio Quarter for a prospective investment fund: the city and the Pier investment, the architect, the precinct, Hilton and Marriott Bonvoy, and the numbers for two options.",
+    "path": "/hori7on-next/decks/corio-brochure/index.html"
    }
   ],
   "hl": "Two garden towers over a glass pavilion, and a hall for the city.",
