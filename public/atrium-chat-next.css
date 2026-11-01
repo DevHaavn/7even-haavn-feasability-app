@@ -317,3 +317,17 @@ body.nx-rec #nxRecBar{display:flex}
 .nx-rcl{margin:6px 0 10px;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--soft)}
 .nx-rcerr{margin-top:10px;padding:9px 12px;border:1px solid rgba(255,110,110,.5);border-radius:12px;color:#ff8f8f;font-size:13px}
 html[data-scheme=light] .nx-rcerr{color:#b3261e}
+
+/* morning card: the unread chats themselves */
+.nx-mw{font-size:12.5px;color:var(--soft);margin:0 0 4px}
+.nx-un{align-items:flex-start;gap:12px;padding:9px 0}
+.nx-ub{flex:none;min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:11px;border:1px solid rgba(214,179,106,.6);color:var(--gold);font-size:12px;line-height:20px;text-align:center}
+.nx-ub.men{background:var(--gold);border-color:var(--gold);color:#17130a}
+.nx-uc{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.nx-un1{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--bone);font-size:14.5px}
+.nx-un1 i{font-style:normal;font-size:11.5px;color:var(--gold);flex:none}
+.nx-un2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;white-space:normal;line-height:1.35;color:var(--soft);font-size:13px}
+.nx-un:hover .nx-un1{color:var(--gold)}
+html[data-scheme=light] .nx-ub{color:#8a6420;border-color:rgba(138,100,32,.55)}
+html[data-scheme=light] .nx-ub.men{background:#8a6420;border-color:#8a6420;color:#fff}
+html[data-scheme=light] .nx-un1 i{color:#8a6420}
