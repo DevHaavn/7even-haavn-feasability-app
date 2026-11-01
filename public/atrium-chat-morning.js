@@ -70,7 +70,7 @@ function refreshHtml(){ html=build(); lastSig=sigOf(); var old=$('#groups .nx-mo
 
 function melYmd(){ return mel().day }
 async function gather(){ var today=melYmd(), me=C.me(), now=mel().stamp, real=C.real();
-  var out={meetings:[],tk:[],rems:[]};
+  var out={meetings:[],tk:[],rems:[],real:real};
   var calP=(async function(){ try{ if(real){ var j=await C.api('myCalendar',{days:2}); return j.events||[] } var c=C.cal(); for(var i=0;i<12&&!c.events;i++){ await new Promise(function(r){ setTimeout(r,150) }) } return c.events||[] }catch(e){ return [] } })();
   var taskP=(async function(){ try{ var rows=real?((await C.api('myTasks',{wf:true})).tasks||[]):C.localTasks(); return rows.filter(function(t){ return t.own===me&&!t.done }) }catch(e){ return null } })();
   var remP=(async function(){ try{ if(!real) return []; return (await C.api('myReminders')).reminders||[] }catch(e){ return [] } })();
@@ -93,9 +93,9 @@ var tmr=null;
 function recompute(){ if(!st.visible||!st.loaded) return; mergeLocal(); st.un=waiting(); if(sigOf()!==lastSig) refreshHtml(); else place() }
 function soon(){ clearTimeout(tmr); tmr=setTimeout(recompute,120) }
 
-var running=false, lastLoad=0;
+var running=false, lastLoad=0, srcReal=false, retries=0;
 async function show(force){ if(running) return; running=true;
-  try{ var g=await gather(); if(g.tk) st.tk=g.tk; st.meetings=g.meetings; st.rems=g.rems; st.un=waiting(); st.visible=true; st.loaded=true; lastLoad=Date.now(); mergeLocal(); refreshHtml() }catch(e){} running=false }
+  try{ var g=await gather(); srcReal=!!g.real; if(g.tk) st.tk=g.tk; else if(g.real&&retries<3){ retries++; setTimeout(function(){ show(false) },4000) } st.meetings=g.meetings; st.rems=g.rems; st.un=waiting(); st.visible=true; st.loaded=true; lastLoad=Date.now(); mergeLocal(); refreshHtml() }catch(e){} running=false }
 
 /* tap handling: tiles open and close their list, a task opens its sheet, the circle ticks */
 function openTask(mid,gid){
@@ -124,7 +124,7 @@ var sr=$('#search'); if(sr) sr.addEventListener('input',function(){ setTimeout(p
 /* coming back to the tab: a new day starts the card fresh, otherwise refresh the lists from the server every couple of minutes */
 D.addEventListener('visibilitychange',function(){ if(D.visibilityState!=='visible') return; if(st.loaded&&Date.now()-lastLoad>120000) show(false); else soon() });
 setInterval(function(){ if(D.visibilityState==='visible'&&st.loaded&&Date.now()-lastLoad>300000) show(false) },60000);
-/* the first draw, once the chats have arrived */
-setTimeout(function(){ show(false) },2200);
+/* the first draw, once the chats have arrived. If the sign in is still finishing, draw the local view now and redo it from the server the moment the page is signed in. */
+setTimeout(function(){ show(false); var n=0, iv=setInterval(function(){ n++; if(C.real()&&!srcReal&&!running){ clearInterval(iv); show(false) } else if(n>40||(srcReal&&!running)) clearInterval(iv) },750) },2200);
 window.AtriumMorning={ show:show };
 })();
