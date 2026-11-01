@@ -380,3 +380,5 @@ html[data-scheme=light] .nx-tk .chk{border-color:#8a8272}
   .nx-tile .nx-ts{grid-area:s}
   .nx-tile .nx-tc{top:50%;margin-top:-3px}
 }
+/* a Workflow task shown in Chat: read only, so its circle is dashed and does nothing */
+.nx-tr .chk.wfo,.nx-tk .chk.wfo{border-style:dashed;border-color:var(--soft);opacity:.6;cursor:default;pointer-events:none}

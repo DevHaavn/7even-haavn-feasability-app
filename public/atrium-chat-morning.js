@@ -3,7 +3,7 @@
    with something unread. Each is a tile with a number; tap a tile to open its list under it, tap again to close. Tap a task to open its details sheet (status, checklist, due date, priority,
    reminder) and update it without leaving Chat; the circle ticks it done. The arrow at the top folds the whole card to one line for the rest of the day.
    It is built on the screen from calls that already exist (myCalendar, myTasks, myReminders) and follows live changes as tasks are ticked or chats are read; a call that fails, or that your
-   login is not allowed to make, just leaves that part out. On practice data it shows the practice calendar and tasks. Tasks are the ones in Chat (including those sent on to Workflow).
+   login is not allowed to make, just leaves that part out. Workflow tasks that are yours and have no chat of their own are listed too (read only: shown with a dashed circle, opened for details, updated in Workflow). On practice data it shows the practice calendar and tasks. Tasks are the ones in Chat (including those sent on to Workflow).
    Needs window.AtriumChat (see atrium-chat-tasks.js) and, for the details sheet, atrium-chat-taskfields.js. window.AtriumMorning.show(true) re-draws it, for testing. */
 (function(){
 'use strict';
@@ -35,8 +35,8 @@ function dueSplit(){ var me=C.me(), today=mel().day;
   return {late:late,now:now,n:all.filter(function(t){ return !t.done }).length,nLate:late.filter(function(t){ return !t.done }).length,nNow:now.filter(function(t){ return !t.done }).length} }
 
 function tile(s,label,n,sub,warn){ return '<button type="button" class="nx-tile'+(st.open===s?' on':'')+(n?'':' z')+'" data-mc="tile" data-s="'+s+'" aria-expanded="'+(st.open===s)+'"><span class="nx-tl mono">'+label+'</span><span class="nx-tn">'+n+'</span><span class="nx-ts'+(warn?' rd':'')+'">'+esc(sub||' ')+'</span>'+CHEV+'</button>' }
-function taskRow(t,late){ var bits=[t.g||(t.proj&&t.proj!=='No project'?t.proj:'')]; if(t.pri&&t.pri!=='Normal') bits.push(t.pri); var m=C.msg(t.mid), s=(m&&m.task&&m.task.st)||t.st; if(s==='doing') bits.push('Doing'); else if(s==='blocked') bits.push('Blocked');
-  return '<div class="nx-tk'+(t.done?' done':'')+'"><button type="button" class="chk'+(t.done?' done':'')+'" data-mc="tick" data-m="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button><button type="button" class="nx-tkb" data-mc="task" data-m="'+esc(t.mid)+'" data-g="'+esc(t.gid||'')+'"><span class="nx-tkt">'+esc(t.title)+'</span><span class="nx-tks">'+esc(bits.filter(Boolean).join(' · '))+'</span></button><span class="nx-tkd'+(late?' rd':'')+'">'+(late?esc(dlabel(t.due)):'Today')+'</span></div>' }
+function taskRow(t,late){ var wfo=t.src==='wf', bits=[wfo?'Workflow'+(t.proj&&t.proj!=='No project'?' \u00b7 '+t.proj:''):(t.g||(t.proj&&t.proj!=='No project'?t.proj:''))]; if(t.pri&&t.pri!=='Normal') bits.push(t.pri); var m=C.msg(t.mid), s=(m&&m.task&&m.task.st)||t.st; if(s==='doing') bits.push('Doing'); else if(s==='blocked') bits.push('Blocked');
+  return '<div class="nx-tk'+(t.done?' done':'')+'">'+(wfo?'<span class="chk wfo" aria-hidden="true"></span>':'<button type="button" class="chk'+(t.done?' done':'')+'" data-mc="tick" data-m="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button>')+'<button type="button" class="nx-tkb" data-mc="task" data-m="'+esc(t.mid)+'" data-g="'+esc(t.gid||'')+'"><span class="nx-tkt">'+esc(t.title)+'</span><span class="nx-tks">'+esc(bits.filter(Boolean).join(' · '))+'</span></button><span class="nx-tkd'+(late?' rd':'')+'">'+(late?esc(dlabel(t.due)):'Today')+'</span></div>' }
 function section(){ var o=st.open, h='';
   if(o==='tasks'){ var d=dueSplit();
     if(!d.late.length&&!d.now.length) h='<div class="nx-mn">Nothing due. A clear list.</div>';
@@ -72,7 +72,7 @@ function melYmd(){ return mel().day }
 async function gather(){ var today=melYmd(), me=C.me(), now=mel().stamp, real=C.real();
   var out={meetings:[],tk:[],rems:[]};
   var calP=(async function(){ try{ if(real){ var j=await C.api('myCalendar',{days:2}); return j.events||[] } var c=C.cal(); for(var i=0;i<12&&!c.events;i++){ await new Promise(function(r){ setTimeout(r,150) }) } return c.events||[] }catch(e){ return [] } })();
-  var taskP=(async function(){ try{ var rows=real?((await C.api('myTasks',{})).tasks||[]):C.localTasks(); return rows.filter(function(t){ return t.own===me&&!t.done }) }catch(e){ return null } })();
+  var taskP=(async function(){ try{ var rows=real?((await C.api('myTasks',{wf:true})).tasks||[]):C.localTasks(); return rows.filter(function(t){ return t.own===me&&!t.done }) }catch(e){ return null } })();
   var remP=(async function(){ try{ if(!real) return []; return (await C.api('myReminders')).reminders||[] }catch(e){ return [] } })();
   var r=await Promise.all([calP,taskP,remP]);
   out.meetings=r[0].filter(function(e){ return (e.start||'').slice(0,10)===today&&(e.allDay||(e.end||e.start)>=now) }).sort(function(a,b){ return String(a.start).localeCompare(String(b.start)) });
@@ -99,10 +99,12 @@ async function show(force){ if(running) return; running=true;
 
 /* tap handling: tiles open and close their list, a task opens its sheet, the circle ticks */
 function openTask(mid,gid){
+  var w=st.tk.filter(function(x){ return String(x.mid)===String(mid) })[0];
+  if(w&&w.src==='wf'&&window.AtriumTasks){ window.AtriumTasks.inline(w); return }
   if(window.AtriumTaskFields&&C.msg(mid)){ window.AtriumTaskFields.open(mid); return }
   if(gid&&C.hasGroup(gid)){ C.open(gid); setTimeout(function(){ var row=$('.mr[data-m="'+mid+'"]'); if(row){ row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.remove('nx-hl'); void row.offsetWidth; row.classList.add('nx-hl'); setTimeout(function(){ row.classList.remove('nx-hl') },1600) } },500); return }
   var tb=$('#rail [data-v="tasks"]')||$('#tabbar [data-v="tasks"]'); if(tb) tb.click() }
-async function tickTask(mid){ var t=st.tk.filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t) return; var was=t.done; t.done=!was; t.fresh=t.done?Date.now():0; refreshHtml();
+async function tickTask(mid){ var t=st.tk.filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t||t.src==='wf') return; var was=t.done; t.done=!was; t.fresh=t.done?Date.now():0; refreshHtml();
   try{ await C.tick(t.mid,t.done); if(t.done) C.flash('Task done.') }catch(er){ t.done=was; t.fresh=0; refreshHtml(); C.flash((er&&er.message)||'That could not be saved.'); return }
   if(t.done) setTimeout(function(){ t.fresh=0; recompute() },1300) }
 D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.nx-morn [data-mc]'); if(!b) return; e.stopPropagation(); e.preventDefault(); var a=b.getAttribute('data-mc'), g=b.getAttribute('data-g'), m=b.getAttribute('data-m');

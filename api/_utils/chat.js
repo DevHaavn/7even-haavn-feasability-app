@@ -568,18 +568,40 @@ async function taskDone(store, kv, me, a) {
 
 // ---------- My Tasks, a quick add with no chat, and search ----------
 // Every task I own or set, across all my groups (including my private "My tasks" group, which is not in the chat list).
-async function myTasks(store, me, a) {
+// With wf:true it also lists the Workflow tasks that are mine and have no chat task of their own (set in Workflow or the CRM, not in a chat), so everything due or overdue for me
+// is in one place. Read only: they come back marked src:'wf' with an id like "wf-<id>", and are never ticked or edited from here. Outside people never get them.
+async function workflowTasksFor(kv, me, a, linked) {
+  if (!a.wf || me.role === 'external') return { rows: [], ok: true }
+  if (!kv || !kv.read) return { rows: [], ok: false }
+  let row
+  try { row = await kv.read(B.KEYS.workflow) } catch { return { rows: [], ok: false } }
+  const mine = String(me.name || '').trim().toLowerCase()
+  const wantDone = a.done === true || a.include === 'all'
+  const PRI = ['Low', 'Normal', 'Medium', 'High']
+  const rows = ((row && row.value && Array.isArray(row.value.actions)) ? row.value.actions : [])
+    .filter((x) => x && !x.sample && x.id != null && String(x.owner || '').trim().toLowerCase() === mine && !linked.has(String(x.id)) && (wantDone || !x.done))
+    .map((x) => ({ mid: 'wf-' + x.id, gid: '', g: 'Workflow', title: String(x.title || '').slice(0, 160), own: me.sub, by: '', due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || '') ? x.due : '', pri: PRI.includes(x.priority) ? x.priority : 'Normal',
+      proj: String(x.project || '').trim() || 'No project', done: !!x.done, st: x.status || (x.done ? 'done' : 'todo'), cl: [], rem: 0, nudged: 0, wf: true, ag: !!x.weekly, t: Date.parse(x.created) || 0, src: 'wf', dept: x.dept || '' }))
+  return { rows: rows.slice(0, 400), ok: true }
+}
+async function myTasks(store, kv, me, a) {
   const mine = await store.memberRowsFor(me.sub)
   const ids = mine.map((r) => r.group_id)
-  if (!ids.length) return { tasks: [] }
-  const [rows, groups] = await Promise.all([store.tasksIn(ids), store.groupsByIds(ids)])
-  const gname = Object.fromEntries(groups.map((g) => [g.id, g.name || (g.is_dm ? 'Direct message' : 'Chat')]))
-  const wantDone = a.done === true || a.include === 'all'
-  const out = rows
-    .filter((m) => m.task && m.kind === 'task' && (m.task.own === me.sub || m.sender === me.sub) && (wantDone || !m.task.done))
-    .map((m) => ({ mid: m.id, gid: m.group_id, g: gname[m.group_id] || 'Chat', title: m.task.title || '', own: m.task.own, by: m.sender, due: m.task.due || '', pri: m.task.pri || 'Normal',
-      proj: m.task.proj || 'No project', done: !!m.task.done, st: m.task.st || (m.task.done ? 'done' : 'todo'), cl: m.task.cl || [], rem: m.task.rem || 0, nudged: m.task.nudged || 0, wf: !!m.task.wfId, ag: !!m.task.ag, t: Date.parse(m.created_at) }))
-  return { tasks: out.slice(0, 400) }
+  let out = [], linked = new Set()
+  if (ids.length) {
+    const [rows, groups] = await Promise.all([store.tasksIn(ids), store.groupsByIds(ids)])
+    const gname = Object.fromEntries(groups.map((g) => [g.id, g.name || (g.is_dm ? 'Direct message' : 'Chat')]))
+    const wantDone = a.done === true || a.include === 'all'
+    rows.forEach((m) => { if (m.task && m.task.wfId) linked.add(String(m.task.wfId)) })
+    out = rows
+      .filter((m) => m.task && m.kind === 'task' && (m.task.own === me.sub || m.sender === me.sub) && (wantDone || !m.task.done))
+      .map((m) => ({ mid: m.id, gid: m.group_id, g: gname[m.group_id] || 'Chat', title: m.task.title || '', own: m.task.own, by: m.sender, due: m.task.due || '', pri: m.task.pri || 'Normal',
+        proj: m.task.proj || 'No project', done: !!m.task.done, st: m.task.st || (m.task.done ? 'done' : 'todo'), cl: m.task.cl || [], rem: m.task.rem || 0, nudged: m.task.nudged || 0, wf: !!m.task.wfId, ag: !!m.task.ag, t: Date.parse(m.created_at) }))
+      .slice(0, 400)
+  }
+  if (!a.wf) return { tasks: out }
+  const w = await workflowTasksFor(kv, me, a, linked)
+  return { tasks: out.concat(w.rows), wfOk: w.ok }
 }
 
 // The group a quick-added task is filed in: the project's chat if I have one, a new private one if not, or a private "My tasks" group (not in the chat list) for a task with no project.
@@ -1394,7 +1416,7 @@ async function run(action, a, me, deps) {
     case 'meetingItemEdit': return meetingItemEdit(store, kv, me, a)
     case 'meetingItemRemove': return meetingItemRemove(store, kv, me, a)
     case 'endMeeting': return endMeeting(store, kv, me, a, wp, mail)
-    case 'myTasks': return myTasks(store, me, a)
+    case 'myTasks': return myTasks(store, kv, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
     case 'messagesAround': return messagesAround(store, files, me, a)
     case 'search': return search(store, kv, files, me, a)

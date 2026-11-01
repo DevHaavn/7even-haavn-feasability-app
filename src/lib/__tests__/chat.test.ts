@@ -821,6 +821,52 @@ describe('outside people', () => {
 })
 
 describe('My Tasks, quick add and search', () => {
+  describe('Workflow tasks that have no chat', () => {
+    const seed = () => {
+      F.db.workflow.actions.push(
+        { id: 'w1', title: 'Call WPCC about the hall', owner: 'Jamie Baldwin', due: '2026-11-02', priority: 'High', status: 'doing', done: false, project: 'Belmont Estate', weekly: true, dept: 'company', created: '2026-10-30T01:00:00.000Z' },
+        { id: 'w2', title: 'Daniel\'s task', owner: 'Daniel Sette', due: '2026-11-02', priority: 'Normal', status: 'todo', done: false },
+        { id: 'w3', title: 'Already done', owner: 'Jamie Baldwin', due: '2026-10-20', priority: 'Low', status: 'done', done: true },
+        { id: 'w4', title: 'Sample row', owner: 'Jamie Baldwin', due: '2026-11-02', sample: true, status: 'todo', done: false },
+        { id: 'w5', title: 'No date, odd priority', owner: 'jamie baldwin', due: 'soon', priority: 'Urgent', status: 'blocked', done: false })
+    }
+    it('are left out unless the screen asks, so an older screen sees what it always did', async () => {
+      seed()
+      expect((await run('myTasks', {})).tasks).toHaveLength(0)
+      expect((await run('myTasks', {})).wfOk).toBeUndefined()
+    })
+    it('come back read only, marked as Workflow, for the owner only, open ones by default', async () => {
+      seed()
+      const r = await run('myTasks', { wf: true })
+      expect(r.wfOk).toBe(true)
+      expect(r.tasks.map((x: any) => x.mid).sort()).toEqual(['wf-w1', 'wf-w5'])
+      expect(r.tasks.find((x: any) => x.mid === 'wf-w1')).toMatchObject({ gid: '', g: 'Workflow', title: 'Call WPCC about the hall', own: 'jb', by: '', due: '2026-11-02', pri: 'High', proj: 'Belmont Estate', done: false, st: 'doing', wf: true, ag: true, src: 'wf' })
+      expect(r.tasks.find((x: any) => x.mid === 'wf-w5')).toMatchObject({ due: '', pri: 'Normal', proj: 'No project', st: 'blocked' })
+      expect((await run('myTasks', { wf: true }, daniel)).tasks.map((x: any) => x.mid)).toEqual(['wf-w2'])
+      expect((await run('myTasks', { wf: true, include: 'all' })).tasks.map((x: any) => x.mid).sort()).toEqual(['wf-w1', 'wf-w3', 'wf-w5'])
+    })
+    it('are not listed twice when the same task is already a chat task', async () => {
+      const r = await run('taskAdd', { title: 'Call the surveyor', own: 'jb', due: '2026-11-02' })
+      expect(F.db.workflow.actions).toHaveLength(1)
+      seed()
+      const t = (await run('myTasks', { wf: true })).tasks
+      expect(t.filter((x: any) => x.title === 'Call the surveyor')).toHaveLength(1)
+      expect(t.find((x: any) => x.title === 'Call the surveyor').mid).toBe(r.msg.id)
+      expect(t.filter((x: any) => x.src === 'wf').map((x: any) => x.mid).sort()).toEqual(['wf-w1', 'wf-w5'])
+    })
+    it('work with no chats at all, and never reach outside people', async () => {
+      seed()
+      expect((await run('myTasks', { wf: true })).tasks).toHaveLength(2)
+      const ext = { sub: 'cf', name: 'Jamie Baldwin', role: 'external', emails: ['c.fraser@fraserandpartners.com'] }
+      expect((await run('myTasks', { wf: true }, ext)).tasks).toHaveLength(0)
+    })
+    it('leave the chat tasks alone if Workflow cannot be read', async () => {
+      await run('taskAdd', { title: 'Call the surveyor', own: 'jb', due: '2026-11-02' })
+      const was = F.deps.kv.read; F.deps.kv.read = async () => { throw new Error('down') }
+      try { const r = await run('myTasks', { wf: true }); expect(r.wfOk).toBe(false); expect(r.tasks).toHaveLength(1) } finally { F.deps.kv.read = was }
+    })
+  })
+
   it('quick add with no project lands in a private My tasks group that is not in the chat list, and My Tasks reads it back', async () => {
     const r = await run('taskAdd', { title: 'Call the surveyor', own: 'jb', due: '2026-11-02', pri: 'High' })
     expect(r.task.title).toBe('Call the surveyor'); expect(r.task.wf).toBe(1)

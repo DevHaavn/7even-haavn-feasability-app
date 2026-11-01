@@ -39,7 +39,7 @@ D.addEventListener('click',function(e){
 async function load(){
   var my=++seq; ERR=''; LOADING=true; draw();
   try{
-    if(C.real()){ var j=await C.api('myTasks',SHOWDONE?{include:'all'}:{}); if(my!==seq) return; rows=(j&&j.tasks)||[] }
+    if(C.real()){ var j=await C.api('myTasks',SHOWDONE?{wf:true,include:'all'}:{wf:true}); if(my!==seq) return; rows=(j&&j.tasks)||[] }
     else rows=C.localTasks()
   }catch(er){ if(my!==seq) return; ERR=(er&&er.status===401)?'Sign in to see your tasks.':'Could not load your tasks.'; rows=[] }
   LOADING=false; draw() }
@@ -62,21 +62,27 @@ function draw(){
     ['Overdue','Today','This week','Later','No date'].forEach(function(b){
       var list=v.shown.filter(function(t){ return bucket(t)===b }).sort(function(a,c){ var x=parseDue(a.due),y=parseDue(c.due); return (x?x.getTime():9e15)-(y?y.getTime():9e15)||(c.t||0)-(a.t||0) }); if(!list.length) return; any=true;
       h+='<div class="nx-gh'+(b==='Overdue'?' rd':'')+'"><span class="mono">'+b+'</span><span class="mono">'+list.length+'</span></div>'+list.map(function(t){ var d=parseDue(t.due), cls=b==='Overdue'?'rd':b==='Today'?'gd':'', who=TAB==='others'?' · '+esc(first(t.own)):'';
-        return '<div class="nx-tr'+(t.done?' done':'')+'" data-k="'+esc(t.mid)+'"><button type="button" class="chk'+(t.done?' done':'')+'" data-ck="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button><div class="tx">'+esc(t.title)+'<small>'+esc(t.g||t.proj||'')+who+(t.pri&&t.pri!=='Normal'?' · '+esc(t.pri):'')+'</small></div><span class="due '+cls+'">'+esc(fmt(d))+'</span></div>' }).join('') });
+        var wfo=t.src==='wf';
+        return '<div class="nx-tr'+(t.done?' done':'')+'" data-k="'+esc(t.mid)+'">'+(wfo?'<span class="chk wfo" aria-hidden="true"></span>':'<button type="button" class="chk'+(t.done?' done':'')+'" data-ck="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button>')+'<div class="tx">'+esc(t.title)+'<small>'+esc(wfo?'Workflow'+(t.proj&&t.proj!=='No project'?' \u00b7 '+t.proj:''):(t.g||t.proj||''))+who+(t.pri&&t.pri!=='Normal'?' · '+esc(t.pri):'')+'</small></div><span class="due '+cls+'">'+esc(fmt(d))+'</span></div>' }).join('') });
     if(!any) h+='<div class="nx-empty">Nothing here. A clear list.</div> '
   }
   var keep=$('#nxIn')?$('#nxIn').value:''; panel.innerHTML=h; var inp=$('#nxIn'); if(inp&&keep){ inp.value=keep } pv() }
 
 /* ticking */
 async function tick(mid,done){
-  var t=rows.concat(extra).filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t) return; var was=t.done; t.done=done; draw();
+  var t=rows.concat(extra).filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t||t.src==='wf') return; var was=t.done; t.done=done; draw();
   try{ await C.tick(mid,done) }catch(er){ t.done=was; draw(); C.flash((er&&er.message)||'That could not be saved.') } }
 /* a task from the hidden My tasks group has no chat to open, so it opens here */
 var sheet=D.createElement('div'); sheet.className='ov nx'; sheet.id='nxTaskSheet'; sheet.innerHTML='<div class="sheet"><h3 id="nxSt"></h3><div class="lead" id="nxSl"></div><div class="row" style="margin-top:14px"><button type="button" class="cb" data-x>Close</button><button type="button" class="cb go" id="nxSd"></button></div></div>'; D.body.appendChild(sheet);
 sheet.addEventListener('click',function(e){ if(e.target===sheet||e.target.closest('[data-x]')) sheet.classList.remove('on') });
 var cur=null;
 $('#nxSd',sheet).addEventListener('click',function(){ if(cur){ tick(cur.mid,!cur.done); sheet.classList.remove('on') } });
-function inline(t){ cur=t; $('#nxSt',sheet).textContent=t.title; $('#nxSl',sheet).innerHTML=[ 'Set to '+esc(first(t.own))+(t.by&&t.by!==t.own?' by '+esc(first(t.by)):''), t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', esc(t.proj||'No project'), t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.wf?'In Workflow':'', t.ag?'On the Monday agenda':'' ].filter(Boolean).join('<br>'); $('#nxSd',sheet).textContent=t.done?'Mark not done':'Mark done'; sheet.classList.add('on') }
+var STL={todo:'To do',doing:'Doing',blocked:'Blocked',done:'Done'};
+function inline(t){ cur=t; $('#nxSt',sheet).textContent=t.title; var wfo=t.src==='wf', d=$('#nxSd',sheet);
+  $('#nxSl',sheet).innerHTML=(wfo?[ 'Workflow task, set to '+esc(first(t.own)), STL[t.st]?'Status: '+STL[t.st]:'', t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', t.proj&&t.proj!=='No project'?esc(t.proj):'', t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.ag?'On the Monday agenda':'', 'Update it in ATRIUM Workflow. It stays here until it is done.' ]
+    :[ 'Set to '+esc(first(t.own))+(t.by&&t.by!==t.own?' by '+esc(first(t.by)):''), t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', esc(t.proj||'No project'), t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.wf?'In Workflow':'', t.ag?'On the Monday agenda':'' ]).filter(Boolean).join('<br>');
+  d.style.display=wfo?'none':''; d.textContent=t.done?'Mark not done':'Mark done'; sheet.classList.add('on') }
+window.AtriumTasks={ inline:inline };
 
 panel.addEventListener('click',function(e){
   var c=e.target.closest('[data-ck]'); if(c){ e.stopPropagation(); var t=rows.concat(extra).filter(function(x){ return String(x.mid)===c.getAttribute('data-ck') })[0]; if(t) tick(t.mid,!t.done); return }
