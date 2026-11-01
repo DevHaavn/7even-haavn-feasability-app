@@ -331,3 +331,52 @@ html[data-scheme=light] .nx-rcerr{color:#b3261e}
 html[data-scheme=light] .nx-ub{color:#8a6420;border-color:rgba(138,100,32,.55)}
 html[data-scheme=light] .nx-ub.men{background:#8a6420;border-color:#8a6420;color:#fff}
 html[data-scheme=light] .nx-un1 i{color:#8a6420}
+
+/* the Today card: tiles with a count, a list under the open tile, task rows you can tick and open */
+.nx-today{padding:12px 12px 8px}
+.nx-today .nx-hd{display:flex;width:100%;justify-content:space-between;align-items:flex-start;gap:8px;background:none;border:0;padding:0 2px;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.nx-today .nx-hd b{display:block;font-weight:400;font-size:17px;color:var(--bone)}
+.nx-today .nx-hd .nx-d{display:block;font-size:12.5px;color:var(--faint);margin-top:1px}
+.nx-today .nx-hd .nx-tc{width:12px;height:8px;margin-top:9px;flex:none;fill:none;stroke:var(--soft);stroke-width:1.5;transition:transform .2s;transform:rotate(180deg)}
+.nx-today .nx-hd[aria-expanded=false] .nx-tc{transform:none}
+.nx-today.fold{padding-bottom:10px}
+.nx-tiles{display:grid;grid-template-columns:repeat(var(--nt,3),minmax(0,1fr));gap:6px;margin-top:10px}
+.nx-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0;padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:rgba(127,127,127,.08);color:var(--bone);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,background .2s}
+.nx-tile:hover{border-color:rgba(214,179,106,.5)}
+.nx-tile.on{border-color:var(--gold);background:rgba(214,179,106,.09)}
+.nx-tile .nx-tl{font-size:9.5px;color:var(--gold)}
+.nx-tile .nx-tn{font-size:27px;line-height:1.1;font-weight:300;letter-spacing:-.02em}
+.nx-tile.z .nx-tn{color:var(--faint)}
+.nx-tile .nx-ts{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;color:var(--soft)}
+.nx-tile .nx-ts.rd{color:#ff8f8f}
+.nx-tile .nx-tc{position:absolute;right:8px;top:12px;width:10px;height:7px;fill:none;stroke:var(--soft);stroke-width:1.5;transition:transform .2s}
+.nx-tile.on .nx-tc{transform:rotate(180deg)}
+.nx-sec{margin-top:8px;border-top:1px solid var(--line)}
+.nx-sec .nx-mh{margin:10px 0 2px}
+.nx-mh.rd{color:#ff8f8f}
+.nx-tk{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.nx-tk .chk{margin-top:1px;border-color:var(--soft);transition:all .2s;cursor:pointer}
+.nx-tk .chk.done{background:var(--gold);border-color:var(--gold)}
+.nx-tk .chk.done::after{content:"";width:9px;height:5px;border-left:1.8px solid #2a2418;border-bottom:1.8px solid #2a2418;transform:rotate(-45deg) translate(1px,-1px)}
+.nx-tkb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;background:none;border:0;padding:0;text-align:left;font:inherit;color:var(--bone);cursor:pointer}
+.nx-tkt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:14px;line-height:1.3}
+.nx-tks{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;color:var(--soft)}
+.nx-tkb:hover .nx-tkt{color:var(--gold)}
+.nx-tk.done .nx-tkt{text-decoration:line-through;color:var(--faint)}
+.nx-tkd{flex:none;margin-top:2px;font-size:12px;color:var(--soft)}
+.nx-tkd.rd{color:#ff8f8f}
+html[data-scheme=light] .nx-tile .nx-tl{color:#8a6420}
+html[data-scheme=light] .nx-tile.on{border-color:#8a6420;background:rgba(138,100,32,.08)}
+html[data-scheme=light] .nx-tile .nx-ts.rd,html[data-scheme=light] .nx-tkd.rd,html[data-scheme=light] .nx-mh.rd{color:#b3261e}
+html[data-scheme=light] .nx-tk .chk{border-color:#8a8272}
+/* a narrow list column: the tiles become rows */
+.nx-today{container-type:inline-size}
+.nx-tile .nx-tl{letter-spacing:.05em}
+@container (max-width:300px){
+  .nx-tiles{grid-template-columns:1fr}
+  .nx-tile{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-areas:"n l" "n s";column-gap:10px;align-items:center;padding:7px 28px 7px 10px}
+  .nx-tile .nx-tn{grid-area:n;font-size:24px;text-align:center}
+  .nx-tile .nx-tl{grid-area:l}
+  .nx-tile .nx-ts{grid-area:s}
+  .nx-tile .nx-tc{top:50%;margin-top:-3px}
+}
