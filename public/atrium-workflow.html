@@ -775,7 +775,7 @@ function renderRail(){
   document.getElementById('cSupply').textContent=WS.supplyProjects.filter(function(p){return !p.archived;}).length;
   document.getElementById('cMgmtProj').textContent=mgmtProjects().length;
   document.getElementById('cMgmtReq').textContent=mgmtOpenReqs().length;
-  document.getElementById('cBuyers').textContent=WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';}).length;
+  document.getElementById('cBuyers').textContent=(typeof window.__hbOpen==='number')?window.__hbOpen:WS.buyers.filter(function(b){return b.stage!=='Won'&&b.stage!=='Lost';}).length;
   document.getElementById('cActions').textContent=WS.actions.filter(function(a){return !a.done;}).length;
   document.getElementById('cMyTasks').textContent=WS.actions.filter(function(a){return !a.done&&sameName(a.owner,ME());}).length;
   document.getElementById('cMyAgenda').textContent=WS.actions.filter(function(a){return a.weekly&&!a.done&&sameName(a.owner,ME());}).length;
@@ -791,7 +791,7 @@ var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   teamboard:['Team board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly review','BRIDGE → MEETING MANAGEMENT'],
   mgmt:['HAAVN Management','PROJECT DELIVERY · SEPARATE FROM SUPPLY'],mgmtprojects:['Management Projects','DEVELOPER, CLIENT & SUPPLY PROJECTS · MODULAR OR NOT'],mgmttimeline:['Project timelines','ALL PROJECTS · PHASES & MILESTONES'],mgmthandoffs:['Supply ↔ Management','HANDOFFS & REQUESTS BETWEEN THE TWO TEAMS'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
-  supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['HAAVN Black Sales Pipeline','HOME BUYER OPPORTUNITIES'],
+  supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['Sales pipeline','HAAVN BLACK · LEADS TO ORDERS'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
   meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANTS DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
@@ -801,6 +801,7 @@ function render(){
   document.getElementById('tbTitle').textContent=t[0];
   document.getElementById('tbSub').textContent=t[1];
   var v=document.getElementById('view');
+  v.style.padding=(TAB==='sales')?'0':'';v.style.maxWidth=(TAB==='sales')?'none':'';
   if(TAB==='overview') v.innerHTML=viewOverview();
   else if(TAB==='myday') v.innerHTML=viewMyDay();
   else if(TAB==='mytasks') v.innerHTML=viewMyTasks();
@@ -817,7 +818,7 @@ function render(){
   else if(TAB==='mgmthandoffs') v.innerHTML=viewMgmtHandoffs();
   else if(TAB==='partners') v.innerHTML=viewPartners();
   else if(TAB==='supply') v.innerHTML=viewSupply();
-  else if(TAB==='sales') v.innerHTML=viewSales();
+  else if(TAB==='sales'){ if(!document.getElementById('salesFrame')) v.innerHTML=viewSalesApp(); }
   else if(TAB==='buyers') v.innerHTML=viewBuyers();
   else if(TAB==='actions') v.innerHTML=viewActions();
   else if(TAB==='meetings') v.innerHTML=viewMeetings();
@@ -1745,6 +1746,9 @@ function saveMgmtProject(id,isNew){
 }
 
 /* ===================== Sales pipeline (HAAVN Black) ===================== */
+/* Sales pipeline: the HAAVN BLACK sales app (public/atrium-sales.html, server /api/sales), in the same look, full width. The old buyers list stays under Home buyers. */
+function viewSalesApp(){return '<iframe id="salesFrame" title="HAAVN BLACK Sales pipeline" src="/atrium-sales.html?embed=1&v=20261104a" style="width:100%;height:calc(100vh - 62px);min-height:560px;border:0;display:block;background:transparent"></iframe>';}
+window.addEventListener('message',function(e){var d=e.data&&e.data.hbSales;if(d&&typeof d.open==='number'){window.__hbOpen=d.open;var c=document.getElementById('cBuyers');if(c)c.textContent=d.open;}});
 function viewSales(){
   var cols=BUYER_STAGES.slice(0,6);
   var h='<div class="grid4">'+stat(openBuyers().length,'Open opportunities')+stat(fmtM(openBuyers().reduce(function(s,b){return s+(+b.value||0);},0)),'Open pipeline value')+

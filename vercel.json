@@ -26,6 +26,10 @@
     {
       "path": "/api/chat-nudge",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/sales-mail",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

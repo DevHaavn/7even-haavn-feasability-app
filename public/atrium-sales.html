@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ATRIUM · HAAVN BLACK Sales pipeline</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Inter:wght@100;200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* HAAVN BLACK sales pipeline. Same tokens, same components and same look as ATRIUM Workflow (atrium-workflow.html), so it sits inside it without a seam.
+   It is linked to atrium-language.css and atrium-workflow-look.css below, which restyle the shared class names (.btn .card .stagechip .tablewrap .chip). */
+:root{
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --gold:#d6b36a; --gold-hi:#e6d3a3; --gold-deep:#b89a5e;
+  --at-blue:#9db8e8;--at-lilac:#c0a9e4;--at-peach:#f0bf9a;--at-green:#a9d4b5;--at-pink:#eeb0c4;--at-grey:#b4bac4;--at-yellow:#e8d594;--at-teal:#9fd3d0;
+  --green:#a9d4b5; --blue:#9db8e8; --red:#f0a39b; --purple:#c0a9e4; --orange:#f0bf9a;
+  --green-t:color-mix(in srgb,var(--green) 45%,var(--ink));--blue-t:color-mix(in srgb,var(--blue) 45%,var(--ink));--red-t:color-mix(in srgb,var(--red) 45%,var(--ink));--purple-t:color-mix(in srgb,var(--purple) 45%,var(--ink));
+}
+[data-theme="dark"]{
+  --bg0:#0B0D0F; --bg1:#101216; --ink:#F3F2EE; --ink-2:#b7b9bf; --ink-3:#7d818b; --ink-4:#565a63;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.055); --glass:rgba(24,26,32,.62); --pill:rgba(255,255,255,.045);
+}
+[data-theme="light"]{
+  --bg0:#eceae4; --bg1:#f4f2ec; --ink:#1a1b1e; --ink-2:#4a4d54; --ink-3:#83868e; --ink-4:#a7aab1;
+  --line:rgba(20,20,25,.10); --line-2:rgba(20,20,25,.06); --glass:rgba(255,255,255,.68); --pill:rgba(20,20,25,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;font-weight:300}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+button{font-family:inherit}
+
+.topbar{position:sticky;top:0;z-index:80;background:rgba(236,234,228,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-2);padding:14px 28px;display:flex;align-items:center;gap:14px}
+[data-theme="dark"] .topbar{background:rgba(11,13,15,.86)}
+.tb-title{font:300 20px/1 var(--sans);color:var(--ink)}
+.tb-sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase;margin-left:2px;padding-left:14px;border-left:1px solid var(--line)}
+.tb-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+body.embed .topbar{display:none}
+.wrap{max-width:1380px;margin:0 auto;padding:22px 28px 90px}
+body.embed .wrap{padding-top:16px}
+
+.btn{border-radius:999px;border:1px solid var(--ink-4);background:var(--pill);color:var(--ink);font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:7px;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--ink-2)}
+.btn.gold{border-color:transparent;color:#1a1b1e;background:#d6b36a;font-weight:600}
+.btn.sm{padding:6px 12px;font-size:9.5px}
+.btn.red{color:var(--red-t)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.lg{padding:13px 22px;font-size:12px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.grid{display:grid}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+@media(max-width:1100px){.grid6{grid-template-columns:repeat(3,1fr)}.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}.grid6{grid-template-columns:repeat(2,1fr)}}
+.stat b{display:block;font:300 30px var(--sans);color:var(--ink)}
+.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.stat small{display:block;color:var(--ink-3);font-size:12px;margin-top:4px}
+.section-h{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
+.section-h h3{font:300 17px var(--sans);color:var(--ink)}
+.section-h .spacer{flex:1}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);text-transform:uppercase;white-space:nowrap}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--line-2);color:var(--ink-2);white-space:nowrap}
+tbody tr.click:hover{background:var(--pill);cursor:pointer}
+td.tt{color:var(--ink);font-weight:500}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{border:1px solid var(--line);border-radius:16px;overflow:auto;background:var(--glass)}
+.chip{font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);display:inline-block;white-space:nowrap}
+.chip.gold{color:#1a1b1e;border-color:transparent;background:#d6b36a;font-weight:600}
+.chip.green{color:var(--green-t);border-color:color-mix(in srgb,var(--green) 70%,transparent);background:color-mix(in srgb,var(--green) 22%,transparent)}
+.chip.red{color:var(--red-t);border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 22%,transparent)}
+.chip.blue{color:var(--blue-t);border-color:color-mix(in srgb,var(--blue) 70%,transparent);background:color-mix(in srgb,var(--blue) 22%,transparent)}
+.chip.amber{color:#6b4a12;border-color:color-mix(in srgb,var(--gold) 80%,transparent);background:color-mix(in srgb,var(--gold) 26%,transparent)}
+[data-theme="dark"] .chip.amber{color:var(--gold-hi)}
+.stagestrip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.stagechip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;gap:7px;align-items:center;background:none}
+.stagechip .n{font-family:var(--mono);background:var(--pill);border-radius:100px;padding:1px 6px;font-size:9px}
+.stagechip.on{border-color:transparent;color:#1a1b1e;background:#d6b36a;font-weight:600}
+.seg{display:flex;padding:3px;border-radius:100px;border:1px solid var(--line);background:var(--pill)}
+.seg button{border:none;background:transparent;color:var(--ink-3);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:6px 11px;border-radius:100px;cursor:pointer;text-transform:uppercase}
+.seg button.on{background:var(--ink);color:var(--bg0)}
+input,select,textarea{font-family:var(--sans);background:var(--pill);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:9px 12px;font-size:12.5px;outline:none;width:100%}
+input[type=checkbox]{width:auto;flex:none;padding:0}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:26px}
+textarea{resize:vertical;min-height:70px}
+label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.formgrid.three{grid-template-columns:1fr 1fr 1fr}
+.empty{padding:26px;text-align:center;color:var(--ink-3);font:400 12px var(--mono);letter-spacing:.08em}
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:36px 20px;opacity:0;pointer-events:none;transition:.25s;overflow-y:auto}
+.modalbg.on{opacity:1;pointer-events:auto}
+.modal{width:min(680px,100%);background:var(--bg1);border:1px solid var(--line);border-radius:20px;padding:24px}
+.modal h4{font:300 18px var(--sans);color:var(--ink);margin-bottom:6px}
+.modal .lead{color:var(--ink-3);font-size:12.5px;margin-bottom:16px}
+.modal .foot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg0);padding:11px 20px;border-radius:100px;font-size:12.5px;font-weight:500;z-index:400;opacity:0;pointer-events:none;transition:.3s;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase}
+.small{font-size:12px;color:var(--ink-3)}
+.row{display:flex;align-items:center;gap:10px}.wrapx{flex-wrap:wrap}.sp{flex:1}
+.hide{display:none!important}
+.banner{margin:0 0 16px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;color:var(--ink-2);font-size:12.5px;background:var(--glass)}
+.banner b{color:var(--ink);font-weight:500}.banner.warn{border-color:color-mix(in srgb,var(--gold) 70%,transparent)}.banner.bad{border-color:color-mix(in srgb,var(--red) 70%,transparent)}
+.av{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--pill);border:1px solid var(--line);font:600 9px var(--mono);color:var(--ink)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.25)}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.25);vertical-align:-3px}
+.bar{height:6px;border-radius:4px;background:var(--pill);overflow:hidden}.bar i{display:block;height:100%;background:color-mix(in srgb,var(--ink) 55%,transparent);border-radius:4px}
+
+/* the board */
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:14px;align-items:flex-start}
+.kcol{flex:0 0 250px;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:240px}
+.kcol.over{border-color:var(--ink)}
+.kcol h4{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+.kcol .sla{font-size:11px;color:var(--ink-3);margin-bottom:10px;min-height:15px}
+.kcard{background:var(--pill);border:1px solid var(--line-2);border-radius:10px;padding:10px 11px;margin-bottom:8px;cursor:pointer;font-size:11.5px}
+.kcard:hover{border-color:var(--ink-3)}
+.kcard.drag{opacity:.4}
+.kcard b{display:block;color:var(--ink);font-weight:500;margin-bottom:3px;font-size:13px}
+.kcard .m{color:var(--ink-3);font-size:11.5px}
+.kcard .ft{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--ink-2)}
+.due{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--ink-3)}
+.due.over{color:var(--red-t);font-weight:600}.due.today{color:#8a6a22}[data-theme="dark"] .due.today{color:var(--gold)}.due.ok{color:var(--green-t)}
+
+/* the lead panel */
+#shade{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none}#shade.on{display:block}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:min(780px,100%);background:var(--bg1);border-left:1px solid var(--line);z-index:210;transform:translateX(102%);transition:transform .28s ease;overflow-y:auto}
+#drawer.on{transform:none}
+#drawer .dh{position:sticky;top:0;background:color-mix(in srgb,var(--bg1) 94%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 22px;z-index:2;display:flex;align-items:flex-start;gap:12px}
+#drawer .db{padding:18px 22px 70px;display:flex;flex-direction:column;gap:16px}
+.steps{display:flex;gap:4px}
+.steps button{flex:1;min-width:0;text-align:left;padding:8px;border-radius:9px;border:1px solid var(--line);background:var(--pill);color:var(--ink-3);font-size:10.5px;line-height:1.25;cursor:pointer}
+.steps button b{display:block;font-family:var(--mono);font-weight:500;font-size:9px;letter-spacing:.14em;margin-bottom:3px}
+.steps button.done{color:var(--ink-2)}.steps button.done b{color:var(--green-t)}
+.steps button.cur{background:var(--ink);color:var(--bg0);border-color:var(--ink)}
+.next{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--glass)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line-2);cursor:pointer;font-size:12.5px;color:var(--ink-2)}
+.chk:last-child{border-bottom:0}
+.chk i{flex:0 0 18px;height:18px;border-radius:5px;border:1px solid var(--ink-4);display:grid;place-items:center;font-style:normal;font-size:12px;margin-top:1px}
+.chk.on i{background:var(--green);border-color:var(--green);color:#10301a}.chk.on span{text-decoration:line-through;color:var(--ink-3)}
+.kv{display:grid;grid-template-columns:116px 1fr;gap:7px 12px;font-size:12.5px;color:var(--ink)}.kv dt{color:var(--ink-3)}
+.tl .it{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px;color:var(--ink-2)}
+.tl .it .d{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);padding-top:3px}
+.home{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.dsteps{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:14px 0 4px}
+.dsteps div{height:6px;border-radius:3px;background:var(--line)}.dsteps div.d{background:var(--green)}.dsteps div.c{background:var(--ink)}
+.dlab{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;font-size:9.5px;color:var(--ink-3);line-height:1.25}.dlab span.c{color:var(--ink)}
+.cplog .s{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px;color:var(--ink-2)}
+.cplog .s i{flex:0 0 20px;height:20px;border-radius:50%;background:var(--green);color:#10301a;display:grid;place-items:center;font-style:normal;font-size:12px}
+.email{background:var(--pill);border:1px solid var(--line);border-radius:12px;padding:14px;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--ink-2);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto}
+.email mark{background:color-mix(in srgb,var(--green) 30%,transparent);color:var(--ink);border-radius:3px;padding:0 3px}
+.tog{flex:0 0 auto;width:42px;height:24px;border-radius:12px;background:var(--line);border:1px solid var(--ink-4);position:relative;cursor:pointer}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--ink-3);transition:.2s}
+.tog.on{background:var(--green);border-color:var(--green)}.tog.on::after{left:20px;background:#10301a}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pickchip{padding:5px 11px;border-radius:999px;border:1px solid var(--ink-4);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;background:none}
+.pickchip.on{background:var(--ink);color:var(--bg0);border-color:var(--ink)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px}.filters select{width:auto;min-width:130px}.filters input{width:220px}
+.signin{max-width:480px;margin:90px auto;text-align:center}
+@media(max-width:860px){.wrap{padding:16px 14px 80px}.formgrid,.formgrid.three{grid-template-columns:1fr}.steps{overflow-x:auto}.steps button{flex:0 0 96px}.kv{grid-template-columns:96px 1fr}.topbar{padding:12px 16px}}
+</style>
+<link rel="stylesheet" href="/atrium-language.css">
+<link rel="stylesheet" href="/atrium-workflow-look.css?v=3">
+<style>html body{--acc:#a9d4b5}html body .stagestrip{margin-top:0}</style>
+</head>
+<body>
+<div class="topbar" id="top"></div>
+<div class="wrap" id="app"></div>
+<div id="shade"></div>
+<aside id="drawer"></aside>
+<div class="modalbg" id="modal"><div class="modal" id="mbody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var EMBED=/[?&]embed=1\b/.test(location.search)||window.parent!==window;
+if(EMBED)document.body.classList.add('embed');
+/* theme: follows the ATRIUM setting (same key as Workflow); light until someone chooses dark */
+function applyTheme(){
+  var t='light';
+  try{t=localStorage.getItem('atrium_theme')||'light'}catch(e){}
+  /* inside Workflow it takes whatever Workflow is showing, so the two never disagree */
+  try{if(window.parent!==window){var pt=window.parent.document.documentElement.getAttribute('data-theme');if(pt)t=pt}}catch(e){}
+  document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');
+}
+applyTheme();addEventListener('storage',function(e){if(e.key==='atrium_theme')applyTheme()});
+try{if(window.parent!==window)new MutationObserver(applyTheme).observe(window.parent.document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(e){}
+
+var DAY=864e5,HOUR=36e5;
+function $(s,r){return (r||document).querySelector(s)}function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function now(){return Date.now()}
+function sod(t){var d=new Date(t);d.setHours(0,0,0,0);return d.getTime()}
+function fmtD(t){return t?new Date(t).toLocaleDateString('en-AU',{day:'numeric',month:'short'}):''}
+function fmtDT(t){return t?new Date(t).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):''}
+function money(n){return n?'$'+Math.round(n).toLocaleString('en-AU'):'-'}
+function pct(a,b){return b?Math.round(a/b*1000)/10:0}
+function ini(n){return String(n||'?').split(/\s+/).map(function(w){return w[0]}).slice(0,2).join('').toUpperCase()}
+
+/* ---------- what HAAVN BLACK sells (as on haavnblack.au) ---------- */
+var PRODUCTS={studio:{n:'SOLUM Studio',m2:42,foot:'3.5 x 12 m',len:12},plus:{n:'SOLUM Plus',m2:55,foot:'4.5 x 12.2 m',len:12.2},max:{n:'SOLUM Max',m2:60,foot:'4.5 x 13.4 m',len:13.4},
+  octa:{n:'OCTA',concept:1},octaplus:{n:'OCTA Plus',concept:1},octamax:{n:'OCTA Max',concept:1},none:{n:'No preference'}};
+var SOLUM=['studio','plus','max'],OCTA=['octa','octaplus','octamax'];
+var CLAD={Ivory:'#e6dfcc',Char:'#2c2e30',Amber:'#c4842f',Urbanite:'#8b8f93'},PAL={Burgundy:'#6a1f2b',Sage:'#8b9b82',Tide:'#5f8c9a',Vine:'#4e6b3f'},JOIN={'Dark Oak':'#4b3527','Raw Walnut':'#76563f'};
+var SOURCES=['Facebook','Instagram','LinkedIn','Google search','Website direct','Agent referral','Other'];
+var SETTING=['City','Coast','Country','Not sure yet'],PAY=['No preference','Cash','Finance','Undecided'],DELIV=['No preference','Supply','Delivered','Installed'];
+var STATES={NSW:'New South Wales',VIC:'Victoria',QLD:'Queensland',SA:'South Australia',WA:'Western Australia',TAS:'Tasmania',ACT:'Australian Capital Territory',NT:'Northern Territory'};
+var SK=Object.keys(STATES);
+var STAGES=[
+ {n:'New enquiry',sla:'Call within 1 business hour',next:'Call and introduce yourself',days:0,chk:['Called or messaged the customer','Confirmed the home and finishes they chose','Noted what they said'],tpl:'Hi {first}, thanks for your interest in the {home}. I am {me} at HAAVN BLACK. I can see you chose {fin}. Do you have a few minutes today for a quick call to talk through delivery to {state} and what is included? Kind regards, {me}'},
+ {n:'Contacted',sla:'Speak to them within 2 days',next:'Qualify: finance, site, timing',days:2,chk:['Land or site confirmed (owned, buying, or looking)','Finance or cash plan understood','Delivery and installation option agreed','Timing for the home understood'],tpl:'Hi {first}, great speaking with you. To get your {home} priced properly I need three things: your site address (or the area you are looking at), whether you plan to pay cash or finance, and when you want the home on site. Reply here or call me. {me}'},
+ {n:'Qualified',sla:'Send the EOI within 2 days',next:'Send the Expression of Interest form',days:2,chk:['EOI form sent','Customer knows the EOI is not a contract','Date to follow up set'],tpl:'Hi {first}, as discussed, here is the Expression of Interest for your {home} in {fin}. It reserves your place in the order queue and is not a contract. Once it is back with us I will send your contract. {me}'},
+ {n:'EOI received',sla:'Contract out within 2 days',next:'Prepare and send the contract',days:2,chk:['EOI received and checked','Final home, finishes and price confirmed','Contract prepared and sent'],tpl:'Hi {first}, thank you for your Expression of Interest. Your contract for the {home} is attached. Please read it through and call me with any questions. It can be signed electronically. {me}'},
+ {n:'Contract sent',sla:'Chase within 3 days',next:'Chase the signature',days:3,chk:['Customer has opened the contract','Questions answered','Signature date agreed'],tpl:'Hi {first}, just checking in on the contract for your {home}. Is there anything you would like to go through before signing? I am free for a call any time today. {me}'},
+ {n:'Contract signed',sla:'Deposit request same day',next:'Request the 10% deposit',days:2,chk:['Signed contract received and filed','Deposit invoice for 10% sent','Payment date agreed'],tpl:'Hi {first}, thank you for signing. The next step is the 10% deposit of {dep}. Payment details are on the invoice attached. As soon as it lands we confirm your order. {me}'},
+ {n:'Deposit 10% paid',sla:'Confirm the order within 1 day',next:'Confirm the order',days:2,chk:['Deposit received and matched','Order confirmation sent to the customer','Projects team briefed'],tpl:'Hi {first}, your deposit has arrived, thank you. Your order for the {home} is confirmed. From here the projects team looks after build, delivery and installation, and you will hear from us every two weeks. {me}'},
+ {n:'Order confirmed',sla:'Handed to the projects team',next:'Hand over to the projects team',days:0,chk:['Handover sent to projects@haavn.au','Customer introduced to the projects team','First update date set'],tpl:'Hi {first}, I have introduced you to our projects team (projects@haavn.au). They will confirm your production slot and keep you updated every two weeks. {me}'}
+];
+var CSTAGES=['New concept enquiry','Engaged','Warm','Ready for pre-order'];
+var DELIVERY=[{n:'Order confirmed',where:'Order confirmed, with the projects team'},{n:'Factory slot booked',where:'Waiting for the factory slot'},{n:'In production',where:'In the factory'},{n:'Quality check',where:'In the factory, final checks'},{n:'On the water',where:'Shipping to Australia'},{n:'Arrived in Australia',where:'In port, clearing'},{n:'Delivered and installed',where:'On site'},{n:'Handover',where:'Handed over to the customer'}];
+
+/* ---------- state ---------- */
+var S={me:null,leads:[],companies:[],agents:[],settings:{rules:{},prices:{},spend:{},notify:{},team:[]},inbox:[],mail:null,team:[],ready:false,error:'',setup:'',now:0};
+var UI={view:'dash',period:90,board:'solum',f:{owner:'',state:'',product:'',source:'',company:''},q:'',lead:null,modal:null,ibx:'',paste:'',parsed:null,cp:null};
+
+function api(a,body){
+  return fetch('/api/sales',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({a:a},body||{}))}).then(function(r){
+    return r.json().catch(function(){return {}}).then(function(j){
+      if(r.status===401){S.error='signin';throw new Error('signin')}
+      if(!r.ok)throw new Error(j.error||j.message||'That did not work.');
+      if(j.setup===false){S.setup=j.message;throw new Error(j.message)}
+      return j;
+    });
+  });
+}
+function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2800)}
+function fail(e){if(e&&e.message==='signin')return;toast(e&&e.message?e.message:'That did not work.')}
+
+function load(){
+  return api('init').then(function(j){
+    S.me=j.me;S.leads=j.leads;S.companies=j.companies||[];S.agents=j.agents||[];S.settings=j.settings;S.inbox=j.inbox||[];S.mail=j.mail;S.team=j.team||[];S.now=j.now;S.ready=true;S.error='';S.setup='';
+    if(!UI.ibx&&S.inbox[0])UI.ibx=S.inbox[0].id;
+  }).catch(function(e){S.ready=true;if(!S.error&&!S.setup)S.error=e.message});
+}
+function poll(){
+  if(!S.me||document.hidden||UI.modal)return;
+  api('poll',{since:S.now}).then(function(j){
+    var changed=false;
+    j.leads.forEach(function(l){var i=S.leads.findIndex(function(x){return x.id===l.id});if(i<0){S.leads.unshift(l);changed=true}else if(l.updated>(S.leads[i].updated||0)){S.leads[i]=l;changed=true}});
+    if(JSON.stringify(j.inbox.map(function(m){return m.id+m.status}))!==JSON.stringify(S.inbox.map(function(m){return m.id+m.status}))){S.inbox=j.inbox;changed=true}
+    S.mail=j.mail;S.now=j.now;
+    if(changed&&!UI.lead&&document.activeElement&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)<0)render();
+    announce();
+  }).catch(function(){});
+}
+function announce(){try{parent.postMessage({hbSales:{open:S.leads.filter(function(l){return l.status==='open'&&!l.concept&&l.stage<7}).length}},'*')}catch(e){}}
+
+/* ---------- helpers ---------- */
+function agentById(id){return S.agents.find(function(a){return a.id===id})}
+function teamById(id){return S.team.find(function(t){return t.id===id})}
+function ownerName(id){var t=teamById(id);if(t)return t.name;var a=agentById(id);return a?a.name:(id?'Unknown':'Unassigned')}
+function companyById(id){return S.companies.find(function(c){return c.id===id})}
+function ownerCompany(id){var a=agentById(id);var c=a&&companyById(a.companyId);return c?c.name:(teamById(id)?'HAAVN BLACK Direct':'')}
+function lead(id){return S.leads.find(function(l){return l.id===id})}
+function home(l){return PRODUCTS[l.product]?PRODUCTS[l.product].n:'No preference'}
+function price(l){return SOLUM.indexOf(l.product)>=0?(S.settings.prices[l.product]||0):0}
+function fin(l){return [l.clad,l.pal,l.join].filter(Boolean).join(', ')||'finishes to be chosen'}
+function full(l){return (l.first+' '+(l.last||'')).trim()}
+function isInternal(){return S.me&&S.me.kind==='internal'}
+function isAdmin(){return S.me&&S.me.admin}
+function srcLabel(l){return l.source==='Other'&&l.otherSource?'Other ('+l.otherSource+')':l.source}
+function nextAct(l){
+  if(l.status==='lost')return null;
+  if(l.concept)return {x:'Send the next concept update',due:(l.lastTouch||l.created)+14*DAY};
+  if(l.stage===7)return null;
+  var s=STAGES[l.stage];return {x:s.next,due:l.stage===0?l.created+HOUR:(l.lastTouch||l.created)+s.days*DAY};
+}
+function dueTag(l){
+  var a=nextAct(l);if(!a)return l.stage===7&&l.status==='open'&&!l.concept?'<span class="due ok">Confirmed</span>':'';
+  if(l.stage===0&&!l.concept&&l.maxStage===0){var h=Math.floor((now()-l.created)/HOUR);return h>=4?'<span class="due over">'+(h>=24?Math.floor(h/24)+'d':h+'h')+' waiting</span>':h>=1?'<span class="due today">'+h+'h waiting</span>':'<span class="due today">Call now</span>'}
+  var d=Math.floor((sod(a.due)-sod(now()))/DAY);
+  if(d<0)return '<span class="due over">Overdue '+(-d)+'d</span>';if(d===0)return '<span class="due today">Due today</span>';return '<span class="due">'+(d===1?'Tomorrow':fmtD(a.due))+'</span>';
+}
+function tpl(l,i){
+  var dep=price(l)?money(price(l)*.1):'10% of the contract price';
+  return STAGES[i].tpl.replace(/{first}/g,l.first).replace(/{home}/g,home(l)).replace(/{fin}/g,fin(l)).replace(/{me}/g,(S.me.name||'').split(' ')[0]).replace(/{state}/g,STATES[l.state]||'your state').replace(/{dep}/g,dep);
+}
+function homeSvg(l,w){
+  var p=PRODUCTS[l.product];var len=(p&&p.len)||12,wpx=len*17,h=62;var c=CLAD[l.clad]||'#9aa0a6',j=JOIN[l.join]||'#6b5646';
+  return '<svg viewBox="0 0 '+(wpx+30)+' 92" width="'+(w||220)+'" role="img" aria-label="'+esc(home(l))+'"><rect x="15" y="22" width="'+wpx+'" height="'+h+'" fill="'+c+'" stroke="rgba(0,0,0,.35)"/><rect x="9" y="16" width="'+(wpx+12)+'" height="7" fill="#2a2d31" stroke="rgba(0,0,0,.4)"/><rect x="25" y="38" width="26" height="46" fill="'+j+'"/><rect x="68" y="34" width="'+Math.max(50,wpx-110)+'" height="30" fill="#0b1117" stroke="rgba(255,255,255,.3)"/><rect x="'+(wpx-26)+'" y="34" width="18" height="30" fill="#0b1117" stroke="rgba(255,255,255,.3)"/><line x1="0" y1="84" x2="'+(wpx+30)+'" y2="84" stroke="rgba(0,0,0,.4)"/></svg>';
+}
+function swatches(l){
+  var a=[];if(l.clad)a.push('<span class="chip"><i class="sw" style="background:'+CLAD[l.clad]+'"></i> '+esc(l.clad)+'</span>');if(l.pal)a.push('<span class="chip"><i class="sw" style="background:'+PAL[l.pal]+'"></i> '+esc(l.pal)+'</span>');if(l.join)a.push('<span class="chip"><i class="sw" style="background:'+JOIN[l.join]+'"></i> '+esc(l.join)+'</span>');
+  return a.join(' ')||'<span class="small">No finishes chosen yet</span>';
+}
+function dots(l){return [CLAD[l.clad],PAL[l.pal],JOIN[l.join]].filter(Boolean).map(function(c){return '<i class="dot" style="background:'+c+'"></i>'}).join('')}
+function options(list,sel,blank){return (blank!=null?'<option value="">'+esc(blank)+'</option>':'')+list.map(function(o){var v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?o[1]:o;return '<option value="'+esc(v)+'"'+(String(sel)===String(v)?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
+function stateOpts(sel,blank){return options(SK.map(function(k){return [k,k+' · '+STATES[k]]}),sel,blank)}
+function ownerOpts(sel){
+  var g='<optgroup label="HAAVN BLACK team">'+S.team.map(function(t){return '<option value="'+t.id+'"'+(sel===t.id?' selected':'')+'>'+esc(t.name)+'</option>'}).join('')+'</optgroup>';
+  var by={};S.agents.filter(function(a){return a.active!==false}).forEach(function(a){(by[a.companyId]=by[a.companyId]||[]).push(a)});
+  var o=Object.keys(by).map(function(cid){var c=companyById(cid);return '<optgroup label="'+esc(c?c.name:'Agents')+'">'+by[cid].map(function(a){return '<option value="'+a.id+'"'+(sel===a.id?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</optgroup>'}).join('');
+  return isInternal()?g+o:o;
+}
+
+/* ---------- saving a lead ---------- */
+function saveLead(l,patch,quiet){
+  Object.assign(l,patch);
+  var send=Object.assign({id:l.id},patch);
+  return api('saveLead',{lead:send}).then(function(j){var i=S.leads.findIndex(function(x){return x.id===l.id});if(i>=0)S.leads[i]=j.lead;if(!quiet)render();return j.lead}).catch(function(e){fail(e);load().then(render)});
+}
+function addAct(l,x,k){var e={t:now(),x:x,k:k||'sys'};l.act=[e].concat(l.act||[]);return e}
+function move(l,idx){
+  if(idx<0||idx>7)return;
+  var dates=(l.dates||[l.created]).slice();if(idx>l.maxStage){for(var s=l.maxStage+1;s<=idx;s++)dates[s]=now()}
+  var e=addAct(l,'Moved to '+STAGES[idx].n+' by '+S.me.name+'.');
+  saveLead(l,{stage:idx,status:'open',lostWhy:'',dates:dates,lastTouch:now(),act:[e]});
+  toast(full(l)+' is now '+STAGES[idx].n);
+}
+
+/* ---------- views ---------- */
+var TABS=[['dash','Dashboard'],['pipe','Pipeline'],['leads','All leads'],['inbox','Inbox',1],['orders','Orders and delivery'],['agents','Agents and companies'],['setup','Setup',1]];
+function render(){
+  var m=S.me;
+  $('#top').innerHTML='<div class="tb-title">HAAVN BLACK Sales pipeline</div><div class="tb-sub">Leads to orders</div><div class="tb-right">'+(m?'<span class="small">'+esc(m.name)+'</span>':'')+'<a class="btn sm" href="/">ATRIUM</a></div>';
+  var h='';
+  if(!S.ready){h='<div class="empty">Loading</div>'}
+  else if(S.error==='signin'){h='<div class="signin card"><div class="tag">HAAVN BLACK</div><h2 style="font:300 24px var(--sans);margin:8px 0 10px">Sign in to the sales pipeline</h2><p class="small" style="margin-bottom:18px">Use your Microsoft work account. If you are an agent, use the email address your HAAVN BLACK contact added you with.</p><a class="btn gold lg" href="/api/auth/login?return='+encodeURIComponent('/atrium-sales.html')+'">Sign in with Microsoft</a></div>'}
+  else if(S.setup){h='<div class="signin card"><div class="tag">One step left</div><h2 style="font:300 22px var(--sans);margin:8px 0 10px">The sales database is not ready</h2><p class="small">'+esc(S.setup)+'</p></div>'}
+  else if(S.error){h='<div class="signin card"><h2 style="font:300 22px var(--sans);margin-bottom:10px">Could not open the pipeline</h2><p class="small">'+esc(S.error)+'</p><div style="margin-top:16px"><button class="btn" data-act="reload">Try again</button></div></div>'}
+  else{
+    var unread=S.inbox.filter(function(e){return e.status==='review'}).length;
+    var tabs=TABS.filter(function(t){return !t[2]||isInternal()});
+    h='<div class="stagestrip">'+tabs.map(function(t){return '<button class="stagechip '+(UI.view===t[0]?'on':'')+'" data-act="nav" data-k="'+t[0]+'">'+t[1]+(t[0]==='inbox'&&unread?'<span class="n">'+unread+'</span>':'')+'</button>'}).join('')+'<span class="sp"></span><button class="btn gold sm" data-act="newlead">+ New lead</button></div>';
+    if(tabs.every(function(t){return t[0]!==UI.view}))UI.view='dash';
+    h+=({dash:vDash,pipe:vPipe,leads:vLeads,inbox:vInbox,orders:vOrders,agents:vAgents,setup:vSetup})[UI.view]();
+  }
+  $('#app').innerHTML=h;renderDrawer();renderModal();
+  $('#shade').classList.toggle('on',!!UI.lead||!!UI.modal);
+}
+function visible(){return S.leads}
+function avgDays(ls){var o=ls.filter(function(l){return l.maxStage>=7&&l.dates&&l.dates[7]});if(!o.length)return 0;return Math.round(o.reduce(function(s,l){return s+(l.dates[7]-l.created)/DAY},0)/o.length)}
+
+function vDash(){
+  var all=visible().filter(function(l){return UI.period===0||l.created>=now()-UI.period*DAY});
+  var solum=all.filter(function(l){return !l.concept}),concept=all.filter(function(l){return l.concept});
+  var reach=function(k){return solum.filter(function(l){return l.maxStage>=k}).length};
+  var n=solum.length,eoi=reach(3),con=reach(5),ord=reach(7);
+  var f=[['Enquiries',n],['Contacted',reach(1)],['Qualified',reach(2)],['EOI received',eoi],['Contract sent',reach(4)],['Contract signed',con],['Deposit 10% paid',reach(6)],['Order confirmed',ord]];
+  var rows=function(keyFn,keys){return keys.map(function(k){var ls=solum.filter(function(l){return keyFn(l)===k});return {k:k,n:ls.length,eoi:ls.filter(function(l){return l.maxStage>=3}).length,con:ls.filter(function(l){return l.maxStage>=5}).length,ord:ls.filter(function(l){return l.maxStage>=7}).length,days:avgDays(ls)}}).filter(function(r){return r.n||true})};
+  var ownerIds=(isInternal()?S.team.map(function(t){return t.id}):[]).concat(S.agents.map(function(a){return a.id}));
+  var byOwner=rows(function(l){return l.owner},ownerIds).filter(function(r){return r.n||teamById(r.k)||!isInternal()});
+  var bySrc=rows(function(l){return l.source},SOURCES);
+  var months=UI.period===0?3:UI.period/30;
+  var wk=[];for(var i=7;i>=0;i--){var a=now()-(i+1)*7*DAY,b=now()-i*7*DAY;wk.push(visible().filter(function(l){return l.created>=a&&l.created<b}).length)}
+  var mx=Math.max(1,Math.max.apply(null,wk));
+  var prodRows=Object.keys(PRODUCTS).filter(function(k){return k!=='none'}).map(function(k){return {k:k,n:all.filter(function(l){return l.product===k}).length}}).filter(function(p){return p.n});
+  var h=(isInternal()?'':'<div class="banner">You are signed in as <b>'+esc(S.me.name)+'</b>'+(S.me.manager?'. You see your whole company\'s leads.':'. You see your own leads only.')+' These numbers are yours.</div>');
+  h+='<div class="row wrapx" style="margin-bottom:16px"><span class="tag">Period</span><div class="seg">'+[[30,'30 days'],[60,'60 days'],[90,'90 days'],[0,'All time']].map(function(p){return '<button class="'+(UI.period===p[0]?'on':'')+'" data-act="period" data-v="'+p[0]+'">'+p[1]+'</button>'}).join('')+'</div><span class="small">By the date each enquiry came in.</span></div>';
+  h+='<div class="grid6" style="margin-bottom:14px">'+
+   '<div class="card stat"><span>Enquiries</span><b>'+all.length+'</b><small>'+concept.length+' are OCTA concept</small></div>'+
+   '<div class="card stat"><span>EOIs</span><b>'+eoi+'</b><small>'+pct(eoi,n)+'% of SOLUM leads</small></div>'+
+   '<div class="card stat"><span>Contracts signed</span><b>'+con+'</b><small>'+pct(con,n)+'% of leads</small></div>'+
+   '<div class="card stat"><span>Orders confirmed</span><b>'+ord+'</b><small>'+(solum.filter(function(l){return l.maxStage>=7}).reduce(function(s,l){return s+price(l)},0)?money(solum.filter(function(l){return l.maxStage>=7}).reduce(function(s,l){return s+price(l)},0))+' contract value':'set prices in Setup')+'</small></div>'+
+   '<div class="card stat"><span>Lead to order</span><b>'+pct(ord,n)+'%</b><small>across all agents</small></div>'+
+   '<div class="card stat"><span>Leads per sale</span><b>'+(ord?Math.round(n/ord*10)/10:'-')+'</b><small>how many to win one</small></div></div>';
+  h+='<div class="grid2" style="margin-bottom:14px"><div class="card"><div class="tag" style="margin-bottom:12px">Sales funnel, SOLUM</div>'+f.map(function(r,i){return '<div style="margin-bottom:9px"><div class="row" style="font-size:12.5px"><span>'+r[0]+'</span><span class="sp"></span><span>'+r[1]+'</span><span class="small" style="width:72px;text-align:right">'+(i?pct(r[1],f[i-1][1])+'% step':'')+'</span></div><div class="bar"><i style="width:'+pct(r[1],f[0][1]||1)+'%"></i></div></div>'}).join('')+'</div>'+
+   '<div class="card"><div class="tag" style="margin-bottom:8px">New leads each week, last 8 weeks</div><svg viewBox="0 0 320 140" width="100%" height="150">'+wk.map(function(v,i){return '<rect x="'+(12+i*38)+'" y="'+(120-v/mx*100)+'" width="26" height="'+(v/mx*100)+'" rx="4" fill="var(--ink-2)" opacity="'+(.3+.7*(i+1)/8)+'"/><text x="'+(25+i*38)+'" y="'+(114-v/mx*100)+'" fill="var(--ink-2)" font-size="10" text-anchor="middle">'+v+'</text><text x="'+(25+i*38)+'" y="136" fill="var(--ink-3)" font-size="9" text-anchor="middle">'+(i===7?'now':'-'+(7-i)+'w')+'</text>'}).join('')+'</svg><div class="small">Homes asked about: '+(prodRows.map(function(p){return PRODUCTS[p.k].n+' '+p.n}).join(' · ')||'none yet')+'</div></div></div>';
+  h+='<div class="section-h"><h3>By agent</h3><span class="small">how many leads it takes to win one sale</span></div><div class="tablewrap"><table><thead><tr><th>Agent</th><th class="num">Leads</th><th class="num">EOIs</th><th class="num">Contracts</th><th class="num">Orders</th><th class="num">Lead to order</th><th class="num">Leads per sale</th><th class="num">Avg days to order</th></tr></thead><tbody>'+
+   byOwner.map(function(r){return '<tr><td class="tt"><span class="av">'+ini(ownerName(r.k))+'</span> &nbsp;'+esc(ownerName(r.k))+' <span class="small">'+esc(ownerCompany(r.k))+'</span></td><td class="num">'+r.n+'</td><td class="num">'+r.eoi+'</td><td class="num">'+r.con+'</td><td class="num">'+r.ord+'</td><td class="num">'+pct(r.ord,r.n)+'%</td><td class="num">'+(r.ord?Math.round(r.n/r.ord*10)/10:'-')+'</td><td class="num">'+(r.days||'-')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  if(isInternal()){
+    h+='<div class="section-h"><h3>By lead source</h3><span class="small">where leads come from and what they cost</span></div><div class="tablewrap"><table><thead><tr><th>Source</th><th class="num">Leads</th><th class="num">EOIs</th><th class="num">Orders</th><th class="num">Lead to order</th><th class="num">Ad spend</th><th class="num">Cost per lead</th><th class="num">Cost per order</th></tr></thead><tbody>'+
+     bySrc.map(function(r){var sp=(S.settings.spend[r.k]||0)*months;return '<tr><td class="tt">'+esc(r.k)+'</td><td class="num">'+r.n+'</td><td class="num">'+r.eoi+'</td><td class="num">'+r.ord+'</td><td class="num">'+pct(r.ord,r.n)+'%</td><td class="num">'+(sp?money(sp):'-')+'</td><td class="num">'+(sp&&r.n?money(sp/r.n):'-')+'</td><td class="num">'+(sp&&r.ord?money(sp/r.ord):'-')+'</td></tr>'}).join('')+'</tbody></table></div><p class="small" style="margin-top:10px">Ad spend comes from Setup (monthly per channel). Cost per lead and per order use the period selected.</p>';
+    var bySt=SK.map(function(k){var ls=solum.filter(function(l){return l.state===k});return {k:k,n:ls.length,ord:ls.filter(function(l){return l.maxStage>=7}).length}}).filter(function(r){return r.n});
+    if(bySt.length)h+='<div class="section-h"><h3>By state or territory</h3></div><div class="tablewrap"><table><thead><tr><th>State</th><th class="num">Leads</th><th class="num">Orders</th><th class="num">Lead to order</th></tr></thead><tbody>'+bySt.map(function(r){return '<tr><td class="tt">'+r.k+' <span class="small">'+STATES[r.k]+'</span></td><td class="num">'+r.n+'</td><td class="num">'+r.ord+'</td><td class="num">'+pct(r.ord,r.n)+'%</td></tr>'}).join('')+'</tbody></table></div>';
+  }
+  return h;
+}
+function filt(ls){var f=UI.f;return ls.filter(function(l){return (!f.owner||l.owner===f.owner)&&(!f.state||l.state===f.state)&&(!f.product||l.product===f.product)&&(!f.source||l.source===f.source)&&(!f.company||(l.companyId===f.company)||(f.company==='direct'&&!l.companyId))&&(!UI.q||(full(l)+(l.email||'')+(l.mobile||'')).toLowerCase().indexOf(UI.q.toLowerCase())>=0)})}
+function filterBar(){
+  var f=UI.f;
+  var ownersAll=S.team.map(function(t){return [t.id,t.name]}).concat(S.agents.map(function(a){return [a.id,a.name]}));
+  var sel=function(k,ph,opts){return '<select data-chg="f:'+k+'">'+options(opts,f[k],ph)+'</select>'};
+  return '<div class="filters">'+sel('owner','All owners',ownersAll)+sel('state','All states',SK.map(function(k){return [k,k]}))+sel('product','All homes',Object.keys(PRODUCTS).filter(function(k){return k!=='none'}).map(function(k){return [k,PRODUCTS[k].n]}))+sel('source','All sources',SOURCES.map(function(s){return [s,s]}))+(isInternal()?sel('company','All companies',[['direct','HAAVN BLACK Direct']].concat(S.companies.map(function(c){return [c.id,c.name]}))):'')+
+   '<input data-chg="q" placeholder="Search name, email, mobile" value="'+esc(UI.q)+'"></div>';
+}
+function kcard(l){
+  return '<div class="kcard" draggable="true" data-act="open" data-id="'+l.id+'"><b>'+esc(full(l))+'</b><div class="m">'+esc(home(l))+' · '+(l.state||'State?')+(l.setting&&l.setting!=='Not sure yet'?' · '+esc(l.setting):'')+'</div>'+
+   '<div class="ft"><span class="av" title="'+esc(ownerName(l.owner))+'">'+ini(ownerName(l.owner))+'</span><span class="row" style="gap:4px">'+dots(l)+'</span>'+dueTag(l)+'</div>'+
+   (l.concept?'<div class="bar" style="margin-top:9px"><i style="width:'+(l.eng||20)+'%"></i></div>':'<div class="m" style="margin-top:6px">'+esc(srcLabel(l))+(price(l)?' · '+money(price(l)):'')+'</div>')+'</div>';
+}
+function vPipe(){
+  var open=filt(visible()).filter(function(l){return l.status==='open'}),lost=filt(visible()).filter(function(l){return l.status==='lost'&&!l.concept});
+  var h='<div class="row wrapx" style="margin-bottom:14px"><div class="seg"><button class="'+(UI.board==='solum'?'on':'')+'" data-act="board" data-v="solum">SOLUM sales</button><button class="'+(UI.board==='octa'?'on':'')+'" data-act="board" data-v="octa">OCTA concept, keep engaged</button></div><span class="small">'+(UI.board==='solum'?'Drag a card to the next column, or open it and press the big button.':'OCTA is concept only for now. Keep these customers warm until pre-orders open.')+'</span></div>';
+  if(UI.board==='octa'){
+    var cs=open.filter(function(l){return l.concept});
+    return h+filterBar()+'<div class="board">'+CSTAGES.map(function(n,i){var ls=cs.filter(function(l){return (l.cstage||0)===i});return '<div class="kcol" data-col="c'+i+'"><h4><span>'+n+'</span><span>'+ls.length+'</span></h4><div class="sla">'+['Welcome and renders within a day','Fortnightly update, answer questions','Opened or replied three times','Offer a place in the OCTA pre-order list'][i]+'</div>'+(ls.map(kcard).join('')||'<div class="empty">Nothing here</div>')+'</div>'}).join('')+'</div>';
+  }
+  var ls=open.filter(function(l){return !l.concept});
+  var overdue=ls.filter(function(l){var a=nextAct(l);return a&&a.due<sod(now())}).length;
+  h+='<div class="row wrapx" style="margin-bottom:14px"><span class="chip">'+ls.length+' open leads</span><span class="chip amber">'+overdue+' need action today or are overdue</span>'+(ls.reduce(function(s,l){return s+price(l)},0)?'<span class="chip">'+money(ls.reduce(function(s,l){return s+price(l)},0))+' in play</span>':'')+'<span class="chip">'+lost.length+' lost</span></div>'+filterBar();
+  return h+'<div class="board">'+STAGES.map(function(s,i){var c=ls.filter(function(l){return l.stage===i});return '<div class="kcol" data-col="'+i+'"><h4><span>'+(i+1)+'. '+s.n+'</span><span>'+c.length+'</span></h4><div class="sla">'+s.sla+'</div>'+(c.map(kcard).join('')||'<div class="empty">Nothing here</div>')+'</div>'}).join('')+'</div>';
+}
+function vLeads(){
+  var ls=filt(visible()).sort(function(a,b){return b.created-a.created});
+  return '<div class="row wrapx" style="margin-bottom:6px"><span class="sp"></span>'+(isInternal()?'<button class="btn sm" data-act="csv">Export CSV</button>':'')+'</div>'+filterBar()+'<div class="tablewrap" style="max-height:none"><table><thead><tr><th>Customer</th><th>State</th><th>Home</th><th>Finishes</th><th>Source</th><th>Owner</th><th>Stage</th><th>Came in</th><th>Next</th></tr></thead><tbody>'+
+   (ls.map(function(l){return '<tr class="click" data-act="open" data-id="'+l.id+'"><td class="tt">'+esc(full(l))+'<div class="small">'+esc(l.mobile||l.email||'')+'</div></td><td>'+(l.state||'-')+'</td><td>'+esc(home(l))+'</td><td>'+(dots(l)||'-')+'</td><td>'+esc(srcLabel(l))+'</td><td>'+esc(ownerName(l.owner).split(' ')[0])+'</td><td>'+(l.status==='lost'?'<span class="chip red">Lost</span>':l.concept?'<span class="chip blue">'+CSTAGES[l.cstage||0]+'</span>':'<span class="chip '+(l.stage>=7?'green':'')+'">'+STAGES[l.stage].n+'</span>')+'</td><td class="small">'+fmtD(l.created)+'</td><td>'+dueTag(l)+'</td></tr>'}).join('')||'<tr><td colspan="9" class="empty">No leads match</td></tr>')+'</tbody></table></div>';
+}
+
+/* the inbox: how an email became a lead */
+function hilite(body){return esc(body).replace(/^(\s*)([A-Za-z][A-Za-z _\/-]{1,28}?)(\s*:\s*)(.+)$/gm,function(m,a,b,c,d){return a+b+c+'<mark>'+d+'</mark>'})}
+function vInbox(){
+  var cur=S.inbox.find(function(e){return e.id===UI.ibx})||S.inbox[0];
+  var mail=S.mail;
+  var banner=!mail?'<div class="banner warn"><b>Mail has not been read yet.</b> Every five minutes ATRIUM reads <b>sales@haavnblack.au</b> and turns each enquiry into a lead. Nothing has run yet.</div>':
+    mail.ok?'<div class="banner">Reading <b>'+esc(mail.mailbox)+'</b> every five minutes. Last checked '+fmtDT(mail.at)+(mail.leads?'. '+mail.leads+' new lead'+(mail.leads===1?'':'s')+' that time.':'.')+'</div>':
+    '<div class="banner bad"><b>Mail is not connected.</b> '+esc(mail.error||'')+' Last tried '+fmtDT(mail.at)+'. Leads can still be added by hand, and a forwarding rule can push emails in (see Setup).</div>';
+  var body=UI.paste||(cur?cur.body:''), p=UI.paste?UI.parsed:null;
+  var list='<div class="card" style="padding:10px;max-height:calc(100vh - 240px);overflow:auto">'+(S.inbox.map(function(e){return '<button class="kcard" style="width:100%;text-align:left;'+(cur&&e.id===cur.id&&!UI.paste?'border-color:var(--ink)':'')+'" data-act="ibx" data-id="'+e.id+'"><b style="font-size:12.5px">'+esc((e.subject||'(no subject)').replace('New enquiry from haavnblack.au: ',''))+'</b><div class="m">'+fmtDT(Date.parse(e.received_at))+' · '+esc((e.from_addr||'').replace(/<.*>/,''))+'</div><div style="margin-top:6px">'+(e.status==='lead'?'<span class="chip green">Lead created</span>':e.status==='review'?'<span class="chip amber">Needs a look</span>':'<span class="chip">Dismissed</span>')+'</div></button>'}).join('')||'<div class="empty">No emails yet</div>')+
+   '<div style="padding:6px"><label class="f">Or paste an enquiry email<textarea data-chg="paste" placeholder="Paste an email from sales@haavnblack.au here and see what is read">'+esc(UI.paste)+'</textarea></label><button class="btn sm" data-act="parse">Read it</button></div></div>';
+  var detail='';
+  if(cur||UI.paste){
+    detail='<div class="card" style="margin-bottom:14px"><div class="tag" style="margin-bottom:10px">The email'+(cur&&!UI.paste?' · '+esc(cur.from_addr||''):' · pasted')+'</div><div class="email">'+hilite(body)+'</div></div>';
+    if(UI.paste&&p)detail+=parsedCard(p,null);
+    else if(cur)detail+=parsedFromRow(cur);
+  }else detail='<div class="empty">Select an email</div>';
+  return banner+'<div class="grid" style="grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start">'+list+'<div>'+detail+(UI.cp?cpResult():'')+'</div></div>';
+}
+function parsedFromRow(row){
+  var p=row.parsed;
+  if(!p)return '<div class="card"><div class="small">'+(row.status==='lead'?'This email became a lead.'+(row.note?' '+esc(row.note):''):row.note?esc(row.note):'')+'</div>'+(row.lead_id&&lead(row.lead_id)?'<div style="margin-top:10px"><button class="btn sm" data-act="open" data-id="'+row.lead_id+'">Open the lead</button></div>':'')+
+    (row.status==='review'?'<div class="row" style="margin-top:12px"><button class="btn gold sm" data-act="inboxEdit" data-id="'+row.id+'">Fill in the missing details and create the lead</button><button class="btn sm" data-act="dismiss" data-id="'+row.id+'">Not a lead, dismiss</button></div>':'')+'</div>';
+  return '';
+}
+function parsedCard(p){
+  var owner=S.settings.rules[p.state]||S.settings.rules.other||'jb';
+  return '<div class="card"><div class="tag" style="margin-bottom:10px">What is read from it</div><dl class="kv"><dt>Customer</dt><dd>'+(esc((p.first+' '+p.last).trim())||'<span class="chip red">name missing</span>')+'</dd><dt>Mobile</dt><dd>'+(esc(p.mobile)||'-')+'</dd><dt>Email</dt><dd>'+(esc(p.email)||'-')+'</dd><dt>State</dt><dd>'+(p.state?p.state+' · '+STATES[p.state]:'<span class="chip red">not found</span>')+'</dd><dt>Home</dt><dd>'+esc(PRODUCTS[p.product].n)+(PRODUCTS[p.product].concept?' <span class="chip blue">OCTA concept</span>':'')+'</dd><dt>Finishes</dt><dd>'+swatches(p)+'</dd><dt>Source</dt><dd>'+esc(p.source)+(p.otherSource?' ('+esc(p.otherSource)+')':'')+'</dd><dt>Goes to</dt><dd>'+esc(ownerName(owner))+'</dd></dl></div>';
+}
+function cpResult(){
+  var c=UI.cp,l=lead(c.id);if(!l)return '';
+  var o=ownerName(l.owner);
+  return '<div class="card" style="margin-top:14px"><div class="tag" style="margin-bottom:10px">Done</div><div class="cplog">'+['Customer profile saved: '+esc(full(l))+(l.mobile?', '+esc(l.mobile):'')+(l.email?', '+esc(l.email):'')+', '+(l.state||'state unknown')+'.','Home saved: '+esc(home(l))+(l.clad||l.pal||l.join?' with '+esc(fin(l)):'')+'.',c.dup?'This customer already existed, so a note was added.':'Owner chosen by state: '+esc(o)+'.','Task, sales channel note and phone alert sent.'].map(function(s){return '<div class="s"><i>&#10003;</i><span>'+s+'</span></div>'}).join('')+'</div><div style="margin-top:12px"><button class="btn sm" data-act="open" data-id="'+l.id+'">Open the lead</button></div></div>';
+}
+
+/* orders and delivery */
+function vOrders(){
+  var ids=S.leads.filter(function(l){return l.order&&l.stage>=7&&l.status==='open'});
+  var due=ids.filter(function(l){return now()-l.order.lastUpdate>=14*DAY}).length;
+  var h='<div class="banner">When an order is confirmed it is <b>handed to the projects team (projects@haavn.au)</b> with the customer, the home, every finish, the site address and the delivery option. The agent keeps the customer. The customer gets an update <b>every 2 weeks</b>; this screen shows who is due. From the website: about 8 weeks to arrive in Australia, then about 3 weeks for delivery and installation.</div><div class="row wrapx" style="margin-bottom:14px"><span class="chip">'+ids.length+' orders in progress</span><span class="chip '+(due?'red':'green')+'">'+due+' customer updates due</span></div>';
+  return h+ids.map(function(l){var o=l.order,d=Math.floor((now()-o.lastUpdate)/DAY),nd=o.lastUpdate+14*DAY,dueNow=d>=14;
+   return '<div class="card" style="margin-bottom:14px"><div class="row wrapx"><div><div style="font:300 18px var(--sans)">'+esc(full(l))+'</div><div class="small">'+esc(home(l))+' · '+esc(fin(l))+'</div></div><span class="sp"></span><span class="chip">'+esc(ownerName(l.owner))+'</span>'+(o.handoverAt?'<span class="chip green">Projects team has it</span>':'<span class="chip amber">Not handed over yet</span>')+'<span class="chip '+(dueNow?'red':'green')+'">'+(dueNow?'Update overdue by '+(d-14)+'d':'Next update '+fmtD(nd))+'</span></div>'+
+   '<div class="dsteps">'+DELIVERY.map(function(s,i){return '<div class="'+(i<o.step?'d':i===o.step?'c':'')+'"></div>'}).join('')+'</div><div class="dlab">'+DELIVERY.map(function(s,i){return '<span class="'+(i===o.step?'c':'')+'">'+s.n+'</span>'}).join('')+'</div>'+
+   '<div class="grid3" style="margin-top:16px"><div><div class="tag">Where is the home</div><div style="margin-top:4px">'+DELIVERY[o.step].where+'</div></div><div><div class="tag">Site</div><div style="margin-top:4px">'+esc(o.site||'Site address to be confirmed')+'</div></div><div><div class="tag">Estimated on site</div><div style="margin-top:4px">'+fmtD(o.eta)+'</div></div></div>'+
+   '<div class="row wrapx" style="margin-top:16px"><button class="btn gold sm" data-act="upd" data-id="'+l.id+'">Write the fortnightly update</button>'+(isInternal()?'<button class="btn sm" data-act="advdel" data-id="'+l.id+'">Projects team: move to next step</button>':'')+'<button class="btn sm" data-act="open" data-id="'+l.id+'">Open customer</button><span class="small">Last update '+(d===0?'today':d+' days ago')+'</span></div></div>'}).join('')||'<div class="card empty">No confirmed orders yet.</div>';
+}
+
+/* agents and companies */
+function vAgents(){
+  var canAdd=isInternal(),mgr=S.me.manager;
+  var stat=function(id){var ls=S.leads.filter(function(l){return l.owner===id&&!l.concept});return {n:ls.length,o:ls.filter(function(l){return l.maxStage>=7}).length}};
+  var h='<div class="row wrapx" style="margin-bottom:16px">'+(canAdd?'<button class="btn gold sm" data-act="newco">+ New company</button>':'')+'<span class="small">'+(canAdd?'A company holds its details and as many salespeople as you like. Each person signs in with their own Microsoft login and sees only their own leads; a manager sees the whole company.':'Your company and its salespeople.')+'</span></div>';
+  if(canAdd)h+='<div class="card" style="margin-bottom:14px"><div class="row wrapx"><div><div style="font:300 17px var(--sans)">HAAVN BLACK Direct</div><div class="small">Internal sales team</div></div><span class="sp"></span><span class="chip">Internal team</span></div>'+S.team.map(function(t){var s=stat(t.id);var sts=SK.filter(function(k){return (S.settings.rules[k]||S.settings.rules.other)===t.id});return '<div class="row" style="padding:10px 0;border-top:1px solid var(--line-2)"><span class="av">'+ini(t.name)+'</span><div><div style="color:var(--ink)">'+esc(t.name)+'</div><div class="small">Gets leads from '+(sts.length?sts.join(', ')+(S.settings.rules.other===t.id?' and any other state':''):'no state yet')+'</div></div><span class="sp"></span><span class="small">'+s.n+' leads · '+s.o+' orders</span></div>'}).join('')+'</div>';
+  h+=S.companies.map(function(c){
+    var ag=S.agents.filter(function(a){return a.companyId===c.id});
+    var addr=c.address||{};var line=[addr.street,addr.suburb,addr.state,addr.postcode].filter(Boolean).join(', ');
+    return '<div class="card" style="margin-bottom:14px"><div class="row wrapx"><div><div style="font:300 18px var(--sans)">'+esc(c.name)+'</div><div class="small">'+esc(c.legalName||'')+'</div></div><span class="sp"></span><span class="chip">'+esc(c.kind||'Selling group')+'</span>'+(canAdd?'<button class="btn sm" data-act="editco" data-id="'+c.id+'">Edit company</button>':'')+((canAdd||mgr)?'<button class="btn gold sm" data-act="newagent" data-id="'+c.id+'">+ Add agent</button>':'')+'</div>'+
+     '<dl class="kv" style="margin:14px 0 6px"><dt>'+esc(c.idType||'ABN')+'</dt><dd>'+(esc(c.idNumber)||'-')+(c.idNumber&&!c.idChecked?' <span class="chip amber">check this number</span>':'')+'</dd><dt>Licence number</dt><dd>'+(esc(c.licenceNo)||'-')+(c.licenceState?' ('+c.licenceState+')':'')+'</dd><dt>Address</dt><dd>'+(esc(line)||'-')+'</dd><dt>Landline</dt><dd>'+(esc(c.landline)||'-')+'</dd><dt>Mobile</dt><dd>'+(esc(c.mobile)||'-')+'</dd><dt>Email</dt><dd>'+(esc(c.email)||'-')+'</dd><dt>Principal</dt><dd>'+(esc(c.principal)||'-')+'</dd><dt>Sells in</dt><dd>'+((c.states||[]).join(', ')||'-')+'</dd></dl>'+
+     '<div class="tag" style="margin:14px 0 4px">Salespeople · '+ag.length+'</div>'+(ag.map(function(a){var s=stat(a.id);return '<div class="row wrapx" style="padding:10px 0;border-top:1px solid var(--line-2)"><span class="av">'+ini(a.name)+'</span><div style="min-width:170px"><div style="color:var(--ink)">'+esc(a.name)+' <span class="chip">'+esc(a.role||'Salesperson')+'</span>'+(a.active===false?' <span class="chip red">Inactive</span>':'')+'</div><div class="small">'+[a.mobile,a.email].filter(Boolean).map(esc).join(' · ')+'</div></div><div class="small">'+(a.licenceNo?'Licence '+esc(a.licenceNo)+' · ':'')+((a.states||[]).join(', ')||'')+'</div><span class="sp"></span><span class="small">'+s.n+' leads · '+s.o+' orders</span>'+((canAdd||mgr)?'<button class="btn sm" data-act="editagent" data-id="'+a.id+'">Edit</button>':'')+'</div>'}).join('')||'<div class="small" style="padding:8px 0">No salespeople yet.</div>')+'</div>';
+  }).join('')||(canAdd?'<div class="card empty">No companies yet. Add the first one.</div>':'');
+  return h;
+}
+
+/* setup */
+function vSetup(){
+  var st=S.settings,adm=isAdmin();
+  var dis=adm?'':' disabled';
+  var rules=SK.concat(['other']).map(function(k){return '<div class="row" style="margin-bottom:8px"><div style="width:190px">'+(k==='other'?'Any other state':k+' · '+STATES[k])+'</div><select data-chg="rule:'+k+'"'+dis+'>'+ownerOpts(st.rules[k]||'jb')+'</select></div>'}).join('');
+  var mail=S.mail;
+  return '<div class="grid2" style="align-items:start"><div class="card"><div class="tag" style="margin-bottom:12px">Who gets a new lead</div>'+rules+'<div class="row" style="margin-top:10px"><div class="tog '+(st.agentKeep?'on':'')+'" data-act="agentkeep"></div><div style="font-size:12.5px">A lead an agent brings in stays with that agent</div></div></div>'+
+   '<div class="card"><div class="tag" style="margin-bottom:12px">Who is told</div>'+[['task','A Workflow task for the owner, due today'],['chat','A note in the HAAVN BLACK Sales channel in Chat'],['push','A phone alert to the owner, Mike and Jamie']].map(function(r){return '<div class="row" style="margin-bottom:10px"><div class="tog '+(st.notify[r[0]]?'on':'')+'" data-act="notify" data-k="'+r[0]+'"></div><div style="font-size:12.5px">'+r[1]+'</div></div>'}).join('')+'<p class="small" style="margin-top:6px">Mike and Jamie are always in the channel, so both see every new lead. QLD goes to Mike and VIC to Jamie unless you change the rules.</p></div></div>'+
+   '<div class="grid2" style="margin-top:14px;align-items:start"><div class="card"><div class="tag" style="margin-bottom:12px">Home prices</div>'+SOLUM.map(function(k){return '<div class="row" style="margin-bottom:8px"><div style="width:150px">'+PRODUCTS[k].n+' <span class="small">'+PRODUCTS[k].m2+' m2</span></div><input data-chg="price:'+k+'" value="'+(st.prices[k]||'')+'" placeholder="Price" style="width:140px;text-align:right"'+dis+'><span class="small">10% deposit '+(st.prices[k]?money(st.prices[k]*.1):'-')+'</span></div>'}).join('')+'<p class="small">The website shows no prices. Set them here and the contract value and 10% deposit appear on every lead.</p></div>'+
+   '<div class="card"><div class="tag" style="margin-bottom:12px">Monthly ad spend</div>'+Object.keys(st.spend).map(function(k){return '<div class="row" style="margin-bottom:8px"><div style="width:150px">'+esc(k)+'</div><input data-chg="spend:'+k+'" value="'+(st.spend[k]||'')+'" placeholder="0" style="width:140px;text-align:right"'+dis+'></div>'}).join('')+'<p class="small">Used for cost per lead and cost per order on the dashboard.</p></div></div>'+
+   '<div class="card" style="margin-top:14px"><div class="tag" style="margin-bottom:12px">Lead email, sales@haavnblack.au</div><p style="font-size:12.5px;color:var(--ink-2);line-height:1.7">'+(mail&&mail.ok?'<span class="chip green">Connected</span> ATRIUM reads the mailbox every five minutes.':mail?'<span class="chip red">Not connected</span> '+esc(mail.error||''):'<span class="chip amber">Waiting for the first check</span>')+'</p><p class="small" style="margin-top:10px;line-height:1.7">To connect it, an admin grants the ATRIUM Microsoft app the <b>Mail.Read</b> application permission (Entra, app registrations, API permissions). Alternatively, a Power Automate flow or an Outlook rule can send each new email to <b>/api/sales-inbound</b> with the secret in the header <b>x-sales-secret</b>. Both turn an enquiry into a lead the same way, and an email is never turned into a lead twice.</p></div>';
+}
+
+/* the lead panel */
+function renderDrawer(){
+  var d=$('#drawer');var l=UI.lead?lead(UI.lead):null;d.classList.toggle('on',!!l);
+  if(!l){d.innerHTML='';return}
+  var a=nextAct(l),st=STAGES[l.stage];l.chk=l.chk||{};var chk=l.chk[l.stage]||[];
+  var editable=true;
+  var stepper=l.concept?'':'<div class="steps">'+STAGES.map(function(s,i){return '<button class="'+(i<l.stage?'done':'')+' '+(i===l.stage?'cur':'')+'" data-act="to" data-i="'+i+'"><b>'+(i+1)+'</b>'+s.n+'</button>'}).join('')+'</div>';
+  var nextBox=l.status==='lost'?'<div class="next"><div class="row"><span class="chip red">Lost</span><span style="color:var(--ink-2)">'+esc(l.lostWhy||'')+'</span><span class="sp"></span><button class="btn sm" data-act="reopen">Re-open this lead</button></div></div>':
+   l.concept?'<div class="next"><div class="tag">Keep them engaged</div><div style="margin:6px 0 12px">'+esc(l.first)+' is at <b>'+CSTAGES[l.cstage||0]+'</b>. Engagement '+(l.eng||20)+'%.</div><div class="row wrapx"><button class="btn gold lg" data-act="conceptmsg">Send concept update</button>'+((l.cstage||0)<3?'<button class="btn sm" data-act="cwarm">Move to '+CSTAGES[(l.cstage||0)+1]+'</button>':'')+'<button class="btn sm" data-act="toSolum">Convert to SOLUM sales</button></div></div>':
+   '<div class="next"><div class="row wrapx"><div><div class="tag">Next step</div><div style="font:300 18px var(--sans);margin-top:4px">'+st.next+'</div></div><span class="sp"></span>'+dueTag(l)+'</div><div style="margin:12px 0">'+st.chk.map(function(c,i){return '<div class="chk '+(chk[i]?'on':'')+'" data-act="chk" data-i="'+i+'"><i>'+(chk[i]?'&#10003;':'')+'</i><span>'+c+'</span></div>'}).join('')+'</div>'+
+    '<div class="row wrapx">'+(l.stage<7?'<button class="btn gold lg" data-act="advance">Done, move to '+STAGES[l.stage+1].n+' &rarr;</button>':'<span class="chip green">Order confirmed</span>')+'<button class="btn sm" data-act="msg">Suggested message</button><button class="btn sm red" data-act="lose">Mark lost</button></div></div>';
+  var dep=price(l)*.1;
+  var ownerSel=(isInternal()||S.me.manager)?'<label class="f">Owner<select data-chg="owner">'+ownerOpts(l.owner)+'</select></label>':'<div class="small">Owner: '+esc(ownerName(l.owner))+'</div>';
+  var o=l.order;
+  d.innerHTML='<div class="dh"><div><div style="font:300 22px var(--sans)">'+esc(full(l))+'</div><div class="small" style="margin-top:2px">'+(l.state?STATES[l.state]:'State unknown')+' · came in '+fmtDT(l.created)+' from '+esc(srcLabel(l))+'</div></div><span class="sp"></span><span class="chip"><span class="av" style="width:18px;height:18px;font-size:8px">'+ini(ownerName(l.owner))+'</span> '+esc(ownerName(l.owner))+'</span><button class="btn sm" data-act="close">Close</button></div>'+
+  '<div class="db">'+stepper+nextBox+
+  (l.stage>=7&&o&&!l.concept?'<div class="card"><div class="row wrapx"><div><div class="tag">Order and delivery</div><div style="margin-top:6px">'+DELIVERY[o.step].n+' · '+DELIVERY[o.step].where+'</div></div><span class="sp"></span>'+(o.handoverAt?'<span class="chip green">Handed to projects@haavn.au '+fmtD(o.handoverAt)+'</span>':'<button class="btn gold sm" data-act="handover">Send handover to projects@haavn.au</button>')+'</div><label class="f" style="margin-top:12px">Site address<input data-chg="site" value="'+esc(o.site||'')+'" placeholder="Where the home is going"></label></div>':'')+
+  '<div class="grid2"><div class="card"><div class="tag" style="margin-bottom:12px">Customer</div><div class="formgrid"><label class="f">First name<input data-chg="first" value="'+esc(l.first)+'"></label><label class="f">Last name<input data-chg="last" value="'+esc(l.last)+'"></label><label class="f">Mobile<input data-chg="mobile" value="'+esc(l.mobile)+'"></label><label class="f">Email<input data-chg="email" value="'+esc(l.email)+'"></label></div><div class="formgrid"><label class="f">State or territory<select data-chg="state">'+stateOpts(l.state,'Choose')+'</select></label><label class="f">Setting<select data-chg="setting">'+options(SETTING,l.setting)+'</select></label><label class="f">Payment<select data-chg="pay">'+options(PAY,l.pay)+'</select></label><label class="f">Delivery<select data-chg="deliv">'+options(DELIV,l.deliv)+'</select></label></div>'+
+   '<div class="formgrid"><label class="f">Source<select data-chg="source"'+(isInternal()?'':' disabled')+'>'+options(SOURCES,l.source)+'</select></label>'+(l.source==='Other'?'<label class="f">Other, which<input data-chg="otherSource" value="'+esc(l.otherSource||'')+'"></label>':'<span></span>')+'</div>'+ownerSel+
+   (l.msg?'<div class="small" style="margin-top:6px"><b style="color:var(--ink);font-weight:500">Their message:</b> '+esc(l.msg)+'</div>':'')+'<div class="row wrapx" style="margin-top:12px">'+(l.mobile?'<a class="btn sm" href="tel:'+esc(String(l.mobile).replace(/\s/g,''))+'">Call</a>':'')+(l.email?'<button class="btn sm" data-act="msg">Email</button>':'')+'</div></div>'+
+   '<div class="card"><div class="tag" style="margin-bottom:12px">Their '+(l.concept?'concept':'SOLUM')+'</div><div class="home">'+(l.concept?'':homeSvg(l,200))+'<div style="flex:1;min-width:140px"><div style="font-size:15px;color:var(--ink)">'+esc(home(l))+'</div><div class="small">'+(PRODUCTS[l.product]&&PRODUCTS[l.product].m2?PRODUCTS[l.product].m2+' m2 gross · '+PRODUCTS[l.product].foot:'Concept only')+'</div><div style="margin-top:8px">'+swatches(l)+'</div></div></div>'+
+   '<div class="formgrid" style="margin-top:14px"><label class="f">Home<select data-chg="product">'+options(Object.keys(PRODUCTS).map(function(k){return [k,PRODUCTS[k].n]}),l.product)+'</select></label><label class="f">Cladding<select data-chg="clad">'+options(Object.keys(CLAD),l.clad,'None')+'</select></label><label class="f">Interior palette<select data-chg="pal">'+options(Object.keys(PAL),l.pal,'None')+'</select></label><label class="f">Joinery<select data-chg="join">'+options(Object.keys(JOIN),l.join,'None')+'</select></label></div></div></div>'+
+  (l.concept?'':'<div class="card"><div class="tag" style="margin-bottom:12px">Money</div><div class="grid3"><div><div class="tag">Contract price</div><div style="font:300 22px var(--sans);margin-top:4px">'+money(price(l))+'</div></div><div><div class="tag">10% deposit</div><div style="font:300 22px var(--sans);margin-top:4px">'+money(dep)+'</div></div><div><div class="tag">Deposit status</div><div style="margin-top:8px">'+(l.maxStage>=6?'<span class="chip green">Received '+fmtD((l.dates||[])[6])+'</span>':l.maxStage>=5?'<span class="chip amber">Waiting for payment</span>':'<span class="chip">After the contract is signed</span>')+'</div></div></div>'+(price(l)?'':'<p class="small" style="margin-top:8px">Prices are set in Setup.</p>')+'</div>')+
+  '<div class="card"><div class="tag" style="margin-bottom:12px">Activity</div><div class="row" style="margin-bottom:10px"><input id="note" placeholder="Add a note or log a call" style="flex:1"><button class="btn sm" data-act="note">Add</button></div><div class="tl">'+(l.act||[]).slice(0,16).map(function(x){return '<div class="it"><div class="d">'+fmtD(x.t)+'</div><div>'+esc(x.x)+'</div></div>'}).join('')+'</div></div></div>';
+}
+
+/* modals */
+function sk(sel){return SK.map(function(k){return '<button type="button" class="pickchip '+(sel.indexOf(k)>=0?'on':'')+'" data-act="pickstate" data-k="'+k+'">'+k+'</button>'}).join('')}
+function renderModal(){
+  var m=UI.modal,el=$('#modal');el.classList.toggle('on',!!m);if(!m){$('#mbody').innerHTML='';return}
+  var mb=$('#mbody'),h='';
+  if(m.t==='msg'){var l=lead(m.id);h='<h4>Message to '+esc(l.first)+'</h4><p class="lead">'+STAGES[l.stage].n+'. Edit it, then send it from here or copy it.</p><label class="f">Subject<input id="msubj" value="Your HAAVN BLACK home"></label><label class="f">Message<textarea id="mtxt" style="min-height:200px">'+esc(tpl(l,l.stage))+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Close</button><button class="btn" data-act="mcopy">Copy and log as sent</button>'+(l.email?'<button class="btn gold" data-act="msend">Email to '+esc(l.email)+'</button>':'')+'</div>'}
+  else if(m.t==='concept'){var l1=lead(m.id);var tt='Hi '+l1.first+', a quick update on the '+home(l1)+': we have new renders to share and the design is moving along nicely. If you tell me roughly where you would place it and when you would want it, I can keep your spot as pre-orders get closer. '+S.me.name.split(' ')[0];h='<h4>Concept update</h4><label class="f">Subject<input id="msubj" value="An update on '+esc(home(l1))+'"></label><label class="f">Message<textarea id="mtxt" style="min-height:160px">'+esc(tt)+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Close</button><button class="btn" data-act="cexec">Copy and log as sent</button>'+(l1.email?'<button class="btn gold" data-act="csend">Email to '+esc(l1.email)+'</button>':'')+'</div>'}
+  else if(m.t==='lose'){h='<h4>Why was it lost?</h4><div class="pills" style="margin-top:12px">'+['No site yet','Price','Timing','Bought elsewhere','Could not reach them','Not a fit for the land'].map(function(w){return '<button class="pickchip" data-act="losewhy" data-w="'+w+'">'+w+'</button>'}).join('')+'</div><div class="foot"><button class="btn" data-act="mclose">Cancel</button></div>'}
+  else if(m.t==='upd'){var l2=lead(m.id),o=l2.order;var t2='Hi '+l2.first+', here is your fortnightly update on your '+home(l2)+'.\n\nStatus: '+DELIVERY[o.step].n+'.\nWhere it is: '+DELIVERY[o.step].where+'.\nEstimated on site: '+fmtD(o.eta)+'.\n\nNothing is needed from you right now. If anything changes on your site or your plans, tell me and I will pass it to the projects team. '+S.me.name.split(' ')[0];h='<h4>Fortnightly update</h4><p class="lead">To '+esc(l2.email||'(no email on file)')+'. You are copied in.</p><label class="f">Subject<input id="msubj" value="Your HAAVN BLACK home: update"></label><label class="f">Message<textarea id="mtxt" style="min-height:230px">'+esc(t2)+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Close</button><button class="btn" data-act="uexec" data-id="'+l2.id+'" data-send="0">Log as sent, without emailing</button>'+(l2.email?'<button class="btn gold" data-act="uexec" data-id="'+l2.id+'" data-send="1">Email the customer</button>':'')+'</div>'}
+  else if(m.t==='newlead'){h='<h4>New lead</h4><p class="lead">For a call, a walk-in or your own customer. Website and email enquiries arrive by themselves.</p><div class="formgrid"><label class="f">First name<input id="nl_f"></label><label class="f">Last name<input id="nl_l"></label><label class="f">Mobile<input id="nl_m"></label><label class="f">Email<input id="nl_e"></label><label class="f">State or territory<select id="nl_s">'+stateOpts('','Choose')+'</select></label><label class="f">Home<select id="nl_p">'+options(Object.keys(PRODUCTS).map(function(k){return [k,PRODUCTS[k].n]}),'none')+'</select></label><label class="f">Source<select id="nl_src" data-chg="nlsrc">'+options(SOURCES,isInternal()?'Website direct':'Agent referral')+'</select></label><label class="f" id="nl_oth_w" style="visibility:hidden">Other, which<input id="nl_oth"></label></div>'+(isInternal()?'<label class="f">Owner (leave on Automatic to route by state)<select id="nl_o"><option value="">Automatic</option>'+ownerOpts('')+'</select></label>':'')+'<label class="f">Message<textarea id="nl_msg" style="min-height:60px"></textarea></label><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn gold" data-act="nlsave">Create lead</button></div>'}
+  else if(m.t==='co'){var c=m.c||{states:[],address:{}};var ad=c.address||{};h='<h4>'+(c.id?'Edit company':'New company')+'</h4><p class="lead">The selling company and its details. Add its salespeople after.</p><div class="formgrid"><label class="f">Company name<input id="co_name" value="'+esc(c.name||'')+'"></label><label class="f">Legal name<input id="co_legal" value="'+esc(c.legalName||'')+'"></label><label class="f">ABN or ACN<input id="co_id" value="'+esc(c.idNumber||'')+'" placeholder="11 digits for an ABN, 9 for an ACN"></label><label class="f">Real estate licence number<input id="co_lic" value="'+esc(c.licenceNo||'')+'"></label><label class="f">Licence state<select id="co_licst">'+stateOpts(c.licenceState||'','Choose')+'</select></label><label class="f">Principal<input id="co_prin" value="'+esc(c.principal||'')+'"></label></div><div class="formgrid"><label class="f">Street address<input id="co_street" value="'+esc(ad.street||'')+'"></label><label class="f">Suburb<input id="co_sub" value="'+esc(ad.suburb||'')+'"></label><label class="f">State or territory<select id="co_st">'+stateOpts(ad.state||'','Choose')+'</select></label><label class="f">Postcode<input id="co_pc" value="'+esc(ad.postcode||'')+'"></label><label class="f">Landline<input id="co_land" value="'+esc(c.landline||'')+'"></label><label class="f">Mobile<input id="co_mob" value="'+esc(c.mobile||'')+'"></label><label class="f">Email<input id="co_mail" value="'+esc(c.email||'')+'"></label><label class="f">Website<input id="co_web" value="'+esc(c.website||'')+'"></label></div><div class="tag" style="margin:6px 0 8px">States and territories they sell in</div><div class="pills" id="co_states" style="margin-bottom:12px">'+sk(c.states||[])+'</div><label class="f">Notes<textarea id="co_notes" style="min-height:50px">'+esc(c.notes||'')+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn gold" data-act="cosave">Save company</button></div>'}
+  else if(m.t==='ag'){var g=m.g||{states:[]};h='<h4>'+(g.id?'Edit salesperson':'Add a salesperson')+'</h4><p class="lead">'+esc((companyById(g.companyId)||{}).name||'')+'. They sign in with this email address using Microsoft.</p><div class="formgrid"><label class="f">Name<input id="ag_name" value="'+esc(g.name||'')+'"></label><label class="f">Role<select id="ag_role">'+options(['Salesperson','Manager','Principal'],g.role||'Salesperson')+'</select></label><label class="f">Mobile<input id="ag_mob" value="'+esc(g.mobile||'')+'"></label><label class="f">Landline<input id="ag_land" value="'+esc(g.landline||'')+'"></label><label class="f">Email (Microsoft sign in)<input id="ag_mail" value="'+esc(g.email||'')+'"></label><label class="f">Real estate licence number<input id="ag_lic" value="'+esc(g.licenceNo||'')+'"></label><label class="f">Licence state<select id="ag_licst">'+stateOpts(g.licenceState||'','Choose')+'</select></label><label class="f">Active<select id="ag_active"><option value="1"'+(g.active!==false?' selected':'')+'>Active, can sign in</option><option value="0"'+(g.active===false?' selected':'')+'>Inactive, no access</option></select></label></div><div class="tag" style="margin:6px 0 8px">States and territories they work in</div><div class="pills" id="ag_states" style="margin-bottom:12px">'+sk(g.states||[])+'</div><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn gold" data-act="agsave">Save</button></div>'}
+  else if(m.t==='ibxedit'){var row=S.inbox.find(function(x){return x.id===m.id});var pp=m.p;h='<h4>Create a lead from this email</h4><p class="lead">'+esc(row.subject||'')+'</p><div class="formgrid"><label class="f">First name<input id="ie_f" value="'+esc(pp.first)+'"></label><label class="f">Last name<input id="ie_l" value="'+esc(pp.last)+'"></label><label class="f">Mobile<input id="ie_m" value="'+esc(pp.mobile)+'"></label><label class="f">Email<input id="ie_e" value="'+esc(pp.email)+'"></label><label class="f">State or territory<select id="ie_s">'+stateOpts(pp.state,'Choose')+'</select></label><label class="f">Home<select id="ie_p">'+options(Object.keys(PRODUCTS).map(function(k){return [k,PRODUCTS[k].n]}),pp.product)+'</select></label></div><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn gold" data-act="iesave" data-id="'+m.id+'">Create the lead</button></div>'}
+  mb.innerHTML=h;
+}
+function pickedStates(id){return $$('#'+id+' .pickchip.on').map(function(b){return b.dataset.k})}
+
+/* ---------- actions ---------- */
+var A={
+  reload:function(){S.error='';S.ready=false;load().then(render)},
+  nav:function(t){UI.view=t.dataset.k;UI.cp=null;UI.lead=null},
+  period:function(t){UI.period=+t.dataset.v},board:function(t){UI.board=t.dataset.v},
+  open:function(t){UI.lead=t.dataset.id},close:function(){UI.lead=null},
+  to:function(t){var l=lead(UI.lead),i=+t.dataset.i;if(i!==l.stage)move(l,i)},
+  advance:function(){var l=lead(UI.lead);move(l,l.stage+1)},
+  chk:function(t){var l=lead(UI.lead);var c=(l.chk=l.chk||{});var arr=(c[l.stage]=(c[l.stage]||[]).slice());arr[+t.dataset.i]=!arr[+t.dataset.i];c[l.stage]=arr;saveLead(l,{chk:c},true)},
+  msg:function(){UI.modal={t:'msg',id:UI.lead}},mclose:function(){UI.modal=null},
+  mcopy:function(){var l=lead(UI.modal.id),v=$('#mtxt').value;try{navigator.clipboard.writeText(v)}catch(e){}var e=addAct(l,'Sent message: '+v.slice(0,90)+'...','note');UI.modal=null;saveLead(l,{act:[e],lastTouch:now()});toast('Copied. Logged on the customer.')},
+  msend:function(){var l=lead(UI.modal.id);var v=$('#mtxt').value,sub=$('#msubj').value;api('emailCustomer',{id:l.id,subject:sub,body:v}).then(function(j){var i=S.leads.findIndex(function(x){return x.id===l.id});S.leads[i]=j.lead;UI.modal=null;render();toast('Emailed '+l.first+'. You are copied.')}).catch(fail)},
+  lose:function(){UI.modal={t:'lose',id:UI.lead}},
+  losewhy:function(t){var l=lead(UI.lead);var e=addAct(l,'Marked lost: '+t.dataset.w+'.');UI.modal=null;saveLead(l,{status:'lost',lostWhy:t.dataset.w,act:[e]});toast('Marked lost')},
+  reopen:function(){var l=lead(UI.lead);var e=addAct(l,'Re-opened.');saveLead(l,{status:'open',lostWhy:'',act:[e]})},
+  note:function(){var el=$('#note');var v=el&&el.value.trim();if(!v)return;var l=lead(UI.lead);var e=addAct(l,v,'note');saveLead(l,{act:[e],lastTouch:now()})},
+  newlead:function(){UI.modal={t:'newlead'}},
+  nlsave:function(){var f=$('#nl_f').value.trim();if(!f){toast('Add a first name');return}
+    var body={first:f,last:$('#nl_l').value,mobile:$('#nl_m').value,email:$('#nl_e').value,state:$('#nl_s').value,product:$('#nl_p').value,source:$('#nl_src').value,otherSource:$('#nl_oth')?$('#nl_oth').value:'',msg:$('#nl_msg').value};
+    if($('#nl_o')&&$('#nl_o').value)body.owner=$('#nl_o').value;
+    api('newLead',{lead:body}).then(function(j){var i=S.leads.findIndex(function(x){return x.id===j.lead.id});if(i<0)S.leads.unshift(j.lead);else S.leads[i]=j.lead;UI.modal=null;UI.lead=j.lead.id;render();toast(j.dup?'Already a customer, note added':'Lead created for '+ownerName(j.lead.owner))}).catch(fail)},
+  newco:function(){UI.modal={t:'co',c:null}},editco:function(t){UI.modal={t:'co',c:companyById(t.dataset.id)}},
+  pickstate:function(t){t.classList.toggle('on')},
+  cosave:function(){var cur=UI.modal.c||{};var c={id:cur.id,name:$('#co_name').value,legalName:$('#co_legal').value,idNumber:$('#co_id').value,licenceNo:$('#co_lic').value,licenceState:$('#co_licst').value,principal:$('#co_prin').value,
+      address:{street:$('#co_street').value,suburb:$('#co_sub').value,state:$('#co_st').value,postcode:$('#co_pc').value},landline:$('#co_land').value,mobile:$('#co_mob').value,email:$('#co_mail').value,website:$('#co_web').value,states:pickedStates('co_states'),notes:$('#co_notes').value,kind:cur.kind};
+    api('companySave',{company:c}).then(function(j){var i=S.companies.findIndex(function(x){return x.id===j.company.id});if(i<0)S.companies.push(j.company);else S.companies[i]=j.company;UI.modal=null;render();toast('Company saved')}).catch(fail)},
+  newagent:function(t){UI.modal={t:'ag',g:{companyId:t.dataset.id||(S.me&&S.me.companyId),states:[]}}},editagent:function(t){UI.modal={t:'ag',g:agentById(t.dataset.id)}},
+  agsave:function(){var cur=UI.modal.g||{};var g={id:cur.id,companyId:cur.companyId,name:$('#ag_name').value,role:$('#ag_role').value,mobile:$('#ag_mob').value,landline:$('#ag_land').value,email:$('#ag_mail').value,licenceNo:$('#ag_lic').value,licenceState:$('#ag_licst').value,active:$('#ag_active').value==='1',states:pickedStates('ag_states')};
+    api('agentSave',{agent:g}).then(function(j){var i=S.agents.findIndex(function(x){return x.id===j.agent.id});if(i<0)S.agents.push(j.agent);else S.agents[i]=j.agent;UI.modal=null;render();
+      toast(j.signIn==='added'||j.signIn==='already'?j.agent.name+' can now sign in with Microsoft using '+j.agent.email:j.signIn==='needs a director'?'Saved. A director needs to open Agents once to give them Microsoft sign in.':'Saved.')}).catch(fail)},
+  agentkeep:function(){saveSettings({agentKeep:!S.settings.agentKeep})},
+  notify:function(t){var n={};n[t.dataset.k]=!S.settings.notify[t.dataset.k];saveSettings({notify:n})},
+  parse:function(){if(!UI.paste.trim())return;api('parse',{text:UI.paste}).then(function(j){UI.parsed=j.parsed;render()}).catch(fail)},
+  ibx:function(t){UI.ibx=t.dataset.id;UI.paste='';UI.parsed=null;UI.cp=null},
+  dismiss:function(t){api('inboxDismiss',{id:t.dataset.id}).then(function(){var r=S.inbox.find(function(x){return x.id===t.dataset.id});if(r)r.status='dismissed';render();toast('Dismissed')}).catch(fail)},
+  inboxEdit:function(t){var row=S.inbox.find(function(x){return x.id===t.dataset.id});api('parse',{text:row.body,from:row.from_addr,subject:row.subject}).then(function(j){UI.modal={t:'ibxedit',id:row.id,p:j.parsed};render()}).catch(fail)},
+  iesave:function(t){var p={first:$('#ie_f').value,last:$('#ie_l').value,mobile:$('#ie_m').value,email:$('#ie_e').value,state:$('#ie_s').value,product:$('#ie_p').value};api('inboxCreate',{id:t.dataset.id,parsed:p}).then(function(j){var i=S.leads.findIndex(function(x){return x.id===j.lead.id});if(i<0)S.leads.unshift(j.lead);else S.leads[i]=j.lead;UI.modal=null;UI.cp={id:j.lead.id,dup:j.dup};return api('poll',{since:0}).then(function(p2){S.inbox=p2.inbox;render()})}).catch(fail)},
+  conceptmsg:function(){UI.modal={t:'concept',id:UI.lead}},
+  cexec:function(){var l=lead(UI.modal.id);try{navigator.clipboard.writeText($('#mtxt').value)}catch(e){}var e=addAct(l,'Sent a concept update.','note');UI.modal=null;saveLead(l,{act:[e],lastTouch:now(),eng:Math.min(100,(l.eng||20)+4)});toast('Logged as sent')},
+  csend:function(){var l=lead(UI.modal.id);api('emailCustomer',{id:l.id,subject:$('#msubj').value,body:$('#mtxt').value}).then(function(j){S.leads[S.leads.findIndex(function(x){return x.id===l.id})]=j.lead;UI.modal=null;render();toast('Emailed '+l.first)}).catch(fail)},
+  cwarm:function(){var l=lead(UI.lead);var c=Math.min(3,(l.cstage||0)+1);var e=addAct(l,'Moved to '+CSTAGES[c]+'.');saveLead(l,{cstage:c,act:[e]})},
+  toSolum:function(){var l=lead(UI.lead);var p=l.product==='octamax'?'max':l.product==='octaplus'?'plus':'studio';var e=addAct(l,'Converted from OCTA concept to the SOLUM sales pipeline.');saveLead(l,{concept:false,product:p,stage:0,dates:[now()],lastTouch:now(),act:[e]});toast(full(l)+' is now in SOLUM sales')},
+  upd:function(t){UI.modal={t:'upd',id:t.dataset.id}},
+  uexec:function(t){var l=lead(t.dataset.id),o=Object.assign({},l.order);var send=t.dataset.send==='1';var v=$('#mtxt').value,sub=$('#msubj').value;
+    var done=function(){o.lastUpdate=now();o.log=[{t:now(),x:'Fortnightly update '+(send?'emailed':'logged')+': '+DELIVERY[o.step].n+'.'}].concat(o.log||[]);var e=addAct(l,'Fortnightly update '+(send?'emailed to the customer':'logged as sent')+'.');UI.modal=null;saveLead(l,{order:o,act:[e]});toast('Update logged. The next one is due in 2 weeks.')};
+    if(send)api('emailCustomer',{id:l.id,subject:sub,body:v}).then(function(j){S.leads[S.leads.findIndex(function(x){return x.id===l.id})]=j.lead;l=lead(l.id);o=Object.assign({},l.order);done()}).catch(fail);else{try{navigator.clipboard.writeText(v)}catch(e){}done()}},
+  advdel:function(t){var l=lead(t.dataset.id),o=Object.assign({},l.order);if(o.step<7){o.step++;o.log=[{t:now(),x:'Projects team moved the order to: '+DELIVERY[o.step].n+'.'}].concat(o.log||[]);var e=addAct(l,'Projects team moved the order to: '+DELIVERY[o.step].n+'.');saveLead(l,{order:o,act:[e]});toast(DELIVERY[o.step].n)}},
+  handover:function(){var l=lead(UI.lead);if(!confirm('Send the handover for '+full(l)+' to projects@haavn.au now?'))return;api('handover',{id:l.id}).then(function(j){S.leads[S.leads.findIndex(function(x){return x.id===l.id})]=j.lead;render();toast('Handover sent to the projects team')}).catch(fail)},
+  csv:function(){var cols=['id','first','last','mobile','email','state','product','clad','pal','join','source','owner','stage','status'];var rows=[cols.concat(['created'])].concat(S.leads.map(function(l){return cols.map(function(c){return c==='owner'?ownerName(l.owner):c==='stage'?STAGES[l.stage].n:l[c]||''}).concat([new Date(l.created).toISOString()])}));
+    var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haavn-black-leads.csv';a.click()}
+};
+function saveSettings(patch){api('settingsSave',{settings:patch}).then(function(j){S.settings=Object.assign({},S.settings,j.settings);render();toast('Saved')}).catch(function(e){fail(e);render()})}
+document.addEventListener('click',function(e){
+  if(e.target.id==='shade'||e.target===$('#modal')){if(UI.modal)UI.modal=null;else UI.lead=null;render();return}
+  var t=e.target.closest('[data-act]');if(!t)return;var fn=A[t.dataset.act];if(!fn||t.tagName==='A')return;
+  fn(t);if(['pickstate','csv','nlsave','cosave','agsave','msend','csend','uexec','handover','parse','dismiss','inboxEdit','iesave'].indexOf(t.dataset.act)<0)render();
+});
+document.addEventListener('change',function(e){
+  var c=e.target.dataset.chg;if(!c)return;var v=e.target.value;
+  if(c.indexOf('f:')===0){UI.f[c.slice(2)]=v;render();return}
+  if(c==='q'){UI.q=v;render();var q=$('[data-chg="q"]');if(q){q.focus();q.setSelectionRange(v.length,v.length)}return}
+  if(c==='paste'){UI.paste=v;UI.parsed=null;UI.cp=null;return}
+  if(c==='nlsrc'){var w=$('#nl_oth_w');if(w)w.style.visibility=v==='Other'?'visible':'hidden';return}
+  if(c.indexOf('rule:')===0){var r={};r[c.slice(5)]=v;saveSettings({rules:r});return}
+  if(c.indexOf('price:')===0){var p={};p[c.slice(6)]=v;saveSettings({prices:p});return}
+  if(c.indexOf('spend:')===0){var s={};s[c.slice(6)]=v;saveSettings({spend:s});return}
+  var l=UI.lead&&lead(UI.lead);if(!l)return;
+  if(c==='owner'){var e1=addAct(l,'Owner changed to '+ownerName(v)+'.');var ag=agentById(v);saveLead(l,{owner:v,companyId:ag?ag.companyId:'',act:[e1]});return}
+  if(c==='site'){saveLead(l,{order:Object.assign({},l.order,{site:v})},true);return}
+  if(c==='product'){saveLead(l,{product:v,concept:!!(PRODUCTS[v]&&PRODUCTS[v].concept)});return}
+  var pt={};pt[c]=v;saveLead(l,pt,['first','last','mobile','email','otherSource'].indexOf(c)>=0);
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(UI.modal)UI.modal=null;else UI.lead=null;render()}if(e.key==='Enter'&&e.target.id==='note'){A.note()}});
+/* drag a card to another column */
+var dragId=null;
+document.addEventListener('dragstart',function(e){var c=e.target.closest('.kcard[data-id]');if(!c)return;dragId=c.dataset.id;c.classList.add('drag');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(x){}});
+document.addEventListener('dragend',function(){$$('.kcard.drag').forEach(function(c){c.classList.remove('drag')});$$('.kcol.over').forEach(function(c){c.classList.remove('over')});dragId=null});
+document.addEventListener('dragover',function(e){var c=e.target.closest('.kcol[data-col]');if(c&&dragId){e.preventDefault();$$('.kcol.over').forEach(function(x){if(x!==c)x.classList.remove('over')});c.classList.add('over')}});
+document.addEventListener('drop',function(e){var c=e.target.closest('.kcol[data-col]');if(!c||!dragId)return;e.preventDefault();var l=lead(dragId),k=c.dataset.col;dragId=null;
+  if(k[0]==='c'){var cs=+k.slice(1);var en=addAct(l,'Moved to '+CSTAGES[cs]+'.');saveLead(l,{cstage:cs,act:[en],lastTouch:now()})}else move(l,+k)});
+
+window.__sales={S:S,UI:UI,render:render,load:load};
+load().then(function(){render();announce();setInterval(poll,30000);document.addEventListener('visibilitychange',function(){if(!document.hidden)poll()})});
+render();
+})();
+</script>
+</body>
+</html>
