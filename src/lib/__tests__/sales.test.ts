@@ -247,37 +247,43 @@ describe('reading the sales@haavnblack.au mailbox', () => {
   })
 })
 
-describe('contract and deposit admin: the receptionist gets the tasks', () => {
+describe('the HAAVN contract team: Alessia, Amy and Dominika', () => {
   const mkAt = async (stage: number) => { const l = (await S.ingestEmail(F.deps, { messageId: 'ca' + Math.random(), body: FORM() })).lead; return (await run('saveLead', { lead: { id: l.id, stage } })).lead }
-  const tasksFor = (n: string) => (F.t.doc[B.KEYS.workflow] ? F.t.doc[B.KEYS.workflow].actions.filter((x: any) => x.owner === n) : [])
-  it('EOI, contract signed and deposit paid each create one task for Alessia, once', async () => {
+  const actions = () => (F.t.doc[B.KEYS.workflow] ? F.t.doc[B.KEYS.workflow].actions.filter((x: any) => x.project === 'HAAVN BLACK Sales' && !/^Call /.test(x.title)) : [])
+  const contractGroup = () => F.t.groups.find((g: any) => g.dm_key === 'hbcontract')
+  it('EOI, contract signed and deposit paid each make one task for Alessia, Amy and Dominika watch, and the team is told in their Chat group', async () => {
     await run('settingsSave', { settings: { prices: { plus: 200000 } } })
     const l = await mkAt(3)
-    expect(tasksFor('Alessia Bresciano').map((t: any) => t.title)).toEqual(['Prepare and send the contract: Mia Brennan'])
+    expect(actions().map((t: any) => t.title)).toEqual(['Prepare and send the contract: Mia Brennan'])
+    expect(actions()[0]).toMatchObject({ owner: 'Alessia Bresciano', watchers: ['Amy Baldwin', 'Dominika Ma'], dept: 'haavnblack' })
     await run('saveLead', { lead: { id: l.id, stage: 2 } }); await run('saveLead', { lead: { id: l.id, stage: 3 } })
-    expect(tasksFor('Alessia Bresciano')).toHaveLength(1)
+    expect(actions()).toHaveLength(1)
     await run('saveLead', { lead: { id: l.id, stage: 5 } })
-    expect(tasksFor('Alessia Bresciano')[1].title).toBe('Raise the 10% deposit invoice: Mia Brennan ($20,000)')
+    expect(actions()[1].title).toBe('Raise the 10% deposit invoice: Mia Brennan ($20,000)')
     await run('saveLead', { lead: { id: l.id, stage: 6 } })
-    expect(tasksFor('Alessia Bresciano').map((t: any) => t.title)[2]).toContain('Confirm the order and hand over to projects')
-    expect(tasksFor('Alessia Bresciano').every((t: any) => t.dept === 'haavnblack' && t.project === 'HAAVN BLACK Sales')).toBe(true)
+    expect(actions()[2].title).toContain('Confirm the order and hand over to projects')
     expect(S.leadOut(F.t.leads[0]).adminTasks).toMatchObject({ 3: expect.any(String), 5: expect.any(String), 6: expect.any(String) })
+    expect(contractGroup()).toMatchObject({ name: 'HAAVN Contract Team', is_private: true })
+    expect(F.t.members.filter((m: any) => m.group_id === contractGroup().id).map((m: any) => m.member).sort()).toEqual(['ab', 'ar', 'dm', 'jb', 'mf'])
+    const notes = F.t.msgs.filter((m: any) => m.group_id === contractGroup().id).map((m: any) => m.body)
+    expect(notes).toHaveLength(3); expect(notes[1]).toContain('Raise the 10% deposit invoice')
+    expect(F.t.push.filter((p: any) => p.title === 'HAAVN Contract Team').map((p: any) => p.to).sort()).toEqual(['e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf', 'e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf', 'e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf'].sort())
   })
-  it('a client cannot write the task record, nobody is tasked when it is switched off, and only a director can change who', async () => {
+  it('a client cannot write the task record, nobody is tasked when it is switched off, and only a director changes the team', async () => {
     await run('settingsSave', { settings: { notify: { task: false } } })
     const l = await mkAt(3)
-    expect(tasksFor('Alessia Bresciano')).toHaveLength(0)
-    await run('settingsSave', { settings: { notify: { task: true }, contractAdmin: '' } })
+    expect(actions()).toHaveLength(0)
+    await run('settingsSave', { settings: { notify: { task: true }, contractTeam: [] } })
     await run('saveLead', { lead: { id: l.id, stage: 5, adminTasks: { 5: 'x' } } })
-    expect(tasksFor('Alessia Bresciano')).toHaveLength(0)
-    await expect(run('settingsSave', { settings: { contractAdmin: 'ar' } }, mike)).rejects.toThrow(/director/)
-    expect((await run('settingsSave', { settings: { contractAdmin: 'ar' } })).settings.contractAdmin).toBe('ar')
-    expect((await run('init', {}, mike)).staff.map((p: any) => p.name)).toContain('Alessia Bresciano')
+    expect(actions()).toHaveLength(0)
+    await expect(run('settingsSave', { settings: { contractTeam: ['ar'] } }, mike)).rejects.toThrow(/director/)
+    expect((await run('settingsSave', { settings: { contractTeam: ['ar', 'ab', 'dm', 'zz'] } })).settings.contractTeam).toEqual(['ar', 'ab', 'dm'])
+    expect((await run('init', {}, mike)).staff.map((p: any) => p.name)).toEqual(expect.arrayContaining(['Alessia Bresciano', 'Amy Baldwin', 'Dominika Ma']))
   })
-  it('she signs in like the rest of the team and sees every lead', async () => {
+  it('all three sign in as the HAAVN team and see every lead', async () => {
     const l = (await S.ingestEmail(F.deps, { messageId: 'rec', body: FORM() })).lead
-    const alessia = { sub: 'ar', name: 'Alessia Bresciano', role: 'staff', emails: ['reception@haavn.au'] }
-    expect((await run('init', {}, alessia)).leads.map((x: any) => x.id)).toEqual([l.id])
+    for (const w of [{ sub: 'ar', name: 'Alessia Bresciano', emails: ['reception@haavn.au'] }, { sub: 'ab', name: 'Amy Baldwin', emails: ['accounts@7even.au'] }, { sub: 'dm', name: 'Dominika Ma', emails: ['accounts@haavn.au'] }])
+      expect((await run('init', {}, { ...w, role: 'staff' })).leads.map((x: any) => x.id)).toEqual([l.id])
   })
 })
 

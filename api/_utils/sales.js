@@ -17,6 +17,7 @@ const STAGE_NAMES = ['New enquiry', 'Contacted', 'Qualified', 'EOI received', 'C
 const INTERNAL_ROLES = ['admin', 'staff', 'blacksales']
 const PROJECTS_MAIL = 'projects@haavn.au'
 const CHANNEL_KEY = 'hbsales'
+const CONTRACT_KEY = 'hbcontract'
 
 const DEFAULTS = {
   rules: { QLD: 'mf', VIC: 'jb', other: 'jb' },
@@ -25,7 +26,7 @@ const DEFAULTS = {
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
   notify: { chat: true, push: true, task: true },
   team: ['jb', 'mf'],
-  contractAdmin: 'ar',   // who prepares contracts and raises the 10% deposit invoices (a team member id, or '' for nobody)
+  contractTeam: ['ar', 'ab', 'dm'],   // the HAAVN contract team: Alessia, Amy, Dominika. The first one owns the tasks, the rest are watchers and are told in their Chat group
 }
 
 const lower = (v) => String(v == null ? '' : v).trim().toLowerCase()
@@ -250,20 +251,51 @@ const ADMIN_TASKS = {
   5: (nm, l, price) => ({ title: `Raise the 10% deposit invoice: ${nm}${price ? ' ($' + Math.round(price * 0.1).toLocaleString('en-AU') + ')' : ''}`, days: 0, note: 'Contract signed. Send the deposit invoice and diarise the payment date.' }),
   6: (nm, l, price) => ({ title: `Confirm the order and hand over to projects: ${nm}`, days: 0, note: 'Deposit paid. Confirm receipt, confirm the order to the customer, then send the handover to projects@haavn.au from the lead.' }),
 }
+// Tell the HAAVN contract team in their own Chat group (made the first time), with a phone alert to each of them.
+async function tellContractTeam(deps, settings, text, tag) {
+  const { chat, wp } = deps
+  if (!chat || !settings.notify.chat) return
+  try {
+    let group = await chat.findDm(CONTRACT_KEY)
+    const want = [...new Set([...settings.contractTeam, ...settings.team])]
+    if (!group) {
+      group = await chat.insertGroup({ name: 'HAAVN Contract Team', is_dm: false, is_private: true, owner: settings.team[0] || 'jb', project: 'HAAVN BLACK', dm_key: CONTRACT_KEY })
+      await chat.insertMembers(want.map((m) => ({ group_id: group.id, member: m, is_outside: false, hidden: false, added_by: settings.team[0] || 'jb' })))
+    } else {
+      const have = new Set((await chat.membersByGroups([group.id])).map((r) => r.member))
+      const add = want.filter((m) => !have.has(m))
+      if (add.length) await chat.insertMembers(add.map((m) => ({ group_id: group.id, member: m, is_outside: false, hidden: false, added_by: settings.team[0] || 'jb' })))
+    }
+    await chat.insertMessage({ group_id: group.id, sender: settings.team[0] || 'jb', kind: 'system', body: text, task: null, files: [] })
+    if (settings.notify.push && wp && chat.pushSubsFor) {
+      const subs = await chat.pushSubsFor(want)
+      const data = JSON.stringify({ title: 'HAAVN Contract Team', body: text.slice(0, 140), tag: 'hbcontract-' + tag, url: '/?chatopen=' + encodeURIComponent(group.id) })
+      await Promise.allSettled(subs.map(async (s) => { try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, data) } catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) { try { await chat.deletePush(s.endpoint) } catch { /* ignore */ } } } }))
+    }
+  } catch { /* the stage change stands without the note */ }
+}
 async function adminTasksFor(deps, settings, before, after) {
   const { kv } = deps
-  const owner = settings.contractAdmin && personName(settings.contractAdmin)
-  if (!owner || !settings.notify.task || !kv || !kv.update) return after.adminTasks
+  const team = (settings.contractTeam || []).map(personName).filter(Boolean)
+  if (!team.length) return after.adminTasks
   const done = { ...(after.adminTasks || {}) }
   const nm = `${after.first} ${after.last}`.trim()
   for (const stage of [3, 5, 6]) {
     if (done[stage] || !((after.maxStage || 0) >= stage && (before.maxStage || 0) < stage)) continue
     const t = ADMIN_TASKS[stage](nm, after, ['studio', 'plus', 'max'].includes(after.product) ? (settings.prices[after.product] || 0) : 0)
     const due = new Date(Date.now() + t.days * 864e5).toISOString().slice(0, 10)
-    try {
-      const made = await kv.update(B.KEYS.workflow, (ws) => B.addTask(ws, { title: t.title, owner, due, priority: 'Medium', dept: 'haavnblack', project: 'HAAVN BLACK Sales', notes: t.note }, 'HAAVN BLACK sales'))
-      done[stage] = (made && made.id) || true
-    } catch { /* the stage change stands without the task */ }
+    done[stage] = true
+    if (settings.notify.task && kv && kv.update) {
+      try {
+        const made = await kv.update(B.KEYS.workflow, (ws) => {
+          const r = B.addTask(ws, { title: t.title, owner: team[0], due, priority: 'Medium', dept: 'haavnblack', project: 'HAAVN BLACK Sales', notes: t.note }, 'HAAVN BLACK sales')
+          const task = r.next.actions.find((x) => x.id === r.result.id); if (task) task.watchers = team.slice(1)   // the rest of the team see it and get its updates
+          return { next: r.next, result: r.result }
+        })
+        done[stage] = (made && made.id) || true
+      } catch { /* the stage change stands without the task */ }
+    }
+    await tellContractTeam(deps, settings, `${t.title}. ${t.note}`, after.id + '-' + stage)
   }
   return done
 }
@@ -378,8 +410,8 @@ async function run(action, a, session, deps) {
       const prices = { ...cur.prices }; for (const k of ['studio', 'plus', 'max']) if (s.prices && s.prices[k] !== undefined) prices[k] = num(s.prices[k])
       const spend = { ...cur.spend }; for (const k of Object.keys(cur.spend)) if (s.spend && s.spend[k] !== undefined) spend[k] = num(s.spend[k])
       const notify = { ...cur.notify }; for (const k of ['chat', 'push', 'task']) if (s.notify && s.notify[k] !== undefined) notify[k] = !!s.notify[k]
-      const contractAdmin = s.contractAdmin !== undefined ? (A.PEOPLE.some((p) => p.id === s.contractAdmin) ? s.contractAdmin : '') : cur.contractAdmin
-      const next = { rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, spend, notify, team: cur.team, contractAdmin }
+      const contractTeam = Array.isArray(s.contractTeam) ? [...new Set(s.contractTeam.filter((id) => A.PEOPLE.some((p) => p.id === id && INTERNAL_ROLES.includes(p.role))))] : cur.contractTeam
+      const next = { rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }
