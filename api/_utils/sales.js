@@ -52,14 +52,23 @@ const ownMail = /(^|[.@])(haavnblack\.au|haavn\.au|7even\.au)$|no-?reply|noreply
 // text: the email's body (plain). meta: { from, subject }. Never throws; `complete` says whether there is enough to make a lead.
 function parseEnquiry(text, meta = {}) {
   const f = {}
+  const SPACED = /^\s*(email|phone|mobile|state|setting|model|cladding|interior|palette|joinery|delivery|payment|message)\s+(.+?)\s*$/i
   String(text || '').split(/\r?\n/).forEach((line) => {
     const m = line.match(/^\s*([A-Za-z][A-Za-z _/-]{1,28}?)\s*[:=]\s*(.+?)\s*$/)
     if (m) f[m[1].toLowerCase().replace(/[^a-z]/g, '')] = m[2]
+    else { const sp = line.match(SPACED); if (sp && !f[sp[1].toLowerCase()]) f[sp[1].toLowerCase()] = sp[2] }   // the website's own email: "Email name@example.com", "State Victoria"
   })
   const g = (...ks) => { for (const k of ks) if (f[k]) return f[k]; return '' }
   const all = String(text || '')
   let first = clean(g('firstname', 'first'), 60), last = clean(g('lastname', 'last', 'surname'), 60)
   if (!first && g('name', 'fullname')) { const p = clean(g('name', 'fullname'), 120).split(' '); first = p.shift(); last = p.join(' ') }
+  if (!first && /^\s*new registration/im.test(all)) {
+    const ls = all.split(/\r?\n/).map((x) => x.trim()).filter(Boolean)
+    const at = ls.findIndex((x) => /^new registration/i.test(x))
+    const cand = ls[at + 1]
+    if (cand && !/^(contact|their solum)$/i.test(cand) && !/[@:]/.test(cand)) { const p = clean(cand, 120).split(' '); first = p.shift(); last = p.join(' ') }
+  }
+  if (!first && meta.subject && /^\s*registration\s*:/i.test(meta.subject)) { const m = String(meta.subject).match(/^\s*registration\s*:\s*([^·|]+)/i); if (m) { const p = clean(m[1], 120).split(' '); first = p.shift(); last = p.join(' ') } }
   if (!first && meta.subject) { const m = String(meta.subject).match(/:\s*([^:]+)$/); if (m && !/enquiry|haavn/i.test(m[1])) { const p = clean(m[1], 120).split(' '); first = p.shift(); last = last || p.join(' ') } }
   let from = String(meta.from || '')
   if (!first && from) { const m = from.match(/^\s*"?([^"<]+?)"?\s*</); if (m && !/website|haavn|no-?reply/i.test(m[1])) { const p = clean(m[1], 120).split(' '); first = p.shift(); last = last || p.join(' ') } }
@@ -81,12 +90,12 @@ function parseEnquiry(text, meta = {}) {
   else if (utm && !/^(website|web|direct|organic|none|\(direct\))$/.test(utm)) { source = 'Other'; otherSource = clean(utm, 60) }
   const payv = g('preferredpayment', 'payment'), dv = g('delivery')
   const out = { first, last, email, mobile, state, setting: SETTING.find((x) => lower(x) === lower(g('setting'))) || '', product,
-    clad: pickOf(g('cladding', 'externalfinish', 'exterior'), CLAD), pal: pickOf(g('palette', 'interior', 'internalfinish'), PAL), join: pickOf(g('joinery'), JOIN),
+    clad: pickOf(g('cladding', 'externalfinish', 'exterior'), CLAD), pal: pickOf(g('palette', 'interior', 'internalfinish', 'interiorpalette'), PAL), join: pickOf(g('joinery'), JOIN),
     pay: PAY.find((x) => lower(x) === lower(payv)) || 'No preference', deliv: DELIV.find((x) => lower(x) === lower(dv)) || 'No preference',
     msg: clean(g('message', 'comments', 'enquiry', 'notes'), 1500), source, otherSource, utm }
   out.complete = !!(out.first && (out.email || out.mobile))
   // a filled-in contact form has labelled name and contact lines; a plain email from someone does not and gets a human look first
-  out.formLike = !!((f.firstname || f.name || f.fullname) && (f.email || f.phone || f.mobile || f.emailaddress))
+  out.formLike = !!((f.firstname || f.name || f.fullname) && (f.email || f.phone || f.mobile || f.emailaddress)) || (/^\s*new registration/im.test(all) && out.complete)
   return out
 }
 
@@ -206,11 +215,12 @@ async function createLead(deps, p, opts = {}) {
 async function ingestEmail(deps, m) {
   const { db } = deps
   const messageId = clean(m.messageId, 300) || 'h' + require('crypto').createHash('sha1').update(String(m.from) + String(m.subject) + String(m.body)).digest('hex').slice(0, 24)
-  if (await db.inbox.byMessage(messageId)) return { skipped: 'already seen' }
+  const seen = await db.inbox.byMessage(messageId)
+  if (seen && seen.status !== 'review') return { skipped: 'already seen' }
   const body = m.html && !m.body ? htmlToText(m.html) : String(m.body || '')
   const text = /<[a-z][\s\S]*>/i.test(body) ? htmlToText(body) : body
   const parsed = parseEnquiry(text, { from: m.from, subject: m.subject })
-  const row = { id: newId('M'), message_id: messageId, received_at: m.receivedAt ? new Date(m.receivedAt).toISOString() : new Date().toISOString(), from_addr: clean(m.from, 200), subject: clean(m.subject, 250), body: text.slice(0, 20000), status: 'review', lead_id: null, note: '' }
+  const row = { id: seen ? seen.id : newId('M'), message_id: messageId, received_at: m.receivedAt ? new Date(m.receivedAt).toISOString() : new Date().toISOString(), from_addr: clean(m.from, 200), subject: clean(m.subject, 250), body: text.slice(0, 20000), status: 'review', lead_id: null, note: '' }
   if (!parsed.complete || !parsed.formLike) { row.note = parsed.complete ? 'A plain email, not the website form. Check it and create the lead if it is a customer.' : 'Not enough to make a lead (needs a name and an email or mobile).'; await db.inbox.upsert(row); return { review: true } }
   const r = await createLead(deps, parsed, { how: 'by email' })
   row.status = 'lead'; row.lead_id = r.lead.id; row.note = r.dup ? 'This customer already existed, a note was added.' : ''

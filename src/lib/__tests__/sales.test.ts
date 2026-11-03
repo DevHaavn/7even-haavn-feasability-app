@@ -280,3 +280,25 @@ describe('contract and deposit admin: the receptionist gets the tasks', () => {
     expect((await run('init', {}, alessia)).leads.map((x: any) => x.id)).toEqual([l.id])
   })
 })
+
+describe('the website\'s own registration email', () => {
+  const REG = `New registration · haavnblack.au\r\nLen Example\r\nContact\r\nEmail len.example@example.com \r\nState Victoria\r\nSetting Country\r\nTheir SOLUM\r\nModel SOLUM Plus\r\nCladding Urbanite\r\nInterior Tide\r\nJoinery Dark Oak\r\nDelivery Delivered\r\nPayment Cash\r\nReply to this email to answer Len directly.\r\nReceived Tuesday, 3 November 2026 at 10:33 pm.`
+  const SHORT = `New registration · haavnblack.au\r\nTEST TEST RUN\r\nContact\r\nEmail test@example.com \r\nPhone 0416922911 \r\nState Victoria\r\nSetting City\r\nReply to this email to answer TEST directly.`
+  it('reads the name, contact, state, home and every finish from the real layout', () => {
+    expect(S.parseEnquiry(REG, { from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Len Example · SOLUM Plus · VIC' })).toMatchObject({ first: 'Len', last: 'Example', email: 'len.example@example.com', state: 'VIC', setting: 'Country', product: 'plus', clad: 'Urbanite', pal: 'Tide', join: 'Dark Oak', deliv: 'Delivered', pay: 'Cash', source: 'Website direct', complete: true, formLike: true })
+    expect(S.parseEnquiry(SHORT, { subject: 'Registration: TEST TEST RUN · VIC' })).toMatchObject({ first: 'TEST', last: 'TEST RUN', mobile: '0416922911', state: 'VIC', product: 'none', formLike: true })
+  })
+  it('becomes a lead, and an email held earlier is read again and made a lead once the reader understands it', async () => {
+    F.t.inbox.push({ id: 'Mold', message_id: 'old1', received_at: '2026-11-03T11:33:00Z', from_addr: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Len Example · SOLUM Plus · VIC', body: REG, status: 'review', lead_id: null, note: 'A plain email' })
+    const r = await S.ingestEmail(F.deps, { messageId: 'old1', from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Len Example · SOLUM Plus · VIC', body: REG })
+    expect(r.lead).toMatchObject({ first: 'Len', state: 'VIC', owner: 'jb', product: 'plus', pal: 'Tide' })
+    expect(F.t.inbox).toHaveLength(1); expect(F.t.inbox[0]).toMatchObject({ id: 'Mold', status: 'lead', lead_id: r.lead.id })
+    expect((await S.ingestEmail(F.deps, { messageId: 'old1', body: REG })).skipped).toBe('already seen')
+    expect(F.t.msgs[0].body).toContain('New HAAVN BLACK lead for Jamie Baldwin')
+  })
+  it('an ordinary newsletter is still held for a look and stays one row', async () => {
+    const e = { messageId: 'news', from: 'Instagram Business <business-noreply@mail.instagram.com>', subject: 'How business chats work', body: 'Hello! Learn how chats work.' }
+    expect((await S.ingestEmail(F.deps, e)).review).toBe(true); expect((await S.ingestEmail(F.deps, e)).review).toBe(true)
+    expect(F.t.inbox).toHaveLength(1); expect(F.t.leads).toHaveLength(0)
+  })
+})
