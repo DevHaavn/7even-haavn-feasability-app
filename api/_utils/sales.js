@@ -25,6 +25,7 @@ const DEFAULTS = {
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
   notify: { chat: true, push: true, task: true },
   team: ['jb', 'mf'],
+  contractAdmin: 'ar',   // who prepares contracts and raises the 10% deposit invoices (a team member id, or '' for nobody)
 }
 
 const lower = (v) => String(v == null ? '' : v).trim().toLowerCase()
@@ -109,7 +110,7 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'site']
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site']
 function leadOut(row) {
   const d = row.data || {}
   return { ...d, id: row.id, owner: row.owner || '', state: row.state || '', stage: row.stage || 0, status: row.status || 'open', source: row.source || 'Other', concept: !!row.concept,
@@ -233,6 +234,30 @@ function checkAbn(v) {
   return n.reduce((s, x, i) => s + x * w[i], 0) % 89 === 0 ? 'ABN' : ''
 }
 
+// The contract and deposit admin: when a lead first reaches EOI received, Contract signed or Deposit paid, a Workflow task goes to the contract admin (the receptionist), once per stage.
+const ADMIN_TASKS = {
+  3: (nm, l, price) => ({ title: `Prepare and send the contract: ${nm}`, days: 2, note: `EOI received. Home: ${l.product}. Finishes: ${[l.clad, l.pal, l.join].filter(Boolean).join(', ') || 'to be confirmed'}.` }),
+  5: (nm, l, price) => ({ title: `Raise the 10% deposit invoice: ${nm}${price ? ' ($' + Math.round(price * 0.1).toLocaleString('en-AU') + ')' : ''}`, days: 0, note: 'Contract signed. Send the deposit invoice and diarise the payment date.' }),
+  6: (nm, l, price) => ({ title: `Confirm the order and hand over to projects: ${nm}`, days: 0, note: 'Deposit paid. Confirm receipt, confirm the order to the customer, then send the handover to projects@haavn.au from the lead.' }),
+}
+async function adminTasksFor(deps, settings, before, after) {
+  const { kv } = deps
+  const owner = settings.contractAdmin && personName(settings.contractAdmin)
+  if (!owner || !settings.notify.task || !kv || !kv.update) return after.adminTasks
+  const done = { ...(after.adminTasks || {}) }
+  const nm = `${after.first} ${after.last}`.trim()
+  for (const stage of [3, 5, 6]) {
+    if (done[stage] || !((after.maxStage || 0) >= stage && (before.maxStage || 0) < stage)) continue
+    const t = ADMIN_TASKS[stage](nm, after, ['studio', 'plus', 'max'].includes(after.product) ? (settings.prices[after.product] || 0) : 0)
+    const due = new Date(Date.now() + t.days * 864e5).toISOString().slice(0, 10)
+    try {
+      const made = await kv.update(B.KEYS.workflow, (ws) => B.addTask(ws, { title: t.title, owner, due, priority: 'Medium', dept: 'haavnblack', project: 'HAAVN BLACK Sales', notes: t.note }, 'HAAVN BLACK sales'))
+      done[stage] = (made && made.id) || true
+    } catch { /* the stage change stands without the task */ }
+  }
+  return done
+}
+
 async function run(action, a, session, deps) {
   const { db } = deps
   const w = await whoAmI(session, db)
@@ -247,7 +272,7 @@ async function run(action, a, session, deps) {
       if (internal) { try { inbox = await db.inbox.list(60) } catch { /* ignore */ } try { mail = await db.settings.get('mail') } catch { /* ignore */ } }
       return { me: { id: w.id, name: w.name, kind: w.kind, admin: !!w.admin, manager: !!w.manager, companyId: w.companyId || '' }, leads, ...co,
         settings: internal ? settings : { rules: {}, prices: settings.prices, spend: {}, notify: {}, team: settings.team }, inbox, mail, now: Date.now(),
-        team: settings.team.map((id) => ({ id, name: personName(id) })), states: STATES }
+        team: settings.team.map((id) => ({ id, name: personName(id) })), staff: internal ? A.PEOPLE.filter((p) => INTERNAL_ROLES.includes(p.role)).map((p) => ({ id: p.id, name: p.name })) : [], states: STATES }
     }
     case 'poll': {
       const since = Number(a.since) || 0
@@ -275,7 +300,7 @@ async function run(action, a, session, deps) {
       const cur = leadOut(row)
       if (!canSee(w, cur)) throw new SalesError('That lead is not yours.', 403)
       const next = { ...cur }
-      for (const k of DATA_KEYS) if (incoming[k] !== undefined && k !== 'act' && k !== 'wfTaskId') next[k] = incoming[k]
+      for (const k of DATA_KEYS) if (incoming[k] !== undefined && k !== 'act' && k !== 'wfTaskId' && k !== 'adminTasks') next[k] = incoming[k]
       next.act = mergeAct(cur.act, incoming.act)
       for (const k of ['state', 'stage', 'status', 'concept']) if (incoming[k] !== undefined) next[k] = incoming[k]
       if (!STATES[next.state]) next.state = cur.state
@@ -288,6 +313,7 @@ async function run(action, a, session, deps) {
       if (!internal && cur.order && incoming.order) next.order = { ...incoming.order, step: cur.order.step, site: incoming.order.site !== undefined ? incoming.order.site : cur.order.site }
       next.maxStage = Math.max(cur.maxStage || 0, Math.min(7, Number(next.stage) || 0))
       next.stage = Math.max(0, Math.min(7, Number(next.stage) || 0))
+      if (next.maxStage > (cur.maxStage || 0)) next.adminTasks = await adminTasksFor(deps, await getSettings(db), cur, next)
       if (next.stage >= 7 && !next.order) next.order = { step: 0, eta: Date.now() + 77 * 864e5, site: '', lastUpdate: Date.now(), log: [{ t: Date.now(), x: 'Order confirmed.' }] }
       const saved = await db.leads.upsert(leadRow(next, row))
       return { lead: leadOut(saved) }
@@ -342,7 +368,8 @@ async function run(action, a, session, deps) {
       const prices = { ...cur.prices }; for (const k of ['studio', 'plus', 'max']) if (s.prices && s.prices[k] !== undefined) prices[k] = num(s.prices[k])
       const spend = { ...cur.spend }; for (const k of Object.keys(cur.spend)) if (s.spend && s.spend[k] !== undefined) spend[k] = num(s.spend[k])
       const notify = { ...cur.notify }; for (const k of ['chat', 'push', 'task']) if (s.notify && s.notify[k] !== undefined) notify[k] = !!s.notify[k]
-      const next = { rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, spend, notify, team: cur.team }
+      const contractAdmin = s.contractAdmin !== undefined ? (A.PEOPLE.some((p) => p.id === s.contractAdmin) ? s.contractAdmin : '') : cur.contractAdmin
+      const next = { rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, spend, notify, team: cur.team, contractAdmin }
       await db.settings.set('sales', next)
       return { settings: next }
     }

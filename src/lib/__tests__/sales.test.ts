@@ -246,3 +246,37 @@ describe('reading the sales@haavnblack.au mailbox', () => {
     expect((await MAIL.poll({}, F.deps, fetcher(200, []))).error).toMatch(/not set up/)
   })
 })
+
+describe('contract and deposit admin: the receptionist gets the tasks', () => {
+  const mkAt = async (stage: number) => { const l = (await S.ingestEmail(F.deps, { messageId: 'ca' + Math.random(), body: FORM() })).lead; return (await run('saveLead', { lead: { id: l.id, stage } })).lead }
+  const tasksFor = (n: string) => (F.t.doc[B.KEYS.workflow] ? F.t.doc[B.KEYS.workflow].actions.filter((x: any) => x.owner === n) : [])
+  it('EOI, contract signed and deposit paid each create one task for Alessia, once', async () => {
+    await run('settingsSave', { settings: { prices: { plus: 200000 } } })
+    const l = await mkAt(3)
+    expect(tasksFor('Alessia Bresciano').map((t: any) => t.title)).toEqual(['Prepare and send the contract: Mia Brennan'])
+    await run('saveLead', { lead: { id: l.id, stage: 2 } }); await run('saveLead', { lead: { id: l.id, stage: 3 } })
+    expect(tasksFor('Alessia Bresciano')).toHaveLength(1)
+    await run('saveLead', { lead: { id: l.id, stage: 5 } })
+    expect(tasksFor('Alessia Bresciano')[1].title).toBe('Raise the 10% deposit invoice: Mia Brennan ($20,000)')
+    await run('saveLead', { lead: { id: l.id, stage: 6 } })
+    expect(tasksFor('Alessia Bresciano').map((t: any) => t.title)[2]).toContain('Confirm the order and hand over to projects')
+    expect(tasksFor('Alessia Bresciano').every((t: any) => t.dept === 'haavnblack' && t.project === 'HAAVN BLACK Sales')).toBe(true)
+    expect(S.leadOut(F.t.leads[0]).adminTasks).toMatchObject({ 3: expect.any(String), 5: expect.any(String), 6: expect.any(String) })
+  })
+  it('a client cannot write the task record, nobody is tasked when it is switched off, and only a director can change who', async () => {
+    await run('settingsSave', { settings: { notify: { task: false } } })
+    const l = await mkAt(3)
+    expect(tasksFor('Alessia Bresciano')).toHaveLength(0)
+    await run('settingsSave', { settings: { notify: { task: true }, contractAdmin: '' } })
+    await run('saveLead', { lead: { id: l.id, stage: 5, adminTasks: { 5: 'x' } } })
+    expect(tasksFor('Alessia Bresciano')).toHaveLength(0)
+    await expect(run('settingsSave', { settings: { contractAdmin: 'ar' } }, mike)).rejects.toThrow(/director/)
+    expect((await run('settingsSave', { settings: { contractAdmin: 'ar' } })).settings.contractAdmin).toBe('ar')
+    expect((await run('init', {}, mike)).staff.map((p: any) => p.name)).toContain('Alessia Bresciano')
+  })
+  it('she signs in like the rest of the team and sees every lead', async () => {
+    const l = (await S.ingestEmail(F.deps, { messageId: 'rec', body: FORM() })).lead
+    const alessia = { sub: 'ar', name: 'Alessia Bresciano', role: 'staff', emails: ['reception@haavn.au'] }
+    expect((await run('init', {}, alessia)).leads.map((x: any) => x.id)).toEqual([l.id])
+  })
+})
