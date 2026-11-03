@@ -238,7 +238,7 @@ describe('reading the sales@haavnblack.au mailbox', () => {
     const r = await MAIL.poll(env, F.deps, fetcher(200, msgs))
     expect(r).toMatchObject({ ok: true, processed: 2, leads: 2 }); expect(F.t.leads).toHaveLength(2)
     expect((await MAIL.poll(env, F.deps, fetcher(200, msgs))).processed).toBe(0)
-    expect(F.t.settings.mail).toMatchObject({ ok: true, mailbox: 'sales@haavnblack.au' })
+    expect(F.t.settings.mail).toMatchObject({ ok: true, mailbox: 'sales@haavn.au' })
   })
   it('says so plainly when Microsoft will not let ATRIUM read the mailbox, or it is not set up', async () => {
     const r = await MAIL.poll(env, F.deps, fetcher(403, []))

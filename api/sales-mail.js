@@ -1,6 +1,6 @@
-// Runs every 5 minutes (vercel.json crons). Reads the sales@haavnblack.au mailbox through Microsoft Graph and turns enquiry emails into leads, once each.
+// Runs every 5 minutes (vercel.json crons). Reads the sales@haavn.au mailbox through Microsoft Graph and turns enquiry emails into leads, once each.
 // Needs CRON_SECRET (Vercel sends it as a Bearer token), the service key, the Microsoft app (MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET) and the app permission
-// Mail.Read for that mailbox. Without the permission it says so on the Inbox screen instead of failing quietly. SALES_MAILBOX overrides the address.
+// Mail.Read for that mailbox. Without the permission it says so on the Inbox screen instead of failing quietly. The mailbox is sales@haavn.au; SALES_MAILBOX overrides it.
 const S = require('./_utils/sales')
 const SD = require('./_utils/salesDb')
 const D = require('./_utils/chatDb')
@@ -16,7 +16,7 @@ async function graphToken(env, fetchImpl = fetch) {
 
 // Reads the mailbox and ingests what is new. Returns { ok, processed, leads, error? } and records the same for the Inbox screen.
 async function poll(env, deps, fetchImpl = fetch) {
-  const mailbox = env.SALES_MAILBOX || 'sales@haavnblack.au'
+  const mailbox = env.SALES_MAILBOX || 'sales@haavn.au'
   const note = async (v) => { try { await deps.db.settings.set('mail', { ...v, mailbox, at: Date.now() }) } catch { /* ignore */ } return v }
   if (!env.MS_TENANT_ID || !env.MS_CLIENT_ID || !env.MS_CLIENT_SECRET) return note({ ok: false, error: 'The Microsoft 365 connection is not set up (MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET).' })
   let token
