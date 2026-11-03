@@ -1855,7 +1855,8 @@ function sameName(a,b){return (a||'').trim().toLowerCase()===(b||'').trim().toLo
    (or 7EVEN's) own work, tasks or meetings. Everything below scopes the
    Team & Departments / Meetings & Momentum views to dept==='haavnblack' and
    to meetings the viewer is actually chair or attendee of. */
-function blackPeople(){return REAL_PEOPLE.filter(function(p){return p.dept==='haavnblack';});}
+/* the HAAVN BLACK team, and the directors, who run it and must be able to sign in here as themselves */
+function blackPeople(){return REAL_PEOPLE.filter(function(p){return p.dept==='haavnblack'||p.role==='Director';});}
 function blackActions(){return WS.actions.filter(function(a){return a.dept==='haavnblack';});}
 function canSeeMeeting(m){return sameName(m.chair,ME())||(m.attendees||[]).some(function(a){return sameName(a.name,ME());});}
 function sendToMeeting(kind,recId){
