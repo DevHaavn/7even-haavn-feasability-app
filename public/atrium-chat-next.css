@@ -380,5 +380,19 @@ html[data-scheme=light] .nx-tk .chk{border-color:#8a8272}
   .nx-tile .nx-ts{grid-area:s}
   .nx-tile .nx-tc{top:50%;margin-top:-3px}
 }
-/* a Workflow task shown in Chat: read only, so its circle is dashed and does nothing */
-.nx-tr .chk.wfo,.nx-tk .chk.wfo{border-style:dashed;border-color:var(--soft);opacity:.6;cursor:default;pointer-events:none}
+/* a Workflow task shown in Chat: its circle ticks it in Workflow itself. Dashed so it reads as a Workflow task, not a chat task. */
+.nx-tr .chk.wfo,.nx-tk .chk.wfo{border-style:dashed;border-color:var(--soft)}
+.nx-tr .chk.wfo.done,.nx-tk .chk.wfo.done{border-style:solid}
+/* the Workflow task sheet: status, due date and priority, saved as they are changed */
+.nx-wfe{margin-top:14px;display:grid;gap:6px}
+.nx-wl{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:8px}
+.nx-wseg{display:flex;flex-wrap:wrap;gap:6px}
+.nx-wseg button{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font:400 13px Inter;color:var(--soft);background:none;cursor:pointer}
+.nx-wseg button.on{border-color:var(--gold);color:var(--gold)}
+.nx-wdue{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.nx-wdue input{min-height:34px;padding:0 10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:#fff;font:400 13px Inter;color-scheme:dark}
+.nx-wdue .chip{cursor:pointer;background:none;color:var(--soft);min-height:30px}
+.nx-wn{font-size:11.5px;color:var(--faint);margin-top:6px;min-height:15px}
+.ov.nx.busy .nx-wfe{opacity:.6;pointer-events:none}
+html[data-scheme=light] .nx-wseg button.on{border-color:#8a6420;color:#8a6420}
+html[data-scheme=light] .nx-wdue input{background:#fff;color:#151515;color-scheme:light}

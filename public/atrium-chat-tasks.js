@@ -63,26 +63,50 @@ function draw(){
       var list=v.shown.filter(function(t){ return bucket(t)===b }).sort(function(a,c){ var x=parseDue(a.due),y=parseDue(c.due); return (x?x.getTime():9e15)-(y?y.getTime():9e15)||(c.t||0)-(a.t||0) }); if(!list.length) return; any=true;
       h+='<div class="nx-gh'+(b==='Overdue'?' rd':'')+'"><span class="mono">'+b+'</span><span class="mono">'+list.length+'</span></div>'+list.map(function(t){ var d=parseDue(t.due), cls=b==='Overdue'?'rd':b==='Today'?'gd':'', who=TAB==='others'?' · '+esc(first(t.own)):'';
         var wfo=t.src==='wf';
-        return '<div class="nx-tr'+(t.done?' done':'')+'" data-k="'+esc(t.mid)+'">'+(wfo?'<span class="chk wfo" aria-hidden="true"></span>':'<button type="button" class="chk'+(t.done?' done':'')+'" data-ck="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button>')+'<div class="tx">'+esc(t.title)+'<small>'+esc(wfo?'Workflow'+(t.proj&&t.proj!=='No project'?' \u00b7 '+t.proj:''):(t.g||t.proj||''))+who+(t.pri&&t.pri!=='Normal'?' · '+esc(t.pri):'')+'</small></div><span class="due '+cls+'">'+esc(fmt(d))+'</span></div>' }).join('') });
+        return '<div class="nx-tr'+(t.done?' done':'')+'" data-k="'+esc(t.mid)+'">'+'<button type="button" class="chk'+(t.done?' done':'')+(wfo?' wfo':'')+'" data-ck="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button><div class="tx">'+esc(t.title)+'<small>'+esc(wfo?'Workflow'+(t.proj&&t.proj!=='No project'?' \u00b7 '+t.proj:''):(t.g||t.proj||''))+who+(t.pri&&t.pri!=='Normal'?' · '+esc(t.pri):'')+'</small></div><span class="due '+cls+'">'+esc(fmt(d))+'</span></div>' }).join('') });
     if(!any) h+='<div class="nx-empty">Nothing here. A clear list.</div> '
   }
   var keep=$('#nxIn')?$('#nxIn').value:''; panel.innerHTML=h; var inp=$('#nxIn'); if(inp&&keep){ inp.value=keep } pv() }
 
 /* ticking */
-async function tick(mid,done){
-  var t=rows.concat(extra).filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t||t.src==='wf') return; var was=t.done; t.done=done; draw();
-  try{ await C.tick(mid,done) }catch(er){ t.done=was; draw(); C.flash((er&&er.message)||'That could not be saved.') } }
+async function tick(mid,done,obj){
+  var t=obj||rows.concat(extra).filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t) return; var was=t.done; t.done=done; draw();
+  try{ if(t.src==='wf'){ await wfSet(t,{status:done?'done':'todo'}); if(done) C.flash('Done. Updated in Workflow.') } else await C.tick(mid,done) }catch(er){ t.done=was; draw(); C.flash((er&&er.message)||'That could not be saved.') } }
+/* Workflow tasks: one call changes the task in Workflow itself, and the answer (the task as Workflow now has it) is told to every other part of this page that shows it */
+var STL={todo:'To do',doing:'Doing',blocked:'Blocked',review:'In review',done:'Done'};
+async function wfSet(t,patch){
+  if(!C.real()) throw new Error('Sign in to change Workflow tasks.');
+  var arg={id:t.mid}; Object.keys(patch).forEach(function(k){ arg[k]=patch[k] });
+  var j=await C.api('wfTask',arg), r=j&&j.task; if(!r) throw new Error('That could not be saved.');
+  Object.keys(r).forEach(function(k){ t[k]=r[k] });
+  D.dispatchEvent(new CustomEvent('atrium-wftask',{detail:{task:r,from:t}})); return r }
+/* a Workflow task changed by the Today card (or the sheet) shows here too */
+D.addEventListener('atrium-wftask',function(e){ var r=e.detail&&e.detail.task; if(!r) return; var t=rows.filter(function(x){ return String(x.mid)===String(r.mid) })[0]; if(!t||t===e.detail.from) return; Object.keys(r).forEach(function(k){ t[k]=r[k] }); if(open) draw() });
 /* a task from the hidden My tasks group has no chat to open, so it opens here */
-var sheet=D.createElement('div'); sheet.className='ov nx'; sheet.id='nxTaskSheet'; sheet.innerHTML='<div class="sheet"><h3 id="nxSt"></h3><div class="lead" id="nxSl"></div><div class="row" style="margin-top:14px"><button type="button" class="cb" data-x>Close</button><button type="button" class="cb go" id="nxSd"></button></div></div>'; D.body.appendChild(sheet);
+var sheet=D.createElement('div'); sheet.className='ov nx'; sheet.id='nxTaskSheet'; sheet.innerHTML='<div class="sheet"><h3 id="nxSt"></h3><div class="lead" id="nxSl"></div><div class="nx-wfe" id="nxWe"></div><div class="row" style="margin-top:14px"><button type="button" class="cb" data-x>Close</button><button type="button" class="cb go" id="nxSd"></button></div></div>'; D.body.appendChild(sheet);
 sheet.addEventListener('click',function(e){ if(e.target===sheet||e.target.closest('[data-x]')) sheet.classList.remove('on') });
-var cur=null;
-$('#nxSd',sheet).addEventListener('click',function(){ if(cur){ tick(cur.mid,!cur.done); sheet.classList.remove('on') } });
-var STL={todo:'To do',doing:'Doing',blocked:'Blocked',done:'Done'};
-function inline(t){ cur=t; $('#nxSt',sheet).textContent=t.title; var wfo=t.src==='wf', d=$('#nxSd',sheet);
-  $('#nxSl',sheet).innerHTML=(wfo?[ 'Workflow task, set to '+esc(first(t.own)), STL[t.st]?'Status: '+STL[t.st]:'', t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', t.proj&&t.proj!=='No project'?esc(t.proj):'', t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.ag?'On the Monday agenda':'', 'Update it in ATRIUM Workflow. It stays here until it is done.' ]
-    :[ 'Set to '+esc(first(t.own))+(t.by&&t.by!==t.own?' by '+esc(first(t.by)):''), t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', esc(t.proj||'No project'), t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.wf?'In Workflow':'', t.ag?'On the Monday agenda':'' ]).filter(Boolean).join('<br>');
-  d.style.display=wfo?'none':''; d.textContent=t.done?'Mark not done':'Mark done'; sheet.classList.add('on') }
-window.AtriumTasks={ inline:inline };
+var cur=null, busy=false;
+$('#nxSd',sheet).addEventListener('click',function(){ if(cur){ tick(cur.mid,!cur.done,cur.src==='wf'?cur:null); sheet.classList.remove('on') } });
+function sheetText(t){ var wfo=t.src==='wf';
+  return (wfo?[ 'Workflow task, set to '+esc(first(t.own)), t.proj&&t.proj!=='No project'?esc(t.proj):'', t.ag?'On the Monday agenda':'' ]
+    :[ 'Set to '+esc(first(t.own))+(t.by&&t.by!==t.own?' by '+esc(first(t.by)):''), t.due?'Due '+esc(fmt(parseDue(t.due))):'No due date', esc(t.proj||'No project'), t.pri&&t.pri!=='Normal'?esc(t.pri)+' priority':'', t.wf?'In Workflow':'', t.ag?'On the Monday agenda':'' ]).filter(Boolean).join('<br>') }
+/* the Workflow task's three fields: status, due date, priority. Each change is saved at once and the sheet shows what Workflow now has. */
+function editor(t){ var box=$('#nxWe',sheet); if(t.src!=='wf'){ box.innerHTML=''; box.style.display='none'; return } box.style.display='';
+  var sts=['todo','doing','blocked','review','done'], pr=['Low','Medium','High'], curPri=t.pri==='Normal'?'Low':t.pri;
+  box.innerHTML='<div class="nx-wl mono">Status</div><div class="nx-wseg" data-f="status">'+sts.map(function(k){ return '<button type="button" data-v="'+k+'" class="'+(t.st===k?'on':'')+'">'+STL[k]+'</button>' }).join('')+'</div>'
+    +'<div class="nx-wl mono">Due</div><div class="nx-wdue"><input type="date" id="nxWd" value="'+esc(t.due||'')+'" aria-label="Due date"><button type="button" class="chip" data-wd="0">Today</button><button type="button" class="chip" data-wd="1">Tomorrow</button><button type="button" class="chip" data-wd="7">Next week</button></div>'
+    +'<div class="nx-wl mono">Priority</div><div class="nx-wseg" data-f="priority">'+pr.map(function(k){ return '<button type="button" data-v="'+k+'" class="'+(curPri===k?'on':'')+'">'+k+'</button>' }).join('')+'</div>'
+    +'<div class="nx-wn" id="nxWn">Changes are saved to ATRIUM Workflow as you make them.</div>' }
+async function save(patch){ if(!cur||busy) return; var t=cur, was={st:t.st,done:t.done,due:t.due,pri:t.pri}; busy=true; sheet.classList.add('busy');
+  try{ await wfSet(t,patch); if(cur===t){ editor(t); $('#nxSl',sheet).innerHTML=sheetText(t); var d=$('#nxSd',sheet); d.textContent=t.done?'Mark not done':'Mark done'; var n=$('#nxWn',sheet); if(n) n.textContent='Saved to Workflow.' } if(open) draw() }
+  catch(er){ Object.keys(was).forEach(function(k){ t[k]=was[k] }); if(cur===t) editor(t); var n2=$('#nxWn',sheet); if(n2) n2.textContent=(er&&er.message)||'That could not be saved.'; C.flash((er&&er.message)||'That could not be saved.') }
+  busy=false; sheet.classList.remove('busy') }
+sheet.addEventListener('click',function(e){
+  var b=e.target.closest('.nx-wseg [data-v]'); if(b){ var f=b.parentNode.getAttribute('data-f'), v=b.getAttribute('data-v'); var o={}; o[f]=v; if(cur&&((f==='status'&&cur.st===v)||(f==='priority'&&(cur.pri==='Normal'?'Low':cur.pri)===v))) return; save(o); return }
+  var q=e.target.closest('[data-wd]'); if(q){ var d=addDays(+q.getAttribute('data-wd')); save({due:ymd(d)}); return } });
+sheet.addEventListener('change',function(e){ if(e.target.id==='nxWd'){ var v=e.target.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v)&&cur&&v!==cur.due) save({due:v}) } });
+function inline(t){ cur=t; $('#nxSt',sheet).textContent=t.title; $('#nxSl',sheet).innerHTML=sheetText(t); editor(t); var d=$('#nxSd',sheet); d.style.display=''; d.textContent=t.done?'Mark not done':'Mark done'; sheet.classList.add('on') }
+window.AtriumTasks={ inline:inline, wfSet:wfSet };
 
 panel.addEventListener('click',function(e){
   var c=e.target.closest('[data-ck]'); if(c){ e.stopPropagation(); var t=rows.concat(extra).filter(function(x){ return String(x.mid)===c.getAttribute('data-ck') })[0]; if(t) tick(t.mid,!t.done); return }

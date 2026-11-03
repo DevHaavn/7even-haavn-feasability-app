@@ -569,20 +569,49 @@ async function taskDone(store, kv, me, a) {
 // ---------- My Tasks, a quick add with no chat, and search ----------
 // Every task I own or set, across all my groups (including my private "My tasks" group, which is not in the chat list).
 // With wf:true it also lists the Workflow tasks that are mine and have no chat task of their own (set in Workflow or the CRM, not in a chat), so everything due or overdue for me
-// is in one place. Read only: they come back marked src:'wf' with an id like "wf-<id>", and are never ticked or edited from here. Outside people never get them.
+// is in one place. They come back marked src:'wf' with an id like "wf-<id>"; wfTask below ticks or changes them. Outside people never get them.
+const WF_STATUS = ['todo', 'doing', 'blocked', 'review', 'done']
+const WF_PRI = ['Low', 'Medium', 'High']
+const sameName = (x, me) => String(x.owner || '').trim().toLowerCase() === String(me.name || '').trim().toLowerCase()
+const wfRow = (x, me) => ({ mid: 'wf-' + x.id, gid: '', g: 'Workflow', title: String(x.title || '').slice(0, 160), own: me.sub, by: '', due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || '') ? x.due : '', pri: ['Low', 'Normal', 'Medium', 'High'].includes(x.priority) ? x.priority : 'Normal',
+  proj: String(x.project || '').trim() || 'No project', done: !!x.done, st: x.status || (x.done ? 'done' : 'todo'), cl: [], rem: 0, nudged: 0, wf: true, ag: !!x.weekly, t: Date.parse(x.created) || 0, src: 'wf', dept: x.dept || '' })
 async function workflowTasksFor(kv, me, a, linked) {
   if (!a.wf || me.role === 'external') return { rows: [], ok: true }
   if (!kv || !kv.read) return { rows: [], ok: false }
   let row
   try { row = await kv.read(B.KEYS.workflow) } catch { return { rows: [], ok: false } }
-  const mine = String(me.name || '').trim().toLowerCase()
   const wantDone = a.done === true || a.include === 'all'
-  const PRI = ['Low', 'Normal', 'Medium', 'High']
   const rows = ((row && row.value && Array.isArray(row.value.actions)) ? row.value.actions : [])
-    .filter((x) => x && !x.sample && x.id != null && String(x.owner || '').trim().toLowerCase() === mine && !linked.has(String(x.id)) && (wantDone || !x.done))
-    .map((x) => ({ mid: 'wf-' + x.id, gid: '', g: 'Workflow', title: String(x.title || '').slice(0, 160), own: me.sub, by: '', due: /^\d{4}-\d{2}-\d{2}$/.test(x.due || '') ? x.due : '', pri: PRI.includes(x.priority) ? x.priority : 'Normal',
-      proj: String(x.project || '').trim() || 'No project', done: !!x.done, st: x.status || (x.done ? 'done' : 'todo'), cl: [], rem: 0, nudged: 0, wf: true, ag: !!x.weekly, t: Date.parse(x.created) || 0, src: 'wf', dept: x.dept || '' }))
+    .filter((x) => x && !x.sample && x.id != null && sameName(x, me) && !linked.has(String(x.id)) && (wantDone || !x.done))
+    .map((x) => wfRow(x, me))
   return { rows: rows.slice(0, 400), ok: true }
+}
+// wfTask { id, status?, due?, priority? } -> { ok, task }   tick or change one Workflow task that is mine and has no chat task of its own: status (todo, doing, blocked, review, done),
+// due date, priority. Only what is given changes. Written the way Workflow itself ticks a task (done, status, completedAt), through the same checked write the chat tasks use,
+// so a change someone else saved at the same moment is never overwritten. A task with a chat is changed in that chat, and outside people have no Workflow tasks.
+async function wfTask(store, kv, me, a) {
+  if (me.role === 'external') throw new ChatError('Workflow tasks are for the team.', 403)
+  if (!kv || !kv.update) throw new ChatError('Workflow is not linked right now. Try again shortly.', 503)
+  const id = String(a.id == null ? '' : a.id).replace(/^wf-/, '')
+  if (!id) throw new ChatError('Which task?')
+  const patch = {}
+  if (a.status !== undefined) { if (!WF_STATUS.includes(a.status)) throw new ChatError('Status must be To do, Doing, Blocked, In review or Done.'); patch.status = a.status }
+  if (a.due !== undefined) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(a.due)) || Number.isNaN(Date.parse(a.due))) throw new ChatError('The due date must look like 2026-11-05.'); patch.due = a.due }
+  if (a.priority !== undefined) { if (!WF_PRI.includes(a.priority)) throw new ChatError('Priority must be Low, Medium or High.'); patch.priority = a.priority }
+  if (!Object.keys(patch).length) throw new ChatError('Nothing to change.')
+  const mine = await store.memberRowsFor(me.sub)
+  if (mine.length) {
+    const rows = await store.tasksIn(mine.map((r) => r.group_id))
+    if (rows.some((m) => m.task && m.task.wfId != null && String(m.task.wfId) === id)) throw new ChatError('That task has a chat. Change it there.', 409)
+  }
+  const row = await kv.update(B.KEYS.workflow, (ws) => {
+    const t = ((ws && Array.isArray(ws.actions)) ? ws.actions : []).find((x) => x && x.id != null && String(x.id) === id)
+    if (!t) throw new ChatError('That task is no longer in Workflow.', 404)
+    if (t.sample || !sameName(t, me)) throw new ChatError('That task is not yours to change here.', 403)
+    const r = B.patchTaskFields(ws, { id: t.id, ...patch }, `${me.name} (chat)`)
+    return { next: r.next, result: wfRow(r.next.actions.find((x) => x.id === t.id), me) }
+  })
+  return { ok: true, task: row }
 }
 async function myTasks(store, kv, me, a) {
   const mine = await store.memberRowsFor(me.sub)
@@ -1417,6 +1446,7 @@ async function run(action, a, me, deps) {
     case 'meetingItemRemove': return meetingItemRemove(store, kv, me, a)
     case 'endMeeting': return endMeeting(store, kv, me, a, wp, mail)
     case 'myTasks': return myTasks(store, kv, me, a)
+    case 'wfTask': return wfTask(store, kv, me, a)
     case 'taskAdd': return taskAdd(store, kv, me, a, wp)
     case 'messagesAround': return messagesAround(store, files, me, a)
     case 'search': return search(store, kv, files, me, a)

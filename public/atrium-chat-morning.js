@@ -36,7 +36,7 @@ function dueSplit(){ var me=C.me(), today=mel().day;
 
 function tile(s,label,n,sub,warn){ return '<button type="button" class="nx-tile'+(st.open===s?' on':'')+(n?'':' z')+'" data-mc="tile" data-s="'+s+'" aria-expanded="'+(st.open===s)+'"><span class="nx-tl mono">'+label+'</span><span class="nx-tn">'+n+'</span><span class="nx-ts'+(warn?' rd':'')+'">'+esc(sub||' ')+'</span>'+CHEV+'</button>' }
 function taskRow(t,late){ var wfo=t.src==='wf', bits=[wfo?'Workflow'+(t.proj&&t.proj!=='No project'?' \u00b7 '+t.proj:''):(t.g||(t.proj&&t.proj!=='No project'?t.proj:''))]; if(t.pri&&t.pri!=='Normal') bits.push(t.pri); var m=C.msg(t.mid), s=(m&&m.task&&m.task.st)||t.st; if(s==='doing') bits.push('Doing'); else if(s==='blocked') bits.push('Blocked');
-  return '<div class="nx-tk'+(t.done?' done':'')+'">'+(wfo?'<span class="chk wfo" aria-hidden="true"></span>':'<button type="button" class="chk'+(t.done?' done':'')+'" data-mc="tick" data-m="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button>')+'<button type="button" class="nx-tkb" data-mc="task" data-m="'+esc(t.mid)+'" data-g="'+esc(t.gid||'')+'"><span class="nx-tkt">'+esc(t.title)+'</span><span class="nx-tks">'+esc(bits.filter(Boolean).join(' · '))+'</span></button><span class="nx-tkd'+(late?' rd':'')+'">'+(late?esc(dlabel(t.due)):'Today')+'</span></div>' }
+  return '<div class="nx-tk'+(t.done?' done':'')+'">'+'<button type="button" class="chk'+(t.done?' done':'')+(wfo?' wfo':'')+'" data-mc="tick" data-m="'+esc(t.mid)+'" aria-label="'+(t.done?'Mark not done':'Mark done')+'"></button>'+'<button type="button" class="nx-tkb" data-mc="task" data-m="'+esc(t.mid)+'" data-g="'+esc(t.gid||'')+'"><span class="nx-tkt">'+esc(t.title)+'</span><span class="nx-tks">'+esc(bits.filter(Boolean).join(' · '))+'</span></button><span class="nx-tkd'+(late?' rd':'')+'">'+(late?esc(dlabel(t.due)):'Today')+'</span></div>' }
 function section(){ var o=st.open, h='';
   if(o==='tasks'){ var d=dueSplit();
     if(!d.late.length&&!d.now.length) h='<div class="nx-mn">Nothing due. A clear list.</div>';
@@ -65,7 +65,7 @@ function place(){ var g=$('#groups'); if(!g) return; var old=$('.nx-morn',g);
   var q=($('#search')||{}).value||''; var ok=st.visible&&st.loaded&&q.trim().length<2&&!D.body.classList.contains('nx-search')&&!D.body.classList.contains('nx-tasks')&&!$('#list.calmode');
   if(!ok){ if(old) old.remove(); return }
   if(old) return; var w=D.createElement('div'); w.innerHTML=html; var el=w.firstChild; var head=$('.lh',g); if(head&&head.nextSibling) g.insertBefore(el,head.nextSibling); else g.insertBefore(el,g.firstChild) }
-function sigOf(){ var d=dueSplit(), u=st.un; return [folded(),st.open,st.expand,mel().hour<12?'a':mel().hour<17?'b':'c',st.meetings.length,st.rems.length,u.unread,u.list.map(function(g){ return g.id+':'+g.n+(g.men?'m':'')+g.text }).join(','),d.late.concat(d.now).map(function(t){ return t.mid+(t.done?'d':'')+t.due+(t.pri||'')+t.title+((C.msg(t.mid)&&C.msg(t.mid).task&&C.msg(t.mid).task.st)||'') }).join(',')].join('|') }
+function sigOf(){ var d=dueSplit(), u=st.un; return [folded(),st.open,st.expand,mel().hour<12?'a':mel().hour<17?'b':'c',st.meetings.length,st.rems.length,u.unread,u.list.map(function(g){ return g.id+':'+g.n+(g.men?'m':'')+g.text }).join(','),d.late.concat(d.now).map(function(t){ return t.mid+(t.done?'d':'')+t.due+(t.pri||'')+t.title+((C.msg(t.mid)&&C.msg(t.mid).task&&C.msg(t.mid).task.st)||(t.src==='wf'?t.st:'')||'') }).join(',')].join('|') }
 function refreshHtml(){ html=build(); lastSig=sigOf(); var old=$('#groups .nx-morn'); if(old) old.remove(); place() }
 
 function melYmd(){ return mel().day }
@@ -104,8 +104,8 @@ function openTask(mid,gid){
   if(window.AtriumTaskFields&&C.msg(mid)){ window.AtriumTaskFields.open(mid); return }
   if(gid&&C.hasGroup(gid)){ C.open(gid); setTimeout(function(){ var row=$('.mr[data-m="'+mid+'"]'); if(row){ row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.remove('nx-hl'); void row.offsetWidth; row.classList.add('nx-hl'); setTimeout(function(){ row.classList.remove('nx-hl') },1600) } },500); return }
   var tb=$('#rail [data-v="tasks"]')||$('#tabbar [data-v="tasks"]'); if(tb) tb.click() }
-async function tickTask(mid){ var t=st.tk.filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t||t.src==='wf') return; var was=t.done; t.done=!was; t.fresh=t.done?Date.now():0; refreshHtml();
-  try{ await C.tick(t.mid,t.done); if(t.done) C.flash('Task done.') }catch(er){ t.done=was; t.fresh=0; refreshHtml(); C.flash((er&&er.message)||'That could not be saved.'); return }
+async function tickTask(mid){ var t=st.tk.filter(function(x){ return String(x.mid)===String(mid) })[0]; if(!t||(t.src==='wf'&&!(window.AtriumTasks&&window.AtriumTasks.wfSet))) return; var was=t.done; t.done=!was; t.fresh=t.done?Date.now():0; refreshHtml();
+  try{ if(t.src==='wf'){ await window.AtriumTasks.wfSet(t,{status:t.done?'done':'todo'}); if(t.done) C.flash('Done. Updated in Workflow.') } else { await C.tick(t.mid,t.done); if(t.done) C.flash('Task done.') } }catch(er){ t.done=was; t.fresh=0; refreshHtml(); C.flash((er&&er.message)||'That could not be saved.'); return }
   if(t.done) setTimeout(function(){ t.fresh=0; recompute() },1300) }
 D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.nx-morn [data-mc]'); if(!b) return; e.stopPropagation(); e.preventDefault(); var a=b.getAttribute('data-mc'), g=b.getAttribute('data-g'), m=b.getAttribute('data-m');
   if(a==='fold'){ setFold(!folded()); refreshHtml(); return }
@@ -120,6 +120,14 @@ D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest
 
 var gl=$('#groups'); new MutationObserver(function(){ soon() }).observe(gl,{childList:true});
 D.addEventListener('atrium-mop',soon);
+/* coming back from the Tasks tab, search or a thread: the card goes back in, and is up to date */
+new MutationObserver(function(){ soon() }).observe(D.body,{attributes:true,attributeFilter:['class']});
+/* a Workflow task changed from the Tasks tab or the details sheet: the card follows it */
+D.addEventListener('atrium-wftask',function(e){ var r=e.detail&&e.detail.task, from=e.detail&&e.detail.from; if(!r||!st.loaded) return;
+  var t=st.tk.filter(function(x){ return String(x.mid)===String(r.mid) })[0];
+  if(t&&t!==from){ Object.keys(r).forEach(function(k){ t[k]=r[k] }); t.fresh=0 }
+  else if(!t&&!r.done&&r.own===C.me()) st.tk.push(r);
+  soon() });
 var sr=$('#search'); if(sr) sr.addEventListener('input',function(){ setTimeout(place,0) });
 /* coming back to the tab: a new day starts the card fresh, otherwise refresh the lists from the server every couple of minutes */
 D.addEventListener('visibilitychange',function(){ if(D.visibilityState!=='visible') return; if(st.loaded&&Date.now()-lastLoad>120000) show(false); else soon() });

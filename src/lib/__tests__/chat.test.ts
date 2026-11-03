@@ -865,6 +865,64 @@ describe('My Tasks, quick add and search', () => {
       const was = F.deps.kv.read; F.deps.kv.read = async () => { throw new Error('down') }
       try { const r = await run('myTasks', { wf: true }); expect(r.wfOk).toBe(false); expect(r.tasks).toHaveLength(1) } finally { F.deps.kv.read = was }
     })
+    describe('ticked and changed from Chat', () => {
+      const wf = (id: string) => F.db.workflow.actions.find((x: any) => x.id === id)
+      it('ticks one done the way Workflow does, and ticks it back', async () => {
+        seed()
+        const r = await run('wfTask', { id: 'wf-w1', status: 'done' })
+        expect(r.ok).toBe(true); expect(r.task).toMatchObject({ mid: 'wf-w1', done: true, st: 'done', src: 'wf', title: 'Call WPCC about the hall' })
+        expect(wf('w1')).toMatchObject({ done: true, status: 'done', updatedBy: 'Jamie Baldwin (chat)' }); expect(wf('w1').completedAt).toBeTruthy()
+        expect((await run('myTasks', { wf: true })).tasks.map((x: any) => x.mid)).toEqual(['wf-w5'])
+        const back = await run('wfTask', { id: 'wf-w1', status: 'todo' })
+        expect(back.task).toMatchObject({ done: false, st: 'todo' }); expect(wf('w1')).toMatchObject({ done: false, status: 'todo', completedAt: null })
+      })
+      it('changes the status, the due date and the priority, and only what is given', async () => {
+        seed()
+        const r = await run('wfTask', { id: 'wf-w1', status: 'blocked', due: '2026-11-09', priority: 'Low' })
+        expect(r.task).toMatchObject({ st: 'blocked', done: false, due: '2026-11-09', pri: 'Low', proj: 'Belmont Estate' })
+        expect(wf('w1')).toMatchObject({ status: 'blocked', done: false, due: '2026-11-09', priority: 'Low', project: 'Belmont Estate', weekly: true })
+        const d = await run('wfTask', { id: 'w1', due: '2026-11-10' })
+        expect(d.task).toMatchObject({ due: '2026-11-10', st: 'blocked', pri: 'Low' })
+        expect(wf('w2')).toMatchObject({ status: 'todo', due: '2026-11-02', priority: 'Normal', done: false })
+      })
+      it('works when Workflow ids are numbers', async () => {
+        F.db.workflow.actions.push({ id: 7, title: 'Numbered', owner: 'Jamie Baldwin', due: '2026-11-02', status: 'todo', done: false })
+        const r = await run('wfTask', { id: 'wf-7', status: 'done' })
+        expect(r.task).toMatchObject({ mid: 'wf-7', done: true }); expect(F.db.workflow.actions[0]).toMatchObject({ id: 7, done: true, status: 'done' })
+      })
+      it('only ever changes my own tasks, and says so', async () => {
+        seed()
+        await expect(run('wfTask', { id: 'wf-w2', status: 'done' })).rejects.toThrow(/not yours/)
+        await expect(run('wfTask', { id: 'wf-w4', status: 'done' })).rejects.toThrow(/not yours/)
+        await expect(run('wfTask', { id: 'wf-nope', status: 'done' })).rejects.toThrow(/no longer in Workflow/)
+        expect(wf('w2').done).toBe(false); expect(wf('w4').done).toBe(false)
+        const ext = { sub: 'cf', name: 'Jamie Baldwin', role: 'external', emails: ['c.fraser@fraserandpartners.com'] }
+        await expect(run('wfTask', { id: 'wf-w1', status: 'done' }, ext)).rejects.toThrow(/for the team/)
+        expect(wf('w1').done).toBe(false)
+      })
+      it('turns away what is not a status, a date or a priority, and a call with nothing in it', async () => {
+        seed()
+        await expect(run('wfTask', { id: 'wf-w1', status: 'finished' })).rejects.toThrow(/Status must be/)
+        await expect(run('wfTask', { id: 'wf-w1', due: 'tomorrow' })).rejects.toThrow(/due date/)
+        await expect(run('wfTask', { id: 'wf-w1', due: '2026-13-45' })).rejects.toThrow(/due date/)
+        await expect(run('wfTask', { id: 'wf-w1', priority: 'Urgent' })).rejects.toThrow(/Priority must be/)
+        await expect(run('wfTask', { id: 'wf-w1' })).rejects.toThrow(/Nothing to change/)
+        await expect(run('wfTask', {})).rejects.toThrow(/Which task/)
+        expect(wf('w1')).toMatchObject({ status: 'doing', due: '2026-11-02', priority: 'High' })
+      })
+      it('leaves a task that has a chat to its chat, so the two never disagree', async () => {
+        const r = await run('taskAdd', { title: 'Call the surveyor', own: 'jb', due: '2026-11-02' })
+        const id = F.db.workflow.actions[0].id
+        await expect(run('wfTask', { id: 'wf-' + id, status: 'done' })).rejects.toThrow(/has a chat/)
+        expect(F.db.workflow.actions[0].done).toBe(false); expect(r.msg.task.done).toBeFalsy()
+      })
+      it('says so if Workflow cannot be written, and changes nothing', async () => {
+        seed()
+        const was = F.deps.kv.update; F.deps.kv.update = async () => { throw new Error('down') }
+        try { await expect(run('wfTask', { id: 'wf-w1', status: 'done' })).rejects.toThrow(/down/) } finally { F.deps.kv.update = was }
+        expect(wf('w1').done).toBe(false)
+      })
+    })
   })
 
   it('quick add with no project lands in a private My tasks group that is not in the chat list, and My Tasks reads it back', async () => {
