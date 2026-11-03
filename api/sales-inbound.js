@@ -1,6 +1,7 @@
 // POST /api/sales-inbound   An enquiry email, pushed in by a forwarding rule (Power Automate, an Outlook rule, the website form itself).
 // Header  x-sales-secret: <SALES_INBOUND_SECRET>   (or Authorization: Bearer <secret>)
-// Body    JSON { subject, from, body | html, messageId?, receivedAt? }, or the plain text of the email. One email never makes two leads (messageId, else a fingerprint).
+// Body    JSON { subject, from, body | html, messageId?, receivedAt? }, or the plain text / html of the email with subject, from, messageId and receivedAt in the address (?subject=...).
+//         One email never makes two leads (messageId, else a fingerprint).
 const crypto = require('crypto')
 const S = require('./_utils/sales')
 const SD = require('./_utils/salesDb')
@@ -18,7 +19,10 @@ module.exports = async (req, res) => {
   const given = req.headers['x-sales-secret'] || String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
   if (!given || !same(given, secret)) { res.status(401).json({ error: 'no' }); return }
   let b = req.body
-  if (typeof b === 'string') { try { b = JSON.parse(b) } catch { b = { body: b } } }
+  // Power Automate sends the email's text as the body and the details in the address: ?subject=...&from=...&messageId=...&receivedAt=...
+  const q = req.query || {}
+  if (typeof b === 'string') { try { b = JSON.parse(b) } catch { b = { body: b, subject: q.subject, from: q.from, messageId: q.messageId, receivedAt: q.receivedAt } } }
+  else if (Buffer.isBuffer(b)) b = { body: b.toString('utf8'), subject: q.subject, from: q.from, messageId: q.messageId, receivedAt: q.receivedAt }
   if (!b || typeof b !== 'object') b = {}
   // a plain form post: fields become "Label: value" lines, so the same reader handles it
   if (!b.body && !b.html) {
