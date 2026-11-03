@@ -229,7 +229,9 @@ var DELIVERY=[{n:'Order confirmed',where:'Order confirmed, with the projects tea
 var S={me:null,leads:[],companies:[],agents:[],settings:{rules:{},prices:{},spend:{},notify:{},team:[]},inbox:[],mail:null,team:[],staff:[],ready:false,error:'',setup:'',now:0};
 var UI={view:'dash',period:90,board:'solum',f:{owner:'',state:'',product:'',source:'',company:''},q:'',lead:null,modal:null,ibx:'',paste:'',parsed:null,cp:null};
 
-function api(a,body){
+var DEMO=false,REAL=null;
+function api(a,body){return DEMO&&a!=='parse'?demoApi(a,body||{}):realApi(a,body)}
+function realApi(a,body){
   return fetch('/api/sales',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({a:a},body||{}))}).then(function(r){
     return r.json().catch(function(){return {}}).then(function(j){
       if(r.status===401){S.error='signin';throw new Error('signin')}
@@ -242,6 +244,80 @@ function api(a,body){
 function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2800)}
 function fail(e){if(e&&e.message==='signin')return;toast(e&&e.message?e.message:'That did not work.')}
 
+
+/* ---------- Demo: a fully built-out sample pipeline to show the team. Nothing is saved or sent; Exit demo puts the real data back. ---------- */
+function rngf(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function demoState(){
+  var r=rngf(4112026),pick=function(a){return a[Math.floor(r()*a.length)]},DAYS=[0,2,2,2,3,2,2,0];
+  var FN=['Mia','Liam','Olivia','Noah','Charlotte','Oliver','Amelia','Jack','Isla','William','Grace','Ethan','Chloe','Lucas','Zoe','Henry','Ruby','Leo','Ella','Max','Hannah','Sam','Jade','Ben','Tess','Dan','Priya','Arjun','Mei','Kenji','Sophie','Harry','Lily','Tom'];
+  var LN=['Thompson','Nguyen','Patel','Walker','Harris','Kelly','Brown','Wilson','Martin','Taylor','Anderson','Clarke','Murray','Reid','Hughes','Singh','Chen','Lee','Fraser','Bell','Ward','Cooper','Foster','Graham','Hayes','Dunn','Marsh','Pearce'];
+  var MSG=['Looking for a granny flat for my parents.','Interested in a second dwelling on our block.','Want something for the back of the property, how soon can we get one?','Is this suitable for a coastal block?','Thinking about a studio for work from home.','Can you deliver to a rural block?','','','Do you do finance?','Seen the ad, love the look of the Char.'];
+  var companies=[
+    {id:'dc1',name:'Harbour Realty (sample)',legalName:'Harbour Realty Pty Ltd',kind:'Selling group',idType:'ABN',idNumber:'51824753556',idChecked:'ABN',licenceNo:'012345L',licenceState:'VIC',principal:'Sam Carter',landline:'03 9000 0000',mobile:'0400 000 111',email:'office@example.com',address:{street:'1 High St',suburb:'Mernda',state:'VIC',postcode:'3754'},states:['VIC','NSW']},
+    {id:'dc2',name:'Coastline Property (sample)',legalName:'Coastline Property Pty Ltd',kind:'Selling group',idType:'ACN',idNumber:'123456789',idChecked:'ACN',licenceNo:'QLD-554433',licenceState:'QLD',principal:'Jordan Blake',landline:'07 5500 0000',mobile:'0400 000 222',email:'sales@example.com',address:{street:'22 Beach Rd',suburb:'Coolum Beach',state:'QLD',postcode:'4573'},states:['QLD']}];
+  var agents=[
+    {id:'da1',companyId:'dc1',name:'Sam Carter',email:'sam@example.com',role:'Principal',mobile:'0400 000 111',licenceNo:'L-1001',licenceState:'VIC',states:['VIC'],active:true},
+    {id:'da2',companyId:'dc1',name:'Pat Reynolds',email:'pat@example.com',role:'Salesperson',mobile:'0400 000 112',licenceNo:'L-1002',licenceState:'VIC',states:['VIC'],active:true},
+    {id:'da3',companyId:'dc2',name:'Jordan Blake',email:'jordan@example.com',role:'Manager',mobile:'0400 000 222',licenceNo:'L-2001',licenceState:'QLD',states:['QLD'],active:true},
+    {id:'da4',companyId:'dc2',name:'Casey Moore',email:'casey@example.com',role:'Salesperson',mobile:'0400 000 223',licenceNo:'L-2002',licenceState:'QLD',states:['QLD'],active:true}];
+  var rules={NSW:'mf',ACT:'mf',NT:'mf',QLD:'mf',VIC:'jb',SA:'jb',WA:'jb',TAS:'jb',other:'jb'};
+  var stateList=['QLD','QLD','QLD','QLD','VIC','VIC','VIC','VIC','VIC','NSW','NSW','WA','SA','TAS','ACT','NT'];
+  var srcList=['Facebook','Facebook','Facebook','Instagram','Instagram','Google search','Google search','LinkedIn','Website direct','Other'];
+  var plan=[7,7,7,7,6,6,5,5,4,4,4,3,3,3,3,3];
+  var leads=[],orders=0;
+  for(var i=0;i<64;i++){
+    var concept=i>=56,forced=plan[i];
+    var maxStage=0,cstage=0,product;
+    var state=pick(stateList);
+    var src=(forced!=null&&forced>=3&&r()<.3)||(forced==null&&!concept&&r()<.09)?'Agent referral':pick(srcList);
+    var first=pick(FN),last=pick(LN);
+    if(concept){product=pick(OCTA);cstage=Math.floor(r()*4)}
+    else{product=pick(['studio','studio','studio','plus','plus','max','max','none']);if(forced!=null)maxStage=forced;else{var x=r();maxStage=x<.38?0:x<.7?1:2}}
+    var owner=rules[state]||rules.other,companyId='';
+    if(src==='Agent referral'){var ag=pick(agents);owner=ag.id;companyId=ag.companyId;state=ag.states[0]}
+    var lastAge=maxStage===7?(2+r()*28):maxStage===0?(r()<.6?r()*.25:r()<.7?.25+r()*1.0:3+r()*5):(r()<.86?r()*DAYS[maxStage]:DAYS[maxStage]+1+r()*3.5);
+    var lastTouch=now()-lastAge*DAY;
+    var lost=!concept&&forced==null&&maxStage>=1&&r()<.28;
+    var span=maxStage?(maxStage*(.8+r()*2.2)+(lost?5:0)):0;
+    var candAge=forced!=null?(forced>=5?32+r()*52:18+r()*34):maxStage===0?lastAge:maxStage===1?3+r()*26:6+r()*50;
+    var created=concept?now()-(r()*60+1)*DAY:Math.min(now()-candAge*DAY,lastTouch-span*DAY);
+    var dates=[created];for(var k=1;k<=maxStage;k++)dates[k]=created+(lastTouch-created)*k/maxStage;
+    var l={id:'D'+(1000+i),first:first,last:last,email:(first+'.'+last+(10+i)).toLowerCase()+'@example.com',mobile:'0400 000 '+String(100+i),state:state,setting:pick(SETTING),product:product,
+      clad:r()<.9?pick(Object.keys(CLAD)):'',pal:r()<.85?pick(Object.keys(PAL)):'',join:r()<.8?pick(Object.keys(JOIN)):'',pay:pick(PAY),deliv:pick(DELIV),msg:pick(MSG),source:src,otherSource:src==='Other'?'Trade show':'',
+      owner:owner,companyId:companyId,created:created,stage:maxStage,maxStage:maxStage,dates:dates,lastTouch:concept?now()-r()*14*DAY:lastTouch,status:lost?'lost':'open',lostWhy:lost?pick(['Bought elsewhere','No site yet','Price','Timing','Could not reach']):'',
+      concept:concept,cstage:cstage,eng:Math.floor(r()*70)+10,chk:{},act:[{t:created,x:'Enquiry received from '+src+'.',k:'sys'}]};
+    if(maxStage>=1)l.act.unshift({t:dates[1],x:'Called the customer and introduced HAAVN BLACK.',k:'note'});
+    for(var q=2;q<=maxStage;q++)l.act.unshift({t:dates[q],x:'Moved to '+STAGES[q].n+'.',k:'sys'});
+    if(maxStage===7){var step=[2,1,4,0,5,3][orders%6];l.order={step:step,eta:now()+(60-step*9)*DAY,site:pick(['12 Wattle Rd, Mount Cotton QLD','44 Station St, Yarra Glen VIC','7 Ocean View Dr, Torquay VIC','Lot 5 Hinterland Way, Maleny QLD','9 Gum Tree Ct, Margaret River WA','3 Bay St, Port Macquarie NSW']),lastUpdate:now()-[6,19,9,0,12,3][orders%6]*DAY,log:[],handoverAt:orders%3===0?undefined:now()-5*DAY};orders++}
+    leads.push(l);
+  }
+  var team=(S.team&&S.team.length)?S.team:[{id:'jb',name:'Jamie Baldwin'},{id:'mf',name:'Mike Furniss'}];
+  var body1='New SOLUM enquiry\n\nFirst name: Mia\nLast name: Brennan\nEmail: mia.brennan@example.com\nPhone: 0400 000 901\nSetting: Coast\nState: Queensland\nModel: SOLUM Plus\nCladding: Char\nPalette: Sage\nJoinery: Raw Walnut\nPreferred payment: Finance\nDelivery: Delivered\nMessage: Building a guest studio at the back of our Coolum block. When could we have it on site?\nutm_source: facebook';
+  var inbox=[
+    {id:'dm1',subject:'New enquiry from haavnblack.au: Mia Brennan',from_addr:'HAAVN BLACK website <no-reply@haavnblack.au>',received_at:new Date(now()-26*60000).toISOString(),status:'lead',lead_id:leads[leads.length-9].id,note:'',body:body1},
+    {id:'dm2',subject:'Quick question about delivery to Darwin',from_addr:'Someone <someone@gmail.com>',received_at:new Date(now()-3*HOUR).toISOString(),status:'review',lead_id:null,note:'A plain email, not the website form. Check it and create the lead if it is a customer.',body:'Hi, do you deliver to Darwin? We have a block north of the city and would love to know timing and cost. My number is 0412 345 678.\n\nThanks, Someone'},
+    {id:'dm3',subject:'New enquiry from haavnblack.au: Daniel Okafor',from_addr:'HAAVN BLACK website <no-reply@haavnblack.au>',received_at:new Date(now()-22*HOUR).toISOString(),status:'lead',lead_id:leads[leads.length-10].id,note:'',body:body1.replace('Mia','Daniel').replace('Brennan','Okafor').replace('Queensland','Victoria').replace('Coast','Country')}];
+  return {me:Object.assign({},S.me,{kind:'internal',admin:true,manager:false,companyId:''}),leads:leads,companies:companies,agents:agents,
+    settings:{rules:rules,agentKeep:true,prices:{studio:189000,plus:229000,max:259000},spend:{Facebook:2400,Instagram:1600,LinkedIn:900,'Google search':1800,'Website direct':0,Other:300},notify:{chat:true,push:true,task:true},team:['jb','mf'],contractAdmin:'ar'},
+    inbox:inbox,mail:{ok:true,mailbox:'sales@haavn.au',at:now()-120000,processed:0,leads:0},team:team,staff:S.staff||[],ready:true,error:'',setup:'',now:now()};
+}
+function demoApi(a,b){
+  var ok=function(v){return Promise.resolve(v)},bad=function(m){return Promise.reject(new Error(m))};
+  var find=function(id){return S.leads.find(function(x){return x.id===id})};
+  if(a==='poll')return ok({leads:[],inbox:S.inbox,mail:S.mail,now:now()});
+  if(a==='saveLead'){var l=find(b.lead.id);if(!l)return bad('No such lead.');l.maxStage=Math.max(l.maxStage||0,l.stage||0);if(l.stage>=7&&!l.order)l.order={step:0,eta:now()+77*DAY,site:'',lastUpdate:now(),log:[]};return ok({lead:Object.assign({},l)})}
+  if(a==='newLead'){var p=b.lead||{};if(!p.first)return bad('Add a first name.');var st=p.state||'';var o=p.owner||S.settings.rules[st]||S.settings.rules.other||'jb';
+    var n={id:'D'+(2000+S.leads.length),first:p.first,last:p.last||'',email:p.email||'',mobile:p.mobile||'',state:st,setting:p.setting||'Not sure yet',product:p.product||'none',clad:p.clad||'',pal:p.pal||'',join:p.join||'',pay:'No preference',deliv:'No preference',msg:p.msg||'',source:p.source||'Other',otherSource:p.otherSource||'',owner:o,companyId:(agentById(o)||{}).companyId||'',created:now(),stage:0,maxStage:0,dates:[now()],lastTouch:now(),status:'open',lostWhy:'',concept:!!(PRODUCTS[p.product]&&PRODUCTS[p.product].concept),cstage:0,eng:20,chk:{},act:[{t:now(),x:'Enquiry received from '+(p.source||'Other')+', added in the demo.',k:'sys'}]};
+    S.leads.unshift(n);return ok({lead:Object.assign({},n),dup:false})}
+  if(a==='companySave'){var c=b.company||{},i=S.companies.findIndex(function(x){return x.id===c.id});var rec=Object.assign({kind:'Selling group',idType:/^\d{9}$/.test(String(c.idNumber||'').replace(/\D/g,''))?'ACN':'ABN',idChecked:'ABN'},c,{id:c.id||'dc'+(S.companies.length+10)});if(i<0)S.companies.push(rec);else S.companies[i]=rec;return ok({company:rec})}
+  if(a==='agentSave'){var g=b.agent||{},j=S.agents.findIndex(function(x){return x.id===g.id});var ar=Object.assign({},g,{id:g.id||'da'+(S.agents.length+10),active:g.active!==false});if(j<0)S.agents.push(ar);else S.agents[j]=ar;return ok({agent:ar,signIn:'added'})}
+  if(a==='settingsSave'){var s2=b.settings||{};['rules','prices','spend','notify'].forEach(function(k){if(s2[k])S.settings[k]=Object.assign({},S.settings[k],s2[k])});if(s2.agentKeep!==undefined)S.settings.agentKeep=s2.agentKeep;if(s2.contractAdmin!==undefined)S.settings.contractAdmin=s2.contractAdmin;return ok({settings:S.settings})}
+  if(a==='inboxCreate'){var row=S.inbox.find(function(x){return x.id===b.id});var pp=b.parsed||{};return demoApi('newLead',{lead:{first:pp.first,last:pp.last,email:pp.email,mobile:pp.mobile,state:pp.state,product:pp.product,source:'Website direct'}}).then(function(j){if(row){row.status='lead';row.lead_id=j.lead.id}return j})}
+  if(a==='inboxDismiss'){var r2=S.inbox.find(function(x){return x.id===b.id});if(r2)r2.status='dismissed';return ok({ok:true})}
+  if(a==='emailCustomer'||a==='handover'){var le=find(b.id);if(!le)return bad('No such lead.');le.act.unshift({t:now(),x:a==='handover'?'Handover sent to projects@haavn.au (demo, nothing was sent).':'Emailed the customer (demo, nothing was sent).',k:'note'});if(a==='handover'&&le.order)le.order.handoverAt=now();return ok({ok:true,lead:Object.assign({},le)})}
+  return bad('That is not available in the demo.');
+}
+
 function load(){
   return api('init').then(function(j){
     S.me=j.me;S.leads=j.leads;S.companies=j.companies||[];S.agents=j.agents||[];S.settings=j.settings;S.inbox=j.inbox||[];S.mail=j.mail;S.team=j.team||[];S.staff=j.staff||[];S.now=j.now;S.ready=true;S.error='';S.setup='';
@@ -249,7 +325,7 @@ function load(){
   }).catch(function(e){S.ready=true;if(!S.error&&!S.setup)S.error=e.message});
 }
 function poll(){
-  if(!S.me||document.hidden||UI.modal)return;
+  if(DEMO||!S.me||document.hidden||UI.modal)return;
   api('poll',{since:S.now}).then(function(j){
     var changed=false;
     j.leads.forEach(function(l){var i=S.leads.findIndex(function(x){return x.id===l.id});if(i<0){S.leads.unshift(l);changed=true}else if(l.updated>(S.leads[i].updated||0)){S.leads[i]=l;changed=true}});
@@ -259,7 +335,7 @@ function poll(){
     announce();
   }).catch(function(){});
 }
-function announce(){try{parent.postMessage({hbSales:{open:S.leads.filter(function(l){return l.status==='open'&&!l.concept&&l.stage<7}).length}},'*')}catch(e){}}
+function announce(){if(DEMO)return;try{parent.postMessage({hbSales:{open:S.leads.filter(function(l){return l.status==='open'&&!l.concept&&l.stage<7}).length}},'*')}catch(e){}}
 
 /* ---------- helpers ---------- */
 function agentById(id){return S.agents.find(function(a){return a.id===id})}
@@ -337,7 +413,7 @@ function render(){
   else{
     var unread=S.inbox.filter(function(e){return e.status==='review'}).length;
     var tabs=TABS.filter(function(t){return !t[2]||isInternal()});
-    h='<div class="stagestrip">'+tabs.map(function(t){return '<button class="stagechip '+(UI.view===t[0]?'on':'')+'" data-act="nav" data-k="'+t[0]+'">'+t[1]+(t[0]==='inbox'&&unread?'<span class="n">'+unread+'</span>':'')+'</button>'}).join('')+'<span class="sp"></span><button class="btn gold sm" data-act="newlead">+ New lead</button></div>';
+    h=(DEMO?'<div class="banner warn"><div class="row wrapx"><div><b>Demo mode.</b> This is sample data to show how the system works. Nothing here is saved, sent or shared, and no real customer is touched. Click around, move leads, add one.</div><span class="sp"></span><button class="btn gold sm" data-act="exitdemo">Exit demo</button></div></div>':'')+'<div class="stagestrip">'+tabs.map(function(t){return '<button class="stagechip '+(UI.view===t[0]?'on':'')+'" data-act="nav" data-k="'+t[0]+'">'+t[1]+(t[0]==='inbox'&&unread?'<span class="n">'+unread+'</span>':'')+'</button>'}).join('')+'<span class="sp"></span>'+(isInternal()&&!DEMO?'<button class="btn sm" data-act="demo" title="Show the system with sample data">Demo</button> ':'')+'<button class="btn gold sm" data-act="newlead">+ New lead</button></div>';
     if(tabs.every(function(t){return t[0]!==UI.view}))UI.view='dash';
     h+=({dash:vDash,pipe:vPipe,leads:vLeads,inbox:vInbox,orders:vOrders,agents:vAgents,setup:vSetup})[UI.view]();
   }
@@ -534,6 +610,8 @@ function pickedStates(id){return $$('#'+id+' .pickchip.on').map(function(b){retu
 
 /* ---------- actions ---------- */
 var A={
+  demo:function(){REAL={S:S,UI:Object.assign({},UI,{f:Object.assign({},UI.f)})};DEMO=true;S=demoState();UI.view='dash';UI.lead=null;UI.modal=null;UI.cp=null;UI.board='solum';UI.f={owner:'',state:'',product:'',source:'',company:''};UI.q='';window.__sales.S=S},
+  exitdemo:function(){DEMO=false;S=REAL.S;Object.assign(UI,REAL.UI);UI.lead=null;UI.modal=null;REAL=null;window.__sales.S=S;load().then(render)},
   reload:function(){S.error='';S.ready=false;load().then(render)},
   nav:function(t){UI.view=t.dataset.k;UI.cp=null;UI.lead=null},
   period:function(t){UI.period=+t.dataset.v},board:function(t){UI.board=t.dataset.v},
