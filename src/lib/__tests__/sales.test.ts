@@ -83,7 +83,7 @@ describe('reading an enquiry email', () => {
     const src = (u: string) => S.parseEnquiry(FORM({ utm: u }))
     expect(src('instagram').source).toBe('Instagram'); expect(src('linkedin').source).toBe('LinkedIn'); expect(src('google').source).toBe('Google search')
     expect(src('tiktok')).toMatchObject({ source: 'Other', otherSource: 'tiktok' })
-    expect(S.parseEnquiry(FORM().replace(/utm_source:.*/, '')).source).toBe('Website direct')
+    expect(S.parseEnquiry(FORM().replace(/utm_source:.*/, '')).source).toBe('Facebook')
     expect(S.parseEnquiry(FORM({ model: 'OCTA Max' })).product).toBe('octamax')
   })
   it('copes with a plain email from a customer: name from the sender, contact from the text', () => {
@@ -245,6 +245,13 @@ describe('working a lead through the stages', () => {
     F.mail.configured = false
     await expect(run('handover', { id: l.id }, mike)).rejects.toThrow(/not set up/)
   })
+  it('keeps the spend start date and ignores a bad one', async () => {
+    const r = await run('settingsSave', { settings: { spendFrom: '2026-11-01' } })
+    expect(r.settings.spendFrom).toBe('2026-11-01')
+    const r2 = await run('settingsSave', { settings: { spendFrom: 'soon' } })
+    expect(r2.settings.spendFrom).toBe('2026-11-01')
+  })
+
   it('only a director changes prices, spend and routing', async () => {
     const r = await run('settingsSave', { settings: { prices: { studio: '189,000' }, spend: { Facebook: 2400 }, rules: { NT: 'mf' }, notify: { push: false } } })
     expect(r.settings.prices.studio).toBe(189000); expect(r.settings.spend.Facebook).toBe(2400); expect(r.settings.rules.NT).toBe('mf'); expect(r.settings.notify.push).toBe(false)
@@ -422,7 +429,7 @@ describe('the website\'s own registration email', () => {
   const REG = `New registration · haavnblack.au\r\nLen Example\r\nContact\r\nEmail len.example@example.com \r\nState Victoria\r\nSetting Country\r\nTheir SOLUM\r\nModel SOLUM Plus\r\nCladding Urbanite\r\nInterior Tide\r\nJoinery Dark Oak\r\nDelivery Delivered\r\nPayment Cash\r\nReply to this email to answer Len directly.\r\nReceived Tuesday, 3 November 2026 at 10:33 pm.`
   const SHORT = `New registration · haavnblack.au\r\nTEST TEST RUN\r\nContact\r\nEmail test@example.com \r\nPhone 0416922911 \r\nState Victoria\r\nSetting City\r\nReply to this email to answer TEST directly.`
   it('reads the name, contact, state, home and every finish from the real layout', () => {
-    expect(S.parseEnquiry(REG, { from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Len Example · SOLUM Plus · VIC' })).toMatchObject({ first: 'Len', last: 'Example', email: 'len.example@example.com', state: 'VIC', setting: 'Country', product: 'plus', clad: 'Urbanite', pal: 'Tide', join: 'Dark Oak', deliv: 'Delivered', pay: 'Cash', source: 'Website direct', complete: true, formLike: true })
+    expect(S.parseEnquiry(REG, { from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Len Example · SOLUM Plus · VIC' })).toMatchObject({ first: 'Len', last: 'Example', email: 'len.example@example.com', state: 'VIC', setting: 'Country', product: 'plus', clad: 'Urbanite', pal: 'Tide', join: 'Dark Oak', deliv: 'Delivered', pay: 'Cash', source: 'Facebook', complete: true, formLike: true })
     expect(S.parseEnquiry(SHORT, { subject: 'Registration: TEST TEST RUN · VIC' })).toMatchObject({ first: 'TEST', last: 'TEST RUN', mobile: '0416922911', state: 'VIC', product: 'none', formLike: true })
   })
   it('becomes a lead, and an email held earlier is read again and made a lead once the reader understands it', async () => {

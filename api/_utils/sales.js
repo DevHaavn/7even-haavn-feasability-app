@@ -48,6 +48,7 @@ const DEFAULTS = {
   preorder: 2000,
   approvers: { con: ['ar'], fin: ['ab', 'dm'] },
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
+  spendFrom: '2026-11-01',
   notify: { chat: true, push: true, task: true },
   team: ['jb', 'mf'],
   commission: { rates: { int: { studio: 3000, plus: 4000, max: 5000 }, ext: { studio: 5000, plus: 6500, max: 8000 } }, off: [] },   // half when the 10% deposit is confirmed, half on delivery. off = people switched off
@@ -111,7 +112,7 @@ function parseEnquiry(text, meta = {}) {
   else if (/studio/.test(model)) product = 'studio'; else if (/plus/.test(model)) product = 'plus'; else if (/max/.test(model)) product = 'max'
   const pickOf = (val, list) => list.find((k) => lower(val).includes(lower(k))) || ''
   const utm = lower(g('utmsource', 'source', 'utmmedium', 'leadsource', 'campaignsource'))
-  let source = 'Website direct', otherSource = ''
+  let source = 'Facebook', otherSource = ''
   if (/face|meta|fb/.test(utm)) source = 'Facebook'; else if (/insta|^ig/.test(utm)) source = 'Instagram'; else if (/linked/.test(utm)) source = 'LinkedIn'
   else if (/google|search|cpc|ppc/.test(utm)) source = 'Google search'; else if (/agent|referral/.test(utm)) source = 'Agent referral'
   else if (utm && !/^(website|web|direct|organic|none|\(direct\))$/.test(utm)) { source = 'Other'; otherSource = clean(utm, 60) }
@@ -153,7 +154,7 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix']
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual']
 const SERVER_KEYS = ['cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
 function leadOut(row) {
   const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
@@ -718,7 +719,8 @@ async function run(action, a, session, deps) {
       if (!approvers.con.length || !approvers.fin.length) throw new SalesError('Choose at least one person for Contract admin and one for Finance.')
       const preorder = s.preorder !== undefined ? (num(s.preorder) || cur.preorder) : cur.preorder
       const inboxKeep = s.inboxKeep !== undefined && [0, 7, 14, 30, 60].includes(Number(s.inboxKeep)) ? Number(s.inboxKeep) : cur.inboxKeep
-      const next = { pricesV: PRICES_V, commission: cur.commission, inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
+      const spendFrom = /^\d{4}-\d{2}-\d{2}$/.test(String(s.spendFrom || '')) ? String(s.spendFrom) : cur.spendFrom
+      const next = { pricesV: PRICES_V, commission: cur.commission, inboxKeep, spendFrom, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }
