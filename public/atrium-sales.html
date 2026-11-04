@@ -420,6 +420,63 @@ body.embed .brand{display:none}
 body.embed .tb{padding-left:20px}
 body.embed .wrap{padding-top:22px}
 @media(max-width:900px){.grid2,.grid3,.formgrid{grid-template-columns:1fr}}
+
+/* ---------- commission ---------- */
+.cmgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.cmamt{font:300 17px/1.1 var(--sans);letter-spacing:-.01em;color:var(--ink);margin-top:6px}
+.cmbar{display:flex;height:4px;border-radius:4px;overflow:hidden;background:var(--edge2);margin-top:7px;min-width:90px}
+.cmbar i{display:block;height:100%}
+.cmbar .p{background:var(--sage)}.cmbar .d{background:var(--gold)}.cmbar .h{background:var(--tide)}.cmbar .l{background:var(--ink4)}
+.cmkey{display:flex;gap:14px;flex-wrap:wrap;color:var(--ink3);font-size:11.5px}
+.cmkey span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;background:var(--k)}
+.cmkey span:last-child::before{display:none}
+.rates{padding:0 18px 8px}
+.rates table td,.rates table th{padding:11px 4px}
+.rates input{width:92px;text-align:right;padding:6px 8px}
+.rates td.lab{color:var(--ink)}
+.rates td.lab small{display:inline;margin-left:8px;color:var(--ink3);font-size:11px}
+.flow{padding:4px 18px 16px;display:flex;flex-direction:column}
+.fstep{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--edge2);align-items:start}
+.fstep:first-child{border-top:0}
+.fstep b{font-weight:400;color:var(--ink)}
+.fstep small{display:block;color:var(--ink3);font-size:11.5px;margin-top:3px}
+.split{display:flex;height:6px;border-radius:4px;overflow:hidden;margin:2px 18px 14px;gap:3px}
+.split i{flex:1;background:var(--gold);opacity:.9}.split i+i{background:var(--sage)}
+.earn{display:flex;align-items:center;gap:10px;padding:10px 18px;border-top:1px solid var(--edge2)}
+.earn .nm{flex:1;min-width:0}.earn .nm b{display:block;font-weight:400;color:var(--ink)}.earn .nm span{color:var(--ink3);font-size:11.5px}
+.gcard{margin-bottom:16px}
+.gcard .gh{display:flex;align-items:center;gap:14px;padding:16px 18px 12px;flex-wrap:wrap}
+.gcard .gh h3{font:300 18px var(--sans)}
+.gcard .gt{display:flex;gap:24px;margin-left:auto}
+.gcard .gt div{text-align:right}.gcard .gt b{display:block;font:300 20px/1 var(--sans);letter-spacing:-.01em;font-weight:300}.gcard .gt span{font:500 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.notes{padding:4px 18px 16px;color:var(--ink2);font-size:12.5px;display:flex;flex-direction:column;gap:8px}
+.notes div{display:flex;gap:10px}.notes div::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:7px}
+.notes b{color:var(--ink);font-weight:500}
+.hc{min-width:150px}
+.mystats{display:flex;gap:44px;padding:2px 18px 18px;flex-wrap:wrap}
+.mystats b{display:block;font:300 28px/1 var(--sans);letter-spacing:-.01em;margin-bottom:8px}
+.mystats span{font:500 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.drawer.wide{width:min(980px,100%)}
+.stg{display:flex;flex-direction:column;margin-top:8px}
+.stgi{display:grid;grid-template-columns:28px 1fr auto;gap:14px;padding:16px 0;border-top:1px solid var(--edge2);align-items:start}
+.stgi:first-child{border-top:0}
+.stgi b{font-weight:400;color:var(--ink)}
+.stgi small{display:block;color:var(--ink3);font-size:11.5px;margin-top:3px}
+.stgi .meta2{color:var(--ink3);font-size:11.5px;margin-top:6px}
+.stgi.paid .gm{background:var(--sage)}
+.stgi.later .gm,.stgi.hold .gm{background:var(--edge);color:var(--ink2)}
+.stgi .btn{margin-top:8px}
+.staged{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.dn{padding:12px 0;border-top:1px solid var(--edge2);color:var(--ink2);font-size:12.5px}
+.dn .m{color:var(--ink3);font-size:11.5px;margin-bottom:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dn .m b{color:var(--ink);font-weight:400}
+.cmgrid td.tt,.cmgrid td.tt .small,.drawer td.tt,.drawer td.tt .small{white-space:normal}
+.cmgrid td.tt .small{max-width:300px}
+.tabs button{white-space:nowrap;padding:0 13px}
+.tabs button.on::after{left:13px;right:13px}
+@media(max-width:1500px){.brand .bar,.brand .eb{display:none}.tb{gap:14px}}
+@media(max-width:1340px){.me>span:last-child{display:none}.tabs button{padding:0 10px}.tabs button.on::after{left:10px;right:10px}}
+@media(max-width:1180px){.cmgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body data-tab="desk">
@@ -552,6 +609,7 @@ function poll(){
     S.mail=j.mail;S.now=j.now;
     if(changed&&!UI.lead&&document.activeElement&&['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName)<0)render();
     announce();
+    if(S.me&&S.me.commission&&S.me.commission!=='none'&&!UI.deal&&!UI.stmt)cmLoad(true);
   }).catch(function(){});
 }
 function announce(){try{parent.postMessage({hbSales:{open:S.leads.filter(function(l){return l.status==='open'&&!l.concept&&l.stage<7}).length}},'*')}catch(e){}}
@@ -698,14 +756,15 @@ function advance(l){
 }
 
 /* ---------- the top bar ---------- */
-var TABS=[['desk','Desk'],['pipe','Pipeline'],['appr','Approvals',1],['dash','Dashboard'],['leads','All leads'],['inbox','Inbox',1],['orders','Orders'],['agents','Agents'],['setup','Setup',1]];
+function tabsFor(){return TABS.filter(function(t){return (!t[2]||isInternal())&&(t[0]!=='comm'||(S.me&&S.me.commission&&S.me.commission!=='none'))})}
+var TABS=[['desk','Desk'],['pipe','Pipeline'],['appr','Approvals',1],['dash','Dashboard'],['comm','Commission'],['leads','All leads'],['inbox','Inbox',1],['orders','Orders'],['agents','Agents'],['setup','Setup',1]];
 function topHTML(){
   var m=S.me,tabs='',right='';
   if(m&&S.ready&&!S.error&&!S.setup){
     var its=ITEMS().filter(mine),unread=S.inbox.filter(function(e){return e.status==='review'}).length;
     var ap=its.filter(function(i){return i.k==='approve'&&canGate(i.gate)}).length,ov=its.filter(function(i){return i.over||i.urgent}).length;
-    tabs='<nav class="tabs">'+TABS.filter(function(t){return !t[2]||isInternal()}).map(function(t){
-      var b=t[0]==='desk'&&ov?'<span class="nb hot">'+ov+'</span>':t[0]==='appr'&&ap?'<span class="nb">'+ap+'</span>':t[0]==='inbox'&&unread?'<span class="nb">'+unread+'</span>':'';
+    tabs='<nav class="tabs">'+tabsFor().map(function(t){
+      var b=t[0]==='desk'&&ov?'<span class="nb hot">'+ov+'</span>':t[0]==='appr'&&ap?'<span class="nb">'+ap+'</span>':t[0]==='inbox'&&unread?'<span class="nb">'+unread+'</span>':t[0]==='comm'&&cmDue()?'<span class="nb">'+cmDue()+'</span>':'';
       return '<button class="'+(UI.view===t[0]?'on':'')+'" data-act="nav" data-k="'+t[0]+'">'+t[1]+b+'</button>'}).join('')+'</nav>';
     right='<button class="btn gold sm" data-act="newlead">+ New lead</button><span class="me">'+av(m.id)+'<span>'+esc(m.name)+'</span></span>'+(EMBED?'':'<button class="ic" data-act="theme" title="Light or dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="btn sm ghost" href="/">ATRIUM</a>');
   }
@@ -723,9 +782,9 @@ function render(){
   else if(S.setup){h='<div class="signin card"><div class="eb">One step left</div><h2 style="font:300 22px var(--sans);margin:10px 0">The sales database is not ready</h2><p class="small">'+esc(S.setup)+'</p></div>'}
   else if(S.error){h='<div class="signin card"><h2 style="font:300 22px var(--sans);margin-bottom:10px">Could not open sales</h2><p class="small">'+esc(S.error)+'</p><div style="margin-top:16px"><button class="btn" data-act="reload">Try again</button></div></div>'}
   else{
-    var tabs=TABS.filter(function(t){return !t[2]||isInternal()});
+    var tabs=tabsFor();
     if(tabs.every(function(t){return t[0]!==UI.view}))UI.view='desk';
-    h=({desk:vDesk,pipe:vPipe,appr:vAppr,dash:vDash,leads:vLeads,inbox:vInbox,orders:vOrders,agents:vAgents,setup:vSetup})[UI.view]();
+    h=({desk:vDesk,pipe:vPipe,appr:vAppr,dash:vDash,comm:vComm,leads:vLeads,inbox:vInbox,orders:vOrders,agents:vAgents,setup:vSetup})[UI.view]();
   }
   document.body.dataset.tab=UI.view;
   $('#app').innerHTML=h;renderDrawer();renderModal();
@@ -1104,7 +1163,12 @@ function acts(l){
   return (l.act||[]).slice(0,16).map(function(x){return '<div><span class="d">'+fmtD(x.t)+'</span><span>'+esc(x.x)+'</span></div>'}).join('');
 }
 function renderDrawer(){
-  var d=$('#drawer'),l=UI.lead?lead(UI.lead):null;d.classList.toggle('on',!!l);$('#shade').classList.toggle('on',!!l||!!UI.modal);
+  var d=$('#drawer'),l=UI.lead?lead(UI.lead):null,cm=S.comm;
+  if(UI.stmt&&(!cm||cm.role!=='office'))UI.stmt=null;   /* an agent never opens anyone else's statement */
+  if(UI.deal&&(!cm||(!cmLine(UI.deal)&&cm.role!=='office')))UI.deal=null;
+  d.classList.toggle('on',!!l||!!UI.stmt||!!UI.deal);d.classList.toggle('wide',!!UI.stmt&&!l&&!UI.deal);$('#shade').classList.toggle('on',!!l||!!UI.stmt||!!UI.deal||!!UI.modal);
+  if(UI.deal&&!l){d.innerHTML=cmDeal(UI.deal);return}
+  if(UI.stmt&&!l){d.innerHTML=cmStmt(UI.stmt);return}
   if(!l){d.innerHTML='';return}
   var it=itemOf(l),st=ST[l.stage],ph=PH[st.ph],p=PRODUCTS[l.product]||PRODUCTS.none,o=l.order;
   var ownerSel=(isInternal()||S.me.manager)?'<label class="f">Owner<select data-chg="owner">'+ownerOpts(l.owner)+'</select></label>':'<div class="small">Owner: '+esc(ownerName(l.owner))+'</div>';
@@ -1125,8 +1189,9 @@ function renderDrawer(){
 /* ---------- modals ---------- */
 function sk(sel){return SK.map(function(k){return '<button type="button" class="pickchip '+(sel.indexOf(k)>=0?'on':'')+'" data-act="pickstate" data-k="'+k+'">'+k+'</button>'}).join('')}
 function renderModal(){
-  var m=UI.modal,el=$('#modal');el.classList.toggle('on',!!m);$('#shade').classList.toggle('on',!!UI.lead||!!m);
+  var m=UI.modal,el=$('#modal');el.classList.toggle('on',!!m);$('#shade').classList.toggle('on',!!UI.lead||!!UI.stmt||!!UI.deal||!!m);
   if(!m){$('#mbody').innerHTML='';return}
+  if(m.undo){$('#mbody').classList.remove('wide');$('#mbody').innerHTML=cmUndoModal(m.undo);return}
   var mb=$('#mbody'),h='';mb.classList.toggle('wide',m.t==='co'||m.t==='ag');
   if(m.t==='msg'){var l=lead(m.id);h='<h4>'+(m.chase?'Chase ':'Message to ')+esc(l.first)+'</h4><p class="lead">'+esc(ST[l.stage].n)+'. Edit it, then send it from here or copy it.'+(m.chase?' It is noted on the customer as chased.':'')+'</p><label class="f">Subject<input id="msubj" value="'+esc(m.chase?'Your HAAVN BLACK home: a quick reminder':'Your HAAVN BLACK home')+'"></label><label class="f">Message<textarea id="mtxt" style="min-height:200px">'+esc(tpl(l,m.chase?(l.gate==='out'?'out':l.gate==='pre'?'pre':l.gate==='dep'?'dep':l.gate==='final'?'final':null):null))+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Close</button><button class="btn" data-act="mcopy">Copy and log as sent</button>'+(l.email?'<button class="btn gold" data-act="msend">Email to '+esc(l.email)+'</button>':'')+'</div>'}
   else if(m.t==='concept'){var l1=lead(m.id);var tt='Hi '+l1.first+', a quick update on the '+home(l1)+': we have new renders to share and the design is moving along nicely. If you tell me roughly where you would place it and when you would want it, I can keep your spot as pre-orders get closer. '+S.me.name.split(' ')[0];h='<h4>Concept update</h4><label class="f">Subject<input id="msubj" value="An update on '+esc(home(l1))+'"></label><label class="f">Message<textarea id="mtxt" style="min-height:160px">'+esc(tt)+'</textarea></label><div class="foot"><button class="btn" data-act="mclose">Close</button><button class="btn" data-act="cexec">Copy and log as sent</button>'+(l1.email?'<button class="btn gold" data-act="csend">Email to '+esc(l1.email)+'</button>':'')+'</div>'}
@@ -1155,14 +1220,14 @@ function tryMove(id,to){
 }
 var A={
  reload:function(){S.error='';S.ready=false;load().then(render)},
- nav:function(t){UI.view=t.dataset.k;UI.cp=null;UI.lead=null;window.scrollTo(0,0)},
+ nav:function(t){UI.view=t.dataset.k;UI.cp=null;UI.lead=null;UI.deal=null;UI.stmt=null;window.scrollTo(0,0);if(UI.view==='comm')cmLoad(true)},
  theme:function(){var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';try{localStorage.setItem('atrium_theme',t)}catch(e){}applyTheme()},
  dk:function(t){UI.dk=t.dataset.k},role:function(t){UI.role=t.dataset.k;UI.sel=null},gate:function(t){UI.role=t.dataset.k;UI.sel=null},
  dens:function(t){UI.dens=t.dataset.k},needs:function(){UI.f.needs=!UI.f.needs},showtest:function(){UI.showTest=!UI.showTest},
  board:function(t){UI.board=t.dataset.v},period:function(t){UI.period=+t.dataset.v},dashmode:function(t){UI.dash=t.dataset.v},
  goto:function(t){centre(+t.dataset.i);return false},
  pg:function(t){var b=$('#board'),c=$('.kcol');if(!b||!c)return false;b.scrollBy({left:(+t.dataset.d)*(c.offsetWidth+10),behavior:'smooth'});return false},
- open:function(t){UI.lead=t.dataset.id},close:function(){UI.lead=null},selai:function(t){UI.sel=t.dataset.id},
+ open:function(t){UI.lead=t.dataset.id},close:function(){if(UI.lead)UI.lead=null;else if(UI.deal)UI.deal=null;else UI.stmt=null},selai:function(t){UI.sel=t.dataset.id},
  review:function(t){UI.view='appr';UI.role='mine';UI.sel=t.dataset.id;UI.lead=null;window.scrollTo(0,0)},
  ck:function(t){var k=t.dataset.id+t.dataset.g,a=(UI.chk[k]||[]).slice();a[+t.dataset.i]=!a[+t.dataset.i];UI.chk[k]=a},
  approve:function(t){
@@ -1227,16 +1292,182 @@ var A={
  csv:function(){var cols=['id','first','last','mobile','email','state','product','clad','pal','join','source','owner','stage','status'];var rows=[cols.concat(['created'])].concat(S.leads.map(function(l){return cols.map(function(c){return c==='owner'?ownerName(l.owner):c==='stage'?ST[l.stage].n:l[c]||''}).concat([new Date(l.created).toISOString()])}));
   var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haavn-black-leads.csv';a.click();return false}
 };
+
+/* ---------- COMMISSION: who is owed what, and when it is paid ---------- */
+/* The server decides what each person may see (api/_utils/sales.js, the `commission` action): directors and the admin team get everyone, an agent gets only their own, and only Finance and directors may change anything. */
+UI.cm={mode:'agent',f:'all',o:''};UI.stmt=null;UI.deal=null;
+var CMF=[['all','All'],['due','Due now'],['paid','Paid'],['hold','On hold'],['later','Coming']];
+var EARNNOTE={jb:'Director, holding Victoria until a selling agent is appointed'};
+function cmLoad(quiet){
+  return api('commission').then(function(j){S.comm=j;S.commErr='';if(quiet&&UI.view!=='comm')$('#top').innerHTML=topHTML();else if(!(quiet&&(UI.deal||UI.stmt||UI.modal)))render()}).catch(function(e){if(e&&e.message==='signin')return;S.commErr=e&&e.message?e.message:'That did not work.';if(UI.view==='comm')render()});
+}
+function cmInit(){if(S.me&&S.me.commission&&S.me.commission!=='none')cmLoad(true)}
+function cmLines(){return (S.comm&&S.comm.lines)||[]}
+function cmLine(id){return cmLines().filter(function(c){return c.id===id})[0]}
+function cmSet(line){var a=S.comm.lines,i=a.findIndex(function(x){return x.id===line.id});if(i>=0)a[i]=line;else a.push(line)}
+function cmSum(lines){var t={paid:0,due:0,hold:0,later:0,dueN:0,holdN:0,n:lines.length,orders:0};lines.forEach(function(c){if(c.stage>=7)t.orders++;c.h.forEach(function(h){t[h.st]+=h.amt;if(h.st==='due')t.dueN++;if(h.st==='hold')t.holdN++})});t.all=t.paid+t.due+t.hold+t.later;return t}
+function cmPaid30(lines){var s=0;lines.forEach(function(c){c.h.forEach(function(h){if(h.st==='paid'&&h.paidAt>now()-30*DAY)s+=h.amt})});return s}
+function cmDue(){return S.comm?cmSum(cmLines()).dueN:0}
+function cmCanPay(c,n){if(!S.comm||!S.comm.canPay||c.hold)return false;var h=c.h[n-1];if(h.st!=='due')return false;if(n===2&&c.h[0].st!=='paid')return false;return true}
+function cmKind(c){return c.kind==='external'?'External agent':c.own?'Own lead, external rate':c.owner==='jb'?'Victoria, internal rate':'HAAVN lead, internal rate'}
+function cmBar(t){var a=Math.max(1,t.all);return '<div class="cmbar" title="Paid '+money(t.paid)+', due '+money(t.due)+', on hold '+money(t.hold)+', coming '+money(t.later)+'"><i class="p" style="width:'+t.paid/a*100+'%"></i><i class="d" style="width:'+t.due/a*100+'%"></i><i class="h" style="width:'+t.hold/a*100+'%"></i><i class="l" style="width:'+t.later/a*100+'%"></i></div>'}
+function cmHalf(h,c){
+  var amt='<div class="cmamt">'+money(h.amt)+'</div>',pay=S.comm.canPay;
+  if(h.st==='paid')return '<div class="hc"><span class="chip ok">Paid '+fmtD(h.paidAt)+'</span>'+amt+'</div>';
+  if(h.st==='hold')return '<div class="hc"><span class="chip tide">On hold</span>'+amt+'</div>';
+  if(h.st==='due')return '<div class="hc"><span class="chip gold">Due since '+fmtD(h.at)+'</span>'+amt+(pay&&cmCanPay(c,h.n)?'<button class="btn sm gold" data-act="cmpay" data-id="'+c.id+'" data-h="'+h.n+'">Mark paid</button>':(h.n===2&&c.h[0].st!=='paid'?'<div class="small" style="margin-top:6px">After the first half</div>':''))+'</div>';
+  return '<div class="hc"><span class="chip">'+(h.n===1?'After the 10% deposit':'On delivery')+'</span>'+amt+'</div>';
+}
+function cmHead(showAgent){return '<thead><tr>'+(showAgent?'<th>Agent</th>':'')+'<th>Customer</th><th>Home</th><th>How it counts</th><th class="num">Commission</th><th>First half, 50%</th><th>Second half, 50%</th></tr></thead>'}
+function cmRows(lines,showAgent){
+  return lines.slice().sort(function(a,b){return (b.h[0].at||0)-(a.h[0].at||0)||(a.last>b.last?1:-1)}).map(function(c){var l=lead(c.id);
+    return '<tr class="click" data-act="deal" data-id="'+c.id+'">'+(showAgent?'<td class="tt"><span class="row" style="gap:8px">'+av(c.owner)+esc(firstName(c.owner))+'</span></td>':'')+'<td class="tt">'+esc((c.first+' '+c.last).trim())+'<div class="small">'+(l?sws(l)+' ':'')+esc(ST[c.stage].n)+'</div></td><td>'+esc((PRODUCTS[c.home]||{}).n||'')+'</td><td><span class="chip '+(c.ext?'gold':'')+'">'+esc(cmKind(c))+'</span></td><td class="num">'+money(c.rate)+'</td><td>'+cmHalf(c.h[0],c)+'</td><td>'+cmHalf(c.h[1],c)+'</td></tr>'}).join('')||'<tr><td colspan="'+(showAgent?7:6)+'" class="empty">Nothing yet</td></tr>';
+}
+function cmFlow(){
+  return '<div class="nc panel"><div class="ph"><h3>How commission is <span class="serif">paid</span></h3></div><div class="split"><i></i><i></i></div><div class="flow">'+
+   '<div class="fstep"><i class="gm">1</i><div><b>Half</b> when the contract is unconditional and the 10% deposit is confirmed<small>The moment Finance confirms the 10% deposit in Approvals</small></div></div>'+
+   '<div class="fstep"><i class="gm">2</i><div><b>Half</b> when the home is delivered<small>The moment projects mark it Delivered and installed</small></div></div></div></div>';
+}
+function cmRates(office){
+  var r=S.comm.rates,edit=S.comm.canEdit,ext=!r.int;
+  var cols=(edit||office)?[['int','Internal'],['ext','External']]:ext?[['ext','Your rate']]:[['int','Internal'],['ext','Own lead']];
+  var rows=SOLUM.map(function(k){return '<tr><td class="lab">'+PRODUCTS[k].s+'<small>'+PRODUCTS[k].m2+' m²</small></td>'+cols.map(function(c){return '<td class="num">'+(edit?'<input data-chg="rate:'+c[0]+':'+k+'" value="'+r[c[0]][k]+'">':money(r[c[0]][k]))+'</td>'}).join('')+'</tr>'}).join('');
+  var notes=(edit||office)?'<div><b>Internal</b> is for leads HAAVN BLACK generates.</div><div><b>External</b> is for external agents on their own leads, and for an internal agent who brings in their own lead.</div>':ext?'<div>Your rate, on every customer you bring in yourself.</div>':'<div><b>Internal</b> is for leads HAAVN BLACK gives you.</div><div><b>Own lead</b> is the rate when you bring in a customer yourself.</div>';
+  return '<div class="nc panel"><div class="ph"><h3>Commission <span class="serif">rates</span></h3><span class="sp"></span><span class="eb">per home</span></div><div class="rates"><table><thead><tr><th></th>'+cols.map(function(c){return '<th class="num">'+c[1]+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="notes" style="padding-top:2px">'+notes+(edit?'<div>A new rate applies to deals whose first half is not yet due. Once the 10% deposit is confirmed, that deal keeps its rate.</div>':'')+'</div></div>';
+}
+function cmEarnRows(list){
+  var pay=S.comm.canPay;
+  return list.map(function(e){
+    var lines=cmLines().filter(function(c){return c.owner===e.id}),t=cmSum(lines),own=lines.filter(function(c){return c.own&&c.kind==='internal'}).length;
+    return '<tr class="click" data-act="stmt" data-id="'+e.id+'"><td class="tt"><span class="row" style="gap:10px">'+av(e.id,'lg')+'<span>'+esc(e.name)+'<div class="small">'+esc(e.kind==='external'?e.group:(EARNNOTE[e.id]||'Sales team'))+'</div></span></span></td>'+
+     (!e.on&&!lines.length?'<td colspan="5" class="small">Not paid commission (switched off)</td>':'<td class="num">'+t.n+'</td><td class="num">'+(e.kind==='external'?'all':own||'-')+'</td><td class="num">'+money(t.paid)+'</td><td class="num"><b style="color:'+(t.due?'var(--gold)':'var(--ink3)')+';font-weight:400">'+(t.due?money(t.due):'-')+'</b>'+(t.hold?'<div class="small">+ '+money(t.hold)+' on hold</div>':'')+'</td><td class="num">'+money(t.later)+'</td>')+
+     '<td style="min-width:130px">'+(!e.on&&!lines.length?'':'<div class="num" style="color:var(--ink)">'+money(t.all)+'</div>'+cmBar(t))+'</td><td class="num" style="white-space:nowrap">'+(pay&&t.dueN?'<button class="btn sm gold" data-act="cmpayall" data-id="'+e.id+'">Pay '+t.dueN+' due · '+mshort(t.due)+'</button>':'')+'</td></tr>'}).join('');
+}
+function cmEarnHead(){return '<thead><tr><th>Agent</th><th class="num">Customers</th><th class="num">Own leads</th><th class="num">Paid</th><th class="num">Due now</th><th class="num">Coming</th><th class="num">Total</th><th></th></tr></thead>'}
+function cmShown(e){return e.active||cmLines().some(function(c){return c.owner===e.id})}
+function vComm(){
+  if(!S.comm)return '<div class="wrap">'+(S.commErr?'<div class="signin card"><div class="eb">Commission</div><h2 style="font:300 22px var(--sans);margin:10px 0">Could not open commission</h2><p class="small">'+esc(S.commErr)+'</p><div style="margin-top:16px"><button class="btn" data-act="cmreload">Try again</button></div></div>':'<div class="empty" style="border:0">Loading</div>')+'</div>';
+  return S.comm.role==='office'?cmOffice():cmAgent();
+}
+function cmOffice(){
+  var lines=cmLines(),T=cmSum(lines),pay=S.comm.canPay,edit=S.comm.canEdit,mode=UI.cm.mode,earners=S.comm.earners||[];
+  var intL=lines.filter(function(c){return c.kind==='internal'}),extL=lines.filter(function(c){return c.kind==='external'}),Ti=cmSum(intL),Te=cmSum(extL);
+  var h='<div class="wrap"><div class="hd"><div><div class="eb" style="margin-bottom:12px">Commission</div><h1>Who is owed <span class="serif">what</span>.</h1><p>Half when the 10% deposit is confirmed, half when the home is delivered. '+(isAdmin()?'You':'The admin team and directors')+' see every internal and external agent. Each agent sees only their own.</p></div><div class="sp"></div><div class="seg">'+[['agent','By agent'],['group','By group'],['ledger','Every payment']].map(function(m){return '<button class="'+(mode===m[0]?'on':'')+'" data-act="cmmode" data-k="'+m[0]+'">'+m[1]+'</button>'}).join('')+'</div></div>';
+  h+='<div class="tiles">'+tile('var(--gold)','Due to pay now',money(T.due),T.dueN+' payment'+(T.dueN===1?'':'s')+' waiting'+(T.holdN?' · '+T.holdN+' on hold':''))+tile('var(--sage)','Paid, last 30 days',money(cmPaid30(lines)),'Both halves')+tile('var(--vine)','Coming',money(T.later),'Not yet due')+tile('var(--tide)','Internal sales',money(Ti.all),Ti.n+' customers · '+money(Ti.due)+' due')+tile('var(--rose)','External agents',money(Te.all),Te.n+' customers · '+money(Te.due)+' due')+'</div>';
+  var main='',shownE=earners.filter(cmShown),ints=shownE.filter(function(e){return e.kind==='internal'}),exts=shownE.filter(function(e){return e.kind==='external'});
+  var meE=earners.filter(function(e){return e.id===S.me.id&&e.on})[0];
+  if(meE){var tj=cmSum(lines.filter(function(c){return c.owner===meE.id}));
+    main+='<div class="nc panel" style="margin-bottom:16px"><div class="ph"><h3>Your <span class="serif">commission</span></h3>'+(EARNNOTE[meE.id]?'<span class="chip gold">'+esc(meE.id==='jb'?'Victoria, until a selling agent is appointed':EARNNOTE[meE.id])+'</span>':'')+'<span class="sp"></span><button class="btn sm" data-act="stmt" data-id="'+meE.id+'">Open your statement</button></div><div class="mystats"><div><b>'+money(tj.paid)+'</b><span>Paid to you</span></div><div><b style="color:'+(tj.due?'var(--gold)':'inherit')+'">'+money(tj.due)+'</b><span>Due now</span></div><div><b>'+money(tj.later)+'</b><span>Coming</span></div><div><b>'+tj.n+'</b><span>Customers earning</span></div></div></div>'}
+  if(mode==='agent'){
+    var legend='<div class="cmkey" style="margin-top:14px"><span style="--k:var(--sage)">Paid</span><span style="--k:var(--gold)">Due now</span><span style="--k:var(--tide)">On hold</span><span style="--k:var(--ink4)">Coming</span><span>Click an agent for their statement, or any sale to open the deal</span></div>';
+    main+='<div class="nc panel" style="margin-bottom:16px"><div class="ph"><h3>Internal <span class="serif">sales</span></h3><span class="cnt">'+ints.length+' people</span></div><div class="tablewrap"><table>'+cmEarnHead()+'<tbody>'+cmEarnRows(ints)+'</tbody></table></div></div>'+
+     '<div class="nc panel"><div class="ph"><h3>External <span class="serif">agents</span></h3><span class="cnt">'+exts.length+' people</span></div><div class="tablewrap"><table>'+cmEarnHead()+'<tbody>'+(exts.length?cmEarnRows(exts):'<tr><td colspan="8" class="empty">No selling agents yet. Add them under Agents.</td></tr>')+'</tbody></table></div></div>'+legend;
+  }else if(mode==='group'){
+    var gs=[],byName={};shownE.forEach(function(e){var g=byName[e.group];if(!g){g=byName[e.group]={name:e.group,kind:e.kind==='internal'?'Internal':'External',list:[]};gs.push(g)}g.list.push(e)});
+    gs.sort(function(a,b){return (a.kind==='Internal'?0:1)-(b.kind==='Internal'?0:1)});
+    main+=gs.map(function(g){var ids=g.list.map(function(e){return e.id}),t=cmSum(lines.filter(function(c){return ids.indexOf(c.owner)>=0}));
+      return '<div class="nc panel gcard"><div class="gh"><h3>'+esc(g.name)+'</h3><span class="chip '+(g.kind==='External'?'gold':'')+'">'+g.kind+'</span><div class="gt"><div><b>'+money(t.paid)+'</b><span>Paid</span></div><div><b style="color:'+(t.due?'var(--gold)':'inherit')+'">'+money(t.due)+'</b><span>Due now</span></div><div><b>'+money(t.later)+'</b><span>Coming</span></div><div><b>'+money(t.all)+'</b><span>Total</span></div></div></div><div style="padding:0 18px 12px">'+cmBar(t)+'</div><div class="tablewrap"><table>'+cmEarnHead()+'<tbody>'+cmEarnRows(g.list)+'</tbody></table></div></div>'}).join('')||'<div class="nc panel empty">No earners yet.</div>';
+  }else{
+    var f=UI.cm.f,o=UI.cm.o,rows=[];
+    lines.forEach(function(c){c.h.forEach(function(x){rows.push({c:c,h:x})})});
+    rows=rows.filter(function(r){return (f==='all'||r.h.st===f)&&(!o||r.c.owner===o)}).sort(function(a,b){return (b.h.at||0)-(a.h.at||0)});
+    main+='<div class="row" style="margin-bottom:14px;flex-wrap:wrap"><div class="seg">'+CMF.map(function(s){return '<button class="'+(f===s[0]?'on':'')+'" data-act="cmf" data-k="'+s[0]+'">'+s[1]+'</button>'}).join('')+'</div><select data-chg="cmo"><option value="">All agents</option>'+shownE.map(function(e){return '<option value="'+e.id+'"'+(o===e.id?' selected':'')+'>'+esc(e.name)+'</option>'}).join('')+'</select><span class="sp"></span><button class="btn sm" data-act="cmcsv">Export CSV</button></div>'+
+     '<div class="nc panel"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Agent</th><th>Group</th><th>Customer</th><th>Home</th><th>Half</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody>'+
+     (rows.map(function(r){var c=r.c,x=r.h;return '<tr class="click" data-act="deal" data-id="'+c.id+'"><td class="small">'+(x.st==='paid'?fmtD(x.paidAt):x.st==='due'?fmtD(x.at):'-')+'</td><td class="tt"><span class="row" style="gap:8px">'+av(c.owner)+esc(firstName(c.owner))+'</span></td><td class="small">'+esc(c.group)+'</td><td class="tt">'+esc((c.first+' '+c.last).trim())+'</td><td>'+esc((PRODUCTS[c.home]||{}).s||'')+'</td><td>'+(x.n===1?'First, after the 10% deposit':'Second, on delivery')+'</td><td class="num">'+money(x.amt)+'</td><td><span class="chip '+(x.st==='paid'?'ok':x.st==='due'?'gold':x.st==='hold'?'tide':'')+'">'+(x.st==='paid'?'Paid':x.st==='due'?'Due now':x.st==='hold'?'On hold':'Coming')+'</span></td><td class="num">'+(x.st==='due'&&pay&&cmCanPay(c,x.n)?'<button class="btn sm gold" data-act="cmpay" data-id="'+c.id+'" data-h="'+x.n+'">Mark paid</button>':'')+'</td></tr>'}).join('')||'<tr><td colspan="9" class="empty">Nothing matches</td></tr>')+'</tbody></table></div></div>';
+  }
+  var side='<div class="side">'+cmRates(true)+cmFlow()+
+   '<div class="nc panel"><div class="ph"><h3>Who earns <span class="serif">commission</span></h3></div><div class="notes" style="padding-bottom:10px"><div>The team earns it. Directors do not, with one exception: Jamie holds Victoria until a selling agent is appointed, so Victorian commission is paid under his name.</div></div>'+
+   earners.filter(cmShown).map(function(e){return '<div class="earn">'+av(e.id)+'<div class="nm"><b>'+esc(e.name)+'</b><span>'+esc(e.kind==='external'?e.group:(EARNNOTE[e.id]||'Sales team, internal'))+'</span></div>'+(e.id==='jb'?'<span class="chip gold" style="margin-right:6px">Exception</span>':'')+(edit?'<div class="tog '+(e.on?'on':'')+'" data-act="earn" data-id="'+e.id+'"><i></i></div>':'<span class="chip '+(e.on?'ok':'')+'">'+(e.on?'Earns':'Off')+'</span>')+'</div>'}).join('')+'</div>'+
+   '<div class="nc panel"><div class="ph"><h3>Good to <span class="serif">know</span></h3></div><div class="notes"><div>An own lead is a customer marked with the source Agent referral. External agents always earn the external rate.</div><div>The second half falls due when projects mark the home Delivered and installed, which is after the final payment is confirmed.</div><div>Finance and directors mark payments. Alessia sees everything and changes nothing.</div></div></div></div>';
+  return h+'<div class="cmgrid"><div>'+main+'</div>'+side+'</div></div>';
+}
+function cmAgent(){
+  var lines=cmLines(),T=cmSum(lines),ext=!S.comm.rates.int;
+  var h='<div class="wrap"><div class="hd"><div><div class="eb" style="margin-bottom:12px">Commission'+(lines[0]&&ext?' · '+esc(lines[0].group):'')+'</div><h1>Your <span class="serif">commission</span>.</h1><p>Half when the 10% deposit is confirmed on your customer, half when their home is delivered. You see only your own.</p></div><div class="sp"></div><button class="btn sm" data-act="cmcsv">Download statement</button></div>';
+  h+='<div class="tiles" style="grid-template-columns:repeat(4,1fr)">'+tile('var(--sage)','Paid to you',money(T.paid),'Both halves, all time')+tile('var(--gold)','Due to be paid',money(T.due),T.dueN+' payment'+(T.dueN===1?'':'s')+' with the finance team'+(T.holdN?' · '+T.holdN+' on hold':''))+tile('var(--vine)','Coming',money(T.later),'As your customers pay and take delivery')+tile('var(--tide)','Customers',T.n,T.orders+' orders confirmed')+'</div>';
+  h+='<div class="cmgrid"><div><div class="nc panel"><div class="ph"><h3>Your <span class="serif">customers</span></h3><span class="cnt">'+lines.length+'</span></div><div class="tablewrap"><table>'+cmHead(false)+'<tbody>'+cmRows(lines,false)+'</tbody></table></div></div><div class="cmkey" style="margin-top:14px"><span style="--k:var(--sage)">Paid</span><span style="--k:var(--gold)">Due, with the finance team</span><span style="--k:var(--tide)">On hold</span><span style="--k:var(--ink4)">Coming</span><span>Click a sale to open the deal</span></div></div>'+
+   '<div class="side">'+cmRates(false)+cmFlow()+(ext?'':'<div class="nc panel"><div class="ph"><h3>Your <span class="serif">own leads</span></h3></div><div class="notes"><div>A customer you bring in yourself, marked Agent referral, earns the external rate instead of the internal one.</div></div></div>')+'</div></div></div>';
+  return h;
+}
+/* a statement for one earner (directors and the admin team only) */
+function cmStmt(id){
+  var e=(S.comm.earners||[]).filter(function(x){return x.id===id})[0]||{id:id,name:ownerName(id),kind:'internal',group:''},lines=cmLines().filter(function(c){return c.owner===id}),T=cmSum(lines),pay=S.comm.canPay;
+  return '<div class="dh"><div style="flex:1;min-width:0"><div class="eb" style="margin-bottom:10px">Statement · '+esc(e.group)+'</div><h2>'+esc(e.name.split(' ')[0])+' <span class="serif">'+esc(e.name.split(' ').slice(1).join(' '))+'</span></h2><div style="display:flex;gap:10px;align-items:center;margin-top:10px;color:var(--ink3);font-size:12px">'+av(id)+'<span>'+esc(e.kind==='external'?'External agent':(EARNNOTE[id]||'Sales team')+', internal')+'</span></div></div><button class="ic" data-act="close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+   '<div class="db"><div class="tiles" style="grid-template-columns:repeat(3,1fr);margin:0">'+tile('var(--sage)','Paid',money(T.paid),'')+tile('var(--gold)','Due now',money(T.due),T.dueN+' payment'+(T.dueN===1?'':'s')+(T.holdN?' · '+T.holdN+' on hold':''))+tile('var(--vine)','Coming',money(T.later),'')+'</div>'+
+   '<div class="row" style="flex-wrap:wrap">'+(pay&&T.dueN?'<button class="btn gold" data-act="cmpayall" data-id="'+id+'">Pay all '+T.dueN+' due · '+money(T.due)+'</button>':'')+'<button class="btn" data-act="cmcsv" data-id="'+id+'">Export statement (CSV)</button></div>'+
+   '<div class="nc panel"><div class="tablewrap"><table>'+cmHead(false)+'<tbody>'+cmRows(lines,false)+'</tbody></table></div></div></div>';
+}
+/* a deal: one sale's commission, in two staged payments */
+function cmStage(c,n){
+  var h=c.h[n-1],office=S.comm.role==='office',pay=S.comm.canPay,t=n===1?['First half, 50%','When the contract is unconditional and the 10% deposit is confirmed']:['Final payment, 50%','When the home is delivered'];
+  var chip=h.st==='paid'?'<span class="chip ok">Paid '+fmtD(h.paidAt)+'</span>':h.st==='hold'?'<span class="chip tide">On hold</span>':h.st==='due'?'<span class="chip gold">Due since '+fmtD(h.at)+'</span>':'<span class="chip">Not yet due</span>';
+  var meta=h.st==='paid'&&office&&h.byName?'<div class="meta2">Marked paid by '+esc(h.byName.split(' ')[0])+(h.ref?' · ref '+esc(h.ref):'')+'</div>':h.st==='later'?'<div class="meta2">'+(n===1?'Waiting for Finance to confirm the 10% deposit':'Waiting for delivery')+'</div>':h.st==='due'&&n===2&&c.h[0].st!=='paid'?'<div class="meta2">Paid after the first half</div>':'';
+  var undo=h.st==='paid'&&pay&&!(n===1&&c.h[1].st==='paid')?'<button class="btn sm" data-act="dealundo" data-h="'+n+'">Undo payment</button>':'';
+  return '<div class="stgi '+h.st+'"><i class="gm">'+n+'</i><div><b>'+t[0]+'</b><small>'+t[1]+'</small>'+meta+'</div><div style="text-align:right"><div class="cmamt" style="margin-top:0">'+money(h.amt)+'</div><div style="margin-top:6px">'+chip+'</div>'+(undo?'<div>'+undo+'</div>':'')+'</div></div>';
+}
+function cmStaged(c){
+  var h1=c.h[0],h2=c.h[1];
+  if(!S.comm.canPay)return '<div class="small">Finance and directors mark payments as paid.</div>';
+  if(h1.st==='paid'&&h2.st==='paid')return '<span class="chip ok">Both halves paid</span>';
+  var n=h1.st!=='paid'?1:2,h=c.h[n-1],can=cmCanPay(c,n),why=c.hold?'On hold. Release the hold to pay.':h.st==='later'?(n===1?'Waiting for the 10% deposit to be confirmed.':'Waiting for delivery.'):'';
+  return '<button class="btn gold '+(can?'':'off')+'" data-act="dealpay" data-h="'+n+'">'+(n===1?'Mark first half paid':'Mark final payment paid')+' · '+money(h.amt)+'</button>'+(why?'<span class="small">'+why+'</span>':'');
+}
+function cmDeal(id){
+  var c=cmLine(id),office=S.comm.role==='office',pay=S.comm.canPay,close='<button class="ic" data-act="close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+  if(!c)return '<div class="dh"><div style="flex:1"><h2>No <span class="serif">commission</span></h2></div>'+close+'</div><div class="db"><div class="small">This customer is not earning commission.</div></div>';
+  var l=lead(id),anyUnpaid=c.h[0].st!=='paid'||c.h[1].st!=='paid',ref=pay&&(cmCanPay(c,1)||cmCanPay(c,2)),notes=c.notes||[],hist=(c.log||[]).slice().sort(function(a,b){return b.at-a.at});
+  return '<div class="dh"><div style="flex:1;min-width:0"><div class="eb" style="margin-bottom:10px">Deal · '+esc(c.group)+'</div><h2>'+esc(c.first)+' <span class="serif">'+esc(c.last)+'</span></h2><div style="display:flex;gap:10px;align-items:center;margin-top:10px;color:var(--ink3);font-size:12px;flex-wrap:wrap">'+av(c.owner)+'<span>'+esc(c.ownerName)+'</span><span>·</span><span>'+esc((PRODUCTS[c.home]||{}).n||'')+'</span>'+(c.state?'<span>·</span><span>'+esc(c.state)+'</span>':'')+'</div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><span class="chip '+(c.ext?'gold':'')+'">'+esc(cmKind(c))+'</span>'+(c.hold?'<span class="chip tide">On hold</span>':'')+'</div></div><div style="text-align:right"><div class="eb">Commission</div><div style="font:300 30px/1.1 var(--sans);margin-top:8px;letter-spacing:-.02em">'+money(c.rate)+'</div></div>'+close+'</div>'+
+  '<div class="db">'+
+  '<div class="nc" style="padding:18px 20px"><div class="eb">Where the deal is</div><div class="mj">'+ST.map(function(s,i){return '<i class="'+(i<c.stage?'d':i===c.stage?'c':'')+'" style="--c:'+PH[s.ph].c+'"></i>'}).join('')+'</div><div class="mjl">'+SHORT.map(function(s,i){return '<span class="'+(i===c.stage?'c':'')+'">'+s+'</span>'}).join('')+'</div><div style="margin-top:12px;color:var(--ink2);font-size:12.5px">Now at <b style="color:var(--ink);font-weight:400">'+esc(ST[c.stage].n)+'</b>. '+(c.h[1].st!=='later'?'Both halves have fallen due.':c.h[0].st!=='later'?'The first half has fallen due. The final payment falls due when the home is delivered.':'The first half falls due once the 10% deposit is confirmed.')+'</div>'+(l?'<div style="margin-top:12px"><button class="btn sm ghost" data-act="open" data-id="'+c.id+'">Open the customer</button></div>':'')+'</div>'+
+  '<div class="nc" style="padding:18px 20px"><div class="eb">Staged payment</div><div class="stg">'+cmStage(c,1)+cmStage(c,2)+'</div>'+(ref?'<label class="f" style="margin:6px 0 12px">Payment reference (optional)<input id="dref" placeholder="Bank reference, kept on the deal"></label>':'')+'<div class="staged">'+cmStaged(c)+(pay&&anyUnpaid?(c.hold?'<button class="btn" data-act="dealhold" data-k="release">Release hold</button>':'<button class="btn ghost" data-act="dealhold" data-k="hold">Hold commission</button>'):'')+'</div></div>'+
+  '<div class="nc" style="padding:18px 20px"><div class="eb" style="margin-bottom:10px">Notes</div>'+(pay?'<textarea id="dnote" placeholder="Add a note to this deal"></textarea><div class="row" style="margin:10px 0 4px;flex-wrap:wrap"><label class="small" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="dshare" style="width:auto"> Share this note with '+esc(firstName(c.owner))+'</label><span class="sp"></span><button class="btn sm gold" data-act="dealnote">Add note</button></div>':'')+
+   (notes.length?notes.map(function(n){return '<div class="dn"><div class="m"><b>'+esc(office&&n.name?n.name.split(' ')[0]:'HAAVN BLACK')+'</b> · '+fmtDT(n.at)+(office?' · <span class="chip '+(n.shared?'ok':'')+'">'+(n.shared?'Shared with '+esc(firstName(c.owner)):'Office only')+'</span>':'')+'</div><div>'+esc(n.x)+'</div></div>'}).join(''):'<div class="small" style="padding:6px 0">'+(office?'No notes yet.'+(pay?'':' Finance and directors add notes.'):'Nothing shared with you on this deal.')+'</div>')+'</div>'+
+  '<div class="nc" style="padding:18px 20px"><div class="eb" style="margin-bottom:10px">History</div><div class="log">'+(hist.map(function(e){return '<div><span class="d">'+fmtD(e.at)+'</span><span>'+esc(e.x)+(e.name?' <span class="small">· '+esc(e.name.split(' ')[0])+'</span>':'')+'</span></div>'}).join('')||'<div><span class="d"></span><span class="small">Nothing yet.</span></div>')+'</div></div></div>';
+}
+function cmUndoModal(u){
+  var c=cmLine(u.id),n=u.kind==='h1'?1:u.kind==='h2'?2:0,amt=n&&c?money(c.h[n-1].amt):'',first=c?esc(c.first):'';
+  var T={h1:['Undo the first half payment',first+'\'s first half of '+amt+' goes back to Due.'],h2:['Undo the final payment',first+'\'s final payment of '+amt+' goes back to Due.'],hold:['Hold this commission','Nothing more is paid on this deal until you release it. The agent sees it as On hold.'],release:['Release the hold','The deal goes back to being paid as it falls due.']}[u.kind];
+  return '<h4>'+T[0]+'</h4><p class="lead">'+T[1]+'</p><label class="f"><span>'+(u.kind==='release'?'A note (optional)':'Why? This is kept in the deal history')+'</span><textarea id="ureason"></textarea></label><div class="foot"><button class="btn" data-act="mclose">Cancel</button><button class="btn gold" data-act="undogo">'+(u.kind==='release'?'Release':u.kind==='hold'?'Hold it':'Undo it')+'</button></div>';
+}
+function cmCsv(lines){
+  var rows=[['Agent','Group','Customer','Home','How it counts','Commission','Half','Amount','Status','Date']];
+  lines.forEach(function(c){c.h.forEach(function(x){rows.push([c.ownerName,c.group,(c.first+' '+c.last).trim(),(PRODUCTS[c.home]||{}).n||'',cmKind(c),c.rate,x.n===1?'First half':'Second half',x.amt,x.st==='paid'?'Paid':x.st==='due'?'Due':x.st==='hold'?'On hold':'Coming',x.st==='paid'?new Date(x.paidAt).toISOString().slice(0,10):x.st==='due'?new Date(x.at).toISOString().slice(0,10):''])})});
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haavn-black-commission.csv';a.click();
+}
+function cmCall(action,body,after){return api(action,body).then(function(j){if(j.line)cmSet(j.line);if(after)after(j);render()}).catch(function(e){fail(e);cmLoad()})}
+Object.assign(A,{
+ cmreload:function(){S.commErr='';cmLoad();return false},
+ cmmode:function(t){UI.cm.mode=t.dataset.k},cmf:function(t){UI.cm.f=t.dataset.k},
+ stmt:function(t){UI.stmt=t.dataset.id;UI.lead=null;UI.deal=null},
+ deal:function(t){UI.deal=t.dataset.id;UI.lead=null},
+ earn:function(t){if(!S.comm.canEdit)return false;var off=(S.comm.earners||[]).filter(function(e){return !e.on}).map(function(e){return e.id}),id=t.dataset.id,i=off.indexOf(id);if(i>=0)off.splice(i,1);else off.push(id);
+  api('commissionSettings',{commission:{off:off}}).then(function(){toast('Saved. Unpaid commission for a switched off person drops away; what was paid stays on the books.');return cmLoad()}).catch(function(e){fail(e);cmLoad()});return false},
+ cmpay:function(t){var c=cmLine(t.dataset.id),n=+t.dataset.h;if(!c||!cmCanPay(c,n))return false;cmCall('commissionPay',{id:c.id,half:n},function(){toast('Marked paid: '+(n===1?'first half':'final payment')+' for '+c.first+' '+c.last+'.')});return false},
+ cmpayall:function(t){if(!S.comm.canPay)return false;var todo=[];cmLines().filter(function(c){return c.owner===t.dataset.id}).forEach(function(c){todo.push([c.id,1],[c.id,2])});var done=0;
+  (function next(i){if(i>=todo.length){toast('Marked '+done+' payment'+(done===1?'':'s')+' paid to '+firstName(t.dataset.id)+'.');render();return}var c=cmLine(todo[i][0]);if(c&&cmCanPay(c,todo[i][1])){api('commissionPay',{id:c.id,half:todo[i][1]}).then(function(j){cmSet(j.line);done++;next(i+1)}).catch(function(e){fail(e);cmLoad()})}else next(i+1)})(0);return false},
+ dealpay:function(t){var c=cmLine(UI.deal),n=+t.dataset.h;if(!c||!cmCanPay(c,n))return false;var ref=(($('#dref')||{}).value||'').trim();cmCall('commissionPay',{id:c.id,half:n,ref:ref},function(){toast((n===1?'First half':'Final payment')+' marked paid for '+c.first+' '+c.last+'.'+(n===1?' The final payment is next, on delivery.':' Both halves are paid.'))});return false},
+ dealundo:function(t){if(!S.comm.canPay)return false;UI.modal={undo:{id:UI.deal,kind:'h'+t.dataset.h}}},
+ dealhold:function(t){if(!S.comm.canPay)return false;UI.modal={undo:{id:UI.deal,kind:t.dataset.k}}},
+ undogo:function(){var u=UI.modal.undo,reason=((($('#ureason')||{}).value)||'').trim();if(!S.comm.canPay)return false;if(u.kind!=='release'&&!reason){toast('Add a reason first. It is kept in the deal history.');return false}
+  var p=u.kind==='h1'||u.kind==='h2'?['commissionUndo',{id:u.id,half:+u.kind[1],reason:reason}]:['commissionHold',{id:u.id,hold:u.kind==='hold',reason:reason}];
+  api(p[0],p[1]).then(function(j){cmSet(j.line);UI.modal=null;toast(u.kind==='hold'?'On hold. Nothing more is paid on this deal until you release it.':u.kind==='release'?'Hold released.':'Back to Due.');render()}).catch(function(e){fail(e)});return false},
+ dealnote:function(){var v=((($('#dnote')||{}).value)||'').trim();if(!v||!S.comm.canPay)return false;var sh=!!($('#dshare')||{}).checked;cmCall('commissionNote',{id:UI.deal,text:v,shared:sh},function(){toast('Note added'+(sh?' and shared with the agent':', office only')+'.')});return false},
+ cmcsv:function(t){var ls=cmLines();if(t.dataset.id)ls=ls.filter(function(c){return c.owner===t.dataset.id});cmCsv(ls);return false}
+});
+
 function saveSettings(patch){api('settingsSave',{settings:patch}).then(function(j){S.settings=Object.assign({},S.settings,j.settings);render();toast('Saved')}).catch(function(e){fail(e);render()})}
 var NOREN=['search'];
 document.addEventListener('click',function(e){
-  if(e.target.id==='shade'||e.target===$('#modal')){if(UI.modal)UI.modal=null;else UI.lead=null;render();return}
+  if(e.target.id==='shade'||e.target===$('#modal')){if(UI.modal)UI.modal=null;else if(UI.lead)UI.lead=null;else if(UI.deal)UI.deal=null;else UI.stmt=null;render();return}
   var t=e.target.closest('[data-act]');if(!t)return;var fn=A[t.dataset.act];if(!fn||t.tagName==='A')return;
   if(fn(t)!==false)render();
 });
 document.addEventListener('change',function(e){
   var c=e.target.dataset.chg;if(!c)return;var v=e.target.value;
   if(c==='f:q')return;
+  if(c==='cmo'){UI.cm.o=v;render();return}
+  if(c.indexOf('rate:')===0){var rp=c.split(':'),ro={};ro[rp[1]]={};ro[rp[1]][rp[2]]=v;api('commissionSettings',{commission:{rates:ro}}).then(function(){toast('Rate saved. It applies to deals whose first half is not yet due.');return cmLoad()}).catch(function(e){fail(e);cmLoad()});return}
   if(c.indexOf('f:')===0){UI.f[c.slice(2)]=v;render();return}
   if(c==='paste'){UI.paste=v;UI.parsed=null;UI.cp=null;return}
   if(c==='nlsrc'){var w=$('#nl_oth_w');if(w)w.style.visibility=v==='Other'?'visible':'hidden';return}
@@ -1256,7 +1487,7 @@ document.addEventListener('input',function(e){
   if(e.target.dataset.chg!=='f:q')return;UI.f.q=e.target.value;render();var q=$('[data-chg="f:q"]');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}
 });
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){if(UI.modal)UI.modal=null;else if(UI.lead)UI.lead=null;else return;render();return}
+  if(e.key==='Escape'){if(UI.modal)UI.modal=null;else if(UI.lead)UI.lead=null;else if(UI.deal)UI.deal=null;else if(UI.stmt)UI.stmt=null;else return;render();return}
   if(e.key==='Enter'&&e.target.id==='note'){A.note();render();return}
   if(UI.view==='pipe'&&UI.board==='solum'&&!UI.lead&&!UI.modal&&(e.key==='ArrowLeft'||e.key==='ArrowRight')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();A.pg({dataset:{d:e.key==='ArrowLeft'?-1:1}})}
 });
@@ -1272,7 +1503,7 @@ window.addEventListener('resize',function(){syncRail()});
 
 var hv=location.hash.replace('#','');if(TABS.some(function(t){return t[0]===hv}))UI.view=hv;
 window.__sales={S:S,UI:UI,render:render,load:load};
-load().then(function(){render();announce();setInterval(poll,30000)});
+load().then(function(){render();announce();cmInit();setInterval(poll,30000)});
 render();
 })();
 </script>

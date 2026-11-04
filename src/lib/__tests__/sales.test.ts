@@ -480,3 +480,153 @@ describe('clearing the Inbox', () => {
     await expect(run('leadMail', { id: r.lead.id }, ag)).rejects.toThrow(/HAAVN BLACK team/)
   })
 })
+
+describe('commission: half when the 10% deposit is confirmed, half on delivery', () => {
+  const comm = (who: any = jamie) => run('commission', {}, who)
+  const lineOf = async (id: string, who: any = jamie) => (await comm(who)).lines.find((x: any) => x.id === id)
+  const company = async () => (await run('companySave', { company: { name: 'Harbour Realty' } })).company
+  const agentOf = async (co: any) => (await run('agentSave', { agent: { name: 'Pat Reynolds', companyId: co.id, email: 'pat@example.com' } })).agent
+  // a SOLUM customer; owner (a team id or an agent row) and source decide the rate
+  let seq = 0
+  const mk = async (o: any = {}) => {
+    seq++   // each customer has their own email and mobile, or the system rightly reads them as one customer enquiring again
+    const l = (await S.ingestEmail(F.deps, { messageId: 'k' + seq, body: FORM({ model: o.model || 'SOLUM Plus', state: o.state || 'Queensland', utm: o.utm || '', email: `cust${seq}@example.com`, phone: `04${String(10000000 + seq * 7919).slice(0, 8)}`, first: 'Cust' + seq, last: 'Test' }) })).lead
+    if (o.owner) { const row = F.t.leads.find((x: any) => x.id === l.id); row.owner = o.owner.id; row.company_id = o.owner.company_id || null }
+    return l
+  }
+  const deliver = async (id: string) => { const l = await get(id); await run('saveLead', { lead: { id, order: { ...l.order, step: 6 } } }) }
+  const paidAll = async (id: string) => { for (const n of [1, 2]) await run('commissionPay', { id, half: n }, amy) }
+  const secretSession = { sub: 'xx', name: 'Someone Else', role: 'staff', emails: [] }
+
+  it('pays the rates Jamie set: internal 3,000 / 4,000 / 5,000, and 5,000 / 6,500 / 8,000 for an external agent or an own lead', async () => {
+    const co = await company(), ag = await agentOf(co), got: any = {}
+    for (const [model, key] of [['SOLUM Studio', 'studio'], ['SOLUM Plus', 'plus'], ['SOLUM Max', 'max']]) {
+      const house = await mk({ model }), own = await mk({ model, utm: 'agent referral' }), ext = await mk({ model, owner: ag })
+      for (const l of [house, own, ext]) await through(l.id, 3)
+      const r = await comm()
+      got[key] = [house, own, ext].map((l: any) => r.lines.find((x: any) => x.id === l.id).rate)
+    }
+    expect(got).toEqual({ studio: [3000, 5000, 5000], plus: [4000, 6500, 6500], max: [5000, 8000, 8000] })
+    const c = await lineOf((await comm()).lines[0].id)
+    expect(c.h[0].amt + c.h[1].amt).toBe(c.rate)
+  })
+  it('the first half falls due when the 10% deposit is confirmed, the final half when the home is delivered, not before', async () => {
+    const l = await mk(), seen: string[][] = []
+    const st = async () => (await lineOf(l.id)).h.map((x: any) => x.st)
+    await run('saveLead', { lead: { id: l.id, stage: 1 } }); expect(await lineOf(l.id)).toBeUndefined()     // nothing before the pre-order
+    await through(l.id, 3); seen.push(await st())
+    await through(l.id, 5); seen.push(await st())
+    await through(l.id, 6); seen.push(await st())
+    await through(l.id, 9); seen.push(await st())     // the final payment is approved, the home is not delivered yet
+    await deliver(l.id); seen.push(await st())
+    expect(seen).toEqual([['later', 'later'], ['later', 'later'], ['due', 'later'], ['due', 'later'], ['due', 'due']])
+    expect((await get(l.id)).order.deliveredAt).toBeGreaterThan(0)
+  })
+  it('nothing is owed on a concept home, a lost customer, or someone switched off, unless something was already paid', async () => {
+    const a = await mk({ model: 'OCTA Max' }), b = await mk(), c = await mk()
+    await through(b.id, 6); await through(c.id, 6)
+    await run('saveLead', { lead: { id: b.id, status: 'lost', lostWhy: 'Price' } })
+    expect(await lineOf(a.id)).toBeUndefined(); expect(await lineOf(b.id)).toBeUndefined(); expect(await lineOf(c.id)).toBeTruthy()
+    await run('commissionSettings', { commission: { off: ['jb', 'mf'] } }); expect(await lineOf(c.id)).toBeUndefined()
+    await run('commissionSettings', { commission: { off: [] } }); await run('commissionPay', { id: c.id, half: 1 }, amy)
+    await run('commissionSettings', { commission: { off: ['jb', 'mf'] } }); expect((await lineOf(c.id)).h[0].st).toBe('paid')   // what was paid stays on the books
+  })
+  it('Finance and directors pay in order: the first half, then the final payment, never early and never twice', async () => {
+    const l = await mk(); await through(l.id, 6)
+    await expect(run('commissionPay', { id: l.id, half: 2 }, amy)).rejects.toThrow(/falls due when the home is delivered/)
+    await expect(run('commissionPay', { id: l.id, half: 3 }, amy)).rejects.toThrow()
+    let r = (await run('commissionPay', { id: l.id, half: 1, ref: 'BANK 7731' }, amy)).line
+    expect(r.h[0]).toMatchObject({ st: 'paid', by: 'ab', byName: 'Amy Baldwin', ref: 'BANK 7731' }); expect(r.log[0].x).toContain('First half of $2,000 marked paid, ref BANK 7731')
+    await expect(run('commissionPay', { id: l.id, half: 1 }, dominika)).rejects.toThrow(/already/)
+    await through(l.id, 9); await deliver(l.id)
+    r = (await run('commissionPay', { id: l.id, half: 2 }, dominika)).line
+    expect(r.h.map((x: any) => x.st)).toEqual(['paid', 'paid'])
+    const l2 = await mk(); await through(l2.id, 9); await deliver(l2.id)
+    await expect(run('commissionPay', { id: l2.id, half: 2 }, amy)).rejects.toThrow(/first half before/)
+  })
+  it('only Finance and directors can pay, undo, hold or add notes: Alessia sees everything and changes nothing', async () => {
+    await agentOf(await company())
+    const l = await mk(); await through(l.id, 6)
+    for (const who of [alessia, mike, secretSession, agentSession('pat@example.com')]) {
+      await expect(run('commissionPay', { id: l.id, half: 1 }, who)).rejects.toThrow(/Finance and directors/)
+      await expect(run('commissionUndo', { id: l.id, half: 1, reason: 'x' }, who)).rejects.toThrow(/Finance and directors/)
+      await expect(run('commissionHold', { id: l.id, hold: true, reason: 'x' }, who)).rejects.toThrow(/Finance and directors/)
+      await expect(run('commissionNote', { id: l.id, text: 'x' }, who)).rejects.toThrow(/Finance and directors/)
+    }
+    const r = await comm(alessia); expect(r).toMatchObject({ role: 'office', canPay: false, canEdit: false }); expect(r.lines.length).toBeGreaterThan(0)
+    expect(await comm(amy)).toMatchObject({ role: 'office', canPay: true, canEdit: false }); expect(await comm(jamie)).toMatchObject({ canPay: true, canEdit: true })
+    expect((await get(l.id)).hasMail !== undefined).toBe(true)
+  })
+  it('undo needs a reason and is logged, the first half cannot be undone while the final is paid, and a hold stops payment until released', async () => {
+    const l = await mk(); await through(l.id, 9); await deliver(l.id); await paidAll(l.id)
+    await expect(run('commissionUndo', { id: l.id, half: 2, reason: '' }, amy)).rejects.toThrow(/why/)
+    await expect(run('commissionUndo', { id: l.id, half: 1, reason: 'Wrong account' }, amy)).rejects.toThrow(/final payment first/)
+    let r = (await run('commissionUndo', { id: l.id, half: 2, reason: 'Reversed by the bank' }, amy)).line
+    expect(r.h.map((x: any) => x.st)).toEqual(['paid', 'due']); expect(r.log[0].x).toBe('Final payment payment undone: Reversed by the bank')
+    r = (await run('commissionUndo', { id: l.id, half: 1, reason: 'Paid to the wrong account' }, amy)).line
+    expect(r.h.map((x: any) => x.st)).toEqual(['due', 'due'])
+    await expect(run('commissionHold', { id: l.id, hold: true, reason: '' }, amy)).rejects.toThrow(/why/)
+    r = (await run('commissionHold', { id: l.id, hold: true, reason: 'Customer disputing delivery' }, amy)).line
+    expect(r.hold).toBe(true); expect(r.h.map((x: any) => x.st)).toEqual(['hold', 'hold'])
+    await expect(run('commissionPay', { id: l.id, half: 1 }, amy)).rejects.toThrow(/on hold/)
+    r = (await run('commissionHold', { id: l.id, hold: false }, amy)).line
+    expect(r.h.map((x: any) => x.st)).toEqual(['due', 'due'])
+    await paidAll(l.id); await expect(run('commissionHold', { id: l.id, hold: true, reason: 'x' }, amy)).rejects.toThrow(/already paid/)
+  })
+  it('an agent sees only their own commission: no staff names, no office notes, no history of undos or holds', async () => {
+    const co = await company(), ag = await agentOf(co), me = agentSession('pat@example.com')
+    const mine = await mk({ owner: ag }), theirs = await mk({ state: 'Victoria' })
+    for (const l of [mine, theirs]) await through(l.id, 6)
+    await run('commissionPay', { id: mine.id, half: 1, ref: 'SECRETREF' }, amy)
+    await run('commissionNote', { id: mine.id, text: 'SECRETSTAFFNOTE do not share', shared: false }, amy)
+    await run('commissionNote', { id: mine.id, text: 'Paid in the Friday run', shared: true }, dominika)
+    await run('commissionUndo', { id: mine.id, half: 1, reason: 'SECRETUNDO' }, amy); await run('commissionPay', { id: mine.id, half: 1 }, dominika)
+    const r = await comm(me), json = JSON.stringify(r)
+    expect(r).toMatchObject({ role: 'agent', canPay: false, canEdit: false }); expect(r.lines.map((x: any) => x.id)).toEqual([mine.id])
+    expect(r.rates).toEqual({ ext: { studio: 5000, plus: 6500, max: 8000 } }); expect(r.earners).toBeUndefined()
+    expect(json).not.toMatch(/SECRET|Amy|Dominika|Alessia|Baldwin|"by"|"byName"|"ref"/)
+    expect(r.lines[0].notes).toEqual([{ at: expect.any(Number), x: 'Paid in the Friday run' }]); expect(r.lines[0].log.map((x: any) => x.x)).toEqual(['First half paid'])
+    expect(r.lines[0].h[0]).toMatchObject({ st: 'paid' })
+    // Mike (internal) sees only his own too, with both rates because an own lead earns the external one
+    const mk2 = await mk({ state: 'Queensland' }); await through(mk2.id, 6)
+    const m = await comm(mike); expect(m.role).toBe('agent'); expect(m.lines.every((x: any) => x.owner === 'mf')).toBe(true); expect(m.rates.int.plus).toBe(4000); expect(m.rates.ext.plus).toBe(6500)
+    await expect(comm(secretSession)).rejects.toThrow(/team and the selling agents/)
+  })
+  it('the general settings sent to a screen never include commission rates or who is switched off', async () => {
+    for (const who of [jamie, amy, alessia, mike]) expect((await run('init', {}, who)).settings.commission).toBeUndefined()
+    expect((await run('init', {}, jamie)).settings.prices.plus).toBe(187000)
+  })
+  it('commission never rides on a customer sent to a screen, for anyone', async () => {
+    const l = await mk(); await through(l.id, 6); await run('commissionPay', { id: l.id, half: 1 }, amy); await run('commissionNote', { id: l.id, text: 'SECRETSTAFFNOTE', shared: false }, amy)
+    for (const who of [jamie, amy, alessia, mike]) {
+      const j = JSON.stringify([(await run('init', {}, who)).leads, (await run('poll', { since: 0 }, who)).leads])
+      expect(j).not.toMatch(/cpaid|cnotes|clog|cfix|chold|SECRETSTAFFNOTE/)
+    }
+    const r = (await run('saveLead', { lead: { id: l.id, cpaid: { h2: { at: 1, by: 'jb' } }, chold: true, cnotes: [{ x: 'forged' }], cfix: { rate: 1 } } })).lead
+    expect((await lineOf(l.id)).h[1].st).toBe('later'); expect((await lineOf(l.id)).hold).toBe(false); expect((await lineOf(l.id)).rate).toBe(4000)
+    expect(JSON.stringify(r)).not.toMatch(/forged/)
+  })
+  it('the rate is fixed once the first half falls due, so changing a rate later changes only deals not yet due', async () => {
+    const early = await mk(), due = await mk(); await through(early.id, 5); await through(due.id, 6)
+    await expect(run('commissionSettings', { commission: { rates: { int: { plus: 4500 } } } }, mike)).rejects.toThrow(/director/)
+    await expect(run('commissionSettings', { commission: { rates: { int: { plus: 0 } } } })).rejects.toThrow(/between/)
+    const r = await run('commissionSettings', { commission: { rates: { int: { plus: '4,500' } } } })
+    expect(r.rates.int.plus).toBe(4500)
+    expect((await lineOf(early.id)).rate).toBe(4500); expect((await lineOf(due.id)).rate).toBe(4000)
+    await through(early.id, 6); await run('commissionSettings', { commission: { rates: { int: { plus: 6000 } } } })
+    expect((await lineOf(early.id)).rate).toBe(4500)
+    expect((await run('settingsSave', { settings: { prices: { plus: 190000 } } })).settings.commission.rates.int.plus).toBe(6000)   // saving other settings keeps commission
+  })
+  it('only a director sets who earns, an outside agent cannot set the delivery date, and what is owed totals up exactly', async () => {
+    const co = await company(), ag = await agentOf(co), me = agentSession('pat@example.com')
+    await expect(run('commissionSettings', { commission: { off: ['mf'] } }, amy)).rejects.toThrow(/director/)
+    const r = await run('commissionSettings', { commission: { off: ['mf', 'nobody', ag.id] } }); expect(r.off.sort()).toEqual([ag.id, 'mf'].sort())
+    await run('commissionSettings', { commission: { off: [] } })
+    const l = await mk({ owner: ag }); await through(l.id, 8)
+    await run('saveLead', { lead: { id: l.id, order: { ...(await get(l.id)).order, deliveredAt: 5 } } }, me)
+    expect((await get(l.id)).order.deliveredAt).toBeUndefined()
+    const lines = (await comm()).lines, total = lines.reduce((s: number, c: any) => s + c.h[0].amt + c.h[1].amt, 0)
+    expect(total).toBe(lines.reduce((s: number, c: any) => s + c.rate, 0))
+    expect((await comm()).earners.map((e: any) => e.id)).toEqual(expect.arrayContaining(['jb', 'mf', ag.id]))
+  })
+})

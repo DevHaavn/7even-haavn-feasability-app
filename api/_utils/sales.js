@@ -49,6 +49,7 @@ const DEFAULTS = {
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
   notify: { chat: true, push: true, task: true },
   team: ['jb', 'mf'],
+  commission: { rates: { int: { studio: 3000, plus: 4000, max: 5000 }, ext: { studio: 5000, plus: 6500, max: 8000 } }, off: [] },   // half when the 10% deposit is confirmed, half on delivery. off = people switched off
   inboxKeep: 0,   // days after which handled emails (turned into a lead, or dismissed) are cleared from the Inbox on their own; 0 = never
   contractTeam: ['ar', 'ab', 'dm'],   // the HAAVN contract team: Alessia, Amy, Dominika. The first one owns the tasks, the rest are watchers and are told in their Chat group
 }
@@ -131,7 +132,10 @@ async function getSettings(db) {
   const sv = s || {}
   const price = (k) => Number(sv.prices && sv.prices[k]) || DEFAULTS.prices[k]   // a price never saved (or saved as 0) is the price we sell at
   const ap = (r) => (Array.isArray(sv.approvers && sv.approvers[r]) && sv.approvers[r].length ? sv.approvers[r] : DEFAULTS.approvers[r])
-  return { ...DEFAULTS, ...sv, rules: { ...DEFAULTS.rules, ...(sv.rules || {}) }, prices: { studio: price('studio'), plus: price('plus'), max: price('max') }, preorder: Number(sv.preorder) || DEFAULTS.preorder, approvers: { con: ap('con'), fin: ap('fin') }, spend: { ...DEFAULTS.spend, ...(sv.spend || {}) }, notify: { ...DEFAULTS.notify, ...(sv.notify || {}) } }
+  const cm = sv.commission || {}
+  const cmRate = (kind, k) => { const v = Math.round(Number(cm.rates && cm.rates[kind] && cm.rates[kind][k])); return v > 0 ? v : DEFAULTS.commission.rates[kind][k] }
+  const commission = { rates: { int: { studio: cmRate('int', 'studio'), plus: cmRate('int', 'plus'), max: cmRate('int', 'max') }, ext: { studio: cmRate('ext', 'studio'), plus: cmRate('ext', 'plus'), max: cmRate('ext', 'max') } }, off: Array.isArray(cm.off) ? cm.off.map(String).slice(0, 300) : [] }
+  return { ...DEFAULTS, ...sv, commission, rules: { ...DEFAULTS.rules, ...(sv.rules || {}) }, prices: { studio: price('studio'), plus: price('plus'), max: price('max') }, preorder: Number(sv.preorder) || DEFAULTS.preorder, approvers: { con: ap('con'), fin: ap('fin') }, spend: { ...DEFAULTS.spend, ...(sv.spend || {}) }, notify: { ...DEFAULTS.notify, ...(sv.notify || {}) } }
 }
 const routeOwner = (settings, state) => settings.rules[state] || settings.rules.other || 'jb'
 
@@ -147,10 +151,10 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail']
-const SERVER_KEYS = ['srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix']
+const SERVER_KEYS = ['cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
 function leadOut(row) {
-  const { srcMail, ...d } = row.data || {}
+  const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
   const stage = row.stage || 0
   const gate = d.gate === undefined ? (GATE_BY_STAGE[stage] || null) : (d.gate || null)
   return { ...d, id: row.id, owner: row.owner || '', state: row.state || '', stage, status: row.status || 'open', source: row.source || 'Other', concept: !!row.concept,
@@ -399,6 +403,80 @@ async function landedOn(deps, settings, lead) {
   return lead.gate ? gateTasksFor(deps, settings, lead, lead.gate) : lead.adminTasks
 }
 
+// ---------- commission ----------
+// Internal sales and external agents are paid commission on each SOLUM sale in two halves: the first when the 10% deposit is confirmed (the contract is unconditional),
+// the second when the home is delivered. An external agent, or anyone who brings in their own lead (source Agent referral), earns the external rate.
+// Directors and the admin team see everyone; Finance and directors mark payments; each agent sees only their own. Commission never rides on the customer sent to a screen
+// (see leadOut): it only leaves this file through the `commission` action, filtered by who is asking.
+const HOME_KEYS = ['studio', 'plus', 'max']
+const isFinance = (w, st) => w.kind === 'internal' && (w.admin || st.approvers.fin.includes(w.id))
+const isOffice = (w, st) => w.kind === 'internal' && (w.admin || st.approvers.fin.includes(w.id) || st.approvers.con.includes(w.id) || (st.contractTeam || []).includes(w.id))
+const commissionRole = (w, st) => (isOffice(w, st) ? 'office' : w.kind === 'agent' || st.team.includes(w.id) ? 'agent' : 'none')
+// the rate is fixed when the first half falls due, so changing a rate later never alters what is already owed
+function lockCommissionRate(l, st) {
+  if (l.cfix || !HOME_KEYS.includes(l.product)) return
+  const ext = !st.team.includes(l.owner) || l.source === 'Agent referral'
+  l.cfix = { rate: st.commission.rates[ext ? 'ext' : 'int'][l.product], ext, at: Date.now() }
+}
+// one customer's commission, from the raw row. null when none is earned (no pre-order yet, not SOLUM, lost, or the owner is switched off) unless something was already paid.
+function commissionLine(row, st) {
+  const raw = row.data || {}, l = leadOut(row), pd = raw.cpaid || {}
+  if (l.concept || !HOME_KEYS.includes(l.product)) return null
+  const anyPaid = !!(pd.h1 || pd.h2)
+  if (!anyPaid && ((l.maxStage || 0) < 3 || l.status === 'lost' || st.commission.off.includes(l.owner))) return null
+  const kind = st.team.includes(l.owner) ? 'internal' : 'external'
+  const own = l.source === 'Agent referral', fix = raw.cfix
+  const ext = fix ? !!fix.ext : (kind === 'external' || own)
+  const rate = fix ? fix.rate : st.commission.rates[ext ? 'ext' : 'int'][l.product]
+  const a1 = Math.round(rate / 2), a2 = rate - a1, o = l.order || {}
+  const reach1 = (l.maxStage || 0) >= 6, reach2 = (Number(o.step) || 0) >= 6
+  const at1 = reach1 ? ((l.dates && l.dates[6]) || l.lastTouch || 0) : 0
+  const at2 = reach2 ? (o.deliveredAt || (l.dates && l.dates[9]) || l.lastTouch || 0) : 0
+  const half = (n, amt, reach, at) => { const r = pd['h' + n]; return { n, amt, st: !reach ? 'later' : r ? 'paid' : raw.chold ? 'hold' : 'due', at, paidAt: r ? r.at : 0, by: r ? r.by : '', byName: r ? r.name : '', ref: r ? (r.ref || '') : '' } }
+  return { id: l.id, owner: l.owner, kind, own, ext, rate, locked: !!fix, first: l.first, last: l.last, home: l.product, state: l.state, stage: l.stage, status: l.status, hold: !!raw.chold, h: [half(1, a1, reach1, at1), half(2, a2, reach2, at2)],
+    notes: raw.cnotes || [], log: raw.clog || [] }
+}
+// what an agent may see of their own deal: the halves and when they were paid, notes shared with them, no staff names, no office notes, no history of undos or holds
+function agentView(c) {
+  return { ...c, h: c.h.map((x) => ({ n: x.n, amt: x.amt, st: x.st, at: x.at, paidAt: x.paidAt })), notes: c.notes.filter((n) => n.shared).map((n) => ({ at: n.at, x: n.x })),
+    log: c.h.filter((x) => x.st === 'paid').map((x) => ({ at: x.paidAt, x: (x.n === 1 ? 'First half' : 'Final payment') + ' paid' })) }
+}
+async function commissionContext(db, st) {
+  const [agents, companies] = await Promise.all([db.agents.all(), db.companies.all()])
+  const coName = (id) => { const c = companies.find((x) => x.id === id); return c ? c.name : 'Selling agents' }
+  const agent = (id) => agents.find((x) => x.id === id)
+  const nameOf = (id) => personName(id) || (agent(id) && agent(id).name) || 'Unknown'
+  const groupOf = (id) => (st.team.includes(id) ? 'HAAVN BLACK Direct' : agent(id) ? coName(agent(id).company_id) : 'Selling agents')
+  return { agents, nameOf, groupOf, coName }
+}
+async function commissionPayload(w, st, db) {
+  const role = commissionRole(w, st)
+  if (role === 'none') throw new SalesError('Commission is for the team and the selling agents.', 403)
+  const ctx = await commissionContext(db, st), rows = await db.leads.all(), office = role === 'office'
+  let lines = rows.map((r) => commissionLine(r, st)).filter(Boolean)
+  if (!office) lines = lines.filter((c) => c.owner === w.id)
+  lines = lines.map((c) => ({ ...(office ? c : agentView(c)), ownerName: ctx.nameOf(c.owner), group: ctx.groupOf(c.owner) }))
+  const ext = !office && w.kind === 'agent'
+  const out = { role, canPay: isFinance(w, st), canEdit: !!w.admin, rates: ext ? { ext: st.commission.rates.ext } : st.commission.rates, lines }
+  if (office) out.earners = [...st.team.map((id) => ({ id, name: personName(id) || id, kind: 'internal', group: 'HAAVN BLACK Direct', on: !st.commission.off.includes(id), active: true })),
+    ...ctx.agents.map((a) => ({ id: a.id, name: a.name, kind: 'external', group: ctx.coName(a.company_id), on: !st.commission.off.includes(a.id), active: (a.data || {}).active !== false }))]
+  return out
+}
+// change one deal's commission record (payments, hold, notes, history) and save it
+async function dealWrite(db, row, mutate) {
+  const raw = row.data || {}
+  const next = { ...leadOut(row), cpaid: { ...(raw.cpaid || {}) }, chold: !!raw.chold, cnotes: [...(raw.cnotes || [])], clog: [...(raw.clog || [])], cfix: raw.cfix }
+  mutate(next)
+  next.clog = next.clog.slice(0, 200); next.cnotes = next.cnotes.slice(0, 100)
+  return db.leads.upsert(leadRow(next, row))
+}
+async function commissionDeal(db, st, id) {
+  const row = await db.leads.get(String(id || ''))
+  const line = row && commissionLine(row, st)
+  if (!line) throw new SalesError('There is no commission on that customer.', 404)
+  return { row, line }
+}
+
 async function run(action, a, session, deps) {
   const { db } = deps
   const w = await whoAmI(session, db)
@@ -411,8 +489,8 @@ async function run(action, a, session, deps) {
       const co = await companyOut(db, w)
       let inbox = [], mail = null
       if (internal) { try { inbox = await db.inbox.list(60) } catch { /* ignore */ } try { mail = await db.settings.get('mail') } catch { /* ignore */ } }
-      return { me: { id: w.id, name: w.name, kind: w.kind, admin: !!w.admin, manager: !!w.manager, companyId: w.companyId || '', gates: gatesFor(w, settings), roles: rolesFor(w, settings) }, leads, ...co,
-        settings: internal ? settings : { rules: {}, prices: settings.prices, preorder: settings.preorder, approvers: settings.approvers, spend: {}, notify: {}, team: settings.team }, inbox, mail, now: Date.now(),
+      return { me: { id: w.id, name: w.name, kind: w.kind, admin: !!w.admin, manager: !!w.manager, companyId: w.companyId || '', gates: gatesFor(w, settings), roles: rolesFor(w, settings), commission: commissionRole(w, settings) }, leads, ...co,
+        settings: internal ? (({ commission, ...rest }) => rest)(settings) : { rules: {}, prices: settings.prices, preorder: settings.preorder, approvers: settings.approvers, spend: {}, notify: {}, team: settings.team }, inbox, mail, now: Date.now(),
         team: settings.team.map((id) => ({ id, name: personName(id) })), staff: internal ? A.PEOPLE.filter((p) => INTERNAL_ROLES.includes(p.role)).map((p) => ({ id: p.id, name: p.name })) : [], states: STATES }
     }
     case 'poll': {
@@ -475,6 +553,9 @@ async function run(action, a, session, deps) {
           next.act = mergeAct(next.act, [{ t: at, x: 'The home is at the port. The final payment is due before it is delivered.', k: 'sys' }])
         }
       }
+      if (next.order && cur.order && cur.order.deliveredAt) next.order = { ...next.order, deliveredAt: cur.order.deliveredAt }
+      else if (!internal && next.order && next.order.deliveredAt) { const { deliveredAt, ...rest } = next.order; next.order = rest }
+      if (next.order && cur.stage >= 7 && (Number(next.order.step) || 0) >= 6 && !next.order.deliveredAt) next.order = { ...next.order, deliveredAt: at }
       if (next.stage >= 7 && !next.order) next.order = { step: 0, eta: at + 77 * 864e5, site: '', lastUpdate: at, log: [{ t: at, x: 'Order confirmed.' }] }
       if (landed) next.adminTasks = await landedOn(deps, await getSettings(db), next)
       const saved = await db.leads.upsert(leadRow(next, row))
@@ -502,6 +583,7 @@ async function run(action, a, session, deps) {
         const note = clean(a.note, 300)
         next.appr = [{ g, by: w.id, name: w.name, at, note }, ...(cur.appr || [])].slice(0, 60)
         THEN[g](next, at)
+        if (g === 'dep') lockCommissionRate(next, settings)
         say(`${GATE_DONE[g]} Approved by ${w.name}.${note ? ' "' + note + '"' : ''}`)
         landed = true
       } else if (op === 'return') {
@@ -529,6 +611,54 @@ async function run(action, a, session, deps) {
       if (landed) next.adminTasks = await landedOn(deps, settings, next)
       const saved = await db.leads.upsert(leadRow(next, row))
       return { lead: leadOut(saved) }
+    }
+    case 'commission': return commissionPayload(w, await getSettings(db), db)
+    case 'commissionPay': case 'commissionUndo': case 'commissionHold': case 'commissionNote': {
+      const st = await getSettings(db)
+      if (!isFinance(w, st)) throw new SalesError('Finance and directors manage commission payments.', 403)
+      const { row, line } = await commissionDeal(db, st, a.id), at = Date.now(), n = Number(a.half), nm = n === 1 ? 'First half' : 'Final payment'
+      const owner = line.owner, hh = line.h[n - 1]
+      let saved
+      if (action === 'commissionPay') {
+        if (![1, 2].includes(n)) throw new SalesError('Choose the first half or the final payment.')
+        if (line.hold) throw new SalesError('This commission is on hold. Release the hold first.', 409)
+        if (hh.st === 'paid') throw new SalesError('That is already marked paid.', 409)
+        if (hh.st === 'later') throw new SalesError(n === 1 ? 'The first half falls due when the 10% deposit is confirmed.' : 'The final payment falls due when the home is delivered.', 409)
+        if (n === 2 && line.h[0].st !== 'paid') throw new SalesError('Pay the first half before the final payment.', 409)
+        const ref = clean(a.ref, 80)
+        saved = await dealWrite(db, row, (x) => { if (!x.cfix) x.cfix = { rate: line.rate, ext: line.ext, at }; x.cpaid['h' + n] = { at, by: w.id, name: w.name, ref }; x.clog.unshift({ at, by: w.id, name: w.name, x: `${nm} of ${money(hh.amt)} marked paid${ref ? ', ref ' + ref : ''}` }) })
+      } else if (action === 'commissionUndo') {
+        if (![1, 2].includes(n)) throw new SalesError('Choose the first half or the final payment.')
+        const reason = clean(a.reason, 200); if (!reason) throw new SalesError('Say why it is being undone.')
+        if (hh.st !== 'paid') throw new SalesError('That payment is not marked paid.', 409)
+        if (n === 1 && line.h[1].st === 'paid') throw new SalesError('Undo the final payment first.', 409)
+        saved = await dealWrite(db, row, (x) => { delete x.cpaid['h' + n]; x.clog.unshift({ at, by: w.id, name: w.name, x: `${nm} payment undone: ${reason}` }) })
+      } else if (action === 'commissionHold') {
+        const hold = !!a.hold, reason = clean(a.reason, 200)
+        if (hold && !reason) throw new SalesError('Say why it is being held.')
+        if (hold && line.h.every((x) => x.st === 'paid')) throw new SalesError('Both halves are already paid.', 409)
+        if (hold === line.hold) throw new SalesError(hold ? 'It is already on hold.' : 'It is not on hold.', 409)
+        saved = await dealWrite(db, row, (x) => { x.chold = hold; x.clog.unshift({ at, by: w.id, name: w.name, x: hold ? `Commission put on hold: ${reason}` : `Hold released${reason ? ': ' + reason : ''}` }) })
+      } else {
+        const text = clean(a.text, 600); if (!text) throw new SalesError('Write the note first.')
+        saved = await dealWrite(db, row, (x) => { x.cnotes.unshift({ at, by: w.id, name: w.name, x: text, shared: !!a.shared }) })
+      }
+      const ctx = await commissionContext(db, st), fresh = commissionLine(saved, st)
+      return { line: { ...fresh, ownerName: ctx.nameOf(owner), group: ctx.groupOf(owner) } }
+    }
+    case 'commissionSettings': {
+      if (!w.admin) throw new SalesError('Only a director changes commission.', 403)
+      const cur = await getSettings(db), s = a.commission || {}
+      const rates = JSON.parse(JSON.stringify(cur.commission.rates))
+      for (const kind of ['int', 'ext']) for (const k of HOME_KEYS) if (s.rates && s.rates[kind] && s.rates[kind][k] !== undefined) {
+        const v = Math.round(Number(String(s.rates[kind][k]).replace(/[^0-9.]/g, '')))
+        if (!(v > 0 && v <= 100000)) throw new SalesError('A commission rate has to be between $1 and $100,000.')
+        rates[kind][k] = v
+      }
+      let off = cur.commission.off
+      if (Array.isArray(s.off)) { const known = new Set([...cur.team, ...(await db.agents.all()).map((x) => x.id)]); off = [...new Set(s.off.map(String).filter((id) => known.has(id)))] }
+      await db.settings.set('sales', { ...cur, commission: { rates, off } })
+      return { rates, off }
     }
     case 'companySave': {
       const c = a.company || {}
@@ -586,7 +716,7 @@ async function run(action, a, session, deps) {
       if (!approvers.con.length || !approvers.fin.length) throw new SalesError('Choose at least one person for Contract admin and one for Finance.')
       const preorder = s.preorder !== undefined ? (num(s.preorder) || cur.preorder) : cur.preorder
       const inboxKeep = s.inboxKeep !== undefined && [0, 7, 14, 30, 60].includes(Number(s.inboxKeep)) ? Number(s.inboxKeep) : cur.inboxKeep
-      const next = { inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
+      const next = { commission: cur.commission, inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }
@@ -655,4 +785,4 @@ async function run(action, a, session, deps) {
   }
 }
 
-module.exports = { tidyInbox, clearHandled, run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }
+module.exports = { commissionLine, commissionRole, isFinance, tidyInbox, clearHandled, run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }
