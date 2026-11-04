@@ -80,6 +80,16 @@ body{font-family:var(--sans);background:var(--bg0);color:var(--ink);-webkit-font
 .prof-avwrap{width:64px;height:64px}
 .rail-cloud{display:flex;align-items:center;gap:7px;padding:8px 10px;margin:6px 2px 0;border-radius:10px;border:1px solid var(--line);background:var(--pill);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .rail-cloud .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px color-mix(in srgb,var(--green) 70%,transparent);flex:none}
+/* HAAVN BLACK sidebar: soft grey/black in both themes, so it reads apart from the Workflow sidebar. Its own tokens (so the light theme does not wash it out) and html body .rail selectors, because atrium-workflow-look.css loads after this and uses !important. */
+.rail{--ink:#F3F2EE;--ink-2:#bcbec4;--ink-3:#868a93;--ink-4:#5d616a;--line:rgba(255,255,255,.10);--line-2:rgba(255,255,255,.07);--pill:rgba(255,255,255,.055);--bg1:#1b1d21;
+  --p2:color-mix(in srgb,#F3F2EE 82%,transparent);--p3:color-mix(in srgb,#F3F2EE 60%,transparent);--ph:color-mix(in srgb,#F3F2EE 13%,transparent);
+  color:var(--ink);background:linear-gradient(180deg,#26292e 0%,#1d1f23 46%,#191b1f 100%);border-right:1px solid rgba(255,255,255,.07);box-shadow:inset -1px 0 0 rgba(0,0,0,.35)}
+html body .rail .rail-group{background:none!important;border:0!important;border-top:1px solid var(--ph)!important;border-radius:0!important;box-shadow:none!important;padding:14px 0 0!important;margin:20px 10px 4px!important;color:var(--p3)!important;font:400 12px/1.2 var(--sans)!important}
+html body .rail .rail-head+.rail-group,html body .rail .rail-switch+.rail-group{border-top:0!important;padding-top:0!important;margin-top:6px!important}
+html body .rail .rail-item{border-radius:8px}
+html body .rail .rail-item:hover{background:rgba(255,255,255,.06);color:var(--ink)}
+html[data-theme] body .rail .rail-item.on{background:rgba(255,255,255,.09)!important;box-shadow:inset 2px 0 0 rgba(243,242,238,.9)!important;color:var(--ink)}
+html body .rail .rail-cloud{background:none;color:var(--p3)}
 
 .main{flex:1;min-width:0}
 .topbar{position:sticky;top:0;z-index:80;background:rgba(11,13,15,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line-2);
