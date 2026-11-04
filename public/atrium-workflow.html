@@ -355,8 +355,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-item" data-tab="dashboard" data-icon="pipeline">Growth dashboard</div>
     <div class="rail-group g-supply">Pipelines</div>
     <div class="rail-item" data-tab="partners" data-icon="people">Partner CRM<span class="n" id="cPartners">0</span></div>
-    <div class="rail-item" data-tab="supply" data-icon="folder">Supply pipeline<span class="n" id="cSupply">0</span></div>
-    <div class="rail-item" data-tab="sales" data-icon="pipeline">Sales pipeline<span class="n" id="cBuyers">0</span></div>
+    <div class="rail-item" data-tab="supply" data-icon="folder">HAAVN pipeline<span class="n" id="cSupply">0</span></div>
+    <div class="rail-item" data-tab="sales" data-icon="pipeline">HAAVN BLACK pipeline<span class="n" id="cBuyers">0</span></div>
     <div class="rail-item" data-tab="buyers" data-icon="people">Home buyers</div>
     <div class="rail-group g-mgmt mgmt-only">Projects</div>
     <div class="rail-item mgmt-only" data-tab="mgmt" data-icon="overview">Management overview</div>
@@ -794,7 +794,7 @@ var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   teamboard:['Team board','LIVE STATUS BY DEPARTMENT'],workload:['Workload','TEAM CAPACITY · THIS WEEK'],weeklyreview:['Weekly review','BRIDGE → MEETING MANAGEMENT'],
   mgmt:['HAAVN Management','PROJECT DELIVERY · SEPARATE FROM SUPPLY'],mgmtprojects:['Management Projects','DEVELOPER, CLIENT & SUPPLY PROJECTS · MODULAR OR NOT'],mgmttimeline:['Project timelines','ALL PROJECTS · PHASES & MILESTONES'],mgmthandoffs:['Supply ↔ Management','HANDOFFS & REQUESTS BETWEEN THE TWO TEAMS'],
   partners:['HAAVN Partner CRM','SUPPLIER & DEVELOPER RELATIONSHIPS'],
-  supply:['HAAVN Supply Pipeline','MODULAR SUPPLY PROJECTS'],sales:['Sales pipeline','HAAVN BLACK · LEADS TO ORDERS'],
+  supply:['HAAVN','PIPELINE · MODULAR SUPPLY PROJECTS'],sales:['HAAVN BLACK','SALES PIPELINE · LEADS TO ORDERS'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
   meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANTS DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
@@ -1679,7 +1679,7 @@ function viewMgmtHandoffs(){
   h+='<div class="mgsplit" style="margin-top:20px"><div>';
   h+='<div class="section-h" style="margin-top:0"><h3>Management → Supply</h3></div><div class="card" style="padding:6px 16px">'+(toSupply.length?toSupply.map(function(p){return '<div class="wr-row"><div class="tt" style="cursor:pointer" onclick="mgmtOpenProject(\''+p.id+'\')">'+esc(p.name)+'<div style="font:400 10px var(--mono);color:var(--ink-3);margin-top:3px">'+esc(p.client||'')+' · chose modular</div></div><button class="btn sm gold" onclick="mgmtCreateSupply(\''+p.id+'\')">Create in Supply</button></div>';}).join(''):'<div class="empty">When a client chooses modular on a Management project, it appears here to create in Supply.</div>')+'</div>';
   h+='<div class="section-h"><h3>Supply → Management</h3></div><div class="card" style="padding:6px 16px">'+(ready.length?ready.map(function(s){return mgmtSupplyRow(s,true);}).join(''):'<div class="empty">Nothing waiting. Projects appear when Supply hands them off, or reach PIP in Progress or Confirmed Supply.</div>')+'</div>';
-  h+='<div class="section-h"><h3>Still in the Supply pipeline</h3><div class="spacer"></div><span style="font:500 10px var(--mono);color:var(--ink-3)">hand off early if Management should start planning</span></div><div class="card" style="padding:6px 16px;max-height:380px;overflow:auto">'+(later.length?later.map(function(s){return mgmtSupplyRow(s,false);}).join(''):'<div class="empty">All supply projects are with Management.</div>')+'</div>';
+  h+='<div class="section-h"><h3>Still in the HAAVN pipeline</h3><div class="spacer"></div><span style="font:500 10px var(--mono);color:var(--ink-3)">hand off early if Management should start planning</span></div><div class="card" style="padding:6px 16px;max-height:380px;overflow:auto">'+(later.length?later.map(function(s){return mgmtSupplyRow(s,false);}).join(''):'<div class="empty">All supply projects are with Management.</div>')+'</div>';
   h+='</div><div>';
   h+='<div class="section-h" style="margin-top:0"><h3>Open requests</h3></div><div class="card">'+(reqs.length?reqs.map(function(r){return mgmtMsgRow(r.p,r.m,true);}).join(''):'<div class="empty" style="padding:8px">No open requests.</div>')+'</div>';
   h+='<div class="section-h"><h3>Linked both ways</h3></div><div class="card" style="padding:6px 16px">'+(Object.keys(linked).length?Object.keys(linked).map(function(k){var p=linked[k],s=WS.supplyProjects.find(function(x){return x.id===k;});return '<div class="wr-row" style="cursor:pointer" onclick="mgmtOpenProject(\''+p.id+'\')"><span class="tt">'+esc(p.name)+'</span>'+mgmtPathChip(p.pathway)+'<span class="chip blue">'+esc(s?s.stage:'')+'</span><span style="font:400 10px var(--mono);color:var(--ink-3)">'+(p.exchange||[]).length+' msgs</span></div>';}).join(''):'<div class="empty">None yet.</div>')+'</div>';
