@@ -47,6 +47,22 @@ function fake() {
 }
 let F: ReturnType<typeof fake>
 const run = (a: string, args: any, who: any = jamie) => S.run(a, args, who, F.deps)
+const alessia = { sub: 'ar', name: 'Alessia Bresciano', role: 'staff', emails: ['reception@haavn.au'] }
+const amy = { sub: 'ab', name: 'Amy Baldwin', role: 'staff', emails: ['accounts@7even.au'] }
+const dominika = { sub: 'dm', name: 'Dominika Ma', role: 'staff', emails: ['accounts@haavn.au'] }
+const get = async (id: string) => (await run('init', {})).leads.find((x: any) => x.id === id)
+// walk a customer to a stage the way the office does: early stages by hand, then each money or contract gate approved by a director
+async function through(id: string, stage: number) {
+  let l = await get(id)
+  for (let guard = 0; guard < 40 && l.stage < stage; guard++) {
+    if (!l.gate && l.stage < 3) l = (await run('saveLead', { lead: { id, stage: l.stage + 1 } })).lead
+    else if (!l.gate && l.stage === 7) l = (await run('saveLead', { lead: { id, order: { ...l.order, step: 5 } } })).lead
+    else if (l.gate === 'out') l = (await run('gate', { id, op: 'signed' })).lead
+    else { if (S.GATES[l.gate].money && !l.paid) await run('gate', { id, op: 'arrived' }); l = (await run('gate', { id, op: 'approve' })).lead }
+  }
+  return l
+}
+const mkLead = async (n = Math.random()) => (await S.ingestEmail(F.deps, { messageId: 'm' + n, body: FORM() })).lead
 beforeEach(() => { F = fake(); O.reset() })
 
 const FORM = (o: any = {}) => `New SOLUM enquiry\n\nFirst name: ${o.first || 'Mia'}\nLast name: ${o.last || 'Brennan'}\nEmail: ${o.email || 'mia.brennan@example.com'}\nPhone: ${o.phone || '0400 000 901'}\nSetting: Coast\nState: ${o.state || 'Queensland'}\nModel: ${o.model || 'SOLUM Plus'}\nCladding: Char\nPalette: Sage\nJoinery: Raw Walnut\nPreferred payment: Finance\nDelivery: Delivered\nMessage: Guest studio at the back of our block.\nutm_source: ${o.utm || 'facebook'}`
@@ -186,28 +202,40 @@ describe('companies, agents and who sees what', () => {
 })
 
 describe('working a lead through the stages', () => {
-  it('moves along, keeps the history safe, and confirming the order creates the order record', async () => {
+  it('moves through the early stages by hand, then waits at the pre-order deposit', async () => {
     const l = (await S.ingestEmail(F.deps, { messageId: 'x', body: FORM() })).lead
-    let r = (await run('saveLead', { lead: { id: l.id, stage: 3, act: [{ t: 5, x: 'Called', k: 'note' }] } })).lead
-    expect(r).toMatchObject({ stage: 3, maxStage: 3 }); expect(r.act.map((x: any) => x.x)).toContain('Called')
-    r = (await run('saveLead', { lead: { id: l.id, stage: 7 } })).lead
-    expect(r.stage).toBe(7); expect(r.order).toMatchObject({ step: 0 }); expect(r.maxStage).toBe(7)
+    let r = (await run('saveLead', { lead: { id: l.id, stage: 1, act: [{ t: 5, x: 'Called', k: 'note' }] } })).lead
+    expect(r).toMatchObject({ stage: 1, maxStage: 1, gate: null }); expect(r.act.map((x: any) => x.x)).toContain('Called')
     r = (await run('saveLead', { lead: { id: l.id, stage: 2 } })).lead
-    expect(r).toMatchObject({ stage: 2, maxStage: 7 })
+    r = (await run('saveLead', { lead: { id: l.id, stage: 3 } })).lead
+    expect(r).toMatchObject({ stage: 3, maxStage: 3, gate: 'pre', paid: false })
+    await expect(run('saveLead', { lead: { id: l.id, stage: 4 } })).rejects.toThrow(/approval/)
+    await expect(run('saveLead', { lead: { id: l.id, stage: 7 } })).rejects.toThrow(/approval/)
+    expect((await get(l.id)).stage).toBe(3)
+  })
+  it('a customer cannot skip a stage, and only a director steps one back, keeping how far it got', async () => {
+    const l = await mkLead()
+    await expect(run('saveLead', { lead: { id: l.id, stage: 2 } })).rejects.toThrow(/one stage at a time/)
+    const at7 = await through(l.id, 7)
+    expect(at7).toMatchObject({ stage: 7, maxStage: 7, gate: null }); expect(at7.order).toMatchObject({ step: 0 })
+    await expect(run('saveLead', { lead: { id: l.id, stage: 5 } }, mike)).rejects.toThrow(/director/)
+    const back = (await run('saveLead', { lead: { id: l.id, stage: 5 } })).lead
+    expect(back).toMatchObject({ stage: 5, maxStage: 7, gate: 'invoice', paid: false })
+    expect(back.act.map((x: any) => x.x).join(' ')).toContain('Stepped back to Contract signed by Jamie Baldwin')
   })
   it('an agent can update their customer and the site but not the delivery step, and cannot reassign to a stranger', async () => {
     const c = (await run('companySave', { company: { name: 'Co' } })).company
     const ag = (await run('agentSave', { agent: { name: 'Pat', companyId: c.id, email: 'pat@example.com' } })).agent
     const l = (await run('newLead', { lead: { first: 'Z', mobile: '0400 123 123', state: 'QLD', owner: ag.id } })).lead
     F.t.leads[0].company_id = c.id; F.t.leads[0].owner = ag.id
-    await run('saveLead', { lead: { id: l.id, stage: 7 } })
+    await through(l.id, 7)
     const me = agentSession('pat@example.com')
     const r = (await run('saveLead', { lead: { id: l.id, order: { step: 6, site: '9 Gum Rd' }, owner: 'jb' } }, me)).lead
     expect(r.order).toMatchObject({ step: 0, site: '9 Gum Rd' }); expect(r.owner).toBe(ag.id)
   })
   it('the handover goes to projects@haavn.au and a customer email goes to the customer, both copied to the sender, only when asked', async () => {
     const l = (await S.ingestEmail(F.deps, { messageId: 'h', body: FORM() })).lead
-    await run('saveLead', { lead: { id: l.id, stage: 7, order: { step: 0, site: '12 Wattle Rd', eta: 1, lastUpdate: 1, log: [] } } })
+    await through(l.id, 7); await run('saveLead', { lead: { id: l.id, order: { step: 0, site: '12 Wattle Rd', eta: 1, lastUpdate: 1, log: [] } } })
     expect(F.sent).toHaveLength(0)
     await run('handover', { id: l.id }, mike)
     expect(F.sent[0]).toMatchObject({ to: ['projects@haavn.au'], replyTo: 'mike@haavn.au', bcc: 'mike@haavn.au' }); expect(F.sent[0].subject).toContain('Mia Brennan'); expect(F.sent[0].html).toContain('12 Wattle Rd')
@@ -247,43 +275,132 @@ describe('reading the sales@haavnblack.au mailbox', () => {
   })
 })
 
-describe('the HAAVN contract team: Alessia, Amy and Dominika', () => {
-  const mkAt = async (stage: number) => { const l = (await S.ingestEmail(F.deps, { messageId: 'ca' + Math.random(), body: FORM() })).lead; return (await run('saveLead', { lead: { id: l.id, stage } })).lead }
-  const actions = () => (F.t.doc[B.KEYS.workflow] ? F.t.doc[B.KEYS.workflow].actions.filter((x: any) => x.project === 'HAAVN BLACK Sales' && !/^Call /.test(x.title)) : [])
+describe('approvals: Alessia for the contract, Amy and Dominika for the money', () => {
+  const tasks = () => (F.t.doc[B.KEYS.workflow] ? F.t.doc[B.KEYS.workflow].actions.filter((x: any) => x.project === 'HAAVN BLACK Sales' && !/^Call /.test(x.title)) : [])
   const contractGroup = () => F.t.groups.find((g: any) => g.dm_key === 'hbcontract')
-  it('EOI, contract signed and deposit paid each make one task for Alessia, Amy and Dominika watch, and the team is told in their Chat group', async () => {
-    await run('settingsSave', { settings: { prices: { plus: 200000 } } })
-    const l = await mkAt(3)
-    expect(actions().map((t: any) => t.title)).toEqual(['Prepare and send the contract: Mia Brennan'])
-    expect(actions()[0]).toMatchObject({ owner: 'Alessia Bresciano', watchers: ['Amy Baldwin', 'Dominika Ma'], dept: 'haavnblack' })
-    await run('saveLead', { lead: { id: l.id, stage: 2 } }); await run('saveLead', { lead: { id: l.id, stage: 3 } })
-    expect(actions()).toHaveLength(1)
-    await run('saveLead', { lead: { id: l.id, stage: 5 } })
-    expect(actions()[1].title).toBe('Raise the 10% deposit invoice: Mia Brennan ($20,000)')
-    await run('saveLead', { lead: { id: l.id, stage: 6 } })
-    expect(actions()[2].title).toContain('Confirm the order and hand over to projects')
-    expect(S.leadOut(F.t.leads[0]).adminTasks).toMatchObject({ 3: expect.any(String), 5: expect.any(String), 6: expect.any(String) })
+  it('each gate makes one task for the right person, the others watch, and the team is told in their Chat group', async () => {
+    const l = await mkLead()
+    await through(l.id, 3)
+    expect(tasks().map((t: any) => t.title)).toEqual(['Confirm the $2,000 pre-order deposit: Mia Brennan'])
+    expect(tasks()[0]).toMatchObject({ owner: 'Amy Baldwin', watchers: expect.arrayContaining(['Alessia Bresciano', 'Dominika Ma']), dept: 'haavnblack' })
+    await through(l.id, 4)
+    expect(tasks().map((t: any) => t.title)).toEqual(['Confirm the $2,000 pre-order deposit: Mia Brennan', 'Issue the contract: Mia Brennan'])
+    expect(tasks()[1].owner).toBe('Alessia Bresciano')
+    await through(l.id, 5)
+    expect(tasks().map((t: any) => t.title).slice(2)).toEqual(['File the signed contract: Mia Brennan', 'Raise the 10% deposit invoice: Mia Brennan ($16,500)'])
+    expect(tasks()[3].owner).toBe('Amy Baldwin')
+    await through(l.id, 6)
+    expect(tasks()[4].title).toBe('Confirm the order and hand over to projects: Mia Brennan'); expect(tasks()[4].owner).toBe('Alessia Bresciano')
+    await through(l.id, 8)
+    expect(tasks()[5].title).toBe('Confirm the final payment: Mia Brennan ($166,500)')
+    expect(tasks()).toHaveLength(6)
     expect(contractGroup()).toMatchObject({ name: 'HAAVN Contract Team', is_private: true })
     expect(F.t.members.filter((m: any) => m.group_id === contractGroup().id).map((m: any) => m.member).sort()).toEqual(['ab', 'ar', 'dm', 'jb', 'mf'])
-    const notes = F.t.msgs.filter((m: any) => m.group_id === contractGroup().id).map((m: any) => m.body)
-    expect(notes).toHaveLength(3); expect(notes[1]).toContain('Raise the 10% deposit invoice')
-    expect(F.t.push.filter((p: any) => p.title === 'HAAVN Contract Team').map((p: any) => p.to).sort()).toEqual(['e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf', 'e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf', 'e-ab', 'e-ar', 'e-dm', 'e-jb', 'e-mf'].sort())
+    expect(F.t.msgs.filter((m: any) => m.group_id === contractGroup().id)).toHaveLength(6)
+    expect(Object.keys(S.leadOut(F.t.leads[0]).adminTasks).sort()).toEqual(['confirm', 'final', 'invoice', 'issue', 'pre', 'signed'])
   })
-  it('a client cannot write the task record, nobody is tasked when it is switched off, and only a director changes the team', async () => {
+  it('the deposits are the website\'s numbers: $2,000 pre-order, then 10% less that, then the full 90% balance before delivery', async () => {
+    const st = await S.getSettings(F.deps.db)
+    expect(st.prices).toEqual({ studio: 145000, plus: 185000, max: 215000 }); expect(st.preorder).toBe(2000)
+    const l = await mkLead()
+    expect(S.gateAmount(st, l, 'pre')).toBe(2000)
+    expect(S.gateAmount(st, { product: 'studio' }, 'dep')).toBe(12500); expect(S.gateAmount(st, { product: 'plus' }, 'dep')).toBe(16500); expect(S.gateAmount(st, { product: 'max' }, 'dep')).toBe(19500)
+    expect(S.gateAmount(st, { product: 'studio' }, 'final')).toBe(130500); expect(S.gateAmount(st, { product: 'plus' }, 'final')).toBe(166500); expect(S.gateAmount(st, { product: 'max' }, 'final')).toBe(193500)
+    await run('settingsSave', { settings: { prices: { plus: 0 } } })
+    expect((await S.getSettings(F.deps.db)).prices.plus).toBe(185000)
+  })
+  it('only the right person approves: Alessia the contract, Amy or Dominika the money, a director anything, Mike nothing', async () => {
+    const l = await mkLead()
+    await through(l.id, 3)
+    await run('gate', { id: l.id, op: 'arrived' }, amy)
+    await expect(run('gate', { id: l.id, op: 'approve' }, alessia)).rejects.toThrow(/Finance/)
+    await expect(run('gate', { id: l.id, op: 'approve' }, mike)).rejects.toThrow(/Finance/)
+    let r = (await run('gate', { id: l.id, op: 'approve', note: 'Matched to the statement' }, dominika)).lead
+    expect(r).toMatchObject({ stage: 4, gate: 'issue' }); expect(r.appr[0]).toMatchObject({ g: 'pre', by: 'dm', name: 'Dominika Ma', note: 'Matched to the statement' })
+    await expect(run('gate', { id: l.id, op: 'approve' }, amy)).rejects.toThrow(/Alessia/)
+    r = (await run('gate', { id: l.id, op: 'approve' }, alessia)).lead
+    expect(r).toMatchObject({ stage: 4, gate: 'out' })
+    await expect(run('gate', { id: l.id, op: 'approve' }, alessia)).rejects.toThrow(/Waiting for the customer/)
+    r = (await run('gate', { id: l.id, op: 'signed' }, alessia)).lead
+    expect(r.gate).toBe('signed')
+    r = (await run('gate', { id: l.id, op: 'approve' })).lead
+    expect(r).toMatchObject({ stage: 5, gate: 'invoice', maxStage: 5 })
+    expect(r.appr.map((x: any) => x.g)).toEqual(['signed', 'issue', 'pre'])
+    const me = await run('init', {}, alessia)
+    expect(me.me.gates.sort()).toEqual(['confirm', 'issue', 'signed']); expect(me.me.roles).toEqual(['con'])
+    expect((await run('init', {}, amy)).me.gates.sort()).toEqual(['dep', 'final', 'invoice', 'pre']); expect((await run('init', {}, mike)).me.gates).toEqual([])
+  })
+  it('a money gate needs the payment recorded as arrived before it can be approved, and a sales agent cannot say a payment arrived', async () => {
+    const c = (await run('companySave', { company: { name: 'Co' } })).company
+    const ag = (await run('agentSave', { agent: { name: 'Pat', companyId: c.id, email: 'pat@example.com' } })).agent
+    const l = (await run('newLead', { lead: { first: 'Z', mobile: '0400 123 123', state: 'QLD', owner: ag.id } })).lead
+    F.t.leads[0].company_id = c.id; F.t.leads[0].owner = ag.id
+    await through(l.id, 3)
+    await expect(run('gate', { id: l.id, op: 'approve' })).rejects.toThrow(/payment has arrived/)
+    const me = agentSession('pat@example.com')
+    await expect(run('gate', { id: l.id, op: 'arrived' }, me)).rejects.toThrow()
+    await expect(run('gate', { id: l.id, op: 'approve' }, me)).rejects.toThrow()
+    expect((await run('gate', { id: l.id, op: 'arrived' }, amy)).lead).toMatchObject({ paid: true, stage: 3 })
+    expect((await run('gate', { id: l.id, op: 'approve' }, amy)).lead).toMatchObject({ stage: 4 })
+  })
+  it('returning a customer holds it until the agent resubmits it, and says why', async () => {
+    const l = await mkLead()
+    await through(l.id, 3); await run('gate', { id: l.id, op: 'arrived' }, amy)
+    await expect(run('gate', { id: l.id, op: 'return', why: '' }, amy)).rejects.toThrow(/why/)
+    let r = (await run('gate', { id: l.id, op: 'return', why: 'Wrong amount' }, amy)).lead
+    expect(r.ret).toMatchObject({ by: 'ab', why: 'Wrong amount' })
+    await expect(run('gate', { id: l.id, op: 'approve' }, amy)).rejects.toThrow(/resubmitted/)
+    r = (await run('gate', { id: l.id, op: 'resubmit' }, mike)).lead
+    expect(r.ret).toBeNull()
+    expect((await run('gate', { id: l.id, op: 'approve' }, amy)).lead.stage).toBe(4)
+  })
+  it('a screen cannot forge a gate, a payment or an approval', async () => {
+    const l = await mkLead()
+    const r = (await run('saveLead', { lead: { id: l.id, gate: 'dep', paid: true, appr: [{ g: 'pre', by: 'jb' }], adminTasks: { pre: 'x' } } })).lead
+    expect(r).toMatchObject({ gate: null, paid: false, appr: [] }); expect(r.adminTasks).toBeUndefined()
+    await through(l.id, 3)
+    const r2 = (await run('saveLead', { lead: { id: l.id, paid: true, gate: 'issue' } })).lead
+    expect(r2).toMatchObject({ gate: 'pre', paid: false })
+  })
+  it('the home reaching the port opens the final payment, and it is not delivered until that is approved', async () => {
+    const l = await mkLead()
+    const at7 = await through(l.id, 7)
+    await expect(run('saveLead', { lead: { id: l.id, order: { ...at7.order, step: 6 } } })).rejects.toThrow(/final payment/)
+    let r = (await run('saveLead', { lead: { id: l.id, order: { ...at7.order, step: 4 } } })).lead
+    expect(r.stage).toBe(7)
+    r = (await run('saveLead', { lead: { id: l.id, order: { ...r.order, step: 5 } } })).lead
+    expect(r).toMatchObject({ stage: 8, gate: 'final', paid: false }); expect(r.act.map((x: any) => x.x).join(' ')).toContain('final payment is due before it is delivered')
+    await expect(run('saveLead', { lead: { id: l.id, order: { ...r.order, step: 6 } } })).rejects.toThrow(/final payment/)
+    await expect(run('gate', { id: l.id, op: 'approve' }, amy)).rejects.toThrow(/payment has arrived/)
+    await run('gate', { id: l.id, op: 'arrived' }, amy)
+    r = (await run('gate', { id: l.id, op: 'approve' }, dominika)).lead
+    expect(r).toMatchObject({ stage: 9, gate: null, maxStage: 9 })
+    r = (await run('saveLead', { lead: { id: l.id, order: { ...r.order, step: 6 } } })).lead
+    expect(r.order.step).toBe(6)
+  })
+  it('a lead from before approvals existed takes the gate its stage puts it at', async () => {
+    const l = await mkLead()
+    const old = { ...F.t.leads[0].data, maxStage: 5 }; for (const k of ['gate', 'paid', 'gateAt', 'appr', 'ret', 'chased']) delete old[k]   // saved before approvals existed: none of these fields
+    F.t.leads[0].stage = 5; F.t.leads[0].data = old
+    expect(S.leadOut(F.t.leads[0])).toMatchObject({ stage: 5, gate: 'invoice', paid: false, appr: [], ret: null })
+    F.t.leads[0].stage = 6; expect(S.leadOut(F.t.leads[0]).gate).toBe('confirm')
+    F.t.leads[0].stage = 4; expect(S.leadOut(F.t.leads[0]).gate).toBe('out')
+    F.t.leads[0].stage = 7; expect(S.leadOut(F.t.leads[0]).gate).toBeNull()
+  })
+  it('nobody is tasked when it is switched off, and only a director changes who approves', async () => {
     await run('settingsSave', { settings: { notify: { task: false } } })
-    const l = await mkAt(3)
-    expect(actions()).toHaveLength(0)
-    await run('settingsSave', { settings: { notify: { task: true }, contractTeam: [] } })
-    await run('saveLead', { lead: { id: l.id, stage: 5, adminTasks: { 5: 'x' } } })
-    expect(actions()).toHaveLength(0)
-    await expect(run('settingsSave', { settings: { contractTeam: ['ar'] } }, mike)).rejects.toThrow(/director/)
+    const l = await mkLead(); await through(l.id, 4)
+    expect(tasks()).toHaveLength(0)
+    await expect(run('settingsSave', { settings: { approvers: { fin: ['ab'] } } }, mike)).rejects.toThrow(/director/)
+    const r = await run('settingsSave', { settings: { approvers: { con: ['ar', 'zz'], fin: ['dm'] } } })
+    expect(r.settings.approvers).toEqual({ con: ['ar'], fin: ['dm'] })
+    await expect(run('settingsSave', { settings: { approvers: { con: [], fin: ['dm'] } } })).rejects.toThrow(/at least one/)
     expect((await run('settingsSave', { settings: { contractTeam: ['ar', 'ab', 'dm', 'zz'] } })).settings.contractTeam).toEqual(['ar', 'ab', 'dm'])
     expect((await run('init', {}, mike)).staff.map((p: any) => p.name)).toEqual(expect.arrayContaining(['Alessia Bresciano', 'Amy Baldwin', 'Dominika Ma']))
   })
   it('all three sign in as the HAAVN team and see every lead', async () => {
     const l = (await S.ingestEmail(F.deps, { messageId: 'rec', body: FORM() })).lead
-    for (const w of [{ sub: 'ar', name: 'Alessia Bresciano', emails: ['reception@haavn.au'] }, { sub: 'ab', name: 'Amy Baldwin', emails: ['accounts@7even.au'] }, { sub: 'dm', name: 'Dominika Ma', emails: ['accounts@haavn.au'] }])
-      expect((await run('init', {}, { ...w, role: 'staff' })).leads.map((x: any) => x.id)).toEqual([l.id])
+    for (const w of [alessia, amy, dominika]) expect((await run('init', {}, w)).leads.map((x: any) => x.id)).toEqual([l.id])
   })
 })
 
