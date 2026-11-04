@@ -36,7 +36,8 @@ async function poll(env, deps, fetchImpl = fetch) {
       if (!out.skipped) { processed++; if (out.lead && !out.dup) leads++ }
     } catch { /* one bad email never stops the rest */ }
   }
-  return note({ ok: true, processed, leads })
+  const tidy = await S.tidyInbox(deps)
+  return note({ ok: true, processed, leads, cleared: tidy.cleared })
 }
 
 module.exports = async (req, res) => {

@@ -49,6 +49,7 @@ const DEFAULTS = {
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
   notify: { chat: true, push: true, task: true },
   team: ['jb', 'mf'],
+  inboxKeep: 0,   // days after which handled emails (turned into a lead, or dismissed) are cleared from the Inbox on their own; 0 = never
   contractTeam: ['ar', 'ab', 'dm'],   // the HAAVN contract team: Alessia, Amy, Dominika. The first one owns the tasks, the rest are watchers and are told in their Chat group
 }
 
@@ -146,15 +147,15 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased']
-const SERVER_KEYS = ['act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail']
+const SERVER_KEYS = ['srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
 function leadOut(row) {
-  const d = row.data || {}
+  const { srcMail, ...d } = row.data || {}
   const stage = row.stage || 0
   const gate = d.gate === undefined ? (GATE_BY_STAGE[stage] || null) : (d.gate || null)
   return { ...d, id: row.id, owner: row.owner || '', state: row.state || '', stage, status: row.status || 'open', source: row.source || 'Other', concept: !!row.concept,
     companyId: row.company_id || '', created: Date.parse(row.created_at) || 0, updated: Date.parse(row.updated_at) || 0,
-    gate: row.concept ? null : gate, paid: !!d.paid, gateAt: d.gateAt || (d.dates && d.dates[stage]) || d.lastTouch || Date.parse(row.created_at) || 0, appr: d.appr || [], ret: d.ret || null, chased: d.chased || 0 }
+    gate: row.concept ? null : gate, paid: !!d.paid, gateAt: d.gateAt || (d.dates && d.dates[stage]) || d.lastTouch || Date.parse(row.created_at) || 0, appr: d.appr || [], ret: d.ret || null, chased: d.chased || 0, hasMail: !!(Array.isArray(srcMail) && srcMail.length) }
 }
 function leadRow(l, base) {
   const data = { ...((base && base.data) || {}) }
@@ -213,6 +214,8 @@ async function notifyNewLead(deps, lead, settings) {
 }
 
 // ---------- making a lead ----------
+// The email a lead came from is kept on the customer (newest first, a few at most), so the Inbox can be cleared without losing it.
+const keepMail = (list, m) => [{ subject: clean(m.subject, 250), from: clean(m.from, 200), at: m.at || Date.now(), body: String(m.body || '').slice(0, 6000) }, ...(Array.isArray(list) ? list : [])].slice(0, 5)
 async function createLead(deps, p, opts = {}) {
   const { db } = deps
   const settings = opts.settings || await getSettings(db)
@@ -220,7 +223,7 @@ async function createLead(deps, p, opts = {}) {
   if (found.length) {
     const row = found[0], l = leadOut(row)
     const note = { t: Date.now(), x: `Enquired again from ${p.source}${p.msg ? ': ' + p.msg.slice(0, 200) : '.'}`, k: 'note' }
-    const saved = await db.leads.upsert(leadRow({ ...l, act: mergeAct(l.act, [note]), lastTouch: Date.now() }, row))
+    const saved = await db.leads.upsert(leadRow({ ...l, act: mergeAct(l.act, [note]), lastTouch: Date.now(), ...(opts.mail ? { srcMail: keepMail(row.data && row.data.srcMail, opts.mail) } : {}) }, row))
     return { lead: leadOut(saved), dup: true }
   }
   const concept = CONCEPT.includes(p.product)
@@ -232,6 +235,7 @@ async function createLead(deps, p, opts = {}) {
     utm: p.utm || '', owner, companyId: opts.companyId || '', stage: 0, maxStage: 0, dates: [now], lastTouch: now, status: 'open', lostWhy: '', concept, cstage: 0, eng: 20, chk: {},
     act: [{ t: now, x: `Enquiry received from ${p.source === 'Other' && p.otherSource ? 'Other (' + p.otherSource + ')' : p.source}${opts.how ? ' ' + opts.how : ''}.`, k: 'sys' }] }
   if (p.msg) lead.act.unshift({ t: now + 1, x: 'Their message: ' + p.msg.slice(0, 300), k: 'note' })
+  if (opts.mail) lead.srcMail = keepMail([], opts.mail)
   let saved = await db.leads.upsert(leadRow(lead, null))
   let out = leadOut(saved)
   if (opts.notify !== false) {
@@ -253,10 +257,37 @@ async function ingestEmail(deps, m) {
   const parsed = parseEnquiry(text, { from: m.from, subject: m.subject })
   const row = { id: seen ? seen.id : newId('M'), message_id: messageId, received_at: m.receivedAt ? new Date(m.receivedAt).toISOString() : new Date().toISOString(), from_addr: clean(m.from, 200), subject: clean(m.subject, 250), body: text.slice(0, 20000), status: 'review', lead_id: null, note: '' }
   if (!parsed.complete || !parsed.formLike) { row.note = parsed.complete ? 'A plain email, not the website form. Check it and create the lead if it is a customer.' : 'Not enough to make a lead (needs a name and an email or mobile).'; await db.inbox.upsert(row); return { review: true } }
-  const r = await createLead(deps, parsed, { how: 'by email' })
+  const r = await createLead(deps, parsed, { how: 'by email', mail: { subject: row.subject, from: row.from_addr, at: Date.parse(row.received_at) || Date.now(), body: row.body } })
   row.status = 'lead'; row.lead_id = r.lead.id; row.note = r.dup ? 'This customer already existed, a note was added.' : ''
   await db.inbox.upsert(row)
   return { lead: r.lead, dup: r.dup }
+}
+
+// ---------- clearing the Inbox ----------
+// A cleared email leaves a small marker (no text) for a few days, because the mailbox reader looks back three days and would otherwise read it in again.
+const MARKER_DAYS = 5
+const handled = (r) => r.status === 'lead' || r.status === 'dismissed'
+async function clearInboxRow(db, row) {
+  if (Date.now() - (Date.parse(row.received_at) || 0) > MARKER_DAYS * 864e5) await db.inbox.remove(row.id)
+  else await db.inbox.upsert({ id: row.id, message_id: row.message_id, received_at: row.received_at, status: 'cleared', lead_id: row.lead_id || null, from_addr: '', subject: '', body: '', note: '' })
+}
+// every handled email older than `days` (0 = all of them now); returns how many were cleared
+async function clearHandled(db, days) {
+  const cut = Date.now() - Math.max(0, Number(days) || 0) * 864e5
+  const rows = (await db.inbox.list(500)).filter((r) => handled(r) && (Date.parse(r.received_at) || 0) <= cut)
+  for (const r of rows) await clearInboxRow(db, r)
+  return rows.length
+}
+// run with every mailbox check: the automatic clear-out, and the old markers going for good
+async function tidyInbox(deps) {
+  const { db } = deps
+  const out = { cleared: 0 }
+  try {
+    const st = await getSettings(db)
+    if (st.inboxKeep > 0) out.cleared = await clearHandled(db, st.inboxKeep)
+    await db.inbox.purgeMarkers(new Date(Date.now() - MARKER_DAYS * 864e5).toISOString())
+  } catch { /* never stops the mailbox check */ }
+  return out
 }
 
 // ---------- the actions ----------
@@ -554,7 +585,8 @@ async function run(action, a, session, deps) {
       const approvers = { con: s.approvers && s.approvers.con ? staffIds(s.approvers.con) : cur.approvers.con, fin: s.approvers && s.approvers.fin ? staffIds(s.approvers.fin) : cur.approvers.fin }
       if (!approvers.con.length || !approvers.fin.length) throw new SalesError('Choose at least one person for Contract admin and one for Finance.')
       const preorder = s.preorder !== undefined ? (num(s.preorder) || cur.preorder) : cur.preorder
-      const next = { rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
+      const inboxKeep = s.inboxKeep !== undefined && [0, 7, 14, 30, 60].includes(Number(s.inboxKeep)) ? Number(s.inboxKeep) : cur.inboxKeep
+      const next = { inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }
@@ -564,7 +596,7 @@ async function run(action, a, session, deps) {
       if (!row) throw new SalesError('No such email.', 404)
       const p = a.parsed ? { ...parseEnquiry(row.body, { from: row.from_addr, subject: row.subject }), ...a.parsed } : parseEnquiry(row.body, { from: row.from_addr, subject: row.subject })
       if (!clean(p.first, 60) || !(p.email || p.mobile)) throw new SalesError('Add a name and an email or mobile first.')
-      const r = await createLead(deps, p, { how: 'by email, added by ' + w.name })
+      const r = await createLead(deps, p, { how: 'by email, added by ' + w.name, mail: { subject: row.subject, from: row.from_addr, at: Date.parse(row.received_at) || Date.now(), body: row.body } })
       await db.inbox.upsert({ ...row, status: 'lead', lead_id: r.lead.id, note: r.dup ? 'This customer already existed, a note was added.' : '' })
       return { lead: r.lead, dup: r.dup }
     }
@@ -574,6 +606,23 @@ async function run(action, a, session, deps) {
       if (!row) throw new SalesError('No such email.', 404)
       await db.inbox.upsert({ ...row, status: 'dismissed' })
       return { ok: true }
+    }
+    case 'inboxClear': {
+      if (!internal) throw new SalesError('Only the HAAVN BLACK team can use the inbox.', 403)
+      const row = await db.inbox.get(a.id)
+      if (!row) throw new SalesError('No such email.', 404)
+      await clearInboxRow(db, row)
+      return { ok: true }
+    }
+    case 'inboxClearHandled': {
+      if (!internal) throw new SalesError('Only the HAAVN BLACK team can use the inbox.', 403)
+      return { cleared: await clearHandled(db, a.days) }
+    }
+    case 'leadMail': {
+      if (!internal) throw new SalesError('Only the HAAVN BLACK team can read the original emails.', 403)
+      const row = await db.leads.get(a.id)
+      if (!row) throw new SalesError('No such customer.', 404)
+      return { mail: (row.data && Array.isArray(row.data.srcMail)) ? row.data.srcMail : [] }
     }
     case 'emailCustomer': case 'handover': {
       const row = await db.leads.get(a.id)
@@ -606,4 +655,4 @@ async function run(action, a, session, deps) {
   }
 }
 
-module.exports = { run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }
+module.exports = { tidyInbox, clearHandled, run, SalesError, GATES, GATE_BY_STAGE, gateAmount, canApproveGate, enterStage, LAST_STAGE, parseEnquiry, ingestEmail, createLead, notifyNewLead, getSettings, routeOwner, whoAmI, canSee, leadOut, leadRow, htmlToText, stateFrom, checkAbn, STATES, SOURCES, STAGE_NAMES, DEFAULTS, mergeAct, CHANNEL_KEY, PROJECTS_MAIL }

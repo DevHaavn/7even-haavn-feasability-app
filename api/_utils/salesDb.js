@@ -34,7 +34,9 @@ function supa(env = process.env, fetchImpl = fetch) {
       upsert: (row) => upsert('hb_agents', row),
     },
     inbox: {
-      list: (limit = 60) => rest('GET', `hb_inbox?select=*&order=received_at.desc&limit=${Number(limit)}`),
+      list: (limit = 60) => rest('GET', `hb_inbox?select=*&status=neq.cleared&order=received_at.desc&limit=${Number(limit)}`),
+      remove: (id) => rest('DELETE', `hb_inbox?id=eq.${q(id)}`, undefined, 'return=minimal'),
+      purgeMarkers: (iso) => rest('DELETE', `hb_inbox?status=eq.cleared&received_at=lt.${q(iso)}`, undefined, 'return=minimal'),
       byMessage: async (mid) => (await rest('GET', `hb_inbox?message_id=eq.${q(mid)}&select=*`))[0] || null,
       get: async (id) => (await rest('GET', `hb_inbox?id=eq.${q(id)}&select=*`))[0] || null,
       upsert: (row) => upsert('hb_inbox', row),

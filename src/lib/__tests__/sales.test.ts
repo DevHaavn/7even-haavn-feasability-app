@@ -27,7 +27,7 @@ function fake() {
     },
     companies: { all: async () => t.companies, get: async (id: string) => t.companies.find((c: any) => c.id === id) || null, upsert: async (row: any) => up(t.companies, row) },
     agents: { all: async () => t.agents, get: async (id: string) => t.agents.find((c: any) => c.id === id) || null, byEmails: async (e: string[]) => t.agents.filter((a: any) => e.includes(String(a.email).toLowerCase())), upsert: async (row: any) => up(t.agents, row) },
-    inbox: { list: async () => [...t.inbox].reverse(), byMessage: async (m: string) => t.inbox.find((x: any) => x.message_id === m) || null, get: async (id: string) => t.inbox.find((x: any) => x.id === id) || null, upsert: async (row: any) => up(t.inbox, row) },
+    inbox: { list: async () => t.inbox.filter((x: any) => x.status !== 'cleared').reverse(), remove: async (id: string) => { t.inbox = t.inbox.filter((x: any) => x.id !== id) }, purgeMarkers: async (iso: string) => { t.inbox = t.inbox.filter((x: any) => !(x.status === 'cleared' && x.received_at < iso)) }, byMessage: async (m: string) => t.inbox.find((x: any) => x.message_id === m) || null, get: async (id: string) => t.inbox.find((x: any) => x.id === id) || null, upsert: async (row: any) => up(t.inbox, row) },
     settings: { get: async (k: string) => t.settings[k] || null, set: async (k: string, v: any) => { t.settings[k] = v } },
   }
   const chat = {
@@ -423,5 +423,60 @@ describe('the website\'s own registration email', () => {
     const e = { messageId: 'news', from: 'Instagram Business <business-noreply@mail.instagram.com>', subject: 'How business chats work', body: 'Hello! Learn how chats work.' }
     expect((await S.ingestEmail(F.deps, e)).review).toBe(true); expect((await S.ingestEmail(F.deps, e)).review).toBe(true)
     expect(F.t.inbox).toHaveLength(1); expect(F.t.leads).toHaveLength(0)
+  })
+})
+
+describe('clearing the Inbox', () => {
+  const day = 864e5
+  const FORM2 = () => `New registration · haavnblack.au\r\nZoe Clear\r\nContact\r\nEmail zoe.clear@example.com \r\nPhone 0411 222 333 \r\nState Victoria\r\nSetting City\r\nModel SOLUM Plus`
+  const mk = async (id: string, receivedAt: number, body = FORM2()) => S.ingestEmail(F.deps, { messageId: id, from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Zoe Clear · SOLUM Plus · VIC', body, receivedAt })
+
+  it('the original email is kept on the customer, shown only to the team, and survives clearing the Inbox', async () => {
+    const r = await mk('c1', Date.now() - 10 * day)
+    expect(r.lead.hasMail).toBe(true); expect(r.lead.srcMail).toBeUndefined()
+    await run('inboxClear', { id: F.t.inbox[0].id })
+    expect(F.t.inbox).toHaveLength(0)
+    const m = await run('leadMail', { id: r.lead.id })
+    expect(m.mail).toHaveLength(1); expect(m.mail[0].body).toContain('zoe.clear@example.com'); expect(m.mail[0].subject).toContain('Zoe Clear')
+    await run('saveLead', { lead: { id: r.lead.id, msg: 'changed' } })
+    expect((await run('leadMail', { id: r.lead.id })).mail).toHaveLength(1)
+  })
+  it('a second email from the same customer is added to the same customer, newest first', async () => {
+    await mk('c1', Date.now() - 2 * day); const r = await mk('c2', Date.now() - day, FORM2() + '\r\nMessage Is the Plus available in March?')
+    expect(r.dup).toBe(true)
+    expect((await run('leadMail', { id: r.lead.id })).mail).toHaveLength(2)
+  })
+  it('a recent email leaves a marker with no text so it is never read in again; an old one goes completely', async () => {
+    await mk('recent', Date.now() - 1 * day); const row = F.t.inbox[0]
+    await run('inboxClear', { id: row.id })
+    expect(F.t.inbox[0]).toMatchObject({ status: 'cleared', message_id: 'recent', body: '', subject: '' })
+    expect((await run('init', {})).inbox).toEqual([])
+    expect((await mk('recent', Date.now() - 1 * day)).skipped).toBe('already seen'); expect(F.t.leads).toHaveLength(1)
+    await S.tidyInbox(F.deps); expect(F.t.inbox).toHaveLength(1)
+    F.t.inbox[0].received_at = new Date(Date.now() - 8 * day).toISOString(); await S.tidyInbox(F.deps); expect(F.t.inbox).toHaveLength(0)
+  })
+  it('Clear handled only takes emails that became a lead or were dismissed, never one that still needs a look', async () => {
+    await mk('h1', Date.now() - 20 * day)
+    await S.ingestEmail(F.deps, { messageId: 'news', from: 'Instagram Business <x@mail.instagram.com>', subject: 'How business chats work', body: 'Hello! Learn how chats work.' })
+    await S.ingestEmail(F.deps, { messageId: 'news2', from: 'Other <y@example.com>', subject: 'Offer', body: 'Buy now.' })
+    const review = F.t.inbox.filter((x: any) => x.status === 'review'); expect(review).toHaveLength(2)
+    await run('inboxDismiss', { id: review[1].id })
+    expect((await run('inboxClearHandled', { days: 0 })).cleared).toBe(2)
+    expect((await run('init', {})).inbox.map((x: any) => x.message_id)).toEqual(['news'])
+  })
+  it('the automatic clear-out follows the setting, and only a director can change it', async () => {
+    await mk('a1', Date.now() - 20 * day); await mk('a2', Date.now() - 3 * day); await S.ingestEmail(F.deps, { messageId: 'a3', from: 'Haavn Sales <sales@haavn.au>', subject: 'Registration: Ben New · VIC', body: FORM2().replace('Zoe Clear', 'Ben New').replace('zoe.clear', 'ben.new').replace('0411 222 333', '0411 999 888'), receivedAt: Date.now() - 3 * day })
+    expect((await S.getSettings(F.deps.db)).inboxKeep).toBe(0); expect((await S.tidyInbox(F.deps)).cleared).toBe(0)
+    expect((await run('settingsSave', { settings: { inboxKeep: 14 } })).settings.inboxKeep).toBe(14)
+    await run('settingsSave', { settings: { inboxKeep: 5 } }); expect((await S.getSettings(F.deps.db)).inboxKeep).toBe(14)
+    expect((await S.tidyInbox(F.deps)).cleared).toBe(1)
+    expect(F.t.inbox.filter((x: any) => x.status !== 'cleared').map((x: any) => x.message_id).sort()).toEqual(['a2', 'a3'])
+  })
+  it('outside agents cannot clear, read or list the inbox', async () => {
+    const r = await mk('o1', Date.now()); const c = (await run('companySave', { company: { name: 'Barry Plant' } })).company
+    await run('agentSave', { agent: { name: 'Pat Rep', companyId: c.id, role: 'Salesperson', email: 'pat@example.com', mobile: '0400 000 000' } }); const ag = agentSession('pat@example.com')
+    await expect(run('inboxClear', { id: F.t.inbox[0].id }, ag)).rejects.toThrow(/HAAVN BLACK team/)
+    await expect(run('inboxClearHandled', {}, ag)).rejects.toThrow(/HAAVN BLACK team/)
+    await expect(run('leadMail', { id: r.lead.id }, ag)).rejects.toThrow(/HAAVN BLACK team/)
   })
 })
