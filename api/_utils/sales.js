@@ -40,6 +40,7 @@ const GATE_BY_STAGE = { 3: 'pre', 4: 'out', 5: 'invoice', 6: 'confirm', 8: 'fina
 const GATE_DONE = { pre: 'Pre-order deposit confirmed.', issue: 'Contract issued to the customer, copy to the agent.', signed: 'Signed contract filed. The pre-order deposit is now not refundable.', invoice: '10% deposit invoice raised.', dep: '10% order deposit confirmed.', confirm: 'Order confirmed.', final: 'Final payment confirmed. The home is released for delivery.' }
 const ROLE_NAME = { fin: 'Finance (Amy or Dominika)', con: 'Alessia' }
 
+const PRICES_V = 2   // a price list the code owns: until a director saves in Setup after this version, the prices below win over whatever was saved before. A save then records PRICES_V, so later edits stick. Bump it only to reset prices again.
 const DEFAULTS = {
   rules: { QLD: 'mf', VIC: 'jb', other: 'jb' },
   agentKeep: true,
@@ -130,7 +131,8 @@ async function getSettings(db) {
   let s = null
   try { s = await db.settings.get('sales') } catch { /* before the SQL has been run */ }
   const sv = s || {}
-  const price = (k) => Number(sv.prices && sv.prices[k]) || DEFAULTS.prices[k]   // a price never saved (or saved as 0) is the price we sell at
+  const reset = sv.pricesV !== PRICES_V
+  const price = (k) => (reset ? 0 : Number(sv.prices && sv.prices[k])) || DEFAULTS.prices[k]   // a price never saved (or saved as 0, or saved before PRICES_V) is the price we sell at
   const ap = (r) => (Array.isArray(sv.approvers && sv.approvers[r]) && sv.approvers[r].length ? sv.approvers[r] : DEFAULTS.approvers[r])
   const cm = sv.commission || {}
   const cmRate = (kind, k) => { const v = Math.round(Number(cm.rates && cm.rates[kind] && cm.rates[kind][k])); return v > 0 ? v : DEFAULTS.commission.rates[kind][k] }
@@ -657,7 +659,7 @@ async function run(action, a, session, deps) {
       }
       let off = cur.commission.off
       if (Array.isArray(s.off)) { const known = new Set([...cur.team, ...(await db.agents.all()).map((x) => x.id)]); off = [...new Set(s.off.map(String).filter((id) => known.has(id)))] }
-      await db.settings.set('sales', { ...cur, commission: { rates, off } })
+      await db.settings.set('sales', { ...cur, pricesV: PRICES_V, commission: { rates, off } })
       return { rates, off }
     }
     case 'companySave': {
@@ -716,7 +718,7 @@ async function run(action, a, session, deps) {
       if (!approvers.con.length || !approvers.fin.length) throw new SalesError('Choose at least one person for Contract admin and one for Finance.')
       const preorder = s.preorder !== undefined ? (num(s.preorder) || cur.preorder) : cur.preorder
       const inboxKeep = s.inboxKeep !== undefined && [0, 7, 14, 30, 60].includes(Number(s.inboxKeep)) ? Number(s.inboxKeep) : cur.inboxKeep
-      const next = { commission: cur.commission, inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
+      const next = { pricesV: PRICES_V, commission: cur.commission, inboxKeep, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }

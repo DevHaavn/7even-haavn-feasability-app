@@ -309,6 +309,20 @@ describe('approvals: Alessia for the contract, Amy and Dominika for the money', 
     await run('settingsSave', { settings: { prices: { plus: 0 } } })
     expect((await S.getSettings(F.deps.db)).prices.plus).toBe(185000)
   })
+  it('prices saved before the code price list win once: the code prices apply, then a director\'s own edit sticks', async () => {
+    F.t.settings.sales = { prices: { studio: 145000, plus: 187000, max: 210000 }, preorder: 2000, inboxKeep: 14 }
+    expect((await S.getSettings(F.deps.db)).prices).toEqual({ studio: 145000, plus: 185000, max: 215000 })
+    expect((await run('init', {}, mike)).settings.prices).toEqual({ studio: 145000, plus: 185000, max: 215000 })
+    await run('settingsSave', { settings: { notify: { task: false } } })   // saving something else does not bring the old prices back
+    expect(F.t.settings.sales.prices).toEqual({ studio: 145000, plus: 185000, max: 215000 }); expect(F.t.settings.sales.inboxKeep).toBe(14)
+    await run('settingsSave', { settings: { prices: { plus: 190000 } } })
+    const st2 = await S.getSettings(F.deps.db); expect(st2.prices.plus).toBe(190000)
+    expect(S.gateAmount(st2, { product: 'plus' }, 'dep')).toBe(17000); expect(S.gateAmount(st2, { product: 'plus' }, 'final')).toBe(171000)   // the deposit and the final payment follow the price a director sets
+    await expect(run('settingsSave', { settings: { prices: { plus: 1 } } }, mike)).rejects.toThrow(/director/)
+    await run('settingsSave', { settings: { inboxKeep: 7 } })
+    await run('commissionSettings', { commission: { rates: { int: { plus: 4100 } } } })
+    expect((await S.getSettings(F.deps.db)).prices).toEqual({ studio: 145000, plus: 190000, max: 215000 })
+  })
   it('only the right person approves: Alessia the contract, Amy or Dominika the money, a director anything, Mike nothing', async () => {
     const l = await mkLead()
     await through(l.id, 3)
