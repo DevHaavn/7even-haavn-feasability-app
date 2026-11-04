@@ -43,7 +43,7 @@ const ROLE_NAME = { fin: 'Finance (Amy or Dominika)', con: 'Alessia' }
 const DEFAULTS = {
   rules: { QLD: 'mf', VIC: 'jb', other: 'jb' },
   agentKeep: true,
-  prices: { studio: 145000, plus: 185000, max: 215000 },
+  prices: { studio: 145000, plus: 187000, max: 210000 },
   preorder: 2000,
   approvers: { con: ['ar'], fin: ['ab', 'dm'] },
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
