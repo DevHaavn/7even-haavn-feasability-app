@@ -14,7 +14,7 @@ if(!C||!D.getElementById('tabbar')||!D.getElementById('groups')) return;
 var USERS=['jb','mf'];
 function $(s,r){ return (r||D).querySelector(s) }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] }) }
-var on=false, loading=false, lastLoad=0, counts={need:0,late:0,waiting:0}, tab=null, card=null, ov=null, fr=null, frReady=false;
+var on=false, loading=false, lastLoad=0, counts={need:0,late:0,waiting:0}, tab=null, card=null, ov=null, fr=null, frReady=false, alive=false, waitT=0;
 
 var css=D.createElement('style');
 css.textContent=
@@ -34,6 +34,10 @@ css.textContent=
  '#msgs .sysm.hbl .hbo{min-height:36px;padding:0 14px;border-radius:99px;border:0;background:#d6b36a;color:#1a1408;font:inherit;font-size:13px;font-weight:500;cursor:pointer}'+
  '#salesOv{position:fixed;inset:0;z-index:210;background:#050607}#salesOv[hidden]{display:none}'+
  '#salesOv iframe{width:100%;height:100%;border:0;display:block;background:#050607}'+
+ '#salesWait{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center;background:#050607;color:#f2f2ef;font:inherit}#salesWait.on{display:flex}'+
+ '#salesWait b{font-weight:400;font-size:20px;line-height:1.3}#salesWait p{margin:0;color:#9a9da3;font-size:14px;max-width:300px}'+
+ '#salesWait button{min-height:52px;min-width:220px;padding:0 22px;border-radius:99px;border:1px solid rgba(255,255,255,.25);background:none;color:#f2f2ef;font:inherit;font-size:15px;cursor:pointer}'+
+ '#salesWait button.go{background:#d6b36a;border-color:transparent;color:#1a1408;font-weight:500}'+
  '@media(min-width:761px){#salesTab,#salesCard{display:none!important}}';
 D.head.appendChild(css);
 
@@ -52,7 +56,7 @@ function build(){
   card=D.createElement('button'); card.id='salesCard'; card.type='button'; card.setAttribute('data-sales','open'); card.classList.add('on');
   card.innerHTML='<span class="sv"><i></i></span><span class="tx"><b>HAAVN BLACK Sales</b><small>Opening your sales...</small></span><span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>';
   var list=$('#list'), groups=$('#groups'); if(list&&groups) list.insertBefore(card,groups);
-  ov=D.createElement('div'); ov.id='salesOv'; ov.hidden=true; ov.innerHTML='<iframe id="salesFr" title="HAAVN BLACK Sales" allow="microphone" loading="lazy"></iframe>'; D.body.appendChild(ov); fr=$('#salesFr',ov);
+  ov=D.createElement('div'); ov.id='salesOv'; ov.hidden=true; ov.innerHTML='<iframe id="salesFr" title="HAAVN BLACK Sales" allow="microphone"></iframe><div id="salesWait"><b>Sales is taking longer than it should to open.</b><p>Check your signal, then try again.</p><button type="button" class="go" data-sw="retry">Try again</button><button type="button" data-sw="back">Back to Chat</button></div>'; D.body.appendChild(ov); fr=$('#salesFr',ov);
 }
 function load(){
   if(!on||loading||!window.HBS) return; loading=true;
@@ -68,7 +72,10 @@ function open(arg){
   else if(arg&&arg.find) q='&find='+encodeURIComponent(arg.find)+(arg.contact?'&contact='+encodeURIComponent(arg.contact):'');
   fr.src='/atrium-sales-mobile.html?embed=chat&sch='+scheme()+'&t='+Date.now()+q;
   fr.onload=function(){ frReady=true };
+  /* the page tells us it is alive as soon as it has drawn anything. If that never comes, say so, with a way out, rather than leave a black panel. */
+  alive=false; clearTimeout(waitT); showWait(false); waitT=setTimeout(function(){ if(!alive&&ov&&!ov.hidden) showWait(true) },7000);
 }
+function showWait(on){ var w=D.getElementById('salesWait'); if(w) w.classList.toggle('on',!!on) }
 
 /* "Open in Sales" on the new-lead messages in the HAAVN BLACK Sales channel. The server writes them as plain text
    ("New HAAVN BLACK lead for Mike: Harper Webb, SOLUM Plus in Char. QLD. 0412 884 031. Source: Facebook."), so the customer is found again by name and
@@ -87,11 +94,13 @@ function annotate(){
 }
 function watch(){ var box=D.getElementById('msgs'); if(!box||watch.done) return; watch.done=true; new MutationObserver(annotate).observe(box,{childList:true}); annotate() }
 D.addEventListener('click',function(e){ var b=on&&e.target.closest&&e.target.closest('.hbo'); if(!b) return; var el=b.closest('.sysm'); e.preventDefault(); e.stopPropagation(); open({find:el.getAttribute('data-n'),contact:el.getAttribute('data-c')}) },true);
-function close(){ if(ov) ov.hidden=true; if(fr){ try{ fr.src='about:blank' }catch(e){} } setTimeout(load,400) }
+function close(){ clearTimeout(waitT); showWait(false); if(ov) ov.hidden=true; if(fr){ try{ fr.src='about:blank' }catch(e){} } setTimeout(load,400) }
 window.openAtriumSales=open;
+D.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-sw]'); if(!b||!ov||!ov.contains(b)) return; e.preventDefault(); e.stopPropagation(); if(b.getAttribute('data-sw')==='retry') open(); else close() },true);
 D.addEventListener('click',function(e){ if(on&&e.target.closest&&e.target.closest('[data-sales]')){ e.preventDefault(); open() } },true);
 window.addEventListener('message',function(e){ var d=e.data; if(!d||!fr||e.source!==fr.contentWindow) return;
   if(d.atriumSales==='close') close();
+  else if(d.atriumSales==='ready'){ alive=true; clearTimeout(waitT); showWait(false) }
   else if(d.atriumSales==='counts'){ counts={need:+d.need||0,late:+d.late||0,waiting:+d.waiting||0}; draw() } });
 try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.contentWindow&&frReady) fr.contentWindow.postMessage({atriumScheme:s},'*') }) }catch(e){}
 
@@ -99,7 +108,7 @@ try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.conten
 function start(){
   if(on||!C.real()||USERS.indexOf(C.me())<0) return false;
   on=true; build(); watch();
-  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=1'; s.onload=load; D.head.appendChild(s);
+  var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=2'; s.onload=load; D.head.appendChild(s);
   return true;
 }
 setTimeout(function(){ if(start()) return; var n=0, iv=setInterval(function(){ n++; if(start()||n>40) clearInterval(iv) },750) },1800);

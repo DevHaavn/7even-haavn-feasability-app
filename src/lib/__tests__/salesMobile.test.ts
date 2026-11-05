@@ -160,6 +160,28 @@ describe('the status under a customer', () => {
   })
 })
 
+describe('an order record that is not what the server writes today', () => {
+  it('never breaks the screen: a missing, empty, stray or out of range step still gives a real delivery step', () => {
+    for (const order of [undefined, null, {}, { step: undefined }, { step: 'x' }, { step: -3 }, { step: 99 }, { step: 2.7 }]) {
+      const l = lead({ stage: 7, order })
+      const s = H.status(l)
+      expect(typeof s.t).toBe('string'); expect(s.t.length).toBeGreaterThan(0)
+      expect(H.step(l)).toBeGreaterThanOrEqual(0); expect(H.step(l)).toBeLessThan(H.DELIVERY.length)
+      expect(() => H.updateText(l)).not.toThrow()
+    }
+    expect(H.step(lead({ order: { step: 99 } }))).toBe(H.DELIVERY.length - 1)
+    expect(H.step(lead({ order: { step: 2 } }))).toBe(2)
+    expect(H.step(lead({ order: {} }))).toBe(0)
+  })
+  it('a customer with no home, no state, no activity list and no dates still has a status, an item and a price', () => {
+    const bare: any = { id: 'B', first: 'Bare', last: 'Row', owner: null, state: '', stage: 5, status: 'open', source: null, concept: false, product: 'none', act: null, dates: null, chk: null, appr: null, order: null, created: NOW - HOUR }
+    for (let st = 0; st <= 9; st++) {
+      const l = { ...bare, stage: st }
+      expect(() => { H.status(l); H.itemOf(l); H.price(l); H.home(l); H.sinceOf(l) }).not.toThrow()
+    }
+  })
+})
+
 describe('the shared file is safe to load anywhere', () => {
   it('exports the same object in a browser and in node, and never fetches on load', () => { expect(typeof H.api).toBe('function'); expect(H.ST).toHaveLength(10); expect(Object.keys(H.G)).toEqual(H.ORDER) })
 })

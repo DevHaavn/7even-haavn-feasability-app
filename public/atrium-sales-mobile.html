@@ -224,10 +224,26 @@ textarea.in{padding:13px 14px;min-height:130px;line-height:1.5;resize:none}
 </style>
 </head>
 <body>
+<script>
+/* This page never goes black. If anything stops it drawing, the reason is written on the screen with a way back. */
+window.__hbsFail=function(msg,force){try{
+  if(window.__hbsDrawn&&!force)return;
+  var b=document.getElementById('body');if(!b)return;
+  b.innerHTML='';var d=document.createElement('div');d.className='gate';
+  function add(tag,txt,css){var n=document.createElement(tag);n.textContent=txt;if(css)n.style.cssText=css;d.appendChild(n);return n}
+  add('div','HAAVN BLACK').className='eb';add('h2','Sales could not open');
+  add('p','Go back and open it again. If it keeps happening, tell Jess what is written underneath.');
+  add('p',String(msg||'Unknown error').slice(0,240),'font-family:var(--mono);font-size:12px;word-break:break-word');
+  var x=add('button','Back');x.className='btn primary block';
+  x.onclick=function(){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}if(parent===window&&history.length>1)history.back()};
+  b.appendChild(d)}catch(e){}};
+window.addEventListener('error',function(e){window.__hbsFail((e&&e.message)||'Script error')});
+window.addEventListener('unhandledrejection',function(e){window.__hbsFail((e&&e.reason&&e.reason.message)||'Request failed')});
+</script>
 <div id="app">
   <div id="head"></div>
   <div class="offline" id="off">No signal. Notes and edits are kept on this phone and sent when you are back online. Moves, approvals and emails need signal.</div>
-  <div class="scroll" id="body"></div>
+  <div class="scroll" id="body"><div class="load"><i></i>Opening sales</div></div>
   <nav class="tabs" id="tabs"></nav>
   <button class="fab hide" id="fab" data-a="newlead" aria-label="New customer"></button>
   <div class="lead" id="lead" aria-hidden="true"></div>
@@ -235,7 +251,7 @@ textarea.in{padding:13px 14px;min-height:130px;line-height:1.5;resize:none}
   <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
-<script src="/atrium-sales-core.js?v=1"></script>
+<script src="/atrium-sales-core.js?v=2"></script>
 <script>
 (function(){
 'use strict';
@@ -382,7 +398,8 @@ function stageLeads(ls,st){
   if(st==='lost')return ls.filter(function(l){return l.status==='lost'});
   if(st==='concept')return ls.filter(function(l){return l.concept&&l.status==='open'});
   return ls.filter(function(l){return l.status==='open'&&!l.concept&&l.stage===st})}
-function rowHTML(l){
+function rowHTML(l){try{return rowHTML0(l)}catch(e){return '<div class="card" style="margin:8px 0;padding:14px;color:var(--faint)">One customer could not be shown ('+esc(e&&e.message)+'). Open them on the desktop pipeline.</div>'}}
+function rowHTML0(l){
   var it=H.itemOf(l),stt=H.status(l),pr=H.price(l),cls=stt.c==='over'?'late':stt.c==='warn'?'soon':'';
   var nx=l.status==='lost'?'Lost: '+(l.lostWhy||''):l.concept?'OCTA concept':(it?it.txt:ST[l.stage].n);
   return '<div class="lrow" data-id="'+l.id+'"><div class="under"><button class="c1" data-a="call" data-id="'+l.id+'">'+ic('phone')+'Call</button><button class="c2" data-a="sms" data-id="'+l.id+'">'+ic('sms')+'Text</button><button class="c3" data-a="note" data-id="'+l.id+'">'+ic('note')+'Note</button></div>'+
@@ -450,7 +467,7 @@ function nowCard(l){
   else if(l.ret)q='Returned by '+esc((l.ret.name||'the office').split(' ')[0])+': <b>'+esc(l.ret.why)+'</b>';
   else if(it){q=esc(it.txt)+'.';sub=dueChip(it)+(it.amt&&it.k!=='call'?'<span class="chip">'+money(it.amt)+'</span>':'')}
   else if(l.stage>=9)q='Delivered and handed over. <b>Nothing more to do.</b>';
-  else if(l.stage>=7&&l.order)q='With the projects team. <b>'+esc(H.DELIVERY[l.order.step||0].n)+'.</b>';
+  else if(l.stage>=7&&l.order)q='With the projects team. <b>'+esc(H.DELIVERY[H.step(l)].n)+'.</b>';
   else q=esc(stt.n)+'. <b>'+esc(stt.note)+'.</b>';
   if(!l.concept&&l.status==='open'){
     if(l.stage===3&&l.email&&H.isSolum(l))sec+='<button class="btn" data-a="preorder" data-id="'+l.id+'">'+ic('mail')+(l.preMail?'Resend pre-order email':'Send pre-order email')+'</button>';
@@ -487,7 +504,12 @@ function gateScreen(){
   if(!h)return false;
   $('#head').innerHTML=EMB?'<div class="sh"><button class="ibtn" data-a="exit" aria-label="Close">'+ic('back','',22)+'</button><h1><small>HAAVN BLACK</small>Sales</h1></div>':'<div class="sh"><h1><small>HAAVN BLACK</small>Sales</h1></div>';
   $('#body').innerHTML=h;$('#tabs').innerHTML='';$('#fab').classList.add('hide');return true}
+/* every draw goes through here: if it fails the reason is shown, and the first good draw tells the panel around this page that it is alive */
+var READYSENT=false;
 function render(){
+  try{render0();window.__hbsDrawn=true;if(!READYSENT){READYSENT=true;try{parent.postMessage({atriumSales:'ready'},'*')}catch(e){}}}
+  catch(e){window.__hbsFail('Drawing the screen: '+(e&&e.message),true)}}
+function render0(){
   if(gateScreen())return;
   var sc=$('#body'),y=sc.scrollTop;
   $('#off').classList.toggle('on',UI.offline);
@@ -524,7 +546,12 @@ function sentSheet(title,text,btn){
   openSheet({title:'',body:'<div class="sent"><div class="tick">'+ic('check')+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p></div>',foot:'<button class="btn primary block" data-a="close"><span>'+(btn||'Done')+'</span></button>'},{k:'sent'})}
 window.addEventListener('focusin',function(e){if(UI.sheet&&e.target.closest&&e.target.closest('#sheet')&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))setTimeout(function(){try{e.target.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},320)});
 /* the keyboard: keep the sheet above it */
-if(window.visualViewport){var vv=window.visualViewport,fit=function(){var a=$('#app');if(!a)return;a.style.height=vv.height+'px';a.style.top=vv.offsetTop+'px'};vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
+/* Only when this page is the whole screen and the keyboard really is up. Inside Chat or the app (a frame) the phone reports the outer page's viewport,
+   which is not this page's, so the page is left at full height there and the focused field is scrolled into view instead. */
+var TOPLEVEL=true;try{TOPLEVEL=window.top===window}catch(e){TOPLEVEL=false}
+if(window.visualViewport&&TOPLEVEL){var vv=window.visualViewport,fit=function(){var a=$('#app');if(!a)return;
+  if(window.innerHeight-vv.height>120&&vv.height>200){a.style.height=vv.height+'px';a.style.top=vv.offsetTop+'px'}else{a.style.height='';a.style.top=''}};
+  vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
 
 /* dictation: the phone's own speech to text where it has one */
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition,REC=null;
@@ -721,7 +748,7 @@ var A={
    H.api('newLead',{lead:body}).then(function(j){put(j.lead);closeSheet();UI.tab='today';render();openLead(j.lead.id);toast(j.dup?'Already a customer, note added':'Lead created for '+H.ownerName(j.lead.owner))}).catch(fail)},
  mic:function(t){micToggle(t)}
 };
-function finishUpdate(l,send){var o=Object.assign({},l.order);o.lastUpdate=H.now();var d=H.DELIVERY[o.step||0];o.log=[{t:H.now(),x:'Fortnightly update '+(send?'emailed':'logged')+': '+d.n+'.'}].concat(o.log||[]);return save(l,{order:o,act:[act(l,'Fortnightly update '+(send?'emailed to the customer':'logged as sent')+'.')]},{quiet:true})}
+function finishUpdate(l,send){var o=Object.assign({},l.order);o.lastUpdate=H.now();var d=H.DELIVERY[H.step(l)];o.log=[{t:H.now(),x:'Fortnightly update '+(send?'emailed':'logged')+': '+d.n+'.'}].concat(o.log||[]);return save(l,{order:o,act:[act(l,'Fortnightly update '+(send?'emailed to the customer':'logged as sent')+'.')]},{quiet:true})}
 function exit(){
   if(EMB==='chat'||EMB==='hb'||EMB==='hm'){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}}
   else if(history.length>1)history.back()}
@@ -731,7 +758,7 @@ document.addEventListener('click',function(e){
   var t=e.target.closest&&e.target.closest('[data-a]');if(!t)return;var fn=A[t.dataset.a];if(!fn)return;
   if(t.tagName==='A'&&t.dataset.a==null)return;
   if(t.closest('.lrow')&&t.closest('.under')){/* a swipe action */}
-  fn(t)});
+  try{fn(t)}catch(err){toast('That did not work. Try again.',true);try{console.error(err)}catch(x){}}});
 document.addEventListener('change',function(e){
   var el=e.target,f=el.dataset&&el.dataset.f;if(!f)return;var l=H.lead(el.dataset.id);if(!l)return;var v=el.value;
   if(f==='owner'){var ag=H.agentById(v);return void save(l,{owner:v,companyId:ag?ag.companyId:'',act:[act(l,'Owner changed to '+H.ownerName(v)+'.')]},{quiet:true}).then(function(){render()})}

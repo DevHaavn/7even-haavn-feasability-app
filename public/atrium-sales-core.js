@@ -125,6 +125,8 @@
   C.ownerName = function (id) { var t = C.teamById(id) || C.staffById(id); if (t) return t.name; var a = C.agentById(id); return a ? a.name : (id ? 'Unknown' : 'Unassigned') }
   C.firstName = function (id) { return String(C.ownerName(id)).split(' ')[0] }
   C.full = function (l) { return (l.first + ' ' + (l.last || '')).trim() }
+  /* where the home is in delivery, always a real step: an order record from an older build, or a half-saved one, can have no step or a stray one */
+  C.step = function (l) { var s = l && l.order ? Math.floor(Number(l.order.step)) : 0; return s > 0 ? Math.min(s, C.DELIVERY.length - 1) : 0 }
   C.home = function (l) { return C.PRODUCTS[l.product] ? C.PRODUCTS[l.product].n : 'No preference' }
   C.isSolum = function (l) { return C.SOLUM.indexOf(l.product) >= 0 }
   C.price = function (l) { return C.isSolum(l) ? ((S.settings.prices || {})[l.product] || 0) : 0 }
@@ -202,7 +204,7 @@
   /* the status chip under a customer: how long they have waited, or where the home is */
   C.status = function (l) {
     var now = C.now(), age = (now - C.sinceOf(l)) / DAY
-    if (l.stage === 7) { var st = l.order ? l.order.step : 0; return { t: C.DELIVERY[st].n, c: '', sh: C.SHORTPROD[st] } }
+    if (l.stage === 7) { var st = C.step(l); return { t: C.DELIVERY[st].n, c: '', sh: C.SHORTPROD[st] } }
     if (l.stage === 8) {
       var d = l.order && l.order.depart ? Math.max(0, Math.ceil((l.order.depart - now) / DAY)) : null
       var c = (!l.paid && ((d != null && d <= 5) || age > 3)) ? 'over' : (!l.paid && ((d != null && d <= 9) || age > 2)) ? 'warn' : ''
@@ -251,7 +253,7 @@
   /* which template a chase uses, as the desktop does */
   C.chaseKey = function (l) { return l.gate === 'out' ? 'out' : l.gate === 'pre' ? 'pre' : l.gate === 'dep' ? 'dep' : l.gate === 'final' ? 'final' : null }
   C.updateText = function (l) {
-    var o = l.order || { step: 0 }, d = C.DELIVERY[o.step] || C.DELIVERY[0], me = String((S.me && S.me.name) || '').split(' ')[0]
+    var o = l.order || { step: 0 }, d = C.DELIVERY[C.step(l)], me = String((S.me && S.me.name) || '').split(' ')[0]
     var eta = o.eta ? new Date(o.eta).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) : 'to be confirmed'
     return 'Hi ' + l.first + ', here is your fortnightly update on your ' + C.home(l) + '.\n\nStatus: ' + d.n + '.\nWhere it is: ' + d.where + '.\nEstimated on site: ' + eta + '.\n\nNothing is needed from you right now. If anything changes on your site or your plans, tell me and I will pass it to the projects team. ' + me
   }
