@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { isAuthenticated } from '../pages/PasswordGate'
+import { shortWindowHeight } from '../lib/shortWindow'
 
 /**
  * ATRIUM Chat, HIDDEN PREVIEW. Nothing here renders unless the preview is switched on in this browser:
@@ -109,6 +110,7 @@ export default function ChatDock() {
   const [toasts, setToasts] = useState<Toast[]>([])
   const [floating, setFloating] = useState(true)
   const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia('(max-width: 760px)').matches)
+  const [sh, setSh] = useState(() => shortWindowHeight())   // an iPhone home-screen window shorter than the screen: draw at the screen height so no bare strip shows
   const frame = useRef<HTMLIFrameElement>(null)
   const seq = useRef(0)
   const count = useRef(0)
@@ -196,6 +198,19 @@ export default function ChatDock() {
     window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k)
   }, [on])
 
+  useEffect(() => {
+    const re = () => setSh(shortWindowHeight())
+    re(); window.addEventListener('resize', re); window.addEventListener('orientationchange', re); window.addEventListener('storage', re)
+    return () => { window.removeEventListener('resize', re); window.removeEventListener('orientationchange', re); window.removeEventListener('storage', re) }
+  }, [])
+  // while the drawer is open on such a phone the page is as tall as the screen too, which is what lets the bottom strip be painted (what Chat's own page does)
+  useEffect(() => {
+    if (!open || !sh) return
+    const de = document.documentElement, b = document.body, prev = [de.style.height, b.style.height]
+    de.style.height = b.style.height = sh + 'px'
+    return () => { de.style.height = prev[0]; b.style.height = prev[1] }
+  }, [open, sh])
+
   if (!on || !authed) return null
   const glass: React.CSSProperties = { background: 'rgba(66,68,75,.62)', WebkitBackdropFilter: 'blur(30px) saturate(1.4)', backdropFilter: 'blur(30px) saturate(1.4)', border: '1px solid rgba(255,255,255,.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.22), 0 24px 70px rgba(0,0,0,.4)' }
   return (
@@ -207,9 +222,9 @@ export default function ChatDock() {
           {n > 0 && <span style={{ position: 'absolute', top: -5, right: -5, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#ef4444', color: '#fff', font: '500 11px/18px Inter, system-ui, sans-serif', textAlign: 'center', boxShadow: '0 0 12px rgba(239,68,68,.65)' }}>{n}</span>}
         </button>
       )}
-      <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
+      <div onClick={() => setOpen(false)} style={{ position: 'fixed', ...(sh ? { top: 0, left: 0, right: 0, height: sh } : { inset: 0 }), zIndex: 9500, background: 'rgba(20,21,24,.45)', opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .35s ease' }} />
       <aside aria-label="ATRIUM Chat" aria-hidden={!open}
-        style={{ ...glass, position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
+        style={{ ...glass, position: 'fixed', top: 0, right: 0, ...(sh ? { height: sh } : { bottom: 0 }), width: 'min(1080px, 100vw)', display: 'flex', flexDirection: 'column', background: phone ? 'rgba(52,54,60,.98)' : glass.background, zIndex: 9600, transform: open ? 'none' : 'translateX(104%)', transition: 'transform .5s cubic-bezier(.16,1,.3,1)', borderRadius: '28px 0 0 28px', overflow: 'hidden', visibility: open ? 'visible' : 'hidden' }}>
         <iframe ref={frame} title="ATRIUM Chat (preview)" allow="microphone" src="/atrium-chat.html?embed=1&v=20261029p" onLoad={() => { sendInsets(); tell({ k: 'visible', open }); if (wantGroup.current) tell({ k: 'open-group', gid: wantGroup.current }); if (wantMeeting.current != null) tell({ k: 'open-meeting', meetingId: wantMeeting.current }); if (wantNotes.current !== undefined) tell({ k: 'open-notes', meetingId: wantNotes.current }) }}
           style={{ width: '100%', flex: 1, minHeight: 0, border: 0, background: 'transparent', display: 'block' }} />
       </aside>

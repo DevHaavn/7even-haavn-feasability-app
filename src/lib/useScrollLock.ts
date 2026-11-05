@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { shortWindowHeight } from './shortWindow'
 
 /**
  * Locks the top-level document from scrolling while a full-screen overlay (an
@@ -24,8 +25,10 @@ export function useScrollLock(active: boolean = true) {
       bodyOverflow: b.style.overflow, bodyHeight: b.style.height,
       bodyOverscroll: b.style.overscrollBehavior,
     }
-    de.style.overflow = 'hidden'; de.style.height = '100%'
-    b.style.overflow = 'hidden'; b.style.height = '100%'
+    const sh = shortWindowHeight()   // an iPhone home-screen window shorter than the screen: the page is as tall as the screen so nothing bare shows below
+    const hgt = sh ? sh + 'px' : '100%'
+    de.style.overflow = 'hidden'; de.style.height = hgt
+    b.style.overflow = 'hidden'; b.style.height = hgt
     b.style.overscrollBehavior = 'none'
     return () => {
       de.style.overflow = prev.htmlOverflow; de.style.height = prev.htmlHeight

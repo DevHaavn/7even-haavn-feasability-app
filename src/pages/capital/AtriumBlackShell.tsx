@@ -1,18 +1,26 @@
 import React, { useEffect, useRef } from 'react'
 import HaavnManagementBase, { HM_PILLARS_BLACK } from './HaavnManagementBase'
 import { useScrollLock } from '../../lib/useScrollLock'
+import { shortWindowHeight } from '../../lib/shortWindow'
 import { getLatest } from '../../components/RefreshButton'
 
 // What the ATRIUM button on the HAAVN BLACK home opens: one screen, no hub.
 // public/atrium-hb.html holds the sidebar, the tab row and My day, and runs the three real tools
 // (HAAVN BLACK workflow, Sales pipeline, Meeting Management) behind them, so their data and rules are untouched.
 // The old Management Hub is still one query string away (?hub=old) in case the shell ever needs to be bypassed.
-const VERSION = '20261105hb3'
+const VERSION = '20261105hb4'
 
 export default function AtriumBlackShell({ onClose, onLogout, onDisplay }: { onClose: () => void; onLogout: () => void; onDisplay?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null)
   const oldHub = typeof location !== 'undefined' && new URLSearchParams(location.search).get('hub') === 'old'
   useScrollLock(!oldHub)
+  const [sh, setSh] = React.useState(() => shortWindowHeight())
+  const [dark, setDark] = React.useState(() => { try { return localStorage.getItem('atrium_theme') === 'dark' } catch { return false } })
+  useEffect(() => {
+    const re = () => { setSh(shortWindowHeight()); try { setDark(localStorage.getItem('atrium_theme') === 'dark') } catch { /* private mode */ } }
+    window.addEventListener('resize', re); window.addEventListener('orientationchange', re); window.addEventListener('storage', re)
+    return () => { window.removeEventListener('resize', re); window.removeEventListener('orientationchange', re); window.removeEventListener('storage', re) }
+  }, [])
   useEffect(() => {
     if (oldHub) return
     const onMsg = (e: MessageEvent) => {
@@ -31,7 +39,7 @@ export default function AtriumBlackShell({ onClose, onLogout, onDisplay }: { onC
 
   if (oldHub) return <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={onClose} onLogout={onLogout} />
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: '#a6aab1', overflow: 'hidden', overscrollBehavior: 'none' }}>
+    <div style={{ position: 'fixed', ...(sh ? { top: 0, left: 0, right: 0, height: sh } : { inset: 0 }), zIndex: 500, background: dark ? '#050607' : '#a6aab1', overflow: 'hidden', overscrollBehavior: 'none', boxSizing: 'border-box', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <iframe ref={frame} title="ATRIUM · HAAVN BLACK" src={`/atrium-hb.html?v=${VERSION}`} allow="microphone; clipboard-write"
         style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
     </div>
