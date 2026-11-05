@@ -428,7 +428,6 @@ main,footer,header .kicker{transition:.38s}
   </button>
   <div class="hbmenu" id="hbMenu">
     <button class="hbrow" id="mDisplay">HAAVN BLK<span class="g">&#8594;</span></button>
-    <button class="hbrow" id="mFeas">HAAVN STUDIO<span class="g">&#8594;</span></button>
     <button class="hbrow" id="mPartners">Partners<span class="g">&#8594;</span></button>
     <button class="hbrow gold" id="mAtrium">ATRIUM<span class="g">&#8594;</span></button>
     <div class="hb-bottomrow">
@@ -456,11 +455,6 @@ main,footer,header .kicker{transition:.38s}
       <a class="cta" href="#" id="btnDisplay" aria-label="Enter Black Display">
         <span class="ds">DS</span><span class="div"></span>
         <span class="lbl"><b>BLACK DISPLAY</b><i>ENTER THE SUITE</i></span>
-        <span class="go">&#8594;</span>
-      </a>
-      <a class="cta alt" href="#" id="btnFeas" aria-label="Enter Black Feasibility">
-        <span class="ds">FS</span><span class="div"></span>
-        <span class="lbl"><b>BLACK FEASIBILITY</b><i>OPEN THE STUDIO</i></span>
         <span class="go">&#8594;</span>
       </a>
     </div>
@@ -740,7 +734,6 @@ stub('btnReturn','→ 7even Feasibility home');
 stub('btnCapital','→ Capital');
 stub('btnHM','→ HM');
 stub('btnDisplay','→ Black Display suite');
-stub('btnFeas','→ Black Feasibility studio');
 </script>
 <div class="pw-scrim" id="pwScrim"><div class="pw-card">
   <div class="pw-brand">HAAVN BLACK</div>
@@ -761,7 +754,7 @@ stub('btnFeas','→ Black Feasibility studio');
   }
   function post(m){if(m==='return'){teardown();}try{parent.postMessage({haavnBlack:m},'*');}catch(e){}}
   /* sales-only login (?sales=1): Display and the sales ATRIUM only */
-  if(/[?&]sales=1/.test(location.search)){var st=document.createElement('style');st.textContent='#btnPartners,#mPartners,#btnFeas,#mFeas,#mEnterprise,#btnEnterprise{display:none!important}';document.head.appendChild(st);}
+  if(/[?&]sales=1/.test(location.search)){var st=document.createElement('style');st.textContent='#btnPartners,#mPartners,#mEnterprise,#btnEnterprise{display:none!important}';document.head.appendChild(st);}
   function wire(id,m){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){e.preventDefault();post(m);});}
   wire('btnReturn','return');   /* 7EVEN mark → back to the studio */
   /* CAPITAL wings are display-only — Capital opens via ENTERPRISE in the menu */
@@ -773,7 +766,7 @@ stub('btnFeas','→ Black Feasibility studio');
       document.addEventListener('click',function(e){if(!mn.contains(e.target)&&e.target!==bg&&!bg.contains(e.target))close();});
       var h7=document.getElementById('btnHome7x');if(h7)h7.addEventListener('click',function(){post('return');});
       var ha=document.getElementById('btnMenuAtrium');if(ha)ha.addEventListener('click',function(){close();post('return');});
-      var mm=[['mDisplay','display'],['mFeas','feasibility'],['mEnterprise','capital'],['mAtrium','atrium'],['mLogout','logout']];
+      var mm=[['mDisplay','display'],['mEnterprise','capital'],['mAtrium','atrium'],['mLogout','logout']];
       mm.forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('click',function(){close();post(p[1]);});});
       // HAAVN (supply) is its own pillar now, reached from the 7EVEN menu —
       // it is no longer a row in here.
@@ -782,7 +775,6 @@ stub('btnFeas','→ Black Feasibility studio');
     }
   })();
   wire('btnDisplay','display'); /* Black Display → Display Suite */
-  wire('btnFeas','feasibility');/* Black Feasibility → Black Series studio */
  /* PARTNERS — shareholder-only password gate → management/CRM */
   (function(){
     var scrim=document.getElementById('pwScrim'),inp=document.getElementById('pwInput'),err=document.getElementById('pwErr');
@@ -937,8 +929,8 @@ stub('btnFeas','→ Black Feasibility studio');
 </style>
 <script>
 (function(){
-  var D={'HAAVN BLK':'Display suite','HAAVN STUDIO':'Feasibility','PARTNERS':'Shareholders','ATRIUM':'Management'};
-  var N={'HAAVN BLK':'HAAVN BLK','HAAVN STUDIO':'HAAVN Studio','PARTNERS':'Partners','ATRIUM':'ATRIUM'};
+  var D={'HAAVN BLK':'Display suite','PARTNERS':'Shareholders','ATRIUM':'Management'};
+  var N={'HAAVN BLK':'HAAVN BLK','PARTNERS':'Partners','ATRIUM':'ATRIUM'};
   function go(){
     var m=document.getElementById('hbMenu'); if(!m) return setTimeout(go,300);
     [].slice.call(m.querySelectorAll('.hbrow')).forEach(function(r){

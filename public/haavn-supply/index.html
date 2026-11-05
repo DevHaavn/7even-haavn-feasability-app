@@ -603,6 +603,7 @@ footer .legal,footer .legal *{font-family:'Inter',system-ui,sans-serif!important
   <div class="mdrop" id="mPresDrop"></div>
   <button class="mrow" id="mDisp">Display<span class="g">&#8594;</span></button>
   <div class="mdrop" id="mDispDrop"></div>
+  <button class="mrow" id="mFeas">HAAVN Feasibility<span class="g">&#8594;</span></button>
   <button class="mrow" id="mContent">Content<span class="g">&#8594;</span></button>
   <button class="mrow" id="mDocs">Documents<span class="g">&#8594;</span></button>
   <button class="mrow atrium" id="mAtrium"><span class="atxt"><svg class="aicon" viewBox="0 0 66 74" aria-hidden="true"><path d="M4 74 L33 0 L62 74" fill="none" stroke="currentColor" stroke-width="5.4" stroke-linejoin="miter" stroke-linecap="butt"/></svg>TRIUM</span><span class="g">&#8594;</span></button>
@@ -1171,6 +1172,7 @@ var MEDIA = [
       d.drop.style.maxHeight = open ? (d.drop.scrollHeight + 20) + 'px' : '0px';
     });
   });
+  $('#mFeas').addEventListener('click', function(){ location.href = '/haavn-feasibility.html'; });
   $('#mContent').addEventListener('click', function(){ location.hash = '#/content'; });
   $('#mDocs').addEventListener('click', function(){ location.hash = '#/documents'; });
   $('#mAtrium').addEventListener('click', function(){ location.href = '/?open=atrium'; });
@@ -1504,7 +1506,7 @@ var MEDIA = [
 </style>
 <script>
 (function(){
-  var D={'PROJECTS':'Client decks','PRESENTATIONS':'Company decks','DISPLAY':'Every home','CONTENT':'Film and renders','DOCUMENTS':'Brand and product','ATRIUM':'Management'};
+  var D={'PROJECTS':'Client decks','PRESENTATIONS':'Company decks','DISPLAY':'Every home','HAAVN FEASIBILITY':'Price the range','CONTENT':'Film and renders','DOCUMENTS':'Brand and product','ATRIUM':'Management'};
   function go(){
     var m=document.querySelector('.menu'); if(!m) return setTimeout(go,300);
     [].slice.call(m.querySelectorAll('.mrow')).forEach(function(r){
@@ -1517,7 +1519,7 @@ var MEDIA = [
       var g=r.querySelector('.g'); if(g) g.remove();
       if(isA){ if(!r.querySelector('.d')){var s=document.createElement('span');s.className='d';s.textContent=D['ATRIUM'];r.appendChild(s);} return; }
       if(!k) return;
-      var label=t.charAt(0)+t.slice(1).toLowerCase();
+      var label=k==='HAAVN FEASIBILITY'?'HAAVN Feasibility':t.charAt(0)+t.slice(1).toLowerCase();
       r.innerHTML='<span class="n">'+label+'</span><span class="d">'+D[k]+'</span>';
     });
   }
