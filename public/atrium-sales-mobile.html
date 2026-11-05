@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en-AU" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATRIUM · HAAVN BLACK Sales (phone)</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050607">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* HAAVN BLACK Sales on a phone. The same customers, the same rules and the same server as the desktop pipeline (atrium-sales.html): this page only
+   changes how it is held. Built for one thumb on the road: the next step is always the big gold button at the bottom, every change is a tap,
+   notes and email are two taps away, and notes and edits are kept on the phone when there is no signal. Look: HAAVN BLACK (black, white type,
+   LED blue, gold for money and the one main action), the website's four journey colours, and the cut bottom-right corner. */
+:root{--sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gold:#d6b36a;--led:#7fd3ff;--discover:#7cb5c0;--commit:#d9a54f;--secure:#96b483;--deliver:#c2747a;--notch:10px;
+  --cut:polygon(0 0,100% 0,100% calc(100% - var(--notch)),calc(100% - var(--notch)) 100%,0 100%);--ease:cubic-bezier(.16,1,.3,1);
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+[data-theme=dark]{--bg:#050607;--panel:#0c0e11;--panel2:#12151a;--hl:rgb(255 255 255 / .08);--edge:rgb(255 255 255 / .2);--ink:#eaf1f6;--ink2:#a8b3bc;--ink3:#7d8891;--ink4:#566068;
+  --ok:#7fd9a0;--bad:#ff6b5e;--warn:#d6b36a;--scrim:rgba(0,0,0,.66);--inp:#080a0c;--onGold:#15110a;color-scheme:dark}
+[data-theme=light]{--bg:#dfe2e6;--panel:#fafbfc;--panel2:#edeff2;--hl:rgb(15 19 24 / .1);--edge:rgb(15 19 24 / .6);--ink:#0f1318;--ink2:#2f3640;--ink3:#555d68;--ink4:#7d848e;
+  --ok:#2e8b57;--bad:#c2392f;--warn:#8a6420;--scrim:rgba(15,19,24,.5);--inp:#fff;--onGold:#15110a;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font:400 15px/1.45 var(--sans);color:var(--ink);background:#0a0b0d;-webkit-font-smoothing:antialiased;overflow:hidden}
+[data-theme=light] body{background:#c9ccd1}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+input,textarea,select{font:inherit;color:inherit;font-size:16px}
+a{color:inherit}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.eb{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.hide{display:none!important}
+/* the app fills the phone; on a wider screen it is one centred column */
+#app{position:fixed;top:0;left:50%;width:100%;max-width:520px;height:100%;transform:translateX(-50%);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+@media(min-width:521px){#app{box-shadow:0 0 0 1px var(--hl),0 0 80px rgba(0,0,0,.45)}}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.sh{padding:calc(var(--sat) + 6px) 16px 10px;display:flex;align-items:center;gap:10px;min-height:calc(var(--sat) + 60px);flex:none}
+.sh h1{font:500 24px var(--sans);letter-spacing:-.01em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh h1 small{display:block;font:500 10px var(--mono);letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:2px}
+.ibtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--hl);display:grid;place-items:center;color:var(--ink2);position:relative;flex:none}
+.ibtn:active{background:var(--panel2)}
+.me{width:44px;height:44px;border-radius:50%;background:var(--panel2);border:1px solid var(--edge);display:grid;place-items:center;font:500 13px var(--sans);flex:none}
+.savedpill{display:inline-flex;align-items:center;gap:6px;font:500 10px var(--mono);letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;white-space:nowrap}
+.savedpill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.savedpill.off:before,.savedpill.busy:before{background:var(--warn)}
+.tabs{display:flex;height:calc(64px + var(--sab));padding-bottom:var(--sab);background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:1px solid var(--hl);flex:none;z-index:6}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink3);font-size:11px;position:relative}
+.tabs button.on{color:var(--ink)}.tabs button.on:before{content:"";position:absolute;top:-1px;left:30%;right:30%;height:2px;background:var(--led);box-shadow:0 0 12px var(--led)}
+.tabs .bdg,.bdg{position:absolute;top:7px;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font:600 10px/17px var(--sans);text-align:center;padding:0 4px;font-style:normal}
+.card{position:relative;background:linear-gradient(-45deg,transparent 50%,var(--edge) 50% calc(50% + 1.2px),transparent calc(50% + 1.2px)) bottom right/var(--notch) var(--notch) no-repeat,var(--panel);border:1px solid var(--hl);border-radius:4px 4px 0;clip-path:var(--cut)}
+.sec{display:flex;align-items:baseline;gap:10px;padding:22px 20px 10px}.sec h2{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);flex:1}.sec span{font:500 11px var(--mono);color:var(--ink3)}
+.btn{min-height:48px;padding:0 18px;border:1px solid var(--edge);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:500;font-size:15px;color:var(--ink);white-space:nowrap}
+.btn:active{background:var(--panel2)}
+.btn[disabled],.btn.off{opacity:.45;pointer-events:none}
+.btn.primary{background:var(--gold);color:var(--onGold);border-color:transparent;min-height:56px;font-size:16px;clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);border-radius:6px 6px 0}
+.btn.primary:active{filter:brightness(.94)}
+.btn.ghost{border-color:var(--hl);color:var(--ink2)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.btn.sm{min-height:40px;padding:0 14px;font-size:14px}
+.btn.block{width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:99px;border:1px solid var(--hl);font:500 10.5px var(--mono);letter-spacing:.04em;color:var(--ink2);white-space:nowrap}
+.chip.late{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
+.chip.soon{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent)}
+.chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent)}
+.chip.led{color:var(--led);border-color:color-mix(in srgb,var(--led) 45%,transparent)}
+.dotp{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none;box-shadow:0 0 10px color-mix(in srgb,var(--c) 70%,transparent)}
+/* today */
+.hello{padding:4px 20px 0}.hello h2{font:300 28px/1.15 var(--sans);letter-spacing:-.02em}.hello h2 b{font-weight:500}.hello p{color:var(--ink3);font-size:13.5px;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 16px 0}
+.stat{padding:12px 12px 13px}.stat .v{font:300 28px/1 var(--sans);margin-top:8px;letter-spacing:-.02em}.stat .s{font-size:11.5px;color:var(--ink3);margin-top:3px}
+.do{margin:0 16px 12px;padding:0;overflow:hidden}
+.do .top{padding:15px 16px 4px;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.do .who{flex:1;min-width:0}.do .who b{font-weight:500;font-size:17px;display:flex;align-items:center;gap:9px;line-height:1.2}
+.do .who small{display:block;color:var(--ink3);font-size:13px;margin-top:3px}
+.do .what{padding:2px 16px 12px;color:var(--ink2);font-size:14.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.do .what .amt{margin-left:auto;font:500 14px var(--sans);color:var(--gold)}
+.do .acts{display:grid;grid-template-columns:52px 52px 1fr;gap:8px;padding:0 12px 12px}
+.do .acts .btn{min-height:48px;padding:0}
+.do .acts .btn.primary{padding:0 12px;min-height:48px;font-size:15px}
+.do .acts .btn.primary span{overflow:hidden;text-overflow:ellipsis}
+.wait{margin:0 16px 8px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.wait b{font-weight:500;font-size:15px;display:block}.wait small{color:var(--ink3);font-size:12.5px}.wait .go{margin-left:auto;color:var(--ink4)}
+.fab{position:absolute;right:16px;bottom:calc(64px + var(--sab) + 16px);width:60px;height:60px;border-radius:18px;background:var(--gold);color:var(--onGold);display:grid;place-items:center;box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 1px rgb(0 0 0 / .3);z-index:5;clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)}
+.fab:active{filter:brightness(.92)}
+/* pipeline */
+.search{margin:0 16px 10px;height:48px;border-radius:6px;background:var(--inp);border:1px solid var(--hl);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--ink3)}
+.search input{flex:1;background:none;border:0;outline:0;height:100%;color:var(--ink);min-width:0}
+.who2{display:flex;gap:6px;margin:0 16px 12px}.who2 button{flex:1;min-height:38px;border:1px solid var(--hl);border-radius:99px;font-size:13px;color:var(--ink3)}.who2 button.on{background:var(--ink);color:var(--bg);font-weight:500;border-color:transparent}
+.jbar{display:flex;gap:3px;height:6px;margin:0 16px 12px}.jbar i{flex:var(--n,1);min-width:3px;border-radius:1px;background:var(--c);opacity:.9}
+.stg{display:flex;gap:8px;overflow-x:auto;padding:0 16px 14px;scrollbar-width:none;scroll-snap-type:x proximity}.stg::-webkit-scrollbar{display:none}
+.stg button{flex:none;display:flex;flex-direction:column;gap:6px;min-width:78px;padding:10px 12px;border:1px solid var(--hl);border-radius:4px;text-align:left;scroll-snap-align:start;background:var(--panel)}
+.stg button b{font:300 22px/1 var(--sans)}.stg button span{font:500 10px var(--mono);letter-spacing:.06em;color:var(--ink3);text-transform:uppercase;white-space:nowrap}
+.stg button.on{border-color:var(--c);box-shadow:inset 0 -3px 0 var(--c)}.stg button.on span{color:var(--ink)}
+.stg button:before{content:"";height:3px;border-radius:2px;background:var(--c);width:18px;opacity:.9}
+.lrow{position:relative;margin:0 16px 8px;overflow:hidden;border-radius:4px}
+.lrow .under{position:absolute;inset:0;display:flex;justify-content:flex-end;align-items:stretch}
+.lrow .under button{width:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:500 11px var(--sans);color:#fff}
+.lrow .under .c1{background:#2a7a4b}.lrow .under .c2{background:#2a5f8a}.lrow .under .c3{background:#6a5a2a}
+.lrow .face{position:relative;padding:14px 16px;display:flex;gap:12px;align-items:center;transition:transform .25s var(--ease);touch-action:pan-y;cursor:pointer}
+.lrow .face .bar{width:3px;align-self:stretch;border-radius:2px;background:var(--c)}
+.lrow .tx{flex:1;min-width:0}.lrow b{font-weight:500;font-size:16.5px;display:block;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .meta{display:flex;gap:8px;align-items:center;color:var(--ink3);font-size:12.5px;margin-top:4px;flex-wrap:wrap}
+.lrow .nx{color:var(--ink2);font-size:13px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .r{text-align:right;flex:none}.lrow .r .p{font:500 14px var(--sans);color:var(--ink)}.lrow .r .a{font-size:11.5px;color:var(--ink3);margin-top:3px}.lrow .r .a.late{color:var(--bad)}.lrow .r .a.soon{color:var(--warn)}
+.sw{display:inline-flex;gap:3px;vertical-align:middle}.sw i{width:11px;height:11px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .25)}
+.hint{margin:6px 20px 0;color:var(--ink4);font-size:12px;display:flex;align-items:center;gap:8px}
+/* approvals */
+.ap{margin:0 16px 12px;padding:14px 16px}
+.ap .t{display:flex;gap:10px;align-items:flex-start;cursor:pointer}.ap .t b{font-weight:500;font-size:16.5px;display:block}.ap .t small{color:var(--ink3);font-size:12.5px}
+.ap .g{margin:8px 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--ink2);font-size:14px}.ap .g .a{margin-left:auto;font:500 15px var(--sans);color:var(--gold)}
+/* customer */
+.lead{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s var(--ease),visibility 0s linear .4s;z-index:8;visibility:hidden}
+.lead.on{transform:none;visibility:visible;transition:transform .4s var(--ease),visibility 0s}
+.lead .scroll{padding-bottom:24px}
+.hero{margin:0 16px;padding:18px 16px 16px}
+.hero .id{display:flex;gap:14px;align-items:center}
+.hero .ini{width:56px;height:56px;border-radius:50%;background:var(--panel2);border:1px solid var(--edge);display:grid;place-items:center;font:500 18px var(--sans);flex:none}
+.hero h2{font:500 22px/1.15 var(--sans)}.hero .sub{color:var(--ink3);font-size:13px;margin-top:4px}
+.contact{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.contact button{min-height:64px;border:1px solid var(--hl);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12.5px;color:var(--ink2);background:var(--panel2)}
+.contact button:active{border-color:var(--led);color:var(--ink)}
+.contact button[disabled]{opacity:.4}
+.rail{margin:18px 16px 0}
+.rail .bars{display:flex;gap:4px;height:34px;align-items:flex-end}
+.rail .bars i{display:block;flex:1;height:6px;border-radius:2px;background:var(--hl)}
+.rail .bars i.d{background:var(--c)}.rail .bars i.c{height:14px;background:var(--c);box-shadow:0 0 16px color-mix(in srgb,var(--c) 80%,transparent);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 5px color-mix(in srgb,var(--c) 60%,transparent)}}
+.rail .lbl{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;gap:8px}
+.rail .lbl b{font-weight:500;font-size:15px}.rail .lbl span{font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--ink3);text-transform:uppercase}
+.rail .ph{display:flex;gap:4px;margin-top:6px}.rail .ph span{flex:var(--n);font:500 9px var(--mono);letter-spacing:.08em;color:var(--c);text-transform:uppercase;border-top:1px solid var(--c);padding-top:3px;opacity:.85;white-space:nowrap;overflow:hidden}
+.now{margin:14px 16px 0;padding:16px}
+.now .q{font:300 20px/1.25 var(--sans);letter-spacing:-.01em;margin:8px 0 4px}.now .q b{font-weight:500}
+.now .s{color:var(--ink3);font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.now .row{display:grid;gap:8px;margin-top:14px}
+.now .banner{margin-top:10px}
+.banner{padding:10px 12px;border-radius:6px;border:1px solid var(--hl);font-size:13px;color:var(--ink2);background:var(--panel2)}
+.banner.warn{border-color:color-mix(in srgb,var(--warn) 45%,transparent);color:var(--warn)}
+.banner.bad{border-color:color-mix(in srgb,var(--bad) 45%,transparent);color:var(--bad)}
+.acc{margin:12px 16px 0;overflow:hidden}
+.acc>button{width:100%;display:flex;align-items:center;gap:10px;padding:16px;text-align:left;min-height:56px}
+.acc>button b{font-weight:500;font-size:15.5px;flex:1}.acc>button span{color:var(--ink3);font-size:13px;display:flex;align-items:center;gap:6px}.acc>button .ic{transition:transform .25s;color:var(--ink3)}
+.acc.open>button .ic.cv{transform:rotate(180deg)}
+.acc .bd{display:none;padding:0 16px 16px}.acc.open .bd{display:block}
+.kv{display:flex;align-items:center;gap:12px;min-height:50px;border-top:1px solid var(--hl)}
+.kv:first-child{border-top:0}.kv .k{width:96px;color:var(--ink3);font-size:13px;flex:none}.kv .v{flex:1;min-width:0;font-size:15px}
+.kv input,.kv select{width:100%;min-height:48px;background:none;border:0;outline:0;color:var(--ink);padding:0;text-overflow:ellipsis}
+.kv select{appearance:none;-webkit-appearance:none;padding-right:20px;background-image:linear-gradient(45deg,transparent 50%,var(--ink4) 50%),linear-gradient(135deg,var(--ink4) 50%,transparent 50%);background-position:calc(100% - 8px) 50%,calc(100% - 3px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.kv input::placeholder{color:var(--ink4)}
+.locked{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:11px 12px;border:1px dashed var(--edge);border-radius:4px;font-size:13px;color:var(--ink2);margin-bottom:14px}
+.locked .eb{display:flex;align-items:center;gap:6px}.locked .ic{width:13px;height:13px}
+.locked .pv{display:inline-flex;align-items:center;gap:6px}.locked .pv i{width:11px;height:11px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .25)}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 14px}
+.pick button{min-height:62px;border:1px solid var(--hl);border-radius:6px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:8px 12px;text-align:left;background:var(--panel2)}
+.pick button b{font-weight:500;font-size:15px}.pick button small{font-size:11.5px;color:var(--ink3)}
+.pick button.on{border-color:var(--led);box-shadow:inset 0 0 0 1px var(--led);background:color-mix(in srgb,var(--led) 8%,var(--panel2))}
+.pick button[disabled]{opacity:.4}
+.pick.sw4{grid-template-columns:repeat(4,1fr)}.pick.sw4 button{min-height:70px;align-items:center;text-align:center;padding:8px 4px;gap:6px}
+.pick.sw2{grid-template-columns:repeat(2,1fr)}
+.swc{width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .3)}
+.lbl2{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin:2px 0 4px}
+.chg{font-size:11.5px;color:var(--warn);margin:-8px 0 12px}
+.pay{display:flex;align-items:center;gap:12px;min-height:58px;border-top:1px solid var(--hl);padding:6px 0}.pay:first-child{border-top:0}
+.pay .k{flex:1;min-width:0}.pay .k b{font-weight:500;font-size:15px;display:block}.pay .k small{color:var(--ink3);font-size:12.5px}.pay .a{font:500 15px var(--sans);text-align:right}
+.log{position:relative;padding-left:22px}.log:before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--hl)}
+.log .e{position:relative;padding:8px 0 12px}.log .e:before{content:"";position:absolute;left:-21px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1px solid var(--ink4)}
+.log .e.note:before{background:var(--led);border-color:var(--led)}.log .e.mail:before{background:var(--gold);border-color:var(--gold)}.log .e.call:before{background:var(--ok);border-color:var(--ok)}
+.log .e b{font-weight:400;font-size:14.5px;display:block;word-wrap:break-word}.log .e small{color:var(--ink3);font-size:12px}
+.dock{flex:none;padding:10px 14px calc(10px + var(--sab));background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:1px solid var(--hl);display:grid;grid-template-columns:52px 52px 52px 1fr;gap:8px;z-index:3}
+.dock .btn{padding:0;min-height:56px}.dock .btn.primary{padding:0 14px;min-width:0}
+.dock .btn.primary span{overflow:hidden;text-overflow:ellipsis}
+/* sheets */
+.scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--panel);border-radius:22px 22px 0 0;border-top:1px solid var(--edge);transform:translateY(105%);transition:transform .42s var(--ease),visibility 0s linear .42s;z-index:41;display:flex;flex-direction:column;visibility:hidden}
+.sheet.on{transform:none;visibility:visible;transition:transform .42s var(--ease),visibility 0s}
+.sheet.tall{height:92%}
+.sheet .grab{width:42px;height:5px;border-radius:99px;background:var(--ink4);margin:9px auto 0;opacity:.7;flex:none}
+.sheet .hd{padding:12px 20px 6px;display:flex;align-items:flex-start;gap:10px;flex:none}.sheet .hd h3{font:500 20px/1.2 var(--sans);flex:1;min-width:0}.sheet .hd h3 small{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.sheet .bd{padding:6px 20px 14px;overflow-y:auto;flex:1;overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}.sheet .bd::-webkit-scrollbar{display:none}
+.sheet .ft{padding:10px 16px calc(12px + var(--sab));border-top:1px solid var(--hl);display:grid;gap:8px;flex:none;background:var(--panel)}
+.sheet .ft.two{grid-template-columns:1fr 1fr}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.f>span{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.in{width:100%;min-height:52px;padding:0 14px;border:1px solid var(--hl);border-radius:6px;background:var(--inp);outline:0;color:var(--ink)}
+.in:focus{border-color:var(--led)}
+select.in{appearance:none;-webkit-appearance:none}
+textarea.in{padding:13px 14px;min-height:130px;line-height:1.5;resize:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chips button{min-height:44px;padding:0 15px;border:1px solid var(--hl);border-radius:99px;font-size:14px;background:var(--panel2);color:var(--ink2)}
+.chips button.on{border-color:var(--led);color:var(--ink);background:color-mix(in srgb,var(--led) 10%,var(--panel2))}
+.mailhd{border:1px solid var(--hl);border-radius:6px;margin-bottom:12px;background:var(--inp)}
+.mailhd div{display:flex;gap:10px;align-items:center;min-height:44px;padding:0 14px;border-top:1px solid var(--hl);font-size:14px}.mailhd div:first-child{border-top:0}.mailhd span{color:var(--ink3);width:56px;font-size:13px;flex:none}
+.mailhd em{font-style:normal;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mailhd input{flex:1;background:none;border:0;outline:0;min-width:0;height:44px}
+.callout{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);border-radius:6px;background:color-mix(in srgb,var(--gold) 7%,transparent);margin-bottom:14px;font-size:13.5px;color:var(--ink2)}
+.callout b{color:var(--gold);font-weight:500;font-size:17px;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:96px 1fr;gap:7px 12px;font-size:14px;margin:4px 0 14px}.grid2 span:nth-child(odd){color:var(--ink3);font-size:13px}
+.prev{width:100%;height:320px;border:1px solid var(--hl);border-radius:6px;background:#000;display:block;margin-top:8px}
+.mic{display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:13.5px}
+.mic.on{color:var(--bad)}
+.ck{display:flex;gap:12px;align-items:flex-start;min-height:50px;padding:12px 0;border-top:1px solid var(--hl);cursor:pointer;font-size:14.5px}.ck:first-of-type{border-top:0}
+.ck i{width:26px;height:26px;border-radius:6px;border:1px solid var(--edge);display:grid;place-items:center;flex:none;color:transparent}
+.ck.on i{background:var(--ok);border-color:var(--ok);color:#06150c}
+.fx{display:grid;gap:8px;font-size:13.5px;color:var(--ink2);margin-bottom:14px}.fx div{padding-left:16px;position:relative}.fx div:before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--led)}
+.sent{text-align:center;padding:36px 20px 28px}
+.sent .tick{width:76px;height:76px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;background:color-mix(in srgb,var(--ok) 14%,transparent);border:1px solid var(--ok);color:var(--ok);animation:pop .5s var(--ease)}
+.sent .tick .ic{width:34px;height:34px}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.sent h3{font:500 22px var(--sans)}.sent p{color:var(--ink3);margin-top:8px;font-size:14px;line-height:1.5}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(var(--sab) + 84px);z-index:60;background:var(--panel2);border:1px solid var(--edge);border-radius:12px;padding:13px 16px;font-size:14px;box-shadow:0 14px 40px rgba(0,0,0,.5);opacity:0;transform:translateY(14px);transition:.3s var(--ease);pointer-events:none;display:flex;gap:10px;align-items:center}
+.toast.on{opacity:1;transform:none}.toast .ic{color:var(--ok);flex:none}.toast.bad .ic{color:var(--bad)}
+.offline{background:var(--warn);color:#1a1405;font:500 12.5px var(--sans);text-align:center;padding:6px 12px;display:none;flex:none}
+.offline.on{display:block}
+.empty{padding:40px 24px;text-align:center;color:var(--ink3);font-size:14px}
+.gate{margin:auto;padding:28px 24px;text-align:center;max-width:380px}
+.gate h2{font:300 26px/1.2 var(--sans);margin:10px 0}.gate p{color:var(--ink3);font-size:14px;margin-bottom:18px}
+.wm0{width:150px;height:13px;background:var(--ink);-webkit-mask:url(/atrium-hb/hvn-black-wordmark.svg) left/contain no-repeat;mask:url(/atrium-hb/hvn-black-wordmark.svg) left/contain no-repeat;display:block}
+.menu .btn{width:100%;justify-content:flex-start;margin-bottom:8px}
+.seg{display:flex;border:1px solid var(--hl);border-radius:99px;padding:3px;gap:3px;background:var(--inp);margin-bottom:12px}.seg button{flex:1;min-height:42px;border-radius:99px;font-size:13.5px;color:var(--ink3)}.seg button.on{background:var(--ink);color:var(--bg);font-weight:500}
+.load{margin:auto;display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--ink3);font-size:13px}
+.load i{width:44px;height:44px;border-radius:50%;border:2px solid var(--hl);border-top-color:var(--led);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="head"></div>
+  <div class="offline" id="off">No signal. Notes and edits are kept on this phone and sent when you are back online. Moves, approvals and emails need signal.</div>
+  <div class="scroll" id="body"></div>
+  <nav class="tabs" id="tabs"></nav>
+  <button class="fab hide" id="fab" data-a="newlead" aria-label="New customer"></button>
+  <div class="lead" id="lead" aria-hidden="true"></div>
+  <div class="scrim" id="scrim" data-a="close"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="/atrium-sales-core.js?v=1"></script>
+<script>
+(function(){
+'use strict';
+var H=HBS,S=H.S,esc=H.esc,money=H.money,ST=H.ST,G=H.G,PH=H.PH,PRODUCTS=H.PRODUCTS,CLAD=H.CLAD,PAL=H.PAL,JOIN=H.JOIN;
+function $(s,r){return (r||document).querySelector(s)}function $$(s,r){return [].slice.call((r||document).querySelectorAll(s))}
+var EMB=(location.search.match(/[?&]embed=(\w+)/)||[])[1]||'';
+var CHAT_USERS=['jb','mf'];   /* Sales inside ATRIUM Chat is for Jamie and Mike only */
+var UI={tab:'today',stage:'all',q:'',mineOnly:null,lead:null,sl:null,sheet:null,open:{home:false,cust:false,pay:false,log:true},chk:{},offline:!navigator.onLine,pill:'',logMore:false,pend:null};
+
+/* ============ theme: black unless told otherwise. In Chat it follows Chat's scheme (?sch=), elsewhere ATRIUM's saved choice ============ */
+var FORCED=(location.search.match(/[?&]sch=(light|dark)/)||[])[1]||'';
+function theme(t){var m=$('meta[name=theme-color]');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');if(m)m.setAttribute('content',t==='light'?'#dfe2e6':'#050607')}
+function curTheme(){if(FORCED)return FORCED;var t='dark';try{t=localStorage.getItem('atrium_theme')||'dark'}catch(e){}return t==='light'?'light':'dark'}
+theme(curTheme());
+window.addEventListener('storage',function(e){if(e.key==='atrium_theme'&&!FORCED)theme(curTheme())});
+window.addEventListener('message',function(e){var d=e.data;if(!d)return;if(d.atriumScheme&&e.source===window.parent){FORCED=d.atriumScheme;theme(FORCED)}
+  if(d.atriumSales==='open'&&d.lead&&e.source===window.parent){if(H.lead(d.lead))openLead(d.lead);else{H.load().then(function(){render();openLead(d.lead)})}}});
+
+/* ============ small helpers ============ */
+var IC={phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',sms:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>',note:'<path d="M5 19l1-4L17 4l3 3L9 18z"/><path d="M14.5 6.5l3 3"/>',plus:'<path d="M12 5v14M5 12h14"/>',chev:'<path d="M9 6l6 6-6 6"/>',down:'<path d="M6 9l6 6 6-6"/>',back:'<path d="M15 6l-6 6 6 6"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',day:'<circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/>',pipe:'<path d="M4 5v14M10 5v10M16 5v14M21 5v8"/>',appr:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',more:'<circle cx="5.5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18.5" cy="12" r="1.2"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'};
+function ic(n,c,s){return '<svg class="ic '+(c||'')+'" viewBox="0 0 24 24"'+(s?' style="width:'+s+'px;height:'+s+'px"':'')+'>'+(IC[n]||'')+'</svg>'}
+function sw(l){return '<span class="sw"><i style="--c:'+(CLAD[l.clad]||'#444')+'"></i><i style="--c:'+(PAL[l.pal]||'#444')+'"></i><i style="--c:'+(JOIN[l.join]||'#444')+'"></i></span>'}
+function phc(l){return PH[ST[l.stage].ph].c}
+function initials(l){return ((l.first||'?')[0]+((l.last||'')[0]||'')).toUpperCase()}
+function name(l){return H.full(l)}
+function pn(l){return (PRODUCTS[l.product]||PRODUCTS.none).s}
+function toast(t,bad){var e=$('#toast');e.className='toast on'+(bad?' bad':'');e.innerHTML=ic(bad?'x':'check')+'<span>'+esc(t)+'</span>';clearTimeout(toast._t);toast._t=setTimeout(function(){e.classList.remove('on')},bad?4200:2400)}
+function fail(e){
+  if(!e)return;
+  if(e.message==='signin'){render();return}
+  if(H.isOffline(e)){setOffline(true);toast('No signal. That needs a connection.',true);return}
+  toast(e.message||'That did not work.',true)}
+function ready(){return S.me&&S.ready&&!S.error&&!S.setup&&!S.denied}
+
+/* ============ layers (lead screen, sheets) and the phone's back button ============ */
+var STACK=[],ON=false;
+function lay(k){if(!STACK.length&&!ON){try{history.pushState({hbs:1},'');ON=true}catch(e){}}STACK.push(k)}
+function unlay(k){var i=STACK.lastIndexOf(k);if(i>=0)STACK.splice(i,1)}
+window.addEventListener('popstate',function(){
+  ON=false;if(!STACK.length)return;var k=STACK.pop();hideLayer(k);
+  if(STACK.length){try{history.pushState({hbs:1},'');ON=true}catch(e){}}});
+function hideLayer(k){if(k==='sheet'){UI.sheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');micStop()}else if(k==='lead'){UI.lead=null;$('#lead').classList.remove('on');$('#lead').setAttribute('aria-hidden','true');render()}}
+
+/* ============ saving: instant, one place, kept on the phone when there is no signal ============ */
+var FLUSHING=false;
+function qKey(){return 'hbs_q:'+(S.me?S.me.id:'x')}
+function qGet(){try{return JSON.parse(localStorage.getItem(qKey())||'[]')}catch(e){return []}}
+function qSet(a){try{localStorage.setItem(qKey(),JSON.stringify(a))}catch(e){}}
+function qIds(){var o={};qGet().forEach(function(x){o[x.id]=1});return o}
+var QUEUEABLE=['act','lastTouch','first','last','mobile','email','state','setting','pay','deliv','msg','clad','pal','join','product','order','qual','otherSource'];
+function queueable(p){return Object.keys(p).every(function(k){return QUEUEABLE.indexOf(k)>=0})}
+function setOffline(b){
+  if(UI.offline===b)return;UI.offline=b;
+  $('#off').classList.toggle('on',b);pill();
+  if(b){clearTimeout(setOffline._t);(function ping(){setOffline._t=setTimeout(function(){H.poll(qIds()).then(function(){setOffline(false)}).catch(function(e){if(H.isOffline(e)||!navigator.onLine)ping();else setOffline(false)})},6000)})()}
+  else{flush();poll()}}
+function pill(){
+  var n=qGet().length;
+  $$('.savedpill').forEach(function(p){
+    p.className='savedpill'+(UI.offline?' off':UI.pill==='busy'?' busy':'');
+    p.textContent=UI.offline?(n?n+' waiting for signal':'Offline, kept on phone'):UI.pill==='busy'?'Saving':n?n+' waiting':'Saved'})}
+function flush(){
+  if(FLUSHING||UI.offline)return;if(!qGet().length)return;FLUSHING=true;
+  (function next(){
+    var q=qGet();if(!q.length){FLUSHING=false;pill();render();return}
+    H.api('saveLead',{lead:q[0]}).then(function(j){put(j.lead);qSet(qGet().slice(1));pill();next()}).catch(function(e){
+      if(H.isOffline(e)||e.message==='signin'){FLUSHING=false;if(H.isOffline(e))setOffline(true);return}
+      qSet(qGet().slice(1));toast('One saved change could not go through: '+e.message,true);next()})})()}
+function put(lead){var i=S.leads.findIndex(function(x){return x.id===lead.id});if(i>=0)S.leads[i]=lead;else S.leads.unshift(lead)}
+function act(l,x,k){return {t:H.now(),x:x,k:k||'sys'}}
+/* patch: what changes. Notes and finishes apply on the screen at once, then go to the server (or wait for signal). */
+function save(l,patch,o){
+  o=o||{};
+  var send=Object.assign({id:l.id},patch);
+  Object.keys(patch).forEach(function(k){if(k==='act')l.act=patch.act.concat(l.act||[]);else l[k]=patch[k]});
+  if(UI.offline&&queueable(patch)){var q=qGet();q.push(send);qSet(q);pill();if(!o.quiet)render();return Promise.resolve(l)}
+  UI.pill='busy';pill();
+  return H.api('saveLead',{lead:send}).then(function(j){UI.pill='';put(j.lead);pill();if(!o.quiet)render();return j.lead}).catch(function(e){
+    UI.pill='';
+    if(H.isOffline(e)&&queueable(patch)){setOffline(true);var q2=qGet();q2.push(send);qSet(q2);pill();if(!o.quiet)render();return l}
+    fail(e);return H.load().then(function(){pill();render()})})}
+function gateCall(l,op,extra){return H.api('gate',Object.assign({id:l.id,op:op},extra||{})).then(function(j){put(j.lead);return j.lead})}
+function needNet(){if(UI.offline||!navigator.onLine){toast('No signal. That needs a connection.',true);return false}return true}
+function cur(el){var id=(el&&el.dataset&&el.dataset.id)||UI.sl||UI.lead;return id?H.lead(id):null}
+
+/* ============ what to do next for one customer: the big gold button ============ */
+function primary(l){
+  var it=H.itemOf(l),f=l.first;
+  if(l.status==='lost')return {a:'reopen',label:'Re-open this customer',short:'Re-open',icon:'check'};
+  if(l.concept)return {a:'concept',label:'Send a concept update',short:'Update',icon:'mail'};
+  if(l.ret)return {a:'resubmit',label:'Fixed, resubmit',short:'Resubmit',icon:'check'};
+  if(!it){if(l.stage>=9)return {a:'sms',label:'Send a thank you',short:'Thank you',icon:'sms'};return {a:'sms',label:'Message '+f,short:'Message',icon:'sms'}}
+  if(it.k==='call'){
+    if(l.stage===0)return {a:'call',label:'Call '+f,short:'Call '+f,icon:'phone'};
+    if(l.stage===1)return {a:'qualify',label:'Qualify '+f,short:'Qualify',icon:'check'};
+    return {a:'preorder',label:'Send the pre-order',short:'Pre-order',icon:'mail'}}
+  if(it.k==='approve')return H.canGate(l.gate)?{a:'review',label:'Review and approve',short:'Approve',icon:'check'}:{a:'nudge',label:'Nudge '+H.roleWho(G[l.gate].role).split(' ')[0],short:'Nudge',icon:'bell'};
+  if(it.k==='chase'){
+    if(l.gate==='out'&&H.isInternal())return {a:'signedby',label:'Customer has signed',short:'Signed',icon:'check'};
+    if(G[l.gate].money&&H.canGate(l.gate))return {a:'arrived',label:'Payment arrived',short:'Payment in',icon:'check'};
+    return {a:'chase',label:'Chase '+f,short:'Chase',icon:'mail'}}
+  if(it.k==='handover')return H.isInternal()?{a:'handover',label:'Send handover to projects',short:'Handover',icon:'mail'}:{a:'sms',label:'Message '+f,short:'Message',icon:'sms'};
+  if(it.k==='update')return {a:'update',label:'Write the update',short:'Update',icon:'mail'};
+  return {a:'sms',label:'Message '+f,short:'Message',icon:'sms'}}
+function dueChip(it){
+  if(it.urgent)return '<span class="chip late">Leaves port in '+Math.max(0,Math.round(it.dep))+' days</span>';
+  if(it.over)return '<span class="chip late">'+H.dur((it.age-it.sla)*H.DAY)+' late</span>';
+  if(it.sla!=null&&it.sla-it.age<it.sla*.35+.05)return '<span class="chip soon">Due in '+H.dur((it.sla-it.age)*H.DAY)+'</span>';
+  return '<span class="chip">'+H.dur(it.age*H.DAY)+' in stage</span>'}
+
+/* ============ rendering ============ */
+function announce(){if(!ready())return;try{var c=H.counts();parent.postMessage({atriumSales:'counts',need:c.need,late:c.late,waiting:c.waiting},'*')}catch(e){}}
+function titleFor(){return {today:['HAAVN BLACK','Today'],pipe:['HAAVN BLACK','Pipeline'],appr:['HAAVN BLACK','Approvals']}[UI.tab]||['HAAVN BLACK','Sales']}
+function head(){
+  var t=titleFor(),back=EMB==='chat'||EMB==='hb'||EMB==='hm';
+  $('#head').innerHTML='<div class="sh">'+(back?'<button class="ibtn" data-a="exit" aria-label="'+(EMB==='chat'?'Back to Chat':'Close')+'">'+ic('back',null,22)+'</button>':'')+'<h1><small>'+t[0]+'</small>'+t[1]+'</h1><span class="savedpill">Saved</span><button class="me" data-a="menu" aria-label="Menu">'+esc(H.ini(S.me.name))+'</button></div>';pill()}
+function tabs(){
+  var c=H.counts(),list=[['today','day','Today',c.need],['pipe','pipe','Pipeline',0]];
+  if(H.hasApprovals())list.push(['appr','appr','Approvals',c.approvals]);
+  if(EMB==='chat')list.push(['chat','chat','Chat',0]);else if(!EMB)list.push(['chat','chat','Chat',0]);
+  $('#tabs').innerHTML=list.map(function(t){return '<button class="'+(UI.tab===t[0]?'on':'')+'" data-a="tab" data-k="'+t[0]+'">'+ic(t[1],'',22)+'<span>'+t[2]+'</span>'+(t[3]?'<i class="bdg">'+t[3]+'</i>':'')+'</button>'}).join('');
+  $('#fab').classList.toggle('hide',!(UI.tab==='today'||UI.tab==='pipe'));$('#fab').innerHTML=ic('plus','',26)}
+function actionsRow(l,p){
+  return '<div class="acts"><button class="btn" data-a="call" data-id="'+l.id+'" aria-label="Call">'+ic('phone')+'</button><button class="btn" data-a="sms" data-id="'+l.id+'" aria-label="Text">'+ic('sms')+'</button><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.label)+'</span></button></div>'}
+function doCard(it){
+  var l=it.l,p=primary(l);
+  return '<div class="card do"><div class="top" data-a="lead" data-id="'+l.id+'"><span class="dotp" style="--c:'+phc(l)+';margin-top:7px"></span><div class="who"><b>'+esc(name(l))+'</b><small>'+esc(pn(l))+' · '+esc(l.state||'State?')+' · '+esc(ST[l.stage].n)+'</small></div>'+dueChip(it)+'</div><div class="what"><span>'+esc(it.txt)+'</span>'+(it.amt&&it.k!=='call'?'<span class="amt">'+money(it.amt)+'</span>':'')+'</div>'+actionsRow(l,p)+'</div>'}
+function vToday(){
+  var t=H.today(),c=H.counts(),h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  var s='<div class="hello"><h2>'+g+', <b>'+esc(S.me.name.split(' ')[0])+'</b>.</h2><p>'+(c.need?c.need+' thing'+(c.need===1?'':'s')+' need'+(c.need===1?'s':'')+' you'+(c.late?', '+c.late+' running late':'')+'. The first one is at the top.':'Nothing is waiting on you right now.')+'</p></div>';
+  s+='<div class="stats"><div class="card stat"><div class="eb">Need you</div><div class="v">'+c.need+'</div><div class="s">'+(c.late?c.late+' late':'all on time')+'</div></div><div class="card stat"><div class="eb">Waiting</div><div class="v">'+c.waiting+'</div><div class="s">on the office</div></div><div class="card stat"><div class="eb">Pre-orders</div><div class="v">'+c.preorders+'</div><div class="s">in play</div></div></div>';
+  if(t.appr.length)s+='<div class="sec"><h2>Needs your approval</h2><span>'+t.appr.length+'</span></div>'+t.appr.slice(0,12).map(doCard).join('');
+  s+='<div class="sec"><h2>Do next</h2><span>'+t.todo.length+'</span></div>'+(t.todo.length?t.todo.slice(0,40).map(doCard).join(''):'<div class="empty">Nothing to chase. Well done.</div>');
+  if(t.wait.length)s+='<div class="sec"><h2>With the office</h2><span>'+t.wait.length+'</span></div>'+t.wait.map(function(it){var l=it.l;return '<div class="card wait" data-a="lead" data-id="'+l.id+'"><span class="dotp" style="--c:'+phc(l)+'"></span><div><b>'+esc(name(l))+'</b><small>'+esc(G[l.gate].short)+' · '+H.roleWho(it.role)+' · '+H.fmtAge(it.age)+'</small></div><span class="go">'+ic('chev')+'</span></div>'}).join('');
+  return s+'<div style="height:96px"></div>'}
+/* pipeline */
+function pipeLeads(){
+  var q=UI.q.trim().toLowerCase(),ls=H.visible().filter(function(l){return UI.mineOnly===false||l.owner===S.me.id});
+  if(q)ls=ls.filter(function(l){return (name(l)+' '+(l.state||'')+' '+pn(l)+' '+(l.email||'')+' '+(l.mobile||'')).toLowerCase().indexOf(q)>=0});
+  return ls}
+function stageLeads(ls,st){
+  if(st==='all')return ls.filter(function(l){return l.status==='open'&&!l.concept});
+  if(st==='lost')return ls.filter(function(l){return l.status==='lost'});
+  if(st==='concept')return ls.filter(function(l){return l.concept&&l.status==='open'});
+  return ls.filter(function(l){return l.status==='open'&&!l.concept&&l.stage===st})}
+function rowHTML(l){
+  var it=H.itemOf(l),stt=H.status(l),pr=H.price(l),cls=stt.c==='over'?'late':stt.c==='warn'?'soon':'';
+  var nx=l.status==='lost'?'Lost: '+(l.lostWhy||''):l.concept?'OCTA concept':(it?it.txt:ST[l.stage].n);
+  return '<div class="lrow" data-id="'+l.id+'"><div class="under"><button class="c1" data-a="call" data-id="'+l.id+'">'+ic('phone')+'Call</button><button class="c2" data-a="sms" data-id="'+l.id+'">'+ic('sms')+'Text</button><button class="c3" data-a="note" data-id="'+l.id+'">'+ic('note')+'Note</button></div>'+
+   '<div class="face card" data-a="lead" data-id="'+l.id+'" style="--c:'+(l.concept?PH.discover.c:phc(l))+'"><span class="bar"></span><div class="tx"><b>'+esc(name(l))+'</b><div class="meta"><span>'+esc(pn(l))+'</span>'+sw(l)+'<span>'+esc(l.state||'')+'</span></div><div class="nx">'+esc(nx)+'</div></div><div class="r"><div class="p">'+(pr?money(pr):'')+'</div><div class="a '+cls+'">'+esc(stt.sh)+(cls==='late'?' late':'')+'</div></div></div></div>'}
+function plistHTML(){
+  var ls=stageLeads(pipeLeads(),UI.stage);
+  ls.sort(function(a,b){var x=H.itemOf(a),y=H.itemOf(b);return (y?y.pri:-1)-(x?x.pri:-1)||(b.updated||0)-(a.updated||0)});
+  return (ls.length?ls.slice(0,80).map(rowHTML).join('')+(ls.length>80?'<div class="hint">Showing 80 of '+ls.length+'. Search to narrow it down.</div>':'<div class="hint">'+ic('chev','',14)+'Swipe a customer left for call, text and note</div>'):'<div class="empty">'+(UI.q?'No one matches that.':'No customers here.')+'</div>')+'<div style="height:110px"></div>'}
+function vPipe(){
+  var all=pipeLeads(),open=stageLeads(all,'all'),counts=ST.map(function(_,i){return stageLeads(all,i).length});
+  var bar=ST.map(function(s,i){return counts[i]?'<i style="--n:'+counts[i]+';--c:'+PH[s.ph].c+'"></i>':''}).join('');
+  var chips='<button class="'+(UI.stage==='all'?'on':'')+'" data-a="stage" data-k="all" style="--c:var(--ink)"><b>'+open.length+'</b><span>All</span></button>'+ST.map(function(s,i){return '<button class="'+(UI.stage===i?'on':'')+'" data-a="stage" data-k="'+i+'" style="--c:'+PH[s.ph].c+'"><b>'+counts[i]+'</b><span>'+H.SHORT[i]+'</span></button>'}).join('');
+  var nl=stageLeads(all,'lost').length,nc=stageLeads(all,'concept').length;
+  if(nc)chips+='<button class="'+(UI.stage==='concept'?'on':'')+'" data-a="stage" data-k="concept" style="--c:'+PH.discover.c+'"><b>'+nc+'</b><span>OCTA</span></button>';
+  if(nl)chips+='<button class="'+(UI.stage==='lost'?'on':'')+'" data-a="stage" data-k="lost" style="--c:var(--ink4)"><b>'+nl+'</b><span>Lost</span></button>';
+  var who=(H.isInternal()||S.me.manager)?'<div class="who2"><button class="'+(UI.mineOnly!==false?'on':'')+'" data-a="who" data-k="1">Mine</button><button class="'+(UI.mineOnly===false?'on':'')+'" data-a="who" data-k="0">Everyone</button></div>':'';
+  return '<div style="height:2px"></div><div class="search">'+ic('search')+'<input id="q" type="search" placeholder="Search name, state or home" value="'+esc(UI.q)+'" autocomplete="off" enterkeyhint="search"></div>'+who+'<div class="jbar">'+bar+'</div><div class="stg">'+chips+'</div><div id="plist">'+plistHTML()+'</div>'}
+/* approvals */
+function vAppr(){
+  var its=H.ITEMS().filter(H.mine),ready_=its.filter(function(i){return i.k==='approve'&&H.canGate(i.gate)}),wait=its.filter(function(i){return i.k==='chase'&&(i.role==='sales'?false:(H.canGate(i.gate)||H.isAdmin()))});
+  function card(i){var l=i.l,p=primary(l),g=G[i.gate],amt=i.amt?'<span class="a">'+money(i.amt)+'</span>':'';
+    return '<div class="card ap"><div class="t" data-a="lead" data-id="'+l.id+'"><span class="dotp" style="--c:'+(g.role==='con'?'var(--deliver)':'var(--gold)')+';margin-top:7px"></span><div style="flex:1;min-width:0"><b>'+esc(name(l))+'</b><small>'+esc(pn(l))+' · '+esc(l.state||'')+' · '+(i.k==='chase'?'Awaiting: ':'')+esc(g.short)+'</small></div>'+dueChip(i)+'</div><div class="g"><span>'+esc(i.txt)+'</span>'+amt+'</div><div class="acts" style="display:grid;grid-template-columns:52px 1fr;gap:8px"><button class="btn" data-a="call" data-id="'+l.id+'" aria-label="Call">'+ic('phone')+'</button><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.label)+'</span></button></div></div>'}
+  return '<div class="hello"><p>Nothing moves past a money or contract step until the right person says so. Every decision is dated and named on the customer.</p></div><div class="sec"><h2>Ready to approve</h2><span>'+ready_.length+'</span></div>'+(ready_.map(card).join('')||'<div class="empty">Nothing waiting for approval.</div>')+
+   '<div class="sec"><h2>Waiting on the customer</h2><span>'+wait.length+'</span></div>'+(wait.map(card).join('')||'<div class="empty">Nobody to chase.</div>')+'<div style="height:30px"></div>'}
+/* the customer screen */
+function accHTML(key,title,sum,inner){return '<div class="card acc '+(UI.open[key]?'open':'')+'"><button data-a="acc" data-k="'+key+'"><b>'+title+'</b><span>'+(sum||'')+'</span>'+ic('down','cv')+'</button><div class="bd">'+inner+'</div></div>'}
+function homeEditor(l){
+  var lock=H.homeLock(l),pr=S.settings.prices||{},ak=l.asked||{product:l.product,clad:l.clad,pal:l.pal,join:l.join},ap=PRODUCTS[ak.product]||PRODUCTS.none;
+  var locked='<div class="locked"><span class="eb">'+ic('lock')+'The customer chose</span><span class="pv">'+esc(ap.n)+'</span>'+[[CLAD,ak.clad],[PAL,ak.pal],[JOIN,ak.join]].map(function(x){return x[1]?'<span class="pv"><i style="--c:'+x[0][x[1]]+'"></i>'+esc(x[1])+'</span>':''}).join('')+((ak.clad||ak.pal||ak.join)?'':'<span class="pv" style="color:var(--ink3)">no finishes chosen</span>')+'</div>';
+  var homes='<div class="pick">'+H.SOLUM.map(function(k){var p=PRODUCTS[k];return '<button class="'+(l.product===k?'on':'')+'" data-a="pickhome" data-id="'+l.id+'" data-v="'+k+'"'+(lock&&l.product!==k?' disabled':'')+'><b>'+p.s+'</b><small>'+p.m2+' m²</small><small style="color:var(--gold)">'+(pr[k]?money(pr[k]):'')+'</small></button>'}).join('')+'</div>';
+  var chg=ak.product!==l.product?'<div class="chg">Customer chose '+esc(ap.n)+'</div>':'';
+  function fin(label,key,map){var a='<div class="lbl2">'+label+'</div><div class="pick sw4">'+Object.keys(map).map(function(n){return '<button class="'+(l[key]===n?'on':'')+'" data-a="pickfin" data-id="'+l.id+'" data-k="'+key+'" data-v="'+esc(n)+'"><span class="swc" style="--c:'+map[n]+'"></span><small style="color:var(--ink2)">'+esc(n)+'</small></button>'}).join('')+'</div>';if((ak[key]||'')!==(l[key]||''))a+='<div class="chg">Customer chose '+esc(ak[key]||'nothing')+'</div>';return a}
+  return locked+'<div class="lbl2">Home</div>'+homes+chg+(lock?'<div class="chg" style="color:var(--ink3)">'+esc(lock)+'</div>':'')+fin('Cladding','clad',CLAD)+fin('Interior palette','pal',PAL)+fin('Joinery','join',JOIN).replace('pick sw4','pick sw2')}
+function selOpts(list,sel,blank){return (blank!=null?'<option value="">'+esc(blank)+'</option>':'')+list.map(function(o){var v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?o[1]:o;return '<option value="'+esc(v)+'"'+(String(sel)===String(v)?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
+function ownerOpts(sel){
+  var g='<optgroup label="HAAVN BLACK team">'+S.team.map(function(t){return '<option value="'+t.id+'"'+(sel===t.id?' selected':'')+'>'+esc(t.name)+'</option>'}).join('')+'</optgroup>',by={};
+  S.agents.filter(function(a){return a.active!==false}).forEach(function(a){(by[a.companyId]=by[a.companyId]||[]).push(a)});
+  var o=Object.keys(by).map(function(cid){var c=S.companies.find(function(x){return x.id===cid});return '<optgroup label="'+esc(c?c.name:'Agents')+'">'+by[cid].map(function(a){return '<option value="'+a.id+'"'+(sel===a.id?' selected':'')+'>'+esc(a.name)+'</option>'}).join('')+'</optgroup>'}).join('');
+  return H.isInternal()?g+o:o}
+function custEditor(l){
+  function inp(k,label,type,val,ph){return '<div class="kv"><span class="k">'+label+'</span><span class="v"><input data-f="'+k+'" data-id="'+l.id+'" type="'+(type||'text')+'" value="'+esc(val==null?'':val)+'" placeholder="'+esc(ph||'')+'"'+(type==='tel'?' inputmode="tel"':type==='email'?' inputmode="email" autocapitalize="off"':'')+' enterkeyhint="done"></span></div>'}
+  function sel(k,label,opts){return '<div class="kv"><span class="k">'+label+'</span><span class="v"><select data-f="'+k+'" data-id="'+l.id+'">'+opts+'</select></span></div>'}
+  var h=inp('first','First name','text',l.first)+inp('last','Last name','text',l.last)+inp('mobile','Mobile','tel',l.mobile,'04..')+inp('email','Email','email',l.email,'name@example.com')+
+   sel('state','State','<option value="">Choose</option>'+Object.keys(H.STATES).map(function(k){return '<option value="'+k+'"'+(l.state===k?' selected':'')+'>'+k+' · '+H.STATES[k]+'</option>'}).join(''))+
+   sel('setting','Setting',selOpts(H.SETTING,l.setting))+sel('pay','Payment',selOpts(H.PAY,l.pay))+sel('deliv','Delivery',selOpts(H.DELIV,l.deliv));
+  if(H.isInternal())h+=sel('source','Source',selOpts(H.SOURCES,l.source));else h+='<div class="kv"><span class="k">Source</span><span class="v">'+esc(l.source)+'</span></div>';
+  if(H.isInternal()||S.me.manager)h+=sel('owner','Owner',ownerOpts(l.owner));else h+='<div class="kv"><span class="k">Owner</span><span class="v">'+esc(H.ownerName(l.owner))+'</span></div>';
+  if(l.order)h+=inp('site','Site address','text',l.order.site,'Where the home is going');
+  if(l.msg)h+='<div class="kv" style="align-items:flex-start;padding:12px 0"><span class="k">Their message</span><span class="v" style="white-space:normal;line-height:1.45">'+esc(l.msg)+'</span></div>';
+  return h}
+function payRows(l){
+  var P=H.price(l),st=l.stage;
+  var a=st<3?['Not yet due','']:st===3?(l.paid?['Paid, Finance to confirm','led']:['Awaiting payment',H.status(l).c==='over'?'late':'soon']):['Received','ok'];
+  var b=st<5?['Not yet due','']:st===5?(l.gate==='invoice'?['Invoice to raise','soon']:(l.paid?['Paid, Finance to confirm','led']:['Invoiced, awaiting',H.status(l).c==='over'?'late':'soon'])):['Received','ok'];
+  var c=st<8?['Not yet due','']:st===8?(l.paid?['Paid, Finance to confirm','led']:['Due before delivery',H.status(l).c==='over'?'late':'soon']):['Received','ok'];
+  function r(t,sub,amt,s){return '<div class="pay"><div class="k"><b>'+t+'</b><small>'+sub+'</small></div><div style="text-align:right"><div class="a">'+(amt?money(amt):'-')+'</div><span class="chip '+s[1]+'" style="margin-top:4px">'+s[0]+'</span></div></div>'}
+  return (P?'<div class="hint" style="margin:0 0 8px">Contract price '+money(P)+', 10% is '+money(Math.round(P*.1))+'</div>':'')+r('Pre-order deposit','Refundable until the contract is signed',H.pre(),a)+r('10% order deposit','Less the pre-order deposit',H.depBal(l),b)+r('Final payment','The 90% balance, before delivery',H.finalAmt(l),c)}
+function logHTML(l){
+  var n=UI.logMore?60:12,a=(l.act||[]).slice(0,n);
+  return '<div class="log">'+a.map(function(e){return '<div class="e '+(e.k||'')+'"><b>'+esc(e.x)+'</b><small>'+esc(H.ago(e.t))+'</small></div>'}).join('')+'</div>'+((l.act||[]).length>n?'<button class="btn sm ghost" data-a="logmore" style="margin-top:6px">Show earlier</button>':'')}
+function nowCard(l){
+  var it=H.itemOf(l),p=primary(l),stt=ST[l.stage],q,sub='',sec='';
+  if(l.status==='lost')q='Lost. <b>'+esc(l.lostWhy||'')+'</b>';
+  else if(l.concept)q='OCTA concept enquiry. <b>Keep them warm.</b>';
+  else if(l.ret)q='Returned by '+esc((l.ret.name||'the office').split(' ')[0])+': <b>'+esc(l.ret.why)+'</b>';
+  else if(it){q=esc(it.txt)+'.';sub=dueChip(it)+(it.amt&&it.k!=='call'?'<span class="chip">'+money(it.amt)+'</span>':'')}
+  else if(l.stage>=9)q='Delivered and handed over. <b>Nothing more to do.</b>';
+  else if(l.stage>=7&&l.order)q='With the projects team. <b>'+esc(H.DELIVERY[l.order.step||0].n)+'.</b>';
+  else q=esc(stt.n)+'. <b>'+esc(stt.note)+'.</b>';
+  if(!l.concept&&l.status==='open'){
+    if(l.stage===3&&l.email&&H.isSolum(l))sec+='<button class="btn" data-a="preorder" data-id="'+l.id+'">'+ic('mail')+(l.preMail?'Resend pre-order email':'Send pre-order email')+'</button>';
+    if(it&&it.k==='chase'&&p.a!=='chase')sec+='<button class="btn" data-a="chase" data-id="'+l.id+'">'+ic('mail')+'Chase '+esc(l.first)+'</button>';
+    if(it&&it.k==='call'&&l.stage===2&&l.qual)sec+='<div class="banner">Site: '+esc(l.qual.land||'-')+'. Finance: '+esc(l.qual.fin||'-')+'. Timing: '+esc(l.qual.time||'-')+'.</div>';
+    if(l.stage===2&&l.preMail)sec+='<div class="banner">Pre-order email sent '+esc(H.ago(l.preMail.at))+' by '+esc(l.preMail.by)+'. They have not been moved on yet.</div>'}
+  if(l.concept)sec+='<button class="btn" data-a="toSolum" data-id="'+l.id+'">Convert to SOLUM sales</button>';
+  sec+='<button class="btn ghost" data-a="note" data-id="'+l.id+'">'+ic('note')+'Add a note</button>';
+  return '<div class="card now"><div class="eb">Right now</div><div class="q">'+q+'</div><div class="s">'+sub+'</div><div class="row"><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.label)+'</span></button>'+sec+'</div></div>'}
+function renderLead(){
+  var el=$('#lead'),l=UI.lead&&H.lead(UI.lead);
+  if(!l){el.classList.remove('on');el.setAttribute('aria-hidden','true');return}
+  var sc=$('.scroll',el),y=sc?sc.scrollTop:0,stt=ST[l.stage],ph=PH[stt.ph],p=primary(l);
+  var ownerLine=[H.ownerName(l.owner),l.state?H.STATES[l.state]:''].filter(Boolean).join(' · ');
+  var rail=l.concept?'':'<div class="rail"><div class="bars">'+ST.map(function(s,i){return '<i class="'+(i<l.stage?'d':i===l.stage?'c':'')+'" style="--c:'+PH[s.ph].c+'"></i>'}).join('')+'</div><div class="ph"><span style="--n:3;--c:'+PH.discover.c+'">Discover</span><span style="--n:3;--c:'+PH.commit.c+'">Commit</span><span style="--n:2;--c:'+PH.secure.c+'">Secure</span><span style="--n:2;--c:'+PH.deliver.c+'">Deliver</span></div><div class="lbl"><b>'+esc(stt.n)+'</b><span>Stage '+(l.stage+1)+' of 10</span></div></div>';
+  var hm=PRODUCTS[l.product]||PRODUCTS.none;
+  el.innerHTML='<div class="sh"><button class="ibtn" data-a="back" aria-label="Back">'+ic('back','',22)+'</button><h1><small>'+(l.concept?'OCTA concept':esc(stt.n))+'</small>'+esc(name(l))+'</h1><span class="savedpill">Saved</span><button class="ibtn" data-a="more" data-id="'+l.id+'" aria-label="More">'+ic('more')+'</button></div>'+
+   '<div class="scroll"><div class="card hero"><div class="id"><span class="ini">'+esc(initials(l))+'</span><div style="min-width:0"><h2>'+esc(name(l))+'</h2><div class="sub">'+esc(hm.n)+(H.price(l)?' · '+money(H.price(l)):'')+' · '+esc(ownerLine)+'<br>Arrived '+esc(H.ago(l.created))+' from '+esc(l.source==='Other'&&l.otherSource?'Other ('+l.otherSource+')':l.source)+'</div></div></div>'+
+   '<div class="contact"><button data-a="call" data-id="'+l.id+'"'+(l.mobile?'':' disabled')+'>'+ic('phone')+'Call</button><button data-a="sms" data-id="'+l.id+'"'+(l.mobile?'':' disabled')+'>'+ic('sms')+'Text</button><button data-a="mail" data-id="'+l.id+'"'+(l.email?'':' disabled')+'>'+ic('mail')+'Email</button></div></div>'+rail+nowCard(l)+
+   accHTML('home','Home and finishes','<span>'+esc(hm.s)+'</span>'+sw(l),homeEditor(l))+
+   accHTML('cust','Customer and site','',custEditor(l))+
+   (l.stage>=3&&!l.concept?accHTML('pay','Payments','',payRows(l)):'')+
+   accHTML('log','Notes and activity','<span>'+(l.act||[]).length+'</span>',logHTML(l))+'<div style="height:16px"></div></div>'+
+   '<div class="dock"><button class="btn" data-a="call" data-id="'+l.id+'" aria-label="Call"'+(l.mobile?'':' disabled')+'>'+ic('phone')+'</button><button class="btn" data-a="sms" data-id="'+l.id+'" aria-label="Text"'+(l.mobile?'':' disabled')+'>'+ic('sms')+'</button><button class="btn" data-a="note" data-id="'+l.id+'" aria-label="Note">'+ic('note')+'</button><button class="btn primary" data-a="'+p.a+'" data-id="'+l.id+'">'+(p.icon?ic(p.icon,'',19):'')+'<span>'+esc(p.short)+'</span></button></div>';
+  el.classList.add('on');el.setAttribute('aria-hidden','false');var s2=$('.scroll',el);if(s2)s2.scrollTop=y;pill()}
+function gateScreen(){
+  var h='',bk=EMB?'<button class="btn" data-a="exit">Back</button>':'';
+  if(!S.ready)h='<div class="load"><i></i>Loading</div>';
+  else if(S.error==='signin')h='<div class="gate"><div class="eb">HAAVN BLACK</div><h2>Sign in to sales</h2><p>Use your Microsoft work account. If you are an agent, use the email address your HAAVN BLACK contact added you with.</p><a class="btn primary block" target="_top" href="/api/auth/login?return='+encodeURIComponent('/atrium-sales-mobile.html')+'"><span>Sign in with Microsoft</span></a></div>';
+  else if(S.denied)h='<div class="gate"><div class="eb">HAAVN BLACK</div><h2>No access yet</h2><p>'+esc(S.denied)+'</p>'+bk+'</div>';
+  else if(S.setup)h='<div class="gate"><div class="eb">One step left</div><h2>The sales database is not ready</h2><p>'+esc(S.setup)+'</p>'+bk+'</div>';
+  else if(S.error)h='<div class="gate"><h2>Could not open sales</h2><p>'+esc(S.error)+'</p><button class="btn primary block" data-a="reload"><span>Try again</span></button></div>';
+  else if(EMB==='chat'&&CHAT_USERS.indexOf(S.me.id)<0)h='<div class="gate"><div class="eb">HAAVN BLACK</div><h2>Sales in Chat</h2><p>Sales in Chat is for Jamie and Mike. Open Sales from the ATRIUM app instead.</p>'+bk+'</div>';
+  if(!h)return false;
+  $('#head').innerHTML=EMB?'<div class="sh"><button class="ibtn" data-a="exit" aria-label="Close">'+ic('back','',22)+'</button><h1><small>HAAVN BLACK</small>Sales</h1></div>':'<div class="sh"><h1><small>HAAVN BLACK</small>Sales</h1></div>';
+  $('#body').innerHTML=h;$('#tabs').innerHTML='';$('#fab').classList.add('hide');return true}
+function render(){
+  if(gateScreen())return;
+  var sc=$('#body'),y=sc.scrollTop;
+  $('#off').classList.toggle('on',UI.offline);
+  head();tabs();
+  sc.innerHTML=UI.tab==='pipe'?vPipe():UI.tab==='appr'&&H.hasApprovals()?vAppr():vToday();
+  sc.scrollTop=UI.reset?0:y;UI.reset=false;
+  wireSwipe();renderLead();announce()}
+
+/* ============ swipe a row left: call, text, note ============ */
+function wireSwipe(){
+  $$('.lrow').forEach(function(row){
+    var face=$('.face',row),x0=0,y0=0,dx=0,base=0,drag=false,mv=false,W=210;
+    face.addEventListener('pointerdown',function(e){x0=e.clientX;y0=e.clientY;base=row.classList.contains('open')?-W:0;dx=0;drag=true;mv=false});
+    face.addEventListener('pointermove',function(e){
+      if(!drag)return;var ax=e.clientX-x0,ay=e.clientY-y0;
+      if(!mv){if(Math.abs(ax)>10&&Math.abs(ax)>Math.abs(ay)*1.4){mv=true;try{face.setPointerCapture(e.pointerId)}catch(x){}face.style.transition='none';$$('.lrow.open').forEach(function(o){if(o!==row){o.classList.remove('open');$('.face',o).style.transform=''}})}else if(Math.abs(ay)>10){drag=false;return}}
+      if(mv){dx=Math.max(-W,Math.min(0,base+ax));face.style.transform='translateX('+dx+'px)'}});
+    function end(){if(!drag)return;drag=false;face.style.transition='';if(mv){var open=dx<-W/2;row.classList.toggle('open',open);face.style.transform=open?'translateX(-'+W+'px)':'';row._swiped=Date.now()}}
+    face.addEventListener('pointerup',end);face.addEventListener('pointercancel',end);
+    face.addEventListener('click',function(e){
+      if(row._swiped&&Date.now()-row._swiped<350){e.stopPropagation();e.preventDefault();return}
+      if(row.classList.contains('open')){e.stopPropagation();e.preventDefault();row.classList.remove('open');face.style.transform='';}},true)})}
+
+/* ============ sheets ============ */
+function sheetShell(o){return '<div class="grab"></div><div class="hd"><h3>'+(o.eb?'<small>'+esc(o.eb)+'</small>':'')+o.title+'</h3><button class="ibtn" data-a="close" aria-label="Close">'+ic('x')+'</button></div><div class="bd">'+(o.body||'')+'</div>'+(o.foot?'<div class="ft'+(o.two?' two':'')+'">'+o.foot+'</div>':'')}
+function openSheet(o,state){
+  var was=!!UI.sheet;UI.sheet=Object.assign({},state||{},{tall:!!o.tall});
+  var el=$('#sheet');el.innerHTML=sheetShell(o);el.classList.toggle('tall',!!o.tall);el.classList.add('on');$('#scrim').classList.add('on');
+  if(!was)lay('sheet');
+  var ta=$('.bd textarea',el);if(ta&&o.focus)setTimeout(function(){try{ta.focus()}catch(e){}},380)}
+function setSheet(o){var el=$('#sheet');el.innerHTML=sheetShell(o);el.classList.toggle('tall',!!o.tall)}
+function closeSheet(){if(!UI.sheet)return;UI.sheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');micStop();unlay('sheet')}
+function sentSheet(title,text,btn){
+  openSheet({title:'',body:'<div class="sent"><div class="tick">'+ic('check')+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p></div>',foot:'<button class="btn primary block" data-a="close"><span>'+(btn||'Done')+'</span></button>'},{k:'sent'})}
+window.addEventListener('focusin',function(e){if(UI.sheet&&e.target.closest&&e.target.closest('#sheet')&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))setTimeout(function(){try{e.target.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},320)});
+/* the keyboard: keep the sheet above it */
+if(window.visualViewport){var vv=window.visualViewport,fit=function(){var a=$('#app');if(!a)return;a.style.height=vv.height+'px';a.style.top=vv.offsetTop+'px'};vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit)}
+
+/* dictation: the phone's own speech to text where it has one */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,REC=null;
+function micBtn(t){return SR?'<button type="button" class="btn sm ghost" id="micb" data-a="mic" data-t="'+t+'">'+ic('mic')+'<span>Dictate</span></button>':''}
+function micStop(){if(REC){try{REC.stop()}catch(e){}REC=null}var b=$('#micb');if(b){b.classList.remove('on');var s=$('span',b);if(s)s.textContent='Dictate'}}
+function micToggle(btn){
+  if(REC){micStop();return}
+  var ta=$('#'+btn.dataset.t);if(!ta||!SR)return;
+  try{REC=new SR();REC.lang='en-AU';REC.continuous=true;REC.interimResults=false;
+    REC.onresult=function(e){var s='';for(var i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)s+=e.results[i][0].transcript;if(s)ta.value=(ta.value&&!/\s$/.test(ta.value)?ta.value+' ':ta.value)+s.trim()};
+    REC.onend=function(){REC=null;var b=$('#micb');if(b){b.classList.remove('on');var sp=$('span',b);if(sp)sp.textContent='Dictate'}};REC.onerror=function(){micStop()};
+    REC.start();btn.classList.add('on');$('span',btn).textContent='Listening'}catch(e){REC=null}}
+
+/* --- note --- */
+var NOTE_CHIPS=['Called, no answer','Left a voicemail','Spoke, keen to go ahead','Site visit booked','Wants a different home','Sent the info','Finance question'];
+function sheetNote(l,pre){
+  UI.sl=l.id;
+  openSheet({eb:name(l),title:'Add a note',focus:!pre,body:'<div class="chips">'+NOTE_CHIPS.map(function(c){return '<button data-a="chipnote" data-t="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div><label class="f"><span>What happened</span><textarea class="in" id="ntxt" placeholder="What they said, what you agreed, what is next">'+esc(pre||'')+'</textarea></label>'+micBtn('ntxt'),
+   foot:'<button class="btn primary block" data-a="notesave" data-id="'+l.id+'"><span>Save note</span></button>'},{k:'note'})}
+/* --- call --- */
+function dial(href){var a=document.createElement('a');a.href=href;a.target='_top';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500)}
+function clean(m){return String(m||'').replace(/[^\d+]/g,'')}
+function sheetCall(l){
+  UI.sl=l.id;
+  openSheet({eb:name(l),title:'How did the call go?',body:'<div class="chips" id="outc">'+['No answer','Left a voicemail','Spoke to them','Wrong number'].map(function(c,i){return '<button class="'+(i===2?'on':'')+'" data-a="outc" data-t="'+c+'">'+c+'</button>'}).join('')+'</div><label class="f"><span>What did they say (optional)</span><textarea class="in" id="ntxt" style="min-height:110px" placeholder="Where it is going, budget, questions, what is next"></textarea></label>'+micBtn('ntxt'),
+   foot:'<button class="btn primary block" data-a="callsave" data-id="'+l.id+'"><span>Save</span></button><button class="btn ghost block" data-a="close"><span>Skip</span></button>'},{k:'call'})}
+/* --- qualify --- */
+function chipsQ(id,list,sel){return '<div class="chips" id="'+id+'">'+list.map(function(c){return '<button class="'+(c===sel?'on':'')+'" data-a="qchip" data-g="'+id+'" data-t="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div>'}
+function sheetQual(l){
+  UI.sl=l.id;var q=l.qual||{};
+  openSheet({tall:true,eb:name(l),title:'Qualify',body:'<p style="color:var(--ink3);font-size:13.5px;margin-bottom:14px">What they told you goes with them to the next step.</p><div class="lbl2">The site</div>'+chipsQ('q_land',H.QLAND,q.land)+'<div class="lbl2">Finance</div>'+chipsQ('q_fin',H.QFIN,q.fin)+'<div class="lbl2">When they want it</div>'+chipsQ('q_time',H.QTIME,q.time)+'<div class="lbl2">Delivery</div>'+chipsQ('q_deliv',H.DELIV,l.deliv)+
+   '<label class="f"><span>What they told you</span><textarea class="in" id="q_note" placeholder="Where it is going, their budget, questions, anything to carry forward">'+esc(q.note||'')+'</textarea></label>'+micBtn('q_note')+'<div class="lbl2" style="margin-top:14px">Next step</div>'+chipsQ('q_next',H.QNEXT.map(function(n){return n[1]}),(H.QNEXT.filter(function(n){return n[0]===(q.next||'preorder')})[0]||[0,''])[1]),
+   foot:'<button class="btn primary block" data-a="qualsave" data-id="'+l.id+'"><span>'+(l.stage<2?'Qualify':'Save')+'</span></button>'},{k:'qual'})}
+/* --- pre-order email: the approved email from sales@haavn.au, with the Stripe link --- */
+function preBody(l,m){
+  if(m.err)return '<div class="banner bad">'+esc(m.err)+'</div>';
+  if(m.sentOk)return '';
+  if(!m.pv)return '<div class="empty">Building the email from what '+esc(l.first)+' chose...</div>';
+  var pv=m.pv,fl=pv.fields||{};
+  var h='<div class="callout"><b>'+money(H.pre())+'</b><span>Pre-order deposit. It holds their place and is refundable until they sign the contract. The button in the email opens the secure payment page.</span></div>';
+  h+='<div class="mailhd"><div><span>From</span><em>'+esc(pv.from)+'</em></div><div><span>To</span><em>'+esc(pv.to||'no email address on file')+'</em></div><div><span>Subject</span><em>'+esc(pv.subject)+'</em></div></div>';
+  if(!pv.configured)h+='<div class="banner bad" style="margin-bottom:10px">Email is not set up on this server yet, so nothing can be sent.</div>';
+  if(!pv.to)h+='<div class="banner bad" style="margin-bottom:10px">This customer has no email address. Add it under Customer and site first.</div>';
+  if(pv.sent)h+='<div class="banner warn" style="margin-bottom:10px">Already sent '+esc(H.ago(pv.sent.at))+' by '+esc(pv.sent.by)+(pv.sent.n>1?', '+pv.sent.n+' times':'')+'. Send it again only if they have not got it.</div>';
+  if(pv.missing&&pv.missing.length)h+='<div class="banner warn" style="margin-bottom:10px">They have not chosen their '+esc(pv.missing.join(' and '))+' yet, so the email says To be chosen. Pick it for them on the customer first if you know it.</div>';
+  h+='<div class="grid2">'+[['Home',(fl.model||'')+' · '+(fl.area||'')],['Exterior',fl.exterior],['Interior',fl.interior],['Joinery',fl.joinery],['Setting',fl.setting],['Price',fl.price],['Delivered to',fl.port]].map(function(r){return '<span>'+r[0]+'</span><span>'+esc(r[1])+'</span>'}).join('')+'</div>';
+  h+='<button class="btn sm ghost" data-a="prevtoggle">'+ic('mail')+'<span>'+(m.show?'Hide the email':'Preview the email')+'</span></button>'+(m.show?'<iframe class="prev" title="Email preview" sandbox="" srcdoc="'+esc(pv.html)+'"></iframe>':'');
+  return h}
+function preFoot(l,m){
+  if(m.err||!m.pv)return '<button class="btn block" data-a="close"><span>Close</span></button>';
+  var pv=m.pv,dis=(m.busy||!pv.configured||!pv.to)?' disabled':'';
+  return '<button class="btn primary block" data-a="presend" data-id="'+l.id+'"'+dis+'><span>'+(m.busy?'Sending...':'Send to '+esc(l.first))+'</span></button><button class="btn block" data-a="pretest"'+(m.busy||!pv.configured?' disabled':'')+'><span>Send me a test</span></button>'}
+function drawPre(){var m=UI.sheet;if(!m||m.k!=='pre')return;var l=H.lead(m.id);if(!l)return;var bd=$('#sheet .bd'),y=bd?bd.scrollTop:0;
+  setSheet({tall:true,eb:name(l),title:'Pre-order email',body:preBody(l,m),foot:preFoot(l,m)});var b2=$('#sheet .bd');if(b2)b2.scrollTop=y}
+function sheetPre(l){
+  if(!needNet())return;UI.sl=l.id;
+  openSheet({tall:true,eb:name(l),title:'Pre-order email',body:'<div class="empty">Building the email from what '+esc(l.first)+' chose...</div>',foot:'<button class="btn block" data-a="close"><span>Close</span></button>'},{k:'pre',id:l.id,pv:null});
+  H.api('preorderEmail',{id:l.id,mode:'preview'}).then(function(j){if(UI.sheet&&UI.sheet.k==='pre'&&UI.sheet.id===l.id){UI.sheet.pv=j;drawPre()}}).catch(function(e){if(UI.sheet&&UI.sheet.k==='pre'){UI.sheet.err=e.message||'The email could not be built.';drawPre()}})}
+/* --- message (email or text) --- */
+function sheetMsg(l,o){
+  o=o||{};UI.sl=l.id;var mode=o.mode||'email',body=o.text||H.tpl(l,o.key||null),subj=o.subject||(o.chase?'Your HAAVN BLACK home: a quick reminder':'Your HAAVN BLACK home');
+  var head=mode==='email'?'<div class="mailhd"><div><span>To</span><em>'+esc(l.email||'no email address on file')+'</em></div><div><span>Subject</span><input id="msubj" value="'+esc(subj)+'"></div></div>':'<div class="mailhd"><div><span>To</span><em>'+esc(l.mobile||'no mobile on file')+'</em></div></div>';
+  var foot=mode==='email'?(l.email?'<button class="btn primary block" data-a="msend" data-id="'+l.id+'"><span>Email '+esc(l.first)+'</span></button>':'')+'<button class="btn block" data-a="mcopy" data-id="'+l.id+'"><span>Copy and log as sent</span></button>':
+   (l.mobile?'<button class="btn primary block" data-a="msms" data-id="'+l.id+'"><span>Open in Messages</span></button>':'')+'<button class="btn block" data-a="mcopy" data-id="'+l.id+'"><span>Copy and log as sent</span></button>';
+  openSheet({tall:true,eb:name(l),title:o.title||(o.chase?'Chase '+esc(l.first):mode==='email'?'Email '+esc(l.first):'Text '+esc(l.first)),body:head+'<label class="f"><span>Message</span><textarea class="in" id="mtxt" style="min-height:230px">'+esc(body)+'</textarea></label>'+(o.chase?'<div class="hint" style="margin:0">It is noted on the customer as chased.</div>':'')+micBtn('mtxt'),foot:foot},{k:'msg',mode:mode,chase:!!o.chase,upd:!!o.upd,concept:!!o.concept})}
+/* --- approve / return / confirm --- */
+function sheetReview(l){
+  if(!needNet())return;UI.sl=l.id;var g=l.gate,gg=G[g],ck=UI.chk[l.id+g]||[],cl=H.CHK[g]||[],all=cl.every(function(_,i){return ck[i]});
+  openSheet({tall:true,eb:gg.short,title:esc(gg.ask),body:'<div class="callout"><b>'+money(H.gateAmt(l,g))+'</b><span>'+esc(name(l))+(g==='dep'||g==='invoice'?', the 10% less the pre-order deposit':g==='final'?', the 90% balance':'')+'</span></div><div class="lbl2">Before you approve</div>'+cl.map(function(c,i){return '<div class="ck '+(ck[i]?'on':'')+'" data-a="ck" data-i="'+i+'" data-id="'+l.id+'"><i>'+ic('check')+'</i><span>'+esc(c)+'</span></div>'}).join('')+'<div class="lbl2" style="margin-top:16px">When you approve</div><div class="fx">'+H.effects(l,g).map(function(e){return '<div>'+esc(e)+'</div>'}).join('')+'</div><label class="f"><span>Note for the record (optional)</span><textarea class="in" id="anote" style="min-height:90px" placeholder="Shown on the customer next to your name"></textarea></label>',
+   foot:'<button class="btn primary block'+(all?'':' off')+'" id="apbtn" data-a="approve" data-id="'+l.id+'"><span>'+(all?'Approve':'Tick each check to approve')+'</span></button><button class="btn block" data-a="retsheet" data-id="'+l.id+'"><span>Return to '+esc(H.firstName(l.owner))+'</span></button>'},{k:'review',id:l.id})}
+function sheetRet(l){UI.sl=l.id;openSheet({eb:name(l),title:'Return to '+esc(H.firstName(l.owner)),body:'<p style="color:var(--ink3);font-size:13.5px;margin-bottom:14px">It goes back to the sales agent with your reason, and leaves the approvals queue until they resubmit it.</p><div class="chips" id="retc">'+H.RET.map(function(r){return '<button data-a="retchip" data-t="'+esc(r)+'">'+esc(r)+'</button>'}).join('')+'</div><label class="f"><span>Or say why</span><textarea class="in" id="rwhy" style="min-height:90px"></textarea></label>',foot:'<button class="btn primary block" data-a="retgo" data-id="'+l.id+'"><span>Return to '+esc(H.firstName(l.owner))+'</span></button>'},{k:'ret'})}
+function sheetConfirm(l,o){UI.sl=l.id;openSheet({eb:name(l),title:o.title,body:'<p style="color:var(--ink2);font-size:14.5px;line-height:1.5">'+esc(o.text)+'</p>',foot:'<button class="btn primary block" data-a="'+o.go+'" data-id="'+l.id+'"><span>'+esc(o.yes)+'</span></button><button class="btn block" data-a="close"><span>Not yet</span></button>'},{k:'confirm'})}
+function sheetLost(l){UI.sl=l.id;openSheet({eb:name(l),title:'Why was it lost?',body:'<div class="chips">'+H.LOST.map(function(w){return '<button data-a="losewhy" data-id="'+l.id+'" data-w="'+esc(w)+'">'+esc(w)+'</button>'}).join('')+'</div><div class="lbl2" style="margin-top:6px">Not a real customer?</div><div class="chips"><button data-a="losewhy" data-id="'+l.id+'" data-w="Test lead">Test lead</button></div><div class="hint" style="margin:0">A test lead is left out of every number and list.</div>'},{k:'lost'})}
+function sheetNew(){
+  var internal=H.isInternal();
+  openSheet({tall:true,eb:'New customer',title:'Add a lead',focus:false,body:'<label class="f"><span>First name</span><input class="in" id="n_f" autocomplete="off" autocapitalize="words"></label><label class="f"><span>Last name</span><input class="in" id="n_l" autocomplete="off" autocapitalize="words"></label><label class="f"><span>Mobile</span><input class="in" id="n_m" type="tel" inputmode="tel" placeholder="04.."></label><label class="f"><span>Email (optional)</span><input class="in" id="n_e" type="email" inputmode="email" autocapitalize="off"></label>'+
+   '<div class="lbl2">State</div><div class="chips" id="n_s">'+Object.keys(H.STATES).map(function(k){return '<button data-a="nchip" data-g="n_s" data-t="'+k+'">'+k+'</button>'}).join('')+'</div>'+
+   '<div class="lbl2">Home</div><div class="pick" id="n_p">'+H.SOLUM.map(function(k){var p=PRODUCTS[k];return '<button data-a="nchip" data-g="n_p" data-t="'+k+'"><b>'+p.s+'</b><small>'+p.m2+' m²</small></button>'}).join('')+'</div>'+
+   '<label class="f"><span>Where did they come from</span><select class="in" id="n_src">'+selOpts(H.SOURCES,internal?'Other':'Agent referral')+'</select></label>'+(internal?'<label class="f"><span>Who looks after them</span><select class="in" id="n_o"><option value="">By state, as set in Setup</option>'+ownerOpts('')+'</select></label>':'')+
+   '<label class="f"><span>Note (optional)</span><textarea class="in" id="n_msg" style="min-height:90px"></textarea></label>'+micBtn('n_msg'),foot:'<button class="btn primary block" data-a="newsave"><span>Save and open</span></button>'},{k:'new'})}
+function sheetMenu(){
+  var t=curTheme(),n=qGet().length;
+  openSheet({eb:'HAAVN BLACK',title:'<span class="wm0" aria-label="HAAVN BLACK"></span>',body:'<div class="menu"><div style="margin:4px 0 16px;color:var(--ink2);font-size:14px"><b style="color:var(--ink);font-weight:500">'+esc(S.me.name)+'</b><br><span style="color:var(--ink3)">'+(H.isInternal()?'HAAVN BLACK team':'Agent')+(S.me.roles&&S.me.roles.length?' · '+S.me.roles.map(H.roleName).join(' and '):'')+'</span></div>'+
+   (FORCED?'':'<div class="seg"><button class="'+(t==='dark'?'on':'')+'" data-a="theme" data-t="dark">Dark</button><button class="'+(t==='light'?'on':'')+'" data-a="theme" data-t="light">Light, for sunlight</button></div>')+
+   '<button class="btn" data-a="reload">'+ic('arrow')+'Refresh</button><a class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px;text-decoration:none" href="/atrium-sales.html?desktop=1" target="_top">'+ic('pipe')+'Desktop version</a>'+(n?'<div class="hint" style="margin:6px 0 0">'+n+' change'+(n===1?'':'s')+' waiting to be sent</div>':'')+'</div>'},{k:'menu'})}
+function sheetMore(l){
+  UI.sl=l.id;var rows='';
+  if(!l.concept&&l.status==='open'&&l.stage<=2&&!l.gate)rows+='<button class="btn" data-a="advance" data-id="'+l.id+'">'+ic('arrow')+'Move to '+esc(ST[l.stage+1].n)+'</button>';
+  rows+='<button class="btn" data-a="mail" data-id="'+l.id+'"'+(l.email?'':' disabled')+'>'+ic('mail')+'Write an email</button><button class="btn" data-a="smsmsg" data-id="'+l.id+'"'+(l.mobile?'':' disabled')+'>'+ic('sms')+'Write a text</button>';
+  if(l.status==='open')rows+='<button class="btn danger" data-a="lose" data-id="'+l.id+'">'+ic('x')+'Mark lost</button>';else rows+='<button class="btn" data-a="reopen" data-id="'+l.id+'">'+ic('check')+'Re-open</button>';
+  openSheet({eb:name(l),title:'More',body:'<div class="menu">'+rows+'</div>'},{k:'more'})}
+
+/* ============ the actions ============ */
+function advance(l){
+  if(!needNet())return Promise.resolve();
+  if(l.stage===1&&!l.qual){sheetQual(l);return Promise.resolve()}
+  if(l.stage>=3||l.gate||l.concept)return Promise.resolve();var to=l.stage+1;
+  return save(l,{stage:to,lastTouch:H.now(),act:[act(l,'Moved to '+ST[to].n+' by '+S.me.name+'.')]}).then(function(r){if(r)toast(name(l)+' is now at '+ST[to].n+'.');return r})}
+function openLead(id){
+  if(!H.lead(id))return;UI.lead=id;UI.open.log=UI.open.log!==false;renderLead();lay('lead');
+  var s=$('#lead .scroll');if(s)s.scrollTop=0}
+var A={
+ tab:function(t){var k=t.dataset.k;if(k==='chat'){if(EMB==='chat'){exit()}else if(!EMB){location.href='/atrium-chat.html'}return}
+   if(UI.tab!==k){UI.tab=k;UI.reset=true;render()}},
+ exit:function(){exit()},
+ reload:function(){closeSheet();S.ready=false;S.error='';render();H.load().then(function(){render();flush()})},
+ lead:function(t){openLead(t.dataset.id)},
+ back:function(){UI.lead=null;$('#lead').classList.remove('on');$('#lead').setAttribute('aria-hidden','true');unlay('lead');render()},
+ close:function(){closeSheet()},
+ acc:function(t){var k=t.dataset.k;UI.open[k]=!UI.open[k];t.parentNode.classList.toggle('open',UI.open[k])},
+ logmore:function(){UI.logMore=true;renderLead()},
+ stage:function(t){var k=t.dataset.k;UI.stage=/^\d+$/.test(k)?+k:k;var sc=$('#body'),y=sc.scrollTop,sg=$('.stg'),x=sg?sg.scrollLeft:0;render();sc.scrollTop=y;var s2=$('.stg');if(s2)s2.scrollLeft=x},
+ who:function(t){UI.mineOnly=t.dataset.k==='1';render()},
+ menu:function(){sheetMenu()},more:function(t){sheetMore(cur(t))},
+ theme:function(t){var v=t.dataset.t;try{localStorage.setItem('atrium_theme',v)}catch(e){}theme(v);$$('.seg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===v)})},
+ newlead:function(){sheetNew()},
+ /* contact */
+ call:function(t){var l=cur(t);if(!l)return;if(!l.mobile){toast('No mobile number on file.',true);return}UI.pend=l.id;dial('tel:'+clean(l.mobile));setTimeout(function(){if(UI.pend===l.id&&!UI.sheet){UI.pend=null;sheetCall(l)}},900)},
+ sms:function(t){var l=cur(t);if(!l)return;if(!l.mobile){toast('No mobile number on file.',true);return}var k=H.itemOf(l);sheetMsg(l,{mode:'sms',key:k&&k.k==='chase'?H.chaseKey(l):null,chase:!!(k&&k.k==='chase')})},
+ smsmsg:function(t){A.sms(t)},
+ mail:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetMsg(l,{mode:'email'})},UI.sheet?0:0)},
+ note:function(t){var l=cur(t);if(!l)return;if(UI.sheet)closeSheet();sheetNote(l)},
+ chipnote:function(t){var ta=$('#ntxt');if(ta){ta.value=(ta.value?ta.value.replace(/\s*$/,' ')+'':'')+t.dataset.t+'. ';ta.focus()}},
+ notesave:function(t){var l=cur(t),v=($('#ntxt').value||'').trim();if(!l||!v){toast('Write a note first.',true);return}closeSheet();save(l,{act:[act(l,v,'note')],lastTouch:H.now()}).then(function(){toast(UI.offline?'Kept on your phone. It sends when you have signal.':'Note saved')})},
+ outc:function(t){$$('#outc button').forEach(function(b){b.classList.toggle('on',b===t)})},
+ callsave:function(t){var l=cur(t);if(!l)return;var oc=($('#outc .on')||{}).dataset.t||'Spoke to them',v=($('#ntxt').value||'').trim(),spoke=oc==='Spoke to them';
+   var txt='Called. '+(spoke?'Spoke to '+l.first+'.':oc+'.')+(v?' '+v:''),patch={act:[act(l,txt,'call')],lastTouch:H.now()};UI.pend=null;
+   if(spoke&&l.stage===0&&!l.gate&&!l.concept){if(!needNet())return;patch.stage=1;patch.act.push(act(l,'Moved to Contacted by '+S.me.name+'.'))}
+   closeSheet();save(l,patch).then(function(){toast(patch.stage?l.first+' is now Contacted.':UI.offline?'Kept on your phone.':'Call noted')})},
+ /* qualify */
+ qualify:function(t){var l=cur(t);if(l)sheetQual(l)},
+ qchip:function(t){$$('#'+t.dataset.g+' button').forEach(function(b){b.classList.toggle('on',b===t)})},
+ qualsave:function(t){var l=cur(t);if(!l)return;if(!needNet())return;
+   var g=function(id){return (($('#'+id+' .on')||{}).dataset||{}).t||''},note=($('#q_note').value||'').trim();
+   var nxName=g('q_next')||H.QNEXT[0][1],nx=(H.QNEXT.filter(function(n){return n[1]===nxName})[0]||H.QNEXT[0]),
+     q={land:g('q_land'),fin:g('q_fin'),time:g('q_time'),note:note,next:nx[0],by:S.me.name,at:H.now()};
+   if(!q.land||!q.fin||!q.time||!q.note){toast('Choose the site, finance and timing, and say what they told you.',true);return}
+   var first=l.stage<2,deliv=g('q_deliv')||l.deliv,txt=(first?'Qualified. ':'Qualification updated. ')+'Site: '+q.land+'. Finance: '+q.fin+'. Timing: '+q.time+'. Next: '+nx[1]+'. '+q.note;
+   var patch={qual:q,deliv:deliv,lastTouch:H.now(),act:[act(l,txt,'note')]};if(first){patch.stage=2;patch.act.push(act(l,'Moved to '+ST[2].n+' by '+S.me.name+'.'))}
+   closeSheet();save(l,patch).then(function(){toast(first?l.first+' is qualified. Their details are saved.':'Saved')})},
+ /* pre-order email */
+ preorder:function(t){var l=cur(t);if(!l)return;if(!l.email){toast('Add '+l.first+'’s email first (Customer and site).',true);if(!UI.lead)openLead(l.id);else{UI.open.cust=true;renderLead()}return}if(!H.isSolum(l)){toast('Choose their SOLUM home first. OCTA is concept only.',true);return}if(UI.sheet)closeSheet();sheetPre(l)},
+ prevtoggle:function(){var m=UI.sheet;if(!m)return;m.show=!m.show;drawPre()},
+ pretest:function(){var m=UI.sheet;if(!m||m.busy)return;m.busy=true;drawPre();H.api('preorderEmail',{id:m.id,mode:'test'}).then(function(j){m.busy=false;drawPre();toast('Test sent to '+j.sentTo+'. Open it on your phone and press the button.')}).catch(function(e){m.busy=false;drawPre();fail(e)})},
+ presend:function(){var m=UI.sheet;if(!m||m.busy)return;var id=m.id;m.busy=true;drawPre();
+   H.api('preorderEmail',{id:id,mode:'send'}).then(function(j){put(j.lead);var l=H.lead(id);
+     var done=function(){var c=H.lead(id);sentSheet('Pre-order sent to '+l.first,c&&c.stage===3?l.first+' is now at Pre-order deposit. Finance confirms the deposit when it lands.':'The email is on its way, and you are copied. Move them on when you are ready.');render()};
+     if(l.stage===2&&!l.gate)return advance(l).then(done);done()}).catch(function(e){m.busy=false;drawPre();fail(e)})},
+ /* messages */
+ msend:function(t){var l=cur(t);if(!l||!needNet())return;var v=$('#mtxt').value,sub=($('#msubj')||{}).value||'Your HAAVN BLACK home',m=UI.sheet||{};
+   H.api('emailCustomer',{id:l.id,subject:sub,body:v}).then(function(j){put(j.lead);var l2=H.lead(l.id),after=function(){closeSheet();render();toast('Emailed '+l.first+'. You are copied.')};
+     if(m.chase)return save(l2,{chased:H.now()},{quiet:true}).then(after);
+     if(m.upd)return finishUpdate(l2,true).then(after);after()}).catch(fail)},
+ msms:function(t){var l=cur(t);if(!l)return;var v=$('#mtxt').value,m=UI.sheet||{};dial('sms:'+clean(l.mobile)+(/iPhone|iPad|iPod/.test(navigator.userAgent)?'&':'?')+'body='+encodeURIComponent(v));
+   var patch={act:[act(l,(m.chase?'Chased by text: ':'Texted: ')+v.slice(0,90)+(v.length>90?'...':''),'note')],lastTouch:H.now()};if(m.chase)patch.chased=H.now();closeSheet();save(l,patch)},
+ mcopy:function(t){var l=cur(t);if(!l)return;var v=$('#mtxt').value,m=UI.sheet||{};try{navigator.clipboard.writeText(v)}catch(e){}
+   if(m.upd){closeSheet();finishUpdate(l,false).then(function(){toast('Copied. Update logged.')});return}
+   var patch={act:[act(l,(m.chase?'Chased: ':'Sent message: ')+v.slice(0,90)+(v.length>90?'...':''),'note')],lastTouch:H.now()};if(m.chase)patch.chased=H.now();closeSheet();save(l,patch).then(function(){toast('Copied. Logged on the customer.')})},
+ chase:function(t){var l=cur(t);if(!l)return;if(UI.sheet)closeSheet();var k=H.chaseKey(l);sheetMsg(l,{mode:l.email?'email':'sms',chase:true,key:k})},
+ update:function(t){var l=cur(t);if(!l||!l.order)return;sheetMsg(l,{mode:l.email?'email':'sms',upd:true,text:H.updateText(l),subject:'Your HAAVN BLACK home: update',title:'Fortnightly update'})},
+ concept:function(t){var l=cur(t);if(!l)return;var tx='Hi '+l.first+', a quick update on the '+H.home(l)+': we have new renders to share and the design is moving along nicely. If you tell me roughly where you would place it and when you would want it, I can keep your spot as pre-orders get closer. '+S.me.name.split(' ')[0];sheetMsg(l,{mode:l.email?'email':'sms',text:tx,subject:'An update on '+H.home(l),title:'Concept update',concept:true})},
+ toSolum:function(t){var l=cur(t);if(!l||!needNet())return;var p=l.product==='octamax'?'max':l.product==='octaplus'?'plus':'studio';save(l,{concept:false,product:p,stage:0,dates:[H.now()],lastTouch:H.now(),act:[act(l,'Converted from OCTA concept to the SOLUM sales pipeline.')]}).then(function(){toast(name(l)+' is now in SOLUM sales')})},
+ /* approvals */
+ review:function(t){var l=cur(t);if(l&&l.gate)sheetReview(l)},
+ ck:function(t){var l=cur(t),k=l.id+l.gate,a=(UI.chk[k]||[]).slice(),i=+t.dataset.i;a[i]=!a[i];UI.chk[k]=a;t.classList.toggle('on',!!a[i]);var all=(H.CHK[l.gate]||[]).every(function(_,x){return a[x]}),b=$('#apbtn');if(b){b.classList.toggle('off',!all);$('span',b).textContent=all?'Approve':'Tick each check to approve'}},
+ approve:function(t){var l=cur(t);if(!l||!needNet())return;var note=(($('#anote')||{}).value||'').trim(),g=l.gate;
+   var b=$('#apbtn');if(b)b.classList.add('off');
+   gateCall(l,'approve',{note:note}).then(function(r){UI.chk[l.id+g]=null;var c=r;sentSheet('Approved','Approved. '+r.first+' is now at '+ST[r.stage].n+(r.gate?', waiting on '+H.roleWho(G[r.gate].role)+'.':'.'));render()}).catch(function(e){if(b)b.classList.remove('off');fail(e);H.load().then(render)})},
+ retsheet:function(t){var l=cur(t);if(l)sheetRet(l)},
+ retchip:function(t){$$('#retc button').forEach(function(b){b.classList.toggle('on',b===t)});$('#rwhy').value=t.dataset.t},
+ retgo:function(t){var l=cur(t),why=(($('#rwhy')||{}).value||'').trim();if(!l)return;if(!why){toast('Say why it is going back.',true);return}if(!needNet())return;
+   gateCall(l,'return',{why:why}).then(function(){sentSheet('Returned to '+H.firstName(l.owner),'They will see your reason and can resubmit it.');render()}).catch(fail)},
+ nudge:function(t){var l=cur(t);if(!l)return;toast('Waiting on '+H.roleWho(G[l.gate].role)+'. They have a task and a note in the HAAVN Contract Team chat.')},
+ arrived:function(t){var l=cur(t);if(!l)return;sheetConfirm(l,{title:'Has the payment arrived?',text:'Record that '+money(H.gateAmt(l,l.gate))+' from '+name(l)+' has arrived. It then goes to Approvals for Finance to confirm.',go:'arrivedgo',yes:'Yes, it has arrived'})},
+ arrivedgo:function(t){var l=cur(t);if(!l||!needNet())return;gateCall(l,'arrived').then(function(){sentSheet('Recorded','It is now in Approvals for Finance to confirm.');render()}).catch(fail)},
+ signedby:function(t){var l=cur(t);if(!l)return;sheetConfirm(l,{title:'Is the contract signed?',text:'Record that '+l.first+' has signed and the signed contract is back. Alessia can then file it.',go:'signedgo',yes:'Yes, it is signed'})},
+ signedgo:function(t){var l=cur(t);if(!l||!needNet())return;gateCall(l,'signed').then(function(){sentSheet('Signed','Alessia can now confirm and file it.');render()}).catch(fail)},
+ handover:function(t){var l=cur(t);if(!l)return;sheetConfirm(l,{title:'Send the handover?',text:'Send the handover for '+name(l)+' to projects@haavn.au now.',go:'handovergo',yes:'Send the handover'})},
+ handovergo:function(t){var l=cur(t);if(!l||!needNet())return;H.api('handover',{id:l.id}).then(function(j){put(j.lead);sentSheet('Handover sent','The projects team has it.');render()}).catch(fail)},
+ resubmit:function(t){var l=cur(t);if(!l||!needNet())return;gateCall(l,'resubmit').then(function(){toast('Resubmitted. It is back in the approvals queue.');render()}).catch(function(e){fail(e);H.load().then(render)})},
+ /* stage, lost */
+ advance:function(t){var l=cur(t);if(!l)return;closeSheet();advance(l)},
+ lose:function(t){var l=cur(t);if(!l)return;closeSheet();setTimeout(function(){sheetLost(l)},60)},
+ losewhy:function(t){var l=cur(t);if(!l||!needNet())return;closeSheet();save(l,{status:'lost',lostWhy:t.dataset.w,act:[act(l,'Marked lost: '+t.dataset.w+'.')]}).then(function(){toast('Marked lost')})},
+ reopen:function(t){var l=cur(t);if(!l||!needNet())return;if(UI.sheet)closeSheet();save(l,{status:'open',lostWhy:'',act:[act(l,'Re-opened.')]}).then(function(){toast(l.first+' is open again')})},
+ /* home and finishes: saved the moment you tap */
+ pickhome:function(t){var l=cur(t);if(!l||t.disabled||t.dataset.v===l.product)return;if(!needNet())return;save(l,{product:t.dataset.v,concept:false}).then(function(){toast('Home changed. It is written on the customer.')})},
+ pickfin:function(t){var l=cur(t);if(!l)return;var k=t.dataset.k,v=t.dataset.v,pt={};pt[k]=l[k]===v?'':v;save(l,pt).then(function(){toast(pt[k]?v+' chosen':'Cleared')})},
+ /* new lead */
+ nchip:function(t){var g=t.dataset.g;$$('#'+g+' button').forEach(function(b){b.classList.toggle('on',b===t&&!b.classList.contains('on'))})},
+ newsave:function(){var f=($('#n_f').value||'').trim();if(!f){toast('Add a first name.',true);return}if(!needNet())return;
+   var body={first:f,last:$('#n_l').value,mobile:$('#n_m').value,email:$('#n_e').value,state:(($('#n_s .on')||{}).dataset||{}).t||'',product:(($('#n_p .on')||{}).dataset||{}).t||'none',source:$('#n_src').value,msg:$('#n_msg').value};
+   if($('#n_o')&&$('#n_o').value)body.owner=$('#n_o').value;
+   H.api('newLead',{lead:body}).then(function(j){put(j.lead);closeSheet();UI.tab='today';render();openLead(j.lead.id);toast(j.dup?'Already a customer, note added':'Lead created for '+H.ownerName(j.lead.owner))}).catch(fail)},
+ mic:function(t){micToggle(t)}
+};
+function finishUpdate(l,send){var o=Object.assign({},l.order);o.lastUpdate=H.now();var d=H.DELIVERY[o.step||0];o.log=[{t:H.now(),x:'Fortnightly update '+(send?'emailed':'logged')+': '+d.n+'.'}].concat(o.log||[]);return save(l,{order:o,act:[act(l,'Fortnightly update '+(send?'emailed to the customer':'logged as sent')+'.')]},{quiet:true})}
+function exit(){
+  if(EMB==='chat'||EMB==='hb'||EMB==='hm'){try{parent.postMessage({atriumSales:'close'},'*')}catch(e){}}
+  else if(history.length>1)history.back()}
+
+/* ============ wiring ============ */
+document.addEventListener('click',function(e){
+  var t=e.target.closest&&e.target.closest('[data-a]');if(!t)return;var fn=A[t.dataset.a];if(!fn)return;
+  if(t.tagName==='A'&&t.dataset.a==null)return;
+  if(t.closest('.lrow')&&t.closest('.under')){/* a swipe action */}
+  fn(t)});
+document.addEventListener('change',function(e){
+  var el=e.target,f=el.dataset&&el.dataset.f;if(!f)return;var l=H.lead(el.dataset.id);if(!l)return;var v=el.value;
+  if(f==='owner'){var ag=H.agentById(v);return void save(l,{owner:v,companyId:ag?ag.companyId:'',act:[act(l,'Owner changed to '+H.ownerName(v)+'.')]},{quiet:true}).then(function(){render()})}
+  if(f==='site'){return void save(l,{order:Object.assign({},l.order,{site:v})},{quiet:true})}
+  if(f==='source'){if(!needNet()){render();return}return void save(l,{source:v},{quiet:true})}
+  if(String(l[f]||'')===String(v))return;
+  var patch={};patch[f]=v.trim?v.trim():v;
+  if(f==='email'&&v&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){toast('That email address does not look right.',true);el.value=l.email||'';return}
+  save(l,patch,{quiet:true}).then(function(){if(f==='first'||f==='last'||f==='state')renderLead()})});
+document.addEventListener('input',function(e){
+  if(e.target.id==='q'){UI.q=e.target.value;var pl=$('#plist');if(pl){pl.innerHTML=plistHTML();wireSwipe()}}});
+window.addEventListener('online',function(){setOffline(false)});
+window.addEventListener('offline',function(){setOffline(true)});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;
+  if(UI.pend){var l=H.lead(UI.pend);UI.pend=null;if(l&&!UI.sheet)setTimeout(function(){sheetCall(l)},250)}
+  poll()});
+function busy(){var a=document.activeElement;return UI.sheet||(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
+function poll(){
+  if(!ready()||document.hidden||UI.offline)return;
+  H.poll(qIds()).then(function(ch){if(ch&&!busy()){render()}else if(ch){announce()}}).catch(function(e){if(H.isOffline(e))setOffline(true)})}
+setInterval(poll,20000);
+setInterval(function(){if(ready()&&!document.hidden&&!UI.sheet&&!busy())render()},60000);   /* the "late" chips and ages tick on by themselves */
+
+/* ============ start ============ */
+render();
+H.load().then(function(){
+  /* the pipeline opens on my own customers, or on everyone's when I have none of my own */
+  if(ready())UI.mineOnly=H.visible().some(function(l){return l.owner===S.me.id})||!(H.isInternal()||S.me.manager);
+  var tb=(location.search.match(/[?&]tab=(\w+)/)||[])[1];   /* the shells open it on Approvals or the Pipeline */
+  if(ready()&&tb)UI.tab=tb==='appr'&&H.hasApprovals()?'appr':tb==='pipe'?'pipe':'today';
+  render();flush();
+  var id=(location.search.match(/[?&]lead=([\w-]+)/)||[])[1];
+  if(id&&ready()&&H.lead(id)){openLead(id);try{history.replaceState(null,'',location.pathname+location.search.replace(/([?&])lead=[\w-]+&?/,'$1').replace(/[?&]$/,''))}catch(e){}}});
+})();
+</script>
+</body>
+</html>

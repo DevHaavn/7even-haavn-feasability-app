@@ -213,7 +213,7 @@ async function notifyNewLead(deps, lead, settings) {
     try {
       const ids = [...new Set([lead.owner, ...members].filter(Boolean))]
       const subs = await chat.pushSubsFor(ids)
-      const data = JSON.stringify({ title: `New HAAVN BLACK lead${lead.state ? ' (' + lead.state + ')' : ''}`, body: `${nm}, ${homeName}. ${ownerName ? 'For ' + ownerName + '.' : ''}`.slice(0, 140), tag: 'hbsales-' + lead.id, url: '/atrium-sales.html' })
+      const data = JSON.stringify({ title: `New HAAVN BLACK lead${lead.state ? ' (' + lead.state + ')' : ''}`, body: `${nm}, ${homeName}. ${ownerName ? 'For ' + ownerName + '.' : ''}`.slice(0, 140), tag: 'hbsales-' + lead.id, url: '/atrium-sales.html?lead=' + encodeURIComponent(lead.id) })
       await Promise.allSettled(subs.map(async (s) => {
         try { await wp.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, data); out.push++ }
         catch (e) { if (e && (e.statusCode === 404 || e.statusCode === 410)) { try { await chat.deletePush(s.endpoint) } catch { /* ignore */ } } }

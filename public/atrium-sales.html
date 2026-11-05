@@ -519,6 +519,8 @@ body.embed .wrap{padding-top:22px}
 'use strict';
 var EMBED=/[?&]embed=1\b/.test(location.search)||window.parent!==window;
 if(EMBED)document.body.classList.add('embed');
+/* opened on its own on a phone (a push alert, a saved link, the sign-in coming back): go to the phone version. ?desktop=1 keeps this page. */
+if(!EMBED&&!/[?&]desktop=1/.test(location.search)&&window.matchMedia('(max-width:700px)').matches&&/Mobi|iPhone|Android/i.test(navigator.userAgent)){location.replace('/atrium-sales-mobile.html'+location.search);return}
 /* theme: dark unless ATRIUM says otherwise. Inside ATRIUM it takes whatever the parent shows, so the two never disagree */
 function applyTheme(){
   var t='dark';

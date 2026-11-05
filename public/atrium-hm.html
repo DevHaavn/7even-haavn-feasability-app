@@ -470,11 +470,12 @@ window.hmGround = function (t) { if (gMain) gMain.set(t); if (gHero) gHero.set(t
 <script>
 (function(){
 'use strict';
-var V='20261106pe';
+var V='20261106sm';
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function safe(fn,fb){try{var r=fn();return r===undefined?fb:r}catch(e){return fb}}
 var ICON={
+ phone:'<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/>',
  day:'<path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/><circle cx="12" cy="12" r="3.4"/>',
  calc:'<rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>',
  task:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
@@ -512,7 +513,8 @@ var NAV=[
  {g:'Pricing',i:[
   {id:'feas',l:'HAAVN Feasibility',ic:'calc',kind:'link'}]},
  {g:'HAAVN BLACK',i:[
-  {id:'sales',l:'Sales pipeline',ic:'pipe',f:'sales',tabs:'sales',hot:true,vis:'sales'}]},
+  {id:'sales',l:'Sales pipeline',ic:'pipe',f:'sales',tabs:'sales',hot:true,vis:'sales'},
+  {id:'salesm',l:'Sales, phone version',ic:'phone',kind:'phone',vis:'sales'}]},
  {g:'Projects',i:[
   {id:'mgmt',l:'Management overview',ic:'team',f:'black',tab:'mgmt'},
   {id:'mgmtprojects',l:'Projects',ic:'act',f:'black',tab:'mgmtprojects',cnt:'cMgmtProj'},
@@ -606,8 +608,18 @@ function drawTabs(){var it=ITEM[cur],el=$('#tabs');
 function title(id){var it=ITEM[id],w=it.l.split(' '),last=w.pop();$('#ttl').innerHTML='<span>'+esc(w.join(' '))+'</span>'+(w.length?'<span class="serif">'+esc(last)+'</span>':'<span class="serif" style="font-style:normal;font-family:var(--sans);font-size:21px;color:var(--ink)">'+esc(last)+'</span>')}
 function show(k){$$('.surf').forEach(function(s){s.classList.remove('on')});
  var el=k==='day'?$('#day'):(FR[k]&&FR[k].el);if(el)el.classList.add('on')}
+/* HAAVN BLACK Sales on a phone: the phone sales app as a full panel over the shell. Its own button, and what "Sales pipeline" opens on a phone. */
+var SM=null;
+function openPhone(sub){
+ document.body.classList.remove('nav-open');
+ if(!SM){var st=document.createElement('style');st.textContent='#smob{position:fixed;inset:0;z-index:400;background:#050607}#smob[hidden]{display:none}#smob iframe{width:100%;height:100%;border:0;display:block;background:#050607}';document.head.appendChild(st);
+  SM=document.createElement('div');SM.id='smob';SM.innerHTML='<iframe title="HAAVN BLACK Sales on your phone" allow="microphone"></iframe>';document.body.appendChild(SM)}
+ var t=document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+ SM.querySelector('iframe').src='/atrium-sales-mobile.html?embed=hm&sch='+t+'&v='+V+'&t='+Date.now()+(sub?'&tab='+encodeURIComponent(sub):'');SM.hidden=false}
+window.addEventListener('message',function(e){var d=e.data;if(SM&&d&&d.atriumSales==='close'&&e.source===SM.querySelector('iframe').contentWindow){SM.hidden=true;try{SM.querySelector('iframe').src='about:blank'}catch(x){}refresh()}});
 function go(id,sub){
  var it=ITEM[id];if(!it)return;
+ if(it.kind==='phone'||(id==='sales'&&window.innerWidth<=860)){openPhone(it.kind==='phone'?undefined:sub);return}
  if(it.kind==='link'){document.body.classList.remove('nav-open');if(window.parent!==window)window.parent.postMessage({hbShell:'feasibility'},'*');else location.href='/haavn-feasibility.html?from=atrium';return}
  cur=id;
  $$('.ni[data-id]').forEach(function(b){b.classList.toggle('on',b.dataset.id===id)});
