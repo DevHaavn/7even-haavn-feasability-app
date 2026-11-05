@@ -328,6 +328,22 @@ textarea{width:100%;resize:vertical;min-height:64px}
 .fin div{display:flex;align-items:center;gap:10px;font-size:13px}
 .fin .sq{width:22px;height:22px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px var(--ring);flex:none}
 .fin small{display:block;color:var(--ink3);font-size:11px}
+.hmedit{grid-column:1/-1;border-top:1px solid var(--edge2);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.hmrow{display:grid;grid-template-columns:118px 1fr;gap:12px;align-items:center}
+.hmrow .lab{font:400 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.hks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hk{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px;border:1px solid var(--edge2);border-radius:4px;text-align:left;color:var(--ink2);transition:border-color .15s,background .15s}
+.hk b{font:500 13px var(--sans);color:var(--ink)}.hk small{font-size:11px;color:var(--ink3)}
+.hk:hover:not(:disabled){border-color:var(--edge)}
+.hk.on{border-color:var(--ink);background:var(--hov)}
+.hk:disabled{opacity:.45;cursor:not-allowed}
+.sws2{display:flex;gap:6px;flex-wrap:wrap}
+.swb{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border:1px solid var(--edge2);border-radius:99px;color:var(--ink2);font-size:12px;transition:border-color .15s,background .15s}
+.swb i{width:20px;height:20px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px var(--ring);flex:none}
+.swb:hover{border-color:var(--edge)}
+.swb.on{border-color:var(--ink);background:var(--hov);color:var(--ink)}
+.hmlock{margin:-4px 0 0 130px}
+@media(max-width:620px){.hmrow{grid-template-columns:1fr;gap:6px}.hmlock{margin-left:0}}
 .mj{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:12px}
 .mj i{height:6px;border-radius:2px;background:var(--edge2);display:block}
 .mj i.d{background:var(--c)}
@@ -703,6 +719,18 @@ function swatches(l){
 }
 function options(list,sel,blank){return (blank!=null?'<option value="">'+esc(blank)+'</option>':'')+list.map(function(o){var v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?o[1]:o;return '<option value="'+esc(v)+'"'+(String(sel)===String(v)?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
 function stateOpts(sel,blank){return options(SK.map(function(k){return [k,k+' · '+STATES[k]]}),sel,blank)}
+function homeLock(l){
+  if(l.concept)return '';
+  if(l.stage>=6||l.cfix)return 'The 10% deposit is paid, so the home is fixed. A change now needs a new contract.';
+  if(l.stage>=4&&!isAdmin())return 'The contract is out, so only a director can change the home.';
+  return '';
+}
+function homeEdit(l){
+  var lock=homeLock(l),pr=S.settings.prices||{};
+  var homes=['studio','plus','max'].map(function(k){var p=PRODUCTS[k];return '<button type="button" class="hk '+(l.product===k?'on':'')+'" data-act="pickhome" data-v="'+k+'"'+(lock&&l.product!==k?' disabled':'')+'><b>'+esc(p.s)+'</b><small>'+p.m2+' m²'+(pr[k]?' · '+money(pr[k]):'')+'</small></button>'}).join('');
+  var fin=function(lab,key,map,sel){return '<div class="hmrow"><span class="lab">'+lab+'</span><span class="sws2">'+Object.keys(map).map(function(n){return '<button type="button" class="swb '+(sel===n?'on':'')+'" data-act="pickfin" data-k="'+key+'" data-v="'+esc(n)+'" title="'+(sel===n?'Click again to clear':'Choose '+esc(n))+'"><i style="--c:'+map[n]+'"></i>'+esc(n)+'</button>'}).join('')+'</span></div>'};
+  return '<div class="hmedit"><div class="eb">Change the home or the design</div><div class="hmrow"><span class="lab">Home</span><span class="hks">'+homes+'</span></div>'+(lock?'<div class="small hmlock">'+esc(lock)+'</div>':'')+fin('Cladding','clad',CLAD,l.clad)+fin('Interior palette','pal',PAL,l.pal)+fin('Joinery','join',JOIN,l.join)+'</div>';
+}
 function productOpts(sel){return options(Object.keys(PRODUCTS).map(function(k){return [k,PRODUCTS[k].n]}),sel)}
 function ownerOpts(sel){
   var g='<optgroup label="HAAVN BLACK team">'+S.team.map(function(t){return '<option value="'+t.id+'"'+(sel===t.id?' selected':'')+'>'+esc(t.name)+'</option>'}).join('')+'</optgroup>';
@@ -1183,7 +1211,7 @@ function renderDrawer(){
   d.innerHTML='<div class="dh"><div style="flex:1;min-width:0"><div class="eb ct" style="--c:'+(l.concept?PH.discover.c:ph.c)+';margin-bottom:10px">'+stageEyebrow+'</div><h2>'+esc(l.first)+' <span class="serif">'+esc(l.last)+'</span></h2><div style="display:flex;gap:10px;align-items:center;margin-top:10px;color:var(--ink3);font-size:12px;flex-wrap:wrap">'+av(l.owner)+'<span>'+esc(ownerName(l.owner))+'</span><span>·</span><span>'+esc(l.state?STATES[l.state]:'State unknown')+'</span><span>·</span><span>came in '+fmtDT(l.created)+' from '+esc(srcLabel(l))+'</span></div></div><button class="ic" data-act="close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
   '<div class="db">'+nowCard(l,it)+'<div class="nc" style="padding:18px 20px"><div class="eb" style="margin-bottom:10px">Notes and client updates</div><div class="row" style="margin-bottom:10px"><input id="note" placeholder="What they said, a call, an update" style="flex:1"><button class="btn sm" data-act="note">Add</button></div><div class="log">'+acts(l)+'</div></div>'+
   '<div class="nc hm"><div>'+(l.concept?'':homeSvg(l))+'</div><div class="fin"><div><span style="font:300 20px var(--sans)">'+esc(p.n)+'</span></div><div style="color:var(--ink3);font-size:12px;margin-top:-4px">'+(p.m2?p.m2+' m² · '+p.foot+' · ':'Concept only · ')+(price(l)?money(price(l))+' · ':'')+esc(l.setting||'')+(portOf(l)?' · '+esc(portOf(l)):'')+'</div>'+
-   [['Cladding',l.clad,CLAD],['Interior palette',l.pal,PAL],['Joinery',l.join,JOIN]].map(function(x){return '<div><span class="sq" style="--c:'+(x[1]?x[2][x[1]]:'transparent')+'"></span><span>'+(x[1]?esc(x[1]):'Not chosen yet')+'<small>'+x[0]+'</small></span></div>'}).join('')+'</div></div>'+
+   '</div>'+homeEdit(l)+'</div>'+
   (l.concept?'':'<div class="nc" style="padding:18px 20px"><div class="eb">The journey</div><div class="mj">'+ST.map(function(s,i){return '<i class="'+(i<l.stage?'d':i===l.stage?'c':'')+'" style="--c:'+PH[s.ph].c+'"></i>'}).join('')+'</div><div class="mjl">'+SHORT.map(function(s,i){return '<span class="'+(i===l.stage?'c':'')+'">'+s+'</span>'}).join('')+'</div>'+(l.stage>=3?'<div style="margin-top:18px">'+chain(l,false,true)+'</div>':'')+'</div>'+ledgerHtml(l))+
   (l.stage>=7&&o&&!l.concept?'<div class="nc card"><div class="row wrapx"><div><div class="eb">Order and delivery</div><div style="margin-top:6px">'+esc(DELIVERY[o.step].n)+' · '+esc(DELIVERY[o.step].where)+'</div></div><span class="sp"></span>'+(o.handoverAt?'<span class="chip ok">Handed to projects@haavn.au '+fmtD(o.handoverAt)+'</span>':(isInternal()?'<button class="btn gold sm" data-act="handover">Send handover to projects@haavn.au</button>':'<span class="chip warn">Not handed over yet</span>'))+'</div><div class="formgrid" style="margin-top:12px"><label class="f">Site address<input data-chg="site" value="'+esc(o.site||'')+'" placeholder="Where the home is going"></label>'+(isInternal()?'<label class="f">Leaves the port on<input type="date" data-chg="depart" value="'+(o.depart?new Date(o.depart).toISOString().slice(0,10):'')+'"></label>':'<span></span>')+'</div></div>':'')+
   '<div class="grid2"><div class="nc card"><div class="tag" style="margin-bottom:12px">Customer</div><div class="formgrid"><label class="f">First name<input data-chg="first" value="'+esc(l.first)+'"></label><label class="f">Last name<input data-chg="last" value="'+esc(l.last)+'"></label><label class="f">Mobile<input data-chg="mobile" value="'+esc(l.mobile)+'"></label><label class="f">Email<input data-chg="email" value="'+esc(l.email)+'"></label></div><div class="formgrid"><label class="f">State or territory<select data-chg="state">'+stateOpts(l.state,'Choose')+'</select></label><label class="f">Setting<select data-chg="setting">'+options(SETTING,l.setting)+'</select></label><label class="f">Payment<select data-chg="pay">'+options(PAY,l.pay)+'</select></label><label class="f">Delivery<select data-chg="deliv">'+options(DELIV,l.deliv)+'</select></label></div>'+
@@ -1231,6 +1259,8 @@ var A={
  nav:function(t){UI.view=t.dataset.k;UI.cp=null;UI.lead=null;UI.deal=null;UI.stmt=null;window.scrollTo(0,0);if(UI.view==='comm')cmLoad(true)},
  theme:function(){var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';try{localStorage.setItem('atrium_theme',t)}catch(e){}applyTheme()},
  dk:function(t){UI.dk=t.dataset.k},role:function(t){UI.role=t.dataset.k;UI.sel=null},gate:function(t){UI.role=t.dataset.k;UI.sel=null},
+ pickhome:function(t){var l=UI.lead&&lead(UI.lead);if(!l||t.dataset.v===l.product||t.disabled)return false;saveLead(l,{product:t.dataset.v,concept:false})},
+ pickfin:function(t){var l=UI.lead&&lead(UI.lead);if(!l)return false;var k=t.dataset.k,v=t.dataset.v,pt={};pt[k]=l[k]===v?'':v;saveLead(l,pt)},
  dens:function(t){UI.dens=t.dataset.k},needs:function(){UI.f.needs=!UI.f.needs},showtest:function(){UI.showTest=!UI.showTest},
  board:function(t){UI.board=t.dataset.v},period:function(t){UI.period=+t.dataset.v},dashmode:function(t){UI.dash=t.dataset.v},
  goto:function(t){centre(+t.dataset.i);return false},

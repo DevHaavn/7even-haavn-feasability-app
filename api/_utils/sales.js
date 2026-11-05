@@ -528,6 +528,30 @@ async function run(action, a, session, deps) {
       if (!STATES[next.state]) next.state = cur.state
       if (!SOURCES.includes(next.source)) next.source = cur.source
       if (incoming.source !== undefined && internal && SOURCES.includes(incoming.source)) next.source = incoming.source
+      // The home and its finishes are the website's own choices. The home follows the price, so it is fixed once the contract is out
+      // (a director can still change it until the 10% deposit is paid) and every change is written to the customer's log.
+      {
+        const tNow = Date.now(), changes = [], settingsNow = await getSettings(db)
+        const HOME_NAME = { studio: 'SOLUM Studio', plus: 'SOLUM Plus', max: 'SOLUM Max', octa: 'OCTA concept', octaplus: 'OCTA Plus concept', octamax: 'OCTA Max concept', none: 'no home chosen' }
+        if (incoming.product !== undefined && incoming.product !== cur.product) {
+          if (!PRODUCTS.includes(incoming.product)) throw new SalesError('That is not a home we sell.')
+          if (!cur.concept && (cur.stage >= 6 || cur.cfix)) throw new SalesError('The 10% deposit has been paid, so the home is fixed. A change now needs a new contract.', 409)
+          if (!cur.concept && cur.stage >= 4 && !(internal && w.admin)) throw new SalesError('The contract is out, so only a director can change the home.', 403)
+          next.product = incoming.product; next.concept = CONCEPT.includes(incoming.product)
+          const pr = priceOf(settingsNow, next)
+          changes.push({ t: tNow, x: `Home changed from ${HOME_NAME[cur.product] || cur.product} to ${HOME_NAME[next.product]} by ${w.name}.${pr ? ' The price is now ' + money(pr) + '.' : ''}`, k: 'sys' })
+        } else next.product = cur.product
+        for (const [k, list, label] of [['clad', CLAD, 'Cladding'], ['pal', PAL, 'Interior palette'], ['join', JOIN, 'Joinery']]) {
+          if (incoming[k] === undefined) { next[k] = cur[k]; continue }
+          const v = incoming[k] === '' ? '' : list.includes(incoming[k]) ? incoming[k] : (cur[k] || '')   // anything that is not the website's own choice is ignored
+          if (v !== (cur[k] || '')) {
+            if (cur.stage >= 7 && !internal) throw new SalesError('The order is confirmed, so the projects team holds the finishes. Ask them to change it.', 403)
+            changes.push({ t: tNow, x: v ? `${label} ${cur[k] ? 'changed from ' + cur[k] + ' to ' + v : 'set to ' + v} by ${w.name}.` : `${label} cleared by ${w.name}.`, k: 'sys' })
+          }
+          next[k] = v
+        }
+        if (changes.length) { next.act = mergeAct(next.act, changes); next.lastTouch = tNow }
+      }
       if (incoming.owner !== undefined && incoming.owner !== cur.owner) {
         if (internal) { next.owner = incoming.owner; next.companyId = incoming.companyId !== undefined ? incoming.companyId : '' }
         else if (w.manager) { const ag = await db.agents.get(incoming.owner); if (ag && ag.company_id === w.companyId) { next.owner = ag.id; next.companyId = ag.company_id } }

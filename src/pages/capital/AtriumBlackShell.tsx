@@ -6,7 +6,7 @@ import { useScrollLock } from '../../lib/useScrollLock'
 // public/atrium-hb.html holds the sidebar, the tab row and My day, and runs the three real tools
 // (HAAVN BLACK workflow, Sales pipeline, Meeting Management) behind them, so their data and rules are untouched.
 // The old Management Hub is still one query string away (?hub=old) in case the shell ever needs to be bypassed.
-const VERSION = '20261105hb'
+const VERSION = '20261105hb2'
 
 export default function AtriumBlackShell({ onClose, onLogout, onDisplay }: { onClose: () => void; onLogout: () => void; onDisplay?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null)
