@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import HaavnManagementBase from './HaavnManagementBase'
 import { useScrollLock } from '../../lib/useScrollLock'
+import { getLatest } from '../../components/RefreshButton'
 
 // What the HAAVN menu's ATRIUM button (and a consultant's login) opens: one screen, no hub.
 // public/atrium-hm.html holds the sidebar, the tab row and My day in the HAAVN skin, and runs the real tools behind them
 // (HAAVN workflow, the HAAVN BLACK Sales pipeline, Meeting Management), so their data and rules are untouched.
 // The old Management Hub is still one query string away (?hub=old).
-const VERSION = '20261105h6'
+const VERSION = '20261105h7'
 
 export default function AtriumHaavnShell({ onClose, onLogout, exit = 'close' }: { onClose: () => void; onLogout: () => void; exit?: 'close' | 'logout' }) {
   const frame = useRef<HTMLIFrameElement>(null)
@@ -19,6 +20,7 @@ export default function AtriumHaavnShell({ onClose, onLogout, exit = 'close' }: 
       const m = e.data && (e.data as { hbShell?: string }).hbShell
       if (m === 'close') onClose()
       else if (m === 'logout') onLogout()
+      else if (m === 'refresh') void getLatest()
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import HaavnManagementBase, { HM_PILLARS_BLACK } from './HaavnManagementBase'
 import { useScrollLock } from '../../lib/useScrollLock'
+import { getLatest } from '../../components/RefreshButton'
 
 // What the ATRIUM button on the HAAVN BLACK home opens: one screen, no hub.
 // public/atrium-hb.html holds the sidebar, the tab row and My day, and runs the three real tools
 // (HAAVN BLACK workflow, Sales pipeline, Meeting Management) behind them, so their data and rules are untouched.
 // The old Management Hub is still one query string away (?hub=old) in case the shell ever needs to be bypassed.
-const VERSION = '20261105hb2'
+const VERSION = '20261105hb3'
 
 export default function AtriumBlackShell({ onClose, onLogout, onDisplay }: { onClose: () => void; onLogout: () => void; onDisplay?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null)
@@ -19,6 +20,7 @@ export default function AtriumBlackShell({ onClose, onLogout, onDisplay }: { onC
       const m = e.data && (e.data as { hbShell?: string }).hbShell
       if (m === 'close') onClose()
       else if (m === 'logout') onLogout()
+      else if (m === 'refresh') void getLatest()
       else if (m === 'display') onDisplay ? onDisplay() : onClose()
     }
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && e.target === document.body) onClose() }
