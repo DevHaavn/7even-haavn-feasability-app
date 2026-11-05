@@ -257,6 +257,92 @@ html[data-theme=dark] .c5{background:#d8dccb}
   .lr>*:nth-child(3),.lr>*:nth-child(7){display:none}
   .pk{grid-template-columns:1fr repeat(3,74px)}
 }
+/* ---------- phones: their own layout, not a shrunk desktop ---------- */
+.backbtn,.tabbar,.sumbar{display:none}
+.lq{display:contents}.lq i{display:none}
+@media(max-width:760px){
+  body{font-size:14px;overscroll-behavior:none}
+  /* top: the way back, the page name, then the market and a new quote */
+  .tb{height:auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"back ttl theme refresh" "seg seg seg new";gap:8px 6px;align-items:center;padding:calc(env(safe-area-inset-top) + 8px) 12px 10px}
+  .menubtn,.savepill,.tb>.sp{display:none!important}
+  .backbtn{display:inline-flex;grid-area:back;align-items:center;gap:1px;height:38px;padding:0 11px 0 6px;border:1px solid var(--edge);border-radius:99px;font:500 11.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
+  .ttl{grid-area:ttl;font-size:15px;letter-spacing:0;padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #themeBtn{grid-area:theme}#refreshBtn{grid-area:refresh}
+  #stateSeg{grid-area:seg;display:flex}#stateSeg button{flex:1;padding:9px 4px}
+  #newQuoteBtn{grid-area:new;height:40px}
+  .ib{width:38px;height:38px}
+  /* bottom bar: the five places you use most */
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--side-solid);border-top:1px solid var(--edge);padding:6px 4px calc(env(safe-area-inset-bottom) + 6px)}
+  .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;padding:4px 2px;border-radius:8px;color:var(--ink3);font:500 10px var(--mono);letter-spacing:.03em}
+  .tabbar button .ic{width:21px;height:21px}
+  .tabbar button.on{color:var(--ink);background:linear-gradient(180deg,rgba(168,188,16,.22),transparent)}
+  body.docopen .tabbar,body.docopen .sumbar{display:none}
+  #view{padding:14px 12px calc(env(safe-area-inset-bottom) + 96px)}
+  body[data-tab=price] #view{padding-bottom:calc(env(safe-area-inset-bottom) + 160px)}
+  .sumbar{display:flex;position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 70px);z-index:89;background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:8px 6px;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+  body:not([data-tab=price]) .sumbar{display:none}
+  .sumbar div{flex:1;min-width:0;text-align:center}.sumbar span{display:block;font:400 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}.sumbar b{font:500 15px var(--display);white-space:nowrap}
+  #toast{bottom:calc(env(safe-area-inset-bottom) + 150px);max-width:calc(100% - 28px);text-align:center}
+  /* the drawer is "More": every other page, and a second way back */
+  .side{padding-top:calc(env(safe-area-inset-top) + 22px)}
+  /* thumbs and fingers */
+  .in{height:44px;font-size:16px;padding:0 12px}.in.num{font-size:16px}
+  .btn{height:44px;font-size:13px}.btn.sm{height:38px;font-size:12.5px}.btn.gold{padding:0 16px}
+  .tbl td .in,.pk .in,.lr .in,.lr select.in{height:44px;font-size:16px}
+  .tbl td .in{width:100%!important;max-width:none!important}
+  .sw{width:44px;height:26px}.sw:after{width:20px;height:20px;top:2px;left:2px}.sw.on:after{left:20px}
+  .chip{height:24px}
+  /* headings and cards */
+  .pg{max-width:none}
+  .hd{align-items:flex-start;gap:12px}.hd h1{font-size:27px}.hd p{font-size:13.5px}.hd .f,.hd .btn{width:100%}
+  .bar{gap:10px}.bar .f{min-width:0!important;max-width:none!important;flex:1 1 calc(50% - 6px)}.bar .f:first-child{flex-basis:100%}.bar .sp{display:none}
+  .grid{grid-template-columns:1fr}.hc .ph{height:190px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}.kpi .v{font-size:20px}
+  .hb{grid-template-columns:84px 1fr 52px}
+  .crumb{gap:8px}.crumb .sp{display:none}
+  .addrow .in{min-width:0}.addrow .in[style*="width"]{flex:1 1 40%;width:auto!important}
+  .thumb{height:92px}
+  .stg>.sh{padding:14px 12px;gap:10px}.stg .tot{font-size:14px}
+  .grp{padding:14px 12px 6px}
+  /* price a home: the answer first, then every line as a two-line card */
+  .work{display:flex;flex-direction:column;gap:14px}.sticky{order:-1}.sum{padding:14px}
+  .pk{grid-template-columns:minmax(0,1fr) repeat(3,auto);gap:8px 10px}.pk .v{font-size:11.5px}.pk .v.big{font-size:13.5px}.pk .l{white-space:normal}
+  .lr.hd2{display:none}
+  .lr{grid-template-columns:48px minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1fr) 44px;grid-template-areas:"sw nm nm amt amt" ". bs qt rt rm";gap:8px;align-items:center;padding:14px 12px;border-top:1px solid var(--edge2)}
+  .lr>*:nth-child(1){grid-area:sw;justify-self:start}.lr>*:nth-child(2){grid-area:nm}
+  .lr>*:nth-child(3){grid-area:bs;display:flex}.lr>*:nth-child(4){grid-area:qt}.lr>*:nth-child(5){grid-area:rt}
+  .lr>*:nth-child(6){grid-area:amt;align-self:start;font-size:15px}
+  .lr>*:nth-child(7){grid-area:rm;display:grid;align-self:end}
+  .lq{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .lq i{display:block;font:400 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+  .lq .in.num{text-align:right}.lq select.in{padding-left:8px}
+  .lr .nm b{font-size:14.5px;flex-wrap:wrap}.lr .nm small{font-size:12px}
+  .lr .rm{width:44px;height:44px;font-size:22px}
+  .lr .lname{text-align:left}
+  /* tables become cards: one row, one card */
+  .scroll{overflow:visible}
+  .tbl,.tbl tbody,.tbl tfoot,.tbl tr,.tbl td{display:block}.tbl thead{display:none}
+  .tbl tr{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px;border-bottom:1px solid var(--edge2)}
+  .tbl tr:last-child{border-bottom:0}
+  .tbl td{padding:0;border:0;flex:1 1 calc(50% - 14px);min-width:0;font-size:13.5px}
+  .tbl td.tn{flex:1 1 calc(100% - 64px);font-size:15px;font-weight:500}
+  .tbl td.ta{flex:0 0 auto}.tbl td.ta:last-child{margin-left:auto}
+  .tbl td.tcs{flex:1 1 100%;font-weight:500}
+  .tbl td.tx{flex:1 1 100%;color:var(--ink3);font-size:13px}
+  .tbl td.r{text-align:left}
+  .tbl td[data-l]:not(.tn):not(.ta):not(:empty)::before{content:attr(data-l);display:block;margin-bottom:4px;font:400 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+  .tbl tfoot td{border-top:0}
+  /* sheets and drawers take the whole screen */
+  .drw{width:100%;border-left:0}.drw .dh{padding:calc(env(safe-area-inset-top) + 14px) 14px 12px}.drw .db{padding:14px 14px calc(env(safe-area-inset-bottom) + 40px)}
+  .mdl{left:0;top:0;transform:none;width:100%;height:100%;max-height:none;border:0;border-radius:0;clip-path:none}
+  .mdl .mh{padding:calc(env(safe-area-inset-top) + 14px) 14px 8px}.mdl .mbd{padding:6px 14px 14px}.mdl .mf{padding:12px 14px calc(env(safe-area-inset-bottom) + 14px);flex-wrap:wrap}.mdl .mf .btn{flex:1}
+  .nqi{flex-wrap:wrap}
+  .two,.three{grid-template-columns:1fr!important;gap:12px}
+  .two:has(>.f),.three:has(>.f){grid-template-columns:1fr 1fr!important}.three>.f:first-child,.two>.f:first-child{grid-column:1/-1}
+  .f>span{line-height:1.3}
+  .docov{padding:calc(env(safe-area-inset-top) + 8px) 8px 60px}.doc{padding:22px 16px}.doc .dhead{flex-direction:column}.doc .dgrid{grid-template-columns:1fr}.doctools{flex-wrap:wrap}
+  #lb{padding:8px}
+}
 @media print{
   html,body{height:auto!important;overflow:visible!important;background:#fff!important}
   #iso,.side,.tb,.noprint,#toast,#modal,#drawerWrap,#navscrim{display:none!important}
@@ -281,8 +367,10 @@ html[data-theme=dark] .c5{background:#d8dccb}
     </div>
   </aside>
   <div id="navscrim"></div>
+  <nav class="tabbar noprint" id="tabbar" aria-label="Sections"></nav>
   <main class="main">
     <header class="tb">
+      <button class="backbtn noprint" id="backTop" aria-label="Back to the main menu"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>Menu</span></button>
       <button class="ib menubtn" id="menuBtn" aria-label="Menu"><svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div class="ttl" id="ttl"></div>
       <span class="sp"></span>
@@ -617,6 +705,9 @@ function drawNav(){
     var n=i[0]==='quotes'?S.quotes.length:i[0]==='range'?S.homes.length:'';
     return '<button class="ni '+(UI.tab===i[0]?'on':'')+'" data-go="'+i[0]+'"><svg class="ic" viewBox="0 0 24 24"><path d="'+i[2]+'"/></svg><span>'+i[1]+'</span>'+(n!==''?'<span class="n">'+n+'</span>':'')+'</button>'}).join('')}).join('');
   $('#stateSeg').innerHTML=STATES.map(function(s){return '<button class="'+(UI.state===s?'on':'')+'" data-state="'+s+'">'+s+'</button>'}).join('');
+  var TBK=['range','price','quotes','dash'],flat=[].concat.apply([],NAV.map(function(g){return g[1]}));
+  $('#tabbar').innerHTML=TBK.map(function(k){var i=flat.filter(function(x){return x[0]===k})[0];return '<button class="'+(UI.tab===k?'on':'')+'" data-go="'+k+'"><svg class="ic" viewBox="0 0 24 24"><path d="'+i[2]+'"/></svg><span>'+i[1].replace('Price a home','Price')+'</span></button>'}).join('')+
+    '<button id="moreBtn" class="'+(TBK.indexOf(UI.tab)<0?'on':'')+'"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg><span>More</span></button>';
   $('#ttl').innerHTML=TITLES[UI.tab]||'';$('#subMarket').textContent=UI.state;
   var ph=S.homes.reduce(function(a,h){return a+[].concat(h.s0||[],h.s1,h.s5,h.s6||[]).filter(function(l){return l.src==='placeholder'}).length},0)+['s2','s3','s4'].reduce(function(a,k){return a+S.logi[k].filter(function(l){return l.src==='placeholder'}).length},0);
   $('#srcNote').innerHTML='<span class="dotsrc model"></span> From the live model (Jeff)<br><span class="dotsrc"></span> Placeholder, to confirm: '+ph+' lines';
@@ -651,7 +742,7 @@ function lineRowHTML(r,st,h){
   var can=(isHome||r.extra)&&!r.fixed;
   return '<div class="lr '+((r.on&&r.chan!==false)?'':'off')+'">'+(r.fixed?'<span class="sw '+(r.on?'on':'')+'" title="Turned on or off in the Finishes tab"></span>':sw(r.on,'data-a="line" data-st="'+st+'" data-id="'+r.id+'" data-f="on"'))+
     '<div class="nm"><b>'+srcDot(r.src)+'<button type="button" class="lname" data-a="linedetail" data-st="'+st+'" data-id="'+r.id+'" title="Open the job card: contractor, quote and notes">'+esc(r.name)+'</button>'+metaTag((h.meta||{})[r.id])+(r.once?'<span class="chip" title="Done once per job, spread over the homes">ONCE</span>':'')+(r.ov?'<span class="ovd" title="Changed for this home only"></span>':'')+'</b>'+((r.sup||r.note||r.chan===false)?'<small>'+esc([r.sup,r.note,r.chan===false?'Not used for this sales channel':''].filter(Boolean).join(' · '))+'</small>':'')+'</div>'+
-    basisCell+qtyCell+rateCell+'<span class="amt">'+money(r.amt)+'</span>'+(can?'<button class="rm" title="Remove this line" data-a="rmline" data-st="'+st+'" data-id="'+r.id+'">×</button>':'<span></span>')+'</div>';
+    '<label class="lq"><i>Basis</i>'+basisCell+'</label><label class="lq"><i>Qty</i>'+qtyCell+'</label><label class="lq"><i>Rate</i>'+rateCell+'</label><span class="amt">'+money(r.amt)+'</span>'+(can?'<button class="rm" title="Remove this line" data-a="rmline" data-st="'+st+'" data-id="'+r.id+'">×</button>':'<span></span>')+'</div>';
 }
 function stageHTML(e,s,i){
   var h=e.h,rows=e.rows[s.k],closed=UI.open[s.k]===false;
@@ -693,13 +784,14 @@ function vPrice(){
   if(h.img||h.plan)out+='<div class="thumbs noprint">'+(h.img?'<div class="thumb" data-a="lightbox" data-src="'+h.img+'" data-cap="'+esc(h.name)+'"><img src="'+h.img+'" alt=""><span>RENDER</span></div>':'')+(h.plan?'<div class="thumb" data-a="lightbox" data-src="'+h.plan+'" data-cap="'+esc(h.name)+' · floor plan"><img src="'+h.plan+'" alt=""><span>FLOOR PLAN</span></div>':'')+(h.keys?'<div class="thumbnote"><b>'+h.keys+' '+(h.keyLabel||'key')+(h.keys>1?'s':'')+'</b> · DMR spread over at least <b>'+(h.dmrN||1)+'</b> of these (the project size we assume from the deck; change it in the DMR stage)</div>':'')+'</div>';
   if(h.tbc||!h.area)out+='<div class="banner"><b>Set the size.</b> This home has no floor area yet, so area-based lines price at $0. Type the floor area above.</div>';
   else if(h.src==='placeholder')out+='<div class="banner"><b>Placeholder rates.</b> No estimate exists for this home yet, so the factory and construction lines are placeholders. Change any line, or turn it off.</div>';
-  out+='<div class="work"><div class="stack">'+STAGES.map(function(s,i){return stageHTML(e,s,i)}).join('')+'</div><div class="sticky">'+summaryHTML(e)+'</div></div></div>';
+  out+='<div class="work"><div class="stack">'+STAGES.map(function(s,i){return stageHTML(e,s,i)}).join('')+'</div><div class="sticky">'+summaryHTML(e)+'</div></div>';
+  out+='<div class="sumbar noprint">'+PKGS.map(function(p){return '<div><span>'+p.s+'</span><b>'+money(e.pk[p.k].sell)+'</b></div>'}).join('')+'</div></div>';
   return out;
 }
 
 /* ---- price sheet ---- */
 function vSheet(){
-  var out='<div class="pg"><div class="hd"><div><h1>Price <em>sheet</em></h1><p>The whole range for <b>'+UI.state+'</b>, ready for a deck or a quote. Prices inc GST, at each home’s margin and prelims, with marketing and commission for the sales channel chosen. Switch state at the top right.</p></div><span class="sp"></span><label class="f noprint" style="min-width:200px"><span>Sales channel</span><select class="in" data-a="comm">'+opts(COMMS,UI.comm)+'</select></label><button class="btn noprint" data-a="copysheet">Copy as text</button><button class="btn gold noprint" data-a="print">Print or save as PDF</button></div>';
+  var out='<div class="pg"><div class="hd"><div><h1>Price <em>sheet</em></h1><p>The whole range for <b>'+UI.state+'</b>, ready for a deck or a quote. Prices inc GST, at each home’s margin and prelims, with marketing and commission for the sales channel chosen. Switch state at the top.</p></div><span class="sp"></span><label class="f noprint" style="min-width:200px"><span>Sales channel</span><select class="in" data-a="comm">'+opts(COMMS,UI.comm)+'</select></label><button class="btn noprint" data-a="copysheet">Copy as text</button><button class="btn gold noprint" data-a="print">Print or save as PDF</button></div>';
   FAM.forEach(function(f){var hs=S.homes.filter(function(x){return x.fam===f.k});if(!hs.length)return;
     out+='<div class="nc" style="margin-bottom:16px;overflow:hidden"><div class="pad" style="padding-bottom:6px"><div class="eb">'+esc(f.n)+'</div></div><div class="scroll"><table class="tbl"><thead><tr><th>Home</th><th class="r">m²</th><th class="r">Supply to port</th><th class="r">Delivered to site</th><th class="r">Turnkey on site</th><th class="r">Turnkey $/m²</th>'+(hs.some(function(x){return x.keys})?'<th class="r">Turnkey per key</th>':'')+(f.k==='solum'?'<th class="r">Sales list</th>':'')+'</tr></thead><tbody>'+hs.map(function(x){
       var e=est(x.id,{state:UI.state}),no=x.tbc||!x.area;
@@ -751,7 +843,22 @@ function vFin(){
 
 /* ===================== render + events ===================== */
 var VIEWS={range:vRange,price:vPrice,sheet:vSheet,factory:vFactory,logi:vLogi,fin:vFin,quotes:vQuotes,dash:vDash,set:vSet};
-function render(){drawNav();var v=$('#view'),sc=v.scrollTop;v.innerHTML=(VIEWS[UI.tab]||vRange)();v.scrollTop=sc;try{localStorage.setItem(UIKEY,JSON.stringify(UI))}catch(e){}}
+function render(){drawNav();var v=$('#view'),sc=v.scrollTop;v.innerHTML=(VIEWS[UI.tab]||vRange)();v.scrollTop=sc;labelTables();document.body.setAttribute('data-tab',UI.tab);try{localStorage.setItem(UIKEY,JSON.stringify(UI))}catch(e){}}
+/* phones: a table row becomes a card, so each cell needs its column name and a role */
+function labelTables(){
+  [].forEach.call(document.querySelectorAll('#view table.tbl'),function(t){
+    var hs=[].map.call(t.querySelectorAll('thead th'),function(h){return h.textContent.trim()});
+    [].forEach.call(t.querySelectorAll('tbody tr,tfoot tr'),function(tr){
+      var named=false;
+      [].forEach.call(tr.children,function(td,i){
+        if(td.hasAttribute('colspan')){td.classList.add('tcs');return}
+        var l=hs[i]||'';td.setAttribute('data-l',l);
+        if(!hs.length){td.classList.add(named?'tx':'tn');named=true}
+        else if(!l)td.classList.add('ta');else if(!named){td.classList.add('tn');named=true}
+      });
+    });
+  });
+}
 function go(tab,top){UI.tab=tab;document.body.classList.remove('nav-open');render();if(top)$('#view').scrollTop=0}
 function commit(fn){fn();save();setTimeout(function(){var k=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.k;render();if(k){var el=document.querySelector('[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]');if(el){el.focus();if(el.select)el.select()}}},0)}
 
@@ -1102,7 +1209,10 @@ $('#refreshBtn').addEventListener('click',function(){var b=this;if(b.classList.c
   setTimeout(function(){try{if('caches' in window)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})})}catch(e){}location.replace(location.pathname+'?u='+Date.now())},900)});
 var FROM=new URLSearchParams(location.search).get('from');
 if(FROM==='atrium'){var bt=$('#bBack span');if(bt)bt.textContent='Back to ATRIUM'}
-$('#bBack').addEventListener('click',function(){location.href=FROM==='atrium'?'/?open=atrium':'/haavn-supply/index.html'});
+function backToMenu(){location.href=FROM==='atrium'?'/?open=atrium':'/haavn-supply/index.html'}
+$('#bBack').addEventListener('click',backToMenu);
+$('#backTop').addEventListener('click',backToMenu);
+$('#tabbar').addEventListener('click',function(e){if(e.target.closest('#moreBtn'))document.body.classList.toggle('nav-open')});
 try{setTheme(localStorage.getItem('atrium_theme')==='dark'?'dark':'light')}catch(e){setTheme('light')}
 if(UI.job&&!jobOf(UI.job)){UI.job=null;if(UI.tab==='price')UI.tab='quotes'}
 render();
