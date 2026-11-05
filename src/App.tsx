@@ -10,8 +10,8 @@ import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated, SIGNED_OUT, type Company } from './pages/PasswordGate'
 import SplashScreen from './pages/SplashScreen'
 import HaavnHomes from './pages/HaavnHomes'
-import HaavnManagementBase from './pages/capital/HaavnManagementBase'
 import AtriumBlackShell from './pages/capital/AtriumBlackShell'
+import AtriumHaavnShell from './pages/capital/AtriumHaavnShell'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
 import HaavnDisplaySuite from './pages/HaavnDisplaySuite'
 import CapitalPortal from './pages/capital/CapitalPortal'
@@ -223,7 +223,7 @@ export default function App() {
   // ATRIUM, opened from the HAAVN menu (see the ?open=atrium deep link above).
   // Its own overlay, independent of company/role state — closing it sends the
   // browser back to the HAAVN page it was opened from, not the 7EVEN screen.
-  if (atriumOpen) return <HaavnManagementBase onClose={() => { window.location.href = '/haavn-supply/index.html' }} onLogout={handleLogout} />
+  if (atriumOpen) return <AtriumHaavnShell onClose={() => { window.location.href = '/haavn-supply/index.html' }} onLogout={handleLogout} />
 
   // HAAVN HOMES — Black Series homes company, its own self-contained surface.
   // The HM device button (top-right) opens the Management Hub, mounted above.
@@ -282,7 +282,7 @@ export default function App() {
   if (role === 'external') {
     return (
       <RoleContext.Provider value={role}>
-        <HaavnManagementBase onClose={handleLogout} onLogout={handleLogout} />
+        <AtriumHaavnShell exit="logout" onClose={handleLogout} onLogout={handleLogout} />
       </RoleContext.Provider>
     )
   }
