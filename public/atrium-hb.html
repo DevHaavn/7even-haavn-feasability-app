@@ -30,7 +30,7 @@
 [data-theme=light]{
   --over:#c2392f;--ok:#2e8b57;--ctm:46%;--gold-t:#8a6420;
   --bg:#b0b4ba;--panel:#fafbfc;--panel2:#fafbfc99;--hov:#edeff2;--side-bg:#9da2a9;
-  --edge:rgb(40 46 56 / .46);--edge2:rgb(28 33 42 / .14);--hl:rgb(18 22 30 / .55);
+  --edge:rgb(15 19 24 / .76);--edge2:rgb(28 33 42 / .14);--hl:rgb(15 19 24 / .85);
   --ink:#0f1318;--ink2:#2f3640;--ink3:#555d68;--ink4:#7d848e;
   --accent:#1d5f87;--glow:rgb(29 95 135 / .38);--scrim:rgba(18,22,30,.5);
 }
@@ -77,7 +77,8 @@ a{color:inherit;text-decoration:none}
 .ni .n{margin-left:auto;font:500 10px var(--mono);padding:1px 7px;border:1px solid var(--edge2);border-radius:99px;color:var(--ink3)}
 .ni .n.hot{color:var(--over);border-color:color-mix(in srgb,var(--over) 45%,transparent)}
 .sidefoot{border-top:1px solid var(--edge2);padding-top:12px;margin-top:10px;display:flex;flex-direction:column;gap:2px}
-.me{display:flex;align-items:center;gap:10px;padding:8px 8px 2px}
+.me{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-top:4px;border-radius:6px;cursor:pointer;width:100%;text-align:left;transition:background .15s}
+.me:hover{background:var(--hov)}
 .me b{display:block;font-weight:500;font-size:12px}
 .me small{display:block;font-size:10.5px;color:var(--ink3)}
 
@@ -217,7 +218,7 @@ a{color:inherit;text-decoration:none}
     <div class="sidefoot">
       <button class="ni" id="bBack"><svg class="ic" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Back to HAAVN BLACK</button>
       <button class="ni" id="bDisplay"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>Display</button>
-      <div class="me" id="me"></div>
+      <button class="me" id="me" title="Your profile, picture and who you are"></button>
     </div>
   </aside>
   <main class="main">
@@ -290,11 +291,25 @@ var SRC={
 /* Hidden, in this order: the tool keeps its data, its saving and its own rules. We only borrow its menu, its top bar and its colours. */
 var CSS_COMMON='html{scroll-behavior:auto}';
 var CSS={
- black:'.rail,.railScrim,.topbar,.railToggle,.fab{display:none!important}.app{display:block!important;min-height:0!important}.main{padding:0!important;margin:0!important}',
+ black:'.rail,.railScrim,.topbar,.railToggle,.fab{display:none!important}.app{display:block!important;min-height:0!important}.main{padding:0!important;margin:0!important}html.hb-ov body>*:not(#modalbg):not(script){visibility:hidden!important}html.hb-ov[data-theme] body{background:transparent!important}',
  sales:'.tb,#top{display:none!important}body.embed .wrap{padding-top:22px!important}',
  meet:'.rail,.railScrim,.topbar,.ambient{display:none!important}body{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:1fr!important}body>*{grid-column:1!important;grid-row:auto!important}'
+  +'html body .leftrail .hero{padding:20px 20px 22px!important;margin-bottom:16px!important}'
+  +'html body .leftrail .hero-controls{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}'
+  +'html body .leftrail .hero .field{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important;display:block!important;width:auto!important}'
+  +'html body .leftrail .hero .field input{width:100%!important;height:38px;padding:0 12px!important;background:var(--hbt-in)!important;border:1px solid var(--hbt-line)!important;border-radius:4px!important;text-align:left;color:inherit}'
+  +'html body .leftrail .hero-btns{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}'
+  +'html body .leftrail .hero-btns .btn{width:100%;height:36px;margin:0!important;background:var(--hbt-in)!important;border:1px solid var(--hbt-line)!important;border-radius:4px!important;justify-content:center;box-shadow:none!important}'
+  +'html body .leftrail .hero-btns .btn.btn-gold{grid-column:1/-1;background:#0f1318!important;border-color:#0f1318!important;color:#fff!important}'
+  +'html body .leftrail #heroStats{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}'
+  +'html body .leftrail #heroStats .stat{background:var(--hbt-in)!important;border:1px solid var(--hbt-line)!important;border-radius:4px!important;padding:10px 12px!important;text-align:left}'
+  +'html body .leftrail .attendees{padding:16px 18px!important}'
+  +'html body .foot{display:none!important}'
 };
-var LIGHT_TOOL='[data-theme="light"]{--bg0:#b0b4ba;--bg1:#fafbfc;--ink:#0f1318;--ink-2:#2f3640;--ink-3:#555d68;--ink-4:#7d848e;--line:rgba(28,33,42,.24);--line-2:rgba(28,33,42,.14);--glass:rgba(250,251,252,.86);--pill:rgba(28,33,42,.06)}[data-theme="light"] body{background:linear-gradient(180deg,#b7bbc1,#a6aab1) fixed!important}html[data-theme="light"] body .card,html[data-theme="light"] body .tile,html[data-theme="light"] body .dept,html[data-theme="light"] body .tablewrap,html[data-theme="light"] body .stat{background:#fafbfc!important;border-color:rgba(28,33,42,.24)!important}html[data-theme="light"] body table th{background:transparent!important}';
+var TABLET_VARS='html[data-theme="light"]{--hbt-bg:#fafbfc;--hbt-in:#ffffff;--hbt-line:rgba(15,19,24,.76);--hbt-soft:rgba(15,19,24,.2)}html[data-theme="dark"]{--hbt-bg:#0e1116;--hbt-in:#0b0d10;--hbt-line:rgba(255,255,255,.28);--hbt-soft:rgba(255,255,255,.1)}';
+/* Every block is a framed tablet: a solid face, one dark hairline, square-ish corners, no blur. Inside a tablet the controls are framed the same way. */
+var TABLETS='html body .card,html body .tile,html body .dept,html body .tablewrap,html body .attendees,html body .leftrail .hero,html body .grid-tiles .tile{background:var(--hbt-bg)!important;border:1px solid var(--hbt-line)!important;border-radius:4px!important;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 8px 22px -16px rgba(20,26,36,.45)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}html body table th{background:transparent!important}';
+var LIGHT_TOOL=TABLET_VARS+'[data-theme="light"]{--bg0:#b0b4ba;--bg1:#fafbfc;--ink:#0f1318;--ink-2:#2f3640;--ink-3:#555d68;--ink-4:#7d848e;--line:rgba(15,19,24,.62);--line-2:rgba(15,19,24,.16);--glass:rgba(250,251,252,.98);--pill:rgba(15,19,24,.05)}[data-theme="light"] body{background:linear-gradient(180deg,#b7bbc1,#a6aab1) fixed!important}'+TABLETS;
 var LIGHT_SALES='[data-theme=light]{--bg:#b0b4ba;--panel:#fafbfc;--panel2:#fafbfc99;--hov:#edeff2;--edge:rgb(40 46 56 / .46);--edge2:rgb(28 33 42 / .14);--hl:rgb(18 22 30 / .55);--ink:#0f1318;--ink2:#2f3640;--ink3:#555d68;--ink4:#7d848e;--accent:#1d5f87;--glow:rgb(29 95 135 / .38);--scrim:rgba(18,22,30,.5);--over:#c2392f;--ok:#2e8b57;--ctm:46%}[data-theme=light] body{background:linear-gradient(180deg,#b7bbc1,#a6aab1) fixed!important}';
 var FR={};
 function themeNow(){return document.documentElement.dataset.theme==='dark'?'dark':'light'}
@@ -325,6 +340,15 @@ function watch(k){var F=FR[k];if(!F.doc||F.mo)return;
   var pend=0;F.mo=new F.w.MutationObserver(function(){if(pend)return;pend=1;F.w.requestAnimationFrame(function(){pend=0;if(cur&&ITEM[cur]&&ITEM[cur].f===k)drawTabs()})});
   F.mo.observe(tgt,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}catch(e){}}
 
+/* a tool's own modal (your profile, who you are) opened over whatever is on screen, then put back */
+function toolModal(fn,k){k=k||'black';var F=frame(k);
+ whenReady(k,function(){var w=F.w,d=F.doc;if(typeof w[fn]!=='function')return false;
+  var wasOn=F.el.classList.contains('on'),html=d.documentElement,mb=d.getElementById('modalbg');
+  html.classList.add('hb-ov');F.el.classList.add('on');F.el.style.zIndex=30;
+  var done=function(){html.classList.remove('hb-ov');F.el.style.zIndex='';var it=ITEM[cur];if(!wasOn&&!(it&&it.f===k))F.el.classList.remove('on');badges()};
+  w[fn]();
+  if(mb){var mo=new w.MutationObserver(function(){if(!mb.classList.contains('on')){mo.disconnect();done()}});mo.observe(mb,{attributes:true,attributeFilter:['class']})}else done();
+  return true})}
 /* ---------------- navigation ---------------- */
 var cur='';
 function drawTabs(){var it=ITEM[cur],el=$('#tabs');
@@ -362,7 +386,8 @@ function badges(){
  if(sb){if(d.ok.s&&d.approvals.length){sb.textContent=d.approvals.length;sb.classList.add('hot');sb.classList.remove('hide')}else sb.classList.add('hide')}
  var me=safe(function(){return FR.black.w.ME()},'')||d.sname||'';
  if(me&&$('#me').dataset.n!==me){var ini=me.split(/\s+/).map(function(x){return x[0]||''}).join('').slice(0,2).toUpperCase(),nm=me.split(/\s+/).map(function(x){return x.charAt(0).toUpperCase()+x.slice(1)}).join(' ');
-  $('#me').dataset.n=me;$('#me').innerHTML='<span class="av lg" style="--c:#d9a54f">'+esc(ini)+'</span><div><b>'+esc(nm)+'</b><small>'+esc(d.srole||'HAAVN BLACK')+'</small></div>'}}
+  var ph=safe(function(){return FR.black.w.avatarPhoto(me)},''),col=safe(function(){return FR.black.w.avatarColor(me)},'#d9a54f');
+  $('#me').dataset.n=me;$('#me').innerHTML='<span class="av lg" style="--c:'+esc(col)+(ph?';background-image:url(&quot;'+esc(ph)+'&quot;);background-size:cover;background-position:center;color:transparent':'')+'">'+esc(ini)+'</span><div><b>'+esc(nm)+'</b><small>'+esc(d.srole||'HAAVN BLACK')+'</small></div><svg class="ic" viewBox="0 0 24 24" style="margin-left:auto;opacity:.6"><path d="M9 6l6 6-6 6"/></svg>'}}
 
 /* ---------------- my day: drawn here from the tools' live data ---------------- */
 function chip(t,k){return '<span class="chip '+(k||'')+'">'+esc(t)+'</span>'}
@@ -458,6 +483,7 @@ $('#themeBtn').addEventListener('click',function(){setTheme(themeNow()==='dark'?
 $('#chatBtn').addEventListener('click',function(){try{window.parent.postMessage({atriumChat:'toggle'},'*')}catch(e){}});
 function leave(a){if(window.parent!==window)window.parent.postMessage({hbShell:a},'*');else toast('Closes the shell: '+a)}
 $('#bBack').addEventListener('click',function(){leave('close')});
+$('#me').addEventListener('click',function(){toolModal('openProfile')});
 $('#bDisplay').addEventListener('click',function(){leave('display')});
 /* messages: the tools talk to their parent, which is now this page; the chat dock lives in the app above us */
 window.addEventListener('message',function(e){var d=e.data;if(!d)return;
