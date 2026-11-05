@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('atrium_theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <style>
 /* ATRIUM HAAVN: one screen, no hub. The same shell as ATRIUM HAAVN BLACK, in the HAAVN skin: the haavn.au isometric field for a ground (lightened),
    solid tablets with one near black hairline, lime for every line and hint of colour, Chakra Petch for display. A sidebar holds the areas and a tab row
@@ -195,6 +196,7 @@ a{color:inherit;text-decoration:none}
   .app{grid-template-columns:1fr}
   .side{position:fixed;left:0;top:0;bottom:0;width:272px;transform:translateX(-102%);transition:transform .25s ease;z-index:120;box-shadow:12px 0 40px rgba(0,0,0,.4)}
   body.nav-open .side{transform:none}
+  html[data-theme] .side{background:var(--side-solid)!important}
   body.nav-open #navscrim{display:block}
   .hero .clock{display:none}.hero{height:210px}
   .menubtn{display:inline-flex}
@@ -203,33 +205,36 @@ a{color:inherit;text-decoration:none}
 }
 
 /* ===== HAAVN skin ===== */
-:root{--display:"Chakra Petch",ui-sans-serif,system-ui,sans-serif;--lime:#a8bc10;--lime-dp:#687808}
-html[data-theme]{--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold-t:#687808;
-  --bg:#cfccc6;--panel:#fafbfa;--panel2:#fafbfa99;--hov:#f1f0ec;--side-bg:#e9e6e0;
+:root{--display:"Chakra Petch",ui-sans-serif,system-ui,sans-serif;--lime:#a8bc10}
+html[data-theme=dark]{--over:#ff6b5e;--ok:#9bbf2a;--ctm:0%;--gold-t:#a8bc10;--lime-dp:#a8bc10;
+  --bg:#050605;--panel:#0b0c0a;--panel2:#0b0c0a99;--hov:#151713;--side-bg:rgba(7,8,7,.8);--side-solid:#070807;
+  --edge:rgb(255 255 255 / .3);--edge2:rgb(255 255 255 / .09);--hl:rgb(255 255 255 / .5);
+  --ink:#eef0e8;--ink2:#b5b9a8;--ink3:#868b78;--ink4:#5d6153;--accent:#a8bc10;--glow:rgb(168 188 16 / .35);--scrim:rgba(0,0,0,.62);
+  --bar:rgba(7,8,7,.78);--srch:rgba(255,255,255,.04);--avbg:#151713;--chipl:rgba(168,188,16,.55)}
+html[data-theme=light]{--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold-t:#687808;--lime-dp:#687808;--bar:rgba(233,230,224,.76);--srch:rgba(250,251,250,.72);--avbg:#fff;--chipl:rgba(104,120,8,.55);
+  --bg:#cfccc6;--panel:#fafbfa;--panel2:#fafbfa99;--hov:#f1f0ec;--side-bg:rgba(233,230,224,.8);--side-solid:#e9e6e0;
   --edge:rgb(16 16 16 / .74);--edge2:rgb(16 16 16 / .13);--hl:rgb(16 16 16 / .9);
   --ink:#101010;--ink2:#2c2c2c;--ink3:#54564f;--ink4:#6a6c6a;--accent:#687808;--glow:rgb(168 188 16 / 0);--scrim:rgba(16,16,16,.4)}
-html{background:#cfccc6}
+html{background:#cfccc6}html[data-theme=dark]{background:#050605}
 html[data-theme] body{background:transparent!important}
 html[data-theme] body:before{display:none}
 #iso{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;opacity:0;transition:opacity 1.4s ease}#iso.on{opacity:1}
-html[data-theme] .side{background:#e9e6e0!important;box-shadow:none;border-right:1px solid var(--edge)}
-html[data-theme] .tb{background:rgba(233,230,224,.94);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--edge)}
-html[data-theme] .tabs{background:rgba(233,230,224,.94);border-bottom:1px solid var(--edge)}
-html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;background:var(--panel)!important;box-shadow:none!important}
+html[data-theme] .side{background:var(--side-bg)!important;box-shadow:none;border-right:1px solid var(--edge)}
+html[data-theme] .tb{background:var(--bar);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--edge)}
+html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)}
 .tile{border-top:1px solid var(--edge)!important}
 .tile:before{content:"";position:absolute;left:18px;top:-1px;width:30px;height:3px;background:var(--lime)}
 .ni.on:before,.tab.on:after{background:var(--lime)!important;box-shadow:none!important}
 .ni.on{background:linear-gradient(90deg,rgba(168,188,16,.18),transparent 85%)}
-.btn{border-radius:2px;border-color:var(--edge)}
-.btn.gold{background:var(--lime)!important;color:#101010!important;clip-path:none!important;border-radius:2px!important;border:1px solid #101010!important}
+.btn{border-color:var(--edge)}
+.btn.gold{background:var(--lime)!important;color:#101010!important;border-color:transparent!important}
 .ib{border-color:var(--edge)}
-.search{border-color:var(--edge);background:rgba(250,251,250,.72);border-radius:2px}
-.menu{border-radius:2px}
+.search{border-color:var(--edge);background:var(--srch)}
 .ttl,.hero h1,.tile .num,.ch h3,.ph h3,.ev h4{font-family:var(--display)}
 .ttl{font-weight:500;font-size:19px;letter-spacing:.02em}
 .ttl .serif,.ch h3 em,.hero h1 em,.ph h3 em{font:inherit;font-family:var(--display);font-style:normal;font-weight:500;color:var(--lime-dp)}
 .ch h3{font-weight:500;font-size:15px}.tile .num{font-weight:400}
-.hero{height:176px;background:var(--panel)!important;border:1px solid var(--edge)!important;clip-path:none!important;border-radius:2px;margin-bottom:16px;color:var(--ink)}
+.hero{height:176px;background:linear-gradient(-45deg,transparent 50%,var(--edge) 50% calc(50% + 1.5px),transparent calc(50% + 1.5px)) bottom right/var(--notch) var(--notch) no-repeat,var(--panel)!important;border:1px solid var(--edge)!important;clip-path:var(--notch-clip)!important;border-radius:4px 4px 0;margin-bottom:16px;color:var(--ink)}
 .hero:after{display:none}
 .hero:before{content:"";position:absolute;left:30px;top:-1px;width:44px;height:3px;background:var(--lime);z-index:3}
 .hero .in{color:var(--ink);bottom:24px}
@@ -239,12 +244,12 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
 .amt{color:var(--ink);font-family:var(--mono)}
 .live:before{background:var(--lime-dp);box-shadow:none}
 .chk:hover{border-color:var(--lime-dp);box-shadow:none}
-.chip.due{color:var(--lime-dp);border-color:rgba(104,120,8,.55)}
-.chip.ok{color:var(--lime-dp);border-color:rgba(104,120,8,.55)}
-.av{background:#fff;color:var(--ink2);border-color:var(--edge)}
-#intro{background:#dcd9d3}
-#intro .wmx{background:#101010;aspect-ratio:2400/281;-webkit-mask:url(atrium-hm/haavn-wordmark-black.png) center/contain no-repeat;mask:url(atrium-hm/haavn-wordmark-black.png) center/contain no-repeat;animation:fade 1s ease both}
-#intro .eb{color:#54564f}
+.chip.due{color:var(--lime-dp);border-color:var(--chipl)}
+.chip.ok{color:var(--lime-dp);border-color:var(--chipl)}
+.av{background:var(--avbg);color:var(--ink2);border-color:var(--edge)}
+#intro{background:#dcd9d3}html[data-theme=dark] #intro{background:#050605}
+#intro .wmx{background:var(--ink);aspect-ratio:2400/281;-webkit-mask:url(atrium-hm/haavn-wordmark-black.png) center/contain no-repeat;mask:url(atrium-hm/haavn-wordmark-black.png) center/contain no-repeat;animation:fade 1s ease both}
+#intro .eb{color:var(--ink3)}
 #intro .wmx:after{content:"";position:absolute}
 .wm{--m:url(atrium-hm/haavn-wordmark-black.png);width:150px;height:17.6px}
 </style>
@@ -275,6 +280,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
       <span class="sp"></span>
       <div style="position:relative"><button class="btn gold" id="newBtn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New</button><div class="menu hide" id="newMenu"></div></div>
       <button class="ib" id="chatBtn" data-chat-btn aria-label="Chat"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg><i class="dot hide" id="chatDot"></i></button>
+      <button class="ib" id="themeBtn" aria-label="Light or dark"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/></svg></button>
     </header>
     <div class="tabs hide" id="tabs"></div>
     <section id="stage"><div id="day" class="surf"></div></section>
@@ -301,7 +307,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
     // only (tone is keyed to relative height) , above ~3.5 the slivers turn
     // into bands and it stops reading as haavn.au.
     freq: 0.018, amp: 3.2, cut: -0.55,
-    speed: 0.14,               // noise time per second
+    speed: 0.24,               // noise time per second
     dprMax: 1.5,               // haavn.au caps its canvas at 1.5x too
   }
   const cv = document.getElementById('iso')
@@ -310,7 +316,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
 
   const VS = `
   attribute vec2 aCell; attribute vec3 aCorner; attribute float aFace;
-  uniform float uT, uK; uniform vec3 uR, uU, uC; uniform vec2 uHalf; uniform float uDepth;
+  uniform float uT, uK; uniform vec3 uR, uU, uC; uniform vec2 uHalf; uniform float uDepth; uniform vec3 uA, uW; uniform float uT0;
   uniform vec2 uShift;   // scroll: whole tiles along the field's down-screen axis, then the sub-tile pixels
   varying vec3 vCol;
   // simplex noise 3D , Ashima Arts / Stefan Gustavson, MIT licence
@@ -352,8 +358,8 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
     vec3 p=vec3(aCell.x+aCorner.x,y,aCell.y+aCorner.z);
     vec2 s=vec2(dot(p,uR),dot(p,uU))*uK+vec2(0.,uShift.y);
     gl_Position=vec4(s/uHalf,-dot(p,uC)/uDepth,1.);
-    float t=mix(${P.t0.toFixed(3)},${P.tTop.toFixed(3)},pow(clamp(h/${(P.amp * P.sat).toFixed(3)},0.,1.),${P.gamma.toFixed(3)}));
-    vec3 col=mix(vec3(${P.accent.map(v => (v / 255).toFixed(4))}),vec3(${P.white.map(v => (v / 255).toFixed(4))}),t);
+    float t=mix(uT0,${P.tTop.toFixed(3)},pow(clamp(h/${(P.amp * P.sat).toFixed(3)},0.,1.),${P.gamma.toFixed(3)}));
+    vec3 col=mix(uA,uW,t);
     vCol=min(col*(aFace<.5?1.:(aFace<1.5?${P.shadeX.toFixed(3)}:${P.shadeZ.toFixed(3)})),vec3(1.));
   }`
   const FS = 'precision mediump float;varying vec3 vCol;void main(){gl_FragColor=vec4(vCol,1.);}'
@@ -367,6 +373,11 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
     gl.linkProgram(prog); gl.useProgram(prog)
   } catch (e) { console.warn('[haavn ground]', e); return }
   const U = n => gl.getUniformLocation(prog, n)
+  // light: the haavn.au stone field, clearly moving. dark: near black with an olive glint along the swells.
+  const TONES = { light: { a: [125, 127, 118], w: [242, 237, 233], t0: 0.52, clear: [0.86, 0.85, 0.83] }, dark: { a: [4, 5, 4], w: [64, 70, 48], t0: 0.08, clear: [0.02, 0.02, 0.016] } }
+  let th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
+  function tone() { const T = TONES[th]; gl.uniform3f(U('uA'), T.a[0] / 255, T.a[1] / 255, T.a[2] / 255); gl.uniform3f(U('uW'), T.w[0] / 255, T.w[1] / 255, T.w[2] / 255)
+    gl.uniform1f(U('uT0'), T.t0); gl.clearColor(T.clear[0], T.clear[1], T.clear[2], 1) }
 
   // true isometric camera: azimuth 45°, elevation atan(1/√2)
   const C = [0.57735, 0.57735, 0.57735]
@@ -410,7 +421,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
     gl.uniform2f(U('uHalf'), W / 2, H / 2); gl.uniform1f(U('uK'), K)
     gl.uniform1f(U('uDepth'), (n + P.amp + 4) * 2)
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL)
-    gl.clearColor(0.86, 0.85, 0.83, 1)              // --paper, under any gap
+    tone()
   }
   const t0 = performance.now(), seed = Math.random() * 400
   function draw(now) {
@@ -427,6 +438,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
   }
 
   build(); draw(t0)
+  window.hmGround = function (t) { th = t === 'dark' ? 'dark' : 'light'; tone(); draw(performance.now()) }
   requestAnimationFrame(() => cv.classList.add('on'))
   let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { build(); draw(performance.now()) }, 120) })
 
@@ -443,7 +455,7 @@ html[data-theme] .nc{clip-path:none!important;border-radius:2px!important;backgr
 <script>
 (function(){
 'use strict';
-var V='20261105hm';
+var V='20261105h3';
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function safe(fn,fb){try{var r=fn();return r===undefined?fb:r}catch(e){return fb}}
@@ -521,13 +533,13 @@ var CSS={
   +'html body .leftrail .attendees{padding:16px 18px!important}'
   +'html body .foot{display:none!important}'
 };
-var TABLET_VARS='html[data-theme]{--hbt-bg:#fafbfa;--hbt-in:#ffffff;--hbt-line:rgba(16,16,16,.74);--hbt-soft:rgba(16,16,16,.2)}';
+var TABLET_VARS='html[data-theme=light]{--hbt-bg:#fafbfa;--hbt-in:#ffffff;--hbt-line:rgba(16,16,16,.74);--hbt-soft:rgba(16,16,16,.2)}html[data-theme=dark]{--hbt-bg:#0b0c0a;--hbt-in:#080908;--hbt-line:rgba(255,255,255,.3);--hbt-soft:rgba(255,255,255,.1)}';
 /* Every block is a framed tablet: a solid face, one near black hairline, no blur. Inside a tablet the controls are framed the same way. */
-var TABLETS='html body .card,html body .tile,html body .dept,html body .tablewrap,html body .attendees,html body .leftrail .hero,html body .grid-tiles .tile{background:var(--hbt-bg)!important;border:1px solid var(--hbt-line)!important;border-radius:2px!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}html body table th{background:transparent!important}html body .btn.gold,html body .btn-gold:not(#closeBtn){background:#a8bc10!important;color:#101010!important;border-color:#101010!important}';
-var LIGHT_TOOL=TABLET_VARS+'html[data-theme]{--bg0:#cfccc6;--bg1:#fafbfa;--ink:#101010;--ink-2:#2c2c2c;--ink-3:#54564f;--ink-4:#6a6c6a;--line:rgba(16,16,16,.6);--line-2:rgba(16,16,16,.15);--glass:rgba(250,251,250,.98);--pill:rgba(16,16,16,.05);--gold:#a8bc10}html[data-theme],html[data-theme] body{background:transparent!important}'+TABLETS;
-var LIGHT_SALES='html[data-theme]{--bg:#cfccc6;--panel:#fafbfa;--panel2:#fafbfa99;--hov:#f1f0ec;--edge:rgb(16 16 16 / .74);--edge2:rgb(16 16 16 / .13);--hl:rgb(16 16 16 / .9);--ink:#101010;--ink2:#2c2c2c;--ink3:#54564f;--ink4:#6a6c6a;--accent:#687808;--glow:rgb(168 188 16 / 0);--scrim:rgba(16,16,16,.4);--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold:#a8bc10}html[data-theme],html[data-theme] body{background:transparent!important}html body .nc{clip-path:none!important;border-radius:2px!important;background:var(--panel)!important}html body .btn.gold{color:#101010!important}html body .serif{font-family:"Chakra Petch",ui-sans-serif,sans-serif!important;font-style:normal!important;font-weight:500!important;color:#687808!important}html body h1,html body .ph h3,html body .ttl{font-family:"Chakra Petch",ui-sans-serif,sans-serif!important;font-weight:500!important}';
+var TABLETS='html body .card,html body .arch-row,html body .tile,html body .dept,html body .tablewrap,html body .attendees,html body .leftrail .hero,html body .grid-tiles .tile{background:var(--hbt-bg)!important;border:1px solid var(--hbt-line)!important;border-radius:4px!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}html body table th{background:transparent!important}html body .card,html body .arch-row,html body .tablewrap,html body .attendees,html body .leftrail .hero,html body .grid-tiles .tile{background:linear-gradient(-45deg,transparent 50%,var(--hbt-line) 50% calc(50% + 1.5px),transparent calc(50% + 1.5px)) bottom right/10px 10px no-repeat,var(--hbt-bg)!important;border-radius:4px 4px 0!important;clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%)!important}html body .btn.gold,html body .btn-gold:not(#closeBtn){background:#a8bc10!important;color:#101010!important;border-color:transparent!important;clip-path:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%)!important;border-radius:5px 5px 0!important}';
+var LIGHT_TOOL=TABLET_VARS+'html[data-theme=dark]{--bg0:#050605;--bg1:#0b0c0a;--ink:#eef0e8;--ink-2:#b5b9a8;--ink-3:#868b78;--ink-4:#5d6153;--line:rgba(255,255,255,.3);--line-2:rgba(255,255,255,.1);--glass:rgba(11,12,10,.98);--pill:rgba(255,255,255,.06);--gold:#a8bc10}html[data-theme=light]{--bg0:#cfccc6;--bg1:#fafbfa;--ink:#101010;--ink-2:#2c2c2c;--ink-3:#54564f;--ink-4:#6a6c6a;--line:rgba(16,16,16,.6);--line-2:rgba(16,16,16,.15);--glass:rgba(250,251,250,.98);--pill:rgba(16,16,16,.05);--gold:#a8bc10}html[data-theme],html[data-theme] body{background:transparent!important}'+TABLETS;
+var LIGHT_SALES='html[data-theme=dark]{--bg:#050605;--panel:#0b0c0a;--panel2:#0b0c0a99;--hov:#151713;--edge:rgb(255 255 255 / .3);--edge2:rgb(255 255 255 / .09);--hl:rgb(255 255 255 / .5);--ink:#eef0e8;--ink2:#b5b9a8;--ink3:#868b78;--ink4:#5d6153;--accent:#a8bc10;--glow:rgb(168 188 16 / .35);--scrim:rgba(0,0,0,.62);--over:#ff6b5e;--ok:#9bbf2a;--ctm:0%;--gold:#a8bc10}html[data-theme=light]{--bg:#cfccc6;--panel:#fafbfa;--panel2:#fafbfa99;--hov:#f1f0ec;--edge:rgb(16 16 16 / .74);--edge2:rgb(16 16 16 / .13);--hl:rgb(16 16 16 / .9);--ink:#101010;--ink2:#2c2c2c;--ink3:#54564f;--ink4:#6a6c6a;--accent:#687808;--glow:rgb(168 188 16 / 0);--scrim:rgba(16,16,16,.4);--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold:#a8bc10}html[data-theme],html[data-theme] body{background:transparent!important}html body .btn.gold{color:#101010!important}html body .serif{font-family:"Chakra Petch",ui-sans-serif,sans-serif!important;font-style:normal!important;font-weight:500!important;color:var(--accent)!important}html body h1,html body .ph h3,html body .ttl{font-family:"Chakra Petch",ui-sans-serif,sans-serif!important;font-weight:500!important}';
 var FR={};
-function themeNow(){return 'light'}
+function themeNow(){return document.documentElement.dataset.theme==='dark'?'dark':'light'}
 function paint(k){var F=FR[k];if(!F||!F.doc)return;try{F.doc.documentElement.setAttribute('data-theme',themeNow())}catch(e){}}
 function inject(k){var F=FR[k];if(!F.doc||F.doc.getElementById('hb-inject'))return;
  var st=F.doc.createElement('style');st.id='hb-inject';st.textContent=CSS_COMMON+CSS[k]+(k==='sales'?LIGHT_SALES:LIGHT_TOOL);F.doc.head.appendChild(st);
@@ -624,7 +636,7 @@ function dayData(){
   d.next=ms.filter(function(m){return !m.closed&&m.date>today}).sort(function(x,y){return String(x.date).localeCompare(String(y.date))})[0];
   d.today=today;d.me=safe(function(){return b.ME()},'')}
  var sd=s&&s.hbShell?safe(function(){return s.hbShell.desk()},null):null;
- if(sd){d.ok.s=true;d.approvals=sd.approvals;d.late=sd.late;d.stages=sd.stages.map(function(x,i){x.c=['#9c9e9c','#9c9e9c','#9c9e9c','#a8bc10','#a8bc10','#a8bc10','#687808','#687808','#2c2c2c','#2c2c2c'][i]||'#9c9e9c';return x});d.sname=sd.me.name;d.srole=sd.me.role;d.leads=sd.leads}
+ if(sd){d.ok.s=true;d.approvals=sd.approvals;d.late=sd.late;d.stages=sd.stages.map(function(x,i){x.c=(themeNow()==='dark'?['#6f7366','#6f7366','#6f7366','#a8bc10','#a8bc10','#a8bc10','#c9dc34','#c9dc34','#eef0e8','#eef0e8']:['#9c9e9c','#9c9e9c','#9c9e9c','#a8bc10','#a8bc10','#a8bc10','#687808','#687808','#2c2c2c','#2c2c2c'])[i]||'#9c9e9c';return x});d.sname=sd.me.name;d.srole=sd.me.role;d.leads=sd.leads}
  return d}
 function apRow(i){var late=i.over?Math.max(1,Math.ceil(i.age-i.sla)):0;
  return '<div class="row"><span class="av" style="--c:#6a6c6a">'+esc(initials(i.name))+'</span><div class="t"><b>'+esc(i.name)+'</b><span>'+esc(i.txt)+'</span></div>'+(late?chip(late+'d late','late'):chip('Due','due'))+(i.amt?'<span class="amt">'+money(i.amt)+'</span>':'')+'<button class="btn sm" data-open="'+esc(i.id)+'">Review</button></div>'}
@@ -695,7 +707,9 @@ $('#newMenu').addEventListener('click',function(e){var b=e.target.closest('[data
  if(w==='lead'){go('sales','desk');whenReady('sales',function(){if(!salesReady())return false;sendClick('sales','newlead');return true})}
  else if(w==='meeting'){go('room');whenReady('meet',function(){if(typeof FR.meet.w.openNewMeetingModal!=='function')return false;FR.meet.w.openNewMeetingModal();return true})}
  else{go('tasks');whenReady('black',function(){if(typeof FR.black.w.openActionModal!=='function')return false;FR.black.w.openActionModal();return true})}});
-function setTheme(){document.documentElement.setAttribute('data-theme','light');Object.keys(FR).forEach(paint)}
+function setTheme(t){t=t==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('atrium_theme',t)}catch(e){}Object.keys(FR).forEach(paint);
+ try{if(window.hmGround)window.hmGround(t)}catch(e){}try{if(typeof cur!=='undefined'&&cur==='day')drawDay()}catch(e){}}
+$('#themeBtn').addEventListener('click',function(){setTheme(themeNow()==='dark'?'light':'dark')});
 $('#chatBtn').addEventListener('click',function(){try{window.parent.postMessage({atriumChat:'toggle'},'*')}catch(e){}});
 function leave(a){if(window.parent!==window)window.parent.postMessage({hbShell:a},'*');else toast('Closes the shell: '+a)}
 var EXIT=new URLSearchParams(location.search).get('exit')==='logout';
@@ -711,7 +725,7 @@ window.addEventListener('message',function(e){var d=e.data;if(!d)return;
 function intro(){setTimeout(function(){$('#intro').classList.add('gone')},1500)}
 function refresh(){badges();if(cur==='day')drawDay()}
 /* boot: the black tool carries the people and tasks, the sales tool the approvals; both load behind My day */
-setTheme();
+try{setTheme(localStorage.getItem('atrium_theme')==='dark'?'dark':'light')}catch(e){setTheme('light')}
 var q=new URLSearchParams(location.search);
 if(q.get('noentry'))$('#intro').classList.add('gone');else intro();
 frame('black');frame('sales');
