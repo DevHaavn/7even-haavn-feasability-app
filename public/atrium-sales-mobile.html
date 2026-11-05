@@ -262,7 +262,8 @@ function phc(l){return PH[ST[l.stage].ph].c}
 function initials(l){return ((l.first||'?')[0]+((l.last||'')[0]||'')).toUpperCase()}
 function name(l){return H.full(l)}
 function pn(l){return (PRODUCTS[l.product]||PRODUCTS.none).s}
-function toast(t,bad){var e=$('#toast');e.className='toast on'+(bad?' bad':'');e.innerHTML=ic(bad?'x':'check')+'<span>'+esc(t)+'</span>';clearTimeout(toast._t);toast._t=setTimeout(function(){e.classList.remove('on')},bad?4200:2400)}
+/* bad: true for a problem (red cross), 'info' for guidance (bell), otherwise a tick */
+function toast(t,bad){var e=$('#toast');e.className='toast on'+(bad===true?' bad':'');e.innerHTML=ic(bad===true?'x':bad==='info'?'bell':'check')+'<span>'+esc(t)+'</span>';clearTimeout(toast._t);toast._t=setTimeout(function(){e.classList.remove('on')},bad?4200:2400)}
 function fail(e){
   if(!e)return;
   if(e.message==='signin'){render();return}
@@ -764,7 +765,21 @@ H.load().then(function(){
   if(ready()&&tb)UI.tab=tb==='appr'&&H.hasApprovals()?'appr':tb==='pipe'?'pipe':'today';
   render();flush();
   var id=(location.search.match(/[?&]lead=([\w-]+)/)||[])[1];
-  if(id&&ready()&&H.lead(id)){openLead(id);try{history.replaceState(null,'',location.pathname+location.search.replace(/([?&])lead=[\w-]+&?/,'$1').replace(/[?&]$/,''))}catch(e){}}});
+  if(id&&ready()&&H.lead(id)){openLead(id);try{history.replaceState(null,'',location.pathname+location.search.replace(/([?&])lead=[\w-]+&?/,'$1').replace(/[?&]$/,''))}catch(e){}}
+  var fd=(location.search.match(/[?&]find=([^&]*)/)||[])[1];
+  if(fd&&ready()){var ct=(location.search.match(/[?&]contact=([^&]*)/)||[])[1];findCustomer(decodeURIComponent(fd.replace(/\+/g,' ')),ct?decodeURIComponent(ct.replace(/\+/g,' ')):'')}});
+
+/* "Open in Sales" from a lead message in Chat: find the customer by their mobile or email first, then by name. One match opens them;
+   more than one, or none, opens the pipeline searched on the name so the right one is picked by eye. */
+function findCustomer(name,contact){
+  var ls=H.visible(),nm=String(name||'').trim().toLowerCase(),dg=String(contact||'').replace(/\D/g,'').slice(-9),em=/@/.test(contact||'')?String(contact).trim().toLowerCase():'';
+  var byContact=ls.filter(function(l){return (dg.length>=8&&String(l.mobile||'').replace(/\D/g,'').slice(-9)===dg)||(em&&String(l.email||'').toLowerCase()===em)});
+  var byName=ls.filter(function(l){return H.full(l).toLowerCase()===nm});
+  var both=byContact.filter(function(l){return byName.indexOf(l)>=0});
+  var pick=both.length===1?both[0]:byContact.length===1?byContact[0]:(!byContact.length&&byName.length===1)?byName[0]:null;
+  if(pick){openLead(pick.id);return}
+  UI.tab='pipe';UI.q=name;UI.stage='all';UI.mineOnly=false;UI.reset=true;render();
+  if(byContact.length>1||byName.length>1)toast('More than one '+name+'. Pick the right one.','info');else toast('Could not find '+name+'. They may have been merged or removed.',true)}
 })();
 </script>
 </body>

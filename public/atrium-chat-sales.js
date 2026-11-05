@@ -2,7 +2,8 @@
    For Jamie and Mike only (the two people who run the HAAVN BLACK sales pipeline from Chat). Signed in as either of them, on a phone, Chat gets:
      - a Sales tab in the bottom bar, with a red badge for how many customers need you, and
      - a "HAAVN BLACK Sales" card at the top of the chat list ("7 need action, 4 waiting on others").
-   Either one opens the phone sales app (atrium-sales-mobile.html) as a full panel over Chat, the same way Notes opens, and the Chat tab inside it comes straight back.
+     - an "Open in Sales" button on each new-lead message in the HAAVN BLACK Sales channel, which opens that customer.
+   Each opens the phone sales app (atrium-sales-mobile.html) as a full panel over Chat, the same way Notes opens, and the Chat tab inside it comes straight back.
    Anyone else signed in sees nothing: the entry is never drawn, and the sales page itself refuses to open in Chat for anyone but these two.
    The numbers come from the same core the sales app uses (atrium-sales-core.js), so the badge always agrees with the Today screen.
    Needs the bridge in atrium-chat.html: window.AtriumChat = { real, me, ... }. */
@@ -29,6 +30,8 @@ css.textContent=
  '#salesCard .go{color:#7fd3ff;flex:none}'+
  '#salesCard .go svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}'+
  'body.nx-tasks #salesCard,body.in-thread #salesCard{display:none!important}'+
+ '#msgs .sysm.hbl{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border-radius:16px;padding:10px 14px;border:1px solid rgba(127,211,255,.35);max-width:92%}'+
+ '#msgs .sysm.hbl .hbo{min-height:36px;padding:0 14px;border-radius:99px;border:0;background:#d6b36a;color:#1a1408;font:inherit;font-size:13px;font-weight:500;cursor:pointer}'+
  '#salesOv{position:fixed;inset:0;z-index:210;background:#050607}#salesOv[hidden]{display:none}'+
  '#salesOv iframe{width:100%;height:100%;border:0;display:block;background:#050607}'+
  '@media(min-width:761px){#salesTab,#salesCard{display:none!important}}';
@@ -56,12 +59,34 @@ function load(){
   window.HBS.load().then(function(ok){ loading=false; lastLoad=Date.now(); if(!ok){ off(); return } var c=window.HBS.counts(); counts={need:c.need,late:c.late,waiting:c.waiting}; draw() }).catch(function(){ loading=false });
 }
 function off(){ on=false; if(tab){ tab.remove(); tab=null } if(card){ card.remove(); card=null } }
-/* every open is a fresh load, so what you see is what the server holds right now */
-function open(leadId){
+/* every open is a fresh load, so what you see is what the server holds right now.
+   arg: nothing (Today), a lead id, or { find: 'Harper Webb', contact: 'their mobile or email' } to open that customer. */
+function open(arg){
   if(!on||!fr) return; ov.hidden=false; frReady=false;
-  fr.src='/atrium-sales-mobile.html?embed=chat&sch='+scheme()+'&t='+Date.now()+(leadId?'&lead='+encodeURIComponent(leadId):'');
+  var q='';
+  if(typeof arg==='string'&&arg) q='&lead='+encodeURIComponent(arg);
+  else if(arg&&arg.find) q='&find='+encodeURIComponent(arg.find)+(arg.contact?'&contact='+encodeURIComponent(arg.contact):'');
+  fr.src='/atrium-sales-mobile.html?embed=chat&sch='+scheme()+'&t='+Date.now()+q;
   fr.onload=function(){ frReady=true };
 }
+
+/* "Open in Sales" on the new-lead messages in the HAAVN BLACK Sales channel. The server writes them as plain text
+   ("New HAAVN BLACK lead for Mike: Harper Webb, SOLUM Plus in Char. QLD. 0412 884 031. Source: Facebook."), so the customer is found again by name and
+   their mobile or email, which also works for the messages already in the channel. Chat redraws the whole thread on every change, so this watches it. */
+var LEADMSG=/^New HAAVN BLACK lead for (.+?): (.+)$/;
+function annotate(){
+  if(!on) return;
+  var els=D.querySelectorAll('#msgs .sysm:not([data-hbl])');
+  for(var i=0;i<els.length;i++){
+    var el=els[i], m=LEADMSG.exec(el.textContent||''); el.setAttribute('data-hbl','1'); if(!m) continue;
+    var rest=m[2], name=rest.split(',')[0].trim(), em=rest.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/), ph=rest.match(/(?:\+?61|0)[\d\s-]{8,}/);
+    if(!name) continue;
+    el.classList.add('hbl'); el.setAttribute('data-n',name); el.setAttribute('data-c',em?em[0]:ph?ph[0].trim():'');
+    var b=D.createElement('button'); b.type='button'; b.className='hbo'; b.textContent='Open in Sales'; el.appendChild(b);
+  }
+}
+function watch(){ var box=D.getElementById('msgs'); if(!box||watch.done) return; watch.done=true; new MutationObserver(annotate).observe(box,{childList:true}); annotate() }
+D.addEventListener('click',function(e){ var b=on&&e.target.closest&&e.target.closest('.hbo'); if(!b) return; var el=b.closest('.sysm'); e.preventDefault(); e.stopPropagation(); open({find:el.getAttribute('data-n'),contact:el.getAttribute('data-c')}) },true);
 function close(){ if(ov) ov.hidden=true; if(fr){ try{ fr.src='about:blank' }catch(e){} } setTimeout(load,400) }
 window.openAtriumSales=open;
 D.addEventListener('click',function(e){ if(on&&e.target.closest&&e.target.closest('[data-sales]')){ e.preventDefault(); open() } },true);
@@ -73,7 +98,7 @@ try{ if(window.AtriumScheme) AtriumScheme.onChange(function(s){ if(fr&&fr.conten
 /* start once Chat knows who is signed in. Only Jamie and Mike ever get past this line. */
 function start(){
   if(on||!C.real()||USERS.indexOf(C.me())<0) return false;
-  on=true; build();
+  on=true; build(); watch();
   var s=D.createElement('script'); s.src='/atrium-sales-core.js?v=1'; s.onload=load; D.head.appendChild(s);
   return true;
 }
