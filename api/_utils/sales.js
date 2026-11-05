@@ -154,8 +154,8 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual']
-const SERVER_KEYS = ['cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret']   // a screen can never write these: only the rules below do
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked']
+const SERVER_KEYS = ['cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
 function leadOut(row) {
   const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
   const stage = row.stage || 0
@@ -238,7 +238,7 @@ async function createLead(deps, p, opts = {}) {
   const owner = opts.owner || routeOwner(settings, state)
   const now = Date.now()
   const lead = { id: newId('L'), first: p.first, last: p.last, email: p.email || '', mobile: p.mobile || '', state, setting: p.setting || 'Not sure yet', product: PRODUCTS.includes(p.product) ? p.product : 'none',
-    clad: p.clad || '', pal: p.pal || '', join: p.join || '', pay: p.pay || 'No preference', deliv: p.deliv || 'No preference', msg: p.msg || '', source: SOURCES.includes(p.source) ? p.source : 'Other', otherSource: p.otherSource || '',
+    clad: p.clad || '', pal: p.pal || '', join: p.join || '', asked: { product: PRODUCTS.includes(p.product) ? p.product : 'none', clad: p.clad || '', pal: p.pal || '', join: p.join || '' }, pay: p.pay || 'No preference', deliv: p.deliv || 'No preference', msg: p.msg || '', source: SOURCES.includes(p.source) ? p.source : 'Other', otherSource: p.otherSource || '',
     utm: p.utm || '', owner, companyId: opts.companyId || '', stage: 0, maxStage: 0, dates: [now], lastTouch: now, status: 'open', lostWhy: '', concept, cstage: 0, eng: 20, chk: {},
     act: [{ t: now, x: `Enquiry received from ${p.source === 'Other' && p.otherSource ? 'Other (' + p.otherSource + ')' : p.source}${opts.how ? ' ' + opts.how : ''}.`, k: 'sys' }] }
   if (p.msg) lead.act.unshift({ t: now + 1, x: 'Their message: ' + p.msg.slice(0, 300), k: 'note' })
@@ -550,7 +550,10 @@ async function run(action, a, session, deps) {
           }
           next[k] = v
         }
-        if (changes.length) { next.act = mergeAct(next.act, changes); next.lastTouch = tNow }
+        if (changes.length) {
+          if (!cur.asked) next.asked = { product: cur.product, clad: cur.clad || '', pal: cur.pal || '', join: cur.join || '' }
+          next.act = mergeAct(next.act, changes); next.lastTouch = tNow
+        }
       }
       if (incoming.owner !== undefined && incoming.owner !== cur.owner) {
         if (internal) { next.owner = incoming.owner; next.companyId = incoming.companyId !== undefined ? incoming.companyId : '' }

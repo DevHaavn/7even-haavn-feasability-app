@@ -343,6 +343,14 @@ textarea{width:100%;resize:vertical;min-height:64px}
 .swb:hover{border-color:var(--edge)}
 .swb.on{border-color:var(--ink);background:var(--hov);color:var(--ink)}
 .hmlock{margin:-4px 0 0 130px}
+.hmask{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:11px 14px;border:1px dashed var(--edge);border-radius:4px;color:var(--ink2);font-size:12.5px}
+.hmask .lab{font:400 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);display:inline-flex;align-items:center;gap:7px}
+.hmask .lab svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.hmask .pv{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.hmask .pv i{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px var(--ring);flex:none}
+.hmask .pv.none{color:var(--ink3)}
+.was{font-size:11px;color:var(--ink3);align-self:center}
+.hmwas{margin:-6px 0 0 130px}
 @media(max-width:620px){.hmrow{grid-template-columns:1fr;gap:6px}.hmlock{margin-left:0}}
 .mj{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:12px}
 .mj i{height:6px;border-radius:2px;background:var(--edge2);display:block}
@@ -728,8 +736,13 @@ function homeLock(l){
 function homeEdit(l){
   var lock=homeLock(l),pr=S.settings.prices||{};
   var homes=['studio','plus','max'].map(function(k){var p=PRODUCTS[k];return '<button type="button" class="hk '+(l.product===k?'on':'')+'" data-act="pickhome" data-v="'+k+'"'+(lock&&l.product!==k?' disabled':'')+'><b>'+esc(p.s)+'</b><small>'+p.m2+' m²'+(pr[k]?' · '+money(pr[k]):'')+'</small></button>'}).join('');
-  var fin=function(lab,key,map,sel){return '<div class="hmrow"><span class="lab">'+lab+'</span><span class="sws2">'+Object.keys(map).map(function(n){return '<button type="button" class="swb '+(sel===n?'on':'')+'" data-act="pickfin" data-k="'+key+'" data-v="'+esc(n)+'" title="'+(sel===n?'Click again to clear':'Choose '+esc(n))+'"><i style="--c:'+map[n]+'"></i>'+esc(n)+'</button>'}).join('')+'</span></div>'};
-  return '<div class="hmedit"><div class="eb">Change the home or the design</div><div class="hmrow"><span class="lab">Home</span><span class="hks">'+homes+'</span></div>'+(lock?'<div class="small hmlock">'+esc(lock)+'</div>':'')+fin('Cladding','clad',CLAD,l.clad)+fin('Interior palette','pal',PAL,l.pal)+fin('Joinery','join',JOIN,l.join)+'</div>';
+  var ak=l.asked||{product:l.product,clad:l.clad,pal:l.pal,join:l.join},ap=PRODUCTS[ak.product]||PRODUCTS.none;
+  var asked='<div class="hmask"><span class="lab"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>The customer chose</span><span class="pv">'+esc(ap.n)+'</span>'+
+   [[CLAD,ak.clad],[PAL,ak.pal],[JOIN,ak.join]].map(function(x){return x[1]?'<span class="pv"><i style="--c:'+x[0][x[1]]+'"></i>'+esc(x[1])+'</span>':''}).join('')+
+   (ak.clad||ak.pal||ak.join?'':'<span class="pv none">no finishes chosen</span>')+'</div>';
+  var wasHome=ak.product!==l.product?'<div class="was hmwas">Customer chose '+esc(ap.n)+'</div>':'';
+  var fin=function(lab,key,map,sel){return '<div class="hmrow"><span class="lab">'+lab+'</span><span class="sws2">'+Object.keys(map).map(function(n){return '<button type="button" class="swb '+(sel===n?'on':'')+'" data-act="pickfin" data-k="'+key+'" data-v="'+esc(n)+'" title="'+(sel===n?'Click again to clear':'Choose '+esc(n))+'"><i style="--c:'+map[n]+'"></i>'+esc(n)+'</button>'}).join('')+(ak[key]!==sel?'<span class="was">Customer chose '+esc(ak[key]||'nothing')+'</span>':'')+'</span></div>'};
+  return '<div class="hmedit">'+asked+'<div class="eb">Change the home or the design</div><div class="hmrow"><span class="lab">Home</span><span class="hks">'+homes+'</span></div>'+wasHome+(lock?'<div class="small hmlock">'+esc(lock)+'</div>':'')+fin('Cladding','clad',CLAD,l.clad)+fin('Interior palette','pal',PAL,l.pal)+fin('Joinery','join',JOIN,l.join)+'</div>';
 }
 function productOpts(sel){return options(Object.keys(PRODUCTS).map(function(k){return [k,PRODUCTS[k].n]}),sel)}
 function ownerOpts(sel){
