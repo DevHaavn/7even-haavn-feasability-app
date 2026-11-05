@@ -309,6 +309,14 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
   background:color-mix(in srgb,var(--gc) 20%,transparent);color:color-mix(in srgb,var(--gc) 60%,var(--ink));font-weight:600}
 [data-theme="light"] .rail-group{background:color-mix(in srgb,var(--gc) 32%,transparent);color:color-mix(in srgb,var(--gc) 30%,var(--ink))}
 .rail-group.g-work{--gc:var(--at-blue)}.rail-group.g-perf{--gc:var(--at-lilac)}.rail-group.g-team{--gc:var(--at-peach)}.rail-group.g-supply{--gc:var(--at-green)}
+/* HAAVN BLACK stands alone in the sidebar: black and white, no pastel (!important to beat the later accent overrides) */
+html[data-theme="light"] body .rail-group.g-black{background:#0b0b0d!important;color:#fff!important;border-left:3px solid #fff!important}
+html[data-theme="dark"] body .rail-group.g-black{background:#f3f2ee!important;color:#0b0b0d!important;border-left:3px solid #0b0b0d!important}
+html[data-theme="light"] body .rail-item.blk.on{background:#0b0b0d!important;color:#fff!important;box-shadow:none!important}
+html[data-theme="dark"] body .rail-item.blk.on{background:#f3f2ee!important;color:#0b0b0d!important;box-shadow:none!important}
+.rail-item.blk.on .ri{opacity:1}
+html[data-theme="light"] body .rail-item.blk.on .n{background:rgba(255,255,255,.18);color:#fff}
+html[data-theme="dark"] body .rail-item.blk.on .n{background:rgba(11,11,13,.12);color:#0b0b0d}
 .rail-group.g-mgmt{--gc:var(--at-pink)}.rail-group.g-black{--gc:var(--at-grey)}.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-brand{--gc:var(--at-teal)}
 
 /* Blaze activity on a phone: each entry is a card, so what happened and Undo are never off screen */
@@ -356,8 +364,9 @@ label.f{display:flex;flex-direction:column;gap:5px;font:500 9px var(--mono);lett
     <div class="rail-group g-supply">Pipelines</div>
     <div class="rail-item" data-tab="partners" data-icon="people">Partner CRM<span class="n" id="cPartners">0</span></div>
     <div class="rail-item" data-tab="supply" data-icon="folder">HAAVN pipeline<span class="n" id="cSupply">0</span></div>
-    <div class="rail-item" data-tab="sales" data-icon="pipeline">HAAVN BLACK pipeline<span class="n" id="cBuyers">0</span></div>
     <div class="rail-item" data-tab="buyers" data-icon="people">Home buyers</div>
+    <div class="rail-group g-black">HAAVN BLACK</div>
+    <div class="rail-item blk" data-tab="sales" data-icon="pipeline">Sales pipeline<span class="n" id="cBuyers">0</span></div>
     <div class="rail-group g-mgmt mgmt-only">Projects</div>
     <div class="rail-item mgmt-only" data-tab="mgmt" data-icon="overview">Management overview</div>
     <div class="rail-item mgmt-only" data-tab="mgmtprojects" data-icon="folder">Projects<span class="n" id="cMgmtProj">0</span></div>
