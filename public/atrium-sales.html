@@ -127,14 +127,14 @@ textarea{width:100%;resize:vertical;min-height:64px}
 .tile .v{font:300 36px/1.05 var(--sans);letter-spacing:-.02em;margin:10px 0 6px;color:var(--ink)}
 .tile .v small{font:400 13px var(--sans);color:var(--ink3);letter-spacing:0;margin-left:4px}
 .tile .s{color:var(--ink3);font-size:12px}
-.dgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.dgrid{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,27vw,360px);gap:16px;align-items:start}
 .panel{padding:0}
 .ph{display:flex;align-items:center;gap:10px;padding:15px 18px 12px}
 .ph h3{font:300 17px var(--sans);color:var(--ink)}
 .ph h3 .serif{font-size:1.1em}
 .ph .cnt{font:500 10px var(--mono);color:var(--ink3)}
 .wl{display:flex;flex-direction:column}
-.wr{display:grid;grid-template-columns:4px minmax(170px,1.15fr) minmax(190px,1.5fr) 74px 28px 232px;gap:14px;align-items:center;padding:11px 18px 11px 0;border-top:1px solid var(--edge2);cursor:pointer;transition:background .15s}
+.wr{display:grid;grid-template-columns:4px minmax(150px,1.15fr) minmax(170px,1.5fr) 74px 28px 232px;gap:14px;align-items:center;padding:11px 18px 11px 0;border-top:1px solid var(--edge2);cursor:pointer;transition:background .15s}
 .wr:hover{background:var(--hov)}
 .wr .bar{align-self:stretch;background:var(--c);opacity:.85;margin:-11px 0}
 .wr .nm{color:var(--ink);font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1514,6 +1514,15 @@ window.addEventListener('resize',function(){syncRail()});
 var hv=location.hash.replace('#','');if(TABS.some(function(t){return t[0]===hv}))UI.view=hv;
 window.__sales={S:S,UI:UI,render:render,load:load};
 load().then(function(){render();announce();cmInit();setInterval(poll,30000)});
+/* The ATRIUM shell (atrium-hb.html) draws My day from the same numbers the Desk shows. Read only; it opens a customer or the new lead form by clicking, like a person would. */
+window.hbShell={desk:function(){
+  if(!S.ready||S.error||S.setup||!S.me)return null;
+  var its=ITEMS().filter(mine),ap=its.filter(function(i){return i.k==='approve'&&canGate(i.gate)});
+  return {me:{id:S.me.id,name:S.me.name,role:S.me.admin?'Director':((S.me.roles||[]).length?'Office':'Sales')},
+    approvals:ap.map(function(i){return {id:i.l.id,name:full(i.l),txt:i.txt,amt:i.amt,age:i.age,sla:i.sla,over:!!i.over}}),
+    late:its.filter(function(i){return i.over||i.urgent}).length,
+    stages:ST.map(function(st,k){return {n:st.n,c:phc(k),k:visible().filter(function(l){return l.status==='open'&&!l.concept&&l.stage===k}).length}}),
+    leads:visible().map(function(l){return {id:l.id,name:full(l),home:home(l)}})}}};
 render();
 })();
 </script>

@@ -10,7 +10,8 @@ import Dashboard from './pages/Dashboard'
 import PasswordGate, { isAuthenticated, SIGNED_OUT, type Company } from './pages/PasswordGate'
 import SplashScreen from './pages/SplashScreen'
 import HaavnHomes from './pages/HaavnHomes'
-import HaavnManagementBase, { HM_PILLARS_BLACK } from './pages/capital/HaavnManagementBase'
+import HaavnManagementBase from './pages/capital/HaavnManagementBase'
+import AtriumBlackShell from './pages/capital/AtriumBlackShell'
 import HaavnHomesCrm from './pages/HaavnHomesCrm'
 import HaavnDisplaySuite from './pages/HaavnDisplaySuite'
 import CapitalPortal from './pages/capital/CapitalPortal'
@@ -249,7 +250,7 @@ export default function App() {
           Wrapped above the hero iframe (z-index 600), same as Capital above. */}
       {homesAtriumOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
-          <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />
+          <AtriumBlackShell onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} onDisplay={() => { setHomesAtriumOpen(false); setDisplaySuiteOpen(true) }} />
         </div>
       )}
     </RoleContext.Provider>
@@ -267,7 +268,7 @@ export default function App() {
         {displaySuiteOpen && <HaavnDisplaySuite onClose={() => setDisplaySuiteOpen(false)} />}
         {homesAtriumOpen && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 700 }}>
-            <HaavnManagementBase pillars={HM_PILLARS_BLACK} onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} />
+            <AtriumBlackShell onClose={() => setHomesAtriumOpen(false)} onLogout={handleLogout} onDisplay={() => { setHomesAtriumOpen(false); setDisplaySuiteOpen(true) }} />
           </div>
         )}
       </RoleContext.Provider>
