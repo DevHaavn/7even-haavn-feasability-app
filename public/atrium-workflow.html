@@ -317,6 +317,11 @@ html[data-theme="dark"] body .rail-item.blk.on{background:#f3f2ee!important;colo
 .rail-item.blk.on .ri{opacity:1}
 html[data-theme="light"] body .rail-item.blk.on .n{background:rgba(255,255,255,.18);color:#fff}
 html[data-theme="dark"] body .rail-item.blk.on .n{background:rgba(11,11,13,.12);color:#0b0b0d}
+.greet{margin:2px 0 24px}.greet .eb{font:400 10px var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
+.greet h1{font:300 34px/1.1 var(--sans);letter-spacing:-.01em;color:var(--ink);margin:0}
+.greet h1 em{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;font-size:1.14em;color:var(--ink)}
+.greet p{margin:10px 0 0;color:var(--ink-3);font-size:13px}
+@media(max-width:600px){.greet h1{font-size:27px}}
 .rail-group.g-mgmt{--gc:var(--at-pink)}.rail-group.g-black{--gc:var(--at-grey)}.rail-group.g-meet{--gc:var(--at-yellow)}.rail-group.g-brand{--gc:var(--at-teal)}
 
 /* Blaze activity on a phone: each entry is a card, so what happened and Undo are never off screen */
@@ -350,8 +355,8 @@ html[data-theme="dark"] body .rail-item.blk.on .n{background:rgba(11,11,13,.12);
     </div>
     <div class="rail-switch" aria-label="ATRIUM"><span class="on">Workflow</span><button type="button" data-switch="agenda">Meetings</button></div>
     <div class="rail-group g-work">My work</div>
-    <div class="rail-item" data-tab="overview" data-icon="overview">Overview</div>
     <div class="rail-item" data-tab="myday" data-icon="calendar">My day</div>
+    <div class="rail-item" data-tab="overview" data-icon="overview">Overview</div>
     <div class="rail-item" data-tab="mytasks" data-icon="review">My tasks<span class="n" id="cMyTasks">0</span></div>
     <div class="rail-item" data-tab="byproject" data-icon="folder">Tasks by project</div>
     <div class="rail-item" data-tab="myagenda" data-icon="calendar">My weekly agenda<span class="n" id="cMyAgenda">0</span></div>
@@ -496,7 +501,7 @@ var INTERIOR_OPTIONS=['Undecided','Linen','Burgundy','Sage'];
 
 /* ===================== workspace state ===================== */
 var WS={partners:[],supplyProjects:[],buyers:[],actions:[],activity:[],seq:1};
-var TAB=location.hash.replace('#','')||'overview';
+var TAB=location.hash.replace('#','')||'myday';
 var _seq=1; function uid(){return 'n'+(_seq++)+'-'+Math.random().toString(36).slice(2,6);}
 function nowIso(){return new Date().toISOString();}
 function today(){return new Date().toISOString().slice(0,10);}
@@ -804,8 +809,8 @@ var TITLES={overview:['Overview','01 · ATRIUM WORKFLOW'],
   buyers:['HAAVN Black Home Buyers','BUYER CRM'],actions:['Action register','OWNERS · DUE DATES · PRIORITY'],
   meetings:['Meetings','LINKED TO MEETING MANAGEMENT'],blaze:['Blaze activity','EVERYTHING THE ASSISTANTS DID · DIRECTORS ONLY'],brand:['Team & lists','BRAND & WORKSPACE']};
 function render(){
-  if(TAB.indexOf('mgmt')===0&&!canMgmt()){TAB='overview';location.hash='overview';}
-  if(TAB==='blaze'&&!canBlaze()){TAB='overview';location.hash='overview';}
+  if(TAB.indexOf('mgmt')===0&&!canMgmt()){TAB='myday';location.hash='myday';}
+  if(TAB==='blaze'&&!canBlaze()){TAB='myday';location.hash='myday';}
   var t=TITLES[TAB]||['',''];
   document.getElementById('tbTitle').textContent=t[0];
   document.getElementById('tbSub').textContent=t[1];
@@ -835,7 +840,7 @@ function render(){
   else if(TAB==='brand') v.innerHTML=viewBrand();
   renderRail();
 }
-window.addEventListener('hashchange',function(){TAB=location.hash.replace('#','')||'overview';render();});
+window.addEventListener('hashchange',function(){TAB=location.hash.replace('#','')||'myday';render();});
 
 /* ===================== calculations (brief §6/§7) ===================== */
 function openSupply(){return WS.supplyProjects.filter(function(p){return !p.archived && p.stage!=='Confirmed Supply';});}
@@ -2245,12 +2250,18 @@ function syncWeeklyToMeeting(){
 
 /* ===================== My Workspace ===================== */
 function isOnTask(a){return sameName(a.owner,ME())||(a.watchers||[]).some(function(n){return sameName(n,ME());});}
+function greetBlock(){
+  var hr=new Date().getHours(),g=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening',first=String(ME()).split(' ')[0];first=first.charAt(0).toUpperCase()+first.slice(1);
+  var mine=WS.actions.filter(isOnTask),due=mine.filter(function(a){return !a.done&&a.due===today();}).length,od=mine.filter(function(a){return !a.done&&a.due&&a.due<today();}).length;
+  var line=due+' task'+(due===1?'':'s')+' due today. '+od+' overdue.';
+  return '<div class="greet"><div class="eb">My day \u00b7 '+new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'})+'</div><h1>'+g+', <em>'+esc(first)+'</em>.</h1><p>'+line+'</p></div>';
+}
 function viewMyDay(){
   var mine=WS.actions.filter(isOnTask);
   var dueToday=mine.filter(function(a){return !a.done&&a.due===today();});
   var overdue=mine.filter(function(a){return !a.done&&a.due&&a.due<today();});
   var next=(MEET_CACHE.meetings||[]).filter(function(m){return !m.closed;}).sort(function(a,b){return a.date.localeCompare(b.date);})[0];
-  var h='<div class="grid4" style="margin-bottom:18px">'+stat(mine.filter(function(a){return !a.done;}).length,'My open tasks')+stat(dueToday.length,'Due today')+stat(overdue.length,'Overdue')+stat(next?fmtDateShort(next.date):'—','Next meeting')+'</div>';
+  var h=greetBlock()+'<div class="grid4" style="margin-bottom:18px">'+stat(mine.filter(function(a){return !a.done;}).length,'My open tasks')+stat(dueToday.length,'Due today')+stat(overdue.length,'Overdue')+stat(next?fmtDateShort(next.date):'—','Next meeting')+'</div>';
   h+='<div class="section-h"><h3>Due today</h3></div>'+renderActionList(dueToday.concat(overdue.filter(function(a){return dueToday.indexOf(a)<0;})));
   return h;
 }
