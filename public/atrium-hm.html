@@ -210,8 +210,8 @@ html[data-theme=dark]{--over:#ff6b5e;--ok:#9bbf2a;--ctm:0%;--gold-t:#a8bc10;--li
   --bg:#050605;--panel:#0b0c0a;--panel2:#0b0c0a99;--hov:#151713;--side-bg:rgba(7,8,7,.8);--side-solid:#070807;
   --edge:rgb(255 255 255 / .3);--edge2:rgb(255 255 255 / .09);--hl:rgb(255 255 255 / .5);
   --ink:#eef0e8;--ink2:#b5b9a8;--ink3:#868b78;--ink4:#5d6153;--accent:#a8bc10;--glow:rgb(168 188 16 / .35);--scrim:rgba(0,0,0,.62);
-  --bar:rgba(7,8,7,.78);--srch:rgba(255,255,255,.04);--avbg:#151713;--chipl:rgba(168,188,16,.55)}
-html[data-theme=light]{--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold-t:#687808;--lime-dp:#687808;--bar:rgba(233,230,224,.76);--srch:rgba(250,251,250,.72);--avbg:#fff;--chipl:rgba(104,120,8,.55);
+  --bar:rgba(7,8,7,.78);--vr:9,10,8;--srch:rgba(255,255,255,.04);--avbg:#151713;--chipl:rgba(168,188,16,.55)}
+html[data-theme=light]{--over:#b3382c;--ok:#4f7a1e;--ctm:52%;--gold-t:#687808;--lime-dp:#687808;--bar:rgba(233,230,224,.76);--vr:250,251,250;--srch:rgba(250,251,250,.72);--avbg:#fff;--chipl:rgba(104,120,8,.55);
   --bg:#cfccc6;--panel:#fafbfa;--panel2:#fafbfa99;--hov:#f1f0ec;--side-bg:rgba(233,230,224,.8);--side-solid:#e9e6e0;
   --edge:rgb(16 16 16 / .74);--edge2:rgb(16 16 16 / .13);--hl:rgb(16 16 16 / .9);
   --ink:#101010;--ink2:#2c2c2c;--ink3:#54564f;--ink4:#6a6c6a;--accent:#687808;--glow:rgb(168 188 16 / 0);--scrim:rgba(16,16,16,.4)}
@@ -234,8 +234,9 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
 .ttl{font-weight:500;font-size:19px;letter-spacing:.02em}
 .ttl .serif,.ch h3 em,.hero h1 em,.ph h3 em{font:inherit;font-family:var(--display);font-style:normal;font-weight:500;color:var(--lime-dp)}
 .ch h3{font-weight:500;font-size:15px}.tile .num{font-weight:400}
-.hero{height:176px;background:linear-gradient(-45deg,transparent 50%,var(--edge) 50% calc(50% + 1.5px),transparent calc(50% + 1.5px)) bottom right/var(--notch) var(--notch) no-repeat,var(--panel)!important;border:1px solid var(--edge)!important;clip-path:var(--notch-clip)!important;border-radius:4px 4px 0;margin-bottom:16px;color:var(--ink)}
-.hero:after{display:none}
+.hero{height:176px;background:var(--panel)!important;border:1px solid var(--edge)!important;clip-path:var(--notch-clip)!important;border-radius:4px 4px 0;margin-bottom:16px;color:var(--ink)}
+.herocv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero:after{display:block!important;content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(-45deg,transparent 50%,var(--edge) 50% calc(50% + 1.5px),transparent calc(50% + 1.5px)) bottom right/var(--notch) var(--notch) no-repeat,linear-gradient(90deg,rgba(var(--vr),.96) 0%,rgba(var(--vr),.8) 38%,rgba(var(--vr),.06) 100%)}
 .hero:before{content:"";position:absolute;left:30px;top:-1px;width:44px;height:3px;background:var(--lime);z-index:3}
 .hero .in{color:var(--ink);bottom:24px}
 .hero h1{font:500 38px/1.05 var(--display);letter-spacing:-.005em;color:var(--ink)}
@@ -291,7 +292,8 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
 
 <script>
 /* the haavn.au isometric ground, lifted from the HAAVN hub (public/haavn-supply) and lightened */
-(function () {
+function makeGround(cv, cfg) {
+  cfg = cfg || {}
   const P = {
     accent: [125, 127, 118],   // haavn.au --accent  hsl(72 4% 48%)
     white:  [242, 237, 233],   // haavn.au --white   hsl(26.67 25.71% 93.14%)
@@ -302,17 +304,16 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
     t0: 0.82, tTop: 1.0, gamma: 0.8, sat: 0.75,
     shadeX: 0.95,              // +X faces: the dark bands along "/"
     shadeZ: 1.03,              // +Z faces: the bright slivers along "\"
-    unit: 0.020,               // px per tile-unit, x viewport width (haavn.au scales the same way)
+    unit: cfg.unit || 0.020,               // px per tile-unit, x viewport width (haavn.au scales the same way)
     // swell size, swell height (tiles), floor clamp. Height sets line WEIGHT
     // only (tone is keyed to relative height) , above ~3.5 the slivers turn
     // into bands and it stops reading as haavn.au.
     freq: 0.018, amp: 3.2, cut: -0.55,
-    speed: 0.24,               // noise time per second
+    speed: cfg.speed || 0.36,               // noise time per second
     dprMax: 1.5,               // haavn.au caps its canvas at 1.5x too
   }
-  const cv = document.getElementById('iso')
   const gl = cv && cv.getContext('webgl', { antialias: true, alpha: false, powerPreference: 'low-power' })
-  if (!gl) return                                  // #stage keeps --paper; nothing else depends on this
+  if (!gl) return null                             // #stage keeps --paper; nothing else depends on this
 
   const VS = `
   attribute vec2 aCell; attribute vec3 aCorner; attribute float aFace;
@@ -374,7 +375,7 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
   } catch (e) { console.warn('[haavn ground]', e); return }
   const U = n => gl.getUniformLocation(prog, n)
   // light: the haavn.au stone field, clearly moving. dark: near black with an olive glint along the swells.
-  const TONES = { light: { a: [125, 127, 118], w: [242, 237, 233], t0: 0.52, clear: [0.86, 0.85, 0.83] }, dark: { a: [4, 5, 4], w: [64, 70, 48], t0: 0.08, clear: [0.02, 0.02, 0.016] } }
+  const TONES = cfg.tones || { light: { a: [125, 127, 118], w: [242, 237, 233], t0: 0.52, clear: [0.86, 0.85, 0.83] }, dark: { a: [4, 5, 4], w: [64, 70, 48], t0: 0.08, clear: [0.02, 0.02, 0.016] } }
   let th = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
   function tone() { const T = TONES[th]; gl.uniform3f(U('uA'), T.a[0] / 255, T.a[1] / 255, T.a[2] / 255); gl.uniform3f(U('uW'), T.w[0] / 255, T.w[1] / 255, T.w[2] / 255)
     gl.uniform1f(U('uT0'), T.t0); gl.clearColor(T.clear[0], T.clear[1], T.clear[2], 1) }
@@ -388,7 +389,7 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
 
   function build() {
     const dpr = Math.min(P.dprMax, devicePixelRatio || 1)
-    const W = cv.clientWidth || innerWidth, H = cv.clientHeight || innerHeight
+    const W = cv.clientWidth || cfg.w || innerWidth, H = cv.clientHeight || cfg.h || innerHeight
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr)
     gl.viewport(0, 0, cv.width, cv.height)
     const K = KK = Math.min(44, Math.max(18, P.unit * W))
@@ -438,7 +439,10 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
   }
 
   build(); draw(t0)
-  window.hmGround = function (t) { th = t === 'dark' ? 'dark' : 'light'; tone(); draw(performance.now()) }
+  let lw = 0, lh = 0
+  const api = { cv,
+    set(t) { th = t === 'dark' ? 'dark' : 'light'; tone(); draw(performance.now()) },
+    fit() { const w = cv.clientWidth, hh = cv.clientHeight; if (w && hh && (w !== lw || hh !== lh)) { lw = w; lh = hh; build(); draw(performance.now()) } } }
   requestAnimationFrame(() => cv.classList.add('on'))
   let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { build(); draw(performance.now()) }, 120) })
 
@@ -446,16 +450,25 @@ html[data-theme] .tabs{background:var(--bar);border-bottom:1px solid var(--edge)
   // rAF already sleeps in a hidden tab, so there is nothing to pause by hand.
   const still = matchMedia('(prefers-reduced-motion: reduce)')
   ;let last = 0
-  ;(function loop(now) { if (!still.matches && !document.hidden && now - last > 41) { draw(now); last = now } requestAnimationFrame(loop) })(t0)
+  ;(function loop(now) { if (!still.matches && !document.hidden && cv.isConnected && now - last > 41) { draw(now); last = now } requestAnimationFrame(loop) })(t0)
   
   cv.addEventListener('webglcontextlost', e => e.preventDefault())
   cv.addEventListener('webglcontextrestored', () => { build(); draw(performance.now()) })
-})()
+  return api
+}
+var gMain = makeGround(document.getElementById('iso'))
+// the My day hero carries its own, stronger copy of the field (HAAVN BLACK's hero is a moving film the same way)
+var heroCv = document.createElement('canvas'); heroCv.className = 'herocv'; heroCv.setAttribute('aria-hidden', 'true')
+var gHero = makeGround(heroCv, { speed: 0.5, unit: 0.034, w: 1100, h: 180, tones: {
+  light: { a: [92, 98, 82], w: [238, 235, 226], t0: 0.12, clear: [0.78, 0.79, 0.75] },
+  dark: { a: [3, 4, 3], w: [104, 116, 54], t0: 0.05, clear: [0.012, 0.016, 0.01] } } })
+window.hmHero = gHero
+window.hmGround = function (t) { if (gMain) gMain.set(t); if (gHero) gHero.set(t) }
 </script>
 <script>
 (function(){
 'use strict';
-var V='20261105h3';
+var V='20261105h5';
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function safe(fn,fb){try{var r=fn();return r===undefined?fb:r}catch(e){return fb}}
@@ -666,6 +679,7 @@ function drawDay(){
  el.innerHTML='<div class="hero"><div class="clock"><b id="clk"></b><span class="eb" style="color:#8b97a1">Melbourne</span></div>'
   +'<div class="in"><div class="eb"><span>'+esc(date)+'</span><span>HAAVN</span></div><h1>'+g+', <em>'+esc(nm)+'.</em></h1><p>'+esc(line)+'</p></div></div>'
   +'<div class="tiles">'+tiles+'</div><div class="g2"><div class="stack">'+apCard+tkCard+'</div><div class="stack">'+tlCard+pulse+'</div></div>';
+ try{var hh=el.querySelector('.hero');if(hh&&window.hmHero){hh.insertBefore(window.hmHero.cv,hh.firstChild);window.hmHero.fit()}}catch(e){}
  el.scrollTop=keep;clock()}
 function clock(){var c=$('#clk');if(!c)return;var d=new Date(),f=function(n){return (n<10?'0':'')+n};c.textContent=f(d.getHours())+':'+f(d.getMinutes())+':'+f(d.getSeconds())}
 $('#day').addEventListener('click',function(e){
