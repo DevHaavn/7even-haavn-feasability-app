@@ -12,15 +12,16 @@ function make(env = process.env, fetchImpl = fetch) {
     const j = await r.json(); tok = { v: j.access_token, exp: Date.now() + (Number(j.expires_in) || 3000) * 1000 }
     return tok.v
   }
-  async function send({ to, subject, html, replyTo, replyName, bcc }) {
+  async function send({ to, subject, html, replyTo, replyName, bcc, from: sendFrom }) {
     if (!ok) { const e = new Error('Email is not set up yet.'); e.code = 'notset'; throw e }
     const t = await token()
     const addr = (a) => ({ emailAddress: { address: a } })
     const message = { subject: String(subject).slice(0, 250), body: { contentType: 'HTML', content: html }, toRecipients: to.map(addr),
       ...(replyTo ? { replyTo: [{ emailAddress: { address: replyTo, name: replyName || undefined } }] } : {}), ...(bcc ? { bccRecipients: [addr(bcc)] } : {}) }
-    const r = await fetchImpl(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(from)}/sendMail`, { method: 'POST', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ message, saveToSentItems: true }) })
-    if (r.status !== 202) throw new Error(r.status === 403 ? `Email refused: the ATRIUM app needs Mail.Send, and ${from} must be a real mailbox.` : `Email failed (${r.status}).`)
-    return { ok: true, from }
+    const sender = sendFrom || from   // a caller may send as another real mailbox (the sales pre-order email goes out as sales@haavn.au)
+    const r = await fetchImpl(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(sender)}/sendMail`, { method: 'POST', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ message, saveToSentItems: true }) })
+    if (r.status !== 202) throw new Error(r.status === 403 ? `Email refused: the ATRIUM app needs Mail.Send, and ${sender} must be a real mailbox.` : `Email failed (${r.status}).`)
+    return { ok: true, from: sender }
   }
   return { configured: ok, from, send }
 }

@@ -4,6 +4,7 @@
 const A = require('./atriumAuth')
 const B = require('./blaze')
 const O = require('./outside')
+const PREORDER = require('./preorderEmail')
 
 class SalesError extends Error { constructor(m, status = 400) { super(m); this.status = status } }
 
@@ -17,6 +18,7 @@ const STAGE_NAMES = ['Enquiry', 'Contacted', 'Qualified', 'Pre-order deposit', '
 const LAST_STAGE = STAGE_NAMES.length - 1
 const INTERNAL_ROLES = ['admin', 'staff', 'blacksales']
 const PROJECTS_MAIL = 'projects@haavn.au'
+const SALES_FROM = 'sales@haavn.au'   // the pre-order email goes out as this mailbox
 const CHANNEL_KEY = 'hbsales'
 const CONTRACT_KEY = 'hbcontract'
 
@@ -46,6 +48,7 @@ const DEFAULTS = {
   agentKeep: true,
   prices: { studio: 145000, plus: 185000, max: 215000 },
   preorder: 2000,
+  payLink: 'https://buy.stripe.com/3cIaEYdty4Nh9uM0qu1oI00',   // the Stripe page where the customer pays the pre-order deposit. The pre-order email's button opens it.
   approvers: { con: ['ar'], fin: ['ab', 'dm'] },
   spend: { Facebook: 0, Instagram: 0, LinkedIn: 0, 'Google search': 0, Other: 0 },
   spendFrom: '2026-11-01',
@@ -154,8 +157,8 @@ async function whoAmI(session, db) {
 const canSee = (w, lead) => w.kind === 'internal' || lead.owner === w.id || (w.manager && !!lead.companyId && lead.companyId === w.companyId)
 
 // ---------- a lead, as the screen sees it ----------
-const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked']
-const SERVER_KEYS = ['cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
+const DATA_KEYS = ['first', 'last', 'email', 'mobile', 'setting', 'product', 'clad', 'pal', 'join', 'pay', 'deliv', 'msg', 'otherSource', 'utm', 'eng', 'cstage', 'lostWhy', 'chk', 'order', 'act', 'dates', 'maxStage', 'lastTouch', 'wfTaskId', 'adminTasks', 'site', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'chased', 'srcMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'qual', 'asked', 'preMail']
+const SERVER_KEYS = ['preMail', 'cpaid', 'chold', 'cnotes', 'clog', 'cfix', 'srcMail', 'act', 'wfTaskId', 'adminTasks', 'gate', 'paid', 'gateAt', 'appr', 'ret', 'asked']   // a screen can never write these: only the rules below do
 function leadOut(row) {
   const { srcMail, cpaid, chold, cnotes, clog, cfix, ...d } = row.data || {}   // saved emails and commission never reach a screen with the customer
   const stage = row.stage || 0
@@ -747,7 +750,8 @@ async function run(action, a, session, deps) {
       const preorder = s.preorder !== undefined ? (num(s.preorder) || cur.preorder) : cur.preorder
       const inboxKeep = s.inboxKeep !== undefined && [0, 7, 14, 30, 60].includes(Number(s.inboxKeep)) ? Number(s.inboxKeep) : cur.inboxKeep
       const spendFrom = /^\d{4}-\d{2}-\d{2}$/.test(String(s.spendFrom || '')) ? String(s.spendFrom) : cur.spendFrom
-      const next = { pricesV: PRICES_V, commission: cur.commission, inboxKeep, spendFrom, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
+      const payLink = s.payLink !== undefined ? (/^https:\/\/[^\s]{4,290}$/.test(String(s.payLink).trim()) ? String(s.payLink).trim() : cur.payLink) : cur.payLink
+      const next = { pricesV: PRICES_V, commission: cur.commission, inboxKeep, spendFrom, payLink, rules, agentKeep: s.agentKeep !== undefined ? !!s.agentKeep : cur.agentKeep, prices, preorder, approvers, spend, notify, team: cur.team, contractTeam }
       await db.settings.set('sales', next)
       return { settings: next }
     }
@@ -784,6 +788,36 @@ async function run(action, a, session, deps) {
       const row = await db.leads.get(a.id)
       if (!row) throw new SalesError('No such customer.', 404)
       return { mail: (row.data && Array.isArray(row.data.srcMail)) ? row.data.srcMail : [] }
+    }
+    case 'preorderEmail': {
+      // The pre-order email, from sales@haavn.au, with the customer's home and finishes filled in and the Stripe payment link on the button.
+      // mode: 'preview' (nothing sent), 'test' (sent to the person asking), 'send' (sent to the customer, noted on the lead, copy to the agent).
+      const row = await db.leads.get(a.id)
+      if (!row) throw new SalesError('No such lead.', 404)
+      const l = leadOut(row)
+      if (!canSee(w, l)) throw new SalesError('That lead is not yours.', 403)
+      const mode = ['preview', 'test', 'send'].includes(a.mode) ? a.mode : 'preview'
+      const settings = await getSettings(db)
+      const mail = deps.mail
+      const built = PREORDER.build(l, settings, { base: deps.base })
+      if (!built.ok) throw new SalesError(built.why, 409)
+      const from = process.env.SALES_SEND_FROM || SALES_FROM
+      const me0 = (w.emails || [])[0]
+      const meta = { subject: built.subject, from, to: l.email || '', fields: built.fields, missing: built.missing, sent: l.preMail || null, configured: !!(mail && mail.configured) }
+      if (mode === 'preview') return { ...meta, html: built.html }
+      if (!mail || !mail.configured) throw new SalesError('Email is not set up yet.', 503)
+      if (mode === 'test') {
+        if (!isMail(me0)) throw new SalesError('Your sign-in has no email address to send the test to.')
+        try { await mail.send({ from, to: [me0], subject: '[TEST] ' + built.subject, html: built.html }) } catch (e) { throw new SalesError(String((e && e.message) || e).slice(0, 160), 502) }
+        return { ok: true, sentTo: me0 }
+      }
+      if (!isMail(l.email)) throw new SalesError('This customer has no email address.')
+      try { await mail.send({ from, to: [l.email], subject: built.subject, html: built.html, replyTo: isMail(me0) ? me0 : from, replyName: isMail(me0) ? w.name : undefined, bcc: isMail(me0) ? me0 : undefined }) } catch (e) { throw new SalesError(String((e && e.message) || e).slice(0, 160), 502) }
+      const at = Date.now()
+      const note = { t: at, x: `${l.preMail ? 'Pre-order email sent again' : 'Pre-order email sent'} to ${l.email} from ${from} by ${w.name}, with the ${money(settings.preorder)} payment link. ${built.fields.model}, ${built.fields.exterior} exterior, ${built.fields.interior} interior, ${built.fields.joinery} joinery.`, k: 'note' }
+      const next = { ...l, preMail: { at, by: w.name, to: l.email, n: ((l.preMail && l.preMail.n) || 0) + 1 }, act: mergeAct(l.act, [note]), lastTouch: at }
+      const saved = await db.leads.upsert(leadRow(next, row))
+      return { ok: true, lead: leadOut(saved) }
     }
     case 'emailCustomer': case 'handover': {
       const row = await db.leads.get(a.id)

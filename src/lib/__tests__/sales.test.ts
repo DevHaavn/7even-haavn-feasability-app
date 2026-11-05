@@ -651,3 +651,65 @@ describe('commission: half when the 10% deposit is confirmed, half on delivery',
     expect((await comm()).earners.map((e: any) => e.id)).toEqual(expect.arrayContaining(['jb', 'mf', ag.id]))
   })
 })
+
+describe('the pre-order email', () => {
+  const STRIPE = 'https://buy.stripe.com/3cIaEYdty4Nh9uM0qu1oI00'
+  it('fills the customer\'s home and finishes, and puts the Stripe link on the button', async () => {
+    const l = await mkLead()   // SOLUM Plus, Char, Sage, Raw Walnut, Coast, Queensland
+    const r = await run('preorderEmail', { id: l.id, mode: 'preview' })
+    expect(r.subject).toBe('Your SOLUM Plus, next steps | HAAVN BLACK')
+    expect(r.from).toBe('sales@haavn.au')
+    expect(r.fields).toMatchObject({ model: 'SOLUM Plus', exterior: 'Char', interior: 'Sage', joinery: 'Raw Walnut', setting: 'Coast, Queensland', price: '$185,000', port: 'the Port of Brisbane' })
+    expect(r.html).toContain('href="' + STRIPE + '?prefilled_email=mia.brennan%40example.com&amp;client_reference_id=' + l.id.replace(/[^A-Za-z0-9_-]/g, '') + '"')
+    expect(r.html).toContain('bgcolor="#b3aca6"'); expect(r.html).toContain('bgcolor="#96b483"'); expect(r.html).toContain('bgcolor="#d6b48c"')
+    expect(r.html).toContain('Hello Mia,')
+    expect(r.html).not.toMatch(/{{|mailto:reception|data:image/)
+    expect(r.html).toContain('sales@haavn.au')
+    expect(F.sent.length).toBe(0)   // a preview sends nothing
+  })
+  it('shows "To be chosen" for a finish they have not picked, and says so', async () => {
+    const l = await mkLead()
+    await run('saveLead', { lead: { id: l.id, clad: '', join: '' } })
+    const r = await run('preorderEmail', { id: l.id, mode: 'preview' })
+    expect(r.missing).toEqual(['exterior', 'joinery']); expect(r.html).toContain('To be chosen')
+  })
+  it('will not build for OCTA or a customer with no home, or with a bad payment link', async () => {
+    const l = await mkLead()
+    await run('saveLead', { lead: { id: l.id, product: 'none' } })
+    await expect(run('preorderEmail', { id: l.id, mode: 'preview' })).rejects.toThrow(/Choose their SOLUM/)
+    await run('saveLead', { lead: { id: l.id, product: 'plus' } })
+    await run('settingsSave', { settings: { payLink: 'http://nope.example.com/x' } })
+    expect((await run('preorderEmail', { id: l.id, mode: 'preview' })).html).toContain(STRIPE)   // a link that is not https is ignored, the saved one stays
+    await run('settingsSave', { settings: { payLink: 'https://buy.stripe.com/test_other' } })
+    expect((await run('preorderEmail', { id: l.id, mode: 'preview' })).html).toContain('https://buy.stripe.com/test_other')
+  })
+  it('sends from sales@haavn.au to the customer, copies the agent, and writes it on the customer', async () => {
+    const l = await mkLead()
+    const r = await run('preorderEmail', { id: l.id, mode: 'send' })
+    expect(F.sent.length).toBe(1)
+    expect(F.sent[0]).toMatchObject({ from: 'sales@haavn.au', to: ['mia.brennan@example.com'], bcc: 'jamie@7even.au', replyTo: 'jamie@7even.au', subject: 'Your SOLUM Plus, next steps | HAAVN BLACK' })
+    expect(r.lead.preMail).toMatchObject({ by: 'Jamie Baldwin', to: 'mia.brennan@example.com', n: 1 })
+    expect(r.lead.act.some((e: any) => /^Pre-order email sent to mia\.brennan@example\.com from sales@haavn\.au by Jamie Baldwin/.test(e.x))).toBe(true)
+    await run('preorderEmail', { id: l.id, mode: 'send' })
+    expect((await get(l.id)).preMail.n).toBe(2)
+  })
+  it('a test goes only to the person asking, and is not written on the customer', async () => {
+    const l = await mkLead()
+    const r = await run('preorderEmail', { id: l.id, mode: 'test' })
+    expect(r.sentTo).toBe('jamie@7even.au')
+    expect(F.sent[0]).toMatchObject({ to: ['jamie@7even.au'], subject: '[TEST] Your SOLUM Plus, next steps | HAAVN BLACK' })
+    expect((await get(l.id)).preMail).toBeUndefined()
+  })
+  it('a screen cannot write the sent record, and mail that fails leaves nothing written', async () => {
+    const l = await mkLead()
+    const r = await run('saveLead', { lead: { id: l.id, preMail: { at: 1, by: 'x', to: 'y', n: 9 } } })
+    expect(r.lead.preMail).toBeUndefined()
+    F.mail.fail = true
+    await expect(run('preorderEmail', { id: l.id, mode: 'send' })).rejects.toThrow(/Email refused/)
+    expect((await get(l.id)).preMail).toBeUndefined()
+  })
+  it('only the person whose customer it is can send it', async () => {
+    const l = await mkLead()
+    await expect(S.run('preorderEmail', { id: l.id, mode: 'send' }, agentSession('x@y.com'), F.deps)).rejects.toThrow()
+  })
+})
