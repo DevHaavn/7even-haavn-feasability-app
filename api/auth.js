@@ -7,6 +7,7 @@
 const A = require('./_utils/atriumAuth')
 const O = require('./_utils/outside')
 const B = require('./_utils/blaze')
+const CT = require('./_utils/calToken')
 
 const origin = (req) => `https://${req.headers['x-forwarded-host'] || req.headers.host}`
 const page = (res, status, title, body) => {
@@ -62,9 +63,10 @@ module.exports = async (req, res) => {
   if (action === 'login') {
     const { verifier, challenge } = A.pkce()
     const state = require('crypto').randomBytes(16).toString('base64url'), nonce = require('crypto').randomBytes(16).toString('base64url')
-    const flow = A.sign({ v: 1, state, nonce, verifier, ret: A.safeReturn(req.query.return), exp: Math.floor(Date.now() / 1000) + 600 }, env)
+    const cal = String(req.query.cal || '') === '1'
+    const flow = A.sign({ v: 1, state, nonce, verifier, cal, ret: A.safeReturn(req.query.return), exp: Math.floor(Date.now() / 1000) + 600 }, env)
     res.setHeader('Set-Cookie', A.cookie(A.FLOW_COOKIE, flow, 600))
-    res.redirect(302, A.authorizeUrl({ clientId, redirectUri: origin(req) + '/api/auth/callback', state, nonce, challenge, hint: req.query.hint }))
+    res.redirect(302, A.authorizeUrl({ clientId, redirectUri: origin(req) + '/api/auth/callback', state, nonce, challenge, hint: req.query.hint, cal }))
     return
   }
 
@@ -85,13 +87,20 @@ module.exports = async (req, res) => {
           ? 'Microsoft does not accept the app secret saved in Vercel (' + (codes ? codes[0] : 'invalid_client') + '). The secret must be the Value of a current client secret, not its Secret ID, and it must not have expired. Make a new secret in Entra and save its Value as MS_AUTH_CLIENT_SECRET.'
           : 'Microsoft refused the sign-in (' + tr.status + (j.error ? ', ' + j.error : '') + (codes ? ', ' + codes[0] : '') + ')')
       }
-      const { id_token } = await tr.json()
+      const tj = await tr.json(), { id_token } = tj
       const who = A.readIdToken(id_token, { clientId, nonce: flow.nonce })
       let okv = null; try { okv = B.kv(env) } catch { /* no service key: the roster in code only */ }
       await O.sync(okv, true)
       const person = A.personByEmail(who.email, await linked(env), env)
       if (!person) { page(res, 403, 'This account is not on the ATRIUM team list', `${who.email} is not on the list yet. Ask Jamie to add it, then sign in again.`); return }
       res.setHeader('Set-Cookie', [A.cookie(A.FLOW_COOKIE, '', 0), A.cookie(A.COOKIE, A.newSession(person, who.email, env), A.SESSION_DAYS * 86400)])
+      if (flow.cal) {
+        // connecting their own diary: Microsoft must have handed over a long-lived token for the calendar permission, and it is kept sealed for this person only
+        const granted = /calendars\.readwrite/i.test(String(tj.scope || ''))
+        if (!tj.refresh_token || !granted) { page(res, 400, 'ATRIUM did not get your diary', 'Microsoft signed you in but did not give ATRIUM permission to read and write your calendar. Try Connect again and press Accept on the permission screen. If your company blocks it, an admin of that company has to allow the ATRIUM sign-in app.'); return }
+        if (!okv) { page(res, 503, 'Your diary could not be saved', 'ATRIUM has no place to keep the connection yet (the service key is missing).'); return }
+        await CT.save(okv, person.id, { rt: tj.refresh_token, acct: who.email, tid: who.tid, at: Date.now() }, env)
+      }
       res.redirect(302, flow.ret || '/')
     } catch (e) {
       page(res, 502, 'Sign in did not finish', String((e && e.message) || e).slice(0, 200))

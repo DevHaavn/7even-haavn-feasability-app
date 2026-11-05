@@ -1328,3 +1328,38 @@ describe('find a time: free or busy only', () => {
     await expect(run('findTime', { gid, from: MON })).rejects.toThrow(/calendar is not connected/)
   })
 })
+
+describe('my calendar with their other Outlook connected', () => {
+  const mine = (events: any[], extra: any = {}) => ({ configured: true, async eventsFor() { return { connected: true, account: 'jamie@7even.au', events } }, async status() { return { connected: true, account: 'jamie@7even.au' } }, async forget() {}, ...extra })
+  const e = (id: string, subject: string, start: string, end: string, extra: any = {}) => ({ id, subject, allDay: false, start, end, location: '', joinUrl: '', ...extra })
+  it('shows both diaries in one list, once each, with the copies kept in the other Outlook left out', async () => {
+    F.cal.missing.add('jamie@7even.au')   // ATRIUM reads jamie@haavn.au: its one event is Weekly meeting 09:30 on 28 Oct
+    ;(F.deps as any).calConn = mine([e('x1', 'Board catch up', '2026-10-28T09:15:00', '2026-10-28T10:00:00'), e('x2', 'weekly MEETING', '2026-10-28T09:30:00', '2026-10-28T10:30:00', { joinUrl: 'https://teams.example/j2' }), e('x3', 'HAAVN weekly', '2026-10-28T11:00:00', '2026-10-28T11:30:00', { categories: ['HAAVN diary'] })])
+    const r = await run('myCalendar', { days: 14 })
+    expect(r.events.map((x: any) => x.subject)).toEqual(['Board catch up', 'Weekly meeting'])   // earliest first; the same meeting once; the copy not shown
+    expect(r.mailbox).toBe('jamie@haavn.au and jamie@7even.au'); expect(r.connectedAccount).toBe('jamie@7even.au')
+  })
+  it('still works when only the other Outlook answers, and still says plainly when neither does', async () => {
+    F.cal.forbid = true
+    ;(F.deps as any).calConn = mine([e('x1', 'Board catch up', '2026-10-28T09:15:00', '2026-10-28T10:00:00')])
+    expect((await run('myCalendar', {})).events.map((x: any) => x.subject)).toEqual(['Board catch up'])
+    ;(F.deps as any).calConn = { configured: true, async eventsFor() { return { connected: false } } }
+    await expect(run('myCalendar', {})).rejects.toThrow(/not allowed to use your calendar/)
+  })
+  it('a failure in the extra connection never costs them the diary they already had', async () => {
+    ;(F.deps as any).calConn = { configured: true, async eventsFor() { throw new Error('Outlook answered 500') } }
+    expect((await run('myCalendar', {})).events[0].subject).toBe('Weekly meeting')
+  })
+  it('offers the connection only to someone with an address outside haavn.au, and never to an outside person', async () => {
+    ;(F.deps as any).calConn = { configured: true, async status() { return { connected: false } } }
+    expect(await run('calStatus', {})).toMatchObject({ available: true, connected: false, hint: 'jamie@7even.au' })
+    expect((await run('calStatus', {}, me('mf', 'Mike Furniss'))).hint).toBe('')   // haavn.au only: ATRIUM already reads that mailbox
+    await expect(C.run('calStatus', { v: 2 }, { sub: 'o_x', name: 'X', role: 'external', emails: ['x@y.com'] }, F.deps)).rejects.toThrow()
+  })
+  it('disconnecting forgets the connection and takes ATRIUM\'s copies out of the other Outlook', async () => {
+    let forgot = ''
+    ;(F.deps as any).calConn = { configured: true, calls: [] as string[], async status() { return { connected: true } }, async call(_p: string, _k: any, m: string) { (this as any).calls.push(m); return { ok: true, status: 204, json: {} } }, async forget(p: string) { forgot = p } }
+    const r = await run('calDisconnect', {})
+    expect(r.ok).toBe(true); expect(forgot).toBe('jb')
+  })
+})

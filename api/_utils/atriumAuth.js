@@ -95,8 +95,10 @@ const pkce = () => {
   const verifier = crypto.randomBytes(32).toString('base64url')
   return { verifier, challenge: crypto.createHash('sha256').update(verifier).digest('base64url') }
 }
-function authorizeUrl({ clientId, redirectUri, state, nonce, challenge, hint }) {
-  const q = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri, response_mode: 'query', scope: 'openid profile email',
+// Sign-in alone asks for who you are. Connecting your own diary (cal) also asks to read and write your calendar and to stay connected, which Microsoft shows as a permission screen.
+const CAL_SCOPE = 'openid profile email offline_access https://graph.microsoft.com/Calendars.ReadWrite'
+function authorizeUrl({ clientId, redirectUri, state, nonce, challenge, hint, cal }) {
+  const q = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri, response_mode: 'query', scope: cal ? CAL_SCOPE : 'openid profile email',
     state, nonce, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account' })
   if (hint) q.set('login_hint', hint)
   return 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?' + q
@@ -121,4 +123,4 @@ function readIdToken(idToken, { clientId, nonce }, nowSec = Math.floor(Date.now(
 // Only same-site paths, so a sign-in link cannot be used to send someone elsewhere.
 const safeReturn = (r) => (typeof r === 'string' && /^\/(?!\/)[\w\-./?=&#%]*$/.test(r) ? r : '/')
 
-module.exports = { COOKIE, FLOW_COOKIE, SESSION_DAYS, PEOPLE, personByEmail, sign, verify, newSession, parseCookies, cookie, sessionFrom, pkce, authorizeUrl, readIdToken, safeReturn, norm }
+module.exports = { COOKIE, FLOW_COOKIE, SESSION_DAYS, PEOPLE, personByEmail, sign, verify, newSession, parseCookies, cookie, sessionFrom, pkce, authorizeUrl, CAL_SCOPE, readIdToken, safeReturn, norm }

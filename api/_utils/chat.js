@@ -5,6 +5,8 @@ const B = require('./blaze')
 const N = require('./notes')
 const P = require('./chatPush')
 const O = require('./outside')
+const CT = require('./calToken')
+const CM = require('./calMirror')
 
 const BUCKET = 'chat-files'
 const MAX_BODY = 8000, MAX_NAME = 80, MAX_FILES = 8, MAX_FILE_BYTES = 50 * 1024 * 1024
@@ -430,10 +432,44 @@ async function onMyMailbox(me, cal, fn) {
   if (last && last.status === 403) throw new ChatError('ATRIUM is not allowed to use your calendar yet. An admin needs to grant it calendar access.', 502)
   throw new ChatError('Your Outlook calendar could not be found. Ask an admin to check your mailbox.', 502)
 }
-async function myCalendar(me, a, cal) {
+// Two diaries, one list: the haavn.au mailbox ATRIUM reads for everyone, plus the person's OWN diary if they have connected it (their other company's Outlook, read
+// with their own permission). The same meeting in both shows once. The "HAAVN diary" copies kept in the other Outlook are left out, because the original is already here.
+async function myCalendar(me, a, cal, kv, del) {
   const days = Math.min(60, Math.max(1, Math.round(Number(a.days) || 14)))
   const from = new Date(Date.now() - 12 * 3600e3).toISOString(), to = new Date(Date.now() + days * 86400e3).toISOString()
-  return onMyMailbox(me, cal, async (mb) => ({ events: await cal.listFor(mb, from, to) }))
+  let events = [], mailbox = '', appErr = null
+  try { const r = await onMyMailbox(me, cal, async (mb) => ({ events: await cal.listFor(mb, from, to) })); events = r.events; mailbox = r.mailbox } catch (e) { appErr = e }
+  let mine = { connected: false }
+  try { if (del && del.configured && kv) mine = await del.eventsFor(me.sub, kv, from, to) } catch { /* the connection is an extra: never a reason to lose the rest */ }
+  if (appErr && !mine.connected) throw appErr
+  const seen = new Map(), merged = []
+  for (const e of [...events, ...((mine.events || []).filter((x) => !(x.categories || []).includes(CM.TAG)))]) {
+    const k = [String(e.subject || '').trim().toLowerCase(), e.start, e.end].join('|'), had = seen.get(k)
+    if (had) { if (!had.joinUrl && e.joinUrl) { had.joinUrl = e.joinUrl; had.webLink = had.webLink || e.webLink } continue }
+    seen.set(k, e); merged.push(e)
+  }
+  merged.sort((x, y) => String(x.start).localeCompare(String(y.start)))
+  return { events: merged, mailbox: [...new Set([mailbox, mine.connected ? mine.account : ''].filter(Boolean))].join(' and '), connectedAccount: mine.connected ? mine.account : '', reconnect: !!mine.reconnect }
+}
+// Where this person stands with the other-Outlook connection, and whether to offer it: only to people who have an address outside haavn.au (that mailbox ATRIUM cannot reach itself).
+async function calStatus(me, kv, del) {
+  const own = [...new Set([...(person(me.sub).e || []), ...((me && me.emails) || [])].map((x) => String(x).trim().toLowerCase()).filter(goodMail))]
+  const hint = me.role === 'external' ? '' : own.find((x) => !x.endsWith('@haavn.au')) || ''
+  const st = del && del.configured && kv ? await del.status(me.sub, kv).catch(() => ({ connected: false })) : { connected: false }
+  return { available: !!(del && del.configured), connected: !!st.connected, account: st.account || '', hint }
+}
+async function calSync(me, cal, kv, del) {
+  if (!del || !del.configured || !kv) throw new ChatError('The diary connection is not set up yet.', 503)
+  const r = await CM.syncPerson({ person: { id: me.sub, emails: [...new Set([...(person(me.sub).e || []), ...((me && me.emails) || [])])] }, kv, cal, del })
+  if (r.reconnect) throw new ChatError('Microsoft has ended the connection to your diary. Connect it again.', 409)
+  return r
+}
+async function calDisconnect(me, kv, del) {
+  if (!del || !kv) throw new ChatError('The diary connection is not set up yet.', 503)
+  let removed = 0
+  try { removed = (await CM.clearPerson({ person: { id: me.sub }, kv, del })).removed } catch { /* still disconnect */ }
+  await del.forget(me.sub, kv)
+  return { ok: true, removed }
 }
 async function createCalEvent(me, a, cal, site) {
   const title = String(a.title || '').replace(/\s+/g, ' ').trim().slice(0, 200)
@@ -1364,7 +1400,7 @@ async function pushTest(store, me, a, wp) {
 
 // the one entry point the handler calls
 // What an outside person (role external) may not do: anything that reaches past the chats they are in.
-const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'taskNudge', 'projectRoom', 'projectLinks', 'projectLinkSet', 'findTime', 'meetingRoom', 'meetingItemAdd', 'meetingItemEdit', 'meetingItemRemove', 'endMeeting', 'outsideList', 'outsideAdd', 'outsideRemove'])
+const EXTERNAL_BLOCKED = new Set(['createMeeting', 'inviteMeeting', 'meetingChat', 'chatMeetings', 'noteOptions', 'noteTask', 'noteToMeeting', 'noteEmail', 'myCalendar', 'calStatus', 'calSync', 'calDisconnect', 'createCalEvent', 'addToMeeting', 'postMinutes', 'addTeamToGroup', 'groupForProject', 'taskAdd', 'taskNudge', 'projectRoom', 'projectLinks', 'projectLinkSet', 'findTime', 'meetingRoom', 'meetingItemAdd', 'meetingItemEdit', 'meetingItemRemove', 'endMeeting', 'outsideList', 'outsideAdd', 'outsideRemove'])
 // The people an outside person already shares a chat with: the only people they can add to a new chat.
 async function knownTo(store, me) {
   const mine = (await store.memberRowsFor(me.sub)).map((r) => r.group_id)
@@ -1374,6 +1410,7 @@ async function knownTo(store, me) {
 
 async function run(action, a, me, deps) {
   const { store, files, kv, wp, cal, speech, site, mail, engine } = deps
+  const calConn = deps.calConn || CT.make()
   await O.sync(kv)
   // someone taken off the outside list stops working at once, even with a signed session still in hand
   if (String(me.sub).startsWith('o_') && !byId(me.sub)) throw new ChatError('signin', 401)
@@ -1410,7 +1447,10 @@ async function run(action, a, me, deps) {
     case 'noteTask': return N.makeTask(store, kv, me, a)
     case 'noteToMeeting': return N.toMeeting(store, kv, me, a)
     case 'noteToChat': { const { n } = await N.note(store, kv, me, a.id); if (!n.body.trim()) throw new ChatError('There is nothing in this note yet.'); return send(store, kv, me, { gid: a.gid, body: `Notes: ${n.title || 'Untitled'}\n\n${n.body}` }, wp) }
-    case 'myCalendar': return myCalendar(me, a, cal)
+    case 'myCalendar': return myCalendar(me, a, cal, kv, calConn)
+    case 'calStatus': return calStatus(me, kv, calConn)
+    case 'calSync': return calSync(me, cal, kv, calConn)
+    case 'calDisconnect': return calDisconnect(me, kv, calConn)
     case 'speechToken': return speechToken(speech)
     case 'speechCheck': return speech && speech.check ? speech.check() : { configured: false }
     case 'createCalEvent': return createCalEvent(me, a, cal, site)

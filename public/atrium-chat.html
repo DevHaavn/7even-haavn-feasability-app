@@ -755,7 +755,7 @@ svg.A path{fill:none;stroke:currentColor;stroke-linejoin:miter;stroke-linecap:bu
 .seg2{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);margin:0 0 14px}
 .seg2 button{flex:1;min-height:38px;border-radius:999px;font:400 14px Inter;color:var(--soft)}
 .seg2 button.on{background:rgba(255,255,255,.22);color:#fff}
-.calh{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.calh .tx{flex:1;min-width:0}.calh b{display:block;font-weight:400;font-size:16px}.calh .s{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calh{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.calconn{display:flex;flex-direction:column;gap:10px;margin:2px 0 10px;padding:12px 14px;border:1px dashed var(--edge,rgba(255,255,255,.3));border-radius:6px;font-size:12.5px;line-height:1.5;opacity:.95}.calconn b{font-weight:500}.calconn .ca{display:flex;gap:8px;flex-wrap:wrap}.calconn .cb{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.calconn.ok{border-style:solid;opacity:.8}.calh .tx{flex:1;min-width:0}.calh b{display:block;font-weight:400;font-size:16px}.calh .s{display:block;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .calref.spin svg{animation:calspin .9s linear infinite}
 @keyframes calspin{to{transform:rotate(360deg)}}
 .cday{font:400 12.5px Inter,system-ui,sans-serif;color:var(--faint);margin:20px 2px 4px}
@@ -2141,6 +2141,8 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-cal]'); i
   if(a==='open'){ listMode='cal'; renderList() }
   else if(a==='chats'){ listMode='chats'; renderList() }
   else if(a==='ref'){ b.classList.add('spin'); loadCal(true) }
+  else if(a==='sync'){ b.disabled=true; api('calSync').then(r=>{ flash('Your haavn.au diary is up to date in '+(r.account||'your other Outlook')+(r.created||r.updated||r.removed?': '+[r.created?r.created+' added':'',r.updated?r.updated+' changed':'',r.removed?r.removed+' removed':''].filter(Boolean).join(', '):'.')); loadCal(true) }).catch(e=>{ flash(e.message||'That did not work.'); b.disabled=false }) }
+  else if(a==='disc'){ if(!confirm('Disconnect your other Outlook? ATRIUM will stop showing it, and will take its copies of your haavn.au diary out of it.')) return; b.disabled=true; api('calDisconnect').then(()=>{ CAL.st=null; flash('Disconnected.'); loadCal(true) }).catch(e=>{ flash(e.message||'That did not work.'); b.disabled=false }) }
   else if(a==='new') openCalSheet()
   else if(a==='retry'){ CAL.err=''; loadCal(true); redrawCal() } });
 const melNow=()=>{ const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Australia/Melbourne',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{}); return p.year+'-'+p.month+'-'+p.day+'T'+p.hour+':'+p.minute+':00' };
@@ -2157,11 +2159,19 @@ function loadCal(force){
   CAL.loading=true; CAL.err='';
   const done=()=>{ CAL.loading=false; CAL.at=Date.now(); redrawCal() };
   if(!REAL){ setTimeout(()=>{ CAL.events=CAL.events||calSample(); CAL.mailbox='practice'; done() },350); return }
+  api('calStatus').then(st=>{ CAL.st=st; redrawCal() }).catch(()=>{});
   api('myCalendar',{days:14}).then(o=>{ CAL.events=o.events||[]; CAL.mailbox=o.mailbox||''; done() }).catch(e=>{ CAL.err=e.message||'Your calendar could not be loaded.'; done() }) }
+/* the person's OTHER Outlook (the company ATRIUM cannot reach itself): connect it once and it shows here, and their haavn.au diary is copied into it */
+function calConnHtml(){
+  const st=CAL.st; if(!st||!st.available||CAL.mailbox==='practice') return '';
+  if(st.connected) return `<div class="calconn ok"><span><b>${esc(st.account||'Your other Outlook')}</b> is connected. Your haavn.au diary is kept in it as busy blocks, so Outlook shows both.</span><span class="ca"><button type="button" class="cb" data-cal="sync">Sync now</button><button type="button" class="cb" data-cal="disc">Disconnect</button></span></div>`;
+  if(!st.hint) return '';
+  const ret=EMB?'%2F':encodeURIComponent(location.pathname+location.search);
+  return `<div class="calconn"><span><b>Your ${esc(st.hint.split('@')[1])} diary is not showing.</b> Connect it once and it appears here with your haavn.au diary, and your haavn.au meetings are copied into it so you never double-book.</span><span class="ca"><a class="cb go" href="/api/auth/login?return=${ret}&cal=1&hint=${encodeURIComponent(st.hint)}" target="_top">Connect my ${esc(st.hint.split('@')[1])} Outlook</a></span></div>` }
 function calHtml(){
   loadCal(false);
   const now=melNow(), today=now.slice(0,10), tomorrow=dayPlus(today,1);
-  const head=`<div class="calh"><div class="tx"><b>My calendar</b><span class="s">${CAL.mailbox==='practice'?'Practice data. Sign in to see your own Outlook.':CAL.mailbox?'Live from Outlook and Teams · '+esc(CAL.mailbox):'Live from Outlook and Teams'}</span></div><button type="button" class="ib calref" data-cal="ref" aria-label="Refresh my calendar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button></div><button type="button" class="cb go" data-cal="new" style="width:100%;margin:2px 0 6px">New meeting</button>`;
+  const head=`<div class="calh"><div class="tx"><b>My calendar</b><span class="s">${CAL.mailbox==='practice'?'Practice data. Sign in to see your own Outlook.':CAL.mailbox?'Live from Outlook and Teams · '+esc(CAL.mailbox):'Live from Outlook and Teams'}</span></div><button type="button" class="ib calref" data-cal="ref" aria-label="Refresh my calendar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button></div><button type="button" class="cb go" data-cal="new" style="width:100%;margin:2px 0 6px">New meeting</button>`+calConnHtml();
   if(CAL.err) return head+`<div class="empty">${esc(CAL.err)}</div><button type="button" class="cb" data-cal="retry">Try again</button>`;
   if(!CAL.events) return head+'<div class="empty">Loading your calendar…</div>';
   const evs=CAL.events.filter(e=>(e.start||'').slice(0,10)>=today&&(e.start||'').slice(0,10)<=dayPlus(today,14)).sort((a,b)=>String(a.start).localeCompare(String(b.start)));

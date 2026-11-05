@@ -30,6 +30,10 @@
     {
       "path": "/api/sales-mail",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cal-sync",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

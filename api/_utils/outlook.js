@@ -26,6 +26,17 @@ function eventFor(meeting, opts = {}) {
   }
 }
 
+// Graph calendar events, flattened to what the Meetings tab and the Today card show. Shared by the shared-mailbox read above and the signed-in person's own diary (api/_utils/calToken.js).
+function shapeEvents(value) {
+  return (value || []).filter((e) => !e.isCancelled).map((e) => ({
+    id: e.id, subject: e.subject || '(no subject)', allDay: !!e.isAllDay,
+    start: String((e.start && e.start.dateTime) || '').slice(0, 19), end: String((e.end && e.end.dateTime) || '').slice(0, 19),
+    location: (e.location && e.location.displayName) || (e.onlineMeeting ? 'Teams' : ''),
+    joinUrl: (e.onlineMeeting && e.onlineMeeting.joinUrl) || '', webLink: e.webLink || '',
+    organizer: (e.organizer && e.organizer.emailAddress && (e.organizer.emailAddress.name || e.organizer.emailAddress.address)) || '',
+    people: (e.attendees || []).length, showAs: e.showAs || '', sensitivity: e.sensitivity || '', categories: e.categories || [],
+  }))
+}
 function make(env = process.env, fetchImpl = fetch) {
   const ok = !!(env.MS_TENANT_ID && env.MS_CLIENT_ID && env.MS_CLIENT_SECRET)
   const organizer = env.MEETING_ORGANIZER || 'boardroom@haavn.au'
@@ -59,18 +70,11 @@ function make(env = process.env, fetchImpl = fetch) {
     if (!ok) { const e = new Error('Outlook is not set up yet.'); e.code = 'notset'; throw e }
     const t = await token()
     const url = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(mailbox)}/calendarView?startDateTime=${encodeURIComponent(fromISO)}&endDateTime=${encodeURIComponent(toISO)}`
-      + '&$orderby=start/dateTime&$top=100&$select=id,subject,start,end,isAllDay,isCancelled,location,onlineMeeting,attendees,organizer,webLink'
+      + '&$orderby=start/dateTime&$top=100&$select=id,subject,start,end,isAllDay,isCancelled,location,onlineMeeting,attendees,organizer,webLink,showAs,sensitivity,categories'
     const r = await fetchImpl(url, { headers: { Authorization: 'Bearer ' + t, Prefer: `outlook.timezone="${TZ}"` } })
     const j = await r.json().catch(() => ({}))
     if (!r.ok) { const e = new Error((j.error && j.error.message) || `Outlook answered ${r.status}`); e.status = r.status; throw e }
-    return (j.value || []).filter((e) => !e.isCancelled).map((e) => ({
-      id: e.id, subject: e.subject || '(no subject)', allDay: !!e.isAllDay,
-      start: String((e.start && e.start.dateTime) || '').slice(0, 19), end: String((e.end && e.end.dateTime) || '').slice(0, 19),
-      location: (e.location && e.location.displayName) || (e.onlineMeeting ? 'Teams' : ''),
-      joinUrl: (e.onlineMeeting && e.onlineMeeting.joinUrl) || '', webLink: e.webLink || '',
-      organizer: (e.organizer && e.organizer.emailAddress && (e.organizer.emailAddress.name || e.organizer.emailAddress.address)) || '',
-      people: (e.attendees || []).length,
-    }))
+    return shapeEvents(j.value)
   }
   // a new event on one person's own calendar, with the invitations Exchange sends to the attendees
   async function createOn(mailbox, meeting, opts = {}) {
@@ -100,4 +104,4 @@ function make(env = process.env, fetchImpl = fetch) {
   }
   return { configured: ok, organizer, upsert, listFor, createOn, schedule }
 }
-module.exports = { make, eventFor, span }
+module.exports = { make, eventFor, span, shapeEvents }
