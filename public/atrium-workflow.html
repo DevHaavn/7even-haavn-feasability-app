@@ -364,7 +364,6 @@ html[data-theme="dark"] body .rail-item.blk.on .n{background:rgba(11,11,13,.12);
     <div class="rail-group g-supply">Pipelines</div>
     <div class="rail-item" data-tab="partners" data-icon="people">Partner CRM<span class="n" id="cPartners">0</span></div>
     <div class="rail-item" data-tab="supply" data-icon="folder">HAAVN pipeline<span class="n" id="cSupply">0</span></div>
-    <div class="rail-item" data-tab="buyers" data-icon="people">Home buyers</div>
     <div class="rail-group g-black">HAAVN BLACK</div>
     <div class="rail-item blk" data-tab="sales" data-icon="pipeline">Sales pipeline<span class="n" id="cBuyers">0</span></div>
     <div class="rail-group g-mgmt mgmt-only">Projects</div>
@@ -747,8 +746,6 @@ function gsBuildResults(q){
     function(p){return {t:p.company||p.contactName||'Untitled partner',m:p.stage||'',tab:'partners',openFn:'openPartnerModal',id:p.id};});
   add('Supply Pipeline',WS.supplyProjects.filter(function(p){return !p.archived && ((p.address||'')+' '+(p.client||'')).toLowerCase().indexOf(q)>=0;}).slice(0,6),
     function(p){return {t:p.address||'Untitled project',m:p.stage||'',tab:'supply',openFn:'openSupplyModal',id:p.id};});
-  add('HAAVN Black · Buyers',WS.buyers.filter(function(b){return ((b.name||'')+' '+(b.email||'')).toLowerCase().indexOf(q)>=0;}).slice(0,6),
-    function(b){return {t:b.name||'Untitled buyer',m:b.stage||'',tab:'buyers',openFn:'openBuyerModal',id:b.id};});
   add('Tasks',WS.actions.filter(function(a){return (a.title||'').toLowerCase().indexOf(q)>=0;}).slice(0,8),
     function(a){return {t:a.title,m:a.owner||'',tab:'actions',openFn:'openActionModal',id:a.id};});
   add('Meetings',(MEET_CACHE.meetings||[]).filter(function(m){return (m.title||'Weekly Company Meeting').toLowerCase().indexOf(q)>=0;}).slice(0,6),
@@ -1758,7 +1755,7 @@ function saveMgmtProject(id,isNew){
 }
 
 /* ===================== Sales pipeline (HAAVN Black) ===================== */
-/* Sales pipeline: the HAAVN BLACK sales app (public/atrium-sales.html, server /api/sales), in the same look, full width. The old buyers list stays under Home buyers. */
+/* Sales pipeline: the HAAVN BLACK sales app (public/atrium-sales.html, server /api/sales), in the same look, full width. */
 function viewSalesApp(){return '<iframe id="salesFrame" title="HAAVN BLACK Sales pipeline" src="/atrium-sales.html?embed=1&v=20261104cq" style="width:100%;height:calc(100vh - 62px);min-height:560px;border:0;display:block;background:transparent"></iframe>';}
 window.addEventListener('message',function(e){var d=e.data&&e.data.hbSales;if(d&&typeof d.open==='number'){window.__hbOpen=d.open;var c=document.getElementById('cBuyers');if(c)c.textContent=d.open;}});
 function viewSales(){
